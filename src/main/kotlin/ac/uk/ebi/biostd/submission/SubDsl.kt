@@ -16,9 +16,15 @@ fun Submission.attribute(name: String, value: String): Attribute {
     return attribute
 }
 
-fun Section.attribute(name: String, value: String, qualifierVal: String? = null, reference: Boolean = false): Attribute {
-    val attribute = Attribute(name = name, value = value, order = attributes.size, qualifierVal = qualifierVal, reference = reference)
-    attributes.add(attribute)
+fun Section.attribute(name: String, value: String, qualifierVal: String? = null, ref: Boolean = false): Attribute {
+    val attribute = Attribute(
+            name = name,
+            value = value,
+            order = attrs.size,
+            qualifierVal = qualifierVal,
+            reference = ref
+    )
+    attrs.add(attribute)
     return attribute
 }
 

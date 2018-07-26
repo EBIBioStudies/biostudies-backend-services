@@ -9,7 +9,7 @@ fun TsvBuilder.addSecType(type: String) {
 }
 
 fun TsvBuilder.addSecLink(link: Link) {
-    with(linkKey, link.url)
+    with(LINK_KEY, link.url)
 }
 
 fun TsvBuilder.addSecLinkAttributes(attributes: List<Attribute>) {
@@ -22,7 +22,7 @@ fun TsvBuilder.addSecAttr(attr: Attribute) {
 }
 
 private fun extractsValues(value: String?): List<Pair<String, String>> {
-    return value?.split(attrValSeparator).orEmpty()
+    return value?.split(ATTR_VAL_SEPARATOR).orEmpty()
             .map { it.split("=") }
             .map { Pair(it.first(), it.second()) }
 }

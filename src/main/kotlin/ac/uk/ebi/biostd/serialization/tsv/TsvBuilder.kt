@@ -1,14 +1,14 @@
 package ac.uk.ebi.biostd.serialization.tsv
 
-internal const val titleKey = "Title"
-internal const val releaseDateKey = "ReleaseDate"
-internal const val accNoKey = "Submission"
-internal const val linkKey = "Link"
-internal const val rootPathKey = "RootPath"
-internal const val linkTableUrlHeader = "Links"
+internal const val TITLE_KEY = "Title"
+internal const val RELEASE_DATE_KEY = "ReleaseDate"
+internal const val ACC_NO_KEY = "Submission"
+internal const val LINK_KEY = "Link"
+internal const val ROOT_PATH_KEY = "RootPath"
+internal const val LINK_TABLE_URL_HEADER = "Links"
 
-internal const val attrValSeparator = ";"
-internal const val tagsSeparator = attrValSeparator
+internal const val ATTR_VAL_SEPARATOR = ";"
+internal const val TAGS_SEPARATOR = ATTR_VAL_SEPARATOR
 
 class TsvBuilder(private val builder: StringBuilder) {
 

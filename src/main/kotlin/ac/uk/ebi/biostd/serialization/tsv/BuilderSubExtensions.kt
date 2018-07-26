@@ -7,19 +7,19 @@ fun TsvBuilder.addSeparator() {
 }
 
 fun TsvBuilder.addSubTitle(title: String) {
-    with(titleKey, title)
+    with(TITLE_KEY, title)
 }
 
 fun TsvBuilder.addRootPath(rootPath: String) {
-    with(rootPathKey, rootPath)
+    with(ROOT_PATH_KEY, rootPath)
 }
 
 fun TsvBuilder.addSubReleaseDate(rTime: Long) {
-    with(releaseDateKey, asIsoDate(rTime))
+    with(RELEASE_DATE_KEY, asIsoDate(rTime))
 }
 
 fun TsvBuilder.addSubAccAndTags(accNo: String, tags: List<String>) {
-    append("$accNoKey\t$accNo\t${tags.joinToString(separator = tagsSeparator)}\n")
+    append("$ACC_NO_KEY\t$accNo\t${tags.joinToString(separator = TAGS_SEPARATOR)}\n")
 }
 
 private fun asIsoDate(seconds: Long): String = Instant.ofEpochSecond(seconds).toString()

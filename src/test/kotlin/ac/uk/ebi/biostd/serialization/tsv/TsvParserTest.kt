@@ -20,10 +20,10 @@ class TsvParserTest {
     }
 
     private fun assertSubmission(tsvString: TsvString, sub: Submission) {
-        assertThat(tsvString[0]).contains(accNoKey, "S-IHECRE00000919.1", "Public")
-        assertThat(tsvString[1]).contains(titleKey, sub.title)
-        assertThat(tsvString[2]).contains(releaseDateKey, "2015-02-20T06:30:00")
-        assertThat(tsvString[3]).contains(rootPathKey, sub.rootPath)
+        assertThat(tsvString[0]).contains(ACC_NO_KEY, "S-IHECRE00000919.1", "Public")
+        assertThat(tsvString[1]).contains(TITLE_KEY, sub.title)
+        assertThat(tsvString[2]).contains(RELEASE_DATE_KEY, "2015-02-20T06:30:00")
+        assertThat(tsvString[3]).contains(ROOT_PATH_KEY, sub.rootPath)
         assertThat(tsvString[4]).contains("DataSource", "BLUEPRINT")
         assertThat(tsvString[5]).contains("AttachTo", "blueprint")
         assertThat(tsvString[6]).isEmptyLine()

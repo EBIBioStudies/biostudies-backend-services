@@ -82,7 +82,7 @@ fun createRNA_Profiling(): Submission {
 
                 attribute("Name", "Bram Boeckx")
                 attribute("Email", "bram.boeckx@vib-kuleuven.be")
-                attribute("<affiliation>", value = "o1", reference = true)
+                attribute("<affiliation>", value = "o1", ref = true)
             }
 
             section {
