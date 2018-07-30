@@ -1,5 +1,10 @@
 package ac.uk.ebi.biostd.submission
 
+import ac.uk.ebi.biostd.common.Left
+import ac.uk.ebi.biostd.common.Right
+import ac.uk.ebi.biostd.common.Table
+import ac.uk.ebi.biostd.serialization.tsv.LINK_TABLE_URL_HEADER
+
 fun submission(block: Submission.() -> Unit): Submission {
     return Submission().apply(block)
 }
@@ -36,17 +41,32 @@ fun Section.section(block: Section.() -> Unit): Section {
 
 fun Section.link(block: Link.() -> Unit): Link {
     val link = Link().apply(block)
-    links.add(link)
+    links.add(Left(link))
     return link
 }
 
 fun Link.attribute(name: String, value: String, qualifierVal: String? = null): Attribute {
-    val attribute = Attribute(name = name, value = value, order = attributes.size, qualifierVal = qualifierVal)
-    attributes.add(attribute)
+    val attribute = Attribute(name = name, value = value, order = attrs.size, qualifierVal = qualifierVal)
+    attrs.add(attribute)
     return attribute
 }
 
-fun Section.table(block: Section.() -> Unit) {
-    this.apply(block)
-    links.mapIndexed { index, link -> link.tableIndex = index }
+fun Section.linksTable(block: Table<Link>.() -> Unit) {
+    val table = Table<Link>(mainHeaderName = LINK_TABLE_URL_HEADER)
+    table.apply(block)
+    this.links.add(Right(table))
 }
+
+fun Table<Link>.link(block: Link.() -> Unit): Link {
+    val link = Link().apply(block)
+    addRow(link)
+    return link
+}
+
+fun Section.sectionsTable(block: Section.() -> Unit) {
+    this.apply(block)
+    sections.mapIndexed { index, sec -> sec.tableIndex = index }
+}
+
+
+

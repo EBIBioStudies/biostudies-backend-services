@@ -1,13 +1,10 @@
 package ac.uk.ebi.biostd.serialization.tsv
 
+import ac.uk.ebi.biostd.common.Table
+import ac.uk.ebi.biostd.common.fold
 import ac.uk.ebi.biostd.submission.Link
-import ac.uk.ebi.biostd.submission.Submission
-import ac.uk.ebi.biostd.submission.NO_TABLE_INDEX
 import ac.uk.ebi.biostd.submission.Section
-import com.google.common.collect.HashBasedTable
-import com.google.common.collect.Table
-
-typealias DataTable = Table<String, String, String>
+import ac.uk.ebi.biostd.submission.Submission
 
 class TsvSerializer {
 
@@ -24,24 +21,23 @@ class TsvSerializer {
         builder.addSecType(section.type)
         section.attrs.forEach(builder::addSecAttr)
 
-        val (linksTable, listLinks) = processLinks(section.links)
-
-        linksTable?.let {
-            builder.addSeparator()
-            builder.addTableHeaders(it.columnKeySet())
-
-            for (attr in it.columnKeySet()) {
-                for (link in it.rowKeySet()) {
-                    builder.addTableValue(it[link, attr])
-                }
-            }
+        section.links.forEach {
+            it.fold(this::addLink, this::addTable)
         }
+    }
 
-        listLinks.forEach {
-            builder.addSeparator()
-            builder.addSecLink(it)
-            builder.addSecLinkAttributes(it.attributes)
-        }
+    private fun addLink(link: Link): Unit {
+        builder.addSeparator()
+        builder.addSecLink(link)
+        builder.addSecLinkAttributes(link.attrs)
+
+    }
+
+    private fun addTable(table: Table<Link>) {
+        builder.addSeparator()
+        builder.addTableRow(table.getHeaders())
+
+        table.getRows().forEach { builder.addTableRow(it.values) }
     }
 
     private fun serializeSubmission(submission: Submission) {
@@ -50,26 +46,5 @@ class TsvSerializer {
         builder.addSubReleaseDate(submission.rTime)
         builder.addRootPath(submission.rootPath)
         submission.attributes.forEach(builder::addSecAttr)
-    }
-
-    private fun processLinks(links: List<Link>): Pair<DataTable?, List<Link>> {
-        val tableLinksMap = links.groupBy { it.tableIndex != NO_TABLE_INDEX }
-        return Pair(asTable(tableLinksMap[true]), tableLinksMap[false].orEmpty())
-    }
-
-    private fun asTable(links: List<Link>?): DataTable? {
-        return links?.let {
-            val data = HashBasedTable.create<String, String, String>()
-
-            it.forEach { link ->
-                data.put(link.url, LINK_TABLE_URL_HEADER, link.url)
-
-                link.attributes.forEach { attr ->
-                    data.put(link.url, attr.name, attr.value)
-                }
-            }
-
-            return data
-        }
     }
 }

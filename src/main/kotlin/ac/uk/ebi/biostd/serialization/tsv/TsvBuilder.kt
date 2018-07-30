@@ -24,12 +24,8 @@ class TsvBuilder(private val builder: StringBuilder) {
         builder.append(value)
     }
 
-    fun addTableHeaders(headers: Set<String>) {
-        builder.append(headers.joinToString(separator = "\t"))
-        builder.append("\n")
-    }
-
-    fun addTableValue(tableValue: String?) {
-        builder.append("${tableValue.orEmpty()}\t")
+    fun addTableRow(headers: List<String>) {
+        append(headers.joinToString(separator = "\t"))
+        append("\n")
     }
 }
