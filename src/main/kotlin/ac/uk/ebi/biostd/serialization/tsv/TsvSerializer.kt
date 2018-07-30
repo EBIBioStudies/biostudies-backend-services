@@ -37,7 +37,7 @@ class TsvSerializer {
         builder.addSeparator()
         builder.addTableRow(table.getHeaders())
 
-        table.getRows().forEach { builder.addTableRow(it.values) }
+        table.getRows().forEach { builder.addTableRow(it) }
     }
 
     private fun serializeSubmission(submission: Submission) {

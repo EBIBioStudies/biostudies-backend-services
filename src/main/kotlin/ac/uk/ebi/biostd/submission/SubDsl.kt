@@ -52,7 +52,7 @@ fun Link.attribute(name: String, value: String, qualifierVal: String? = null): A
 }
 
 fun Section.linksTable(block: Table<Link>.() -> Unit) {
-    val table = Table<Link>(mainHeaderName = LINK_TABLE_URL_HEADER)
+    val table = Table<Link>(idHeaderName = LINK_TABLE_URL_HEADER)
     table.apply(block)
     this.links.add(Right(table))
 }
