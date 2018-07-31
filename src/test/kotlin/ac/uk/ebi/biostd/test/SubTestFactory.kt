@@ -105,10 +105,10 @@ fun createRNA_Profiling(): Submission {
                 type = "Experiment Protocols"
                 accNo = "protocols-E-MTAB-6957"
 
-                sectionsTable {
+                sectionsTable("Protocols") {
+
                     section {
                         accNo = "P-MTAB-76451"
-                        type = "Protocols"
                         attribute(name = "Name", value = "P-MTAB-76451")
                         attribute(name = "Type", value = "nucleic acid extraction protocol")
                         attribute(name = "Description", value = "Total RNA was extracted from six 30-μm sections of frozen whole tumor and adjacent lung tissue using the Qiagen-RNeasy Mini kit according to the supplier’s instructions (Qiagen, Hilden, Germany). The quantity of DNA-free total RNA was measured using a Nanodrop-2000.")
@@ -116,7 +116,6 @@ fun createRNA_Profiling(): Submission {
 
                     section {
                         accNo = "P-MTAB-76452"
-                        type = "Protocols"
                         attribute(name = "Name", value = "P-MTAB-76452")
                         attribute(name = "Type", value = "nucleic acid library construction protocol")
                         attribute(name = "Description", value = "Illumina sequencing libraries were prepared according to the TruSeq RNA Sample Preparation Guide following the manufacturer’s instructions.")
@@ -124,7 +123,6 @@ fun createRNA_Profiling(): Submission {
 
                     section {
                         accNo = "P-MTAB-76450"
-                        type = "Protocols"
                         attribute(name = "Name", value = "P-MTAB-76450")
                         attribute(name = "Type", value = "sample collection protocol")
                         attribute(name = "Description", value = "Study participants and phenotypes Between March 2010 and August 2011, we prospectively recruited newly diagnosed and previously untreated lung cancer patients that were referred for thoracic surgery with curative intent. Subjects were only eligible for inclusion if surgical resection of the tumor occurred prior to any form of medical treatment. Tissue was collected immediately after lobectomy/pneumonectomy.")
@@ -132,7 +130,6 @@ fun createRNA_Profiling(): Submission {
 
                     section {
                         accNo = "P-MTAB-76453"
-                        type = "Protocols"
                         attribute(name = "Name", value = "P-MTAB-76453")
                         attribute(name = "Type", value = "nucleic acid sequencing protocol")
                         attribute(name = "Description", value = "Libraries were sequenced on a Illumina HiSeq2000 sequencer generating single end 51bp reads.")

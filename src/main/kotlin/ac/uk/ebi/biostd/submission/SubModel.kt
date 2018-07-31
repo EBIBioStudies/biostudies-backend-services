@@ -1,7 +1,8 @@
 package ac.uk.ebi.biostd.submission
 
 import ac.uk.ebi.biostd.common.Either
-import ac.uk.ebi.biostd.common.Table
+import ac.uk.ebi.biostd.common.LinksTable
+import ac.uk.ebi.biostd.common.SectionTable
 import ac.uk.ebi.biostd.common.TableElement
 
 internal const val NO_TABLE_INDEX = -1
@@ -24,8 +25,8 @@ data class Section(
         var ord: Int? = null,
         var tableIndex: Int = NO_TABLE_INDEX,
         var attrs: MutableList<Attribute> = mutableListOf(),
-        var sections: MutableList<Either<Section, Table<Section>>> = mutableListOf(),
-        var links: MutableList<Either<Link, Table<Link>>> = mutableListOf()) : TableElement {
+        var sections: MutableList<Either<Section, SectionTable>> = mutableListOf(),
+        var links: MutableList<Either<Link, LinksTable>> = mutableListOf()) : TableElement {
 
     override val id: String
         get() = accNo

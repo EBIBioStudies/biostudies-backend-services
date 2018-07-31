@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.serialization.tsv
 
-import ac.uk.ebi.biostd.common.Table
+import ac.uk.ebi.biostd.common.LinksTable
+import ac.uk.ebi.biostd.common.SectionTable
 import ac.uk.ebi.biostd.common.fold
 import ac.uk.ebi.biostd.submission.Link
 import ac.uk.ebi.biostd.submission.Section
@@ -27,20 +28,20 @@ class TsvSerializer {
         section.sections.forEach { it.fold(::serializeSection, ::serializeSectionTable) }
     }
 
-    private fun serializeSectionTable(table: Table<Section>) {
+    private fun serializeSectionTable(table: SectionTable) {
         builder.addSeparator()
         builder.addTableRow(table.getHeaders())
 
         table.getRows().forEach { builder.addTableRow(it) }
     }
 
-    private fun addLink(link: Link): Unit {
+    private fun addLink(link: Link) {
         builder.addSeparator()
         builder.addSecLink(link)
         builder.addSecLinkAttributes(link.attrs)
     }
 
-    private fun addTable(table: Table<Link>) {
+    private fun addTable(table: LinksTable) {
         builder.addSeparator()
         builder.addTableRow(table.getHeaders())
 

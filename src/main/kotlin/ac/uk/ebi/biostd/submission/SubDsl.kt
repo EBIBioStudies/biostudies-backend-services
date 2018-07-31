@@ -1,9 +1,9 @@
 package ac.uk.ebi.biostd.submission
 
 import ac.uk.ebi.biostd.common.Left
+import ac.uk.ebi.biostd.common.LinksTable
 import ac.uk.ebi.biostd.common.Right
-import ac.uk.ebi.biostd.common.Table
-import ac.uk.ebi.biostd.serialization.tsv.LINK_TABLE_URL_HEADER
+import ac.uk.ebi.biostd.common.SectionTable
 
 typealias Term = Pair<String, String>
 
@@ -58,26 +58,26 @@ fun Link.attribute(name: String, value: String, terms: List<Pair<String, String>
     return attribute
 }
 
-fun Table<Link>.link(block: Link.() -> Unit): Link {
+fun LinksTable.link(block: Link.() -> Unit): Link {
     val link = Link().apply(block)
     addRow(link)
     return link
 }
 
-fun Section.sectionsTable(block: Table<Section>.() -> Unit) {
-    val table = Table<Section>(idHeaderName = "[addType]$accNo")
+fun Section.sectionsTable(type: String, block: SectionTable.() -> Unit) {
+    val table = SectionTable(type, this.accNo)
     table.apply(block)
     this.sections.add(Right(table))
 }
 
-fun Table<Section>.section(block: Section.() -> Unit): Section {
+fun SectionTable.section(block: Section.() -> Unit): Section {
     val section = Section().apply(block)
     addRow(section)
     return section
 }
 
-fun Section.linksTable(block: Table<Link>.() -> Unit) {
-    val table = Table<Link>(idHeaderName = LINK_TABLE_URL_HEADER)
+fun Section.linksTable(block: LinksTable.() -> Unit) {
+    val table = LinksTable()
     table.apply(block)
     this.links.add(Right(table))
 }
