@@ -24,8 +24,8 @@ sealed class Table<T : TableElement>(private val idHeaderName: String) {
     }
 
     fun addRow(element: T) {
-        headers.addAll(element.attributes.map { it.name })
-        rows.add((mapOf(idHeaderName to element.id) + element.attributes.map { it.name to it.value }))
+        headers.addAll(element.getAttributes().map { it.name })
+        rows.add((mapOf(idHeaderName to element.getId()) + element.getAttributes().map { it.name to it.value }))
     }
 }
 
@@ -34,6 +34,6 @@ class SectionsTable(type: String, parentAccNo: String) : Table<Section>("[$type]
 class FilesTable : Table<File>(FILE_TABLE_ID_HADER)
 
 interface TableElement {
-    val id: String
-    val attributes: List<Attribute>
+    fun getAttributes(): List<Attribute>
+    fun getId(): String
 }

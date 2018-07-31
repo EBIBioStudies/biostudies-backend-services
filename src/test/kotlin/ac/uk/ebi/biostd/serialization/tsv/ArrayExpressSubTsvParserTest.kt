@@ -12,6 +12,6 @@ class ArrayExpressSubTsvParserTest {
         val sub = createRNA_Profiling()
         val tsvString = TsvString(testInstance.serialize(sub))
 
-        assertThat(tsvString[0]).isEmptyLine()
+        assertThat(tsvString[0]).contains("Submission", "E-MTAB-6957", "Public")
     }
 }

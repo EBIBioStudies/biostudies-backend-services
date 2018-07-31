@@ -1,9 +1,9 @@
 package ac.uk.ebi.biostd.submission
 
-import ac.uk.ebi.biostd.common.Left
 import ac.uk.ebi.biostd.common.LinksTable
-import ac.uk.ebi.biostd.common.Right
 import ac.uk.ebi.biostd.common.SectionsTable
+import arrow.core.Left
+import arrow.core.Right
 
 typealias Term = Pair<String, String>
 

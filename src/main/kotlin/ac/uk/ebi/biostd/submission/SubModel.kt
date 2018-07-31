@@ -6,13 +6,10 @@ import ac.uk.ebi.biostd.common.SectionsTable
 import ac.uk.ebi.biostd.common.TableElement
 import arrow.core.Either
 
-internal const val NO_TABLE_INDEX = -1
 internal const val EMPTY = ""
 
 data class Submission(
         var rTime: Long = 0L,
-        var cTime: Long = 0L,
-        var mTime: Long = 0L,
         var accNo: String = EMPTY,
         var title: String = EMPTY,
         var rootPath: String = EMPTY,
@@ -23,17 +20,13 @@ data class Submission(
 data class Section(
         var type: String = EMPTY,
         var accNo: String = EMPTY,
-        var ord: Int? = null,
-        var tableIndex: Int = NO_TABLE_INDEX,
         var attrs: MutableList<Attribute> = mutableListOf(),
         var sections: MutableList<Either<Section, SectionsTable>> = mutableListOf(),
         var links: MutableList<Either<Link, LinksTable>> = mutableListOf(),
         var files: MutableList<Either<File, FilesTable>> = mutableListOf()) : TableElement {
 
-    override val id: String
-        get() = accNo
-    override val attributes: List<Attribute>
-        get() = attrs
+    override fun getId() = accNo
+    override fun getAttributes() = attrs
 }
 
 data class Attribute(
@@ -45,22 +38,16 @@ data class Attribute(
 
 data class Link(
         var url: String = EMPTY,
-        var ord: Int = 0,
-        var tableIndex: Int = NO_TABLE_INDEX,
         var attrs: MutableList<Attribute> = mutableListOf()) : TableElement {
 
-    override val id: String
-        get() = url
-    override val attributes: List<Attribute>
-        get() = attrs
+    override fun getId() = url
+    override fun getAttributes() = attrs
 }
 
 data class File(
         var name: String = EMPTY,
         val attrs: MutableList<Attribute> = mutableListOf()) : TableElement {
 
-    override val id: String
-        get() = name
-    override val attributes: List<Attribute>
-        get() = attrs
+    override fun getId() = name
+    override fun getAttributes() = attrs
 }
