@@ -15,17 +15,12 @@ data class Table<T : TableElement>(val idHeaderName: String) {
     }
 
     fun getRows(): List<TableRow> {
-        return rows.map {
-            headers.map { header -> it.getOrDefault(header, NO_VALUE) }
-        }
+        return rows.map { headers.map { header -> it.getOrDefault(header, NO_VALUE) } }
     }
 
     fun addRow(element: T) {
         headers.addAll(element.attributes.map { it.name })
-
-        rows.add(
-                (mapOf(idHeaderName to element.id) +
-                        element.attributes.map { it.name to it.value }))
+        rows.add((mapOf(idHeaderName to element.id) + element.attributes.map { it.name to it.value }))
     }
 }
 
@@ -34,3 +29,4 @@ interface TableElement {
     val attributes: List<Attribute>
 }
 
+data class TableHeader(val name: String, val terms: List<String>)

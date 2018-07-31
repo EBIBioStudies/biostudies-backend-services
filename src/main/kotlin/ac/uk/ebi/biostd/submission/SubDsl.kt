@@ -16,17 +16,22 @@ fun Submission.section(block: Section.() -> Unit): Section {
 }
 
 fun Submission.attribute(name: String, value: String): Attribute {
-    val attribute = Attribute(name = name, value = value, order = attributes.size)
+    val attribute = Attribute(name = name, value = value, order = attributes.size, terms = emptyList())
     attributes.add(attribute)
     return attribute
 }
 
-fun Section.attribute(name: String, value: String, qualifierVal: String? = null, ref: Boolean = false): Attribute {
+fun Section.attribute(
+        name: String,
+        value: String,
+        terms: List<Pair<String, String>> = emptyList(),
+        ref: Boolean = false
+): Attribute {
     val attribute = Attribute(
             name = name,
             value = value,
             order = attrs.size,
-            qualifierVal = qualifierVal,
+            terms = terms,
             reference = ref
     )
     attrs.add(attribute)
@@ -35,7 +40,7 @@ fun Section.attribute(name: String, value: String, qualifierVal: String? = null,
 
 fun Section.section(block: Section.() -> Unit): Section {
     val section = Section().apply(block)
-    sections.add(section)
+    sections.add(Left(section))
     return section
 }
 
@@ -45,16 +50,10 @@ fun Section.link(block: Link.() -> Unit): Link {
     return link
 }
 
-fun Link.attribute(name: String, value: String, qualifierVal: String? = null): Attribute {
-    val attribute = Attribute(name = name, value = value, order = attrs.size, qualifierVal = qualifierVal)
+fun Link.attribute(name: String, value: String, terms: List<Pair<String, String>> = emptyList()): Attribute {
+    val attribute = Attribute(name = name, value = value, order = attrs.size, terms = terms)
     attrs.add(attribute)
     return attribute
-}
-
-fun Section.linksTable(block: Table<Link>.() -> Unit) {
-    val table = Table<Link>(idHeaderName = LINK_TABLE_URL_HEADER)
-    table.apply(block)
-    this.links.add(Right(table))
 }
 
 fun Table<Link>.link(block: Link.() -> Unit): Link {
@@ -63,10 +62,14 @@ fun Table<Link>.link(block: Link.() -> Unit): Link {
     return link
 }
 
-fun Section.sectionsTable(block: Section.() -> Unit) {
-    this.apply(block)
-    sections.mapIndexed { index, sec -> sec.tableIndex = index }
+fun Section.sectionsTable(block: Table<Section>.() -> Unit) {
+    val table = Table<Section>(idHeaderName = "[addType]$accNo")
+    table.apply(block)
+    this.sections.add(Right(table))
 }
 
-
-
+fun Section.linksTable(block: Table<Link>.() -> Unit) {
+    val table = Table<Link>(idHeaderName = LINK_TABLE_URL_HEADER)
+    table.apply(block)
+    this.links.add(Right(table))
+}

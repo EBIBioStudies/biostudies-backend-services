@@ -24,14 +24,20 @@ data class Section(
         var ord: Int? = null,
         var tableIndex: Int = NO_TABLE_INDEX,
         var attrs: MutableList<Attribute> = mutableListOf(),
-        var sections: MutableList<Section> = mutableListOf(),
-        var links: MutableList<Either<Link, Table<Link>>> = mutableListOf())
+        var sections: MutableList<Either<Section, Table<Section>>> = mutableListOf(),
+        var links: MutableList<Either<Link, Table<Link>>> = mutableListOf()) : TableElement {
+
+    override val id: String
+        get() = accNo
+    override val attributes: List<Attribute>
+        get() = attrs
+}
 
 data class Attribute(
         var name: String,
         var value: String,
         var reference: Boolean = false,
-        var qualifierVal: String? = null,
+        var terms: List<Pair<String, String>>,
         var order: Int)
 
 data class Link(

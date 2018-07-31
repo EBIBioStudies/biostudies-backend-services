@@ -26,11 +26,11 @@ fun createVenousBloodMonocyte(): Submission {
             attribute(name = "Project", value = "CEEHRC (McGill)")
             attribute(name = "Status", value = "Incomplete")
             attribute(name = "Organism", value = "Homo sapiens")
-            attribute(name = "Tissue type", value = "venous blood", qualifierVal = "Ontology=UBERON")
+            attribute(name = "Tissue type", value = "venous blood", terms = listOf(Pair("Ontology", "UBERON")))
             attribute(name = "Donor ID", value = "McGill0139")
             attribute(name = "Biomaterial Type", value = "primary cells")
-            attribute(name = "Cell Type", value = "Monocyte", qualifierVal = "Ontology=CL")
-            attribute(name = "Disease", value = "Systemic Lupus Erythematosus", qualifierVal = "Ontology=EFO")
+            attribute(name = "Cell Type", value = "Monocyte", terms = listOf(Pair("Ontology", "CL")))
+            attribute(name = "Disease", value = "Systemic Lupus Erythematosus", terms = listOf(Pair("Ontology", "EFO")))
             attribute(name = "Experiment type", value = "Single donor")
 
             link {
