@@ -1,6 +1,10 @@
 package ac.uk.ebi.biostd.submission
 
-import ac.uk.ebi.biostd.common.*
+import ac.uk.ebi.biostd.common.FilesTable
+import ac.uk.ebi.biostd.common.LinksTable
+import ac.uk.ebi.biostd.common.SectionsTable
+import ac.uk.ebi.biostd.common.TableElement
+import arrow.core.Either
 
 internal const val NO_TABLE_INDEX = -1
 internal const val EMPTY = ""

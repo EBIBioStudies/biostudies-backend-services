@@ -2,7 +2,6 @@ package ac.uk.ebi.biostd.serialization.tsv
 
 import ac.uk.ebi.biostd.common.Table
 import ac.uk.ebi.biostd.common.TableElement
-import ac.uk.ebi.biostd.common.fold
 import ac.uk.ebi.biostd.submission.File
 import ac.uk.ebi.biostd.submission.Link
 import ac.uk.ebi.biostd.submission.Section
@@ -18,11 +17,18 @@ class TsvSerializer {
         return builder.toString()
     }
 
+    private fun serializeSubmission(submission: Submission) {
+        builder.addSubAccAndTags(submission.accNo, submission.accessTags)
+        builder.addSubTitle(submission.title)
+        builder.addSubReleaseDate(submission.rTime)
+        builder.addRootPath(submission.rootPath)
+        submission.attributes.forEach(builder::addSecAttr)
+    }
+
     private fun serializeSection(section: Section) {
         builder.addSeparator()
         builder.addSecDescriptor(section.type, section.accNo)
         section.attrs.forEach(builder::addSecAttr)
-
 
         section.links.forEach { it.fold({ addLink(it) }, { addTable(it) }) }
         section.files.forEach { it.fold({ addFile(it) }, { addTable(it) }) }
@@ -45,13 +51,5 @@ class TsvSerializer {
         builder.addSeparator()
         builder.addTableRow(table.getHeaders())
         table.getRows().forEach { builder.addTableRow(it) }
-    }
-
-    private fun serializeSubmission(submission: Submission) {
-        builder.addSubAccAndTags(submission.accNo, submission.accessTags)
-        builder.addSubTitle(submission.title)
-        builder.addSubReleaseDate(submission.rTime)
-        builder.addRootPath(submission.rootPath)
-        submission.attributes.forEach(builder::addSecAttr)
     }
 }

@@ -35,6 +35,8 @@ dependencies {
     compile "com.fasterxml.jackson.module:jackson-module-kotlin:2.9.+"
     compile "com.google.guava:guava:25.1-jre"
 
+    compile "io.arrow-kt:arrow-core:0.7.2"
+
     testCompile('org.springframework.boot:spring-boot-starter-test')
     testCompile("org.junit.jupiter:junit-jupiter-api")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
