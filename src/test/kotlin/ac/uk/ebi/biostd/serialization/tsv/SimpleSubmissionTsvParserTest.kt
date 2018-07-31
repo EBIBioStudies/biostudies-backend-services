@@ -5,7 +5,7 @@ import ac.uk.ebi.biostd.test.createVenousBloodMonocyte
 import org.junit.Test
 
 
-class TsvParserTest {
+class SimpleSubmissionTsvParserTest {
 
     private val testInstance: TsvSerializer = TsvSerializer()
 

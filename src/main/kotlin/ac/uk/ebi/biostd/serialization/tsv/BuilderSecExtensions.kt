@@ -3,8 +3,8 @@ package ac.uk.ebi.biostd.serialization.tsv
 import ac.uk.ebi.biostd.submission.Attribute
 import ac.uk.ebi.biostd.submission.Link
 
-fun TsvBuilder.addSecType(type: String) {
-    append("$type\n")
+fun TsvBuilder.addSecDescriptor(type: String, accNo: String) {
+    append("$type\t$accNo\n")
 }
 
 fun TsvBuilder.addSecLink(link: Link) {

@@ -5,6 +5,8 @@ import ac.uk.ebi.biostd.common.Right
 import ac.uk.ebi.biostd.common.Table
 import ac.uk.ebi.biostd.serialization.tsv.LINK_TABLE_URL_HEADER
 
+typealias Term = Pair<String, String>
+
 fun submission(block: Submission.() -> Unit): Submission {
     return Submission().apply(block)
 }
@@ -66,6 +68,12 @@ fun Section.sectionsTable(block: Table<Section>.() -> Unit) {
     val table = Table<Section>(idHeaderName = "[addType]$accNo")
     table.apply(block)
     this.sections.add(Right(table))
+}
+
+fun Table<Section>.section(block: Section.() -> Unit): Section {
+    val section = Section().apply(block)
+    addRow(section)
+    return section
 }
 
 fun Section.linksTable(block: Table<Link>.() -> Unit) {

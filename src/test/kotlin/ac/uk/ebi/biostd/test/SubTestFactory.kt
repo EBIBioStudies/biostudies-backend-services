@@ -26,11 +26,11 @@ fun createVenousBloodMonocyte(): Submission {
             attribute(name = "Project", value = "CEEHRC (McGill)")
             attribute(name = "Status", value = "Incomplete")
             attribute(name = "Organism", value = "Homo sapiens")
-            attribute(name = "Tissue type", value = "venous blood", terms = listOf(Pair("Ontology", "UBERON")))
+            attribute(name = "Tissue type", value = "venous blood", terms = listOf(Term("Ontology", "UBERON")))
             attribute(name = "Donor ID", value = "McGill0139")
             attribute(name = "Biomaterial Type", value = "primary cells")
-            attribute(name = "Cell Type", value = "Monocyte", terms = listOf(Pair("Ontology", "CL")))
-            attribute(name = "Disease", value = "Systemic Lupus Erythematosus", terms = listOf(Pair("Ontology", "EFO")))
+            attribute(name = "Cell Type", value = "Monocyte", terms = listOf(Term("Ontology", "CL")))
+            attribute(name = "Disease", value = "Systemic Lupus Erythematosus", terms = listOf(Term("Ontology", "EFO")))
             attribute(name = "Experiment type", value = "Single donor")
 
             link {
@@ -59,8 +59,9 @@ fun createRNA_Profiling(): Submission {
     return submission {
         accNo = "E-MTAB-6957"
         accessTags = mutableListOf("Public")
-
+        title = "RNA profiling of non-small cell lung cancer"
         rootPath = "E-MTAB/E-MTAB-6957"
+
         attribute("AttachTo", "ArrayExpress")
 
         section {
@@ -71,8 +72,8 @@ fun createRNA_Profiling(): Submission {
             attribute("Description", "RNA sequencing of 25 patients with non-small cell lung cancer and their matched normal lung tissue")
             attribute("Study type", "RNA-seq of coding RNA")
             attribute("Organism", "Homo sapiens")
-            attribute("Experimental Designs", "case control design")
-            attribute("Experimental Factors", "sampling site")
+            attribute("Experimental Designs", "case control design", terms = listOf(Term("Ontology", "EFO"), Term("TermId", "EFO:0001427")))
+            attribute("Experimental Factors", "sampling site", terms = listOf(Term("Ontology", "EFO"), Term("TermId", "EFO_0000408"), Term("TermName", "sampling site")))
 
 
             section {

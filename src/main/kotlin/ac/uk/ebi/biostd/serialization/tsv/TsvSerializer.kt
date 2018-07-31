@@ -18,19 +18,26 @@ class TsvSerializer {
 
     private fun serializeSection(section: Section) {
         builder.addSeparator()
-        builder.addSecType(section.type)
-        section.attrs.forEach(builder::addSecAttr)
+        builder.addSecDescriptor(section.type, section.accNo)
 
-        section.links.forEach {
-            it.fold(this::addLink, this::addTable)
-        }
+        section.attrs.forEach(builder::addSecAttr)
+        section.links.forEach { it.fold(::addLink, ::addTable) }
+
+
+        section.sections.forEach { it.fold(::serializeSection, ::serializeSectionTable) }
+    }
+
+    private fun serializeSectionTable(table: Table<Section>) {
+        builder.addSeparator()
+        builder.addTableRow(table.getHeaders())
+
+        table.getRows().forEach { builder.addTableRow(it) }
     }
 
     private fun addLink(link: Link): Unit {
         builder.addSeparator()
         builder.addSecLink(link)
         builder.addSecLinkAttributes(link.attrs)
-
     }
 
     private fun addTable(table: Table<Link>) {
