@@ -1,7 +1,9 @@
 package ac.uk.ebi.biostd.common
 
-import ac.uk.ebi.biostd.serialization.tsv.LINK_TABLE_URL_HEADER
+import ac.uk.ebi.biostd.serialization.tsv.FILE_TABLE_ID_HADER
+import ac.uk.ebi.biostd.serialization.tsv.LINK_TABLE_ID_HEADER
 import ac.uk.ebi.biostd.submission.Attribute
+import ac.uk.ebi.biostd.submission.File
 import ac.uk.ebi.biostd.submission.Link
 import ac.uk.ebi.biostd.submission.Section
 
@@ -9,7 +11,7 @@ const val NO_VALUE: String = ""
 
 typealias TableRow = List<String>
 
-sealed class Table<T : TableElement>(val idHeaderName: String) {
+sealed class Table<T : TableElement>(private val idHeaderName: String) {
     private val headers: LinkedHashSet<String> = linkedSetOf(idHeaderName)
     private val rows: MutableList<Map<String, String>> = mutableListOf()
 
@@ -27,8 +29,9 @@ sealed class Table<T : TableElement>(val idHeaderName: String) {
     }
 }
 
-class LinksTable : Table<Link>(LINK_TABLE_URL_HEADER)
-class SectionTable(type: String, parentAccNo: String) : Table<Section>("[$type][$parentAccNo]")
+class LinksTable : Table<Link>(LINK_TABLE_ID_HEADER)
+class SectionsTable(type: String, parentAccNo: String) : Table<Section>("[$type][$parentAccNo]")
+class FilesTable : Table<File>(FILE_TABLE_ID_HADER)
 
 interface TableElement {
     val id: String

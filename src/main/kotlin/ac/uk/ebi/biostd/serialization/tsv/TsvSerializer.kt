@@ -1,8 +1,9 @@
 package ac.uk.ebi.biostd.serialization.tsv
 
-import ac.uk.ebi.biostd.common.LinksTable
-import ac.uk.ebi.biostd.common.SectionTable
+import ac.uk.ebi.biostd.common.Table
+import ac.uk.ebi.biostd.common.TableElement
 import ac.uk.ebi.biostd.common.fold
+import ac.uk.ebi.biostd.submission.File
 import ac.uk.ebi.biostd.submission.Link
 import ac.uk.ebi.biostd.submission.Section
 import ac.uk.ebi.biostd.submission.Submission
@@ -20,31 +21,29 @@ class TsvSerializer {
     private fun serializeSection(section: Section) {
         builder.addSeparator()
         builder.addSecDescriptor(section.type, section.accNo)
-
         section.attrs.forEach(builder::addSecAttr)
-        section.links.forEach { it.fold(::addLink, ::addTable) }
 
 
-        section.sections.forEach { it.fold(::serializeSection, ::serializeSectionTable) }
+        section.links.forEach { it.fold({ addLink(it) }, { addTable(it) }) }
+        section.files.forEach { it.fold({ addFile(it) }, { addTable(it) }) }
+        section.sections.forEach { it.fold({ serializeSection(it) }, { addTable(it) }) }
     }
 
-    private fun serializeSectionTable(table: SectionTable) {
+    private fun addFile(file: File) {
         builder.addSeparator()
-        builder.addTableRow(table.getHeaders())
-
-        table.getRows().forEach { builder.addTableRow(it) }
+        builder.addSecFile(file)
+        builder.addAttributes(file.attrs)
     }
 
     private fun addLink(link: Link) {
         builder.addSeparator()
         builder.addSecLink(link)
-        builder.addSecLinkAttributes(link.attrs)
+        builder.addAttributes(link.attrs)
     }
 
-    private fun addTable(table: LinksTable) {
+    private fun <T : TableElement> addTable(table: Table<T>) {
         builder.addSeparator()
         builder.addTableRow(table.getHeaders())
-
         table.getRows().forEach { builder.addTableRow(it) }
     }
 

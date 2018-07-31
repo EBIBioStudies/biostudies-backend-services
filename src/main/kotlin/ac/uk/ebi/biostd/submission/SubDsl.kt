@@ -3,7 +3,7 @@ package ac.uk.ebi.biostd.submission
 import ac.uk.ebi.biostd.common.Left
 import ac.uk.ebi.biostd.common.LinksTable
 import ac.uk.ebi.biostd.common.Right
-import ac.uk.ebi.biostd.common.SectionTable
+import ac.uk.ebi.biostd.common.SectionsTable
 
 typealias Term = Pair<String, String>
 
@@ -64,20 +64,41 @@ fun LinksTable.link(block: Link.() -> Unit): Link {
     return link
 }
 
-fun Section.sectionsTable(type: String, block: SectionTable.() -> Unit) {
-    val table = SectionTable(type, this.accNo)
+fun Section.sectionsTable(type: String, block: SectionsTable.() -> Unit) {
+    val table = SectionsTable(type, this.accNo)
     table.apply(block)
     this.sections.add(Right(table))
 }
 
-fun SectionTable.section(block: Section.() -> Unit): Section {
+fun SectionsTable.section(block: Section.() -> Unit): Section {
     val section = Section().apply(block)
     addRow(section)
     return section
 }
 
 fun Section.linksTable(block: LinksTable.() -> Unit) {
-    val table = LinksTable()
-    table.apply(block)
-    this.links.add(Right(table))
+    val table = LinksTable().apply(block)
+    links.add(Right(table))
+}
+
+fun Section.file(block: File.() -> Unit) {
+    val file = File().apply(block)
+    files.add(Left(file))
+}
+
+fun File.attribute(
+        name: String,
+        value: String,
+        terms: List<Pair<String, String>> = emptyList(),
+        ref: Boolean = false
+): Attribute {
+    val attribute = Attribute(
+            name = name,
+            value = value,
+            order = attrs.size,
+            terms = terms,
+            reference = ref
+    )
+    attrs.add(attribute)
+    return attribute
 }

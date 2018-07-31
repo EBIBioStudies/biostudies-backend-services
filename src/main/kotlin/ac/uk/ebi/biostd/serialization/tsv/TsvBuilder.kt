@@ -3,9 +3,9 @@ package ac.uk.ebi.biostd.serialization.tsv
 internal const val TITLE_KEY = "Title"
 internal const val RELEASE_DATE_KEY = "ReleaseDate"
 internal const val ACC_NO_KEY = "Submission"
-internal const val LINK_KEY = "Link"
 internal const val ROOT_PATH_KEY = "RootPath"
-internal const val LINK_TABLE_URL_HEADER = "Links"
+internal const val LINK_TABLE_ID_HEADER = "Links"
+internal const val FILE_TABLE_ID_HADER = "Files"
 
 internal const val ATTR_VAL_SEPARATOR = ";"
 internal const val TAGS_SEPARATOR = ATTR_VAL_SEPARATOR

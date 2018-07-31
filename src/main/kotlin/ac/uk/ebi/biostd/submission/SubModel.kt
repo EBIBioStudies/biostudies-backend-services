@@ -1,9 +1,6 @@
 package ac.uk.ebi.biostd.submission
 
-import ac.uk.ebi.biostd.common.Either
-import ac.uk.ebi.biostd.common.LinksTable
-import ac.uk.ebi.biostd.common.SectionTable
-import ac.uk.ebi.biostd.common.TableElement
+import ac.uk.ebi.biostd.common.*
 
 internal const val NO_TABLE_INDEX = -1
 internal const val EMPTY = ""
@@ -25,8 +22,9 @@ data class Section(
         var ord: Int? = null,
         var tableIndex: Int = NO_TABLE_INDEX,
         var attrs: MutableList<Attribute> = mutableListOf(),
-        var sections: MutableList<Either<Section, SectionTable>> = mutableListOf(),
-        var links: MutableList<Either<Link, LinksTable>> = mutableListOf()) : TableElement {
+        var sections: MutableList<Either<Section, SectionsTable>> = mutableListOf(),
+        var links: MutableList<Either<Link, LinksTable>> = mutableListOf(),
+        var files: MutableList<Either<File, FilesTable>> = mutableListOf()) : TableElement {
 
     override val id: String
         get() = accNo
@@ -49,6 +47,16 @@ data class Link(
 
     override val id: String
         get() = url
+    override val attributes: List<Attribute>
+        get() = attrs
+}
+
+data class File(
+        var name: String = EMPTY,
+        val attrs: MutableList<Attribute> = mutableListOf()) : TableElement {
+
+    override val id: String
+        get() = name
     override val attributes: List<Attribute>
         get() = attrs
 }

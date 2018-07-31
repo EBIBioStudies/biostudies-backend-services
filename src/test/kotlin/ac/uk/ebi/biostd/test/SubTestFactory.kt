@@ -137,6 +137,29 @@ fun createRNA_Profiling(): Submission {
                     }
                 }
             }
+
+            section {
+                type = "MAGE-TAB Files"
+                accNo = "mt-E-MTAB-6957"
+
+                file {
+                    name = "E-MTAB-6957.idf.txt"
+                    type = "IDF File"
+
+                    attribute("Type", "IDF File")
+                    attribute("Format", "tab-delimited text")
+                    attribute("Description", "Investigation Design Format (IDF)")
+                }
+
+                file {
+                    name = "E-MTAB-6957.sdrf.txt"
+                    type = "SDRF File"
+
+                    attribute("Type", "SDRF File")
+                    attribute("Format", "tab-delimited text")
+                    attribute("Description", "Sample and Data Relationship Format (SDRF)")
+                }
+            }
         }
     }
 }
