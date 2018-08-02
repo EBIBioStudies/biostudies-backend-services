@@ -27,6 +27,7 @@ data class Section(
 
     override fun getId() = accNo
     override fun getAttributes() = attrs
+    override fun getIdPropertyName() = "accNo"
 }
 
 data class Attribute(
@@ -34,7 +35,11 @@ data class Attribute(
         var value: String,
         var reference: Boolean = false,
         var terms: List<Pair<String, String>>,
-        var order: Int)
+        var order: Int) {
+    companion object {
+        val EMPTY: Attribute = Attribute("", "", false, listOf(), -1)
+    }
+}
 
 data class Link(
         var url: String = EMPTY,
@@ -42,6 +47,7 @@ data class Link(
 
     override fun getId() = url
     override fun getAttributes() = attrs
+    override fun getIdPropertyName() = "url"
 }
 
 data class File(
@@ -50,4 +56,5 @@ data class File(
 
     override fun getId() = name
     override fun getAttributes() = attrs
+    override fun getIdPropertyName() = "path"
 }
