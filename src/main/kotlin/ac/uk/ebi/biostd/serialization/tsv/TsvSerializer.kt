@@ -50,6 +50,6 @@ class TsvSerializer {
         builder.addSeparator()
         builder.addTableRow(table.getHeaders().flatMap { listOf(it.name) + it.termNames.map { "[$it]" } })
 
-        table.getRows().forEach { builder.addTableRow(it) }
+        table.getValues().forEach { builder.addTableRow(it) }
     }
 }

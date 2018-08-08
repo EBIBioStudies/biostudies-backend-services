@@ -6,23 +6,21 @@ import ac.uk.ebi.biostd.submission.Attribute
 import ac.uk.ebi.biostd.submission.File
 import ac.uk.ebi.biostd.submission.Link
 import ac.uk.ebi.biostd.submission.Section
-import kotlin.coroutines.experimental.buildSequence
 
 sealed class Table<T>(private val idHeaderName: String, val convert: (t: T) -> TableRow) {
     private val headers: MutableSet<TableHeader> = mutableSetOf()
     private val rows: MutableList<TableRow> = mutableListOf()
 
-    fun getHeaders(): List<TableHeader> {
-        return listOf(TableHeader(idHeaderName)) + headers.toList()
-    }
+    fun getHeaders(): List<TableHeader> = listOf(TableHeader(idHeaderName)) + headers.toList()
 
-    fun getRows(): Sequence<out List<String>> {
-        return buildSequence {
-            for (row in rows) {
-                yield(listOf(row.id) + row.orderedAttributes(headers.toList())
-                        .flatMap { attr -> listOf(attr.value) + attr.terms.map { it.second } })
-            }
-        }
+    fun getRows(): List<TableRow> = rows.toList()
+
+    fun getValues(): Sequence<List<String>> {
+        return rows.asSequence()
+                .map { row ->
+                    listOf(row.id) + row.orderedAttributes(headers.toList())
+                            .flatMap { attr -> listOf(attr.value) + attr.terms.map { it.second } }
+                }
     }
 
     fun addRow(data: T) {
