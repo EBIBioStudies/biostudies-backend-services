@@ -3,7 +3,6 @@ package ac.uk.ebi.biostd.submission
 import ac.uk.ebi.biostd.common.FilesTable
 import ac.uk.ebi.biostd.common.LinksTable
 import ac.uk.ebi.biostd.common.SectionsTable
-import ac.uk.ebi.biostd.common.TableElement
 import arrow.core.Either
 
 internal const val EMPTY = ""
@@ -23,12 +22,7 @@ data class Section(
         var attrs: MutableList<Attribute> = mutableListOf(),
         var sections: MutableList<Either<Section, SectionsTable>> = mutableListOf(),
         var links: MutableList<Either<Link, LinksTable>> = mutableListOf(),
-        var files: MutableList<Either<File, FilesTable>> = mutableListOf()) : TableElement {
-
-    override fun getId() = accNo
-    override fun getAttributes() = attrs
-    override fun getIdPropertyName() = "accNo"
-}
+        var files: MutableList<Either<File, FilesTable>> = mutableListOf())
 
 data class Attribute(
         var name: String,
@@ -43,18 +37,8 @@ data class Attribute(
 
 data class Link(
         var url: String = EMPTY,
-        var attrs: MutableList<Attribute> = mutableListOf()) : TableElement {
-
-    override fun getId() = url
-    override fun getAttributes() = attrs
-    override fun getIdPropertyName() = "url"
-}
+        var attrs: MutableList<Attribute> = mutableListOf())
 
 data class File(
         var name: String = EMPTY,
-        val attrs: MutableList<Attribute> = mutableListOf()) : TableElement {
-
-    override fun getId() = name
-    override fun getAttributes() = attrs
-    override fun getIdPropertyName() = "path"
-}
+        val attrs: MutableList<Attribute> = mutableListOf())
