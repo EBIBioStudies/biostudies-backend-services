@@ -37,18 +37,18 @@ fun createVenousBloodMonocyte(): Submission {
                 url = "IHECRE00000919.1"
                 attribute(name = "Type", value = "EpiRR")
             }
-        }
 
-        section {
-            type = "Stranded Total RNA-Seq"
+            section {
+                type = "Stranded Total RNA-Seq"
 
-            linksTable {
-                link {
-                    url = "EGAD00001001282"
-                    attribute(name = "Type", value = "EGA")
-                    attribute(name = "Assay type", value = "RNA-Seq")
-                    attribute(name = "Experiment type", value = "Stranded Total RNA-Seq")
-                    attribute(name = "Primary id", value = "EGAX00001273202")
+                linksTable {
+                    link {
+                        url = "EGAD00001001282"
+                        attribute(name = "Type", value = "EGA")
+                        attribute(name = "Assay type", value = "RNA-Seq")
+                        attribute(name = "Experiment type", value = "Stranded Total RNA-Seq")
+                        attribute(name = "Primary id", value = "EGAX00001273202")
+                    }
                 }
             }
         }

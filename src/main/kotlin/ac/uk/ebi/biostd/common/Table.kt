@@ -38,15 +38,15 @@ data class TableHeader(val name: String, val termNames: List<String> = listOf())
 }
 
 class LinksTable : Table<Link>(LINK_TABLE_ID_HEADER, {
-    TableRow(it.url, "url", it.attrs)
+    TableRow(it.url, "url", it.attributes)
 })
 
 class FilesTable : Table<File>(FILE_TABLE_ID_HADER, {
-    TableRow(it.name, "path", it.attrs)
+    TableRow(it.name, "path", it.attributes)
 })
 
 class SectionsTable(type: String, parentAccNo: String) : Table<Section>("[$type][$parentAccNo]", {
-    TableRow(it.accNo, "accNo", it.attrs)
+    TableRow(it.accNo, "accNo", it.attributes)
 })
 
 data class TableRow(val id: String, val idPropertyName: String, val attributes: List<Attribute>) {

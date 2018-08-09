@@ -14,13 +14,13 @@ data class Submission(
         var rootPath: String = EMPTY,
         var attributes: MutableList<Attribute> = mutableListOf(),
         var accessTags: MutableList<String> = mutableListOf(),
-        var sections: MutableList<Section> = mutableListOf())
+        var section: Section = Section())
 
 data class Section(
         var type: String = EMPTY,
         var accNo: String = EMPTY,
-        var attrs: MutableList<Attribute> = mutableListOf(),
-        var sections: MutableList<Either<Section, SectionsTable>> = mutableListOf(),
+        var attributes: MutableList<Attribute> = mutableListOf(),
+        var subsections: MutableList<Either<Section, SectionsTable>> = mutableListOf(),
         var links: MutableList<Either<Link, LinksTable>> = mutableListOf(),
         var files: MutableList<Either<File, FilesTable>> = mutableListOf())
 
@@ -38,8 +38,8 @@ data class Attribute(
 
 data class Link(
         var url: String = EMPTY,
-        var attrs: MutableList<Attribute> = mutableListOf())
+        var attributes: MutableList<Attribute> = mutableListOf())
 
 data class File(
         var name: String = EMPTY,
-        val attrs: MutableList<Attribute> = mutableListOf())
+        val attributes: MutableList<Attribute> = mutableListOf())

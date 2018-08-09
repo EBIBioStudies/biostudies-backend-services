@@ -12,7 +12,7 @@ class TsvSerializer {
 
     fun serialize(submission: Submission): String {
         serializeSubmission(submission)
-        submission.sections.forEach(::serializeSection)
+        serializeSection(submission.section)
         return builder.toString()
     }
 
@@ -27,23 +27,23 @@ class TsvSerializer {
     private fun serializeSection(section: Section) {
         builder.addSeparator()
         builder.addSecDescriptor(section.type, section.accNo)
-        section.attrs.forEach(builder::addSecAttr)
+        section.attributes.forEach(builder::addSecAttr)
 
         section.links.forEach { it.fold({ addLink(it) }, { addTable(it) }) }
         section.files.forEach { it.fold({ addFile(it) }, { addTable(it) }) }
-        section.sections.forEach { it.fold({ serializeSection(it) }, { addTable(it) }) }
+        section.subsections.forEach { it.fold({ serializeSection(it) }, { addTable(it) }) }
     }
 
     private fun addFile(file: File) {
         builder.addSeparator()
         builder.addSecFile(file)
-        builder.addAttributes(file.attrs)
+        builder.addAttributes(file.attributes)
     }
 
     private fun addLink(link: Link) {
         builder.addSeparator()
         builder.addSecLink(link)
-        builder.addAttributes(link.attrs)
+        builder.addAttributes(link.attributes)
     }
 
     private fun <T> addTable(table: Table<T>) {

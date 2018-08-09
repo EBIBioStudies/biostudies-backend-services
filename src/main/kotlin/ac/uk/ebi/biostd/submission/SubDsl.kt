@@ -11,7 +11,7 @@ fun submission(block: Submission.() -> Unit): Submission {
 
 fun Submission.section(block: Section.() -> Unit): Section {
     val section = Section().apply(block)
-    this.sections.add(section)
+    this.section = section
     return section
 }
 
@@ -33,13 +33,13 @@ fun Section.attribute(
             terms = terms,
             reference = ref
     )
-    attrs.add(attribute)
+    attributes.add(attribute)
     return attribute
 }
 
 fun Section.section(block: Section.() -> Unit): Section {
     val section = Section().apply(block)
-    sections.add(Left(section))
+    subsections.add(Left(section))
     return section
 }
 
@@ -51,7 +51,7 @@ fun Section.link(block: Link.() -> Unit): Link {
 
 fun Link.attribute(name: String, value: String, terms: List<Term> = emptyList()): Attribute {
     val attribute = Attribute(name = name, value = value, terms = terms)
-    attrs.add(attribute)
+    attributes.add(attribute)
     return attribute
 }
 
@@ -64,7 +64,7 @@ fun LinksTable.link(block: Link.() -> Unit): Link {
 fun Section.sectionsTable(type: String, block: SectionsTable.() -> Unit) {
     val table = SectionsTable(type, this.accNo)
     table.apply(block)
-    this.sections.add(Right(table))
+    this.subsections.add(Right(table))
 }
 
 fun SectionsTable.section(block: Section.() -> Unit): Section {
@@ -95,6 +95,6 @@ fun File.attribute(
             terms = terms,
             reference = ref
     )
-    attrs.add(attribute)
+    attributes.add(attribute)
     return attribute
 }
