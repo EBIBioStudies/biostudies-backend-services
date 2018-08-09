@@ -7,27 +7,26 @@ import ac.uk.ebi.biostd.submission.File
 import ac.uk.ebi.biostd.submission.Link
 import ac.uk.ebi.biostd.submission.Section
 
-sealed class Table<T : TableElement>(private val idHeaderName: String) {
+sealed class Table<T>(private val idHeaderName: String, val convert: (t: T) -> TableRow) {
     private val headers: MutableSet<TableHeader> = mutableSetOf()
-    private val elements: MutableList<TableElement> = mutableListOf()
+    private val rows: MutableList<TableRow> = mutableListOf()
 
-    fun getHeaders(): List<TableHeader> {
-        return listOf(TableHeader(idHeaderName)) + headers.toList()
+    fun getHeaders(): List<TableHeader> = listOf(TableHeader(idHeaderName)) + headers.toList()
+
+    fun getRows(): List<TableRow> = rows.toList()
+
+    fun getValues(): Sequence<List<String>> {
+        return rows.asSequence()
+                .map { row ->
+                    listOf(row.id) + row.orderedAttributes(headers.toList())
+                            .flatMap { attr -> listOf(attr.value) + attr.terms.map { it.second } }
+                }
     }
 
-    fun getRows(): List<TableRow> {
-        return elements.map { element ->
-            TableRow(element.getId(), element.getIdPropertyName(),
-                    headers.map { header -> findAttrByName(header.name, element.getAttributes()) })
-        }
-    }
-
-    private fun findAttrByName(name: String, attrs: List<Attribute>) =
-            attrs.firstOrNull { it.name == name } ?: Attribute.EMPTY
-
-    fun addRow(element: T) {
-        headers.addAll(element.getAttributes().map { TableHeader(it.name, it.terms.map { it.first }) })
-        elements.add(element)
+    fun addRow(data: T) {
+        val row = this.convert(data)
+        headers.addAll(row.attributes.map { TableHeader(it.name, it.terms.map { it.first }) })
+        rows.add(row)
     }
 }
 
@@ -43,17 +42,22 @@ data class TableHeader(val name: String, val termNames: List<String> = listOf())
     }
 }
 
-data class TableRow(val id: String, val idPropertyName: String, val values: List<Attribute>) {
-    fun valueList(): List<String> = listOf(id) +
-            values.flatMap { attr -> listOf(attr.value) + attr.terms.map { it.second } }
-}
+class LinksTable : Table<Link>(LINK_TABLE_ID_HEADER, {
+    TableRow(it.url, "url", it.attrs)
+})
 
-class LinksTable : Table<Link>(LINK_TABLE_ID_HEADER)
-class SectionsTable(type: String, parentAccNo: String) : Table<Section>("[$type][$parentAccNo]")
-class FilesTable : Table<File>(FILE_TABLE_ID_HADER)
+class FilesTable : Table<File>(FILE_TABLE_ID_HADER, {
+    TableRow(it.name, "path", it.attrs)
+})
 
-interface TableElement {
-    fun getAttributes(): List<Attribute>
-    fun getId(): String
-    fun getIdPropertyName(): String
+class SectionsTable(type: String, parentAccNo: String) : Table<Section>("[$type][$parentAccNo]", {
+    TableRow(it.accNo, "accNo", it.attrs)
+})
+
+data class TableRow(val id: String, val idPropertyName: String, val attributes: List<Attribute>) {
+
+    fun orderedAttributes(headers: List<TableHeader>): List<Attribute> =
+            headers.map { header -> this.findAttrByName(header.name) }
+
+    private fun findAttrByName(name: String) = this.attributes.firstOrNull { it.name == name } ?: Attribute.EMPTY
 }

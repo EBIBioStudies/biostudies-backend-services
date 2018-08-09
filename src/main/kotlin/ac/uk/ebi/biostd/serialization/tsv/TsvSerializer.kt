@@ -1,7 +1,6 @@
 package ac.uk.ebi.biostd.serialization.tsv
 
 import ac.uk.ebi.biostd.common.Table
-import ac.uk.ebi.biostd.common.TableElement
 import ac.uk.ebi.biostd.submission.File
 import ac.uk.ebi.biostd.submission.Link
 import ac.uk.ebi.biostd.submission.Section
@@ -47,10 +46,10 @@ class TsvSerializer {
         builder.addAttributes(link.attrs)
     }
 
-    private fun <T : TableElement> addTable(table: Table<T>) {
+    private fun <T> addTable(table: Table<T>) {
         builder.addSeparator()
         builder.addTableRow(table.getHeaders().flatMap { listOf(it.name) + it.termNames.map { "[$it]" } })
 
-        table.getRows().forEach { builder.addTableRow(it.valueList()) }
+        table.getValues().forEach { builder.addTableRow(it) }
     }
 }
