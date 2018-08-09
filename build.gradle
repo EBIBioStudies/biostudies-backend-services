@@ -27,6 +27,9 @@ apply plugin: 'kotlin'
 
 repositories {
     mavenCentral()
+    maven {
+        url = "https://oss.sonatype.org/content/repositories/snapshots"
+    }
 }
 
 dependencies {
@@ -43,6 +46,9 @@ dependencies {
     testCompile('org.springframework.boot:spring-boot-starter-test')
     testCompile("org.junit.jupiter:junit-jupiter-api")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
+
+    testCompile 'org.xmlunit:xmlunit-core:2.6.1-SNAPSHOT'
+    testCompile 'org.xmlunit:xmlunit-assertj:2.6.1-SNAPSHOT'
 }
 
 compileKotlin {
