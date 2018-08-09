@@ -12,9 +12,9 @@ data class Submission(
         var accNo: String = EMPTY,
         var title: String = EMPTY,
         var rootPath: String = EMPTY,
+        var attributes: MutableList<Attribute> = mutableListOf(),
         var accessTags: MutableList<String> = mutableListOf(),
-        var sections: MutableList<Section> = mutableListOf(),
-        var attributes: MutableList<Attribute> = mutableListOf())
+        var sections: MutableList<Section> = mutableListOf())
 
 data class Section(
         var type: String = EMPTY,

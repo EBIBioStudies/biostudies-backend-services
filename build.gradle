@@ -31,11 +31,14 @@ repositories {
 
 dependencies {
     compile('org.springframework.boot:spring-boot-starter-web')
-    compile("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
-    compile "com.fasterxml.jackson.module:jackson-module-kotlin:2.9.+"
-    compile "com.google.guava:guava:25.1-jre"
 
+    compile("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     compile "io.arrow-kt:arrow-core:0.7.2"
+
+    compile "com.fasterxml.jackson.module:jackson-module-kotlin:2.9.+"
+    compile 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.9.6'
+    compile 'com.fasterxml.woodstox:woodstox-core:5.1.0'
+    compile "com.google.guava:guava:25.1-jre"
 
     testCompile('org.springframework.boot:spring-boot-starter-test')
     testCompile("org.junit.jupiter:junit-jupiter-api")
