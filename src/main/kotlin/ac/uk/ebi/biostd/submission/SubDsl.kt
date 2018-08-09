@@ -5,8 +5,6 @@ import ac.uk.ebi.biostd.common.SectionsTable
 import arrow.core.Left
 import arrow.core.Right
 
-typealias Term = Pair<String, String>
-
 fun submission(block: Submission.() -> Unit): Submission {
     return Submission().apply(block)
 }
@@ -18,7 +16,7 @@ fun Submission.section(block: Section.() -> Unit): Section {
 }
 
 fun Submission.attribute(name: String, value: String): Attribute {
-    val attribute = Attribute(name = name, value = value, order = attributes.size, terms = emptyList())
+    val attribute = Attribute(name = name, value = value, terms = emptyList())
     attributes.add(attribute)
     return attribute
 }
@@ -26,13 +24,12 @@ fun Submission.attribute(name: String, value: String): Attribute {
 fun Section.attribute(
         name: String,
         value: String,
-        terms: List<Pair<String, String>> = emptyList(),
+        terms: List<Term> = emptyList(),
         ref: Boolean = false
 ): Attribute {
     val attribute = Attribute(
             name = name,
             value = value,
-            order = attrs.size,
             terms = terms,
             reference = ref
     )
@@ -52,8 +49,8 @@ fun Section.link(block: Link.() -> Unit): Link {
     return link
 }
 
-fun Link.attribute(name: String, value: String, terms: List<Pair<String, String>> = emptyList()): Attribute {
-    val attribute = Attribute(name = name, value = value, order = attrs.size, terms = terms)
+fun Link.attribute(name: String, value: String, terms: List<Term> = emptyList()): Attribute {
+    val attribute = Attribute(name = name, value = value, terms = terms)
     attrs.add(attribute)
     return attribute
 }
@@ -89,13 +86,12 @@ fun Section.file(block: File.() -> Unit) {
 fun File.attribute(
         name: String,
         value: String,
-        terms: List<Pair<String, String>> = emptyList(),
+        terms: List<Term> = emptyList(),
         ref: Boolean = false
 ): Attribute {
     val attribute = Attribute(
             name = name,
             value = value,
-            order = attrs.size,
             terms = terms,
             reference = ref
     )

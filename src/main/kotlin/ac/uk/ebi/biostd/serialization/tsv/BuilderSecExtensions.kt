@@ -25,5 +25,5 @@ fun TsvBuilder.addAttributes(attributes: List<Attribute>) {
 
 fun TsvBuilder.addSecAttr(attr: Attribute) {
     with(attr.name, attr.value)
-    attr.terms.forEach { with("[${it.first}]", it.second) }
+    attr.terms.forEach { with("[${it.name}]", it.value) }
 }

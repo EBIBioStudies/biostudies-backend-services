@@ -110,7 +110,7 @@ fun createRNA_Profiling(): Submission {
                     section {
                         accNo = "P-MTAB-76451"
                         attribute(name = "Name", value = "P-MTAB-76451")
-                        attribute(name = "Type", value = "nucleic acid extraction protocol")
+                        attribute(name = "Type", value = "nucleic acid extraction protocol", terms = listOf(Term("Ontology", "EFO"), Term("TermId", "EFO_0002944")))
                         attribute(name = "Description", value = "Total RNA was extracted from six 30-μm sections of frozen whole tumor and adjacent lung tissue using the Qiagen-RNeasy Mini kit according to the supplier’s instructions (Qiagen, Hilden, Germany). The quantity of DNA-free total RNA was measured using a Nanodrop-2000.")
                     }
 

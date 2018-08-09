@@ -2,10 +2,7 @@ package ac.uk.ebi.biostd.common
 
 import ac.uk.ebi.biostd.serialization.tsv.FILE_TABLE_ID_HADER
 import ac.uk.ebi.biostd.serialization.tsv.LINK_TABLE_ID_HEADER
-import ac.uk.ebi.biostd.submission.Attribute
-import ac.uk.ebi.biostd.submission.File
-import ac.uk.ebi.biostd.submission.Link
-import ac.uk.ebi.biostd.submission.Section
+import ac.uk.ebi.biostd.submission.*
 
 sealed class Table<T>(private val idHeaderName: String, val convert: (t: T) -> TableRow) {
     private val headers: MutableSet<TableHeader> = mutableSetOf()
@@ -16,16 +13,14 @@ sealed class Table<T>(private val idHeaderName: String, val convert: (t: T) -> T
     fun getRows(): List<TableRow> = rows.toList()
 
     fun getValues(): Sequence<List<String>> {
-        return rows.asSequence()
-                .map { row ->
-                    listOf(row.id) + row.orderedAttributes(headers.toList())
-                            .flatMap { attr -> listOf(attr.value) + attr.terms.map { it.second } }
-                }
+        return rows.asSequence().map { row ->
+            listOf(row.id) + row.attr(headers.toList()).flatMap { attr -> listOf(attr.value) + attr.terms.values() }
+        }
     }
 
     fun addRow(data: T) {
         val row = this.convert(data)
-        headers.addAll(row.attributes.map { TableHeader(it.name, it.terms.map { it.first }) })
+        headers.addAll(row.attributes.map { TableHeader(it.name, it.terms.names()) })
         rows.add(row)
     }
 }
@@ -56,8 +51,7 @@ class SectionsTable(type: String, parentAccNo: String) : Table<Section>("[$type]
 
 data class TableRow(val id: String, val idPropertyName: String, val attributes: List<Attribute>) {
 
-    fun orderedAttributes(headers: List<TableHeader>): List<Attribute> =
-            headers.map { header -> this.findAttrByName(header.name) }
+    fun attr(headers: List<TableHeader>): List<Attribute> = headers.map { header -> findAttrByName(header.name) }
 
     private fun findAttrByName(name: String) = this.attributes.firstOrNull { it.name == name } ?: Attribute.EMPTY
 }

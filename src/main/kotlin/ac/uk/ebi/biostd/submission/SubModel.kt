@@ -24,14 +24,15 @@ data class Section(
         var links: MutableList<Either<Link, LinksTable>> = mutableListOf(),
         var files: MutableList<Either<File, FilesTable>> = mutableListOf())
 
+data class Term(val name: String, val value: String)
+
 data class Attribute(
         var name: String,
         var value: String,
         var reference: Boolean = false,
-        var terms: List<Pair<String, String>>,
-        var order: Int) {
+        var terms: List<Term>) {
     companion object {
-        val EMPTY: Attribute = Attribute("", "", false, listOf(), -1)
+        val EMPTY: Attribute = Attribute("", "", false, listOf())
     }
 }
 
