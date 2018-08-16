@@ -48,8 +48,8 @@ class TsvSerializer {
 
     private fun <T> addTable(table: Table<T>) {
         builder.addSeparator()
-        builder.addTableRow(table.getHeaders().flatMap { listOf(it.name) + it.termNames.map { "[$it]" } })
+        builder.addTableRow(table.headers.flatMap { listOf(it.name) + it.termNames.map { "[$it]" } })
 
-        table.getValues().forEach { builder.addTableRow(it) }
+        table.rows.forEach { builder.addTableRow(it) }
     }
 }
