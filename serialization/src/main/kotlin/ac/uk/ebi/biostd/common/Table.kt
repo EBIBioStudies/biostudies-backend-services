@@ -3,13 +3,14 @@ package ac.uk.ebi.biostd.common
 import ac.uk.ebi.biostd.serialization.tsv.FILE_TABLE_ID_HEADER
 import ac.uk.ebi.biostd.serialization.tsv.LINK_TABLE_ID_HEADER
 import ac.uk.ebi.biostd.submission.Attribute
+import ac.uk.ebi.biostd.submission.EMPTY
 import ac.uk.ebi.biostd.submission.File
 import ac.uk.ebi.biostd.submission.Link
 import ac.uk.ebi.biostd.submission.Section
 import ac.uk.ebi.biostd.submission.names
 import ac.uk.ebi.biostd.submission.values
 
-abstract class Table<T>(elements: Collection<T> = listOf()) {
+abstract class Table<T>(elements: List<T> = listOf()) {
     abstract val idHeaderName: String
     abstract fun toTableRow(t: T): TableRow<T>
 
@@ -54,46 +55,36 @@ abstract class TableRow<T>(val original: T) {
 
     fun values(headers: List<TableHeader>): List<String> =
             headers.map { header -> findAttrByName(header.name) }
-                    .flatMap { attr -> listOf(attr.value) + attr.terms.values() }
+                    .flatMap { listOf(it.value) + it.terms.values() }
 
     private fun findAttrByName(name: String) = this.attributes.firstOrNull { it.name == name } ?: Attribute.EMPTY
 }
 
-class LinksTable(links: Collection<Link> = emptyList()) : Table<Link>(links) {
-    override val idHeaderName: String
-        get() = LINK_TABLE_ID_HEADER
+class LinksTable(links: List<Link> = emptyList()) : Table<Link>(links) {
+    override val idHeaderName = LINK_TABLE_ID_HEADER
 
     override fun toTableRow(t: Link): TableRow<Link> = object : TableRow<Link>(t) {
-        override val id: String
-            get() = t.url
-        override val attributes: List<Attribute>
-            get() = t.attributes
+        override val id = t.url
+        override val attributes = t.attributes
     }
 }
 
-class FilesTable(files: Collection<File> = emptyList()) : Table<File>(files) {
-    override val idHeaderName: String
-        get() = FILE_TABLE_ID_HEADER
+class FilesTable(files: List<File> = emptyList()) : Table<File>(files) {
+    override val idHeaderName = FILE_TABLE_ID_HEADER
 
     override fun toTableRow(t: File): TableRow<File> = object : TableRow<File>(t) {
-        override val id: String
-            get() = t.name
-        override val attributes: List<Attribute>
-            get() = t.attributes
+        override val id = t.name
+        override val attributes = t.attributes
     }
 }
 
-class SectionsTable(sections: Collection<Section> = emptyList(), var parentAccNo: String = "") : Table<Section>(sections) {
-    private val sectionType: String
-        get() = elements.map { it.type }.firstOrNull() ?: ""
+class SectionsTable(sections: List<Section> = emptyList(), var parentAccNo: String = "") : Table<Section>(sections) {
+    private val sectionType = elements.map { it.type }.firstOrNull() ?: ""
 
-    override val idHeaderName: String
-        get() = "$sectionType${if (parentAccNo.isEmpty()) "[$parentAccNo]" else ""}"
+    override val idHeaderName = "$sectionType${if (parentAccNo.isEmpty()) "[$parentAccNo]" else EMPTY}"
 
     override fun toTableRow(t: Section): TableRow<Section> = object : TableRow<Section>(t) {
-        override val id: String
-            get() = t.accNo
-        override val attributes: List<Attribute>
-            get() = t.attributes
+        override val id = t.accNo
+        override val attributes = t.attributes
     }
 }

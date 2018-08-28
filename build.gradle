@@ -29,5 +29,9 @@ allprojects {
             outputName = "detekt"
         }
     }
+
+    build.finalizedBy detektCheck
 }
+
+
 

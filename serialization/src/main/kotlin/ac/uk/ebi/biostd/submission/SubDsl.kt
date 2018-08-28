@@ -1,3 +1,5 @@
+@file:Suppress("TooManyFunctions")
+
 package ac.uk.ebi.biostd.submission
 
 import ac.uk.ebi.biostd.common.LinksTable

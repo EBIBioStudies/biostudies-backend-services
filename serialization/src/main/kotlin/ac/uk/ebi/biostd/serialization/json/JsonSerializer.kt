@@ -1,6 +1,9 @@
 package ac.uk.ebi.biostd.serialization.json
 
-import ac.uk.ebi.biostd.common.*
+import ac.uk.ebi.biostd.common.FilesTable
+import ac.uk.ebi.biostd.common.LinksTable
+import ac.uk.ebi.biostd.common.SectionsTable
+import ac.uk.ebi.biostd.common.Table
 import ac.uk.ebi.biostd.serialization.common.EitherSerializer
 import ac.uk.ebi.biostd.submission.Attribute
 import arrow.core.Either
