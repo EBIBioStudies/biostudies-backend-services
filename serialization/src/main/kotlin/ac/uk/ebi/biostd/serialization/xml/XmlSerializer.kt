@@ -11,7 +11,6 @@ import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.dataformat.xml.XmlMapper
 import com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator
 
-
 class XmlSerializer {
 
     fun serialize(submission: Submission): String {
@@ -22,17 +21,18 @@ class XmlSerializer {
         val mapper = createMapper()
 
         private fun createMapper(): XmlMapper {
-            val module = SimpleModule()
-            module.addSerializer(Either::class.java, EitherSerializer())
-            module.addSerializer(Submission::class.java, SubmissionSerializer())
+            val module = SimpleModule().apply {
+                addSerializer(Either::class.java, EitherSerializer())
+                addSerializer(Submission::class.java, SubmissionSerializer())
+            }
 
-            val mapper = XmlMapper()
-            mapper.registerModule(module)
-            mapper.setSerializationInclusion(NON_NULL)
-            mapper.setSerializationInclusion(NON_EMPTY)
-            mapper.enable(SerializationFeature.INDENT_OUTPUT)
-            mapper.configure(ToXmlGenerator.Feature.WRITE_XML_DECLARATION, true)
-            return mapper
+            return XmlMapper().apply {
+                registerModule(module)
+                setSerializationInclusion(NON_NULL)
+                setSerializationInclusion(NON_EMPTY)
+                enable(SerializationFeature.INDENT_OUTPUT)
+                configure(ToXmlGenerator.Feature.WRITE_XML_DECLARATION, true)
+            }
         }
     }
 }

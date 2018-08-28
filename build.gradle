@@ -1,54 +1,10 @@
-buildscript {
-    ext {
-        springBootVersion = '2.0.3.RELEASE'
-        kotlinVersion = '1.2.51'
-    }
-    repositories {
-        mavenCentral()
-        jcenter()
-    }
-    dependencies {
-        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlinVersion}")
-        classpath("org.jetbrains.kotlin:kotlin-allopen:${kotlinVersion}")
-        classpath "org.jetbrains.kotlin:kotlin-noarg:$kotlinVersion"
-    }
-}
-
 plugins {
     id "io.gitlab.arturbosch.detekt" version "1.0.0.RC7-3"
+    id "org.jetbrains.kotlin.jvm" version "1.2.61"
 }
-
-apply plugin: 'java'
-apply plugin: 'io.spring.dependency-management'
-apply plugin: 'org.springframework.boot'
-apply plugin: 'kotlin-spring'
-apply plugin: 'kotlin'
 
 repositories {
     mavenCentral()
-    maven {
-        url = "https://oss.sonatype.org/content/repositories/snapshots"
-    }
-}
-
-dependencies {
-    compile('org.springframework.boot:spring-boot-starter-web')
-
-    compile("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
-    compile "io.arrow-kt:arrow-core:0.7.2"
-
-    compile "com.fasterxml.jackson.module:jackson-module-kotlin:2.9.+"
-    compile 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.9.6'
-    compile 'com.fasterxml.woodstox:woodstox-core:5.1.0'
-    compile "com.google.guava:guava:25.1-jre"
-
-    testCompile('org.springframework.boot:spring-boot-starter-test')
-    testCompile("org.junit.jupiter:junit-jupiter-api")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
-
-    testCompile 'org.xmlunit:xmlunit-core:2.6.1-SNAPSHOT'
-    testCompile 'org.xmlunit:xmlunit-assertj:2.6.1-SNAPSHOT'
 }
 
 compileKotlin {
@@ -63,13 +19,15 @@ compileTestKotlin {
     }
 }
 
-detekt {
-    version = "1.0.0.RC7-3"
-    defaultProfile {
-        input = file("src/main/kotlin")
-        filters = ".*/resources/.*,.*/build/.*"
-        output = file("reports")
-        outputName = "detekt"
+allprojects {
+    detekt {
+        version = "1.0.0.RC7-3"
+        defaultProfile {
+            input = file("src/main/kotlin")
+            filters = ".*/resources/.*,.*/build/.*"
+            output = file("reports")
+            outputName = "detekt"
+        }
     }
 }
 

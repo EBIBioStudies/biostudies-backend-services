@@ -9,10 +9,12 @@ import com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator
 class SubmissionSerializer : XmlStdSerializer<Submission>(Submission::class.java) {
 
     override fun serializeXml(value: Submission, gen: ToXmlGenerator, provider: SerializerProvider) {
-        gen.writeStartObject()
-        gen.writeAttr("acc", value.accNo)
-        gen.writeObjectField("attributes", value.attributes)
-        gen.writeObjectField("section", value.section)
-        gen.writeEndObject()
+        with(gen) {
+            writeStartObject()
+            writeAttr("acc", value.accNo)
+            writeObjectField("attributes", value.attributes)
+            writeObjectField("section", value.section)
+            writeEndObject()
+        }
     }
 }

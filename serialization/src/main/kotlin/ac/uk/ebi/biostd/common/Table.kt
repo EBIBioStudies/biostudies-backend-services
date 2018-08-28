@@ -2,7 +2,12 @@ package ac.uk.ebi.biostd.common
 
 import ac.uk.ebi.biostd.serialization.tsv.FILE_TABLE_ID_HEADER
 import ac.uk.ebi.biostd.serialization.tsv.LINK_TABLE_ID_HEADER
-import ac.uk.ebi.biostd.submission.*
+import ac.uk.ebi.biostd.submission.Attribute
+import ac.uk.ebi.biostd.submission.File
+import ac.uk.ebi.biostd.submission.Link
+import ac.uk.ebi.biostd.submission.Section
+import ac.uk.ebi.biostd.submission.names
+import ac.uk.ebi.biostd.submission.values
 
 abstract class Table<T>(elements: Collection<T> = listOf()) {
     abstract val idHeaderName: String
@@ -31,9 +36,9 @@ abstract class Table<T>(elements: Collection<T> = listOf()) {
 
 data class TableHeader(val name: String, val termNames: List<String> = listOf()) {
     override fun equals(other: Any?): Boolean {
+        other as? TableHeader ?: return false
         if (this === other) return true
-        if (other == null || javaClass != other.javaClass) return false
-        return name == (other as TableHeader).name
+        return name == other.name
     }
 
     override fun hashCode(): Int {

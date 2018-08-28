@@ -1,1 +1,4 @@
 rootProject.name = 'submission-webapp'
+
+include("persistence")
+include("serialization")
