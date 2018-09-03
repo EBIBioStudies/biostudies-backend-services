@@ -10,12 +10,16 @@ import ac.uk.ebi.biostd.submission.Section
 import ac.uk.ebi.biostd.submission.names
 import ac.uk.ebi.biostd.submission.values
 
-abstract class Table<T>(elements: List<T> = listOf()) {
+abstract class Table<T>(elements: Collection<T>) {
     abstract val idHeaderName: String
     abstract fun toTableRow(t: T): TableRow<T>
 
     private val _headers: MutableSet<TableHeader> = mutableSetOf()
-    private val _rows: MutableList<TableRow<T>> = elements.map { toTableRow(it) }.toMutableList()
+    private val _rows: MutableList<TableRow<T>> = mutableListOf()
+
+    init {
+        elements.forEach { addRow(it) }
+    }
 
     val headers: List<TableHeader>
         get() = listOf(TableHeader(idHeaderName)) + _headers.toList()
@@ -32,6 +36,24 @@ abstract class Table<T>(elements: List<T> = listOf()) {
         val row = toTableRow(data)
         _headers.addAll(row.headers())
         _rows.add(row)
+    }
+
+    override fun equals(other: Any?): Boolean {
+        other as? Table<*> ?: return false
+        if (this === other) return true
+
+        if (idHeaderName != other.idHeaderName) return false
+        if (_headers != other._headers) return false
+        if (_rows != other._rows) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = idHeaderName.hashCode()
+        result = 31 * result + _headers.hashCode()
+        result = 31 * result + _rows.hashCode()
+        return result
     }
 }
 
@@ -58,6 +80,16 @@ abstract class TableRow<T>(val original: T) {
                     .flatMap { listOf(it.value) + it.terms.values() }
 
     private fun findAttrByName(name: String) = this.attributes.firstOrNull { it.name == name } ?: Attribute.EMPTY
+
+    override fun equals(other: Any?): Boolean {
+        other as? TableRow<*> ?: return false
+        if (this === other) return true
+        return original == other.original
+    }
+
+    override fun hashCode(): Int {
+        return original?.hashCode() ?: 0
+    }
 }
 
 class LinksTable(links: List<Link> = emptyList()) : Table<Link>(links) {
