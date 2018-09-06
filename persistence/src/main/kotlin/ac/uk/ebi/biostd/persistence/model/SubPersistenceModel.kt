@@ -1,6 +1,19 @@
 package ac.uk.ebi.biostd.persistence.model
 
-import javax.persistence.*
+import javax.persistence.Column
+import javax.persistence.Entity
+import javax.persistence.GeneratedValue
+import javax.persistence.Id
+import javax.persistence.JoinColumn
+import javax.persistence.JoinTable
+import javax.persistence.ManyToMany
+import javax.persistence.ManyToOne
+import javax.persistence.NamedAttributeNode
+import javax.persistence.NamedEntityGraph
+import javax.persistence.NamedSubgraph
+import javax.persistence.OneToMany
+import javax.persistence.OneToOne
+import javax.persistence.Table
 
 internal const val EMPTY = ""
 internal const val FULL_DATA_GRAPH = "Submission.fullData"
@@ -97,15 +110,23 @@ data class Section(
         @Column
         var accNo: String = EMPTY,
 
+        @Column
+        var type: String = EMPTY,
+
         @Column(name = "ord")
-        var order: Int?,
+        var order: Int? = null,
 
         @Column
-        var tableIndex: Int?
+        var tableIndex: Int
 ) {
+
     @ManyToOne
     @JoinColumn(name = "parent_id")
-    lateinit var parentSection: Section
+    var parentSection: Section? = null
+
+    @OneToMany
+    @JoinColumn(name = "section_id")
+    lateinit var attributes: MutableSet<SectionAttribute>
 
     @OneToMany
     @JoinColumn(name = "section_id")
@@ -114,6 +135,10 @@ data class Section(
     @OneToMany
     @JoinColumn(name = "sectionId")
     lateinit var files: MutableSet<File>
+
+    @OneToMany
+    @JoinColumn(name = "parent_id")
+    lateinit var sections: MutableSet<Section>
 }
 
 @Entity
@@ -125,13 +150,13 @@ data class Link(
         var id: Long = 0L,
 
         @Column
-        var tableIndex: Int?,
+        override var tableIndex: Int = -1,
 
         @Column
         var url: String = EMPTY,
 
         @Column(name = "ord")
-        var order: Int?) {
+        override var order: Int) : Tabular {
 
     @ManyToOne
     @JoinColumn(name = "section_id")
@@ -156,15 +181,22 @@ data class File(
         var size: Int = 0,
 
         @Column
-        var tableIndex: Int = -1,
+        override var tableIndex: Int = -1,
 
         @Column(name = "ord")
-        var order: Int = 0,
+        override var order: Int = 0,
 
         @Column
-        var path: String = EMPTY) {
+        var path: String = EMPTY) : Tabular {
 
     @OneToMany
-    @JoinColumn(name = "link_id")
+    @JoinColumn(name = "file_id")
     lateinit var attributes: MutableSet<FileAttribute>
+}
+
+interface Tabular {
+
+    var tableIndex: Int
+
+    var order: Int
 }

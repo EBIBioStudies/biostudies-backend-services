@@ -1,0 +1,24 @@
+buildscript {
+    ext.junitVersion = "5.2.0"
+    ext.junitPlatformVersion = "1.2.0"
+}
+
+repositories {
+    mavenCentral()
+    maven {
+        url = "https://oss.sonatype.org/content/repositories/snapshots"
+    }
+}
+
+apply plugin: 'kotlin'
+
+dependencies {
+    compile 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
+}
+
+compileKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}
+compileTestKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}

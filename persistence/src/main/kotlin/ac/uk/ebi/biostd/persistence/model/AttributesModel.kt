@@ -1,7 +1,15 @@
 package ac.uk.ebi.biostd.persistence.model
 
 import java.io.Serializable
-import javax.persistence.*
+import javax.persistence.Column
+import javax.persistence.Entity
+import javax.persistence.GeneratedValue
+import javax.persistence.Id
+import javax.persistence.JoinColumn
+import javax.persistence.ManyToOne
+import javax.persistence.MappedSuperclass
+
+const val NO_TABLE_INDEX = -1
 
 @MappedSuperclass
 abstract class Attribute {

@@ -64,7 +64,7 @@ fun LinksTable.link(block: Link.() -> Unit): Link {
 }
 
 fun Section.sectionsTable(type: String, block: SectionsTable.() -> Unit) {
-    val table = SectionsTable(parentAccNo = this.accNo)
+    val table = SectionsTable(parentAccNo = this.accNo!!)
     table.apply(block)
     this.subsections.add(Right(table))
 }

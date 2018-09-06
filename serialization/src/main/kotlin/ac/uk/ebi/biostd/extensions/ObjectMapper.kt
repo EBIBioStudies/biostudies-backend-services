@@ -9,5 +9,5 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 
 fun ObjectMapper.tryConvertValue(node: JsonNode, type: JavaType): Option<Any> {
-    return Try<Any?> { this.convertValue(node, type) }.map { Option.fromNullable(it) }.getOrElse { None }
+    return Try<Any> { this.convertValue(node, type) }.map { Option.fromNullable(it) }.getOrElse { None }
 }

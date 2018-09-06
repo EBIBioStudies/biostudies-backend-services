@@ -26,7 +26,7 @@ class TsvSerializer {
 
     private fun serializeSection(section: Section) {
         builder.addSeparator()
-        builder.addSecDescriptor(section.type, section.accNo)
+        builder.addSecDescriptor(section.type, section.accNo.orEmpty())
         section.attributes.forEach(builder::addSecAttr)
 
         section.links.forEach { it.fold({ addLink(it) }, { addTable(it) }) }

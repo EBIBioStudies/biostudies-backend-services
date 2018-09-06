@@ -1,4 +1,6 @@
-rootProject.name = 'submission-webapp'
+rootProject.name = 'pagetab-procesor'
 
 include("persistence")
 include("serialization")
+include("submission-webapp")
+include("commons-util")

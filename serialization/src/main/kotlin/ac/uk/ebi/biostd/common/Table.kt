@@ -116,7 +116,7 @@ class SectionsTable(sections: List<Section> = emptyList(), var parentAccNo: Stri
     override val idHeaderName = "$sectionType${if (parentAccNo.isEmpty()) "[$parentAccNo]" else EMPTY}"
 
     override fun toTableRow(t: Section): TableRow<Section> = object : TableRow<Section>(t) {
-        override val id = t.accNo
+        override val id = t.accNo!!
         override val attributes = t.attributes
     }
 }
