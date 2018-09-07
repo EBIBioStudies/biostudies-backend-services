@@ -1,10 +1,10 @@
 package ac.uk.ebi.biostd.serialization.tsv
 
-import ac.uk.ebi.biostd.common.Table
 import ac.uk.ebi.biostd.submission.File
 import ac.uk.ebi.biostd.submission.Link
 import ac.uk.ebi.biostd.submission.Section
 import ac.uk.ebi.biostd.submission.Submission
+import ac.uk.ebi.biostd.submission.Table
 
 class TsvSerializer {
 

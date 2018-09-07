@@ -1,10 +1,10 @@
 package ac.uk.ebi.biostd.mapping
 
-import ac.uk.ebi.biostd.common.FilesTable
-import ac.uk.ebi.biostd.common.LinksTable
 import ac.uk.ebi.biostd.config.FileDb
 import ac.uk.ebi.biostd.config.LinkDb
 import ac.uk.ebi.biostd.persistence.model.Tabular
+import ac.uk.ebi.biostd.submission.FilesTable
+import ac.uk.ebi.biostd.submission.LinksTable
 import arrow.core.Either
 import ebi.ac.uk.util.collections.ifNotEmpty
 
@@ -22,7 +22,7 @@ class TabularMapper(private val attributesMapper: AttributesMapper) {
 
         val map: MutableMap<Int, Either<Type, TableType>> = mutableMapOf()
         listElements.forEach { map[it.order] = Either.Left(transform(it)) }
-        tableElements.ifNotEmpty { table -> map[min(table)] = Either.Right(tableBuilder(tableElements.map { transform(it) })) }
+        tableElements.ifNotEmpty { table -> map[min(table)] = Either.Right(tableBuilder(table.map { transform(it) })) }
         return map.toSortedMap().values.toMutableList()
     }
 

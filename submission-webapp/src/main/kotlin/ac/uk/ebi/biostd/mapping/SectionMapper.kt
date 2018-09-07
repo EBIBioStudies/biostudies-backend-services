@@ -1,17 +1,17 @@
 package ac.uk.ebi.biostd.mapping
 
-import ac.uk.ebi.biostd.common.SectionsTable
 import ac.uk.ebi.biostd.config.SectionDb
 import ac.uk.ebi.biostd.persistence.model.AbstractSection
 import ac.uk.ebi.biostd.persistence.model.NO_TABLE_INDEX
 import ac.uk.ebi.biostd.submission.Section
+import ac.uk.ebi.biostd.submission.SectionsTable
 import arrow.core.Either
 import ebi.ac.uk.util.collections.ifNotEmpty
 
 class SectionMapper(private val attributesMapper: AttributesMapper, private val tabularMapper: TabularMapper) {
 
     fun toSection(sectionDb: AbstractSection): Section {
-        return mapSectionBaseAttributes(sectionDb).apply {
+        return mapSectionAttrs(sectionDb).apply {
             links = tabularMapper.toLinks(sectionDb.links)
             files = tabularMapper.toFiles(sectionDb.files)
 
@@ -21,7 +21,7 @@ class SectionMapper(private val attributesMapper: AttributesMapper, private val 
         }
     }
 
-    private fun mapSectionBaseAttributes(sectionDb: AbstractSection): Section {
+    private fun mapSectionAttrs(sectionDb: AbstractSection): Section {
         return Section().apply {
             type = sectionDb.type
             accNo = sectionDb.accNo
@@ -44,5 +44,6 @@ class SectionMapper(private val attributesMapper: AttributesMapper, private val 
         return sections.map { it.order }.min()!!
     }
 
-    private fun asTable(parentAcc: String, sections: List<SectionDb>) = SectionsTable(sections.map { mapSectionBaseAttributes(it) }, parentAcc)
+    private fun asTable(parentAcc: String, sections: List<SectionDb>) =
+            SectionsTable(sections.map { mapSectionAttrs(it) }, parentAcc)
 }

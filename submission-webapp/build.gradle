@@ -1,6 +1,6 @@
 buildscript {
     ext {
-        springBootVersion = '2.0.3.RELEASE'
+        springBootVersion = '2.0.4.RELEASE'
         kotlinVersion = '1.2.61'
     }
     repositories {
@@ -29,5 +29,5 @@ dependencies {
     compile 'org.springframework.boot:spring-boot-starter-data-jpa'
 
     compile('mysql:mysql-connector-java:6.0.6')
-    compile "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
+    compile("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
 }

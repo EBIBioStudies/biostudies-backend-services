@@ -1,14 +1,11 @@
 package ac.uk.ebi.biostd.submission
 
-import ac.uk.ebi.biostd.common.FilesTable
-import ac.uk.ebi.biostd.common.LinksTable
-import ac.uk.ebi.biostd.common.SectionsTable
 import arrow.core.Either
 import ebi.ac.uk.base.EMPTY
 
 data class Submission(
-        var rTime: Long = 0L,
         var accNo: String = EMPTY,
+        var rTime: Long = 0L,
         var title: String = EMPTY,
         var rootPath: String = EMPTY,
         var attributes: MutableList<Attribute> = mutableListOf(),

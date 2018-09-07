@@ -1,12 +1,12 @@
 package ac.uk.ebi.biostd.serialization.json
 
-import ac.uk.ebi.biostd.common.FilesTable
-import ac.uk.ebi.biostd.common.LinksTable
-import ac.uk.ebi.biostd.common.SectionsTable
-import ac.uk.ebi.biostd.common.Table
 import ac.uk.ebi.biostd.submission.File
+import ac.uk.ebi.biostd.submission.FilesTable
 import ac.uk.ebi.biostd.submission.Link
+import ac.uk.ebi.biostd.submission.LinksTable
 import ac.uk.ebi.biostd.submission.Section
+import ac.uk.ebi.biostd.submission.SectionsTable
+import ac.uk.ebi.biostd.submission.Table
 import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind.DeserializationContext

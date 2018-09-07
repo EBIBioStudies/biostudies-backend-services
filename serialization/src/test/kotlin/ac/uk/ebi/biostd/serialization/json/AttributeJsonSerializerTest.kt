@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.serialization.json
 
 import ac.uk.ebi.biostd.submission.Attribute
 import ac.uk.ebi.biostd.submission.Term
+import net.soundvibe.jkob.json
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 
@@ -30,20 +31,20 @@ class AttributeJsonSerializerTest {
         val term2 = Term("t2", "v2")
         val attr = Attribute(name = "attr name", value = "attr value", reference = true, terms = listOf(term1, term2))
 
-        val result = deserialize("""{
-            |"name": "${attr.name}",
-            |"value": "${attr.value}",
-            |"isReference": ${attr.reference},
-            |"valqual": [{
-            |    "name": "${term1.name}",
-            |    "value": "${term1.value}"
-            |},
-            |{
-            |    "name": "${term2.name}",
-            |    "value": "${term2.value}"
-            |}]}""".trimMargin())
+        val attributeJson = json {
+            "name" to attr.name
+            "value" to attr.value
+            "isReference" to attr.reference
+            "valqual"[{
+                "name" to term1.name
+                "value" to term1.value
+            }, {
+                "name" to term2.name
+                "value" to term2.value
+            }]
+        }.toString()
 
-        assertThat(result).isEqualTo(attr)
+        assertThat(deserialize(attributeJson)).isEqualTo(attr)
     }
 
     @Test

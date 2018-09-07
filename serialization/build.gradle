@@ -19,10 +19,13 @@ dependencies {
     compile 'com.fasterxml.woodstox:woodstox-core:5.1.0'
     compile 'io.arrow-kt:arrow-core:0.7.2'
 
-    testCompile "org.jetbrains.kotlin:kotlin-test-junit:${kotlinVersion}"
+    testCompile("org.jetbrains.kotlin:kotlin-test-junit:${kotlinVersion}")
 
     //Misc
-    compile 'net.soundvibe:jkob:1.0.0'
+    compile('net.soundvibe:jkob:1.0.0') {
+        exclude group: 'org.jetbrains.kotlin', module: 'kotlin-stdlib-jre7'
+        exclude group: 'org.jetbrains.kotlin', module: 'kotlin-stdlib-jre8'
+    }
 
     // Junit dependencies
     runtime "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
