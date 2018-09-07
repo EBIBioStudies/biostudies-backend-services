@@ -18,11 +18,7 @@ buildscript {
 apply plugin: 'io.spring.dependency-management'
 apply plugin: 'org.springframework.boot'
 apply plugin: 'kotlin-spring'
-apply plugin: 'kotlin'
 
-repositories {
-    mavenCentral()
-}
 
 dependencies {
     compile project(":persistence")
@@ -33,19 +29,5 @@ dependencies {
     compile 'org.springframework.boot:spring-boot-starter-data-jpa'
 
     compile('mysql:mysql-connector-java:6.0.6')
-
-    compile 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
     compile "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
-}
-
-compileKotlin {
-    kotlinOptions {
-        jvmTarget = "1.8"
-    }
-}
-
-compileTestKotlin {
-    kotlinOptions {
-        jvmTarget = "1.8"
-    }
 }

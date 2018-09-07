@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.persistence.model
 
+import ebi.ac.uk.base.EMPTY
 import java.io.Serializable
 import javax.persistence.Column
 import javax.persistence.Entity
@@ -48,13 +49,7 @@ data class SubmissionAttribute(
 ) : Attribute(), Serializable
 
 @Entity
-data class SectionAttribute(
-
-        @ManyToOne
-        @JoinColumn(name = "section_id")
-        var section: Section
-
-) : Attribute(), Serializable
+class SectionAttribute : Attribute(), Serializable
 
 @Entity
 data class LinkAttribute(

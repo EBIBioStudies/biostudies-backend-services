@@ -5,6 +5,10 @@ spring:
     url: jdbc:mysql://mysql-fg-biostudy.ebi.ac.uk:4469/biostd_beta
 
   jpa:
+    show-sql: true
     hibernate:
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+
+
+

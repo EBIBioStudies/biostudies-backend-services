@@ -5,7 +5,7 @@ package ebi.ac.uk.util.collections
  *
  * @function lambda function to execute.
  */
-fun <A> List<A>.ifNotEmpty(function: (List<A>) -> Unit) = {
+fun <A> List<A>.ifNotEmpty(function: (List<A>) -> Unit) {
     if (this.isNotEmpty()) {
         function(this)
     }

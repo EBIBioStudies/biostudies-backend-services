@@ -17,12 +17,12 @@ class SubmissionResource(private val submissionService: SubmissionService) {
         return submissionService.getSubmissionAsJson(id)
     }
 
-    @GetMapping("/xml/{id}.xml", produces = ["application/xml; charset=utf-8"])
+    @GetMapping("/{id}.xml", produces = ["application/xml; charset=utf-8"])
     fun asXml(@PathVariable id: Long): String {
         return submissionService.getSubmissionAsXml(id)
     }
 
-    @GetMapping("/tsv/{id}.tsv", produces = ["text/plain; charset=utf-8"])
+    @GetMapping("/{id}.tsv", produces = ["text/plain; charset=utf-8"])
     fun asTsv(@PathVariable id: Long): String {
         return submissionService.getSubmissionAsTsv(id)
     }

@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.persistence.model
 
+import ebi.ac.uk.base.EMPTY
 import javax.persistence.Column
 import javax.persistence.Entity
 import javax.persistence.GeneratedValue
@@ -7,7 +8,6 @@ import javax.persistence.Id
 import javax.persistence.JoinColumn
 import javax.persistence.JoinTable
 import javax.persistence.ManyToMany
-import javax.persistence.ManyToOne
 import javax.persistence.NamedAttributeNode
 import javax.persistence.NamedEntityGraph
 import javax.persistence.NamedSubgraph
@@ -15,7 +15,6 @@ import javax.persistence.OneToMany
 import javax.persistence.OneToOne
 import javax.persistence.Table
 
-internal const val EMPTY = ""
 internal const val FULL_DATA_GRAPH = "Submission.fullData"
 
 typealias Node = NamedAttributeNode
@@ -30,7 +29,9 @@ typealias Graph = NamedSubgraph
             Node("attributes")
         ],
         subgraphs = [
-            Graph(name = "sectionGraph", attributeNodes = [Node("links"), Node("files")])
+            Graph(name = "sectionGraph", attributeNodes = [
+                Node("links"), Node("files"), Node("sections", subgraph = FULL_DATA_GRAPH)
+            ])
         ])
 @Table(name = "Submission")
 data class Submission(
@@ -71,7 +72,7 @@ data class Submission(
 
     @OneToOne
     @JoinColumn(name = "rootSection_id")
-    lateinit var rootSection: Section
+    lateinit var rootSection: RootSection
 
     @ManyToMany
     @JoinTable(name = "Submission_AccessTag",
@@ -100,48 +101,6 @@ data class AccessTag(
 )
 
 @Entity
-@Table(name = "Section")
-data class Section(
-
-        @Id
-        @GeneratedValue
-        var id: Long = 0L,
-
-        @Column
-        var accNo: String = EMPTY,
-
-        @Column
-        var type: String = EMPTY,
-
-        @Column(name = "ord")
-        var order: Int? = null,
-
-        @Column
-        var tableIndex: Int
-) {
-
-    @ManyToOne
-    @JoinColumn(name = "parent_id")
-    var parentSection: Section? = null
-
-    @OneToMany
-    @JoinColumn(name = "section_id")
-    lateinit var attributes: MutableSet<SectionAttribute>
-
-    @OneToMany
-    @JoinColumn(name = "section_id")
-    lateinit var links: MutableSet<Link>
-
-    @OneToMany
-    @JoinColumn(name = "sectionId")
-    lateinit var files: MutableSet<File>
-
-    @OneToMany
-    @JoinColumn(name = "parent_id")
-    lateinit var sections: MutableSet<Section>
-}
-
-@Entity
 @Table(name = "Link")
 data class Link(
 
@@ -157,10 +116,6 @@ data class Link(
 
         @Column(name = "ord")
         override var order: Int) : Tabular {
-
-    @ManyToOne
-    @JoinColumn(name = "section_id")
-    lateinit var section: Section
 
     @OneToMany
     @JoinColumn(name = "link_id")

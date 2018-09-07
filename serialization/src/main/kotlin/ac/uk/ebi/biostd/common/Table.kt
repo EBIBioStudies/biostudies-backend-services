@@ -3,12 +3,12 @@ package ac.uk.ebi.biostd.common
 import ac.uk.ebi.biostd.serialization.tsv.FILE_TABLE_ID_HEADER
 import ac.uk.ebi.biostd.serialization.tsv.LINK_TABLE_ID_HEADER
 import ac.uk.ebi.biostd.submission.Attribute
-import ac.uk.ebi.biostd.submission.EMPTY
 import ac.uk.ebi.biostd.submission.File
 import ac.uk.ebi.biostd.submission.Link
 import ac.uk.ebi.biostd.submission.Section
 import ac.uk.ebi.biostd.submission.names
 import ac.uk.ebi.biostd.submission.values
+import ebi.ac.uk.base.EMPTY
 
 abstract class Table<T>(elements: Collection<T>) {
     abstract val idHeaderName: String
@@ -79,7 +79,7 @@ abstract class TableRow<T>(val original: T) {
             headers.map { header -> findAttrByName(header.name) }
                     .flatMap { listOf(it.value) + it.terms.values() }
 
-    private fun findAttrByName(name: String) = this.attributes.firstOrNull { it.name == name } ?: Attribute.EMPTY
+    private fun findAttrByName(name: String) = this.attributes.firstOrNull { it.name == name } ?: Attribute.EMPTY_ATTR
 
     override fun equals(other: Any?): Boolean {
         other as? TableRow<*> ?: return false
@@ -110,8 +110,8 @@ class FilesTable(files: List<File> = emptyList()) : Table<File>(files) {
     }
 }
 
-class SectionsTable(sections: List<Section> = emptyList(), var parentAccNo: String = "") : Table<Section>(sections) {
-    private val sectionType = elements.map { it.type }.firstOrNull() ?: ""
+class SectionsTable(sections: List<Section> = emptyList(), var parentAccNo: String = EMPTY) : Table<Section>(sections) {
+    private val sectionType = elements.map { it.type }.firstOrNull() ?: EMPTY
 
     override val idHeaderName = "$sectionType${if (parentAccNo.isEmpty()) "[$parentAccNo]" else EMPTY}"
 

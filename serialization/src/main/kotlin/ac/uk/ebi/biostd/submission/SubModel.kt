@@ -4,8 +4,7 @@ import ac.uk.ebi.biostd.common.FilesTable
 import ac.uk.ebi.biostd.common.LinksTable
 import ac.uk.ebi.biostd.common.SectionsTable
 import arrow.core.Either
-
-internal const val EMPTY = ""
+import ebi.ac.uk.base.EMPTY
 
 data class Submission(
         var rTime: Long = 0L,
@@ -32,7 +31,7 @@ data class Attribute(
         var reference: Boolean = false,
         var terms: List<Term>) {
     companion object {
-        val EMPTY: Attribute = Attribute("", "", false, listOf())
+        val EMPTY_ATTR: Attribute = Attribute(EMPTY, EMPTY, false, listOf())
     }
 }
 
