@@ -11,19 +11,19 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/submissions")
 class SubmissionResource(private val submissionService: SubmissionService) {
 
-    @GetMapping("/{id}.json", produces = ["application/json; charset=utf-8"])
+    @GetMapping("/{accNo}.json", produces = ["application/json; charset=utf-8"])
     @ResponseBody
-    fun asJson(@PathVariable id: Long): String {
-        return submissionService.getSubmissionAsJson(id)
+    fun asJson(@PathVariable accNo: String): String {
+        return submissionService.getSubmissionAsJson(accNo)
     }
 
-    @GetMapping("/{id}.xml", produces = ["application/xml; charset=utf-8"])
-    fun asXml(@PathVariable id: Long): String {
-        return submissionService.getSubmissionAsXml(id)
+    @GetMapping("/{accNo}.xml", produces = ["application/xml; charset=utf-8"])
+    fun asXml(@PathVariable accNo: String): String {
+        return submissionService.getSubmissionAsXml(accNo)
     }
 
-    @GetMapping("/{id}.tsv", produces = ["text/plain; charset=utf-8"])
-    fun asTsv(@PathVariable id: Long): String {
-        return submissionService.getSubmissionAsTsv(id)
+    @GetMapping("/{accNo}.tsv", produces = ["text/plain; charset=utf-8"])
+    fun asTsv(@PathVariable accNo: String): String {
+        return submissionService.getSubmissionAsTsv(accNo)
     }
 }

@@ -13,18 +13,18 @@ class SubmissionService(
         private val tsvSerializer: TsvSerializer,
         private val xmlSerializer: XmlSerializer) {
 
-    fun getSubmissionAsJson(id: Long): String {
-        val submission = subRepository.findById(id).get()
+    fun getSubmissionAsJson(accNo: String): String {
+        val submission = subRepository.findByAccNoAndVersionGreaterThan(accNo)
         return jsonSerializer.serialize(submissionMapper.mapSubmission(submission))
     }
 
-    fun getSubmissionAsXml(id: Long): String {
-        val submission = subRepository.findById(id).get()
+    fun getSubmissionAsXml(accNo: String): String {
+        val submission = subRepository.findByAccNoAndVersionGreaterThan(accNo)
         return xmlSerializer.serialize(submissionMapper.mapSubmission(submission))
     }
 
-    fun getSubmissionAsTsv(id: Long): String {
-        val submission = subRepository.findById(id).get()
+    fun getSubmissionAsTsv(accNo: String): String {
+        val submission = subRepository.findByAccNoAndVersionGreaterThan(accNo)
         return tsvSerializer.serialize(submissionMapper.mapSubmission(submission))
     }
 }

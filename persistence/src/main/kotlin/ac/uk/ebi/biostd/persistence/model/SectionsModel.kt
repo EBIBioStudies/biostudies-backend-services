@@ -8,6 +8,7 @@ import javax.persistence.Id
 import javax.persistence.JoinColumn
 import javax.persistence.MappedSuperclass
 import javax.persistence.OneToMany
+import javax.persistence.OrderBy
 import javax.persistence.Table
 
 @MappedSuperclass
@@ -21,6 +22,7 @@ abstract class AbstractSection {
 
     @OneToMany
     @JoinColumn(name = "section_id")
+    @OrderBy("order ASC")
     lateinit var attributes: MutableSet<SectionAttribute>
 
     @OneToMany

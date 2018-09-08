@@ -13,26 +13,30 @@ import javax.persistence.NamedEntityGraph
 import javax.persistence.NamedSubgraph
 import javax.persistence.OneToMany
 import javax.persistence.OneToOne
+import javax.persistence.OrderBy
 import javax.persistence.Table
 
 internal const val FULL_DATA_GRAPH = "Submission.fullData"
+internal const val ATTRS = "attributes"
+internal const val FILES = "files"
+internal const val LINKS = "links"
+internal const val SECTS = "sections"
 
 typealias Node = NamedAttributeNode
 typealias Graph = NamedSubgraph
 
 @Entity
-@NamedEntityGraph(
-        name = FULL_DATA_GRAPH,
-        attributeNodes = [
-            Node(value = "rootSection", subgraph = "sectionGraph"),
-            Node("accessTags"),
-            Node("attributes")
-        ],
-        subgraphs = [
-            Graph(name = "sectionGraph", attributeNodes = [
-                Node("links"), Node("files"), Node("sections", subgraph = FULL_DATA_GRAPH)
-            ])
-        ])
+@NamedEntityGraph(name = FULL_DATA_GRAPH, attributeNodes = [
+    Node(value = "rootSection", subgraph = "root"),
+    Node("accessTags"),
+    Node(ATTRS)
+], subgraphs = [
+    Graph(name = "root", attributeNodes = [Node(LINKS, subgraph = "attrs"), Node(ATTRS), Node(FILES, subgraph = "attrs"), Node(SECTS, subgraph = "l1")]),
+    Graph(name = "l1", attributeNodes = [Node(LINKS, subgraph = "attrs"), Node(ATTRS), Node(FILES, subgraph = "attrs"), Node(SECTS, subgraph = "l2")]),
+    Graph(name = "l2", attributeNodes = [Node(LINKS, subgraph = "attrs"), Node(ATTRS), Node(FILES, subgraph = "attrs"), Node(SECTS, subgraph = "l3")]),
+    Graph(name = "l3", attributeNodes = [Node(LINKS, subgraph = "attrs"), Node(ATTRS), Node(FILES, subgraph = "attrs")]),
+    Graph(name = "attrs", attributeNodes = [Node(ATTRS)])
+])
 @Table(name = "Submission")
 data class Submission(
 
@@ -82,6 +86,7 @@ data class Submission(
 
     @OneToMany
     @JoinColumn(name = "submission_id")
+    @OrderBy("order ASC")
     lateinit var attributes: MutableSet<SubmissionAttribute>
 }
 
