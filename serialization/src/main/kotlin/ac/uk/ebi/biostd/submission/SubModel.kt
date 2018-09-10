@@ -7,7 +7,7 @@ data class Submission(
         var accNo: String = EMPTY,
         var rTime: Long = 0L,
         var title: String = EMPTY,
-        var rootPath: String = EMPTY,
+        var rootPath: String? = null,
         var attributes: MutableList<Attribute> = mutableListOf(),
         var accessTags: MutableList<String> = mutableListOf(),
         var section: Section = Section())

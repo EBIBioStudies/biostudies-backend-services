@@ -10,9 +10,8 @@ fun TsvBuilder.addSubTitle(title: String) {
     with(TITLE_KEY, title)
 }
 
-fun TsvBuilder.addRootPath(rootPath: String) {
-    with(ROOT_PATH_KEY, rootPath)
-}
+fun TsvBuilder.addRootPath(rootPath: String?) = rootPath?.let { with(ROOT_PATH_KEY, it) }
+
 
 fun TsvBuilder.addSubReleaseDate(rTime: Long) {
     with(RELEASE_DATE_KEY, asIsoDate(rTime))

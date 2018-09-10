@@ -23,7 +23,7 @@ class AttributesMapper {
     fun toAttributes(attrs: Set<AttributeDb>) = attrs.map { toAttribute(it) }.toMutableList()
 
     private fun toAttribute(attrDb: AttributeDb): Attribute {
-        return attrDb.run { Attribute(name, value, reference.orFalse(), getTerms(nameQualifier).orEmpty()) }
+        return attrDb.run { Attribute(name, value, reference.orFalse(), getTerms(valueQualifier).orEmpty()) }
     }
 
     private fun getTerms(valueQualifier: String?): List<Term>? {

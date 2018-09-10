@@ -8,6 +8,7 @@ import javax.persistence.Id
 import javax.persistence.JoinColumn
 import javax.persistence.JoinTable
 import javax.persistence.ManyToMany
+import javax.persistence.ManyToOne
 import javax.persistence.NamedAttributeNode
 import javax.persistence.NamedEntityGraph
 import javax.persistence.NamedSubgraph
@@ -26,17 +27,25 @@ typealias Node = NamedAttributeNode
 typealias Graph = NamedSubgraph
 
 @Entity
-@NamedEntityGraph(name = FULL_DATA_GRAPH, attributeNodes = [
-    Node(value = "rootSection", subgraph = "root"),
-    Node("accessTags"),
-    Node(ATTRS)
-], subgraphs = [
-    Graph(name = "root", attributeNodes = [Node(LINKS, subgraph = "attrs"), Node(ATTRS), Node(FILES, subgraph = "attrs"), Node(SECTS, subgraph = "l1")]),
-    Graph(name = "l1", attributeNodes = [Node(LINKS, subgraph = "attrs"), Node(ATTRS), Node(FILES, subgraph = "attrs"), Node(SECTS, subgraph = "l2")]),
-    Graph(name = "l2", attributeNodes = [Node(LINKS, subgraph = "attrs"), Node(ATTRS), Node(FILES, subgraph = "attrs"), Node(SECTS, subgraph = "l3")]),
-    Graph(name = "l3", attributeNodes = [Node(LINKS, subgraph = "attrs"), Node(ATTRS), Node(FILES, subgraph = "attrs")]),
-    Graph(name = "attrs", attributeNodes = [Node(ATTRS)])
-])
+data class User(
+
+        @Id
+        @GeneratedValue
+        var id: Long = 0L,
+
+        var email: String
+)
+
+@Entity
+@NamedEntityGraph(name = FULL_DATA_GRAPH,
+        attributeNodes = [Node(value = "rootSection", subgraph = "root"), Node("accessTags"), Node(ATTRS)],
+        subgraphs = [
+            Graph(name = "root", attributeNodes = [Node(LINKS, subgraph = "attrs"), Node(ATTRS), Node(FILES, subgraph = "attrs"), Node(SECTS, subgraph = "l1")]),
+            Graph(name = "l1", attributeNodes = [Node(LINKS, subgraph = "attrs"), Node(ATTRS), Node(FILES, subgraph = "attrs"), Node(SECTS, subgraph = "l2")]),
+            Graph(name = "l2", attributeNodes = [Node(LINKS, subgraph = "attrs"), Node(ATTRS), Node(FILES, subgraph = "attrs"), Node(SECTS, subgraph = "l3")]),
+            Graph(name = "l3", attributeNodes = [Node(LINKS, subgraph = "attrs"), Node(ATTRS), Node(FILES, subgraph = "attrs")]),
+            Graph(name = "attrs", attributeNodes = [Node(ATTRS)])
+        ])
 @Table(name = "Submission")
 data class Submission(
 
@@ -63,7 +72,7 @@ data class Submission(
         var released: Boolean = false,
 
         @Column
-        var rootPath: String,
+        var rootPath: String?,
 
         @Column
         var title: String,
@@ -77,6 +86,10 @@ data class Submission(
     @OneToOne
     @JoinColumn(name = "rootSection_id")
     lateinit var rootSection: RootSection
+
+    @ManyToOne
+    @JoinColumn(name = "owner_id")
+    lateinit var owner: User
 
     @ManyToMany
     @JoinTable(name = "Submission_AccessTag",

@@ -40,7 +40,7 @@ abstract class Attribute {
 }
 
 @Entity
-data class SubmissionAttribute(
+class SubmissionAttribute(
 
         @ManyToOne
         @JoinColumn(name = "submission_id")
@@ -52,7 +52,7 @@ data class SubmissionAttribute(
 class SectionAttribute : Attribute(), Serializable
 
 @Entity
-data class LinkAttribute(
+class LinkAttribute(
 
         @ManyToOne
         @JoinColumn(name = "link_id")
@@ -61,7 +61,7 @@ data class LinkAttribute(
 ) : Attribute(), Serializable
 
 @Entity
-data class FileAttribute(
+class FileAttribute(
 
         @ManyToOne
         @JoinColumn(name = "file_id")

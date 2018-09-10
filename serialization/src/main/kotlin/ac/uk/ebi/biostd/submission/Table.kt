@@ -5,7 +5,7 @@ import ac.uk.ebi.biostd.serialization.tsv.LINK_TABLE_ID_HEADER
 import ebi.ac.uk.base.EMPTY
 import java.util.*
 
-abstract class Table<T>(elements: List<T>) {
+sealed class Table<T>(elements: List<T>) {
     abstract val idHeaderName: String
     abstract fun toTableRow(t: T): Row<T>
 
@@ -96,7 +96,7 @@ class FilesTable(files: List<File> = emptyList()) : Table<File>(files) {
 class SectionsTable(sections: List<Section> = emptyList(), var parentAccNo: String = EMPTY) : Table<Section>(sections) {
     private val sectionType = elements.map { it.type }.firstOrNull().orEmpty()
 
-    override val idHeaderName = "$sectionType${if (parentAccNo.isEmpty()) "[$parentAccNo]" else EMPTY}"
+    override val idHeaderName = "$sectionType${if (parentAccNo.isNotEmpty()) "[$parentAccNo]" else EMPTY}"
 
     override fun toTableRow(t: Section) = object : Row<Section>(t) {
         override val id = t.accNo!!

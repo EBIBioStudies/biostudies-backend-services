@@ -21,13 +21,13 @@ class TsvSerializer {
         builder.addSubTitle(submission.title)
         builder.addSubReleaseDate(submission.rTime)
         builder.addRootPath(submission.rootPath)
-        submission.attributes.forEach(builder::addSecAttr)
+        submission.attributes.forEach(builder::addAttr)
     }
 
     private fun serializeSection(section: Section) {
         builder.addSeparator()
         builder.addSecDescriptor(section.type, section.accNo.orEmpty())
-        section.attributes.forEach(builder::addSecAttr)
+        section.attributes.forEach(builder::addAttr)
 
         section.links.forEach { it.fold({ addLink(it) }, { addTable(it) }) }
         section.files.forEach { it.fold({ addFile(it) }, { addTable(it) }) }

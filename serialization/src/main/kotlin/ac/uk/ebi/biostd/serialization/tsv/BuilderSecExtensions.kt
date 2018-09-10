@@ -23,7 +23,7 @@ fun TsvBuilder.addAttributes(attributes: List<Attribute>) {
     attributes.forEach { with(it.name, it.value) }
 }
 
-fun TsvBuilder.addSecAttr(attr: Attribute) {
-    with(attr.name, attr.value)
+fun TsvBuilder.addAttr(attr: Attribute) {
+    with(if (attr.reference) "<${attr.name}>" else attr.name, attr.value)
     attr.terms.forEach { with("[${it.name}]", it.value) }
 }
