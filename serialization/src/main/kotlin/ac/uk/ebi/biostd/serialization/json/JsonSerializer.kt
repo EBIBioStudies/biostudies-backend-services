@@ -18,7 +18,7 @@ class JsonSerializer {
         return mapper.writeValueAsString(t)
     }
 
-    fun <T> serializeWithInternaData(t: T): String {
+    fun <T> serializeWithInternalData(t: T): String {
         return mapper.writerWithView(Views.Internal::class.java).writeValueAsString(t)
     }
 
@@ -31,7 +31,6 @@ class JsonSerializer {
 
         private fun createMapper(): ObjectMapper {
             val module = SimpleModule().apply {
-                addSerializer(Submission::class.java, SubmissionJsonSerializer())
                 addSerializer(Attribute::class.java, AttributeJsonSerializer())
                 addSerializer(Either::class.java, EitherSerializer())
                 addSerializer(Table::class.java, TableJsonSerializer())
@@ -41,11 +40,11 @@ class JsonSerializer {
                 addDeserializer(LinksTable::class.java, LinksTableJsonDeserializer())
                 addDeserializer(FilesTable::class.java, FilesTableJsonDeserializer())
                 addDeserializer(SectionsTable::class.java, SectionsTableJsonDeserializer())
+                setSerializerModifier(BeanSerializerModifier())
             }
 
             return jacksonObjectMapper().apply {
                 registerModule(module)
-                setSerializationInclusion(JsonInclude.Include.NON_NULL)
                 setSerializationInclusion(JsonInclude.Include.NON_EMPTY)
             }
         }

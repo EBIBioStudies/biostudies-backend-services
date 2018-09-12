@@ -1,7 +1,9 @@
 package ac.uk.ebi.biostd.serialization.common
 
 import ac.uk.ebi.biostd.extensions.tryConvertValue
-import arrow.core.*
+import arrow.core.Either
+import arrow.core.getOrElse
+import arrow.core.or
 import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind.*
@@ -10,8 +12,8 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer
 import com.fasterxml.jackson.databind.ser.std.StdSerializer
 
 class EitherSerializer : StdSerializer<Either<*, *>>(Either::class.java) {
-    override fun serialize(either: Either<*, *>?, gen: JsonGenerator?, provider: SerializerProvider?) {
-        either?.fold({ gen?.writeObject(it) }, { gen?.writeObject(it) })
+    override fun serialize(either: Either<*, *>, gen: JsonGenerator, provider: SerializerProvider) {
+        either.fold({ gen.writeObject(it) }, { gen.writeObject(it) })
     }
 }
 
