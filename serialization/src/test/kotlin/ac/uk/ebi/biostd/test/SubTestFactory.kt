@@ -12,7 +12,7 @@ fun createVenousBloodMonocyte(): Submission {
     return submission {
         accNo = "S-IHECRE00000919.1"
         title = "Submission title"
-        rTime = releaseDate.epochSecond
+        rtime = releaseDate.epochSecond
         accessTags = mutableListOf("Public")
         rootPath = "S-IHECRE00000919.1"
 

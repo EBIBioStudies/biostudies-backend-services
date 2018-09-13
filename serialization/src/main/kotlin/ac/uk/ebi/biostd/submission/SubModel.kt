@@ -6,9 +6,9 @@ import ebi.ac.uk.base.EMPTY
 
 data class Submission(
         var accNo: String = EMPTY,
-        var rTime: Long = 0L,
-        var cTime: Long = 0L,
-        var mTime: Long = 0L,
+        var rtime: Long = 0L,
+        var ctime: Long = 0L,
+        var mtime: Long = 0L,
         var relPath: String = EMPTY,
         var secretKey: String = EMPTY,
         var user: User = User.EMPTY_USER,
