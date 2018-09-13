@@ -4,10 +4,17 @@ import ac.uk.ebi.biostd.serialization.common.EitherDeserializer
 import ac.uk.ebi.biostd.serialization.common.EitherSerializer
 import ac.uk.ebi.biostd.submission.*
 import arrow.core.Either
+import com.fasterxml.jackson.annotation.JsonFilter
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.PropertyNamingStrategy
+import com.fasterxml.jackson.databind.cfg.MapperConfig
+import com.fasterxml.jackson.databind.introspect.AnnotatedField
 import com.fasterxml.jackson.databind.module.SimpleModule
+import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+
+const val SUBMISSION_PROPERTY_FILTER = "submissionPropertyFilter"
 
 object Views {
     interface Internal
@@ -40,13 +47,18 @@ class JsonSerializer {
                 addDeserializer(LinksTable::class.java, LinksTableJsonDeserializer())
                 addDeserializer(FilesTable::class.java, FilesTableJsonDeserializer())
                 addDeserializer(SectionsTable::class.java, SectionsTableJsonDeserializer())
-                setSerializerModifier(BeanSerializerModifier())
+                setMixInAnnotation(Submission::class.java, SubmissionMixIn::class.java)
             }
 
             return jacksonObjectMapper().apply {
                 registerModule(module)
                 setSerializationInclusion(JsonInclude.Include.NON_EMPTY)
+                setFilterProvider(SimpleFilterProvider()
+                        .addFilter(SUBMISSION_PROPERTY_FILTER, SubmissionPropertyFilter()))
             }
         }
     }
 }
+
+@JsonFilter(SUBMISSION_PROPERTY_FILTER)
+class SubmissionMixIn

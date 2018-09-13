@@ -20,14 +20,14 @@ class JsonSerializerTest {
     fun `serialize sample submission with internal data`() {
         val subm = createVenousBloodMonocyte()
         subm.user = User("user@email.com", "#42")
-        val publicView = JsonSerializer().serialize(subm)
-        val internalView = JsonSerializer().serializeWithInternalData(subm)
+        val publicJson = JsonSerializer().serialize(subm)
+        val internalJson = JsonSerializer().serializeWithInternalData(subm)
 
-        assertThat(internalView).contains(subm.user.email)
-        assertThat(internalView).contains(subm.user.id)
+        assertThat(internalJson).contains(subm.user.email)
+        assertThat(internalJson).contains(subm.user.id)
 
-        assertThat(publicView).doesNotContain(subm.user.email)
-        assertThat(publicView).doesNotContain(subm.user.id)
+        assertThat(publicJson).doesNotContain(subm.user.email)
+        assertThat(publicJson).doesNotContain(subm.user.id)
     }
 
     @Test
@@ -39,7 +39,8 @@ class JsonSerializerTest {
     @Test
     fun `deserialize sample submission`() {
         val original = createVenousBloodMonocyte()
-        val subm = JsonSerializer().deserialize(JsonSerializer().serialize(original), Submission::class.java)
+        val json = JsonSerializer().serialize(original)
+        val subm = JsonSerializer().deserialize(json, Submission::class.java)
 
         assertThat(subm).isNotNull
         assertThat(subm).isEqualTo(original)
