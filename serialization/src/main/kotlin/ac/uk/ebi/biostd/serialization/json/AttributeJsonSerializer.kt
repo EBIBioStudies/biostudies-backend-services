@@ -21,6 +21,9 @@ internal const val NAME = "name"
 internal const val VALUE = "value"
 
 class AttributeJsonSerializer : StdSerializer<Attribute>(Attribute::class.java) {
+
+    override fun isEmpty(provider: SerializerProvider, value: Attribute): Boolean = value.name.isEmpty()
+
     override fun serialize(attr: Attribute, gen: JsonGenerator, provider: SerializerProvider) {
         gen.writeObj {
             writeField(NAME, attr.name)
