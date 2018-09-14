@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.serialization.json
 
+import ac.uk.ebi.biostd.serialization.json.common.array
 import ac.uk.ebi.biostd.submission.File
 import ac.uk.ebi.biostd.submission.FilesTable
 import ac.uk.ebi.biostd.submission.Link
@@ -18,9 +19,7 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer
 
 class TableJsonSerializer : StdSerializer<Table<*>>(Table::class.java) {
     override fun serialize(table: Table<*>, gen: JsonGenerator, provider: SerializerProvider) {
-        gen.writeStartArray()
-        table.elements.forEach { gen.writeObject(it) }
-        gen.writeEndArray()
+        gen.array(table.elements, gen::writeObject)
     }
 }
 
