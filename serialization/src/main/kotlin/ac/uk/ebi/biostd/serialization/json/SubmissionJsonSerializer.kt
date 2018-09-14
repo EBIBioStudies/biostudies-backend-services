@@ -11,7 +11,7 @@ class SubmissionJsonSerializer : StdSerializer<Submission>(Submission::class.jav
 
     override fun serialize(subm: Submission, gen: JsonGenerator, provider: SerializerProvider) {
         val isInternalView = provider.activeView == Views.Internal::class.java
-        val accessTags = subm.accessTags.toMutableList()
+        val accessTags = subm.accessTags.toMutableSet()
 
         if (isInternalView && subm.user !== User.EMPTY_USER) {
             accessTags.addAll(listOf(subm.user.email, subm.user.id))

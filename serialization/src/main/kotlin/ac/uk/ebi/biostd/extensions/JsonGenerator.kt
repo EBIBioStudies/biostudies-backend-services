@@ -10,7 +10,7 @@ inline fun JsonGenerator.writeObj(body: JsonGenerator.() -> Unit) {
     writeEndObject()
 }
 
-inline fun <T> JsonGenerator.writeArrayFieldIfNotEmpty(name: String, values: List<T>, function: T.() -> Unit) {
+inline fun <T> JsonGenerator.writeArrayFieldIfNotEmpty(name: String, values: Collection<T>, function: T.() -> Unit) {
     if (values.isNotEmpty()) {
         writeArrayFieldStart(name)
         values.forEach(function)
