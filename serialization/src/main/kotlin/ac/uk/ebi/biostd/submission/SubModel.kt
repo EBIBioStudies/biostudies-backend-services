@@ -1,11 +1,17 @@
 package ac.uk.ebi.biostd.submission
 
 import arrow.core.Either
+import com.fasterxml.jackson.annotation.JsonFilter
 import ebi.ac.uk.base.EMPTY
 
 data class Submission(
         var accNo: String = EMPTY,
-        var rTime: Long = 0L,
+        var rtime: Long = 0L,
+        var ctime: Long = 0L,
+        var mtime: Long = 0L,
+        var relPath: String = EMPTY,
+        var secretKey: String = EMPTY,
+        var user: User = User.EMPTY_USER,
         var title: String = EMPTY,
         var rootPath: String? = null,
         var attributes: MutableList<Attribute> = mutableListOf(),
@@ -39,3 +45,11 @@ data class Link(
 data class File(
         var name: String = EMPTY,
         var attributes: MutableList<Attribute> = mutableListOf())
+
+data class User(
+        var email: String = EMPTY,
+        var id: String = EMPTY) {
+    companion object {
+        val EMPTY_USER: User = User(EMPTY, EMPTY)
+    }
+}

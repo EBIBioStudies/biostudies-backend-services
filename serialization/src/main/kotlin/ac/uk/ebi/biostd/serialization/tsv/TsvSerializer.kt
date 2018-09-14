@@ -19,7 +19,7 @@ class TsvSerializer {
     private fun serializeSubmission(submission: Submission) {
         builder.addSubAccAndTags(submission.accNo, submission.accessTags)
         builder.addSubTitle(submission.title)
-        builder.addSubReleaseDate(submission.rTime)
+        builder.addSubReleaseDate(submission.rtime)
         builder.addRootPath(submission.rootPath)
         submission.attributes.forEach(builder::addAttr)
     }

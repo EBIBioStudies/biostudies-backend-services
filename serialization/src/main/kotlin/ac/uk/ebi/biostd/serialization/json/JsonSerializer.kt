@@ -2,20 +2,24 @@ package ac.uk.ebi.biostd.serialization.json
 
 import ac.uk.ebi.biostd.serialization.common.EitherDeserializer
 import ac.uk.ebi.biostd.serialization.common.EitherSerializer
-import ac.uk.ebi.biostd.submission.Attribute
-import ac.uk.ebi.biostd.submission.FilesTable
-import ac.uk.ebi.biostd.submission.LinksTable
-import ac.uk.ebi.biostd.submission.SectionsTable
-import ac.uk.ebi.biostd.submission.Table
+import ac.uk.ebi.biostd.submission.*
 import arrow.core.Either
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 
+object Views {
+    interface Internal
+}
+
 class JsonSerializer {
     fun <T> serialize(t: T): String {
-        return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(t)
+        return mapper.writeValueAsString(t)
+    }
+
+    fun <T> serializeWithInternalData(t: T): String {
+        return mapper.writerWithView(Views.Internal::class.java).writeValueAsString(t)
     }
 
     fun <T> deserialize(value: String, valueType: Class<T>): T {
@@ -27,6 +31,7 @@ class JsonSerializer {
 
         private fun createMapper(): ObjectMapper {
             val module = SimpleModule().apply {
+                addSerializer(Submission::class.java, SubmissionJsonSerializer())
                 addSerializer(Attribute::class.java, AttributeJsonSerializer())
                 addSerializer(Either::class.java, EitherSerializer())
                 addSerializer(Table::class.java, TableJsonSerializer())
@@ -40,7 +45,6 @@ class JsonSerializer {
 
             return jacksonObjectMapper().apply {
                 registerModule(module)
-                setSerializationInclusion(JsonInclude.Include.NON_NULL)
                 setSerializationInclusion(JsonInclude.Include.NON_EMPTY)
             }
         }
