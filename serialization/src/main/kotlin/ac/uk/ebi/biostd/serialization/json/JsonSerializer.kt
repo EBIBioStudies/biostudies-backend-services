@@ -38,6 +38,7 @@ class JsonSerializer {
 
         private fun createMapper(): ObjectMapper {
             val module = SimpleModule().apply {
+                addSerializer(Submission::class.java, SubmissionJsonSerializer())
                 addSerializer(Attribute::class.java, AttributeJsonSerializer())
                 addSerializer(Either::class.java, EitherSerializer())
                 addSerializer(Table::class.java, TableJsonSerializer())
@@ -47,18 +48,18 @@ class JsonSerializer {
                 addDeserializer(LinksTable::class.java, LinksTableJsonDeserializer())
                 addDeserializer(FilesTable::class.java, FilesTableJsonDeserializer())
                 addDeserializer(SectionsTable::class.java, SectionsTableJsonDeserializer())
-                setMixInAnnotation(Submission::class.java, SubmissionMixIn::class.java)
+                        //setMixInAnnotation(Submission::class.java, SubmissionMixIn::class.java)
             }
 
             return jacksonObjectMapper().apply {
                 registerModule(module)
                 setSerializationInclusion(JsonInclude.Include.NON_EMPTY)
-                setFilterProvider(SimpleFilterProvider()
-                        .addFilter(SUBMISSION_PROPERTY_FILTER, SubmissionPropertyFilter()))
+                //setFilterProvider(SimpleFilterProvider()
+                //        .addFilter(SUBMISSION_PROPERTY_FILTER, SubmissionPropertyFilter()))
             }
         }
     }
 }
 
-@JsonFilter(SUBMISSION_PROPERTY_FILTER)
-class SubmissionMixIn
+//@JsonFilter(SUBMISSION_PROPERTY_FILTER)
+//class SubmissionMixIn

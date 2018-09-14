@@ -1,8 +1,9 @@
 package ac.uk.ebi.biostd.serialization.json
 
-import ac.uk.ebi.biostd.serialization.json.common.array
-import ac.uk.ebi.biostd.serialization.json.common.writeField
-import ac.uk.ebi.biostd.serialization.json.common.writeObj
+import ac.uk.ebi.biostd.extensions.writeArrayFieldIfNotEmpty
+import ac.uk.ebi.biostd.extensions.writeBooleanFieldIfNotEmpty
+import ac.uk.ebi.biostd.extensions.writeObj
+import ac.uk.ebi.biostd.extensions.writeStringFieldIfNotEmpty
 import ac.uk.ebi.biostd.submission.Attribute
 import ac.uk.ebi.biostd.submission.Term
 import com.fasterxml.jackson.core.JsonGenerator
@@ -13,7 +14,6 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializerProvider
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer
 import com.fasterxml.jackson.databind.ser.std.StdSerializer
-import ebi.ac.uk.base.whenTrue
 
 internal const val TERMS = "valqual"
 internal const val REFERENCE = "isReference"
@@ -25,11 +25,12 @@ class AttributeJsonSerializer : StdSerializer<Attribute>(Attribute::class.java) 
     override fun isEmpty(provider: SerializerProvider, value: Attribute): Boolean = value.name.isEmpty()
 
     override fun serialize(attr: Attribute, gen: JsonGenerator, provider: SerializerProvider) {
+
         gen.writeObj {
-            writeField(NAME, attr.name)
-            writeField(VALUE, attr.value)
-            attr.reference.whenTrue { gen.writeBooleanField(REFERENCE, attr.reference) }
-            array(TERMS, attr.terms, gen::writeObject)
+            writeStringFieldIfNotEmpty(NAME, attr.name)
+            writeStringFieldIfNotEmpty(VALUE, attr.value)
+            writeBooleanFieldIfNotEmpty(REFERENCE, attr.reference)
+            writeArrayFieldIfNotEmpty(TERMS, attr.terms, gen::writeObject)
         }
     }
 }
