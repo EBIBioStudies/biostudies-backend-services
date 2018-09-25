@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.serialization.tsv
 
-import java.time.Instant
+import ebi.ac.uk.base.asIsoDate
 
 fun TsvBuilder.addSeparator() {
     append("\n")
@@ -14,11 +14,11 @@ fun TsvBuilder.addRootPath(rootPath: String?) = rootPath?.let { with(ROOT_PATH_K
 
 
 fun TsvBuilder.addSubReleaseDate(rTime: Long) {
-    with(RELEASE_DATE_KEY, asIsoDate(rTime))
+    with(RELEASE_DATE_KEY, asIsoDate(rTime).toString())
 }
 
 fun TsvBuilder.addSubAccAndTags(accNo: String, tags: List<String>) {
     append("$ACC_NO_KEY\t$accNo\t${tags.joinToString(separator = TAGS_SEPARATOR)}\n")
 }
 
-private fun asIsoDate(seconds: Long): String = Instant.ofEpochSecond(seconds).toString()
+

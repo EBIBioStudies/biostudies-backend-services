@@ -19,6 +19,10 @@ apply plugin: 'io.spring.dependency-management'
 apply plugin: 'org.springframework.boot'
 apply plugin: 'kotlin-spring'
 
+repositories {
+    mavenCentral()
+    jcenter()
+}
 
 dependencies {
     compile project(":persistence")

@@ -1,9 +1,9 @@
 package ac.uk.ebi.biostd.serialization.json
 
-import ac.uk.ebi.biostd.extensions.writeArrayFieldIfNotEmpty
-import ac.uk.ebi.biostd.extensions.writeBooleanFieldIfNotEmpty
-import ac.uk.ebi.biostd.extensions.writeObj
-import ac.uk.ebi.biostd.extensions.writeStringFieldIfNotEmpty
+import ac.uk.ebi.biostd.serialization.json.extensions.writeJsonArray
+import ac.uk.ebi.biostd.serialization.json.extensions.writeJsonBoolean
+import ac.uk.ebi.biostd.serialization.json.extensions.writeJsonString
+import ac.uk.ebi.biostd.serialization.json.extensions.writeObj
 import ac.uk.ebi.biostd.submission.Attribute
 import ac.uk.ebi.biostd.submission.Term
 import com.fasterxml.jackson.core.JsonGenerator
@@ -27,10 +27,10 @@ class AttributeJsonSerializer : StdSerializer<Attribute>(Attribute::class.java) 
     override fun serialize(attr: Attribute, gen: JsonGenerator, provider: SerializerProvider) {
 
         gen.writeObj {
-            writeStringFieldIfNotEmpty(NAME, attr.name)
-            writeStringFieldIfNotEmpty(VALUE, attr.value)
-            writeBooleanFieldIfNotEmpty(REFERENCE, attr.reference)
-            writeArrayFieldIfNotEmpty(TERMS, attr.terms, gen::writeObject)
+            writeJsonString(NAME, attr.name)
+            writeJsonString(VALUE, attr.value)
+            writeJsonBoolean(REFERENCE, attr.reference)
+            writeJsonArray(TERMS, attr.terms, gen::writeObject)
         }
     }
 }

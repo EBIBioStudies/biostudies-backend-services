@@ -9,7 +9,7 @@ import java.io.StringReader
 import javax.xml.parsers.DocumentBuilder
 import javax.xml.parsers.DocumentBuilderFactory
 
-class XmlSerializerTest {
+class XmlSerializerITest {
 
     private val testInstance = XmlSerializer()
 
@@ -17,7 +17,8 @@ class XmlSerializerTest {
     fun serialize() {
         val sub = createVenousBloodMonocyte()
         val xmlDocument = testInstance.serialize(sub).asXmlDocument()
-        assertThat(xmlDocument).valueByXPath("//submission/@acc").isEqualTo("S-IHECRE00000919.1")
+
+        assertThat(xmlDocument).valueByXPath("//submission/@accNo").isEqualTo("S-IHECRE00000919.1")
     }
 
     private fun String.asXmlDocument(): Document {

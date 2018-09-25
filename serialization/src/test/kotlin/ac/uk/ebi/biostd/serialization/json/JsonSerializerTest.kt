@@ -5,23 +5,26 @@ import ac.uk.ebi.biostd.submission.User
 import ac.uk.ebi.biostd.submission.submission
 import ac.uk.ebi.biostd.test.createVenousBloodMonocyte
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Test
+import org.junit.jupiter.api.Disabled
+import org.junit.jupiter.api.Test
 
 class JsonSerializerTest {
 
+    private val testInstance = JsonSerializer()
+
+    private val subm = createVenousBloodMonocyte()
+
     @Test
     fun `serialize sample submission`() {
-        val subm = createVenousBloodMonocyte()
         val out = JsonSerializer().serialize(subm)
         assertThat(out).isNotNull()
     }
 
     @Test
     fun `serialize sample submission with internal data`() {
-        val subm = createVenousBloodMonocyte()
         subm.user = User("user@email.com", "#42")
-        val publicJson = JsonSerializer().serialize(subm)
-        val internalJson = JsonSerializer().serializeWithInternalData(subm)
+        val publicJson = testInstance.serialize(subm)
+        val internalJson = testInstance.serializeWithInternalData(subm)
 
         assertThat(internalJson).contains(subm.user.email)
         assertThat(internalJson).contains(subm.user.id)
@@ -32,17 +35,17 @@ class JsonSerializerTest {
 
     @Test
     fun `ignore null and empty properties`() {
-        val out = JsonSerializer().serialize(submission{})
+        val out = testInstance.serialize(submission {})
         assertThat(out).doesNotContain("accNo")
     }
 
     @Test
+    @Disabled("change for real json submission")
     fun `deserialize sample submission`() {
-        val original = createVenousBloodMonocyte()
-        val json = JsonSerializer().serialize(original)
-        val subm = JsonSerializer().deserialize(json, Submission::class.java)
+        val json = testInstance.serialize(subm)
+        val deserialized = testInstance.deserialize(json, Submission::class.java)
 
-        assertThat(subm).isNotNull
-        assertThat(subm).isEqualTo(original)
+        assertThat(deserialized).isNotNull
+        assertThat(deserialized).isEqualTo(subm)
     }
 }

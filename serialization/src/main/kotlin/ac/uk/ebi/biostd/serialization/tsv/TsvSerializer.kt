@@ -46,7 +46,7 @@ class TsvSerializer {
         builder.addAttributes(link.attributes)
     }
 
-    private fun <T> addTable(table: Table<T>) {
+    private fun <T : Any> addTable(table: Table<T>) {
         builder.addSeparator()
         builder.addTableRow(table.headers.flatMap { listOf(it.name) + it.termNames.map { "[$it]" } })
 

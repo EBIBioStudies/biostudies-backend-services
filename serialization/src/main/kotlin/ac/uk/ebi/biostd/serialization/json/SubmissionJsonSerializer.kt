@@ -1,37 +1,39 @@
 package ac.uk.ebi.biostd.serialization.json
 
-import ac.uk.ebi.biostd.extensions.*
+import ac.uk.ebi.biostd.serialization.json.extensions.writeJsonArray
+import ac.uk.ebi.biostd.serialization.json.extensions.writeJsonNumber
+import ac.uk.ebi.biostd.serialization.json.extensions.writeJsonObject
+import ac.uk.ebi.biostd.serialization.json.extensions.writeJsonString
+import ac.uk.ebi.biostd.serialization.json.extensions.writeObj
+import ac.uk.ebi.biostd.submission.SubFields
 import ac.uk.ebi.biostd.submission.Submission
-import ac.uk.ebi.biostd.submission.User
 import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.databind.SerializerProvider
 import com.fasterxml.jackson.databind.ser.std.StdSerializer
+import ebi.ac.uk.util.collections.listFrom
 
 class SubmissionJsonSerializer : StdSerializer<Submission>(Submission::class.java) {
 
     override fun serialize(subm: Submission, gen: JsonGenerator, provider: SerializerProvider) {
-        val isInternalView = provider.activeView == Views.Internal::class.java
-        val accessTags = subm.accessTags.toMutableSet()
-
-        if (isInternalView && subm.user !== User.EMPTY_USER) {
-            accessTags.addAll(listOf(subm.user.email, subm.user.id))
-        }
+        val isInternalView = provider.activeView == InternalSubmission::class.java
+        val accessTags = getAccessTags(subm, isInternalView)
 
         gen.writeObj {
-            writeStringFieldIfNotEmpty("accNo", subm.accNo)
-            writeStringFieldIfNotEmpty("title", subm.title)
-            writeNumberFieldIfNotEmpty("rtime", subm.rtime)
-            writeStringFieldIfNotEmpty("rootPath", subm.rootPath)
-            writeArrayFieldIfNotEmpty("attributes", subm.attributes, gen::writeObject)
-            writeArrayFieldIfNotEmpty("accessTags", accessTags, gen::writeString)
-            writeObjectFieldIfNotEmpty("section", subm.section)
+            writeJsonString(SubFields.ACC_NO, subm.accNo)
+            writeJsonArray(SubFields.ATTRIBUTES, subm.allAttributes())
+            writeJsonArray(SubFields.ACCESS_TAGS, accessTags, gen::writeString)
+            writeJsonObject(SubFields.SECTION, subm.section)
 
             if (isInternalView) {
-                writeNumberFieldIfNotEmpty("ctime", subm.ctime)
-                writeNumberFieldIfNotEmpty("mtime", subm.mtime)
-                writeStringFieldIfNotEmpty("relPath", subm.relPath)
-                writeStringFieldIfNotEmpty("secretKey", subm.secretKey)
+                writeJsonNumber(SubFields.RELEASE_TIME, subm.rtime)
+                writeJsonNumber(SubFields.CREATION_TIME, subm.ctime)
+                writeJsonNumber(SubFields.MODIFICATION_TIME, subm.mtime)
+                writeJsonString(SubFields.SECRET, subm.secretKey)
             }
         }
+    }
+
+    private fun getAccessTags(subm: Submission, isInternalView: Boolean): List<String> {
+        return if (isInternalView) listFrom(subm.accessTags, subm.user.email, subm.user.id) else subm.accessTags
     }
 }

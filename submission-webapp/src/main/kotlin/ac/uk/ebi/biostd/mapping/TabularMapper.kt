@@ -26,5 +26,5 @@ class TabularMapper(private val attributesMapper: AttributesMapper) {
         return map.toSortedMap().values.toMutableList()
     }
 
-    private fun min(list: List<Tabular>) = list.map { it.order }.min()!!
+    private fun min(list: Collection<Tabular>) = list.map { it.order }.min()!!
 }

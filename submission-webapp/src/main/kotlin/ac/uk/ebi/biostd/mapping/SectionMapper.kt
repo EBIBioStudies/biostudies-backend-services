@@ -14,10 +14,7 @@ class SectionMapper(private val attributesMapper: AttributesMapper, private val 
         return mapSectionAttrs(sectionDb).apply {
             links = tabularMapper.toLinks(sectionDb.links)
             files = tabularMapper.toFiles(sectionDb.files)
-
-            accNo?.let {
-                subsections = mapSections(it, sectionDb.sections)
-            }
+            subsections = mapSections(accNo.orEmpty(), sectionDb.sections)
         }
     }
 

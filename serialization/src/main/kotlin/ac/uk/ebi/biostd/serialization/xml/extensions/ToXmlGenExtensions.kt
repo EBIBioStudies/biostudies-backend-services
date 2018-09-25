@@ -1,33 +1,33 @@
 package ac.uk.ebi.biostd.serialization.xml.extensions
 
 import com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator
+import ebi.ac.uk.util.collections.ifNotEmpty
 import javax.xml.namespace.QName
 
-fun ToXmlGenerator.writeAttr(name: String, value: String?) {
+fun ToXmlGenerator.writeXmlAttr(name: Any, value: Any?) {
     value?.let {
-        this.setNextIsAttribute(true)
-        this.writeObjectField(name, value)
-        this.setNextIsAttribute(false)
+        setNextIsAttribute(true)
+        writeObjectField(name.toString(), value)
+        setNextIsAttribute(false)
     }
 }
 
-fun <T> ToXmlGenerator.writeObj(name: String, value: T, function: T.() -> Unit) {
+fun ToXmlGenerator.writeBooleanAttr(name: Any, value: Boolean, ignoreFalse: Boolean = true) {
+    if (value || !ignoreFalse)
+        writeXmlAttr(name, value)
+}
+
+inline fun <T> ToXmlGenerator.writeXmlObj(name: Any, value: T, function: T.() -> Unit) {
     value?.let {
-        setNextName(QName(name))
+        setNextName(QName(name.toString()))
         writeStartObject()
         function(it)
         writeEndObject()
     }
 }
 
-fun <T> ToXmlGenerator.writeCollection(values: Collection<T>, function: (T) -> Unit) {
-    writeStartArray()
-    values.forEach { function(it) }
-    writeEndArray()
-}
+fun ToXmlGenerator.writeXmlField(name: Any, value: Any) = writeObjectField(name.toString(), value)
 
-fun ToXmlGenerator.writeField(name: String, value: Any) {
-    writeObjectField(name, value)
-}
+fun ToXmlGenerator.writeXmlCollection(name: Any, value: List<Any>) = value.ifNotEmpty { writeXmlField(name, value) }
 
 

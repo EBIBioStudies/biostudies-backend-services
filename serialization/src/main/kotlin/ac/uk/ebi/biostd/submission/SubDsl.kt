@@ -5,9 +5,9 @@ package ac.uk.ebi.biostd.submission
 import arrow.core.Left
 import arrow.core.Right
 
-fun submission(block: Submission.() -> Unit): Submission {
-    return Submission().apply(block)
-}
+fun submission(block: Submission.() -> Unit): Submission = Submission().apply(block)
+
+fun section(block: Section.() -> Unit): Section = Section().apply(block)
 
 fun Submission.section(block: Section.() -> Unit): Section {
     val section = Section().apply(block)

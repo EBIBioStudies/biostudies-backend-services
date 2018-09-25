@@ -17,7 +17,7 @@ class SubmissionMapper(
             accessTags = getAccessTags(submissionDb.accessTags)
             rootPath = submissionDb.rootPath
             title = submissionDb.title
-            rTime = submissionDb.releaseTime
+            rtime = submissionDb.releaseTime
             attributes = attributesMapper.toAttributes(submissionDb.attributes)
             section = sectionMapper.toSection(submissionDb.rootSection)
         }

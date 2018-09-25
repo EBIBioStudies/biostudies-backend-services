@@ -5,7 +5,7 @@ import ac.uk.ebi.biostd.serialization.tsv.LINK_TABLE_ID_HEADER
 import ebi.ac.uk.base.EMPTY
 import java.util.*
 
-sealed class Table<T>(elements: List<T>) {
+sealed class Table<T : Any>(elements: List<T>) {
     abstract val idHeaderName: String
     abstract fun toTableRow(t: T): Row<T>
 

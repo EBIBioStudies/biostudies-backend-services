@@ -23,7 +23,7 @@ class TableJsonSerializer : StdSerializer<Table<*>>(Table::class.java) {
     }
 }
 
-abstract class TableJsonDeserializer<T>(private val itemType: Class<T>) {
+abstract class TableJsonDeserializer<T : Any>(private val itemType: Class<T>) {
     abstract fun createTable(elements: List<T>): Table<T>
 
     fun deserialize(jp: JsonParser): Table<T> {

@@ -13,11 +13,18 @@ import ebi.ac.uk.base.orFalse
 class AttributesMapper {
 
     fun toLink(linkDb: LinkDb): Link {
-        return Link().apply { url = linkDb.url; attributes = toAttributes(linkDb.attributes) }
+        return Link().apply {
+            url = linkDb.url
+            attributes = toAttributes(linkDb.attributes)
+        }
     }
 
     fun toFile(fileDb: FileDb): File {
-        return File().apply { name = fileDb.name; attributes = toAttributes(fileDb.attributes) }
+        return File().apply {
+            name = fileDb.name
+            attributes = toAttributes(fileDb.attributes)
+            size = fileDb.size
+        }
     }
 
     fun toAttributes(attrs: Set<AttributeDb>) = attrs.map { toAttribute(it) }.toMutableList()

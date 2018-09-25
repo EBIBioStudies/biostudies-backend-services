@@ -38,7 +38,7 @@ data class User(
 
 @Entity
 @NamedEntityGraph(name = FULL_DATA_GRAPH,
-        attributeNodes = [Node(value = "rootSection", subgraph = "root"), Node("accessTags"), Node(ATTRS)],
+        attributeNodes = [Node(value = "rootSection", subgraph = "root"), Node("accessTags"), Node(ATTRS), Node("owner")],
         subgraphs = [
             Graph(name = "root", attributeNodes = [Node(LINKS, subgraph = "attrs"), Node(ATTRS), Node(FILES, subgraph = "attrs"), Node(SECTS, subgraph = "l1")]),
             Graph(name = "l1", attributeNodes = [Node(LINKS, subgraph = "attrs"), Node(ATTRS), Node(FILES, subgraph = "attrs"), Node(SECTS, subgraph = "l2")]),
@@ -137,6 +137,7 @@ data class Link(
 
     @OneToMany
     @JoinColumn(name = "link_id")
+    @OrderBy("order ASC")
     lateinit var attributes: MutableSet<LinkAttribute>
 }
 
@@ -164,6 +165,7 @@ data class File(
 
     @OneToMany
     @JoinColumn(name = "file_id")
+    @OrderBy("order ASC")
     lateinit var attributes: MutableSet<FileAttribute>
 }
 
