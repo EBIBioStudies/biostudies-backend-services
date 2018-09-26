@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.serialization.tsv
 
-import ebi.ac.uk.base.asIsoDate
+import ebi.ac.uk.funtions.asIsoDate
 
 fun TsvBuilder.addSeparator() {
     append("\n")

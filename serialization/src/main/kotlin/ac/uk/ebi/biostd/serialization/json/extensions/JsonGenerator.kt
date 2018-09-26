@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.serialization.json.extensions
 
 import com.fasterxml.jackson.core.JsonGenerator
-import ebi.ac.uk.base.applyIfNotNullOrEmpty
+import ebi.ac.uk.base.applyIfNotBlank
 import ebi.ac.uk.base.whenTrue
 
 inline fun JsonGenerator.writeObj(body: JsonGenerator.() -> Unit) {
@@ -19,7 +19,7 @@ inline fun <T> JsonGenerator.writeJsonArray(name: Any, values: Collection<T>, fu
 }
 
 fun JsonGenerator.writeJsonString(name: Any, value: String?) {
-    value.applyIfNotNullOrEmpty { writeStringField(name.toString(), it) }
+    value.applyIfNotBlank { writeStringField(name.toString(), it) }
 }
 
 fun JsonGenerator.writeJsonBoolean(name: Any, value: Boolean?) {

@@ -1,0 +1,32 @@
+package ebi.ac.uk.util.collections
+
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Test
+import java.util.concurrent.atomic.AtomicInteger
+
+
+class CollectionsExtensionsTest {
+
+    @Test
+    fun ifNotEmptyWhenEmpty() {
+        emptyList<String>().ifNotEmpty { throw IllegalStateException("should not be executed") }
+    }
+
+    @Test
+    fun ifNotEmptyWhenNotEmpty() {
+        val count = AtomicInteger(0)
+
+        listOf("string1").ifNotEmpty { count.getAndIncrement() }
+        assertThat(count).hasValue(1)
+    }
+
+    @Test
+    fun listFrom() {
+        assertThat(listFrom(listOf("a"), "b", "c")).isEqualTo(listOf("a", "b", "c"))
+    }
+
+    @Test
+    fun listFromWithEmptyList() {
+        assertThat(listFrom(emptyList<String>())).isEqualTo(emptyList<String>())
+    }
+}

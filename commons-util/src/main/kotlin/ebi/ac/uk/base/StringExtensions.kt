@@ -2,4 +2,12 @@ package ebi.ac.uk.base
 
 const val EMPTY = ""
 
-inline fun String?.applyIfNotNullOrEmpty(func: (String) -> Unit) = this.takeIf { !it.isNullOrEmpty() }?.let { func(it) }
+/**
+ * Return true if the given String is NOT empty nor null other.
+ */
+fun String?.isNotBlank() = !isNullOrEmpty()
+
+/**
+ * Execute the provided lambda is empty is not empty or null.
+ */
+inline fun String?.applyIfNotBlank(func: (String) -> Unit) = takeIf { it.isNotBlank() }?.let { func(it) }

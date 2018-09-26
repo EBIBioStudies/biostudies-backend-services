@@ -2,8 +2,8 @@ package ac.uk.ebi.biostd.submission
 
 import arrow.core.Either
 import ebi.ac.uk.base.EMPTY
-import ebi.ac.uk.base.applyIfNotNullOrEmpty
-import ebi.ac.uk.base.asIsoDate
+import ebi.ac.uk.base.applyIfNotBlank
+import ebi.ac.uk.funtions.asIsoDate
 
 data class Submission(
         var accNo: String = EMPTY,
@@ -23,7 +23,7 @@ data class Submission(
         val allAttributes = attributes.toMutableList()
         allAttributes += Attribute(SubFields.TITLE, title)
         allAttributes += Attribute(SubFields.RELEASE_DATE, asIsoDate(rtime).toString())
-        rootPath.applyIfNotNullOrEmpty { allAttributes.add(Attribute(SubFields.ROOT_PATH, it)) }
+        rootPath.applyIfNotBlank { allAttributes.add(Attribute(SubFields.ROOT_PATH, it)) }
         return allAttributes
     }
 }
