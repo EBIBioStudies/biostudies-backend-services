@@ -1,9 +1,8 @@
 package ac.uk.ebi.biostd.serialization.tsv
 
-import ac.uk.ebi.biostd.submission.Submission
 import ac.uk.ebi.biostd.test.createVenousBloodMonocyte
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
-
 
 class SimpleSubmissionTsvParserTest {
 
@@ -12,50 +11,45 @@ class SimpleSubmissionTsvParserTest {
     @Test
     fun parseSimpleSubmission() {
         val sub = createVenousBloodMonocyte()
-        val tsvString = TsvString(testInstance.serialize(sub))
+        val tsvString = testInstance.serialize(sub)
 
-        assertSubmission(tsvString, sub)
-        assertSection(tsvString)
-        assertSecondSection(tsvString)
-    }
+        val expected = tsv {
+            line(ACC_NO_KEY, "S-IHECRE00000919.1", "Public")
+            line(TITLE_KEY, sub.title)
+            line(RELEASE_DATE_KEY, "2015-02-20T06:30:00Z")
+            line(ROOT_PATH_KEY, sub.rootPath.orEmpty())
+            line("DataSource", "BLUEPRINT")
+            line("AttachTo", "blueprint")
+            line()
 
-    private fun assertSubmission(tsvString: TsvString, sub: Submission) {
-        assertThat(tsvString[0]).contains(ACC_NO_KEY, "S-IHECRE00000919.1", "Public")
-        assertThat(tsvString[1]).contains(TITLE_KEY, sub.title)
-        assertThat(tsvString[2]).contains(RELEASE_DATE_KEY, "2015-02-20T06:30:00")
-        assertThat(tsvString[3]).contains(ROOT_PATH_KEY, sub.rootPath!!)
-        assertThat(tsvString[4]).contains("DataSource", "BLUEPRINT")
-        assertThat(tsvString[5]).contains("AttachTo", "blueprint")
-        assertThat(tsvString[6]).isEmptyLine()
-    }
+            line("Study")
+            line("Title", "venous blood, Monocyte")
+            line("Project", "CEEHRC (McGill)")
+            line("Status", "Incomplete")
+            line("Organism", "Homo sapiens")
+            line("Tissue type", "venous blood")
+            line("[Ontology]", "UBERON")
+            line("Donor ID", "McGill0139")
+            line("Biomaterial Type", "primary cells")
+            line("Cell Type", "Monocyte")
+            line("[Ontology]", "CL")
+            line("Disease", "Systemic Lupus Erythematosus")
+            line("[Ontology]", "EFO")
+            line("Experiment type", "Single donor")
+            line()
 
-    private fun assertSection(tsvString: TsvString) {
-        assertThat(tsvString[7]).contains("Study")
-        assertThat(tsvString[8]).contains("Title", "venous blood, Monocyte")
-        assertThat(tsvString[9]).contains("Project", "CEEHRC (McGill)")
-        assertThat(tsvString[10]).contains("Status", "Incomplete")
-        assertThat(tsvString[11]).contains("Organism", "Homo sapiens")
-        assertThat(tsvString[12]).contains("Tissue type", "venous blood")
-        assertThat(tsvString[13]).contains("[Ontology]", "UBERON")
-        assertThat(tsvString[14]).contains("Donor ID", "McGill0139")
-        assertThat(tsvString[15]).contains("Biomaterial Type", "primary cells")
-        assertThat(tsvString[16]).contains("Cell Type", "Monocyte")
-        assertThat(tsvString[17]).contains("[Ontology]", "CL")
-        assertThat(tsvString[18]).contains("Disease", "Systemic Lupus Erythematosus")
-        assertThat(tsvString[19]).contains("[Ontology]", "EFO")
-        assertThat(tsvString[20]).contains("Experiment type", "Single donor")
+            line("Link", "IHECRE00000919.1")
+            line("Type", "EpiRR")
+            line()
 
-        assertThat(tsvString[21]).isEmptyLine()
+            line("Stranded Total RNA-Seq")
+            line()
 
-        assertThat(tsvString[22]).contains("Link", "IHECRE00000919.1")
-        assertThat(tsvString[23]).contains("Type", "EpiRR")
-    }
+            line("Links", "Type", "Assay type", "Experiment type", "Primary id")
+            line("EGAD00001001282", "EGA", "RNA-Seq", "Stranded Total RNA-Seq", "EGAX00001273202")
+            line()
+        }.toString()
 
-    private fun assertSecondSection(tsvString: TsvString) {
-        assertThat(tsvString[24]).isEmptyLine()
-        assertThat(tsvString[25]).contains("Stranded Total RNA-Seq")
-        assertThat(tsvString[26]).isEmptyLine()
-        assertThat(tsvString[27]).contains("Links", "Type", "Assay type", "Experiment type", "Primary id")
-        assertThat(tsvString[28]).contains("EGAD00001001282", "EGA", "RNA-Seq", "Stranded Total RNA-Seq", "EGAX00001273202")
+        assertThat(tsvString).isEqualTo(expected)
     }
 }

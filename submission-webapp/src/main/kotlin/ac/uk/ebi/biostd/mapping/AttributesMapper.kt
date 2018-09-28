@@ -3,12 +3,12 @@ package ac.uk.ebi.biostd.mapping
 import ac.uk.ebi.biostd.config.AttributeDb
 import ac.uk.ebi.biostd.config.FileDb
 import ac.uk.ebi.biostd.config.LinkDb
-import ac.uk.ebi.biostd.extensions.second
 import ac.uk.ebi.biostd.submission.Attribute
 import ac.uk.ebi.biostd.submission.File
 import ac.uk.ebi.biostd.submission.Link
 import ac.uk.ebi.biostd.submission.Term
 import ebi.ac.uk.base.orFalse
+import ebi.ac.uk.util.collections.second
 
 class AttributesMapper {
 
@@ -27,7 +27,7 @@ class AttributesMapper {
         }
     }
 
-    fun toAttributes(attrs: Set<AttributeDb>) = attrs.map { toAttribute(it) }.toMutableList()
+    fun toAttributes(attrs: Set<AttributeDb>) = attrs.mapTo(mutableListOf()) { toAttribute(it) }
 
     private fun toAttribute(attrDb: AttributeDb): Attribute {
         return attrDb.run { Attribute(name, value, reference.orFalse(), getTerms(valueQualifier).orEmpty()) }

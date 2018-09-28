@@ -7,8 +7,11 @@ import ac.uk.ebi.biostd.submission.Link
 internal const val LINK_KEY = "Link"
 internal const val FILE_KEY = "File"
 
-fun TsvBuilder.addSecDescriptor(type: String, accNo: String) {
-    append("$type\t$accNo\n")
+fun TsvBuilder.addSecDescriptor(type: String, accNo: String?) {
+    append(type)
+    accNo?.let { append("\t$accNo") }
+    append("\n")
+
 }
 
 fun TsvBuilder.addSecLink(link: Link) {
