@@ -1,9 +1,9 @@
 package ac.uk.ebi.biostd.serialization.xml.serializer
 
 import ac.uk.ebi.biostd.serialization.xml.common.XmlStdSerializer
-import ac.uk.ebi.biostd.serialization.xml.extensions.writeXmlCollection
-import ac.uk.ebi.biostd.serialization.xml.extensions.writeXmlField
-import ac.uk.ebi.biostd.serialization.xml.extensions.writeXmlObj
+import ac.uk.ebi.biostd.serialization.xml.common.writeXmlCollection
+import ac.uk.ebi.biostd.serialization.xml.common.writeXmlField
+import ac.uk.ebi.biostd.serialization.xml.common.writeXmlObj
 import ac.uk.ebi.biostd.submission.Link
 import ac.uk.ebi.biostd.submission.LinkFields
 import com.fasterxml.jackson.databind.SerializerProvider

@@ -6,7 +6,6 @@ import org.springframework.data.jpa.repository.EntityGraph
 import org.springframework.data.jpa.repository.EntityGraph.EntityGraphType.LOAD
 import org.springframework.data.jpa.repository.JpaRepository
 
-
 interface SubmissionRepository : JpaRepository<Submission, Long> {
 
     @EntityGraph(value = FULL_DATA_GRAPH, type = LOAD)

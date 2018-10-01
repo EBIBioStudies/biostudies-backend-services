@@ -1,9 +1,9 @@
 package ac.uk.ebi.biostd.serialization.xml.serializer
 
 import ac.uk.ebi.biostd.serialization.xml.common.XmlStdSerializer
-import ac.uk.ebi.biostd.serialization.xml.extensions.writeXmlCollection
-import ac.uk.ebi.biostd.serialization.xml.extensions.writeXmlField
-import ac.uk.ebi.biostd.serialization.xml.extensions.writeXmlObj
+import ac.uk.ebi.biostd.serialization.xml.common.writeXmlCollection
+import ac.uk.ebi.biostd.serialization.xml.common.writeXmlField
+import ac.uk.ebi.biostd.serialization.xml.common.writeXmlObj
 import ac.uk.ebi.biostd.submission.File
 import ac.uk.ebi.biostd.submission.FileFields
 import com.fasterxml.jackson.databind.SerializerProvider
@@ -15,8 +15,8 @@ class FileSerializer : XmlStdSerializer<File>(File::class.java) {
         with(gen) {
             writeXmlObj(FileFields.FILE, value) {
                 writeXmlField(FileFields.NAME, value.name)
-                writeXmlField(FileFields.SIZE, value.size)
                 writeXmlField(FileFields.TYPE, value.type)
+                writeXmlField(FileFields.SIZE, value.size)
                 writeXmlCollection(FileFields.ATTRIBUTES, value.attributes)
             }
         }
