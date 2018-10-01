@@ -1,39 +1,17 @@
-package ac.uk.ebi.biostd.serialization.json
+package ac.uk.ebi.biostd.serialization.json.deserialization
 
-import ac.uk.ebi.biostd.serialization.json.extensions.writeJsonArray
-import ac.uk.ebi.biostd.serialization.json.extensions.writeJsonBoolean
-import ac.uk.ebi.biostd.serialization.json.extensions.writeJsonString
-import ac.uk.ebi.biostd.serialization.json.extensions.writeObj
 import ac.uk.ebi.biostd.submission.Attribute
 import ac.uk.ebi.biostd.submission.Term
-import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.SerializerProvider
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer
-import com.fasterxml.jackson.databind.ser.std.StdSerializer
 
 internal const val TERMS = "valqual"
 internal const val REFERENCE = "isReference"
 internal const val NAME = "name"
 internal const val VALUE = "value"
-
-class AttributeJsonSerializer : StdSerializer<Attribute>(Attribute::class.java) {
-
-    override fun isEmpty(provider: SerializerProvider, value: Attribute): Boolean = value.name.isEmpty()
-
-    override fun serialize(attr: Attribute, gen: JsonGenerator, provider: SerializerProvider) {
-
-        gen.writeObj {
-            writeJsonString(NAME, attr.name)
-            writeJsonString(VALUE, attr.value)
-            writeJsonBoolean(REFERENCE, attr.reference)
-            writeJsonArray(TERMS, attr.terms, gen::writeObject)
-        }
-    }
-}
 
 class AttributeJsonDeserializer : StdDeserializer<Attribute>(Attribute::class.java) {
     override fun deserialize(jp: JsonParser, ctxt: DeserializationContext): Attribute {

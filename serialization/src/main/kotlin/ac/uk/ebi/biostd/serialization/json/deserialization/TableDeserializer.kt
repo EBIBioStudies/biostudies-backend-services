@@ -1,6 +1,5 @@
-package ac.uk.ebi.biostd.serialization.json
+package ac.uk.ebi.biostd.serialization.json.deserialization
 
-import ac.uk.ebi.biostd.serialization.json.common.array
 import ac.uk.ebi.biostd.submission.File
 import ac.uk.ebi.biostd.submission.FilesTable
 import ac.uk.ebi.biostd.submission.Link
@@ -8,20 +7,11 @@ import ac.uk.ebi.biostd.submission.LinksTable
 import ac.uk.ebi.biostd.submission.Section
 import ac.uk.ebi.biostd.submission.SectionsTable
 import ac.uk.ebi.biostd.submission.Table
-import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.SerializerProvider
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer
-import com.fasterxml.jackson.databind.ser.std.StdSerializer
-
-class TableJsonSerializer : StdSerializer<Table<*>>(Table::class.java) {
-    override fun serialize(table: Table<*>, gen: JsonGenerator, provider: SerializerProvider) {
-        gen.array(table.elements, gen::writeObject)
-    }
-}
 
 abstract class TableJsonDeserializer<T : Any>(private val itemType: Class<T>) {
     abstract fun createTable(elements: List<T>): Table<T>

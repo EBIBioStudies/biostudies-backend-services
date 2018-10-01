@@ -2,6 +2,14 @@ package ac.uk.ebi.biostd.serialization.json
 
 import ac.uk.ebi.biostd.serialization.common.EitherDeserializer
 import ac.uk.ebi.biostd.serialization.common.EitherSerializer
+import ac.uk.ebi.biostd.serialization.json.common.InternalSubmission
+import ac.uk.ebi.biostd.serialization.json.deserialization.AttributeJsonDeserializer
+import ac.uk.ebi.biostd.serialization.json.deserialization.FilesTableJsonDeserializer
+import ac.uk.ebi.biostd.serialization.json.deserialization.LinksTableJsonDeserializer
+import ac.uk.ebi.biostd.serialization.json.deserialization.SectionsTableJsonDeserializer
+import ac.uk.ebi.biostd.serialization.json.serialization.AttributeJsonSerializer
+import ac.uk.ebi.biostd.serialization.json.serialization.SubmissionJsonSerializer
+import ac.uk.ebi.biostd.serialization.json.serialization.TableJsonSerializer
 import ac.uk.ebi.biostd.submission.Attribute
 import ac.uk.ebi.biostd.submission.FilesTable
 import ac.uk.ebi.biostd.submission.LinksTable
@@ -13,9 +21,6 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-
-interface InternalSubmission
-
 
 class JsonSerializer {
 

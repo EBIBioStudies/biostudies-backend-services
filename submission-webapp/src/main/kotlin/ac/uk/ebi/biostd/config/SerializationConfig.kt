@@ -28,6 +28,7 @@ class SerializationConfig {
 
     @Configuration
     class SerializerConfig {
+
         @Bean
         fun jsonSerializer(): JsonSerializer {
             return JsonSerializer()

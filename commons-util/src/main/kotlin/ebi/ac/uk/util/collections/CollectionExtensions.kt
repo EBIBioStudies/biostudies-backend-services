@@ -23,6 +23,11 @@ fun <T> listFrom(anotherList: List<T>, vararg elements: T): List<T> {
     return newList
 }
 
+/**
+ * Obtain the second element of the list.
+ *
+ * @throws NoSuchElementException if list size is less than 2.
+ */
 fun <T> List<T>.second(): T {
     if (this.size < 2)
         throw NoSuchElementException("List do not contain a second element.")

@@ -1,10 +1,11 @@
-package ac.uk.ebi.biostd.serialization.json
+package ac.uk.ebi.biostd.serialization.json.serialization
 
-import ac.uk.ebi.biostd.serialization.json.extensions.writeJsonArray
-import ac.uk.ebi.biostd.serialization.json.extensions.writeJsonNumber
-import ac.uk.ebi.biostd.serialization.json.extensions.writeJsonObject
-import ac.uk.ebi.biostd.serialization.json.extensions.writeJsonString
-import ac.uk.ebi.biostd.serialization.json.extensions.writeObj
+import ac.uk.ebi.biostd.serialization.json.common.InternalSubmission
+import ac.uk.ebi.biostd.serialization.json.common.writeJsonArray
+import ac.uk.ebi.biostd.serialization.json.common.writeJsonNumber
+import ac.uk.ebi.biostd.serialization.json.common.writeJsonObject
+import ac.uk.ebi.biostd.serialization.json.common.writeJsonString
+import ac.uk.ebi.biostd.serialization.json.common.writeObj
 import ac.uk.ebi.biostd.submission.SubFields
 import ac.uk.ebi.biostd.submission.Submission
 import com.fasterxml.jackson.core.JsonGenerator
