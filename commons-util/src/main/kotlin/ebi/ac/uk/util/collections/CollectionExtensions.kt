@@ -28,3 +28,5 @@ fun <T> List<T>.second(): T {
         throw NoSuchElementException("List do not contain a second element.")
     return this[1]
 }
+
+fun <T> MutableList<T>.removeFirst() = removeAt(0)
