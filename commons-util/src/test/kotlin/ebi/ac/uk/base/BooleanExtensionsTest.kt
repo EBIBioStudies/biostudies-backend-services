@@ -20,7 +20,7 @@ class BooleanExtensionsTest {
     @Test
     fun whenTrueWhenTrue() {
         var count = 0
-        true.whenTrue { count++ }
+        true.ifTrue { count++ }
 
         assertThat(count).isEqualTo(1)
     }
@@ -28,7 +28,7 @@ class BooleanExtensionsTest {
     @Test
     fun whenTrueWhenFalse() {
         var count = 0
-        false.whenTrue { count++ }
+        false.ifTrue { count++ }
 
         assertThat(count).isEqualTo(0)
     }

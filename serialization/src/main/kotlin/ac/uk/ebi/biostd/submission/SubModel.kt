@@ -36,15 +36,15 @@ data class Section(
         var links: MutableList<Either<Link, LinksTable>> = mutableListOf(),
         var files: MutableList<Either<File, FilesTable>> = mutableListOf())
 
-data class Term(val name: String, val value: String)
+data class SimpleAttribute(val name: String, val value: String)
 
 data class Attribute(
         var name: String,
         var value: String,
         var reference: Boolean = false,
-        var terms: List<Term> = emptyList()) {
+        var terms: List<SimpleAttribute> = emptyList()) {
 
-    constructor(name: Any, value: String, reference: Boolean = false, terms: List<Term> = emptyList()) :
+    constructor(name: Any, value: String, reference: Boolean = false, terms: List<SimpleAttribute> = emptyList()) :
             this(name.toString(), value, reference, terms)
 
     companion object {

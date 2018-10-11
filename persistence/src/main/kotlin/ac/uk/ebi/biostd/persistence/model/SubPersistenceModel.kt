@@ -112,9 +112,6 @@ data class AccessTag(
         var id: Long = 0L,
 
         @Column
-        var description: String?,
-
-        @Column
         var name: String
 )
 

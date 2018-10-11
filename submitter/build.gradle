@@ -1,0 +1,30 @@
+buildscript {
+    ext {
+        junitVersion = "5.2.0"
+        junitPlatformVersion = "1.2.0"
+        kotlinVersion = '1.2.61'
+    }
+}
+
+apply plugin: 'kotlin'
+
+dependencies {
+    compile project(":commons-bio")
+    compile project(":commons-util")
+    compile project(":serialization")
+
+    compile("org.jetbrains.kotlin:kotlin-stdlib-jdk8:${kotlinVersion}")
+    compile "io.arrow-kt:arrow-core:0.7.2"
+    compile "io.arrow-kt:arrow-typeclasses:0.7.2"
+    compile "io.arrow-kt:arrow-data:0.7.2"
+    compile group: 'commons-io', name: 'commons-io', version: '2.5'
+
+    // Junit dependencies
+    runtime "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
+    runtime "org.junit.platform:junit-platform-console:$junitPlatformVersion"
+
+    testCompile 'io.mockk:mockk:1.8.8'
+    testCompile 'org.assertj:assertj-core:3.11.0'
+    testCompile "org.junit.jupiter:junit-jupiter-api:$junitVersion"
+    testCompile "org.junit.jupiter:junit-jupiter-params:$junitVersion"
+}

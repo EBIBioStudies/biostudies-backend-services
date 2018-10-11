@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.serialization.json
 
 import ac.uk.ebi.biostd.submission.Attribute
-import ac.uk.ebi.biostd.submission.Term
+import ac.uk.ebi.biostd.submission.SimpleAttribute
 import net.soundvibe.jkob.json
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
@@ -27,8 +27,8 @@ class AttributeJsonSerializerTest {
 
     @Test
     fun `deserialize attribute with terms and reference`() {
-        val term1 = Term("t1", "v1")
-        val term2 = Term("t2", "v2")
+        val term1 = SimpleAttribute("t1", "v1")
+        val term2 = SimpleAttribute("t2", "v2")
         val attr = Attribute(name = "attr name", value = "attr value", reference = true, terms = listOf(term1, term2))
 
         val attributeJson = json {
@@ -59,7 +59,7 @@ class AttributeJsonSerializerTest {
     @Test
     fun `serialize attribute with reference and terms`() {
         val attr = Attribute(name = "attr name", value = "attr value", reference = true,
-                terms = listOf(Term("t1", "v1"), Term("t2", "v2")))
+                terms = listOf(SimpleAttribute("t1", "v1"), SimpleAttribute("t2", "v2")))
 
         val result = deserialize(serialize(attr))
 

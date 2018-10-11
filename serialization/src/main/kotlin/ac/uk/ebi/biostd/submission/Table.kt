@@ -6,7 +6,7 @@ import ebi.ac.uk.base.EMPTY
 import java.util.*
 
 sealed class Table<T : Any>(elements: List<T>) {
-    abstract val idHeaderName: String
+    protected abstract val idHeaderName: String
     abstract fun toTableRow(t: T): Row<T>
 
     private val _headers: MutableSet<Header> = mutableSetOf()

@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.service
+package ac.uk.ebi.biostd.serialization.service
 
 import ac.uk.ebi.biostd.mapping.SubmissionMapper
 import ac.uk.ebi.biostd.persistence.repositories.SubmissionRepository
@@ -6,7 +6,7 @@ import ac.uk.ebi.biostd.serialization.json.JsonSerializer
 import ac.uk.ebi.biostd.serialization.tsv.TsvSerializer
 import ac.uk.ebi.biostd.serialization.xml.XmlSerializer
 
-class SubmissionService(
+class SerializationService(
         private val subRepository: SubmissionRepository,
         private val submissionMapper: SubmissionMapper,
         private val jsonSerializer: JsonSerializer,

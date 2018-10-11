@@ -1,6 +1,14 @@
 package ac.uk.ebi.biostd.test
 
-import ac.uk.ebi.biostd.submission.*
+import ac.uk.ebi.biostd.submission.SimpleAttribute
+import ac.uk.ebi.biostd.submission.Submission
+import ac.uk.ebi.biostd.submission.attribute
+import ac.uk.ebi.biostd.submission.file
+import ac.uk.ebi.biostd.submission.link
+import ac.uk.ebi.biostd.submission.linksTable
+import ac.uk.ebi.biostd.submission.section
+import ac.uk.ebi.biostd.submission.sectionsTable
+import ac.uk.ebi.biostd.submission.submission
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneOffset
@@ -26,11 +34,11 @@ fun createVenousBloodMonocyte(): Submission {
             attribute(name = "Project", value = "CEEHRC (McGill)")
             attribute(name = "Status", value = "Incomplete")
             attribute(name = "Organism", value = "Homo sapiens")
-            attribute(name = "Tissue type", value = "venous blood", terms = listOf(Term("Ontology", "UBERON")))
+            attribute(name = "Tissue type", value = "venous blood", terms = listOf(SimpleAttribute("Ontology", "UBERON")))
             attribute(name = "Donor ID", value = "McGill0139")
             attribute(name = "Biomaterial Type", value = "primary cells")
-            attribute(name = "Cell Type", value = "Monocyte", terms = listOf(Term("Ontology", "CL")))
-            attribute(name = "Disease", value = "Systemic Lupus Erythematosus", terms = listOf(Term("Ontology", "EFO")))
+            attribute(name = "Cell Type", value = "Monocyte", terms = listOf(SimpleAttribute("Ontology", "CL")))
+            attribute(name = "Disease", value = "Systemic Lupus Erythematosus", terms = listOf(SimpleAttribute("Ontology", "EFO")))
             attribute(name = "Experiment type", value = "Single donor")
 
             link {
@@ -72,8 +80,8 @@ fun createRNA_Profiling(): Submission {
             attribute("Description", "RNA sequencing of 25 patients with non-small cell lung cancer and their matched normal lung tissue")
             attribute("Study type", "RNA-seq of coding RNA")
             attribute("Organism", "Homo sapiens")
-            attribute("Experimental Designs", "case control design", terms = listOf(Term("Ontology", "EFO"), Term("TermId", "EFO:0001427")))
-            attribute("Experimental Factors", "sampling site", terms = listOf(Term("Ontology", "EFO"), Term("TermId", "EFO_0000408"), Term("TermName", "sampling site")))
+            attribute("Experimental Designs", "case control design", terms = listOf(SimpleAttribute("Ontology", "EFO"), SimpleAttribute("TermId", "EFO:0001427")))
+            attribute("Experimental Factors", "sampling site", terms = listOf(SimpleAttribute("Ontology", "EFO"), SimpleAttribute("TermId", "EFO_0000408"), SimpleAttribute("TermName", "sampling site")))
 
 
             section {
@@ -110,7 +118,7 @@ fun createRNA_Profiling(): Submission {
                     section {
                         accNo = "P-MTAB-76451"
                         attribute(name = "Name", value = "P-MTAB-76451")
-                        attribute(name = "Type", value = "nucleic acid extraction protocol", terms = listOf(Term("Ontology", "EFO"), Term("TermId", "EFO_0002944")))
+                        attribute(name = "Type", value = "nucleic acid extraction protocol", terms = listOf(SimpleAttribute("Ontology", "EFO"), SimpleAttribute("TermId", "EFO_0002944")))
                         attribute(name = "Description", value = "Total RNA was extracted from six 30-μm sections of frozen whole tumor and adjacent lung tissue using the Qiagen-RNeasy Mini kit according to the supplier’s instructions (Qiagen, Hilden, Germany). The quantity of DNA-free total RNA was measured using a Nanodrop-2000.")
                     }
 

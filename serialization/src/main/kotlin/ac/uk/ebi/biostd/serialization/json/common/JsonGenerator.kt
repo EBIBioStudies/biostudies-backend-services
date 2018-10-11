@@ -2,7 +2,7 @@ package ac.uk.ebi.biostd.serialization.json.common
 
 import com.fasterxml.jackson.core.JsonGenerator
 import ebi.ac.uk.base.applyIfNotBlank
-import ebi.ac.uk.base.whenTrue
+import ebi.ac.uk.base.ifTrue
 
 inline fun JsonGenerator.writeObj(body: JsonGenerator.() -> Unit) {
     writeStartObject()
@@ -27,7 +27,7 @@ inline fun <T> JsonGenerator.writeJsonArray(values: Collection<T>, function: T.(
 }
 
 fun JsonGenerator.writeJsonString(name: Any, value: String?) = value.applyIfNotBlank { writeStringField(name.toString(), it) }
-fun JsonGenerator.writeJsonBoolean(name: Any, value: Boolean?) = value?.whenTrue { writeBooleanField(name.toString(), value) }
+fun JsonGenerator.writeJsonBoolean(name: Any, value: Boolean?) = value?.ifTrue { writeBooleanField(name.toString(), value) }
 fun JsonGenerator.writeJsonNumber(name: Any, value: Long?) = value?.let { writeNumberField(name.toString(), it) }
 fun JsonGenerator.writeJsonObject(name: Any, value: Any?) = value?.let { writeObjectField(name.toString(), it) }
 

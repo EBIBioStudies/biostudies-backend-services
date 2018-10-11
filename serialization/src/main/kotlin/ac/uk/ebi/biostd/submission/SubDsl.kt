@@ -24,7 +24,7 @@ fun Submission.attribute(name: String, value: String): Attribute {
 fun Section.attribute(
         name: String,
         value: String,
-        terms: List<Term> = emptyList(),
+        terms: List<SimpleAttribute> = emptyList(),
         ref: Boolean = false
 ): Attribute {
     val attribute = Attribute(
@@ -49,7 +49,7 @@ fun Section.link(block: Link.() -> Unit): Link {
     return link
 }
 
-fun Link.attribute(name: String, value: String, terms: List<Term> = emptyList()): Attribute {
+fun Link.attribute(name: String, value: String, terms: List<SimpleAttribute> = emptyList()): Attribute {
     val attribute = Attribute(name = name, value = value, terms = terms)
     attributes.add(attribute)
     return attribute
@@ -86,7 +86,7 @@ fun Section.file(block: File.() -> Unit) {
 fun File.attribute(
         name: String,
         value: String,
-        terms: List<Term> = emptyList(),
+        terms: List<SimpleAttribute> = emptyList(),
         ref: Boolean = false
 ): Attribute {
     val attribute = Attribute(

@@ -6,9 +6,9 @@ import ac.uk.ebi.biostd.mapping.SubmissionMapper
 import ac.uk.ebi.biostd.mapping.TabularMapper
 import ac.uk.ebi.biostd.persistence.repositories.SubmissionRepository
 import ac.uk.ebi.biostd.serialization.json.JsonSerializer
+import ac.uk.ebi.biostd.serialization.service.SerializationService
 import ac.uk.ebi.biostd.serialization.tsv.TsvSerializer
 import ac.uk.ebi.biostd.serialization.xml.XmlSerializer
-import ac.uk.ebi.biostd.service.SubmissionService
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
@@ -24,7 +24,7 @@ class SerializationConfig {
             jsonSerializer: JsonSerializer,
             tsvSerializer: TsvSerializer,
             xmlSerializer: XmlSerializer) =
-            SubmissionService(subRepository, modelMapper, jsonSerializer, tsvSerializer, xmlSerializer)
+            SerializationService(subRepository, modelMapper, jsonSerializer, tsvSerializer, xmlSerializer)
 
     @Configuration
     class SerializerConfig {

@@ -4,7 +4,7 @@ import ac.uk.ebi.biostd.submission.Attribute
 import ac.uk.ebi.biostd.submission.Link
 import ac.uk.ebi.biostd.submission.LinksTable
 import ac.uk.ebi.biostd.submission.SectionsTable
-import ac.uk.ebi.biostd.submission.Term
+import ac.uk.ebi.biostd.submission.SimpleAttribute
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 
@@ -86,7 +86,7 @@ class TableJsonSerializerTest {
 
     @Test
     fun `serialize table of links`() {
-        val attr = Attribute("attrName", "attrValue", false, listOf(Term("n", "v")))
+        val attr = Attribute("attrName", "attrValue", false, listOf(SimpleAttribute("n", "v")))
         val link = Link("1234", mutableListOf(attr))
         val table = LinksTable(listOf(link))
 

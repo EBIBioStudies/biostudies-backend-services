@@ -1,0 +1,20 @@
+buildscript {
+    ext {
+        junitVersion = "5.2.0"
+        junitPlatformVersion = "1.2.0"
+        kotlinVersion = '1.2.61'
+    }
+}
+
+apply plugin: 'kotlin'
+
+dependencies {
+    compile("org.jetbrains.kotlin:kotlin-stdlib-jdk8:${kotlinVersion}")
+
+    // Junit dependencies
+    runtime "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
+    runtime "org.junit.platform:junit-platform-console:$junitPlatformVersion"
+
+    testCompile "org.junit.jupiter:junit-jupiter-api:$junitVersion"
+    testCompile "org.junit.jupiter:junit-jupiter-params:$junitVersion"
+}

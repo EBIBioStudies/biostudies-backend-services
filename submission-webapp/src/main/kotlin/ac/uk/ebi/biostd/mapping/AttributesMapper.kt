@@ -6,7 +6,7 @@ import ac.uk.ebi.biostd.config.LinkDb
 import ac.uk.ebi.biostd.submission.Attribute
 import ac.uk.ebi.biostd.submission.File
 import ac.uk.ebi.biostd.submission.Link
-import ac.uk.ebi.biostd.submission.Term
+import ac.uk.ebi.biostd.submission.SimpleAttribute
 import ebi.ac.uk.base.orFalse
 import ebi.ac.uk.util.collections.second
 
@@ -33,7 +33,7 @@ class AttributesMapper {
         return attrDb.run { Attribute(name, value, reference.orFalse(), getTerms(valueQualifier).orEmpty()) }
     }
 
-    private fun getTerms(valueQualifier: String?): List<Term>? {
-        return valueQualifier?.split(";")?.map { it.split("=") }?.map { Term(it.first(), it.second()) }
+    private fun getTerms(valueQualifier: String?): List<SimpleAttribute>? {
+        return valueQualifier?.split(";")?.map { it.split("=") }?.map { SimpleAttribute(it.first(), it.second()) }
     }
 }
