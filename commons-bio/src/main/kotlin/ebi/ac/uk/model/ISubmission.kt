@@ -48,6 +48,7 @@ interface ISection : IAttributable, ITabular {
 
     var accNo: String?
     var type: String
+    var parentAccNo: String?
 
     var sections: MutableSet<ISection>
     var files: MutableSet<IFile>

@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.mapping
 
-import ac.uk.ebi.biostd.config.SectionDb
+import ac.uk.ebi.biostd.integration.SectionDb
 import ac.uk.ebi.biostd.persistence.model.AbstractSection
 import ac.uk.ebi.biostd.persistence.model.NO_TABLE_INDEX
 import ac.uk.ebi.biostd.submission.Section
@@ -14,7 +14,7 @@ class SectionMapper(private val attributesMapper: AttributesMapper, private val 
         return mapSectionAttrs(sectionDb).apply {
             links = tabularMapper.toLinks(sectionDb.links)
             files = tabularMapper.toFiles(sectionDb.files)
-            subsections = mapSections(accNo.orEmpty(), sectionDb.sections)
+            subsections = mapSections(sectionDb.sections)
         }
     }
 
@@ -26,13 +26,13 @@ class SectionMapper(private val attributesMapper: AttributesMapper, private val 
         }
     }
 
-    private fun mapSections(parentAcc: String, sections: MutableSet<SectionDb>):
+    private fun mapSections(sections: MutableSet<SectionDb>):
             MutableList<Either<Section, SectionsTable>> {
         val (listElements, tableElements) = sections.partition { it.tableIndex == NO_TABLE_INDEX }
 
         val map: MutableMap<Int, Either<Section, SectionsTable>> = mutableMapOf()
         listElements.forEach { map[it.order] = Either.Left(toSection(it)) }
-        tableElements.ifNotEmpty { map[min(tableElements)] = Either.Right(asTable(parentAcc, tableElements)) }
+        tableElements.ifNotEmpty { map[min(tableElements)] = Either.Right(asTable(tableElements)) }
 
         return map.toSortedMap().values.toMutableList()
     }
@@ -41,6 +41,5 @@ class SectionMapper(private val attributesMapper: AttributesMapper, private val 
         return sections.map { it.order }.min()!!
     }
 
-    private fun asTable(parentAcc: String, sections: List<SectionDb>) =
-            SectionsTable(sections.map { mapSectionAttrs(it) }, parentAcc)
+    private fun asTable(sections: List<SectionDb>) = SectionsTable(sections.map { mapSectionAttrs(it) })
 }

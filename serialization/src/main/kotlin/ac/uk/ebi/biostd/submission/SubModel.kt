@@ -31,6 +31,7 @@ data class Submission(
 data class Section(
         var type: String = EMPTY,
         var accNo: String? = null,
+        var parentAccNo: String? = null,
         var attributes: MutableList<Attribute> = mutableListOf(),
         var subsections: MutableList<Either<Section, SectionsTable>> = mutableListOf(),
         var links: MutableList<Either<Link, LinksTable>> = mutableListOf(),

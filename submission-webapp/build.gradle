@@ -26,14 +26,16 @@ repositories {
 
 dependencies {
     compile project(":persistence")
+    compile project(":submitter")
     compile project(":serialization")
     compile project(":commons-util")
 
     compile 'org.springframework.boot:spring-boot-starter-web'
     compile 'org.springframework.boot:spring-boot-starter-data-jpa'
+    compile 'org.springframework.boot:spring-boot-configuration-processor'
 
     compile('mysql:mysql-connector-java:6.0.6')
     compile("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
 
-    testCompile 'org.assertj:assertj-core:3.11.0'
+    testCompile('org.assertj:assertj-core:3.11.0')
 }

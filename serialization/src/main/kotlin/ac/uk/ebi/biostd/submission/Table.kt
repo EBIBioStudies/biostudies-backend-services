@@ -1,8 +1,9 @@
 package ac.uk.ebi.biostd.submission
 
-import ac.uk.ebi.biostd.serialization.tsv.FILE_TABLE_ID_HEADER
-import ac.uk.ebi.biostd.serialization.tsv.LINK_TABLE_ID_HEADER
+import ac.uk.ebi.biostd.tsv.FILE_TABLE_ID_HEADER
+import ac.uk.ebi.biostd.tsv.LINK_TABLE_ID_HEADER
 import ebi.ac.uk.base.EMPTY
+import ebi.ac.uk.base.isNotBlank
 import java.util.*
 
 sealed class Table<T : Any>(elements: List<T>) {
@@ -93,10 +94,19 @@ class FilesTable(files: List<File> = emptyList()) : Table<File>(files) {
     }
 }
 
-class SectionsTable(sections: List<Section> = emptyList(), var parentAccNo: String = EMPTY) : Table<Section>(sections) {
-    private val sectionType = elements.map { it.type }.firstOrNull().orEmpty()
+class SectionsTable(sections: List<Section> = emptyList()) : Table<Section>(sections) {
 
-    override val idHeaderName = "$sectionType${if (parentAccNo.isNotEmpty()) "[$parentAccNo]" else EMPTY}"
+    private var sectionType = ""
+    private var parentAccNo: String? = null
+
+    init {
+        elements.first().let {
+            sectionType = it.type
+            parentAccNo = it.parentAccNo
+        }
+    }
+
+    override val idHeaderName = "$sectionType${if (parentAccNo.isNotBlank()) "[$parentAccNo]" else EMPTY}"
 
     override fun toTableRow(t: Section) = object : Row<Section>(t) {
         override val id = t.accNo!!

@@ -1,12 +1,20 @@
 package ebi.ac.uk.paths
 
+import ebi.ac.uk.model.ISubmission
 import java.nio.file.Path
 import java.nio.file.Paths
 
 internal const val USER_FOLDER_PREFIX = "a"
 internal const val GROUP_FOLDER_PREFIX = "b"
 
-class FolderResolver(private val basePath: String) {
+private const val FILES_PATH = "Files"
+private const val SUBMISSION_PATH = "submission"
+
+class FolderResolver(private val basePath: Path) {
+
+    fun getSubmissionFolder(submission: ISubmission) = basePath.resolve(SUBMISSION_PATH).resolve(submission.relPath)
+
+    fun getSubFilePath(relPath: String, fileName: String) = basePath.resolve(relPath).resolve(FILES_PATH).resolve(fileName)
 
     fun getUserMagicFolderPath(userId: Long, secret: String): Path {
         return getMagicFolderPath(userId, secret, USER_FOLDER_PREFIX)

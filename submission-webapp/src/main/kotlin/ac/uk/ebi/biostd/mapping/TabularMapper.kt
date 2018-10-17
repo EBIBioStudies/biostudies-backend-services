@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.mapping
 
-import ac.uk.ebi.biostd.config.FileDb
-import ac.uk.ebi.biostd.config.LinkDb
+import ac.uk.ebi.biostd.integration.FileDb
+import ac.uk.ebi.biostd.integration.LinkDb
 import ac.uk.ebi.biostd.persistence.model.Tabular
 import ac.uk.ebi.biostd.submission.FilesTable
 import ac.uk.ebi.biostd.submission.LinksTable

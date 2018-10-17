@@ -11,4 +11,5 @@ spring:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
 
 
-
+app:
+  basePath: /home/jcamilorada/Projects/BioStudies/NFS

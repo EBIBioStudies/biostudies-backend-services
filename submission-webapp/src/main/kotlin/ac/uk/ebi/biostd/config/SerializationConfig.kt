@@ -1,14 +1,15 @@
 package ac.uk.ebi.biostd.config
 
+import ac.uk.ebi.biostd.json.JsonSerializer
 import ac.uk.ebi.biostd.mapping.AttributesMapper
 import ac.uk.ebi.biostd.mapping.SectionMapper
 import ac.uk.ebi.biostd.mapping.SubmissionMapper
 import ac.uk.ebi.biostd.mapping.TabularMapper
 import ac.uk.ebi.biostd.persistence.repositories.SubmissionRepository
-import ac.uk.ebi.biostd.serialization.json.JsonSerializer
-import ac.uk.ebi.biostd.serialization.service.SerializationService
-import ac.uk.ebi.biostd.serialization.tsv.TsvSerializer
-import ac.uk.ebi.biostd.serialization.xml.XmlSerializer
+import ac.uk.ebi.biostd.service.SubmissionService
+import ac.uk.ebi.biostd.submission.SubmissionSubmitter
+import ac.uk.ebi.biostd.tsv.TsvSerializer
+import ac.uk.ebi.biostd.xml.XmlSerializer
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
@@ -18,13 +19,14 @@ import org.springframework.context.annotation.Import
 class SerializationConfig {
 
     @Bean
-    fun submissionService(
-            subRepository: SubmissionRepository,
-            modelMapper: SubmissionMapper,
-            jsonSerializer: JsonSerializer,
-            tsvSerializer: TsvSerializer,
-            xmlSerializer: XmlSerializer) =
-            SerializationService(subRepository, modelMapper, jsonSerializer, tsvSerializer, xmlSerializer)
+    fun submissionService(subRepository: SubmissionRepository,
+                          submissionMapper: SubmissionMapper,
+                          jsonSerializer: JsonSerializer,
+                          tsvSerializer: TsvSerializer,
+                          xmlSerializer: XmlSerializer,
+                          submissionSubmitter: SubmissionSubmitter) =
+
+            SubmissionService(submissionSubmitter, subRepository, submissionMapper, jsonSerializer, tsvSerializer, xmlSerializer)
 
     @Configuration
     class SerializerConfig {

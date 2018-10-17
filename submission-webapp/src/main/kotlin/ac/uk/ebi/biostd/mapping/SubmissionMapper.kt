@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.mapping
 
-import ac.uk.ebi.biostd.config.SubmissionDb
+import ac.uk.ebi.biostd.integration.SubmissionDb
 import ac.uk.ebi.biostd.persistence.model.AccessTag
 import ac.uk.ebi.biostd.submission.Submission
 import org.springframework.stereotype.Component
@@ -8,8 +8,8 @@ import org.springframework.stereotype.Component
 
 @Component
 class SubmissionMapper(
-        private val attributesMapper: AttributesMapper,
-        private val sectionMapper: SectionMapper) {
+        private val attributesMapper: AttributesMapper = AttributesMapper(),
+        private val sectionMapper: SectionMapper = SectionMapper(attributesMapper, TabularMapper(attributesMapper))) {
 
     fun mapSubmission(submissionDb: SubmissionDb): Submission {
         return Submission().apply {

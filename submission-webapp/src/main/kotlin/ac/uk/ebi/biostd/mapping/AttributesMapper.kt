@@ -1,8 +1,8 @@
 package ac.uk.ebi.biostd.mapping
 
-import ac.uk.ebi.biostd.config.AttributeDb
-import ac.uk.ebi.biostd.config.FileDb
-import ac.uk.ebi.biostd.config.LinkDb
+import ac.uk.ebi.biostd.integration.AttributeDb
+import ac.uk.ebi.biostd.integration.FileDb
+import ac.uk.ebi.biostd.integration.LinkDb
 import ac.uk.ebi.biostd.submission.Attribute
 import ac.uk.ebi.biostd.submission.File
 import ac.uk.ebi.biostd.submission.Link
