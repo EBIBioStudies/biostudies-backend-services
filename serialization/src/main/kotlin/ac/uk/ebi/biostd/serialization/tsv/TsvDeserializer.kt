@@ -12,6 +12,7 @@ import ac.uk.ebi.biostd.submission.LinksTable
 import ac.uk.ebi.biostd.submission.Section
 import ac.uk.ebi.biostd.submission.SectionFields
 import ac.uk.ebi.biostd.submission.Submission
+import ebi.ac.uk.base.applyIfNotBlank
 import ebi.ac.uk.util.collections.removeFirst
 import ebi.ac.uk.util.collections.ifNotEmpty
 
@@ -53,24 +54,20 @@ class TsvDeserializer {
     private fun chunkerize(pageTabSubmission: String): MutableList<PageTabChunk> {
         var chunk: MutableList<String> = arrayListOf()
         val chunks: MutableList<PageTabChunk> = arrayListOf()
-        pageTabSubmission.split("\n").forEach {
-            if (it.isEmpty()) {
-                chunks.add(PageTabChunk(chunk))
-                chunk.clear()
-            } else {
-                chunk.add(it)
+        pageTabSubmission.split("\n\n").forEach {
+            it.split("\n"). forEach {
+                it.applyIfNotBlank { chunk.add(it) }
             }
+
+            chunks.add(PageTabChunk(chunk))
+            chunk.clear()
         }
 
-        chunk.ifNotEmpty { chunks.add(PageTabChunk(chunk)) }
         return chunks
     }
 
-    private fun createLink(link:String, attributes: MutableList<Attribute>): Link {
-        return Link(link, attributes)
-    }
+    private fun createLink(link:String, attributes: MutableList<Attribute>): Link = Link(link, attributes)
 
-    private fun createFile(file: String, attributes: MutableList<Attribute>): File {
-        return File(name = file, attributes = attributes)
-    }
+    private fun createFile(
+            file: String, attributes: MutableList<Attribute>): File = File(name = file, attributes = attributes)
 }
