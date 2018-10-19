@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.serialization.tsv
 
-import ac.uk.ebi.biostd.serialization.common.getLeft
-import ac.uk.ebi.biostd.serialization.common.getRight
+import ac.uk.ebi.biostd.common.getLeft
+import ac.uk.ebi.biostd.common.getRight
 import ac.uk.ebi.biostd.submission.Attribute
 import ac.uk.ebi.biostd.submission.File
 import ac.uk.ebi.biostd.submission.FileFields
@@ -39,10 +39,9 @@ class TsvDeserializerTest {
         val dataSource = "DataSource"
         val attachTo = "AttachTo"
         val europePMC = "EuropePMC"
-        val public = SubFields.PUBLIC_ACCESS_TAG.value
 
         val pageTab: String = tsv {
-            line(SubFields.SUBMISSION.value, accNo, public)
+            line(SubFields.SUBMISSION.value, accNo)
             line(SubFields.TITLE.value, title)
             line(dataSource, europePMC)
             line(attachTo, europePMC)
@@ -51,7 +50,7 @@ class TsvDeserializerTest {
 
         val submission: Submission = deserializer.deserialize(pageTab)
         assertSubmission(
-                submission, accNo, title, public, Attribute(dataSource, europePMC), Attribute(attachTo, europePMC))
+                submission, accNo, title, Attribute(dataSource, europePMC), Attribute(attachTo, europePMC))
     }
 
     @Test
@@ -166,13 +165,10 @@ class TsvDeserializerTest {
     }
 
     private fun assertSubmission(
-            submission: Submission, accNo: String, title: String, accessTag:String = "", vararg attributes:Attribute) {
+            submission: Submission, accNo: String, title: String, vararg attributes:Attribute) {
         assertThat(submission.accNo).isEqualTo(accNo)
         assertThat(submission.title).isEqualTo(title)
         assertAttributes(submission.attributes, attributes)
-
-        if (accessTag.isEmpty()) assertThat(submission.accessTags).isEmpty()
-        else assertThat(submission.accessTags).contains(accessTag)
     }
 
     private fun assertSection(section: Section, expectedType: String, vararg  expectedAttributes: Attribute) {

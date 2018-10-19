@@ -1,5 +1,7 @@
 package ac.uk.ebi.biostd.serialization.tsv
 
+import ac.uk.ebi.biostd.serialization.common.TSV_CHUNK_BREAK
+import ac.uk.ebi.biostd.serialization.common.TSV_LINE_BREAK
 import ac.uk.ebi.biostd.serialization.common.addLeft
 import ac.uk.ebi.biostd.serialization.common.addRight
 import ac.uk.ebi.biostd.submission.Attribute
@@ -20,33 +22,29 @@ class TsvDeserializer {
     fun deserialize(pageTabSubmission: String): Submission {
         val chunks: MutableList<PageTabChunk> = chunkerize(pageTabSubmission)
         val submissionChunk: PageTabChunk = chunks.removeFirst()
-        val headerValues: List<String> = submissionChunk.getHeaderValues()
         var rootSection = Section()
         chunks.ifNotEmpty {
             val rootSectionChunk: PageTabChunk = chunks.removeFirst()
-            rootSection = Section(type = rootSectionChunk.header, attributes = rootSectionChunk.attributes)
+            rootSection = Section(type = rootSectionChunk.getType(), attributes = rootSectionChunk.attributes)
             processSubsections(rootSection, chunks)
         }
 
         return Submission(
-                accNo = headerValues[1],
+                accNo = submissionChunk.getIdentifier(),
                 title = submissionChunk.attributes.removeFirst().value,
-                accessTags = if (headerValues.size > 2) mutableListOf(headerValues[2]) else mutableListOf(),
                 attributes = submissionChunk.attributes,
                 section = rootSection)
     }
 
     private fun processSubsections(section: Section, subsectionChunks: MutableList<PageTabChunk>) {
         subsectionChunks.forEach {
-            val head: List<String> = it.getHeaderValues()
-            val type: String = head[0].toLowerCase()
-
-            when (type) {
-                LinkFields.LINK.value -> section.links.addLeft(Link(head[1], it.attributes))
-                FileFields.FILE.value -> section.files.addLeft(File(name =  head[1], attributes = it.attributes))
+            when (it.getType()) {
+                LinkFields.LINK.value -> section.links.addLeft(Link(it.getIdentifier(), it.attributes))
+                FileFields.FILE.value ->
+                    section.files.addLeft(File(name =  it.getIdentifier(), attributes = it.attributes))
                 SectionFields.LINKS.value -> section.links.addRight(LinksTable(it.mapTable(this::createLink)))
                 SectionFields.FILES.value -> section.files.addRight(FilesTable(it.mapTable(this::createFile)))
-                else -> section.subsections.addLeft(Section(type = it.header, attributes = it.attributes))
+                else -> section.subsections.addLeft(Section(type = it.getType(), attributes = it.attributes))
             }
         }
     }
@@ -54,8 +52,8 @@ class TsvDeserializer {
     private fun chunkerize(pageTabSubmission: String): MutableList<PageTabChunk> {
         var chunk: MutableList<String> = arrayListOf()
         val chunks: MutableList<PageTabChunk> = arrayListOf()
-        pageTabSubmission.split("\n\n").forEach {
-            it.split("\n"). forEach {
+        pageTabSubmission.split(TSV_LINE_BREAK).forEach {
+            it.split(TSV_CHUNK_BREAK). forEach {
                 it.applyIfNotBlank { chunk.add(it) }
             }
 
