@@ -59,7 +59,7 @@ class FromEntityMapper(private val tabularMapper: TabularMapper = TabularMapper(
 
     private fun toAttr(attrDb: IAttribute) = attrDb.run { Attribute(name, value, reference, toSimpleAttr(attrDb.valueAttributes)) }
     private fun toSimpleAttr(valueAttributes: MutableList<ISimpleAttribute>) = valueAttributes.mapTo(mutableListOf()) { SimpleAttribute(it.name, it.value) }
-    private fun toAttributes(attrs: Set<IAttribute>) = attrs.mapTo(mutableListOf()) { toAttr(it) }
+    private fun toAttributes(attrs: List<IAttribute>) = attrs.mapTo(mutableListOf()) { toAttr(it) }
     private fun toAccessTags(accessTag: Set<IAccessTag>) = accessTag.mapTo(mutableListOf(), IAccessTag::name)
 
 }

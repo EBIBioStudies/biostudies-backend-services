@@ -50,9 +50,9 @@ interface ISection : IAttributable, ITabular {
     var type: String
     var parentAccNo: String?
 
-    var sections: MutableSet<ISection>
-    var files: MutableSet<IFile>
-    var links: MutableSet<ILink>
+    var sections: MutableList<ISection>
+    var files: MutableList<IFile>
+    var links: MutableList<ILink>
 }
 
 interface IFile : IAttributable, ITabular {
@@ -81,7 +81,7 @@ interface ISimpleAttribute {
 }
 
 interface IAttributable {
-    var attributes: MutableSet<IAttribute>
+    var attributes: MutableList<IAttribute>
 }
 
 interface ITabular {

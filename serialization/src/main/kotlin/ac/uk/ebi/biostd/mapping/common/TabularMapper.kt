@@ -8,7 +8,7 @@ import ebi.ac.uk.util.collections.ifNotEmpty
 class TabularMapper {
 
     fun <DbType : ITabular, Type, TableType> mapTabular(
-            elements: Set<DbType>,
+            elements: List<DbType>,
             transform: (DbType) -> Type,
             tableBuilder: (List<Type>) -> TableType): MutableList<Either<Type, TableType>> {
 

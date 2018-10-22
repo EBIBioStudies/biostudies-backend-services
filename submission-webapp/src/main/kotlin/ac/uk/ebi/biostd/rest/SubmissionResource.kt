@@ -32,6 +32,6 @@ class SubmissionResource(private val submissionService: SubmissionService) {
 
     @PostMapping()
     fun submit(@RequestBody submission: PagetabSubmission) {
-
+        //submissionService.submitSubmission(submission)
     }
 }
