@@ -1,7 +1,7 @@
 package ebi.ac.uk.util.collections
 
 /**
- * Execute the given lambda is list is not empty.
+ * Executes the given lambda if the list is not empty.
  *
  * @function lambda function to execute.
  */
@@ -12,7 +12,7 @@ fun <A : Collection<*>> A.ifNotEmpty(function: (A) -> Unit) {
 }
 
 /**
- * Create a list based on the given list an a list of attributes.
+ * Creates a list based on the given list and a list of attributes.
  *
  * @param anotherList the base list to create new one.
  * @param elements the list of elements to append to the list.
@@ -28,3 +28,8 @@ fun <T> List<T>.second(): T {
         throw NoSuchElementException("List do not contain a second element.")
     return this[1]
 }
+
+/**
+ * Removes the first element of a MutableList and returns it
+ */
+fun <T> MutableList<T>.removeFirst() = removeAt(0)
