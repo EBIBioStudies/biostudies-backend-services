@@ -2,13 +2,15 @@ package ac.uk.ebi.biostd.submission.helpers
 
 import ebi.ac.uk.base.or
 import ebi.ac.uk.funtions.now
-import ebi.ac.uk.model.ISubmission
-import ebi.ac.uk.model.submission.SubmitOperation
+import ebi.ac.uk.model.Submission
+import ebi.ac.uk.model.creationTime
+import ebi.ac.uk.model.releaseTime
+import ebi.ac.uk.model.SubmitOperation
 import java.time.OffsetDateTime
 
 class TimesProcessor {
 
-    fun processSubmission(submission: ISubmission, operation: SubmitOperation): Times {
+    fun processSubmission(submission: Submission, operation: SubmitOperation): Times {
         return when (operation) {
             SubmitOperation.CREATE ->
                 Times(submission.releaseTime.or(now()), now(), now())

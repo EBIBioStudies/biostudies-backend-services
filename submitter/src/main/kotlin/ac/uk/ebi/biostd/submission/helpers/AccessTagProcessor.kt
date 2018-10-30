@@ -1,14 +1,14 @@
 package ac.uk.ebi.biostd.submission.helpers
 
 import ac.uk.ebi.biostd.submission.model.PersistenceContext
-import ebi.ac.uk.model.ISubmission
+import ebi.ac.uk.model.Submission
 
 /**
  * Add all parent submission tags to submitted submission.
  */
 class AccessTagProcessor {
 
-    fun processSubmission(submission: ISubmission, context: PersistenceContext) {
+    fun processSubmission(submission: Submission, context: PersistenceContext) {
         submission.accessTags.addAll(context.getParentAccessTags(submission))
     }
 }

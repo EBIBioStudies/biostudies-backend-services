@@ -1,5 +1,6 @@
 package ebi.ac.uk.model
 
+import arrow.core.Either
 import java.time.OffsetDateTime
 
 const val NO_TABLE_INDEX = -1
@@ -21,7 +22,11 @@ interface ISubmission : IAttributable {
     var accessTags: MutableSet<IAccessTag>
 
     val allFiles: List<IFile>
-        get() = rootSection.sections.flatMap { it.files }
+        get() = rootSection.sections.flatMap { sections ->
+            sections.files.map { either ->
+                either.fold({ listOf(it) }, { it.files })
+            }.flatten()
+        }
 }
 
 interface IAccessTag {
@@ -51,7 +56,11 @@ interface ISection : IAttributable, ITabular {
     var parentAccNo: String?
 
     var sections: MutableList<ISection>
-    var files: MutableList<IFile>
+    var files: MutableList<Either<IFile, IFilesTable>>
+    var links: MutableList<Either<ILink, ILinksTable>>
+}
+
+interface ILinksTable {
     var links: MutableList<ILink>
 }
 
@@ -61,10 +70,13 @@ interface IFile : IAttributable, ITabular {
     var size: Int
 }
 
+interface IFilesTable {
+    var files: MutableList<IFile>
+}
+
 interface ILink : IAttributable, ITabular {
     var url: String
 }
-
 
 interface IAttribute {
     var name: String

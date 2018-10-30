@@ -1,4 +1,4 @@
-package ebi.ac.uk.model.submission
+package ebi.ac.uk.model
 
 
 enum class SubmitOperation {

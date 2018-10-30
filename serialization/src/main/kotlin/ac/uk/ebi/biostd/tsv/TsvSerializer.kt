@@ -1,10 +1,12 @@
 package ac.uk.ebi.biostd.tsv
 
-import ac.uk.ebi.biostd.submission.File
-import ac.uk.ebi.biostd.submission.Link
-import ac.uk.ebi.biostd.submission.Section
-import ac.uk.ebi.biostd.submission.Submission
-import ac.uk.ebi.biostd.submission.Table
+import ebi.ac.uk.model.File
+import ebi.ac.uk.model.Link
+import ebi.ac.uk.model.Section
+import ebi.ac.uk.model.Submission
+import ebi.ac.uk.model.Table
+import ebi.ac.uk.model.accNo
+import ebi.ac.uk.model.type
 
 class TsvSerializer {
 
@@ -12,15 +14,15 @@ class TsvSerializer {
 
     fun serialize(submission: Submission): String {
         serializeSubmission(submission)
-        serializeSection(submission.section)
+        serializeSection(submission.rootSection)
         return builder.toString()
     }
 
     private fun serializeSubmission(submission: Submission) {
         builder.addSubAccAndTags(submission.accNo, submission.accessTags)
-        builder.addSubTitle(submission.title)
-        builder.addSubReleaseDate(submission.rtime)
-        builder.addRootPath(submission.rootPath)
+        //  builder.addSubTitle(submission.title)
+        //  builder.addSubReleaseDate(submission.rtime)
+        //  builder.addRootPath(submission.rootPath)
         submission.attributes.forEach(builder::addAttr)
     }
 
@@ -29,9 +31,9 @@ class TsvSerializer {
         builder.addSecDescriptor(section.type, section.accNo)
         section.attributes.forEach(builder::addAttr)
 
-        section.links.forEach { it.fold({ addLink(it) }, { addTable(it) }) }
-        section.files.forEach { it.fold({ addFile(it) }, { addTable(it) }) }
-        section.subsections.forEach { it.fold({ serializeSection(it) }, { addTable(it) }) }
+        section.links.forEach { either -> either.fold({ addLink(it) }, { addTable(it) }) }
+        section.files.forEach { either -> either.fold({ addFile(it) }, { addTable(it) }) }
+        section.sections.forEach { either -> either.fold({ serializeSection(it) }, { addTable(it) }) }
     }
 
     private fun addFile(file: File) {

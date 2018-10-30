@@ -3,14 +3,15 @@ package ac.uk.ebi.biostd.submission.helpers
 import ac.uk.ebi.biostd.submission.model.PersistenceContext
 import arrow.core.Option
 import arrow.core.getOrElse
-import ebi.ac.uk.model.ISubmission
+import ebi.ac.uk.model.Submission
+import ebi.ac.uk.model.accNo
 
 const val ACC_PATTERN = "\\!\\{%s\\}"
 const val DEFAULT_PATTERN = "!{S-BSST,}"
 
 class AccNoProcessor(private val patternExtractor: PatternProcessor = PatternProcessor()) {
 
-    fun getAccNo(submission: ISubmission, context: PersistenceContext): AccNumber {
+    fun getAccNo(submission: Submission, context: PersistenceContext): AccNumber {
 
         return when {
             submission.accNo.isEmpty() -> getPattern(context.getParentAccPattern(submission), context::getSequenceNextValue)

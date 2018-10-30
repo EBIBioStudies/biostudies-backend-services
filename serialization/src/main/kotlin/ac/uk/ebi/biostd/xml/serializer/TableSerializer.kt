@@ -1,18 +1,18 @@
 package ac.uk.ebi.biostd.xml.serializer
 
-import ac.uk.ebi.biostd.submission.FileFields
-import ac.uk.ebi.biostd.submission.FilesTable
-import ac.uk.ebi.biostd.submission.LinkFields
-import ac.uk.ebi.biostd.submission.LinksTable
-import ac.uk.ebi.biostd.submission.OtherFields
-import ac.uk.ebi.biostd.submission.SectionFields
-import ac.uk.ebi.biostd.submission.SectionsTable
-import ac.uk.ebi.biostd.submission.Table
 import ac.uk.ebi.biostd.xml.common.XmlStdSerializer
 import ac.uk.ebi.biostd.xml.common.writeXmlField
 import ac.uk.ebi.biostd.xml.common.writeXmlObj
 import com.fasterxml.jackson.databind.SerializerProvider
 import com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator
+import ebi.ac.uk.model.FileFields
+import ebi.ac.uk.model.FilesTable
+import ebi.ac.uk.model.LinkFields
+import ebi.ac.uk.model.LinksTable
+import ebi.ac.uk.model.OtherFields
+import ebi.ac.uk.model.SectionFields
+import ebi.ac.uk.model.SectionsTable
+import ebi.ac.uk.model.Table
 
 class TableSerializer : XmlStdSerializer<Table<*>>(Table::class.java) {
 

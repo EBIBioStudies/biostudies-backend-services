@@ -1,13 +1,13 @@
 package ac.uk.ebi.biostd.xml.serializer
 
-import ac.uk.ebi.biostd.submission.File
-import ac.uk.ebi.biostd.submission.FileFields
 import ac.uk.ebi.biostd.xml.common.XmlStdSerializer
 import ac.uk.ebi.biostd.xml.common.writeXmlCollection
 import ac.uk.ebi.biostd.xml.common.writeXmlField
 import ac.uk.ebi.biostd.xml.common.writeXmlObj
 import com.fasterxml.jackson.databind.SerializerProvider
 import com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator
+import ebi.ac.uk.model.File
+import ebi.ac.uk.model.FileFields
 
 class FileSerializer : XmlStdSerializer<File>(File::class.java) {
 
@@ -15,8 +15,6 @@ class FileSerializer : XmlStdSerializer<File>(File::class.java) {
         with(gen) {
             writeXmlObj(FileFields.FILE, value) {
                 writeXmlField(FileFields.NAME, value.name)
-                writeXmlField(FileFields.TYPE, value.type)
-                writeXmlField(FileFields.SIZE, value.size)
                 writeXmlCollection(FileFields.ATTRIBUTES, value.attributes)
             }
         }

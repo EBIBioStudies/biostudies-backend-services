@@ -1,9 +1,5 @@
 package ac.uk.ebi.biostd.xml.serializer
 
-import ac.uk.ebi.biostd.submission.FilesTable
-import ac.uk.ebi.biostd.submission.LinksTable
-import ac.uk.ebi.biostd.submission.SectionsTable
-import ac.uk.ebi.biostd.submission.Table
 import ac.uk.ebi.biostd.test.FILE_NAME
 import ac.uk.ebi.biostd.test.FILE_SIZE
 import ac.uk.ebi.biostd.test.FILE_TYPE
@@ -15,6 +11,10 @@ import ac.uk.ebi.biostd.test.simpleLink
 import ac.uk.ebi.biostd.test.simpleSection
 import com.fasterxml.jackson.dataformat.xml.JacksonXmlModule
 import com.fasterxml.jackson.dataformat.xml.XmlMapper
+import ebi.ac.uk.model.FilesTable
+import ebi.ac.uk.model.LinksTable
+import ebi.ac.uk.model.SectionsTable
+import ebi.ac.uk.model.Table
 import org.junit.jupiter.api.Test
 import org.redundent.kotlin.xml.xml
 import org.xmlunit.assertj.XmlAssert.assertThat

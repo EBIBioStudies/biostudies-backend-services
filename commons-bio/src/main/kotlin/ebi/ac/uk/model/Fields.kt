@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.submission
+package ebi.ac.uk.model
 
 
 enum class OtherFields(val value: String) {
@@ -16,6 +16,7 @@ private const val ATTRIBUTES_FIELD = "attributes"
 
 enum class SubFields(val value: String) {
     SUBMISSION("submission"),
+    REL_PATH("relPath"),
     ACC_NO(ACC_NO_FIELD),
     ACCESS_TAGS(ACCESS_FIELD),
     ATTRIBUTES(ATTRIBUTES_FIELD),
@@ -42,7 +43,8 @@ enum class SectionFields(val value: String) {
     LINKS("links"),
     SUBSECTIONS("subsections"),
     TYPE("type"),
-    FILES("files");
+    FILES("files"),
+    PARENT_ACC_NO("parentAccNo");
 
     override fun toString(): String {
         return value
@@ -77,6 +79,15 @@ enum class FileFields(val value: String) {
     SIZE("size"),
     TYPE("type"),
     ATTRIBUTES(ATTRIBUTES_FIELD);
+
+    override fun toString(): String {
+        return value
+    }
+}
+
+enum class TableFields(val value: String) {
+    LINKS_TABLE("Links"),
+    FILES_TABLE("Files");
 
     override fun toString(): String {
         return value

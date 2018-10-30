@@ -1,13 +1,11 @@
-package ac.uk.ebi.biostd.submission
+package ebi.ac.uk.model
 
-import ac.uk.ebi.biostd.tsv.FILE_TABLE_ID_HEADER
-import ac.uk.ebi.biostd.tsv.LINK_TABLE_ID_HEADER
-import ebi.ac.uk.base.EMPTY
 import ebi.ac.uk.base.isNotBlank
 import java.util.*
 
 sealed class Table<T : Any>(elements: List<T>) {
-    protected abstract val idHeaderName: String
+
+    protected abstract val header: String
     abstract fun toTableRow(t: T): Row<T>
 
     private val _headers: MutableSet<Header> = mutableSetOf()
@@ -18,12 +16,10 @@ sealed class Table<T : Any>(elements: List<T>) {
     }
 
     val headers: List<Header>
-        get() = listOf(Header(idHeaderName)) + _headers.toList()
+        get() = listOf(Header(header)) + _headers.toList()
 
-    val rows: Sequence<List<String>>
-        get() = _rows.asSequence().map { row ->
-            listOf(row.id) + row.values(_headers.toList())
-        }
+    val rows: List<List<String>>
+        get() = _rows.mapTo(mutableListOf()) { row -> listOf(row.id) + row.values(_headers.toList()) }
 
     val elements: List<T>
         get() = _rows.map { it.original }
@@ -37,14 +33,15 @@ sealed class Table<T : Any>(elements: List<T>) {
     override fun equals(other: Any?): Boolean {
         other as? Table<*> ?: return false
         if (this === other) return true
-        if (idHeaderName != other.idHeaderName) return false
+        if (header != other.header) return false
         if (_headers != other._headers) return false
         if (_rows != other._rows) return false
         return true
     }
 
-    override fun hashCode() = Objects.hash(idHeaderName, _headers, _rows)
+    override fun hashCode() = Objects.hash(header, _headers, _rows)
 }
+
 
 data class Header(val name: String, val termNames: List<String> = listOf()) {
 
@@ -69,15 +66,15 @@ abstract class Row<T>(val original: T) {
 
     override fun hashCode() = Objects.hash(original)
 
-    fun headers() = attributes.map { Header(it.name, it.terms.names()) }
+    fun headers() = attributes.map { Header(it.name, it.nameAttrs.map(AttributeDetail::name)) }
 
-    fun values(headers: List<Header>) = headers.map { findAttrByName(it.name) }.flatMap { listOf(it.value) + it.terms.values() }
+    fun values(headers: List<Header>) = headers.map { findAttrByName(it.name) }.flatMap { listOf(it.value) + it.valueAttrs.map(AttributeDetail::value) }
 
     private fun findAttrByName(name: String) = this.attributes.firstOrNull { it.name == name } ?: Attribute.EMPTY_ATTR
 }
 
 class LinksTable(links: List<Link> = emptyList()) : Table<Link>(links) {
-    override val idHeaderName = LINK_TABLE_ID_HEADER
+    override val header = TableFields.LINKS_TABLE.toString()
 
     override fun toTableRow(t: Link) = object : Row<Link>(t) {
         override val id = t.url
@@ -86,7 +83,7 @@ class LinksTable(links: List<Link> = emptyList()) : Table<Link>(links) {
 }
 
 class FilesTable(files: List<File> = emptyList()) : Table<File>(files) {
-    override val idHeaderName = FILE_TABLE_ID_HEADER
+    override val header = TableFields.FILES_TABLE.toString()
 
     override fun toTableRow(t: File) = object : Row<File>(t) {
         override val id = t.name
@@ -106,10 +103,10 @@ class SectionsTable(sections: List<Section> = emptyList()) : Table<Section>(sect
         }
     }
 
-    override val idHeaderName = "$sectionType${if (parentAccNo.isNotBlank()) "[$parentAccNo]" else EMPTY}"
+    override val header = "$sectionType${if (parentAccNo.isNotBlank()) "[$parentAccNo]" else ""}"
 
     override fun toTableRow(t: Section) = object : Row<Section>(t) {
-        override val id = t.accNo!!
+        override val id = t.accNo
         override val attributes = t.attributes
     }
 }

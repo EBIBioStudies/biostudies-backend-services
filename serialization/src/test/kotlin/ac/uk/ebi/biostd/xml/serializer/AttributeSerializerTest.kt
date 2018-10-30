@@ -1,21 +1,21 @@
 package ac.uk.ebi.biostd.xml.serializer
 
-import ac.uk.ebi.biostd.submission.Attribute
-import ac.uk.ebi.biostd.submission.SimpleAttribute
 import ac.uk.ebi.biostd.xml.XmlSerializer
+import ebi.ac.uk.model.Attribute
+import ebi.ac.uk.model.AttributeDetail
 import org.junit.Test
 import org.redundent.kotlin.xml.xml
 import org.xmlunit.assertj.XmlAssert.assertThat
 
 private const val ATTR_NAME = "color"
 private const val ATTR_VALUE = "blue"
-private val TERMS = listOf(SimpleAttribute("name", "value"))
+private val TERMS = mutableListOf(AttributeDetail("name", "value"))
 
 class AttributeSerializerTest {
 
     private val testInstance = XmlSerializer()
 
-    private val attribute = Attribute(name = ATTR_NAME, value = ATTR_VALUE, terms = TERMS)
+    private val attribute = Attribute(name = ATTR_NAME, value = ATTR_VALUE, nameAttrs = TERMS)
 
     @Test
     fun testSerializeAttribute() {
@@ -52,7 +52,7 @@ class AttributeSerializerTest {
 
     @Test
     fun testSerializeAttributeWhenMultipleTerms() {
-        attribute.terms = attribute.terms.toMutableList() + SimpleAttribute("another", "another_value")
+        attribute.valueAttrs = (attribute.valueAttrs + AttributeDetail("another", "another_value")).toMutableList()
 
         val result = testInstance.serialize(attribute)
         val expected = xml("attribute") {

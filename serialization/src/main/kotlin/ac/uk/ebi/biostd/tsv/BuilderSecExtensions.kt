@@ -1,8 +1,8 @@
 package ac.uk.ebi.biostd.tsv
 
-import ac.uk.ebi.biostd.submission.Attribute
-import ac.uk.ebi.biostd.submission.File
-import ac.uk.ebi.biostd.submission.Link
+import ebi.ac.uk.model.Attribute
+import ebi.ac.uk.model.File
+import ebi.ac.uk.model.Link
 
 internal const val LINK_KEY = "Link"
 internal const val FILE_KEY = "File"
@@ -11,7 +11,6 @@ fun TsvBuilder.addSecDescriptor(type: String, accNo: String?) {
     append(type)
     accNo?.let { append("\t$accNo") }
     append("\n")
-
 }
 
 fun TsvBuilder.addSecLink(link: Link) {
@@ -28,5 +27,5 @@ fun TsvBuilder.addAttributes(attributes: List<Attribute>) {
 
 fun TsvBuilder.addAttr(attr: Attribute) {
     with(if (attr.reference) "<${attr.name}>" else attr.name, attr.value)
-    attr.terms.forEach { with("[${it.name}]", it.value) }
+    attr.valueAttrs.forEach { with("[${it.name}]", it.value) }
 }

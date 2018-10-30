@@ -1,10 +1,12 @@
 package ac.uk.ebi.biostd.xml.serializer
 
-import ac.uk.ebi.biostd.submission.Submission
 import ac.uk.ebi.biostd.submission.attribute
 import ac.uk.ebi.biostd.submission.section
 import ac.uk.ebi.biostd.submission.submission
 import ac.uk.ebi.biostd.xml.XmlSerializer
+import ebi.ac.uk.model.Submission
+import ebi.ac.uk.model.accNo
+import ebi.ac.uk.model.type
 import org.junit.Test
 import org.redundent.kotlin.xml.xml
 import org.xmlunit.assertj.XmlAssert.assertThat
@@ -27,10 +29,10 @@ class SubmissionSerializerTest {
 
     private val testSubmission: Submission = submission {
         accNo = ACC_NO
-        title = TITLE
-        rtime = RELEASE_DATE
+        //    title = TITLE
+        //   rtime = RELEASE_DATE
         accessTags = mutableListOf(TAG)
-        rootPath = ROOT_PATH
+        //  rootPath = ROOT_PATH
 
         attribute(ATTR_NAME, ATTR_VALUE)
 

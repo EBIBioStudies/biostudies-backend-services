@@ -10,17 +10,17 @@ import ac.uk.ebi.biostd.json.deserialization.SectionsTableJsonDeserializer
 import ac.uk.ebi.biostd.json.serialization.AttributeJsonSerializer
 import ac.uk.ebi.biostd.json.serialization.SubmissionJsonSerializer
 import ac.uk.ebi.biostd.json.serialization.TableJsonSerializer
-import ac.uk.ebi.biostd.submission.Attribute
-import ac.uk.ebi.biostd.submission.FilesTable
-import ac.uk.ebi.biostd.submission.LinksTable
-import ac.uk.ebi.biostd.submission.SectionsTable
-import ac.uk.ebi.biostd.submission.Submission
-import ac.uk.ebi.biostd.submission.Table
 import arrow.core.Either
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import ebi.ac.uk.model.Attribute
+import ebi.ac.uk.model.FilesTable
+import ebi.ac.uk.model.LinksTable
+import ebi.ac.uk.model.SectionsTable
+import ebi.ac.uk.model.Submission
+import ebi.ac.uk.model.Table
 
 class JsonSerializer {
 

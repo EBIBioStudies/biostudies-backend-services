@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.json
 
-import ac.uk.ebi.biostd.submission.Attribute
-import ac.uk.ebi.biostd.submission.SimpleAttribute
+import ebi.ac.uk.model.Attribute
+import ebi.ac.uk.model.AttributeDetail
 import net.soundvibe.jkob.json
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
@@ -15,7 +15,7 @@ class AttributeJsonSerializerTest {
 
     @Test
     fun `deserialize attribute with name and value`() {
-        val attr = Attribute(name = "attr name", value = "attr value", reference = false, terms = listOf())
+        val attr = Attribute(name = "attr name", value = "attr value", reference = false)
 
         val result = deserialize("""{
             |"name": "${attr.name}",
@@ -27,9 +27,9 @@ class AttributeJsonSerializerTest {
 
     @Test
     fun `deserialize attribute with terms and reference`() {
-        val term1 = SimpleAttribute("t1", "v1")
-        val term2 = SimpleAttribute("t2", "v2")
-        val attr = Attribute(name = "attr name", value = "attr value", reference = true, terms = listOf(term1, term2))
+        val term1 = AttributeDetail("t1", "v1")
+        val term2 = AttributeDetail("t2", "v2")
+        val attr = Attribute(name = "attr name", value = "attr value", reference = true, valueAttrs = mutableListOf(term1, term2))
 
         val attributeJson = json {
             "name" to attr.name
@@ -49,7 +49,7 @@ class AttributeJsonSerializerTest {
 
     @Test
     fun `serialize attribute with name and value`() {
-        val attr = Attribute(name = "attr name", value = "attr value", reference = false, terms = listOf())
+        val attr = Attribute(name = "attr name", value = "attr value", reference = false)
 
         val result = deserialize(serialize(attr))
 
@@ -59,7 +59,7 @@ class AttributeJsonSerializerTest {
     @Test
     fun `serialize attribute with reference and terms`() {
         val attr = Attribute(name = "attr name", value = "attr value", reference = true,
-                terms = listOf(SimpleAttribute("t1", "v1"), SimpleAttribute("t2", "v2")))
+                valueAttrs = mutableListOf(AttributeDetail("t1", "v1"), AttributeDetail("t2", "v2")))
 
         val result = deserialize(serialize(attr))
 

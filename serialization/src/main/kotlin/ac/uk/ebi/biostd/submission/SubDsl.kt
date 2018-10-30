@@ -2,8 +2,17 @@
 
 package ac.uk.ebi.biostd.submission
 
+import arrow.core.Either
 import arrow.core.Left
 import arrow.core.Right
+import ebi.ac.uk.model.Attribute
+import ebi.ac.uk.model.AttributeDetail
+import ebi.ac.uk.model.File
+import ebi.ac.uk.model.Link
+import ebi.ac.uk.model.LinksTable
+import ebi.ac.uk.model.Section
+import ebi.ac.uk.model.SectionsTable
+import ebi.ac.uk.model.Submission
 
 fun submission(block: Submission.() -> Unit): Submission = Submission().apply(block)
 
@@ -11,26 +20,26 @@ fun section(block: Section.() -> Unit): Section = Section().apply(block)
 
 fun Submission.section(block: Section.() -> Unit): Section {
     val section = Section().apply(block)
-    this.section = section
+    this.rootSection = section
     return section
 }
 
 fun Submission.attribute(name: String, value: String): Attribute {
-    val attribute = Attribute(name = name, value = value, terms = emptyList())
-    attributes.add(attribute)
+    val attribute = Attribute(name = name, value = value, valueAttrs = mutableListOf())
+    this.attributes.add(attribute)
     return attribute
 }
 
 fun Section.attribute(
         name: String,
         value: String,
-        terms: List<SimpleAttribute> = emptyList(),
+        terms: MutableList<AttributeDetail> = mutableListOf(),
         ref: Boolean = false
 ): Attribute {
     val attribute = Attribute(
             name = name,
             value = value,
-            terms = terms,
+            valueAttrs = terms,
             reference = ref
     )
     attributes.add(attribute)
@@ -39,24 +48,24 @@ fun Section.attribute(
 
 fun Section.section(block: Section.() -> Unit): Section {
     val section = Section().apply(block)
-    subsections.add(Left(section))
+    sections.add(Left(section))
     return section
 }
 
 fun Section.link(block: Link.() -> Unit): Link {
-    val link = Link().apply(block)
+    val link = Link("").apply(block)
     links.add(Left(link))
     return link
 }
 
-fun Link.attribute(name: String, value: String, terms: List<SimpleAttribute> = emptyList()): Attribute {
-    val attribute = Attribute(name = name, value = value, terms = terms)
+fun Link.attribute(name: String, value: String, terms: MutableList<AttributeDetail> = mutableListOf()): Attribute {
+    val attribute = Attribute(name = name, value = value, valueAttrs = terms)
     attributes.add(attribute)
     return attribute
 }
 
 fun LinksTable.link(block: Link.() -> Unit): Link {
-    val link = Link().apply(block)
+    val link = Link("").apply(block)
     addRow(link)
     return link
 }
@@ -64,7 +73,7 @@ fun LinksTable.link(block: Link.() -> Unit): Link {
 fun Section.sectionsTable(block: SectionsTable.() -> Unit) {
     val table = SectionsTable()
     table.apply(block)
-    this.subsections.add(Right(table))
+    this.sections.add(Either.Right(table))
 }
 
 fun SectionsTable.section(block: Section.() -> Unit): Section {
@@ -79,20 +88,20 @@ fun Section.linksTable(block: LinksTable.() -> Unit) {
 }
 
 fun Section.file(block: File.() -> Unit) {
-    val file = File().apply(block)
+    val file = File("").apply(block)
     files.add(Left(file))
 }
 
 fun File.attribute(
         name: String,
         value: String,
-        terms: List<SimpleAttribute> = emptyList(),
+        terms: MutableList<AttributeDetail> = mutableListOf(),
         ref: Boolean = false
 ): Attribute {
     val attribute = Attribute(
             name = name,
             value = value,
-            terms = terms,
+            valueAttrs = terms,
             reference = ref
     )
     attributes.add(attribute)

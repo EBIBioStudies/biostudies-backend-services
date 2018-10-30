@@ -9,7 +9,10 @@ buildscript {
 apply plugin: 'kotlin'
 
 dependencies {
+    compile project(":commons-util")
+
     compile("org.jetbrains.kotlin:kotlin-stdlib-jdk8:${kotlinVersion}")
+    compile 'io.arrow-kt:arrow-core:0.7.2'
 
     // Junit dependencies
     runtime "org.junit.jupiter:junit-jupiter-engine:$junitVersion"

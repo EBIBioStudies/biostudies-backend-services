@@ -1,7 +1,5 @@
 package ac.uk.ebi.biostd.test
 
-import ac.uk.ebi.biostd.submission.SimpleAttribute
-import ac.uk.ebi.biostd.submission.Submission
 import ac.uk.ebi.biostd.submission.attribute
 import ac.uk.ebi.biostd.submission.file
 import ac.uk.ebi.biostd.submission.link
@@ -9,6 +7,10 @@ import ac.uk.ebi.biostd.submission.linksTable
 import ac.uk.ebi.biostd.submission.section
 import ac.uk.ebi.biostd.submission.sectionsTable
 import ac.uk.ebi.biostd.submission.submission
+import ebi.ac.uk.model.AttributeDetail
+import ebi.ac.uk.model.Submission
+import ebi.ac.uk.model.accNo
+import ebi.ac.uk.model.type
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneOffset
@@ -19,10 +21,10 @@ val releaseDate: Instant = LocalDateTime.parse("2015-02-20T06:30:00").toInstant(
 fun createVenousBloodMonocyte(): Submission {
     return submission {
         accNo = "S-IHECRE00000919.1"
-        title = "Submission title"
-        rtime = releaseDate.epochSecond
+        //  title = "Submission title"
+        //  rtime = releaseDate.epochSecond
         accessTags = mutableListOf("Public")
-        rootPath = "S-IHECRE00000919.1"
+        //  rootPath = "S-IHECRE00000919.1"
 
         attribute("DataSource", "BLUEPRINT")
         attribute("AttachTo", "blueprint")
@@ -34,11 +36,11 @@ fun createVenousBloodMonocyte(): Submission {
             attribute(name = "Project", value = "CEEHRC (McGill)")
             attribute(name = "Status", value = "Incomplete")
             attribute(name = "Organism", value = "Homo sapiens")
-            attribute(name = "Tissue type", value = "venous blood", terms = listOf(SimpleAttribute("Ontology", "UBERON")))
+            attribute(name = "Tissue type", value = "venous blood", terms = mutableListOf(AttributeDetail("Ontology", "UBERON")))
             attribute(name = "Donor ID", value = "McGill0139")
             attribute(name = "Biomaterial Type", value = "primary cells")
-            attribute(name = "Cell Type", value = "Monocyte", terms = listOf(SimpleAttribute("Ontology", "CL")))
-            attribute(name = "Disease", value = "Systemic Lupus Erythematosus", terms = listOf(SimpleAttribute("Ontology", "EFO")))
+            attribute(name = "Cell Type", value = "Monocyte", terms = mutableListOf(AttributeDetail("Ontology", "CL")))
+            attribute(name = "Disease", value = "Systemic Lupus Erythematosus", terms = mutableListOf(AttributeDetail("Ontology", "EFO")))
             attribute(name = "Experiment type", value = "Single donor")
 
             link {
@@ -67,8 +69,8 @@ fun createRNA_Profiling(): Submission {
     return submission {
         accNo = "E-MTAB-6957"
         accessTags = mutableListOf("Public")
-        title = "RNA profiling of non-small cell lung cancer"
-        rootPath = "E-MTAB/E-MTAB-6957"
+        //     title = "RNA profiling of non-small cell lung cancer"
+        //     rootPath = "E-MTAB/E-MTAB-6957"
 
         attribute("AttachTo", "ArrayExpress")
 
@@ -80,8 +82,8 @@ fun createRNA_Profiling(): Submission {
             attribute("Description", "RNA sequencing of 25 patients with non-small cell lung cancer and their matched normal lung tissue")
             attribute("Study type", "RNA-seq of coding RNA")
             attribute("Organism", "Homo sapiens")
-            attribute("Experimental Designs", "case control design", terms = listOf(SimpleAttribute("Ontology", "EFO"), SimpleAttribute("TermId", "EFO:0001427")))
-            attribute("Experimental Factors", "sampling site", terms = listOf(SimpleAttribute("Ontology", "EFO"), SimpleAttribute("TermId", "EFO_0000408"), SimpleAttribute("TermName", "sampling site")))
+            attribute("Experimental Designs", "case control design", terms = mutableListOf(AttributeDetail("Ontology", "EFO"), AttributeDetail("TermId", "EFO:0001427")))
+            attribute("Experimental Factors", "sampling site", terms = mutableListOf(AttributeDetail("Ontology", "EFO"), AttributeDetail("TermId", "EFO_0000408"), AttributeDetail("TermName", "sampling site")))
 
 
             section {
@@ -119,7 +121,7 @@ fun createRNA_Profiling(): Submission {
                         accNo = "P-MTAB-76451"
                         type = "Protocols"
                         attribute(name = "Name", value = "P-MTAB-76451")
-                        attribute(name = "Type", value = "nucleic acid extraction protocol", terms = listOf(SimpleAttribute("Ontology", "EFO"), SimpleAttribute("TermId", "EFO_0002944")))
+                        attribute(name = "Type", value = "nucleic acid extraction protocol", terms = mutableListOf(AttributeDetail("Ontology", "EFO"), AttributeDetail("TermId", "EFO_0002944")))
                         attribute(name = "Description", value = "Total RNA was extracted from six 30-μm sections of frozen whole tumor and adjacent lung tissue using the Qiagen-RNeasy Mini kit according to the supplier’s instructions (Qiagen, Hilden, Germany). The quantity of DNA-free total RNA was measured using a Nanodrop-2000.")
                     }
 

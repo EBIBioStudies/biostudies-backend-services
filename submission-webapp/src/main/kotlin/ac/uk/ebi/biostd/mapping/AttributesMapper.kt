@@ -3,37 +3,19 @@ package ac.uk.ebi.biostd.mapping
 import ac.uk.ebi.biostd.integration.AttributeDb
 import ac.uk.ebi.biostd.integration.FileDb
 import ac.uk.ebi.biostd.integration.LinkDb
-import ac.uk.ebi.biostd.submission.Attribute
-import ac.uk.ebi.biostd.submission.File
-import ac.uk.ebi.biostd.submission.Link
-import ac.uk.ebi.biostd.submission.SimpleAttribute
 import ebi.ac.uk.base.orFalse
-import ebi.ac.uk.util.collections.second
+import ebi.ac.uk.model.Attribute
+import ebi.ac.uk.model.File
+import ebi.ac.uk.model.FileFields
+import ebi.ac.uk.model.Link
 
 class AttributesMapper {
 
-    fun toLink(linkDb: LinkDb): Link {
-        return Link().apply {
-            url = linkDb.url
-            attributes = toAttributes(linkDb.attributes)
-        }
-    }
+    fun toLink(link: LinkDb) = Link(link.url, toAttributes(link.attributes))
 
-    fun toFile(fileDb: FileDb): File {
-        return File().apply {
-            name = fileDb.name
-            attributes = toAttributes(fileDb.attributes)
-            size = fileDb.size
-        }
-    }
+    fun toFile(file: FileDb) = File(file.name, toAttributes(file.attributes) + Attribute(FileFields.SIZE, file.size))
 
     fun toAttributes(attrs: Set<AttributeDb>) = attrs.mapTo(mutableListOf()) { toAttribute(it) }
 
-    private fun toAttribute(attrDb: AttributeDb): Attribute {
-        return attrDb.run { Attribute(name, value, reference.orFalse(), getTerms(valueQualifier).orEmpty()) }
-    }
-
-    private fun getTerms(valueQualifier: String?): List<SimpleAttribute>? {
-        return valueQualifier?.split(";")?.map { it.split("=") }?.map { SimpleAttribute(it.first(), it.second()) }
-    }
+    private fun toAttribute(attrDb: AttributeDb) = Attribute(attrDb.name, attrDb.value, attrDb.reference.orFalse())
 }

@@ -1,30 +1,25 @@
 package ac.uk.ebi.biostd
 
 import ac.uk.ebi.biostd.json.JsonSerializer
-import ac.uk.ebi.biostd.mapping.FromEntityMapper
 import ac.uk.ebi.biostd.tsv.TsvSerializer
 import ac.uk.ebi.biostd.xml.XmlSerializer
-import ebi.ac.uk.model.ISubmission
+import ebi.ac.uk.model.Submission
 
 class SerializationService(
         private val jsonSerializer: JsonSerializer = JsonSerializer(),
         private val xmlSerializer: XmlSerializer = XmlSerializer(),
-        private val tsvSerializer: TsvSerializer = TsvSerializer(),
-        private val entityMapper: FromEntityMapper = FromEntityMapper()) {
+        private val tsvSerializer: TsvSerializer = TsvSerializer()) {
 
-    fun serializeSubmission(submission: ISubmission, outputFormat: SubFormat): String {
+    fun serializeSubmission(submission: Submission, outputFormat: SubFormat): String {
         return when (outputFormat) {
             SubFormat.XML ->
-                xmlSerializer.serialize(asSubmission(submission))
+                xmlSerializer.serialize(submission)
             SubFormat.JSON ->
-                jsonSerializer.serialize(asSubmission(submission))
+                jsonSerializer.serialize(submission)
             SubFormat.TSV ->
-                tsvSerializer.serialize(asSubmission(submission))
+                tsvSerializer.serialize(submission)
         }
     }
-
-    private fun asSubmission(submission: ISubmission) = entityMapper.toSubmission(submission)
-
 }
 
 enum class SubFormat {

@@ -8,9 +8,9 @@ import ac.uk.ebi.biostd.submission.model.PersistenceContext
 import ac.uk.ebi.biostd.tsv.TsvSerializer
 import ac.uk.ebi.biostd.xml.XmlSerializer
 import arrow.core.Option
-import ebi.ac.uk.model.IAccessTag
-import ebi.ac.uk.model.ISubmission
-import ebi.ac.uk.model.submission.SubmitOperation
+import ebi.ac.uk.model.Submission
+import ebi.ac.uk.model.User
+import ebi.ac.uk.model.SubmitOperation
 
 class SubmissionService(
         private val submissionSubmitter: SubmissionSubmitter,
@@ -35,20 +35,24 @@ class SubmissionService(
         return tsvSerializer.serialize(submissionMapper.mapSubmission(submission))
     }
 
-    fun submitSubmission(submission: ISubmission): ISubmission {
-        return submissionSubmitter.submit(submission, SubmitOperation.CREATE, SubmissionService.Companion)
+    fun submitSubmission(submission: Submission, user: User): Submission {
+        return submissionSubmitter.submit(user, submission, SubmitOperation.CREATE, Companion)
+        //val submissionDb = submissionMapper.mapSubmissionSb(submission)
+        //subRepository.save(submissionDb)
+
     }
 
     companion object : PersistenceContext {
+
         override fun getSequenceNextValue(name: String): Long {
             return 5000
         }
 
-        override fun getParentAccessTags(submissionDb: ISubmission): List<IAccessTag> {
+        override fun getParentAccessTags(submissionDb: Submission): List<String> {
             return emptyList()
         }
 
-        override fun getParentAccPattern(submissionDb: ISubmission): Option<String> {
+        override fun getParentAccPattern(submissionDb: Submission): Option<String> {
             return Option.empty()
         }
     }

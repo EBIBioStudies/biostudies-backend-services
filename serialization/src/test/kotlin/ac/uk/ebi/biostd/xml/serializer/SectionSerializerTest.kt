@@ -7,6 +7,8 @@ import ac.uk.ebi.biostd.test.FILE_NAME
 import ac.uk.ebi.biostd.test.FILE_SIZE
 import ac.uk.ebi.biostd.test.FILE_TYPE
 import ac.uk.ebi.biostd.xml.XmlSerializer
+import ebi.ac.uk.model.accNo
+import ebi.ac.uk.model.type
 import org.junit.Test
 import org.redundent.kotlin.xml.xml
 import org.xmlunit.assertj.XmlAssert.assertThat
@@ -26,7 +28,7 @@ class SectionSerializerTest {
         file {
             name = FILE_NAME
             type = FILE_TYPE
-            size = FILE_SIZE
+            //size = FILE_SIZE
         }
     }
 

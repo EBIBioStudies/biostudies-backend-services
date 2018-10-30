@@ -1,12 +1,6 @@
 package ac.uk.ebi.biostd.xml
 
 import ac.uk.ebi.biostd.common.EitherSerializer
-import ac.uk.ebi.biostd.submission.Attribute
-import ac.uk.ebi.biostd.submission.File
-import ac.uk.ebi.biostd.submission.Link
-import ac.uk.ebi.biostd.submission.Section
-import ac.uk.ebi.biostd.submission.Submission
-import ac.uk.ebi.biostd.submission.Table
 import ac.uk.ebi.biostd.xml.serializer.AttributeSerializer
 import ac.uk.ebi.biostd.xml.serializer.FileSerializer
 import ac.uk.ebi.biostd.xml.serializer.LinkSerializer
@@ -20,6 +14,12 @@ import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.dataformat.xml.JacksonXmlModule
 import com.fasterxml.jackson.dataformat.xml.XmlMapper
 import com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator
+import ebi.ac.uk.model.Attribute
+import ebi.ac.uk.model.File
+import ebi.ac.uk.model.Link
+import ebi.ac.uk.model.Section
+import ebi.ac.uk.model.Submission
+import ebi.ac.uk.model.Table
 
 class XmlSerializer {
 

@@ -1,10 +1,11 @@
 package ac.uk.ebi.biostd.json
 
-import ac.uk.ebi.biostd.submission.Attribute
-import ac.uk.ebi.biostd.submission.Link
-import ac.uk.ebi.biostd.submission.LinksTable
-import ac.uk.ebi.biostd.submission.SectionsTable
-import ac.uk.ebi.biostd.submission.SimpleAttribute
+import ebi.ac.uk.model.Attribute
+import ebi.ac.uk.model.AttributeDetail
+import ebi.ac.uk.model.Link
+import ebi.ac.uk.model.LinksTable
+import ebi.ac.uk.model.SectionsTable
+import ebi.ac.uk.model.accNo
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 
@@ -13,7 +14,7 @@ class TableJsonSerializerTest {
     @Test
     fun `deserialize table of links`() {
         val url = listOf("12345", "6789")
-        val attr = Attribute("attr1", "attr1 value", false, listOf())
+        val attr = Attribute("attr1", "attr1 value")
 
         val json = """[
             |{
@@ -49,7 +50,7 @@ class TableJsonSerializerTest {
     @Test
     fun `deserialize table of sections`() {
         val ids = listOf("12345", "6789")
-        val attr = Attribute("attr1", "attr1 value", false, listOf())
+        val attr = Attribute("attr1", "attr1 value")
 
         val json = """[
             |{
@@ -86,7 +87,7 @@ class TableJsonSerializerTest {
 
     @Test
     fun `serialize table of links`() {
-        val attr = Attribute("attrName", "attrValue", false, listOf(SimpleAttribute("n", "v")))
+        val attr = Attribute("attrName", "attrValue", false, mutableListOf(AttributeDetail("n", "v")))
         val link = Link("1234", mutableListOf(attr))
         val table = LinksTable(listOf(link))
 

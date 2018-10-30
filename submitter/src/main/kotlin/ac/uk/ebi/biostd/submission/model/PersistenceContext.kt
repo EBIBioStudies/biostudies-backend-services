@@ -1,14 +1,13 @@
 package ac.uk.ebi.biostd.submission.model
 
 import arrow.core.Option
-import ebi.ac.uk.model.IAccessTag
-import ebi.ac.uk.model.ISubmission
+import ebi.ac.uk.model.Submission
 
 interface PersistenceContext {
 
     fun getSequenceNextValue(name: String): Long
 
-    fun getParentAccessTags(submissionDb: ISubmission): List<IAccessTag>
+    fun getParentAccessTags(submissionDb: Submission): List<String>
 
-    fun getParentAccPattern(submissionDb: ISubmission): Option<String>
+    fun getParentAccPattern(submissionDb: Submission): Option<String>
 }

@@ -4,8 +4,10 @@ import ac.uk.ebi.biostd.submission.helpers.AccNoProcessor
 import ac.uk.ebi.biostd.submission.helpers.RelPathProcessor
 import ac.uk.ebi.biostd.submission.helpers.TimesProcessor
 import ac.uk.ebi.biostd.submission.model.PersistenceContext
-import ebi.ac.uk.model.ISubmission
-import ebi.ac.uk.model.submission.SubmitOperation
+import ebi.ac.uk.model.SubFields
+import ebi.ac.uk.model.Submission
+import ebi.ac.uk.model.accNo
+import ebi.ac.uk.model.SubmitOperation
 
 /**
  * Class in charge of calculate.
@@ -15,7 +17,7 @@ class SubmissionProcessor(
         private val pathProcessor: RelPathProcessor,
         private val timesProcessor: TimesProcessor) {
 
-    fun process(submission: ISubmission, operation: SubmitOperation, context: PersistenceContext) {
+    fun process(submission: Submission, operation: SubmitOperation, context: PersistenceContext) {
         val accNo = accNoProcessor.getAccNo(submission, context)
         val relPath = pathProcessor.getRelPath(accNo)
         val accessTags = context.getParentAccessTags(submission)
@@ -23,11 +25,12 @@ class SubmissionProcessor(
 
         submission.apply {
             this.accNo = accNo.toString()
-            this.relPath = relPath
-            this.accessTags = accessTags.toMutableSet()
-            this.releaseTime = releaseTime
-            this.creationTime = creationTime
-            this.modificationTime = modificationTime
+            this[SubFields.REL_PATH] = relPath
+            this.accessTags = accessTags.toMutableList()
+
+            this[SubFields.RELEASE_TIME] = releaseTime
+            this[SubFields.CREATION_TIME] = creationTime
+            this[SubFields.MODIFICATION_TIME] = modificationTime
         }
     }
 }

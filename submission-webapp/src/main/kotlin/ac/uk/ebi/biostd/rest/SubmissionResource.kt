@@ -1,7 +1,8 @@
 package ac.uk.ebi.biostd.rest
 
-import ac.uk.ebi.biostd.integration.PagetabSubmission
 import ac.uk.ebi.biostd.service.SubmissionService
+import ebi.ac.uk.model.Submission
+import ebi.ac.uk.model.User
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -31,7 +32,7 @@ class SubmissionResource(private val submissionService: SubmissionService) {
     }
 
     @PostMapping()
-    fun submit(@RequestBody submission: PagetabSubmission) {
-        //submissionService.submitSubmission(submission)
+    fun submit(@RequestBody submission: Submission) {
+        submissionService.submitSubmission(submission, User(""))
     }
 }

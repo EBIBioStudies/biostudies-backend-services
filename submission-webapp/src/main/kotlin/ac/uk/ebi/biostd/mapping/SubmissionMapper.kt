@@ -2,7 +2,8 @@ package ac.uk.ebi.biostd.mapping
 
 import ac.uk.ebi.biostd.integration.SubmissionDb
 import ac.uk.ebi.biostd.persistence.model.AccessTag
-import ac.uk.ebi.biostd.submission.Submission
+import ebi.ac.uk.model.Submission
+import ebi.ac.uk.model.accNo
 import org.springframework.stereotype.Component
 
 
@@ -15,15 +16,15 @@ class SubmissionMapper(
         return Submission().apply {
             accNo = submissionDb.accNo
             accessTags = getAccessTags(submissionDb.accessTags)
-            rootPath = submissionDb.rootPath
-            title = submissionDb.title
-            rtime = submissionDb.releaseTime
+            rootSection = sectionMapper.toSection(submissionDb.rootSection)
+            //rootPath = submissionDb.rootPath
+            //title = submissionDb.title
+            // rtime = submissionDb.releaseTime
             attributes = attributesMapper.toAttributes(submissionDb.attributes)
-            section = sectionMapper.toSection(submissionDb.rootSection)
         }
     }
 
     private fun getAccessTags(accessTag: Set<AccessTag>): MutableList<String> {
-        return accessTag.map(AccessTag::name).toMutableList()
+        return accessTag.mapTo(mutableListOf(), AccessTag::name)
     }
 }

@@ -3,15 +3,15 @@ package ac.uk.ebi.biostd.mapping
 import ac.uk.ebi.biostd.integration.FileDb
 import ac.uk.ebi.biostd.integration.LinkDb
 import ac.uk.ebi.biostd.persistence.model.Tabular
-import ac.uk.ebi.biostd.submission.FilesTable
-import ac.uk.ebi.biostd.submission.LinksTable
 import arrow.core.Either
+import ebi.ac.uk.model.FilesTable
+import ebi.ac.uk.model.LinksTable
 import ebi.ac.uk.util.collections.ifNotEmpty
 
 class TabularMapper(private val attributesMapper: AttributesMapper) {
 
     fun toLinks(links: Set<LinkDb>) = mapTabular(links, attributesMapper::toLink, ::LinksTable)
-    fun toFiles(links: Set<FileDb>) = mapTabular(links, attributesMapper::toFile, ::FilesTable)
+    fun toFiles(files: Set<FileDb>) = mapTabular(files, attributesMapper::toFile, ::FilesTable)
 
     private fun <DbType : Tabular, Type, TableType> mapTabular(
             elements: Set<DbType>,

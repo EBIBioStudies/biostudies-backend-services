@@ -1,13 +1,13 @@
 package ac.uk.ebi.biostd.xml.serializer
 
-import ac.uk.ebi.biostd.submission.Link
-import ac.uk.ebi.biostd.submission.LinkFields
 import ac.uk.ebi.biostd.xml.common.XmlStdSerializer
 import ac.uk.ebi.biostd.xml.common.writeXmlCollection
 import ac.uk.ebi.biostd.xml.common.writeXmlField
 import ac.uk.ebi.biostd.xml.common.writeXmlObj
 import com.fasterxml.jackson.databind.SerializerProvider
 import com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator
+import ebi.ac.uk.model.Link
+import ebi.ac.uk.model.LinkFields
 
 class LinkSerializer : XmlStdSerializer<Link>(Link::class.java) {
 
