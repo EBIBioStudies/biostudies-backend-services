@@ -5,7 +5,6 @@ import ac.uk.ebi.biostd.submission.section
 import ac.uk.ebi.biostd.submission.submission
 import ac.uk.ebi.biostd.xml.XmlSerializer
 import ebi.ac.uk.model.Submission
-import ebi.ac.uk.model.extensions.accNo
 import org.junit.Test
 import org.redundent.kotlin.xml.xml
 import org.xmlunit.assertj.XmlAssert.assertThat

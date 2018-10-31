@@ -33,6 +33,6 @@ class SubmissionResource(private val submissionService: SubmissionService) {
 
     @PostMapping()
     fun submit(@RequestBody submission: Submission) {
-        submissionService.submitSubmission(submission, User(""))
+        submissionService.submitSubmission(submission, User(email = ""))
     }
 }

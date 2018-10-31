@@ -9,8 +9,8 @@ import ac.uk.ebi.biostd.tsv.TsvSerializer
 import ac.uk.ebi.biostd.xml.XmlSerializer
 import arrow.core.Option
 import ebi.ac.uk.model.Submission
-import ebi.ac.uk.model.SubmitOperation
 import ebi.ac.uk.model.User
+import ebi.ac.uk.model.constans.SubmitOperation
 
 class SubmissionService(
         private val submissionSubmitter: SubmissionSubmitter,

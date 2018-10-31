@@ -4,7 +4,6 @@ import ac.uk.ebi.biostd.submission.model.PersistenceContext
 import arrow.core.Option
 import arrow.core.getOrElse
 import ebi.ac.uk.model.Submission
-import ebi.ac.uk.model.extensions.accNo
 
 const val ACC_PATTERN = "\\!\\{%s\\}"
 const val DEFAULT_PATTERN = "!{S-BSST,}"

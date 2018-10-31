@@ -16,7 +16,6 @@ import ebi.ac.uk.model.constans.LinkFields
 import ebi.ac.uk.model.constans.SectionFields
 import ebi.ac.uk.model.constans.SubFields
 import ebi.ac.uk.model.extensions.Section
-import ebi.ac.uk.model.extensions.accNo
 import ebi.ac.uk.model.extensions.title
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test

@@ -2,7 +2,7 @@ package ac.uk.ebi.biostd.submission.helpers
 
 import ebi.ac.uk.funtions.now
 import ebi.ac.uk.model.Submission
-import ebi.ac.uk.model.SubmitOperation
+import ebi.ac.uk.model.constans.SubmitOperation
 import ebi.ac.uk.model.extensions.creationTime
 import ebi.ac.uk.model.extensions.releaseTime
 import java.time.Instant

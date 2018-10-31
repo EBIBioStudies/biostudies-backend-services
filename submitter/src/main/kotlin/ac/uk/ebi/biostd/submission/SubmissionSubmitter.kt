@@ -4,8 +4,8 @@ import ac.uk.ebi.biostd.submission.model.PersistenceContext
 import ac.uk.ebi.biostd.submission.procesing.SubFileManager
 import ac.uk.ebi.biostd.submission.procesing.SubmissionProcessor
 import ebi.ac.uk.model.Submission
-import ebi.ac.uk.model.SubmitOperation
 import ebi.ac.uk.model.User
+import ebi.ac.uk.model.constans.SubmitOperation
 
 /**
  * Submission submitter, validates and generateSubFiles submission.

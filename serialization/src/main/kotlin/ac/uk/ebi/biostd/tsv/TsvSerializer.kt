@@ -5,7 +5,6 @@ import ebi.ac.uk.model.Link
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.Table
 import ebi.ac.uk.model.extensions.Section
-import ebi.ac.uk.model.extensions.accNo
 
 class TsvSerializer {
 
