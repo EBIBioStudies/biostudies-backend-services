@@ -2,17 +2,22 @@ package ac.uk.ebi.biostd.serialization.tsv
 
 import ac.uk.ebi.biostd.common.getLeft
 import ac.uk.ebi.biostd.common.getRight
-import ac.uk.ebi.biostd.submission.Attribute
-import ac.uk.ebi.biostd.submission.File
-import ac.uk.ebi.biostd.submission.FileFields
-import ac.uk.ebi.biostd.submission.FilesTable
-import ac.uk.ebi.biostd.submission.Link
-import ac.uk.ebi.biostd.submission.LinkFields
-import ac.uk.ebi.biostd.submission.LinksTable
-import ac.uk.ebi.biostd.submission.Section
-import ac.uk.ebi.biostd.submission.SectionFields
-import ac.uk.ebi.biostd.submission.SubFields
-import ac.uk.ebi.biostd.submission.Submission
+import ac.uk.ebi.biostd.tsv.Tsv
+import ac.uk.ebi.biostd.tsv.line
+import ac.uk.ebi.biostd.tsv.tsv
+import ebi.ac.uk.model.Attribute
+import ebi.ac.uk.model.File
+import ebi.ac.uk.model.FilesTable
+import ebi.ac.uk.model.Link
+import ebi.ac.uk.model.LinksTable
+import ebi.ac.uk.model.Submission
+import ebi.ac.uk.model.constans.FileFields
+import ebi.ac.uk.model.constans.LinkFields
+import ebi.ac.uk.model.constans.SectionFields
+import ebi.ac.uk.model.constans.SubFields
+import ebi.ac.uk.model.extensions.Section
+import ebi.ac.uk.model.extensions.accNo
+import ebi.ac.uk.model.extensions.title
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 
@@ -58,7 +63,7 @@ class TsvDeserializerTest {
         val submission: Submission = deserializer.deserialize(pageTab.toString())
         assertSubmission(submission, accNo, title)
         assertSection(
-                submission.section,
+                submission.rootSection,
                 sectionType,
                 Attribute(SubFields.TITLE.value, title),
                 Attribute(sectionAbstract, sectionAbstractValue))
@@ -78,9 +83,9 @@ class TsvDeserializerTest {
         pageTab.line()
 
         val submission: Submission = deserializer.deserialize(pageTab.toString())
-        assertThat(submission.section.subsections).hasSize(1)
+        assertThat(submission.rootSection.sections).hasSize(1)
 
-        val subSection: Section = submission.section.subsections[0].getLeft()
+        val subSection: Section = submission.rootSection.sections[0].getLeft()
         assertSection(subSection, type, Attribute(attr1, attrVal1), Attribute(attr2, attrVal2))
     }
 
@@ -95,9 +100,9 @@ class TsvDeserializerTest {
         pageTab.line()
 
         val submission: Submission = deserializer.deserialize(pageTab.toString())
-        assertThat(submission.section.links).hasSize(2)
-        assertLink(submission.section.links[0].getLeft(), url1)
-        assertLink(submission.section.links[1].getLeft(), url2)
+        assertThat(submission.rootSection.links).hasSize(2)
+        assertLink(submission.rootSection.links[0].getLeft(), url1)
+        assertLink(submission.rootSection.links[1].getLeft(), url2)
     }
 
     @Test
@@ -113,9 +118,9 @@ class TsvDeserializerTest {
         pageTab.line()
 
         val submission: Submission = deserializer.deserialize(pageTab.toString())
-        assertThat(submission.section.links).hasSize(1)
+        assertThat(submission.rootSection.links).hasSize(1)
 
-        val linksTable: LinksTable = submission.section.links[0].getRight()
+        val linksTable: LinksTable = submission.rootSection.links[0].getRight()
         assertThat(linksTable.elements).hasSize(2)
         assertLink(linksTable.elements[0], gen1, Attribute(type, genType))
         assertLink(linksTable.elements[1], gen2, Attribute(type, genType))
@@ -132,9 +137,9 @@ class TsvDeserializerTest {
         pageTab.line()
 
         val submission: Submission = deserializer.deserialize(pageTab.toString())
-        assertThat(submission.section.files).hasSize(2)
-        assertFile(submission.section.files[0].getLeft(), file1)
-        assertFile(submission.section.files[1].getLeft(), file2)
+        assertThat(submission.rootSection.files).hasSize(2)
+        assertFile(submission.rootSection.files[0].getLeft(), file1)
+        assertFile(submission.rootSection.files[1].getLeft(), file2)
     }
 
     @Test
@@ -156,22 +161,22 @@ class TsvDeserializerTest {
         pageTab.line()
 
         val submission: Submission = deserializer.deserialize(pageTab.toString())
-        assertThat(submission.section.files).hasSize(1)
+        assertThat(submission.rootSection.files).hasSize(1)
 
-        val filesTable: FilesTable = submission.section.files[0].getRight()
+        val filesTable: FilesTable = submission.rootSection.files[0].getRight()
         assertThat(filesTable.elements).hasSize(2)
         assertFile(filesTable.elements[0], file1, Attribute(desc, desc1), Attribute(usage, usage1))
         assertFile(filesTable.elements[1], file2, Attribute(desc, desc2), Attribute(usage, usage2))
     }
 
     private fun assertSubmission(
-            submission: Submission, accNo: String, title: String, vararg attributes:Attribute) {
+            submission: Submission, accNo: String, title: String, vararg attributes: Attribute) {
         assertThat(submission.accNo).isEqualTo(accNo)
         assertThat(submission.title).isEqualTo(title)
         assertAttributes(submission.attributes, attributes)
     }
 
-    private fun assertSection(section: Section, expectedType: String, vararg  expectedAttributes: Attribute) {
+    private fun assertSection(section: Section, expectedType: String, vararg expectedAttributes: Attribute) {
         assertThat(section.type).isEqualTo(expectedType)
         assertAttributes(section.attributes, expectedAttributes)
     }
@@ -186,7 +191,7 @@ class TsvDeserializerTest {
         assertAttributes(file.attributes, expectedAttributes)
     }
 
-    private fun assertAttributes(attributes: MutableList<Attribute>, expectedAttributes: Array<out Attribute>) {
+    private fun assertAttributes(attributes: List<Attribute>, expectedAttributes: Array<out Attribute>) {
         expectedAttributes.forEachIndexed { index, attribute ->
             assertAttribute(attributes[index], attribute.name, attribute.value)
         }

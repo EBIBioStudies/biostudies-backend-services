@@ -1,13 +1,13 @@
 package ac.uk.ebi.biostd.serialization.tsv
 
 import ac.uk.ebi.biostd.serialization.common.TSV_SEPARATOR
-import ac.uk.ebi.biostd.submission.Attribute
+import ebi.ac.uk.model.Attribute
 
 data class TsvChunk(
-    val header: List<String>,
-    val lines: MutableList<TsvChunkLine>) {
+        val header: List<String>,
+        val lines: MutableList<TsvChunkLine>) {
 
-    constructor(body: MutableList<String>): this(body.removeAt(0).split(TSV_SEPARATOR), mutableListOf()) {
+    constructor(body: MutableList<String>) : this(body.removeAt(0).split(TSV_SEPARATOR), mutableListOf()) {
         body.forEach {
             lines.add(TsvChunkLine(it.substringBefore(TSV_SEPARATOR), it.substringAfter(TSV_SEPARATOR)))
         }
