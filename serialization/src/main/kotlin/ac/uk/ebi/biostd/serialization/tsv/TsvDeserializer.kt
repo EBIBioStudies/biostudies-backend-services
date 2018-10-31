@@ -15,6 +15,8 @@ import ebi.ac.uk.model.constans.FileFields
 import ebi.ac.uk.model.constans.LinkFields
 import ebi.ac.uk.model.constans.SectionFields
 import ebi.ac.uk.model.extensions.Section
+import ebi.ac.uk.model.extensions.accNo
+import ebi.ac.uk.model.extensions.title
 import ebi.ac.uk.util.collections.ifNotEmpty
 import ebi.ac.uk.util.collections.removeFirst
 
@@ -26,16 +28,19 @@ class TsvDeserializer {
         chunks.ifNotEmpty {
             val rootSectionChunk: TsvChunk = chunks.removeFirst()
             rootSection = Section(
-                    //type = rootSectionChunk.getType(),
                     attributes = createAttributes(rootSectionChunk.lines))
+            rootSection.type = rootSectionChunk.getType()
             processSubsections(rootSection, chunks)
         }
 
-        return Submission(
-                // accNo = submissionChunk.getIdentifier(),
-                // title = submissionChunk.lines.removeFirst().value,
-                attributes = createAttributes(submissionChunk.lines),
-                rootSection = rootSection)
+        val submissionAccNo = submissionChunk.getIdentifier()
+        val submissionTitle = submissionChunk.lines.removeFirst().value
+        val submission = Submission(rootSection = rootSection, attributes = createAttributes(submissionChunk.lines))
+
+        submission.accNo = submissionAccNo
+        submission.title = submissionTitle
+
+        return submission
     }
 
     private fun processSubsections(section: Section, subsectionChunks: MutableList<TsvChunk>) {
@@ -46,10 +51,11 @@ class TsvDeserializer {
                     section.files.addLeft(File(name = it.getIdentifier(), attributes = createAttributes(it.lines)))
                 SectionFields.LINKS.value -> section.links.addRight(LinksTable(it.mapTable(this::createLink)))
                 SectionFields.FILES.value -> section.files.addRight(FilesTable(it.mapTable(this::createFile)))
-                else ->
-                    section.sections.addLeft(Section(
-                            //type = it.getType(),
-                            attributes = createAttributes(it.lines)))
+                else -> {
+                    val subsection = Section(attributes = createAttributes(it.lines))
+                    subsection.type = it.getType()
+                    section.sections.addLeft(subsection)
+                }
             }
         }
     }
