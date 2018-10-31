@@ -6,7 +6,7 @@ import ac.uk.ebi.biostd.integration.LinkDb
 import ebi.ac.uk.base.orFalse
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.File
-import ebi.ac.uk.model.FileFields
+import ebi.ac.uk.model.constans.FileFields
 import ebi.ac.uk.model.Link
 
 class AttributesMapper {

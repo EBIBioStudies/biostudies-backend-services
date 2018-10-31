@@ -4,12 +4,12 @@ import ac.uk.ebi.biostd.json.common.writeJsonArray
 import ac.uk.ebi.biostd.json.common.writeJsonBoolean
 import ac.uk.ebi.biostd.json.common.writeJsonString
 import ac.uk.ebi.biostd.json.common.writeObj
-import ac.uk.ebi.biostd.json.deserialization.TERMS
+import ac.uk.ebi.biostd.json.deserialization.VAL_ATTRIBUTES
 import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.databind.SerializerProvider
 import com.fasterxml.jackson.databind.ser.std.StdSerializer
 import ebi.ac.uk.model.Attribute
-import ebi.ac.uk.model.AttributeFields
+import ebi.ac.uk.model.constans.AttributeFields
 
 class AttributeJsonSerializer : StdSerializer<Attribute>(Attribute::class.java) {
 
@@ -21,7 +21,7 @@ class AttributeJsonSerializer : StdSerializer<Attribute>(Attribute::class.java) 
             writeJsonString(AttributeFields.NAME, attr.name)
             writeJsonString(AttributeFields.VALUE, attr.value)
             writeJsonBoolean(AttributeFields.REFERENCE, attr.reference)
-            writeJsonArray(TERMS, attr.valueAttrs, gen::writeObject)
+            writeJsonArray(VAL_ATTRIBUTES, attr.valueAttrs, gen::writeObject)
         }
     }
 }

@@ -1,64 +1,68 @@
 package ebi.ac.uk.model
 
-import arrow.core.Either
+import ebi.ac.uk.model.extensions.Section
+import java.util.Objects.equals
+import java.util.Objects.hash
 
-data class File(var name: String) : Attributable() {
+class Submission(
+        var rootSection: Section = Section(),
+        var accessTags: MutableList<String> = mutableListOf(),
+        attributes: List<Attribute> = emptyList()) : Attributable(attributes)
 
-    constructor(url: String, attributes: List<Attribute>) : this(url) {
-        this.attributes = attributes.toMutableList()
+class File(var name: String, attributes: List<Attribute> = emptyList()) : Attributable(attributes) {
+
+    override fun equals(other: Any?): Boolean {
+        other as? File ?: return false
+        if (this === other) return true
+
+        return equals(this.name, other.name).and(
+                equals(this.attributesMap, other.attributesMap))
+    }
+
+    override fun hashCode(): Int {
+        return hash(this.name, this.attributesMap)
     }
 }
 
-data class Link(var url: String) : Attributable() {
+class Link(var url: String, attributes: List<Attribute> = emptyList()) : Attributable(attributes) {
 
-    constructor(url: String, attributes: List<Attribute>) : this(url) {
-        this.attributes = attributes.toMutableList()
+    override fun equals(other: Any?): Boolean {
+        other as? Link ?: return false
+        if (this === other) return true
+
+        return equals(this.url, other.url).and(
+                equals(this.attributesMap, other.attributesMap))
+    }
+
+    override fun hashCode(): Int {
+        return hash(this.url, this.attributesMap)
     }
 }
+
 
 data class AttributeDetail(val name: String, val value: String)
-
-class Submission : Attributable() {
-    var accessTags: MutableList<String> = mutableListOf()
-    var rootSection: Section = Section()
-}
-
-data class User(var email: String) {
-
-    var secretKey: String = ""
-    val id: Long = 0
-}
+class User(var email: String, var secretKey: String = "", val id: Long = 0)
 
 open class Attributable() {
 
-    private val attributesMap = mutableMapOf<String, Attribute>()
+    protected val attributesMap = mutableMapOf<String, Attribute>()
 
-    open var attributes: MutableList<Attribute>
+    open val attributes: List<Attribute>
         get() = this.attributesMap.values.toMutableList()
-        set(value) {
-            attributesMap.clear()
-            value.forEach { attributesMap[it.name] = it }
-        }
 
     constructor(attributes: List<Attribute>) : this() {
         attributes.forEach { this.attributesMap[it.name] = it }
     }
 
-    operator fun <T> get(attr: Any) = attributesMap[attr.toString()]!!.value as T
+    operator fun <T> get(attr: Any) = attributesMap[attr.toString()]?.value as T
 
     fun <T> find(attr: Any) = attributesMap[attr.toString()]?.value as T?
 
-    operator fun set(attr: Any, value: Any) {
-        attributesMap[attr.toString()] = Attribute(attr.toString(), value.toString())
-    }
+    operator fun set(attr: Any, value: Any) = attributesMap.set(attr.toString(), Attribute(attr.toString(), value.toString()))
+
+    fun addAttribute(attr: Attribute) = attributesMap.set(attr.name, attr)
 
 }
-
-
-data class Section(
-        var sections: MutableList<Either<Section, SectionsTable>> = mutableListOf(),
-        val files: MutableList<Either<File, FilesTable>> = mutableListOf(),
-        val links: MutableList<Either<Link, LinksTable>> = mutableListOf()) : Attributable()
 
 data class Attribute(
         var name: String,

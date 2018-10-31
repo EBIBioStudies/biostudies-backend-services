@@ -9,8 +9,10 @@ import ac.uk.ebi.biostd.submission.sectionsTable
 import ac.uk.ebi.biostd.submission.submission
 import ebi.ac.uk.model.AttributeDetail
 import ebi.ac.uk.model.Submission
-import ebi.ac.uk.model.accNo
-import ebi.ac.uk.model.type
+import ebi.ac.uk.model.extensions.accNo
+import ebi.ac.uk.model.extensions.releaseTime
+import ebi.ac.uk.model.extensions.rootPath
+import ebi.ac.uk.model.extensions.title
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneOffset
@@ -21,10 +23,9 @@ val releaseDate: Instant = LocalDateTime.parse("2015-02-20T06:30:00").toInstant(
 fun createVenousBloodMonocyte(): Submission {
     return submission {
         accNo = "S-IHECRE00000919.1"
-        //  title = "Submission title"
-        //  rtime = releaseDate.epochSecond
+        title = "Submission title"
         accessTags = mutableListOf("Public")
-        //  rootPath = "S-IHECRE00000919.1"
+        releaseTime = releaseDate
 
         attribute("DataSource", "BLUEPRINT")
         attribute("AttachTo", "blueprint")
@@ -69,8 +70,8 @@ fun createRNA_Profiling(): Submission {
     return submission {
         accNo = "E-MTAB-6957"
         accessTags = mutableListOf("Public")
-        //     title = "RNA profiling of non-small cell lung cancer"
-        //     rootPath = "E-MTAB/E-MTAB-6957"
+        title = "RNA profiling of non-small cell lung cancer"
+        rootPath = "E-MTAB/E-MTAB-6957"
 
         attribute("AttachTo", "ArrayExpress")
 

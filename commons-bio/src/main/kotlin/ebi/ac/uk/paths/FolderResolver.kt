@@ -1,6 +1,6 @@
 package ebi.ac.uk.paths
 
-import ebi.ac.uk.model.SubFields
+import ebi.ac.uk.model.constans.SubFields
 import ebi.ac.uk.model.Submission
 import java.nio.file.Path
 import java.nio.file.Paths

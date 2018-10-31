@@ -10,9 +10,9 @@ import ebi.ac.uk.model.AttributeDetail
 import ebi.ac.uk.model.File
 import ebi.ac.uk.model.Link
 import ebi.ac.uk.model.LinksTable
-import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.SectionsTable
 import ebi.ac.uk.model.Submission
+import ebi.ac.uk.model.extensions.Section
 
 fun submission(block: Submission.() -> Unit): Submission = Submission().apply(block)
 
@@ -20,13 +20,13 @@ fun section(block: Section.() -> Unit): Section = Section().apply(block)
 
 fun Submission.section(block: Section.() -> Unit): Section {
     val section = Section().apply(block)
-    this.rootSection = section
+    rootSection = section
     return section
 }
 
 fun Submission.attribute(name: String, value: String): Attribute {
     val attribute = Attribute(name = name, value = value, valueAttrs = mutableListOf())
-    this.attributes.add(attribute)
+    addAttribute(attribute)
     return attribute
 }
 
@@ -42,7 +42,7 @@ fun Section.attribute(
             valueAttrs = terms,
             reference = ref
     )
-    attributes.add(attribute)
+    addAttribute(attribute)
     return attribute
 }
 
@@ -60,7 +60,7 @@ fun Section.link(block: Link.() -> Unit): Link {
 
 fun Link.attribute(name: String, value: String, terms: MutableList<AttributeDetail> = mutableListOf()): Attribute {
     val attribute = Attribute(name = name, value = value, valueAttrs = terms)
-    attributes.add(attribute)
+    addAttribute(attribute)
     return attribute
 }
 
@@ -73,7 +73,7 @@ fun LinksTable.link(block: Link.() -> Unit): Link {
 fun Section.sectionsTable(block: SectionsTable.() -> Unit) {
     val table = SectionsTable()
     table.apply(block)
-    this.sections.add(Either.Right(table))
+    sections.add(Either.Right(table))
 }
 
 fun SectionsTable.section(block: Section.() -> Unit): Section {
@@ -104,6 +104,6 @@ fun File.attribute(
             valueAttrs = terms,
             reference = ref
     )
-    attributes.add(attribute)
+    addAttribute(attribute)
     return attribute
 }

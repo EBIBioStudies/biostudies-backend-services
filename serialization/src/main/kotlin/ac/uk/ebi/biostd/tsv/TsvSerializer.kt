@@ -2,11 +2,10 @@ package ac.uk.ebi.biostd.tsv
 
 import ebi.ac.uk.model.File
 import ebi.ac.uk.model.Link
-import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.Table
-import ebi.ac.uk.model.accNo
-import ebi.ac.uk.model.type
+import ebi.ac.uk.model.extensions.Section
+import ebi.ac.uk.model.extensions.accNo
 
 class TsvSerializer {
 
@@ -31,9 +30,9 @@ class TsvSerializer {
         builder.addSecDescriptor(section.type, section.accNo)
         section.attributes.forEach(builder::addAttr)
 
-        section.links.forEach { either -> either.fold({ addLink(it) }, { addTable(it) }) }
-        section.files.forEach { either -> either.fold({ addFile(it) }, { addTable(it) }) }
-        section.sections.forEach { either -> either.fold({ serializeSection(it) }, { addTable(it) }) }
+        section.links.forEach { either -> either.fold(this::addLink) { addTable(it) } }
+        section.files.forEach { either -> either.fold(this::addFile) { addTable(it) } }
+        section.sections.forEach { either -> either.fold(this::serializeSection) { addTable(it) } }
     }
 
     private fun addFile(file: File) {

@@ -15,18 +15,18 @@ class XmlSerializerITest {
 
     @Test
     fun serialize() {
-        val sub = createVenousBloodMonocyte()
-        val xmlDocument = testInstance.serialize(sub).asXmlDocument()
+        val sub = testInstance.serialize(createVenousBloodMonocyte())
+        val xmlDocument = asXmlDocument(sub)
 
         assertThat(xmlDocument).valueByXPath("//submission/@accNo").isEqualTo("S-IHECRE00000919.1")
     }
 
-    private fun String.asXmlDocument(): Document {
+    private fun asXmlDocument(doc: String): Document {
         val factory = DocumentBuilderFactory.newInstance()
         val builder: DocumentBuilder
 
         builder = factory.newDocumentBuilder()
-        return builder.parse(InputSource(StringReader(this)))
+        return builder.parse(InputSource(StringReader(doc)))
     }
 
 }

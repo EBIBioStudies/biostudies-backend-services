@@ -1,6 +1,9 @@
 package ebi.ac.uk.model
 
 import ebi.ac.uk.base.isNotBlank
+import ebi.ac.uk.model.constans.TableFields
+import ebi.ac.uk.model.extensions.Section
+import ebi.ac.uk.model.extensions.parentAccNo
 import java.util.*
 
 sealed class Table<T : Any>(elements: List<T>) {
@@ -8,7 +11,7 @@ sealed class Table<T : Any>(elements: List<T>) {
     protected abstract val header: String
     abstract fun toTableRow(t: T): Row<T>
 
-    private val _headers: MutableSet<Header> = mutableSetOf()
+    private val _headers: MutableList<Header> = mutableListOf()
     private val _rows: MutableList<Row<T>> = mutableListOf()
 
     init {
@@ -43,7 +46,7 @@ sealed class Table<T : Any>(elements: List<T>) {
 }
 
 
-data class Header(val name: String, val termNames: List<String> = listOf()) {
+class Header(val name: String, val termNames: List<String> = listOf()) {
 
     override fun equals(other: Any?): Boolean {
         other as? Header ?: return false

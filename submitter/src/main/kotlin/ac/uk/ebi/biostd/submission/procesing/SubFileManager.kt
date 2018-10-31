@@ -2,10 +2,10 @@ package ac.uk.ebi.biostd.submission.procesing
 
 import ac.uk.ebi.biostd.SerializationService
 import ac.uk.ebi.biostd.SubFormat
-import ebi.ac.uk.model.SubFields
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.User
-import ebi.ac.uk.model.allFiles
+import ebi.ac.uk.model.constans.SubFields
+import ebi.ac.uk.model.extensions.allFiles
 import ebi.ac.uk.paths.FolderResolver
 import org.apache.commons.io.FileUtils
 import java.nio.file.Path

@@ -7,7 +7,7 @@ import ac.uk.ebi.biostd.xml.common.writeXmlObj
 import com.fasterxml.jackson.databind.SerializerProvider
 import com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator
 import ebi.ac.uk.model.Attribute
-import ebi.ac.uk.model.AttributeFields
+import ebi.ac.uk.model.constans.AttributeFields
 
 class AttributeSerializer : XmlStdSerializer<Attribute>(Attribute::class.java) {
 

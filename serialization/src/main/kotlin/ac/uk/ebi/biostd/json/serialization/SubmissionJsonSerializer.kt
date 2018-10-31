@@ -8,9 +8,9 @@ import ac.uk.ebi.biostd.json.common.writeObj
 import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.databind.SerializerProvider
 import com.fasterxml.jackson.databind.ser.std.StdSerializer
-import ebi.ac.uk.model.SubFields
 import ebi.ac.uk.model.Submission
-import ebi.ac.uk.model.accNo
+import ebi.ac.uk.model.constans.SubFields
+import ebi.ac.uk.model.extensions.accNo
 import ebi.ac.uk.util.collections.listFrom
 
 class SubmissionJsonSerializer : StdSerializer<Submission>(Submission::class.java) {

@@ -4,10 +4,10 @@ import ac.uk.ebi.biostd.submission.helpers.AccNoProcessor
 import ac.uk.ebi.biostd.submission.helpers.RelPathProcessor
 import ac.uk.ebi.biostd.submission.helpers.TimesProcessor
 import ac.uk.ebi.biostd.submission.model.PersistenceContext
-import ebi.ac.uk.model.SubFields
 import ebi.ac.uk.model.Submission
-import ebi.ac.uk.model.accNo
 import ebi.ac.uk.model.SubmitOperation
+import ebi.ac.uk.model.constans.SubFields
+import ebi.ac.uk.model.extensions.accNo
 
 /**
  * Class in charge of calculate.

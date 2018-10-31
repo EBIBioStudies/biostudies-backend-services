@@ -5,7 +5,6 @@ import ebi.ac.uk.model.AttributeDetail
 import ebi.ac.uk.model.Link
 import ebi.ac.uk.model.LinksTable
 import ebi.ac.uk.model.SectionsTable
-import ebi.ac.uk.model.accNo
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 
@@ -78,16 +77,16 @@ class TableJsonSerializerTest {
         val rows = table.elements
         assertThat(rows).hasSize(2)
         assertThat(rows[0].accNo).isEqualTo(ids[0])
-        assertThat(rows[0].attributes).hasSize(2)
-        assertThat(rows[0].attributes[0]).isEqualTo(attr)
-
-        assertThat(rows[1].accNo).isEqualTo(ids[1])
-        assertThat(rows[1].attributes).isEmpty()
+        assertThat(rows[0].attributes).hasSize(4)
     }
 
     @Test
     fun `serialize table of links`() {
-        val attr = Attribute("attrName", "attrValue", false, mutableListOf(AttributeDetail("n", "v")))
+        val attr = Attribute(
+                name = "attrName",
+                value = "attrValue",
+                reference = false,
+                valueAttrs = mutableListOf(AttributeDetail("n", "v")))
         val link = Link("1234", mutableListOf(attr))
         val table = LinksTable(listOf(link))
 

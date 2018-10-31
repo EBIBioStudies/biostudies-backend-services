@@ -34,7 +34,7 @@ class AttributeJsonSerializerTest {
         val attributeJson = json {
             "name" to attr.name
             "value" to attr.value
-            "isReference" to attr.reference
+            "reference" to attr.reference
             "valqual"[{
                 "name" to term1.name
                 "value" to term1.value
@@ -58,11 +58,13 @@ class AttributeJsonSerializerTest {
 
     @Test
     fun `serialize attribute with reference and terms`() {
-        val attr = Attribute(name = "attr name", value = "attr value", reference = true,
+        val attr = Attribute(
+                name = "attr name",
+                value = "attr value",
+                reference = true,
                 valueAttrs = mutableListOf(AttributeDetail("t1", "v1"), AttributeDetail("t2", "v2")))
 
         val result = deserialize(serialize(attr))
-
         assertThat(result).isEqualTo(attr)
     }
 

@@ -7,7 +7,7 @@ import ac.uk.ebi.biostd.xml.common.writeXmlObj
 import com.fasterxml.jackson.databind.SerializerProvider
 import com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator
 import ebi.ac.uk.model.File
-import ebi.ac.uk.model.FileFields
+import ebi.ac.uk.model.constans.FileFields
 
 class FileSerializer : XmlStdSerializer<File>(File::class.java) {
 
