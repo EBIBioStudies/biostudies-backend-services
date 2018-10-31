@@ -29,4 +29,15 @@ class CollectionsExtensionsTest {
     fun listFromWithEmptyList() {
         assertThat(listFrom(emptyList<String>())).isEqualTo(emptyList<String>())
     }
+
+    @Test
+    fun removeFirst() {
+        val list: MutableList<String> = mutableListOf( "a", "b", "c")
+        val first: String = list.removeFirst()
+
+        assertThat(first).isEqualTo("a")
+        assertThat(list.contains("a")).isFalse()
+        assertThat(list[0]).isEqualTo("b")
+        assertThat(list[1]).isEqualTo("c")
+    }
 }
