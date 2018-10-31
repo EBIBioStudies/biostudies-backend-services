@@ -17,9 +17,9 @@ import com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.File
 import ebi.ac.uk.model.Link
+import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.Table
-import ebi.ac.uk.model.extensions.Section
 
 class XmlSerializer {
 

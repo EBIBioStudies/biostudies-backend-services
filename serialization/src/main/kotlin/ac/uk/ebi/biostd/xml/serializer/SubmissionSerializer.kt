@@ -9,7 +9,6 @@ import com.fasterxml.jackson.databind.SerializerProvider
 import com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.constans.SubFields
-import ebi.ac.uk.model.extensions.accNo
 
 class SubmissionSerializer : XmlStdSerializer<Submission>(Submission::class.java) {
 

@@ -4,9 +4,7 @@ import ac.uk.ebi.biostd.integration.SubmissionDb
 import ac.uk.ebi.biostd.persistence.model.AccessTag
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.constans.SubFields
-import ebi.ac.uk.model.extensions.accNo
 import org.springframework.stereotype.Component
-
 
 @Component
 class SubmissionMapper(

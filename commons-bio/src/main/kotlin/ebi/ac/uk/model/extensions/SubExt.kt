@@ -9,12 +9,6 @@ fun Submission.allFiles(): List<File> {
     return rootSection.allSections().map { it.allFiles() }.flatten()
 }
 
-var Submission.accNo: String
-    get() = this[SubFields.ACC_NO]
-    set(value) {
-        this[SubFields.ACC_NO] = value
-    }
-
 var Submission.releaseTime: Instant?
     get() = this[SubFields.RELEASE_TIME]
     set(value) {

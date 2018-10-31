@@ -10,13 +10,13 @@ import ebi.ac.uk.model.File
 import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.model.Link
 import ebi.ac.uk.model.LinksTable
+import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.constans.FileFields
 import ebi.ac.uk.model.constans.LinkFields
 import ebi.ac.uk.model.constans.SectionFields
-import ebi.ac.uk.model.extensions.Section
-import ebi.ac.uk.model.extensions.accNo
 import ebi.ac.uk.model.extensions.title
+import ebi.ac.uk.model.extensions.type
 import ebi.ac.uk.util.collections.ifNotEmpty
 import ebi.ac.uk.util.collections.removeFirst
 
@@ -33,11 +33,12 @@ class TsvDeserializer {
             processSubsections(rootSection, chunks)
         }
 
-        val submissionAccNo = submissionChunk.getIdentifier()
         val submissionTitle = submissionChunk.lines.removeFirst().value
-        val submission = Submission(rootSection = rootSection, attributes = createAttributes(submissionChunk.lines))
+        val submission = Submission(
+                accNo = submissionChunk.getIdentifier(),
+                rootSection = rootSection,
+                attributes = createAttributes(submissionChunk.lines))
 
-        submission.accNo = submissionAccNo
         submission.title = submissionTitle
 
         return submission

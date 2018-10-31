@@ -2,8 +2,8 @@ package ebi.ac.uk.model
 
 import ebi.ac.uk.base.isNotBlank
 import ebi.ac.uk.model.constans.TableFields
-import ebi.ac.uk.model.extensions.Section
 import ebi.ac.uk.model.extensions.parentAccNo
+import ebi.ac.uk.model.extensions.type
 import java.util.*
 
 sealed class Table<T : Any>(elements: List<T>) {

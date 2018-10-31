@@ -9,9 +9,9 @@ import ebi.ac.uk.model.File
 import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.model.Link
 import ebi.ac.uk.model.LinksTable
+import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.SectionsTable
 import ebi.ac.uk.model.Table
-import ebi.ac.uk.model.extensions.Section
 
 abstract class TableJsonDeserializer<T : Any>(private val itemType: Class<T>) {
     abstract fun createTable(elements: List<T>): Table<T>

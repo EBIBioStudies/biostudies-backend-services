@@ -9,10 +9,10 @@ import ac.uk.ebi.biostd.submission.sectionsTable
 import ac.uk.ebi.biostd.submission.submission
 import ebi.ac.uk.model.AttributeDetail
 import ebi.ac.uk.model.Submission
-import ebi.ac.uk.model.extensions.accNo
 import ebi.ac.uk.model.extensions.releaseTime
 import ebi.ac.uk.model.extensions.rootPath
 import ebi.ac.uk.model.extensions.title
+import ebi.ac.uk.model.extensions.type
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneOffset
