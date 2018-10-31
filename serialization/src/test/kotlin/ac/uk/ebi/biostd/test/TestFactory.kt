@@ -2,7 +2,7 @@ package ac.uk.ebi.biostd.test
 
 import ebi.ac.uk.model.File
 import ebi.ac.uk.model.Link
-import ebi.ac.uk.model.extensions.Section
+import ebi.ac.uk.model.Section
 
 internal const val LINK_URL = "a link url"
 

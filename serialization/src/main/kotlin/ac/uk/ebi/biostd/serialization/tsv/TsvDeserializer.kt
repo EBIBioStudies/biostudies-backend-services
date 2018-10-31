@@ -10,11 +10,11 @@ import ebi.ac.uk.model.File
 import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.model.Link
 import ebi.ac.uk.model.LinksTable
+import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.constans.FileFields
 import ebi.ac.uk.model.constans.LinkFields
 import ebi.ac.uk.model.constans.SectionFields
-import ebi.ac.uk.model.extensions.Section
 import ebi.ac.uk.util.collections.ifNotEmpty
 import ebi.ac.uk.util.collections.removeFirst
 

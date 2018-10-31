@@ -1,5 +1,7 @@
 package ebi.ac.uk.model
 
+import ebi.ac.uk.base.EMPTY
+
 data class Attribute(
         var name: String,
         var value: String,
@@ -10,7 +12,7 @@ data class Attribute(
     constructor(name: Any, value: Any) : this(name.toString(), value.toString())
 
     companion object {
-        val EMPTY_ATTR: Attribute = Attribute("", "", false, mutableListOf())
+        val EMPTY_ATTR: Attribute = Attribute(EMPTY, EMPTY, false, mutableListOf())
     }
 }
 
