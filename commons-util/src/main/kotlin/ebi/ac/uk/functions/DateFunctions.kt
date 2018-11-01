@@ -1,4 +1,4 @@
-package ebi.ac.uk.funtions
+package ebi.ac.uk.functions
 
 import java.time.Instant
 

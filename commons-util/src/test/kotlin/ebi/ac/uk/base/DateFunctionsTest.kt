@@ -1,6 +1,6 @@
 package ebi.ac.uk.base
 
-import ebi.ac.uk.funtions.asIsoDate
+import ebi.ac.uk.functions.asIsoDate
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.time.LocalDate

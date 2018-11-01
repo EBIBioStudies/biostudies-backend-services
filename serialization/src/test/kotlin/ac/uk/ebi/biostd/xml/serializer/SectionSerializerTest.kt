@@ -24,9 +24,8 @@ class SectionSerializerTest {
     private val section = section {
         accNo = ACC_NO
         type = TYPE
-        link { url = LINK_URL }
-        file {
-            name = FILE_NAME
+        link(LINK_URL)
+        file(FILE_NAME) {
             type = FILE_TYPE
             size = FILE_SIZE
         }

@@ -37,15 +37,14 @@ fun createVenousBloodMonocyte(): Submission {
             attribute(name = "Project", value = "CEEHRC (McGill)")
             attribute(name = "Status", value = "Incomplete")
             attribute(name = "Organism", value = "Homo sapiens")
-            attribute(name = "Tissue type", value = "venous blood", terms = mutableListOf(AttributeDetail("Ontology", "UBERON")))
+            attribute(name = "Tissue type", value = "venous blood", valueAttrs = mutableListOf(AttributeDetail("Ontology", "UBERON")))
             attribute(name = "Donor ID", value = "McGill0139")
             attribute(name = "Biomaterial Type", value = "primary cells")
-            attribute(name = "Cell Type", value = "Monocyte", terms = mutableListOf(AttributeDetail("Ontology", "CL")))
-            attribute(name = "Disease", value = "Systemic Lupus Erythematosus", terms = mutableListOf(AttributeDetail("Ontology", "EFO")))
+            attribute(name = "Cell Type", value = "Monocyte", valueAttrs = mutableListOf(AttributeDetail("Ontology", "CL")))
+            attribute(name = "Disease", value = "Systemic Lupus Erythematosus", valueAttrs = mutableListOf(AttributeDetail("Ontology", "EFO")))
             attribute(name = "Experiment type", value = "Single donor")
 
-            link {
-                url = "IHECRE00000919.1"
+            link("IHECRE00000919.1") {
                 attribute(name = "Type", value = "EpiRR")
             }
 
@@ -53,8 +52,7 @@ fun createVenousBloodMonocyte(): Submission {
                 type = "Stranded Total RNA-Seq"
 
                 linksTable {
-                    link {
-                        url = "EGAD00001001282"
+                    link("EGAD00001001282") {
                         attribute(name = "Type", value = "EGA")
                         attribute(name = "Assay type", value = "RNA-Seq")
                         attribute(name = "Experiment type", value = "Stranded Total RNA-Seq")
@@ -83,8 +81,8 @@ fun createRNA_Profiling(): Submission {
             attribute("Description", "RNA sequencing of 25 patients with non-small cell lung cancer and their matched normal lung tissue")
             attribute("Study type", "RNA-seq of coding RNA")
             attribute("Organism", "Homo sapiens")
-            attribute("Experimental Designs", "case control design", terms = mutableListOf(AttributeDetail("Ontology", "EFO"), AttributeDetail("TermId", "EFO:0001427")))
-            attribute("Experimental Factors", "sampling site", terms = mutableListOf(AttributeDetail("Ontology", "EFO"), AttributeDetail("TermId", "EFO_0000408"), AttributeDetail("TermName", "sampling site")))
+            attribute("Experimental Designs", "case control design", valueAttrs = mutableListOf(AttributeDetail("Ontology", "EFO"), AttributeDetail("TermId", "EFO:0001427")))
+            attribute("Experimental Factors", "sampling site", valueAttrs = mutableListOf(AttributeDetail("Ontology", "EFO"), AttributeDetail("TermId", "EFO_0000408"), AttributeDetail("TermName", "sampling site")))
 
 
             section {
@@ -122,7 +120,7 @@ fun createRNA_Profiling(): Submission {
                         accNo = "P-MTAB-76451"
                         type = "Protocols"
                         attribute(name = "Name", value = "P-MTAB-76451")
-                        attribute(name = "Type", value = "nucleic acid extraction protocol", terms = mutableListOf(AttributeDetail("Ontology", "EFO"), AttributeDetail("TermId", "EFO_0002944")))
+                        attribute(name = "Type", value = "nucleic acid extraction protocol", valueAttrs = mutableListOf(AttributeDetail("Ontology", "EFO"), AttributeDetail("TermId", "EFO_0002944")))
                         attribute(name = "Description", value = "Total RNA was extracted from six 30-μm sections of frozen whole tumor and adjacent lung tissue using the Qiagen-RNeasy Mini kit according to the supplier’s instructions (Qiagen, Hilden, Germany). The quantity of DNA-free total RNA was measured using a Nanodrop-2000.")
                     }
 
@@ -157,8 +155,7 @@ fun createRNA_Profiling(): Submission {
                 type = "MAGE-TAB Files"
                 accNo = "mt-E-MTAB-6957"
 
-                file {
-                    name = "E-MTAB-6957.idf.txt"
+                file("E-MTAB-6957.idf.txt") {
                     type = "IDF File"
 
                     attribute("Type", "IDF File")
@@ -166,8 +163,7 @@ fun createRNA_Profiling(): Submission {
                     attribute("Description", "Investigation Design Format (IDF)")
                 }
 
-                file {
-                    name = "E-MTAB-6957.sdrf.txt"
+                file("E-MTAB-6957.sdrf.txt") {
                     type = "SDRF File"
 
                     attribute("Type", "SDRF File")
