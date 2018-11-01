@@ -54,8 +54,11 @@ class TableJsonSerializerTest {
         val json = """[
             |{
             |  "accNo": "${ids[0]}",
-            |  "type": "Run",
             |  "attributes": [
+            |    {
+            |       "name": "Run",
+            |       "value": "Type"
+            |    },
             |    {
             |       "name": "${attr.name}",
             |       "value": "${attr.value}"
@@ -68,7 +71,12 @@ class TableJsonSerializerTest {
             |},
             |{
             |   "accNo": "${ids[1]}",
-            |   "type": "Run"
+            |   "attributes": [
+            |       {
+            |           "name": "Run",
+            |           "value": "Type"
+            |       }
+            |    ]
             |}
             |]""".trimMargin()
 
@@ -77,7 +85,7 @@ class TableJsonSerializerTest {
         val rows = table.elements
         assertThat(rows).hasSize(2)
         assertThat(rows[0].accNo).isEqualTo(ids[0])
-        assertThat(rows[0].attributes).hasSize(4)
+        assertThat(rows[0].attributes).hasSize(3)
     }
 
     @Test

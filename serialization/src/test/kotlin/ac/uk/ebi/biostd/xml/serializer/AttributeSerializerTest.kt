@@ -15,7 +15,7 @@ class AttributeSerializerTest {
 
     private val testInstance = XmlSerializer()
 
-    private val attribute = Attribute(name = ATTR_NAME, value = ATTR_VALUE, nameAttrs = TERMS)
+    private val attribute = Attribute(name = ATTR_NAME, value = ATTR_VALUE, valueAttrs = TERMS)
 
     @Test
     fun testSerializeAttribute() {

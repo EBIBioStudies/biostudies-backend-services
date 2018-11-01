@@ -19,13 +19,13 @@ import java.time.ZoneOffset
 
 val releaseDate: Instant = LocalDateTime.parse("2015-02-20T06:30:00").toInstant(ZoneOffset.UTC)
 
-
 fun createVenousBloodMonocyte(): Submission {
     return submission {
         accNo = "S-IHECRE00000919.1"
         title = "Submission title"
-        accessTags = mutableListOf("Public")
         releaseTime = releaseDate
+        accessTags = mutableListOf("Public")
+        rootPath = "S-IHECRE00000919.1"
 
         attribute("DataSource", "BLUEPRINT")
         attribute("AttachTo", "blueprint")

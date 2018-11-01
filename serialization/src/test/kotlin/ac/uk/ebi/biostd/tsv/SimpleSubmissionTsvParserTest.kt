@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.tsv
 
 import ac.uk.ebi.biostd.test.createVenousBloodMonocyte
+import ebi.ac.uk.model.constans.SubFields
 import ebi.ac.uk.model.extensions.rootPath
 import ebi.ac.uk.model.extensions.title
 import org.assertj.core.api.Assertions.assertThat
@@ -18,13 +19,14 @@ class SimpleSubmissionTsvParserTest {
         val expected = tsv {
             line(ACC_NO_KEY, "S-IHECRE00000919.1", "Public")
             line(TITLE_KEY, sub.title)
-            line(RELEASE_DATE_KEY, "2015-02-20T06:30:00Z")
+            line(SubFields.RELEASE_TIME, "2015-02-20T06:30:00Z")
             line(ROOT_PATH_KEY, sub.rootPath)
             line("DataSource", "BLUEPRINT")
             line("AttachTo", "blueprint")
             line()
 
             line("Study")
+            line("type", "Study")
             line("Title", "venous blood, Monocyte")
             line("Project", "CEEHRC (McGill)")
             line("Status", "Incomplete")
@@ -45,6 +47,7 @@ class SimpleSubmissionTsvParserTest {
             line()
 
             line("Stranded Total RNA-Seq")
+            line("type", "Stranded Total RNA-Seq")
             line()
 
             line("Links", "Type", "Assay type", "Experiment type", "Primary id")
@@ -52,6 +55,6 @@ class SimpleSubmissionTsvParserTest {
             line()
         }.toString()
 
-        assertThat(tsvString).isEqualTo(expected)
+        assertThat(tsvString).isEqualToIgnoringWhitespace(expected)
     }
 }

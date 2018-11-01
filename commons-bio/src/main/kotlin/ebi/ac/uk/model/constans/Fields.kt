@@ -23,7 +23,6 @@ enum class SubFields(val value: String) {
     SECTION(SECTION_FIELD),
     TITLE("Title"),
     ROOT_PATH("RootPath"),
-    RELEASE_DATE("ReleaseDate"),
     PUBLIC_ACCESS_TAG("Public"),
 
     RELEASE_TIME("rtime"),

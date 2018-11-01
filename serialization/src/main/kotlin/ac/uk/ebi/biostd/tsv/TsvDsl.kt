@@ -10,5 +10,5 @@ class Tsv(val lines: MutableList<TsvLine> = mutableListOf()) {
 class TsvLine(val values: MutableList<String> = mutableListOf())
 
 fun tsv(function: Tsv.() -> Unit): Tsv = Tsv().apply(function)
+fun Tsv.line(vararg tabValues: Any = emptyArray()) = lines.add(TsvLine().apply { values.addAll(tabValues.mapTo(mutableListOf(), Any::toString)) })
 
-fun Tsv.line(vararg tabValues: String) = lines.add(TsvLine().apply { values.addAll(tabValues) })

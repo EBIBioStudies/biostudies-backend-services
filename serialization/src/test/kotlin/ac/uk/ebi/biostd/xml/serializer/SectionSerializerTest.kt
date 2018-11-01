@@ -35,11 +35,8 @@ class SectionSerializerTest {
     fun testSerializeSection() {
         val result = testInstance.serialize(section)
         val expected = xml("section") {
+            attribute("accNo", ACC_NO)
             "attributes" {
-                "attribute" {
-                    "name" { -"accNo" }
-                    "value" { -ACC_NO }
-                }
                 "attribute" {
                     "name" { -"type" }
                     "value" { -TYPE }

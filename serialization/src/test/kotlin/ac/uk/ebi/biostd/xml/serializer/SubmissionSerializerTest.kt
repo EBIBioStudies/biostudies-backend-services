@@ -11,10 +11,7 @@ import org.redundent.kotlin.xml.xml
 import org.xmlunit.assertj.XmlAssert.assertThat
 
 private const val ACC_NO = "ABC-123"
-private const val TITLE = "Session Title"
 private const val TAG = "Access_Tag"
-private const val ROOT_PATH = "path"
-private const val RELEASE_DATE = 1537537261L
 
 private const val ATTR_NAME = "attribute_name"
 private const val ATTR_VALUE = "attribute_value"
@@ -28,16 +25,13 @@ class SubmissionSerializerTest {
 
     private val testSubmission: Submission = submission {
         accNo = ACC_NO
-        //    title = TITLE
-        //   rtime = RELEASE_DATE
         accessTags = mutableListOf(TAG)
-        //  rootPath = ROOT_PATH
 
         attribute(ATTR_NAME, ATTR_VALUE)
 
         section {
-            type = SEC_TYPE
             accNo = SEC_ACC_NO
+            type = SEC_TYPE
         }
     }
 
@@ -51,22 +45,15 @@ class SubmissionSerializerTest {
                     "name" { -ATTR_NAME }
                     "value" { -ATTR_VALUE }
                 }
-                "attribute" {
-                    "name"  { -"Title" }
-                    "value" { -TITLE }
-                }
-                "attribute" {
-                    "name"  { -"ReleaseDate" }
-                    "value" { -"2018-09-21T13:41:01Z" }
-                }
-                "attribute" {
-                    "name"  { -"RootPath" }
-                    "value" { -ROOT_PATH }
-                }
             }
             "section" {
                 attribute("accNo", SEC_ACC_NO)
-                attribute("type", SEC_TYPE)
+                "attributes" {
+                    "attribute" {
+                        "name" { -"type" }
+                        "value" { -SEC_TYPE }
+                    }
+                }
             }
 
 
