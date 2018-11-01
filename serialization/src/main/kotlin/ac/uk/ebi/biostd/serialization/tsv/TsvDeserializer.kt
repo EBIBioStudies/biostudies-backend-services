@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.serialization.common.addLeft
 import ac.uk.ebi.biostd.serialization.common.addRight
 import ebi.ac.uk.base.applyIfNotBlank
 import ebi.ac.uk.model.Attribute
+import ebi.ac.uk.model.AttributeDetail
 import ebi.ac.uk.model.File
 import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.model.Link
@@ -81,6 +82,19 @@ class TsvDeserializer {
     private fun createFile(
             file: String, attributes: MutableList<Attribute>): File = File(name = file, attributes = attributes)
 
-    private fun createAttributes(chunkLines: MutableList<TsvChunkLine>): MutableList<Attribute> =
-            chunkLines.mapTo(mutableListOf()) { Attribute(it.name, it.value) }
+    private fun createAttributes(chunkLines: MutableList<TsvChunkLine>): MutableList<Attribute> {
+        val attributes: MutableList<Attribute> = mutableListOf()
+        chunkLines.forEach {
+            when {
+                it.isNameDetail() -> attributes.last().nameAttrs.add(AttributeDetail(it.getTrimmedName(), it.value))
+                it.isValueDetail() -> attributes.last().valueAttrs.add(AttributeDetail(it.getTrimmedName(), it.value))
+                else -> {
+                    val name = if (it.isReference()) it.getTrimmedName() else it.name
+                    attributes.add(Attribute(name, it.value, it.isReference()))
+                }
+            }
+        }
+
+        return attributes
+    }
 }
