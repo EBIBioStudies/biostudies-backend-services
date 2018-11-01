@@ -1,12 +1,12 @@
 package ac.uk.ebi.biostd.test
 
-import ac.uk.ebi.biostd.submission.attribute
-import ac.uk.ebi.biostd.submission.file
-import ac.uk.ebi.biostd.submission.link
-import ac.uk.ebi.biostd.submission.linksTable
-import ac.uk.ebi.biostd.submission.section
-import ac.uk.ebi.biostd.submission.sectionsTable
-import ac.uk.ebi.biostd.submission.submission
+import ebi.ac.uk.dsl.attribute
+import ebi.ac.uk.dsl.file
+import ebi.ac.uk.dsl.link
+import ebi.ac.uk.dsl.linksTable
+import ebi.ac.uk.dsl.section
+import ebi.ac.uk.dsl.sectionsTable
+import ebi.ac.uk.dsl.submission
 import ebi.ac.uk.model.AttributeDetail
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.extensions.releaseTime

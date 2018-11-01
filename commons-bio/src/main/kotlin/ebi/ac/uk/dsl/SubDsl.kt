@@ -1,6 +1,6 @@
 @file:Suppress("TooManyFunctions")
 
-package ac.uk.ebi.biostd.submission
+package ebi.ac.uk.dsl
 
 import ebi.ac.uk.model.Attributable
 import ebi.ac.uk.model.Attribute
@@ -13,11 +13,8 @@ import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.SectionsTable
 import ebi.ac.uk.model.Submission
 
-fun Attributable.attribute(name: String,
-                           value: String,
-                           ref: Boolean = false,
-                           valueAttrs: Attributes = mutableListOf(),
-                           nameAttrs: Attributes = mutableListOf()) =
+fun Attributable.attribute(name: String, value: String, ref: Boolean = false,
+                           valueAttrs: Attributes = mutableListOf(), nameAttrs: Attributes = mutableListOf()) =
         addAttribute(Attribute(name = name, value = value, valueAttrs = valueAttrs, reference = ref, nameAttrs = nameAttrs))
 
 fun Submission.section(block: Section.() -> Unit) = apply { rootSection = Section().apply(block) }

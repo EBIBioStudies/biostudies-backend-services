@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.json
 
-import ac.uk.ebi.biostd.submission.submission
 import ac.uk.ebi.biostd.test.createVenousBloodMonocyte
+import ebi.ac.uk.dsl.submission
 import ebi.ac.uk.model.Submission
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Disabled

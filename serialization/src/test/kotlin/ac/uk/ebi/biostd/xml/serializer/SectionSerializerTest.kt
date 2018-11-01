@@ -1,12 +1,12 @@
 package ac.uk.ebi.biostd.xml.serializer
 
-import ac.uk.ebi.biostd.submission.file
-import ac.uk.ebi.biostd.submission.link
-import ac.uk.ebi.biostd.submission.section
 import ac.uk.ebi.biostd.test.FILE_NAME
 import ac.uk.ebi.biostd.test.FILE_SIZE
 import ac.uk.ebi.biostd.test.FILE_TYPE
 import ac.uk.ebi.biostd.xml.XmlSerializer
+import ebi.ac.uk.dsl.file
+import ebi.ac.uk.dsl.link
+import ebi.ac.uk.dsl.section
 import ebi.ac.uk.model.extensions.size
 import ebi.ac.uk.model.extensions.type
 import org.junit.Test
