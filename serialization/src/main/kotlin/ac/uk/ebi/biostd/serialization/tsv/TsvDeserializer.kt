@@ -66,7 +66,7 @@ class TsvDeserializer {
         val chunks: MutableList<TsvChunk> = arrayListOf()
         pageTabSubmission.split(TSV_LINE_BREAK).forEach {
             it.split(TSV_CHUNK_BREAK).forEach {
-                it.applyIfNotBlank { chunk.add(it) }
+                stringChunk -> stringChunk.applyIfNotBlank { chunk.add(stringChunk) }
             }
 
             chunks.add(TsvChunk(chunk))
