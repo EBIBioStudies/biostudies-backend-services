@@ -2,171 +2,143 @@ package ac.uk.ebi.biostd.serialization.tsv
 
 import ac.uk.ebi.biostd.common.getLeft
 import ac.uk.ebi.biostd.common.getRight
-import ac.uk.ebi.biostd.tsv.Tsv
-import ac.uk.ebi.biostd.tsv.line
-import ac.uk.ebi.biostd.tsv.tsv
+import ac.uk.ebi.biostd.test.basicSubmission
+import ac.uk.ebi.biostd.test.submissionWithDetailedAttributes
+import ac.uk.ebi.biostd.test.submissionWithFiles
+import ac.uk.ebi.biostd.test.submissionWithFilesTable
+import ac.uk.ebi.biostd.test.submissionWithLinks
+import ac.uk.ebi.biostd.test.submissionWithLinksTable
+import ac.uk.ebi.biostd.test.submissionWithRootSection
+import ac.uk.ebi.biostd.test.submissionWithSectionsTable
+import ac.uk.ebi.biostd.test.submissionWithSubsection
 import ebi.ac.uk.model.Attribute
+import ebi.ac.uk.model.AttributeDetail
 import ebi.ac.uk.model.File
 import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.model.Link
 import ebi.ac.uk.model.LinksTable
 import ebi.ac.uk.model.Section
+import ebi.ac.uk.model.SectionsTable
 import ebi.ac.uk.model.Submission
-import ebi.ac.uk.model.constans.FileFields
-import ebi.ac.uk.model.constans.LinkFields
-import ebi.ac.uk.model.constans.SectionFields
-import ebi.ac.uk.model.constans.SubFields
 import ebi.ac.uk.model.extensions.title
 import ebi.ac.uk.model.extensions.type
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 
 class TsvDeserializerTest {
-    private val accNo = "S-EPMC123"
-    private val title = "A Submission For Testing"
-    private val sectionType = "Study"
-    private val sectionAbstract = "Abstract"
-    private val sectionAbstractValue = "This is a testing submission designed to test the PageTab deserializer"
-    private val pageTab: Tsv = tsv {
-        line(SubFields.SUBMISSION.value, accNo)
-        line(SubFields.TITLE.value, title)
-        line()
-
-        line(sectionType)
-        line(SubFields.TITLE.value, title)
-        line(sectionAbstract, sectionAbstractValue)
-        line()
-    }
     private val deserializer = TsvDeserializer()
 
     @Test
     fun deserializeBaseSubmission() {
-        val dataSource = "DataSource"
-        val attachTo = "AttachTo"
-        val europePMC = "EuropePMC"
+        val submission: Submission = deserializer.deserialize(basicSubmission().toString())
 
-        val pageTab: String = tsv {
-            line(SubFields.SUBMISSION.value, accNo)
-            line(SubFields.TITLE.value, title)
-            line(dataSource, europePMC)
-            line(attachTo, europePMC)
-            line()
-        }.toString()
-
-        val submission: Submission = deserializer.deserialize(pageTab)
         assertSubmission(
-                submission, accNo, title, Attribute(dataSource, europePMC), Attribute(attachTo, europePMC))
+                submission,
+                "S-EPMC123",
+                "Basic Submission",
+                Attribute("DataSource", "EuropePMC"),
+                Attribute("AttachTo", "EuropePMC"))
+    }
+
+    @Test
+    fun deserializeDetailedAttributes() {
+        val submission: Submission = deserializer.deserialize(submissionWithDetailedAttributes().toString())
+        val detailedAttribute = Attribute(
+                "Submission Type",
+                "RNA-seq of non coding RNA",
+                false,
+                mutableListOf(AttributeDetail("Seq Type", "RNA")),
+                mutableListOf(AttributeDetail("Ontology", "EFO")))
+
+        assertSubmission(
+                submission,
+                "S-EPMC124",
+                "Submission With Detailed Attributes",
+                detailedAttribute,
+                Attribute("affiliation", "EuropePMC", true))
     }
 
     @Test
     fun deserializeSubmissionWithRootSection() {
-        val submission: Submission = deserializer.deserialize(pageTab.toString())
-        assertSubmission(submission, accNo, title)
+        val submission: Submission = deserializer.deserialize(submissionWithRootSection().toString())
+        assertSubmission(submission, "S-EPMC125", "Test Submission")
         assertSection(
                 submission.rootSection,
-                sectionType,
-                Attribute(SubFields.TITLE.value, title),
-                Attribute(sectionAbstract, sectionAbstractValue))
+                "Study",
+                Attribute("Title", "Test Root Section"),
+                Attribute("Abstract", "Test abstract"))
+    }
+
+    @Test
+    fun deserializeSubmissionWithSectionsTable() {
+        val submission: Submission = deserializer.deserialize(submissionWithSectionsTable().toString())
+        assertThat(submission.rootSection.sections).hasSize(1)
+
+        val sectionsTable: SectionsTable = submission.rootSection.sections[0].getRight()
+        assertThat(sectionsTable.elements).hasSize(2)
+        assertSection(sectionsTable.elements[0], "Data", Attribute("Title", "Data 1"), Attribute("Desc", "Group 1"))
+        assertSection(sectionsTable.elements[1], "Data", Attribute("Title", "Data 2"), Attribute("Desc", "Group 2"))
     }
 
     @Test
     fun deserializeSubsection() {
-        val type = "Funding"
-        val attr1 = "Agency"
-        val attr2 = "Grant Id"
-        val attrVal1 = "National Support Program of China"
-        val attrVal2 = "No. 2015BAD27B01"
-
-        pageTab.line(type)
-        pageTab.line(attr1, attrVal1)
-        pageTab.line(attr2, attrVal2)
-        pageTab.line()
-
-        val submission: Submission = deserializer.deserialize(pageTab.toString())
+        val submission: Submission = deserializer.deserialize(submissionWithSubsection().toString())
         assertThat(submission.rootSection.sections).hasSize(1)
 
         val subSection: Section = submission.rootSection.sections[0].getLeft()
-        assertSection(subSection, type, Attribute(attr1, attrVal1), Attribute(attr2, attrVal2))
+        assertSection(
+                subSection,
+                "Funding",
+                Attribute("Agency", "National Support Program of China"),
+                Attribute("Grant Id", "No. 2015BAD27B01"))
     }
 
     @Test
     fun deserializeLinks() {
-        val url1 = "http://arandomsite.org"
-        val url2 = "http://completelyunrelatedsite.org"
+        val submission: Submission = deserializer.deserialize(submissionWithLinks().toString())
 
-        pageTab.line(LinkFields.LINK.value, url1)
-        pageTab.line()
-        pageTab.line(LinkFields.LINK.value, url2)
-        pageTab.line()
-
-        val submission: Submission = deserializer.deserialize(pageTab.toString())
         assertThat(submission.rootSection.links).hasSize(2)
-        assertLink(submission.rootSection.links[0].getLeft(), url1)
-        assertLink(submission.rootSection.links[1].getLeft(), url2)
+        assertLink(submission.rootSection.links[0].getLeft(), "http://arandomsite.org")
+        assertLink(submission.rootSection.links[1].getLeft(), "http://completelyunrelatedsite.org")
     }
 
     @Test
     fun deserializeLinksTable() {
-        val type = "Type"
-        val genType = "gen"
-        val gen1 = "AF069309"
-        val gen2 = "AF069123"
-
-        pageTab.line(SectionFields.LINKS.value, type)
-        pageTab.line(gen1, genType)
-        pageTab.line(gen2, genType)
-        pageTab.line()
-
-        val submission: Submission = deserializer.deserialize(pageTab.toString())
+        val submission: Submission = deserializer.deserialize(submissionWithLinksTable().toString())
         assertThat(submission.rootSection.links).hasSize(1)
 
         val linksTable: LinksTable = submission.rootSection.links[0].getRight()
         assertThat(linksTable.elements).hasSize(2)
-        assertLink(linksTable.elements[0], gen1, Attribute(type, genType))
-        assertLink(linksTable.elements[1], gen2, Attribute(type, genType))
+        assertLink(linksTable.elements[0], "AF069309", Attribute("Type", "gen"))
+        assertLink(linksTable.elements[1], "AF069123", Attribute("Type", "gen"))
     }
 
     @Test
     fun deserializeFiles() {
-        val file1 = "12870_2017_1225_MOESM10_ESM.docx"
-        val file2 = "12870_2017_1225_MOESM1_ESM.docx"
+        val submission: Submission = deserializer.deserialize(submissionWithFiles().toString())
 
-        pageTab.line(FileFields.FILE.value, file1)
-        pageTab.line()
-        pageTab.line(FileFields.FILE.value, file2)
-        pageTab.line()
-
-        val submission: Submission = deserializer.deserialize(pageTab.toString())
         assertThat(submission.rootSection.files).hasSize(2)
-        assertFile(submission.rootSection.files[0].getLeft(), file1)
-        assertFile(submission.rootSection.files[1].getLeft(), file2)
+        assertFile(submission.rootSection.files[0].getLeft(), "12870_2017_1225_MOESM10_ESM.docx")
+        assertFile(submission.rootSection.files[1].getLeft(), "12870_2017_1225_MOESM1_ESM.docx")
     }
 
     @Test
     fun deserializeFilesTable() {
-        val desc = "Description"
-        val usage = "Usage"
-
-        val file1 = "Abstract.pdf"
-        val desc1 = "A test abstract"
-        val usage1 = "Testing"
-
-        val file2 = "SuperImportantFile1.docx"
-        val desc2 = "A super important file"
-        val usage2 = "Important stuff"
-
-        pageTab.line(SectionFields.FILES.value, desc, usage)
-        pageTab.line(file1, desc1, usage1)
-        pageTab.line(file2, desc2, usage2)
-        pageTab.line()
-
-        val submission: Submission = deserializer.deserialize(pageTab.toString())
+        val submission: Submission = deserializer.deserialize(submissionWithFilesTable().toString())
         assertThat(submission.rootSection.files).hasSize(1)
 
         val filesTable: FilesTable = submission.rootSection.files[0].getRight()
         assertThat(filesTable.elements).hasSize(2)
-        assertFile(filesTable.elements[0], file1, Attribute(desc, desc1), Attribute(usage, usage1))
-        assertFile(filesTable.elements[1], file2, Attribute(desc, desc2), Attribute(usage, usage2))
+        assertFile(
+                filesTable.elements[0],
+                "Abstract.pdf",
+                Attribute("Description", "An abstract file"),
+                Attribute("Usage", "Testing"))
+        assertFile(
+                filesTable.elements[1],
+                "SuperImportantFile1.docx",
+                Attribute("Description", "A super important file"),
+                Attribute("Usage", "Important stuff"))
     }
 
     private fun assertSubmission(
@@ -192,13 +164,24 @@ class TsvDeserializerTest {
     }
 
     private fun assertAttributes(attributes: List<Attribute>, expectedAttributes: Array<out Attribute>) {
-        expectedAttributes.forEachIndexed { index, attribute ->
-            assertAttribute(attributes[index], attribute.name, attribute.value)
+        expectedAttributes.forEachIndexed { index, expectedAttribute ->
+            assertAttribute(attributes[index], expectedAttribute)
         }
     }
 
-    private fun assertAttribute(attribute: Attribute, expectedName: String, expectedValue: String) {
-        assertThat(attribute.name).isEqualTo(expectedName)
-        assertThat(attribute.value).isEqualTo(expectedValue)
+    private fun assertAttribute(attribute: Attribute, expectedAttribute: Attribute) {
+        assertThat(attribute.name).isEqualTo(expectedAttribute.name)
+        assertThat(attribute.value).isEqualTo(expectedAttribute.value)
+        assertThat(attribute.reference).isEqualTo(expectedAttribute.reference)
+        assertAttributeDetails(attribute.nameAttrs, expectedAttribute.nameAttrs)
+        assertAttributeDetails(attribute.valueAttrs, expectedAttribute.valueAttrs)
+    }
+
+    private fun assertAttributeDetails(
+            detailedAttributes: MutableList<AttributeDetail>, expectedDetailedAttributes: MutableList<AttributeDetail>) {
+        expectedDetailedAttributes.forEachIndexed { index, expectedDetailedAttribute ->
+            assertThat(detailedAttributes[index].name).isEqualTo(expectedDetailedAttribute.name)
+            assertThat(detailedAttributes[index].value).isEqualTo(expectedDetailedAttribute.value)
+        }
     }
 }

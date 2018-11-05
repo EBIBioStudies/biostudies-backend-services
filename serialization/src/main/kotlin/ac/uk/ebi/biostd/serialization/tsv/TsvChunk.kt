@@ -17,6 +17,8 @@ data class TsvChunk(
 
     fun getIdentifier(): String = header[1]
 
+    fun isTableChunk(): Boolean = header.size > 1
+
     fun <T> mapTable(initializer: (String, MutableList<Attribute>) -> T): List<T> {
         val rows: MutableList<T> = mutableListOf()
 
