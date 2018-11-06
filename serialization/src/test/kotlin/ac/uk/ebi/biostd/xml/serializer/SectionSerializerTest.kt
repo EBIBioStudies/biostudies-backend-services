@@ -36,12 +36,7 @@ class SectionSerializerTest {
         val result = testInstance.serialize(section)
         val expected = xml("section") {
             attribute("accNo", ACC_NO)
-            "attributes" {
-                "attribute" {
-                    "name" { -"type" }
-                    "value" { -TYPE }
-                }
-            }
+            attribute("type", TYPE)
             "links" {
                 "link" {
                     "url" { -LINK_URL }

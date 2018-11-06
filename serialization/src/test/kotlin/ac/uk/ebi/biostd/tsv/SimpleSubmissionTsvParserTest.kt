@@ -26,7 +26,6 @@ class SimpleSubmissionTsvParserTest {
             line()
 
             line("Study")
-            line("type", "Study")
             line("Title", "venous blood, Monocyte")
             line("Project", "CEEHRC (McGill)")
             line("Status", "Incomplete")
@@ -47,7 +46,6 @@ class SimpleSubmissionTsvParserTest {
             line()
 
             line("Stranded Total RNA-Seq")
-            line("type", "Stranded Total RNA-Seq")
             line()
 
             line("Links", "Type", "Assay type", "Experiment type", "Primary id")

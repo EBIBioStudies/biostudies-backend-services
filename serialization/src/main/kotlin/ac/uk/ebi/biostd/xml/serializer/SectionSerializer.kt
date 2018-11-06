@@ -15,7 +15,8 @@ class SectionSerializer : XmlStdSerializer<Section>(Section::class.java) {
     override fun serializeXml(value: Section, gen: ToXmlGenerator, provider: SerializerProvider) {
         with(gen) {
             writeXmlObj(SectionFields.SECTION, value) {
-                writeXmlAttr(SubFields.ACC_NO, accNo)
+                writeXmlAttr(SectionFields.ACC_NO, accNo)
+                writeXmlAttr(SectionFields.TYPE, type)
                 writeXmlCollection(SectionFields.ATTRIBUTES, attributes)
                 writeXmlCollection(SectionFields.LINKS, links)
                 writeXmlCollection(SectionFields.FILES, files)

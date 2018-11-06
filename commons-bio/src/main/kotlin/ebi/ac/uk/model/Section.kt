@@ -3,6 +3,7 @@ package ebi.ac.uk.model
 import arrow.core.Either
 
 class Section(
+        var type: String = "",
         var accNo: String = "",
         var sections: MutableList<Either<Section, SectionsTable>> = mutableListOf(),
         var files: MutableList<Either<File, FilesTable>> = mutableListOf(),

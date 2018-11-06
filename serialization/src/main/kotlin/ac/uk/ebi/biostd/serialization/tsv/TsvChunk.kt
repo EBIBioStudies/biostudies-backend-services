@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.serialization.tsv
 
 import ac.uk.ebi.biostd.serialization.common.TSV_SEPARATOR
 import ebi.ac.uk.model.Attribute
+import ebi.ac.uk.util.collections.second
 
 data class TsvChunk(
         val header: List<String>,
@@ -13,9 +14,9 @@ data class TsvChunk(
         }
     }
 
-    fun getType(): String = header[0]
+    fun getType(): String = header.first()
 
-    fun getIdentifier(): String = header[1]
+    fun getIdentifier(): String = header.second()
 
     fun isTableChunk(): Boolean = header.size > 1
 
@@ -25,7 +26,7 @@ data class TsvChunk(
         lines.forEach {
             val attrs: MutableList<Attribute> = mutableListOf()
             it.value.split(TSV_SEPARATOR).forEachIndexed { index, attr -> attrs.add(Attribute(header[index + 1], attr)) }
-            rows.add(initializer(it.name, attrs))
+            rows.add(initializer(it.name(), attrs))
         }
 
         return rows.toList()

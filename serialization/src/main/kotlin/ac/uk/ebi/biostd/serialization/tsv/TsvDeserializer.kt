@@ -75,15 +75,11 @@ class TsvDeserializer {
         }
     }
 
-    private fun createSingleSection(sectionChunk: TsvChunk): Section {
-        val section = Section(attributes = createAttributes(sectionChunk.lines))
-        section.type = sectionChunk.getType()
-
-        return section
-    }
+    private fun createSingleSection(sectionChunk: TsvChunk) =
+            Section(type = sectionChunk.getType(), attributes = createAttributes(sectionChunk.lines))
 
     private fun createTableSection(
-            accNo: String, attributes: MutableList<Attribute>): Section = Section(accNo = accNo, attributes = attributes)
+            accNo: String, attributes: MutableList<Attribute>) = Section(accNo = accNo, attributes = attributes)
 
     private fun createLink(link: String, attributes: MutableList<Attribute>): Link = Link(link, attributes)
 
@@ -94,12 +90,9 @@ class TsvDeserializer {
         val attributes: MutableList<Attribute> = mutableListOf()
         chunkLines.forEach {
             when {
-                it.isNameDetail() -> attributes.last().nameAttrs.add(AttributeDetail(it.getTrimmedName(), it.value))
-                it.isValueDetail() -> attributes.last().valueAttrs.add(AttributeDetail(it.getTrimmedName(), it.value))
-                else -> {
-                    val name = if (it.isReference()) it.getTrimmedName() else it.name
-                    attributes.add(Attribute(name, it.value, it.isReference()))
-                }
+                it.isNameDetail() -> attributes.last().nameAttrs.add(AttributeDetail(it.name(), it.value))
+                it.isValueDetail() -> attributes.last().valueAttrs.add(AttributeDetail(it.name(), it.value))
+                else -> attributes.add(Attribute(it.name(), it.value, it.isReference()))
             }
         }
 
