@@ -48,12 +48,7 @@ class SubmissionSerializerTest {
             }
             "section" {
                 attribute("accNo", SEC_ACC_NO)
-                "attributes" {
-                    "attribute" {
-                        "name" { -"type" }
-                        "value" { -SEC_TYPE }
-                    }
-                }
+                attribute("type", SEC_TYPE)
             }
 
 

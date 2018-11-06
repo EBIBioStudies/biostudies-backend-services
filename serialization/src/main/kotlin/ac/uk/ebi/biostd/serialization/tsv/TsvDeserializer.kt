@@ -2,15 +2,14 @@ package ac.uk.ebi.biostd.serialization.tsv
 
 import ac.uk.ebi.biostd.serialization.common.TSV_CHUNK_BREAK
 import ac.uk.ebi.biostd.serialization.common.TSV_LINE_BREAK
-import ac.uk.ebi.biostd.serialization.common.addLeft
-import ac.uk.ebi.biostd.serialization.common.addRight
-import ebi.ac.uk.base.applyIfNotBlank
 import ebi.ac.uk.model.Attribute
+import ebi.ac.uk.model.AttributeDetail
 import ebi.ac.uk.model.File
 import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.model.Link
 import ebi.ac.uk.model.LinksTable
 import ebi.ac.uk.model.Section
+import ebi.ac.uk.model.SectionsTable
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.constans.FileFields
 import ebi.ac.uk.model.constans.LinkFields
@@ -44,43 +43,59 @@ class TsvDeserializer {
         return submission
     }
 
+    private fun chunkerize(pageTabSubmission: String): MutableList<TsvChunk> {
+        return pageTabSubmission.split(TSV_LINE_BREAK)
+                .asSequence()
+                .map { chunk -> chunk.split(TSV_CHUNK_BREAK).filterTo(mutableListOf(), String::isNotEmpty) }
+                .mapTo(mutableListOf()) { chunk -> TsvChunk(chunk) }
+    }
+
     private fun processSubsections(section: Section, subsectionChunks: MutableList<TsvChunk>) {
         subsectionChunks.forEach {
-            when (it.getType()) {
-                LinkFields.LINK.value -> section.links.addLeft(Link(it.getIdentifier(), createAttributes(it.lines)))
+            when (it.getType().toLowerCase()) {
+                LinkFields.LINK.value -> section.addLink(Link(it.getIdentifier(), createAttributes(it.lines)))
                 FileFields.FILE.value ->
-                    section.files.addLeft(File(name = it.getIdentifier(), attributes = createAttributes(it.lines)))
-                SectionFields.LINKS.value -> section.links.addRight(LinksTable(it.mapTable(this::createLink)))
-                SectionFields.FILES.value -> section.files.addRight(FilesTable(it.mapTable(this::createFile)))
-                else -> {
-                    val subsection = Section(attributes = createAttributes(it.lines))
-                    subsection.type = it.getType()
-                    section.sections.addLeft(subsection)
-                }
+                    section.addFile(File(name = it.getIdentifier(), attributes = createAttributes(it.lines)))
+                SectionFields.LINKS.value -> section.addLinksTable(LinksTable(it.mapTable(this::createLink)))
+                SectionFields.FILES.value -> section.addFilesTable(FilesTable(it.mapTable(this::createFile)))
+                else -> processSubsection(section, it)
             }
         }
     }
 
-    private fun chunkerize(pageTabSubmission: String): MutableList<TsvChunk> {
-        var chunk: MutableList<String> = arrayListOf()
-        val chunks: MutableList<TsvChunk> = arrayListOf()
-        pageTabSubmission.split(TSV_LINE_BREAK).forEach {
-            it.split(TSV_CHUNK_BREAK).forEach {
-                stringChunk -> stringChunk.applyIfNotBlank { chunk.add(stringChunk) }
-            }
+    private fun processSubsection(parentSection: Section, subsectionChunk: TsvChunk) {
+        if (subsectionChunk.isTableChunk()) {
+            val subsections = subsectionChunk.mapTable(this::createTableSection)
 
-            chunks.add(TsvChunk(chunk))
-            chunk.clear()
+            subsections.forEach { it.type = subsectionChunk.getType() }
+            parentSection.addSectionTable(SectionsTable(subsections))
         }
-
-        return chunks
+        else {
+            parentSection.addSection(createSingleSection(subsectionChunk))
+        }
     }
+
+    private fun createSingleSection(sectionChunk: TsvChunk) =
+            Section(type = sectionChunk.getType(), attributes = createAttributes(sectionChunk.lines))
+
+    private fun createTableSection(
+            accNo: String, attributes: MutableList<Attribute>) = Section(accNo = accNo, attributes = attributes)
 
     private fun createLink(link: String, attributes: MutableList<Attribute>): Link = Link(link, attributes)
 
     private fun createFile(
             file: String, attributes: MutableList<Attribute>): File = File(name = file, attributes = attributes)
 
-    private fun createAttributes(chunkLines: MutableList<TsvChunkLine>): MutableList<Attribute> =
-            chunkLines.mapTo(mutableListOf()) { Attribute(it.name, it.value) }
+    private fun createAttributes(chunkLines: MutableList<TsvChunkLine>): MutableList<Attribute> {
+        val attributes: MutableList<Attribute> = mutableListOf()
+        chunkLines.forEach {
+            when {
+                it.isNameDetail() -> attributes.last().nameAttrs.add(AttributeDetail(it.name(), it.value))
+                it.isValueDetail() -> attributes.last().valueAttrs.add(AttributeDetail(it.name(), it.value))
+                else -> attributes.add(Attribute(it.name(), it.value, it.isReference()))
+            }
+        }
+
+        return attributes
+    }
 }
