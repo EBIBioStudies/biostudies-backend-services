@@ -1,6 +1,9 @@
 package ebi.ac.uk.model
 
 import arrow.core.Either
+import ebi.ac.uk.util.addLeft
+import ebi.ac.uk.util.addRight
+import ebi.ac.uk.util.getLeft
 
 class Section(
         var type: String = "",
@@ -11,11 +14,15 @@ class Section(
         attributes: List<Attribute> = emptyList()) : Attributable(attributes) {
 
 
-    fun addFile(file: File) = files.add(Either.Left(file))
-    fun addLink(link: Link) = links.add(Either.Left(link))
-    fun addSection(section: Section) = sections.add(Either.Left(section))
+    fun addFile(file: File) = files.addLeft(file)
+    fun addLink(link: Link) = links.addLeft(link)
+    fun addSection(section: Section) = sections.addLeft(section)
 
-    fun addFilesTable(table: FilesTable) = files.add(Either.Right(table))
-    fun addLinksTable(table: LinksTable) = links.add(Either.Right(table))
-    fun addSectionTable(table: SectionsTable) = sections.add(Either.Right(table))
+    fun addFilesTable(table: FilesTable) = files.addRight(table)
+    fun addLinksTable(table: LinksTable) = links.addRight(table)
+    fun addSectionTable(table: SectionsTable) = sections.addRight(table)
+
+    fun addSubsection(parentAccNo: String, subsection: Either<Section, SectionsTable>) =
+            sections.forEach {
+                if (it.isLeft() && it.getLeft().accNo == parentAccNo) it.getLeft().sections.add(subsection) }
 }

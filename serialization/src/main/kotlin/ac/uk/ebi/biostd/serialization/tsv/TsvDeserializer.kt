@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.serialization.tsv
 
 import ac.uk.ebi.biostd.serialization.common.TSV_CHUNK_BREAK
 import ac.uk.ebi.biostd.serialization.common.TSV_LINE_BREAK
+import arrow.core.Either
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.AttributeDetail
 import ebi.ac.uk.model.File
@@ -64,19 +65,30 @@ class TsvDeserializer {
     }
 
     private fun processSubsection(parentSection: Section, subsectionChunk: TsvChunk) {
-        if (subsectionChunk.isTableChunk()) {
-            val subsections = subsectionChunk.mapTable(this::createTableSection)
+        when {
+            subsectionChunk.isTableChunk() -> {
+                val subsections = subsectionChunk.mapTable(this::createTableSection)
 
-            subsections.forEach { it.type = subsectionChunk.getType() }
-            parentSection.addSectionTable(SectionsTable(subsections))
-        }
-        else {
-            parentSection.addSection(createSingleSection(subsectionChunk))
+                subsections.forEach { it.type = subsectionChunk.getType() }
+                parentSection.addSectionTable(SectionsTable(subsections))
+            }
+            subsectionChunk.isSubsectionChunk() -> {
+                val subsection = Section(
+                        type = subsectionChunk.getType(),
+                        accNo = subsectionChunk.getIdentifier(),
+                        attributes = createAttributes(subsectionChunk.lines))
+
+                parentSection.addSubsection(subsectionChunk.getParent(), Either.left(subsection))
+            }
+            else -> parentSection.addSection(createSingleSection(subsectionChunk))
         }
     }
 
     private fun createSingleSection(sectionChunk: TsvChunk) =
-            Section(type = sectionChunk.getType(), attributes = createAttributes(sectionChunk.lines))
+            Section(
+                    type = sectionChunk.getType(),
+                    accNo = sectionChunk.getIdentifier(),
+                    attributes = createAttributes(sectionChunk.lines))
 
     private fun createTableSection(
             accNo: String, attributes: MutableList<Attribute>) = Section(accNo = accNo, attributes = attributes)

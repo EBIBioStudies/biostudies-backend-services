@@ -35,14 +35,25 @@ fun submissionWithRootSection() = tsv {
 fun submissionWithSectionsTable() = submissionWithRootSection().apply {
     line("Data", "Title", "Desc")
     line("DT-1", "Data 1", "Group 1")
-    line("DT-1", "Data 2", "Group 2")
+    line("DT-2", "Data 2", "Group 2")
     line()
 }
 
 fun submissionWithSubsection() = submissionWithRootSection().apply {
-    line("Funding")
+    line("Funding", "F-001")
     line("Agency", "National Support Program of China")
     line("Grant Id", "No. 2015BAD27B01")
+    line()
+}
+
+fun submissionWithInnerSubsections() = submissionWithSubsection().apply {
+    line("Funding", "F-002")
+    line("Agency", "National Support Program of Japan")
+    line("Grant Id", "No. 2015BAD27A03")
+    line()
+
+    line("Expense", "E-001", "F-001")
+    line("Description", "Travel")
     line()
 }
 

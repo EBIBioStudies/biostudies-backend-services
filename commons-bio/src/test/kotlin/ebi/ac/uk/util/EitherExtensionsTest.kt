@@ -1,9 +1,6 @@
-package ac.uk.ebi.biostd.common
+package ebi.ac.uk.util
 
-import ac.uk.ebi.biostd.serialization.common.addLeft
-import ac.uk.ebi.biostd.serialization.common.addRight
 import arrow.core.Either
-import arrow.core.getOrElse
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -24,7 +21,3 @@ class EitherExtensionsTest {
         assertThat(eitherList[0].getRight()).isEqualTo("b")
     }
 }
-
-fun <A, B> Either<A, B>.getLeft(): A = swap().getOrElse { throw Exception("It's not a left element") }
-
-fun <A, B> Either<A, B>.getRight(): B = getOrElse { throw Exception("It's not a right element") }
