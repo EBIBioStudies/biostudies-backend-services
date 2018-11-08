@@ -28,11 +28,12 @@ fun <T> listFrom(anotherList: List<T>, vararg elements: T): List<T> {
  *
  * @throws NoSuchElementException if list size is less than 2.
  */
-fun <T> List<T>.second(): T {
-    if (this.size < 2)
-        throw NoSuchElementException("List do not contain a second element.")
-    return this[1]
-}
+fun <T> List<T>.second() =
+        if (this.size > 1 ) this[1] else throw NoSuchElementException("List does not contain a second element.")
+
+fun <T> List<T>.secondOrElse(defaultValue: T) = if (this.size > 1 ) this[1] else defaultValue
+
+fun <T> List<T>.thirdOrElse(defaultValue: T) = if (this.size > 2 ) this[2] else defaultValue
 
 /**
  * Removes the first element of a MutableList and returns it

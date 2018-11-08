@@ -15,15 +15,12 @@ import ebi.ac.uk.base.EMPTY
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.AttributeDetail
 import ebi.ac.uk.model.File
-import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.model.Link
-import ebi.ac.uk.model.LinksTable
 import ebi.ac.uk.model.Section
-import ebi.ac.uk.model.SectionsTable
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.extensions.title
-import ebi.ac.uk.util.getLeft
-import ebi.ac.uk.util.getRight
+import ebi.ac.uk.util.collections.ifLeft
+import ebi.ac.uk.util.collections.ifRight
 import ebi.ac.uk.util.collections.second
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
@@ -78,32 +75,33 @@ class TsvDeserializerTest {
         val submission: Submission = deserializer.deserialize(submissionWithSectionsTable().toString())
         assertThat(submission.rootSection.sections).hasSize(1)
 
-        val sectionsTable: SectionsTable = submission.rootSection.sections.first().getRight()
-        assertThat(sectionsTable.elements).hasSize(2)
-        assertSection(
-                sectionsTable.elements.first(),
-                "DT-1",
-                "Data",
-                Attribute("Title", "Data 1"), Attribute("Desc", "Group 1"))
-        assertSection(
-                sectionsTable.elements.second(),
-                "DT-2",
-                "Data",
-                Attribute("Title", "Data 2"), Attribute("Desc", "Group 2"))
+        submission.rootSection.sections.first().ifRight { sectionsTable ->
+            assertThat(sectionsTable.elements).hasSize(2)
+            assertSection(
+                    sectionsTable.elements.first(),
+                    "DT-1",
+                    "Data",
+                    Attribute("Title", "Data 1"), Attribute("Desc", "Group 1"))
+            assertSection(
+                    sectionsTable.elements.second(),
+                    "DT-2",
+                    "Data",
+                    Attribute("Title", "Data 2"), Attribute("Desc", "Group 2"))
+        }
     }
 
     @Test
     fun deserializeSubsection() {
         val submission: Submission = deserializer.deserialize(submissionWithSubsection().toString())
         assertThat(submission.rootSection.sections).hasSize(1)
-
-        val subSection: Section = submission.rootSection.sections.first().getLeft()
-        assertSection(
-                subSection,
-                "F-001",
-                "Funding",
-                Attribute("Agency", "National Support Program of China"),
-                Attribute("Grant Id", "No. 2015BAD27B01"))
+        submission.rootSection.sections.first().ifLeft { subsection ->
+            assertSection(
+                    subsection,
+                    "F-001",
+                    "Funding",
+                    Attribute("Agency", "National Support Program of China"),
+                    Attribute("Grant Id", "No. 2015BAD27B01"))
+        }
     }
 
     @Test
@@ -111,28 +109,29 @@ class TsvDeserializerTest {
         val submission: Submission = deserializer.deserialize(submissionWithInnerSubsections().toString())
         assertThat(submission.rootSection.sections).hasSize(2)
 
-        val section1: Section = submission.rootSection.sections.first().getLeft()
-        assertThat(section1.sections).hasSize(1)
-        assertSection(
-                section1,
-                "F-001",
-                "Funding",
-                Attribute("Agency", "National Support Program of China"),
-                Attribute("Grant Id", "No. 2015BAD27B01"))
-        assertSection(
-                section1.sections.first().getLeft(),
-                "E-001",
-                "Expense",
-                Attribute("Description", "Travel"))
+        submission.rootSection.sections.first().ifLeft { section ->
+            assertThat(section.sections).hasSize(1)
+            assertSection(
+                    section,
+                    "F-001",
+                    "Funding",
+                    Attribute("Agency", "National Support Program of China"),
+                    Attribute("Grant Id", "No. 2015BAD27B01"))
 
-        val section2: Section = submission.rootSection.sections.second().getLeft()
-        assertThat(section2.sections).isEmpty()
-        assertSection(
-                section2,
-                "F-002",
-                "Funding",
-                Attribute("Agency", "National Support Program of Japan"),
-                Attribute("Grant Id", "No. 2015BAD27A03"))
+            section.sections.first().ifLeft { subsection ->
+                assertSection(subsection, "E-001", "Expense", Attribute("Description", "Travel"))
+            }
+        }
+
+        submission.rootSection.sections.second().ifLeft { section ->
+            assertThat(section.sections).isEmpty()
+            assertSection(
+                    section,
+                    "F-002",
+                    "Funding",
+                    Attribute("Agency", "National Support Program of Japan"),
+                    Attribute("Grant Id", "No. 2015BAD27A03"))
+        }
     }
 
     @Test
@@ -140,8 +139,8 @@ class TsvDeserializerTest {
         val submission: Submission = deserializer.deserialize(submissionWithLinks().toString())
 
         assertThat(submission.rootSection.links).hasSize(2)
-        assertLink(submission.rootSection.links.first().getLeft(), "http://arandomsite.org")
-        assertLink(submission.rootSection.links.second().getLeft(), "http://completelyunrelatedsite.org")
+        submission.rootSection.links.first().ifLeft { link -> assertLink(link, "http://arandomsite.org") }
+        submission.rootSection.links.second().ifLeft { link -> assertLink(link, "http://completelyunrelatedsite.org") }
     }
 
     @Test
@@ -149,10 +148,11 @@ class TsvDeserializerTest {
         val submission: Submission = deserializer.deserialize(submissionWithLinksTable().toString())
         assertThat(submission.rootSection.links).hasSize(1)
 
-        val linksTable: LinksTable = submission.rootSection.links.first().getRight()
-        assertThat(linksTable.elements).hasSize(2)
-        assertLink(linksTable.elements.first(), "AF069309", Attribute("Type", "gen"))
-        assertLink(linksTable.elements.second(), "AF069123", Attribute("Type", "gen"))
+        submission.rootSection.links.first().ifRight { linksTable ->
+            assertThat(linksTable.elements).hasSize(2)
+            assertLink(linksTable.elements.first(), "AF069309", Attribute("Type", "gen"))
+            assertLink(linksTable.elements.second(), "AF069123", Attribute("Type", "gen"))
+        }
     }
 
     @Test
@@ -160,8 +160,8 @@ class TsvDeserializerTest {
         val submission: Submission = deserializer.deserialize(submissionWithFiles().toString())
 
         assertThat(submission.rootSection.files).hasSize(2)
-        assertFile(submission.rootSection.files.first().getLeft(), "12870_2017_1225_MOESM10_ESM.docx")
-        assertFile(submission.rootSection.files.second().getLeft(), "12870_2017_1225_MOESM1_ESM.docx")
+        submission.rootSection.files.first().ifLeft { file -> assertFile(file, "12870_2017_1225_MOESM10_ESM.docx") }
+        submission.rootSection.files.second().ifLeft { file -> assertFile(file, "12870_2017_1225_MOESM1_ESM.docx") }
     }
 
     @Test
@@ -169,18 +169,19 @@ class TsvDeserializerTest {
         val submission: Submission = deserializer.deserialize(submissionWithFilesTable().toString())
         assertThat(submission.rootSection.files).hasSize(1)
 
-        val filesTable: FilesTable = submission.rootSection.files.first().getRight()
-        assertThat(filesTable.elements).hasSize(2)
-        assertFile(
-                filesTable.elements.first(),
-                "Abstract.pdf",
-                Attribute("Description", "An abstract file"),
-                Attribute("Usage", "Testing"))
-        assertFile(
-                filesTable.elements.second(),
-                "SuperImportantFile1.docx",
-                Attribute("Description", "A super important file"),
-                Attribute("Usage", "Important stuff"))
+        submission.rootSection.files.first().ifRight { filesTable ->
+            assertThat(filesTable.elements).hasSize(2)
+            assertFile(
+                    filesTable.elements.first(),
+                    "Abstract.pdf",
+                    Attribute("Description", "An abstract file"),
+                    Attribute("Usage", "Testing"))
+            assertFile(
+                    filesTable.elements.second(),
+                    "SuperImportantFile1.docx",
+                    Attribute("Description", "A super important file"),
+                    Attribute("Usage", "Important stuff"))
+        }
     }
 
     private fun assertSubmission(

@@ -2,7 +2,6 @@ package ac.uk.ebi.biostd.serialization.tsv
 
 import ac.uk.ebi.biostd.serialization.common.TSV_CHUNK_BREAK
 import ac.uk.ebi.biostd.serialization.common.TSV_LINE_BREAK
-import arrow.core.Either
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.AttributeDetail
 import ebi.ac.uk.model.File
@@ -16,7 +15,9 @@ import ebi.ac.uk.model.constans.FileFields
 import ebi.ac.uk.model.constans.LinkFields
 import ebi.ac.uk.model.constans.SectionFields
 import ebi.ac.uk.model.extensions.title
-import ebi.ac.uk.model.extensions.type
+import ebi.ac.uk.util.collections.addLeft
+import ebi.ac.uk.util.collections.filterLeft
+import ebi.ac.uk.util.collections.ifLeft
 import ebi.ac.uk.util.collections.ifNotEmpty
 import ebi.ac.uk.util.collections.removeFirst
 
@@ -66,19 +67,22 @@ class TsvDeserializer {
 
     private fun processSubsection(parentSection: Section, subsectionChunk: TsvChunk) {
         when {
-            subsectionChunk.isTableChunk() -> {
+            subsectionChunk.isSectionTable() -> {
                 val subsections = subsectionChunk.mapTable(this::createTableSection)
 
                 subsections.forEach { it.type = subsectionChunk.getType() }
                 parentSection.addSectionTable(SectionsTable(subsections))
             }
-            subsectionChunk.isSubsectionChunk() -> {
-                val subsection = Section(
-                        type = subsectionChunk.getType(),
-                        accNo = subsectionChunk.getIdentifier(),
-                        attributes = createAttributes(subsectionChunk.lines))
-
-                parentSection.addSubsection(subsectionChunk.getParent(), Either.left(subsection))
+            subsectionChunk.isSubsection() -> {
+                parentSection.sections
+                    .filterLeft { section -> section.accNo == subsectionChunk.getParent() }
+                    .first()
+                    .ifLeft { section ->
+                        section.sections.addLeft(Section(
+                            type = subsectionChunk.getType(),
+                            accNo = subsectionChunk.getIdentifier(),
+                            attributes = createAttributes(subsectionChunk.lines)))
+                    }
             }
             else -> parentSection.addSection(createSingleSection(subsectionChunk))
         }

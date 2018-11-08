@@ -33,7 +33,7 @@ fun submissionWithRootSection() = tsv {
 }
 
 fun submissionWithSectionsTable() = submissionWithRootSection().apply {
-    line("Data", "Title", "Desc")
+    line("Data[]", "Title", "Desc")
     line("DT-1", "Data 1", "Group 1")
     line("DT-2", "Data 2", "Group 2")
     line()

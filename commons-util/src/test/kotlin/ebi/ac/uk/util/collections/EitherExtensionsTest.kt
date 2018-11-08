@@ -1,4 +1,4 @@
-package ebi.ac.uk.util
+package ebi.ac.uk.util.collections
 
 import arrow.core.Either
 import org.assertj.core.api.Assertions.assertThat
@@ -9,15 +9,13 @@ class EitherExtensionsTest {
     fun addLeft() {
         val eitherList: MutableList<Either<String, String>> = mutableListOf()
         eitherList.addLeft("a")
-
-        assertThat(eitherList[0].getLeft()).isEqualTo("a")
+        eitherList.first().ifLeft { assertThat(it).isEqualTo("a") }
     }
 
     @Test
     fun addRight() {
         val eitherList: MutableList<Either<String, String>> = mutableListOf()
         eitherList.addRight("b")
-
-        assertThat(eitherList[0].getRight()).isEqualTo("b")
+        eitherList.first().ifRight { assertThat(it).isEqualTo("b") }
     }
 }

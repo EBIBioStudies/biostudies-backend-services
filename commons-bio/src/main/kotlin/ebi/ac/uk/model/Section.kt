@@ -1,9 +1,8 @@
 package ebi.ac.uk.model
 
 import arrow.core.Either
-import ebi.ac.uk.util.addLeft
-import ebi.ac.uk.util.addRight
-import ebi.ac.uk.util.getLeft
+import ebi.ac.uk.util.collections.addLeft
+import ebi.ac.uk.util.collections.addRight
 
 class Section(
         var type: String = "",
@@ -21,8 +20,4 @@ class Section(
     fun addFilesTable(table: FilesTable) = files.addRight(table)
     fun addLinksTable(table: LinksTable) = links.addRight(table)
     fun addSectionTable(table: SectionsTable) = sections.addRight(table)
-
-    fun addSubsection(parentAccNo: String, subsection: Either<Section, SectionsTable>) =
-            sections.forEach {
-                if (it.isLeft() && it.getLeft().accNo == parentAccNo) it.getLeft().sections.add(subsection) }
 }

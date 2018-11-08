@@ -1,9 +1,11 @@
 package ac.uk.ebi.biostd.serialization.tsv
 
+import ac.uk.ebi.biostd.serialization.common.SECTION_TABLE_OP
 import ac.uk.ebi.biostd.serialization.common.TSV_SEPARATOR
 import ebi.ac.uk.base.EMPTY
 import ebi.ac.uk.model.Attribute
-import ebi.ac.uk.util.collections.second
+import ebi.ac.uk.util.collections.secondOrElse
+import ebi.ac.uk.util.collections.thirdOrElse
 
 data class TsvChunk(
         val header: List<String>,
@@ -15,20 +17,15 @@ data class TsvChunk(
         }
     }
 
-    fun getType() = header.first()
+    fun getType() = if (isSectionTable()) header.first().substringBefore(SECTION_TABLE_OP) else header.first()
 
-    fun getIdentifier() = if (header.size > 1) header.second() else EMPTY
+    fun getIdentifier() = header.secondOrElse(EMPTY)
 
-    fun getParent() = if (header.size > 2) header[2] else EMPTY
+    fun getParent() = header.thirdOrElse(EMPTY)
 
-    fun isTableChunk() = header.size > 1 && lines.hasTableLines()
+    fun isSubsection() = getParent().isNotEmpty()
 
-    /**
-     * Since a sections table and a subsection chunk may have exactly the same header, this is how to differentiate them:
-     * 1) A subsection chunk MUST have exactly 3 values in its header: the type, the acc No and the parent acc No
-     * 2) A subsection chunk may not have lines but, if it has, they should NOT be table lines
-     */
-    fun isSubsectionChunk() = header.size == 3 && (lines.isEmpty() || lines.hasTableLines().not())
+    fun isSectionTable() = header.first().matches(".+\\[.+|\\]".toRegex())
 
     fun <T> mapTable(initializer: (String, MutableList<Attribute>) -> T): List<T> {
         val rows: MutableList<T> = mutableListOf()
