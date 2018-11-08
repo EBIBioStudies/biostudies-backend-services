@@ -1,10 +1,6 @@
 package ac.uk.ebi.biostd.config
 
 import ac.uk.ebi.biostd.json.JsonSerializer
-import ac.uk.ebi.biostd.mapping.AttributesMapper
-import ac.uk.ebi.biostd.mapping.SectionMapper
-import ac.uk.ebi.biostd.mapping.SubmissionMapper
-import ac.uk.ebi.biostd.mapping.TabularMapper
 import ac.uk.ebi.biostd.persistence.repositories.SubmissionRepository
 import ac.uk.ebi.biostd.service.SubmissionService
 import ac.uk.ebi.biostd.submission.SubmissionSubmitter
@@ -20,13 +16,12 @@ class SerializationConfig {
 
     @Bean
     fun submissionService(subRepository: SubmissionRepository,
-                          submissionMapper: SubmissionMapper,
                           jsonSerializer: JsonSerializer,
                           tsvSerializer: TsvSerializer,
                           xmlSerializer: XmlSerializer,
                           submissionSubmitter: SubmissionSubmitter) =
 
-            SubmissionService(submissionSubmitter, subRepository, submissionMapper, jsonSerializer, tsvSerializer, xmlSerializer)
+            SubmissionService(submissionSubmitter, subRepository, jsonSerializer, tsvSerializer, xmlSerializer)
 
     @Configuration
     class SerializerConfig {
@@ -45,23 +40,5 @@ class SerializationConfig {
         fun tsvSerializer(): TsvSerializer {
             return TsvSerializer()
         }
-    }
-
-    @Configuration
-    class MappingConfig {
-
-        @Bean
-        fun attributeMapper() = AttributesMapper()
-
-        @Bean
-        fun tabularMapper(attributesMapper: AttributesMapper) = TabularMapper(attributesMapper)
-
-        @Bean
-        fun sectionMapper(attributesMapper: AttributesMapper, tabularMapper: TabularMapper) =
-                SectionMapper(attributesMapper, tabularMapper)
-
-        @Bean
-        fun submissionMapper(attributesMapper: AttributesMapper, sectionMapper: SectionMapper) =
-                SubmissionMapper(attributesMapper, sectionMapper)
     }
 }

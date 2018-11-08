@@ -5,7 +5,7 @@ import java.util.*
 class Link(var url: String, attributes: List<Attribute> = emptyList()) : Attributable(attributes) {
 
     override fun equals(other: Any?): Boolean {
-        other as? Link ?: return false
+        if (other !is Link) return false
         if (this === other) return true
 
         return Objects.equals(this.url, other.url).and(

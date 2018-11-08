@@ -12,21 +12,16 @@ import kotlin.reflect.full.isSuperclassOf
 
 class JsonPagetabConverter(private val jsonSerializer: JsonSerializer) : HttpMessageConverter<Submission> {
 
-    override fun canRead(clazz: Class<*>, mediaType: MediaType?): Boolean {
-        return Submission::class.isSuperclassOf(clazz.kotlin).and(mediaType == APPLICATION_JSON)
-    }
+    override fun canRead(clazz: Class<*>, mediaType: MediaType?) =
+            Submission::class.isSuperclassOf(clazz.kotlin).and(mediaType == APPLICATION_JSON)
 
-    override fun canWrite(clazz: Class<*>, mediaType: MediaType?): Boolean {
-        return Submission::class.isSuperclassOf(clazz.kotlin).and(mediaType == APPLICATION_JSON)
-    }
+    override fun canWrite(clazz: Class<*>, mediaType: MediaType?) =
+            Submission::class.isSuperclassOf(clazz.kotlin).and(mediaType == APPLICATION_JSON)
 
-    override fun getSupportedMediaTypes() = mutableListOf(APPLICATION_JSON)
+    override fun getSupportedMediaTypes() = listOf(APPLICATION_JSON)
 
-    override fun write(submission: Submission, contentType: MediaType?, outputMessage: HttpOutputMessage) {
-        outputMessage.body.use {
-            it.write(jsonSerializer.serialize(submission).toByteArray())
-        }
-    }
+    override fun write(submission: Submission, contentType: MediaType?, outputMessage: HttpOutputMessage) =
+            outputMessage.body.let { it.write(jsonSerializer.serialize(submission).toByteArray()) }
 
     override fun read(clazz: Class<out Submission>, inputMessage: HttpInputMessage) =
             jsonSerializer.deserialize(inputMessage.body.asString(), Submission::class.java)

@@ -1,5 +1,7 @@
 buildscript {
     ext {
+        junitVersion = "5.2.0"
+        junitPlatformVersion = "1.2.0"
         springBootVersion = '2.0.4.RELEASE'
         kotlinVersion = '1.2.61'
     }
@@ -38,4 +40,31 @@ dependencies {
     compile("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
 
     testCompile('org.assertj:assertj-core:3.11.0')
+
+    // Junit dependencies
+    testRuntime "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
+    testRuntime "org.junit.platform:junit-platform-console:$junitPlatformVersion"
+    testCompile "org.junit.jupiter:junit-jupiter-api:$junitVersion"
+    testCompile "org.junit.jupiter:junit-jupiter-params:$junitVersion"
+    testCompile 'org.springframework.boot:spring-boot-starter-test'
+
+}
+
+sourceSets {
+    itest {
+        kotlin {
+            compileClasspath += sourceSets.main.output + configurations.testRuntimeClasspath
+            runtimeClasspath += output + compileClasspath
+        }
+    }
+}
+
+configurations {
+    itestCompile.extendsFrom testCompile
+    itestRuntime.extendsFrom testRuntime
+}
+
+task itest(type: Test, dependsOn: []) {
+    testClassesDirs = sourceSets.itest.output.classesDirs
+    classpath = sourceSets.itest.runtimeClasspath
 }

@@ -1,7 +1,6 @@
 package ac.uk.ebi.biostd.service
 
 import ac.uk.ebi.biostd.json.JsonSerializer
-import ac.uk.ebi.biostd.mapping.SubmissionMapper
 import ac.uk.ebi.biostd.persistence.repositories.SubmissionRepository
 import ac.uk.ebi.biostd.submission.SubmissionSubmitter
 import ac.uk.ebi.biostd.submission.model.PersistenceContext
@@ -15,31 +14,30 @@ import ebi.ac.uk.model.constans.SubmitOperation
 class SubmissionService(
         private val submissionSubmitter: SubmissionSubmitter,
         private val subRepository: SubmissionRepository,
-        private val submissionMapper: SubmissionMapper,
         private val jsonSerializer: JsonSerializer,
         private val tsvSerializer: TsvSerializer,
         private val xmlSerializer: XmlSerializer) {
 
     fun getSubmissionAsJson(accNo: String): String {
         val submission = subRepository.findByAccNoAndVersionGreaterThan(accNo)
-        return jsonSerializer.serialize(submissionMapper.mapSubmission(submission))
+        return jsonSerializer.serialize(submission)
     }
 
     fun getSubmissionAsXml(accNo: String): String {
         val submission = subRepository.findByAccNoAndVersionGreaterThan(accNo)
-        return xmlSerializer.serialize(submissionMapper.mapSubmission(submission))
+        return xmlSerializer.serialize(submission)
     }
 
     fun getSubmissionAsTsv(accNo: String): String {
         val submission = subRepository.findByAccNoAndVersionGreaterThan(accNo)
-        return tsvSerializer.serialize(submissionMapper.mapSubmission(submission))
+        //return tsvSerializer.serialize(submission)
+        return ""
     }
 
     fun submitSubmission(submission: Submission, user: User): Submission {
         return submissionSubmitter.submit(user, submission, SubmitOperation.CREATE, Companion)
-        //val submissionDb = submissionMapper.mapSubmissionSb(submission)
+        //val submissionDb = submissionMapper.mapSubmission(submission)
         //subRepository.save(submissionDb)
-
     }
 
     companion object : PersistenceContext {

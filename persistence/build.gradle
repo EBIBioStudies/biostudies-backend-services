@@ -26,6 +26,7 @@ repositories {
 
 dependencies {
     compile project(":commons-util")
+    compile project(":commons-bio")
 
     compile("org.springframework.data:spring-data-jpa:2.0.9.RELEASE")
     compile('org.hibernate:hibernate-entitymanager:5.3.5.Final')
