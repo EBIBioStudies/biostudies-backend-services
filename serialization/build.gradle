@@ -21,7 +21,7 @@ dependencies {
 
     compile 'io.arrow-kt:arrow-core:0.7.2'
 
-    testCompile("org.jetbrains.kotlin:kotlin-test-junit:${kotlinVersion}")
+    testCompile "org.jetbrains.kotlin:kotlin-test-junit:${kotlinVersion}"
 
     //Misc
     compile('net.soundvibe:jkob:1.0.0') {
