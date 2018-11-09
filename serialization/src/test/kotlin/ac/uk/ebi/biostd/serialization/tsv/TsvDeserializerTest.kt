@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.test.submissionWithDetailedAttributes
 import ac.uk.ebi.biostd.test.submissionWithFiles
 import ac.uk.ebi.biostd.test.submissionWithFilesTable
 import ac.uk.ebi.biostd.test.submissionWithInnerSubsections
+import ac.uk.ebi.biostd.test.submissionWithInnerSubsectionsTable
 import ac.uk.ebi.biostd.test.submissionWithLinks
 import ac.uk.ebi.biostd.test.submissionWithLinksTable
 import ac.uk.ebi.biostd.test.submissionWithRootSection
@@ -131,6 +132,45 @@ class TsvDeserializerTest {
                     "Funding",
                     Attribute("Agency", "National Support Program of Japan"),
                     Attribute("Grant Id", "No. 2015BAD27A03"))
+        }
+    }
+
+    @Test
+    fun deserializeInnerSubsectionsTable() {
+        val submission: Submission = deserializer.deserialize(submissionWithInnerSubsectionsTable().toString())
+        assertThat(submission.rootSection.sections).hasSize(2)
+
+        submission.rootSection.sections.first().ifLeft { section ->
+            assertThat(section.sections).isEmpty()
+            assertSection(
+                    section,
+                    "F-001",
+                    "Funding",
+                    Attribute("Agency", "National Support Program of China"),
+                    Attribute("Grant Id", "No. 2015BAD27B01"))
+        }
+
+        submission.rootSection.sections.second().ifLeft { section ->
+            assertThat(section.sections).hasSize(1)
+            assertSection(
+                    section,
+                    "S-001",
+                    "Study",
+                    Attribute("Type", "Imaging"))
+
+            section.sections.first().ifRight { sectionsTable ->
+                assertThat(sectionsTable.elements).hasSize(2)
+                assertSection(
+                        sectionsTable.elements.first(),
+                        "SMP-1",
+                        "Sample",
+                        Attribute("Title", "Sample1"), Attribute("Desc", "Measure 1"))
+                assertSection(
+                        sectionsTable.elements.second(),
+                        "SMP-2",
+                        "Sample",
+                        Attribute("Title", "Sample2"), Attribute("Desc", "Measure 2"))
+            }
         }
     }
 

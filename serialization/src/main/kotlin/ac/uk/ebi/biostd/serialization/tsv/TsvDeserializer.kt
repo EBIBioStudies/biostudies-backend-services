@@ -15,7 +15,6 @@ import ebi.ac.uk.model.constans.FileFields
 import ebi.ac.uk.model.constans.LinkFields
 import ebi.ac.uk.model.constans.SectionFields
 import ebi.ac.uk.model.extensions.title
-import ebi.ac.uk.util.collections.addLeft
 import ebi.ac.uk.util.collections.filterLeft
 import ebi.ac.uk.util.collections.ifLeft
 import ebi.ac.uk.util.collections.ifNotEmpty
@@ -31,7 +30,7 @@ class TsvDeserializer {
             rootSection = Section(
                     attributes = createAttributes(rootSectionChunk.lines))
             rootSection.type = rootSectionChunk.getType()
-            processSubsections(rootSection, chunks)
+            processChunks(rootSection, chunks)
         }
 
         val submissionTitle = submissionChunk.lines.removeFirst().value
@@ -45,62 +44,54 @@ class TsvDeserializer {
         return submission
     }
 
-    private fun chunkerize(pageTabSubmission: String): MutableList<TsvChunk> {
-        return pageTabSubmission.split(TSV_LINE_BREAK)
+    private fun chunkerize(pageTabSubmission: String) =
+        pageTabSubmission.split(TSV_LINE_BREAK)
                 .asSequence()
                 .map { chunk -> chunk.split(TSV_CHUNK_BREAK).filterTo(mutableListOf(), String::isNotEmpty) }
                 .mapTo(mutableListOf()) { chunk -> TsvChunk(chunk) }
-    }
 
-    private fun processSubsections(section: Section, subsectionChunks: MutableList<TsvChunk>) {
-        subsectionChunks.forEach {
+    private fun processChunks(rootSection: Section, chunks: MutableList<TsvChunk>) =
+        chunks.forEach {
             when (it.getType().toLowerCase()) {
-                LinkFields.LINK.value -> section.addLink(Link(it.getIdentifier(), createAttributes(it.lines)))
+                LinkFields.LINK.value -> rootSection.addLink(Link(it.getIdentifier(), createAttributes(it.lines)))
+
                 FileFields.FILE.value ->
-                    section.addFile(File(name = it.getIdentifier(), attributes = createAttributes(it.lines)))
-                SectionFields.LINKS.value -> section.addLinksTable(LinksTable(it.mapTable(this::createLink)))
-                SectionFields.FILES.value -> section.addFilesTable(FilesTable(it.mapTable(this::createFile)))
-                else -> processSubsection(section, it)
+                    rootSection.addFile(File(name = it.getIdentifier(), attributes = createAttributes(it.lines)))
+
+                SectionFields.LINKS.value ->
+                    rootSection.addLinksTable(LinksTable(it.mapTable { url, attributes -> Link(url, attributes) }))
+
+                SectionFields.FILES.value ->
+                    rootSection.addFilesTable(FilesTable(
+                            it.mapTable { path, attributes -> File(name = path, attributes = attributes) }))
+
+                else -> processSectionChunk(rootSection, it)
             }
         }
-    }
 
-    private fun processSubsection(parentSection: Section, subsectionChunk: TsvChunk) {
+    private fun processSectionChunk(rootSection: Section, chunk: TsvChunk) =
         when {
-            subsectionChunk.isSectionTable() -> {
-                val subsections = subsectionChunk.mapTable(this::createTableSection)
-
-                subsections.forEach { it.type = subsectionChunk.getType() }
-                parentSection.addSectionTable(SectionsTable(subsections))
-            }
-            subsectionChunk.isSubsection() -> {
-                parentSection.sections
-                    .filterLeft { section -> section.accNo == subsectionChunk.getParent() }
-                    .first()
-                    .ifLeft { section ->
-                        section.sections.addLeft(Section(
-                            type = subsectionChunk.getType(),
-                            accNo = subsectionChunk.getIdentifier(),
-                            attributes = createAttributes(subsectionChunk.lines)))
-                    }
-            }
-            else -> parentSection.addSection(createSingleSection(subsectionChunk))
+            chunk.isSubsection() -> addSubsection(rootSection, chunk)
+            chunk.isSectionTable() -> rootSection.addSectionTable(createSectionsTable(chunk))
+            else -> rootSection.addSection(createSingleSection(chunk))
         }
-    }
 
-    private fun createSingleSection(sectionChunk: TsvChunk) =
-            Section(
-                    type = sectionChunk.getType(),
-                    accNo = sectionChunk.getIdentifier(),
-                    attributes = createAttributes(sectionChunk.lines))
+    private fun createSingleSection(chunk: TsvChunk) =
+            Section(type = chunk.getType(), accNo = chunk.getIdentifier(), attributes = createAttributes(chunk.lines))
 
-    private fun createTableSection(
-            accNo: String, attributes: MutableList<Attribute>) = Section(accNo = accNo, attributes = attributes)
+    private fun createSectionsTable(chunk: TsvChunk) =
+            SectionsTable(chunk
+                    .mapTable { accNo, attributes -> Section(accNo = accNo, attributes = attributes) }
+                    .map { it.apply { type = chunk.getType() } })
 
-    private fun createLink(link: String, attributes: MutableList<Attribute>): Link = Link(link, attributes)
-
-    private fun createFile(
-            file: String, attributes: MutableList<Attribute>): File = File(name = file, attributes = attributes)
+    private fun addSubsection(parentSection: Section, sectionChunk: TsvChunk) =
+        parentSection.sections
+                .filterLeft { section -> section.accNo == sectionChunk.getParent() }
+                .first()
+                .ifLeft { parentSection ->
+                    if (sectionChunk.isSectionTable()) parentSection.addSectionTable(createSectionsTable(sectionChunk))
+                    else parentSection.addSection(createSingleSection(sectionChunk))
+                }
 
     private fun createAttributes(chunkLines: MutableList<TsvChunkLine>): MutableList<Attribute> {
         val attributes: MutableList<Attribute> = mutableListOf()
