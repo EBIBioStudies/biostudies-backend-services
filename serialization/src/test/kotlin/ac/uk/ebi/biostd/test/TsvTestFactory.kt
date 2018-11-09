@@ -57,6 +57,17 @@ fun submissionWithInnerSubsections() = submissionWithSubsection().apply {
     line()
 }
 
+fun submissionWithInnerSubsectionsTable() = submissionWithSubsection().apply {
+    line("Study", "S-001")
+    line("Type", "Imaging")
+    line()
+
+    line("Sample[S-001]", "Title", "Desc")
+    line("SMP-1", "Sample1", "Measure 1")
+    line("SMP-2", "Sample2", "Measure 2")
+    line()
+}
+
 fun submissionWithLinks() = submissionWithRootSection().apply {
     line("Link", "http://arandomsite.org")
     line()
