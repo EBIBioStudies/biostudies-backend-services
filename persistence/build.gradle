@@ -9,14 +9,14 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath("org.jetbrains.kotlin:kotlin-allopen:${kotlinVersion}")
-        classpath("org.jetbrains.kotlin:kotlin-noarg:$kotlinVersion")
+        classpath "org.jetbrains.kotlin:kotlin-allopen:${kotlinVersion}"
+        classpath "org.jetbrains.kotlin:kotlin-noarg:$kotlinVersion"
     }
 }
 
 apply plugin: 'kotlin'
-apply plugin: "kotlin-jpa"
-apply plugin: "kotlin-allopen"
+apply plugin: 'kotlin-jpa'
+apply plugin: 'kotlin-allopen'
 
 repositories {
     maven {
@@ -28,6 +28,6 @@ dependencies {
     compile project(":commons-util")
     compile project(":commons-bio")
 
-    compile("org.springframework.data:spring-data-jpa:2.0.9.RELEASE")
-    compile('org.hibernate:hibernate-entitymanager:5.3.5.Final')
+    compile 'org.hibernate:hibernate-entitymanager:5.3.5.Final'
+    compile 'org.springframework.data:spring-data-jpa:2.0.9.RELEASE'
 }
