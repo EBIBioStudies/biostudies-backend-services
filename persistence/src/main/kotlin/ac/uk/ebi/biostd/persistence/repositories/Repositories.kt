@@ -7,13 +7,13 @@ import org.springframework.data.jpa.repository.EntityGraph
 import org.springframework.data.jpa.repository.EntityGraph.EntityGraphType.LOAD
 import org.springframework.data.jpa.repository.JpaRepository
 
-interface SubmissionRepository : JpaRepository<Submission, Long> {
+interface SubmissionDataRepository : JpaRepository<Submission, Long> {
 
     @EntityGraph(value = FULL_DATA_GRAPH, type = LOAD)
     fun findByAccNoAndVersionGreaterThan(id: String, long: Int = 0): Submission
 }
 
-interface TagsRepository : JpaRepository<AccessTag, Long> {
+interface TagsDataRepository : JpaRepository<AccessTag, Long> {
 
     fun findByName(name: String): AccessTag
 }

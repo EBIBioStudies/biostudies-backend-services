@@ -3,7 +3,6 @@ package ebi.ac.uk.model
 import ebi.ac.uk.base.isNotBlank
 import ebi.ac.uk.model.constans.TableFields
 import ebi.ac.uk.model.extensions.parentAccNo
-import ebi.ac.uk.model.extensions.type
 import java.util.*
 
 sealed class Table<T : Any>(elements: List<T>) {
@@ -109,7 +108,7 @@ class SectionsTable(sections: List<Section> = emptyList()) : Table<Section>(sect
     override val header = "$sectionType${if (parentAccNo.isNotBlank()) "[$parentAccNo]" else ""}"
 
     override fun toTableRow(t: Section) = object : Row<Section>(t) {
-        override val id = t.accNo
+        override val id = t.accNo!!
         override val attributes = t.attributes
     }
 }

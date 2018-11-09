@@ -1,5 +1,7 @@
 package ac.uk.ebi.biostd.persistence.model
 
+import ac.uk.ebi.biostd.persistence.common.NO_TABLE_INDEX
+import java.util.*
 import javax.persistence.Column
 import javax.persistence.Entity
 import javax.persistence.GeneratedValue
@@ -16,17 +18,21 @@ class File(
         @Column
         val name: String,
 
-        @OneToMany
-        @JoinColumn(name = "file_id")
-        @OrderBy("order ASC")
-        val attributes: MutableSet<Attribute>,
-
         @Column(name = "ord")
         override var order: Int) : Tabular, Comparable<File> {
 
     @Id
     @GeneratedValue
     var id: Long = 0L
+
+    @OneToMany
+    @JoinColumn(name = "file_id")
+    @OrderBy("order ASC")
+    var attributes: SortedSet<FileAttribute> = sortedSetOf()
+
+    constructor(name: String, order: Int, attributes: SortedSet<FileAttribute>) : this(name, order) {
+        this.attributes = attributes
+    }
 
     @Column
     override var tableIndex = NO_TABLE_INDEX

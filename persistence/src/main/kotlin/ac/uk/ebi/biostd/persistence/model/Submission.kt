@@ -1,5 +1,7 @@
 package ac.uk.ebi.biostd.persistence.model
 
+import ac.uk.ebi.biostd.persistence.common.SectionDb
+import java.util.*
 import javax.persistence.Column
 import javax.persistence.Entity
 import javax.persistence.GeneratedValue
@@ -37,7 +39,15 @@ typealias Graph = NamedSubgraph
             Graph(name = "attrs", attributeNodes = [Node(ATTRS)])
         ])
 @Table(name = "Submission")
-class Submission {
+class Submission(
+
+        @Column
+        var accNo: String = "",
+
+        @Column
+        var version: Int = 1
+
+) {
 
     @Id
     @GeneratedValue
@@ -53,9 +63,6 @@ class Submission {
     var modificationTime: Long = 0
 
     @Column
-    var accNo: String = ""
-
-    @Column
     var relPath: String = ""
 
     @Column
@@ -66,9 +73,6 @@ class Submission {
 
     @Column
     var title: String = ""
-
-    @Column
-    var version: Int = 1
 
     @Column
     var secretKey: String = ""
@@ -85,17 +89,10 @@ class Submission {
     @JoinTable(name = "Submission_AccessTag",
             joinColumns = [JoinColumn(name = "Submission_Id", referencedColumnName = "id")],
             inverseJoinColumns = [JoinColumn(name = "accessTags_id", referencedColumnName = "id")])
-    lateinit var accessTags: MutableSet<AccessTag>
+    var accessTags: MutableSet<AccessTag> = sortedSetOf()
 
     @OneToMany
     @JoinColumn(name = "submission_id")
     @OrderBy("order ASC")
-    lateinit var attributes: MutableSet<Attribute>
-}
-
-interface Tabular {
-
-    var tableIndex: Int
-
-    var order: Int
+    var attributes: SortedSet<SubmissionAttribute> = sortedSetOf()
 }

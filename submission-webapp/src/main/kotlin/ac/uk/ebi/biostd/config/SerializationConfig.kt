@@ -1,9 +1,8 @@
 package ac.uk.ebi.biostd.config
 
 import ac.uk.ebi.biostd.json.JsonSerializer
-import ac.uk.ebi.biostd.persistence.repositories.SubmissionRepository
+import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
 import ac.uk.ebi.biostd.service.SubmissionService
-import ac.uk.ebi.biostd.submission.SubmissionSubmitter
 import ac.uk.ebi.biostd.tsv.TsvSerializer
 import ac.uk.ebi.biostd.xml.XmlSerializer
 import org.springframework.context.annotation.Bean
@@ -18,10 +17,9 @@ class SerializationConfig {
     fun submissionService(subRepository: SubmissionRepository,
                           jsonSerializer: JsonSerializer,
                           tsvSerializer: TsvSerializer,
-                          xmlSerializer: XmlSerializer,
-                          submissionSubmitter: SubmissionSubmitter) =
+                          xmlSerializer: XmlSerializer) =
 
-            SubmissionService(submissionSubmitter, subRepository, jsonSerializer, tsvSerializer, xmlSerializer)
+            SubmissionService(subRepository, jsonSerializer, tsvSerializer, xmlSerializer)
 
     @Configuration
     class SerializerConfig {

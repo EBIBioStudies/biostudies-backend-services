@@ -12,7 +12,6 @@ import ac.uk.ebi.biostd.test.submissionWithLinksTable
 import ac.uk.ebi.biostd.test.submissionWithRootSection
 import ac.uk.ebi.biostd.test.submissionWithSectionsTable
 import ac.uk.ebi.biostd.test.submissionWithSubsection
-import ebi.ac.uk.base.EMPTY
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.AttributeDetail
 import ebi.ac.uk.model.File
@@ -65,7 +64,7 @@ class TsvDeserializerTest {
         assertSubmission(submission, "S-EPMC125", "Test Submission")
         assertSection(
                 submission.rootSection,
-                EMPTY,
+                null,
                 "Study",
                 Attribute("Title", "Test Root Section"),
                 Attribute("Abstract", "Test abstract"))
@@ -232,7 +231,7 @@ class TsvDeserializerTest {
     }
 
     private fun assertSection(
-            section: Section, expectedAccNo: String, expectedType: String, vararg expectedAttributes: Attribute) {
+            section: Section, expectedAccNo: String?, expectedType: String, vararg expectedAttributes: Attribute) {
         assertThat(section.accNo).isEqualTo(expectedAccNo)
         assertThat(section.type).isEqualTo(expectedType)
         assertAttributes(section.attributes, expectedAttributes)

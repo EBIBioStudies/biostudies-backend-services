@@ -1,6 +1,10 @@
 package ebi.ac.uk.util.collections
 
 fun <T> List<T>.groupByCondition(compare: (T, T) -> Boolean): MutableList<MutableList<T>> {
+    if (this.isEmpty()) {
+        return mutableListOf()
+    }
+
     var current = first()
     var currentList = mutableListOf(current)
     val result = mutableListOf(currentList)

@@ -1,16 +1,19 @@
 package ac.uk.ebi.biostd.persistence.mapping
 
+import ac.uk.ebi.biostd.persistence.common.AttributeDb
+import ac.uk.ebi.biostd.persistence.common.FileDb
+import ac.uk.ebi.biostd.persistence.common.LinkDb
+import ac.uk.ebi.biostd.persistence.common.NO_TABLE_INDEX
+import ac.uk.ebi.biostd.persistence.common.SectionDb
+import ac.uk.ebi.biostd.persistence.common.SubmissionDb
 import ac.uk.ebi.biostd.persistence.model.AccessTag
-import ac.uk.ebi.biostd.persistence.model.AttributeDb
-import ac.uk.ebi.biostd.persistence.model.FileDb
-import ac.uk.ebi.biostd.persistence.model.LinkDb
-import ac.uk.ebi.biostd.persistence.model.SectionDb
-import ac.uk.ebi.biostd.persistence.model.SubmissionDb
 import ac.uk.ebi.biostd.persistence.model.Tabular
+import arrow.core.Either
 import arrow.core.Either.Companion.left
 import arrow.core.Either.Companion.right
 import ebi.ac.uk.base.orFalse
 import ebi.ac.uk.model.Attribute
+import ebi.ac.uk.model.AttributeDetail
 import ebi.ac.uk.model.File
 import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.model.Link
@@ -18,11 +21,11 @@ import ebi.ac.uk.model.LinksTable
 import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.SectionsTable
 import ebi.ac.uk.model.Submission
-import ebi.ac.uk.util.collections.groupByCondition
+import ebi.ac.uk.util.collections.ifNotEmpty
 
-internal class SubmissionDbMapper {
+class SubmissionDbMapper {
 
-    fun mapSubmission(submissionDb: SubmissionDb): Submission {
+    fun toSubmission(submissionDb: SubmissionDb): Submission {
         return Submission(attributes = toAttributes(submissionDb.attributes)).apply {
             accNo = submissionDb.accNo
             accessTags = submissionDb.accessTags.mapTo(mutableListOf(), AccessTag::name)
@@ -31,31 +34,51 @@ internal class SubmissionDbMapper {
     }
 
     private fun toSection(sectionDb: SectionDb) =
-            Section(links = toLinks(sectionDb.links.toList()),
+            Section(accNo = sectionDb.accNo,
+                    type = sectionDb.type,
+                    links = toLinks(sectionDb.links.toList()),
                     files = toFiles(sectionDb.files.toList()),
                     sections = toSections(sectionDb.sections.toList()),
                     attributes = toAttributes(sectionDb.attributes))
 
-    private fun toAttribute(attrDb: AttributeDb) = Attribute(attrDb.name, attrDb.value, attrDb.reference.orFalse())
+    private fun toAttribute(attrDb: AttributeDb) =
+            Attribute(
+                    name = attrDb.name,
+                    value = attrDb.value,
+                    reference = attrDb.reference.orFalse(),
+                    nameAttrs = toDetails(attrDb.nameQualifier),
+                    valueAttrs = toDetails(attrDb.valueQualifier))
+
+    private fun toDetails(value: String?): MutableList<AttributeDetail> {
+        return value.orEmpty().split(";")
+                .dropWhile { it.isEmpty() }
+                .map { it.split("=") }
+                .mapTo(mutableListOf()) { AttributeDetail(it[0], it[1]) }
+    }
+
     private fun toAttributes(attrs: Set<AttributeDb>) = attrs.mapTo(mutableListOf()) { toAttribute(it) }
 
     private fun toLinks(links: List<LinkDb>) = toEitherList(links, ::toLink, ::LinksTable)
     private fun toFiles(files: List<FileDb>) = toEitherList(files, ::toFile, ::FilesTable)
-    private fun toSections(sections: List<SectionDb>) = toEitherList(sections, ::toSimpleSection, ::SectionsTable)
+    private fun toSections(sections: List<SectionDb>): MutableList<Either<Section, SectionsTable>> {
+        return toEitherList(sections, ::toSection, ::SectionsTable)
+    }
 
     private fun toLink(link: LinkDb) = Link(link.url, toAttributes(link.attributes))
     private fun toFile(file: FileDb) = File(file.name, toAttributes(file.attributes))
-    private fun toSimpleSection(sectionDb: SectionDb) = Section(attributes = toAttributes(sectionDb.attributes))
 
     companion object EitherMapper {
 
-        private fun areConsecutive(one: Tabular, another: Tabular) =
-                one.order == (another.order) + 1 && one.tableIndex == another.tableIndex
+        private fun <T : Tabular, S, U> toEitherList(
+                elements: List<T>, transform: (T) -> S,
+                tableBuilder: (List<S>) -> U):
+                MutableList<Either<S, U>> {
 
-        private fun <T : Tabular, S, U> toEitherList(elements: List<T>, transform: (T) -> S, tableBuilder: (List<S>) -> U) =
-                elements.groupByCondition(EitherMapper::areConsecutive).mapTo(mutableListOf()) { mapGroup(it, transform, tableBuilder) }
-
-        private fun <T, S, U> mapGroup(groups: List<T>, transform: (T) -> S, tableBuilder: (List<S>) -> U) =
-                if (groups.size == 1) left(transform(groups.first())) else right(tableBuilder(groups.map { transform(it) }))
+            val map = elements.groupBy { it.tableIndex != NO_TABLE_INDEX }
+            val eitherList = mutableListOf<Either<S, U>>()
+            map[false].orEmpty().map { transform(it) }.forEach { eitherList.add(left(it)) }
+            map[true].orEmpty().ifNotEmpty { listElements -> eitherList.add(right(tableBuilder(listElements.map { transform(it) }))) }
+            return eitherList
+        }
     }
 }
