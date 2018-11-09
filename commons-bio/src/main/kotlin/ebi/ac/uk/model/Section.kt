@@ -12,7 +12,6 @@ class Section(
         var links: MutableList<Either<Link, LinksTable>> = mutableListOf(),
         attributes: List<Attribute> = emptyList()) : Attributable(attributes) {
 
-
     fun addFile(file: File) = files.addLeft(file)
     fun addLink(link: Link) = links.addLeft(link)
     fun addSection(section: Section) = sections.addLeft(section)

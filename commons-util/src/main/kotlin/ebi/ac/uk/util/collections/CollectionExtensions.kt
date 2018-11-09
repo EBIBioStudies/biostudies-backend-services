@@ -24,16 +24,26 @@ fun <T> listFrom(anotherList: List<T>, vararg elements: T): List<T> {
 }
 
 /**
- * Obtain the second element of the list.
+ * Obtains the second element of the list.
  *
  * @throws NoSuchElementException if list size is less than 2.
  */
 fun <T> List<T>.second() =
         if (this.size > 1 ) this[1] else throw NoSuchElementException("List does not contain a second element.")
 
-fun <T> List<T>.secondOrElse(defaultValue: T) = if (this.size > 1 ) this[1] else defaultValue
+/**
+ * Obtains the second element of the list or returns the given default value if the element doesn't exist.
+ *
+ * @param defaultValue Default value to return if the second element doesn't exist.
+ */
+fun <T> List<T>.secondOrElse(defaultValue: T) = if (this.size > 1) this[1] else defaultValue
 
-fun <T> List<T>.thirdOrElse(defaultValue: T) = if (this.size > 2 ) this[2] else defaultValue
+/**
+ * Obtains the third element of the list or returns the given default value if the element doesn't exist.
+ *
+ * @param defaultValue Default value to return if the third element doesn't exist.
+ */
+fun <T> List<T>.thirdOrElse(defaultValue: T) = if (this.size > 2) this[2] else defaultValue
 
 /**
  * Removes the first element of a MutableList and returns it
