@@ -1,6 +1,8 @@
 package ebi.ac.uk.model
 
 import arrow.core.Either
+import ebi.ac.uk.util.collections.addLeft
+import ebi.ac.uk.util.collections.addRight
 
 class Section(
         var type: String = "",
@@ -10,12 +12,11 @@ class Section(
         var links: MutableList<Either<Link, LinksTable>> = mutableListOf(),
         attributes: List<Attribute> = emptyList()) : Attributable(attributes) {
 
+    fun addFile(file: File) = files.addLeft(file)
+    fun addLink(link: Link) = links.addLeft(link)
+    fun addSection(section: Section) = sections.addLeft(section)
 
-    fun addFile(file: File) = files.add(Either.Left(file))
-    fun addLink(link: Link) = links.add(Either.Left(link))
-    fun addSection(section: Section) = sections.add(Either.Left(section))
-
-    fun addFilesTable(table: FilesTable) = files.add(Either.Right(table))
-    fun addLinksTable(table: LinksTable) = links.add(Either.Right(table))
-    fun addSectionTable(table: SectionsTable) = sections.add(Either.Right(table))
+    fun addFilesTable(table: FilesTable) = files.addRight(table)
+    fun addLinksTable(table: LinksTable) = links.addRight(table)
+    fun addSectionTable(table: SectionsTable) = sections.addRight(table)
 }

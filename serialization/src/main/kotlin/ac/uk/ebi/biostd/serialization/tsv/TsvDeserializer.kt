@@ -15,7 +15,9 @@ import ebi.ac.uk.model.constans.FileFields
 import ebi.ac.uk.model.constans.LinkFields
 import ebi.ac.uk.model.constans.SectionFields
 import ebi.ac.uk.model.extensions.title
-import ebi.ac.uk.model.extensions.type
+import ebi.ac.uk.util.collections.addLeft
+import ebi.ac.uk.util.collections.filterLeft
+import ebi.ac.uk.util.collections.ifLeft
 import ebi.ac.uk.util.collections.ifNotEmpty
 import ebi.ac.uk.util.collections.removeFirst
 
@@ -64,19 +66,33 @@ class TsvDeserializer {
     }
 
     private fun processSubsection(parentSection: Section, subsectionChunk: TsvChunk) {
-        if (subsectionChunk.isTableChunk()) {
-            val subsections = subsectionChunk.mapTable(this::createTableSection)
+        when {
+            subsectionChunk.isSectionTable() -> {
+                val subsections = subsectionChunk.mapTable(this::createTableSection)
 
-            subsections.forEach { it.type = subsectionChunk.getType() }
-            parentSection.addSectionTable(SectionsTable(subsections))
-        }
-        else {
-            parentSection.addSection(createSingleSection(subsectionChunk))
+                subsections.forEach { it.type = subsectionChunk.getType() }
+                parentSection.addSectionTable(SectionsTable(subsections))
+            }
+            subsectionChunk.isSubsection() -> {
+                parentSection.sections
+                    .filterLeft { section -> section.accNo == subsectionChunk.getParent() }
+                    .first()
+                    .ifLeft { section ->
+                        section.sections.addLeft(Section(
+                            type = subsectionChunk.getType(),
+                            accNo = subsectionChunk.getIdentifier(),
+                            attributes = createAttributes(subsectionChunk.lines)))
+                    }
+            }
+            else -> parentSection.addSection(createSingleSection(subsectionChunk))
         }
     }
 
     private fun createSingleSection(sectionChunk: TsvChunk) =
-            Section(type = sectionChunk.getType(), attributes = createAttributes(sectionChunk.lines))
+            Section(
+                    type = sectionChunk.getType(),
+                    accNo = sectionChunk.getIdentifier(),
+                    attributes = createAttributes(sectionChunk.lines))
 
     private fun createTableSection(
             accNo: String, attributes: MutableList<Attribute>) = Section(accNo = accNo, attributes = attributes)

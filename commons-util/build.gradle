@@ -11,6 +11,7 @@ apply plugin: 'kotlin'
 dependencies {
     compile("org.jetbrains.kotlin:kotlin-stdlib-jdk8:${kotlinVersion}")
     compile group: 'commons-io', name: 'commons-io', version: '2.6'
+    compile 'io.arrow-kt:arrow-core:0.7.2'
 
     // Junit dependencies
     runtime "org.junit.jupiter:junit-jupiter-engine:$junitVersion"

@@ -1,8 +1,11 @@
 package ac.uk.ebi.biostd.serialization.tsv
 
+import ac.uk.ebi.biostd.serialization.common.SECTION_TABLE_OP
 import ac.uk.ebi.biostd.serialization.common.TSV_SEPARATOR
+import ebi.ac.uk.base.EMPTY
 import ebi.ac.uk.model.Attribute
-import ebi.ac.uk.util.collections.second
+import ebi.ac.uk.util.collections.secondOrElse
+import ebi.ac.uk.util.collections.thirdOrElse
 
 data class TsvChunk(
         val header: List<String>,
@@ -14,11 +17,15 @@ data class TsvChunk(
         }
     }
 
-    fun getType(): String = header.first()
+    fun getType() = if (isSectionTable()) header.first().substringBefore(SECTION_TABLE_OP) else header.first()
 
-    fun getIdentifier(): String = header.second()
+    fun getIdentifier() = header.secondOrElse(EMPTY)
 
-    fun isTableChunk(): Boolean = header.size > 1
+    fun getParent() = header.thirdOrElse(EMPTY)
+
+    fun isSubsection() = getParent().isNotEmpty()
+
+    fun isSectionTable() = header.first().matches(".+\\[.+|\\]".toRegex())
 
     fun <T> mapTable(initializer: (String, MutableList<Attribute>) -> T): List<T> {
         val rows: MutableList<T> = mutableListOf()

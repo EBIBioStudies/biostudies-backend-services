@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.serialization.common
 
-const val TSV_SEPARATOR: String = "\t"
-const val TSV_LINE_BREAK: String = "\n\n"
-const val TSV_CHUNK_BREAK: String = "\n"
+const val TSV_SEPARATOR = "\t"
+const val TSV_LINE_BREAK = "\n\n"
+const val TSV_CHUNK_BREAK = "\n"
+const val SECTION_TABLE_OP = "["
