@@ -2,7 +2,7 @@ package ac.uk.ebi.biostd.persistence.converters
 
 import javax.persistence.AttributeConverter
 
-class NullableIntConverter : AttributeConverter<Int, Int?> {
+internal class NullableIntConverter : AttributeConverter<Int, Int?> {
 
     override fun convertToDatabaseColumn(attribute: Int?) = attribute
 

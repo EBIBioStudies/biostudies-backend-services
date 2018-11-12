@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.persistence.common.LinkDb
 import ac.uk.ebi.biostd.persistence.common.NO_TABLE_INDEX
 import ac.uk.ebi.biostd.persistence.common.SectionDb
 import ac.uk.ebi.biostd.persistence.common.SubmissionDb
+import ac.uk.ebi.biostd.persistence.common.UserDb
 import ac.uk.ebi.biostd.persistence.model.AccessTag
 import ac.uk.ebi.biostd.persistence.model.Tabular
 import arrow.core.Either
@@ -14,6 +15,7 @@ import arrow.core.Either.Companion.right
 import ebi.ac.uk.base.orFalse
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.AttributeDetail
+import ebi.ac.uk.model.ExtendedSubmission
 import ebi.ac.uk.model.File
 import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.model.Link
@@ -21,13 +23,23 @@ import ebi.ac.uk.model.LinksTable
 import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.SectionsTable
 import ebi.ac.uk.model.Submission
+import ebi.ac.uk.model.User
 import ebi.ac.uk.util.collections.ifNotEmpty
 
 class SubmissionDbMapper {
 
+    fun toExtSubmission(submissionDb: SubmissionDb): ExtendedSubmission {
+        return ExtendedSubmission(submissionDb.accNo, toUser(submissionDb.owner)).apply {
+            attributes = toAttributes(submissionDb.attributes)
+            accessTags = submissionDb.accessTags.mapTo(mutableListOf(), AccessTag::name)
+            rootSection = toSection(submissionDb.rootSection)
+        }
+    }
+
+    private fun toUser(owner: UserDb) = User(owner.id, owner.email, owner.secretKey)
+
     fun toSubmission(submissionDb: SubmissionDb): Submission {
-        return Submission(attributes = toAttributes(submissionDb.attributes)).apply {
-            accNo = submissionDb.accNo
+        return Submission(submissionDb.accNo, attributes = toAttributes(submissionDb.attributes)).apply {
             accessTags = submissionDb.accessTags.mapTo(mutableListOf(), AccessTag::name)
             rootSection = toSection(submissionDb.rootSection)
         }

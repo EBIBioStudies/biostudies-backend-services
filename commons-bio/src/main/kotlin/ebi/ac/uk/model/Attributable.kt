@@ -4,11 +4,15 @@ open class Attributable() {
 
     protected val attributesMap = mutableMapOf<String, Attribute>()
 
-    open val attributes: List<Attribute>
+    var attributes: List<Attribute>
         get() = this.attributesMap.values.toMutableList()
+        set(value) {
+            attributesMap.clear()
+            value.forEach { attributesMap[it.name] = it }
+        }
 
     constructor(attributes: List<Attribute>) : this() {
-        attributes.forEach { this.attributesMap[it.name] = it }
+        attributes.forEach { attributesMap[it.name] = it }
     }
 
     operator fun <T> get(attr: Any) = attributesMap[attr.toString()]?.value as T

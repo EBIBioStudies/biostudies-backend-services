@@ -5,7 +5,6 @@ import ebi.ac.uk.dsl.attribute
 import ebi.ac.uk.dsl.section
 import ebi.ac.uk.dsl.submission
 import ebi.ac.uk.model.Submission
-import ebi.ac.uk.model.extensions.type
 import org.junit.Test
 import org.redundent.kotlin.xml.xml
 import org.xmlunit.assertj.XmlAssert.assertThat
@@ -23,8 +22,7 @@ class SubmissionSerializerTest {
 
     private val testInstance = XmlSerializer()
 
-    private val testSubmission: Submission = submission {
-        accNo = ACC_NO
+    private val testSubmission: Submission = submission(ACC_NO) {
         accessTags = mutableListOf(TAG)
 
         attribute(ATTR_NAME, ATTR_VALUE)

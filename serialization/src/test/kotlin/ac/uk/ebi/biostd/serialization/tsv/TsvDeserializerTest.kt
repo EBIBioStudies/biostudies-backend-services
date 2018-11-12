@@ -26,6 +26,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 
 class TsvDeserializerTest {
+
     private val deserializer = TsvDeserializer()
 
     @Test
