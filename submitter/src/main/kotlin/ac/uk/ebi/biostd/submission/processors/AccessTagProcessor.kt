@@ -1,16 +1,15 @@
-package ac.uk.ebi.biostd.submission.helpers
+package ac.uk.ebi.biostd.submission.processors
 
 import ac.uk.ebi.biostd.submission.model.PersistenceContext
-import ac.uk.ebi.biostd.submission.process.SubmissionProcessor
 import ebi.ac.uk.model.Submission
+import ebi.ac.uk.model.User
 
 /**
  * Add all parent submission tags to submitted submission.
  */
 class AccessTagProcessor : SubmissionProcessor {
 
-    
-    fun processSubmission(submission: Submission, context: PersistenceContext) {
-        submission.accessTags.addAll(context.getParentAccessTags(submission))
+    override fun process(user: User, submission: Submission, persistenceContext: PersistenceContext) {
+        submission.accessTags.addAll(persistenceContext.getParentAccessTags(submission))
     }
 }
