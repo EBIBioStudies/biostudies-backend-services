@@ -1,5 +1,6 @@
-package ac.uk.ebi.biostd.submission.helpers
+package ac.uk.ebi.biostd.submission.util
 
+import ac.uk.ebi.biostd.submission.processors.ACC_PATTERN
 import arrow.core.Option
 import arrow.core.getOrElse
 import arrow.core.orElse

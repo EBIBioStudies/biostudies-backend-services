@@ -1,26 +1,12 @@
 package ac.uk.ebi.biostd.submission
 
 import ac.uk.ebi.biostd.submission.model.PersistenceContext
-import ac.uk.ebi.biostd.submission.procesing.SubFileManager
-import ac.uk.ebi.biostd.submission.procesing.SubmissionProcessor
-import ebi.ac.uk.model.Submission
+import ac.uk.ebi.biostd.submission.processors.SubmissionProcessor
+import ebi.ac.uk.model.ExtendedSubmission
 import ebi.ac.uk.model.User
-import ebi.ac.uk.model.constans.SubmitOperation
 
-/**
- * Submission submitter, validates and generateSubFiles submission.
- */
-class SubmissionSubmitter(
-        private val subProcessor: SubmissionProcessor,
-        private val subFileManager: SubFileManager) {
+class SubmissionSubmitter(private val processors: List<SubmissionProcessor>) {
 
-    fun submit(user: User,
-               submission: Submission,
-               submitOperation: SubmitOperation,
-               context: PersistenceContext): Submission {
-
-        subProcessor.process(submission, submitOperation, context)
-        subFileManager.generateSubFiles(submission, user)
-        return submission
-    }
+    fun submit(user: User, submission: ExtendedSubmission, persistenceContext: PersistenceContext) =
+            processors.forEach { processor -> processor.process(user, submission, persistenceContext) }
 }

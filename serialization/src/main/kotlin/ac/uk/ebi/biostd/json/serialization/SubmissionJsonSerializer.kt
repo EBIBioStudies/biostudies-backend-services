@@ -24,7 +24,7 @@ class SubmissionJsonSerializer : StdSerializer<Submission>(Submission::class.jav
             if (subm is ExtendedSubmission) {
                 writeJsonArray(SubFields.ACCESS_TAGS, getAccessTags(subm), gen::writeString)
                 writeJsonNumber(SubFields.RELEASE_TIME, subm.releaseTime.toEpochSecond())
-                writeJsonNumber(SubFields.CREATION_TIME, subm.createTime.toEpochSecond())
+                writeJsonNumber(SubFields.CREATION_TIME, subm.creationTime.toEpochSecond())
                 writeJsonNumber(SubFields.MODIFICATION_TIME, subm.modificationTime.toEpochSecond())
                 writeJsonString(SubFields.SECRET, subm.secretKey)
             }

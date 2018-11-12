@@ -1,15 +1,14 @@
-package ac.uk.ebi.biostd.submission.calculations.path
+package ac.uk.ebi.biostd.submission.processors
 
-import ac.uk.ebi.biostd.submission.helpers.AccNumber
-import ac.uk.ebi.biostd.submission.helpers.PrefixPostfix
-import ac.uk.ebi.biostd.submission.helpers.RelPathProcessor
+import ac.uk.ebi.biostd.submission.util.AccNumber
+import ac.uk.ebi.biostd.submission.util.PrefixPostfix
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
 
-class RelPathProcessorTest {
+class AccNoProcessorTest {
 
-    private val testInstance = RelPathProcessor()
+    private val testInstance = AccNoProcessor()
 
     @ParameterizedTest(name = "when prefix is {0}, postfix is {1} and numeric value is {2}")
     @CsvSource(
