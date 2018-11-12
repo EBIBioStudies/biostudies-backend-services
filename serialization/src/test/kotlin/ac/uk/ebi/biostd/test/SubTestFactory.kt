@@ -20,8 +20,7 @@ import java.time.ZoneOffset
 val releaseDate: Instant = LocalDateTime.parse("2015-02-20T06:30:00").toInstant(ZoneOffset.UTC)
 
 fun createVenousBloodMonocyte(): Submission {
-    return submission {
-        accNo = "S-IHECRE00000919.1"
+    return submission("S-IHECRE00000919.1") {
         title = "Submission title"
         releaseTime = releaseDate
         accessTags = mutableListOf("Public")
@@ -65,8 +64,7 @@ fun createVenousBloodMonocyte(): Submission {
 }
 
 fun createRNA_Profiling(): Submission {
-    return submission {
-        accNo = "E-MTAB-6957"
+    return submission("E-MTAB-6957") {
         accessTags = mutableListOf("Public")
         title = "RNA profiling of non-small cell lung cancer"
         rootPath = "E-MTAB/E-MTAB-6957"

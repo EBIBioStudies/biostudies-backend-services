@@ -23,7 +23,7 @@ import ebi.ac.uk.model.SectionsTable
 import ebi.ac.uk.model.Submission
 import java.util.*
 
-class SubmissionMapper(private val tagsRepository: TagsDataRepository) {
+internal class SubmissionMapper(private val tagsRepository: TagsDataRepository) {
 
     fun toSubmissionDb(submissionDb: Submission): SubmissionDb {
         return SubmissionDb().apply {

@@ -18,7 +18,7 @@ fun Attributable.attribute(name: String, value: String, ref: Boolean = false,
         addAttribute(Attribute(name = name, value = value, valueAttrs = valueAttrs, reference = ref, nameAttrs = nameAttrs))
 
 fun Submission.section(block: Section.() -> Unit) = apply { rootSection = Section().apply(block) }
-fun submission(block: Submission.() -> Unit): Submission = Submission().apply(block)
+fun submission(accNo: String, block: Submission.() -> Unit): Submission = Submission(accNo).apply(block)
 fun section(block: Section.() -> Unit): Section = Section().apply(block)
 
 fun FilesTable.file(name: String, block: File.() -> Unit = {}) = addRow(File(name).apply(block))
