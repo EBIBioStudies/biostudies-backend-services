@@ -1,8 +1,7 @@
-package ac.uk.ebi.biostd.submission.processors
+package ac.uk.ebi.biostd.submission.handlers
 
 import ac.uk.ebi.biostd.SerializationService
 import ac.uk.ebi.biostd.SubFormat
-import ac.uk.ebi.biostd.submission.model.PersistenceContext
 import ebi.ac.uk.model.ExtendedSubmission
 import ebi.ac.uk.model.User
 import ebi.ac.uk.model.extensions.allFiles
@@ -11,12 +10,9 @@ import ebi.ac.uk.paths.FolderResolver
 import org.apache.commons.io.FileUtils
 import java.nio.file.Path
 
-class FilesProcessor(
-    private val folderResolver: FolderResolver,
-    private val serializationService: SerializationService
-) : SubmissionProcessor {
+class FilesHandler(private val folderResolver: FolderResolver, private val serializationService: SerializationService) {
 
-    override fun process(user: User, submission: ExtendedSubmission, persistenceContext: PersistenceContext) {
+    fun processFiles(user: User, submission: ExtendedSubmission) {
         generateOutputFiles(submission)
         copyFiles(submission, user)
     }
@@ -28,6 +24,7 @@ class FilesProcessor(
 
         val accNo: String = submission.accNo
         val submissionPath = folderResolver.getSubmissionFolder(submission)
+
         FileUtils.writeStringToFile(submissionPath.resolve("$accNo.json").toFile(), json, Charsets.UTF_8)
         FileUtils.writeStringToFile(submissionPath.resolve("$accNo.xml").toFile(), xml, Charsets.UTF_8)
         FileUtils.writeStringToFile(submissionPath.resolve("$accNo.tsv").toFile(), tsv, Charsets.UTF_8)

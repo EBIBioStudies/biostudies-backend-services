@@ -8,7 +8,7 @@ import ac.uk.ebi.biostd.submission.SubmissionSubmitter
 import ac.uk.ebi.biostd.submission.processors.AccNoProcessor
 import ac.uk.ebi.biostd.submission.processors.AccessTagProcessor
 import ac.uk.ebi.biostd.submission.processors.TimesProcessor
-import ac.uk.ebi.biostd.submission.processors.FilesProcessor
+import ac.uk.ebi.biostd.submission.handlers.FilesHandler
 import ac.uk.ebi.biostd.submission.processors.SubmissionProcessor
 import ebi.ac.uk.paths.FolderResolver
 import org.springframework.context.annotation.Bean
@@ -20,7 +20,8 @@ import org.springframework.context.annotation.Import
 class SubmitterConfig {
 
     @Bean
-    fun submissionSubmitter(processors: List<SubmissionProcessor>) = SubmissionSubmitter(processors)
+    fun submissionSubmitter(processors: List<SubmissionProcessor>, filesHandler: FilesHandler) =
+            SubmissionSubmitter(processors, filesHandler)
 
     @Configuration
     class FilesProcessorConfig(private val appProperties: ApplicationProperties) {
@@ -32,7 +33,7 @@ class SubmitterConfig {
         fun serializationService() = SerializationService()
 
         @Bean
-        fun filesProcessor() = FilesProcessor(folderResolver(), serializationService())
+        fun filesManager() = FilesHandler(folderResolver(), serializationService())
     }
 
     @Configuration
