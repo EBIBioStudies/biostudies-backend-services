@@ -45,5 +45,4 @@ class AccNoProcessor(private val patternExtractor: PatternProcessor = PatternPro
     private fun getPattern(pattern: Option<String>, sequenceFunction: (String) -> Long) =
             pattern.map { patternExtractor.generateAccNumber(it, sequenceFunction) }
                     .getOrElse { patternExtractor.generateAccNumber(DEFAULT_PATTERN, sequenceFunction) }
-
 }

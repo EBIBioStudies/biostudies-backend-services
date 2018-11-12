@@ -82,8 +82,10 @@ class SubmissionDbMapper {
     companion object EitherMapper {
 
         private fun <T : Tabular, S, U> toEitherList(
-                elements: List<T>, transform: (T) -> S,
-                tableBuilder: (List<S>) -> U):
+            elements: List<T>,
+            transform: (T) -> S,
+            tableBuilder: (List<S>) -> U
+        ):
                 MutableList<Either<S, U>> {
 
             val map = elements.groupBy { it.tableIndex != NO_TABLE_INDEX }

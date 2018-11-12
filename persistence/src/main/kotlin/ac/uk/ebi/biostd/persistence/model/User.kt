@@ -7,11 +7,12 @@ import javax.persistence.Id
 
 @Entity
 class User(
-        @Column
-        var email: String,
+    @Column
+    var email: String,
 
-        @Column
-        val secretKey: String) {
+    @Column
+    val secretKey: String
+) {
 
     @Id
     @GeneratedValue

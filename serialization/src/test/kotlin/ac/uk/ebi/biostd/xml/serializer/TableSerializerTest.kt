@@ -27,7 +27,7 @@ class TableSerializerTest {
     fun `Serialize when table is a links table`() {
         val result = xmlMapper.writeValueAsString(LinksTable(listOf(simpleLink())))
         val expected = xml("table") {
-            "link"  {
+            "link" {
                 "url" { -LINK_URL }
                 "attributes" {}
             }
@@ -40,7 +40,7 @@ class TableSerializerTest {
     fun `Serialize when table is a file table`() {
         val result = xmlMapper.writeValueAsString(FilesTable(listOf(simpleFile())))
         val expected = xml("table") {
-            "file"  {
+            "file" {
                 "name" { -FILE_NAME }
                 "size" { -FILE_SIZE.toString() }
                 "type" { -FILE_TYPE }
@@ -55,7 +55,7 @@ class TableSerializerTest {
     fun `Serialize when table is a section table`() {
         val result = xmlMapper.writeValueAsString(SectionsTable(listOf(simpleSection())))
         val expected = xml("table") {
-            "section"  {
+            "section" {
                 "type" { -SEC_TYPE }
                 "accNo" { -SEC_ACC_NO }
                 "attributes" {}

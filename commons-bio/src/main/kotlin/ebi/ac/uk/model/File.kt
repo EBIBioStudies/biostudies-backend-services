@@ -1,6 +1,6 @@
 package ebi.ac.uk.model
 
-import java.util.*
+import java.util.Objects
 
 class File(var name: String, attributes: List<Attribute> = emptyList()) : Attributable(attributes) {
 

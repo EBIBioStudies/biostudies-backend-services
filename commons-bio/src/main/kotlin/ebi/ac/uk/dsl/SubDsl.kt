@@ -13,8 +13,13 @@ import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.SectionsTable
 import ebi.ac.uk.model.Submission
 
-fun Attributable.attribute(name: String, value: String, ref: Boolean = false,
-                           valueAttrs: Attributes = mutableListOf(), nameAttrs: Attributes = mutableListOf()) =
+fun Attributable.attribute(
+    name: String,
+    value: String,
+    ref: Boolean = false,
+    valueAttrs: Attributes = mutableListOf(),
+    nameAttrs: Attributes = mutableListOf()
+) =
         addAttribute(Attribute(name = name, value = value, valueAttrs = valueAttrs, reference = ref, nameAttrs = nameAttrs))
 
 fun Submission.section(block: Section.() -> Unit) = apply { rootSection = Section().apply(block) }
@@ -32,5 +37,3 @@ fun Section.linksTable(block: LinksTable.() -> Unit) = addLinksTable(LinksTable(
 fun Section.file(name: String, block: File.() -> Unit = {}) = addFile((File(name).apply(block)))
 fun Section.section(block: Section.() -> Unit) = addSection((Section().apply(block)))
 fun Section.link(url: String, block: Link.() -> Unit = {}) = addLink((Link(url).apply(block)))
-
-

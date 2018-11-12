@@ -9,8 +9,9 @@ import ebi.ac.uk.util.collections.secondOrElse
 import ebi.ac.uk.util.collections.thirdOrElse
 
 data class TsvChunk(
-        val header: List<String>,
-        val lines: MutableList<TsvChunkLine>) {
+    val header: List<String>,
+    val lines: MutableList<TsvChunkLine>
+) {
 
     constructor(body: MutableList<String>) : this(body.removeAt(0).split(TSV_SEPARATOR), mutableListOf()) {
         body.forEach {

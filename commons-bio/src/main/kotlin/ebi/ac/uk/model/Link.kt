@@ -1,6 +1,6 @@
 package ebi.ac.uk.model
 
-import java.util.*
+import java.util.Objects
 
 class Link(var url: String, attributes: List<Attribute> = emptyList()) : Attributable(attributes) {
 

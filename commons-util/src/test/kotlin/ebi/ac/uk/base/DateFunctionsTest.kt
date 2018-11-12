@@ -14,4 +14,3 @@ class DateFunctionsTest {
         assertThat(date).isEqualTo(LocalDate.of(1987, 7, 4).atStartOfDay().toInstant(ZoneOffset.UTC))
     }
 }
-

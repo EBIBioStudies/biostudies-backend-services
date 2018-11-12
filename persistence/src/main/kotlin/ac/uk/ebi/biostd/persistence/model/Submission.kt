@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.persistence.model
 
 import ac.uk.ebi.biostd.persistence.common.SectionDb
-import java.util.*
+import java.util.SortedSet
 import javax.persistence.Column
 import javax.persistence.Entity
 import javax.persistence.GeneratedValue
@@ -27,25 +27,24 @@ internal const val SECTS = "sections"
 typealias Node = NamedAttributeNode
 typealias Graph = NamedSubgraph
 
-
 @Entity
 @NamedEntityGraph(name = FULL_DATA_GRAPH,
-        attributeNodes = [Node(value = "rootSection", subgraph = "root"), Node("accessTags"), Node(ATTRS), Node("owner")],
-        subgraphs = [
-            Graph(name = "root", attributeNodes = [Node(LINKS, subgraph = "attrs"), Node(ATTRS), Node(FILES, subgraph = "attrs"), Node(SECTS, subgraph = "l1")]),
-            Graph(name = "l1", attributeNodes = [Node(LINKS, subgraph = "attrs"), Node(ATTRS), Node(FILES, subgraph = "attrs"), Node(SECTS, subgraph = "l2")]),
-            Graph(name = "l2", attributeNodes = [Node(LINKS, subgraph = "attrs"), Node(ATTRS), Node(FILES, subgraph = "attrs"), Node(SECTS, subgraph = "l3")]),
-            Graph(name = "l3", attributeNodes = [Node(LINKS, subgraph = "attrs"), Node(ATTRS), Node(FILES, subgraph = "attrs")]),
-            Graph(name = "attrs", attributeNodes = [Node(ATTRS)])
-        ])
+    attributeNodes = [Node(value = "rootSection", subgraph = "root"), Node("accessTags"), Node(ATTRS), Node("owner")],
+    subgraphs = [
+        Graph(name = "root", attributeNodes = [Node(LINKS, subgraph = "attrs"), Node(ATTRS), Node(FILES, subgraph = "attrs"), Node(SECTS, subgraph = "l1")]),
+        Graph(name = "l1", attributeNodes = [Node(LINKS, subgraph = "attrs"), Node(ATTRS), Node(FILES, subgraph = "attrs"), Node(SECTS, subgraph = "l2")]),
+        Graph(name = "l2", attributeNodes = [Node(LINKS, subgraph = "attrs"), Node(ATTRS), Node(FILES, subgraph = "attrs"), Node(SECTS, subgraph = "l3")]),
+        Graph(name = "l3", attributeNodes = [Node(LINKS, subgraph = "attrs"), Node(ATTRS), Node(FILES, subgraph = "attrs")]),
+        Graph(name = "attrs", attributeNodes = [Node(ATTRS)])
+    ])
 @Table(name = "Submission")
 class Submission(
 
-        @Column
-        var accNo: String = "",
+    @Column
+    var accNo: String = "",
 
-        @Column
-        var version: Int = 1
+    @Column
+    var version: Int = 1
 
 ) {
 
@@ -87,8 +86,8 @@ class Submission(
 
     @ManyToMany
     @JoinTable(name = "Submission_AccessTag",
-            joinColumns = [JoinColumn(name = "Submission_Id", referencedColumnName = "id")],
-            inverseJoinColumns = [JoinColumn(name = "accessTags_id", referencedColumnName = "id")])
+        joinColumns = [JoinColumn(name = "Submission_Id", referencedColumnName = "id")],
+        inverseJoinColumns = [JoinColumn(name = "accessTags_id", referencedColumnName = "id")])
     var accessTags: MutableSet<AccessTag> = sortedSetOf()
 
     @OneToMany

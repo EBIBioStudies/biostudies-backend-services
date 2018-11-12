@@ -3,7 +3,7 @@ package ebi.ac.uk.model
 import ebi.ac.uk.base.isNotBlank
 import ebi.ac.uk.model.constans.TableFields
 import ebi.ac.uk.model.extensions.parentAccNo
-import java.util.*
+import java.util.Objects
 
 sealed class Table<T : Any>(elements: List<T>) {
 
@@ -33,7 +33,7 @@ sealed class Table<T : Any>(elements: List<T>) {
     }
 
     override fun equals(other: Any?): Boolean {
-        other as? Table<*> ?: return false
+        if (other !is Table<*>) return false
         if (this === other) return true
         if (header != other.header) return false
         if (_headers != other._headers) return false
@@ -44,11 +44,10 @@ sealed class Table<T : Any>(elements: List<T>) {
     override fun hashCode() = Objects.hash(header, _headers, _rows)
 }
 
-
 class Header(val name: String, val termNames: List<String> = listOf()) {
 
     override fun equals(other: Any?): Boolean {
-        other as? Header ?: return false
+        if (other !is Header) return false
         if (this === other) return true
         return name == other.name
     }
@@ -61,7 +60,7 @@ abstract class Row<T>(val original: T) {
     abstract val attributes: List<Attribute>
 
     override fun equals(other: Any?): Boolean {
-        other as? Row<*> ?: return false
+        if (other !is Row<*>) return false
         if (this === other) return true
         return original == other.original
     }

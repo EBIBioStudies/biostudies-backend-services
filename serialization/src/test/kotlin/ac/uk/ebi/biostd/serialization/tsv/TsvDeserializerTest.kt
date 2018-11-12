@@ -225,14 +225,22 @@ class TsvDeserializerTest {
     }
 
     private fun assertSubmission(
-            submission: Submission, accNo: String, title: String, vararg attributes: Attribute) {
+        submission: Submission,
+        accNo: String,
+        title: String,
+        vararg attributes: Attribute
+    ) {
         assertThat(submission.accNo).isEqualTo(accNo)
         assertThat(submission.title).isEqualTo(title)
         assertAttributes(submission.attributes, attributes)
     }
 
     private fun assertSection(
-            section: Section, expectedAccNo: String?, expectedType: String, vararg expectedAttributes: Attribute) {
+        section: Section,
+        expectedAccNo: String?,
+        expectedType: String,
+        vararg expectedAttributes: Attribute
+    ) {
         assertThat(section.accNo).isEqualTo(expectedAccNo)
         assertThat(section.type).isEqualTo(expectedType)
         assertAttributes(section.attributes, expectedAttributes)

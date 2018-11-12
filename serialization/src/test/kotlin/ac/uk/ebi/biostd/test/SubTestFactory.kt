@@ -82,7 +82,6 @@ fun createRNA_Profiling(): Submission {
             attribute("Experimental Designs", "case control design", valueAttrs = mutableListOf(AttributeDetail("Ontology", "EFO"), AttributeDetail("TermId", "EFO:0001427")))
             attribute("Experimental Factors", "sampling site", valueAttrs = mutableListOf(AttributeDetail("Ontology", "EFO"), AttributeDetail("TermId", "EFO_0000408"), AttributeDetail("TermName", "sampling site")))
 
-
             section {
                 type = "MinSeq Score"
                 attribute("Exp. Design", "*")

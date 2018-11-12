@@ -4,7 +4,6 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.util.concurrent.atomic.AtomicInteger
 
-
 class CollectionsExtensionsTest {
 
     @Test
@@ -32,7 +31,7 @@ class CollectionsExtensionsTest {
 
     @Test
     fun removeFirst() {
-        val list: MutableList<String> = mutableListOf( "a", "b", "c")
+        val list: MutableList<String> = mutableListOf("a", "b", "c")
         val first: String = list.removeFirst()
 
         assertThat(first).isEqualTo("a")

@@ -2,7 +2,8 @@ package ac.uk.ebi.biostd.persistence.model
 
 import ac.uk.ebi.biostd.persistence.common.NO_TABLE_INDEX
 import ac.uk.ebi.biostd.persistence.converters.NullableIntConverter
-import java.util.*
+import java.util.Objects
+import java.util.SortedSet
 import javax.persistence.Column
 import javax.persistence.Convert
 import javax.persistence.Entity
@@ -17,12 +18,11 @@ import javax.persistence.Table
 @Table(name = "Section")
 class Section(
 
-        @Column
-        var accNo: String?,
+    @Column
+    var accNo: String?,
 
-        @Column
-        var type: String
-
+    @Column
+    var type: String
 
 ) : Tabular, Comparable<Section> {
 

@@ -17,5 +17,3 @@ var Section.parentAccNo: String?
     set(value) {
         value?.let { this[SectionFields.PARENT_ACC_NO] = value }
     }
-
-

@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.persistence.model
 
 import ac.uk.ebi.biostd.persistence.common.NO_TABLE_INDEX
-import java.util.*
+import java.util.SortedSet
 import javax.persistence.Column
 import javax.persistence.Entity
 import javax.persistence.GeneratedValue
@@ -15,11 +15,12 @@ import javax.persistence.Table
 @Table(name = "FileRef")
 class File(
 
-        @Column
-        val name: String,
+    @Column
+    val name: String,
 
-        @Column(name = "ord")
-        override var order: Int) : Tabular, Comparable<File> {
+    @Column(name = "ord")
+    override var order: Int
+) : Tabular, Comparable<File> {
 
     @Id
     @GeneratedValue

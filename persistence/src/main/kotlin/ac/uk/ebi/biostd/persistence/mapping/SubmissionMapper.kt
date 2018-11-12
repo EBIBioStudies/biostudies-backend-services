@@ -21,7 +21,7 @@ import ebi.ac.uk.model.LinksTable
 import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.SectionsTable
 import ebi.ac.uk.model.Submission
-import java.util.*
+import java.util.SortedSet
 
 internal class SubmissionMapper(private val tagsRepository: TagsDataRepository) {
 

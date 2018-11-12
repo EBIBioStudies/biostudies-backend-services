@@ -10,10 +10,11 @@ import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.User
 
 class SubmissionService(
-        private val submissionRepository: SubmissionRepository,
-        private val jsonSerializer: JsonSerializer,
-        private val tsvSerializer: TsvSerializer,
-        private val xmlSerializer: XmlSerializer) {
+    private val submissionRepository: SubmissionRepository,
+    private val jsonSerializer: JsonSerializer,
+    private val tsvSerializer: TsvSerializer,
+    private val xmlSerializer: XmlSerializer
+) {
 
     fun getSubmissionAsJson(accNo: String): String {
         val submission = submissionRepository.findByAccNo(accNo)

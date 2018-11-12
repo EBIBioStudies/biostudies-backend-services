@@ -4,19 +4,17 @@ import ac.uk.ebi.biostd.SerializationService
 import ac.uk.ebi.biostd.SubFormat
 import ac.uk.ebi.biostd.submission.model.PersistenceContext
 import ebi.ac.uk.model.ExtendedSubmission
-import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.User
-import ebi.ac.uk.model.constans.SubFields
 import ebi.ac.uk.model.extensions.allFiles
 import ebi.ac.uk.model.extensions.rootPath
 import ebi.ac.uk.paths.FolderResolver
 import org.apache.commons.io.FileUtils
 import java.nio.file.Path
 
-
 class FilesProcessor(
-        private val folderResolver: FolderResolver,
-        private val serializationService: SerializationService) : SubmissionProcessor {
+    private val folderResolver: FolderResolver,
+    private val serializationService: SerializationService
+) : SubmissionProcessor {
 
     override fun process(user: User, submission: ExtendedSubmission, persistenceContext: PersistenceContext) {
         generateOutputFiles(submission)

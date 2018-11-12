@@ -48,8 +48,6 @@ class SubmissionSerializerTest {
                 attribute("accNo", SEC_ACC_NO)
                 attribute("type", SEC_TYPE)
             }
-
-
         }.toString()
 
         assertThat(result).and(expected).ignoreElementContentWhitespace().ignoreChildNodesOrder().ignoreWhitespace().areIdentical()

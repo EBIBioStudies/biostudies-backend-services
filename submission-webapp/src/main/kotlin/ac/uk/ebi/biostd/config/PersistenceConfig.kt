@@ -10,7 +10,8 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories
 @Configuration
 @EnableJpaRepositories(basePackageClasses = [SubmissionDataRepository::class])
 class PersistenceConfig(
-        private val submissionDataRepository: SubmissionDataRepository) {
+    private val submissionDataRepository: SubmissionDataRepository
+) {
 
     @Bean
     fun submissionRepository(): SubmissionRepository {
@@ -21,5 +22,4 @@ class PersistenceConfig(
     fun submissionMapper(): SubmissionDbMapper {
         return SubmissionDbMapper()
     }
-
 }

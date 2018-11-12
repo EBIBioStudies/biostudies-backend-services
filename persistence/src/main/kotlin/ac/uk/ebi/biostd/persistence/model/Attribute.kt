@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.persistence.model
 
-import java.util.*
+import java.util.Objects
 import javax.persistence.Column
 import javax.persistence.Entity
 import javax.persistence.GeneratedValue
@@ -46,14 +46,15 @@ class SubmissionAttribute(attribute: Attribute) :
 @MappedSuperclass
 open class Attribute(
 
-        @Column
-        val name: String,
+    @Column
+    val name: String,
 
-        @Column
-        val value: String,
+    @Column
+    val value: String,
 
-        @Column(name = "ord")
-        val order: Int) : Comparable<Attribute> {
+    @Column(name = "ord")
+    val order: Int
+) : Comparable<Attribute> {
 
     override fun compareTo(other: Attribute) = order.compareTo(other.order)
 

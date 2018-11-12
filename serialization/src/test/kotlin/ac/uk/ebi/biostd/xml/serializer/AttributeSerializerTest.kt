@@ -70,5 +70,4 @@ class AttributeSerializerTest {
 
         assertThat(result).and(expected).ignoreWhitespace().areIdentical()
     }
-
 }

@@ -4,6 +4,8 @@ plugins {
 }
 
 allprojects {
+    apply from: "$rootDir/gradle/ktlint.gradle"
+
     detekt {
         version = "1.0.0.RC7-3"
         defaultProfile {
@@ -15,9 +17,11 @@ allprojects {
     }
 
     build.finalizedBy detektCheck
+    build.finalizedBy ktlint
 
     repositories {
         mavenCentral()
+        jcenter()
     }
 
     apply plugin: 'kotlin'

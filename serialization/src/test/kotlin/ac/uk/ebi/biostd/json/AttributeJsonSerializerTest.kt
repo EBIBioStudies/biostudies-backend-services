@@ -35,13 +35,13 @@ class AttributeJsonSerializerTest {
             "name" to attr.name
             "value" to attr.value
             "reference" to attr.reference
-            "valqual"[{
+            "valqual"[ {
                 "name" to term1.name
                 "value" to term1.value
             }, {
                 "name" to term2.name
                 "value" to term2.value
-            }]
+            } ]
         }.toString()
 
         assertThat(deserialize(attributeJson)).isEqualTo(attr)

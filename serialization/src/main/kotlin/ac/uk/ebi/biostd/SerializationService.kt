@@ -6,9 +6,10 @@ import ac.uk.ebi.biostd.xml.XmlSerializer
 import ebi.ac.uk.model.Submission
 
 class SerializationService(
-        private val jsonSerializer: JsonSerializer = JsonSerializer(),
-        private val xmlSerializer: XmlSerializer = XmlSerializer(),
-        private val tsvSerializer: TsvSerializer = TsvSerializer()) {
+    private val jsonSerializer: JsonSerializer = JsonSerializer(),
+    private val xmlSerializer: XmlSerializer = XmlSerializer(),
+    private val tsvSerializer: TsvSerializer = TsvSerializer()
+) {
 
     fun serializeSubmission(submission: Submission, outputFormat: SubFormat): String {
         return when (outputFormat) {

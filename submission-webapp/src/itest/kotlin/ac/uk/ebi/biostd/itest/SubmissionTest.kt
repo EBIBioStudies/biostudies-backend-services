@@ -24,7 +24,7 @@ class SubmissionTest {
     @Test
     fun `context load`() {
         val submission = restTemplate.postForEntity("/submissions", Submission(accNo = "example"), Submission::class.java)
-        assertThat(submission).isNotNull();
+        assertThat(submission).isNotNull()
     }
 }
 

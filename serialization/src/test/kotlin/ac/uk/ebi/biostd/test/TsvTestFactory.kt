@@ -89,7 +89,6 @@ fun submissionWithFiles() = submissionWithRootSection().apply {
     line()
 }
 
-
 fun submissionWithFilesTable() = submissionWithRootSection().apply {
     line("Files", "Description", "Usage")
     line("Abstract.pdf", "An abstract file", "Testing")

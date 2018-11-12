@@ -30,4 +30,3 @@ fun JsonGenerator.writeJsonString(name: Any, value: String?) = value.applyIfNotB
 fun JsonGenerator.writeJsonBoolean(name: Any, value: Boolean?) = value?.ifTrue { writeBooleanField(name.toString(), value) }
 fun JsonGenerator.writeJsonNumber(name: Any, value: Long?) = value?.let { writeNumberField(name.toString(), it) }
 fun JsonGenerator.writeJsonObject(name: Any, value: Any?) = value?.let { writeObjectField(name.toString(), it) }
-

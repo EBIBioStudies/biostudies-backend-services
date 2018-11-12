@@ -9,5 +9,4 @@ import java.time.Instant
  */
 fun asIsoDate(seconds: Long): Instant = Instant.ofEpochSecond(seconds)
 
-
 fun now(): Instant = Instant.now()

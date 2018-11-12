@@ -13,8 +13,9 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(MockKExtension::class)
 class ObjectMapperExtensionsTest(
-        @MockK val jsonNode: JsonNode,
-        @MockK val javaType: JavaType) {
+    @MockK val jsonNode: JsonNode,
+    @MockK val javaType: JavaType
+) {
 
     @SpyK
     var testInstance: ObjectMapper = ObjectMapper()

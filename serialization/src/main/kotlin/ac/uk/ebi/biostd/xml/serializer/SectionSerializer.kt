@@ -8,7 +8,6 @@ import com.fasterxml.jackson.databind.SerializerProvider
 import com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator
 import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.constans.SectionFields
-import ebi.ac.uk.model.constans.SubFields
 
 class SectionSerializer : XmlStdSerializer<Section>(Section::class.java) {
 

@@ -14,10 +14,12 @@ import org.springframework.context.annotation.Import
 class SerializationConfig {
 
     @Bean
-    fun submissionService(subRepository: SubmissionRepository,
-                          jsonSerializer: JsonSerializer,
-                          tsvSerializer: TsvSerializer,
-                          xmlSerializer: XmlSerializer) =
+    fun submissionService(
+        subRepository: SubmissionRepository,
+        jsonSerializer: JsonSerializer,
+        tsvSerializer: TsvSerializer,
+        xmlSerializer: XmlSerializer
+    ) =
 
             SubmissionService(subRepository, jsonSerializer, tsvSerializer, xmlSerializer)
 

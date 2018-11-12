@@ -29,7 +29,7 @@ fun <T> listFrom(anotherList: List<T>, vararg elements: T): List<T> {
  * @throws NoSuchElementException if list size is less than 2.
  */
 fun <T> List<T>.second() =
-        if (this.size > 1 ) this[1] else throw NoSuchElementException("List does not contain a second element.")
+        if (this.size > 1) this[1] else throw NoSuchElementException("List does not contain a second element.")
 
 /**
  * Obtains the second element of the list or returns the given default value if the element doesn't exist.

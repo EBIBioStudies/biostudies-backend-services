@@ -1,7 +1,8 @@
 package ac.uk.ebi.biostd.persistence.model
 
 import ac.uk.ebi.biostd.persistence.common.NO_TABLE_INDEX
-import java.util.*
+import java.util.Objects
+import java.util.SortedSet
 import javax.persistence.Column
 import javax.persistence.Entity
 import javax.persistence.GeneratedValue
@@ -14,11 +15,12 @@ import javax.persistence.Table
 @Entity
 @Table(name = "Link")
 class Link(
-        @Column
-        val url: String,
+    @Column
+    val url: String,
 
-        @Column(name = "ord")
-        override var order: Int) : Tabular, Comparable<Link> {
+    @Column(name = "ord")
+    override var order: Int
+) : Tabular, Comparable<Link> {
 
     @Id
     @GeneratedValue
@@ -44,7 +46,6 @@ class Link(
 
         return Objects.equals(this.url, other.url)
                 .and(Objects.equals(this.order, this.order))
-        //.and(Objects.equals(this.attributes, other.attributes))
     }
 
     override fun hashCode(): Int {

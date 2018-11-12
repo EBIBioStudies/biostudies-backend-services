@@ -1,6 +1,5 @@
 package ebi.ac.uk.model.constans
 
-
 enum class OtherFields(val value: String) {
     TABLE("table");
 

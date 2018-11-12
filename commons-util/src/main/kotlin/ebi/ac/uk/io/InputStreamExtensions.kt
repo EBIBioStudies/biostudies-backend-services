@@ -5,7 +5,6 @@ import java.io.InputStream
 import java.io.StringWriter
 import java.nio.charset.StandardCharsets
 
-
 fun InputStream.asString(): String {
     val writer = StringWriter()
     IOUtils.copy(this, writer, StandardCharsets.UTF_8)

@@ -7,5 +7,3 @@ fun TsvBuilder.addSeparator() {
 fun TsvBuilder.addSubAccAndTags(accNo: String, tags: List<String>) {
     append("$ACC_NO_KEY\t$accNo\t${tags.joinToString(separator = TAGS_SEPARATOR)}\n")
 }
-
-

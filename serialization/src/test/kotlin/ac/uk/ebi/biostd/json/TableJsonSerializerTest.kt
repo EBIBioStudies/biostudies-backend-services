@@ -103,5 +103,4 @@ class TableJsonSerializerTest {
 
         assertThat(table).isEqualTo(table2)
     }
-
 }

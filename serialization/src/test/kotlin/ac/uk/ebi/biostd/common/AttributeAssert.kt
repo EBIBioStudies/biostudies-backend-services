@@ -16,7 +16,9 @@ private fun assertAttribute(attribute: Attribute, expectedAttribute: Attribute) 
 }
 
 private fun assertAttributeDetails(
-        detailedAttributes: MutableList<AttributeDetail>, expectedDetailedAttributes: MutableList<AttributeDetail>) {
+    detailedAttributes: MutableList<AttributeDetail>,
+    expectedDetailedAttributes: MutableList<AttributeDetail>
+) {
     expectedDetailedAttributes.forEachIndexed { index, expectedDetailedAttribute ->
         assertThat(detailedAttributes[index].name).isEqualTo(expectedDetailedAttribute.name)
         assertThat(detailedAttributes[index].value).isEqualTo(expectedDetailedAttribute.value)

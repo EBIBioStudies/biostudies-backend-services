@@ -28,5 +28,4 @@ class XmlSerializerITest {
         builder = factory.newDocumentBuilder()
         return builder.parse(InputSource(StringReader(doc)))
     }
-
 }
