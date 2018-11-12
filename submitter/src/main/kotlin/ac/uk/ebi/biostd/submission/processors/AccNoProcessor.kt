@@ -6,29 +6,28 @@ import ac.uk.ebi.biostd.submission.model.PersistenceContext
 import arrow.core.Option
 import arrow.core.getOrElse
 import ebi.ac.uk.base.lastDigits
-import ebi.ac.uk.model.Submission
+import ebi.ac.uk.model.ExtendedSubmission
 import ebi.ac.uk.model.User
-import ebi.ac.uk.model.constans.SubFields
 
 const val ACC_PATTERN = "\\!\\{%s\\}"
 const val DEFAULT_PATTERN = "!{S-BSST,}"
 
 class AccNoProcessor(private val patternExtractor: PatternProcessor = PatternProcessor()) : SubmissionProcessor {
 
-    override fun process(user: User, submission: Submission, persistenceContext: PersistenceContext) {
+    override fun process(user: User, submission: ExtendedSubmission, persistenceContext: PersistenceContext) {
         val accNo = getAccNo(submission, persistenceContext)
 
         submission.accNo = accNo.toString()
-        submission[SubFields.REL_PATH] = getRelPath(accNo)
+        submission.relPath = getRelPath(accNo)
     }
 
-    private fun getAccNo(submission: Submission, context: PersistenceContext) = when {
+    private fun getAccNo(submission: ExtendedSubmission, context: PersistenceContext) = when {
         submission.accNo.isEmpty() -> getPattern(context.getParentAccPattern(submission), context::getSequenceNextValue)
         isPattern(submission.accNo) -> patternExtractor.generateAccNumber(submission.accNo, context::getSequenceNextValue)
         else -> patternExtractor.extractAccessNumber(submission.accNo)
     }
 
-    private fun getRelPath(accNo: AccNumber): String {
+    internal fun getRelPath(accNo: AccNumber): String {
         val prefix = accNo.pattern.prefix
         val postfix = accNo.pattern.postfix
         val value = accNo.numericValue

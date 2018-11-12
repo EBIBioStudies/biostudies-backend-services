@@ -19,7 +19,7 @@ class ExtendedSubmission(
     var released = false
     var secretKey = EMPTY
 
-    val releaseTime = OffsetDateTime.now()
-    val modificationTime = OffsetDateTime.now()
-    val createTime = OffsetDateTime.now()
+    var releaseTime = OffsetDateTime.now()
+    var modificationTime = OffsetDateTime.now()
+    var creationTime = OffsetDateTime.now()
 }

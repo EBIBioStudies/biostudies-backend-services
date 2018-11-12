@@ -15,12 +15,6 @@ var Submission.releaseTime: Instant?
         value?.let { this[SubFields.RELEASE_TIME] = it }
     }
 
-var Submission.creationTime: Instant
-    get() = this[SubFields.CREATION_TIME]
-    set(value) {
-        this[SubFields.CREATION_TIME] = value
-    }
-
 var Submission.title: String
     get() = this[SubFields.TITLE]
     set(value) {
