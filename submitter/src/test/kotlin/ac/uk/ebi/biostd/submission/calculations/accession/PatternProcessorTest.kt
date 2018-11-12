@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.submission.calculations.accession
 
-import ac.uk.ebi.biostd.submission.helpers.PatternProcessor
-import ac.uk.ebi.biostd.submission.helpers.PrefixPostfix
+import ac.uk.ebi.biostd.submission.util.PatternProcessor
+import ac.uk.ebi.biostd.submission.util.PrefixPostfix
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 

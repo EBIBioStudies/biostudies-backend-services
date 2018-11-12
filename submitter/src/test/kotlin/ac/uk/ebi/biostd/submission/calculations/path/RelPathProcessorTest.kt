@@ -1,8 +1,7 @@
 package ac.uk.ebi.biostd.submission.calculations.path
 
-import ac.uk.ebi.biostd.submission.helpers.AccNumber
-import ac.uk.ebi.biostd.submission.helpers.PrefixPostfix
-import ac.uk.ebi.biostd.submission.helpers.RelPathProcessor
+import ac.uk.ebi.biostd.submission.util.AccNumber
+import ac.uk.ebi.biostd.submission.util.PrefixPostfix
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource

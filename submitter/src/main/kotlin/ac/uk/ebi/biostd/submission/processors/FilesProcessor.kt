@@ -1,7 +1,8 @@
-package ac.uk.ebi.biostd.submission.procesing
+package ac.uk.ebi.biostd.submission.processors
 
 import ac.uk.ebi.biostd.SerializationService
 import ac.uk.ebi.biostd.SubFormat
+import ac.uk.ebi.biostd.submission.model.PersistenceContext
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.User
 import ebi.ac.uk.model.constans.SubFields
@@ -11,11 +12,11 @@ import org.apache.commons.io.FileUtils
 import java.nio.file.Path
 
 
-class SubFileManager(
+class FilesProcessor(
         private val folderResolver: FolderResolver,
-        private val serializationService: SerializationService) {
+        private val serializationService: SerializationService) : SubmissionProcessor {
 
-    fun generateSubFiles(submission: Submission, user: User) {
+    override fun process(user: User, submission: Submission, persistenceContext: PersistenceContext) {
         generateOutputFiles(submission)
         copyFiles(submission, user)
     }
