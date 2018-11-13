@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.submission.handlers
 import ac.uk.ebi.biostd.SerializationService
 import ac.uk.ebi.biostd.SubFormat
 import ebi.ac.uk.model.ExtendedSubmission
+import ebi.ac.uk.model.File as SubmissionFile
 import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.User
 import ebi.ac.uk.model.extensions.rootPath
@@ -12,6 +13,7 @@ import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import io.mockk.junit5.MockKExtension
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -29,14 +31,12 @@ const val JSON_SUBMISSION = "{ \"accNo\": \"$ACC_NO\" }"
 const val XML_SUBMISSION = "<submission accNo=\"$ACC_NO\"></submission>"
 const val TSV_SUBMISSION = "Submission\t$ACC_NO"
 
-@ExtendWith(TemporaryFolderExtension::class)
-class FilesHandlerTest(private val temporaryFolder: TemporaryFolder) {
-
-    @MockK
-    lateinit var mockFolderResolver: FolderResolver
-
-    @MockK
-    lateinit var mockSerializationService: SerializationService
+@ExtendWith(TemporaryFolderExtension::class, MockKExtension::class)
+class FilesHandlerTest(
+        private val temporaryFolder: TemporaryFolder,
+        @MockK private val mockFolderResolver: FolderResolver,
+        @MockK private val mockSerializationService: SerializationService
+) {
 
     private val user = User(USER_ID, USER_EMAIL, USER_SECRET_KEY)
     private val submission = ExtendedSubmission(ACC_NO, user)
@@ -97,7 +97,7 @@ class FilesHandlerTest(private val temporaryFolder: TemporaryFolder) {
 
     private fun initTestSubmissionFiles() {
         val section = Section()
-        section.addFile(ebi.ac.uk.model.File(TEST_FILE))
+        section.addFile(SubmissionFile(TEST_FILE))
 
         submission.rootSection = section
         submission.relPath = submissionFolderPath
