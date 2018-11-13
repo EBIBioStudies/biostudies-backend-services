@@ -5,10 +5,8 @@ import ac.uk.ebi.biostd.SubFormat
 import ebi.ac.uk.model.ExtendedSubmission
 import ebi.ac.uk.model.User
 import ebi.ac.uk.model.extensions.allFiles
-import ebi.ac.uk.model.extensions.rootPath
 import ebi.ac.uk.paths.FolderResolver
 import org.apache.commons.io.FileUtils
-import java.nio.file.Path
 
 class FilesHandler(private val folderResolver: FolderResolver, private val serializationService: SerializationService) {
 
@@ -34,11 +32,9 @@ class FilesHandler(private val folderResolver: FolderResolver, private val seria
         val userPath = folderResolver.getUserMagicFolderPath(user.id, user.secretKey)
 
         submission.allFiles().forEach { file ->
-            val sourceFile = getFilePath(userPath, submission.rootPath, file.name).toFile()
+            val sourceFile = userPath.resolve(file.name).toFile()
             val submissionFile = folderResolver.getSubFilePath(submission.relPath, file.name).toFile()
             FileUtils.copyFile(sourceFile, submissionFile)
         }
     }
-
-    private fun getFilePath(basePath: Path, rootPath: String?, file: String) = basePath.resolve(rootPath).resolve(file)
 }

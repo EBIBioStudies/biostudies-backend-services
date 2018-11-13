@@ -5,9 +5,8 @@ import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.constans.SubFields
 import java.time.Instant
 
-fun Submission.allFiles(): List<File> {
-    return rootSection.allSections().map { it.allFiles() }.flatten()
-}
+fun Submission.allFiles(): List<File> =
+        rootSection.allFiles() + rootSection.allSections().map { it.allFiles() }.flatten()
 
 var Submission.releaseTime: Instant?
     get() = this[SubFields.RELEASE_TIME]
