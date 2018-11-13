@@ -2,7 +2,7 @@ package ac.uk.ebi.biostd.config
 
 import ac.uk.ebi.biostd.SerializationService
 import ac.uk.ebi.biostd.config.SubmitterConfig.ProcessorConfig
-import ac.uk.ebi.biostd.config.SubmitterConfig.FilesProcessorConfig
+import ac.uk.ebi.biostd.config.SubmitterConfig.FilesHandlerConfig
 import ac.uk.ebi.biostd.property.ApplicationProperties
 import ac.uk.ebi.biostd.submission.SubmissionSubmitter
 import ac.uk.ebi.biostd.submission.processors.AccNoProcessor
@@ -16,7 +16,7 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 
 @Configuration
-@Import(ProcessorConfig::class, FilesProcessorConfig::class)
+@Import(ProcessorConfig::class, FilesHandlerConfig::class)
 class SubmitterConfig {
 
     @Bean
@@ -24,7 +24,7 @@ class SubmitterConfig {
             SubmissionSubmitter(processors, filesHandler)
 
     @Configuration
-    class FilesProcessorConfig(private val appProperties: ApplicationProperties) {
+    class FilesHandlerConfig(private val appProperties: ApplicationProperties) {
 
         @Bean
         fun folderResolver() = FolderResolver(appProperties.basePath)
@@ -33,7 +33,7 @@ class SubmitterConfig {
         fun serializationService() = SerializationService()
 
         @Bean
-        fun filesManager() = FilesHandler(folderResolver(), serializationService())
+        fun filesHandler() = FilesHandler(folderResolver(), serializationService())
     }
 
     @Configuration
