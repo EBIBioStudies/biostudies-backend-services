@@ -3,16 +3,21 @@ package ac.uk.ebi.biostd.submission.handlers
 import ac.uk.ebi.biostd.SerializationService
 import ac.uk.ebi.biostd.SubFormat
 import ebi.ac.uk.model.ExtendedSubmission
-import ebi.ac.uk.model.User
+import ebi.ac.uk.model.File
 import ebi.ac.uk.model.extensions.allFiles
 import ebi.ac.uk.paths.FolderResolver
+import ebi.ac.uk.util.collections.ifNotEmpty
 import org.apache.commons.io.FileUtils
+import java.nio.file.Files
+
+const val INVALID_FILES_ERROR_MSG = "Submission contains invalid files"
 
 class FilesHandler(private val folderResolver: FolderResolver, private val serializationService: SerializationService) {
 
-    fun processFiles(user: User, submission: ExtendedSubmission) {
+    fun processFiles(submission: ExtendedSubmission) {
         generateOutputFiles(submission)
-        copyFiles(submission, user)
+        validateFiles(submission)
+        copyFiles(submission)
     }
 
     private fun generateOutputFiles(submission: ExtendedSubmission) {
@@ -28,8 +33,16 @@ class FilesHandler(private val folderResolver: FolderResolver, private val seria
         FileUtils.writeStringToFile(submissionPath.resolve("$accNo.tsv").toFile(), tsv, Charsets.UTF_8)
     }
 
-    private fun copyFiles(submission: ExtendedSubmission, user: User) {
-        val userPath = folderResolver.getUserMagicFolderPath(user.id, user.secretKey)
+    private fun validateFiles(submission: ExtendedSubmission) {
+        val userPath = getUserFolder(submission)
+
+        submission.allFiles()
+                .filter { file -> Files.exists(userPath.resolve(file.name)).not() }
+                .ifNotEmpty { throw InvalidFilesException(it, INVALID_FILES_ERROR_MSG) }
+    }
+
+    private fun copyFiles(submission: ExtendedSubmission) {
+        val userPath = getUserFolder(submission)
 
         submission.allFiles().forEach { file ->
             val sourceFile = userPath.resolve(file.name).toFile()
@@ -37,4 +50,9 @@ class FilesHandler(private val folderResolver: FolderResolver, private val seria
             FileUtils.copyFile(sourceFile, submissionFile)
         }
     }
+
+    private fun getUserFolder(submission: ExtendedSubmission) =
+            folderResolver.getUserMagicFolderPath(submission.user.id, submission.user.secretKey)
 }
+
+class InvalidFilesException(val invalidFiles: List<File>, message: String) : Exception(message)

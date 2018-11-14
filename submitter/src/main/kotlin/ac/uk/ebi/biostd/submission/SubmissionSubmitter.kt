@@ -10,6 +10,6 @@ class SubmissionSubmitter(private val processors: List<SubmissionProcessor>, pri
 
     fun submit(user: User, submission: ExtendedSubmission, persistenceContext: PersistenceContext) {
         processors.forEach { processor -> processor.process(user, submission, persistenceContext) }
-        filesHandler.processFiles(user, submission)
+        filesHandler.processFiles(submission)
     }
 }
