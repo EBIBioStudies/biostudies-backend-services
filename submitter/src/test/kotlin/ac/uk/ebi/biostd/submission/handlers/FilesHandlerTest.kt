@@ -2,10 +2,12 @@ package ac.uk.ebi.biostd.submission.handlers
 
 import ac.uk.ebi.biostd.SerializationService
 import ac.uk.ebi.biostd.SubFormat
-import ebi.ac.uk.model.ExtendedSubmission
+import ac.uk.ebi.biostd.submission.test.ACC_NO
+import ac.uk.ebi.biostd.submission.test.USER_ID
+import ac.uk.ebi.biostd.submission.test.USER_SECRET_KEY
+import ac.uk.ebi.biostd.submission.test.createBasicExtendedSubmission
 import ebi.ac.uk.model.File as SubmissionFile
 import ebi.ac.uk.model.Section
-import ebi.ac.uk.model.User
 import ebi.ac.uk.model.extensions.rootPath
 import ebi.ac.uk.paths.FolderResolver
 import io.github.glytching.junit.extension.folder.TemporaryFolder
@@ -22,12 +24,8 @@ import java.io.File
 import java.nio.file.Files
 import java.nio.file.Paths
 
-const val USER_ID = 123L
-const val ACC_NO = "ABC456"
 const val TEST_FILE = "file.txt"
 const val NON_EXISTING_FILE = "GhostFile.txt"
-const val USER_EMAIL = "user@mail.com"
-const val USER_SECRET_KEY = "SecretKey"
 const val JSON_SUBMISSION = "{ \"accNo\": \"$ACC_NO\" }"
 const val XML_SUBMISSION = "<submission accNo=\"$ACC_NO\"></submission>"
 const val TSV_SUBMISSION = "Submission\t$ACC_NO"
@@ -38,9 +36,8 @@ class FilesHandlerTest(
     @MockK private val mockFolderResolver: FolderResolver,
     @MockK private val mockSerializationService: SerializationService
 ) {
-    private val user = User(USER_ID, USER_EMAIL, USER_SECRET_KEY)
 
-    private val submission = ExtendedSubmission(ACC_NO, user)
+    private val submission = createBasicExtendedSubmission()
 
     private val submissionFolderPath: String = "${temporaryFolder.root.absolutePath}/$ACC_NO"
 

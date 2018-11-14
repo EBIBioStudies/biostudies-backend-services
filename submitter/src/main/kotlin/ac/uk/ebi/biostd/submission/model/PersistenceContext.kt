@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.submission.model
 
 import arrow.core.Option
+import ebi.ac.uk.model.ExtendedSubmission
 import ebi.ac.uk.model.Submission
 
 interface PersistenceContext {
@@ -10,4 +11,6 @@ interface PersistenceContext {
     fun getParentAccessTags(submissionDb: Submission): List<String>
 
     fun getParentAccPattern(submissionDb: Submission): Option<String>
+
+    fun getSubmission(accNo: String): Option<ExtendedSubmission>
 }
