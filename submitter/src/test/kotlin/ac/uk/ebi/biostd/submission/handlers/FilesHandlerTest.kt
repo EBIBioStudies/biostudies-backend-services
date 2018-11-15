@@ -2,10 +2,13 @@ package ac.uk.ebi.biostd.submission.handlers
 
 import ac.uk.ebi.biostd.SerializationService
 import ac.uk.ebi.biostd.SubFormat
+import ac.uk.ebi.biostd.submission.test.ACC_NO
+import ac.uk.ebi.biostd.submission.test.USER_ID
+import ac.uk.ebi.biostd.submission.test.USER_SECRET_KEY
+import ac.uk.ebi.biostd.submission.test.createBasicExtendedSubmission
 import ebi.ac.uk.model.ExtendedSubmission
 import ebi.ac.uk.model.File as SubmissionFile
 import ebi.ac.uk.model.Section
-import ebi.ac.uk.model.User
 import ebi.ac.uk.model.extensions.rootPath
 import ebi.ac.uk.paths.FolderResolver
 import io.github.glytching.junit.extension.folder.TemporaryFolder
@@ -15,48 +18,54 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.catchThrowable
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInstance
+import org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS
 import org.junit.jupiter.api.extension.ExtendWith
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Paths
 
-const val USER_ID = 123L
-const val ACC_NO = "ABC456"
 const val TEST_FILE = "file.txt"
 const val NON_EXISTING_FILE = "GhostFile.txt"
-const val USER_EMAIL = "user@mail.com"
-const val USER_SECRET_KEY = "SecretKey"
 const val JSON_SUBMISSION = "{ \"accNo\": \"$ACC_NO\" }"
 const val XML_SUBMISSION = "<submission accNo=\"$ACC_NO\"></submission>"
 const val TSV_SUBMISSION = "Submission\t$ACC_NO"
 
+@TestInstance(PER_CLASS)
 @ExtendWith(TemporaryFolderExtension::class, MockKExtension::class)
 class FilesHandlerTest(
     private val temporaryFolder: TemporaryFolder,
     @MockK private val mockFolderResolver: FolderResolver,
     @MockK private val mockSerializationService: SerializationService
 ) {
-    private val user = User(USER_ID, USER_EMAIL, USER_SECRET_KEY)
-
-    private val submission = ExtendedSubmission(ACC_NO, user)
+    private lateinit var submission: ExtendedSubmission
+    private lateinit var testInstance: FilesHandler
 
     private val submissionFolderPath: String = "${temporaryFolder.root.absolutePath}/$ACC_NO"
-
     private val testSubFilePath: String = "$submissionFolderPath/$TEST_FILE"
 
-    private var testInstance: FilesHandler = FilesHandler(mockFolderResolver, mockSerializationService)
+    @BeforeAll
+    fun beforeAll() {
+        temporaryFolder.createDirectory(ACC_NO)
+        temporaryFolder.createDirectory(USER_SECRET_KEY)
+        temporaryFolder.createFile("$USER_SECRET_KEY/$TEST_FILE")
+    }
 
     @BeforeEach
-    fun setUp() {
+    fun beforeEach() {
+        submission = createBasicExtendedSubmission()
+        testInstance = FilesHandler(mockFolderResolver, mockSerializationService)
+
         initMockFileResolver()
         initMockSerializationService()
         initTestSubmissionFiles()
     }
 
     @Test
-    fun processFiles() {
+    fun `process submission files`() {
         testInstance.processFiles(submission)
 
         assertSubmissionFile("$ACC_NO.tsv", TSV_SUBMISSION)
@@ -67,7 +76,7 @@ class FilesHandlerTest(
     }
 
     @Test
-    fun processInvalidFiles() {
+    fun `process submission with invalid files`() {
         val nonExistingFile = SubmissionFile(NON_EXISTING_FILE)
         submission.rootSection.addFile(nonExistingFile)
 
@@ -85,15 +94,11 @@ class FilesHandlerTest(
     }
 
     private fun initMockFileResolver() {
-        temporaryFolder.createDirectory(ACC_NO)
-        temporaryFolder.createDirectory(USER_SECRET_KEY)
-        temporaryFolder.createFile("$USER_SECRET_KEY/$TEST_FILE")
-
-        val userFolderPath = "${temporaryFolder.root.absolutePath}/$USER_SECRET_KEY"
-
         every { mockFolderResolver.getSubmissionFolder(submission) } returns Paths.get(submissionFolderPath)
         every { mockFolderResolver.getSubFilePath(submissionFolderPath, TEST_FILE) } returns Paths.get(testSubFilePath)
-        every { mockFolderResolver.getUserMagicFolderPath(USER_ID, USER_SECRET_KEY) } returns Paths.get(userFolderPath)
+        every {
+            mockFolderResolver.getUserMagicFolderPath(USER_ID, USER_SECRET_KEY)
+        } returns Paths.get("${temporaryFolder.root.absolutePath}/$USER_SECRET_KEY")
     }
 
     private fun initMockSerializationService() {

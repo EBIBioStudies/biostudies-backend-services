@@ -7,14 +7,13 @@ import arrow.core.Option
 import arrow.core.getOrElse
 import ebi.ac.uk.base.lastDigits
 import ebi.ac.uk.model.ExtendedSubmission
-import ebi.ac.uk.model.User
 
 const val ACC_PATTERN = "\\!\\{%s\\}"
 const val DEFAULT_PATTERN = "!{S-BSST,}"
 
 class AccNoProcessor(private val patternExtractor: PatternProcessor = PatternProcessor()) : SubmissionProcessor {
 
-    override fun process(user: User, submission: ExtendedSubmission, persistenceContext: PersistenceContext) {
+    override fun process(submission: ExtendedSubmission, persistenceContext: PersistenceContext) {
         val accNo = getAccNo(submission, persistenceContext)
 
         submission.accNo = accNo.toString()

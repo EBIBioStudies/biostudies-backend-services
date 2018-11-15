@@ -87,9 +87,9 @@ class TsvDeserializer {
             parentSection.sections
                     .filterLeft { section -> section.accNo == sectionChunk.getParent() }
                     .first()
-                    .ifLeft { parentSection ->
-                        if (sectionChunk.isSectionTable()) parentSection.addSectionTable(createSectionsTable(sectionChunk))
-                        else parentSection.addSection(createSingleSection(sectionChunk))
+                    .ifLeft { section ->
+                        if (sectionChunk.isSectionTable()) section.addSectionTable(createSectionsTable(sectionChunk))
+                        else section.addSection(createSingleSection(sectionChunk))
                     }
 
     private fun createAttributes(chunkLines: MutableList<TsvChunkLine>): MutableList<Attribute> {
