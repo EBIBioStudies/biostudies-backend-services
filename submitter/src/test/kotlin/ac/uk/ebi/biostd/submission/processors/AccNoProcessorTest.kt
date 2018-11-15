@@ -40,14 +40,14 @@ class AccNoProcessorTest(
     fun `When accession and user is not allow to update submission`() {
         every { context.canSubmit("AAB12", user) } returns false
 
-        assertThrows<InvalidSecurityException> { testInstance.process(user, submission, context) }
+        assertThrows<InvalidSecurityException> { testInstance.process(submission, context) }
     }
 
     @Test
     fun `When accession and user is not allow provide accession number`() {
         every { context.canUserProvideAccNo(user) } returns false
 
-        assertThrows<InvalidSecurityException> { testInstance.process(user, submission, context) }
+        assertThrows<InvalidSecurityException> { testInstance.process(submission, context) }
     }
 
     @Test
@@ -56,7 +56,7 @@ class AccNoProcessorTest(
         every { context.getSequenceNextValue("S-BSST,") } returns 1
         submission.accNo = EMPTY
 
-        testInstance.process(user, submission, context)
+        testInstance.process(submission, context)
         assertThat(submission.accNo).isEqualTo("S-BSST1")
     }
 
@@ -66,7 +66,7 @@ class AccNoProcessorTest(
         every { context.getSequenceNextValue("P-ARENT,") } returns 1
         submission.accNo = EMPTY
 
-        testInstance.process(user, submission, context)
+        testInstance.process(submission, context)
         assertThat(submission.accNo).isEqualTo("P-ARENT1")
     }
 

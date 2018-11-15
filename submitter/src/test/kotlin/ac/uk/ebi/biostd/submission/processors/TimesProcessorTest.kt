@@ -1,10 +1,10 @@
 package ac.uk.ebi.biostd.submission.processors
 
-import ac.uk.ebi.biostd.submission.model.PersistenceContext
 import ac.uk.ebi.biostd.submission.test.ACC_NO
 import ac.uk.ebi.biostd.submission.test.createBasicExtendedSubmission
 import arrow.core.Option
 import ebi.ac.uk.model.ExtendedSubmission
+import ebi.ac.uk.persistence.PersistenceContext
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
