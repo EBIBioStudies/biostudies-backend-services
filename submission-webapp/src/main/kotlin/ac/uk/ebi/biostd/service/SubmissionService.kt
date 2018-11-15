@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.submission.model.PersistenceContext
 import ac.uk.ebi.biostd.tsv.TsvSerializer
 import ac.uk.ebi.biostd.xml.XmlSerializer
 import arrow.core.Option
+import ebi.ac.uk.model.ExtendedSubmission
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.User
 
@@ -47,6 +48,10 @@ class SubmissionService(
 
         override fun getParentAccPattern(submissionDb: Submission): Option<String> {
             return Option.empty()
+        }
+
+        override fun getSubmission(accNo: String): Option<ExtendedSubmission> {
+            throw NotImplementedError()
         }
     }
 }

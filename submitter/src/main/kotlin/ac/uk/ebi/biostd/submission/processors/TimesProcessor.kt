@@ -11,7 +11,7 @@ class TimesProcessor : SubmissionProcessor {
         val previousVersion = persistenceContext.getSubmission(submission.accNo)
 
         submission.modificationTime = now
-        submission.releaseTime = if(submission.releaseTime == null) now else submission.releaseTime
-        previousVersion.fold( { submission.creationTime = now }, { submission.creationTime = it.creationTime } )
+        submission.releaseTime = if (submission.releaseTime == null) now else submission.releaseTime
+        previousVersion.fold({ submission.creationTime = now }, { submission.creationTime = it.creationTime })
     }
 }

@@ -58,10 +58,13 @@ class TimesProcessorTest(@MockK private val mockPersistenceContext: PersistenceC
         assertTimeProcessing(mockNow, releaseTime, mockNow)
     }
 
-    private fun getTestTime() = OffsetDateTime.of(2018, 10, 10 , 10, 10, 10, 10, ZoneOffset.UTC)
+    private fun getTestTime() = OffsetDateTime.of(2018, 10, 10, 10, 10, 10, 10, ZoneOffset.UTC)
 
     private fun assertTimeProcessing(
-            creationTime: OffsetDateTime, releaseTime: OffsetDateTime, modificationTime: OffsetDateTime) {
+        creationTime: OffsetDateTime,
+        releaseTime: OffsetDateTime,
+        modificationTime: OffsetDateTime
+    ) {
         testInstance.process(submission, mockPersistenceContext)
 
         assertThat(submission.creationTime).isEqualTo(creationTime)
