@@ -2,8 +2,8 @@ package ac.uk.ebi.biostd.submission.handlers
 
 import ac.uk.ebi.biostd.SerializationService
 import ac.uk.ebi.biostd.SubFormat
+import ac.uk.ebi.biostd.submission.exceptions.InvalidFilesException
 import ebi.ac.uk.model.ExtendedSubmission
-import ebi.ac.uk.model.File
 import ebi.ac.uk.model.extensions.allFiles
 import ebi.ac.uk.paths.FolderResolver
 import ebi.ac.uk.util.collections.ifNotEmpty
@@ -37,8 +37,8 @@ class FilesHandler(private val folderResolver: FolderResolver, private val seria
         val userPath = getUserFolder(submission)
 
         submission.allFiles()
-                .filter { file -> Files.exists(userPath.resolve(file.name)).not() }
-                .ifNotEmpty { throw InvalidFilesException(it, INVALID_FILES_ERROR_MSG) }
+            .filter { file -> Files.exists(userPath.resolve(file.name)).not() }
+            .ifNotEmpty { throw InvalidFilesException(it, INVALID_FILES_ERROR_MSG) }
     }
 
     private fun copyFiles(submission: ExtendedSubmission) {
@@ -52,7 +52,5 @@ class FilesHandler(private val folderResolver: FolderResolver, private val seria
     }
 
     private fun getUserFolder(submission: ExtendedSubmission) =
-            folderResolver.getUserMagicFolderPath(submission.user.id, submission.user.secretKey)
+        folderResolver.getUserMagicFolderPath(submission.user.id, submission.user.secretKey)
 }
-
-class InvalidFilesException(val invalidFiles: List<File>, message: String) : Exception(message)

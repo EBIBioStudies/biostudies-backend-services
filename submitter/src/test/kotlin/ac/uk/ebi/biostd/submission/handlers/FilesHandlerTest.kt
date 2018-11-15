@@ -2,12 +2,12 @@ package ac.uk.ebi.biostd.submission.handlers
 
 import ac.uk.ebi.biostd.SerializationService
 import ac.uk.ebi.biostd.SubFormat
+import ac.uk.ebi.biostd.submission.exceptions.InvalidFilesException
 import ac.uk.ebi.biostd.submission.test.ACC_NO
 import ac.uk.ebi.biostd.submission.test.USER_ID
 import ac.uk.ebi.biostd.submission.test.USER_SECRET_KEY
 import ac.uk.ebi.biostd.submission.test.createBasicExtendedSubmission
 import ebi.ac.uk.model.ExtendedSubmission
-import ebi.ac.uk.model.File as SubmissionFile
 import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.extensions.rootPath
 import ebi.ac.uk.paths.FolderResolver
@@ -27,6 +27,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Paths
+import ebi.ac.uk.model.File as SubmissionFile
 
 const val TEST_FILE = "file.txt"
 const val NON_EXISTING_FILE = "GhostFile.txt"

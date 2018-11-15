@@ -2,13 +2,13 @@ package ac.uk.ebi.biostd.service
 
 import ac.uk.ebi.biostd.json.JsonSerializer
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
-import ac.uk.ebi.biostd.submission.model.PersistenceContext
 import ac.uk.ebi.biostd.tsv.TsvSerializer
 import ac.uk.ebi.biostd.xml.XmlSerializer
 import arrow.core.Option
 import ebi.ac.uk.model.ExtendedSubmission
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.User
+import ebi.ac.uk.persistence.PersistenceContext
 
 class SubmissionService(
     private val submissionRepository: SubmissionRepository,
@@ -37,6 +37,21 @@ class SubmissionService(
     }
 
     companion object : PersistenceContext {
+        override fun saveSubmission(submission: ExtendedSubmission) {
+            TODO("not implemented") // To change body of created functions use File | Settings | File Templates.
+        }
+
+        override fun canUserProvideAccNo(user: User): Boolean {
+            TODO("not implemented")
+        }
+
+        override fun canSubmit(accNo: String, user: User): Boolean {
+            TODO("not implemented")
+        }
+
+        override fun getSubmission(accNo: String): Option<ExtendedSubmission> {
+            TODO("not implemented")
+        }
 
         override fun getSequenceNextValue(name: String): Long {
             return 5000

@@ -9,5 +9,5 @@ class ExtSubmissionRepository(
 ) {
 
     fun findByAccNo(accNo: String) =
-            submissionDbMapper.toExtSubmission(submissionRepository.findByAccNoAndVersionGreaterThan(accNo))
+        submissionDbMapper.toExtSubmission(submissionRepository.getByAccNoAndVersionGreaterThan(accNo))
 }

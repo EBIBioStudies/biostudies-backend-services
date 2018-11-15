@@ -27,7 +27,9 @@ enum class SubFields(val value: String) {
     RELEASE_TIME("rtime"),
     CREATION_TIME("rtime"),
     MODIFICATION_TIME("rtime"),
-    SECRET("secretKey");
+    SECRET("secretKey"),
+    ATTACH_TO("AttachTo"),
+    ACC_NO_TEMPLATE("AccNoTemplate");
 
     override fun toString(): String {
         return value

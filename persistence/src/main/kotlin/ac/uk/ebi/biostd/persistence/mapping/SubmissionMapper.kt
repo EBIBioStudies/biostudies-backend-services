@@ -23,7 +23,7 @@ import ebi.ac.uk.model.SectionsTable
 import ebi.ac.uk.model.Submission
 import java.util.SortedSet
 
-internal class SubmissionMapper(private val tagsRepository: TagsDataRepository) {
+class SubmissionMapper(private val tagsRepository: TagsDataRepository) {
 
     fun toSubmissionDb(submissionDb: Submission): SubmissionDb {
         return SubmissionDb().apply {
@@ -47,30 +47,30 @@ internal class SubmissionMapper(private val tagsRepository: TagsDataRepository) 
     private fun toSections(sections: MutableList<Either<Section, SectionsTable>>): SortedSet<SectionDb> {
         return sections.mapIndexed { index, either ->
             either.fold(
-                    { listOf(toSection(it, index)) },
-                    { it.elements.mapIndexed { tableIndex, file -> toTableSection(file, index + tableIndex) } })
+                { listOf(toSection(it, index)) },
+                { it.elements.mapIndexed { tableIndex, file -> toTableSection(file, index + tableIndex) } })
         }.flatten().toSortedSet()
     }
 
     private fun toFiles(files: MutableList<Either<File, FilesTable>>) =
-            files.mapIndexed { index, either ->
-                either.fold(
-                        { listOf(toFile(it, index)) },
-                        { it.elements.mapIndexed { tableIndex, file -> toFile(file, index + tableIndex) } })
-            }.flatten().toSortedSet()
+        files.mapIndexed { index, either ->
+            either.fold(
+                { listOf(toFile(it, index)) },
+                { it.elements.mapIndexed { tableIndex, file -> toFile(file, index + tableIndex) } })
+        }.flatten().toSortedSet()
 
     private fun toLinks(links: MutableList<Either<Link, LinksTable>>) =
-            links.mapIndexed { index, either ->
-                either.fold(
-                        { listOf(toLink(it, index)) },
-                        { it.elements.mapIndexed { tableIndex, link -> toLink(link, index + tableIndex) } })
-            }.flatten().toSortedSet()
+        links.mapIndexed { index, either ->
+            either.fold(
+                { listOf(toLink(it, index)) },
+                { it.elements.mapIndexed { tableIndex, link -> toLink(link, index + tableIndex) } })
+        }.flatten().toSortedSet()
 
     private fun toTableSection(section: Section, index: Int) =
-            SectionDb(section.accNo, section.type).apply {
-                attributes = toAttributes(section.attributes, ::SectionAttribute)
-                order = index
-            }
+        SectionDb(section.accNo, section.type).apply {
+            attributes = toAttributes(section.attributes, ::SectionAttribute)
+            order = index
+        }
 
     private fun toAccessTag(accessTags: List<String>) = accessTags.mapTo(mutableSetOf()) { tagsRepository.findByName(it) }
 

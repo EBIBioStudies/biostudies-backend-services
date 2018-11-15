@@ -1,7 +1,8 @@
 package ac.uk.ebi.biostd.submission.processors
 
-import ac.uk.ebi.biostd.submission.model.PersistenceContext
 import ebi.ac.uk.model.ExtendedSubmission
+import ebi.ac.uk.model.User
+import ebi.ac.uk.persistence.PersistenceContext
 import java.time.OffsetDateTime
 
 class TimesProcessor : SubmissionProcessor {

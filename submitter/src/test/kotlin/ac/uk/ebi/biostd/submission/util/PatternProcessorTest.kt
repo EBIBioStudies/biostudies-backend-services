@@ -11,7 +11,7 @@ class PatternProcessorTest {
     fun getAccPatternWhenPrefix() {
         val prefix = "!{ABC,}"
 
-        val pattern = testInstance.generateAccNumber(prefix) { _ -> 10 }
+        val pattern = testInstance.generateAccNumber(prefix) { 10 }
         assertThat(pattern).isInstanceOf(PrefixPostfix::class.java)
         assertThat(pattern.toString()).isEqualTo("ABC10")
     }
@@ -20,7 +20,7 @@ class PatternProcessorTest {
     fun getAccPatternWhenPostfix() {
         val prefix = "!{,ABC}"
 
-        val pattern = testInstance.generateAccNumber(prefix) { _ -> 10 }
+        val pattern = testInstance.generateAccNumber(prefix) { 10 }
         assertThat(pattern).isInstanceOf(PrefixPostfix::class.java)
         assertThat(pattern.toString()).isEqualTo("10ABC")
     }
@@ -29,7 +29,7 @@ class PatternProcessorTest {
     fun getAccPatternWhenPrefixAndPostfix() {
         val prefix = "!{A,Z}"
 
-        val pattern = testInstance.generateAccNumber(prefix) { _ -> 10 }
+        val pattern = testInstance.generateAccNumber(prefix) { 10 }
         assertThat(pattern).isInstanceOf(PrefixPostfix::class.java)
         assertThat(pattern.toString()).isEqualTo("A10Z")
     }

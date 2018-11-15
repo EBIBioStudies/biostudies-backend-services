@@ -8,7 +8,6 @@ open class Submission(
     var rootSection: Section = Section(),
     attributes: List<Attribute> = emptyList()
 ) : Attributable(attributes) {
-
     var accessTags: MutableList<String> = mutableListOf()
 }
 
