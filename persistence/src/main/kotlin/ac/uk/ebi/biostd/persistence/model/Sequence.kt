@@ -4,9 +4,11 @@ import javax.persistence.Column
 import javax.persistence.Entity
 import javax.persistence.GeneratedValue
 import javax.persistence.Id
+import javax.persistence.Table
 
 @Entity
-class IdGen {
+@Table(name = "IdGen")
+class Sequence {
 
     @Id
     @GeneratedValue

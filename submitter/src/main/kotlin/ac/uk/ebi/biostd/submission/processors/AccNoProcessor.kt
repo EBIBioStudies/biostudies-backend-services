@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.submission.util.PatternProcessor
 import arrow.core.Option
 import arrow.core.getOrElse
 import ebi.ac.uk.base.lastDigits
+import ebi.ac.uk.model.AccPattern
 import ebi.ac.uk.model.ExtendedSubmission
 import ebi.ac.uk.persistence.PersistenceContext
 
@@ -29,9 +30,9 @@ class AccNoProcessor(private val patternExtractor: PatternProcessor = PatternPro
         return when {
             submission.accNo.isEmpty() ->
                 getPattern(context.getParentAccPattern(submission), context::getSequenceNextValue)
-            context.canUserProvideAccNo(submission.user) ->
+            context.canUserProvideAccNo(submission.user).not() ->
                 throw InvalidSecurityException()
-            context.canSubmit(submission.accNo, submission.user) ->
+            context.canSubmit(submission.accNo, submission.user).not() ->
                 throw InvalidSecurityException()
             isPattern(submission.accNo) ->
                 patternExtractor.generateAccNumber(submission.accNo, context::getSequenceNextValue)
@@ -55,7 +56,7 @@ class AccNoProcessor(private val patternExtractor: PatternProcessor = PatternPro
 
     private fun isPattern(accNo: String) = ACC_PATTERN.format(".*").toPattern().matcher(accNo).matches()
 
-    private fun getPattern(pattern: Option<String>, sequenceFunction: (String) -> Long) =
+    private fun getPattern(pattern: Option<String>, sequenceFunction: (AccPattern) -> Long) =
         pattern.map { patternExtractor.generateAccNumber(it, sequenceFunction) }
             .getOrElse { patternExtractor.generateAccNumber(DEFAULT_PATTERN, sequenceFunction) }
 }

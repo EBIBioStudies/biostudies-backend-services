@@ -4,7 +4,7 @@ import ebi.ac.uk.base.EMPTY
 import java.time.OffsetDateTime
 
 open class Submission(
-    var accNo: String,
+    var accNo: String = "",
     var rootSection: Section = Section(),
     attributes: List<Attribute> = emptyList()
 ) : Attributable(attributes) {
@@ -15,6 +15,9 @@ class ExtendedSubmission(
     accNo: String,
     val user: User
 ) : Submission(accNo) {
+
+    // /TODO: fix this constructor add proper convertion from and to Submission
+    constructor(submission: Submission, user: User) : this(submission.accNo, user)
 
     var relPath = EMPTY
     var released = false

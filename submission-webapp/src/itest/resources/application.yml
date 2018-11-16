@@ -1,11 +1,9 @@
 spring:
   datasource:
-
   jpa:
-    show-sql: false
+    show-sql: true
     hibernate:
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
-
 app:
-  basepath:
+  basepath: {BASE_PATH}

@@ -1,7 +1,6 @@
 package ebi.ac.uk.paths
 
-import ebi.ac.uk.model.Submission
-import ebi.ac.uk.model.constans.SubFields
+import ebi.ac.uk.model.ExtendedSubmission
 import java.nio.file.Path
 import java.nio.file.Paths
 
@@ -13,8 +12,8 @@ private const val SUBMISSION_PATH = "submission"
 
 class FolderResolver(private val basePath: Path) {
 
-    fun getSubmissionFolder(submission: Submission): Path {
-        return basePath.resolve(SUBMISSION_PATH).resolve(submission.find(SubFields.REL_PATH))
+    fun getSubmissionFolder(submission: ExtendedSubmission): Path {
+        return basePath.resolve(SUBMISSION_PATH).resolve(submission.relPath)
     }
 
     fun getSubFilePath(relPath: String, fileName: String) =

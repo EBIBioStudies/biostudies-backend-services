@@ -2,9 +2,9 @@ package ac.uk.ebi.biostd.submission.processors
 
 import ac.uk.ebi.biostd.submission.exceptions.InvalidSecurityException
 import ac.uk.ebi.biostd.submission.util.AccNumber
-import ac.uk.ebi.biostd.submission.util.PrefixPostfix
 import arrow.core.Option
 import ebi.ac.uk.base.EMPTY
+import ebi.ac.uk.model.AccPattern
 import ebi.ac.uk.model.ExtendedSubmission
 import ebi.ac.uk.model.User
 import ebi.ac.uk.persistence.PersistenceContext
@@ -53,7 +53,7 @@ class AccNoProcessorTest(
     @Test
     fun `When no accession number, no parent accession`() {
         every { context.getParentAccPattern(submission) } returns Option.empty()
-        every { context.getSequenceNextValue("S-BSST,") } returns 1
+        every { context.getSequenceNextValue(AccPattern("S-BSST")) } returns 1
         submission.accNo = EMPTY
 
         testInstance.process(submission, context)
@@ -63,7 +63,7 @@ class AccNoProcessorTest(
     @Test
     fun `When no accession number but parent accession`() {
         every { context.getParentAccPattern(submission) } returns Option.just("!{P-ARENT,}")
-        every { context.getSequenceNextValue("P-ARENT,") } returns 1
+        every { context.getSequenceNextValue(AccPattern("P-ARENT")) } returns 1
         submission.accNo = EMPTY
 
         testInstance.process(submission, context)
@@ -80,6 +80,6 @@ class AccNoProcessorTest(
         "'', 'BB', 200, xxx200BB/200BB"
     )
     fun getRelPath(prefix: String, postfix: String, value: Long, expected: String) {
-        assertThat(testInstance.getRelPath(AccNumber(PrefixPostfix(prefix, postfix), value))).isEqualTo(expected)
+        assertThat(testInstance.getRelPath(AccNumber(AccPattern(prefix, postfix), value))).isEqualTo(expected)
     }
 }

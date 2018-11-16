@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.persistence.model
 
 import ac.uk.ebi.biostd.persistence.common.SectionDb
 import java.util.SortedSet
+import javax.persistence.CascadeType
 import javax.persistence.Column
 import javax.persistence.Entity
 import javax.persistence.GeneratedValue
@@ -47,7 +48,6 @@ class Submission(
     var version: Int = 1
 
 ) {
-
     @Id
     @GeneratedValue
     var id: Long = 0L
@@ -76,15 +76,15 @@ class Submission(
     @Column
     var secretKey: String = ""
 
-    @OneToOne
+    @OneToOne(cascade = [CascadeType.ALL])
     @JoinColumn(name = "rootSection_id")
     lateinit var rootSection: SectionDb
 
-    @ManyToOne
+    @ManyToOne(cascade = [CascadeType.ALL]) // TODO: user can not be cascade
     @JoinColumn(name = "owner_id")
     lateinit var owner: User
 
-    @ManyToMany
+    @ManyToMany(cascade = [CascadeType.ALL])
     @JoinTable(name = "Submission_AccessTag",
         joinColumns = [JoinColumn(name = "Submission_Id", referencedColumnName = "id")],
         inverseJoinColumns = [JoinColumn(name = "accessTags_id", referencedColumnName = "id")])
