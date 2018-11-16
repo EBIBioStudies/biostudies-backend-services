@@ -16,8 +16,11 @@ class ExtendedSubmission(
     val user: User
 ) : Submission(accNo) {
 
-    // /TODO: fix this constructor add proper convertion from and to Submission
-    constructor(submission: Submission, user: User) : this(submission.accNo, user)
+    constructor(submission: Submission, user: User) : this(submission.accNo, user) {
+        rootSection = submission.rootSection
+        attributes = submission.attributes
+        accessTags = submission.accessTags
+    }
 
     var relPath = EMPTY
     var released = false
