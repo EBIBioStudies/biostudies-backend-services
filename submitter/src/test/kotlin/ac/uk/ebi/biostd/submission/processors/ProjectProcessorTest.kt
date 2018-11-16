@@ -37,7 +37,21 @@ class ProjectProcessorTest(@MockK private val mockPersistenceContext: Persistenc
     @Test
     fun `process submission without project`() {
         processSubmission()
-        verify(exactly = 0) { mockPersistenceContext.getSubmission(VALID_PROJECT) }
+        verify(exactly = 0) {
+            mockPersistenceContext.getSubmission(VALID_PROJECT)
+            mockPersistenceContext.getSubmission(INVALID_PROJECT)
+        }
+    }
+
+    @Test
+    fun `process submission with null project`() {
+        submission.attachTo = null
+
+        processSubmission()
+        verify(exactly = 0) {
+            mockPersistenceContext.getSubmission(VALID_PROJECT)
+            mockPersistenceContext.getSubmission(INVALID_PROJECT)
+        }
     }
 
     @Test

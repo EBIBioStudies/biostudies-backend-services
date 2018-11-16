@@ -8,10 +8,10 @@ import java.time.Instant
 fun Submission.allFiles(): List<File> =
         rootSection.allFiles() + rootSection.allSections().map { it.allFiles() }.flatten()
 
-var Submission.attachTo: String
+var Submission.attachTo: String?
     get() = this[SubFields.ATTACH_TO]
     set(value) {
-        this[SubFields.ATTACH_TO] = value
+        value?.let { this[SubFields.ATTACH_TO] = it }
     }
 
 var Submission.releaseTime: Instant?
