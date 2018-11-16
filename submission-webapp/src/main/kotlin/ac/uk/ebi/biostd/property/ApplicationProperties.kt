@@ -6,4 +6,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties
 open class ApplicationProperties {
 
     lateinit var basepath: String
+    lateinit var environment: String
+    lateinit var tokenHash: String
 }

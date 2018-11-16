@@ -2,8 +2,10 @@ package ac.uk.ebi.biostd.persistence.repositories
 
 import ac.uk.ebi.biostd.persistence.model.AccessTag
 import ac.uk.ebi.biostd.persistence.model.FULL_DATA_GRAPH
+import ac.uk.ebi.biostd.persistence.model.SecurityToken
 import ac.uk.ebi.biostd.persistence.model.Sequence
 import ac.uk.ebi.biostd.persistence.model.Submission
+import ac.uk.ebi.biostd.persistence.model.User
 import org.springframework.data.jpa.repository.EntityGraph
 import org.springframework.data.jpa.repository.EntityGraph.EntityGraphType.LOAD
 import org.springframework.data.jpa.repository.JpaRepository
@@ -26,3 +28,6 @@ interface SequenceDataRepository : JpaRepository<Sequence, Long> {
 
     fun getByPrefixAndSuffix(prefix: String, suffix: String): Sequence
 }
+
+interface UserDataRepository : JpaRepository<User, Long>
+interface TokenDataRepository : JpaRepository<SecurityToken, String>
