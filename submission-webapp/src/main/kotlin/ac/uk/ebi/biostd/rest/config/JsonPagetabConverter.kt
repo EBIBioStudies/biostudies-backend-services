@@ -7,22 +7,25 @@ import org.springframework.http.HttpInputMessage
 import org.springframework.http.HttpOutputMessage
 import org.springframework.http.MediaType
 import org.springframework.http.MediaType.APPLICATION_JSON
+import org.springframework.http.MediaType.APPLICATION_JSON_UTF8
 import org.springframework.http.converter.HttpMessageConverter
 import kotlin.reflect.full.isSuperclassOf
+
+private val JSON_TYPE = setOf(APPLICATION_JSON_UTF8, APPLICATION_JSON)
 
 class JsonPagetabConverter(private val jsonSerializer: JsonSerializer) : HttpMessageConverter<Submission> {
 
     override fun canRead(clazz: Class<*>, mediaType: MediaType?) =
-            Submission::class.isSuperclassOf(clazz.kotlin).and(mediaType == APPLICATION_JSON)
+        Submission::class.isSuperclassOf(clazz.kotlin).and(JSON_TYPE.contains(mediaType))
 
     override fun canWrite(clazz: Class<*>, mediaType: MediaType?) =
-            Submission::class.isSuperclassOf(clazz.kotlin).and(mediaType == APPLICATION_JSON)
+        Submission::class.isSuperclassOf(clazz.kotlin).and(JSON_TYPE.contains(mediaType))
 
     override fun getSupportedMediaTypes() = listOf(APPLICATION_JSON)
 
     override fun write(submission: Submission, contentType: MediaType?, outputMessage: HttpOutputMessage) =
-            outputMessage.body.let { it.write(jsonSerializer.serialize(submission).toByteArray()) }
+        outputMessage.body.let { it.write(jsonSerializer.serialize(submission).toByteArray()) }
 
     override fun read(clazz: Class<out Submission>, inputMessage: HttpInputMessage) =
-            jsonSerializer.deserialize(inputMessage.body.asString(), Submission::class.java)
+        jsonSerializer.deserialize(inputMessage.body.asString(), Submission::class.java)
 }

@@ -7,9 +7,9 @@ import ac.uk.ebi.biostd.persistence.model.Section
 import ac.uk.ebi.biostd.persistence.model.Submission
 import ac.uk.ebi.biostd.persistence.model.User
 
-internal typealias SubmissionDb = Submission
-internal typealias SectionDb = Section
-internal typealias AttributeDb = Attribute
-internal typealias LinkDb = Link
-internal typealias FileDb = File
-internal typealias UserDb = User
+typealias SubmissionDb = Submission
+typealias SectionDb = Section
+typealias AttributeDb = Attribute
+typealias LinkDb = Link
+typealias FileDb = File
+typealias UserDb = User

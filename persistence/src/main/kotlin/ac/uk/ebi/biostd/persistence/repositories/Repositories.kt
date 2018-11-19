@@ -29,5 +29,9 @@ interface SequenceDataRepository : JpaRepository<Sequence, Long> {
     fun getByPrefixAndSuffix(prefix: String, suffix: String): Sequence
 }
 
-interface UserDataRepository : JpaRepository<User, Long>
+interface UserDataRepository : JpaRepository<User, Long> {
+
+    fun findByLoginOrEmail(login: String, email: String): Optional<User>
+}
+
 interface TokenDataRepository : JpaRepository<SecurityToken, String>

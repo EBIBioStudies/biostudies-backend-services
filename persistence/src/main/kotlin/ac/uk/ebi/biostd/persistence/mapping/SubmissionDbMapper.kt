@@ -36,7 +36,7 @@ class SubmissionDbMapper {
         }
     }
 
-    private fun toUser(owner: UserDb) = User(owner.id, owner.email, owner.secret)
+    private fun toUser(owner: UserDb) = User(owner.id, owner.email, owner.secret.orEmpty())
 
     fun toSubmission(submissionDb: SubmissionDb): Submission {
         return Submission(submissionDb.accNo, attributes = toAttributes(submissionDb.attributes)).apply {

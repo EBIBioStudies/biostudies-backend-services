@@ -1,6 +1,7 @@
 package ebi.ac.uk.security.web
 
-import ebi.ac.uk.arrow.ifPresent
+import arrow.core.Option
+import ebi.ac.uk.base.toOption
 import ebi.ac.uk.model.User
 import ebi.ac.uk.security.service.SecurityService
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
@@ -21,8 +22,9 @@ class SecurityFilter(
 ) : GenericFilterBean() {
 
     override fun doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain) {
-        val key = getSecurityKey(request as HttpServletRequest)
-        securityService.fromToken(key).ifPresent { setSecurityUser(User(it.id, it.email, it.secret), key) }
+        getSecurityKey(request as HttpServletRequest)
+            .flatMap { securityService.fromToken(it) }
+            .map { setSecurityUser(User(it.id, it.email, it.secret), it.secret) }
         chain.doFilter(request, response)
     }
 
@@ -30,17 +32,17 @@ class SecurityFilter(
         SecurityContextHolder.getContext().authentication = UsernamePasswordAuthenticationToken(user, key, emptyList())
     }
 
-    private fun getSecurityKey(httpRequest: HttpServletRequest): String {
-        val header = httpRequest.getHeader(HEADER_NAME)
-        if (header.isNotBlank()) {
-            return header
+    private fun getSecurityKey(httpRequest: HttpServletRequest): Option<String> {
+        val header: String? = httpRequest.getHeader(HEADER_NAME)
+        if (!header.isNullOrBlank()) {
+            return header.toOption()
         }
 
         val cookie = WebUtils.getCookie(httpRequest, "$COOKIE_NAME-$environment")
         if (cookie != null && cookie.value.isNotBlank()) {
-            return cookie.value
+            return cookie.value.toOption()
         }
 
-        return httpRequest.getParameter(COOKIE_NAME).orEmpty()
+        return httpRequest.getParameter(COOKIE_NAME).toOption()
     }
 }

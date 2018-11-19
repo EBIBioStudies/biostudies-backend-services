@@ -2,7 +2,6 @@ package ac.uk.ebi.biostd.json
 
 import ac.uk.ebi.biostd.common.EitherDeserializer
 import ac.uk.ebi.biostd.common.EitherSerializer
-import ac.uk.ebi.biostd.json.common.InternalSubmission
 import ac.uk.ebi.biostd.json.deserialization.AttributeJsonDeserializer
 import ac.uk.ebi.biostd.json.deserialization.FilesTableJsonDeserializer
 import ac.uk.ebi.biostd.json.deserialization.LinksTableJsonDeserializer
@@ -26,10 +25,6 @@ class JsonSerializer {
 
     fun <T> serialize(t: T): String {
         return mapper.writeValueAsString(t)
-    }
-
-    fun <T> serializeWithInternalData(t: T): String {
-        return mapper.writerWithView(InternalSubmission::class.java).writeValueAsString(t)
     }
 
     fun <T> deserialize(value: String, valueType: Class<T>): T {

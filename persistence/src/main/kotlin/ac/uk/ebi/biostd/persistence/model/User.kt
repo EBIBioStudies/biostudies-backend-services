@@ -4,26 +4,32 @@ import javax.persistence.Column
 import javax.persistence.Entity
 import javax.persistence.GeneratedValue
 import javax.persistence.Id
+import javax.persistence.Lob
 
 @Entity
-class User {
+class User(
+
+    @Column
+    var login: String,
+
+    @Column
+    var email: String,
+
+    @Column
+    var secret: String
+
+) {
 
     @Id
     @GeneratedValue
     var id: Long = 0L
 
     @Column
-    lateinit var email: String
-
-    @Column
-    lateinit var secret: String
-
-    @Column
-    lateinit var fullName: String
-
-    @Column
-    lateinit var login: String
+    var fullName: String? = null
 
     @Column
     var superuser: Boolean = false
+
+    @Lob
+    var passwordDigest: ByteArray = ByteArray(0)
 }

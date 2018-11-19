@@ -7,3 +7,5 @@ spring:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
 app:
   basepath: {BASE_PATH}
+  environment: TEST
+  tokenHash: biostd-test

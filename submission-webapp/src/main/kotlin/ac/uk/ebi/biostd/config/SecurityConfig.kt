@@ -18,6 +18,8 @@ import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.web.authentication.HttpStatusEntryPoint
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter
 
+private val ALLOWED_URLS = arrayOf("/login")
+
 @Configuration
 @EnableWebSecurity
 @Import(SecurityBeansConfig::class)
@@ -32,6 +34,7 @@ class SecurityConfig(
             .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             .and()
             .authorizeRequests()
+            .antMatchers(*ALLOWED_URLS).permitAll()
             .anyRequest().fullyAuthenticated()
             .and()
             .exceptionHandling().authenticationEntryPoint(HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))

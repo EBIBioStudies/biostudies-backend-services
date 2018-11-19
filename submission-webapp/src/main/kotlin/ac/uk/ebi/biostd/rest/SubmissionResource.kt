@@ -34,8 +34,10 @@ class SubmissionResource(private val submissionService: SubmissionService) {
         return submissionService.getSubmissionAsTsv(accNo)
     }
 
+    // TODO: add proper content negotiation to retrieve result
     @PostMapping
-    fun submit(@RequestBody submission: Submission, @AuthenticationPrincipal user: User) {
+    fun submit(@RequestBody submission: Submission, @AuthenticationPrincipal user: User): String {
         submissionService.submitSubmission(submission, user)
+        return "OK"
     }
 }
