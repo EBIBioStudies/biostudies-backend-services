@@ -90,7 +90,7 @@ class Submission(
         inverseJoinColumns = [JoinColumn(name = "accessTags_id", referencedColumnName = "id")])
     var accessTags: MutableSet<AccessTag> = sortedSetOf()
 
-    @OneToMany
+    @OneToMany(cascade = [CascadeType.ALL])
     @JoinColumn(name = "submission_id")
     @OrderBy("order ASC")
     var attributes: SortedSet<SubmissionAttribute> = sortedSetOf()
