@@ -1,10 +1,13 @@
 package ac.uk.ebi.biostd.itest
 
+import ac.uk.ebi.biostd.config.PersistenceConfig
 import ac.uk.ebi.biostd.config.SubmitterConfig
 import ac.uk.ebi.biostd.itest.common.setAppProperty
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
+import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.constans.SubFields
+import ebi.ac.uk.model.extensions.title
 import ebi.ac.uk.security.integration.model.SignUpRequest
 import ebi.ac.uk.security.service.SecurityService
 import ebi.ac.uk.security.web.HEADER_NAME
@@ -44,7 +47,7 @@ class SubmissionTest(private val temporaryFolder: TemporaryFolder) {
 
     @Nested
     @ExtendWith(SpringExtension::class)
-    @Import(value = [SubmitterConfig::class])
+    @Import(value = [SubmitterConfig::class, PersistenceConfig::class])
     @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
     inner class SimpleSubmission {
 
@@ -52,7 +55,7 @@ class SubmissionTest(private val temporaryFolder: TemporaryFolder) {
         private lateinit var restTemplate: TestRestTemplate
 
         @Autowired
-        private lateinit var userRepository: UserDataRepository
+        private lateinit var submissionRepository: SubmissionRepository
 
         @Autowired
         private lateinit var securityService: SecurityService
@@ -68,11 +71,12 @@ class SubmissionTest(private val temporaryFolder: TemporaryFolder) {
 
         @Test
         fun `submit simple submission`() {
-            val submission = Submission(accNo = "SimpleAcc1")
-            submission[SubFields.TITLE] = "`submit simple submission`"
+            val accNo = "SimpleAcc1"
+            val title = "Simple Submission"
+            val submission = Submission(accNo = accNo)
+            submission[SubFields.TITLE] = title
 
             // TODO add client instead
-            // TODO validate submission was save in h2 db
             val headers = HttpHeaders()
             headers.contentType = MediaType.APPLICATION_JSON
             headers.accept = listOf(MediaType.APPLICATION_JSON)
@@ -80,10 +84,10 @@ class SubmissionTest(private val temporaryFolder: TemporaryFolder) {
             headers.set(ACCEPT, MediaType.APPLICATION_JSON.toString())
 
             val submis = json {
-                "accNo" to "SimpleAcc1"
+                "accNo" to accNo
                 "attributes"[{
                     "name" to "Title"
-                    "value" to "submit simple submission"
+                    "value" to title
                 }]
             }.toString()
 
@@ -96,6 +100,11 @@ class SubmissionTest(private val temporaryFolder: TemporaryFolder) {
 
             assertThat(response).isNotNull
             assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
+
+            val savedSubmission = submissionRepository.findByAccNo(accNo)
+            assertThat(savedSubmission).isNotNull
+            assertThat(savedSubmission.accNo).isEqualTo(accNo)
+            assertThat(savedSubmission.title).isEqualTo(title)
         }
     }
 }

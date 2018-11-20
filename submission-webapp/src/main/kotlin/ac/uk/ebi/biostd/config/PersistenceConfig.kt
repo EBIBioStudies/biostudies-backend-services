@@ -7,7 +7,6 @@ import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.SubmissionDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.TagsDataRepository
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
-import ebi.ac.uk.persistence.PersistenceContext
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories
@@ -18,26 +17,17 @@ class PersistenceConfig(
     private val submissionDataRepository: SubmissionDataRepository,
     private val sequenceRepository: SequenceDataRepository,
     private val tagsDataRepository: TagsDataRepository
-
 ) {
+    @Bean
+    fun submissionRepository() = SubmissionRepository(submissionDataRepository, submissionDbMapper())
 
     @Bean
-    fun submissionRepository(): SubmissionRepository {
-        return SubmissionRepository(submissionDataRepository, submissionDbMapper())
-    }
+    fun submissionDbMapper() = SubmissionDbMapper()
 
     @Bean
-    fun submissionDbMapper(): SubmissionDbMapper {
-        return SubmissionDbMapper()
-    }
+    fun submissionMapper() = SubmissionMapper(tagsDataRepository)
 
     @Bean
-    fun submissionMapper(): SubmissionMapper {
-        return SubmissionMapper(tagsDataRepository)
-    }
-
-    @Bean
-    fun persistenceContext(): PersistenceContext {
-        return PersistenceContextImpl(submissionDataRepository, sequenceRepository, submissionDbMapper(), submissionMapper())
-    }
+    fun persistenceContext() = PersistenceContextImpl(
+            submissionDataRepository, sequenceRepository, submissionDbMapper(), submissionMapper())
 }
