@@ -3,6 +3,8 @@ package ac.uk.ebi.biostd.rest
 import ac.uk.ebi.biostd.service.SubmissionService
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.User
+import org.springframework.security.access.prepost.PreAuthorize
+import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/submissions")
+@PreAuthorize("isAuthenticated()")
 class SubmissionResource(private val submissionService: SubmissionService) {
 
     @GetMapping("/{accNo}.json", produces = ["application/json; charset=utf-8"])
@@ -31,8 +34,10 @@ class SubmissionResource(private val submissionService: SubmissionService) {
         return submissionService.getSubmissionAsTsv(accNo)
     }
 
-    @PostMapping()
-    fun submit(@RequestBody submission: Submission) {
-        submissionService.submitSubmission(submission, User(email = "test@ebi.ac.uk", id = 50, secretKey = "asd123"))
+    // TODO: add proper content negotiation to retrieve result
+    @PostMapping
+    fun submit(@RequestBody submission: Submission, @AuthenticationPrincipal user: User): String {
+        submissionService.submitSubmission(submission, user)
+        return "OK"
     }
 }

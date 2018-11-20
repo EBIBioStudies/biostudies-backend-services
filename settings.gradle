@@ -2,6 +2,8 @@ rootProject.name = 'pagetab-procesor'
 
 include("commons-util")
 include("commons-bio")
+include("commons-security")
+
 include("persistence")
 include("serialization")
 include("submitter")

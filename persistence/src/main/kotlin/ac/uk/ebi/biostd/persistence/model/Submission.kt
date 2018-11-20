@@ -80,7 +80,7 @@ class Submission(
     @JoinColumn(name = "rootSection_id")
     lateinit var rootSection: SectionDb
 
-    @ManyToOne(cascade = [CascadeType.ALL]) // TODO: user can not be cascade
+    @ManyToOne
     @JoinColumn(name = "owner_id")
     lateinit var owner: User
 

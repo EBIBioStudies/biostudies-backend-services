@@ -16,6 +16,7 @@ allprojects {
         }
     }
 
+    build.dependsOn ktlintFormat
     build.finalizedBy detektCheck
     build.finalizedBy ktlint
 

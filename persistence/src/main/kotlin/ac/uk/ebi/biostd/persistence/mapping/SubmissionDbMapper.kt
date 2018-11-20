@@ -36,7 +36,7 @@ class SubmissionDbMapper {
         }
     }
 
-    private fun toUser(owner: UserDb) = User(owner.id, owner.email, owner.secretKey)
+    private fun toUser(owner: UserDb) = User(owner.id, owner.email, owner.secret.orEmpty())
 
     fun toSubmission(submissionDb: SubmissionDb): Submission {
         return Submission(submissionDb.accNo, attributes = toAttributes(submissionDb.attributes)).apply {
@@ -46,26 +46,26 @@ class SubmissionDbMapper {
     }
 
     private fun toSection(sectionDb: SectionDb) =
-            Section(accNo = sectionDb.accNo,
-                    type = sectionDb.type,
-                    links = toLinks(sectionDb.links.toList()),
-                    files = toFiles(sectionDb.files.toList()),
-                    sections = toSections(sectionDb.sections.toList()),
-                    attributes = toAttributes(sectionDb.attributes))
+        Section(accNo = sectionDb.accNo,
+            type = sectionDb.type,
+            links = toLinks(sectionDb.links.toList()),
+            files = toFiles(sectionDb.files.toList()),
+            sections = toSections(sectionDb.sections.toList()),
+            attributes = toAttributes(sectionDb.attributes))
 
     private fun toAttribute(attrDb: AttributeDb) =
-            Attribute(
-                    name = attrDb.name,
-                    value = attrDb.value,
-                    reference = attrDb.reference.orFalse(),
-                    nameAttrs = toDetails(attrDb.nameQualifier),
-                    valueAttrs = toDetails(attrDb.valueQualifier))
+        Attribute(
+            name = attrDb.name,
+            value = attrDb.value,
+            reference = attrDb.reference.orFalse(),
+            nameAttrs = toDetails(attrDb.nameQualifier),
+            valueAttrs = toDetails(attrDb.valueQualifier))
 
     private fun toDetails(value: String?): MutableList<AttributeDetail> {
         return value.orEmpty().split(";")
-                .dropWhile { it.isEmpty() }
-                .map { it.split("=") }
-                .mapTo(mutableListOf()) { AttributeDetail(it[0], it[1]) }
+            .dropWhile { it.isEmpty() }
+            .map { it.split("=") }
+            .mapTo(mutableListOf()) { AttributeDetail(it[0], it[1]) }
     }
 
     private fun toAttributes(attrs: Set<AttributeDb>) = attrs.mapTo(mutableListOf()) { toAttribute(it) }
@@ -86,7 +86,7 @@ class SubmissionDbMapper {
             transform: (T) -> S,
             tableBuilder: (List<S>) -> U
         ):
-                MutableList<Either<S, U>> {
+            MutableList<Either<S, U>> {
 
             val map = elements.groupBy { it.tableIndex != NO_TABLE_INDEX }
             val eitherList = mutableListOf<Either<S, U>>()
