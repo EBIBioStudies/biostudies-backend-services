@@ -58,9 +58,6 @@ class SubmissionTest(private val temporaryFolder: TemporaryFolder) {
         private lateinit var submissionRepository: SubmissionRepository
 
         @Autowired
-        private lateinit var userRepository: UserDataRepository
-
-        @Autowired
         private lateinit var securityService: SecurityService
 
         private lateinit var token: String
