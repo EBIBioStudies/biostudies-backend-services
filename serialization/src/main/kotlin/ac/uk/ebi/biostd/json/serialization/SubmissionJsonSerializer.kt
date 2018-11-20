@@ -19,7 +19,7 @@ class SubmissionJsonSerializer : StdSerializer<Submission>(Submission::class.jav
         gen.writeObj {
             writeJsonString(SubFields.ACC_NO, subm.accNo)
             writeJsonArray(SubFields.ATTRIBUTES, subm.attributes)
-            writeJsonObject(SubFields.SECTION, subm.rootSection)
+            writeJsonObject(SubFields.SECTION, subm.section)
 
             if (subm is ExtendedSubmission) {
                 writeJsonArray(SubFields.ACCESS_TAGS, getAccessTags(subm), gen::writeString)

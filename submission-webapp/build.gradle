@@ -41,6 +41,7 @@ dependencies {
     compile 'mysql:mysql-connector-java:6.0.6'
     compile "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
 
+    testCompile project(":bio-webclient")
     testCompile 'org.assertj:assertj-core:3.11.0'
 
     // Junit dependencies

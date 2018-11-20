@@ -11,6 +11,7 @@ import ac.uk.ebi.biostd.json.serialization.SubmissionJsonSerializer
 import ac.uk.ebi.biostd.json.serialization.TableJsonSerializer
 import arrow.core.Either
 import com.fasterxml.jackson.annotation.JsonInclude
+import com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
@@ -35,6 +36,8 @@ class JsonSerializer {
         val mapper = createMapper()
 
         private fun createMapper(): ObjectMapper {
+            // TODO: add serializer and deserializer for each entity type to avoid issues when property name changed
+
             val module = SimpleModule().apply {
                 addSerializer(Submission::class.java, SubmissionJsonSerializer())
                 addSerializer(Attribute::class.java, AttributeJsonSerializer())
@@ -51,6 +54,7 @@ class JsonSerializer {
             return jacksonObjectMapper().apply {
                 registerModule(module)
                 setSerializationInclusion(JsonInclude.Include.NON_EMPTY)
+                configure(FAIL_ON_UNKNOWN_PROPERTIES, false)
             }
         }
     }

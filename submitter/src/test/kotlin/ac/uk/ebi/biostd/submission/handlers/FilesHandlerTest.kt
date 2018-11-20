@@ -79,7 +79,7 @@ class FilesHandlerTest(
     @Test
     fun `process submission with invalid files`() {
         val nonExistingFile = SubmissionFile(NON_EXISTING_FILE)
-        submission.rootSection.addFile(nonExistingFile)
+        submission.section.addFile(nonExistingFile)
 
         val exception = catchThrowable { testInstance.processFiles(submission) }
         assertThat(exception).isInstanceOf(InvalidFilesException::class.java)
@@ -112,7 +112,7 @@ class FilesHandlerTest(
         val section = Section()
         section.addFile(SubmissionFile(TEST_FILE))
 
-        submission.rootSection = section
+        submission.section = section
         submission.relPath = submissionFolderPath
         submission.rootPath = submissionFolderPath
     }

@@ -17,7 +17,7 @@ class SubmissionSerializer : XmlStdSerializer<Submission>(Submission::class.java
             writeXmlObj(SubFields.SUBMISSION, value) {
                 writeXmlAttr(SubFields.ACC_NO, accNo)
                 writeXmlCollection(SubFields.ATTRIBUTES, attributes)
-                writeXmlField(SubFields.SECTION, rootSection)
+                writeXmlField(SubFields.SECTION, section)
             }
         }
     }

@@ -12,7 +12,7 @@ class TsvSerializer {
         val builder = TsvBuilder()
 
         serializeSubmission(builder, submission)
-        serializeSection(builder, submission.rootSection)
+        serializeSection(builder, submission.section)
         return builder.toString()
     }
 

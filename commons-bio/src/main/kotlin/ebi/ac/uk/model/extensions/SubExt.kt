@@ -6,7 +6,7 @@ import ebi.ac.uk.model.constans.SubFields
 import java.time.Instant
 
 fun Submission.allFiles(): List<File> =
-        rootSection.allFiles() + rootSection.allSections().map { it.allFiles() }.flatten()
+    section.allFiles() + section.allSections().map { it.allFiles() }.flatten()
 
 var Submission.attachTo: String?
     get() = this[SubFields.ATTACH_TO]

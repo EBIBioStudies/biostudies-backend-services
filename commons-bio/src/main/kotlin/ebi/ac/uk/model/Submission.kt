@@ -5,7 +5,7 @@ import java.time.OffsetDateTime
 
 open class Submission(
     var accNo: String = "",
-    var rootSection: Section = Section(),
+    var section: Section = Section(),
     attributes: List<Attribute> = emptyList()
 ) : Attributable(attributes) {
     var accessTags: MutableList<String> = mutableListOf()
@@ -17,7 +17,7 @@ class ExtendedSubmission(
 ) : Submission(accNo) {
 
     constructor(submission: Submission, user: User) : this(submission.accNo, user) {
-        rootSection = submission.rootSection
+        section = submission.section
         attributes = submission.attributes
         accessTags = submission.accessTags
     }

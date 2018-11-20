@@ -30,7 +30,7 @@ class SubmissionMapper(private val tagsRepository: TagsDataRepository) {
             accNo = submissionDb.accNo
             attributes = toAttributes(submissionDb.attributes, ::SubmissionAttribute)
             accessTags = toAccessTag(submissionDb.accessTags)
-            rootSection = toSection(submissionDb.rootSection, NO_TABLE_INDEX)
+            rootSection = toSection(submissionDb.section, NO_TABLE_INDEX)
         }
     }
 

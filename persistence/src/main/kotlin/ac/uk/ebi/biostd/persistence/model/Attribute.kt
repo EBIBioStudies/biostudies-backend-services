@@ -9,7 +9,7 @@ import javax.persistence.MappedSuperclass
 
 @Entity
 class SectionAttribute(attribute: Attribute) :
-        Attribute(attribute.name, attribute.value, attribute.order, attribute.reference) {
+    Attribute(attribute.name, attribute.value, attribute.order, attribute.reference) {
     init {
         this.valueQualifier = attribute.valueQualifier
         this.nameQualifier = attribute.valueQualifier
@@ -18,7 +18,7 @@ class SectionAttribute(attribute: Attribute) :
 
 @Entity
 class LinkAttribute(attribute: Attribute) :
-        Attribute(attribute.name, attribute.value, attribute.order, attribute.reference) {
+    Attribute(attribute.name, attribute.value, attribute.order, attribute.reference) {
     init {
         this.valueQualifier = attribute.valueQualifier
         this.nameQualifier = attribute.valueQualifier
@@ -27,7 +27,7 @@ class LinkAttribute(attribute: Attribute) :
 
 @Entity
 class FileAttribute(attribute: Attribute) :
-        Attribute(attribute.name, attribute.value, attribute.order, attribute.reference) {
+    Attribute(attribute.name, attribute.value, attribute.order, attribute.reference) {
     init {
         this.valueQualifier = attribute.valueQualifier
         this.nameQualifier = attribute.valueQualifier
@@ -36,7 +36,7 @@ class FileAttribute(attribute: Attribute) :
 
 @Entity
 class SubmissionAttribute(attribute: Attribute) :
-        Attribute(attribute.name, attribute.value, attribute.order, attribute.reference) {
+    Attribute(attribute.name, attribute.value, attribute.order, attribute.reference) {
     init {
         this.valueQualifier = attribute.valueQualifier
         this.nameQualifier = attribute.valueQualifier
@@ -80,7 +80,7 @@ open class Attribute(
         if (this === other) return true
 
         return Objects.equals(this.name, other.name)
-                .and(Objects.equals(this.value, other.value))
+            .and(Objects.equals(this.value, other.value))
     }
 
     override fun hashCode(): Int {

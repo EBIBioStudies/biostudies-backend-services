@@ -15,4 +15,3 @@ fun String?.isNotBlank() = !isNullOrEmpty()
 inline fun String?.applyIfNotBlank(func: (String) -> Unit) = takeIf { it.isNotBlank() }?.let { func(it) }
 
 fun String?.toOption() = if (isNullOrEmpty()) Option.empty() else Option.fromNullable(this)
-

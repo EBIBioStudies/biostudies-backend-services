@@ -28,7 +28,7 @@ class ExtendedSubmissionTest {
 
         assertThat(extendedSubmission.accNo).isEqualTo(ACC_NO)
         assertThat(extendedSubmission.user).isEqualTo(user)
-        assertThat(extendedSubmission.rootSection).isEqualTo(rootSection)
+        assertThat(extendedSubmission.section).isEqualTo(rootSection)
         assertThat(extendedSubmission.attributes).contains(attribute)
         assertThat(extendedSubmission.accessTags).contains(ACCESS_TAG)
     }

@@ -20,9 +20,9 @@ fun Attributable.attribute(
     valueAttrs: Attributes = mutableListOf(),
     nameAttrs: Attributes = mutableListOf()
 ) =
-        addAttribute(Attribute(name = name, value = value, valueAttrs = valueAttrs, reference = ref, nameAttrs = nameAttrs))
+    addAttribute(Attribute(name = name, value = value, valueAttrs = valueAttrs, reference = ref, nameAttrs = nameAttrs))
 
-fun Submission.section(block: Section.() -> Unit) = apply { rootSection = Section().apply(block) }
+fun Submission.section(block: Section.() -> Unit) = apply { section = Section().apply(block) }
 fun submission(accNo: String, block: Submission.() -> Unit): Submission = Submission(accNo).apply(block)
 fun section(block: Section.() -> Unit): Section = Section().apply(block)
 

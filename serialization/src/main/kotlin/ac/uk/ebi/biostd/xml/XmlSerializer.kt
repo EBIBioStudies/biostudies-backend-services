@@ -23,8 +23,12 @@ import ebi.ac.uk.model.Table
 
 class XmlSerializer {
 
-    fun serialize(submission: Any): String {
-        return mapper.writeValueAsString(submission)
+    fun <T> serialize(t: T): String {
+        return mapper.writeValueAsString(t)
+    }
+
+    fun <T> deserialize(value: String, valueType: Class<T>): T {
+        return mapper.readValue(value, valueType)
     }
 
     companion object {

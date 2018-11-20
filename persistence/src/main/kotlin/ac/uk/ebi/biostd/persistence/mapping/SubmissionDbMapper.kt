@@ -32,7 +32,7 @@ class SubmissionDbMapper {
         return ExtendedSubmission(submissionDb.accNo, toUser(submissionDb.owner)).apply {
             attributes = toAttributes(submissionDb.attributes)
             accessTags = submissionDb.accessTags.mapTo(mutableListOf(), AccessTag::name)
-            rootSection = toSection(submissionDb.rootSection)
+            section = toSection(submissionDb.rootSection)
         }
     }
 
@@ -41,7 +41,7 @@ class SubmissionDbMapper {
     fun toSubmission(submissionDb: SubmissionDb): Submission {
         return Submission(submissionDb.accNo, attributes = toAttributes(submissionDb.attributes)).apply {
             accessTags = submissionDb.accessTags.mapTo(mutableListOf(), AccessTag::name)
-            rootSection = toSection(submissionDb.rootSection)
+            section = toSection(submissionDb.rootSection)
         }
     }
 

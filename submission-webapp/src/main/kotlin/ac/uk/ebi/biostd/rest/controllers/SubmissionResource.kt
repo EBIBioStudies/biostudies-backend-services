@@ -1,5 +1,7 @@
-package ac.uk.ebi.biostd.rest
+package ac.uk.ebi.biostd.rest.controllers
 
+import ac.uk.ebi.biostd.SerializationService
+import ac.uk.ebi.biostd.SubFormat.JSON
 import ac.uk.ebi.biostd.service.SubmissionService
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.User
@@ -16,7 +18,10 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/submissions")
 @PreAuthorize("isAuthenticated()")
-class SubmissionResource(private val submissionService: SubmissionService) {
+class SubmissionResource(
+    private val submissionService: SubmissionService,
+    private val serializationService: SerializationService
+) {
 
     @GetMapping("/{accNo}.json", produces = ["application/json; charset=utf-8"])
     @ResponseBody
@@ -34,10 +39,8 @@ class SubmissionResource(private val submissionService: SubmissionService) {
         return submissionService.getSubmissionAsTsv(accNo)
     }
 
-    // TODO: add proper content negotiation to retrieve result
     @PostMapping
-    fun submit(@RequestBody submission: Submission, @AuthenticationPrincipal user: User): String {
-        submissionService.submitSubmission(submission, user)
-        return "OK"
-    }
+    @ResponseBody
+    fun submit(@RequestBody submission: Submission, @AuthenticationPrincipal user: User) =
+        serializationService.serializeSubmission(submissionService.submitSubmission(submission, user), JSON)
 }
