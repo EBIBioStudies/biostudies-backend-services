@@ -19,7 +19,7 @@ private const val TYPE = "sec type"
 
 class SectionSerializerTest {
 
-    private val testInstance = XmlSerializer()
+    private val testInstance = XmlSerializer.xmlMapper
 
     private val section = section {
         accNo = ACC_NO
@@ -33,7 +33,7 @@ class SectionSerializerTest {
 
     @Test
     fun testSerializeSection() {
-        val result = testInstance.serialize(section)
+        val result = testInstance.writeValueAsString(section)
         val expected = xml("section") {
             attribute("accNo", ACC_NO)
             attribute("type", TYPE)

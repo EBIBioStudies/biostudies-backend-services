@@ -24,12 +24,12 @@ import ebi.ac.uk.model.Table
 
 class JsonSerializer {
 
-    fun <T> serialize(t: T): String {
+    fun serialize(t: Submission): String {
         return mapper.writeValueAsString(t)
     }
 
-    fun <T> deserialize(value: String, valueType: Class<T>): T {
-        return mapper.readValue(value, valueType)
+    fun deserialize(value: String): Submission {
+        return mapper.readValue(value, Submission::class.java)
     }
 
     companion object {
@@ -46,6 +46,7 @@ class JsonSerializer {
 
                 addDeserializer(Attribute::class.java, AttributeJsonDeserializer())
                 addDeserializer(Either::class.java, EitherDeserializer())
+
                 addDeserializer(LinksTable::class.java, LinksTableJsonDeserializer())
                 addDeserializer(FilesTable::class.java, FilesTableJsonDeserializer())
                 addDeserializer(SectionsTable::class.java, SectionsTableJsonDeserializer())

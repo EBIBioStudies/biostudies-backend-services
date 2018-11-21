@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.serialization.tsv
+package ac.uk.ebi.biostd.tsv
 
 import ac.uk.ebi.biostd.common.assertAttributes
 import ac.uk.ebi.biostd.test.basicSubmission
@@ -12,6 +12,7 @@ import ac.uk.ebi.biostd.test.submissionWithLinksTable
 import ac.uk.ebi.biostd.test.submissionWithRootSection
 import ac.uk.ebi.biostd.test.submissionWithSectionsTable
 import ac.uk.ebi.biostd.test.submissionWithSubsection
+import ac.uk.ebi.biostd.tsv.deserialization.TsvDeserializer
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.AttributeDetail
 import ebi.ac.uk.model.File

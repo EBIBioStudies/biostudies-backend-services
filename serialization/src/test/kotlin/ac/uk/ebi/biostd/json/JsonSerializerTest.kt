@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test
 
 class JsonSerializerTest {
 
-    private val testInstance = JsonSerializer()
+    private val testInstance = JsonSerializer.mapper
 
     private val subm = createVenousBloodMonocyte()
 
@@ -35,8 +35,8 @@ class JsonSerializerTest {
     @Test
     @Disabled("change for real json submission")
     fun `deserialize sample submission`() {
-        val json = testInstance.serialize(subm)
-        val deserialized = testInstance.deserialize(json, Submission::class.java)
+        val json = testInstance.writeValueAsString(subm)
+        val deserialized = testInstance.readValue(json, Submission::class.java)
 
         assertThat(deserialized).isNotNull
         assertThat(deserialized).isEqualTo(subm)

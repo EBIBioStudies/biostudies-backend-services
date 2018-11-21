@@ -1,8 +1,8 @@
-package ac.uk.ebi.biostd.serialization.tsv
+package ac.uk.ebi.biostd.tsv.deserialization
 
-import ac.uk.ebi.biostd.serialization.common.SECTION_TABLE_CL
-import ac.uk.ebi.biostd.serialization.common.SECTION_TABLE_OP
-import ac.uk.ebi.biostd.serialization.common.TSV_SEPARATOR
+import ac.uk.ebi.biostd.tsv.SECTION_TABLE_CL
+import ac.uk.ebi.biostd.tsv.SECTION_TABLE_OP
+import ac.uk.ebi.biostd.tsv.TSV_SEPARATOR
 import ebi.ac.uk.base.EMPTY
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.util.collections.secondOrElse
@@ -24,8 +24,8 @@ data class TsvChunk(
     fun getIdentifier() = header.secondOrElse(EMPTY)
 
     fun getParent() =
-            if (isSectionTable()) header.first().substringAfter(SECTION_TABLE_OP).substringBefore(SECTION_TABLE_CL)
-            else header.thirdOrElse(EMPTY)
+        if (isSectionTable()) header.first().substringAfter(SECTION_TABLE_OP).substringBefore(SECTION_TABLE_CL)
+        else header.thirdOrElse(EMPTY)
 
     fun isSubsection() = getParent().isNotEmpty()
 

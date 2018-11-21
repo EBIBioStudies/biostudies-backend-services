@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.tsv
+package ac.uk.ebi.biostd.tsv.serialization
 
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.File

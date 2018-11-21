@@ -22,3 +22,7 @@ fun <T> List<T>.groupByCondition(compare: (T, T) -> Boolean): MutableList<Mutabl
 
     return result
 }
+
+fun <T> List<T>?.orEmpty(): List<T> {
+    return this ?: listOf()
+}

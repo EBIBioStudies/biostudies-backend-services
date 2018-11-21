@@ -13,13 +13,13 @@ private val TERMS = mutableListOf(AttributeDetail("name", "value"))
 
 class AttributeSerializerTest {
 
-    private val testInstance = XmlSerializer()
+    private val testInstance = XmlSerializer.xmlMapper
 
     private val attribute = Attribute(name = ATTR_NAME, value = ATTR_VALUE, valueAttrs = TERMS)
 
     @Test
     fun testSerializeAttribute() {
-        val result = testInstance.serialize(attribute)
+        val result = testInstance.writeValueAsString(attribute)
         val expected = xml("attribute") {
             "name" { -ATTR_NAME }
             "value" { -ATTR_VALUE }
@@ -36,7 +36,7 @@ class AttributeSerializerTest {
     fun testSerializeAttributeWhenReference() {
         attribute.reference = true
 
-        val result = testInstance.serialize(attribute)
+        val result = testInstance.writeValueAsString(attribute)
         val expected = xml("attribute") {
             attribute("reference", true)
             "name" { -ATTR_NAME }
@@ -54,7 +54,7 @@ class AttributeSerializerTest {
     fun testSerializeAttributeWhenMultipleTerms() {
         attribute.valueAttrs = (attribute.valueAttrs + AttributeDetail("another", "another_value")).toMutableList()
 
-        val result = testInstance.serialize(attribute)
+        val result = testInstance.writeValueAsString(attribute)
         val expected = xml("attribute") {
             "name" { -ATTR_NAME }
             "value" { -ATTR_VALUE }

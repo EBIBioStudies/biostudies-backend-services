@@ -1,6 +1,12 @@
 package ac.uk.ebi.biostd.tsv
 
 import ac.uk.ebi.biostd.test.createVenousBloodMonocyte
+import ac.uk.ebi.biostd.tsv.serialization.ACC_NO_KEY
+import ac.uk.ebi.biostd.tsv.serialization.ROOT_PATH_KEY
+import ac.uk.ebi.biostd.tsv.serialization.TITLE_KEY
+import ac.uk.ebi.biostd.tsv.serialization.TsvToStringSerializer
+import ebi.ac.uk.dsl.line
+import ebi.ac.uk.dsl.tsv
 import ebi.ac.uk.model.constans.SubFields
 import ebi.ac.uk.model.extensions.rootPath
 import ebi.ac.uk.model.extensions.title
@@ -9,7 +15,7 @@ import org.junit.Test
 
 class SimpleSubmissionTsvParserTest {
 
-    private val testInstance: TsvSerializer = TsvSerializer()
+    private val testInstance: TsvToStringSerializer = TsvToStringSerializer()
 
     @Test
     fun parseSimpleSubmission() {

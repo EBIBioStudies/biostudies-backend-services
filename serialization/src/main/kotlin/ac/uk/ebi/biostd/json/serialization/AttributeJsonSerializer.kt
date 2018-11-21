@@ -1,10 +1,10 @@
 package ac.uk.ebi.biostd.json.serialization
 
+import ac.uk.ebi.biostd.common.VAL_ATTRIBUTES
 import ac.uk.ebi.biostd.json.common.writeJsonArray
 import ac.uk.ebi.biostd.json.common.writeJsonBoolean
 import ac.uk.ebi.biostd.json.common.writeJsonString
 import ac.uk.ebi.biostd.json.common.writeObj
-import ac.uk.ebi.biostd.json.deserialization.VAL_ATTRIBUTES
 import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.databind.SerializerProvider
 import com.fasterxml.jackson.databind.ser.std.StdSerializer

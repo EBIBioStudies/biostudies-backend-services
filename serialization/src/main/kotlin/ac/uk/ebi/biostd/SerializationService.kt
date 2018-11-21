@@ -1,7 +1,6 @@
 package ac.uk.ebi.biostd
 
 import ac.uk.ebi.biostd.json.JsonSerializer
-import ac.uk.ebi.biostd.serialization.tsv.TsvDeserializer
 import ac.uk.ebi.biostd.tsv.TsvSerializer
 import ac.uk.ebi.biostd.xml.XmlSerializer
 import ebi.ac.uk.model.Submission
@@ -9,8 +8,7 @@ import ebi.ac.uk.model.Submission
 class SerializationService(
     private val jsonSerializer: JsonSerializer = JsonSerializer(),
     private val xmlSerializer: XmlSerializer = XmlSerializer(),
-    private val tsvSerializer: TsvSerializer = TsvSerializer(),
-    private val tsvDeserializer: TsvDeserializer = TsvDeserializer()
+    private val tsvSerializer: TsvSerializer = TsvSerializer()
 ) {
 
     fun serializeSubmission(submission: Submission, outputFormat: SubFormat): String {
@@ -27,11 +25,11 @@ class SerializationService(
     fun deserializeSubmission(submission: String, outputFormat: SubFormat): Submission {
         return when (outputFormat) {
             SubFormat.XML ->
-                xmlSerializer.deserialize(submission, Submission::class.java)
+                xmlSerializer.deserialize(submission)
             SubFormat.JSON ->
-                jsonSerializer.deserialize(submission, Submission::class.java)
+                jsonSerializer.deserialize(submission)
             SubFormat.TSV ->
-                tsvDeserializer.deserialize(submission)
+                tsvSerializer.deserialize(submission)
         }
     }
 }
