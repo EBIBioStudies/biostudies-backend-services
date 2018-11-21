@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.persistence.model
 import ac.uk.ebi.biostd.persistence.common.NO_TABLE_INDEX
 import java.util.Objects
 import java.util.SortedSet
+import javax.persistence.CascadeType
 import javax.persistence.Column
 import javax.persistence.Entity
 import javax.persistence.GeneratedValue
@@ -26,7 +27,7 @@ class Link(
     @GeneratedValue
     var id: Long = 0L
 
-    @OneToMany
+    @OneToMany(cascade = [CascadeType.ALL])
     @JoinColumn(name = "link_id")
     @OrderBy("order ASC")
     var attributes: SortedSet<LinkAttribute> = sortedSetOf()

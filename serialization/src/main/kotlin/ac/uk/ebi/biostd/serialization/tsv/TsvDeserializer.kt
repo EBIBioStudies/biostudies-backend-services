@@ -27,8 +27,11 @@ class TsvDeserializer {
         var rootSection = Section()
         chunks.ifNotEmpty {
             val rootSectionChunk: TsvChunk = chunks.removeFirst()
-            rootSection = Section(attributes = createAttributes(rootSectionChunk.lines))
-            rootSection.type = rootSectionChunk.getType()
+            rootSection = Section(
+                accNo = rootSectionChunk.getIdentifier(),
+                type = rootSectionChunk.getType(),
+                attributes = createAttributes(rootSectionChunk.lines))
+
             processChunks(rootSection, chunks)
         }
 
@@ -83,14 +86,21 @@ class TsvDeserializer {
             .mapTable { accNo, attributes -> Section(accNo = accNo, attributes = attributes) }
             .map { it.apply { type = chunk.getType() } })
 
-    private fun addSubsection(parentSection: Section, sectionChunk: TsvChunk) =
-        parentSection.sections
-            .filterLeft { section -> section.accNo == sectionChunk.getParent() }
-            .first()
-            .ifLeft { section ->
-                if (sectionChunk.isSectionTable()) section.addSectionTable(createSectionsTable(sectionChunk))
-                else section.addSection(createSingleSection(sectionChunk))
-            }
+    private fun addSubsection(parentSection: Section, sectionChunk: TsvChunk) {
+        if (parentSection.accNo == sectionChunk.getParent()) {
+            processSubSectionChunk(parentSection, sectionChunk)
+        } else {
+            parentSection.sections
+                .filterLeft { section -> section.accNo == sectionChunk.getParent() }
+                .first()
+                .ifLeft { section -> processSubSectionChunk(section, sectionChunk)}
+        }
+    }
+
+    private fun processSubSectionChunk(parentSection: Section, sectionChunk: TsvChunk) {
+        if (sectionChunk.isSectionTable()) parentSection.addSectionTable(createSectionsTable(sectionChunk))
+        else parentSection.addSection(createSingleSection(sectionChunk))
+    }
 
     private fun createAttributes(chunkLines: MutableList<TsvChunkLine>): MutableList<Attribute> {
         val attributes: MutableList<Attribute> = mutableListOf()
