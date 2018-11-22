@@ -5,7 +5,7 @@ import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.config.PersistenceConfig
 import ac.uk.ebi.biostd.config.SubmitterConfig
 import ac.uk.ebi.biostd.itest.common.setAppProperty
-import ac.uk.ebi.biostd.itest.factory.allInOneSubmissionJson
+import ac.uk.ebi.biostd.itest.factory.allInOneSubmissionTsv
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.constans.SubFields
@@ -83,7 +83,7 @@ class SubmissionTest(private val temporaryFolder: TemporaryFolder) {
 
         @Test
         fun `submit all in one submission`() {
-            val response = webClient.submitSingle(allInOneSubmissionJson().toString())
+            val response = webClient.submitSingle(allInOneSubmissionTsv().toString(), SubmissionFormat.TSV)
             assertThat(response).isNotNull
             assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
 

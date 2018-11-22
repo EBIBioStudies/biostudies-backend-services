@@ -104,7 +104,7 @@ class SectionsTable(sections: List<Section> = emptyList()) : Table<Section>(sect
         }
     }
 
-    override val header = "$sectionType${if (parentAccNo.isNotBlank()) "[$parentAccNo]" else ""}"
+    override val header = "$sectionType[${if (parentAccNo.isNotBlank()) "$parentAccNo" else ""}]"
 
     override fun toTableRow(t: Section) = object : Row<Section>(t) {
         override val id = t.accNo!!
