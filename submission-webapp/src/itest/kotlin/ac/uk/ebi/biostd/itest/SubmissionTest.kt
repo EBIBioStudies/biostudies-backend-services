@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.itest
 
+import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.config.PersistenceConfig
 import ac.uk.ebi.biostd.config.SubmitterConfig
@@ -69,7 +70,7 @@ class SubmissionTest(private val temporaryFolder: TemporaryFolder) {
             val submission = Submission(accNo = accNo)
             submission[SubFields.TITLE] = title
 
-            val response = webClient.submitSingle(submission)
+            val response = webClient.submitSingle(submission, SubmissionFormat.XML)
 
             assertThat(response).isNotNull
             assertThat(response.statusCode).isEqualTo(HttpStatus.OK)

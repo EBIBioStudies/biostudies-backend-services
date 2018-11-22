@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.xml
 
 import ac.uk.ebi.biostd.common.EitherSerializer
+import ac.uk.ebi.biostd.xml.desirializer.AttributeXmlDeserializer
 import ac.uk.ebi.biostd.xml.serializer.AttributeSerializer
 import ac.uk.ebi.biostd.xml.serializer.FileSerializer
 import ac.uk.ebi.biostd.xml.serializer.LinkSerializer
@@ -23,16 +24,16 @@ import ebi.ac.uk.model.Table
 
 class XmlSerializer {
 
-    fun <T> serialize(t: T): String {
-        return mapper.writeValueAsString(t)
+    fun serialize(t: Submission): String {
+        return xmlMapper.writeValueAsString(t)
     }
 
-    fun <T> deserialize(value: String, valueType: Class<T>): T {
-        return mapper.readValue(value, valueType)
+    fun deserialize(value: String): Submission {
+        return xmlMapper.readValue(value, Submission::class.java)
     }
 
     companion object {
-        val mapper = createMapper()
+        val xmlMapper = createMapper()
 
         private fun createMapper(): XmlMapper {
             val module = JacksonXmlModule().apply {
@@ -44,6 +45,8 @@ class XmlSerializer {
                 addSerializer(Link::class.java, LinkSerializer())
                 addSerializer(File::class.java, FileSerializer())
                 addSerializer(Table::class.java, TableSerializer())
+
+                addDeserializer(Attribute::class.java, AttributeXmlDeserializer())
             }
 
             return XmlMapper(module).apply {

@@ -3,7 +3,7 @@ package ac.uk.ebi.biostd.service
 import ac.uk.ebi.biostd.json.JsonSerializer
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
 import ac.uk.ebi.biostd.submission.SubmissionSubmitter
-import ac.uk.ebi.biostd.tsv.TsvSerializer
+import ac.uk.ebi.biostd.tsv.serialization.TsvToStringSerializer
 import ac.uk.ebi.biostd.xml.XmlSerializer
 import ebi.ac.uk.model.ExtendedSubmission
 import ebi.ac.uk.model.Submission
@@ -14,7 +14,7 @@ class SubmissionService(
     private val submissionRepository: SubmissionRepository,
     private val persistenceContext: PersistenceContext,
     private val jsonSerializer: JsonSerializer,
-    private val tsvSerializer: TsvSerializer,
+    private val tsvSerializer: TsvToStringSerializer,
     private val xmlSerializer: XmlSerializer,
     private val submitter: SubmissionSubmitter
 ) {

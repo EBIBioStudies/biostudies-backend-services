@@ -1,7 +1,7 @@
-package ac.uk.ebi.biostd.serialization.tsv
+package ac.uk.ebi.biostd.tsv.deserialization
 
-import ac.uk.ebi.biostd.serialization.common.TSV_CHUNK_BREAK
-import ac.uk.ebi.biostd.serialization.common.TSV_LINE_BREAK
+import ac.uk.ebi.biostd.tsv.TSV_CHUNK_BREAK
+import ac.uk.ebi.biostd.tsv.TSV_LINE_BREAK
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.AttributeDetail
 import ebi.ac.uk.model.File

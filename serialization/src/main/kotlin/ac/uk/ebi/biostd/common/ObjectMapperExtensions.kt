@@ -7,6 +7,7 @@ import arrow.core.getOrElse
 import com.fasterxml.jackson.databind.JavaType
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.type.CollectionType
 
 /**
  * Try to convert the given node using the provided type, return an optional with conversion or emtpy if type could not
@@ -16,3 +17,15 @@ import com.fasterxml.jackson.databind.ObjectMapper
 fun ObjectMapper.tryConvertValue(node: JsonNode, type: JavaType): Option<Any> {
     return Try<Any> { convertValue(node, type) }.map { Option.fromNullable(it) }.getOrElse { None }
 }
+
+/**
+ * Obtain the collection type for the given value.
+ */
+fun ObjectMapper.getListType(type: Class<*>): CollectionType =
+    typeFactory.constructCollectionType(List::class.java, type)
+
+/**
+ * Convert the node to the list type of values.
+ */
+fun <T> ObjectMapper.convertList(node: JsonNode?, type: Class<*>) =
+    if (node != null) convertValue(node, getListType(type)) else mutableListOf<T>()

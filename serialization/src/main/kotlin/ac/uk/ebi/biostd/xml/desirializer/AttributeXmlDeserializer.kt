@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.json.deserialization
+package ac.uk.ebi.biostd.xml.desirializer
 
 import ac.uk.ebi.biostd.common.NAME
 import ac.uk.ebi.biostd.common.NAME_ATTRIBUTES
@@ -15,10 +15,13 @@ import ebi.ac.uk.base.orFalse
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.AttributeDetail
 
-class AttributeJsonDeserializer : StdDeserializer<Attribute>(Attribute::class.java) {
+private const val NODE_NAME = "attribute"
+
+class AttributeXmlDeserializer : StdDeserializer<Attribute>(Attribute::class.java) {
+
     override fun deserialize(jp: JsonParser, ctxt: DeserializationContext): Attribute {
         val mapper = jp.codec as ObjectMapper
-        val node: JsonNode = mapper.readTree(jp)
+        val node = mapper.readTree<JsonNode>(jp)[NODE_NAME]
 
         return Attribute(
             name = node.get(NAME).asText(),

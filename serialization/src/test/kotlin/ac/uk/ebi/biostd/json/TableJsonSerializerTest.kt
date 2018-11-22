@@ -34,7 +34,7 @@ class TableJsonSerializerTest {
             |}
             |]""".trimMargin()
 
-        val table = JsonSerializer().deserialize(json, LinksTable::class.java)
+        val table = JsonSerializer.mapper.readValue(json, LinksTable::class.java)
 
         val rows = table.elements
         assertThat(rows).hasSize(2)
@@ -80,7 +80,7 @@ class TableJsonSerializerTest {
             |}
             |]""".trimMargin()
 
-        val table = JsonSerializer().deserialize(json, SectionsTable::class.java)
+        val table = JsonSerializer.mapper.readValue(json, SectionsTable::class.java)
 
         val rows = table.elements
         assertThat(rows).hasSize(2)
@@ -91,15 +91,15 @@ class TableJsonSerializerTest {
     @Test
     fun `serialize table of links`() {
         val attr = Attribute(
-                name = "attrName",
-                value = "attrValue",
-                reference = false,
-                valueAttrs = mutableListOf(AttributeDetail("n", "v")))
+            name = "attrName",
+            value = "attrValue",
+            reference = false,
+            valueAttrs = mutableListOf(AttributeDetail("n", "v")))
         val link = Link("1234", mutableListOf(attr))
         val table = LinksTable(listOf(link))
 
         val serializer = JsonSerializer()
-        val table2 = serializer.deserialize(serializer.serialize(table), LinksTable::class.java)
+        val table2 = JsonSerializer.mapper.readValue(JsonSerializer.mapper.writeValueAsString(table), LinksTable::class.java)
 
         assertThat(table).isEqualTo(table2)
     }

@@ -1,7 +1,6 @@
 package ac.uk.ebi.biostd.rest.controllers
 
 import ac.uk.ebi.biostd.SerializationService
-import ac.uk.ebi.biostd.SubFormat.JSON
 import ac.uk.ebi.biostd.service.SubmissionService
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.User
@@ -42,5 +41,5 @@ class SubmissionResource(
     @PostMapping
     @ResponseBody
     fun submit(@RequestBody submission: Submission, @AuthenticationPrincipal user: User) =
-        serializationService.serializeSubmission(submissionService.submitSubmission(submission, user), JSON)
+        submissionService.submitSubmission(submission, user)
 }

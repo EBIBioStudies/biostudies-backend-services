@@ -8,6 +8,8 @@ import org.junit.Test
 
 class AttributeJsonSerializerTest {
 
+    private val mapper = JsonSerializer.mapper
+
     @Test(expected = NullPointerException::class)
     fun `deserialize empty attribute`() {
         deserialize("{}")
@@ -59,16 +61,16 @@ class AttributeJsonSerializerTest {
     @Test
     fun `serialize attribute with reference and terms`() {
         val attr = Attribute(
-                name = "attr name",
-                value = "attr value",
-                reference = true,
-                valueAttrs = mutableListOf(AttributeDetail("t1", "v1"), AttributeDetail("t2", "v2")))
+            name = "attr name",
+            value = "attr value",
+            reference = true,
+            valueAttrs = mutableListOf(AttributeDetail("t1", "v1"), AttributeDetail("t2", "v2")))
 
         val result = deserialize(serialize(attr))
         assertThat(result).isEqualTo(attr)
     }
 
-    private fun deserialize(json: String): Attribute = JsonSerializer().deserialize(json, Attribute::class.java)
+    private fun deserialize(json: String): Attribute = mapper.readValue(json, Attribute::class.java)
 
-    private fun serialize(attr: Attribute): String = JsonSerializer().serialize(attr)
+    private fun serialize(attr: Attribute): String = mapper.writeValueAsString(attr)
 }

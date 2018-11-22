@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.tsv
+package ac.uk.ebi.biostd.tsv.serialization
 
 internal const val TITLE_KEY = "Title"
 internal const val ACC_NO_KEY = "Submission"

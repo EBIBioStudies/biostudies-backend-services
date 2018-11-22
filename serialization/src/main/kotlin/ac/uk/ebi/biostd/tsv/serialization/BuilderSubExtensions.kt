@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.tsv
+package ac.uk.ebi.biostd.tsv.serialization
 
 fun TsvBuilder.addSeparator() {
     append("\n")

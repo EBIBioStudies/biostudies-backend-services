@@ -19,7 +19,7 @@ class PersistenceConfig(
     private val tagsDataRepository: TagsDataRepository
 ) {
     @Bean
-    fun submissionRepository() = SubmissionRepository(submissionDataRepository, submissionDbMapper())
+    fun submissionRepository() = SubmissionRepository(submissionDataRepository)
 
     @Bean
     fun submissionDbMapper() = SubmissionDbMapper()
@@ -29,5 +29,5 @@ class PersistenceConfig(
 
     @Bean
     fun persistenceContext() = PersistenceContextImpl(
-            submissionDataRepository, sequenceRepository, submissionDbMapper(), submissionMapper())
+        submissionDataRepository, sequenceRepository, submissionDbMapper(), submissionMapper())
 }

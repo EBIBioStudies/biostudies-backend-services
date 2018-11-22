@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.serialization.tsv
+package ac.uk.ebi.biostd.tsv.deserialization
 
 data class TsvChunkLine(private val name: String, val value: String) {
     fun isReference() = name.matches("<.+>".toRegex())

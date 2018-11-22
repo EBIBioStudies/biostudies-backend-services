@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.serialization.common
+package ac.uk.ebi.biostd.tsv
 
 const val TSV_SEPARATOR = "\t"
 const val TSV_LINE_BREAK = "\n\n"

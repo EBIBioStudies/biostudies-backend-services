@@ -13,7 +13,7 @@ import org.springframework.http.MediaType.TEXT_XML
 import org.springframework.http.converter.HttpMessageConverter
 import kotlin.reflect.full.isSuperclassOf
 
-class JsonPagetabConverter(private val serializerService: SerializationService) : HttpMessageConverter<Submission> {
+class PagetabConverter(private val serializerService: SerializationService) : HttpMessageConverter<Submission> {
 
     override fun canRead(clazz: Class<*>, mediaType: MediaType?) =
         Submission::class.isSuperclassOf(clazz.kotlin)
