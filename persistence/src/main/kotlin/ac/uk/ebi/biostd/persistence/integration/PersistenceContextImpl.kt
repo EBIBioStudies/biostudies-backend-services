@@ -25,7 +25,8 @@ class PersistenceContextImpl(
 
     // TODO make this thread safe!
     override fun getSequenceNextValue(pattern: AccPattern) =
-        sequenceRepository.save(sequenceRepository.getByPrefixAndSuffix(pattern.prefix, pattern.postfix).apply { counter++ }).id
+        sequenceRepository.save(
+            sequenceRepository.getByPrefixAndSuffix(pattern.prefix, pattern.postfix).apply { counter++ }).id
 
     override fun getParentAccessTags(submission: Submission) =
         getParentSubmission(submission)
@@ -34,7 +35,8 @@ class PersistenceContextImpl(
 
     override fun getParentAccPattern(submission: Submission) =
         getParentSubmission(submission)
-            .flatMap { parent -> parent.attributes.firstOrNull { it.name == SubFields.ACC_NO_TEMPLATE.toString() }.toOption() }
+            .flatMap { parent ->
+                parent.attributes.firstOrNull { it.name == SubFields.ACC_NO_TEMPLATE.toString() }.toOption() }
             .map { it.value }
 
     override fun getSubmission(accNo: String) =

@@ -48,7 +48,7 @@ class SubmissionMapper(private val tagsRepository: TagsDataRepository) {
         return sections.mapIndexed { index, either ->
             either.fold(
                 { listOf(toSection(it, index)) },
-                { it.elements.mapIndexed { tableIndex, file -> toTableSection(file, index + tableIndex) } })
+                { it.elements.mapIndexed { tableIndex, file -> toTableSection(file, index + tableIndex, tableIndex) } })
         }.flatten().toSortedSet()
     }
 
@@ -56,26 +56,27 @@ class SubmissionMapper(private val tagsRepository: TagsDataRepository) {
         files.mapIndexed { index, either ->
             either.fold(
                 { listOf(toFile(it, index)) },
-                { it.elements.mapIndexed { tableIndex, file -> toFile(file, index + tableIndex) } })
+                { it.elements.mapIndexed { tableIndex, file -> toFile(file, index + tableIndex, tableIndex) } })
         }.flatten().toSortedSet()
 
     private fun toLinks(links: MutableList<Either<Link, LinksTable>>) =
         links.mapIndexed { index, either ->
             either.fold(
                 { listOf(toLink(it, index)) },
-                { it.elements.mapIndexed { tableIndex, link -> toLink(link, index + tableIndex) } })
+                { it.elements.mapIndexed { tableIndex, link -> toLink(link, index + tableIndex, tableIndex) } })
         }.flatten().toSortedSet()
 
-    private fun toTableSection(section: Section, index: Int) =
+    private fun toTableSection(section: Section, index: Int, sectionTableIndex: Int) =
         SectionDb(section.accNo, section.type).apply {
             attributes = toAttributes(section.attributes, ::SectionAttribute)
+            tableIndex = sectionTableIndex
             order = index
         }
 
     private fun toAccessTag(accessTags: List<String>) = accessTags.mapTo(mutableSetOf()) { tagsRepository.findByName(it) }
 
-    private fun toLink(link: Link, order: Int) = LinkDb(link.url, order, toAttributes(link.attributes, ::LinkAttribute))
-    private fun toFile(file: File, order: Int) = FileDb(file.name, order, toAttributes(file.attributes, ::FileAttribute))
+    private fun toLink(link: Link, order: Int, tableIndex: Int = NO_TABLE_INDEX) = LinkDb(link.url, order, toAttributes(link.attributes, ::LinkAttribute), tableIndex)
+    private fun toFile(file: File, order: Int, tableIndex: Int = NO_TABLE_INDEX) = FileDb(file.name, order, toAttributes(file.attributes, ::FileAttribute), tableIndex)
 
     private fun <F> toAttributes(attributes: List<Attribute>, build: (AttributeDb) -> F) = attributes.mapIndexedTo(sortedSetOf()) { index, order -> toAttribute(order, index, build) }
     private fun <F> toAttribute(attribute: Attribute, index: Int, build: (AttributeDb) -> F) = build(AttributeDb(attribute.name, attribute.value, index, attribute.reference.orFalse()))
