@@ -75,9 +75,15 @@ class SubmissionMapper(private val tagsRepository: TagsDataRepository) {
 
     private fun toAccessTag(accessTags: List<String>) = accessTags.mapTo(mutableSetOf()) { tagsRepository.findByName(it) }
 
-    private fun toLink(link: Link, order: Int, tableIndex: Int = NO_TABLE_INDEX) = LinkDb(link.url, order, toAttributes(link.attributes, ::LinkAttribute), tableIndex)
-    private fun toFile(file: File, order: Int, tableIndex: Int = NO_TABLE_INDEX) = FileDb(file.name, order, toAttributes(file.attributes, ::FileAttribute), tableIndex)
+    private fun toLink(link: Link, order: Int, tableIndex: Int = NO_TABLE_INDEX) =
+        LinkDb(link.url, order, toAttributes(link.attributes, ::LinkAttribute), tableIndex)
 
-    private fun <F> toAttributes(attributes: List<Attribute>, build: (AttributeDb) -> F) = attributes.mapIndexedTo(sortedSetOf()) { index, order -> toAttribute(order, index, build) }
-    private fun <F> toAttribute(attribute: Attribute, index: Int, build: (AttributeDb) -> F) = build(AttributeDb(attribute.name, attribute.value, index, attribute.reference.orFalse()))
+    private fun toFile(file: File, order: Int, tableIndex: Int = NO_TABLE_INDEX) =
+        FileDb(file.name, order, toAttributes(file.attributes, ::FileAttribute), tableIndex)
+
+    private fun <F> toAttributes(attributes: List<Attribute>, build: (AttributeDb) -> F) =
+        attributes.mapIndexedTo(sortedSetOf()) { index, order -> toAttribute(order, index, build) }
+
+    private fun <F> toAttribute(attribute: Attribute, index: Int, build: (AttributeDb) -> F) =
+        build(AttributeDb(attribute.name, attribute.value, index, attribute.reference.orFalse()))
 }

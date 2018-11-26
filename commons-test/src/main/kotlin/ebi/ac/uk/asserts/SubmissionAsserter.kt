@@ -7,6 +7,7 @@ import ebi.ac.uk.model.LinksTable
 import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.SectionsTable
 import ebi.ac.uk.model.Submission
+import ebi.ac.uk.model.Table
 import ebi.ac.uk.model.extensions.title
 import ebi.ac.uk.util.collections.ifLeft
 import ebi.ac.uk.util.collections.ifRight
@@ -28,28 +29,29 @@ fun assertSection(
 fun assertSection(section: Section, expectedAccNo: String?, expectedType: String, vararg expectedAttributes: Attribute) =
     performSectionAssertion(section, expectedAccNo, expectedType, expectedAttributes)
 
-fun assertSectionsTable(sectionsTable: Either<Section, SectionsTable>, vararg expectedRowSections: Section) {
-    sectionsTable.ifRight {
-        assertThat(it.elements).hasSize(expectedRowSections.size)
-        it.elements.forEachIndexed{ index, rowSection ->
-            val expected = expectedRowSections[index]
-            performSectionAssertion(rowSection, expected.accNo, expected.type, expected.attributes.toTypedArray())
-        }
-    }
-}
+fun assertSectionsTable(sectionsTable: Either<Section, SectionsTable>, vararg expectedRowSections: Section) =
+    assertTable(
+        sectionsTable,
+        { sect, exp -> performSectionAssertion(sect, exp.accNo, exp.type, exp.attributes.toTypedArray()) },
+        expectedRowSections)
 
 fun assertLink(link: Either<Link, LinksTable>, expectedUrl: String, vararg expectedAttributes: Attribute) =
     link.ifLeft { performLinkAssertion(it, expectedUrl, expectedAttributes) }
 
-// TODO table assertion abstraction
-// TODO reuse in TsvDeserializerTest
-fun assertLinksTable(linksTable: Either<Link, LinksTable>, vararg expectedRowLinks: Link) {
-    linksTable.ifRight {
-        assertThat(it.elements).hasSize(expectedRowLinks.size)
-        it.elements.forEachIndexed{ index, rowLink ->
-            val expected = expectedRowLinks[index]
-            performLinkAssertion(rowLink, expected.url, expected.attributes.toTypedArray())
-        }
+fun assertLinksTable(linksTable: Either<Link, LinksTable>, vararg expectedRowLinks: Link) =
+    assertTable(
+        linksTable,
+        { link, expected -> performLinkAssertion(link, expected.url, expected.attributes.toTypedArray()) },
+        expectedRowLinks)
+
+private fun <A, B: Table<A>> assertTable(
+    table: Either<A, B>,
+    assertFunction: (actual: A, expected: A) -> Unit,
+    expectedRows: Array<out A>
+) {
+    table.ifRight {
+        assertThat(it.elements).hasSize(expectedRows.size)
+        it.elements.forEachIndexed { index, rowElement -> assertFunction(rowElement, expectedRows[index]) }
     }
 }
 
