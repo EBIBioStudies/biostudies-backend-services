@@ -93,7 +93,7 @@ class TsvDeserializer {
             parentSection.sections
                 .filterLeft { section -> section.accNo == sectionChunk.getParent() }
                 .first()
-                .ifLeft { section -> processSubSectionChunk(section, sectionChunk)}
+                .ifLeft { section -> processSubSectionChunk(section, sectionChunk) }
         }
     }
 

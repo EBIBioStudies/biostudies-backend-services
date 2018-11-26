@@ -32,7 +32,6 @@ fun assertSection(section: Section, expectedAccNo: String?, expectedType: String
 fun assertSectionsTable(sectionsTable: Either<Section, SectionsTable>, vararg expectedRowSections: Section) =
     assertTable(
         sectionsTable,
-        { sect, exp -> performSectionAssertion(sect, exp.accNo, exp.type, exp.attributes.toTypedArray()) },
         expectedRowSections)
 
 fun assertLink(link: Either<Link, LinksTable>, expectedUrl: String, vararg expectedAttributes: Attribute) =
@@ -41,17 +40,22 @@ fun assertLink(link: Either<Link, LinksTable>, expectedUrl: String, vararg expec
 fun assertLinksTable(linksTable: Either<Link, LinksTable>, vararg expectedRowLinks: Link) =
     assertTable(
         linksTable,
-        { link, expected -> performLinkAssertion(link, expected.url, expected.attributes.toTypedArray()) },
         expectedRowLinks)
 
-private fun <A, B: Table<A>> assertTable(
+fun <A, B : Table<A>> assertTheTable(table: Either<A, B>, vararg expectedRows: A) {
+    table.ifRight {
+        assertThat(it.elements).hasSize(expectedRows.size)
+        it.elements.forEachIndexed { index, rowElement -> assertThat(rowElement).isEqualTo(expectedRows[index]) }
+    }
+}
+
+private fun <A, B : Table<A>> assertTable(
     table: Either<A, B>,
-    assertFunction: (actual: A, expected: A) -> Unit,
     expectedRows: Array<out A>
 ) {
     table.ifRight {
         assertThat(it.elements).hasSize(expectedRows.size)
-        it.elements.forEachIndexed { index, rowElement -> assertFunction(rowElement, expectedRows[index]) }
+        it.elements.forEachIndexed { index, rowElement -> assertThat(rowElement).isEqualTo(expectedRows[index]) }
     }
 }
 

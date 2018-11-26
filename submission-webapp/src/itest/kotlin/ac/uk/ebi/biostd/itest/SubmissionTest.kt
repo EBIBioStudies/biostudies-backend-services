@@ -12,6 +12,8 @@ import ebi.ac.uk.asserts.assertLinksTable
 import ebi.ac.uk.asserts.assertSection
 import ebi.ac.uk.asserts.assertSectionsTable
 import ebi.ac.uk.asserts.assertSubmission
+import ebi.ac.uk.asserts.assertTable
+import ebi.ac.uk.asserts.assertTheTable
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.Link
 import ebi.ac.uk.model.Section
@@ -110,16 +112,15 @@ class SubmissionTest(private val temporaryFolder: TemporaryFolder) {
         // TODO split in several methods
         private fun assertSections(rootSection: Section) {
             assertThat(rootSection.sections).hasSize(2)
-            assertSection(
-                rootSection,
-                "SECT-001",
-                "Study",
-                Attribute("Project", "CEEHRC (McGill)"),
-                Attribute("Tissue type", "venous blood"))
+            assertThat(rootSection).isEqualTo(Section(
+                type = "Study",
+                accNo = "SECT-001",
+                attributes = listOf(Attribute("Project", "CEEHRC (McGill)"), Attribute("Tissue type", "venous blood"))
+            ))
 
             assertThat(rootSection.sections).hasSize(2)
             assertSection(rootSection.sections.first(), "SUBSECT-001", "Stranded Total RNA-Seq")
-            assertSectionsTable(
+            assertTable(
                 rootSection.sections.second(),
                 Section(
                     type = "Data",
@@ -130,7 +131,7 @@ class SubmissionTest(private val temporaryFolder: TemporaryFolder) {
 
             assertThat(rootSection.links).hasSize(2)
             assertLink(rootSection.links.first(), "AF069309", Attribute("Type", "gen"))
-            assertLinksTable(
+            assertTable(
                 rootSection.links.second(),
                 Link("EGAD00001001282", listOf(Attribute("Type", "EGA"), Attribute("Assay type", "RNA-Seq"))))
         }
