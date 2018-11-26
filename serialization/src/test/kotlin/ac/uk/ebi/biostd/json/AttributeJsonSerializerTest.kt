@@ -1,25 +1,31 @@
 package ac.uk.ebi.biostd.json
 
+import ac.uk.ebi.biostd.ext.deserialize
+import ac.uk.ebi.biostd.ext.serialize
+import ebi.ac.uk.dsl.jsonArray
+import ebi.ac.uk.dsl.jsonObj
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.AttributeDetail
-import net.soundvibe.jkob.json
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
+import org.junit.jupiter.api.assertThrows
 
 class AttributeJsonSerializerTest {
 
-    private val mapper = JsonSerializer.mapper
+    private val testInstance = JsonSerializer.mapper
 
-    @Test(expected = NullPointerException::class)
-    fun `deserialize empty attribute`() {
-        deserialize("{}")
+    @Test
+    fun `deserialize wrong structure`() {
+        val exception = assertThrows<IllegalStateException> { testInstance.deserialize<Attribute>("{}") }
+
+        assertThat(exception.message).isEqualTo("Expecting to find property with 'name' in node '{}'")
     }
 
     @Test
     fun `deserialize attribute with name and value`() {
         val attr = Attribute(name = "attr name", value = "attr value", reference = false)
 
-        val result = deserialize("""{
+        val result = testInstance.deserialize<Attribute>("""{
             |"name": "${attr.name}",
             |"value": "${attr.value}"
             |}""".trimMargin())
@@ -33,27 +39,27 @@ class AttributeJsonSerializerTest {
         val term2 = AttributeDetail("t2", "v2")
         val attr = Attribute(name = "attr name", value = "attr value", reference = true, valueAttrs = mutableListOf(term1, term2))
 
-        val attributeJson = json {
+        val attributeJson = jsonObj {
             "name" to attr.name
             "value" to attr.value
             "reference" to attr.reference
-            "valqual"[ {
+            "valqual" to jsonArray({
                 "name" to term1.name
                 "value" to term1.value
             }, {
                 "name" to term2.name
                 "value" to term2.value
-            } ]
+            })
         }.toString()
 
-        assertThat(deserialize(attributeJson)).isEqualTo(attr)
+        assertThat(testInstance.deserialize<Attribute>(attributeJson)).isEqualTo(attr)
     }
 
     @Test
     fun `serialize attribute with name and value`() {
         val attr = Attribute(name = "attr name", value = "attr value", reference = false)
 
-        val result = deserialize(serialize(attr))
+        val result = testInstance.deserialize<Attribute>(testInstance.serialize(attr))
 
         assertThat(result).isEqualTo(attr)
     }
@@ -66,11 +72,7 @@ class AttributeJsonSerializerTest {
             reference = true,
             valueAttrs = mutableListOf(AttributeDetail("t1", "v1"), AttributeDetail("t2", "v2")))
 
-        val result = deserialize(serialize(attr))
+        val result = testInstance.deserialize<Attribute>(testInstance.serialize(attr))
         assertThat(result).isEqualTo(attr)
     }
-
-    private fun deserialize(json: String): Attribute = mapper.readValue(json, Attribute::class.java)
-
-    private fun serialize(attr: Attribute): String = mapper.writeValueAsString(attr)
 }

@@ -18,20 +18,6 @@ class JsonSerializerTest {
         assertThat(out).isNotNull()
     }
 
-    /*
-    @Test
-    fun `serialize sample submission with internal data`() {
-        subm.user = User("user@email.com")//, "#42")
-        val publicJson = testInstance.serialize(subm)
-        val internalJson = testInstance.serializeWithInternalData(subm)
-
-        assertThat(internalJson).contains(subm.user.email)
-        assertThat(internalJson).contains(subm.user.id)
-
-        assertThat(publicJson).doesNotContain(subm.user.email)
-        assertThat(publicJson).doesNotContain(subm.user.id)
-    }*/
-
     @Test
     @Disabled("change for real json submission")
     fun `deserialize sample submission`() {

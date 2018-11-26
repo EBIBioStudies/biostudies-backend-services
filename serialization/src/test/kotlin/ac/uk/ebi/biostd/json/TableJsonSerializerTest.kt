@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.json
 
+import ebi.ac.uk.dsl.jsonArray
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.AttributeDetail
 import ebi.ac.uk.model.Link
@@ -15,24 +16,18 @@ class TableJsonSerializerTest {
         val url = listOf("12345", "6789")
         val attr = Attribute("attr1", "attr1 value")
 
-        val json = """[
-            |{
-            |  "url": "${url[0]}",
-            |  "attributes": [
-            |    {
-            |       "name": "${attr.name}",
-            |       "value": "${attr.value}"
-            |    },
-            |    {
-            |       "name": "attr2",
-            |       "value": "attr2 value"
-            |    }
-            |  ]
-            |},
-            |{
-            |   "url": "${url[1]}"
-            |}
-            |]""".trimMargin()
+        val json = jsonArray({
+            "url" to url[0]
+            "attributes" to jsonArray({
+                "name" to attr.name
+                "value" to attr.value
+            }, {
+                "name" to "attr2"
+                "value" to "attr2 value"
+            })
+        }, {
+            "url" to url[1]
+        }).toString()
 
         val table = JsonSerializer.mapper.readValue(json, LinksTable::class.java)
 
@@ -51,34 +46,25 @@ class TableJsonSerializerTest {
         val ids = listOf("12345", "6789")
         val attr = Attribute("attr1", "attr1 value")
 
-        val json = """[
-            |{
-            |  "accNo": "${ids[0]}",
-            |  "attributes": [
-            |    {
-            |       "name": "Run",
-            |       "value": "Type"
-            |    },
-            |    {
-            |       "name": "${attr.name}",
-            |       "value": "${attr.value}"
-            |    },
-            |    {
-            |       "name": "attr2",
-            |       "value": "attr2 value"
-            |    }
-            |  ]
-            |},
-            |{
-            |   "accNo": "${ids[1]}",
-            |   "attributes": [
-            |       {
-            |           "name": "Run",
-            |           "value": "Type"
-            |       }
-            |    ]
-            |}
-            |]""".trimMargin()
+        val json = jsonArray({
+            "accNo" to ids[0]
+            "attributes" to jsonArray({
+                "name" to "Run"
+                "value" to "Type"
+            }, {
+                "name" to attr.name
+                "value" to attr.value
+            }, {
+                "name" to "attr2"
+                "value" to "attr2 value"
+            })
+        }, {
+            "accNo" to ids[1]
+            "attributes" to jsonArray({
+                "name" to "Run"
+                "value" to "Type"
+            })
+        }).toString()
 
         val table = JsonSerializer.mapper.readValue(json, SectionsTable::class.java)
 
@@ -98,7 +84,6 @@ class TableJsonSerializerTest {
         val link = Link("1234", mutableListOf(attr))
         val table = LinksTable(listOf(link))
 
-        val serializer = JsonSerializer()
         val table2 = JsonSerializer.mapper.readValue(JsonSerializer.mapper.writeValueAsString(table), LinksTable::class.java)
 
         assertThat(table).isEqualTo(table2)

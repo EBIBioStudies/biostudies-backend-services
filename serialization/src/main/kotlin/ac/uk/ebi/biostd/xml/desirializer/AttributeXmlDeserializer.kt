@@ -5,7 +5,7 @@ import ac.uk.ebi.biostd.common.NAME_ATTRIBUTES
 import ac.uk.ebi.biostd.common.REFERENCE
 import ac.uk.ebi.biostd.common.VALUE
 import ac.uk.ebi.biostd.common.VAL_ATTRIBUTES
-import ac.uk.ebi.biostd.common.convertList
+import ac.uk.ebi.biostd.ext.convertList
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.JsonNode

@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.common
 
+import ac.uk.ebi.biostd.ext.tryConvertValue
 import com.fasterxml.jackson.databind.JavaType
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
