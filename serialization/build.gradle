@@ -12,6 +12,7 @@ repositories {
 }
 
 dependencies {
+    compile project(":commons-test")
     compile project(":commons-util")
     compile project(":commons-bio")
 

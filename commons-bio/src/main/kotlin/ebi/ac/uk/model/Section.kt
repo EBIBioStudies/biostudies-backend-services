@@ -3,6 +3,7 @@ package ebi.ac.uk.model
 import arrow.core.Either
 import ebi.ac.uk.util.collections.addLeft
 import ebi.ac.uk.util.collections.addRight
+import java.util.Objects
 
 class Section(
     var type: String = "",
@@ -20,4 +21,15 @@ class Section(
     fun addFilesTable(table: FilesTable) = files.addRight(table)
     fun addLinksTable(table: LinksTable) = links.addRight(table)
     fun addSectionTable(table: SectionsTable) = sections.addRight(table)
+
+    // TODO implement equals for files and links
+    override fun equals(other: Any?) = when {
+        other !is Section -> false
+        other === this -> true
+        else -> Objects.equals(type, other.type)
+            .and(Objects.equals(accNo, other.accNo))
+            .and(Objects.equals(attributes, other.attributes))
+    }
+
+    override fun hashCode() = Objects.hash(type, accNo, links, files, this.attributesMap)
 }
