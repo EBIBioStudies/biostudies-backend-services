@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.persistence.model
 
 import ac.uk.ebi.biostd.persistence.common.NO_TABLE_INDEX
 import java.util.SortedSet
+import javax.persistence.CascadeType
 import javax.persistence.Column
 import javax.persistence.Entity
 import javax.persistence.GeneratedValue
@@ -26,13 +27,14 @@ class File(
     @GeneratedValue
     var id: Long = 0L
 
-    @OneToMany
+    @OneToMany(cascade = [CascadeType.ALL])
     @JoinColumn(name = "file_id")
     @OrderBy("order ASC")
     var attributes: SortedSet<FileAttribute> = sortedSetOf()
 
-    constructor(name: String, order: Int, attributes: SortedSet<FileAttribute>) : this(name, order) {
+    constructor(name: String, order: Int, attributes: SortedSet<FileAttribute>, tableIndex: Int = NO_TABLE_INDEX) : this(name, order) {
         this.attributes = attributes
+        this.tableIndex = tableIndex
     }
 
     @Column

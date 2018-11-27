@@ -31,6 +31,7 @@ dependencies {
     compile project(":submitter")
     compile project(":serialization")
     compile project(":commons-util")
+    compile project(":commons-test")
     compile project(":commons-security")
 
     compile 'org.springframework.boot:spring-boot-starter-web'

@@ -4,6 +4,7 @@ import ac.uk.ebi.biostd.persistence.common.NO_TABLE_INDEX
 import ac.uk.ebi.biostd.persistence.converters.NullableIntConverter
 import java.util.Objects
 import java.util.SortedSet
+import javax.persistence.CascadeType
 import javax.persistence.Column
 import javax.persistence.Convert
 import javax.persistence.Entity
@@ -37,22 +38,22 @@ class Section(
     @Convert(converter = NullableIntConverter::class)
     override var order: Int = 0
 
-    @OneToMany
+    @OneToMany(cascade = [CascadeType.ALL])
     @JoinColumn(name = "section_id")
     @OrderBy("order ASC")
     var attributes: SortedSet<SectionAttribute> = sortedSetOf()
 
-    @OneToMany
+    @OneToMany(cascade = [CascadeType.ALL])
     @JoinColumn(name = "section_id")
     @OrderBy("order ASC")
     var links: SortedSet<Link> = sortedSetOf()
 
-    @OneToMany
+    @OneToMany(cascade = [CascadeType.ALL])
     @JoinColumn(name = "sectionId")
     @OrderBy("order ASC")
     var files: SortedSet<File> = sortedSetOf()
 
-    @OneToMany
+    @OneToMany(cascade = [CascadeType.ALL])
     @JoinColumn(name = "parent_id")
     @OrderBy("order ASC")
     var sections: SortedSet<Section> = sortedSetOf()

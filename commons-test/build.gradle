@@ -1,0 +1,17 @@
+buildscript {
+    ext {
+        junitVersion = "5.2.0"
+        junitPlatformVersion = "1.2.0"
+        kotlinVersion = '1.2.71'
+    }
+}
+
+apply plugin: 'kotlin'
+
+dependencies {
+    compile project(":commons-bio")
+
+    compile 'io.arrow-kt:arrow-core:0.7.2'
+    compile 'org.assertj:assertj-core:3.11.0'
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${kotlinVersion}"
+}
