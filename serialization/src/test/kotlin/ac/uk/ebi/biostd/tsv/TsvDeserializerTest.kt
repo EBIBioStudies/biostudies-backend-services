@@ -13,11 +13,9 @@ import ac.uk.ebi.biostd.test.submissionWithRootSection
 import ac.uk.ebi.biostd.test.submissionWithSectionsTable
 import ac.uk.ebi.biostd.test.submissionWithSubsection
 import ac.uk.ebi.biostd.tsv.deserialization.TsvDeserializer
-import ebi.ac.uk.asserts.assertLink
-import ebi.ac.uk.asserts.assertLinksTable
-import ebi.ac.uk.asserts.assertSection
-import ebi.ac.uk.asserts.assertSectionsTable
+import ebi.ac.uk.asserts.assertSingleElement
 import ebi.ac.uk.asserts.assertSubmission
+import ebi.ac.uk.asserts.assertTable
 import ebi.ac.uk.base.EMPTY
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.AttributeDetail
@@ -70,12 +68,11 @@ class TsvDeserializerTest {
         val submission: Submission = deserializer.deserialize(submissionWithRootSection().toString())
 
         assertSubmission(submission, "S-EPMC125", "Test Submission")
-        assertSection(
-            submission.section,
-            EMPTY,
-            "Study",
-            Attribute("Title", "Test Root Section"),
-            Attribute("Abstract", "Test abstract"))
+        assertThat(submission.section).isEqualTo(Section(
+            accNo = EMPTY,
+            type = "Study",
+            attributes = listOf(Attribute("Title", "Test Root Section"), Attribute("Abstract", "Test abstract"))
+        ))
     }
 
     @Test
@@ -83,7 +80,7 @@ class TsvDeserializerTest {
         val submission: Submission = deserializer.deserialize(submissionWithSectionsTable().toString())
 
         assertThat(submission.section.sections).hasSize(1)
-        assertSectionsTable(
+        assertTable(
             submission.section.sections.first(),
             Section(
                 accNo = "DT-1",
@@ -100,12 +97,14 @@ class TsvDeserializerTest {
         val submission: Submission = deserializer.deserialize(submissionWithSubsection().toString())
 
         assertThat(submission.section.sections).hasSize(1)
-        assertSection(
+        assertSingleElement(
             submission.section.sections.first(),
-            "F-001",
-            "Funding",
-            Attribute("Agency", "National Support Program of China"),
-            Attribute("Grant Id", "No. 2015BAD27B01"))
+            Section(
+                accNo = "F-001",
+                type = "Funding",
+                attributes = listOf(
+                    Attribute("Agency", "National Support Program of China"),
+                    Attribute("Grant Id", "No. 2015BAD27B01"))))
     }
 
     @Test
@@ -115,23 +114,27 @@ class TsvDeserializerTest {
         assertThat(submission.section.sections).hasSize(2)
         submission.section.sections.first().ifLeft { section ->
             assertThat(section.sections).hasSize(1)
-            assertSection(
-                section,
-                "F-001",
-                "Funding",
-                Attribute("Agency", "National Support Program of China"),
-                Attribute("Grant Id", "No. 2015BAD27B01"))
-            assertSection(section.sections.first(), "E-001", "Expense", Attribute("Description", "Travel"))
+
+            assertThat(section).isEqualTo(Section(
+                accNo = "F-001",
+                type = "Funding",
+                attributes = listOf(
+                    Attribute("Agency", "National Support Program of China"),
+                    Attribute("Grant Id", "No. 2015BAD27B01"))))
+
+            assertSingleElement(
+                section.sections.first(),
+                Section(accNo = "E-001", type = "Expense", attributes = listOf(Attribute("Description", "Travel"))))
         }
 
         submission.section.sections.second().ifLeft { section ->
             assertThat(section.sections).isEmpty()
-            assertSection(
-                section,
-                "F-002",
-                "Funding",
-                Attribute("Agency", "National Support Program of Japan"),
-                Attribute("Grant Id", "No. 2015BAD27A03"))
+            assertThat(section).isEqualTo(Section(
+                accNo = "F-002",
+                type = "Funding",
+                attributes = listOf(
+                    Attribute("Agency", "National Support Program of Japan"),
+                    Attribute("Grant Id", "No. 2015BAD27A03"))))
         }
     }
 
@@ -142,23 +145,21 @@ class TsvDeserializerTest {
 
         submission.section.sections.first().ifLeft { section ->
             assertThat(section.sections).isEmpty()
-            assertSection(
-                section,
-                "F-001",
-                "Funding",
-                Attribute("Agency", "National Support Program of China"),
-                Attribute("Grant Id", "No. 2015BAD27B01"))
+            assertThat(section).isEqualTo(Section(
+                accNo = "F-001",
+                type = "Funding",
+                attributes = listOf(
+                    Attribute("Agency", "National Support Program of China"),
+                    Attribute("Grant Id", "No. 2015BAD27B01"))))
         }
 
         submission.section.sections.second().ifLeft { section ->
             assertThat(section.sections).hasSize(1)
-            assertSection(
-                section,
-                "S-001",
-                "Study",
-                Attribute("Type", "Imaging"))
-            assertSectionsTable(
-                section.sections.first(),
+
+            assertThat(section).isEqualTo(
+                Section(accNo = "S-001", type = "Study", attributes = listOf(Attribute("Type", "Imaging"))))
+
+            assertTable(section.sections.first(),
                 Section(
                     accNo = "SMP-1",
                     type = "Sample",
@@ -175,8 +176,8 @@ class TsvDeserializerTest {
         val submission: Submission = deserializer.deserialize(submissionWithLinks().toString())
 
         assertThat(submission.section.links).hasSize(2)
-        assertLink(submission.section.links.first(), "http://arandomsite.org")
-        assertLink(submission.section.links.second(), "http://completelyunrelatedsite.org")
+        assertSingleElement(submission.section.links.first(), Link("http://arandomsite.org"))
+        assertSingleElement(submission.section.links.second(), Link("http://completelyunrelatedsite.org"))
     }
 
     @Test
@@ -184,7 +185,7 @@ class TsvDeserializerTest {
         val submission: Submission = deserializer.deserialize(submissionWithLinksTable().toString())
 
         assertThat(submission.section.links).hasSize(1)
-        assertLinksTable(
+        assertTable(
             submission.section.links.first(),
             Link("AF069309", listOf(Attribute("Type", "gen"))),
             Link("AF069123", listOf(Attribute("Type", "gen"))))

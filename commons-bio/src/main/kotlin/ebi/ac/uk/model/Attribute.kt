@@ -22,17 +22,14 @@ data class Attribute(
     override fun equals(other: Any?) = when {
         other !is Attribute -> false
         this === other -> true
-        else -> compare(other)
-    }
-
-    override fun hashCode() = Objects.hash(name, value, reference, nameAttrs, valueAttrs)
-
-    private fun compare(other: Attribute) =
-        Objects.equals(name, other.name)
+        else -> Objects.equals(name, other.name)
             .and(Objects.equals(value, other.value))
             .and(Objects.equals(reference, other.reference))
             .and(Objects.equals(nameAttrs, other.nameAttrs))
             .and(Objects.equals(valueAttrs, other.valueAttrs))
+    }
+
+    override fun hashCode() = Objects.hash(name, value, reference, nameAttrs, valueAttrs)
 }
 
 data class AttributeDetail(val name: String, val value: String) {

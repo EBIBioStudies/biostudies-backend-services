@@ -7,13 +7,9 @@ import ac.uk.ebi.biostd.config.SubmitterConfig
 import ac.uk.ebi.biostd.itest.common.setAppProperty
 import ac.uk.ebi.biostd.itest.factory.allInOneSubmissionTsv
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
-import ebi.ac.uk.asserts.assertLink
-import ebi.ac.uk.asserts.assertLinksTable
-import ebi.ac.uk.asserts.assertSection
-import ebi.ac.uk.asserts.assertSectionsTable
+import ebi.ac.uk.asserts.assertSingleElement
 import ebi.ac.uk.asserts.assertSubmission
 import ebi.ac.uk.asserts.assertTable
-import ebi.ac.uk.asserts.assertTheTable
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.Link
 import ebi.ac.uk.model.Section
@@ -119,7 +115,7 @@ class SubmissionTest(private val temporaryFolder: TemporaryFolder) {
             ))
 
             assertThat(rootSection.sections).hasSize(2)
-            assertSection(rootSection.sections.first(), "SUBSECT-001", "Stranded Total RNA-Seq")
+            assertSingleElement(rootSection.sections.first(), Section(accNo = "SUBSECT-001", type = "Stranded Total RNA-Seq"))
             assertTable(
                 rootSection.sections.second(),
                 Section(
@@ -130,7 +126,7 @@ class SubmissionTest(private val temporaryFolder: TemporaryFolder) {
                         Attribute("Description", "The data for zygotic transcription in mammals group 1"))))
 
             assertThat(rootSection.links).hasSize(2)
-            assertLink(rootSection.links.first(), "AF069309", Attribute("Type", "gen"))
+            assertSingleElement(rootSection.links.first(), Link("AF069309", listOf(Attribute("Type", "gen"))))
             assertTable(
                 rootSection.links.second(),
                 Link("EGAD00001001282", listOf(Attribute("Type", "EGA"), Attribute("Assay type", "RNA-Seq"))))
