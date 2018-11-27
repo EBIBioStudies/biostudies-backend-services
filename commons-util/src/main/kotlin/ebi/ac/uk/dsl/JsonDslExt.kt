@@ -10,7 +10,7 @@ fun jsonArray(vararg elements: String) = JsonArray(elements.mapTo(mutableListOf(
 fun Map<String, JsonVal>.toJsonString() =
     entries.joinToString(prefix = "{", postfix = "}") { (key, value) -> """"$key": $value""" }
 
-fun String.toJsQuote(): String {
+fun String.toJsonQuote(): String {
     val product = StringBuilder()
     product.append("\"")
     val chars = this.toCharArray()

@@ -1,19 +1,9 @@
 package ebi.ac.uk.dsl
 
-sealed class JsonVal {
-
-    inline fun <reified T> to(): T? = when (this) {
-        is JsonString -> value as T
-        is JsonBool -> boolean as T
-        is JsonNumber -> number as T
-        is JsonObject -> elements as T
-        is JsonArray -> elements as T
-        is JsonNull -> null
-    }
-}
+sealed class JsonVal
 
 data class JsonString(val value: String) : JsonVal() {
-    override fun toString() = value.toJsQuote()
+    override fun toString() = value.toJsonQuote()
 }
 
 data class JsonBool(val boolean: Boolean) : JsonVal() {
