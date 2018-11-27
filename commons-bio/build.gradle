@@ -2,7 +2,7 @@ buildscript {
     ext {
         junitVersion = "5.2.0"
         junitPlatformVersion = "1.2.0"
-        kotlinVersion = '1.2.61'
+        kotlinVersion = '1.3.10'
     }
 }
 
@@ -10,8 +10,6 @@ apply plugin: 'kotlin'
 
 dependencies {
     compile project(":commons-util")
-
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${kotlinVersion}"
 
     // Junit dependencies
     runtime "org.junit.jupiter:junit-jupiter-engine:$junitVersion"

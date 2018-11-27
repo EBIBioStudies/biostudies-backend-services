@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.common
 
+import ac.uk.ebi.biostd.ext.tryConvertValue
 import arrow.core.Either
 import arrow.core.getOrElse
 import arrow.core.or
@@ -33,8 +34,8 @@ class EitherDeserializer : StdDeserializer<Either<*, *>>(Either::class.java), Co
         with(jp.codec as ObjectMapper) {
             val node: JsonNode = readTree(jp)
             return tryConvertValue(node, leftType).map { Either.Left(it) }
-                    .or(tryConvertValue(node, rightType).map { Either.Right(it) })
-                    .getOrElse { throw IllegalStateException("can not deserialize $node into $leftType neither $rightType") }
+                .or(tryConvertValue(node, rightType).map { Either.Right(it) })
+                .getOrElse { throw IllegalStateException("can not deserialize $node into $leftType neither $rightType") }
         }
     }
 }

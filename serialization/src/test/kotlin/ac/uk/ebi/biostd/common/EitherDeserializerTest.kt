@@ -5,7 +5,7 @@ import arrow.core.getOrHandle
 import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import net.soundvibe.jkob.json
+import ebi.ac.uk.dsl.jsonObj
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
@@ -25,7 +25,7 @@ class EitherDeserializerTest {
     @Test
     fun deserializeWhenLeft() {
         val name = "John Doe"
-        val result = objectMapper.readValue<Either<Dummy, Foo>>(json { "name" to name }.toString())
+        val result = objectMapper.readValue<Either<Dummy, Foo>>(jsonObj { "name" to name }.toString())
 
         assertThat(result.isLeft()).isTrue()
         assertThat(result.getOrHandle { it }).isEqualTo(Dummy(name))
@@ -34,7 +34,7 @@ class EitherDeserializerTest {
     @Test
     fun deserializeWhenRight() {
         val value = 55
-        val result = objectMapper.readValue<Either<Dummy, Foo>>(json { "value" to value }.toString())
+        val result = objectMapper.readValue<Either<Dummy, Foo>>(jsonObj { "value" to value }.toString())
 
         assertThat(result.isRight()).isTrue()
         assertThat(result.getOrHandle { it }).isEqualTo(Foo(value))

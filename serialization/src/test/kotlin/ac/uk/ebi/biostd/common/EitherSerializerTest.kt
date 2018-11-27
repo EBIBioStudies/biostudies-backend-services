@@ -3,7 +3,7 @@ package ac.uk.ebi.biostd.common
 import arrow.core.Either
 import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import net.soundvibe.jkob.json
+import ebi.ac.uk.dsl.jsonObj
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
@@ -25,7 +25,7 @@ class EitherSerializerTest {
         val name = "John Doe"
         val result = objectMapper.writeValueAsString(Either.left(Dummy(name)))
 
-        assertThat(result).isEqualToIgnoringWhitespace(json { "name" to name }.toString())
+        assertThat(result).isEqualToIgnoringWhitespace(jsonObj { "name" to name }.toString())
     }
 
     @Test
@@ -33,7 +33,7 @@ class EitherSerializerTest {
         val name = "John Doe"
         val result = objectMapper.writeValueAsString(Either.right(Dummy(name)))
 
-        assertThat(result).isEqualToIgnoringWhitespace(json { "name" to name }.toString())
+        assertThat(result).isEqualToIgnoringWhitespace(jsonObj { "name" to name }.toString())
     }
 
     data class Dummy(var name: String?)

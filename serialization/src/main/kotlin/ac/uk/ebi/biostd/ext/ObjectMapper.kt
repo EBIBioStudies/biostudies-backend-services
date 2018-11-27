@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.common
+package ac.uk.ebi.biostd.ext
 
 import arrow.core.None
 import arrow.core.Option
@@ -29,3 +29,6 @@ fun ObjectMapper.getListType(type: Class<*>): CollectionType =
  */
 fun <T> ObjectMapper.convertList(node: JsonNode?, type: Class<*>) =
     if (node != null) convertValue(node, getListType(type)) else mutableListOf<T>()
+
+inline fun <reified T : Any> ObjectMapper.deserialize(json: String) = readValue(json, T::class.java)!!
+inline fun <reified T> ObjectMapper.serialize(value: T): String = writeValueAsString(value)
