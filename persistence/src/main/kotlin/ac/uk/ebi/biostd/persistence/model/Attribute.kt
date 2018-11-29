@@ -13,8 +13,8 @@ import javax.persistence.MappedSuperclass
 class SectionAttribute(attribute: Attribute) :
     Attribute(attribute.name, attribute.value, attribute.order, attribute.reference) {
     init {
+        this.nameQualifier = attribute.nameQualifier
         this.valueQualifier = attribute.valueQualifier
-        this.nameQualifier = attribute.valueQualifier
     }
 }
 
@@ -22,8 +22,8 @@ class SectionAttribute(attribute: Attribute) :
 class LinkAttribute(attribute: Attribute) :
     Attribute(attribute.name, attribute.value, attribute.order, attribute.reference) {
     init {
+        this.nameQualifier = attribute.nameQualifier
         this.valueQualifier = attribute.valueQualifier
-        this.nameQualifier = attribute.valueQualifier
     }
 }
 
@@ -31,8 +31,8 @@ class LinkAttribute(attribute: Attribute) :
 class FileAttribute(attribute: Attribute) :
     Attribute(attribute.name, attribute.value, attribute.order, attribute.reference) {
     init {
+        this.nameQualifier = attribute.nameQualifier
         this.valueQualifier = attribute.valueQualifier
-        this.nameQualifier = attribute.valueQualifier
     }
 }
 
@@ -40,12 +40,14 @@ class FileAttribute(attribute: Attribute) :
 class SubmissionAttribute(attribute: Attribute) :
     Attribute(attribute.name, attribute.value, attribute.order, attribute.reference) {
     init {
+        this.nameQualifier = attribute.nameQualifier
         this.valueQualifier = attribute.valueQualifier
-        this.nameQualifier = attribute.valueQualifier
     }
 }
 
 data class AttributeDetail(val name: String, val value: String)
+
+typealias Details = MutableList<AttributeDetail>
 
 @MappedSuperclass
 open class Attribute(
@@ -64,6 +66,19 @@ open class Attribute(
 
     constructor(name: String, value: String, order: Int, reference: Boolean) : this(name, value, order) {
         this.reference = reference
+    }
+
+    constructor(
+        name: String,
+        value: String,
+        order: Int,
+        reference: Boolean,
+        nameAttrs: Details,
+        valueAttrs: Details
+    )
+        : this(name, value, order, reference) {
+        nameQualifier = nameAttrs
+        valueQualifier = valueAttrs
     }
 
     @Id

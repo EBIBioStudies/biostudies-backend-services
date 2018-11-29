@@ -11,6 +11,7 @@ import ebi.ac.uk.asserts.assertSingleElement
 import ebi.ac.uk.asserts.assertSubmission
 import ebi.ac.uk.asserts.assertTable
 import ebi.ac.uk.model.Attribute
+import ebi.ac.uk.model.AttributeDetail
 import ebi.ac.uk.model.Link
 import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.Submission
@@ -89,7 +90,6 @@ class SubmissionTest(private val temporaryFolder: TemporaryFolder) {
         }
 
         // TODO Mock user files and add files to the submission
-        // TODO Add reference attributes
         @Test
         fun `submit all in one TSV submission`() {
             val response = webClient.submitSingle(allInOneSubmissionTsv().toString(), SubmissionFormat.TSV)
@@ -102,7 +102,6 @@ class SubmissionTest(private val temporaryFolder: TemporaryFolder) {
             val submission = submissionRepository.findByAccNo("S-EPMC124")
             assertSubmission(submission, "S-EPMC124", "venous blood, Monocyte")
 
-            // TODO add attribute details and verify the persistence
             val rootSection = submission.section
             assertSections(rootSection)
             assertLinks(rootSection)
@@ -113,8 +112,15 @@ class SubmissionTest(private val temporaryFolder: TemporaryFolder) {
             assertThat(rootSection).isEqualTo(Section(
                 type = "Study",
                 accNo = "SECT-001",
-                attributes = listOf(Attribute("Project", "CEEHRC (McGill)"), Attribute("Tissue type", "venous blood"))
-            ))
+                attributes = listOf(
+                    Attribute("Project", "CEEHRC (McGill)"),
+                    Attribute("Organization", "Org1", true),
+                    Attribute(
+                        "Tissue type",
+                        "venous blood",
+                        false,
+                        mutableListOf(AttributeDetail("Tissue", "Blood")),
+                        mutableListOf(AttributeDetail("Ontology", "UBERON"))))))
 
             assertThat(rootSection.sections).hasSize(2)
             assertSingleElement(

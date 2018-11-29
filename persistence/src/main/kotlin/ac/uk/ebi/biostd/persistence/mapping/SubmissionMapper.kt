@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.persistence.mapping
 
 import ac.uk.ebi.biostd.persistence.common.AttributeDb
+import ac.uk.ebi.biostd.persistence.common.AttributeDetailDb
 import ac.uk.ebi.biostd.persistence.common.FileDb
 import ac.uk.ebi.biostd.persistence.common.LinkDb
 import ac.uk.ebi.biostd.persistence.common.NO_TABLE_INDEX
@@ -14,6 +15,7 @@ import ac.uk.ebi.biostd.persistence.repositories.TagsDataRepository
 import arrow.core.Either
 import ebi.ac.uk.base.orFalse
 import ebi.ac.uk.model.Attribute
+import ebi.ac.uk.model.AttributeDetail
 import ebi.ac.uk.model.File
 import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.model.Link
@@ -85,5 +87,14 @@ class SubmissionMapper(private val tagsRepository: TagsDataRepository) {
         attributes.mapIndexedTo(sortedSetOf()) { index, order -> toAttribute(order, index, build) }
 
     private fun <F> toAttribute(attribute: Attribute, index: Int, build: (AttributeDb) -> F) =
-        build(AttributeDb(attribute.name, attribute.value, index, attribute.reference.orFalse()))
+        build(AttributeDb(
+            attribute.name,
+            attribute.value,
+            index,
+            attribute.reference.orFalse(),
+            toAttributeDetails(attribute.nameAttrs),
+            toAttributeDetails(attribute.valueAttrs)))
+
+    private fun toAttributeDetails(details: MutableList<AttributeDetail>) =
+        details.mapTo(mutableListOf()) { AttributeDetailDb(it.name, it.value) }
 }

@@ -10,7 +10,10 @@ fun allInOneSubmissionTsv() = tsv {
 
     line("Study", "SECT-001")
     line("Project", "CEEHRC (McGill)")
+    line("<Organization>", "Org1")
     line("Tissue type", "venous blood")
+    line("[Ontology]", "UBERON")
+    line("(Tissue)", "Blood")
     line()
 
     line("Link", "AF069309")
