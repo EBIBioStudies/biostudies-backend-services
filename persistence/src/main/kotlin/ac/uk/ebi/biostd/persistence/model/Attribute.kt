@@ -1,7 +1,9 @@
 package ac.uk.ebi.biostd.persistence.model
 
+import ac.uk.ebi.biostd.persistence.converters.AttributeDetailConverter
 import java.util.Objects
 import javax.persistence.Column
+import javax.persistence.Convert
 import javax.persistence.Entity
 import javax.persistence.GeneratedValue
 import javax.persistence.Id
@@ -43,6 +45,8 @@ class SubmissionAttribute(attribute: Attribute) :
     }
 }
 
+data class AttributeDetail(val name: String, val value: String)
+
 @MappedSuperclass
 open class Attribute(
 
@@ -69,11 +73,13 @@ open class Attribute(
     @Column(name = "reference")
     var reference: Boolean = false
 
+    @Convert(converter = AttributeDetailConverter::class)
     @Column(name = "nameQualifierString")
-    var nameQualifier: String? = null
+    var nameQualifier: MutableList<AttributeDetail> = mutableListOf()
 
+    @Convert(converter = AttributeDetailConverter::class)
     @Column(name = "valueQualifierString")
-    var valueQualifier: String? = null
+    var valueQualifier: MutableList<AttributeDetail> = mutableListOf()
 
     override fun equals(other: Any?): Boolean {
         if (other !is Attribute) return false

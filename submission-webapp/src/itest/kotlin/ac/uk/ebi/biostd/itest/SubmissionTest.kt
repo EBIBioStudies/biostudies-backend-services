@@ -89,23 +89,25 @@ class SubmissionTest(private val temporaryFolder: TemporaryFolder) {
         }
 
         // TODO Mock user files and add files to the submission
-        // TODO Fix Attribute Details persistence and test
         // TODO Add reference attributes
         @Test
         fun `submit all in one TSV submission`() {
             val response = webClient.submitSingle(allInOneSubmissionTsv().toString(), SubmissionFormat.TSV)
             assertThat(response).isNotNull
             assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
-            assertSubmission()
+            assertSavedSubmission()
         }
 
-        private fun assertSubmission() {
+        private fun assertSavedSubmission() {
             val submission = submissionRepository.findByAccNo("S-EPMC124")
             assertSubmission(submission, "S-EPMC124", "venous blood, Monocyte")
-            assertSections(submission.section)
+
+            // TODO add attribute details and verify the persistence
+            val rootSection = submission.section
+            assertSections(rootSection)
+            assertLinks(rootSection)
         }
 
-        // TODO split in several methods
         private fun assertSections(rootSection: Section) {
             assertThat(rootSection.sections).hasSize(2)
             assertThat(rootSection).isEqualTo(Section(
@@ -115,7 +117,8 @@ class SubmissionTest(private val temporaryFolder: TemporaryFolder) {
             ))
 
             assertThat(rootSection.sections).hasSize(2)
-            assertSingleElement(rootSection.sections.first(), Section(accNo = "SUBSECT-001", type = "Stranded Total RNA-Seq"))
+            assertSingleElement(
+                rootSection.sections.first(), Section(accNo = "SUBSECT-001", type = "Stranded Total RNA-Seq"))
             assertTable(
                 rootSection.sections.second(),
                 Section(
@@ -124,7 +127,9 @@ class SubmissionTest(private val temporaryFolder: TemporaryFolder) {
                     attributes = listOf(
                         Attribute("Title", "Group 1 Transcription Data"),
                         Attribute("Description", "The data for zygotic transcription in mammals group 1"))))
+        }
 
+        private fun assertLinks(rootSection: Section) {
             assertThat(rootSection.links).hasSize(2)
             assertSingleElement(rootSection.links.first(), Link("AF069309", listOf(Attribute("Type", "gen"))))
             assertTable(

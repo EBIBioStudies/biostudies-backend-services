@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.persistence.mapping
 
 import ac.uk.ebi.biostd.persistence.common.AttributeDb
+import ac.uk.ebi.biostd.persistence.common.AttributeDetailDb
 import ac.uk.ebi.biostd.persistence.common.FileDb
 import ac.uk.ebi.biostd.persistence.common.LinkDb
 import ac.uk.ebi.biostd.persistence.common.NO_TABLE_INDEX
@@ -61,12 +62,8 @@ class SubmissionDbMapper {
             nameAttrs = toDetails(attrDb.nameQualifier),
             valueAttrs = toDetails(attrDb.valueQualifier))
 
-    private fun toDetails(value: String?): MutableList<AttributeDetail> {
-        return value.orEmpty().split(";")
-            .dropWhile { it.isEmpty() }
-            .map { it.split("=") }
-            .mapTo(mutableListOf()) { AttributeDetail(it[0], it[1]) }
-    }
+    private fun toDetails(details: MutableList<AttributeDetailDb>?): MutableList<AttributeDetail> =
+        details.orEmpty().mapTo(mutableListOf()) { detail -> AttributeDetail(detail.name, detail.value) }
 
     private fun toAttributes(attrs: Set<AttributeDb>) = attrs.mapTo(mutableListOf()) { toAttribute(it) }
 
