@@ -10,11 +10,22 @@ fun allInOneSubmissionTsv() = tsv {
 
     line("Study", "SECT-001")
     line("Project", "CEEHRC (McGill)")
+    line("<Organization>", "Org1")
     line("Tissue type", "venous blood")
+    line("[Ontology]", "UBERON")
+    line("(Tissue)", "Blood")
     line()
 
     line("Link", "AF069309")
     line("Type", "gen")
+    line()
+
+    line("File", "LibraryFile1.txt")
+    line("Description", "Library File 1")
+    line()
+
+    line("Files", "Description", "Type")
+    line("LibraryFile2.txt", "Library File 2", "Lib")
     line()
 
     line("Stranded Total RNA-Seq", "SUBSECT-001", "SECT-001")

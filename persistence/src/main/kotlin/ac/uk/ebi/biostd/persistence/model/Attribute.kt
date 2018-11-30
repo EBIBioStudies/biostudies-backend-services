@@ -1,7 +1,9 @@
 package ac.uk.ebi.biostd.persistence.model
 
+import ac.uk.ebi.biostd.persistence.converters.AttributeDetailConverter
 import java.util.Objects
 import javax.persistence.Column
+import javax.persistence.Convert
 import javax.persistence.Entity
 import javax.persistence.GeneratedValue
 import javax.persistence.Id
@@ -11,8 +13,8 @@ import javax.persistence.MappedSuperclass
 class SectionAttribute(attribute: Attribute) :
     Attribute(attribute.name, attribute.value, attribute.order, attribute.reference) {
     init {
+        this.nameQualifier = attribute.nameQualifier
         this.valueQualifier = attribute.valueQualifier
-        this.nameQualifier = attribute.valueQualifier
     }
 }
 
@@ -20,8 +22,8 @@ class SectionAttribute(attribute: Attribute) :
 class LinkAttribute(attribute: Attribute) :
     Attribute(attribute.name, attribute.value, attribute.order, attribute.reference) {
     init {
+        this.nameQualifier = attribute.nameQualifier
         this.valueQualifier = attribute.valueQualifier
-        this.nameQualifier = attribute.valueQualifier
     }
 }
 
@@ -29,8 +31,8 @@ class LinkAttribute(attribute: Attribute) :
 class FileAttribute(attribute: Attribute) :
     Attribute(attribute.name, attribute.value, attribute.order, attribute.reference) {
     init {
+        this.nameQualifier = attribute.nameQualifier
         this.valueQualifier = attribute.valueQualifier
-        this.nameQualifier = attribute.valueQualifier
     }
 }
 
@@ -38,10 +40,14 @@ class FileAttribute(attribute: Attribute) :
 class SubmissionAttribute(attribute: Attribute) :
     Attribute(attribute.name, attribute.value, attribute.order, attribute.reference) {
     init {
+        this.nameQualifier = attribute.nameQualifier
         this.valueQualifier = attribute.valueQualifier
-        this.nameQualifier = attribute.valueQualifier
     }
 }
+
+data class AttributeDetail(val name: String, val value: String)
+
+typealias Details = MutableList<AttributeDetail>
 
 @MappedSuperclass
 open class Attribute(
@@ -62,6 +68,19 @@ open class Attribute(
         this.reference = reference
     }
 
+    constructor(
+        name: String,
+        value: String,
+        order: Int,
+        reference: Boolean,
+        nameAttrs: Details,
+        valueAttrs: Details
+    )
+        : this(name, value, order, reference) {
+        nameQualifier = nameAttrs
+        valueQualifier = valueAttrs
+    }
+
     @Id
     @GeneratedValue
     var id: Long = 0L
@@ -69,11 +88,13 @@ open class Attribute(
     @Column(name = "reference")
     var reference: Boolean = false
 
+    @Convert(converter = AttributeDetailConverter::class)
     @Column(name = "nameQualifierString")
-    var nameQualifier: String? = null
+    var nameQualifier: MutableList<AttributeDetail> = mutableListOf()
 
+    @Convert(converter = AttributeDetailConverter::class)
     @Column(name = "valueQualifierString")
-    var valueQualifier: String? = null
+    var valueQualifier: MutableList<AttributeDetail> = mutableListOf()
 
     override fun equals(other: Any?): Boolean {
         if (other !is Attribute) return false
