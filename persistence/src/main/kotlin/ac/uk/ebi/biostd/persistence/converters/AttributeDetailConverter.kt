@@ -8,9 +8,9 @@ const val ATTR_SEP = ";"
 const val ATTR_REL = "="
 
 class AttributeDetailConverter : AttributeConverter<MutableList<AttributeDetail>, String> {
-    override fun convertToDatabaseColumn(attribute: MutableList<AttributeDetail>?) =
-        attribute?.fold("") { converted, current ->
-            converted + current.name + ATTR_REL + current.value + ATTR_SEP }?.removeSuffix(ATTR_SEP) ?: ""
+    override fun convertToDatabaseColumn(attribute: MutableList<AttributeDetail>) =
+        attribute.fold("") { converted, current ->
+            converted + current.name + ATTR_REL + current.value + ATTR_SEP }.removeSuffix(ATTR_SEP)
 
     override fun convertToEntityAttribute(dbData: String?): MutableList<AttributeDetail> =
         dbData.orEmpty()

@@ -62,8 +62,8 @@ class SubmissionDbMapper {
             nameAttrs = toDetails(attrDb.nameQualifier),
             valueAttrs = toDetails(attrDb.valueQualifier))
 
-    private fun toDetails(details: MutableList<AttributeDetailDb>?): MutableList<AttributeDetail> =
-        details.orEmpty().mapTo(mutableListOf()) { detail -> AttributeDetail(detail.name, detail.value) }
+    private fun toDetails(details: MutableList<AttributeDetailDb>): MutableList<AttributeDetail> =
+        details.mapTo(mutableListOf()) { detail -> AttributeDetail(detail.name, detail.value) }
 
     private fun toAttributes(attrs: Set<AttributeDb>) = attrs.mapTo(mutableListOf()) { toAttribute(it) }
 
