@@ -6,23 +6,27 @@ import ac.uk.ebi.biostd.config.PersistenceConfig
 import ac.uk.ebi.biostd.config.SubmitterConfig
 import ac.uk.ebi.biostd.itest.common.setAppProperty
 import ac.uk.ebi.biostd.itest.factory.allInOneSubmissionTsv
+import ac.uk.ebi.biostd.persistence.model.User
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
 import ebi.ac.uk.asserts.assertSingleElement
 import ebi.ac.uk.asserts.assertSubmission
 import ebi.ac.uk.asserts.assertTable
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.AttributeDetail
+import ebi.ac.uk.model.File
 import ebi.ac.uk.model.Link
 import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.constans.SubFields
 import ebi.ac.uk.model.extensions.title
+import ebi.ac.uk.paths.FolderResolver
 import ebi.ac.uk.security.integration.model.SignUpRequest
 import ebi.ac.uk.security.service.SecurityService
 import ebi.ac.uk.util.collections.second
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -36,12 +40,22 @@ import org.springframework.context.annotation.Import
 import org.springframework.http.HttpStatus
 import org.springframework.test.context.junit.jupiter.SpringExtension
 
+const val BASE_PATH_PLACEHOLDER = "{BASE_PATH}"
+
 @ExtendWith(TemporaryFolderExtension::class)
 @TestInstance(PER_CLASS)
 class SubmissionTest(private val temporaryFolder: TemporaryFolder) {
+    private lateinit var basePath: String
+
     @BeforeAll
     fun init() {
-        setAppProperty("{BASE_PATH}", temporaryFolder.root.absolutePath)
+        basePath = temporaryFolder.root.absolutePath
+        setAppProperty(BASE_PATH_PLACEHOLDER, basePath)
+    }
+
+    @AfterAll
+    fun tearDown() {
+        setAppProperty(basePath, BASE_PATH_PLACEHOLDER)
     }
 
     @Nested
@@ -60,15 +74,20 @@ class SubmissionTest(private val temporaryFolder: TemporaryFolder) {
         @Autowired
         private lateinit var securityService: SecurityService
 
+        @Autowired
+        private lateinit var folderResolver: FolderResolver
+
         private lateinit var webClient: BioWebClient
 
         @BeforeAll
         fun init() {
             // TODO: teardown properly
-            securityService.registerUser(SignUpRequest("test@biostudies.com", "jhon_doe", "12345"))
+            val user = securityService.registerUser(SignUpRequest("test@biostudies.com", "jhon_doe", "12345"))
             webClient = BioWebClient.create(
                 baseUrl = "http://localhost:$randomServerPort",
                 token = securityService.login("jhon_doe", "12345"))
+
+            setUpMockUserFiles(user)
         }
 
         @Test
@@ -89,7 +108,6 @@ class SubmissionTest(private val temporaryFolder: TemporaryFolder) {
             assertThat(savedSubmission.title).isEqualTo(title)
         }
 
-        // TODO Mock user files and add files to the submission
         @Test
         fun `submit all in one TSV submission`() {
             val response = webClient.submitSingle(allInOneSubmissionTsv().toString(), SubmissionFormat.TSV)
@@ -105,6 +123,7 @@ class SubmissionTest(private val temporaryFolder: TemporaryFolder) {
             val rootSection = submission.section
             assertSections(rootSection)
             assertLinks(rootSection)
+            assertFiles(rootSection)
         }
 
         private fun assertSections(rootSection: Section) {
@@ -141,6 +160,26 @@ class SubmissionTest(private val temporaryFolder: TemporaryFolder) {
             assertTable(
                 rootSection.links.second(),
                 Link("EGAD00001001282", listOf(Attribute("Type", "EGA"), Attribute("Assay type", "RNA-Seq"))))
+        }
+
+        private fun assertFiles(rootSection: Section) {
+            assertThat(rootSection.files).hasSize(2)
+            assertSingleElement(
+                rootSection.files.first(), File("LibraryFile1.txt", listOf(Attribute("Description", "Library File 1"))))
+            assertTable(
+                rootSection.files.second(),
+                File("LibraryFile2.txt", listOf(Attribute("Description", "Library File 2"), Attribute("Type", "Lib"))))
+        }
+
+        private fun setUpMockUserFiles(user: User) {
+            val userFolder =
+                folderResolver.getUserMagicFolderPath(user.id, user.secret).toString().substringAfter(".tmp/")
+
+            temporaryFolder.createDirectory(userFolder.substringBefore("/"))
+            temporaryFolder.createDirectory(userFolder)
+
+            temporaryFolder.createFile("$userFolder/LibraryFile1.txt")
+            temporaryFolder.createFile("$userFolder/LibraryFile2.txt")
         }
     }
 }

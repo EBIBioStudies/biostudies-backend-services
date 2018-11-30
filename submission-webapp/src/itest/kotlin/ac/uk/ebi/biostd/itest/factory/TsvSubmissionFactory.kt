@@ -20,6 +20,14 @@ fun allInOneSubmissionTsv() = tsv {
     line("Type", "gen")
     line()
 
+    line("File", "LibraryFile1.txt")
+    line("Description", "Library File 1")
+    line()
+
+    line("Files", "Description", "Type")
+    line("LibraryFile2.txt", "Library File 2", "Lib")
+    line()
+
     line("Stranded Total RNA-Seq", "SUBSECT-001", "SECT-001")
     line()
 

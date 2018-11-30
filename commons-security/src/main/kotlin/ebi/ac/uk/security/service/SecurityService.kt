@@ -55,12 +55,13 @@ class SecurityService(
         return createToken(user.get())
     }
 
-    fun registerUser(signUpRequest: SignUpRequest) {
+    fun registerUser(signUpRequest: SignUpRequest): User {
         val user = User(signUpRequest.email, signUpRequest.password, UUID.randomUUID().toString())
         user.email = signUpRequest.email
         user.login = signUpRequest.login
         user.passwordDigest = sha1.digest(signUpRequest.password.toByteArray())
-        userRepository.save(user)
+
+        return userRepository.save(user)
     }
 
     private fun createToken(user: User): String {
