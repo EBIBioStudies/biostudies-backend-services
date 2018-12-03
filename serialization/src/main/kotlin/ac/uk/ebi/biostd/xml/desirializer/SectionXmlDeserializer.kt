@@ -14,8 +14,7 @@ class SectionXmlDeserializer(
     private val attributeXmlDeserializer: AttributeXmlDeserializer,
     private val linkXmlDeserializer: LinkXmlDeserializer,
     private val fileXmlDeserializer: FileXmlDeserializer
-)
-    : BaseXmlDeserializer<Section>() {
+) : BaseXmlDeserializer<Section>() {
 
     override fun deserialize(node: Node): Section {
         return Section(
