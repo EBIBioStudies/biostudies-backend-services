@@ -56,8 +56,19 @@ enum class AttributeFields(val value: String) {
     ATTRIBUTE("attribute"),
     NAME("name"),
     VALUE("value"),
-    TERM("valqual"),
     REFERENCE("reference");
+
+    override fun toString(): String {
+        return value
+    }
+}
+
+enum class AttributeDetails(val value: String) {
+    VAL_QUALIFIER("valqual"),
+    NAME_QUALIFIER("nmqual"),
+
+    NAME("name"),
+    VALUE("value");
 
     override fun toString(): String {
         return value

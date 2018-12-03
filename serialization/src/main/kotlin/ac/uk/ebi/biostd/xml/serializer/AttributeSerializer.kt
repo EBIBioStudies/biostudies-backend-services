@@ -7,6 +7,7 @@ import ac.uk.ebi.biostd.xml.common.writeXmlObj
 import com.fasterxml.jackson.databind.SerializerProvider
 import com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator
 import ebi.ac.uk.model.Attribute
+import ebi.ac.uk.model.constans.AttributeDetails
 import ebi.ac.uk.model.constans.AttributeFields
 
 class AttributeSerializer : XmlStdSerializer<Attribute>(Attribute::class.java) {
@@ -17,7 +18,9 @@ class AttributeSerializer : XmlStdSerializer<Attribute>(Attribute::class.java) {
                 writeXmlBooleanAttr(AttributeFields.REFERENCE, value.reference)
                 writeXmlField(AttributeFields.NAME, value.name)
                 writeXmlField(AttributeFields.VALUE, value.value)
-                value.valueAttrs.forEach { writeXmlField(AttributeFields.TERM, it) }
+
+                value.nameAttrs.forEach { writeXmlField(AttributeDetails.NAME_QUALIFIER, it) }
+                value.valueAttrs.forEach { writeXmlField(AttributeDetails.VAL_QUALIFIER, it) }
             }
         }
     }

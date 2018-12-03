@@ -14,6 +14,9 @@ dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${kotlinVersion}"
     compile "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
 
+    // Apache commons
+    compile "org.apache.commons:commons-lang3:3.8.1"
+
     // Junit dependencies
     runtime "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
     runtime "org.junit.platform:junit-platform-console:$junitPlatformVersion"

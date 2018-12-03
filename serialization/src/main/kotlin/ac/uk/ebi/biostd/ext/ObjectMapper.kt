@@ -4,10 +4,10 @@ import arrow.core.None
 import arrow.core.Option
 import arrow.core.Try
 import arrow.core.getOrElse
+import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.JavaType
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.type.CollectionType
 
 /**
  * Try to convert the given node using the provided type, return an optional with conversion or emtpy if type could not
@@ -21,14 +21,16 @@ fun ObjectMapper.tryConvertValue(node: JsonNode, type: JavaType): Option<Any> {
 /**
  * Obtain the collection type for the given value.
  */
-fun ObjectMapper.getListType(type: Class<*>): CollectionType =
-    typeFactory.constructCollectionType(List::class.java, type)
+fun ObjectMapper.getListType(type: Class<*>) = typeFactory.constructCollectionType(List::class.java, type)!!
 
 /**
  * Convert the node to the list type of values.
  */
-fun <T> ObjectMapper.convertList(node: JsonNode?, type: Class<*>) =
-    if (node != null) convertValue(node, getListType(type)) else mutableListOf<T>()
+inline fun <reified T> ObjectMapper.convertList(node: JsonNode?) =
+    if (node != null) convertValue(node, getListType(T::class.java)) else mutableListOf<T>()
+
+inline fun <reified T> ObjectMapper.convertList(node: JsonNode?, sectionsType: TypeReference<*>) =
+    if (node != null) convertValue(node, sectionsType) else mutableListOf<T>()
 
 inline fun <reified T : Any> ObjectMapper.deserialize(json: String) = readValue(json, T::class.java)!!
 inline fun <reified T> ObjectMapper.serialize(value: T): String = writeValueAsString(value)

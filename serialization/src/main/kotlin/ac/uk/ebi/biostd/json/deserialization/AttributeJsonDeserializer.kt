@@ -6,15 +6,15 @@ import ac.uk.ebi.biostd.common.REFERENCE
 import ac.uk.ebi.biostd.common.VALUE
 import ac.uk.ebi.biostd.common.VAL_ATTRIBUTES
 import ac.uk.ebi.biostd.ext.convertList
-import ac.uk.ebi.biostd.ext.getRequired
+import ac.uk.ebi.biostd.ext.getNode
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer
+import com.fasterxml.jackson.databind.node.TextNode
 import ebi.ac.uk.base.orFalse
 import ebi.ac.uk.model.Attribute
-import ebi.ac.uk.model.AttributeDetail
 
 class AttributeJsonDeserializer : StdDeserializer<Attribute>(Attribute::class.java) {
     override fun deserialize(jp: JsonParser, ctxt: DeserializationContext): Attribute {
@@ -22,10 +22,10 @@ class AttributeJsonDeserializer : StdDeserializer<Attribute>(Attribute::class.ja
         val node: JsonNode = mapper.readTree(jp)
 
         return Attribute(
-            name = node.getRequired(NAME),
-            value = node.getRequired(VALUE),
+            name = node.getNode<TextNode>(NAME).textValue(),
+            value = node.getNode<TextNode>(VALUE).textValue(),
             reference = node.get(REFERENCE)?.asBoolean().orFalse(),
-            valueAttrs = mapper.convertList(node.get(VAL_ATTRIBUTES), AttributeDetail::class.java),
-            nameAttrs = mapper.convertList(node.get(NAME_ATTRIBUTES), AttributeDetail::class.java))
+            valueAttrs = mapper.convertList(node.get(VAL_ATTRIBUTES)),
+            nameAttrs = mapper.convertList(node.get(NAME_ATTRIBUTES)))
     }
 }

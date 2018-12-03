@@ -25,6 +25,7 @@ class TsvDeserializer {
         val chunks: MutableList<TsvChunk> = chunkerize(pageTabSubmission)
         val submissionChunk: TsvChunk = chunks.removeFirst()
         var rootSection = Section()
+
         chunks.ifNotEmpty {
             val rootSectionChunk: TsvChunk = chunks.removeFirst()
             rootSection = Section(

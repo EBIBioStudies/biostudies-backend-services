@@ -2,6 +2,13 @@ package ac.uk.ebi.biostd.ext
 
 import com.fasterxml.jackson.databind.JsonNode
 
-fun JsonNode.getRequired(field: String): String {
-    return get(field)?.asText() ?: error("Expecting to find property with '$field' in node '$this'")
-}
+inline fun <reified T : JsonNode?> JsonNode.findNode(property: String) =
+    get(property)?.also {
+        require(it is T) { "Expecting node: '$this', property: '$property' to be of type '${T::class.java.simpleName}' but '${it::class.java.simpleName}' find instead" }
+    }
+
+inline fun <reified T : JsonNode> JsonNode.getNode(property: String) =
+    get(property).also {
+        checkNotNull(it) { "Expecting to find property with '$property' in node '$this'" }
+        require(it is T) { "Expecting node: '$this', property: '$property' to be of type '${T::class.java.simpleName}' but '${it::class.java.simpleName}' find instead" }
+    } as T

@@ -2,6 +2,7 @@ package ebi.ac.uk.model
 
 import ebi.ac.uk.base.EMPTY
 import java.time.OffsetDateTime
+import java.util.Objects
 
 open class Submission(
     var accNo: String = "",
@@ -29,4 +30,14 @@ class ExtendedSubmission(
     var releaseTime = OffsetDateTime.now()
     var modificationTime = OffsetDateTime.now()
     var creationTime = OffsetDateTime.now()
+
+    override fun equals(other: Any?) = when {
+        other !is Submission -> false
+        other === this -> true
+        else -> Objects.equals(accNo, other.accNo)
+            .and(Objects.equals(section, other.section))
+            .and(Objects.equals(attributes, other.attributes))
+    }
+
+    override fun hashCode() = Objects.hash(accNo, section, attributes)
 }

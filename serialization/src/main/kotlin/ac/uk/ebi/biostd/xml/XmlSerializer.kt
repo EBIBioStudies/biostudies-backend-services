@@ -2,6 +2,12 @@ package ac.uk.ebi.biostd.xml
 
 import ac.uk.ebi.biostd.common.EitherSerializer
 import ac.uk.ebi.biostd.xml.desirializer.AttributeXmlDeserializer
+import ac.uk.ebi.biostd.xml.desirializer.DetailsXmlDeserializer
+import ac.uk.ebi.biostd.xml.desirializer.FileXmlDeserializer
+import ac.uk.ebi.biostd.xml.desirializer.LinkXmlDeserializer
+import ac.uk.ebi.biostd.xml.desirializer.SectionXmlDeserializer
+import ac.uk.ebi.biostd.xml.desirializer.SubmissionXmlDeserializer
+import ac.uk.ebi.biostd.xml.serializer.AttributeDetailsSerializer
 import ac.uk.ebi.biostd.xml.serializer.AttributeSerializer
 import ac.uk.ebi.biostd.xml.serializer.FileSerializer
 import ac.uk.ebi.biostd.xml.serializer.LinkSerializer
@@ -16,24 +22,34 @@ import com.fasterxml.jackson.dataformat.xml.JacksonXmlModule
 import com.fasterxml.jackson.dataformat.xml.XmlMapper
 import com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator
 import ebi.ac.uk.model.Attribute
+import ebi.ac.uk.model.AttributeDetail
 import ebi.ac.uk.model.File
 import ebi.ac.uk.model.Link
 import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.Table
+import org.xml.sax.InputSource
+import java.io.StringReader
+import javax.xml.parsers.DocumentBuilderFactory
 
-class XmlSerializer {
+class XmlSerializer(
+    val mapper: XmlMapper = createMapper(),
+    val deserializer: SubmissionXmlDeserializer = createSubDeserializer()
+) {
 
     fun serialize(t: Submission): String {
-        return xmlMapper.writeValueAsString(t)
+        return mapper.writeValueAsString(t)
     }
 
     fun deserialize(value: String): Submission {
-        return xmlMapper.readValue(value, Submission::class.java)
+        return deserializer.deserialize(
+            DocumentBuilderFactory
+                .newInstance()
+                .newDocumentBuilder()
+                .parse(InputSource(StringReader(value))).documentElement)
     }
 
     companion object {
-        val xmlMapper = createMapper()
 
         private fun createMapper(): XmlMapper {
             val module = JacksonXmlModule().apply {
@@ -45,8 +61,7 @@ class XmlSerializer {
                 addSerializer(Link::class.java, LinkSerializer())
                 addSerializer(File::class.java, FileSerializer())
                 addSerializer(Table::class.java, TableSerializer())
-
-                addDeserializer(Attribute::class.java, AttributeXmlDeserializer())
+                addSerializer(AttributeDetail::class.java, AttributeDetailsSerializer())
             }
 
             return XmlMapper(module).apply {
@@ -56,6 +71,15 @@ class XmlSerializer {
                 enable(SerializationFeature.INDENT_OUTPUT)
                 configure(ToXmlGenerator.Feature.WRITE_XML_DECLARATION, true)
             }
+        }
+
+        private fun createSubDeserializer(): SubmissionXmlDeserializer {
+            val attributeDeserializer = AttributeXmlDeserializer(DetailsXmlDeserializer())
+            val sectionXmlDeserializer = SectionXmlDeserializer(
+                attributeDeserializer,
+                LinkXmlDeserializer(attributeDeserializer),
+                FileXmlDeserializer(attributeDeserializer))
+            return SubmissionXmlDeserializer(attributeDeserializer, sectionXmlDeserializer)
         }
     }
 }

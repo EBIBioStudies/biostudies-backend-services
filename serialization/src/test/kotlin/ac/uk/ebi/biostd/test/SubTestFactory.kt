@@ -29,8 +29,7 @@ fun createVenousBloodMonocyte(): Submission {
         attribute("DataSource", "BLUEPRINT")
         attribute("AttachTo", "blueprint")
 
-        section {
-            type = "Study"
+        section("Study") {
 
             attribute(name = "Title", value = "venous blood, Monocyte")
             attribute(name = "Project", value = "CEEHRC (McGill)")
@@ -47,8 +46,7 @@ fun createVenousBloodMonocyte(): Submission {
                 attribute(name = "Type", value = "EpiRR")
             }
 
-            section {
-                type = "Stranded Total RNA-Seq"
+            section("Stranded Total RNA-Seq") {
 
                 linksTable {
                     link("EGAD00001001282") {
@@ -71,8 +69,7 @@ fun createRNA_Profiling(): Submission {
 
         attribute("AttachTo", "ArrayExpress")
 
-        section {
-            type = "Study"
+        section("Study") {
             accNo = "s-E-MTAB-6957"
 
             attribute("Title", "RNA profiling of non-small cell lung cancer")
@@ -82,8 +79,7 @@ fun createRNA_Profiling(): Submission {
             attribute("Experimental Designs", "case control design", valueAttrs = mutableListOf(AttributeDetail("Ontology", "EFO"), AttributeDetail("TermId", "EFO:0001427")))
             attribute("Experimental Factors", "sampling site", valueAttrs = mutableListOf(AttributeDetail("Ontology", "EFO"), AttributeDetail("TermId", "EFO_0000408"), AttributeDetail("TermName", "sampling site")))
 
-            section {
-                type = "MinSeq Score"
+            section("MinSeq Score") {
                 attribute("Exp. Design", "*")
                 attribute("Protocols", "*")
                 attribute("Variables", "*")
@@ -91,55 +87,48 @@ fun createRNA_Profiling(): Submission {
                 attribute("Raw", "*")
             }
 
-            section {
-                type = "Author"
+            section("Author") {
 
                 attribute("Name", "Bram Boeckx")
                 attribute("Email", "bram.boeckx@vib-kuleuven.be")
                 attribute("<affiliation>", value = "o1", ref = true)
             }
 
-            section {
-                type = "Organization"
+            section("Organization") {
                 accNo = "o1"
 
                 attribute("Name", "VIB Center for Cancer Biology (CCB)  Laboratory for Translational Genetics  Department of Human Genetics")
                 attribute("Address", "VIB Center for Cancer Biology (CCB) KULeuven Campus Gasthuisberg, O&N4 Herestraat 49-B912 B-3000 Leuven, Belgium")
             }
 
-            section {
-                type = "Experiment Protocols"
+            section("Experiment Protocols") {
                 accNo = "protocols-E-MTAB-6957"
 
                 sectionsTable {
 
-                    section {
+                    section("Protocols") {
                         accNo = "P-MTAB-76451"
-                        type = "Protocols"
                         attribute(name = "Name", value = "P-MTAB-76451")
                         attribute(name = "Type", value = "nucleic acid extraction protocol", valueAttrs = mutableListOf(AttributeDetail("Ontology", "EFO"), AttributeDetail("TermId", "EFO_0002944")))
                         attribute(name = "Description", value = "Total RNA was extracted from six 30-μm sections of frozen whole tumor and adjacent lung tissue using the Qiagen-RNeasy Mini kit according to the supplier’s instructions (Qiagen, Hilden, Germany). The quantity of DNA-free total RNA was measured using a Nanodrop-2000.")
                     }
 
-                    section {
+                    section("Protocols") {
                         accNo = "P-MTAB-76452"
-                        type = "Protocols"
                         attribute(name = "Name", value = "P-MTAB-76452")
                         attribute(name = "Type", value = "nucleic acid library construction protocol")
                         attribute(name = "Description", value = "Illumina sequencing libraries were prepared according to the TruSeq RNA Sample Preparation Guide following the manufacturer’s instructions.")
                     }
 
-                    section {
+                    section("Protocols") {
                         accNo = "P-MTAB-76450"
-                        type = "Protocols"
                         attribute(name = "Name", value = "P-MTAB-76450")
                         attribute(name = "Type", value = "sample collection protocol")
                         attribute(name = "Description", value = "Study participants and phenotypes Between March 2010 and August 2011, we prospectively recruited newly diagnosed and previously untreated lung cancer patients that were referred for thoracic surgery with curative intent. Subjects were only eligible for inclusion if surgical resection of the tumor occurred prior to any form of medical treatment. Tissue was collected immediately after lobectomy/pneumonectomy.")
                     }
 
-                    section {
+                    section("Protocols") {
                         accNo = "P-MTAB-76453"
-                        type = "Protocols"
                         attribute(name = "Name", value = "P-MTAB-76453")
                         attribute(name = "Type", value = "nucleic acid sequencing protocol")
                         attribute(name = "Description", value = "Libraries were sequenced on a Illumina HiSeq2000 sequencer generating single end 51bp reads.")
@@ -148,8 +137,7 @@ fun createRNA_Profiling(): Submission {
                 }
             }
 
-            section {
-                type = "MAGE-TAB Files"
+            section("MAGE-TAB Files") {
                 accNo = "mt-E-MTAB-6957"
 
                 file("E-MTAB-6957.idf.txt") {
