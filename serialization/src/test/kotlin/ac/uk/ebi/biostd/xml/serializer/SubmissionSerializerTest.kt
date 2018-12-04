@@ -27,9 +27,8 @@ class SubmissionSerializerTest {
 
         attribute(ATTR_NAME, ATTR_VALUE)
 
-        section {
+        section(SEC_TYPE) {
             accNo = SEC_ACC_NO
-            type = SEC_TYPE
         }
     }
 

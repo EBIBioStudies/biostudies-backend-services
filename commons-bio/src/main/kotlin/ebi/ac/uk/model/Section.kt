@@ -17,12 +17,10 @@ class Section(
     fun addFile(file: File) = files.addLeft(file)
     fun addLink(link: Link) = links.addLeft(link)
     fun addSection(section: Section) = sections.addLeft(section)
-
     fun addFilesTable(table: FilesTable) = files.addRight(table)
     fun addLinksTable(table: LinksTable) = links.addRight(table)
     fun addSectionTable(table: SectionsTable) = sections.addRight(table)
 
-    // TODO implement equals for files and links
     override fun equals(other: Any?) = when {
         other !is Section -> false
         other === this -> true
@@ -31,5 +29,5 @@ class Section(
             .and(Objects.equals(attributes, other.attributes))
     }
 
-    override fun hashCode() = Objects.hash(type, accNo, links, files, this.attributesMap)
+    override fun hashCode() = Objects.hash(type, accNo, attributes)
 }

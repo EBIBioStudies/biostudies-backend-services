@@ -1,6 +1,7 @@
 package ebi.ac.uk.base
 
 import arrow.core.Option
+import org.apache.commons.lang3.BooleanUtils
 
 const val EMPTY = ""
 
@@ -14,4 +15,21 @@ fun String?.isNotBlank() = !isNullOrEmpty()
  */
 inline fun String?.applyIfNotBlank(func: (String) -> Unit) = takeIf { it.isNotBlank() }?.let { func(it) }
 
+/**
+ * Transforms the nullable string into optional, Option.empty() if string is empty or null.
+ */
 fun String?.toOption() = if (isNullOrEmpty()) Option.empty() else Option.fromNullable(this)
+
+/**
+ * Transforms the string into boolean.
+ *
+ *   (null).asBoolean    = false
+ *   ("true").asBoolean  = true
+ *   ("TRUE").asBoolean  = true
+ *   ("tRUe").asBoolean  = true
+ *   ("on").asBoolean    = true
+ *   ("yes").asBoolean   = true
+ *   ("false").asBoolean = false
+ *   ("x gti").asBoolean = false
+ */
+fun String.asBoolean() = BooleanUtils.toBoolean(this)

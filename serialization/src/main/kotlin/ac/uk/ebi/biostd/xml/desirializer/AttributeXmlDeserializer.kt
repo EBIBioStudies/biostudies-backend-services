@@ -5,29 +5,31 @@ import ac.uk.ebi.biostd.common.NAME_ATTRIBUTES
 import ac.uk.ebi.biostd.common.REFERENCE
 import ac.uk.ebi.biostd.common.VALUE
 import ac.uk.ebi.biostd.common.VAL_ATTRIBUTES
-import ac.uk.ebi.biostd.ext.convertList
-import com.fasterxml.jackson.core.JsonParser
-import com.fasterxml.jackson.databind.DeserializationContext
-import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer
+import ac.uk.ebi.biostd.xml.desirializer.common.BaseXmlDeserializer
+import ebi.ac.uk.base.asBoolean
 import ebi.ac.uk.base.orFalse
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.AttributeDetail
+import org.w3c.dom.Node
 
-private const val NODE_NAME = "attribute"
+class AttributeXmlDeserializer(private val detailDeserializer: DetailsXmlDeserializer)
+    : BaseXmlDeserializer<Attribute>() {
 
-class AttributeXmlDeserializer : StdDeserializer<Attribute>(Attribute::class.java) {
-
-    override fun deserialize(jp: JsonParser, ctxt: DeserializationContext): Attribute {
-        val mapper = jp.codec as ObjectMapper
-        val node = mapper.readTree<JsonNode>(jp)[NODE_NAME]
-
+    override fun deserialize(node: Node): Attribute {
         return Attribute(
-            name = node.get(NAME).asText(),
-            value = node.get(VALUE).asText(),
-            reference = node.get(REFERENCE)?.asBoolean().orFalse(),
-            valueAttrs = mapper.convertList(node.get(VAL_ATTRIBUTES), AttributeDetail::class.java),
-            nameAttrs = mapper.convertList(node.get(NAME_ATTRIBUTES), AttributeDetail::class.java))
+            name = node.getNodeAttribute(NAME),
+            value = node.getNodeAttribute(VALUE),
+            reference = node.findNodeAttribute(REFERENCE)?.asBoolean().orFalse(),
+            nameAttrs = detailDeserializer.deserializeList(node.getSubNodes(NAME_ATTRIBUTES)).toMutableList(),
+            valueAttrs = detailDeserializer.deserializeList(node.getSubNodes(VAL_ATTRIBUTES)).toMutableList())
+    }
+}
+
+class DetailsXmlDeserializer : BaseXmlDeserializer<AttributeDetail>() {
+
+    override fun deserialize(node: Node): AttributeDetail {
+        return AttributeDetail(
+            name = node.getNodeAttribute(NAME),
+            value = node.getNodeAttribute(VALUE))
     }
 }

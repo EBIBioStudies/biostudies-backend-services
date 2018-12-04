@@ -25,6 +25,7 @@ class TsvDeserializer {
         val chunks: MutableList<TsvChunk> = chunkerize(pageTabSubmission)
         val submissionChunk: TsvChunk = chunks.removeFirst()
         var rootSection = Section()
+
         chunks.ifNotEmpty {
             val rootSectionChunk: TsvChunk = chunks.removeFirst()
             rootSection = Section(
@@ -52,7 +53,7 @@ class TsvDeserializer {
             .map { chunk -> chunk.split(TSV_CHUNK_BREAK).filterTo(mutableListOf(), String::isNotEmpty) }
             .mapTo(mutableListOf()) { chunk -> TsvChunk(chunk) }
 
-    private fun processChunks(rootSection: Section, chunks: MutableList<TsvChunk>) =
+    private fun processChunks(rootSection: Section, chunks: MutableList<TsvChunk>): Unit =
         chunks.forEach {
             when (it.getType().toLowerCase()) {
                 LinkFields.LINK.value -> rootSection.addLink(Link(it.getIdentifier(), createAttributes(it.lines)))

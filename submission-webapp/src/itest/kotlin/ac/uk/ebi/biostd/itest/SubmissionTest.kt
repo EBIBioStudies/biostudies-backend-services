@@ -81,12 +81,10 @@ class SubmissionTest(private val temporaryFolder: TemporaryFolder) {
 
         @BeforeAll
         fun init() {
-            // TODO: teardown properly
             val user = securityService.registerUser(SignUpRequest("test@biostudies.com", "jhon_doe", "12345"))
             webClient = BioWebClient.create(
                 baseUrl = "http://localhost:$randomServerPort",
                 token = securityService.login("jhon_doe", "12345"))
-
             setUpMockUserFiles(user)
         }
 

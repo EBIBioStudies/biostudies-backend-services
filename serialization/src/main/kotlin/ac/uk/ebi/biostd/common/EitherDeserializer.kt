@@ -24,7 +24,7 @@ class EitherDeserializer : StdDeserializer<Either<*, *>>(Either::class.java), Co
     override fun createContextual(ctxt: DeserializationContext, property: BeanProperty?): JsonDeserializer<*> {
         val wrapperType = ctxt.contextualType
 
-        return (EitherDeserializer()).apply {
+        return EitherDeserializer().apply {
             leftType = wrapperType.containedType(0)
             rightType = wrapperType.containedType(1)
         }

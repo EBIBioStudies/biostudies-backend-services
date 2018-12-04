@@ -22,12 +22,12 @@ fun Attributable.attribute(
 ) =
     addAttribute(Attribute(name = name, value = value, valueAttrs = valueAttrs, reference = ref, nameAttrs = nameAttrs))
 
-fun Submission.section(block: Section.() -> Unit) = apply { section = Section().apply(block) }
+fun Submission.section(type: String, block: Section.() -> Unit) = apply { section = Section(type).apply(block) }
 fun submission(accNo: String, block: Submission.() -> Unit): Submission = Submission(accNo).apply(block)
-fun section(block: Section.() -> Unit): Section = Section().apply(block)
+fun section(type: String, block: Section.() -> Unit): Section = Section(type).apply(block)
 
 fun FilesTable.file(name: String, block: File.() -> Unit = {}) = addRow(File(name).apply(block))
-fun SectionsTable.section(block: Section.() -> Unit) = addRow(Section().apply(block))
+fun SectionsTable.section(type: String, block: Section.() -> Unit) = addRow(Section(type).apply(block))
 fun LinksTable.link(url: String, block: Link.() -> Unit = {}) = addRow(Link(url).apply(block))
 
 fun Section.filesTable(block: FilesTable.() -> Unit) = addFilesTable(FilesTable().apply(block))
@@ -35,5 +35,5 @@ fun Section.sectionsTable(block: SectionsTable.() -> Unit) = addSectionTable(Sec
 fun Section.linksTable(block: LinksTable.() -> Unit) = addLinksTable(LinksTable().apply(block))
 
 fun Section.file(name: String, block: File.() -> Unit = {}) = addFile((File(name).apply(block)))
-fun Section.section(block: Section.() -> Unit) = addSection((Section().apply(block)))
+fun Section.section(type: String, block: Section.() -> Unit) = addSection((Section(type).apply(block)))
 fun Section.link(url: String, block: Link.() -> Unit = {}) = addLink((Link(url).apply(block)))

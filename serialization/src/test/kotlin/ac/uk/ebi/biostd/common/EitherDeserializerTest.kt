@@ -5,6 +5,7 @@ import arrow.core.getOrHandle
 import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
+import ebi.ac.uk.dsl.jsonArray
 import ebi.ac.uk.dsl.jsonObj
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
@@ -38,6 +39,17 @@ class EitherDeserializerTest {
 
         assertThat(result.isRight()).isTrue()
         assertThat(result.getOrHandle { it }).isEqualTo(Foo(value))
+    }
+
+    @Test
+    fun deserializeWhenList() {
+        val name = "John Doe"
+
+        val result = objectMapper.readValue<MutableList<Either<Dummy, Foo>>>(jsonArray({ "name" to name }).toString())
+
+        assertThat(result).isNotEmpty
+        assertThat(result.first().isLeft())
+        assertThat(result.first().getOrHandle { it }).isEqualTo(Dummy(name))
     }
 
     data class Dummy(var name: String?)

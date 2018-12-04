@@ -19,11 +19,10 @@ private const val TYPE = "sec type"
 
 class SectionSerializerTest {
 
-    private val testInstance = XmlSerializer.xmlMapper
+    private val testInstance = XmlSerializer().mapper
 
-    private val section = section {
+    private val section = section(TYPE) {
         accNo = ACC_NO
-        type = TYPE
         link(LINK_URL)
         file(FILE_NAME) {
             type = FILE_TYPE
