@@ -16,22 +16,10 @@ class Section(
 
     fun addFile(file: File) = files.addLeft(file)
     fun addLink(link: Link) = links.addLeft(link)
-
-    fun addSection(section: Section) {
-        sections.addLeft(section)
-    }
-
-    fun addFilesTable(table: FilesTable) {
-        files.addRight(table)
-    }
-
-    fun addLinksTable(table: LinksTable) {
-        links.addRight(table)
-    }
-
-    fun addSectionTable(table: SectionsTable) {
-        sections.addRight(table)
-    }
+    fun addSection(section: Section) = sections.addLeft(section)
+    fun addFilesTable(table: FilesTable) = files.addRight(table)
+    fun addLinksTable(table: LinksTable) = links.addRight(table)
+    fun addSectionTable(table: SectionsTable) = sections.addRight(table)
 
     override fun equals(other: Any?) = when {
         other !is Section -> false

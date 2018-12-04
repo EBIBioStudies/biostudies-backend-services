@@ -31,7 +31,6 @@ class ExtendedSubmission(
     var modificationTime = OffsetDateTime.now()
     var creationTime = OffsetDateTime.now()
 
-
     override fun equals(other: Any?) = when {
         other !is Submission -> false
         other === this -> true
