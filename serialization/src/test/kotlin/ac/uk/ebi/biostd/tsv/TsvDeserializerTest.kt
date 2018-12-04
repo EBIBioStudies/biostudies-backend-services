@@ -16,7 +16,6 @@ import ac.uk.ebi.biostd.tsv.deserialization.TsvDeserializer
 import ebi.ac.uk.asserts.assertSingleElement
 import ebi.ac.uk.asserts.assertSubmission
 import ebi.ac.uk.asserts.assertTable
-import ebi.ac.uk.base.EMPTY
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.AttributeDetail
 import ebi.ac.uk.model.File
@@ -40,7 +39,7 @@ class TsvDeserializerTest {
         assertSubmission(
             submission,
             "S-EPMC123",
-            "Basic Submission",
+            Attribute("Title", "Basic Submission"),
             Attribute("DataSource", "EuropePMC"),
             Attribute("AttachTo", "EuropePMC"))
     }
@@ -58,7 +57,7 @@ class TsvDeserializerTest {
         assertSubmission(
             submission,
             "S-EPMC124",
-            "Submission With Detailed Attributes",
+            Attribute("Title", "Submission With Detailed Attributes"),
             detailedAttribute,
             Attribute("affiliation", "EuropePMC", true))
     }
@@ -67,9 +66,8 @@ class TsvDeserializerTest {
     fun deserializeSubmissionWithRootSection() {
         val submission: Submission = deserializer.deserialize(submissionWithRootSection().toString())
 
-        assertSubmission(submission, "S-EPMC125", "Test Submission")
+        assertSubmission(submission, "S-EPMC125", Attribute("Title", "Test Submission"))
         assertThat(submission.section).isEqualTo(Section(
-            accNo = EMPTY,
             type = "Study",
             attributes = listOf(Attribute("Title", "Test Root Section"), Attribute("Abstract", "Test abstract"))
         ))
