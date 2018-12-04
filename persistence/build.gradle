@@ -1,24 +1,11 @@
-buildscript {
-    ext {
-        junitVersion = "5.2.0"
-        junitPlatformVersion = "1.2.0"
-        kotlinVersion = '1.3.10'
-    }
-    repositories {
-        mavenCentral()
-        jcenter()
-    }
-    dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-allopen:${kotlinVersion}"
-        classpath "org.jetbrains.kotlin:kotlin-noarg:$kotlinVersion"
-    }
+plugins {
+    id("org.jetbrains.kotlin.jvm")
+    id("org.jetbrains.kotlin.plugin.jpa") version "1.3.10"
+    id("org.jetbrains.kotlin.plugin.allopen") version "1.3.10"
 }
 
-apply plugin: 'kotlin'
-apply plugin: 'kotlin-jpa'
-apply plugin: 'kotlin-allopen'
-
 repositories {
+    jcenter()
     maven {
         url = "https://oss.sonatype.org/content/repositories/snapshots"
     }
@@ -28,8 +15,8 @@ dependencies {
     compile project(":commons-util")
     compile project(":commons-bio")
 
-    compile 'org.hibernate:hibernate-entitymanager:5.3.5.Final'
-    compile 'org.springframework.data:spring-data-jpa:2.0.9.RELEASE'
+    compile("org.hibernate:hibernate-entitymanager:5.3.5.Final")
+    compile("org.springframework.data:spring-data-jpa:2.0.9.RELEASE")
 
-    testCompile 'org.assertj:assertj-core:3.11.0'
+    testCompile("org.assertj:assertj-core:3.11.0")
 }

@@ -16,12 +16,12 @@ fun String?.isNotBlank() = !isNullOrEmpty()
 inline fun String?.applyIfNotBlank(func: (String) -> Unit) = takeIf { it.isNotBlank() }?.let { func(it) }
 
 /**
- * Transform the nullable string into optional, Option.empty() if string is empty or null.
+ * Transforms the nullable string into optional, Option.empty() if string is empty or null.
  */
 fun String?.toOption() = if (isNullOrEmpty()) Option.empty() else Option.fromNullable(this)
 
 /**
- * Transform the string into boolean.
+ * Transforms the string into boolean.
  *
  *   (null).asBoolean    = false
  *   ("true").asBoolean  = true

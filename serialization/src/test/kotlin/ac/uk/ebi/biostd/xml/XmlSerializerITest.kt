@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.xml
 
 import ac.uk.ebi.biostd.test.createVenousBloodMonocyte
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Test
 
 class XmlSerializerITest {
 
@@ -9,7 +10,7 @@ class XmlSerializerITest {
 
     private val subm = createVenousBloodMonocyte()
 
-    @org.junit.jupiter.api.Test
+    @Test
     fun `serialize and deserialize sample submission`() {
         val xml = testInstance.serialize(subm)
         val result = testInstance.deserialize(xml)

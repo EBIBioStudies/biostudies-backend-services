@@ -19,12 +19,13 @@ abstract class BaseXmlDeserializer<T : Any> {
         node?.getSubNodes().orEmpty().mapTo(mutableListOf()) { deserializeTable(it, leftTag, tableBuilder) }
 
     private fun <B : Table<T>> deserializeTable(node: Node, leftTag: String, tableBuilder: (List<T>) -> B): Either<T, B> {
-        if (node.nodeName == leftTag) {
-            return Either.left(deserialize(node))
-        } else if (node.nodeName == OtherFields.TABLE.value) {
-            return Either.right(tableBuilder(deserializeList(node)))
+        return when (node.nodeName) {
+            leftTag -> Either.left(deserialize(node))
+            OtherFields.TABLE.value -> Either.right(tableBuilder(deserializeList(node)))
+            else -> error({
+                "expecting node type '${node.nodeName}' to be of type '$leftTag' or " +
+                    "'${OtherFields.TABLE.value}' found ${node.toXmlString()}) "
+            })
         }
-
-        error({ "expecting node type '${node.nodeName}' to be of type '$leftTag' or '${OtherFields.TABLE.value}' found ${node.toXmlString()}) " })
     }
 }

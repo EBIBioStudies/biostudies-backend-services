@@ -1,11 +1,16 @@
 spring:
   datasource:
+    username: biostd
+    password: biostd
+    url: jdbc:mysql://mysql-fg-biostudy.ebi.ac.uk:4469/biostd_beta
 
   jpa:
-    show-sql: false
+    show-sql: true
     hibernate:
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
 
 app:
-  basepath:
+  basepath: /home/jcamilorada/Projects/BioStudies/NEW_NFS
+  environment: DEV
+  tokenHash: biostd
