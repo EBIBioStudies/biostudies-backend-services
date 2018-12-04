@@ -58,5 +58,5 @@ fun Node.toXmlString() =
 fun Node.getNodeAttribute(key: Any): String = getNode(key).textContent
 fun Node.findNodeAttribute(key: Any): String? = findNode(key)?.textContent
 
-fun Node.findProperty(key: Any): String? = attributes.getNamedItem(key.toString())?.toString()
-fun Node.getProperty(key: Any): String = attributes.getNamedItem(key.toString()).toString()
+fun Node.findProperty(key: Any): String? = attributes.getNamedItem(key.toString())?.textContent
+fun Node.getProperty(key: Any): String = attributes.getNamedItem(key.toString()).textContent
