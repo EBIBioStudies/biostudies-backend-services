@@ -74,8 +74,7 @@ class ChunkProcessor {
         }
 
     private fun createSectionsTable(chunk: TsvChunk) =
-        SectionsTable(asTable(chunk) { accNo, attributes -> Section(accNo = accNo, attributes = attributes) }
-            .map { it.apply { type = chunk.getType() } })
+        SectionsTable(asTable(chunk) { accNo, attributes -> Section(accNo = accNo, type = chunk.getType(), attributes = attributes) })
 
     private fun addSubsection(parentSection: Section, sectionChunk: TsvChunk) {
         if (parentSection.accNo == sectionChunk.getParent()) {
