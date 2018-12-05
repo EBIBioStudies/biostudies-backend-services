@@ -21,11 +21,10 @@ val releaseDate: Instant = LocalDateTime.parse("2015-02-20T06:30:00").toInstant(
 
 fun createVenousBloodMonocyte(): Submission {
     return submission("S-IHECRE00000919.1") {
-        title = "Submission title"
         releaseTime = releaseDate
         accessTags = mutableListOf("Public")
         rootPath = "S-IHECRE00000919.1"
-
+        title = "Submission title"
         attribute("DataSource", "BLUEPRINT")
         attribute("AttachTo", "blueprint")
 
