@@ -116,7 +116,7 @@ class SubmissionTest(private val temporaryFolder: TemporaryFolder) {
 
         private fun assertSavedSubmission() {
             val submission = submissionRepository.findByAccNo("S-EPMC124")
-            assertSubmission(submission, "S-EPMC124", "venous blood, Monocyte")
+            assertSubmission(submission, "S-EPMC124", Attribute("Title", "venous blood, Monocyte"))
 
             val rootSection = submission.section
             assertSections(rootSection)

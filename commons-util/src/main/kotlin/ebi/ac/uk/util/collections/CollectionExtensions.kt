@@ -12,16 +12,13 @@ fun <A : Collection<*>> A.ifNotEmpty(function: (A) -> Unit) {
 }
 
 /**
- * Creates a list based on the given list and a list of attributes.
+ * Creates a list based on the given list and a list of elements.
  *
  * @param anotherList the base list to create new one.
  * @param elements the list of elements to append to the list.
  */
-fun <T> listFrom(anotherList: List<T>, vararg elements: T): List<T> {
-    val newList = anotherList.toMutableList()
-    newList.addAll(elements)
-    return newList
-}
+fun <T> merge(anotherList: List<T>, vararg elements: T) =
+    anotherList.toMutableList().apply { addAll(elements) }
 
 /**
  * Obtains the second element of the list.
