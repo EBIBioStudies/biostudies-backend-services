@@ -7,7 +7,6 @@ import ebi.ac.uk.base.EMPTY
 import ebi.ac.uk.util.collections.secondOrElse
 import ebi.ac.uk.util.collections.thirdOrElse
 
-
 fun TsvChunk.getType() = if (isSectionTable()) header.first().substringBefore(SECTION_TABLE_OP) else header.first()
 
 fun TsvChunk.findIdentifier(): String? = header.secondOrElse { null }

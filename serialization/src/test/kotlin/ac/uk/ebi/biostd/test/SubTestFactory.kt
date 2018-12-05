@@ -24,7 +24,6 @@ fun createVenousBloodMonocyte(): Submission {
         releaseTime = releaseDate
         accessTags = mutableListOf("Public")
         rootPath = "S-IHECRE00000919.1"
-
         title = "Submission title"
         attribute("DataSource", "BLUEPRINT")
         attribute("AttachTo", "blueprint")

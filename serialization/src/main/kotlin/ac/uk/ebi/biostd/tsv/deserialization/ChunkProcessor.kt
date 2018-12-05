@@ -29,6 +29,8 @@ import ebi.ac.uk.model.constans.SubFields
 import ebi.ac.uk.util.collections.filterLeft
 import ebi.ac.uk.util.collections.ifLeft
 
+private const val ALLOWED_TYPES = "Study"
+
 class ChunkProcessor {
 
     fun getSubmission(tsvChunk: TsvChunk): Submission {
@@ -40,7 +42,7 @@ class ChunkProcessor {
     }
 
     fun getRootSection(tsvChunk: TsvChunk): Section {
-        requireType("Study", tsvChunk)
+        requireType(ALLOWED_TYPES, tsvChunk)
 
         return Section(
             accNo = tsvChunk.findIdentifier(),
@@ -95,10 +97,8 @@ class ChunkProcessor {
     private fun createSingleSection(chunk: TsvChunk) =
         Section(type = chunk.getType(), accNo = chunk.getIdentifier(), attributes = toAttributes(chunk.lines))
 
-
-    private fun requireType(type: String, tsvChunk: TsvChunk) {
+    private fun requireType(type: String, tsvChunk: TsvChunk) =
         require(tsvChunk.getType().equals(type, ignoreCase = true)) { "Expected to find block type of $type in block $tsvChunk" }
-    }
 
     private fun toAttributes(chunkLines: MutableList<TsvChunkLine>): MutableList<Attribute> {
         val attributes: MutableList<Attribute> = mutableListOf()

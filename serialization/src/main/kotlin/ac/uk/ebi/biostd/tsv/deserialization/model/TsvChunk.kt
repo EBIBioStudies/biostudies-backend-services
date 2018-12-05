@@ -10,3 +10,5 @@ data class TsvChunk(
         body.removeAt(0).split(TSV_SEPARATOR),
         body.mapTo(mutableListOf()) { TsvChunkLine(it.substringBefore(TSV_SEPARATOR), it.substringAfter(TSV_SEPARATOR)) })
 }
+
+data class TsvChunkLine(val name: String, val value: String)
