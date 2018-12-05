@@ -2,8 +2,6 @@ package ac.uk.ebi.biostd.tsv.deserialization.model
 
 import ac.uk.ebi.biostd.tsv.TSV_SEPARATOR
 import ebi.ac.uk.util.collections.second
-import ebi.ac.uk.util.collections.secondOrElse
-import ebi.ac.uk.util.collections.thirdOrElse
 
 class TsvChunk(body: MutableList<String>) {
 
@@ -17,16 +15,9 @@ class TsvChunk(body: MutableList<String>) {
     }
 }
 
-class TsvChunkLine(body: String) {
+class TsvChunkLine private constructor(private val lines: List<String>) : List<String> by lines {
 
-    private val lines: List<String> = body.split(TSV_SEPARATOR).filter(String::isNotBlank)
-
-    fun first() = lines.first()
-    fun secondOrElse(defaultValue: String?) = lines.secondOrElse(defaultValue)
-    fun secondOrElse(function: () -> String) = lines.secondOrElse(function)
-    fun thirdOrElse(defaultValue: String): String = lines.thirdOrElse(defaultValue)
-
-    operator fun get(index: Int) = lines[index]
+    constructor(body: String) : this(body.split(TSV_SEPARATOR).filter(String::isNotBlank))
 
     val value: String
         get() {
