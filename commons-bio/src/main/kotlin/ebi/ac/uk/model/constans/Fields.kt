@@ -1,6 +1,17 @@
 package ebi.ac.uk.model.constans
 
-enum class OtherFields(val value: String) {
+private const val ACC_NO_FIELD = "accNo"
+private const val ACCESS_FIELD = "accessTags"
+private const val SECTION_FIELD = "section"
+private const val ATTRIBUTES_FIELD = "attributes"
+val TABLE_REGEX = ".+\\[(.*)]".toRegex()
+
+interface Fields {
+
+    val value: String?
+}
+
+enum class OtherFields(override val value: String) : Fields {
     TABLE("table");
 
     override fun toString(): String {
@@ -8,12 +19,7 @@ enum class OtherFields(val value: String) {
     }
 }
 
-private const val ACC_NO_FIELD = "accNo"
-private const val ACCESS_FIELD = "accessTags"
-private const val SECTION_FIELD = "section"
-private const val ATTRIBUTES_FIELD = "attributes"
-
-enum class SubFields(val value: String) {
+enum class SubFields(override val value: String) : Fields {
     SUBMISSION("submission"),
     REL_PATH("relPath"),
     ACC_NO(ACC_NO_FIELD),
@@ -36,7 +42,7 @@ enum class SubFields(val value: String) {
     }
 }
 
-enum class SectionFields(val value: String) {
+enum class SectionFields(override val value: String) : Fields {
     ACC_NO(ACC_NO_FIELD),
     ACCESS_TAGS(ACCESS_FIELD),
     ATTRIBUTES(ATTRIBUTES_FIELD),
@@ -52,7 +58,7 @@ enum class SectionFields(val value: String) {
     }
 }
 
-enum class AttributeFields(val value: String) {
+enum class AttributeFields(override val value: String) : Fields {
     ATTRIBUTE("attribute"),
     NAME("name"),
     VALUE("value"),
@@ -63,7 +69,7 @@ enum class AttributeFields(val value: String) {
     }
 }
 
-enum class AttributeDetails(val value: String) {
+enum class AttributeDetails(override val value: String) : Fields {
     VAL_QUALIFIER("valqual"),
     NAME_QUALIFIER("nmqual"),
 
@@ -75,7 +81,7 @@ enum class AttributeDetails(val value: String) {
     }
 }
 
-enum class LinkFields(val value: String) {
+enum class LinkFields(override val value: String) : Fields {
     LINK("link"),
     ATTRIBUTES(ATTRIBUTES_FIELD),
     URL("url");
@@ -85,7 +91,7 @@ enum class LinkFields(val value: String) {
     }
 }
 
-enum class FileFields(val value: String) {
+enum class FileFields(override val value: String) : Fields {
     FILE("file"),
     NAME("name"),
     SIZE("size"),
@@ -97,7 +103,7 @@ enum class FileFields(val value: String) {
     }
 }
 
-enum class TableFields(val value: String) {
+enum class TableFields(override val value: String) : Fields {
     LINKS_TABLE("Links"),
     FILES_TABLE("Files");
 

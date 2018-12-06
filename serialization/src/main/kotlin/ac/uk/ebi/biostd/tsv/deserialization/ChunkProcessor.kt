@@ -2,14 +2,22 @@ package ac.uk.ebi.biostd.tsv.deserialization
 
 import ac.uk.ebi.biostd.tsv.deserialization.ext.findIdentifier
 import ac.uk.ebi.biostd.tsv.deserialization.ext.getIdentifier
-import ac.uk.ebi.biostd.tsv.deserialization.ext.getParent
 import ac.uk.ebi.biostd.tsv.deserialization.ext.getType
 import ac.uk.ebi.biostd.tsv.deserialization.ext.isNameDetail
 import ac.uk.ebi.biostd.tsv.deserialization.ext.isReference
-import ac.uk.ebi.biostd.tsv.deserialization.ext.isSectionTable
-import ac.uk.ebi.biostd.tsv.deserialization.ext.isSubsection
 import ac.uk.ebi.biostd.tsv.deserialization.ext.isValueDetail
 import ac.uk.ebi.biostd.tsv.deserialization.ext.name
+import ac.uk.ebi.biostd.tsv.deserialization.model.FileChunk
+import ac.uk.ebi.biostd.tsv.deserialization.model.FileTableChunk
+import ac.uk.ebi.biostd.tsv.deserialization.model.LinkChunk
+import ac.uk.ebi.biostd.tsv.deserialization.model.LinksTableChunk
+import ac.uk.ebi.biostd.tsv.deserialization.model.RootSectionTableChunk
+import ac.uk.ebi.biostd.tsv.deserialization.model.RootSubSectionChunk
+import ac.uk.ebi.biostd.tsv.deserialization.model.SectionChunk
+import ac.uk.ebi.biostd.tsv.deserialization.model.SectionContext
+import ac.uk.ebi.biostd.tsv.deserialization.model.SectionTableChunk
+import ac.uk.ebi.biostd.tsv.deserialization.model.SubSectionChunk
+import ac.uk.ebi.biostd.tsv.deserialization.model.SubSectionTableChunk
 import ac.uk.ebi.biostd.tsv.deserialization.model.TsvChunk
 import ac.uk.ebi.biostd.tsv.deserialization.model.TsvChunkLine
 import ebi.ac.uk.model.Attribute
@@ -21,12 +29,7 @@ import ebi.ac.uk.model.LinksTable
 import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.SectionsTable
 import ebi.ac.uk.model.Submission
-import ebi.ac.uk.model.constans.FileFields
-import ebi.ac.uk.model.constans.LinkFields
-import ebi.ac.uk.model.constans.SectionFields
 import ebi.ac.uk.model.constans.SubFields
-import ebi.ac.uk.util.collections.filterLeft
-import ebi.ac.uk.util.collections.ifLeft
 
 private const val ALLOWED_TYPES = "Study"
 
@@ -49,48 +52,32 @@ class ChunkProcessor {
             attributes = toAttributes(tsvChunk.lines))
     }
 
-    fun processChunk(section: Section, chunk: TsvChunk) {
-        when (chunk.getType().toLowerCase()) {
-            LinkFields.LINK.value ->
-                section.addLink(Link(chunk.getIdentifier(), toAttributes(chunk.lines)))
-
-            FileFields.FILE.value ->
-                section.addFile(File(chunk.getIdentifier(), toAttributes(chunk.lines)))
-
-            SectionFields.LINKS.value ->
-                section.addLinksTable(LinksTable(asTable(chunk) { url, attributes -> Link(url, attributes) }))
-
-            SectionFields.FILES.value ->
-                section.addFilesTable(FilesTable(asTable(chunk) { path, attributes -> File(path, attributes) }))
-
-            else -> processSectionChunk(section, chunk)
+    fun processChunk(chunk: TsvChunk, sectionContext: SectionContext) {
+        when (chunk) {
+            is LinkChunk ->
+                sectionContext.currentSection.addLink(Link(chunk.getIdentifier(), toAttributes(chunk.lines)))
+            is FileChunk ->
+                sectionContext.currentSection.addFile(File(chunk.getIdentifier(), toAttributes(chunk.lines)))
+            is LinksTableChunk ->
+                sectionContext.currentSection.addLinksTable(LinksTable(asTable(chunk) { url, attributes -> Link(url, attributes) }))
+            is FileTableChunk ->
+                sectionContext.currentSection.addFilesTable(FilesTable(asTable(chunk) { path, attributes -> File(path, attributes) }))
+            is SectionTableChunk -> {
+                val table = SectionsTable(asTable(chunk) { accNo, attributes -> Section(chunk.getType(), accNo, attributes = attributes) })
+                when (chunk) {
+                    is RootSectionTableChunk -> sectionContext.rootSection.addSectionTable(table)
+                    is SubSectionTableChunk -> sectionContext.getValue(chunk.parent).addSectionTable(table)
+                }
+            }
+            is SectionChunk -> {
+                val newSection = createSingleSection(chunk)
+                sectionContext.update(newSection)
+                when (chunk) {
+                    is RootSubSectionChunk -> sectionContext.rootSection.addSection(newSection)
+                    is SubSectionChunk -> sectionContext.getValue(chunk.parent).addSection(newSection)
+                }
+            }
         }
-    }
-
-    private fun processSectionChunk(section: Section, chunk: TsvChunk) =
-        when {
-            chunk.isSubsection() -> addSubsection(section, chunk)
-            chunk.isSectionTable() -> section.addSectionTable(createSectionsTable(chunk))
-            else -> section.addSection(createSingleSection(chunk))
-        }
-
-    private fun createSectionsTable(chunk: TsvChunk) =
-        SectionsTable(asTable(chunk) { accNo, attributes -> Section(accNo = accNo, type = chunk.getType(), attributes = attributes) })
-
-    private fun addSubsection(parentSection: Section, sectionChunk: TsvChunk) {
-        if (parentSection.accNo == sectionChunk.getParent()) {
-            processSubSectionChunk(parentSection, sectionChunk)
-        } else {
-            parentSection.sections
-                .filterLeft { section -> section.accNo == sectionChunk.getParent() }
-                .first()
-                .ifLeft { section -> processSubSectionChunk(section, sectionChunk) }
-        }
-    }
-
-    private fun processSubSectionChunk(parentSection: Section, sectionChunk: TsvChunk) {
-        if (sectionChunk.isSectionTable()) parentSection.addSectionTable(createSectionsTable(sectionChunk))
-        else parentSection.addSection(createSingleSection(sectionChunk))
     }
 
     private fun createSingleSection(chunk: TsvChunk) =
