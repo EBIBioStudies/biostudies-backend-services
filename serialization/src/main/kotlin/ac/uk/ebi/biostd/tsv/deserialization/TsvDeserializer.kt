@@ -14,7 +14,6 @@ import ac.uk.ebi.biostd.tsv.deserialization.model.SubSectionTableChunk
 import ac.uk.ebi.biostd.tsv.deserialization.model.TsvChunk
 import ac.uk.ebi.biostd.tsv.deserialization.model.TsvChunkLine
 import ebi.ac.uk.base.like
-import ebi.ac.uk.base.toOption
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.constans.FileFields
 import ebi.ac.uk.model.constans.LinkFields
@@ -23,6 +22,7 @@ import ebi.ac.uk.model.constans.TABLE_REGEX
 import ebi.ac.uk.util.collections.findThird
 import ebi.ac.uk.util.collections.ifNotEmpty
 import ebi.ac.uk.util.collections.removeFirst
+import ebi.ac.uk.util.regex.getGroup
 
 class TsvDeserializer(private val chunkProcessor: ChunkProcessor = ChunkProcessor()) {
 
@@ -54,7 +54,7 @@ class TsvDeserializer(private val chunkProcessor: ChunkProcessor = ChunkProcesso
             type like SectionFields.LINKS -> LinksTableChunk(body)
             type like SectionFields.FILES -> FileTableChunk(body)
             type.matches(TABLE_REGEX) -> {
-                TABLE_REGEX.find(type)!!.groups[1]?.value.toOption().fold({ RootSectionTableChunk(body) }, { SubSectionTableChunk(body, it) })
+                TABLE_REGEX.getGroup(type, 1).fold({ RootSectionTableChunk(body) }, { SubSectionTableChunk(body, it) })
             }
 
             else -> header.findThird().fold({ RootSubSectionChunk(body) }, { SubSectionChunk(body, it) })
