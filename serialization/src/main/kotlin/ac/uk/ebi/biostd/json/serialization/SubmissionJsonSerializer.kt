@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer
 import ebi.ac.uk.model.ExtendedSubmission
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.constans.SubFields
-import ebi.ac.uk.util.collections.listFrom
+import ebi.ac.uk.util.collections.merge
 
 class SubmissionJsonSerializer : StdSerializer<Submission>(Submission::class.java) {
 
@@ -22,7 +22,7 @@ class SubmissionJsonSerializer : StdSerializer<Submission>(Submission::class.jav
             writeJsonObject(SubFields.SECTION, subm.section)
 
             if (subm is ExtendedSubmission) {
-                writeJsonArray(SubFields.ACCESS_TAGS, listFrom(subm.accessTags), gen::writeString)
+                writeJsonArray(SubFields.ACCESS_TAGS, merge(subm.accessTags), gen::writeString)
                 writeJsonNumber(SubFields.RELEASE_TIME, subm.releaseTime.toEpochSecond())
                 writeJsonNumber(SubFields.CREATION_TIME, subm.creationTime.toEpochSecond())
                 writeJsonNumber(SubFields.MODIFICATION_TIME, subm.modificationTime.toEpochSecond())

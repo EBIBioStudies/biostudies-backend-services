@@ -21,12 +21,12 @@ class CollectionsExtensionsTest {
 
     @Test
     fun listFrom() {
-        assertThat(listFrom(listOf("a"), "b", "c")).isEqualTo(listOf("a", "b", "c"))
+        assertThat(merge(listOf("a"), "b", "c")).isEqualTo(listOf("a", "b", "c"))
     }
 
     @Test
     fun listFromWithEmptyList() {
-        assertThat(listFrom(emptyList<String>())).isEqualTo(emptyList<String>())
+        assertThat(merge(emptyList<String>())).isEqualTo(emptyList<String>())
     }
 
     @Test

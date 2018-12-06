@@ -12,16 +12,13 @@ fun <A : Collection<*>> A.ifNotEmpty(function: (A) -> Unit) {
 }
 
 /**
- * Creates a list based on the given list and a list of attributes.
+ * Creates a list based on the given list and a list of elements.
  *
  * @param anotherList the base list to create new one.
  * @param elements the list of elements to append to the list.
  */
-fun <T> listFrom(anotherList: List<T>, vararg elements: T): List<T> {
-    val newList = anotherList.toMutableList()
-    newList.addAll(elements)
-    return newList
-}
+fun <T> merge(anotherList: List<T>, vararg elements: T) =
+    anotherList.toMutableList().apply { addAll(elements) }
 
 /**
  * Obtains the second element of the list.
@@ -34,16 +31,16 @@ fun <T> List<T>.second() =
 /**
  * Obtains the second element of the list or returns the given default value if the element doesn't exist.
  *
- * @param defaultValue Default value to return if the second element doesn't exist.
+ * @param value Default value to return if the second element doesn't exist.
  */
-fun <T> List<T>.secondOrElse(defaultValue: T) = if (this.size > 1) this[1] else defaultValue
+fun <T> List<T>.secondOrElse(value: T) = if (this.size > 1) this[1] else value
 
 /**
  * Obtains the second element of the list or returns the given default value if the element doesn't exist.
  *
- * @param defaultValue Default lambda to calculate return if the second element doesn't exist.
+ * @param defaultFunc Default lambda to calculate return if the second element doesn't exist.
  */
-fun <T> List<T>.secondOrElse(defaultValue: () -> T) = if (this.size > 1) this[1] else defaultValue()
+fun <T> List<T>.secondOrElse(defaultFunc: () -> T) = if (this.size > 1) this[1] else defaultFunc()
 
 /**
  * Obtains the third element of the list or returns the given default value if the element doesn't exist.

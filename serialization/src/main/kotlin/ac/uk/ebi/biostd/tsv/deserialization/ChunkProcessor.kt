@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.tsv.deserialization
 
-import ac.uk.ebi.biostd.tsv.TSV_SEPARATOR
 import ac.uk.ebi.biostd.tsv.deserialization.ext.findIdentifier
 import ac.uk.ebi.biostd.tsv.deserialization.ext.getIdentifier
 import ac.uk.ebi.biostd.tsv.deserialization.ext.getParent
@@ -100,7 +99,7 @@ class ChunkProcessor {
     private fun requireType(type: String, tsvChunk: TsvChunk) =
         require(tsvChunk.getType().equals(type, ignoreCase = true)) { "Expected to find block type of $type in block $tsvChunk" }
 
-    private fun toAttributes(chunkLines: MutableList<TsvChunkLine>): MutableList<Attribute> {
+    private fun toAttributes(chunkLines: List<TsvChunkLine>): MutableList<Attribute> {
         val attributes: MutableList<Attribute> = mutableListOf()
         chunkLines.forEach { line ->
             when {
@@ -117,7 +116,7 @@ class ChunkProcessor {
 
         chunk.lines.forEach {
             val attrs: MutableList<Attribute> = mutableListOf()
-            it.value.split(TSV_SEPARATOR).forEachIndexed { index, attr -> attrs.add(Attribute(chunk.header[index + 1], attr)) }
+            it.values.forEachIndexed { index, attr -> attrs.add(Attribute(chunk.header[index + 1], attr)) }
             rows.add(initializer(it.name(), attrs))
         }
 

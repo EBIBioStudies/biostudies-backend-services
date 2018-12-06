@@ -1,14 +1,36 @@
 package ac.uk.ebi.biostd.tsv.deserialization.model
 
 import ac.uk.ebi.biostd.tsv.TSV_SEPARATOR
+import ebi.ac.uk.util.collections.second
 
-data class TsvChunk(
-    val header: List<String>,
-    val lines: MutableList<TsvChunkLine>
-) {
-    constructor(body: MutableList<String>) : this(
-        body.removeAt(0).split(TSV_SEPARATOR),
-        body.mapTo(mutableListOf()) { TsvChunkLine(it.substringBefore(TSV_SEPARATOR), it.substringAfter(TSV_SEPARATOR)) })
+class TsvChunk(body: MutableList<String>) {
+
+    val header: TsvChunkLine
+    val lines: List<TsvChunkLine>
+
+    init {
+        val lines = body.map { TsvChunkLine(it) }
+        this.header = lines.first()
+        this.lines = lines.drop(1)
+    }
 }
 
-data class TsvChunkLine(val name: String, val value: String)
+class TsvChunkLine private constructor(private val lines: List<String>) : List<String> by lines {
+
+    constructor(body: String) : this(body.split(TSV_SEPARATOR).filter(String::isNotBlank))
+
+    val value: String
+        get() {
+            return lines.second()
+        }
+
+    val values: List<String>
+        get() {
+            return lines.drop(1)
+        }
+
+    val name: String
+        get() {
+            return lines.first()
+        }
+}
