@@ -1,9 +1,6 @@
 package ac.uk.ebi.biostd.tsv.deserialization.model
 
-import ac.uk.ebi.biostd.tsv.TSV_SEPARATOR
-import ebi.ac.uk.util.collections.second
-
-class TsvChunk(body: MutableList<String>) {
+sealed class TsvChunk(body: List<String>) {
 
     val header: TsvChunkLine
     val lines: List<TsvChunkLine>
@@ -15,22 +12,15 @@ class TsvChunk(body: MutableList<String>) {
     }
 }
 
-class TsvChunkLine private constructor(private val lines: List<String>) : List<String> by lines {
+class LinkChunk(body: List<String>) : TsvChunk(body)
+class FileChunk(body: List<String>) : TsvChunk(body)
+class LinksTableChunk(body: List<String>) : TsvChunk(body)
+class FileTableChunk(body: List<String>) : TsvChunk(body)
 
-    constructor(body: String) : this(body.split(TSV_SEPARATOR).filter(String::isNotBlank))
+sealed class SectionTableChunk(body: List<String>) : TsvChunk(body)
+class RootSectionTableChunk(body: List<String>) : SectionTableChunk(body)
+class SubSectionTableChunk(body: List<String>, val parent: String) : SectionTableChunk(body)
 
-    val value: String
-        get() {
-            return lines.second()
-        }
-
-    val values: List<String>
-        get() {
-            return lines.drop(1)
-        }
-
-    val name: String
-        get() {
-            return lines.first()
-        }
-}
+sealed class SectionChunk(body: List<String>) : TsvChunk(body)
+class RootSubSectionChunk(body: List<String>) : SectionChunk(body)
+class SubSectionChunk(body: List<String>, val parent: String) : SectionChunk(body)

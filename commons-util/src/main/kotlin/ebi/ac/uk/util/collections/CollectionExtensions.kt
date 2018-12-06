@@ -1,5 +1,7 @@
 package ebi.ac.uk.util.collections
 
+import arrow.core.Option
+
 /**
  * Executes the given lambda if the list is not empty.
  *
@@ -17,8 +19,7 @@ fun <A : Collection<*>> A.ifNotEmpty(function: (A) -> Unit) {
  * @param anotherList the base list to create new one.
  * @param elements the list of elements to append to the list.
  */
-fun <T> merge(anotherList: List<T>, vararg elements: T) =
-    anotherList.toMutableList().apply { addAll(elements) }
+fun <T> merge(anotherList: List<T>, vararg elements: T) = anotherList.toMutableList().apply { addAll(elements) }
 
 /**
  * Obtains the second element of the list.
@@ -27,6 +28,10 @@ fun <T> merge(anotherList: List<T>, vararg elements: T) =
  */
 fun <T> List<T>.second() =
     if (this.size > 1) this[1] else throw NoSuchElementException("List does not contain a second element.")
+
+fun <T> List<T>.findSecond() = if (this.size > 1) Option.just(this[1]) else Option.empty()
+
+fun <T> List<T>.findThird() = if (this.size > 2) Option.just(this[2]) else Option.empty()
 
 /**
  * Obtains the second element of the list or returns the given default value if the element doesn't exist.

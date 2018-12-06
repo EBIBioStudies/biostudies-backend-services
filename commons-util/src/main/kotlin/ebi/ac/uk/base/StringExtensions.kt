@@ -33,3 +33,8 @@ fun String?.toOption() = if (isNullOrEmpty()) Option.empty() else Option.fromNul
  *   ("x gti").asBoolean = false
  */
 fun String.asBoolean() = BooleanUtils.toBoolean(this)
+
+/**
+ * Compare if string representation of objects are equivalent, ignoring case.
+ */
+infix fun String.like(other: Any) = other.toString().equals(this, ignoreCase = true)
