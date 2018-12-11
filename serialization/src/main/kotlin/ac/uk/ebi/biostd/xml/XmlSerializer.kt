@@ -32,10 +32,7 @@ import org.xml.sax.InputSource
 import java.io.StringReader
 import javax.xml.parsers.DocumentBuilderFactory
 
-class XmlSerializer(
-    val mapper: XmlMapper = createMapper(),
-    val deserializer: SubmissionXmlDeserializer = createSubDeserializer()
-) {
+class XmlSerializer {
 
     fun serialize(t: Submission): String {
         return mapper.writeValueAsString(t)
@@ -50,6 +47,8 @@ class XmlSerializer(
     }
 
     companion object {
+        val mapper: XmlMapper = createMapper()
+        val deserializer: SubmissionXmlDeserializer = createSubDeserializer()
 
         private fun createMapper(): XmlMapper {
             val module = JacksonXmlModule().apply {

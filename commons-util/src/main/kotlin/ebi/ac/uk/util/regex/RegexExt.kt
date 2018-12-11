@@ -1,6 +1,7 @@
 package ebi.ac.uk.util.regex
 
-import arrow.core.Option
+import ebi.ac.uk.base.toOption
 
-fun Regex.getGroup(input: String, group: Int) =
-    Option.fromNullable(find(input)?.groups?.get(group)).map { it.value }
+fun Regex.findGroup(input: String, group: Int) = find(input)?.groups?.get(group)?.value.orEmpty().toOption()
+
+fun Regex.getGroup(input: String, group: Int = 0) = find(input)?.groups?.get(group)!!.value

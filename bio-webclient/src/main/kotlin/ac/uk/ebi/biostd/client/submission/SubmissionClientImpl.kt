@@ -24,7 +24,6 @@ internal class SubmissionClientImpl(
     private val template: RestTemplate
 ) : SubmissionClient {
 
-
     override fun uploadFile(files: List<File>) {
         val headers = HttpHeaders()
         headers.contentType = MULTIPART_FORM_DATA

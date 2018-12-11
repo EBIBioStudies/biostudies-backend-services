@@ -18,7 +18,8 @@ class PathDescriptorResolver : HandlerMethodArgumentResolver {
         parameter: MethodParameter,
         mavContainer: ModelAndViewContainer,
         webRequest: NativeWebRequest,
-        binderFactory: WebDataBinderFactory): Any {
+        binderFactory: WebDataBinderFactory
+    ): Any {
         val path = getServletRequest(webRequest)
             .requestURL.toString()
             .remove(USER_PATH)
@@ -26,7 +27,6 @@ class PathDescriptorResolver : HandlerMethodArgumentResolver {
     }
 
     private fun getServletRequest(webRequest: NativeWebRequest) = webRequest.getNativeRequest(HttpServletRequest::class.java)!!
-
 }
 
 class PathDescriptor(val path: String)

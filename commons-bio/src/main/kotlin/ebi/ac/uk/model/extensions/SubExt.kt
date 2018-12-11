@@ -31,3 +31,5 @@ var Submission.rootPath: String
     set(value) {
         this[SubFields.ROOT_PATH] = value
     }
+
+fun Submission.getSectionByType(name: String) = section.allSections().first { it.type == name }

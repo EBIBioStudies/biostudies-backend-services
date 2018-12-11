@@ -27,7 +27,6 @@ class BioWebClient private constructor(private val submissionClient: SubmissionC
     }
 }
 
-
 interface SubmissionClient {
 
     fun submitSingle(submission: Submission, format: SubmissionFormat = SubmissionFormat.JSON): ResponseEntity<Submission>

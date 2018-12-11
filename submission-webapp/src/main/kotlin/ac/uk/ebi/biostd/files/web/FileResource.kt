@@ -19,8 +19,10 @@ class FileResource(private val fileManager: FileManager) {
 
     @PostMapping("/user/**")
     @ResponseStatus(value = HttpStatus.OK)
-    fun uploadFile(@AuthenticationPrincipal user: User,
-                   pathDescriptor: PathDescriptor,
-                   @RequestParam("files") files: Array<MultipartFile>) =
+    fun uploadFile(
+        @AuthenticationPrincipal user: User,
+        pathDescriptor: PathDescriptor,
+        @RequestParam("files") files: Array<MultipartFile>
+    ) =
         fileManager.uploadFiles(user, pathDescriptor.path, files)
 }

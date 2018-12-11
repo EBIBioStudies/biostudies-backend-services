@@ -34,12 +34,12 @@ import ebi.ac.uk.model.Table
 
 class JsonSerializer {
 
-    fun serialize(t: Submission): String {
+    fun serialize(t: Any): String {
         return mapper.writeValueAsString(t)
     }
 
-    fun deserialize(value: String): Submission {
-        return mapper.readValue(value, Submission::class.java)
+    inline fun <reified T> deserialize(value: String): T {
+        return mapper.readValue(value, T::class.java)
     }
 
     companion object {

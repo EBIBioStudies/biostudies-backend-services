@@ -12,6 +12,8 @@ import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
 import ebi.ac.uk.asserts.assertSingleElement
 import ebi.ac.uk.asserts.assertSubmission
 import ebi.ac.uk.asserts.assertTable
+import ebi.ac.uk.asserts.getLeft
+import ebi.ac.uk.asserts.getRight
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.AttributeDetail
 import ebi.ac.uk.model.File
@@ -141,8 +143,15 @@ class SubmissionTest(private val temporaryFolder: TemporaryFolder) {
                         mutableListOf(AttributeDetail("Ontology", "UBERON"))))))
 
             assertThat(rootSection.sections).hasSize(2)
-            assertSingleElement(
-                rootSection.sections.first(), Section(accNo = "SUBSECT-001", type = "Stranded Total RNA-Seq"))
+
+            val section = rootSection.sections.first().getLeft()
+            assertThat(section.accNo).isEqualTo("SUBSECT-001")
+            assertThat(section.type).isEqualTo("Stranded Total RNA-Seq")
+
+            val linkTable = section.links.first().getRight()
+            assertThat(linkTable.elements.first()).isEqualTo(
+                Link("EGAD00001001282", listOf(Attribute("Type", "EGA"), Attribute("Assay type", "RNA-Seq"))))
+
             assertTable(
                 rootSection.sections.second(),
                 Section(
@@ -154,11 +163,8 @@ class SubmissionTest(private val temporaryFolder: TemporaryFolder) {
         }
 
         private fun assertLinks(rootSection: Section) {
-            assertThat(rootSection.links).hasSize(2)
+            assertThat(rootSection.links).hasSize(1)
             assertSingleElement(rootSection.links.first(), Link("AF069309", listOf(Attribute("Type", "gen"))))
-            assertTable(
-                rootSection.links.second(),
-                Link("EGAD00001001282", listOf(Attribute("Type", "EGA"), Attribute("Assay type", "RNA-Seq"))))
         }
 
         private fun assertFiles(rootSection: Section) {
@@ -175,7 +181,6 @@ class SubmissionTest(private val temporaryFolder: TemporaryFolder) {
 
             temporaryFolder.createDirectory(userFolder.substringBefore("/"))
             temporaryFolder.createDirectory(userFolder)
-
 
             webClient.uploadFile(listOf(
                 temporaryFolder.createFile("LibraryFile1.txt"),
