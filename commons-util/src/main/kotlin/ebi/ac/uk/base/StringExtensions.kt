@@ -38,3 +38,8 @@ fun String.asBoolean() = BooleanUtils.toBoolean(this)
  * Compare if string representation of objects are equivalent, ignoring case.
  */
 infix fun String.like(other: Any) = other.toString().equals(this, ignoreCase = true)
+
+/**
+ * Removes the regex expression matching the string.
+ */
+fun String.remove(regex: Regex) = replace(regex, "")

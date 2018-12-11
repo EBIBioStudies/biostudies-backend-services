@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.rest.converters
+package ac.uk.ebi.biostd.submission.converters
 
 import ac.uk.ebi.biostd.SerializationService
 import ac.uk.ebi.biostd.SubFormat

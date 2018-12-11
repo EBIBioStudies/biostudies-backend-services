@@ -33,6 +33,7 @@ class SubmitterConfig {
 
     @Configuration
     class FilesHandlerConfig(private val appProperties: ApplicationProperties) {
+
         @Bean
         @Lazy
         fun folderResolver() = FolderResolver(Paths.get(appProperties.basepath))

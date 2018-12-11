@@ -1,7 +1,7 @@
-package ac.uk.ebi.biostd.rest.controllers
+package ac.uk.ebi.biostd.submission.web
 
 import ac.uk.ebi.biostd.SerializationService
-import ac.uk.ebi.biostd.service.SubmissionService
+import ac.uk.ebi.biostd.submission.service.SubmissionService
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.User
 import org.springframework.security.access.prepost.PreAuthorize

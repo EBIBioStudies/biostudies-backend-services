@@ -4,6 +4,7 @@ import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.config.PersistenceConfig
 import ac.uk.ebi.biostd.config.SubmitterConfig
+import ac.uk.ebi.biostd.files.FileConfig
 import ac.uk.ebi.biostd.itest.common.setAppProperty
 import ac.uk.ebi.biostd.itest.factory.allInOneSubmissionTsv
 import ac.uk.ebi.biostd.persistence.model.User
@@ -61,7 +62,7 @@ class SubmissionTest(private val temporaryFolder: TemporaryFolder) {
     @Nested
     @TestInstance(PER_CLASS)
     @ExtendWith(SpringExtension::class)
-    @Import(value = [SubmitterConfig::class, PersistenceConfig::class])
+    @Import(value = [SubmitterConfig::class, PersistenceConfig::class, FileConfig::class])
     @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
     inner class SimpleSubmission {
 
@@ -170,14 +171,15 @@ class SubmissionTest(private val temporaryFolder: TemporaryFolder) {
         }
 
         private fun setUpMockUserFiles(user: User) {
-            val userFolder =
-                folderResolver.getUserMagicFolderPath(user.id, user.secret).toString().substringAfter(".tmp/")
+            val userFolder = folderResolver.getUserMagicFolderPath(user.id, user.secret).toString().substringAfter(".tmp/")
 
             temporaryFolder.createDirectory(userFolder.substringBefore("/"))
             temporaryFolder.createDirectory(userFolder)
 
-            temporaryFolder.createFile("$userFolder/LibraryFile1.txt")
-            temporaryFolder.createFile("$userFolder/LibraryFile2.txt")
+
+            webClient.uploadFile(listOf(
+                temporaryFolder.createFile("LibraryFile1.txt"),
+                temporaryFolder.createFile("LibraryFile2.txt")))
         }
     }
 }
