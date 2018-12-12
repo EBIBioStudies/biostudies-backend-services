@@ -39,7 +39,11 @@ fun String.asBoolean() = BooleanUtils.toBoolean(this)
  */
 infix fun String.like(other: Any) = other.toString().equals(this, ignoreCase = true)
 
+/**
+ * Split the string by the given regex ignoring empty results.
+ */
 fun String.splitIgnoringEmpty(regex: Regex) = this.split(regex).filter { it.isNotBlank() }
+
 /**
  * Removes the regex expression matching the string.
  */

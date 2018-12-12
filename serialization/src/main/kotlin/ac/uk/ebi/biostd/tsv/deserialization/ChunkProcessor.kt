@@ -45,15 +45,10 @@ class ChunkProcessor {
 
     fun getRootSection(tsvChunk: TsvChunk): Section {
         requireType(ALLOWED_TYPES, tsvChunk)
-
-        try {
-            return Section(
-                accNo = tsvChunk.findIdentifier(),
-                type = tsvChunk.getType(),
-                attributes = toAttributes(tsvChunk.lines))
-        } catch (exception: Exception) {
-            throw exception
-        }
+        return Section(
+            accNo = tsvChunk.findIdentifier(),
+            type = tsvChunk.getType(),
+            attributes = toAttributes(tsvChunk.lines))
     }
 
     fun processChunk(chunk: TsvChunk, sectionContext: SectionContext) {
