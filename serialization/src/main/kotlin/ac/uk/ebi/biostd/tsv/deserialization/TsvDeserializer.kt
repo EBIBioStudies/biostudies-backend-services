@@ -40,9 +40,9 @@ class TsvDeserializer(private val chunkProcessor: ChunkProcessor = ChunkProcesso
     }
 
     private fun chunkerize(pagetab: String) =
-        pagetab.splitIgnoringEmpty(TSV_LINE_BREAK.toRegex())
+        pagetab.splitIgnoringEmpty(TSV_LINE_BREAK)
             .asSequence()
-            .map { chunk -> chunk.splitIgnoringEmpty(TSV_CHUNK_BREAK.toRegex()) }
+            .map { chunk -> chunk.splitIgnoringEmpty(TSV_CHUNK_BREAK) }
             .mapTo(mutableListOf()) { lines -> createChunk(lines) }
 
     private fun createChunk(body: List<String>): TsvChunk {
