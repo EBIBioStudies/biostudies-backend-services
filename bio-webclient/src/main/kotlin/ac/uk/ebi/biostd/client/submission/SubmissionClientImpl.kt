@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.client.extensions.map
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.web.SubmissionClient
 import ebi.ac.uk.model.Submission
+import ebi.ac.uk.util.web.normalize
 import org.springframework.core.io.FileSystemResource
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
@@ -24,10 +25,10 @@ internal class SubmissionClientImpl(
     private val template: RestTemplate
 ) : SubmissionClient {
 
-    override fun uploadFiles(files: List<File>) {
+    override fun uploadFiles(files: List<File>, relativePath: String) {
         val headers = HttpHeaders().apply { contentType = MULTIPART_FORM_DATA }
         val body = LinkedMultiValueMap<String, Any>().apply { files.forEach { add("files", FileSystemResource(it)) } }
-        template.postForEntity(USER_FILES_URL, HttpEntity(body, headers), Void::class.java)
+        template.postForEntity("$USER_FILES_URL${normalize(relativePath)}", HttpEntity(body, headers), Void::class.java)
     }
 
     override fun submitSingle(submission: Submission, format: SubmissionFormat) =

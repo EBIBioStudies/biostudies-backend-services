@@ -14,10 +14,9 @@ class BioWebClient private constructor(private val submissionClient: SubmissionC
             return BioWebClient(SubmissionClientImpl(SerializationService(), createRestTemplate(baseUrl, token)))
         }
 
-        private fun createRestTemplate(baseUrl: String, token: String) =
-            RestTemplate().apply {
-                uriTemplateHandler = DefaultUriBuilderFactory(baseUrl)
-                interceptors = listOf(TokenInterceptor(token))
-            }
+        private fun createRestTemplate(baseUrl: String, token: String) = RestTemplate().apply {
+            uriTemplateHandler = DefaultUriBuilderFactory(baseUrl)
+            interceptors = listOf(TokenInterceptor(token))
+        }
     }
 }
