@@ -9,8 +9,6 @@ import ac.uk.ebi.biostd.itest.common.setAppProperty
 import ac.uk.ebi.biostd.itest.factory.allInOneSubmissionTsv
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
 import arrow.core.Either
-import ebi.ac.uk.asserts.assertSingleElement
-import ebi.ac.uk.asserts.assertSubmission
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.Link
@@ -110,7 +108,8 @@ class SubmissionTest(private val tempFolder: TemporaryFolder) {
 
         private fun assertSavedSubmission() {
             val submission = submissionRepository.findByAccNo("S-EPMC124")
-            assertSubmission(submission, "S-EPMC124", Attribute("Title", "venous blood, Monocyte"))
+            assertThat(submission).hasAccNo("S-EPMC124")
+            assertThat(submission).hasExactly(Attribute("Title", "venous blood, Monocyte"))
 
             val rootSection = submission.section
             assertSections(rootSection)
@@ -164,7 +163,9 @@ class SubmissionTest(private val tempFolder: TemporaryFolder) {
 
         private fun assertLinks(rootSection: Section) {
             assertThat(rootSection.links).hasSize(1)
-            assertSingleElement(rootSection.links.first(), Link("AF069309", listOf(Attribute("Type", "gen"))))
+
+            val link = assertThat(rootSection.links[0]).isLink()
+            assertThat(link).isEqualTo(Link("AF069309", listOf(Attribute("Type", "gen"))))
         }
 
         private fun assertFiles(section: Section) {
