@@ -7,25 +7,21 @@ import ac.uk.ebi.biostd.config.SubmitterConfig
 import ac.uk.ebi.biostd.files.FileConfig
 import ac.uk.ebi.biostd.itest.common.setAppProperty
 import ac.uk.ebi.biostd.itest.factory.allInOneSubmissionTsv
-import ac.uk.ebi.biostd.persistence.model.User
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
+import arrow.core.Either
 import ebi.ac.uk.asserts.assertSingleElement
 import ebi.ac.uk.asserts.assertSubmission
-import ebi.ac.uk.asserts.assertTable
-import ebi.ac.uk.asserts.getLeft
-import ebi.ac.uk.asserts.getRight
+import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.model.Attribute
-import ebi.ac.uk.model.AttributeDetail
-import ebi.ac.uk.model.File
 import ebi.ac.uk.model.Link
 import ebi.ac.uk.model.Section
+import ebi.ac.uk.model.SectionsTable
 import ebi.ac.uk.model.Submission
+import ebi.ac.uk.model.attributeDetails
 import ebi.ac.uk.model.constans.SubFields
 import ebi.ac.uk.model.extensions.title
-import ebi.ac.uk.paths.FolderResolver
 import ebi.ac.uk.security.integration.model.SignUpRequest
 import ebi.ac.uk.security.service.SecurityService
-import ebi.ac.uk.util.collections.second
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
@@ -47,12 +43,12 @@ const val BASE_PATH_PLACEHOLDER = "{BASE_PATH}"
 
 @ExtendWith(TemporaryFolderExtension::class)
 @TestInstance(PER_CLASS)
-class SubmissionTest(private val temporaryFolder: TemporaryFolder) {
+class SubmissionTest(private val tempFolder: TemporaryFolder) {
     private lateinit var basePath: String
 
     @BeforeAll
     fun init() {
-        basePath = temporaryFolder.root.absolutePath
+        basePath = tempFolder.root.absolutePath
         setAppProperty(BASE_PATH_PLACEHOLDER, basePath)
     }
 
@@ -69,7 +65,7 @@ class SubmissionTest(private val temporaryFolder: TemporaryFolder) {
     inner class SimpleSubmission {
 
         @LocalServerPort
-        private var randomServerPort: Int = 0
+        private var serverPort: Int = 0
 
         @Autowired
         private lateinit var submissionRepository: SubmissionRepository
@@ -77,18 +73,13 @@ class SubmissionTest(private val temporaryFolder: TemporaryFolder) {
         @Autowired
         private lateinit var securityService: SecurityService
 
-        @Autowired
-        private lateinit var folderResolver: FolderResolver
-
         private lateinit var webClient: BioWebClient
 
         @BeforeAll
         fun init() {
-            val user = securityService.registerUser(SignUpRequest("test@biostudies.com", "jhon_doe", "12345"))
-            webClient = BioWebClient.create(
-                baseUrl = "http://localhost:$randomServerPort",
-                token = securityService.login("jhon_doe", "12345"))
-            setUpMockUserFiles(user)
+            securityService.registerUser(SignUpRequest("test@biostudies.com", "jhon_doe", "12345"))
+            webClient = BioWebClient.create("http://localhost:$serverPort", securityService.login("jhon_doe", "12345"))
+            webClient.uploadFile(listOf(tempFolder.createFile("LibraryFile1.txt"), tempFolder.createFile("LibraryFile2.txt")))
         }
 
         @Test
@@ -128,38 +119,47 @@ class SubmissionTest(private val temporaryFolder: TemporaryFolder) {
         }
 
         private fun assertSections(rootSection: Section) {
-            assertThat(rootSection.sections).hasSize(2)
-            assertThat(rootSection).isEqualTo(Section(
-                type = "Study",
-                accNo = "SECT-001",
-                attributes = listOf(
-                    Attribute("Project", "CEEHRC (McGill)"),
-                    Attribute("Organization", "Org1", true),
-                    Attribute(
-                        "Tissue type",
-                        "venous blood",
-                        false,
-                        mutableListOf(AttributeDetail("Tissue", "Blood")),
-                        mutableListOf(AttributeDetail("Ontology", "UBERON"))))))
+            assertThat(rootSection).has("SECT-001", "Study")
+            assertThat(rootSection.attributes).hasSize(3)
+            assertThat(rootSection.attributes[0]).isEqualTo(Attribute("Project", "CEEHRC (McGill)"))
+            assertThat(rootSection.attributes[1]).isEqualTo(Attribute("Organization", "Org1", true))
+            assertThat(rootSection.attributes[2]).isEqualTo(Attribute(
+                "Tissue type",
+                "venous blood",
+                false,
+                attributeDetails("Tissue", "Blood"),
+                attributeDetails("Ontology", "UBERON")))
 
             assertThat(rootSection.sections).hasSize(2)
+            assertFirstSection(rootSection.sections[0])
+            assertSecondSection(rootSection.sections[1])
+        }
 
-            val section = rootSection.sections.first().getLeft()
-            assertThat(section.accNo).isEqualTo("SUBSECT-001")
-            assertThat(section.type).isEqualTo("Stranded Total RNA-Seq")
+        private fun assertSecondSection(sectionEither: Either<Section, SectionsTable>) {
+            val sectionTable = assertThat(sectionEither).isTable()
+            assertThat(sectionTable.elements).hasSize(1)
 
-            val linkTable = section.links.first().getRight()
-            assertThat(linkTable.elements.first()).isEqualTo(
-                Link("EGAD00001001282", listOf(Attribute("Type", "EGA"), Attribute("Assay type", "RNA-Seq"))))
+            val sectionElement = sectionTable.elements[0]
+            assertThat(sectionElement).has("DT-1", "Data")
+            assertThat(sectionElement.attributes).hasSize(2)
 
-            assertTable(
-                rootSection.sections.second(),
-                Section(
-                    type = "Data",
-                    accNo = "DT-1",
-                    attributes = listOf(
-                        Attribute("Title", "Group 1 Transcription Data"),
-                        Attribute("Description", "The data for zygotic transcription in mammals group 1"))))
+            assertThat(sectionElement.attributes[0]).isEqualTo(Attribute("Title", "Group 1 Transcription Data"))
+            assertThat(sectionElement.attributes[1])
+                .isEqualTo(Attribute("Description", "The data for zygotic transcription in mammals group 1"))
+        }
+
+        private fun assertFirstSection(sectionEither: Either<Section, SectionsTable>) {
+            val section = assertThat(sectionEither).isSection()
+            assertThat(section).has("SUBSECT-001", "Stranded Total RNA-Seq")
+
+            val linksTable = assertThat(section.links[0]).isTable()
+            assertThat(linksTable.elements).hasSize(1)
+
+            val tableLink = linksTable.elements[0]
+            assertThat(tableLink.url).isEqualTo("EGAD00001001282")
+            assertThat(tableLink.attributes).hasSize(2)
+            assertThat(tableLink.attributes[0]).isEqualTo(Attribute("Type", "EGA"))
+            assertThat(tableLink.attributes[1]).isEqualTo(Attribute("Assay type", "RNA-Seq"))
         }
 
         private fun assertLinks(rootSection: Section) {
@@ -167,24 +167,22 @@ class SubmissionTest(private val temporaryFolder: TemporaryFolder) {
             assertSingleElement(rootSection.links.first(), Link("AF069309", listOf(Attribute("Type", "gen"))))
         }
 
-        private fun assertFiles(rootSection: Section) {
-            assertThat(rootSection.files).hasSize(2)
-            assertSingleElement(
-                rootSection.files.first(), File("LibraryFile1.txt", listOf(Attribute("Description", "Library File 1"))))
-            assertTable(
-                rootSection.files.second(),
-                File("LibraryFile2.txt", listOf(Attribute("Description", "Library File 2"), Attribute("Type", "Lib"))))
-        }
+        private fun assertFiles(section: Section) {
+            assertThat(section.files).hasSize(2)
 
-        private fun setUpMockUserFiles(user: User) {
-            val userFolder = folderResolver.getUserMagicFolderPath(user.id, user.secret).toString().substringAfter(".tmp/")
+            val file = assertThat(section.files[0]).isFile()
+            assertThat(file.name).isEqualTo("LibraryFile1.txt")
+            assertThat(file.attributes).hasSize(1)
+            assertThat(file.attributes[0]).isEqualTo(Attribute("Description", "Library File 1"))
 
-            temporaryFolder.createDirectory(userFolder.substringBefore("/"))
-            temporaryFolder.createDirectory(userFolder)
+            val fileTable = assertThat(section.files[1]).isTable()
+            assertThat(fileTable.elements).hasSize(1)
 
-            webClient.uploadFile(listOf(
-                temporaryFolder.createFile("LibraryFile1.txt"),
-                temporaryFolder.createFile("LibraryFile2.txt")))
+            val tableFile = fileTable.elements[0]
+            assertThat(tableFile.name).isEqualTo("LibraryFile2.txt")
+            assertThat(tableFile.attributes).hasSize(2)
+            assertThat(tableFile.attributes[0]).isEqualTo(Attribute("Description", "Library File 2"))
+            assertThat(tableFile.attributes[1]).isEqualTo(Attribute("Type", "Lib"))
         }
     }
 }

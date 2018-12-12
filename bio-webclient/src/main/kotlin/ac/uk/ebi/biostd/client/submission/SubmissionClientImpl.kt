@@ -25,13 +25,9 @@ internal class SubmissionClientImpl(
 ) : SubmissionClient {
 
     override fun uploadFile(files: List<File>) {
-        val headers = HttpHeaders()
-        headers.contentType = MULTIPART_FORM_DATA
-
-        val body = LinkedMultiValueMap<String, Any>()
-        files.forEach { body.add("files", FileSystemResource(it)) }
-
-        template.postForEntity(USER_FILES_URL, HttpEntity<Any>(body, headers), String::class.java)
+        val headers = HttpHeaders().apply { contentType = MULTIPART_FORM_DATA }
+        val body = LinkedMultiValueMap<String, Any>().apply { files.forEach { add("files", FileSystemResource(it)) } }
+        template.postForEntity(USER_FILES_URL, HttpEntity(body, headers), Void::class.java)
     }
 
     override fun submitSingle(submission: Submission, format: SubmissionFormat) =
