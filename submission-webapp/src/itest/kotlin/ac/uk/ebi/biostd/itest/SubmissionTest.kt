@@ -79,7 +79,7 @@ class SubmissionTest(private val tempFolder: TemporaryFolder) {
         fun init() {
             securityService.registerUser(SignUpRequest("test@biostudies.com", "jhon_doe", "12345"))
             webClient = BioWebClient.create("http://localhost:$serverPort", securityService.login("jhon_doe", "12345"))
-            webClient.uploadFile(listOf(tempFolder.createFile("LibraryFile1.txt"), tempFolder.createFile("LibraryFile2.txt")))
+            webClient.uploadFiles(listOf(tempFolder.createFile("LibraryFile1.txt"), tempFolder.createFile("LibraryFile2.txt")))
         }
 
         @Test

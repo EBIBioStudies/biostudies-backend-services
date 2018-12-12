@@ -11,5 +11,5 @@ interface SubmissionClient {
 
     fun submitSingle(submission: String, format: SubmissionFormat = SubmissionFormat.JSON): ResponseEntity<Submission>
 
-    fun uploadFile(files: List<File>)
+    fun uploadFiles(files: List<File>)
 }
