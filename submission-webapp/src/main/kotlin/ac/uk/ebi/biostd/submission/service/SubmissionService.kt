@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.service
+package ac.uk.ebi.biostd.submission.service
 
 import ac.uk.ebi.biostd.json.JsonSerializer
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository

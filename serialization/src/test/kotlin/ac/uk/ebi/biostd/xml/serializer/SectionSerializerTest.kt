@@ -19,7 +19,7 @@ private const val TYPE = "sec type"
 
 class SectionSerializerTest {
 
-    private val testInstance = XmlSerializer().mapper
+    private val testInstance = XmlSerializer.mapper
 
     private val section = section(TYPE) {
         accNo = ACC_NO

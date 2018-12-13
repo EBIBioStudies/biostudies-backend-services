@@ -13,7 +13,7 @@ private val TERMS = mutableListOf(AttributeDetail("name", "value"))
 
 class AttributeSerializerTest {
 
-    private val testInstance = XmlSerializer().mapper
+    private val testInstance = XmlSerializer.mapper
 
     private val attribute = Attribute(name = ATTR_NAME, value = ATTR_VALUE, valueAttrs = TERMS)
 

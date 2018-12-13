@@ -4,7 +4,6 @@ private const val ACC_NO_FIELD = "accNo"
 private const val ACCESS_FIELD = "accessTags"
 private const val SECTION_FIELD = "section"
 private const val ATTRIBUTES_FIELD = "attributes"
-val TABLE_REGEX = ".+\\[(.*)]".toRegex()
 
 interface Fields {
 

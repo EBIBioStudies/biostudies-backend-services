@@ -11,6 +11,8 @@ fun basicSubmission() = tsv {
     line()
 }
 
+fun twoBasicSubmission() = basicSubmission().toString() + basicSubmission().toString()
+
 fun submissionWithDetailedAttributes() = tsv {
     line("Submission", "S-EPMC124")
     line("Title", "Submission With Detailed Attributes")

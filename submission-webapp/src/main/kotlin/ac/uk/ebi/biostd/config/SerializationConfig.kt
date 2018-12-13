@@ -2,8 +2,8 @@ package ac.uk.ebi.biostd.config
 
 import ac.uk.ebi.biostd.json.JsonSerializer
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
-import ac.uk.ebi.biostd.service.SubmissionService
 import ac.uk.ebi.biostd.submission.SubmissionSubmitter
+import ac.uk.ebi.biostd.submission.service.SubmissionService
 import ac.uk.ebi.biostd.tsv.serialization.TsvToStringSerializer
 import ac.uk.ebi.biostd.xml.XmlSerializer
 import ebi.ac.uk.persistence.PersistenceContext

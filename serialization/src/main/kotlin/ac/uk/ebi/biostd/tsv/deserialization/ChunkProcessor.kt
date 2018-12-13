@@ -45,7 +45,6 @@ class ChunkProcessor {
 
     fun getRootSection(tsvChunk: TsvChunk): Section {
         requireType(ALLOWED_TYPES, tsvChunk)
-
         return Section(
             accNo = tsvChunk.findIdentifier(),
             type = tsvChunk.getType(),
@@ -81,7 +80,7 @@ class ChunkProcessor {
     }
 
     private fun createSingleSection(chunk: TsvChunk) =
-        Section(type = chunk.getType(), accNo = chunk.getIdentifier(), attributes = toAttributes(chunk.lines))
+        Section(type = chunk.getType(), accNo = chunk.findIdentifier(), attributes = toAttributes(chunk.lines))
 
     private fun requireType(type: String, tsvChunk: TsvChunk) =
         require(tsvChunk.getType().equals(type, ignoreCase = true)) { "Expected to find block type of $type in block $tsvChunk" }

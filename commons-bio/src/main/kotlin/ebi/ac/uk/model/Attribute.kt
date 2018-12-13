@@ -41,3 +41,5 @@ data class AttributeDetail(val name: String, val value: String) {
 
     override fun hashCode() = Objects.hash(name, value)
 }
+
+fun attributeDetails(name: String, value: String) = mutableListOf(AttributeDetail(name, value))
