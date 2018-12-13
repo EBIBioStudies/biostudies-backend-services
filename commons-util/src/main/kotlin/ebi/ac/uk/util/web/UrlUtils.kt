@@ -12,4 +12,4 @@ import java.nio.file.Paths
  *  foo/bar/../baz -> /foo/baz
  *  foo//bar -> /foo/bar
  */
-fun normalize(path: String) = Paths.get("/", path).normalize().toString()
+fun normalize(path: String) = if (path.isBlank()) path else Paths.get("/", path).normalize().toString()

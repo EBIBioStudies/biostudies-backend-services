@@ -119,15 +119,15 @@ class SubmissionTest(private val tempFolder: TemporaryFolder) {
 
         private fun assertSections(rootSection: Section) {
             assertThat(rootSection).has("SECT-001", "Study")
-            assertThat(rootSection.attributes).hasSize(3)
-            assertThat(rootSection.attributes[0]).isEqualTo(Attribute("Project", "CEEHRC (McGill)"))
-            assertThat(rootSection.attributes[1]).isEqualTo(Attribute("Organization", "Org1", true))
-            assertThat(rootSection.attributes[2]).isEqualTo(Attribute(
-                "Tissue type",
-                "venous blood",
-                false,
-                attributeDetails("Tissue", "Blood"),
-                attributeDetails("Ontology", "UBERON")))
+            assertThat(rootSection.attributes).containsExactly(
+                Attribute("Project", "CEEHRC (McGill)"),
+                Attribute("Organization", "Org1", true),
+                Attribute(
+                    "Tissue type",
+                    "venous blood",
+                    false,
+                    attributeDetails("Tissue", "Blood"),
+                    attributeDetails("Ontology", "UBERON")))
 
             assertThat(rootSection.sections).hasSize(2)
             assertFirstSection(rootSection.sections[0])
@@ -140,11 +140,9 @@ class SubmissionTest(private val tempFolder: TemporaryFolder) {
 
             val sectionElement = sectionTable.elements[0]
             assertThat(sectionElement).has("DT-1", "Data")
-            assertThat(sectionElement.attributes).hasSize(2)
-
-            assertThat(sectionElement.attributes[0]).isEqualTo(Attribute("Title", "Group 1 Transcription Data"))
-            assertThat(sectionElement.attributes[1])
-                .isEqualTo(Attribute("Description", "The data for zygotic transcription in mammals group 1"))
+            assertThat(sectionElement.attributes).containsExactly(
+                Attribute("Title", "Group 1 Transcription Data"),
+                Attribute("Description", "The data for zygotic transcription in mammals group 1"))
         }
 
         private fun assertFirstSection(sectionEither: Either<Section, SectionsTable>) {
@@ -156,14 +154,13 @@ class SubmissionTest(private val tempFolder: TemporaryFolder) {
 
             val tableLink = linksTable.elements[0]
             assertThat(tableLink.url).isEqualTo("EGAD00001001282")
-            assertThat(tableLink.attributes).hasSize(2)
-            assertThat(tableLink.attributes[0]).isEqualTo(Attribute("Type", "EGA"))
-            assertThat(tableLink.attributes[1]).isEqualTo(Attribute("Assay type", "RNA-Seq"))
+            assertThat(tableLink.attributes).containsExactly(
+                Attribute("Type", "EGA"),
+                Attribute("Assay type", "RNA-Seq"))
         }
 
         private fun assertLinks(rootSection: Section) {
             assertThat(rootSection.links).hasSize(1)
-
             val link = assertThat(rootSection.links[0]).isLink()
             assertThat(link).isEqualTo(Link("AF069309", listOf(Attribute("Type", "gen"))))
         }
@@ -173,8 +170,7 @@ class SubmissionTest(private val tempFolder: TemporaryFolder) {
 
             val file = assertThat(section.files[0]).isFile()
             assertThat(file.name).isEqualTo("LibraryFile1.txt")
-            assertThat(file.attributes).hasSize(1)
-            assertThat(file.attributes[0]).isEqualTo(Attribute("Description", "Library File 1"))
+            assertThat(file.attributes).containsExactly(Attribute("Description", "Library File 1"))
 
             val fileTable = assertThat(section.files[1]).isTable()
             assertThat(fileTable.elements).hasSize(1)
