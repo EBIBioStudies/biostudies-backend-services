@@ -23,9 +23,7 @@ class TsvSerializationContext {
 
     fun getSubmission() = if (errors.isEmpty) submission else throw SerializationException(submission, errors)
 
-    fun addSubmission(function: () -> Submission) {
-        execute(submission) { submission = function() }
-    }
+    fun addSubmission(function: () -> Submission) = execute(submission) { submission = function() }
 
     fun addRootSection(function: () -> Section) {
         execute(submission) { rootSection = function() }
