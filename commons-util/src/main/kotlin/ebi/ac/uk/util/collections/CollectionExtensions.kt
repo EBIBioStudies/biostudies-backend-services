@@ -48,6 +48,13 @@ fun <T> List<T>.secondOrElse(value: T) = if (this.size > 1) this[1] else value
 fun <T> List<T>.secondOrElse(defaultFunc: () -> T) = if (this.size > 1) this[1] else defaultFunc()
 
 /**
+ * Obtains the second element of the list or returns the given default value if the element doesn't exist.
+ *
+ * @param defaultFunc Default lambda to calculate return if the second element doesn't exist.
+ */
+fun <T> List<T>.firstOrElse(defaultFunc: () -> T) = if (this.size > 0) this[0] else defaultFunc()
+
+/**
  * Obtains the third element of the list or returns the given default value if the element doesn't exist.
  *
  * @param defaultValue Default value to return if the third element doesn't exist.

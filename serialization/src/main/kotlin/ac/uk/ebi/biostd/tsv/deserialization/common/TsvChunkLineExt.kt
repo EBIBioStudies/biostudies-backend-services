@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.tsv.deserialization.ext
+package ac.uk.ebi.biostd.tsv.deserialization.common
 
 import ac.uk.ebi.biostd.tsv.deserialization.model.TsvChunkLine
 

@@ -8,7 +8,6 @@ import ac.uk.ebi.biostd.tsv.deserialization.model.LinkChunk
 import ac.uk.ebi.biostd.tsv.deserialization.model.LinksTableChunk
 import ac.uk.ebi.biostd.tsv.deserialization.model.RootSectionTableChunk
 import ac.uk.ebi.biostd.tsv.deserialization.model.RootSubSectionChunk
-import ac.uk.ebi.biostd.tsv.deserialization.model.SectionContext
 import ac.uk.ebi.biostd.tsv.deserialization.model.SubSectionChunk
 import ac.uk.ebi.biostd.tsv.deserialization.model.SubSectionTableChunk
 import ac.uk.ebi.biostd.tsv.deserialization.model.TsvChunk
@@ -29,19 +28,19 @@ class TsvDeserializer(private val chunkProcessor: ChunkProcessor = ChunkProcesso
 
     fun deserialize(pagetab: String): Submission {
         val chunks: MutableList<TsvChunk> = chunkerize(pagetab)
+        val context = TsvSerializationContext()
 
-        return chunkProcessor.getSubmission(chunks.removeFirst()).apply {
-            chunks.ifNotEmpty {
-                section = chunkProcessor.getRootSection(chunks.removeFirst())
-                val context = SectionContext(section)
-                chunks.forEach { chunk -> chunkProcessor.processChunk(chunk, context) }
-            }
+        context.addSubmission { chunkProcessor.getSubmission(chunks.removeFirst()) }
+        chunks.ifNotEmpty {
+            context.addRootSection { chunkProcessor.getRootSection(chunks.removeFirst()) }
+            chunks.forEach { chunk -> chunkProcessor.processChunk(chunk, context) }
         }
+
+        return context.getSubmission()
     }
 
     private fun chunkerize(pagetab: String) =
         pagetab.splitIgnoringEmpty(TSV_LINE_BREAK)
-            .asSequence()
             .map { chunk -> chunk.splitIgnoringEmpty(TSV_CHUNK_BREAK) }
             .mapTo(mutableListOf()) { lines -> createChunk(lines) }
 

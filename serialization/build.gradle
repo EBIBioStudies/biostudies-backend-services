@@ -17,6 +17,8 @@ dependencies {
     compile("com.fasterxml.jackson.module:jackson-module-kotlin:2.9.+")
     compile("com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.9.6")
     compile("com.fasterxml.woodstox:woodstox-core:5.1.0")
+    compile("com.google.guava:guava:27.0.1-jre")
+
 
     compile("io.arrow-kt:arrow-core:0.7.2")
 
