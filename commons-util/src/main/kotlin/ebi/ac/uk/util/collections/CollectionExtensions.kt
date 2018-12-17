@@ -8,7 +8,7 @@ import arrow.core.Option
  * @function lambda function to execute.
  */
 fun <A : Collection<*>> A.ifNotEmpty(function: (A) -> Unit) {
-    if (this.isNotEmpty()) {
+    if (isNotEmpty()) {
         function(this)
     }
 }
@@ -46,6 +46,13 @@ fun <T> List<T>.secondOrElse(value: T) = if (this.size > 1) this[1] else value
  * @param defaultFunc Default lambda to calculate return if the second element doesn't exist.
  */
 fun <T> List<T>.secondOrElse(defaultFunc: () -> T) = if (this.size > 1) this[1] else defaultFunc()
+
+/**
+ * Obtains the first element of the list or returns the given default value if the element doesn't exist.
+ *
+ * @param defaultFunc Default lambda to calculate return value if the first element doesn't exist.
+ */
+fun <T> List<T>.firstOrElse(defaultFunc: () -> T) = if (isNotEmpty()) this[0] else defaultFunc()
 
 /**
  * Obtains the third element of the list or returns the given default value if the element doesn't exist.

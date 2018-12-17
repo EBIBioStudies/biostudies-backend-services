@@ -20,4 +20,3 @@ class SubmissionAssert(actual: Submission) :
         assertThat(actual.attributes).containsExactly(*attributes)
     }
 }
-

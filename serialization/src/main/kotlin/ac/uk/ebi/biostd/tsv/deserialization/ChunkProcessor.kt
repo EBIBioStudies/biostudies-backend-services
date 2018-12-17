@@ -1,12 +1,10 @@
 package ac.uk.ebi.biostd.tsv.deserialization
 
-import ac.uk.ebi.biostd.tsv.deserialization.ext.findIdentifier
-import ac.uk.ebi.biostd.tsv.deserialization.ext.getIdentifier
-import ac.uk.ebi.biostd.tsv.deserialization.ext.getType
-import ac.uk.ebi.biostd.tsv.deserialization.ext.isNameDetail
-import ac.uk.ebi.biostd.tsv.deserialization.ext.isReference
-import ac.uk.ebi.biostd.tsv.deserialization.ext.isValueDetail
-import ac.uk.ebi.biostd.tsv.deserialization.ext.name
+import ac.uk.ebi.biostd.tsv.deserialization.common.findId
+import ac.uk.ebi.biostd.tsv.deserialization.common.getType
+import ac.uk.ebi.biostd.tsv.deserialization.common.getTypeOrElse
+import ac.uk.ebi.biostd.tsv.deserialization.common.toAttributes
+import ac.uk.ebi.biostd.tsv.deserialization.common.validate
 import ac.uk.ebi.biostd.tsv.deserialization.model.FileChunk
 import ac.uk.ebi.biostd.tsv.deserialization.model.FileTableChunk
 import ac.uk.ebi.biostd.tsv.deserialization.model.LinkChunk
@@ -14,20 +12,14 @@ import ac.uk.ebi.biostd.tsv.deserialization.model.LinksTableChunk
 import ac.uk.ebi.biostd.tsv.deserialization.model.RootSectionTableChunk
 import ac.uk.ebi.biostd.tsv.deserialization.model.RootSubSectionChunk
 import ac.uk.ebi.biostd.tsv.deserialization.model.SectionChunk
-import ac.uk.ebi.biostd.tsv.deserialization.model.SectionContext
 import ac.uk.ebi.biostd.tsv.deserialization.model.SectionTableChunk
 import ac.uk.ebi.biostd.tsv.deserialization.model.SubSectionChunk
 import ac.uk.ebi.biostd.tsv.deserialization.model.SubSectionTableChunk
 import ac.uk.ebi.biostd.tsv.deserialization.model.TsvChunk
-import ac.uk.ebi.biostd.tsv.deserialization.model.TsvChunkLine
-import ebi.ac.uk.model.Attribute
-import ebi.ac.uk.model.AttributeDetail
-import ebi.ac.uk.model.File
-import ebi.ac.uk.model.FilesTable
-import ebi.ac.uk.model.Link
-import ebi.ac.uk.model.LinksTable
+import ac.uk.ebi.biostd.validation.InvalidElementException
+import ac.uk.ebi.biostd.validation.REQUIRED_ROOT_SECTION
+import ebi.ac.uk.base.like
 import ebi.ac.uk.model.Section
-import ebi.ac.uk.model.SectionsTable
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.constans.SubFields
 
@@ -36,76 +28,42 @@ private const val ALLOWED_TYPES = "Study"
 class ChunkProcessor {
 
     fun getSubmission(tsvChunk: TsvChunk): Submission {
-        requireType(SubFields.SUBMISSION.value, tsvChunk)
+        validate(tsvChunk.getType() like SubFields.SUBMISSION) { "Expected to find block type of ${SubFields.SUBMISSION}" }
+
         return Submission(
-            accNo = tsvChunk.findIdentifier().orEmpty(),
+            accNo = tsvChunk.findId().orEmpty(),
             attributes = toAttributes(tsvChunk.lines)
         )
     }
 
     fun getRootSection(tsvChunk: TsvChunk): Section {
-        requireType(ALLOWED_TYPES, tsvChunk)
+        val type = tsvChunk.getTypeOrElse(InvalidElementException(REQUIRED_ROOT_SECTION))
+        validate(type in ALLOWED_TYPES) { "Expected to find block type of $type" }
+
         return Section(
-            accNo = tsvChunk.findIdentifier(),
-            type = tsvChunk.getType(),
+            accNo = tsvChunk.findId(),
+            type = type,
             attributes = toAttributes(tsvChunk.lines))
     }
 
-    fun processChunk(chunk: TsvChunk, sectionContext: SectionContext) {
+    fun processChunk(chunk: TsvChunk, sectionContext: TsvSerializationContext) {
         when (chunk) {
-            is LinkChunk ->
-                sectionContext.currentSection.addLink(Link(chunk.getIdentifier(), toAttributes(chunk.lines)))
-            is FileChunk ->
-                sectionContext.currentSection.addFile(File(chunk.getIdentifier(), toAttributes(chunk.lines)))
-            is LinksTableChunk ->
-                sectionContext.currentSection.addLinksTable(LinksTable(asTable(chunk) { url, attributes -> Link(url, attributes) }))
-            is FileTableChunk ->
-                sectionContext.currentSection.addFilesTable(FilesTable(asTable(chunk) { path, attributes -> File(path, attributes) }))
+            is LinkChunk -> sectionContext.addLink { chunk.asLink() }
+            is FileChunk -> sectionContext.addFile { chunk.asFile() }
+            is LinksTableChunk -> sectionContext.addLinksTable { chunk.asTable() }
+            is FileTableChunk -> sectionContext.addFilesTable { chunk.asTable() }
             is SectionTableChunk -> {
-                val table = SectionsTable(asTable(chunk) { accNo, attributes -> Section(chunk.getType(), accNo, attributes = attributes) })
                 when (chunk) {
-                    is RootSectionTableChunk -> sectionContext.rootSection.addSectionTable(table)
-                    is SubSectionTableChunk -> sectionContext.getValue(chunk.parent).addSectionTable(table)
+                    is RootSectionTableChunk -> sectionContext.addSectionTable { chunk.asTable() }
+                    is SubSectionTableChunk -> sectionContext.addSubSectionTable(chunk.parent) { chunk.asTable() }
                 }
             }
             is SectionChunk -> {
-                val newSection = createSingleSection(chunk)
-                sectionContext.update(newSection)
                 when (chunk) {
-                    is RootSubSectionChunk -> sectionContext.rootSection.addSection(newSection)
-                    is SubSectionChunk -> sectionContext.getValue(chunk.parent).addSection(newSection)
+                    is RootSubSectionChunk -> sectionContext.addSection { chunk.asSection() }
+                    is SubSectionChunk -> sectionContext.addSubSection(chunk.parent) { chunk.asSection() }
                 }
             }
         }
-    }
-
-    private fun createSingleSection(chunk: TsvChunk) =
-        Section(type = chunk.getType(), accNo = chunk.findIdentifier(), attributes = toAttributes(chunk.lines))
-
-    private fun requireType(type: String, tsvChunk: TsvChunk) =
-        require(tsvChunk.getType().equals(type, ignoreCase = true)) { "Expected to find block type of $type in block $tsvChunk" }
-
-    private fun toAttributes(chunkLines: List<TsvChunkLine>): MutableList<Attribute> {
-        val attributes: MutableList<Attribute> = mutableListOf()
-        chunkLines.forEach { line ->
-            when {
-                line.isNameDetail() -> attributes.last().nameAttrs.add(AttributeDetail(line.name(), line.value))
-                line.isValueDetail() -> attributes.last().valueAttrs.add(AttributeDetail(line.name(), line.value))
-                else -> attributes.add(Attribute(line.name(), line.value, line.isReference()))
-            }
-        }
-        return attributes
-    }
-
-    private fun <T> asTable(chunk: TsvChunk, initializer: (String, MutableList<Attribute>) -> T): List<T> {
-        val rows: MutableList<T> = mutableListOf()
-
-        chunk.lines.forEach {
-            val attrs: MutableList<Attribute> = mutableListOf()
-            it.values.forEachIndexed { index, attr -> attrs.add(Attribute(chunk.header[index + 1], attr)) }
-            rows.add(initializer(it.name(), attrs))
-        }
-
-        return rows.toList()
     }
 }
