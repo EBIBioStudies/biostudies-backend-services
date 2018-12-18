@@ -39,3 +39,19 @@ fun allInOneSubmissionTsv() = tsv {
     line("EGAD00001001282", "EGA", "RNA-Seq")
     line()
 }
+
+fun invalidLinkUrl() = tsv {
+    line("Submission", "S-EPMC124")
+    line("Title", "venous blood, Monocyte")
+    line()
+
+    line("Study", "SECT-001")
+    line("Project", "CEEHRC (McGill)")
+    line("<Organization>", "Org1")
+    line("Tissue type", "venous blood")
+    line("[Ontology]", "UBERON")
+    line("(Tissue)", "Blood")
+    line()
+
+    line("Link")
+}

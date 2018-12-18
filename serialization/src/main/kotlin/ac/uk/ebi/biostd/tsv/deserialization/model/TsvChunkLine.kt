@@ -4,9 +4,11 @@ import ac.uk.ebi.biostd.tsv.TSV_SEPARATOR
 import ebi.ac.uk.base.EMPTY
 import ebi.ac.uk.util.collections.findSecond
 
-class TsvChunkLine private constructor(private val lines: List<String>) : List<String> by lines {
-
-    constructor(body: String) : this(body.split(TSV_SEPARATOR).filter(String::isNotBlank))
+class TsvChunkLine(
+    val index: Int,
+    val body: String,
+    private val lines: List<String> = body.split(TSV_SEPARATOR).filter(String::isNotBlank)
+) : List<String> by lines {
 
     val value: String
         get() {

@@ -29,9 +29,9 @@ class PagetabConverter(private val serializerService: SerializationService) : Ht
 
     private fun asFormat(mediaType: List<MediaType>) =
         when {
-            mediaType.contains(MediaType.APPLICATION_JSON) -> SubFormat.JSON
             mediaType.contains(MediaType.TEXT_PLAIN) -> SubFormat.TSV
             mediaType.contains(MediaType.TEXT_XML) -> SubFormat.XML
+            mediaType.contains(MediaType.APPLICATION_JSON) -> SubFormat.JSON
             else -> SubFormat.JSON
         }
 

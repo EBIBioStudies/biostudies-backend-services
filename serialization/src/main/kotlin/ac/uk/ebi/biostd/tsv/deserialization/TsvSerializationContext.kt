@@ -1,15 +1,17 @@
 package ac.uk.ebi.biostd.tsv.deserialization
 
+import ac.uk.ebi.biostd.tsv.deserialization.model.FileChunk
+import ac.uk.ebi.biostd.tsv.deserialization.model.FileTableChunk
+import ac.uk.ebi.biostd.tsv.deserialization.model.LinkChunk
+import ac.uk.ebi.biostd.tsv.deserialization.model.LinksTableChunk
+import ac.uk.ebi.biostd.tsv.deserialization.model.SectionChunk
+import ac.uk.ebi.biostd.tsv.deserialization.model.SectionTableChunk
+import ac.uk.ebi.biostd.tsv.deserialization.model.TsvChunk
 import ac.uk.ebi.biostd.validation.SerializationError
 import ac.uk.ebi.biostd.validation.SerializationException
 import com.google.common.collect.HashMultimap
 import com.google.common.collect.Multimap
-import ebi.ac.uk.model.File
-import ebi.ac.uk.model.FilesTable
-import ebi.ac.uk.model.Link
-import ebi.ac.uk.model.LinksTable
 import ebi.ac.uk.model.Section
-import ebi.ac.uk.model.SectionsTable
 import ebi.ac.uk.model.Submission
 
 class TsvSerializationContext {
@@ -23,47 +25,49 @@ class TsvSerializationContext {
 
     fun getSubmission() = if (errors.isEmpty) submission else throw SerializationException(submission, errors)
 
-    fun addSubmission(function: () -> Submission) = execute(submission) { submission = function() }
+    fun addSubmission(chunk: TsvChunk, function: (TsvChunk) -> Submission) =
+        execute(submission, chunk) { submission = function(chunk) }
 
-    fun addRootSection(function: () -> Section) {
-        execute(submission) { rootSection = function() }
-        submission.section = rootSection
-        currentSection = rootSection
+    fun addRootSection(chunk: TsvChunk, function: (TsvChunk) -> Section) {
+        execute(submission, chunk) { rootSection = function(chunk) }
+        submission.section = addSection(rootSection)
     }
 
-    fun addLink(function: () -> Link) = execute(currentSection) { currentSection.addLink(function()) }
+    fun addLink(chunk: LinkChunk) = execute(currentSection, chunk) { currentSection.addLink(chunk.asLink()) }
 
-    fun addFile(function: () -> File) = execute(currentSection) { currentSection.addFile(function()) }
+    fun addFile(chunk: FileChunk) = execute(currentSection, chunk) { currentSection.addFile(chunk.asFile()) }
 
-    fun addLinksTable(function: () -> LinksTable) =
-        execute(currentSection) { currentSection.addLinksTable(function()) }
+    fun addLinksTable(chunk: LinksTableChunk) =
+        execute(currentSection, chunk) { currentSection.addLinksTable(chunk.asTable()) }
 
-    fun addFilesTable(function: () -> FilesTable) =
-        execute(currentSection) { currentSection.addFilesTable(function()) }
+    fun addFilesTable(chunk: FileTableChunk) =
+        execute(currentSection, chunk) { currentSection.addFilesTable(chunk.asTable()) }
 
-    fun addSectionTable(function: () -> SectionsTable) =
-        execute(rootSection) { rootSection.addSectionTable(function()) }
+    fun addSectionTable(chunk: SectionTableChunk) =
+        execute(rootSection, chunk) { rootSection.addSectionTable(chunk.asTable()) }
 
-    fun addSubSectionTable(parent: String, function: () -> SectionsTable) =
-        execute(rootSection) { sections.getValue(parent).addSectionTable(function()) }
+    fun addSubSectionTable(parent: String, chunk: SectionTableChunk) =
+        execute(rootSection, chunk) { sections.getValue(parent).addSectionTable(chunk.asTable()) }
 
-    fun addSection(function: () -> Section) =
-        execute(rootSection) { addSection(rootSection, function()) }
+    fun addSection(chunk: SectionChunk) =
+        execute(rootSection, chunk) { addSection(rootSection, chunk.asSection()) }
 
-    fun addSubSection(parent: String, function: () -> Section) =
-        execute(rootSection) { addSection(sections.getValue(parent), function()) }
+    fun addSubSection(parent: String, chunk: SectionChunk) =
+        execute(rootSection, chunk) { addSection(sections.getValue(parent), chunk.asSection()) }
 
-    private fun addSection(parent: Section, section: Section) {
+    private fun addSection(parent: Section, section: Section) = parent.addSection(addSection(section))
+
+    private fun addSection(section: Section): Section {
         section.accNo?.let { sections[it] = section }
-        parent.addSection(section)
         currentSection = section
+        return currentSection
     }
 
-    private fun <T> execute(parent: T, function: () -> Unit) {
+    private fun <T> execute(parent: T, chunk: TsvChunk, function: (TsvChunk) -> Unit) {
         try {
-            function()
+            function(chunk)
         } catch (exception: Exception) {
-            errors.put(parent, SerializationError(exception))
+            errors.put(parent, SerializationError(chunk, exception))
         }
     }
 }

@@ -11,6 +11,7 @@ import org.springframework.core.io.FileSystemResource
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod.POST
+import org.springframework.http.MediaType
 import org.springframework.http.MediaType.MULTIPART_FORM_DATA
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.web.client.RestTemplate
@@ -32,16 +33,19 @@ internal class SubmissionClientImpl(
     }
 
     override fun submitSingle(submission: Submission, format: SubmissionFormat) =
-        submitSingle(httpEntity(getBody(submission, format)) { contentType = format.mediaType; accept = listOf(format.mediaType) }, format)
+        submitSingle(HttpEntity(getBody(submission, format), createHeaders(format)), format)
 
     override fun submitSingle(submission: String, format: SubmissionFormat) =
-        submitSingle(httpEntity(submission) { contentType = format.mediaType; accept = listOf(format.mediaType) }, format)
+        submitSingle(HttpEntity(submission, createHeaders(format)), format)
+
+    private fun createHeaders(format: SubmissionFormat) = HttpHeaders().apply {
+        contentType = format.mediaType
+        accept = listOf(format.mediaType, MediaType.APPLICATION_JSON)
+    }
 
     private fun submitSingle(request: HttpEntity<String>, format: SubmissionFormat) =
         template.exchange(SUBMISSIONS_URL, POST, request, String::class.java)
             .map { body -> serializationService.deserializeSubmission(body, format.asSubFormat()) }
-
-    private fun httpEntity(body: String, function: HttpHeaders.() -> Unit) = HttpEntity(body, HttpHeaders().apply(function))
 
     private fun getBody(submission: Submission, format: SubmissionFormat) = when (format) {
         SubmissionFormat.JSON -> serializationService.serializeSubmission(submission, SubFormat.JSON)
