@@ -2,9 +2,13 @@ package ebi.ac.uk.util.collections
 
 import java.util.LinkedList
 
-fun <T : Any> List<T>.split(predicate: (T) -> Boolean): List<List<T>> {
-    return split(LinkedList(), this, predicate)
-}
+private const val NO_FOUND = -1
+
+/**
+ * Split the list into a list of list using the current predicate true condition. Note that elements when predicate is
+ * true are not included in the result lists.
+ */
+fun <T : Any> List<T>.split(predicate: (T) -> Boolean) = split(LinkedList(), this, predicate)
 
 private tailrec fun <T : Any> split(result: MutableList<List<T>>, input: List<T>, predicate: (T) -> Boolean): List<List<T>> {
     val index = input.indexOfFirst(predicate)
@@ -13,7 +17,8 @@ private tailrec fun <T : Any> split(result: MutableList<List<T>>, input: List<T>
 
     return when {
         head.isEmpty() && tail.isEmpty() -> result
-        head.isEmpty() -> split(result.apply { add(tail) }, tail, predicate)
+        index == NO_FOUND -> result.apply { add(tail) }
+        head.isEmpty() -> split(result, tail, predicate)
         else -> split(result.apply { add(head) }, tail, predicate)
     }
 }
