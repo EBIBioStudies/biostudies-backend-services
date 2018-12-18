@@ -7,6 +7,7 @@ import ac.uk.ebi.biostd.config.SubmitterConfig
 import ac.uk.ebi.biostd.files.FileConfig
 import ac.uk.ebi.biostd.itest.common.setAppProperty
 import ac.uk.ebi.biostd.itest.factory.allInOneSubmissionTsv
+import ac.uk.ebi.biostd.itest.factory.invalidLinkUrl
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
 import arrow.core.Either
 import ebi.ac.uk.asserts.assertThat
@@ -24,6 +25,7 @@ import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -36,6 +38,7 @@ import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.http.HttpStatus
 import org.springframework.test.context.junit.jupiter.SpringExtension
+import org.springframework.web.client.HttpClientErrorException
 
 const val BASE_PATH_PLACEHOLDER = "{BASE_PATH}"
 
@@ -104,6 +107,13 @@ class SubmissionTest(private val tempFolder: TemporaryFolder) {
             assertThat(response).isNotNull
             assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
             assertSavedSubmission()
+        }
+
+        @Test
+        fun `submit with invalid link Url`() {
+            val exception = assertThrows(HttpClientErrorException::class.java) { webClient.submitSingle(invalidLinkUrl().toString(), SubmissionFormat.TSV) }
+
+            assertThat(exception.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
         }
 
         private fun assertSavedSubmission() {

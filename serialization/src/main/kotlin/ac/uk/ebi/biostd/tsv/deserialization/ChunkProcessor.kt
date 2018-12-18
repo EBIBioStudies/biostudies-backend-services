@@ -48,20 +48,20 @@ class ChunkProcessor {
 
     fun processChunk(chunk: TsvChunk, sectionContext: TsvSerializationContext) {
         when (chunk) {
-            is LinkChunk -> sectionContext.addLink { chunk.asLink() }
-            is FileChunk -> sectionContext.addFile { chunk.asFile() }
-            is LinksTableChunk -> sectionContext.addLinksTable { chunk.asTable() }
-            is FileTableChunk -> sectionContext.addFilesTable { chunk.asTable() }
+            is LinkChunk -> sectionContext.addLink(chunk)
+            is FileChunk -> sectionContext.addFile(chunk)
+            is LinksTableChunk -> sectionContext.addLinksTable(chunk)
+            is FileTableChunk -> sectionContext.addFilesTable(chunk)
             is SectionTableChunk -> {
                 when (chunk) {
-                    is RootSectionTableChunk -> sectionContext.addSectionTable { chunk.asTable() }
-                    is SubSectionTableChunk -> sectionContext.addSubSectionTable(chunk.parent) { chunk.asTable() }
+                    is RootSectionTableChunk -> sectionContext.addSectionTable(chunk)
+                    is SubSectionTableChunk -> sectionContext.addSubSectionTable(chunk.parent, chunk)
                 }
             }
             is SectionChunk -> {
                 when (chunk) {
-                    is RootSubSectionChunk -> sectionContext.addSection { chunk.asSection() }
-                    is SubSectionChunk -> sectionContext.addSubSection(chunk.parent) { chunk.asSection() }
+                    is RootSubSectionChunk -> sectionContext.addSection(chunk)
+                    is SubSectionChunk -> sectionContext.addSubSection(chunk.parent, chunk)
                 }
             }
         }

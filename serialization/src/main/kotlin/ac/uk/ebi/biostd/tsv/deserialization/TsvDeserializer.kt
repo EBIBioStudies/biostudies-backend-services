@@ -30,9 +30,9 @@ class TsvDeserializer(private val chunkProcessor: ChunkProcessor = ChunkProcesso
         val chunks: MutableList<TsvChunk> = chunkerize(pagetab)
         val context = TsvSerializationContext()
 
-        context.addSubmission { chunkProcessor.getSubmission(chunks.removeFirst()) }
+        context.addSubmission(chunks.removeFirst()) { chunk -> chunkProcessor.getSubmission(chunk) }
         chunks.ifNotEmpty {
-            context.addRootSection { chunkProcessor.getRootSection(chunks.removeFirst()) }
+            context.addRootSection(chunks.removeFirst()) { chunk -> chunkProcessor.getRootSection(chunk) }
             chunks.forEach { chunk -> chunkProcessor.processChunk(chunk, context) }
         }
 
@@ -41,20 +41,21 @@ class TsvDeserializer(private val chunkProcessor: ChunkProcessor = ChunkProcesso
 
     private fun chunkerize(pagetab: String) =
         pagetab.splitIgnoringEmpty(TSV_LINE_BREAK)
-            .map { chunk -> chunk.splitIgnoringEmpty(TSV_CHUNK_BREAK) }
-            .mapTo(mutableListOf()) { lines -> createChunk(lines) }
+            .mapIndexedTo(mutableListOf()) { index, line -> createChunk(index, line.splitIgnoringEmpty(TSV_CHUNK_BREAK)) }
 
-    private fun createChunk(body: List<String>): TsvChunk {
+    private fun createChunk(index: Int, body: List<String>): TsvChunk {
         val header = TsvChunkLine(body.first())
         val type = header.first()
 
         return when {
-            type like LinkFields.LINK -> LinkChunk(body)
-            type like FileFields.FILE -> FileChunk(body)
-            type like SectionFields.LINKS -> LinksTableChunk(body)
-            type like SectionFields.FILES -> FileTableChunk(body)
-            type.matches(TABLE_REGEX) -> TABLE_REGEX.findGroup(type, 1).fold({ RootSectionTableChunk(body) }, { SubSectionTableChunk(body, it) })
-            else -> header.findThird().fold({ RootSubSectionChunk(body) }, { SubSectionChunk(body, it) })
+            type like LinkFields.LINK -> LinkChunk(index, body)
+            type like FileFields.FILE -> FileChunk(index, body)
+            type like SectionFields.LINKS -> LinksTableChunk(index, body)
+            type like SectionFields.FILES -> FileTableChunk(index, body)
+            type.matches(TABLE_REGEX) -> TABLE_REGEX.findGroup(type, 1).fold(
+                { RootSectionTableChunk(index, body) },
+                { SubSectionTableChunk(index, body, it) })
+            else -> header.findThird().fold({ RootSubSectionChunk(index, body) }, { SubSectionChunk(index, body, it) })
         }
     }
 }
