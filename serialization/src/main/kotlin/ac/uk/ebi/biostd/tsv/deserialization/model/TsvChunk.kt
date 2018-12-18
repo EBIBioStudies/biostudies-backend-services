@@ -15,21 +15,23 @@ import ebi.ac.uk.model.LinksTable
 import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.SectionsTable
 
-sealed class TsvChunk(val startIndex: Int, body: List<String>) {
+sealed class TsvChunk(lines: List<TsvChunkLine>) {
 
-    val header: TsvChunkLine
-    val lines: List<TsvChunkLine>
+    val header = lines.first()
+    val lines = lines.drop(1)
+
+    val startIndex: Int
+        get(): Int {
+            return header.index
+        }
+
     val endIndex: Int
-
-    init {
-        val lines = body.map { TsvChunkLine(it) }
-        this.header = lines.first()
-        this.lines = lines.drop(1)
-        this.endIndex = startIndex + lines.size
-    }
+        get(): Int {
+            return lines.lastIndex
+        }
 }
 
-class LinkChunk(index: Int, body: List<String>) : TsvChunk(index, body) {
+class LinkChunk(body: List<TsvChunkLine>) : TsvChunk(body) {
 
     fun asLink(): Link {
         val linkUrl = getIdOrElse(InvalidElementException(REQUIRED_LINK_URL))
@@ -38,7 +40,7 @@ class LinkChunk(index: Int, body: List<String>) : TsvChunk(index, body) {
     }
 }
 
-class FileChunk(index: Int, body: List<String>) : TsvChunk(index, body) {
+class FileChunk(body: List<TsvChunkLine>) : TsvChunk(body) {
 
     fun asFile(): File {
         val fileName = getIdOrElse(InvalidElementException(REQUIRED_FILE_PATH))
@@ -47,28 +49,28 @@ class FileChunk(index: Int, body: List<String>) : TsvChunk(index, body) {
     }
 }
 
-class LinksTableChunk(index: Int, body: List<String>) : TsvChunk(index, body) {
+class LinksTableChunk(body: List<TsvChunkLine>) : TsvChunk(body) {
 
     fun asTable() = LinksTable(asTable(this) { url, attributes -> Link(url, attributes) })
 }
 
-class FileTableChunk(index: Int, body: List<String>) : TsvChunk(index, body) {
+class FileTableChunk(body: List<TsvChunkLine>) : TsvChunk(body) {
 
     fun asTable() = FilesTable(asTable(this) { name, attributes -> File(name, attributes) })
 }
 
-sealed class SectionTableChunk(index: Int, body: List<String>) : TsvChunk(index, body) {
+sealed class SectionTableChunk(body: List<TsvChunkLine>) : TsvChunk(body) {
 
     fun asTable() = SectionsTable(asTable(this) { accNo, attributes -> Section(this.getType(), accNo, attributes = attributes) })
 }
 
-class RootSectionTableChunk(index: Int, body: List<String>) : SectionTableChunk(index, body)
-class SubSectionTableChunk(index: Int, body: List<String>, val parent: String) : SectionTableChunk(index, body)
+class RootSectionTableChunk(body: List<TsvChunkLine>) : SectionTableChunk(body)
+class SubSectionTableChunk(body: List<TsvChunkLine>, val parent: String) : SectionTableChunk(body)
 
-sealed class SectionChunk(index: Int, body: List<String>) : TsvChunk(index, body) {
+sealed class SectionChunk(body: List<TsvChunkLine>) : TsvChunk(body) {
 
     fun asSection() = Section(type = getType(), accNo = findId(), attributes = toAttributes(lines))
 }
 
-class RootSubSectionChunk(index: Int, body: List<String>) : SectionChunk(index, body)
-class SubSectionChunk(index: Int, body: List<String>, val parent: String) : SectionChunk(index, body)
+class RootSubSectionChunk(body: List<TsvChunkLine>) : SectionChunk(body)
+class SubSectionChunk(body: List<TsvChunkLine>, val parent: String) : SectionChunk(body)
