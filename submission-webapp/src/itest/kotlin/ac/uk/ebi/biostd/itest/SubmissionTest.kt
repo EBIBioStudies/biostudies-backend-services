@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.config.PersistenceConfig
 import ac.uk.ebi.biostd.config.SubmitterConfig
 import ac.uk.ebi.biostd.files.FileConfig
 import ac.uk.ebi.biostd.itest.common.setAppProperty
+import ac.uk.ebi.biostd.itest.factory.allInOneSubmissionJson
 import ac.uk.ebi.biostd.itest.factory.allInOneSubmissionTsv
 import ac.uk.ebi.biostd.itest.factory.invalidLinkUrl
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
@@ -106,7 +107,15 @@ class SubmissionTest(private val tempFolder: TemporaryFolder) {
             val response = webClient.submitSingle(allInOneSubmissionTsv().toString(), SubmissionFormat.TSV)
             assertThat(response).isNotNull
             assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
-            assertSavedSubmission()
+            assertSavedSubmission("S-EPMC124")
+        }
+
+        @Test
+        fun `submit all in one Json submission`() {
+            val response = webClient.submitSingle(allInOneSubmissionJson().toString(), SubmissionFormat.JSON)
+            assertThat(response).isNotNull
+            assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
+            assertSavedSubmission("S-EPMC125")
         }
 
         @Test
@@ -116,9 +125,9 @@ class SubmissionTest(private val tempFolder: TemporaryFolder) {
             assertThat(exception.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
         }
 
-        private fun assertSavedSubmission() {
-            val submission = submissionRepository.findByAccNo("S-EPMC124")
-            assertThat(submission).hasAccNo("S-EPMC124")
+        private fun assertSavedSubmission(accNo: String) {
+            val submission = submissionRepository.findByAccNo(accNo)
+            assertThat(submission).hasAccNo(accNo)
             assertThat(submission).hasExactly(Attribute("Title", "venous blood, Monocyte"))
 
             val rootSection = submission.section

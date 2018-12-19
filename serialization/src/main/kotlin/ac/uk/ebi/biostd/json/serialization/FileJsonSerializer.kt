@@ -16,7 +16,7 @@ class FileJsonSerializer : StdSerializer<File>(File::class.java) {
     override fun serialize(file: File, gen: JsonGenerator, provider: SerializerProvider) {
 
         gen.writeObj {
-            writeJsonString(FileFields.NAME, file.name)
+            writeJsonString(FileFields.PATH, file.name)
             writeJsonArray(FileFields.ATTRIBUTES, file.attributes)
         }
     }
