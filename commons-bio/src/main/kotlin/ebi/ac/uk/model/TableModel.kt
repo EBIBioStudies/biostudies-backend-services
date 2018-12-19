@@ -1,7 +1,7 @@
 package ebi.ac.uk.model
 
 import ebi.ac.uk.base.isNotBlank
-import ebi.ac.uk.model.constans.TableFields
+import ebi.ac.uk.model.constants.TableFields
 import ebi.ac.uk.model.extensions.parentAccNo
 import java.util.Objects
 

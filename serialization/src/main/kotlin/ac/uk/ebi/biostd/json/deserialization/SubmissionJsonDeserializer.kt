@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer
 import com.fasterxml.jackson.databind.node.TextNode
 import com.fasterxml.jackson.module.kotlin.convertValue
 import ebi.ac.uk.model.Submission
-import ebi.ac.uk.model.constans.SubFields
+import ebi.ac.uk.model.constants.SubFields
 
 class SubmissionJsonDeserializer : StdDeserializer<Submission>(Submission::class.java) {
 

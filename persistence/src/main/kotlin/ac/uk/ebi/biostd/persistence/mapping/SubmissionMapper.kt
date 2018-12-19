@@ -1,17 +1,18 @@
 package ac.uk.ebi.biostd.persistence.mapping
 
-import ac.uk.ebi.biostd.persistence.common.AttributeDb
-import ac.uk.ebi.biostd.persistence.common.AttributeDetailDb
-import ac.uk.ebi.biostd.persistence.common.FileDb
-import ac.uk.ebi.biostd.persistence.common.LinkDb
+import ac.uk.ebi.biostd.persistence.model.Attribute as AttributeDb
+import ac.uk.ebi.biostd.persistence.model.AttributeDetail as AttributeDetailDb
+import ac.uk.ebi.biostd.persistence.model.File as FileDb
+import ac.uk.ebi.biostd.persistence.model.Link as LinkDb
 import ac.uk.ebi.biostd.persistence.common.NO_TABLE_INDEX
-import ac.uk.ebi.biostd.persistence.common.SectionDb
-import ac.uk.ebi.biostd.persistence.common.SubmissionDb
+import ac.uk.ebi.biostd.persistence.model.Section as SectionDb
+import ac.uk.ebi.biostd.persistence.model.Submission as SubmissionDb
 import ac.uk.ebi.biostd.persistence.model.FileAttribute
 import ac.uk.ebi.biostd.persistence.model.LinkAttribute
 import ac.uk.ebi.biostd.persistence.model.SectionAttribute
 import ac.uk.ebi.biostd.persistence.model.SubmissionAttribute
 import ac.uk.ebi.biostd.persistence.repositories.TagsDataRepository
+import ac.uk.ebi.biostd.persistence.repositories.TagsRepository
 import arrow.core.Either
 import ebi.ac.uk.base.orFalse
 import ebi.ac.uk.model.Attribute

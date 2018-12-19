@@ -7,7 +7,7 @@ import ac.uk.ebi.biostd.xml.common.writeXmlObj
 import com.fasterxml.jackson.databind.SerializerProvider
 import com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator
 import ebi.ac.uk.model.Section
-import ebi.ac.uk.model.constans.SectionFields
+import ebi.ac.uk.model.constants.SectionFields
 
 class SectionSerializer : XmlStdSerializer<Section>(Section::class.java) {
 

@@ -17,7 +17,7 @@ import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.SectionsTable
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.attributeDetails
-import ebi.ac.uk.model.constans.SubFields
+import ebi.ac.uk.model.constants.SubFields
 import ebi.ac.uk.model.extensions.title
 import ebi.ac.uk.security.integration.model.SignUpRequest
 import ebi.ac.uk.security.service.SecurityService

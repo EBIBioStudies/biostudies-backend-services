@@ -13,10 +13,10 @@ import ac.uk.ebi.biostd.tsv.deserialization.model.TsvChunk
 import ac.uk.ebi.biostd.tsv.deserialization.model.TsvChunkLine
 import ebi.ac.uk.base.like
 import ebi.ac.uk.model.Submission
-import ebi.ac.uk.model.constans.FileFields
-import ebi.ac.uk.model.constans.LinkFields
-import ebi.ac.uk.model.constans.SectionFields
-import ebi.ac.uk.model.constans.TABLE_REGEX
+import ebi.ac.uk.model.constants.FileFields
+import ebi.ac.uk.model.constants.LinkFields
+import ebi.ac.uk.model.constants.SectionFields
+import ebi.ac.uk.model.constants.TABLE_REGEX
 import ebi.ac.uk.util.collections.findThird
 import ebi.ac.uk.util.collections.ifNotEmpty
 import ebi.ac.uk.util.collections.removeFirst

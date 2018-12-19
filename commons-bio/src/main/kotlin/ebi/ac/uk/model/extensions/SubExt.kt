@@ -2,7 +2,7 @@ package ebi.ac.uk.model.extensions
 
 import ebi.ac.uk.model.File
 import ebi.ac.uk.model.Submission
-import ebi.ac.uk.model.constans.SubFields
+import ebi.ac.uk.model.constants.SubFields
 import java.time.Instant
 
 fun Submission.allFiles(): List<File> =

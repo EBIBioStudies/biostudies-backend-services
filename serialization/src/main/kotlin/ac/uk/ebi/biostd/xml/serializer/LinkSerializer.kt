@@ -7,7 +7,7 @@ import ac.uk.ebi.biostd.xml.common.writeXmlObj
 import com.fasterxml.jackson.databind.SerializerProvider
 import com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator
 import ebi.ac.uk.model.Link
-import ebi.ac.uk.model.constans.LinkFields
+import ebi.ac.uk.model.constants.LinkFields
 
 class LinkSerializer : XmlStdSerializer<Link>(Link::class.java) {
 

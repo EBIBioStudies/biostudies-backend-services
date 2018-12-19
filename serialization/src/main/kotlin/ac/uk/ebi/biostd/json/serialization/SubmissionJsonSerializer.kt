@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.SerializerProvider
 import com.fasterxml.jackson.databind.ser.std.StdSerializer
 import ebi.ac.uk.model.ExtendedSubmission
 import ebi.ac.uk.model.Submission
-import ebi.ac.uk.model.constans.SubFields
+import ebi.ac.uk.model.constants.SubFields
 import ebi.ac.uk.util.collections.merge
 
 class SubmissionJsonSerializer : StdSerializer<Submission>(Submission::class.java) {

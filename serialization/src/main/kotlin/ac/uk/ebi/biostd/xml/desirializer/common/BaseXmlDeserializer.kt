@@ -4,7 +4,7 @@ import ac.uk.ebi.biostd.xml.desirializer.getSubNodes
 import ac.uk.ebi.biostd.xml.desirializer.toXmlString
 import arrow.core.Either
 import ebi.ac.uk.model.Table
-import ebi.ac.uk.model.constans.OtherFields
+import ebi.ac.uk.model.constants.OtherFields
 import org.w3c.dom.Node
 
 abstract class BaseXmlDeserializer<T : Any> {

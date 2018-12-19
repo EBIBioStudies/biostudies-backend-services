@@ -1,7 +1,7 @@
 package ebi.ac.uk.model.extensions
 
 import ebi.ac.uk.model.File
-import ebi.ac.uk.model.constans.FileFields
+import ebi.ac.uk.model.constants.FileFields
 
 var File.size: Int
     get() = this[FileFields.SIZE]

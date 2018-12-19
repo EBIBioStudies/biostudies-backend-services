@@ -21,7 +21,7 @@ import ac.uk.ebi.biostd.validation.REQUIRED_ROOT_SECTION
 import ebi.ac.uk.base.like
 import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.Submission
-import ebi.ac.uk.model.constans.SubFields
+import ebi.ac.uk.model.constants.SubFields
 
 private const val ALLOWED_TYPES = "Study"
 
