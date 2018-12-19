@@ -7,7 +7,6 @@ import ac.uk.ebi.biostd.persistence.model.Link as LinkDb
 import ac.uk.ebi.biostd.persistence.common.NO_TABLE_INDEX
 import ac.uk.ebi.biostd.persistence.model.Section as SectionDb
 import ac.uk.ebi.biostd.persistence.model.Submission as SubmissionDb
-import ac.uk.ebi.biostd.persistence.model.Tag as TagDb
 import ac.uk.ebi.biostd.persistence.model.User as UserDb
 import ac.uk.ebi.biostd.persistence.model.AccessTag
 import ac.uk.ebi.biostd.persistence.model.Tabular

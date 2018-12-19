@@ -12,7 +12,6 @@ import ac.uk.ebi.biostd.persistence.model.LinkAttribute
 import ac.uk.ebi.biostd.persistence.model.SectionAttribute
 import ac.uk.ebi.biostd.persistence.model.SubmissionAttribute
 import ac.uk.ebi.biostd.persistence.repositories.TagsDataRepository
-import ac.uk.ebi.biostd.persistence.repositories.TagsRepository
 import arrow.core.Either
 import ebi.ac.uk.base.orFalse
 import ebi.ac.uk.model.Attribute
