@@ -61,18 +61,6 @@ fun allInOneSubmissionJson() = jsonObj {
         "subsections" to jsonArray(jsonObj {
             "accNo" to "SUBSECT-001"
             "type" to "Stranded Total RNA-Seq"
-            "attributes" to jsonArray({
-                "name" to "Title"
-                "value" to "venous blood, Monocyt"
-            })
-            "subsections" to jsonArray(jsonArray({
-                "accNo" to "SECT-001"
-                "type" to "Data"
-                "attributes" to jsonArray({
-                    "name" to "Title"
-                    "value" to "venous blood, Monocyt"
-                })
-            }))
             "links" to jsonArray(jsonArray({
                 "url" to "EGAD00001001282"
                 "attributes" to jsonArray({
