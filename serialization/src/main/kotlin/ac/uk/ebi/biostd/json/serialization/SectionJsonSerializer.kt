@@ -19,7 +19,7 @@ class SectionJsonSerializer : StdSerializer<Section>(Section::class.java) {
             writeJsonArray(SectionFields.ATTRIBUTES, section.attributes)
             writeJsonArray(SectionFields.FILES, section.files)
             writeJsonArray(SectionFields.LINKS, section.links)
-            writeJsonArray(SectionFields.SECTION, section.sections)
+            writeJsonArray(SectionFields.SUBSECTIONS, section.sections)
         }
     }
 }

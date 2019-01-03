@@ -22,8 +22,8 @@ data class Attribute(
     override fun equals(other: Any?) = when {
         other !is Attribute -> false
         this === other -> true
-        else -> Objects.equals(name, other.name)
-            .and(Objects.equals(value, other.value))
+        else -> name.equals(other.name, ignoreCase = true)
+            .and(value.equals(other.value, ignoreCase = true))
             .and(Objects.equals(reference, other.reference))
             .and(Objects.equals(nameAttrs, other.nameAttrs))
             .and(Objects.equals(valueAttrs, other.valueAttrs))
@@ -36,10 +36,10 @@ data class AttributeDetail(val name: String, val value: String) {
     override fun equals(other: Any?) = when {
         other !is AttributeDetail -> false
         this === other -> true
-        else -> Objects.equals(name, other.name).and(Objects.equals(value, other.value))
+        else -> name.equals(other.name, ignoreCase = true).and(value.equals(other.value, ignoreCase = true))
     }
 
-    override fun hashCode() = Objects.hash(name, value)
+    override fun hashCode() = Objects.hash(name.toLowerCase(), value.toLowerCase())
 }
 
 fun attributeDetails(name: String, value: String) = mutableListOf(AttributeDetail(name, value))

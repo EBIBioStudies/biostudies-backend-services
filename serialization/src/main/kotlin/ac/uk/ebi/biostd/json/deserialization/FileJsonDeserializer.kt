@@ -19,7 +19,7 @@ class FileJsonDeserializer : StdDeserializer<File>(File::class.java) {
         val node: JsonNode = mapper.readTree(jp)
 
         return File(
-            name = node.getNode<TextNode>(FileFields.NAME.value).textValue(),
+            name = node.getNode<TextNode>(FileFields.PATH.value).textValue(),
             attributes = mapper.convertList(node.findNode<JsonNode>(FileFields.ATTRIBUTES.value)))
     }
 }

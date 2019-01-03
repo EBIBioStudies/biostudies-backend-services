@@ -93,6 +93,7 @@ enum class LinkFields(override val value: String) : Fields {
 enum class FileFields(override val value: String) : Fields {
     FILE("file"),
     NAME("name"),
+    PATH("path"),
     SIZE("size"),
     TYPE("type"),
     ATTRIBUTES(ATTRIBUTES_FIELD);
