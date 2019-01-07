@@ -1,4 +1,4 @@
-package ebi.ac.uk.model.constans
+package ebi.ac.uk.model.constants
 
 private const val LOOKAHEAD_LIMITER = "(?=%1\$s)"
 

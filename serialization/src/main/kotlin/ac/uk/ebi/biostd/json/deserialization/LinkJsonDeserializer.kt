@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer
 import com.fasterxml.jackson.databind.node.TextNode
 import ebi.ac.uk.model.Link
-import ebi.ac.uk.model.constans.LinkFields
+import ebi.ac.uk.model.constants.LinkFields
 
 class LinkJsonDeserializer : StdDeserializer<Link>(Link::class.java) {
 

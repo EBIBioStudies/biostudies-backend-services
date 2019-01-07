@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer
 import com.fasterxml.jackson.databind.node.TextNode
 import ebi.ac.uk.model.File
-import ebi.ac.uk.model.constans.FileFields
+import ebi.ac.uk.model.constants.FileFields
 
 class FileJsonDeserializer : StdDeserializer<File>(File::class.java) {
 

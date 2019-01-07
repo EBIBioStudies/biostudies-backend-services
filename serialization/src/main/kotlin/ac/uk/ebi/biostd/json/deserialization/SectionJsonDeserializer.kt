@@ -17,7 +17,7 @@ import ebi.ac.uk.model.Link
 import ebi.ac.uk.model.LinksTable
 import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.SectionsTable
-import ebi.ac.uk.model.constans.SectionFields
+import ebi.ac.uk.model.constants.SectionFields
 
 object SectionsType : TypeReference<MutableList<Either<Section, SectionsTable>>>()
 object LinksType : TypeReference<MutableList<Either<Link, LinksTable>>>()

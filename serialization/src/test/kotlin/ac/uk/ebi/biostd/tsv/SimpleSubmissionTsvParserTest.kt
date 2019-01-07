@@ -7,7 +7,7 @@ import ac.uk.ebi.biostd.tsv.serialization.TITLE_KEY
 import ac.uk.ebi.biostd.tsv.serialization.TsvToStringSerializer
 import ebi.ac.uk.dsl.line
 import ebi.ac.uk.dsl.tsv
-import ebi.ac.uk.model.constans.SubFields
+import ebi.ac.uk.model.constants.SubFields
 import ebi.ac.uk.model.extensions.rootPath
 import ebi.ac.uk.model.extensions.title
 import org.assertj.core.api.Assertions.assertThat

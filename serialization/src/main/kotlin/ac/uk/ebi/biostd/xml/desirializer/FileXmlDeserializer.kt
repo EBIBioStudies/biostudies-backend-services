@@ -2,7 +2,7 @@ package ac.uk.ebi.biostd.xml.desirializer
 
 import ac.uk.ebi.biostd.xml.desirializer.common.BaseXmlDeserializer
 import ebi.ac.uk.model.File
-import ebi.ac.uk.model.constans.FileFields
+import ebi.ac.uk.model.constants.FileFields
 import org.w3c.dom.Node
 
 class FileXmlDeserializer(private val attributeXmlDeserializer: AttributeXmlDeserializer)

@@ -7,7 +7,7 @@ import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.databind.SerializerProvider
 import com.fasterxml.jackson.databind.ser.std.StdSerializer
 import ebi.ac.uk.model.Link
-import ebi.ac.uk.model.constans.LinkFields
+import ebi.ac.uk.model.constants.LinkFields
 
 class LinkJsonSerializer : StdSerializer<Link>(Link::class.java) {
 

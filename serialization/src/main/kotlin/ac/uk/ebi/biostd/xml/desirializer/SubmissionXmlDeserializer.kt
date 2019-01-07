@@ -2,7 +2,7 @@ package ac.uk.ebi.biostd.xml.desirializer
 
 import ac.uk.ebi.biostd.xml.desirializer.common.BaseXmlDeserializer
 import ebi.ac.uk.model.Submission
-import ebi.ac.uk.model.constans.SubFields
+import ebi.ac.uk.model.constants.SubFields
 import org.w3c.dom.Node
 
 class SubmissionXmlDeserializer(

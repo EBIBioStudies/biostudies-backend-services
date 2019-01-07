@@ -7,7 +7,7 @@ import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.databind.SerializerProvider
 import com.fasterxml.jackson.databind.ser.std.StdSerializer
 import ebi.ac.uk.model.Section
-import ebi.ac.uk.model.constans.SectionFields
+import ebi.ac.uk.model.constants.SectionFields
 
 class SectionJsonSerializer : StdSerializer<Section>(Section::class.java) {
 

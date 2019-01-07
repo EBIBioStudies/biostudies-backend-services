@@ -8,8 +8,8 @@ import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.databind.SerializerProvider
 import com.fasterxml.jackson.databind.ser.std.StdSerializer
 import ebi.ac.uk.model.Attribute
-import ebi.ac.uk.model.constans.AttributeDetails
-import ebi.ac.uk.model.constans.AttributeFields
+import ebi.ac.uk.model.constants.AttributeDetails
+import ebi.ac.uk.model.constants.AttributeFields
 
 class AttributeJsonSerializer : StdSerializer<Attribute>(Attribute::class.java) {
 

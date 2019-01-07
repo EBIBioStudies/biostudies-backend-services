@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.persistence.model
 
-import ac.uk.ebi.biostd.persistence.common.SectionDb
+import ac.uk.ebi.biostd.persistence.model.Section as SectionDb
 import java.util.SortedSet
 import javax.persistence.CascadeType
 import javax.persistence.Column

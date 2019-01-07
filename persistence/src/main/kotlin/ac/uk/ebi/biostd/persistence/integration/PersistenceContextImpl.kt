@@ -12,8 +12,8 @@ import ebi.ac.uk.model.AccPattern
 import ebi.ac.uk.model.ExtendedSubmission
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.User
-import ebi.ac.uk.model.constans.SubFields
-import ebi.ac.uk.model.constans.SubFields.ATTACH_TO
+import ebi.ac.uk.model.constants.SubFields
+import ebi.ac.uk.model.constants.SubFields.ATTACH_TO
 import ebi.ac.uk.persistence.PersistenceContext
 
 class PersistenceContextImpl(
