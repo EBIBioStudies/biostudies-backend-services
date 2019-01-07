@@ -89,7 +89,7 @@ class TableJsonDeserializerTest {
             File(name = "file2")))
 
         val json = jsonArray({
-            "name" to "file1"
+            "path" to "file1"
             "attributes" to jsonArray({
                 "name" to ATTR_NAME
                 "value" to ATTR_VAL
@@ -103,7 +103,7 @@ class TableJsonDeserializerTest {
                 })
             })
         }, {
-            "name" to "file2"
+            "path" to "file2"
         }).toString()
 
         val table = JsonSerializer.mapper.readValue(json, FilesTable::class.java)

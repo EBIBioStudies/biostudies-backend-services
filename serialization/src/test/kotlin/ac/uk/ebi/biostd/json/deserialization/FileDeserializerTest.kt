@@ -18,23 +18,23 @@ class FileDeserializerTest {
     fun `deserialize no value`() {
         val exception = assertThrows<IllegalStateException> { testInstance.deserialize<File>("{}") }
 
-        assertThat(exception.message).isEqualTo("Expecting to find property with 'name' in node '{}'")
+        assertThat(exception.message).isEqualTo("Expecting to find property with 'path' in node '{}'")
     }
 
     @Test
-    fun `deserialize with wrong url type`() {
+    fun `deserialize with wrong path type`() {
         val invalidJson = jsonObj {
-            "name" to jsonArray(1, 2, 3)
+            "path" to jsonArray(1, 2, 3)
         }.toString()
 
         val exception = assertThrows<IllegalArgumentException> { testInstance.deserialize<File>(invalidJson) }
-        assertThat(exception.message).isEqualTo("Expecting node: '{\"name\":[1,2,3]}', property: 'name' to be of type 'TextNode' but 'ArrayNode' find instead")
+        assertThat(exception.message).isEqualTo("Expecting node: '{\"path\":[1,2,3]}', property: 'path' to be of type 'TextNode' but 'ArrayNode' find instead")
     }
 
     @Test
     fun `deserialize with attributes`() {
         val fileJson = jsonObj {
-            "name" to "/path/file.txt"
+            "path" to "/path/file.txt"
             "attributes" to jsonArray({
                 "name" to "attr name"
                 "value" to "attr value"
@@ -49,7 +49,7 @@ class FileDeserializerTest {
     @Test
     fun `deserialize with no attributes`() {
         val fileJson = jsonObj {
-            "name" to "/path/file.txt"
+            "path" to "/path/file.txt"
         }.toString()
 
         val file = testInstance.deserialize<File>(fileJson)

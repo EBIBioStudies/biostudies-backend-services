@@ -7,8 +7,8 @@ class Link(var url: String, attributes: List<Attribute> = emptyList()) : Attribu
     override fun equals(other: Any?) = when {
         other !is Link -> false
         other === this -> true
-        else -> Objects.equals(this.url, other.url).and(Objects.equals(this.attributesMap, other.attributesMap))
+        else -> Objects.equals(this.url, other.url).and(Objects.equals(this.attributes, other.attributes))
     }
 
-    override fun hashCode() = Objects.hash(this.url, this.attributesMap)
+    override fun hashCode() = Objects.hash(this.url, this.attributes)
 }
