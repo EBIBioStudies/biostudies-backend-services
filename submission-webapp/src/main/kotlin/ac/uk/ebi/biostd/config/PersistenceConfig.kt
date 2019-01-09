@@ -23,7 +23,7 @@ class PersistenceConfig(
     fun submissionRepository() = SubmissionRepository(submissionDataRepository)
 
     @Bean
-    fun extSubmissionRepository() = ExtSubmissionRepository(submissionDataRepository, SubmissionDbMapper())
+    fun extSubmissionRepository() = ExtSubmissionRepository(submissionDataRepository, submissionDbMapper())
 
     @Bean
     fun submissionDbMapper() = SubmissionDbMapper()
