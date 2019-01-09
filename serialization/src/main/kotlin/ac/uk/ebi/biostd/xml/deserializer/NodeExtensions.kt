@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.xml.desirializer
+package ac.uk.ebi.biostd.xml.deserializer
 
 import org.w3c.dom.Node
 import java.io.StringWriter
