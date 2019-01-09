@@ -11,39 +11,41 @@ import ac.uk.ebi.biostd.persistence.model.FileAttribute
 import ac.uk.ebi.biostd.persistence.model.LinkAttribute
 import ac.uk.ebi.biostd.persistence.model.SectionAttribute
 import ac.uk.ebi.biostd.persistence.model.SubmissionAttribute
+import ac.uk.ebi.biostd.persistence.model.User as UserDb
 import ac.uk.ebi.biostd.persistence.repositories.TagsDataRepository
 import arrow.core.Either
 import ebi.ac.uk.base.orFalse
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.AttributeDetail
+import ebi.ac.uk.model.ExtendedSubmission
 import ebi.ac.uk.model.File
 import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.model.Link
 import ebi.ac.uk.model.LinksTable
 import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.SectionsTable
-import ebi.ac.uk.model.Submission
+import ebi.ac.uk.model.User
 import java.util.SortedSet
 
 class SubmissionMapper(private val tagsRepository: TagsDataRepository) {
 
-    fun toSubmissionDb(submissionDb: Submission): SubmissionDb {
-        return SubmissionDb().apply {
-            accNo = submissionDb.accNo
-            attributes = toAttributes(submissionDb.attributes, ::SubmissionAttribute)
-            accessTags = toAccessTag(submissionDb.accessTags)
-            rootSection = toSection(submissionDb.section, NO_TABLE_INDEX)
-        }
+    fun toSubmissionDb(submission: ExtendedSubmission) = SubmissionDb().apply {
+        accNo = submission.accNo
+        version = submission.version
+        owner = toUser(submission.user)
+        attributes = toAttributes(submission.attributes, ::SubmissionAttribute)
+        accessTags = toAccessTag(submission.accessTags)
+        rootSection = toSection(submission.section, NO_TABLE_INDEX)
     }
 
-    private fun toSection(section: Section, index: Int): SectionDb {
-        return SectionDb(section.accNo, section.type).apply {
-            order = index
-            attributes = toAttributes(section.attributes, ::SectionAttribute)
-            links = toLinks(section.links)
-            files = toFiles(section.files)
-            sections = toSections(section.sections)
-        }
+    private fun toUser(user: User) = UserDb(user.email, user.email, user.secretKey).apply { id = user.id }
+
+    private fun toSection(section: Section, index: Int) = SectionDb(section.accNo, section.type).apply {
+        order = index
+        attributes = toAttributes(section.attributes, ::SectionAttribute)
+        links = toLinks(section.links)
+        files = toFiles(section.files)
+        sections = toSections(section.sections)
     }
 
     private fun toSections(sections: MutableList<Either<Section, SectionsTable>>): SortedSet<SectionDb> {

@@ -26,6 +26,7 @@ class ExtendedSubmission(
     var relPath = EMPTY
     var released = false
     var secretKey = EMPTY
+    var version = 1
 
     var releaseTime = OffsetDateTime.now()
     var modificationTime = OffsetDateTime.now()

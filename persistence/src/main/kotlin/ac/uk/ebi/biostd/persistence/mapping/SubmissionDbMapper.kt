@@ -29,22 +29,21 @@ import ebi.ac.uk.util.collections.ifNotEmpty
 
 class SubmissionDbMapper {
 
-    fun toExtSubmission(submissionDb: SubmissionDb): ExtendedSubmission {
-        return ExtendedSubmission(submissionDb.accNo, toUser(submissionDb.owner)).apply {
+    fun toExtSubmission(submissionDb: SubmissionDb) =
+        ExtendedSubmission(submissionDb.accNo, toUser(submissionDb.owner)).apply {
+            version = submissionDb.version
             attributes = toAttributes(submissionDb.attributes)
             accessTags = submissionDb.accessTags.mapTo(mutableListOf(), AccessTag::name)
             section = toSection(submissionDb.rootSection)
         }
-    }
 
-    private fun toUser(owner: UserDb) = User(owner.id, owner.email, owner.secret.orEmpty())
+    private fun toUser(owner: UserDb) = User(owner.id, owner.email, owner.secret)
 
-    fun toSubmission(submissionDb: SubmissionDb): Submission {
-        return Submission(submissionDb.accNo, attributes = toAttributes(submissionDb.attributes)).apply {
+    fun toSubmission(submissionDb: SubmissionDb) =
+        Submission(submissionDb.accNo, attributes = toAttributes(submissionDb.attributes)).apply {
             accessTags = submissionDb.accessTags.mapTo(mutableListOf(), AccessTag::name)
             section = toSection(submissionDb.rootSection)
         }
-    }
 
     private fun toSection(sectionDb: SectionDb) =
         Section(accNo = sectionDb.accNo,
@@ -62,16 +61,15 @@ class SubmissionDbMapper {
             nameAttrs = toDetails(attrDb.nameQualifier),
             valueAttrs = toDetails(attrDb.valueQualifier))
 
-    private fun toDetails(details: MutableList<AttributeDetailDb>): MutableList<AttributeDetail> =
+    private fun toDetails(details: MutableList<AttributeDetailDb>) =
         details.mapTo(mutableListOf()) { detail -> AttributeDetail(detail.name, detail.value) }
 
     private fun toAttributes(attrs: Set<AttributeDb>) = attrs.mapTo(mutableListOf()) { toAttribute(it) }
 
     private fun toLinks(links: List<LinkDb>) = toEitherList(links, ::toLink, ::LinksTable)
     private fun toFiles(files: List<FileDb>) = toEitherList(files, ::toFile, ::FilesTable)
-    private fun toSections(sections: List<SectionDb>): MutableList<Either<Section, SectionsTable>> {
-        return toEitherList(sections, ::toSection, ::SectionsTable)
-    }
+    private fun toSections(sections: List<SectionDb>): MutableList<Either<Section, SectionsTable>> =
+        toEitherList(sections, ::toSection, ::SectionsTable)
 
     private fun toLink(link: LinkDb) = Link(link.url, toAttributes(link.attributes))
     private fun toFile(file: FileDb) = File(file.name, toAttributes(file.attributes))
@@ -88,7 +86,9 @@ class SubmissionDbMapper {
             val map = elements.groupBy { it.tableIndex != NO_TABLE_INDEX }
             val eitherList = mutableListOf<Either<S, U>>()
             map[false].orEmpty().map { transform(it) }.forEach { eitherList.add(left(it)) }
-            map[true].orEmpty().ifNotEmpty { listElements -> eitherList.add(right(tableBuilder(listElements.map { transform(it) }))) }
+            map[true].orEmpty().ifNotEmpty {
+                listElements -> eitherList.add(right(tableBuilder(listElements.map { transform(it) }))) }
+
             return eitherList
         }
     }
