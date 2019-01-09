@@ -9,6 +9,8 @@ import ac.uk.ebi.biostd.itest.common.setAppProperty
 import ac.uk.ebi.biostd.itest.factory.allInOneSubmissionJson
 import ac.uk.ebi.biostd.itest.factory.allInOneSubmissionTsv
 import ac.uk.ebi.biostd.itest.factory.invalidLinkUrl
+import ac.uk.ebi.biostd.itest.factory.simpleSubmissionTsv
+import ac.uk.ebi.biostd.persistence.service.ExtSubmissionRepository
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
 import arrow.core.Either
 import ebi.ac.uk.asserts.assertThat
@@ -73,6 +75,9 @@ class SubmissionTest(private val tempFolder: TemporaryFolder) {
         private lateinit var submissionRepository: SubmissionRepository
 
         @Autowired
+        private lateinit var extSubmissionRepository: ExtSubmissionRepository
+
+        @Autowired
         private lateinit var securityService: SecurityService
 
         private lateinit var webClient: BioWebClient
@@ -119,10 +124,33 @@ class SubmissionTest(private val tempFolder: TemporaryFolder) {
         }
 
         @Test
+        fun `resubmit existing submission`() {
+            val accNo = "S-ABC123"
+            val title = "Simple Submission"
+            val submission = simpleSubmissionTsv().toString()
+            val response = webClient.submitSingle(submission, SubmissionFormat.TSV)
+            assertThat(response).isNotNull
+            assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
+            assertExtSubmission(accNo, title)
+
+            val resubmitResponse = webClient.submitSingle(submission, SubmissionFormat.TSV)
+            assertThat(resubmitResponse).isNotNull
+            assertThat(resubmitResponse.statusCode).isEqualTo(HttpStatus.OK)
+            assertExtSubmission(accNo, title, 2)
+        }
+
+        @Test
         fun `submit with invalid link Url`() {
             val exception = assertThrows(HttpClientErrorException::class.java) { webClient.submitSingle(invalidLinkUrl().toString(), SubmissionFormat.TSV) }
 
             assertThat(exception.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
+        }
+
+        private fun assertExtSubmission(accNo: String, expectedTitle: String, expectedVersion: Int = 1) {
+            val submission = extSubmissionRepository.findByAccNo(accNo)
+
+            assertThat(submission.title).isEqualTo(expectedTitle)
+            assertThat(submission.version).isEqualTo(expectedVersion)
         }
 
         private fun assertSavedSubmission(accNo: String) {

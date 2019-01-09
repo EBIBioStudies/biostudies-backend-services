@@ -43,6 +43,7 @@ class PersistenceContextImpl(
         subRepository.findByAccNoAndVersionGreaterThan(accNo).map { subDbMapper.toExtSubmission(it) }.toOption()
 
     override fun saveSubmission(submission: ExtendedSubmission) {
+        setSubmissionVersion(submission)
         subRepository.save(subMapper.toSubmissionDb(submission))
     }
 
@@ -56,4 +57,11 @@ class PersistenceContextImpl(
 
     private fun getParentSubmission(submission: Submission) =
         submission.find(ATTACH_TO).toOption().map { subRepository.getByAccNoAndVersionGreaterThan(it) }
+
+    private fun setSubmissionVersion(submission: ExtendedSubmission) =
+        subRepository.findByAccNoAndVersionGreaterThan(submission.accNo).ifPresent {
+            submission.version = it.version + 1
+            it.version = -it.version
+            subRepository.save(it)
+        }
 }
