@@ -1,11 +1,11 @@
-package ac.uk.ebi.biostd.xml.desirializer
+package ac.uk.ebi.biostd.xml.deserializer
 
 import ac.uk.ebi.biostd.common.NAME
 import ac.uk.ebi.biostd.common.NAME_ATTRIBUTES
 import ac.uk.ebi.biostd.common.REFERENCE
 import ac.uk.ebi.biostd.common.VALUE
 import ac.uk.ebi.biostd.common.VAL_ATTRIBUTES
-import ac.uk.ebi.biostd.xml.desirializer.common.BaseXmlDeserializer
+import ac.uk.ebi.biostd.xml.deserializer.common.BaseXmlDeserializer
 import ebi.ac.uk.base.asBoolean
 import ebi.ac.uk.base.orFalse
 import ebi.ac.uk.model.Attribute

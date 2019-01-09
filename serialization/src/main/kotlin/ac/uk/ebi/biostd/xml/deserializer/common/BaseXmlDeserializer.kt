@@ -1,7 +1,7 @@
-package ac.uk.ebi.biostd.xml.desirializer.common
+package ac.uk.ebi.biostd.xml.deserializer.common
 
-import ac.uk.ebi.biostd.xml.desirializer.getSubNodes
-import ac.uk.ebi.biostd.xml.desirializer.toXmlString
+import ac.uk.ebi.biostd.xml.deserializer.getSubNodes
+import ac.uk.ebi.biostd.xml.deserializer.toXmlString
 import arrow.core.Either
 import ebi.ac.uk.model.Table
 import ebi.ac.uk.model.constants.OtherFields

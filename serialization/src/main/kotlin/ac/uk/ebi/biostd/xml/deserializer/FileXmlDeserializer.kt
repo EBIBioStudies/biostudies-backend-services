@@ -1,6 +1,6 @@
-package ac.uk.ebi.biostd.xml.desirializer
+package ac.uk.ebi.biostd.xml.deserializer
 
-import ac.uk.ebi.biostd.xml.desirializer.common.BaseXmlDeserializer
+import ac.uk.ebi.biostd.xml.deserializer.common.BaseXmlDeserializer
 import ebi.ac.uk.model.File
 import ebi.ac.uk.model.constants.FileFields
 import org.w3c.dom.Node

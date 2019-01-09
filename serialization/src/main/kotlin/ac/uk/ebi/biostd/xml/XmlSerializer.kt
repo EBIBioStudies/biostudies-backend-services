@@ -1,12 +1,12 @@
 package ac.uk.ebi.biostd.xml
 
 import ac.uk.ebi.biostd.common.EitherSerializer
-import ac.uk.ebi.biostd.xml.desirializer.AttributeXmlDeserializer
-import ac.uk.ebi.biostd.xml.desirializer.DetailsXmlDeserializer
-import ac.uk.ebi.biostd.xml.desirializer.FileXmlDeserializer
-import ac.uk.ebi.biostd.xml.desirializer.LinkXmlDeserializer
-import ac.uk.ebi.biostd.xml.desirializer.SectionXmlDeserializer
-import ac.uk.ebi.biostd.xml.desirializer.SubmissionXmlDeserializer
+import ac.uk.ebi.biostd.xml.deserializer.AttributeXmlDeserializer
+import ac.uk.ebi.biostd.xml.deserializer.DetailsXmlDeserializer
+import ac.uk.ebi.biostd.xml.deserializer.FileXmlDeserializer
+import ac.uk.ebi.biostd.xml.deserializer.LinkXmlDeserializer
+import ac.uk.ebi.biostd.xml.deserializer.SectionXmlDeserializer
+import ac.uk.ebi.biostd.xml.deserializer.SubmissionXmlDeserializer
 import ac.uk.ebi.biostd.xml.serializer.AttributeDetailsSerializer
 import ac.uk.ebi.biostd.xml.serializer.AttributeSerializer
 import ac.uk.ebi.biostd.xml.serializer.FileSerializer
