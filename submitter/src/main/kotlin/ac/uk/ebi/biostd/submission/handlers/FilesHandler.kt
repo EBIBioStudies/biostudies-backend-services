@@ -37,7 +37,7 @@ class FilesHandler(private val folderResolver: FolderResolver, private val seria
         val userPath = getUserFolder(submission)
 
         submission.allFiles()
-            .filter { file -> Files.exists(userPath.resolve(file.name)).not() }
+            .filter { file -> Files.exists(userPath.resolve(file.path)).not() }
             .ifNotEmpty { throw InvalidFilesException(it, INVALID_FILES_ERROR_MSG) }
     }
 
@@ -45,8 +45,8 @@ class FilesHandler(private val folderResolver: FolderResolver, private val seria
         val userPath = getUserFolder(submission)
 
         submission.allFiles().forEach { file ->
-            val sourceFile = userPath.resolve(file.name).toFile()
-            val submissionFile = folderResolver.getSubFilePath(submission.relPath, file.name).toFile()
+            val sourceFile = userPath.resolve(file.path).toFile()
+            val submissionFile = folderResolver.getSubFilePath(submission.relPath, file.path).toFile()
             FileUtils.copyFile(sourceFile, submissionFile)
         }
     }

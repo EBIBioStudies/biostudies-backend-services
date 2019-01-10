@@ -18,7 +18,7 @@ fun TsvBuilder.addSecLink(link: Link) {
 }
 
 fun TsvBuilder.addSecFile(file: File) {
-    with(FILE_KEY, file.name)
+    with(FILE_KEY, file.path)
 }
 
 fun TsvBuilder.addAttributes(attributes: List<Attribute>) {

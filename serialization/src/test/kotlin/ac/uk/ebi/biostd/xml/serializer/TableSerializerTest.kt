@@ -39,7 +39,7 @@ class TableSerializerTest {
         val result = xmlMapper.writeValueAsString(FilesTable(listOf(simpleFile())))
         val expected = xml("table") {
             "file" {
-                "name" { -FILE_NAME }
+                "path" { -FILE_NAME }
                 "attributes" {}
             }
         }.toString()

@@ -12,7 +12,7 @@ internal const val FILE_NAME = "file name"
 internal const val FILE_TYPE = "file type"
 internal const val FILE_SIZE = 55
 
-fun simpleFile() = File(name = FILE_NAME)
+fun simpleFile() = File(path = FILE_NAME)
 
 internal const val SEC_ACC_NO = "sec 123"
 internal const val SEC_TYPE = "sec type"

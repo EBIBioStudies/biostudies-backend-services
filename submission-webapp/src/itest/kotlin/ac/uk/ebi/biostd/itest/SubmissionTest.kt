@@ -225,14 +225,14 @@ class SubmissionTest(private val tempFolder: TemporaryFolder) {
             assertThat(section.files).hasSize(2)
 
             val file = assertThat(section.files[0]).isFile()
-            assertThat(file.name).isEqualTo("LibraryFile1.txt")
+            assertThat(file.path).isEqualTo("LibraryFile1.txt")
             assertThat(file.attributes).containsExactly(Attribute("Description", "Library File 1"))
 
             val fileTable = assertThat(section.files[1]).isTable()
             assertThat(fileTable.elements).hasSize(1)
 
             val tableFile = fileTable.elements[0]
-            assertThat(tableFile.name).isEqualTo("LibraryFile2.txt")
+            assertThat(tableFile.path).isEqualTo("LibraryFile2.txt")
             assertThat(tableFile.attributes).hasSize(2)
             assertThat(tableFile.attributes[0]).isEqualTo(Attribute("Description", "Library File 2"))
             assertThat(tableFile.attributes[1]).isEqualTo(Attribute("Type", "Lib"))

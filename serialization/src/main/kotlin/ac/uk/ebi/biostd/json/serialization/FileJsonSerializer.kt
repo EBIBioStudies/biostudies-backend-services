@@ -11,12 +11,12 @@ import ebi.ac.uk.model.constants.FileFields
 
 class FileJsonSerializer : StdSerializer<File>(File::class.java) {
 
-    override fun isEmpty(provider: SerializerProvider, value: File): Boolean = value.name.isEmpty()
+    override fun isEmpty(provider: SerializerProvider, value: File): Boolean = value.path.isEmpty()
 
     override fun serialize(file: File, gen: JsonGenerator, provider: SerializerProvider) {
 
         gen.writeObj {
-            writeJsonString(FileFields.PATH, file.name)
+            writeJsonString(FileFields.PATH, file.path)
             writeJsonArray(FileFields.ATTRIBUTES, file.attributes)
         }
     }

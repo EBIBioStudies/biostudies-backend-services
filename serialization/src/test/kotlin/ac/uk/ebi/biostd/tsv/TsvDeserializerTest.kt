@@ -219,7 +219,7 @@ class TsvDeserializerTest {
     }
 
     private fun assertFile(file: File, expectedName: String, vararg expectedAttributes: Attribute) {
-        assertThat(file.name).isEqualTo(expectedName)
+        assertThat(file.path).isEqualTo(expectedName)
         assertAttributes(file.attributes, expectedAttributes)
     }
 }

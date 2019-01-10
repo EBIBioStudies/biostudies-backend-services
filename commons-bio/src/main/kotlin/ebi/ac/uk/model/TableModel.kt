@@ -87,7 +87,7 @@ class FilesTable(files: List<File> = emptyList()) : Table<File>(files) {
     override val header = TableFields.FILES_TABLE.toString()
 
     override fun toTableRow(t: File) = object : Row<File>(t) {
-        override val id = t.name
+        override val id = t.path
         override val attributes = t.attributes
     }
 }
