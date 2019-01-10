@@ -19,7 +19,7 @@ class AttributeXmlDeserializer(private val detailDeserializer: DetailsXmlDeseria
         return Attribute(
             name = node.getNodeAttribute(NAME),
             value = node.getNodeAttribute(VALUE),
-            reference = node.findNodeAttribute(REFERENCE)?.asBoolean().orFalse(),
+            reference = node.findProperty(REFERENCE)?.asBoolean().orFalse(),
             nameAttrs = detailDeserializer.deserializeList(node.getSubNodes(NAME_ATTRIBUTES)).toMutableList(),
             valueAttrs = detailDeserializer.deserializeList(node.getSubNodes(VAL_ATTRIBUTES)).toMutableList())
     }

@@ -36,8 +36,9 @@ dependencies {
     testCompile("org.junit.jupiter:junit-jupiter-params:$junitVersion")
     testCompile("io.github.glytching:junit-extensions:2.3.0")
 
-    testCompile("org.springframework.boot:spring-boot-starter-test")
     testCompile("com.h2database:h2:1.4.197")
+    testCompile("org.redundent:kotlin-xml-builder:1.4.2")
+    testCompile("org.springframework.boot:spring-boot-starter-test")
 }
 
 sourceSets {

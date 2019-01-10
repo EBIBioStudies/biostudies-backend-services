@@ -10,10 +10,8 @@ import org.redundent.kotlin.xml.xml
 import org.xmlunit.assertj.XmlAssert.assertThat
 
 class LinkSerializerTest {
-
-    private val xmlMapper = XmlMapper(JacksonXmlModule().apply { addSerializer(Link::class.java, LinkSerializer()) })
-
     private val link = simpleLink()
+    private val xmlMapper = XmlMapper(JacksonXmlModule().apply { addSerializer(Link::class.java, LinkSerializer()) })
 
     @Test
     fun serializeXml() {
