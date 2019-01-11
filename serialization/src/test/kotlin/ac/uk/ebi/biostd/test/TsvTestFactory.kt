@@ -11,6 +11,24 @@ fun basicSubmission() = tsv {
     line()
 }
 
+fun submissionWithInvalidAttribute() = tsv {
+    line("Submission", "S-EPMC124")
+    line("Title", "")
+    line()
+}
+
+fun submissionWithInvalidNameAttributeDetail() = tsv {
+    line("Submission", "S-EPMC124")
+    line("(Seq Type)", "RNA")
+    line()
+}
+
+fun submissionWithInvalidValueAttributeDetail() = tsv {
+    line("Submission", "S-EPMC124")
+    line("[Ontology]", "EFO")
+    line()
+}
+
 fun twoBasicSubmission() = basicSubmission().toString() + basicSubmission().toString()
 
 fun submissionWithDetailedAttributes() = tsv {

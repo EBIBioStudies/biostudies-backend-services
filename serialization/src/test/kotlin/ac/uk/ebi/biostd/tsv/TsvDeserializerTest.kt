@@ -7,12 +7,20 @@ import ac.uk.ebi.biostd.test.submissionWithFiles
 import ac.uk.ebi.biostd.test.submissionWithFilesTable
 import ac.uk.ebi.biostd.test.submissionWithInnerSubsections
 import ac.uk.ebi.biostd.test.submissionWithInnerSubsectionsTable
+import ac.uk.ebi.biostd.test.submissionWithInvalidAttribute
+import ac.uk.ebi.biostd.test.submissionWithInvalidNameAttributeDetail
+import ac.uk.ebi.biostd.test.submissionWithInvalidValueAttributeDetail
 import ac.uk.ebi.biostd.test.submissionWithLinks
 import ac.uk.ebi.biostd.test.submissionWithLinksTable
 import ac.uk.ebi.biostd.test.submissionWithRootSection
 import ac.uk.ebi.biostd.test.submissionWithSectionsTable
 import ac.uk.ebi.biostd.test.submissionWithSubsection
 import ac.uk.ebi.biostd.tsv.deserialization.TsvDeserializer
+import ac.uk.ebi.biostd.validation.InvalidElementException
+import ac.uk.ebi.biostd.validation.MISPLACED_ATTR_NAME
+import ac.uk.ebi.biostd.validation.MISPLACED_ATTR_VAL
+import ac.uk.ebi.biostd.validation.REQUIRED_ATTR_VALUE
+import ac.uk.ebi.biostd.validation.SerializationException
 import ebi.ac.uk.asserts.assertSingleElement
 import ebi.ac.uk.asserts.assertSubmission
 import ebi.ac.uk.asserts.assertTable
@@ -27,6 +35,7 @@ import ebi.ac.uk.util.collections.ifRight
 import ebi.ac.uk.util.collections.second
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
+import org.junit.jupiter.api.assertThrows
 
 class TsvDeserializerTest {
 
@@ -216,6 +225,29 @@ class TsvDeserializerTest {
                 Attribute("Description", "A super important file"),
                 Attribute("Usage", "Important stuff"))
         }
+    }
+
+    @Test
+    fun deserializeInvalidAttribute() =
+        assertInvalidElementException(
+            assertThrows { deserializer.deserialize(submissionWithInvalidAttribute().toString()) }, REQUIRED_ATTR_VALUE)
+
+    @Test
+    fun deserializeInvalidNameAttributeDetail() =
+        assertInvalidElementException(assertThrows {
+            deserializer.deserialize(submissionWithInvalidNameAttributeDetail().toString()) }, MISPLACED_ATTR_NAME)
+
+    @Test
+    fun deserializeInvalidValueAttributeDetail() =
+        assertInvalidElementException(assertThrows {
+            deserializer.deserialize(submissionWithInvalidValueAttributeDetail().toString()) }, MISPLACED_ATTR_VAL)
+
+    private fun assertInvalidElementException(exception: SerializationException, expectedMessage: String) {
+        assertThat(exception.errors.values()).hasSize(1)
+
+        val cause = exception.errors.values().first().cause
+        assertThat(cause).isInstanceOf(InvalidElementException::class.java)
+        assertThat(cause).hasMessage(expectedMessage)
     }
 
     private fun assertFile(file: File, expectedName: String, vararg expectedAttributes: Attribute) {
