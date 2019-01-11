@@ -3,6 +3,9 @@ package ac.uk.ebi.biostd.tsv.deserialization.common
 import ac.uk.ebi.biostd.tsv.deserialization.model.TsvChunk
 import ac.uk.ebi.biostd.tsv.deserialization.model.TsvChunkLine
 import ac.uk.ebi.biostd.validation.InvalidElementException
+import ac.uk.ebi.biostd.validation.MISPLACED_ATTR_NAME
+import ac.uk.ebi.biostd.validation.MISPLACED_ATTR_VAL
+import ac.uk.ebi.biostd.validation.REQUIRED_ATTR_VALUE
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.AttributeDetail
 
@@ -12,19 +15,27 @@ internal inline fun validate(value: Boolean, lazyMessage: () -> String) {
     }
 }
 
-// TODO add proper error handling
-// - if name detail is first
-// - if not detail value
 internal fun toAttributes(chunkLines: List<TsvChunkLine>): MutableList<Attribute> {
     val attributes: MutableList<Attribute> = mutableListOf()
     chunkLines.forEach { line ->
+        line.value.ifBlank { throw InvalidElementException(REQUIRED_ATTR_VALUE) }
         when {
-            line.isNameDetail() -> attributes.last().nameAttrs.add(AttributeDetail(line.name(), line.value))
-            line.isValueDetail() -> attributes.last().valueAttrs.add(AttributeDetail(line.name(), line.value))
+            line.isNameDetail() -> addNameAttributeDetail(attributes, line)
+            line.isValueDetail() -> addValueAttributeDetail(attributes, line)
             else -> attributes.add(Attribute(line.name(), line.value, line.isReference()))
         }
     }
     return attributes
+}
+
+internal fun addNameAttributeDetail(attributes: MutableList<Attribute>, line: TsvChunkLine) {
+    attributes.ifEmpty { throw InvalidElementException(MISPLACED_ATTR_NAME) }
+    attributes.last().nameAttrs.add(AttributeDetail(line.name(), line.value))
+}
+
+internal fun addValueAttributeDetail(attributes: MutableList<Attribute>, line: TsvChunkLine) {
+    attributes.ifEmpty { throw InvalidElementException(MISPLACED_ATTR_VAL) }
+    attributes.last().valueAttrs.add(AttributeDetail(line.name(), line.value))
 }
 
 // TODO add proper error handling
