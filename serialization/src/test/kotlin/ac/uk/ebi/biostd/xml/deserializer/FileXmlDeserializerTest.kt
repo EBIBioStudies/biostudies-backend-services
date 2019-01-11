@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.xml.deserializer
 
 import ac.uk.ebi.biostd.xml.common.createXmlDocument
+import ac.uk.ebi.biostd.xml.deserializer.TestDeserializerFactory.Companion.fileXmlDeserializer
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.File
 import org.assertj.core.api.Assertions.assertThat
@@ -18,13 +19,13 @@ class FileXmlDeserializerTest {
                 "attributes" {
                     "attribute" {
                         "name" { -"attr1" }
-                        "value" { -"attr 1" }
+                        "value" { -"attr 1 value" }
                     }
                 }
             }.toString())
 
         assertThat(testInstance.deserialize(xmlFile)).isEqualTo(
-            File("file1.txt", mutableListOf(Attribute("attr1", "attr 1"))))
+            File("file1.txt", mutableListOf(Attribute("attr1", "attr 1 value"))))
     }
 
     @Test

@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.xml.deserializer
 
 import ac.uk.ebi.biostd.xml.common.createXmlDocument
+import ac.uk.ebi.biostd.xml.deserializer.TestDeserializerFactory.Companion.submissionXmlDeserializer
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.Section
 import org.assertj.core.api.Assertions.assertThat
@@ -18,7 +19,7 @@ class SubmissionXmlDeserializerTest {
                 "attributes" {
                     "attribute" {
                         "name" { -"attr1" }
-                        "value" { -"attr 1" }
+                        "value" { -"attr 1 value" }
                     }
                 }
                 "section" {
@@ -30,6 +31,6 @@ class SubmissionXmlDeserializerTest {
         val submission = testInstance.deserialize(xmlSubmission)
         assertThat(submission.accNo).isEqualTo("ABC123")
         assertThat(submission.section).isEqualTo(Section("Study", "SECT-123"))
-        assertThat(submission.attributes.first()).isEqualTo(Attribute("attr1", "attr 1"))
+        assertThat(submission.attributes.first()).isEqualTo(Attribute("attr1", "attr 1 value"))
     }
 }
