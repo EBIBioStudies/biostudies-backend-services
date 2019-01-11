@@ -43,7 +43,7 @@ class SectionSerializerTest {
             }
             "files" {
                 "file" {
-                    "name" { -FILE_NAME }
+                    "path" { -FILE_NAME }
                     "attributes" {
                         "attribute" {
                             "name" { -"type" }

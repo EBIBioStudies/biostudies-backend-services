@@ -10,8 +10,8 @@ class FileXmlDeserializer(private val attributeXmlDeserializer: AttributeXmlDese
 
     override fun deserialize(node: Node): File {
         return File(
-            name = node.getNodeAttribute(FileFields.NAME),
-            attributes = attributeXmlDeserializer.deserializeList(node.getNode(FileFields.ATTRIBUTES))
+            path = node.getNodeAttribute(FileFields.PATH),
+            attributes = attributeXmlDeserializer.deserializeList(node.findNode(FileFields.ATTRIBUTES))
         )
     }
 }

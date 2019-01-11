@@ -1,8 +1,6 @@
 package ac.uk.ebi.biostd.xml.serializer
 
 import ac.uk.ebi.biostd.test.FILE_NAME
-import ac.uk.ebi.biostd.test.FILE_SIZE
-import ac.uk.ebi.biostd.test.FILE_TYPE
 import ac.uk.ebi.biostd.test.LINK_URL
 import ac.uk.ebi.biostd.test.SEC_ACC_NO
 import ac.uk.ebi.biostd.test.SEC_TYPE
@@ -41,9 +39,7 @@ class TableSerializerTest {
         val result = xmlMapper.writeValueAsString(FilesTable(listOf(simpleFile())))
         val expected = xml("table") {
             "file" {
-                "name" { -FILE_NAME }
-                "size" { -FILE_SIZE.toString() }
-                "type" { -FILE_TYPE }
+                "path" { -FILE_NAME }
                 "attributes" {}
             }
         }.toString()
@@ -58,10 +54,10 @@ class TableSerializerTest {
             "section" {
                 "type" { -SEC_TYPE }
                 "accNo" { -SEC_ACC_NO }
-                "attributes" {}
-                "subsections" {}
-                "links" {}
+                "sections" {}
                 "files" {}
+                "links" {}
+                "attributes" {}
             }
         }.toString()
 

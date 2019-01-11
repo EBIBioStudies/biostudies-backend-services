@@ -42,7 +42,7 @@ class FileDeserializerTest {
         }.toString()
 
         val file = testInstance.deserialize<File>(fileJson)
-        assertThat(file.name).isEqualTo("/path/file.txt")
+        assertThat(file.path).isEqualTo("/path/file.txt")
         assertThat(file.attributes).containsExactly(Attribute("attr name", "attr value"))
     }
 
@@ -53,7 +53,7 @@ class FileDeserializerTest {
         }.toString()
 
         val file = testInstance.deserialize<File>(fileJson)
-        assertThat(file.name).isEqualTo("/path/file.txt")
+        assertThat(file.path).isEqualTo("/path/file.txt")
         assertThat(file.attributes).isEmpty()
     }
 }

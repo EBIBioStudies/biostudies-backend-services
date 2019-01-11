@@ -8,6 +8,7 @@ import ac.uk.ebi.biostd.files.FileConfig
 import ac.uk.ebi.biostd.itest.common.setAppProperty
 import ac.uk.ebi.biostd.itest.factory.allInOneSubmissionJson
 import ac.uk.ebi.biostd.itest.factory.allInOneSubmissionTsv
+import ac.uk.ebi.biostd.itest.factory.allInOneSubmissionXml
 import ac.uk.ebi.biostd.itest.factory.invalidLinkUrl
 import ac.uk.ebi.biostd.itest.factory.simpleSubmissionTsv
 import ac.uk.ebi.biostd.persistence.service.ExtSubmissionRepository
@@ -66,7 +67,7 @@ class SubmissionTest(private val tempFolder: TemporaryFolder) {
     @ExtendWith(SpringExtension::class)
     @Import(value = [SubmitterConfig::class, PersistenceConfig::class, FileConfig::class])
     @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-    inner class SimpleSubmission {
+    inner class SingleSubmissionTest {
 
         @LocalServerPort
         private var serverPort: Int = 0
@@ -116,11 +117,19 @@ class SubmissionTest(private val tempFolder: TemporaryFolder) {
         }
 
         @Test
-        fun `submit all in one Json submission`() {
+        fun `submit all in one JSON submission`() {
             val response = webClient.submitSingle(allInOneSubmissionJson().toString(), SubmissionFormat.JSON)
             assertThat(response).isNotNull
             assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
             assertSavedSubmission("S-EPMC125")
+        }
+
+        @Test
+        fun `submit all in one XML submission`() {
+            val response = webClient.submitSingle(allInOneSubmissionXml().toString(), SubmissionFormat.XML)
+            assertThat(response).isNotNull
+            assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
+            assertSavedSubmission("S-EPMC126")
         }
 
         @Test
@@ -216,14 +225,14 @@ class SubmissionTest(private val tempFolder: TemporaryFolder) {
             assertThat(section.files).hasSize(2)
 
             val file = assertThat(section.files[0]).isFile()
-            assertThat(file.name).isEqualTo("LibraryFile1.txt")
+            assertThat(file.path).isEqualTo("LibraryFile1.txt")
             assertThat(file.attributes).containsExactly(Attribute("Description", "Library File 1"))
 
             val fileTable = assertThat(section.files[1]).isTable()
             assertThat(fileTable.elements).hasSize(1)
 
             val tableFile = fileTable.elements[0]
-            assertThat(tableFile.name).isEqualTo("LibraryFile2.txt")
+            assertThat(tableFile.path).isEqualTo("LibraryFile2.txt")
             assertThat(tableFile.attributes).hasSize(2)
             assertThat(tableFile.attributes[0]).isEqualTo(Attribute("Description", "Library File 2"))
             assertThat(tableFile.attributes[1]).isEqualTo(Attribute("Type", "Lib"))

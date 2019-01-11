@@ -85,8 +85,8 @@ class TableJsonDeserializerTest {
     @Test
     fun `deserialize table of files`() {
         val expectedTable = FilesTable(mutableListOf(
-            File(name = "file1", attributes = mutableListOf(testAttribute)),
-            File(name = "file2")))
+            File(path = "file1", attributes = mutableListOf(testAttribute)),
+            File(path = "file2")))
 
         val json = jsonArray({
             "path" to "file1"

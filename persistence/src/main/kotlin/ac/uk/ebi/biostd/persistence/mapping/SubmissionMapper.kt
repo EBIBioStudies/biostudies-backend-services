@@ -83,7 +83,7 @@ class SubmissionMapper(private val tagsRepository: TagsDataRepository) {
         LinkDb(link.url, order, toAttributes(link.attributes, ::LinkAttribute), tableIndex)
 
     private fun toFile(file: File, order: Int, tableIndex: Int = NO_TABLE_INDEX) =
-        FileDb(file.name, order, toAttributes(file.attributes, ::FileAttribute), tableIndex)
+        FileDb(file.path, order, toAttributes(file.attributes, ::FileAttribute), tableIndex)
 
     private fun <F> toAttributes(attributes: List<Attribute>, build: (AttributeDb) -> F) =
         attributes.mapIndexedTo(sortedSetOf()) { index, order -> toAttribute(order, index, build) }
