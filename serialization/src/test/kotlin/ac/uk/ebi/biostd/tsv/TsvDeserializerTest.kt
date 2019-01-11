@@ -15,11 +15,16 @@ import ac.uk.ebi.biostd.test.submissionWithLinksTable
 import ac.uk.ebi.biostd.test.submissionWithRootSection
 import ac.uk.ebi.biostd.test.submissionWithSectionsTable
 import ac.uk.ebi.biostd.test.submissionWithSubsection
+import ac.uk.ebi.biostd.test.submissionWithTableWithLessAttributes
+import ac.uk.ebi.biostd.test.submissionWithTableWithMoreAttributes
+import ac.uk.ebi.biostd.test.submissionWithTableWithNoRows
 import ac.uk.ebi.biostd.tsv.deserialization.TsvDeserializer
+import ac.uk.ebi.biostd.validation.INVALID_TABLE_ROW
 import ac.uk.ebi.biostd.validation.InvalidElementException
 import ac.uk.ebi.biostd.validation.MISPLACED_ATTR_NAME
 import ac.uk.ebi.biostd.validation.MISPLACED_ATTR_VAL
 import ac.uk.ebi.biostd.validation.REQUIRED_ATTR_VALUE
+import ac.uk.ebi.biostd.validation.REQUIRED_TABLE_ROWS
 import ac.uk.ebi.biostd.validation.SerializationException
 import ebi.ac.uk.asserts.assertSingleElement
 import ebi.ac.uk.asserts.assertSubmission
@@ -42,7 +47,7 @@ class TsvDeserializerTest {
     private val deserializer = TsvDeserializer()
 
     @Test
-    fun deserializeBaseSubmission() {
+    fun `basic submission`() {
         val submission: Submission = deserializer.deserialize(basicSubmission().toString())
 
         assertSubmission(
@@ -54,7 +59,7 @@ class TsvDeserializerTest {
     }
 
     @Test
-    fun deserializeDetailedAttributes() {
+    fun `detailed attributes`() {
         val submission: Submission = deserializer.deserialize(submissionWithDetailedAttributes().toString())
         val detailedAttribute = Attribute(
             "Submission Type",
@@ -72,7 +77,7 @@ class TsvDeserializerTest {
     }
 
     @Test
-    fun deserializeSubmissionWithRootSection() {
+    fun `submission with root section`() {
         val submission: Submission = deserializer.deserialize(submissionWithRootSection().toString())
 
         assertSubmission(submission, "S-EPMC125", Attribute("Title", "Test Submission"))
@@ -83,7 +88,7 @@ class TsvDeserializerTest {
     }
 
     @Test
-    fun deserializeSubmissionWithSectionsTable() {
+    fun `submission with sections table`() {
         val submission: Submission = deserializer.deserialize(submissionWithSectionsTable().toString())
 
         assertThat(submission.section.sections).hasSize(1)
@@ -100,7 +105,7 @@ class TsvDeserializerTest {
     }
 
     @Test
-    fun deserializeSubsection() {
+    fun `subsection`() {
         val submission: Submission = deserializer.deserialize(submissionWithSubsection().toString())
 
         assertThat(submission.section.sections).hasSize(1)
@@ -115,7 +120,7 @@ class TsvDeserializerTest {
     }
 
     @Test
-    fun deserializeInnerSubsections() {
+    fun `inner subsections`() {
         val submission: Submission = deserializer.deserialize(submissionWithInnerSubsections().toString())
 
         assertThat(submission.section.sections).hasSize(2)
@@ -146,7 +151,7 @@ class TsvDeserializerTest {
     }
 
     @Test
-    fun deserializeInnerSubsectionsTable() {
+    fun `inner subsections table`() {
         val submission: Submission = deserializer.deserialize(submissionWithInnerSubsectionsTable().toString())
         assertThat(submission.section.sections).hasSize(2)
 
@@ -179,7 +184,7 @@ class TsvDeserializerTest {
     }
 
     @Test
-    fun deserializeLinks() {
+    fun `links`() {
         val submission: Submission = deserializer.deserialize(submissionWithLinks().toString())
 
         assertThat(submission.section.links).hasSize(2)
@@ -188,7 +193,7 @@ class TsvDeserializerTest {
     }
 
     @Test
-    fun deserializeLinksTable() {
+    fun `links table`() {
         val submission: Submission = deserializer.deserialize(submissionWithLinksTable().toString())
 
         assertThat(submission.section.links).hasSize(1)
@@ -199,7 +204,7 @@ class TsvDeserializerTest {
     }
 
     @Test
-    fun deserializeFiles() {
+    fun `files`() {
         val submission: Submission = deserializer.deserialize(submissionWithFiles().toString())
 
         assertThat(submission.section.files).hasSize(2)
@@ -208,7 +213,7 @@ class TsvDeserializerTest {
     }
 
     @Test
-    fun deserializeFilesTable() {
+    fun `files table`() {
         val submission: Submission = deserializer.deserialize(submissionWithFilesTable().toString())
         assertThat(submission.section.files).hasSize(1)
 
@@ -228,19 +233,34 @@ class TsvDeserializerTest {
     }
 
     @Test
-    fun deserializeInvalidAttribute() =
+    fun `invalid attribute`() =
         assertInvalidElementException(
             assertThrows { deserializer.deserialize(submissionWithInvalidAttribute().toString()) }, REQUIRED_ATTR_VALUE)
 
     @Test
-    fun deserializeInvalidNameAttributeDetail() =
+    fun `invalid name attribute detail`() =
         assertInvalidElementException(assertThrows {
             deserializer.deserialize(submissionWithInvalidNameAttributeDetail().toString()) }, MISPLACED_ATTR_NAME)
 
     @Test
-    fun deserializeInvalidValueAttributeDetail() =
+    fun `invalid value attribute detail`() =
         assertInvalidElementException(assertThrows {
             deserializer.deserialize(submissionWithInvalidValueAttributeDetail().toString()) }, MISPLACED_ATTR_VAL)
+
+    @Test
+    fun `table with no rows`() =
+        assertInvalidElementException(assertThrows {
+            deserializer.deserialize(submissionWithTableWithNoRows().toString()) }, REQUIRED_TABLE_ROWS)
+
+    @Test
+    fun `table with more attributes than expected`() =
+        assertInvalidElementException(assertThrows {
+            deserializer.deserialize(submissionWithTableWithMoreAttributes().toString()) }, INVALID_TABLE_ROW)
+
+    @Test
+    fun `table with less attributes than expected`() =
+        assertInvalidElementException(assertThrows {
+            deserializer.deserialize(submissionWithTableWithLessAttributes().toString()) }, INVALID_TABLE_ROW)
 
     private fun assertInvalidElementException(exception: SerializationException, expectedMessage: String) {
         assertThat(exception.errors.values()).hasSize(1)

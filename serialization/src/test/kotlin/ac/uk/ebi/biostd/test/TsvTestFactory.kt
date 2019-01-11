@@ -102,6 +102,23 @@ fun submissionWithLinksTable() = submissionWithRootSection().apply {
     line()
 }
 
+fun submissionWithTableWithNoRows() = submissionWithRootSection().apply {
+    line("Links", "Type")
+    line()
+}
+
+fun submissionWithTableWithMoreAttributes() = submissionWithRootSection().apply {
+    line("Links", "Type")
+    line("AF069309", "gen", "RNA")
+    line()
+}
+
+fun submissionWithTableWithLessAttributes() = submissionWithRootSection().apply {
+    line("Links", "Type")
+    line("AF069309")
+    line()
+}
+
 fun submissionWithFiles() = submissionWithRootSection().apply {
     line("File", "12870_2017_1225_MOESM10_ESM.docx")
     line()

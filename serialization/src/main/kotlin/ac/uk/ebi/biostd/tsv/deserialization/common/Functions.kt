@@ -2,12 +2,15 @@ package ac.uk.ebi.biostd.tsv.deserialization.common
 
 import ac.uk.ebi.biostd.tsv.deserialization.model.TsvChunk
 import ac.uk.ebi.biostd.tsv.deserialization.model.TsvChunkLine
+import ac.uk.ebi.biostd.validation.INVALID_TABLE_ROW
 import ac.uk.ebi.biostd.validation.InvalidElementException
 import ac.uk.ebi.biostd.validation.MISPLACED_ATTR_NAME
 import ac.uk.ebi.biostd.validation.MISPLACED_ATTR_VAL
 import ac.uk.ebi.biostd.validation.REQUIRED_ATTR_VALUE
+import ac.uk.ebi.biostd.validation.REQUIRED_TABLE_ROWS
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.AttributeDetail
+import ebi.ac.uk.util.collections.ifSizeIsNot
 
 internal inline fun validate(value: Boolean, lazyMessage: () -> String) {
     if (!value) {
@@ -28,12 +31,14 @@ internal fun toAttributes(chunkLines: List<TsvChunkLine>): MutableList<Attribute
     return attributes
 }
 
-// TODO add proper error handling
 internal fun <T> asTable(chunk: TsvChunk, initializer: (String, MutableList<Attribute>) -> T): List<T> {
     val rows: MutableList<T> = mutableListOf()
 
+    chunk.lines.ifEmpty { throw InvalidElementException(REQUIRED_TABLE_ROWS) }
     chunk.lines.forEach {
         val attrs: MutableList<Attribute> = mutableListOf()
+
+        it.values.ifSizeIsNot(chunk.header.size - 1) { throw InvalidElementException(INVALID_TABLE_ROW) }
         it.values.forEachIndexed { index, attr -> attrs.add(Attribute(chunk.header[index + 1], attr)) }
         rows.add(initializer(it.name(), attrs))
     }

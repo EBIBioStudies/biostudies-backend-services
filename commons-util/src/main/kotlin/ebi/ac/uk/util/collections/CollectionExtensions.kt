@@ -55,13 +55,12 @@ fun <T> List<T>.secondOrElse(defaultFunc: () -> T) = if (this.size > 1) this[1] 
 fun <T> List<T>.firstOrElse(defaultFunc: () -> T) = if (isNotEmpty()) this[0] else defaultFunc()
 
 /**
- * Obtains the third element of the list or returns the given default value if the element doesn't exist.
- *
- * @param defaultValue Default value to return if the third element doesn't exist.
- */
-fun <T> List<T>.thirdOrElse(defaultValue: T) = if (this.size > 2) this[2] else defaultValue
-
-/**
  * Removes the first element of a MutableList and returns it
  */
 fun <T> MutableList<T>.removeFirst() = removeAt(0)
+
+fun <A : Collection<*>> A.ifSizeIsNot(expectedSize: Int, function: (A) -> Unit) {
+    if (size != expectedSize) {
+        function(this)
+    }
+}
