@@ -28,16 +28,6 @@ internal fun toAttributes(chunkLines: List<TsvChunkLine>): MutableList<Attribute
     return attributes
 }
 
-internal fun addNameAttributeDetail(attributes: MutableList<Attribute>, line: TsvChunkLine) {
-    attributes.ifEmpty { throw InvalidElementException(MISPLACED_ATTR_NAME) }
-    attributes.last().nameAttrs.add(AttributeDetail(line.name(), line.value))
-}
-
-internal fun addValueAttributeDetail(attributes: MutableList<Attribute>, line: TsvChunkLine) {
-    attributes.ifEmpty { throw InvalidElementException(MISPLACED_ATTR_VAL) }
-    attributes.last().valueAttrs.add(AttributeDetail(line.name(), line.value))
-}
-
 // TODO add proper error handling
 internal fun <T> asTable(chunk: TsvChunk, initializer: (String, MutableList<Attribute>) -> T): List<T> {
     val rows: MutableList<T> = mutableListOf()
@@ -49,4 +39,14 @@ internal fun <T> asTable(chunk: TsvChunk, initializer: (String, MutableList<Attr
     }
 
     return rows.toList()
+}
+
+private fun addNameAttributeDetail(attributes: MutableList<Attribute>, line: TsvChunkLine) {
+    attributes.ifEmpty { throw InvalidElementException(MISPLACED_ATTR_NAME) }
+    attributes.last().nameAttrs.add(AttributeDetail(line.name(), line.value))
+}
+
+private fun addValueAttributeDetail(attributes: MutableList<Attribute>, line: TsvChunkLine) {
+    attributes.ifEmpty { throw InvalidElementException(MISPLACED_ATTR_VAL) }
+    attributes.last().valueAttrs.add(AttributeDetail(line.name(), line.value))
 }

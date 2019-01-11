@@ -243,8 +243,9 @@ class TsvDeserializerTest {
             deserializer.deserialize(submissionWithInvalidValueAttributeDetail().toString()) }, MISPLACED_ATTR_VAL)
 
     private fun assertInvalidElementException(exception: SerializationException, expectedMessage: String) {
-        val cause = exception.errors.values().first().cause
+        assertThat(exception.errors.values()).hasSize(1)
 
+        val cause = exception.errors.values().first().cause
         assertThat(cause).isInstanceOf(InvalidElementException::class.java)
         assertThat(cause).hasMessage(expectedMessage)
     }
