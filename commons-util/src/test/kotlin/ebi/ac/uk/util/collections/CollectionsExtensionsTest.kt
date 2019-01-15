@@ -19,18 +19,6 @@ class CollectionsExtensionsTest {
     }
 
     @Test
-    fun `if size is not the expected value, do something`() {
-        val count = AtomicInteger(0)
-
-        listOf("string1").ifSizeIsNot(2) { count.getAndIncrement() }
-        assertThat(count).hasValue(1)
-    }
-
-    @Test
-    fun `if size is the expected value, do nothing`() =
-        listOf("string1").ifSizeIsNot(1) { throw IllegalStateException("this should not be executed") }
-
-    @Test
     fun `list from values`() {
         assertThat(merge(listOf("a"), "b", "c")).isEqualTo(listOf("a", "b", "c"))
     }

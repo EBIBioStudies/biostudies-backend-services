@@ -254,13 +254,15 @@ class TsvDeserializerTest {
 
     @Test
     fun `table with more attributes than expected`() =
-        assertInvalidElementException(assertThrows {
-            deserializer.deserialize(submissionWithTableWithMoreAttributes().toString()) }, INVALID_TABLE_ROW)
+        assertInvalidElementException(
+            assertThrows { deserializer.deserialize(submissionWithTableWithMoreAttributes().toString()) },
+            String.format(INVALID_TABLE_ROW, 1, 2))
 
     @Test
     fun `table with less attributes than expected`() =
-        assertInvalidElementException(assertThrows {
-            deserializer.deserialize(submissionWithTableWithLessAttributes().toString()) }, INVALID_TABLE_ROW)
+        assertInvalidElementException(
+            assertThrows { deserializer.deserialize(submissionWithTableWithLessAttributes().toString()) },
+            String.format(INVALID_TABLE_ROW, 1, 0))
 
     private fun assertInvalidElementException(exception: SerializationException, expectedMessage: String) {
         assertThat(exception.errors.values()).hasSize(1)

@@ -10,7 +10,6 @@ import ac.uk.ebi.biostd.validation.REQUIRED_ATTR_VALUE
 import ac.uk.ebi.biostd.validation.REQUIRED_TABLE_ROWS
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.AttributeDetail
-import ebi.ac.uk.util.collections.ifSizeIsNot
 
 internal inline fun validate(value: Boolean, lazyMessage: () -> String) {
     if (!value) {
@@ -37,8 +36,13 @@ internal fun <T> asTable(chunk: TsvChunk, initializer: (String, MutableList<Attr
     chunk.lines.ifEmpty { throw InvalidElementException(REQUIRED_TABLE_ROWS) }
     chunk.lines.forEach {
         val attrs: MutableList<Attribute> = mutableListOf()
+        val rowAttrsSize = it.values.size
+        val headerAttrsSize = chunk.header.size - 1
 
-        it.values.ifSizeIsNot(chunk.header.size - 1) { throw InvalidElementException(INVALID_TABLE_ROW) }
+        validate(rowAttrsSize == headerAttrsSize) {
+            throw InvalidElementException(String.format(INVALID_TABLE_ROW, headerAttrsSize, rowAttrsSize))
+        }
+
         it.values.forEachIndexed { index, attr -> attrs.add(Attribute(chunk.header[index + 1], attr)) }
         rows.add(initializer(it.name(), attrs))
     }

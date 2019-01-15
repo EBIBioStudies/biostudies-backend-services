@@ -58,9 +58,3 @@ fun <T> List<T>.firstOrElse(defaultFunc: () -> T) = if (isNotEmpty()) this[0] el
  * Removes the first element of a MutableList and returns it
  */
 fun <T> MutableList<T>.removeFirst() = removeAt(0)
-
-fun <A : Collection<*>> A.ifSizeIsNot(expectedSize: Int, function: (A) -> Unit) {
-    if (size != expectedSize) {
-        function(this)
-    }
-}
