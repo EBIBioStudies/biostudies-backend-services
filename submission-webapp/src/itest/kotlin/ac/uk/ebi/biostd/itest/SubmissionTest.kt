@@ -16,6 +16,7 @@ import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
 import arrow.core.Either
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.model.Attribute
+import ebi.ac.uk.model.File
 import ebi.ac.uk.model.Link
 import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.SectionsTable
@@ -25,6 +26,8 @@ import ebi.ac.uk.model.constants.SubFields
 import ebi.ac.uk.model.extensions.title
 import ebi.ac.uk.security.integration.model.SignUpRequest
 import ebi.ac.uk.security.service.SecurityService
+import ebi.ac.uk.util.collections.second
+import ebi.ac.uk.util.collections.third
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
@@ -43,6 +46,8 @@ import org.springframework.context.annotation.Import
 import org.springframework.http.HttpStatus
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.web.client.HttpClientErrorException
+import java.nio.file.Files
+import java.nio.file.Paths
 
 const val BASE_PATH_PLACEHOLDER = "{BASE_PATH}"
 
@@ -87,7 +92,13 @@ class SubmissionTest(private val tempFolder: TemporaryFolder) {
         fun init() {
             securityService.registerUser(SignUpRequest("test@biostudies.com", "jhon_doe", "12345"))
             webClient = BioWebClient.create("http://localhost:$serverPort", securityService.login("jhon_doe", "12345"))
-            webClient.uploadFiles(listOf(tempFolder.createFile("LibraryFile1.txt"), tempFolder.createFile("LibraryFile2.txt")))
+
+            tempFolder.createDirectory("Folder1")
+            tempFolder.createDirectory("Folder1/Folder2")
+
+            webClient.uploadFiles(listOf(tempFolder.createFile("DataFile1.txt"), tempFolder.createFile("DataFile2.txt")))
+            webClient.uploadFiles(listOf(tempFolder.createFile("Folder1/DataFile3.txt")), "Folder1")
+            webClient.uploadFiles(listOf(tempFolder.createFile("Folder1/Folder2/DataFile4.txt")), "Folder1/Folder2")
         }
 
         @Test
@@ -163,14 +174,14 @@ class SubmissionTest(private val tempFolder: TemporaryFolder) {
         }
 
         private fun assertSavedSubmission(accNo: String) {
-            val submission = submissionRepository.findByAccNo(accNo)
+            val submission = extSubmissionRepository.findByAccNo(accNo)
             assertThat(submission).hasAccNo(accNo)
             assertThat(submission).hasExactly(Attribute("Title", "venous blood, Monocyte"))
 
             val rootSection = submission.section
             assertSections(rootSection)
             assertLinks(rootSection)
-            assertFiles(rootSection)
+            assertFiles(rootSection, submission.relPath)
         }
 
         private fun assertSections(rootSection: Section) {
@@ -221,21 +232,52 @@ class SubmissionTest(private val tempFolder: TemporaryFolder) {
             assertThat(link).isEqualTo(Link("AF069309", listOf(Attribute("Type", "gen"))))
         }
 
-        private fun assertFiles(section: Section) {
+        private fun assertFiles(section: Section, submissionRelPath: String) {
             assertThat(section.files).hasSize(2)
+            val submissionFolderPath = "$basePath/$submissionRelPath/Files"
 
-            val file = assertThat(section.files[0]).isFile()
-            assertThat(file.path).isEqualTo("LibraryFile1.txt")
-            assertThat(file.attributes).containsExactly(Attribute("Description", "Library File 1"))
+            val file = assertThat(section.files.first()).isFile()
+            assertFile(file, submissionFolderPath, "DataFile1.txt", Attribute("Description", "Data File 1"))
 
-            val fileTable = assertThat(section.files[1]).isTable()
-            assertThat(fileTable.elements).hasSize(1)
+            val fileTable = assertThat(section.files.second()).isTable()
+            assertThat(fileTable.elements).hasSize(3)
 
-            val tableFile = fileTable.elements[0]
-            assertThat(tableFile.path).isEqualTo("LibraryFile2.txt")
-            assertThat(tableFile.attributes).hasSize(2)
-            assertThat(tableFile.attributes[0]).isEqualTo(Attribute("Description", "Library File 2"))
-            assertThat(tableFile.attributes[1]).isEqualTo(Attribute("Type", "Lib"))
+            assertFile(
+                fileTable.elements.first(),
+                submissionFolderPath,
+                "DataFile2.txt",
+                Attribute("Description", "Data File 2"),
+                Attribute("Type", "Data"))
+
+            assertFile(
+                fileTable.elements.second(),
+                submissionFolderPath,
+                "Folder1/DataFile3.txt",
+                Attribute("Description", "Data File 3"),
+                Attribute("Type", "Data"))
+
+            assertFile(
+                fileTable.elements.third(),
+                submissionFolderPath,
+                "Folder1/Folder2/DataFile4.txt",
+                Attribute("Description", "Data File 4"),
+                Attribute("Type", "Data"))
+        }
+
+        private fun assertFile(
+            file: File,
+            submissionFolderPath: String,
+            expectedPath: String,
+            vararg expectedAttributes: Attribute
+        ) {
+            assertThat(file.path).isEqualTo(expectedPath)
+
+            assertThat(file.attributes).hasSize(expectedAttributes.size)
+            expectedAttributes.forEachIndexed { index, attribute ->
+                assertThat(file.attributes[index]).isEqualTo(attribute)
+            }
+
+            assertThat(Files.exists(Paths.get("$submissionFolderPath/$expectedPath"))).isTrue()
         }
     }
 }

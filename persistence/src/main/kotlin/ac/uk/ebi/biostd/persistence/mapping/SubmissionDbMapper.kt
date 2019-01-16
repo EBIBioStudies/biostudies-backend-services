@@ -32,6 +32,7 @@ class SubmissionDbMapper {
     fun toExtSubmission(submissionDb: SubmissionDb) =
         ExtendedSubmission(submissionDb.accNo, toUser(submissionDb.owner)).apply {
             version = submissionDb.version
+            relPath = submissionDb.relPath
             attributes = toAttributes(submissionDb.attributes)
             accessTags = submissionDb.accessTags.mapTo(mutableListOf(), AccessTag::name)
             section = toSection(submissionDb.rootSection)

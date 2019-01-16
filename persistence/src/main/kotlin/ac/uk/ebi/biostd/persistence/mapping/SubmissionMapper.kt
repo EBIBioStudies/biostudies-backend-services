@@ -32,6 +32,7 @@ class SubmissionMapper(private val tagsRepository: TagsDataRepository) {
     fun toSubmissionDb(submission: ExtendedSubmission) = SubmissionDb().apply {
         accNo = submission.accNo
         version = submission.version
+        relPath = submission.relPath
         owner = toUser(submission.user)
         attributes = toAttributes(submission.attributes, ::SubmissionAttribute)
         accessTags = toAccessTag(submission.accessTags)

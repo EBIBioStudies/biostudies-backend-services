@@ -2,6 +2,7 @@ package ebi.ac.uk.util.collections
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import java.util.concurrent.atomic.AtomicInteger
 
 class CollectionsExtensionsTest {
@@ -38,5 +39,25 @@ class CollectionsExtensionsTest {
         assertThat(list.contains("a")).isFalse()
         assertThat(list[0]).isEqualTo("b")
         assertThat(list[1]).isEqualTo("c")
+    }
+
+    @Test
+    fun `get second`() {
+        assertThat(listOf("a", "b").second()).isEqualTo("b")
+    }
+
+    @Test
+    fun `get second for one element list`() {
+        assertThrows<NoSuchElementException> { listOf("a").second() }
+    }
+
+    @Test
+    fun `get third`() {
+        assertThat(listOf("a", "b", "c").third()).isEqualTo("c")
+    }
+
+    @Test
+    fun `get third for two elements list`() {
+        assertThrows<NoSuchElementException> { listOf("a", "b").third() }
     }
 }

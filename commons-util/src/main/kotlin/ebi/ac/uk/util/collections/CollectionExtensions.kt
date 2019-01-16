@@ -29,6 +29,14 @@ fun <T> merge(anotherList: List<T>, vararg elements: T) = anotherList.toMutableL
 fun <T> List<T>.second() =
     if (this.size > 1) this[1] else throw NoSuchElementException("List does not contain a second element.")
 
+/**
+ * Obtains the third element of the list.
+ *
+ * @throws NoSuchElementException if list size is less than 3.
+ */
+fun <T> List<T>.third() =
+    if (this.size > 2) this[2] else throw NoSuchElementException("List does not contain a third element.")
+
 fun <T> List<T>.findSecond() = if (this.size > 1) Option.just(this[1]) else Option.empty()
 
 fun <T> List<T>.findThird() = if (this.size > 2) Option.just(this[2]) else Option.empty()
@@ -53,13 +61,6 @@ fun <T> List<T>.secondOrElse(defaultFunc: () -> T) = if (this.size > 1) this[1] 
  * @param defaultFunc Default lambda to calculate return value if the first element doesn't exist.
  */
 fun <T> List<T>.firstOrElse(defaultFunc: () -> T) = if (isNotEmpty()) this[0] else defaultFunc()
-
-/**
- * Obtains the third element of the list or returns the given default value if the element doesn't exist.
- *
- * @param defaultValue Default value to return if the third element doesn't exist.
- */
-fun <T> List<T>.thirdOrElse(defaultValue: T) = if (this.size > 2) this[2] else defaultValue
 
 /**
  * Removes the first element of a MutableList and returns it

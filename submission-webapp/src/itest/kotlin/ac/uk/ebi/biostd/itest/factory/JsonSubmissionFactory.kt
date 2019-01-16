@@ -40,20 +40,38 @@ fun allInOneSubmissionJson() = jsonObj {
         })
         "files" to jsonArray(
             jsonObj {
-                "path" to "LibraryFile1.txt"
+                "path" to "DataFile1.txt"
                 "attributes" to jsonArray({
                     "name" to "description"
-                    "value" to "Library File 1"
+                    "value" to "Data File 1"
                 })
             },
             jsonArray({
-                "path" to "LibraryFile2.txt"
+                "path" to "DataFile2.txt"
                 "attributes" to jsonArray({
                     "name" to "description"
-                    "value" to "Library File 2"
+                    "value" to "Data File 2"
                 }, {
                     "name" to "type"
-                    "value" to "Lib"
+                    "value" to "Data"
+                })
+            }, {
+                "path" to "Folder1/DataFile3.txt"
+                "attributes" to jsonArray({
+                    "name" to "description"
+                    "value" to "Data File 3"
+                }, {
+                    "name" to "type"
+                    "value" to "Data"
+                })
+            }, {
+                "path" to "Folder1/Folder2/DataFile4.txt"
+                "attributes" to jsonArray({
+                    "name" to "description"
+                    "value" to "Data File 4"
+                }, {
+                    "name" to "type"
+                    "value" to "Data"
                 })
             }))
         "subsections" to jsonArray(jsonObj {

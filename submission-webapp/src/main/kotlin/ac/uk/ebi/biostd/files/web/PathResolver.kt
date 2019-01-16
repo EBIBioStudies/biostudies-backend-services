@@ -8,10 +8,10 @@ import org.springframework.web.method.support.HandlerMethodArgumentResolver
 import org.springframework.web.method.support.ModelAndViewContainer
 import javax.servlet.http.HttpServletRequest
 
-private val USER_PATH = ".*/user".toRegex()
+private const val PATH_SEPARATOR = "/"
+private val USER_PATH = ".*${PATH_SEPARATOR}user".toRegex()
 
 class PathDescriptorResolver : HandlerMethodArgumentResolver {
-
     override fun supportsParameter(parameter: MethodParameter) = parameter.parameterType == PathDescriptor::class.java
 
     override fun resolveArgument(
@@ -23,10 +23,13 @@ class PathDescriptorResolver : HandlerMethodArgumentResolver {
         val path = getServletRequest(webRequest)
             .requestURL.toString()
             .remove(USER_PATH)
+            .removePrefix(PATH_SEPARATOR)
+
         return PathDescriptor(path)
     }
 
-    private fun getServletRequest(webRequest: NativeWebRequest) = webRequest.getNativeRequest(HttpServletRequest::class.java)!!
+    private fun getServletRequest(webRequest: NativeWebRequest) =
+        webRequest.getNativeRequest(HttpServletRequest::class.java)!!
 }
 
 class PathDescriptor(val path: String)
