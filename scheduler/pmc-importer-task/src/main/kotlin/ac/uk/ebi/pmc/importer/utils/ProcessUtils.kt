@@ -22,5 +22,6 @@ suspend fun <T> retry(
         delay(currentDelay)
         currentDelay = (currentDelay * factor).toLong().coerceAtMost(maxDelay)
     }
+
     return block()
 }

@@ -52,9 +52,7 @@ class WebConfig {
     }
 
     private class RoundRobinIterable(private val source: List<String>) : Iterable<String> {
-
         override fun iterator(): Iterator<String> {
-
             return object : Iterator<String> {
 
                 private var index = 0

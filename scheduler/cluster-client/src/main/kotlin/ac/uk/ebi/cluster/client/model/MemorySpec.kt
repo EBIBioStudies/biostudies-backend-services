@@ -2,9 +2,8 @@ package ac.uk.ebi.cluster.client.model
 
 data class MemorySpec(val value: Int, val measure: CapacityMeasure) {
 
-    override fun toString(): String {
-        return (value * measure.multiplier).toString()
-    }
+    override fun toString() = (value * measure.multiplier).toString()
+
 
     companion object {
         val ONE_GB = MemorySpec(1, CapacityMeasure.GB)
