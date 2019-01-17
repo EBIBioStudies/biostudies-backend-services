@@ -13,3 +13,9 @@ include("submitter")
 include("commons-bio")
 include("commons-test")
 include("submission-webapp")
+
+include("scheduler:cluster-client")
+include("scheduler:pmc-importer")
+include("scheduler:scheduler")
+include("scheduler:task-properties")
+

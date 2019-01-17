@@ -1,0 +1,18 @@
+plugins {
+    id("org.jetbrains.kotlin.jvm")
+}
+
+dependencies {
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+
+    compile project(":commons-util")
+    compile("com.jcraft:jsch:0.1.55")
+
+    testCompile("org.assertj:assertj-core:3.11.0")
+    testCompile("org.junit.jupiter:junit-jupiter-api:$junitVersion")
+    testCompile("org.junit.jupiter:junit-jupiter-params:$junitVersion")
+}
+
+repositories {
+    mavenCentral()
+}
