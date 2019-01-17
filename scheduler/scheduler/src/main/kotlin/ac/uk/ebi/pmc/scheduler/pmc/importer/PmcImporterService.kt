@@ -11,6 +11,7 @@ import mu.KotlinLogging
 import java.io.File
 
 private val logger = KotlinLogging.logger {}
+private const val PARALLELISM = 5
 
 class PmcImporterService(
     private val clusterOperations: ClusterOperations,
@@ -32,6 +33,6 @@ class PmcImporterService(
         return jobTry.fold({ throw it }, { it })
     }
 
-    fun importGzipFolder(files: List<File>) = files.chunked(2)
+    fun importGzipFolder(files: List<File>) = files.chunked(PARALLELISM)
         .fold(emptyList<Job>()) { dependencyJobs, chunk -> chunk.map { importGzipFile(it, dependencyJobs) } }
 }

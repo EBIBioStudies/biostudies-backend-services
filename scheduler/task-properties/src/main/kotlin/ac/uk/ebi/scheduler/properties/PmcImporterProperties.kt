@@ -5,7 +5,7 @@ import ac.uk.ebi.scheduler.common.BaseAppProperty
 class PmcImporterProperties() : BaseAppProperty {
 
     override fun asJavaCommand(location: String): String {
-        return """java -jar $location/pmc-importer.jar \
+        return """java -jar $location/pmc-importer-task.jar \
             --app.data.path=$path \
             --app.data.mode=$mode \
             --app.data.temp=$temp \
