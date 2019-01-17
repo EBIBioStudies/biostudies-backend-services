@@ -1,0 +1,12 @@
+app:
+  apps-folder: # Folder where app jar can be located
+
+  ssh:
+    user: # ssh user
+    password: # ssh user password
+    server:  ## ssh sever (to submit jobs from)
+
+pmc:
+  import:
+    temp:
+    mongoUri:
