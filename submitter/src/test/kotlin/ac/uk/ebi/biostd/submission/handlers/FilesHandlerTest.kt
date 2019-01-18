@@ -25,11 +25,12 @@ import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS
 import org.junit.jupiter.api.extension.ExtendWith
 import java.io.File
-import java.nio.file.Files
 import java.nio.file.Paths
 import ebi.ac.uk.model.File as SubmissionFile
 
-const val TEST_FILE = "file.txt"
+const val TEST_FILE_1 = "file.txt"
+const val TEST_FILE_2 = "file2.txt"
+const val TEST_FOLDER = "folder1"
 const val NON_EXISTING_FILE = "GhostFile.txt"
 const val JSON_SUBMISSION = "{ \"accNo\": \"$ACC_NO\" }"
 const val XML_SUBMISSION = "<submission accNo=\"$ACC_NO\"></submission>"
@@ -46,13 +47,16 @@ class FilesHandlerTest(
     private lateinit var testInstance: FilesHandler
 
     private val submissionFolderPath: String = "${temporaryFolder.root.absolutePath}/$ACC_NO"
-    private val testSubFilePath: String = "$submissionFolderPath/$TEST_FILE"
+    private val testSubFile1Path: String = "$submissionFolderPath/$TEST_FILE_1"
+    private val testSubFile2Path: String = "$submissionFolderPath/$TEST_FOLDER/$TEST_FILE_2"
 
     @BeforeAll
     fun beforeAll() {
         temporaryFolder.createDirectory(ACC_NO)
         temporaryFolder.createDirectory(USER_SECRET_KEY)
-        temporaryFolder.createFile("$USER_SECRET_KEY/$TEST_FILE")
+        temporaryFolder.createDirectory("$USER_SECRET_KEY/$TEST_FOLDER")
+        temporaryFolder.createFile("$USER_SECRET_KEY/$TEST_FILE_1")
+        temporaryFolder.createFile("$USER_SECRET_KEY/$TEST_FOLDER/$TEST_FILE_2")
     }
 
     @BeforeEach
@@ -73,7 +77,8 @@ class FilesHandlerTest(
         assertSubmissionFile("$ACC_NO.xml", XML_SUBMISSION)
         assertSubmissionFile("$ACC_NO.json", JSON_SUBMISSION)
 
-        assertThat(Files.exists(Paths.get(testSubFilePath))).isTrue()
+        assertSubmissionFile(TEST_FILE_1, "")
+        assertSubmissionFile("$TEST_FOLDER/$TEST_FILE_2", "")
     }
 
     @Test
@@ -96,7 +101,15 @@ class FilesHandlerTest(
 
     private fun initMockFileResolver() {
         every { mockFolderResolver.getSubmissionFolder(submission) } returns Paths.get(submissionFolderPath)
-        every { mockFolderResolver.getSubFilePath(submissionFolderPath, TEST_FILE) } returns Paths.get(testSubFilePath)
+
+        every {
+            mockFolderResolver.getSubFilePath(submissionFolderPath, TEST_FILE_1)
+        } returns Paths.get(testSubFile1Path)
+
+        every {
+            mockFolderResolver.getSubFilePath(submissionFolderPath, "$TEST_FOLDER/$TEST_FILE_2")
+        } returns Paths.get(testSubFile2Path)
+
         every {
             mockFolderResolver.getUserMagicFolderPath(USER_ID, USER_SECRET_KEY)
         } returns Paths.get("${temporaryFolder.root.absolutePath}/$USER_SECRET_KEY")
@@ -110,7 +123,8 @@ class FilesHandlerTest(
 
     private fun initTestSubmissionFiles() {
         val section = Section()
-        section.addFile(SubmissionFile(TEST_FILE))
+        section.addFile(SubmissionFile(TEST_FILE_1))
+        section.addFile(SubmissionFile("$TEST_FOLDER/$TEST_FILE_2"))
 
         submission.section = section
         submission.relPath = submissionFolderPath

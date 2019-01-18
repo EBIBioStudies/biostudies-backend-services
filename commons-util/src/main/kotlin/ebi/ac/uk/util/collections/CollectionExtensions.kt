@@ -29,6 +29,14 @@ fun <T> merge(anotherList: List<T>, vararg elements: T) = anotherList.toMutableL
 fun <T> List<T>.second() =
     if (this.size > 1) this[1] else throw NoSuchElementException("List does not contain a second element.")
 
+/**
+ * Obtains the third element of the list.
+ *
+ * @throws NoSuchElementException if list size is less than 3.
+ */
+fun <T> List<T>.third() =
+    if (this.size > 2) this[2] else throw NoSuchElementException("List does not contain a third element.")
+
 fun <T> List<T>.findSecond() = if (this.size > 1) Option.just(this[1]) else Option.empty()
 
 fun <T> List<T>.findThird() = if (this.size > 2) Option.just(this[2]) else Option.empty()

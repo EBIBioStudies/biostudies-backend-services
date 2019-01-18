@@ -50,25 +50,51 @@ fun allInOneSubmissionXml() = xml("submission") {
         }
         "files" {
             "file" {
-                "path" { -"LibraryFile1.txt" }
+                "path" { -"DataFile1.txt" }
                 "attributes" {
                     "attribute" {
                         "name" { -"Description" }
-                        "value" { -"Library File 1" }
+                        "value" { -"Data File 1" }
                     }
                 }
             }
             "table" {
                 "file" {
-                    "path" { -"LibraryFile2.txt" }
+                    "path" { -"DataFile2.txt" }
                     "attributes" {
                         "attribute" {
                             "name" { -"Description" }
-                            "value" { -"Library File 2" }
+                            "value" { -"Data File 2" }
                         }
                         "attribute" {
                             "name" { -"Type" }
-                            "value" { -"Lib" }
+                            "value" { -"Data" }
+                        }
+                    }
+                }
+                "file" {
+                    "path" { -"Folder1/DataFile3.txt" }
+                    "attributes" {
+                        "attribute" {
+                            "name" { -"Description" }
+                            "value" { -"Data File 3" }
+                        }
+                        "attribute" {
+                            "name" { -"Type" }
+                            "value" { -"Data" }
+                        }
+                    }
+                }
+                "file" {
+                    "path" { -"Folder1/Folder2/DataFile4.txt" }
+                    "attributes" {
+                        "attribute" {
+                            "name" { -"Description" }
+                            "value" { -"Data File 4" }
+                        }
+                        "attribute" {
+                            "name" { -"Type" }
+                            "value" { -"Data" }
                         }
                     }
                 }

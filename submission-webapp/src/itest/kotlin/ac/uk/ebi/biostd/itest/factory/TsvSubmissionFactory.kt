@@ -26,12 +26,14 @@ fun allInOneSubmissionTsv() = tsv {
     line("Type", "gen")
     line()
 
-    line("File", "LibraryFile1.txt")
-    line("Description", "Library File 1")
+    line("File", "DataFile1.txt")
+    line("Description", "Data File 1")
     line()
 
     line("Files", "Description", "Type")
-    line("LibraryFile2.txt", "Library File 2", "Lib")
+    line("DataFile2.txt", "Data File 2", "Data")
+    line("Folder1/DataFile3.txt", "Data File 3", "Data")
+    line("Folder1/Folder2/DataFile4.txt", "Data File 4", "Data")
     line()
 
     line("Stranded Total RNA-Seq", "SUBSECT-001", "SECT-001")
