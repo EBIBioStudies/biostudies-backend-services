@@ -15,7 +15,7 @@ include("commons-test")
 include("submission-webapp")
 
 include("scheduler:cluster-client")
-include("scheduler:pmc-importer-task")
+include("scheduler:pmc-processor-task")
 include("scheduler:scheduler")
 include("scheduler:task-properties")
 
