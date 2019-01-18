@@ -1,0 +1,6 @@
+app:
+  data:
+    mode: # mode file or folder
+    path: # path to load files
+    temp: # directory to store submission downloaded files
+    mongodb-uri: # database connection string

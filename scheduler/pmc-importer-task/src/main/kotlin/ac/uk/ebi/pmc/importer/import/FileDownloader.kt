@@ -1,0 +1,40 @@
+package ac.uk.ebi.pmc.importer.import
+
+import ac.uk.ebi.pmc.importer.client.PmcApi
+import ac.uk.ebi.pmc.importer.utils.retry
+import ac.uk.ebi.scheduler.properties.PmcImporterProperties
+import arrow.core.Try
+import ebi.ac.uk.model.Submission
+import ebi.ac.uk.model.extensions.allFiles
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
+import org.apache.commons.io.FileUtils
+import java.io.File
+import java.nio.file.Paths
+import ebi.ac.uk.model.File as SubmissionFile
+
+class FileDownloader(
+    private val properties: PmcImporterProperties,
+    private val pmcApi: PmcApi
+) {
+
+    suspend fun downloadFiles(submission: Submission): Try<List<File>> = coroutineScope {
+        Try {
+            return@Try submission.allFiles()
+                .map { retry(times = 3) { async { downloadFile(getPmcId(submission.accNo), it) } } }
+                .awaitAll()
+        }
+    }
+
+    private suspend fun downloadFile(pmcId: String, file: SubmissionFile): File {
+        val targetFolder = Paths.get(properties.temp).resolve(pmcId).toFile()
+        targetFolder.mkdirs()
+
+        val targetFile = targetFolder.resolve(file.path)
+        FileUtils.copyInputStreamToFile(pmcApi.downloadFile(pmcId, file.path).await().byteStream(), targetFile)
+        return targetFile
+    }
+
+    private fun getPmcId(accNo: String) = accNo.removePrefix("S-EPMC")
+}
