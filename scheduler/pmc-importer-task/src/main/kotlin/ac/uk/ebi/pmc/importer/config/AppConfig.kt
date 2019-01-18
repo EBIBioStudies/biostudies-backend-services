@@ -9,13 +9,10 @@ import ac.uk.ebi.pmc.importer.import.FileDownloader
 import ac.uk.ebi.pmc.importer.import.PmcImporter
 import ac.uk.ebi.scheduler.properties.PmcImporterProperties
 import com.mongodb.async.client.MongoClient
-import mu.KotlinLogging
 import org.litote.kmongo.async.KMongo
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-
-private val logger = KotlinLogging.logger {}
 
 @Configuration
 class AppConfig {

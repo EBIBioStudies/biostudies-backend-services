@@ -29,7 +29,7 @@ class PmcImporterService(
             mongodbUri = properties.mongoUri)
 
         val jobTry = clusterOperations.triggerJob(
-            JobSpec(8, MemorySpec.TEN_GB, properties.asJavaCommand(appProperties.appsFolder), jobs))
+            JobSpec(8, MemorySpec.SIXTEEN_GB, properties.asJavaCommand(appProperties.appsFolder), jobs))
         return jobTry.fold({ throw it }, { it })
     }
 

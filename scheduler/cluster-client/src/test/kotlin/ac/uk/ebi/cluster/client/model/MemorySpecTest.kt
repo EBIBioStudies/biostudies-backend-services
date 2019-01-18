@@ -18,12 +18,6 @@ internal class MemorySpecTest {
     }
 
     @Test
-    fun tenGbMemorySpec() {
-        val one = MemorySpec.TEN_GB
-        assertThat(one.toString()).isEqualTo("10240")
-    }
-
-    @Test
     fun sixteenGbMemorySpec() {
         val one = MemorySpec.SIXTEEN_GB
         assertThat(one.toString()).isEqualTo("16384")
