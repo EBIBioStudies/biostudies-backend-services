@@ -12,7 +12,7 @@ import kotlin.system.measureTimeMillis
 
 private val logger = KotlinLogging.logger {}
 
-class BatchPmcImporter(private val pmcImporter: PmcImporter) {
+class PmcBatchImporter(private val pmcImporter: PmcImporter) {
 
     fun importGzipFile(file: File) {
         runBlocking {
