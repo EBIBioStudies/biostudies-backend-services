@@ -18,6 +18,7 @@ class MongoDocService(
     private val dataRepository: MongoRepository,
     private val serializationService: SerializationService
 ) {
+    suspend fun getAllSubmissions() = dataRepository.getAllSubmissions()
 
     suspend fun saveSubmission(submission: Submission, sourceFile: String, files: List<File>) {
         val fileIds = files
