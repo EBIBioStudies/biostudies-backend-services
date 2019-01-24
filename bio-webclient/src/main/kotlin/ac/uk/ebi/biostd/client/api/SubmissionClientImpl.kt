@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.client.submission
+package ac.uk.ebi.biostd.client.api
 
 import ac.uk.ebi.biostd.SerializationService
 import ac.uk.ebi.biostd.client.integration.web.FilesOperations
@@ -9,8 +9,8 @@ import org.springframework.web.client.RestTemplate
 
 internal class SubmissionClientImpl(
     private val serializationService: SerializationService,
-    private val template: RestTemplate
+    private val restTemplate: RestTemplate
 ) : SubmissionClient,
-    FilesOperations by UserFilesClient(template),
-    SubmissionOperations by SubmissionClient(template, serializationService),
-    GroupFilesOperations by GroupFilesClient(template)
+        FilesOperations by UserFilesClient(restTemplate),
+        SubmissionOperations by SubmissionClient(restTemplate, serializationService),
+        GroupFilesOperations by GroupFilesClient(restTemplate)

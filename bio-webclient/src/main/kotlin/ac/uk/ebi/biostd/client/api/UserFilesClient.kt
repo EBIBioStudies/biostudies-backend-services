@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.client.submission
+package ac.uk.ebi.biostd.client.api
 
 import ac.uk.ebi.biostd.client.integration.web.FilesOperations
 import ebi.ac.uk.api.UserFile
