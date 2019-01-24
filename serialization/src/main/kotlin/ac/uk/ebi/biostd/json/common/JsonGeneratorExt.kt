@@ -10,7 +10,11 @@ inline fun JsonGenerator.writeObj(body: JsonGenerator.() -> Unit) {
     writeEndObject()
 }
 
-inline fun <T> JsonGenerator.writeJsonArray(name: Any, values: Collection<T>, function: T.() -> Unit = this::writeObject) {
+inline fun <T> JsonGenerator.writeJsonArray(
+    name: Any,
+    values: Collection<T>,
+    function: T.() -> Unit = this::writeObject
+) {
     if (values.isNotEmpty()) {
         writeArrayFieldStart(name.toString())
         values.forEach(function)

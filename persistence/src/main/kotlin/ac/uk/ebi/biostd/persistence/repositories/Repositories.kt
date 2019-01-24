@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.persistence.model.SecurityToken
 import ac.uk.ebi.biostd.persistence.model.Sequence
 import ac.uk.ebi.biostd.persistence.model.Submission
 import ac.uk.ebi.biostd.persistence.model.User
+import ac.uk.ebi.biostd.persistence.model.UserGroup
 import org.springframework.data.jpa.repository.EntityGraph
 import org.springframework.data.jpa.repository.EntityGraph.EntityGraphType.LOAD
 import org.springframework.data.jpa.repository.JpaRepository
@@ -32,6 +33,13 @@ interface SequenceDataRepository : JpaRepository<Sequence, Long> {
 interface UserDataRepository : JpaRepository<User, Long> {
 
     fun findByLoginOrEmail(login: String, email: String): Optional<User>
+    fun getByEmail(userEmail: String): User
 }
 
 interface TokenDataRepository : JpaRepository<SecurityToken, String>
+
+interface UserGroupDataRepository : JpaRepository<UserGroup, Long> {
+
+    fun findByNameAndUsersId(groupName: String, userId: Long): Optional<UserGroup>
+    fun getByName(groupName: String): UserGroup
+}

@@ -20,7 +20,8 @@ class FolderResolver(private val basePath: Path) {
 
     fun getUserMagicFolderPath(userId: Long, secret: String) = getMagicFolderPath(userId, secret, USER_FOLDER_PREFIX)
 
-    fun getGroupMagicFolderPath(groupId: Long, secret: String) = getMagicFolderPath(groupId, secret, GROUP_FOLDER_PREFIX)
+    fun getGroupMagicFolderPath(groupId: Long, secret: String) =
+        getMagicFolderPath(groupId, secret, GROUP_FOLDER_PREFIX)
 
     private fun getMagicFolderPath(id: Long, secret: String, separator: String): Path {
         val parent = "$basePath/${secret.substring(0, 2)}"

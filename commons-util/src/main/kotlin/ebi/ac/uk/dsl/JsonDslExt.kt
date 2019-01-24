@@ -2,7 +2,8 @@ package ebi.ac.uk.dsl
 
 fun jsonObj(body: JsonObject.() -> Unit) = JsonObject().apply { body() }
 
-fun jsonArray(vararg elements: JsonObject.() -> Unit) = JsonArray(elements.map { JsonObject().apply(it) }.toMutableList())
+fun jsonArray(vararg elements: JsonObject.() -> Unit) =
+    JsonArray(elements.map { JsonObject().apply(it) }.toMutableList())
 fun jsonArray(vararg elements: JsonVal) = JsonArray(elements.toMutableList())
 fun jsonArray(vararg elements: Number) = JsonArray(elements.mapTo(mutableListOf()) { JsonNumber(it) })
 fun jsonArray(vararg elements: String) = JsonArray(elements.mapTo(mutableListOf()) { JsonString(it) })

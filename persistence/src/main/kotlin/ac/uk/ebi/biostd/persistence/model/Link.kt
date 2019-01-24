@@ -35,7 +35,8 @@ class Link(
     @Column
     override var tableIndex = NO_TABLE_INDEX
 
-    constructor(url: String, order: Int, attributes: SortedSet<LinkAttribute>, tableIndex: Int = NO_TABLE_INDEX) : this(url, order) {
+    constructor(url: String, order: Int, attributes: SortedSet<LinkAttribute>, tableIndex: Int = NO_TABLE_INDEX)
+        : this(url, order) {
         this.attributes = attributes
         this.tableIndex = tableIndex
     }
