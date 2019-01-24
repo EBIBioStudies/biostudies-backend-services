@@ -3,6 +3,8 @@ package ac.uk.ebi.pmc.data
 import ac.uk.ebi.pmc.data.docs.ErrorDoc
 import ac.uk.ebi.pmc.data.docs.FileDoc
 import ac.uk.ebi.pmc.data.docs.SubmissionDoc
+import arrow.core.Option
+import arrow.core.toOption
 import com.mongodb.async.client.FindIterable
 import com.mongodb.async.client.MongoClient
 import com.mongodb.client.model.Filters
@@ -43,5 +45,12 @@ class MongoRepository(
         val collection = database.getCollection(FILES_COLLECTION, FileDoc::class.java)
         collection.insertOne(FileDoc(file.name, file.absolutePath, accNo))
         return collection.findOne(Filters.eq("path", file.absolutePath))!!.id
+    }
+
+    suspend fun getSubFiles(ids: List<ObjectId>): MutableList<Option<FileDoc>> {
+        val database = mongoClient.getDatabase(dataBase)
+        val collection = database.getCollection(FILES_COLLECTION, FileDoc::class.java)
+
+        return ids.mapTo(mutableListOf()) { collection.findOne(Filters.eq("_id", it)).toOption() }
     }
 }

@@ -10,6 +10,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import mu.KotlinLogging
 import org.apache.commons.lang3.exception.ExceptionUtils.getStackTrace
+import org.bson.types.ObjectId
 import java.io.File
 
 private val logger = KotlinLogging.logger {}
@@ -19,6 +20,8 @@ class MongoDocService(
     private val serializationService: SerializationService
 ) {
     suspend fun getAllSubmissions() = dataRepository.getAllSubmissions()
+
+    suspend fun getSubFiles(ids: List<ObjectId>) = dataRepository.getSubFiles(ids)
 
     suspend fun saveSubmission(submission: Submission, sourceFile: String, files: List<File>) {
         val fileIds = files
