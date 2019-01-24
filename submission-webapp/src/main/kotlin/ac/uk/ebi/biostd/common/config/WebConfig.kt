@@ -1,8 +1,9 @@
-package ac.uk.ebi.biostd.config
+package ac.uk.ebi.biostd.common.config
 
 import ac.uk.ebi.biostd.SerializationService
-import ac.uk.ebi.biostd.config.SerializationConfig.SerializerConfig
-import ac.uk.ebi.biostd.files.web.PathDescriptorResolver
+import ac.uk.ebi.biostd.common.config.SerializationConfig.SerializerConfig
+import ac.uk.ebi.biostd.files.web.common.GroupPathDescriptorResolver
+import ac.uk.ebi.biostd.files.web.common.UserPathDescriptorResolver
 import ac.uk.ebi.biostd.submission.converters.PagetabConverter
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -18,6 +19,7 @@ class WebConfig : WebMvcConfigurer {
     fun jsonPagetabConverter(serializationService: SerializationService) = PagetabConverter(serializationService)
 
     override fun addArgumentResolvers(argumentResolvers: MutableList<HandlerMethodArgumentResolver>) {
-        argumentResolvers.add(PathDescriptorResolver())
+        argumentResolvers.add(UserPathDescriptorResolver())
+        argumentResolvers.add(GroupPathDescriptorResolver())
     }
 }

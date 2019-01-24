@@ -1,9 +1,11 @@
-package ac.uk.ebi.biostd.config
+package ac.uk.ebi.biostd.common.config
 
+import ac.uk.ebi.biostd.common.property.ApplicationProperties
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
-import ac.uk.ebi.biostd.property.ApplicationProperties
+import ac.uk.ebi.biostd.persistence.repositories.UserGroupDataRepository
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
+import ebi.ac.uk.security.service.GroupService
 import ebi.ac.uk.security.service.SecurityService
 import ebi.ac.uk.security.web.SecurityFilter
 import io.jsonwebtoken.Jwts
@@ -55,4 +57,8 @@ class SecurityBeansConfig(private val properties: ApplicationProperties) {
 
     @Bean
     fun jwtParser() = Jwts.parser()!!
+
+    @Bean
+    fun groupService(userRepository: UserDataRepository, groupRepository: UserGroupDataRepository) =
+        GroupService(groupRepository, userRepository)
 }

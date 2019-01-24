@@ -10,4 +10,7 @@ class SubmissionRepository(
 
     fun findByAccNo(accNo: String) =
         submissionDbMapper.toSubmission(submissionRepository.getByAccNoAndVersionGreaterThan(accNo))
+
+    fun findExtendedByAccNo(accNo: String) =
+        submissionDbMapper.toExtSubmission(submissionRepository.getByAccNoAndVersionGreaterThan(accNo))
 }

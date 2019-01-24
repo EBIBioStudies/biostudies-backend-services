@@ -1,17 +1,10 @@
 package ac.uk.ebi.biostd.persistence.mapping
 
-import ac.uk.ebi.biostd.persistence.model.Attribute as AttributeDb
-import ac.uk.ebi.biostd.persistence.model.AttributeDetail as AttributeDetailDb
-import ac.uk.ebi.biostd.persistence.model.File as FileDb
-import ac.uk.ebi.biostd.persistence.model.Link as LinkDb
 import ac.uk.ebi.biostd.persistence.common.NO_TABLE_INDEX
-import ac.uk.ebi.biostd.persistence.model.Section as SectionDb
-import ac.uk.ebi.biostd.persistence.model.Submission as SubmissionDb
 import ac.uk.ebi.biostd.persistence.model.FileAttribute
 import ac.uk.ebi.biostd.persistence.model.LinkAttribute
 import ac.uk.ebi.biostd.persistence.model.SectionAttribute
 import ac.uk.ebi.biostd.persistence.model.SubmissionAttribute
-import ac.uk.ebi.biostd.persistence.model.User as UserDb
 import ac.uk.ebi.biostd.persistence.repositories.TagsDataRepository
 import arrow.core.Either
 import ebi.ac.uk.base.orFalse
@@ -26,6 +19,13 @@ import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.SectionsTable
 import ebi.ac.uk.model.User
 import java.util.SortedSet
+import ac.uk.ebi.biostd.persistence.model.Attribute as AttributeDb
+import ac.uk.ebi.biostd.persistence.model.AttributeDetail as AttributeDetailDb
+import ac.uk.ebi.biostd.persistence.model.File as FileDb
+import ac.uk.ebi.biostd.persistence.model.Link as LinkDb
+import ac.uk.ebi.biostd.persistence.model.Section as SectionDb
+import ac.uk.ebi.biostd.persistence.model.Submission as SubmissionDb
+import ac.uk.ebi.biostd.persistence.model.User as UserDb
 
 class SubmissionMapper(private val tagsRepository: TagsDataRepository) {
 
@@ -78,7 +78,8 @@ class SubmissionMapper(private val tagsRepository: TagsDataRepository) {
             order = index
         }
 
-    private fun toAccessTag(accessTags: List<String>) = accessTags.mapTo(mutableSetOf()) { tagsRepository.findByName(it) }
+    private fun toAccessTag(accessTags: List<String>) =
+        accessTags.mapTo(mutableSetOf()) { tagsRepository.findByName(it) }
 
     private fun toLink(link: Link, order: Int, tableIndex: Int = NO_TABLE_INDEX) =
         LinkDb(link.url, order, toAttributes(link.attributes, ::LinkAttribute), tableIndex)

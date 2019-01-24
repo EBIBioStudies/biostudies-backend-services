@@ -2,16 +2,15 @@ package ac.uk.ebi.biostd.itest
 
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
-import ac.uk.ebi.biostd.config.PersistenceConfig
-import ac.uk.ebi.biostd.config.SubmitterConfig
+import ac.uk.ebi.biostd.common.config.PersistenceConfig
+import ac.uk.ebi.biostd.common.config.SubmitterConfig
 import ac.uk.ebi.biostd.files.FileConfig
-import ac.uk.ebi.biostd.itest.common.setAppProperty
+import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
 import ac.uk.ebi.biostd.itest.factory.allInOneSubmissionJson
 import ac.uk.ebi.biostd.itest.factory.allInOneSubmissionTsv
 import ac.uk.ebi.biostd.itest.factory.allInOneSubmissionXml
 import ac.uk.ebi.biostd.itest.factory.invalidLinkUrl
 import ac.uk.ebi.biostd.itest.factory.simpleSubmissionTsv
-import ac.uk.ebi.biostd.persistence.service.ExtSubmissionRepository
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
 import arrow.core.Either
 import ebi.ac.uk.asserts.assertThat
@@ -31,7 +30,6 @@ import ebi.ac.uk.util.collections.third
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Nested
@@ -46,26 +44,11 @@ import org.springframework.context.annotation.Import
 import org.springframework.http.HttpStatus
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.web.client.HttpClientErrorException
-import java.nio.file.Files
 import java.nio.file.Paths
-
-const val BASE_PATH_PLACEHOLDER = "{BASE_PATH}"
 
 @ExtendWith(TemporaryFolderExtension::class)
 @TestInstance(PER_CLASS)
-class SubmissionTest(private val tempFolder: TemporaryFolder) {
-    private lateinit var basePath: String
-
-    @BeforeAll
-    fun init() {
-        basePath = tempFolder.root.absolutePath
-        setAppProperty(BASE_PATH_PLACEHOLDER, basePath)
-    }
-
-    @AfterAll
-    fun tearDown() {
-        setAppProperty(basePath, BASE_PATH_PLACEHOLDER)
-    }
+internal class SubmissionTest(private val tempFolder: TemporaryFolder) : BaseIntegrationTest(tempFolder) {
 
     @Nested
     @TestInstance(PER_CLASS)
@@ -79,9 +62,6 @@ class SubmissionTest(private val tempFolder: TemporaryFolder) {
 
         @Autowired
         private lateinit var submissionRepository: SubmissionRepository
-
-        @Autowired
-        private lateinit var extSubmissionRepository: ExtSubmissionRepository
 
         @Autowired
         private lateinit var securityService: SecurityService
@@ -167,14 +147,14 @@ class SubmissionTest(private val tempFolder: TemporaryFolder) {
         }
 
         private fun assertExtSubmission(accNo: String, expectedTitle: String, expectedVersion: Int = 1) {
-            val submission = extSubmissionRepository.findByAccNo(accNo)
+            val submission = submissionRepository.findExtendedByAccNo(accNo)
 
             assertThat(submission.title).isEqualTo(expectedTitle)
             assertThat(submission.version).isEqualTo(expectedVersion)
         }
 
         private fun assertSavedSubmission(accNo: String) {
-            val submission = extSubmissionRepository.findByAccNo(accNo)
+            val submission = submissionRepository.findExtendedByAccNo(accNo)
             assertThat(submission).hasAccNo(accNo)
             assertThat(submission).hasExactly(Attribute("Title", "venous blood, Monocyte"))
 
@@ -277,7 +257,7 @@ class SubmissionTest(private val tempFolder: TemporaryFolder) {
                 assertThat(file.attributes[index]).isEqualTo(attribute)
             }
 
-            assertThat(Files.exists(Paths.get("$submissionFolderPath/$expectedPath"))).isTrue()
+            assertThat(Paths.get("$submissionFolderPath/$expectedPath")).exists()
         }
     }
 }

@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.config
+package ac.uk.ebi.biostd.common.config
 
 import ac.uk.ebi.biostd.persistence.integration.PersistenceContextImpl
 import ac.uk.ebi.biostd.persistence.mapping.SubmissionDbMapper
@@ -6,7 +6,6 @@ import ac.uk.ebi.biostd.persistence.mapping.SubmissionMapper
 import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.SubmissionDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.TagsDataRepository
-import ac.uk.ebi.biostd.persistence.service.ExtSubmissionRepository
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -21,9 +20,6 @@ class PersistenceConfig(
 ) {
     @Bean
     fun submissionRepository() = SubmissionRepository(submissionDataRepository)
-
-    @Bean
-    fun extSubmissionRepository() = ExtSubmissionRepository(submissionDataRepository, submissionDbMapper())
 
     @Bean
     fun submissionDbMapper() = SubmissionDbMapper()

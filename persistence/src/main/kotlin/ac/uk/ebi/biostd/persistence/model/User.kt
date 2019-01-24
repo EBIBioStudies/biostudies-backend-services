@@ -2,9 +2,11 @@ package ac.uk.ebi.biostd.persistence.model
 
 import javax.persistence.Column
 import javax.persistence.Entity
+import javax.persistence.FetchType
 import javax.persistence.GeneratedValue
 import javax.persistence.Id
 import javax.persistence.Lob
+import javax.persistence.ManyToMany
 
 @Entity
 class User(
@@ -32,4 +34,9 @@ class User(
 
     @Lob
     var passwordDigest: ByteArray = ByteArray(0)
+
+    @ManyToMany(mappedBy = "users", fetch = FetchType.EAGER)
+    val groups: MutableSet<UserGroup> = mutableSetOf()
+
+    fun addGroup(userGroup: UserGroup) = groups.add(userGroup)
 }

@@ -69,7 +69,9 @@ abstract class Row<T>(val original: T) {
 
     fun headers() = attributes.map { Header(it.name, it.nameAttrs.map(AttributeDetail::name)) }
 
-    fun values(headers: List<Header>) = headers.map { findAttrByName(it.name) }.flatMap { listOf(it.value) + it.valueAttrs.map(AttributeDetail::value) }
+    fun values(headers: List<Header>) =
+        headers.map { findAttrByName(it.name) }
+            .flatMap { listOf(it.value) + it.valueAttrs.map(AttributeDetail::value) }
 
     private fun findAttrByName(name: String) = this.attributes.firstOrNull { it.name == name } ?: Attribute.EMPTY_ATTR
 }

@@ -1,10 +1,10 @@
-package ac.uk.ebi.biostd.config
+package ac.uk.ebi.biostd.common.config
 
 import ac.uk.ebi.biostd.SerializationService
-import ac.uk.ebi.biostd.config.SubmitterConfig.FilesHandlerConfig
-import ac.uk.ebi.biostd.config.SubmitterConfig.ProcessorConfig
-import ac.uk.ebi.biostd.config.SubmitterConfig.ValidatorConfig
-import ac.uk.ebi.biostd.property.ApplicationProperties
+import ac.uk.ebi.biostd.common.config.SubmitterConfig.FilesHandlerConfig
+import ac.uk.ebi.biostd.common.config.SubmitterConfig.ProcessorConfig
+import ac.uk.ebi.biostd.common.config.SubmitterConfig.ValidatorConfig
+import ac.uk.ebi.biostd.common.property.ApplicationProperties
 import ac.uk.ebi.biostd.submission.SubmissionSubmitter
 import ac.uk.ebi.biostd.submission.handlers.FilesHandler
 import ac.uk.ebi.biostd.submission.processors.AccNoProcessor

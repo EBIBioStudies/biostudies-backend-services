@@ -10,7 +10,11 @@ private const val NO_FOUND = -1
  */
 fun <T : Any> List<T>.split(predicate: (T) -> Boolean) = split(LinkedList(), this, predicate)
 
-private tailrec fun <T : Any> split(result: MutableList<List<T>>, input: List<T>, predicate: (T) -> Boolean): List<List<T>> {
+private tailrec fun <T : Any> split(
+    result: MutableList<List<T>>,
+    input: List<T>,
+    predicate: (T) -> Boolean
+): List<List<T>> {
     val index = input.indexOfFirst(predicate)
     val head = input.slice(0 until index)
     val tail = input.slice(index + 1 until input.size)
@@ -22,3 +26,5 @@ private tailrec fun <T : Any> split(result: MutableList<List<T>>, input: List<T>
         else -> split(result.apply { add(head) }, tail, predicate)
     }
 }
+
+fun <T> List<T>?.orEmpty() = this ?: emptyList()
