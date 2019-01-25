@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.persistence.model
 
-import ac.uk.ebi.biostd.persistence.model.Section as SectionDb
 import java.util.SortedSet
 import javax.persistence.CascadeType
 import javax.persistence.Column
@@ -18,6 +17,7 @@ import javax.persistence.OneToMany
 import javax.persistence.OneToOne
 import javax.persistence.OrderBy
 import javax.persistence.Table
+import ac.uk.ebi.biostd.persistence.model.Section as SectionDb
 
 internal const val FULL_DATA_GRAPH = "Submission.fullData"
 internal const val ATTRS = "attributes"
@@ -32,10 +32,24 @@ typealias Graph = NamedSubgraph
 @NamedEntityGraph(name = FULL_DATA_GRAPH,
     attributeNodes = [Node(value = "rootSection", subgraph = "root"), Node("accessTags"), Node(ATTRS), Node("owner")],
     subgraphs = [
-        Graph(name = "root", attributeNodes = [Node(LINKS, subgraph = "attrs"), Node(ATTRS), Node(FILES, subgraph = "attrs"), Node(SECTS, subgraph = "l1")]),
-        Graph(name = "l1", attributeNodes = [Node(LINKS, subgraph = "attrs"), Node(ATTRS), Node(FILES, subgraph = "attrs"), Node(SECTS, subgraph = "l2")]),
-        Graph(name = "l2", attributeNodes = [Node(LINKS, subgraph = "attrs"), Node(ATTRS), Node(FILES, subgraph = "attrs"), Node(SECTS, subgraph = "l3")]),
-        Graph(name = "l3", attributeNodes = [Node(LINKS, subgraph = "attrs"), Node(ATTRS), Node(FILES, subgraph = "attrs")]),
+        Graph(name = "root", attributeNodes = [
+            Node(LINKS, subgraph = "attrs"),
+            Node(ATTRS),
+            Node(FILES, subgraph = "attrs"),
+            Node(SECTS, subgraph = "l1")]),
+        Graph(name = "l1", attributeNodes = [
+            Node(LINKS, subgraph = "attrs"),
+            Node(ATTRS), Node(FILES, subgraph = "attrs"),
+            Node(SECTS, subgraph = "l2")]),
+        Graph(name = "l2", attributeNodes = [
+            Node(LINKS, subgraph = "attrs"),
+            Node(ATTRS),
+            Node(FILES, subgraph = "attrs"),
+            Node(SECTS, subgraph = "l3")]),
+        Graph(name = "l3", attributeNodes = [
+            Node(LINKS, subgraph = "attrs"),
+            Node(ATTRS),
+            Node(FILES, subgraph = "attrs")]),
         Graph(name = "attrs", attributeNodes = [Node(ATTRS)])
     ])
 @Table(name = "Submission")

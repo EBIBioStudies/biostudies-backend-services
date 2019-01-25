@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.property
+package ac.uk.ebi.biostd.common.property
 
 import org.springframework.boot.context.properties.ConfigurationProperties
 

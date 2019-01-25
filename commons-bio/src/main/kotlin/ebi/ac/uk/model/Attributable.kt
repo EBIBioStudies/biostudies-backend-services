@@ -19,7 +19,8 @@ open class Attributable() {
 
     fun find(attr: Any) = attributesMap[attr.toString()]?.value
 
-    operator fun set(attr: Any, value: Any) = attributesMap.set(attr.toString(), Attribute(attr.toString(), value.toString()))
+    operator fun set(attr: Any, value: Any) =
+        attributesMap.set(attr.toString(), Attribute(attr.toString(), value.toString()))
 
     fun addAttribute(attr: Attribute) = attributesMap.set(attr.name, attr)
 }

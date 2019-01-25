@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.client.integration.web
 
 import ac.uk.ebi.biostd.SerializationService
-import ac.uk.ebi.biostd.client.submission.SubmissionClientImpl
+import ac.uk.ebi.biostd.client.api.SubmissionClientImpl
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.util.DefaultUriBuilderFactory
 

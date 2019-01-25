@@ -9,7 +9,11 @@ const val HEADER_NAME = "X-Session-Token"
 
 class TokenInterceptor(private val token: String) : ClientHttpRequestInterceptor {
 
-    override fun intercept(request: HttpRequest, body: ByteArray, execution: ClientHttpRequestExecution): ClientHttpResponse {
+    override fun intercept(
+        request: HttpRequest,
+        body: ByteArray,
+        execution: ClientHttpRequestExecution
+    ): ClientHttpResponse {
         request.headers.set(HEADER_NAME, token)
         return execution.execute(request, body)
     }

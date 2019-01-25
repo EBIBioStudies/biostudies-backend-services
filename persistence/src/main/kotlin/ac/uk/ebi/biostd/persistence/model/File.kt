@@ -32,7 +32,8 @@ class File(
     @OrderBy("order ASC")
     var attributes: SortedSet<FileAttribute> = sortedSetOf()
 
-    constructor(name: String, order: Int, attributes: SortedSet<FileAttribute>, tableIndex: Int = NO_TABLE_INDEX) : this(name, order) {
+    constructor(name: String, order: Int, attributes: SortedSet<FileAttribute>, tableIndex: Int = NO_TABLE_INDEX)
+        : this(name, order) {
         this.attributes = attributes
         this.tableIndex = tableIndex
     }
