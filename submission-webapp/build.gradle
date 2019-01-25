@@ -61,3 +61,8 @@ task itest(type: Test, dependsOn: []) {
     testClassesDirs = sourceSets.itest.output.classesDirs
     classpath = sourceSets.itest.runtimeClasspath
 }
+
+task setUpDatabase(type: Exec) {
+    workingDir './src/main/resources/setup'
+    commandLine './setUpDatabase.sh'
+}
