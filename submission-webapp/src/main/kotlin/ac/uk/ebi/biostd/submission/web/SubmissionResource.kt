@@ -1,9 +1,13 @@
 package ac.uk.ebi.biostd.submission.web
 
-import ac.uk.ebi.biostd.SerializationService
 import ac.uk.ebi.biostd.submission.service.SubmissionService
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.User
+import ebi.ac.uk.model.constants.JSON_TYPE
+import ebi.ac.uk.model.constants.SUB_TYPE_HEADER
+import ebi.ac.uk.model.constants.TSV_TYPE
+import ebi.ac.uk.model.constants.XML_TYPE
+import org.springframework.http.HttpHeaders
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.GetMapping
@@ -18,28 +22,23 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/submissions")
 @PreAuthorize("isAuthenticated()")
 class SubmissionResource(
-    private val submissionService: SubmissionService,
-    private val serializationService: SerializationService
-) {
+        private val submissionService: SubmissionService) {
 
-    @GetMapping("/{accNo}.json", produces = ["application/json; charset=utf-8"])
+    @GetMapping("/{accNo}.json",
+            produces = [JSON_TYPE],
+            headers = ["${HttpHeaders.CONTENT_TYPE}=$JSON_TYPE", "$SUB_TYPE_HEADER=$JSON_TYPE"])
     @ResponseBody
-    fun asJson(@PathVariable accNo: String): String {
-        return submissionService.getSubmissionAsJson(accNo)
-    }
+    fun asJson(@PathVariable accNo: String) = submissionService.getAsJson(accNo)
 
-    @GetMapping("/{accNo}.xml", produces = ["application/xml; charset=utf-8"])
-    fun asXml(@PathVariable accNo: String): String {
-        return submissionService.getSubmissionAsXml(accNo)
-    }
 
-    @GetMapping("/{accNo}.tsv", produces = ["text/plain; charset=utf-8"])
-    fun asTsv(@PathVariable accNo: String): String {
-        return submissionService.getSubmissionAsTsv(accNo)
-    }
+    @GetMapping("/{accNo}.xml", produces = [XML_TYPE])
+    fun asXml(@PathVariable accNo: String) = submissionService.getAsXml(accNo)
+
+    @GetMapping("/{accNo}.tsv", produces = [TSV_TYPE])
+    fun asTsv(@PathVariable accNo: String) = submissionService.getAsTsv(accNo)
 
     @PostMapping
     @ResponseBody
-    fun submit(@RequestBody submission: Submission, @AuthenticationPrincipal user: User) =
-        submissionService.submitSubmission(submission, user)
+    fun submit(@AuthenticationPrincipal user: User, @RequestBody submission: Submission) =
+            submissionService.submit(submission, user)
 }

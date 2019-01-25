@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.submission
 
 import ac.uk.ebi.biostd.submission.handlers.FilesHandler
+import ac.uk.ebi.biostd.submission.model.ResourceFile
 import ac.uk.ebi.biostd.submission.processors.SubmissionProcessor
 import ac.uk.ebi.biostd.submission.validators.SubmissionValidator
 import ebi.ac.uk.model.ExtendedSubmission
@@ -12,11 +13,14 @@ class SubmissionSubmitter(
     private val processors: List<SubmissionProcessor>,
     private val filesHandler: FilesHandler
 ) {
-    fun submit(submission: ExtendedSubmission, persistenceContext: PersistenceContext): Submission {
-        validators.forEach { validator -> validator.validate(submission, persistenceContext) }
-        processors.forEach { processor -> processor.process(submission, persistenceContext) }
-        filesHandler.processFiles(submission)
-        persistenceContext.saveSubmission(submission)
+    fun submit(
+            submission: ExtendedSubmission,
+            files: List<ResourceFile> = emptyList(),
+            context: PersistenceContext): Submission {
+        validators.forEach { validator -> validator.validate(submission, context) }
+        processors.forEach { processor -> processor.process(submission, context) }
+        filesHandler.processFiles(submission, files)
+        context.saveSubmission(submission)
         return submission
     }
 }

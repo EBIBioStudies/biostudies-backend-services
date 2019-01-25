@@ -19,8 +19,8 @@ const val VALUE_PATH_DIGITS = 3
  */
 class AccNoProcessor(private val patternExtractor: PatternProcessor = PatternProcessor()) : SubmissionProcessor {
 
-    override fun process(submission: ExtendedSubmission, persistenceContext: PersistenceContext) {
-        val accNo = getAccNo(submission, persistenceContext)
+    override fun process(submission: ExtendedSubmission, context: PersistenceContext) {
+        val accNo = getAccNo(submission, context)
 
         submission.accNo = accNo.toString()
         submission.relPath = getRelPath(accNo)

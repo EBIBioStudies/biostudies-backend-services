@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.submission.service
 import ac.uk.ebi.biostd.json.JsonSerializer
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
 import ac.uk.ebi.biostd.submission.SubmissionSubmitter
+import ac.uk.ebi.biostd.submission.model.ResourceFile
 import ac.uk.ebi.biostd.tsv.serialization.TsvToStringSerializer
 import ac.uk.ebi.biostd.xml.XmlSerializer
 import ebi.ac.uk.model.ExtendedSubmission
@@ -19,23 +20,26 @@ class SubmissionService(
     private val submitter: SubmissionSubmitter
 ) {
 
-    fun getSubmissionAsJson(accNo: String): String {
+    fun getAsJson(accNo: String): String {
         val submission = submissionRepository.findByAccNo(accNo)
         return jsonSerializer.serialize(submission)
     }
 
-    fun getSubmissionAsXml(accNo: String): String {
+    fun getAsXml(accNo: String): String {
         val submission = submissionRepository.findByAccNo(accNo)
         return xmlSerializer.serialize(submission)
     }
 
-    fun getSubmissionAsTsv(accNo: String): String {
+    fun getAsTsv(accNo: String): String {
         val submission = submissionRepository.findByAccNo(accNo)
         return tsvSerializer.serialize(submission)
     }
 
-    fun submitSubmission(submission: Submission, user: User): Submission {
+    fun submit(
+            submission: Submission,
+            user: User,
+            files: List<ResourceFile> = emptyList()): Submission {
         val extendedSubmission = ExtendedSubmission(submission, user)
-        return submitter.submit(extendedSubmission, persistenceContext)
+        return submitter.submit(extendedSubmission, files, persistenceContext)
     }
 }

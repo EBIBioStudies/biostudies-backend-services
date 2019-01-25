@@ -4,6 +4,10 @@ import ac.uk.ebi.biostd.SerializationService
 import ac.uk.ebi.biostd.SubFormat
 import ebi.ac.uk.io.asString
 import ebi.ac.uk.model.Submission
+import ebi.ac.uk.model.constants.JSON_TYPE
+import ebi.ac.uk.model.constants.SUB_TYPE_HEADER
+import ebi.ac.uk.model.constants.TSV_TYPE
+import ebi.ac.uk.model.constants.XML_TYPE
 import org.springframework.http.HttpInputMessage
 import org.springframework.http.HttpOutputMessage
 import org.springframework.http.MediaType
@@ -22,18 +26,20 @@ class PagetabConverter(private val serializerService: SerializationService) : Ht
     override fun getSupportedMediaTypes() = listOf(APPLICATION_JSON, TEXT_PLAIN, TEXT_XML)
 
     override fun write(submission: Submission, contentType: MediaType?, outputMessage: HttpOutputMessage) =
-        outputMessage.body.write(serializerService.serializeSubmission(submission, asFormat(contentType)).toByteArray())
+            outputMessage.body.write(serializerService.serialize(submission, asFormat(contentType)).toByteArray())
 
-    override fun read(clazz: Class<out Submission>, inputMessage: HttpInputMessage) =
-        serializerService.deserializeSubmission(inputMessage.body.asString(), asFormat(inputMessage.headers.accept))
+    override fun read(clazz: Class<out Submission>, inputMessage: HttpInputMessage) = serializerService.deserialize(
+            inputMessage.body.asString(),
+            asFormat(inputMessage.headers[SUB_TYPE_HEADER].orEmpty()))
 
-    private fun asFormat(mediaType: List<MediaType>) =
-        when {
-            mediaType.contains(MediaType.TEXT_PLAIN) -> SubFormat.TSV
-            mediaType.contains(MediaType.TEXT_XML) -> SubFormat.XML
-            mediaType.contains(MediaType.APPLICATION_JSON) -> SubFormat.JSON
+    private fun asFormat(list: List<String>): SubFormat {
+        return when {
+            list.contains(JSON_TYPE) -> SubFormat.JSON
+            list.contains(TSV_TYPE) -> SubFormat.TSV
+            list.contains(XML_TYPE) -> SubFormat.XML
             else -> SubFormat.JSON
         }
+    }
 
     private fun asFormat(mediaType: MediaType?) =
         when (mediaType) {
@@ -43,3 +49,5 @@ class PagetabConverter(private val serializerService: SerializationService) : Ht
             else -> SubFormat.JSON
         }
 }
+
+

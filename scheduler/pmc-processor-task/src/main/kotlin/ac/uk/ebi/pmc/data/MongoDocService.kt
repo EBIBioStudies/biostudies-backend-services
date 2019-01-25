@@ -34,5 +34,5 @@ class MongoDocService(
         dataRepository.save(ErrorDoc(submission.accNo, asJson(submission), sourceFile, getStackTrace(throwable)))
     }
 
-    private fun asJson(submission: Submission) = serializationService.serializeSubmission(submission, SubFormat.JSON)
+    private fun asJson(submission: Submission) = serializationService.serialize(submission, SubFormat.JSON)
 }

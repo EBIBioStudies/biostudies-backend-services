@@ -71,7 +71,7 @@ class FilesHandlerTest(
 
     @Test
     fun `process submission files`() {
-        testInstance.processFiles(submission)
+        testInstance.processFiles(submission, emptyList())
 
         assertSubmissionFile("$ACC_NO.tsv", TSV_SUBMISSION)
         assertSubmissionFile("$ACC_NO.xml", XML_SUBMISSION)
@@ -86,7 +86,7 @@ class FilesHandlerTest(
         val nonExistingFile = SubmissionFile(NON_EXISTING_FILE)
         submission.section.addFile(nonExistingFile)
 
-        val exception = catchThrowable { testInstance.processFiles(submission) }
+        val exception = catchThrowable { testInstance.processFiles(submission, emptyList()) }
         assertThat(exception).isInstanceOf(InvalidFilesException::class.java)
         assertThat(exception).hasMessage(INVALID_FILES_ERROR_MSG)
         assertThat((exception as InvalidFilesException).invalidFiles).hasSize(1).contains(nonExistingFile)
@@ -116,9 +116,9 @@ class FilesHandlerTest(
     }
 
     private fun initMockSerializationService() {
-        every { mockSerializationService.serializeSubmission(submission, SubFormat.JSON) } returns JSON_SUBMISSION
-        every { mockSerializationService.serializeSubmission(submission, SubFormat.XML) } returns XML_SUBMISSION
-        every { mockSerializationService.serializeSubmission(submission, SubFormat.TSV) } returns TSV_SUBMISSION
+        every { mockSerializationService.serialize(submission, SubFormat.JSON) } returns JSON_SUBMISSION
+        every { mockSerializationService.serialize(submission, SubFormat.XML) } returns XML_SUBMISSION
+        every { mockSerializationService.serialize(submission, SubFormat.TSV) } returns TSV_SUBMISSION
     }
 
     private fun initTestSubmissionFiles() {
