@@ -8,6 +8,7 @@ import ac.uk.ebi.biostd.client.integration.web.SubmissionOperations
 import ebi.ac.uk.model.Submission
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
+import org.springframework.http.MediaType
 import org.springframework.web.client.RestTemplate
 
 private const val SUBMISSIONS_URL = "/submissions"
@@ -31,7 +32,7 @@ internal class SubmissionClient(
     private fun createHeaders(format: SubmissionFormat): HttpHeaders {
         val headers = HttpHeaders()
         headers.contentType = format.mediaType
-        headers.accept = listOf(format.mediaType)
+        headers.accept = listOf(format.mediaType, MediaType.APPLICATION_JSON)
         headers.setSubmissionType(format.mediaType)
         return headers
     }

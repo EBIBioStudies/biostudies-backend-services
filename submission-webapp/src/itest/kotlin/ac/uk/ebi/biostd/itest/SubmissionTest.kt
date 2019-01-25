@@ -141,7 +141,8 @@ internal class SubmissionTest(private val tempFolder: TemporaryFolder) : BaseInt
 
         @Test
         fun `submit with invalid link Url`() {
-            val exception = assertThrows(HttpClientErrorException::class.java) { webClient.submitSingle(invalidLinkUrl().toString(), SubmissionFormat.TSV) }
+            val exception = assertThrows(HttpClientErrorException::class.java)
+            { webClient.submitSingle(invalidLinkUrl().toString(), SubmissionFormat.TSV) }
 
             assertThat(exception.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
         }

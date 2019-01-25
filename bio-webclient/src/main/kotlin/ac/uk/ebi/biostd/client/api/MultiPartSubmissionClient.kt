@@ -43,7 +43,7 @@ internal class MultiPartSubmissionClient(
     private fun createHeaders(format: SubmissionFormat): HttpHeaders {
         val headers = HttpHeaders()
         headers.contentType = MediaType.MULTIPART_FORM_DATA
-        headers.accept = listOf(format.mediaType)
+        headers.accept = listOf(format.mediaType, MediaType.APPLICATION_JSON)
         headers.setSubmissionType(format.mediaType)
         return headers
     }
