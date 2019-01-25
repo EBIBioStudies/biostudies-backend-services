@@ -20,25 +20,26 @@ class SubmissionService(
     private val submitter: SubmissionSubmitter
 ) {
 
-    fun getAsJson(accNo: String): String {
+    fun getSubmissionAsJson(accNo: String): String {
         val submission = submissionRepository.findByAccNo(accNo)
         return jsonSerializer.serialize(submission)
     }
 
-    fun getAsXml(accNo: String): String {
+    fun getSubmissionAsXml(accNo: String): String {
         val submission = submissionRepository.findByAccNo(accNo)
         return xmlSerializer.serialize(submission)
     }
 
-    fun getAsTsv(accNo: String): String {
+    fun getSubmissionAsTsv(accNo: String): String {
         val submission = submissionRepository.findByAccNo(accNo)
         return tsvSerializer.serialize(submission)
     }
 
     fun submit(
-            submission: Submission,
-            user: User,
-            files: List<ResourceFile> = emptyList()): Submission {
+        submission: Submission,
+        user: User,
+        files: List<ResourceFile> = emptyList()
+    ): Submission {
         val extendedSubmission = ExtendedSubmission(submission, user)
         return submitter.submit(extendedSubmission, files, persistenceContext)
     }

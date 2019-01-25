@@ -14,9 +14,10 @@ class SubmissionSubmitter(
     private val filesHandler: FilesHandler
 ) {
     fun submit(
-            submission: ExtendedSubmission,
-            files: List<ResourceFile> = emptyList(),
-            context: PersistenceContext): Submission {
+        submission: ExtendedSubmission,
+        files: List<ResourceFile> = emptyList(),
+        context: PersistenceContext
+    ): Submission {
         validators.forEach { validator -> validator.validate(submission, context) }
         processors.forEach { processor -> processor.process(submission, context) }
         filesHandler.processFiles(submission, files)

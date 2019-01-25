@@ -116,9 +116,9 @@ class FilesHandlerTest(
     }
 
     private fun initMockSerializationService() {
-        every { mockSerializationService.serialize(submission, SubFormat.JSON) } returns JSON_SUBMISSION
-        every { mockSerializationService.serialize(submission, SubFormat.XML) } returns XML_SUBMISSION
-        every { mockSerializationService.serialize(submission, SubFormat.TSV) } returns TSV_SUBMISSION
+        every { mockSerializationService.serializeSubmission(submission, SubFormat.JSON) } returns JSON_SUBMISSION
+        every { mockSerializationService.serializeSubmission(submission, SubFormat.XML) } returns XML_SUBMISSION
+        every { mockSerializationService.serializeSubmission(submission, SubFormat.TSV) } returns TSV_SUBMISSION
     }
 
     private fun initTestSubmissionFiles() {

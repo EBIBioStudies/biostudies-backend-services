@@ -22,20 +22,20 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/submissions")
 @PreAuthorize("isAuthenticated()")
 class SubmissionResource(
-        private val submissionService: SubmissionService) {
+    private val submissionService: SubmissionService
+) {
 
     @GetMapping("/{accNo}.json",
             produces = [JSON_TYPE],
             headers = ["${HttpHeaders.CONTENT_TYPE}=$JSON_TYPE", "$SUB_TYPE_HEADER=$JSON_TYPE"])
     @ResponseBody
-    fun asJson(@PathVariable accNo: String) = submissionService.getAsJson(accNo)
-
+    fun asJson(@PathVariable accNo: String) = submissionService.getSubmissionAsJson(accNo)
 
     @GetMapping("/{accNo}.xml", produces = [XML_TYPE])
-    fun asXml(@PathVariable accNo: String) = submissionService.getAsXml(accNo)
+    fun asXml(@PathVariable accNo: String) = submissionService.getSubmissionAsXml(accNo)
 
     @GetMapping("/{accNo}.tsv", produces = [TSV_TYPE])
-    fun asTsv(@PathVariable accNo: String) = submissionService.getAsTsv(accNo)
+    fun asTsv(@PathVariable accNo: String) = submissionService.getSubmissionAsTsv(accNo)
 
     @PostMapping
     @ResponseBody

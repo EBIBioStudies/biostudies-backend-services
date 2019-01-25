@@ -26,9 +26,9 @@ class PagetabConverter(private val serializerService: SerializationService) : Ht
     override fun getSupportedMediaTypes() = listOf(APPLICATION_JSON, TEXT_PLAIN, TEXT_XML)
 
     override fun write(submission: Submission, contentType: MediaType?, outputMessage: HttpOutputMessage) =
-            outputMessage.body.write(serializerService.serialize(submission, asFormat(contentType)).toByteArray())
+            outputMessage.body.write(serializerService.serializeSubmission(submission, asFormat(contentType)).toByteArray())
 
-    override fun read(clazz: Class<out Submission>, inputMessage: HttpInputMessage) = serializerService.deserialize(
+    override fun read(clazz: Class<out Submission>, inputMessage: HttpInputMessage) = serializerService.deserializeSubmission(
             inputMessage.body.asString(),
             asFormat(inputMessage.headers[SUB_TYPE_HEADER].orEmpty()))
 
@@ -49,5 +49,3 @@ class PagetabConverter(private val serializerService: SerializationService) : Ht
             else -> SubFormat.JSON
         }
 }
-
-

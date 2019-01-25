@@ -1,6 +1,6 @@
 app:
   data:
-    mode: #file
-    path: #/home/jcamilorada/Desktop/PMC/bs-440001-450000-0.txt
-    temp: #/home/jcamilorada/Desktop/PMC/Temp
-    mongodb-uri: #mongodb://eubioimag:eNZJYfskIdw@mongodb-hx-eubioimagdev-001.ebi.ac.uk:27017,mongodb-hx-eubioimagdev-001.ebi.ac.uk:27017/eubioimag?replicaSet=eubioimagdevrs026&authSource=admin&waitQueueMultiple=10
+    mode: # mode file or folder
+    path: # path to load files
+    temp: # directory to store submission downloaded files
+    mongodb-uri: # database connection string

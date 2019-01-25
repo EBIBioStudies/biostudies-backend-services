@@ -20,8 +20,8 @@ import java.io.File
 private const val SUBMIT_URL = "/submissions"
 
 internal class MultiPartSubmissionClient(
-        private val template: RestTemplate,
-        private val serializationService: SerializationService
+    private val template: RestTemplate,
+    private val serializationService: SerializationService
 ) : MultipartSubmissionOperations {
 
     override fun submitSingle(submission: String, format: SubmissionFormat, files: List<File>): ResponseEntity<Submission> {
@@ -32,13 +32,13 @@ internal class MultiPartSubmissionClient(
 
     override fun submitSingle(submission: Submission, format: SubmissionFormat, files: List<File>): ResponseEntity<Submission> {
         val headers = createHeaders(format)
-        val body = getMultipartBody(files, serializationService.serialize(submission, format.asSubFormat()))
+        val body = getMultipartBody(files, serializationService.serializeSubmission(submission, format.asSubFormat()))
         return submitSingle(HttpEntity(body, headers), format)
     }
 
     private fun submitSingle(request: HttpEntity<LinkedMultiValueMap<String, Any>>, format: SubmissionFormat) =
             template.postForEntity(SUBMIT_URL, request, String::class.java)
-                    .map { body -> serializationService.deserialize(body, format.asSubFormat()) }
+                    .map { body -> serializationService.deserializeSubmission(body, format.asSubFormat()) }
 
     private fun createHeaders(format: SubmissionFormat): HttpHeaders {
         val headers = HttpHeaders()

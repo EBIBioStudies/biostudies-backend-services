@@ -5,5 +5,3 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 
 fun HttpHeaders.setSubmissionType(value: MediaType) = set(SUB_TYPE_HEADER, value.toString())
-
-

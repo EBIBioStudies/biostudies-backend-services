@@ -28,29 +28,36 @@ import org.springframework.web.multipart.MultipartFile
 @RequestMapping("/submissions")
 @PreAuthorize("isAuthenticated()")
 class MultipartSubmissionResource(
-        private val submissionService: SubmissionService,
-        private val serializationService: SerializationService) {
+    private val submissionService: SubmissionService,
+    private val serializationService: SerializationService
+) {
 
     @PostMapping(headers = ["$CONTENT_TYPE=$MULTIPART", "$SUB_TYPE_HEADER=$JSON_TYPE"])
     @ResponseBody
-    fun submitJson(@AuthenticationPrincipal user: User,
-                   @RequestParam(SUB_FILES_PARAM) files: Array<MultipartFile>,
-                   @RequestParam(SUB_PARAM) submission: String) =
-            submissionService.submit(serializationService.deserialize(submission, JSON), user, getFiles(files))
+    fun submitJson(
+        @AuthenticationPrincipal user: User,
+        @RequestParam(SUB_FILES_PARAM) files: Array<MultipartFile>,
+        @RequestParam(SUB_PARAM) submission: String
+    ) =
+            submissionService.submit(serializationService.deserializeSubmission(submission, JSON), user, getFiles(files))
 
     @PostMapping(headers = ["$CONTENT_TYPE=$MULTIPART", "$SUB_TYPE_HEADER=$XML_TYPE"])
     @ResponseBody
-    fun submitXml(@AuthenticationPrincipal user: User,
-                  @RequestParam(SUB_FILES_PARAM) files: Array<MultipartFile>,
-                  @RequestParam(SUB_PARAM) submission: String) =
-            submissionService.submit(serializationService.deserialize(submission, XML), user, getFiles(files))
+    fun submitXml(
+        @AuthenticationPrincipal user: User,
+        @RequestParam(SUB_FILES_PARAM) files: Array<MultipartFile>,
+        @RequestParam(SUB_PARAM) submission: String
+    ) =
+            submissionService.submit(serializationService.deserializeSubmission(submission, XML), user, getFiles(files))
 
     @PostMapping(headers = ["$CONTENT_TYPE=$MULTIPART", "$SUB_TYPE_HEADER=$TSV_TYPE"])
     @ResponseBody
-    fun submitTsv(@AuthenticationPrincipal user: User,
-                  @RequestParam(SUB_FILES_PARAM) files: Array<MultipartFile>,
-                  @RequestParam(SUB_PARAM) submission: String) =
-            submissionService.submit(serializationService.deserialize(submission, TSV), user, getFiles(files))
+    fun submitTsv(
+        @AuthenticationPrincipal user: User,
+        @RequestParam(SUB_FILES_PARAM) files: Array<MultipartFile>,
+        @RequestParam(SUB_PARAM) submission: String
+    ) =
+            submissionService.submit(serializationService.deserializeSubmission(submission, TSV), user, getFiles(files))
 
     private fun getFiles(files: Array<MultipartFile>) = files.map { ResourceFile(it.originalFilename!!, it.inputStream) }
 }

@@ -18,7 +18,7 @@ internal class SubmissionClient(
 ) : SubmissionOperations {
 
     override fun submitSingle(submission: Submission, format: SubmissionFormat) = submitSingle(HttpEntity(
-            serializationService.serialize(submission, format.asSubFormat()),
+            serializationService.serializeSubmission(submission, format.asSubFormat()),
             createHeaders(format)), format)
 
     override fun submitSingle(submission: String, format: SubmissionFormat) =
@@ -26,7 +26,7 @@ internal class SubmissionClient(
 
     private fun submitSingle(request: HttpEntity<String>, format: SubmissionFormat) =
             template.postForEntity(SUBMISSIONS_URL, request, String::class.java)
-                    .map { body -> serializationService.deserialize(body, format.asSubFormat()) }
+                    .map { body -> serializationService.deserializeSubmission(body, format.asSubFormat()) }
 
     private fun createHeaders(format: SubmissionFormat): HttpHeaders {
         val headers = HttpHeaders()
