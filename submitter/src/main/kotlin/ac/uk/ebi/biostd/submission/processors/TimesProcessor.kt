@@ -6,9 +6,9 @@ import java.time.OffsetDateTime
 
 class TimesProcessor : SubmissionProcessor {
 
-    override fun process(submission: ExtendedSubmission, persistenceContext: PersistenceContext) {
+    override fun process(submission: ExtendedSubmission, context: PersistenceContext) {
         val now = OffsetDateTime.now()
-        val previousVersion = persistenceContext.getSubmission(submission.accNo)
+        val previousVersion = context.getSubmission(submission.accNo)
 
         submission.modificationTime = now
         submission.releaseTime = if (submission.releaseTime == null) now else submission.releaseTime

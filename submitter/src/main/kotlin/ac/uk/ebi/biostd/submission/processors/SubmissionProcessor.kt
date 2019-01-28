@@ -4,5 +4,5 @@ import ebi.ac.uk.model.ExtendedSubmission
 import ebi.ac.uk.persistence.PersistenceContext
 
 interface SubmissionProcessor {
-    fun process(submission: ExtendedSubmission, persistenceContext: PersistenceContext)
+    fun process(submission: ExtendedSubmission, context: PersistenceContext)
 }

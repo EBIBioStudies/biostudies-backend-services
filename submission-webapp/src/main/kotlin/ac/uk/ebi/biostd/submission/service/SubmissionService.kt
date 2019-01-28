@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.submission.service
 import ac.uk.ebi.biostd.json.JsonSerializer
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
 import ac.uk.ebi.biostd.submission.SubmissionSubmitter
+import ac.uk.ebi.biostd.submission.model.ResourceFile
 import ac.uk.ebi.biostd.tsv.serialization.TsvToStringSerializer
 import ac.uk.ebi.biostd.xml.XmlSerializer
 import ebi.ac.uk.model.ExtendedSubmission
@@ -34,8 +35,9 @@ class SubmissionService(
         return tsvSerializer.serialize(submission)
     }
 
-    fun submitSubmission(submission: Submission, user: User): Submission {
-        val extendedSubmission = ExtendedSubmission(submission, user)
-        return submitter.submit(extendedSubmission, persistenceContext)
-    }
+    fun submit(
+        submission: Submission,
+        user: User,
+        files: List<ResourceFile> = emptyList()
+    ) = submitter.submit(ExtendedSubmission(submission, user), files, persistenceContext)
 }

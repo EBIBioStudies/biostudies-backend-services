@@ -4,6 +4,7 @@ import ac.uk.ebi.biostd.SerializationService
 import ac.uk.ebi.biostd.SubFormat
 import ebi.ac.uk.io.asString
 import ebi.ac.uk.model.Submission
+import ebi.ac.uk.model.constants.SUBMISSION_TYPE
 import org.springframework.http.HttpInputMessage
 import org.springframework.http.HttpOutputMessage
 import org.springframework.http.MediaType
@@ -22,16 +23,17 @@ class PagetabConverter(private val serializerService: SerializationService) : Ht
     override fun getSupportedMediaTypes() = listOf(APPLICATION_JSON, TEXT_PLAIN, TEXT_XML)
 
     override fun write(submission: Submission, contentType: MediaType?, outputMessage: HttpOutputMessage) =
-        outputMessage.body.write(serializerService.serializeSubmission(submission, asFormat(contentType)).toByteArray())
+            outputMessage.body.write(serializerService.serializeSubmission(submission, asFormat(contentType)).toByteArray())
 
-    override fun read(clazz: Class<out Submission>, inputMessage: HttpInputMessage) =
-        serializerService.deserializeSubmission(inputMessage.body.asString(), asFormat(inputMessage.headers.accept))
+    override fun read(clazz: Class<out Submission>, inputMessage: HttpInputMessage) = serializerService.deserializeSubmission(
+            inputMessage.body.asString(),
+            asFormat(inputMessage.headers[SUBMISSION_TYPE].orEmpty()))
 
-    private fun asFormat(mediaType: List<MediaType>) =
-        when {
-            mediaType.contains(MediaType.TEXT_PLAIN) -> SubFormat.TSV
-            mediaType.contains(MediaType.TEXT_XML) -> SubFormat.XML
-            mediaType.contains(MediaType.APPLICATION_JSON) -> SubFormat.JSON
+    private fun asFormat(mediaTypes: List<String>) =
+            when {
+            mediaTypes.contains(ebi.ac.uk.model.constants.APPLICATION_JSON) -> SubFormat.JSON
+            mediaTypes.contains(ebi.ac.uk.model.constants.TEXT_PLAIN) -> SubFormat.TSV
+            mediaTypes.contains(ebi.ac.uk.model.constants.TEXT_XML) -> SubFormat.XML
             else -> SubFormat.JSON
         }
 

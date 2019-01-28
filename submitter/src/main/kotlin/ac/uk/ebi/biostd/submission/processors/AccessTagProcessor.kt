@@ -8,7 +8,7 @@ import ebi.ac.uk.persistence.PersistenceContext
  */
 class AccessTagProcessor : SubmissionProcessor {
 
-    override fun process(submission: ExtendedSubmission, persistenceContext: PersistenceContext) {
-        submission.accessTags.addAll(persistenceContext.getParentAccessTags(submission))
+    override fun process(submission: ExtendedSubmission, context: PersistenceContext) {
+        submission.accessTags.addAll(context.getParentAccessTags(submission))
     }
 }
