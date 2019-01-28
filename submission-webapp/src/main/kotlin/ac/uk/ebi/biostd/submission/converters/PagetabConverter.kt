@@ -29,14 +29,13 @@ class PagetabConverter(private val serializerService: SerializationService) : Ht
             inputMessage.body.asString(),
             asFormat(inputMessage.headers[SUBMISSION_TYPE].orEmpty()))
 
-    private fun asFormat(list: List<String>): SubFormat {
-        return when {
-            list.contains(ebi.ac.uk.model.constants.APPLICATION_JSON) -> SubFormat.JSON
-            list.contains(ebi.ac.uk.model.constants.TEXT_PLAIN) -> SubFormat.TSV
-            list.contains(ebi.ac.uk.model.constants.TEXT_XML) -> SubFormat.XML
+    private fun asFormat(mediaTypes: List<String>) =
+            when {
+            mediaTypes.contains(ebi.ac.uk.model.constants.APPLICATION_JSON) -> SubFormat.JSON
+            mediaTypes.contains(ebi.ac.uk.model.constants.TEXT_PLAIN) -> SubFormat.TSV
+            mediaTypes.contains(ebi.ac.uk.model.constants.TEXT_XML) -> SubFormat.XML
             else -> SubFormat.JSON
         }
-    }
 
     private fun asFormat(mediaType: MediaType?) =
         when (mediaType) {
