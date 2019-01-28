@@ -35,25 +35,25 @@ class MultipartSubmissionResource(
     @PostMapping(headers = ["$CONTENT_TYPE=$MULTIPART_FORM_DATA", "$SUBMISSION_TYPE=$APPLICATION_JSON"])
     @ResponseBody
     fun submitJson(
-            @AuthenticationPrincipal user: User,
-            @RequestParam(FILES) files: Array<MultipartFile>,
-            @RequestParam(SUBMISSION) submission: String
+        @AuthenticationPrincipal user: User,
+        @RequestParam(FILES) files: Array<MultipartFile>,
+        @RequestParam(SUBMISSION) submission: String
     ) = submissionService.submit(serializationService.deserializeSubmission(submission, JSON), user, getFiles(files))
 
     @PostMapping(headers = ["$CONTENT_TYPE=$MULTIPART_FORM_DATA", "$SUBMISSION_TYPE=$TEXT_XML"])
     @ResponseBody
     fun submitXml(
-            @AuthenticationPrincipal user: User,
-            @RequestParam(FILES) files: Array<MultipartFile>,
-            @RequestParam(SUBMISSION) submission: String
+        @AuthenticationPrincipal user: User,
+        @RequestParam(FILES) files: Array<MultipartFile>,
+        @RequestParam(SUBMISSION) submission: String
     ) = submissionService.submit(serializationService.deserializeSubmission(submission, XML), user, getFiles(files))
 
     @PostMapping(headers = ["$CONTENT_TYPE=$MULTIPART_FORM_DATA", "$SUBMISSION_TYPE=$TEXT_PLAIN"])
     @ResponseBody
     fun submitTsv(
-            @AuthenticationPrincipal user: User,
-            @RequestParam(FILES) files: Array<MultipartFile>,
-            @RequestParam(SUBMISSION) submission: String
+        @AuthenticationPrincipal user: User,
+        @RequestParam(FILES) files: Array<MultipartFile>,
+        @RequestParam(SUBMISSION) submission: String
     ) = submissionService.submit(serializationService.deserializeSubmission(submission, TSV), user, getFiles(files))
 
     private fun getFiles(files: Array<MultipartFile>) = files.map { ResourceFile(it.originalFilename!!, it.inputStream) }
