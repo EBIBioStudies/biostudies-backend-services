@@ -2,14 +2,8 @@ CREATE TABLE AccessTag (
     id            BIGINT AUTO_INCREMENT PRIMARY KEY,
     description   VARCHAR(255) NULL,
     name          VARCHAR(255) NULL,
-    owner_id      BIGINT       NULL,
-    parent_tag_id BIGINT       NULL,
-    CONSTRAINT access_tag_name_idx UNIQUE (name),
-    CONSTRAINT FK5q8ww38t2jsgfy73t0e12am52 FOREIGN KEY (parent_tag_id) REFERENCES AccessTag (id)
+    CONSTRAINT access_tag_name_idx UNIQUE (name)
 );
-
-CREATE INDEX FK5q8ww38t2jsgfy73t0e12am52 ON AccessTag (parent_tag_id);
-CREATE INDEX FKc4d73kr6bf92cyioruykxptr0 ON AccessTag (owner_id);
 
 CREATE TABLE Classifier (
     id          BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -221,9 +215,6 @@ CREATE TABLE User (
     CONSTRAINT login_index
     UNIQUE (login)
 );
-
-ALTER TABLE AccessTag ADD CONSTRAINT FKc4d73kr6bf92cyioruykxptr0
-FOREIGN KEY (owner_id) REFERENCES User (id);
 
 ALTER TABLE Submission ADD CONSTRAINT FKidqs3m2ntuqyuiophfwikw81a
 FOREIGN KEY (owner_id) REFERENCES User (id);

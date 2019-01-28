@@ -28,16 +28,14 @@ class AppConfig {
     fun serializationService() = SerializationService()
 
     @Bean
-    fun mongoClient(properties: PmcImporterProperties): MongoClient {
-        return KMongo.createClient(properties.mongodbUri)
-    }
+    fun mongoClient(properties: PmcImporterProperties) = KMongo.createClient(properties.mongodbUri)
 
     @Bean
     fun subRepository(client: MongoClient) = MongoRepository("eubioimag", client)
 
     @Bean
     fun submissionDocService(subRepository: MongoRepository, serializationService: SerializationService) =
-        MongoDocService(subRepository, serializationService)
+            MongoDocService(subRepository, serializationService)
 
     @Bean
     fun fileDownloader(pmcApi: PmcApi, properties: PmcImporterProperties) = FileDownloader(properties, pmcApi)
@@ -54,11 +52,8 @@ class AppConfig {
         BioWebClient.create("http://localhost:8080", "theToken")
 
     @Bean
-    fun pmcSubmitter(
-        bioWebClient: BioWebClient,
-        submissionDocService: MongoDocService,
-        serializationService: SerializationService
-    ) = PmcSubmitter(bioWebClient, submissionDocService, serializationService)
+    fun pmcSubmitter(bioWebClient: BioWebClient, submissionDocService: MongoDocService) =
+            PmcSubmitter(bioWebClient, submissionDocService)
 
     @Bean
     fun pmcBatchImporter(pmcImporter: PmcImporter) = PmcBatchImporter(pmcImporter)

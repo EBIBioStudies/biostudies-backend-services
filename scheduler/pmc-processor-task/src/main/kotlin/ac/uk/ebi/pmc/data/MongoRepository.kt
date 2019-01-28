@@ -21,7 +21,7 @@ class MongoRepository(
     private val dataBase: String,
     private val mongoClient: MongoClient
 ) {
-    suspend fun getAllSubmissions(): FindIterable<SubmissionDoc> {
+    fun getAllSubmissions(): FindIterable<SubmissionDoc> {
         val database = mongoClient.getDatabase(dataBase)
         val collection = database.getCollection(SUBMISSION_COLLECTION, SubmissionDoc::class.java)
 
@@ -47,10 +47,10 @@ class MongoRepository(
         return collection.findOne(Filters.eq("path", file.absolutePath))!!.id
     }
 
-    suspend fun getSubFiles(ids: List<ObjectId>): MutableList<Option<FileDoc>> {
+    suspend fun getSubFiles(ids: List<ObjectId>): List<FileDoc> {
         val database = mongoClient.getDatabase(dataBase)
         val collection = database.getCollection(FILES_COLLECTION, FileDoc::class.java)
 
-        return ids.mapTo(mutableListOf()) { collection.findOne(Filters.eq("_id", it)).toOption() }
+        return ids.map { collection.findOne(Filters.eq("_id", it))!! }.toList()
     }
 }

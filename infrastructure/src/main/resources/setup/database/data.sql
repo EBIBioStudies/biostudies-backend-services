@@ -4,4 +4,4 @@ INSERT INTO User (activationKey, active, auxProfileInfo, email, fullName, keyTim
 INSERT INTO User (activationKey, active, auxProfileInfo, email, fullName, keyTime, login, passwordDigest, secret, superuser, ssoSubject) VALUES (null, true, null, 'change_password@ebi.ac.uk', 'change_password', 0, 'change_password@ebi.ac.uk', X'7C4A8D09CA3762AF61E59520943DC26494F8941B', '69214a2f-f80b-4f33-86b7-26d3bd0453aa', true, null);
 INSERT INTO User (activationKey, active, auxProfileInfo, email, fullName, keyTime, login, passwordDigest, secret, superuser, ssoSubject) VALUES (null, true, null, 'test_userd@ebi.ac.uk', 'test_user', 0, 'test_user@ebi.ac.uk', X'7C4A8D09CA3762AF61E59520943DC26494F8941B', '69214a2f-f80b-4f33-86b7-26d3bd0453aa', false, null);
 
-INSERT INTO AccessTag (id, description, name, owner_id, parent_tag_id) VALUES (1, null, 'Public', 2, null);
+INSERT INTO AccessTag (id, description, name) VALUES (1, null, 'Public');
