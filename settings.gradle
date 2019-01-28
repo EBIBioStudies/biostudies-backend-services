@@ -1,4 +1,4 @@
-rootProject.name = 'pagetab-procesor'
+rootProject.name = 'biostudies-backend-services'
 
 include("commons-util")
 include("commons-bio")
@@ -6,6 +6,7 @@ include("commons-test")
 include("commons-security")
 include("submission-webapp")
 include("bio-webclient")
+include("infrastructure")
 
 include("persistence")
 include("serialization")

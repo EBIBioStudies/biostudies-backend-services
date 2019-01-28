@@ -1,0 +1,4 @@
+task setUpDatabase(type: Exec) {
+    workingDir './src/main/resources/setup/database'
+    commandLine './setUpDatabase.sh'
+}
