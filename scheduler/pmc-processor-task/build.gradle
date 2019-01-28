@@ -19,6 +19,7 @@ repositories {
 }
 
 dependencies {
+    implementation(project(":bio-webclient"))
     implementation(project(":serialization"))
     implementation(project(":scheduler:task-properties"))
 

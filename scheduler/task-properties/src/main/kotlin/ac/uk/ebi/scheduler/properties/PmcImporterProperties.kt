@@ -27,5 +27,5 @@ class PmcImporterProperties() : BaseAppProperty {
 }
 
 enum class ImportMode {
-    FILE, GZ_FILE
+    FILE, GZ_FILE, SUBMIT
 }

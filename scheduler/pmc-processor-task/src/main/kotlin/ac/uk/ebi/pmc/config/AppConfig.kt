@@ -1,10 +1,13 @@
 package ac.uk.ebi.pmc.config
 
 import ac.uk.ebi.biostd.SerializationService
+import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.pmc.client.PmcApi
 import ac.uk.ebi.pmc.data.MongoDocService
 import ac.uk.ebi.pmc.data.MongoRepository
-import ac.uk.ebi.pmc.import.BatchPmcImporter
+import ac.uk.ebi.pmc.submit.PmcBatchSubmitter
+import ac.uk.ebi.pmc.submit.PmcSubmitter
+import ac.uk.ebi.pmc.import.PmcBatchImporter
 import ac.uk.ebi.pmc.import.FileDownloader
 import ac.uk.ebi.pmc.import.PmcImporter
 import ac.uk.ebi.scheduler.properties.PmcImporterProperties
@@ -25,16 +28,14 @@ class AppConfig {
     fun serializationService() = SerializationService()
 
     @Bean
-    fun mongoClient(properties: PmcImporterProperties): MongoClient {
-        return KMongo.createClient(properties.mongodbUri)
-    }
+    fun mongoClient(properties: PmcImporterProperties) = KMongo.createClient(properties.mongodbUri)
 
     @Bean
     fun subRepository(client: MongoClient) = MongoRepository("eubioimag", client)
 
     @Bean
     fun submissionDocService(subRepository: MongoRepository, serializationService: SerializationService) =
-        MongoDocService(subRepository, serializationService)
+            MongoDocService(subRepository, serializationService)
 
     @Bean
     fun fileDownloader(pmcApi: PmcApi, properties: PmcImporterProperties) = FileDownloader(properties, pmcApi)
@@ -47,5 +48,16 @@ class AppConfig {
     ) = PmcImporter(submissionDocService, serializationService, fileDownloader)
 
     @Bean
-    fun pmcBatchImporter(pmcImporter: PmcImporter) = BatchPmcImporter(pmcImporter)
+    fun bioWebClient() =
+        BioWebClient.create("http://localhost:8080", "theToken")
+
+    @Bean
+    fun pmcSubmitter(bioWebClient: BioWebClient, submissionDocService: MongoDocService) =
+            PmcSubmitter(bioWebClient, submissionDocService)
+
+    @Bean
+    fun pmcBatchImporter(pmcImporter: PmcImporter) = PmcBatchImporter(pmcImporter)
+
+    @Bean
+    fun pmcBatchSubmitter(pmcSubmitter: PmcSubmitter) = PmcBatchSubmitter(pmcSubmitter)
 }
