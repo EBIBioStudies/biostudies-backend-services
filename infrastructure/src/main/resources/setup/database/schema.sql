@@ -29,7 +29,6 @@ CREATE TABLE FileAttribute (
     id                   BIGINT AUTO_INCREMENT PRIMARY KEY,
     name                 LONGTEXT NULL,
     nameQualifierString  LONGTEXT NULL,
-    numValue             DOUBLE   NOT NULL DEFAULT 0,
     reference            BIT      NOT NULL,
     value                LONGTEXT NULL,
     valueQualifierString LONGTEXT NULL,
@@ -69,7 +68,6 @@ CREATE INDEX FKjndkokb5qh9p1af7cim617rvv ON IdGen (counter_id);
 
 CREATE TABLE Link (
     id         BIGINT AUTO_INCREMENT PRIMARY KEY,
-    local      BIT          NOT NULL DEFAULT 0,
     tableIndex INT          NOT NULL,
     url        VARCHAR(255) NULL,
     section_id BIGINT       NULL,
@@ -82,7 +80,6 @@ CREATE TABLE LinkAttribute (
     id                   BIGINT AUTO_INCREMENT PRIMARY KEY,
     name                 LONGTEXT NULL,
     nameQualifierString  LONGTEXT NULL,
-    numValue             DOUBLE   NOT NULL DEFAULT 0,
     reference            BIT      NOT NULL,
     value                LONGTEXT NULL,
     valueQualifierString LONGTEXT NULL,
@@ -97,7 +94,6 @@ CREATE INDEX FKiy7ig2d3ubfsc921qrarw4x5n ON LinkAttribute (link_id);
 CREATE TABLE Section (
     id            BIGINT AUTO_INCREMENT PRIMARY KEY,
     accNo         VARCHAR(255) NULL,
-    global        BIT          NOT NULL DEFAULT 0,
     parentAccNo   VARCHAR(255) NULL,
     tableIndex    INT          NOT NULL,
     type          VARCHAR(255) NULL,
@@ -123,7 +119,6 @@ CREATE TABLE SectionAttribute (
     id                   BIGINT AUTO_INCREMENT PRIMARY KEY,
     name                 LONGTEXT NULL,
     nameQualifierString  LONGTEXT NULL,
-    numValue             DOUBLE   NOT NULL DEFAULT 0,
     reference            BIT      NOT NULL,
     value                LONGTEXT NULL,
     valueQualifierString LONGTEXT NULL,
@@ -167,7 +162,6 @@ CREATE TABLE SubmissionAttribute (
     id                   BIGINT AUTO_INCREMENT PRIMARY KEY,
     name                 LONGTEXT NULL,
     nameQualifierString  LONGTEXT NULL,
-    numValue             DOUBLE   NOT NULL DEFAULT 0,
     reference            BIT      NOT NULL,
     value                LONGTEXT NULL,
     valueQualifierString LONGTEXT NULL,
