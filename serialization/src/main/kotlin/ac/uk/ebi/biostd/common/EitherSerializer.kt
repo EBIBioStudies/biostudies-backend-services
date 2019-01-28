@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.SerializerProvider
 import com.fasterxml.jackson.databind.ser.std.StdSerializer
 
 /**
- * Either Serializer, fold and serializeSubmission either wrapped value.
+ * Either Serializer, fold and serialize either wrapped value.
  */
 class EitherSerializer : StdSerializer<Either<*, *>>(Either::class.java) {
 

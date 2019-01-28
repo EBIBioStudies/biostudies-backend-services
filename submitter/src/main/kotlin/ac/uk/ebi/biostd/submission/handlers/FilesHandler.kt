@@ -40,7 +40,7 @@ class FilesHandler(private val folderResolver: FolderResolver, private val seria
 
     private fun validateFiles(submission: ExtendedSubmission, filesSource: FilesSource) {
         submission.allFiles()
-                .filter { file -> filesSource.exist(file.path).not() }
+                .filter { file -> filesSource.exists(file.path).not() }
                 .ifNotEmpty { throw InvalidFilesException(it, INVALID_FILES_ERROR_MSG) }
     }
 

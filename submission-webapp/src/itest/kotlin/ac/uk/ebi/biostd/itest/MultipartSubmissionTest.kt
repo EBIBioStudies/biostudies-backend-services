@@ -6,9 +6,13 @@ import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.common.config.SubmitterConfig
 import ac.uk.ebi.biostd.files.FileConfig
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
+import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
+import arrow.core.Either
+import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.file
 import ebi.ac.uk.dsl.section
 import ebi.ac.uk.dsl.submission
+import ebi.ac.uk.model.File
 import ebi.ac.uk.security.integration.model.SignUpRequest
 import ebi.ac.uk.security.service.SecurityService
 import io.github.glytching.junit.extension.folder.TemporaryFolder
@@ -17,8 +21,6 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
-import org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -26,13 +28,12 @@ import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.http.HttpStatus
 import org.springframework.test.context.junit.jupiter.SpringExtension
+import java.nio.file.Paths
 
 @ExtendWith(TemporaryFolderExtension::class)
-@TestInstance(PER_CLASS)
 internal class MultipartSubmissionTest(private val tempFolder: TemporaryFolder) : BaseIntegrationTest(tempFolder) {
 
     @Nested
-    @TestInstance(PER_CLASS)
     @ExtendWith(SpringExtension::class)
     @Import(value = [SubmitterConfig::class, PersistenceConfig::class, FileConfig::class])
     @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -44,6 +45,9 @@ internal class MultipartSubmissionTest(private val tempFolder: TemporaryFolder) 
         @Autowired
         private lateinit var securityService: SecurityService
 
+        @Autowired
+        private lateinit var submissionRepository: SubmissionRepository
+
         private lateinit var webClient: BioWebClient
 
         @BeforeAll
@@ -54,16 +58,27 @@ internal class MultipartSubmissionTest(private val tempFolder: TemporaryFolder) 
 
         @Test
         fun `submit multipart JSON submission`() {
-            val file = tempFolder.createFile("DataFile1.txt")
-            val submission = submission("SimpleAcc1") {
+            val fileName = "DataFile1.txt"
+            val accNo = "SimpleAcc1"
+
+            val file = tempFolder.createFile(fileName)
+            val submission = submission(accNo) {
                 section(type = "Study") {
-                    file(file.name)
+                    file(fileName)
                 }
             }
 
             val response = webClient.submitSingle(submission, SubmissionFormat.JSON, listOf(file))
             assertThat(response).isNotNull
             assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
+            assertThat(response.body).isNotNull
+
+            val createSubmission = submissionRepository.findExtendedByAccNo(accNo)
+            assertThat(createSubmission).hasAccNo(accNo)
+            assertThat(createSubmission.section.files).containsExactly(Either.left(File("DataFile1.txt")))
+
+            val submissionFolderPath = "$basePath/${createSubmission.relPath}/Files"
+            assertThat(Paths.get("$submissionFolderPath/$fileName")).exists()
         }
     }
 }

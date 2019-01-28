@@ -4,10 +4,7 @@ import ac.uk.ebi.biostd.SerializationService
 import ac.uk.ebi.biostd.SubFormat
 import ebi.ac.uk.io.asString
 import ebi.ac.uk.model.Submission
-import ebi.ac.uk.model.constants.JSON_TYPE
-import ebi.ac.uk.model.constants.SUB_TYPE_HEADER
-import ebi.ac.uk.model.constants.TSV_TYPE
-import ebi.ac.uk.model.constants.XML_TYPE
+import ebi.ac.uk.model.constants.SUBMISSION_TYPE
 import org.springframework.http.HttpInputMessage
 import org.springframework.http.HttpOutputMessage
 import org.springframework.http.MediaType
@@ -30,13 +27,13 @@ class PagetabConverter(private val serializerService: SerializationService) : Ht
 
     override fun read(clazz: Class<out Submission>, inputMessage: HttpInputMessage) = serializerService.deserializeSubmission(
             inputMessage.body.asString(),
-            asFormat(inputMessage.headers[SUB_TYPE_HEADER].orEmpty()))
+            asFormat(inputMessage.headers[SUBMISSION_TYPE].orEmpty()))
 
     private fun asFormat(list: List<String>): SubFormat {
         return when {
-            list.contains(JSON_TYPE) -> SubFormat.JSON
-            list.contains(TSV_TYPE) -> SubFormat.TSV
-            list.contains(XML_TYPE) -> SubFormat.XML
+            list.contains(ebi.ac.uk.model.constants.APPLICATION_JSON) -> SubFormat.JSON
+            list.contains(ebi.ac.uk.model.constants.TEXT_PLAIN) -> SubFormat.TSV
+            list.contains(ebi.ac.uk.model.constants.TEXT_XML) -> SubFormat.XML
             else -> SubFormat.JSON
         }
     }

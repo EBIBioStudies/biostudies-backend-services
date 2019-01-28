@@ -6,21 +6,21 @@ import java.nio.file.Path
 
 interface FilesSource {
 
-    fun exist(filePath: String): Boolean
+    fun exists(filePath: String): Boolean
 
     fun getInputStream(filePath: String): InputStream
 }
 
 class ListFilesSource(private val files: List<ResourceFile>) : FilesSource {
 
-    override fun exist(filePath: String) = files.any { it.name == filePath }
+    override fun exists(filePath: String) = files.any { it.name == filePath }
 
     override fun getInputStream(filePath: String) = files.first { it.name == filePath }.inputStream
 }
 
 class PathFilesSource(private val path: Path) : FilesSource {
 
-    override fun exist(filePath: String) = Files.exists(path.resolve(filePath))
+    override fun exists(filePath: String) = Files.exists(path.resolve(filePath))
 
     override fun getInputStream(filePath: String) = path.resolve(filePath).toFile().inputStream()
 }

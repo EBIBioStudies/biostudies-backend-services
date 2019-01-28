@@ -6,8 +6,8 @@ import ac.uk.ebi.biostd.client.extensions.setSubmissionType
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.web.MultipartSubmissionOperations
 import ebi.ac.uk.model.Submission
-import ebi.ac.uk.model.constants.SUB_FILES_PARAM
-import ebi.ac.uk.model.constants.SUB_PARAM
+import ebi.ac.uk.model.constants.FILES
+import ebi.ac.uk.model.constants.SUBMISSION
 import org.springframework.core.io.FileSystemResource
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
@@ -50,8 +50,8 @@ internal class MultiPartSubmissionClient(
 
     private fun getMultipartBody(files: List<File>, submission: String): LinkedMultiValueMap<String, Any> {
         val map = LinkedMultiValueMap<String, Any>()
-        files.forEach { map.add(SUB_FILES_PARAM, FileSystemResource(it)) }
-        map.add(SUB_PARAM, submission)
+        files.forEach { map.add(FILES, FileSystemResource(it)) }
+        map.add(SUBMISSION, submission)
         return map
     }
 }

@@ -22,17 +22,14 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
-import org.springframework.test.context.junit.jupiter.SpringExtension
 
 private const val GROUP_NAME = "Bio-test-group"
 
 @ExtendWith(TemporaryFolderExtension::class)
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 internal class GroupFilesTest(private val tempFolder: TemporaryFolder) : BaseIntegrationTest(tempFolder) {
 
     @Nested
     @TestInstance(PER_CLASS)
-    @ExtendWith(SpringExtension::class)
     @Import(value = [SubmitterConfig::class, PersistenceConfig::class, FileConfig::class])
     @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
     inner class GroupFilesApi {

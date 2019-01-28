@@ -7,13 +7,13 @@ import ac.uk.ebi.biostd.SubFormat.XML
 import ac.uk.ebi.biostd.submission.model.ResourceFile
 import ac.uk.ebi.biostd.submission.service.SubmissionService
 import ebi.ac.uk.model.User
-import ebi.ac.uk.model.constants.JSON_TYPE
-import ebi.ac.uk.model.constants.MULTIPART
-import ebi.ac.uk.model.constants.SUB_FILES_PARAM
-import ebi.ac.uk.model.constants.SUB_PARAM
-import ebi.ac.uk.model.constants.SUB_TYPE_HEADER
-import ebi.ac.uk.model.constants.TSV_TYPE
-import ebi.ac.uk.model.constants.XML_TYPE
+import ebi.ac.uk.model.constants.APPLICATION_JSON
+import ebi.ac.uk.model.constants.FILES
+import ebi.ac.uk.model.constants.MULTIPART_FORM_DATA
+import ebi.ac.uk.model.constants.SUBMISSION
+import ebi.ac.uk.model.constants.SUBMISSION_TYPE
+import ebi.ac.uk.model.constants.TEXT_PLAIN
+import ebi.ac.uk.model.constants.TEXT_XML
 import org.springframework.http.HttpHeaders.CONTENT_TYPE
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -32,32 +32,29 @@ class MultipartSubmissionResource(
     private val serializationService: SerializationService
 ) {
 
-    @PostMapping(headers = ["$CONTENT_TYPE=$MULTIPART", "$SUB_TYPE_HEADER=$JSON_TYPE"])
+    @PostMapping(headers = ["$CONTENT_TYPE=$MULTIPART_FORM_DATA", "$SUBMISSION_TYPE=$APPLICATION_JSON"])
     @ResponseBody
     fun submitJson(
-        @AuthenticationPrincipal user: User,
-        @RequestParam(SUB_FILES_PARAM) files: Array<MultipartFile>,
-        @RequestParam(SUB_PARAM) submission: String
-    ) =
-            submissionService.submit(serializationService.deserializeSubmission(submission, JSON), user, getFiles(files))
+            @AuthenticationPrincipal user: User,
+            @RequestParam(FILES) files: Array<MultipartFile>,
+            @RequestParam(SUBMISSION) submission: String
+    ) = submissionService.submit(serializationService.deserializeSubmission(submission, JSON), user, getFiles(files))
 
-    @PostMapping(headers = ["$CONTENT_TYPE=$MULTIPART", "$SUB_TYPE_HEADER=$XML_TYPE"])
+    @PostMapping(headers = ["$CONTENT_TYPE=$MULTIPART_FORM_DATA", "$SUBMISSION_TYPE=$TEXT_XML"])
     @ResponseBody
     fun submitXml(
-        @AuthenticationPrincipal user: User,
-        @RequestParam(SUB_FILES_PARAM) files: Array<MultipartFile>,
-        @RequestParam(SUB_PARAM) submission: String
-    ) =
-            submissionService.submit(serializationService.deserializeSubmission(submission, XML), user, getFiles(files))
+            @AuthenticationPrincipal user: User,
+            @RequestParam(FILES) files: Array<MultipartFile>,
+            @RequestParam(SUBMISSION) submission: String
+    ) = submissionService.submit(serializationService.deserializeSubmission(submission, XML), user, getFiles(files))
 
-    @PostMapping(headers = ["$CONTENT_TYPE=$MULTIPART", "$SUB_TYPE_HEADER=$TSV_TYPE"])
+    @PostMapping(headers = ["$CONTENT_TYPE=$MULTIPART_FORM_DATA", "$SUBMISSION_TYPE=$TEXT_PLAIN"])
     @ResponseBody
     fun submitTsv(
-        @AuthenticationPrincipal user: User,
-        @RequestParam(SUB_FILES_PARAM) files: Array<MultipartFile>,
-        @RequestParam(SUB_PARAM) submission: String
-    ) =
-            submissionService.submit(serializationService.deserializeSubmission(submission, TSV), user, getFiles(files))
+            @AuthenticationPrincipal user: User,
+            @RequestParam(FILES) files: Array<MultipartFile>,
+            @RequestParam(SUBMISSION) submission: String
+    ) = submissionService.submit(serializationService.deserializeSubmission(submission, TSV), user, getFiles(files))
 
     private fun getFiles(files: Array<MultipartFile>) = files.map { ResourceFile(it.originalFilename!!, it.inputStream) }
 }

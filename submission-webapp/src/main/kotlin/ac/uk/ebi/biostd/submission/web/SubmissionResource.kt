@@ -3,10 +3,10 @@ package ac.uk.ebi.biostd.submission.web
 import ac.uk.ebi.biostd.submission.service.SubmissionService
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.User
-import ebi.ac.uk.model.constants.JSON_TYPE
-import ebi.ac.uk.model.constants.SUB_TYPE_HEADER
-import ebi.ac.uk.model.constants.TSV_TYPE
-import ebi.ac.uk.model.constants.XML_TYPE
+import ebi.ac.uk.model.constants.APPLICATION_JSON
+import ebi.ac.uk.model.constants.SUBMISSION_TYPE
+import ebi.ac.uk.model.constants.TEXT_PLAIN
+import ebi.ac.uk.model.constants.TEXT_XML
 import org.springframework.http.HttpHeaders
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -26,15 +26,15 @@ class SubmissionResource(
 ) {
 
     @GetMapping("/{accNo}.json",
-            produces = [JSON_TYPE],
-            headers = ["${HttpHeaders.CONTENT_TYPE}=$JSON_TYPE", "$SUB_TYPE_HEADER=$JSON_TYPE"])
+            produces = [APPLICATION_JSON],
+            headers = ["${HttpHeaders.CONTENT_TYPE}=$APPLICATION_JSON", "$SUBMISSION_TYPE=$APPLICATION_JSON"])
     @ResponseBody
     fun asJson(@PathVariable accNo: String) = submissionService.getSubmissionAsJson(accNo)
 
-    @GetMapping("/{accNo}.xml", produces = [XML_TYPE])
+    @GetMapping("/{accNo}.xml", produces = [TEXT_XML])
     fun asXml(@PathVariable accNo: String) = submissionService.getSubmissionAsXml(accNo)
 
-    @GetMapping("/{accNo}.tsv", produces = [TSV_TYPE])
+    @GetMapping("/{accNo}.tsv", produces = [TEXT_PLAIN])
     fun asTsv(@PathVariable accNo: String) = submissionService.getSubmissionAsTsv(accNo)
 
     @PostMapping

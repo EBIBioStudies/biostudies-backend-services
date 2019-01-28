@@ -1,10 +1,10 @@
 package ebi.ac.uk.model.constants
 
-const val SUB_TYPE_HEADER = "Submission_Type"
-const val SUB_FILES_PARAM = "files"
-const val SUB_PARAM = "submission"
+const val SUBMISSION_TYPE = "Submission_Type"
+const val FILES = "files"
+const val SUBMISSION = "submission"
 
-const val JSON_TYPE = "application/json"
-const val XML_TYPE = "text/xml"
-const val TSV_TYPE = "text/plain"
-const val MULTIPART = "multipart/form-data"
+const val APPLICATION_JSON = "application/json"
+const val TEXT_XML = "text/xml"
+const val TEXT_PLAIN = "text/plain"
+const val MULTIPART_FORM_DATA = "multipart/form-data"

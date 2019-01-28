@@ -39,8 +39,5 @@ class SubmissionService(
         submission: Submission,
         user: User,
         files: List<ResourceFile> = emptyList()
-    ): Submission {
-        val extendedSubmission = ExtendedSubmission(submission, user)
-        return submitter.submit(extendedSubmission, files, persistenceContext)
-    }
+    ) = submitter.submit(ExtendedSubmission(submission, user), files, persistenceContext)
 }
