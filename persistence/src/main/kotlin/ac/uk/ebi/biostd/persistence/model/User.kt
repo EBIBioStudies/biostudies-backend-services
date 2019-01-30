@@ -43,5 +43,3 @@ class User(
 
     fun addGroup(userGroup: UserGroup) = groups.add(userGroup)
 }
-
-

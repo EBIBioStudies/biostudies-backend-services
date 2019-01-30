@@ -1,11 +1,18 @@
 spring:
   datasource:
+    url:
+    username:
+    password:
+    driver-class-name: com.mysql.jdbc.Driver
 
   jpa:
     show-sql: false
     hibernate:
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+      use-new-id-generator-mappings: false
 
 app:
   basepath:
+  environment:
+  tokenHash:

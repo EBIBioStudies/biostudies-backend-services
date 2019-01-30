@@ -10,18 +10,17 @@ class SecurityWebClient private constructor(
         private val baseUrl: String,
         private val restTemplate: RestTemplate) : SecurityOperations {
 
-    override fun auhtenticate(user: String, password: String): BioWebClient {
-        return BioWebClient.create(baseUrl, login(user, password).sessid)
-    }
+    override fun auhtenticate(user: String, password: String) = BioWebClient.create(baseUrl, login(user, password).sessid)
 
-    override fun login(user: String, password: String): LoginResponse {
-        return restTemplate.postForObject("/auth/login", LoginRequest(user, password))!!
-    }
+
+    override fun login(user: String, password: String) =
+            restTemplate.postForObject<LoginResponse>("/auth/login", LoginRequest(user, password))!!
+
 
     companion object {
 
-        fun create(baseUrl: String): SecurityWebClient {
-            return SecurityWebClient(baseUrl, RestTemplate().apply { uriTemplateHandler = DefaultUriBuilderFactory(baseUrl) })
-        }
+        fun create(baseUrl: String) = SecurityWebClient(
+                baseUrl,
+                RestTemplate().apply { uriTemplateHandler = DefaultUriBuilderFactory(baseUrl) })
     }
 }
