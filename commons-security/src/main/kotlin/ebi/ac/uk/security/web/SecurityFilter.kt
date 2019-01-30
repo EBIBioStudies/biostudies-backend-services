@@ -17,8 +17,8 @@ const val HEADER_NAME = "X-Session-Token"
 const val COOKIE_NAME = "BIOSTDSESS"
 
 class SecurityFilter(
-        private val environment: String,
-        private val tokenUtil: TokenUtil
+    private val environment: String,
+    private val tokenUtil: TokenUtil
 ) : GenericFilterBean() {
 
     override fun doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain) {

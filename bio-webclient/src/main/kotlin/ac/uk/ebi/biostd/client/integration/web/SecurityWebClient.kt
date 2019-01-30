@@ -7,15 +7,14 @@ import org.springframework.web.client.postForObject
 import org.springframework.web.util.DefaultUriBuilderFactory
 
 class SecurityWebClient private constructor(
-        private val baseUrl: String,
-        private val restTemplate: RestTemplate) : SecurityOperations {
+    private val baseUrl: String,
+    private val restTemplate: RestTemplate
+) : SecurityOperations {
 
     override fun auhtenticate(user: String, password: String) = BioWebClient.create(baseUrl, login(user, password).sessid)
 
-
     override fun login(user: String, password: String) =
             restTemplate.postForObject<LoginResponse>("/auth/login", LoginRequest(user, password))!!
-
 
     companion object {
 

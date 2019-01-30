@@ -4,29 +4,27 @@ import ac.uk.ebi.biostd.persistence.model.User
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ebi.ac.uk.api.security.LoginRequest
 import ebi.ac.uk.api.security.RegisterRequest
+import ebi.ac.uk.security.exception.UserNotFoundException
 import ebi.ac.uk.security.model.UserInfo
 import ebi.ac.uk.security.util.PasswordVerifier
 import ebi.ac.uk.security.util.TokenUtil
 import java.util.UUID
 
 class SecurityService(
-        private val userRepository: UserDataRepository,
-        private val passwordVerifier: PasswordVerifier,
-        private val tokenUtil: TokenUtil
+    private val userRepository: UserDataRepository,
+    private val passwordVerifier: PasswordVerifier,
+    private val tokenUtil: TokenUtil
 ) {
 
     fun login(loginRequest: LoginRequest): UserInfo {
         val user = userRepository.findByLoginOrEmail(loginRequest.login, loginRequest.login)
+                .orElseThrow { throw UserNotFoundException(loginRequest.login) }
 
-        if (!user.isPresent) {
-            throw SecurityException("Could find an user register with email or login '${loginRequest.login}'")
-        }
-
-        if (!passwordVerifier.checkPassword(user.get().passwordDigest, loginRequest.password)) {
+        if (!passwordVerifier.checkPassword(user.passwordDigest, loginRequest.password)) {
             throw SecurityException("Given password do not match for user '${loginRequest.login}'")
         }
 
-        return UserInfo(tokenUtil.createToken(user.get()), user.get())
+        return UserInfo(tokenUtil.createToken(user), user)
     }
 
     /**
@@ -52,5 +50,4 @@ class SecurityService(
     }
 
     private fun newRandomKey() = UUID.randomUUID().toString()
-
 }

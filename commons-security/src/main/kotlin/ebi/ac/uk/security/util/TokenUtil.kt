@@ -15,10 +15,10 @@ import mu.KotlinLogging
 private val logger = KotlinLogging.logger {}
 
 class TokenUtil(
-        private val jwtParser: JwtParser,
-        private val objectMapper: ObjectMapper,
-        private val userRepository: UserDataRepository,
-        private val tokenHash: String
+    private val jwtParser: JwtParser,
+    private val objectMapper: ObjectMapper,
+    private val userRepository: UserDataRepository,
+    private val tokenHash: String
 ) {
 
     fun createToken(user: User): String {

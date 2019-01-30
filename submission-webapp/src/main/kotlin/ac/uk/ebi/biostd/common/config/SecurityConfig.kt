@@ -29,8 +29,8 @@ private val ALLOWED_URLS = arrayOf("/auth/login")
 @EnableWebSecurity
 @Import(SecurityBeansConfig::class)
 class SecurityConfig(
-        private val props: ApplicationProperties,
-        private val tokenUtil: TokenUtil
+    private val props: ApplicationProperties,
+    private val tokenUtil: TokenUtil
 ) : WebSecurityConfigurerAdapter() {
 
     override fun configure(http: HttpSecurity) {

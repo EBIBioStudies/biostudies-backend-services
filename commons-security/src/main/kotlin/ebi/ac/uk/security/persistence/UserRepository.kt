@@ -7,8 +7,8 @@ import java.security.MessageDigest
 import java.util.UUID
 
 class UserRepository(
-        private val userDataRepository: UserDataRepository,
-        private val sha1: MessageDigest = MessageDigest.getInstance("SHA1")
+    private val userDataRepository: UserDataRepository,
+    private val sha1: MessageDigest = MessageDigest.getInstance("SHA1")
 ) {
 
     fun findByLoginOrEmail(loginEmail: String) =
