@@ -32,6 +32,9 @@ class User(
     @Column
     var superuser: Boolean = false
 
+    @Column
+    var active: Boolean = false
+
     @Lob
     var passwordDigest: ByteArray = ByteArray(0)
 
@@ -40,3 +43,5 @@ class User(
 
     fun addGroup(userGroup: UserGroup) = groups.add(userGroup)
 }
+
+

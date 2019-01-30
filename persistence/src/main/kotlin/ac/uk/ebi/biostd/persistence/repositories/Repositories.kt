@@ -34,6 +34,7 @@ interface UserDataRepository : JpaRepository<User, Long> {
 
     fun findByLoginOrEmail(login: String, email: String): Optional<User>
     fun getByEmail(userEmail: String): User
+    fun existsByEmail(email: String): Boolean
 }
 
 interface TokenDataRepository : JpaRepository<SecurityToken, String>
