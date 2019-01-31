@@ -25,7 +25,7 @@ class FileXmlDeserializerTest {
             }.toString())
 
         assertThat(testInstance.deserialize(xmlFile)).isEqualTo(
-            File("file1.txt", mutableListOf(Attribute("attr1", "attr 1 value"))))
+            File("file1.txt", attributes = mutableListOf(Attribute("attr1", "attr 1 value"))))
     }
 
     @Test

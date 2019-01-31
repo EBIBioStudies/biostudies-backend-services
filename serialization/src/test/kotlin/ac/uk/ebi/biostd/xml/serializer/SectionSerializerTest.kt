@@ -7,7 +7,6 @@ import ac.uk.ebi.biostd.xml.XmlSerializer
 import ebi.ac.uk.dsl.file
 import ebi.ac.uk.dsl.link
 import ebi.ac.uk.dsl.section
-import ebi.ac.uk.model.extensions.size
 import ebi.ac.uk.model.extensions.type
 import org.junit.Test
 import org.redundent.kotlin.xml.xml
@@ -18,7 +17,6 @@ private const val ACC_NO = "acc no"
 private const val TYPE = "sec type"
 
 class SectionSerializerTest {
-
     private val testInstance = XmlSerializer.mapper
 
     private val section = section(TYPE) {

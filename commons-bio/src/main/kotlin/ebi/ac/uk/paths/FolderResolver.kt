@@ -16,7 +16,7 @@ class FolderResolver(private val basePath: Path) {
         basePath.resolve(SUBMISSION_PATH).resolve(submission.relPath)
 
     fun getSubFilePath(relPath: String, fileName: String) =
-        basePath.resolve(relPath).resolve(FILES_PATH).resolve(fileName)!!
+        basePath.resolve(SUBMISSION_PATH).resolve(relPath).resolve(FILES_PATH).resolve(fileName)!!
 
     fun getUserMagicFolderPath(userId: Long, secret: String) = getMagicFolderPath(userId, secret, USER_FOLDER_PREFIX)
 

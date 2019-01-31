@@ -45,7 +45,7 @@ class FileChunk(body: List<TsvChunkLine>) : TsvChunk(body) {
     fun asFile(): File {
         val fileName = getIdOrElse(InvalidElementException(REQUIRED_FILE_PATH))
         val attributes = toAttributes(lines)
-        return File(fileName, attributes)
+        return File(fileName, attributes = attributes)
     }
 }
 
@@ -56,7 +56,7 @@ class LinksTableChunk(body: List<TsvChunkLine>) : TsvChunk(body) {
 
 class FileTableChunk(body: List<TsvChunkLine>) : TsvChunk(body) {
 
-    fun asTable() = FilesTable(asTable(this) { name, attributes -> File(name, attributes) })
+    fun asTable() = FilesTable(asTable(this) { name, attributes -> File(name, attributes = attributes) })
 }
 
 sealed class SectionTableChunk(body: List<TsvChunkLine>) : TsvChunk(body) {
