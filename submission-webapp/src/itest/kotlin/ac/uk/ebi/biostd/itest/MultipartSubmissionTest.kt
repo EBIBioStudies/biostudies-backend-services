@@ -54,7 +54,7 @@ internal class MultipartSubmissionTest(private val tempFolder: TemporaryFolder) 
         @BeforeAll
         fun init() {
             securityService.registerUser(RegisterRequest("test@biostudies.com", "jhon_doe", "12345"))
-            webClient = SecurityWebClient.create("http://localhost:$serverPort").auhtenticate("jhon_doe", "12345")
+            webClient = SecurityWebClient.create("http://localhost:$serverPort").getAuthenticatedClient("jhon_doe", "12345")
         }
 
         @Test

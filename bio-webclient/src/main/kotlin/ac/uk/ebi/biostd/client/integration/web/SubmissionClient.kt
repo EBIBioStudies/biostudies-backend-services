@@ -9,8 +9,7 @@ import ebi.ac.uk.model.Submission
 import org.springframework.http.ResponseEntity
 import java.io.File
 
-interface SubmissionClient :
-        SubmissionOperations, FilesOperations, GroupFilesOperations, MultipartSubmissionOperations
+interface SubmissionClient : SubmissionOperations, FilesOperations, GroupFilesOperations, MultipartSubmissionOperations
 
 interface FilesOperations {
 
@@ -52,5 +51,5 @@ interface SecurityOperations {
 
     fun login(user: String, password: String): LoginResponse
 
-    fun auhtenticate(user: String, password: String): BioWebClient
+    fun getAuthenticatedClient(user: String, password: String): BioWebClient
 }

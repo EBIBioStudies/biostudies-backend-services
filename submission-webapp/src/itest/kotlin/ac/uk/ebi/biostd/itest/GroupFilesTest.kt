@@ -49,7 +49,7 @@ internal class GroupFilesTest(private val tempFolder: TemporaryFolder) : BaseInt
         @BeforeAll
         fun init() {
             securityService.registerUser(RegisterRequest("test@biostudies.com", "jhon_doe", "12345"))
-            webClient = SecurityWebClient.create("http://localhost:$serverPort").auhtenticate("jhon_doe", "12345")
+            webClient = SecurityWebClient.create("http://localhost:$serverPort").getAuthenticatedClient("jhon_doe", "12345")
             groupService.addUserInGroup(groupService.creatGroup(GROUP_NAME).name, "test@biostudies.com")
         }
 

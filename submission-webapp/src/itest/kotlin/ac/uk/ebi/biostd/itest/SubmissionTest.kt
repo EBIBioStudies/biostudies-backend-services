@@ -68,7 +68,7 @@ internal class SubmissionTest(private val tempFolder: TemporaryFolder) : BaseInt
         @BeforeAll
         fun init() {
             securityService.registerUser(RegisterRequest("test@biostudies.com", "jhon_doe", "12345"))
-            webClient = SecurityWebClient.create("http://localhost:$serverPort").auhtenticate("jhon_doe", "12345")
+            webClient = SecurityWebClient.create("http://localhost:$serverPort").getAuthenticatedClient("jhon_doe", "12345")
 
             tempFolder.createDirectory("Folder1")
             tempFolder.createDirectory("Folder1/Folder2")

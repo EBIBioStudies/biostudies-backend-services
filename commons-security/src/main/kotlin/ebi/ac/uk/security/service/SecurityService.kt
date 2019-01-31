@@ -17,7 +17,8 @@ class SecurityService(
 ) {
 
     fun login(loginRequest: LoginRequest): UserInfo {
-        val user = userRepository.findByLoginOrEmail(loginRequest.login, loginRequest.login)
+        val user = userRepository
+                .findByLoginOrEmail(loginRequest.login, loginRequest.login)
                 .orElseThrow { throw UserNotFoundException(loginRequest.login) }
 
         if (!passwordVerifier.checkPassword(user.passwordDigest, loginRequest.password)) {
