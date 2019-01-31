@@ -34,7 +34,6 @@ CREATE INDEX FKek4om17ruuhrjo2gmirdxevay ON FileAttribute (file_id);
 
 CREATE TABLE FileRef (
     id         BIGINT AUTO_INCREMENT PRIMARY KEY,
-    directory  BIT          NOT NULL,
     name       VARCHAR(255) NULL,
     size       BIGINT       NOT NULL,
     tableIndex INT          NOT NULL,

@@ -73,7 +73,7 @@ class SubmissionDbMapper {
         toEitherList(sections, ::toSection, ::SectionsTable)
 
     private fun toLink(link: LinkDb) = Link(link.url, toAttributes(link.attributes))
-    private fun toFile(file: FileDb) = File(file.name, toAttributes(file.attributes))
+    private fun toFile(file: FileDb) = File(file.name, file.size, toAttributes(file.attributes))
 
     companion object EitherMapper {
 

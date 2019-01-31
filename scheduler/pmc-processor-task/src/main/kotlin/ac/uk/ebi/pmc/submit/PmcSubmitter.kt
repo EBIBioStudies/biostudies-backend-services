@@ -8,6 +8,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import mu.KotlinLogging
+import java.io.File
 
 private val logger = KotlinLogging.logger {}
 
@@ -21,10 +22,10 @@ class PmcSubmitter(
     private suspend fun processSubmission(submission: SubmissionDoc) = coroutineScope {
         logger.info { "Submitting ${submission.id}" }
 
-        val response = bioWebClient.submitSingle(submission.body.replace("\\", ""), SubmissionFormat.JSON)
-        logger.info { "Submission response ${response.statusCode}" }
+        val files = submissionDocService.getSubFiles(submission.files).map { File(it.path) }.toList()
+        val response = bioWebClient.submitSingle(submission.body.replace("\\", ""), SubmissionFormat.JSON, files)
 
-        // TODO Load the files and add them to the request
-        submissionDocService.getSubFiles(submission.files).forEach { logger.info { "Upload ${ it.name }" } }
+        logger.info { "Submission request response for ${submission.id}: ${response.statusCode}" }
+
     }
 }

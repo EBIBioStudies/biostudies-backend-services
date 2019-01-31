@@ -10,7 +10,7 @@ fun simpleLink() = Link(url = LINK_URL)
 
 internal const val FILE_NAME = "file name"
 internal const val FILE_TYPE = "file type"
-internal const val FILE_SIZE = 55
+internal const val FILE_SIZE = 55L
 
 fun simpleFile() = File(path = FILE_NAME)
 

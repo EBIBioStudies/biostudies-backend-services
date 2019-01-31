@@ -2,6 +2,7 @@ package ac.uk.ebi.pmc.config
 
 import ac.uk.ebi.biostd.SerializationService
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
+import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
 import ac.uk.ebi.pmc.client.PmcApi
 import ac.uk.ebi.pmc.data.MongoDocService
 import ac.uk.ebi.pmc.data.MongoRepository
@@ -48,8 +49,10 @@ class AppConfig {
     ) = PmcImporter(submissionDocService, serializationService, fileDownloader)
 
     @Bean
-    fun bioWebClient() =
-        BioWebClient.create("http://localhost:8080", "theToken")
+    fun bioWebClient(properties: PmcImporterProperties) =
+            SecurityWebClient
+                    .create(properties.bioStudiesUrl)
+                    .getAuthenticatedClient(properties.bioStudiesUser, properties.bioStudiesPassword)
 
     @Bean
     fun pmcSubmitter(bioWebClient: BioWebClient, submissionDocService: MongoDocService) =

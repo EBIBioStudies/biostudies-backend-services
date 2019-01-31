@@ -27,13 +27,16 @@ class File(
     @GeneratedValue
     var id: Long = 0L
 
+    var size: Long = 0L
+
     @OneToMany(cascade = [CascadeType.ALL])
     @JoinColumn(name = "file_id")
     @OrderBy("order ASC")
     var attributes: SortedSet<FileAttribute> = sortedSetOf()
 
-    constructor(name: String, order: Int, attributes: SortedSet<FileAttribute>, tableIndex: Int = NO_TABLE_INDEX)
+    constructor(name: String, order: Int, size: Long, attributes: SortedSet<FileAttribute>, tableIndex: Int = NO_TABLE_INDEX)
         : this(name, order) {
+        this.size = size
         this.attributes = attributes
         this.tableIndex = tableIndex
     }

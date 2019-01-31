@@ -56,5 +56,6 @@ class MultipartSubmissionResource(
         @RequestParam(SUBMISSION) submission: String
     ) = submissionService.submit(serializationService.deserializeSubmission(submission, TSV), user, getFiles(files))
 
-    private fun getFiles(files: Array<MultipartFile>) = files.map { ResourceFile(it.originalFilename!!, it.inputStream) }
+    private fun getFiles(files: Array<MultipartFile>) =
+            files.map { ResourceFile(it.originalFilename!!, it.inputStream, it.size) }
 }

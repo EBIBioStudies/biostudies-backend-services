@@ -47,6 +47,8 @@ class FilesHandler(private val folderResolver: FolderResolver, private val seria
     private fun copyFiles(submission: ExtendedSubmission, filesSource: FilesSource) {
         submission.allFiles().forEach { file ->
             val submissionFile = folderResolver.getSubFilePath(submission.relPath, file.path).toFile()
+
+            file.size = filesSource.size(file.path)
             FileUtils.copyInputStreamToFile(filesSource.getInputStream(file.path), submissionFile)
         }
     }
