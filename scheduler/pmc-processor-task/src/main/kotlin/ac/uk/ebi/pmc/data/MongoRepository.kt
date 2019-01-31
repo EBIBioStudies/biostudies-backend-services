@@ -3,8 +3,6 @@ package ac.uk.ebi.pmc.data
 import ac.uk.ebi.pmc.data.docs.ErrorDoc
 import ac.uk.ebi.pmc.data.docs.FileDoc
 import ac.uk.ebi.pmc.data.docs.SubmissionDoc
-import arrow.core.Option
-import arrow.core.toOption
 import com.mongodb.async.client.FindIterable
 import com.mongodb.async.client.MongoClient
 import com.mongodb.client.model.Filters

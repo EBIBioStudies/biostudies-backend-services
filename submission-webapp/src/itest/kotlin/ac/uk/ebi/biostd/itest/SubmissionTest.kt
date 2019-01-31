@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.itest
 
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
+import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.common.config.SubmitterConfig
 import ac.uk.ebi.biostd.files.FileConfig
@@ -13,6 +14,7 @@ import ac.uk.ebi.biostd.itest.factory.invalidLinkUrl
 import ac.uk.ebi.biostd.itest.factory.simpleSubmissionTsv
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
 import arrow.core.Either
+import ebi.ac.uk.api.security.RegisterRequest
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.File
@@ -23,7 +25,6 @@ import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.attributeDetails
 import ebi.ac.uk.model.constants.SubFields
 import ebi.ac.uk.model.extensions.title
-import ebi.ac.uk.security.integration.model.SignUpRequest
 import ebi.ac.uk.security.service.SecurityService
 import ebi.ac.uk.util.collections.second
 import ebi.ac.uk.util.collections.third
@@ -66,8 +67,8 @@ internal class SubmissionTest(private val tempFolder: TemporaryFolder) : BaseInt
 
         @BeforeAll
         fun init() {
-            securityService.registerUser(SignUpRequest("test@biostudies.com", "jhon_doe", "12345"))
-            webClient = BioWebClient.create("http://localhost:$serverPort", securityService.login("jhon_doe", "12345"))
+            securityService.registerUser(RegisterRequest("test@biostudies.com", "jhon_doe", "12345"))
+            webClient = SecurityWebClient.create("http://localhost:$serverPort").getAuthenticatedClient("jhon_doe", "12345")
 
             tempFolder.createDirectory("Folder1")
             tempFolder.createDirectory("Folder1/Folder2")

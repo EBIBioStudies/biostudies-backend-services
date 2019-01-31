@@ -5,8 +5,11 @@ import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserGroupDataRepository
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.KotlinModule
 import ebi.ac.uk.security.service.GroupService
 import ebi.ac.uk.security.service.SecurityService
+import ebi.ac.uk.security.util.PasswordVerifier
+import ebi.ac.uk.security.util.TokenUtil
 import ebi.ac.uk.security.web.SecurityFilter
 import io.jsonwebtoken.Jwts
 import org.springframework.context.annotation.Bean
@@ -20,19 +23,20 @@ import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.web.authentication.HttpStatusEntryPoint
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter
 
-private val ALLOWED_URLS = arrayOf("/login")
+private val ALLOWED_URLS = arrayOf("/auth/login")
 
 @Configuration
 @EnableWebSecurity
 @Import(SecurityBeansConfig::class)
 class SecurityConfig(
     private val props: ApplicationProperties,
-    private val securityService: SecurityService
+    private val tokenUtil: TokenUtil
 ) : WebSecurityConfigurerAdapter() {
 
     override fun configure(http: HttpSecurity) {
-        http.csrf().disable()
-            .addFilterBefore(SecurityFilter(props.environment, securityService), BasicAuthenticationFilter::class.java)
+        http.csrf()
+                .disable()
+                .addFilterBefore(SecurityFilter(props.environment, tokenUtil), BasicAuthenticationFilter::class.java)
             .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             .and()
             .authorizeRequests()
@@ -47,12 +51,20 @@ class SecurityConfig(
 class SecurityBeansConfig(private val properties: ApplicationProperties) {
 
     @Bean
-    fun securityService(userRepository: UserDataRepository) =
-        SecurityService(jwtParser(), objectMapper(), userRepository, properties.tokenHash)
+    fun tokenUtil(userRepository: UserDataRepository) =
+            TokenUtil(jwtParser(), objectMapper(), userRepository, properties.tokenHash)
+
+    @Bean
+    fun passwordVerifier(tokenUtil: TokenUtil) = PasswordVerifier(tokenUtil)
+
+    @Bean
+    fun securityService(userRepository: UserDataRepository, passwordVerifier: PasswordVerifier, tokenUtil: TokenUtil) =
+            SecurityService(userRepository, passwordVerifier, tokenUtil)
 
     @Bean
     fun objectMapper() = ObjectMapper().apply {
         configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+        registerModule(KotlinModule())
     }
 
     @Bean

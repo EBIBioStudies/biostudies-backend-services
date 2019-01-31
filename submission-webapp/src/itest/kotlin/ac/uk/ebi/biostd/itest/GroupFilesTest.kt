@@ -1,12 +1,13 @@
 package ac.uk.ebi.biostd.itest
 
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
+import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.common.config.SubmitterConfig
 import ac.uk.ebi.biostd.files.FileConfig
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
 import ebi.ac.uk.api.UserFileType
-import ebi.ac.uk.security.integration.model.SignUpRequest
+import ebi.ac.uk.api.security.RegisterRequest
 import ebi.ac.uk.security.service.GroupService
 import ebi.ac.uk.security.service.SecurityService
 import io.github.glytching.junit.extension.folder.TemporaryFolder
@@ -47,8 +48,8 @@ internal class GroupFilesTest(private val tempFolder: TemporaryFolder) : BaseInt
 
         @BeforeAll
         fun init() {
-            securityService.registerUser(SignUpRequest("test@biostudies.com", "jhon_doe", "12345"))
-            webClient = BioWebClient.create("http://localhost:$serverPort", securityService.login("jhon_doe", "12345"))
+            securityService.registerUser(RegisterRequest("test@biostudies.com", "jhon_doe", "12345"))
+            webClient = SecurityWebClient.create("http://localhost:$serverPort").getAuthenticatedClient("jhon_doe", "12345")
             groupService.addUserInGroup(groupService.creatGroup(GROUP_NAME).name, "test@biostudies.com")
         }
 

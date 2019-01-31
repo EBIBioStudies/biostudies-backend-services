@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.client.integration.web
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.JSON
 import ebi.ac.uk.api.UserFile
+import ebi.ac.uk.api.security.LoginResponse
 import ebi.ac.uk.base.EMPTY
 import ebi.ac.uk.model.Submission
 import org.springframework.http.ResponseEntity
@@ -44,4 +45,11 @@ interface MultipartSubmissionOperations {
     fun submitSingle(submission: String, format: SubmissionFormat, files: List<File>): ResponseEntity<Submission>
 
     fun submitSingle(submission: Submission, format: SubmissionFormat, files: List<File>): ResponseEntity<Submission>
+}
+
+interface SecurityOperations {
+
+    fun login(user: String, password: String): LoginResponse
+
+    fun getAuthenticatedClient(user: String, password: String): BioWebClient
 }
