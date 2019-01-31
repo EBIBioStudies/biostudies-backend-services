@@ -32,6 +32,9 @@ class User(
     @Column
     var superuser: Boolean = false
 
+    @Column
+    var active: Boolean = false
+
     @Lob
     var passwordDigest: ByteArray = ByteArray(0)
 
