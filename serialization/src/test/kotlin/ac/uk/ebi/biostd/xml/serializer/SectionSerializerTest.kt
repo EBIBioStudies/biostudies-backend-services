@@ -41,15 +41,12 @@ class SectionSerializerTest {
             }
             "files" {
                 "file" {
+                    attribute("size", FILE_SIZE)
                     "path" { -FILE_NAME }
                     "attributes" {
                         "attribute" {
                             "name" { -"type" }
                             "value" { -FILE_TYPE }
-                        }
-                        "attribute" {
-                            "name" { -"size" }
-                            "value" { -FILE_SIZE.toString() }
                         }
                     }
                 }

@@ -2,7 +2,7 @@ package ebi.ac.uk.model
 
 import java.util.Objects
 
-class File(var path: String, var size:Long = 0, attributes: List<Attribute> = emptyList()) : Attributable(attributes) {
+class File(var path: String, var size: Long = 0, attributes: List<Attribute> = emptyList()) : Attributable(attributes) {
 
     override fun equals(other: Any?): Boolean {
         if (other !is File) return false

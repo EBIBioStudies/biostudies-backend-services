@@ -55,8 +55,11 @@ class AppConfig {
                     .getAuthenticatedClient(properties.bioStudiesUser, properties.bioStudiesPassword)
 
     @Bean
-    fun pmcSubmitter(bioWebClient: BioWebClient, submissionDocService: MongoDocService) =
-            PmcSubmitter(bioWebClient, submissionDocService)
+    fun pmcSubmitter(
+        bioWebClient: BioWebClient,
+        submissionDocService: MongoDocService,
+        pmcImporterProperties: PmcImporterProperties
+    ) = PmcSubmitter(bioWebClient, submissionDocService, pmcImporterProperties)
 
     @Bean
     fun pmcBatchImporter(pmcImporter: PmcImporter) = PmcBatchImporter(pmcImporter)
