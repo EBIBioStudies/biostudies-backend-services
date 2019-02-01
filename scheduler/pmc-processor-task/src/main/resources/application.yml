@@ -3,6 +3,7 @@ app:
     mode: # Processing mode: FILE, FOLDER or SUBMIT
     path: # path to load files
     temp: # directory to store submission downloaded files
+    sourceFile: # Source file that will be used to submit
     mongodb-uri: # Mongo database connection string
     bio-studies-url: # URL pointing to the BioStudies instance where the data will be submitted
     bio-studies-user: # User under whom the submissions will be made
