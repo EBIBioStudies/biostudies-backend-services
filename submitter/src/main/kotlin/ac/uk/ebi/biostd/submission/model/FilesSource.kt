@@ -20,7 +20,6 @@ class ListFilesSource(private val files: List<ResourceFile>) : FilesSource {
     override fun getInputStream(filePath: String) = files.first { it.name == filePath }.inputStream
 
     override fun size(filePath: String) = files.first { it.name == filePath }.size
-
 }
 
 class PathFilesSource(private val path: Path) : FilesSource {

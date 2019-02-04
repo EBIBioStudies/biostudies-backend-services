@@ -20,9 +20,12 @@ class MongoDocService(
     private val dataRepository: MongoRepository,
     private val serializationService: SerializationService
 ) {
-    suspend fun getAllSubmissions() = dataRepository.getAllSubmissions().toList()
+    suspend fun getNotImportedSubmissions(sourceFile: String) =
+            dataRepository.findSubmissions(sourceFile).toList()
 
     suspend fun getSubFiles(ids: List<ObjectId>) = dataRepository.getSubFiles(ids)
+
+    suspend fun markAsImported(submission: SubmissionDoc) = dataRepository.update(submission.apply { imported = true })
 
     suspend fun saveSubmission(submission: Submission, sourceFile: String, files: List<File>) {
         val fileIds = files
@@ -33,10 +36,15 @@ class MongoDocService(
         logger.info { "finish processing submission with accNo = '${submission.accNo}' of file $sourceFile" }
     }
 
-    suspend fun reportError(submission: Submission, sourceFile: String, throwable: Throwable) {
-        logger.error { "problem processing submission ${submission.accNo} of file $sourceFile, ${throwable.message}" }
+    suspend fun reportError(submission: Submission, sourceFile: String, throwable: Throwable) =
+            saveError(submission.accNo, sourceFile, asJson(submission), throwable)
 
-        dataRepository.save(ErrorDoc(submission.accNo, asJson(submission), sourceFile, getStackTrace(throwable)))
+    suspend fun reportError(submission: SubmissionDoc, throwable: Throwable) =
+            saveError(submission.id, submission.sourceFile, submission.body, throwable)
+
+    private suspend fun saveError(accNo: String, sourceFile: String, submission: String, throwable: Throwable) {
+        logger.error { "Error processing submission $accNo of file $sourceFile, ${throwable.message}" }
+        dataRepository.save(ErrorDoc(accNo, submission, submission, getStackTrace(throwable)))
     }
 
     private fun asJson(submission: Submission) = serializationService.serializeSubmission(submission, SubFormat.JSON)
