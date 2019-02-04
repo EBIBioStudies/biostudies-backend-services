@@ -6,9 +6,9 @@ import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.common.config.SubmitterConfig
 import ac.uk.ebi.biostd.files.FileConfig
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
+import ac.uk.ebi.biostd.itest.entities.JhonDoe
 import ebi.ac.uk.api.UserFileType
 import ebi.ac.uk.api.security.RegisterRequest
-import ebi.ac.uk.security.service.SecurityService
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
@@ -16,7 +16,6 @@ import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
@@ -34,15 +33,13 @@ internal class FileApiTest(private val tempFolder: TemporaryFolder) : BaseIntegr
         @LocalServerPort
         private var serverPort: Int = 0
 
-        @Autowired
-        private lateinit var securityService: SecurityService
-
         private lateinit var webClient: BioWebClient
 
         @BeforeAll
         fun init() {
-            securityService.registerUser(RegisterRequest("test@biostudies.com", "jhon_doe", "12345"))
-            webClient = SecurityWebClient.create("http://localhost:$serverPort").getAuthenticatedClient("jhon_doe", "12345")
+            val securityClient = SecurityWebClient.create("http://localhost:$serverPort")
+            securityClient.registerUser(RegisterRequest(JhonDoe.email, JhonDoe.username, JhonDoe.password))
+            webClient = securityClient.getAuthenticatedClient(JhonDoe.username, JhonDoe.password)
         }
 
         @Test

@@ -1,5 +1,8 @@
 package ac.uk.ebi.biostd.persistence.model
 
+import ac.uk.ebi.biostd.persistence.events.UserActivatedEvent
+import ac.uk.ebi.biostd.persistence.events.UserRegisterEvent
+import org.springframework.data.domain.AbstractAggregateRoot
 import javax.persistence.Column
 import javax.persistence.Entity
 import javax.persistence.FetchType
@@ -20,7 +23,7 @@ class User(
     @Column
     var secret: String
 
-) {
+) : AbstractAggregateRoot<User>() {
 
     @Id
     @GeneratedValue
@@ -42,4 +45,20 @@ class User(
     val groups: MutableSet<UserGroup> = mutableSetOf()
 
     fun addGroup(userGroup: UserGroup) = groups.add(userGroup)
+
+    /**
+     * Register @see [UserRegisterEvent] to be dispatched when user is saved.
+     */
+    fun registered(activationLink: String?): User {
+        registerEvent(UserRegisterEvent(this, activationLink))
+        return this
+    }
+
+    /**
+     * Register @see [UserActivatedEvent] to be dispatched when user is saved.
+     */
+    fun activated(): User {
+        registerEvent(UserActivatedEvent(this))
+        return this
+    }
 }

@@ -8,4 +8,6 @@ spring:
 app:
   basepath: {BASE_PATH}
   environment: TEST
-  tokenHash: biostd-test
+  security:
+    tokenHash: biostd-test
+    requireActivation: false

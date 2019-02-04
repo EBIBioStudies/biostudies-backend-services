@@ -26,6 +26,5 @@ class PmcSubmitter(
         val response = bioWebClient.submitSingle(submission.body.replace("\\", ""), SubmissionFormat.JSON, files)
 
         logger.info { "Submission request response for ${submission.id}: ${response.statusCode}" }
-
     }
 }

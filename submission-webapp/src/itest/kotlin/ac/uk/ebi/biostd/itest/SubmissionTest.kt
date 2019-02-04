@@ -7,6 +7,7 @@ import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.common.config.SubmitterConfig
 import ac.uk.ebi.biostd.files.FileConfig
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
+import ac.uk.ebi.biostd.itest.entities.JhonDoe
 import ac.uk.ebi.biostd.itest.factory.allInOneSubmissionJson
 import ac.uk.ebi.biostd.itest.factory.allInOneSubmissionTsv
 import ac.uk.ebi.biostd.itest.factory.allInOneSubmissionXml
@@ -25,7 +26,6 @@ import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.attributeDetails
 import ebi.ac.uk.model.constants.SubFields
 import ebi.ac.uk.model.extensions.title
-import ebi.ac.uk.security.service.SecurityService
 import ebi.ac.uk.util.collections.second
 import ebi.ac.uk.util.collections.third
 import io.github.glytching.junit.extension.folder.TemporaryFolder
@@ -60,15 +60,13 @@ internal class SubmissionTest(private val tempFolder: TemporaryFolder) : BaseInt
         @Autowired
         private lateinit var submissionRepository: SubmissionRepository
 
-        @Autowired
-        private lateinit var securityService: SecurityService
-
         private lateinit var webClient: BioWebClient
 
         @BeforeAll
         fun init() {
-            securityService.registerUser(RegisterRequest("test@biostudies.com", "jhon_doe", "12345"))
-            webClient = SecurityWebClient.create("http://localhost:$serverPort").getAuthenticatedClient("jhon_doe", "12345")
+            val securityClient = SecurityWebClient.create("http://localhost:$serverPort")
+            securityClient.registerUser(RegisterRequest(JhonDoe.email, JhonDoe.username, JhonDoe.password))
+            webClient = securityClient.getAuthenticatedClient(JhonDoe.username, JhonDoe.password)
 
             tempFolder.createDirectory("Folder1")
             tempFolder.createDirectory("Folder1/Folder2")

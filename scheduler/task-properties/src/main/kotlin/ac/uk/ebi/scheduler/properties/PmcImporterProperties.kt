@@ -17,13 +17,13 @@ class PmcImporterProperties() : BaseAppProperty {
     }
 
     constructor(
-            mode: ImportMode,
-            path: String,
-            temp: String,
-            mongodbUri: String,
-            bioStudiesUrl: String,
-            bioStudiesUser: String,
-            bioStudiesPassword: String
+        mode: ImportMode,
+        path: String,
+        temp: String,
+        mongodbUri: String,
+        bioStudiesUrl: String,
+        bioStudiesUser: String,
+        bioStudiesPassword: String
     ) : this() {
         this.mode = mode
         this.path = path

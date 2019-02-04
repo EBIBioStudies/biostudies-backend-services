@@ -26,7 +26,10 @@ class PmcImporterService(
             mode = ImportMode.GZ_FILE,
             path = file.absolutePath,
             temp = properties.temp,
-            mongodbUri = properties.mongoUri)
+            mongodbUri = properties.mongoUri,
+            bioStudiesUrl = properties.bioStudiesUrl,
+            bioStudiesUser = properties.bioStudiesUser,
+            bioStudiesPassword = properties.bioStudiesPassword)
 
         val jobTry = clusterOperations.triggerJob(
             JobSpec(8, MemorySpec.SIXTEEN_GB, properties.asJavaCommand(appProperties.appsFolder), jobs))
