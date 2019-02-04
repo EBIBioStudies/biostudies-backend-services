@@ -21,12 +21,12 @@ class MongoRepository(
     private val dataBase: String,
     private val mongoClient: MongoClient
 ) {
-    fun getNotImportedSubmissionsBySourceFile(sourceFile: String): FindIterable<SubmissionDoc> =
-            getSubmissionCollection().find(and(eq("sourceFile", sourceFile), eq("imported", false)))
+    fun findSubmissions(sourceFile: String, imported: Boolean = false): FindIterable<SubmissionDoc> =
+            getSubmissionCollection().find(and(eq("sourceFile", sourceFile), eq("imported", imported)))
 
     suspend fun save(submissionDoc: SubmissionDoc) = getSubmissionCollection().insertOne(submissionDoc)
 
-    suspend fun save(errorDoc: ErrorDoc) = getCollection(ERRORS_COLLECTION, ErrorDoc::class.java).insertOne(errorDoc)
+    suspend fun save(errorDoc: ErrorDoc) = getCollection<ErrorDoc>(ERRORS_COLLECTION).insertOne(errorDoc)
 
     suspend fun update(submissionDoc: SubmissionDoc) = getSubmissionCollection().updateOne(submissionDoc)
 
@@ -43,10 +43,10 @@ class MongoRepository(
         return ids.map { collection.findOne(eq("_id", it))!! }.toList()
     }
 
-    private fun getFilesCollection() = getCollection(FILES_COLLECTION, FileDoc::class.java)
+    private fun getFilesCollection() = getCollection<FileDoc>(FILES_COLLECTION)
 
-    private fun getSubmissionCollection() = getCollection(SUBMISSION_COLLECTION, SubmissionDoc::class.java)
+    private fun getSubmissionCollection() = getCollection<SubmissionDoc>(SUBMISSION_COLLECTION)
 
-    private fun <A, B : Class<A>> getCollection(name: String, documentClass: B) =
-            mongoClient.getDatabase(dataBase).getCollection(name, documentClass)
+    private inline fun <reified T> getCollection(name: String) =
+            mongoClient.getDatabase(dataBase).getCollection(name, T::class.java)
 }

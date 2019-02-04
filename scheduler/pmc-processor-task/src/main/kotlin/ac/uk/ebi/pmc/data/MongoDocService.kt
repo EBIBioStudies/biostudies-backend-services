@@ -21,7 +21,7 @@ class MongoDocService(
     private val serializationService: SerializationService
 ) {
     suspend fun getNotImportedSubmissions(sourceFile: String) =
-            dataRepository.getNotImportedSubmissionsBySourceFile(sourceFile).toList()
+            dataRepository.findSubmissions(sourceFile).toList()
 
     suspend fun getSubFiles(ids: List<ObjectId>) = dataRepository.getSubFiles(ids)
 
