@@ -6,10 +6,10 @@ import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.common.config.SubmitterConfig
 import ac.uk.ebi.biostd.files.FileConfig
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
+import ac.uk.ebi.biostd.itest.entities.GenericUser
 import ebi.ac.uk.api.UserFileType
 import ebi.ac.uk.api.security.RegisterRequest
 import ebi.ac.uk.security.service.GroupService
-import ebi.ac.uk.security.service.SecurityService
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions
@@ -39,17 +39,15 @@ internal class GroupFilesTest(private val tempFolder: TemporaryFolder) : BaseInt
         private var serverPort: Int = 0
 
         @Autowired
-        private lateinit var securityService: SecurityService
-
-        @Autowired
         private lateinit var groupService: GroupService
 
         private lateinit var webClient: BioWebClient
 
         @BeforeAll
         fun init() {
-            securityService.registerUser(RegisterRequest("test@biostudies.com", "jhon_doe", "12345"))
-            webClient = SecurityWebClient.create("http://localhost:$serverPort").getAuthenticatedClient("jhon_doe", "12345")
+            val securityClient = SecurityWebClient.create("http://localhost:$serverPort")
+            securityClient.registerUser(RegisterRequest(GenericUser.email, GenericUser.username, GenericUser.password))
+            webClient = securityClient.getAuthenticatedClient(GenericUser.username, GenericUser.password)
             groupService.addUserInGroup(groupService.creatGroup(GROUP_NAME).name, "test@biostudies.com")
         }
 

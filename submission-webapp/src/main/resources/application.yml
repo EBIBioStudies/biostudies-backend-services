@@ -15,4 +15,5 @@ spring:
 app:
   basepath:
   environment:
-  tokenHash:
+  security:
+    tokenHash:

@@ -13,7 +13,8 @@ import java.util.UUID
 class SecurityService(
     private val userRepository: UserDataRepository,
     private val passwordVerifier: PasswordVerifier,
-    private val tokenUtil: TokenUtil
+    private val tokenUtil: TokenUtil,
+    private val requireActivation: Boolean
 ) {
 
     fun login(loginRequest: LoginRequest): UserInfo {
@@ -30,10 +31,6 @@ class SecurityService(
 
     /**
      * Todo
-     *  - add logic for required activation
-     *  - dispatch user register event and add :
-     *      - add Notification handler to sent proper email
-     *      - add notification handler to create magic folder and user symlink
      *  - add Aux profile information handling
      *
      */
@@ -46,8 +43,12 @@ class SecurityService(
         user.email = registerRequest.email
         user.login = registerRequest.username
         user.passwordDigest = passwordVerifier.getPasswordDigest(registerRequest.password)
-        user.active = true
-        return userRepository.save(user)
+
+        return if (requireActivation) {
+            userRepository.save(user.registered(registerRequest.activationUrl))
+        } else {
+            userRepository.save(user.activated())
+        }
     }
 
     private fun newRandomKey() = UUID.randomUUID().toString()

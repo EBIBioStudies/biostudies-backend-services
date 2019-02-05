@@ -21,8 +21,8 @@ class PmcImporterProperties() : BaseAppProperty {
         mode: ImportMode,
         path: String,
         temp: String,
-        sourceFile: String,
         mongodbUri: String,
+        sourceFile: String,
         bioStudiesUrl: String,
         bioStudiesUser: String,
         bioStudiesPassword: String

@@ -23,7 +23,11 @@ import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.web.authentication.HttpStatusEntryPoint
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter
 
-private val ALLOWED_URLS = arrayOf("/auth/login")
+private val ALLOWED_URLS = arrayOf(
+    "/auth/login",
+    "/auth/signin",
+    "/auth/register",
+    "/auth/signup")
 
 @Configuration
 @EnableWebSecurity
@@ -35,8 +39,8 @@ class SecurityConfig(
 
     override fun configure(http: HttpSecurity) {
         http.csrf()
-                .disable()
-                .addFilterBefore(SecurityFilter(props.environment, tokenUtil), BasicAuthenticationFilter::class.java)
+            .disable()
+            .addFilterBefore(SecurityFilter(props.environment, tokenUtil), BasicAuthenticationFilter::class.java)
             .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             .and()
             .authorizeRequests()
@@ -48,18 +52,20 @@ class SecurityConfig(
 }
 
 @Configuration
-class SecurityBeansConfig(private val properties: ApplicationProperties) {
+class SecurityBeansConfig(properties: ApplicationProperties) {
+
+    private val securityProperties = properties.security
 
     @Bean
     fun tokenUtil(userRepository: UserDataRepository) =
-            TokenUtil(jwtParser(), objectMapper(), userRepository, properties.tokenHash)
+        TokenUtil(jwtParser(), objectMapper(), userRepository, securityProperties.tokenHash)
 
     @Bean
     fun passwordVerifier(tokenUtil: TokenUtil) = PasswordVerifier(tokenUtil)
 
     @Bean
     fun securityService(userRepository: UserDataRepository, passwordVerifier: PasswordVerifier, tokenUtil: TokenUtil) =
-            SecurityService(userRepository, passwordVerifier, tokenUtil)
+        SecurityService(userRepository, passwordVerifier, tokenUtil, securityProperties.requireActivation)
 
     @Bean
     fun objectMapper() = ObjectMapper().apply {
