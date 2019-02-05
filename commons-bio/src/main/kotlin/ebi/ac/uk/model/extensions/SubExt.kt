@@ -5,9 +5,6 @@ import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.constants.SubFields
 import java.time.Instant
 
-fun Submission.allFiles(): List<File> =
-    section.allFiles() + section.allSections().map { it.allFiles() }.flatten()
-
 var Submission.attachTo: String?
     get() = this[SubFields.ATTACH_TO]
     set(value) {
@@ -31,5 +28,8 @@ var Submission.rootPath: String
     set(value) {
         this[SubFields.ROOT_PATH] = value
     }
+
+fun Submission.allFiles(): List<File> =
+    section.allFiles() + section.allSections().map { it.allFiles() }.flatten()
 
 fun Submission.getSectionByType(name: String) = section.allSections().first { it.type == name }
