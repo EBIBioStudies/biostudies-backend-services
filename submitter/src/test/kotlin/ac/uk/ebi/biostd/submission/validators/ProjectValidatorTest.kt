@@ -74,7 +74,7 @@ class ProjectValidatorTest(@MockK private val mockPersistenceContext: Persistenc
 
         assertThatExceptionOfType(InvalidProjectException::class.java)
                 .isThrownBy { validateSubmission() }
-                .withMessage("")
+                .withMessage("The project BioPDFs doesn't exists")
 
         verify(exactly = 1) { mockPersistenceContext.getSubmission(INVALID_PROJECT) }
     }
