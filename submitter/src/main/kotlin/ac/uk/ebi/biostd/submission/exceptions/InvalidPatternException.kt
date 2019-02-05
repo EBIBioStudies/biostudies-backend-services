@@ -23,5 +23,5 @@ class InvalidAccNoPattern(
 ) : RuntimeException() {
 
     override val message: String
-        get() = "Invalid submission accession number '$accNo', number need to match $validPattern}"
+        get() = "Invalid accession number '$accNo', number should match the pattern $validPattern}"
 }

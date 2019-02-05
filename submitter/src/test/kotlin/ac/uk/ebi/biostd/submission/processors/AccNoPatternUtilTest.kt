@@ -73,7 +73,7 @@ class AccNoPatternUtilTest(
     }
 
     @Test
-    fun `When submission is new and user is not allow provide accession number`() {
+    fun `When submission is new and user is not allowed provide accession number`() {
         every { context.isNew(submission) } returns true
         every { context.canUserProvideAccNo(user) } returns false
 
@@ -81,7 +81,7 @@ class AccNoPatternUtilTest(
     }
 
     @Test
-    fun `When accession and user is not allow to update submission`() {
+    fun `When accession and user is not allowed to update submission`() {
         every { context.canSubmit("AAB12", user) } returns false
 
         assertThrows<InvalidPermissionsException> { testInstance.process(submission, context) }

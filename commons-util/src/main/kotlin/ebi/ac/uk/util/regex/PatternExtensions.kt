@@ -5,7 +5,7 @@ import java.util.regex.Matcher
 import java.util.regex.Pattern
 
 /**
- * Try to match the pattern over the provided string and return optional of matcher.
+ * Tries to match the pattern over the provided string and returns an optional containing the matcher result.
  */
 fun Pattern.match(expression: String): Option<Matcher> {
     val matcher = matcher(expression)

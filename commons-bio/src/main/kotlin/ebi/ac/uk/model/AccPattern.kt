@@ -3,7 +3,7 @@ package ebi.ac.uk.model
 import ebi.ac.uk.base.EMPTY
 
 /**
- * Represent a submission accession pattern which can be used for specific project to generate submission accession number based on the same patter.
+ * Represents a submission accession pattern which can be used for specific project to generate submission accession number based on the same patter.
  */
 class AccPattern(val prefix: String = EMPTY, val postfix: String = EMPTY) {
 
@@ -15,7 +15,7 @@ class AccPattern(val prefix: String = EMPTY, val postfix: String = EMPTY) {
 }
 
 /**
- * Represent an submission accession number which include a pattern an a numeric value.
+ * Represents an submission accession number which include a pattern an a numeric value.
  */
 class AccNumber(val pattern: AccPattern, val numericValue: Long) {
 

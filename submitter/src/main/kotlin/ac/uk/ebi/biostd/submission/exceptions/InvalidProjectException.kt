@@ -6,5 +6,5 @@ package ac.uk.ebi.biostd.submission.exceptions
 class InvalidProjectException(private val project: String) : RuntimeException() {
 
     override val message: String
-        get() = "The project $project doesn't exists"
+        get() = "The project $project doesn't exist"
 }

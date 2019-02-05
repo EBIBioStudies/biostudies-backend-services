@@ -29,13 +29,13 @@ class AccNoPatternUtil {
                     .getOrElse { throw InvalidPatternException(accPattern, EXPECTED_PATTERN) }
 
     /**
-     * Determinate if the submission acc no is a pattern, which is determinate if match the @see [ACC_PATTERN]
+     * Checks if the submission accession number is a pattern, based on whether or not it matches the @see [ACC_PATTERN]
      * expression.
      */
     fun isPattern(accNo: String) = ACC_PATTERN.format(".*").toPattern().matcher(accNo).matches()
 
     /**
-     * Extract the @see [AccNumber] for the given accession string.
+     * Extracts the @see [AccNumber] for the given accession string.
      */
     fun extractAccessNumber(accNo: String) = EXTRACTION_PATTERN.match(accNo)
             .map(::asAccNumber).getOrElse { throw InvalidAccNoPattern(accNo, EXTRACTION_PATTERN) }
