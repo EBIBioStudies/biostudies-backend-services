@@ -3,7 +3,7 @@ package ac.uk.ebi.biostd.itest.entities
 /**
  * Represent a Generic bio studies user.
  */
-object JhonDoe {
+object GenericUser {
     const val username = "jhon_doe"
     const val email = "test@biostudies.com"
     const val password = "12345"

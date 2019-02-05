@@ -6,7 +6,7 @@ import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.common.config.SubmitterConfig
 import ac.uk.ebi.biostd.files.FileConfig
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
-import ac.uk.ebi.biostd.itest.entities.JhonDoe
+import ac.uk.ebi.biostd.itest.entities.GenericUser
 import ebi.ac.uk.api.UserFileType
 import ebi.ac.uk.api.security.RegisterRequest
 import io.github.glytching.junit.extension.folder.TemporaryFolder
@@ -38,8 +38,8 @@ internal class FileApiTest(private val tempFolder: TemporaryFolder) : BaseIntegr
         @BeforeAll
         fun init() {
             val securityClient = SecurityWebClient.create("http://localhost:$serverPort")
-            securityClient.registerUser(RegisterRequest(JhonDoe.email, JhonDoe.username, JhonDoe.password))
-            webClient = securityClient.getAuthenticatedClient(JhonDoe.username, JhonDoe.password)
+            securityClient.registerUser(RegisterRequest(GenericUser.email, GenericUser.username, GenericUser.password))
+            webClient = securityClient.getAuthenticatedClient(GenericUser.username, GenericUser.password)
         }
 
         @Test
