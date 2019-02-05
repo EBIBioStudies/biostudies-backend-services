@@ -1,8 +1,10 @@
 package ac.uk.ebi.biostd.submission.exceptions
 
-const val INVALID_PROJECT_ERROR_MSG = "The project %s doesn't exists"
-
+/**
+ * Generated when submission is trying to be attached to a nonexistent project.
+ */
 class InvalidProjectException(private val project: String) : RuntimeException() {
-    override val message: String?
-        get() = INVALID_PROJECT_ERROR_MSG.format(project)
+
+    override val message: String
+        get() = "The project $project doesn't exist"
 }
