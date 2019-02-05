@@ -3,7 +3,7 @@ package ebi.ac.uk.base
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-class BooleanExtensionsTest {
+class BooleanExtTest {
 
     @Test
     fun orFalseWhenNotNullable() {
