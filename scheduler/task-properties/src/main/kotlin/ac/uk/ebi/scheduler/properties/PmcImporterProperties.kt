@@ -9,6 +9,7 @@ class PmcImporterProperties() : BaseAppProperty {
             --app.data.path=$path \
             --app.data.mode=$mode \
             --app.data.temp=$temp \
+            --app.data.sourceFile=$sourceFile \
             --app.data.mongodbUri=$mongodbUri \
             --app.data.bioStudiesUrl=$bioStudiesUrl \
             --app.data.bioStudiesUser=$bioStudiesUser \
@@ -21,6 +22,7 @@ class PmcImporterProperties() : BaseAppProperty {
         path: String,
         temp: String,
         mongodbUri: String,
+        sourceFile: String,
         bioStudiesUrl: String,
         bioStudiesUser: String,
         bioStudiesPassword: String
@@ -28,6 +30,7 @@ class PmcImporterProperties() : BaseAppProperty {
         this.mode = mode
         this.path = path
         this.temp = temp
+        this.sourceFile = sourceFile
         this.mongodbUri = mongodbUri
         this.bioStudiesUrl = bioStudiesUrl
         this.bioStudiesUser = bioStudiesUser
@@ -37,6 +40,7 @@ class PmcImporterProperties() : BaseAppProperty {
     lateinit var mode: ImportMode
     lateinit var path: String
     lateinit var temp: String
+    lateinit var sourceFile: String
     lateinit var mongodbUri: String
     lateinit var bioStudiesUrl: String
     lateinit var bioStudiesUser: String

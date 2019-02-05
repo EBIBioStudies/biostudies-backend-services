@@ -12,4 +12,5 @@ class SchedulerPmcImporterProp {
     lateinit var bioStudiesUrl: String
     lateinit var bioStudiesUser: String
     lateinit var bioStudiesPassword: String
+    lateinit var sourceFile: String
 }

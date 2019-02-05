@@ -36,7 +36,7 @@ internal class MongoDocServiceTest(
     @Test
     fun `save submission with file`(): Unit = runBlocking {
         coEvery { dataRepository.saveSubFile(exampleFile, submission.accNo) } returns fileId
-        coEvery { dataRepository.save(ofType(SubmissionDoc::class)) } returns Unit
+        coEvery { dataRepository.save(ofType(SubmissionDoc::class)) } returns null
         every { serializationService.serializeSubmission(submission, SubFormat.JSON) } returns submissionJson
 
         testInstance.saveSubmission(submission, "source file", listOf(exampleFile))

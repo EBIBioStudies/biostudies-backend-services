@@ -29,6 +29,7 @@ class PmcImporterService(
             mongodbUri = properties.mongoUri,
             bioStudiesUrl = properties.bioStudiesUrl,
             bioStudiesUser = properties.bioStudiesUser,
+            sourceFile = properties.sourceFile,
             bioStudiesPassword = properties.bioStudiesPassword)
 
         val jobTry = clusterOperations.triggerJob(

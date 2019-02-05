@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.xml.serializer
 
 import ac.uk.ebi.biostd.xml.common.XmlStdSerializer
+import ac.uk.ebi.biostd.xml.common.writeXmlAttr
 import ac.uk.ebi.biostd.xml.common.writeXmlCollection
 import ac.uk.ebi.biostd.xml.common.writeXmlField
 import ac.uk.ebi.biostd.xml.common.writeXmlObj
@@ -14,6 +15,7 @@ class FileSerializer : XmlStdSerializer<File>(File::class.java) {
     override fun serializeXml(value: File, gen: ToXmlGenerator, provider: SerializerProvider) {
         with(gen) {
             writeXmlObj(FileFields.FILE, value) {
+                writeXmlAttr(FileFields.SIZE, value.size)
                 writeXmlField(FileFields.PATH, value.path)
                 writeXmlCollection(FileFields.ATTRIBUTES, value.attributes)
             }

@@ -9,5 +9,6 @@ data class SubmissionDoc(
     val sourceFile: String,
     val files: List<ObjectId>,
     val uploaded: Instant = Instant.now(),
-    val imported: Boolean = false
+    var imported: Boolean = false,
+    val _id: ObjectId? = null
 )
