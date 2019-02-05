@@ -41,6 +41,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.http.HttpStatus
+import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.web.client.HttpClientErrorException
 import java.nio.file.Paths
@@ -52,6 +53,7 @@ internal class SubmissionTest(private val tempFolder: TemporaryFolder) : BaseInt
     @ExtendWith(SpringExtension::class)
     @Import(value = [SubmitterConfig::class, PersistenceConfig::class, FileConfig::class])
     @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+    @DirtiesContext
     inner class SingleSubmissionTest {
 
         @LocalServerPort
@@ -209,7 +211,7 @@ internal class SubmissionTest(private val tempFolder: TemporaryFolder) : BaseInt
 
         private fun assertFiles(section: Section, submissionRelPath: String) {
             assertThat(section.files).hasSize(2)
-            val submissionFolderPath = "$basePath/$submissionRelPath/Files"
+            val submissionFolderPath = "$basePath/submission/$submissionRelPath/Files"
 
             val file = assertThat(section.files.first()).isFile()
             assertFile(file, submissionFolderPath, "DataFile1.txt", Attribute("Description", "Data File 1"))

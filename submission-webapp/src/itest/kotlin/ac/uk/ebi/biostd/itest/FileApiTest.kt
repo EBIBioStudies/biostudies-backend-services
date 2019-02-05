@@ -19,6 +19,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
+import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
 
 @ExtendWith(TemporaryFolderExtension::class)
@@ -28,6 +29,7 @@ internal class FileApiTest(private val tempFolder: TemporaryFolder) : BaseIntegr
     @ExtendWith(SpringExtension::class)
     @Import(value = [SubmitterConfig::class, PersistenceConfig::class, FileConfig::class])
     @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+    @DirtiesContext
     inner class FilesTest {
 
         @LocalServerPort

@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
+import org.springframework.test.annotation.DirtiesContext
 
 private const val GROUP_NAME = "Bio-test-group"
 
@@ -33,6 +34,7 @@ internal class GroupFilesTest(private val tempFolder: TemporaryFolder) : BaseInt
     @TestInstance(PER_CLASS)
     @Import(value = [SubmitterConfig::class, PersistenceConfig::class, FileConfig::class])
     @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+    @DirtiesContext
     inner class GroupFilesApi {
 
         @LocalServerPort
