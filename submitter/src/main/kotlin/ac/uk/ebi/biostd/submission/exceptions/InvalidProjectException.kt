@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.submission.exceptions
 
 /**
- * Generated when submission is trying to be attached to not existing project.
+ * Generated when submission is trying to be attached to a nonexistent project.
  */
 class InvalidProjectException(private val project: String) : RuntimeException() {
 

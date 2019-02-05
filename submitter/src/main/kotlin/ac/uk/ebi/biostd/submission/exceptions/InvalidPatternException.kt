@@ -3,7 +3,7 @@ package ac.uk.ebi.biostd.submission.exceptions
 import java.util.regex.Pattern
 
 /**
- * Generated when submission is trying to be attached to not existing project.
+ * Generated when submission is trying to be attached to a nonexistent project.
  */
 class InvalidPatternException(
     private val pattern: String,
@@ -15,7 +15,7 @@ class InvalidPatternException(
 }
 
 /**
- * Generated when submission is trying to be attached to not existing project.
+ * Generated when submission is trying to be attached to a nonexistent project.
  */
 class InvalidAccNoPattern(
     private val accNo: String,
