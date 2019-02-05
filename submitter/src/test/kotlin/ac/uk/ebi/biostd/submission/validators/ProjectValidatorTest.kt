@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.submission.validators
 
-import ac.uk.ebi.biostd.submission.exceptions.INVALID_PROJECT_ERROR_MSG
 import ac.uk.ebi.biostd.submission.exceptions.InvalidProjectException
 import ac.uk.ebi.biostd.submission.test.createBasicExtendedSubmission
 import ac.uk.ebi.biostd.submission.test.createTestUser
@@ -75,7 +74,7 @@ class ProjectValidatorTest(@MockK private val mockPersistenceContext: Persistenc
 
         assertThatExceptionOfType(InvalidProjectException::class.java)
                 .isThrownBy { validateSubmission() }
-                .withMessage(INVALID_PROJECT_ERROR_MSG.format(INVALID_PROJECT))
+                .withMessage("")
 
         verify(exactly = 1) { mockPersistenceContext.getSubmission(INVALID_PROJECT) }
     }

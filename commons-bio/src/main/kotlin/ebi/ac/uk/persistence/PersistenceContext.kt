@@ -21,4 +21,6 @@ interface PersistenceContext {
     fun canUserProvideAccNo(user: User): Boolean
 
     fun canSubmit(accNo: String, user: User): Boolean
+
+    fun isNew(submission: ExtendedSubmission): Boolean
 }
