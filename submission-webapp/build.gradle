@@ -61,3 +61,5 @@ task itest(type: Test, dependsOn: []) {
     testClassesDirs = sourceSets.itest.output.classesDirs
     classpath = sourceSets.itest.runtimeClasspath
 }
+
+test.finalizedBy itest

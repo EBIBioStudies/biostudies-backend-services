@@ -28,6 +28,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.http.HttpStatus
+import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.nio.file.Paths
 
@@ -38,6 +39,7 @@ internal class MultipartSubmissionTest(private val tempFolder: TemporaryFolder) 
     @ExtendWith(SpringExtension::class)
     @Import(value = [SubmitterConfig::class, PersistenceConfig::class, FileConfig::class])
     @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+    @DirtiesContext
     inner class SingleSubmissionTest {
 
         @LocalServerPort
@@ -76,7 +78,7 @@ internal class MultipartSubmissionTest(private val tempFolder: TemporaryFolder) 
             assertThat(createSubmission).hasAccNo(accNo)
             assertThat(createSubmission.section.files).containsExactly(Either.left(File("DataFile1.txt")))
 
-            val submissionFolderPath = "$basePath/${createSubmission.relPath}/Files"
+            val submissionFolderPath = "$basePath/submission/${createSubmission.relPath}/Files"
             assertThat(Paths.get("$submissionFolderPath/$fileName")).exists()
         }
     }
