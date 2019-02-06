@@ -8,3 +8,6 @@ Module that helps to process and generate page tab xml/json/csv formatted files 
 * **Scheduler**:
 Module that contains scheduled task to perform BioStudies related processes like submissions export to the UI or
 Europe-PMC submissions processing.
+
+## Others documentations
+- [Coding conventions](/docs/Coding_Conventions.md)
