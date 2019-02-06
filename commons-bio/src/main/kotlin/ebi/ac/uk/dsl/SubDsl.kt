@@ -27,7 +27,7 @@ fun submission(accNo: String, block: Submission.() -> Unit): Submission = Submis
 fun section(type: String, block: Section.() -> Unit): Section = Section(type).apply(block)
 
 fun FilesTable.file(name: String, block: File.() -> Unit = {}) = addRow(File(name).apply(block))
-fun SectionsTable.section(type: String, block: Section.() -> Unit) = addRow(Section(type).apply(block))
+fun SectionsTable.section(type: String, block: Section.() -> Unit = {}) = addRow(Section(type).apply(block))
 fun LinksTable.link(url: String, block: Link.() -> Unit = {}) = addRow(Link(url).apply(block))
 
 fun Section.filesTable(block: FilesTable.() -> Unit) = addFilesTable(FilesTable().apply(block))

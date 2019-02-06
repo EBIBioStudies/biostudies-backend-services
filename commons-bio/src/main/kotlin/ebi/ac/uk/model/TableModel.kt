@@ -3,6 +3,7 @@ package ebi.ac.uk.model
 import ebi.ac.uk.base.isNotBlank
 import ebi.ac.uk.model.constants.TableFields
 import ebi.ac.uk.model.extensions.parentAccNo
+import ebi.ac.uk.util.collections.ifNotEmpty
 import java.util.Objects
 
 sealed class Table<T : Any>(elements: List<T>) {
@@ -100,9 +101,11 @@ class SectionsTable(sections: List<Section> = emptyList()) : Table<Section>(sect
     private var parentAccNo: String? = null
 
     init {
-        elements.first().let {
-            sectionType = it.type
-            parentAccNo = it.parentAccNo
+        elements.ifNotEmpty {
+            elements.first().let {
+                sectionType = it.type
+                parentAccNo = it.parentAccNo
+            }
         }
     }
 

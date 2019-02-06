@@ -1,18 +1,15 @@
 package ac.uk.ebi.biostd.test
 
 import ebi.ac.uk.dsl.attribute
-import ebi.ac.uk.dsl.file
 import ebi.ac.uk.dsl.link
 import ebi.ac.uk.dsl.linksTable
 import ebi.ac.uk.dsl.section
-import ebi.ac.uk.dsl.sectionsTable
 import ebi.ac.uk.dsl.submission
 import ebi.ac.uk.model.AttributeDetail
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.extensions.releaseTime
 import ebi.ac.uk.model.extensions.rootPath
 import ebi.ac.uk.model.extensions.title
-import ebi.ac.uk.model.extensions.type
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneOffset
@@ -54,105 +51,6 @@ fun createVenousBloodMonocyte(): Submission {
                         attribute(name = "Experiment type", value = "Stranded Total RNA-Seq")
                         attribute(name = "Primary id", value = "EGAX00001273202")
                     }
-                }
-            }
-        }
-    }
-}
-
-fun createRNA_Profiling(): Submission {
-    return submission("E-MTAB-6957") {
-        accessTags = mutableListOf("Public")
-        title = "RNA profiling of non-small cell lung cancer"
-        rootPath = "E-MTAB/E-MTAB-6957"
-
-        attribute("AttachTo", "ArrayExpress")
-
-        section("Study") {
-            accNo = "s-E-MTAB-6957"
-
-            attribute("Title", "RNA profiling of non-small cell lung cancer")
-            attribute("Description", "RNA sequencing of 25 patients with non-small cell lung cancer and their matched normal lung tissue")
-            attribute("Study type", "RNA-seq of coding RNA")
-            attribute("Organism", "Homo sapiens")
-            attribute("Experimental Designs", "case control design", valueAttrs = mutableListOf(AttributeDetail("Ontology", "EFO"), AttributeDetail("TermId", "EFO:0001427")))
-            attribute("Experimental Factors", "sampling site", valueAttrs = mutableListOf(AttributeDetail("Ontology", "EFO"), AttributeDetail("TermId", "EFO_0000408"), AttributeDetail("TermName", "sampling site")))
-
-            section("MinSeq Score") {
-                attribute("Exp. Design", "*")
-                attribute("Protocols", "*")
-                attribute("Variables", "*")
-                attribute("Processed", "-")
-                attribute("Raw", "*")
-            }
-
-            section("Author") {
-
-                attribute("Name", "Bram Boeckx")
-                attribute("Email", "bram.boeckx@vib-kuleuven.be")
-                attribute("<affiliation>", value = "o1", ref = true)
-            }
-
-            section("Organization") {
-                accNo = "o1"
-
-                attribute("Name", "VIB Center for Cancer Biology (CCB)  Laboratory for Translational Genetics  Department of Human Genetics")
-                attribute("Address", "VIB Center for Cancer Biology (CCB) KULeuven Campus Gasthuisberg, O&N4 Herestraat 49-B912 B-3000 Leuven, Belgium")
-            }
-
-            section("Experiment Protocols") {
-                accNo = "protocols-E-MTAB-6957"
-
-                sectionsTable {
-
-                    section("Protocols") {
-                        accNo = "P-MTAB-76451"
-                        attribute(name = "Name", value = "P-MTAB-76451")
-                        attribute(name = "Type", value = "nucleic acid extraction protocol", valueAttrs = mutableListOf(AttributeDetail("Ontology", "EFO"), AttributeDetail("TermId", "EFO_0002944")))
-                        attribute(name = "Description", value = "Total RNA was extracted from six 30-μm sections of frozen whole tumor and adjacent lung tissue using the Qiagen-RNeasy Mini kit according to the supplier’s instructions (Qiagen, Hilden, Germany). The quantity of DNA-free total RNA was measured using a Nanodrop-2000.")
-                    }
-
-                    section("Protocols") {
-                        accNo = "P-MTAB-76452"
-                        attribute(name = "Name", value = "P-MTAB-76452")
-                        attribute(name = "Type", value = "nucleic acid library construction protocol")
-                        attribute(name = "Description", value = "Illumina sequencing libraries were prepared according to the TruSeq RNA Sample Preparation Guide following the manufacturer’s instructions.")
-                    }
-
-                    section("Protocols") {
-                        accNo = "P-MTAB-76450"
-                        attribute(name = "Name", value = "P-MTAB-76450")
-                        attribute(name = "Type", value = "sample collection protocol")
-                        attribute(name = "Description", value = "Study participants and phenotypes Between March 2010 and August 2011, we prospectively recruited newly diagnosed and previously untreated lung cancer patients that were referred for thoracic surgery with curative intent. Subjects were only eligible for inclusion if surgical resection of the tumor occurred prior to any form of medical treatment. Tissue was collected immediately after lobectomy/pneumonectomy.")
-                    }
-
-                    section("Protocols") {
-                        accNo = "P-MTAB-76453"
-                        attribute(name = "Name", value = "P-MTAB-76453")
-                        attribute(name = "Type", value = "nucleic acid sequencing protocol")
-                        attribute(name = "Description", value = "Libraries were sequenced on a Illumina HiSeq2000 sequencer generating single end 51bp reads.")
-                        attribute(name = "Hardware", value = "Illumina HiSeq 2000")
-                    }
-                }
-            }
-
-            section("MAGE-TAB Files") {
-                accNo = "mt-E-MTAB-6957"
-
-                file("E-MTAB-6957.idf.txt") {
-                    type = "IDF File"
-
-                    attribute("Type", "IDF File")
-                    attribute("Format", "tab-delimited text")
-                    attribute("Description", "Investigation Design Format (IDF)")
-                }
-
-                file("E-MTAB-6957.sdrf.txt") {
-                    type = "SDRF File"
-
-                    attribute("Type", "SDRF File")
-                    attribute("Format", "tab-delimited text")
-                    attribute("Description", "Sample and Data Relationship Format (SDRF)")
                 }
             }
         }
