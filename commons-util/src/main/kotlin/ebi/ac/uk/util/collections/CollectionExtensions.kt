@@ -7,7 +7,7 @@ import arrow.core.Option
  *
  * @function lambda function to execute.
  */
-fun <A : Collection<*>> A.ifNotEmpty(function: (A) -> Unit) {
+fun <T, A : Collection<T>> A.ifNotEmpty(function: (A) -> Unit) {
     if (isNotEmpty()) {
         function(this)
     }

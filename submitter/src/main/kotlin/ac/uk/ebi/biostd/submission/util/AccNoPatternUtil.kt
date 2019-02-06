@@ -1,53 +1,54 @@
 package ac.uk.ebi.biostd.submission.util
 
-import ac.uk.ebi.biostd.submission.processors.ACC_PATTERN
-import arrow.core.Option
+import ac.uk.ebi.biostd.submission.exceptions.InvalidAccNoPattern
+import ac.uk.ebi.biostd.submission.exceptions.InvalidPatternException
 import arrow.core.getOrElse
 import arrow.core.orElse
+import ebi.ac.uk.model.AccNumber
 import ebi.ac.uk.model.AccPattern
 import ebi.ac.uk.util.regex.firstGroup
+import ebi.ac.uk.util.regex.match
 import ebi.ac.uk.util.regex.secondGroup
 import ebi.ac.uk.util.regex.thirdGroup
 import java.util.regex.Matcher
-import java.util.regex.Pattern
 
-private val onlyPrefix = ACC_PATTERN.format("([A-Z,-]*),").toPattern()
-private val onlyPostfix = ACC_PATTERN.format(",([A-Z,-]*)").toPattern()
-private val prefixPostfix = ACC_PATTERN.format("([A-Z,-]*),([A-Z,-]*)").toPattern()
-private val extractionPattern = "(\\D*)([0-9]+)(\\D*)".toPattern()
+private const val ACC_PATTERN = "\\!\\{%s\\}"
+private const val EXPECTED_PATTERN = "([A-Z,-]*),([A-Z,-]*)"
 
-class PatternProcessor {
+private val ONLY_PREFIX = ACC_PATTERN.format("([A-Z,-]*),").toPattern()
+private val ONLY_POSTFIX = ACC_PATTERN.format(",([A-Z,-]*)").toPattern()
+private val PREFIX_POSTFIX = ACC_PATTERN.format(EXPECTED_PATTERN).toPattern()
+private val EXTRACTION_PATTERN = "(\\D*)([0-9]+)(\\D*)".toPattern()
 
-    fun generateAccNumber(accPattern: String, sequenceFunction: (AccPattern) -> Long) =
-        getPrefixAccPattern(accPattern)
-            .orElse { getPostfixAccPattern(accPattern) }
-            .orElse { getPrefixPostfixPattern(accPattern) }
-            .map { pattern -> AccNumber(pattern, sequenceFunction(pattern)) }
-            .getOrElse { throw IllegalStateException() }
+class AccNoPatternUtil {
 
-    fun extractAccessNumber(accNo: String) = tryToGet(accNo, extractionPattern) {
-        AccNumber(AccPattern(it.firstGroup(), it.thirdGroup()), it.secondGroup().toLong())
-    }.getOrElse { throw IllegalStateException() }
+    fun getPattern(accPattern: String) =
+            getPrefixAccPattern(accPattern)
+                    .orElse { getPostfixAccPattern(accPattern) }
+                    .orElse { getPrefixPostfixPattern(accPattern) }
+                    .getOrElse { throw InvalidPatternException(accPattern, EXPECTED_PATTERN) }
+
+    /**
+     * Checks if the submission accession number is a pattern, based on whether or not it matches the @see [ACC_PATTERN]
+     * expression.
+     */
+    fun isPattern(accNo: String) = ACC_PATTERN.format(".*").toPattern().matcher(accNo).matches()
+
+    /**
+     * Extracts the @see [AccNumber] for the given accession string.
+     */
+    fun extractAccessNumber(accNo: String) = EXTRACTION_PATTERN.match(accNo)
+            .map(::asAccNumber).getOrElse { throw InvalidAccNoPattern(accNo, EXTRACTION_PATTERN) }
+
+    private fun asAccNumber(it: Matcher) =
+            AccNumber(AccPattern(it.firstGroup(), it.thirdGroup()), it.secondGroup().toLong())
 
     private fun getPrefixAccPattern(accNo: String) =
-        tryToGet(accNo, onlyPrefix) { AccPattern(prefix = it.firstGroup()) }
+            ONLY_PREFIX.match(accNo).map { AccPattern(prefix = it.firstGroup()) }
 
     private fun getPostfixAccPattern(accNo: String) =
-        tryToGet(accNo, onlyPostfix) { AccPattern(postfix = it.firstGroup()) }
+            ONLY_POSTFIX.match(accNo).map { AccPattern(postfix = it.firstGroup()) }
 
     private fun getPrefixPostfixPattern(accNo: String) =
-        tryToGet(accNo, prefixPostfix) { AccPattern(it.firstGroup(), it.secondGroup()) }
-
-    private fun <T> tryToGet(accNo: String, pattern: Pattern, function: (Matcher) -> T): Option<T> {
-        val matcher = pattern.matcher(accNo)
-        return when {
-            matcher.matches() -> Option.just(function(matcher))
-            else -> Option.empty()
-        }
-    }
-}
-
-class AccNumber(val pattern: AccPattern, val numericValue: Long) {
-
-    override fun toString() = "${pattern.prefix}$numericValue${pattern.postfix}"
+            PREFIX_POSTFIX.match(accNo).map { AccPattern(it.firstGroup(), it.secondGroup()) }
 }

@@ -18,6 +18,8 @@ interface SubmissionDataRepository : JpaRepository<Submission, Long> {
     fun getByAccNoAndVersionGreaterThan(id: String, long: Int = 0): Submission
 
     fun findByAccNoAndVersionGreaterThan(id: String, long: Int = 0): Optional<Submission>
+
+    fun existsByAccNo(accNo: String): Boolean
 }
 
 interface TagsDataRepository : JpaRepository<AccessTag, Long> {
