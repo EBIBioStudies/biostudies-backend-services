@@ -1,3 +1,6 @@
+import static Dependencies.*
+import static TestDependencies.*
+
 plugins {
     id("org.jetbrains.kotlin.jvm")
 }
@@ -14,28 +17,24 @@ dependencies {
     compile project(":commons-util")
     compile project(":commons-bio")
 
-    compile("com.fasterxml.jackson.module:jackson-module-kotlin:2.9.+")
-    compile("com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.9.6")
-    compile("com.fasterxml.woodstox:woodstox-core:5.1.0")
-    compile("com.google.guava:guava:27.0.1-jre")
+    compile(JacksonKotlin)
+    compile(JacksonXml)
+    compile(Woodstox)
+    compile(Guava)
 
+    compile(Arrow)
 
-    compile("io.arrow-kt:arrow-core:0.7.2")
-
-    testCompile("org.jetbrains.kotlin:kotlin-test-junit:${kotlinVersion}")
+    // Test dependencies
+    testCompile(KotlinTestJunit)
+    testCompile(MockK)
 
     // Junit dependencies
-    runtime("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
-    runtime("org.junit.platform:junit-platform-console:$junitPlatformVersion")
+    testCompile(Junit5Api)
+    testCompile(Junit5Params)
+    runtime(Junit5Engine)
+    runtime(Junit5Console)
 
-    testCompile("org.junit.jupiter:junit-jupiter-api:$junitVersion")
-    testCompile("org.junit.jupiter:junit-jupiter-params:$junitVersion")
-
-    // MockK
-    testCompile("io.mockk:mockk:1.8.8")
-
-    testCompile("org.assertj:assertj-core:3.11.0")
-    testCompile("org.xmlunit:xmlunit-core:2.6.2")
-    testCompile("org.xmlunit:xmlunit-assertj:2.6.2")
-    testCompile("org.redundent:kotlin-xml-builder:1.4.2")
+    testCompile(XmlUnitCore)
+    testCompile(XmlUnitAssertJ)
+    testCompile(KotlinXmlBuilder)
 }

@@ -1,3 +1,5 @@
+import static Dependencies.*
+
 plugins {
     id("org.jetbrains.kotlin.jvm")
 }
@@ -5,6 +7,6 @@ plugins {
 dependencies {
     compile project(":commons-util")
 
-    compile("com.fasterxml.jackson.core:jackson-core:2.9.8")
-    compile("com.fasterxml.jackson.module:jackson-module-kotlin:2.9.8")
+    compile(JacksonKotlin)
+    compile(JacksonCore)
 }
