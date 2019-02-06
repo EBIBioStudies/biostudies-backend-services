@@ -33,7 +33,7 @@ class MongoDocService(
             .awaitAll()
 
         dataRepository.save(SubmissionDoc(submission.accNo, asJson(submission), sourceFile, fileIds))
-        logger.info { "finish processing submission with accNo = '${submission.accNo}' of file $sourceFile" }
+        logger.info { "finish processing submission with accNo = '${submission.accNo}' from file $sourceFile" }
     }
 
     suspend fun reportError(submission: Submission, sourceFile: String, throwable: Throwable) =
@@ -43,7 +43,7 @@ class MongoDocService(
             saveError(submission.id, submission.sourceFile, submission.body, throwable)
 
     private suspend fun saveError(accNo: String, sourceFile: String, submission: String, throwable: Throwable) {
-        logger.error { "Error processing submission $accNo of file $sourceFile, ${throwable.message}" }
+        logger.error { "Error processing submission $accNo from file $sourceFile, ${throwable.message}" }
         dataRepository.save(ErrorDoc(accNo, submission, submission, getStackTrace(throwable)))
     }
 

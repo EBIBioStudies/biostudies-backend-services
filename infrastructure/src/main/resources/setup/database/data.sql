@@ -5,3 +5,7 @@ INSERT INTO User (activationKey, active, auxProfileInfo, email, fullName, keyTim
 INSERT INTO User (activationKey, active, auxProfileInfo, email, fullName, keyTime, login, passwordDigest, secret, superuser, ssoSubject) VALUES (null, true, null, 'test_userd@ebi.ac.uk', 'test_user', 0, 'test_user@ebi.ac.uk', X'7C4A8D09CA3762AF61E59520943DC26494F8941B', '69214a2f-f80b-4f33-86b7-26d3bd0453aa', false, null);
 
 INSERT INTO AccessTag (id, description, name) VALUES (1, null, 'Public');
+INSERT INTO Section(tableIndex, type, ord) VALUES(-1, 'Project', 0);
+INSERT INTO Submission(CTime, MTime, RTime, accNo, relPath, released, version, owner_id) VALUES(0, 0, 0, 'EuropePMC', 'EuropePMC', 1, 1, 3);
+UPDATE Section SET submission_id = 1;
+UPDATE Submission SET rootSection_id = 1;

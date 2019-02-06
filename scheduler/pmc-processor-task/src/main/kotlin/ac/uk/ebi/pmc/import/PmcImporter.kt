@@ -38,7 +38,7 @@ class PmcImporter(
     private fun sanitize(fileText: String) = fileText.replace(SANITIZE_REGEX, "\n")
 
     private suspend fun processSubmission(index: Int, submission: Submission, sourceFile: String): Submission {
-        logger.info { "processing submission $index with accNo = '${submission.accNo}' of file $sourceFile" }
+        logger.info { "processing submission $index with accNo = '${submission.accNo}' from file $sourceFile" }
         submission.releaseTime = getReleaseDate(submission)
         fileDownloader.downloadFiles(submission).fold(
             { submissionDocService.reportError(submission, sourceFile, it) },
