@@ -17,6 +17,7 @@ class FileSerializerTest {
     fun serializeXml() {
         val result = xmlMapper.writeValueAsString(file)
         val expected = xml("file") {
+            attribute("size", "0")
             "path" { -FILE_NAME }
         }.toString()
 

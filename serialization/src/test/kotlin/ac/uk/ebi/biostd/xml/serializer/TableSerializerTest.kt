@@ -40,6 +40,7 @@ class TableSerializerTest {
         val expected = xml("table") {
             "file" {
                 "path" { -FILE_NAME }
+                "size" { -"0" }
                 "attributes" {}
             }
         }.toString()
