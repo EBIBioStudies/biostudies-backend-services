@@ -23,6 +23,15 @@ class FolderResolver(private val basePath: Path) {
     fun getGroupMagicFolderPath(groupId: Long, secret: String) =
         getMagicFolderPath(groupId, secret, GROUP_FOLDER_PREFIX)
 
+    /**
+     * Gets the magic folder path for user and groups. Magic folder path is as follows:
+     *
+     * The parent folder is defined by the two first letters of the secret.
+     * The secret folder is defined by the characters of the secret from position 3 plus the entity type letter ('a' for
+     * users, 'b' for groups) and finally the entity id.
+     *
+     * So for example, for a user with secret abc-123 and id=50, the secret path will be /ab/c-123-a50
+     */
     private fun getMagicFolderPath(id: Long, secret: String, separator: String): Path {
         val parent = "$basePath/${secret.substring(0, 2)}"
         return Paths.get("$parent/${secret.substring(2)}-$separator$id")
