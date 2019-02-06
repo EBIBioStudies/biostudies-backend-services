@@ -7,6 +7,4 @@ import java.time.Instant
  *
  * @param seconds the seconds to be transformed
  */
-fun asIsoDate(seconds: Long): Instant = Instant.ofEpochSecond(seconds)
-
-fun now(): Instant = Instant.now()
+fun asInstant(seconds: Long): Instant = Instant.ofEpochSecond(seconds)
