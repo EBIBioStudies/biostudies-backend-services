@@ -1,9 +1,5 @@
-buildscript {
-    ext {
-        junitVersion = "5.2.0"
-        junitPlatformVersion = "1.2.0"
-    }
-}
+import static Dependencies.*
+import static TestDependencies.*
 
 plugins {
     id "org.jetbrains.kotlin.jvm"
@@ -14,18 +10,20 @@ dependencies {
     compile(project(":commons-util"))
     compile(project(":serialization"))
 
-    compile("io.arrow-kt:arrow-core:0.7.2")
-    compile("io.arrow-kt:arrow-typeclasses:0.7.2")
-    compile("io.arrow-kt:arrow-data:0.7.2")
-    compile("commons-io:commons-io:2.5")
+    compile(CommonsIO)
+
+    // Arrow
+    compile(Arrow)
+    compile(ArrowTypeClasses)
+    compile(ArrowData)
 
     // Junit dependencies
-    runtime("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
-    runtime("org.junit.platform:junit-platform-console:$junitPlatformVersion")
+    testCompile(Junit5Api)
+    testCompile(Junit5Params)
+    runtime(Junit5Engine)
+    runtime(Junit5Console)
+    testCompile(JunitExtensions)
 
-    testCompile("io.mockk:mockk:1.9")
-    testCompile("org.assertj:assertj-core:3.11.0")
-    testCompile("io.github.glytching:junit-extensions:2.3.0")
-    testCompile("org.junit.jupiter:junit-jupiter-api:$junitVersion")
-    testCompile("org.junit.jupiter:junit-jupiter-params:$junitVersion")
+    testCompile(MockK)
+    testCompile(AssertJ)
 }

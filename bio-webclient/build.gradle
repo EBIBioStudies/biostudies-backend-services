@@ -1,3 +1,6 @@
+import static Dependencies.SpringWeb
+import static TestDependencies.*
+
 plugins {
     id("org.jetbrains.kotlin.jvm")
 }
@@ -14,17 +17,16 @@ dependencies {
     compile(project(":commons-bio"))
     compile(project(":serialization"))
 
-    compile('org.springframework:spring-web:5.1.2.RELEASE')
+    // External dependencies
+    compile(SpringWeb)
 
     // Test dependencies
-    testCompile("org.jetbrains.kotlin:kotlin-test-junit:${kotlinVersion}")
+    testCompile(KotlinTestJunit)
+    testCompile(MockK)
+
     // Junit dependencies
-    runtime("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
-    runtime("org.junit.platform:junit-platform-console:$junitPlatformVersion")
-
-    testCompile("org.junit.jupiter:junit-jupiter-api:$junitVersion")
-    testCompile("org.junit.jupiter:junit-jupiter-params:$junitVersion")
-
-    // MockK
-    testCompile("io.mockk:mockk:1.8.8")
+    testCompile(Junit5Api)
+    testCompile(Junit5Params)
+    runtime(Junit5Engine)
+    runtime(Junit5Console)
 }

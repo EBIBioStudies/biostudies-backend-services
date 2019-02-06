@@ -1,3 +1,5 @@
+import static TestDependencies.*
+
 plugins {
     id("org.jetbrains.kotlin.jvm")
 }
@@ -5,11 +7,14 @@ plugins {
 dependencies {
     compile project(":commons-util")
 
-    // Junit dependencies
-    runtime("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
-    runtime("org.junit.platform:junit-platform-console:$junitPlatformVersion")
+    // Test dependencies
+    testCompile(KotlinTestJunit)
+    testCompile(MockK)
+    testCompile(AssertJ)
 
-    testCompile("org.assertj:assertj-core:3.11.0")
-    testCompile("org.junit.jupiter:junit-jupiter-api:$junitVersion")
-    testCompile("org.junit.jupiter:junit-jupiter-params:$junitVersion")
+    // Junit dependencies
+    testCompile(Junit5Api)
+    testCompile(Junit5Params)
+    runtime(Junit5Engine)
+    runtime(Junit5Console)
 }
