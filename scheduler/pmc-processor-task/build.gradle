@@ -18,7 +18,7 @@ repositories {
 
 dependencies {
     implementation(project(":bio-webclient"))
-    implementation(project(":serialization"))
+    implementation(project(":commons:commons-serialization"))
     implementation(project(":scheduler:task-properties"))
 
     implementation(SpringBootStarter)

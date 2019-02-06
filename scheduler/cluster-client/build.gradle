@@ -9,7 +9,7 @@ plugins {
 dependencies {
     compile(KotlinStdLib)
 
-    compile project(":commons-util")
+    compile project(":commons:commons-util")
     compile(Jsch)
 
     testCompile(AssertJ)

@@ -1,20 +1,18 @@
 rootProject.name = 'biostudies-backend-services'
 
-include("commons-util")
-include("commons-bio")
-include("commons-http")
-include("commons-test")
-include("commons-security")
-include("submission-webapp")
+include("commons:commons-util")
+include("commons:commons-bio")
+include("commons:commons-http")
+include("commons:commons-serialization")
+include("commons:commons-test")
+
 include("bio-webclient")
 include("infrastructure")
 
-include("persistence")
-include("serialization")
-include("submitter")
-include("commons-bio")
-include("commons-test")
-include("submission-webapp")
+include("submission:submitter")
+include("submission:submission-webapp")
+include("submission:submission-security")
+include("submission:persistence")
 
 include("scheduler:cluster-client")
 include("scheduler:pmc-processor-task")

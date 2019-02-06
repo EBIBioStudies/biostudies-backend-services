@@ -13,9 +13,9 @@ repositories {
 }
 
 dependencies {
-    compile(project(":commons-util"))
-    compile(project(":commons-bio"))
-    compile(project(":serialization"))
+    compile(project(":commons:commons-util"))
+    compile(project(":commons:commons-bio"))
+    compile(project(":commons:commons-serialization"))
 
     // External dependencies
     compile(SpringWeb)
