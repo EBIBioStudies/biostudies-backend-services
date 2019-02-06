@@ -45,9 +45,6 @@ allprojects {
 
     test {
         useJUnitPlatform()
-        testLogging {
-            exceptionFormat = 'full'
-        }
     }
 }
 repositories {
