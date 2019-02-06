@@ -83,8 +83,8 @@ class ProjectValidatorTest(@MockK private val mockPersistenceContext: Persistenc
 
     private fun initTestProjects() {
         every { mockPersistenceContext.getSubmission(INVALID_PROJECT) } returns Option.empty()
-        every {
-            mockPersistenceContext.getSubmission(VALID_PROJECT)
-        } returns Option.fromNullable(ExtendedSubmission(VALID_PROJECT, createTestUser()))
+
+        val submission = Option.fromNullable(ExtendedSubmission(VALID_PROJECT, createTestUser()))
+        every { mockPersistenceContext.getSubmission(VALID_PROJECT) } returns submission
     }
 }

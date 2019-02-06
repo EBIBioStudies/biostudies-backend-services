@@ -35,9 +35,9 @@ class TokenUtil(
             val payload = jwtParser.setSigningKey(tokenHash).parseClaimsJws(token).body.subject
             tokenUser = Option.just(objectMapper.readValue(payload, TokenPayload::class.java))
         } catch (exception: SignatureException) {
-            logger.error("detected invalid signature token")
+            logger.error("detected invalid signature token", exception)
         } catch (exception: MalformedJwtException) {
-            logger.error("detected invalid signature token")
+            logger.error("detected invalid signature token", exception)
         }
 
         return tokenUser.map { userRepository.getOne(it.id) }

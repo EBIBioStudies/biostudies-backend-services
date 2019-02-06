@@ -3,9 +3,7 @@ package ac.uk.ebi.biostd.common.config
 import ac.uk.ebi.biostd.common.property.ApplicationProperties
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserGroupDataRepository
-import com.fasterxml.jackson.databind.DeserializationFeature
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.KotlinModule
+import ebi.ac.uk.commons.http.JacksonFactory
 import ebi.ac.uk.security.service.GroupService
 import ebi.ac.uk.security.service.SecurityService
 import ebi.ac.uk.security.util.PasswordVerifier
@@ -68,10 +66,7 @@ class SecurityBeansConfig(properties: ApplicationProperties) {
         SecurityService(userRepository, passwordVerifier, tokenUtil, securityProperties.requireActivation)
 
     @Bean
-    fun objectMapper() = ObjectMapper().apply {
-        configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-        registerModule(KotlinModule())
-    }
+    fun objectMapper() = JacksonFactory.createMapper()
 
     @Bean
     fun jwtParser() = Jwts.parser()!!

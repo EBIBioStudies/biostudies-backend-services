@@ -23,7 +23,7 @@ dependencies {
     runtime("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
     runtime("org.junit.platform:junit-platform-console:$junitPlatformVersion")
 
-    testCompile("io.mockk:mockk:1.8.8")
+    testCompile("io.mockk:mockk:1.9")
     testCompile("org.assertj:assertj-core:3.11.0")
     testCompile("io.github.glytching:junit-extensions:2.3.0")
     testCompile("org.junit.jupiter:junit-jupiter-api:$junitVersion")
