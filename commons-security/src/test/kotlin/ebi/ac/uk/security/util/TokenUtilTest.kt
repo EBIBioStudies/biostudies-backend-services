@@ -37,10 +37,10 @@ internal class TokenUtilTest(@MockK val userRepository: UserDataRepository) {
 
     private fun createToken(hash: String) =
         TokenUtil(Jwts.parser(), JacksonFactory.createMapper(), userRepository, hash).createToken(createUser())
-}
 
-private fun createUser(): User {
-    val user = User("user", "user@not-existing.com", "abc")
-    user.id = 50L
-    return user
+    private fun createUser(): User {
+        val user = User("user", "user@not-existing.com", "abc")
+        user.id = 50L
+        return user
+    }
 }
