@@ -1,0 +1,15 @@
+import static Dependencies.Arrow
+import static Dependencies.KotlinStdLib
+import static TestDependencies.AssertJ
+
+plugins {
+    id("org.jetbrains.kotlin.jvm")
+}
+
+dependencies {
+    compile(project(":commons:commons-bio"))
+
+    compile(Arrow)
+    compile(AssertJ)
+    compile(KotlinStdLib)
+}

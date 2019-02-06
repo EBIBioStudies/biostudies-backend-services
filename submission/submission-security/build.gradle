@@ -6,11 +6,11 @@ plugins {
 }
 
 dependencies {
-    compile project(":commons-util")
-    compile project(":commons-http")
-    compile project(":commons-bio")
-    compile project(":commons-http")
-    compile project(":persistence")
+    compile project(":commons:commons-util")
+    compile project(":commons:commons-http")
+    compile project(":commons:commons-bio")
+    compile project(":commons:commons-http")
+    compile project(":submission:persistence")
 
     compile(SpringWeb)
     compile(SpringSecurityCore)
@@ -22,7 +22,7 @@ dependencies {
     compile(HibernateEntityManager)
 
     // Test dependencies
-    testCompile project(":commons-test")
+    testCompile project(":commons:commons-test")
 
     testCompile(Logback)
 

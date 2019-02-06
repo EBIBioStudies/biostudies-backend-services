@@ -15,13 +15,13 @@ repositories {
 }
 
 dependencies {
-    compile(project(":persistence"))
-    compile(project(":submitter"))
-    compile(project(":serialization"))
-    compile(project(":commons-util"))
-    compile(project(":commons-test"))
-    compile(project(":commons-security"))
-    compile(project(":commons-http"))
+    compile(project(":submission:persistence"))
+    compile(project(":submission:submitter"))
+    compile(project(":submission:submission-security"))
+    compile(project(":commons:commons-serialization"))
+    compile(project(":commons:commons-util"))
+    compile(project(":commons:commons-test"))
+    compile(project(":commons:commons-http"))
 
     compile(SpringBootStarterWeb)
     compile(SpringBootStarterDataJpa)

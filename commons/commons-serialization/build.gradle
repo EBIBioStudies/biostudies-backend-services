@@ -13,9 +13,9 @@ repositories {
 }
 
 dependencies {
-    compile project(":commons-test")
-    compile project(":commons-util")
-    compile project(":commons-bio")
+    compile project(":commons:commons-test")
+    compile project(":commons:commons-util")
+    compile project(":commons:commons-bio")
 
     compile(JacksonKotlin)
     compile(JacksonXml)
