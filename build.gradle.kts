@@ -51,7 +51,7 @@ allprojects {
         }
 
         build {
-            dependsOn("ktlintFormat")
+            dependsOn(ktlintFormat)
         }
     }
 }
