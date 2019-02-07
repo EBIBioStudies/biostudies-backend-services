@@ -1,4 +1,9 @@
-task setUpDatabase(type: Exec) {
+task setUpCleanDatabase(type: Exec) {
     workingDir './src/main/resources/setup/database'
-    commandLine './setUpDatabase.sh'
+    commandLine './SetUpDatabase.sh', 'clean'
+}
+
+task setUpTestDatabase(type: Exec) {
+    workingDir './src/main/resources/setup/database'
+    commandLine './SetUpDatabase.sh', 'test'
 }
