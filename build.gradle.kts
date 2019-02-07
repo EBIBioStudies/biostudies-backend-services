@@ -6,9 +6,9 @@ plugins {
 
 allprojects {
     repositories {
-        mavenCentral()
         jcenter()
         mavenLocal()
+        mavenCentral()
         maven(url = "https://oss.sonatypeorg/content/repositories/snapshots")
     }
 
