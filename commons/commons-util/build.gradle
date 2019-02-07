@@ -1,10 +1,6 @@
 import static Dependencies.*
 import static TestDependencies.*
 
-plugins {
-    id("org.jetbrains.kotlin.jvm")
-}
-
 dependencies {
     compile(CommonsIO)
     compile(Arrow)
@@ -15,15 +11,8 @@ dependencies {
     compile(CommonsLang3)
 
     // General test dependencies
-    testCompile(KotlinTestJunit)
-    testCompile(AssertJ)
-    testCompile(MockK)
-
-    // Junit dependencies
-    testCompile(Junit5Api)
-    testCompile(Junit5Params)
-    runtime(Junit5Engine)
-    runtime(Junit5Console)
+    testCompile(BaseTestCompileDependencies)
+    testRuntime(BaseTestRuntimeDependencies)
 
     testCompile(XmlUnitCore)
     testCompile(XmlUnitAssertJ)

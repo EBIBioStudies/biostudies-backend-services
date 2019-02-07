@@ -1,9 +1,6 @@
 import static Dependencies.*
-import static TestDependencies.*
-
-plugins {
-    id "org.jetbrains.kotlin.jvm"
-}
+import static TestDependencies.BaseTestCompileDependencies
+import static TestDependencies.BaseTestRuntimeDependencies
 
 dependencies {
     compile(project(":commons:commons-bio"))
@@ -17,13 +14,6 @@ dependencies {
     compile(ArrowTypeClasses)
     compile(ArrowData)
 
-    // Junit dependencies
-    testCompile(Junit5Api)
-    testCompile(Junit5Params)
-    runtime(Junit5Engine)
-    runtime(Junit5Console)
-    testCompile(JunitExtensions)
-
-    testCompile(MockK)
-    testCompile(AssertJ)
+    testCompile(BaseTestCompileDependencies)
+    testRuntime(BaseTestRuntimeDependencies)
 }
