@@ -100,8 +100,6 @@ CREATE TABLE Section (
 CREATE INDEX acc_idx ON Section (accNo);
 CREATE INDEX FK4bi0ld27mvrinwk6gleu9phf4 ON Section (submission_id);
 CREATE INDEX FKba6xolosvegauoq8xs1kj17ch ON Section (parent_id);
-CREATE INDEX glob_idx ON Section (global);
-
 CREATE INDEX section_type_index ON Section (type);
 ALTER TABLE FileRef ADD CONSTRAINT FK464kkuexjpycuic1n33q0yhe2
 FOREIGN KEY (sectionId) REFERENCES Section (id);

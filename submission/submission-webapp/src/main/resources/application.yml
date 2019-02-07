@@ -12,6 +12,11 @@ spring:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
       use-new-id-generator-mappings: false
 
+  servlet:
+    multipart:
+      max-file-size: 10240MB
+      max-request-size: 10240MB
+
 app:
   basepath:
   environment:
