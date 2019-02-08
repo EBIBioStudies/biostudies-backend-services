@@ -8,4 +8,7 @@ data class ErrorDoc(
     val sourceFile: String,
     val error: String,
     val uploaded: Instant = Instant.now()
-)
+) {
+    constructor(submission: SubmissionDoc, error: String) :
+        this(submission.id, submission.body, submission.sourceFile, error)
+}

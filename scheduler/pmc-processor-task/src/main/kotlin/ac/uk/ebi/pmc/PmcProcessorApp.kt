@@ -1,9 +1,10 @@
 package ac.uk.ebi.pmc
 
+import ac.uk.ebi.pmc.download.PmcSubProcessor
+import ac.uk.ebi.pmc.load.PmcSubmissionLoader
 import ac.uk.ebi.pmc.submit.PmcBatchSubmitter
-import ac.uk.ebi.pmc.import.PmcBatchImporter
-import ac.uk.ebi.scheduler.properties.ImportMode
 import ac.uk.ebi.scheduler.properties.PmcImporterProperties
+import ac.uk.ebi.scheduler.properties.PmcMode
 import org.springframework.boot.CommandLineRunner
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
@@ -12,22 +13,28 @@ import java.io.File
 
 @SpringBootApplication
 class PmcProcessorApp {
+
     @Bean
-    fun taskExecutor(properties: PmcImporterProperties, importer: PmcBatchImporter, submitter: PmcBatchSubmitter) =
-        TaskExecutor(properties, importer, submitter)
+    fun taskExecutor(
+        properties: PmcImporterProperties,
+        importer: PmcSubProcessor,
+        submitter: PmcBatchSubmitter,
+        pmcSubmissionLoader: PmcSubmissionLoader) =
+        TaskExecutor(properties, importer, submitter, pmcSubmissionLoader)
 }
 
 class TaskExecutor(
     private val properties: PmcImporterProperties,
-    private val batchImporter: PmcBatchImporter,
-    private val pmcBatchSubmitter: PmcBatchSubmitter
+    private val pmcSubProcessor: PmcSubProcessor,
+    private val pmcBatchSubmitter: PmcBatchSubmitter,
+    private val pmcSubmissionLoader: PmcSubmissionLoader
 ) : CommandLineRunner {
 
     override fun run(args: Array<String>) {
         when (properties.mode) {
-            ImportMode.SUBMIT -> pmcBatchSubmitter.submit()
-            ImportMode.FILE -> batchImporter.importFile(File(properties.path))
-            ImportMode.GZ_FILE -> batchImporter.importGzipFile(File(properties.path))
+            PmcMode.LOAD -> pmcSubmissionLoader.loadFile(File(properties.path))
+            PmcMode.PROCESS -> pmcSubProcessor.processFiles()
+            PmcMode.SUBMIT -> pmcBatchSubmitter.submit()
         }
     }
 }

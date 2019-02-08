@@ -5,12 +5,16 @@ import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
 import ac.uk.ebi.pmc.client.PmcApi
 import ac.uk.ebi.pmc.data.MongoDocService
-import ac.uk.ebi.pmc.data.MongoRepository
+import ac.uk.ebi.pmc.data.ext.getCollection
+import ac.uk.ebi.pmc.data.repository.ErrorsRepository
+import ac.uk.ebi.pmc.data.repository.SubFileRepository
+import ac.uk.ebi.pmc.data.repository.SubRepository
+import ac.uk.ebi.pmc.download.FileDownloader
+import ac.uk.ebi.pmc.download.PmcProcessor
+import ac.uk.ebi.pmc.download.PmcSubProcessor
+import ac.uk.ebi.pmc.load.PmcSubmissionLoader
 import ac.uk.ebi.pmc.submit.PmcBatchSubmitter
 import ac.uk.ebi.pmc.submit.PmcSubmitter
-import ac.uk.ebi.pmc.import.PmcBatchImporter
-import ac.uk.ebi.pmc.import.FileDownloader
-import ac.uk.ebi.pmc.import.PmcImporter
 import ac.uk.ebi.scheduler.properties.PmcImporterProperties
 import com.mongodb.async.client.MongoClient
 import org.litote.kmongo.async.KMongo
@@ -32,11 +36,22 @@ class AppConfig {
     fun mongoClient(properties: PmcImporterProperties) = KMongo.createClient(properties.mongodbUri)
 
     @Bean
-    fun subRepository(client: MongoClient) = MongoRepository("eubioimag", client)
+    fun errorsRepository(client: MongoClient) = ErrorsRepository(client.getCollection("eubioimag", "errors"))
 
     @Bean
-    fun submissionDocService(subRepository: MongoRepository, serializationService: SerializationService) =
-            MongoDocService(subRepository, serializationService)
+    fun submissionRepository(client: MongoClient) = SubRepository(client.getCollection("eubioimag", "submissions"))
+
+    @Bean
+    fun submissionFileRepository(client: MongoClient) = SubFileRepository(client.getCollection("eubioimag", "files"))
+
+    @Bean
+    fun submissionDocService(
+        serializationService: SerializationService,
+        errorsRepository: ErrorsRepository,
+        submissionRepository: SubRepository,
+        submissionFileRepository: SubFileRepository
+    ) =
+        MongoDocService(submissionRepository, errorsRepository, submissionFileRepository, serializationService)
 
     @Bean
     fun fileDownloader(pmcApi: PmcApi, properties: PmcImporterProperties) = FileDownloader(properties, pmcApi)
@@ -46,7 +61,7 @@ class AppConfig {
         submissionDocService: MongoDocService,
         serializationService: SerializationService,
         fileDownloader: FileDownloader
-    ) = PmcImporter(submissionDocService, serializationService, fileDownloader)
+    ) = PmcProcessor(submissionDocService, serializationService, fileDownloader)
 
     @Bean
     fun bioWebClient(properties: PmcImporterProperties) =
@@ -55,15 +70,15 @@ class AppConfig {
                     .getAuthenticatedClient(properties.bioStudiesUser, properties.bioStudiesPassword)
 
     @Bean
-    fun pmcSubmitter(
-        bioWebClient: BioWebClient,
-        submissionDocService: MongoDocService,
-        pmcImporterProperties: PmcImporterProperties
-    ) = PmcSubmitter(bioWebClient, submissionDocService, pmcImporterProperties)
+    fun pmcSubmitter(bioWebClient: BioWebClient, submissionDocService: MongoDocService) =
+        PmcSubmitter(bioWebClient, submissionDocService)
 
     @Bean
-    fun pmcBatchImporter(pmcImporter: PmcImporter) = PmcBatchImporter(pmcImporter)
+    fun pmcBatchImporter(pmcImporter: PmcProcessor) = PmcSubProcessor(pmcImporter)
 
     @Bean
     fun pmcBatchSubmitter(pmcSubmitter: PmcSubmitter) = PmcBatchSubmitter(pmcSubmitter)
+
+    @Bean
+    fun pmcSubmissionLoader() = PmcSubmissionLoader()
 }

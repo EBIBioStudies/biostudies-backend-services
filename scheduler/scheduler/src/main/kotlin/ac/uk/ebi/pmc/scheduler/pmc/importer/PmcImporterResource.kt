@@ -15,7 +15,12 @@ class PmcImporterResource(private val importerService: PmcImporterService) {
         importerService.importGzipFile(File(path))
     }
 
-    @PostMapping("/api/pmc/import/files")
+    @PostMapping("/api/pmc/submit/file")
+    fun submitFile(@RequestHeader("path") path: String) {
+        importerService.submitFile(File(path))
+    }
+
+    @PostMapping("/api/pmc/submit/files")
     fun importFolder(@RequestBody paths: List<String>) {
         importerService.importGzipFolder(paths.map(::File))
     }
