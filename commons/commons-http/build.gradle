@@ -1,12 +1,12 @@
 import static Dependencies.*
-
-plugins {
-    id("org.jetbrains.kotlin.jvm")
-}
+import static TestDependencies.*
 
 dependencies {
     compile project(":commons:commons-util")
 
     compile(JacksonKotlin)
     compile(JacksonCore)
+
+    testCompile(BaseTestCompileDependencies)
+    testRuntime(BaseTestRuntimeDependencies)
 }

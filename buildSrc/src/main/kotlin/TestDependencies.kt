@@ -72,6 +72,9 @@ object TestDependencies {
     const val Junit5Params = "org.junit.jupiter:junit-jupiter-params:$JunitVersion"
     const val JunitExtensions = "io.github.glytching:junit-extensions:$JunitExtensionsVersion"
 
+    val BaseTestCompileDependencies = arrayOf(Junit5Api, JunitExtensions, Junit5Params, AssertJ, MockK, KotlinTestJunit)
+    val BaseTestRuntimeDependencies = arrayOf(Junit5Console, Junit5Engine)
+
     // Xml related
     const val XmlUnitCore = "org.xmlunit:xmlunit-core:$XmlUnitVersion"
     const val XmlUnitAssertJ = "org.xmlunit:xmlunit-assertj:$XmlUnitVersion"

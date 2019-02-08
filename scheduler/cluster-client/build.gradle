@@ -1,10 +1,7 @@
 import static Dependencies.Jsch
 import static Dependencies.KotlinStdLib
-import static TestDependencies.*
-
-plugins {
-    id("org.jetbrains.kotlin.jvm")
-}
+import static TestDependencies.BaseTestCompileDependencies
+import static TestDependencies.BaseTestRuntimeDependencies
 
 dependencies {
     compile(KotlinStdLib)
@@ -12,11 +9,6 @@ dependencies {
     compile project(":commons:commons-util")
     compile(Jsch)
 
-    testCompile(AssertJ)
-    testCompile(Junit5Api)
-    testCompile(Junit5Params)
-}
-
-repositories {
-    mavenCentral()
+    testCompile(BaseTestCompileDependencies)
+    testRuntime(BaseTestRuntimeDependencies)
 }

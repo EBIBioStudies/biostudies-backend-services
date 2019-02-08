@@ -1,17 +1,6 @@
 import static Dependencies.*
 import static TestDependencies.*
 
-plugins {
-    id("org.jetbrains.kotlin.jvm")
-}
-
-repositories {
-    jcenter()
-    maven {
-        url = "https://oss.sonatype.org/content/repositories/snapshots"
-    }
-}
-
 dependencies {
     compile project(":commons:commons-test")
     compile project(":commons:commons-util")
@@ -21,18 +10,10 @@ dependencies {
     compile(JacksonXml)
     compile(Woodstox)
     compile(Guava)
-
     compile(Arrow)
 
-    // Test dependencies
-    testCompile(KotlinTestJunit)
-    testCompile(MockK)
-
-    // Junit dependencies
-    testCompile(Junit5Api)
-    testCompile(Junit5Params)
-    runtime(Junit5Engine)
-    runtime(Junit5Console)
+    testCompile(BaseTestCompileDependencies)
+    testRuntime(BaseTestRuntimeDependencies)
 
     testCompile(XmlUnitCore)
     testCompile(XmlUnitAssertJ)

@@ -1,9 +1,5 @@
 import static Dependencies.KotlinStdLib
 
-plugins {
-    id "org.jetbrains.kotlin.jvm"
-}
-
 dependencies {
     compile(KotlinStdLib)
 }
