@@ -34,7 +34,7 @@ class TaskExecutor(
     override fun run(args: Array<String>) {
         when (properties.mode) {
             PmcMode.LOAD -> pmcSubmissionLoader.loadFolder(File(properties.path))
-            PmcMode.PROCESS -> pmcSubProcessor.processFiles()
+            PmcMode.PROCESS -> pmcSubProcessor.processSubmissions()
             PmcMode.SUBMIT -> pmcBatchSubmitter.submit()
         }
     }

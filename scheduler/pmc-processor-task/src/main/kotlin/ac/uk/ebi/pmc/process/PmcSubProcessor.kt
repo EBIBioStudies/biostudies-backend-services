@@ -5,13 +5,7 @@ import kotlinx.coroutines.runBlocking
 
 class PmcSubProcessor(private val pmcProcessor: PmcProcessor) {
 
-    fun importGzipFile() {
-        runBlocking {
-            pmcProcessor.processSubmissions().joinAll()
-        }
-    }
-
-    fun processFiles() {
+    fun processSubmissions() {
         runBlocking { pmcProcessor.processSubmissions().joinAll() }
     }
 }
