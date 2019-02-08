@@ -27,9 +27,9 @@ class MongoDocService(
     private val serializationService: SerializationService
 ) {
 
-    suspend fun getReadyToProcess() = subRepository.findNext(SubStatus.LOADED, SubStatus.DOWNLOADING)
+    suspend fun getReadyToProcess() = subRepository.findNext(SubStatus.LOADED, SubStatus.PROCESSING)
 
-    suspend fun getReadyToSubmit() = subRepository.findNext(SubStatus.DOWNLOADED, SubStatus.SUBMITTING)
+    suspend fun getReadyToSubmit() = subRepository.findNext(SubStatus.PROCESED, SubStatus.SUBMITTING)
 
     suspend fun getSubFiles(ids: List<ObjectId>) = fileRepository.getFiles(ids)
 
