@@ -4,6 +4,6 @@ import java.io.File
 
 class PmcSubmissionLoader {
 
-    fun loadFile(file: File) {
+    fun loadFolder(folder: File) {
     }
 }

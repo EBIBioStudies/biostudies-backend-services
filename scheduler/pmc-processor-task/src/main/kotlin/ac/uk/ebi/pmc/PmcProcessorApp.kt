@@ -1,7 +1,7 @@
 package ac.uk.ebi.pmc
 
-import ac.uk.ebi.pmc.download.PmcSubProcessor
 import ac.uk.ebi.pmc.load.PmcSubmissionLoader
+import ac.uk.ebi.pmc.process.PmcSubProcessor
 import ac.uk.ebi.pmc.submit.PmcBatchSubmitter
 import ac.uk.ebi.scheduler.properties.PmcImporterProperties
 import ac.uk.ebi.scheduler.properties.PmcMode
@@ -19,7 +19,8 @@ class PmcProcessorApp {
         properties: PmcImporterProperties,
         importer: PmcSubProcessor,
         submitter: PmcBatchSubmitter,
-        pmcSubmissionLoader: PmcSubmissionLoader) =
+        pmcSubmissionLoader: PmcSubmissionLoader
+    ) =
         TaskExecutor(properties, importer, submitter, pmcSubmissionLoader)
 }
 
@@ -32,7 +33,7 @@ class TaskExecutor(
 
     override fun run(args: Array<String>) {
         when (properties.mode) {
-            PmcMode.LOAD -> pmcSubmissionLoader.loadFile(File(properties.path))
+            PmcMode.LOAD -> pmcSubmissionLoader.loadFolder(File(properties.path))
             PmcMode.PROCESS -> pmcSubProcessor.processFiles()
             PmcMode.SUBMIT -> pmcBatchSubmitter.submit()
         }

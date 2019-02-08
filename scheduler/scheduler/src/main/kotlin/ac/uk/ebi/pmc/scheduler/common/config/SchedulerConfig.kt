@@ -3,7 +3,7 @@ package ac.uk.ebi.pmc.scheduler.common.config
 import ac.uk.ebi.cluster.client.lsf.ClusterOperations
 import ac.uk.ebi.pmc.scheduler.common.properties.AppProperties
 import ac.uk.ebi.pmc.scheduler.common.properties.SshProperties
-import ac.uk.ebi.pmc.scheduler.pmc.importer.PmcImporterService
+import ac.uk.ebi.pmc.scheduler.pmc.importer.PmcLoaderService
 import ac.uk.ebi.pmc.scheduler.pmc.importer.SchedulerPmcImporterProp
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -23,5 +23,5 @@ class SchedulerConfig {
         properties: SchedulerPmcImporterProp,
         appProperties: AppProperties
     ) =
-        PmcImporterService(clusterOperations, properties, appProperties)
+        PmcLoaderService(clusterOperations, properties, appProperties)
 }

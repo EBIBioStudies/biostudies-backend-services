@@ -1,4 +1,4 @@
-package ac.uk.ebi.pmc.download
+package ac.uk.ebi.pmc.process
 
 import ac.uk.ebi.biostd.SerializationService
 import ac.uk.ebi.biostd.SubFormat

@@ -1,4 +1,4 @@
-package ac.uk.ebi.pmc.download
+package ac.uk.ebi.pmc.process
 
 import ac.uk.ebi.pmc.client.PmcApi
 import ac.uk.ebi.pmc.utils.retry

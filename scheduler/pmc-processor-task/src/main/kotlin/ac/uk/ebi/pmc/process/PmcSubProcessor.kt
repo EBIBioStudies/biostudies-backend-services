@@ -1,4 +1,4 @@
-package ac.uk.ebi.pmc.download
+package ac.uk.ebi.pmc.process
 
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.runBlocking

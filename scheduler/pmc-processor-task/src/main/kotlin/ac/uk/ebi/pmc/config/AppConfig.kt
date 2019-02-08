@@ -9,10 +9,10 @@ import ac.uk.ebi.pmc.data.ext.getCollection
 import ac.uk.ebi.pmc.data.repository.ErrorsRepository
 import ac.uk.ebi.pmc.data.repository.SubFileRepository
 import ac.uk.ebi.pmc.data.repository.SubRepository
-import ac.uk.ebi.pmc.download.FileDownloader
-import ac.uk.ebi.pmc.download.PmcProcessor
-import ac.uk.ebi.pmc.download.PmcSubProcessor
 import ac.uk.ebi.pmc.load.PmcSubmissionLoader
+import ac.uk.ebi.pmc.process.FileDownloader
+import ac.uk.ebi.pmc.process.PmcProcessor
+import ac.uk.ebi.pmc.process.PmcSubProcessor
 import ac.uk.ebi.pmc.submit.PmcBatchSubmitter
 import ac.uk.ebi.pmc.submit.PmcSubmitter
 import ac.uk.ebi.scheduler.properties.PmcImporterProperties

@@ -33,9 +33,8 @@ class MongoDocService(
 
     suspend fun getSubFiles(ids: List<ObjectId>) = fileRepository.getFiles(ids)
 
-    suspend fun markAs(submission: SubmissionDoc, status: SubStatus) {
-        subRepository.update(submission.apply { submissionStatus = status; updated = Instant.now() })
-    }
+    suspend fun markAs(submission: SubmissionDoc, status: SubStatus) =
+        subRepository.update(submission.withStatus(status))
 
     suspend fun saveSubmission(submission: Submission, sourceFile: String, files: List<File>) = coroutineScope {
         val fileIds = files
@@ -55,10 +54,9 @@ class MongoDocService(
 
     suspend fun saveError(submission: SubmissionDoc, throwable: Throwable) {
         logger.error { "Error processing submission ${submission.id} from file ${submission.sourceFile}, ${throwable.message}" }
-        subRepository.update(submission.apply { submissionStatus = SubStatus.ERROR; updated = Instant.now() })
+        subRepository.update(submission.withStatus(SubStatus.ERROR))
         errorsRepository.save(ErrorDoc(submission, getStackTrace(throwable)))
     }
 
     private fun asJson(submission: Submission) = serializationService.serializeSubmission(submission, SubFormat.JSON)
-
 }

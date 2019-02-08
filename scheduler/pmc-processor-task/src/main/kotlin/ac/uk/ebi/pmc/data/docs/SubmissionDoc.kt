@@ -8,11 +8,17 @@ data class SubmissionDoc(
     val body: String,
     val sourceFile: String,
     val files: List<ObjectId>,
-    var submissionStatus: SubStatus,
+    var status: SubStatus,
     var updated: Instant
 ) {
 
     val _id: ObjectId? = null
+
+    fun withStatus(status: SubStatus): SubmissionDoc {
+        this.status = status
+        this.updated = Instant.now()
+        return this
+    }
 
     companion object {
         const val status = "status"

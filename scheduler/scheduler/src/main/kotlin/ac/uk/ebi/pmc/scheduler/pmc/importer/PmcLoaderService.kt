@@ -11,34 +11,17 @@ import mu.KotlinLogging
 import java.io.File
 
 private val logger = KotlinLogging.logger {}
-private const val PARALLELISM = 5
 
-class PmcImporterService(
+class PmcLoaderService(
     private val clusterOperations: ClusterOperations,
     private val properties: SchedulerPmcImporterProp,
     private val appProperties: AppProperties
 ) {
 
-    fun importGzipFile(file: File, jobs: List<Job> = emptyList()): Job {
-        logger.info { "submitting job to process file ${file.absolutePath}" }
-
-        val properties = getConfigProperties(file, PmcMode.GZ_FILE)
-        val jobTry = clusterOperations.triggerJob(
-            JobSpec(
-                8,
-                MemorySpec.SIXTEEN_GB,
-                properties.asJavaCommand(appProperties.appsFolder),
-                jobs))
-        return jobTry.fold({ throw it }, { it })
-    }
-
-    fun importGzipFolder(files: List<File>) = files.chunked(PARALLELISM)
-        .fold(emptyList<Job>()) { dependencyJobs, chunk -> chunk.map { importGzipFile(it, dependencyJobs) } }
-
-    fun submitFile(file: File): Job {
+    fun loadFile(file: File): Job {
         logger.info { "submitting job to submit file ${file.absolutePath}" }
 
-        val properties = getConfigProperties(file, PmcMode.SUBMIT)
+        val properties = getConfigProperties(file, PmcMode.LOAD)
         val jobTry = clusterOperations.triggerJob(
             JobSpec(
                 8,
