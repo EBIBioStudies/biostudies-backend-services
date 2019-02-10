@@ -2,8 +2,8 @@ package ac.uk.ebi.biostd.json.deserialization
 
 import ac.uk.ebi.biostd.ext.deserialize
 import ac.uk.ebi.biostd.json.JsonSerializer
-import ebi.ac.uk.dsl.jsonArray
-import ebi.ac.uk.dsl.jsonObj
+import ebi.ac.uk.dsl.json.jsonArray
+import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.model.Section
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
