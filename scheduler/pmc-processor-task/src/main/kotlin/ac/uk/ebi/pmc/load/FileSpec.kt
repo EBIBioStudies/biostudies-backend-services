@@ -5,4 +5,4 @@ import java.time.Instant
 /**
  * Contain submission file specification data.
  */
-class SubmissionFileData(val name: String, val content: String, val modified: Instant)
+class FileSpec(val name: String, val content: String, val modified: Instant)

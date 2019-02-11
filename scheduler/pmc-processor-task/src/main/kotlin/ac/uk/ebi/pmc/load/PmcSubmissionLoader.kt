@@ -33,21 +33,23 @@ class PmcSubmissionLoader(
      *
      * @param file submissions load file data including content and name.
      */
-    suspend fun processFile(file: SubmissionFileData) = withContext(Dispatchers.Default) {
-        sanitize(file.content)
-            .splitIgnoringEmpty(SUB_SEPARATOR)
-            .map { serialize(it) }
-            .map { (body, result) ->
-                launch {
-                    result.fold(
-                        { reportError(it, body, file.name) },
-                        { loadSubmission(it, file.name, file.modified) }
-                    )
-                }
-            }
+    suspend fun processFile(file: FileSpec) = withContext(Dispatchers.Default) {
+        if (mongoDocService.isProcessed(file).not()) {
+            sanitize(file.content)
+                .splitIgnoringEmpty(SUB_SEPARATOR)
+                .map { deserialize(it) }
+                .map { (body, result) -> launch { processSubmission(result, body, file) } }
+
+            mongoDocService.reportProcessed(file)
+        }
     }
 
-    private fun serialize(pagetab: String) =
+    private suspend fun processSubmission(result: Try<Submission>, body: String, file: FileSpec) =
+        result.fold(
+            { reportError(it, body, file.name) },
+            { loadSubmission(it, file.name, file.modified) })
+
+    private fun deserialize(pagetab: String) =
         Pair(pagetab, Try { serializationService.deserializeSubmission(pagetab, TSV) })
 
     private suspend fun reportError(error: Throwable, submissionBody: String, sourceFile: String) {

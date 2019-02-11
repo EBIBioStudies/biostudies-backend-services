@@ -2,6 +2,7 @@ package ac.uk.ebi.pmc.persistence
 
 import ac.uk.ebi.biostd.SerializationService
 import ac.uk.ebi.biostd.SubFormat
+import ac.uk.ebi.pmc.load.FileSpec
 import ac.uk.ebi.pmc.persistence.docs.SubStatus
 import ac.uk.ebi.pmc.persistence.docs.SubStatus.ERROR
 import ac.uk.ebi.pmc.persistence.docs.SubStatus.LOADED
@@ -57,6 +58,14 @@ class MongoDocService(
 
         subRepository.save(SubmissionDoc(submission.accNo, asJson(submission), sourceFile, LOADED, fileIds))
         logger.info { "finish processing submission with accNo = '${submission.accNo}' from file $sourceFile" }
+    }
+
+    fun isProcessed(file: FileSpec): Boolean {
+        throw NotImplementedError() //TODO implemented loaded file repository
+    }
+
+    fun reportProcessed(file: FileSpec) {
+        throw NotImplementedError() //TODO implemented loaded file repository
     }
 
     suspend fun saveError(submission: SubmissionDoc, throwable: Throwable) {
