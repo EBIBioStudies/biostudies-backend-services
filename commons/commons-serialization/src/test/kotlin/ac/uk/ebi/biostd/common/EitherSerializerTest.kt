@@ -3,7 +3,7 @@ package ac.uk.ebi.biostd.common
 import arrow.core.Either
 import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import ebi.ac.uk.dsl.jsonObj
+import ebi.ac.uk.dsl.json.jsonObj
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
