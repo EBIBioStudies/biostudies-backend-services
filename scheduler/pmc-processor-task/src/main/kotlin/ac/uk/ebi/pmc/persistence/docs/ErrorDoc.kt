@@ -1,4 +1,4 @@
-package ac.uk.ebi.pmc.data.docs
+package ac.uk.ebi.pmc.persistence.docs
 
 import java.time.Instant
 
@@ -8,4 +8,7 @@ data class ErrorDoc(
     val sourceFile: String,
     val error: String,
     val uploaded: Instant = Instant.now()
-)
+) {
+    constructor(submission: SubmissionDoc, error: String) :
+        this(submission.id, submission.body, submission.sourceFile, error)
+}
