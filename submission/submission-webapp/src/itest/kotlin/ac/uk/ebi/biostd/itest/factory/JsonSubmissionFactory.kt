@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.itest.factory
 
-import ebi.ac.uk.dsl.jsonArray
-import ebi.ac.uk.dsl.jsonObj
+import ebi.ac.uk.dsl.json.jsonArray
+import ebi.ac.uk.dsl.json.jsonObj
 
 fun allInOneSubmissionJson() = jsonObj {
     "accNo" to "S-EPMC125"

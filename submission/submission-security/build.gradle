@@ -1,9 +1,6 @@
 import static Dependencies.*
-import static TestDependencies.*
-
-plugins {
-    id("org.jetbrains.kotlin.jvm")
-}
+import static TestDependencies.BaseTestCompileDependencies
+import static TestDependencies.BaseTestRuntimeDependencies
 
 dependencies {
     compile project(":commons:commons-util")
@@ -23,17 +20,7 @@ dependencies {
 
     // Test dependencies
     testCompile project(":commons:commons-test")
-
     testCompile(Logback)
-
-    // General test dependencies
-    testCompile(KotlinTestJunit)
-    testCompile(AssertJ)
-    testCompile(MockK)
-
-    // Junit dependencies
-    testCompile(Junit5Api)
-    testCompile(Junit5Params)
-    runtime(Junit5Engine)
-    runtime(Junit5Console)
+    testCompile(BaseTestCompileDependencies)
+    testRuntime(BaseTestRuntimeDependencies)
 }

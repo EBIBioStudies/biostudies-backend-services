@@ -5,8 +5,8 @@ import arrow.core.getOrHandle
 import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import ebi.ac.uk.dsl.jsonArray
-import ebi.ac.uk.dsl.jsonObj
+import ebi.ac.uk.dsl.json.jsonArray
+import ebi.ac.uk.dsl.json.jsonObj
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test

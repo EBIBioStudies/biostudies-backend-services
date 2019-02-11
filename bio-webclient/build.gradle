@@ -1,16 +1,6 @@
 import static Dependencies.SpringWeb
-import static TestDependencies.*
-
-plugins {
-    id("org.jetbrains.kotlin.jvm")
-}
-
-repositories {
-    jcenter()
-    maven {
-        url = "https://oss.sonatype.org/content/repositories/snapshots"
-    }
-}
+import static TestDependencies.BaseTestCompileDependencies
+import static TestDependencies.BaseTestRuntimeDependencies
 
 dependencies {
     compile(project(":commons:commons-util"))
@@ -20,13 +10,6 @@ dependencies {
     // External dependencies
     compile(SpringWeb)
 
-    // Test dependencies
-    testCompile(KotlinTestJunit)
-    testCompile(MockK)
-
-    // Junit dependencies
-    testCompile(Junit5Api)
-    testCompile(Junit5Params)
-    runtime(Junit5Engine)
-    runtime(Junit5Console)
+    testCompile(BaseTestCompileDependencies)
+    testRuntime(BaseTestRuntimeDependencies)
 }

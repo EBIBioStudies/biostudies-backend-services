@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.json.deserialization
 
 import ac.uk.ebi.biostd.json.JsonSerializer
-import ebi.ac.uk.dsl.jsonArray
+import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.AttributeDetail
 import ebi.ac.uk.model.File

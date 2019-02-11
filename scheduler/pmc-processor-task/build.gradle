@@ -1,19 +1,13 @@
 import static Dependencies.*
 import static SpringBootDependencies.SpringBootStarter
 import static SpringBootDependencies.SpringBootStarterConfigProcessor
-import static TestDependencies.*
+import static TestDependencies.BaseTestCompileDependencies
+import static TestDependencies.BaseTestRuntimeDependencies
 
 plugins {
-    id "org.jetbrains.kotlin.jvm"
     id "org.jetbrains.kotlin.plugin.spring" version "1.3.10"
     id "io.spring.dependency-management" version "1.0.6.RELEASE"
     id "org.springframework.boot" version "2.1.1.RELEASE"
-}
-
-repositories {
-    jcenter()
-    maven { url = "https://oss.sonatype.org/content/repositories/snapshots" }
-    mavenLocal()
 }
 
 dependencies {
@@ -31,12 +25,6 @@ dependencies {
     implementation(RetrofitCoroutine)
 
     // Junit dependencies
-    testImplementation(Junit5Api)
-    testImplementation(Junit5Params)
-    testImplementation(JunitExtensions)
-    runtime(Junit5Engine)
-    runtime(Junit5Console)
-
-    testImplementation(MockK)
-    testImplementation(AssertJ)
+    testCompile(BaseTestCompileDependencies)
+    testRuntime(BaseTestRuntimeDependencies)
 }
