@@ -4,15 +4,16 @@ import org.bson.types.ObjectId
 import java.time.Instant
 
 data class SubmissionDoc(
-    val id: String,
+    val accNo: String,
     val body: String,
     val sourceFile: String,
-    val files: List<ObjectId>,
     var status: SubStatus,
-    var updated: Instant
+    val files: List<ObjectId> = emptyList(),
+    var updated: Instant = Instant.now()
 ) {
 
     val _id: ObjectId? = null
+    val sourceTime: Instant? = null
 
     fun withStatus(status: SubStatus): SubmissionDoc {
         this.status = status
@@ -21,13 +22,15 @@ data class SubmissionDoc(
     }
 
     companion object {
+        const val accNo = "accNo"
         const val status = "status"
         const val sourceFile = "sourceFile"
+        const val sourceTime = "sourceTime"
         const val updated = "updated"
         const val imported = "imported"
     }
 }
 
 enum class SubStatus {
-    LOADED, PROCESSING, PROCESED, SUBMITTING, SUBMITTED, ERROR
+    LOADED, PROCESSING, PROCESED, SUBMITTING, SUBMITTED, ERROR, DISCARTED
 }

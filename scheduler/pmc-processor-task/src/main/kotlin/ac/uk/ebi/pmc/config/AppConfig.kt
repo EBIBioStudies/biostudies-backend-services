@@ -4,6 +4,7 @@ import ac.uk.ebi.biostd.SerializationService
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
 import ac.uk.ebi.pmc.client.PmcApi
+import ac.uk.ebi.pmc.load.PmcLoader
 import ac.uk.ebi.pmc.load.PmcSubmissionLoader
 import ac.uk.ebi.pmc.persistence.MongoDocService
 import ac.uk.ebi.pmc.persistence.ext.getCollection
@@ -79,5 +80,9 @@ class AppConfig {
     fun pmcBatchSubmitter(pmcSubmitter: PmcSubmitter) = PmcBatchSubmitter(pmcSubmitter)
 
     @Bean
-    fun pmcSubmissionLoader() = PmcSubmissionLoader()
+    fun pmcSubmissionLoader(submissionDocService: MongoDocService, serializationService: SerializationService) =
+        PmcSubmissionLoader(serializationService, submissionDocService)
+
+    @Bean
+    fun pmcSubmissionLoader(pmcSubmissionLoader: PmcSubmissionLoader) = PmcLoader(pmcSubmissionLoader)
 }
