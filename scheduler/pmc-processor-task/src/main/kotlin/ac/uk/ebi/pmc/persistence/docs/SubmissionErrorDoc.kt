@@ -15,9 +15,3 @@ data class SubmissionErrorDoc(
         this.accNo = submission.accNo
     }
 }
-
-data class PlainSubmissionErrorDoc(
-    val sourceFile: String,
-    val submissionBody: String,
-    val error: String,
-    val uploaded: Instant = Instant.now())
