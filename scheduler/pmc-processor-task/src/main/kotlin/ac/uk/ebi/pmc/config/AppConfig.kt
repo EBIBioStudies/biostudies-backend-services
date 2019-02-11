@@ -4,15 +4,15 @@ import ac.uk.ebi.biostd.SerializationService
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
 import ac.uk.ebi.pmc.client.PmcApi
-import ac.uk.ebi.pmc.data.MongoDocService
-import ac.uk.ebi.pmc.data.ext.getCollection
-import ac.uk.ebi.pmc.data.repository.ErrorsRepository
-import ac.uk.ebi.pmc.data.repository.SubFileRepository
-import ac.uk.ebi.pmc.data.repository.SubRepository
 import ac.uk.ebi.pmc.load.PmcSubmissionLoader
+import ac.uk.ebi.pmc.persistence.MongoDocService
+import ac.uk.ebi.pmc.persistence.ext.getCollection
+import ac.uk.ebi.pmc.persistence.repository.ErrorsRepository
+import ac.uk.ebi.pmc.persistence.repository.SubFileRepository
+import ac.uk.ebi.pmc.persistence.repository.SubRepository
 import ac.uk.ebi.pmc.process.FileDownloader
 import ac.uk.ebi.pmc.process.PmcProcessor
-import ac.uk.ebi.pmc.process.PmcSubProcessor
+import ac.uk.ebi.pmc.process.PmcSubmissionProcessor
 import ac.uk.ebi.pmc.submit.PmcBatchSubmitter
 import ac.uk.ebi.pmc.submit.PmcSubmitter
 import ac.uk.ebi.scheduler.properties.PmcImporterProperties
@@ -50,8 +50,7 @@ class AppConfig {
         errorsRepository: ErrorsRepository,
         submissionRepository: SubRepository,
         submissionFileRepository: SubFileRepository
-    ) =
-        MongoDocService(submissionRepository, errorsRepository, submissionFileRepository, serializationService)
+    ) = MongoDocService(submissionRepository, errorsRepository, submissionFileRepository, serializationService)
 
     @Bean
     fun fileDownloader(pmcApi: PmcApi, properties: PmcImporterProperties) = FileDownloader(properties, pmcApi)
@@ -74,7 +73,7 @@ class AppConfig {
         PmcSubmitter(bioWebClient, submissionDocService)
 
     @Bean
-    fun pmcBatchImporter(pmcImporter: PmcProcessor) = PmcSubProcessor(pmcImporter)
+    fun pmcBatchImporter(pmcImporter: PmcProcessor) = PmcSubmissionProcessor(pmcImporter)
 
     @Bean
     fun pmcBatchSubmitter(pmcSubmitter: PmcSubmitter) = PmcBatchSubmitter(pmcSubmitter)

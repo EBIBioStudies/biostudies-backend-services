@@ -1,4 +1,4 @@
-package ac.uk.ebi.pmc.data.docs
+package ac.uk.ebi.pmc.persistence.docs
 
 import org.bson.types.ObjectId
 import java.time.Instant

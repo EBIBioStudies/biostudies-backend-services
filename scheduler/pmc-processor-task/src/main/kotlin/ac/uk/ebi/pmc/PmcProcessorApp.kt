@@ -1,7 +1,7 @@
 package ac.uk.ebi.pmc
 
 import ac.uk.ebi.pmc.load.PmcSubmissionLoader
-import ac.uk.ebi.pmc.process.PmcSubProcessor
+import ac.uk.ebi.pmc.process.PmcSubmissionProcessor
 import ac.uk.ebi.pmc.submit.PmcBatchSubmitter
 import ac.uk.ebi.scheduler.properties.PmcImporterProperties
 import ac.uk.ebi.scheduler.properties.PmcMode
@@ -17,25 +17,24 @@ class PmcProcessorApp {
     @Bean
     fun taskExecutor(
         properties: PmcImporterProperties,
-        importer: PmcSubProcessor,
+        importer: PmcSubmissionProcessor,
         submitter: PmcBatchSubmitter,
         pmcSubmissionLoader: PmcSubmissionLoader
-    ) =
-        TaskExecutor(properties, importer, submitter, pmcSubmissionLoader)
+    ) = TaskExecutor(properties, importer, submitter, pmcSubmissionLoader)
 }
 
 class TaskExecutor(
     private val properties: PmcImporterProperties,
-    private val pmcSubProcessor: PmcSubProcessor,
-    private val pmcBatchSubmitter: PmcBatchSubmitter,
-    private val pmcSubmissionLoader: PmcSubmissionLoader
+    private val processor: PmcSubmissionProcessor,
+    private val submitter: PmcBatchSubmitter,
+    private val loader: PmcSubmissionLoader
 ) : CommandLineRunner {
 
     override fun run(args: Array<String>) {
         when (properties.mode) {
-            PmcMode.LOAD -> pmcSubmissionLoader.loadFolder(File(properties.path))
-            PmcMode.PROCESS -> pmcSubProcessor.processSubmissions()
-            PmcMode.SUBMIT -> pmcBatchSubmitter.submit()
+            PmcMode.LOAD -> loader.loadFolder(File(properties.path))
+            PmcMode.PROCESS -> processor.processSubmissions()
+            PmcMode.SUBMIT -> submitter.submit()
         }
     }
 }

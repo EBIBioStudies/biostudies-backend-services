@@ -2,8 +2,8 @@ package ac.uk.ebi.pmc.process
 
 import ac.uk.ebi.biostd.SerializationService
 import ac.uk.ebi.biostd.SubFormat
-import ac.uk.ebi.pmc.data.MongoDocService
-import ac.uk.ebi.pmc.data.docs.SubmissionDoc
+import ac.uk.ebi.pmc.persistence.MongoDocService
+import ac.uk.ebi.pmc.persistence.docs.SubmissionDoc
 import ebi.ac.uk.model.Submission
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job

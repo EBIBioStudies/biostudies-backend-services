@@ -2,9 +2,9 @@ package ac.uk.ebi.pmc.submit
 
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
-import ac.uk.ebi.pmc.data.MongoDocService
-import ac.uk.ebi.pmc.data.docs.SubStatus
-import ac.uk.ebi.pmc.data.docs.SubmissionDoc
+import ac.uk.ebi.pmc.persistence.MongoDocService
+import ac.uk.ebi.pmc.persistence.docs.SubStatus
+import ac.uk.ebi.pmc.persistence.docs.SubmissionDoc
 import arrow.core.Try
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job

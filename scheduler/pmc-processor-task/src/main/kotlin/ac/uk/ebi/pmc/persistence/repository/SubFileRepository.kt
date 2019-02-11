@@ -1,7 +1,7 @@
-package ac.uk.ebi.pmc.data.repository
+package ac.uk.ebi.pmc.persistence.repository
 
-import ac.uk.ebi.pmc.data.docs.FileDoc
-import ac.uk.ebi.pmc.data.ext.getOne
+import ac.uk.ebi.pmc.persistence.docs.FileDoc
+import ac.uk.ebi.pmc.persistence.ext.getOne
 import com.mongodb.async.client.MongoCollection
 import com.mongodb.client.model.Filters
 import org.bson.types.ObjectId

@@ -1,7 +1,7 @@
-package ac.uk.ebi.pmc.data.repository
+package ac.uk.ebi.pmc.persistence.repository
 
-import ac.uk.ebi.pmc.data.docs.SubStatus
-import ac.uk.ebi.pmc.data.docs.SubmissionDoc
+import ac.uk.ebi.pmc.persistence.docs.SubStatus
+import ac.uk.ebi.pmc.persistence.docs.SubmissionDoc
 import arrow.core.toOption
 import com.mongodb.async.client.MongoCollection
 import com.mongodb.client.model.Filters.and

@@ -1,4 +1,4 @@
-package ac.uk.ebi.pmc.data.docs
+package ac.uk.ebi.pmc.persistence.docs
 
 import java.time.Instant
 

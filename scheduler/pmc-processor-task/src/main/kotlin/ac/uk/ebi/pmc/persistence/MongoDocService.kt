@@ -1,13 +1,13 @@
-package ac.uk.ebi.pmc.data
+package ac.uk.ebi.pmc.persistence
 
 import ac.uk.ebi.biostd.SerializationService
 import ac.uk.ebi.biostd.SubFormat
-import ac.uk.ebi.pmc.data.docs.ErrorDoc
-import ac.uk.ebi.pmc.data.docs.SubStatus
-import ac.uk.ebi.pmc.data.docs.SubmissionDoc
-import ac.uk.ebi.pmc.data.repository.ErrorsRepository
-import ac.uk.ebi.pmc.data.repository.SubFileRepository
-import ac.uk.ebi.pmc.data.repository.SubRepository
+import ac.uk.ebi.pmc.persistence.docs.ErrorDoc
+import ac.uk.ebi.pmc.persistence.docs.SubStatus
+import ac.uk.ebi.pmc.persistence.docs.SubmissionDoc
+import ac.uk.ebi.pmc.persistence.repository.ErrorsRepository
+import ac.uk.ebi.pmc.persistence.repository.SubFileRepository
+import ac.uk.ebi.pmc.persistence.repository.SubRepository
 import ebi.ac.uk.model.Submission
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll

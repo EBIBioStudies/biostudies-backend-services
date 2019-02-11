@@ -1,4 +1,4 @@
-package ac.uk.ebi.pmc.data.ext
+package ac.uk.ebi.pmc.persistence.ext
 
 import com.mongodb.async.client.MongoCollection
 import org.bson.conversions.Bson
