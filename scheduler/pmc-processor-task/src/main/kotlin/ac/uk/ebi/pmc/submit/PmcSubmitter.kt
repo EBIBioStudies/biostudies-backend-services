@@ -17,7 +17,6 @@ class PmcSubmitter(
     private val bioWebClient: BioWebClient,
     private val docService: MongoDocService,
     private val submissionService: SubmissionDocService
-
 ) {
 
     suspend fun submit(): List<Job> {
@@ -26,7 +25,7 @@ class PmcSubmitter(
 
         while (submission.isDefined()) {
             jobs.add(GlobalScope.launch { processSubmission(submission.get()) })
-            submission = submissionService.getReadyToProcess()
+            submission = submissionService.getReadyToSubmit()
         }
 
         return jobs
