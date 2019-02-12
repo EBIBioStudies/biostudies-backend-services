@@ -6,16 +6,16 @@ import java.time.Instant
 data class SubmissionDoc(
     val accNo: String,
     val body: String,
+    var status: SubmissionStatus,
     val sourceFile: String,
-    var status: SubStatus,
+    var sourceTime: Instant? = null,
     val files: List<ObjectId> = emptyList(),
     var updated: Instant = Instant.now()
 ) {
 
     val _id: ObjectId? = null
-    val sourceTime: Instant? = null
 
-    fun withStatus(status: SubStatus): SubmissionDoc {
+    fun withStatus(status: SubmissionStatus): SubmissionDoc {
         this.status = status
         this.updated = Instant.now()
         return this
@@ -31,6 +31,6 @@ data class SubmissionDoc(
     }
 }
 
-enum class SubStatus {
-    LOADED, PROCESSING, PROCESED, SUBMITTING, SUBMITTED, ERROR, DISCARTED
+enum class SubmissionStatus {
+    LOADED, PROCESSING, PROCESSED, SUBMITTING, SUBMITTED, ERROR, DISCARDED
 }

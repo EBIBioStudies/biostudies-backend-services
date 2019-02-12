@@ -1,7 +1,7 @@
 package ac.uk.ebi.pmc.persistence.repository
 
-import ac.uk.ebi.pmc.persistence.docs.SubStatus
 import ac.uk.ebi.pmc.persistence.docs.SubmissionDoc
+import ac.uk.ebi.pmc.persistence.docs.SubmissionStatus
 import arrow.core.toOption
 import com.mongodb.async.client.MongoCollection
 import com.mongodb.client.model.Filters.and
@@ -24,7 +24,7 @@ class SubRepository(private val submissions: MongoCollection<SubmissionDoc>) {
 
     suspend fun update(submissionDoc: SubmissionDoc) = submissions.updateOne(submissionDoc)
 
-    suspend fun findNext(status: SubStatus, newStatus: SubStatus) = submissions.findOneAndUpdate(
+    suspend fun findNext(status: SubmissionStatus, newStatus: SubmissionStatus) = submissions.findOneAndUpdate(
         eq(SubmissionDoc.status, status.name).toString(),
         "{set: {${SubmissionDoc.status}: '${newStatus.name}', ${SubmissionDoc.updated} : ${Instant.now()}}}")
         .toOption()
@@ -32,5 +32,5 @@ class SubRepository(private val submissions: MongoCollection<SubmissionDoc>) {
     suspend fun expireOldVersions(accNo: String, sourceTime: Instant) =
         submissions.updateMany(
             and(eq(SubmissionDoc.accNo, accNo), lt(SubmissionDoc.sourceTime, sourceTime)).toString(),
-            Updates.set(SubmissionDoc.status, SubStatus.DISCARTED).toString())
+            Updates.set(SubmissionDoc.status, SubmissionStatus.DISCARDED).toString())
 }

@@ -59,7 +59,7 @@ class PmcSubmissionLoader(
     private suspend fun loadSubmission(submission: Submission, sourceFile: String, sourceTime: Instant) {
         submission.releaseTime = getReleaseDate(submission)
         mongoDocService.expireOldVersions(submission, sourceTime)
-        mongoDocService.saveNewVersion(submission, sourceFile)
+        mongoDocService.saveNewVersion(submission, sourceFile, sourceTime)
     }
 
     private fun getReleaseDate(submission: Submission): Instant {

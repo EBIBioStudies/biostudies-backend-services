@@ -3,14 +3,14 @@ package ac.uk.ebi.pmc.persistence
 import ac.uk.ebi.biostd.SerializationService
 import ac.uk.ebi.biostd.SubFormat
 import ac.uk.ebi.pmc.load.FileSpec
-import ac.uk.ebi.pmc.persistence.docs.SubStatus
-import ac.uk.ebi.pmc.persistence.docs.SubStatus.ERROR
-import ac.uk.ebi.pmc.persistence.docs.SubStatus.LOADED
-import ac.uk.ebi.pmc.persistence.docs.SubStatus.PROCESED
-import ac.uk.ebi.pmc.persistence.docs.SubStatus.PROCESSING
-import ac.uk.ebi.pmc.persistence.docs.SubStatus.SUBMITTING
 import ac.uk.ebi.pmc.persistence.docs.SubmissionDoc
 import ac.uk.ebi.pmc.persistence.docs.SubmissionErrorDoc
+import ac.uk.ebi.pmc.persistence.docs.SubmissionStatus
+import ac.uk.ebi.pmc.persistence.docs.SubmissionStatus.ERROR
+import ac.uk.ebi.pmc.persistence.docs.SubmissionStatus.LOADED
+import ac.uk.ebi.pmc.persistence.docs.SubmissionStatus.PROCESSED
+import ac.uk.ebi.pmc.persistence.docs.SubmissionStatus.PROCESSING
+import ac.uk.ebi.pmc.persistence.docs.SubmissionStatus.SUBMITTING
 import ac.uk.ebi.pmc.persistence.repository.ErrorsRepository
 import ac.uk.ebi.pmc.persistence.repository.SubFileRepository
 import ac.uk.ebi.pmc.persistence.repository.SubRepository
@@ -35,19 +35,24 @@ class MongoDocService(
 
     suspend fun getReadyToProcess() = subRepository.findNext(LOADED, PROCESSING)
 
-    suspend fun getReadyToSubmit() = subRepository.findNext(PROCESED, SUBMITTING)
+    suspend fun getReadyToSubmit() = subRepository.findNext(PROCESSED, SUBMITTING)
 
     suspend fun getSubFiles(ids: List<ObjectId>) = fileRepository.getFiles(ids)
 
-    suspend fun markAs(submission: SubmissionDoc, status: SubStatus) =
+    suspend fun markAs(submission: SubmissionDoc, status: SubmissionStatus) =
         subRepository.update(submission.withStatus(status))
 
     suspend fun expireOldVersions(submission: Submission, sourceFileTime: Instant) {
         subRepository.expireOldVersions(submission.accNo, sourceFileTime)
     }
 
-    suspend fun saveNewVersion(submission: Submission, sourceFile: String) {
-        subRepository.save(SubmissionDoc(submission.accNo, asJson(submission), sourceFile, LOADED))
+    suspend fun saveNewVersion(submission: Submission, sourceFile: String, sourceTime: Instant) {
+        subRepository.save(SubmissionDoc(
+            submission.accNo,
+            asJson(submission),
+            LOADED,
+            sourceFile,
+            sourceTime))
         logger.info { "finish processing submission with accNo = '${submission.accNo}' from file $sourceFile" }
     }
 
@@ -56,16 +61,16 @@ class MongoDocService(
             .map { async { fileRepository.saveFile(it, submission.accNo) } }
             .awaitAll()
 
-        subRepository.save(SubmissionDoc(submission.accNo, asJson(submission), sourceFile, LOADED, fileIds))
+        subRepository.save(SubmissionDoc(submission.accNo, asJson(submission), LOADED, sourceFile, files = fileIds))
         logger.info { "finish processing submission with accNo = '${submission.accNo}' from file $sourceFile" }
     }
 
     fun isProcessed(file: FileSpec): Boolean {
-        throw NotImplementedError() //TODO implemented loaded file repository
+        throw NotImplementedError() // TODO implemented loaded file repository
     }
 
     fun reportProcessed(file: FileSpec) {
-        throw NotImplementedError() //TODO implemented loaded file repository
+        throw NotImplementedError() // TODO implemented loaded file repository
     }
 
     suspend fun saveError(submission: SubmissionDoc, throwable: Throwable) {
