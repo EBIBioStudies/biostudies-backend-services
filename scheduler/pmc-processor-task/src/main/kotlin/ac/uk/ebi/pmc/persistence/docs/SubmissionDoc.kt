@@ -21,7 +21,7 @@ data class SubmissionDoc(
         return this
     }
 
-    companion object {
+    companion object Fields {
         const val accNo = "accNo"
         const val status = "status"
         const val sourceFile = "sourceFile"

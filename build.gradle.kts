@@ -71,7 +71,7 @@ allprojects {
             }
         }
 
-        build {
+        check {
             dependsOn(ktlintFormat)
         }
     }

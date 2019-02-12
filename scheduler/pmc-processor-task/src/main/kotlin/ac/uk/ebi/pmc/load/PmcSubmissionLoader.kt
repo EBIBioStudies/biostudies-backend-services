@@ -3,6 +3,7 @@ package ac.uk.ebi.pmc.load
 import ac.uk.ebi.biostd.SerializationService
 import ac.uk.ebi.biostd.SubFormat.TSV
 import ac.uk.ebi.pmc.persistence.MongoDocService
+import ac.uk.ebi.pmc.persistence.SubmissionDocService
 import arrow.core.Try
 import ebi.ac.uk.base.splitIgnoringEmpty
 import ebi.ac.uk.model.Submission
@@ -24,12 +25,13 @@ private var YEAR_PATTERN = "\\d{4}".toRegex()
 
 class PmcSubmissionLoader(
     private val serializationService: SerializationService,
-    private val mongoDocService: MongoDocService
+    private val mongoDocService: MongoDocService,
+    private val submissionService: SubmissionDocService
 ) {
 
     /**
      * Process the given plain file and load submissions into database. Previously loaded submission are deprecated
-     * when new version is found and any register any issue in the file system.
+     * when new version is found and any issue processing the file system is register in the errors collection.
      *
      * @param file submissions load file data including content and name.
      */
@@ -46,20 +48,15 @@ class PmcSubmissionLoader(
 
     private suspend fun processSubmission(result: Try<Submission>, body: String, file: FileSpec) =
         result.fold(
-            { reportError(it, body, file.name) },
+            { mongoDocService.saveError(file.name, body, it) },
             { loadSubmission(it, file.name, file.modified) })
 
     private fun deserialize(pagetab: String) =
         Pair(pagetab, Try { serializationService.deserializeSubmission(pagetab, TSV) })
 
-    private suspend fun reportError(error: Throwable, submissionBody: String, sourceFile: String) {
-        mongoDocService.saveError(sourceFile, submissionBody, error)
-    }
-
     private suspend fun loadSubmission(submission: Submission, sourceFile: String, sourceTime: Instant) {
         submission.releaseTime = getReleaseDate(submission)
-        mongoDocService.expireOldVersions(submission, sourceTime)
-        mongoDocService.saveNewVersion(submission, sourceFile, sourceTime)
+        submissionService.saveLoadedVersion(submission, sourceFile, sourceTime)
     }
 
     private fun getReleaseDate(submission: Submission): Instant {
