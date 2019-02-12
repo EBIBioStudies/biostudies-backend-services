@@ -1,77 +1,26 @@
 package ac.uk.ebi.pmc.persistence
 
-import ac.uk.ebi.biostd.SerializationService
-import ac.uk.ebi.biostd.SubFormat
 import ac.uk.ebi.pmc.load.FileSpec
 import ac.uk.ebi.pmc.persistence.docs.SubmissionDoc
 import ac.uk.ebi.pmc.persistence.docs.SubmissionErrorDoc
-import ac.uk.ebi.pmc.persistence.docs.SubmissionStatus
 import ac.uk.ebi.pmc.persistence.docs.SubmissionStatus.ERROR
-import ac.uk.ebi.pmc.persistence.docs.SubmissionStatus.LOADED
-import ac.uk.ebi.pmc.persistence.docs.SubmissionStatus.PROCESSED
-import ac.uk.ebi.pmc.persistence.docs.SubmissionStatus.PROCESSING
-import ac.uk.ebi.pmc.persistence.docs.SubmissionStatus.SUBMITTING
 import ac.uk.ebi.pmc.persistence.repository.ErrorsRepository
-import ac.uk.ebi.pmc.persistence.repository.SubFileRepository
-import ac.uk.ebi.pmc.persistence.repository.SubRepository
-import ebi.ac.uk.model.Submission
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.coroutineScope
+import ac.uk.ebi.pmc.persistence.repository.InputFileRepository
+import ac.uk.ebi.pmc.persistence.repository.SubmissionRepository
 import mu.KotlinLogging
 import org.apache.commons.lang3.exception.ExceptionUtils.getStackTrace
-import org.bson.types.ObjectId
-import java.io.File
-import java.time.Instant
 
 private val logger = KotlinLogging.logger {}
 
 class MongoDocService(
-    private val subRepository: SubRepository,
+    private val subRepository: SubmissionRepository,
     private val errorsRepository: ErrorsRepository,
-    private val fileRepository: SubFileRepository,
-    private val serializationService: SerializationService
+    private val inputFileRepo: InputFileRepository
 ) {
 
-    suspend fun getReadyToProcess() = subRepository.findNext(LOADED, PROCESSING)
+    suspend fun isProcessed(file: FileSpec) = inputFileRepo.find(file).isDefined()
 
-    suspend fun getReadyToSubmit() = subRepository.findNext(PROCESSED, SUBMITTING)
-
-    suspend fun getSubFiles(ids: List<ObjectId>) = fileRepository.getFiles(ids)
-
-    suspend fun markAs(submission: SubmissionDoc, status: SubmissionStatus) =
-        subRepository.update(submission.withStatus(status))
-
-    suspend fun expireOldVersions(submission: Submission, sourceFileTime: Instant) {
-        subRepository.expireOldVersions(submission.accNo, sourceFileTime)
-    }
-
-    suspend fun saveNewVersion(submission: Submission, sourceFile: String, sourceTime: Instant) {
-        subRepository.save(SubmissionDoc(
-            submission.accNo,
-            asJson(submission),
-            LOADED,
-            sourceFile,
-            sourceTime))
-        logger.info { "finish processing submission with accNo = '${submission.accNo}' from file $sourceFile" }
-    }
-
-    suspend fun saveSubmission(submission: Submission, sourceFile: String, files: List<File>) = coroutineScope {
-        val fileIds = files
-            .map { async { fileRepository.saveFile(it, submission.accNo) } }
-            .awaitAll()
-
-        subRepository.save(SubmissionDoc(submission.accNo, asJson(submission), LOADED, sourceFile, files = fileIds))
-        logger.info { "finish processing submission with accNo = '${submission.accNo}' from file $sourceFile" }
-    }
-
-    fun isProcessed(file: FileSpec): Boolean {
-        throw NotImplementedError() // TODO implemented loaded file repository
-    }
-
-    fun reportProcessed(file: FileSpec) {
-        throw NotImplementedError() // TODO implemented loaded file repository
-    }
+    suspend fun reportProcessed(file: FileSpec) = inputFileRepo.save(file)
 
     suspend fun saveError(submission: SubmissionDoc, throwable: Throwable) {
         logger.error { "Error processing submission ${submission.accNo} from file ${submission.sourceFile}, ${throwable.message}" }
@@ -82,6 +31,4 @@ class MongoDocService(
     suspend fun saveError(sourceFile: String, submissionBody: String, throwable: Throwable) {
         errorsRepository.save(SubmissionErrorDoc(sourceFile, submissionBody, getStackTrace(throwable)))
     }
-
-    private fun asJson(submission: Submission) = serializationService.serializeSubmission(submission, SubFormat.JSON)
 }
