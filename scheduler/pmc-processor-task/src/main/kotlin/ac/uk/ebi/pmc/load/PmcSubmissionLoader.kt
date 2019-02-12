@@ -31,7 +31,7 @@ class PmcSubmissionLoader(
 
     /**
      * Process the given plain file and load submissions into database. Previously loaded submission are deprecated
-     * when new version is found and any issue processing the file system is register in the errors collection.
+     * when new version is found and any issue processing the file system is registered in the errors collection.
      *
      * @param file submissions load file data including content and name.
      */
