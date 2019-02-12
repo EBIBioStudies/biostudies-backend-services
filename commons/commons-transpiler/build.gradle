@@ -1,0 +1,21 @@
+import static Dependencies.*
+import static TestDependencies.*
+
+dependencies {
+    compile project(":commons:commons-test")
+    compile project(":commons:commons-util")
+    compile project(":commons:commons-serialization")
+
+    compile(JacksonKotlin)
+    compile(JacksonXml)
+    compile(Woodstox)
+    compile(Guava)
+    compile(Arrow)
+
+    testCompile(BaseTestCompileDependencies)
+    testRuntime(BaseTestRuntimeDependencies)
+
+    testCompile(XmlUnitCore)
+    testCompile(XmlUnitAssertJ)
+    testCompile(KotlinXmlBuilder)
+}

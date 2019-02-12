@@ -32,17 +32,6 @@ class SerializationService(
                 tsvSerializer.deserialize(submission)
         }
     }
-
-    fun deserializeList(submission: String, format: SubFormat): List<Submission> {
-        return when (format) {
-            SubFormat.XML ->
-                throw NotImplementedError()
-            SubFormat.JSON ->
-                jsonSerializer.deserialize(submission)
-            SubFormat.TSV ->
-                tsvSerializer.deserializeList(submission)
-        }
-    }
 }
 
 enum class SubFormat {
