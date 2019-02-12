@@ -8,6 +8,6 @@ internal class DateFunctionsTest {
 
     @Test
     fun asIsoDate() {
-        assertThat(asInstant(552398400)).isEqualTo(Instant.parse("1987-07-04T12:00:00Z"))
+        assertThat(secondsToInstant(552398400)).isEqualTo(Instant.parse("1987-07-04T12:00:00Z"))
     }
 }

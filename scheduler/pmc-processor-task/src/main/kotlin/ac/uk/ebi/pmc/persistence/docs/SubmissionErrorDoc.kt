@@ -2,13 +2,16 @@ package ac.uk.ebi.pmc.persistence.docs
 
 import java.time.Instant
 
-data class ErrorDoc(
-    val id: String,
-    val body: String,
+data class SubmissionErrorDoc(
+    val submissionText: String,
     val sourceFile: String,
     val error: String,
     val uploaded: Instant = Instant.now()
 ) {
+    var accNo: String? = null
+
     constructor(submission: SubmissionDoc, error: String) :
-        this(submission.id, submission.body, submission.sourceFile, error)
+        this(submission.body, submission.sourceFile, error) {
+        this.accNo = submission.accNo
+    }
 }

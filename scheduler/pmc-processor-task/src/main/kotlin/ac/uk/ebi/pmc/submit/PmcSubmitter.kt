@@ -3,8 +3,8 @@ package ac.uk.ebi.pmc.submit
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.pmc.persistence.MongoDocService
-import ac.uk.ebi.pmc.persistence.docs.SubStatus
 import ac.uk.ebi.pmc.persistence.docs.SubmissionDoc
+import ac.uk.ebi.pmc.persistence.docs.SubmissionStatus
 import arrow.core.Try
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
@@ -35,7 +35,7 @@ class PmcSubmitter(
             bioWebClient.submitSingle(submission.body.replace("\\", ""), SubmissionFormat.JSON, files)
         }.fold(
             { subDocService.saveError(submission, it) },
-            { subDocService.markAs(submission, SubStatus.SUBMITTED) }
+            { subDocService.markAs(submission, SubmissionStatus.SUBMITTED) }
         )
     }
 }

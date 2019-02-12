@@ -1,6 +1,6 @@
 package ac.uk.ebi.pmc
 
-import ac.uk.ebi.pmc.load.PmcSubmissionLoader
+import ac.uk.ebi.pmc.load.PmcLoader
 import ac.uk.ebi.pmc.process.PmcSubmissionProcessor
 import ac.uk.ebi.pmc.submit.PmcBatchSubmitter
 import ac.uk.ebi.scheduler.properties.PmcImporterProperties
@@ -19,7 +19,7 @@ class PmcProcessorApp {
         properties: PmcImporterProperties,
         importer: PmcSubmissionProcessor,
         submitter: PmcBatchSubmitter,
-        pmcSubmissionLoader: PmcSubmissionLoader
+        pmcSubmissionLoader: PmcLoader
     ) = TaskExecutor(properties, importer, submitter, pmcSubmissionLoader)
 }
 
@@ -27,7 +27,7 @@ class TaskExecutor(
     private val properties: PmcImporterProperties,
     private val processor: PmcSubmissionProcessor,
     private val submitter: PmcBatchSubmitter,
-    private val loader: PmcSubmissionLoader
+    private val loader: PmcLoader
 ) : CommandLineRunner {
 
     override fun run(args: Array<String>) {
