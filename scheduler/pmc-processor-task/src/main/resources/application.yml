@@ -1,7 +1,7 @@
 app:
   data:
-    mode: # Processing mode: FILE, FOLDER or SUBMIT
-    path: # Interpreted according to specified mode. Path of the file, folder to import.
+    mode: # Processing mode: LOAD, PROCESS or SUBMIT
+    path: # Interpreted according to specified mode. Path of the file, folder to load.
     temp: # directory to store submission downloaded files
     mongodb-uri: # Mongo database connection string
     bio-studies-url: # URL pointing to the BioStudies instance where the data will be submitted
