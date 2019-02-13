@@ -31,6 +31,10 @@ class TaskExecutor(
         this.context = context
     }
 
+    /**
+     * Run the application by validated the mode, note that beans are not directly injected to avoid loaded when they
+     * are not needed.
+     */
     override fun run(args: Array<String>) {
         when (properties.mode) {
             PmcMode.LOAD -> context.getBean<PmcLoader>().loadFolder(File(properties.path))

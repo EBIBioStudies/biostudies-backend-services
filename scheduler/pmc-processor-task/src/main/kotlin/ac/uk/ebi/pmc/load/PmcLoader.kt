@@ -10,14 +10,13 @@ import java.util.zip.GZIPInputStream
 class PmcLoader(private val pmcLoader: PmcSubmissionLoader) {
 
     /**
-     * List the files in the given folder and load into the system the ones not already loaded.
+     * List the files in the given folder and load into the system the ones not already loaded. Sequence is used so the full list of file content is not loaded into memory.
      *
      * @folder folder containing submission gzip files to be loaded into the system.
      */
     fun loadFolder(folder: File) {
         runBlocking {
             folder.listFiles()
-                .take(1)
                 .asSequence()
                 .map(::getFileData)
                 .forEach { pmcLoader.processFile(it) }
