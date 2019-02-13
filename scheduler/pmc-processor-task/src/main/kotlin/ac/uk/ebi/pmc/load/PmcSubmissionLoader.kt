@@ -12,6 +12,7 @@ import ebi.ac.uk.model.extensions.getSectionByType
 import ebi.ac.uk.model.extensions.releaseTime
 import ebi.ac.uk.util.regex.getGroup
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.Instant
@@ -41,6 +42,7 @@ class PmcSubmissionLoader(
                 .splitIgnoringEmpty(SUB_SEPARATOR)
                 .map { deserialize(it) }
                 .map { (body, result) -> launch { processSubmission(result, body, file) } }
+                .joinAll()
 
             mongoDocService.reportProcessed(file)
         }

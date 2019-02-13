@@ -15,9 +15,11 @@ class PmcLoader(private val pmcLoader: PmcSubmissionLoader) {
      * @folder folder containing submission gzip files to be loaded into the system.
      */
     fun loadFolder(folder: File) {
-        val files = folder.listFiles().map(::getFileData)
         runBlocking {
-            files.forEach { pmcLoader.processFile(it) }
+            folder.listFiles()
+                .asSequence()
+                .map(::getFileData)
+                .forEach { pmcLoader.processFile(it) }
         }
     }
 
