@@ -1,14 +1,14 @@
 package ac.uk.ebi.transpiler.processor
 
-import ac.uk.ebi.transpiler.common.LibraryFile
+import ac.uk.ebi.transpiler.common.FilesTableTemplate
 import ac.uk.ebi.transpiler.common.PATH_SEPARATOR
 import ebi.ac.uk.util.collections.ifNotEmpty
 import ebi.ac.uk.util.collections.removeFirst
 
-class BioImagesProcessor : LibraryFileProcessor() {
-    override fun process(libraryFile: String, baseColumns: List<String>): LibraryFile {
-        val libFile = LibraryFile()
-        val chunks = chunkerize(libraryFile)
+class BioImagesProcessor : FilesTableTemplateProcessor() {
+    override fun process(template: String, baseColumns: List<String>): FilesTableTemplate {
+        val libFile = FilesTableTemplate()
+        val chunks = chunkerize(template)
         chunks.ifNotEmpty {
             val header = chunks.removeFirst()
 
