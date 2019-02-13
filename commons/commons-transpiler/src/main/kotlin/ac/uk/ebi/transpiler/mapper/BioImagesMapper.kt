@@ -9,7 +9,7 @@ class BioImagesMapper : FilesTableTemplateMapper {
     override fun map(template: FilesTableTemplate): FilesTable {
         val attrKeys = template.header
         val files = template.records.map {
-            val attributes = it.attributes.mapIndexed { idx, attrVal -> Attribute(attrKeys[idx], attrVal)  }.toList()
+            val attributes = it.attributes.mapIndexed { idx, attrVal -> Attribute(attrKeys[idx], attrVal) }.toList()
             File(it.path, attributes = attributes)
         }.toList()
 

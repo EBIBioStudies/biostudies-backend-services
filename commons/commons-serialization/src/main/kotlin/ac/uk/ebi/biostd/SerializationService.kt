@@ -10,7 +10,7 @@ class SerializationService(
     private val xmlSerializer: XmlSerializer = XmlSerializer(),
     private val tsvSerializer: TsvSerializer = TsvSerializer()
 ) {
-    fun <T> serializeElement(element: T, format: SubFormat) = when(format) {
+    fun <T> serializeElement(element: T, format: SubFormat) = when (format) {
         SubFormat.XML -> xmlSerializer.serialize(element)
         SubFormat.JSON -> jsonSerializer.serialize(element)
         SubFormat.TSV -> tsvSerializer.serialize(element)

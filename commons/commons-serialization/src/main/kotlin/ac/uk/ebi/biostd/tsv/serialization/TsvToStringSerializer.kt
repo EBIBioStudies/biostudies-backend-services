@@ -11,12 +11,12 @@ class TsvToStringSerializer {
     fun <T> serialize(element: T): String {
         val builder = TsvBuilder()
 
-        when(element) {
-            element is Submission -> serializeSubmission(builder, element as Submission)
-            element is Section -> serializeSection(builder, element as Section)
-            element is File -> addFile(builder, element as File)
-            element is Link -> addLink(builder, element as Link)
-            element is Table<*> -> addTable(builder, element as Table<*>)
+        when (element) {
+            is Submission -> serializeSubmission(builder, element as Submission)
+            is Section -> serializeSection(builder, element as Section)
+            is File -> addFile(builder, element as File)
+            is Link -> addLink(builder, element as Link)
+            is Table<*> -> addTable(builder, element as Table<*>)
         }
 
         return builder.toString()
