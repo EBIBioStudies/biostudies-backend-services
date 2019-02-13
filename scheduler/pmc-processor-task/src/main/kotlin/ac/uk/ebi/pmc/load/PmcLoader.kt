@@ -17,6 +17,7 @@ class PmcLoader(private val pmcLoader: PmcSubmissionLoader) {
     fun loadFolder(folder: File) {
         runBlocking {
             folder.listFiles()
+                .take(1)
                 .asSequence()
                 .map(::getFileData)
                 .forEach { pmcLoader.processFile(it) }

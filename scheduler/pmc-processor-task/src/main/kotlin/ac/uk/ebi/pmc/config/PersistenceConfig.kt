@@ -12,7 +12,8 @@ import com.mongodb.async.client.MongoClient
 import org.litote.kmongo.async.KMongo
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import java.util.concurrent.TimeUnit
+
+const val MaxConnections = 10
 
 @Configuration
 class PersistenceConfig {
@@ -23,10 +24,7 @@ class PersistenceConfig {
             MongoClientSettings
                 .builder()
                 .applyConnectionString(ConnectionString(properties.mongodbUri))
-                .applyToConnectionPoolSettings {
-                    it.maxSize(10)
-                    it.maxWaitTime(10, TimeUnit.MINUTES)
-                }
+                .applyToConnectionPoolSettings { it.maxSize(MaxConnections) }
                 .build())
     }
 

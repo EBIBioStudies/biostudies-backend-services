@@ -2,6 +2,7 @@ package ac.uk.ebi.pmc.load
 
 import ac.uk.ebi.biostd.SerializationService
 import ac.uk.ebi.biostd.SubFormat.TSV
+import ac.uk.ebi.pmc.config.MaxConnections
 import ac.uk.ebi.pmc.persistence.MongoDocService
 import ac.uk.ebi.pmc.persistence.SubmissionDocService
 import arrow.core.Try
@@ -11,7 +12,10 @@ import ebi.ac.uk.model.constants.SUB_SEPARATOR
 import ebi.ac.uk.model.extensions.getSectionByType
 import ebi.ac.uk.model.extensions.releaseTime
 import ebi.ac.uk.util.regex.getGroup
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.ReceiveChannel
+import kotlinx.coroutines.channels.produce
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -32,19 +36,29 @@ class PmcSubmissionLoader(
 
     /**
      * Process the given plain file and load submissions into database. Previously loaded submission are deprecated
-     * when new version is found and any issue processing the file system is registered in the errors collection.
+     * when new version is found and any issue processing the file is registered in the errors collection.
      *
      * @param file submissions load file data including content and name.
      */
     suspend fun processFile(file: FileSpec) = withContext(Dispatchers.Default) {
         if (mongoDocService.isProcessed(file).not()) {
-            sanitize(file.content)
-                .splitIgnoringEmpty(SUB_SEPARATOR)
-                .map { deserialize(it) }
-                .map { (body, result) -> launch { processSubmission(result, body, file) } }
-                .joinAll()
-
+            val receiveChannel = launchProducer(file)
+            (1..MaxConnections).map { launchProcessor(receiveChannel) }.joinAll()
             mongoDocService.reportProcessed(file)
+        }
+    }
+
+    private fun CoroutineScope.launchProducer(file: FileSpec) = produce {
+        sanitize(file.content)
+            .splitIgnoringEmpty(SUB_SEPARATOR)
+            .forEach { send(Pair(file, it)) }
+        close()
+    }
+
+    private fun CoroutineScope.launchProcessor(channel: ReceiveChannel<Pair<FileSpec, String>>) = launch {
+        for ((source, submission) in channel) {
+            val (body, result) = deserialize(submission)
+            processSubmission(result, body, source)
         }
     }
 
