@@ -1,0 +1,44 @@
+package ac.uk.ebi.transpiler.service
+
+import ac.uk.ebi.biostd.SerializationService
+import ac.uk.ebi.biostd.SubFormat
+import ac.uk.ebi.transpiler.common.FilesTableTemplate
+import ac.uk.ebi.transpiler.factory.testTemplate
+import ac.uk.ebi.transpiler.mapper.FilesTableTemplateMapper
+import ac.uk.ebi.transpiler.processor.FilesTableTemplateProcessor
+import ebi.ac.uk.model.FilesTable
+import io.mockk.every
+import io.mockk.impl.annotations.MockK
+import io.mockk.junit5.MockKExtension
+import io.mockk.verify
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
+
+@ExtendWith(MockKExtension::class)
+class BioImagesTranspilerTest(
+    @MockK private val mockTemplateProcessor: FilesTableTemplateProcessor,
+    @MockK private val mockTemplateMapper: FilesTableTemplateMapper,
+    @MockK private val mockSerializationService: SerializationService
+) {
+    private val testFilesTable = FilesTable()
+    private val testTemplate = testTemplate().toString()
+    private val testFilesTableTemplate = FilesTableTemplate()
+    private val testBaseColumns = listOf("Plate", "Replicate", "Well")
+    private val testInstance = BioImagesTranspiler(mockTemplateProcessor, mockTemplateMapper, mockSerializationService)
+
+    @BeforeEach
+    fun setUp() {
+        every { mockTemplateMapper.map(testFilesTableTemplate) } returns testFilesTable
+        every { mockSerializationService.serializeElement(testFilesTable, SubFormat.TSV) } returns ""
+        every { mockTemplateProcessor.process(testTemplate, testBaseColumns) } returns testFilesTableTemplate
+    }
+
+    @Test
+    fun transpile() {
+        testInstance.transpile(testTemplate, testBaseColumns, SubFormat.TSV)
+        verify { mockTemplateProcessor.process(testTemplate, testBaseColumns) }
+        verify { mockTemplateMapper.map(testFilesTableTemplate) }
+        verify { mockSerializationService.serializeElement(testFilesTable, SubFormat.TSV) }
+    }
+}
