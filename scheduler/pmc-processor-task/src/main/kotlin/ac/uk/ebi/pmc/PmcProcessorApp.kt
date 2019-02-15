@@ -32,7 +32,7 @@ class TaskExecutor(
     }
 
     /**
-     * Run the application by validated the mode, note that beans are not directly injected to avoid loaded when they
+     * Run the application by validating the mode, note that beans are not directly injected to avoid loaded when they
      * are not needed.
      */
     override fun run(args: Array<String>) {
