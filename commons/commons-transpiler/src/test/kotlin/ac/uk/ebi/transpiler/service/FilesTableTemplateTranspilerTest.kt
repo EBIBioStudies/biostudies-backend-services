@@ -16,7 +16,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(MockKExtension::class)
-class BioImagesTranspilerTest(
+class FilesTableTemplateTranspilerTest(
     @MockK private val mockTemplateProcessor: FilesTableTemplateProcessor,
     @MockK private val mockTemplateMapper: FilesTableTemplateMapper,
     @MockK private val mockSerializationService: SerializationService
@@ -25,7 +25,7 @@ class BioImagesTranspilerTest(
     private val testTemplate = testTemplate().toString()
     private val testFilesTableTemplate = FilesTableTemplate()
     private val testBaseColumns = listOf("Plate", "Replicate", "Well")
-    private val testInstance = BioImagesTranspiler(mockTemplateProcessor, mockTemplateMapper, mockSerializationService)
+    private val testInstance = FilesTableTemplateTranspiler(mockTemplateProcessor, mockTemplateMapper, mockSerializationService)
 
     @BeforeEach
     fun setUp() {

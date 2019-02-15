@@ -6,8 +6,8 @@ import ebi.ac.uk.util.collections.second
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-class BioImagesProcessorTest {
-    private val testInstance = BioImagesProcessor()
+class FilesTableTemplateProcessorTest {
+    private val testInstance = FilesTableTemplateProcessor()
     private val baseColumns = listOf("Plate", "Replicate", "Well")
 
     @Test

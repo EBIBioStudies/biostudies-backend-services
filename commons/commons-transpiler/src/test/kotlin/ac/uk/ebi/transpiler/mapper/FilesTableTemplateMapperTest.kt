@@ -7,8 +7,8 @@ import ebi.ac.uk.model.FilesTable
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-class BioImagesMapperTest {
-    private val testInstance = BioImagesMapper()
+class FilesTableTemplateMapperTest {
+    private val testInstance = FilesTableTemplateMapper()
 
     @Test
     fun map() {
