@@ -13,6 +13,7 @@ class FilesTableTemplateProcessor {
         val chunks = chunkerize(template)
         chunks.ifNotEmpty {
             val header = chunks.removeFirst()
+            validateHeader(header, baseColumns)
 
             libFile.header = header
             chunks.forEach { libFile.addRecord(getPath(it, baseColumns.size), it) }
@@ -27,4 +28,9 @@ class FilesTableTemplateProcessor {
 
     private fun getPath(attributes: List<String>, pathLength: Int) =
         attributes.subList(0, pathLength).reduce { path, attr -> path + PATH_SEPARATOR + attr }
+
+    private fun validateHeader(header: List<String>, baseColumns: List<String>) =
+        baseColumns.forEachIndexed { idx, col ->
+            if (col != header[idx]) throw IllegalArgumentException("Base columns must match the template")
+        }
 }
