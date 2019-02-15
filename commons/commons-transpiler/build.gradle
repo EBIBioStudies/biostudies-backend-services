@@ -1,0 +1,9 @@
+import static TestDependencies.*
+
+dependencies {
+    compile project(":commons:commons-util")
+    compile project(":commons:commons-serialization")
+
+    testCompile(BaseTestCompileDependencies)
+    testRuntime(BaseTestRuntimeDependencies)
+}

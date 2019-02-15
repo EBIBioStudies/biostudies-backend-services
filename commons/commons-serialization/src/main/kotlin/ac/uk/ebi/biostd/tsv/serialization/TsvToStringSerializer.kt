@@ -8,17 +8,24 @@ import ebi.ac.uk.model.Table
 
 class TsvToStringSerializer {
 
-    fun serialize(submission: Submission): String {
+    fun <T> serialize(element: T): String {
         val builder = TsvBuilder()
 
-        serializeSubmission(builder, submission)
-        serializeSection(builder, submission.section)
+        when (element) {
+            is Submission -> serializeSubmission(builder, element as Submission)
+            is Section -> serializeSection(builder, element as Section)
+            is File -> addFile(builder, element as File)
+            is Link -> addLink(builder, element as Link)
+            is Table<*> -> addTable(builder, element as Table<*>)
+        }
+
         return builder.toString()
     }
 
     private fun serializeSubmission(builder: TsvBuilder, submission: Submission) {
         builder.addSubAccAndTags(submission.accNo, submission.accessTags)
         submission.attributes.forEach(builder::addAttr)
+        serializeSection(builder, submission.section)
     }
 
     private fun serializeSection(builder: TsvBuilder, section: Section) {

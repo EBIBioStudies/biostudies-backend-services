@@ -10,38 +10,18 @@ class SerializationService(
     private val xmlSerializer: XmlSerializer = XmlSerializer(),
     private val tsvSerializer: TsvSerializer = TsvSerializer()
 ) {
-
-    fun serializeSubmission(submission: Submission, format: SubFormat): String {
-        return when (format) {
-            SubFormat.XML ->
-                xmlSerializer.serialize(submission)
-            SubFormat.JSON ->
-                jsonSerializer.serialize(submission)
-            SubFormat.TSV ->
-                tsvSerializer.serialize(submission)
-        }
+    fun <T> serializeElement(element: T, format: SubFormat) = when (format) {
+        SubFormat.XML -> xmlSerializer.serialize(element)
+        SubFormat.JSON -> jsonSerializer.serialize(element)
+        SubFormat.TSV -> tsvSerializer.serialize(element)
     }
 
-    fun deserializeSubmission(submission: String, format: SubFormat): Submission {
-        return when (format) {
-            SubFormat.XML ->
-                xmlSerializer.deserialize(submission)
-            SubFormat.JSON ->
-                jsonSerializer.deserialize(submission)
-            SubFormat.TSV ->
-                tsvSerializer.deserialize(submission)
-        }
-    }
+    fun serializeSubmission(submission: Submission, format: SubFormat) = serializeElement(submission, format)
 
-    fun deserializeList(submission: String, format: SubFormat): List<Submission> {
-        return when (format) {
-            SubFormat.XML ->
-                throw NotImplementedError()
-            SubFormat.JSON ->
-                jsonSerializer.deserialize(submission)
-            SubFormat.TSV ->
-                tsvSerializer.deserializeList(submission)
-        }
+    fun deserializeSubmission(submission: String, format: SubFormat) = when (format) {
+        SubFormat.XML -> xmlSerializer.deserialize(submission)
+        SubFormat.JSON -> jsonSerializer.deserialize(submission)
+        SubFormat.TSV -> tsvSerializer.deserialize(submission)
     }
 }
 

@@ -34,8 +34,8 @@ import ebi.ac.uk.model.Table
 
 class JsonSerializer {
 
-    fun serialize(t: Any): String {
-        return mapper.writeValueAsString(t)
+    fun <T> serialize(element: T): String {
+        return mapper.writeValueAsString(element)
     }
 
     inline fun <reified T> deserialize(value: String): T {

@@ -3,7 +3,6 @@ package ac.uk.ebi.biostd.tsv
 import ac.uk.ebi.biostd.tsv.deserialization.TsvDeserializer
 import ac.uk.ebi.biostd.tsv.serialization.TsvToStringSerializer
 import ebi.ac.uk.base.splitIgnoringEmpty
-import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.constants.SUB_SEPARATOR
 
 class TsvSerializer(
@@ -11,7 +10,7 @@ class TsvSerializer(
     private val tsvDeserializer: TsvDeserializer = TsvDeserializer()
 ) {
 
-    fun serialize(submission: Submission) = tsvSerializer.serialize(submission)
+    fun <T> serialize(element: T) = tsvSerializer.serialize(element)
 
     fun deserialize(submission: String) = tsvDeserializer.deserialize(submission)
 
