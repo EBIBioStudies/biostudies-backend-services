@@ -2,6 +2,7 @@ package ac.uk.ebi.pmc.persistence
 
 import ac.uk.ebi.biostd.SerializationService
 import ac.uk.ebi.biostd.SubFormat
+import ac.uk.ebi.pmc.common.coroutines.SuspendSequence
 import ac.uk.ebi.pmc.persistence.docs.SubmissionDoc
 import ac.uk.ebi.pmc.persistence.docs.SubmissionStatus
 import ac.uk.ebi.pmc.persistence.docs.SubmissionStatus.LOADED
@@ -27,9 +28,11 @@ class SubmissionDocService(
     private val serializationService: SerializationService
 ) {
 
-    suspend fun getReadyToProcess() = submissionRepository.findAndUpdate(LOADED, PROCESSING)
+    suspend fun findReadyToProcess() =
+        SuspendSequence { submissionRepository.findAndUpdate(LOADED, PROCESSING) }
 
-    suspend fun getReadyToSubmit() = submissionRepository.findAndUpdate(PROCESSED, SUBMITTING)
+    suspend fun findReadyToSubmit() =
+        SuspendSequence { submissionRepository.findAndUpdate(PROCESSED, SUBMITTING) }
 
     suspend fun getSubFiles(ids: List<ObjectId>) = fileRepository.getFiles(ids)
 
@@ -47,16 +50,17 @@ class SubmissionDocService(
         logger.info { "saved new version of submission with accNo = '${submission.accNo}' from file $sourceFile" }
     }
 
-    suspend fun saveProcessedSubmission(submission: Submission, sourceFile: String, files: List<File>) =
-        coroutineScope {
-            val fileIds = files
-                .map { async { fileRepository.saveFile(it, submission.accNo) } }
-                .awaitAll()
+    suspend fun saveProcessedSubmission(submission: SubmissionDoc, files: List<File>) = coroutineScope {
+        submission.files = saveFiles(files, submission)
+        submissionRepository.update(submission.withStatus(PROCESSED))
+        logger.info { "finish processing submission with accNo = '${submission.accNo}' from file ${submission.sourceFile}" }
+    }
 
-            submissionRepository.update(
-                SubmissionDoc(submission.accNo, asJson(submission), PROCESSED, sourceFile, files = fileIds))
-            logger.info { "finish processing submission with accNo = '${submission.accNo}' from file $sourceFile" }
-        }
+    private suspend fun saveFiles(files: List<File>, submission: SubmissionDoc): List<ObjectId> = coroutineScope {
+        return@coroutineScope files
+            .map { async { fileRepository.saveFile(it, submission.accNo) } }
+            .awaitAll()
+    }
 
     private fun asJson(submission: Submission) = serializationService.serializeSubmission(submission, SubFormat.JSON)
 }
