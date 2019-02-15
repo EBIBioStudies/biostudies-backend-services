@@ -3,8 +3,8 @@ package ac.uk.ebi.pmc.persistence.docs
 import java.time.Instant
 
 data class SubmissionErrorDoc(
-    val submissionText: String,
     val sourceFile: String,
+    val submissionText: String,
     val error: String,
     val uploaded: Instant = Instant.now()
 ) {

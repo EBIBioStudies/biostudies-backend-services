@@ -9,6 +9,7 @@ import com.mongodb.client.model.Filters.eq
 import com.mongodb.client.model.Filters.lt
 import com.mongodb.client.model.Updates.combine
 import com.mongodb.client.model.Updates.set
+import org.litote.kmongo.SetTo
 import org.litote.kmongo.coroutine.findOneAndUpdate
 import org.litote.kmongo.coroutine.insertOne
 import org.litote.kmongo.coroutine.toList
@@ -32,6 +33,6 @@ class SubmissionRepository(private val submissions: MongoCollection<SubmissionDo
 
     suspend fun setSourceTime(accNo: String, sourceTime: Instant) =
         submissions.updateMany(
-            and(eq(SubmissionDoc.accNo, accNo), lt(SubmissionDoc.sourceTime, sourceTime)).toString(),
-            set(SubmissionDoc.status, SubmissionStatus.DISCARDED).toString())
+            and(eq(SubmissionDoc.accNo, accNo), lt(SubmissionDoc.sourceTime, sourceTime)),
+            SetTo(SubmissionDoc::status, SubmissionStatus.DISCARDED))
 }

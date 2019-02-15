@@ -6,16 +6,27 @@ import ac.uk.ebi.pmc.persistence.repository.InputFileRepository
 import ac.uk.ebi.pmc.persistence.repository.SubFileRepository
 import ac.uk.ebi.pmc.persistence.repository.SubmissionRepository
 import ac.uk.ebi.scheduler.properties.PmcImporterProperties
+import com.mongodb.ConnectionString
+import com.mongodb.MongoClientSettings
 import com.mongodb.async.client.MongoClient
 import org.litote.kmongo.async.KMongo
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
+const val MaxConnections = 10
+
 @Configuration
 class PersistenceConfig {
 
     @Bean
-    fun mongoClient(properties: PmcImporterProperties) = KMongo.createClient(properties.mongodbUri)
+    fun mongoClient(properties: PmcImporterProperties): MongoClient {
+        return KMongo.createClient(
+            MongoClientSettings
+                .builder()
+                .applyConnectionString(ConnectionString(properties.mongodbUri))
+                .applyToConnectionPoolSettings { it.maxSize(MaxConnections) }
+                .build())
+    }
 
     @Bean
     fun errorsRepository(client: MongoClient) = ErrorsRepository(client.getCollection("eubioimag", "errors"))

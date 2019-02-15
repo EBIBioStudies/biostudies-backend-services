@@ -9,8 +9,7 @@ class SchedulerPmcImporterProp {
 
     lateinit var temp: String
     lateinit var mongoUri: String
-    lateinit var bioStudiesUrl: String
-    lateinit var bioStudiesUser: String
-    lateinit var bioStudiesPassword: String
-    lateinit var sourceFile: String
+    var bioStudiesUrl: String? = null
+    var bioStudiesUser: String? = null
+    var bioStudiesPassword: String? = null
 }

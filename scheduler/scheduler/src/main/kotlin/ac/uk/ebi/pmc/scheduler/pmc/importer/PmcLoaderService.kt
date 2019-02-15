@@ -33,9 +33,9 @@ class PmcLoaderService(
     private fun getConfigProperties(file: File, importMode: PmcMode) = PmcImporterProperties(
         mode = importMode,
         path = file.absolutePath,
-        temp = this.properties.temp,
-        mongodbUri = this.properties.mongoUri,
-        bioStudiesUrl = this.properties.bioStudiesUrl,
-        bioStudiesUser = this.properties.bioStudiesUser,
-        bioStudiesPassword = this.properties.bioStudiesPassword)
+        temp = properties.temp,
+        mongodbUri = properties.mongoUri,
+        bioStudiesUrl = properties.bioStudiesUrl.orEmpty(),
+        bioStudiesUser = properties.bioStudiesUser.orEmpty(),
+        bioStudiesPassword = properties.bioStudiesPassword.orEmpty())
 }
