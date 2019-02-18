@@ -12,10 +12,16 @@ class FilesTableTemplateMapper {
         val files: MutableList<File> = mutableListOf()
 
         template.rows.forEach { row ->
-            val rowFiles = Paths.get("$filesPath/${row.path}").toFile().listFiles()
+            val path = "$filesPath/${row.path}"
+            val rowFiles = Paths.get(path).toFile().listFiles()
             val attributes = row.attributes.mapIndexed { idx, attrVal -> Attribute(attrKeys[idx], attrVal) }.toList()
 
-            rowFiles.forEach { files.add(File("$basePath/${row.path}/${it.name}", attributes = attributes)) }
+            // TODO the println shouldn't be made here. Throw custom exception here and catch it in the command line
+            try {
+                rowFiles.forEach { files.add(File("$basePath/${row.path}/${it.name}", attributes = attributes)) }
+            } catch (exception: IllegalStateException) {
+                println("WARNING: No files found for path $path")
+            }
         }
 
         return FilesTable(files)

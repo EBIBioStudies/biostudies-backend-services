@@ -24,7 +24,10 @@ class FilesTableTemplateProcessor {
 
     private fun chunkerize(template: String): MutableList<List<String>> =
         if (template.isBlank()) mutableListOf()
-        else template.split(LINE_BREAK).mapTo(mutableListOf()) { it.split(TEMPLATE_SEPARATOR) }
+        else template
+            .split(LINE_BREAK)
+            .filter { it.isNotEmpty() }
+            .mapTo(mutableListOf()) { it.split(TEMPLATE_SEPARATOR) }
 
     private fun getPath(attributes: List<String>, pathLength: Int) =
         attributes.subList(0, pathLength).reduce { path, attr -> path + PATH_SEPARATOR + attr }

@@ -47,7 +47,7 @@ object Versions {
     const val KotlinCoroutineVersion = "1.1.1"
     const val KMongoCoroutineVersion = "3.9.1"
 
-    const val CommonsCliVersion = "1.2"
+    const val CommonsCliVersion = "1.4"
     const val CommonsLang3Version = "3.8.1"
     const val CommonsIOVersion = "2.6"
     const val MySqlVersion = "6.0.6"
