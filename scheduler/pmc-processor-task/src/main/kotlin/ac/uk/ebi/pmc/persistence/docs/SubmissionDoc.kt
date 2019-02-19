@@ -9,7 +9,7 @@ data class SubmissionDoc(
     var status: SubmissionStatus,
     val sourceFile: String,
     var sourceTime: Instant? = null,
-    val files: List<ObjectId> = emptyList(),
+    var files: List<ObjectId> = emptyList(),
     var updated: Instant = Instant.now()
 ) {
 
