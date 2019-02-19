@@ -1,19 +1,13 @@
 package ac.uk.ebi.biostd.persistence.mapping
 
-import ac.uk.ebi.biostd.persistence.model.Attribute as AttributeDb
-import ac.uk.ebi.biostd.persistence.model.AttributeDetail as AttributeDetailDb
-import ac.uk.ebi.biostd.persistence.model.File as FileDb
-import ac.uk.ebi.biostd.persistence.model.Link as LinkDb
 import ac.uk.ebi.biostd.persistence.common.NO_TABLE_INDEX
-import ac.uk.ebi.biostd.persistence.model.Section as SectionDb
-import ac.uk.ebi.biostd.persistence.model.Submission as SubmissionDb
-import ac.uk.ebi.biostd.persistence.model.User as UserDb
 import ac.uk.ebi.biostd.persistence.model.AccessTag
 import ac.uk.ebi.biostd.persistence.model.Tabular
 import arrow.core.Either
 import arrow.core.Either.Companion.left
 import arrow.core.Either.Companion.right
 import ebi.ac.uk.base.orFalse
+import ebi.ac.uk.functions.secondsToInstant
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.AttributeDetail
 import ebi.ac.uk.model.ExtendedSubmission
@@ -26,6 +20,14 @@ import ebi.ac.uk.model.SectionsTable
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.User
 import ebi.ac.uk.util.collections.ifNotEmpty
+import java.time.ZoneOffset.UTC
+import ac.uk.ebi.biostd.persistence.model.Attribute as AttributeDb
+import ac.uk.ebi.biostd.persistence.model.AttributeDetail as AttributeDetailDb
+import ac.uk.ebi.biostd.persistence.model.File as FileDb
+import ac.uk.ebi.biostd.persistence.model.Link as LinkDb
+import ac.uk.ebi.biostd.persistence.model.Section as SectionDb
+import ac.uk.ebi.biostd.persistence.model.Submission as SubmissionDb
+import ac.uk.ebi.biostd.persistence.model.User as UserDb
 
 class SubmissionDbMapper {
 
@@ -33,6 +35,9 @@ class SubmissionDbMapper {
         ExtendedSubmission(submissionDb.accNo, toUser(submissionDb.owner)).apply {
             version = submissionDb.version
             relPath = submissionDb.relPath
+            creationTime = secondsToInstant(submissionDb.creationTime).atOffset(UTC)
+            releaseTime = secondsToInstant(submissionDb.releaseTime).atOffset(UTC)
+            modificationTime = secondsToInstant(submissionDb.releaseTime).atOffset(UTC)
             attributes = toAttributes(submissionDb.attributes)
             accessTags = submissionDb.accessTags.mapTo(mutableListOf(), AccessTag::name)
             section = toSection(submissionDb.rootSection)

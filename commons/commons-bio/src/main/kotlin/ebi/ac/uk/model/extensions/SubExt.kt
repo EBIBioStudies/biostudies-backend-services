@@ -5,16 +5,35 @@ import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.constants.SubFields
 import java.time.Instant
 
+/**
+ * Contains accessor for attributes that has specific meaning in page tab specification.
+ */
+
+/**
+ * Indicate that submission should be register for specific project.
+ */
 var Submission.attachTo: String?
     get() = this[SubFields.ATTACH_TO]
     set(value) {
         value?.let { this[SubFields.ATTACH_TO] = it }
     }
 
-var Submission.releaseTime: Instant?
-    get() = this[SubFields.RELEASE_TIME]
+/**
+ * Indicates when submission was released to public access.
+ */
+var Submission.releaseDate: Instant?
+    get() = get<String?>(SubFields.RELEASE_DATE)?.let { Instant.parse(it) }
     set(value) {
-        value?.let { this[SubFields.RELEASE_TIME] = it }
+        value?.let { this[SubFields.RELEASE_DATE] = it }
+    }
+
+/**
+ * When used all files in submission are prefix with the given value.
+ */
+var Submission.rootPath: String
+    get() = this[SubFields.ROOT_PATH]
+    set(value) {
+        this[SubFields.ROOT_PATH] = value
     }
 
 var Submission.title: String
@@ -23,13 +42,7 @@ var Submission.title: String
         this[SubFields.TITLE] = value
     }
 
-var Submission.rootPath: String
-    get() = this[SubFields.ROOT_PATH]
-    set(value) {
-        this[SubFields.ROOT_PATH] = value
-    }
-
 fun Submission.allFiles(): List<File> =
-    section.allFiles() + section.allSections().map { it.allFiles() }.flatten()
+    section.allFiles() + section.allSections().flatMap { it.allFiles() }
 
 fun Submission.getSectionByType(name: String) = section.allSections().first { it.type == name }

@@ -14,7 +14,7 @@ interface PersistenceContext {
 
     fun getParentAccPattern(submission: Submission): Option<String>
 
-    fun getSubmission(accNo: String): Option<ExtendedSubmission>
+    fun getSubmission(accNo: String): ExtendedSubmission?
 
     fun saveSubmission(submission: ExtendedSubmission)
 

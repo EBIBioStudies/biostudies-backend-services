@@ -33,6 +33,9 @@ class SubmissionMapper(private val tagsRepository: TagsDataRepository) {
         accNo = submission.accNo
         version = submission.version
         relPath = submission.relPath
+        releaseTime = submission.releaseTime.toEpochSecond()
+        creationTime = submission.creationTime.toEpochSecond()
+        modificationTime = submission.modificationTime.toEpochSecond()
         owner = toUser(submission.user)
         attributes = toAttributes(submission.attributes, ::SubmissionAttribute)
         accessTags = toAccessTag(submission.accessTags)

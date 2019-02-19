@@ -3,7 +3,6 @@ package ac.uk.ebi.biostd.submission.validators
 import ac.uk.ebi.biostd.submission.exceptions.InvalidProjectException
 import ac.uk.ebi.biostd.submission.test.createBasicExtendedSubmission
 import ac.uk.ebi.biostd.submission.test.createTestUser
-import arrow.core.Option
 import ebi.ac.uk.model.ExtendedSubmission
 import ebi.ac.uk.model.extensions.attachTo
 import ebi.ac.uk.persistence.PersistenceContext
@@ -16,14 +15,11 @@ import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
-import org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS
 import org.junit.jupiter.api.extension.ExtendWith
 
 const val VALID_PROJECT = "BioImages"
 const val INVALID_PROJECT = "BioPDFs"
 
-@TestInstance(PER_CLASS)
 @ExtendWith(MockKExtension::class)
 class ProjectValidatorTest(@MockK private val mockPersistenceContext: PersistenceContext) {
     private val testInstance = ProjectValidator()
@@ -82,9 +78,9 @@ class ProjectValidatorTest(@MockK private val mockPersistenceContext: Persistenc
     private fun validateSubmission() = testInstance.validate(submission, mockPersistenceContext)
 
     private fun initTestProjects() {
-        every { mockPersistenceContext.getSubmission(INVALID_PROJECT) } returns Option.empty()
+        every { mockPersistenceContext.getSubmission(INVALID_PROJECT) } returns null
 
-        val submission = Option.fromNullable(ExtendedSubmission(VALID_PROJECT, createTestUser()))
+        val submission = ExtendedSubmission(VALID_PROJECT, createTestUser())
         every { mockPersistenceContext.getSubmission(VALID_PROJECT) } returns submission
     }
 }

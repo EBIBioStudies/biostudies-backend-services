@@ -28,9 +28,9 @@ class SubExtTest {
     fun `releaseTime`() {
         val time = LocalDateTime.parse("2015-02-20T06:30:00").toInstant(ZoneOffset.UTC)
         val submission = submission("ABC-123") {}
-        submission.releaseTime = time
+        submission.releaseDate = time
 
-        assertExtendedAttribute(submission, SubFields.RELEASE_TIME, "2015-02-20T06:30:00Z")
+        assertExtendedAttribute(submission, SubFields.RELEASE_DATE, "2015-02-20T06:30:00Z")
     }
 
     @Test

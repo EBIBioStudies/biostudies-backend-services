@@ -4,5 +4,5 @@ import ebi.ac.uk.model.ExtendedSubmission
 import ebi.ac.uk.persistence.PersistenceContext
 
 interface SubmissionValidator {
-    fun validate(submission: ExtendedSubmission, persistenceContext: PersistenceContext)
+    fun validate(submission: ExtendedSubmission, context: PersistenceContext)
 }
