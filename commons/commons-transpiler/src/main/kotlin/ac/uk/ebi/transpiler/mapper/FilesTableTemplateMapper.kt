@@ -1,6 +1,7 @@
 package ac.uk.ebi.transpiler.mapper
 
 import ac.uk.ebi.transpiler.common.FilesTableTemplate
+import ac.uk.ebi.transpiler.exception.InvalidDirectoryException
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.File
 import ebi.ac.uk.model.FilesTable
@@ -16,11 +17,10 @@ class FilesTableTemplateMapper {
             val rowFiles = Paths.get(path).toFile().listFiles()
             val attributes = row.attributes.mapIndexed { idx, attrVal -> Attribute(attrKeys[idx], attrVal) }.toList()
 
-            // TODO the println shouldn't be made here. Throw custom exception here and catch it in the command line
             try {
                 rowFiles.forEach { files.add(File("$basePath/${row.path}/${it.name}", attributes = attributes)) }
             } catch (exception: IllegalStateException) {
-                println("WARNING: No files found for path $path")
+                throw InvalidDirectoryException(path)
             }
         }
 

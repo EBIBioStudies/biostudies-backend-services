@@ -4,6 +4,7 @@ import ac.uk.ebi.transpiler.common.FilesTableTemplate
 import ac.uk.ebi.transpiler.common.LINE_BREAK
 import ac.uk.ebi.transpiler.common.PATH_SEPARATOR
 import ac.uk.ebi.transpiler.common.TEMPLATE_SEPARATOR
+import ac.uk.ebi.transpiler.exception.InvalidColumnException
 import ebi.ac.uk.util.collections.ifNotEmpty
 import ebi.ac.uk.util.collections.removeFirst
 
@@ -34,6 +35,6 @@ class FilesTableTemplateProcessor {
 
     private fun validateHeader(header: List<String>, baseColumns: List<String>) =
         baseColumns.forEachIndexed { idx, col ->
-            if (col != header[idx]) throw IllegalArgumentException("Base columns must match the template")
+            if (col != header[idx]) throw InvalidColumnException()
         }
 }

@@ -1,10 +1,13 @@
 package ac.uk.ebi.transpiler.processor
 
 import ac.uk.ebi.transpiler.common.FilesTableTemplateRow
+import ac.uk.ebi.transpiler.exception.INVALID_COLUMN_ERROR_MSG
+import ac.uk.ebi.transpiler.exception.InvalidColumnException
 import ac.uk.ebi.transpiler.factory.testTemplate
 import ebi.ac.uk.util.collections.second
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 
 class FilesTableTemplateProcessorTest {
     private val testInstance = FilesTableTemplateProcessor()
@@ -27,6 +30,15 @@ class FilesTableTemplateProcessorTest {
 
         assertThat(template.header).isEmpty()
         assertThat(template.rows).isEmpty()
+    }
+
+    @Test
+    fun `invalid header`() {
+        val exception = assertThrows<InvalidColumnException> {
+            testInstance.process(testTemplate().toString(), listOf("Replicate"))
+        }
+
+        assertThat(exception).hasMessage(INVALID_COLUMN_ERROR_MSG)
     }
 
     private fun assertRow(record: FilesTableTemplateRow, path: String, vararg attributes: String) {

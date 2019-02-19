@@ -1,5 +1,6 @@
 package ac.uk.ebi.transpiler.mapper
 
+import ac.uk.ebi.transpiler.exception.InvalidDirectoryException
 import ac.uk.ebi.transpiler.factory.filesTableTemplate
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.File
@@ -9,6 +10,7 @@ import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 
 const val BASE_FOLDER = "RAW_DATA"
@@ -35,6 +37,16 @@ class FilesTableTemplateMapperTest(
             createFile("$BASE_FOLDER/Plate1/rep1/A01/fig1.tiff", "Plate1", "rep1", "A01", "ynl003c", "pet8"),
             createFile("$BASE_FOLDER/Plate2/rep2/A02/fig1.tiff", "Plate2", "rep2", "A02", "ybl104c", "sea4")
         )))
+    }
+
+    @Test
+    fun `map non existing folder`() {
+        val exception = assertThrows<InvalidDirectoryException> {
+            testInstance.map(filesTableTemplate(), temporaryFolder.root.absolutePath, BASE_FOLDER)
+        }
+
+        assertThat(exception.message).isEqualTo(
+            "No files found for path ${temporaryFolder.root.absolutePath}/Plate1/rep1/A01")
     }
 
     private fun createFile(path: String, vararg attributes: String) =

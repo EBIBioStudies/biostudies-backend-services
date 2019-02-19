@@ -13,9 +13,12 @@ const val DIR = "directory"
 const val FORMAT = "format"
 const val TEMPLATE = "template"
 
-class TranspilerCommandLine {
+class TranspilerCommandLine(
+    private val helpFormatter: HelpFormatter = HelpFormatter(),
+    private val transpiler: FilesTableTemplateTranspiler = FilesTableTemplateTranspiler()
+) {
     fun transpile(args: Array<String>): String {
-        var pagetab = ""
+        var pageTab = ""
         val options = Options().apply {
             addOption("b", BASE, true, "Base that will be used as prefix for the generated files path")
             addOption("c", COLUMNS, true, "Comma separated list of columns that map to the directory structure")
@@ -32,22 +35,22 @@ class TranspilerCommandLine {
             val columns = cmd.getOptionValue(COLUMNS)!!
             val template = File(cmd.getOptionValue(TEMPLATE)!!)
 
-            pagetab = FilesTableTemplateTranspiler().transpile(
+            pageTab = transpiler.transpile(
                 template = template.readText(),
-                baseColumns = columns.split(","),
+                baseColumns = columns.split(",").map { it.trim() }.toList(),
                 filesPath = dir,
                 basePath = base,
                 format = SubFormat.valueOf(format)
             )
         } catch (exception: Exception) {
             when (exception) {
-                is NullPointerException -> println("All the arguments are required")
-                else -> println(exception.message)
+                is NullPointerException -> println("ERROR: All the arguments are required")
+                else -> println("ERROR: ${exception.message}")
             }
 
-            HelpFormatter().printHelp("Files Table Generator", options)
+            helpFormatter.printHelp("Files Table Generator", options)
         }
 
-        return pagetab
+        return pageTab
     }
 }

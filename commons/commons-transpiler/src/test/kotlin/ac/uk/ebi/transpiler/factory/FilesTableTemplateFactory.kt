@@ -8,6 +8,7 @@ fun testTemplate() = tsv {
     line("Plate", "Replicate", "Well", "Gene Identifier", "Gene Symbol")
     line("Plate1", "rep1", "A01", "ynl003c", "pet8")
     line("Plate2", "rep2", "A02", "ybl104c", "sea4")
+    line("")
 }
 
 fun filesTableTemplate(): FilesTableTemplate {
