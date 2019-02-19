@@ -21,8 +21,7 @@ class SerializationService(
         TSV -> tsvSerializer.serialize(element)
     }
 
-    fun serializeSubmission(submission: Submission, format: SubFormat) =
-        serializeElement(submission, format)
+    fun serializeSubmission(submission: Submission, format: SubFormat) =        serializeElement(submission, format)
 
     fun deserializeSubmission(submission: String, format: SubFormat) = when (format) {
         XML -> xmlSerializer.deserialize(submission)
