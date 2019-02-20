@@ -22,23 +22,26 @@ class FilesTableTemplateTranspilerTest(
     @MockK private val mockSerializationService: SerializationService
 ) {
     private val testFilesTable = FilesTable()
+    private val testParentFolder = "files"
+    private val testFilesPath = "/some/test/files"
     private val testTemplate = testTemplate().toString()
     private val testFilesTableTemplate = FilesTableTemplate()
     private val testBaseColumns = listOf("Plate", "Replicate", "Well")
-    private val testInstance = FilesTableTemplateTranspiler(mockTemplateProcessor, mockTemplateMapper, mockSerializationService)
+    private val testInstance =
+        FilesTableTemplateTranspiler(mockTemplateProcessor, mockTemplateMapper, mockSerializationService)
 
     @BeforeEach
     fun setUp() {
-        every { mockTemplateMapper.map(testFilesTableTemplate) } returns testFilesTable
+        every { mockTemplateMapper.map(testFilesTableTemplate, testFilesPath, testParentFolder) } returns testFilesTable
         every { mockSerializationService.serializeElement(testFilesTable, SubFormat.TSV) } returns ""
         every { mockTemplateProcessor.process(testTemplate, testBaseColumns) } returns testFilesTableTemplate
     }
 
     @Test
     fun transpile() {
-        testInstance.transpile(testTemplate, testBaseColumns, SubFormat.TSV)
+        testInstance.transpile(testTemplate, testBaseColumns, testFilesPath, testParentFolder, SubFormat.TSV)
         verify { mockTemplateProcessor.process(testTemplate, testBaseColumns) }
-        verify { mockTemplateMapper.map(testFilesTableTemplate) }
+        verify { mockTemplateMapper.map(testFilesTableTemplate, testFilesPath, testParentFolder) }
         verify { mockSerializationService.serializeElement(testFilesTable, SubFormat.TSV) }
     }
 }
