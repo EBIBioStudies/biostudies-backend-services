@@ -12,20 +12,22 @@ const val COLUMNS = "columns"
 const val DIR = "directory"
 const val FORMAT = "format"
 const val TEMPLATE = "template"
+const val CLI_ID = "Files Table Generator"
 
 class TranspilerCommandLine(
     private val helpFormatter: HelpFormatter = HelpFormatter(),
     private val transpiler: FilesTableTemplateTranspiler = FilesTableTemplateTranspiler()
 ) {
+    internal val options = Options().apply {
+        addRequiredOption("b", BASE, true, "Base that will be used as prefix for the generated files path")
+        addRequiredOption("c", COLUMNS, true, "Comma separated list of columns that map to the directory structure")
+        addRequiredOption("d", DIR, true, "Path to the directory containing the files")
+        addRequiredOption("f", FORMAT, true, "Desired format for the generated page tab: TSV, JSON or XML")
+        addRequiredOption("t", TEMPLATE, true, "Path to the file containing the template")
+    }
+
     fun transpile(args: Array<String>): String {
         var pageTab = ""
-        val options = Options().apply {
-            addOption("b", BASE, true, "Base that will be used as prefix for the generated files path")
-            addOption("c", COLUMNS, true, "Comma separated list of columns that map to the directory structure")
-            addOption("d", DIR, true, "Path to the directory containing the files")
-            addOption("f", FORMAT, true, "Desired format for the generated page tab: TSV, JSON or XML")
-            addOption("t", TEMPLATE, true, "Path to the file containing the template")
-        }
 
         try {
             val cmd = DefaultParser().parse(options, args)
@@ -43,14 +45,12 @@ class TranspilerCommandLine(
                 format = SubFormat.valueOf(format)
             )
         } catch (exception: Exception) {
-            when (exception) {
-                is NullPointerException -> println("ERROR: All the arguments are required")
-                else -> println("ERROR: ${exception.message}")
-            }
-
-            helpFormatter.printHelp("Files Table Generator", options)
+            printError(exception.message)
+            helpFormatter.printHelp(CLI_ID, options)
         }
 
         return pageTab
     }
+
+    internal fun printError(message: String?) = println("ERROR: $message")
 }

@@ -35,6 +35,6 @@ class FilesTableTemplateProcessor {
 
     private fun validateHeader(header: List<String>, baseColumns: List<String>) =
         baseColumns.forEachIndexed { idx, col ->
-            if (col != header[idx]) throw InvalidColumnException()
+            if (col != header[idx]) throw InvalidColumnException(col, header[idx])
         }
 }

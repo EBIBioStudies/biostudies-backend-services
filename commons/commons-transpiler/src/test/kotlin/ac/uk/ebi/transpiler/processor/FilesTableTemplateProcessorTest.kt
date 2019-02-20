@@ -38,7 +38,7 @@ class FilesTableTemplateProcessorTest {
             testInstance.process(testTemplate().toString(), listOf("Replicate"))
         }
 
-        assertThat(exception).hasMessage(INVALID_COLUMN_ERROR_MSG)
+        assertThat(exception).hasMessage(String.format(INVALID_COLUMN_ERROR_MSG, "Replicate", "Plate"))
     }
 
     private fun assertRow(record: FilesTableTemplateRow, path: String, vararg attributes: String) {

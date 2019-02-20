@@ -7,6 +7,7 @@ import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import io.mockk.impl.annotations.SpyK
 import io.mockk.junit5.MockKExtension
 import io.mockk.verify
 import org.apache.commons.cli.HelpFormatter
@@ -22,12 +23,15 @@ class TranspilerCommandLineTest(
     @MockK private val mockHelpFormatter: HelpFormatter,
     @MockK private val mockTranspiler: FilesTableTemplateTranspiler
 ) {
-    private val testInstance = TranspilerCommandLine(mockHelpFormatter, mockTranspiler)
+    @SpyK
+    private var testInstance = TranspilerCommandLine(mockHelpFormatter, mockTranspiler)
+
+    private val options = testInstance.options
 
     @BeforeEach
     fun setUp() {
         temporaryFolder.createFile("template.tsv")
-        every { mockHelpFormatter.printHelp(any(), any()) }.answers { nothing }
+        every { mockHelpFormatter.printHelp(CLI_ID, options) }.answers { nothing }
         every { mockTranspiler.transpile("", listOf("colA", "colB"), "/path", "base", SubFormat.TSV) }.returns("pageTab")
     }
 
@@ -45,7 +49,8 @@ class TranspilerCommandLineTest(
         val pageTab = testInstance.transpile(args)
 
         assertThat(pageTab).isEqualTo("pageTab")
-        verify(exactly = 0) { mockHelpFormatter.printHelp(any(), any()) }
+        verify(exactly = 0) { testInstance.printError("") }
+        verify(exactly = 0) { mockHelpFormatter.printHelp(CLI_ID, options) }
     }
 
     @Test
@@ -53,7 +58,8 @@ class TranspilerCommandLineTest(
         val pageTab = testInstance.transpile(arrayOf("-f", "JSON"))
 
         assertThat(pageTab).isEqualTo("")
-        verify(exactly = 1) { mockHelpFormatter.printHelp(any(), any()) }
+        verify(exactly = 1) { mockHelpFormatter.printHelp(CLI_ID, options) }
+        verify(exactly = 1) { testInstance.printError("Missing required options: b, c, d, t") }
     }
 
     @Test
@@ -61,6 +67,7 @@ class TranspilerCommandLineTest(
         val pageTab = testInstance.transpile(arrayOf("-b"))
 
         assertThat(pageTab).isEqualTo("")
-        verify(exactly = 1) { mockHelpFormatter.printHelp(any(), any()) }
+        verify(exactly = 1) { mockHelpFormatter.printHelp(CLI_ID, options) }
+        verify(exactly = 1) { testInstance.printError("Missing argument for option: b") }
     }
 }
