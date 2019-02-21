@@ -2,7 +2,7 @@ package ac.uk.ebi.pmc.persistence.repository
 
 import ac.uk.ebi.pmc.persistence.docs.SubmissionDoc
 import ac.uk.ebi.pmc.persistence.docs.SubmissionStatus
-import arrow.core.toOption
+import ac.uk.ebi.pmc.persistence.ext.findOneAndUpdate
 import com.mongodb.async.client.MongoCollection
 import com.mongodb.client.model.Filters.and
 import com.mongodb.client.model.Filters.eq
@@ -10,7 +10,6 @@ import com.mongodb.client.model.Filters.lt
 import com.mongodb.client.model.Updates.combine
 import com.mongodb.client.model.Updates.set
 import org.litote.kmongo.SetTo
-import org.litote.kmongo.coroutine.findOneAndUpdate
 import org.litote.kmongo.coroutine.insertOne
 import org.litote.kmongo.coroutine.toList
 import org.litote.kmongo.coroutine.updateMany
@@ -27,9 +26,8 @@ class SubmissionRepository(private val submissions: MongoCollection<SubmissionDo
     suspend fun update(submissionDoc: SubmissionDoc) = submissions.updateOne(submissionDoc)
 
     suspend fun findAndUpdate(status: SubmissionStatus, newStatus: SubmissionStatus) = submissions.findOneAndUpdate(
-        eq(SubmissionDoc.status, status.name).toString(),
-        combine(set(SubmissionDoc.status, newStatus.name), set(SubmissionDoc.updated, Instant.now())).toString())
-        .toOption()
+        eq(SubmissionDoc.status, status.name),
+        combine(set(SubmissionDoc.status, newStatus.name), set(SubmissionDoc.updated, Instant.now())))
 
     suspend fun setSourceTime(accNo: String, sourceTime: Instant) =
         submissions.updateMany(

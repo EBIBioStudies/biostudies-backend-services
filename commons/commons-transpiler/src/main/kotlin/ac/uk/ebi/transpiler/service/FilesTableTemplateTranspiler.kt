@@ -21,11 +21,19 @@ class FilesTableTemplateTranspiler(
      * @param template The files table template content.
      * @param baseColumns A list of the columns that will be used to build the path where the files are located. These
      *        base columns should correspond to the first columns in the template.
-     * @param format The desired format for the generated page tab
+     * @param filesPath The path to the folder containing the files to be mapped.
+     * @param basePath The prefix for the entries in the generated files table.
+     * @param format The desired format for the generated page tab.
      */
-    fun transpile(template: String, baseColumns: List<String>, format: SubFormat): String {
+    fun transpile(
+        template: String,
+        baseColumns: List<String>,
+        filesPath: String,
+        basePath: String,
+        format: SubFormat
+    ): String {
         val tableTemplate = templateProcessor.process(template, baseColumns)
-        val filesTable = templateMapper.map(tableTemplate)
+        val filesTable = templateMapper.map(tableTemplate, filesPath, basePath)
 
         return serializationService.serializeElement(filesTable, format)
     }
