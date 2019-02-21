@@ -11,7 +11,7 @@ sealed class Table<T : Any>(elements: List<T>) {
     protected abstract val header: String
     abstract fun toTableRow(t: T): Row<T>
 
-    private val _headers: MutableList<Header> = mutableListOf()
+    private val _headers: MutableSet<Header> = mutableSetOf()
     private val _rows: MutableList<Row<T>> = mutableListOf()
 
     init {
@@ -100,16 +100,17 @@ class SectionsTable(sections: List<Section> = emptyList()) : Table<Section>(sect
     private var sectionType = ""
     private var parentAccNo: String? = null
 
-    init {
-        elements.ifNotEmpty {
-            elements.first().let {
-                sectionType = it.type
-                parentAccNo = it.parentAccNo
-            }
-        }
-    }
+    override val header: String
+        get() {
+            sectionType.ifBlank { elements.ifNotEmpty {
+                elements.first().let {
+                    sectionType = it.type
+                    parentAccNo = it.parentAccNo
+                }
+            }}
 
-    override val header = "$sectionType[${if (parentAccNo.isNotBlank()) "$parentAccNo" else ""}]"
+            return "$sectionType[${if (parentAccNo.isNotBlank()) "$parentAccNo" else ""}]"
+        }
 
     override fun toTableRow(t: Section) = object : Row<Section>(t) {
         override val id = t.accNo!!
