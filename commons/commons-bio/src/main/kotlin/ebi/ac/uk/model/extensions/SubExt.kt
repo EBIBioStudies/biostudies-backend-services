@@ -1,6 +1,5 @@
 package ebi.ac.uk.model.extensions
 
-import ebi.ac.uk.model.File
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.constants.SubFields
 import java.time.Instant
@@ -30,19 +29,20 @@ var Submission.releaseDate: Instant?
 /**
  * When used all files in submission are prefix with the given value.
  */
-var Submission.rootPath: String
+var Submission.rootPath: String?
     get() = this[SubFields.ROOT_PATH]
     set(value) {
-        this[SubFields.ROOT_PATH] = value
+        value?.let { this[SubFields.ROOT_PATH] = it }
     }
 
-var Submission.title: String
+/**
+ * Obtain the submission title attribute if present.
+ */
+var Submission.title: String?
     get() = this[SubFields.TITLE]
     set(value) {
-        this[SubFields.TITLE] = value
+        value?.let { this[SubFields.TITLE] = it }
     }
 
-fun Submission.allFiles(): List<File> =
-    section.allFiles() + section.allSections().flatMap { it.allFiles() }
-
+fun Submission.allFiles() = section.allFiles() + section.allSections().flatMap { it.allFiles() }
 fun Submission.getSectionByType(name: String) = section.allSections().first { it.type == name }
