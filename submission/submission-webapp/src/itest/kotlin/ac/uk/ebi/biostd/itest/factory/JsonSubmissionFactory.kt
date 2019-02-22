@@ -26,7 +26,7 @@ fun allInOneSubmissionJson() = jsonObj {
                 "name" to "Ontology"
                 "value" to "UBERON"
             })
-            "namequal" to jsonArray({
+            "nmqual" to jsonArray({
                 "name" to "Tissue"
                 "value" to "Blood"
             })

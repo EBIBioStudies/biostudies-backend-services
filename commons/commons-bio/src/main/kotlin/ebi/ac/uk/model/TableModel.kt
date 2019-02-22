@@ -107,7 +107,7 @@ class SectionsTable(sections: List<Section> = emptyList()) : Table<Section>(sect
                     sectionType = it.type
                     parentAccNo = it.parentAccNo
                 }
-            }}
+            } }
 
             return "$sectionType[${if (parentAccNo.isNotBlank()) "$parentAccNo" else ""}]"
         }

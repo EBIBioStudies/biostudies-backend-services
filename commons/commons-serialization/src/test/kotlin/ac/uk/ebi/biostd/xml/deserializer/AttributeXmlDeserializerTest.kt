@@ -17,7 +17,7 @@ class AttributeXmlDeserializerTest {
             xml("attribute") {
                 "name" { -"attr1" }
                 "value" { -"value1" }
-                "namequal" {
+                "nmqual" {
                     "name" { -"nameDetail" }
                     "value" { -"name detail 1" }
                 }
