@@ -7,20 +7,18 @@ import org.junit.jupiter.api.Test
 
 /**
  * TODO: add extended submission test
- * TODO: implements property equals and hashcode method to avoid comparison using isEqualToComparingFieldByField
  */
 class JsonSerializerTest {
 
     private val testInstance = JsonSerializer.mapper
-
-    private val subm = createVenousBloodMonocyte()
+    private val submission = createVenousBloodMonocyte()
 
     @Test
     fun `serialize and deserialize sample submission`() {
-        val json = testInstance.writeValueAsString(subm)
+        val json = testInstance.writeValueAsString(submission)
         val deserialized = testInstance.readValue(json, Submission::class.java)
 
         assertThat(deserialized).isNotNull
-        assertThat(deserialized).isEqualToComparingFieldByField(subm)
+        assertThat(deserialized).isEqualTo(submission)
     }
 }

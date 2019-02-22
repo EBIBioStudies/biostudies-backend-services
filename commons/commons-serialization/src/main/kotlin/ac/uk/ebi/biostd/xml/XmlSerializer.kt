@@ -7,7 +7,6 @@ import ac.uk.ebi.biostd.xml.deserializer.FileXmlDeserializer
 import ac.uk.ebi.biostd.xml.deserializer.LinkXmlDeserializer
 import ac.uk.ebi.biostd.xml.deserializer.SectionXmlDeserializer
 import ac.uk.ebi.biostd.xml.deserializer.SubmissionXmlDeserializer
-import ac.uk.ebi.biostd.xml.serializer.AttributeDetailsSerializer
 import ac.uk.ebi.biostd.xml.serializer.AttributeSerializer
 import ac.uk.ebi.biostd.xml.serializer.FileSerializer
 import ac.uk.ebi.biostd.xml.serializer.LinkSerializer
@@ -22,7 +21,6 @@ import com.fasterxml.jackson.dataformat.xml.JacksonXmlModule
 import com.fasterxml.jackson.dataformat.xml.XmlMapper
 import com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator
 import ebi.ac.uk.model.Attribute
-import ebi.ac.uk.model.AttributeDetail
 import ebi.ac.uk.model.File
 import ebi.ac.uk.model.Link
 import ebi.ac.uk.model.Section
@@ -60,7 +58,6 @@ class XmlSerializer {
                 addSerializer(Link::class.java, LinkSerializer())
                 addSerializer(File::class.java, FileSerializer())
                 addSerializer(Table::class.java, TableSerializer())
-                addSerializer(AttributeDetail::class.java, AttributeDetailsSerializer())
             }
 
             return XmlMapper(module).apply {

@@ -31,7 +31,7 @@ fun allInOneSubmissionXml() = xml("submission") {
                     "name" { -"Ontology" }
                     "value" { -"UBERON" }
                 }
-                "namequal" {
+                "nmqual" {
                     "name" { -"Tissue" }
                     "value" { -"Blood" }
                 }

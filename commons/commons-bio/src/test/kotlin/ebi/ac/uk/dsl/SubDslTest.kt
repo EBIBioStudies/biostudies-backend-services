@@ -96,6 +96,6 @@ class SubDslTest {
         }
 
         assertThat(section).isEqualTo(Section(
-            "Study", links = mutableListOf(Either.Right(LinksTable(listOf(Link("http://somelink.org")))))))
+            "Study", links = mutableListOf(Either.Right(LinksTable(listOf(Link("http://importantsite.net")))))))
     }
 }

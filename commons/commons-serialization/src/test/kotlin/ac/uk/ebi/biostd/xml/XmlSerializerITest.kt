@@ -13,8 +13,7 @@ class XmlSerializerITest {
         val xml = testInstance.serialize(submission)
         val result = testInstance.deserialize(xml)
 
-        assertThat(result.accNo).isEqualTo(submission.accNo)
-        assertThat(result.section).isEqualTo(submission.section)
-        assertThat(result.attributes).isEqualTo(submission.attributes)
+        assertThat(result).isNotNull
+        assertThat(result).isEqualTo(submission)
     }
 }

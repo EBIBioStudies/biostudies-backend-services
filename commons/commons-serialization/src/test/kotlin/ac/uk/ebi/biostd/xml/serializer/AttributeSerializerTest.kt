@@ -15,7 +15,7 @@ class AttributeSerializerTest {
 
     private val testInstance = XmlSerializer.mapper
 
-    private val attribute = Attribute(name = ATTR_NAME, value = ATTR_VALUE, valueAttrs = TERMS)
+    private val attribute = Attribute(name = ATTR_NAME, value = ATTR_VALUE, nameAttrs = TERMS, valueAttrs = TERMS)
 
     @Test
     fun testSerializeAttribute() {
@@ -23,6 +23,10 @@ class AttributeSerializerTest {
         val expected = xml("attribute") {
             "name" { -ATTR_NAME }
             "value" { -ATTR_VALUE }
+            "nmqual" {
+                "name" { -"name" }
+                "value" { -"value" }
+            }
             "valqual" {
                 "name" { -"name" }
                 "value" { -"value" }
@@ -41,6 +45,10 @@ class AttributeSerializerTest {
             attribute("reference", true)
             "name" { -ATTR_NAME }
             "value" { -ATTR_VALUE }
+            "nmqual" {
+                "name" { -"name" }
+                "value" { -"value" }
+            }
             "valqual" {
                 "name" { -"name" }
                 "value" { -"value" }
@@ -58,6 +66,10 @@ class AttributeSerializerTest {
         val expected = xml("attribute") {
             "name" { -ATTR_NAME }
             "value" { -ATTR_VALUE }
+            "nmqual" {
+                "name" { -"name" }
+                "value" { -"value" }
+            }
             "valqual" {
                 "name" { -"name" }
                 "value" { -"value" }

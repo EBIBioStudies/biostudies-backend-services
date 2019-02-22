@@ -26,6 +26,9 @@ class Section(
         other === this -> true
         else -> Objects.equals(type, other.type)
             .and(Objects.equals(accNo, other.accNo))
+            .and(Objects.equals(files, other.files))
+            .and(Objects.equals(links, other.links))
+            .and(Objects.equals(sections, other.sections))
             .and(Objects.equals(attributes, other.attributes))
     }
 

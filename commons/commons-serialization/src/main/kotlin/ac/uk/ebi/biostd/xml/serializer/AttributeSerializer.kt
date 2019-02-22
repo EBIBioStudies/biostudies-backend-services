@@ -19,6 +19,7 @@ class AttributeSerializer : XmlStdSerializer<Attribute>(Attribute::class.java) {
                 writeXmlField(AttributeFields.NAME, value.name)
                 writeXmlField(AttributeFields.VALUE, value.value)
 
+                // TODO We need to change this from reflection to a proper AttributeDetail serializer
                 value.nameAttrs.forEach { writeXmlField(AttributeDetails.NAME_QUALIFIER, it) }
                 value.valueAttrs.forEach { writeXmlField(AttributeDetails.VAL_QUALIFIER, it) }
             }
