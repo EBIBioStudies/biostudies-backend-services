@@ -9,6 +9,7 @@ import ac.uk.ebi.biostd.submission.SubmissionSubmitter
 import ac.uk.ebi.biostd.submission.handlers.FilesHandler
 import ac.uk.ebi.biostd.submission.processors.AccNoProcessor
 import ac.uk.ebi.biostd.submission.processors.AccessTagProcessor
+import ac.uk.ebi.biostd.submission.processors.PropertiesProcessor
 import ac.uk.ebi.biostd.submission.processors.SubmissionProcessor
 import ac.uk.ebi.biostd.submission.processors.TimesProcessor
 import ac.uk.ebi.biostd.submission.validators.ProjectValidator
@@ -55,6 +56,9 @@ class SubmitterConfig {
 
         @Bean
         fun timesProcessor() = TimesProcessor()
+
+        @Bean
+        fun propertiesProcessor() = PropertiesProcessor()
     }
 
     @Configuration

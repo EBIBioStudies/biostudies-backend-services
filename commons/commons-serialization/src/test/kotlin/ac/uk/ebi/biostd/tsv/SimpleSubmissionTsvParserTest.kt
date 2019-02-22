@@ -25,8 +25,8 @@ class SimpleSubmissionTsvParserTest {
         val expected = tsv {
             line(ACC_NO_KEY, "S-IHECRE00000919.1", "Public")
             line(SubFields.RELEASE_TIME, "2015-02-20T06:30:00Z")
-            line(ROOT_PATH_KEY, sub.rootPath)
-            line(TITLE_KEY, sub.title)
+            line(ROOT_PATH_KEY, sub.rootPath!!)
+            line(TITLE_KEY, sub.title!!)
             line("DataSource", "BLUEPRINT")
             line("AttachTo", "blueprint")
             line()

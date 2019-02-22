@@ -29,9 +29,10 @@ enum class SubFields(override val value: String) : Fields {
     ROOT_PATH("RootPath"),
     PUBLIC_ACCESS_TAG("Public"),
 
+    RELEASE_DATE("ReleaseDate"),
     RELEASE_TIME("rtime"),
-    CREATION_TIME("rtime"),
-    MODIFICATION_TIME("rtime"),
+    CREATION_TIME("ctime"),
+    MODIFICATION_TIME("mtime"),
     SECRET("secretKey"),
     ATTACH_TO("AttachTo"),
     ACC_NO_TEMPLATE("AccNoTemplate");

@@ -17,7 +17,7 @@ interface SubmissionDataRepository : JpaRepository<Submission, Long> {
     @EntityGraph(value = FULL_DATA_GRAPH, type = LOAD)
     fun getByAccNoAndVersionGreaterThan(id: String, long: Int = 0): Submission
 
-    fun findByAccNoAndVersionGreaterThan(id: String, long: Int = 0): Optional<Submission>
+    fun findByAccNoAndVersionGreaterThan(id: String, long: Int = 0): Submission?
 
     fun existsByAccNo(accNo: String): Boolean
 }

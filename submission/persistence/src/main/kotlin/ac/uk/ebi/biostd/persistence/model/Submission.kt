@@ -85,7 +85,7 @@ class Submission(
     var rootPath: String? = null
 
     @Column
-    var title: String = ""
+    var title: String? = null
 
     @Column
     var secretKey: String = ""
