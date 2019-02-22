@@ -9,17 +9,14 @@ import ebi.ac.uk.dsl.section
 import ebi.ac.uk.dsl.sectionsTable
 import ebi.ac.uk.dsl.submission
 import ebi.ac.uk.model.AttributeDetail
-import ebi.ac.uk.model.extensions.releaseTime
+import ebi.ac.uk.model.extensions.releaseDate
 import ebi.ac.uk.model.extensions.rootPath
 import ebi.ac.uk.model.extensions.title
-import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 
-val releaseDate: Instant = LocalDateTime.parse("2015-02-20T06:30:00").toInstant(ZoneOffset.UTC)
-
 fun createVenousBloodMonocyte() = submission("S-IHECRE00000919.1") {
-    releaseTime = releaseDate
+    releaseDate = LocalDateTime.parse("2015-02-20T06:30:00").toInstant(ZoneOffset.UTC)
     rootPath = "S-IHECRE00000919.1"
     title = "Submission title"
     attribute("DataSource", "BLUEPRINT")

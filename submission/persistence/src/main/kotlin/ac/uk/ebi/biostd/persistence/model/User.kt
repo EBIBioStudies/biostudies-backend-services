@@ -44,6 +44,13 @@ class User(
     @ManyToMany(mappedBy = "users", fetch = FetchType.EAGER)
     val groups: MutableSet<UserGroup> = mutableSetOf()
 
+    constructor(id: Long, login: String, email: String, secret: String) : this(login, email, secret) {
+        this.id = id
+    }
+
+    /**
+     * Register the user to the given group.
+     */
     fun addGroup(userGroup: UserGroup) = groups.add(userGroup)
 
     /**

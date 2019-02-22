@@ -21,8 +21,6 @@ import org.assertj.core.api.Assertions.catchThrowable
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
-import org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS
 import org.junit.jupiter.api.extension.ExtendWith
 import java.io.File
 import java.nio.file.Paths
@@ -36,7 +34,6 @@ const val JSON_SUBMISSION = "{ \"accNo\": \"$ACC_NO\" }"
 const val XML_SUBMISSION = "<submission accNo=\"$ACC_NO\"></submission>"
 const val TSV_SUBMISSION = "Submission\t$ACC_NO"
 
-@TestInstance(PER_CLASS)
 @ExtendWith(TemporaryFolderExtension::class, MockKExtension::class)
 class FilesHandlerTest(
     private val temporaryFolder: TemporaryFolder,

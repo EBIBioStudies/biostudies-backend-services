@@ -10,7 +10,7 @@ import ebi.ac.uk.base.splitIgnoringEmpty
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.constants.SUB_SEPARATOR
 import ebi.ac.uk.model.extensions.getSectionByType
-import ebi.ac.uk.model.extensions.releaseTime
+import ebi.ac.uk.model.extensions.releaseDate
 import ebi.ac.uk.util.regex.getGroup
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -71,7 +71,7 @@ class PmcSubmissionLoader(
         Pair(pagetab, Try { serializationService.deserializeSubmission(pagetab, TSV) })
 
     private suspend fun loadSubmission(submission: Submission, sourceFile: String, sourceTime: Instant) {
-        submission.releaseTime = getReleaseDate(submission)
+        submission.releaseDate = getReleaseDate(submission)
         submissionService.saveLoadedVersion(submission, sourceFile, sourceTime)
     }
 

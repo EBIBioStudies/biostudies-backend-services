@@ -2,8 +2,8 @@ package ac.uk.ebi.biostd.submission.processors
 
 import ac.uk.ebi.biostd.submission.test.ACC_NO
 import ac.uk.ebi.biostd.submission.test.createBasicExtendedSubmission
-import arrow.core.Option
 import ebi.ac.uk.model.ExtendedSubmission
+import ebi.ac.uk.model.extensions.releaseDate
 import ebi.ac.uk.persistence.PersistenceContext
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -12,61 +12,56 @@ import io.mockk.mockkStatic
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
-import org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS
 import org.junit.jupiter.api.extension.ExtendWith
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 
-@TestInstance(PER_CLASS)
 @ExtendWith(MockKExtension::class)
 class TimesProcessorTest(@MockK private val mockPersistenceContext: PersistenceContext) {
     private lateinit var submission: ExtendedSubmission
     private val mockNow: OffsetDateTime = OffsetDateTime.now()
     private val testInstance = TimesProcessor()
 
+    private val testTime = OffsetDateTime.of(2018, 10, 10, 10, 10, 10, 10, ZoneOffset.UTC)
+
     @BeforeEach
     fun setUp() {
         mockkStatic(OffsetDateTime::class)
         every { OffsetDateTime.now() } returns mockNow
-        every { mockPersistenceContext.getSubmission(ACC_NO) } returns Option.empty()
+        every { mockPersistenceContext.getSubmission(ACC_NO) } returns null
 
         submission = createBasicExtendedSubmission()
     }
 
     @Test
-    fun `process submission without any date`() {
+    fun `process submission when no existing submission`() {
+        testInstance.process(submission, mockPersistenceContext)
+
         assertTimeProcessing(mockNow, mockNow, mockNow)
     }
 
     @Test
     fun `process existing submission`() {
-        val existingCreationTime = getTestTime()
-        val existingSubmission = createBasicExtendedSubmission().apply {
-            creationTime = existingCreationTime
-        }
-        every { mockPersistenceContext.getSubmission(ACC_NO) } returns Option.fromNullable(existingSubmission)
+        val existingSubmission = createBasicExtendedSubmission().apply { creationTime = testTime }
+        every { mockPersistenceContext.getSubmission(ACC_NO) } returns existingSubmission
 
-        assertTimeProcessing(existingCreationTime, mockNow, mockNow)
+        testInstance.process(submission, mockPersistenceContext)
+        assertTimeProcessing(testTime, mockNow, mockNow)
     }
 
     @Test
     fun `process submission with release date`() {
-        val releaseTime = getTestTime()
-        submission.releaseTime = releaseTime
+        submission.releaseDate = testTime.toInstant()
 
-        assertTimeProcessing(mockNow, releaseTime, mockNow)
+        testInstance.process(submission, mockPersistenceContext)
+        assertTimeProcessing(mockNow, testTime, mockNow)
     }
-
-    private fun getTestTime() = OffsetDateTime.of(2018, 10, 10, 10, 10, 10, 10, ZoneOffset.UTC)
 
     private fun assertTimeProcessing(
         creationTime: OffsetDateTime,
         releaseTime: OffsetDateTime,
         modificationTime: OffsetDateTime
     ) {
-        testInstance.process(submission, mockPersistenceContext)
-
         assertThat(submission.creationTime).isEqualTo(creationTime)
         assertThat(submission.releaseTime).isEqualTo(releaseTime)
         assertThat(submission.modificationTime).isEqualTo(modificationTime)
