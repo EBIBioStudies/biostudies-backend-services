@@ -1,6 +1,7 @@
 package ebi.ac.uk.model
 
 import ebi.ac.uk.base.isNotBlank
+import ebi.ac.uk.model.constants.SectionFields
 import ebi.ac.uk.model.constants.TableFields
 import ebi.ac.uk.model.extensions.parentAccNo
 import ebi.ac.uk.util.collections.ifNotEmpty
@@ -45,7 +46,7 @@ sealed class Table<T : Any>(elements: List<T>) {
     override fun hashCode() = Objects.hash(header, _headers, _rows)
 }
 
-class Header(val name: String, val termNames: List<String> = listOf()) {
+class Header(val name: String, val termNames: List<String> = listOf(), val termValues: List<String> = listOf()) {
 
     override fun equals(other: Any?): Boolean {
         if (other !is Header) return false
@@ -68,11 +69,16 @@ abstract class Row<T>(val original: T) {
 
     override fun hashCode() = Objects.hash(original)
 
-    fun headers() = attributes.map { Header(it.name, it.nameAttrs.map(AttributeDetail::name)) }
+    fun headers() = attributes.map {
+        Header(it.name, it.nameAttrs.map(AttributeDetail::name), it.valueAttrs.map(AttributeDetail::name))
+    }
 
     fun values(headers: List<Header>) =
-        headers.map { findAttrByName(it.name) }
-            .flatMap { listOf(it.value) + it.valueAttrs.map(AttributeDetail::value) }
+        headers
+            .map { findAttrByName(it.name) }
+            .flatMap {
+                listOf(it.value) + it.nameAttrs.map(AttributeDetail::value) + it.valueAttrs.map(AttributeDetail::value)
+            }
 
     private fun findAttrByName(name: String) = this.attributes.firstOrNull { it.name == name } ?: Attribute.EMPTY_ATTR
 }
@@ -114,6 +120,9 @@ class SectionsTable(sections: List<Section> = emptyList()) : Table<Section>(sect
 
     override fun toTableRow(t: Section) = object : Row<Section>(t) {
         override val id = t.accNo!!
-        override val attributes = t.attributes
+
+        // TODO discuss whether or not this should be an attribute
+        // TODO check other serializers for the same issue
+        override val attributes = t.attributes.filterNot { it.name == SectionFields.PARENT_ACC_NO.toString() }
     }
 }
