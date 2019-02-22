@@ -27,5 +27,6 @@ fun TsvBuilder.addAttributes(attributes: List<Attribute>) {
 
 fun TsvBuilder.addAttr(attr: Attribute) {
     with(if (attr.reference) "<${attr.name}>" else attr.name, attr.value)
+    attr.nameAttrs.forEach { with("(${it.name})", it.value) }
     attr.valueAttrs.forEach { with("[${it.name}]", it.value) }
 }
