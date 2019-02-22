@@ -18,7 +18,7 @@ var Submission.attachTo: String?
     }
 
 /**
- * Indicates when submission was released to public access.
+ * Indicates when a submission was released to public access.
  */
 var Submission.releaseDate: Instant?
     get() = get<String?>(SubFields.RELEASE_DATE)?.let { Instant.parse(it) }
@@ -27,7 +27,7 @@ var Submission.releaseDate: Instant?
     }
 
 /**
- * When used all files in submission are prefix with the given value.
+ * Prefix set to all files in the submission.
  */
 var Submission.rootPath: String?
     get() = this[SubFields.ROOT_PATH]

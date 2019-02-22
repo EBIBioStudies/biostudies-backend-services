@@ -7,10 +7,10 @@ import java.time.OffsetDateTime
 import java.time.ZoneOffset.UTC
 
 /**
- * Calculate submission release date base on current state of submission in the system. Calculation rules
+ * Calculates the submission release date based on current state of the submission in the system. Calculation rules
  *
  * - If user provides a release date attribute this is used as release time for submission.
- * - If a version of submission already exist it creation time is used.
+ * - If a version of submission already exists it's creation time is used.
  */
 class TimesProcessor : SubmissionProcessor {
 
