@@ -15,7 +15,6 @@ class ErrorsDocService(
     private val errorsRepository: ErrorsRepository,
     private val subRepository: SubmissionRepository
 ) {
-
     suspend fun saveError(submission: SubmissionDoc, mode: PmcMode, throwable: Throwable) {
         logger.error { "Error processing submission ${submission.accNo} from file ${submission.sourceFile}, ${throwable.message}" }
         subRepository.update(submission.withStatus(getError(mode)))

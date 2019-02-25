@@ -48,7 +48,6 @@ import java.nio.file.Paths
 
 @ExtendWith(TemporaryFolderExtension::class)
 internal class SubmissionTest(private val tempFolder: TemporaryFolder) : BaseIntegrationTest(tempFolder) {
-
     @Nested
     @ExtendWith(SpringExtension::class)
     @Import(value = [SubmitterConfig::class, PersistenceConfig::class, FileConfig::class])
