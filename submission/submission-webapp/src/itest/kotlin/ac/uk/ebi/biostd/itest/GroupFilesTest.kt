@@ -35,13 +35,10 @@ internal class GroupFilesTest(private val tempFolder: TemporaryFolder) : BaseInt
     @Import(value = [SubmitterConfig::class, PersistenceConfig::class, FileConfig::class])
     @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
     @DirtiesContext
-    inner class GroupFilesApi {
+    inner class GroupFilesApi(@Autowired val groupService: GroupService) {
 
         @LocalServerPort
         private var serverPort: Int = 0
-
-        @Autowired
-        private lateinit var groupService: GroupService
 
         private lateinit var webClient: BioWebClient
 

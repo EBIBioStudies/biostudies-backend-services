@@ -54,13 +54,10 @@ internal class SubmissionTest(private val tempFolder: TemporaryFolder) : BaseInt
     @Import(value = [SubmitterConfig::class, PersistenceConfig::class, FileConfig::class])
     @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
     @DirtiesContext
-    inner class SingleSubmissionTest {
+    inner class SingleSubmissionTest(@Autowired val submissionRepository: SubmissionRepository) {
 
         @LocalServerPort
         private var serverPort: Int = 0
-
-        @Autowired
-        private lateinit var submissionRepository: SubmissionRepository
 
         private lateinit var webClient: BioWebClient
 
