@@ -30,7 +30,7 @@ import Versions.XmlBuilderVersion
 
 object TestVersions {
     const val AssertJVersion = "3.11.0"
-    const val JunitVersion = "5.2.0"
+    const val JunitVersion = "5.4.0"
     const val JunitEngineVersion = "1.2.0"
     const val JunitExtensionsVersion = "2.3.0"
     const val MockKVersion = "1.9"
@@ -71,13 +71,11 @@ object TestDependencies {
     const val KotlinTestJunit = "org.jetbrains.kotlin:kotlin-test-junit:$KotlinVersion"
 
     const val Junit5Console = "org.junit.platform:junit-platform-console:$JunitEngineVersion"
-    const val Junit5Engine = "org.junit.jupiter:junit-jupiter-engine:$JunitVersion"
-    const val Junit5Api = "org.junit.jupiter:junit-jupiter-api:$JunitVersion"
-    const val Junit5Params = "org.junit.jupiter:junit-jupiter-params:$JunitVersion"
+    const val Junit = "org.junit.jupiter:junit-jupiter:$JunitVersion"
     const val JunitExtensions = "io.github.glytching:junit-extensions:$JunitExtensionsVersion"
 
-    val BaseTestCompileDependencies = arrayOf(Junit5Api, JunitExtensions, Junit5Params, AssertJ, MockK, KotlinTestJunit)
-    val BaseTestRuntimeDependencies = arrayOf(Junit5Console, Junit5Engine)
+    val BaseTestCompileDependencies = arrayOf(Junit, JunitExtensions, AssertJ, MockK, KotlinTestJunit)
+    val BaseTestRuntimeDependencies = arrayOf(Junit5Console)
 
     // Xml related
     const val XmlUnitCore = "org.xmlunit:xmlunit-core:$XmlUnitVersion"
