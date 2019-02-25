@@ -35,8 +35,8 @@ class PersistenceConfig {
     fun submissionRepository(client: MongoClient) = SubmissionRepository(client.getCollection("eubioimag", "submissions"))
 
     @Bean
-    fun submissionFileRepository(client: MongoClient) = SubFileRepository(client.getCollection("eubioimag", "submissions-files"))
+    fun submissionFileRepository(client: MongoClient) = SubFileRepository(client.getCollection("eubioimag", "submissions_files"))
 
     @Bean
-    fun inputFileRepository(client: MongoClient) = InputFileRepository(client.getCollection("eubioimag", "input-files"))
+    fun inputFileRepository(client: MongoClient) = InputFileRepository(client.getCollection("eubioimag", "input_files"))
 }

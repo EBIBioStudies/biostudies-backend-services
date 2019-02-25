@@ -115,13 +115,8 @@ private object DbAttributeMapper {
     internal fun toAttributes(attrs: Set<AttributeDb>) = attrs.mapTo(mutableListOf()) { toAttribute(it) }
 
     private fun toAttribute(attrDb: AttributeDb) =
-        Attribute(
-            name = attrDb.name,
-            value = attrDb.value,
-            reference = attrDb.reference.orFalse(),
-            nameAttrs = toDetails(attrDb.nameQualifier),
-            valueAttrs = toDetails(attrDb.valueQualifier))
+        attrDb.run { Attribute(name, value, reference.orFalse(), toDetails(nameQualifier), toDetails(valueQualifier)) }
 
     private fun toDetails(details: MutableList<AttributeDetailDb>) =
-        details.mapTo(mutableListOf()) { detail -> AttributeDetail(detail.name, detail.value) }
+        details.mapTo(mutableListOf()) { AttributeDetail(it.name, it.value) }
 }

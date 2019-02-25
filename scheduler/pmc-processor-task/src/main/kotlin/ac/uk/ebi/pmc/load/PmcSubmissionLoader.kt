@@ -3,8 +3,10 @@ package ac.uk.ebi.pmc.load
 import ac.uk.ebi.biostd.SerializationService
 import ac.uk.ebi.biostd.SubFormat.TSV
 import ac.uk.ebi.pmc.config.MaxConnections
-import ac.uk.ebi.pmc.persistence.MongoDocService
+import ac.uk.ebi.pmc.persistence.ErrorsDocService
+import ac.uk.ebi.pmc.persistence.InputFilesDocService
 import ac.uk.ebi.pmc.persistence.SubmissionDocService
+import ac.uk.ebi.scheduler.properties.PmcMode
 import arrow.core.Try
 import ebi.ac.uk.base.splitIgnoringEmpty
 import ebi.ac.uk.model.Submission
@@ -30,7 +32,8 @@ private var YEAR_PATTERN = "\\d{4}".toRegex()
 
 class PmcSubmissionLoader(
     private val serializationService: SerializationService,
-    private val mongoDocService: MongoDocService,
+    private val errorDocService: ErrorsDocService,
+    private val inputFilesDocService: InputFilesDocService,
     private val submissionService: SubmissionDocService
 ) {
 
@@ -41,10 +44,10 @@ class PmcSubmissionLoader(
      * @param file submissions load file data including content and name.
      */
     suspend fun processFile(file: FileSpec) = withContext(Dispatchers.Default) {
-        if (mongoDocService.isProcessed(file).not()) {
+        if (inputFilesDocService.isProcessed(file).not()) {
             val receiveChannel = launchProducer(file)
             (1..MaxConnections).map { launchProcessor(receiveChannel) }.joinAll()
-            mongoDocService.reportProcessed(file)
+            inputFilesDocService.reportProcessed(file)
         }
     }
 
@@ -58,13 +61,13 @@ class PmcSubmissionLoader(
     private fun CoroutineScope.launchProcessor(channel: ReceiveChannel<Pair<FileSpec, String>>) = launch {
         for ((source, submission) in channel) {
             val (body, result) = deserialize(submission)
-            processSubmission(result, body, source)
+            loadSubmission(result, body, source)
         }
     }
 
-    private suspend fun processSubmission(result: Try<Submission>, body: String, file: FileSpec) =
+    private suspend fun loadSubmission(result: Try<Submission>, body: String, file: FileSpec) =
         result.fold(
-            { mongoDocService.saveError(file.name, body, it) },
+            { errorDocService.saveError(file.name, body, PmcMode.LOAD, it) },
             { loadSubmission(it, file.name, file.modified) })
 
     private fun deserialize(pagetab: String) =

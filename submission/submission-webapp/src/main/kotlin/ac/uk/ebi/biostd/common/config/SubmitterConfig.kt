@@ -48,6 +48,7 @@ class SubmitterConfig {
 
     @Configuration
     class ProcessorConfig {
+
         @Bean
         fun accNoProcessor() = AccNoProcessor()
 
@@ -63,6 +64,7 @@ class SubmitterConfig {
 
     @Configuration
     class ValidatorConfig {
+
         @Bean
         fun projectValidator() = ProjectValidator()
     }

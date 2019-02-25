@@ -26,9 +26,10 @@ class FilesHandler(private val folderResolver: FolderResolver, private val seria
     }
 
     private fun generateOutputFiles(submission: ExtendedSubmission) {
-        val json = serializationService.serializeSubmission(submission, SubFormat.JSON_PRETTY)
-        val xml = serializationService.serializeSubmission(submission, SubFormat.XML)
-        val tsv = serializationService.serializeSubmission(submission, SubFormat.TSV)
+        val simpleSubmission = submission.asSubmission()
+        val json = serializationService.serializeSubmission(simpleSubmission, SubFormat.JSON_PRETTY)
+        val xml = serializationService.serializeSubmission(simpleSubmission, SubFormat.XML)
+        val tsv = serializationService.serializeSubmission(simpleSubmission, SubFormat.TSV)
 
         val accNo: String = submission.accNo
         val submissionPath = folderResolver.getSubmissionFolder(submission)
