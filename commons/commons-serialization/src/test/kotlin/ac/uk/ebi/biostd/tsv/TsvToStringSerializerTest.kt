@@ -15,7 +15,6 @@ import ebi.ac.uk.model.Link
 import ebi.ac.uk.model.LinksTable
 import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.SectionsTable
-import ebi.ac.uk.model.extensions.parentAccNo
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
