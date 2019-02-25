@@ -17,6 +17,10 @@ const val INVALID_FILES_ERROR_MSG = "Submission contains invalid files"
 
 class FilesHandler(private val folderResolver: FolderResolver, private val serializationService: SerializationService) {
 
+    /**
+     * In charge of generate submission json/tsv/xml representation files and validate all submission specified files
+     * are provided or exists in  user repository or in the list of provided files.
+     */
     fun processFiles(submission: ExtendedSubmission, files: List<ResourceFile>) {
         val fileSource = if (files.isEmpty()) PathFilesSource(getUserFolder(submission)) else ListFilesSource(files)
 
