@@ -67,9 +67,7 @@ abstract class Row<T>(val original: T) {
 
     override fun hashCode() = Objects.hash(original)
 
-    fun headers() = attributes.map {
-        Header(it.name, it.nameAttrsNames, it.valueAttrsNames)
-    }
+    fun headers() = attributes.map { Header(it.name, it.nameAttrsNames, it.valueAttrsNames) }
 
     fun values(headers: List<Header>) =
         headers
