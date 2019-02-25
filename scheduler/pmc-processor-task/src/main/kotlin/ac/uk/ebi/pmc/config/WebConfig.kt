@@ -8,6 +8,7 @@ import okhttp3.OkHttpClient
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import retrofit2.Retrofit
+import java.util.concurrent.TimeUnit
 
 private val SERVERS = listOf(
     "ves-pg-a6.ebi.ac.uk",
@@ -31,6 +32,8 @@ class WebConfig {
     private fun httpClient(): OkHttpClient {
         return OkHttpClient.Builder()
             .addInterceptor(HostSelectionInterceptor())
+            .readTimeout(1, TimeUnit.MINUTES)
+            .writeTimeout(1, TimeUnit.MINUTES)
             .build()
     }
 
@@ -46,7 +49,6 @@ class WebConfig {
             request = request.newBuilder()
                 .url(newUrl)
                 .build()
-
             return chain.proceed(request)
         }
     }

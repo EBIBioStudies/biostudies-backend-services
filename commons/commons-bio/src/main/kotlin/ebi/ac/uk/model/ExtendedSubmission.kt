@@ -20,6 +20,10 @@ class ExtendedSubmission(accNo: String, val user: User) : Submission(accNo) {
     var modificationTime: OffsetDateTime = OffsetDateTime.now()
     var creationTime: OffsetDateTime = OffsetDateTime.now()
 
+    fun asSubmission(): Submission {
+        return Submission(this.accNo, this.section, this.attributes)
+    }
+
     override fun equals(other: Any?) = when {
         other !is ExtendedSubmission -> false
         other === this -> true

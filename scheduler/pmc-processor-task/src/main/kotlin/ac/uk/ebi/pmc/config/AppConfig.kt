@@ -1,7 +1,8 @@
 package ac.uk.ebi.pmc.config
 
 import ac.uk.ebi.biostd.SerializationService
-import ac.uk.ebi.pmc.persistence.MongoDocService
+import ac.uk.ebi.pmc.persistence.ErrorsDocService
+import ac.uk.ebi.pmc.persistence.InputFilesDocService
 import ac.uk.ebi.pmc.persistence.SubmissionDocService
 import ac.uk.ebi.pmc.persistence.repository.ErrorsRepository
 import ac.uk.ebi.pmc.persistence.repository.InputFileRepository
@@ -25,12 +26,11 @@ class AppConfig {
     fun serializationService() = SerializationService()
 
     @Bean
-    fun mongoDocService(
-        errorsRepository: ErrorsRepository,
-        submissionRepository: SubmissionRepository,
-        submissionFileRepository: SubFileRepository,
-        inputFileRepository: InputFileRepository
-    ) = MongoDocService(submissionRepository, errorsRepository, inputFileRepository)
+    fun inputFilesDocService(inputFileRepository: InputFileRepository) = InputFilesDocService(inputFileRepository)
+
+    @Bean
+    fun errorsDocService(errorsRepository: ErrorsRepository, submissionRepository: SubmissionRepository) =
+        ErrorsDocService(errorsRepository, submissionRepository)
 
     @Bean
     fun submissionDocService(

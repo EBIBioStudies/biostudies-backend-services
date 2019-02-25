@@ -29,8 +29,11 @@ class TokenUtil(
     }
 
     fun fromToken(token: String): Option<User> {
-        var tokenUser = Option.empty<TokenPayload>()
+        return if (jwtParser.isSigned(token)) getFromToken(token) else Option.empty()
+    }
 
+    private fun getFromToken(token: String): Option<User> {
+        var tokenUser = Option.empty<TokenPayload>()
         try {
             val payload = jwtParser.setSigningKey(tokenHash).parseClaimsJws(token).body.subject
             tokenUser = Option.just(objectMapper.readValue(payload, TokenPayload::class.java))

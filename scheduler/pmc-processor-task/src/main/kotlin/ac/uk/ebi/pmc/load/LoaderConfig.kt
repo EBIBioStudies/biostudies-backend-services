@@ -1,7 +1,8 @@
 package ac.uk.ebi.pmc.load
 
 import ac.uk.ebi.biostd.SerializationService
-import ac.uk.ebi.pmc.persistence.MongoDocService
+import ac.uk.ebi.pmc.persistence.ErrorsDocService
+import ac.uk.ebi.pmc.persistence.InputFilesDocService
 import ac.uk.ebi.pmc.persistence.SubmissionDocService
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -13,10 +14,11 @@ class LoaderConfig {
 
     @Bean
     fun pmcSubmissionLoader(
-        docService: MongoDocService,
+        inputFilesDocService: InputFilesDocService,
+        errorsDocService: ErrorsDocService,
         submissionDocService: SubmissionDocService,
         serializationService: SerializationService
-    ) = PmcSubmissionLoader(serializationService, docService, submissionDocService)
+    ) = PmcSubmissionLoader(serializationService, errorsDocService, inputFilesDocService, submissionDocService)
 
     @Bean
     fun pmcLoader(pmcSubmissionLoader: PmcSubmissionLoader) = PmcLoader(pmcSubmissionLoader)
