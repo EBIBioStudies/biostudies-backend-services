@@ -19,6 +19,18 @@ data class Attribute(
         val EMPTY_ATTR: Attribute = Attribute(EMPTY, EMPTY, false, mutableListOf())
     }
 
+    val nameAttrsNames: List<String>
+        get() = nameAttrs.map(AttributeDetail::name)
+
+    val nameAttrsValues: List<String>
+        get() = nameAttrs.map(AttributeDetail::value)
+
+    val valueAttrsNames: List<String>
+        get() = valueAttrs.map(AttributeDetail::name)
+
+    val valueAttrsValues: List<String>
+        get() = valueAttrs.map(AttributeDetail::value)
+
     override fun equals(other: Any?) = when {
         other !is Attribute -> false
         this === other -> true
