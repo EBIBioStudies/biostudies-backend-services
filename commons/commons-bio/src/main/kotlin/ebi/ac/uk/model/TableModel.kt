@@ -121,8 +121,6 @@ class SectionsTable(sections: List<Section> = emptyList()) : Table<Section>(sect
     override fun toTableRow(t: Section) = object : Row<Section>(t) {
         override val id = t.accNo!!
 
-        // TODO discuss whether or not this should be an attribute
-        // TODO check other serializers for the same issue
         override val attributes = t.attributes.filterNot { it.name == SectionFields.PARENT_ACC_NO.toString() }
     }
 }

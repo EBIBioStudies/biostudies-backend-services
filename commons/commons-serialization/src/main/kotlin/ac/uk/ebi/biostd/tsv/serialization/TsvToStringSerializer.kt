@@ -53,7 +53,7 @@ class TsvToStringSerializer {
     private fun <T : Any> addTable(builder: TsvBuilder, table: Table<T>) {
         builder.addSeparator()
         builder.addTableRow(table.headers.flatMap {
-            listOf(it.name) + it.termNames.map { "($it)" } +  it.termValues.map { "[$it]" }})
+            listOf(it.name) + it.termNames.map { "($it)" } + it.termValues.map { "[$it]" } })
 
         table.rows.forEach { builder.addTableRow(it) }
     }
