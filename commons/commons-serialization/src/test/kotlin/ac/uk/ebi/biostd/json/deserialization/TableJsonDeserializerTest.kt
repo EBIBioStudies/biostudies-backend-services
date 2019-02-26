@@ -11,7 +11,7 @@ import ebi.ac.uk.model.LinksTable
 import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.SectionsTable
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Test
+import org.junit.jupiter.api.Test
 
 private const val ATTR_NAME = "attr1"
 private const val ATTR_VAL = "attr1 value"
@@ -21,7 +21,6 @@ private const val VALUE_DETAIL_NAME = "value detail name"
 private const val VALUE_DETAIL_VALUE = "value detail value"
 
 class TableJsonDeserializerTest {
-
     private val testAttribute = createTestAttribute()
 
     @Test
@@ -39,7 +38,7 @@ class TableJsonDeserializerTest {
                     "name" to VALUE_DETAIL_NAME
                     "value" to VALUE_DETAIL_VALUE
                 })
-                "namequal" to jsonArray({
+                "nmqual" to jsonArray({
                     "name" to NAME_DETAIL_NAME
                     "value" to NAME_DETAIL_VALUE
                 })
@@ -68,7 +67,7 @@ class TableJsonDeserializerTest {
                     "name" to VALUE_DETAIL_NAME
                     "value" to VALUE_DETAIL_VALUE
                 })
-                "namequal" to jsonArray({
+                "nmqual" to jsonArray({
                     "name" to NAME_DETAIL_NAME
                     "value" to NAME_DETAIL_VALUE
                 })
@@ -97,7 +96,7 @@ class TableJsonDeserializerTest {
                     "name" to VALUE_DETAIL_NAME
                     "value" to VALUE_DETAIL_VALUE
                 })
-                "namequal" to jsonArray({
+                "nmqual" to jsonArray({
                     "name" to NAME_DETAIL_NAME
                     "value" to NAME_DETAIL_VALUE
                 })

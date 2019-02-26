@@ -26,6 +26,7 @@ import ac.uk.ebi.biostd.validation.MISPLACED_ATTR_VAL
 import ac.uk.ebi.biostd.validation.REQUIRED_ATTR_VALUE
 import ac.uk.ebi.biostd.validation.REQUIRED_TABLE_ROWS
 import ac.uk.ebi.biostd.validation.SerializationException
+import arrow.core.Either
 import ebi.ac.uk.asserts.assertSingleElement
 import ebi.ac.uk.asserts.assertSubmission
 import ebi.ac.uk.asserts.assertTable
@@ -34,16 +35,16 @@ import ebi.ac.uk.model.AttributeDetail
 import ebi.ac.uk.model.File
 import ebi.ac.uk.model.Link
 import ebi.ac.uk.model.Section
+import ebi.ac.uk.model.SectionsTable
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.util.collections.ifLeft
 import ebi.ac.uk.util.collections.ifRight
 import ebi.ac.uk.util.collections.second
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Test
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
 class TsvDeserializerTest {
-
     private val deserializer = TsvDeserializer()
 
     @Test
@@ -126,17 +127,16 @@ class TsvDeserializerTest {
         assertThat(submission.section.sections).hasSize(2)
         submission.section.sections.first().ifLeft { section ->
             assertThat(section.sections).hasSize(1)
-
             assertThat(section).isEqualTo(Section(
                 accNo = "F-001",
                 type = "Funding",
                 attributes = listOf(
                     Attribute("Agency", "National Support Program of China"),
-                    Attribute("Grant Id", "No. 2015BAD27B01"))))
-
-            assertSingleElement(
-                section.sections.first(),
-                Section(accNo = "E-001", type = "Expense", attributes = listOf(Attribute("Description", "Travel"))))
+                    Attribute("Grant Id", "No. 2015BAD27B01")),
+                sections = mutableListOf(
+                    Either.left(Section(
+                        accNo = "E-001", type = "Expense", attributes = listOf(Attribute("Description", "Travel"))))
+                )))
         }
 
         submission.section.sections.second().ifLeft { section ->
@@ -169,17 +169,22 @@ class TsvDeserializerTest {
             assertThat(section.sections).hasSize(1)
 
             assertThat(section).isEqualTo(
-                Section(accNo = "S-001", type = "Study", attributes = listOf(Attribute("Type", "Imaging"))))
-
-            assertTable(section.sections.first(),
                 Section(
-                    accNo = "SMP-1",
-                    type = "Sample",
-                    attributes = listOf(Attribute("Title", "Sample1"), Attribute("Desc", "Measure 1"))),
-                Section(
-                    accNo = "SMP-2",
-                    type = "Sample",
-                    attributes = listOf(Attribute("Title", "Sample2"), Attribute("Desc", "Measure 2"))))
+                    accNo = "S-001",
+                    type = "Study",
+                    attributes = listOf(Attribute("Type", "Imaging")),
+                    sections = mutableListOf(
+                        Either.right(SectionsTable(listOf(
+                            Section(
+                                accNo = "SMP-1",
+                                type = "Sample",
+                                attributes = listOf(Attribute("Title", "Sample1"), Attribute("Desc", "Measure 1"))),
+                            Section(
+                                accNo = "SMP-2",
+                                type = "Sample",
+                                attributes = listOf(Attribute("Title", "Sample2"), Attribute("Desc", "Measure 2")))
+                        )))
+                    )))
         }
     }
 

@@ -7,11 +7,10 @@ import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.Link
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Test
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
 class LinkDeserializerTest {
-
     private val testInstance = JsonSerializer.mapper
 
     @Test
@@ -28,7 +27,8 @@ class LinkDeserializerTest {
         }.toString()
 
         val exception = assertThrows<IllegalArgumentException> { testInstance.deserialize<Link>(invalidJson) }
-        assertThat(exception.message).isEqualTo("Expecting node: '{\"url\":[1,2,3]}', property: 'url' to be of type 'TextNode' but 'ArrayNode' find instead")
+        assertThat(exception.message).isEqualTo(
+            "Expecting node: '{\"url\":[1,2,3]}', property: 'url' to be of type 'TextNode' but 'ArrayNode' find instead")
     }
 
     @Test
@@ -42,8 +42,9 @@ class LinkDeserializerTest {
         }.toString()
 
         val link = testInstance.deserialize<Link>(linkJson)
-        assertThat(link.url).isEqualTo("a url")
-        assertThat(link.attributes).containsExactly(Attribute("attr name", "attr value"))
+        val expected = Link("a url", attributes = listOf(Attribute("attr name", "attr value")))
+
+        assertThat(link).isEqualTo(expected)
     }
 
     @Test
@@ -53,7 +54,7 @@ class LinkDeserializerTest {
         }.toString()
 
         val link = testInstance.deserialize<Link>(linkJson)
-        assertThat(link.url).isEqualTo("a url")
-        assertThat(link.attributes).isEmpty()
+
+        assertThat(link).isEqualTo(Link("a url"))
     }
 }

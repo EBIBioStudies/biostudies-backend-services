@@ -5,7 +5,7 @@ import ebi.ac.uk.dsl.attribute
 import ebi.ac.uk.dsl.section
 import ebi.ac.uk.dsl.submission
 import ebi.ac.uk.model.Submission
-import org.junit.Test
+import org.junit.jupiter.api.Test
 import org.redundent.kotlin.xml.xml
 import org.xmlunit.assertj.XmlAssert.assertThat
 
@@ -19,7 +19,6 @@ private const val SEC_TYPE = "Study"
 private const val SEC_ACC_NO = "SEC-123"
 
 class SubmissionSerializerTest {
-
     private val testInstance = XmlSerializer()
 
     private val testSubmission: Submission = submission(ACC_NO) {

@@ -11,10 +11,9 @@ import ebi.ac.uk.model.constants.SubFields
 import ebi.ac.uk.model.extensions.rootPath
 import ebi.ac.uk.model.extensions.title
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Test
+import org.junit.jupiter.api.Test
 
 class SimpleSubmissionTsvParserTest {
-
     private val testInstance: TsvToStringSerializer = TsvToStringSerializer()
 
     @Test
@@ -23,20 +22,21 @@ class SimpleSubmissionTsvParserTest {
         val tsvString = testInstance.serialize(sub)
 
         val expected = tsv {
-            line(ACC_NO_KEY, "S-IHECRE00000919.1", "Public")
-            line(SubFields.RELEASE_TIME, "2015-02-20T06:30:00Z")
+            line(ACC_NO_KEY, "S-IHECRE00000919.1")
+            line(SubFields.RELEASE_DATE, "2015-02-20T06:30:00Z")
             line(ROOT_PATH_KEY, sub.rootPath!!)
             line(TITLE_KEY, sub.title!!)
             line("DataSource", "BLUEPRINT")
             line("AttachTo", "blueprint")
             line()
 
-            line("Study")
+            line("Study", "SECT-001")
             line("Title", "venous blood, Monocyte")
             line("Project", "CEEHRC (McGill)")
             line("Status", "Incomplete")
             line("Organism", "Homo sapiens")
             line("Tissue type", "venous blood")
+            line("(Tissue)", "Blood")
             line("[Ontology]", "UBERON")
             line("Donor ID", "McGill0139")
             line("Biomaterial Type", "primary cells")
@@ -51,11 +51,23 @@ class SimpleSubmissionTsvParserTest {
             line("Type", "EpiRR")
             line()
 
+            line("File", "TestData.csv")
+            line("Type", "data")
+            line()
+
             line("Stranded Total RNA-Seq")
             line()
 
             line("Links", "Type", "Assay type", "Experiment type", "Primary id")
             line("EGAD00001001282", "EGA", "RNA-Seq", "Stranded Total RNA-Seq", "EGAX00001273202")
+            line()
+
+            line("Files", "Type")
+            line("Results.xls", "Results File")
+            line()
+
+            line("Data[]")
+            line("DT-1")
             line()
         }.toString()
 
