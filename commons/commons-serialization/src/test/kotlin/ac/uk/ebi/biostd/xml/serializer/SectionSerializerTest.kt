@@ -8,7 +8,7 @@ import ebi.ac.uk.dsl.file
 import ebi.ac.uk.dsl.link
 import ebi.ac.uk.dsl.section
 import ebi.ac.uk.model.extensions.type
-import org.junit.Test
+import org.junit.jupiter.api.Test
 import org.redundent.kotlin.xml.xml
 import org.xmlunit.assertj.XmlAssert.assertThat
 

@@ -7,11 +7,10 @@ import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.AttributeDetail
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Test
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
 class AttributeDeserializerTest {
-
     private val testInstance = JsonSerializer.mapper
 
     @Test
@@ -28,7 +27,8 @@ class AttributeDeserializerTest {
         }.toString()
 
         val exception = assertThrows<IllegalArgumentException> { testInstance.deserialize<Attribute>(invalidJson) }
-        assertThat(exception.message).isEqualTo("Expecting node: '{\"name\":[1,2,3]}', property: 'name' to be of type 'TextNode' but 'ArrayNode' find instead")
+        assertThat(exception.message).isEqualTo(
+            "Expecting node: '{\"name\":[1,2,3]}', property: 'name' to be of type 'TextNode' but 'ArrayNode' find instead")
     }
 
     @Test
@@ -63,7 +63,7 @@ class AttributeDeserializerTest {
                 "name" to valDetails.name
                 "value" to valDetails.value
             })
-            "namequal" to jsonArray({
+            "nmqual" to jsonArray({
                 "name" to nameDetails.name
                 "value" to nameDetails.value
             })

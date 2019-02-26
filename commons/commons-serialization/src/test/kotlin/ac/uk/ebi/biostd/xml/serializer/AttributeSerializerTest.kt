@@ -3,7 +3,7 @@ package ac.uk.ebi.biostd.xml.serializer
 import ac.uk.ebi.biostd.xml.XmlSerializer
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.AttributeDetail
-import org.junit.Test
+import org.junit.jupiter.api.Test
 import org.redundent.kotlin.xml.xml
 import org.xmlunit.assertj.XmlAssert.assertThat
 
@@ -12,7 +12,6 @@ private const val ATTR_VALUE = "blue"
 private val TERMS = mutableListOf(AttributeDetail("name", "value"))
 
 class AttributeSerializerTest {
-
     private val testInstance = XmlSerializer.mapper
 
     private val attribute = Attribute(name = ATTR_NAME, value = ATTR_VALUE, nameAttrs = TERMS, valueAttrs = TERMS)

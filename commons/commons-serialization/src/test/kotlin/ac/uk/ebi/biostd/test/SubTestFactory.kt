@@ -46,7 +46,7 @@ fun createVenousBloodMonocyte() = submission("S-IHECRE00000919.1") {
             attribute(name = "Type", value = "EpiRR")
         }
 
-        file("TesData.csv") {
+        file("TestData.csv") {
             attribute("Type", "data")
         }
 

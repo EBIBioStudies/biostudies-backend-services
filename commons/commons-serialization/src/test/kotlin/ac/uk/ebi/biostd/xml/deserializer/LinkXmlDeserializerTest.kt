@@ -5,7 +5,7 @@ import ac.uk.ebi.biostd.xml.deserializer.TestDeserializerFactory.Companion.linkX
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.Link
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Test
+import org.junit.jupiter.api.Test
 import org.redundent.kotlin.xml.xml
 
 class LinkXmlDeserializerTest {
