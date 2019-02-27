@@ -15,18 +15,22 @@ import ebi.ac.uk.model.User
 import ebi.ac.uk.model.constants.SubFields
 import ebi.ac.uk.model.constants.SubFields.ATTACH_TO
 import ebi.ac.uk.persistence.PersistenceContext
+import javax.transaction.Transactional
 
-class PersistenceContextImpl(
+open class PersistenceContextImpl(
     private val subRepository: SubmissionDataRepository,
     private val sequenceRepository: SequenceDataRepository,
     private val subDbMapper: SubmissionDbMapper,
     private val subMapper: SubmissionMapper
 ) : PersistenceContext {
 
-    // TODO make this thread safe!
-    override fun getSequenceNextValue(pattern: AccPattern) =
-        sequenceRepository.save(
-            sequenceRepository.getByPrefixAndSuffix(pattern.prefix, pattern.postfix).apply { counter++ }).id
+    @Transactional
+    override fun getSequenceNextValue(pattern: AccPattern): Long {
+        val sequence = sequenceRepository.getByPrefixAndSuffix(pattern.prefix, pattern.postfix)
+        sequence.counter = sequence.counter + 1
+        sequenceRepository.save(sequence)
+        return sequence.id
+    }
 
     override fun getParentAccessTags(submission: Submission) =
         getParentSubmission(submission)
@@ -52,6 +56,10 @@ class PersistenceContextImpl(
     }
 
     override fun canSubmit(accNo: String, user: User): Boolean {
+        return true
+    }
+
+    override fun canDelete(accNo: String, user: User): Boolean {
         return true
     }
 

@@ -28,7 +28,7 @@ import org.springframework.test.annotation.DirtiesContext
 private const val GROUP_NAME = "Bio-test-group"
 
 @ExtendWith(TemporaryFolderExtension::class)
-internal class GroupFilesTest(private val tempFolder: TemporaryFolder) : BaseIntegrationTest(tempFolder) {
+internal class GroupFilesApiTest(private val tempFolder: TemporaryFolder) : BaseIntegrationTest(tempFolder) {
 
     @Nested
     @TestInstance(PER_CLASS)

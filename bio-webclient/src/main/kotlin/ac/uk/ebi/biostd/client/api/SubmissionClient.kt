@@ -25,6 +25,8 @@ internal class SubmissionClient(
     override fun submitSingle(submission: String, format: SubmissionFormat) =
         submitSingle(HttpEntity(submission, createHeaders(format)), format)
 
+    override fun deleteSubmission(accNo: String) = template.delete("$SUBMISSIONS_URL/$accNo")
+
     private fun submitSingle(request: HttpEntity<String>, format: SubmissionFormat) =
             template.postForEntity(SUBMISSIONS_URL, request, String::class.java)
                     .map { body -> serializationService.deserializeSubmission(body, format.asSubFormat()) }

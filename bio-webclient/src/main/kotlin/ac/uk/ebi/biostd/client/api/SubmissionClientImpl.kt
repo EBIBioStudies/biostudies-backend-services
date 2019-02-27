@@ -12,7 +12,7 @@ internal class SubmissionClientImpl(
     private val serializationService: SerializationService,
     private val restTemplate: RestTemplate
 ) : SubmissionClient,
-        FilesOperations by UserFilesClient(restTemplate),
-        GroupFilesOperations by GroupFilesClient(restTemplate),
-        SubmissionOperations by SubmissionClient(restTemplate, serializationService),
-        MultipartSubmissionOperations by MultiPartSubmissionClient(restTemplate, serializationService)
+    FilesOperations by UserFilesClient(restTemplate),
+    GroupFilesOperations by GroupFilesClient(restTemplate),
+    SubmissionOperations by SubmissionClient(restTemplate, serializationService),
+    MultipartSubmissionOperations by MultiPartSubmissionClient(restTemplate, serializationService)

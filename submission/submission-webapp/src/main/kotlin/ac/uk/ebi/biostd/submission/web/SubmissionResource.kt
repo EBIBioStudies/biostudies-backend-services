@@ -7,9 +7,10 @@ import ebi.ac.uk.model.constants.APPLICATION_JSON
 import ebi.ac.uk.model.constants.SUBMISSION_TYPE
 import ebi.ac.uk.model.constants.TEXT_PLAIN
 import ebi.ac.uk.model.constants.TEXT_XML
-import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpHeaders.CONTENT_TYPE
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.annotation.AuthenticationPrincipal
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -26,8 +27,8 @@ class SubmissionResource(
 ) {
 
     @GetMapping("/{accNo}.json",
-            produces = [APPLICATION_JSON],
-            headers = ["${HttpHeaders.CONTENT_TYPE}=$APPLICATION_JSON", "$SUBMISSION_TYPE=$APPLICATION_JSON"])
+        produces = [APPLICATION_JSON],
+        headers = ["$CONTENT_TYPE=$APPLICATION_JSON", "$SUBMISSION_TYPE=$APPLICATION_JSON"])
     @ResponseBody
     fun asJson(@PathVariable accNo: String) = submissionService.getSubmissionAsJson(accNo)
 
@@ -40,5 +41,9 @@ class SubmissionResource(
     @PostMapping
     @ResponseBody
     fun submit(@AuthenticationPrincipal user: User, @RequestBody submission: Submission) =
-            submissionService.submit(submission, user)
+        submissionService.submit(submission, user)
+
+    @DeleteMapping("/{accNo}")
+    fun deleteSubmission(@AuthenticationPrincipal user: User, @PathVariable accNo: String) =
+        submissionService.deleteSubmission(accNo, user)
 }

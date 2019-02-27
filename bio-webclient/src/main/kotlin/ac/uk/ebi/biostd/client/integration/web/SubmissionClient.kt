@@ -12,7 +12,11 @@ import ebi.ac.uk.model.Submission
 import org.springframework.http.ResponseEntity
 import java.io.File
 
-interface SubmissionClient : SubmissionOperations, FilesOperations, GroupFilesOperations, MultipartSubmissionOperations
+interface SubmissionClient :
+    SubmissionOperations,
+    FilesOperations,
+    GroupFilesOperations,
+    MultipartSubmissionOperations
 
 interface FilesOperations {
 
@@ -41,6 +45,8 @@ interface SubmissionOperations {
     fun submitSingle(submission: Submission, format: SubmissionFormat = JSON): ResponseEntity<Submission>
 
     fun submitSingle(submission: String, format: SubmissionFormat = JSON): ResponseEntity<Submission>
+
+    fun deleteSubmission(accNo: String)
 }
 
 interface MultipartSubmissionOperations {

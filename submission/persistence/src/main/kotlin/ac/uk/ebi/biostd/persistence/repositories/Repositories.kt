@@ -10,7 +10,9 @@ import ac.uk.ebi.biostd.persistence.model.UserGroup
 import org.springframework.data.jpa.repository.EntityGraph
 import org.springframework.data.jpa.repository.EntityGraph.EntityGraphType.LOAD
 import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.jpa.repository.Lock
 import java.util.Optional
+import javax.persistence.LockModeType
 
 interface SubmissionDataRepository : JpaRepository<Submission, Long> {
 
@@ -18,6 +20,9 @@ interface SubmissionDataRepository : JpaRepository<Submission, Long> {
     fun getByAccNoAndVersionGreaterThan(id: String, long: Int = 0): Submission
 
     fun findByAccNoAndVersionGreaterThan(id: String, long: Int = 0): Submission?
+
+    @EntityGraph(value = FULL_DATA_GRAPH, type = LOAD)
+    fun getFirstByAccNoOrderByVersionDesc(accNo: String): Submission
 
     fun existsByAccNo(accNo: String): Boolean
 }
@@ -29,6 +34,7 @@ interface TagsDataRepository : JpaRepository<AccessTag, Long> {
 
 interface SequenceDataRepository : JpaRepository<Sequence, Long> {
 
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
     fun getByPrefixAndSuffix(prefix: String, suffix: String): Sequence
 }
 

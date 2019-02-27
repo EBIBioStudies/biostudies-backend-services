@@ -21,18 +21,23 @@ class SubmissionService(
 ) {
 
     fun getSubmissionAsJson(accNo: String): String {
-        val submission = submissionRepository.findByAccNo(accNo)
+        val submission = submissionRepository.getByAccNo(accNo)
         return jsonSerializer.serialize(submission)
     }
 
     fun getSubmissionAsXml(accNo: String): String {
-        val submission = submissionRepository.findByAccNo(accNo)
+        val submission = submissionRepository.getByAccNo(accNo)
         return xmlSerializer.serialize(submission)
     }
 
     fun getSubmissionAsTsv(accNo: String): String {
-        val submission = submissionRepository.findByAccNo(accNo)
+        val submission = submissionRepository.getByAccNo(accNo)
         return tsvSerializer.serialize(submission)
+    }
+
+    fun deleteSubmission(accNo: String, user: User) {
+        require(persistenceContext.canDelete(accNo, user))
+        submissionRepository.expireSubmission(accNo)
     }
 
     fun submit(
