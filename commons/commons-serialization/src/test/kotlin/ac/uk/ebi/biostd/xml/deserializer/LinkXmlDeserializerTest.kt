@@ -14,7 +14,7 @@ class LinkXmlDeserializerTest {
     @Test
     fun `deserialize link`() {
         val xmlLink = createXmlDocument(
-            xml("file") {
+            xml("link") {
                 "url" { -"http://arandomurl.org" }
                 "attributes" {
                     "attribute" {
@@ -31,7 +31,7 @@ class LinkXmlDeserializerTest {
     @Test
     fun `deserialize link without attributes`() {
         val xmlLink = createXmlDocument(
-            xml("file") {
+            xml("link") {
                 "url" { -"http://arandomurl.org" }
             }.toString())
 

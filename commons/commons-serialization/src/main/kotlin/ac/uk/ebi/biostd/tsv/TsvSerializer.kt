@@ -12,6 +12,8 @@ class TsvSerializer(
 
     fun <T> serialize(element: T) = tsvSerializer.serialize(element)
 
+    fun <T> deserializeElement(pageTab: String, type: Class<out T>) = tsvDeserializer.deserializeElement(pageTab, type)
+
     fun deserialize(submission: String) = tsvDeserializer.deserialize(submission)
 
     fun deserializeList(submissions: String) = submissions.splitIgnoringEmpty(SUB_SEPARATOR).map(::deserialize)

@@ -18,7 +18,7 @@ abstract class BaseXmlDeserializer<T : Any> {
     fun <B : Table<T>> deserializeTableList(node: Node?, leftTag: String, tableBuilder: (List<T>) -> B) =
         node?.getSubNodes().orEmpty().mapTo(mutableListOf()) { deserializeTable(it, leftTag, tableBuilder) }
 
-    private fun <B : Table<T>> deserializeTable(node: Node, leftTag: String, tableBuilder: (List<T>) -> B): Either<T, B> {
+    internal fun <B : Table<T>> deserializeTable(node: Node, leftTag: String, tableBuilder: (List<T>) -> B): Either<T, B> {
         return when (node.nodeName) {
             leftTag -> Either.left(deserialize(node))
             OtherFields.TABLE.value -> Either.right(tableBuilder(deserializeList(node)))

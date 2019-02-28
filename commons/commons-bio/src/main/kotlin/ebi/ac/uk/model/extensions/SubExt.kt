@@ -46,3 +46,4 @@ var Submission.title: String?
 
 fun Submission.allFiles() = section.allFiles() + section.allSections().flatMap { it.allFiles() }
 fun Submission.getSectionByType(name: String) = section.allSections().first { it.type == name }
+fun Submission.libFileSections() = (section.allSections() + section).filterNot { it.libraryFile.isNullOrBlank() }

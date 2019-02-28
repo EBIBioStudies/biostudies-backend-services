@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.xml.deserializer
 
 import ac.uk.ebi.biostd.xml.deserializer.common.BaseXmlDeserializer
 import ebi.ac.uk.model.Link
+import ebi.ac.uk.model.LinksTable
 import ebi.ac.uk.model.constants.LinkFields
 import org.w3c.dom.Node
 
@@ -14,4 +15,6 @@ class LinkXmlDeserializer(private val attributeXmlDeserializer: AttributeXmlDese
             attributes = attributeXmlDeserializer.deserializeList(node.findNode(LinkFields.ATTRIBUTES))
         )
     }
+
+    fun deserializeLinksTable(node: Node) = deserializeTable(node, LinkFields.LINK.value, ::LinksTable)
 }

@@ -7,6 +7,8 @@ import ac.uk.ebi.biostd.xml.deserializer.FileXmlDeserializer
 import ac.uk.ebi.biostd.xml.deserializer.LinkXmlDeserializer
 import ac.uk.ebi.biostd.xml.deserializer.SectionXmlDeserializer
 import ac.uk.ebi.biostd.xml.deserializer.SubmissionXmlDeserializer
+import ac.uk.ebi.biostd.xml.deserializer.exception.InvalidXmlPageTabElementException
+import ac.uk.ebi.biostd.xml.deserializer.exception.UnexpectedXmlPageTabElementException
 import ac.uk.ebi.biostd.xml.serializer.AttributeSerializer
 import ac.uk.ebi.biostd.xml.serializer.FileSerializer
 import ac.uk.ebi.biostd.xml.serializer.LinkSerializer
@@ -22,31 +24,46 @@ import com.fasterxml.jackson.dataformat.xml.XmlMapper
 import com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.File
+import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.model.Link
+import ebi.ac.uk.model.LinksTable
 import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.Table
+import ebi.ac.uk.util.collections.ifRight
 import org.xml.sax.InputSource
 import java.io.StringReader
 import javax.xml.parsers.DocumentBuilderFactory
 
 class XmlSerializer {
+    fun <T> serialize(element: T): String = mapper.writeValueAsString(element)
 
-    fun <T> serialize(element: T): String {
-        return mapper.writeValueAsString(element)
-    }
+    fun deserialize(value: String) = deserialize(value, Submission::class.java)
 
-    fun deserialize(value: String): Submission {
-        return deserializer.deserialize(
-            DocumentBuilderFactory
-                .newInstance()
-                .newDocumentBuilder()
-                .parse(InputSource(StringReader(value))).documentElement)
+    fun <T> deserialize(element: String, type: Class<out T>): T {
+        var deserialized: Any? = null
+        val xml = buildXmlFile(element)
+        val attributeDeserializer = AttributeXmlDeserializer(DetailsXmlDeserializer())
+        val filesDeserializer = FileXmlDeserializer(attributeDeserializer)
+        val linksDeserializer = LinkXmlDeserializer(attributeDeserializer)
+        val sectionDeserializer = SectionXmlDeserializer(attributeDeserializer, linksDeserializer, filesDeserializer)
+        val submissionDeserializer = SubmissionXmlDeserializer(attributeDeserializer, sectionDeserializer)
+
+        when (type) {
+            File::class.java -> deserialized = filesDeserializer.deserialize(xml)
+            Link::class.java -> deserialized = linksDeserializer.deserialize(xml)
+            Section::class.java -> deserialized = sectionDeserializer.deserialize(xml)
+            Submission::class.java -> deserialized = submissionDeserializer.deserialize(xml)
+            FilesTable::class.java -> filesDeserializer.deserializeFilesTable(xml).ifRight { deserialized = it }
+            LinksTable::class.java -> linksDeserializer.deserializeLinksTable(xml).ifRight { deserialized = it }
+            else -> throw InvalidXmlPageTabElementException()
+        }
+
+        return type.cast(deserialized) ?: throw UnexpectedXmlPageTabElementException()
     }
 
     companion object {
         val mapper: XmlMapper = createMapper()
-        val deserializer: SubmissionXmlDeserializer = createSubDeserializer()
 
         private fun createMapper(): XmlMapper {
             val module = JacksonXmlModule().apply {
@@ -68,14 +85,11 @@ class XmlSerializer {
                 configure(ToXmlGenerator.Feature.WRITE_XML_DECLARATION, true)
             }
         }
-
-        private fun createSubDeserializer(): SubmissionXmlDeserializer {
-            val attributeDeserializer = AttributeXmlDeserializer(DetailsXmlDeserializer())
-            val sectionXmlDeserializer = SectionXmlDeserializer(
-                attributeDeserializer,
-                LinkXmlDeserializer(attributeDeserializer),
-                FileXmlDeserializer(attributeDeserializer))
-            return SubmissionXmlDeserializer(attributeDeserializer, sectionXmlDeserializer)
-        }
     }
+
+    private fun buildXmlFile(value: String) =
+        DocumentBuilderFactory
+            .newInstance()
+            .newDocumentBuilder()
+            .parse(InputSource(StringReader(value))).documentElement
 }

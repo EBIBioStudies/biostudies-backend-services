@@ -16,6 +16,7 @@ import ac.uk.ebi.biostd.tsv.deserialization.model.SectionTableChunk
 import ac.uk.ebi.biostd.tsv.deserialization.model.SubSectionChunk
 import ac.uk.ebi.biostd.tsv.deserialization.model.SubSectionTableChunk
 import ac.uk.ebi.biostd.tsv.deserialization.model.TsvChunk
+import ac.uk.ebi.biostd.validation.InvalidChunkException
 import ac.uk.ebi.biostd.validation.InvalidElementException
 import ac.uk.ebi.biostd.validation.REQUIRED_ROOT_SECTION
 import ebi.ac.uk.base.like
@@ -44,6 +45,20 @@ class ChunkProcessor {
             accNo = tsvChunk.findId(),
             type = type,
             attributes = toAttributes(tsvChunk.lines))
+    }
+
+    fun processIsolatedChunk(chunk: TsvChunk): Any {
+        val element: Any
+
+        when (chunk) {
+            is LinkChunk -> element = chunk.asLink()
+            is FileChunk -> element = chunk.asFile()
+            is LinksTableChunk -> element = chunk.asTable()
+            is FileTableChunk -> element = chunk.asTable()
+            else -> throw InvalidChunkException(chunk)
+        }
+
+        return element
     }
 
     fun processChunk(chunk: TsvChunk, sectionContext: TsvSerializationContext) {
