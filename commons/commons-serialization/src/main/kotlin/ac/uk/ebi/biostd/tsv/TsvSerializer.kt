@@ -12,7 +12,10 @@ class TsvSerializer(
 
     fun <T> serialize(element: T) = tsvSerializer.serialize(element)
 
-    fun <T> deserializeElement(pageTab: String, type: Class<out T>) = tsvDeserializer.deserializeElement(pageTab, type)
+    inline fun <reified T> deserializeElement(pageTab: String) = deserializeElement(pageTab, T::class.java)
+
+    fun <T> deserializeElement(pageTab: String, type: Class<out T>) =
+        tsvDeserializer.deserializeElement(pageTab, type::class.java)
 
     fun deserialize(submission: String) = tsvDeserializer.deserialize(submission)
 

@@ -19,9 +19,8 @@ import ac.uk.ebi.biostd.test.submissionWithTableWithLessAttributes
 import ac.uk.ebi.biostd.test.submissionWithTableWithMoreAttributes
 import ac.uk.ebi.biostd.test.submissionWithTableWithNoRows
 import ac.uk.ebi.biostd.tsv.deserialization.TsvDeserializer
-import ac.uk.ebi.biostd.validation.EMPTY_ELEMENT_ERROR_MSG
 import ac.uk.ebi.biostd.validation.INVALID_TABLE_ROW
-import ac.uk.ebi.biostd.validation.InvalidChunkException
+import ac.uk.ebi.biostd.validation.InvalidChunkSizeException
 import ac.uk.ebi.biostd.validation.InvalidElementException
 import ac.uk.ebi.biostd.validation.MISPLACED_ATTR_NAME
 import ac.uk.ebi.biostd.validation.MISPLACED_ATTR_VAL
@@ -305,14 +304,37 @@ class TsvDeserializerTest {
             line()
         }.toString()
 
-        assertThrows<InvalidChunkException> { deserializer.deserializeElement(tsv, Submission::class.java) }
+        assertThrows<NotImplementedError> { deserializer.deserializeElement(tsv, Submission::class.java) }
     }
 
     @Test
-    fun `empty single element`() {
-        val exception = assertThrows<InvalidElementException> { deserializer.deserializeElement("", File::class.java) }
+    fun `invalid processing class`() {
+        val tsv = tsv {
+            line("Links", "Attr")
+            line("http://alink.org", "Value")
+            line()
+        }.toString()
 
-        assertThat(exception).hasMessage(EMPTY_ELEMENT_ERROR_MSG)
+        assertThrows<ClassCastException> { deserializer.deserializeElement(tsv, File::class.java) }
+    }
+
+    @Test
+    fun `empty single element`() =
+        assertThrows<InvalidChunkSizeException> { deserializer.deserializeElement("", File::class.java) }
+
+    @Test
+    fun `invalid chunk size`() {
+        val tsv = tsv {
+            line("Links", "Attr")
+            line("http://alink.org", "Value")
+            line()
+
+            line("Links", "Attr")
+            line("http://otherlink.org", "Value")
+            line()
+        }.toString()
+
+        assertThrows<InvalidChunkSizeException> { deserializer.deserializeElement(tsv, Link::class.java) }
     }
 
     @Test

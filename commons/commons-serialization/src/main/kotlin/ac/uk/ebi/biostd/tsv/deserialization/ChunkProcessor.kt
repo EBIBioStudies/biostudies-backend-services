@@ -47,18 +47,13 @@ class ChunkProcessor {
             attributes = toAttributes(tsvChunk.lines))
     }
 
-    fun processIsolatedChunk(chunk: TsvChunk): Any {
-        val element: Any
-
-        when (chunk) {
-            is LinkChunk -> element = chunk.asLink()
-            is FileChunk -> element = chunk.asFile()
-            is LinksTableChunk -> element = chunk.asTable()
-            is FileTableChunk -> element = chunk.asTable()
-            else -> throw InvalidChunkException(chunk)
-        }
-
-        return element
+    inline fun <reified T> processIsolatedChunk(chunk: TsvChunk) = when (chunk) {
+        is SectionChunk -> TODO("Implement section chunk isolated deserialization")
+        is LinkChunk -> chunk.asLink() as T
+        is FileChunk -> chunk.asFile() as T
+        is LinksTableChunk -> chunk.asTable() as T
+        is FileTableChunk -> chunk.asTable() as T
+        else -> throw InvalidChunkException(chunk)
     }
 
     fun processChunk(chunk: TsvChunk, sectionContext: TsvSerializationContext) {

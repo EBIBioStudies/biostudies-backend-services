@@ -11,8 +11,7 @@ import ac.uk.ebi.biostd.tsv.deserialization.model.SubSectionChunk
 import ac.uk.ebi.biostd.tsv.deserialization.model.SubSectionTableChunk
 import ac.uk.ebi.biostd.tsv.deserialization.model.TsvChunk
 import ac.uk.ebi.biostd.tsv.deserialization.model.TsvChunkLine
-import ac.uk.ebi.biostd.validation.EMPTY_ELEMENT_ERROR_MSG
-import ac.uk.ebi.biostd.validation.InvalidElementException
+import ac.uk.ebi.biostd.validation.InvalidChunkSizeException
 import ebi.ac.uk.base.like
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.constants.FileFields
@@ -41,11 +40,9 @@ class TsvDeserializer(private val chunkProcessor: ChunkProcessor = ChunkProcesso
 
     fun <T> deserializeElement(pageTab: String, type: Class<out T>): T {
         val chunks: MutableList<TsvChunk> = chunkerize(pageTab)
-        chunks.ifEmpty { throw InvalidElementException(EMPTY_ELEMENT_ERROR_MSG) }
+        require(chunks.size == 1) { throw InvalidChunkSizeException() }
 
-        val element = chunkProcessor.processIsolatedChunk(chunks.first())
-
-        return type.cast(element)
+        return type.cast(chunkProcessor.processIsolatedChunk(chunks.first()))
     }
 
     private fun chunkerize(pagetab: String) =

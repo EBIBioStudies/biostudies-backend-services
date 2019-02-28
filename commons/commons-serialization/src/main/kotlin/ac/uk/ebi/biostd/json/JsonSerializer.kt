@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PRO
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.File
 import ebi.ac.uk.model.FilesTable
@@ -41,9 +42,7 @@ class JsonSerializer {
             mapper.writeValueAsString(element)
     }
 
-    inline fun <reified T> deserialize(value: String): T {
-        return mapper.readValue(value, T::class.java)
-    }
+    inline fun <reified T> deserialize(value: String) = mapper.readValue<T>(value)
 
     companion object {
         val mapper = createMapper()
