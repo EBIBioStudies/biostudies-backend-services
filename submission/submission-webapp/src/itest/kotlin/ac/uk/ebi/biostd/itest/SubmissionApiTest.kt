@@ -9,13 +9,10 @@ import ac.uk.ebi.biostd.files.FileConfig
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
 import ac.uk.ebi.biostd.itest.entities.GenericUser
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
-import arrow.core.Either
 import ebi.ac.uk.api.security.RegisterRequest
 import ebi.ac.uk.asserts.assertThat
-import ebi.ac.uk.dsl.file
-import ebi.ac.uk.dsl.section
-import ebi.ac.uk.dsl.submission
-import ebi.ac.uk.model.File
+import ebi.ac.uk.model.Submission
+import ebi.ac.uk.model.constants.SubFields
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
@@ -30,11 +27,9 @@ import org.springframework.context.annotation.Import
 import org.springframework.http.HttpStatus
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
-import java.nio.file.Paths
 
 @ExtendWith(TemporaryFolderExtension::class)
-internal class MultipartSubmissionTest(private val tempFolder: TemporaryFolder) : BaseIntegrationTest(tempFolder) {
-
+internal class SubmissionApiTest(tempFolder: TemporaryFolder) : BaseIntegrationTest(tempFolder) {
     @Nested
     @ExtendWith(SpringExtension::class)
     @Import(value = [SubmitterConfig::class, PersistenceConfig::class, FileConfig::class])
@@ -55,28 +50,34 @@ internal class MultipartSubmissionTest(private val tempFolder: TemporaryFolder) 
         }
 
         @Test
-        fun `submit multipart JSON submission`() {
-            val fileName = "DataFile1.txt"
+        fun `submit simple submission`() {
             val accNo = "SimpleAcc1"
+            val title = "Simple Submission"
+            val submission = Submission(accNo = accNo)
+            submission[SubFields.TITLE] = title
 
-            val file = tempFolder.createFile(fileName)
-            val submission = submission(accNo) {
-                section(type = "Study") {
-                    file(fileName)
-                }
-            }
+            val response = webClient.submitSingle(submission, SubmissionFormat.XML)
 
-            val response = webClient.submitSingle(submission, SubmissionFormat.JSON, listOf(file))
             assertThat(response).isNotNull
             assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
-            assertThat(response.body).isNotNull
 
-            val createSubmission = submissionRepository.findExtendedByAccNo(accNo)
-            assertThat(createSubmission).hasAccNo(accNo)
-            assertThat(createSubmission.section.files).containsExactly(Either.left(File("DataFile1.txt")))
+            val savedSubmission = submissionRepository.getByAccNo(accNo)
+            assertThat(savedSubmission).isNotNull
+            assertThat(savedSubmission).isEqualTo(submission)
+        }
 
-            val submissionFolderPath = "$basePath/submission/${createSubmission.relPath}/Files"
-            assertThat(Paths.get("$submissionFolderPath/$fileName")).exists()
+        @Test
+        fun `submit and delete submission`() {
+            val accNo = "SimpleAcc2"
+            val title = "Simple Submission"
+            val submission = Submission(accNo = accNo)
+            submission[SubFields.TITLE] = title
+
+            webClient.submitSingle(submission, SubmissionFormat.JSON)
+            webClient.deleteSubmission(submission.accNo)
+
+            val storeSubmission = submissionRepository.getExtendedLastVersionByAccNo(accNo)
+            assertThat(storeSubmission.version).isEqualTo(-1)
         }
     }
 }

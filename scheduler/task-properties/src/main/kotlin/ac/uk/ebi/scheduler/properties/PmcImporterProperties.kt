@@ -4,26 +4,29 @@ import ac.uk.ebi.scheduler.common.BaseAppProperty
 
 class PmcImporterProperties() : BaseAppProperty {
 
-    override fun asJavaCommand(location: String): String {
-        return """java -jar $location/pmc-processor-task.jar \
-            --app.data.path=$path \
-            --app.data.mode=$mode \
-            --app.data.temp=$temp \
-            --app.data.mongodbUri=$mongodbUri \
-            --app.data.bioStudiesUrl=$bioStudiesUrl \
-            --app.data.bioStudiesUser=$bioStudiesUser \
-            --app.data.bioStudiesPassword=$bioStudiesPassword
-             """.trimIndent()
-    }
+    private val APP_NAME = "pmc-processor-task.jar"
+
+    override fun asJavaCommand(location: String) =
+        StringBuilder().apply {
+            append("java -jar $location/$APP_NAME \\\n")
+            append("--app.data.path=$path \\\n")
+            append("--app.data.mode=$mode \\\n")
+            append("--app.data.temp=$temp \\\n")
+            append("--app.data.mongodbUri=$mongodbUri \\\n")
+
+            bioStudiesUrl?.let { append("--app.data.bioStudiesUrl=$it \\\n") }
+            bioStudiesUser?.let { append("--app.data.bioStudiesUser=$it \\\n") }
+            bioStudiesPassword?.let { append("--app.data.bioStudiesPassword=$it \\\n") }
+        }.removeSuffix(" \\\n").toString()
 
     constructor(
         mode: PmcMode,
-        path: String,
+        path: String?,
         temp: String,
         mongodbUri: String,
-        bioStudiesUrl: String,
-        bioStudiesUser: String,
-        bioStudiesPassword: String
+        bioStudiesUrl: String? = null,
+        bioStudiesUser: String? = null,
+        bioStudiesPassword: String? = null
     ) : this() {
         this.mode = mode
         this.path = path
@@ -35,12 +38,12 @@ class PmcImporterProperties() : BaseAppProperty {
     }
 
     lateinit var mode: PmcMode
-    lateinit var path: String
     lateinit var temp: String
     lateinit var mongodbUri: String
-    lateinit var bioStudiesUrl: String
-    lateinit var bioStudiesUser: String
-    lateinit var bioStudiesPassword: String
+    var path: String? = null
+    var bioStudiesUrl: String? = null
+    var bioStudiesUser: String? = null
+    var bioStudiesPassword: String? = null
 }
 
 enum class PmcMode {

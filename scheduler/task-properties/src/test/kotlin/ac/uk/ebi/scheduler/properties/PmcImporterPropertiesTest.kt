@@ -1,0 +1,58 @@
+package ac.uk.ebi.scheduler.properties
+
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Test
+
+const val path = "/loadPath"
+const val tempDir = "/tempDir"
+const val mongodbUri = "mongodbUri"
+const val bioStudiesUrl = "http://an_url.com"
+const val bioStudiesUser = "user"
+const val bioStudiesPassword = "password"
+
+class PmcImporterPropertiesTest {
+
+    @Test
+    fun asJavaCommand() {
+        val properties = PmcImporterProperties(
+            mode = PmcMode.LOAD,
+            path = path,
+            temp = tempDir,
+            mongodbUri = mongodbUri,
+            bioStudiesUrl = bioStudiesUrl,
+            bioStudiesUser = bioStudiesUser,
+            bioStudiesPassword = bioStudiesPassword)
+
+        assertThat(properties.asJavaCommand("/apps-folder"))
+            .isEqualTo("""
+            java -jar /apps-folder/pmc-processor-task.jar \
+            --app.data.path=/loadPath \
+            --app.data.mode=LOAD \
+            --app.data.temp=/tempDir \
+            --app.data.mongodbUri=mongodbUri \
+            --app.data.bioStudiesUrl=http://an_url.com \
+            --app.data.bioStudiesUser=user \
+            --app.data.bioStudiesPassword=password
+            """.trimIndent())
+    }
+
+    @Test
+    fun `asJavaCommand when not biostudies configuration`() {
+        val properties = PmcImporterProperties(
+            mode = PmcMode.LOAD,
+            path = path,
+            temp = tempDir,
+            mongodbUri = mongodbUri,
+            bioStudiesUrl = null,
+            bioStudiesUser = null,
+            bioStudiesPassword = null)
+        assertThat(properties.asJavaCommand("/apps-folder"))
+            .isEqualTo("""
+            java -jar /apps-folder/pmc-processor-task.jar \
+            --app.data.path=/loadPath \
+            --app.data.mode=LOAD \
+            --app.data.temp=/tempDir \
+            --app.data.mongodbUri=mongodbUri
+            """.trimIndent())
+    }
+}

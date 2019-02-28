@@ -8,9 +8,19 @@ class SubmissionRepository(
     private val submissionDbMapper: SubmissionDbMapper = SubmissionDbMapper()
 ) {
 
-    fun findByAccNo(accNo: String) =
+    fun getByAccNo(accNo: String) =
         submissionDbMapper.toSubmission(submissionRepository.getByAccNoAndVersionGreaterThan(accNo))
 
-    fun findExtendedByAccNo(accNo: String) =
+    fun getExtendedByAccNo(accNo: String) =
         submissionDbMapper.toExtSubmission(submissionRepository.getByAccNoAndVersionGreaterThan(accNo))
+
+    fun getExtendedLastVersionByAccNo(accNo: String) =
+        submissionDbMapper.toExtSubmission(submissionRepository.getFirstByAccNoOrderByVersionDesc(accNo))
+
+    fun expireSubmission(accNo: String) {
+        submissionRepository.findByAccNoAndVersionGreaterThan(accNo)?.let {
+            it.version = -it.version
+            submissionRepository.save(it)
+        }
+    }
 }

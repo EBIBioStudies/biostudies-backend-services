@@ -2,7 +2,6 @@ package ac.uk.ebi.biostd.json.deserialization
 
 import ac.uk.ebi.biostd.ext.convertList
 import ac.uk.ebi.biostd.ext.findNode
-import ac.uk.ebi.biostd.ext.getNode
 import arrow.core.Either
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.core.type.TypeReference
@@ -31,7 +30,7 @@ class SectionJsonDeserializer : StdDeserializer<Section>(Section::class.java) {
 
         return Section(
             accNo = node.findNode<TextNode>(SectionFields.ACC_NO.value)?.textValue(),
-            type = node.getNode<TextNode>(SectionFields.TYPE.value).textValue(),
+            type = node.findNode<TextNode>(SectionFields.TYPE.value)?.textValue().orEmpty(),
             attributes = mapper.convertList(node.findNode<JsonNode?>(SectionFields.ATTRIBUTES.value)),
             links = mapper.convertList(node.findNode<JsonNode?>(SectionFields.LINKS.value), LinksType),
             files = mapper.convertList(node.findNode<JsonNode?>(SectionFields.FILES.value), FileType),

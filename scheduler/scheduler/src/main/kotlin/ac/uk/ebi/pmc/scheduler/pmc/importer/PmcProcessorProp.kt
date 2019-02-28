@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component
 
 @ConfigurationProperties(prefix = "pmc.import")
 @Component
-class SchedulerPmcImporterProp {
+class PmcProcessorProp {
 
     lateinit var temp: String
     lateinit var mongoUri: String

@@ -22,5 +22,7 @@ interface PersistenceContext {
 
     fun canSubmit(accNo: String, user: User): Boolean
 
+    fun canDelete(accNo: String, user: User): Boolean
+
     fun isNew(submission: ExtendedSubmission): Boolean
 }

@@ -8,6 +8,7 @@ import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.JavaType
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.convertValue
 
 /**
  * Try to convert the given node using the provided type, return an optional with conversion or emtpy if type could not
@@ -24,10 +25,13 @@ fun ObjectMapper.tryConvertValue(node: JsonNode, type: JavaType): Option<Any> {
 fun ObjectMapper.getListType(type: Class<*>) = typeFactory.constructCollectionType(List::class.java, type)!!
 
 /**
- * Convert the node to the list type of values.
+ * Null safe list converter. Convert the node to the list type of values. If node is not found empty mutable list
+ * is retrieved.
  */
 inline fun <reified T> ObjectMapper.convertList(node: JsonNode?) =
     if (node != null) convertValue(node, getListType(T::class.java)) else mutableListOf<T>()
+
+inline fun <reified T> ObjectMapper.convertNode(node: JsonNode?): T? = node?.let { convertValue(node) }
 
 inline fun <reified T> ObjectMapper.convertList(node: JsonNode?, sectionsType: TypeReference<*>) =
     if (node != null) convertValue(node, sectionsType) else mutableListOf<T>()

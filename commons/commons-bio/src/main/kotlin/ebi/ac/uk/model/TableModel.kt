@@ -32,13 +32,12 @@ sealed class Table<T : Any>(elements: List<T>) {
         _rows.add(row)
     }
 
-    override fun equals(other: Any?): Boolean {
-        if (other !is Table<*>) return false
-        if (this === other) return true
-        if (header != other.header) return false
-        if (_headers != other._headers) return false
-        if (_rows != other._rows) return false
-        return true
+    override fun equals(other: Any?) = when {
+        other !is Table<*> -> false
+        other === this -> true
+        else -> Objects.equals(header, other.header)
+            .and(Objects.equals(_headers, other._headers))
+            .and(Objects.equals(_rows, other._rows))
     }
 
     override fun hashCode() = Objects.hash(header, _headers, _rows)
@@ -46,10 +45,10 @@ sealed class Table<T : Any>(elements: List<T>) {
 
 class Header(val name: String, val termNames: List<String> = listOf(), val termValues: List<String> = listOf()) {
 
-    override fun equals(other: Any?): Boolean {
-        if (other !is Header) return false
-        if (this === other) return true
-        return name == other.name
+    override fun equals(other: Any?) = when {
+        other !is Header -> false
+        this === other -> true
+        else -> Objects.equals(name, other.name)
     }
 
     override fun hashCode() = Objects.hash(name)

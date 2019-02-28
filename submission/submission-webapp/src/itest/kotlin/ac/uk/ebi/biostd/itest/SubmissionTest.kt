@@ -22,9 +22,7 @@ import ebi.ac.uk.model.File
 import ebi.ac.uk.model.Link
 import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.SectionsTable
-import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.attributeDetails
-import ebi.ac.uk.model.constants.SubFields
 import ebi.ac.uk.model.extensions.title
 import ebi.ac.uk.util.collections.second
 import ebi.ac.uk.util.collections.third
@@ -46,6 +44,9 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.web.client.HttpClientErrorException
 import java.nio.file.Paths
 
+/**
+ * Integration test for submission in all formats using "all features includes" submission example.
+ */
 @ExtendWith(TemporaryFolderExtension::class)
 internal class SubmissionTest(private val tempFolder: TemporaryFolder) : BaseIntegrationTest(tempFolder) {
     @Nested
@@ -72,24 +73,6 @@ internal class SubmissionTest(private val tempFolder: TemporaryFolder) : BaseInt
             webClient.uploadFiles(listOf(tempFolder.createFile("DataFile1.txt"), tempFolder.createFile("DataFile2.txt")))
             webClient.uploadFiles(listOf(tempFolder.createFile("Folder1/DataFile3.txt")), "Folder1")
             webClient.uploadFiles(listOf(tempFolder.createFile("Folder1/Folder2/DataFile4.txt")), "Folder1/Folder2")
-        }
-
-        @Test
-        fun `submit simple submission`() {
-            val accNo = "SimpleAcc1"
-            val title = "Simple Submission"
-            val submission = Submission(accNo = accNo)
-            submission[SubFields.TITLE] = title
-
-            val response = webClient.submitSingle(submission, SubmissionFormat.XML)
-
-            assertThat(response).isNotNull
-            assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
-
-            val savedSubmission = submissionRepository.findByAccNo(accNo)
-            assertThat(savedSubmission).isNotNull
-            assertThat(savedSubmission.accNo).isEqualTo(accNo)
-            assertThat(savedSubmission.title).isEqualTo(title)
         }
 
         @Test
@@ -142,14 +125,14 @@ internal class SubmissionTest(private val tempFolder: TemporaryFolder) : BaseInt
         }
 
         private fun assertExtSubmission(accNo: String, expectedTitle: String, expectedVersion: Int = 1) {
-            val submission = submissionRepository.findExtendedByAccNo(accNo)
+            val submission = submissionRepository.getExtendedByAccNo(accNo)
 
             assertThat(submission.title).isEqualTo(expectedTitle)
             assertThat(submission.version).isEqualTo(expectedVersion)
         }
 
         private fun assertSavedSubmission(accNo: String) {
-            val submission = submissionRepository.findExtendedByAccNo(accNo)
+            val submission = submissionRepository.getExtendedByAccNo(accNo)
             assertThat(submission).hasAccNo(accNo)
             assertThat(submission).hasExactly(Attribute("Title", "venous blood, Monocyte"))
 

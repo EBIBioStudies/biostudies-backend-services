@@ -33,9 +33,9 @@ class EitherDeserializer : StdDeserializer<Either<*, *>>(Either::class.java), Co
     override fun deserialize(jp: JsonParser, ctxt: DeserializationContext): Either<*, *> {
         with(jp.codec as ObjectMapper) {
             val node: JsonNode = readTree(jp)
-            return tryConvertValue(node, leftType).map { Either.Left(it) }
-                .or(tryConvertValue(node, rightType).map { Either.Right(it) })
-                    .getOrElse { throw IllegalStateException("can not deserialize $node into $leftType neither $rightType") }
+            return tryConvertValue(node, rightType).map { Either.Right(it) }
+                .or(tryConvertValue(node, leftType).map { Either.Left(it) })
+                .getOrElse { throw IllegalStateException("can not deserialize $node into $leftType neither $rightType") }
         }
     }
 }
