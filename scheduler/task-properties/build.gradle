@@ -1,9 +1,10 @@
 import static Dependencies.KotlinStdLib
+import static TestDependencies.BaseTestCompileDependencies
+import static TestDependencies.BaseTestRuntimeDependencies
 
 dependencies {
     compile(KotlinStdLib)
-}
 
-repositories {
-    mavenCentral()
+    testCompile(BaseTestCompileDependencies)
+    testRuntime(BaseTestRuntimeDependencies)
 }

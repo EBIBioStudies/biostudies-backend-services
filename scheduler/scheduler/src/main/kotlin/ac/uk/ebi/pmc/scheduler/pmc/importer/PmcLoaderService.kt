@@ -14,12 +14,12 @@ private val logger = KotlinLogging.logger {}
 
 class PmcLoaderService(
     private val clusterOperations: ClusterOperations,
-    private val properties: SchedulerPmcImporterProp,
+    private val properties: PmcProcessorProp,
     private val appProperties: AppProperties
 ) {
 
     fun loadFile(file: File): Job {
-        logger.info { "submitting job to submit file ${file.absolutePath}" }
+        logger.info { "submitting job to load file ${file.absolutePath}" }
 
         val properties = getConfigProperties(file, PmcMode.LOAD)
         val jobTry = clusterOperations.triggerJob(
@@ -27,15 +27,26 @@ class PmcLoaderService(
                 8,
                 MemorySpec.SIXTEEN_GB,
                 properties.asJavaCommand(appProperties.appsFolder)))
-        return jobTry.fold({ throw it }, { it })
+        return jobTry.fold({ throw it }, { it.apply { logger.info { "submitted job $it" } } })
     }
 
-    private fun getConfigProperties(file: File, importMode: PmcMode) = PmcImporterProperties(
+    fun process() {
+        logger.info { "submitting job to process submissions" }
+        val properties = getConfigProperties(importMode = PmcMode.LOAD)
+        val jobTry = clusterOperations.triggerJob(
+            JobSpec(
+                8,
+                MemorySpec.SIXTEEN_GB,
+                properties.asJavaCommand(appProperties.appsFolder)))
+        return jobTry.fold({ throw it }, { it.apply { logger.info { "submitted job $it" } } })
+    }
+
+    private fun getConfigProperties(file: File? = null, importMode: PmcMode) = PmcImporterProperties(
         mode = importMode,
-        path = file.absolutePath,
+        path = file?.absolutePath,
         temp = properties.temp,
         mongodbUri = properties.mongoUri,
-        bioStudiesUrl = properties.bioStudiesUrl.orEmpty(),
-        bioStudiesUser = properties.bioStudiesUser.orEmpty(),
-        bioStudiesPassword = properties.bioStudiesPassword.orEmpty())
+        bioStudiesUrl = properties.bioStudiesUrl,
+        bioStudiesUser = properties.bioStudiesUser,
+        bioStudiesPassword = properties.bioStudiesPassword)
 }

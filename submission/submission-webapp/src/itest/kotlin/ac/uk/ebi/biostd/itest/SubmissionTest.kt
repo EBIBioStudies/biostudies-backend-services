@@ -45,7 +45,7 @@ import org.springframework.web.client.HttpClientErrorException
 import java.nio.file.Paths
 
 /**
- * Integration test for submission in all formats using "all feature includes" submission example.
+ * Integration test for submission in all formats using "all features includes" submission example.
  */
 @ExtendWith(TemporaryFolderExtension::class)
 internal class SubmissionTest(private val tempFolder: TemporaryFolder) : BaseIntegrationTest(tempFolder) {

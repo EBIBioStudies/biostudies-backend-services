@@ -13,7 +13,6 @@ import ebi.ac.uk.api.security.RegisterRequest
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.constants.SubFields
-import ebi.ac.uk.model.extensions.title
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
@@ -64,8 +63,7 @@ internal class SubmissionApiTest(tempFolder: TemporaryFolder) : BaseIntegrationT
 
             val savedSubmission = submissionRepository.getByAccNo(accNo)
             assertThat(savedSubmission).isNotNull
-            assertThat(savedSubmission.accNo).isEqualTo(accNo)
-            assertThat(savedSubmission.title).isEqualTo(title)
+            assertThat(savedSubmission).isEqualTo(submission)
         }
 
         @Test
