@@ -60,20 +60,13 @@ class Section(
 
     override fun compareTo(other: Section) = order.compareTo(other.order)
 
-    override fun equals(other: Any?): Boolean {
-        if (other !is Section) return false
-        if (this === other) return true
-
-        return Objects.equals(this.accNo, other.accNo)
+    override fun equals(other: Any?) = when {
+        (other !is Section) -> false
+        (this === other) -> true
+        else -> Objects.equals(this.accNo, other.accNo)
     }
 
     override fun hashCode(): Int {
         return Objects.hash(this.accNo, this.accNo)
     }
-}
-
-class LibraryFile {
-
-    private val name = "ACCNO.SECTION_ID.FILES"
-    var files: SortedSet<File> = sortedSetOf()
 }
