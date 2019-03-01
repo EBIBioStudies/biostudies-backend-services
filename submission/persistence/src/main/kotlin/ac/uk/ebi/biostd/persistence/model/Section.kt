@@ -38,6 +38,10 @@ class Section(
     @Convert(converter = NullableIntConverter::class)
     override var order: Int = 0
 
+    @Column
+    @JoinColumn(name = "sectionId")
+    var libraryFile: LibraryFile? = null
+
     @OneToMany(cascade = [CascadeType.ALL])
     @JoinColumn(name = "section_id")
     @OrderBy("order ASC")

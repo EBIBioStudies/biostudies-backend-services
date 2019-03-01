@@ -46,6 +46,38 @@ CREATE INDEX FK464kkuexjpycuic1n33q0yhe2 ON FileRef (sectionId);
 
 ALTER TABLE FileAttribute ADD CONSTRAINT FKek4om17ruuhrjo2gmirdxevay FOREIGN KEY (file_id) REFERENCES FileRef (id);
 
+CREATE TABLE ReferencedFileAttribute (
+    id                   BIGINT AUTO_INCREMENT PRIMARY KEY,
+    name                 LONGTEXT NULL,
+    nameQualifierString  LONGTEXT NULL,
+    reference            BIT      NOT NULL,
+    value                LONGTEXT NULL,
+    valueQualifierString LONGTEXT NULL,
+    referenced_file_id   BIGINT   NULL,
+    ord                  INT      NULL
+);
+
+CREATE INDEX FKek4om17ruuhrjo2gmirdxexyz ON ReferencedFileAttribute (referenced_file_id);
+
+CREATE TABLE ReferencedFile (
+    id             BIGINT AUTO_INCREMENT PRIMARY KEY,
+    name           VARCHAR(255) NULL,
+    size           BIGINT       NOT NULL,
+    libraryFile    VARCHAR(255) NOT NULL,
+    path           VARCHAR(255) NULL
+);
+
+CREATE INDEX FK464kkuexjpycuic1n33q0yhe3 ON ReferencedFile (libFile);
+
+ALTER TABLE ReferencedFileAttribute
+ADD CONSTRAINT FKek4om17ruuhrjo2gmirdxeva1 FOREIGN KEY (referenced_file_id) REFERENCES ReferencedFile(id);
+
+CREATE TABLE LibraryFile(
+  name         VARCHAR(100) NOT NULL PRIMARY KEY,
+  section_id   BIGINT NOT NULL
+  CONSTRAINT LibFile_Section FOREIGN KEY (section_id) REFERENCES Section (id)
+);
+
 CREATE TABLE IdGen (
     id         BIGINT AUTO_INCREMENT PRIMARY KEY,
     prefix     VARCHAR(255) NULL,
@@ -90,11 +122,11 @@ CREATE TABLE Section (
     parentAccNo   VARCHAR(255) NULL,
     tableIndex    INT          NOT NULL,
     type          VARCHAR(255) NULL,
+    libraryFile   VARCHAR(255) NULL,
     parent_id     BIGINT       NULL,
     submission_id BIGINT       NULL,
     ord           INT          NULL,
-    CONSTRAINT FKba6xolosvegauoq8xs1kj17ch
-    FOREIGN KEY (parent_id) REFERENCES Section (id)
+    CONSTRAINT FKba6xolosvegauoq8xs1kj17ch FOREIGN KEY (parent_id) REFERENCES Section (id)
 );
 
 CREATE INDEX acc_idx ON Section (accNo);
