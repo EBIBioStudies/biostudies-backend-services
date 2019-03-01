@@ -20,6 +20,7 @@ import ac.uk.ebi.biostd.test.submissionWithTableWithMoreAttributes
 import ac.uk.ebi.biostd.test.submissionWithTableWithNoRows
 import ac.uk.ebi.biostd.tsv.deserialization.TsvDeserializer
 import ac.uk.ebi.biostd.validation.INVALID_TABLE_ROW
+import ac.uk.ebi.biostd.validation.InvalidChunkSizeException
 import ac.uk.ebi.biostd.validation.InvalidElementException
 import ac.uk.ebi.biostd.validation.MISPLACED_ATTR_NAME
 import ac.uk.ebi.biostd.validation.MISPLACED_ATTR_VAL
@@ -30,10 +31,14 @@ import arrow.core.Either
 import ebi.ac.uk.asserts.assertSingleElement
 import ebi.ac.uk.asserts.assertSubmission
 import ebi.ac.uk.asserts.assertTable
+import ebi.ac.uk.dsl.line
+import ebi.ac.uk.dsl.tsv
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.AttributeDetail
 import ebi.ac.uk.model.File
+import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.model.Link
+import ebi.ac.uk.model.LinksTable
 import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.SectionsTable
 import ebi.ac.uk.model.Submission
@@ -235,6 +240,101 @@ class TsvDeserializerTest {
                 Attribute("Description", "A super important file"),
                 Attribute("Usage", "Important stuff"))
         }
+    }
+
+    @Test
+    fun `single file`() {
+        val tsv = tsv {
+            line("File", "File1.txt")
+            line("Attr", "Value")
+            line()
+        }.toString()
+
+        val file = deserializer.deserializeElement(tsv, File::class.java)
+
+        assertThat(file).isEqualTo(File("File1.txt", attributes = listOf(Attribute("Attr", "Value"))))
+    }
+
+    @Test
+    fun `single files table`() {
+        val tsv = tsv {
+            line("Files", "Attr")
+            line("File1.txt", "Value")
+            line()
+        }.toString()
+
+        val filesTable = deserializer.deserializeElement(tsv, FilesTable::class.java)
+
+        assertThat(filesTable).isEqualTo(
+            FilesTable(listOf(File("File1.txt", attributes = listOf(Attribute("Attr", "Value"))))))
+    }
+
+    @Test
+    fun `single link`() {
+        val tsv = tsv {
+            line("Link", "http://alink.org")
+            line("Attr", "Value")
+            line()
+        }.toString()
+
+        val link = deserializer.deserializeElement(tsv, Link::class.java)
+
+        assertThat(link).isEqualTo(Link("http://alink.org", attributes = listOf(Attribute("Attr", "Value"))))
+    }
+
+    @Test
+    fun `single links table`() {
+        val tsv = tsv {
+            line("Links", "Attr")
+            line("http://alink.org", "Value")
+            line()
+        }.toString()
+
+        val linksTable = deserializer.deserializeElement(tsv, LinksTable::class.java)
+
+        assertThat(linksTable).isEqualTo(
+            LinksTable(listOf(Link("http://alink.org", attributes = listOf(Attribute("Attr", "Value"))))))
+    }
+
+    @Test
+    fun `invalid single element`() {
+        val tsv = tsv {
+            line("Submission", "S-BIAD2")
+            line("Title", "A Title")
+            line()
+        }.toString()
+
+        assertThrows<NotImplementedError> { deserializer.deserializeElement(tsv, Submission::class.java) }
+    }
+
+    @Test
+    fun `invalid processing class`() {
+        val tsv = tsv {
+            line("Links", "Attr")
+            line("http://alink.org", "Value")
+            line()
+        }.toString()
+
+        assertThrows<ClassCastException> { deserializer.deserializeElement(tsv, File::class.java) }
+    }
+
+    @Test
+    fun `empty single element`() =
+        assertThrows<InvalidChunkSizeException> { deserializer.deserializeElement("", File::class.java) }
+
+    @Test
+    fun `invalid chunk size`() {
+        val tsv = tsv {
+            line("Links", "Attr")
+            line("http://alink.org", "Value")
+            line()
+
+            line("Links", "Attr")
+            line("http://otherlink.org", "Value")
+            line()
+        }.toString()
+
+        assertThrows<InvalidChunkSizeException> { deserializer.deserializeElement(tsv, Link::class.java) }
     }
 
     @Test
