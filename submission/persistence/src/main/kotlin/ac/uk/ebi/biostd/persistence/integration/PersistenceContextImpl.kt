@@ -17,6 +17,7 @@ import ebi.ac.uk.model.constants.SubFields.ATTACH_TO
 import ebi.ac.uk.persistence.PersistenceContext
 import javax.transaction.Transactional
 
+@Suppress("TooManyFunctions")
 open class PersistenceContextImpl(
     private val subRepository: SubmissionDataRepository,
     private val sequenceRepository: SequenceDataRepository,

@@ -5,6 +5,7 @@ import mu.KotlinLogging
 
 private val logger = KotlinLogging.logger {}
 
+@Suppress("TooGenericExceptionCaught")
 suspend fun <T> retry(
     times: Int = 3,
     initialDelay: Long = 100,

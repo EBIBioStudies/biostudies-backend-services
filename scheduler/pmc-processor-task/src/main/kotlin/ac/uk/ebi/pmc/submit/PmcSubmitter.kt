@@ -10,7 +10,6 @@ import ac.uk.ebi.scheduler.properties.PmcMode
 import arrow.core.Try
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.produce
 import kotlinx.coroutines.coroutineScope
@@ -20,7 +19,6 @@ import java.io.File
 
 private const val WORKERS = 3
 
-@ExperimentalCoroutinesApi
 class PmcSubmitter(
     private val bioWebClient: BioWebClient,
     private val errorDocService: ErrorsDocService,

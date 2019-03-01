@@ -1,10 +1,11 @@
 package ac.uk.ebi.biostd.common.config
 
+import ac.uk.ebi.biostd.SerializationService
 import ac.uk.ebi.biostd.json.JsonSerializer
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
 import ac.uk.ebi.biostd.submission.SubmissionSubmitter
 import ac.uk.ebi.biostd.submission.service.SubmissionService
-import ac.uk.ebi.biostd.tsv.serialization.TsvToStringSerializer
+import ac.uk.ebi.biostd.tsv.TsvSerializer
 import ac.uk.ebi.biostd.xml.XmlSerializer
 import ebi.ac.uk.persistence.PersistenceContext
 import org.springframework.context.annotation.Bean
@@ -18,13 +19,11 @@ class SerializationConfig {
     @Bean
     fun submissionService(
         subRepository: SubmissionRepository,
-        jsonSerializer: JsonSerializer,
-        tsvSerializer: TsvToStringSerializer,
-        xmlSerializer: XmlSerializer,
+        serializationService: SerializationService,
         persistenceContext: PersistenceContext,
         submissionSubmitter: SubmissionSubmitter
-    ) =
-        SubmissionService(subRepository, persistenceContext, jsonSerializer, tsvSerializer, xmlSerializer, submissionSubmitter)
+    ) = SubmissionService(
+        subRepository, persistenceContext, serializationService, submissionSubmitter)
 
     @Configuration
     class SerializerConfig {
@@ -35,13 +34,13 @@ class SerializationConfig {
         }
 
         @Bean
-        fun xmlSerializer(): XmlSerializer {
-            return XmlSerializer()
+        fun tsvSerializer(): TsvSerializer {
+            return TsvSerializer()
         }
 
         @Bean
-        fun tsvSerializer(): TsvToStringSerializer {
-            return TsvToStringSerializer()
+        fun xmlSerializer(): XmlSerializer {
+            return XmlSerializer()
         }
     }
 }

@@ -61,7 +61,8 @@ class FileTableChunk(body: List<TsvChunkLine>) : TsvChunk(body) {
 
 sealed class SectionTableChunk(body: List<TsvChunkLine>) : TsvChunk(body) {
 
-    fun asTable() = SectionsTable(asTable(this) { accNo, attributes -> Section(this.getType(), accNo, attributes = attributes) })
+    fun asTable() = SectionsTable(
+        asTable(this) { accNo, attributes -> Section(this.getType(), accNo, attributes = attributes) })
 }
 
 class RootSectionTableChunk(body: List<TsvChunkLine>) : SectionTableChunk(body)

@@ -9,7 +9,6 @@ import ac.uk.ebi.scheduler.properties.PmcMode
 import ebi.ac.uk.model.Submission
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.produce
 import kotlinx.coroutines.joinAll
@@ -20,7 +19,6 @@ import mu.KotlinLogging
 private const val WORKERS = 10
 private val logger = KotlinLogging.logger {}
 
-@ExperimentalCoroutinesApi
 class PmcProcessor(
     private val errorDocService: ErrorsDocService,
     private val submissionInitializer: SubmissionInitializer,

@@ -14,6 +14,7 @@ import com.google.common.collect.Multimap
 import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.Submission
 
+@Suppress("TooManyFunctions")
 class TsvSerializationContext {
 
     private val sections: MutableMap<String, Section> = mutableMapOf()
@@ -63,6 +64,7 @@ class TsvSerializationContext {
         return currentSection
     }
 
+    @Suppress("TooGenericExceptionCaught")
     private fun <T> execute(parent: T, chunk: TsvChunk, function: (TsvChunk) -> Unit) {
         try {
             function(chunk)

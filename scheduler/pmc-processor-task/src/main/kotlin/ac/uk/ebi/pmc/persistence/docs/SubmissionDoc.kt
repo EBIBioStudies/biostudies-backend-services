@@ -3,6 +3,7 @@ package ac.uk.ebi.pmc.persistence.docs
 import org.bson.types.ObjectId
 import java.time.Instant
 
+@Suppress("VariableNaming")
 data class SubmissionDoc(
     val accNo: String,
     val body: String,

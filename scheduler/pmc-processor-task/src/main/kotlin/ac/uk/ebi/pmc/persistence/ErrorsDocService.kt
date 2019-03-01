@@ -7,7 +7,7 @@ import ac.uk.ebi.pmc.persistence.repository.ErrorsRepository
 import ac.uk.ebi.pmc.persistence.repository.SubmissionRepository
 import ac.uk.ebi.scheduler.properties.PmcMode
 import mu.KotlinLogging
-import org.apache.commons.lang3.exception.ExceptionUtils
+import org.apache.commons.lang3.exception.ExceptionUtils.getStackTrace
 
 private val logger = KotlinLogging.logger {}
 
@@ -16,9 +16,11 @@ class ErrorsDocService(
     private val subRepository: SubmissionRepository
 ) {
     suspend fun saveError(submission: SubmissionDoc, mode: PmcMode, throwable: Throwable) {
-        logger.error { "Error processing submission ${submission.accNo} from file ${submission.sourceFile}, ${throwable.message}" }
+        logger.error {
+            "Error processing submission ${submission.accNo} from file ${submission.sourceFile}, ${throwable.message}"
+        }
         subRepository.update(submission.withStatus(getError(mode)))
-        errorsRepository.save(SubmissionErrorDoc(submission, ExceptionUtils.getStackTrace(throwable), mode))
+        errorsRepository.save(SubmissionErrorDoc(submission, getStackTrace(throwable), mode))
     }
 
     private fun getError(pmcMode: PmcMode) = when (pmcMode) {
@@ -28,6 +30,6 @@ class ErrorsDocService(
     }
 
     suspend fun saveError(sourceFile: String, submissionBody: String, process: PmcMode, throwable: Throwable) {
-        errorsRepository.save(SubmissionErrorDoc(sourceFile, submissionBody, ExceptionUtils.getStackTrace(throwable), process))
+        errorsRepository.save(SubmissionErrorDoc(sourceFile, submissionBody, getStackTrace(throwable), process))
     }
 }

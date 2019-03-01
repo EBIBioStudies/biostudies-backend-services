@@ -35,7 +35,9 @@ class EitherDeserializer : StdDeserializer<Either<*, *>>(Either::class.java), Co
             val node: JsonNode = readTree(jp)
             return tryConvertValue(node, rightType).map { Either.Right(it) }
                 .or(tryConvertValue(node, leftType).map { Either.Left(it) })
-                .getOrElse { throw IllegalStateException("can not deserialize $node into $leftType neither $rightType") }
+                .getOrElse {
+                    throw IllegalStateException("can not deserialize $node into $leftType neither $rightType")
+                }
         }
     }
 }

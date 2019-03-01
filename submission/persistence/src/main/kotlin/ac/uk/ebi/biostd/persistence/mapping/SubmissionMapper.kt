@@ -101,8 +101,8 @@ private object EntityMapper {
     fun toLink(link: Link, order: Int, tableIndex: Int = NO_TABLE_INDEX) =
         LinkDb(link.url, order, toAttributes(link.attributes).mapTo(sortedSetOf(), ::LinkAttribute), tableIndex)
 
-    fun toFile(file: File, order: Int, tableIndex: Int = NO_TABLE_INDEX) =
-        FileDb(file.path, order, file.size, toAttributes(file.attributes).mapTo(sortedSetOf(), ::FileAttribute), tableIndex)
+    fun toFile(file: File, order: Int, tableIndex: Int = NO_TABLE_INDEX) = FileDb(
+        file.path, order, file.size, toAttributes(file.attributes).mapTo(sortedSetOf(), ::FileAttribute), tableIndex)
 }
 
 private object AttributeMapper {
@@ -110,8 +110,8 @@ private object AttributeMapper {
     internal fun toAttributes(attributes: List<Attribute>) =
         attributes.mapIndexedTo(sortedSetOf()) { index, order -> toAttribute(order, index) }
 
-    private fun toAttribute(attr: Attribute, index: Int) =
-        AttributeDb(attr.name, attr.value, index, attr.reference.orFalse(), toDetails(attr.nameAttrs), toDetails(attr.valueAttrs))
+    private fun toAttribute(attr: Attribute, index: Int) = AttributeDb(
+        attr.name, attr.value, index, attr.reference.orFalse(), toDetails(attr.nameAttrs), toDetails(attr.valueAttrs))
 
     private fun toDetails(details: List<AttributeDetail>) =
         details.mapTo(mutableListOf()) { AttributeDetailDb(it.name, it.value) }

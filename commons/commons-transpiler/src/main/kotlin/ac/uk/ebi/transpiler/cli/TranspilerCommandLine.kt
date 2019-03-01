@@ -26,6 +26,7 @@ class TranspilerCommandLine(
         addRequiredOption("t", TEMPLATE, true, "Path to the file containing the template")
     }
 
+    @Suppress("TooGenericExceptionCaught")
     fun transpile(args: Array<String>): String {
         var pageTab = ""
 

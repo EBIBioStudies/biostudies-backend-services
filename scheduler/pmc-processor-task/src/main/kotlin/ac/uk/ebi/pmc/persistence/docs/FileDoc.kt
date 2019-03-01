@@ -4,6 +4,7 @@ import org.bson.types.ObjectId
 import org.litote.kmongo.Id
 import org.litote.kmongo.newId
 
+@Suppress("VariableNaming")
 data class FileDoc(val name: String, val path: String, val accNo: String) {
 
     val _id: Id<FileDoc> = newId()

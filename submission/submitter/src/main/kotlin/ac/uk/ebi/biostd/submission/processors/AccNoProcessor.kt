@@ -12,7 +12,7 @@ import ebi.ac.uk.model.ExtendedSubmission
 import ebi.ac.uk.persistence.PersistenceContext
 
 const val DEFAULT_PATTERN = "!{S-BSST,}"
-const val VALUE_PATH_DIGITS = 3
+const val PATH_DIGITS = 3
 
 /**
  * Calculate the accession number and relative path for the given submission.
@@ -48,8 +48,10 @@ class AccNoProcessor(private val patternUtil: AccNoPatternUtil = AccNoPatternUti
         }
     }
 
-    private fun calculateAccNo(pattern: AccPattern, context: PersistenceContext) = AccNumber(pattern, context.getSequenceNextValue(pattern))
+    private fun calculateAccNo(pattern: AccPattern, context: PersistenceContext) =
+        AccNumber(pattern, context.getSequenceNextValue(pattern))
 
+    @Suppress("MagicNumber")
     internal fun getRelPath(accNo: AccNumber): String {
         val prefix = accNo.pattern.prefix
         val postfix = accNo.pattern.postfix
@@ -59,7 +61,7 @@ class AccNoProcessor(private val patternUtil: AccNoPatternUtil = AccNoPatternUti
             accNo.numericValue < 99 ->
                 "$prefix/${prefix}0-99$postfix/$prefix$value$postfix".removePrefix("/")
             else ->
-                "$prefix/${prefix}xxx${value.lastDigits(VALUE_PATH_DIGITS)}$postfix/$prefix$value$postfix".removePrefix("/")
+                "$prefix/${prefix}xxx${value.lastDigits(PATH_DIGITS)}$postfix/$prefix$value$postfix".removePrefix("/")
         }
     }
 

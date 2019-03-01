@@ -53,7 +53,9 @@ class SubmissionDocService(
     suspend fun saveProcessedSubmission(submission: SubmissionDoc, files: List<File>) = coroutineScope {
         submission.files = saveFiles(files, submission)
         submissionRepository.update(submission.withStatus(PROCESSED))
-        logger.info { "finish processing submission with accNo = '${submission.accNo}' from file ${submission.sourceFile}" }
+        logger.info {
+            "finish processing submission with accNo = '${submission.accNo}' from file ${submission.sourceFile}"
+        }
     }
 
     private suspend fun saveFiles(files: List<File>, submission: SubmissionDoc): List<ObjectId> = coroutineScope {

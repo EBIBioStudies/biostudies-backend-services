@@ -2,7 +2,7 @@ package ac.uk.ebi.pmc.load
 
 import ac.uk.ebi.biostd.SerializationService
 import ac.uk.ebi.biostd.SubFormat.TSV
-import ac.uk.ebi.pmc.config.MaxConnections
+import ac.uk.ebi.pmc.config.MAX_CONNECTIONS
 import ac.uk.ebi.pmc.persistence.ErrorsDocService
 import ac.uk.ebi.pmc.persistence.InputFilesDocService
 import ac.uk.ebi.pmc.persistence.SubmissionDocService
@@ -11,9 +11,6 @@ import arrow.core.Try
 import ebi.ac.uk.base.splitIgnoringEmpty
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.constants.SUB_SEPARATOR
-import ebi.ac.uk.model.extensions.getSectionByType
-import ebi.ac.uk.model.extensions.releaseDate
-import ebi.ac.uk.util.regex.getGroup
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.ReceiveChannel
@@ -21,14 +18,8 @@ import kotlinx.coroutines.channels.produce
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.time.Instant
-import java.time.LocalDate
-import java.time.ZoneOffset
 
-private val SANITIZE_REGEX = "(\n)(\t)*|(\t)+(\n)".toRegex()
-private const val PUB_SECTION = "Publication"
-private const val PUB_DATE = "Publication date"
-private var YEAR_PATTERN = "\\d{4}".toRegex()
+private val sanitizeRegex = "(\n)(\t)*|(\t)+(\n)".toRegex()
 
 class PmcSubmissionLoader(
     private val serializationService: SerializationService,
@@ -46,7 +37,7 @@ class PmcSubmissionLoader(
     suspend fun processFile(file: FileSpec) = withContext(Dispatchers.Default) {
         if (inputFilesDocService.isProcessed(file).not()) {
             val receiveChannel = launchProducer(file)
-            (1..MaxConnections).map { launchProcessor(receiveChannel) }.joinAll()
+            (1..MAX_CONNECTIONS).map { launchProcessor(receiveChannel) }.joinAll()
             inputFilesDocService.reportProcessed(file)
         }
     }
@@ -68,21 +59,10 @@ class PmcSubmissionLoader(
     private suspend fun loadSubmission(result: Try<Submission>, body: String, file: FileSpec) =
         result.fold(
             { errorDocService.saveError(file.name, body, PmcMode.LOAD, it) },
-            { loadSubmission(it, file.name, file.modified) })
+            { submissionService.saveLoadedVersion(it, file.name, file.modified) })
 
     private fun deserialize(pagetab: String) =
         Pair(pagetab, Try { serializationService.deserializeSubmission(pagetab, TSV) })
 
-    private suspend fun loadSubmission(submission: Submission, sourceFile: String, sourceTime: Instant) {
-        submission.releaseDate = getReleaseDate(submission)
-        submissionService.saveLoadedVersion(submission, sourceFile, sourceTime)
-    }
-
-    private fun getReleaseDate(submission: Submission): Instant {
-        val releaseDate: String = submission.getSectionByType(PUB_SECTION)[PUB_DATE]
-        val year = YEAR_PATTERN.getGroup(releaseDate).toInt()
-        return LocalDate.ofYearDay(year, 1).atStartOfDay().toInstant(ZoneOffset.UTC)
-    }
-
-    private fun sanitize(fileText: String) = fileText.replace(SANITIZE_REGEX, "\n")
+    private fun sanitize(fileText: String) = fileText.replace(sanitizeRegex, "\n")
 }
