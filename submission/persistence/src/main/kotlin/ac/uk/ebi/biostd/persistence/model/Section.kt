@@ -71,3 +71,9 @@ class Section(
         return Objects.hash(this.accNo, this.accNo)
     }
 }
+
+class LibraryFile {
+
+    private val name = "ACCNO.SECTION_ID.FILES"
+    var files: SortedSet<File> = sortedSetOf()
+}

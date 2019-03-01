@@ -18,7 +18,7 @@ class GroupService(
         return groupRepository.save(group)
     }
 
-    // TODO: add not existing group not exisiting user handling
+    // TODO: add not existing group not existing user handling
     fun addUserInGroup(groupName: String, userEmail: String) {
         val group = groupRepository.getByName(groupName)
         val user = userRepository.getByEmail(userEmail)

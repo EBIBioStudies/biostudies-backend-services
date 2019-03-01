@@ -2,12 +2,12 @@ package ac.uk.ebi.cluster.client.common
 
 import ac.uk.ebi.cluster.client.model.Job
 
-private val SUBMIT_RESPONSE_REGEX = ".*<(.*)>.*<(.*)>.*\\s".toRegex()
+private val submitResponseRegex = ".*<(.*)>.*<(.*)>.*\\s".toRegex()
 
 class JobResponseParser {
 
     fun toJob(submission: String): Job {
-        val job = SUBMIT_RESPONSE_REGEX.matchEntire(submission)
+        val job = submitResponseRegex.matchEntire(submission)
             ?.destructured
             ?.let { (jobId, queue) -> Job(jobId, queue) }
 

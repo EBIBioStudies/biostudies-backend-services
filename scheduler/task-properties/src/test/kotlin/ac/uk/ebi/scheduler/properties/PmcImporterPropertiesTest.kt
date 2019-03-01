@@ -11,7 +11,6 @@ const val bioStudiesUser = "user"
 const val bioStudiesPassword = "password"
 
 class PmcImporterPropertiesTest {
-
     @Test
     fun asJavaCommand() {
         val properties = PmcImporterProperties(
@@ -26,10 +25,10 @@ class PmcImporterPropertiesTest {
         assertThat(properties.asJavaCommand("/apps-folder"))
             .isEqualTo("""
             java -jar /apps-folder/pmc-processor-task.jar \
-            --app.data.path=/loadPath \
             --app.data.mode=LOAD \
             --app.data.temp=/tempDir \
             --app.data.mongodbUri=mongodbUri \
+            --app.data.path=/loadPath \
             --app.data.bioStudiesUrl=http://an_url.com \
             --app.data.bioStudiesUser=user \
             --app.data.bioStudiesPassword=password
@@ -37,10 +36,10 @@ class PmcImporterPropertiesTest {
     }
 
     @Test
-    fun `asJavaCommand when not biostudies configuration`() {
+    fun `asJavaCommand when not optional parameter`() {
         val properties = PmcImporterProperties(
             mode = PmcMode.LOAD,
-            path = path,
+            path = null,
             temp = tempDir,
             mongodbUri = mongodbUri,
             bioStudiesUrl = null,
@@ -49,7 +48,6 @@ class PmcImporterPropertiesTest {
         assertThat(properties.asJavaCommand("/apps-folder"))
             .isEqualTo("""
             java -jar /apps-folder/pmc-processor-task.jar \
-            --app.data.path=/loadPath \
             --app.data.mode=LOAD \
             --app.data.temp=/tempDir \
             --app.data.mongodbUri=mongodbUri

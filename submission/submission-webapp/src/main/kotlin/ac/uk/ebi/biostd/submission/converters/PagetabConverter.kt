@@ -22,12 +22,13 @@ class PagetabConverter(private val serializerService: SerializationService) : Ht
 
     override fun getSupportedMediaTypes() = listOf(APPLICATION_JSON, TEXT_PLAIN, TEXT_XML)
 
-    override fun write(submission: Submission, contentType: MediaType?, outputMessage: HttpOutputMessage) =
-            outputMessage.body.write(serializerService.serializeSubmission(submission, asFormat(contentType)).toByteArray())
+    override fun write(submission: Submission, contentType: MediaType?, message: HttpOutputMessage) =
+        message.body.write(serializerService.serializeSubmission(submission, asFormat(contentType)).toByteArray())
 
-    override fun read(clazz: Class<out Submission>, inputMessage: HttpInputMessage) = serializerService.deserializeSubmission(
-            inputMessage.body.asString(),
-            asFormat(inputMessage.headers[SUBMISSION_TYPE].orEmpty()))
+    override fun read(clazz: Class<out Submission>, message: HttpInputMessage) =
+        serializerService.deserializeSubmission(
+            message.body.asString(),
+            asFormat(message.headers[SUBMISSION_TYPE].orEmpty()))
 
     private fun asFormat(mediaTypes: List<String>) =
             when {

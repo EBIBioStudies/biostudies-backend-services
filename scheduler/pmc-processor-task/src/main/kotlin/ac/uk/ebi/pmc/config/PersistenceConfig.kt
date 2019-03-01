@@ -13,7 +13,7 @@ import org.litote.kmongo.async.KMongo
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
-const val MaxConnections = 10
+const val MAX_CONNECTIONS = 10
 
 @Configuration
 class PersistenceConfig {
@@ -24,7 +24,7 @@ class PersistenceConfig {
             MongoClientSettings
                 .builder()
                 .applyConnectionString(ConnectionString(properties.mongodbUri))
-                .applyToConnectionPoolSettings { it.maxSize(MaxConnections) }
+                .applyToConnectionPoolSettings { it.maxSize(MAX_CONNECTIONS) }
                 .build())
     }
 
@@ -32,11 +32,14 @@ class PersistenceConfig {
     fun errorsRepository(client: MongoClient) = ErrorsRepository(client.getCollection("eubioimag", "errors"))
 
     @Bean
-    fun submissionRepository(client: MongoClient) = SubmissionRepository(client.getCollection("eubioimag", "submissions"))
+    fun submissionRepository(client: MongoClient) =
+        SubmissionRepository(client.getCollection("eubioimag", "submissions"))
 
     @Bean
-    fun submissionFileRepository(client: MongoClient) = SubFileRepository(client.getCollection("eubioimag", "submissions_files"))
+    fun submissionFileRepository(client: MongoClient) =
+        SubFileRepository(client.getCollection("eubioimag", "submissions_files"))
 
     @Bean
-    fun inputFileRepository(client: MongoClient) = InputFileRepository(client.getCollection("eubioimag", "input_files"))
+    fun inputFileRepository(client: MongoClient) =
+        InputFileRepository(client.getCollection("eubioimag", "input_files"))
 }

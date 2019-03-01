@@ -13,7 +13,7 @@ class LinkSerializer : XmlStdSerializer<Link>(Link::class.java) {
 
     override fun serializeXml(value: Link, gen: ToXmlGenerator, provider: SerializerProvider) {
         with(gen) {
-            writeXmlObj(LinkFields.LINK, value) {
+            writeXmlObj(LinkFields.LINK) {
                 writeXmlField(LinkFields.URL, value.url)
                 writeXmlCollection(LinkFields.ATTRIBUTES, value.attributes)
             }

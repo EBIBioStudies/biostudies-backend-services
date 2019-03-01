@@ -7,7 +7,13 @@ import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.SectionsTable
 import ebi.ac.uk.model.constants.FileFields
 import ebi.ac.uk.model.constants.LinkFields
-import ebi.ac.uk.model.constants.SectionFields
+import ebi.ac.uk.model.constants.SectionFields.ACC_NO
+import ebi.ac.uk.model.constants.SectionFields.ATTRIBUTES
+import ebi.ac.uk.model.constants.SectionFields.FILES
+import ebi.ac.uk.model.constants.SectionFields.LINKS
+import ebi.ac.uk.model.constants.SectionFields.SECTION
+import ebi.ac.uk.model.constants.SectionFields.SUBSECTIONS
+import ebi.ac.uk.model.constants.SectionFields.TYPE
 import org.w3c.dom.Node
 
 class SectionXmlDeserializer(
@@ -18,11 +24,11 @@ class SectionXmlDeserializer(
 
     override fun deserialize(node: Node): Section {
         return Section(
-            accNo = node.findProperty(SectionFields.ACC_NO),
-            type = node.getProperty(SectionFields.TYPE),
-            attributes = attributeXmlDeserializer.deserializeList(node.findNode(SectionFields.ATTRIBUTES)),
-            links = linkXmlDeserializer.deserializeTableList(node.findNode(SectionFields.LINKS), LinkFields.LINK.value, ::LinksTable),
-            files = fileXmlDeserializer.deserializeTableList(node.findNode(SectionFields.FILES), FileFields.FILE.value, ::FilesTable),
-            sections = deserializeTableList(node.findNode(SectionFields.SUBSECTIONS), SectionFields.SECTION.value, ::SectionsTable))
+            accNo = node.findProperty(ACC_NO),
+            type = node.getProperty(TYPE),
+            attributes = attributeXmlDeserializer.deserializeList(node.findNode(ATTRIBUTES)),
+            links = linkXmlDeserializer.deserializeTableList(node.findNode(LINKS), LinkFields.LINK.value, ::LinksTable),
+            files = fileXmlDeserializer.deserializeTableList(node.findNode(FILES), FileFields.FILE.value, ::FilesTable),
+            sections = deserializeTableList(node.findNode(SUBSECTIONS), SECTION.value, ::SectionsTable))
     }
 }

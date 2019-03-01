@@ -21,12 +21,6 @@ import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.web.authentication.HttpStatusEntryPoint
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter
 
-private val ALLOWED_URLS = arrayOf(
-    "/auth/login",
-    "/auth/signin",
-    "/auth/register",
-    "/auth/signup")
-
 @Configuration
 @EnableWebSecurity
 @Import(SecurityBeansConfig::class)
@@ -35,6 +29,7 @@ class SecurityConfig(
     private val tokenUtil: TokenUtil
 ) : WebSecurityConfigurerAdapter() {
 
+    @Suppress("SpreadOperator")
     override fun configure(http: HttpSecurity) {
         http.csrf()
             .disable()
@@ -42,7 +37,11 @@ class SecurityConfig(
             .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             .and()
             .authorizeRequests()
-            .antMatchers(*ALLOWED_URLS).permitAll()
+            .antMatchers(
+                "/auth/login",
+                "/auth/signin",
+                "/auth/register",
+                "/auth/signup").permitAll()
             .anyRequest().fullyAuthenticated()
             .and()
             .exceptionHandling().authenticationEntryPoint(HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))

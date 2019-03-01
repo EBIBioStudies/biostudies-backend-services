@@ -15,6 +15,7 @@ import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.web.client.RestTemplate
+import org.springframework.web.client.postForEntity
 import java.io.File
 
 private const val SUBMIT_URL = "/submissions"
@@ -24,21 +25,29 @@ internal class MultiPartSubmissionClient(
     private val serializationService: SerializationService
 ) : MultipartSubmissionOperations {
 
-    override fun submitSingle(submission: String, format: SubmissionFormat, files: List<File>): ResponseEntity<Submission> {
+    override fun submitSingle(
+        submission: String,
+        format: SubmissionFormat,
+        files: List<File>
+    ): ResponseEntity<Submission> {
         val headers = createHeaders(format)
         val body = getMultipartBody(files, submission)
         return submitSingle(HttpEntity(body, headers), format)
     }
 
-    override fun submitSingle(submission: Submission, format: SubmissionFormat, files: List<File>): ResponseEntity<Submission> {
+    override fun submitSingle(
+        submission: Submission,
+        format: SubmissionFormat,
+        files: List<File>
+    ): ResponseEntity<Submission> {
         val headers = createHeaders(format)
         val body = getMultipartBody(files, serializationService.serializeSubmission(submission, format.asSubFormat()))
         return submitSingle(HttpEntity(body, headers), format)
     }
 
-    private fun submitSingle(request: HttpEntity<LinkedMultiValueMap<String, Any>>, format: SubmissionFormat) =
-            template.postForEntity(SUBMIT_URL, request, String::class.java)
-                    .map { body -> serializationService.deserializeSubmission(body, format.asSubFormat()) }
+    private fun submitSingle(request: HttpEntity<LinkedMultiValueMap<String, Any>>, format: SubmissionFormat) = template
+        .postForEntity<String>(SUBMIT_URL, request)
+        .map { body -> serializationService.deserializeSubmission(body, format.asSubFormat()) }
 
     private fun createHeaders(format: SubmissionFormat): HttpHeaders {
         val headers = HttpHeaders()

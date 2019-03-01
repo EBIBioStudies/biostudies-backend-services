@@ -15,8 +15,8 @@ class FilesTableTemplateTranspiler(
 ) {
     /**
      * Transforms a files table template to its corresponding files table page tab representation in the desired format.
-     * A files table template is a document containing a list of attributes that will be applied for all the files inside
-     * the folder specified by the given base columns.
+     * A files table template is a document containing a list of attributes that will be applied for all the files
+     * inside the folder specified by the given base columns.
      *
      * @param template The files table template content.
      * @param baseColumns A list of the columns that will be used to build the path where the files are located. These

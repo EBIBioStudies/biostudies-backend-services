@@ -34,15 +34,12 @@ class SecurityFilter(
 
     private fun getSecurityKey(httpRequest: HttpServletRequest): Option<String> {
         val header: String? = httpRequest.getHeader(HEADER_NAME)
-        if (!header.isNullOrBlank()) {
-            return header.toOption()
-        }
-
         val cookie = WebUtils.getCookie(httpRequest, "$COOKIE_NAME-$environment")
-        if (cookie != null && cookie.value.isNotBlank()) {
-            return cookie.value.toOption()
-        }
 
-        return httpRequest.getParameter(COOKIE_NAME).toOption()
+        return when {
+            header.isNullOrBlank().not() -> header.toOption()
+            cookie != null && cookie.value.isNotBlank() -> cookie.value.toOption()
+            else -> httpRequest.getParameter(COOKIE_NAME).toOption()
+        }
     }
 }

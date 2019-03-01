@@ -10,9 +10,10 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneOffset
 
-private const val PUB_SECTION = "Publication"
-private const val PUB_DATE = "Publication date"
-private var YEAR_PATTERN = "\\d{4}".toRegex()
+private const val PUBLICATION_SECTION = "Publication"
+private const val PUBLICATION_DATE_ATTRIBUTE = "Publication date"
+
+private val yearExtractionPattern = "\\d{4}".toRegex()
 
 /**
  * Read submission value an set calculated values.
@@ -26,8 +27,8 @@ class SubmissionInitializer(private val serializationService: SerializationServi
     }
 
     private fun getReleaseDate(submission: Submission): Instant {
-        val releaseDate: String = submission.getSectionByType(PUB_SECTION)[PUB_DATE]
-        val year = YEAR_PATTERN.getGroup(releaseDate).toInt()
+        val releaseDate: String = submission.getSectionByType(PUBLICATION_SECTION)[PUBLICATION_DATE_ATTRIBUTE]
+        val year = yearExtractionPattern.getGroup(releaseDate).toInt()
         return LocalDate.ofYearDay(year, 1).atStartOfDay().toInstant(ZoneOffset.UTC)
     }
 }

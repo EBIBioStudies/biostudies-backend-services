@@ -2,6 +2,10 @@ package ebi.ac.uk.model
 
 import ebi.ac.uk.base.isNotBlank
 import ebi.ac.uk.model.constants.TableFields
+import ebi.ac.uk.model.extensions.nameAttrsNames
+import ebi.ac.uk.model.extensions.nameAttrsValues
+import ebi.ac.uk.model.extensions.valueAttrsNames
+import ebi.ac.uk.model.extensions.valueAttrsValues
 import ebi.ac.uk.util.collections.ifNotEmpty
 import java.util.Objects
 
@@ -58,10 +62,10 @@ abstract class Row<T>(val original: T) {
     abstract val id: String
     abstract val attributes: List<Attribute>
 
-    override fun equals(other: Any?): Boolean {
-        if (other !is Row<*>) return false
-        if (this === other) return true
-        return original == other.original
+    override fun equals(other: Any?) = when {
+        other !is Row<*> -> false
+        this === other -> true
+        else -> original == other.original
     }
 
     override fun hashCode() = Objects.hash(original)
