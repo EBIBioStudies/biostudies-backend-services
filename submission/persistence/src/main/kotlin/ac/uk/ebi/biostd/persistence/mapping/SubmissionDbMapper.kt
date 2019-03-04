@@ -78,7 +78,8 @@ private object DbEitherMapper {
 
     internal fun toLinks(links: List<LinkDb>) = toEitherList(links, DbEntityMapper::toLink, ::LinksTable)
     internal fun toFiles(files: List<FileDb>) = toEitherList(files, DbEntityMapper::toFile, ::FilesTable)
-    internal fun toSections(sections: List<SectionDb>) = toEitherList(sections, DbSectionMapper::toSection, ::SectionsTable)
+    internal fun toSections(sections: List<SectionDb>) =
+        toEitherList(sections, DbSectionMapper::toSection, ::SectionsTable)
 
     /**
      * Convert the given list of elements into an instance of @See [Either] using transform function for simple element

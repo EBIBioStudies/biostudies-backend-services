@@ -9,7 +9,7 @@ import org.springframework.web.method.support.ModelAndViewContainer
 import javax.servlet.http.HttpServletRequest
 
 private const val PATH_SEPARATOR = "/"
-private val USER_PATH = ".*${PATH_SEPARATOR}user".toRegex()
+internal val userPath = ".*${PATH_SEPARATOR}user".toRegex()
 
 class PathDescriptorResolver : HandlerMethodArgumentResolver {
     override fun supportsParameter(parameter: MethodParameter) = parameter.parameterType == PathDescriptor::class.java
@@ -22,7 +22,7 @@ class PathDescriptorResolver : HandlerMethodArgumentResolver {
     ): Any {
         val path = getServletRequest(webRequest)
             .requestURL.toString()
-            .remove(USER_PATH)
+            .remove(userPath)
             .removePrefix(PATH_SEPARATOR)
 
         return PathDescriptor(path)

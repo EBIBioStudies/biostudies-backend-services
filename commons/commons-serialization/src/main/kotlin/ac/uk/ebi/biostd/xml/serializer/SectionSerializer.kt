@@ -13,13 +13,13 @@ class SectionSerializer : XmlStdSerializer<Section>(Section::class.java) {
 
     override fun serializeXml(value: Section, gen: ToXmlGenerator, provider: SerializerProvider) {
         with(gen) {
-            writeXmlObj(SectionFields.SECTION, value) {
-                writeXmlAttr(SectionFields.ACC_NO, accNo)
-                writeXmlAttr(SectionFields.TYPE, type)
-                writeXmlCollection(SectionFields.ATTRIBUTES, attributes)
-                writeXmlCollection(SectionFields.LINKS, links)
-                writeXmlCollection(SectionFields.FILES, files)
-                writeXmlCollection(SectionFields.SUBSECTIONS, sections)
+            writeXmlObj(SectionFields.SECTION) {
+                writeXmlAttr(SectionFields.ACC_NO, value.accNo)
+                writeXmlAttr(SectionFields.TYPE, value.type)
+                writeXmlCollection(SectionFields.ATTRIBUTES, value.attributes)
+                writeXmlCollection(SectionFields.LINKS, value.links)
+                writeXmlCollection(SectionFields.FILES, value.files)
+                writeXmlCollection(SectionFields.SUBSECTIONS, value.sections)
             }
         }
     }

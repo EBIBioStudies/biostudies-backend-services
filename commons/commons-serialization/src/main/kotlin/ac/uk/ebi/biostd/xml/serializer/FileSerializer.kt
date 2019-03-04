@@ -14,7 +14,7 @@ class FileSerializer : XmlStdSerializer<File>(File::class.java) {
 
     override fun serializeXml(value: File, gen: ToXmlGenerator, provider: SerializerProvider) {
         with(gen) {
-            writeXmlObj(FileFields.FILE, value) {
+            writeXmlObj(FileFields.FILE) {
                 writeXmlAttr(FileFields.SIZE, value.size)
                 writeXmlField(FileFields.PATH, value.path)
                 writeXmlCollection(FileFields.ATTRIBUTES, value.attributes)

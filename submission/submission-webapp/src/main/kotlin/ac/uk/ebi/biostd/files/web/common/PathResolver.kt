@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.files.web.common
 
+import ac.uk.ebi.biostd.files.web.userPath
 import ebi.ac.uk.base.remove
 import org.springframework.core.MethodParameter
 import org.springframework.web.bind.support.WebDataBinderFactory
@@ -7,8 +8,6 @@ import org.springframework.web.context.request.NativeWebRequest
 import org.springframework.web.method.support.HandlerMethodArgumentResolver
 import org.springframework.web.method.support.ModelAndViewContainer
 import javax.servlet.http.HttpServletRequest
-
-private val USER_PATH = ".*/user".toRegex()
 
 class UserPathDescriptorResolver : HandlerMethodArgumentResolver {
 
@@ -40,7 +39,7 @@ private fun getServletRequest(webRequest: NativeWebRequest) =
 private fun getPath(webRequest: HttpServletRequest) =
     webRequest
         .requestURL.toString()
-        .remove(USER_PATH)
+        .remove(userPath)
         .removePrefix("/")
 
 class UserPath(val path: String)

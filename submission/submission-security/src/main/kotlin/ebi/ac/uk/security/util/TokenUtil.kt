@@ -23,7 +23,8 @@ class TokenUtil(
 
     fun createToken(user: User): String {
         return Jwts.builder()
-                .setSubject(objectMapper.writeValueAsString(TokenPayload(user.id, user.email, user.fullName, user.login)))
+                .setSubject(objectMapper.writeValueAsString(
+                    TokenPayload(user.id, user.email, user.fullName, user.login)))
                 .signWith(SignatureAlgorithm.HS512, tokenHash)
                 .compact()
     }

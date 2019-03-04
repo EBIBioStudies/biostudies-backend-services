@@ -14,7 +14,7 @@ class AttributeSerializer : XmlStdSerializer<Attribute>(Attribute::class.java) {
 
     override fun serializeXml(value: Attribute, gen: ToXmlGenerator, provider: SerializerProvider) {
         with(gen) {
-            writeXmlObj(AttributeFields.ATTRIBUTE, value) {
+            writeXmlObj(AttributeFields.ATTRIBUTE) {
                 writeXmlBooleanAttr(AttributeFields.REFERENCE, value.reference)
                 writeXmlField(AttributeFields.NAME, value.name)
                 writeXmlField(AttributeFields.VALUE, value.value)

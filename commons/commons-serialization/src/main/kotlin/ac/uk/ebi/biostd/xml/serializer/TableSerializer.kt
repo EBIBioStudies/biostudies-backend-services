@@ -18,7 +18,7 @@ class TableSerializer : XmlStdSerializer<Table<*>>(Table::class.java) {
 
     override fun serializeXml(value: Table<*>, gen: ToXmlGenerator, provider: SerializerProvider) {
         with(gen) {
-            writeXmlObj(OtherFields.TABLE, value) {
+            writeXmlObj(OtherFields.TABLE) {
                 value.elements.forEach {
                     when (value) {
                         is LinksTable -> writeXmlField(LinkFields.LINK, it)

@@ -7,23 +7,20 @@ import javax.xml.namespace.QName
 
 typealias XmlWriter = ToXmlGenerator
 
-inline fun <T> XmlWriter.writeXmlObj(name: Any, value: T, function: T.() -> Unit) {
-    value?.let {
-        setNextName(QName(name.toString()))
-        writeStartObject()
-        function(it)
-        writeEndObject()
-    }
+inline fun XmlWriter.writeXmlObj(name: Any, function: XmlWriter.() -> Unit) {
+    setNextName(QName(name.toString()))
+    writeStartObject()
+    function()
+    writeEndObject()
 }
 
 fun XmlWriter.writeXmlAttr(name: Any, value: Any?) {
-    value?.let {
-        setNextIsAttribute(true)
-        writeObjectField(name.toString(), value)
-        setNextIsAttribute(false)
-    }
+    setNextIsAttribute(true)
+    writeObjectField(name.toString(), value)
+    setNextIsAttribute(false)
 }
 
 fun XmlWriter.writeXmlField(name: Any, value: Any) = writeObjectField(name.toString(), value)
 fun XmlWriter.writeXmlCollection(name: Any, value: List<Any>) = value.ifNotEmpty { writeXmlField(name, value) }
-fun XmlWriter.writeXmlBooleanAttr(name: Any, value: Boolean, ignoreFalse: Boolean = true) = value.or(ignoreFalse.not()).ifTrue { writeXmlAttr(name, value) }
+fun XmlWriter.writeXmlBooleanAttr(name: Any, value: Boolean, ignoreFalse: Boolean = true) =
+    value.or(ignoreFalse.not()).ifTrue { writeXmlAttr(name, value) }

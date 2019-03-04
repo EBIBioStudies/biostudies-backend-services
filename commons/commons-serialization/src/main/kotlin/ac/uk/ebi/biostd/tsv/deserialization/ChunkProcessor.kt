@@ -16,20 +16,19 @@ import ac.uk.ebi.biostd.tsv.deserialization.model.SectionTableChunk
 import ac.uk.ebi.biostd.tsv.deserialization.model.SubSectionChunk
 import ac.uk.ebi.biostd.tsv.deserialization.model.SubSectionTableChunk
 import ac.uk.ebi.biostd.tsv.deserialization.model.TsvChunk
-import ac.uk.ebi.biostd.validation.InvalidChunkException
 import ac.uk.ebi.biostd.validation.InvalidElementException
 import ac.uk.ebi.biostd.validation.REQUIRED_ROOT_SECTION
 import ebi.ac.uk.base.like
 import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.Submission
-import ebi.ac.uk.model.constants.SubFields
+import ebi.ac.uk.model.constants.SubFields.SUBMISSION
 
 private const val ALLOWED_TYPES = "Study"
 
 class ChunkProcessor {
 
     fun getSubmission(tsvChunk: TsvChunk): Submission {
-        validate(tsvChunk.getType() like SubFields.SUBMISSION) { "Expected to find block type of ${SubFields.SUBMISSION}" }
+        validate(tsvChunk.getType() like SUBMISSION) { "Expected to find block type of $SUBMISSION" }
 
         return Submission(
             accNo = tsvChunk.findId().orEmpty(),
@@ -48,12 +47,12 @@ class ChunkProcessor {
     }
 
     inline fun <reified T> processIsolatedChunk(chunk: TsvChunk) = when (chunk) {
-        is SectionChunk -> TODO("Implement section chunk isolated deserialization")
         is LinkChunk -> chunk.asLink() as T
         is FileChunk -> chunk.asFile() as T
         is LinksTableChunk -> chunk.asTable() as T
         is FileTableChunk -> chunk.asTable() as T
-        else -> throw InvalidChunkException(chunk)
+        is SectionChunk -> TODO("Implement section chunk isolated deserialization")
+        is SectionTableChunk -> TODO("Implement section table chunk isolated deserialization")
     }
 
     fun processChunk(chunk: TsvChunk, sectionContext: TsvSerializationContext) {
@@ -62,18 +61,22 @@ class ChunkProcessor {
             is FileChunk -> sectionContext.addFile(chunk)
             is LinksTableChunk -> sectionContext.addLinksTable(chunk)
             is FileTableChunk -> sectionContext.addFilesTable(chunk)
-            is SectionTableChunk -> {
-                when (chunk) {
-                    is RootSectionTableChunk -> sectionContext.addSectionTable(chunk)
-                    is SubSectionTableChunk -> sectionContext.addSubSectionTable(chunk.parent, chunk)
-                }
-            }
-            is SectionChunk -> {
-                when (chunk) {
-                    is RootSubSectionChunk -> sectionContext.addSection(chunk)
-                    is SubSectionChunk -> sectionContext.addSubSection(chunk.parent, chunk)
-                }
-            }
+            is SectionTableChunk -> processSectionTable(chunk, sectionContext)
+            is SectionChunk -> processSection(chunk, sectionContext)
+        }
+    }
+
+    private fun processSection(chunk: SectionChunk, sectionContext: TsvSerializationContext) {
+        when (chunk) {
+            is RootSubSectionChunk -> sectionContext.addSection(chunk)
+            is SubSectionChunk -> sectionContext.addSubSection(chunk.parent, chunk)
+        }
+    }
+
+    private fun processSectionTable(chunk: SectionTableChunk, sectionContext: TsvSerializationContext) {
+        when (chunk) {
+            is RootSectionTableChunk -> sectionContext.addSectionTable(chunk)
+            is SubSectionTableChunk -> sectionContext.addSubSectionTable(chunk.parent, chunk)
         }
     }
 }

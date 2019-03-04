@@ -13,6 +13,7 @@ class SuspendSequence<T>(private val read: suspend () -> T?) {
         while (hasNext()) function(next())
     }
 
+    @Suppress("ReturnCount")
     private suspend fun hasNext(): Boolean {
         if (done) return false
 

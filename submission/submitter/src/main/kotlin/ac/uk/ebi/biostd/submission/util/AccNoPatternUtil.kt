@@ -15,10 +15,10 @@ import java.util.regex.Matcher
 private const val ACC_PATTERN = "\\!\\{%s\\}"
 private const val EXPECTED_PATTERN = "([A-Z,-]*),([A-Z,-]*)"
 
-private val ONLY_PREFIX = ACC_PATTERN.format("([A-Z,-]*),").toPattern()
-private val ONLY_POSTFIX = ACC_PATTERN.format(",([A-Z,-]*)").toPattern()
-private val PREFIX_POSTFIX = ACC_PATTERN.format(EXPECTED_PATTERN).toPattern()
-private val EXTRACTION_PATTERN = "(\\D*)([0-9]+)(\\D*)".toPattern()
+private val onlyPrefix = ACC_PATTERN.format("([A-Z,-]*),").toPattern()
+private val onlyPostfix = ACC_PATTERN.format(",([A-Z,-]*)").toPattern()
+private val prefixPostfix = ACC_PATTERN.format(EXPECTED_PATTERN).toPattern()
+private val extractionPattern = "(\\D*)([0-9]+)(\\D*)".toPattern()
 
 class AccNoPatternUtil {
 
@@ -37,18 +37,18 @@ class AccNoPatternUtil {
     /**
      * Extracts the @see [AccNumber] for the given accession string.
      */
-    fun extractAccessNumber(accNo: String) = EXTRACTION_PATTERN.match(accNo)
-            .map(::asAccNumber).getOrElse { throw InvalidAccNoPattern(accNo, EXTRACTION_PATTERN) }
+    fun extractAccessNumber(accNo: String) = extractionPattern.match(accNo)
+        .map(::asAccNumber).getOrElse { throw InvalidAccNoPattern(accNo, extractionPattern) }
 
     private fun asAccNumber(it: Matcher) =
             AccNumber(AccPattern(it.firstGroup(), it.thirdGroup()), it.secondGroup().toLong())
 
     private fun getPrefixAccPattern(accNo: String) =
-            ONLY_PREFIX.match(accNo).map { AccPattern(prefix = it.firstGroup()) }
+        onlyPrefix.match(accNo).map { AccPattern(prefix = it.firstGroup()) }
 
     private fun getPostfixAccPattern(accNo: String) =
-            ONLY_POSTFIX.match(accNo).map { AccPattern(postfix = it.firstGroup()) }
+        onlyPostfix.match(accNo).map { AccPattern(postfix = it.firstGroup()) }
 
     private fun getPrefixPostfixPattern(accNo: String) =
-            PREFIX_POSTFIX.match(accNo).map { AccPattern(it.firstGroup(), it.secondGroup()) }
+        prefixPostfix.match(accNo).map { AccPattern(it.firstGroup(), it.secondGroup()) }
 }
