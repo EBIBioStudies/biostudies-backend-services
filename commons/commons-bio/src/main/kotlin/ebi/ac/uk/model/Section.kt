@@ -14,12 +14,15 @@ class Section(
     attributes: List<Attribute> = emptyList()
 ) : Attributable(attributes) {
     var parentAccNo: String? = null
+    var libraryFile: String? = null
+    var referencedFiles: MutableList<File> = mutableListOf()
 
     fun addFile(file: File) = files.addLeft(file)
     fun addLink(link: Link) = links.addLeft(link)
     fun addSection(section: Section) = sections.addLeft(section)
     fun addFilesTable(table: FilesTable) = files.addRight(table)
     fun addLinksTable(table: LinksTable) = links.addRight(table)
+    fun addReferencedFile(file: File) = referencedFiles.add(file)
     fun addSectionTable(table: SectionsTable) = sections.addRight(table)
 
     override fun equals(other: Any?) = when {
@@ -31,6 +34,8 @@ class Section(
             .and(Objects.equals(links, other.links))
             .and(Objects.equals(sections, other.sections))
             .and(Objects.equals(attributes, other.attributes))
+            .and(Objects.equals(libraryFile, other.libraryFile))
+            .and(Objects.equals(referencedFiles, other.referencedFiles))
     }
 
     override fun hashCode() = Objects.hash(type, accNo, attributes)

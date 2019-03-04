@@ -11,7 +11,9 @@ import ac.uk.ebi.biostd.persistence.mapping.TableMapper.toFiles
 import ac.uk.ebi.biostd.persistence.mapping.TableMapper.toLinks
 import ac.uk.ebi.biostd.persistence.mapping.TableMapper.toSections
 import ac.uk.ebi.biostd.persistence.model.FileAttribute
+import ac.uk.ebi.biostd.persistence.model.LibraryFile
 import ac.uk.ebi.biostd.persistence.model.LinkAttribute
+import ac.uk.ebi.biostd.persistence.model.ReferencedFileAttribute
 import ac.uk.ebi.biostd.persistence.model.SectionAttribute
 import ac.uk.ebi.biostd.persistence.model.SubmissionAttribute
 import ac.uk.ebi.biostd.persistence.repositories.TagsDataRepository
@@ -33,6 +35,7 @@ import ac.uk.ebi.biostd.persistence.model.Attribute as AttributeDb
 import ac.uk.ebi.biostd.persistence.model.AttributeDetail as AttributeDetailDb
 import ac.uk.ebi.biostd.persistence.model.File as FileDb
 import ac.uk.ebi.biostd.persistence.model.Link as LinkDb
+import ac.uk.ebi.biostd.persistence.model.ReferencedFile as ReferencedFileDb
 import ac.uk.ebi.biostd.persistence.model.Section as SectionDb
 import ac.uk.ebi.biostd.persistence.model.Submission as SubmissionDb
 import ac.uk.ebi.biostd.persistence.model.User as UserDb
@@ -68,6 +71,8 @@ private object SectionMapper {
         links = section.links.mapIndexed(::toLinks).flatten().toSortedSet()
         files = section.files.mapIndexed(::toFiles).flatten().toSortedSet()
         sections = section.sections.mapIndexed(::toSections).flatten().toSortedSet()
+
+        section.libraryFile?.let { libraryFile = getLibraryFile(section) }
     }
 
     fun toTableSection(section: Section, index: Int, sectionTableIndex: Int) =
@@ -76,6 +81,10 @@ private object SectionMapper {
             tableIndex = sectionTableIndex
             order = index
         }
+
+    fun getLibraryFile(section: Section) = LibraryFile(section.libraryFile!!).apply {
+        files = section.referencedFiles.mapTo(sortedSetOf(), EntityMapper::toRefFile)
+    }
 }
 
 private object TableMapper {
@@ -103,6 +112,9 @@ private object EntityMapper {
 
     fun toFile(file: File, order: Int, tableIndex: Int = NO_TABLE_INDEX) = FileDb(
         file.path, order, file.size, toAttributes(file.attributes).mapTo(sortedSetOf(), ::FileAttribute), tableIndex)
+
+    fun toRefFile(file: File) = ReferencedFileDb(
+        file.path, file.size, toAttributes(file.attributes).mapTo(sortedSetOf(), ::ReferencedFileAttribute))
 }
 
 private object AttributeMapper {
