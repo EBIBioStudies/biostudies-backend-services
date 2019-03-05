@@ -39,7 +39,6 @@ class Section(
     @Convert(converter = NullableIntConverter::class)
     override var order: Int = 0
 
-    @Column
     @OneToOne(cascade = [CascadeType.ALL])
     @JoinColumn(name = "sectionId")
     var libraryFile: LibraryFile? = null

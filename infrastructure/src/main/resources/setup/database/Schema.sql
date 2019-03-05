@@ -122,7 +122,6 @@ CREATE TABLE Section (
     parentAccNo   VARCHAR(255) NULL,
     tableIndex    INT          NOT NULL,
     type          VARCHAR(255) NULL,
-    libraryFile   VARCHAR(255) NULL,
     parent_id     BIGINT       NULL,
     submission_id BIGINT       NULL,
     ord           INT          NULL,
