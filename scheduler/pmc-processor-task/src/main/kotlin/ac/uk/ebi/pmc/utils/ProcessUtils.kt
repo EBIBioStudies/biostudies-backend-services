@@ -22,6 +22,7 @@ suspend fun <T> retry(
         }
         delay(currentDelay)
         currentDelay = (currentDelay * factor).toLong().coerceAtMost(maxDelay)
+        logger.info { "retrying operation in $currentDelay, max delay = $maxDelay" }
     }
 
     return block()

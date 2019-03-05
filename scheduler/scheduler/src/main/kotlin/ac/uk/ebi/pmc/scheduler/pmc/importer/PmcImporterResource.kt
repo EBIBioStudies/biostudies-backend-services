@@ -15,7 +15,7 @@ class PmcImporterResource(private val importerService: PmcLoaderService) {
     }
 
     @PostMapping("/api/pmc/process")
-    fun process() {
-        importerService.process()
+    fun process(): Job {
+        return importerService.process()
     }
 }

@@ -11,7 +11,7 @@ import mu.KotlinLogging
 import java.io.File
 
 private val logger = KotlinLogging.logger {}
-private const val TASK_CORES = 8
+private const val TASK_CORES = 10
 
 class PmcLoaderService(
     private val clusterOperations: ClusterOperations,
@@ -31,9 +31,9 @@ class PmcLoaderService(
         return jobTry.fold({ throw it }, { it.apply { logger.info { "submitted job $it" } } })
     }
 
-    fun process() {
+    fun process(): Job {
         logger.info { "submitting job to process submissions" }
-        val properties = getConfigProperties(importMode = PmcMode.LOAD)
+        val properties = getConfigProperties(importMode = PmcMode.PROCESS)
         val jobTry = clusterOperations.triggerJob(
             JobSpec(
                 TASK_CORES,

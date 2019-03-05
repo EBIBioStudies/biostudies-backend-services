@@ -8,5 +8,5 @@ import retrofit2.http.Path
 interface PmcApi {
 
     @GET("/articles/PMC{studyId}/bin/{file}")
-    fun downloadFile(@Path("studyId") studyId: String, @Path("file") fileName: String): Deferred<ResponseBody>
+    fun downloadFileAsync(@Path("studyId") studyId: String, @Path("file") fileName: String): Deferred<ResponseBody>
 }
