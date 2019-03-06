@@ -23,8 +23,7 @@ class SubmissionInitializer(private val serializationService: SerializationServi
     fun getSubmission(body: String): Submission {
         val submission = serializationService.deserializeSubmission(body, SubFormat.JSON)
         submission.releaseDate = getReleaseDate(submission)
-        submission.accNo =
-            return submission
+        return submission
     }
 
     private fun getReleaseDate(submission: Submission): Instant {

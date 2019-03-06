@@ -25,7 +25,7 @@ class FileDownloader(
         return Try {
             return@Try coroutineScope {
                 submission.allFiles()
-                    .map { retry(times = 3) { coroutineScope { async { downloadFile(getPmcId(submission.accNo), it) } } } }
+                    .map { async { retry(times = 3) { downloadFile(getPmcId(submission.accNo), it) } } }
                     .awaitAll()
             }
         }
