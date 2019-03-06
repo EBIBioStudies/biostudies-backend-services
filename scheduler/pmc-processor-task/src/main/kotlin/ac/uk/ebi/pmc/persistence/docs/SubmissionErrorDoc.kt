@@ -13,7 +13,7 @@ data class SubmissionErrorDoc(
     var accNo: String? = null
 
     constructor(submission: SubmissionDoc, error: String, mode: PmcMode) :
-        this(submission.body, submission.sourceFile, error, mode) {
+        this(submission.sourceFile, submission.body, error, mode) {
         this.accNo = submission.accNo
     }
 }
