@@ -1,5 +1,6 @@
 package ac.uk.ebi.pmc.process
 
+import ac.uk.ebi.pmc.config.MAX_CONNECTIONS
 import ac.uk.ebi.pmc.persistence.ErrorsDocService
 import ac.uk.ebi.pmc.persistence.SubmissionDocService
 import ac.uk.ebi.pmc.persistence.docs.SubmissionDoc
@@ -16,7 +17,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import mu.KotlinLogging
 
-private const val WORKERS = 10
 private val logger = KotlinLogging.logger {}
 
 class PmcProcessor(
@@ -28,7 +28,7 @@ class PmcProcessor(
 
     suspend fun processSubmissions() = withContext(Dispatchers.Default) {
         val receiveChannel = launchProducer()
-        (1..WORKERS).map { launchProcessor(receiveChannel) }.joinAll()
+        (1..MAX_CONNECTIONS * 3).map { launchProcessor(receiveChannel) }.joinAll()
     }
 
     private fun CoroutineScope.launchProcessor(channel: ReceiveChannel<SubmissionDoc>) =
