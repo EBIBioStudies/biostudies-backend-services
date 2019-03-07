@@ -18,6 +18,7 @@ import kotlinx.coroutines.withContext
 import mu.KotlinLogging
 
 private val logger = KotlinLogging.logger {}
+private const val CONECTIONS_FACTOR = 3
 
 class PmcProcessor(
     private val errorDocService: ErrorsDocService,
@@ -28,7 +29,7 @@ class PmcProcessor(
 
     suspend fun processSubmissions() = withContext(Dispatchers.Default) {
         val receiveChannel = launchProducer()
-        (1..MAX_CONNECTIONS * 3).map { launchProcessor(receiveChannel) }.joinAll()
+        (1..MAX_CONNECTIONS * CONECTIONS_FACTOR).map { launchProcessor(receiveChannel) }.joinAll()
     }
 
     private fun CoroutineScope.launchProcessor(channel: ReceiveChannel<SubmissionDoc>) =
