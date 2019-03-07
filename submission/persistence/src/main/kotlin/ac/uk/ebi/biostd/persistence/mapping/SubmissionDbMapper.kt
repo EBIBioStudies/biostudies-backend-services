@@ -20,6 +20,7 @@ import ebi.ac.uk.model.AttributeDetail
 import ebi.ac.uk.model.ExtendedSubmission
 import ebi.ac.uk.model.File
 import ebi.ac.uk.model.FilesTable
+import ebi.ac.uk.model.LibraryFile
 import ebi.ac.uk.model.Link
 import ebi.ac.uk.model.LinksTable
 import ebi.ac.uk.model.Section
@@ -32,15 +33,14 @@ import java.time.ZoneOffset.UTC
 import ac.uk.ebi.biostd.persistence.model.Attribute as AttributeDb
 import ac.uk.ebi.biostd.persistence.model.AttributeDetail as AttributeDetailDb
 import ac.uk.ebi.biostd.persistence.model.File as FileDb
-import ac.uk.ebi.biostd.persistence.model.Link as LinkDb
 import ac.uk.ebi.biostd.persistence.model.LibraryFile as LibraryFileDb
+import ac.uk.ebi.biostd.persistence.model.Link as LinkDb
 import ac.uk.ebi.biostd.persistence.model.ReferencedFile as ReferencedFileDb
 import ac.uk.ebi.biostd.persistence.model.Section as SectionDb
 import ac.uk.ebi.biostd.persistence.model.Submission as SubmissionDb
 import ac.uk.ebi.biostd.persistence.model.User as UserDb
 
 class SubmissionDbMapper {
-
     fun toExtSubmission(submissionDb: SubmissionDb) =
         ExtendedSubmission(submissionDb.accNo, toUser(submissionDb.owner)).apply {
             version = submissionDb.version
@@ -67,7 +67,6 @@ class SubmissionDbMapper {
 }
 
 private object DbSectionMapper {
-
     internal fun toSection(sectionDb: SectionDb): Section =
         Section(accNo = sectionDb.accNo,
             type = sectionDb.type,
@@ -77,15 +76,12 @@ private object DbSectionMapper {
             attributes = toAttributes(sectionDb.attributes)).apply {
             sectionDb.libraryFile?.let {
                 val libFile = sectionDb.libraryFile as LibraryFileDb
-
-                libraryFile = libFile.name
-                libFile.files.forEach { file -> addReferencedFile(toFile(file)) }
+                libraryFile = LibraryFile(libFile.name)
             }
         }
 }
 
 private object DbEitherMapper {
-
     internal fun toLinks(links: List<LinkDb>) = toEitherList(links, DbEntityMapper::toLink, ::LinksTable)
     internal fun toFiles(files: List<FileDb>) = toEitherList(files, DbEntityMapper::toFile, ::FilesTable)
     internal fun toSections(sections: List<SectionDb>) =
@@ -115,7 +111,6 @@ private object DbEitherMapper {
 }
 
 private object DbEntityMapper {
-
     internal fun toLink(link: LinkDb) = Link(link.url, toAttributes(link.attributes))
     internal fun toFile(file: FileDb) = File(file.name, file.size, toAttributes(file.attributes))
     internal fun toFile(file: ReferencedFileDb) = File(file.name, file.size, toAttributes(file.attributes))
@@ -123,7 +118,6 @@ private object DbEntityMapper {
 }
 
 private object DbAttributeMapper {
-
     internal fun toAttributes(attrs: Set<AttributeDb>) = attrs.mapTo(mutableListOf()) { toAttribute(it) }
 
     private fun toAttribute(attrDb: AttributeDb) =

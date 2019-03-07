@@ -6,6 +6,7 @@ import ebi.ac.uk.dsl.section
 import ebi.ac.uk.dsl.submission
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.File
+import ebi.ac.uk.model.LibraryFile
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.constants.SubFields
 import ebi.ac.uk.util.collections.second
@@ -94,7 +95,7 @@ class SubExtTest {
     fun `get library file sections`() {
         val submission = submission("ABC-123") {
             section("Study") {
-                libraryFile = "LibFile1.tsv"
+                libraryFile = LibraryFile("LibFile1.tsv")
 
                 section("Data") {
                     accNo = "DT-1"
@@ -102,7 +103,7 @@ class SubExtTest {
 
                 section("Experiment") {
                     accNo = "EXP-1"
-                    libraryFile = "LibFile2.tsv"
+                    libraryFile = LibraryFile("LibFile2.tsv")
                 }
             }
         }
@@ -110,7 +111,7 @@ class SubExtTest {
         val libFileSections = submission.libFileSections()
 
         assertThat(libFileSections).hasSize(2)
-        assertThat(libFileSections.first().libraryFile).isEqualTo("LibFile2.tsv")
-        assertThat(libFileSections.second().libraryFile).isEqualTo("LibFile1.tsv")
+        assertThat(libFileSections.first().libraryFile?.name).isEqualTo("LibFile2.tsv")
+        assertThat(libFileSections.second().libraryFile?.name).isEqualTo("LibFile1.tsv")
     }
 }

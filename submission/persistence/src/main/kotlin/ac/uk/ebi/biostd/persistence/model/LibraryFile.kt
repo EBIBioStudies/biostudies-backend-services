@@ -23,7 +23,7 @@ class LibraryFile(
     @JoinColumn(name = "libraryFile")
     @OrderBy("order ASC")
     @Basic(fetch = FetchType.LAZY)
-    var files: SortedSet<ReferencedFile> = sortedSetOf()
+    var files: MutableList<ReferencedFile> = mutableListOf()
 }
 
 @Entity

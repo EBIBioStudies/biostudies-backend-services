@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.validation
 
 internal const val REQUIRED_LINK_URL = "Link Url is required"
 internal const val REQUIRED_FILE_PATH = "File Path is required"
+internal const val REQUIRED_LIB_FILE_PATH = "Library file path is required"
 internal const val REQUIRED_ROOT_SECTION = "Root Section type is required"
 internal const val REQUIRED_ATTR_VALUE = "Attribute value must NOT be empty"
 internal const val MISPLACED_ATTR_NAME = "Attribute name qualifier must be after a valid attribute"

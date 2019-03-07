@@ -57,26 +57,28 @@ CREATE TABLE ReferencedFileAttribute (
     ord                  INT      NULL
 );
 
-CREATE INDEX FKek4om17ruuhrjo2gmirdxexyz ON ReferencedFileAttribute (referenced_file_id);
+CREATE INDEX ReferencedFileAttrFileIdIdx ON ReferencedFileAttribute (referenced_file_id);
 
 CREATE TABLE ReferencedFile (
     id             BIGINT AUTO_INCREMENT PRIMARY KEY,
     name           VARCHAR(255) NULL,
     size           BIGINT       NOT NULL,
-    libraryFile    VARCHAR(255) NOT NULL,
+    libraryFile    VARCHAR(100) NOT NULL,
     path           VARCHAR(255) NULL
 );
 
-CREATE INDEX FK464kkuexjpycuic1n33q0yhe3 ON ReferencedFile (libFile);
+CREATE INDEX ReferencedFileIndex ON ReferencedFile (libraryFile);
 
 ALTER TABLE ReferencedFileAttribute
-ADD CONSTRAINT FKek4om17ruuhrjo2gmirdxeva1 FOREIGN KEY (referenced_file_id) REFERENCES ReferencedFile(id);
+ADD CONSTRAINT ReferencedFile_ReferencedFileAttr_FRG_KEY FOREIGN KEY (referenced_file_id) REFERENCES ReferencedFile(id);
 
 CREATE TABLE LibraryFile(
   name         VARCHAR(100) NOT NULL PRIMARY KEY,
   section_id   BIGINT NOT NULL
-  CONSTRAINT LibFile_Section FOREIGN KEY (section_id) REFERENCES Section (id)
 );
+
+ALTER TABLE ReferencedFile
+ADD CONSTRAINT ReferencedFile_LibraryFile_FRG_KEY FOREIGN KEY (libraryFile) REFERENCES LibraryFile(name);
 
 CREATE TABLE IdGen (
     id         BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -132,10 +134,10 @@ CREATE INDEX acc_idx ON Section (accNo);
 CREATE INDEX FK4bi0ld27mvrinwk6gleu9phf4 ON Section (submission_id);
 CREATE INDEX FKba6xolosvegauoq8xs1kj17ch ON Section (parent_id);
 CREATE INDEX section_type_index ON Section (type);
-ALTER TABLE FileRef ADD CONSTRAINT FK464kkuexjpycuic1n33q0yhe2
-FOREIGN KEY (sectionId) REFERENCES Section (id);
-ALTER TABLE Link ADD CONSTRAINT FKqhsnrwf0i6q08gt5l83fwchn8
-FOREIGN KEY (section_id) REFERENCES Section (id);
+
+ALTER TABLE Link ADD CONSTRAINT Link_Section_FRG_KEY FOREIGN KEY (section_id) REFERENCES Section (id);
+ALTER TABLE FileRef ADD CONSTRAINT FileRef_Section_FRG_KEY FOREIGN KEY (sectionId) REFERENCES Section (id);
+ALTER TABLE LibraryFile ADD CONSTRAINT LibFile_Section_FRG_KEY FOREIGN KEY (section_id) REFERENCES Section (id);
 
 CREATE TABLE SectionAttribute (
     id                   BIGINT AUTO_INCREMENT PRIMARY KEY,

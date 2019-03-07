@@ -35,6 +35,12 @@ class TsvToStringSerializer {
 
         section.links.forEach { either -> either.fold({ addLink(builder, it) }, { addTable(builder, it) }) }
         section.files.forEach { either -> either.fold({ addFile(builder, it) }, { addTable(builder, it) }) }
+
+        section.libraryFile?.let {
+            builder.addSeparator()
+            builder.addLibFile(it)
+        }
+
         section.sections.forEach { either -> either.fold({ serializeSection(builder, it) }) { addTable(builder, it) } }
     }
 
@@ -52,8 +58,8 @@ class TsvToStringSerializer {
 
     private fun <T : Any> addTable(builder: TsvBuilder, table: Table<T>) {
         builder.addSeparator()
-        builder.addTableRow(table.headers.flatMap {
-            listOf(it.name) + it.termNames.map { "($it)" } + it.termValues.map { "[$it]" } })
+        builder.addTableRow(table.headers.flatMap { header ->
+            listOf(header.name) + header.termNames.map { "($it)" } + header.termValues.map { "[$it]" } })
 
         table.rows.forEach { builder.addTableRow(it) }
     }

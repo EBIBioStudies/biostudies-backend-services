@@ -23,6 +23,18 @@ class SerializationService(
 
     fun serializeSubmission(submission: Submission, format: SubFormat) = serializeElement(submission, format)
 
+    inline fun <reified T> deserializeElement(
+        element: String,
+        format: SubFormat
+    ) = deserializeElement(element, format, T::class.java) as T
+
+    fun <T> deserializeElement(element: String, format: SubFormat, type: Class<out T>? = null) = when (format) {
+        XML -> xmlSerializer.deserialize(element)
+        JSON -> jsonSerializer.deserialize(element)
+        JSON_PRETTY -> jsonSerializer.deserialize(element)
+        TSV -> tsvSerializer.deserializeElement(element, type!!)
+    }
+
     fun deserializeSubmission(submission: String, format: SubFormat) = when (format) {
         XML -> xmlSerializer.deserialize(submission)
         JSON -> jsonSerializer.deserialize(submission)

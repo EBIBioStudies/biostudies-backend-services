@@ -14,8 +14,7 @@ class TsvSerializer(
 
     inline fun <reified T> deserializeElement(pageTab: String) = deserializeElement(pageTab, T::class.java)
 
-    fun <T> deserializeElement(pageTab: String, type: Class<out T>) =
-        tsvDeserializer.deserializeElement(pageTab, type::class.java)
+    fun <T> deserializeElement(pageTab: String, type: Class<out T>) = tsvDeserializer.deserializeElement(pageTab, type)
 
     fun deserialize(submission: String) = tsvDeserializer.deserialize(submission)
 

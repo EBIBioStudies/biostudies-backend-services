@@ -13,8 +13,10 @@ import arrow.core.Either
 import ebi.ac.uk.api.security.RegisterRequest
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.file
+import ebi.ac.uk.dsl.line
 import ebi.ac.uk.dsl.section
 import ebi.ac.uk.dsl.submission
+import ebi.ac.uk.dsl.tsv
 import ebi.ac.uk.model.File
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
@@ -28,6 +30,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.nio.file.Paths
@@ -67,16 +70,54 @@ internal class MultipartSubmissionApiTest(private val tempFolder: TemporaryFolde
             }
 
             val response = webClient.submitSingle(submission, SubmissionFormat.JSON, listOf(file))
+            assertSuccessfulResponse(response)
+
+            val createdSubmission = submissionRepository.getExtendedByAccNo(accNo)
+            assertThat(createdSubmission).hasAccNo(accNo)
+            assertThat(createdSubmission.section.files).containsExactly(Either.left(File("DataFile1.txt")))
+
+            val submissionFolderPath = "$basePath/submission/${createdSubmission.relPath}/Files"
+            assertThat(Paths.get("$submissionFolderPath/$fileName")).exists()
+        }
+
+        @Test
+        fun `submission with library file`() {
+            val submission = tsv {
+                line("Submission", "S-TEST1")
+                line("Title", "Test Submission")
+                line()
+
+                line("Study", "SECT-001")
+                line("Title", "Root Section")
+                line()
+
+                line("LibraryFile", "LibraryFile.tsv")
+            }
+
+            val libraryFile = tempFolder.createFile("LibraryFile.tsv").apply {
+                writeBytes(tsv {
+                    line("Files", "GEN")
+                    line("File1.txt", "ABC")
+                }.toString().toByteArray())
+            }
+
+            val response = webClient.submitSingle(
+                submission.toString(), SubmissionFormat.TSV, listOf(libraryFile, tempFolder.createFile("File1.txt")))
+            assertSuccessfulResponse(response)
+
+            val createdSubmission = submissionRepository.getExtendedByAccNo("S-TEST1")
+            val submissionFolderPath = "$basePath/submission/${createdSubmission.relPath}"
+
+            assertThat(Paths.get("$submissionFolderPath/Files/File1.txt")).exists()
+            assertThat(Paths.get("$submissionFolderPath/S-TEST1.SECT-001.files.tsv")).exists()
+            assertThat(Paths.get("$submissionFolderPath/S-TEST1.SECT-001.files.xml")).exists()
+            assertThat(Paths.get("$submissionFolderPath/S-TEST1.SECT-001.files.json")).exists()
+        }
+
+        private fun <T> assertSuccessfulResponse(response: ResponseEntity<T>) {
             assertThat(response).isNotNull
             assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
             assertThat(response.body).isNotNull
-
-            val createSubmission = submissionRepository.getExtendedByAccNo(accNo)
-            assertThat(createSubmission).hasAccNo(accNo)
-            assertThat(createSubmission.section.files).containsExactly(Either.left(File("DataFile1.txt")))
-
-            val submissionFolderPath = "$basePath/submission/${createSubmission.relPath}/Files"
-            assertThat(Paths.get("$submissionFolderPath/$fileName")).exists()
         }
     }
 }

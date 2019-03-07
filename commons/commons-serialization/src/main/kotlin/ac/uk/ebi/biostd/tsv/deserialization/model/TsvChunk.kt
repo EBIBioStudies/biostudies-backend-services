@@ -7,9 +7,11 @@ import ac.uk.ebi.biostd.tsv.deserialization.common.getType
 import ac.uk.ebi.biostd.tsv.deserialization.common.toAttributes
 import ac.uk.ebi.biostd.validation.InvalidElementException
 import ac.uk.ebi.biostd.validation.REQUIRED_FILE_PATH
+import ac.uk.ebi.biostd.validation.REQUIRED_LIB_FILE_PATH
 import ac.uk.ebi.biostd.validation.REQUIRED_LINK_URL
 import ebi.ac.uk.model.File
 import ebi.ac.uk.model.FilesTable
+import ebi.ac.uk.model.LibraryFile
 import ebi.ac.uk.model.Link
 import ebi.ac.uk.model.LinksTable
 import ebi.ac.uk.model.Section
@@ -47,6 +49,10 @@ class FileChunk(body: List<TsvChunkLine>) : TsvChunk(body) {
         val attributes = toAttributes(lines)
         return File(fileName, attributes = attributes)
     }
+}
+
+class LibFileChunk(body: List<TsvChunkLine>) : TsvChunk(body) {
+    fun asLibraryFile() = LibraryFile(getIdOrElse(InvalidElementException(REQUIRED_LIB_FILE_PATH)))
 }
 
 class LinksTableChunk(body: List<TsvChunkLine>) : TsvChunk(body) {
