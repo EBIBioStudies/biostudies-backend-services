@@ -33,9 +33,7 @@ import java.time.ZoneOffset.UTC
 import ac.uk.ebi.biostd.persistence.model.Attribute as AttributeDb
 import ac.uk.ebi.biostd.persistence.model.AttributeDetail as AttributeDetailDb
 import ac.uk.ebi.biostd.persistence.model.File as FileDb
-import ac.uk.ebi.biostd.persistence.model.LibraryFile as LibraryFileDb
 import ac.uk.ebi.biostd.persistence.model.Link as LinkDb
-import ac.uk.ebi.biostd.persistence.model.ReferencedFile as ReferencedFileDb
 import ac.uk.ebi.biostd.persistence.model.Section as SectionDb
 import ac.uk.ebi.biostd.persistence.model.Submission as SubmissionDb
 import ac.uk.ebi.biostd.persistence.model.User as UserDb
@@ -74,10 +72,7 @@ private object DbSectionMapper {
             files = toFiles(sectionDb.files.toList()),
             sections = toSections(sectionDb.sections.toList()),
             attributes = toAttributes(sectionDb.attributes)).apply {
-            sectionDb.libraryFile?.let {
-                val libFile = sectionDb.libraryFile as LibraryFileDb
-                libraryFile = LibraryFile(libFile.name)
-            }
+            sectionDb.libraryFile?.let { libraryFile = LibraryFile(it.name) }
         }
 }
 
@@ -113,7 +108,6 @@ private object DbEitherMapper {
 private object DbEntityMapper {
     internal fun toLink(link: LinkDb) = Link(link.url, toAttributes(link.attributes))
     internal fun toFile(file: FileDb) = File(file.name, file.size, toAttributes(file.attributes))
-    internal fun toFile(file: ReferencedFileDb) = File(file.name, file.size, toAttributes(file.attributes))
     internal fun toUser(owner: UserDb) = User(owner.id, owner.email, owner.secret)
 }
 

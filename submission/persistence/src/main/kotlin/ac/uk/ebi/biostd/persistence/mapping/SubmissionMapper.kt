@@ -82,7 +82,7 @@ private object SectionMapper {
         }
 
     fun toLibraryFileDb(libraryFile: LibraryFile) = LibraryFileDb(libraryFile.name).apply {
-        files = libraryFile.referencedFiles.mapTo(mutableListOf(), EntityMapper::toRefFile)
+        files = libraryFile.referencedFiles.mapTo(mutableSetOf(), EntityMapper::toRefFile)
     }
 }
 
