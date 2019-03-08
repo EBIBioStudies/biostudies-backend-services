@@ -2,7 +2,6 @@ package ac.uk.ebi.pmc.load
 
 import ac.uk.ebi.biostd.SerializationService
 import ac.uk.ebi.biostd.SubFormat.TSV
-import ac.uk.ebi.pmc.config.MAX_CONNECTIONS
 import ac.uk.ebi.pmc.persistence.ErrorsDocService
 import ac.uk.ebi.pmc.persistence.InputFilesDocService
 import ac.uk.ebi.pmc.persistence.SubmissionDocService
@@ -20,6 +19,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 private val sanitizeRegex = "(\n)(\t)*|(\t)+(\n)".toRegex()
+private const val WORKERS = 30
 
 class PmcSubmissionLoader(
     private val serializationService: SerializationService,
@@ -37,7 +37,7 @@ class PmcSubmissionLoader(
     suspend fun processFile(file: FileSpec) = withContext(Dispatchers.Default) {
         if (inputFilesDocService.isProcessed(file).not()) {
             val receiveChannel = launchProducer(file)
-            (1..MAX_CONNECTIONS).map { launchProcessor(receiveChannel) }.joinAll()
+            (1..WORKERS).map { launchProcessor(receiveChannel) }.joinAll()
             inputFilesDocService.reportProcessed(file)
         }
     }
