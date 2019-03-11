@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.submission.model.FilesSource
 import ebi.ac.uk.model.ExtendedSubmission
 import ebi.ac.uk.model.extensions.allFiles
 import ebi.ac.uk.model.extensions.libFileSections
+import ebi.ac.uk.model.extensions.libraryFile
 import ebi.ac.uk.util.collections.ifNotEmpty
 
 class FilesValidator {
@@ -16,7 +17,7 @@ class FilesValidator {
 
     private fun validateLibraryFiles(submission: ExtendedSubmission, filesSource: FilesSource) {
         submission.libFileSections()
-            .filterNot { section -> filesSource.exists(section.libraryFile!!.name) }
+            .filterNot { section -> filesSource.exists(section.libraryFile!!) }
             .ifNotEmpty { throw InvalidLibraryFileException(it) }
     }
 

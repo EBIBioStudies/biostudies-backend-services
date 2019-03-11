@@ -3,7 +3,6 @@ package ac.uk.ebi.biostd.tsv.deserialization
 import ac.uk.ebi.biostd.tsv.TSV_CHUNK_BREAK
 import ac.uk.ebi.biostd.tsv.deserialization.model.FileChunk
 import ac.uk.ebi.biostd.tsv.deserialization.model.FileTableChunk
-import ac.uk.ebi.biostd.tsv.deserialization.model.LibFileChunk
 import ac.uk.ebi.biostd.tsv.deserialization.model.LinkChunk
 import ac.uk.ebi.biostd.tsv.deserialization.model.LinksTableChunk
 import ac.uk.ebi.biostd.tsv.deserialization.model.RootSectionTableChunk
@@ -61,7 +60,6 @@ class TsvDeserializer(private val chunkProcessor: ChunkProcessor = ChunkProcesso
             type like FileFields.FILE -> FileChunk(body)
             type like SectionFields.LINKS -> LinksTableChunk(body)
             type like SectionFields.FILES -> FileTableChunk(body)
-            type like SectionFields.LIB_FILE -> LibFileChunk(body)
             type.matches(TABLE_REGEX) -> TABLE_REGEX.findGroup(type, 1).fold(
                 { RootSectionTableChunk(body) },
                 { SubSectionTableChunk(body, it) })

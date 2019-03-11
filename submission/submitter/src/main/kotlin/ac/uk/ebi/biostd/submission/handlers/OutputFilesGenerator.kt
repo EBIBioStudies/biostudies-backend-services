@@ -2,10 +2,9 @@ package ac.uk.ebi.biostd.submission.handlers
 
 import ac.uk.ebi.biostd.SerializationService
 import ac.uk.ebi.biostd.SubFormat
-import ac.uk.ebi.biostd.submission.model.FilesSource
 import ebi.ac.uk.model.ExtendedSubmission
 import ebi.ac.uk.model.FilesTable
-import ebi.ac.uk.model.extensions.libFileSections
+import ebi.ac.uk.model.extensions.allLibraryFileSections
 import ebi.ac.uk.paths.FolderResolver
 import org.apache.commons.io.FileUtils
 
@@ -13,19 +12,18 @@ class OutputFilesGenerator(
     private val folderResolver: FolderResolver,
     private val serializationService: SerializationService
 ) {
-    fun generate(submission: ExtendedSubmission, filesSource: FilesSource) {
+    fun generate(submission: ExtendedSubmission) {
         generateSubmissionFiles(submission)
-        generateLibraryFiles(submission, filesSource)
+        generateLibraryFiles(submission)
     }
 
     private fun generateSubmissionFiles(submission: ExtendedSubmission) =
         generateOutputFiles(submission.asSubmission(), submission, submission.accNo)
 
-    private fun generateLibraryFiles(submission: ExtendedSubmission, filesSource: FilesSource) =
-        submission.libFileSections().forEach {
+    private fun generateLibraryFiles(submission: ExtendedSubmission) =
+        submission.allLibraryFileSections().forEach {
             val libFileName = "${submission.accNo}.${it.accNo}.files"
-            val libFileContent = filesSource.readText(it.libraryFile!!.name)
-            val filesTable = serializationService.deserializeElement<FilesTable>(libFileContent, SubFormat.TSV)
+            val filesTable = FilesTable(it.libraryFile!!.referencedFiles.toList())
 
             it.libraryFile!!.name = "$libFileName.tsv"
             generateOutputFiles(filesTable, submission, libFileName)

@@ -6,6 +6,7 @@ import java.io.InputStream
 data class ResourceFile(val name: String, val inputStream: InputStream, val size: Long) {
     var text: String = ""
 
+    // TODO Improve the file reading. This should performed only when necessary
     init {
         text = inputStream.asString()
     }

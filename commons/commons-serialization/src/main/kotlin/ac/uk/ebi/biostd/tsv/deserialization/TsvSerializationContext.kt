@@ -2,7 +2,6 @@ package ac.uk.ebi.biostd.tsv.deserialization
 
 import ac.uk.ebi.biostd.tsv.deserialization.model.FileChunk
 import ac.uk.ebi.biostd.tsv.deserialization.model.FileTableChunk
-import ac.uk.ebi.biostd.tsv.deserialization.model.LibFileChunk
 import ac.uk.ebi.biostd.tsv.deserialization.model.LinkChunk
 import ac.uk.ebi.biostd.tsv.deserialization.model.LinksTableChunk
 import ac.uk.ebi.biostd.tsv.deserialization.model.SectionChunk
@@ -44,9 +43,6 @@ class TsvSerializationContext {
 
     fun addFilesTable(chunk: FileTableChunk) =
         execute(currentSection, chunk) { currentSection.addFilesTable(chunk.asTable()) }
-
-    fun setLibraryFile(chunk: LibFileChunk) =
-        execute(currentSection, chunk) { currentSection.libraryFile = chunk.asLibraryFile() }
 
     fun addSectionTable(chunk: SectionTableChunk) =
         execute(rootSection, chunk) { rootSection.addSectionTable(chunk.asTable()) }
