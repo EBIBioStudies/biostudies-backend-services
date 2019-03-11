@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-echo "holi Dockerfile.$1";
 docker build -t biostudies-mysql:0.2 -f Dockerfile.$1 .;
 docker run -d \
   --name biostudies-mysql \

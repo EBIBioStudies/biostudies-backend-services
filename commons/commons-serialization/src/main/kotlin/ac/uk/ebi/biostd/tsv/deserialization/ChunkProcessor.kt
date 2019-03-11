@@ -7,6 +7,7 @@ import ac.uk.ebi.biostd.tsv.deserialization.common.toAttributes
 import ac.uk.ebi.biostd.tsv.deserialization.common.validate
 import ac.uk.ebi.biostd.tsv.deserialization.model.FileChunk
 import ac.uk.ebi.biostd.tsv.deserialization.model.FileTableChunk
+import ac.uk.ebi.biostd.tsv.deserialization.model.LibFileChunk
 import ac.uk.ebi.biostd.tsv.deserialization.model.LinkChunk
 import ac.uk.ebi.biostd.tsv.deserialization.model.LinksTableChunk
 import ac.uk.ebi.biostd.tsv.deserialization.model.RootSectionTableChunk
@@ -51,6 +52,7 @@ class ChunkProcessor {
         is FileChunk -> chunk.asFile() as T
         is LinksTableChunk -> chunk.asTable() as T
         is FileTableChunk -> chunk.asTable() as T
+        is LibFileChunk -> chunk.asLibraryFile() as T
         is SectionChunk -> TODO("Implement section chunk isolated deserialization")
         is SectionTableChunk -> TODO("Implement section table chunk isolated deserialization")
     }
@@ -61,6 +63,7 @@ class ChunkProcessor {
             is FileChunk -> sectionContext.addFile(chunk)
             is LinksTableChunk -> sectionContext.addLinksTable(chunk)
             is FileTableChunk -> sectionContext.addFilesTable(chunk)
+            is LibFileChunk -> sectionContext.setLibraryFile(chunk)
             is SectionTableChunk -> processSectionTable(chunk, sectionContext)
             is SectionChunk -> processSection(chunk, sectionContext)
         }

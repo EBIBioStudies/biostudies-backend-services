@@ -2,4 +2,5 @@ package ac.uk.ebi.biostd.submission.exceptions
 
 import ebi.ac.uk.model.Section
 
-class InvalidLibraryFileException(val sections: List<Section>, message: String) : RuntimeException(message)
+class InvalidLibraryFileException(sections: List<Section>) :
+    RuntimeException("The following sections contain invalid library files: ${sections.map { it.type }}")

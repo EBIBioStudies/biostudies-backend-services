@@ -6,7 +6,11 @@ import ac.uk.ebi.biostd.common.config.SubmitterConfig.ProcessorConfig
 import ac.uk.ebi.biostd.common.config.SubmitterConfig.ValidatorConfig
 import ac.uk.ebi.biostd.common.property.ApplicationProperties
 import ac.uk.ebi.biostd.submission.SubmissionSubmitter
+import ac.uk.ebi.biostd.submission.handlers.FilesCopier
 import ac.uk.ebi.biostd.submission.handlers.FilesHandler
+import ac.uk.ebi.biostd.submission.handlers.FilesValidator
+import ac.uk.ebi.biostd.submission.handlers.LibraryFilesHandler
+import ac.uk.ebi.biostd.submission.handlers.OutputFilesGenerator
 import ac.uk.ebi.biostd.submission.processors.AccNoProcessor
 import ac.uk.ebi.biostd.submission.processors.AccessTagProcessor
 import ac.uk.ebi.biostd.submission.processors.PropertiesProcessor
@@ -43,7 +47,20 @@ class SubmitterConfig {
         fun serializationService() = SerializationService()
 
         @Bean
-        fun filesHandler() = FilesHandler(folderResolver(), serializationService())
+        fun filesHandler() = FilesHandler(
+            folderResolver(), filesValidator(), filesCopier(), libraryFilesHandler(), outputFilesGenerator())
+
+        @Bean
+        fun libraryFilesHandler() = LibraryFilesHandler(serializationService())
+
+        @Bean
+        fun outputFilesGenerator() = OutputFilesGenerator(folderResolver(), serializationService())
+
+        @Bean
+        fun filesCopier() = FilesCopier(folderResolver())
+
+        @Bean
+        fun filesValidator() = FilesValidator()
     }
 
     @Configuration
