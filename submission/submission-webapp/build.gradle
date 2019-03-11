@@ -54,3 +54,7 @@ task itest(type: Test, dependsOn: []) {
 }
 
 test.finalizedBy itest
+
+bootJar {
+    archiveName = 'submission-webapp.jar'
+}
