@@ -26,13 +26,13 @@ class SerializationService(
     inline fun <reified T> deserializeElement(
         element: String,
         format: SubFormat
-    ) = deserializeElement(element, format, T::class.java) as T
+    ) = deserializeElement(element, format, T::class.java)
 
-    fun <T> deserializeElement(element: String, format: SubFormat, type: Class<out T>? = null) = when (format) {
-        XML -> xmlSerializer.deserialize(element)
-        JSON -> jsonSerializer.deserialize(element)
-        JSON_PRETTY -> jsonSerializer.deserialize(element)
-        TSV -> tsvSerializer.deserializeElement(element, type!!)
+    fun <T> deserializeElement(element: String, format: SubFormat, type: Class<out T>): T = when (format) {
+        XML -> xmlSerializer.deserialize(element, type)
+        JSON -> jsonSerializer.deserialize(element, type)
+        JSON_PRETTY -> jsonSerializer.deserialize(element, type)
+        TSV -> tsvSerializer.deserializeElement(element, type)
     }
 
     fun deserializeSubmission(submission: String, format: SubFormat) = when (format) {

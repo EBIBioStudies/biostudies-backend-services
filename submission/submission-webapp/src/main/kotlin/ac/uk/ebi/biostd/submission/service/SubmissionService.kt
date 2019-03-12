@@ -40,6 +40,7 @@ class SubmissionService(
     fun submit(
         submission: Submission,
         user: User,
-        files: List<ResourceFile> = emptyList()
-    ) = submitter.submit(ExtendedSubmission(submission, user), files, persistenceContext)
+        files: List<ResourceFile> = emptyList(),
+        format: SubFormat
+    ) = submitter.submit(ExtendedSubmission(submission, user), files, persistenceContext, format)
 }
