@@ -26,6 +26,6 @@ class FilesHandler(
         filesValidator.validate(submission, fileSource)
         libraryFilesHandler.processLibraryFiles(submission, fileSource)
         filesCopier.copy(submission, fileSource)
-        outputFilesGenerator.generate(submission, fileSource)
+        outputFilesGenerator.generate(submission)
     }
 }

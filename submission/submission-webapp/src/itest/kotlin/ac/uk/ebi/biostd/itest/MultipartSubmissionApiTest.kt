@@ -89,9 +89,8 @@ internal class MultipartSubmissionApiTest(private val tempFolder: TemporaryFolde
 
                 line("Study", "SECT-001")
                 line("Title", "Root Section")
-                line()
-
                 line("LibraryFile", "LibraryFile.tsv")
+                line()
             }
 
             val libraryFile = tempFolder.createFile("LibraryFile.tsv").apply {

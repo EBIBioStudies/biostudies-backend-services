@@ -5,7 +5,7 @@ import ebi.ac.uk.util.collections.addLeft
 import ebi.ac.uk.util.collections.addRight
 import java.util.Objects
 
-class Section(
+open class Section(
     var type: String = "",
     var accNo: String? = null,
     var sections: MutableList<Either<Section, SectionsTable>> = mutableListOf(),
@@ -14,14 +14,12 @@ class Section(
     attributes: List<Attribute> = emptyList()
 ) : Attributable(attributes) {
     var parentAccNo: String? = null
-    var libraryFile: LibraryFile? = null
 
     fun addFile(file: File) = files.addLeft(file)
     fun addLink(link: Link) = links.addLeft(link)
     fun addSection(section: Section) = sections.addLeft(section)
     fun addFilesTable(table: FilesTable) = files.addRight(table)
     fun addLinksTable(table: LinksTable) = links.addRight(table)
-    fun addReferencedFile(file: File) = libraryFile?.addFile(file)
     fun addSectionTable(table: SectionsTable) = sections.addRight(table)
 
     override fun equals(other: Any?) = when {
@@ -33,9 +31,7 @@ class Section(
             .and(Objects.equals(links, other.links))
             .and(Objects.equals(sections, other.sections))
             .and(Objects.equals(attributes, other.attributes))
-            .and(Objects.equals(libraryFile, other.libraryFile))
-            .and(Objects.equals(libraryFile, other.libraryFile))
     }
 
-    override fun hashCode() = Objects.hash(type, accNo, files, links, sections, attributes, libraryFile, libraryFile)
+    override fun hashCode() = Objects.hash(type, accNo, files, links, sections, attributes)
 }

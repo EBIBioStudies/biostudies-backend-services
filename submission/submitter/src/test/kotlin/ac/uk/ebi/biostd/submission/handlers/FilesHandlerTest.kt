@@ -58,14 +58,14 @@ class FilesHandlerTest(
 
         verify(exactly = 1) { mockFilesCopier.copy(submission, any<PathFilesSource>()) }
         verify(exactly = 1) { mockFilesValidator.validate(submission, any<PathFilesSource>()) }
-        verify(exactly = 1) { mockOutputFilesGenerator.generate(submission, any<PathFilesSource>()) }
+        verify(exactly = 1) { mockOutputFilesGenerator.generate(submission) }
         verify(exactly = 1) { mockLibraryFilesHandler.processLibraryFiles(submission, any<PathFilesSource>()) }
     }
 
     private fun initMocks() {
         every { mockFilesCopier.copy(submission, any<PathFilesSource>()) } answers { nothing }
         every { mockFilesValidator.validate(submission, any<PathFilesSource>()) } answers { nothing }
-        every { mockOutputFilesGenerator.generate(submission, any<PathFilesSource>()) } answers { nothing }
+        every { mockOutputFilesGenerator.generate(submission) } answers { nothing }
         every { mockLibraryFilesHandler.processLibraryFiles(submission, any<PathFilesSource>()) } answers { nothing }
         every {
             mockFolderResolver.getUserMagicFolderPath(USER_ID, USER_SECRET_KEY)

@@ -5,24 +5,23 @@ import java.time.OffsetDateTime
 import java.util.Objects
 
 class ExtendedSubmission(accNo: String, val user: User) : Submission(accNo) {
-
     constructor(submission: Submission, user: User) : this(submission.accNo, user) {
         section = submission.section
         attributes = submission.attributes
         accessTags = submission.accessTags
+        extendedSection = ExtendedSection(submission.section)
     }
 
     var relPath = EMPTY
     var released = false
     var secretKey = EMPTY
     var version = 1
+    var extendedSection = ExtendedSection(section)
     var releaseTime: OffsetDateTime = OffsetDateTime.now()
     var modificationTime: OffsetDateTime = OffsetDateTime.now()
     var creationTime: OffsetDateTime = OffsetDateTime.now()
 
-    fun asSubmission(): Submission {
-        return Submission(this.accNo, this.section, this.attributes)
-    }
+    fun asSubmission() = Submission(accNo, section, attributes)
 
     override fun equals(other: Any?) = when {
         other !is ExtendedSubmission -> false

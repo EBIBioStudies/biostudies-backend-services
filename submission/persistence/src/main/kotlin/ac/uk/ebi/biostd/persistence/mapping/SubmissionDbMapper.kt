@@ -20,7 +20,6 @@ import ebi.ac.uk.model.AttributeDetail
 import ebi.ac.uk.model.ExtendedSubmission
 import ebi.ac.uk.model.File
 import ebi.ac.uk.model.FilesTable
-import ebi.ac.uk.model.LibraryFile
 import ebi.ac.uk.model.Link
 import ebi.ac.uk.model.LinksTable
 import ebi.ac.uk.model.Section
@@ -71,9 +70,7 @@ private object DbSectionMapper {
             links = toLinks(sectionDb.links.toList()),
             files = toFiles(sectionDb.files.toList()),
             sections = toSections(sectionDb.sections.toList()),
-            attributes = toAttributes(sectionDb.attributes)).apply {
-            sectionDb.libraryFile?.let { libraryFile = LibraryFile(it.name) }
-        }
+            attributes = toAttributes(sectionDb.attributes))
 }
 
 private object DbEitherMapper {

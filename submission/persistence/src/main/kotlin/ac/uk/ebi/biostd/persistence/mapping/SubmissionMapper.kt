@@ -23,7 +23,6 @@ import ebi.ac.uk.model.AttributeDetail
 import ebi.ac.uk.model.ExtendedSubmission
 import ebi.ac.uk.model.File
 import ebi.ac.uk.model.FilesTable
-import ebi.ac.uk.model.LibraryFile
 import ebi.ac.uk.model.Link
 import ebi.ac.uk.model.LinksTable
 import ebi.ac.uk.model.Section
@@ -34,7 +33,6 @@ import ebi.ac.uk.model.extensions.title
 import ac.uk.ebi.biostd.persistence.model.Attribute as AttributeDb
 import ac.uk.ebi.biostd.persistence.model.AttributeDetail as AttributeDetailDb
 import ac.uk.ebi.biostd.persistence.model.File as FileDb
-import ac.uk.ebi.biostd.persistence.model.LibraryFile as LibraryFileDb
 import ac.uk.ebi.biostd.persistence.model.Link as LinkDb
 import ac.uk.ebi.biostd.persistence.model.ReferencedFile as ReferencedFileDb
 import ac.uk.ebi.biostd.persistence.model.Section as SectionDb
@@ -70,8 +68,6 @@ private object SectionMapper {
         links = section.links.mapIndexed(::toLinks).flatten().toSortedSet()
         files = section.files.mapIndexed(::toFiles).flatten().toSortedSet()
         sections = section.sections.mapIndexed(::toSections).flatten().toSortedSet()
-
-        section.libraryFile?.let { libraryFile = toLibraryFileDb(it) }
     }
 
     fun toTableSection(section: Section, index: Int, sectionTableIndex: Int) =
@@ -80,10 +76,6 @@ private object SectionMapper {
             tableIndex = sectionTableIndex
             order = index
         }
-
-    fun toLibraryFileDb(libraryFile: LibraryFile) = LibraryFileDb(libraryFile.name).apply {
-        files = libraryFile.referencedFiles.mapTo(mutableSetOf(), EntityMapper::toRefFile)
-    }
 }
 
 private object TableMapper {
