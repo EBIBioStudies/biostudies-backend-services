@@ -9,8 +9,11 @@ import java.io.File
 class PmcImporterResource(private val importerService: PmcLoaderService) {
 
     @PostMapping("/api/pmc/load/folder")
-    fun submitFile(@RequestHeader("path") path: String) = importerService.loadFile(File(path))
+    fun loadFile(@RequestHeader("path") path: String) = importerService.loadFile(File(path))
 
     @PostMapping("/api/pmc/process")
-    fun process() = importerService.process()
+    fun triggerProcessor() = importerService.triggerProcessor()
+
+    @PostMapping("/api/pmc/submit")
+    fun triggerSubmitter() = importerService.triggerSubmitter()
 }

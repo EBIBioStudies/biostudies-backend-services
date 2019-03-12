@@ -29,6 +29,7 @@ data class SubmissionDoc(
         const val sourceTime = "sourceTime"
         const val updated = "updated"
         const val imported = "imported"
+        const val files = "files"
     }
 }
 

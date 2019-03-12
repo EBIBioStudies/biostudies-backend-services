@@ -31,9 +31,20 @@ class PmcLoaderService(
         return jobTry.fold({ throw it }, { it.apply { logger.info { "submitted job $it" } } })
     }
 
-    fun process(): Job {
+    fun triggerProcessor(): Job {
         logger.info { "submitting job to process submissions" }
         val properties = getConfigProperties(importMode = PmcMode.PROCESS)
+        val jobTry = clusterOperations.triggerJob(
+            JobSpec(
+                TASK_CORES,
+                MemorySpec.EIGHT_GB,
+                properties.asJavaCommand(appProperties.appsFolder)))
+        return jobTry.fold({ throw it }, { it.apply { logger.info { "submitted job $it" } } })
+    }
+
+    fun triggerSubmitter(): Job {
+        logger.info { "submitting job to submit submissions" }
+        val properties = getConfigProperties(importMode = PmcMode.SUBMIT)
         val jobTry = clusterOperations.triggerJob(
             JobSpec(
                 TASK_CORES,

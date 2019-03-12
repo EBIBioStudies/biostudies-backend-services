@@ -15,9 +15,11 @@ import kotlinx.coroutines.channels.produce
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import mu.KotlinLogging
 import java.io.File
 
-private const val WORKERS = 3
+private val logger = KotlinLogging.logger {}
+private const val WORKERS = 30
 
 class PmcSubmitter(
     private val bioWebClient: BioWebClient,
@@ -40,6 +42,7 @@ class PmcSubmitter(
 
     private suspend fun submitSubmission(submission: SubmissionDoc) = coroutineScope {
         Try {
+            logger.info { "submitting accNo='${submission.accNo}'" }
             val files = submissionService.getSubFiles(submission.files).map { File(it.path) }
             bioWebClient.submitSingle(submission.body, SubmissionFormat.JSON, files)
         }.fold(
