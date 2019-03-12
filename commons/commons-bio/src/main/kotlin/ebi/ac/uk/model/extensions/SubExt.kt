@@ -1,6 +1,5 @@
 package ebi.ac.uk.model.extensions
 
-import ebi.ac.uk.model.ExtendedSubmission
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.constants.SubFields
 import java.time.Instant
@@ -48,7 +47,3 @@ var Submission.title: String?
 fun Submission.allFiles() = section.allFiles() + section.allSections().flatMap { it.allFiles() }
 fun Submission.getSectionByType(name: String) = section.allSections().first { it.type == name }
 fun Submission.libFileSections() = (section.allSections() + section).filterNot { it.libraryFile.isNullOrBlank() }
-
-fun ExtendedSubmission.allExtendedSections() = extendedSection.allExtendedSections() + extendedSection
-fun ExtendedSubmission.allReferencedFiles() = allExtendedSections().flatMap { it.allReferencedFiles() }
-fun ExtendedSubmission.allLibraryFileSections() = allExtendedSections().filterNot { it.libraryFile == null }

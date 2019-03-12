@@ -3,6 +3,7 @@ package ebi.ac.uk.model
 import arrow.core.Either
 import ebi.ac.uk.model.extensions.libraryFile
 import ebi.ac.uk.util.collections.addLeft
+import ebi.ac.uk.util.collections.addRight
 import java.util.Objects
 
 class ExtendedSection(type: String) : Section(type) {
@@ -18,7 +19,7 @@ class ExtendedSection(type: String) : Section(type) {
 
         section.libraryFile?.let { libraryFile = LibraryFile(it) }
         section.sections.forEach { sect ->
-            sect.fold({ extendedSections.addLeft(ExtendedSection(it)) }, { addSectionTable(it) })
+            sect.fold({ extendedSections.addLeft(ExtendedSection(it)) }, { extendedSections.addRight(it) })
         }
     }
 
