@@ -44,7 +44,7 @@ class JsonSerializer {
 
     inline fun <reified T> deserialize(value: String) = mapper.readValue<T>(value)
 
-    fun <T> deserialize(value: String, type: Class<out T>) =  mapper.readValue(value, type)
+    fun <T> deserialize(value: String, type: Class<out T>) = mapper.readValue(value, type)
 
     companion object {
         val mapper = createMapper()

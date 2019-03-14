@@ -17,6 +17,7 @@ import ebi.ac.uk.base.orFalse
 import ebi.ac.uk.functions.secondsToInstant
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.AttributeDetail
+import ebi.ac.uk.model.ExtendedSection
 import ebi.ac.uk.model.ExtendedSubmission
 import ebi.ac.uk.model.File
 import ebi.ac.uk.model.FilesTable
@@ -50,6 +51,7 @@ class SubmissionDbMapper {
             releaseTime = toInstant(submissionDb.releaseTime)
 
             section = toSection(submissionDb.rootSection)
+            extendedSection = ExtendedSection(toSection(submissionDb.rootSection))
             attributes = toAttributes(submissionDb.attributes)
             accessTags = submissionDb.accessTags.mapTo(mutableListOf(), AccessTag::name)
         }

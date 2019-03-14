@@ -5,6 +5,7 @@ import ac.uk.ebi.biostd.SubFormat
 import ebi.ac.uk.model.ExtendedSubmission
 import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.model.extensions.allLibraryFileSections
+import ebi.ac.uk.model.extensions.libraryFileAttr
 import ebi.ac.uk.paths.FolderResolver
 import org.apache.commons.io.FileUtils
 
@@ -13,8 +14,8 @@ class OutputFilesGenerator(
     private val serializationService: SerializationService
 ) {
     fun generate(submission: ExtendedSubmission) {
-        generateSubmissionFiles(submission)
         generateLibraryFiles(submission)
+        generateSubmissionFiles(submission)
     }
 
     private fun generateSubmissionFiles(submission: ExtendedSubmission) =
@@ -25,7 +26,8 @@ class OutputFilesGenerator(
             val libFileName = "${submission.accNo}.${it.accNo}.files"
             val filesTable = FilesTable(it.libraryFile!!.referencedFiles.toList())
 
-            it.libraryFile!!.name = "$libFileName.tsv"
+            it.libraryFileAttr = libFileName
+            it.libraryFile!!.name = libFileName
             generateOutputFiles(filesTable, submission, libFileName)
         }
 

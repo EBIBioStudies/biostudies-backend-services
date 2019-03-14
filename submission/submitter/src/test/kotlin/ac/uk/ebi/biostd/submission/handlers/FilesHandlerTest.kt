@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.submission.handlers
 
+import ac.uk.ebi.biostd.SubFormat.JSON
 import ac.uk.ebi.biostd.submission.model.PathFilesSource
 import ac.uk.ebi.biostd.submission.test.ACC_NO
 import ac.uk.ebi.biostd.submission.test.USER_ID
@@ -54,19 +55,23 @@ class FilesHandlerTest(
     // TODO add unit tests for the individual processors
     @Test
     fun `process submission files`() {
-        testInstance.processFiles(submission, emptyList())
+        testInstance.processFiles(submission, emptyList(), JSON)
 
         verify(exactly = 1) { mockFilesCopier.copy(submission, any<PathFilesSource>()) }
         verify(exactly = 1) { mockFilesValidator.validate(submission, any<PathFilesSource>()) }
         verify(exactly = 1) { mockOutputFilesGenerator.generate(submission) }
-        verify(exactly = 1) { mockLibraryFilesHandler.processLibraryFiles(submission, any<PathFilesSource>()) }
+        verify(exactly = 1) { mockLibraryFilesHandler.processLibraryFiles(submission, any<PathFilesSource>(), JSON) }
     }
 
     private fun initMocks() {
         every { mockFilesCopier.copy(submission, any<PathFilesSource>()) } answers { nothing }
         every { mockFilesValidator.validate(submission, any<PathFilesSource>()) } answers { nothing }
         every { mockOutputFilesGenerator.generate(submission) } answers { nothing }
-        every { mockLibraryFilesHandler.processLibraryFiles(submission, any<PathFilesSource>()) } answers { nothing }
+
+        every {
+            mockLibraryFilesHandler.processLibraryFiles(submission, any<PathFilesSource>(), JSON)
+        } answers { nothing }
+
         every {
             mockFolderResolver.getUserMagicFolderPath(USER_ID, USER_SECRET_KEY)
         } returns Paths.get("${temporaryFolder.root.absolutePath}/$USER_SECRET_KEY")
