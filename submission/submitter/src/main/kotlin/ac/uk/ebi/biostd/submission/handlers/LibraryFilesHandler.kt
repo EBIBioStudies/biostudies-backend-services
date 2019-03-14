@@ -8,12 +8,10 @@ import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.model.extensions.allLibraryFileSections
 
 class LibraryFilesHandler(private val serializationService: SerializationService) {
-    fun processLibraryFiles(submission: ExtendedSubmission, filesSource: FilesSource) {
+    fun processLibraryFiles(submission: ExtendedSubmission, filesSource: FilesSource, format: SubFormat) {
         submission.allLibraryFileSections().forEach { section ->
             val libFileContent = filesSource.readText(section.libraryFile!!.name)
-
-            // TODO support for all formats
-            val filesTable = serializationService.deserializeElement<FilesTable>(libFileContent, SubFormat.TSV)
+            val filesTable = serializationService.deserializeElement<FilesTable>(libFileContent, format)
 
             filesTable.elements.forEach { section.addReferencedFile(it) }
         }

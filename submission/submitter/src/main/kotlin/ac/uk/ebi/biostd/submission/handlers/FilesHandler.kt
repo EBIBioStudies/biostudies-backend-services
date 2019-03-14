@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.submission.handlers
 
+import ac.uk.ebi.biostd.SubFormat
 import ac.uk.ebi.biostd.submission.model.ListFilesSource
 import ac.uk.ebi.biostd.submission.model.PathFilesSource
 import ac.uk.ebi.biostd.submission.model.ResourceFile
@@ -19,12 +20,12 @@ class FilesHandler(
      * In charge of generate submission json/tsv/xml representation files and validate all submission specified files
      * are provided or exists in  user repository or in the list of provided files.
      */
-    fun processFiles(submission: ExtendedSubmission, files: List<ResourceFile>) {
+    fun processFiles(submission: ExtendedSubmission, files: List<ResourceFile>, format: SubFormat) {
         val userFolder = folderResolver.getUserMagicFolderPath(submission.user.id, submission.user.secretKey)
         val fileSource = if (files.isEmpty()) PathFilesSource(userFolder) else ListFilesSource(files)
 
         filesValidator.validate(submission, fileSource)
-        libraryFilesHandler.processLibraryFiles(submission, fileSource)
+        libraryFilesHandler.processLibraryFiles(submission, fileSource, format)
         filesCopier.copy(submission, fileSource)
         outputFilesGenerator.generate(submission)
     }

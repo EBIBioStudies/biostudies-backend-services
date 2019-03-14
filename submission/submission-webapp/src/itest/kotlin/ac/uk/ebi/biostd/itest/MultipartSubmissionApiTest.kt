@@ -13,11 +13,14 @@ import arrow.core.Either
 import ebi.ac.uk.api.security.RegisterRequest
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.file
+import ebi.ac.uk.dsl.json.jsonArray
+import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.dsl.line
 import ebi.ac.uk.dsl.section
 import ebi.ac.uk.dsl.submission
 import ebi.ac.uk.dsl.tsv
 import ebi.ac.uk.model.File
+import ebi.ac.uk.model.extensions.libraryFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
@@ -25,6 +28,7 @@ import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import org.redundent.kotlin.xml.xml
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.web.server.LocalServerPort
@@ -81,7 +85,7 @@ internal class MultipartSubmissionApiTest(private val tempFolder: TemporaryFolde
         }
 
         @Test
-        fun `submission with library file`() {
+        fun `submission with library file TSV`() {
             val submission = tsv {
                 line("Submission", "S-TEST1")
                 line("Title", "Test Submission")
@@ -102,21 +106,114 @@ internal class MultipartSubmissionApiTest(private val tempFolder: TemporaryFolde
 
             val response = webClient.submitSingle(
                 submission.toString(), SubmissionFormat.TSV, listOf(libraryFile, tempFolder.createFile("File1.txt")))
+
             assertSuccessfulResponse(response)
+            assertSubmissionFiles("S-TEST1", "File1.txt")
+        }
 
-            val createdSubmission = submissionRepository.getExtendedByAccNo("S-TEST1")
-            val submissionFolderPath = "$basePath/submission/${createdSubmission.relPath}"
+        @Test
+        fun `submission with library file JSON`() {
+            val submission = jsonObj {
+                "accNo" to "S-TEST2"
+                "attributes" to jsonArray({
+                    "name" to "Title"
+                    "value" to "Test Submission"
+                })
+                "section" to {
+                    "accNo" to "SECT-001"
+                    "type" to "Study"
+                    "attributes" to jsonArray({
+                        "name" to "Title"
+                        "value" to "Root Section"
+                    }, {
+                        "name" to "LibraryFile"
+                        "value" to "LibraryFile.json"
+                    })
+                }
+            }
 
-            assertThat(Paths.get("$submissionFolderPath/Files/File1.txt")).exists()
-            assertThat(Paths.get("$submissionFolderPath/S-TEST1.SECT-001.files.tsv")).exists()
-            assertThat(Paths.get("$submissionFolderPath/S-TEST1.SECT-001.files.xml")).exists()
-            assertThat(Paths.get("$submissionFolderPath/S-TEST1.SECT-001.files.json")).exists()
+            val libraryFile = tempFolder.createFile("LibraryFile.json").apply {
+                writeBytes(jsonArray({
+                    "path" to "File2.txt"
+                    "attributes" to jsonArray({
+                        "name" to "GEN"
+                        "value" to "ABC"
+                    })
+                }).toString().toByteArray())
+            }
+
+            val response = webClient.submitSingle(
+                submission.toString(), SubmissionFormat.JSON, listOf(libraryFile, tempFolder.createFile("File2.txt")))
+
+            assertSuccessfulResponse(response)
+            assertSubmissionFiles("S-TEST2", "File2.txt")
+        }
+
+        @Test
+        fun `submission with library file XML`() {
+            val submission = xml("submission") {
+                attribute("accNo", "S-TEST3")
+                "attributes" {
+                    "attribute" {
+                        "name" { -"Title" }
+                        "value" { -"Test Submission" }
+                    }
+                }
+
+                "section" {
+                    attribute("accNo", "SECT-001")
+                    attribute("type", "Study")
+                    "attributes" {
+                        "attribute" {
+                            "name" { -"Title" }
+                            "value" { -"Root Section" }
+                        }
+                        "attribute" {
+                            "name" { -"LibraryFile" }
+                            "value" { -"LibraryFile.xml" }
+                        }
+                    }
+                }
+            }
+
+            val libraryFile = tempFolder.createFile("LibraryFile.xml").apply {
+                writeBytes(xml("table") {
+                    "file" {
+                        "path" { -"File3.txt" }
+                        "attributes" {
+                            "attribute" {
+                                "name" { -"GEN" }
+                                "value" { -"ABC" }
+                            }
+                        }
+                    }
+                }.toString().toByteArray())
+            }
+
+            val response = webClient.submitSingle(
+                submission.toString(), SubmissionFormat.XML, listOf(libraryFile, tempFolder.createFile("File3.txt")))
+
+            assertSuccessfulResponse(response)
+            assertSubmissionFiles("S-TEST3", "File3.txt")
         }
 
         private fun <T> assertSuccessfulResponse(response: ResponseEntity<T>) {
             assertThat(response).isNotNull
             assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
             assertThat(response.body).isNotNull
+        }
+
+        private fun assertSubmissionFiles(accNo: String, testFile: String) {
+            val createdSubmission = submissionRepository.getExtendedByAccNo(accNo)
+            val submissionFolderPath = "$basePath/submission/${createdSubmission.relPath}"
+
+            assertThat(createdSubmission.section.libraryFile).isEqualTo("$accNo.SECT-001.files")
+
+            assertThat(Paths.get("$submissionFolderPath/Files/$testFile")).exists()
+
+            assertThat(Paths.get("$submissionFolderPath/$accNo.SECT-001.files.tsv")).exists()
+            assertThat(Paths.get("$submissionFolderPath/$accNo.SECT-001.files.xml")).exists()
+            assertThat(Paths.get("$submissionFolderPath/$accNo.SECT-001.files.json")).exists()
         }
     }
 }

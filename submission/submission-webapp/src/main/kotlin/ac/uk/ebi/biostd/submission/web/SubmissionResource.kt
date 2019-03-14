@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.submission.web
 
+import ac.uk.ebi.biostd.SubFormat
 import ac.uk.ebi.biostd.submission.service.SubmissionService
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.User
@@ -38,10 +39,20 @@ class SubmissionResource(
     @GetMapping("/{accNo}.tsv", produces = [TEXT_PLAIN])
     fun asTsv(@PathVariable accNo: String) = submissionService.getSubmissionAsTsv(accNo)
 
-    @PostMapping
+    @PostMapping(headers = ["$SUBMISSION_TYPE=$APPLICATION_JSON"])
     @ResponseBody
-    fun submit(@AuthenticationPrincipal user: User, @RequestBody submission: Submission) =
-        submissionService.submit(submission, user)
+    fun submitJson(@AuthenticationPrincipal user: User, @RequestBody submission: Submission) =
+        submissionService.submit(submission, user, format = SubFormat.JSON)
+
+    @PostMapping(headers = ["$SUBMISSION_TYPE=$TEXT_XML"])
+    @ResponseBody
+    fun submitXml(@AuthenticationPrincipal user: User, @RequestBody submission: Submission) =
+        submissionService.submit(submission, user, format = SubFormat.XML)
+
+    @PostMapping(headers = ["$SUBMISSION_TYPE=$TEXT_PLAIN"])
+    @ResponseBody
+    fun submitTsv(@AuthenticationPrincipal user: User, @RequestBody submission: Submission) =
+        submissionService.submit(submission, user, format = SubFormat.TSV)
 
     @DeleteMapping("/{accNo}")
     fun deleteSubmission(@AuthenticationPrincipal user: User, @PathVariable accNo: String) =

@@ -20,6 +20,7 @@ import arrow.core.Either
 import ebi.ac.uk.base.orFalse
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.AttributeDetail
+import ebi.ac.uk.model.ExtendedSection
 import ebi.ac.uk.model.ExtendedSubmission
 import ebi.ac.uk.model.File
 import ebi.ac.uk.model.FilesTable
@@ -52,7 +53,7 @@ class SubmissionMapper(private val tagsRepository: TagsDataRepository) {
         releaseTime = submission.releaseTime.toEpochSecond()
 
         owner = toUser(submission.user)
-        rootSection = toSection(submission.section, NO_TABLE_INDEX)
+        rootSection = toSection(submission.extendedSection, NO_TABLE_INDEX)
         attributes = toAttributes(submission.attributes).mapTo(sortedSetOf(), ::SubmissionAttribute)
         accessTags = toAccessTag(submission.accessTags)
     }
@@ -62,12 +63,12 @@ class SubmissionMapper(private val tagsRepository: TagsDataRepository) {
 }
 
 private object SectionMapper {
-    fun toSection(section: Section, index: Int) = SectionDb(section.accNo, section.type).apply {
+    fun toSection(section: ExtendedSection, index: Int) = SectionDb(section.accNo, section.type).apply {
         order = index
         attributes = toAttributes(section.attributes).mapTo(sortedSetOf(), ::SectionAttribute)
         links = section.links.mapIndexed(::toLinks).flatten().toSortedSet()
         files = section.files.mapIndexed(::toFiles).flatten().toSortedSet()
-        sections = section.sections.mapIndexed(::toSections).flatten().toSortedSet()
+        sections = section.extendedSections.mapIndexed(::toSections).flatten().toSortedSet()
     }
 
     fun toTableSection(section: Section, index: Int, sectionTableIndex: Int) =
@@ -79,7 +80,7 @@ private object SectionMapper {
 }
 
 private object TableMapper {
-    fun toSections(index: Int, either: Either<Section, SectionsTable>): List<SectionDb> =
+    fun toSections(index: Int, either: Either<ExtendedSection, SectionsTable>): List<SectionDb> =
         either.fold(
             { listOf(toSection(it, index)) },
             { it.elements.mapIndexed { tableIndex, file -> toTableSection(file, index + tableIndex, tableIndex) } })

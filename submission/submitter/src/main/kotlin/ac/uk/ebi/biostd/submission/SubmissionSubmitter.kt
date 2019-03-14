@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.submission
 
+import ac.uk.ebi.biostd.SubFormat
 import ac.uk.ebi.biostd.submission.handlers.FilesHandler
 import ac.uk.ebi.biostd.submission.model.ResourceFile
 import ac.uk.ebi.biostd.submission.processors.SubmissionProcessor
@@ -16,11 +17,12 @@ class SubmissionSubmitter(
     fun submit(
         submission: ExtendedSubmission,
         files: List<ResourceFile> = emptyList(),
-        context: PersistenceContext
+        context: PersistenceContext,
+        format: SubFormat
     ): Submission {
         validators.forEach { validator -> validator.validate(submission, context) }
         processors.forEach { processor -> processor.process(submission, context) }
-        filesHandler.processFiles(submission, files)
+        filesHandler.processFiles(submission, files, format)
         context.saveSubmission(submission)
         return submission
     }

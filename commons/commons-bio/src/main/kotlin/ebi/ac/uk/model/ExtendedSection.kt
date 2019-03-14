@@ -25,6 +25,13 @@ class ExtendedSection(type: String) : Section(type) {
 
     fun addReferencedFile(file: File) = libraryFile?.addFile(file)
 
+    fun asSection() = Section(type, accNo, toSections(), files, links, attributes)
+
+    private fun toSections(): MutableList<Either<Section, SectionsTable>> =
+        extendedSections.mapTo(mutableListOf()) { extSect ->
+            extSect.fold({ Either.left(it.asSection()) }, { Either.right(it) })
+        }
+
     override fun equals(other: Any?) = when {
         other !is ExtendedSection -> false
         other === this -> true
