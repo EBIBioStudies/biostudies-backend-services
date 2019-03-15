@@ -40,7 +40,7 @@ class Section(
     override var order: Int = 0
 
     @OneToOne(cascade = [CascadeType.ALL])
-    @JoinColumn(name = "sectionId")
+    @JoinColumn(name = "libraryFile")
     var libraryFile: LibraryFile? = null
 
     @OneToMany(cascade = [CascadeType.ALL])

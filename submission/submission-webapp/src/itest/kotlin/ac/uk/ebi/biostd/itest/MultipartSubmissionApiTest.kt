@@ -19,7 +19,9 @@ import ebi.ac.uk.dsl.line
 import ebi.ac.uk.dsl.section
 import ebi.ac.uk.dsl.submission
 import ebi.ac.uk.dsl.tsv
+import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.File
+import ebi.ac.uk.model.LibraryFile
 import ebi.ac.uk.model.extensions.libraryFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
@@ -37,6 +39,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
+import org.springframework.transaction.annotation.Transactional
 import java.nio.file.Paths
 
 @ExtendWith(TemporaryFolderExtension::class)
@@ -46,6 +49,7 @@ internal class MultipartSubmissionApiTest(private val tempFolder: TemporaryFolde
     @ExtendWith(SpringExtension::class)
     @Import(value = [SubmitterConfig::class, PersistenceConfig::class, FileConfig::class])
     @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+    @Transactional
     @DirtiesContext
     inner class SingleSubmissionTest(@Autowired val submissionRepository: SubmissionRepository) {
 
@@ -204,10 +208,13 @@ internal class MultipartSubmissionApiTest(private val tempFolder: TemporaryFolde
         }
 
         private fun assertSubmissionFiles(accNo: String, testFile: String) {
-            val createdSubmission = submissionRepository.getExtendedByAccNo(accNo)
+            val libFileName = "$accNo.SECT-001.files"
+            val createdSubmission = submissionRepository.getExtendedByAccNo(accNo, loadRefFiles = true)
             val submissionFolderPath = "$basePath/submission/${createdSubmission.relPath}"
 
-            assertThat(createdSubmission.section.libraryFile).isEqualTo("$accNo.SECT-001.files")
+            assertThat(createdSubmission.section.libraryFile).isEqualTo(libFileName)
+            assertThat(createdSubmission.extendedSection.libraryFile).isEqualTo(
+                LibraryFile(libFileName, mutableSetOf(File(testFile, attributes = listOf(Attribute("GEN", "ABC"))))))
 
             assertThat(Paths.get("$submissionFolderPath/Files/$testFile")).exists()
 

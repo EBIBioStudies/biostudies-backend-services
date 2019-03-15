@@ -21,7 +21,6 @@ class LibraryFile(
 ) {
     @OneToMany(cascade = [CascadeType.ALL])
     @JoinColumn(name = "libraryFile")
-    @OrderBy("order ASC")
     @Basic(fetch = FetchType.LAZY)
     var files: Set<ReferencedFile> = setOf()
 }

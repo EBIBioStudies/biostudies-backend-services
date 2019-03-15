@@ -2,17 +2,20 @@ package ac.uk.ebi.biostd.persistence.mapping
 
 import ac.uk.ebi.biostd.persistence.common.NO_TABLE_INDEX
 import ac.uk.ebi.biostd.persistence.mapping.DbAttributeMapper.toAttributes
+import ac.uk.ebi.biostd.persistence.mapping.DbEitherMapper.toExtendedSections
 import ac.uk.ebi.biostd.persistence.mapping.DbEitherMapper.toFiles
 import ac.uk.ebi.biostd.persistence.mapping.DbEitherMapper.toLinks
 import ac.uk.ebi.biostd.persistence.mapping.DbEitherMapper.toSections
-import ac.uk.ebi.biostd.persistence.mapping.DbEntityMapper.toFile
+import ac.uk.ebi.biostd.persistence.mapping.DbEntityMapper.toLibraryFile
 import ac.uk.ebi.biostd.persistence.mapping.DbEntityMapper.toUser
+import ac.uk.ebi.biostd.persistence.mapping.DbSectionMapper.toExtendedSection
 import ac.uk.ebi.biostd.persistence.mapping.DbSectionMapper.toSection
 import ac.uk.ebi.biostd.persistence.model.AccessTag
 import ac.uk.ebi.biostd.persistence.model.Tabular
 import arrow.core.Either
 import arrow.core.Either.Companion.left
 import arrow.core.Either.Companion.right
+import ebi.ac.uk.base.ifTrue
 import ebi.ac.uk.base.orFalse
 import ebi.ac.uk.functions.secondsToInstant
 import ebi.ac.uk.model.Attribute
@@ -21,6 +24,7 @@ import ebi.ac.uk.model.ExtendedSection
 import ebi.ac.uk.model.ExtendedSubmission
 import ebi.ac.uk.model.File
 import ebi.ac.uk.model.FilesTable
+import ebi.ac.uk.model.LibraryFile
 import ebi.ac.uk.model.Link
 import ebi.ac.uk.model.LinksTable
 import ebi.ac.uk.model.Section
@@ -33,13 +37,15 @@ import java.time.ZoneOffset.UTC
 import ac.uk.ebi.biostd.persistence.model.Attribute as AttributeDb
 import ac.uk.ebi.biostd.persistence.model.AttributeDetail as AttributeDetailDb
 import ac.uk.ebi.biostd.persistence.model.File as FileDb
+import ac.uk.ebi.biostd.persistence.model.LibraryFile as LibraryFileDb
 import ac.uk.ebi.biostd.persistence.model.Link as LinkDb
+import ac.uk.ebi.biostd.persistence.model.ReferencedFile as ReferencedFileDb
 import ac.uk.ebi.biostd.persistence.model.Section as SectionDb
 import ac.uk.ebi.biostd.persistence.model.Submission as SubmissionDb
 import ac.uk.ebi.biostd.persistence.model.User as UserDb
 
 class SubmissionDbMapper {
-    fun toExtSubmission(submissionDb: SubmissionDb) =
+    fun toExtSubmission(submissionDb: SubmissionDb, loadRefFiles: Boolean = false) =
         ExtendedSubmission(submissionDb.accNo, toUser(submissionDb.owner)).apply {
             version = submissionDb.version
             title = submissionDb.title
@@ -51,7 +57,7 @@ class SubmissionDbMapper {
             releaseTime = toInstant(submissionDb.releaseTime)
 
             section = toSection(submissionDb.rootSection)
-            extendedSection = ExtendedSection(toSection(submissionDb.rootSection))
+            extendedSection = toExtendedSection(submissionDb.rootSection, loadRefFiles)
             attributes = toAttributes(submissionDb.attributes)
             accessTags = submissionDb.accessTags.mapTo(mutableListOf(), AccessTag::name)
         }
@@ -73,13 +79,36 @@ private object DbSectionMapper {
             files = toFiles(sectionDb.files.toList()),
             sections = toSections(sectionDb.sections.toList()),
             attributes = toAttributes(sectionDb.attributes))
+
+    internal fun toExtendedSection(sectionDb: SectionDb) = toExtendedSection(sectionDb, false)
+
+    internal fun toExtendedSectionLoadFiles(sectionDb: SectionDb) = toExtendedSection(sectionDb, true)
+
+    internal fun toExtendedSection(sectionDb: SectionDb, loadRefFiles: Boolean) =
+        ExtendedSection(sectionDb.type).apply {
+            accNo = sectionDb.accNo
+            links = toLinks(sectionDb.links.toList())
+            files = toFiles(sectionDb.files.toList())
+            sections = toSections(sectionDb.sections.toList())
+            attributes = toAttributes(sectionDb.attributes)
+            extendedSections = toExtendedSections(sectionDb.sections.toList(), loadRefFiles)
+            sectionDb.libraryFile?.let { libraryFile = toLibraryFile(it, loadRefFiles) }
+        }
 }
 
 private object DbEitherMapper {
     internal fun toLinks(links: List<LinkDb>) = toEitherList(links, DbEntityMapper::toLink, ::LinksTable)
     internal fun toFiles(files: List<FileDb>) = toEitherList(files, DbEntityMapper::toFile, ::FilesTable)
+
     internal fun toSections(sections: List<SectionDb>) =
         toEitherList(sections, DbSectionMapper::toSection, ::SectionsTable)
+
+    internal fun toExtendedSections(
+        sections: List<SectionDb>,
+        loadRefFiles: Boolean
+    ): MutableList<Either<ExtendedSection, SectionsTable>> =
+        if (loadRefFiles) toEitherList(sections, DbSectionMapper::toExtendedSectionLoadFiles, ::SectionsTable)
+        else toEitherList(sections, DbSectionMapper::toExtendedSection, ::SectionsTable)
 
     /**
      * Convert the given list of elements into an instance of @See [Either] using transform function for simple element
@@ -108,6 +137,10 @@ private object DbEntityMapper {
     internal fun toLink(link: LinkDb) = Link(link.url, toAttributes(link.attributes))
     internal fun toFile(file: FileDb) = File(file.name, file.size, toAttributes(file.attributes))
     internal fun toUser(owner: UserDb) = User(owner.id, owner.email, owner.secret)
+    internal fun toFile(file: ReferencedFileDb) = File(file.name, file.size, toAttributes(file.attributes))
+    internal fun toLibraryFile(libFile: LibraryFileDb, loadRefFiles: Boolean) = LibraryFile(libFile.name).apply {
+        loadRefFiles.ifTrue { libFile.files.forEach { addFile(toFile(it)) } }
+    }
 }
 
 private object DbAttributeMapper {

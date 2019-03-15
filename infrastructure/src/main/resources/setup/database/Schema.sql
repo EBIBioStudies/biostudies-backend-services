@@ -73,8 +73,7 @@ ALTER TABLE ReferencedFileAttribute
 ADD CONSTRAINT ReferencedFile_ReferencedFileAttr_FRG_KEY FOREIGN KEY (referenced_file_id) REFERENCES ReferencedFile(id);
 
 CREATE TABLE LibraryFile(
-  name         VARCHAR(100) NOT NULL PRIMARY KEY,
-  section_id   BIGINT NOT NULL
+  name         VARCHAR(100) NOT NULL PRIMARY KEY
 );
 
 ALTER TABLE ReferencedFile
@@ -126,8 +125,10 @@ CREATE TABLE Section (
     type          VARCHAR(255) NULL,
     parent_id     BIGINT       NULL,
     submission_id BIGINT       NULL,
+    libraryFile   VARCHAR(100) NULL,
     ord           INT          NULL,
-    CONSTRAINT FKba6xolosvegauoq8xs1kj17ch FOREIGN KEY (parent_id) REFERENCES Section (id)
+    CONSTRAINT FKba6xolosvegauoq8xs1kj17ch FOREIGN KEY (parent_id) REFERENCES Section (id),
+    CONSTRAINT libraryFile_Section_FRG_KEY FOREIGN KEY (libraryFile) REFERENCES LibraryFile(name)
 );
 
 CREATE INDEX acc_idx ON Section (accNo);
@@ -137,7 +138,6 @@ CREATE INDEX section_type_index ON Section (type);
 
 ALTER TABLE Link ADD CONSTRAINT Link_Section_FRG_KEY FOREIGN KEY (section_id) REFERENCES Section (id);
 ALTER TABLE FileRef ADD CONSTRAINT FileRef_Section_FRG_KEY FOREIGN KEY (sectionId) REFERENCES Section (id);
-ALTER TABLE LibraryFile ADD CONSTRAINT LibFile_Section_FRG_KEY FOREIGN KEY (section_id) REFERENCES Section (id);
 
 CREATE TABLE SectionAttribute (
     id                   BIGINT AUTO_INCREMENT PRIMARY KEY,

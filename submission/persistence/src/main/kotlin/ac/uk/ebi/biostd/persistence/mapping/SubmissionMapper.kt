@@ -34,6 +34,7 @@ import ebi.ac.uk.model.extensions.title
 import ac.uk.ebi.biostd.persistence.model.Attribute as AttributeDb
 import ac.uk.ebi.biostd.persistence.model.AttributeDetail as AttributeDetailDb
 import ac.uk.ebi.biostd.persistence.model.File as FileDb
+import ac.uk.ebi.biostd.persistence.model.LibraryFile as LibraryFileDb
 import ac.uk.ebi.biostd.persistence.model.Link as LinkDb
 import ac.uk.ebi.biostd.persistence.model.ReferencedFile as ReferencedFileDb
 import ac.uk.ebi.biostd.persistence.model.Section as SectionDb
@@ -69,6 +70,12 @@ private object SectionMapper {
         links = section.links.mapIndexed(::toLinks).flatten().toSortedSet()
         files = section.files.mapIndexed(::toFiles).flatten().toSortedSet()
         sections = section.extendedSections.mapIndexed(::toSections).flatten().toSortedSet()
+
+        section.libraryFile?.let { libFile ->
+            libraryFile = LibraryFileDb(libFile.name).apply {
+                files = libFile.referencedFiles.map { EntityMapper.toRefFile(it) }.toSet()
+            }
+        }
     }
 
     fun toTableSection(section: Section, index: Int, sectionTableIndex: Int) =
