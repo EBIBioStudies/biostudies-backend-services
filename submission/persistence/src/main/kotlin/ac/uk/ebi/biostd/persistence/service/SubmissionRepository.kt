@@ -5,9 +5,8 @@ import ac.uk.ebi.biostd.persistence.repositories.SubmissionDataRepository
 
 class SubmissionRepository(
     private val submissionRepository: SubmissionDataRepository,
-    private val submissionDbMapper: SubmissionDbMapper = SubmissionDbMapper()
+    private val submissionDbMapper: SubmissionDbMapper
 ) {
-
     fun getByAccNo(accNo: String) =
         submissionDbMapper.toSubmission(submissionRepository.getByAccNoAndVersionGreaterThan(accNo))
 

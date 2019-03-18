@@ -8,14 +8,12 @@ import ac.uk.ebi.biostd.persistence.mapping.DbEitherMapper.toLinks
 import ac.uk.ebi.biostd.persistence.mapping.DbEitherMapper.toSections
 import ac.uk.ebi.biostd.persistence.mapping.DbEntityMapper.toLibraryFile
 import ac.uk.ebi.biostd.persistence.mapping.DbEntityMapper.toUser
-import ac.uk.ebi.biostd.persistence.mapping.DbSectionMapper.toExtendedSection
-import ac.uk.ebi.biostd.persistence.mapping.DbSectionMapper.toSection
 import ac.uk.ebi.biostd.persistence.model.AccessTag
 import ac.uk.ebi.biostd.persistence.model.Tabular
+import ac.uk.ebi.biostd.persistence.repositories.ReferencedFileRepository
 import arrow.core.Either
 import arrow.core.Either.Companion.left
 import arrow.core.Either.Companion.right
-import ebi.ac.uk.base.ifTrue
 import ebi.ac.uk.base.orFalse
 import ebi.ac.uk.functions.secondsToInstant
 import ebi.ac.uk.model.Attribute
@@ -44,7 +42,9 @@ import ac.uk.ebi.biostd.persistence.model.Section as SectionDb
 import ac.uk.ebi.biostd.persistence.model.Submission as SubmissionDb
 import ac.uk.ebi.biostd.persistence.model.User as UserDb
 
-class SubmissionDbMapper {
+class SubmissionDbMapper(referencedFileRepository: ReferencedFileRepository) {
+    private val sectionMapper = DbSectionMapper(referencedFileRepository)
+
     fun toExtSubmission(submissionDb: SubmissionDb, loadRefFiles: Boolean = false) =
         ExtendedSubmission(submissionDb.accNo, toUser(submissionDb.owner)).apply {
             version = submissionDb.version
@@ -56,8 +56,8 @@ class SubmissionDbMapper {
             modificationTime = toInstant(submissionDb.releaseTime)
             releaseTime = toInstant(submissionDb.releaseTime)
 
-            section = toSection(submissionDb.rootSection)
-            extendedSection = toExtendedSection(submissionDb.rootSection, loadRefFiles)
+            section = sectionMapper.toSection(submissionDb.rootSection)
+            extendedSection = sectionMapper.toExtendedSection(submissionDb.rootSection, loadRefFiles)
             attributes = toAttributes(submissionDb.attributes)
             accessTags = submissionDb.accessTags.mapTo(mutableListOf(), AccessTag::name)
         }
@@ -65,19 +65,19 @@ class SubmissionDbMapper {
     fun toSubmission(submissionDb: SubmissionDb) =
         Submission(submissionDb.accNo, attributes = toAttributes(submissionDb.attributes)).apply {
             accessTags = submissionDb.accessTags.mapTo(mutableListOf(), AccessTag::name)
-            section = toSection(submissionDb.rootSection)
+            section = sectionMapper.toSection(submissionDb.rootSection)
         }
 
     private fun toInstant(dateSeconds: Long) = secondsToInstant(dateSeconds).atOffset(UTC)
 }
 
-private object DbSectionMapper {
+private class DbSectionMapper(private val referencedFileRepository: ReferencedFileRepository) {
     internal fun toSection(sectionDb: SectionDb): Section =
         Section(accNo = sectionDb.accNo,
             type = sectionDb.type,
             links = toLinks(sectionDb.links.toList()),
             files = toFiles(sectionDb.files.toList()),
-            sections = toSections(sectionDb.sections.toList()),
+            sections = toSections(sectionDb.sections.toList(), referencedFileRepository),
             attributes = toAttributes(sectionDb.attributes))
 
     internal fun toExtendedSection(sectionDb: SectionDb) = toExtendedSection(sectionDb, false)
@@ -89,10 +89,12 @@ private object DbSectionMapper {
             accNo = sectionDb.accNo
             links = toLinks(sectionDb.links.toList())
             files = toFiles(sectionDb.files.toList())
-            sections = toSections(sectionDb.sections.toList())
+            sections = toSections(sectionDb.sections.toList(), referencedFileRepository)
             attributes = toAttributes(sectionDb.attributes)
-            extendedSections = toExtendedSections(sectionDb.sections.toList(), loadRefFiles)
-            sectionDb.libraryFile?.let { libraryFile = toLibraryFile(it, loadRefFiles) }
+            extendedSections = toExtendedSections(sectionDb.sections.toList(), referencedFileRepository, loadRefFiles)
+            sectionDb.libraryFile?.let {
+                libraryFile = toLibraryFile(it, referencedFileRepository.findByLibraryFile(it))
+            }
         }
 }
 
@@ -100,15 +102,18 @@ private object DbEitherMapper {
     internal fun toLinks(links: List<LinkDb>) = toEitherList(links, DbEntityMapper::toLink, ::LinksTable)
     internal fun toFiles(files: List<FileDb>) = toEitherList(files, DbEntityMapper::toFile, ::FilesTable)
 
-    internal fun toSections(sections: List<SectionDb>) =
-        toEitherList(sections, DbSectionMapper::toSection, ::SectionsTable)
+    internal fun toSections(sections: List<SectionDb>, referencedFileRepository: ReferencedFileRepository) =
+        toEitherList(sections, DbSectionMapper(referencedFileRepository)::toSection, ::SectionsTable)
 
     internal fun toExtendedSections(
         sections: List<SectionDb>,
+        refFileRepository: ReferencedFileRepository,
         loadRefFiles: Boolean
     ): MutableList<Either<ExtendedSection, SectionsTable>> =
-        if (loadRefFiles) toEitherList(sections, DbSectionMapper::toExtendedSectionLoadFiles, ::SectionsTable)
-        else toEitherList(sections, DbSectionMapper::toExtendedSection, ::SectionsTable)
+        if (loadRefFiles)
+            toEitherList(sections, DbSectionMapper(refFileRepository)::toExtendedSectionLoadFiles, ::SectionsTable)
+        else
+            toEitherList(sections, DbSectionMapper(refFileRepository)::toExtendedSection, ::SectionsTable)
 
     /**
      * Convert the given list of elements into an instance of @See [Either] using transform function for simple element
@@ -138,9 +143,10 @@ private object DbEntityMapper {
     internal fun toFile(file: FileDb) = File(file.name, file.size, toAttributes(file.attributes))
     internal fun toUser(owner: UserDb) = User(owner.id, owner.email, owner.secret)
     internal fun toFile(file: ReferencedFileDb) = File(file.name, file.size, toAttributes(file.attributes))
-    internal fun toLibraryFile(libFile: LibraryFileDb, loadRefFiles: Boolean) = LibraryFile(libFile.name).apply {
-        loadRefFiles.ifTrue { libFile.files.forEach { addFile(toFile(it)) } }
-    }
+    internal fun toLibraryFile(libFile: LibraryFileDb, referencedFiles: List<ReferencedFileDb>) =
+        LibraryFile(libFile.name).apply {
+            referencedFiles.forEach { addFile(toFile(it)) }
+        }
 }
 
 private object DbAttributeMapper {
