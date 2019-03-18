@@ -2,6 +2,8 @@ package ac.uk.ebi.biostd.persistence.repositories
 
 import ac.uk.ebi.biostd.persistence.model.AccessTag
 import ac.uk.ebi.biostd.persistence.model.FULL_DATA_GRAPH
+import ac.uk.ebi.biostd.persistence.model.LibraryFile
+import ac.uk.ebi.biostd.persistence.model.ReferencedFile
 import ac.uk.ebi.biostd.persistence.model.SecurityToken
 import ac.uk.ebi.biostd.persistence.model.Sequence
 import ac.uk.ebi.biostd.persistence.model.Submission
@@ -15,7 +17,6 @@ import java.util.Optional
 import javax.persistence.LockModeType
 
 interface SubmissionDataRepository : JpaRepository<Submission, Long> {
-
     @EntityGraph(value = FULL_DATA_GRAPH, type = LOAD)
     fun getByAccNoAndVersionGreaterThan(id: String, long: Int = 0): Submission
 
@@ -27,19 +28,20 @@ interface SubmissionDataRepository : JpaRepository<Submission, Long> {
     fun existsByAccNo(accNo: String): Boolean
 }
 
-interface TagsDataRepository : JpaRepository<AccessTag, Long> {
+interface ReferencedFileRepository : JpaRepository<ReferencedFile, String> {
+    fun findByLibraryFile(libraryFile: LibraryFile): List<ReferencedFile>
+}
 
+interface TagsDataRepository : JpaRepository<AccessTag, Long> {
     fun findByName(name: String): AccessTag
 }
 
 interface SequenceDataRepository : JpaRepository<Sequence, Long> {
-
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     fun getByPrefixAndSuffix(prefix: String, suffix: String): Sequence
 }
 
 interface UserDataRepository : JpaRepository<User, Long> {
-
     fun findByLoginOrEmail(login: String, email: String): Optional<User>
     fun getByEmail(userEmail: String): User
     fun existsByEmail(email: String): Boolean
@@ -48,7 +50,6 @@ interface UserDataRepository : JpaRepository<User, Long> {
 interface TokenDataRepository : JpaRepository<SecurityToken, String>
 
 interface UserGroupDataRepository : JpaRepository<UserGroup, Long> {
-
     fun findByNameAndUsersId(groupName: String, userId: Long): Optional<UserGroup>
     fun getByName(groupName: String): UserGroup
 }
