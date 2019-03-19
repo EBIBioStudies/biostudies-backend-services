@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.persistence.mapping
 
 import ac.uk.ebi.biostd.persistence.common.NO_TABLE_INDEX
+import ac.uk.ebi.biostd.persistence.common.TAGS_SEPARATOR
 import ac.uk.ebi.biostd.persistence.mapping.AttributeMapper.toAttributes
 import ac.uk.ebi.biostd.persistence.mapping.EntityMapper.toFile
 import ac.uk.ebi.biostd.persistence.mapping.EntityMapper.toLink
@@ -16,6 +17,7 @@ import ac.uk.ebi.biostd.persistence.model.ReferencedFileAttribute
 import ac.uk.ebi.biostd.persistence.model.SectionAttribute
 import ac.uk.ebi.biostd.persistence.model.SubmissionAttribute
 import ac.uk.ebi.biostd.persistence.repositories.TagsDataRepository
+import ac.uk.ebi.biostd.persistence.repositories.TagsRefRepository
 import arrow.core.Either
 import ebi.ac.uk.base.orFalse
 import ebi.ac.uk.model.Attribute
@@ -31,6 +33,7 @@ import ebi.ac.uk.model.SectionsTable
 import ebi.ac.uk.model.User
 import ebi.ac.uk.model.extensions.rootPath
 import ebi.ac.uk.model.extensions.title
+import ebi.ac.uk.util.collections.second
 import ac.uk.ebi.biostd.persistence.model.Attribute as AttributeDb
 import ac.uk.ebi.biostd.persistence.model.AttributeDetail as AttributeDetailDb
 import ac.uk.ebi.biostd.persistence.model.File as FileDb
@@ -41,7 +44,10 @@ import ac.uk.ebi.biostd.persistence.model.Section as SectionDb
 import ac.uk.ebi.biostd.persistence.model.Submission as SubmissionDb
 import ac.uk.ebi.biostd.persistence.model.User as UserDb
 
-class SubmissionMapper(private val tagsRepository: TagsDataRepository) {
+class SubmissionMapper(
+    private val tagsRepository: TagsDataRepository,
+    private val tagsRefRepository: TagsRefRepository
+) {
     fun toSubmissionDb(submission: ExtendedSubmission) = SubmissionDb().apply {
         accNo = submission.accNo
         version = submission.version
@@ -57,10 +63,14 @@ class SubmissionMapper(private val tagsRepository: TagsDataRepository) {
         rootSection = toSection(submission.extendedSection, NO_TABLE_INDEX)
         attributes = toAttributes(submission.attributes).mapTo(sortedSetOf(), ::SubmissionAttribute)
         accessTags = toAccessTag(submission.accessTags)
+        tags = toTags(submission.tags)
     }
 
     private fun toAccessTag(accessTags: List<String>) =
         accessTags.mapTo(mutableSetOf()) { tagsRepository.findByName(it) }
+
+    private fun toTags(tags: List<String>) =
+        tags.mapTo(mutableSetOf()) { tagsRefRepository.findByName(it.split(TAGS_SEPARATOR).second()) }
 }
 
 private object SectionMapper {

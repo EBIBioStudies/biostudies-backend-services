@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.persistence.mapping
 
 import ac.uk.ebi.biostd.persistence.common.NO_TABLE_INDEX
+import ac.uk.ebi.biostd.persistence.common.TAGS_SEPARATOR
 import ac.uk.ebi.biostd.persistence.mapping.DbAttributeMapper.toAttributes
 import ac.uk.ebi.biostd.persistence.mapping.DbEitherMapper.toExtendedSections
 import ac.uk.ebi.biostd.persistence.mapping.DbEitherMapper.toFiles
@@ -10,6 +11,7 @@ import ac.uk.ebi.biostd.persistence.mapping.DbEntityMapper.toLibraryFile
 import ac.uk.ebi.biostd.persistence.mapping.DbEntityMapper.toUser
 import ac.uk.ebi.biostd.persistence.model.AccessTag
 import ac.uk.ebi.biostd.persistence.model.Tabular
+import ac.uk.ebi.biostd.persistence.model.Tag
 import ac.uk.ebi.biostd.persistence.repositories.ReferencedFileRepository
 import arrow.core.Either
 import arrow.core.Either.Companion.left
@@ -60,6 +62,7 @@ class SubmissionDbMapper(referencedFileRepository: ReferencedFileRepository) {
             extendedSection = sectionMapper.toExtendedSection(submissionDb.rootSection, loadRefFiles)
             attributes = toAttributes(submissionDb.attributes)
             accessTags = submissionDb.accessTags.mapTo(mutableListOf(), AccessTag::name)
+            tags = submissionDb.tags.mapTo(mutableListOf(), ::toTag)
         }
 
     fun toSubmission(submissionDb: SubmissionDb) =
@@ -69,6 +72,8 @@ class SubmissionDbMapper(referencedFileRepository: ReferencedFileRepository) {
         }
 
     private fun toInstant(dateSeconds: Long) = secondsToInstant(dateSeconds).atOffset(UTC)
+
+    private fun toTag(tag: Tag) = "${tag.classifier?.name}$TAGS_SEPARATOR${tag.name}"
 }
 
 private class DbSectionMapper(private val referencedFileRepository: ReferencedFileRepository) {

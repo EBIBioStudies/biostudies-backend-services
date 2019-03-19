@@ -30,7 +30,8 @@ typealias Graph = NamedSubgraph
 
 @Entity
 @NamedEntityGraph(name = FULL_DATA_GRAPH,
-    attributeNodes = [Node(value = "rootSection", subgraph = "root"), Node("accessTags"), Node(ATTRS), Node("owner")],
+    attributeNodes = [
+        Node(value = "rootSection", subgraph = "root"), Node("accessTags"), Node("tags"), Node(ATTRS), Node("owner") ],
     subgraphs = [
         Graph(name = "root", attributeNodes = [
             Node(LINKS, subgraph = "attrs"),
@@ -103,6 +104,12 @@ class Submission(
         joinColumns = [JoinColumn(name = "Submission_Id", referencedColumnName = "id")],
         inverseJoinColumns = [JoinColumn(name = "accessTags_id", referencedColumnName = "id")])
     var accessTags: MutableSet<AccessTag> = sortedSetOf()
+
+    @ManyToMany(cascade = [CascadeType.ALL])
+    @JoinTable(name = "SubmissionTagRef",
+        joinColumns = [JoinColumn(name = "submission_Id", referencedColumnName = "id")],
+        inverseJoinColumns = [JoinColumn(name = "tag_id", referencedColumnName = "id")])
+    var tags: MutableSet<Tag> = sortedSetOf()
 
     @OneToMany(cascade = [CascadeType.ALL])
     @JoinColumn(name = "submission_id")
