@@ -6,22 +6,24 @@ import ac.uk.ebi.pmc.persistence.ext.findOneAndUpdate
 import com.mongodb.async.client.MongoCollection
 import com.mongodb.client.model.Filters.and
 import com.mongodb.client.model.Filters.eq
+import com.mongodb.client.model.Filters.gt
 import com.mongodb.client.model.Filters.lt
+import com.mongodb.client.model.FindOneAndUpdateOptions
 import com.mongodb.client.model.Updates.combine
 import com.mongodb.client.model.Updates.set
 import org.litote.kmongo.SetTo
-import org.litote.kmongo.coroutine.insertOne
-import org.litote.kmongo.coroutine.toList
 import org.litote.kmongo.coroutine.updateMany
 import org.litote.kmongo.coroutine.updateOne
 import java.time.Instant
 
 class SubmissionRepository(private val submissions: MongoCollection<SubmissionDoc>) {
 
-    suspend fun insert(errorDoc: SubmissionDoc) = submissions.insertOne(errorDoc)
-
-    suspend fun find(sourceFile: String, imported: Boolean = false) =
-        submissions.find(and(eq(SubmissionDoc.sourceFile, sourceFile), eq(SubmissionDoc.imported, imported))).toList()
+    suspend fun insertIfLastOne(submission: SubmissionDoc, sourceTime: Instant) {
+        submissions.findOneAndUpdate(
+            and(eq(SubmissionDoc.accNo, submission.accNo), gt(SubmissionDoc.sourceTime, sourceTime)),
+            submission.asInsertOnUpdate(),
+            FindOneAndUpdateOptions().upsert(true))
+    }
 
     suspend fun update(submissionDoc: SubmissionDoc) = submissions.updateOne(submissionDoc)
 
@@ -29,7 +31,7 @@ class SubmissionRepository(private val submissions: MongoCollection<SubmissionDo
         eq(SubmissionDoc.status, status.name),
         combine(set(SubmissionDoc.status, newStatus.name), set(SubmissionDoc.updated, Instant.now())))
 
-    suspend fun setSourceTime(accNo: String, sourceTime: Instant) =
+    suspend fun expireSubmissions(accNo: String, sourceTime: Instant) =
         submissions.updateMany(
             and(eq(SubmissionDoc.accNo, accNo), lt(SubmissionDoc.sourceTime, sourceTime)),
             SetTo(SubmissionDoc::status, SubmissionStatus.DISCARDED))

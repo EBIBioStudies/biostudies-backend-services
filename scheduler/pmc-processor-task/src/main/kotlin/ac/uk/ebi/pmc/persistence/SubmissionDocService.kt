@@ -40,14 +40,15 @@ class SubmissionDocService(
         submissionRepository.update(submission.withStatus(status))
 
     suspend fun saveLoadedVersion(submission: Submission, sourceFile: String, sourceTime: Instant) {
-        submissionRepository.setSourceTime(submission.accNo, sourceTime)
-        submissionRepository.insert(SubmissionDoc(
+        submissionRepository.expireSubmissions(submission.accNo, sourceTime)
+        submissionRepository.insertIfLastOne(SubmissionDoc(
             submission.accNo,
             asJson(submission),
             LOADED,
-            sourceFile,
-            sourceTime))
-        logger.info { "saved new version of submission with accNo = '${submission.accNo}' from file $sourceFile" }
+            sourceFile),
+            sourceTime)
+
+        logger.info { "processed version of submission with accNo = '${submission.accNo}' from file $sourceFile" }
     }
 
     suspend fun saveProcessedSubmission(submission: SubmissionDoc, files: List<File>) = coroutineScope {

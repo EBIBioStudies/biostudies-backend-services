@@ -1,12 +1,14 @@
 package ac.uk.ebi.pmc.persistence.docs
 
+import com.mongodb.client.model.Updates
+import org.bson.conversions.Bson
 import org.bson.types.ObjectId
 import java.time.Instant
 
 @Suppress("VariableNaming")
 data class SubmissionDoc(
     val accNo: String,
-    val body: String,
+    var body: String,
     var status: SubmissionStatus,
     val sourceFile: String,
     var sourceTime: Instant? = null,
@@ -22,8 +24,22 @@ data class SubmissionDoc(
         return this
     }
 
+    fun withBody(body: String): SubmissionDoc {
+        this.body = body
+        return this
+    }
+
+    fun asInsertOnUpdate(): Bson = Updates.combine(
+        Updates.setOnInsert(Fields.accNo, accNo),
+        Updates.setOnInsert(Fields.body, body),
+        Updates.setOnInsert(Fields.sourceFile, sourceFile),
+        Updates.setOnInsert(Fields.sourceTime, sourceTime),
+        Updates.setOnInsert(Fields.status, status),
+        Updates.setOnInsert(Fields.updated, updated))
+
     companion object Fields {
         const val accNo = "accNo"
+        const val body = "body"
         const val status = "status"
         const val sourceFile = "sourceFile"
         const val sourceTime = "sourceTime"
