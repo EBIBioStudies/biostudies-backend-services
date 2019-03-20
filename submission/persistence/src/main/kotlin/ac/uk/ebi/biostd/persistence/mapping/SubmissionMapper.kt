@@ -33,7 +33,6 @@ import ebi.ac.uk.model.SectionsTable
 import ebi.ac.uk.model.User
 import ebi.ac.uk.model.extensions.rootPath
 import ebi.ac.uk.model.extensions.title
-import ebi.ac.uk.util.collections.second
 import ac.uk.ebi.biostd.persistence.model.Attribute as AttributeDb
 import ac.uk.ebi.biostd.persistence.model.AttributeDetail as AttributeDetailDb
 import ac.uk.ebi.biostd.persistence.model.File as FileDb
@@ -71,8 +70,8 @@ class SubmissionMapper(
 
     private fun toTags(tags: List<String>) =
         tags.mapTo(mutableSetOf()) {
-            val tagName = it.split(TAGS_SEPARATOR)
-            tagsRefRepository.findByClassifierAndName(tagName.first(), tagName.second())
+            val (classifier, tag) = it.split(TAGS_SEPARATOR)
+            tagsRefRepository.findByClassifierAndName(classifier, tag)
         }
 }
 
