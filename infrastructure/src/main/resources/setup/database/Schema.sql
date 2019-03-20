@@ -5,12 +5,6 @@ CREATE TABLE AccessTag (
     CONSTRAINT access_tag_name_idx UNIQUE (name)
 );
 
-CREATE TABLE Classifier (
-    id          BIGINT AUTO_INCREMENT PRIMARY KEY,
-    name        VARCHAR(255) NULL,
-    CONSTRAINT classifier_name_idx UNIQUE (name)
-);
-
 CREATE TABLE Counter (
     id       BIGINT AUTO_INCREMENT PRIMARY KEY,
     maxCount BIGINT       NOT NULL,
@@ -201,22 +195,17 @@ CREATE INDEX FKgsgxljia12i17av51pl5el3c0 ON Submission_AccessTag (accessTags_id)
 
 CREATE TABLE Tag (
     id            BIGINT AUTO_INCREMENT PRIMARY KEY,
-    name          VARCHAR(255) NULL,
-    classifier_id BIGINT       NULL,
-    parent_tag_id BIGINT       NULL,
-    CONSTRAINT name_idx UNIQUE (name),
-    CONSTRAINT classifier_fk FOREIGN KEY (classifier_id) REFERENCES Classifier (id),
-    CONSTRAINT parent_tag_fk FOREIGN KEY (parent_tag_id) REFERENCES Tag (id)
+    name          VARCHAR(255) NOT NULL,
+    classifier    VARCHAR(255) NOT NULL,
+    CONSTRAINT tag_name UNIQUE (classifier, name)
 );
-
-CREATE INDEX classifier_fk ON Tag (classifier_id);
-CREATE INDEX parent_tag_fk ON Tag (parent_tag_id);
 
 CREATE TABLE SubmissionTagRef (
     id            BIGINT AUTO_INCREMENT PRIMARY KEY,
     tag_id        BIGINT       NULL,
     submission_id BIGINT       NULL,
-    CONSTRAINT FK8hm6cswe1g8yln27i7io54q0q FOREIGN KEY (submission_id) REFERENCES Submission (id)
+    CONSTRAINT Tag_Submission_FRG_KEY FOREIGN KEY (tag_id) REFERENCES Tag (id),
+    CONSTRAINT Submission_Tag_FRG_KEY FOREIGN KEY (submission_id) REFERENCES Submission (id)
 );
 
 CREATE INDEX FK4fb5yjdagkfeagoebhiloqqrp ON SubmissionTagRef (tag_id);

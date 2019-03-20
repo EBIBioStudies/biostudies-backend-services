@@ -73,7 +73,7 @@ class SubmissionDbMapper(referencedFileRepository: ReferencedFileRepository) {
 
     private fun toInstant(dateSeconds: Long) = secondsToInstant(dateSeconds).atOffset(UTC)
 
-    private fun toTag(tag: Tag) = "${tag.classifier?.name}$TAGS_SEPARATOR${tag.name}"
+    private fun toTag(tag: Tag) = "${tag.classifier}$TAGS_SEPARATOR${tag.name}"
 }
 
 private class DbSectionMapper(private val referencedFileRepository: ReferencedFileRepository) {

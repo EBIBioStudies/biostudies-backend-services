@@ -8,9 +8,7 @@ import ac.uk.ebi.biostd.common.config.SubmitterConfig
 import ac.uk.ebi.biostd.files.FileConfig
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
 import ac.uk.ebi.biostd.itest.entities.GenericUser
-import ac.uk.ebi.biostd.persistence.model.Classifier
 import ac.uk.ebi.biostd.persistence.model.Tag
-import ac.uk.ebi.biostd.persistence.repositories.ClassifierRepository
 import ac.uk.ebi.biostd.persistence.repositories.TagsRefRepository
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
 import ebi.ac.uk.api.security.RegisterRequest
@@ -41,7 +39,6 @@ internal class SubmissionApiTest(tempFolder: TemporaryFolder) : BaseIntegrationT
     @DirtiesContext
     inner class SingleSubmissionTest(
         @Autowired val submissionRepository: SubmissionRepository,
-        @Autowired val classifierRepository: ClassifierRepository,
         @Autowired val tagsRefRepository: TagsRefRepository
     ) {
         @LocalServerPort
@@ -55,10 +52,7 @@ internal class SubmissionApiTest(tempFolder: TemporaryFolder) : BaseIntegrationT
             securityClient.registerUser(RegisterRequest(GenericUser.email, GenericUser.username, GenericUser.password))
             webClient = securityClient.getAuthenticatedClient(GenericUser.username, GenericUser.password)
 
-            val classify = Classifier(name = "classifier")
-            val tag = Tag(name = "tag").apply { classifier = classify }
-            classifierRepository.save(classify)
-            tagsRefRepository.save(tag)
+            tagsRefRepository.save(Tag(classifier = "classifier", name = "tag"))
         }
 
         @Test

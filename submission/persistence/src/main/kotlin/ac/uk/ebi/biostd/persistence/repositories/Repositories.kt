@@ -1,7 +1,6 @@
 package ac.uk.ebi.biostd.persistence.repositories
 
 import ac.uk.ebi.biostd.persistence.model.AccessTag
-import ac.uk.ebi.biostd.persistence.model.Classifier
 import ac.uk.ebi.biostd.persistence.model.FULL_DATA_GRAPH
 import ac.uk.ebi.biostd.persistence.model.LibraryFile
 import ac.uk.ebi.biostd.persistence.model.ReferencedFile
@@ -34,14 +33,12 @@ interface ReferencedFileRepository : JpaRepository<ReferencedFile, String> {
     fun findByLibraryFile(libraryFile: LibraryFile): List<ReferencedFile>
 }
 
-interface ClassifierRepository : JpaRepository<Classifier, Long>
-
 interface TagsDataRepository : JpaRepository<AccessTag, Long> {
     fun findByName(name: String): AccessTag
 }
 
 interface TagsRefRepository : JpaRepository<Tag, Long> {
-    fun findByName(name: String): Tag
+    fun findByClassifierAndName(classifier: String, name: String): Tag
 }
 
 interface SequenceDataRepository : JpaRepository<Sequence, Long> {

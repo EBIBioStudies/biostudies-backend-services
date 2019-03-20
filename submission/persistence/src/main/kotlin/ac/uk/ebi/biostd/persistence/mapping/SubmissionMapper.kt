@@ -70,7 +70,10 @@ class SubmissionMapper(
         accessTags.mapTo(mutableSetOf()) { tagsRepository.findByName(it) }
 
     private fun toTags(tags: List<String>) =
-        tags.mapTo(mutableSetOf()) { tagsRefRepository.findByName(it.split(TAGS_SEPARATOR).second()) }
+        tags.mapTo(mutableSetOf()) {
+            val tagName = it.split(TAGS_SEPARATOR)
+            tagsRefRepository.findByClassifierAndName(tagName.first(), tagName.second())
+        }
 }
 
 private object SectionMapper {
