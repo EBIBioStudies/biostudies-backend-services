@@ -7,7 +7,7 @@ open class Submission(
     var section: Section = Section(),
     attributes: List<Attribute> = emptyList()
 ) : Attributable(attributes) {
-    var tags: MutableList<String> = mutableListOf()
+    var tags: MutableList<Pair<String, String>> = mutableListOf()
     var accessTags: MutableList<String> = mutableListOf()
 
     override fun equals(other: Any?) = when {

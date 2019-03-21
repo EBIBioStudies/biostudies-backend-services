@@ -1,7 +1,6 @@
 package ac.uk.ebi.biostd.persistence.mapping
 
 import ac.uk.ebi.biostd.persistence.common.NO_TABLE_INDEX
-import ac.uk.ebi.biostd.persistence.common.TAGS_SEPARATOR
 import ac.uk.ebi.biostd.persistence.mapping.DbAttributeMapper.toAttributes
 import ac.uk.ebi.biostd.persistence.mapping.DbEitherMapper.toExtendedSections
 import ac.uk.ebi.biostd.persistence.mapping.DbEitherMapper.toFiles
@@ -73,7 +72,7 @@ class SubmissionDbMapper(referencedFileRepository: ReferencedFileRepository) {
 
     private fun toInstant(dateSeconds: Long) = secondsToInstant(dateSeconds).atOffset(UTC)
 
-    private fun toTag(tag: Tag) = "${tag.classifier}$TAGS_SEPARATOR${tag.name}"
+    private fun toTag(tag: Tag) = Pair(tag.classifier, tag.name)
 }
 
 private class DbSectionMapper(private val referencedFileRepository: ReferencedFileRepository) {

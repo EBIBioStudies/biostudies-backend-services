@@ -1,7 +1,6 @@
 package ac.uk.ebi.biostd.persistence.mapping
 
 import ac.uk.ebi.biostd.persistence.common.NO_TABLE_INDEX
-import ac.uk.ebi.biostd.persistence.common.TAGS_SEPARATOR
 import ac.uk.ebi.biostd.persistence.mapping.AttributeMapper.toAttributes
 import ac.uk.ebi.biostd.persistence.mapping.EntityMapper.toFile
 import ac.uk.ebi.biostd.persistence.mapping.EntityMapper.toLink
@@ -68,9 +67,9 @@ class SubmissionMapper(
     private fun toAccessTag(accessTags: List<String>) =
         accessTags.mapTo(mutableSetOf()) { tagsRepository.findByName(it) }
 
-    private fun toTags(tags: List<String>) =
+    private fun toTags(tags: List<Pair<String, String>>) =
         tags.mapTo(mutableSetOf()) {
-            val (classifier, tag) = it.split(TAGS_SEPARATOR)
+            val (classifier, tag) = it
             tagsRefRepository.findByClassifierAndName(classifier, tag)
         }
 }

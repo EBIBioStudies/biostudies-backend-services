@@ -93,7 +93,7 @@ internal class SubmissionApiTest(tempFolder: TemporaryFolder) : BaseIntegrationT
             val submission = Submission(accNo = accNo)
 
             submission[SubFields.TITLE] = title
-            submission.tags.add("classifier:tag")
+            submission.tags.add(Pair("classifier", "tag"))
 
             val response = webClient.submitSingle(submission, SubmissionFormat.JSON)
 
