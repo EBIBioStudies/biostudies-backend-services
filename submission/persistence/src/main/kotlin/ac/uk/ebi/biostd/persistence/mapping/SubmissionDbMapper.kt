@@ -10,6 +10,7 @@ import ac.uk.ebi.biostd.persistence.mapping.DbEntityMapper.toLibraryFile
 import ac.uk.ebi.biostd.persistence.mapping.DbEntityMapper.toUser
 import ac.uk.ebi.biostd.persistence.model.AccessTag
 import ac.uk.ebi.biostd.persistence.model.Tabular
+import ac.uk.ebi.biostd.persistence.model.Tag
 import ac.uk.ebi.biostd.persistence.repositories.ReferencedFileRepository
 import arrow.core.Either
 import arrow.core.Either.Companion.left
@@ -60,6 +61,7 @@ class SubmissionDbMapper(referencedFileRepository: ReferencedFileRepository) {
             extendedSection = sectionMapper.toExtendedSection(submissionDb.rootSection, loadRefFiles)
             attributes = toAttributes(submissionDb.attributes)
             accessTags = submissionDb.accessTags.mapTo(mutableListOf(), AccessTag::name)
+            tags = submissionDb.tags.mapTo(mutableListOf(), ::toTag)
         }
 
     fun toSubmission(submissionDb: SubmissionDb) =
@@ -69,6 +71,8 @@ class SubmissionDbMapper(referencedFileRepository: ReferencedFileRepository) {
         }
 
     private fun toInstant(dateSeconds: Long) = secondsToInstant(dateSeconds).atOffset(UTC)
+
+    private fun toTag(tag: Tag) = Pair(tag.classifier, tag.name)
 }
 
 private class DbSectionMapper(private val referencedFileRepository: ReferencedFileRepository) {

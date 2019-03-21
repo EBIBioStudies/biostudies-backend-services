@@ -5,13 +5,6 @@ CREATE TABLE AccessTag (
     CONSTRAINT access_tag_name_idx UNIQUE (name)
 );
 
-CREATE TABLE Classifier (
-    id          BIGINT AUTO_INCREMENT PRIMARY KEY,
-    description VARCHAR(255) NULL,
-    name        VARCHAR(255) NULL,
-    CONSTRAINT classifier_name_idx UNIQUE (name)
-);
-
 CREATE TABLE Counter (
     id       BIGINT AUTO_INCREMENT PRIMARY KEY,
     maxCount BIGINT       NOT NULL,
@@ -84,10 +77,8 @@ CREATE TABLE IdGen (
     prefix     VARCHAR(255) NULL,
     suffix     VARCHAR(255) NULL,
     counter_id BIGINT       NULL,
-    CONSTRAINT pfxsfx_idx
-    UNIQUE (prefix, suffix),
-    CONSTRAINT FKjndkokb5qh9p1af7cim617rvv
-    FOREIGN KEY (counter_id) REFERENCES Counter (id)
+    CONSTRAINT pfxsfx_idx UNIQUE (prefix, suffix),
+    CONSTRAINT FKjndkokb5qh9p1af7cim617rvv FOREIGN KEY (counter_id) REFERENCES Counter (id)
 );
 
 CREATE INDEX FKjndkokb5qh9p1af7cim617rvv ON IdGen (counter_id);
@@ -111,8 +102,7 @@ CREATE TABLE LinkAttribute (
     valueQualifierString LONGTEXT NULL,
     link_id              BIGINT   NULL,
     ord                  INT      NULL,
-    CONSTRAINT FKiy7ig2d3ubfsc921qrarw4x5n
-    FOREIGN KEY (link_id) REFERENCES Link (id)
+    CONSTRAINT FKiy7ig2d3ubfsc921qrarw4x5n FOREIGN KEY (link_id) REFERENCES Link (id)
 );
 
 CREATE INDEX FKiy7ig2d3ubfsc921qrarw4x5n ON LinkAttribute (link_id);
@@ -148,8 +138,7 @@ CREATE TABLE SectionAttribute (
     valueQualifierString LONGTEXT NULL,
     section_id           BIGINT   NULL,
     ord                  INT      NULL,
-    CONSTRAINT FK93fwpmt18ghb0hktnsljtlnhu
-    FOREIGN KEY (section_id) REFERENCES Section (id)
+    CONSTRAINT FK93fwpmt18ghb0hktnsljtlnhu FOREIGN KEY (section_id) REFERENCES Section (id)
 );
 
 CREATE INDEX FK93fwpmt18ghb0hktnsljtlnhu ON SectionAttribute (section_id);
@@ -168,10 +157,8 @@ CREATE TABLE Submission (
     owner_id       BIGINT       NULL,
     rootSection_id BIGINT       NULL,
     secretKey      VARCHAR(255) NULL,
-    CONSTRAINT UKalkiyx9bg56ika8jw65r99fll
-    UNIQUE (accNo, version),
-    CONSTRAINT FKhsm5gtat31dkrft0was3a7gr7
-    FOREIGN KEY (rootSection_id) REFERENCES Section (id)
+    CONSTRAINT UKalkiyx9bg56ika8jw65r99fll UNIQUE (accNo, version),
+    CONSTRAINT FKhsm5gtat31dkrft0was3a7gr7 FOREIGN KEY (rootSection_id) REFERENCES Section (id)
 );
 
 CREATE INDEX FKhsm5gtat31dkrft0was3a7gr7 ON Submission (rootSection_id);
@@ -191,8 +178,7 @@ CREATE TABLE SubmissionAttribute (
     valueQualifierString LONGTEXT NULL,
     submission_id        BIGINT   NULL,
     ord                  INT      NULL,
-    CONSTRAINT FKstek2rbmsk052iydxt2eamv15
-    FOREIGN KEY (submission_id) REFERENCES Submission (id)
+    CONSTRAINT FKstek2rbmsk052iydxt2eamv15 FOREIGN KEY (submission_id) REFERENCES Submission (id)
 );
 
 CREATE INDEX FKstek2rbmsk052iydxt2eamv15 ON SubmissionAttribute (submission_id);
@@ -200,10 +186,8 @@ CREATE INDEX FKstek2rbmsk052iydxt2eamv15 ON SubmissionAttribute (submission_id);
 CREATE TABLE Submission_AccessTag (
     Submission_id BIGINT NOT NULL,
     accessTags_id BIGINT NOT NULL,
-    CONSTRAINT FK6kvcm7vgoutbie7um590vt5ev
-    FOREIGN KEY (Submission_id) REFERENCES Submission (id),
-    CONSTRAINT FKgsgxljia12i17av51pl5el3c0
-    FOREIGN KEY (accessTags_id) REFERENCES AccessTag (id)
+    CONSTRAINT FK6kvcm7vgoutbie7um590vt5ev FOREIGN KEY (Submission_id) REFERENCES Submission (id),
+    CONSTRAINT FKgsgxljia12i17av51pl5el3c0 FOREIGN KEY (accessTags_id) REFERENCES AccessTag (id)
 );
 
 CREATE INDEX FK6kvcm7vgoutbie7um590vt5ev ON Submission_AccessTag (Submission_id);
@@ -211,20 +195,21 @@ CREATE INDEX FKgsgxljia12i17av51pl5el3c0 ON Submission_AccessTag (accessTags_id)
 
 CREATE TABLE Tag (
     id            BIGINT AUTO_INCREMENT PRIMARY KEY,
-    description   VARCHAR(255) NULL,
-    name          VARCHAR(255) NULL,
-    classifier_id BIGINT       NULL,
-    parent_tag_id BIGINT       NULL,
-    CONSTRAINT name_idx
-    UNIQUE (name),
-    CONSTRAINT classifier_fk
-    FOREIGN KEY (classifier_id) REFERENCES Classifier (id),
-    CONSTRAINT parent_tag_fk
-    FOREIGN KEY (parent_tag_id) REFERENCES Tag (id)
+    name          VARCHAR(255) NOT NULL,
+    classifier    VARCHAR(255) NOT NULL,
+    CONSTRAINT tag_name UNIQUE (classifier, name)
 );
 
-CREATE INDEX classifier_fk ON Tag (classifier_id);
-CREATE INDEX parent_tag_fk ON Tag (parent_tag_id);
+CREATE TABLE Submission_Tag (
+    id            BIGINT AUTO_INCREMENT PRIMARY KEY,
+    tag_id        BIGINT       NULL,
+    submission_id BIGINT       NULL,
+    CONSTRAINT Tag_Submission_FRG_KEY FOREIGN KEY (tag_id) REFERENCES Tag (id),
+    CONSTRAINT Submission_Tag_FRG_KEY FOREIGN KEY (submission_id) REFERENCES Submission (id)
+);
+
+CREATE INDEX Submission_Tag_Tag_Id_IDX ON Submission_Tag (tag_id);
+CREATE INDEX Submission_Tag_Submission_Id_IDX ON Submission_Tag (submission_id);
 
 -- Security
 CREATE TABLE User (
@@ -240,10 +225,8 @@ CREATE TABLE User (
     secret         VARCHAR(255) NULL,
     superuser      BIT          NOT NULL,
     ssoSubject     VARCHAR(255) NULL,
-    CONSTRAINT email_index
-    UNIQUE (email),
-    CONSTRAINT login_index
-    UNIQUE (login)
+    CONSTRAINT email_index UNIQUE (email),
+    CONSTRAINT login_index UNIQUE (login)
 );
 
 ALTER TABLE Submission ADD CONSTRAINT FKidqs3m2ntuqyuiophfwikw81a
@@ -265,10 +248,8 @@ CREATE TABLE UserGroup (
     project     BIT          NOT NULL,
     owner_id    BIGINT       NULL,
     secret      VARCHAR(255) NULL,
-    CONSTRAINT name_index
-    UNIQUE (name),
-    CONSTRAINT FKt6580c8mqsfigvlgbtepcdnnk
-    FOREIGN KEY (owner_id) REFERENCES User (id)
+    CONSTRAINT name_index UNIQUE (name),
+    CONSTRAINT FKt6580c8mqsfigvlgbtepcdnnk FOREIGN KEY (owner_id) REFERENCES User (id)
 );
 
 CREATE INDEX FKt6580c8mqsfigvlgbtepcdnnk ON UserGroup (owner_id);
@@ -276,10 +257,8 @@ CREATE INDEX FKt6580c8mqsfigvlgbtepcdnnk ON UserGroup (owner_id);
 CREATE TABLE UserGroup_User (
     groups_id BIGINT NOT NULL,
     users_id  BIGINT NOT NULL,
-    CONSTRAINT FK7t0wbkhu02mbvoxwt7np5h0xv
-    FOREIGN KEY (groups_id) REFERENCES UserGroup (id),
-    CONSTRAINT FK77fyj1avmh71l1dgqu5rl516l
-    FOREIGN KEY (users_id) REFERENCES User (id)
+    CONSTRAINT FK7t0wbkhu02mbvoxwt7np5h0xv FOREIGN KEY (groups_id) REFERENCES UserGroup (id),
+    CONSTRAINT FK77fyj1avmh71l1dgqu5rl516l FOREIGN KEY (users_id) REFERENCES User (id)
 );
 
 CREATE INDEX FK77fyj1avmh71l1dgqu5rl516l ON UserGroup_User (users_id);
@@ -288,10 +267,8 @@ CREATE INDEX FK7t0wbkhu02mbvoxwt7np5h0xv ON UserGroup_User (groups_id);
 CREATE TABLE UserGroup_UserGroup (
     UserGroup_id BIGINT NOT NULL,
     groups_id    BIGINT NOT NULL,
-    CONSTRAINT FK2eixf3lpm38fj2ffey19uqnqg
-    FOREIGN KEY (UserGroup_id) REFERENCES UserGroup (id),
-    CONSTRAINT FKdm8ojg4ou9wj3j5r9s9mhp6me
-    FOREIGN KEY (groups_id) REFERENCES UserGroup (id)
+    CONSTRAINT FK2eixf3lpm38fj2ffey19uqnqg FOREIGN KEY (UserGroup_id) REFERENCES UserGroup (id),
+    CONSTRAINT FKdm8ojg4ou9wj3j5r9s9mhp6me FOREIGN KEY (groups_id) REFERENCES UserGroup (id)
 );
 
 CREATE INDEX FK2eixf3lpm38fj2ffey19uqnqg ON UserGroup_UserGroup (UserGroup_id);

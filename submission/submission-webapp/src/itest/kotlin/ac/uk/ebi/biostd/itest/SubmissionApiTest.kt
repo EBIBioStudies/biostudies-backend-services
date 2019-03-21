@@ -8,6 +8,8 @@ import ac.uk.ebi.biostd.common.config.SubmitterConfig
 import ac.uk.ebi.biostd.files.FileConfig
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
 import ac.uk.ebi.biostd.itest.entities.GenericUser
+import ac.uk.ebi.biostd.persistence.model.Tag
+import ac.uk.ebi.biostd.persistence.repositories.TagsRefRepository
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
 import ebi.ac.uk.api.security.RegisterRequest
 import ebi.ac.uk.asserts.assertThat
@@ -35,8 +37,10 @@ internal class SubmissionApiTest(tempFolder: TemporaryFolder) : BaseIntegrationT
     @Import(value = [SubmitterConfig::class, PersistenceConfig::class, FileConfig::class])
     @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
     @DirtiesContext
-    inner class SingleSubmissionTest(@Autowired val submissionRepository: SubmissionRepository) {
-
+    inner class SingleSubmissionTest(
+        @Autowired val submissionRepository: SubmissionRepository,
+        @Autowired val tagsRefRepository: TagsRefRepository
+    ) {
         @LocalServerPort
         private var serverPort: Int = 0
 
@@ -47,6 +51,8 @@ internal class SubmissionApiTest(tempFolder: TemporaryFolder) : BaseIntegrationT
             val securityClient = SecurityWebClient.create("http://localhost:$serverPort")
             securityClient.registerUser(RegisterRequest(GenericUser.email, GenericUser.username, GenericUser.password))
             webClient = securityClient.getAuthenticatedClient(GenericUser.username, GenericUser.password)
+
+            tagsRefRepository.save(Tag(classifier = "classifier", name = "tag"))
         }
 
         @Test
@@ -78,6 +84,25 @@ internal class SubmissionApiTest(tempFolder: TemporaryFolder) : BaseIntegrationT
 
             val storeSubmission = submissionRepository.getExtendedLastVersionByAccNo(accNo)
             assertThat(storeSubmission.version).isEqualTo(-1)
+        }
+
+        @Test
+        fun `submision with tags`() {
+            val accNo = "SimpleAcc3"
+            val title = "Simple Submission With Tags"
+            val submission = Submission(accNo = accNo)
+
+            submission[SubFields.TITLE] = title
+            submission.tags.add(Pair("classifier", "tag"))
+
+            val response = webClient.submitSingle(submission, SubmissionFormat.JSON)
+
+            assertThat(response).isNotNull
+            assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
+
+            val savedSubmission = submissionRepository.getByAccNo(accNo)
+            assertThat(savedSubmission).isNotNull
+            assertThat(savedSubmission).isEqualTo(submission)
         }
     }
 }

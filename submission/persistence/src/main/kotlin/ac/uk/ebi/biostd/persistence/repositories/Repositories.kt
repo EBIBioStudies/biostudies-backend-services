@@ -7,6 +7,7 @@ import ac.uk.ebi.biostd.persistence.model.ReferencedFile
 import ac.uk.ebi.biostd.persistence.model.SecurityToken
 import ac.uk.ebi.biostd.persistence.model.Sequence
 import ac.uk.ebi.biostd.persistence.model.Submission
+import ac.uk.ebi.biostd.persistence.model.Tag
 import ac.uk.ebi.biostd.persistence.model.User
 import ac.uk.ebi.biostd.persistence.model.UserGroup
 import org.springframework.data.jpa.repository.EntityGraph
@@ -34,6 +35,10 @@ interface ReferencedFileRepository : JpaRepository<ReferencedFile, String> {
 
 interface TagsDataRepository : JpaRepository<AccessTag, Long> {
     fun findByName(name: String): AccessTag
+}
+
+interface TagsRefRepository : JpaRepository<Tag, Long> {
+    fun findByClassifierAndName(classifier: String, name: String): Tag
 }
 
 interface SequenceDataRepository : JpaRepository<Sequence, Long> {
