@@ -200,7 +200,7 @@ CREATE TABLE Tag (
     CONSTRAINT tag_name UNIQUE (classifier, name)
 );
 
-CREATE TABLE SubmissionTagRef (
+CREATE TABLE Submission_Tag (
     id            BIGINT AUTO_INCREMENT PRIMARY KEY,
     tag_id        BIGINT       NULL,
     submission_id BIGINT       NULL,
@@ -208,8 +208,8 @@ CREATE TABLE SubmissionTagRef (
     CONSTRAINT Submission_Tag_FRG_KEY FOREIGN KEY (submission_id) REFERENCES Submission (id)
 );
 
-CREATE INDEX FK4fb5yjdagkfeagoebhiloqqrp ON SubmissionTagRef (tag_id);
-CREATE INDEX FK8hm6cswe1g8yln27i7io54q0q ON SubmissionTagRef (submission_id);
+CREATE INDEX Submission_Tag_Tag_Id_IDX ON Submission_Tag (tag_id);
+CREATE INDEX Submission_Tag_Submission_Id_IDX ON Submission_Tag (submission_id);
 
 -- Security
 CREATE TABLE User (

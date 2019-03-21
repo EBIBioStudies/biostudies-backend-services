@@ -106,7 +106,7 @@ class Submission(
     var accessTags: MutableSet<AccessTag> = sortedSetOf()
 
     @ManyToMany(cascade = [CascadeType.ALL])
-    @JoinTable(name = "SubmissionTagRef",
+    @JoinTable(name = "Submission_Tag",
         joinColumns = [JoinColumn(name = "submission_Id", referencedColumnName = "id")],
         inverseJoinColumns = [JoinColumn(name = "tag_id", referencedColumnName = "id")])
     var tags: MutableSet<Tag> = sortedSetOf()
