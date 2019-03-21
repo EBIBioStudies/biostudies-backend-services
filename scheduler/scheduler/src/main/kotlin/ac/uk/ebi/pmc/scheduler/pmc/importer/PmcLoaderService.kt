@@ -53,7 +53,7 @@ class PmcLoaderService(
         return jobTry.fold({ throw it }, { it.apply { logger.info { "submitted job $it" } } })
     }
 
-    private fun getConfigProperties(file: File? = null, importMode: PmcMode) = PmcImporterProperties(
+    private fun getConfigProperties(file: File? = null, importMode: PmcMode) = PmcImporterProperties.create(
         mode = importMode,
         path = file?.absolutePath,
         temp = properties.temp,
