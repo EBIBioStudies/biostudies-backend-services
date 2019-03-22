@@ -1,6 +1,6 @@
 package ebi.ac.uk.model.constants
 
-private const val ACC_NO_FIELD = "accNo"
+private const val ACC_NO_FIELD = "accno"
 private const val ACCESS_FIELD = "accessTags"
 private const val SECTION_FIELD = "section"
 private const val ATTRIBUTES_FIELD = "attributes"

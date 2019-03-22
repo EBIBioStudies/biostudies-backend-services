@@ -23,7 +23,7 @@ class XmlDeserializerTest {
     @Test
     fun `deserialize submission`() {
         val xml = xml("submission") {
-            attribute("accNo", "ABC123")
+            attribute("accno", "ABC123")
             "attributes" {
                 "attribute" {
                     "name" { -"Title" }
@@ -31,7 +31,7 @@ class XmlDeserializerTest {
                 }
             }
             "section" {
-                attribute("accNo", "SECT-123")
+                attribute("accno", "SECT-123")
                 attribute("type", "Study")
             }
         }.toString()
@@ -50,7 +50,7 @@ class XmlDeserializerTest {
     @Test
     fun `deserialize section`() {
         val xml = xml("section") {
-            attribute("accNo", "SECT-123")
+            attribute("accno", "SECT-123")
             attribute("type", "Study")
         }.toString()
 

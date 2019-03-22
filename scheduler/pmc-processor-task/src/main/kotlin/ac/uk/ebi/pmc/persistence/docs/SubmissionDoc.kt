@@ -38,7 +38,7 @@ data class SubmissionDoc(
         Updates.setOnInsert(Fields.updated, updated))
 
     companion object Fields {
-        const val accNo = "accNo"
+        const val accNo = "accno"
         const val body = "body"
         const val status = "status"
         const val sourceFile = "sourceFile"

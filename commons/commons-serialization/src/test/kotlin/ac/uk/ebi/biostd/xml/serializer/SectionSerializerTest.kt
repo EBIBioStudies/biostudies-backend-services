@@ -32,7 +32,7 @@ class SectionSerializerTest {
     fun testSerializeSection() {
         val result = testInstance.writeValueAsString(section)
         val expected = xml("section") {
-            attribute("accNo", ACC_NO)
+            attribute("accno", ACC_NO)
             attribute("type", TYPE)
             "links" {
                 "link" {

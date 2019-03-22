@@ -35,7 +35,7 @@ class SubmissionSerializerTest {
     fun testSerializeSubmission() {
         val result = testInstance.serialize(testSubmission)
         val expected = xml("submission") {
-            attribute("accNo", ACC_NO)
+            attribute("accno", ACC_NO)
             "attributes" {
                 "attribute" {
                     "name" { -ATTR_NAME }
@@ -43,7 +43,7 @@ class SubmissionSerializerTest {
                 }
             }
             "section" {
-                attribute("accNo", SEC_ACC_NO)
+                attribute("accno", SEC_ACC_NO)
                 attribute("type", SEC_TYPE)
             }
         }.toString()

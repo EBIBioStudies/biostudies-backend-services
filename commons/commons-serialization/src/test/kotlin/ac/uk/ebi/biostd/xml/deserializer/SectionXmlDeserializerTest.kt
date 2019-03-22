@@ -14,7 +14,7 @@ class SectionXmlDeserializerTest {
     fun `deserialize section`() {
         val xmlSection = createXmlDocument(
             xml("section") {
-                attribute("accNo", "SECT-123")
+                attribute("accno", "SECT-123")
                 attribute("type", "Study")
             }.toString())
 

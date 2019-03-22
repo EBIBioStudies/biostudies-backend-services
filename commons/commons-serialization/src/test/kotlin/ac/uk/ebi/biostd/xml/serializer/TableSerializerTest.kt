@@ -69,7 +69,7 @@ class TableSerializerTest {
         val expected = xml("table") {
             "section" {
                 attribute("type", SEC_TYPE)
-                attribute("accNo", SEC_ACC_NO)
+                attribute("accno", SEC_ACC_NO)
             }
         }.toString()
 
@@ -95,12 +95,12 @@ class TableSerializerTest {
 
         val expected = xml("section") {
             attribute("type", "Study")
-            attribute("accNo", "SECT-001")
+            attribute("accno", "SECT-001")
             "subsections" {
                 "table" {
                     "section" {
                         attribute("type", "Data")
-                        attribute("accNo", "DT-1")
+                        attribute("accno", "DT-1")
                         "attributes" {
                             "attribute" {
                                 "name" { -"Attr" }

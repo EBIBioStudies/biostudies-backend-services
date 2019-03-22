@@ -58,7 +58,7 @@ class TableJsonDeserializerTest {
             Section(accNo = "xyz123", type = "Study")))
 
         val json = jsonArray({
-            "accNo" to "abc123"
+            "accno" to "abc123"
             "type" to "Study"
             "attributes" to jsonArray({
                 "name" to ATTR_NAME
@@ -73,7 +73,7 @@ class TableJsonDeserializerTest {
                 })
             })
         }, {
-            "accNo" to "xyz123"
+            "accno" to "xyz123"
             "type" to "Study"
         }).toString()
 
