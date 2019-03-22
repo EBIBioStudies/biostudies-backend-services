@@ -15,4 +15,3 @@ suspend fun <T : Any> MongoCollection<T>.findOneAndUpdate(
 ): T? {
     return singleResult { findOneAndUpdate(filter, update, options, it) }
 }
-

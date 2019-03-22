@@ -29,6 +29,8 @@ class PmcImporterProperties : BaseAppProperty {
 
     companion object {
 
+        // Todo: refactor to have biostudies parameters in a wrapper class
+        @Suppress("LongParameterList")
         fun create(
             mode: PmcMode,
             path: String?,

@@ -118,13 +118,13 @@ internal class MultipartSubmissionApiTest(private val tempFolder: TemporaryFolde
         @Test
         fun `submission with library file JSON`() {
             val submission = jsonObj {
-                "accNo" to "S-TEST2"
+                "accno" to "S-TEST2"
                 "attributes" to jsonArray({
                     "name" to "Title"
                     "value" to "Test Submission"
                 })
                 "section" to {
-                    "accNo" to "SECT-001"
+                    "accno" to "SECT-001"
                     "type" to "Study"
                     "attributes" to jsonArray({
                         "name" to "Title"
@@ -156,7 +156,7 @@ internal class MultipartSubmissionApiTest(private val tempFolder: TemporaryFolde
         @Test
         fun `submission with library file XML`() {
             val submission = xml("submission") {
-                attribute("accNo", "S-TEST3")
+                attribute("accno", "S-TEST3")
                 "attributes" {
                     "attribute" {
                         "name" { -"Title" }
@@ -165,7 +165,7 @@ internal class MultipartSubmissionApiTest(private val tempFolder: TemporaryFolde
                 }
 
                 "section" {
-                    attribute("accNo", "SECT-001")
+                    attribute("accno", "SECT-001")
                     attribute("type", "Study")
                     "attributes" {
                         "attribute" {
