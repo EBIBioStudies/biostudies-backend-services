@@ -5,7 +5,7 @@ import ebi.ac.uk.util.collections.addLeft
 import ebi.ac.uk.util.collections.addRight
 import java.util.Objects
 
-class Section(
+open class Section(
     var type: String = "",
     var accNo: String? = null,
     var sections: MutableList<Either<Section, SectionsTable>> = mutableListOf(),
@@ -33,5 +33,5 @@ class Section(
             .and(Objects.equals(attributes, other.attributes))
     }
 
-    override fun hashCode() = Objects.hash(type, accNo, attributes)
+    override fun hashCode() = Objects.hash(type, accNo, files, links, sections, attributes)
 }

@@ -12,6 +12,7 @@ import javax.persistence.GeneratedValue
 import javax.persistence.Id
 import javax.persistence.JoinColumn
 import javax.persistence.OneToMany
+import javax.persistence.OneToOne
 import javax.persistence.OrderBy
 import javax.persistence.Table
 
@@ -37,6 +38,10 @@ class Section(
     @Column(name = "ord")
     @Convert(converter = NullableIntConverter::class)
     override var order: Int = 0
+
+    @OneToOne(cascade = [CascadeType.ALL])
+    @JoinColumn(name = "libraryFile")
+    var libraryFile: LibraryFile? = null
 
     @OneToMany(cascade = [CascadeType.ALL])
     @JoinColumn(name = "section_id")

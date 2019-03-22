@@ -11,6 +11,8 @@ interface FilesSource {
     fun getInputStream(filePath: String): InputStream
 
     fun size(filePath: String): Long
+
+    fun readText(filePath: String): String
 }
 
 class ListFilesSource(private val files: List<ResourceFile>) : FilesSource {
@@ -20,6 +22,8 @@ class ListFilesSource(private val files: List<ResourceFile>) : FilesSource {
     override fun getInputStream(filePath: String) = files.first { it.name == filePath }.inputStream
 
     override fun size(filePath: String) = files.first { it.name == filePath }.size
+
+    override fun readText(filePath: String) = files.first { it.name == filePath }.text
 }
 
 class PathFilesSource(private val path: Path) : FilesSource {
@@ -29,4 +33,6 @@ class PathFilesSource(private val path: Path) : FilesSource {
     override fun getInputStream(filePath: String) = path.resolve(filePath).toFile().inputStream()
 
     override fun size(filePath: String) = path.resolve(filePath).toFile().totalSpace
+
+    override fun readText(filePath: String) = path.resolve(filePath).toFile().readText()
 }

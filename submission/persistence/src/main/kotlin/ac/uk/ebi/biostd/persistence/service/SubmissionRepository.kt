@@ -5,14 +5,13 @@ import ac.uk.ebi.biostd.persistence.repositories.SubmissionDataRepository
 
 class SubmissionRepository(
     private val submissionRepository: SubmissionDataRepository,
-    private val submissionDbMapper: SubmissionDbMapper = SubmissionDbMapper()
+    private val submissionDbMapper: SubmissionDbMapper
 ) {
-
     fun getByAccNo(accNo: String) =
         submissionDbMapper.toSubmission(submissionRepository.getByAccNoAndVersionGreaterThan(accNo))
 
-    fun getExtendedByAccNo(accNo: String) =
-        submissionDbMapper.toExtSubmission(submissionRepository.getByAccNoAndVersionGreaterThan(accNo))
+    fun getExtendedByAccNo(accNo: String, loadRefFiles: Boolean = false) =
+        submissionDbMapper.toExtSubmission(submissionRepository.getByAccNoAndVersionGreaterThan(accNo), loadRefFiles)
 
     fun getExtendedLastVersionByAccNo(accNo: String) =
         submissionDbMapper.toExtSubmission(submissionRepository.getFirstByAccNoOrderByVersionDesc(accNo))

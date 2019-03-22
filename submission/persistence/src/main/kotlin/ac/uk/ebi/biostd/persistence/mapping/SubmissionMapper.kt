@@ -12,13 +12,16 @@ import ac.uk.ebi.biostd.persistence.mapping.TableMapper.toLinks
 import ac.uk.ebi.biostd.persistence.mapping.TableMapper.toSections
 import ac.uk.ebi.biostd.persistence.model.FileAttribute
 import ac.uk.ebi.biostd.persistence.model.LinkAttribute
+import ac.uk.ebi.biostd.persistence.model.ReferencedFileAttribute
 import ac.uk.ebi.biostd.persistence.model.SectionAttribute
 import ac.uk.ebi.biostd.persistence.model.SubmissionAttribute
 import ac.uk.ebi.biostd.persistence.repositories.TagsDataRepository
+import ac.uk.ebi.biostd.persistence.repositories.TagsRefRepository
 import arrow.core.Either
 import ebi.ac.uk.base.orFalse
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.AttributeDetail
+import ebi.ac.uk.model.ExtendedSection
 import ebi.ac.uk.model.ExtendedSubmission
 import ebi.ac.uk.model.File
 import ebi.ac.uk.model.FilesTable
@@ -32,13 +35,17 @@ import ebi.ac.uk.model.extensions.title
 import ac.uk.ebi.biostd.persistence.model.Attribute as AttributeDb
 import ac.uk.ebi.biostd.persistence.model.AttributeDetail as AttributeDetailDb
 import ac.uk.ebi.biostd.persistence.model.File as FileDb
+import ac.uk.ebi.biostd.persistence.model.LibraryFile as LibraryFileDb
 import ac.uk.ebi.biostd.persistence.model.Link as LinkDb
+import ac.uk.ebi.biostd.persistence.model.ReferencedFile as ReferencedFileDb
 import ac.uk.ebi.biostd.persistence.model.Section as SectionDb
 import ac.uk.ebi.biostd.persistence.model.Submission as SubmissionDb
 import ac.uk.ebi.biostd.persistence.model.User as UserDb
 
-class SubmissionMapper(private val tagsRepository: TagsDataRepository) {
-
+class SubmissionMapper(
+    private val tagsRepository: TagsDataRepository,
+    private val tagsRefRepository: TagsRefRepository
+) {
     fun toSubmissionDb(submission: ExtendedSubmission) = SubmissionDb().apply {
         accNo = submission.accNo
         version = submission.version
@@ -51,23 +58,35 @@ class SubmissionMapper(private val tagsRepository: TagsDataRepository) {
         releaseTime = submission.releaseTime.toEpochSecond()
 
         owner = toUser(submission.user)
-        rootSection = toSection(submission.section, NO_TABLE_INDEX)
+        rootSection = toSection(submission.extendedSection, NO_TABLE_INDEX)
         attributes = toAttributes(submission.attributes).mapTo(sortedSetOf(), ::SubmissionAttribute)
         accessTags = toAccessTag(submission.accessTags)
+        tags = toTags(submission.tags)
     }
 
     private fun toAccessTag(accessTags: List<String>) =
         accessTags.mapTo(mutableSetOf()) { tagsRepository.findByName(it) }
+
+    private fun toTags(tags: List<Pair<String, String>>) =
+        tags.mapTo(mutableSetOf()) {
+            val (classifier, tag) = it
+            tagsRefRepository.findByClassifierAndName(classifier, tag)
+        }
 }
 
 private object SectionMapper {
-
-    fun toSection(section: Section, index: Int) = SectionDb(section.accNo, section.type).apply {
+    fun toSection(section: ExtendedSection, index: Int) = SectionDb(section.accNo, section.type).apply {
         order = index
         attributes = toAttributes(section.attributes).mapTo(sortedSetOf(), ::SectionAttribute)
         links = section.links.mapIndexed(::toLinks).flatten().toSortedSet()
         files = section.files.mapIndexed(::toFiles).flatten().toSortedSet()
-        sections = section.sections.mapIndexed(::toSections).flatten().toSortedSet()
+        sections = section.extendedSections.mapIndexed(::toSections).flatten().toSortedSet()
+
+        section.libraryFile?.let { libFile ->
+            libraryFile = LibraryFileDb(libFile.name).apply {
+                files = libFile.referencedFiles.map { EntityMapper.toRefFile(it) }.toSet()
+            }
+        }
     }
 
     fun toTableSection(section: Section, index: Int, sectionTableIndex: Int) =
@@ -79,8 +98,7 @@ private object SectionMapper {
 }
 
 private object TableMapper {
-
-    fun toSections(index: Int, either: Either<Section, SectionsTable>): List<SectionDb> =
+    fun toSections(index: Int, either: Either<ExtendedSection, SectionsTable>): List<SectionDb> =
         either.fold(
             { listOf(toSection(it, index)) },
             { it.elements.mapIndexed { tableIndex, file -> toTableSection(file, index + tableIndex, tableIndex) } })
@@ -95,7 +113,6 @@ private object TableMapper {
 }
 
 private object EntityMapper {
-
     fun toUser(user: User) = UserDb(user.id, user.email, user.email, user.secretKey)
 
     fun toLink(link: Link, order: Int, tableIndex: Int = NO_TABLE_INDEX) =
@@ -103,10 +120,12 @@ private object EntityMapper {
 
     fun toFile(file: File, order: Int, tableIndex: Int = NO_TABLE_INDEX) = FileDb(
         file.path, order, file.size, toAttributes(file.attributes).mapTo(sortedSetOf(), ::FileAttribute), tableIndex)
+
+    fun toRefFile(file: File) = ReferencedFileDb(
+        file.path, file.size, toAttributes(file.attributes).mapTo(sortedSetOf(), ::ReferencedFileAttribute))
 }
 
 private object AttributeMapper {
-
     internal fun toAttributes(attributes: List<Attribute>) =
         attributes.mapIndexedTo(sortedSetOf()) { index, order -> toAttribute(order, index) }
 

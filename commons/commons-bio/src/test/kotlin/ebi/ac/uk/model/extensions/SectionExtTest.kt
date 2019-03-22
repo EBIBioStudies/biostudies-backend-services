@@ -4,10 +4,8 @@ import ebi.ac.uk.dsl.file
 import ebi.ac.uk.dsl.filesTable
 import ebi.ac.uk.dsl.section
 import ebi.ac.uk.dsl.sectionsTable
-import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.File
 import ebi.ac.uk.model.Section
-import ebi.ac.uk.model.constants.SectionFields
 import ebi.ac.uk.util.collections.second
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -39,15 +37,5 @@ class SectionExtTest {
         assertThat(allSubsections).hasSize(2)
         assertThat(allSubsections.first()).isEqualTo((Section("Subsection 1", "SUB-SECT-001")))
         assertThat(allSubsections.second()).isEqualTo((Section("Subsection 2", "SUB-SECT-002")))
-    }
-
-    @Test
-    fun `library file`() {
-        val subsection = Section("Section 1")
-        subsection.libraryFile = "LibFile.tsv"
-
-        assertThat(subsection.libraryFile).isEqualTo("LibFile.tsv")
-        assertThat(subsection.attributes).hasSize(1)
-        assertThat(subsection.attributes.first()).isEqualTo(Attribute(SectionFields.LIB_FILE, "LibFile.tsv"))
     }
 }

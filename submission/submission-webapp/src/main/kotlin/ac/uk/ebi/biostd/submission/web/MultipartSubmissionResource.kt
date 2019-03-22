@@ -38,7 +38,8 @@ class MultipartSubmissionResource(
         @AuthenticationPrincipal user: User,
         @RequestParam(FILES) files: Array<MultipartFile>,
         @RequestParam(SUBMISSION) submission: String
-    ) = submissionService.submit(serializationService.deserializeSubmission(submission, JSON), user, getFiles(files))
+    ) = submissionService.submit(
+        serializationService.deserializeSubmission(submission, JSON), user, getFiles(files), JSON)
 
     @PostMapping(headers = ["$CONTENT_TYPE=$MULTIPART_FORM_DATA", "$SUBMISSION_TYPE=$TEXT_XML"])
     @ResponseBody
@@ -46,7 +47,8 @@ class MultipartSubmissionResource(
         @AuthenticationPrincipal user: User,
         @RequestParam(FILES) files: Array<MultipartFile>,
         @RequestParam(SUBMISSION) submission: String
-    ) = submissionService.submit(serializationService.deserializeSubmission(submission, XML), user, getFiles(files))
+    ) = submissionService.submit(
+        serializationService.deserializeSubmission(submission, XML), user, getFiles(files), XML)
 
     @PostMapping(headers = ["$CONTENT_TYPE=$MULTIPART_FORM_DATA", "$SUBMISSION_TYPE=$TEXT_PLAIN"])
     @ResponseBody
@@ -54,7 +56,8 @@ class MultipartSubmissionResource(
         @AuthenticationPrincipal user: User,
         @RequestParam(FILES) files: Array<MultipartFile>,
         @RequestParam(SUBMISSION) submission: String
-    ) = submissionService.submit(serializationService.deserializeSubmission(submission, TSV), user, getFiles(files))
+    ) = submissionService.submit(
+        serializationService.deserializeSubmission(submission, TSV), user, getFiles(files), TSV)
 
     private fun getFiles(files: Array<MultipartFile>) =
             files.map { ResourceFile(it.originalFilename!!, it.inputStream, it.size) }

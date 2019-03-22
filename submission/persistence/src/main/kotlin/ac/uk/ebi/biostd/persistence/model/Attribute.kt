@@ -37,6 +37,15 @@ class FileAttribute(attribute: Attribute) :
 }
 
 @Entity
+class ReferencedFileAttribute(attribute: Attribute) :
+    Attribute(attribute.name, attribute.value, attribute.order, attribute.reference) {
+    init {
+        this.nameQualifier = attribute.nameQualifier
+        this.valueQualifier = attribute.valueQualifier
+    }
+}
+
+@Entity
 class SubmissionAttribute(attribute: Attribute) :
     Attribute(attribute.name, attribute.value, attribute.order, attribute.reference) {
     init {
