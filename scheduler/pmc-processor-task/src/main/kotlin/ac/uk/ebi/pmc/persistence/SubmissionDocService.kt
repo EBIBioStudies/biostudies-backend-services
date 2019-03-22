@@ -32,7 +32,7 @@ class SubmissionDocService(
         SuspendSequence { submissionRepository.findAndUpdate(LOADED, PROCESSING) }
 
     suspend fun findReadyToSubmit() =
-        SuspendSequence { submissionRepository.findAndUpdate(PROCESSED, SUBMITTING) }
+        SuspendSequence(100_000) { submissionRepository.findAndUpdate(PROCESSED, SUBMITTING) }
 
     suspend fun getSubFiles(ids: List<ObjectId>) = fileRepository.getFiles(ids)
 
