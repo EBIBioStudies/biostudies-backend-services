@@ -218,9 +218,9 @@ internal class MultipartSubmissionApiTest(private val tempFolder: TemporaryFolde
 
             assertThat(Paths.get("$submissionFolderPath/Files/$testFile")).exists()
 
-            assertThat(Paths.get("$submissionFolderPath/$accNo.SECT-001.files.tsv")).exists()
             assertThat(Paths.get("$submissionFolderPath/$accNo.SECT-001.files.xml")).exists()
             assertThat(Paths.get("$submissionFolderPath/$accNo.SECT-001.files.json")).exists()
+            assertThat(Paths.get("$submissionFolderPath/$accNo.SECT-001.files.pagetab.tsv")).exists()
         }
     }
 }
