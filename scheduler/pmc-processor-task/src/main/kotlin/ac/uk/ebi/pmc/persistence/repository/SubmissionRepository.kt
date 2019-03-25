@@ -7,21 +7,20 @@ import com.mongodb.async.client.MongoCollection
 import com.mongodb.client.model.Filters.and
 import com.mongodb.client.model.Filters.eq
 import com.mongodb.client.model.Filters.gt
-import com.mongodb.client.model.Filters.lt
+import com.mongodb.client.model.Filters.gte
+import com.mongodb.client.model.Filters.or
 import com.mongodb.client.model.FindOneAndUpdateOptions
 import com.mongodb.client.model.Updates.combine
 import com.mongodb.client.model.Updates.set
-import org.litote.kmongo.SetTo
-import org.litote.kmongo.coroutine.updateMany
 import org.litote.kmongo.coroutine.updateOne
 import java.time.Instant
 
 class SubmissionRepository(private val submissions: MongoCollection<SubmissionDoc>) {
 
-    suspend fun insertIfLastOne(submission: SubmissionDoc, sourceTime: Instant) {
+    suspend fun insertOrExpire(submission: SubmissionDoc) {
         submissions.findOneAndUpdate(
-            and(eq(SubmissionDoc.accNo, submission.accno), gt(SubmissionDoc.sourceTime, sourceTime)),
-            submission.asInsertOnUpdate(),
+            latest(submission.accno, submission.sourceTime, submission.posInFile),
+            submission.asInsertOrExpire(),
             FindOneAndUpdateOptions().upsert(true))
     }
 
@@ -31,8 +30,8 @@ class SubmissionRepository(private val submissions: MongoCollection<SubmissionDo
         eq(SubmissionDoc.status, status.name),
         combine(set(SubmissionDoc.status, newStatus.name), set(SubmissionDoc.updated, Instant.now())))
 
-    suspend fun expireSubmissions(accNo: String, sourceTime: Instant) =
-        submissions.updateMany(
-            and(eq(SubmissionDoc.accNo, accNo), lt(SubmissionDoc.sourceTime, sourceTime)),
-            SetTo(SubmissionDoc::status, SubmissionStatus.DISCARDED))
+    private fun latest(accNo: String, sourceTime: Instant, posInFile: Int) =
+        and(eq(SubmissionDoc.accNo, accNo), or(
+            gte(SubmissionDoc.sourceTime, sourceTime),
+            and(eq(SubmissionDoc.sourceTime, sourceTime), gt(SubmissionDoc.posInFile, posInFile))))
 }

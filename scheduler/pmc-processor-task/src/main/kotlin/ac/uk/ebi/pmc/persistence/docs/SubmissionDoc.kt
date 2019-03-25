@@ -11,6 +11,7 @@ data class SubmissionDoc(
     var body: String,
     var status: SubmissionStatus,
     val sourceFile: String,
+    val posInFile: Int,
     var sourceTime: Instant,
     var files: List<ObjectId> = emptyList(),
     var updated: Instant = Instant.now()
@@ -29,22 +30,25 @@ data class SubmissionDoc(
         return this
     }
 
-    fun asInsertOnUpdate(): Bson = Updates.combine(
+    fun asInsertOrExpire(): Bson = Updates.combine(
         Updates.setOnInsert(Fields.accNo, accno),
         Updates.setOnInsert(Fields.body, body),
         Updates.setOnInsert(Fields.sourceFile, sourceFile),
+        Updates.setOnInsert(Fields.posInFile, posInFile),
         Updates.setOnInsert(Fields.sourceTime, sourceTime),
         Updates.setOnInsert(Fields.status, status),
-        Updates.setOnInsert(Fields.updated, updated))
+        Updates.setOnInsert(Fields.updated, updated),
+        Updates.set(Fields.status, SubmissionStatus.DISCARDED)
+    )
 
     companion object Fields {
         const val accNo = "accno"
         const val body = "body"
         const val status = "status"
         const val sourceFile = "sourceFile"
+        const val posInFile = "posInFile"
         const val sourceTime = "sourceTime"
         const val updated = "updated"
-        const val imported = "imported"
         const val files = "files"
     }
 }

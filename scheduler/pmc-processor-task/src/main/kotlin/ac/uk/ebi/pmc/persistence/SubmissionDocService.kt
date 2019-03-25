@@ -29,25 +29,24 @@ class SubmissionDocService(
 ) {
 
     suspend fun findReadyToProcess() =
-        SuspendSequence(10_000) { submissionRepository.findAndUpdate(LOADED, PROCESSING) }
+        SuspendSequence { submissionRepository.findAndUpdate(LOADED, PROCESSING) }
 
     suspend fun findReadyToSubmit() =
-        SuspendSequence(10_000) { submissionRepository.findAndUpdate(PROCESSED, SUBMITTING) }
+        SuspendSequence { submissionRepository.findAndUpdate(PROCESSED, SUBMITTING) }
 
     suspend fun getSubFiles(ids: List<ObjectId>) = fileRepository.getFiles(ids)
 
     suspend fun changeStatus(submission: SubmissionDoc, status: SubmissionStatus) =
         submissionRepository.update(submission.withStatus(status))
 
-    suspend fun saveLoadedVersion(submission: Submission, sourceFile: String, sourceTime: Instant) {
-        submissionRepository.expireSubmissions(submission.accNo, sourceTime)
-        submissionRepository.insertIfLastOne(SubmissionDoc(
+    suspend fun saveLoadedVersion(submission: Submission, sourceFile: String, sourceTime: Instant, posInFile: Int) {
+        submissionRepository.insertOrExpire(SubmissionDoc(
             submission.accNo,
             asJson(submission),
             LOADED,
             sourceFile,
-            sourceTime),
-            sourceTime)
+            posInFile,
+            sourceTime))
 
         logger.info { "processed version of submission with accNo = '${submission.accNo}' from file $sourceFile" }
     }

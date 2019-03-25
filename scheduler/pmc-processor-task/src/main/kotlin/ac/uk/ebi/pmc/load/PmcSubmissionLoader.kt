@@ -45,24 +45,31 @@ class PmcSubmissionLoader(
     private fun CoroutineScope.launchProducer(file: FileSpec) = produce {
         sanitize(file.content)
             .splitIgnoringEmpty(SUB_SEPARATOR)
-            .forEach { send(Pair(file, it)) }
+            .forEachIndexed { index, submissionBody -> send(LoadedSubmissionInfo(file, submissionBody, index)) }
         close()
     }
 
-    private fun CoroutineScope.launchProcessor(channel: ReceiveChannel<Pair<FileSpec, String>>) = launch {
-        for ((source, submission) in channel) {
+    private fun CoroutineScope.launchProcessor(channel: ReceiveChannel<LoadedSubmissionInfo>) = launch {
+        for ((source, submission, positionInFile) in channel) {
             val (body, result) = deserialize(submission)
-            loadSubmission(result, body, source)
+            loadSubmission(result, body, source, positionInFile)
         }
     }
 
-    private suspend fun loadSubmission(result: Try<Submission>, body: String, file: FileSpec) =
+    private suspend fun loadSubmission(result: Try<Submission>, body: String, file: FileSpec, positionInFile: Int) =
         result.fold(
             { errorDocService.saveError(file.name, body, PmcMode.LOAD, it) },
-            { submissionService.saveLoadedVersion(it, file.name, file.modified) })
+            { submissionService.saveLoadedVersion(it, file.name, file.modified, positionInFile) })
 
     private fun deserialize(pagetab: String) =
         Pair(pagetab, Try { serializationService.deserializeSubmission(pagetab, TSV) })
 
     private fun sanitize(fileText: String) = fileText.replace(sanitizeRegex, "\n")
 }
+
+
+private data class LoadedSubmissionInfo(
+    val file: FileSpec,
+    val body: String,
+    val positionInFile: Int
+)
