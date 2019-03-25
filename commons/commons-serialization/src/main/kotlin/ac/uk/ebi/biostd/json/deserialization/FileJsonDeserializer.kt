@@ -19,20 +19,8 @@ class FileJsonDeserializer : StdDeserializer<File>(File::class.java) {
         val mapper = jp.codec as ObjectMapper
         val node: JsonNode = mapper.readTree(jp)
         val attrs: MutableList<Attribute> = mapper.convertList(node.findNode<JsonNode>(FileFields.ATTRIBUTES.value))
-        val size = processFileSize(attrs)
 
         return File(
-            path = node.getNode<TextNode>(FileFields.PATH.value).textValue(), size = size, attributes = attrs)
-    }
-
-    private fun processFileSize(attributes: MutableList<Attribute>): Long {
-        var size = 0L
-
-        attributes.find { it.name == FileFields.SIZE.value }?.let {
-            size = it.value.toLong()
-            attributes.remove(it)
-        }
-
-        return size
+            path = node.getNode<TextNode>(FileFields.PATH.value).textValue(), attributes = attrs)
     }
 }

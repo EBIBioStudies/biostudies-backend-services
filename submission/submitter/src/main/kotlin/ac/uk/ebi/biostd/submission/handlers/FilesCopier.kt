@@ -24,6 +24,7 @@ class FilesCopier(private val folderResolver: FolderResolver) {
         files.forEach { targetFile ->
             val submissionFile = folderResolver.getSubFilePath(submission.relPath, targetFile.path).toFile()
 
+            // TODO Refactor the size calculation out in order to avoid mixing concerns
             targetFile.size = filesSource.size(targetFile.path)
             FileUtils.copyInputStreamToFile(filesSource.getInputStream(targetFile.path), submissionFile)
         }
