@@ -7,11 +7,11 @@ import java.time.Instant
 
 @Suppress("VariableNaming")
 data class SubmissionDoc(
-    val accNo: String,
+    val accno: String,
     var body: String,
     var status: SubmissionStatus,
     val sourceFile: String,
-    var sourceTime: Instant? = null,
+    var sourceTime: Instant,
     var files: List<ObjectId> = emptyList(),
     var updated: Instant = Instant.now()
 ) {
@@ -30,7 +30,7 @@ data class SubmissionDoc(
     }
 
     fun asInsertOnUpdate(): Bson = Updates.combine(
-        Updates.setOnInsert(Fields.accNo, accNo),
+        Updates.setOnInsert(Fields.accNo, accno),
         Updates.setOnInsert(Fields.body, body),
         Updates.setOnInsert(Fields.sourceFile, sourceFile),
         Updates.setOnInsert(Fields.sourceTime, sourceTime),

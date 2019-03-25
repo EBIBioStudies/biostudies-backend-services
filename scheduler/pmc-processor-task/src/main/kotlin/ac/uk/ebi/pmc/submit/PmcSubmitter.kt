@@ -42,7 +42,7 @@ class PmcSubmitter(
 
     private suspend fun submitSubmission(submission: SubmissionDoc) = coroutineScope {
         Try {
-            logger.info { "submitting accNo='${submission.accNo}'" }
+            logger.info { "submitting accNo='${submission.accno}'" }
             val files = submissionService.getSubFiles(submission.files).map { File(it.path) }
             bioWebClient.submitSingle(submission.body, SubmissionFormat.JSON, files)
         }.fold(

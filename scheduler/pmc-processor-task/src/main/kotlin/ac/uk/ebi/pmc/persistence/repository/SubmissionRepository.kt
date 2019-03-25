@@ -20,7 +20,7 @@ class SubmissionRepository(private val submissions: MongoCollection<SubmissionDo
 
     suspend fun insertIfLastOne(submission: SubmissionDoc, sourceTime: Instant) {
         submissions.findOneAndUpdate(
-            and(eq(SubmissionDoc.accNo, submission.accNo), gt(SubmissionDoc.sourceTime, sourceTime)),
+            and(eq(SubmissionDoc.accNo, submission.accno), gt(SubmissionDoc.sourceTime, sourceTime)),
             submission.asInsertOnUpdate(),
             FindOneAndUpdateOptions().upsert(true))
     }
