@@ -39,6 +39,6 @@ class OutputFilesGenerator(
 
         FileUtils.writeStringToFile(submissionPath.resolve("$outputFileName.json").toFile(), json, Charsets.UTF_8)
         FileUtils.writeStringToFile(submissionPath.resolve("$outputFileName.xml").toFile(), xml, Charsets.UTF_8)
-        FileUtils.writeStringToFile(submissionPath.resolve("$outputFileName.tsv").toFile(), tsv, Charsets.UTF_8)
+        FileUtils.writeStringToFile(submissionPath.resolve("$outputFileName.pagetab.tsv").toFile(), tsv, Charsets.UTF_8)
     }
 }
