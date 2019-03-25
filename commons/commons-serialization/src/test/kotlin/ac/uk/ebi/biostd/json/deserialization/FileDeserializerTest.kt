@@ -57,4 +57,22 @@ class FileDeserializerTest {
 
         assertThat(file).isEqualTo(File("/path/file.txt"))
     }
+
+    @Test
+    fun `deserialize with size`() {
+        val fileJson = jsonObj {
+            "path" to "/path/file.txt"
+            "size" to "125"
+            "attributes" to jsonArray({
+                "name" to "attr name"
+                "value" to "attr value"
+            })
+            "type" to "file"
+        }.toString()
+
+        val file = testInstance.deserialize<File>(fileJson)
+        val expected = File("/path/file.txt", attributes = listOf(Attribute("attr name", "attr value")))
+
+        assertThat(file).isEqualTo(expected)
+    }
 }
