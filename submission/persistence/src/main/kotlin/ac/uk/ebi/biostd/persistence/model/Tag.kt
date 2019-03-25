@@ -9,7 +9,7 @@ import javax.persistence.Table
 import javax.persistence.UniqueConstraint
 
 @Entity
-@Table(name = "Tag", uniqueConstraints = [ UniqueConstraint(columnNames = ["name", "classifier" ]) ])
+@Table(name = "ElementTag", uniqueConstraints = [ UniqueConstraint(columnNames = ["name", "classifier" ]) ])
 class Tag(
     @Id
     @GeneratedValue
