@@ -67,7 +67,6 @@ class PmcSubmissionLoader(
     private fun sanitize(fileText: String) = fileText.replace(sanitizeRegex, "\n")
 }
 
-
 private data class LoadedSubmissionInfo(
     val file: FileSpec,
     val body: String,

@@ -6,7 +6,8 @@ package ac.uk.ebi.pmc.common.coroutines
  */
 class SuspendSequence<T>(
     private val limit: Int? = null,
-    private val read: suspend () -> T?) {
+    private val read: suspend () -> T?
+) {
 
     private var next: T? = null
     private var done = false
