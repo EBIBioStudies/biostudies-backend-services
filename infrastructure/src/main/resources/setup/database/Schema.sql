@@ -195,23 +195,23 @@ CREATE TABLE Submission_AccessTag (
 CREATE INDEX Submission_AccessTag_AccesTag_IDX ON Submission_AccessTag (accessTags_id);
 CREATE INDEX Submission_AccessTag_Submission_IDX ON Submission_AccessTag (Submission_id);
 
-CREATE TABLE Tag (
+CREATE TABLE ElementTag (
     id            BIGINT AUTO_INCREMENT PRIMARY KEY,
     name          VARCHAR(255) NOT NULL,
     classifier    VARCHAR(255) NOT NULL,
     CONSTRAINT tag_name UNIQUE (classifier, name)
 );
 
-CREATE TABLE Submission_Tag (
+CREATE TABLE Submission_ElementTag (
     id            BIGINT AUTO_INCREMENT PRIMARY KEY,
     tag_id        BIGINT       NULL,
     submission_id BIGINT       NULL,
-    CONSTRAINT Tag_Submission_FRG_KEY FOREIGN KEY (tag_id) REFERENCES Tag (id),
-    CONSTRAINT Submission_Tag_FRG_KEY FOREIGN KEY (submission_id) REFERENCES Submission (id)
+    CONSTRAINT Tag_Submission_FRG_KEY FOREIGN KEY (tag_id) REFERENCES ElementTag (id),
+    CONSTRAINT Submission_ElementTag_FRG_KEY FOREIGN KEY (submission_id) REFERENCES Submission (id)
 );
 
-CREATE INDEX Submission_Tag_Tag_Id_IDX ON Submission_Tag (tag_id);
-CREATE INDEX Submission_Tag_Submission_Id_IDX ON Submission_Tag (submission_id);
+CREATE INDEX Submission_ElementTag_Tag_Id_IDX ON Submission_ElementTag (tag_id);
+CREATE INDEX Submission_ElementTag_Submission_Id_IDX ON Submission_ElementTag (submission_id);
 
 -- Security
 CREATE TABLE User (
