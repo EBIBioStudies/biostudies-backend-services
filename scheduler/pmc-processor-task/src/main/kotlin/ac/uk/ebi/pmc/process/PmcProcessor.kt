@@ -16,8 +16,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import mu.KotlinLogging
 
-private const val WORKERS = 10
 private val logger = KotlinLogging.logger {}
+private const val WORKERS = 30
 
 class PmcProcessor(
     private val errorDocService: ErrorsDocService,
@@ -40,10 +40,11 @@ class PmcProcessor(
     }
 
     private suspend fun processSubmission(submissionDoc: SubmissionDoc): Submission {
-        val submission = submissionInitializer.getSubmission(submissionDoc.body)
+        val (submission, body) = submissionInitializer.getSubmission(submissionDoc.body)
+
         fileDownloader.downloadFiles(submission).fold(
             { errorDocService.saveError(submissionDoc, PmcMode.PROCESS, it) },
-            { submissionDocService.saveProcessedSubmission(submissionDoc, it) })
+            { submissionDocService.saveProcessedSubmission(submissionDoc.withBody(body), it) })
 
         logger.info { "Finishing processing of submission with accNo = '${submission.accNo}'" }
         return submission

@@ -11,7 +11,7 @@ import mu.KotlinLogging
 import java.io.File
 
 private val logger = KotlinLogging.logger {}
-private const val TASK_CORES = 8
+private const val TASK_CORES = 4
 
 class PmcLoaderService(
     private val clusterOperations: ClusterOperations,
@@ -26,23 +26,34 @@ class PmcLoaderService(
         val jobTry = clusterOperations.triggerJob(
             JobSpec(
                 TASK_CORES,
-                MemorySpec.SIXTEEN_GB,
+                MemorySpec.EIGHT_GB,
                 properties.asJavaCommand(appProperties.appsFolder)))
         return jobTry.fold({ throw it }, { it.apply { logger.info { "submitted job $it" } } })
     }
 
-    fun process() {
+    fun triggerProcessor(): Job {
         logger.info { "submitting job to process submissions" }
-        val properties = getConfigProperties(importMode = PmcMode.LOAD)
+        val properties = getConfigProperties(importMode = PmcMode.PROCESS)
         val jobTry = clusterOperations.triggerJob(
             JobSpec(
                 TASK_CORES,
-                MemorySpec.SIXTEEN_GB,
+                MemorySpec.EIGHT_GB,
                 properties.asJavaCommand(appProperties.appsFolder)))
         return jobTry.fold({ throw it }, { it.apply { logger.info { "submitted job $it" } } })
     }
 
-    private fun getConfigProperties(file: File? = null, importMode: PmcMode) = PmcImporterProperties(
+    fun triggerSubmitter(): Job {
+        logger.info { "submitting job to submit submissions" }
+        val properties = getConfigProperties(importMode = PmcMode.SUBMIT)
+        val jobTry = clusterOperations.triggerJob(
+            JobSpec(
+                TASK_CORES,
+                MemorySpec.EIGHT_GB,
+                properties.asJavaCommand(appProperties.appsFolder)))
+        return jobTry.fold({ throw it }, { it.apply { logger.info { "submitted job $it" } } })
+    }
+
+    private fun getConfigProperties(file: File? = null, importMode: PmcMode) = PmcImporterProperties.create(
         mode = importMode,
         path = file?.absolutePath,
         temp = properties.temp,

@@ -3,7 +3,7 @@ package ac.uk.ebi.biostd.itest.factory
 import org.redundent.kotlin.xml.xml
 
 fun allInOneSubmissionXml() = xml("submission") {
-    attribute("accNo", "S-EPMC126")
+    attribute("accno", "S-EPMC126")
     "attributes" {
         "attribute" {
             "name" { -"Title" }
@@ -12,7 +12,7 @@ fun allInOneSubmissionXml() = xml("submission") {
     }
 
     "section" {
-        attribute("accNo", "SECT-001")
+        attribute("accno", "SECT-001")
         attribute("type", "Study")
         "attributes" {
             "attribute" {
@@ -102,7 +102,7 @@ fun allInOneSubmissionXml() = xml("submission") {
         }
         "subsections" {
             "section" {
-                attribute("accNo", "SUBSECT-001")
+                attribute("accno", "SUBSECT-001")
                 attribute("type", "Stranded Total RNA-Seq")
                 "links" {
                     "table" {
@@ -124,7 +124,7 @@ fun allInOneSubmissionXml() = xml("submission") {
             }
             "table" {
                 "section" {
-                    attribute("accNo", "DT-1")
+                    attribute("accno", "DT-1")
                     attribute("type", "Data")
                     "attributes" {
                         "attribute" {

@@ -39,28 +39,29 @@ class SubmissionDocService(
     suspend fun changeStatus(submission: SubmissionDoc, status: SubmissionStatus) =
         submissionRepository.update(submission.withStatus(status))
 
-    suspend fun saveLoadedVersion(submission: Submission, sourceFile: String, sourceTime: Instant) {
-        submissionRepository.setSourceTime(submission.accNo, sourceTime)
-        submissionRepository.insert(SubmissionDoc(
+    suspend fun saveLoadedVersion(submission: Submission, sourceFile: String, sourceTime: Instant, posInFile: Int) {
+        submissionRepository.insertOrExpire(SubmissionDoc(
             submission.accNo,
             asJson(submission),
             LOADED,
             sourceFile,
+            posInFile,
             sourceTime))
-        logger.info { "saved new version of submission with accNo = '${submission.accNo}' from file $sourceFile" }
+
+        logger.info { "processed version of submission with accNo = '${submission.accNo}' from file $sourceFile" }
     }
 
     suspend fun saveProcessedSubmission(submission: SubmissionDoc, files: List<File>) = coroutineScope {
         submission.files = saveFiles(files, submission)
         submissionRepository.update(submission.withStatus(PROCESSED))
         logger.info {
-            "finish processing submission with accNo = '${submission.accNo}' from file ${submission.sourceFile}"
+            "finish processing submission with accNo = '${submission.accno}' from file ${submission.sourceFile}"
         }
     }
 
     private suspend fun saveFiles(files: List<File>, submission: SubmissionDoc): List<ObjectId> = coroutineScope {
         return@coroutineScope files
-            .map { async { fileRepository.saveFile(it, submission.accNo) } }
+            .map { async { fileRepository.saveFile(it, submission.accno) } }
             .awaitAll()
     }
 

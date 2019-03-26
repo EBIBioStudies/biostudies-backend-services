@@ -20,11 +20,14 @@ private val yearExtractionPattern = "\\d{4}".toRegex()
  */
 class SubmissionInitializer(private val serializationService: SerializationService) {
 
-    fun getSubmission(body: String): Submission {
+    fun getSubmission(body: String): Pair<Submission, String> {
         val submission = serializationService.deserializeSubmission(body, SubFormat.JSON)
         submission.releaseDate = getReleaseDate(submission)
-        return submission
+        return Pair(submission, asString(submission))
     }
+
+    private fun asString(submission: Submission) =
+        serializationService.serializeSubmission(submission, SubFormat.JSON)
 
     private fun getReleaseDate(submission: Submission): Instant {
         val releaseDate: String = submission.getSectionByType(PUBLICATION_SECTION)[PUBLICATION_DATE_ATTRIBUTE]

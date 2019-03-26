@@ -4,7 +4,7 @@ import ac.uk.ebi.scheduler.common.BaseAppProperty
 
 private const val APP_NAME = "pmc-processor-task.jar"
 
-class PmcImporterProperties() : BaseAppProperty {
+class PmcImporterProperties : BaseAppProperty {
 
     override fun asJavaCommand(location: String) =
         StringBuilder().apply {
@@ -19,24 +19,6 @@ class PmcImporterProperties() : BaseAppProperty {
             bioStudiesPassword?.let { append("--app.data.bioStudiesPassword=$it \\\n") }
         }.removeSuffix(" \\\n").toString()
 
-    constructor(
-        mode: PmcMode,
-        path: String?,
-        temp: String,
-        mongodbUri: String,
-        bioStudiesUrl: String? = null,
-        bioStudiesUser: String? = null,
-        bioStudiesPassword: String? = null
-    ) : this() {
-        this.mode = mode
-        this.path = path
-        this.temp = temp
-        this.mongodbUri = mongodbUri
-        this.bioStudiesUrl = bioStudiesUrl
-        this.bioStudiesUser = bioStudiesUser
-        this.bioStudiesPassword = bioStudiesPassword
-    }
-
     lateinit var mode: PmcMode
     lateinit var temp: String
     lateinit var mongodbUri: String
@@ -44,6 +26,29 @@ class PmcImporterProperties() : BaseAppProperty {
     var bioStudiesUrl: String? = null
     var bioStudiesUser: String? = null
     var bioStudiesPassword: String? = null
+
+    companion object {
+
+        // Todo: refactor to have biostudies parameters in a wrapper class
+        @Suppress("LongParameterList")
+        fun create(
+            mode: PmcMode,
+            path: String?,
+            temp: String,
+            mongodbUri: String,
+            bioStudiesUrl: String? = null,
+            bioStudiesUser: String? = null,
+            bioStudiesPassword: String? = null
+        ) = PmcImporterProperties().apply {
+            this.mode = mode
+            this.path = path
+            this.temp = temp
+            this.mongodbUri = mongodbUri
+            this.bioStudiesUrl = bioStudiesUrl
+            this.bioStudiesUser = bioStudiesUser
+            this.bioStudiesPassword = bioStudiesPassword
+        }
+    }
 }
 
 enum class PmcMode {

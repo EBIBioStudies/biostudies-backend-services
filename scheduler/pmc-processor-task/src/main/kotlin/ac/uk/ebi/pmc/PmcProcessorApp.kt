@@ -8,6 +8,7 @@ import ac.uk.ebi.scheduler.properties.PmcMode
 import org.springframework.beans.factory.getBean
 import org.springframework.boot.CommandLineRunner
 import org.springframework.boot.autoconfigure.SpringBootApplication
+import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.boot.runApplication
 import org.springframework.context.ApplicationContext
 import org.springframework.context.ApplicationContextAware
@@ -16,6 +17,10 @@ import java.io.File
 
 @SpringBootApplication
 class PmcProcessorApp {
+
+    @Bean
+    @ConfigurationProperties("app.data")
+    fun properties() = PmcImporterProperties()
 
     @Bean
     fun taskExecutor(properties: PmcImporterProperties) = TaskExecutor(properties)

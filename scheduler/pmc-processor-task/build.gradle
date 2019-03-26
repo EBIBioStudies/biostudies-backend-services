@@ -29,3 +29,7 @@ dependencies {
     testCompile(BaseTestCompileDependencies)
     testRuntime(BaseTestRuntimeDependencies)
 }
+
+bootJar {
+    archiveName = 'pmc-processor-task.jar'
+}

@@ -4,13 +4,13 @@ import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
 
 fun allInOneSubmissionJson() = jsonObj {
-    "accNo" to "S-EPMC125"
+    "accno" to "S-EPMC125"
     "attributes" to jsonArray({
         "name" to "Title"
         "value" to "venous blood, Monocyte"
     })
     "section" to {
-        "accNo" to "SECT-001"
+        "accno" to "SECT-001"
         "type" to "Study"
         "attributes" to jsonArray({
             "name" to "Project"
@@ -75,7 +75,7 @@ fun allInOneSubmissionJson() = jsonObj {
                 })
             }))
         "subsections" to jsonArray(jsonObj {
-            "accNo" to "SUBSECT-001"
+            "accno" to "SUBSECT-001"
             "type" to "Stranded Total RNA-Seq"
             "links" to jsonArray(jsonArray({
                 "url" to "EGAD00001001282"
@@ -88,7 +88,7 @@ fun allInOneSubmissionJson() = jsonObj {
                 })
             }))
         }, jsonArray({
-            "accNo" to "DT-1"
+            "accno" to "DT-1"
             "type" to "Data"
             "attributes" to jsonArray({
                 "name" to "Title"

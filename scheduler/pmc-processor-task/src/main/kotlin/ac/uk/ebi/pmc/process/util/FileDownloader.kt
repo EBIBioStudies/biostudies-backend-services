@@ -21,11 +21,13 @@ class FileDownloader(
     private val pmcApi: PmcApi
 ) {
 
-    suspend fun downloadFiles(submission: Submission): Try<List<File>> = coroutineScope {
-        Try {
-            return@Try submission.allFiles()
-                .map { retry(times = 3) { async { downloadFile(getPmcId(submission.accNo), it) } } }
-                .awaitAll()
+    suspend fun downloadFiles(submission: Submission): Try<List<File>> {
+        return Try {
+            return@Try coroutineScope {
+                submission.allFiles()
+                    .map { async { retry(times = 3) { downloadFile(getPmcId(submission.accNo), it) } } }
+                    .awaitAll()
+            }
         }
     }
 
@@ -34,7 +36,7 @@ class FileDownloader(
         targetFolder.mkdirs()
 
         val targetFile = targetFolder.resolve(file.path)
-        FileUtils.copyInputStreamToFile(pmcApi.downloadFile(pmcId, file.path).await().byteStream(), targetFile)
+        FileUtils.copyInputStreamToFile(pmcApi.downloadFileAsync(pmcId, file.path).await().byteStream(), targetFile)
         return@withContext targetFile
     }
 

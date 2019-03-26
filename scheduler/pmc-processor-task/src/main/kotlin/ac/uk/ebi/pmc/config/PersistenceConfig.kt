@@ -13,8 +13,6 @@ import org.litote.kmongo.async.KMongo
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
-const val MAX_CONNECTIONS = 10
-
 @Configuration
 class PersistenceConfig {
 
@@ -24,7 +22,6 @@ class PersistenceConfig {
             MongoClientSettings
                 .builder()
                 .applyConnectionString(ConnectionString(properties.mongodbUri))
-                .applyToConnectionPoolSettings { it.maxSize(MAX_CONNECTIONS) }
                 .build())
     }
 

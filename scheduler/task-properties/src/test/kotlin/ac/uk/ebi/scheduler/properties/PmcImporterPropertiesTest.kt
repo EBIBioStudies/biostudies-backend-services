@@ -13,7 +13,7 @@ const val bioStudiesPassword = "password"
 class PmcImporterPropertiesTest {
     @Test
     fun asJavaCommand() {
-        val properties = PmcImporterProperties(
+        val properties = PmcImporterProperties.create(
             mode = PmcMode.LOAD,
             path = path,
             temp = tempDir,
@@ -37,7 +37,7 @@ class PmcImporterPropertiesTest {
 
     @Test
     fun `asJavaCommand when not optional parameter`() {
-        val properties = PmcImporterProperties(
+        val properties = PmcImporterProperties.create(
             mode = PmcMode.LOAD,
             path = null,
             temp = tempDir,
