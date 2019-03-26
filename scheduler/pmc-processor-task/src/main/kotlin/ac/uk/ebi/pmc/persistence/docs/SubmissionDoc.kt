@@ -37,8 +37,7 @@ data class SubmissionDoc(
         Updates.setOnInsert(Fields.posInFile, posInFile),
         Updates.setOnInsert(Fields.sourceTime, sourceTime),
         Updates.setOnInsert(Fields.status, status),
-        Updates.setOnInsert(Fields.updated, updated),
-        Updates.set(Fields.status, SubmissionStatus.DISCARDED)
+        Updates.setOnInsert(Fields.updated, updated)
     )
 
     companion object Fields {
