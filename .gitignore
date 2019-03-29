@@ -4,3 +4,4 @@ out/
 reports/
 .idea/
 *.iml
+.DS_Store

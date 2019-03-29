@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: # Database connection URL
-    username:
-    password:
+    url: jdbc:mysql://localhost:3306/BioStudiesDev
+    username: root
+    password: admin
     driver-class-name: com.mysql.jdbc.Driver
 
   jpa:
@@ -18,7 +18,7 @@ spring:
       max-request-size: 10240MB
 
 app:
-  basepath: # Path to the folder that will be used as storage
-  environment: # Current application execution environment
+  basepath: # Set here the path to the folder you want to use as storage
+  environment: LOCAL
   security:
-    tokenHash: # Token used for hash authentication
+    tokenHash: bio-local
