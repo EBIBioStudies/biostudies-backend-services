@@ -1,3 +1,5 @@
+import static Dependencies.CommonsCli
+import static Dependencies.JSONOrg
 import static Dependencies.SpringWeb
 import static TestDependencies.BaseTestCompileDependencies
 import static TestDependencies.BaseTestRuntimeDependencies
@@ -8,8 +10,22 @@ dependencies {
     compile(project(":commons:commons-serialization"))
 
     // External dependencies
+    compile(JSONOrg)
     compile(SpringWeb)
+    compile(CommonsCli)
 
     testCompile(BaseTestCompileDependencies)
     testRuntime(BaseTestRuntimeDependencies)
+
+    jar {
+        archiveBaseName = 'PTSubmit'
+
+        manifest {
+            attributes 'Main-Class': 'ac.uk.ebi.biostd.client.cli.BioStudiesCommandLineKt'
+        }
+
+        from {
+            configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+        }
+    }
 }
