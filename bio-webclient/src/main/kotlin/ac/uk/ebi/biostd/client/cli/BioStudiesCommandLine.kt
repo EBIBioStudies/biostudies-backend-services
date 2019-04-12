@@ -53,13 +53,12 @@ class BioStudiesCommandLine(
             val client = getClient(host, user, password)
             val submission = client.submitSingle(input.readText(), SubmissionFormat.valueOf(format), files).body
 
-            // TODO fix library file bug
             response = "SUCCESS: Submission with AccNo ${submission!!.accNo} was submitted"
         } catch (exception: Exception) {
             when (exception) {
                 is NullPointerException -> printError(NULL_SUBMISSION_ERROR_MSG)
                 is ResourceAccessException -> printError(exception.cause?.message)
-                is RestClientResponseException -> printError(JSONObject(exception.responseBodyAsString).toString(2))
+                is RestClientResponseException -> printJsonError(exception)
                 else -> {
                     printError(exception.message)
                     helpFormatter.printHelp(CLI_ID, options)
@@ -74,6 +73,9 @@ class BioStudiesCommandLine(
         SecurityWebClient.create(host).getAuthenticatedClient(user, password)
 
     internal fun printError(message: String?) = println("ERROR: $message")
+
+    internal fun printJsonError(exception: RestClientResponseException) =
+        println("ERROR: ${JSONObject(exception.responseBodyAsString).toString(2)}")
 }
 
 fun main(args: Array<String>) {

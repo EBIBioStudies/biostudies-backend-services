@@ -41,7 +41,7 @@ class ReferencedFile(
     var size: Long = 0L
 
     @OneToMany(cascade = [CascadeType.ALL])
-    @JoinColumn(name = "file_id")
+    @JoinColumn(name = "referenced_file_id")
     @OrderBy("order ASC")
     var attributes: SortedSet<ReferencedFileAttribute> = sortedSetOf()
 

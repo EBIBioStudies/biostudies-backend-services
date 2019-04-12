@@ -17,7 +17,7 @@ dependencies {
     testCompile(BaseTestCompileDependencies)
     testRuntime(BaseTestRuntimeDependencies)
 
-    jar {
+    task buildPTSubmit(type: Jar) {
         archiveBaseName = 'PTSubmit'
 
         manifest {
@@ -27,5 +27,7 @@ dependencies {
         from {
             configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
         }
+
+        with jar
     }
 }
