@@ -97,7 +97,7 @@ private class DbSectionMapper(private val referencedFileRepository: ReferencedFi
             attributes = toAttributes(sectionDb.attributes)
             extendedSections = toExtendedSections(sectionDb.sections.toList(), referencedFileRepository, loadRefFiles)
             sectionDb.libraryFile?.let {
-                libraryFile = toLibraryFile(it, referencedFileRepository.findByLibraryFile(it))
+                libraryFile = toLibraryFile(it, referencedFileRepository.findByLibraryFile(it.name))
             }
         }
 }

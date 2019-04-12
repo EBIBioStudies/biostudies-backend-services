@@ -9,7 +9,6 @@ import javax.persistence.FetchType
 import javax.persistence.GeneratedValue
 import javax.persistence.Id
 import javax.persistence.JoinColumn
-import javax.persistence.ManyToOne
 import javax.persistence.OneToMany
 import javax.persistence.OrderBy
 import javax.persistence.Table
@@ -30,7 +29,10 @@ class LibraryFile(
 @Table(name = "ReferencedFile")
 class ReferencedFile(
     @Column
-    val name: String
+    val name: String,
+
+    @Column
+    val libraryFile: String
 ) {
     @Id
     @GeneratedValue
@@ -38,16 +40,18 @@ class ReferencedFile(
 
     var size: Long = 0L
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "libraryFile")
-    var libraryFile: LibraryFile? = null
-
     @OneToMany(cascade = [CascadeType.ALL])
     @JoinColumn(name = "file_id")
     @OrderBy("order ASC")
     var attributes: SortedSet<ReferencedFileAttribute> = sortedSetOf()
 
-    constructor(name: String, size: Long, attributes: SortedSet<ReferencedFileAttribute>) : this(name) {
+    constructor(
+        name: String,
+        libraryFile: String,
+        size: Long,
+        attributes: SortedSet<ReferencedFileAttribute>
+    ) : this(name, libraryFile
+    ) {
         this.size = size
         this.attributes = attributes
     }
