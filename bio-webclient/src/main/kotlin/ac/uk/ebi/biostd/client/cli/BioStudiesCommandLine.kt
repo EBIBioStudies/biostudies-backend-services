@@ -36,7 +36,7 @@ class BioStudiesCommandLine(
     fun submit(args: Array<String>): String {
         var response = ""
         try {
-            var files: List<File> = listOf()
+            val files: MutableList<File> = mutableListOf()
             val cli = DefaultParser().parse(options, args)
             val user = cli.getOptionValue(USER)
             val host = cli.getOptionValue(SERVER)
@@ -45,9 +45,7 @@ class BioStudiesCommandLine(
             val password = cli.getOptionValue(PASSWORD)
 
             cli.getOptionValue(ATTACHED)?.let {
-                files = it
-                    .split(FILES_SEPARATOR)
-                    .map { path -> File(path) }
+                it.split(FILES_SEPARATOR).forEach { path -> addFiles(files, path) }
             }
 
             val client = getClient(host, user, password)
@@ -76,6 +74,13 @@ class BioStudiesCommandLine(
 
     internal fun printJsonError(exception: RestClientResponseException) =
         println("ERROR: ${JSONObject(exception.responseBodyAsString).toString(2)}")
+
+    private fun addFiles(files: MutableList<File>, path: String) {
+        val file = File(path)
+
+        if (file.isDirectory) file.walk().filter { it.isFile }.forEach { files.add(it) }
+        else files.add(file)
+    }
 }
 
 fun main(args: Array<String>) {

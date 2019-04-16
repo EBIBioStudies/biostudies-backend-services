@@ -58,7 +58,7 @@ class SubmissionMapper(
         releaseTime = submission.releaseTime.toEpochSecond()
 
         owner = toUser(submission.user)
-        rootSection = toSection(submission.extendedSection, NO_TABLE_INDEX)
+        rootSection = toSection(submission.extendedSection, this, NO_TABLE_INDEX)
         attributes = toAttributes(submission.attributes).mapTo(sortedSetOf(), ::SubmissionAttribute)
         accessTags = toAccessTag(submission.accessTags)
         tags = toTags(submission.tags)
@@ -75,32 +75,39 @@ class SubmissionMapper(
 }
 
 private object SectionMapper {
-    fun toSection(section: ExtendedSection, index: Int) = SectionDb(section.accNo, section.type).apply {
-        order = index
-        attributes = toAttributes(section.attributes).mapTo(sortedSetOf(), ::SectionAttribute)
-        links = section.links.mapIndexed(::toLinks).flatten().toSortedSet()
-        files = section.files.mapIndexed(::toFiles).flatten().toSortedSet()
-        sections = section.extendedSections.mapIndexed(::toSections).flatten().toSortedSet()
+    fun toSection(section: ExtendedSection, parentSubmission: SubmissionDb?, index: Int) =
+        SectionDb(section.accNo, section.type).apply {
+            order = index
+            attributes = toAttributes(section.attributes).mapTo(sortedSetOf(), ::SectionAttribute)
+            links = section.links.mapIndexed(::toLinks).flatten().toSortedSet()
+            files = section.files.mapIndexed(::toFiles).flatten().toSortedSet()
+            submission = parentSubmission
+            sections = section.extendedSections
+                .mapIndexed { index, section -> toSections(index, section, parentSubmission) }.flatten().toSortedSet()
 
-        section.libraryFile?.let { libFile ->
-            libraryFile = LibraryFileDb(libFile.name).apply {
-                files = libFile.referencedFiles.map { EntityMapper.toRefFile(it, libFile.name) }.toSet()
+            section.libraryFile?.let { libFile ->
+                libraryFile = LibraryFileDb(libFile.name).apply {
+                    files = libFile.referencedFiles.map { EntityMapper.toRefFile(it, libFile.name) }.toSet()
+                }
             }
         }
-    }
 
     fun toTableSection(section: Section, index: Int, sectionTableIndex: Int) =
         SectionDb(section.accNo, section.type).apply {
-            attributes = AttributeMapper.toAttributes(section.attributes).mapTo(sortedSetOf(), ::SectionAttribute)
+            attributes = toAttributes(section.attributes).mapTo(sortedSetOf(), ::SectionAttribute)
             tableIndex = sectionTableIndex
             order = index
         }
 }
 
 private object TableMapper {
-    fun toSections(index: Int, either: Either<ExtendedSection, SectionsTable>): List<SectionDb> =
+    fun toSections(
+        index: Int,
+        either: Either<ExtendedSection, SectionsTable>,
+        parentSubmission: SubmissionDb?
+    ): List<SectionDb> =
         either.fold(
-            { listOf(toSection(it, index)) },
+            { listOf(toSection(it, parentSubmission, index)) },
             { it.elements.mapIndexed { tableIndex, file -> toTableSection(file, index + tableIndex, tableIndex) } })
 
     fun toFiles(index: Int, files: Either<File, FilesTable>) = files.fold(

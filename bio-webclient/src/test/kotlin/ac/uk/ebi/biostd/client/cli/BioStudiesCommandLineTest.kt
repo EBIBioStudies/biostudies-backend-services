@@ -21,7 +21,6 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.client.ResourceAccessException
 import org.springframework.web.client.RestClientResponseException
 import java.io.IOException
-import java.lang.NullPointerException
 
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
 class BioStudiesCommandLineTest(
@@ -38,10 +37,12 @@ class BioStudiesCommandLineTest(
     fun setUp() {
         rootFolder = temporaryFolder.root.absolutePath
         temporaryFolder.createFile("Submission.tsv")
+        temporaryFolder.createDirectory("attachments")
+        temporaryFolder.createDirectory("attachments/inner")
 
-        val refFile = temporaryFolder.createFile("RefFile.txt")
-        val libFile = temporaryFolder.createFile("LibraryFile.tsv")
         val mockResponse = ResponseEntity.ok(Submission("S-TEST123"))
+        val libFile = temporaryFolder.createFile("LibraryFile.tsv")
+        val refFile = temporaryFolder.createFile("attachments/inner/RefFile.txt")
 
         every { mockHelpFormatter.printHelp(CLI_ID, options) }.answers { nothing }
         every { mockWebClient.submitSingle("", SubmissionFormat.TSV, listOf()) } returns mockResponse
@@ -75,7 +76,7 @@ class BioStudiesCommandLineTest(
             "-p", "123456",
             "-f", "TSV",
             "-i", "$rootFolder/Submission.tsv",
-            "-a", "$rootFolder/LibraryFile.tsv,$rootFolder/RefFile.txt")
+            "-a", "$rootFolder/LibraryFile.tsv,$rootFolder/attachments")
         val response = testInstance.submit(args)
 
         assertThat(response).isEqualTo("SUCCESS: Submission with AccNo S-TEST123 was submitted")
