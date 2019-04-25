@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.persistence.mapping
 import ac.uk.ebi.biostd.persistence.common.NO_TABLE_INDEX
 import ac.uk.ebi.biostd.persistence.mapping.AttributeMapper.toAttributes
 import ac.uk.ebi.biostd.persistence.mapping.EntityMapper.toFile
+import ac.uk.ebi.biostd.persistence.mapping.EntityMapper.toLibraryFile
 import ac.uk.ebi.biostd.persistence.mapping.EntityMapper.toLink
 import ac.uk.ebi.biostd.persistence.mapping.EntityMapper.toUser
 import ac.uk.ebi.biostd.persistence.mapping.SectionMapper.toSection
@@ -25,6 +26,7 @@ import ebi.ac.uk.model.ExtendedSection
 import ebi.ac.uk.model.ExtendedSubmission
 import ebi.ac.uk.model.File
 import ebi.ac.uk.model.FilesTable
+import ebi.ac.uk.model.LibraryFile
 import ebi.ac.uk.model.Link
 import ebi.ac.uk.model.LinksTable
 import ebi.ac.uk.model.Section
@@ -85,11 +87,7 @@ private object SectionMapper {
             sections = section.extendedSections
                 .mapIndexed { index, section -> toSections(index, section, parentSubmission) }.flatten().toSortedSet()
 
-            section.libraryFile?.let { libFile ->
-                libraryFile = LibraryFileDb(libFile.name).apply {
-                    files = libFile.referencedFiles.map { EntityMapper.toRefFile(it, libFile.name) }.toSet()
-                }
-            }
+            section.libraryFile?.let { libraryFile = toLibraryFile(it) }
         }
 
     fun toTableSection(section: Section, index: Int, sectionTableIndex: Int) =
@@ -130,6 +128,11 @@ private object EntityMapper {
 
     fun toRefFile(file: File, libFile: String) = ReferencedFileDb(
         file.path, libFile, file.size, toAttributes(file.attributes).mapTo(sortedSetOf(), ::ReferencedFileAttribute))
+
+    fun toLibraryFile(libFile: LibraryFile) =
+        LibraryFileDb(libFile.name).apply {
+            files = libFile.referencedFiles.map { toRefFile(it, libFile.name) }.toSet()
+        }
 }
 
 private object AttributeMapper {
