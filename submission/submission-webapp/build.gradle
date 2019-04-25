@@ -24,7 +24,7 @@ dependencies {
 
     compile(MySql)
 
-    testCompile(project(":bio-webclient"))
+    testCompile(project(":client:bio-webclient"))
 
     testCompile(BaseTestCompileDependencies)
     testRuntime(BaseTestRuntimeDependencies)

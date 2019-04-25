@@ -8,9 +8,11 @@ import javax.persistence.CascadeType
 import javax.persistence.Column
 import javax.persistence.Convert
 import javax.persistence.Entity
+import javax.persistence.FetchType
 import javax.persistence.GeneratedValue
 import javax.persistence.Id
 import javax.persistence.JoinColumn
+import javax.persistence.ManyToOne
 import javax.persistence.OneToMany
 import javax.persistence.OneToOne
 import javax.persistence.OrderBy
@@ -38,6 +40,10 @@ class Section(
     @Column(name = "ord")
     @Convert(converter = NullableIntConverter::class)
     override var order: Int = 0
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "submission_id")
+    var submission: Submission? = null
 
     @OneToOne(cascade = [CascadeType.ALL])
     @JoinColumn(name = "libraryFile")

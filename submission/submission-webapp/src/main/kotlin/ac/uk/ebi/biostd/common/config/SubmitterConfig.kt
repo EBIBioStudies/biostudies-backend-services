@@ -16,6 +16,7 @@ import ac.uk.ebi.biostd.submission.processors.AccessTagProcessor
 import ac.uk.ebi.biostd.submission.processors.PropertiesProcessor
 import ac.uk.ebi.biostd.submission.processors.SubmissionProcessor
 import ac.uk.ebi.biostd.submission.processors.TimesProcessor
+import ac.uk.ebi.biostd.submission.validators.LibraryFileSectionValidator
 import ac.uk.ebi.biostd.submission.validators.ProjectValidator
 import ac.uk.ebi.biostd.submission.validators.SubmissionValidator
 import ebi.ac.uk.paths.FolderResolver
@@ -28,7 +29,6 @@ import java.nio.file.Paths
 @Configuration
 @Import(ValidatorConfig::class, ProcessorConfig::class, FilesHandlerConfig::class)
 class SubmitterConfig {
-
     @Bean
     fun submissionSubmitter(
         validators: List<SubmissionValidator>,
@@ -38,7 +38,6 @@ class SubmitterConfig {
 
     @Configuration
     class FilesHandlerConfig(private val appProperties: ApplicationProperties) {
-
         @Bean
         @Lazy
         fun folderResolver() = FolderResolver(Paths.get(appProperties.basepath))
@@ -65,7 +64,6 @@ class SubmitterConfig {
 
     @Configuration
     class ProcessorConfig {
-
         @Bean
         fun accNoProcessor() = AccNoProcessor()
 
@@ -81,8 +79,10 @@ class SubmitterConfig {
 
     @Configuration
     class ValidatorConfig {
-
         @Bean
         fun projectValidator() = ProjectValidator()
+
+        @Bean
+        fun libraryFileSectionValidator() = LibraryFileSectionValidator()
     }
 }

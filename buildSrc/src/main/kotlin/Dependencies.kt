@@ -4,12 +4,14 @@ import TestVersions.JunitExtensionsVersion
 import TestVersions.JunitVersion
 import TestVersions.MockKVersion
 import TestVersions.XmlUnitVersion
+import Versions.CliKtVersion
 import Versions.CommonsCliVersion
 import Versions.CommonsIOVersion
 import Versions.CommonsLang3Version
 import Versions.GuavaVersion
 import Versions.H2Version
 import Versions.HibernateEMVersion
+import Versions.JSONOrgVersion
 import Versions.JacksonVersion
 import Versions.JschVersion
 import Versions.JwtVersion
@@ -63,6 +65,8 @@ object Versions {
     const val JschVersion = "0.1.55"
     const val Retrofit2Version = "2.5.0"
     const val Retrofit2CoroutineVersion = "0.9.2"
+    const val JSONOrgVersion = "20090211"
+    const val CliKtVersion = "1.7.0"
 }
 
 object TestDependencies {
@@ -93,6 +97,7 @@ object Dependencies {
     const val SpringDataJpa = "org.springframework.data:spring-data-jpa:$SpringDataVersion"
 
     // Web related
+    const val JSONOrg = "org.json:json:$JSONOrgVersion"
     const val JacksonKotlin = "com.fasterxml.jackson.module:jackson-module-kotlin:$JacksonVersion"
     const val JacksonCore = "com.fasterxml.jackson.core:jackson-core:$JacksonVersion"
     const val JacksonXml = "com.fasterxml.jackson.dataformat:jackson-dataformat-xml:$JacksonVersion"
@@ -110,6 +115,8 @@ object Dependencies {
     const val Jwt = "io.jsonwebtoken:jjwt:$JwtVersion"
     const val Guava = "com.google.guava:guava:$GuavaVersion"
     const val Jsch = "com.jcraft:jsch:$JschVersion"
+    const val CliKt = "com.github.ajalt:clikt:$CliKtVersion"
+
 
     // Kotlin specific
     const val KotlinStdLib = "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$KotlinVersion"

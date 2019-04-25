@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.persistence.mapping
 import ac.uk.ebi.biostd.persistence.common.NO_TABLE_INDEX
 import ac.uk.ebi.biostd.persistence.mapping.AttributeMapper.toAttributes
 import ac.uk.ebi.biostd.persistence.mapping.EntityMapper.toFile
+import ac.uk.ebi.biostd.persistence.mapping.EntityMapper.toLibraryFile
 import ac.uk.ebi.biostd.persistence.mapping.EntityMapper.toLink
 import ac.uk.ebi.biostd.persistence.mapping.EntityMapper.toUser
 import ac.uk.ebi.biostd.persistence.mapping.SectionMapper.toSection
@@ -25,6 +26,7 @@ import ebi.ac.uk.model.ExtendedSection
 import ebi.ac.uk.model.ExtendedSubmission
 import ebi.ac.uk.model.File
 import ebi.ac.uk.model.FilesTable
+import ebi.ac.uk.model.LibraryFile
 import ebi.ac.uk.model.Link
 import ebi.ac.uk.model.LinksTable
 import ebi.ac.uk.model.Section
@@ -58,7 +60,7 @@ class SubmissionMapper(
         releaseTime = submission.releaseTime.toEpochSecond()
 
         owner = toUser(submission.user)
-        rootSection = toSection(submission.extendedSection, NO_TABLE_INDEX)
+        rootSection = toSection(submission.extendedSection, this, NO_TABLE_INDEX)
         attributes = toAttributes(submission.attributes).mapTo(sortedSetOf(), ::SubmissionAttribute)
         accessTags = toAccessTag(submission.accessTags)
         tags = toTags(submission.tags)
@@ -75,32 +77,35 @@ class SubmissionMapper(
 }
 
 private object SectionMapper {
-    fun toSection(section: ExtendedSection, index: Int) = SectionDb(section.accNo, section.type).apply {
-        order = index
-        attributes = toAttributes(section.attributes).mapTo(sortedSetOf(), ::SectionAttribute)
-        links = section.links.mapIndexed(::toLinks).flatten().toSortedSet()
-        files = section.files.mapIndexed(::toFiles).flatten().toSortedSet()
-        sections = section.extendedSections.mapIndexed(::toSections).flatten().toSortedSet()
+    fun toSection(section: ExtendedSection, parentSubmission: SubmissionDb?, index: Int) =
+        SectionDb(section.accNo, section.type).apply {
+            order = index
+            attributes = toAttributes(section.attributes).mapTo(sortedSetOf(), ::SectionAttribute)
+            links = section.links.mapIndexed(::toLinks).flatten().toSortedSet()
+            files = section.files.mapIndexed(::toFiles).flatten().toSortedSet()
+            submission = parentSubmission
+            sections = section.extendedSections
+                .mapIndexed { index, section -> toSections(index, section, parentSubmission) }.flatten().toSortedSet()
 
-        section.libraryFile?.let { libFile ->
-            libraryFile = LibraryFileDb(libFile.name).apply {
-                files = libFile.referencedFiles.map { EntityMapper.toRefFile(it) }.toSet()
-            }
+            section.libraryFile?.let { libraryFile = toLibraryFile(it) }
         }
-    }
 
     fun toTableSection(section: Section, index: Int, sectionTableIndex: Int) =
         SectionDb(section.accNo, section.type).apply {
-            attributes = AttributeMapper.toAttributes(section.attributes).mapTo(sortedSetOf(), ::SectionAttribute)
+            attributes = toAttributes(section.attributes).mapTo(sortedSetOf(), ::SectionAttribute)
             tableIndex = sectionTableIndex
             order = index
         }
 }
 
 private object TableMapper {
-    fun toSections(index: Int, either: Either<ExtendedSection, SectionsTable>): List<SectionDb> =
+    fun toSections(
+        index: Int,
+        either: Either<ExtendedSection, SectionsTable>,
+        parentSubmission: SubmissionDb?
+    ): List<SectionDb> =
         either.fold(
-            { listOf(toSection(it, index)) },
+            { listOf(toSection(it, parentSubmission, index)) },
             { it.elements.mapIndexed { tableIndex, file -> toTableSection(file, index + tableIndex, tableIndex) } })
 
     fun toFiles(index: Int, files: Either<File, FilesTable>) = files.fold(
@@ -121,8 +126,13 @@ private object EntityMapper {
     fun toFile(file: File, order: Int, tableIndex: Int = NO_TABLE_INDEX) = FileDb(
         file.path, order, file.size, toAttributes(file.attributes).mapTo(sortedSetOf(), ::FileAttribute), tableIndex)
 
-    fun toRefFile(file: File) = ReferencedFileDb(
-        file.path, file.size, toAttributes(file.attributes).mapTo(sortedSetOf(), ::ReferencedFileAttribute))
+    fun toRefFile(file: File, libFile: String) = ReferencedFileDb(
+        file.path, libFile, file.size, toAttributes(file.attributes).mapTo(sortedSetOf(), ::ReferencedFileAttribute))
+
+    fun toLibraryFile(libFile: LibraryFile) =
+        LibraryFileDb(libFile.name).apply {
+            files = libFile.referencedFiles.map { toRefFile(it, libFile.name) }.toSet()
+        }
 }
 
 private object AttributeMapper {
