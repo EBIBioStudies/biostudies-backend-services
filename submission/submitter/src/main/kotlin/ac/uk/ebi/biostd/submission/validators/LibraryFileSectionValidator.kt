@@ -7,6 +7,7 @@ import ebi.ac.uk.persistence.PersistenceContext
 import ebi.ac.uk.util.collections.ifNotEmpty
 
 class LibraryFileSectionValidator : SubmissionValidator {
+    // TODO discuss whether this should be replaced by a generated acc no
     override fun validate(submission: ExtendedSubmission, context: PersistenceContext) {
         submission
             .allLibraryFileSections()

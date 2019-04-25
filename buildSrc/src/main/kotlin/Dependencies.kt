@@ -4,6 +4,7 @@ import TestVersions.JunitExtensionsVersion
 import TestVersions.JunitVersion
 import TestVersions.MockKVersion
 import TestVersions.XmlUnitVersion
+import Versions.CliKtVersion
 import Versions.CommonsCliVersion
 import Versions.CommonsIOVersion
 import Versions.CommonsLang3Version
@@ -65,6 +66,7 @@ object Versions {
     const val Retrofit2Version = "2.5.0"
     const val Retrofit2CoroutineVersion = "0.9.2"
     const val JSONOrgVersion = "20090211"
+    const val CliKtVersion = "1.7.0"
 }
 
 object TestDependencies {
@@ -113,6 +115,8 @@ object Dependencies {
     const val Jwt = "io.jsonwebtoken:jjwt:$JwtVersion"
     const val Guava = "com.google.guava:guava:$GuavaVersion"
     const val Jsch = "com.jcraft:jsch:$JschVersion"
+    const val CliKt = "com.github.ajalt:clikt:$CliKtVersion"
+
 
     // Kotlin specific
     const val KotlinStdLib = "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$KotlinVersion"

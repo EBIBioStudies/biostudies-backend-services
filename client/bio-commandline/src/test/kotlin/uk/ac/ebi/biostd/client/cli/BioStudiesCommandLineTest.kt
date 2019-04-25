@@ -1,7 +1,10 @@
-package ac.uk.ebi.biostd.client.cli
+package uk.ac.ebi.biostd.client.cli
 
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
+import com.github.ajalt.clikt.core.IncorrectOptionValueCount
+import com.github.ajalt.clikt.core.MissingParameter
+import com.github.ajalt.clikt.core.PrintMessage
 import ebi.ac.uk.model.Submission
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
@@ -10,12 +13,11 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.impl.annotations.SpyK
 import io.mockk.junit5.MockKExtension
-import io.mockk.verify
-import org.apache.commons.cli.HelpFormatter
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.http.ResponseEntity
 import org.springframework.web.client.ResourceAccessException
@@ -25,12 +27,11 @@ import java.io.IOException
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
 class BioStudiesCommandLineTest(
     private val temporaryFolder: TemporaryFolder,
-    @MockK private val mockHelpFormatter: HelpFormatter,
     @MockK private val mockWebClient: BioWebClient
 ) {
     @SpyK
-    private var testInstance = BioStudiesCommandLine(mockHelpFormatter)
-    private val options = testInstance.options
+    private var testInstance = BioStudiesCommandLine()
+
     private lateinit var rootFolder: String
 
     @BeforeEach
@@ -44,7 +45,6 @@ class BioStudiesCommandLineTest(
         val libFile = temporaryFolder.createFile("LibraryFile.tsv")
         val refFile = temporaryFolder.createFile("attachments/inner/RefFile.txt")
 
-        every { mockHelpFormatter.printHelp(CLI_ID, options) }.answers { nothing }
         every { mockWebClient.submitSingle("", SubmissionFormat.TSV, listOf()) } returns mockResponse
         every { testInstance.getClient("http://localhost:8080", "user", "123456") } returns mockWebClient
         every { mockWebClient.submitSingle("", SubmissionFormat.TSV, listOf(libFile, refFile)) } returns mockResponse
@@ -61,11 +61,8 @@ class BioStudiesCommandLineTest(
             "-p", "123456",
             "-f", "TSV",
             "-i", "$rootFolder/Submission.tsv")
-        val response = testInstance.submit(args)
 
-        assertThat(response).isEqualTo("SUCCESS: Submission with AccNo S-TEST123 was submitted")
-        verify(exactly = 0) { testInstance.printError("") }
-        verify(exactly = 0) { mockHelpFormatter.printHelp(CLI_ID, options) }
+        testInstance.main(args)
     }
 
     @Test
@@ -77,28 +74,8 @@ class BioStudiesCommandLineTest(
             "-f", "TSV",
             "-i", "$rootFolder/Submission.tsv",
             "-a", "$rootFolder/LibraryFile.tsv,$rootFolder/attachments")
-        val response = testInstance.submit(args)
 
-        assertThat(response).isEqualTo("SUCCESS: Submission with AccNo S-TEST123 was submitted")
-        verify(exactly = 0) { testInstance.printError("") }
-        verify(exactly = 0) { mockHelpFormatter.printHelp(CLI_ID, options) }
-    }
-
-    @Test
-    fun `submit single with null response`() {
-        val args = arrayOf(
-            "-s", "http://localhost:8080",
-            "-u", "user",
-            "-p", "123456",
-            "-f", "TSV",
-            "-i", "$rootFolder/Submission.tsv")
-
-        every { mockWebClient.submitSingle("", SubmissionFormat.TSV, listOf()) } throws NullPointerException()
-
-        testInstance.submit(args)
-
-        verify(exactly = 1) { testInstance.printError(NULL_SUBMISSION_ERROR_MSG) }
-        verify(exactly = 0) { mockHelpFormatter.printHelp(CLI_ID, options) }
+        testInstance.main(args)
     }
 
     @Test
@@ -114,10 +91,8 @@ class BioStudiesCommandLineTest(
             mockWebClient.submitSingle("", SubmissionFormat.TSV, listOf())
         } throws ResourceAccessException("Invalid files", IOException("Invalid Files"))
 
-        testInstance.submit(args)
-
-        verify(exactly = 1) { testInstance.printError("Invalid Files") }
-        verify(exactly = 0) { mockHelpFormatter.printHelp(CLI_ID, options) }
+        val exceptionMessage = assertThrows<PrintMessage> { testInstance.parse(args) }.message
+        assertThat(exceptionMessage).isEqualTo("Invalid Files")
     }
 
     @Test
@@ -132,25 +107,20 @@ class BioStudiesCommandLineTest(
             RestClientResponseException("Error", 500, "Error", null, "{\"msg\":\"error\"}".toByteArray(), null)
 
         every { mockWebClient.submitSingle("", SubmissionFormat.TSV, listOf()) } throws exception
-        testInstance.submit(args)
 
-        verify(exactly = 1) { testInstance.printJsonError(exception) }
-        verify(exactly = 0) { mockHelpFormatter.printHelp(CLI_ID, options) }
+        val exceptionMessage = assertThrows<PrintMessage> { testInstance.parse(args) }.message
+        assertThat(exceptionMessage).isEqualTo("{\"msg\": \"error\"}")
     }
 
     @Test
     fun `missing arguments`() {
-        testInstance.submit(arrayOf("-f", "JSON"))
-
-        verify(exactly = 1) { mockHelpFormatter.printHelp(CLI_ID, options) }
-        verify(exactly = 1) { testInstance.printError("Missing required options: s, u, p, i") }
+        val exceptionMessage = assertThrows<MissingParameter> { testInstance.parse(arrayOf("-f", "JSON")) }.message
+        assertThat(exceptionMessage).isEqualTo("Missing option \"--server\".")
     }
 
     @Test
     fun `missing value for argument`() {
-        testInstance.submit(arrayOf("-f"))
-
-        verify(exactly = 1) { mockHelpFormatter.printHelp(CLI_ID, options) }
-        verify(exactly = 1) { testInstance.printError("Missing argument for option: f") }
+        val exceptionMessage = assertThrows<IncorrectOptionValueCount> { testInstance.parse(arrayOf("-f")) }.message
+        assertThat(exceptionMessage).isEqualTo("-f option requires an argument")
     }
 }
