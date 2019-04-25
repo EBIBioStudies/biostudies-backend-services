@@ -12,7 +12,7 @@ plugins {
 }
 
 dependencies {
-    compile(project(":bio-webclient"))
+    compile(project(":client:bio-webclient"))
 
     compile(JSONOrg)
     compile(CliKt)

@@ -7,9 +7,10 @@ include("commons:commons-serialization")
 include("commons:commons-test")
 include("commons:commons-transpiler")
 
-include("bio-webclient")
-include("infrastructure")
+include("client:bio-webclient")
 include("client:bio-commandline")
+
+include("infrastructure")
 
 include("submission:submitter")
 include("submission:submission-webapp")
