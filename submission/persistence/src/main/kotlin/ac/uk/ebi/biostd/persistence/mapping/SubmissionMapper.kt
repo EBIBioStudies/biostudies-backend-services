@@ -126,12 +126,12 @@ private object EntityMapper {
     fun toFile(file: File, order: Int, tableIndex: Int = NO_TABLE_INDEX) = FileDb(
         file.path, order, file.size, toAttributes(file.attributes).mapTo(sortedSetOf(), ::FileAttribute), tableIndex)
 
-    fun toRefFile(file: File, libFile: String) = ReferencedFileDb(
-        file.path, libFile, file.size, toAttributes(file.attributes).mapTo(sortedSetOf(), ::ReferencedFileAttribute))
+    fun toRefFile(file: File) = ReferencedFileDb(
+        file.path, file.size, toAttributes(file.attributes).mapTo(sortedSetOf(), ::ReferencedFileAttribute))
 
     fun toLibraryFile(libFile: LibraryFile) =
         LibraryFileDb(libFile.name).apply {
-            files = libFile.referencedFiles.map { toRefFile(it, libFile.name) }.toSet()
+            files = libFile.referencedFiles.map { toRefFile(it) }.toSet()
         }
 }
 

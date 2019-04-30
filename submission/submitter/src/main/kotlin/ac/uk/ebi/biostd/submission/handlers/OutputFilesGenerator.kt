@@ -23,7 +23,7 @@ class OutputFilesGenerator(
 
     private fun generateLibraryFiles(submission: ExtendedSubmission) =
         submission.allLibraryFileSections().forEach {
-            val libFileName = "${submission.accNo}.${it.accNo}.files"
+            val libFileName = it.libraryFile!!.name.substringBefore(".")
             val filesTable = FilesTable(it.libraryFile!!.referencedFiles.toList())
 
             it.libraryFileAttr = libFileName

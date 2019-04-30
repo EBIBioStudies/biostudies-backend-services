@@ -16,11 +16,15 @@ import javax.persistence.Table
 @Entity
 @Table(name = "LibraryFile")
 class LibraryFile(
-    @Id
+    @Column
     var name: String
 ) {
+    @Id
+    @GeneratedValue
+    var id: Long = 0L
+
     @OneToMany(cascade = [CascadeType.ALL])
-    @JoinColumn(name = "libraryFile")
+    @JoinColumn(name = "libraryFileId")
     @Basic(fetch = FetchType.LAZY)
     var files: Set<ReferencedFile> = setOf()
 }
@@ -29,10 +33,7 @@ class LibraryFile(
 @Table(name = "ReferencedFile")
 class ReferencedFile(
     @Column
-    val name: String,
-
-    @Column
-    val libraryFile: String
+    val name: String
 ) {
     @Id
     @GeneratedValue
@@ -45,13 +46,7 @@ class ReferencedFile(
     @OrderBy("order ASC")
     var attributes: SortedSet<ReferencedFileAttribute> = sortedSetOf()
 
-    constructor(
-        name: String,
-        libraryFile: String,
-        size: Long,
-        attributes: SortedSet<ReferencedFileAttribute>
-    ) : this(name, libraryFile
-    ) {
+    constructor(name: String, size: Long, attributes: SortedSet<ReferencedFileAttribute>) : this(name) {
         this.size = size
         this.attributes = attributes
     }

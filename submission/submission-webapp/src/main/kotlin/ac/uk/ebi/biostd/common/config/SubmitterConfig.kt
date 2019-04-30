@@ -16,7 +16,6 @@ import ac.uk.ebi.biostd.submission.processors.AccessTagProcessor
 import ac.uk.ebi.biostd.submission.processors.PropertiesProcessor
 import ac.uk.ebi.biostd.submission.processors.SubmissionProcessor
 import ac.uk.ebi.biostd.submission.processors.TimesProcessor
-import ac.uk.ebi.biostd.submission.validators.LibraryFileSectionValidator
 import ac.uk.ebi.biostd.submission.validators.ProjectValidator
 import ac.uk.ebi.biostd.submission.validators.SubmissionValidator
 import ebi.ac.uk.paths.FolderResolver
@@ -81,8 +80,5 @@ class SubmitterConfig {
     class ValidatorConfig {
         @Bean
         fun projectValidator() = ProjectValidator()
-
-        @Bean
-        fun libraryFileSectionValidator() = LibraryFileSectionValidator()
     }
 }

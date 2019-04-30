@@ -2,7 +2,6 @@ package ac.uk.ebi.biostd.persistence.repositories
 
 import ac.uk.ebi.biostd.persistence.model.AccessTag
 import ac.uk.ebi.biostd.persistence.model.FULL_DATA_GRAPH
-import ac.uk.ebi.biostd.persistence.model.ReferencedFile
 import ac.uk.ebi.biostd.persistence.model.SecurityToken
 import ac.uk.ebi.biostd.persistence.model.Sequence
 import ac.uk.ebi.biostd.persistence.model.Submission
@@ -26,10 +25,6 @@ interface SubmissionDataRepository : JpaRepository<Submission, Long> {
     fun getFirstByAccNoOrderByVersionDesc(accNo: String): Submission
 
     fun existsByAccNo(accNo: String): Boolean
-}
-
-interface ReferencedFileRepository : JpaRepository<ReferencedFile, String> {
-    fun findByLibraryFile(libraryFile: String): List<ReferencedFile>
 }
 
 interface TagsDataRepository : JpaRepository<AccessTag, Long> {
