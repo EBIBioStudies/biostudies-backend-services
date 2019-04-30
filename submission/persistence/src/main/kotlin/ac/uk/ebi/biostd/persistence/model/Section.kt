@@ -46,7 +46,7 @@ class Section(
     var submission: Submission? = null
 
     @OneToOne(cascade = [CascadeType.ALL])
-    @JoinColumn(name = "libraryFile")
+    @JoinColumn(name = "libraryFileId")
     var libraryFile: LibraryFile? = null
 
     @OneToMany(cascade = [CascadeType.ALL])

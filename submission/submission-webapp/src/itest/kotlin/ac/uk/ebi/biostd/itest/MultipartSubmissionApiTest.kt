@@ -208,7 +208,7 @@ internal class MultipartSubmissionApiTest(private val tempFolder: TemporaryFolde
         }
 
         private fun assertSubmissionFiles(accNo: String, testFile: String) {
-            val libFileName = "$accNo.SECT-001.files"
+            val libFileName = "LibraryFile"
             val createdSubmission = submissionRepository.getExtendedByAccNo(accNo, loadRefFiles = true)
             val submissionFolderPath = "$basePath/submission/${createdSubmission.relPath}"
 
@@ -218,9 +218,9 @@ internal class MultipartSubmissionApiTest(private val tempFolder: TemporaryFolde
 
             assertThat(Paths.get("$submissionFolderPath/Files/$testFile")).exists()
 
-            assertThat(Paths.get("$submissionFolderPath/$accNo.SECT-001.files.xml")).exists()
-            assertThat(Paths.get("$submissionFolderPath/$accNo.SECT-001.files.json")).exists()
-            assertThat(Paths.get("$submissionFolderPath/$accNo.SECT-001.files.pagetab.tsv")).exists()
+            assertThat(Paths.get("$submissionFolderPath/$libFileName.xml")).exists()
+            assertThat(Paths.get("$submissionFolderPath/$libFileName.json")).exists()
+            assertThat(Paths.get("$submissionFolderPath/$libFileName.pagetab.tsv")).exists()
         }
     }
 }
