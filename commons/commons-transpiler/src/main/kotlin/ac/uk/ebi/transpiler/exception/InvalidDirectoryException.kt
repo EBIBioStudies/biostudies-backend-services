@@ -1,6 +1,8 @@
 package ac.uk.ebi.transpiler.exception
 
-class InvalidDirectoryException(private val path: String) : RuntimeException() {
+import java.io.File
+
+class InvalidDirectoryException(private val directories: List<File>) : RuntimeException() {
     override val message: String?
-        get() = "No files found for path $path"
+        get() = "The following directories don't exist or don't contain files: $directories"
 }
