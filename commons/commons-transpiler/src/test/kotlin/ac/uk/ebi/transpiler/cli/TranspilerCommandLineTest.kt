@@ -2,6 +2,9 @@ package ac.uk.ebi.transpiler.cli
 
 import ac.uk.ebi.biostd.SubFormat
 import ac.uk.ebi.transpiler.service.FilesTableTemplateTranspiler
+import com.github.ajalt.clikt.core.IncorrectOptionValueCount
+import com.github.ajalt.clikt.core.MissingParameter
+import com.github.ajalt.clikt.core.PrintMessage
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.clearAllMocks
@@ -10,29 +13,25 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.impl.annotations.SpyK
 import io.mockk.junit5.MockKExtension
 import io.mockk.verify
-import org.apache.commons.cli.HelpFormatter
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
 class TranspilerCommandLineTest(
     private val temporaryFolder: TemporaryFolder,
-    @MockK private val mockHelpFormatter: HelpFormatter,
     @MockK private val mockTranspiler: FilesTableTemplateTranspiler
 ) {
     @SpyK
-    private var testInstance = TranspilerCommandLine(mockHelpFormatter, mockTranspiler)
-
-    private val options = testInstance.options
+    private var testInstance = TranspilerCommandLine(mockTranspiler)
 
     @BeforeEach
     fun setUp() {
         temporaryFolder.createFile("template.tsv")
-        every { mockHelpFormatter.printHelp(CLI_ID, options) }.answers { nothing }
-        every { mockTranspiler.transpile("", listOf("colA", "colB"), "/path", "base", SubFormat.TSV) }.returns("pageTab")
+        every { mockTranspiler.transpile("", listOf("colA", "colB"), "/path", "base", SubFormat.TSV) } returns ""
     }
 
     @AfterEach
@@ -46,28 +45,35 @@ class TranspilerCommandLineTest(
             "-d", "/path",
             "-c", "colA, colB",
             "-t", "${temporaryFolder.root.absolutePath}/template.tsv")
-        val pageTab = testInstance.transpile(args)
+        testInstance.main(args)
 
-        assertThat(pageTab).isEqualTo("pageTab")
-        verify(exactly = 0) { testInstance.printError("") }
-        verify(exactly = 0) { mockHelpFormatter.printHelp(CLI_ID, options) }
+        verify(exactly = 1) { mockTranspiler.transpile("", listOf("colA", "colB"), "/path", "base", SubFormat.TSV) }
     }
 
     @Test
-    fun `missing arguments`() {
-        val pageTab = testInstance.transpile(arrayOf("-f", "JSON"))
+    fun `transpiler exception`() {
+        every { mockTranspiler.transpile("", listOf("colA", "colB"), "/path", "base", SubFormat.TSV) } throws Exception("Some exception")
 
-        assertThat(pageTab).isEqualTo("")
-        verify(exactly = 1) { mockHelpFormatter.printHelp(CLI_ID, options) }
-        verify(exactly = 1) { testInstance.printError("Missing required options: b, c, d, t") }
+        val args = arrayOf(
+            "-b", "base",
+            "-f", "TSV",
+            "-d", "/path",
+            "-c", "colA, colB",
+            "-t", "${temporaryFolder.root.absolutePath}/template.tsv")
+        val exceptionMessage = assertThrows<PrintMessage> { testInstance.parse(args) }.message
+
+        assertThat(exceptionMessage).isEqualTo("Some exception")
     }
 
     @Test
-    fun `argument with no value`() {
-        val pageTab = testInstance.transpile(arrayOf("-b"))
+    fun `missing options`() {
+        val exceptionMessage = assertThrows<MissingParameter> { testInstance.parse(arrayOf("-f", "JSON")) }.message
+        assertThat(exceptionMessage).isEqualTo("Missing option \"--directory\".")
+    }
 
-        assertThat(pageTab).isEqualTo("")
-        verify(exactly = 1) { mockHelpFormatter.printHelp(CLI_ID, options) }
-        verify(exactly = 1) { testInstance.printError("Missing argument for option: b") }
+    @Test
+    fun `option with no value`() {
+        val exceptionMessage = assertThrows<IncorrectOptionValueCount> { testInstance.parse(arrayOf("-f")) }.message
+        assertThat(exceptionMessage).isEqualTo("-f option requires an argument")
     }
 }

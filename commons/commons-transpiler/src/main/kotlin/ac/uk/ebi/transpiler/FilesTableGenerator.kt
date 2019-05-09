@@ -2,6 +2,4 @@ package ac.uk.ebi.transpiler
 
 import ac.uk.ebi.transpiler.cli.TranspilerCommandLine
 
-fun main(args: Array<String>) {
-    println(TranspilerCommandLine().transpile(args))
-}
+fun main(args: Array<String>) = TranspilerCommandLine().main(args)

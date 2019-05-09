@@ -5,7 +5,6 @@ import TestVersions.JunitVersion
 import TestVersions.MockKVersion
 import TestVersions.XmlUnitVersion
 import Versions.CliKtVersion
-import Versions.CommonsCliVersion
 import Versions.CommonsIOVersion
 import Versions.CommonsLang3Version
 import Versions.GuavaVersion
@@ -49,7 +48,6 @@ object Versions {
     const val KotlinCoroutineVersion = "1.1.1"
     const val KMongoCoroutineVersion = "3.9.1"
 
-    const val CommonsCliVersion = "1.4"
     const val CommonsLang3Version = "3.8.1"
     const val CommonsIOVersion = "2.6"
     const val MySqlVersion = "6.0.6"
@@ -132,7 +130,6 @@ object Dependencies {
     // Apache
     const val CommonsLang3 = "org.apache.commons:commons-lang3:$CommonsLang3Version"
     const val CommonsIO = "commons-io:commons-io:$CommonsIOVersion"
-    const val CommonsCli = "commons-cli:commons-cli:$CommonsCliVersion"
 }
 
 object SpringBootDependencies {

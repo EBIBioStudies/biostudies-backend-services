@@ -2,56 +2,38 @@ package ac.uk.ebi.transpiler.cli
 
 import ac.uk.ebi.biostd.SubFormat
 import ac.uk.ebi.transpiler.service.FilesTableTemplateTranspiler
-import org.apache.commons.cli.DefaultParser
-import org.apache.commons.cli.HelpFormatter
-import org.apache.commons.cli.Options
-import java.io.File
+import com.github.ajalt.clikt.core.CliktCommand
+import com.github.ajalt.clikt.core.PrintMessage
+import com.github.ajalt.clikt.parameters.options.option
+import com.github.ajalt.clikt.parameters.options.required
+import com.github.ajalt.clikt.parameters.types.file
 
-const val BASE = "base"
-const val COLUMNS = "columns"
-const val DIR = "directory"
-const val FORMAT = "format"
-const val TEMPLATE = "template"
-const val CLI_ID = "Files Table Generator"
+const val FILES_SEPARATOR = ','
 
 class TranspilerCommandLine(
-    private val helpFormatter: HelpFormatter = HelpFormatter(),
     private val transpiler: FilesTableTemplateTranspiler = FilesTableTemplateTranspiler()
-) {
-    internal val options = Options().apply {
-        addRequiredOption("b", BASE, true, "Base that will be used as prefix for the generated files path")
-        addRequiredOption("c", COLUMNS, true, "Comma separated list of columns that map to the directory structure")
-        addRequiredOption("d", DIR, true, "Path to the directory containing the files")
-        addRequiredOption("f", FORMAT, true, "Desired format for the generated page tab: TSV, JSON or XML")
-        addRequiredOption("t", TEMPLATE, true, "Path to the file containing the template")
-    }
+) : CliktCommand(name = "FilesTableGenerator") {
+    private val dir by option("-d", "--directory", help = "Path to the directory containing the files").required()
+    private val template by option(
+        "-t", "--template", help = "Path to the file containing the template").file(exists = true)
+    private val base by option(
+        "-b", "--base", help = "Base that will be used as prefix for the generated files path").required()
+    private val format by option(
+        "-f", "--format", help = "Desired format for the generated page tab: TSV, JSON or XML").required()
+    private val columns by option(
+        "-c", "--columns", help = "Comma separated list of columns that map to the directory structure").required()
 
     @Suppress("TooGenericExceptionCaught")
-    fun transpile(args: Array<String>): String {
-        var pageTab = ""
-
+    override fun run() {
         try {
-            val cmd = DefaultParser().parse(options, args)
-            val base = cmd.getOptionValue(BASE)!!
-            val dir = cmd.getOptionValue(DIR)!!
-            val format = cmd.getOptionValue(FORMAT)!!
-            val columns = cmd.getOptionValue(COLUMNS)!!
-            val template = File(cmd.getOptionValue(TEMPLATE)!!)
-
-            pageTab = transpiler.transpile(
-                template = template.readText(),
-                baseColumns = columns.split(",").map { it.trim() }.toList(),
+            echo(transpiler.transpile(
+                template = template!!.readText(),
+                baseColumns = columns.split(FILES_SEPARATOR).map { it.trim() }.toList(),
                 filesPath = dir,
                 basePath = base,
-                format = SubFormat.valueOf(format)
-            )
+                format = SubFormat.valueOf(format)))
         } catch (exception: Exception) {
-            printError(exception.message)
-            helpFormatter.printHelp(CLI_ID, options)
+            throw PrintMessage(exception.message!!)
         }
-
-        return pageTab
     }
-
-    internal fun printError(message: String?) = println("ERROR: $message")
 }
