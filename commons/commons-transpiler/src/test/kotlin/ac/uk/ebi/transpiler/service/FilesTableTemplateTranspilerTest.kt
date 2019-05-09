@@ -6,6 +6,7 @@ import ac.uk.ebi.transpiler.common.FilesTableTemplate
 import ac.uk.ebi.transpiler.factory.testTemplate
 import ac.uk.ebi.transpiler.mapper.FilesTableTemplateMapper
 import ac.uk.ebi.transpiler.processor.FilesTableTemplateProcessor
+import ac.uk.ebi.transpiler.validator.FilesTableTemplateValidator
 import ebi.ac.uk.model.FilesTable
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -18,6 +19,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 @ExtendWith(MockKExtension::class)
 class FilesTableTemplateTranspilerTest(
     @MockK private val mockTemplateProcessor: FilesTableTemplateProcessor,
+    @MockK private val mockTemplateValidator: FilesTableTemplateValidator,
     @MockK private val mockTemplateMapper: FilesTableTemplateMapper,
     @MockK private val mockSerializationService: SerializationService
 ) {
@@ -27,14 +29,15 @@ class FilesTableTemplateTranspilerTest(
     private val testTemplate = testTemplate().toString()
     private val testFilesTableTemplate = FilesTableTemplate()
     private val testBaseColumns = listOf("Plate", "Replicate", "Well")
-    private val testInstance =
-        FilesTableTemplateTranspiler(mockTemplateProcessor, mockTemplateMapper, mockSerializationService)
+    private val testInstance = FilesTableTemplateTranspiler(
+        mockTemplateProcessor, mockTemplateValidator, mockTemplateMapper, mockSerializationService)
 
     @BeforeEach
     fun setUp() {
-        every { mockTemplateMapper.map(testFilesTableTemplate, testFilesPath, testParentFolder) } returns testFilesTable
         every { mockSerializationService.serializeElement(testFilesTable, SubFormat.TSV) } returns ""
+        every { mockTemplateValidator.validate(testFilesTableTemplate, testFilesPath) }.answers { nothing }
         every { mockTemplateProcessor.process(testTemplate, testBaseColumns) } returns testFilesTableTemplate
+        every { mockTemplateMapper.map(testFilesTableTemplate, testFilesPath, testParentFolder) } returns testFilesTable
     }
 
     @Test

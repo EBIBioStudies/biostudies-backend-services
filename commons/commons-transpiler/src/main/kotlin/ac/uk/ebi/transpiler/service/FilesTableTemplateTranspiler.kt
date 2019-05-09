@@ -4,12 +4,14 @@ import ac.uk.ebi.biostd.SerializationService
 import ac.uk.ebi.biostd.SubFormat
 import ac.uk.ebi.transpiler.mapper.FilesTableTemplateMapper
 import ac.uk.ebi.transpiler.processor.FilesTableTemplateProcessor
+import ac.uk.ebi.transpiler.validator.FilesTableTemplateValidator
 
 /**
  * Transpiler to convert files table template into page tab.
  */
 class FilesTableTemplateTranspiler(
     private val templateProcessor: FilesTableTemplateProcessor = FilesTableTemplateProcessor(),
+    private val templateValidator: FilesTableTemplateValidator = FilesTableTemplateValidator(),
     private val templateMapper: FilesTableTemplateMapper = FilesTableTemplateMapper(),
     private val serializationService: SerializationService = SerializationService()
 ) {
@@ -33,6 +35,9 @@ class FilesTableTemplateTranspiler(
         format: SubFormat
     ): String {
         val tableTemplate = templateProcessor.process(template, baseColumns)
+
+        templateValidator.validate(tableTemplate, filesPath)
+
         val filesTable = templateMapper.map(tableTemplate, filesPath, basePath)
 
         return serializationService.serializeElement(filesTable, format)

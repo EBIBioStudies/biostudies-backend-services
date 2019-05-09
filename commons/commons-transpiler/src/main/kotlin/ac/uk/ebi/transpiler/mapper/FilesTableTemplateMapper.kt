@@ -1,7 +1,6 @@
 package ac.uk.ebi.transpiler.mapper
 
 import ac.uk.ebi.transpiler.common.FilesTableTemplate
-import ac.uk.ebi.transpiler.exception.InvalidDirectoryException
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.File
 import ebi.ac.uk.model.FilesTable
@@ -17,11 +16,7 @@ class FilesTableTemplateMapper {
             val rowFiles = Paths.get(path).toFile().listFiles()
             val attributes = row.attributes.mapIndexed { idx, attrVal -> Attribute(attrKeys[idx], attrVal) }.toList()
 
-            try {
-                rowFiles.forEach { files.add(File("$basePath/${row.path}/${it.name}", attributes = attributes)) }
-            } catch (exception: IllegalStateException) {
-                throw InvalidDirectoryException(path)
-            }
+            rowFiles.forEach { files.add(File("$basePath/${row.path}/${it.name}", attributes = attributes)) }
         }
 
         return FilesTable(files)
