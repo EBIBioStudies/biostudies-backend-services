@@ -25,7 +25,7 @@ class FilesTableTemplateValidatorTest(private val temporaryFolder: TemporaryFold
     }
 
     @Test
-    fun `validate`() {
+    fun validate() {
         testInstance.validate(template, rootPath)
     }
 
@@ -41,8 +41,8 @@ class FilesTableTemplateValidatorTest(private val temporaryFolder: TemporaryFold
 
     @Test
     fun `validate empty folder`() {
+        temporaryFolder.createDirectory("Plate3")
         template.addRecord("Plate3/rep3/A03", listOf())
-        setUpTestFiles(3, addTestFile = false)
 
         val exception = assertThrows<InvalidDirectoryException> { testInstance.validate(template, rootPath) }
 
@@ -52,9 +52,9 @@ class FilesTableTemplateValidatorTest(private val temporaryFolder: TemporaryFold
 
     @Test
     fun `validate non existing and empty folders`() {
+        temporaryFolder.createDirectory("Plate3")
         template.addRecord("Plate3/rep3/A03", listOf())
         template.addRecord("Plate4/rep4/A04", listOf())
-        setUpTestFiles(3, addTestFile = false)
 
         val failingDirs = "[$rootPath/Plate3/rep3/A03, $rootPath/Plate4/rep4/A04]"
         val exception = assertThrows<InvalidDirectoryException> { testInstance.validate(template, rootPath) }
@@ -63,13 +63,10 @@ class FilesTableTemplateValidatorTest(private val temporaryFolder: TemporaryFold
             "The following directories don't exist or don't contain files: $failingDirs")
     }
 
-    private fun setUpTestFiles(idx: Int, addTestFile: Boolean = true) {
+    private fun setUpTestFiles(idx: Int) {
         temporaryFolder.createDirectory("Plate$idx")
         temporaryFolder.createDirectory("Plate$idx/rep$idx")
         temporaryFolder.createDirectory("Plate$idx/rep$idx/A0$idx")
-
-        if (addTestFile) {
-            temporaryFolder.createFile("Plate$idx/rep$idx/A0$idx/fig1.tiff")
-        }
+        temporaryFolder.createFile("Plate$idx/rep$idx/A0$idx/fig1.tiff")
     }
 }
