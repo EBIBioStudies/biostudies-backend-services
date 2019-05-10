@@ -7,6 +7,7 @@ import ac.uk.ebi.biostd.tsv.deserialization.model.LinksTableChunk
 import ac.uk.ebi.biostd.tsv.deserialization.model.SectionChunk
 import ac.uk.ebi.biostd.tsv.deserialization.model.SectionTableChunk
 import ac.uk.ebi.biostd.tsv.deserialization.model.TsvChunk
+import ac.uk.ebi.biostd.validation.InvalidParentSectionException
 import ac.uk.ebi.biostd.validation.SerializationError
 import ac.uk.ebi.biostd.validation.SerializationException
 import com.google.common.collect.HashMultimap
@@ -48,13 +49,17 @@ class TsvSerializationContext {
         execute(rootSection, chunk) { rootSection.addSectionTable(chunk.asTable()) }
 
     fun addSubSectionTable(parent: String, chunk: SectionTableChunk) =
-        execute(rootSection, chunk) { sections.getValue(parent).addSectionTable(chunk.asTable()) }
+        execute(rootSection, chunk) {
+            sections.getOrElse(parent, { throw InvalidParentSectionException(parent) }).addSectionTable(chunk.asTable())
+        }
 
     fun addSection(chunk: SectionChunk) =
         execute(rootSection, chunk) { addSection(rootSection, chunk.asSection()) }
 
     fun addSubSection(parent: String, chunk: SectionChunk) =
-        execute(rootSection, chunk) { addSection(sections.getValue(parent), chunk.asSection()) }
+        execute(rootSection, chunk) {
+            addSection(sections.getOrElse(parent, { throw InvalidParentSectionException(parent) }), chunk.asSection())
+        }
 
     private fun addSection(parent: Section, section: Section) = parent.addSection(addSection(section))
 

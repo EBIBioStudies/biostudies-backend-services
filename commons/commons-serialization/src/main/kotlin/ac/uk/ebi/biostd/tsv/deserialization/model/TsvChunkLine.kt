@@ -7,6 +7,7 @@ import ebi.ac.uk.util.collections.findSecond
 class TsvChunkLine(
     val index: Int,
     val body: String,
+    private val rawLines: List<String> = body.split(TSV_SEPARATOR),
     private val lines: List<String> = body.split(TSV_SEPARATOR).filter(String::isNotBlank)
 ) : List<String> by lines {
 
@@ -15,9 +16,9 @@ class TsvChunkLine(
             return lines.findSecond().fold({ EMPTY }, { it })
         }
 
-    val values: List<String>
+    val rawValues: List<String>
         get() {
-            return lines.drop(1)
+            return rawLines.drop(1)
         }
 
     val name: String

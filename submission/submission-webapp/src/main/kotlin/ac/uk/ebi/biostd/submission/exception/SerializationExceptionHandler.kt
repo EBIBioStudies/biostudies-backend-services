@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.ResponseStatus
 
 @ControllerAdvice
 class SerializationExceptionHandler {
-
     @ResponseBody
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(value = [SerializationException::class])
@@ -23,7 +22,7 @@ class SerializationExceptionHandler {
     }
 
     fun getMessage(chunk: TsvChunk, message: String?) =
-        "Error processing block starting in Lines [${chunk.startIndex}-${chunk.endIndex}], $message"
+        "Error processing block starting in Lines [${chunk.startIndex}-${chunk.startIndex + chunk.endIndex}], $message"
 
     fun createErrorNode(message: String) = ValidationNode("ERROR", message)
 }
