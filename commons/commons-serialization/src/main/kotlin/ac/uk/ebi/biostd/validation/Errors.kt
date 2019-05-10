@@ -11,4 +11,4 @@ class SerializationException(val submission: Submission, val errors: Multimap<An
     : RuntimeException()
 class SerializationError(val chunk: TsvChunk, val cause: Exception)
 class InvalidChunkSizeException : RuntimeException(CHUNK_SIZE_ERROR_MSG)
-class InvalidParentSectionException(accNo: String) : RuntimeException(String.format(PARENT_SECTION_NOT_CREATED, accNo))
+class IvalidSectionException(accNo: String) : RuntimeException(String.format(SECTION_NOT_CREATED, accNo))

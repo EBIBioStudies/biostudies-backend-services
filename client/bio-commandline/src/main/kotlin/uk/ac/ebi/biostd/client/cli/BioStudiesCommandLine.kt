@@ -53,6 +53,7 @@ class BioStudiesCommandLine : CliktCommand(name = "PTSubmit") {
     internal fun getClient(host: String, user: String, password: String) =
         SecurityWebClient.create(host).getAuthenticatedClient(user, password)
 
+    // TODO The exceptions should be formatted at bio-webclient level
     private fun formatException(exception: RestClientResponseException) =
         when {
             exception.responseBodyAsString.isNotBlank() -> JSONObject(exception.responseBodyAsString).toString(2)
