@@ -4,52 +4,73 @@ import ac.uk.ebi.biostd.persistence.model.User
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ebi.ac.uk.api.security.LoginRequest
 import ebi.ac.uk.api.security.RegisterRequest
-import ebi.ac.uk.security.exception.UserNotFoundException
-import ebi.ac.uk.security.model.UserInfo
-import ebi.ac.uk.security.util.PasswordVerifier
-import ebi.ac.uk.security.util.TokenUtil
-import java.util.UUID
+import ebi.ac.uk.security.integration.SecurityEvents
+import ebi.ac.uk.security.integration.SecurityProperties
+import ebi.ac.uk.security.integration.components.ISecurityService
+import ebi.ac.uk.security.integration.exception.ActKeyNotFoundException
+import ebi.ac.uk.security.integration.exception.LoginException
+import ebi.ac.uk.security.integration.exception.UserAlreadyRegister
+import ebi.ac.uk.security.integration.model.api.UserInfo
+import ebi.ac.uk.security.integration.model.events.UserPreRegister
+import ebi.ac.uk.security.integration.model.events.UserRegister
+import ebi.ac.uk.security.util.SecurityUtil
+import io.reactivex.subjects.Subject
 
-class SecurityService(
+internal class SecurityService(
     private val userRepository: UserDataRepository,
-    private val passwordVerifier: PasswordVerifier,
-    private val tokenUtil: TokenUtil,
-    private val requireActivation: Boolean
-) {
+    private val securityUtil: SecurityUtil,
+    private val securityProps: SecurityProperties,
+    private val userPreRegister: Subject<UserPreRegister> = SecurityEvents.userPreRegister,
+    private val userRegister: Subject<UserRegister> = SecurityEvents.userRegister
+) : ISecurityService {
 
-    fun login(loginRequest: LoginRequest): UserInfo {
-        val user = userRepository
-                .findByLoginOrEmail(loginRequest.login, loginRequest.login)
-                .orElseThrow { throw UserNotFoundException(loginRequest.login) }
+    override fun login(loginRequest: LoginRequest): UserInfo =
+        userRepository
+            .findByLoginOrEmailAndActive(loginRequest.login, loginRequest.login, true)
+            .filter { securityUtil.checkPassword(it.passwordDigest, loginRequest.password) }
+            .orElseThrow { LoginException() }
+            .let { UserInfo(securityUtil.createToken(it), it) }
 
-        if (!passwordVerifier.checkPassword(user.passwordDigest, loginRequest.password)) {
-            throw SecurityException("Given password do not match for user '${loginRequest.login}'")
+    override fun registerUser(request: RegisterRequest): User {
+        if (userRepository.existsByEmail(request.email)) {
+            throw UserAlreadyRegister(request.email)
         }
 
-        return UserInfo(tokenUtil.createToken(user), user)
-    }
-
-    /**
-     * Todo
-     *  - add Aux profile information handling
-     *
-     */
-    fun registerUser(registerRequest: RegisterRequest): User {
-        if (userRepository.existsByEmail(registerRequest.email)) {
-            throw SecurityException("There is already a user register with email ${registerRequest.email}")
-        }
-
-        val user = User(registerRequest.email, registerRequest.password, newRandomKey())
-        user.email = registerRequest.email
-        user.login = registerRequest.username
-        user.passwordDigest = passwordVerifier.getPasswordDigest(registerRequest.password)
-
-        return if (requireActivation) {
-            userRepository.save(user.registered(registerRequest.activationUrl))
-        } else {
-            userRepository.save(user.activated())
+        return when {
+            securityProps.requireActivation -> preRegister(request)
+            else -> register(request)
         }
     }
 
-    private fun newRandomKey() = UUID.randomUUID().toString()
+    private fun preRegister(request: RegisterRequest): User {
+        val instanceKey = checkNotNull(request.instanceKey) { "Instance key can not be null when activation" }
+        val activationPath = checkNotNull(request.path) { "Activation path can not be null" }
+
+        val user = userRepository.save(asUser(request).register(securityUtil.newKey()))
+        userPreRegister.onNext(UserPreRegister(user, securityUtil.getInstanceUrl(instanceKey, activationPath)))
+        return user
+    }
+
+    private fun register(request: RegisterRequest): User {
+        val user = userRepository.save(asUser(request).activated())
+        userRegister.onNext(UserRegister(user))
+        return user
+    }
+
+    override fun activate(activationKey: String) {
+        val user = userRepository.findByActivationKeyAndActive(activationKey, false)
+            .orElseThrow { ActKeyNotFoundException() }
+
+        user.activationKey = null
+        user.active = true
+        userRepository.save(user)
+    }
+
+    private fun asUser(registerRequest: RegisterRequest): User {
+        return User(
+            email = registerRequest.email,
+            fullName = registerRequest.username,
+            secret = securityUtil.newKey(),
+            passwordDigest = securityUtil.getPasswordDigest(registerRequest.password))
+    }
 }

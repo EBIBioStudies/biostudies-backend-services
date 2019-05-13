@@ -7,6 +7,7 @@ import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.SubmissionDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.TagsDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.TagsRefRepository
+import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -18,7 +19,8 @@ class PersistenceConfig(
     private val submissionDataRepository: SubmissionDataRepository,
     private val sequenceRepository: SequenceDataRepository,
     private val tagsDataRepository: TagsDataRepository,
-    private val tagsRefRepository: TagsRefRepository
+    private val tagsRefRepository: TagsRefRepository,
+    private var userRepository: UserDataRepository
 ) {
     @Bean
     fun submissionRepository() = SubmissionRepository(submissionDataRepository, submissionDbMapper())
@@ -27,7 +29,7 @@ class PersistenceConfig(
     fun submissionDbMapper() = SubmissionDbMapper()
 
     @Bean
-    fun submissionMapper() = SubmissionMapper(tagsDataRepository, tagsRefRepository)
+    fun submissionMapper() = SubmissionMapper(tagsDataRepository, tagsRefRepository, userRepository)
 
     @Bean
     fun persistenceContext() = PersistenceContextImpl(

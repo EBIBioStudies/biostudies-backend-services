@@ -1,4 +1,4 @@
-package ebi.ac.uk.security.model
+package ebi.ac.uk.security.integration.model.api
 
 import ac.uk.ebi.biostd.persistence.model.User
 

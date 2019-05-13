@@ -3,15 +3,16 @@ package ebi.ac.uk.security.service
 import ac.uk.ebi.biostd.persistence.model.UserGroup
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserGroupDataRepository
+import ebi.ac.uk.security.integration.components.IGroupService
 import java.util.UUID
 
-class GroupService(
+internal class GroupService(
     private val groupRepository: UserGroupDataRepository,
     private val userRepository: UserDataRepository
-) {
+) : IGroupService {
 
     // TODO: add logic to add create secret folder
-    fun creatGroup(groupName: String): UserGroup {
+    override fun creatGroup(groupName: String): UserGroup {
         val group = UserGroup()
         group.name = groupName
         group.secret = UUID.randomUUID().toString()
@@ -19,7 +20,7 @@ class GroupService(
     }
 
     // TODO: add not existing group not existing user handling
-    fun addUserInGroup(groupName: String, userEmail: String) {
+    override fun addUserInGroup(groupName: String, userEmail: String) {
         val group = groupRepository.getByName(groupName)
         val user = userRepository.getByEmail(userEmail)
         user.addGroup(group)

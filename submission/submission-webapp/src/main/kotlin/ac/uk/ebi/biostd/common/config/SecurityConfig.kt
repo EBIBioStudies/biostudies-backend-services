@@ -3,13 +3,10 @@ package ac.uk.ebi.biostd.common.config
 import ac.uk.ebi.biostd.common.property.ApplicationProperties
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserGroupDataRepository
-import ebi.ac.uk.commons.http.JacksonFactory
-import ebi.ac.uk.security.service.GroupService
-import ebi.ac.uk.security.service.SecurityService
-import ebi.ac.uk.security.util.PasswordVerifier
-import ebi.ac.uk.security.util.TokenUtil
-import ebi.ac.uk.security.web.SecurityFilter
-import io.jsonwebtoken.Jwts
+import ebi.ac.uk.security.integration.SecurityModuleConfig
+import ebi.ac.uk.security.integration.components.IGroupService
+import ebi.ac.uk.security.integration.components.ISecurityFilter
+import ebi.ac.uk.security.integration.components.ISecurityService
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
@@ -24,16 +21,13 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 @Configuration
 @EnableWebSecurity
 @Import(SecurityBeansConfig::class)
-class SecurityConfig(
-    private val props: ApplicationProperties,
-    private val tokenUtil: TokenUtil
-) : WebSecurityConfigurerAdapter() {
+class SecurityConfig(private val securityFilter: ISecurityFilter) : WebSecurityConfigurerAdapter() {
 
     @Suppress("SpreadOperator")
     override fun configure(http: HttpSecurity) {
         http.csrf()
             .disable()
-            .addFilterBefore(SecurityFilter(props.environment, tokenUtil), BasicAuthenticationFilter::class.java)
+            .addFilterBefore(securityFilter, BasicAuthenticationFilter::class.java)
             .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             .and()
             .authorizeRequests()
@@ -54,23 +48,15 @@ class SecurityBeansConfig(properties: ApplicationProperties) {
     private val securityProperties = properties.security
 
     @Bean
-    fun tokenUtil(userRepository: UserDataRepository) =
-        TokenUtil(jwtParser(), objectMapper(), userRepository, securityProperties.tokenHash)
+    fun securityModuleConfig(userRepository: UserDataRepository, groupRepository: UserGroupDataRepository):
+        SecurityModuleConfig = SecurityModuleConfig(userRepository, groupRepository, securityProperties)
 
     @Bean
-    fun passwordVerifier(tokenUtil: TokenUtil) = PasswordVerifier(tokenUtil)
+    fun securityService(securityConfig: SecurityModuleConfig): ISecurityService = securityConfig.securityService()
 
     @Bean
-    fun securityService(userRepository: UserDataRepository, passwordVerifier: PasswordVerifier, tokenUtil: TokenUtil) =
-        SecurityService(userRepository, passwordVerifier, tokenUtil, securityProperties.requireActivation)
+    fun groupService(securityConfig: SecurityModuleConfig): IGroupService = securityConfig.groupService()
 
     @Bean
-    fun objectMapper() = JacksonFactory.createMapper()
-
-    @Bean
-    fun jwtParser() = Jwts.parser()!!
-
-    @Bean
-    fun groupService(userRepository: UserDataRepository, groupRepository: UserGroupDataRepository) =
-        GroupService(groupRepository, userRepository)
+    fun securityFilter(securityConfig: SecurityModuleConfig): ISecurityFilter = securityConfig.securityFilter()
 }

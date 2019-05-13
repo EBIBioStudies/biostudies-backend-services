@@ -1,8 +1,9 @@
 package ebi.ac.uk.api.security
 
 class RegisterRequest(
-    val email: String,
     val username: String,
+    val email: String,
     val password: String,
-    val activationUrl: String? = null
+    var instanceKey: String? = null,
+    var path: String? = null
 )

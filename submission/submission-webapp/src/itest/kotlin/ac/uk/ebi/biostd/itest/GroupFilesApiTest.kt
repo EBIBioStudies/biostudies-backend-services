@@ -9,10 +9,10 @@ import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
 import ac.uk.ebi.biostd.itest.entities.GenericUser
 import ebi.ac.uk.api.UserFileType
 import ebi.ac.uk.api.security.RegisterRequest
-import ebi.ac.uk.security.service.GroupService
+import ebi.ac.uk.security.integration.components.IGroupService
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
-import org.assertj.core.api.Assertions
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -35,7 +35,7 @@ internal class GroupFilesApiTest(private val tempFolder: TemporaryFolder) : Base
     @Import(value = [SubmitterConfig::class, PersistenceConfig::class, FileConfig::class])
     @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
     @DirtiesContext
-    inner class GroupFilesApi(@Autowired val groupService: GroupService) {
+    inner class GroupFilesApi(@Autowired val groupService: IGroupService) {
 
         @LocalServerPort
         private var serverPort: Int = 0
@@ -45,8 +45,8 @@ internal class GroupFilesApiTest(private val tempFolder: TemporaryFolder) : Base
         @BeforeAll
         fun init() {
             val securityClient = SecurityWebClient.create("http://localhost:$serverPort")
-            securityClient.registerUser(RegisterRequest(GenericUser.email, GenericUser.username, GenericUser.password))
-            webClient = securityClient.getAuthenticatedClient(GenericUser.username, GenericUser.password)
+            securityClient.registerUser(RegisterRequest(GenericUser.username, GenericUser.email, GenericUser.password))
+            webClient = securityClient.getAuthenticatedClient(GenericUser.email, GenericUser.password)
             groupService.addUserInGroup(groupService.creatGroup(GROUP_NAME).name, "test@biostudies.com")
         }
 
@@ -57,11 +57,11 @@ internal class GroupFilesApiTest(private val tempFolder: TemporaryFolder) : Base
             webClient.uploadGroupFiles(GROUP_NAME, listOf(file))
 
             val files = webClient.listGroupFiles(GROUP_NAME)
-            Assertions.assertThat(files).hasSize(1)
+            assertThat(files).hasSize(1)
 
             val resultFile = files.first()
-            Assertions.assertThat(resultFile.name).isEqualTo(file.name)
-            Assertions.assertThat(resultFile.type).isEqualTo(UserFileType.FILE)
+            assertThat(resultFile.name).isEqualTo(file.name)
+            assertThat(resultFile.type).isEqualTo(UserFileType.FILE)
 
             webClient.deleteGroupFile(GROUP_NAME, "LibraryFile1.txt")
         }
@@ -74,11 +74,11 @@ internal class GroupFilesApiTest(private val tempFolder: TemporaryFolder) : Base
             webClient.uploadGroupFiles(GROUP_NAME, listOf(file), relativePath = "test_folder")
 
             val files = webClient.listGroupFiles(GROUP_NAME, relativePath = "test_folder")
-            Assertions.assertThat(files).hasSize(1)
+            assertThat(files).hasSize(1)
 
             val resultFile = files.first()
-            Assertions.assertThat(resultFile.name).isEqualTo(file.name)
-            Assertions.assertThat(resultFile.type).isEqualTo(UserFileType.FILE)
+            assertThat(resultFile.name).isEqualTo(file.name)
+            assertThat(resultFile.type).isEqualTo(UserFileType.FILE)
 
             webClient.deleteGroupFile(GROUP_NAME, "test_folder")
         }
