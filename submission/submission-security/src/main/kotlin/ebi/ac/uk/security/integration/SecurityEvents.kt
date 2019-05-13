@@ -15,7 +15,6 @@ class SecurityEvents {
 
         // Observables
         fun userPreRegister(): Observable<UserPreRegister> = userPreRegister
-
         fun userRegister(): Observable<UserRegister> = userRegister
     }
 }

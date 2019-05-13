@@ -19,9 +19,7 @@ class SecurityModuleConfig(
 ) {
 
     fun securityService(): ISecurityService = SecurityService(userRepository, securityUtil, properties)
-
     fun groupService(): IGroupService = GroupService(groupRepository, userRepository)
-
     fun securityFilter(): ISecurityFilter = SecurityFilter(properties.environment, securityUtil)
 
     private val securityUtil by lazy { SecurityUtil(jwtParser, objectMapper, userRepository, properties.tokenHash) }
