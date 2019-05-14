@@ -15,7 +15,6 @@ import ac.uk.ebi.biostd.test.submissionWithLinksTable
 import ac.uk.ebi.biostd.test.submissionWithRootSection
 import ac.uk.ebi.biostd.test.submissionWithSectionsTable
 import ac.uk.ebi.biostd.test.submissionWithSubsection
-import ac.uk.ebi.biostd.test.submissionWithTableWithLessAttributes
 import ac.uk.ebi.biostd.test.submissionWithTableWithMoreAttributes
 import ac.uk.ebi.biostd.test.submissionWithTableWithNoRows
 import ac.uk.ebi.biostd.tsv.deserialization.TsvDeserializer
@@ -184,10 +183,12 @@ class TsvDeserializerTest {
                             Section(
                                 accNo = "SMP-1",
                                 type = "Sample",
+                                parentAccNo = "S-001",
                                 attributes = listOf(Attribute("Title", "Sample1"), Attribute("Desc", "Measure 1"))),
                             Section(
                                 accNo = "SMP-2",
                                 type = "Sample",
+                                parentAccNo = "S-001",
                                 attributes = listOf(Attribute("Title", "Sample2"), Attribute("Desc", "Measure 2")))
                         )))
                     )))
@@ -298,6 +299,25 @@ class TsvDeserializerTest {
     }
 
     @Test
+    fun `table containing a row with less attributes`() {
+        val tsv = tsv {
+            line("Links", "Attr1", "Attr2")
+            line("AF069307", "Value 1", "Value 2")
+            line("AF069308", "", "Value 2")
+            line("AF069309", "Value 1")
+            line()
+        }.toString()
+
+        val linksTable = deserializer.deserializeElement(tsv, LinksTable::class.java)
+
+        assertThat(linksTable).isEqualTo(
+            LinksTable(listOf(
+                Link("AF069307", attributes = listOf(Attribute("Attr1", "Value 1"), Attribute("Attr2", "Value 2"))),
+                Link("AF069308", attributes = listOf(Attribute("Attr2", "Value 2"))),
+                Link("AF069309", attributes = listOf(Attribute("Attr1", "Value 1"))))))
+    }
+
+    @Test
     fun `invalid single element`() {
         val tsv = tsv {
             line("Submission", "S-BIAD2")
@@ -364,18 +384,12 @@ class TsvDeserializerTest {
             assertThrows { deserializer.deserialize(submissionWithTableWithMoreAttributes().toString()) },
             String.format(INVALID_TABLE_ROW, 1, 2))
 
-    @Test
-    fun `table with less attributes than expected`() =
-        assertInvalidElementException(
-            assertThrows { deserializer.deserialize(submissionWithTableWithLessAttributes().toString()) },
-            String.format(INVALID_TABLE_ROW, 1, 0))
-
     private fun assertInvalidElementException(exception: SerializationException, expectedMessage: String) {
         assertThat(exception.errors.values()).hasSize(1)
 
         val cause = exception.errors.values().first().cause
         assertThat(cause).isInstanceOf(InvalidElementException::class.java)
-        assertThat(cause).hasMessage(expectedMessage)
+        assertThat(cause).hasMessage("$expectedMessage. Element was not created.")
     }
 
     private fun assertFile(file: File, expectedName: String, vararg expectedAttributes: Attribute) {
