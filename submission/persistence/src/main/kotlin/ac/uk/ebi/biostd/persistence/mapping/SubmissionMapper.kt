@@ -5,7 +5,6 @@ import ac.uk.ebi.biostd.persistence.mapping.AttributeMapper.toAttributes
 import ac.uk.ebi.biostd.persistence.mapping.EntityMapper.toFile
 import ac.uk.ebi.biostd.persistence.mapping.EntityMapper.toLibraryFile
 import ac.uk.ebi.biostd.persistence.mapping.EntityMapper.toLink
-import ac.uk.ebi.biostd.persistence.mapping.EntityMapper.toUser
 import ac.uk.ebi.biostd.persistence.mapping.SectionMapper.toSection
 import ac.uk.ebi.biostd.persistence.mapping.SectionMapper.toTableSection
 import ac.uk.ebi.biostd.persistence.mapping.TableMapper.toFiles
@@ -18,6 +17,7 @@ import ac.uk.ebi.biostd.persistence.model.SectionAttribute
 import ac.uk.ebi.biostd.persistence.model.SubmissionAttribute
 import ac.uk.ebi.biostd.persistence.repositories.TagsDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.TagsRefRepository
+import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import arrow.core.Either
 import ebi.ac.uk.base.orFalse
 import ebi.ac.uk.model.Attribute
@@ -31,7 +31,6 @@ import ebi.ac.uk.model.Link
 import ebi.ac.uk.model.LinksTable
 import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.SectionsTable
-import ebi.ac.uk.model.User
 import ebi.ac.uk.model.extensions.rootPath
 import ebi.ac.uk.model.extensions.title
 import ac.uk.ebi.biostd.persistence.model.Attribute as AttributeDb
@@ -42,11 +41,11 @@ import ac.uk.ebi.biostd.persistence.model.Link as LinkDb
 import ac.uk.ebi.biostd.persistence.model.ReferencedFile as ReferencedFileDb
 import ac.uk.ebi.biostd.persistence.model.Section as SectionDb
 import ac.uk.ebi.biostd.persistence.model.Submission as SubmissionDb
-import ac.uk.ebi.biostd.persistence.model.User as UserDb
 
 class SubmissionMapper(
     private val tagsRepository: TagsDataRepository,
-    private val tagsRefRepository: TagsRefRepository
+    private val tagsRefRepository: TagsRefRepository,
+    private var userRepository: UserDataRepository
 ) {
     fun toSubmissionDb(submission: ExtendedSubmission) = SubmissionDb().apply {
         accNo = submission.accNo
@@ -59,7 +58,7 @@ class SubmissionMapper(
         modificationTime = submission.modificationTime.toEpochSecond()
         releaseTime = submission.releaseTime.toEpochSecond()
 
-        owner = toUser(submission.user)
+        owner = userRepository.getByEmail(submission.user.email)
         rootSection = toSection(submission.extendedSection, this, NO_TABLE_INDEX)
         attributes = toAttributes(submission.attributes).mapTo(sortedSetOf(), ::SubmissionAttribute)
         accessTags = toAccessTag(submission.accessTags)
@@ -118,7 +117,6 @@ private object TableMapper {
 }
 
 private object EntityMapper {
-    fun toUser(user: User) = UserDb(user.id, user.email, user.email, user.secretKey)
 
     fun toLink(link: Link, order: Int, tableIndex: Int = NO_TABLE_INDEX) =
         LinkDb(link.url, order, toAttributes(link.attributes).mapTo(sortedSetOf(), ::LinkAttribute), tableIndex)
@@ -130,9 +128,7 @@ private object EntityMapper {
         file.path, file.size, toAttributes(file.attributes).mapTo(sortedSetOf(), ::ReferencedFileAttribute))
 
     fun toLibraryFile(libFile: LibraryFile) =
-        LibraryFileDb(libFile.name).apply {
-            files = libFile.referencedFiles.map { toRefFile(it) }.toSet()
-        }
+        LibraryFileDb(libFile.name).apply { files = libFile.referencedFiles.map { toRefFile(it) }.toSet() }
 }
 
 private object AttributeMapper {

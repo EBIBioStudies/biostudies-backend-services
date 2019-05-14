@@ -23,6 +23,7 @@ import Versions.LogbackVersion
 import Versions.MySqlVersion
 import Versions.Retrofit2CoroutineVersion
 import Versions.Retrofit2Version
+import Versions.RxJava2Version
 import Versions.ServletVersion
 import Versions.SpringDataVersion
 import Versions.SpringVersion
@@ -65,6 +66,7 @@ object Versions {
     const val Retrofit2CoroutineVersion = "0.9.2"
     const val JSONOrgVersion = "20090211"
     const val CliKtVersion = "1.7.0"
+    const val RxJava2Version = "2.2.8"
 }
 
 object TestDependencies {
@@ -114,7 +116,7 @@ object Dependencies {
     const val Guava = "com.google.guava:guava:$GuavaVersion"
     const val Jsch = "com.jcraft:jsch:$JschVersion"
     const val CliKt = "com.github.ajalt:clikt:$CliKtVersion"
-
+    const val RxJava2 = "io.reactivex.rxjava2:rxjava:$RxJava2Version"
 
     // Kotlin specific
     const val KotlinStdLib = "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$KotlinVersion"

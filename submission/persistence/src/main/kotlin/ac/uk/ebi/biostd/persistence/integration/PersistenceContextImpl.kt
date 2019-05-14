@@ -33,9 +33,10 @@ open class PersistenceContextImpl(
         return sequence.id
     }
 
-    override fun getParentAccessTags(submission: Submission) =
+    override fun getParentAccessTags(submission: Submission): List<String> =
         getParentSubmission(submission)
-            .map { it.accessTags }.getOrElse { emptyList<AccessTag>() }
+            .map { it.accessTags }
+            .getOrElse { emptyList<AccessTag>() }
             .map { it.name }
 
     override fun getParentAccPattern(submission: Submission) =
@@ -57,7 +58,6 @@ open class PersistenceContextImpl(
         return true
     }
 
-    // TODO: add proper security validation
     override fun canSubmit(accNo: String, user: User): Boolean {
         return true
     }

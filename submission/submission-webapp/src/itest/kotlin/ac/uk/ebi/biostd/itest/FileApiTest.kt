@@ -40,7 +40,11 @@ internal class FileApiTest(private val tempFolder: TemporaryFolder) : BaseIntegr
         @BeforeAll
         fun init() {
             val securityClient = SecurityWebClient.create("http://localhost:$serverPort")
-            securityClient.registerUser(RegisterRequest(GenericUser.email, GenericUser.username, GenericUser.password))
+            securityClient.registerUser(RegisterRequest(
+                GenericUser.email,
+                GenericUser.username,
+                GenericUser.password
+            ))
             webClient = securityClient.getAuthenticatedClient(GenericUser.username, GenericUser.password)
         }
 
