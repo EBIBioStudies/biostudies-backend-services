@@ -29,14 +29,11 @@ internal class SecurityService(
             .findByLoginOrEmailAndActive(loginRequest.login, loginRequest.login, true)
             .filter { securityUtil.checkPassword(it.passwordDigest, loginRequest.password) }
             .orElseThrow { LoginException() }
-            .let { UserInfo(securityUtil.createToken(it), it) }
+            .let { UserInfo(it, securityUtil.createToken(it)) }
 
     override fun registerUser(request: RegisterRequest): User {
-        if (userRepository.existsByEmail(request.email)) {
-            throw UserAlreadyRegister(request.email)
-        }
-
         return when {
+            userRepository.existsByEmail(request.email) -> throw UserAlreadyRegister(request.email)
             securityProps.requireActivation -> preRegister(request)
             else -> register(request)
         }
