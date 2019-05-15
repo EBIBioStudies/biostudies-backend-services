@@ -17,7 +17,7 @@ class TimesProcessor : SubmissionProcessor {
     override fun process(submission: ExtendedSubmission, context: PersistenceContext) {
         val now = OffsetDateTime.now()
         val createDate = context.getSubmission(submission.accNo)?.creationTime
-        val releaseDate = submission.releaseDate?.atOffset(UTC)
+        val releaseDate = submission.releaseDate?.atStartOfDay()?.atOffset(UTC)
 
         submission.modificationTime = now
         submission.releaseTime = releaseDate ?: now

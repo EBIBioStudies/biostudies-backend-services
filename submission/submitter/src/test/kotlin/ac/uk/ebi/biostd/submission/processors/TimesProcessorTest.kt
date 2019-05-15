@@ -22,7 +22,7 @@ class TimesProcessorTest(@MockK private val mockPersistenceContext: PersistenceC
     private val mockNow: OffsetDateTime = OffsetDateTime.now()
     private val testInstance = TimesProcessor()
 
-    private val testTime = OffsetDateTime.of(2018, 10, 10, 10, 10, 10, 10, ZoneOffset.UTC)
+    private val testTime = OffsetDateTime.of(2018, 10, 10, 0, 0, 0, 0, ZoneOffset.UTC)
 
     @BeforeEach
     fun setUp() {
@@ -51,7 +51,7 @@ class TimesProcessorTest(@MockK private val mockPersistenceContext: PersistenceC
 
     @Test
     fun `process submission with release date`() {
-        submission.releaseDate = testTime.toInstant()
+        submission.releaseDate = testTime.toLocalDate()
 
         testInstance.process(submission, mockPersistenceContext)
         assertTimeProcessing(mockNow, testTime, mockNow)
