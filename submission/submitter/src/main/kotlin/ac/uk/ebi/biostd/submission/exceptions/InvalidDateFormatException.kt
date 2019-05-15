@@ -1,4 +1,4 @@
-package ebi.ac.uk.errors
+package ac.uk.ebi.biostd.submission.exceptions
 
 class InvalidDateFormatException(
     date: String

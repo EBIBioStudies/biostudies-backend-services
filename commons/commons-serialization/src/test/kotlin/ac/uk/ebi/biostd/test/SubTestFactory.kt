@@ -12,10 +12,9 @@ import ebi.ac.uk.model.AttributeDetail
 import ebi.ac.uk.model.extensions.releaseDate
 import ebi.ac.uk.model.extensions.rootPath
 import ebi.ac.uk.model.extensions.title
-import java.time.LocalDate
 
 fun createVenousBloodMonocyte() = submission("S-IHECRE00000919.1") {
-    releaseDate = LocalDate.parse("2015-02-20")
+    releaseDate = "2015-02-20"
     rootPath = "S-IHECRE00000919.1"
     title = "Submission title"
     attribute("DataSource", "BLUEPRINT")

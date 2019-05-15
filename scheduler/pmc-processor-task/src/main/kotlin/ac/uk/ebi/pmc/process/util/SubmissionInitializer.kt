@@ -27,9 +27,9 @@ class SubmissionInitializer(private val serializationService: SerializationServi
     private fun asString(submission: Submission) =
         serializationService.serializeSubmission(submission, SubFormat.JSON)
 
-    private fun getReleaseDate(submission: Submission): LocalDate {
+    private fun getReleaseDate(submission: Submission): String {
         val releaseDate: String = submission.getSectionByType(PUBLICATION_SECTION)[PUBLICATION_DATE_ATTRIBUTE]
         val year = yearExtractionPattern.getGroup(releaseDate).toInt()
-        return LocalDate.ofYearDay(year, 1)
+        return LocalDate.ofYearDay(year, 1).toString()
     }
 }

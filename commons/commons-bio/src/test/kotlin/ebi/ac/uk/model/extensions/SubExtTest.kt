@@ -1,11 +1,9 @@
 package ebi.ac.uk.model.extensions
 
-import ebi.ac.uk.dsl.attribute
 import ebi.ac.uk.dsl.file
 import ebi.ac.uk.dsl.filesTable
 import ebi.ac.uk.dsl.section
 import ebi.ac.uk.dsl.submission
-import ebi.ac.uk.errors.InvalidDateFormatException
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.File
 import ebi.ac.uk.model.Submission
@@ -13,8 +11,6 @@ import ebi.ac.uk.model.constants.SubFields
 import ebi.ac.uk.util.collections.second
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
-import java.time.LocalDate
 
 class SubExtTest {
     @Test
@@ -28,32 +24,10 @@ class SubExtTest {
 
     @Test
     fun `release date`() {
-        val time = LocalDate.parse("2015-02-20")
         val submission = submission("ABC-123") {}
-        submission.releaseDate = time
+        submission.releaseDate = "2015-02-20"
 
         assertExtendedAttribute(submission, SubFields.RELEASE_DATE, "2015-02-20")
-    }
-
-    @Test
-    fun `release date in string format`() {
-        val expectedDate = LocalDate.parse("2015-02-20")
-        val submission = submission("ABC-123") {
-            attribute("ReleaseDate", "2015-02-20")
-        }
-
-        assertThat(submission.releaseDate).isEqualTo(expectedDate)
-    }
-
-    @Test
-    fun `release date with invalid format`() {
-        val submission = submission("ABC-123") {
-            attribute("ReleaseDate", "2015/02/20")
-        }
-
-        val exception = assertThrows<InvalidDateFormatException> { submission.releaseDate }
-        assertThat(exception.message).isEqualTo(
-            "Invalid date format provided for date 2015/02/20. Expected format is YYYY-MM-DD")
     }
 
     @Test

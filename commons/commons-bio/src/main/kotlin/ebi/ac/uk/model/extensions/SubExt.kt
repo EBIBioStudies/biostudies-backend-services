@@ -1,10 +1,7 @@
 package ebi.ac.uk.model.extensions
 
-import ebi.ac.uk.errors.InvalidDateFormatException
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.constants.SubFields
-import java.time.LocalDate
-import java.time.format.DateTimeParseException
 
 /**
  * Contains accessor for attributes that has specific meaning in page tab specification.
@@ -22,15 +19,16 @@ var Submission.attachTo: String?
 /**
  * Indicates when a submission was released to public access.
  */
-var Submission.releaseDate: LocalDate?
-    get() = get<String?>(SubFields.RELEASE_DATE)?.let {
-        try {
-            LocalDate.parse(it)
-        } catch (exception: DateTimeParseException) {
-            throw InvalidDateFormatException(it)
-        }
-    }
+var Submission.releaseDate: String?
+//    get() = get<String?>(SubFields.RELEASE_DATE)?.let {
+//        try {
+//            LocalDate.parse(it)
+//        } catch (exception: DateTimeParseException) {
+//            throw InvalidDateFormatException(it)
+//        }
+//    }
 
+    get() = this[SubFields.RELEASE_DATE]
     set(value) {
         value?.let { this[SubFields.RELEASE_DATE] = it }
     }
