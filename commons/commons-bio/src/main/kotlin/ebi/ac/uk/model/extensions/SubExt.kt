@@ -20,14 +20,6 @@ var Submission.attachTo: String?
  * Indicates when a submission was released to public access.
  */
 var Submission.releaseDate: String?
-//    get() = get<String?>(SubFields.RELEASE_DATE)?.let {
-//        try {
-//            LocalDate.parse(it)
-//        } catch (exception: DateTimeParseException) {
-//            throw InvalidDateFormatException(it)
-//        }
-//    }
-
     get() = this[SubFields.RELEASE_DATE]
     set(value) {
         value?.let { this[SubFields.RELEASE_DATE] = it }
