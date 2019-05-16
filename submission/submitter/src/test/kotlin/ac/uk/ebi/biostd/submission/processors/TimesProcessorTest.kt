@@ -76,7 +76,7 @@ class TimesProcessorTest(@MockK private val mockPersistenceContext: PersistenceC
         }
 
         assertThat(exception.message).isEqualTo(
-            "Invalid date format provided for date 2018/10/10. Expected format is YYYY-MM-DD")
+            "Provided date 2018/10/10 could not be parsed. Expected format is YYYY-MM-DD")
     }
 
     private fun assertTimeProcessing(

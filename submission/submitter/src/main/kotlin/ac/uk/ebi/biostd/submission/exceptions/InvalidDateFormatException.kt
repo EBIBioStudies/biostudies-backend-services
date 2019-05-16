@@ -1,5 +1,4 @@
 package ac.uk.ebi.biostd.submission.exceptions
 
-class InvalidDateFormatException(
-    date: String
-) : RuntimeException("Invalid date format provided for date $date. Expected format is YYYY-MM-DD")
+class InvalidDateFormatException(date: String) : RuntimeException(
+    "Provided date $date could not be parsed. Expected format is YYYY-MM-DD")

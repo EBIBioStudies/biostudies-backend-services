@@ -47,7 +47,6 @@ class TsvDeserializer(private val chunkProcessor: ChunkProcessor = ChunkProcesso
 
     private fun chunkerize(pagetab: String) =
         pagetab.split(TSV_CHUNK_BREAK)
-            .map { it.removeSuffix("\r") }
             .mapIndexed { index, line -> TsvChunkLine(index, line) }
             .split { it.isEmpty() }
             .mapTo(mutableListOf()) { createChunk(it) }
