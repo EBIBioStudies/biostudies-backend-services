@@ -48,13 +48,11 @@ internal class SecurityServiceTest(
     @MockK private val securityProps: SecurityProperties,
     @MockK private val securityUtil: SecurityUtil
 ) {
-
     private val testInstance: SecurityService =
         SecurityService(userRepository, tokenRepository, securityUtil, securityProps)
 
     @Nested
     inner class Login {
-
         @Test
         fun `login when user is not found`() {
             every { userRepository.findByLoginOrEmailAndActive(username, username, true) } returns Optional.empty()
@@ -87,7 +85,6 @@ internal class SecurityServiceTest(
 
     @Nested
     inner class Registration {
-
         @BeforeEach
         fun beforeEach() {
             every { userRepository.existsByEmail(email) } returns false
@@ -148,9 +145,8 @@ internal class SecurityServiceTest(
 
     @Nested
     inner class Activation {
-
         @Test
-        fun `activate when not inactive user is found`() {
+        fun `activate when not pending activation`() {
             every { userRepository.findByActivationKeyAndActive(ACTIVATION_KEY, false) } returns Optional.empty()
 
             assertThrows<ActKeyNotFoundException> { testInstance.activate(ACTIVATION_KEY) }
@@ -171,7 +167,6 @@ internal class SecurityServiceTest(
 
     @Nested
     inner class Retry {
-
         @Test
         fun `retry pre registration when user not found`() {
             every { userRepository.findByEmailAndActive(email, false) } returns Optional.empty()
@@ -204,7 +199,6 @@ internal class SecurityServiceTest(
 
     @Nested
     inner class ChangePassword {
-
         private val password = "new password"
 
         @Test
@@ -230,7 +224,6 @@ internal class SecurityServiceTest(
 
     @Nested
     inner class ResetPassword {
-
         @Test
         fun `reset password when user not found`() {
             every { userRepository.findByLoginOrEmailAndActive(email, email, true) } returns Optional.empty()
