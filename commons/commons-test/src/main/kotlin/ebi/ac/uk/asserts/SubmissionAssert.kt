@@ -17,7 +17,7 @@ class SubmissionAssert(actual: Submission) :
     }
 
     @Suppress("SpreadOperator")
-    fun hasExactly(vararg attributes: Attribute) {
+    fun hasExactlyAttributes(vararg attributes: Attribute) {
         assertThat(actual.attributes).containsExactly(*attributes)
     }
 }

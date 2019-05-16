@@ -7,6 +7,7 @@ import com.github.ajalt.clikt.core.PrintMessage
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.file
+import ebi.ac.uk.base.isNotBlank
 import org.json.JSONObject
 import org.springframework.web.client.ResourceAccessException
 import org.springframework.web.client.RestClientResponseException
@@ -36,13 +37,14 @@ class BioStudiesCommandLine : CliktCommand(name = "PTSubmit") {
             }
 
             val client = getClient(server, user, password)
-            val submission = client.submitSingle(input!!.readText(), SubmissionFormat.valueOf(format), files).body!!
+            val submission =
+                client.submitSingle(input!!.readText(), SubmissionFormat.valueOf(format.toUpperCase()), files).body!!
 
             echo("SUCCESS: Submission with AccNo ${submission.accNo} was submitted")
         } catch (exception: Exception) {
             when (exception) {
                 is ResourceAccessException -> throw PrintMessage(exception.cause?.message ?: FILES_NOT_FOUND_ERROR_MSG)
-                is RestClientResponseException -> throw PrintMessage(toJson(exception))
+                is RestClientResponseException -> throw PrintMessage(formatException(exception))
                 else -> throw exception
             }
         }
@@ -51,7 +53,13 @@ class BioStudiesCommandLine : CliktCommand(name = "PTSubmit") {
     internal fun getClient(host: String, user: String, password: String) =
         SecurityWebClient.create(host).getAuthenticatedClient(user, password)
 
-    private fun toJson(exception: RestClientResponseException) = JSONObject(exception.responseBodyAsString).toString(2)
+    // TODO The exceptions should be formatted at bio-webclient level
+    private fun formatException(exception: RestClientResponseException) =
+        when {
+            exception.responseBodyAsString.isNotBlank() -> JSONObject(exception.responseBodyAsString).toString(2)
+            exception.message.isNotBlank() -> exception.message!!
+            else -> throw exception
+        }
 
     private fun addFiles(files: MutableList<File>, path: String) {
         val file = File(path)

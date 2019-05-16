@@ -19,6 +19,7 @@ spring:
 
 app:
   basepath: # Path to the folder that will be used as storage
-  environment: # Current application execution environment
   security:
     tokenHash: # Token used for hash authentication
+    environment: # Current application execution environment
+    requiresActivation: # Indicates whether or not, new user need activation before being used

@@ -113,12 +113,6 @@ fun submissionWithTableWithMoreAttributes() = submissionWithRootSection().apply 
     line()
 }
 
-fun submissionWithTableWithLessAttributes() = submissionWithRootSection().apply {
-    line("Links", "Type")
-    line("AF069309")
-    line()
-}
-
 fun submissionWithFiles() = submissionWithRootSection().apply {
     line("File", "12870_2017_1225_MOESM10_ESM.docx")
     line()

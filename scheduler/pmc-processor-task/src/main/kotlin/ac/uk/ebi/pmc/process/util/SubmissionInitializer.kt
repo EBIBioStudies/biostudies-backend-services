@@ -6,9 +6,7 @@ import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.extensions.getSectionByType
 import ebi.ac.uk.model.extensions.releaseDate
 import ebi.ac.uk.util.regex.getGroup
-import java.time.Instant
 import java.time.LocalDate
-import java.time.ZoneOffset
 
 private const val PUBLICATION_SECTION = "Publication"
 private const val PUBLICATION_DATE_ATTRIBUTE = "Publication date"
@@ -29,9 +27,9 @@ class SubmissionInitializer(private val serializationService: SerializationServi
     private fun asString(submission: Submission) =
         serializationService.serializeSubmission(submission, SubFormat.JSON)
 
-    private fun getReleaseDate(submission: Submission): Instant {
+    private fun getReleaseDate(submission: Submission): String {
         val releaseDate: String = submission.getSectionByType(PUBLICATION_SECTION)[PUBLICATION_DATE_ATTRIBUTE]
         val year = yearExtractionPattern.getGroup(releaseDate).toInt()
-        return LocalDate.ofYearDay(year, 1).atStartOfDay().toInstant(ZoneOffset.UTC)
+        return LocalDate.ofYearDay(year, 1).toString()
     }
 }

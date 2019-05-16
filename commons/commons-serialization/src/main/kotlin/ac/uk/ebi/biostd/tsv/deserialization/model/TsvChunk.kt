@@ -61,12 +61,18 @@ class FileTableChunk(body: List<TsvChunkLine>) : TsvChunk(body) {
 
 sealed class SectionTableChunk(body: List<TsvChunkLine>) : TsvChunk(body) {
 
-    fun asTable() = SectionsTable(
+    open fun asTable() = SectionsTable(
         asTable(this) { accNo, attributes -> Section(this.getType(), accNo, attributes = attributes) })
 }
 
 class RootSectionTableChunk(body: List<TsvChunkLine>) : SectionTableChunk(body)
-class SubSectionTableChunk(body: List<TsvChunkLine>, val parent: String) : SectionTableChunk(body)
+
+class SubSectionTableChunk(body: List<TsvChunkLine>, val parent: String) : SectionTableChunk(body) {
+    override fun asTable() = SectionsTable(
+        asTable(this) { accNo, attributes ->
+            Section(this.getType(), accNo, attributes = attributes, parentAccNo = parent)
+        })
+}
 
 sealed class SectionChunk(body: List<TsvChunkLine>) : TsvChunk(body) {
 

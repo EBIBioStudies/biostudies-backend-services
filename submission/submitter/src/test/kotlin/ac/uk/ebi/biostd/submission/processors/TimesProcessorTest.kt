@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.submission.processors
 
+import ac.uk.ebi.biostd.submission.exceptions.InvalidDateFormatException
 import ac.uk.ebi.biostd.submission.test.ACC_NO
 import ac.uk.ebi.biostd.submission.test.createBasicExtendedSubmission
 import ebi.ac.uk.model.ExtendedSubmission
@@ -12,6 +13,7 @@ import io.mockk.mockkStatic
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
@@ -22,7 +24,7 @@ class TimesProcessorTest(@MockK private val mockPersistenceContext: PersistenceC
     private val mockNow: OffsetDateTime = OffsetDateTime.now()
     private val testInstance = TimesProcessor()
 
-    private val testTime = OffsetDateTime.of(2018, 10, 10, 10, 10, 10, 10, ZoneOffset.UTC)
+    private val testTime = OffsetDateTime.of(2018, 10, 10, 0, 0, 0, 0, ZoneOffset.UTC)
 
     @BeforeEach
     fun setUp() {
@@ -51,10 +53,30 @@ class TimesProcessorTest(@MockK private val mockPersistenceContext: PersistenceC
 
     @Test
     fun `process submission with release date`() {
-        submission.releaseDate = testTime.toInstant()
+        submission.releaseDate = "2018-10-10"
 
         testInstance.process(submission, mockPersistenceContext)
         assertTimeProcessing(mockNow, testTime, mockNow)
+    }
+
+    @Test
+    fun `process submission with null release date`() {
+        submission.releaseDate = null
+
+        testInstance.process(submission, mockPersistenceContext)
+        assertTimeProcessing(mockNow, mockNow, mockNow)
+    }
+
+    @Test
+    fun `process submission with release date with invalid format`() {
+        submission.releaseDate = "2018/10/10"
+
+        val exception = assertThrows<InvalidDateFormatException> {
+            testInstance.process(submission, mockPersistenceContext)
+        }
+
+        assertThat(exception.message).isEqualTo(
+            "Provided date 2018/10/10 could not be parsed. Expected format is YYYY-MM-DD")
     }
 
     private fun assertTimeProcessing(

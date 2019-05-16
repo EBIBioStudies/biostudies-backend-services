@@ -19,6 +19,7 @@ spring:
 
 app:
   basepath: # Set here the path to the folder you want to use as storage
-  environment: LOCAL
   security:
     tokenHash: bio-local
+    environment: LOCAL
+    requireActivation: false

@@ -7,6 +7,7 @@ import ac.uk.ebi.biostd.tsv.deserialization.model.LinksTableChunk
 import ac.uk.ebi.biostd.tsv.deserialization.model.SectionChunk
 import ac.uk.ebi.biostd.tsv.deserialization.model.SectionTableChunk
 import ac.uk.ebi.biostd.tsv.deserialization.model.TsvChunk
+import ac.uk.ebi.biostd.validation.InvalidSectionException
 import ac.uk.ebi.biostd.validation.SerializationError
 import ac.uk.ebi.biostd.validation.SerializationException
 import com.google.common.collect.HashMultimap
@@ -17,7 +18,7 @@ import ebi.ac.uk.model.Submission
 @Suppress("TooManyFunctions")
 class TsvSerializationContext {
 
-    private val sections: MutableMap<String, Section> = mutableMapOf()
+    private val sections = TsvSectionContext()
     private var errors: Multimap<Any, SerializationError> = HashMultimap.create()
 
     private var submission: Submission = Submission()
@@ -48,18 +49,18 @@ class TsvSerializationContext {
         execute(rootSection, chunk) { rootSection.addSectionTable(chunk.asTable()) }
 
     fun addSubSectionTable(parent: String, chunk: SectionTableChunk) =
-        execute(rootSection, chunk) { sections.getValue(parent).addSectionTable(chunk.asTable()) }
+        execute(rootSection, chunk) { sections.getSection(parent).addSectionTable(chunk.asTable()) }
 
     fun addSection(chunk: SectionChunk) =
         execute(rootSection, chunk) { addSection(rootSection, chunk.asSection()) }
 
     fun addSubSection(parent: String, chunk: SectionChunk) =
-        execute(rootSection, chunk) { addSection(sections.getValue(parent), chunk.asSection()) }
+        execute(rootSection, chunk) { addSection(sections.getSection(parent), chunk.asSection()) }
 
     private fun addSection(parent: Section, section: Section) = parent.addSection(addSection(section))
 
     private fun addSection(section: Section): Section {
-        section.accNo?.let { sections[it] = section }
+        section.accNo?.let { sections.addSection(it, section) }
         currentSection = section
         return currentSection
     }
@@ -72,4 +73,12 @@ class TsvSerializationContext {
             errors.put(parent, SerializationError(chunk, exception))
         }
     }
+}
+
+class TsvSectionContext {
+    private val sections: MutableMap<String, Section> = mutableMapOf()
+
+    fun addSection(accNo: String, section: Section) = sections.put(accNo, section)
+
+    fun getSection(accNo: String) = sections.getOrElse(accNo, { throw InvalidSectionException(accNo) })
 }

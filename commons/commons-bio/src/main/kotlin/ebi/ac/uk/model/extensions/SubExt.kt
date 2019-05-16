@@ -2,7 +2,6 @@ package ebi.ac.uk.model.extensions
 
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.constants.SubFields
-import java.time.Instant
 
 /**
  * Contains accessor for attributes that has specific meaning in page tab specification.
@@ -20,8 +19,8 @@ var Submission.attachTo: String?
 /**
  * Indicates when a submission was released to public access.
  */
-var Submission.releaseDate: Instant?
-    get() = get<String?>(SubFields.RELEASE_DATE)?.let { Instant.parse(it) }
+var Submission.releaseDate: String?
+    get() = this[SubFields.RELEASE_DATE]
     set(value) {
         value?.let { this[SubFields.RELEASE_DATE] = it }
     }

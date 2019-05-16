@@ -9,6 +9,10 @@ fun allInOneSubmissionXml() = xml("submission") {
             "name" { -"Title" }
             "value" { -"venous blood, Monocyte" }
         }
+        "attribute" {
+            "name" { -"ReleaseDate" }
+            "value" { -"2021-02-12" }
+        }
     }
 
     "section" {

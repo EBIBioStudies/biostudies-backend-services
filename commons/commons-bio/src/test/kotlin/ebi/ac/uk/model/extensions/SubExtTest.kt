@@ -11,8 +11,6 @@ import ebi.ac.uk.model.constants.SubFields
 import ebi.ac.uk.util.collections.second
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
-import java.time.LocalDateTime
-import java.time.ZoneOffset
 
 class SubExtTest {
     @Test
@@ -25,16 +23,15 @@ class SubExtTest {
     }
 
     @Test
-    fun `releaseTime`() {
-        val time = LocalDateTime.parse("2015-02-20T06:30:00").toInstant(ZoneOffset.UTC)
+    fun `release date`() {
         val submission = submission("ABC-123") {}
-        submission.releaseDate = time
+        submission.releaseDate = "2015-02-20"
 
-        assertExtendedAttribute(submission, SubFields.RELEASE_DATE, "2015-02-20T06:30:00Z")
+        assertExtendedAttribute(submission, SubFields.RELEASE_DATE, "2015-02-20")
     }
 
     @Test
-    fun `title`() {
+    fun title() {
         val submission = submission("ABC-123") {}
         submission.title = "Title"
 

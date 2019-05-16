@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.client.integration.web
 
+import ac.uk.ebi.biostd.client.exception.InvalidHostErrorHandler
 import ebi.ac.uk.api.security.LoginRequest
 import ebi.ac.uk.api.security.LoginResponse
 import ebi.ac.uk.api.security.RegisterRequest
@@ -25,7 +26,10 @@ class SecurityWebClient private constructor(
     companion object {
 
         fun create(baseUrl: String) = SecurityWebClient(
-                baseUrl,
-                RestTemplate().apply { uriTemplateHandler = DefaultUriBuilderFactory(baseUrl) })
+            baseUrl,
+            RestTemplate().apply {
+                errorHandler = InvalidHostErrorHandler()
+                uriTemplateHandler = DefaultUriBuilderFactory(baseUrl)
+            })
     }
 }
