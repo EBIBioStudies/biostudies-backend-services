@@ -4,7 +4,7 @@ import arrow.core.Option
 import ebi.ac.uk.base.toOption
 import ebi.ac.uk.model.User
 import ebi.ac.uk.security.integration.components.ISecurityFilter
-import ebi.ac.uk.security.util.SecurityUtil
+import ebi.ac.uk.security.service.SecurityService
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.filter.GenericFilterBean
@@ -19,12 +19,12 @@ const val COOKIE_NAME = "BIOSTDSESS"
 
 internal class SecurityFilter(
     private val environment: String,
-    private val securityUtil: SecurityUtil
+    private val securityService: SecurityService
 ) : GenericFilterBean(), ISecurityFilter {
 
     override fun doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain) {
         getSecurityKey(request as HttpServletRequest)
-            .flatMap { securityUtil.fromToken(it) }
+            .flatMap { securityService.checkToken(it) }
             .map { setSecurityUser(User(it.id, it.email, it.secret), it.secret) }
         chain.doFilter(request, response)
     }

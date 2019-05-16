@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.common.config
 
 import ac.uk.ebi.biostd.common.property.ApplicationProperties
+import ac.uk.ebi.biostd.persistence.repositories.TokenDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserGroupDataRepository
 import ebi.ac.uk.security.integration.SecurityModuleConfig
@@ -45,11 +46,15 @@ class SecurityConfig(private val securityFilter: ISecurityFilter) : WebSecurityC
 @Configuration
 class SecurityBeansConfig(properties: ApplicationProperties) {
 
-    private val securityProperties = properties.security
+    private val securityProps = properties.security
 
     @Bean
-    fun securityModuleConfig(userRepository: UserDataRepository, groupRepository: UserGroupDataRepository):
-        SecurityModuleConfig = SecurityModuleConfig(userRepository, groupRepository, securityProperties)
+    fun securityModuleConfig(
+        userRepository: UserDataRepository,
+        tokenRepository: TokenDataRepository,
+        groupRepository: UserGroupDataRepository
+    ):
+        SecurityModuleConfig = SecurityModuleConfig(userRepository, tokenRepository, groupRepository, securityProps)
 
     @Bean
     fun securityService(securityConfig: SecurityModuleConfig): ISecurityService = securityConfig.securityService()

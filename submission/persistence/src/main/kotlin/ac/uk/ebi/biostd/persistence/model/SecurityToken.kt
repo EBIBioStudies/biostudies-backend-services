@@ -6,11 +6,11 @@ import javax.persistence.Entity
 import javax.persistence.Id
 
 @Entity
-class SecurityToken {
+class SecurityToken(
 
     @Id
-    private lateinit var id: String
+    var id: String,
 
     @Column(name = "invalidation_date")
-    private val invalidationDate: OffsetDateTime? = null
-}
+    val invalidationDate: OffsetDateTime
+)

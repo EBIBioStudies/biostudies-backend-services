@@ -1,18 +1,27 @@
 package ebi.ac.uk.security.service
 
 import ac.uk.ebi.biostd.persistence.model.User
+import ac.uk.ebi.biostd.persistence.repositories.TokenDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ebi.ac.uk.api.security.LoginRequest
+import ebi.ac.uk.security.events.Events
 import ebi.ac.uk.security.integration.SecurityProperties
 import ebi.ac.uk.security.integration.exception.ActKeyNotFoundException
 import ebi.ac.uk.security.integration.exception.LoginException
 import ebi.ac.uk.security.integration.exception.UserAlreadyRegister
+import ebi.ac.uk.security.integration.exception.UserNotFoundException
+import ebi.ac.uk.security.integration.model.events.PasswordReset
 import ebi.ac.uk.security.integration.model.events.UserPreRegister
 import ebi.ac.uk.security.integration.model.events.UserRegister
 import ebi.ac.uk.security.test.SecurityTestEntities
+import ebi.ac.uk.security.test.SecurityTestEntities.Companion.email
+import ebi.ac.uk.security.test.SecurityTestEntities.Companion.instanceKey
 import ebi.ac.uk.security.test.SecurityTestEntities.Companion.password
 import ebi.ac.uk.security.test.SecurityTestEntities.Companion.passwordDiggest
-import ebi.ac.uk.security.test.SecurityTestEntities.Companion.simpleRegistrationRequest
+import ebi.ac.uk.security.test.SecurityTestEntities.Companion.path
+import ebi.ac.uk.security.test.SecurityTestEntities.Companion.registrationRequest
+import ebi.ac.uk.security.test.SecurityTestEntities.Companion.resetPasswordRequest
+import ebi.ac.uk.security.test.SecurityTestEntities.Companion.retryActivation
 import ebi.ac.uk.security.test.SecurityTestEntities.Companion.simpleUser
 import ebi.ac.uk.security.test.SecurityTestEntities.Companion.username
 import ebi.ac.uk.security.util.SecurityUtil
@@ -20,8 +29,6 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.reactivex.observers.TestObserver
-import io.reactivex.subjects.PublishSubject
-import io.reactivex.subjects.Subject
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -30,26 +37,22 @@ import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import java.util.Optional
 
-private const val ACTIVATION_CODE: String = "code"
+private const val ACTIVATION_KEY: String = "code"
 private const val SECRET_KEY: String = "secretKey"
 private val PASSWORD_DIGGEST: ByteArray = ByteArray(0)
 
 @ExtendWith(MockKExtension::class)
 internal class SecurityServiceTest(
     @MockK private val userRepository: UserDataRepository,
+    @MockK private val tokenRepository: TokenDataRepository,
     @MockK private val securityProps: SecurityProperties,
     @MockK private val securityUtil: SecurityUtil
 ) {
-
-    private val userPreRegister: Subject<UserPreRegister> = PublishSubject.create<UserPreRegister>()
-    private val userRegister: Subject<UserRegister> = PublishSubject.create<UserRegister>()
-
     private val testInstance: SecurityService =
-        SecurityService(userRepository, securityUtil, securityProps, userPreRegister, userRegister)
+        SecurityService(userRepository, tokenRepository, securityUtil, securityProps)
 
     @Nested
     inner class Login {
-
         @Test
         fun `login when user is not found`() {
             every { userRepository.findByLoginOrEmailAndActive(username, username, true) } returns Optional.empty()
@@ -82,10 +85,9 @@ internal class SecurityServiceTest(
 
     @Nested
     inner class Registration {
-
         @BeforeEach
         fun beforeEach() {
-            every { userRepository.existsByEmail(SecurityTestEntities.email) } returns false
+            every { userRepository.existsByEmail(email) } returns false
             every { userRepository.save(any<User>()) } answers { firstArg() }
             every { securityUtil.getPasswordDigest(password) } returns PASSWORD_DIGGEST
         }
@@ -96,15 +98,15 @@ internal class SecurityServiceTest(
             every { securityUtil.newKey() } returns SECRET_KEY
 
             val subscriber = TestObserver<UserRegister>()
-            userRegister.subscribe(subscriber)
+            Events.userRegister.subscribe(subscriber)
 
-            testInstance.registerUser(simpleRegistrationRequest)
+            testInstance.registerUser(registrationRequest)
 
             assertThat(subscriber.values()).hasSize(1)
             assertThat(subscriber.values()).first().satisfies {
                 assertThat(it.user.active).isTrue()
                 assertThat(it.user.fullName).isEqualTo(username)
-                assertThat(it.user.email).isEqualTo(SecurityTestEntities.email)
+                assertThat(it.user.email).isEqualTo(email)
                 assertThat(it.user.passwordDigest).isEqualTo(PASSWORD_DIGGEST)
 
                 assertThat(it.user.superuser).isFalse()
@@ -117,46 +119,137 @@ internal class SecurityServiceTest(
         fun `register a user when activation is required`() {
             val instanceUrl = "http://dummy-backend.com"
             every { securityProps.requireActivation } returns true
-            every { securityUtil.newKey() } returns SECRET_KEY andThen ACTIVATION_CODE
-            every { securityUtil.getInstanceUrl(SecurityTestEntities.instanceKey, SecurityTestEntities.path) } returns instanceUrl
+            every { securityUtil.newKey() } returns SECRET_KEY andThen ACTIVATION_KEY
+            every { securityUtil.getInstanceUrl(instanceKey, path) } returns instanceUrl
 
             val subscriber = TestObserver<UserPreRegister>()
-            userPreRegister.subscribe(subscriber)
+            Events.userPreRegister.subscribe(subscriber)
 
             testInstance.registerUser(SecurityTestEntities.preRegisterRequest)
 
             assertThat(subscriber.values()).hasSize(1)
             assertThat(subscriber.values()).first().satisfies {
                 assertThat(it.user.active).isFalse()
-                assertThat(it.user.activationKey).isEqualTo(ACTIVATION_CODE)
+                assertThat(it.user.activationKey).isEqualTo(ACTIVATION_KEY)
+            }
+        }
+
+        @Test
+        fun `register user when user already exist`() {
+            every { userRepository.existsByEmail(email) } returns true
+
+            val exception = assertThrows<UserAlreadyRegister> { testInstance.registerUser(registrationRequest) }
+            assertThat(exception.message).isEqualTo("There is already a user register with Jhon.Doe@test.com")
+        }
+    }
+
+    @Nested
+    inner class Activation {
+        @Test
+        fun `activate when not pending activation`() {
+            every { userRepository.findByActivationKeyAndActive(ACTIVATION_KEY, false) } returns Optional.empty()
+
+            assertThrows<ActKeyNotFoundException> { testInstance.activate(ACTIVATION_KEY) }
+        }
+
+        @Test
+        fun `activate when user is found`() {
+            val user = simpleUser
+            every { userRepository.findByActivationKeyAndActive(ACTIVATION_KEY, false) } returns Optional.of(user)
+            every { userRepository.save(any<User>()) } answers { firstArg() }
+
+            testInstance.activate(ACTIVATION_KEY)
+
+            assertThat(user.active).isTrue()
+            assertThat(user.activationKey).isNull()
+        }
+    }
+
+    @Nested
+    inner class Retry {
+        @Test
+        fun `retry pre registration when user not found`() {
+            every { userRepository.findByEmailAndActive(email, false) } returns Optional.empty()
+
+            assertThrows<UserNotFoundException> { testInstance.retryPreRegistration(retryActivation) }
+        }
+
+        @Test
+        fun `retry pre registration`() {
+            val instanceUrl = "http://dummy-backend.com"
+            val user = simpleUser.apply { active = false }
+
+            every { userRepository.findByEmailAndActive(email, false) } returns Optional.of(user)
+            every { securityUtil.newKey() } returns ACTIVATION_KEY
+            every { securityUtil.getInstanceUrl(instanceKey, path) } returns instanceUrl
+            every { userRepository.save(any<User>()) } answers { firstArg() }
+
+            val subscriber = TestObserver<UserPreRegister>()
+            Events.userPreRegister.subscribe(subscriber)
+
+            testInstance.retryPreRegistration(retryActivation)
+
+            assertThat(subscriber.values()).hasSize(1)
+            assertThat(subscriber.values()).first().satisfies {
+                assertThat(it.user.active).isFalse()
+                assertThat(it.user.activationKey).isEqualTo(ACTIVATION_KEY)
             }
         }
     }
 
-    @Test
-    fun `register user when user already exist`() {
-        every { userRepository.existsByEmail(SecurityTestEntities.email) } returns true
+    @Nested
+    inner class ChangePassword {
+        private val password = "new password"
 
-        val exception = assertThrows<UserAlreadyRegister> { testInstance.registerUser(simpleRegistrationRequest) }
-        assertThat(exception.message).isEqualTo("There is already a user register with Jhon.Doe@test.com")
+        @Test
+        fun `change password when not activate user found`() {
+            every { userRepository.findByActivationKeyAndActive(ACTIVATION_KEY, true) } returns Optional.empty()
+
+            assertThrows<UserNotFoundException> { testInstance.changePassword(ACTIVATION_KEY, password) }
+        }
+
+        @Test
+        fun `change password`() {
+            val passwordDiggest = ByteArray(0)
+            every { userRepository.findByActivationKeyAndActive(ACTIVATION_KEY, true) } returns Optional.of(simpleUser)
+            every { securityUtil.getPasswordDigest(password) } returns passwordDiggest
+            every { userRepository.save(any<User>()) } answers { firstArg() }
+
+            testInstance.changePassword(ACTIVATION_KEY, "new password")
+
+            assertThat(simpleUser.activationKey).isNull()
+            assertThat(simpleUser.passwordDigest).isEqualTo(passwordDiggest)
+        }
     }
 
-    @Test
-    fun `activate when not inactive user is found`(@MockK user: User) {
-        every { userRepository.findByActivationKeyAndActive(ACTIVATION_CODE, false) } returns Optional.empty()
+    @Nested
+    inner class ResetPassword {
+        @Test
+        fun `reset password when user not found`() {
+            every { userRepository.findByLoginOrEmailAndActive(email, email, true) } returns Optional.empty()
 
-        assertThrows<ActKeyNotFoundException> { testInstance.activate(ACTIVATION_CODE) }
-    }
+            assertThrows<UserNotFoundException> { testInstance.resetPassword(resetPasswordRequest) }
+        }
 
-    @Test
-    fun `activate when user is found`() {
-        val user = SecurityTestEntities.simpleUser
-        every { userRepository.findByActivationKeyAndActive(ACTIVATION_CODE, false) } returns Optional.of(user)
-        every { userRepository.save(any<User>()) } answers { firstArg() }
+        @Test
+        fun resetPassword() {
+            val instanceUrl = "http://dummy-backend.com"
 
-        testInstance.activate(ACTIVATION_CODE)
+            every { userRepository.findByLoginOrEmailAndActive(email, email, true) } returns Optional.of(simpleUser)
+            every { securityUtil.newKey() } returns ACTIVATION_KEY
+            every { userRepository.save(any<User>()) } answers { firstArg() }
+            every { securityUtil.getInstanceUrl(instanceKey, path) } returns instanceUrl
 
-        assertThat(user.active).isTrue()
-        assertThat(user.activationKey).isNull()
+            val subscriber = TestObserver<PasswordReset>()
+            Events.passwordReset.subscribe(subscriber)
+
+            testInstance.resetPassword(resetPasswordRequest)
+
+            assertThat(subscriber.values()).hasSize(1)
+            assertThat(subscriber.values()).first().satisfies {
+                assertThat(it.user).isEqualTo(simpleUser)
+                assertThat(it.activationLink).isEqualTo(instanceUrl)
+            }
+        }
     }
 }

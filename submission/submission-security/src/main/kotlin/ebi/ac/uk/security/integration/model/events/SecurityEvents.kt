@@ -6,3 +6,4 @@ sealed class SecurityEvents
 
 class UserPreRegister(val user: User, val activationLink: String) : SecurityEvents()
 class UserRegister(val user: User) : SecurityEvents()
+class PasswordReset(val user: User, val activationLink: String) : SecurityEvents()

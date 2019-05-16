@@ -2,6 +2,8 @@ package ebi.ac.uk.security.test
 
 import ac.uk.ebi.biostd.persistence.model.User
 import ebi.ac.uk.api.security.RegisterRequest
+import ebi.ac.uk.api.security.ResetPasswordRequest
+import ebi.ac.uk.api.security.RetryActivationRequest
 
 internal class SecurityTestEntities {
 
@@ -15,7 +17,7 @@ internal class SecurityTestEntities {
 
         const val adminId = 70L
 
-        val simpleRegistrationRequest: RegisterRequest
+        val registrationRequest: RegisterRequest
             get() = RegisterRequest(username, email, password)
 
         val preRegisterRequest: RegisterRequest
@@ -23,6 +25,18 @@ internal class SecurityTestEntities {
                 username = username,
                 email = email,
                 password = password,
+                instanceKey = instanceKey,
+                path = path)
+
+        val resetPasswordRequest: ResetPasswordRequest
+            get() = ResetPasswordRequest(
+                email = email,
+                instanceKey = instanceKey,
+                path = path)
+
+        val retryActivation: RetryActivationRequest
+            get() = RetryActivationRequest(
+                email = email,
                 instanceKey = instanceKey,
                 path = path)
 
