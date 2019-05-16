@@ -17,7 +17,6 @@ import javax.xml.bind.annotation.XmlRootElement
 
 @Entity
 class User(
-
     @Id
     @GeneratedValue
     var id: Long = 0L,
@@ -41,7 +40,6 @@ class User(
     var superuser: Boolean = false
 
 ) : AbstractAggregateRoot<User>() {
-
     @Column
     var active: Boolean = false
 
@@ -73,14 +71,12 @@ class User(
 @XmlRootElement(name = "aux")
 @XmlAccessorType(XmlAccessType.NONE)
 class AuxInfo {
-
     @XmlElement(name = "param")
-    val parameters: List<Parameter> = emptyList()
+    val parameters: MutableList<Parameter> = mutableListOf()
 }
 
 @XmlAccessorType(XmlAccessType.NONE)
 class Parameter {
-
     @XmlElement(name = "name")
     var name: String? = null
 
