@@ -134,7 +134,8 @@ internal class SubmissionTest(private val tempFolder: TemporaryFolder) : BaseInt
         private fun assertSavedSubmission(accNo: String) {
             val submission = submissionRepository.getExtendedByAccNo(accNo)
             assertThat(submission).hasAccNo(accNo)
-            assertThat(submission).hasExactly(Attribute("Title", "venous blood, Monocyte"))
+            assertThat(submission).hasExactlyAttributes(
+                Attribute("Title", "venous blood, Monocyte"), Attribute("ReleaseDate", "2021-02-12"))
 
             val rootSection = submission.section
             assertSections(rootSection)

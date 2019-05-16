@@ -8,6 +8,9 @@ fun allInOneSubmissionJson() = jsonObj {
     "attributes" to jsonArray({
         "name" to "Title"
         "value" to "venous blood, Monocyte"
+    }, {
+        "name" to "ReleaseDate"
+        "value" to "2021-02-12"
     })
     "section" to {
         "accno" to "SECT-001"

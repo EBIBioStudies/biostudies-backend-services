@@ -7,7 +7,7 @@ import ac.uk.ebi.biostd.tsv.deserialization.model.LinksTableChunk
 import ac.uk.ebi.biostd.tsv.deserialization.model.SectionChunk
 import ac.uk.ebi.biostd.tsv.deserialization.model.SectionTableChunk
 import ac.uk.ebi.biostd.tsv.deserialization.model.TsvChunk
-import ac.uk.ebi.biostd.validation.IvalidSectionException
+import ac.uk.ebi.biostd.validation.InvalidSectionException
 import ac.uk.ebi.biostd.validation.SerializationError
 import ac.uk.ebi.biostd.validation.SerializationException
 import com.google.common.collect.HashMultimap
@@ -80,5 +80,5 @@ class TsvSectionContext {
 
     fun addSection(accNo: String, section: Section) = sections.put(accNo, section)
 
-    fun getSection(accNo: String) = sections.getOrElse(accNo, { throw IvalidSectionException(accNo) })
+    fun getSection(accNo: String) = sections.getOrElse(accNo, { throw InvalidSectionException(accNo) })
 }

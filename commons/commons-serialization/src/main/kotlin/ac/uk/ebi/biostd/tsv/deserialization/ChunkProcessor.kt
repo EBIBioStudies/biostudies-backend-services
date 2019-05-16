@@ -38,7 +38,7 @@ class ChunkProcessor {
 
     fun getRootSection(tsvChunk: TsvChunk): Section {
         val type = tsvChunk.getTypeOrElse(InvalidElementException(REQUIRED_ROOT_SECTION))
-        validate(type in ALLOWED_TYPES) { "Expected to find block type of $type" }
+        validate(type in ALLOWED_TYPES) { "Expected to find block type of $ALLOWED_TYPES" }
 
         return Section(
             accNo = tsvChunk.findId(),
