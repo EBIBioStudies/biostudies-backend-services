@@ -34,7 +34,6 @@ internal class SecurityUtil(
     private val userRepository: UserDataRepository,
     private val tokenHash: String
 ) {
-
     fun createToken(user: User): String {
         return Jwts.builder()
                 .setSubject(objectMapper.writeValueAsString(
