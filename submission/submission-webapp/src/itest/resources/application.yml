@@ -13,6 +13,7 @@ spring:
 
 app:
   basepath:
+  filesDirPath:
   security:
     tokenHash: biostd-test
     environment: TEST
