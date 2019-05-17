@@ -17,8 +17,8 @@ const val TEST_FILE = "test.txt"
 const val FAKE_FILE = "fake.txt"
 
 @ExtendWith(TemporaryFolderExtension::class)
-class PathFilesSourceTest(private val temporaryFolder: TemporaryFolder) {
-    private val testInstance = PathFilesSource(Paths.get(temporaryFolder.root.absolutePath))
+class UserFilesSourceTest(private val temporaryFolder: TemporaryFolder) {
+    private val testInstance = UserFilesSource(Paths.get(temporaryFolder.root.absolutePath))
 
     @BeforeAll
     fun setUp() {

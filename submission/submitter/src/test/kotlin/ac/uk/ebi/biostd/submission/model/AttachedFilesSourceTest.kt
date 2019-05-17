@@ -16,10 +16,10 @@ const val TEST_FILE_NAME = "test.txt"
 const val TEST_FAKE_FILE_NAME = "fake.txt"
 
 @ExtendWith(TemporaryFolderExtension::class, MockKExtension::class)
-class ListFilesSourceTest(temporaryFolder: TemporaryFolder) {
+class AttachedFilesSourceTest(temporaryFolder: TemporaryFolder) {
     private val testInputStream = temporaryFolder.createFile(TEST_FILE_NAME).inputStream()
     private val testResourceFile = ResourceFile(TEST_FILE_NAME, testInputStream, TEST_FILE_SIZE)
-    private val testInstance = ListFilesSource(listOf(testResourceFile))
+    private val testInstance = AttachedFilesSource(listOf(testResourceFile))
 
     @Test
     fun exists() {

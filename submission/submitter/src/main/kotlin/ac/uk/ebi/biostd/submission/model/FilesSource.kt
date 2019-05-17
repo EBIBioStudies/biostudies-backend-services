@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.submission.model
 
+import ebi.ac.uk.base.fold
 import java.io.InputStream
 import java.nio.file.Files
 import java.nio.file.Path
@@ -15,25 +16,23 @@ interface FilesSource {
 }
 
 class MixedFilesSource(
-    private val listFiles: ListFilesSource,
-    private val pathFiles: PathFilesSource
+    private val attachedFiles: AttachedFilesSource,
+    private val userFiles: UserFilesSource
 ) : FilesSource {
-    override fun exists(filePath: String) = listFiles.exists(filePath).or(pathFiles.exists(filePath))
+    override fun exists(filePath: String) = attachedFiles.exists(filePath).or(userFiles.exists(filePath))
 
     override fun getInputStream(filePath: String) =
-        executeBySource(filePath, { listFiles.getInputStream(filePath) }, { pathFiles.getInputStream(filePath) })
+        attachedFiles.exists(filePath).fold(
+            { attachedFiles.getInputStream(filePath) }, { userFiles.getInputStream(filePath) })
 
     override fun size(filePath: String) =
-        executeBySource(filePath, { listFiles.size(filePath) }, { pathFiles.size(filePath) })
+        attachedFiles.exists(filePath).fold({ attachedFiles.size(filePath) }, { userFiles.size(filePath) })
 
     override fun readText(filePath: String) =
-        executeBySource(filePath, { listFiles.readText(filePath) }, { pathFiles.readText(filePath) })
-
-    private fun <T> executeBySource(filePath: String, asListFile: () -> T, asPathFile: () -> T): T =
-        if (listFiles.exists(filePath)) asListFile() else asPathFile()
+        attachedFiles.exists(filePath).fold({ attachedFiles.readText(filePath) }, { userFiles.readText(filePath) })
 }
 
-class ListFilesSource(private val files: List<ResourceFile>) : FilesSource {
+class AttachedFilesSource(private val files: List<ResourceFile>) : FilesSource {
     override fun exists(filePath: String) = files.any { it.name == filePath }
 
     override fun getInputStream(filePath: String) = files.first { it.name == filePath }.inputStream
@@ -43,7 +42,7 @@ class ListFilesSource(private val files: List<ResourceFile>) : FilesSource {
     override fun readText(filePath: String) = files.first { it.name == filePath }.text
 }
 
-class PathFilesSource(private val path: Path) : FilesSource {
+class UserFilesSource(private val path: Path) : FilesSource {
     override fun exists(filePath: String) = Files.exists(path.resolve(filePath))
 
     override fun getInputStream(filePath: String) = path.resolve(filePath).toFile().inputStream()
