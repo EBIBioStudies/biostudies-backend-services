@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test
 import java.nio.file.Paths
 
 class FolderResolverTest {
-    private val testInstance = FolderResolver(Paths.get("/nfs/biostudies"))
+    private val testInstance = FolderResolver(Paths.get("/nfs/biostudies"), Paths.get("/nfs/biostudies/dropbox"))
 
     @Test
     fun `get submission folder`() {
@@ -31,13 +31,13 @@ class FolderResolverTest {
     fun `get user magic folder`() {
         assertThat(testInstance
             .getUserMagicFolderPath(50L, "abc-123"))
-            .isEqualTo(Paths.get("/nfs/biostudies/ab/c-123-a50"))
+            .isEqualTo(Paths.get("/nfs/biostudies/dropbox/ab/c-123-a50"))
     }
 
     @Test
     fun `get group magic folder`() {
         assertThat(testInstance
             .getGroupMagicFolderPath(100L, "def-456"))
-            .isEqualTo(Paths.get("/nfs/biostudies/de/f-456-b100"))
+            .isEqualTo(Paths.get("/nfs/biostudies/dropbox/de/f-456-b100"))
     }
 }

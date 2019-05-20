@@ -18,7 +18,8 @@ spring:
       max-request-size: 10240MB
 
 app:
-  basepath: # Path to the folder that will be used as storage
+  basepath: # Absolute path to the folder to be used as storage
+  filesDirPath: # Absolute path to the folder to be used for the user/groups files
   security:
     tokenHash: # Token used for hash authentication
     environment: # Current application execution environment

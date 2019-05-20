@@ -10,7 +10,7 @@ internal const val GROUP_FOLDER_PREFIX = "b"
 private const val FILES_PATH = "Files"
 private const val SUBMISSION_PATH = "submission"
 
-class FolderResolver(private val basePath: Path) {
+class FolderResolver(private val basePath: Path, private val filesDirPath: Path) {
 
     fun getSubmissionFolder(submission: ExtendedSubmission): Path =
         basePath.resolve(SUBMISSION_PATH).resolve(submission.relPath)
@@ -33,7 +33,7 @@ class FolderResolver(private val basePath: Path) {
      * So for example, for a user with secret abc-123 and id=50, the secret path will be /ab/c-123-a50
      */
     private fun getMagicFolderPath(id: Long, secret: String, separator: String): Path {
-        val parent = "$basePath/${secret.substring(0, 2)}"
+        val parent = "$filesDirPath/${secret.substring(0, 2)}"
         return Paths.get("$parent/${secret.substring(2)}-$separator$id")
     }
 }

@@ -18,7 +18,8 @@ spring:
       max-request-size: 10240MB
 
 app:
-  basepath: # Set here the path to the folder you want to use as storage
+  basepath: # Path to the folder to be used as storage
+  filesDirPath: # Path to the folder to be used for the user/groups files
   security:
     tokenHash: bio-local
     environment: LOCAL

@@ -6,8 +6,8 @@ import org.springframework.boot.context.properties.NestedConfigurationProperty
 
 @ConfigurationProperties(prefix = "app")
 open class ApplicationProperties {
-
     lateinit var basepath: String
+    lateinit var filesDirPath: String
     lateinit var environment: String
 
     @NestedConfigurationProperty

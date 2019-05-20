@@ -13,3 +13,11 @@ inline fun Boolean.ifTrue(function: () -> Unit) {
         function.invoke()
     }
 }
+
+/**
+ * Executes the given lambda based on the boolean value.
+ *
+ * @param ifTrue Function to be executed if the boolean is true
+ * @param ifFalse Function to be executed if the boolean is false
+ */
+inline fun <T> Boolean.fold(ifTrue: () -> T, ifFalse: () -> T): T = if (this) ifTrue() else ifFalse()
