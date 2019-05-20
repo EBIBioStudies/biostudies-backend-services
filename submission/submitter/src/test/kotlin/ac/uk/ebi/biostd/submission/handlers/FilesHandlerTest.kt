@@ -1,7 +1,6 @@
 package ac.uk.ebi.biostd.submission.handlers
 
 import ac.uk.ebi.biostd.SubFormat.JSON
-import ac.uk.ebi.biostd.submission.model.UserFilesSource
 import ac.uk.ebi.biostd.submission.test.ACC_NO
 import ac.uk.ebi.biostd.submission.test.USER_ID
 import ac.uk.ebi.biostd.submission.test.USER_SECRET_KEY
@@ -57,19 +56,19 @@ class FilesHandlerTest(
     fun `process submission files`() {
         testInstance.processFiles(submission, emptyList(), JSON)
 
-        verify(exactly = 1) { mockFilesCopier.copy(submission, any<UserFilesSource>()) }
-        verify(exactly = 1) { mockFilesValidator.validate(submission, any<UserFilesSource>()) }
+        verify(exactly = 1) { mockFilesCopier.copy(submission, any()) }
+        verify(exactly = 1) { mockFilesValidator.validate(submission, any()) }
         verify(exactly = 1) { mockOutputFilesGenerator.generate(submission) }
-        verify(exactly = 1) { mockLibraryFilesHandler.processLibraryFiles(submission, any<UserFilesSource>(), JSON) }
+        verify(exactly = 1) { mockLibraryFilesHandler.processLibraryFiles(submission, any(), JSON) }
     }
 
     private fun initMocks() {
-        every { mockFilesCopier.copy(submission, any<UserFilesSource>()) } answers { nothing }
-        every { mockFilesValidator.validate(submission, any<UserFilesSource>()) } answers { nothing }
+        every { mockFilesCopier.copy(submission, any()) } answers { nothing }
+        every { mockFilesValidator.validate(submission, any()) } answers { nothing }
         every { mockOutputFilesGenerator.generate(submission) } answers { nothing }
 
         every {
-            mockLibraryFilesHandler.processLibraryFiles(submission, any<UserFilesSource>(), JSON)
+            mockLibraryFilesHandler.processLibraryFiles(submission, any(), JSON)
         } answers { nothing }
 
         every {

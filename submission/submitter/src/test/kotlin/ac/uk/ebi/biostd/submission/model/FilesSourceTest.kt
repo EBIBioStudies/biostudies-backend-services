@@ -18,13 +18,11 @@ const val TEST_ATTACHED_FILE_SIZE = 456L
 const val TEST_GHOST_FILE = "ghost.txt"
 
 @ExtendWith(TemporaryFolderExtension::class)
-class MixedFilesSourceTest(temporaryFolder: TemporaryFolder) {
+class FilesSourceTest(temporaryFolder: TemporaryFolder) {
     private val testFile = temporaryFolder.createFile(TEST_USER_FILE)
     private val testInputStream = testFile.inputStream()
     private val testResourceFile = ResourceFile(TEST_ATTACHED_FILE, testInputStream, TEST_ATTACHED_FILE_SIZE)
-    private val testAttachedFiles = AttachedFilesSource(listOf(testResourceFile))
-    private val testUserFiles = UserFilesSource(Paths.get(temporaryFolder.root.absolutePath))
-    private val testInstance = MixedFilesSource(testAttachedFiles, testUserFiles)
+    private val testInstance = FilesSource(listOf(testResourceFile), Paths.get(temporaryFolder.root.absolutePath))
 
     @Test
     fun exists() {
