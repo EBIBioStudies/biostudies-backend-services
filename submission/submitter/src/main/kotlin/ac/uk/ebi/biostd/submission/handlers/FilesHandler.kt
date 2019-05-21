@@ -1,10 +1,8 @@
 package ac.uk.ebi.biostd.submission.handlers
 
 import ac.uk.ebi.biostd.SubFormat
-import ac.uk.ebi.biostd.submission.model.AttachedFilesSource
-import ac.uk.ebi.biostd.submission.model.MixedFilesSource
+import ac.uk.ebi.biostd.submission.model.FilesSource
 import ac.uk.ebi.biostd.submission.model.ResourceFile
-import ac.uk.ebi.biostd.submission.model.UserFilesSource
 import ebi.ac.uk.model.ExtendedSubmission
 import ebi.ac.uk.paths.FolderResolver
 
@@ -23,7 +21,7 @@ class FilesHandler(
      */
     fun processFiles(submission: ExtendedSubmission, files: List<ResourceFile>, format: SubFormat) {
         val userFolder = folderResolver.getUserMagicFolderPath(submission.user.id, submission.user.secretKey)
-        val fileSource = MixedFilesSource(AttachedFilesSource(files), UserFilesSource(userFolder))
+        val fileSource = FilesSource(files, userFolder)
 
         filesValidator.validate(submission, fileSource)
         libraryFilesHandler.processLibraryFiles(submission, fileSource, format)
