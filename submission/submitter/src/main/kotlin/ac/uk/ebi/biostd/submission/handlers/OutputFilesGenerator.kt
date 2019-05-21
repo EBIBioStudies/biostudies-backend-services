@@ -4,6 +4,7 @@ import ac.uk.ebi.biostd.SerializationService
 import ac.uk.ebi.biostd.SubFormat
 import ebi.ac.uk.model.ExtendedSubmission
 import ebi.ac.uk.model.FilesTable
+import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.extensions.allLibraryFileSections
 import ebi.ac.uk.model.extensions.libraryFileAttr
 import ebi.ac.uk.paths.FolderResolver
@@ -25,10 +26,12 @@ class OutputFilesGenerator(
         submission.allLibraryFileSections().forEach {
             val libFileName = it.libraryFile!!.name.substringBeforeLast(".")
             val filesTable = FilesTable(it.libraryFile!!.referencedFiles.toList())
+            val section = Section()
 
+            section.addFilesTable(filesTable)
             it.libraryFileAttr = libFileName
             it.libraryFile!!.name = libFileName
-            generateOutputFiles(filesTable, submission, libFileName)
+            generateOutputFiles(section, submission, libFileName)
         }
 
     private fun <T> generateOutputFiles(element: T, submission: ExtendedSubmission, outputFileName: String) {
