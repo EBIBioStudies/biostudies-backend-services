@@ -4,10 +4,14 @@ import ac.uk.ebi.biostd.common.property.ApplicationProperties
 import ac.uk.ebi.biostd.persistence.repositories.TokenDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserGroupDataRepository
+import ac.uk.ebi.biostd.security.web.SecurityMapper
 import ebi.ac.uk.security.integration.SecurityModuleConfig
 import ebi.ac.uk.security.integration.components.IGroupService
 import ebi.ac.uk.security.integration.components.ISecurityFilter
 import ebi.ac.uk.security.integration.components.ISecurityService
+import ebi.ac.uk.security.integration.model.events.PasswordReset
+import ebi.ac.uk.security.integration.model.events.UserPreRegister
+import io.reactivex.Observable
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
@@ -21,7 +25,7 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 
 @Configuration
 @EnableWebSecurity
-@Import(SecurityBeansConfig::class)
+@Import(value = [SecurityBeansConfig::class, PersistenceConfig::class])
 class SecurityConfig(private val securityFilter: ISecurityFilter) : WebSecurityConfigurerAdapter() {
 
     @Suppress("SpreadOperator")
@@ -32,11 +36,7 @@ class SecurityConfig(private val securityFilter: ISecurityFilter) : WebSecurityC
             .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             .and()
             .authorizeRequests()
-            .antMatchers(
-                "/auth/login",
-                "/auth/signin",
-                "/auth/register",
-                "/auth/signup").permitAll()
+            .antMatchers("/auth/**").permitAll()
             .anyRequest().fullyAuthenticated()
             .and()
             .exceptionHandling().authenticationEntryPoint(HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
@@ -49,12 +49,14 @@ class SecurityBeansConfig(properties: ApplicationProperties) {
     private val securityProps = properties.security
 
     @Bean
+    fun securityMapper() = SecurityMapper()
+
+    @Bean
     fun securityModuleConfig(
         userRepository: UserDataRepository,
         tokenRepository: TokenDataRepository,
         groupRepository: UserGroupDataRepository
-    ):
-        SecurityModuleConfig = SecurityModuleConfig(userRepository, tokenRepository, groupRepository, securityProps)
+    ): SecurityModuleConfig = SecurityModuleConfig(userRepository, tokenRepository, groupRepository, securityProps)
 
     @Bean
     fun securityService(securityConfig: SecurityModuleConfig): ISecurityService = securityConfig.securityService()
@@ -64,4 +66,10 @@ class SecurityBeansConfig(properties: ApplicationProperties) {
 
     @Bean
     fun securityFilter(securityConfig: SecurityModuleConfig): ISecurityFilter = securityConfig.securityFilter()
+
+    @Bean
+    fun passwordReset(securityConfig: SecurityModuleConfig): Observable<PasswordReset> = securityConfig.passwordReset
+
+    @Bean
+    fun preRegister(securityConfig: SecurityModuleConfig): Observable<UserPreRegister> = securityConfig.userPreRegister
 }

@@ -4,9 +4,9 @@ import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.JSON
 import ebi.ac.uk.api.UserFile
 import ebi.ac.uk.api.security.LoginRequest
-import ebi.ac.uk.api.security.LoginResponse
 import ebi.ac.uk.api.security.RegisterRequest
 import ebi.ac.uk.api.security.RegisterResponse
+import ebi.ac.uk.api.security.UserProfile
 import ebi.ac.uk.base.EMPTY
 import ebi.ac.uk.model.Submission
 import org.springframework.http.ResponseEntity
@@ -60,7 +60,7 @@ interface SecurityOperations {
 
     fun getAuthenticatedClient(user: String, password: String): BioWebClient
 
-    fun login(loginRequest: LoginRequest): LoginResponse
+    fun login(loginRequest: LoginRequest): UserProfile
 
     fun registerUser(registerRequest: RegisterRequest): RegisterResponse
 }

@@ -1,6 +1,7 @@
 package ebi.ac.uk.security.integration.components
 
 import ac.uk.ebi.biostd.persistence.model.User
+import ebi.ac.uk.api.security.ChangePasswordRequest
 import ebi.ac.uk.api.security.LoginRequest
 import ebi.ac.uk.api.security.RegisterRequest
 import ebi.ac.uk.api.security.ResetPasswordRequest
@@ -11,15 +12,17 @@ interface ISecurityService {
 
     fun registerUser(request: RegisterRequest): User
 
-    fun login(loginRequest: LoginRequest): UserInfo
+    fun login(request: LoginRequest): UserInfo
 
     fun logout(authToken: String)
 
     fun activate(activationKey: String)
 
-    fun retryPreRegistration(retryActivation: RetryActivationRequest)
+    fun retryRegistration(request: RetryActivationRequest)
 
-    fun changePassword(activationKey: String, password: String)
+    fun changePassword(request: ChangePasswordRequest)
 
-    fun resetPassword(resetPasswordRequest: ResetPasswordRequest)
+    fun resetPassword(request: ResetPasswordRequest)
+
+    fun getUserProfile(authToken: String): UserInfo
 }

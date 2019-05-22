@@ -16,8 +16,10 @@ include("submission:submitter")
 include("submission:submission-webapp")
 include("submission:submission-security")
 include("submission:persistence")
+include("submission:notifications")
 
 include("scheduler:cluster-client")
 include("scheduler:pmc-processor-task")
 include("scheduler:scheduler")
 include("scheduler:task-properties")
+

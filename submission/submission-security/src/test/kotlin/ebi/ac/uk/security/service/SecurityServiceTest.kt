@@ -3,6 +3,7 @@ package ebi.ac.uk.security.service
 import ac.uk.ebi.biostd.persistence.model.User
 import ac.uk.ebi.biostd.persistence.repositories.TokenDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
+import ebi.ac.uk.api.security.ChangePasswordRequest
 import ebi.ac.uk.api.security.LoginRequest
 import ebi.ac.uk.security.events.Events
 import ebi.ac.uk.security.integration.SecurityProperties
@@ -171,7 +172,7 @@ internal class SecurityServiceTest(
         fun `retry pre registration when user not found`() {
             every { userRepository.findByEmailAndActive(email, false) } returns Optional.empty()
 
-            assertThrows<UserNotFoundException> { testInstance.retryPreRegistration(retryActivation) }
+            assertThrows<UserNotFoundException> { testInstance.retryRegistration(retryActivation) }
         }
 
         @Test
@@ -187,7 +188,7 @@ internal class SecurityServiceTest(
             val subscriber = TestObserver<UserPreRegister>()
             Events.userPreRegister.subscribe(subscriber)
 
-            testInstance.retryPreRegistration(retryActivation)
+            testInstance.retryRegistration(retryActivation)
 
             assertThat(subscriber.values()).hasSize(1)
             assertThat(subscriber.values()).first().satisfies {
@@ -205,7 +206,7 @@ internal class SecurityServiceTest(
         fun `change password when not activate user found`() {
             every { userRepository.findByActivationKeyAndActive(ACTIVATION_KEY, true) } returns Optional.empty()
 
-            assertThrows<UserNotFoundException> { testInstance.changePassword(ACTIVATION_KEY, password) }
+            assertThrows<UserNotFoundException> { testInstance.changePassword(ChangePasswordRequest(ACTIVATION_KEY, password)) }
         }
 
         @Test
@@ -215,7 +216,7 @@ internal class SecurityServiceTest(
             every { securityUtil.getPasswordDigest(password) } returns passwordDiggest
             every { userRepository.save(any<User>()) } answers { firstArg() }
 
-            testInstance.changePassword(ACTIVATION_KEY, "new password")
+            testInstance.changePassword(ChangePasswordRequest(ACTIVATION_KEY, "new password"))
 
             assertThat(simpleUser.activationKey).isNull()
             assertThat(simpleUser.passwordDigest).isEqualTo(passwordDiggest)

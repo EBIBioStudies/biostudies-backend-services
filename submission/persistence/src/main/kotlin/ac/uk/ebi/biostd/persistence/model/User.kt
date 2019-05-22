@@ -2,6 +2,8 @@ package ac.uk.ebi.biostd.persistence.model
 
 import ac.uk.ebi.biostd.persistence.converters.AuxInfoConverter
 import org.springframework.data.domain.AbstractAggregateRoot
+import javax.persistence.CascadeType.MERGE
+import javax.persistence.CascadeType.PERSIST
 import javax.persistence.Column
 import javax.persistence.Convert
 import javax.persistence.Entity
@@ -10,6 +12,7 @@ import javax.persistence.GeneratedValue
 import javax.persistence.Id
 import javax.persistence.Lob
 import javax.persistence.ManyToMany
+import javax.persistence.OneToMany
 import javax.xml.bind.annotation.XmlAccessType
 import javax.xml.bind.annotation.XmlAccessorType
 import javax.xml.bind.annotation.XmlElement
@@ -52,27 +55,20 @@ class User(
     @Column
     var activationKey: String? = null
 
-    /**
-     * Register the user to the given group.
-     */
-    fun addGroup(userGroup: UserGroup) = groups.add(userGroup)
-
-    fun register(activationKey: String): User {
-        this.activationKey = activationKey
-        return this
-    }
-
-    fun activated(): User {
-        this.active = true
-        return this
-    }
+    @OneToMany(mappedBy = "user", cascade = [PERSIST, MERGE])
+    val permissions: Set<AccessPermission> = emptySet()
 }
 
 @XmlRootElement(name = "aux")
 @XmlAccessorType(XmlAccessType.NONE)
 class AuxInfo {
+
     @XmlElement(name = "param")
     val parameters: MutableList<Parameter> = mutableListOf()
+
+    operator fun get(name: String): String {
+        return parameters.firstOrNull { it.name == name }?.value.orEmpty()
+    }
 }
 
 @XmlAccessorType(XmlAccessType.NONE)

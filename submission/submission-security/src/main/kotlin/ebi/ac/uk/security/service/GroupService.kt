@@ -1,6 +1,7 @@
 package ebi.ac.uk.security.service
 
 import ac.uk.ebi.biostd.persistence.model.UserGroup
+import ac.uk.ebi.biostd.persistence.model.ext.addGroup
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserGroupDataRepository
 import ebi.ac.uk.security.integration.components.IGroupService
