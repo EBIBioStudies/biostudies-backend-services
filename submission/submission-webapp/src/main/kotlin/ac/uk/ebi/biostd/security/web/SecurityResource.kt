@@ -27,17 +27,21 @@ class SecurityResource(
 ) {
 
     @PostMapping(value = ["/signup", "/register"])
+    @ResponseBody
     fun register(@RequestBody register: RegisterRequest): RegisterResponse =
         securityMapper.toSignUpResponse(securityService.registerUser(register))
 
     @PostMapping(value = ["/signin", "/login"])
+    @ResponseBody
     fun login(@RequestBody loginRequest: LoginRequest): UserProfile =
         securityMapper.toUserProfile(securityService.login(loginRequest))
 
     @PostMapping(value = ["/signout", "/logout"])
+    @ResponseBody
     fun logout(@RequestBody logoutRequest: LogoutRequest): Unit = securityService.logout(logoutRequest.sessid)
 
     @PostMapping(value = ["/activate/{activationKey}"])
+    @ResponseBody
     fun activate(@PathVariable activationKey: String): Unit = securityService.activate(activationKey)
 
     @PostMapping(value = ["/retryact"])
@@ -45,13 +49,16 @@ class SecurityResource(
     fun retryActivation(@RequestBody request: RetryActivationRequest): Unit = securityService.retryRegistration(request)
 
     @PostMapping(value = ["/passreset"])
+    @ResponseBody
     fun resetPassword(@RequestBody request: ResetPasswordRequest): Unit = securityService.resetPassword(request)
 
     @PostMapping(value = ["/passrstreq", "/changePassword"])
+    @ResponseBody
     fun changePassword(@RequestBody request: ChangePasswordRequest): Unit = securityService.changePassword(request)
 
     @PostMapping(value = ["/check", "/profile"])
     @PreAuthorize("isAuthenticated()")
+    @ResponseBody
     fun userProfile(authentication: Authentication): UserProfile =
         securityMapper.toUserProfile(securityService.getUserProfile(authentication.credentials as String))
 }

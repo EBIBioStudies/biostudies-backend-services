@@ -24,7 +24,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 
 @ExtendWith(TemporaryFolderExtension::class)
 internal class FileApiTest(private val tempFolder: TemporaryFolder) : BaseIntegrationTest(tempFolder) {
-
     @Nested
     @ExtendWith(SpringExtension::class)
     @Import(value = [SubmitterConfig::class, PersistenceConfig::class, FileConfig::class])
