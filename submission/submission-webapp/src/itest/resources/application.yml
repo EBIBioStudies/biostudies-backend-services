@@ -18,3 +18,5 @@ app:
     tokenHash: biostd-test
     environment: TEST
     requireActivation: false
+  notifications:
+    smtp:

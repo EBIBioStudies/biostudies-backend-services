@@ -2,9 +2,13 @@ package ebi.ac.uk.security.service
 
 import ac.uk.ebi.biostd.persistence.model.SecurityToken
 import ac.uk.ebi.biostd.persistence.model.User
+import ac.uk.ebi.biostd.persistence.model.ext.activated
+import ac.uk.ebi.biostd.persistence.model.ext.register
 import ac.uk.ebi.biostd.persistence.repositories.TokenDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import arrow.core.Option
+import arrow.core.getOrElse
+import ebi.ac.uk.api.security.ChangePasswordRequest
 import ebi.ac.uk.api.security.LoginRequest
 import ebi.ac.uk.api.security.RegisterRequest
 import ebi.ac.uk.api.security.ResetPasswordRequest
@@ -33,10 +37,11 @@ internal class SecurityService(
     private val securityUtil: SecurityUtil,
     private val securityProps: SecurityProperties
 ) : ISecurityService {
-    override fun login(loginRequest: LoginRequest): UserInfo =
+
+    override fun login(request: LoginRequest): UserInfo =
         userRepository
-            .findByLoginOrEmailAndActive(loginRequest.login, loginRequest.login, true)
-            .filter { securityUtil.checkPassword(it.passwordDigest, loginRequest.password) }
+            .findByLoginOrEmailAndActive(request.login, request.login, true)
+            .filter { securityUtil.checkPassword(it.passwordDigest, request.password) }
             .orElseThrow { LoginException() }
             .let { UserInfo(it, securityUtil.createToken(it)) }
 
@@ -61,30 +66,34 @@ internal class SecurityService(
         userRepository.save(user)
     }
 
-    override fun retryPreRegistration(retryActivation: RetryActivationRequest) {
-        val user = userRepository.findByEmailAndActive(retryActivation.email, false)
+    override fun retryRegistration(request: RetryActivationRequest) {
+        val user = userRepository.findByEmailAndActive(request.email, false)
             .orElseThrow { UserNotFoundException() }
-        preRegister(user, retryActivation.instanceKey, retryActivation.path)
+        preRegister(user, request.instanceKey, request.path)
     }
 
-    override fun changePassword(activationKey: String, password: String) {
-        val user = userRepository.findByActivationKeyAndActive(activationKey, true)
+    override fun changePassword(request: ChangePasswordRequest) {
+        val user = userRepository.findByActivationKeyAndActive(request.activationKey, true)
             .orElseThrow { UserNotFoundException() }
         user.activationKey = null
-        user.passwordDigest = securityUtil.getPasswordDigest(password)
+        user.passwordDigest = securityUtil.getPasswordDigest(request.password)
         userRepository.save(user)
     }
 
-    override fun resetPassword(resetPasswordRequest: ResetPasswordRequest) {
-        val email = resetPasswordRequest.email
+    override fun resetPassword(request: ResetPasswordRequest) {
+        val email = request.email
         val user = userRepository.findByLoginOrEmailAndActive(email, email, true)
             .orElseThrow { UserNotFoundException() }
             .apply { activationKey = securityUtil.newKey() }
             .let { userRepository.save(it) }
 
-        val instanceUrl = securityUtil.getInstanceUrl(resetPasswordRequest.instanceKey, resetPasswordRequest.path)
+        val instanceUrl = securityUtil.getInstanceUrl(request.instanceKey, request.path)
         Events.passwordReset.onNext(PasswordReset(user, instanceUrl))
     }
+
+    override fun getUserProfile(authToken: String): UserInfo = checkToken(authToken)
+        .map { UserInfo(it, securityUtil.createToken(it)) }
+        .getOrElse { throw UserNotFoundException() }
 
     fun checkToken(tokenKey: String): Option<User> {
         val token = tokenRepository.findById(tokenKey)

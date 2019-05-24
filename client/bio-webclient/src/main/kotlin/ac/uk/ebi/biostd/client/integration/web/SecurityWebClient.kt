@@ -2,9 +2,9 @@ package ac.uk.ebi.biostd.client.integration.web
 
 import ac.uk.ebi.biostd.client.exception.InvalidHostErrorHandler
 import ebi.ac.uk.api.security.LoginRequest
-import ebi.ac.uk.api.security.LoginResponse
 import ebi.ac.uk.api.security.RegisterRequest
 import ebi.ac.uk.api.security.RegisterResponse
+import ebi.ac.uk.api.security.UserProfile
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.client.postForObject
 import org.springframework.web.util.DefaultUriBuilderFactory
@@ -18,7 +18,7 @@ class SecurityWebClient private constructor(
         BioWebClient.create(baseUrl, login(LoginRequest(user, password)).sessid)
 
     override fun login(loginRequest: LoginRequest) =
-        restTemplate.postForObject<LoginResponse>("/auth/login", loginRequest)!!
+        restTemplate.postForObject<UserProfile>("/auth/login", loginRequest)!!
 
     override fun registerUser(registerRequest: RegisterRequest) =
         restTemplate.postForObject<RegisterResponse>("/auth/register", registerRequest)!!

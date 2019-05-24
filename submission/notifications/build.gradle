@@ -1,0 +1,9 @@
+import static Dependencies.KotlinStdLib
+import static Dependencies.RxJava2
+import static SpringBootDependencies.SpringBootStarterMail
+
+dependencies {
+    implementation("$SpringBootStarterMail:${Versions.SpringBootVersion}")
+    implementation(KotlinStdLib)
+    implementation(RxJava2)
+}

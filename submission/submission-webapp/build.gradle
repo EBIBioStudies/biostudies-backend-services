@@ -12,6 +12,7 @@ dependencies {
     compile(project(":submission:persistence"))
     compile(project(":submission:submitter"))
     compile(project(":submission:submission-security"))
+    compile(project(":submission:notifications"))
     compile(project(":commons:commons-serialization"))
     compile(project(":commons:commons-util"))
     compile(project(":commons:commons-test"))

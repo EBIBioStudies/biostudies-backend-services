@@ -19,7 +19,6 @@ dependencies {
     compile(HibernateEntityManager)
     compile(RxJava2)
 
-
     // Test dependencies
     testCompile project(":commons:commons-test")
     testCompile(Logback)

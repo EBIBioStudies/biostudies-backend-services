@@ -1,11 +1,17 @@
 package ac.uk.ebi.biostd.security.web
 
-import ac.uk.ebi.biostd.persistence.model.User
+import ebi.ac.uk.api.security.ChangePasswordRequest
 import ebi.ac.uk.api.security.LoginRequest
-import ebi.ac.uk.api.security.LoginResponse
+import ebi.ac.uk.api.security.LogoutRequest
 import ebi.ac.uk.api.security.RegisterRequest
 import ebi.ac.uk.api.security.RegisterResponse
+import ebi.ac.uk.api.security.ResetPasswordRequest
+import ebi.ac.uk.api.security.RetryActivationRequest
+import ebi.ac.uk.api.security.UserProfile
+import ebi.ac.uk.model.constants.APPLICATION_JSON
 import ebi.ac.uk.security.integration.components.ISecurityService
+import org.springframework.security.access.prepost.PreAuthorize
+import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -14,28 +20,45 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.ResponseBody
 
 @Controller
-@RequestMapping("/auth")
-class SecurityResource(private val securityService: ISecurityService) {
+@RequestMapping("/auth", produces = [APPLICATION_JSON])
+class SecurityResource(
+    private val securityService: ISecurityService,
+    private val securityMapper: SecurityMapper
+) {
 
     @PostMapping(value = ["/signup", "/register"])
     @ResponseBody
     fun register(@RequestBody register: RegisterRequest): RegisterResponse =
-        toSignUpResponse(securityService.registerUser(register))
+        securityMapper.toSignUpResponse(securityService.registerUser(register))
 
     @PostMapping(value = ["/signin", "/login"])
     @ResponseBody
-    fun login(@RequestBody loginRequest: LoginRequest): LoginResponse =
-        securityService.login(loginRequest).let { (user, token) -> toLoginResponse(user, token) }
+    fun login(@RequestBody loginRequest: LoginRequest): UserProfile =
+        securityMapper.toUserProfile(securityService.login(loginRequest))
+
+    @PostMapping(value = ["/signout", "/logout"])
+    @ResponseBody
+    fun logout(@RequestBody logoutRequest: LogoutRequest): Unit = securityService.logout(logoutRequest.sessid)
 
     @PostMapping(value = ["/activate/{activationKey}"])
     @ResponseBody
-    fun activate(@PathVariable activationKey: String) = securityService.activate(activationKey)
+    fun activate(@PathVariable activationKey: String): Unit = securityService.activate(activationKey)
 
-    private companion object {
+    @PostMapping(value = ["/retryact"])
+    @ResponseBody
+    fun retryActivation(@RequestBody request: RetryActivationRequest): Unit = securityService.retryRegistration(request)
 
-        private fun toLoginResponse(user: User, token: String) =
-                LoginResponse(sessid = token, email = user.email, username = user.login, secret = user.secret)
+    @PostMapping(value = ["/passreset"])
+    @ResponseBody
+    fun resetPassword(@RequestBody request: ResetPasswordRequest): Unit = securityService.resetPassword(request)
 
-        private fun toSignUpResponse(user: User) = RegisterResponse(user.login)
-    }
+    @PostMapping(value = ["/passrstreq", "/changePassword"])
+    @ResponseBody
+    fun changePassword(@RequestBody request: ChangePasswordRequest): Unit = securityService.changePassword(request)
+
+    @PostMapping(value = ["/check", "/profile"])
+    @PreAuthorize("isAuthenticated()")
+    @ResponseBody
+    fun userProfile(authentication: Authentication): UserProfile =
+        securityMapper.toUserProfile(securityService.getUserProfile(authentication.credentials as String))
 }
