@@ -97,7 +97,7 @@ internal class MultipartSubmissionApiTest(private val tempFolder: TemporaryFolde
 
                 line("Study", "SECT-001")
                 line("Title", "Root Section")
-                line("LibraryFile", "LibraryFile.tsv")
+                line("Library File", "LibraryFile.tsv")
                 line()
             }
 
@@ -130,7 +130,7 @@ internal class MultipartSubmissionApiTest(private val tempFolder: TemporaryFolde
                         "name" to "Title"
                         "value" to "Root Section"
                     }, {
-                        "name" to "LibraryFile"
+                        "name" to "Library File"
                         "value" to "LibraryFile.json"
                     })
                 }
@@ -173,7 +173,7 @@ internal class MultipartSubmissionApiTest(private val tempFolder: TemporaryFolde
                             "value" { -"Root Section" }
                         }
                         "attribute" {
-                            "name" { -"LibraryFile" }
+                            "name" { -"Library File" }
                             "value" { -"LibraryFile.xml" }
                         }
                     }

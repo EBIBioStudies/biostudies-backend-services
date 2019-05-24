@@ -43,7 +43,7 @@ class UserFilesSourceTest(private val temporaryFolder: TemporaryFolder) {
 
     @Test
     fun size() {
-        assertThat(testInstance.size(TEST_FILE)).isGreaterThan(0)
+        assertThat(testInstance.size(TEST_FILE)).isEqualTo(0)
     }
 
     @Test

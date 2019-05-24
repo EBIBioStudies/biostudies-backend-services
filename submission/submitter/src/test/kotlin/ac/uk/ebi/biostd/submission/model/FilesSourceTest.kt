@@ -48,7 +48,7 @@ class FilesSourceTest(temporaryFolder: TemporaryFolder) {
 
     @Test
     fun `get user file size`() {
-        assertThat(testInstance.size(TEST_USER_FILE)).isGreaterThan(0)
+        assertThat(testInstance.size(TEST_USER_FILE)).isEqualTo(0)
     }
 
     @Test
