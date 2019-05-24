@@ -40,6 +40,7 @@ object TestVersions {
 }
 
 object Versions {
+    const val SpringBootVersion = "2.1.2.RELEASE"
     const val SpringVersion = "5.1.2.RELEASE"
     const val SpringDataVersion = "2.0.9.RELEASE"
 
@@ -142,4 +143,5 @@ object SpringBootDependencies {
     const val SpringBootStarterDataJpa = "org.springframework.boot:spring-boot-starter-data-jpa"
     const val SpringBootStarterConfigProcessor = "org.springframework.boot:spring-boot-configuration-processor"
     const val SpringBootStarterSecurity = "org.springframework.boot:spring-boot-starter-security"
+    const val SpringBootStarterMail = "org.springframework.boot:spring-boot-starter-mail"
 }

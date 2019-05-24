@@ -10,7 +10,6 @@ import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.MalformedJwtException
 import io.jsonwebtoken.SignatureAlgorithm
 import io.jsonwebtoken.SignatureException
-import io.jsonwebtoken.impl.TextCodec
 import mu.KotlinLogging
 import java.security.MessageDigest
 import java.util.Arrays
@@ -38,7 +37,7 @@ internal class SecurityUtil(
     fun createToken(user: User): String {
         return Jwts.builder()
             .setSubject(objectMapper.writeValueAsString(TokenPayload(user.id, user.email, user.fullName)))
-            .signWith(SignatureAlgorithm.HS512, TextCodec.BASE64.encode(tokenHash))
+            .signWith(SignatureAlgorithm.HS512, tokenHash)
             .compact()
     }
 

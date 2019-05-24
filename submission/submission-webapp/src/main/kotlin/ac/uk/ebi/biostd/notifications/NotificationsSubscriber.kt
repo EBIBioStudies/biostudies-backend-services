@@ -21,12 +21,13 @@ internal class NotificationsSubscriber(
     private val subscriptionService: SubscriptionService,
     private val resourceLoader: ResourceLoader,
     private val userPreRegister: Observable<UserPreRegister>,
-    private val passwordReset: Observable<PasswordReset>) {
+    private val passwordReset: Observable<PasswordReset>
+) {
 
     @PostConstruct
     fun activationSubscription() {
         val template = ActivationTemplate(getTemplateContent("activation.html"))
-        val subscription = NotificationType(EMAIL_FROM, "Biostudy account activation", template)
+        val subscription = NotificationType(EMAIL_FROM, "BioStudies account activation", template)
         subscriptionService.create(subscription, userPreRegister.map { asNotification(it) })
     }
 
@@ -36,7 +37,7 @@ internal class NotificationsSubscriber(
     @PostConstruct
     fun passwordReset() {
         val template = PasswordResetTemplate(getTemplateContent("reset-password.html"))
-        val subscription = NotificationType(EMAIL_FROM, "Biostudy password reset", template)
+        val subscription = NotificationType(EMAIL_FROM, "BioStudies password reset", template)
         subscriptionService.create(subscription, passwordReset.map { asNotification(it) })
     }
 
@@ -48,4 +49,3 @@ internal class NotificationsSubscriber(
         return FileCopyUtils.copyToString(resource.file.reader())
     }
 }
-

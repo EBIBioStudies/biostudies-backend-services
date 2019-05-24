@@ -13,7 +13,9 @@ internal class SimpleSubscriptionService(private val emailService: SimpleEmailSe
      * Create a subscription based on the given notification and Observable.
      */
     override fun <T : NotificationTemplateModel> create(
-        subscription: NotificationType<T>, event: Observable<Notification<T>>) {
+        subscription: NotificationType<T>,
+        event: Observable<Notification<T>>
+    ) {
         event.subscribe {
             emailService.send(Email(
                 from = subscription.from,
