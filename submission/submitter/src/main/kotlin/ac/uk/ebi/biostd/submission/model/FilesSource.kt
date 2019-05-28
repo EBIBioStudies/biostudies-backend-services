@@ -36,7 +36,7 @@ class UserFilesSource(private val path: Path) {
 
     fun getInputStream(filePath: String) = path.resolve(filePath).toFile().inputStream()
 
-    fun size(filePath: String) = path.resolve(filePath).toFile().totalSpace
+    fun size(filePath: String) = path.resolve(filePath).toFile().length()
 
     fun readText(filePath: String) = path.resolve(filePath).toFile().readText()
 }
