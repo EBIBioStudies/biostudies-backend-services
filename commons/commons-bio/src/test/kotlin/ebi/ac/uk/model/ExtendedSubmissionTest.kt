@@ -1,5 +1,6 @@
 package ebi.ac.uk.model
 
+import ebi.ac.uk.mapping.toExtendedSubmission
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -24,7 +25,7 @@ class ExtendedSubmissionTest {
         val submission = Submission(ACC_NO, rootSection, listOf(attribute))
         submission.accessTags.add(ACCESS_TAG)
 
-        val extendedSubmission = ExtendedSubmission(submission, user)
+        val extendedSubmission = toExtendedSubmission(submission, user)
 
         assertThat(extendedSubmission.accNo).isEqualTo(ACC_NO)
         assertThat(extendedSubmission.user).isEqualTo(user)

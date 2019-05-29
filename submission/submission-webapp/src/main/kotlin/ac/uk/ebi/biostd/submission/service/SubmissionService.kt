@@ -5,7 +5,7 @@ import ac.uk.ebi.biostd.SubFormat
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
 import ac.uk.ebi.biostd.submission.SubmissionSubmitter
 import ac.uk.ebi.biostd.submission.model.ResourceFile
-import ebi.ac.uk.model.ExtendedSubmission
+import ebi.ac.uk.mapping.toExtendedSubmission
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.User
 import ebi.ac.uk.persistence.PersistenceContext
@@ -42,5 +42,5 @@ class SubmissionService(
         user: User,
         files: List<ResourceFile> = emptyList(),
         format: SubFormat
-    ) = submitter.submit(ExtendedSubmission(submission, user), files, persistenceContext, format)
+    ) = submitter.submit(toExtendedSubmission(submission, user), files, persistenceContext, format)
 }

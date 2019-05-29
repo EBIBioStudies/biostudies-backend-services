@@ -6,6 +6,7 @@ import ebi.ac.uk.model.ExtendedSubmission
 import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.extensions.allLibraryFileSections
+import ebi.ac.uk.model.extensions.asSubmission
 import ebi.ac.uk.model.extensions.libraryFileAttr
 import ebi.ac.uk.paths.FolderResolver
 import org.apache.commons.io.FileUtils

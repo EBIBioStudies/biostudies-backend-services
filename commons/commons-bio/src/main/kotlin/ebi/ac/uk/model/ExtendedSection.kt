@@ -1,36 +1,12 @@
 package ebi.ac.uk.model
 
 import arrow.core.Either
-import ebi.ac.uk.model.extensions.libraryFile
-import ebi.ac.uk.util.collections.addLeft
-import ebi.ac.uk.util.collections.addRight
 import java.util.Objects
 
 class ExtendedSection(type: String) : Section(type) {
+
     var libraryFile: LibraryFile? = null
-    var extendedSections: MutableList<Either<ExtendedSection, SectionsTable>> = mutableListOf()
-
-    constructor(section: Section) : this(section.type) {
-        accNo = section.accNo
-        files = section.files
-        links = section.links
-        sections = section.sections
-        attributes = section.attributes
-
-        section.libraryFile?.let { libraryFile = LibraryFile(it) }
-        section.sections.forEach { sect ->
-            sect.fold({ extendedSections.addLeft(ExtendedSection(it)) }, { extendedSections.addRight(it) })
-        }
-    }
-
-    fun addReferencedFile(file: File) = libraryFile?.addFile(file)
-
-    fun asSection() = Section(type, accNo, toSections(), files, links, attributes)
-
-    private fun toSections(): MutableList<Either<Section, SectionsTable>> =
-        extendedSections.mapTo(mutableListOf()) { extSect ->
-            extSect.fold({ Either.left(it.asSection()) }, { Either.right(it) })
-        }
+    var extendedSections: List<Either<ExtendedSection, SectionsTable>> = listOf()
 
     override fun equals(other: Any?) = when {
         other !is ExtendedSection -> false
