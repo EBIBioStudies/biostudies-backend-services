@@ -1,4 +1,4 @@
-package ac.uk.ebi.pmc.scheduler.pmc.importer
+package ac.uk.ebi.pmc.scheduler.pmc.importer.api
 
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.stereotype.Component
