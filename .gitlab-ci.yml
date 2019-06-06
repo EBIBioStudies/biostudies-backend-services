@@ -1,0 +1,24 @@
+image: azul/zulu-openjdk:8
+include:
+  - local: '/ci/submitter.yml'
+  - local: '/ci/scheduler.yml'
+
+stages:
+  - clean
+  - compile
+  - test
+  - build
+  - deploy-dev-submitter
+
+clean-job:
+  stage: clean
+  script: ./gradlew clean
+
+compile-job:
+  stage: compile
+  script: ./gradlew build -x test
+
+test-job:
+  stage: test
+  script: ./gradlew test
+

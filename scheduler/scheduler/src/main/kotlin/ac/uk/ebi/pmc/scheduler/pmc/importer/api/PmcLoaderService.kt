@@ -10,7 +10,8 @@ import ac.uk.ebi.scheduler.properties.PmcMode
 import mu.KotlinLogging
 
 private val logger = KotlinLogging.logger {}
-private const val TASK_CORES = 4
+private const val FOUR_CORES = 4
+private const val EIGHT_CORES = 8
 
 class PmcLoaderService(
     private val clusterOperations: ClusterOperations,
@@ -24,7 +25,7 @@ class PmcLoaderService(
         val properties = getConfigProperties(filePath, PmcMode.LOAD)
         val jobTry = clusterOperations.triggerJob(
             JobSpec(
-                TASK_CORES,
+                FOUR_CORES,
                 MemorySpec.EIGHT_GB,
                 properties.asJavaCommand(appProperties.appsFolder)))
         return jobTry.fold({ throw it }, { it.apply { logger.info { "submitted job $it" } } })
@@ -35,7 +36,7 @@ class PmcLoaderService(
         val properties = getConfigProperties(importMode = PmcMode.PROCESS)
         val jobTry = clusterOperations.triggerJob(
             JobSpec(
-                TASK_CORES,
+                FOUR_CORES,
                 MemorySpec.EIGHT_GB,
                 properties.asJavaCommand(appProperties.appsFolder)))
         return jobTry.fold({ throw it }, { it.apply { logger.info { "submitted job $it" } } })
@@ -46,8 +47,8 @@ class PmcLoaderService(
         val properties = getConfigProperties(importMode = PmcMode.SUBMIT)
         val jobTry = clusterOperations.triggerJob(
             JobSpec(
-                TASK_CORES,
-                MemorySpec.EIGHT_GB,
+                EIGHT_CORES,
+                MemorySpec.TWENTYFOUR_GB,
                 properties.asJavaCommand(appProperties.appsFolder)))
         return jobTry.fold({ throw it }, { it.apply { logger.info { "submitted job $it" } } })
     }

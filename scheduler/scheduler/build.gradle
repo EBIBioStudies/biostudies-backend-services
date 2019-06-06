@@ -28,3 +28,8 @@ dependencies {
     testCompile(BaseTestCompileDependencies)
     testRuntime(BaseTestRuntimeDependencies)
 }
+
+bootJar {
+    archiveBaseName.set("scheduler")
+    archiveVersion.set("1.0.0")
+}

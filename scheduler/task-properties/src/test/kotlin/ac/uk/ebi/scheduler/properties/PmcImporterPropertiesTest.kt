@@ -24,7 +24,7 @@ class PmcImporterPropertiesTest {
 
         assertThat(properties.asJavaCommand("/apps-folder"))
             .isEqualTo("""
-            java -jar /apps-folder/pmc-processor-task.jar \
+            java -jar /apps-folder/pmc-processor-task-1.0.0.jar \
             --app.data.mode=LOAD \
             --app.data.temp=/tempDir \
             --app.data.mongodbUri=mongodbUri \
@@ -47,7 +47,7 @@ class PmcImporterPropertiesTest {
             bioStudiesPassword = null)
         assertThat(properties.asJavaCommand("/apps-folder"))
             .isEqualTo("""
-            java -jar /apps-folder/pmc-processor-task.jar \
+            java -jar /apps-folder/pmc-processor-task-1.0.0.jar \
             --app.data.mode=LOAD \
             --app.data.temp=/tempDir \
             --app.data.mongodbUri=mongodbUri

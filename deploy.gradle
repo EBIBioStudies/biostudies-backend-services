@@ -1,0 +1,67 @@
+remotes {
+    dev {
+        host = 'biostudy-bia.ebi.ac.uk'
+        user = 'ma-svc'
+    }
+
+    beta {
+        host = 'biostudy-dev.ebi.ac.uk'
+        user = 'ma-svc'
+    }
+
+    prod {
+        host = 'biostudy-prod.ebi.ac.uk'
+        user = 'ma-svc'
+    }
+}
+
+ssh.settings {
+    knownHosts = allowAnyHosts
+    identity = System.getenv("MASVC_SSH_KEY")
+    logging = "stdout"
+}
+
+task deploySubmitter {
+    doFirst {
+        project.ext.artifactPath = "submission/submission-webapp/build/libs"
+        project.ext.artifactName = "submission-webapp-1.0.0.jar"
+        project.ext.appPort = 8788
+        project.ext.debugPort = 8003
+    }
+
+    finalizedBy "deploy"
+}
+
+task updatePmcArtifact {
+    doFirst {
+        project.ext.artifactPath = "scheduler/pmc-processor-task/build/libs"
+        project.ext.artifactName = "pmc-processor-task-1.0.0.jar"
+    }
+
+    doLast {
+        ssh.run {
+            session(remotes[env]) {
+                put from: "$artifactPath/$artifactName", into: "$deployPath/$artifactName"
+            }
+        }
+    }
+}
+
+task deploy {
+    doLast {
+        ssh.run {
+            session(remotes[env]) {
+                put from: "$artifactPath/$artifactName", into: "$deployPath/$artifactName"
+                put from: "./ci/update.sh", into: "$deployPath/update.sh"
+
+                execute "sed -i -e 's~APP_PATH~$deployPath~g' $deployPath/update.sh"
+                execute "sed -i -e 's~APP_PORT~$appPort~g' $deployPath/update.sh"
+                execute "sed -i -e 's~APP_NAME~$artifactName~g' $deployPath/update.sh"
+                execute "sed -i -e 's~DEBUG_PORT~$debugPort~g' $deployPath/update.sh"
+
+                execute "chmod +x $deployPath/update.sh"
+                execute "sh $deployPath/update.sh"
+            }
+        }
+    }
+}

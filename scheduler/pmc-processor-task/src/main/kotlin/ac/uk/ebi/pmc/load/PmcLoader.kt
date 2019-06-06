@@ -2,10 +2,13 @@ package ac.uk.ebi.pmc.load
 
 import ebi.ac.uk.functions.milisToInstant
 import kotlinx.coroutines.runBlocking
+import mu.KotlinLogging
 import org.apache.commons.io.IOUtils
 import java.io.File
 import java.io.FileInputStream
 import java.util.zip.GZIPInputStream
+
+private val logger = KotlinLogging.logger {}
 
 class PmcLoader(private val pmcLoader: PmcSubmissionLoader) {
 
@@ -19,6 +22,8 @@ class PmcLoader(private val pmcLoader: PmcSubmissionLoader) {
         runBlocking {
             folder.listFiles()
                 .asSequence()
+                .filter { it.extension == "gz" }
+                .onEach { logger.info { "processing file '${it.absolutePath}'" } }
                 .map(::getFileData)
                 .forEach { pmcLoader.processFile(it) }
         }
