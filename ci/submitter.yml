@@ -1,5 +1,5 @@
 build-submitter:
-  stage: build
+  stage: build-artifact
   script: gradle :submission:submission-webapp:bootJar
   artifacts:
     paths:

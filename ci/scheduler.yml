@@ -1,5 +1,5 @@
 build-scheduler:
-  stage: build
+  stage: build-artifact
   script: gradle :scheduler:scheduler:bootJar
   artifacts:
     paths:

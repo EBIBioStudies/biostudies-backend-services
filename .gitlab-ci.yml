@@ -6,6 +6,7 @@ include:
 
 stages:
   - build-test
+  - build-artifact
   - deploy-dev-submitter
   - deploy-beta-submitter
   - deploy-prod-submitter
@@ -15,3 +16,7 @@ stages:
   - deploy-dev-scheduler
   - deploy-beta-scheduler
   - deploy-prod-scheduler
+
+build-test:
+  stage: build-test
+  script: gradle clean build test

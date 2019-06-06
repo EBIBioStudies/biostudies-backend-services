@@ -1,5 +1,5 @@
 build-pmc-processor-task:
-  stage: build
+  stage: build-artifact
   script: gradle :scheduler:pmc-processor-task:bootJar
   artifacts:
     paths:
