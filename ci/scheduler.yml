@@ -5,25 +5,23 @@ build-pmc-processor-task:
     paths:
       - "pmc-processor-task-1.0.0.jar"
 
-deploy-dev-submitter:
+deploy-dev-pmc-processor-task:
   stage: deploy-dev-pmc
   when: manual
   dependencies:
     - build-submitter
   script: "./gradlew updatePmcArtifact -Penv=dev -PdeployPath=/nfs/biostudies/.adm/apps/scheduler/beta/apps"
 
-deploy-beta-submitter:
+deploy-beta-pmc-processor-task:
   stage: deploy-beta-pmc
   when: manual
   dependencies:
     - build-submitter
   script: "./gradlew updatePmcArtifact -Penv=beta -PdeployPath=/nfs/biostudies/.adm/apps/scheduler/beta/apps"
 
-deploy-prod-submitter:
+deploy-prod-pmc-processor-task:
   stage: deploy-prod-pmc
   when: manual
   dependencies:
     - build-submitter
   script: "./gradlew updatePmcArtifact -Penv=prod -PdeployPath=/nfs/biostudies/.adm/apps/scheduler/prod/apps"
-
-

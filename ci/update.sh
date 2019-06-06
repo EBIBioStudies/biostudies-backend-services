@@ -9,7 +9,6 @@
 #   APP_NAME: deploy jar artifact name, i.e. my-application.jar
 #   DEBUG_PORT: application debug port
 #
-#
 cd $(dirname $0)
 
 # Obtain the process id by checking any process running in the expected port
