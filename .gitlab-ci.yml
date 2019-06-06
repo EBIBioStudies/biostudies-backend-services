@@ -1,6 +1,7 @@
-image: azul/zulu-openjdk:8
+image: gradle:5.4.1-jdk8
 include:
   - local: '/ci/submitter.yml'
+  - local: '/ci/pmc-processor.yml'
   - local: '/ci/scheduler.yml'
 
 stages:
@@ -14,16 +15,19 @@ stages:
   - deploy-dev-pmc
   - deploy-beta-pmc
   - deploy-prod-pmc
+  - deploy-dev-scheduler
+  - deploy-beta-scheduler
+  - deploy-prod-scheduler
 
 clean-job:
   stage: clean
-  script: ./gradlew clean
+  script: gradle clean
 
 compile-job:
   stage: compile
-  script: ./gradlew build -x test
+  script: gradle build -x test
 
 test-job:
   stage: test
-  script: ./gradlew test
+  script: gradle test
 

@@ -32,6 +32,17 @@ task deploySubmitter {
     finalizedBy "deploy"
 }
 
+task deployScheduler {
+    doFirst {
+        project.ext.artifactPath = "scheduler/scheduler/build/libs"
+        project.ext.artifactName = "scheduler-1.0.0.jar"
+        project.ext.appPort = 8689
+        project.ext.debugPort = 8104
+    }
+
+    finalizedBy "deploy"
+}
+
 task updatePmcArtifact {
     doFirst {
         project.ext.artifactPath = "scheduler/pmc-processor-task/build/libs"

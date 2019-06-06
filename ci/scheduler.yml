@@ -1,27 +1,27 @@
-build-pmc-processor-task:
+build-scheduler:
   stage: build
-  script: ./gradlew :scheduler:pmc-processor-task:bootJar
+  script: gradle :scheduler:scheduler:bootJar
   artifacts:
     paths:
-      - "pmc-processor-task-1.0.0.jar"
+      - scheduler-1.0.0.jar
 
-deploy-dev-pmc-processor-task:
-  stage: deploy-dev-pmc
+deploy-dev-scheduler:
+  stage: deploy-dev-scheduler
   when: manual
   dependencies:
-    - build-submitter
-  script: "./gradlew updatePmcArtifact -Penv=dev -PdeployPath=/nfs/biostudies/.adm/apps/scheduler/beta/apps"
+    - build-scheduler
+  script: gradle deployScheduler -Penv=dev -PdeployPath=/nfs/biostudies/.adm/apps/scheduler/beta
 
-deploy-beta-pmc-processor-task:
-  stage: deploy-beta-pmc
+deploy-beta-scheduler:
+  stage: deploy-beta-scheduler
   when: manual
   dependencies:
-    - build-submitter
-  script: "./gradlew updatePmcArtifact -Penv=beta -PdeployPath=/nfs/biostudies/.adm/apps/scheduler/beta/apps"
+    - build-scheduler
+  script: gradle deployScheduler -Penv=beta -PdeployPath=/nfs/biostudies/.adm/apps/scheduler/beta
 
-deploy-prod-pmc-processor-task:
-  stage: deploy-prod-pmc
+deploy-prod-scheduler:
+  stage: deploy-prod-scheduler
   when: manual
   dependencies:
-    - build-submitter
-  script: "./gradlew updatePmcArtifact -Penv=prod -PdeployPath=/nfs/biostudies/.adm/apps/scheduler/prod/apps"
+    - build-scheduler
+  script: gradle deployScheduler -Penv=prod -PdeployPath=/nfs/biostudies/.adm/apps/scheduler/prod
