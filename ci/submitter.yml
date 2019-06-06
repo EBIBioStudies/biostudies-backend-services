@@ -13,14 +13,14 @@ deploy-dev-submitter:
   script: "./gradlew deploySubmitter -Penv=dev -PdeployPath=/nfs/biostudies/.adm/apps/submitter/dev"
 
 deploy-beta-submitter:
-  stage: deploy-dev-submitter
+  stage: deploy-beta-submitter
   when: manual
   dependencies:
     - build-submitter
   script: "./gradlew deploySubmitter -Penv=beta -PdeployPath=/nfs/biostudies/.adm/apps/submitter/beta"
 
 deploy-prod-submitter:
-  stage: deploy-dev-submitter
+  stage: deploy-prod-submitter
   when: manual
   dependencies:
     - build-submitter

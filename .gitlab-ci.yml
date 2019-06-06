@@ -9,6 +9,11 @@ stages:
   - test
   - build
   - deploy-dev-submitter
+  - deploy-beta-submitter
+  - deploy-prod-submitter
+  - deploy-dev-pmc
+  - deploy-beta-pmc
+  - deploy-prod-pmc
 
 clean-job:
   stage: clean
