@@ -5,10 +5,7 @@ include:
   - local: '/ci/scheduler.yml'
 
 stages:
-  - clean
-  - compile
-  - test
-  - build
+  - build-test
   - deploy-dev-submitter
   - deploy-beta-submitter
   - deploy-prod-submitter
@@ -18,16 +15,3 @@ stages:
   - deploy-dev-scheduler
   - deploy-beta-scheduler
   - deploy-prod-scheduler
-
-clean-job:
-  stage: clean
-  script: gradle clean
-
-compile-job:
-  stage: compile
-  script: gradle build -x test
-
-test-job:
-  stage: test
-  script: gradle test
-
