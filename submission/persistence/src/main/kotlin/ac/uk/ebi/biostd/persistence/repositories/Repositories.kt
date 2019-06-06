@@ -12,6 +12,8 @@ import org.springframework.data.jpa.repository.EntityGraph
 import org.springframework.data.jpa.repository.EntityGraph.EntityGraphType.LOAD
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Lock
+import org.springframework.data.jpa.repository.Modifying
+import org.springframework.data.jpa.repository.Query
 import java.util.Optional
 import javax.persistence.LockModeType
 
@@ -20,6 +22,13 @@ interface SubmissionDataRepository : JpaRepository<Submission, Long> {
     fun getByAccNoAndVersionGreaterThan(id: String, long: Int = 0): Submission
 
     fun findByAccNoAndVersionGreaterThan(id: String, long: Int = 0): Submission?
+
+    @Query("Select max(s.version) from Submission s where s.accNo=?1")
+    fun getLastVersion(accNo: String): Int?
+
+    @Query("Update Submission s set s.version = -s.version  where s.accNo=?1 and s.version > 0")
+    @Modifying
+    fun expireActiveVersions(accNo: String)
 
     @EntityGraph(value = FULL_DATA_GRAPH, type = LOAD)
     fun getFirstByAccNoOrderByVersionDesc(accNo: String): Submission

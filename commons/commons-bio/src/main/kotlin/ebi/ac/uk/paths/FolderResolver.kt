@@ -33,7 +33,6 @@ class FolderResolver(private val basePath: Path, private val filesDirPath: Path)
      * So for example, for a user with secret abc-123 and id=50, the secret path will be /ab/c-123-a50
      */
     private fun getMagicFolderPath(id: Long, secret: String, separator: String): Path {
-        val parent = "$filesDirPath/${secret.substring(0, 2)}"
-        return Paths.get("$parent/${secret.substring(2)}-$separator$id")
+        return Paths.get("$filesDirPath/${secret.substring(0, 2)}/${secret.substring(2)}-$separator$id")
     }
 }

@@ -10,8 +10,9 @@ import ebi.ac.uk.notifications.integration.model.NotificationType
 import ebi.ac.uk.security.integration.model.events.PasswordReset
 import ebi.ac.uk.security.integration.model.events.UserPreRegister
 import io.reactivex.Observable
+import org.apache.commons.io.IOUtils
 import org.springframework.core.io.ResourceLoader
-import org.springframework.util.FileCopyUtils
+import java.nio.charset.Charset
 import javax.annotation.PostConstruct
 
 private const val FROM = "biostudies@ebi.ac.uk"
@@ -46,6 +47,6 @@ internal class NotificationsSubscriber(
 
     private fun getTemplateContent(templateName: String): String {
         val resource = resourceLoader.getResource("classpath:emails/$templateName")
-        return FileCopyUtils.copyToString(resource.file.reader())
+        return IOUtils.toString(resource.inputStream, Charset.defaultCharset())
     }
 }

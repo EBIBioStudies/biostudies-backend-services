@@ -57,5 +57,6 @@ task itest(type: Test, dependsOn: []) {
 test.finalizedBy itest
 
 bootJar {
-    archiveName = 'submission-webapp.jar'
+    archiveBaseName.set("submission-webapp")
+    archiveVersion.set("1.0.0")
 }

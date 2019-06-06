@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.persistence.integration
 import ac.uk.ebi.biostd.persistence.mapping.SubmissionDbMapper
 import ac.uk.ebi.biostd.persistence.mapping.SubmissionMapper
 import ac.uk.ebi.biostd.persistence.model.AccessTag
+import ac.uk.ebi.biostd.persistence.repositories.LockExecutor
 import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.SubmissionDataRepository
 import arrow.core.getOrElse
@@ -15,12 +16,14 @@ import ebi.ac.uk.model.User
 import ebi.ac.uk.model.constants.SubFields
 import ebi.ac.uk.model.constants.SubFields.ATTACH_TO
 import ebi.ac.uk.persistence.PersistenceContext
-import javax.transaction.Transactional
+import org.springframework.transaction.annotation.Isolation
+import org.springframework.transaction.annotation.Transactional
 
 @Suppress("TooManyFunctions")
 open class PersistenceContextImpl(
     private val subRepository: SubmissionDataRepository,
     private val sequenceRepository: SequenceDataRepository,
+    private val lockExecutor: LockExecutor,
     private val subDbMapper: SubmissionDbMapper,
     private val subMapper: SubmissionMapper
 ) : PersistenceContext {
@@ -48,9 +51,14 @@ open class PersistenceContextImpl(
     override fun getSubmission(accNo: String) =
         subRepository.findByAccNoAndVersionGreaterThan(accNo)?.let { subDbMapper.toExtSubmission(it) }
 
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
     override fun saveSubmission(submission: ExtendedSubmission) {
-        setSubmissionVersion(submission)
-        subRepository.save(subMapper.toSubmissionDb(submission))
+        lockExecutor.executeLocking(submission.accNo) {
+            val nextVersion = (subRepository.getLastVersion(submission.accNo) ?: 0) + 1
+            subRepository.expireActiveVersions(submission.accNo)
+            submission.version = nextVersion
+            subRepository.save(subMapper.toSubmissionDb(submission))
+        }
     }
 
     // TODO: add proper security validation
@@ -71,11 +79,4 @@ open class PersistenceContextImpl(
 
     private fun getParentSubmission(submission: Submission) =
         submission.find(ATTACH_TO).toOption().map { subRepository.getByAccNoAndVersionGreaterThan(it) }
-
-    private fun setSubmissionVersion(submission: ExtendedSubmission) =
-        subRepository.findByAccNoAndVersionGreaterThan(submission.accNo)?.let {
-            submission.version = it.version + 1
-            it.version = -it.version
-            subRepository.save(it)
-        }
 }

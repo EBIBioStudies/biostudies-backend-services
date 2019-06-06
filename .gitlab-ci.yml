@@ -1,0 +1,22 @@
+image: gradle:5.4.1-jdk8
+include:
+  - local: '/ci/submitter.yml'
+  - local: '/ci/pmc-processor.yml'
+  - local: '/ci/scheduler.yml'
+
+stages:
+  - build-test
+  - build-artifact
+  - deploy-dev-submitter
+  - deploy-beta-submitter
+  - deploy-prod-submitter
+  - deploy-dev-pmc
+  - deploy-beta-pmc
+  - deploy-prod-pmc
+  - deploy-dev-scheduler
+  - deploy-beta-scheduler
+  - deploy-prod-scheduler
+
+build-test:
+  stage: build-test
+  script: gradle clean build test

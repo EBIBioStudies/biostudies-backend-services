@@ -16,12 +16,14 @@ class ErrorsDocService(
     private val subRepository: SubmissionRepository
 ) {
     suspend fun saveError(submission: SubmissionDoc, mode: PmcMode, throwable: Throwable) {
-        logger.error {
-            "Error processing submission ${submission.accno} from file ${submission.sourceFile}, ${throwable.message}"
-        }
+        logger.error { "Error ${asText(mode)} ${asText(submission)}, ${throwable.message}" }
+
         subRepository.update(submission.withStatus(getError(mode)))
         errorsRepository.save(SubmissionErrorDoc(submission, getStackTrace(throwable), mode))
     }
+
+    private fun asText(submission: SubmissionDoc) =
+        "submission accNo ='${submission.accno}', file '${submission.sourceFile}'"
 
     private fun getError(pmcMode: PmcMode) = when (pmcMode) {
         PmcMode.LOAD -> SubmissionStatus.ERROR_LOAD
@@ -29,6 +31,11 @@ class ErrorsDocService(
         PmcMode.SUBMIT -> SubmissionStatus.ERROR_SUBMIT
     }
 
+    private fun asText(pmcMode: PmcMode) = when (pmcMode) {
+        PmcMode.LOAD -> "loading"
+        PmcMode.PROCESS -> "processing"
+        PmcMode.SUBMIT -> "submitting"
+    }
     suspend fun saveError(sourceFile: String, submissionBody: String, process: PmcMode, throwable: Throwable) {
         errorsRepository.save(SubmissionErrorDoc(sourceFile, submissionBody, getStackTrace(throwable), process))
     }
