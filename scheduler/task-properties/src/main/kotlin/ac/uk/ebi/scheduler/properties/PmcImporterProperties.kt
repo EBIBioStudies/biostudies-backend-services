@@ -2,7 +2,7 @@ package ac.uk.ebi.scheduler.properties
 
 import ac.uk.ebi.scheduler.common.BaseAppProperty
 
-private const val APP_NAME = "pmc-processor-task.jar"
+private const val APP_NAME = "pmc-processor-task-1.0.0.jar"
 
 class PmcImporterProperties : BaseAppProperty {
 

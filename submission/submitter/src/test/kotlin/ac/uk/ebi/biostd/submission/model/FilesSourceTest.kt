@@ -2,11 +2,13 @@ package ac.uk.ebi.biostd.submission.model
 
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
+import org.apache.commons.io.FileUtils
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import java.io.FileNotFoundException
+import java.nio.charset.Charset
 import java.nio.file.Paths
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
@@ -48,7 +50,8 @@ class FilesSourceTest(temporaryFolder: TemporaryFolder) {
 
     @Test
     fun `get user file size`() {
-        assertThat(testInstance.size(TEST_USER_FILE)).isGreaterThan(0)
+        FileUtils.writeStringToFile(testFile, "abc", Charset.defaultCharset())
+        assertThat(testInstance.size(TEST_USER_FILE)).isEqualTo(3)
     }
 
     @Test

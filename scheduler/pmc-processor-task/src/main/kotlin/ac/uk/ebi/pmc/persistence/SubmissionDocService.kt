@@ -48,7 +48,7 @@ class SubmissionDocService(
             posInFile,
             sourceTime))
 
-        logger.info { "processed version of submission with accNo = '${submission.accNo}' from file $sourceFile" }
+        logger.info { "loaded version of submission with accNo = '${submission.accNo}' from file $sourceFile" }
     }
 
     suspend fun saveProcessedSubmission(submission: SubmissionDoc, files: List<File>) = coroutineScope {

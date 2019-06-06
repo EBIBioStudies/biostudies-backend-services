@@ -7,6 +7,7 @@ import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.common.config.SubmitterConfig
 import ac.uk.ebi.biostd.files.FileConfig
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
+import ac.uk.ebi.biostd.itest.common.TestConfig
 import ac.uk.ebi.biostd.itest.entities.GenericUser
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
 import arrow.core.Either
@@ -47,7 +48,7 @@ internal class MultipartSubmissionApiTest(private val tempFolder: TemporaryFolde
 
     @Nested
     @ExtendWith(SpringExtension::class)
-    @Import(value = [SubmitterConfig::class, PersistenceConfig::class, FileConfig::class])
+    @Import(value = [TestConfig::class, SubmitterConfig::class, PersistenceConfig::class, FileConfig::class])
     @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
     @Transactional
     @DirtiesContext
@@ -97,7 +98,7 @@ internal class MultipartSubmissionApiTest(private val tempFolder: TemporaryFolde
 
                 line("Study", "SECT-001")
                 line("Title", "Root Section")
-                line("LibraryFile", "LibraryFile.tsv")
+                line("Library File", "LibraryFile.tsv")
                 line()
             }
 
@@ -130,7 +131,7 @@ internal class MultipartSubmissionApiTest(private val tempFolder: TemporaryFolde
                         "name" to "Title"
                         "value" to "Root Section"
                     }, {
-                        "name" to "LibraryFile"
+                        "name" to "Library File"
                         "value" to "LibraryFile.json"
                     })
                 }
@@ -173,7 +174,7 @@ internal class MultipartSubmissionApiTest(private val tempFolder: TemporaryFolde
                             "value" { -"Root Section" }
                         }
                         "attribute" {
-                            "name" { -"LibraryFile" }
+                            "name" { -"Library File" }
                             "value" { -"LibraryFile.xml" }
                         }
                     }

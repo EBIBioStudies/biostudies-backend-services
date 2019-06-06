@@ -276,6 +276,19 @@ CREATE TABLE UserGroup_UserGroup (
 CREATE INDEX UserGroup_UserGroup_GroupId_IDX ON UserGroup_UserGroup (groups_id);
 CREATE INDEX UserGroup_UserGroup_UserGroupId_IDX ON UserGroup_UserGroup (UserGroup_id);
 
+CREATE TABLE AccessPermission(
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    access_type VARCHAR(255),
+    user_id BIGINT NOT NULL,
+    access_tag_id BIGINT NOT NULL
+);
+
+ALTER TABLE AccessPermission ADD CONSTRAINT access_permission_user_fk FOREIGN KEY (user_id) REFERENCES User (id);
+ALTER TABLE AccessPermission ADD CONSTRAINT access_permission_access_tag_fk
+FOREIGN KEY (access_tag_id) REFERENCES AccessTag (id);
+
+CREATE UNIQUE INDEX access_permission_id_index ON AccessPermission (id);
+
 CREATE TABLE SecurityToken
 (
     id VARCHAR(500) PRIMARY KEY NOT NULL,

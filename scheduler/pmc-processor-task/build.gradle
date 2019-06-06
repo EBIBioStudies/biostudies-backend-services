@@ -31,5 +31,6 @@ dependencies {
 }
 
 bootJar {
-    archiveName = 'pmc-processor-task.jar'
+    archiveBaseName.set("pmc-processor-task")
+    archiveVersion.set("1.0.0")
 }

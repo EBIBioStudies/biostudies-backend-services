@@ -1,7 +1,6 @@
 package ac.uk.ebi.biostd.persistence.model
 
 import ac.uk.ebi.biostd.persistence.converters.AuxInfoConverter
-import org.springframework.data.domain.AbstractAggregateRoot
 import javax.persistence.CascadeType.MERGE
 import javax.persistence.CascadeType.PERSIST
 import javax.persistence.Column
@@ -13,12 +12,14 @@ import javax.persistence.Id
 import javax.persistence.Lob
 import javax.persistence.ManyToMany
 import javax.persistence.OneToMany
+import javax.persistence.Table
 import javax.xml.bind.annotation.XmlAccessType
 import javax.xml.bind.annotation.XmlAccessorType
 import javax.xml.bind.annotation.XmlElement
 import javax.xml.bind.annotation.XmlRootElement
 
 @Entity
+@Table(name = "User")
 class User(
     @Id
     @GeneratedValue
@@ -41,8 +42,7 @@ class User(
 
     @Column
     var superuser: Boolean = false
-
-) : AbstractAggregateRoot<User>() {
+) {
     @Column
     var active: Boolean = false
 
