@@ -2,6 +2,7 @@ rootProject.name = 'biostudies-backend-services'
 
 include("commons:commons-util")
 include("commons:commons-bio")
+include("commons:commons-model-extended")
 include("commons:commons-http")
 include("commons:commons-serialization")
 include("commons:commons-test")

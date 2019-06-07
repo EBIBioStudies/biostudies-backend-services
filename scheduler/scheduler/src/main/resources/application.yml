@@ -1,12 +1,18 @@
 app:
-  apps-folder: # Folder where app jar can be located
+  apps-folder: /homes/jcamilorada/PMC
 
   ssh:
-    user: # ssh user
-    password: # ssh user password
-    server:  ## ssh sever (to submit jobs from)
+    user: jcamilorada
+    password: UEL3WdAh
+    server: ebi-login-001.ebi.ac.uk
 
 pmc:
   import:
-    temp:
-    mongoUri:
+    temp: /nfs/biostudies/.adm/cluster/PMC/FILES
+    mongoUri: mongodb://eubioimag:eNZJYfskIdw@mongodb-hx-eubioimagdev-001.ebi.ac.uk:27017,mongodb-hx-eubioimagdev-001.ebi.ac.uk:27017/eubioimag?replicaSet=eubioimagdevrs026\&authSource=admin\&waitQueueMultiple=100
+    #bio-studies-url: http://biostudy-bia.ebi.ac.uk:8689
+    #bio-studies-user: admin_user@ebi.ac.uk
+    #bio-studies-password: 123456
+    bio-studies-url: http://biostudy-bia.ebi.ac.uk:8788
+    bio-studies-user: manager
+    bio-studies-password: m4n4g3r

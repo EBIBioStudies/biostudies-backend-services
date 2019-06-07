@@ -1,9 +1,9 @@
 app:
   data:
-    mode: # Processing mode: LOAD, PROCESS or SUBMIT
-    path: # Interpreted according to specified mode. Path of the file, folder to load.
-    temp: # directory to store submission downloaded files
-    mongodb-uri: # Mongo database connection string
-    bio-studies-url: # URL pointing to the BioStudies instance where the data will be submitted
-    bio-studies-user: # User under whom the submissions will be made
-    bio-studies-password: # Password for the specified user
+    mode: PROCESS #SUBMIT #PROCESS #LOAD
+    path: /home/jcamilorada/Desktop/PMC/2018-DUMP-SIMPLE/
+    temp: /home/jcamilorada/Desktop/PMC/FILES
+    mongodb-uri: mongodb://eubioimag:eNZJYfskIdw@mongodb-hx-eubioimagdev-001.ebi.ac.uk:27017,mongodb-hx-eubioimagdev-001.ebi.ac.uk:27017/eubioimag?replicaSet=eubioimagdevrs026&authSource=admin&waitQueueMultiple=100
+    bio-studies-url: http://biostudy-bia.ebi.ac.uk:8689
+    bio-studies-user: admin_user@ebi.ac.uk
+    bio-studies-password: 123456

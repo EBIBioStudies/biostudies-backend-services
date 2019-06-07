@@ -8,6 +8,7 @@ import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.model.extensions.addReferencedFile
 import ebi.ac.uk.model.extensions.allLibraryFileSections
 
+// TODO: change library file serialization object to be a name with a filesTable list
 class LibraryFilesHandler(private val serializationService: SerializationService) {
     fun processLibraryFiles(submission: ExtendedSubmission, filesSource: FilesSource, format: SubFormat) {
         submission.allLibraryFileSections().forEach { section ->

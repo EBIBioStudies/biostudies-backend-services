@@ -40,9 +40,9 @@ class PagetabConverter(private val serializerService: SerializationService) : Ht
 
     private fun asFormat(mediaType: MediaType?) =
         when (mediaType) {
-            MediaType.APPLICATION_JSON -> SubFormat.JSON
-            MediaType.TEXT_PLAIN -> SubFormat.TSV
-            MediaType.TEXT_XML -> SubFormat.XML
+            APPLICATION_JSON -> SubFormat.JSON
+            TEXT_PLAIN -> SubFormat.TSV
+            TEXT_XML -> SubFormat.XML
             else -> SubFormat.JSON
         }
 }

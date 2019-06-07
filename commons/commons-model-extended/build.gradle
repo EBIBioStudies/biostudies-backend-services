@@ -1,0 +1,10 @@
+import static TestDependencies.BaseTestCompileDependencies
+import static TestDependencies.BaseTestRuntimeDependencies
+
+dependencies {
+    compile project(":commons:commons-util")
+    compile project(":submission:persistence")
+
+    testCompile(BaseTestCompileDependencies)
+    testRuntime(BaseTestRuntimeDependencies)
+}

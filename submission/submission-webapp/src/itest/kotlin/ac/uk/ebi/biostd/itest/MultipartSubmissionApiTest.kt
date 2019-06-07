@@ -210,7 +210,7 @@ internal class MultipartSubmissionApiTest(private val tempFolder: TemporaryFolde
 
         private fun assertSubmissionFiles(accNo: String, testFile: String) {
             val libFileName = "LibraryFile"
-            val createdSubmission = submissionRepository.getExtendedByAccNo(accNo, loadRefFiles = true)
+            val createdSubmission = submissionRepository.getExtendedByAccNo(accNo)
             val submissionFolderPath = "$basePath/submission/${createdSubmission.relPath}"
 
             assertThat(createdSubmission.section.libraryFile).isEqualTo(libFileName)

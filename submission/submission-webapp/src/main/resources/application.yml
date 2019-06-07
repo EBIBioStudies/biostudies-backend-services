@@ -1,9 +1,13 @@
+server:
+  port: 8689
 spring:
   datasource:
-    url: # Database connection URL
-    username:
-    password:
+    url: jdbc:mysql://mysql-fg-biostudy.ebi.ac.uk:4469/biostd_dev
+    username: biostd
+    password: biostd
     driver-class-name: com.mysql.jdbc.Driver
+    hikari:
+      maximum-pool-size: 40
 
   jpa:
     show-sql: false
@@ -21,6 +25,11 @@ app:
   basepath: # Absolute path to the folder to be used as storage
   filesDirPath: # Absolute path to the folder to be used for the user/groups files
   security:
-    tokenHash: # Token used for hash authentication
+    tokenHash: REVW # Token used for hash authentication
     environment: # Current application execution environment
     requiresActivation: # Indicates whether or not, new user need activation before being used
+  notifications:
+    smtp: smtp.ebi.ac.uk
+
+
+

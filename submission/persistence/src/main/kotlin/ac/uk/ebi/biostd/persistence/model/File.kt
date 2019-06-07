@@ -29,6 +29,9 @@ class File(
 
     var size: Long = 0L
 
+    @Transient
+    lateinit var file: java.io.File
+
     @OneToMany(cascade = [CascadeType.ALL])
     @JoinColumn(name = "file_id")
     @OrderBy("order ASC")
