@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.submission.handlers
 
-import ac.uk.ebi.biostd.SerializationService
-import ac.uk.ebi.biostd.SubFormat
+import ac.uk.ebi.biostd.integration.ISerializationService
+import ac.uk.ebi.biostd.integration.SubFormat
 import ac.uk.ebi.biostd.submission.test.createBasicExtendedSubmission
 import ebi.ac.uk.paths.FolderResolver
 import io.github.glytching.junit.extension.folder.TemporaryFolder
@@ -19,7 +19,7 @@ import java.nio.file.Paths
 class OutputFilesGeneratorTest(
     private val temporaryFolder: TemporaryFolder,
     @MockK private val mockFolderResolver: FolderResolver,
-    @MockK private val mockSerializationService: SerializationService
+    @MockK private val mockSerializationService: ISerializationService
 ) {
     private val submission = createBasicExtendedSubmission()
     private val testInstance = OutputFilesGenerator(mockFolderResolver, mockSerializationService)

@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.node.TextNode
 import ebi.ac.uk.model.Link
 import ebi.ac.uk.model.constants.LinkFields
 
-class LinkJsonDeserializer : StdDeserializer<Link>(Link::class.java) {
+internal class LinkJsonDeserializer : StdDeserializer<Link>(Link::class.java) {
 
     override fun deserialize(jp: JsonParser, ctxt: DeserializationContext): Link {
         val mapper = jp.codec as ObjectMapper

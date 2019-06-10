@@ -1,36 +1,25 @@
 package ebi.ac.uk.model
 
 import arrow.core.Either
-import ebi.ac.uk.model.extensions.libraryFile
-import ebi.ac.uk.util.collections.addLeft
-import ebi.ac.uk.util.collections.addRight
 import java.util.Objects
 
 class ExtendedSection(type: String) : Section(type) {
-    var libraryFile: LibraryFile? = null
     var extendedSections: MutableList<Either<ExtendedSection, SectionsTable>> = mutableListOf()
 
     constructor(section: Section) : this(section.type) {
         accNo = section.accNo
         files = section.files
         links = section.links
+        libraryFile = section.libraryFile
         sections = section.sections
         attributes = section.attributes
-
-        section.libraryFile?.let { libraryFile = LibraryFile(it) }
-        section.sections.forEach { sect ->
-            sect.fold({ extendedSections.addLeft(ExtendedSection(it)) }, { extendedSections.addRight(it) })
-        }
+        section.sections.map { subSection -> subSection.bimap({ ExtendedSection(it) }, { it }) }
     }
 
-    fun addReferencedFile(file: File) = libraryFile?.addFile(file)
-
-    fun asSection() = Section(type, accNo, toSections(), files, links, attributes)
+    fun asSection() = Section(type, accNo, libraryFile, toSections(), files, links, attributes)
 
     private fun toSections(): MutableList<Either<Section, SectionsTable>> =
-        extendedSections.mapTo(mutableListOf()) { extSect ->
-            extSect.fold({ Either.left(it.asSection()) }, { Either.right(it) })
-        }
+        extendedSections.mapTo(mutableListOf()) { extSect -> extSect.bimap({ it.asSection() }, { it }) }
 
     override fun equals(other: Any?) = when {
         other !is ExtendedSection -> false

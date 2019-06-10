@@ -2,6 +2,7 @@ package ebi.ac.uk.model
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import java.nio.file.Paths
 
 const val ACC_NO = "ABC456"
 const val ACCESS_TAG = "Public"
@@ -9,7 +10,7 @@ const val ACCESS_TAG = "Public"
 class ExtendedSubmissionTest {
     private val rootSection = Section()
     private val attribute = Attribute("Name", "Value")
-    private val user = User(123L, "user@mail.com", "SecretKey")
+    private val user = User(123L, "user@mail.com", "SecretKey", Paths.get(""))
 
     @Test
     fun `create empty extended submission`() {

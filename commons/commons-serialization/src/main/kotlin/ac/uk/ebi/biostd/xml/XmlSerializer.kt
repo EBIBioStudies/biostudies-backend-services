@@ -35,7 +35,8 @@ import org.xml.sax.InputSource
 import java.io.StringReader
 import javax.xml.parsers.DocumentBuilderFactory
 
-class XmlSerializer {
+internal class XmlSerializer {
+
     fun <T> serialize(element: T): String = mapper.writeValueAsString(element)
 
     fun deserialize(value: String) = deserialize(value, Submission::class.java)

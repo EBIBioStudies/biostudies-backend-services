@@ -1,13 +1,14 @@
 package ac.uk.ebi.pmc.load
 
-import ac.uk.ebi.biostd.SerializationService
-import ac.uk.ebi.biostd.SubFormat.TSV
+import ac.uk.ebi.biostd.integration.ISerializationService
+import ac.uk.ebi.biostd.integration.SubFormat.TSV
 import ac.uk.ebi.pmc.persistence.ErrorsDocService
 import ac.uk.ebi.pmc.persistence.InputFilesDocService
 import ac.uk.ebi.pmc.persistence.SubmissionDocService
 import ac.uk.ebi.scheduler.properties.PmcMode
 import arrow.core.Try
 import ebi.ac.uk.base.splitIgnoringEmpty
+import ebi.ac.uk.io.FilesSource
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.constants.SUB_SEPARATOR
 import kotlinx.coroutines.CoroutineScope
@@ -22,7 +23,7 @@ private val sanitizeRegex = "(\n)(\t)*|(\t)+(\n)".toRegex()
 private const val WORKERS = 30
 
 class PmcSubmissionLoader(
-    private val serializationService: SerializationService,
+    private val serializationService: ISerializationService,
     private val errorDocService: ErrorsDocService,
     private val inputFilesDocService: InputFilesDocService,
     private val submissionService: SubmissionDocService
@@ -62,7 +63,7 @@ class PmcSubmissionLoader(
             { submissionService.saveLoadedVersion(it, file.name, file.modified, positionInFile) })
 
     private fun deserialize(pagetab: String) =
-        Pair(pagetab, Try { serializationService.deserializeSubmission(pagetab, TSV) })
+        Pair(pagetab, Try { serializationService.deserializeSubmission(pagetab, TSV, FilesSource.EmptyFileSource) })
 
     private fun sanitize(fileText: String) = fileText.replace(sanitizeRegex, "\n")
 }

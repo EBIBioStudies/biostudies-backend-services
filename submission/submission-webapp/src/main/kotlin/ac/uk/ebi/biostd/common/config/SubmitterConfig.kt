@@ -1,15 +1,14 @@
 package ac.uk.ebi.biostd.common.config
 
-import ac.uk.ebi.biostd.SerializationService
 import ac.uk.ebi.biostd.common.config.SubmitterConfig.FilesHandlerConfig
 import ac.uk.ebi.biostd.common.config.SubmitterConfig.ProcessorConfig
 import ac.uk.ebi.biostd.common.config.SubmitterConfig.ValidatorConfig
 import ac.uk.ebi.biostd.common.property.ApplicationProperties
+import ac.uk.ebi.biostd.integration.SerializationConfigX
 import ac.uk.ebi.biostd.submission.SubmissionSubmitter
 import ac.uk.ebi.biostd.submission.handlers.FilesCopier
 import ac.uk.ebi.biostd.submission.handlers.FilesHandler
 import ac.uk.ebi.biostd.submission.handlers.FilesValidator
-import ac.uk.ebi.biostd.submission.handlers.LibraryFilesHandler
 import ac.uk.ebi.biostd.submission.handlers.OutputFilesGenerator
 import ac.uk.ebi.biostd.submission.processors.AccNoProcessor
 import ac.uk.ebi.biostd.submission.processors.AccessTagProcessor
@@ -42,14 +41,10 @@ class SubmitterConfig {
         fun folderResolver() = FolderResolver(Paths.get(appProperties.basepath), Paths.get(appProperties.filesDirPath))
 
         @Bean
-        fun serializationService() = SerializationService()
+        fun serializationService() = SerializationConfigX.serializationService()
 
         @Bean
-        fun filesHandler() = FilesHandler(
-            folderResolver(), filesValidator(), filesCopier(), libraryFilesHandler(), outputFilesGenerator())
-
-        @Bean
-        fun libraryFilesHandler() = LibraryFilesHandler(serializationService())
+        fun filesHandler() = FilesHandler(filesValidator(), filesCopier(), outputFilesGenerator())
 
         @Bean
         fun outputFilesGenerator() = OutputFilesGenerator(folderResolver(), serializationService())

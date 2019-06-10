@@ -1,19 +1,23 @@
-package ac.uk.ebi.biostd
+package ac.uk.ebi.biostd.service
 
-import ac.uk.ebi.biostd.SubFormat.JSON
-import ac.uk.ebi.biostd.SubFormat.JSON_PRETTY
-import ac.uk.ebi.biostd.SubFormat.TSV
-import ac.uk.ebi.biostd.SubFormat.XML
+import ac.uk.ebi.biostd.integration.SubFormat
+import ac.uk.ebi.biostd.integration.SubFormat.JSON
+import ac.uk.ebi.biostd.integration.SubFormat.JSON_PRETTY
+import ac.uk.ebi.biostd.integration.SubFormat.TSV
+import ac.uk.ebi.biostd.integration.SubFormat.XML
 import ac.uk.ebi.biostd.json.JsonSerializer
 import ac.uk.ebi.biostd.tsv.TsvSerializer
 import ac.uk.ebi.biostd.xml.XmlSerializer
 import ebi.ac.uk.model.Submission
 
-class SerializationService(
+internal class SerializationService(
     private val jsonSerializer: JsonSerializer = JsonSerializer(),
     private val xmlSerializer: XmlSerializer = XmlSerializer(),
     private val tsvSerializer: TsvSerializer = TsvSerializer()
 ) {
+
+    fun serializeSubmission(submission: Submission, format: SubFormat) = serializeElement(submission, format)
+
     fun <T> serializeElement(element: T, format: SubFormat) = when (format) {
         XML -> xmlSerializer.serialize(element)
         JSON -> jsonSerializer.serialize(element)
@@ -21,7 +25,12 @@ class SerializationService(
         TSV -> tsvSerializer.serialize(element)
     }
 
-    fun serializeSubmission(submission: Submission, format: SubFormat) = serializeElement(submission, format)
+    fun deserializeSubmission(submission: String, format: SubFormat) = when (format) {
+        XML -> xmlSerializer.deserialize(submission)
+        JSON -> jsonSerializer.deserialize(submission)
+        JSON_PRETTY -> jsonSerializer.deserialize(submission)
+        TSV -> tsvSerializer.deserialize(submission)
+    }
 
     inline fun <reified T> deserializeElement(element: String, format: SubFormat) =
         deserializeElement(element, format, T::class.java)
@@ -32,15 +41,4 @@ class SerializationService(
         JSON_PRETTY -> jsonSerializer.deserialize(element, type)
         TSV -> tsvSerializer.deserializeElement(element, type)
     }
-
-    fun deserializeSubmission(submission: String, format: SubFormat) = when (format) {
-        XML -> xmlSerializer.deserialize(submission)
-        JSON -> jsonSerializer.deserialize(submission)
-        JSON_PRETTY -> jsonSerializer.deserialize(submission)
-        TSV -> tsvSerializer.deserialize(submission)
-    }
-}
-
-enum class SubFormat {
-    XML, JSON, TSV, JSON_PRETTY
 }

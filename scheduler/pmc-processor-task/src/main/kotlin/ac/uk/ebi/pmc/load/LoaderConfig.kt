@@ -1,6 +1,6 @@
 package ac.uk.ebi.pmc.load
 
-import ac.uk.ebi.biostd.SerializationService
+import ac.uk.ebi.biostd.integration.ISerializationService
 import ac.uk.ebi.pmc.persistence.ErrorsDocService
 import ac.uk.ebi.pmc.persistence.InputFilesDocService
 import ac.uk.ebi.pmc.persistence.SubmissionDocService
@@ -17,7 +17,7 @@ class LoaderConfig {
         inputFilesDocService: InputFilesDocService,
         errorsDocService: ErrorsDocService,
         submissionDocService: SubmissionDocService,
-        serializationService: SerializationService
+        serializationService: ISerializationService
     ) = PmcSubmissionLoader(serializationService, errorsDocService, inputFilesDocService, submissionDocService)
 
     @Bean

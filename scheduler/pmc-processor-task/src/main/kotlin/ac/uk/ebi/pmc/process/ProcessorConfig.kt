@@ -1,6 +1,6 @@
 package ac.uk.ebi.pmc.process
 
-import ac.uk.ebi.biostd.SerializationService
+import ac.uk.ebi.biostd.integration.ISerializationService
 import ac.uk.ebi.pmc.client.PmcApi
 import ac.uk.ebi.pmc.persistence.ErrorsDocService
 import ac.uk.ebi.pmc.persistence.SubmissionDocService
@@ -19,7 +19,7 @@ class ProcessorConfig {
     fun fileDownloader(pmcApi: PmcApi, properties: PmcImporterProperties) = FileDownloader(properties, pmcApi)
 
     @Bean
-    fun submissionInitializer(serializationService: SerializationService) = SubmissionInitializer(serializationService)
+    fun submissionInitializer(serializationService: ISerializationService) = SubmissionInitializer(serializationService)
 
     @Bean
     fun pmcProcessor(

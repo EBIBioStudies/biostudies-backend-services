@@ -31,6 +31,7 @@ import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.User
 import ebi.ac.uk.model.extensions.rootPath
 import ebi.ac.uk.model.extensions.title
+import java.nio.file.Paths
 import java.time.ZoneOffset.UTC
 import ac.uk.ebi.biostd.persistence.model.Attribute as AttributeDb
 import ac.uk.ebi.biostd.persistence.model.AttributeDetail as AttributeDetailDb
@@ -143,12 +144,12 @@ private object DbEitherMapper {
 private object DbEntityMapper {
     internal fun toLink(link: LinkDb) = Link(link.url, toAttributes(link.attributes))
     internal fun toFile(file: FileDb) = File(file.name, file.size, toAttributes(file.attributes))
-    internal fun toUser(owner: UserDb) = User(owner.id, owner.email, owner.secret)
+
+    // TODO FIX by separating users classes (persistence, domain)
+    internal fun toUser(owner: UserDb) = User(owner.id, owner.email, owner.secret, Paths.get(""))
     internal fun toFile(file: ReferencedFileDb) = File(file.name, file.size, toAttributes(file.attributes))
     internal fun toLibraryFile(libFile: LibraryFileDb, referencedFiles: List<ReferencedFileDb>) =
-        LibraryFile(libFile.name).apply {
-            referencedFiles.forEach { addFile(toFile(it)) }
-        }
+        LibraryFile(libFile.name, referencedFiles.map { toFile(it) })
 }
 
 private object DbAttributeMapper {

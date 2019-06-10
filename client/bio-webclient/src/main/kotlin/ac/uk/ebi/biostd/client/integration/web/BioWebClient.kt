@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.client.integration.web
 
-import ac.uk.ebi.biostd.SerializationService
 import ac.uk.ebi.biostd.client.api.SubmissionClientImpl
+import ac.uk.ebi.biostd.integration.SerializationConfigX
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.util.DefaultUriBuilderFactory
 
@@ -10,9 +10,8 @@ class BioWebClient private constructor(private val submissionClient: SubmissionC
 
     companion object {
 
-        fun create(baseUrl: String, token: String): BioWebClient {
-            return BioWebClient(SubmissionClientImpl(SerializationService(), createRestTemplate(baseUrl, token)))
-        }
+        fun create(baseUrl: String, token: String): BioWebClient = BioWebClient(
+            SubmissionClientImpl(SerializationConfigX.serializationService(), createRestTemplate(baseUrl, token)))
 
         private fun createRestTemplate(baseUrl: String, token: String) = RestTemplate().apply {
             uriTemplateHandler = DefaultUriBuilderFactory(baseUrl)

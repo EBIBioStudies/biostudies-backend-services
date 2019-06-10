@@ -25,7 +25,7 @@ import ebi.ac.uk.model.constants.SubFields.SUBMISSION
 
 private const val ALLOWED_TYPES = "Study"
 
-class ChunkProcessor {
+internal class ChunkProcessor {
 
     fun getSubmission(tsvChunk: TsvChunk): Submission {
         validate(tsvChunk.getType() like SUBMISSION) { "Expected to find block type of $SUBMISSION" }

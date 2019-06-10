@@ -2,8 +2,7 @@ package ebi.ac.uk.model
 
 import java.util.Objects
 
-class LibraryFile(var name: String, val referencedFiles: MutableSet<File> = mutableSetOf()) {
-    fun addFile(file: File) = referencedFiles.add(file)
+class LibraryFile(var name: String, val referencedFiles: List<File> = emptyList()) {
 
     override fun equals(other: Any?) = when {
         other !is LibraryFile -> false

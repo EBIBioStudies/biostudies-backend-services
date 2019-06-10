@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.submission.handlers
 
-import ac.uk.ebi.biostd.SerializationService
-import ac.uk.ebi.biostd.SubFormat
+import ac.uk.ebi.biostd.integration.ISerializationService
+import ac.uk.ebi.biostd.integration.SubFormat
 import ebi.ac.uk.model.ExtendedSubmission
 import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.model.Section
@@ -12,7 +12,7 @@ import org.apache.commons.io.FileUtils
 
 class OutputFilesGenerator(
     private val folderResolver: FolderResolver,
-    private val serializationService: SerializationService
+    private val serializationService: ISerializationService
 ) {
     fun generate(submission: ExtendedSubmission) {
         generateLibraryFiles(submission)
@@ -27,7 +27,6 @@ class OutputFilesGenerator(
             val libFileName = it.libraryFile!!.name.substringBeforeLast(".")
             val filesTable = FilesTable(it.libraryFile!!.referencedFiles.toList())
             val section = Section()
-
             section.addFilesTable(filesTable)
             it.libraryFileAttr = libFileName
             it.libraryFile!!.name = libFileName

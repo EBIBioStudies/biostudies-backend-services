@@ -5,7 +5,7 @@ import ac.uk.ebi.biostd.tsv.serialization.TsvToStringSerializer
 import ebi.ac.uk.base.splitIgnoringEmpty
 import ebi.ac.uk.model.constants.SUB_SEPARATOR
 
-class TsvSerializer(
+internal class TsvSerializer(
     private val tsvSerializer: TsvToStringSerializer = TsvToStringSerializer(),
     private val tsvDeserializer: TsvDeserializer = TsvDeserializer()
 ) {

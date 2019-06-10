@@ -4,17 +4,15 @@ import io.github.glytching.junit.extension.folder.TemporaryFolder
 import org.junit.jupiter.api.BeforeAll
 
 internal open class BaseIntegrationTest(private val tempFolder: TemporaryFolder) {
-    private lateinit var filesDirPath: String
     protected lateinit var basePath: String
 
     @BeforeAll
     fun init() {
-        tempFolder.createDirectory("dropbox")
+        val dropbox = tempFolder.createDirectory("dropbox")
+        val temp = tempFolder.createDirectory("tmp")
 
-        basePath = tempFolder.root.absolutePath
-        filesDirPath = "$basePath/dropbox"
-
-        System.setProperty("app.basepath", basePath)
-        System.setProperty("app.filesDirPath", filesDirPath)
+        System.setProperty("app.basepath", tempFolder.root.absolutePath)
+        System.setProperty("app.filesDirPath", dropbox.absolutePath)
+        System.setProperty("app.filesDirPath", temp.absolutePath)
     }
 }

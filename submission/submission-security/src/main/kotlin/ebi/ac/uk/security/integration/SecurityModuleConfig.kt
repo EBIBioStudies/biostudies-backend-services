@@ -4,6 +4,7 @@ import ac.uk.ebi.biostd.persistence.repositories.TokenDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserGroupDataRepository
 import ebi.ac.uk.commons.http.JacksonFactory
+import ebi.ac.uk.paths.FolderResolver
 import ebi.ac.uk.security.events.Events
 import ebi.ac.uk.security.integration.components.IGroupService
 import ebi.ac.uk.security.integration.components.ISecurityFilter
@@ -17,6 +18,7 @@ import ebi.ac.uk.security.util.SecurityUtil
 import ebi.ac.uk.security.web.SecurityFilter
 import io.jsonwebtoken.Jwts
 import io.reactivex.Observable
+import java.nio.file.Paths
 
 class SecurityModuleConfig(
     private val userRepository: UserDataRepository,
@@ -32,10 +34,13 @@ class SecurityModuleConfig(
     val passwordReset: Observable<PasswordReset> = Events.passwordReset
     val userPreRegister: Observable<UserPreRegister> = Events.userPreRegister
 
+    private val groupService: GroupService by lazy { GroupService(groupRepository, userRepository) }
+    private val folderResolver
+        by lazy { FolderResolver(Paths.get(properties.basePath), Paths.get(properties.filesDirPath)) }
     private val securityService: SecurityService
         by lazy { SecurityService(userRepository, tokenRepository, securityUtil, properties) }
-    private val groupService: GroupService by lazy { GroupService(groupRepository, userRepository) }
-    private val securityFilter: SecurityFilter by lazy { SecurityFilter(properties.environment, securityService) }
+    private val securityFilter: SecurityFilter
+        by lazy { SecurityFilter(properties.environment, securityService, folderResolver) }
 
     private val securityUtil by lazy { SecurityUtil(jwtParser, objectMapper, userRepository, properties.tokenHash) }
     private val objectMapper by lazy { JacksonFactory.createMapper() }

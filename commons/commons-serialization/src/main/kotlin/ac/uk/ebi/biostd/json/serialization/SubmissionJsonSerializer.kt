@@ -13,8 +13,7 @@ import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.constants.SubFields
 import ebi.ac.uk.util.collections.merge
 
-class SubmissionJsonSerializer : StdSerializer<Submission>(Submission::class.java) {
-
+internal class SubmissionJsonSerializer : StdSerializer<Submission>(Submission::class.java) {
     override fun serialize(subm: Submission, gen: JsonGenerator, provider: SerializerProvider) {
         gen.writeObj {
             writeJsonString(SubFields.ACC_NO, subm.accNo)

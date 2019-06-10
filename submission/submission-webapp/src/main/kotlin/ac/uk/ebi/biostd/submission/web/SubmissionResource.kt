@@ -1,21 +1,14 @@
 package ac.uk.ebi.biostd.submission.web
 
-import ac.uk.ebi.biostd.SubFormat
 import ac.uk.ebi.biostd.submission.service.SubmissionService
-import ebi.ac.uk.model.Submission
-import ebi.ac.uk.model.User
 import ebi.ac.uk.model.constants.APPLICATION_JSON
 import ebi.ac.uk.model.constants.SUBMISSION_TYPE
 import ebi.ac.uk.model.constants.TEXT_PLAIN
 import ebi.ac.uk.model.constants.TEXT_XML
 import org.springframework.http.HttpHeaders.CONTENT_TYPE
 import org.springframework.security.access.prepost.PreAuthorize
-import org.springframework.security.core.annotation.AuthenticationPrincipal
-import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.ResponseBody
 import org.springframework.web.bind.annotation.RestController
@@ -38,23 +31,4 @@ class SubmissionResource(
 
     @GetMapping("/{accNo}.tsv", produces = [TEXT_PLAIN])
     fun asTsv(@PathVariable accNo: String) = submissionService.getSubmissionAsTsv(accNo)
-
-    @PostMapping(headers = ["$SUBMISSION_TYPE=$APPLICATION_JSON"])
-    @ResponseBody
-    fun submitJson(@AuthenticationPrincipal user: User, @RequestBody submission: Submission) =
-        submissionService.submit(submission, user, format = SubFormat.JSON)
-
-    @PostMapping(headers = ["$SUBMISSION_TYPE=$TEXT_XML"])
-    @ResponseBody
-    fun submitXml(@AuthenticationPrincipal user: User, @RequestBody submission: Submission) =
-        submissionService.submit(submission, user, format = SubFormat.XML)
-
-    @PostMapping(headers = ["$SUBMISSION_TYPE=$TEXT_PLAIN"])
-    @ResponseBody
-    fun submitTsv(@AuthenticationPrincipal user: User, @RequestBody submission: Submission) =
-        submissionService.submit(submission, user, format = SubFormat.TSV)
-
-    @DeleteMapping("/{accNo}")
-    fun deleteSubmission(@AuthenticationPrincipal user: User, @PathVariable accNo: String) =
-        submissionService.deleteSubmission(accNo, user)
 }

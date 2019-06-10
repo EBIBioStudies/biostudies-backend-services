@@ -10,6 +10,7 @@ internal const val GROUP_FOLDER_PREFIX = "b"
 private const val FILES_PATH = "Files"
 private const val SUBMISSION_PATH = "submission"
 
+// TODO: split by submission file resolver in submitter module and userFileResolver in security module
 class FolderResolver(private val basePath: Path, private val filesDirPath: Path) {
 
     fun getSubmissionFolder(submission: ExtendedSubmission): Path =

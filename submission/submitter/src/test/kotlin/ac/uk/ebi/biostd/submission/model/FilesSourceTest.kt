@@ -23,29 +23,14 @@ const val TEST_GHOST_FILE = "ghost.txt"
 class FilesSourceTest(temporaryFolder: TemporaryFolder) {
     private val testFile = temporaryFolder.createFile(TEST_USER_FILE)
     private val testInputStream = testFile.inputStream()
-    private val testResourceFile = ResourceFile(TEST_ATTACHED_FILE, testInputStream, TEST_ATTACHED_FILE_SIZE)
-    private val testInstance = FilesSource(listOf(testResourceFile), Paths.get(temporaryFolder.root.absolutePath))
+    private val testResourceFile = temporaryFolder.createFile(TEST_ATTACHED_FILE)
+    private val testInstance = UserSource(listOf(testResourceFile), Paths.get(temporaryFolder.root.absolutePath))
 
     @Test
     fun exists() {
         assertTrue { testInstance.exists(TEST_USER_FILE) }
         assertTrue { testInstance.exists(TEST_ATTACHED_FILE) }
         assertFalse { testInstance.exists(TEST_GHOST_FILE) }
-    }
-
-    @Test
-    fun `get user file input stream`() {
-        assertNotNull(testInstance.getInputStream(TEST_USER_FILE))
-    }
-
-    @Test
-    fun `get attached file input stream`() {
-        assertThat(testInstance.getInputStream(TEST_ATTACHED_FILE)).isEqualTo(testInputStream)
-    }
-
-    @Test
-    fun `get input stream of non existing file`() {
-        assertThrows<FileNotFoundException> { testInstance.getInputStream(TEST_GHOST_FILE) }
     }
 
     @Test

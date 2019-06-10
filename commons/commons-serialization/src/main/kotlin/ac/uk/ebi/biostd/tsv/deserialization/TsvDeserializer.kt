@@ -24,7 +24,7 @@ import ebi.ac.uk.util.collections.removeFirst
 import ebi.ac.uk.util.collections.split
 import ebi.ac.uk.util.regex.findGroup
 
-class TsvDeserializer(private val chunkProcessor: ChunkProcessor = ChunkProcessor()) {
+internal class TsvDeserializer(private val chunkProcessor: ChunkProcessor = ChunkProcessor()) {
     fun deserialize(pageTab: String): Submission {
         val chunks: MutableList<TsvChunk> = chunkerize(pageTab)
         val context = TsvSerializationContext()

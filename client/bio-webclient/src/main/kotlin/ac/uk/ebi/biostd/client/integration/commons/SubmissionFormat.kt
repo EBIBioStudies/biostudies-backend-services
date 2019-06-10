@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.client.integration.commons
 
-import ac.uk.ebi.biostd.SubFormat
+import ac.uk.ebi.biostd.integration.SubFormat
 import org.springframework.http.MediaType
 
 enum class SubmissionFormat(val mediaType: MediaType) {

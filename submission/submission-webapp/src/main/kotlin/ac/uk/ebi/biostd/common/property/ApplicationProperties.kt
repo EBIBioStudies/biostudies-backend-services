@@ -9,7 +9,7 @@ import org.springframework.boot.context.properties.NestedConfigurationProperty
 open class ApplicationProperties {
     lateinit var basepath: String
     lateinit var filesDirPath: String
-    lateinit var environment: String
+    lateinit var tempDirPath: String
 
     @NestedConfigurationProperty
     var security: SecurityProperties = SecurityProperties()
