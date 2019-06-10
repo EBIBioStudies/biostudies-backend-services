@@ -10,9 +10,10 @@ internal open class BaseIntegrationTest(private val tempFolder: TemporaryFolder)
     fun init() {
         val dropbox = tempFolder.createDirectory("dropbox")
         val temp = tempFolder.createDirectory("tmp")
+        basePath = tempFolder.root.absolutePath
 
         System.setProperty("app.basepath", tempFolder.root.absolutePath)
-        System.setProperty("app.filesDirPath", dropbox.absolutePath)
-        System.setProperty("app.filesDirPath", temp.absolutePath)
+        System.setProperty("app.tempDirPath", temp.absolutePath)
+        System.setProperty("app.security.filesDirPath", dropbox.absolutePath)
     }
 }

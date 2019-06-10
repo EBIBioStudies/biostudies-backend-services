@@ -31,7 +31,6 @@ import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.User
 import ebi.ac.uk.model.extensions.rootPath
 import ebi.ac.uk.model.extensions.title
-import java.nio.file.Paths
 import java.time.ZoneOffset.UTC
 import ac.uk.ebi.biostd.persistence.model.Attribute as AttributeDb
 import ac.uk.ebi.biostd.persistence.model.AttributeDetail as AttributeDetailDb
@@ -80,6 +79,7 @@ private class DbSectionMapper {
         Section(accNo = sectionDb.accNo,
             type = sectionDb.type,
             links = toLinks(sectionDb.links.toList()),
+            libraryFile = sectionDb.libraryFile?.let { toLibraryFile(it) },
             files = toFiles(sectionDb.files.toList()),
             sections = toSections(sectionDb.sections.toList()),
             attributes = toAttributes(sectionDb.attributes))
@@ -96,9 +96,7 @@ private class DbSectionMapper {
             sections = toSections(sectionDb.sections.toList())
             attributes = toAttributes(sectionDb.attributes)
             extendedSections = toExtendedSections(sectionDb.sections.toList(), loadRefFiles)
-            sectionDb.libraryFile?.let {
-                libraryFile = toLibraryFile(it, it.files.toList())
-            }
+            sectionDb.libraryFile?.let { libraryFile = toLibraryFile(it) }
         }
 }
 
@@ -121,7 +119,7 @@ private object DbEitherMapper {
     /**
      * Convert the given list of elements into an instance of @See [Either] using transform function for simple element
      * and table builder function for table types.
-     *
+     *, Paths.get("")
      */
     private fun <T : Tabular, S, U> toEitherList(
         elements: List<T>,
@@ -146,10 +144,9 @@ private object DbEntityMapper {
     internal fun toFile(file: FileDb) = File(file.name, file.size, toAttributes(file.attributes))
 
     // TODO FIX by separating users classes (persistence, domain)
-    internal fun toUser(owner: UserDb) = User(owner.id, owner.email, owner.secret, Paths.get(""))
+    internal fun toUser(owner: UserDb) = User(owner.id, owner.email, owner.secret)
     internal fun toFile(file: ReferencedFileDb) = File(file.name, file.size, toAttributes(file.attributes))
-    internal fun toLibraryFile(libFile: LibraryFileDb, referencedFiles: List<ReferencedFileDb>) =
-        LibraryFile(libFile.name, referencedFiles.map { toFile(it) })
+    internal fun toLibraryFile(libFile: LibraryFileDb) = LibraryFile(libFile.name, libFile.files.map { toFile(it) })
 }
 
 private object DbAttributeMapper {

@@ -8,7 +8,6 @@ import ac.uk.ebi.pmc.persistence.SubmissionDocService
 import ac.uk.ebi.scheduler.properties.PmcMode
 import arrow.core.Try
 import ebi.ac.uk.base.splitIgnoringEmpty
-import ebi.ac.uk.io.FilesSource
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.constants.SUB_SEPARATOR
 import kotlinx.coroutines.CoroutineScope
@@ -63,7 +62,7 @@ class PmcSubmissionLoader(
             { submissionService.saveLoadedVersion(it, file.name, file.modified, positionInFile) })
 
     private fun deserialize(pagetab: String) =
-        Pair(pagetab, Try { serializationService.deserializeSubmission(pagetab, TSV, FilesSource.EmptyFileSource) })
+        Pair(pagetab, Try { serializationService.deserializeSubmission(pagetab, TSV) })
 
     private fun sanitize(fileText: String) = fileText.replace(sanitizeRegex, "\n")
 }

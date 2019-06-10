@@ -9,6 +9,7 @@ import ebi.ac.uk.model.ExtendedSubmission
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.User
 import ebi.ac.uk.persistence.PersistenceContext
+import ebi.ac.uk.security.integration.model.api.SecurityUser
 
 class SubmissionService(
     private val submissionRepository: SubmissionRepository,
@@ -32,14 +33,18 @@ class SubmissionService(
         return serializationService.serializeSubmission(submission, SubFormat.TSV)
     }
 
-    fun deleteSubmission(accNo: String, user: User) {
-        require(persistenceContext.canDelete(accNo, user))
+    fun deleteSubmission(accNo: String, user: SecurityUser) {
+        require(persistenceContext.canDelete(accNo, asUser(user)))
         submissionRepository.expireSubmission(accNo)
     }
 
     fun submit(
         submission: Submission,
-        user: User,
+        user: SecurityUser,
         files: UserSource
-    ) = submitter.submit(ExtendedSubmission(submission, user), files, persistenceContext)
+    ) = submitter.submit(ExtendedSubmission(submission, asUser(user)), files, persistenceContext)
+
+    private fun asUser(securityUser: SecurityUser): User {
+        return User(securityUser.id, securityUser.email, securityUser.secret)
+    }
 }

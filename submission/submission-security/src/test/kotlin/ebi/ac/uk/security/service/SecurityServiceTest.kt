@@ -11,6 +11,7 @@ import ebi.ac.uk.security.integration.exception.ActKeyNotFoundException
 import ebi.ac.uk.security.integration.exception.LoginException
 import ebi.ac.uk.security.integration.exception.UserAlreadyRegister
 import ebi.ac.uk.security.integration.exception.UserNotFoundException
+import ebi.ac.uk.security.integration.model.api.UserInfo
 import ebi.ac.uk.security.integration.model.events.PasswordReset
 import ebi.ac.uk.security.integration.model.events.UserPreRegister
 import ebi.ac.uk.security.integration.model.events.UserRegister
@@ -23,6 +24,7 @@ import ebi.ac.uk.security.test.SecurityTestEntities.Companion.path
 import ebi.ac.uk.security.test.SecurityTestEntities.Companion.registrationRequest
 import ebi.ac.uk.security.test.SecurityTestEntities.Companion.resetPasswordRequest
 import ebi.ac.uk.security.test.SecurityTestEntities.Companion.retryActivation
+import ebi.ac.uk.security.test.SecurityTestEntities.Companion.securityUser
 import ebi.ac.uk.security.test.SecurityTestEntities.Companion.simpleUser
 import ebi.ac.uk.security.test.SecurityTestEntities.Companion.username
 import ebi.ac.uk.security.util.SecurityUtil
@@ -47,10 +49,11 @@ internal class SecurityServiceTest(
     @MockK private val userRepository: UserDataRepository,
     @MockK private val tokenRepository: TokenDataRepository,
     @MockK private val securityProps: SecurityProperties,
-    @MockK private val securityUtil: SecurityUtil
+    @MockK private val securityUtil: SecurityUtil,
+    @MockK private val profileService: ProfileService
 ) {
     private val testInstance: SecurityService =
-        SecurityService(userRepository, tokenRepository, securityUtil, securityProps)
+        SecurityService(userRepository, tokenRepository, securityUtil, securityProps, profileService)
 
     @Nested
     inner class Login {
@@ -76,10 +79,11 @@ internal class SecurityServiceTest(
             every { userRepository.findByLoginOrEmailAndActive(username, username, true) } returns Optional.of(simpleUser)
             every { securityUtil.checkPassword(passwordDiggest, password) } returns true
             every { securityUtil.createToken(simpleUser) } returns userToken
+            every { profileService.getUserProfile(simpleUser, userToken) } returns UserInfo(securityUser, userToken)
 
             val (user, token) = testInstance.login(LoginRequest(username, password))
 
-            assertThat(user).isEqualTo(simpleUser)
+            assertThat(user).isEqualTo(securityUser)
             assertThat(token).isEqualTo(userToken)
         }
     }
@@ -91,6 +95,7 @@ internal class SecurityServiceTest(
             every { userRepository.existsByEmail(email) } returns false
             every { userRepository.save(any<User>()) } answers { firstArg() }
             every { securityUtil.getPasswordDigest(password) } returns PASSWORD_DIGGEST
+            every { profileService.asSecurityUser(any()) } returns securityUser
         }
 
         @Test
@@ -184,6 +189,7 @@ internal class SecurityServiceTest(
             every { securityUtil.newKey() } returns ACTIVATION_KEY
             every { securityUtil.getInstanceUrl(instanceKey, path) } returns instanceUrl
             every { userRepository.save(any<User>()) } answers { firstArg() }
+            every { profileService.asSecurityUser(any()) } returns securityUser
 
             val subscriber = TestObserver<UserPreRegister>()
             Events.userPreRegister.subscribe(subscriber)

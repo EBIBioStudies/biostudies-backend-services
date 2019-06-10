@@ -1,9 +1,7 @@
 package ebi.ac.uk.security.integration.model.api
 
-import ac.uk.ebi.biostd.persistence.model.User
-
 class UserInfo(
-    private val user: User,
+    private val user: SecurityUser,
     private val token: String
 ) {
 

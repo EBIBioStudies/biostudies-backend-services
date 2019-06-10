@@ -12,11 +12,16 @@ import ebi.ac.uk.model.extensions.libraryFileName
 internal class SerializationServiceDecorator(
     private val serializationService: SerializationService = SerializationService()
 ) : ISerializationService {
+
     override fun <T> serializeElement(element: T, format: SubFormat) =
         serializationService.serializeElement(element, format)
 
     override fun serializeSubmission(submission: Submission, format: SubFormat) =
         serializationService.serializeSubmission(submission, format)
+
+    override fun deserializeSubmission(content: String, format: SubFormat): Submission {
+        return serializationService.deserializeSubmission(content, format)
+    }
 
     override fun deserializeSubmission(content: String, format: SubFormat, source: FilesSource): Submission {
         val submission = serializationService.deserializeSubmission(content, format)

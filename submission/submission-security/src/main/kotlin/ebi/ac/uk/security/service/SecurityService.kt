@@ -22,6 +22,7 @@ import ebi.ac.uk.security.integration.exception.ActKeyNotFoundException
 import ebi.ac.uk.security.integration.exception.LoginException
 import ebi.ac.uk.security.integration.exception.UserAlreadyRegister
 import ebi.ac.uk.security.integration.exception.UserNotFoundException
+import ebi.ac.uk.security.integration.model.api.SecurityUser
 import ebi.ac.uk.security.integration.model.api.UserInfo
 import ebi.ac.uk.security.integration.model.events.PasswordReset
 import ebi.ac.uk.security.integration.model.events.UserPreRegister
@@ -35,7 +36,8 @@ internal class SecurityService(
     private val userRepository: UserDataRepository,
     private val tokenRepository: TokenDataRepository,
     private val securityUtil: SecurityUtil,
-    private val securityProps: SecurityProperties
+    private val securityProps: SecurityProperties,
+    private val profileService: ProfileService
 ) : ISecurityService {
 
     override fun login(request: LoginRequest): UserInfo =
@@ -43,13 +45,13 @@ internal class SecurityService(
             .findByLoginOrEmailAndActive(request.login, request.login, true)
             .filter { securityUtil.checkPassword(it.passwordDigest, request.password) }
             .orElseThrow { LoginException() }
-            .let { UserInfo(it, securityUtil.createToken(it)) }
+            .let { profileService.getUserProfile(it, securityUtil.createToken(it)) }
 
     override fun logout(authToken: String) {
         tokenRepository.save(SecurityToken(authToken, OffsetDateTime.now(Clock.systemUTC())))
     }
 
-    override fun registerUser(request: RegisterRequest): User {
+    override fun registerUser(request: RegisterRequest): SecurityUser {
         return when {
             userRepository.existsByEmail(request.email) -> throw UserAlreadyRegister(request.email)
             securityProps.requireActivation -> preRegister(request)
@@ -92,7 +94,7 @@ internal class SecurityService(
     }
 
     override fun getUserProfile(authToken: String): UserInfo = checkToken(authToken)
-        .map { UserInfo(it, securityUtil.createToken(it)) }
+        .map { profileService.getUserProfile(it, securityUtil.createToken(it)) }
         .getOrElse { throw UserNotFoundException() }
 
     fun checkToken(tokenKey: String): Option<User> {
@@ -103,22 +105,22 @@ internal class SecurityService(
         }
     }
 
-    private fun preRegister(request: RegisterRequest): User {
+    private fun preRegister(request: RegisterRequest): SecurityUser {
         val instanceKey = checkNotNull(request.instanceKey) { "Instance key can not be null when activation" }
         val activationPath = checkNotNull(request.path) { "Activation path can not be null" }
         return preRegister(asUser(request), instanceKey, activationPath)
     }
 
-    private fun preRegister(user: User, instanceKey: String, activationPath: String): User {
+    private fun preRegister(user: User, instanceKey: String, activationPath: String): SecurityUser {
         val saved = userRepository.save(user.register(securityUtil.newKey()))
         userPreRegister.onNext(UserPreRegister(saved, securityUtil.getInstanceUrl(instanceKey, activationPath)))
-        return saved
+        return profileService.asSecurityUser(saved)
     }
 
-    private fun register(request: RegisterRequest): User {
+    private fun register(request: RegisterRequest): SecurityUser {
         val user = userRepository.save(asUser(request).activated())
         userRegister.onNext(UserRegister(user))
-        return user
+        return profileService.asSecurityUser(user)
     }
 
     private fun asUser(registerRequest: RegisterRequest): User {

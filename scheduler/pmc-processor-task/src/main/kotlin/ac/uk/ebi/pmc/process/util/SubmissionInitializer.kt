@@ -2,7 +2,6 @@ package ac.uk.ebi.pmc.process.util
 
 import ac.uk.ebi.biostd.integration.ISerializationService
 import ac.uk.ebi.biostd.integration.SubFormat
-import ebi.ac.uk.io.FilesSource
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.extensions.getSectionByType
 import ebi.ac.uk.model.extensions.releaseDate
@@ -20,7 +19,7 @@ private val yearExtractionPattern = "\\d{4}".toRegex()
 class SubmissionInitializer(private val serializationService: ISerializationService) {
 
     fun getSubmission(body: String): Pair<Submission, String> {
-        val submission = serializationService.deserializeSubmission(body, SubFormat.JSON, FilesSource.EmptyFileSource)
+        val submission = serializationService.deserializeSubmission(body, SubFormat.JSON)
         submission.releaseDate = getReleaseDate(submission)
         return Pair(submission, asString(submission))
     }

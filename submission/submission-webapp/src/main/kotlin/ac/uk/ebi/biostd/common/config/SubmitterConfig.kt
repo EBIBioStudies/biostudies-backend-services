@@ -38,7 +38,7 @@ class SubmitterConfig {
     class FilesHandlerConfig(private val appProperties: ApplicationProperties) {
         @Bean
         @Lazy
-        fun folderResolver() = FolderResolver(Paths.get(appProperties.basepath), Paths.get(appProperties.filesDirPath))
+        fun folderResolver() = FolderResolver(Paths.get(appProperties.basepath))
 
         @Bean
         fun serializationService() = SerializationConfigX.serializationService()

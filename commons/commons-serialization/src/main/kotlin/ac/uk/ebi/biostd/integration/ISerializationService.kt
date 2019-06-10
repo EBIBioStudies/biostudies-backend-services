@@ -5,6 +5,8 @@ import ebi.ac.uk.model.Submission
 
 interface ISerializationService {
 
+    fun deserializeSubmission(content: String, format: SubFormat): Submission
+
     fun deserializeSubmission(content: String, format: SubFormat, source: FilesSource): Submission
 
     fun serializeSubmission(submission: Submission, format: SubFormat): String

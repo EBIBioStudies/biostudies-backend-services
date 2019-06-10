@@ -1,0 +1,43 @@
+package ebi.ac.uk.security.service
+
+import ac.uk.ebi.biostd.persistence.model.User
+import ac.uk.ebi.biostd.persistence.model.UserGroup
+import ebi.ac.uk.security.integration.model.api.GroupMagicFolder
+import ebi.ac.uk.security.integration.model.api.MagicFolder
+import ebi.ac.uk.security.integration.model.api.SecurityUser
+import ebi.ac.uk.security.integration.model.api.UserInfo
+import java.nio.file.Path
+import java.nio.file.Paths
+
+class ProfileService(private val filesDirPath: Path) {
+
+    fun getUserProfile(user: User, token: String): UserInfo {
+        return UserInfo(asSecurityUser(user), token)
+    }
+
+    fun asSecurityUser(user: User): SecurityUser {
+        return user.run {
+            SecurityUser(
+                id = id,
+                email = email,
+                fullName = fullName,
+                login = login,
+                secret = secret,
+                superuser = user.superuser,
+                magicFolder = userMagicFolder(secret, id),
+                groupsFolders = groupsMagicFolder(user.groups),
+                permissions = permissions)
+        }
+    }
+
+    private fun groupsMagicFolder(groups: Set<UserGroup>): List<GroupMagicFolder> =
+        groups.map { GroupMagicFolder(it.name, Paths.get(magicPath(it.secret, it.id, "a"))) }
+
+    private fun userMagicFolder(secret: String, id: Long): MagicFolder {
+        val relativePath = magicPath(secret, id, "b")
+        return MagicFolder(Paths.get(relativePath), Paths.get("$filesDirPath/$relativePath"))
+    }
+
+    private fun magicPath(secret: String, id: Long, suffix: String) =
+        "${secret.dropLast(2)}/${secret.takeLast(2)}-$suffix$id"
+}

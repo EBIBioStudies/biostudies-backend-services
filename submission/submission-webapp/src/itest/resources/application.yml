@@ -13,10 +13,11 @@ spring:
 
 app:
   basepath:
-  filesDirPath:
+  tempDirPath:
   security:
     tokenHash: biostd-test
     environment: TEST
+    filesDirPath:
     requireActivation: false
   notifications:
     smtp:

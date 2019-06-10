@@ -5,7 +5,6 @@ import ac.uk.ebi.biostd.client.extensions.setSubmissionType
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.web.MultipartSubmissionOperations
 import ac.uk.ebi.biostd.integration.ISerializationService
-import ebi.ac.uk.io.FilesSource.EmptyFileSource
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.constants.FILES
 import ebi.ac.uk.model.constants.SUBMISSION
@@ -48,7 +47,7 @@ internal class MultiPartSubmissionClient(
 
     private fun submitSingle(request: HttpEntity<LinkedMultiValueMap<String, Any>>, format: SubmissionFormat) = template
         .postForEntity<String>(SUBMIT_URL, request)
-        .map { body -> serializationService.deserializeSubmission(body, format.asSubFormat(), EmptyFileSource) }
+        .map { body -> serializationService.deserializeSubmission(body, format.asSubFormat()) }
 
     private fun createHeaders(format: SubmissionFormat): HttpHeaders {
         val headers = HttpHeaders()

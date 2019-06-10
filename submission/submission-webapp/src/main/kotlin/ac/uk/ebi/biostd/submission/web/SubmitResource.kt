@@ -9,7 +9,6 @@ import ac.uk.ebi.biostd.submission.model.UserSource
 import ac.uk.ebi.biostd.submission.service.SubmissionService
 import ac.uk.ebi.biostd.submission.service.TempFileGenerator
 import ebi.ac.uk.model.Submission
-import ebi.ac.uk.model.User
 import ebi.ac.uk.model.constants.APPLICATION_JSON
 import ebi.ac.uk.model.constants.FILES
 import ebi.ac.uk.model.constants.MULTIPART_FORM_DATA
@@ -17,6 +16,7 @@ import ebi.ac.uk.model.constants.SUBMISSION
 import ebi.ac.uk.model.constants.SUBMISSION_TYPE
 import ebi.ac.uk.model.constants.TEXT_PLAIN
 import ebi.ac.uk.model.constants.TEXT_XML
+import ebi.ac.uk.security.integration.model.api.SecurityUser
 import org.springframework.http.HttpHeaders.CONTENT_TYPE
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -42,7 +42,7 @@ class SubmitResource(
     @PostMapping(headers = ["$CONTENT_TYPE=$MULTIPART_FORM_DATA", "$SUBMISSION_TYPE=$APPLICATION_JSON"])
     @ResponseBody
     fun submitJson(
-        @AuthenticationPrincipal user: User,
+        @AuthenticationPrincipal user: SecurityUser,
         @RequestParam(FILES) files: Array<MultipartFile>,
         @RequestParam(SUBMISSION) submissionContent: String
     ) = submit(files, user, submissionContent, JSON)
@@ -50,7 +50,7 @@ class SubmitResource(
     @PostMapping(headers = ["$CONTENT_TYPE=$MULTIPART_FORM_DATA", "$SUBMISSION_TYPE=$TEXT_XML"])
     @ResponseBody
     fun submitXml(
-        @AuthenticationPrincipal user: User,
+        @AuthenticationPrincipal user: SecurityUser,
         @RequestParam(FILES) files: Array<MultipartFile>,
         @RequestParam(SUBMISSION) submissionContent: String
     ): Submission = submit(files, user, submissionContent, XML)
@@ -58,37 +58,39 @@ class SubmitResource(
     @PostMapping(headers = ["$CONTENT_TYPE=$MULTIPART_FORM_DATA", "$SUBMISSION_TYPE=$TEXT_PLAIN"])
     @ResponseBody
     fun submitTsv(
-        @AuthenticationPrincipal user: User,
+        @AuthenticationPrincipal user: SecurityUser,
         @RequestParam(FILES) files: Array<MultipartFile>,
         @RequestParam(SUBMISSION) submissionContent: String
     ): Submission = submit(files, user, submissionContent, TSV)
 
-    private fun submit(files: Array<MultipartFile>, user: User, content: String, format: SubFormat): Submission {
-        val fileSource = UserSource(tempFileGenerator.asFiles(files), user.magicFolder)
+    private fun submit(files: Array<MultipartFile>, user: SecurityUser, content: String, format: SubFormat):
+        Submission {
+        val fileSource = UserSource(tempFileGenerator.asFiles(files), user.magicFolder.path)
         val submission = serializationService.deserializeSubmission(content, format, fileSource)
         return submissionService.submit(submission, user, fileSource)
     }
 
     @PostMapping(headers = ["$SUBMISSION_TYPE=$TEXT_XML"])
     @ResponseBody
-    fun submitXml(@AuthenticationPrincipal user: User, @RequestBody submission: String): Submission =
+    fun submitXml(@AuthenticationPrincipal user: SecurityUser, @RequestBody submission: String): Submission =
         submit(user, submission, XML)
 
     @PostMapping(headers = ["$SUBMISSION_TYPE=$TEXT_PLAIN"])
     @ResponseBody
-    fun submitTsv(@AuthenticationPrincipal user: User, @RequestBody submission: String): Submission =
+    fun submitTsv(@AuthenticationPrincipal user: SecurityUser, @RequestBody submission: String): Submission =
         submit(user, submission, TSV)
 
+    @PostMapping(headers = ["$SUBMISSION_TYPE=$APPLICATION_JSON"])
     @ResponseBody
-    fun submitJson(@AuthenticationPrincipal user: User, @RequestBody submission: String): Submission =
+    fun submitJson(@AuthenticationPrincipal user: SecurityUser, @RequestBody submission: String): Submission =
         submit(user, submission, JSON)
 
     @DeleteMapping("/{accNo}")
-    fun deleteSubmission(@AuthenticationPrincipal user: User, @PathVariable accNo: String) =
+    fun deleteSubmission(@AuthenticationPrincipal user: SecurityUser, @PathVariable accNo: String) =
         submissionService.deleteSubmission(accNo, user)
 
-    private fun submit(user: User, content: String, format: SubFormat): Submission {
-        val fileSource = UserSource(emptyList(), user.magicFolder)
+    private fun submit(user: SecurityUser, content: String, format: SubFormat): Submission {
+        val fileSource = UserSource(emptyList(), user.magicFolder.path)
         val submission = serializationService.deserializeSubmission(content, format, fileSource)
         return submissionService.submit(submission, user, fileSource)
     }

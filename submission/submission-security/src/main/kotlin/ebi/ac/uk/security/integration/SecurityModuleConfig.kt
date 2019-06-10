@@ -4,7 +4,6 @@ import ac.uk.ebi.biostd.persistence.repositories.TokenDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserGroupDataRepository
 import ebi.ac.uk.commons.http.JacksonFactory
-import ebi.ac.uk.paths.FolderResolver
 import ebi.ac.uk.security.events.Events
 import ebi.ac.uk.security.integration.components.IGroupService
 import ebi.ac.uk.security.integration.components.ISecurityFilter
@@ -13,6 +12,7 @@ import ebi.ac.uk.security.integration.model.events.PasswordReset
 import ebi.ac.uk.security.integration.model.events.UserPreRegister
 import ebi.ac.uk.security.integration.model.events.UserRegister
 import ebi.ac.uk.security.service.GroupService
+import ebi.ac.uk.security.service.ProfileService
 import ebi.ac.uk.security.service.SecurityService
 import ebi.ac.uk.security.util.SecurityUtil
 import ebi.ac.uk.security.web.SecurityFilter
@@ -24,7 +24,7 @@ class SecurityModuleConfig(
     private val userRepository: UserDataRepository,
     private val tokenRepository: TokenDataRepository,
     private val groupRepository: UserGroupDataRepository,
-    private var properties: SecurityProperties
+    private var props: SecurityProperties
 ) {
     fun securityService(): ISecurityService = securityService
     fun groupService(): IGroupService = groupService
@@ -35,14 +35,13 @@ class SecurityModuleConfig(
     val userPreRegister: Observable<UserPreRegister> = Events.userPreRegister
 
     private val groupService: GroupService by lazy { GroupService(groupRepository, userRepository) }
-    private val folderResolver
-        by lazy { FolderResolver(Paths.get(properties.basePath), Paths.get(properties.filesDirPath)) }
     private val securityService: SecurityService
-        by lazy { SecurityService(userRepository, tokenRepository, securityUtil, properties) }
+        by lazy { SecurityService(userRepository, tokenRepository, securityUtil, props, profileService) }
     private val securityFilter: SecurityFilter
-        by lazy { SecurityFilter(properties.environment, securityService, folderResolver) }
+        by lazy { SecurityFilter(props.environment, securityService, profileService) }
 
-    private val securityUtil by lazy { SecurityUtil(jwtParser, objectMapper, userRepository, properties.tokenHash) }
+    private val securityUtil by lazy { SecurityUtil(jwtParser, objectMapper, userRepository, props.tokenHash) }
     private val objectMapper by lazy { JacksonFactory.createMapper() }
     private val jwtParser by lazy { Jwts.parser()!! }
+    private val profileService by lazy { ProfileService(Paths.get(props.filesDirPath)) }
 }

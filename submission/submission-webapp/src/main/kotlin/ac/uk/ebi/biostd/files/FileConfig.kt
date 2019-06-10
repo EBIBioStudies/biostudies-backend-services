@@ -12,8 +12,7 @@ import org.springframework.context.annotation.Configuration
 class FileConfig {
 
     @Bean
-    fun fileManager(folder: FolderResolver) =
-        UserFilesService(folder)
+    fun fileManager() = UserFilesService()
 
     @Bean
     fun groupFilesService(folder: FolderResolver, repository: UserGroupDataRepository) =

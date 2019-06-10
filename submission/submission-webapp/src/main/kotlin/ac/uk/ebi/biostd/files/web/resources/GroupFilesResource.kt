@@ -4,7 +4,7 @@ import ac.uk.ebi.biostd.files.service.GroupFilesService
 import ac.uk.ebi.biostd.files.web.common.FilesMapper
 import ac.uk.ebi.biostd.files.web.common.GroupPath
 import ac.uk.ebi.biostd.files.web.common.UserPath
-import ebi.ac.uk.model.User
+import ebi.ac.uk.security.integration.model.api.SecurityUser
 import org.springframework.http.HttpStatus
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -28,7 +28,7 @@ class GroupFilesResource(
     @GetMapping("/files/groups/{groupName}/**")
     @ResponseBody
     fun listGroupFiles(
-        @AuthenticationPrincipal user: User,
+        @AuthenticationPrincipal user: SecurityUser,
         pathDescriptor: GroupPath,
         @PathVariable groupName: String
     ) = filesMapper.asGroupFiles(groupName, groupService.listFiles(groupName, user, pathDescriptor.path))
@@ -36,7 +36,7 @@ class GroupFilesResource(
     @PostMapping("/files/groups/{groupName}/**")
     @ResponseStatus(value = HttpStatus.OK)
     fun uploadGroupFile(
-        @AuthenticationPrincipal user: User,
+        @AuthenticationPrincipal user: SecurityUser,
         pathDescriptor: GroupPath,
         @PathVariable groupName: String,
         @RequestParam("files") files: Array<MultipartFile>
@@ -45,7 +45,7 @@ class GroupFilesResource(
     @DeleteMapping("/files/groups/{groupName}/**")
     @ResponseStatus(value = HttpStatus.OK)
     fun deleteFile(
-        @AuthenticationPrincipal user: User,
+        @AuthenticationPrincipal user: SecurityUser,
         @PathVariable groupName: String,
         @RequestParam(name = "fileName") fileName: String,
         pathDescriptor: UserPath
@@ -54,7 +54,7 @@ class GroupFilesResource(
     @PostMapping("/folder/groups/{groupName}/**")
     @ResponseStatus(value = HttpStatus.OK)
     fun createFolder(
-        @AuthenticationPrincipal user: User,
+        @AuthenticationPrincipal user: SecurityUser,
         @PathVariable groupName: String,
         @RequestParam(name = "folder") folder: String,
         pathDescriptor: UserPath
