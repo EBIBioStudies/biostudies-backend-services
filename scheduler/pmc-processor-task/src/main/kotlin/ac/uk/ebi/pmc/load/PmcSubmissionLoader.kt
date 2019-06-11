@@ -1,6 +1,6 @@
 package ac.uk.ebi.pmc.load
 
-import ac.uk.ebi.biostd.integration.ISerializationService
+import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat.TSV
 import ac.uk.ebi.pmc.persistence.ErrorsDocService
 import ac.uk.ebi.pmc.persistence.InputFilesDocService
@@ -22,7 +22,7 @@ private val sanitizeRegex = "(\n)(\t)*|(\t)+(\n)".toRegex()
 private const val WORKERS = 30
 
 class PmcSubmissionLoader(
-    private val serializationService: ISerializationService,
+    private val serializationService: SerializationService,
     private val errorDocService: ErrorsDocService,
     private val inputFilesDocService: InputFilesDocService,
     private val submissionService: SubmissionDocService

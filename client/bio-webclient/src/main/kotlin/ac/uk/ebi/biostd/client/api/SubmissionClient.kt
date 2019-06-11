@@ -4,7 +4,7 @@ import ac.uk.ebi.biostd.client.extensions.map
 import ac.uk.ebi.biostd.client.extensions.setSubmissionType
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.web.SubmissionOperations
-import ac.uk.ebi.biostd.integration.ISerializationService
+import ac.uk.ebi.biostd.integration.SerializationService
 import ebi.ac.uk.model.Submission
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
@@ -17,7 +17,7 @@ private const val SUBMISSIONS_URL = "/submissions"
 
 internal class SubmissionClient(
     private val template: RestTemplate,
-    private val serializationService: ISerializationService
+    private val serializationService: SerializationService
 ) : SubmissionOperations {
 
     override fun submitSingle(submission: Submission, format: SubmissionFormat) = submitSingle(HttpEntity(

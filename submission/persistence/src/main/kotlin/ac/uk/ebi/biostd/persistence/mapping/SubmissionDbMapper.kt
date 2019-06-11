@@ -143,7 +143,6 @@ private object DbEntityMapper {
     internal fun toLink(link: LinkDb) = Link(link.url, toAttributes(link.attributes))
     internal fun toFile(file: FileDb) = File(file.name, file.size, toAttributes(file.attributes))
 
-    // TODO FIX by separating users classes (persistence, domain)
     internal fun toUser(owner: UserDb) = User(owner.id, owner.email, owner.secret)
     internal fun toFile(file: ReferencedFileDb) = File(file.name, file.size, toAttributes(file.attributes))
     internal fun toLibraryFile(libFile: LibraryFileDb) = LibraryFile(libFile.name, libFile.files.map { toFile(it) })

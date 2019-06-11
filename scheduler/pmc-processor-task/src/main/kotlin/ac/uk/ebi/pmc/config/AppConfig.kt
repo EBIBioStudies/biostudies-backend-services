@@ -1,7 +1,7 @@
 package ac.uk.ebi.pmc.config
 
-import ac.uk.ebi.biostd.integration.ISerializationService
-import ac.uk.ebi.biostd.integration.SerializationConfigX
+import ac.uk.ebi.biostd.integration.SerializationConfig
+import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.pmc.persistence.ErrorsDocService
 import ac.uk.ebi.pmc.persistence.InputFilesDocService
 import ac.uk.ebi.pmc.persistence.SubmissionDocService
@@ -18,7 +18,7 @@ import org.springframework.context.annotation.Import
 class AppConfig {
 
     @Bean
-    fun serializationService() = SerializationConfigX.serializationService()
+    fun serializationService() = SerializationConfig.serializationService()
 
     @Bean
     fun inputFilesDocService(inputFileRepository: InputFileRepository) = InputFilesDocService(inputFileRepository)
@@ -31,6 +31,6 @@ class AppConfig {
     fun submissionDocService(
         submissionRepository: SubmissionRepository,
         submissionFileRepository: SubFileRepository,
-        serializationService: ISerializationService
+        serializationService: SerializationService
     ) = SubmissionDocService(submissionRepository, submissionFileRepository, serializationService)
 }

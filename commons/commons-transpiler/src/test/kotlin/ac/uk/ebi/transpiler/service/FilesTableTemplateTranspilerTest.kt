@@ -1,6 +1,6 @@
 package ac.uk.ebi.transpiler.service
 
-import ac.uk.ebi.biostd.integration.ISerializationService
+import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat
 import ac.uk.ebi.transpiler.common.FilesTableTemplate
 import ac.uk.ebi.transpiler.factory.testTemplate
@@ -21,7 +21,7 @@ class FilesTableTemplateTranspilerTest(
     @MockK private val mockTemplateProcessor: FilesTableTemplateProcessor,
     @MockK private val mockTemplateValidator: FilesTableTemplateValidator,
     @MockK private val mockTemplateMapper: FilesTableTemplateMapper,
-    @MockK private val mockSerializationService: ISerializationService
+    @MockK private val mockSerializationService: SerializationService
 ) {
     private val testFilesTable = FilesTable()
     private val testParentFolder = "files"

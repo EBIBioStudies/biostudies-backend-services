@@ -1,6 +1,6 @@
 package ac.uk.ebi.pmc.process.util
 
-import ac.uk.ebi.biostd.integration.ISerializationService
+import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.extensions.getSectionByType
@@ -16,7 +16,7 @@ private val yearExtractionPattern = "\\d{4}".toRegex()
 /**
  * Read submission value an set calculated values.
  */
-class SubmissionInitializer(private val serializationService: ISerializationService) {
+class SubmissionInitializer(private val serializationService: SerializationService) {
 
     fun getSubmission(body: String): Pair<Submission, String> {
         val submission = serializationService.deserializeSubmission(body, SubFormat.JSON)

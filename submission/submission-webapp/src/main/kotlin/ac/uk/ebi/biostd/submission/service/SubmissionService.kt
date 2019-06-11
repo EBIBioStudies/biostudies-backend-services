@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.submission.service
 
-import ac.uk.ebi.biostd.integration.ISerializationService
+import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
 import ac.uk.ebi.biostd.submission.SubmissionSubmitter
@@ -14,7 +14,7 @@ import ebi.ac.uk.security.integration.model.api.SecurityUser
 class SubmissionService(
     private val submissionRepository: SubmissionRepository,
     private val persistenceContext: PersistenceContext,
-    private val serializationService: ISerializationService,
+    private val serializationService: SerializationService,
     private val submitter: SubmissionSubmitter
 ) {
 
@@ -44,7 +44,6 @@ class SubmissionService(
         files: UserSource
     ) = submitter.submit(ExtendedSubmission(submission, asUser(user)), files, persistenceContext)
 
-    private fun asUser(securityUser: SecurityUser): User {
-        return User(securityUser.id, securityUser.email, securityUser.secret)
-    }
+    private fun asUser(securityUser: SecurityUser): User =
+        User(securityUser.id, securityUser.email, securityUser.secret)
 }

@@ -3,17 +3,12 @@ package ac.uk.ebi.biostd.files.service
 import ac.uk.ebi.biostd.files.exception.UserGroupNotFound
 import ac.uk.ebi.biostd.files.model.FilesSpec
 import ac.uk.ebi.biostd.files.utils.copyFile
-import ac.uk.ebi.biostd.persistence.repositories.UserGroupDataRepository
 import ebi.ac.uk.io.asFileList
-import ebi.ac.uk.paths.FolderResolver
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import org.springframework.web.multipart.MultipartFile
 import java.nio.file.Path
 
-class GroupFilesService(
-    private val folderResolver: FolderResolver,
-    private val userGroupRepository: UserGroupDataRepository
-) {
+class GroupFilesService {
     fun listFiles(groupName: String, user: SecurityUser, path: String): FilesSpec {
         val groupPath = getGroupPath(groupName, user)
         val file = groupPath.resolve(path).toFile()
@@ -45,6 +40,5 @@ class GroupFilesService(
     private fun getGroupPath(groupName: String, user: SecurityUser): Path {
         val group = user.groupsFolders.find { it.groupName == groupName } ?: throw UserGroupNotFound(user, groupName)
         return group.path
-        // return folderResolver.getGroupMagicFolderPath(group.id, group.secret)
     }
 }

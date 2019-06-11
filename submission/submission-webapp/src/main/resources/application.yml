@@ -19,9 +19,9 @@ spring:
 
 app:
   basepath: # Absolute path to the folder to be used as storage
-  filesDirPath: # Absolute path to the folder to be used for the user/groups files
   tmpDirPath: # Absolute of the temp folder to store files
   security:
     tokenHash: # Token used for hash authentication
+    filesDirPath: # Absolute path to the folder to be used for the user/groups files
     environment: # Current application execution environment
     requiresActivation: # Indicates whether or not, new user need activation before being used

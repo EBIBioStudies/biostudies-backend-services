@@ -5,10 +5,10 @@ import ebi.ac.uk.model.ExtendedSubmission
 import ebi.ac.uk.model.File
 import ebi.ac.uk.model.extensions.allFiles
 import ebi.ac.uk.model.extensions.allReferencedFiles
-import ebi.ac.uk.paths.FolderResolver
+import ebi.ac.uk.paths.SubmissionFolderResolver
 import org.apache.commons.io.FileUtils
 
-class FilesCopier(private val folderResolver: FolderResolver) {
+class FilesCopier(private val folderResolver: SubmissionFolderResolver) {
     fun copy(submission: ExtendedSubmission, filesSource: UserSource) {
         copySubmissionFiles(submission, filesSource)
         copyReferencedFiles(submission, filesSource)

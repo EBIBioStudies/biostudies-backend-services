@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.common.config
 
-import ac.uk.ebi.biostd.integration.ISerializationService
+import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
 import ac.uk.ebi.biostd.submission.SubmissionSubmitter
 import ac.uk.ebi.biostd.submission.service.SubmissionService
@@ -11,12 +11,12 @@ import org.springframework.context.annotation.Import
 
 @Configuration
 @Import(PersistenceConfig::class)
-class SerializationConfig {
+class SubmissionConfig {
 
     @Bean
     fun submissionService(
         subRepository: SubmissionRepository,
-        serializationService: ISerializationService,
+        serializationService: SerializationService,
         persistenceContext: PersistenceContext,
         submissionSubmitter: SubmissionSubmitter
     ) = SubmissionService(

@@ -4,7 +4,7 @@ import ac.uk.ebi.biostd.client.extensions.map
 import ac.uk.ebi.biostd.client.extensions.setSubmissionType
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.web.MultipartSubmissionOperations
-import ac.uk.ebi.biostd.integration.ISerializationService
+import ac.uk.ebi.biostd.integration.SerializationService
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.constants.FILES
 import ebi.ac.uk.model.constants.SUBMISSION
@@ -22,7 +22,7 @@ private const val SUBMIT_URL = "/submissions"
 
 internal class MultiPartSubmissionClient(
     private val template: RestTemplate,
-    private val serializationService: ISerializationService
+    private val serializationService: SerializationService
 ) : MultipartSubmissionOperations {
 
     override fun submitSingle(

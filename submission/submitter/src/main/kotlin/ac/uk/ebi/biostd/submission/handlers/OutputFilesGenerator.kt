@@ -1,18 +1,18 @@
 package ac.uk.ebi.biostd.submission.handlers
 
-import ac.uk.ebi.biostd.integration.ISerializationService
+import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat
 import ebi.ac.uk.model.ExtendedSubmission
 import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.extensions.allLibraryFileSections
 import ebi.ac.uk.model.extensions.libraryFileAttr
-import ebi.ac.uk.paths.FolderResolver
+import ebi.ac.uk.paths.SubmissionFolderResolver
 import org.apache.commons.io.FileUtils
 
 class OutputFilesGenerator(
-    private val folderResolver: FolderResolver,
-    private val serializationService: ISerializationService
+    private val folderResolver: SubmissionFolderResolver,
+    private val serializationService: SerializationService
 ) {
     fun generate(submission: ExtendedSubmission) {
         generateLibraryFiles(submission)

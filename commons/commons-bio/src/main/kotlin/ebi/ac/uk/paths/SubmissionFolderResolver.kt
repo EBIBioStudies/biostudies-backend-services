@@ -6,7 +6,7 @@ import java.nio.file.Path
 private const val FILES_PATH = "Files"
 private const val SUBMISSION_PATH = "submission"
 
-class FolderResolver(private val basePath: Path) {
+class SubmissionFolderResolver(private val basePath: Path) {
 
     fun getSubmissionFolder(submission: ExtendedSubmission): Path =
         basePath.resolve(SUBMISSION_PATH).resolve(submission.relPath)

@@ -10,7 +10,7 @@ import ac.uk.ebi.biostd.tsv.TsvSerializer
 import ac.uk.ebi.biostd.xml.XmlSerializer
 import ebi.ac.uk.model.Submission
 
-internal class SerializationService(
+internal class PagetabSerializer(
     private val jsonSerializer: JsonSerializer = JsonSerializer(),
     private val xmlSerializer: XmlSerializer = XmlSerializer(),
     private val tsvSerializer: TsvSerializer = TsvSerializer()

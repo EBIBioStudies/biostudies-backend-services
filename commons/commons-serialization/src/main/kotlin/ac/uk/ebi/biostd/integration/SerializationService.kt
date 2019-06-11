@@ -3,7 +3,7 @@ package ac.uk.ebi.biostd.integration
 import ebi.ac.uk.io.FilesSource
 import ebi.ac.uk.model.Submission
 
-interface ISerializationService {
+interface SerializationService {
 
     fun deserializeSubmission(content: String, format: SubFormat): Submission
 

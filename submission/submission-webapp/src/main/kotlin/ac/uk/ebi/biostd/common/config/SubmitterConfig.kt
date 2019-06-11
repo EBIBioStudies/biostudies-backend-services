@@ -4,7 +4,7 @@ import ac.uk.ebi.biostd.common.config.SubmitterConfig.FilesHandlerConfig
 import ac.uk.ebi.biostd.common.config.SubmitterConfig.ProcessorConfig
 import ac.uk.ebi.biostd.common.config.SubmitterConfig.ValidatorConfig
 import ac.uk.ebi.biostd.common.property.ApplicationProperties
-import ac.uk.ebi.biostd.integration.SerializationConfigX
+import ac.uk.ebi.biostd.integration.SerializationConfig
 import ac.uk.ebi.biostd.submission.SubmissionSubmitter
 import ac.uk.ebi.biostd.submission.handlers.FilesCopier
 import ac.uk.ebi.biostd.submission.handlers.FilesHandler
@@ -17,7 +17,7 @@ import ac.uk.ebi.biostd.submission.processors.SubmissionProcessor
 import ac.uk.ebi.biostd.submission.processors.TimesProcessor
 import ac.uk.ebi.biostd.submission.validators.ProjectValidator
 import ac.uk.ebi.biostd.submission.validators.SubmissionValidator
-import ebi.ac.uk.paths.FolderResolver
+import ebi.ac.uk.paths.SubmissionFolderResolver
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
@@ -38,10 +38,10 @@ class SubmitterConfig {
     class FilesHandlerConfig(private val appProperties: ApplicationProperties) {
         @Bean
         @Lazy
-        fun folderResolver() = FolderResolver(Paths.get(appProperties.basepath))
+        fun folderResolver() = SubmissionFolderResolver(Paths.get(appProperties.basepath))
 
         @Bean
-        fun serializationService() = SerializationConfigX.serializationService()
+        fun serializationService() = SerializationConfig.serializationService()
 
         @Bean
         fun filesHandler() = FilesHandler(filesValidator(), filesCopier(), outputFilesGenerator())

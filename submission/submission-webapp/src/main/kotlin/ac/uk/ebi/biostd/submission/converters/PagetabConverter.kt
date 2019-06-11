@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.submission.converters
 
-import ac.uk.ebi.biostd.integration.ISerializationService
+import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat
 import ac.uk.ebi.biostd.integration.SubFormat.JSON
 import ac.uk.ebi.biostd.integration.SubFormat.XML
@@ -14,7 +14,7 @@ import org.springframework.http.MediaType.TEXT_XML
 import org.springframework.http.converter.HttpMessageConverter
 import kotlin.reflect.full.isSuperclassOf
 
-class PagetabConverter(private val serializerService: ISerializationService) : HttpMessageConverter<Submission> {
+class PagetabConverter(private val serializerService: SerializationService) : HttpMessageConverter<Submission> {
 
     override fun canRead(clazz: Class<*>, mediaType: MediaType?) = false
 

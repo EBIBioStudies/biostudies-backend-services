@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.submission.web
 
-import ac.uk.ebi.biostd.integration.ISerializationService
+import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat
 import ac.uk.ebi.biostd.integration.SubFormat.JSON
 import ac.uk.ebi.biostd.integration.SubFormat.TSV
@@ -36,9 +36,8 @@ import org.springframework.web.multipart.MultipartFile
 class SubmitResource(
     private val submissionService: SubmissionService,
     private val tempFileGenerator: TempFileGenerator,
-    private val serializationService: ISerializationService
+    private val serializationService: SerializationService
 ) {
-
     @PostMapping(headers = ["$CONTENT_TYPE=$MULTIPART_FORM_DATA", "$SUBMISSION_TYPE=$APPLICATION_JSON"])
     @ResponseBody
     fun submitJson(

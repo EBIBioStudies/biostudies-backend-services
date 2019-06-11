@@ -1,6 +1,6 @@
 package ac.uk.ebi.pmc.persistence
 
-import ac.uk.ebi.biostd.integration.ISerializationService
+import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat
 import ac.uk.ebi.pmc.common.coroutines.SuspendSequence
 import ac.uk.ebi.pmc.persistence.docs.SubmissionDoc
@@ -25,7 +25,7 @@ private val logger = KotlinLogging.logger {}
 class SubmissionDocService(
     private val submissionRepository: SubmissionRepository,
     private val fileRepository: SubFileRepository,
-    private val serializationService: ISerializationService
+    private val serializationService: SerializationService
 ) {
 
     suspend fun findReadyToProcess() =

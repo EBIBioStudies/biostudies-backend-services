@@ -7,7 +7,6 @@ import ebi.ac.uk.security.integration.model.api.SecurityUser
 import org.springframework.web.multipart.MultipartFile
 
 class UserFilesService {
-
     fun uploadFiles(user: SecurityUser, path: String, files: Array<MultipartFile>) {
         val userPath = user.magicFolder.path
         files.forEach { file -> copyFile(userPath.resolve(path), file) }
