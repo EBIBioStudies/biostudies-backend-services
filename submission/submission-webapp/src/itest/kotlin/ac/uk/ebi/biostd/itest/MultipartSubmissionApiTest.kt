@@ -23,7 +23,7 @@ import ebi.ac.uk.dsl.tsv
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.File
 import ebi.ac.uk.model.LibraryFile
-import ebi.ac.uk.model.extensions.libraryFile
+import ebi.ac.uk.model.extensions.libraryFileName
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
@@ -213,9 +213,9 @@ internal class MultipartSubmissionApiTest(private val tempFolder: TemporaryFolde
             val createdSubmission = submissionRepository.getExtendedByAccNo(accNo)
             val submissionFolderPath = "$basePath/submission/${createdSubmission.relPath}"
 
-            assertThat(createdSubmission.section.libraryFile).isEqualTo(libFileName)
+            assertThat(createdSubmission.section.libraryFileName).isEqualTo(libFileName)
             assertThat(createdSubmission.extendedSection.libraryFile).isEqualTo(
-                LibraryFile(libFileName, mutableSetOf(File(testFile, attributes = listOf(Attribute("GEN", "ABC"))))))
+                LibraryFile(libFileName, listOf(File(testFile, attributes = listOf(Attribute("GEN", "ABC"))))))
 
             assertThat(Paths.get("$submissionFolderPath/Files/$testFile")).exists()
 

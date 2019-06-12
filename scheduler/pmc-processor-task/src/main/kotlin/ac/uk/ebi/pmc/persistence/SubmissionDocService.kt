@@ -1,7 +1,7 @@
 package ac.uk.ebi.pmc.persistence
 
-import ac.uk.ebi.biostd.SerializationService
-import ac.uk.ebi.biostd.SubFormat
+import ac.uk.ebi.biostd.integration.SerializationService
+import ac.uk.ebi.biostd.integration.SubFormat
 import ac.uk.ebi.pmc.common.coroutines.SuspendSequence
 import ac.uk.ebi.pmc.persistence.docs.SubmissionDoc
 import ac.uk.ebi.pmc.persistence.docs.SubmissionStatus

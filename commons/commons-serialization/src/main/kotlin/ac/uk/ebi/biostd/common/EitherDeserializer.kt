@@ -17,7 +17,7 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer
 /**
  * Either deserializer, try to unserialize each either wrapper type to obtain the correct representation.
  */
-class EitherDeserializer : StdDeserializer<Either<*, *>>(Either::class.java), ContextualDeserializer {
+internal class EitherDeserializer : StdDeserializer<Either<*, *>>(Either::class.java), ContextualDeserializer {
     private lateinit var leftType: JavaType
     private lateinit var rightType: JavaType
 

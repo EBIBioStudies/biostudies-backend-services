@@ -4,9 +4,22 @@ import arrow.core.Either
 import java.util.Objects
 
 class ExtendedSection(type: String) : Section(type) {
+    var extendedSections: MutableList<Either<ExtendedSection, SectionsTable>> = mutableListOf()
 
-    var libraryFile: LibraryFile? = null
-    var extendedSections: List<Either<ExtendedSection, SectionsTable>> = listOf()
+    constructor(section: Section) : this(section.type) {
+        accNo = section.accNo
+        files = section.files
+        links = section.links
+        libraryFile = section.libraryFile
+        sections = section.sections
+        attributes = section.attributes
+        section.sections.map { subSection -> subSection.bimap({ ExtendedSection(it) }, { it }) }
+    }
+
+    fun asSection() = Section(type, accNo, libraryFile, toSections(), files, links, attributes)
+
+    private fun toSections(): MutableList<Either<Section, SectionsTable>> =
+        extendedSections.mapTo(mutableListOf()) { extSect -> extSect.bimap({ it.asSection() }, { it }) }
 
     override fun equals(other: Any?) = when {
         other !is ExtendedSection -> false

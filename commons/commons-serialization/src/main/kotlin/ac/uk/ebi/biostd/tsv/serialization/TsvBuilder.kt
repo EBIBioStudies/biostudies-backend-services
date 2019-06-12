@@ -7,7 +7,7 @@ internal const val ROOT_PATH_KEY = "RootPath"
 internal const val ATTR_VAL_SEPARATOR = ";"
 internal const val TAGS_SEPARATOR = ATTR_VAL_SEPARATOR
 
-class TsvBuilder(private val builder: StringBuilder) {
+internal class TsvBuilder(private val builder: StringBuilder) {
 
     constructor() : this(StringBuilder())
 

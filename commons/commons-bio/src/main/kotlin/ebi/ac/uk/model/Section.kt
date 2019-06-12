@@ -8,6 +8,7 @@ import java.util.Objects
 open class Section(
     var type: String = "",
     var accNo: String? = null,
+    var libraryFile: LibraryFile? = null,
     var sections: MutableList<Either<Section, SectionsTable>> = mutableListOf(),
     var files: MutableList<Either<File, FilesTable>> = mutableListOf(),
     var links: MutableList<Either<Link, LinksTable>> = mutableListOf(),

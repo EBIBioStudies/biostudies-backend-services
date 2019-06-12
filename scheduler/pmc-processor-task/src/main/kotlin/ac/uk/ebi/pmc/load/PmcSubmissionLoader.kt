@@ -1,7 +1,7 @@
 package ac.uk.ebi.pmc.load
 
-import ac.uk.ebi.biostd.SerializationService
-import ac.uk.ebi.biostd.SubFormat.TSV
+import ac.uk.ebi.biostd.integration.SerializationService
+import ac.uk.ebi.biostd.integration.SubFormat.TSV
 import ac.uk.ebi.pmc.persistence.ErrorsDocService
 import ac.uk.ebi.pmc.persistence.InputFilesDocService
 import ac.uk.ebi.pmc.persistence.SubmissionDocService

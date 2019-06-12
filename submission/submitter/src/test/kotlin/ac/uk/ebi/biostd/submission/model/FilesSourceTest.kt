@@ -4,11 +4,13 @@ import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.apache.commons.io.FileUtils
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import java.io.FileNotFoundException
 import java.nio.charset.Charset
+import java.nio.charset.StandardCharsets
 import java.nio.file.Paths
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
@@ -16,36 +18,24 @@ import kotlin.test.assertTrue
 
 const val TEST_USER_FILE = "user.txt"
 const val TEST_ATTACHED_FILE = "attached.txt"
-const val TEST_ATTACHED_FILE_SIZE = 456L
 const val TEST_GHOST_FILE = "ghost.txt"
 
 @ExtendWith(TemporaryFolderExtension::class)
 class FilesSourceTest(temporaryFolder: TemporaryFolder) {
     private val testFile = temporaryFolder.createFile(TEST_USER_FILE)
-    private val testInputStream = testFile.inputStream()
-    private val testResourceFile = ResourceFile(TEST_ATTACHED_FILE, testInputStream, TEST_ATTACHED_FILE_SIZE)
-    private val testInstance = FilesSource(listOf(testResourceFile), Paths.get(temporaryFolder.root.absolutePath))
+    private val testResourceFile = temporaryFolder.createFile(TEST_ATTACHED_FILE)
+    private val testInstance = UserSource(listOf(testResourceFile), Paths.get(temporaryFolder.root.absolutePath))
+
+    @BeforeAll
+    fun beforeAll() {
+        FileUtils.writeStringToFile(testResourceFile, "Test content", StandardCharsets.UTF_8)
+    }
 
     @Test
     fun exists() {
         assertTrue { testInstance.exists(TEST_USER_FILE) }
         assertTrue { testInstance.exists(TEST_ATTACHED_FILE) }
         assertFalse { testInstance.exists(TEST_GHOST_FILE) }
-    }
-
-    @Test
-    fun `get user file input stream`() {
-        assertNotNull(testInstance.getInputStream(TEST_USER_FILE))
-    }
-
-    @Test
-    fun `get attached file input stream`() {
-        assertThat(testInstance.getInputStream(TEST_ATTACHED_FILE)).isEqualTo(testInputStream)
-    }
-
-    @Test
-    fun `get input stream of non existing file`() {
-        assertThrows<FileNotFoundException> { testInstance.getInputStream(TEST_GHOST_FILE) }
     }
 
     @Test
@@ -56,7 +46,7 @@ class FilesSourceTest(temporaryFolder: TemporaryFolder) {
 
     @Test
     fun `get attached file size`() {
-        assertThat(testInstance.size(TEST_ATTACHED_FILE)).isEqualTo(TEST_ATTACHED_FILE_SIZE)
+        assertThat(testInstance.size(TEST_ATTACHED_FILE)).isEqualTo(12)
     }
 
     @Test

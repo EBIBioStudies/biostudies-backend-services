@@ -9,10 +9,8 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer
 import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.constants.SectionFields
 
-class SectionJsonSerializer : StdSerializer<Section>(Section::class.java) {
-
+internal class SectionJsonSerializer : StdSerializer<Section>(Section::class.java) {
     override fun serialize(section: Section, gen: JsonGenerator, provider: SerializerProvider) {
-
         gen.writeObj {
             writeJsonString(SectionFields.ACC_NO, section.accNo)
             writeJsonString(SectionFields.TYPE, section.type)

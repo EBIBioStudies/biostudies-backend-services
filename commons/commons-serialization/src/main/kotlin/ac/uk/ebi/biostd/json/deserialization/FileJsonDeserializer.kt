@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.node.TextNode
 import ebi.ac.uk.model.File
 import ebi.ac.uk.model.constants.FileFields
 
-class FileJsonDeserializer : StdDeserializer<File>(File::class.java) {
+internal class FileJsonDeserializer : StdDeserializer<File>(File::class.java) {
     override fun deserialize(jp: JsonParser, ctxt: DeserializationContext): File {
         val mapper = jp.codec as ObjectMapper
         val node: JsonNode = mapper.readTree(jp)

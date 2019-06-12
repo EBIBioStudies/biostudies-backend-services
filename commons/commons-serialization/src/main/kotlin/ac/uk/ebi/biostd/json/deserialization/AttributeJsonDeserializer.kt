@@ -16,7 +16,7 @@ import com.fasterxml.jackson.databind.node.TextNode
 import ebi.ac.uk.base.orFalse
 import ebi.ac.uk.model.Attribute
 
-class AttributeJsonDeserializer : StdDeserializer<Attribute>(Attribute::class.java) {
+internal class AttributeJsonDeserializer : StdDeserializer<Attribute>(Attribute::class.java) {
     override fun deserialize(jp: JsonParser, ctxt: DeserializationContext): Attribute {
         val mapper = jp.codec as ObjectMapper
         val node: JsonNode = mapper.readTree(jp)

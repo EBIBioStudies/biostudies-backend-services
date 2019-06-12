@@ -18,11 +18,11 @@ import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.SectionsTable
 import ebi.ac.uk.model.constants.SectionFields
 
-object SectionsType : TypeReference<MutableList<Either<Section, SectionsTable>>>()
-object LinksType : TypeReference<MutableList<Either<Link, LinksTable>>>()
-object FileType : TypeReference<MutableList<Either<File, FilesTable>>>()
+internal object SectionsType : TypeReference<MutableList<Either<Section, SectionsTable>>>()
+internal object LinksType : TypeReference<MutableList<Either<Link, LinksTable>>>()
+internal object FileType : TypeReference<MutableList<Either<File, FilesTable>>>()
 
-class SectionJsonDeserializer : StdDeserializer<Section>(Section::class.java) {
+internal class SectionJsonDeserializer : StdDeserializer<Section>(Section::class.java) {
 
     override fun deserialize(jp: JsonParser, ctxt: DeserializationContext): Section {
         val mapper = jp.codec as ObjectMapper
