@@ -11,7 +11,6 @@ import ebi.ac.uk.model.File
 import ebi.ac.uk.model.constants.FileFields
 
 internal class FileJsonSerializer : StdSerializer<File>(File::class.java) {
-
     override fun isEmpty(provider: SerializerProvider, value: File): Boolean = value.path.isEmpty()
 
     override fun serialize(file: File, gen: JsonGenerator, provider: SerializerProvider) {

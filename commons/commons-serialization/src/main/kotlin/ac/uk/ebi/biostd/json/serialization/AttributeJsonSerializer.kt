@@ -12,7 +12,6 @@ import ebi.ac.uk.model.constants.AttributeDetails
 import ebi.ac.uk.model.constants.AttributeFields
 
 internal class AttributeJsonSerializer : StdSerializer<Attribute>(Attribute::class.java) {
-
     override fun isEmpty(provider: SerializerProvider, value: Attribute): Boolean = value.name.isEmpty()
 
     override fun serialize(attr: Attribute, gen: JsonGenerator, provider: SerializerProvider) {

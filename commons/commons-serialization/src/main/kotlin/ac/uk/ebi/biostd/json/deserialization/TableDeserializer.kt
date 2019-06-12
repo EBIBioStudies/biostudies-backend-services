@@ -17,7 +17,6 @@ internal abstract class TableDeserializer<T : Any, S : Table<T>>(
     private val itemType: Class<T>,
     private val tableCreator: (List<T>) -> S
 ) : StdDeserializer<S>(itemType) {
-
     override fun deserialize(jp: JsonParser, ctxt: DeserializationContext): S {
         val mapper = jp.codec as ObjectMapper
         val node: JsonNode = mapper.readTree(jp)

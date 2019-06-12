@@ -10,7 +10,6 @@ import java.nio.file.Path
 import java.nio.file.Paths
 
 class ProfileService(private val filesDirPath: Path) {
-
     fun getUserProfile(user: User, token: String): UserInfo {
         return UserInfo(asSecurityUser(user), token)
     }

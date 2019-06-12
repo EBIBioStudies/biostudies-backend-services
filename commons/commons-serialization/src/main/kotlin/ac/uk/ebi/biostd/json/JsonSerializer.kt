@@ -34,7 +34,6 @@ import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.Table
 
 internal class JsonSerializer {
-
     fun <T> serialize(element: T, pretty: Boolean = false): String {
         return if (pretty)
             mapper.writerWithDefaultPrettyPrinter().writeValueAsString(element)

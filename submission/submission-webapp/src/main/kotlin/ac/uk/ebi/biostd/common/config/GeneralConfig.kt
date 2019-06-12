@@ -9,7 +9,6 @@ import org.springframework.context.annotation.Configuration
 @Configuration
 @EnableConfigurationProperties(ApplicationProperties::class)
 internal class GeneralConfig {
-
     @Bean
     fun tempFileGenerator(properties: ApplicationProperties) = TempFileGenerator(properties)
 }

@@ -16,7 +16,6 @@ import org.springframework.context.annotation.Import
 @Configuration
 @Import(value = [PersistenceConfig::class])
 class AppConfig {
-
     @Bean
     fun serializationService() = SerializationConfig.serializationService()
 

@@ -9,7 +9,6 @@ internal class PagetabSerializationService(
     private val serializer: PagetabSerializer = PagetabSerializer(),
     private val libraryFileSerializer: LibraryFileSerializer = LibraryFileSerializer(serializer)
 ) : SerializationService {
-
     override fun <T> serializeElement(element: T, format: SubFormat) =
         serializer.serializeElement(element, format)
 

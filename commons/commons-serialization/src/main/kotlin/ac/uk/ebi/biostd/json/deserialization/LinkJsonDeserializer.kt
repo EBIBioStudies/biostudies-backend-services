@@ -13,7 +13,6 @@ import ebi.ac.uk.model.Link
 import ebi.ac.uk.model.constants.LinkFields
 
 internal class LinkJsonDeserializer : StdDeserializer<Link>(Link::class.java) {
-
     override fun deserialize(jp: JsonParser, ctxt: DeserializationContext): Link {
         val mapper = jp.codec as ObjectMapper
         val node: JsonNode = mapper.readTree(jp)
