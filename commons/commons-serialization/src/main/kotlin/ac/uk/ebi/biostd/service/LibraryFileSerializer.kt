@@ -9,7 +9,7 @@ import ebi.ac.uk.model.extensions.allSections
 import ebi.ac.uk.model.extensions.libraryFileName
 
 internal class LibraryFileSerializer(private val serializer: PagetabSerializer) {
-    internal fun loadLibraryFiles(submission: Submission, format: SubFormat, source: FilesSource): Submission {
+    internal fun deserializeLibraryFile(submission: Submission, format: SubFormat, source: FilesSource): Submission {
         submission.allSections()
             .filter { section -> section.libraryFileName != null }
             .map { section -> section to section.libraryFileName!! }

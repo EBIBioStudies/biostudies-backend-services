@@ -19,5 +19,5 @@ internal class PagetabSerializationService(
         serializer.deserializeSubmission(content, format)
 
     override fun deserializeSubmission(content: String, format: SubFormat, source: FilesSource): Submission =
-        libraryFileSerializer.loadLibraryFiles(serializer.deserializeSubmission(content, format), format, source)
+        libraryFileSerializer.deserializeLibraryFile(serializer.deserializeSubmission(content, format), format, source)
 }

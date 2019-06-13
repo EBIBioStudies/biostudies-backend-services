@@ -42,7 +42,7 @@ class SubmissionService(
         submission: Submission,
         user: SecurityUser,
         files: UserSource
-    ): ExtendedSubmission = TODO()
+    ) = submitter.submit(ExtendedSubmission(submission, asUser(user)), files, persistenceContext)
 
     private fun asUser(securityUser: SecurityUser): User =
         User(securityUser.id, securityUser.email, securityUser.secret)
