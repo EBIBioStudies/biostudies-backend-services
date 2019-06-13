@@ -91,7 +91,7 @@ private class DbSectionMapper {
             files = toFiles(sectionDb.files.toList())
             sections = toSections(sectionDb.sections.toList())
             attributes = toAttributes(sectionDb.attributes)
-            extendedSections = toExtendedSections(sectionDb.sections.toList(), loadRefFiles)
+            extendedSections = toExtendedSections(sectionDb.sections.toList())
             sectionDb.libraryFile?.let { libraryFile = toLibraryFile(it) }
         }
 }

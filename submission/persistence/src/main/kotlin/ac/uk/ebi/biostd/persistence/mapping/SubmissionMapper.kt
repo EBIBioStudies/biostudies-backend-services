@@ -4,14 +4,12 @@ import ac.uk.ebi.biostd.persistence.common.NO_TABLE_INDEX
 import ac.uk.ebi.biostd.persistence.mapping.AttributeMapper.toAttributes
 import ac.uk.ebi.biostd.persistence.mapping.EntityMapper.toFile
 import ac.uk.ebi.biostd.persistence.mapping.EntityMapper.toLibraryFile
-import ac.uk.ebi.biostd.persistence.mapping.EntityMapper.toLink
 import ac.uk.ebi.biostd.persistence.mapping.SectionMapper.toSection
 import ac.uk.ebi.biostd.persistence.mapping.SectionMapper.toTableSection
 import ac.uk.ebi.biostd.persistence.mapping.TableMapper.toFiles
 import ac.uk.ebi.biostd.persistence.mapping.TableMapper.toLinks
 import ac.uk.ebi.biostd.persistence.mapping.TableMapper.toSections
 import ac.uk.ebi.biostd.persistence.model.FileAttribute
-import ac.uk.ebi.biostd.persistence.model.LinkAttribute
 import ac.uk.ebi.biostd.persistence.model.ReferencedFileAttribute
 import ac.uk.ebi.biostd.persistence.model.SectionAttribute
 import ac.uk.ebi.biostd.persistence.model.SubmissionAttribute
@@ -82,9 +80,7 @@ private object SectionMapper {
             links = section.links.mapIndexed(::toLinks).flatten().toSortedSet()
             files = section.files.mapIndexed(::toFiles).flatten().toSortedSet()
             submission = parentSubmission
-            sections = section.sections.mapIndexed { index, section ->
-                toSections(index, section, parentSubmission)
-            }.flatten().toSortedSet()
+            sections = section.sections.mapIndexed { index, section -> toSections(index, section, parentSubmission) }.flatten().toSortedSet()
             section.libraryFile?.let { libraryFile = toLibraryFile(it) }
         }
 
@@ -117,8 +113,7 @@ private object TableMapper {
 
 private object EntityMapper {
 
-    fun toLink(link: Link, order: Int, tableIndex: Int = NO_TABLE_INDEX) =
-        LinkDb(link.url, order, toAttributes(link.attributes).mapTo(sortedSetOf(), ::LinkAttribute), tableIndex)
+    .
 
     fun toFile(file: File, order: Int, tableIndex: Int = NO_TABLE_INDEX) = FileDb(
         file.path, order, file.size, toAttributes(file.attributes).mapTo(sortedSetOf(), ::FileAttribute), tableIndex)

@@ -8,18 +8,22 @@ import ebi.ac.uk.extended.model.ExtSectionTable
 import ebi.ac.uk.util.collections.component1
 import ebi.ac.uk.util.collections.component2
 
-internal fun toExtSection(sectionDb: Section): ExtSection = sectionDb.run {
-    ExtSection(
-        type = type,
-        accNo = accNo,
-        attributes = toAttributes(attributes),
-        links = toExtLinkList(links),
-        files = toExtFileList(files),
-        sections = toExtSectionList(sections))
-}
+class SectionMapper(private val fileMapper: FileMapper) {
 
-internal fun toExtSectionList(files: Iterable<Section>) = files
-    .groupBy { it.isTableElement() }
-    .mapValues { it.value.map(::toExtSection) }
-    .let { (filesTable, file) -> file.map { Either.left(it) }.plus(Either.right(ExtSectionTable(filesTable))) }
+    internal fun toExtSection(sectionDb: Section): ExtSection = sectionDb.run {
+        ExtSection(
+            type = type,
+            accNo = accNo,
+            attributes = toAttributes(attributes),
+            links = toExtLinkList(links),
+            files = fileMapper.toExtFileList(files),
+            sections = toExtSectionList(sections))
+    }
+
+    internal fun toExtSectionList(files: Iterable<Section>) = files
+        .groupBy { it.isTableElement() }
+        .mapValues { it.value.map(::toExtSection) }
+        .let { (filesTable, file) -> file.map { Either.left(it) }.plus(Either.right(ExtSectionTable(filesTable))) }
+
+}
 

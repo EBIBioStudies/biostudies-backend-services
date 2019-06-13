@@ -23,6 +23,8 @@ interface SubmissionDataRepository : JpaRepository<Submission, Long> {
 
     fun findByAccNoAndVersionGreaterThan(id: String, long: Int = 0): Submission?
 
+    fun getByAccNo(accNo: String): Submission
+
     @Query("Select max(s.version) from Submission s where s.accNo=?1")
     fun getLastVersion(accNo: String): Int?
 

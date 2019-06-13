@@ -9,12 +9,11 @@ import ac.uk.ebi.biostd.persistence.model.Link as LinkDb
 import ac.uk.ebi.biostd.persistence.model.Section as SectionDb
 import ac.uk.ebi.biostd.persistence.model.Submission as SubmissionDb
 
-class DbExtSectionMapper {
+class DbExtSectionMapper(private val sectionMapper: SectionMapper) {
 
     fun toExtSubmission(submissionDb: SubmissionDb): ExtSubmission = submissionDb.run {
         ExtSubmission(
             accNo = accNo,
-            version = version,
             title = title,
             secretKey = secretKey,
             relPath = relPath,
@@ -26,6 +25,6 @@ class DbExtSectionMapper {
             attributes = toAttributes(attributes),
             accessTags = accessTags.map(AccessTag::name),
             tags = tags.map { Pair(it.classifier, it.name) },
-            section = toExtSection(rootSection))
+            section = sectionMapper.toExtSection(rootSection))
     }
 }

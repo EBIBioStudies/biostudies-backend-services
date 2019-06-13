@@ -8,6 +8,6 @@ import ebi.ac.uk.model.AttributeDetail
 class AttributeMapper {
 
     internal fun toAttributes(attrs: List<Attribute>) = attrs.map { toAttribute(it) }
-    internal fun toAttribute(attr: Attribute) = attr.run { ExtAttribute(name, value, reference, toDetails(nameAttrs), toDetails(valueAttrs)) }
-    internal fun toDetails(details: List<AttributeDetail>) = details.map { ExtAttributeDetail(it.name, it.value) }
+    private fun toAttribute(attr: Attribute) = attr.run { ExtAttribute(name, value, reference, toDetails(nameAttrs), toDetails(valueAttrs)) }
+    private fun toDetails(details: List<AttributeDetail>) = details.map { ExtAttributeDetail(it.name, it.value) }
 }

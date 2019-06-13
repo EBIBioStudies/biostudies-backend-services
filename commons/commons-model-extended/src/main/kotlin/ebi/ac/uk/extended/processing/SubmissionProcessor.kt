@@ -1,6 +1,7 @@
 package ebi.ac.uk.extended.processing
 
 import ebi.ac.uk.extended.integration.FilesSource
+import ebi.ac.uk.extended.integration.SubmissionService
 import ebi.ac.uk.extended.mapping.serialization.AttributeMapper
 import ebi.ac.uk.extended.mapping.serialization.SectionMapper
 import ebi.ac.uk.extended.model.ExtSubmission
@@ -22,10 +23,9 @@ internal class SubmissionProcessor(
     private val timesProcessor: TimesProcessor,
     private val keyProcessor: KeysProcessor,
     private val projectProcessor: ProjectProcessor,
-
     private val attributesMapper: AttributeMapper,
-    private val sectionMapper: SectionMapper
-
+    private val sectionMapper: SectionMapper,
+    private val submissionService: SubmissionService
 ) {
 
     fun processSubmission(submission: Submission, user: User, fileSource: FilesSource): ExtSubmission {
@@ -36,7 +36,7 @@ internal class SubmissionProcessor(
         val accessTags = projectProcessor.getProjectTags(user, submission.attachTo)
         val released = releaseTime.isBefore(OffsetDateTime.now())
 
-        return ExtSubmission(
+        val extendedSubmission = ExtSubmission(
             accNo = accNo.toString(),
             title = submission.title,
             relPath = relativePath,
@@ -50,5 +50,6 @@ internal class SubmissionProcessor(
             accessTags = accessTags,
             tags = submission.tags,
             section = sectionMapper.toExtSection(submission.section, fileSource))
+        return submissionService.saveSubmission(extendedSubmission, user)
     }
 }

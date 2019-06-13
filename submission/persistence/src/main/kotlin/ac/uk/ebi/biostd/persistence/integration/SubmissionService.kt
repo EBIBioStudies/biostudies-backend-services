@@ -1,6 +1,7 @@
-package ebi.ac.uk.extended.integration
+package ac.uk.ebi.biostd.persistence.integration
 
 import arrow.core.Option
+import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.model.AccPattern
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.User
@@ -10,7 +11,7 @@ interface SubmissionService {
 
     fun isNew(accNo: String): Boolean
     fun getSequenceNextValue(pattern: AccPattern): Long
-    fun getCreationTime(accNo: String): OffsetDateTime?
+    fun getCreationTime(accNo: String): OffsetDateTime
 
     fun getProjectAccPattern(submission: Submission): Option<String>
     fun getProjectAccessTags(accNo: String): List<String>
@@ -20,4 +21,5 @@ interface SubmissionService {
     fun canSubmit(accNo: String, user: User): Boolean
     fun canAttach(accNo: String): Boolean
 
+    fun saveSubmission(extendedSubmission: ExtSubmission, user: User): ExtSubmission
 }
