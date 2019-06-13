@@ -9,7 +9,11 @@ import ebi.ac.uk.persistence.PersistenceContext
  */
 class AccessTagProcessor : SubmissionProcessor {
     override fun process(submission: ExtendedSubmission, context: PersistenceContext) {
-        submission.accessTags.addAll(context.getParentAccessTags(submission))
-        submission.accessTags.removeIf { it == "Public" && submission.releaseDate.isNullOrBlank().not() }
+        val accessTags =
+            context.getParentAccessTags(submission)
+                .toMutableList()
+                .apply { removeIf { it == "Public" && submission.releaseDate.isNullOrBlank().not() } }
+
+        submission.accessTags.addAll(accessTags)
     }
 }

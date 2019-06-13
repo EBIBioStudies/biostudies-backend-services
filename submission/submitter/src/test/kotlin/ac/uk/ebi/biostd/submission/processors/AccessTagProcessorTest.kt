@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.submission.processors
 
 import ac.uk.ebi.biostd.submission.test.createBasicExtendedSubmission
+import ebi.ac.uk.model.ExtendedSubmission
 import ebi.ac.uk.model.extensions.releaseDate
 import ebi.ac.uk.persistence.PersistenceContext
 import io.mockk.every
@@ -14,10 +15,11 @@ import org.junit.jupiter.api.extension.ExtendWith
 @ExtendWith(MockKExtension::class)
 class AccessTagProcessorTest(@MockK private val mockPersistenceContext: PersistenceContext) {
     private val testInstance = AccessTagProcessor()
-    private val testSubmission = createBasicExtendedSubmission()
+    private lateinit var testSubmission: ExtendedSubmission
 
     @BeforeEach
     fun setUp() {
+        testSubmission = createBasicExtendedSubmission()
         every { mockPersistenceContext.getParentAccessTags(testSubmission) } returns listOf("Public")
     }
 
