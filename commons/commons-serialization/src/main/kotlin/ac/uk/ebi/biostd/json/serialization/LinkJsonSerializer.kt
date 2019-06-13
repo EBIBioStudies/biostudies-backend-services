@@ -9,8 +9,7 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer
 import ebi.ac.uk.model.Link
 import ebi.ac.uk.model.constants.LinkFields
 
-class LinkJsonSerializer : StdSerializer<Link>(Link::class.java) {
-
+internal class LinkJsonSerializer : StdSerializer<Link>(Link::class.java) {
     override fun isEmpty(provider: SerializerProvider, value: Link): Boolean = value.url.isEmpty()
 
     override fun serialize(link: Link, gen: JsonGenerator, provider: SerializerProvider) {

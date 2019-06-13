@@ -79,6 +79,7 @@ private class DbSectionMapper {
         Section(accNo = sectionDb.accNo,
             type = sectionDb.type,
             links = toLinks(sectionDb.links.toList()),
+            libraryFile = sectionDb.libraryFile?.let { toLibraryFile(it) },
             files = toFiles(sectionDb.files.toList()),
             sections = toSections(sectionDb.sections.toList()),
             attributes = toAttributes(sectionDb.attributes))
@@ -95,9 +96,7 @@ private class DbSectionMapper {
             sections = toSections(sectionDb.sections.toList())
             attributes = toAttributes(sectionDb.attributes)
             extendedSections = toExtendedSections(sectionDb.sections.toList(), loadRefFiles)
-            sectionDb.libraryFile?.let {
-                libraryFile = toLibraryFile(it, it.files.toList())
-            }
+            sectionDb.libraryFile?.let { libraryFile = toLibraryFile(it) }
         }
 }
 
@@ -120,7 +119,6 @@ private object DbEitherMapper {
     /**
      * Convert the given list of elements into an instance of @See [Either] using transform function for simple element
      * and table builder function for table types.
-     *
      */
     private fun <T : Tabular, S, U> toEitherList(
         elements: List<T>,
@@ -143,12 +141,10 @@ private object DbEitherMapper {
 private object DbEntityMapper {
     internal fun toLink(link: LinkDb) = Link(link.url, toAttributes(link.attributes))
     internal fun toFile(file: FileDb) = File(file.name, file.size, toAttributes(file.attributes))
+
     internal fun toUser(owner: UserDb) = User(owner.id, owner.email, owner.secret)
     internal fun toFile(file: ReferencedFileDb) = File(file.name, file.size, toAttributes(file.attributes))
-    internal fun toLibraryFile(libFile: LibraryFileDb, referencedFiles: List<ReferencedFileDb>) =
-        LibraryFile(libFile.name).apply {
-            referencedFiles.forEach { addFile(toFile(it)) }
-        }
+    internal fun toLibraryFile(libFile: LibraryFileDb) = LibraryFile(libFile.name, libFile.files.map { toFile(it) })
 }
 
 private object DbAttributeMapper {

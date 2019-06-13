@@ -20,7 +20,7 @@ const val FAKE_FILE = "fake.txt"
 
 @ExtendWith(TemporaryFolderExtension::class)
 class UserFilesSourceTest(private val temporaryFolder: TemporaryFolder) {
-    private val testInstance = UserFilesSource(Paths.get(temporaryFolder.root.absolutePath))
+    private val testInstance = LocalDirectoryFilesSource(Paths.get(temporaryFolder.root.absolutePath))
 
     @BeforeAll
     fun setUp() {
@@ -32,16 +32,6 @@ class UserFilesSourceTest(private val temporaryFolder: TemporaryFolder) {
     fun exists() {
         assertTrue { testInstance.exists(TEST_FILE) }
         assertFalse { testInstance.exists(FAKE_FILE) }
-    }
-
-    @Test
-    fun getInputStream() {
-        assertNotNull(testInstance.getInputStream(TEST_FILE))
-    }
-
-    @Test
-    fun `get input stream of non existing file`() {
-        assertThrows<FileNotFoundException> { testInstance.getInputStream(FAKE_FILE) }
     }
 
     @Test

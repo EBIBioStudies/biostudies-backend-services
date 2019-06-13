@@ -1,7 +1,7 @@
 package ac.uk.ebi.pmc.process.util
 
-import ac.uk.ebi.biostd.SerializationService
-import ac.uk.ebi.biostd.SubFormat
+import ac.uk.ebi.biostd.integration.SerializationService
+import ac.uk.ebi.biostd.integration.SubFormat
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.extensions.getSectionByType
 import ebi.ac.uk.model.extensions.releaseDate

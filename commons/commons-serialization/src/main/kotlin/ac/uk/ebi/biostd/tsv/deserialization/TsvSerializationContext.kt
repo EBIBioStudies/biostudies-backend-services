@@ -16,8 +16,7 @@ import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.Submission
 
 @Suppress("TooManyFunctions")
-class TsvSerializationContext {
-
+internal class TsvSerializationContext {
     private val sections = TsvSectionContext()
     private var errors: Multimap<Any, SerializationError> = HashMultimap.create()
 
@@ -75,7 +74,7 @@ class TsvSerializationContext {
     }
 }
 
-class TsvSectionContext {
+internal class TsvSectionContext {
     private val sections: MutableMap<String, Section> = mutableMapOf()
 
     fun addSection(accNo: String, section: Section) = sections.put(accNo, section)

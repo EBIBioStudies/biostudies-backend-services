@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer
 /**
  * Either Serializer, fold and serialize either wrapped value.
  */
-class EitherSerializer : StdSerializer<Either<*, *>>(Either::class.java) {
+internal class EitherSerializer : StdSerializer<Either<*, *>>(Either::class.java) {
 
     override fun serialize(either: Either<*, *>, gen: JsonGenerator, provider: SerializerProvider) {
         either.fold({ gen.writeObject(it) }, { gen.writeObject(it) })

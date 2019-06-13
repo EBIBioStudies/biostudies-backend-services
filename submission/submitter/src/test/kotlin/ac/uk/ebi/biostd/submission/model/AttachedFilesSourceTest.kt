@@ -3,23 +3,29 @@ package ac.uk.ebi.biostd.submission.model
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.junit5.MockKExtension
+import org.apache.commons.io.FileUtils
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
+import java.nio.charset.StandardCharsets.UTF_8
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-const val TEST_FILE_SIZE = 123L
 const val TEST_FILE_NAME = "test.txt"
 const val TEST_FAKE_FILE_NAME = "fake.txt"
 
 @ExtendWith(TemporaryFolderExtension::class, MockKExtension::class)
 class AttachedFilesSourceTest(temporaryFolder: TemporaryFolder) {
-    private val testInputStream = temporaryFolder.createFile(TEST_FILE_NAME).inputStream()
-    private val testResourceFile = ResourceFile(TEST_FILE_NAME, testInputStream, TEST_FILE_SIZE)
+    private val testResourceFile = temporaryFolder.createFile(TEST_FILE_NAME)
     private val testInstance = AttachedFilesSource(listOf(testResourceFile))
+
+    @BeforeAll
+    fun beforeAll() {
+        FileUtils.writeStringToFile(testResourceFile, "Test content", UTF_8)
+    }
 
     @Test
     fun exists() {
@@ -28,18 +34,8 @@ class AttachedFilesSourceTest(temporaryFolder: TemporaryFolder) {
     }
 
     @Test
-    fun getInputStream() {
-        assertThat(testInstance.getInputStream(TEST_FILE_NAME)).isEqualTo(testInputStream)
-    }
-
-    @Test
-    fun `get input stream of non existing file`() {
-        assertThrows<NoSuchElementException> { testInstance.getInputStream(TEST_FAKE_FILE_NAME) }
-    }
-
-    @Test
     fun size() {
-        assertThat(testInstance.size(TEST_FILE_NAME)).isEqualTo(123L)
+        assertThat(testInstance.size(TEST_FILE_NAME)).isEqualTo(12L)
     }
 
     @Test

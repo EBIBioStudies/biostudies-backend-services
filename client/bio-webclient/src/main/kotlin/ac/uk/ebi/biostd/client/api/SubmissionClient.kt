@@ -1,15 +1,17 @@
 package ac.uk.ebi.biostd.client.api
 
-import ac.uk.ebi.biostd.SerializationService
 import ac.uk.ebi.biostd.client.extensions.map
 import ac.uk.ebi.biostd.client.extensions.setSubmissionType
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.web.SubmissionOperations
+import ac.uk.ebi.biostd.integration.SerializationService
 import ebi.ac.uk.model.Submission
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
+import org.springframework.http.ResponseEntity
 import org.springframework.web.client.RestTemplate
+import org.springframework.web.client.postForEntity
 
 private const val SUBMISSIONS_URL = "/submissions"
 
@@ -27,9 +29,9 @@ internal class SubmissionClient(
 
     override fun deleteSubmission(accNo: String) = template.delete("$SUBMISSIONS_URL/$accNo")
 
-    private fun submitSingle(request: HttpEntity<String>, format: SubmissionFormat) =
-            template.postForEntity(SUBMISSIONS_URL, request, String::class.java)
-                    .map { body -> serializationService.deserializeSubmission(body, format.asSubFormat()) }
+    private fun submitSingle(request: HttpEntity<String>, format: SubmissionFormat): ResponseEntity<Submission> =
+        template.postForEntity<String>(SUBMISSIONS_URL, request)
+            .map { body -> serializationService.deserializeSubmission(body, format.asSubFormat()) }
 
     private fun createHeaders(format: SubmissionFormat): HttpHeaders {
         val headers = HttpHeaders()

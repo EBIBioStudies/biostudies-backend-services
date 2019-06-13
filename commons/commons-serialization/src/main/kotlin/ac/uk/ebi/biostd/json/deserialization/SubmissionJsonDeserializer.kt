@@ -13,8 +13,7 @@ import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.constants.SubFields
 
-class SubmissionJsonDeserializer : StdDeserializer<Submission>(Submission::class.java) {
-
+internal class SubmissionJsonDeserializer : StdDeserializer<Submission>(Submission::class.java) {
     override fun deserialize(jp: JsonParser, ctxt: DeserializationContext): Submission {
         val mapper = jp.codec as ObjectMapper
         val node = mapper.readTree<JsonNode>(jp)

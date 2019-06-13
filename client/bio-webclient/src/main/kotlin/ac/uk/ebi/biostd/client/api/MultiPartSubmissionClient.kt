@@ -1,10 +1,10 @@
 package ac.uk.ebi.biostd.client.api
 
-import ac.uk.ebi.biostd.SerializationService
 import ac.uk.ebi.biostd.client.extensions.map
 import ac.uk.ebi.biostd.client.extensions.setSubmissionType
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.web.MultipartSubmissionOperations
+import ac.uk.ebi.biostd.integration.SerializationService
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.constants.FILES
 import ebi.ac.uk.model.constants.SUBMISSION

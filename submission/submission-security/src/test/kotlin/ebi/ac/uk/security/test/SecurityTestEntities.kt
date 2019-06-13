@@ -4,6 +4,9 @@ import ac.uk.ebi.biostd.persistence.model.User
 import ebi.ac.uk.api.security.RegisterRequest
 import ebi.ac.uk.api.security.ResetPasswordRequest
 import ebi.ac.uk.api.security.RetryActivationRequest
+import ebi.ac.uk.security.integration.model.api.MagicFolder
+import ebi.ac.uk.security.integration.model.api.SecurityUser
+import java.nio.file.Paths
 
 internal class SecurityTestEntities {
 
@@ -14,6 +17,9 @@ internal class SecurityTestEntities {
         const val password = "abc123"
         const val instanceKey = "12345"
         const val path = "/activate_url_path"
+
+        val magicFolderPath = Paths.get("/abc/user-folder")
+        val magicFolderRelativePath = Paths.get("user-folder")
 
         const val adminId = 70L
 
@@ -50,6 +56,20 @@ internal class SecurityTestEntities {
                 fullName = username,
                 secret = secret,
                 passwordDigest = passwordDiggest)
+        }
+
+        val securityUser: SecurityUser by lazy {
+            SecurityUser(
+                id = userId,
+                email = email,
+                login = null,
+                fullName = username,
+                secret = secret,
+                permissions = emptySet(),
+                groupsFolders = emptyList(),
+                magicFolder = MagicFolder(magicFolderPath, magicFolderRelativePath),
+                superuser = false
+            )
         }
 
         val adminUser: User by lazy {

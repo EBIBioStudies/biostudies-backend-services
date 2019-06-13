@@ -1,6 +1,6 @@
 package ac.uk.ebi.transpiler.cli
 
-import ac.uk.ebi.biostd.SubFormat
+import ac.uk.ebi.biostd.integration.SubFormat
 import ac.uk.ebi.transpiler.service.FilesTableTemplateTranspiler
 import com.github.ajalt.clikt.core.IncorrectOptionValueCount
 import com.github.ajalt.clikt.core.MissingParameter

@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.SerializerProvider
 import com.fasterxml.jackson.databind.ser.std.StdSerializer
 import ebi.ac.uk.model.Table
 
-class TableJsonSerializer : StdSerializer<Table<*>>(Table::class.java) {
+internal class TableJsonSerializer : StdSerializer<Table<*>>(Table::class.java) {
     override fun serialize(table: Table<*>, gen: JsonGenerator, provider: SerializerProvider) {
         gen.writeJsonArray(table.elements)
     }

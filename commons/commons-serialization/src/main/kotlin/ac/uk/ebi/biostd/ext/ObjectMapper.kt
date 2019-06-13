@@ -15,26 +15,26 @@ import com.fasterxml.jackson.module.kotlin.convertValue
  * be converter.
  *
  */
-fun ObjectMapper.tryConvertValue(node: JsonNode, type: JavaType): Option<Any> {
+internal fun ObjectMapper.tryConvertValue(node: JsonNode, type: JavaType): Option<Any> {
     return Try<Any> { convertValue(node, type) }.map { Option.fromNullable(it) }.getOrElse { None }
 }
 
 /**
  * Obtain the collection type for the given value.
  */
-fun ObjectMapper.getListType(type: Class<*>) = typeFactory.constructCollectionType(List::class.java, type)!!
+internal fun ObjectMapper.getListType(type: Class<*>) = typeFactory.constructCollectionType(List::class.java, type)!!
 
 /**
  * Null safe list converter. Convert the node to the list type of values. If node is not found empty mutable list
  * is retrieved.
  */
-inline fun <reified T> ObjectMapper.convertList(node: JsonNode?) =
+internal inline fun <reified T> ObjectMapper.convertList(node: JsonNode?) =
     if (node != null) convertValue(node, getListType(T::class.java)) else mutableListOf<T>()
 
-inline fun <reified T> ObjectMapper.convertNode(node: JsonNode?): T? = node?.let { convertValue(node) }
+internal inline fun <reified T> ObjectMapper.convertNode(node: JsonNode?): T? = node?.let { convertValue(node) }
 
-inline fun <reified T> ObjectMapper.convertList(node: JsonNode?, sectionsType: TypeReference<*>) =
+internal inline fun <reified T> ObjectMapper.convertList(node: JsonNode?, sectionsType: TypeReference<*>) =
     if (node != null) convertValue(node, sectionsType) else mutableListOf<T>()
 
-inline fun <reified T : Any> ObjectMapper.deserialize(json: String) = readValue(json, T::class.java)!!
-inline fun <reified T> ObjectMapper.serialize(value: T): String = writeValueAsString(value)
+internal inline fun <reified T : Any> ObjectMapper.deserialize(json: String) = readValue(json, T::class.java)!!
+internal inline fun <reified T> ObjectMapper.serialize(value: T): String = writeValueAsString(value)

@@ -1,6 +1,6 @@
 package ac.uk.ebi.pmc.process
 
-import ac.uk.ebi.biostd.SerializationService
+import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.pmc.client.PmcApi
 import ac.uk.ebi.pmc.persistence.ErrorsDocService
 import ac.uk.ebi.pmc.persistence.SubmissionDocService
