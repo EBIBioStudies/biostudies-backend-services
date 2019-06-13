@@ -5,7 +5,6 @@ import org.springframework.web.multipart.MultipartFile
 import java.io.File
 
 class TempFileGenerator(private val properties: ApplicationProperties) {
-
     fun asFiles(files: Array<MultipartFile>): List<File> = files.map { createTmpFile(it) }
 
     private fun createTmpFile(file: MultipartFile): File {

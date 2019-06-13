@@ -119,7 +119,6 @@ private object DbEitherMapper {
     /**
      * Convert the given list of elements into an instance of @See [Either] using transform function for simple element
      * and table builder function for table types.
-     *, Paths.get("")
      */
     private fun <T : Tabular, S, U> toEitherList(
         elements: List<T>,

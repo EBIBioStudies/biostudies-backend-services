@@ -16,7 +16,6 @@ import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.SectionsTable
 
 sealed class TsvChunk(lines: List<TsvChunkLine>) {
-
     val header = lines.first()
     val lines = lines.drop(1)
 
@@ -32,7 +31,6 @@ sealed class TsvChunk(lines: List<TsvChunkLine>) {
 }
 
 internal class LinkChunk(body: List<TsvChunkLine>) : TsvChunk(body) {
-
     fun asLink(): Link {
         val linkUrl = getIdOrElse(InvalidElementException(REQUIRED_LINK_URL))
         val attributes = toAttributes(lines)
@@ -41,7 +39,6 @@ internal class LinkChunk(body: List<TsvChunkLine>) : TsvChunk(body) {
 }
 
 class FileChunk(body: List<TsvChunkLine>) : TsvChunk(body) {
-
     fun asFile(): File {
         val fileName = getIdOrElse(InvalidElementException(REQUIRED_FILE_PATH))
         val attributes = toAttributes(lines)
@@ -50,17 +47,14 @@ class FileChunk(body: List<TsvChunkLine>) : TsvChunk(body) {
 }
 
 internal class LinksTableChunk(body: List<TsvChunkLine>) : TsvChunk(body) {
-
     fun asTable() = LinksTable(asTable(this) { url, attributes -> Link(url, attributes) })
 }
 
 internal class FileTableChunk(body: List<TsvChunkLine>) : TsvChunk(body) {
-
     fun asTable() = FilesTable(asTable(this) { name, attributes -> File(name, attributes = attributes) })
 }
 
 internal sealed class SectionTableChunk(body: List<TsvChunkLine>) : TsvChunk(body) {
-
     open fun asTable() = SectionsTable(
         asTable(this) { accNo, attributes -> Section(this.getType(), accNo, attributes = attributes) })
 }
@@ -75,7 +69,6 @@ internal class SubSectionTableChunk(body: List<TsvChunkLine>, val parent: String
 }
 
 internal sealed class SectionChunk(body: List<TsvChunkLine>) : TsvChunk(body) {
-
     fun asSection() = Section(type = getType(), accNo = findId(), attributes = toAttributes(lines))
 }
 
