@@ -7,8 +7,9 @@ import ebi.ac.uk.persistence.PersistenceContext
  * Add all parent submission tags to submitted submission.
  */
 class AccessTagProcessor : SubmissionProcessor {
-
     override fun process(submission: ExtendedSubmission, context: PersistenceContext) {
-        submission.accessTags.addAll(context.getParentAccessTags(submission))
+        val accessTags = context.getParentAccessTags(submission).filterNot { it == "Public" }
+
+        submission.accessTags.addAll(accessTags)
     }
 }

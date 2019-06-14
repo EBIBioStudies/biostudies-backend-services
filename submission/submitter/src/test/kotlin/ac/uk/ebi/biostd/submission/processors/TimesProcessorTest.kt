@@ -21,7 +21,7 @@ import java.time.ZoneOffset
 @ExtendWith(MockKExtension::class)
 class TimesProcessorTest(@MockK private val mockPersistenceContext: PersistenceContext) {
     private lateinit var submission: ExtendedSubmission
-    private val mockNow: OffsetDateTime = OffsetDateTime.now()
+    private val mockNow: OffsetDateTime = OffsetDateTime.of(2018, 12, 31, 0, 0, 0, 0, ZoneOffset.UTC)
     private val testInstance = TimesProcessor()
 
     private val testTime = OffsetDateTime.of(2018, 10, 10, 0, 0, 0, 0, ZoneOffset.UTC)
@@ -57,6 +57,20 @@ class TimesProcessorTest(@MockK private val mockPersistenceContext: PersistenceC
 
         testInstance.process(submission, mockPersistenceContext)
         assertTimeProcessing(mockNow, testTime, mockNow)
+
+        assertThat(submission.accessTags).hasSize(1)
+        assertThat(submission.accessTags.first()).isEqualTo("Public")
+    }
+
+    @Test
+    fun `process submission with release date in the future`() {
+        val releaseTime = OffsetDateTime.of(2020, 12, 31, 0, 0, 0, 0, ZoneOffset.UTC)
+        submission.releaseDate = "2020-12-31"
+
+        testInstance.process(submission, mockPersistenceContext)
+        assertTimeProcessing(mockNow, releaseTime, mockNow)
+
+        assertThat(submission.accessTags).isEmpty()
     }
 
     @Test
@@ -65,6 +79,8 @@ class TimesProcessorTest(@MockK private val mockPersistenceContext: PersistenceC
 
         testInstance.process(submission, mockPersistenceContext)
         assertTimeProcessing(mockNow, mockNow, mockNow)
+
+        assertThat(submission.accessTags).isEmpty()
     }
 
     @Test

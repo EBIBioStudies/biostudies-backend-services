@@ -10,6 +10,8 @@ open class Submission(
     var tags: MutableList<Pair<String, String>> = mutableListOf()
     var accessTags: MutableList<String> = mutableListOf()
 
+    fun addAccessTag(accessTag: String) = accessTags.add(accessTag)
+
     override fun equals(other: Any?) = when {
         other !is Submission -> false
         other === this -> true
