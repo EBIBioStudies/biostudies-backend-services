@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.tsv
 
 import ac.uk.ebi.biostd.common.assertAttributes
 import ac.uk.ebi.biostd.test.basicSubmission
+import ac.uk.ebi.biostd.test.basicSubmissionWithComments
 import ac.uk.ebi.biostd.test.submissionWithDetailedAttributes
 import ac.uk.ebi.biostd.test.submissionWithFiles
 import ac.uk.ebi.biostd.test.submissionWithFilesTable
@@ -65,6 +66,18 @@ class TsvDeserializerTest {
     }
 
     @Test
+    fun `basic submission with comments`() {
+        val submission: Submission = deserializer.deserialize(basicSubmissionWithComments().toString())
+
+        assertSubmission(
+            submission,
+            "S-EPMC123",
+            Attribute("Title", "Basic Submission"),
+            Attribute("DataSource", "EuropePMC"),
+            Attribute("AttachTo", "EuropePMC"))
+    }
+
+    @Test
     fun `detailed attributes`() {
         val submission: Submission = deserializer.deserialize(submissionWithDetailedAttributes().toString())
         val detailedAttribute = Attribute(
@@ -111,7 +124,7 @@ class TsvDeserializerTest {
     }
 
     @Test
-    fun `subsection`() {
+    fun subsection() {
         val submission: Submission = deserializer.deserialize(submissionWithSubsection().toString())
 
         assertThat(submission.section.sections).hasSize(1)
@@ -196,7 +209,7 @@ class TsvDeserializerTest {
     }
 
     @Test
-    fun `links`() {
+    fun links() {
         val submission: Submission = deserializer.deserialize(submissionWithLinks().toString())
 
         assertThat(submission.section.links).hasSize(2)
@@ -216,7 +229,7 @@ class TsvDeserializerTest {
     }
 
     @Test
-    fun `files`() {
+    fun files() {
         val submission: Submission = deserializer.deserialize(submissionWithFiles().toString())
 
         assertThat(submission.section.files).hasSize(2)
@@ -340,8 +353,9 @@ class TsvDeserializerTest {
     }
 
     @Test
-    fun `empty single element`() =
+    fun `empty single element`() {
         assertThrows<InvalidChunkSizeException> { deserializer.deserializeElement("", File::class.java) }
+    }
 
     @Test
     fun `invalid chunk size`() {

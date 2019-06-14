@@ -10,6 +10,7 @@ fun simpleSubmissionTsv() = tsv {
 }
 
 fun allInOneSubmissionTsv() = tsv {
+    line("# All in one submission")
     line("Submission", "S-EPMC124")
     line("Title", "venous blood, Monocyte")
     line("ReleaseDate", "2021-02-12")

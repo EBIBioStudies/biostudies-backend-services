@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.tsv.deserialization
 
 import ac.uk.ebi.biostd.tsv.TSV_CHUNK_BREAK
+import ac.uk.ebi.biostd.tsv.TSV_COMMENT
 import ac.uk.ebi.biostd.tsv.deserialization.model.FileChunk
 import ac.uk.ebi.biostd.tsv.deserialization.model.FileTableChunk
 import ac.uk.ebi.biostd.tsv.deserialization.model.LinkChunk
@@ -47,6 +48,7 @@ internal class TsvDeserializer(private val chunkProcessor: ChunkProcessor = Chun
 
     private fun chunkerize(pagetab: String) =
         pagetab.split(TSV_CHUNK_BREAK)
+            .filterNot { it.startsWith(TSV_COMMENT) }
             .mapIndexed { index, line -> TsvChunkLine(index, line) }
             .split { it.isEmpty() }
             .mapTo(mutableListOf()) { createChunk(it) }
