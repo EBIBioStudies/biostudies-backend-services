@@ -1,7 +1,6 @@
 package ac.uk.ebi.biostd.submission.processors
 
 import ebi.ac.uk.model.ExtendedSubmission
-import ebi.ac.uk.model.extensions.releaseDate
 import ebi.ac.uk.persistence.PersistenceContext
 
 /**
@@ -9,10 +8,7 @@ import ebi.ac.uk.persistence.PersistenceContext
  */
 class AccessTagProcessor : SubmissionProcessor {
     override fun process(submission: ExtendedSubmission, context: PersistenceContext) {
-        val accessTags =
-            context.getParentAccessTags(submission)
-                .toMutableList()
-                .apply { removeIf { it == "Public" && submission.releaseDate.isNullOrBlank().not() } }
+        val accessTags = context.getParentAccessTags(submission).filterNot { it == "Public" }
 
         submission.accessTags.addAll(accessTags)
     }

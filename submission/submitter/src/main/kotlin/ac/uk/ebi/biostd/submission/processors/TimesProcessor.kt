@@ -23,6 +23,10 @@ class TimesProcessor : SubmissionProcessor {
         submission.modificationTime = now
         submission.creationTime = createDate ?: now
         submission.releaseTime = submission.releaseDate?.let { parseDate(it) } ?: now
+
+        if (submission.releaseTime.isBefore(now)) {
+            submission.addAccessTag("Public")
+        }
     }
 
     private fun parseDate(date: String): OffsetDateTime =
