@@ -11,6 +11,18 @@ fun basicSubmission() = tsv {
     line()
 }
 
+fun basicSubmissionWithComments() = tsv {
+    line("# This is a test submission")
+    line("Submission", "S-EPMC123")
+    line("Title", "Basic Submission")
+    line("# This is a comment in the middle of the attrs")
+    line("DataSource", "EuropePMC")
+    line("AttachTo", "EuropePMC")
+    line()
+
+    line("# Yet another comment. It should be ignored")
+}
+
 fun submissionWithInvalidAttribute() = tsv {
     line("Submission", "S-EPMC124")
     line("Title", "")
