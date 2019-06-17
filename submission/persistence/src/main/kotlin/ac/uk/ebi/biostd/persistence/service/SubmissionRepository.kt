@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.persistence.service
 
-import ac.uk.ebi.biostd.persistence.mapping.SubmissionDbMapper
+import ac.uk.ebi.biostd.persistence.mapping.ext2.SubmissionDbMapper
 import ac.uk.ebi.biostd.persistence.repositories.SubmissionDataRepository
 
 class SubmissionRepository(

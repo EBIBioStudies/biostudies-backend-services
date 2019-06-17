@@ -1,13 +1,13 @@
-package ac.uk.ebi.biostd.persistence.mapping
+package ac.uk.ebi.biostd.persistence.mapping.ext2
 
 import ac.uk.ebi.biostd.persistence.common.NO_TABLE_INDEX
-import ac.uk.ebi.biostd.persistence.mapping.DbAttributeMapper.toAttributes
-import ac.uk.ebi.biostd.persistence.mapping.DbEitherMapper.toExtendedSections
-import ac.uk.ebi.biostd.persistence.mapping.DbEitherMapper.toFiles
-import ac.uk.ebi.biostd.persistence.mapping.DbEitherMapper.toLinks
-import ac.uk.ebi.biostd.persistence.mapping.DbEitherMapper.toSections
-import ac.uk.ebi.biostd.persistence.mapping.DbEntityMapper.toLibraryFile
-import ac.uk.ebi.biostd.persistence.mapping.DbEntityMapper.toUser
+import ac.uk.ebi.biostd.persistence.mapping.ext2.DbAttributeMapper.toAttributes
+import ac.uk.ebi.biostd.persistence.mapping.ext2.DbEitherMapper.toExtendedSections
+import ac.uk.ebi.biostd.persistence.mapping.ext2.DbEitherMapper.toFiles
+import ac.uk.ebi.biostd.persistence.mapping.ext2.DbEitherMapper.toLinks
+import ac.uk.ebi.biostd.persistence.mapping.ext2.DbEitherMapper.toSections
+import ac.uk.ebi.biostd.persistence.mapping.ext2.DbEntityMapper.toLibraryFile
+import ac.uk.ebi.biostd.persistence.mapping.ext2.DbEntityMapper.toUser
 import ac.uk.ebi.biostd.persistence.model.AccessTag
 import ac.uk.ebi.biostd.persistence.model.Tabular
 import ac.uk.ebi.biostd.persistence.model.Tag
@@ -104,7 +104,7 @@ private object DbEitherMapper {
         toEitherList(sections, DbSectionMapper()::toSection, ::SectionsTable)
 
     internal fun toExtendedSections(sections: List<SectionDb>): MutableList<Either<ExtendedSection, SectionsTable>> =
-            toEitherList(sections, DbSectionMapper()::toExtendedSection, ::SectionsTable)
+        toEitherList(sections, DbSectionMapper()::toExtendedSection, ::SectionsTable)
 
     /**
      * Convert the given list of elements into an instance of @See [Either] using transform function for simple element

@@ -1,8 +1,7 @@
 package ac.uk.ebi.biostd.common.config
 
 import ac.uk.ebi.biostd.persistence.integration.PersistenceContextImpl
-import ac.uk.ebi.biostd.persistence.mapping.SubmissionDbMapper
-import ac.uk.ebi.biostd.persistence.mapping.SubmissionMapper
+import ac.uk.ebi.biostd.persistence.mapping.ext2.SubmissionDbMapper
 import ac.uk.ebi.biostd.persistence.repositories.JdbcLockExecutor
 import ac.uk.ebi.biostd.persistence.repositories.LockExecutor
 import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository

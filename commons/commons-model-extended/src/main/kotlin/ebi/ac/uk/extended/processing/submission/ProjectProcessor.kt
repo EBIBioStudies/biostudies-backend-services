@@ -1,6 +1,6 @@
 package ebi.ac.uk.extended.processing.submission
 
-import ebi.ac.uk.extended.integration.SubmissionService
+import ac.uk.ebi.biostd.persistence.integration.SubmissionService
 import ebi.ac.uk.model.User
 
 class ProjectProcessor(private val submissionService: SubmissionService) {

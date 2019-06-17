@@ -20,9 +20,9 @@ data class ExtAttribute(
     val valueAttrs: List<ExtAttributeDetail>)
 
 data class ExtSection(
+    val accNo: String? = null,
     val type: String,
     val libraryFile: ExtLibraryFile? = null,
-    val accNo: String? = null,
     val attributes: List<ExtAttribute>,
     val sections: List<Either<ExtSection, ExtSectionTable>> = mutableListOf(),
     val files: List<Either<ExtFile, ExtFileTable>> = mutableListOf(),

@@ -1,7 +1,7 @@
 package ebi.ac.uk.extended.processing
 
+import ac.uk.ebi.biostd.persistence.integration.SubmissionService
 import ebi.ac.uk.extended.integration.FilesSource
-import ebi.ac.uk.extended.integration.SubmissionService
 import ebi.ac.uk.extended.mapping.serialization.AttributeMapper
 import ebi.ac.uk.extended.mapping.serialization.SectionMapper
 import ebi.ac.uk.extended.model.ExtSubmission

@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.persistence.mapping.extensions
+package ac.uk.ebi.biostd.persistence.mapping.db.extensions
 
 import ac.uk.ebi.biostd.persistence.model.ReferencedFile
 import ac.uk.ebi.biostd.persistence.model.ReferencedFileAttribute

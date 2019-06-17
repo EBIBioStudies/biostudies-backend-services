@@ -1,12 +1,15 @@
-package ac.uk.ebi.biostd.persistence.mapping.extensions
+package ac.uk.ebi.biostd.persistence.mapping.db.extensions
 
 import ac.uk.ebi.biostd.persistence.model.File
 import ac.uk.ebi.biostd.persistence.model.Link
+import ac.uk.ebi.biostd.persistence.model.Section
 import arrow.core.Either
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.ExtLink
 import ebi.ac.uk.extended.model.ExtLinkTable
+import ebi.ac.uk.extended.model.ExtSection
+import ebi.ac.uk.extended.model.ExtSectionTable
 import java.util.SortedSet
 
 fun List<Either<ExtLink, ExtLinkTable>>.toDbLinks(): SortedSet<Link> {
@@ -30,4 +33,17 @@ fun List<Either<ExtFile, ExtFileTable>>.toDbFiles(): SortedSet<File> {
 
     return results
 }
+
+fun List<Either<ExtSection, ExtSectionTable>>.toDbSections(): SortedSet<Section> {
+    val results = sortedSetOf<Section>()
+    for ((index, Section) in withIndex()) {
+        Section.fold(
+            { results.add(it.toDbSection(index)) },
+            { results.addAll(it.sections.mapIndexed { tableIndex, Section -> Section.toDbSection(index + tableIndex, tableIndex) }) })
+    }
+
+    return results
+}
+
+
 

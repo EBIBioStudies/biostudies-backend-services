@@ -1,10 +1,10 @@
 package ebi.ac.uk.extended.processing.accno
 
+import ac.uk.ebi.biostd.persistence.integration.SubmissionService
 import arrow.core.Option
 import arrow.core.getOrElse
 import ebi.ac.uk.extended.exception.ProvideAccessNumber
 import ebi.ac.uk.extended.exception.UserCanNotUpdateSubmit
-import ebi.ac.uk.extended.integration.SubmissionService
 import ebi.ac.uk.model.AccNumber
 import ebi.ac.uk.model.AccPattern
 import ebi.ac.uk.model.Submission

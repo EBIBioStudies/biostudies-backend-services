@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.persistence.mapping.ext
+package ac.uk.ebi.biostd.persistence.mapping.ext2
 
 import ac.uk.ebi.biostd.persistence.model.AccessTag
 import ebi.ac.uk.extended.model.ExtSubmission

@@ -1,7 +1,7 @@
 package ebi.ac.uk.extended.processing.times
 
+import ac.uk.ebi.biostd.persistence.integration.SubmissionService
 import arrow.core.Try
-import ebi.ac.uk.extended.integration.SubmissionService
 import ebi.ac.uk.extended.processing.exceptions.InvalidDateFormatException
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.extensions.releaseDate
