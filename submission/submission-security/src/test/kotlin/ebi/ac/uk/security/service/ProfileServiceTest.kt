@@ -53,9 +53,9 @@ class ProfileServiceTest(temporaryFolder: TemporaryFolder) {
             groupsFolders = listOf(expectedGroupFolder),
             permissions = emptySet())
 
-        val user = testInstance.getUserProfile(testUser, "a token")
+        val (user, token) = testInstance.getUserProfile(testUser, "a token")
 
-        assertThat(user.component1()).isEqualToComparingFieldByField(expectedUser)
-        assertThat(user.component2()).isEqualTo("a token")
+        assertThat(user).isEqualToComparingFieldByField(expectedUser)
+        assertThat(token).isEqualTo("a token")
     }
 }
