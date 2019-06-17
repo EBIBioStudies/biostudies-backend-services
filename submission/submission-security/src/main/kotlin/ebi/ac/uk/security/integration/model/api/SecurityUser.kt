@@ -15,5 +15,5 @@ class SecurityUser(
     val permissions: Set<AccessPermission>
 )
 
-class MagicFolder(val relativePath: Path, val path: Path)
-class GroupMagicFolder(val groupName: String, val path: Path)
+data class MagicFolder(val relativePath: Path, val path: Path)
+data class GroupMagicFolder(val groupName: String, val path: Path)
