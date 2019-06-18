@@ -2,48 +2,52 @@ package ac.uk.ebi.biostd.submission.service
 
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat
+import ac.uk.ebi.biostd.persistence.integration.SubmissionService
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
-import ac.uk.ebi.biostd.submission.SubmissionSubmitter
-import ac.uk.ebi.biostd.submission.model.UserSource
-import ebi.ac.uk.model.ExtendedSubmission
+import ebi.ac.uk.extended.integration.FilesSource
+import ebi.ac.uk.extended.mapping.serialization.to.toSimpleSubmission
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.User
-import ebi.ac.uk.persistence.PersistenceContext
 import ebi.ac.uk.security.integration.model.api.SecurityUser
+import ebi.ac.uk.submission.processing.SubmissionProcessor
 
 class SubmissionService(
     private val submissionRepository: SubmissionRepository,
-    private val persistenceContext: PersistenceContext,
-    private val serializationService: SerializationService,
-    private val submitter: SubmissionSubmitter
+    private val submissionService: SubmissionService,
+    private val submissionProcessor: SubmissionProcessor,
+    private val serializationService: SerializationService
 ) {
 
     fun getSubmissionAsJson(accNo: String): String {
         val submission = submissionRepository.getByAccNo(accNo)
-        return serializationService.serializeSubmission(submission, SubFormat.JSON_PRETTY)
+        return serializationService.serializeSubmission(submission.toSimpleSubmission(), SubFormat.JSON_PRETTY)
     }
 
     fun getSubmissionAsXml(accNo: String): String {
         val submission = submissionRepository.getByAccNo(accNo)
-        return serializationService.serializeSubmission(submission, SubFormat.XML)
+        return serializationService.serializeSubmission(submission.toSimpleSubmission(), SubFormat.XML)
     }
 
     fun getSubmissionAsTsv(accNo: String): String {
         val submission = submissionRepository.getByAccNo(accNo)
-        return serializationService.serializeSubmission(submission, SubFormat.TSV)
+        return serializationService.serializeSubmission(submission.toSimpleSubmission(), SubFormat.TSV)
     }
 
     fun deleteSubmission(accNo: String, user: SecurityUser) {
-        require(persistenceContext.canDelete(accNo, asUser(user)))
+        require(submissionService.canDelete(accNo, asUser(user)))
         submissionRepository.expireSubmission(accNo)
     }
 
     fun submit(
         submission: Submission,
         user: SecurityUser,
-        files: UserSource
-    ) = submitter.submit(ExtendedSubmission(submission, asUser(user)), files, persistenceContext)
+        files: FilesSource
+    ): Submission {
+        val simple = asUser(user)
+        val extSubmission = submissionProcessor.processSubmission(submission, simple, files)
+        val submimited = submissionService.submit(extSubmission, simple)
+        return submimited.toSimpleSubmission()
+    }
 
-    private fun asUser(securityUser: SecurityUser): User =
-        User(securityUser.id, securityUser.email, securityUser.secret)
+    private fun asUser(user: SecurityUser): User = User(user.id, user.email, user.secret)
 }

@@ -13,7 +13,8 @@ class SecurityUser(
     val magicFolder: MagicFolder,
     val groupsFolders: List<GroupMagicFolder>,
     val permissions: Set<AccessPermission>
-)
+) {
+}
 
 class MagicFolder(val relativePath: Path, val path: Path)
 class GroupMagicFolder(val groupName: String, val path: Path)

@@ -5,5 +5,5 @@ import ebi.ac.uk.extended.integration.FilesSource
 import ebi.ac.uk.extended.model.ExtFile
 
 internal fun File.toExtFile(fileSource: FilesSource) =
-    ExtFile(name, fileSource.get(name), attributes.map { it.toExtAttribute() })
+    ExtFile(name, fileSource.getFile(name), attributes.map { it.toExtAttribute() })
 

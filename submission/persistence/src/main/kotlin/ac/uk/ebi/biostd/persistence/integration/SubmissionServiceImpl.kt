@@ -1,8 +1,11 @@
 package ac.uk.ebi.biostd.persistence.integration
 
+import ac.uk.ebi.biostd.persistence.mapping.db.ExtToDbMapper
+import ac.uk.ebi.biostd.persistence.mapping.ext.extensions.toExtSubmission
 import ac.uk.ebi.biostd.persistence.repositories.LockExecutor
 import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.SubmissionDataRepository
+import ac.uk.ebi.biostd.persistence.service.SubFileResolver
 import arrow.core.Option
 import arrow.core.toOption
 import ebi.ac.uk.base.toOption
@@ -16,13 +19,22 @@ import ebi.ac.uk.model.constants.SubFields.ATTACH_TO
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 
-class SubmissionServiceImpl(
+internal class SubmissionServiceImpl(
     private val subRepository: SubmissionDataRepository,
     private val sequenceRepository: SequenceDataRepository,
     private val lockExecutor: LockExecutor,
-    private val exte
+    private val subFileResolver: SubFileResolver,
+    private val mapper: ExtToDbMapper,
+    private val submitter: Submitter
 ) : SubmissionService {
+    override fun canDelete(accNo: String, asUser: User): Boolean {
+        return true
+    }
 
+    override fun submit(extSubmission: ExtSubmission, user: User): ExtSubmission {
+        submitter.submitSubmission(extSubmission, user)
+        return saveSubmission(extSubmission, user)
+    }
 
     override fun isNew(accNo: String): Boolean = subRepository.existsByAccNo(accNo)
 
@@ -45,7 +57,7 @@ class SubmissionServiceImpl(
         submission.find(ATTACH_TO).toOption().map { subRepository.getByAccNoAndVersionGreaterThan(it) }
 
     override fun getProjectAccessTags(accNo: String): List<String> {
-
+        return TODO()
     }
 
     override fun existProject(accNo: String): Boolean {
@@ -56,14 +68,16 @@ class SubmissionServiceImpl(
 
     override fun canSubmit(accNo: String, user: User) = true
 
-    override fun canAttach(accNo: String): Boolean = true
+    override fun canAttach(accNo: String, user: User): Boolean = true
 
-    override fun saveSubmission(submission: ExtSubmission, user: User): ExtSubmission {
-        lockExecutor.executeLocking(submission.accNo) {
-            val nextVersion = (subRepository.getLastVersion(submission.accNo) ?: 0) + 1
-            subRepository.expireActiveVersions(submission.accNo)
-            submission.version = nextVersion
-            subRepository.save(subMapper.toSubmissionDb(submission))
+    private fun saveSubmission(extSubmission: ExtSubmission, user: User): ExtSubmission {
+        val submissionDb = mapper.toSubmissionDb(extSubmission, user)
+        return lockExecutor.executeLocking(submissionDb.accNo) {
+            val nextVersion = (subRepository.getLastVersion(extSubmission.accNo) ?: 0) + 1
+            subRepository.expireActiveVersions(extSubmission.accNo)
+            submissionDb.version = nextVersion
+            subRepository.save(submissionDb)
+            submissionDb.toExtSubmission(subFileResolver.getSource(submissionDb.secretKey))
         }
     }
 

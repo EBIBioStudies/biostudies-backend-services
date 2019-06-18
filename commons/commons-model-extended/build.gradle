@@ -3,7 +3,7 @@ import static TestDependencies.BaseTestRuntimeDependencies
 
 dependencies {
     compile project(":commons:commons-util")
-    compile project(":submission:persistence")
+    compile(project(":commons:commons-bio"))
 
     testCompile(BaseTestCompileDependencies)
     testRuntime(BaseTestRuntimeDependencies)

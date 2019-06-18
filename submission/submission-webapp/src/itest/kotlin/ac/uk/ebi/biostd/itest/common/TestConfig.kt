@@ -9,6 +9,6 @@ class TestConfig {
 
     @Bean
     fun lockExecutor() = object : LockExecutor {
-        override fun executeLocking(lockName: String, timeout: Int, executable: () -> Unit) = executable()
+        override fun <T> executeLocking(lockName: String, timeout: Int, executable: () -> T): T = executable()
     }
 }

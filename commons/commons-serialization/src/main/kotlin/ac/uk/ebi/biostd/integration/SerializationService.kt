@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.integration
 
-import ebi.ac.uk.io.FilesSource
+import ebi.ac.uk.extended.integration.FilesSource
 import ebi.ac.uk.model.Submission
 
 interface SerializationService {

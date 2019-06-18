@@ -3,6 +3,7 @@ package ebi.ac.uk.model.extensions
 import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.constants.SubFields
+import java.time.OffsetDateTime
 
 /**
  * Contains accessor for attributes that has specific meaning in page tab specification.
@@ -25,6 +26,44 @@ var Submission.releaseDate: String?
     set(value) {
         value?.let { this[SubFields.RELEASE_DATE] = it }
     }
+
+/**
+ * Indicates when a submission was released to public access.
+ */
+var Submission.releaseTime: OffsetDateTime?
+    get() = this[SubFields.RELEASE_TIME]
+    set(value) {
+        value?.let { this[SubFields.RELEASE_TIME] = it }
+    }
+
+/**
+ * Indicates when a submission was released to public access.
+ */
+var Submission.creationTime: OffsetDateTime?
+    get() = this[SubFields.CREATION_TIME]
+    set(value) {
+        value?.let { this[SubFields.CREATION_TIME] = it }
+    }
+
+/**
+ * Indicates when a submission was released to public access.
+ */
+var Submission.modificationTime: OffsetDateTime?
+    get() = this[SubFields.MODIFICATION_TIME]
+    set(value) {
+        value?.let { this[SubFields.MODIFICATION_TIME] = it }
+    }
+
+
+/**
+ * Indicates when a submission was released to public access.
+ */
+var Submission.secretKey: String?
+    get() = this[SubFields.SECRET]
+    set(value) {
+        value?.let { this[SubFields.SECRET] = it }
+    }
+
 
 /**
  * Prefix set to all files in the submission.

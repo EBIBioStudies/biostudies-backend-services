@@ -1,14 +1,9 @@
 package ac.uk.ebi.biostd.common.config
 
-import ac.uk.ebi.biostd.persistence.integration.PersistenceContextImpl
-import ac.uk.ebi.biostd.persistence.mapping.ext2.SubmissionDbMapper
 import ac.uk.ebi.biostd.persistence.repositories.JdbcLockExecutor
 import ac.uk.ebi.biostd.persistence.repositories.LockExecutor
-import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.SubmissionDataRepository
-import ac.uk.ebi.biostd.persistence.repositories.TagsDataRepository
-import ac.uk.ebi.biostd.persistence.repositories.TagsRefRepository
-import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
+import ac.uk.ebi.biostd.persistence.service.SubFileResolver
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.context.annotation.Bean
@@ -20,26 +15,16 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 @EnableJpaRepositories(basePackageClasses = [SubmissionDataRepository::class])
 class PersistenceConfig(
     private val submissionDataRepository: SubmissionDataRepository,
-    private val sequenceRepository: SequenceDataRepository,
-    private val tagsDataRepository: TagsDataRepository,
-    private val tagsRefRepository: TagsRefRepository,
-    private val userRepository: UserDataRepository,
     private val template: NamedParameterJdbcTemplate
 ) {
-    @Bean
-    fun submissionRepository() = SubmissionRepository(submissionDataRepository, submissionDbMapper())
 
     @Bean
-    fun submissionDbMapper() = SubmissionDbMapper()
+    fun subFileResolver(): SubFileResolver = TODO()
 
     @Bean
-    fun submissionMapper() = SubmissionMapper(tagsDataRepository, tagsRefRepository, userRepository)
+    fun submissionRepository() = SubmissionRepository(submissionDataRepository, subFileResolver())
 
     @Bean
     @ConditionalOnMissingBean(LockExecutor::class)
     fun lockExecutor(): LockExecutor = JdbcLockExecutor(template)
-
-    @Bean
-    fun persistenceContext(lockExecutor: LockExecutor) = PersistenceContextImpl(
-        submissionDataRepository, sequenceRepository, lockExecutor, submissionDbMapper(), submissionMapper())
 }

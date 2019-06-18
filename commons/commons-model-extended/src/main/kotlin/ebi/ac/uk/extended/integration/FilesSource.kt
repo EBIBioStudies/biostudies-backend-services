@@ -4,7 +4,7 @@ import java.io.File
 
 interface FilesSource {
 
-    fun exist(filePath: String): Boolean
+    fun exists(filePath: String): Boolean
 
-    fun get(filePath: String): File
+    fun getFile(filePath: String): File
 }

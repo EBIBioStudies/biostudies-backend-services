@@ -1,11 +1,11 @@
 package ac.uk.ebi.biostd.submission.web
 
+import ac.uk.ebi.biostd.common.UserSource
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat
 import ac.uk.ebi.biostd.integration.SubFormat.JSON
 import ac.uk.ebi.biostd.integration.SubFormat.TSV
 import ac.uk.ebi.biostd.integration.SubFormat.XML
-import ac.uk.ebi.biostd.submission.model.UserSource
 import ac.uk.ebi.biostd.submission.service.SubmissionService
 import ac.uk.ebi.biostd.submission.service.TempFileGenerator
 import ebi.ac.uk.model.Submission

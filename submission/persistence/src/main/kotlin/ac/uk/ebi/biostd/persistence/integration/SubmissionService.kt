@@ -11,15 +11,18 @@ interface SubmissionService {
 
     fun isNew(accNo: String): Boolean
     fun getSequenceNextValue(pattern: AccPattern): Long
-    fun getCreationTime(accNo: String): OffsetDateTime
+    fun getCreationTime(accNo: String): OffsetDateTime?
 
     fun getProjectAccPattern(submission: Submission): Option<String>
     fun getProjectAccessTags(accNo: String): List<String>
     fun existProject(accNo: String): Boolean
 
+    fun canDelete(accNo: String, asUser: User): Boolean
     fun canUserProvideAccNo(user: User): Boolean
     fun canSubmit(accNo: String, user: User): Boolean
-    fun canAttach(accNo: String): Boolean
+    fun canAttach(accNo: String, user: User): Boolean
+    fun submit(extSubmission: ExtSubmission, user: User): ExtSubmission
 
-    fun saveSubmission(extendedSubmission: ExtSubmission, user: User): ExtSubmission
+
 }
+
