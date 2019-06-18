@@ -13,7 +13,8 @@ class ExtendedSection(type: String) : Section(type) {
         libraryFile = section.libraryFile
         sections = section.sections
         attributes = section.attributes
-        section.sections.map { subSection -> subSection.bimap({ ExtendedSection(it) }, { it }) }
+        extendedSections =
+            section.sections.mapTo(mutableListOf()) { subSection -> subSection.bimap({ ExtendedSection(it) }, { it }) }
     }
 
     fun asSection() = Section(type, accNo, libraryFile, toSections(), files, links, attributes)
