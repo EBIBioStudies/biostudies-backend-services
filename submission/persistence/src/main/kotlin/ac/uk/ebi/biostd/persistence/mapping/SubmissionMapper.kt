@@ -22,6 +22,7 @@ import arrow.core.Either
 import ebi.ac.uk.base.orFalse
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.AttributeDetail
+import ebi.ac.uk.model.ExtendedSection
 import ebi.ac.uk.model.ExtendedSubmission
 import ebi.ac.uk.model.File
 import ebi.ac.uk.model.FilesTable
@@ -75,14 +76,14 @@ class SubmissionMapper(
 }
 
 private object SectionMapper {
-    fun toSection(section: Section, parentSubmission: SubmissionDb?, index: Int) =
+    fun toSection(section: ExtendedSection, parentSubmission: SubmissionDb?, index: Int) =
         SectionDb(section.accNo, section.type).apply {
             order = index
             attributes = toAttributes(section.attributes).mapTo(sortedSetOf(), ::SectionAttribute)
             links = section.links.mapIndexed(::toLinks).flatten().toSortedSet()
             files = section.files.mapIndexed(::toFiles).flatten().toSortedSet()
             submission = parentSubmission
-            sections = section.sections.mapIndexed { index, section ->
+            sections = section.extendedSections.mapIndexed { index, section ->
                 toSections(index, section, parentSubmission)
             }.flatten().toSortedSet()
             section.libraryFile?.let { libraryFile = toLibraryFile(it) }
@@ -99,7 +100,7 @@ private object SectionMapper {
 private object TableMapper {
     fun toSections(
         index: Int,
-        either: Either<Section, SectionsTable>,
+        either: Either<ExtendedSection, SectionsTable>,
         parentSubmission: SubmissionDb?
     ): List<SectionDb> =
         either.fold(
