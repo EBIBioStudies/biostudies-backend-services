@@ -35,7 +35,6 @@ internal class GroupFilesApiTest(private val tempFolder: TemporaryFolder) : Base
     @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
     @DirtiesContext
     inner class GroupFilesApi(@Autowired val groupService: IGroupService) {
-
         @LocalServerPort
         private var serverPort: Int = 0
 
@@ -45,8 +44,8 @@ internal class GroupFilesApiTest(private val tempFolder: TemporaryFolder) : Base
         fun init() {
             val securityClient = SecurityWebClient.create("http://localhost:$serverPort")
             securityClient.registerUser(RegisterRequest(GenericUser.username, GenericUser.email, GenericUser.password))
-            webClient = securityClient.getAuthenticatedClient(GenericUser.email, GenericUser.password)
             groupService.addUserInGroup(groupService.creatGroup(GROUP_NAME).name, "test@biostudies.com")
+            webClient = securityClient.getAuthenticatedClient(GenericUser.email, GenericUser.password)
         }
 
         @Test

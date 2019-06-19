@@ -17,10 +17,11 @@ JAVA_HOME=/nfs/ma/home/java/zulu8.38.0.13-ca-jdk8.0.212-linux_x64
 
 # Kill and wait for process to be finished
 while $(kill -9 ${PID} 2>/dev/null); do sleep 1;done;
+rm -rf logs.txt
 
 ## deploy new version of application
 nohup ${JAVA_HOME}/bin/java \
     -Xdebug -Xrunjdwp:transport=dt_socket,server=y,address=DEBUG_PORT,suspend=n \
     -jar APP_PATH/APP_NAME \
-    --spring.config.location=APP_PATH/application.yml \
+    --spring.config.location=classpath:/application.yml,APP_PATH/application.yml \
     --server.port=APP_PORT >> logs.txt &
