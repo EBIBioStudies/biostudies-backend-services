@@ -39,7 +39,7 @@ class ProfileServiceTest(temporaryFolder: TemporaryFolder) {
 
         val expectedGroupFolder = GroupMagicFolder(
             groupName = "Test Group",
-            path = Paths.get("fd/9f87b3-9de8-4036-be7a-3ac8cbc44ddd-b0")
+            path = Paths.get("$filesDir/fd/9f87b3-9de8-4036-be7a-3ac8cbc44ddd-b0")
         )
 
         val expectedUser = SecurityUser(
