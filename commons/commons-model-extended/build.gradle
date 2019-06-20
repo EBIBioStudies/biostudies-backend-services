@@ -5,6 +5,7 @@ dependencies {
     compile project(":commons:commons-util")
     compile(project(":commons:commons-bio"))
 
+    testCompile project(":commons:commons-test")
     testCompile(BaseTestCompileDependencies)
     testRuntime(BaseTestRuntimeDependencies)
 }

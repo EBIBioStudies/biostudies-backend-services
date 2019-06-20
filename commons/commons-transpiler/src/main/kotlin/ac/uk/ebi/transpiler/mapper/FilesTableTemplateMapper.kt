@@ -16,7 +16,7 @@ class FilesTableTemplateMapper {
             val rowFiles = Paths.get(path).toFile().listFiles()
             val attributes = row.attributes.mapIndexed { idx, attrVal -> Attribute(attrKeys[idx], attrVal) }.toList()
 
-            rowFiles.forEach { files.add(File("$basePath/${row.path}/${it.name}", attributes = attributes)) }
+            rowFiles.forEach { files.add(File("$basePath/${row.path}/${it.name}", attributes = attributes.toMutableList())) }
         }
 
         return FilesTable(files)

@@ -26,7 +26,7 @@ class SectionXmlDeserializer(
         return Section(
             accNo = node.findProperty(ACC_NO),
             type = node.getProperty(TYPE),
-            attributes = attributeXmlDeserializer.deserializeList(node.findNode(ATTRIBUTES)),
+            attributes = attributeXmlDeserializer.deserializeList(node.findNode(ATTRIBUTES)).toMutableList(),
             links = linkXmlDeserializer.deserializeTableList(node.findNode(LINKS), LinkFields.LINK.value, ::LinksTable),
             files = fileXmlDeserializer.deserializeTableList(node.findNode(FILES), FileFields.FILE.value, ::FilesTable),
             sections = deserializeTableList(node.findNode(SUBSECTIONS), SECTION.value, ::SectionsTable))

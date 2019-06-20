@@ -14,7 +14,7 @@ class SubmissionXmlDeserializer(
     override fun deserialize(node: Node): Submission {
         return Submission(
             accNo = node.getProperty(SubFields.ACC_NO),
-            attributes = attributeXmlDeserializer.deserializeList(node.getNode(SubFields.ATTRIBUTES)),
+            attributes = attributeXmlDeserializer.deserializeList(node.getNode(SubFields.ATTRIBUTES)).toMutableList(),
             section = sectionXmlDeserializer.deserialize(node.getNode(SubFields.SECTION))
         )
     }

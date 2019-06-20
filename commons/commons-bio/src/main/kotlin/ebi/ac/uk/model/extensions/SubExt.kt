@@ -3,6 +3,8 @@ package ebi.ac.uk.model.extensions
 import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.constants.SubFields
+import ebi.ac.uk.util.date.asIsoTime
+import ebi.ac.uk.util.date.fromIsoTime
 import java.time.OffsetDateTime
 
 /**
@@ -13,7 +15,7 @@ import java.time.OffsetDateTime
  * Indicate that submission should be register for specific project.
  */
 var Submission.attachTo: String?
-    get() = this[SubFields.ATTACH_TO]
+    get() = find(SubFields.ATTACH_TO)
     set(value) {
         value?.let { this[SubFields.ATTACH_TO] = it }
     }
@@ -22,7 +24,7 @@ var Submission.attachTo: String?
  * Indicates when a submission was released to public access.
  */
 var Submission.releaseDate: String?
-    get() = this[SubFields.RELEASE_DATE]
+    get() = find(SubFields.RELEASE_DATE)
     set(value) {
         value?.let { this[SubFields.RELEASE_DATE] = it }
     }
@@ -31,27 +33,27 @@ var Submission.releaseDate: String?
  * Indicates when a submission was released to public access.
  */
 var Submission.releaseTime: OffsetDateTime?
-    get() = this[SubFields.RELEASE_TIME]
+    get() = find(SubFields.RELEASE_TIME)?.let { fromIsoTime(it) }
     set(value) {
-        value?.let { this[SubFields.RELEASE_TIME] = it }
+        value?.let { this[SubFields.RELEASE_TIME] = it.asIsoTime() }
     }
 
 /**
  * Indicates when a submission was released to public access.
  */
 var Submission.creationTime: OffsetDateTime?
-    get() = this[SubFields.CREATION_TIME]
+    get() = find(SubFields.CREATION_TIME)?.let { fromIsoTime(it) }
     set(value) {
-        value?.let { this[SubFields.CREATION_TIME] = it }
+        value?.let { this[SubFields.CREATION_TIME] = it.asIsoTime() }
     }
 
 /**
  * Indicates when a submission was released to public access.
  */
 var Submission.modificationTime: OffsetDateTime?
-    get() = this[SubFields.MODIFICATION_TIME]
+    get() = find(SubFields.MODIFICATION_TIME)?.let { fromIsoTime(it) }
     set(value) {
-        value?.let { this[SubFields.MODIFICATION_TIME] = it }
+        value?.let { this[SubFields.MODIFICATION_TIME] = it.asIsoTime() }
     }
 
 
@@ -59,7 +61,7 @@ var Submission.modificationTime: OffsetDateTime?
  * Indicates when a submission was released to public access.
  */
 var Submission.secretKey: String?
-    get() = this[SubFields.SECRET]
+    get() = find(SubFields.SECRET)
     set(value) {
         value?.let { this[SubFields.SECRET] = it }
     }
@@ -69,7 +71,7 @@ var Submission.secretKey: String?
  * Prefix set to all files in the submission.
  */
 var Submission.rootPath: String?
-    get() = this[SubFields.ROOT_PATH]
+    get() = find(SubFields.ROOT_PATH)
     set(value) {
         value?.let { this[SubFields.ROOT_PATH] = it }
     }
@@ -78,12 +80,12 @@ var Submission.rootPath: String?
  * Obtain the submission title attribute if present.
  */
 var Submission.title: String?
-    get() = this[SubFields.TITLE]
+    get() = find(SubFields.TITLE)
     set(value) {
         value?.let { this[SubFields.TITLE] = it }
     }
 
 fun Submission.allFiles() = section.allFiles() + section.allSections().flatMap { it.allFiles() }
-fun Submission.getSectionByType(name: String) = section.allSections().first { it.type == name }
+fun Submission.getSectionByType(name: String): Section = section.allSections().first { it.type == name }
 fun Submission.libFileSections() = (section.allSections() + section).filterNot { it.libraryFileName.isNullOrBlank() }
 fun Submission.allSections(): List<Section> = mutableListOf(section) + section.allSections()

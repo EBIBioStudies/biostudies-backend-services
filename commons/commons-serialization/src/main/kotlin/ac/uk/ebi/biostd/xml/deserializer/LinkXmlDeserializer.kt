@@ -12,7 +12,7 @@ class LinkXmlDeserializer(private val attributeXmlDeserializer: AttributeXmlDese
     override fun deserialize(node: Node): Link {
         return Link(
             url = node.getNodeAttribute(LinkFields.URL),
-            attributes = attributeXmlDeserializer.deserializeList(node.findNode(LinkFields.ATTRIBUTES))
+            attributes = attributeXmlDeserializer.deserializeList(node.findNode(LinkFields.ATTRIBUTES)).toMutableList()
         )
     }
 

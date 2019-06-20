@@ -19,11 +19,11 @@ class Submitter(
 
     fun submitSubmission(submission: ExtSubmission, user: User) {
         val submissionPath = folderResolver.getSubmissionFolder(submission.relPath)
-        submission.allFiles().forEach { file -> copyFile(submissionPath, file) }
-        submission.allReferencedFiles().forEach { file -> copyFile(submissionPath, file) }
+        submission.allFiles.forEach { file -> copyFile(submissionPath, file) }
+        submission.allReferencedFiles.forEach { file -> copyFile(submissionPath, file) }
 
         generateOutputFiles(submission.toSimpleSubmission(), submissionPath, submission.accNo)
-        submission.allLibraryFiles().forEach { generateOutputFiles(it.referencedFiles, submissionPath, it.fileName) }
+        submission.allLibraryFiles.forEach { generateOutputFiles(it.referencedFiles, submissionPath, it.fileName) }
     }
 
     private fun <T> generateOutputFiles(element: T, submissionPath: Path, outputFileName: String) {

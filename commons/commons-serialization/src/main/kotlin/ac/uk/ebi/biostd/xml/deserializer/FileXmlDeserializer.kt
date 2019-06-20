@@ -12,7 +12,7 @@ class FileXmlDeserializer(private val attributeXmlDeserializer: AttributeXmlDese
     override fun deserialize(node: Node): File {
         return File(
             path = node.getNodeAttribute(FileFields.PATH),
-            attributes = attributeXmlDeserializer.deserializeList(node.findNode(FileFields.ATTRIBUTES))
+            attributes = attributeXmlDeserializer.deserializeList(node.findNode(FileFields.ATTRIBUTES)).toMutableList()
         )
     }
 

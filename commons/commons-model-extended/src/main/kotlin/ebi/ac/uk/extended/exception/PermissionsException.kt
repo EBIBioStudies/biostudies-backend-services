@@ -14,7 +14,9 @@ class ProvideAccessNumber(private val user: User) : InvalidPermissionsException(
 }
 
 class UserCanNotUpdateSubmit(
-    private val submission: Submission, private val user: User) : InvalidPermissionsException() {
+    private val submission: Submission,
+    private val user: User
+) : InvalidPermissionsException() {
 
     override val message: String
         get() = "{${user.email}} is not allowed to update submission ${submission.accNo}"

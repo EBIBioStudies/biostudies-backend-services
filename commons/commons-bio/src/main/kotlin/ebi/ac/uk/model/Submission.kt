@@ -5,10 +5,10 @@ import java.util.Objects
 open class Submission(
     var accNo: String = "",
     var section: Section = Section(),
-    attributes: List<Attribute> = emptyList()
-) : Attributable(attributes) {
-    var tags: MutableList<Pair<String, String>> = mutableListOf()
-    var accessTags: MutableList<String> = mutableListOf()
+    var tags: MutableList<Pair<String, String>> = mutableListOf(),
+    var accessTags: MutableList<String> = mutableListOf(),
+    override var attributes: List<Attribute> = listOf()
+) : Attributable {
 
     override fun equals(other: Any?) = when {
         other !is Submission -> false

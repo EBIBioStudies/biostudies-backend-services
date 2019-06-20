@@ -42,7 +42,7 @@ class FileDeserializerTest {
         }.toString()
 
         val file = testInstance.deserialize<File>(fileJson)
-        val expected = File("/path/file.txt", attributes = listOf(Attribute("attr name", "attr value")))
+        val expected = File("/path/file.txt", attributes = mutableListOf(Attribute("attr name", "attr value")))
 
         assertThat(file).isEqualTo(expected)
     }
@@ -71,7 +71,7 @@ class FileDeserializerTest {
         }.toString()
 
         val file = testInstance.deserialize<File>(fileJson)
-        val expected = File("/path/file.txt", attributes = listOf(Attribute("attr name", "attr value")))
+        val expected = File("/path/file.txt", attributes = mutableListOf(Attribute("attr name", "attr value")))
 
         assertThat(file).isEqualTo(expected)
     }

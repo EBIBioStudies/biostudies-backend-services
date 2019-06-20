@@ -36,7 +36,7 @@ class FilesTableTemplateMapperTest(private val temporaryFolder: TemporaryFolder)
     }
 
     private fun createFile(path: String, vararg attributes: String) =
-        File(path, attributes = listOf(
+        File(path, attributes = mutableListOf(
             Attribute("Plate", attributes[0]),
             Attribute("Replicate", attributes[1]),
             Attribute("Well", attributes[2]),

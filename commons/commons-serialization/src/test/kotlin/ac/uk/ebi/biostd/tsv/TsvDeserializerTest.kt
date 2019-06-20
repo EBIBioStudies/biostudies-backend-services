@@ -89,7 +89,7 @@ class TsvDeserializerTest {
         assertSubmission(submission, "S-EPMC125", Attribute("Title", "Test Submission"))
         assertThat(submission.section).isEqualTo(Section(
             type = "Study",
-            attributes = listOf(Attribute("Title", "Test Root Section"), Attribute("Abstract", "Test abstract"))
+            attributes = mutableListOf(Attribute("Title", "Test Root Section"), Attribute("Abstract", "Test abstract"))
         ))
     }
 
@@ -103,11 +103,11 @@ class TsvDeserializerTest {
             Section(
                 accNo = "DT-1",
                 type = "Data",
-                attributes = listOf(Attribute("Title", "Data 1"), Attribute("Desc", "Group 1"))),
+                attributes = mutableListOf(Attribute("Title", "Data 1"), Attribute("Desc", "Group 1"))),
             Section(
                 accNo = "DT-2",
                 type = "Data",
-                attributes = listOf(Attribute("Title", "Data 2"), Attribute("Desc", "Group 2"))))
+                attributes = mutableListOf(Attribute("Title", "Data 2"), Attribute("Desc", "Group 2"))))
     }
 
     @Test

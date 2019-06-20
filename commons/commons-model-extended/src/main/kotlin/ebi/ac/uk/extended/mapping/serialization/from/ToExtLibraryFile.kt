@@ -6,3 +6,5 @@ import ebi.ac.uk.model.LibraryFile
 
 fun LibraryFile.toExtLibraryFile(fileSource: FilesSource): ExtLibraryFile =
     ExtLibraryFile(name, fileSource.getFile(name), referencedFiles.map { it.toExtFile(fileSource) })
+
+internal const val TO_EXT_LIBRARY_FILE_EXTENSIONS = "ebi.ac.uk.extended.mapping.serialization.from.ToExtLibraryFileKt"

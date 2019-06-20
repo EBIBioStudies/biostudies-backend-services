@@ -42,7 +42,7 @@ class LinkDeserializerTest {
         }.toString()
 
         val link = testInstance.deserialize<Link>(linkJson)
-        val expected = Link("a url", attributes = listOf(Attribute("attr name", "attr value")))
+        val expected = Link("a url", attributes = mutableListOf(Attribute("attr name", "attr value")))
 
         assertThat(link).isEqualTo(expected)
     }

@@ -1,6 +1,7 @@
 import static Dependencies.Arrow
 import static Dependencies.KotlinStdLib
 import static TestDependencies.AssertJ
+import static TestDependencies.MockK
 
 dependencies {
     compile(project(":commons:commons-bio"))
@@ -8,4 +9,5 @@ dependencies {
     compile(Arrow)
     compile(AssertJ)
     compile(KotlinStdLib)
+    compile(MockK)
 }
