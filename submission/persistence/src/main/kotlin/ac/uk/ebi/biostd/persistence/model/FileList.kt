@@ -14,8 +14,8 @@ import javax.persistence.OrderBy
 import javax.persistence.Table
 
 @Entity
-@Table(name = "LibraryFile")
-class LibraryFile(
+@Table(name = "FileList")
+class FileList(
     @Column
     var name: String
 ) {
@@ -24,7 +24,7 @@ class LibraryFile(
     var id: Long = 0L
 
     @OneToMany(cascade = [CascadeType.ALL])
-    @JoinColumn(name = "libraryFileId")
+    @JoinColumn(name = "fileListId")
     @Basic(fetch = FetchType.LAZY)
     var files: Set<ReferencedFile> = setOf()
 }

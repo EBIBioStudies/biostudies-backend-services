@@ -98,11 +98,11 @@ internal class MultipartSubmissionApiTest(private val tempFolder: TemporaryFolde
 
                 line("Study", "SECT-001")
                 line("Title", "Root Section")
-                line("Library File", "LibraryFile.tsv")
+                line("File List", "FileList.tsv")
                 line()
             }
 
-            val libraryFile = tempFolder.createFile("LibraryFile.tsv").apply {
+            val libraryFile = tempFolder.createFile("FileList.tsv").apply {
                 writeBytes(tsv {
                     line("Files", "GEN")
                     line("File1.txt", "ABC")
@@ -131,13 +131,13 @@ internal class MultipartSubmissionApiTest(private val tempFolder: TemporaryFolde
                         "name" to "Title"
                         "value" to "Root Section"
                     }, {
-                        "name" to "Library File"
-                        "value" to "LibraryFile.json"
+                        "name" to "File List"
+                        "value" to "FileList.json"
                     })
                 }
             }
 
-            val libraryFile = tempFolder.createFile("LibraryFile.json").apply {
+            val libraryFile = tempFolder.createFile("FileList.json").apply {
                 writeBytes(jsonArray({
                     "path" to "File2.txt"
                     "attributes" to jsonArray({
@@ -174,14 +174,14 @@ internal class MultipartSubmissionApiTest(private val tempFolder: TemporaryFolde
                             "value" { -"Root Section" }
                         }
                         "attribute" {
-                            "name" { -"Library File" }
-                            "value" { -"LibraryFile.xml" }
+                            "name" { -"File List" }
+                            "value" { -"FileList.xml" }
                         }
                     }
                 }
             }
 
-            val libraryFile = tempFolder.createFile("LibraryFile.xml").apply {
+            val libraryFile = tempFolder.createFile("FileList.xml").apply {
                 writeBytes(xml("table") {
                     "file" {
                         "path" { -"File3.txt" }
@@ -209,7 +209,7 @@ internal class MultipartSubmissionApiTest(private val tempFolder: TemporaryFolde
         }
 
         private fun assertSubmissionFiles(accNo: String, testFile: String) {
-            val libFileName = "LibraryFile"
+            val libFileName = "FileList"
             val createdSubmission = submissionRepository.getExtendedByAccNo(accNo, loadRefFiles = true)
             val submissionFolderPath = "$basePath/submission/${createdSubmission.relPath}"
 

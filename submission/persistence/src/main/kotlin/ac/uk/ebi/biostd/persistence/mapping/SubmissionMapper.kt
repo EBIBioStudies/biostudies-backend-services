@@ -36,7 +36,7 @@ import ebi.ac.uk.model.extensions.title
 import ac.uk.ebi.biostd.persistence.model.Attribute as AttributeDb
 import ac.uk.ebi.biostd.persistence.model.AttributeDetail as AttributeDetailDb
 import ac.uk.ebi.biostd.persistence.model.File as FileDb
-import ac.uk.ebi.biostd.persistence.model.LibraryFile as LibraryFileDb
+import ac.uk.ebi.biostd.persistence.model.FileList as LibraryFileDb
 import ac.uk.ebi.biostd.persistence.model.Link as LinkDb
 import ac.uk.ebi.biostd.persistence.model.ReferencedFile as ReferencedFileDb
 import ac.uk.ebi.biostd.persistence.model.Section as SectionDb
@@ -86,7 +86,7 @@ private object SectionMapper {
             sections = section.extendedSections.mapIndexed { index, section ->
                 toSections(index, section, parentSubmission)
             }.flatten().toSortedSet()
-            section.libraryFile?.let { libraryFile = toLibraryFile(it) }
+            section.libraryFile?.let { fileList = toLibraryFile(it) }
         }
 
     fun toTableSection(section: Section, index: Int, sectionTableIndex: Int) =

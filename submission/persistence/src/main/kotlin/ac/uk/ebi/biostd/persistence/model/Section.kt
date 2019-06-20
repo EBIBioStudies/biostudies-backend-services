@@ -21,7 +21,6 @@ import javax.persistence.Table
 @Entity
 @Table(name = "Section")
 class Section(
-
     @Column
     var accNo: String?,
 
@@ -29,7 +28,6 @@ class Section(
     var type: String
 
 ) : Tabular, Comparable<Section> {
-
     @Id
     @GeneratedValue
     var id: Long = 0L
@@ -46,8 +44,8 @@ class Section(
     var submission: Submission? = null
 
     @OneToOne(cascade = [CascadeType.ALL])
-    @JoinColumn(name = "libraryFileId")
-    var libraryFile: LibraryFile? = null
+    @JoinColumn(name = "fileListId")
+    var fileList: FileList? = null
 
     @OneToMany(cascade = [CascadeType.ALL])
     @JoinColumn(name = "section_id")

@@ -35,7 +35,7 @@ import java.time.ZoneOffset.UTC
 import ac.uk.ebi.biostd.persistence.model.Attribute as AttributeDb
 import ac.uk.ebi.biostd.persistence.model.AttributeDetail as AttributeDetailDb
 import ac.uk.ebi.biostd.persistence.model.File as FileDb
-import ac.uk.ebi.biostd.persistence.model.LibraryFile as LibraryFileDb
+import ac.uk.ebi.biostd.persistence.model.FileList as LibraryFileDb
 import ac.uk.ebi.biostd.persistence.model.Link as LinkDb
 import ac.uk.ebi.biostd.persistence.model.ReferencedFile as ReferencedFileDb
 import ac.uk.ebi.biostd.persistence.model.Section as SectionDb
@@ -79,7 +79,7 @@ private class DbSectionMapper {
         Section(accNo = sectionDb.accNo,
             type = sectionDb.type,
             links = toLinks(sectionDb.links.toList()),
-            libraryFile = sectionDb.libraryFile?.let { toLibraryFile(it) },
+            libraryFile = sectionDb.fileList?.let { toLibraryFile(it) },
             files = toFiles(sectionDb.files.toList()),
             sections = toSections(sectionDb.sections.toList()),
             attributes = toAttributes(sectionDb.attributes))
@@ -96,7 +96,7 @@ private class DbSectionMapper {
             sections = toSections(sectionDb.sections.toList())
             attributes = toAttributes(sectionDb.attributes)
             extendedSections = toExtendedSections(sectionDb.sections.toList(), loadRefFiles)
-            sectionDb.libraryFile?.let { libraryFile = toLibraryFile(it) }
+            sectionDb.fileList?.let { libraryFile = toLibraryFile(it) }
         }
 }
 
