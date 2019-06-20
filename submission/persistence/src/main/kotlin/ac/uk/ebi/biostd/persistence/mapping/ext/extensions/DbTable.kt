@@ -7,7 +7,6 @@ import ac.uk.ebi.biostd.persistence.model.ext.isTableElement
 import arrow.core.Either
 import arrow.core.Either.Companion.left
 import arrow.core.Either.Companion.right
-import ebi.ac.uk.extended.integration.FilesSource
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.ExtLink
@@ -16,6 +15,7 @@ import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSectionTable
 import ebi.ac.uk.util.collections.component1
 import ebi.ac.uk.util.collections.component2
+import ebi.ac.uk.utils.FilesSource
 import java.util.SortedSet
 
 internal fun SortedSet<Link>.toExtLinks(): List<Either<ExtLink, ExtLinkTable>> {

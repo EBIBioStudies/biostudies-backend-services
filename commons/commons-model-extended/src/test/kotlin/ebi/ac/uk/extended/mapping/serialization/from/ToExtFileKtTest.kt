@@ -1,9 +1,9 @@
 package ebi.ac.uk.extended.mapping.serialization.from
 
-import ebi.ac.uk.extended.integration.FilesSource
 import ebi.ac.uk.extended.model.ExtAttribute
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.File
+import ebi.ac.uk.utils.FilesSource
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension

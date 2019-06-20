@@ -1,6 +1,5 @@
 package ebi.ac.uk.extended.mapping.serialization.from
 
-import ebi.ac.uk.extended.integration.FilesSource
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtLink
 import ebi.ac.uk.extended.model.ExtSection
@@ -10,6 +9,7 @@ import ebi.ac.uk.model.Link
 import ebi.ac.uk.model.LinksTable
 import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.SectionsTable
+import ebi.ac.uk.utils.FilesSource
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension

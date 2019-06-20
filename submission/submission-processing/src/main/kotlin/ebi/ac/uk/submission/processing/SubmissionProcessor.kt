@@ -1,7 +1,6 @@
 package ebi.ac.uk.submission.processing
 
 import ac.uk.ebi.biostd.persistence.integration.SubmissionService
-import ebi.ac.uk.extended.integration.FilesSource
 import ebi.ac.uk.extended.mapping.serialization.from.toExtAttribute
 import ebi.ac.uk.extended.mapping.serialization.from.toExtSection
 import ebi.ac.uk.extended.model.ExtSubmission
@@ -15,6 +14,7 @@ import ebi.ac.uk.submission.processing.relpath.getRelPath
 import ebi.ac.uk.submission.processing.security.newSecurityKey
 import ebi.ac.uk.submission.processing.submission.getProjectTags
 import ebi.ac.uk.submission.processing.times.getDates
+import ebi.ac.uk.utils.FilesSource
 import java.time.OffsetDateTime
 
 class SubmissionProcessor(

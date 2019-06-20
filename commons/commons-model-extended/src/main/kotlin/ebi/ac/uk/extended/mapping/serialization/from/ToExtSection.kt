@@ -1,8 +1,8 @@
 package ebi.ac.uk.extended.mapping.serialization.from
 
-import ebi.ac.uk.extended.integration.FilesSource
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.model.Section
+import ebi.ac.uk.utils.FilesSource
 
 fun Section.toExtSection(source: FilesSource): ExtSection {
     return ExtSection(

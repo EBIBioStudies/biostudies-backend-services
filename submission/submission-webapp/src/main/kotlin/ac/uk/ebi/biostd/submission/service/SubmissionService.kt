@@ -4,12 +4,11 @@ import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat
 import ac.uk.ebi.biostd.persistence.integration.SubmissionService
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
-import ebi.ac.uk.extended.integration.FilesSource
 import ebi.ac.uk.extended.mapping.serialization.to.toSimpleSubmission
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.User
 import ebi.ac.uk.security.integration.model.api.SecurityUser
-import ebi.ac.uk.submission.processing.SubmissionProcessor
+import ebi.ac.uk.utils.FilesSource
 
 class SubmissionService(
     private val submissionRepository: SubmissionRepository,

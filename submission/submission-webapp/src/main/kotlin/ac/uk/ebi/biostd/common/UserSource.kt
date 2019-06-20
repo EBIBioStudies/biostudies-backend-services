@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.common
 
 import ebi.ac.uk.base.fold
-import ebi.ac.uk.extended.integration.FilesSource
+import ebi.ac.uk.utils.FilesSource
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path

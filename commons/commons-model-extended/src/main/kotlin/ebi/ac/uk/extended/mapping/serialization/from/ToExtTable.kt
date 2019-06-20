@@ -1,12 +1,12 @@
 package ebi.ac.uk.extended.mapping.serialization.from
 
-import ebi.ac.uk.extended.integration.FilesSource
 import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.ExtLinkTable
 import ebi.ac.uk.extended.model.ExtSectionTable
 import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.model.LinksTable
 import ebi.ac.uk.model.SectionsTable
+import ebi.ac.uk.utils.FilesSource
 
 fun SectionsTable.toExtTable(fileSource: FilesSource): ExtSectionTable =
     ExtSectionTable(elements.map { it.toExtSection(fileSource) })

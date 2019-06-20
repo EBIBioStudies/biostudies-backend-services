@@ -1,8 +1,8 @@
 package ac.uk.ebi.biostd.persistence.mapping.ext.extensions
 
 import ac.uk.ebi.biostd.persistence.model.Section
-import ebi.ac.uk.extended.integration.FilesSource
 import ebi.ac.uk.extended.model.ExtSection
+import ebi.ac.uk.utils.FilesSource
 
 internal fun Section.toExtSection(filesSource: FilesSource): ExtSection {
     return ExtSection(

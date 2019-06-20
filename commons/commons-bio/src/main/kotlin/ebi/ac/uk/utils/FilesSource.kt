@@ -1,4 +1,4 @@
-package ebi.ac.uk.extended.integration
+package ebi.ac.uk.utils
 
 import java.io.File
 
