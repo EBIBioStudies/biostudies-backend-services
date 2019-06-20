@@ -4,4 +4,4 @@ import ebi.ac.uk.model.ExtendedSubmission
 
 fun ExtendedSubmission.allExtendedSections() = extendedSection.allExtendedSections() + extendedSection
 fun ExtendedSubmission.allReferencedFiles() = allExtendedSections().flatMap { it.allReferencedFiles() }
-fun ExtendedSubmission.allLibraryFileSections() = allExtendedSections().filterNot { it.libraryFile == null }
+fun ExtendedSubmission.allFileListSections() = allExtendedSections().filterNot { it.fileList == null }

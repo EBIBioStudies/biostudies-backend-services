@@ -7,7 +7,7 @@ import ebi.ac.uk.model.Submission
 
 internal class PagetabSerializationService(
     private val serializer: PagetabSerializer = PagetabSerializer(),
-    private val libraryFileSerializer: LibraryFileSerializer = LibraryFileSerializer(serializer)
+    private val fileListSerializer: FileListSerializer = FileListSerializer(serializer)
 ) : SerializationService {
     override fun <T> serializeElement(element: T, format: SubFormat) =
         serializer.serializeElement(element, format)
@@ -19,5 +19,5 @@ internal class PagetabSerializationService(
         serializer.deserializeSubmission(content, format)
 
     override fun deserializeSubmission(content: String, format: SubFormat, source: FilesSource): Submission =
-        libraryFileSerializer.deserializeLibraryFile(serializer.deserializeSubmission(content, format), format, source)
+        fileListSerializer.deserializeFileList(serializer.deserializeSubmission(content, format), format, source)
 }

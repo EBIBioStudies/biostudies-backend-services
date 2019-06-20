@@ -5,15 +5,15 @@ import ebi.ac.uk.model.File
 import ebi.ac.uk.model.constants.SectionFields
 import ebi.ac.uk.util.collections.ifLeft
 
-var ExtendedSection.libraryFileAttr: String?
-    get() = this[SectionFields.LIB_FILE]
+var ExtendedSection.fileListAttr: String?
+    get() = this[SectionFields.FILE_LIST]
     set(value) {
-        value?.let { this[SectionFields.LIB_FILE] = it }
+        value?.let { this[SectionFields.FILE_LIST] = it }
     }
 
 fun ExtendedSection.allReferencedFiles(): List<File> {
     val refFiles: MutableList<File> = mutableListOf()
-    libraryFile?.let { refFiles.addAll(it.referencedFiles) }
+    fileList?.let { refFiles.addAll(it.referencedFiles) }
 
     return refFiles.toList()
 }

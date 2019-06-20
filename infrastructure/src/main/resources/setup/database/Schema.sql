@@ -57,22 +57,22 @@ CREATE TABLE ReferencedFile (
     id             BIGINT AUTO_INCREMENT PRIMARY KEY,
     name           VARCHAR(255) NULL,
     size           BIGINT       NOT NULL,
-    libraryFileId  BIGINT       NULL,
+    fileListId     BIGINT       NULL,
     path           VARCHAR(255) NULL
 );
 
-CREATE INDEX ReferencedFile_LibraryFile_IDX ON ReferencedFile (libraryFileId);
+CREATE INDEX ReferencedFile_FileList_IDX ON ReferencedFile (fileListId);
 
 ALTER TABLE ReferencedFileAttribute
 ADD CONSTRAINT ReferencedFile_ReferencedFileAttr_FRG_KEY FOREIGN KEY (referenced_file_id) REFERENCES ReferencedFile(id);
 
-CREATE TABLE LibraryFile(
+CREATE TABLE FileList(
   id         BIGINT AUTO_INCREMENT PRIMARY KEY,
   name       VARCHAR(100) NOT NULL
 );
 
 ALTER TABLE ReferencedFile
-ADD CONSTRAINT ReferencedFile_LibraryFile_FRG_KEY FOREIGN KEY (libraryFileId) REFERENCES LibraryFile(id);
+ADD CONSTRAINT ReferencedFile_FileList_FRG_KEY FOREIGN KEY (fileListId) REFERENCES FileList(id);
 
 CREATE TABLE IdGen (
     id         BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -117,10 +117,10 @@ CREATE TABLE Section (
     type          VARCHAR(255) NULL,
     parent_id     BIGINT       NULL,
     submission_id BIGINT       NULL,
-    libraryFileId BIGINT       NULL,
+    fileListId    BIGINT       NULL,
     ord           INT          NULL,
     CONSTRAINT Section_SectionParent_FRG_KEY FOREIGN KEY (parent_id) REFERENCES Section (id) ON DELETE SET NULL,
-    CONSTRAINT LibraryFile_Section_FRG_KEY FOREIGN KEY (libraryFileId) REFERENCES LibraryFile(id) ON DELETE CASCADE
+    CONSTRAINT FileList_Section_FRG_KEY FOREIGN KEY (fileListId) REFERENCES FileList(id) ON DELETE CASCADE
 );
 
 CREATE INDEX Section_type_IDX ON Section (type);

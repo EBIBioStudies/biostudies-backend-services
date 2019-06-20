@@ -22,8 +22,8 @@ import ebi.ac.uk.dsl.submission
 import ebi.ac.uk.dsl.tsv
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.File
-import ebi.ac.uk.model.LibraryFile
-import ebi.ac.uk.model.extensions.libraryFileName
+import ebi.ac.uk.model.FileList
+import ebi.ac.uk.model.extensions.fileListName
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
@@ -45,7 +45,6 @@ import java.nio.file.Paths
 
 @ExtendWith(TemporaryFolderExtension::class)
 internal class MultipartSubmissionApiTest(private val tempFolder: TemporaryFolder) : BaseIntegrationTest(tempFolder) {
-
     @Nested
     @ExtendWith(SpringExtension::class)
     @Import(value = [TestConfig::class, SubmitterConfig::class, PersistenceConfig::class, FileConfig::class])
@@ -53,7 +52,6 @@ internal class MultipartSubmissionApiTest(private val tempFolder: TemporaryFolde
     @Transactional
     @DirtiesContext
     inner class SingleSubmissionTest(@Autowired val submissionRepository: SubmissionRepository) {
-
         @LocalServerPort
         private var serverPort: Int = 0
 
@@ -90,7 +88,7 @@ internal class MultipartSubmissionApiTest(private val tempFolder: TemporaryFolde
         }
 
         @Test
-        fun `submission with library file TSV`() {
+        fun `submission with file list TSV`() {
             val submission = tsv {
                 line("Submission", "S-TEST1")
                 line("Title", "Test Submission")
@@ -98,11 +96,11 @@ internal class MultipartSubmissionApiTest(private val tempFolder: TemporaryFolde
 
                 line("Study", "SECT-001")
                 line("Title", "Root Section")
-                line("Library File", "LibraryFile.tsv")
+                line("File List", "FileList.tsv")
                 line()
             }
 
-            val libraryFile = tempFolder.createFile("LibraryFile.tsv").apply {
+            val fileList = tempFolder.createFile("FileList.tsv").apply {
                 writeBytes(tsv {
                     line("Files", "GEN")
                     line("File1.txt", "ABC")
@@ -110,14 +108,14 @@ internal class MultipartSubmissionApiTest(private val tempFolder: TemporaryFolde
             }
 
             val response = webClient.submitSingle(
-                submission.toString(), SubmissionFormat.TSV, listOf(libraryFile, tempFolder.createFile("File1.txt")))
+                submission.toString(), SubmissionFormat.TSV, listOf(fileList, tempFolder.createFile("File1.txt")))
 
             assertSuccessfulResponse(response)
             assertSubmissionFiles("S-TEST1", "File1.txt")
         }
 
         @Test
-        fun `submission with library file JSON`() {
+        fun `submission with file list JSON`() {
             val submission = jsonObj {
                 "accno" to "S-TEST2"
                 "attributes" to jsonArray({
@@ -131,13 +129,13 @@ internal class MultipartSubmissionApiTest(private val tempFolder: TemporaryFolde
                         "name" to "Title"
                         "value" to "Root Section"
                     }, {
-                        "name" to "Library File"
-                        "value" to "LibraryFile.json"
+                        "name" to "File List"
+                        "value" to "FileList.json"
                     })
                 }
             }
 
-            val libraryFile = tempFolder.createFile("LibraryFile.json").apply {
+            val fileList = tempFolder.createFile("FileList.json").apply {
                 writeBytes(jsonArray({
                     "path" to "File2.txt"
                     "attributes" to jsonArray({
@@ -148,14 +146,14 @@ internal class MultipartSubmissionApiTest(private val tempFolder: TemporaryFolde
             }
 
             val response = webClient.submitSingle(
-                submission.toString(), SubmissionFormat.JSON, listOf(libraryFile, tempFolder.createFile("File2.txt")))
+                submission.toString(), SubmissionFormat.JSON, listOf(fileList, tempFolder.createFile("File2.txt")))
 
             assertSuccessfulResponse(response)
             assertSubmissionFiles("S-TEST2", "File2.txt")
         }
 
         @Test
-        fun `submission with library file XML`() {
+        fun `submission with file list XML`() {
             val submission = xml("submission") {
                 attribute("accno", "S-TEST3")
                 "attributes" {
@@ -174,14 +172,14 @@ internal class MultipartSubmissionApiTest(private val tempFolder: TemporaryFolde
                             "value" { -"Root Section" }
                         }
                         "attribute" {
-                            "name" { -"Library File" }
-                            "value" { -"LibraryFile.xml" }
+                            "name" { -"File List" }
+                            "value" { -"FileList.xml" }
                         }
                     }
                 }
             }
 
-            val libraryFile = tempFolder.createFile("LibraryFile.xml").apply {
+            val fileList = tempFolder.createFile("FileList.xml").apply {
                 writeBytes(xml("table") {
                     "file" {
                         "path" { -"File3.txt" }
@@ -196,7 +194,7 @@ internal class MultipartSubmissionApiTest(private val tempFolder: TemporaryFolde
             }
 
             val response = webClient.submitSingle(
-                submission.toString(), SubmissionFormat.XML, listOf(libraryFile, tempFolder.createFile("File3.txt")))
+                submission.toString(), SubmissionFormat.XML, listOf(fileList, tempFolder.createFile("File3.txt")))
 
             assertSuccessfulResponse(response)
             assertSubmissionFiles("S-TEST3", "File3.txt")
@@ -209,19 +207,19 @@ internal class MultipartSubmissionApiTest(private val tempFolder: TemporaryFolde
         }
 
         private fun assertSubmissionFiles(accNo: String, testFile: String) {
-            val libFileName = "LibraryFile"
+            val fileListName = "FileList"
             val createdSubmission = submissionRepository.getExtendedByAccNo(accNo, loadRefFiles = true)
             val submissionFolderPath = "$basePath/submission/${createdSubmission.relPath}"
 
-            assertThat(createdSubmission.section.libraryFileName).isEqualTo(libFileName)
-            assertThat(createdSubmission.extendedSection.libraryFile).isEqualTo(
-                LibraryFile(libFileName, listOf(File(testFile, attributes = listOf(Attribute("GEN", "ABC"))))))
+            assertThat(createdSubmission.section.fileListName).isEqualTo(fileListName)
+            assertThat(createdSubmission.extendedSection.fileList).isEqualTo(
+                FileList(fileListName, listOf(File(testFile, attributes = listOf(Attribute("GEN", "ABC"))))))
 
             assertThat(Paths.get("$submissionFolderPath/Files/$testFile")).exists()
 
-            assertThat(Paths.get("$submissionFolderPath/$libFileName.xml")).exists()
-            assertThat(Paths.get("$submissionFolderPath/$libFileName.json")).exists()
-            assertThat(Paths.get("$submissionFolderPath/$libFileName.pagetab.tsv")).exists()
+            assertThat(Paths.get("$submissionFolderPath/$fileListName.xml")).exists()
+            assertThat(Paths.get("$submissionFolderPath/$fileListName.json")).exists()
+            assertThat(Paths.get("$submissionFolderPath/$fileListName.pagetab.tsv")).exists()
         }
     }
 }

@@ -88,10 +88,10 @@ class SubExtTest {
     }
 
     @Test
-    fun `get library file sections`() {
+    fun `get file list sections`() {
         val submission = submission("ABC-123") {
             section("Study") {
-                libraryFileName = "LibFile1.tsv"
+                fileListName = "FileList1.tsv"
 
                 section("Data") {
                     accNo = "DT-1"
@@ -99,15 +99,15 @@ class SubExtTest {
 
                 section("Experiment") {
                     accNo = "EXP-1"
-                    libraryFileName = "LibFile2.tsv"
+                    fileListName = "FileList2.tsv"
                 }
             }
         }
 
-        val libFileSections = submission.libFileSections()
+        val libFileSections = submission.fileListSections()
 
         assertThat(libFileSections).hasSize(2)
-        assertThat(libFileSections.first().libraryFileName).isEqualTo("LibFile2.tsv")
-        assertThat(libFileSections.second().libraryFileName).isEqualTo("LibFile1.tsv")
+        assertThat(libFileSections.first().fileListName).isEqualTo("FileList2.tsv")
+        assertThat(libFileSections.second().fileListName).isEqualTo("FileList1.tsv")
     }
 }

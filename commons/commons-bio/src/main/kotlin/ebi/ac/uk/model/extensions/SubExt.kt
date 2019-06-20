@@ -46,5 +46,5 @@ var Submission.title: String?
 
 fun Submission.allFiles() = section.allFiles() + section.allSections().flatMap { it.allFiles() }
 fun Submission.getSectionByType(name: String) = section.allSections().first { it.type == name }
-fun Submission.libFileSections() = (section.allSections() + section).filterNot { it.libraryFileName.isNullOrBlank() }
+fun Submission.fileListSections() = (section.allSections() + section).filterNot { it.fileListName.isNullOrBlank() }
 fun Submission.allSections(): List<Section> = mutableListOf(section) + section.allSections()
