@@ -42,7 +42,7 @@ class BioStudiesCommandLineTest(
         temporaryFolder.createDirectory("attachments/inner")
 
         val mockResponse = ResponseEntity.ok(Submission("S-TEST123"))
-        val libFile = temporaryFolder.createFile("LibraryFile.tsv")
+        val libFile = temporaryFolder.createFile("FileList.tsv")
         val refFile = temporaryFolder.createFile("attachments/inner/RefFile.txt")
 
         every { mockWebClient.submitSingle("", SubmissionFormat.TSV, listOf()) } returns mockResponse
@@ -73,7 +73,7 @@ class BioStudiesCommandLineTest(
             "-p", "123456",
             "-f", "TSV",
             "-i", "$rootFolder/Submission.tsv",
-            "-a", "$rootFolder/LibraryFile.tsv,$rootFolder/attachments")
+            "-a", "$rootFolder/FileList.tsv,$rootFolder/attachments")
 
         testInstance.main(args)
     }

@@ -6,7 +6,7 @@ import ac.uk.ebi.biostd.persistence.mapping.DbEitherMapper.toExtendedSections
 import ac.uk.ebi.biostd.persistence.mapping.DbEitherMapper.toFiles
 import ac.uk.ebi.biostd.persistence.mapping.DbEitherMapper.toLinks
 import ac.uk.ebi.biostd.persistence.mapping.DbEitherMapper.toSections
-import ac.uk.ebi.biostd.persistence.mapping.DbEntityMapper.toLibraryFile
+import ac.uk.ebi.biostd.persistence.mapping.DbEntityMapper.toFileList
 import ac.uk.ebi.biostd.persistence.mapping.DbEntityMapper.toUser
 import ac.uk.ebi.biostd.persistence.model.AccessTag
 import ac.uk.ebi.biostd.persistence.model.Tabular
@@ -22,7 +22,7 @@ import ebi.ac.uk.model.ExtendedSection
 import ebi.ac.uk.model.ExtendedSubmission
 import ebi.ac.uk.model.File
 import ebi.ac.uk.model.FilesTable
-import ebi.ac.uk.model.LibraryFile
+import ebi.ac.uk.model.FileList
 import ebi.ac.uk.model.Link
 import ebi.ac.uk.model.LinksTable
 import ebi.ac.uk.model.Section
@@ -35,7 +35,7 @@ import java.time.ZoneOffset.UTC
 import ac.uk.ebi.biostd.persistence.model.Attribute as AttributeDb
 import ac.uk.ebi.biostd.persistence.model.AttributeDetail as AttributeDetailDb
 import ac.uk.ebi.biostd.persistence.model.File as FileDb
-import ac.uk.ebi.biostd.persistence.model.FileList as LibraryFileDb
+import ac.uk.ebi.biostd.persistence.model.FileList as FileListDb
 import ac.uk.ebi.biostd.persistence.model.Link as LinkDb
 import ac.uk.ebi.biostd.persistence.model.ReferencedFile as ReferencedFileDb
 import ac.uk.ebi.biostd.persistence.model.Section as SectionDb
@@ -79,7 +79,7 @@ private class DbSectionMapper {
         Section(accNo = sectionDb.accNo,
             type = sectionDb.type,
             links = toLinks(sectionDb.links.toList()),
-            libraryFile = sectionDb.fileList?.let { toLibraryFile(it) },
+            fileList = sectionDb.fileList?.let { toFileList(it) },
             files = toFiles(sectionDb.files.toList()),
             sections = toSections(sectionDb.sections.toList()),
             attributes = toAttributes(sectionDb.attributes))
@@ -96,7 +96,7 @@ private class DbSectionMapper {
             sections = toSections(sectionDb.sections.toList())
             attributes = toAttributes(sectionDb.attributes)
             extendedSections = toExtendedSections(sectionDb.sections.toList(), loadRefFiles)
-            sectionDb.fileList?.let { libraryFile = toLibraryFile(it) }
+            sectionDb.fileList?.let { fileList = toFileList(it) }
         }
 }
 
@@ -144,7 +144,7 @@ private object DbEntityMapper {
 
     internal fun toUser(owner: UserDb) = User(owner.id, owner.email, owner.secret)
     internal fun toFile(file: ReferencedFileDb) = File(file.name, file.size, toAttributes(file.attributes))
-    internal fun toLibraryFile(libFile: LibraryFileDb) = LibraryFile(libFile.name, libFile.files.map { toFile(it) })
+    internal fun toFileList(fileList: FileListDb) = FileList(fileList.name, fileList.files.map { toFile(it) })
 }
 
 private object DbAttributeMapper {

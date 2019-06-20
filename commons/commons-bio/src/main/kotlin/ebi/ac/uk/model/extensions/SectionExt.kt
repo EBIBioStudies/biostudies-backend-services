@@ -3,10 +3,10 @@ package ebi.ac.uk.model.extensions
 import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.constants.SectionFields
 
-var Section.libraryFileName: String?
-    get() = this[SectionFields.LIB_FILE]
+var Section.fileListName: String?
+    get() = this[SectionFields.FILE_LIST]
     set(value) {
-        value?.let { this[SectionFields.LIB_FILE] = it }
+        value?.let { this[SectionFields.FILE_LIST] = it }
     }
 
 fun Section.allFiles() = files.map { either -> either.fold({ listOf(it) }, { it.elements }) }.flatten()

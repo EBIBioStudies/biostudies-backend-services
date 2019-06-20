@@ -3,7 +3,7 @@ package ac.uk.ebi.biostd.persistence.mapping
 import ac.uk.ebi.biostd.persistence.common.NO_TABLE_INDEX
 import ac.uk.ebi.biostd.persistence.mapping.AttributeMapper.toAttributes
 import ac.uk.ebi.biostd.persistence.mapping.EntityMapper.toFile
-import ac.uk.ebi.biostd.persistence.mapping.EntityMapper.toLibraryFile
+import ac.uk.ebi.biostd.persistence.mapping.EntityMapper.toFileList
 import ac.uk.ebi.biostd.persistence.mapping.EntityMapper.toLink
 import ac.uk.ebi.biostd.persistence.mapping.SectionMapper.toSection
 import ac.uk.ebi.biostd.persistence.mapping.SectionMapper.toTableSection
@@ -26,7 +26,7 @@ import ebi.ac.uk.model.ExtendedSection
 import ebi.ac.uk.model.ExtendedSubmission
 import ebi.ac.uk.model.File
 import ebi.ac.uk.model.FilesTable
-import ebi.ac.uk.model.LibraryFile
+import ebi.ac.uk.model.FileList
 import ebi.ac.uk.model.Link
 import ebi.ac.uk.model.LinksTable
 import ebi.ac.uk.model.Section
@@ -36,7 +36,7 @@ import ebi.ac.uk.model.extensions.title
 import ac.uk.ebi.biostd.persistence.model.Attribute as AttributeDb
 import ac.uk.ebi.biostd.persistence.model.AttributeDetail as AttributeDetailDb
 import ac.uk.ebi.biostd.persistence.model.File as FileDb
-import ac.uk.ebi.biostd.persistence.model.FileList as LibraryFileDb
+import ac.uk.ebi.biostd.persistence.model.FileList as FileListDb
 import ac.uk.ebi.biostd.persistence.model.Link as LinkDb
 import ac.uk.ebi.biostd.persistence.model.ReferencedFile as ReferencedFileDb
 import ac.uk.ebi.biostd.persistence.model.Section as SectionDb
@@ -86,7 +86,7 @@ private object SectionMapper {
             sections = section.extendedSections.mapIndexed { index, section ->
                 toSections(index, section, parentSubmission)
             }.flatten().toSortedSet()
-            section.libraryFile?.let { fileList = toLibraryFile(it) }
+            section.fileList?.let { fileList = toFileList(it) }
         }
 
     fun toTableSection(section: Section, index: Int, sectionTableIndex: Int) =
@@ -117,7 +117,6 @@ private object TableMapper {
 }
 
 private object EntityMapper {
-
     fun toLink(link: Link, order: Int, tableIndex: Int = NO_TABLE_INDEX) =
         LinkDb(link.url, order, toAttributes(link.attributes).mapTo(sortedSetOf(), ::LinkAttribute), tableIndex)
 
@@ -127,8 +126,8 @@ private object EntityMapper {
     fun toRefFile(file: File) = ReferencedFileDb(
         file.path, file.size, toAttributes(file.attributes).mapTo(sortedSetOf(), ::ReferencedFileAttribute))
 
-    fun toLibraryFile(libFile: LibraryFile) =
-        LibraryFileDb(libFile.name).apply { files = libFile.referencedFiles.map { toRefFile(it) }.toSet() }
+    fun toFileList(fileList: FileList) =
+        FileListDb(fileList.name).apply { files = fileList.referencedFiles.map { toRefFile(it) }.toSet() }
 }
 
 private object AttributeMapper {

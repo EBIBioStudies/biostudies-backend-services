@@ -51,7 +51,7 @@ enum class SectionFields(override val value: String) : Fields {
     SUBSECTIONS("subsections"),
     TYPE("type"),
     FILES("files"),
-    LIB_FILE("File List"),
+    FILE_LIST("File List"),
     PARENT_ACC_NO("parentAccNo");
 
     override fun toString(): String {

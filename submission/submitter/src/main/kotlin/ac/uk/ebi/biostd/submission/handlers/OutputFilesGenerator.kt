@@ -4,8 +4,8 @@ import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat
 import ebi.ac.uk.model.ExtendedSubmission
 import ebi.ac.uk.model.FilesTable
-import ebi.ac.uk.model.extensions.allLibraryFileSections
-import ebi.ac.uk.model.extensions.libraryFileAttr
+import ebi.ac.uk.model.extensions.allFileListSections
+import ebi.ac.uk.model.extensions.fileListAttr
 import ebi.ac.uk.paths.SubmissionFolderResolver
 import org.apache.commons.io.FileUtils
 
@@ -14,21 +14,21 @@ class OutputFilesGenerator(
     private val serializationService: SerializationService
 ) {
     fun generate(submission: ExtendedSubmission) {
-        generateLibraryFiles(submission)
+        generateFileList(submission)
         generateSubmissionFiles(submission)
     }
 
     private fun generateSubmissionFiles(submission: ExtendedSubmission) =
         generateOutputFiles(submission.asSubmission(), submission, submission.accNo)
 
-    private fun generateLibraryFiles(submission: ExtendedSubmission) =
-        submission.allLibraryFileSections().forEach {
-            val libFileName = it.libraryFile!!.name.substringBeforeLast(".")
-            val filesTable = FilesTable(it.libraryFile!!.referencedFiles.toList())
+    private fun generateFileList(submission: ExtendedSubmission) =
+        submission.allFileListSections().forEach {
+            val fileListName = it.fileList!!.name.substringBeforeLast(".")
+            val filesTable = FilesTable(it.fileList!!.referencedFiles.toList())
 
-            it.libraryFileAttr = libFileName
-            it.libraryFile!!.name = libFileName
-            generateOutputFiles(filesTable, submission, libFileName)
+            it.fileListAttr = fileListName
+            it.fileList!!.name = fileListName
+            generateOutputFiles(filesTable, submission, fileListName)
         }
 
     private fun <T> generateOutputFiles(element: T, submission: ExtendedSubmission, outputFileName: String) {
