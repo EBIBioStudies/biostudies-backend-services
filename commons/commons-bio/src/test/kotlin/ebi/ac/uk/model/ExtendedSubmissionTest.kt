@@ -21,7 +21,7 @@ class ExtendedSubmissionTest {
 
     @Test
     fun `create extended submission from basic submission`() {
-        val submission = Submission(ACC_NO, rootSection, listOf(attribute))
+        val submission = Submission(ACC_NO, rootSection, attributes = listOf(attribute))
         submission.accessTags.add(ACCESS_TAG)
 
         val extendedSubmission = ExtendedSubmission(submission, user)

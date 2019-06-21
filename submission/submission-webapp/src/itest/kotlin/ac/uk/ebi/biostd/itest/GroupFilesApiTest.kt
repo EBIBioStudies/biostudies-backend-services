@@ -50,7 +50,7 @@ internal class GroupFilesApiTest(private val tempFolder: TemporaryFolder) : Base
 
         @Test
         fun `upload group file and retrieve in user folder`() {
-            val file = tempFolder.createFile("LibraryFile1.txt")
+            val file = tempFolder.createFile("FileList1.txt")
 
             webClient.uploadGroupFiles(GROUP_NAME, listOf(file))
 
@@ -61,7 +61,7 @@ internal class GroupFilesApiTest(private val tempFolder: TemporaryFolder) : Base
             assertThat(resultFile.name).isEqualTo(file.name)
             assertThat(resultFile.type).isEqualTo(UserFileType.FILE)
 
-            webClient.deleteGroupFile(GROUP_NAME, "LibraryFile1.txt")
+            webClient.deleteGroupFile(GROUP_NAME, "FileList1.txt")
         }
 
         @Test

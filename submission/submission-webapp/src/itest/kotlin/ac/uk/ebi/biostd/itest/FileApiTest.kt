@@ -49,7 +49,7 @@ internal class FileApiTest(private val tempFolder: TemporaryFolder) : BaseIntegr
 
         @Test
         fun `upload file and retrieve in user folder`() {
-            val file = tempFolder.createFile("LibraryFile1.txt")
+            val file = tempFolder.createFile("FileList1.txt")
 
             webClient.uploadFiles(listOf(file))
 
@@ -60,7 +60,7 @@ internal class FileApiTest(private val tempFolder: TemporaryFolder) : BaseIntegr
             assertThat(resultFile.name).isEqualTo(file.name)
             assertThat(resultFile.type).isEqualTo(UserFileType.FILE)
 
-            webClient.deleteFile("LibraryFile1.txt")
+            webClient.deleteFile("FileList1.txt")
         }
 
         @Test
