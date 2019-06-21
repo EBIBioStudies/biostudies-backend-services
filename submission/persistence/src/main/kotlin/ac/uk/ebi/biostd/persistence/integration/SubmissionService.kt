@@ -22,7 +22,4 @@ interface SubmissionService {
     fun canSubmit(accNo: String, user: User): Boolean
     fun canAttach(accNo: String, user: User): Boolean
     fun submit(extSubmission: ExtSubmission, user: User): ExtSubmission
-
-
 }
-

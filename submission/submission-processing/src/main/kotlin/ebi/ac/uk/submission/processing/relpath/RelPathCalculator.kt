@@ -17,4 +17,3 @@ internal fun getRelPath(accNo: AccNumber): String {
             "$prefix/${prefix}xxx${value.lastDigits(PATH_DIGITS)}$postfix/$prefix$value$postfix".removePrefix("/")
     }
 }
-

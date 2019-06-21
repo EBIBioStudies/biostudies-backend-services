@@ -32,9 +32,6 @@ interface SubmissionDataRepository : JpaRepository<Submission, Long> {
     @Modifying
     fun expireActiveVersions(accNo: String)
 
-    @EntityGraph(value = FULL_DATA_GRAPH, type = LOAD)
-    fun getFirstByAccNoOrderByVersionDesc(accNo: String): Submission
-
     fun existsByAccNo(accNo: String): Boolean
 }
 

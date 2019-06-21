@@ -12,7 +12,6 @@ inline fun <T> List<T>.indexOf(predicate: (T) -> Boolean): Int? {
     return null
 }
 
-
 /**
  * Split the list into a list of list using the current predicate true condition. Note that elements when predicate is
  * true are not included in the result lists.

@@ -10,7 +10,7 @@ plugins {
 
 dependencies {
     compile(project(":submission:persistence"))
-    compile(project(":submission-processing"))
+    compile(project(":submission:submission-processing"))
     compile(project(":submission:submission-security"))
     compile(project(":submission:notifications"))
 

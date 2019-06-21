@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.persistence.mapping.ext.extensions
+package ac.uk.ebi.biostd.persistence.mapping.ext.to
 
 import ac.uk.ebi.biostd.persistence.model.Attribute
 import ac.uk.ebi.biostd.persistence.model.AttributeDetail
@@ -11,4 +11,3 @@ internal fun Attribute.toExtAttribute(): ExtAttribute =
 internal fun AttributeDetail.toExtDetail(): ExtAttributeDetail = ExtAttributeDetail(name, value)
 
 private fun List<AttributeDetail>.toExtDetails() = map { it.toExtDetail() }
-

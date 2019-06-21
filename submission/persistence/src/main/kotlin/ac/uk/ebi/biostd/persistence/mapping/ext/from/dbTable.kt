@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.persistence.mapping.db.extensions
+package ac.uk.ebi.biostd.persistence.mapping.ext.from
 
 import ac.uk.ebi.biostd.persistence.model.File
 import ac.uk.ebi.biostd.persistence.model.Link
@@ -44,6 +44,4 @@ fun List<Either<ExtSection, ExtSectionTable>>.toDbSections(): SortedSet<Section>
 
     return results
 }
-
-
 

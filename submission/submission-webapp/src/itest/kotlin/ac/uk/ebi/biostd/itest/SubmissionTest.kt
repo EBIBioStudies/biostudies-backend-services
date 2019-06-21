@@ -95,7 +95,7 @@ internal class SubmissionTest(private val tempFolder: TemporaryFolder) : BaseInt
             val response = webClient.submitSingle(allInOneSubmissionXml().toString(), SubmissionFormat.XML)
             assertThat(response).isNotNull
             assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
-            //assertSavedSubmission("S-EPMC126")
+            // assertSavedSubmission("S-EPMC126")
         }
 
         @Test
@@ -111,7 +111,7 @@ internal class SubmissionTest(private val tempFolder: TemporaryFolder) : BaseInt
             val resubmitResponse = webClient.submitSingle(submission, SubmissionFormat.TSV)
             assertThat(resubmitResponse).isNotNull
             assertThat(resubmitResponse.statusCode).isEqualTo(HttpStatus.OK)
-            //assertExtSubmission(accNo, title, 2)
+            // assertExtSubmission(accNo, title, 2)
         }
 
         @Test

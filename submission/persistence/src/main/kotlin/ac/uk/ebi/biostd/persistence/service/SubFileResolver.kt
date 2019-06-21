@@ -6,7 +6,7 @@ import java.nio.file.Path
 
 class SubFileResolver(private val persistenceProperties: PersistenceProperties) {
 
-    fun getSource(secret: String): FilesSource = TODO()
+    fun getSubmissionSource(secret: String): FilesSource = TODO()
 
     fun getSubmissionFolder(secret: String): Path = TODO()
 }

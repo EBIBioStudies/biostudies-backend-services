@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.persistence.mapping.ext.extensions
+package ac.uk.ebi.biostd.persistence.mapping.ext.to
 
 import ac.uk.ebi.biostd.persistence.model.AccessTag
 import ac.uk.ebi.biostd.persistence.model.Submission
@@ -26,6 +26,4 @@ internal fun Submission.toExtSubmission(filesSource: FilesSource): ExtSubmission
 }
 
 private fun asOffset(seconds: Long) = secondsToInstant(seconds).atOffset(ZoneOffset.UTC)
-
-
 

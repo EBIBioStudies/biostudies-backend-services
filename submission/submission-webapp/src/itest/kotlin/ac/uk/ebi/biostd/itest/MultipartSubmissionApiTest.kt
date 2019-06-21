@@ -75,8 +75,8 @@ internal class MultipartSubmissionApiTest(private val tempFolder: TemporaryFolde
             assertSuccessfulResponse(response)
 
             val createdSubmission = submissionRepository.getByAccNo(accNo)
-            //assertThat(createdSubmission).hasAccNo(accNo)
-            //assertThat(createdSubmission.section.files).containsExactly(Either.left(File("DataFile1.txt")))
+            // assertThat(createdSubmission).hasAccNo(accNo)
+            // assertThat(createdSubmission.section.files).containsExactly(Either.left(File("DataFile1.txt")))
 
             val submissionFolderPath = "$basePath/submission/${createdSubmission.relPath}/Files"
             assertThat(Paths.get("$submissionFolderPath/$fileName")).exists()

@@ -9,15 +9,15 @@ import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.allFiles
 import ebi.ac.uk.extended.model.allLibraryFiles
 import ebi.ac.uk.extended.model.allReferencedFiles
-import ebi.ac.uk.model.User
 import org.apache.commons.io.FileUtils
 import java.nio.file.Path
 
 class Submitter(
     private val folderResolver: SubFileResolver,
-    private val serializationService: SerializationService) {
+    private val serializationService: SerializationService
+) {
 
-    fun submitSubmission(submission: ExtSubmission, user: User) {
+    fun submitSubmission(submission: ExtSubmission) {
         val submissionPath = folderResolver.getSubmissionFolder(submission.relPath)
         submission.allFiles.forEach { file -> copyFile(submissionPath, file) }
         submission.allReferencedFiles.forEach { file -> copyFile(submissionPath, file) }
@@ -36,7 +36,7 @@ class Submitter(
         FileUtils.writeStringToFile(submissionPath.resolve("$outputFileName.pagetab.tsv").toFile(), tsv, Charsets.UTF_8)
     }
 
-    //TODO create folder if not exists
+    // TODO create read only file folder does not exists
     private fun copyFile(submissionPath: Path, file: ExtFile) {
         val submissionFile = submissionPath.resolve(file.fileName).toFile()
         FileUtils.copyFile(file.file, submissionFile)

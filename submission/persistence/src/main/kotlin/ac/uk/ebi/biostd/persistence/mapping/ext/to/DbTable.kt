@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.persistence.mapping.ext.extensions
+package ac.uk.ebi.biostd.persistence.mapping.ext.to
 
 import ac.uk.ebi.biostd.persistence.model.File
 import ac.uk.ebi.biostd.persistence.model.Link

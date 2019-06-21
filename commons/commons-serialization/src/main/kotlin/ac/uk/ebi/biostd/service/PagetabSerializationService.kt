@@ -2,8 +2,8 @@ package ac.uk.ebi.biostd.service
 
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat
-import ebi.ac.uk.extended.integration.FilesSource
 import ebi.ac.uk.model.Submission
+import ebi.ac.uk.utils.FilesSource
 
 internal class PagetabSerializationService(
     private val serializer: PagetabSerializer = PagetabSerializer(),

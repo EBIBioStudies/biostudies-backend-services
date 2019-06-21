@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.persistence.mapping.db.extensions
+package ac.uk.ebi.biostd.persistence.mapping.ext.from
 
 import ac.uk.ebi.biostd.persistence.common.NO_TABLE_INDEX
 import ac.uk.ebi.biostd.persistence.model.Link

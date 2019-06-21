@@ -14,7 +14,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import java.io.File as SystemFile
 
 @ExtendWith(MockKExtension::class)
-internal class ToExtFileKtTest(
+internal class ToExtFileTest(
     @MockK val filesSource: FilesSource,
     @MockK val attribute: Attribute,
     @MockK val extAttribute: ExtAttribute,

@@ -20,7 +20,6 @@ private val onlyPostfix = ACC_PATTERN.format(",([A-Z,-]*)").toPattern()
 private val prefixPostfix = ACC_PATTERN.format(EXPECTED_PATTERN).toPattern()
 private val extractionPattern = "(\\D*)([0-9]+)(\\D*)".toPattern()
 
-
 /**
  * Extract the pattern for the given accession number.
  */
@@ -53,4 +52,3 @@ private fun getPostfixAccPattern(accNo: String) =
 
 private fun getPrefixPostfixPattern(accNo: String) =
     prefixPostfix.match(accNo).map { AccPattern(it.firstGroup(), it.secondGroup()) }
-

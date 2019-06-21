@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.persistence.integration
 
-import ac.uk.ebi.biostd.persistence.mapping.db.ExtToDbMapper
-import ac.uk.ebi.biostd.persistence.mapping.ext.extensions.toExtSubmission
+import ac.uk.ebi.biostd.persistence.mapping.ext.from.ExtToDbMapper
+import ac.uk.ebi.biostd.persistence.mapping.ext.to.toExtSubmission
 import ac.uk.ebi.biostd.persistence.repositories.LockExecutor
 import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.SubmissionDataRepository
@@ -32,7 +32,7 @@ internal class SubmissionServiceImpl(
     }
 
     override fun submit(extSubmission: ExtSubmission, user: User): ExtSubmission {
-        submitter.submitSubmission(extSubmission, user)
+        submitter.submitSubmission(extSubmission)
         return saveSubmission(extSubmission, user)
     }
 
@@ -57,11 +57,11 @@ internal class SubmissionServiceImpl(
         submission.find(ATTACH_TO).toOption().map { subRepository.getByAccNoAndVersionGreaterThan(it) }
 
     override fun getProjectAccessTags(accNo: String): List<String> {
-        return TODO()
+        TODO("not implemented")
     }
 
     override fun existProject(accNo: String): Boolean {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun canUserProvideAccNo(user: User) = true
@@ -77,8 +77,7 @@ internal class SubmissionServiceImpl(
             subRepository.expireActiveVersions(extSubmission.accNo)
             submissionDb.version = nextVersion
             subRepository.save(submissionDb)
-            submissionDb.toExtSubmission(subFileResolver.getSource(submissionDb.secretKey))
+            submissionDb.toExtSubmission(subFileResolver.getSubmissionSource(submissionDb.secretKey))
         }
     }
-
 }

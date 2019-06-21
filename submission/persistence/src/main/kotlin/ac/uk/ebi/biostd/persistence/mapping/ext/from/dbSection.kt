@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.persistence.mapping.db.extensions
+package ac.uk.ebi.biostd.persistence.mapping.ext.from
 
 import ac.uk.ebi.biostd.persistence.common.NO_TABLE_INDEX
 import ac.uk.ebi.biostd.persistence.model.Section
@@ -35,6 +35,5 @@ private fun ExtSection.asSection(index: Int): Section {
     section.attributes = attributes.mapIndexedTo(sortedSetOf(), ::asSectionAttribute)
     return section
 }
-
 
 private fun asSectionAttribute(index: Int, attr: ExtAttribute) = SectionAttribute(attr.toDbAttribute(index))

@@ -105,8 +105,9 @@ class SectionsTable(sections: List<Section> = emptyList()) : Table<Section>(sect
 
     override val header: String
         get() {
-            sectionType.ifBlank { elements.ifNotEmpty {
-                elements.first().let {
+            sectionType.ifBlank {
+                elements.ifNotEmpty {
+                    elements.first().let {
                     sectionType = it.type
                     parentAccNo = it.parentAccNo
                 }

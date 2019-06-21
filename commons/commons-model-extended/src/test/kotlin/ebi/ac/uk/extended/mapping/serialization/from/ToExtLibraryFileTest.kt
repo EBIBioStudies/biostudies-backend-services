@@ -25,7 +25,7 @@ internal class ToExtLibraryFileTest(
 
     @Test
     fun toExtLibraryFile() {
-        mockkStatic("ebi.ac.uk.extended.mapping.serialization.from.ToExtFileKt")
+        mockkStatic(TO_EXT_FILE_EXTENSIONS)
         every { file.toExtFile(fileSource) } returns extFile
         every { fileSource.getFile(libraryFile.name) } returns systemFile
 

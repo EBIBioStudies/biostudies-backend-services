@@ -1,12 +1,12 @@
 package ac.uk.ebi.biostd.service
 
 import ac.uk.ebi.biostd.integration.SubFormat
-import ebi.ac.uk.extended.integration.FilesSource
 import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.model.LibraryFile
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.extensions.allSections
 import ebi.ac.uk.model.extensions.libraryFileName
+import ebi.ac.uk.utils.FilesSource
 
 internal class LibraryFileSerializer(private val serializer: PagetabSerializer) {
     internal fun deserializeLibraryFile(submission: Submission, format: SubFormat, source: FilesSource): Submission {

@@ -86,7 +86,7 @@ class SubmitResource(
 
     @DeleteMapping("/{accNo}")
     fun deleteSubmission(@AuthenticationPrincipal user: SecurityUser, @PathVariable accNo: String) =
-        submissionService.deleteSubmission(accNo, user)
+        submissionService.delete(accNo, user)
 
     private fun submit(user: SecurityUser, content: String, format: SubFormat): Submission {
         val fileSource = UserSource(emptyList(), user.magicFolder.path)

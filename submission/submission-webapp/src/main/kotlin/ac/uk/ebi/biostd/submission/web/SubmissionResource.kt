@@ -24,11 +24,11 @@ class SubmissionResource(
         produces = [APPLICATION_JSON],
         headers = ["$CONTENT_TYPE=$APPLICATION_JSON", "$SUBMISSION_TYPE=$APPLICATION_JSON"])
     @ResponseBody
-    fun asJson(@PathVariable accNo: String) = submissionService.getSubmissionAsJson(accNo)
+    fun asJson(@PathVariable accNo: String) = submissionService.getSimpleAsJson(accNo)
 
     @GetMapping("/{accNo}.xml", produces = [TEXT_XML])
-    fun asXml(@PathVariable accNo: String) = submissionService.getSubmissionAsXml(accNo)
+    fun asXml(@PathVariable accNo: String) = submissionService.getSimpleAsXml(accNo)
 
     @GetMapping("/{accNo}.tsv", produces = [TEXT_PLAIN])
-    fun asTsv(@PathVariable accNo: String) = submissionService.getSubmissionAsTsv(accNo)
+    fun asTsv(@PathVariable accNo: String) = submissionService.getSimpleAsTsv(accNo)
 }

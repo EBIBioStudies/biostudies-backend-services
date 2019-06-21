@@ -56,7 +56,6 @@ var Submission.modificationTime: OffsetDateTime?
         value?.let { this[SubFields.MODIFICATION_TIME] = it.asIsoTime() }
     }
 
-
 /**
  * Indicates when a submission was released to public access.
  */
@@ -65,7 +64,6 @@ var Submission.secretKey: String?
     set(value) {
         value?.let { this[SubFields.SECRET] = it }
     }
-
 
 /**
  * Prefix set to all files in the submission.
@@ -87,5 +85,5 @@ var Submission.title: String?
 
 fun Submission.allFiles() = section.allFiles() + section.allSections().flatMap { it.allFiles() }
 fun Submission.getSectionByType(name: String): Section = section.allSections().first { it.type == name }
-fun Submission.libFileSections() = (section.allSections() + section).filterNot { it.libraryFileName.isNullOrBlank() }
+fun Submission.fileListSections() = (section.allSections() + section).filterNot { it.libraryFileName.isNullOrBlank() }
 fun Submission.allSections(): List<Section> = mutableListOf(section) + section.allSections()

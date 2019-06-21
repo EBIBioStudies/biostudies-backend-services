@@ -44,4 +44,3 @@ private fun SubmissionService.calculateAccNo(submission: Submission): AccNumber 
 private fun SubmissionService.calculateAccNo(pattern: AccPattern) = AccNumber(pattern, getSequenceNextValue(pattern))
 
 private fun getPatternOrDefault(pattern: Option<String>) = pattern.map { getPattern(it) }.getOrElse { getPattern(DEFAULT_PATTERN) }
-

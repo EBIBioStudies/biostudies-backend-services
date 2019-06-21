@@ -104,7 +104,7 @@ class SubExtTest {
             }
         }
 
-        val libFileSections = submission.libFileSections()
+        val libFileSections = submission.fileListSections()
 
         assertThat(libFileSections).hasSize(2)
         assertThat(libFileSections.first().libraryFileName).isEqualTo("LibFile2.tsv")

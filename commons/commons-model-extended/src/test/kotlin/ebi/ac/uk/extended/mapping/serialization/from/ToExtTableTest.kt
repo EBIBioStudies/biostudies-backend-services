@@ -28,7 +28,7 @@ class ToExtTableTest {
         @MockK sectionTable: SectionsTable,
         @MockK extSection: ExtSection
     ) {
-        mockkStatic("ebi.ac.uk.extended.mapping.serialization.from.ToExtSectionKt")
+        mockkStatic(TO_EXT_SECTION_EXTENSIONS)
         every { section.toExtSection(filesSource) } returns extSection
         every { sectionTable.elements } returns listOf(section)
 
@@ -44,7 +44,7 @@ class ToExtTableTest {
         @MockK fileTable: FilesTable,
         @MockK extFile: ExtFile
     ) {
-        mockkStatic("ebi.ac.uk.extended.mapping.serialization.from.ToExtFileKt")
+        mockkStatic(TO_EXT_FILE_EXTENSIONS)
         every { file.toExtFile(filesSource) } returns extFile
         every { fileTable.elements } returns listOf(file)
 
@@ -59,7 +59,7 @@ class ToExtTableTest {
         @MockK linkTable: LinksTable,
         @MockK extLink: ExtLink
     ) {
-        mockkStatic("ebi.ac.uk.extended.mapping.serialization.from.ToExtLinkKt")
+        mockkStatic(TO_EXT_LINK_EXTENSIONS)
         every { link.toExtLink() } returns extLink
         every { linkTable.elements } returns listOf(link)
 

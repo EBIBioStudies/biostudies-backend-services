@@ -1,7 +1,5 @@
-package ac.uk.ebi.biostd.persistence.mapping.db
+package ac.uk.ebi.biostd.persistence.mapping.ext.from
 
-import ac.uk.ebi.biostd.persistence.mapping.db.extensions.toDbAttribute
-import ac.uk.ebi.biostd.persistence.mapping.db.extensions.toRootDbSection
 import ac.uk.ebi.biostd.persistence.model.SubmissionAttribute
 import ac.uk.ebi.biostd.persistence.repositories.TagsDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.TagsRefRepository
@@ -9,13 +7,6 @@ import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ebi.ac.uk.extended.model.ExtAttribute
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.model.User
-import ac.uk.ebi.biostd.persistence.model.Attribute as AttributeDb
-import ac.uk.ebi.biostd.persistence.model.AttributeDetail as AttributeDetailDb
-import ac.uk.ebi.biostd.persistence.model.File as FileDb
-import ac.uk.ebi.biostd.persistence.model.LibraryFile as LibraryFileDb
-import ac.uk.ebi.biostd.persistence.model.Link as LinkDb
-import ac.uk.ebi.biostd.persistence.model.ReferencedFile as ReferencedFileDb
-import ac.uk.ebi.biostd.persistence.model.Section as SectionDb
 import ac.uk.ebi.biostd.persistence.model.Submission as SubmissionDb
 
 private const val ROOT_SECTION_ORDER = 0
@@ -48,4 +39,3 @@ internal class ExtToDbMapper(
     private fun toTags(tags: List<Pair<String, String>>) =
         tags.mapTo(mutableSetOf()) { (classifier, tag) -> tagsRefRepository.findByClassifierAndName(classifier, tag) }
 }
-

@@ -5,4 +5,5 @@ import java.time.OffsetDateTime
 data class SubmissionDates(
     val createTime: OffsetDateTime,
     val modificationTime: OffsetDateTime,
-    val releaseDate: OffsetDateTime)
+    val releaseDate: OffsetDateTime
+)

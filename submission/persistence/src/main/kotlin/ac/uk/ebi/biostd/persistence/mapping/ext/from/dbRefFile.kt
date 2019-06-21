@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.persistence.mapping.db.extensions
+package ac.uk.ebi.biostd.persistence.mapping.ext.from
 
 import ac.uk.ebi.biostd.persistence.model.ReferencedFile
 import ac.uk.ebi.biostd.persistence.model.ReferencedFileAttribute
@@ -12,4 +12,3 @@ internal fun ExtFile.toRefFile() =
         attributes.mapIndexedTo(sortedSetOf(), ::asReferenceFileAttribute))
 
 private fun asReferenceFileAttribute(index: Int, attr: ExtAttribute) = ReferencedFileAttribute(attr.toDbAttribute(index))
-
