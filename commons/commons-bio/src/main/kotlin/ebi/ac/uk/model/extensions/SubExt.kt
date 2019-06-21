@@ -83,6 +83,7 @@ var Submission.title: String?
         value?.let { this[SubFields.TITLE] = it }
     }
 
+fun Submission.addAccessTag(accessTag: String) = accessTags.add(accessTag)
 fun Submission.allFiles() = section.allFiles() + section.allSections().flatMap { it.allFiles() }
 fun Submission.getSectionByType(name: String): Section = section.allSections().first { it.type == name }
 fun Submission.fileListSections() = (section.allSections() + section).filterNot { it.fileListName == null }
