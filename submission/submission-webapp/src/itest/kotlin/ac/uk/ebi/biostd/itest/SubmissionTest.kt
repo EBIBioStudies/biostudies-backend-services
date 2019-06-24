@@ -67,7 +67,6 @@ internal class SubmissionTest(private val tempFolder: TemporaryFolder) : BaseInt
             webClient.uploadFiles(listOf(tempFolder.createFile("DataFile1.txt"), tempFolder.createFile("DataFile2.txt")))
             webClient.uploadFiles(listOf(tempFolder.createFile("Folder1/DataFile3.txt")), "Folder1")
             webClient.uploadFiles(listOf(tempFolder.createFile("Folder1/Folder2/DataFile4.txt")), "Folder1/Folder2")
-
         }
 
         @Test

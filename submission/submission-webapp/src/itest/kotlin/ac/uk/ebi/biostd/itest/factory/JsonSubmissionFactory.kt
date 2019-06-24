@@ -87,7 +87,7 @@ fun allInOneSubmissionJson(accNo: String) = jsonObj {
             "links" to jsonArray(jsonArray({
                 "url" to "EGAD00001001282"
                 "attributes" to jsonArray({
-                    "name" to "type"
+                    "name" to "Type"
                     "value" to "EGA"
                 }, {
                     "name" to "Assay type"

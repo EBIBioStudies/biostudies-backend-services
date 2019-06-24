@@ -29,7 +29,7 @@ fun allInOneSubmissionXml(accNo: String) = xml("submission") {
                 "value" { -"Org1" }
             }
             "attribute" {
-                "name" { -"Tissue Type" }
+                "name" { -"Tissue type" }
                 "value" { -"venous blood" }
                 "valqual" {
                     "name" { -"Ontology" }
@@ -46,7 +46,7 @@ fun allInOneSubmissionXml(accNo: String) = xml("submission") {
                 "url" { -"AF069309" }
                 "attributes" {
                     "attribute" {
-                        "name" { -"Type" }
+                        "name" { -"type" }
                         "value" { -"gen" }
                     }
                 }
