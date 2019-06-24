@@ -3,6 +3,8 @@ package ebi.ac.uk.extended.mapping.serialization.to
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.model.Section
 
+internal const val TO_SECTION_EXTENSIONS = "ebi.ac.uk.extended.mapping.serialization.to.ToSectionKt"
+
 fun ExtSection.toSection(): Section {
     return Section(
         type = type,
@@ -21,5 +23,3 @@ fun ExtSection.toSubSection(): Section {
         fileList = fileList?.toFileList(),
         attributes = attributes.mapTo(mutableListOf()) { it.toAttribute() })
 }
-
-internal const val TO_SECTION_EXTENSIONS = "ebi.ac.uk.extended.mapping.serialization.to.ToSectionKt"

@@ -16,7 +16,6 @@ import org.assertj.core.api.Assertions.assertThat
 import java.nio.file.Paths
 
 internal class SubmissionAssertHelper(private val basePath: String) {
-
     internal fun assertSavedSubmission(accNo: String, submission: ExtendedSubmission) {
         assertThat(submission).hasAccNo(accNo)
         assertThat(submission).hasExactlyAttributes(

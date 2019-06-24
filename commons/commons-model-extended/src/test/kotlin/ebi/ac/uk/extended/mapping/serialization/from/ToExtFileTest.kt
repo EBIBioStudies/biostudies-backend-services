@@ -25,7 +25,6 @@ internal class ToExtFileTest(
     @Test
     fun toExtFile() {
         mockkStatic(TO_EXT_ATTRIBUTE_EXTENSIONS) {
-
             every { attribute.toExtAttribute() } returns extAttribute
             every { filesSource.getFile(file.path) } returns systemFile
 

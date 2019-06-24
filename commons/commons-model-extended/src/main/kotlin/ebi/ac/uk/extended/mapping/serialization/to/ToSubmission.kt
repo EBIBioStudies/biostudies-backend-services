@@ -8,7 +8,7 @@ import ebi.ac.uk.model.extensions.releaseTime
 import ebi.ac.uk.model.extensions.secretKey
 
 /**
- * Return a simple submission which do not contains submission secret information.
+ * Return a simple submission which does not contain submission secret information.
  */
 fun ExtSubmission.toSimpleSubmission(): Submission {
     return Submission(
