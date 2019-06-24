@@ -18,7 +18,6 @@ internal class ToFileTest(
     @MockK val attribute: Attribute,
     @MockK val systemFile: SystemFile
 ) {
-
     private val extFile = ExtFile("fileName", systemFile, listOf(extAttribute))
 
     @Test

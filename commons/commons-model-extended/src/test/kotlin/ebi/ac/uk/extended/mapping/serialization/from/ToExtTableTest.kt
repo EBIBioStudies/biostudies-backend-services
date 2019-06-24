@@ -20,7 +20,6 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(MockKExtension::class)
 class ToExtTableTest {
-
     @Test
     fun `SectionTable toExtTable`(
         @MockK filesSource: FilesSource,

@@ -3,7 +3,6 @@ package ebi.ac.uk.model
 import ebi.ac.uk.util.collections.indexOf
 
 interface Attributable {
-
     var attributes: List<Attribute>
 
     operator fun get(attr: Any): String = find(attr)!!

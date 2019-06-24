@@ -2,8 +2,8 @@ package ac.uk.ebi.biostd.itest.factory
 
 import org.redundent.kotlin.xml.xml
 
-fun allInOneSubmissionXml() = xml("submission") {
-    attribute("accno", "S-EPMC126")
+fun allInOneSubmissionXml(accNo: String) = xml("submission") {
+    attribute("accno", accNo)
     "attributes" {
         "attribute" {
             "name" { -"Title" }

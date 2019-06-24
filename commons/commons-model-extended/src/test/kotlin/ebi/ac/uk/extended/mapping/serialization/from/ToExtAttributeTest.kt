@@ -10,7 +10,6 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(MockKExtension::class)
 internal class ToExtAttributeTest {
-
     private val expectedNameAttribute = AttributeDetail(name = "Name Attribute Name", value = "Name Attribute Value")
     private val expectedValueAttribute = AttributeDetail(name = "Value Attribute Name", value = "Value Attribute Value")
 

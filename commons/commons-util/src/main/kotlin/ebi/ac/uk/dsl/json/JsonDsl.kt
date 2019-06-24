@@ -1,5 +1,7 @@
 package ebi.ac.uk.dsl.json
 
+import org.json.JSONObject
+
 interface JsonVal
 
 class JsonString(private val value: String) : JsonVal {
@@ -26,6 +28,8 @@ class JsonObject(private val elements: MutableMap<String, JsonVal> = mutableMapO
 
     override fun toString() =
         elements.entries.joinToString(prefix = "{", postfix = "}") { (key, value) -> """"$key": $value""" }
+
+    fun toPrettyJson(): String = JSONObject(this.toString()).toString(4)
 
     @JvmName("addAttribute")
     infix fun String.to(value: String) {
@@ -60,3 +64,4 @@ class JsonObject(private val elements: MutableMap<String, JsonVal> = mutableMapO
 val jsonNull get() = JsonNull
 
 fun jsonObj(bodyFun: JsonObject.() -> Unit) = JsonObject().apply(bodyFun)
+

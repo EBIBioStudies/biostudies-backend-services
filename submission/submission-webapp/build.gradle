@@ -27,6 +27,9 @@ dependencies {
 
     testCompile(project(":client:bio-webclient"))
 
+    testCompile group: 'com.jayway.jsonpath', name: 'json-path-assert', version: '2.4.0'
+
+
     testCompile(BaseTestCompileDependencies)
     testRuntime(BaseTestRuntimeDependencies)
     testCompile(SpringBootStarterTest)

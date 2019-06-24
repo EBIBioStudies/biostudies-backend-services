@@ -2,6 +2,7 @@ import static Dependencies.*
 import static TestDependencies.*
 
 dependencies {
+    compile group: 'org.json', name: 'json', version: '20180813'
     compile(CommonsIO)
     compile(Arrow)
     compile(KotlinStdLib)

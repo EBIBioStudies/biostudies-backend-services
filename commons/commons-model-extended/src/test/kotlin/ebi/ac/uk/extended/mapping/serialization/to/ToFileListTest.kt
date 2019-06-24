@@ -18,7 +18,6 @@ internal class ToFileListTest(
     @MockK val systemFile: SystemFile,
     @MockK val extFile: ExtFile
 ) {
-
     private val extFileList = ExtFileList("fileList", systemFile, listOf(extFile))
 
     @Test

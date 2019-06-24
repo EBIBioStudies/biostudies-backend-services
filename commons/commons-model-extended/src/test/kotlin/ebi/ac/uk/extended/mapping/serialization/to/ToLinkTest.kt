@@ -16,7 +16,6 @@ internal class ToLinkTest(
     @MockK val attribute: Attribute,
     @MockK val extAttribute: ExtAttribute
 ) {
-
     private val extLink = ExtLink("link", listOf(extAttribute))
 
     @Test

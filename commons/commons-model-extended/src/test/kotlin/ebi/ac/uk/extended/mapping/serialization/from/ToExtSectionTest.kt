@@ -48,7 +48,6 @@ class ToExtSectionTest(
     @MockK val extSubsection: ExtSection,
     @MockK val extSectionTable: ExtSectionTable
 ) {
-
     private val section = Section(
         type = "type",
         accNo = "accNo",
