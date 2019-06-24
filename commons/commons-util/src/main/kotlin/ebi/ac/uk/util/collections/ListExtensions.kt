@@ -5,6 +5,17 @@ import java.util.LinkedList
 private const val NO_FOUND = -1
 
 /**
+ * Return the index of first element which predicate evaluation is true. Null if element is not found.
+ */
+inline fun <T> List<T>.indexOf(predicate: (T) -> Boolean): Int? {
+    for ((index, item) in this.withIndex()) {
+        if (predicate(item)) return index
+    }
+
+    return null
+}
+
+/**
  * Split the list into a list of list using the current predicate true condition. Note that elements when predicate is
  * true are not included in the result lists.
  */

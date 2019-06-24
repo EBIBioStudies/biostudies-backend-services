@@ -32,6 +32,7 @@ dependencies {
     testCompile(SpringBootStarterTest)
     testCompile(H2)
     testCompile(KotlinXmlBuilder)
+    testCompile(JsonAssert)
 }
 
 sourceSets {

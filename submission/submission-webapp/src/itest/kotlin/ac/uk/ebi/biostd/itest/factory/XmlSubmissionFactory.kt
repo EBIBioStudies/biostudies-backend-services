@@ -2,8 +2,8 @@ package ac.uk.ebi.biostd.itest.factory
 
 import org.redundent.kotlin.xml.xml
 
-fun allInOneSubmissionXml() = xml("submission") {
-    attribute("accno", "S-EPMC126")
+fun allInOneSubmissionXml(accNo: String) = xml("submission") {
+    attribute("accno", accNo)
     "attributes" {
         "attribute" {
             "name" { -"Title" }
@@ -29,7 +29,7 @@ fun allInOneSubmissionXml() = xml("submission") {
                 "value" { -"Org1" }
             }
             "attribute" {
-                "name" { -"Tissue Type" }
+                "name" { -"Tissue type" }
                 "value" { -"venous blood" }
                 "valqual" {
                     "name" { -"Ontology" }
@@ -46,7 +46,7 @@ fun allInOneSubmissionXml() = xml("submission") {
                 "url" { -"AF069309" }
                 "attributes" {
                     "attribute" {
-                        "name" { -"Type" }
+                        "name" { -"type" }
                         "value" { -"gen" }
                     }
                 }

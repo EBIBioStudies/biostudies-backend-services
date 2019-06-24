@@ -9,9 +9,9 @@ fun simpleSubmissionTsv() = tsv {
     line()
 }
 
-fun allInOneSubmissionTsv() = tsv {
+fun allInOneSubmissionTsv(accNo: String) = tsv {
     line("# All in one submission")
-    line("Submission", "S-EPMC124")
+    line("Submission", accNo)
     line("Title", "venous blood, Monocyte")
     line("ReleaseDate", "2021-02-12")
     line()
@@ -25,7 +25,7 @@ fun allInOneSubmissionTsv() = tsv {
     line()
 
     line("Link", "AF069309")
-    line("Type", "gen")
+    line("type", "gen")
     line()
 
     line("File", "DataFile1.txt")
