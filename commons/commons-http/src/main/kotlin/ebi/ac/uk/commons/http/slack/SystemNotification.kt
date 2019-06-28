@@ -25,7 +25,7 @@ sealed class SystemNotification(
                 attachments = listOf(Attachment(
                     fallback = NOTIFICATION_DESCRIPTION,
                     color = Color.RED.toHex(),
-                    pretext = "$system[$subSystem] Notification",
+                    pretext = "$system[$subSystem]",
                     text = message,
                     fields = listOf(Field("Exception Error", errorMessage.orEmpty()))
                 )))

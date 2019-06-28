@@ -13,7 +13,7 @@ internal class DailyScheduler(
     private val notificationsSender: NotificationsSender
 ) {
 
-    @Scheduled(cron = "0 0 6 * *")
+    @Scheduled(cron = "0 0 6 * * *")
     fun dailyLoad() {
         val file = "/nfs/production3/ma/home/biostudy/EPMC-export/daily"
         val job = pmcLoader.loadFile(file)
@@ -21,29 +21,29 @@ internal class DailyScheduler(
             system = SYSTEM_NAME,
             subSystem = "PMC Loading Trigger",
             message = """
-                |Trigger daily PMC loaded $file, cluster job: $job, 
-                |logs will be available at $LOGS_PATH${job.id}_OUT""".trimMargin()))
+                Trigger daily PMC loaded $file, cluster job: $job, 
+                logs will be available at $LOGS_PATH${job.id}_OUT""".trimMargin()))
     }
 
-    @Scheduled(cron = "0 0 6 * *")
+    @Scheduled(cron = "0 0 7 * * *")
     fun dailyProcess() {
         val job = pmcLoader.triggerProcessor()
         notificationsSender.sent(Report(
             system = SYSTEM_NAME,
             subSystem = "PMC Processor Trigger",
             message = """
-                |Trigger daily PMC processor, cluster job: $job, 
-                |logs will be available at $LOGS_PATH${job.id}_OUT""".trimMargin()))
+                Trigger daily PMC processor, cluster job: $job, 
+                logs will be available at $LOGS_PATH${job.id}_OUT""".trimMargin()))
     }
 
-    @Scheduled(cron = "0 0 6 * *")
+    @Scheduled(cron = "0 0 8 * * *")
     fun dailySubmission() {
         val job = pmcLoader.triggerSubmitter()
         notificationsSender.sent(Report(
             system = SYSTEM_NAME,
             subSystem = "PMC Submitter Trigger",
             message = """
-                |Executed daily PMC submitter, cluster job: $job, 
-                |logs will be available at $LOGS_PATH${job.id}_OUT""".trimIndent()))
+                Executed daily PMC submitter, cluster job: $job, 
+                logs will be available at $LOGS_PATH${job.id}_OUT""".trimIndent()))
     }
 }

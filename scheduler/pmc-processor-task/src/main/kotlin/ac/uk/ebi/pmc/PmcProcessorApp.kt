@@ -60,9 +60,9 @@ class TaskExecutor(
                 PmcMode.SUBMIT -> context.getBean<PmcSubmissionSubmitter>().submit()
             }
         }.fold({
-            notificationSender.sent(Alert(SYSTEM, "PMC $mode process", "Process Fail", it.message))
+            notificationSender.sent(Alert(SYSTEM, "PMC $mode PROCESS", "Error executing process", it.message))
         }, {
-            notificationSender.sent(Report(SYSTEM, "PMC $mode process", "Process was completed successfully"))
+            notificationSender.sent(Report(SYSTEM, "PMC $mode PROCESS", "Process was completed successfully"))
         })
     }
 }
