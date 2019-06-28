@@ -17,9 +17,11 @@ import kotlinx.coroutines.channels.produce
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import mu.KotlinLogging
 
 private val sanitizeRegex = "(\n)(\t)*|(\t)+(\n)".toRegex()
 private const val WORKERS = 30
+private val logger = KotlinLogging.logger {}
 
 class PmcSubmissionLoader(
     private val serializationService: SerializationService,
@@ -36,6 +38,7 @@ class PmcSubmissionLoader(
      */
     suspend fun processFile(file: FileSpec) = withContext(Dispatchers.Default) {
         if (inputFilesDocService.isProcessed(file).not()) {
+            logger.info { "precessing file ${file.name}" }
             val receiveChannel = launchProducer(file)
             (1..WORKERS).map { launchProcessor(receiveChannel) }.joinAll()
             inputFilesDocService.reportProcessed(file)

@@ -1,22 +1,37 @@
 package ac.uk.ebi.pmc.scheduler.pmc.importer.scheduling
 
+import ac.uk.ebi.cluster.client.lsf.LOGS_PATH
 import ac.uk.ebi.pmc.scheduler.pmc.importer.api.PmcLoaderService
+import ebi.ac.uk.commons.http.slack.Notification
+import ebi.ac.uk.commons.http.slack.NotificationsSender
 import org.springframework.scheduling.annotation.Scheduled
 
-class DailyScheduler(private val pmcLoader: PmcLoaderService) {
+private const val SYSTEM_NAME = "Scheduler"
 
-    @Scheduled(cron = "0 0 6 * * Fri")
+internal class DailyScheduler(
+    private val pmcLoader: PmcLoaderService,
+    private val notificationsSender: NotificationsSender
+) {
+
+    @Scheduled(cron = "0 0 6 * *")
     fun dailyLoad() {
-        pmcLoader.loadFile("/nfs/production3/ma/home/biostudy/EPMC-export/daily")
+        val file = "/nfs/production3/ma/home/biostudy/EPMC-export/daily"
+        val job = pmcLoader.loadFile(file)
+        notificationsSender.sent(SYSTEM_NAME, Notification(
+            "Trigger daily PMC loaded $file, cluster job: $job, logs will be available at $LOGS_PATH${job.id}_OUT"))
     }
 
-    @Scheduled(cron = "0 0 6 * * Sat")
+    @Scheduled(cron = "0 0 6 * *")
     fun dailyProcess() {
-        pmcLoader.triggerProcessor()
+        val job = pmcLoader.triggerProcessor()
+        notificationsSender.sent(SYSTEM_NAME, Notification(
+            "Trigger daily PMC processor, cluster job: $job, logs will be available at $LOGS_PATH${job.id}_OUT"))
     }
 
-    @Scheduled(cron = "0 0 6 * * Sun")
+    @Scheduled(cron = "0 0 6 * *")
     fun dailySubmission() {
-        pmcLoader.triggerSubmitter()
+        val job = pmcLoader.triggerSubmitter()
+        notificationsSender.sent(SYSTEM_NAME, Notification(
+            "Executed daily PMC submitter, cluster job: $job, logs will be available at $LOGS_PATH${job.id}_OUT"))
     }
 }

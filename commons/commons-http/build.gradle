@@ -1,11 +1,13 @@
 import static Dependencies.*
-import static TestDependencies.*
+import static TestDependencies.BaseTestCompileDependencies
+import static TestDependencies.BaseTestRuntimeDependencies
 
 dependencies {
     compile project(":commons:commons-util")
 
     compile(JacksonKotlin)
     compile(JacksonCore)
+    compile(SpringWeb)
 
     testCompile(BaseTestCompileDependencies)
     testRuntime(BaseTestRuntimeDependencies)

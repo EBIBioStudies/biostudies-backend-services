@@ -23,7 +23,7 @@ class PmcLoader(private val pmcLoader: PmcSubmissionLoader) {
             folder.listFiles()
                 .asSequence()
                 .filter { it.extension == "gz" }
-                .onEach { logger.info { "processing file '${it.absolutePath}'" } }
+                .onEach { logger.info { "checking file '${it.absolutePath}'" } }
                 .map(::getFileData)
                 .forEach { pmcLoader.processFile(it) }
         }

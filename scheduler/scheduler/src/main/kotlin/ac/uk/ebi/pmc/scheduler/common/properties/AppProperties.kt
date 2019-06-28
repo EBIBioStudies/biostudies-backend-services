@@ -7,4 +7,5 @@ import org.springframework.stereotype.Component
 @Component
 class AppProperties {
     lateinit var appsFolder: String
+    lateinit var notificationsUrl: String
 }

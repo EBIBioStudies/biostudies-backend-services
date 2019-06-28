@@ -14,6 +14,7 @@ dependencies {
     implementation(project(":client:bio-webclient"))
     implementation(project(":commons:commons-serialization"))
     implementation(project(":scheduler:task-properties"))
+    implementation(project(":commons:commons-http"))
 
     implementation(SpringBootStarter)
     implementation(SpringBootStarterConfigProcessor)

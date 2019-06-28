@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-class PmcImporterResource(private val importerService: PmcLoaderService) {
+internal class PmcImporterResource(private val importerService: PmcLoaderService) {
 
     @PostMapping("/api/pmc/load/folder")
     fun loadFile(@RequestHeader("path") path: String) = importerService.loadFile(path)
