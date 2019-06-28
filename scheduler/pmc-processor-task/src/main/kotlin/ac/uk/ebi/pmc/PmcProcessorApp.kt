@@ -5,9 +5,10 @@ import ac.uk.ebi.pmc.process.PmcSubmissionProcessor
 import ac.uk.ebi.pmc.submit.PmcSubmissionSubmitter
 import ac.uk.ebi.scheduler.properties.PmcImporterProperties
 import ac.uk.ebi.scheduler.properties.PmcMode
-import ebi.ac.uk.commons.http.slack.ErrorNotification
+import arrow.core.Try
+import ebi.ac.uk.commons.http.slack.Alert
 import ebi.ac.uk.commons.http.slack.NotificationsSender
-import ebi.ac.uk.commons.http.slack.ReportNotification
+import ebi.ac.uk.commons.http.slack.Report
 import org.springframework.beans.factory.getBean
 import org.springframework.boot.CommandLineRunner
 import org.springframework.boot.autoconfigure.SpringBootApplication
@@ -52,17 +53,17 @@ class TaskExecutor(
     override fun run(args: Array<String>) {
         val mode = properties.mode
 
-        try {
+        Try {
             when (mode) {
                 PmcMode.LOAD -> context.getBean<PmcLoader>().loadFolder(File(properties.path))
                 PmcMode.PROCESS -> context.getBean<PmcSubmissionProcessor>().processSubmissions()
                 PmcMode.SUBMIT -> context.getBean<PmcSubmissionSubmitter>().submit()
             }
-        } catch (exception: RuntimeException) {
-            notificationSender.sent(ErrorNotification(SYSTEM, "PMC $mode process", "Process Fail", exception.message))
-        }
-
-        notificationSender.sent(ReportNotification(SYSTEM, "PMC $mode process", "Process was completed successfully"))
+        }.fold({
+            notificationSender.sent(Alert(SYSTEM, "PMC $mode process", "Process Fail", it.message))
+        }, {
+            notificationSender.sent(Report(SYSTEM, "PMC $mode process", "Process was completed successfully"))
+        })
     }
 }
 

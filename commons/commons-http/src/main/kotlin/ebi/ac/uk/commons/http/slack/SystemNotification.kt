@@ -13,14 +13,14 @@ sealed class SystemNotification(
 
     internal fun asNotification(): Notification {
         return when (this) {
-            is ReportNotification -> Notification(
+            is Report -> Notification(
                 text = "Report [${InetAddress.getLocalHost().hostName}]",
                 attachments = listOf(Attachment(
                     fallback = NOTIFICATION_DESCRIPTION,
                     color = Color.BLUE.toHex(),
                     pretext = "$system[$subSystem] Notification",
                     text = message)))
-            is ErrorNotification -> Notification(
+            is Alert -> Notification(
                 text = "Error Report [${InetAddress.getLocalHost().hostName}]",
                 attachments = listOf(Attachment(
                     fallback = NOTIFICATION_DESCRIPTION,
@@ -33,10 +33,10 @@ sealed class SystemNotification(
     }
 }
 
-class ReportNotification(system: String, subSystem: String, message: String) :
+class Report(system: String, subSystem: String, message: String) :
     SystemNotification(system, subSystem, message)
 
-class ErrorNotification(system: String, subSystem: String, message: String, val errorMessage: String?) :
+class Alert(system: String, subSystem: String, message: String, val errorMessage: String?) :
     SystemNotification(system, subSystem, message)
 
 private fun Color.toHex(): String = Integer.toHexString(rgb).substring(2)
