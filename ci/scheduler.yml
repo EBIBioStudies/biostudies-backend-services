@@ -3,7 +3,7 @@ build-scheduler:
   script: gradle :scheduler:scheduler:bootJar
   artifacts:
     paths:
-      - scheduler-1.0.0.jar
+      - scheduler/build/libs/scheduler-1.0.0.jar
 
 deploy-dev-scheduler:
   stage: deploy-dev-scheduler

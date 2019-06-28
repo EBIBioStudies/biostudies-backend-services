@@ -3,7 +3,7 @@ build-pmc-processor-task:
   script: gradle :scheduler:pmc-processor-task:bootJar
   artifacts:
     paths:
-      - pmc-processor-task-1.0.0.jar
+      - scheduler/pmc-processor-task/build/libs/pmc-processor-task-1.0.0.jar
 
 deploy-dev-pmc-processor-task:
   stage: deploy-dev-pmc
