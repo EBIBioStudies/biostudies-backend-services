@@ -27,6 +27,10 @@ class FileList(
     @JoinColumn(name = "fileListId")
     @Basic(fetch = FetchType.LAZY)
     var files: Set<ReferencedFile> = setOf()
+
+    constructor(name: String, files: Set<ReferencedFile>) : this(name) {
+        this.files = files
+    }
 }
 
 @Entity
