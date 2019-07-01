@@ -9,11 +9,10 @@ import org.springframework.web.client.RestTemplate
 
 @Configuration
 internal class NotificationsConfig {
-
     @Bean
     fun restTemplate(): RestTemplate = JacksonFactory.jsonRestTemplate()
 
     @Bean
-    fun notificationsSender(restTemplate: RestTemplate, appProperties: PmcImporterProperties): NotificationsSender =
-        NotificationsSender(restTemplate, appProperties.notificationsUrl)
+    fun notificationsSender(appProperties: PmcImporterProperties): NotificationsSender =
+        NotificationsSender(restTemplate(), appProperties.notificationsUrl)
 }

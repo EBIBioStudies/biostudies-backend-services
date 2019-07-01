@@ -13,6 +13,6 @@ internal class NotificationsConfig {
     fun restTemplate(): RestTemplate = JacksonFactory.jsonRestTemplate()
 
     @Bean
-    fun notificationsSender(restTemplate: RestTemplate, appProperties: AppProperties): NotificationsSender =
-        NotificationsSender(restTemplate, appProperties.notificationsUrl)
+    fun notificationsSender(appProperties: AppProperties): NotificationsSender =
+        NotificationsSender(restTemplate(), appProperties.notificationsUrl)
 }
