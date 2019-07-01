@@ -9,7 +9,6 @@ import org.springframework.web.client.RestTemplate
 
 @Configuration
 internal class NotificationsConfig {
-
     @Bean
     fun restTemplate(): RestTemplate = JacksonFactory.jsonRestTemplate()
 

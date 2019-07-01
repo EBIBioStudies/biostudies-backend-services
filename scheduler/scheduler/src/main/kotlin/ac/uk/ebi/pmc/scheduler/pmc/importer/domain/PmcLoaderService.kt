@@ -32,8 +32,7 @@ internal class PmcLoaderService private constructor(
         properties: PmcProcessorProp,
         appProperties: AppProperties,
         notificationsSender: NotificationsSender
-    ) :
-        this(PmcLoader(clusterOperations, properties, appProperties), notificationsSender)
+    ) : this(PmcLoader(clusterOperations, properties, appProperties), notificationsSender)
 
     fun loadFile(file: String): Job {
         val job = pmcLoaderService.loadFile(file)

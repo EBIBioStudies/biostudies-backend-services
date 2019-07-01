@@ -23,7 +23,6 @@ private const val SYSTEM = "PMC_PROCESSOR"
 
 @SpringBootApplication
 class PmcProcessorApp {
-
     @Bean
     @ConfigurationProperties("app.data")
     fun properties() = PmcImporterProperties()
@@ -35,10 +34,7 @@ class PmcProcessorApp {
 
 class TaskExecutor(
     private val properties: PmcImporterProperties,
-    private val notificationSender: NotificationsSender
-
-) : CommandLineRunner, ApplicationContextAware {
-
+    private val notificationSender: NotificationsSender) : CommandLineRunner, ApplicationContextAware {
     private lateinit var context: ApplicationContext
 
     override fun setApplicationContext(context: ApplicationContext) {

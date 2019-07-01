@@ -14,7 +14,6 @@ import org.springframework.scheduling.annotation.EnableScheduling
 @Configuration
 @EnableScheduling
 internal class SchedulerConfig {
-
     @Bean
     fun clusterOperations(sshProperties: SshProperties) = ClusterOperations.create(
         sshProperties.user,
