@@ -57,5 +57,12 @@ class PmcImporterProperties : BaseAppProperty {
 }
 
 enum class PmcMode {
-    LOAD, PROCESS, SUBMIT
+    LOAD, PROCESS, SUBMIT;
+
+    val description: String
+        get() = when (this) {
+            LOAD -> "PMC Submissions loading"
+            PROCESS -> "PMC Submissions processing"
+            SUBMIT -> "PMC Submissions submission"
+        }
 }
