@@ -3,8 +3,8 @@ package ac.uk.ebi.pmc.scheduler.common.config
 import ac.uk.ebi.cluster.client.lsf.ClusterOperations
 import ac.uk.ebi.pmc.scheduler.common.properties.AppProperties
 import ac.uk.ebi.pmc.scheduler.common.properties.SshProperties
-import ac.uk.ebi.pmc.scheduler.pmc.importer.api.PmcLoaderService
 import ac.uk.ebi.pmc.scheduler.pmc.importer.api.PmcProcessorProp
+import ac.uk.ebi.pmc.scheduler.pmc.importer.domain.PmcLoaderService
 import ac.uk.ebi.pmc.scheduler.pmc.importer.scheduling.DailyScheduler
 import ebi.ac.uk.commons.http.slack.NotificationsSender
 import org.springframework.context.annotation.Bean
@@ -25,11 +25,11 @@ internal class SchedulerConfig {
     fun loaderService(
         clusterOperations: ClusterOperations,
         properties: PmcProcessorProp,
-        appProperties: AppProperties
+        appProperties: AppProperties,
+        notificationsSender: NotificationsSender
     ) =
-        PmcLoaderService(clusterOperations, properties, appProperties)
+        PmcLoaderService(clusterOperations, properties, appProperties, notificationsSender)
 
     @Bean
-    fun scheduler(loaderService: PmcLoaderService, notificationsSender: NotificationsSender) =
-        DailyScheduler(loaderService, notificationsSender)
+    fun scheduler(loaderService: PmcLoaderService) = DailyScheduler(loaderService)
 }
