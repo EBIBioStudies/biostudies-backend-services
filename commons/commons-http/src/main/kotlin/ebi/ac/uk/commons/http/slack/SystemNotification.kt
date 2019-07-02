@@ -3,14 +3,13 @@ package ebi.ac.uk.commons.http.slack
 import java.awt.Color
 import java.net.InetAddress
 
-private const val NOTIFICATION_DESCRIPTION = "biostudies backend system notification"
+private const val NOTIFICATION_DESCRIPTION = "BioStudies Backend Notification System"
 
 sealed class SystemNotification(
     private val system: String,
     private val subSystem: String,
     private val message: String?
 ) {
-
     internal fun asNotification(): Notification {
         return when (this) {
             is Report -> Notification(

@@ -34,7 +34,8 @@ class PmcProcessorApp {
 
 class TaskExecutor(
     private val properties: PmcImporterProperties,
-    private val notificationSender: NotificationsSender) : CommandLineRunner, ApplicationContextAware {
+    private val notificationSender: NotificationsSender
+) : CommandLineRunner, ApplicationContextAware {
     private lateinit var context: ApplicationContext
 
     override fun setApplicationContext(context: ApplicationContext) {

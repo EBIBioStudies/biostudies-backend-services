@@ -63,6 +63,6 @@ enum class PmcMode {
         get() = when (this) {
             LOAD -> "PMC Submissions loading"
             PROCESS -> "PMC Submissions processing"
-            SUBMIT -> "PMC Submissions submission"
+            SUBMIT -> "PMC Submissions submitting"
         }
 }

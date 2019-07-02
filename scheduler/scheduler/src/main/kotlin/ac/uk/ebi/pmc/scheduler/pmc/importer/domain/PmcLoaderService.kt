@@ -39,7 +39,7 @@ internal class PmcLoaderService private constructor(
         notificationsSender.sent(Report(
             SYSTEM_NAME,
             LOADER_SUBSYSTEM,
-            "Trigger PMC loaded $file, cluster job: $job, logs will be available at ${job.logsPath}"))
+            "Triggered PMC loaded $file, cluster job: $job, logs will be available at ${job.logsPath}"))
         return job
     }
 
@@ -48,7 +48,7 @@ internal class PmcLoaderService private constructor(
         notificationsSender.sent(Report(
             SYSTEM_NAME,
             PROCESSOR_SUBSYSTEM,
-            "Trigger PMC processor, cluster job: $job, logs will be available at ${job.logsPath}"))
+            "Triggered PMC processor, cluster job: $job, logs will be available at ${job.logsPath}"))
         return job
     }
 
@@ -57,7 +57,7 @@ internal class PmcLoaderService private constructor(
         notificationsSender.sent(Report(
             SYSTEM_NAME,
             SUBMITTER_SUBSYSTEM,
-            "Executed PMC submitter, cluster job: $job, logs will be available at ${job.logsPath}"))
+            "Triggered PMC submitter, cluster job: $job, logs will be available at ${job.logsPath}"))
         return job
     }
 }

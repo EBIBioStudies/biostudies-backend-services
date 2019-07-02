@@ -10,17 +10,14 @@ class JacksonFactory {
 
     companion object {
 
-        fun createMapper(): ObjectMapper {
-            val mapper = ObjectMapper()
-            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-            mapper.registerModule(KotlinModule())
-            return mapper
+        fun createMapper(): ObjectMapper = ObjectMapper().apply {
+            configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+            registerModule(KotlinModule())
         }
 
-        fun jsonRestTemplate(): RestTemplate {
-            val template = RestTemplate()
-            template.messageConverters = listOf(MappingJackson2HttpMessageConverter())
-            return template
-        }
+        fun jsonRestTemplate(): RestTemplate =
+            RestTemplate().apply {
+                messageConverters = listOf(MappingJackson2HttpMessageConverter())
+            }
     }
 }
