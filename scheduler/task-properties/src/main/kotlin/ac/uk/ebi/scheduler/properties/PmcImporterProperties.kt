@@ -12,6 +12,7 @@ class PmcImporterProperties : BaseAppProperty {
             append("--app.data.mode=$mode \\\n")
             append("--app.data.temp=$temp \\\n")
             append("--app.data.mongodbUri=$mongodbUri \\\n")
+            append("--app.data.notificationsUrl=$notificationsUrl \\\n")
 
             path?.let { append("--app.data.path=$it \\\n") }
             bioStudiesUrl?.let { append("--app.data.bioStudiesUrl=$it \\\n") }
@@ -22,6 +23,8 @@ class PmcImporterProperties : BaseAppProperty {
     lateinit var mode: PmcMode
     lateinit var temp: String
     lateinit var mongodbUri: String
+    lateinit var notificationsUrl: String
+
     var path: String? = null
     var bioStudiesUrl: String? = null
     var bioStudiesUser: String? = null
@@ -36,6 +39,7 @@ class PmcImporterProperties : BaseAppProperty {
             path: String?,
             temp: String,
             mongodbUri: String,
+            notificationsUrl: String,
             bioStudiesUrl: String? = null,
             bioStudiesUser: String? = null,
             bioStudiesPassword: String? = null
@@ -44,6 +48,7 @@ class PmcImporterProperties : BaseAppProperty {
             this.path = path
             this.temp = temp
             this.mongodbUri = mongodbUri
+            this.notificationsUrl = notificationsUrl
             this.bioStudiesUrl = bioStudiesUrl
             this.bioStudiesUser = bioStudiesUser
             this.bioStudiesPassword = bioStudiesPassword
@@ -52,5 +57,12 @@ class PmcImporterProperties : BaseAppProperty {
 }
 
 enum class PmcMode {
-    LOAD, PROCESS, SUBMIT
+    LOAD, PROCESS, SUBMIT;
+
+    val description: String
+        get() = when (this) {
+            LOAD -> "PMC Submissions loading"
+            PROCESS -> "PMC Submissions processing"
+            SUBMIT -> "PMC Submissions submitting"
+        }
 }
