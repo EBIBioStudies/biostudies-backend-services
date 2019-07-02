@@ -12,10 +12,12 @@ pmc:
     mongoUri:
 
 spring:
+  application:
+    name: Scheduler Prod
   boot:
     admin:
       client:
-        url: http://biostudy-prod.ebi.ac.uk:9545
+        url: http://biostudy-prod.ebi.ac.uk:8590
 
 management:
   endpoints:

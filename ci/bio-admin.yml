@@ -10,4 +10,4 @@ deploy-bio-admin:
   when: manual
   dependencies:
     - build-bio-admin
-  script: gradle deployAppsAdmin -Penv=prod -PdeployPath=/nfs/biostudies/.adm/apps/bio-admin
+  script: gradle deployBioAdmin -Penv=prod -PdeployPath=/nfs/biostudies/.adm/apps/bio-admin
