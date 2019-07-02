@@ -10,7 +10,7 @@ deploy-dev-pmc-processor-task:
   when: manual
   dependencies:
     - build-pmc-processor-task
-  script: gradle updatePmcArtifact -Penv=dev -PdeployPath=/nfs/biostudies/.adm/apps/scheduler/beta/apps
+  script: gradle updatePmcArtifact -Penv=dev -PdeployPath=/nfs/biostudies/.adm/apps/scheduler/dev/apps
 
 deploy-beta-pmc-processor-task:
   stage: deploy-beta-pmc

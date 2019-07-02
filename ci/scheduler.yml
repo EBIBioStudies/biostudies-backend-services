@@ -10,7 +10,7 @@ deploy-dev-scheduler:
   when: manual
   dependencies:
     - build-scheduler
-  script: gradle deployScheduler -Penv=dev -PdeployPath=/nfs/biostudies/.adm/apps/scheduler/beta
+  script: gradle deployScheduler -Penv=dev -PdeployPath=/nfs/biostudies/.adm/apps/scheduler/dev
 
 deploy-beta-scheduler:
   stage: deploy-beta-scheduler
