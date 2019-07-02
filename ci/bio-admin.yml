@@ -6,8 +6,8 @@ build-bio-admin:
       - bio-admin/bio-admin/build/libs/bio-admin-1.0.0.jar
 
 deploy-bio-admin:
-  stage: deploy-dev-bio-admin
+  stage: deploy-bio-admin
   when: manual
   dependencies:
     - build-bio-admin
-  script: gradle deployAppsAdmin -Penv=prod -PdeployPath=/nfs/biostudies/.adm/apps/bio-admin/prod
+  script: gradle deployAppsAdmin -Penv=prod -PdeployPath=/nfs/biostudies/.adm/apps/bio-admin

@@ -17,6 +17,7 @@ stages:
   - deploy-dev-scheduler
   - deploy-beta-scheduler
   - deploy-prod-scheduler
+  - deploy-bio-admin
 
 build-test:
   stage: build-test
