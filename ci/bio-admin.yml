@@ -1,0 +1,13 @@
+build-bio-admin:
+  stage: build-artifact
+  script: gradle bio-admin:bootJar
+  artifacts:
+    paths:
+      - bio-admin/bio-admin/build/libs/bio-admin-1.0.0.jar
+
+deploy-bio-admin:
+  stage: deploy-dev-bio-admin
+  when: manual
+  dependencies:
+    - build-bio-admin
+  script: gradle deployAppsAdmin -Penv=prod -PdeployPath=/nfs/biostudies/.adm/apps/bio-admin/prod

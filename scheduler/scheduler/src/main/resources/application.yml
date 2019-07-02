@@ -10,3 +10,21 @@ pmc:
   import:
     temp:
     mongoUri:
+
+spring:
+  boot:
+    admin:
+      client:
+        url: http://biostudy-prod.ebi.ac.uk:9545
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: ALWAYS
+    shutdown:
+      enabled: true
+

@@ -21,6 +21,7 @@ dependencies {
     compile(project(":scheduler:task-properties"))
     compile(project(":commons:commons-http"))
 
+    compile(SpringBootStartedAdminClient)
     compile(KotlinLogging)
     compile(SpringBootStarter)
     compile(SpringBootStarterConfigProcessor)
