@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.xml.deserializer
 
+import ac.uk.ebi.biostd.xml.deserializer.stream.FileListXmlStreamDeserializer
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.File
 import ebi.ac.uk.util.collections.second

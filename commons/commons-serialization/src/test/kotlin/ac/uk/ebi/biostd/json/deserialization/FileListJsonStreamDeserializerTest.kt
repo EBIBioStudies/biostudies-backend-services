@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.json.deserialization
 
+import ac.uk.ebi.biostd.json.deserialization.stream.FileListJsonStreamDeserializer
 import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.model.Attribute
@@ -41,7 +42,7 @@ class FileListJsonStreamDeserializerTest(temporaryFolder: TemporaryFolder) {
                     "name" to "Attr2"
                     "value" to "D"
                 })
-         })
+            })
 
         jsonFile.writeText(jsonFileList.toString())
     }

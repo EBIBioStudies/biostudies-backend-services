@@ -1,16 +1,11 @@
-package ac.uk.ebi.biostd.json.deserialization
+package ac.uk.ebi.biostd.json.deserialization.stream
 
-import ac.uk.ebi.biostd.json.JsonSerializer
 import com.google.gson.GsonBuilder
-import com.google.gson.JsonDeserializationContext
-import com.google.gson.JsonDeserializer
-import com.google.gson.JsonElement
 import com.google.gson.stream.JsonReader
 import ebi.ac.uk.model.FileList
 import ebi.ac.uk.model.File as PageTabFile
 import java.io.File
 import java.io.InputStreamReader
-import java.lang.reflect.Type
 
 internal class FileListJsonStreamDeserializer {
     fun deserialize(file: File): FileList {
@@ -31,9 +26,4 @@ internal class FileListJsonStreamDeserializer {
 
         return FileList(file.name, referencedFiles.toList())
     }
-}
-
-internal class FileJsonStreamDeserializer : JsonDeserializer<PageTabFile> {
-    override fun deserialize(json: JsonElement?, typeOfT: Type?, context: JsonDeserializationContext?) =
-        JsonSerializer().deserialize<PageTabFile>(json!!.toString())
 }
