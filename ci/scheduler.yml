@@ -3,14 +3,14 @@ build-scheduler:
   script: gradle :scheduler:scheduler:bootJar
   artifacts:
     paths:
-      - scheduler-1.0.0.jar
+      - scheduler/scheduler/build/libs/scheduler-1.0.0.jar
 
 deploy-dev-scheduler:
   stage: deploy-dev-scheduler
   when: manual
   dependencies:
     - build-scheduler
-  script: gradle deployScheduler -Penv=dev -PdeployPath=/nfs/biostudies/.adm/apps/scheduler/beta
+  script: gradle deployScheduler -Penv=dev -PdeployPath=/nfs/biostudies/.adm/apps/scheduler/dev
 
 deploy-beta-scheduler:
   stage: deploy-beta-scheduler

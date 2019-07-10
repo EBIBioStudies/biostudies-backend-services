@@ -1,18 +1,25 @@
 package ac.uk.ebi.pmc.scheduler.pmc.importer.api
 
+import ac.uk.ebi.cluster.client.model.Job
+import ac.uk.ebi.pmc.scheduler.pmc.importer.DEFAULT_FOLDER
+import ac.uk.ebi.pmc.scheduler.pmc.importer.domain.PmcLoaderService
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestHeader
+import org.springframework.web.bind.annotation.ResponseBody
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-class PmcImporterResource(private val importerService: PmcLoaderService) {
-
+internal class PmcImporterResource(private val pmcLoaderService: PmcLoaderService) {
     @PostMapping("/api/pmc/load/folder")
-    fun loadFile(@RequestHeader("path") path: String) = importerService.loadFile(path)
+    @ResponseBody
+    fun loadFile(@RequestHeader(name = "path", defaultValue = DEFAULT_FOLDER) path: String): Job =
+        pmcLoaderService.loadFile(path)
 
     @PostMapping("/api/pmc/process")
-    fun triggerProcessor() = importerService.triggerProcessor()
+    @ResponseBody
+    fun triggerProcessor(): Job = pmcLoaderService.triggerProcessor()
 
     @PostMapping("/api/pmc/submit")
-    fun triggerSubmitter() = importerService.triggerSubmitter()
+    @ResponseBody
+    fun triggerSubmitter(): Job = pmcLoaderService.triggerSubmitter()
 }

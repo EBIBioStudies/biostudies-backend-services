@@ -9,6 +9,7 @@ const val mongodbUri = "mongodbUri"
 const val bioStudiesUrl = "http://an_url.com"
 const val bioStudiesUser = "user"
 const val bioStudiesPassword = "password"
+const val notificationUrl = "http://slack-here"
 
 class PmcImporterPropertiesTest {
     @Test
@@ -20,7 +21,8 @@ class PmcImporterPropertiesTest {
             mongodbUri = mongodbUri,
             bioStudiesUrl = bioStudiesUrl,
             bioStudiesUser = bioStudiesUser,
-            bioStudiesPassword = bioStudiesPassword)
+            bioStudiesPassword = bioStudiesPassword,
+            notificationsUrl = notificationUrl)
 
         assertThat(properties.asJavaCommand("/apps-folder"))
             .isEqualTo("""
@@ -28,6 +30,7 @@ class PmcImporterPropertiesTest {
             --app.data.mode=LOAD \
             --app.data.temp=/tempDir \
             --app.data.mongodbUri=mongodbUri \
+            --app.data.notificationsUrl=http://slack-here \
             --app.data.path=/loadPath \
             --app.data.bioStudiesUrl=http://an_url.com \
             --app.data.bioStudiesUser=user \
@@ -44,13 +47,15 @@ class PmcImporterPropertiesTest {
             mongodbUri = mongodbUri,
             bioStudiesUrl = null,
             bioStudiesUser = null,
-            bioStudiesPassword = null)
+            bioStudiesPassword = null,
+            notificationsUrl = notificationUrl)
         assertThat(properties.asJavaCommand("/apps-folder"))
             .isEqualTo("""
             java -jar /apps-folder/pmc-processor-task-1.0.0.jar \
             --app.data.mode=LOAD \
             --app.data.temp=/tempDir \
-            --app.data.mongodbUri=mongodbUri
+            --app.data.mongodbUri=mongodbUri \
+            --app.data.notificationsUrl=http://slack-here
             """.trimIndent())
     }
 }

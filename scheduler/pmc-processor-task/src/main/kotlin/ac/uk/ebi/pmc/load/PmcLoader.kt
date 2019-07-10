@@ -11,7 +11,6 @@ import java.util.zip.GZIPInputStream
 private val logger = KotlinLogging.logger {}
 
 class PmcLoader(private val pmcLoader: PmcSubmissionLoader) {
-
     /**
      * List the files in the given folder and load into the system the ones not already loaded. Sequence is used so the
      * full list of file content is not loaded into memory.
@@ -23,7 +22,7 @@ class PmcLoader(private val pmcLoader: PmcSubmissionLoader) {
             folder.listFiles()
                 .asSequence()
                 .filter { it.extension == "gz" }
-                .onEach { logger.info { "processing file '${it.absolutePath}'" } }
+                .onEach { logger.info { "checking file '${it.absolutePath}'" } }
                 .map(::getFileData)
                 .forEach { pmcLoader.processFile(it) }
         }

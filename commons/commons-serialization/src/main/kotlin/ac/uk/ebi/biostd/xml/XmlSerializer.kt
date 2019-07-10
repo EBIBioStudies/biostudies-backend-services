@@ -39,7 +39,7 @@ internal class XmlSerializer {
 
     fun <T> serialize(element: T): String = mapper.writeValueAsString(element)
 
-    fun deserialize(value: String) = deserialize(value, Submission::class.java)
+    fun deserialize(value: String): Submission = deserialize(value, Submission::class.java)
 
     fun <T> deserialize(element: String, type: Class<out T>): T {
         var deserialized: Any? = null
