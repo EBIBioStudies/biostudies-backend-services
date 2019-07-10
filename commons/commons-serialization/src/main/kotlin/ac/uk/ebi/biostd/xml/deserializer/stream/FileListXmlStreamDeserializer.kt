@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.xml.deserializer.stream
 
+import ac.uk.ebi.biostd.ext.forEach
 import com.fasterxml.jackson.dataformat.xml.JacksonXmlModule
 import com.fasterxml.jackson.dataformat.xml.XmlMapper
 import ebi.ac.uk.model.Attribute
@@ -18,16 +19,9 @@ internal class FileListXmlStreamDeserializer {
             addDeserializer(Attribute::class.java, AttributeXmlStreamDeserializer())
         }
         val mapper = XmlMapper(module)
+
         reader.next()
-
-        while (reader.hasNext()) {
-            try {
-                referencedFiles.add(mapper.readValue(reader, PageTabFile::class.java))
-            } catch (exception: NoSuchElementException) {
-                break
-            }
-        }
-
+        reader.forEach { referencedFiles.add(mapper.readValue(reader, PageTabFile::class.java)) }
         reader.close()
 
         return FileList(file.name, referencedFiles.toList())
