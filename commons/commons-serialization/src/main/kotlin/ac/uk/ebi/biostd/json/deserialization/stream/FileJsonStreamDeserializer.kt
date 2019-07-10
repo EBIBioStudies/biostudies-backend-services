@@ -7,7 +7,7 @@ import com.google.gson.JsonElement
 import ebi.ac.uk.model.File
 import java.lang.reflect.Type
 
-internal class FileJsonStreamDeserializer : JsonDeserializer<File> {
-    override fun deserialize(json: JsonElement?, typeOfT: Type?, context: JsonDeserializationContext?) =
-        JsonSerializer().deserialize<File>(json!!.toString())
+internal class FileJsonStreamDeserializer(private val jsonSerializer: JsonSerializer) : JsonDeserializer<File> {
+    override fun deserialize(json: JsonElement, typeOfT: Type, context: JsonDeserializationContext) =
+        jsonSerializer.deserialize<File>(json.toString())
 }

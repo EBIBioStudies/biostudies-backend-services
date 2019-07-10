@@ -13,6 +13,7 @@ internal class FileListTsvStreamDeserializer {
         val header = reader.readLine()
 
         reader.useLines { lines -> lines.forEach { fileList.add(buildFile(header, it)) } }
+        reader.close()
 
         return FileList(file.name, fileList.toList())
     }

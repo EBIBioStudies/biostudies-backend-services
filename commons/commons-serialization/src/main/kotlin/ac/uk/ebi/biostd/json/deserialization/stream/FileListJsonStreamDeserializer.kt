@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.json.deserialization.stream
 
+import ac.uk.ebi.biostd.json.JsonSerializer
 import com.google.gson.GsonBuilder
 import com.google.gson.stream.JsonReader
 import ebi.ac.uk.model.FileList
@@ -10,9 +11,9 @@ import java.io.InputStreamReader
 internal class FileListJsonStreamDeserializer {
     fun deserialize(file: File): FileList {
         val referencedFiles: MutableList<PageTabFile> = mutableListOf()
-        val reader = JsonReader(InputStreamReader(file.inputStream(), "UTF-8")!!)
+        val reader = JsonReader(InputStreamReader(file.inputStream(), "UTF-8"))
         val parser = GsonBuilder().apply {
-            registerTypeAdapter(PageTabFile::class.java, FileJsonStreamDeserializer())
+            registerTypeAdapter(PageTabFile::class.java, FileJsonStreamDeserializer(JsonSerializer()))
         }.create()
 
         reader.beginArray()
