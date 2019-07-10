@@ -10,7 +10,7 @@ internal fun Section.toExtSection(filesSource: FilesSource): ExtSection {
         type = type,
         fileList = fileList?.toExtFileList(filesSource),
         attributes = attributes.map { it.toExtAttribute() },
-        sections = sections.toExtSection(filesSource),
+        sections = sections.toExtSections(filesSource),
         files = files.toExtFiles(filesSource),
         links = links.toExtLinks())
 }

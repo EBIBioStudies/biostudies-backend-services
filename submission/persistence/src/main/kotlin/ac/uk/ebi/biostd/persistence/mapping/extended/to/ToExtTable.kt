@@ -33,7 +33,7 @@ internal fun SortedSet<File>.toExtFiles(filesSource: FilesSource): List<Either<E
         .let { (tableFiles, files) -> files.map { left(it) }.plus(right(ExtFileTable(tableFiles))) }
 }
 
-internal fun SortedSet<Section>.toExtSection(filesSource: FilesSource): List<Either<ExtSection, ExtSectionTable>> {
+internal fun SortedSet<Section>.toExtSections(filesSource: FilesSource): List<Either<ExtSection, ExtSectionTable>> {
     return groupBy { it.isTableElement() }
         .mapValues { it.value.map { Section -> Section.toExtSection(filesSource) } }
         .let { (tableSections, sections) -> sections.map { left(it) }.plus(right(ExtSectionTable(tableSections))) }

@@ -20,7 +20,8 @@ import org.junit.jupiter.api.extension.ExtendWith
 internal class ToExtTableTest(
     @MockK val filesSource: FilesSource,
     @MockK val tableExtFile: ExtFile,
-    @MockK val anotherExtFile: ExtFile) {
+    @MockK val anotherExtFile: ExtFile
+) {
 
     private val file = simpleFile.apply { tableIndex = NO_TABLE_INDEX; order = 0 }
     private val tableFile = simpleFile.apply { tableIndex = 0; order = 1 }

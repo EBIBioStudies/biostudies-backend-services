@@ -46,7 +46,7 @@ object Versions {
     const val SpringVersion = "5.1.2.RELEASE"
     const val SpringDataVersion = "2.0.9.RELEASE"
 
-    const val KotlinVersion = "1.3.40"
+    const val KotlinVersion = "1.3.41"
     const val KotlinLoggingVersion = "1.6.20"
     const val KotlinArrowVersion = "0.8.2"
     const val KotlinCoroutineVersion = "1.1.1"
