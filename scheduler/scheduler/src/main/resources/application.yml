@@ -18,7 +18,6 @@ spring:
     admin:
       client:
         url: http://biostudy-prod.ebi.ac.uk:8590
-
 management:
   endpoints:
     web:
@@ -28,5 +27,4 @@ management:
     health:
       show-details: ALWAYS
     shutdown:
-      enabled: true
-
+      enabled: false

@@ -20,11 +20,11 @@ dependencies {
     compile project(":scheduler:cluster-client")
     compile(project(":scheduler:task-properties"))
     compile(project(":commons:commons-http"))
-
-    compile(SpringBootStartedAdminClient)
+    
     compile(KotlinLogging)
     compile(SpringBootStarter)
     compile(SpringBootStarterConfigProcessor)
+    compile(SpringBootStartedAdminClient)
     compile(SpringBootStarterWeb)
 
     testCompile(BaseTestCompileDependencies)

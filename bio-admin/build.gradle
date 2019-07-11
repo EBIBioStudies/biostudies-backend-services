@@ -8,8 +8,13 @@ plugins {
     id "org.springframework.boot" version "2.1.2.RELEASE"
 }
 
+configurations {
+    compile.exclude module: 'spring-boot-starter-tomcat'
+}
+
 dependencies {
     compile(SpringBootStarterWeb)
+    compile("org.springframework.boot:spring-boot-starter-jetty")
     implementation(SpringBootStartedAdmin)
     implementation(KotlinStdLib)
 }
