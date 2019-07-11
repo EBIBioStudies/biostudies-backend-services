@@ -9,7 +9,6 @@ dependencies {
     compile(JacksonKotlin)
     compile(JacksonXml)
     compile(Woodstox)
-    compile(Gson)
     compile(Guava)
     compile(Arrow)
 
