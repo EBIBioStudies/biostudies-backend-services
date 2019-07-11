@@ -4,6 +4,7 @@ import ac.uk.ebi.biostd.persistence.model.Attribute
 import ac.uk.ebi.biostd.persistence.model.AttributeDetail
 import ac.uk.ebi.biostd.persistence.model.File
 import ac.uk.ebi.biostd.persistence.model.FileAttribute
+import ac.uk.ebi.biostd.persistence.model.Link
 import ac.uk.ebi.biostd.persistence.model.LinkAttribute
 import ac.uk.ebi.biostd.persistence.model.ReferencedFileAttribute
 import ac.uk.ebi.biostd.persistence.model.SectionAttribute
@@ -18,3 +19,4 @@ internal val nameAttribute get() = AttributeDetail(name = "Name Attribute Name",
 internal val valueAttribute get() = AttributeDetail(name = "Value Attribute Name", value = "Value Attribute Value")
 
 internal val simpleFile get() = File("fileName", 1, 55L, sortedSetOf(fileAttribute))
+internal val simpleLink get() = Link("linkUrl", 1, sortedSetOf(linkAttribute))

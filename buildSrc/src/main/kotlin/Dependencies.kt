@@ -33,10 +33,10 @@ import Versions.XmlBuilderVersion
 
 object TestVersions {
     const val AssertJVersion = "3.11.0"
-    const val JunitVersion = "5.4.0"
-    const val JunitEngineVersion = "1.2.0"
+    const val JunitVersion = "5.5.0"
+    const val JunitEngineVersion = "1.5.0"
     const val JunitExtensionsVersion = "2.3.0"
-    const val MockKVersion = "1.9"
+    const val MockKVersion = "1.9.3"
     const val XmlUnitVersion = "2.6.2"
     const val JsonAssertVersion = "2.4.0"
 }

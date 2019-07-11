@@ -47,7 +47,7 @@ class Link(
         if (other !is Link) return false
         if (this === other) return true
 
-        return Objects.equals(this.url, other.url).and(Objects.equals(this.order, this.order))
+        return Objects.equals(this.url, other.url).and(Objects.equals(this.order, other.order))
     }
 
     override fun hashCode(): Int {
