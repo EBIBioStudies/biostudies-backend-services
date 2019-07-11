@@ -14,6 +14,10 @@ internal class FileListJsonStreamDeserializer {
 
         parser.startArray()
 
-        return FileList(file.name, parser.mapFromBuilder(fileBuilder))
+        val referencedFiles = parser.mapFromBuilder(fileBuilder)
+
+        parser.close()
+
+        return FileList(file.name, referencedFiles)
     }
 }

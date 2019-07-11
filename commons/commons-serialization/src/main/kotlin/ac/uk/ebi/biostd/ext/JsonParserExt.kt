@@ -9,7 +9,7 @@ import com.fasterxml.jackson.core.JsonToken
  * Iterates over each element loaded by the parser and applies the given function until the {@link JsonToken.END_OBJECT}
  * character is found.
  *
- * @param function The function to be executed over each element.
+ * @param function The function to be applied to each element.
  */
 fun JsonParser.forEachToken(function: () -> Unit) {
     while (nextToken() != JsonToken.END_OBJECT) {
