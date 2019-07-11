@@ -9,19 +9,27 @@ import ebi.ac.uk.model.FileList
 import java.io.File
 import javax.xml.stream.XMLInputFactory
 
-internal class FileListXmlStreamDeserializer {
+internal class FileListXmlStreamDeserializer(
+    private val xmlMapper: XmlMapper = createXmlMapper()
+) {
+    companion object {
+        fun createXmlMapper(): XmlMapper {
+            val module = JacksonXmlModule().apply {
+                setDefaultUseWrapper(false)
+                addDeserializer(PageTabFile::class.java, FileXmlStreamDeserializer())
+                addDeserializer(Attribute::class.java, AttributeXmlStreamDeserializer())
+            }
+
+            return XmlMapper(module)
+        }
+    }
+
     fun deserialize(file: File): FileList {
         val referencedFiles: MutableList<PageTabFile> = mutableListOf()
         val reader = XMLInputFactory.newFactory().createXMLStreamReader(file.inputStream())
-        val module = JacksonXmlModule().apply {
-            setDefaultUseWrapper(false)
-            addDeserializer(PageTabFile::class.java, FileXmlStreamDeserializer())
-            addDeserializer(Attribute::class.java, AttributeXmlStreamDeserializer())
-        }
-        val mapper = XmlMapper(module)
 
         reader.next()
-        reader.forEach { referencedFiles.add(mapper.readValue(reader, PageTabFile::class.java)) }
+        reader.forEach { referencedFiles.add(xmlMapper.readValue(reader, PageTabFile::class.java)) }
         reader.close()
 
         return FileList(file.name, referencedFiles.toList())
