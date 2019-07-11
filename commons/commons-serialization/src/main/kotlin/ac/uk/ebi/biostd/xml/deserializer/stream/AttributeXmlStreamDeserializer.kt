@@ -1,8 +1,6 @@
 package ac.uk.ebi.biostd.xml.deserializer.stream
 
-import ac.uk.ebi.biostd.common.NAME
-import ac.uk.ebi.biostd.common.StreamDeserializerBuilder
-import ac.uk.ebi.biostd.common.VALUE
+import ac.uk.ebi.biostd.common.deserialization.stream.AttributeStreamDeserializerBuilder
 import ac.uk.ebi.biostd.ext.readFromBuilder
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind.DeserializationContext
@@ -12,8 +10,4 @@ import ebi.ac.uk.model.Attribute
 internal class AttributeXmlStreamDeserializer : StdDeserializer<Attribute>(Attribute::class.java) {
     override fun deserialize(parser: JsonParser, ctxt: DeserializationContext?) =
         parser.readFromBuilder(AttributeStreamDeserializerBuilder())
-}
-
-internal class AttributeStreamDeserializerBuilder : StreamDeserializerBuilder<Attribute>() {
-    override fun build() = Attribute(fields[NAME]!!, fields[VALUE]!!)
 }

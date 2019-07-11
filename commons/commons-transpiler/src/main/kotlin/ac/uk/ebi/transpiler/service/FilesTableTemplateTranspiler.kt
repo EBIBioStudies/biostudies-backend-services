@@ -22,8 +22,8 @@ class FilesTableTemplateTranspiler(
      * inside the folder specified by the given base columns.
      *
      * @param template The files table template content.
-     * @param baseColumns A list of the columns that will be used to readFromBuilder the path where the files are located. These
-     *        base columns should correspond to the first columns in the template.
+     * @param baseColumns A list of the columns that will be used to readFromBuilder the path where the files are
+     *      located. These base columns should correspond to the first columns in the template.
      * @param filesPath The path to the folder containing the files to be mapped.
      * @param basePath The prefix for the entries in the generated files table.
      * @param format The desired format for the generated page tab.
