@@ -10,3 +10,21 @@ pmc:
   import:
     temp:
     mongoUri:
+
+spring:
+  application:
+    name: Scheduler Prod
+  boot:
+    admin:
+      client:
+        url: http://biostudy-prod.ebi.ac.uk:8590
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: ALWAYS
+    shutdown:
+      enabled: false

@@ -3,6 +3,7 @@ include:
   - local: '/ci/submitter.yml'
   - local: '/ci/pmc-processor.yml'
   - local: '/ci/scheduler.yml'
+  - local: '/ci/bio-admin.yml'
 
 stages:
   - build-test
@@ -16,6 +17,7 @@ stages:
   - deploy-dev-scheduler
   - deploy-beta-scheduler
   - deploy-prod-scheduler
+  - deploy-bio-admin
 
 build-test:
   stage: build-test
