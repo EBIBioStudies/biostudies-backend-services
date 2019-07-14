@@ -21,7 +21,7 @@ internal class FileListJsonStreamDeserializer {
     }
 
     private fun parseFile(jp: JsonParser): RefFile {
-        require(jp.currentToken == START_OBJECT) { "expected start object character" }
+        require(jp.currentToken == START_OBJECT) { "expected start object token" }
         val fileBuilder = FileBuilder()
         while (jp.nextToken() != END_OBJECT) {
             when (jp.currentName) {
@@ -34,7 +34,7 @@ internal class FileListJsonStreamDeserializer {
     }
 
     private fun parseAttribute(jp: JsonParser): Attribute {
-        require(jp.currentToken == START_OBJECT) { "expected start array character" }
+        require(jp.currentToken == START_OBJECT) { "expected start object token" }
         val attribute = AttributeBuilder()
         while (jp.nextToken() != END_OBJECT) {
             when (jp.currentName) {
