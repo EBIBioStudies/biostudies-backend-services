@@ -1,29 +1,16 @@
 package ac.uk.ebi.biostd.ext
 
 import ac.uk.ebi.biostd.common.deserialization.stream.StreamDeserializerBuilder
-import com.fasterxml.jackson.core.JsonParseException
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.core.JsonToken
 
-/**
- * Iterates over each element loaded by the parser and applies the given function until the {@link JsonToken.END_OBJECT}
- * character is found.
- *
- * @param function The function to be applied to each element.
- */
-fun JsonParser.forEachToken(function: () -> Unit) {
-    while (nextToken() != JsonToken.END_OBJECT) {
-        function()
+internal fun <T> JsonParser.parseArray(function: (JsonParser) -> T): List<T> {
+    val elements = mutableListOf<T>()
+    require(nextToken() == JsonToken.START_ARRAY) { "expected start array character" }
+    while (nextToken() != JsonToken.END_ARRAY) {
+        elements.add(function(this))
     }
-}
-
-/**
- * Validates whether or not the element loaded in the parser is a valid array and moves the parser to the next token.
- */
-fun JsonParser.startArray() {
-    if (nextToken() != JsonToken.START_ARRAY) {
-        throw JsonParseException(this, "Arrays should start with ${JsonToken.START_ARRAY}")
-    }
+    return elements
 }
 
 /**
@@ -41,6 +28,18 @@ fun <T> JsonParser.mapFromBuilder(builder: StreamDeserializerBuilder<T>): List<T
     }
 
     return elements.toList()
+}
+
+/**
+ * Iterates over each element loaded by the parser and applies the given function until the {@link JsonToken.END_OBJECT}
+ * character is found.
+ *
+ * @param function The function to be applied to each element.
+ */
+fun JsonParser.forEachToken(function: () -> Unit) {
+    while (nextToken() != JsonToken.END_OBJECT) {
+        function()
+    }
 }
 
 /**
@@ -68,8 +67,3 @@ fun JsonParser.getCurrentFieldName(): String? {
 
     return field
 }
-
-/**
- * Returns the trimmed value of the current field.
- */
-fun JsonParser.getTrimmedText() = text.trim()

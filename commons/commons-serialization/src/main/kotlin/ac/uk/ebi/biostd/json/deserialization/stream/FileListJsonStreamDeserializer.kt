@@ -1,23 +1,48 @@
 package ac.uk.ebi.biostd.json.deserialization.stream
 
-import ac.uk.ebi.biostd.common.deserialization.stream.AttributeStreamDeserializerBuilder
-import ac.uk.ebi.biostd.ext.mapFromBuilder
-import ac.uk.ebi.biostd.ext.startArray
+import ac.uk.ebi.biostd.ext.parseArray
 import com.fasterxml.jackson.core.JsonFactory
+import com.fasterxml.jackson.core.JsonParser
+import com.fasterxml.jackson.core.JsonToken.END_OBJECT
+import com.fasterxml.jackson.core.JsonToken.START_OBJECT
+import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.FileList
+import ebi.ac.uk.model.builders.AttributeBuilder
+import ebi.ac.uk.model.builders.FileBuilder
 import java.io.File
+import ebi.ac.uk.model.File as RefFile
 
 internal class FileListJsonStreamDeserializer {
     fun deserialize(file: File): FileList {
-        val parser = JsonFactory().createParser(file)
-        val fileBuilder = FileJsonStreamDeserializerBuilder(AttributeStreamDeserializerBuilder())
+        val jp = JsonFactory().createParser(file)
+        val files = jp.parseArray { parseFile(it) }
+        jp.close()
+        return FileList(file.name, files)
+    }
 
-        parser.startArray()
+    private fun parseFile(jp: JsonParser): RefFile {
+        require(jp.currentToken == START_OBJECT) { "expected start object character" }
+        val fileBuilder = FileBuilder()
+        while (jp.nextToken() != END_OBJECT) {
+            when (jp.currentName) {
+                "path" -> fileBuilder.path = jp.nextTextValue()
+                "attributes" -> fileBuilder.attributes = jp.parseArray { parseAttribute(it) }
+                else -> IllegalArgumentException("unknown property with name ${jp.currentName}")
+            }
+        }
+        return fileBuilder.build()
+    }
 
-        val referencedFiles = parser.mapFromBuilder(fileBuilder)
-
-        parser.close()
-
-        return FileList(file.name, referencedFiles)
+    private fun parseAttribute(jp: JsonParser): Attribute {
+        require(jp.currentToken == START_OBJECT) { "expected start array character" }
+        val attribute = AttributeBuilder()
+        while (jp.nextToken() != END_OBJECT) {
+            when (jp.currentName) {
+                "name" -> attribute.name = jp.nextTextValue()
+                "value" -> attribute.value = jp.nextTextValue()
+                else -> IllegalArgumentException("unknown property with name ${jp.currentName}")
+            }
+        }
+        return attribute.build()
     }
 }

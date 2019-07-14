@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.common.deserialization.stream
 
-import ac.uk.ebi.biostd.ext.getTrimmedText
 import com.fasterxml.jackson.core.JsonParser
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.constants.AttributeFields
@@ -12,7 +11,7 @@ abstract class StreamDeserializerBuilder<T> {
     open fun loadField(fieldName: String, parser: JsonParser) {
         when (fieldName) {
             AttributeFields.ATTRIBUTE.value -> attributes.add(parser.readValueAs(Attribute::class.java))
-            else -> fields[fieldName] = parser.getTrimmedText()
+            else -> fields[fieldName] = parser.text.trim()
         }
     }
 

@@ -2,7 +2,6 @@ package ac.uk.ebi.biostd.json.deserialization.stream
 
 import ac.uk.ebi.biostd.common.deserialization.stream.AttributeStreamDeserializerBuilder
 import ac.uk.ebi.biostd.common.deserialization.stream.StreamDeserializerBuilder
-import ac.uk.ebi.biostd.ext.getTrimmedText
 import ac.uk.ebi.biostd.ext.mapFromBuilder
 import com.fasterxml.jackson.core.JsonParser
 import ebi.ac.uk.model.Attribute
@@ -16,7 +15,7 @@ internal class FileJsonStreamDeserializerBuilder(
         when (fieldName) {
             FileFields.ATTRIBUTES.value ->
                 attributes.addAll(parser.mapFromBuilder(attributeStreamDeserializerBuilder))
-            else -> fields[fieldName] = parser.getTrimmedText()
+            else -> fields[fieldName] = parser.text.trim()
         }
     }
 
