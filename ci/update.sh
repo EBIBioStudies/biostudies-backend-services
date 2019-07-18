@@ -12,7 +12,7 @@
 cd $(dirname $0)
 
 # Obtain the process id by checking any process running in the expected port
-PID=$(netstat -antp 2>/dev/null -tlnp | awk '/:'APP_PORT' */ {split($NF,a,"/"); print a[1]}')
+PID=$(netstat -antp 2>/dev/null -tlnp | awk '{print $4,$7}' | awk '/:'APP_PORT' */ {split($NF,a,"/"); print a[1]}')
 JAVA_HOME=/nfs/ma/home/java/zulu8.38.0.13-ca-jdk8.0.212-linux_x64
 
 # Kill and wait for process to be finished
