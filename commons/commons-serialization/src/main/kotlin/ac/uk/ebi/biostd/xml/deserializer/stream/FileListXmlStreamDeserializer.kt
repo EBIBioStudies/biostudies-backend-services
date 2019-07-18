@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.xml.deserializer.stream
 
-import ac.uk.ebi.biostd.ext.forEach
+import ac.uk.ebi.biostd.ext.mapList
 import com.fasterxml.jackson.dataformat.xml.JacksonXmlModule
 import com.fasterxml.jackson.dataformat.xml.XmlMapper
 import ebi.ac.uk.model.Attribute
@@ -16,6 +16,8 @@ internal class FileListXmlStreamDeserializer(
         fun createXmlMapper(): XmlMapper {
             val module = JacksonXmlModule().apply {
                 setDefaultUseWrapper(false)
+
+                // TODO fix these deserializers to properly process things
                 addDeserializer(PageTabFile::class.java, FileXmlStreamDeserializer())
                 addDeserializer(Attribute::class.java, AttributeXmlStreamDeserializer())
             }
@@ -25,13 +27,10 @@ internal class FileListXmlStreamDeserializer(
     }
 
     fun deserialize(file: File): FileList {
-        val referencedFiles: MutableList<PageTabFile> = mutableListOf()
         val reader = XMLInputFactory.newFactory().createXMLStreamReader(file.inputStream())
-
-        reader.next()
-        reader.forEach { referencedFiles.add(xmlMapper.readValue(reader, PageTabFile::class.java)) }
+        val referencedFiles = reader.mapList<PageTabFile>("files", xmlMapper)
         reader.close()
 
-        return FileList(file.name, referencedFiles.toList())
+        return FileList(file.name, referencedFiles)
     }
 }

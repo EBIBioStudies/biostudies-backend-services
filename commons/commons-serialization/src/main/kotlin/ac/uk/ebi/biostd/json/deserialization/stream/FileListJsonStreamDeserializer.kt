@@ -9,40 +9,55 @@ import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.FileList
 import ebi.ac.uk.model.builders.AttributeBuilder
 import ebi.ac.uk.model.builders.FileBuilder
+import ebi.ac.uk.model.constants.AttributeFields
+import ebi.ac.uk.model.constants.FileFields
 import java.io.File
 import ebi.ac.uk.model.File as RefFile
 
 internal class FileListJsonStreamDeserializer {
     fun deserialize(file: File): FileList {
-        val jp = JsonFactory().createParser(file)
-        val files = jp.parseArray { parseFile(it) }
-        jp.close()
+        val jsonParser = JsonFactory().createParser(file)
+        val files = jsonParser.parseArray { parseFile(it) }
+
+        jsonParser.close()
+
         return FileList(file.name, files)
     }
 
-    private fun parseFile(jp: JsonParser): RefFile {
-        require(jp.currentToken == START_OBJECT) { "expected start object token" }
+    private fun parseFile(jsonParser: JsonParser): RefFile {
+        requireStartObject(jsonParser)
         val fileBuilder = FileBuilder()
-        while (jp.nextToken() != END_OBJECT) {
-            when (jp.currentName) {
-                "path" -> fileBuilder.path = jp.nextTextValue()
-                "attributes" -> fileBuilder.attributes = jp.parseArray { parseAttribute(it) }
-                else -> IllegalArgumentException("unknown property with name ${jp.currentName}")
+
+        while (jsonParser.nextToken() != END_OBJECT) {
+            when (jsonParser.currentName) {
+                FileFields.PATH.value -> fileBuilder.path = jsonParser.nextTextValue()
+                FileFields.SIZE.value -> fileBuilder.size = jsonParser.nextLongValue(0)
+                FileFields.ATTRIBUTES.value -> fileBuilder.attributes = jsonParser.parseArray { parseAttribute(it) }
             }
         }
+
         return fileBuilder.build()
     }
 
-    private fun parseAttribute(jp: JsonParser): Attribute {
-        require(jp.currentToken == START_OBJECT) { "expected start object token" }
+    private fun parseAttribute(jsonParser: JsonParser): Attribute {
+        requireStartObject(jsonParser)
         val attribute = AttributeBuilder()
-        while (jp.nextToken() != END_OBJECT) {
-            when (jp.currentName) {
-                "name" -> attribute.name = jp.nextTextValue()
-                "value" -> attribute.value = jp.nextTextValue()
-                else -> IllegalArgumentException("unknown property with name ${jp.currentName}")
+
+        while (jsonParser.nextToken() != END_OBJECT) {
+            when (jsonParser.currentName) {
+                AttributeFields.NAME.value -> attribute.name = jsonParser.nextTextValue()
+                AttributeFields.VALUE.value -> attribute.value = jsonParser.nextTextValue()
+                else -> unknownPropertyError(jsonParser)
             }
         }
+
         return attribute.build()
+    }
+
+    private fun requireStartObject(jsonParser: JsonParser) =
+        require(jsonParser.currentToken == START_OBJECT) { "Expected start object token" }
+
+    private fun unknownPropertyError(jsonParser: JsonParser) {
+        throw IllegalArgumentException("Unknown property with name ${jsonParser.currentName}")
     }
 }

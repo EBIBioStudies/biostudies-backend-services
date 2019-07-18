@@ -24,6 +24,7 @@ class FileListJsonStreamDeserializerTest(temporaryFolder: TemporaryFolder) {
     fun beforeEach() {
         val jsonFileList = jsonArray(jsonObj {
             "path" to "file1.txt"
+            "size" to 123
             "attributes" to jsonArray(
                 jsonObj {
                     "name" to "Attr1"
@@ -55,7 +56,7 @@ class FileListJsonStreamDeserializerTest(temporaryFolder: TemporaryFolder) {
         assertThat(fileList.referencedFiles).hasSize(2)
 
         assertThat(fileList.referencedFiles.first()).isEqualTo(
-            File("file1.txt", attributes = listOf(Attribute("Attr1", "A"), Attribute("Attr2", "B"))))
+            File("file1.txt", size = 123, attributes = listOf(Attribute("Attr1", "A"), Attribute("Attr2", "B"))))
         assertThat(fileList.referencedFiles.second()).isEqualTo(
             File("file2.txt", attributes = listOf(Attribute("Attr1", "C"), Attribute("Attr2", "D"))))
     }

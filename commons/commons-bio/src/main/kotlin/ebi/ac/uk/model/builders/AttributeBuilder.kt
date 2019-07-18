@@ -3,7 +3,6 @@ package ebi.ac.uk.model.builders
 import ebi.ac.uk.model.Attribute
 
 class AttributeBuilder {
-
     var name: String? = null
     var value: String? = null
 
