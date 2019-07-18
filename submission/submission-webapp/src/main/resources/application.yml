@@ -25,3 +25,5 @@ app:
     filesDirPath: # Absolute path to the folder to be used for the user/groups files
     environment: # Current application execution environment
     requiresActivation: # Indicates whether or not, new user need activation before being used
+  notifications:
+    smtp: smtp.ebi.ac.uk
