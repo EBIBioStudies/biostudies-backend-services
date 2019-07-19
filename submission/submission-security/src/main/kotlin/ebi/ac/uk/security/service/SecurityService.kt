@@ -101,7 +101,7 @@ internal class SecurityService(
         val token = tokenRepository.findById(tokenKey)
         return when {
             token.isPresent -> Option.empty()
-            else -> securityUtil.fromToken(tokenKey).map { userRepository.getOne(it.id) }
+            else -> securityUtil.fromToken(tokenKey)
         }
     }
 
