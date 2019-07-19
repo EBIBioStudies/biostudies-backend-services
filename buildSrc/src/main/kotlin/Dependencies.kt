@@ -26,6 +26,7 @@ import Versions.Retrofit2CoroutineVersion
 import Versions.Retrofit2Version
 import Versions.RxJava2Version
 import Versions.ServletVersion
+import Versions.SpringAdminVersion
 import Versions.SpringDataVersion
 import Versions.SpringVersion
 import Versions.WoodstoxVersion
@@ -45,6 +46,7 @@ object Versions {
     const val SpringBootVersion = "2.1.2.RELEASE"
     const val SpringVersion = "5.1.2.RELEASE"
     const val SpringDataVersion = "2.0.9.RELEASE"
+    const val SpringAdminVersion = "2.1.5"
 
     const val KotlinVersion = "1.3.41"
     const val KotlinLoggingVersion = "1.6.20"
@@ -148,4 +150,7 @@ object SpringBootDependencies {
     const val SpringBootStarterConfigProcessor = "org.springframework.boot:spring-boot-configuration-processor"
     const val SpringBootStarterSecurity = "org.springframework.boot:spring-boot-starter-security"
     const val SpringBootStarterMail = "org.springframework.boot:spring-boot-starter-mail"
+    const val SpringBootStartedJetty = "org.springframework.boot:spring-boot-starter-jetty"
+    const val SpringBootStartedAdminClient = "de.codecentric:spring-boot-admin-starter-client:$SpringAdminVersion"
+    const val SpringBootStartedAdmin = "de.codecentric:spring-boot-admin-starter-server:$SpringAdminVersion"
 }

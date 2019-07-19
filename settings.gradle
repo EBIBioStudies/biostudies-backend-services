@@ -23,4 +23,5 @@ include("scheduler:cluster-client")
 include("scheduler:pmc-processor-task")
 include("scheduler:scheduler")
 include("scheduler:task-properties")
+include("bio-admin")
 

@@ -43,6 +43,18 @@ task deployScheduler {
     finalizedBy "deploy"
 }
 
+task deployBioAdmin {
+    doFirst {
+        project.ext.artifactPath = "bio-admin/build/libs"
+        project.ext.artifactName = "bio-admin-1.0.0.jar"
+        project.ext.appPort = 8590
+        project.ext.debugPort = 8205
+    }
+
+    finalizedBy "deploy"
+}
+
+
 task updatePmcArtifact {
     doFirst {
         project.ext.artifactPath = "scheduler/pmc-processor-task/build/libs"
