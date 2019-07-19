@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.persistence.mapping.extended.to
 import ac.uk.ebi.biostd.persistence.common.NO_TABLE_INDEX
 import ac.uk.ebi.biostd.persistence.mapping.extended.to.test.simpleFile
 import ac.uk.ebi.biostd.persistence.mapping.extended.to.test.simpleLink
+import ac.uk.ebi.biostd.persistence.mapping.extended.to.test.simpleSection
 import arrow.core.Either
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileTable
@@ -20,7 +21,6 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.junit.platform.engine.support.descriptor.FileSource
 
 @ExtendWith(MockKExtension::class)
 internal class ToExtTableTest {
@@ -86,7 +86,7 @@ internal class ToExtTableTest {
     @ExtendWith(MockKExtension::class)
     inner class SectionsTables {
 
-        private val fileSource = mockk<FileSource>()
+        private val fileSource = mockk<FilesSource>()
         private val simpleExtSection = mockk<ExtSection>()
         private val tableExtSection = mockk<ExtSection>()
         private val anotherTableExtSection = mockk<ExtSection>()
@@ -99,7 +99,7 @@ internal class ToExtTableTest {
 
         @Test
         fun `Sections to ExtSectionTable`() {
-            mockkStatic(TO_EXT_FILE_EXTENSIONS) {
+            mockkStatic(TO_EXT_SECTION_EXTENSIONS) {
                 every { section.toExtSection(fileSource) } returns simpleExtSection
                 every { tableSection.toExtSection(fileSource) } returns tableExtSection
                 every { anotherTableSection.toExtSection(fileSource) } returns anotherTableExtSection

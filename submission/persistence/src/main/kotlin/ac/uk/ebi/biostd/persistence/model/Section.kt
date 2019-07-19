@@ -2,7 +2,8 @@ package ac.uk.ebi.biostd.persistence.model
 
 import ac.uk.ebi.biostd.persistence.common.NO_TABLE_INDEX
 import ac.uk.ebi.biostd.persistence.converters.NullableIntConverter
-import java.util.Objects
+import java.util.Objects.equals
+import java.util.Objects.hash
 import java.util.SortedSet
 import javax.persistence.CascadeType
 import javax.persistence.Column
@@ -72,10 +73,14 @@ class Section(
     override fun equals(other: Any?) = when {
         (other !is Section) -> false
         (this === other) -> true
-        else -> Objects.equals(this.accNo, other.accNo)
+        else -> equals(id, other.id)
+            .and(equals(accNo, other.accNo))
+            .and(equals(type, other.type))
+            .and(equals(order, other.order))
+            .and(equals(tableIndex, other.tableIndex))
     }
 
     override fun hashCode(): Int {
-        return Objects.hash(this.accNo, this.accNo)
+        return hash(id, accNo, type, order, tableIndex)
     }
 }

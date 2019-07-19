@@ -7,7 +7,7 @@ import ebi.ac.uk.functions.secondsToInstant
 import ebi.ac.uk.io.FilesSource
 import java.time.ZoneOffset
 
-internal const val TO_EXT_SECTION_EXTENSIONS = "ac.uk.ebi.biostd.persistence.mapping.extended.to.ToExtSubmissionKt"
+internal const val TO_EXT_SUBMISSION_EXTENSIONS = "ac.uk.ebi.biostd.persistence.mapping.extended.to.ToExtSubmissionKt"
 
 internal fun Submission.toExtSubmission(filesSource: FilesSource): ExtSubmission {
     return ExtSubmission(
