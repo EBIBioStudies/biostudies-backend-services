@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.ext
 
-import com.fasterxml.jackson.dataformat.xml.XmlMapper
 import javax.xml.stream.XMLStreamReader
 
 /**
@@ -18,17 +17,30 @@ fun XMLStreamReader.forEach(function: () -> Unit) {
     }
 }
 
-inline fun <reified T> XMLStreamReader.mapList(listName: String, mapper: XmlMapper): List<T> {
+inline fun <reified T> XMLStreamReader.mapList(
+    listName: String, elementName: String, mapperFunction: (XMLStreamReader) -> T
+): List<T> {
+    var end = false
     val elements: MutableList<T> = mutableListOf()
 
-    next()
-    require(name.toString() == listName) { "Given list should start with $listName" }
-
-    while (hasNext()) {
-        try {
-            elements.add(mapper.readValue(this, T::class.java))
-        } catch (exception: NoSuchElementException) {
-            break
+    while (hasNext().and(end.not())) {
+        next()
+        when(eventType) {
+            XMLStreamReader.START_ELEMENT -> {
+                if (localName == listName) {
+                    while (hasNext()) {
+                        next()
+                        when(eventType) {
+                            XMLStreamReader.START_ELEMENT -> {
+                                if (localName == elementName) {
+                                    elements.add(mapperFunction(this))
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            XMLStreamReader.END_ELEMENT -> end = true
         }
     }
 
