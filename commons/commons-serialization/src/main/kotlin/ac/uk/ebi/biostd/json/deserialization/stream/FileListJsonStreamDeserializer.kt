@@ -31,7 +31,6 @@ internal class FileListJsonStreamDeserializer {
         while (jsonParser.nextToken() != END_OBJECT) {
             when (jsonParser.currentName) {
                 FileFields.PATH.value -> fileBuilder.path = jsonParser.nextTextValue()
-                FileFields.SIZE.value -> fileBuilder.size = jsonParser.nextLongValue(0)
                 FileFields.ATTRIBUTES.value -> fileBuilder.attributes = jsonParser.parseArray { parseAttribute(it) }
             }
         }

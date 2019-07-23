@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.xml.deserializer.stream
 
-import ac.uk.ebi.biostd.ext.contentAsLong
 import ac.uk.ebi.biostd.ext.contentAsString
 import ac.uk.ebi.biostd.ext.forEach
 import ac.uk.ebi.biostd.ext.map
@@ -16,7 +15,6 @@ import ebi.ac.uk.model.constants.AttributeFields.VALUE
 import ebi.ac.uk.model.constants.FileFields.ATTRIBUTES
 import ebi.ac.uk.model.constants.FileFields.FILE
 import ebi.ac.uk.model.constants.FileFields.PATH
-import ebi.ac.uk.model.constants.FileFields.SIZE
 import ebi.ac.uk.model.constants.SectionFields.FILES
 import java.io.File
 import javax.xml.stream.XMLInputFactory
@@ -42,7 +40,6 @@ internal class FileListXmlStreamDeserializer {
         reader.forEach(FILE.value) {
             when (localName) {
                 PATH.value -> file.path = contentAsString
-                SIZE.value -> file.size = contentAsLong
                 ATTRIBUTES.value -> file.attributes = reader.map(ATTRIBUTES.value) { parseAttribute(this) }
             }
         }
