@@ -1,62 +1,59 @@
 package ac.uk.ebi.biostd.ext
 
+import javax.xml.stream.XMLStreamConstants
 import javax.xml.stream.XMLStreamReader
+
+/**
+ * Executes the given function over the content of the stream reader and returns the function's returning value. After
+ * the process is finished the reader is closed.
+ *
+ * @param function The function to be applied to the stream reader
+ */
+fun <T> XMLStreamReader.use(function: (XMLStreamReader) -> T): T {
+    try {
+        return function(this)
+    } finally {
+        close()
+    }
+}
 
 /**
  * Maps the elements contained inside the list with the given name using the given mapper function.
  *
- * @param listName The name of the XML element containing the elements to be mapped
- * @param elementName The name of each of the XML element to be mapped
- * @param mapperFunction Function to be used to map the elements in the list
+ * @param name The name of the XML element containing the elements to be mapped
+ * @param function Function to be used to map the elements in the list
  */
-fun <T> XMLStreamReader.mapList(
-    listName: String,
-    elementName: String,
-    mapperFunction: (XMLStreamReader) -> T
-): List<T> {
-    val elements: MutableList<T> = mutableListOf()
+fun <T> XMLStreamReader.map(name: String, function: XMLStreamReader.() -> T): List<T> {
+    val elements = mutableListOf<T>()
+    forEach(name) { elements.add(function()) }
 
-    forEachToken(listName) {
-        forEachToken(elementName) { elements.add(mapperFunction(this)) }
-    }
-
-    return elements.toList()
+    return elements
 }
 
 /**
- * Process the XML with the given name using the given function.
+ * Finds the elements with the given name and applies the given function to each one.
  *
- * @param function The function to be applied to the named element.
+ * @param name The name of the XML element
+ * @param function The function to be applied to each element
  */
-fun XMLStreamReader.forEachToken(elementName: String, function: (XMLStreamReader) -> Unit) {
+fun XMLStreamReader.forEach(name: String, function: XMLStreamReader.() -> Unit) {
+    require(eventType == XMLStreamConstants.START_ELEMENT && localName == name) { "Expected start object $name" }
+
     while (hasNext()) {
-        next()
-        when (eventType) {
-            XMLStreamReader.START_ELEMENT -> {
-                if (localName == elementName) {
-                    function(this)
-                }
-            }
-        }
+        if (next() == XMLStreamConstants.END_ELEMENT && localName == name) break
+        if (isWhiteSpace) continue
+        function()
     }
+
+    require(eventType == XMLStreamConstants.END_ELEMENT && localName == name) { "Expected end object $name" }
 }
 
 /**
- * Applies the given function to the reader's current element.
- *
- * @param function The function to be applied to the element.
+ * The current element text as a trimmed string
  */
-fun XMLStreamReader.processCurrentElement(function: (XMLStreamReader) -> Unit) {
-    var end = false
+val XMLStreamReader.contentAsString: String get() = elementText.trim()
 
-    while (hasNext().and(end.not())) {
-        next()
-        when (eventType) {
-            XMLStreamReader.START_ELEMENT -> {
-                function(this)
-            }
-
-            XMLStreamReader.END_ELEMENT -> end = true
-        }
-    }
-}
+/**
+ * The current element text as Long
+ */
+val XMLStreamReader.contentAsLong: Long get() = elementText.toLong()

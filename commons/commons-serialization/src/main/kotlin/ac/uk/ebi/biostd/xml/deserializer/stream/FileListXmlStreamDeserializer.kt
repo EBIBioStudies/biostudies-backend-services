@@ -1,52 +1,62 @@
 package ac.uk.ebi.biostd.xml.deserializer.stream
 
-import ac.uk.ebi.biostd.ext.processCurrentElement
-import ac.uk.ebi.biostd.ext.mapList
+import ac.uk.ebi.biostd.ext.contentAsLong
+import ac.uk.ebi.biostd.ext.contentAsString
+import ac.uk.ebi.biostd.ext.forEach
+import ac.uk.ebi.biostd.ext.map
+import ac.uk.ebi.biostd.ext.use
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.File as PageTabFile
 import ebi.ac.uk.model.FileList
 import ebi.ac.uk.model.builders.AttributeBuilder
 import ebi.ac.uk.model.builders.FileBuilder
-import ebi.ac.uk.model.constants.AttributeFields
-import ebi.ac.uk.model.constants.FileFields
-import ebi.ac.uk.model.constants.SectionFields
+import ebi.ac.uk.model.constants.AttributeFields.ATTRIBUTE
+import ebi.ac.uk.model.constants.AttributeFields.NAME
+import ebi.ac.uk.model.constants.AttributeFields.VALUE
+import ebi.ac.uk.model.constants.FileFields.ATTRIBUTES
+import ebi.ac.uk.model.constants.FileFields.FILE
+import ebi.ac.uk.model.constants.FileFields.PATH
+import ebi.ac.uk.model.constants.FileFields.SIZE
+import ebi.ac.uk.model.constants.SectionFields.FILES
 import java.io.File
 import javax.xml.stream.XMLInputFactory
+import javax.xml.stream.XMLStreamConstants.START_ELEMENT
 import javax.xml.stream.XMLStreamReader
 
 internal class FileListXmlStreamDeserializer {
     fun deserialize(file: File): FileList {
         val reader = XMLInputFactory.newFactory().createXMLStreamReader(file.inputStream())
-        val referencedFiles = reader.mapList(SectionFields.FILES.value, FileFields.FILE.value) { parseFile(it) }
 
-        reader.close()
+        return FileList(file.name, reader.use(this::parseFiles))
+    }
 
-        return FileList(file.name, referencedFiles)
+    private fun parseFiles(reader: XMLStreamReader): List<PageTabFile> {
+        while (reader.hasNext() && (reader.eventType != START_ELEMENT || reader.localName != FILES.value)) reader.next()
+
+        return reader.map(FILES.value) { parseFile(this) }
     }
 
     private fun parseFile(reader: XMLStreamReader): PageTabFile {
-        val fileBuilder = FileBuilder()
-        val attributes: MutableList<Attribute> = mutableListOf()
+        val file = FileBuilder()
 
-        reader.processCurrentElement {
-            when (reader.localName) {
-                FileFields.PATH.value -> fileBuilder.path = reader.elementText.trim()
-                AttributeFields.ATTRIBUTE.value -> attributes.add(parseAttribute(reader))
+        reader.forEach(FILE.value) {
+            when (localName) {
+                PATH.value -> file.path = contentAsString
+                SIZE.value -> file.size = contentAsLong
+                ATTRIBUTES.value -> file.attributes = reader.map(ATTRIBUTES.value) { parseAttribute(this) }
             }
         }
 
-        fileBuilder.attributes = attributes.toList()
-
-        return fileBuilder.build()
+        return file.build()
     }
 
     private fun parseAttribute(reader: XMLStreamReader): Attribute {
         val attributeBuilder = AttributeBuilder()
 
-        reader.processCurrentElement {
-            when (reader.localName) {
-                AttributeFields.NAME.value -> attributeBuilder.name = reader.elementText.trim()
-                AttributeFields.VALUE.value -> attributeBuilder.value = reader.elementText.trim()
+        reader.forEach(ATTRIBUTE.value) {
+            when (localName) {
+                NAME.value -> attributeBuilder.name = contentAsString
+                VALUE.value -> attributeBuilder.value = contentAsString
             }
         }
 
