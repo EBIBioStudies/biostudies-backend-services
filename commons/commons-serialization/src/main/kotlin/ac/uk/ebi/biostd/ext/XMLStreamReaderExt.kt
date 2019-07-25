@@ -52,8 +52,3 @@ fun XMLStreamReader.forEach(name: String, function: XMLStreamReader.() -> Unit) 
  * The current element text as a trimmed string
  */
 val XMLStreamReader.contentAsString: String get() = elementText.trim()
-
-/**
- * The current element text as Long
- */
-val XMLStreamReader.contentAsLong: Long get() = elementText.toLong()
