@@ -25,6 +25,7 @@ task deploySubmitter {
     doFirst {
         project.ext.artifactPath = "submission/submission-webapp/build/libs"
         project.ext.artifactName = "submission-webapp-1.0.0.jar"
+        project.ext.jvmParams = "-Xmx1g"
         project.ext.appPort = 8788
         project.ext.debugPort = 8003
     }
@@ -36,6 +37,7 @@ task deployScheduler {
     doFirst {
         project.ext.artifactPath = "scheduler/scheduler/build/libs"
         project.ext.artifactName = "scheduler-1.0.0.jar"
+        project.ext.jvmParams = "-Xmx1g"
         project.ext.appPort = 8689
         project.ext.debugPort = 8104
     }
@@ -47,6 +49,7 @@ task deployBioAdmin {
     doFirst {
         project.ext.artifactPath = "bio-admin/build/libs"
         project.ext.artifactName = "bio-admin-1.0.0.jar"
+        project.ext.jvmParams = "-Xmx1g"
         project.ext.appPort = 8590
         project.ext.debugPort = 8205
     }
