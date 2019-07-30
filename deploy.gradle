@@ -87,7 +87,6 @@ task deploy {
                 } else {
                     execute "sed -i -e 's~JVM_PARAMS~~g' $deployPath/update.sh"
                 }
-                
 
                 execute "chmod +x $deployPath/update.sh"
                 execute "sh $deployPath/update.sh"
