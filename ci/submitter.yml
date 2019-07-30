@@ -17,7 +17,7 @@ deploy-beta-submitter:
   when: manual
   dependencies:
     - build-submitter
-  script: gradle deploySubmitter -Penv=beta -PdeployPath=/nfs/biostudies/.adm/apps/submitter/beta -PjvmParams=-Xmx2g
+  script: gradle deploySubmitter --stacktrace -Penv=beta -PdeployPath=/nfs/biostudies/.adm/apps/submitter/beta -PjvmParams=-Xmx2g
 
 deploy-prod-submitter:
   stage: deploy-prod-submitter
