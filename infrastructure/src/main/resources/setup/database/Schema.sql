@@ -159,7 +159,7 @@ CREATE TABLE Submission (
     version        INT          NOT NULL,
     owner_id       BIGINT       NULL,
     rootSection_id BIGINT       NULL,
-    secretKey      VARCHAR(255) NULL,
+    secretKey      VARCHAR(255) NOT NULL,
     CONSTRAINT Submission_accNo_version_UNQ UNIQUE (accNo, version),
     CONSTRAINT Submission_RootSection_FRG_KEY FOREIGN KEY (rootSection_id) REFERENCES Section (id) ON DELETE SET NULL
 );
