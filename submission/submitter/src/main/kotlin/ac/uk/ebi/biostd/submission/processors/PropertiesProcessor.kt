@@ -13,7 +13,6 @@ class PropertiesProcessor : SubmissionProcessor {
         when (context.isNew(submission)) {
             true -> {
                 submission.secretKey = UUID.randomUUID().toString()
-                submission.released = false
                 submission.version = 1
             }
         }

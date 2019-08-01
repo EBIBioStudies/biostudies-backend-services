@@ -20,12 +20,19 @@ internal class SubmissionAssertHelper(private val basePath: String) {
         assertThat(submission).hasAccNo(accNo)
         assertThat(submission).hasExactlyAttributes(
             Attribute("Title", "venous blood, Monocyte"), Attribute("ReleaseDate", "2021-02-12"))
+        assertRelease(submission)
 
         val rootSection = submission.section
         assertSections(rootSection)
         assertLinks(rootSection)
         assertDataFiles(rootSection, submission.relPath)
         assertSubmissionFiles(submission)
+    }
+
+    private fun assertRelease(submission: ExtendedSubmission) {
+        assertThat(submission.released).isTrue()
+        assertThat(submission.accessTags).hasSize(1)
+        assertThat(submission.accessTags.first()).isEqualTo("Public")
     }
 
     private fun assertSections(rootSection: Section) {
