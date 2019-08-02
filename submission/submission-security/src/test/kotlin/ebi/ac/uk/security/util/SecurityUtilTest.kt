@@ -1,6 +1,10 @@
 package ebi.ac.uk.security.util
 
+import ac.uk.ebi.biostd.persistence.model.SecurityToken
+import ac.uk.ebi.biostd.persistence.model.User
+import ac.uk.ebi.biostd.persistence.repositories.TokenDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
+import arrow.core.Option
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.commons.http.JacksonFactory
 import ebi.ac.uk.security.test.SecurityTestEntities
@@ -10,16 +14,21 @@ import io.jsonwebtoken.Jwts
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
+import io.mockk.mockk
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import java.util.Optional
 
 private const val tokenHash = "ABC123"
 
 @ExtendWith(MockKExtension::class)
-class SecurityUtilTest(@MockK val userRepository: UserDataRepository) {
-    private val testInstance = SecurityUtil(Jwts.parser(), JacksonFactory.createMapper(), userRepository, tokenHash)
+class SecurityUtilTest(
+    @MockK val userRepository: UserDataRepository,
+    @MockK val tokenRepository: TokenDataRepository) {
+    private val testInstance =
+        SecurityUtil(Jwts.parser(), JacksonFactory.createMapper(), tokenRepository, userRepository, tokenHash)
 
     @Nested
     inner class TokenCases {
@@ -38,7 +47,7 @@ class SecurityUtilTest(@MockK val userRepository: UserDataRepository) {
 
         @Test
         fun `from token when invalid signature`() {
-            val securityUtil = SecurityUtil(Jwts.parser(), JacksonFactory.createMapper(), userRepository, "another_hash")
+            val securityUtil = SecurityUtil(Jwts.parser(), JacksonFactory.createMapper(), tokenRepository, userRepository, "another_hash")
 
             assertThat(testInstance.fromToken(securityUtil.createToken(simpleUser))).isEmpty()
         }
@@ -73,6 +82,30 @@ class SecurityUtilTest(@MockK val userRepository: UserDataRepository) {
         @Test
         fun getPasswordDigest() {
             assertThat(testInstance.getPasswordDigest("abc")).isNotEmpty()
+        }
+    }
+
+
+    @Nested
+    inner class CheckToken {
+        private val securityToken = mockk<SecurityToken>()
+        private val user = mockk<User>()
+
+        @Test
+        fun `check when is not in black list`() {
+            val myToken = "acb123"
+            every { tokenRepository.findById(myToken) } returns Optional.of(securityToken)
+
+            assertThat(testInstance.checkToken(myToken)).isEmpty()
+        }
+
+        @Test
+        fun `check when exist`() {
+            val myToken = "acb123"
+
+            every { tokenRepository.findById(myToken) } returns Optional.empty()
+            every { testInstance.fromToken(myToken) } returns Option.just(user)
+            assertThat(testInstance.checkToken(myToken)).contains(user)
         }
     }
 }

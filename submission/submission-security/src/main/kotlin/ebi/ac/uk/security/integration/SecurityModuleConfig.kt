@@ -36,11 +36,11 @@ class SecurityModuleConfig(
 
     private val groupService: GroupService by lazy { GroupService(groupRepository, userRepository) }
     private val securityService: SecurityService
-        by lazy { SecurityService(userRepository, tokenRepository, securityUtil, props, profileService) }
+        by lazy { SecurityService(userRepository, securityUtil, props, profileService) }
     private val securityFilter: SecurityFilter
-        by lazy { SecurityFilter(props.environment, securityService, profileService) }
+        by lazy { SecurityFilter(props.environment, securityService) }
 
-    private val securityUtil by lazy { SecurityUtil(jwtParser, objectMapper, userRepository, props.tokenHash) }
+    private val securityUtil by lazy { SecurityUtil(jwtParser, objectMapper, tokenRepository, userRepository, props.tokenHash) }
     private val objectMapper by lazy { JacksonFactory.createMapper() }
     private val jwtParser by lazy { Jwts.parser()!! }
     private val profileService by lazy { ProfileService(Paths.get(props.filesDirPath)) }

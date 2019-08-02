@@ -1,13 +1,9 @@
 package ebi.ac.uk.security.service
 
-import ac.uk.ebi.biostd.persistence.model.SecurityToken
 import ac.uk.ebi.biostd.persistence.model.User
-import ac.uk.ebi.biostd.persistence.repositories.TokenDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
-import arrow.core.Option
 import ebi.ac.uk.api.security.ChangePasswordRequest
 import ebi.ac.uk.api.security.LoginRequest
-import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.security.events.Events
 import ebi.ac.uk.security.integration.SecurityProperties
 import ebi.ac.uk.security.integration.exception.ActKeyNotFoundException
@@ -34,7 +30,6 @@ import ebi.ac.uk.security.util.SecurityUtil
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
-import io.mockk.mockk
 import io.reactivex.observers.TestObserver
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
@@ -51,13 +46,12 @@ private val PASSWORD_DIGGEST: ByteArray = ByteArray(0)
 @ExtendWith(MockKExtension::class)
 internal class SecurityServiceTest(
     @MockK private val userRepository: UserDataRepository,
-    @MockK private val tokenRepository: TokenDataRepository,
     @MockK private val securityProps: SecurityProperties,
     @MockK private val securityUtil: SecurityUtil,
     @MockK private val profileService: ProfileService
 ) {
     private val testInstance: SecurityService =
-        SecurityService(userRepository, tokenRepository, securityUtil, securityProps, profileService)
+        SecurityService(userRepository, securityUtil, securityProps, profileService)
 
     @Nested
     inner class Login {
@@ -261,30 +255,6 @@ internal class SecurityServiceTest(
                 assertThat(it.user).isEqualTo(simpleUser)
                 assertThat(it.activationLink).isEqualTo(instanceUrl)
             }
-        }
-    }
-
-    @Nested
-    inner class CheckToken {
-
-        private val securityToken = mockk<SecurityToken>()
-        private val user = mockk<User>()
-
-        @Test
-        fun `check when is not in black list`() {
-            val myToken = "acb123"
-            every { tokenRepository.findById(myToken) } returns Optional.of(securityToken)
-
-            assertThat(testInstance.checkToken(myToken)).isEmpty()
-        }
-
-        @Test
-        fun `check when exist`() {
-            val myToken = "acb123"
-
-            every { tokenRepository.findById(myToken) } returns Optional.empty()
-            every { securityUtil.fromToken(myToken) } returns Option.just(user)
-            assertThat(testInstance.checkToken(myToken)).contains(user)
         }
     }
 }
