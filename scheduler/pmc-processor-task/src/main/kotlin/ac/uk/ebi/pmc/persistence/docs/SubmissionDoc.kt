@@ -28,7 +28,6 @@ data class SubmissionDoc(
     }
 
     companion object Fields {
-        const val _id = "_id"
         const val accNo = "accno"
         const val status = "status"
         const val posInFile = "posInFile"

@@ -42,7 +42,6 @@ class SubmissionRepository(private val submissions: MongoCollection<SubmissionDo
         eq(SubmissionDoc.status, status.name),
         combine(set(SubmissionDoc.status, newStatus.name), set(SubmissionDoc.updated, Instant.now())))
 
-
     private fun expireSubmissions(accNo: String, sourceTime: Instant, posInFile: Int) =
         and(eq(SubmissionDoc.accNo, accNo), or(
             lt(SubmissionDoc.sourceTime, sourceTime),
