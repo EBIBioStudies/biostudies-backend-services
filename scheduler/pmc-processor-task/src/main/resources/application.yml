@@ -7,3 +7,4 @@ app:
     bio-studies-url: # URL pointing to the BioStudies instance where the data will be submitted
     bio-studies-user: # User under whom the submissions will be made
     bio-studies-password: # Password for the specified user
+    notificationsUrl: # URL for the notifications system
