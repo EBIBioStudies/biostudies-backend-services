@@ -1,7 +1,5 @@
 package ac.uk.ebi.pmc.persistence.docs
 
-import com.mongodb.client.model.Updates
-import org.bson.conversions.Bson
 import org.bson.types.ObjectId
 import java.time.Instant
 
@@ -16,7 +14,6 @@ data class SubmissionDoc(
     var files: List<ObjectId> = emptyList(),
     var updated: Instant = Instant.now()
 ) {
-
     val _id: ObjectId? = null
 
     fun withStatus(status: SubmissionStatus): SubmissionDoc {
@@ -30,26 +27,19 @@ data class SubmissionDoc(
         return this
     }
 
-    fun asInsertOrExpire(): Bson = Updates.combine(
-        Updates.setOnInsert(Fields.accNo, accno),
-        Updates.setOnInsert(Fields.body, body),
-        Updates.setOnInsert(Fields.sourceFile, sourceFile),
-        Updates.setOnInsert(Fields.posInFile, posInFile),
-        Updates.setOnInsert(Fields.sourceTime, sourceTime),
-        Updates.setOnInsert(Fields.status, status),
-        Updates.setOnInsert(Fields.updated, updated)
-    )
-
     companion object Fields {
+        const val _id = "_id"
         const val accNo = "accno"
-        const val body = "body"
         const val status = "status"
-        const val sourceFile = "sourceFile"
         const val posInFile = "posInFile"
         const val sourceTime = "sourceTime"
         const val updated = "updated"
-        const val files = "files"
     }
+
+    fun isNewerOrEqual(other: SubmissionDoc) =
+        (other.accno == accno)
+            .and((other.sourceTime > sourceTime)
+                .or((other.sourceTime == sourceTime).and(other.posInFile >= posInFile)))
 }
 
 enum class SubmissionStatus {

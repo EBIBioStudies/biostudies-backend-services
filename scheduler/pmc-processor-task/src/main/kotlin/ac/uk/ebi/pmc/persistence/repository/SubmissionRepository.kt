@@ -6,33 +6,35 @@ import ac.uk.ebi.pmc.persistence.ext.findOneAndUpdate
 import com.mongodb.async.client.MongoCollection
 import com.mongodb.client.model.Filters.and
 import com.mongodb.client.model.Filters.eq
-import com.mongodb.client.model.Filters.gt
-import com.mongodb.client.model.Filters.gte
 import com.mongodb.client.model.Filters.lt
 import com.mongodb.client.model.Filters.or
-import com.mongodb.client.model.FindOneAndUpdateOptions
-import com.mongodb.client.model.ReturnDocument
+import com.mongodb.client.model.Sorts.descending
+import com.mongodb.client.model.Sorts.orderBy
 import com.mongodb.client.model.Updates.combine
 import com.mongodb.client.model.Updates.set
 import org.litote.kmongo.SetTo
+import org.litote.kmongo.coroutine.first
+import org.litote.kmongo.coroutine.insertOne
 import org.litote.kmongo.coroutine.updateMany
 import org.litote.kmongo.coroutine.updateOne
 import java.time.Instant
 
 class SubmissionRepository(private val submissions: MongoCollection<SubmissionDoc>) {
-
     suspend fun insertOrExpire(submission: SubmissionDoc) {
-        val latest = getLatest(submission)
+        getLatest(submission)?.let { if (submission.isNewerOrEqual(it)) submission.status = SubmissionStatus.DISCARDED }
+        submissions.insertOne(submission)
+
+        val latest = getLatest(submission)!!
+
         submissions.updateMany(
             expireSubmissions(latest.accno, latest.sourceTime, latest.posInFile),
             SetTo(SubmissionDoc::status, SubmissionStatus.DISCARDED))
     }
 
     private suspend fun getLatest(submission: SubmissionDoc) =
-        submissions.findOneAndUpdate(
-            latest(submission.accno, submission.sourceTime, submission.posInFile),
-            submission.asInsertOrExpire(),
-            FindOneAndUpdateOptions().upsert(true).returnDocument(ReturnDocument.AFTER))!!
+        submissions
+            .find(eq(SubmissionDoc.accNo, submission.accno))
+            .sort(orderBy(descending(SubmissionDoc.sourceTime), descending(SubmissionDoc.posInFile))).first()
 
     suspend fun update(submissionDoc: SubmissionDoc) = submissions.updateOne(submissionDoc)
 
@@ -40,10 +42,6 @@ class SubmissionRepository(private val submissions: MongoCollection<SubmissionDo
         eq(SubmissionDoc.status, status.name),
         combine(set(SubmissionDoc.status, newStatus.name), set(SubmissionDoc.updated, Instant.now())))
 
-    private fun latest(accNo: String, sourceTime: Instant, posInFile: Int) =
-        and(eq(SubmissionDoc.accNo, accNo), or(
-            gte(SubmissionDoc.sourceTime, sourceTime),
-            and(eq(SubmissionDoc.sourceTime, sourceTime), gt(SubmissionDoc.posInFile, posInFile))))
 
     private fun expireSubmissions(accNo: String, sourceTime: Instant, posInFile: Int) =
         and(eq(SubmissionDoc.accNo, accNo), or(
