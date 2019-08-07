@@ -13,7 +13,7 @@ fun allInOneSubmissionTsv(accNo: String) = tsv {
     line("# All in one submission")
     line("Submission", accNo)
     line("Title", "venous blood, Monocyte")
-    line("ReleaseDate", "2018-02-12")
+    line("ReleaseDate", "2021-02-12")
     line()
 
     line("Study", "SECT-001")

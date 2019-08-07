@@ -11,7 +11,6 @@ class PropertiesProcessor : SubmissionProcessor {
     override fun process(submission: ExtendedSubmission, context: PersistenceContext) {
         if (context.isNew(submission)) {
             submission.secretKey = UUID.randomUUID().toString()
-            submission.released = false
             submission.version = 1
         }
     }

@@ -15,8 +15,12 @@ import ac.uk.ebi.biostd.itest.factory.allInOneSubmissionTsv
 import ac.uk.ebi.biostd.itest.factory.allInOneSubmissionXml
 import ac.uk.ebi.biostd.itest.factory.invalidLinkUrl
 import ac.uk.ebi.biostd.itest.factory.simpleSubmissionTsv
+import ac.uk.ebi.biostd.persistence.model.AccessTag
+import ac.uk.ebi.biostd.persistence.repositories.TagsDataRepository
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
 import ebi.ac.uk.api.security.RegisterRequest
+import ebi.ac.uk.dsl.line
+import ebi.ac.uk.dsl.tsv
 import ebi.ac.uk.model.extensions.title
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
@@ -45,8 +49,10 @@ internal class SubmissionTest(private val tempFolder: TemporaryFolder) : BaseInt
     @Import(value = [TestConfig::class, SubmitterConfig::class, PersistenceConfig::class, FileConfig::class])
     @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
     @DirtiesContext
-    inner class SingleSubmissionTest(@Autowired val submissionRepository: SubmissionRepository) {
-
+    inner class SingleSubmissionTest(
+        @Autowired val tagsDataRepository: TagsDataRepository,
+        @Autowired val submissionRepository: SubmissionRepository
+    ) {
         @LocalServerPort
         private var serverPort: Int = 0
 
@@ -67,6 +73,8 @@ internal class SubmissionTest(private val tempFolder: TemporaryFolder) : BaseInt
             webClient.uploadFiles(listOf(tempFolder.createFile("DataFile1.txt"), tempFolder.createFile("DataFile2.txt")))
             webClient.uploadFiles(listOf(tempFolder.createFile("Folder1/DataFile3.txt")), "Folder1")
             webClient.uploadFiles(listOf(tempFolder.createFile("Folder1/Folder2/DataFile4.txt")), "Folder1/Folder2")
+
+            tagsDataRepository.save(AccessTag(name = "Public"))
         }
 
         @Test
@@ -113,6 +121,27 @@ internal class SubmissionTest(private val tempFolder: TemporaryFolder) : BaseInt
             assertThat(resubmitResponse).isNotNull
             assertThat(resubmitResponse.statusCode).isEqualTo(HttpStatus.OK)
             assertExtSubmission(accNo, title, 2)
+        }
+
+        @Test
+        fun `new submission with past release date`() {
+            val pageTab = tsv {
+                line("Submission", "S-RLSD123")
+                line("Title", "Test Public Submission")
+                line("ReleaseDate", "2000-01-31")
+                line()
+            }.toString()
+
+            val response = webClient.submitSingle(pageTab, SubmissionFormat.TSV)
+            assertThat(response).isNotNull
+            assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
+
+            val submission = submissionRepository.getExtendedByAccNo("S-RLSD123")
+            assertThat(submission.accNo).isEqualTo("S-RLSD123")
+            assertThat(submission.title).isEqualTo("Test Public Submission")
+            assertThat(submission.released).isTrue()
+            assertThat(submission.accessTags).hasSize(1)
+            assertThat(submission.accessTags.first()).isEqualTo("Public")
         }
 
         @Test
