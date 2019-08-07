@@ -75,7 +75,7 @@ open class PersistenceContextImpl(
         return true
     }
 
-    override fun isNew(submission: ExtendedSubmission) = subRepository.existsByAccNo(submission.accNo)
+    override fun isNew(submission: ExtendedSubmission) = subRepository.existsByAccNo(submission.accNo).not()
 
     private fun getParentSubmission(submission: Submission) =
         submission.find(ATTACH_TO).toOption().map { subRepository.getByAccNoAndVersionGreaterThan(it) }

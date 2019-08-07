@@ -8,13 +8,11 @@ import java.util.UUID
  * Calculate and set general purpose properties values as submission title and submission secret.
  */
 class PropertiesProcessor : SubmissionProcessor {
-
     override fun process(submission: ExtendedSubmission, context: PersistenceContext) {
-        when (context.isNew(submission)) {
-            true -> {
-                submission.secretKey = UUID.randomUUID().toString()
-                submission.version = 1
-            }
+        if (context.isNew(submission)) {
+            submission.secretKey = UUID.randomUUID().toString()
+            submission.released = false
+            submission.version = 1
         }
     }
 }
