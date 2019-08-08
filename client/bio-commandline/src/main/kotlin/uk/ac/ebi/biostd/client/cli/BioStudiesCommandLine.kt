@@ -8,6 +8,8 @@ import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.file
 import ebi.ac.uk.base.isNotBlank
+import ebi.ac.uk.io.isExcel
+import ebi.ac.uk.util.file.ExcelReader
 import org.json.JSONObject
 import org.springframework.web.client.ResourceAccessException
 import org.springframework.web.client.RestClientResponseException
@@ -15,6 +17,7 @@ import java.io.File
 
 const val FILES_SEPARATOR = ','
 const val FILES_NOT_FOUND_ERROR_MSG = "Some of the given files were not found"
+const val EXCEL_NOT_ALLOWED_ERROR_MSG = "Excel files are only allowed for TSV format"
 
 class BioStudiesCommandLine : CliktCommand(name = "PTSubmit") {
     private val server by option("-s", "--server", help = "BioStudies host url").required()
@@ -37,8 +40,9 @@ class BioStudiesCommandLine : CliktCommand(name = "PTSubmit") {
             }
 
             val client = getClient(server, user, password)
-            val submission =
-                client.submitSingle(input!!.readText(), SubmissionFormat.valueOf(format.toUpperCase()), files).body!!
+            val subFormat = SubmissionFormat.valueOf(format.toUpperCase())
+            val fileContent = readFileContent(input!!, subFormat)
+            val submission = client.submitSingle(fileContent, subFormat, files).body!!
 
             echo("SUCCESS: Submission with AccNo ${submission.accNo} was submitted")
         } catch (exception: Exception) {
@@ -66,6 +70,15 @@ class BioStudiesCommandLine : CliktCommand(name = "PTSubmit") {
 
         if (file.isDirectory) file.walk().filter { it.isFile }.forEach { files.add(it) }
         else files.add(file)
+    }
+
+    private fun readFileContent(file: File, format: SubmissionFormat) =
+        if (file.isExcel()) readExcelContent(file, format) else file.readText()
+
+    private fun readExcelContent(file: File, format: SubmissionFormat): String {
+        if (format != SubmissionFormat.TSV) throw PrintMessage(EXCEL_NOT_ALLOWED_ERROR_MSG)
+
+        return ExcelReader().readContentAsTsv(file)
     }
 }
 
