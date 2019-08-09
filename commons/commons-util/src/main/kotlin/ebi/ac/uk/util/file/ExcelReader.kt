@@ -1,32 +1,46 @@
 package ebi.ac.uk.util.file
 
+import ebi.ac.uk.dsl.Tsv
+import ebi.ac.uk.dsl.TsvLine
+import org.apache.poi.ss.usermodel.Cell
+import org.apache.poi.xssf.usermodel.XSSFRow
+import org.apache.poi.xssf.usermodel.XSSFSheet
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import java.io.File
-import java.lang.StringBuilder
 
 class ExcelReader {
     fun readContentAsTsv(file: File): String {
         val sheet = XSSFWorkbook(file.inputStream()).getSheetAt(0)
-        val tsv = StringBuilder()
+        val tsvLines = sheet.map(
+            { TsvLine( it.map { cell -> cell.stringCellValue } ) },
+            { TsvLine() })
 
-        (0..sheet.lastRowNum).forEach {
-            val row = sheet.getRow(it)
-            if (row == null) {
-                tsv.append("\n")
-            } else {
-                val cells = row.iterator()
-                if (cells.hasNext()) {
-                    while (cells.hasNext()) {
-                        tsv.append(cells.next().stringCellValue)
-                        if (cells.hasNext()) tsv.append("\t")
-                    }
-                } else {
-                    tsv.append("\n")
-                }
-            }
-            tsv.append("\n")
-        }
-
-        return tsv.toString()
+        return Tsv(tsvLines).toString()
     }
+}
+
+// TODO move extensions to separated file
+// TODO add docs
+// TODO fix problem for numeric values
+fun <T> XSSFSheet.map(function: (row: XSSFRow) -> T, emptyRowFunction: () -> T): MutableList<T> {
+    val elements: MutableList<T> = mutableListOf()
+
+    (0..lastRowNum).forEach {
+        val row = getRow(it)
+        if (row == null) {
+            elements.add(emptyRowFunction())
+        } else {
+            elements.add(function(row))
+        }
+    }
+
+    return elements
+}
+
+fun <T> XSSFRow.map(function: (cell: Cell) -> T): MutableList<T> {
+    val elements: MutableList<T> = mutableListOf()
+
+    iterator().forEach { elements.add(function(it)) }
+
+    return elements
 }
