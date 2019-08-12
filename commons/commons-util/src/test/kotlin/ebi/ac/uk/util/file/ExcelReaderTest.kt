@@ -19,6 +19,7 @@ class ExcelReaderTest {
 
             line("Study", "SECT-001")
             line("An Attr", "A Value")
+            line("Numeric Attr", "123")
             line()
 
             line("File", "SomeFile.txt")

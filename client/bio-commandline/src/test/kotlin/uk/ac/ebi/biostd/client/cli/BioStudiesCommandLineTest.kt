@@ -6,6 +6,7 @@ import com.github.ajalt.clikt.core.IncorrectOptionValueCount
 import com.github.ajalt.clikt.core.MissingParameter
 import com.github.ajalt.clikt.core.PrintMessage
 import ebi.ac.uk.model.Submission
+import ebi.ac.uk.util.file.ExcelReader
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.clearAllMocks
@@ -13,6 +14,7 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.impl.annotations.SpyK
 import io.mockk.junit5.MockKExtension
+import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -22,21 +24,26 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.http.ResponseEntity
 import org.springframework.web.client.ResourceAccessException
 import org.springframework.web.client.RestClientResponseException
+import java.io.File
 import java.io.IOException
 
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
 class BioStudiesCommandLineTest(
     private val temporaryFolder: TemporaryFolder,
+    @MockK private val mockExcelReader: ExcelReader,
     @MockK private val mockWebClient: BioWebClient
 ) {
     @SpyK
-    private var testInstance = BioStudiesCommandLine()
+    private var testInstance = BioStudiesCommandLine(mockExcelReader)
 
+    private lateinit var excelFile: File
     private lateinit var rootFolder: String
 
     @BeforeEach
     fun setUp() {
         rootFolder = temporaryFolder.root.absolutePath
+        excelFile = temporaryFolder.createFile("ExcelSubmission.xlsx")
+
         temporaryFolder.createFile("Submission.tsv")
         temporaryFolder.createDirectory("attachments")
         temporaryFolder.createDirectory("attachments/inner")
@@ -45,6 +52,7 @@ class BioStudiesCommandLineTest(
         val libFile = temporaryFolder.createFile("FileList.tsv")
         val refFile = temporaryFolder.createFile("attachments/inner/RefFile.txt")
 
+        every { mockExcelReader.readContentAsTsv(excelFile) } returns ""
         every { mockWebClient.submitSingle("", SubmissionFormat.TSV, listOf()) } returns mockResponse
         every { testInstance.getClient("http://localhost:8080", "user", "123456") } returns mockWebClient
         every { mockWebClient.submitSingle("", SubmissionFormat.TSV, listOf(libFile, refFile)) } returns mockResponse
@@ -93,6 +101,34 @@ class BioStudiesCommandLineTest(
 
         val exceptionMessage = assertThrows<PrintMessage> { testInstance.parse(args) }.message
         assertThat(exceptionMessage).isEqualTo("Invalid Files")
+    }
+
+    @Test
+    fun `submit with excel file`() {
+        val args = arrayOf(
+            "-s", "http://localhost:8080",
+            "-u", "user",
+            "-p", "123456",
+            "-f", "TSV",
+            "-i", "$rootFolder/ExcelSubmission.xlsx")
+
+        testInstance.main(args)
+
+        verify(exactly = 1) { mockExcelReader.readContentAsTsv(excelFile) }
+    }
+
+    @Test
+    fun `submit with excel file and invalid format`() {
+        val args = arrayOf(
+            "-s", "http://localhost:8080",
+            "-u", "user",
+            "-p", "123456",
+            "-f", "JSON",
+            "-i", "$rootFolder/ExcelSubmission.xlsx")
+
+        val exceptionMessage = assertThrows<PrintMessage> { testInstance.parse(args) }.message
+        assertThat(exceptionMessage).isEqualTo(EXCEL_NOT_ALLOWED_ERROR_MSG)
+        verify(exactly = 0) { mockExcelReader.readContentAsTsv(excelFile) }
     }
 
     @Test

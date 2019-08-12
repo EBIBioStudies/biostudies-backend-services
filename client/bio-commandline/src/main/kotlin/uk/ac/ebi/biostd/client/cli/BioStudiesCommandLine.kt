@@ -19,7 +19,7 @@ const val FILES_SEPARATOR = ','
 const val FILES_NOT_FOUND_ERROR_MSG = "Some of the given files were not found"
 const val EXCEL_NOT_ALLOWED_ERROR_MSG = "Excel files are only allowed for TSV format"
 
-class BioStudiesCommandLine : CliktCommand(name = "PTSubmit") {
+class BioStudiesCommandLine(private val excelReader: ExcelReader = ExcelReader()) : CliktCommand(name = "PTSubmit") {
     private val server by option("-s", "--server", help = "BioStudies host url").required()
     private val user by option("-u", "--user", help = "User that will perform the submission").required()
     private val password by option("-p", "--password", help = "The user password").required()
@@ -78,7 +78,7 @@ class BioStudiesCommandLine : CliktCommand(name = "PTSubmit") {
     private fun readExcelContent(file: File, format: SubmissionFormat): String {
         if (format != SubmissionFormat.TSV) throw PrintMessage(EXCEL_NOT_ALLOWED_ERROR_MSG)
 
-        return ExcelReader().readContentAsTsv(file)
+        return excelReader.readContentAsTsv(file)
     }
 }
 
