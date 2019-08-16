@@ -1,10 +1,8 @@
 package ebi.ac.uk.security.util
 
 import ac.uk.ebi.biostd.persistence.model.SecurityToken
-import ac.uk.ebi.biostd.persistence.model.User
 import ac.uk.ebi.biostd.persistence.repositories.TokenDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
-import arrow.core.Option
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.commons.http.JacksonFactory
 import ebi.ac.uk.security.test.SecurityTestEntities
@@ -26,7 +24,8 @@ private const val tokenHash = "ABC123"
 @ExtendWith(MockKExtension::class)
 class SecurityUtilTest(
     @MockK val userRepository: UserDataRepository,
-    @MockK val tokenRepository: TokenDataRepository) {
+    @MockK val tokenRepository: TokenDataRepository
+) {
     private val testInstance =
         SecurityUtil(Jwts.parser(), JacksonFactory.createMapper(), tokenRepository, userRepository, tokenHash)
 
@@ -85,11 +84,9 @@ class SecurityUtilTest(
         }
     }
 
-
     @Nested
     inner class CheckToken {
         private val securityToken = mockk<SecurityToken>()
-        private val user = mockk<User>()
 
         @Test
         fun `check when is not in black list`() {
@@ -101,11 +98,11 @@ class SecurityUtilTest(
 
         @Test
         fun `check when exist`() {
-            val myToken = "acb123"
+            val token = testInstance.createToken(simpleUser)
+            every { userRepository.getOne(simpleUser.id) } returns simpleUser
+            every { tokenRepository.findById(token) } returns Optional.empty()
 
-            every { tokenRepository.findById(myToken) } returns Optional.empty()
-            every { testInstance.fromToken(myToken) } returns Option.just(user)
-            assertThat(testInstance.checkToken(myToken)).contains(user)
+            assertThat(testInstance.checkToken(token)).contains(simpleUser)
         }
     }
 }

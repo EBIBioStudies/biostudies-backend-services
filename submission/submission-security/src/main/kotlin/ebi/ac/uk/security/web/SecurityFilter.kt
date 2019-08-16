@@ -28,7 +28,8 @@ internal class SecurityFilter(private val environment: String, private val secur
     }
 
     private fun setSecurityUser(user: SecurityUser, token: String) {
-        SecurityContextHolder.getContext().authentication = UsernamePasswordAuthenticationToken(user, token, emptyList())
+        SecurityContextHolder.getContext().authentication =
+            UsernamePasswordAuthenticationToken(user, token, emptyList())
     }
 
     private fun getSecurityKey(httpRequest: HttpServletRequest): Option<String> {
