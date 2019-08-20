@@ -19,7 +19,6 @@ interface SubmissionClient :
     MultipartSubmissionOperations
 
 interface FilesOperations {
-
     fun uploadFiles(files: List<File>, relativePath: String = EMPTY)
 
     fun listUserFiles(relativePath: String = EMPTY): List<UserFile>
@@ -30,7 +29,6 @@ interface FilesOperations {
 }
 
 interface GroupFilesOperations {
-
     fun uploadGroupFiles(groupName: String, files: List<File>, relativePath: String = EMPTY)
 
     fun listGroupFiles(groupName: String, relativePath: String = EMPTY): List<UserFile>
@@ -41,7 +39,6 @@ interface GroupFilesOperations {
 }
 
 interface SubmissionOperations {
-
     fun submitSingle(submission: Submission, format: SubmissionFormat = JSON): ResponseEntity<Submission>
 
     fun submitSingle(submission: String, format: SubmissionFormat = JSON): ResponseEntity<Submission>
@@ -50,14 +47,14 @@ interface SubmissionOperations {
 }
 
 interface MultipartSubmissionOperations {
-
     fun submitSingle(submission: String, format: SubmissionFormat, files: List<File>): ResponseEntity<Submission>
 
     fun submitSingle(submission: Submission, format: SubmissionFormat, files: List<File>): ResponseEntity<Submission>
+
+    fun submitXlsx(submission: File, files: List<File>): ResponseEntity<Submission>
 }
 
 interface SecurityOperations {
-
     fun getAuthenticatedClient(user: String, password: String): BioWebClient
 
     fun login(loginRequest: LoginRequest): UserProfile

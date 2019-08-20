@@ -24,7 +24,6 @@ internal class MultiPartSubmissionClient(
     private val template: RestTemplate,
     private val serializationService: SerializationService
 ) : MultipartSubmissionOperations {
-
     override fun submitSingle(
         submission: String,
         format: SubmissionFormat,
@@ -45,22 +44,30 @@ internal class MultiPartSubmissionClient(
         return submitSingle(HttpEntity(body, headers), format)
     }
 
-    private fun submitSingle(request: HttpEntity<LinkedMultiValueMap<String, Any>>, format: SubmissionFormat) = template
-        .postForEntity<String>(SUBMIT_URL, request)
-        .map { body -> serializationService.deserializeSubmission(body, format.asSubFormat()) }
+    override fun submitXlsx(submission: File, files: List<File>): ResponseEntity<Submission> {
+        val format = SubmissionFormat.XLSX
+        val headers = createHeaders(format)
+        val body = LinkedMultiValueMap<String, Any>().apply {
+            files.forEach { add(FILES, FileSystemResource(it)) }
+            add(SUBMISSION, FileSystemResource(submission))
+        }
 
-    private fun createHeaders(format: SubmissionFormat): HttpHeaders {
-        val headers = HttpHeaders()
-        headers.contentType = MediaType.MULTIPART_FORM_DATA
-        headers.accept = listOf(format.mediaType, MediaType.APPLICATION_JSON)
-        headers.setSubmissionType(format.mediaType)
-        return headers
+        return submitSingle(HttpEntity(body, headers), format)
     }
 
-    private fun getMultipartBody(files: List<File>, submission: String): LinkedMultiValueMap<String, Any> {
-        val map = LinkedMultiValueMap<String, Any>()
-        files.forEach { map.add(FILES, FileSystemResource(it)) }
-        map.add(SUBMISSION, submission)
-        return map
+    private fun submitSingle(request: HttpEntity<LinkedMultiValueMap<String, Any>>, format: SubmissionFormat) =
+        template
+            .postForEntity<String>(SUBMIT_URL, request)
+            .map { body -> serializationService.deserializeSubmission(body, format.asSubFormat()) }
+
+    private fun createHeaders(format: SubmissionFormat) = HttpHeaders().apply {
+        contentType = MediaType.MULTIPART_FORM_DATA
+        accept = listOf(format.mediaType, MediaType.APPLICATION_JSON)
+        setSubmissionType(format.submissionType)
+    }
+
+    private fun getMultipartBody(files: List<File>, submission: String) = LinkedMultiValueMap<String, Any>().apply {
+        files.forEach { add(FILES, FileSystemResource(it)) }
+        add(SUBMISSION, submission)
     }
 }

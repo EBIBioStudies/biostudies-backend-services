@@ -8,8 +8,10 @@ import ac.uk.ebi.biostd.integration.SubFormat.XML
 import ac.uk.ebi.biostd.submission.model.UserSource
 import ac.uk.ebi.biostd.submission.service.SubmissionService
 import ac.uk.ebi.biostd.submission.service.TempFileGenerator
+import com.sun.org.apache.xpath.internal.operations.Mult
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.constants.APPLICATION_JSON
+import ebi.ac.uk.model.constants.APPLICATION_XLSX
 import ebi.ac.uk.model.constants.FILES
 import ebi.ac.uk.model.constants.MULTIPART_FORM_DATA
 import ebi.ac.uk.model.constants.SUBMISSION
@@ -17,6 +19,7 @@ import ebi.ac.uk.model.constants.SUBMISSION_TYPE
 import ebi.ac.uk.model.constants.TEXT_PLAIN
 import ebi.ac.uk.model.constants.TEXT_XML
 import ebi.ac.uk.security.integration.model.api.SecurityUser
+import ebi.ac.uk.util.file.ExcelReader
 import org.springframework.http.HttpHeaders.CONTENT_TYPE
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -34,6 +37,7 @@ import org.springframework.web.multipart.MultipartFile
 @RequestMapping("/submissions")
 @PreAuthorize("isAuthenticated()")
 class SubmitResource(
+    private val excelReader: ExcelReader,
     private val submissionService: SubmissionService,
     private val tempFileGenerator: TempFileGenerator,
     private val serializationService: SerializationService
@@ -61,6 +65,14 @@ class SubmitResource(
         @RequestParam(FILES) files: Array<MultipartFile>,
         @RequestParam(SUBMISSION) submissionContent: String
     ): Submission = submit(files, user, submissionContent, TSV)
+
+    @PostMapping(headers = ["$CONTENT_TYPE=$MULTIPART_FORM_DATA", "$SUBMISSION_TYPE=$APPLICATION_XLSX"])
+    @ResponseBody
+    fun submitXlsx(
+        @AuthenticationPrincipal user: SecurityUser,
+        @RequestParam(FILES) files: Array<MultipartFile>,
+        @RequestParam(SUBMISSION) submission: MultipartFile
+    ): Submission = submit(files, user, readExcelSubmission(submission), TSV)
 
     private fun submit(files: Array<MultipartFile>, user: SecurityUser, content: String, format: SubFormat):
         Submission {
@@ -93,4 +105,7 @@ class SubmitResource(
         val submission = serializationService.deserializeSubmission(content, format, fileSource)
         return submissionService.submit(submission, user, fileSource)
     }
+
+    private fun readExcelSubmission(multipartFile: MultipartFile) =
+        excelReader.readContentAsTsv(tempFileGenerator.asFile(multipartFile))
 }

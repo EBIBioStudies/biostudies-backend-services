@@ -17,7 +17,6 @@ import java.io.File
 
 const val FILES_SEPARATOR = ','
 const val FILES_NOT_FOUND_ERROR_MSG = "Some of the given files were not found"
-const val EXCEL_NOT_ALLOWED_ERROR_MSG = "Excel files are only allowed for TSV format"
 
 class BioStudiesCommandLine(private val excelReader: ExcelReader = ExcelReader()) : CliktCommand(name = "PTSubmit") {
     private val server by option("-s", "--server", help = "BioStudies host url").required()
@@ -41,8 +40,9 @@ class BioStudiesCommandLine(private val excelReader: ExcelReader = ExcelReader()
 
             val client = getClient(server, user, password)
             val subFormat = SubmissionFormat.valueOf(format.toUpperCase())
-            val fileContent = readFileContent(input!!, subFormat)
-            val submission = client.submitSingle(fileContent, subFormat, files).body!!
+            val submission =
+                if (input!!.isExcel()) client.submitXlsx(input!!, files).body!!
+                else client.submitSingle(input!!.readText(), subFormat, files).body!!
 
             echo("SUCCESS: Submission with AccNo ${submission.accNo} was submitted")
         } catch (exception: Exception) {
@@ -70,15 +70,6 @@ class BioStudiesCommandLine(private val excelReader: ExcelReader = ExcelReader()
 
         if (file.isDirectory) file.walk().filter { it.isFile }.forEach { files.add(it) }
         else files.add(file)
-    }
-
-    private fun readFileContent(file: File, format: SubmissionFormat) =
-        if (file.isExcel()) readExcelContent(file, format) else file.readText()
-
-    private fun readExcelContent(file: File, format: SubmissionFormat): String {
-        if (format != SubmissionFormat.TSV) throw PrintMessage(EXCEL_NOT_ALLOWED_ERROR_MSG)
-
-        return excelReader.readContentAsTsv(file)
     }
 }
 
