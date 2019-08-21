@@ -1,12 +1,9 @@
 package ebi.ac.uk.security.service
 
-import ac.uk.ebi.biostd.persistence.model.SecurityToken
 import ac.uk.ebi.biostd.persistence.model.User
 import ac.uk.ebi.biostd.persistence.model.ext.activated
 import ac.uk.ebi.biostd.persistence.model.ext.register
-import ac.uk.ebi.biostd.persistence.repositories.TokenDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
-import arrow.core.Option
 import arrow.core.getOrElse
 import ebi.ac.uk.api.security.ChangePasswordRequest
 import ebi.ac.uk.api.security.LoginRequest
@@ -28,13 +25,10 @@ import ebi.ac.uk.security.integration.model.events.PasswordReset
 import ebi.ac.uk.security.integration.model.events.UserPreRegister
 import ebi.ac.uk.security.integration.model.events.UserRegister
 import ebi.ac.uk.security.util.SecurityUtil
-import java.time.Clock
-import java.time.OffsetDateTime
 
 @Suppress("TooManyFunctions")
 internal class SecurityService(
     private val userRepository: UserDataRepository,
-    private val tokenRepository: TokenDataRepository,
     private val securityUtil: SecurityUtil,
     private val securityProps: SecurityProperties,
     private val profileService: ProfileService
@@ -48,7 +42,7 @@ internal class SecurityService(
             .let { profileService.getUserProfile(it, securityUtil.createToken(it)) }
 
     override fun logout(authToken: String) {
-        tokenRepository.save(SecurityToken(authToken, OffsetDateTime.now(Clock.systemUTC())))
+        securityUtil.invalidateToken(authToken)
     }
 
     override fun registerUser(request: RegisterRequest): SecurityUser {
@@ -93,16 +87,10 @@ internal class SecurityService(
         Events.passwordReset.onNext(PasswordReset(user, instanceUrl))
     }
 
-    override fun getUserProfile(authToken: String): UserInfo = checkToken(authToken)
-        .map { profileService.getUserProfile(it, securityUtil.createToken(it)) }
-        .getOrElse { throw UserNotFoundException() }
-
-    fun checkToken(tokenKey: String): Option<User> {
-        val token = tokenRepository.findById(tokenKey)
-        return when {
-            token.isPresent -> Option.empty()
-            else -> securityUtil.fromToken(tokenKey).map { userRepository.getOne(it.id) }
-        }
+    override fun getUserProfile(authToken: String): UserInfo {
+        return securityUtil.checkToken(authToken)
+            .map { profileService.getUserProfile(it, authToken) }
+            .getOrElse { throw UserNotFoundException() }
     }
 
     private fun preRegister(request: RegisterRequest): SecurityUser {

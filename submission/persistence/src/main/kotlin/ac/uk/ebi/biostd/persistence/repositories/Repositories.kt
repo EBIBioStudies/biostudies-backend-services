@@ -60,6 +60,5 @@ interface UserDataRepository : JpaRepository<User, Long> {
 interface TokenDataRepository : JpaRepository<SecurityToken, String>
 
 interface UserGroupDataRepository : JpaRepository<UserGroup, Long> {
-    fun findByNameAndUsersId(groupName: String, userId: Long): Optional<UserGroup>
     fun getByName(groupName: String): UserGroup
 }
