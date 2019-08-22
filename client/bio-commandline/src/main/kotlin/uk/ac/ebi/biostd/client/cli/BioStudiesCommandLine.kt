@@ -2,6 +2,7 @@ package uk.ac.ebi.biostd.client.cli
 
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
+import ac.uk.ebi.biostd.client.integration.web.SubmissionClient
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.PrintMessage
 import com.github.ajalt.clikt.parameters.options.option
@@ -9,7 +10,6 @@ import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.file
 import ebi.ac.uk.base.isNotBlank
 import ebi.ac.uk.io.isExcel
-import ebi.ac.uk.util.file.ExcelReader
 import org.json.JSONObject
 import org.springframework.web.client.ResourceAccessException
 import org.springframework.web.client.RestClientResponseException
@@ -18,7 +18,7 @@ import java.io.File
 const val FILES_SEPARATOR = ','
 const val FILES_NOT_FOUND_ERROR_MSG = "Some of the given files were not found"
 
-class BioStudiesCommandLine(private val excelReader: ExcelReader = ExcelReader()) : CliktCommand(name = "PTSubmit") {
+class BioStudiesCommandLine : CliktCommand(name = "PTSubmit") {
     private val server by option("-s", "--server", help = "BioStudies host url").required()
     private val user by option("-u", "--user", help = "User that will perform the submission").required()
     private val password by option("-p", "--password", help = "The user password").required()
@@ -40,9 +40,7 @@ class BioStudiesCommandLine(private val excelReader: ExcelReader = ExcelReader()
 
             val client = getClient(server, user, password)
             val subFormat = SubmissionFormat.valueOf(format.toUpperCase())
-            val submission =
-                if (input!!.isExcel()) client.submitXlsx(input!!, files).body!!
-                else client.submitSingle(input!!.readText(), subFormat, files).body!!
+            val submission = submit(client, input!!, files, subFormat)
 
             echo("SUCCESS: Submission with AccNo ${submission.accNo} was submitted")
         } catch (exception: Exception) {
@@ -56,6 +54,16 @@ class BioStudiesCommandLine(private val excelReader: ExcelReader = ExcelReader()
 
     internal fun getClient(host: String, user: String, password: String) =
         SecurityWebClient.create(host).getAuthenticatedClient(user, password)
+
+    private fun submit(
+        client: SubmissionClient,
+        input: File,
+        files: MutableList<File>,
+        format: SubmissionFormat
+    ) = when {
+        input.isExcel() -> client.submitXlsx(input, files).body!!
+        else -> client.submitSingle(input.readText(), format, files).body!!
+    }
 
     // TODO The exceptions should be formatted at bio-webclient level
     private fun formatException(exception: RestClientResponseException) =

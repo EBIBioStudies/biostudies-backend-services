@@ -41,6 +41,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.transaction.annotation.Transactional
+import java.io.File as SystemFile
 import java.nio.file.Paths
 
 @ExtendWith(TemporaryFolderExtension::class)
@@ -88,6 +89,22 @@ internal class MultipartSubmissionApiTest(private val tempFolder: TemporaryFolde
         }
 
         @Test
+        fun `submit excel submission`() {
+            val excelPageTab = SystemFile(this.javaClass::class.java.getResource("/input/ExcelSubmission.xlsx").toURI())
+            val fileList = tempFolder.createFile("FileList.tsv").apply {
+                writeBytes(tsv {
+                    line("Files", "GEN")
+                    line("SomeFile.txt", "ABC")
+                }.toString().toByteArray())
+            }
+
+            val response = webClient.submitXlsx(excelPageTab, listOf(fileList, tempFolder.createFile("SomeFile.txt")))
+            assertSuccessfulResponse(response)
+            assertSubmissionFiles("S-EXC123", "SomeFile.txt")
+            fileList.delete()
+        }
+
+        @Test
         fun `submission with file list TSV`() {
             val submission = tsv {
                 line("Submission", "S-TEST1")
@@ -112,6 +129,7 @@ internal class MultipartSubmissionApiTest(private val tempFolder: TemporaryFolde
 
             assertSuccessfulResponse(response)
             assertSubmissionFiles("S-TEST1", "File1.txt")
+            fileList.delete()
         }
 
         @Test

@@ -6,7 +6,6 @@ import com.github.ajalt.clikt.core.IncorrectOptionValueCount
 import com.github.ajalt.clikt.core.MissingParameter
 import com.github.ajalt.clikt.core.PrintMessage
 import ebi.ac.uk.model.Submission
-import ebi.ac.uk.util.file.ExcelReader
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.clearAllMocks
@@ -30,11 +29,10 @@ import java.io.IOException
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
 class BioStudiesCommandLineTest(
     private val temporaryFolder: TemporaryFolder,
-    @MockK private val mockExcelReader: ExcelReader,
     @MockK private val mockWebClient: BioWebClient
 ) {
     @SpyK
-    private var testInstance = BioStudiesCommandLine(mockExcelReader)
+    private var testInstance = BioStudiesCommandLine()
 
     private lateinit var excelFile: File
     private lateinit var rootFolder: String
@@ -52,7 +50,7 @@ class BioStudiesCommandLineTest(
         val libFile = temporaryFolder.createFile("FileList.tsv")
         val refFile = temporaryFolder.createFile("attachments/inner/RefFile.txt")
 
-        every { mockExcelReader.readContentAsTsv(excelFile) } returns ""
+        every { mockWebClient.submitXlsx(excelFile, listOf()) } returns mockResponse
         every { mockWebClient.submitSingle("", SubmissionFormat.TSV, listOf()) } returns mockResponse
         every { testInstance.getClient("http://localhost:8080", "user", "123456") } returns mockWebClient
         every { mockWebClient.submitSingle("", SubmissionFormat.TSV, listOf(libFile, refFile)) } returns mockResponse
@@ -114,21 +112,7 @@ class BioStudiesCommandLineTest(
 
         testInstance.main(args)
 
-        verify(exactly = 1) { mockExcelReader.readContentAsTsv(excelFile) }
-    }
-
-    @Test
-    fun `submit with excel file and invalid format`() {
-        val args = arrayOf(
-            "-s", "http://localhost:8080",
-            "-u", "user",
-            "-p", "123456",
-            "-f", "JSON",
-            "-i", "$rootFolder/ExcelSubmission.xlsx")
-
-        val exceptionMessage = assertThrows<PrintMessage> { testInstance.parse(args) }.message
-        assertThat(exceptionMessage).isEqualTo(EXCEL_NOT_ALLOWED_ERROR_MSG)
-        verify(exactly = 0) { mockExcelReader.readContentAsTsv(excelFile) }
+        verify(exactly = 1) { mockWebClient.submitXlsx(excelFile, listOf()) }
     }
 
     @Test
