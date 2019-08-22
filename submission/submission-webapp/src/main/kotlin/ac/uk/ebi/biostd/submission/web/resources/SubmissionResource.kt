@@ -1,6 +1,6 @@
-package ac.uk.ebi.biostd.submission.web
+package ac.uk.ebi.biostd.submission.web.resources
 
-import ac.uk.ebi.biostd.submission.service.SubmissionService
+import ac.uk.ebi.biostd.submission.domain.service.SubmissionService
 import ebi.ac.uk.model.constants.APPLICATION_JSON
 import ebi.ac.uk.model.constants.SUBMISSION_TYPE
 import ebi.ac.uk.model.constants.TEXT_PLAIN

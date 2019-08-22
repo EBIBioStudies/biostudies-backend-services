@@ -1,13 +1,9 @@
-package ac.uk.ebi.biostd.submission.web
+package ac.uk.ebi.biostd.submission.web.resources
 
-import ac.uk.ebi.biostd.integration.SerializationService
-import ac.uk.ebi.biostd.integration.SubFormat
 import ac.uk.ebi.biostd.integration.SubFormat.JSON
 import ac.uk.ebi.biostd.integration.SubFormat.TSV
 import ac.uk.ebi.biostd.integration.SubFormat.XML
-import ac.uk.ebi.biostd.submission.model.UserSource
-import ac.uk.ebi.biostd.submission.service.SubmissionService
-import ac.uk.ebi.biostd.submission.service.TempFileGenerator
+import ac.uk.ebi.biostd.submission.web.handlers.SubmissionWebHandler
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.constants.APPLICATION_JSON
 import ebi.ac.uk.model.constants.FILES
@@ -33,64 +29,55 @@ import org.springframework.web.multipart.MultipartFile
 @RestController
 @RequestMapping("/submissions")
 @PreAuthorize("isAuthenticated()")
-class SubmitResource(
-    private val submissionService: SubmissionService,
-    private val tempFileGenerator: TempFileGenerator,
-    private val serializationService: SerializationService
-) {
+class SubmitResource(private val submissionWebHandler: SubmissionWebHandler) {
     @PostMapping(headers = ["$CONTENT_TYPE=$MULTIPART_FORM_DATA", "$SUBMISSION_TYPE=$APPLICATION_JSON"])
     @ResponseBody
     fun submitJson(
         @AuthenticationPrincipal user: SecurityUser,
-        @RequestParam(FILES) files: Array<MultipartFile>,
-        @RequestParam(SUBMISSION) submissionContent: String
-    ) = submit(files, user, submissionContent, JSON)
+        @RequestParam(SUBMISSION) submissionContent: String,
+        @RequestParam(FILES) files: Array<MultipartFile>
+    ) = submissionWebHandler.submit(user, files, submissionContent, JSON)
 
     @PostMapping(headers = ["$CONTENT_TYPE=$MULTIPART_FORM_DATA", "$SUBMISSION_TYPE=$TEXT_XML"])
     @ResponseBody
     fun submitXml(
         @AuthenticationPrincipal user: SecurityUser,
-        @RequestParam(FILES) files: Array<MultipartFile>,
-        @RequestParam(SUBMISSION) submissionContent: String
-    ): Submission = submit(files, user, submissionContent, XML)
+        @RequestParam(SUBMISSION) submissionContent: String,
+        @RequestParam(FILES) files: Array<MultipartFile>
+    ): Submission = submissionWebHandler.submit(user, files, submissionContent, XML)
 
     @PostMapping(headers = ["$CONTENT_TYPE=$MULTIPART_FORM_DATA", "$SUBMISSION_TYPE=$TEXT_PLAIN"])
     @ResponseBody
     fun submitTsv(
         @AuthenticationPrincipal user: SecurityUser,
-        @RequestParam(FILES) files: Array<MultipartFile>,
-        @RequestParam(SUBMISSION) submissionContent: String
-    ): Submission = submit(files, user, submissionContent, TSV)
+        @RequestParam(SUBMISSION) submissionContent: String,
+        @RequestParam(FILES) files: Array<MultipartFile>
+    ): Submission = submissionWebHandler.submit(user, files, submissionContent, TSV)
 
-    private fun submit(files: Array<MultipartFile>, user: SecurityUser, content: String, format: SubFormat):
-        Submission {
-        val fileSource = UserSource(tempFileGenerator.asFiles(files), user.magicFolder.path)
-        val submission = serializationService.deserializeSubmission(content, format, fileSource)
-        return submissionService.submit(submission, user, fileSource)
-    }
+    @PostMapping(value = ["/direct"], headers = ["$CONTENT_TYPE=$MULTIPART_FORM_DATA"])
+    @ResponseBody
+    fun submitFile(
+        @AuthenticationPrincipal user: SecurityUser,
+        @RequestParam(SUBMISSION) file: MultipartFile,
+        @RequestParam(FILES) files: Array<MultipartFile>
+    ): Submission = submissionWebHandler.submit(user, file, files)
 
     @PostMapping(headers = ["$SUBMISSION_TYPE=$TEXT_XML"])
     @ResponseBody
     fun submitXml(@AuthenticationPrincipal user: SecurityUser, @RequestBody submission: String): Submission =
-        submit(user, submission, XML)
+        submissionWebHandler.submit(user, submission, XML)
 
     @PostMapping(headers = ["$SUBMISSION_TYPE=$TEXT_PLAIN"])
     @ResponseBody
     fun submitTsv(@AuthenticationPrincipal user: SecurityUser, @RequestBody submission: String): Submission =
-        submit(user, submission, TSV)
+        submissionWebHandler.submit(user, submission, TSV)
 
     @PostMapping(headers = ["$SUBMISSION_TYPE=$APPLICATION_JSON"])
     @ResponseBody
     fun submitJson(@AuthenticationPrincipal user: SecurityUser, @RequestBody submission: String): Submission =
-        submit(user, submission, JSON)
+        submissionWebHandler.submit(user, submission, JSON)
 
     @DeleteMapping("/{accNo}")
     fun deleteSubmission(@AuthenticationPrincipal user: SecurityUser, @PathVariable accNo: String) =
-        submissionService.deleteSubmission(accNo, user)
-
-    private fun submit(user: SecurityUser, content: String, format: SubFormat): Submission {
-        val fileSource = UserSource(emptyList(), user.magicFolder.path)
-        val submission = serializationService.deserializeSubmission(content, format, fileSource)
-        return submissionService.submit(submission, user, fileSource)
-    }
+        submissionWebHandler.deleteSubmission(accNo, user)
 }
