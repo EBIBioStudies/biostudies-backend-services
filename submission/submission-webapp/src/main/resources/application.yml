@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/BioStudiesDev
-    username: root
-    password: admin
+    url: # Database connection URL
+    username:
+    password:
     driver-class-name: com.mysql.jdbc.Driver
 
   jpa:
@@ -18,12 +18,12 @@ spring:
       max-request-size: 10240MB
 
 app:
-  basepath: /Users/jhoanmanuelms/EBI/nfs
-  tempDirPath: /Users/jhoanmanuelms/EBI/nfs/tmp
+  basepath: # Absolute path to the folder to be used as storage
+  tempDirPath: # Absolute of the temp folder to store files
   security:
-    tokenHash: bio-local
-    filesDirPath: /Users/jhoanmanuelms/EBI/nfs/dropbox
-    environment: LOCAL
-    requireActivation: false
+    tokenHash: # Token used for hash authentication
+    filesDirPath: # Absolute path to the folder to be used for the user/groups files
+    environment: # Current application execution environment
+    requiresActivation: # Indicates whether or not, new user need activation before being used
   notifications:
     smtp: smtp.ebi.ac.uk

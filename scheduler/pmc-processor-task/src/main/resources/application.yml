@@ -1,10 +1,9 @@
 app:
   data:
-    mode: LOAD
-    path: /Users/jhoanmanuelms/EBI/studies/Europe-PMC/full/daily
-    temp: /Users/jhoanmanuelms/EBI/nfs/tmp
-    mongodb-uri: mongodb://eubioimag:eNZJYfskIdw@mongodb-hx-eubioimagdev-001.ebi.ac.uk:27017,mongodb-hx-eubioimagdev-001.ebi.ac.uk:27017/eubioimag?replicaSet=eubioimagdevrs026&authSource=admin&waitQueueMultiple=100
-    bio-studies-url: http://biostudy-prod:8788
-    bio-studies-user: manager
-    bio-studies-password: m4n4g3rprod
-    notificationsUrl: https://hooks.slack.com/services/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
+    mode: # Processing mode: LOAD, PROCESS or SUBMIT
+    path: # Interpreted according to specified mode. Path of the file, folder to load.
+    temp: # directory to store submission downloaded files
+    mongodb-uri: # Mongo database connection string
+    bio-studies-url: # URL pointing to the BioStudies instance where the data will be submitted
+    bio-studies-user: # User under whom the submissions will be made
+    bio-studies-password: # Password for the specified user
