@@ -29,38 +29,32 @@ internal class MultiPartSubmissionClient(
 ) : MultipartSubmissionOperations {
 
     override fun submitSingle(submission: File, files: List<File>): SubmissionResponse {
-        val headers = createHeaders()
+        val headers = createHeaders(SubmissionFormat.JSON)
         val body = getMultipartBody(files, FileSystemResource(submission))
-        return submitSingle(HttpEntity(body, headers), SubmissionFormat.JSON, "$SUBMIT_URL/direct")
+        return submit(HttpEntity(body, headers), SubmissionFormat.JSON, "$SUBMIT_URL/direct")
     }
 
     override fun submitSingle(submission: String, format: SubmissionFormat, files: List<File>): SubmissionResponse {
         val headers = createHeaders(format)
         val body = getMultipartBody(files, submission)
-        return submitSingle(HttpEntity(body, headers), format)
+        return submit(HttpEntity(body, headers), format)
     }
 
     override fun submitSingle(submission: Submission, format: SubmissionFormat, files: List<File>): SubmissionResponse {
         val headers = createHeaders(format)
         val body = getMultipartBody(files, serializationService.serializeSubmission(submission, format.asSubFormat()))
-        return submitSingle(HttpEntity(body, headers), format)
+        return submit(HttpEntity(body, headers), format)
     }
 
-    private fun submitSingle(request: RequestMap, format: SubmissionFormat, url: String = SUBMIT_URL): SubmissionResponse =
+    private fun submit(request: RequestMap, format: SubmissionFormat, url: String = SUBMIT_URL): SubmissionResponse =
         template.postForEntity<String>(url, request)
             .map { body -> serializationService.deserializeSubmission(body, format.asSubFormat()) }
 
     private fun createHeaders(format: SubmissionFormat): HttpHeaders {
-        val headers = createHeaders()
-        headers.accept = listOf(format.mediaType, MediaType.APPLICATION_JSON)
-        headers.setSubmissionType(format.mediaType)
-        return headers
-    }
-
-    private fun createHeaders(accept: List<MediaType> = listOf(MediaType.APPLICATION_JSON)): HttpHeaders {
         val headers = HttpHeaders()
+        headers.accept = listOf(format.mediaType, MediaType.APPLICATION_JSON)
         headers.contentType = MediaType.MULTIPART_FORM_DATA
-        headers.accept = accept
+        headers.setSubmissionType(format.mediaType)
         return headers
     }
 

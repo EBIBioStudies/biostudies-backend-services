@@ -19,7 +19,7 @@ import ebi.ac.uk.dsl.section
 import ebi.ac.uk.dsl.submission
 import ebi.ac.uk.model.File
 import ebi.ac.uk.test.createFile
-import ebi.ac.uk.test.replaceFile
+import ebi.ac.uk.test.createNewFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
@@ -80,7 +80,7 @@ internal class MultipartFileSubmissionApiTest(private val tempFolder: TemporaryF
         }
 
         private fun testSubmission(accNo: String, format: SubFormat, extension: String) {
-            val dataFile = tempFolder.replaceFile("DataFile.txt")
+            val dataFile = tempFolder.createNewFile("DataFile.txt")
             val submissionFile = createSubmission(accNo, dataFile, format, extension)
 
             val response = webClient.submitSingle(submissionFile, listOf(dataFile))

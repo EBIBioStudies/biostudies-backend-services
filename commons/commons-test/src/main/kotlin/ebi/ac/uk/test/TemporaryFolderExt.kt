@@ -13,7 +13,10 @@ fun TemporaryFolder.createFile(fileName: String, content: String, charset: Chars
     return file
 }
 
-fun TemporaryFolder.replaceFile(fileName: String): File {
+/**
+ * Creates a file with the given name or replace current if already exist.
+ */
+fun TemporaryFolder.createNewFile(fileName: String): File {
     val file = root.resolve(fileName)
     if (file.exists()) file.delete()
     return createFile(fileName)
