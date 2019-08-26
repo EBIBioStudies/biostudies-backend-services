@@ -3,7 +3,9 @@ package ac.uk.ebi.biostd.common.config
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
 import ac.uk.ebi.biostd.submission.SubmissionSubmitter
-import ac.uk.ebi.biostd.submission.service.SubmissionService
+import ac.uk.ebi.biostd.submission.domain.service.SubmissionService
+import ac.uk.ebi.biostd.submission.domain.service.TempFileGenerator
+import ac.uk.ebi.biostd.submission.web.handlers.SubmissionWebHandler
 import ebi.ac.uk.persistence.PersistenceContext
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -11,7 +13,10 @@ import org.springframework.context.annotation.Import
 
 @Configuration
 @Import(PersistenceConfig::class)
-class SubmissionConfig {
+class SubmissionConfig(
+    private val tmpFileGenerator: TempFileGenerator,
+    private val serializationService: SerializationService
+) {
 
     @Bean
     fun submissionService(
@@ -19,6 +24,10 @@ class SubmissionConfig {
         serializationService: SerializationService,
         persistenceContext: PersistenceContext,
         submissionSubmitter: SubmissionSubmitter
-    ) = SubmissionService(
-        subRepository, persistenceContext, serializationService, submissionSubmitter)
+    ): SubmissionService =
+        SubmissionService(subRepository, persistenceContext, serializationService, submissionSubmitter)
+
+    @Bean
+    fun submissionHandler(submissionService: SubmissionService): SubmissionWebHandler =
+        SubmissionWebHandler(submissionService, tmpFileGenerator, serializationService)
 }
