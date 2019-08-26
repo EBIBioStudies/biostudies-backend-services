@@ -37,7 +37,6 @@ import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.transaction.annotation.Transactional
 import java.nio.file.Paths
-
 import java.io.File as SystemFile
 
 @ExtendWith(TemporaryFolderExtension::class)

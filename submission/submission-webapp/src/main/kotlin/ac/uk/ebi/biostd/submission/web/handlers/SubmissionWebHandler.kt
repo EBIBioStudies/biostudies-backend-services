@@ -14,7 +14,6 @@ class SubmissionWebHandler(
     private val tempFileGenerator: TempFileGenerator,
     private val serializationService: SerializationService
 ) {
-
     fun submit(user: SecurityUser, files: Array<MultipartFile>, content: String, format: SubFormat):
         Submission {
         val fileSource = UserSource(tempFileGenerator.asFiles(files), user.magicFolder.path)

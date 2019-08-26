@@ -23,14 +23,6 @@ class SerializationExceptionHandler {
         return ValidationTree(FAIL, node)
     }
 
-    fun getErrors(exception: SerializationException): List<ValidationNode> =
-        exception.errors.values().map { createErrorNode(getMessage(it.chunk, it.cause.message)) }
-
-    fun getMessage(chunk: TsvChunk, message: String?) =
-        "Error processing block starting in Lines [${chunk.startIndex}-${chunk.startIndex + chunk.endIndex}], $message"
-
-    fun createErrorNode(message: String) = ValidationNode(ERROR, message)
-
     @ResponseBody
     @ResponseStatus(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
     @ExceptionHandler(value = [InvalidExtensionException::class])
@@ -38,4 +30,12 @@ class SerializationExceptionHandler {
         val node = ValidationNode(ERROR, exception.message)
         return ValidationTree(FAIL, node)
     }
+
+    fun getErrors(exception: SerializationException): List<ValidationNode> =
+        exception.errors.values().map { createErrorNode(getMessage(it.chunk, it.cause.message)) }
+
+    fun getMessage(chunk: TsvChunk, message: String?) =
+        "Error processing block starting in Lines [${chunk.startIndex}-${chunk.startIndex + chunk.endIndex}], $message"
+
+    fun createErrorNode(message: String) = ValidationNode(ERROR, message)
 }
