@@ -7,12 +7,16 @@ import ac.uk.ebi.biostd.common.config.SubmitterConfig
 import ac.uk.ebi.biostd.files.FileConfig
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
 import ac.uk.ebi.biostd.itest.entities.GenericUser
+import ebi.ac.uk.api.UserFile
 import ebi.ac.uk.api.UserFileType
 import ebi.ac.uk.api.security.RegisterRequest
+import ebi.ac.uk.test.clean
+import ebi.ac.uk.test.createFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -21,16 +25,16 @@ import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
+import java.io.File
 
 @ExtendWith(TemporaryFolderExtension::class)
-internal class FileApiTest(private val tempFolder: TemporaryFolder) : BaseIntegrationTest(tempFolder) {
+internal class UserFileApiTest(private val tempFolder: TemporaryFolder) : BaseIntegrationTest(tempFolder) {
     @Nested
     @ExtendWith(SpringExtension::class)
     @Import(value = [SubmitterConfig::class, PersistenceConfig::class, FileConfig::class])
     @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
     @DirtiesContext
     inner class FilesTest {
-
         @LocalServerPort
         private var serverPort: Int = 0
 
@@ -47,37 +51,38 @@ internal class FileApiTest(private val tempFolder: TemporaryFolder) : BaseIntegr
             webClient = securityClient.getAuthenticatedClient(GenericUser.username, GenericUser.password)
         }
 
-        @Test
-        fun `upload file and retrieve in user folder`() {
-            val file = tempFolder.createFile("FileList1.txt")
-
-            webClient.uploadFiles(listOf(file))
-
-            val files = webClient.listUserFiles()
-            assertThat(files).hasSize(1)
-
-            val resultFile = files.first()
-            assertThat(resultFile.name).isEqualTo(file.name)
-            assertThat(resultFile.type).isEqualTo(UserFileType.FILE)
-
-            webClient.deleteFile("FileList1.txt")
+        @BeforeEach
+        fun beforeEach() {
+            tempFolder.clean()
         }
 
         @Test
-        fun `upload file in directory and retrieve in user folder`() {
-            val file = tempFolder.createFile("AnotherFile.txt")
+        fun `upload|download|delete file and retrieve in user root folder`() {
+            testUserFilesGroup()
+        }
 
-            webClient.createFolder("test_folder")
-            webClient.uploadFiles(listOf(file), relativePath = "test_folder")
+        @Test
+        fun `upload|download|delete file and retrieve in user folder`() {
+            testUserFilesGroup("test-folder")
+        }
 
-            val files = webClient.listUserFiles(relativePath = "test_folder")
-            assertThat(files).hasSize(1)
-
-            val resultFile = files.first()
+        private fun assertFile(resultFile: UserFile, downloadFile: File, file: File) {
             assertThat(resultFile.name).isEqualTo(file.name)
             assertThat(resultFile.type).isEqualTo(UserFileType.FILE)
+            assertThat(resultFile.size).isEqualTo(file.length())
+            assertThat(file).hasContent(downloadFile.readText())
+        }
 
-            webClient.deleteFile("test_folder")
+        private fun testUserFilesGroup(relativePath: String = "") {
+            val file = tempFolder.createFile("FileList1.txt", "An example content")
+            webClient.uploadFiles(listOf(file), relativePath = relativePath)
+
+            val files = webClient.listUserFiles(relativePath = relativePath)
+            assertThat(files).hasSize(1)
+            assertFile(files.first(), webClient.downloadFile(file.name, relativePath = relativePath), file)
+
+            webClient.deleteFile("FileList1.txt", relativePath = relativePath)
+            assertThat(webClient.listUserFiles(relativePath = relativePath)).isEmpty()
         }
     }
 }
