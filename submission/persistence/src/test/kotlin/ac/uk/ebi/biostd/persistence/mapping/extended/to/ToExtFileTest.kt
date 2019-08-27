@@ -21,7 +21,6 @@ internal class ToExtFileTest(
     @MockK val filesSource: FilesSource,
     @MockK val systemFile: SystemFile
 ) {
-
     @Test
     fun `File to ExtFile`() {
         val file = File("fileName", 1, 55L, sortedSetOf(fileAttribute))

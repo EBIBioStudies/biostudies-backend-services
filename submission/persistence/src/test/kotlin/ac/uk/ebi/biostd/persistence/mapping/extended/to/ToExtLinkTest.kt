@@ -13,7 +13,6 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(MockKExtension::class)
 internal class ToExtLinkTest {
-
     @Test
     fun `Link to ExtLink`() {
         val link = Link(url = "link name", order = 1, attributes = sortedSetOf(linkAttribute))

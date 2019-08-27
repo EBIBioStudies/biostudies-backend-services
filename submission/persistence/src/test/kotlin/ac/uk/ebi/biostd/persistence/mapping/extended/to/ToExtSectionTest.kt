@@ -28,7 +28,6 @@ class ToExtSectionTest(
     @MockK val fileList: FileList,
     @MockK val extFileList: ExtFileList
 ) {
-
     private val sections: SortedSet<Section> = emptySortedSet()
     private val files: SortedSet<File> = emptySortedSet()
     private val links: SortedSet<Link> = emptySortedSet()

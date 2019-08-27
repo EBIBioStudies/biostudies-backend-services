@@ -24,11 +24,9 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(MockKExtension::class)
 internal class ToExtTableTest {
-
     @Nested
     @ExtendWith(MockKExtension::class)
     inner class LinksTables {
-
         private val simpleExtLink = mockk<ExtLink>()
         private val tableExtLink = mockk<ExtLink>()
         private val anotherTableExtLink = mockk<ExtLink>()
@@ -56,7 +54,6 @@ internal class ToExtTableTest {
     @Nested
     @ExtendWith(MockKExtension::class)
     inner class FilesTables {
-
         private val filesSource = mockk<FilesSource>()
         private val simpleExtFile = mockk<ExtFile>()
         private val tableExtFile = mockk<ExtFile>()
@@ -85,7 +82,6 @@ internal class ToExtTableTest {
     @Nested
     @ExtendWith(MockKExtension::class)
     inner class SectionsTables {
-
         private val fileSource = mockk<FilesSource>()
         private val simpleExtSection = mockk<ExtSection>()
         private val tableExtSection = mockk<ExtSection>()
