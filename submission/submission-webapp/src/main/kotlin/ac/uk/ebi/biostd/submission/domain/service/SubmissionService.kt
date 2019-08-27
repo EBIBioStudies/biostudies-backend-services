@@ -4,14 +4,12 @@ import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
 import ac.uk.ebi.biostd.submission.SubmissionSubmitter
-import ac.uk.ebi.biostd.submission.domain.exception.InvalidExtensionException
 import ac.uk.ebi.biostd.submission.model.UserSource
 import ebi.ac.uk.model.ExtendedSubmission
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.User
 import ebi.ac.uk.persistence.PersistenceContext
 import ebi.ac.uk.security.integration.model.api.SecurityUser
-import java.io.File
 
 class SubmissionService(
     private val submissionRepository: SubmissionRepository,
@@ -19,7 +17,6 @@ class SubmissionService(
     private val serializationService: SerializationService,
     private val submitter: SubmissionSubmitter
 ) {
-
     fun getSubmissionAsJson(accNo: String): String {
         val submission = submissionRepository.getByAccNo(accNo)
         return serializationService.serializeSubmission(submission, SubFormat.JSON_PRETTY)
@@ -42,15 +39,6 @@ class SubmissionService(
 
     fun submit(submission: Submission, user: SecurityUser, files: UserSource) =
         submitter.submit(ExtendedSubmission(submission, asUser(user)), files, persistenceContext)
-
-    fun getFormat(file: File): SubFormat {
-        return when (file.extension) {
-            "tsv" -> SubFormat.TSV
-            "xml" -> SubFormat.XML
-            "json" -> SubFormat.JSON
-            else -> throw InvalidExtensionException(file)
-        }
-    }
 
     private fun asUser(securityUser: SecurityUser): User =
         User(securityUser.id, securityUser.email, securityUser.secret)

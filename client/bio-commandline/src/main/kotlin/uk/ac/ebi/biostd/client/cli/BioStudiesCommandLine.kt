@@ -61,7 +61,7 @@ class BioStudiesCommandLine : CliktCommand(name = "PTSubmit") {
         files: MutableList<File>,
         format: SubmissionFormat
     ) = when {
-        input.isExcel() -> client.submitXlsx(input, files).body!!
+        input.isExcel() -> client.submitSingle(input, files).body!!
         else -> client.submitSingle(input.readText(), format, files).body!!
     }
 

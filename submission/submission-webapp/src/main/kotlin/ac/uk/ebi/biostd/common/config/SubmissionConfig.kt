@@ -7,6 +7,7 @@ import ac.uk.ebi.biostd.submission.domain.service.SubmissionService
 import ac.uk.ebi.biostd.submission.domain.service.TempFileGenerator
 import ac.uk.ebi.biostd.submission.web.handlers.SubmissionWebHandler
 import ebi.ac.uk.persistence.PersistenceContext
+import ebi.ac.uk.util.file.ExcelReader
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
@@ -14,6 +15,7 @@ import org.springframework.context.annotation.Import
 @Configuration
 @Import(PersistenceConfig::class)
 class SubmissionConfig(
+    private val excelReader: ExcelReader,
     private val tmpFileGenerator: TempFileGenerator,
     private val serializationService: SerializationService
 ) {
@@ -29,5 +31,5 @@ class SubmissionConfig(
 
     @Bean
     fun submissionHandler(submissionService: SubmissionService): SubmissionWebHandler =
-        SubmissionWebHandler(submissionService, tmpFileGenerator, serializationService)
+        SubmissionWebHandler(excelReader, submissionService, tmpFileGenerator, serializationService)
 }

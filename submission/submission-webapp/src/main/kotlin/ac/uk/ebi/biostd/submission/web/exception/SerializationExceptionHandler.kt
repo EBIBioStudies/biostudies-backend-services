@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.submission.web.exception
 
-import ac.uk.ebi.biostd.submission.domain.exception.InvalidExtensionException
+import ac.uk.ebi.biostd.exception.InvalidExtensionException
 import ac.uk.ebi.biostd.tsv.deserialization.model.TsvChunk
 import ac.uk.ebi.biostd.validation.SerializationException
 import ebi.ac.uk.errors.ValidationNode

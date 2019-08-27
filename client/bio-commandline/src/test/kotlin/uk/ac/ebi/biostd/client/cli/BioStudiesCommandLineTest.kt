@@ -50,7 +50,7 @@ class BioStudiesCommandLineTest(
         val libFile = temporaryFolder.createFile("FileList.tsv")
         val refFile = temporaryFolder.createFile("attachments/inner/RefFile.txt")
 
-        every { mockWebClient.submitXlsx(excelFile, listOf()) } returns mockResponse
+        every { mockWebClient.submitSingle(excelFile, listOf()) } returns mockResponse
         every { mockWebClient.submitSingle("", SubmissionFormat.TSV, listOf()) } returns mockResponse
         every { testInstance.getClient("http://localhost:8080", "user", "123456") } returns mockWebClient
         every { mockWebClient.submitSingle("", SubmissionFormat.TSV, listOf(libFile, refFile)) } returns mockResponse
@@ -112,7 +112,7 @@ class BioStudiesCommandLineTest(
 
         testInstance.main(args)
 
-        verify(exactly = 1) { mockWebClient.submitXlsx(excelFile, listOf()) }
+        verify(exactly = 1) { mockWebClient.submitSingle(excelFile, listOf()) }
     }
 
     @Test

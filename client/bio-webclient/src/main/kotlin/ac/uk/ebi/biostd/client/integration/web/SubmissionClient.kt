@@ -51,8 +51,6 @@ interface MultipartSubmissionOperations {
 
     fun submitSingle(submission: Submission, format: SubmissionFormat, files: List<File>): ResponseEntity<Submission>
 
-    fun submitXlsx(submission: File, files: List<File>): ResponseEntity<Submission>
-
     fun submitSingle(submission: File, files: List<File>): ResponseEntity<Submission>
 }
 

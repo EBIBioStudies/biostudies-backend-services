@@ -98,7 +98,7 @@ internal class MultipartSubmissionApiTest(private val tempFolder: TemporaryFolde
                 }.toString().toByteArray())
             }
 
-            val response = webClient.submitXlsx(excelPageTab, listOf(fileList, tempFolder.createFile("SomeFile.txt")))
+            val response = webClient.submitSingle(excelPageTab, listOf(fileList, tempFolder.createFile("SomeFile.txt")))
             assertSuccessfulResponse(response)
             assertSubmissionFiles("S-EXC123", "SomeFile.txt")
             fileList.delete()

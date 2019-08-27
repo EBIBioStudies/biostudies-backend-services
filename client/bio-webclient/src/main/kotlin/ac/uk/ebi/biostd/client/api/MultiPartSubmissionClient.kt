@@ -27,11 +27,11 @@ internal class MultiPartSubmissionClient(
     private val template: RestTemplate,
     private val serializationService: SerializationService
 ) : MultipartSubmissionOperations {
-
     override fun submitSingle(submission: File, files: List<File>): SubmissionResponse {
-        val headers = createHeaders(SubmissionFormat.JSON)
+        val format = SubmissionFormat.fromSubFormat(serializationService.getSubmissionFormat(submission))
+        val headers = createHeaders(format)
         val body = getMultipartBody(files, FileSystemResource(submission))
-        return submit(HttpEntity(body, headers), SubmissionFormat.JSON, "$SUBMIT_URL/direct")
+        return submit(HttpEntity(body, headers), format, "$SUBMIT_URL/direct")
     }
 
     override fun submitSingle(submission: String, format: SubmissionFormat, files: List<File>): SubmissionResponse {
@@ -46,24 +46,8 @@ internal class MultiPartSubmissionClient(
         return submit(HttpEntity(body, headers), format)
     }
 
-    override fun submitXlsx(submission: File, files: List<File>): ResponseEntity<Submission> {
-        val format = SubmissionFormat.XLSX
-        val headers = createHeaders(format)
-        val body = LinkedMultiValueMap<String, Any>().apply {
-            files.forEach { add(FILES, FileSystemResource(it)) }
-            add(SUBMISSION, FileSystemResource(submission))
-        }
-
-        return submitSingle(HttpEntity(body, headers), format)
-    }
-
     private fun submit(request: RequestMap, format: SubmissionFormat, url: String = SUBMIT_URL): SubmissionResponse =
         template.postForEntity<String>(url, request)
-            .map { body -> serializationService.deserializeSubmission(body, format.asSubFormat()) }
-
-    private fun submitSingle(request: HttpEntity<LinkedMultiValueMap<String, Any>>, format: SubmissionFormat) =
-        template
-            .postForEntity<String>(SUBMIT_URL, request)
             .map { body -> serializationService.deserializeSubmission(body, format.asSubFormat()) }
 
     private fun createHeaders(format: SubmissionFormat) = HttpHeaders().apply {
