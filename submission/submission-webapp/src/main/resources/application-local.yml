@@ -25,3 +25,5 @@ app:
     filesDirPath: # Absolute path to the folder to be used for the user/groups files
     environment: LOCAL
     requireActivation: false
+  notifications:
+    smtp: smtp.ebi.ac.uk

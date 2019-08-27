@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.common.config
 
 import ac.uk.ebi.biostd.common.property.ApplicationProperties
-import ac.uk.ebi.biostd.submission.service.TempFileGenerator
+import ac.uk.ebi.biostd.submission.domain.service.TempFileGenerator
 import ebi.ac.uk.util.file.ExcelReader
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean

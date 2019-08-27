@@ -1,6 +1,8 @@
 package ebi.ac.uk.security.util
 
+import ac.uk.ebi.biostd.persistence.model.SecurityToken
 import ac.uk.ebi.biostd.persistence.model.User
+import ac.uk.ebi.biostd.persistence.repositories.TokenDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import arrow.core.Option
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -12,6 +14,8 @@ import io.jsonwebtoken.SignatureAlgorithm
 import io.jsonwebtoken.SignatureException
 import mu.KotlinLogging
 import java.security.MessageDigest
+import java.time.Clock
+import java.time.OffsetDateTime
 import java.util.Arrays
 import java.util.UUID
 
@@ -31,6 +35,7 @@ private val logger = KotlinLogging.logger {}
 internal class SecurityUtil(
     private val jwtParser: JwtParser,
     private val objectMapper: ObjectMapper,
+    private val tokenRepository: TokenDataRepository,
     private val userRepository: UserDataRepository,
     private val tokenHash: String
 ) {
@@ -82,6 +87,18 @@ internal class SecurityUtil(
                 }
             }
         }
+    }
+
+    fun checkToken(tokenKey: String): Option<User> {
+        val token = tokenRepository.findById(tokenKey)
+        return when {
+            token.isPresent -> Option.empty()
+            else -> fromToken(tokenKey)
+        }
+    }
+
+    fun invalidateToken(authToken: String) {
+        tokenRepository.save(SecurityToken(authToken, OffsetDateTime.now(Clock.systemUTC())))
     }
 
     private fun isLocalEnvironment(instanceKey: String) =

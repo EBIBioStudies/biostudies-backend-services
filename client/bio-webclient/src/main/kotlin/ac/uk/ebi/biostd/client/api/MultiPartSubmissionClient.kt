@@ -18,30 +18,32 @@ import org.springframework.web.client.RestTemplate
 import org.springframework.web.client.postForEntity
 import java.io.File
 
+typealias SubmissionResponse = ResponseEntity<Submission>
+typealias RequestMap = HttpEntity<LinkedMultiValueMap<String, Any>>
+
 private const val SUBMIT_URL = "/submissions"
 
 internal class MultiPartSubmissionClient(
     private val template: RestTemplate,
     private val serializationService: SerializationService
 ) : MultipartSubmissionOperations {
-    override fun submitSingle(
-        submission: String,
-        format: SubmissionFormat,
-        files: List<File>
-    ): ResponseEntity<Submission> {
-        val headers = createHeaders(format)
-        val body = getMultipartBody(files, submission)
-        return submitSingle(HttpEntity(body, headers), format)
+
+    override fun submitSingle(submission: File, files: List<File>): SubmissionResponse {
+        val headers = createHeaders(SubmissionFormat.JSON)
+        val body = getMultipartBody(files, FileSystemResource(submission))
+        return submit(HttpEntity(body, headers), SubmissionFormat.JSON, "$SUBMIT_URL/direct")
     }
 
-    override fun submitSingle(
-        submission: Submission,
-        format: SubmissionFormat,
-        files: List<File>
-    ): ResponseEntity<Submission> {
+    override fun submitSingle(submission: String, format: SubmissionFormat, files: List<File>): SubmissionResponse {
+        val headers = createHeaders(format)
+        val body = getMultipartBody(files, submission)
+        return submit(HttpEntity(body, headers), format)
+    }
+
+    override fun submitSingle(submission: Submission, format: SubmissionFormat, files: List<File>): SubmissionResponse {
         val headers = createHeaders(format)
         val body = getMultipartBody(files, serializationService.serializeSubmission(submission, format.asSubFormat()))
-        return submitSingle(HttpEntity(body, headers), format)
+        return submit(HttpEntity(body, headers), format)
     }
 
     override fun submitXlsx(submission: File, files: List<File>): ResponseEntity<Submission> {
@@ -55,6 +57,10 @@ internal class MultiPartSubmissionClient(
         return submitSingle(HttpEntity(body, headers), format)
     }
 
+    private fun submit(request: RequestMap, format: SubmissionFormat, url: String = SUBMIT_URL): SubmissionResponse =
+        template.postForEntity<String>(url, request)
+            .map { body -> serializationService.deserializeSubmission(body, format.asSubFormat()) }
+
     private fun submitSingle(request: HttpEntity<LinkedMultiValueMap<String, Any>>, format: SubmissionFormat) =
         template
             .postForEntity<String>(SUBMIT_URL, request)
@@ -66,7 +72,7 @@ internal class MultiPartSubmissionClient(
         setSubmissionType(format.submissionType)
     }
 
-    private fun getMultipartBody(files: List<File>, submission: String) = LinkedMultiValueMap<String, Any>().apply {
+    private fun getMultipartBody(files: List<File>, submission: Any) = LinkedMultiValueMap<String, Any>().apply {
         files.forEach { add(FILES, FileSystemResource(it)) }
         add(SUBMISSION, submission)
     }

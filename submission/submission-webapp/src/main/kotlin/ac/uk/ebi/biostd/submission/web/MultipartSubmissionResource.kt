@@ -2,18 +2,15 @@ package ac.uk.ebi.biostd.submission.web
 
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat
+import ac.uk.ebi.biostd.submission.domain.service.SubmissionService
+import ac.uk.ebi.biostd.submission.domain.service.TempFileGenerator
 import ac.uk.ebi.biostd.submission.model.UserSource
-import ac.uk.ebi.biostd.submission.service.SubmissionService
-import ac.uk.ebi.biostd.submission.service.TempFileGenerator
 import ebi.ac.uk.model.Submission
-import ebi.ac.uk.model.constants.APPLICATION_JSON
 import ebi.ac.uk.model.constants.APPLICATION_XLSX
 import ebi.ac.uk.model.constants.FILES
 import ebi.ac.uk.model.constants.MULTIPART_FORM_DATA
 import ebi.ac.uk.model.constants.SUBMISSION
 import ebi.ac.uk.model.constants.SUBMISSION_TYPE
-import ebi.ac.uk.model.constants.TEXT_PLAIN
-import ebi.ac.uk.model.constants.TEXT_XML
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import ebi.ac.uk.util.file.ExcelReader
 import org.springframework.http.HttpHeaders
@@ -35,30 +32,6 @@ class MultipartSubmissionResource(
     private val tempFileGenerator: TempFileGenerator,
     private val serializationService: SerializationService
 ) {
-    @PostMapping(headers = ["${HttpHeaders.CONTENT_TYPE}=$MULTIPART_FORM_DATA", "$SUBMISSION_TYPE=$APPLICATION_JSON"])
-    @ResponseBody
-    fun submitJson(
-        @AuthenticationPrincipal user: SecurityUser,
-        @RequestParam(FILES) files: Array<MultipartFile>,
-        @RequestParam(SUBMISSION) submissionContent: String
-    ) = submit(files, user, submissionContent, SubFormat.JSON)
-
-    @PostMapping(headers = ["${HttpHeaders.CONTENT_TYPE}=$MULTIPART_FORM_DATA", "$SUBMISSION_TYPE=$TEXT_XML"])
-    @ResponseBody
-    fun submitXml(
-        @AuthenticationPrincipal user: SecurityUser,
-        @RequestParam(FILES) files: Array<MultipartFile>,
-        @RequestParam(SUBMISSION) submissionContent: String
-    ): Submission = submit(files, user, submissionContent, SubFormat.XML)
-
-    @PostMapping(headers = ["${HttpHeaders.CONTENT_TYPE}=$MULTIPART_FORM_DATA", "$SUBMISSION_TYPE=$TEXT_PLAIN"])
-    @ResponseBody
-    fun submitTsv(
-        @AuthenticationPrincipal user: SecurityUser,
-        @RequestParam(FILES) files: Array<MultipartFile>,
-        @RequestParam(SUBMISSION) submissionContent: String
-    ): Submission = submit(files, user, submissionContent, SubFormat.TSV)
-
     @PostMapping(headers = ["${HttpHeaders.CONTENT_TYPE}=$MULTIPART_FORM_DATA", "$SUBMISSION_TYPE=$APPLICATION_XLSX"])
     @ResponseBody
     fun submitXlsx(
