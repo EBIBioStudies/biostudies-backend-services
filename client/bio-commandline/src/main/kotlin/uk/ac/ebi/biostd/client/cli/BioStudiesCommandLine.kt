@@ -1,15 +1,12 @@
 package uk.ac.ebi.biostd.client.cli
 
-import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
-import ac.uk.ebi.biostd.client.integration.web.SubmissionClient
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.PrintMessage
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.file
 import ebi.ac.uk.base.isNotBlank
-import ebi.ac.uk.io.isExcel
 import org.json.JSONObject
 import org.springframework.web.client.ResourceAccessException
 import org.springframework.web.client.RestClientResponseException
@@ -24,8 +21,6 @@ class BioStudiesCommandLine : CliktCommand(name = "PTSubmit") {
     private val password by option("-p", "--password", help = "The user password").required()
     private val input by option(
         "-i", "--input", help = "Path to the file containing the submission page tab").file(exists = true)
-    private val format by option(
-        "-f", "--format", help = "Page tab format used to process the given submission").required()
     private val attached by option(
         "-a", "--attached", help = "Comma separated list of paths to the files referenced in the submission")
 
@@ -39,8 +34,7 @@ class BioStudiesCommandLine : CliktCommand(name = "PTSubmit") {
             }
 
             val client = getClient(server, user, password)
-            val subFormat = SubmissionFormat.valueOf(format.toUpperCase())
-            val submission = submit(client, input!!, files, subFormat)
+            val submission = client.submitSingle(input!!, files).body!!
 
             echo("SUCCESS: Submission with AccNo ${submission.accNo} was submitted")
         } catch (exception: Exception) {
@@ -54,16 +48,6 @@ class BioStudiesCommandLine : CliktCommand(name = "PTSubmit") {
 
     internal fun getClient(host: String, user: String, password: String) =
         SecurityWebClient.create(host).getAuthenticatedClient(user, password)
-
-    private fun submit(
-        client: SubmissionClient,
-        input: File,
-        files: MutableList<File>,
-        format: SubmissionFormat
-    ) = when {
-        input.isExcel() -> client.submitSingle(input, files).body!!
-        else -> client.submitSingle(input.readText(), format, files).body!!
-    }
 
     // TODO The exceptions should be formatted at bio-webclient level
     private fun formatException(exception: RestClientResponseException) =

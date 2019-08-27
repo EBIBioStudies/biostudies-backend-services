@@ -23,13 +23,11 @@ internal class PagetabSerializationService(
     override fun deserializeSubmission(content: String, format: SubFormat, source: FilesSource): Submission =
         fileListSerializer.deserializeFileList(serializer.deserializeSubmission(content, format), format, source)
 
-    override fun getSubmissionFormat(file: File): SubFormat {
-        return when (file.extension) {
-            "tsv" -> SubFormat.TSV
-            "xlsx" -> SubFormat.TSV
-            "xml" -> SubFormat.XML
-            "json" -> SubFormat.JSON
-            else -> throw InvalidExtensionException(file)
-        }
+    override fun getSubmissionFormat(file: File) = when (file.extension) {
+        "tsv" -> SubFormat.TSV
+        "xlsx" -> SubFormat.TSV
+        "xml" -> SubFormat.XML
+        "json" -> SubFormat.JSON
+        else -> throw InvalidExtensionException(file)
     }
 }
