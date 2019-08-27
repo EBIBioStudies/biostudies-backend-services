@@ -12,7 +12,6 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.impl.annotations.SpyK
 import io.mockk.junit5.MockKExtension
-import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -33,14 +32,12 @@ class BioStudiesCommandLineTest(
     @SpyK
     private var testInstance = BioStudiesCommandLine()
 
-    private lateinit var excelFile: File
     private lateinit var rootFolder: String
     private lateinit var submissionFile: File
 
     @BeforeEach
     fun setUp() {
         rootFolder = temporaryFolder.root.absolutePath
-        excelFile = temporaryFolder.createFile("ExcelSubmission.xlsx")
         submissionFile = temporaryFolder.createFile("Submission.tsv")
 
         temporaryFolder.createDirectory("attachments")
@@ -50,7 +47,6 @@ class BioStudiesCommandLineTest(
         val libFile = temporaryFolder.createFile("FileList.tsv")
         val refFile = temporaryFolder.createFile("attachments/inner/RefFile.txt")
 
-        every { mockWebClient.submitSingle(excelFile, listOf()) } returns mockResponse
         every { mockWebClient.submitSingle(submissionFile, listOf()) } returns mockResponse
         every { testInstance.getClient("http://localhost:8080", "user", "123456") } returns mockWebClient
         every { mockWebClient.submitSingle(submissionFile, listOf(libFile, refFile)) } returns mockResponse
@@ -96,19 +92,6 @@ class BioStudiesCommandLineTest(
 
         val exceptionMessage = assertThrows<PrintMessage> { testInstance.parse(args) }.message
         assertThat(exceptionMessage).isEqualTo("Invalid Files")
-    }
-
-    @Test
-    fun `submit with excel file`() {
-        val args = arrayOf(
-            "-s", "http://localhost:8080",
-            "-u", "user",
-            "-p", "123456",
-            "-i", "$rootFolder/ExcelSubmission.xlsx")
-
-        testInstance.main(args)
-
-        verify(exactly = 1) { mockWebClient.submitSingle(excelFile, listOf()) }
     }
 
     @Test
