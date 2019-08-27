@@ -8,13 +8,12 @@ import org.w3c.dom.Node
 class SubmissionXmlDeserializer(
     private val attributeXmlDeserializer: AttributeXmlDeserializer,
     private val sectionXmlDeserializer: SectionXmlDeserializer
-)
-    : BaseXmlDeserializer<Submission>() {
+) : BaseXmlDeserializer<Submission>() {
 
     override fun deserialize(node: Node): Submission {
         return Submission(
             accNo = node.getProperty(SubFields.ACC_NO),
-            attributes = attributeXmlDeserializer.deserializeList(node.getNode(SubFields.ATTRIBUTES)),
+            attributes = attributeXmlDeserializer.deserializeList(node.findNode(SubFields.ATTRIBUTES)),
             section = sectionXmlDeserializer.deserialize(node.getNode(SubFields.SECTION))
         )
     }

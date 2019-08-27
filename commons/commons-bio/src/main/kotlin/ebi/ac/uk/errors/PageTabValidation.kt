@@ -1,9 +1,17 @@
 package ebi.ac.uk.errors
 
-class ValidationTree(var status: String, var log: ValidationNode)
+class ValidationTree(var status: ValidationTreeStatus, var log: ValidationNode)
+
+enum class ValidationTreeStatus {
+    FAIL
+}
 
 class ValidationNode(
-    var level: String,
+    var level: ValidationNodeStatus,
     var message: String,
-    var subnodes: MutableList<ValidationNode> = mutableListOf()
+    var subnodes: List<ValidationNode> = emptyList()
 )
+
+enum class ValidationNodeStatus {
+    ERROR
+}

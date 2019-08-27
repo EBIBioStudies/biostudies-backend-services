@@ -20,7 +20,7 @@ while $(kill -9 ${PID} 2>/dev/null); do sleep 1;done;
 rm -rf logs.txt
 
 ## deploy new version of application
-nohup ${JAVA_HOME}/bin/java \
+nohup ${JAVA_HOME}/bin/java JVM_PARAMS \
     -Xdebug -Xrunjdwp:transport=dt_socket,server=y,address=DEBUG_PORT,suspend=n \
     -jar APP_PATH/APP_NAME \
     --spring.config.location=classpath:/application.yml,APP_PATH/application.yml \

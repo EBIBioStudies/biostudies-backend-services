@@ -4,7 +4,6 @@ import arrow.core.Option
 import ebi.ac.uk.base.toOption
 import ebi.ac.uk.security.integration.components.ISecurityFilter
 import ebi.ac.uk.security.integration.model.api.SecurityUser
-import ebi.ac.uk.security.service.ProfileService
 import ebi.ac.uk.security.service.SecurityService
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
@@ -18,21 +17,19 @@ import javax.servlet.http.HttpServletRequest
 const val HEADER_NAME = "X-Session-Token"
 const val COOKIE_NAME = "BIOSTDSESS"
 
-internal class SecurityFilter(
-    private val environment: String,
-    private val securityService: SecurityService,
-    private val profileService: ProfileService
-) : GenericFilterBean(), ISecurityFilter {
+internal class SecurityFilter(private val environment: String, private val securityService: SecurityService)
+    : GenericFilterBean(), ISecurityFilter {
 
     override fun doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain) {
         getSecurityKey(request as HttpServletRequest)
-            .flatMap { securityService.checkToken(it) }
-            .map { setSecurityUser(profileService.asSecurityUser(it)) }
+            .map { securityService.getUserProfile(it) }
+            .map { (user, token) -> setSecurityUser(user, token) }
         chain.doFilter(request, response)
     }
 
-    private fun setSecurityUser(user: SecurityUser) {
-        SecurityContextHolder.getContext().authentication = UsernamePasswordAuthenticationToken(user, "", emptyList())
+    private fun setSecurityUser(user: SecurityUser, token: String) {
+        SecurityContextHolder.getContext().authentication =
+            UsernamePasswordAuthenticationToken(user, token, emptyList())
     }
 
     private fun getSecurityKey(httpRequest: HttpServletRequest): Option<String> {

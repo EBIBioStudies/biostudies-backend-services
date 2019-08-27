@@ -1,7 +1,6 @@
 package ebi.ac.uk.security.service
 
 import ac.uk.ebi.biostd.persistence.model.User
-import ac.uk.ebi.biostd.persistence.repositories.TokenDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ebi.ac.uk.api.security.ChangePasswordRequest
 import ebi.ac.uk.api.security.LoginRequest
@@ -47,13 +46,12 @@ private val PASSWORD_DIGGEST: ByteArray = ByteArray(0)
 @ExtendWith(MockKExtension::class)
 internal class SecurityServiceTest(
     @MockK private val userRepository: UserDataRepository,
-    @MockK private val tokenRepository: TokenDataRepository,
     @MockK private val securityProps: SecurityProperties,
     @MockK private val securityUtil: SecurityUtil,
     @MockK private val profileService: ProfileService
 ) {
     private val testInstance: SecurityService =
-        SecurityService(userRepository, tokenRepository, securityUtil, securityProps, profileService)
+        SecurityService(userRepository, securityUtil, securityProps, profileService)
 
     @Nested
     inner class Login {
