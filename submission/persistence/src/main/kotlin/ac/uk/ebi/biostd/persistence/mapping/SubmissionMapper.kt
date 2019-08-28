@@ -54,6 +54,7 @@ class SubmissionMapper(
         secretKey = submission.secretKey
         relPath = submission.relPath
         rootPath = submission.rootPath
+        released = submission.released
         creationTime = submission.creationTime.toEpochSecond()
         modificationTime = submission.modificationTime.toEpochSecond()
         releaseTime = submission.releaseTime.toEpochSecond()

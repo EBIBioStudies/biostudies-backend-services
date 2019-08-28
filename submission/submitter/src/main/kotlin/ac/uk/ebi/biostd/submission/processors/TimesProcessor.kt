@@ -27,6 +27,7 @@ class TimesProcessor : SubmissionProcessor {
         submission.releaseTime = submission.releaseDate?.let { parseDate(it) } ?: now
 
         if (submission.releaseTime.isBefore(now)) {
+            submission.released = true
             submission.addAccessTag(SubFields.PUBLIC_ACCESS_TAG.value)
         }
     }

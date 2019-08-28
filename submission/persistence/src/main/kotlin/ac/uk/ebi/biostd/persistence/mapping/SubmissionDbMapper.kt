@@ -52,6 +52,7 @@ class SubmissionDbMapper {
             secretKey = submissionDb.secretKey
             relPath = submissionDb.relPath
             rootPath = submissionDb.rootPath
+            released = submissionDb.released
             creationTime = toInstant(submissionDb.creationTime)
             modificationTime = toInstant(submissionDb.releaseTime)
             releaseTime = toInstant(submissionDb.releaseTime)
