@@ -17,6 +17,7 @@ import ebi.ac.uk.dsl.file
 import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.dsl.line
+import ebi.ac.uk.dsl.poi.excel
 import ebi.ac.uk.dsl.section
 import ebi.ac.uk.dsl.submission
 import ebi.ac.uk.dsl.tsv
@@ -90,7 +91,36 @@ internal class MultipartSubmissionApiTest(private val tempFolder: TemporaryFolde
 
         @Test
         fun `submit excel submission`() {
-            val excelPageTab = SystemFile(this.javaClass::class.java.getResource("/input/ExcelSubmission.xlsx").toURI())
+//            val excelPageTabPath = "${tempFolder.root.absolutePath}/ExcelSubmission.xlsx"
+            val excelPageTab = excel("${tempFolder.root.absolutePath}/ExcelSubmission.xlsx") {
+//                sheet(sheetName = "submission", colSize = arrayOf(200, 200)) {
+                sheet("page tab") {
+                    row {
+                        cell("Submission")
+                        cell("S-EXC123")
+                    }
+                    row {
+                        cell("Title")
+                        cell("Excel Submission")
+                    }
+
+                    emptyRow()
+
+                    row {
+                        cell("Study")
+                        cell("SECT-001")
+                    }
+                    row {
+                        cell("Title")
+                        cell("Root Section")
+                    }
+                    row {
+                        cell("File List")
+                        cell("FileList.tsv")
+                    }
+                }
+            }
+//            val excelPageTab = SystemFile(this.javaClass::class.java.getResource("/input/ExcelSubmission.xlsx").toURI())
             val fileList = tempFolder.createFile("FileList.tsv").apply {
                 writeBytes(tsv {
                     line("Files", "GEN")
