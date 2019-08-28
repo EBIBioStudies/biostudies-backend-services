@@ -12,6 +12,6 @@ task setUpTestDatabase(type: Exec) {
     if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
         commandLine 'cmd', '/c', 'SetUpDatabase.cmd', 'test'
     } else {
-        ommandLine './SetUpDatabase.sh', 'test'
+        commandLine './SetUpDatabase.sh', 'test'
     }
 }
