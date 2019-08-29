@@ -17,7 +17,7 @@ import ebi.ac.uk.dsl.file
 import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.dsl.line
-import ebi.ac.uk.dsl.poi.excel
+import ebi.ac.uk.dsl.excel.excel
 import ebi.ac.uk.dsl.section
 import ebi.ac.uk.dsl.submission
 import ebi.ac.uk.dsl.tsv
@@ -42,7 +42,6 @@ import org.springframework.http.ResponseEntity
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.transaction.annotation.Transactional
-import java.io.File as SystemFile
 import java.nio.file.Paths
 
 @ExtendWith(TemporaryFolderExtension::class)
@@ -91,9 +90,7 @@ internal class MultipartSubmissionApiTest(private val tempFolder: TemporaryFolde
 
         @Test
         fun `submit excel submission`() {
-//            val excelPageTabPath = "${tempFolder.root.absolutePath}/ExcelSubmission.xlsx"
             val excelPageTab = excel("${tempFolder.root.absolutePath}/ExcelSubmission.xlsx") {
-//                sheet(sheetName = "submission", colSize = arrayOf(200, 200)) {
                 sheet("page tab") {
                     row {
                         cell("Submission")
@@ -120,7 +117,7 @@ internal class MultipartSubmissionApiTest(private val tempFolder: TemporaryFolde
                     }
                 }
             }
-//            val excelPageTab = SystemFile(this.javaClass::class.java.getResource("/input/ExcelSubmission.xlsx").toURI())
+
             val fileList = tempFolder.createFile("FileList.tsv").apply {
                 writeBytes(tsv {
                     line("Files", "GEN")

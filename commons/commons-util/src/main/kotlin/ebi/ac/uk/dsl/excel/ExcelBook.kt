@@ -1,4 +1,4 @@
-package ebi.ac.uk.dsl.poi
+package ebi.ac.uk.dsl.excel
 
 import org.apache.poi.xssf.streaming.SXSSFWorkbook
 import java.io.OutputStream
