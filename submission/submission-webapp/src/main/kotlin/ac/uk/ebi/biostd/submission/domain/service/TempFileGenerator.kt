@@ -8,7 +8,7 @@ class TempFileGenerator(private val properties: ApplicationProperties) {
     fun asFiles(files: Array<MultipartFile>): List<File> = files.map { asFile(it) }
 
     fun asFile(file: MultipartFile): File {
-        val tempFile = File(properties.tempDirPath, file.originalFilename)
+        val tempFile = File(properties.tempDirPath, file.originalFilename!!)
         file.transferTo(tempFile)
         return tempFile
     }

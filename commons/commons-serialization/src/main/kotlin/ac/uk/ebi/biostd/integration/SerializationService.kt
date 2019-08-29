@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.integration
 
 import ebi.ac.uk.io.FilesSource
 import ebi.ac.uk.model.Submission
+import java.io.File
 
 interface SerializationService {
     fun deserializeSubmission(content: String, format: SubFormat): Submission
@@ -11,4 +12,6 @@ interface SerializationService {
     fun serializeSubmission(submission: Submission, format: SubFormat): String
 
     fun <T> serializeElement(element: T, format: SubFormat): String
+
+    fun getSubmissionFormat(file: File): SubFormat
 }

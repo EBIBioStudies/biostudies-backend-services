@@ -27,11 +27,11 @@ internal class MultiPartSubmissionClient(
     private val template: RestTemplate,
     private val serializationService: SerializationService
 ) : MultipartSubmissionOperations {
-
     override fun submitSingle(submission: File, files: List<File>): SubmissionResponse {
-        val headers = createHeaders(SubmissionFormat.JSON)
+        val format = SubmissionFormat.fromSubFormat(serializationService.getSubmissionFormat(submission))
+        val headers = createHeaders(format)
         val body = getMultipartBody(files, FileSystemResource(submission))
-        return submit(HttpEntity(body, headers), SubmissionFormat.JSON, "$SUBMIT_URL/direct")
+        return submit(HttpEntity(body, headers), format, "$SUBMIT_URL/direct")
     }
 
     override fun submitSingle(submission: String, format: SubmissionFormat, files: List<File>): SubmissionResponse {
@@ -50,18 +50,14 @@ internal class MultiPartSubmissionClient(
         template.postForEntity<String>(url, request)
             .map { body -> serializationService.deserializeSubmission(body, format.asSubFormat()) }
 
-    private fun createHeaders(format: SubmissionFormat): HttpHeaders {
-        val headers = HttpHeaders()
-        headers.accept = listOf(format.mediaType, MediaType.APPLICATION_JSON)
-        headers.contentType = MediaType.MULTIPART_FORM_DATA
-        headers.setSubmissionType(format.mediaType)
-        return headers
+    private fun createHeaders(format: SubmissionFormat) = HttpHeaders().apply {
+        contentType = MediaType.MULTIPART_FORM_DATA
+        accept = listOf(format.mediaType, MediaType.APPLICATION_JSON)
+        setSubmissionType(format.submissionType)
     }
 
-    private fun getMultipartBody(files: List<File>, submission: Any): LinkedMultiValueMap<String, Any> {
-        val map = LinkedMultiValueMap<String, Any>()
-        files.forEach { map.add(FILES, FileSystemResource(it)) }
-        map.add(SUBMISSION, submission)
-        return map
+    private fun getMultipartBody(files: List<File>, submission: Any) = LinkedMultiValueMap<String, Any>().apply {
+        files.forEach { add(FILES, FileSystemResource(it)) }
+        add(SUBMISSION, submission)
     }
 }

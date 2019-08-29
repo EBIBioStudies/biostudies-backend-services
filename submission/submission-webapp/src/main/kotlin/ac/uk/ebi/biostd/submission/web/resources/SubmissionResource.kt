@@ -16,10 +16,7 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/submissions")
 @PreAuthorize("isAuthenticated()")
-class SubmissionResource(
-    private val submissionService: SubmissionService
-) {
-
+class SubmissionResource(private val submissionService: SubmissionService) {
     @GetMapping("/{accNo}.json",
         produces = [APPLICATION_JSON],
         headers = ["$CONTENT_TYPE=$APPLICATION_JSON", "$SUBMISSION_TYPE=$APPLICATION_JSON"])
