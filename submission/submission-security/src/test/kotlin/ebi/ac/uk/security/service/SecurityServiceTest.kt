@@ -233,7 +233,7 @@ internal class SecurityServiceTest(
         fun `reset password when user not found`() {
             every { userRepository.findByLoginOrEmailAndActive(email, email, true) } returns Optional.empty()
 
-            assertThrows<UserNotFoundException> { testInstance.resetPassword(resetPasswordRequest) }
+            assertThrows<UserNotFoundException> { testInstance.recoverPassword(resetPasswordRequest) }
         }
 
         @Test
@@ -248,7 +248,7 @@ internal class SecurityServiceTest(
             val subscriber = TestObserver<PasswordReset>()
             Events.passwordReset.subscribe(subscriber)
 
-            testInstance.resetPassword(resetPasswordRequest)
+            testInstance.recoverPassword(resetPasswordRequest)
 
             assertThat(subscriber.values()).hasSize(1)
             assertThat(subscriber.values()).first().satisfies {

@@ -76,7 +76,7 @@ internal class SecurityService(
         userRepository.save(user)
     }
 
-    override fun resetPassword(request: ResetPasswordRequest) {
+    override fun recoverPassword(request: ResetPasswordRequest) {
         val email = request.email
         val user = userRepository.findByLoginOrEmailAndActive(email, email, true)
             .orElseThrow { UserNotFoundException() }
