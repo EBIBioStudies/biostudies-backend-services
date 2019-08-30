@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.submission.domain.exception
+package ac.uk.ebi.biostd.exception
 
 import java.io.File
 

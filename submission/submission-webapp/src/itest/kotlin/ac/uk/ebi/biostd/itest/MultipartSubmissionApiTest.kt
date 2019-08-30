@@ -17,6 +17,7 @@ import ebi.ac.uk.dsl.file
 import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.dsl.line
+import ebi.ac.uk.dsl.excel.excel
 import ebi.ac.uk.dsl.section
 import ebi.ac.uk.dsl.submission
 import ebi.ac.uk.dsl.tsv
@@ -88,6 +89,49 @@ internal class MultipartSubmissionApiTest(private val tempFolder: TemporaryFolde
         }
 
         @Test
+        fun `submit excel submission`() {
+            val excelPageTab = excel("${tempFolder.root.absolutePath}/ExcelSubmission.xlsx") {
+                sheet("page tab") {
+                    row {
+                        cell("Submission")
+                        cell("S-EXC123")
+                    }
+                    row {
+                        cell("Title")
+                        cell("Excel Submission")
+                    }
+
+                    emptyRow()
+
+                    row {
+                        cell("Study")
+                        cell("SECT-001")
+                    }
+                    row {
+                        cell("Title")
+                        cell("Root Section")
+                    }
+                    row {
+                        cell("File List")
+                        cell("FileList.tsv")
+                    }
+                }
+            }
+
+            val fileList = tempFolder.createFile("FileList.tsv").apply {
+                writeBytes(tsv {
+                    line("Files", "GEN")
+                    line("SomeFile.txt", "ABC")
+                }.toString().toByteArray())
+            }
+
+            val response = webClient.submitSingle(excelPageTab, listOf(fileList, tempFolder.createFile("SomeFile.txt")))
+            assertSuccessfulResponse(response)
+            assertSubmissionFiles("S-EXC123", "SomeFile.txt")
+            fileList.delete()
+        }
+
+        @Test
         fun `submission with file list TSV`() {
             val submission = tsv {
                 line("Submission", "S-TEST1")
@@ -112,6 +156,7 @@ internal class MultipartSubmissionApiTest(private val tempFolder: TemporaryFolde
 
             assertSuccessfulResponse(response)
             assertSubmissionFiles("S-TEST1", "File1.txt")
+            fileList.delete()
         }
 
         @Test

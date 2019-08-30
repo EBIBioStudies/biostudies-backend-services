@@ -32,7 +32,6 @@ class PropertiesProcessorTest(@MockK private val mockPersistenceContext: Persist
         testInstance.process(testSubmission, mockPersistenceContext)
 
         assertThat(testSubmission.secretKey).isEqualTo("a-secret-key")
-        assertThat(testSubmission.released).isTrue()
         assertThat(testSubmission.version).isEqualTo(2)
     }
 
@@ -44,7 +43,6 @@ class PropertiesProcessorTest(@MockK private val mockPersistenceContext: Persist
 
         assertThat(testSubmission.secretKey).isNotEmpty()
         assertThat(testSubmission.secretKey).isNotEqualTo("a-secret-key")
-        assertThat(testSubmission.released).isFalse()
         assertThat(testSubmission.version).isEqualTo(1)
     }
 }

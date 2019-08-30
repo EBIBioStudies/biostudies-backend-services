@@ -1,6 +1,5 @@
 package uk.ac.ebi.biostd.client.cli
 
-import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.PrintMessage
@@ -22,8 +21,6 @@ class BioStudiesCommandLine : CliktCommand(name = "PTSubmit") {
     private val password by option("-p", "--password", help = "The user password").required()
     private val input by option(
         "-i", "--input", help = "Path to the file containing the submission page tab").file(exists = true)
-    private val format by option(
-        "-f", "--format", help = "Page tab format used to process the given submission").required()
     private val attached by option(
         "-a", "--attached", help = "Comma separated list of paths to the files referenced in the submission")
 
@@ -37,8 +34,7 @@ class BioStudiesCommandLine : CliktCommand(name = "PTSubmit") {
             }
 
             val client = getClient(server, user, password)
-            val submission =
-                client.submitSingle(input!!.readText(), SubmissionFormat.valueOf(format.toUpperCase()), files).body!!
+            val submission = client.submitSingle(input!!, files).body!!
 
             echo("SUCCESS: Submission with AccNo ${submission.accNo} was submitted")
         } catch (exception: Exception) {

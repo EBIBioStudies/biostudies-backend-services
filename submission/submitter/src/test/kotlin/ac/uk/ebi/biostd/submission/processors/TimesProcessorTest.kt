@@ -58,6 +58,7 @@ class TimesProcessorTest(@MockK private val mockPersistenceContext: PersistenceC
         testInstance.process(submission, mockPersistenceContext)
         assertTimeProcessing(mockNow, testTime, mockNow)
 
+        assertThat(submission.released).isTrue()
         assertThat(submission.accessTags).hasSize(1)
         assertThat(submission.accessTags.first()).isEqualTo("Public")
     }
@@ -70,6 +71,7 @@ class TimesProcessorTest(@MockK private val mockPersistenceContext: PersistenceC
         testInstance.process(submission, mockPersistenceContext)
         assertTimeProcessing(mockNow, releaseTime, mockNow)
 
+        assertThat(submission.released).isFalse()
         assertThat(submission.accessTags).isEmpty()
     }
 
@@ -80,6 +82,7 @@ class TimesProcessorTest(@MockK private val mockPersistenceContext: PersistenceC
         testInstance.process(submission, mockPersistenceContext)
         assertTimeProcessing(mockNow, mockNow, mockNow)
 
+        assertThat(submission.released).isFalse()
         assertThat(submission.accessTags).isEmpty()
     }
 

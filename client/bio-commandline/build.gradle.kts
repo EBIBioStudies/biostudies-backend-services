@@ -12,6 +12,7 @@ plugins {
 }
 
 dependencies {
+    compile(project(":commons:commons-util"))
     compile(project(":client:bio-webclient"))
 
     compile(JSONOrg)
