@@ -9,7 +9,6 @@ import ebi.ac.uk.security.integration.exception.UserNotFoundByEmailException
 import ebi.ac.uk.security.integration.exception.UserNotFoundByTokenException
 import ebi.ac.uk.security.integration.exception.UserPendingRegistrationException
 import ebi.ac.uk.security.integration.exception.UserWithActivationKeyNotFoundException
-import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatus.BAD_REQUEST
 import org.springframework.http.HttpStatus.UNAUTHORIZED
 import org.springframework.http.ResponseEntity
@@ -17,8 +16,6 @@ import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.ResponseBody
 import org.springframework.web.bind.annotation.ResponseStatus
-import java.io.OutputStream
-import javax.servlet.http.HttpServletResponse
 
 @ControllerAdvice
 class SecurityExceptionHandler {
@@ -40,9 +37,4 @@ class SecurityExceptionHandler {
 
     fun <T> unAuthorized(body: T): ResponseEntity<T> = ResponseEntity.status(UNAUTHORIZED).body(body)
     fun <T> badRequest(body: T): ResponseEntity<T> = ResponseEntity.status(BAD_REQUEST).body(body)
-}
-
-fun HttpServletResponse.write(httpStatus: HttpStatus, writer: (OutputStream) -> Any) {
-    status = httpStatus.value()
-    outputStream.also { writer(it) }.flush()
 }
