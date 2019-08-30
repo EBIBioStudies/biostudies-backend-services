@@ -4,4 +4,5 @@ out/
 reports/
 .idea/
 *.iml
+~$*.xlsx
 .DS_Store
