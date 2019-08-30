@@ -35,10 +35,10 @@ import Versions.XmlBuilderVersion
 
 object TestVersions {
     const val AssertJVersion = "3.11.0"
-    const val JunitVersion = "5.4.0"
-    const val JunitEngineVersion = "1.2.0"
+    const val JunitVersion = "5.5.0"
+    const val JunitEngineVersion = "1.5.0"
     const val JunitExtensionsVersion = "2.3.0"
-    const val MockKVersion = "1.9"
+    const val MockKVersion = "1.9.3"
     const val XmlUnitVersion = "2.6.2"
     const val JsonAssertVersion = "2.4.0"
 }
@@ -49,9 +49,9 @@ object Versions {
     const val SpringDataVersion = "2.0.9.RELEASE"
     const val SpringAdminVersion = "2.1.5"
 
-    const val KotlinVersion = "1.3.20"
+    const val KotlinVersion = "1.3.41"
     const val KotlinLoggingVersion = "1.6.20"
-    const val KotlinArrowVersion = "0.7.2"
+    const val KotlinArrowVersion = "0.8.2"
     const val KotlinCoroutineVersion = "1.1.1"
     const val KMongoCoroutineVersion = "3.9.1"
 
