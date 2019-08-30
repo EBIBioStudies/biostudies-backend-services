@@ -37,3 +37,6 @@ fun Section.linksTable(block: LinksTable.() -> Unit) = addLinksTable(LinksTable(
 fun Section.file(name: String, block: File.() -> Unit = {}) = addFile((File(name).apply(block)))
 fun Section.section(type: String, block: Section.() -> Unit) = addSection((Section(type).apply(block)))
 fun Section.link(url: String, block: Link.() -> Unit = {}) = addLink((Link(url).apply(block)))
+
+fun link(url: String, block: Link.() -> Unit = {}) = Link(url).apply(block)
+fun file(path: String, block: File.() -> Unit = {}) = File(path).apply(block)
