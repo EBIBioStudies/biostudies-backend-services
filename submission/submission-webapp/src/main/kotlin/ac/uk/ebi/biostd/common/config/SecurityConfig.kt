@@ -5,6 +5,9 @@ import ac.uk.ebi.biostd.persistence.repositories.TokenDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserGroupDataRepository
 import ac.uk.ebi.biostd.security.web.SecurityMapper
+import ac.uk.ebi.biostd.security.web.exception.SecurityAccessDeniedHandler
+import ac.uk.ebi.biostd.security.web.exception.SecurityAuthEntryPoint
+import com.fasterxml.jackson.databind.ObjectMapper
 import ebi.ac.uk.security.integration.SecurityModuleConfig
 import ebi.ac.uk.security.integration.components.IGroupService
 import ebi.ac.uk.security.integration.components.ISecurityFilter
@@ -15,18 +18,20 @@ import io.reactivex.Observable
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
-import org.springframework.http.HttpStatus
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.config.http.SessionCreationPolicy
-import org.springframework.security.web.authentication.HttpStatusEntryPoint
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter
 
 @Configuration
 @EnableWebSecurity
 @Import(value = [SecurityBeansConfig::class, PersistenceConfig::class])
-class SecurityConfig(private val securityFilter: ISecurityFilter) : WebSecurityConfigurerAdapter() {
+class SecurityConfig(
+    private val securityFilter: ISecurityFilter,
+    private val accessDeniedHandler: SecurityAccessDeniedHandler,
+    private val authEntryPoint: SecurityAuthEntryPoint
+) : WebSecurityConfigurerAdapter() {
 
     @Suppress("SpreadOperator")
     override fun configure(http: HttpSecurity) {
@@ -39,17 +44,24 @@ class SecurityConfig(private val securityFilter: ISecurityFilter) : WebSecurityC
             .antMatchers("/auth/**").permitAll()
             .anyRequest().fullyAuthenticated()
             .and()
-            .exceptionHandling().authenticationEntryPoint(HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
+            .exceptionHandling().accessDeniedHandler(accessDeniedHandler)
+            .authenticationEntryPoint(authEntryPoint)
     }
 }
 
 @Configuration
-class SecurityBeansConfig(properties: ApplicationProperties) {
+class SecurityBeansConfig(private val objectMapper: ObjectMapper, properties: ApplicationProperties) {
 
     private val securityProps = properties.security
 
     @Bean
     fun securityMapper() = SecurityMapper()
+
+    @Bean
+    fun accessDeniedHandler(): SecurityAccessDeniedHandler = SecurityAccessDeniedHandler(objectMapper)
+
+    @Bean
+    fun securityAuthenticationHandler(): SecurityAuthEntryPoint = SecurityAuthEntryPoint(objectMapper)
 
     @Bean
     fun securityModuleConfig(

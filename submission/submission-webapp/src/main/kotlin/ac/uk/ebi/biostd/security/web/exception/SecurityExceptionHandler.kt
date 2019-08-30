@@ -1,0 +1,48 @@
+package ac.uk.ebi.biostd.security.web.exception
+
+import ac.uk.ebi.biostd.security.web.dto.SecurityError
+import ebi.ac.uk.security.integration.exception.ActKeyNotFoundException
+import ebi.ac.uk.security.integration.exception.LoginException
+import ebi.ac.uk.security.integration.exception.SecurityException
+import ebi.ac.uk.security.integration.exception.UserAlreadyRegister
+import ebi.ac.uk.security.integration.exception.UserNotFoundByEmailException
+import ebi.ac.uk.security.integration.exception.UserNotFoundByTokenException
+import ebi.ac.uk.security.integration.exception.UserPendingRegistrationException
+import ebi.ac.uk.security.integration.exception.UserWithActivationKeyNotFoundException
+import org.springframework.http.HttpStatus
+import org.springframework.http.HttpStatus.BAD_REQUEST
+import org.springframework.http.HttpStatus.UNAUTHORIZED
+import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.ControllerAdvice
+import org.springframework.web.bind.annotation.ExceptionHandler
+import org.springframework.web.bind.annotation.ResponseBody
+import org.springframework.web.bind.annotation.ResponseStatus
+import java.io.OutputStream
+import javax.servlet.http.HttpServletResponse
+
+@ControllerAdvice
+class SecurityExceptionHandler {
+
+    @ResponseBody
+    @ResponseStatus(BAD_REQUEST)
+    @ExceptionHandler(value = [SecurityException::class])
+    fun handle(exception: SecurityException): ResponseEntity<SecurityError> {
+        return when (exception) {
+            is LoginException,
+            is UserNotFoundByTokenException -> unAuthorized(SecurityError(exception.message))
+            is ActKeyNotFoundException,
+            is UserNotFoundByEmailException,
+            is UserPendingRegistrationException,
+            is UserWithActivationKeyNotFoundException,
+            is UserAlreadyRegister -> badRequest(SecurityError(exception.message))
+        }
+    }
+
+    fun <T> unAuthorized(body: T): ResponseEntity<T> = ResponseEntity.status(UNAUTHORIZED).body(body)
+    fun <T> badRequest(body: T): ResponseEntity<T> = ResponseEntity.status(BAD_REQUEST).body(body)
+}
+
+fun HttpServletResponse.write(httpStatus: HttpStatus, writer: (OutputStream) -> Any) {
+    status = httpStatus.value()
+    outputStream.also { writer(it) }.flush()
+}

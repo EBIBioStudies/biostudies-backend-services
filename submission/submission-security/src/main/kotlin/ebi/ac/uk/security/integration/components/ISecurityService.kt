@@ -22,7 +22,7 @@ interface ISecurityService {
 
     fun changePassword(request: ChangePasswordRequest)
 
-    fun recoverPassword(request: ResetPasswordRequest)
+    fun resetPassword(request: ResetPasswordRequest)
 
     fun getUserProfile(authToken: String): UserInfo
 }

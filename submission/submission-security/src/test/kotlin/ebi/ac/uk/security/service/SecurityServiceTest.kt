@@ -6,10 +6,11 @@ import ebi.ac.uk.api.security.ChangePasswordRequest
 import ebi.ac.uk.api.security.LoginRequest
 import ebi.ac.uk.security.events.Events
 import ebi.ac.uk.security.integration.SecurityProperties
-import ebi.ac.uk.security.integration.exception.ActKeyNotFoundException
 import ebi.ac.uk.security.integration.exception.LoginException
 import ebi.ac.uk.security.integration.exception.UserAlreadyRegister
-import ebi.ac.uk.security.integration.exception.UserNotFoundException
+import ebi.ac.uk.security.integration.exception.UserNotFoundByEmailException
+import ebi.ac.uk.security.integration.exception.UserPendingRegistrationException
+import ebi.ac.uk.security.integration.exception.UserWithActivationKeyNotFoundException
 import ebi.ac.uk.security.integration.model.api.UserInfo
 import ebi.ac.uk.security.integration.model.events.PasswordReset
 import ebi.ac.uk.security.integration.model.events.UserPreRegister
@@ -143,7 +144,7 @@ internal class SecurityServiceTest(
             every { userRepository.existsByEmail(email) } returns true
 
             val exception = assertThrows<UserAlreadyRegister> { testInstance.registerUser(registrationRequest) }
-            assertThat(exception.message).isEqualTo("There is already a user register with Jhon.Doe@test.com")
+            assertThat(exception.message).isEqualTo("There is already a user registered with email address 'Jhon.Doe@test.com'")
         }
     }
 
@@ -153,7 +154,7 @@ internal class SecurityServiceTest(
         fun `activate when not pending activation`() {
             every { userRepository.findByActivationKeyAndActive(ACTIVATION_KEY, false) } returns Optional.empty()
 
-            assertThrows<ActKeyNotFoundException> { testInstance.activate(ACTIVATION_KEY) }
+            assertThrows<UserWithActivationKeyNotFoundException> { testInstance.activate(ACTIVATION_KEY) }
         }
 
         @Test
@@ -175,7 +176,7 @@ internal class SecurityServiceTest(
         fun `retry pre registration when user not found`() {
             every { userRepository.findByEmailAndActive(email, false) } returns Optional.empty()
 
-            assertThrows<UserNotFoundException> { testInstance.retryRegistration(retryActivation) }
+            assertThrows<UserPendingRegistrationException> { testInstance.retryRegistration(retryActivation) }
         }
 
         @Test
@@ -210,7 +211,7 @@ internal class SecurityServiceTest(
         fun `change password when not activate user found`() {
             every { userRepository.findByActivationKeyAndActive(ACTIVATION_KEY, true) } returns Optional.empty()
 
-            assertThrows<UserNotFoundException> { testInstance.changePassword(ChangePasswordRequest(ACTIVATION_KEY, password)) }
+            assertThrows<UserWithActivationKeyNotFoundException> { testInstance.changePassword(ChangePasswordRequest(ACTIVATION_KEY, password)) }
         }
 
         @Test
@@ -233,7 +234,7 @@ internal class SecurityServiceTest(
         fun `reset password when user not found`() {
             every { userRepository.findByLoginOrEmailAndActive(email, email, true) } returns Optional.empty()
 
-            assertThrows<UserNotFoundException> { testInstance.recoverPassword(resetPasswordRequest) }
+            assertThrows<UserNotFoundByEmailException> { testInstance.resetPassword(resetPasswordRequest) }
         }
 
         @Test
@@ -248,7 +249,7 @@ internal class SecurityServiceTest(
             val subscriber = TestObserver<PasswordReset>()
             Events.passwordReset.subscribe(subscriber)
 
-            testInstance.recoverPassword(resetPasswordRequest)
+            testInstance.resetPassword(resetPasswordRequest)
 
             assertThat(subscriber.values()).hasSize(1)
             assertThat(subscriber.values()).first().satisfies {

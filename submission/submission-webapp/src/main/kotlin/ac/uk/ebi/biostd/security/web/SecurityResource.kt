@@ -13,7 +13,12 @@ import ebi.ac.uk.security.integration.components.ISecurityService
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Controller
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.ResponseBody
 
 @Controller
 @RequestMapping("/auth", produces = [APPLICATION_JSON])
@@ -46,7 +51,7 @@ class SecurityResource(
 
     @PostMapping(value = ["/password/reset"])
     @ResponseBody
-    fun resetPassword(@RequestBody request: ResetPasswordRequest): Unit = securityService.recoverPassword(request)
+    fun resetPassword(@RequestBody request: ResetPasswordRequest): Unit = securityService.resetPassword(request)
 
     @PostMapping(value = ["/password/change"])
     @ResponseBody
