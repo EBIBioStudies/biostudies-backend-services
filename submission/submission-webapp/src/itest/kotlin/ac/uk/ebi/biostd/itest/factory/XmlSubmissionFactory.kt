@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.itest.factory
 
 import org.redundent.kotlin.xml.xml
+import org.xmlunit.assertj.XmlAssert.assertThat
 
 fun allInOneSubmissionXml(accNo: String) = xml("submission") {
     attribute("accno", accNo)
@@ -144,4 +145,8 @@ fun allInOneSubmissionXml(accNo: String) = xml("submission") {
             }
         }
     }
+}
+
+fun assertAllInOneSubmissionXml(xml: String, accNo: String) {
+    assertThat(xml).hasXPath("//submission").haveAttribute("accno", accNo)
 }
