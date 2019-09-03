@@ -1,7 +1,16 @@
 package ac.uk.ebi.biostd.itest.factory
 
+import ebi.ac.uk.model.Attribute
+import ebi.ac.uk.model.File
+import ebi.ac.uk.model.FilesTable
+import ebi.ac.uk.model.Link
+import ebi.ac.uk.model.LinksTable
+import ebi.ac.uk.model.Section
+import ebi.ac.uk.model.SectionsTable
+import org.hamcrest.CoreMatchers.equalTo
+import org.hamcrest.MatcherAssert.assertThat
 import org.redundent.kotlin.xml.xml
-import org.xmlunit.assertj.XmlAssert.assertThat
+import org.xmlunit.matchers.EvaluateXPathMatcher.hasXPath
 
 fun allInOneSubmissionXml(accNo: String) = xml("submission") {
     attribute("accno", accNo)
@@ -148,5 +157,58 @@ fun allInOneSubmissionXml(accNo: String) = xml("submission") {
 }
 
 fun assertAllInOneSubmissionXml(xml: String, accNo: String) {
-    assertThat(xml).hasXPath("//submission").haveAttribute("accno", accNo)
+    assertThat(xml, hasXPath("//submission/@accno", equalTo(accNo)))
+    assertXmlAttributes(
+        xml,
+        "//submission",
+        listOf(Attribute("Title", "venous blood, Monocyte"), Attribute("ReleaseDate", "2021-02-12")))
+
+    assertXmlSection(xml, "//submission/section", allInOneRootSection())
+    assertThat(xml, hasXPath("//submission/section/attributes/attribute[2]/@reference", equalTo("true")))
+    assertThat(xml, hasXPath("//submission/section/attributes/attribute[3]/nmqual/name", equalTo("Tissue")))
+    assertThat(xml, hasXPath("//submission/section/attributes/attribute[3]/nmqual/value", equalTo("Blood")))
+    assertThat(xml, hasXPath("//submission/section/attributes/attribute[3]/valqual/name", equalTo("Ontology")))
+    assertThat(xml, hasXPath("//submission/section/attributes/attribute[3]/valqual/value", equalTo("UBERON")))
+
+    assertXmlLink(xml, "//submission/section/links/link", allInOneRootSectionLink())
+    assertXmlFile(xml, "//submission/section/files/file[1]", allInOneRootSectionFile())
+    assertXmlFilesTable(xml, "//submission/section/files/table", allInOneRootSectionFilesTable())
+
+    assertXmlSection(xml, "//submission/section/subsections/section", allInOneSubsection())
+    assertXmlLinksTable(xml, "//submission/section/subsections/section/links/table", allInOneSubSectionLinksTable())
+    assertXmlSectionsTable(xml, "//submission/section/subsections/table", allInOneSubSectionsTable())
 }
+
+fun assertXmlSection(xml: String, xPath: String, section: Section) {
+    assertThat(xml, hasXPath("$xPath/@accno", equalTo(section.accNo)))
+    assertThat(xml, hasXPath("$xPath/@type", equalTo(section.type)))
+    assertXmlAttributes(xml, xPath, section.attributes)
+}
+
+fun assertXmlSectionsTable(xml: String, xPath: String, sectionsTable: SectionsTable) =
+    sectionsTable.elements.forEachIndexed {
+        idx, section -> assertXmlSection(xml, "$xPath/section[${idx + 1}]", section)
+    }
+
+fun assertXmlLink(xml: String, xPath: String, link: Link) {
+    assertThat(xml, hasXPath("$xPath/url", equalTo(link.url)))
+    assertXmlAttributes(xml, xPath, link.attributes)
+}
+
+fun assertXmlLinksTable(xml: String, xPath: String, linksTable: LinksTable) =
+    linksTable.elements.forEachIndexed { idx, link -> assertXmlLink(xml, "$xPath/link[${idx + 1}]", link) }
+
+fun assertXmlFile(xml: String, xPath: String, file: File) {
+    assertThat(xml, hasXPath("$xPath/path", equalTo(file.path)))
+    assertThat(xml, hasXPath("$xPath/@size", equalTo(file.size.toString())))
+    assertXmlAttributes(xml, xPath, file.attributes)
+}
+
+fun assertXmlFilesTable(xml: String, xPath: String, filesTable: FilesTable) =
+    filesTable.elements.forEachIndexed { idx, file -> assertXmlFile(xml, "$xPath/file[${idx + 1}]", file) }
+
+fun assertXmlAttributes(xml: String, xPath: String, attributes: List<Attribute>) =
+    attributes.forEachIndexed { idx, attr ->
+        assertThat(xml, hasXPath("$xPath/attributes/attribute[${idx + 1}]/name", equalTo(attr.name)))
+        assertThat(xml, hasXPath("$xPath/attributes/attribute[${idx + 1}]/value", equalTo(attr.value)))
+    }

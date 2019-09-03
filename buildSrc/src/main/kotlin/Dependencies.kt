@@ -90,6 +90,7 @@ object TestDependencies {
 
     // Xml related
     const val XmlUnitCore = "org.xmlunit:xmlunit-core:$XmlUnitVersion"
+    const val XmlUnitMatchers = "org.xmlunit:xmlunit-matchers:$XmlUnitVersion"
     const val XmlUnitAssertJ = "org.xmlunit:xmlunit-assertj:$XmlUnitVersion"
     const val KotlinXmlBuilder = "org.redundent:kotlin-xml-builder:$XmlBuilderVersion"
     const val Woodstox = "com.fasterxml.woodstox:woodstox-core:$WoodstoxVersion"

@@ -34,7 +34,7 @@ dependencies {
     testCompile(KotlinXmlBuilder)
     testCompile(JsonAssert)
     testCompile(XmlUnitCore)
-    testCompile(XmlUnitAssertJ)
+    testCompile(XmlUnitMatchers)
 }
 
 sourceSets {

@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.itest.factory
 
 import ebi.ac.uk.dsl.line
 import ebi.ac.uk.dsl.tsv
+import org.hamcrest.MatcherAssert.assertThat
 
 fun simpleSubmissionTsv() = tsv {
     line("Submission", "S-ABC123")
@@ -65,3 +66,17 @@ fun invalidLinkUrl() = tsv {
 
     line("Link")
 }
+
+fun assertAllInOneTsvSubmission(tsv: String, accNo: String) {
+    val lines = tsv.split("\n")
+
+    val expectedSubmission = tsv {
+        line("Submission", accNo)
+        line("Title", "venous blood, Monocyte")
+        line("ReleaseDate", "2021-02-12")
+    }
+    val submission = lines.asTsv(0, 4)
+    // TODO assert
+}
+
+fun List<String>.asTsv(from: Int, to: Int) = subList(0, 4).joinToString("\n")

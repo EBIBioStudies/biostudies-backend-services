@@ -7,7 +7,6 @@ import ebi.ac.uk.dsl.link
 import ebi.ac.uk.dsl.linksTable
 import ebi.ac.uk.dsl.section
 import ebi.ac.uk.dsl.sectionsTable
-import ebi.ac.uk.model.extensions.type
 
 fun allInOneRootSection() = section("Study") {
     this.accNo = "SECT-001"
@@ -23,26 +22,22 @@ fun allInOneRootSectionLink() = link("AF069309") {
 
 fun allInOneRootSectionFile() = file("DataFile1.txt") {
     size = 0
-    type = "file"
     attribute("Description", "Data File 1")
 }
 
 fun allInOneRootSectionFilesTable() = filesTable {
     file("DataFile2.txt") {
         size = 0
-        type = "file"
         attribute("Description", "Data File 2")
         attribute("Type", "Data")
     }
     file("Folder1/DataFile3.txt") {
         size = 0
-        type = "file"
         attribute("Description", "Data File 3")
         attribute("Type", "Data")
     }
     file("Folder1/Folder2/DataFile4.txt") {
         size = 0
-        type = "file"
         attribute("Description", "Data File 4")
         attribute("Type", "Data")
     }

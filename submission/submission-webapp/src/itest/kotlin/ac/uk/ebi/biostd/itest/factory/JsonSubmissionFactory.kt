@@ -160,11 +160,10 @@ private fun assertJsonFilesTable(json: String, path: String, filesTable: FilesTa
     filesTable.elements.forEachIndexed { idx, file -> assertJsonFile(json, "$path[$idx]", file) }
 
 private fun assertJsonFile(json: String, path: String, file: File) {
+    assertThat(json, isJson(withJsonPath("$path.type", equalTo("file"))))
     assertThat(json, isJson(withJsonPath("$path.path", equalTo(file.path))))
-    assertThat(json, isJson(withJsonPath("$path.type", equalTo(file.type))))
     assertThat(json, isJson(withJsonPath("$path.size", equalTo(file.size.toInt()))))
 
-    file.attributes = file.attributes.filter { it.name != "type" }
     assertJsonAttributes(json, path, file.attributes)
 }
 
