@@ -19,14 +19,13 @@ import org.springframework.web.bind.annotation.ResponseStatus
 
 @ControllerAdvice
 class SecurityExceptionHandler {
-
     @ResponseBody
     @ResponseStatus(BAD_REQUEST)
     @ExceptionHandler(value = [SecurityException::class])
     fun handle(exception: SecurityException): ResponseEntity<SecurityError> {
         return when (exception) {
             is LoginException,
-            is UserNotFoundByTokenException -> unAuthorized(SecurityError(exception.message))
+            is UserNotFoundByTokenException -> unauthorized(SecurityError(exception.message))
             is ActKeyNotFoundException,
             is UserNotFoundByEmailException,
             is UserPendingRegistrationException,
@@ -35,6 +34,6 @@ class SecurityExceptionHandler {
         }
     }
 
-    fun <T> unAuthorized(body: T): ResponseEntity<T> = ResponseEntity.status(UNAUTHORIZED).body(body)
+    fun <T> unauthorized(body: T): ResponseEntity<T> = ResponseEntity.status(UNAUTHORIZED).body(body)
     fun <T> badRequest(body: T): ResponseEntity<T> = ResponseEntity.status(BAD_REQUEST).body(body)
 }

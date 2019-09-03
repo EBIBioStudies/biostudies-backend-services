@@ -17,10 +17,10 @@ class UserNotFoundByEmailException(email: String) :
     SecurityException("Could not find user with the provided email '$email'.")
 
 class UserPendingRegistrationException(email: String) :
-    SecurityException("Could not find a user with '$email' and pending activation.")
+    SecurityException("Could not find user with '$email' and pending activation.")
 
 class UserWithActivationKeyNotFoundException :
-    SecurityException("Could not find an un-active user with provided activation key.")
+    SecurityException("Could not find an un-active user with the provided activation key.")
 
 class UserAlreadyRegister(email: String) :
     SecurityException("There is already a user registered with email address '$email'.")

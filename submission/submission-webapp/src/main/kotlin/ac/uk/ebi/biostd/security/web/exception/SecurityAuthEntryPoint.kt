@@ -12,7 +12,7 @@ import javax.servlet.http.HttpServletResponse
 private const val AUTHORIZATION_ERROR = "Problems authorizing user."
 
 /**
- * Handle spring security authentication exceptions e.g. access try to authenticated resources without authentication
+ * Handle spring security authentication exceptions e.g. try to access authenticated resources without authentication
  * credentials.
  *
  */
