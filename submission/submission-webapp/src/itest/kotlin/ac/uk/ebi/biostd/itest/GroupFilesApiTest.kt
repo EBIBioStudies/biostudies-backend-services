@@ -8,13 +8,17 @@ import ac.uk.ebi.biostd.files.FileConfig
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
 import ac.uk.ebi.biostd.itest.common.TestConfig
 import ac.uk.ebi.biostd.itest.entities.GenericUser
+import ebi.ac.uk.api.UserFile
 import ebi.ac.uk.api.UserFileType
 import ebi.ac.uk.api.security.RegisterRequest
 import ebi.ac.uk.security.integration.components.IGroupService
+import ebi.ac.uk.test.clean
+import ebi.ac.uk.test.createFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -24,6 +28,7 @@ import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
+import java.io.File
 
 private const val GROUP_NAME = "Bio-test-group"
 
@@ -48,37 +53,38 @@ internal class GroupFilesApiTest(private val tempFolder: TemporaryFolder) : Base
             webClient = securityClient.getAuthenticatedClient(GenericUser.email, GenericUser.password)
         }
 
-        @Test
-        fun `upload group file and retrieve in user folder`() {
-            val file = tempFolder.createFile("FileList1.txt")
-
-            webClient.uploadGroupFiles(GROUP_NAME, listOf(file))
-
-            val files = webClient.listGroupFiles(GROUP_NAME)
-            assertThat(files).hasSize(1)
-
-            val resultFile = files.first()
-            assertThat(resultFile.name).isEqualTo(file.name)
-            assertThat(resultFile.type).isEqualTo(UserFileType.FILE)
-
-            webClient.deleteGroupFile(GROUP_NAME, "FileList1.txt")
+        @BeforeEach
+        fun beforeEach() {
+            tempFolder.clean()
         }
 
         @Test
-        fun `upload group file in directory and retrieve in user folder`() {
-            val file = tempFolder.createFile("AnotherFile.txt")
+        fun `upload|download|delete file and retrieve in user root folder`() {
+            testUserFilesGroup()
+        }
 
-            webClient.createGroupFolder(GROUP_NAME, "test_folder")
-            webClient.uploadGroupFiles(GROUP_NAME, listOf(file), relativePath = "test_folder")
+        @Test
+        fun `upload|download|delete file and retrieve in user folder`() {
+            testUserFilesGroup("test-folder")
+        }
 
-            val files = webClient.listGroupFiles(GROUP_NAME, relativePath = "test_folder")
-            assertThat(files).hasSize(1)
-
-            val resultFile = files.first()
+        private fun assertFile(resultFile: UserFile, downloadFile: File, file: File) {
             assertThat(resultFile.name).isEqualTo(file.name)
             assertThat(resultFile.type).isEqualTo(UserFileType.FILE)
+            assertThat(resultFile.size).isEqualTo(file.length())
+            assertThat(file).hasContent(downloadFile.readText())
+        }
 
-            webClient.deleteGroupFile(GROUP_NAME, "test_folder")
+        private fun testUserFilesGroup(relativePath: String = "") {
+            val file = tempFolder.createFile("FileList1.txt", "An example content")
+            webClient.uploadGroupFiles(GROUP_NAME, listOf(file), relativePath = relativePath)
+
+            val files = webClient.listGroupFiles(GROUP_NAME, relativePath = relativePath)
+            assertThat(files).hasSize(1)
+            assertFile(files.first(), webClient.downloadGroupFile(GROUP_NAME, file.name, relativePath = relativePath), file)
+
+            webClient.deleteGroupFile(GROUP_NAME, "FileList1.txt", relativePath = relativePath)
+            assertThat(webClient.listGroupFiles(GROUP_NAME, relativePath = relativePath)).isEmpty()
         }
     }
 }

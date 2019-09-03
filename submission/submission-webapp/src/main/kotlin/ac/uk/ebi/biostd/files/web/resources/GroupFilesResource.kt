@@ -5,7 +5,9 @@ import ac.uk.ebi.biostd.files.web.common.FilesMapper
 import ac.uk.ebi.biostd.files.web.common.GroupPath
 import ac.uk.ebi.biostd.files.web.common.UserPath
 import ebi.ac.uk.security.integration.model.api.SecurityUser
+import org.springframework.core.io.FileSystemResource
 import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType.APPLICATION_OCTET_STREAM_VALUE
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.stereotype.Controller
@@ -24,7 +26,6 @@ class GroupFilesResource(
     private val groupService: GroupFilesService,
     private val filesMapper: FilesMapper
 ) {
-
     @GetMapping("/files/groups/{groupName}/**")
     @ResponseBody
     fun listGroupFiles(
@@ -32,6 +33,15 @@ class GroupFilesResource(
         pathDescriptor: GroupPath,
         @PathVariable groupName: String
     ) = filesMapper.asGroupFiles(groupName, groupService.listFiles(groupName, user, pathDescriptor.path))
+
+    @GetMapping("/files/groups/{groupName}/**", produces = [APPLICATION_OCTET_STREAM_VALUE], params = ["fileName"])
+    @ResponseBody
+    fun downloadFile(
+        @AuthenticationPrincipal user: SecurityUser,
+        @PathVariable groupName: String,
+        @RequestParam(name = "fileName") fileName: String,
+        pathDescriptor: UserPath
+    ): FileSystemResource = FileSystemResource(groupService.getFile(groupName, user, pathDescriptor.path, fileName))
 
     @PostMapping("/files/groups/{groupName}/**")
     @ResponseStatus(value = HttpStatus.OK)

@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.files.utils.copyFile
 import ebi.ac.uk.io.asFileList
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import org.springframework.web.multipart.MultipartFile
+import java.io.File
 import java.nio.file.Path
 
 class GroupFilesService {
@@ -18,6 +19,13 @@ class GroupFilesService {
     fun uploadFiles(groupName: String, user: SecurityUser, path: String, files: Array<MultipartFile>) {
         val groupPath = getGroupPath(groupName, user)
         files.forEach { file -> copyFile(groupPath.resolve(path), file) }
+    }
+
+    fun getFile(groupName: String, user: SecurityUser, path: String, fileName: String): File {
+        val groupPath = getGroupPath(groupName, user)
+        val groupFile = groupPath.resolve(path).resolve(fileName).toFile()
+        require(groupFile.exists() && groupFile.isFile) { "Invalid request $path is not a valid $groupName file" }
+        return groupFile
     }
 
     fun createFolder(groupName: String, user: SecurityUser, path: String, folderName: String) {

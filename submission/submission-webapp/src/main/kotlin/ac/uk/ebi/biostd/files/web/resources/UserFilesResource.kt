@@ -4,7 +4,9 @@ import ac.uk.ebi.biostd.files.service.UserFilesService
 import ac.uk.ebi.biostd.files.web.common.FilesMapper
 import ac.uk.ebi.biostd.files.web.common.UserPath
 import ebi.ac.uk.security.integration.model.api.SecurityUser
+import org.springframework.core.io.FileSystemResource
 import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.stereotype.Controller
@@ -22,13 +24,20 @@ class UserFilesResource(
     private val fileManager: UserFilesService,
     private val filesMapper: FilesMapper
 ) {
-
     @GetMapping("/files/user/**")
     @ResponseBody
     fun listFiles(
         @AuthenticationPrincipal user: SecurityUser,
         pathDescriptor: UserPath
     ) = filesMapper.asUserFiles(fileManager.listFiles(user, pathDescriptor.path))
+
+    @GetMapping("/files/user/**", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE], params = ["fileName"])
+    @ResponseBody
+    fun downloadFile(
+        @AuthenticationPrincipal user: SecurityUser,
+        @RequestParam(name = "fileName") fileName: String,
+        pathDescriptor: UserPath
+    ): FileSystemResource = FileSystemResource(fileManager.getFile(user, pathDescriptor.path, fileName))
 
     @PostMapping("/files/user/**")
     @ResponseStatus(value = HttpStatus.OK)
