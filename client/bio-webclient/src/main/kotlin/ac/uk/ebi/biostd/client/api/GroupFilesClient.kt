@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.client.api
 
 import ac.uk.ebi.biostd.client.integration.web.GroupFilesOperations
 import ebi.ac.uk.api.UserFile
+import ebi.ac.uk.commons.http.spring.saveInTempFile
 import ebi.ac.uk.util.web.normalize
 import org.springframework.core.io.FileSystemResource
 import org.springframework.http.HttpEntity
@@ -25,7 +26,7 @@ private const val GROUP_FOLDER_URL = "/folder/groups"
 internal class GroupFilesClient(private val template: RestTemplate) : GroupFilesOperations {
     override fun downloadGroupFile(groupName: String, fileName: String, relativePath: String): File {
         val requestCallback = RequestCallback { it.headers.accept = listOf(MediaType.APPLICATION_OCTET_STREAM) }
-        val responseExtractor = ResponseExtractor { saveFile(it, groupName, fileName) }
+        val responseExtractor = ResponseExtractor { it.saveInTempFile("biostudies-$groupName-$fileName") }
         val downloadUrl = "${groupFileUrl(groupName, relativePath)}?fileName=$fileName"
         return template.execute(downloadUrl, HttpMethod.GET, requestCallback, responseExtractor)
     }
@@ -56,6 +57,7 @@ internal class GroupFilesClient(private val template: RestTemplate) : GroupFiles
 
     private fun saveFile(response: ClientHttpResponse, group: String, fileName: String): File {
         val targetPath = Files.createTempFile("biostudies-$group-$fileName", ".tmp")
-        Files.copy(response.body, targetPath, StandardCopyOption.REPLACE_EXISTING); return targetPath.toFile()
+        Files.copy(response.body, targetPath, StandardCopyOption.REPLACE_EXISTING)
+        return targetPath.toFile()
     }
 }
