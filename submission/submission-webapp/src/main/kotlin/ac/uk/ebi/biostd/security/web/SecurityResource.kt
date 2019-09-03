@@ -13,6 +13,7 @@ import ebi.ac.uk.security.integration.components.ISecurityService
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Controller
+import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -48,15 +49,15 @@ class SecurityResource(
     @ResponseBody
     fun retryActivation(@RequestBody request: RetryActivationRequest): Unit = securityService.retryRegistration(request)
 
-    @PostMapping(value = ["/passreset"])
+    @PostMapping(value = ["/password/reset"])
     @ResponseBody
     fun resetPassword(@RequestBody request: ResetPasswordRequest): Unit = securityService.resetPassword(request)
 
-    @PostMapping(value = ["/passrstreq", "/changePassword"])
+    @PostMapping(value = ["/password/change"])
     @ResponseBody
     fun changePassword(@RequestBody request: ChangePasswordRequest): Unit = securityService.changePassword(request)
 
-    @PostMapping(value = ["/check", "/profile"])
+    @GetMapping(value = ["/check", "/profile"])
     @PreAuthorize("isAuthenticated()")
     @ResponseBody
     fun userProfile(authentication: Authentication): UserProfile =

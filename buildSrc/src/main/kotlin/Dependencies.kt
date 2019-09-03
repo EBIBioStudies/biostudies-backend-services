@@ -22,6 +22,7 @@ import Versions.KotlinLoggingVersion
 import Versions.KotlinVersion
 import Versions.LogbackVersion
 import Versions.MySqlVersion
+import Versions.PoiVersion
 import Versions.Retrofit2CoroutineVersion
 import Versions.Retrofit2Version
 import Versions.RxJava2Version
@@ -34,10 +35,10 @@ import Versions.XmlBuilderVersion
 
 object TestVersions {
     const val AssertJVersion = "3.11.0"
-    const val JunitVersion = "5.4.0"
-    const val JunitEngineVersion = "1.2.0"
+    const val JunitVersion = "5.5.0"
+    const val JunitEngineVersion = "1.5.0"
     const val JunitExtensionsVersion = "2.3.0"
-    const val MockKVersion = "1.9"
+    const val MockKVersion = "1.9.3"
     const val XmlUnitVersion = "2.6.2"
     const val JsonAssertVersion = "2.4.0"
 }
@@ -48,9 +49,9 @@ object Versions {
     const val SpringDataVersion = "2.0.9.RELEASE"
     const val SpringAdminVersion = "2.1.5"
 
-    const val KotlinVersion = "1.3.20"
+    const val KotlinVersion = "1.3.41"
     const val KotlinLoggingVersion = "1.6.20"
-    const val KotlinArrowVersion = "0.7.2"
+    const val KotlinArrowVersion = "0.8.2"
     const val KotlinCoroutineVersion = "1.1.1"
     const val KMongoCoroutineVersion = "3.9.1"
 
@@ -72,6 +73,7 @@ object Versions {
     const val JSONOrgVersion = "20090211"
     const val CliKtVersion = "1.7.0"
     const val RxJava2Version = "2.2.8"
+    const val PoiVersion = "4.1.0"
 }
 
 object TestDependencies {
@@ -98,7 +100,6 @@ object TestDependencies {
 }
 
 object Dependencies {
-
     const val SpringWeb = "org.springframework:spring-web:$SpringVersion"
     const val SpringSecurityCore = "org.springframework.security:spring-security-core:$SpringVersion"
     const val SpringDataJpa = "org.springframework.data:spring-data-jpa:$SpringDataVersion"
@@ -139,10 +140,11 @@ object Dependencies {
     // Apache
     const val CommonsLang3 = "org.apache.commons:commons-lang3:$CommonsLang3Version"
     const val CommonsIO = "commons-io:commons-io:$CommonsIOVersion"
+    const val Poi = "org.apache.poi:poi:$PoiVersion"
+    const val PoiOxml = "org.apache.poi:poi-ooxml:$PoiVersion"
 }
 
 object SpringBootDependencies {
-
     const val SpringBootStarter = "org.springframework.boot:spring-boot-starter"
     const val SpringBootStarterTest = "org.springframework.boot:spring-boot-starter-test"
     const val SpringBootStarterWeb = "org.springframework.boot:spring-boot-starter-web"

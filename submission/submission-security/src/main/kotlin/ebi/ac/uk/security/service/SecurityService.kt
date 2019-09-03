@@ -15,10 +15,12 @@ import ebi.ac.uk.security.events.Events.Companion.userPreRegister
 import ebi.ac.uk.security.events.Events.Companion.userRegister
 import ebi.ac.uk.security.integration.SecurityProperties
 import ebi.ac.uk.security.integration.components.ISecurityService
-import ebi.ac.uk.security.integration.exception.ActKeyNotFoundException
 import ebi.ac.uk.security.integration.exception.LoginException
 import ebi.ac.uk.security.integration.exception.UserAlreadyRegister
-import ebi.ac.uk.security.integration.exception.UserNotFoundException
+import ebi.ac.uk.security.integration.exception.UserNotFoundByEmailException
+import ebi.ac.uk.security.integration.exception.UserNotFoundByTokenException
+import ebi.ac.uk.security.integration.exception.UserPendingRegistrationException
+import ebi.ac.uk.security.integration.exception.UserWithActivationKeyNotFoundException
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import ebi.ac.uk.security.integration.model.api.UserInfo
 import ebi.ac.uk.security.integration.model.events.PasswordReset
@@ -55,7 +57,7 @@ internal class SecurityService(
 
     override fun activate(activationKey: String) {
         val user = userRepository.findByActivationKeyAndActive(activationKey, false)
-            .orElseThrow { ActKeyNotFoundException() }
+            .orElseThrow { UserWithActivationKeyNotFoundException() }
 
         user.activationKey = null
         user.active = true
@@ -64,13 +66,13 @@ internal class SecurityService(
 
     override fun retryRegistration(request: RetryActivationRequest) {
         val user = userRepository.findByEmailAndActive(request.email, false)
-            .orElseThrow { UserNotFoundException() }
+            .orElseThrow { UserPendingRegistrationException(request.email) }
         preRegister(user, request.instanceKey, request.path)
     }
 
     override fun changePassword(request: ChangePasswordRequest) {
         val user = userRepository.findByActivationKeyAndActive(request.activationKey, true)
-            .orElseThrow { UserNotFoundException() }
+            .orElseThrow { UserWithActivationKeyNotFoundException() }
         user.activationKey = null
         user.passwordDigest = securityUtil.getPasswordDigest(request.password)
         userRepository.save(user)
@@ -79,7 +81,7 @@ internal class SecurityService(
     override fun resetPassword(request: ResetPasswordRequest) {
         val email = request.email
         val user = userRepository.findByLoginOrEmailAndActive(email, email, true)
-            .orElseThrow { UserNotFoundException() }
+            .orElseThrow { UserNotFoundByEmailException(email) }
             .apply { activationKey = securityUtil.newKey() }
             .let { userRepository.save(it) }
 
@@ -89,8 +91,8 @@ internal class SecurityService(
 
     override fun getUserProfile(authToken: String): UserInfo {
         return securityUtil.checkToken(authToken)
-            .map { profileService.getUserProfile(it, authToken) }
-            .getOrElse { throw UserNotFoundException() }
+            .getOrElse { throw UserNotFoundByTokenException() }
+            .let { profileService.getUserProfile(it, authToken) }
     }
 
     private fun preRegister(request: RegisterRequest): SecurityUser {
