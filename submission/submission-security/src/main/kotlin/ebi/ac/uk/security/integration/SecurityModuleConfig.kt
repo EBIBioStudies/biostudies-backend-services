@@ -9,7 +9,7 @@ import ebi.ac.uk.security.integration.components.IGroupService
 import ebi.ac.uk.security.integration.components.ISecurityFilter
 import ebi.ac.uk.security.integration.components.ISecurityService
 import ebi.ac.uk.security.integration.model.events.PasswordReset
-import ebi.ac.uk.security.integration.model.events.UserPreRegister
+import ebi.ac.uk.security.integration.model.events.UserActivated
 import ebi.ac.uk.security.integration.model.events.UserRegister
 import ebi.ac.uk.security.service.GroupService
 import ebi.ac.uk.security.service.ProfileService
@@ -30,9 +30,9 @@ class SecurityModuleConfig(
     fun groupService(): IGroupService = groupService
     fun securityFilter(): ISecurityFilter = securityFilter
 
-    val userRegister: Observable<UserRegister> = Events.userRegister
+    val userRegister: Observable<UserActivated> = Events.userRegister
     val passwordReset: Observable<PasswordReset> = Events.passwordReset
-    val userPreRegister: Observable<UserPreRegister> = Events.userPreRegister
+    val userPreRegister: Observable<UserRegister> = Events.userPreRegister
 
     private val groupService by lazy { GroupService(groupRepository, userRepo) }
     private val securityService by lazy { SecurityService(userRepo, securityUtil, props, profileService) }

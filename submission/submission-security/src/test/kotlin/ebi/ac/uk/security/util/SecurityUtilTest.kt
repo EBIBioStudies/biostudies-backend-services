@@ -14,8 +14,12 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.DynamicTest
+import org.junit.jupiter.api.DynamicTest.dynamicTest
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestFactory
+import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import java.util.Optional
 
@@ -103,6 +107,43 @@ class SecurityUtilTest(
             every { tokenRepository.findById(token) } returns Optional.empty()
 
             assertThat(testInstance.checkToken(token)).contains(simpleUser)
+        }
+    }
+
+    @Nested
+    inner class GetActivationUrl {
+
+        private val userKey = "abc123"
+        private val paths = listOf("/autenticate/ui-link", "/autenticate/ui-link/", "autenticate/ui-link")
+
+        @TestFactory
+        fun testActivationKey(): Collection<DynamicTest> =
+            paths.flatMap {
+                listOf(
+                    test(it, DEV_KEY, DEV_INSTANCE),
+                    test(it, BETA_KEY, BETA_INSTANCE),
+                    test(it, PROD_KEY, PROD_INSTANCE),
+                    test(it, "http://localhost", "http://localhost"),
+                    test(it, "https://localhost", "https://localhost")
+
+                )
+            }
+
+        @Test
+        fun testWhenInvalidInstance() {
+            assertThrows<IllegalArgumentException> {
+                testInstance.getActivationUrl("https://custom-server", "a path", userKey)
+            }
+        }
+
+        private fun test(path: String, instanceKey: String, expectedInstance: String): DynamicTest =
+            dynamicTest("when InstanceKey=$instanceKey, path=$path and activationKey=$userKey") {
+                testUrl(path, instanceKey, expectedInstance)
+            }
+
+        private fun testUrl(path: String, instanceKey: String, expectedInstance: String) {
+            val url = testInstance.getActivationUrl(instanceKey, path, userKey)
+            assertThat(url).isEqualTo("$expectedInstance/autenticate/ui-link/abc123")
         }
     }
 }

@@ -41,7 +41,10 @@ class User(
     val groups: MutableSet<UserGroup> = mutableSetOf(),
 
     @Column
-    var superuser: Boolean = false
+    var superuser: Boolean = false,
+
+    @Column
+    var activationKey: String? = null
 ) {
     @Column
     var active: Boolean = false
@@ -51,9 +54,6 @@ class User(
     var auxInfo: AuxInfo = AuxInfo()
 
     var login: String? = null
-
-    @Column
-    var activationKey: String? = null
 
     @OneToMany(mappedBy = "user", cascade = [PERSIST, MERGE])
     val permissions: Set<AccessPermission> = emptySet()
