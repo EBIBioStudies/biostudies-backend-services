@@ -42,10 +42,7 @@ class User(
 
     @Column
     var superuser: Boolean = false,
-
-    @Column
-    var activationKey: String? = null
-) {
+    ) {
     @Column
     var active: Boolean = false
 
@@ -54,6 +51,9 @@ class User(
     var auxInfo: AuxInfo = AuxInfo()
 
     var login: String? = null
+
+    @Column
+    var activationKey: String? = null
 
     @OneToMany(mappedBy = "user", cascade = [PERSIST, MERGE])
     val permissions: Set<AccessPermission> = emptySet()
