@@ -4,6 +4,14 @@ import com.jayway.jsonpath.matchers.JsonPathMatchers.isJson
 import com.jayway.jsonpath.matchers.JsonPathMatchers.withJsonPath
 import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
+import ebi.ac.uk.model.Attribute
+import ebi.ac.uk.model.File
+import ebi.ac.uk.model.FilesTable
+import ebi.ac.uk.model.Link
+import ebi.ac.uk.model.LinksTable
+import ebi.ac.uk.model.Section
+import ebi.ac.uk.model.SectionsTable
+import ebi.ac.uk.model.extensions.type
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
 
@@ -49,35 +57,35 @@ fun allInOneSubmissionJson(accNo: String) = jsonObj {
             jsonObj {
                 "path" to "DataFile1.txt"
                 "attributes" to jsonArray({
-                    "name" to "description"
+                    "name" to "Description"
                     "value" to "Data File 1"
                 })
             },
             jsonArray({
                 "path" to "DataFile2.txt"
                 "attributes" to jsonArray({
-                    "name" to "description"
+                    "name" to "Description"
                     "value" to "Data File 2"
                 }, {
-                    "name" to "type"
+                    "name" to "Type"
                     "value" to "Data"
                 })
             }, {
                 "path" to "Folder1/DataFile3.txt"
                 "attributes" to jsonArray({
-                    "name" to "description"
+                    "name" to "Description"
                     "value" to "Data File 3"
                 }, {
-                    "name" to "type"
+                    "name" to "Type"
                     "value" to "Data"
                 })
             }, {
                 "path" to "Folder1/Folder2/DataFile4.txt"
                 "attributes" to jsonArray({
-                    "name" to "description"
+                    "name" to "Description"
                     "value" to "Data File 4"
                 }, {
-                    "name" to "type"
+                    "name" to "Type"
                     "value" to "Data"
                 })
             }))
@@ -110,50 +118,58 @@ fun allInOneSubmissionJson(accNo: String) = jsonObj {
 
 fun assertAllInOneSubmissionJson(json: String, accNo: String) {
     assertThat(json, isJson(withJsonPath("$.accno", equalTo(accNo))))
-    assertThat(json, isJson(withJsonPath("$.attributes[0].name", equalTo("Title"))))
-    assertThat(json, isJson(withJsonPath("$.attributes[0].value", equalTo("venous blood, Monocyte"))))
-    assertThat(json, isJson(withJsonPath("$.attributes[1].name", equalTo("ReleaseDate"))))
-    assertThat(json, isJson(withJsonPath("$.attributes[1].value", equalTo("2021-02-12"))))
+    assertJsonAttributes(
+        json, "$", listOf(Attribute("Title", "venous blood, Monocyte"), Attribute("ReleaseDate", "2021-02-12")))
 
-    val section = "$.section"
-    assertThat(json, isJson(withJsonPath("$section.accno", equalTo("SECT-001"))))
-    assertThat(json, isJson(withJsonPath("$section.type", equalTo("Study"))))
-    assertThat(json, isJson(withJsonPath("$section.attributes[0].name", equalTo("Project"))))
-    assertThat(json, isJson(withJsonPath("$section.attributes[0].value", equalTo("CEEHRC (McGill)"))))
-    assertThat(json, isJson(withJsonPath("$section.attributes[1].name", equalTo("Organization"))))
-    assertThat(json, isJson(withJsonPath("$section.attributes[1].value", equalTo("Org1"))))
-    assertThat(json, isJson(withJsonPath("$section.attributes[1].reference", equalTo(true))))
+    val section = allInOneRootSection()
+    assertJsonSection(json, "$.section", section)
+    assertThat(json, isJson(withJsonPath("$.section.attributes[1].reference", equalTo(true))))
 
     val sectionSecondAttribute = "$.section.attributes[2]"
-    assertThat(json, isJson(withJsonPath("$sectionSecondAttribute.name", equalTo("Tissue type"))))
-    assertThat(json, isJson(withJsonPath("$sectionSecondAttribute.value", equalTo("venous blood"))))
     assertThat(json, isJson(withJsonPath("$sectionSecondAttribute.valqual[0].name", equalTo("Ontology"))))
     assertThat(json, isJson(withJsonPath("$sectionSecondAttribute.valqual[0].value", equalTo("UBERON"))))
     assertThat(json, isJson(withJsonPath("$sectionSecondAttribute.nmqual[0].name", equalTo("Tissue"))))
     assertThat(json, isJson(withJsonPath("$sectionSecondAttribute.nmqual[0].value", equalTo("Blood"))))
 
-    assertThat(json, isJson(withJsonPath("$.section.links[0].url", equalTo("AF069309"))))
-    assertThat(json, isJson(withJsonPath("$.section.links[0].attributes[0].name", equalTo("type"))))
-    assertThat(json, isJson(withJsonPath("$.section.links[0].attributes[0].value", equalTo("gen"))))
-
-    val subsection = "$.section.subsections[0]"
-    assertThat(json, isJson(withJsonPath("$subsection.accno", equalTo("SUBSECT-001"))))
-    assertThat(json, isJson(withJsonPath("$subsection.type", equalTo("Stranded Total RNA-Seq"))))
-
-    val linkTable = "$subsection.links[0]"
-    val tableLink = "$linkTable[0]"
-    assertThat(json, isJson(withJsonPath("$tableLink.url", equalTo("EGAD00001001282"))))
-    assertThat(json, isJson(withJsonPath("$tableLink.attributes[0].name", equalTo("Type"))))
-    assertThat(json, isJson(withJsonPath("$tableLink.attributes[0].value", equalTo("EGA"))))
-    assertThat(json, isJson(withJsonPath("$tableLink.attributes[1].name", equalTo("Assay type"))))
-    assertThat(json, isJson(withJsonPath("$tableLink.attributes[1].value", equalTo("RNA-Seq"))))
-
-    val subsectionTable = "$.section.subsections[1]"
-    val tableSection = "$subsectionTable[0]"
-    assertThat(json, isJson(withJsonPath("$tableSection.accno", equalTo("DT-1"))))
-    assertThat(json, isJson(withJsonPath("$tableSection.type", equalTo("Data"))))
-    assertThat(json, isJson(withJsonPath("$tableSection.attributes[0].name", equalTo("Title"))))
-    assertThat(json, isJson(withJsonPath("$tableSection.attributes[0].value", equalTo("Group 1 Transcription Data"))))
-    assertThat(json, isJson(withJsonPath("$tableSection.attributes[1].name", equalTo("Description"))))
-    assertThat(json, isJson(withJsonPath("$tableSection.attributes[1].value", equalTo("The data for zygotic transcription in mammals group 1"))))
+    assertJsonLink(json, "$.section.links[0]", allInOneRootSectionLink())
+    assertJsonFile(json, "$.section.files[0]", allInOneRootSectionFile())
+    assertJsonFilesTable(json, "$.section.files[1]", allInOneRootSectionFilesTable())
+    assertJsonSection(json, "$.section.subsections[0]", allInOneSubsection())
+    assertJsonLinksTable(json, "$.section.subsections[0].links[0]", allInOneSubSectionLinksTable())
+    assertJsonSectionsTable(json, "$.section.subsections[1]", allInOneSubSectionsTable())
 }
+
+private fun assertJsonSectionsTable(json: String, path: String, sectionsTable: SectionsTable) =
+    sectionsTable.elements.forEachIndexed { idx, section -> assertJsonSection(json, "$path[$idx]", section) }
+
+private fun assertJsonSection(json: String, path: String, section: Section) {
+    assertThat(json, isJson(withJsonPath("$path.accno", equalTo(section.accNo))))
+    assertThat(json, isJson(withJsonPath("$path.type", equalTo(section.type))))
+    assertJsonAttributes(json, path, section.attributes)
+}
+
+private fun assertJsonLinksTable(json: String, path: String, linksTable: LinksTable) =
+    linksTable.elements.forEachIndexed { idx, link -> assertJsonLink(json, "$path[$idx]", link) }
+
+private fun assertJsonLink(json: String, path: String, link: Link) {
+    assertThat(json, isJson(withJsonPath("$path.url", equalTo(link.url))))
+    assertJsonAttributes(json, path, link.attributes)
+}
+
+private fun assertJsonFilesTable(json: String, path: String, filesTable: FilesTable) =
+    filesTable.elements.forEachIndexed { idx, file -> assertJsonFile(json, "$path[$idx]", file) }
+
+private fun assertJsonFile(json: String, path: String, file: File) {
+    assertThat(json, isJson(withJsonPath("$path.type", equalTo("file"))))
+    assertThat(json, isJson(withJsonPath("$path.path", equalTo(file.path))))
+    assertThat(json, isJson(withJsonPath("$path.size", equalTo(file.size.toInt()))))
+
+    assertJsonAttributes(json, path, file.attributes)
+}
+
+private fun assertJsonAttributes(json: String, path: String, attributes: List<Attribute> = emptyList()) =
+    attributes.forEachIndexed { idx, attr ->
+        val attributePath = "$path.attributes[$idx]"
+        assertThat(json, isJson(withJsonPath("$attributePath.name", equalTo(attr.name))))
+        assertThat(json, isJson(withJsonPath("$attributePath.value", equalTo(attr.value))))
+    }

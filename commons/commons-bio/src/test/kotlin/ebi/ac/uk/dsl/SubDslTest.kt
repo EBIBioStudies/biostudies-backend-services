@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test
 
 class SubDslTest {
     @Test
-    fun `create submission with attributes`() {
+    fun `submission with attributes`() {
         val submission = submission("ABC-123") {
             attribute("AttrName", "Attr Value 1")
             section("Study") {
@@ -30,7 +30,7 @@ class SubDslTest {
     }
 
     @Test
-    fun `create section with detailed attributes`() {
+    fun `section with detailed attributes`() {
         val section = section("Study") {
             accNo = "SECT-001"
             attribute(
@@ -51,7 +51,7 @@ class SubDslTest {
     }
 
     @Test
-    fun `create a section with a sections table`() {
+    fun `section with a sections table`() {
         val section = section("Study") {
             accNo = "SECT-001"
             sectionsTable {
@@ -64,13 +64,13 @@ class SubDslTest {
     }
 
     @Test
-    fun `create a section with a file`() {
+    fun `section with a file`() {
         val section = section("Study") { file("File1.txt") }
         assertThat(section).isEqualTo(Section("Study", files = mutableListOf(Either.left(File("File1.txt")))))
     }
 
     @Test
-    fun `create a section with a files table`() {
+    fun `section with a files table`() {
         val section = section("Study") {
             filesTable {
                 file("File1.txt")
@@ -82,13 +82,13 @@ class SubDslTest {
     }
 
     @Test
-    fun `create a section with a link`() {
+    fun `section with a link`() {
         val section = section("Study") { link("http://somelink.org") }
         assertThat(section).isEqualTo(Section("Study", links = mutableListOf(Either.left(Link("http://somelink.org")))))
     }
 
     @Test
-    fun `create a section with a links table`() {
+    fun `section with a links table`() {
         val section = section("Study") {
             linksTable {
                 link("http://importantsite.net")
@@ -97,5 +97,51 @@ class SubDslTest {
 
         assertThat(section).isEqualTo(Section(
             "Study", links = mutableListOf(Either.Right(LinksTable(listOf(Link("http://importantsite.net")))))))
+    }
+
+    @Test
+    fun `single sections table`() {
+        val sectionsTable = sectionsTable {
+            section("Data") { accNo = "DT-1" }
+        }
+
+        assertThat(sectionsTable).isEqualTo(SectionsTable(listOf(Section("Data", "DT-1"))))
+    }
+
+    @Test
+    fun `single file`() {
+        val file = file("File1.txt") {
+            size = 4
+            attribute("Attr1", "ABC")
+        }
+
+        assertThat(file).isEqualTo(File("File1.txt", 4, listOf(Attribute("Attr1", "ABC"))))
+    }
+
+    @Test
+    fun `single files table`() {
+        val filesTable = filesTable {
+            file("File1.txt")
+        }
+
+        assertThat(filesTable).isEqualTo(FilesTable(listOf(File("File1.txt"))))
+    }
+
+    @Test
+    fun `single link`() {
+        val link = link("http://somelink.org") {
+            attribute("Attr1", "ABC")
+        }
+
+        assertThat(link).isEqualTo(Link("http://somelink.org", listOf(Attribute("Attr1", "ABC"))))
+    }
+
+    @Test
+    fun `single links table`() {
+        val linksTable = linksTable {
+            link("http://importantsite.net")
+        }
+
+        assertThat(linksTable).isEqualTo(LinksTable(listOf(Link("http://importantsite.net"))))
     }
 }
