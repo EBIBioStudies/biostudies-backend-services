@@ -7,7 +7,6 @@ import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.Table
 
 class TsvToStringSerializer {
-
     fun <T> serialize(element: T): String {
         val builder = TsvBuilder()
 
@@ -30,7 +29,7 @@ class TsvToStringSerializer {
 
     private fun serializeSection(builder: TsvBuilder, section: Section) {
         builder.addSeparator()
-        builder.addSecDescriptor(section.type, section.accNo)
+        builder.addSecDescriptor(section.type, section.accNo, section.parentAccNo)
         section.attributes.forEach(builder::addAttr)
 
         section.links.forEach { either -> either.fold({ addLink(builder, it) }, { addTable(builder, it) }) }

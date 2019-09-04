@@ -73,6 +73,30 @@ class TsvToStringSerializerTest {
     }
 
     @Test
+    fun `serialize subsection`() {
+        val section = section("Study") {
+            accNo = "SECT-001"
+            attribute("Project", "Test Project")
+            section("Data") {
+                accNo = "DT-1"
+                attribute("Type", "data")
+            }
+        }
+
+        val expectedTsv = tsv {
+            line("Study", "SECT-001")
+            line("Project", "Test Project")
+            line()
+
+            line("Data", "DT-1", "SECT-001")
+            line("Type", "data")
+            line()
+        }.toString()
+
+        assertThat(testInstance.serialize(section)).isEqualToIgnoringNewLines(expectedTsv)
+    }
+
+    @Test
     fun `serialize subsections table`() {
         val section = section("Study") {
             accNo = "SECT-001"
