@@ -41,8 +41,8 @@ class User(
     val groups: MutableSet<UserGroup> = mutableSetOf(),
 
     @Column
-    var superuser: Boolean = false,
-    ) {
+    var superuser: Boolean = false
+) {
     @Column
     var active: Boolean = false
 
