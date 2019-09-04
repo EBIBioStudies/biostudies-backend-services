@@ -1,8 +1,9 @@
 package ac.uk.ebi.biostd.itest.factory
 
+import ebi.ac.uk.dsl.Tsv
 import ebi.ac.uk.dsl.line
 import ebi.ac.uk.dsl.tsv
-import org.hamcrest.MatcherAssert.assertThat
+import org.assertj.core.api.Assertions.assertThat
 
 fun simpleSubmissionTsv() = tsv {
     line("Submission", "S-ABC123")
@@ -67,16 +68,66 @@ fun invalidLinkUrl() = tsv {
     line("Link")
 }
 
-fun assertAllInOneTsvSubmission(tsv: String, accNo: String) {
+fun assertAllInOneSubmissionTsv(tsv: String, accNo: String) {
     val lines = tsv.split("\n")
 
     val expectedSubmission = tsv {
         line("Submission", accNo)
         line("Title", "venous blood, Monocyte")
         line("ReleaseDate", "2021-02-12")
+        line()
     }
-    val submission = lines.asTsv(0, 4)
-    // TODO assert
+    assertTsvBlock(lines, 1, 4, expectedSubmission)
+
+    val expectedRootSection = tsv {
+        line("Study", "SECT-001")
+        line("Project", "CEEHRC (McGill)")
+        line("<Organization>", "Org1")
+        line("Tissue type", "venous blood")
+        line("(Tissue)", "Blood")
+        line("[Ontology]", "UBERON")
+        line()
+    }
+    assertTsvBlock(lines, 5, 11, expectedRootSection)
+
+    val expectedRootSectionLink = tsv {
+        line("Link", "AF069309")
+        line("type", "gen")
+        line()
+    }
+    assertTsvBlock(lines, 12, 14, expectedRootSectionLink)
+
+    val expectedRootSectionFile = tsv {
+        line("File", "DataFile1.txt")
+        line("Description", "Data File 1")
+        line()
+    }
+    assertTsvBlock(lines, 15, 17, expectedRootSectionFile)
+
+    val expectedRootSectionFilesTable = tsv {
+        line("Files", "Description", "Type")
+        line("DataFile2.txt", "Data File 2", "Data")
+        line("Folder1/DataFile3.txt", "Data File 3", "Data")
+        line("Folder1/Folder2/DataFile4.txt", "Data File 4", "Data")
+        line()
+    }
+    assertTsvBlock(lines, 18, 22, expectedRootSectionFilesTable)
+
+    // TODO add parent acc no validation and subsections table validation after fixing Pivotal ID #168286132
+    val expectedSubsection = tsv {
+        line("Stranded Total RNA-Seq", "SUBSECT-001")
+        line()
+    }
+    assertTsvBlock(lines, 23, 24, expectedSubsection)
+
+    val expectedSubsectionLinksTable = tsv {
+        line("Links", "Type", "Assay type")
+        line("EGAD00001001282", "EGA", "RNA-Seq")
+        line()
+    }
+    assertTsvBlock(lines, 25, 27, expectedSubsectionLinksTable)
 }
 
-fun List<String>.asTsv(from: Int, to: Int) = subList(0, 4).joinToString("\n")
+private fun assertTsvBlock(lines: List<String>, from: Int, to: Int, expected: Tsv) {
+    assertThat(lines.subList(from - 1, to).joinToString("\n")).isEqualTo(expected.toString())
+}

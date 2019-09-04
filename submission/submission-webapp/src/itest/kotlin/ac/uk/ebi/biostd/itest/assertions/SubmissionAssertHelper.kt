@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.itest.assertions
 
 import ac.uk.ebi.biostd.itest.factory.assertAllInOneSubmissionJson
+import ac.uk.ebi.biostd.itest.factory.assertAllInOneSubmissionTsv
 import ac.uk.ebi.biostd.itest.factory.assertAllInOneSubmissionXml
 import arrow.core.Either
 import ebi.ac.uk.asserts.assertThat
@@ -109,25 +110,20 @@ internal class SubmissionAssertHelper(private val basePath: String) {
             Attribute("Type", "Data"))
     }
 
-    // TODO: add xml and tsv file content validation
     private fun assertSubmissionFiles(submission: ExtendedSubmission) {
         val submissionFolderPath = "$basePath/submission/${submission.relPath}"
         val accNo = submission.accNo
 
-        assertSubJsonFile("$submissionFolderPath/$accNo.json", accNo)
-        assertSubXmlFile("$submissionFolderPath/$accNo.xml", accNo)
+        assertAllInOneSubmissionXml(getSubFileContent("$submissionFolderPath/$accNo.xml"), accNo)
+        assertAllInOneSubmissionJson(getSubFileContent("$submissionFolderPath/$accNo.json"), accNo)
+        assertAllInOneSubmissionTsv(getSubFileContent("$submissionFolderPath/$accNo.pagetab.tsv"), accNo)
     }
 
-    private fun assertSubJsonFile(path: String, accNo: String) {
+    private fun getSubFileContent(path: String): String {
         val filePath = Paths.get(path)
         assertThat(filePath).exists()
-        assertAllInOneSubmissionJson(filePath.toFile().readText(), accNo)
-    }
 
-    private fun assertSubXmlFile(path: String, accNo: String) {
-        val filePath = Paths.get(path)
-        assertThat(filePath).exists()
-        assertAllInOneSubmissionXml(filePath.toFile().readText(), accNo)
+        return filePath.toFile().readText()
     }
 
     private fun assertFile(
