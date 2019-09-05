@@ -13,7 +13,7 @@ import ebi.ac.uk.security.integration.components.IGroupService
 import ebi.ac.uk.security.integration.components.ISecurityFilter
 import ebi.ac.uk.security.integration.components.ISecurityService
 import ebi.ac.uk.security.integration.model.events.PasswordReset
-import ebi.ac.uk.security.integration.model.events.UserPreRegister
+import ebi.ac.uk.security.integration.model.events.UserRegister
 import io.reactivex.Observable
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -83,5 +83,5 @@ class SecurityBeansConfig(private val objectMapper: ObjectMapper, properties: Ap
     fun passwordReset(securityConfig: SecurityModuleConfig): Observable<PasswordReset> = securityConfig.passwordReset
 
     @Bean
-    fun preRegister(securityConfig: SecurityModuleConfig): Observable<UserPreRegister> = securityConfig.userPreRegister
+    fun preRegister(securityConfig: SecurityModuleConfig): Observable<UserRegister> = securityConfig.userRegister
 }

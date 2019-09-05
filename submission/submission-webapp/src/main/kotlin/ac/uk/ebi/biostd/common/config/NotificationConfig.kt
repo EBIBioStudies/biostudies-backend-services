@@ -5,7 +5,7 @@ import ac.uk.ebi.biostd.notifications.NotificationsSubscriber
 import ebi.ac.uk.notifications.integration.NotificationConfig
 import ebi.ac.uk.notifications.integration.components.SubscriptionService
 import ebi.ac.uk.security.integration.model.events.PasswordReset
-import ebi.ac.uk.security.integration.model.events.UserPreRegister
+import ebi.ac.uk.security.integration.model.events.UserRegister
 import io.reactivex.Observable
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
@@ -27,7 +27,7 @@ internal class NotificationConfig(private val properties: ApplicationProperties)
     fun notificationService(
         subscriptionService: SubscriptionService,
         resourceLoader: ResourceLoader,
-        userPreRegister: Observable<UserPreRegister>,
+        userPreRegister: Observable<UserRegister>,
         passwordReset: Observable<PasswordReset>
     ): NotificationsSubscriber =
         NotificationsSubscriber(subscriptionService, resourceLoader, userPreRegister, passwordReset)

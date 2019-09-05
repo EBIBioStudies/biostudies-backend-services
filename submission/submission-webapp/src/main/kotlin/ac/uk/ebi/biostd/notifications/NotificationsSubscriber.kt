@@ -8,7 +8,7 @@ import ebi.ac.uk.notifications.integration.components.SubscriptionService
 import ebi.ac.uk.notifications.integration.model.Notification
 import ebi.ac.uk.notifications.integration.model.NotificationType
 import ebi.ac.uk.security.integration.model.events.PasswordReset
-import ebi.ac.uk.security.integration.model.events.UserPreRegister
+import ebi.ac.uk.security.integration.model.events.UserRegister
 import io.reactivex.Observable
 import org.apache.commons.io.IOUtils
 import org.springframework.core.io.ResourceLoader
@@ -21,7 +21,7 @@ private const val EMAIL_FROM = "BioStudy <biostudies@ebi.ac.uk>"
 internal class NotificationsSubscriber(
     private val subscriptionService: SubscriptionService,
     private val resourceLoader: ResourceLoader,
-    private val userPreRegister: Observable<UserPreRegister>,
+    private val userPreRegister: Observable<UserRegister>,
     private val passwordReset: Observable<PasswordReset>
 ) {
 
@@ -32,7 +32,7 @@ internal class NotificationsSubscriber(
         subscriptionService.create(subscription, userPreRegister.map { asNotification(it) })
     }
 
-    private fun asNotification(source: UserPreRegister) =
+    private fun asNotification(source: UserRegister) =
         Notification(source.user.email, ActivationModel(FROM, source.activationLink, source.user.fullName))
 
     @PostConstruct

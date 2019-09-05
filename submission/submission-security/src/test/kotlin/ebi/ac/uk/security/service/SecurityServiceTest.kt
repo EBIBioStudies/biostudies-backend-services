@@ -13,7 +13,7 @@ import ebi.ac.uk.security.integration.exception.UserPendingRegistrationException
 import ebi.ac.uk.security.integration.exception.UserWithActivationKeyNotFoundException
 import ebi.ac.uk.security.integration.model.api.UserInfo
 import ebi.ac.uk.security.integration.model.events.PasswordReset
-import ebi.ac.uk.security.integration.model.events.UserPreRegister
+import ebi.ac.uk.security.integration.model.events.UserActivated
 import ebi.ac.uk.security.integration.model.events.UserRegister
 import ebi.ac.uk.security.test.SecurityTestEntities
 import ebi.ac.uk.security.test.SecurityTestEntities.Companion.email
@@ -102,7 +102,7 @@ internal class SecurityServiceTest(
             every { securityProps.requireActivation } returns false
             every { securityUtil.newKey() } returns SECRET_KEY
 
-            val subscriber = TestObserver<UserRegister>()
+            val subscriber = TestObserver<UserActivated>()
             Events.userRegister.subscribe(subscriber)
 
             testInstance.registerUser(registrationRequest)
@@ -122,12 +122,12 @@ internal class SecurityServiceTest(
 
         @Test
         fun `register a user when activation is required`() {
-            val instanceUrl = "http://dummy-backend.com"
+            val activationUrl = "http://dummy-backend.com/active/1234"
             every { securityProps.requireActivation } returns true
             every { securityUtil.newKey() } returns SECRET_KEY andThen ACTIVATION_KEY
-            every { securityUtil.getInstanceUrl(instanceKey, path) } returns instanceUrl
+            every { securityUtil.getActivationUrl(instanceKey, path, ACTIVATION_KEY) } returns activationUrl
 
-            val subscriber = TestObserver<UserPreRegister>()
+            val subscriber = TestObserver<UserRegister>()
             Events.userPreRegister.subscribe(subscriber)
 
             testInstance.registerUser(SecurityTestEntities.preRegisterRequest)
@@ -181,16 +181,16 @@ internal class SecurityServiceTest(
 
         @Test
         fun `retry pre registration`() {
-            val instanceUrl = "http://dummy-backend.com"
+            val activationUrl = "http://dummy-backend.com/active/1234"
             val user = simpleUser.apply { active = false }
 
             every { userRepository.findByEmailAndActive(email, false) } returns Optional.of(user)
             every { securityUtil.newKey() } returns ACTIVATION_KEY
-            every { securityUtil.getInstanceUrl(instanceKey, path) } returns instanceUrl
+            every { securityUtil.getActivationUrl(instanceKey, path, ACTIVATION_KEY) } returns activationUrl
             every { userRepository.save(any<User>()) } answers { firstArg() }
             every { profileService.asSecurityUser(any()) } returns securityUser
 
-            val subscriber = TestObserver<UserPreRegister>()
+            val subscriber = TestObserver<UserRegister>()
             Events.userPreRegister.subscribe(subscriber)
 
             testInstance.retryRegistration(retryActivation)
@@ -239,12 +239,12 @@ internal class SecurityServiceTest(
 
         @Test
         fun resetPassword() {
-            val instanceUrl = "http://dummy-backend.com"
+            val activationUrl = "http://dummy-backend.com/active/1234"
 
             every { userRepository.findByLoginOrEmailAndActive(email, email, true) } returns Optional.of(simpleUser)
             every { securityUtil.newKey() } returns ACTIVATION_KEY
             every { userRepository.save(any<User>()) } answers { firstArg() }
-            every { securityUtil.getInstanceUrl(instanceKey, path) } returns instanceUrl
+            every { securityUtil.getActivationUrl(instanceKey, path, ACTIVATION_KEY) } returns activationUrl
 
             val subscriber = TestObserver<PasswordReset>()
             Events.passwordReset.subscribe(subscriber)
@@ -254,7 +254,7 @@ internal class SecurityServiceTest(
             assertThat(subscriber.values()).hasSize(1)
             assertThat(subscriber.values()).first().satisfies {
                 assertThat(it.user).isEqualTo(simpleUser)
-                assertThat(it.activationLink).isEqualTo(instanceUrl)
+                assertThat(it.activationLink).isEqualTo(activationUrl)
             }
         }
     }
