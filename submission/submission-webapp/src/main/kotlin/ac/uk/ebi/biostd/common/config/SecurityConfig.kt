@@ -83,5 +83,5 @@ class SecurityBeansConfig(private val objectMapper: ObjectMapper, properties: Ap
     fun passwordReset(securityConfig: SecurityModuleConfig): Observable<PasswordReset> = securityConfig.passwordReset
 
     @Bean
-    fun preRegister(securityConfig: SecurityModuleConfig): Observable<UserRegister> = securityConfig.userPreRegister
+    fun preRegister(securityConfig: SecurityModuleConfig): Observable<UserRegister> = securityConfig.userRegister
 }

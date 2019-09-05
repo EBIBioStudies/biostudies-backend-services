@@ -112,7 +112,6 @@ class SecurityUtilTest(
 
     @Nested
     inner class GetActivationUrl {
-
         private val userKey = "abc123"
         private val paths = listOf("/autenticate/ui-link", "/autenticate/ui-link/", "autenticate/ui-link")
 
@@ -125,7 +124,6 @@ class SecurityUtilTest(
                     test(it, PROD_KEY, PROD_INSTANCE),
                     test(it, "http://localhost", "http://localhost"),
                     test(it, "https://localhost", "https://localhost")
-
                 )
             }
 
