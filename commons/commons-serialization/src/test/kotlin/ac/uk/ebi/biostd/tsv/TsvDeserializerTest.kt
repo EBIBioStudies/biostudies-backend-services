@@ -153,7 +153,10 @@ class TsvDeserializerTest {
                     Attribute("Grant Id", "No. 2015BAD27B01")),
                 sections = mutableListOf(
                     Either.left(Section(
-                        accNo = "E-001", type = "Expense", attributes = listOf(Attribute("Description", "Travel"))))
+                        type = "Expense",
+                        accNo = "E-001",
+                        parentAccNo = "F-001",
+                        attributes = listOf(Attribute("Description", "Travel"))))
                 )))
         }
 

@@ -45,7 +45,7 @@ import ac.uk.ebi.biostd.persistence.model.User as UserDb
 class SubmissionDbMapper {
     private val sectionMapper = DbSectionMapper()
 
-    fun toExtSubmission(submissionDb: SubmissionDb, loadRefFiles: Boolean = false) =
+    fun toExtSubmission(submissionDb: SubmissionDb) =
         ExtendedSubmission(submissionDb.accNo, toUser(submissionDb.owner)).apply {
             version = submissionDb.version
             title = submissionDb.title
@@ -58,7 +58,7 @@ class SubmissionDbMapper {
             releaseTime = toInstant(submissionDb.releaseTime)
 
             section = sectionMapper.toSection(submissionDb.rootSection)
-            extendedSection = sectionMapper.toExtendedSection(submissionDb.rootSection, loadRefFiles)
+            extendedSection = sectionMapper.toExtendedSection(submissionDb.rootSection)
             attributes = toAttributes(submissionDb.attributes)
             accessTags = submissionDb.accessTags.mapTo(mutableListOf(), AccessTag::name)
             tags = submissionDb.tags.mapTo(mutableListOf(), ::toTag)
@@ -76,27 +76,25 @@ class SubmissionDbMapper {
 }
 
 private class DbSectionMapper {
-    internal fun toSection(sectionDb: SectionDb): Section =
+    internal fun toSection(sectionDb: SectionDb, parentAccNo: String? = null): Section =
         Section(accNo = sectionDb.accNo,
+            parentAccNo = parentAccNo,
             type = sectionDb.type,
             links = toLinks(sectionDb.links.toList()),
             fileList = sectionDb.fileList?.let { toFileList(it) },
             files = toFiles(sectionDb.files.toList()),
-            sections = toSections(sectionDb.sections.toList()),
+            sections = toSections(sectionDb.sections.toList(), sectionDb.accNo),
             attributes = toAttributes(sectionDb.attributes))
 
-    internal fun toExtendedSection(sectionDb: SectionDb) = toExtendedSection(sectionDb, false)
-
-    internal fun toExtendedSectionLoadFiles(sectionDb: SectionDb) = toExtendedSection(sectionDb, true)
-
-    internal fun toExtendedSection(sectionDb: SectionDb, loadRefFiles: Boolean) =
+    internal fun toExtendedSection(sectionDb: SectionDb, parentAccNo: String? = null) =
         ExtendedSection(sectionDb.type).apply {
             accNo = sectionDb.accNo
+            this.parentAccNo = parentAccNo
             links = toLinks(sectionDb.links.toList())
             files = toFiles(sectionDb.files.toList())
-            sections = toSections(sectionDb.sections.toList())
+            sections = toSections(sectionDb.sections.toList(), sectionDb.accNo)
             attributes = toAttributes(sectionDb.attributes)
-            extendedSections = toExtendedSections(sectionDb.sections.toList(), loadRefFiles)
+            extendedSections = toExtendedSections(sectionDb.sections.toList())
             sectionDb.fileList?.let { fileList = toFileList(it) }
         }
 }
@@ -105,17 +103,17 @@ private object DbEitherMapper {
     internal fun toLinks(links: List<LinkDb>) = toEitherList(links, DbEntityMapper::toLink, ::LinksTable)
     internal fun toFiles(files: List<FileDb>) = toEitherList(files, DbEntityMapper::toFile, ::FilesTable)
 
-    internal fun toSections(sections: List<SectionDb>) =
-        toEitherList(sections, DbSectionMapper()::toSection, ::SectionsTable)
+    internal fun toSections(
+        sections: List<SectionDb>,
+        parentAccNo: String? = null
+    ): MutableList<Either<Section, SectionsTable>> =
+        toEitherList(sections, { DbSectionMapper().toSection(it, parentAccNo) }, ::SectionsTable)
 
     internal fun toExtendedSections(
         sections: List<SectionDb>,
-        loadRefFiles: Boolean
+        parentAccNo: String? = null
     ): MutableList<Either<ExtendedSection, SectionsTable>> =
-        if (loadRefFiles)
-            toEitherList(sections, DbSectionMapper()::toExtendedSectionLoadFiles, ::SectionsTable)
-        else
-            toEitherList(sections, DbSectionMapper()::toExtendedSection, ::SectionsTable)
+        toEitherList(sections, { DbSectionMapper().toExtendedSection(it, parentAccNo) }, ::SectionsTable)
 
     /**
      * Convert the given list of elements into an instance of @See [Either] using transform function for simple element
