@@ -12,14 +12,15 @@ import javax.persistence.Table
 
 @Entity
 @Table(name = "UserGroup")
-class UserGroup {
+class UserGroup(
+    var name: String,
+    var description: String,
+    var secret: String
+) {
 
     @Id
     @GeneratedValue
     val id: Long = 0
-
-    var name: String = ""
-    var secret: String = ""
 
     @ManyToMany(cascade = [CascadeType.PERSIST, CascadeType.MERGE], fetch = FetchType.EAGER)
     @JoinTable(name = "UserGroup_User",
