@@ -13,25 +13,27 @@ import io.jsonwebtoken.MalformedJwtException
 import io.jsonwebtoken.SignatureAlgorithm
 import io.jsonwebtoken.SignatureException
 import mu.KotlinLogging
+import org.springframework.web.util.UriComponentsBuilder
 import java.security.MessageDigest
 import java.time.Clock
 import java.time.OffsetDateTime
 import java.util.Arrays
 import java.util.UUID
 
-private const val DEV_KEY = "975dd2ca-58eb-407b-ba0f-858f15f7304d"
-private const val BETA_KEY = "9c584ae3-678a-4462-b685-54c37a1bc047"
-private const val PROD_KEY = "01ecc118-dbec-4df8-8fe8-f5cd7364b2b7"
+internal const val DEV_KEY = "975dd2ca-58eb-407b-ba0f-858f15f7304d"
+internal const val BETA_KEY = "9c584ae3-678a-4462-b685-54c37a1bc047"
+internal const val PROD_KEY = "01ecc118-dbec-4df8-8fe8-f5cd7364b2b7"
 
-private const val DEV_INSTANCE = "http://ves-hx-f2.ebi.ac.uk:8120"
-private const val BETA_INSTANCE = "https://wwwdev.ebi.ac.uk"
-private const val PROD_INSTANCE = "https://www.ebi.ac.uk"
+internal const val DEV_INSTANCE = "http://ves-hx-f2.ebi.ac.uk:8120"
+internal const val BETA_INSTANCE = "https://wwwdev.ebi.ac.uk"
+internal const val PROD_INSTANCE = "https://www.ebi.ac.uk"
 
 private val logger = KotlinLogging.logger {}
 
 /**
  * Provides general purposes security utils methods.
  */
+@Suppress("TooManyFunctions")
 internal class SecurityUtil(
     private val jwtParser: JwtParser,
     private val objectMapper: ObjectMapper,
@@ -61,33 +63,27 @@ internal class SecurityUtil(
 
     fun getPasswordDigest(password: String) = MessageDigest.getInstance("SHA1").digest(password.toByteArray())!!
 
-    private fun getFromToken(token: String): Option<User> {
-        var tokenUser = Option.empty<TokenPayload>()
-        try {
-            val payload = jwtParser.setSigningKey(tokenHash).parseClaimsJws(token).body.subject
-            tokenUser = Option.just(objectMapper.readValue(payload, TokenPayload::class.java))
-        } catch (exception: SignatureException) {
-            logger.error("detected invalid signature token", exception)
-        } catch (exception: MalformedJwtException) {
-            logger.error("detected invalid signature token", exception)
-        }
-
-        return tokenUser.map { userRepository.getOne(it.id) }
-    }
-
-    fun getInstanceUrl(instanceKey: String, path: String): String {
+    fun getActivationUrl(instanceKey: String, path: String, userKey: String): String {
         return when (instanceKey) {
-            DEV_KEY -> "$DEV_INSTANCE$path"
-            BETA_KEY -> "$BETA_INSTANCE$path"
-            PROD_KEY -> "$PROD_INSTANCE$path"
+            DEV_KEY -> getUrl(DEV_INSTANCE, path, userKey)
+            BETA_KEY -> getUrl(BETA_INSTANCE, path, userKey)
+            PROD_KEY -> getUrl(PROD_INSTANCE, path, userKey)
             else -> {
                 when {
-                    isLocalEnvironment(instanceKey) -> return instanceKey + path
+                    isLocalEnvironment(instanceKey) -> return getUrl(instanceKey, path, userKey)
                     else -> throw IllegalArgumentException(String.format("invalid instance key '%s'", instanceKey))
                 }
             }
         }
     }
+
+    private fun getUrl(instance: String, path: String, userKey: String): String {
+        return UriComponentsBuilder.fromHttpUrl(instance)
+            .pathSegment(normalizePath(path))
+            .pathSegment(normalizePath(userKey)).build().toUriString()
+    }
+
+    private fun normalizePath(path: String) = path.trim('/')
 
     fun checkToken(tokenKey: String): Option<User> {
         val token = tokenRepository.findById(tokenKey)
@@ -103,4 +99,18 @@ internal class SecurityUtil(
 
     private fun isLocalEnvironment(instanceKey: String) =
         instanceKey.startsWith("http://localhost") || instanceKey.startsWith("https://localhost")
+
+    private fun getFromToken(token: String): Option<User> {
+        var tokenUser = Option.empty<TokenPayload>()
+        try {
+            val payload = jwtParser.setSigningKey(tokenHash).parseClaimsJws(token).body.subject
+            tokenUser = Option.just(objectMapper.readValue(payload, TokenPayload::class.java))
+        } catch (exception: SignatureException) {
+            logger.error("detected invalid signature token", exception)
+        } catch (exception: MalformedJwtException) {
+            logger.error("detected invalid signature token", exception)
+        }
+
+        return tokenUser.map { userRepository.getOne(it.id) }
+    }
 }

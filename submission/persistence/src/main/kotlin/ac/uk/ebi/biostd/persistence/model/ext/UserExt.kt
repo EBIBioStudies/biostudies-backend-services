@@ -5,7 +5,7 @@ import ac.uk.ebi.biostd.persistence.model.UserGroup
 
 fun User.addGroup(userGroup: UserGroup) = groups.add(userGroup)
 
-fun User.register(activationKey: String): User {
+fun User.activate(activationKey: String): User {
     this.activationKey = activationKey
     return this
 }
