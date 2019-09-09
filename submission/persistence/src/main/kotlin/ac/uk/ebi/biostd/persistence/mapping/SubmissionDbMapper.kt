@@ -76,23 +76,21 @@ class SubmissionDbMapper {
 }
 
 private class DbSectionMapper {
-    internal fun toSection(sectionDb: SectionDb, parentAccNo: String? = null): Section =
+    internal fun toSection(sectionDb: SectionDb): Section =
         Section(accNo = sectionDb.accNo,
-            parentAccNo = parentAccNo,
             type = sectionDb.type,
             links = toLinks(sectionDb.links.toList()),
             fileList = sectionDb.fileList?.let { toFileList(it) },
             files = toFiles(sectionDb.files.toList()),
-            sections = toSections(sectionDb.sections.toList(), sectionDb.accNo),
+            sections = toSections(sectionDb.sections.toList()),
             attributes = toAttributes(sectionDb.attributes))
 
-    internal fun toExtendedSection(sectionDb: SectionDb, parentAccNo: String? = null) =
+    internal fun toExtendedSection(sectionDb: SectionDb) =
         ExtendedSection(sectionDb.type).apply {
             accNo = sectionDb.accNo
-            this.parentAccNo = parentAccNo
             links = toLinks(sectionDb.links.toList())
             files = toFiles(sectionDb.files.toList())
-            sections = toSections(sectionDb.sections.toList(), sectionDb.accNo)
+            sections = toSections(sectionDb.sections.toList())
             attributes = toAttributes(sectionDb.attributes)
             extendedSections = toExtendedSections(sectionDb.sections.toList())
             sectionDb.fileList?.let { fileList = toFileList(it) }
@@ -103,17 +101,11 @@ private object DbEitherMapper {
     internal fun toLinks(links: List<LinkDb>) = toEitherList(links, DbEntityMapper::toLink, ::LinksTable)
     internal fun toFiles(files: List<FileDb>) = toEitherList(files, DbEntityMapper::toFile, ::FilesTable)
 
-    internal fun toSections(
-        sections: List<SectionDb>,
-        parentAccNo: String? = null
-    ): MutableList<Either<Section, SectionsTable>> =
-        toEitherList(sections, { DbSectionMapper().toSection(it, parentAccNo) }, ::SectionsTable)
+    internal fun toSections(sections: List<SectionDb>): MutableList<Either<Section, SectionsTable>> =
+        toEitherList(sections, DbSectionMapper()::toSection, ::SectionsTable)
 
-    internal fun toExtendedSections(
-        sections: List<SectionDb>,
-        parentAccNo: String? = null
-    ): MutableList<Either<ExtendedSection, SectionsTable>> =
-        toEitherList(sections, { DbSectionMapper().toExtendedSection(it, parentAccNo) }, ::SectionsTable)
+    internal fun toExtendedSections(sections: List<SectionDb>): MutableList<Either<ExtendedSection, SectionsTable>> =
+        toEitherList(sections, DbSectionMapper()::toExtendedSection, ::SectionsTable)
 
     /**
      * Convert the given list of elements into an instance of @See [Either] using transform function for simple element

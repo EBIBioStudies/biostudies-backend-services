@@ -9,6 +9,7 @@ import ac.uk.ebi.biostd.test.submissionWithFilesTable
 import ac.uk.ebi.biostd.test.submissionWithInnerSubsections
 import ac.uk.ebi.biostd.test.submissionWithInnerSubsectionsTable
 import ac.uk.ebi.biostd.test.submissionWithInvalidAttribute
+import ac.uk.ebi.biostd.test.submissionWithInvalidInnerSubsection
 import ac.uk.ebi.biostd.test.submissionWithInvalidNameAttributeDetail
 import ac.uk.ebi.biostd.test.submissionWithInvalidValueAttributeDetail
 import ac.uk.ebi.biostd.test.submissionWithLinks
@@ -168,6 +169,13 @@ class TsvDeserializerTest {
                 attributes = listOf(
                     Attribute("Agency", "National Support Program of Japan"),
                     Attribute("Grant Id", "No. 2015BAD27A03"))))
+        }
+    }
+
+    @Test
+    fun `subsection with invalid parent`() {
+        assertThrows<SerializationException> {
+            deserializer.deserialize(submissionWithInvalidInnerSubsection().toString())
         }
     }
 
