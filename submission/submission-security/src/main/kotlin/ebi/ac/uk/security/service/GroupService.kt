@@ -21,9 +21,6 @@ internal class GroupService(
     override fun addUserInGroup(groupName: String, userEmail: String) {
         val group = groupRepository.getByName(groupName)
         val user = userRepository.getByEmail(userEmail)
-        user.addGroup(group)
-        userRepository.save(user)
-        group.users.add(user)
-        groupRepository.save(group)
+        userRepository.save(user.addGroup(group))
     }
 }

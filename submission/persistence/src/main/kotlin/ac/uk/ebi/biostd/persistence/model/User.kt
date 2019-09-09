@@ -9,6 +9,8 @@ import javax.persistence.Entity
 import javax.persistence.FetchType
 import javax.persistence.GeneratedValue
 import javax.persistence.Id
+import javax.persistence.JoinColumn
+import javax.persistence.JoinTable
 import javax.persistence.Lob
 import javax.persistence.ManyToMany
 import javax.persistence.OneToMany
@@ -37,7 +39,10 @@ class User(
     @Lob
     var passwordDigest: ByteArray,
 
-    @ManyToMany(mappedBy = "users", fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "UserGroup_User",
+        joinColumns = [JoinColumn(name = "users_id")],
+        inverseJoinColumns = [JoinColumn(name = "groups_id")])
     val groups: MutableSet<UserGroup> = mutableSetOf(),
 
     @Column

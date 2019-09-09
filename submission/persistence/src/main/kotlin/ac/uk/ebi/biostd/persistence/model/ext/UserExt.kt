@@ -3,7 +3,10 @@ package ac.uk.ebi.biostd.persistence.model.ext
 import ac.uk.ebi.biostd.persistence.model.User
 import ac.uk.ebi.biostd.persistence.model.UserGroup
 
-fun User.addGroup(userGroup: UserGroup) = groups.add(userGroup)
+fun User.addGroup(userGroup: UserGroup): User {
+    groups.add(userGroup)
+    return this
+}
 
 fun User.activate(activationKey: String): User {
     this.activationKey = activationKey
