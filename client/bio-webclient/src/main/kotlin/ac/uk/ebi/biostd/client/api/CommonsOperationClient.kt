@@ -8,6 +8,5 @@ import org.springframework.web.client.getForObject
 private const val GROUP_URL = "/groups"
 
 class CommonsOperationClient(private val template: RestTemplate) : GeneralOperations {
-
     override fun getGroups(): List<Group> = template.getForObject<Array<Group>>(GROUP_URL).orEmpty().toList()
 }

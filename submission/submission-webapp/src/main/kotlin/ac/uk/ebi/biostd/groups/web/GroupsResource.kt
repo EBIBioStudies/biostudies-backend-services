@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.ResponseBody
 @Controller
 @PreAuthorize("isAuthenticated()")
 class GroupsResource {
-
     @GetMapping("/groups")
     @ResponseBody
     fun getGroups(@AuthenticationPrincipal user: SecurityUser): List<Group> =
