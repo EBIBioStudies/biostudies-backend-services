@@ -6,7 +6,6 @@ import ac.uk.ebi.biostd.common.config.SubmitterConfig
 import ac.uk.ebi.biostd.files.FileConfig
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
 import ac.uk.ebi.biostd.itest.entities.GenericUser
-import ebi.ac.uk.api.security.RegisterRequest
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.junit.jupiter.api.BeforeAll
@@ -40,7 +39,7 @@ internal class SecurityTest(tempFolder: TemporaryFolder) : BaseIntegrationTest(t
 
         @Test
         fun `register when activation is not enable`() {
-            webClient.registerUser(RegisterRequest(GenericUser.email, GenericUser.username, GenericUser.password))
+            webClient.registerUser(GenericUser.asRegisterRequest())
             webClient.getAuthenticatedClient(GenericUser.username, GenericUser.password)
         }
     }

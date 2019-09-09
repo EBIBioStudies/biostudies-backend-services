@@ -11,7 +11,6 @@ import ac.uk.ebi.biostd.itest.entities.GenericUser
 import ac.uk.ebi.biostd.persistence.model.Tag
 import ac.uk.ebi.biostd.persistence.repositories.TagsRefRepository
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
-import ebi.ac.uk.api.security.RegisterRequest
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.constants.SubFields
@@ -49,7 +48,7 @@ internal class SubmissionApiTest(tempFolder: TemporaryFolder) : BaseIntegrationT
         @BeforeAll
         fun init() {
             val securityClient = SecurityWebClient.create("http://localhost:$serverPort")
-            securityClient.registerUser(RegisterRequest(GenericUser.email, GenericUser.username, GenericUser.password))
+            securityClient.registerUser(GenericUser.asRegisterRequest())
             webClient = securityClient.getAuthenticatedClient(GenericUser.username, GenericUser.password)
 
             tagsRefRepository.save(Tag(classifier = "classifier", name = "tag"))
