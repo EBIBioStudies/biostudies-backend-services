@@ -38,7 +38,7 @@ private fun getServletRequest(webRequest: NativeWebRequest) =
     webRequest.getNativeRequest(HttpServletRequest::class.java)!!
 
 private fun getPath(prefix: Regex, webRequest: HttpServletRequest): String =
-    webRequest.requestURL.toString().remove(prefix).removePrefix("/")
+    webRequest.requestURL.toString().remove(prefix).trim('/')
 
 class UserPath(val path: String)
 class GroupPath(val path: String)
