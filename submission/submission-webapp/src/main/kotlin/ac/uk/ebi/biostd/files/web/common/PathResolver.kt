@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.files.web.common
 
+import ac.uk.ebi.biostd.files.web.groupPath
 import ac.uk.ebi.biostd.files.web.userPath
 import ebi.ac.uk.base.remove
 import org.springframework.core.MethodParameter
@@ -18,7 +19,7 @@ class UserPathDescriptorResolver : HandlerMethodArgumentResolver {
         mavContainer: ModelAndViewContainer,
         webRequest: NativeWebRequest,
         binderFactory: WebDataBinderFactory
-    ) = UserPath(getPath(getServletRequest(webRequest)))
+    ) = UserPath(getPath(userPath, getServletRequest(webRequest)))
 }
 
 class GroupPathDescriptorResolver : HandlerMethodArgumentResolver {
@@ -30,17 +31,14 @@ class GroupPathDescriptorResolver : HandlerMethodArgumentResolver {
         mavContainer: ModelAndViewContainer,
         webRequest: NativeWebRequest,
         binderFactory: WebDataBinderFactory
-    ) = GroupPath(getPath(getServletRequest(webRequest)))
+    ) = GroupPath(getPath(groupPath, getServletRequest(webRequest)))
 }
 
 private fun getServletRequest(webRequest: NativeWebRequest) =
     webRequest.getNativeRequest(HttpServletRequest::class.java)!!
 
-private fun getPath(webRequest: HttpServletRequest) =
-    webRequest
-        .requestURL.toString()
-        .remove(userPath)
-        .removePrefix("/")
+private fun getPath(prefix: Regex, webRequest: HttpServletRequest): String =
+    webRequest.requestURL.toString().remove(prefix).removePrefix("/")
 
 class UserPath(val path: String)
 class GroupPath(val path: String)

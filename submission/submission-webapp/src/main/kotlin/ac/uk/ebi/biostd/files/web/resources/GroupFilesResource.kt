@@ -3,7 +3,6 @@ package ac.uk.ebi.biostd.files.web.resources
 import ac.uk.ebi.biostd.files.service.GroupFilesService
 import ac.uk.ebi.biostd.files.web.common.FilesMapper
 import ac.uk.ebi.biostd.files.web.common.GroupPath
-import ac.uk.ebi.biostd.files.web.common.UserPath
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import org.springframework.core.io.FileSystemResource
 import org.springframework.http.HttpStatus
@@ -32,7 +31,7 @@ class GroupFilesResource(
         @AuthenticationPrincipal user: SecurityUser,
         pathDescriptor: GroupPath,
         @PathVariable groupName: String
-    ) = filesMapper.asGroupFiles(groupName, groupService.listFiles(groupName, user, pathDescriptor.path))
+    ) = filesMapper.asGroupFiles(groupService.listFiles(groupName, user, pathDescriptor.path))
 
     @GetMapping("/files/groups/{groupName}/**", produces = [APPLICATION_OCTET_STREAM_VALUE], params = ["fileName"])
     @ResponseBody
@@ -40,7 +39,7 @@ class GroupFilesResource(
         @AuthenticationPrincipal user: SecurityUser,
         @PathVariable groupName: String,
         @RequestParam(name = "fileName") fileName: String,
-        pathDescriptor: UserPath
+        pathDescriptor: GroupPath
     ): FileSystemResource = FileSystemResource(groupService.getFile(groupName, user, pathDescriptor.path, fileName))
 
     @PostMapping("/files/groups/{groupName}/**")
@@ -58,7 +57,7 @@ class GroupFilesResource(
         @AuthenticationPrincipal user: SecurityUser,
         @PathVariable groupName: String,
         @RequestParam(name = "fileName") fileName: String,
-        pathDescriptor: UserPath
+        pathDescriptor: GroupPath
     ) = groupService.deleteFile(groupName, user, pathDescriptor.path, fileName)
 
     @PostMapping("/folder/groups/{groupName}/**")
@@ -67,6 +66,6 @@ class GroupFilesResource(
         @AuthenticationPrincipal user: SecurityUser,
         @PathVariable groupName: String,
         @RequestParam(name = "folder") folder: String,
-        pathDescriptor: UserPath
+        pathDescriptor: GroupPath
     ) = groupService.createFolder(groupName, user, pathDescriptor.path, folder)
 }
