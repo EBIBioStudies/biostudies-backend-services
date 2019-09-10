@@ -31,7 +31,7 @@ class GroupFilesResource(
         @AuthenticationPrincipal user: SecurityUser,
         pathDescriptor: GroupPath,
         @PathVariable groupName: String
-    ) = filesMapper.asGroupFiles(groupService.listFiles(groupName, user, pathDescriptor.path))
+    ) = filesMapper.asGroupFiles(groupName, groupService.listFiles(groupName, user, pathDescriptor.path))
 
     @GetMapping("/files/groups/{groupName}/**", produces = [APPLICATION_OCTET_STREAM_VALUE], params = ["fileName"])
     @ResponseBody

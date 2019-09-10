@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServletRequest
 
 private const val PATH_SEPARATOR = "/"
 internal val userPath = ".*${PATH_SEPARATOR}user".toRegex()
-internal val groupPath = ".*${PATH_SEPARATOR}groups".toRegex()
+internal val groupPath = ".*${PATH_SEPARATOR}groups/\\w+/*".toRegex()
 
 class PathDescriptorResolver : HandlerMethodArgumentResolver {
     override fun supportsParameter(parameter: MethodParameter) = parameter.parameterType == PathDescriptor::class.java

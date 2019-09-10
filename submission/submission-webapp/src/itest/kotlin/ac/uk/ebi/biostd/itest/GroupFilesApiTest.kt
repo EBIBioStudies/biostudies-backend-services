@@ -29,6 +29,7 @@ import org.springframework.context.annotation.Import
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.io.File
+import java.nio.file.Paths
 
 private const val GROUP_NAME = "Bio-test-group"
 private const val GROUP_DESC = "Bio-test-group description"
@@ -69,23 +70,24 @@ internal class GroupFilesApiTest(private val tempFolder: TemporaryFolder) : Base
             testUserFilesGroup("test-folder")
         }
 
-        private fun assertFile(resultFile: UserFile, downloadFile: File, file: File) {
-            assertThat(resultFile.name).isEqualTo(file.name)
-            assertThat(resultFile.type).isEqualTo(UserFileType.FILE)
-            assertThat(resultFile.size).isEqualTo(file.length())
-            assertThat(file).hasContent(downloadFile.readText())
+        private fun testUserFilesGroup(path: String = "") {
+            val file = tempFolder.createFile("FileList1.txt", "An example content")
+            webClient.uploadGroupFiles(GROUP_NAME, listOf(file), path)
+
+            val files = webClient.listGroupFiles(GROUP_NAME, path)
+            assertThat(files).hasSize(1)
+            assertFile(files.first(), webClient.downloadGroupFile(GROUP_NAME, file.name, path), file, path)
+
+            webClient.deleteGroupFile(GROUP_NAME, "FileList1.txt", path)
+            assertThat(webClient.listGroupFiles(GROUP_NAME, path)).isEmpty()
         }
 
-        private fun testUserFilesGroup(relativePath: String = "") {
-            val file = tempFolder.createFile("FileList1.txt", "An example content")
-            webClient.uploadGroupFiles(GROUP_NAME, listOf(file), relativePath = relativePath)
-
-            val files = webClient.listGroupFiles(GROUP_NAME, relativePath = relativePath)
-            assertThat(files).hasSize(1)
-            assertFile(files.first(), webClient.downloadGroupFile(GROUP_NAME, file.name, relativePath = relativePath), file)
-
-            webClient.deleteGroupFile(GROUP_NAME, "FileList1.txt", relativePath = relativePath)
-            assertThat(webClient.listGroupFiles(GROUP_NAME, relativePath = relativePath)).isEmpty()
+        private fun assertFile(resultFile: UserFile, downloadFile: File, file: File, path: String) {
+            assertThat(resultFile.name).isEqualTo(file.name)
+            assertThat(resultFile.type).isEqualTo(UserFileType.FILE)
+            assertThat(resultFile.path).isEqualTo(Paths.get("groups").resolve(GROUP_NAME).resolve(path).resolve(file.name).toString())
+            assertThat(resultFile.size).isEqualTo(file.length())
+            assertThat(file).hasContent(downloadFile.readText())
         }
     }
 }
