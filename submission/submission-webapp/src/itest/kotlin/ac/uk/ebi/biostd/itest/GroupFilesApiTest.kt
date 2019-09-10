@@ -85,7 +85,7 @@ internal class GroupFilesApiTest(private val tempFolder: TemporaryFolder) : Base
         private fun assertFile(resultFile: UserFile, downloadFile: File, file: File, path: String) {
             assertThat(resultFile.name).isEqualTo(file.name)
             assertThat(resultFile.type).isEqualTo(UserFileType.FILE)
-            assertThat(resultFile.path).isEqualTo(Paths.get("groups").resolve(GROUP_NAME).resolve(path).resolve(file.name).toString())
+            assertThat(resultFile.path).isEqualTo(Paths.get("groups").resolve(GROUP_NAME).resolve(path).toString())
             assertThat(resultFile.size).isEqualTo(file.length())
             assertThat(file).hasContent(downloadFile.readText())
         }
