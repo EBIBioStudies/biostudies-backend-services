@@ -5,10 +5,10 @@ import ac.uk.ebi.biostd.validation.InvalidElementException
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.File
 
-internal class FilesTableTsvStreamDeserializer(pageTabHeader: String) {
+internal class FilesTableTsvStreamDeserializer(pageTabHeader: List<String>) {
     var header = TsvChunkLine(0, pageTabHeader)
 
-    fun deserializeRow(row: String, index: Int = 0): File {
+    fun deserializeRow(index: Int, row: List<String>): File {
         val fields = TsvChunkLine(index, row)
         return File(fields.name, attributes = buildAttributes(fields))
     }

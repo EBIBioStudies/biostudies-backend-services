@@ -1,6 +1,7 @@
 package ebi.ac.uk.model
 
-import java.util.Objects
+import java.util.Objects.equals
+import java.util.Objects.hash
 
 class File(
     var path: String,
@@ -11,10 +12,10 @@ class File(
         if (other !is File) return false
         if (this === other) return true
 
-        return Objects.equals(this.path, other.path)
-            .and(Objects.equals(this.size, other.size))
-            .and(Objects.equals(this.attributes, other.attributes))
+        return equals(this.path, other.path)
+            .and(equals(this.size, other.size))
+            .and(equals(this.attributes, other.attributes))
     }
 
-    override fun hashCode(): Int = Objects.hash(this.path, this.size, this.attributes)
+    override fun hashCode(): Int = hash(this.path, this.size, this.attributes)
 }

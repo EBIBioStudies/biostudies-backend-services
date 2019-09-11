@@ -1,71 +1,35 @@
 package ac.uk.ebi.biostd.tsv.deserialization
 
-import ac.uk.ebi.biostd.tsv.TSV_CHUNK_BREAK
-import ac.uk.ebi.biostd.tsv.TSV_COMMENT
-import ac.uk.ebi.biostd.tsv.deserialization.model.FileChunk
-import ac.uk.ebi.biostd.tsv.deserialization.model.FileTableChunk
-import ac.uk.ebi.biostd.tsv.deserialization.model.LinkChunk
-import ac.uk.ebi.biostd.tsv.deserialization.model.LinksTableChunk
-import ac.uk.ebi.biostd.tsv.deserialization.model.RootSectionTableChunk
-import ac.uk.ebi.biostd.tsv.deserialization.model.RootSubSectionChunk
-import ac.uk.ebi.biostd.tsv.deserialization.model.SubSectionChunk
-import ac.uk.ebi.biostd.tsv.deserialization.model.SubSectionTableChunk
-import ac.uk.ebi.biostd.tsv.deserialization.model.TsvChunk
-import ac.uk.ebi.biostd.tsv.deserialization.model.TsvChunkLine
+import ac.uk.ebi.biostd.tsv.deserialization.chunks.ChunkProcessor
+import ac.uk.ebi.biostd.tsv.deserialization.chunks.TsvChunkGenerator
 import ac.uk.ebi.biostd.validation.InvalidChunkSizeException
-import ebi.ac.uk.base.like
 import ebi.ac.uk.model.Submission
-import ebi.ac.uk.model.constants.FileFields
-import ebi.ac.uk.model.constants.LinkFields
-import ebi.ac.uk.model.constants.SectionFields
-import ebi.ac.uk.model.constants.TABLE_REGEX
-import ebi.ac.uk.util.collections.findThird
 import ebi.ac.uk.util.collections.ifNotEmpty
-import ebi.ac.uk.util.collections.removeFirst
-import ebi.ac.uk.util.collections.split
-import ebi.ac.uk.util.regex.findGroup
 
-internal class TsvDeserializer(private val chunkProcessor: ChunkProcessor = ChunkProcessor()) {
+internal class TsvDeserializer(
+    private val chunkProcessor: ChunkProcessor = ChunkProcessor(),
+    private val chunkGenerator: TsvChunkGenerator = TsvChunkGenerator()
+) {
     fun deserialize(pageTab: String): Submission {
-        val chunks: MutableList<TsvChunk> = chunkerize(pageTab)
+        val chunks = chunkGenerator.chunks(pageTab)
         val context = TsvSerializationContext()
 
-        context.addSubmission(chunks.removeFirst()) { chunk -> chunkProcessor.getSubmission(chunk) }
+        context.addSubmission(chunks.poll()) { chunk -> chunkProcessor.getSubmission(chunk) }
         chunks.ifNotEmpty {
-            context.addRootSection(chunks.removeFirst()) { chunk -> chunkProcessor.getRootSection(chunk) }
+            context.addRootSection(chunks.poll()) { chunk -> chunkProcessor.getRootSection(chunk) }
             chunks.forEach { chunk -> chunkProcessor.processChunk(chunk, context) }
         }
 
         return context.getSubmission()
     }
 
-    fun <T> deserializeElement(pageTab: String, type: Class<out T>): T {
-        val chunks: MutableList<TsvChunk> = chunkerize(pageTab)
-        require(chunks.size == 1) { throw InvalidChunkSizeException() }
-
-        return type.cast(chunkProcessor.processIsolatedChunk(chunks.first()))
+    inline fun <reified T> deserializeElement(pageTab: String): T {
+        return deserializeElement(pageTab, T::class.java)
     }
 
-    private fun chunkerize(pagetab: String) =
-        pagetab.split(TSV_CHUNK_BREAK)
-            .filterNot { it.startsWith(TSV_COMMENT) }
-            .mapIndexed { index, line -> TsvChunkLine(index, line) }
-            .split { it.isEmpty() }
-            .mapTo(mutableListOf()) { createChunk(it) }
-
-    private fun createChunk(body: List<TsvChunkLine>): TsvChunk {
-        val header = body.first()
-        val type = header.first()
-
-        return when {
-            type like LinkFields.LINK -> LinkChunk(body)
-            type like FileFields.FILE -> FileChunk(body)
-            type like SectionFields.LINKS -> LinksTableChunk(body)
-            type like SectionFields.FILES -> FileTableChunk(body)
-            type.matches(TABLE_REGEX) -> TABLE_REGEX.findGroup(type, 1).fold(
-                { RootSectionTableChunk(body) },
-                { SubSectionTableChunk(body, it) })
-            else -> header.findThird().fold({ RootSubSectionChunk(body) }, { SubSectionChunk(body, it) })
-        }
+    fun <T> deserializeElement(pageTab: String, type: Class<out T>): T {
+        val chunks = chunkGenerator.chunks(pageTab)
+        require(chunks.size == 1) { throw InvalidChunkSizeException() }
+        return type.cast(chunkProcessor.processIsolatedChunk(chunks.poll()))
     }
 }
