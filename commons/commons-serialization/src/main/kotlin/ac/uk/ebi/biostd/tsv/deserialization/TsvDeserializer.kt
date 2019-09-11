@@ -8,8 +8,8 @@ import ebi.ac.uk.util.collections.ifNotEmpty
 
 internal class TsvDeserializer(
     private val chunkProcessor: ChunkProcessor = ChunkProcessor(),
-    private val chunkGenerator: TsvChunkGenerator = TsvChunkGenerator()) {
-
+    private val chunkGenerator: TsvChunkGenerator = TsvChunkGenerator()
+) {
     fun deserialize(pageTab: String): Submission {
         val chunks = chunkGenerator.chunks(pageTab)
         val context = TsvSerializationContext()
