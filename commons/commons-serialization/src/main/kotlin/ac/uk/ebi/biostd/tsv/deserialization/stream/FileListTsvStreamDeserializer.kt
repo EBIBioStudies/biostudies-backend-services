@@ -9,7 +9,7 @@ internal class FileListTsvStreamDeserializer {
         val reader = file.inputStream().bufferedReader()
         val deserializer = FilesTableTsvStreamDeserializer(reader.readLine().split(TAB))
         val filesList = reader.useLines {
-            it.mapIndexed { i, line -> deserializer.deserializeRow(i, line.split(TAB)) }.toList()
+            it.mapIndexed { idx, line -> deserializer.deserializeRow(idx, line.split(TAB)) }.toList()
         }
         return FileList(file.name, filesList)
     }
