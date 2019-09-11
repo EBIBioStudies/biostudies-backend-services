@@ -8,6 +8,7 @@ class ExtendedSection(type: String) : Section(type) {
 
     constructor(section: Section) : this(section.type) {
         accNo = section.accNo
+        parentAccNo = section.parentAccNo
         files = section.files
         links = section.links
         fileList = section.fileList
@@ -17,7 +18,7 @@ class ExtendedSection(type: String) : Section(type) {
             section.sections.mapTo(mutableListOf()) { subSection -> subSection.bimap({ ExtendedSection(it) }, { it }) }
     }
 
-    fun asSection() = Section(type, accNo, fileList, toSections(), files, links, attributes)
+    fun asSection() = Section(type, accNo, fileList, toSections(), files, links, attributes, parentAccNo)
 
     private fun toSections(): MutableList<Either<Section, SectionsTable>> =
         extendedSections.mapTo(mutableListOf()) { extSect -> extSect.bimap({ it.asSection() }, { it }) }
@@ -27,6 +28,7 @@ class ExtendedSection(type: String) : Section(type) {
         other === this -> true
         else -> Objects.equals(type, other.type)
             .and(Objects.equals(accNo, other.accNo))
+            .and(Objects.equals(parentAccNo, other.parentAccNo))
             .and(Objects.equals(files, other.files))
             .and(Objects.equals(links, other.links))
             .and(Objects.equals(sections, other.sections))
@@ -36,5 +38,5 @@ class ExtendedSection(type: String) : Section(type) {
     }
 
     override fun hashCode() =
-        Objects.hash(type, accNo, files, links, sections, attributes, fileList, extendedSections)
+        Objects.hash(type, accNo, parentAccNo, files, links, sections, attributes, fileList, extendedSections)
 }

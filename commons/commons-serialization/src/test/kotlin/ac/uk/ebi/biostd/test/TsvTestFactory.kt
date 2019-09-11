@@ -107,6 +107,12 @@ fun submissionWithInnerSubsections() = submissionWithSubsection().apply {
     line()
 }
 
+fun submissionWithInvalidInnerSubsection() = submissionWithSubsection().apply {
+    line("Expense", "E-001", "F-002")
+    line("Description", "Travel")
+    line()
+}
+
 fun submissionWithInnerSubsectionsTable() = submissionWithSubsection().apply {
     line("Study", "S-001")
     line("Type", "Imaging")

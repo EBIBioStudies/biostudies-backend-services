@@ -253,7 +253,7 @@ internal class MultipartSubmissionApiTest(private val tempFolder: TemporaryFolde
 
         private fun assertSubmissionFiles(accNo: String, testFile: String) {
             val fileListName = "FileList"
-            val createdSubmission = submissionRepository.getExtendedByAccNo(accNo, loadRefFiles = true)
+            val createdSubmission = submissionRepository.getExtendedByAccNo(accNo)
             val submissionFolderPath = "$basePath/submission/${createdSubmission.relPath}"
 
             assertThat(createdSubmission.section.fileListName).isEqualTo(fileListName)

@@ -13,12 +13,14 @@ open class Section(
     var files: MutableList<Either<File, FilesTable>> = mutableListOf(),
     var links: MutableList<Either<Link, LinksTable>> = mutableListOf(),
     override var attributes: List<Attribute> = listOf(),
+
+    // TODO Pivotal ID #168381570: Remove Parent AccNo From Section Model
     var parentAccNo: String? = null
 ) : Attributable {
-
     fun addFile(file: File) = files.addLeft(file)
     fun addLink(link: Link) = links.addLeft(link)
-    fun addSection(section: Section) = sections.addLeft(section)
+    fun addSection(section: Section) = sections.addLeft(section.apply { parentAccNo = this@Section.accNo })
+
     fun addFilesTable(table: FilesTable) = files.addRight(table)
     fun addLinksTable(table: LinksTable) = links.addRight(table)
     fun addSectionTable(table: SectionsTable) = sections.addRight(table)

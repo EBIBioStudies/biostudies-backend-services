@@ -7,13 +7,15 @@ import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.Table
 
 class TsvToStringSerializer {
-
     fun <T> serialize(element: T): String {
         val builder = TsvBuilder()
 
         when (element) {
             is Submission -> serializeSubmission(builder, element as Submission)
-            is Section -> serializeSection(builder, element as Section)
+            is Section -> {
+                val section = element as Section
+                serializeSection(builder, section, section.parentAccNo)
+            }
             is File -> addFile(builder, element as File)
             is Link -> addLink(builder, element as Link)
             is Table<*> -> addTable(builder, element as Table<*>)
@@ -28,14 +30,16 @@ class TsvToStringSerializer {
         serializeSection(builder, submission.section)
     }
 
-    private fun serializeSection(builder: TsvBuilder, section: Section) {
+    private fun serializeSection(builder: TsvBuilder, section: Section, parentAccNo: String? = null) {
         builder.addSeparator()
-        builder.addSecDescriptor(section.type, section.accNo)
+        builder.addSecDescriptor(section.type, section.accNo, parentAccNo)
         section.attributes.forEach(builder::addAttr)
 
         section.links.forEach { either -> either.fold({ addLink(builder, it) }, { addTable(builder, it) }) }
         section.files.forEach { either -> either.fold({ addFile(builder, it) }, { addTable(builder, it) }) }
-        section.sections.forEach { either -> either.fold({ serializeSection(builder, it) }) { addTable(builder, it) } }
+        section.sections.forEach {
+            either -> either.fold({ serializeSection(builder, it, section.accNo) }) { addTable(builder, it) }
+        }
     }
 
     private fun addFile(builder: TsvBuilder, file: File) {
