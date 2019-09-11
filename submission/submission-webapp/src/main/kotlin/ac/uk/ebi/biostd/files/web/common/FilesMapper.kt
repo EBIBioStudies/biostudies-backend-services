@@ -21,5 +21,5 @@ class FilesMapper {
         UserFile(file.name, getPath(file, fileSpec.source, prefix), file.length(), getType(file))
 
     private fun getPath(file: File, source: Path, replacement: String) =
-        file.absolutePath.replace(source.toAbsolutePath().toString(), replacement)
+        file.parentFile.absolutePath.replace(source.toAbsolutePath().toString(), replacement)
 }

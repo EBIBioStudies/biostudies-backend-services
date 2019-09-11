@@ -83,9 +83,8 @@ internal class UserFileApiTest(private val tempFolder: TemporaryFolder) : BaseIn
             assertThat(resultFile.name).isEqualTo(file.name)
             assertThat(resultFile.type).isEqualTo(UserFileType.FILE)
             assertThat(resultFile.size).isEqualTo(file.length())
-            assertThat(resultFile.path).isEqualTo(Paths.get("user").resolve(relativePath).resolve(file.name).toString())
+            assertThat(resultFile.path).isEqualTo(Paths.get("user").resolve(relativePath).toString())
             assertThat(file).hasContent(downloadFile.readText())
         }
-
     }
 }
