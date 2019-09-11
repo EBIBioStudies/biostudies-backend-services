@@ -1,9 +1,17 @@
 task setUpCleanDatabase(type: Exec) {
     workingDir './src/main/resources/setup/database'
-    commandLine './SetUpDatabase.sh', 'clean'
+    if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
+        commandLine 'cmd', '/c', 'SetUpDatabase.cmd', 'clean'
+    } else {
+        commandLine './SetUpDatabase.sh', 'clean'
+    }
 }
 
 task setUpTestDatabase(type: Exec) {
     workingDir './src/main/resources/setup/database'
-    commandLine './SetUpDatabase.sh', 'test'
+    if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
+        commandLine 'cmd', '/c', 'SetUpDatabase.cmd', 'test'
+    } else {
+        commandLine './SetUpDatabase.sh', 'test'
+    }
 }
