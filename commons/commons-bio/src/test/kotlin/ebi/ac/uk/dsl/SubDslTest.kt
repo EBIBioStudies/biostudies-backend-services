@@ -60,7 +60,23 @@ class SubDslTest {
         }
 
         assertThat(section).isEqualTo(Section(
-            "Study", "SECT-001", sections = mutableListOf(Either.Right(SectionsTable(listOf(Section("Data", "DT-1")))))))
+            "Study",
+            "SECT-001",
+            sections = mutableListOf(Either.Right(SectionsTable(listOf(Section("Data", "DT-1")))))))
+    }
+
+    @Test
+    fun `section with inner subsections`() {
+        val section = section("Study") {
+            accNo = "SECT-001"
+            section("Data") { accNo = "DT-1" }
+        }
+        val expectedSection = Section(
+            "Study",
+            "SECT-001",
+            sections = mutableListOf(Either.Left(Section("Data", "DT-1", parentAccNo = "SECT-001"))))
+
+        assertThat(section).isEqualTo(expectedSection)
     }
 
     @Test

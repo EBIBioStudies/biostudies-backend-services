@@ -10,8 +10,8 @@ class SubmissionRepository(
     fun getByAccNo(accNo: String) =
         submissionDbMapper.toSubmission(submissionRepository.getByAccNoAndVersionGreaterThan(accNo))
 
-    fun getExtendedByAccNo(accNo: String, loadRefFiles: Boolean = false) =
-        submissionDbMapper.toExtSubmission(submissionRepository.getByAccNoAndVersionGreaterThan(accNo), loadRefFiles)
+    fun getExtendedByAccNo(accNo: String) =
+        submissionDbMapper.toExtSubmission(submissionRepository.getByAccNoAndVersionGreaterThan(accNo))
 
     fun getExtendedLastVersionByAccNo(accNo: String) =
         submissionDbMapper.toExtSubmission(submissionRepository.getFirstByAccNoOrderByVersionDesc(accNo))
