@@ -46,7 +46,7 @@ internal class GroupsApiTest(private val tempFolder: TemporaryFolder) : BaseInte
         fun init() {
             val securityClient = SecurityWebClient.create("http://localhost:$serverPort")
             securityClient.registerUser(RegisterRequest(GenericUser.username, GenericUser.email, GenericUser.password))
-            groupService.addUserInGroup(groupService.creatGroup(GROUP_NAME, GROUP_DESC).name, "test@biostudies.com")
+            groupService.addUserInGroup(groupService.createGroup(GROUP_NAME, GROUP_DESC).name, "test@biostudies.com")
             webClient = securityClient.getAuthenticatedClient(GenericUser.email, GenericUser.password)
         }
 

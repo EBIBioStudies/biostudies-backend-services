@@ -17,4 +17,4 @@ internal class SubmissionClientImpl(
     GroupFilesOperations by GroupFilesClient(template),
     SubmissionOperations by SubmissionClient(template, serializationService),
     MultipartSubmissionOperations by MultiPartSubmissionClient(template, serializationService),
-    GeneralOperations by CommonsOperationClient(template)
+    GeneralOperations by CommonOperationsClient(template)

@@ -2,7 +2,7 @@ package ac.uk.ebi.biostd.files.web.common
 
 import ac.uk.ebi.biostd.files.web.groupPath
 import ac.uk.ebi.biostd.files.web.userPath
-import ebi.ac.uk.base.removeFirst
+import ebi.ac.uk.base.removeFirstOccurrence
 import org.springframework.core.MethodParameter
 import org.springframework.web.bind.support.WebDataBinderFactory
 import org.springframework.web.context.request.NativeWebRequest
@@ -38,7 +38,7 @@ private fun getServletRequest(webRequest: NativeWebRequest) =
     webRequest.getNativeRequest(HttpServletRequest::class.java)!!
 
 private fun getPath(prefix: Regex, webRequest: HttpServletRequest): String =
-    webRequest.requestURL.toString().removeFirst(prefix).trim('/')
+    webRequest.requestURL.toString().removeFirstOccurrence(prefix).trim('/')
 
 class UserPath(val path: String)
 class GroupPath(val path: String)

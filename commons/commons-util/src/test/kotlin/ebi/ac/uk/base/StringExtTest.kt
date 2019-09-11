@@ -1,10 +1,11 @@
 package ebi.ac.uk.base
 
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import java.util.concurrent.atomic.AtomicInteger
 
-class StringExtensionsTest {
+class StringExtTest {
 
     @Test
     fun isNotEmptyOrNull() {
@@ -25,5 +26,23 @@ class StringExtensionsTest {
         "something".applyIfNotBlank { count.incrementAndGet() }
 
         assertThat(count).hasValue(1)
+    }
+
+    @Nested
+    inner class RemoveFirstOccurrence {
+        @Test
+        fun `remove First Occurrence when exist`() {
+            assertThat("abc".removeFirstOccurrence("ab".toRegex())).isEqualTo("c")
+        }
+
+        @Test
+        fun `remove First Occurrence when there is no match`() {
+            assertThat("abc".removeFirstOccurrence("xz".toRegex())).isEqualTo("abc")
+        }
+
+        @Test
+        fun `remove First Occurrence when multiple`() {
+            assertThat("abcab".removeFirstOccurrence("ab".toRegex())).isEqualTo("cab")
+        }
     }
 }

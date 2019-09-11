@@ -52,4 +52,4 @@ fun String.remove(regex: Regex) = replace(regex, "")
 /**
  * Removes the first regex expression matching the string.
  */
-fun String.removeFirst(regex: Regex) = replaceFirst(regex, "")
+fun String.removeFirstOccurrence(regex: Regex) = replaceFirst(regex, "")

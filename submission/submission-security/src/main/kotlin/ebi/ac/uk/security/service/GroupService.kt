@@ -13,7 +13,7 @@ internal class GroupService(
 ) : IGroupService {
 
     // TODO: add logic to add create secret folder
-    override fun creatGroup(groupName: String, description: String): UserGroup {
+    override fun createGroup(groupName: String, description: String): UserGroup {
         return groupRepository.save(UserGroup(groupName, description, UUID.randomUUID().toString()))
     }
 
