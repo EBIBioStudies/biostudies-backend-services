@@ -49,6 +49,7 @@ fun createVenousBloodMonocyte() = submission("S-IHECRE00000919.1") {
         }
 
         section("Stranded Total RNA-Seq") {
+            accNo = "SUB-SECT-001"
             filesTable {
                 file("Results.xls") {
                     attribute("Type", "Results File")

@@ -55,7 +55,7 @@ class SimpleSubmissionTsvParserTest {
             line("Type", "data")
             line()
 
-            line("Stranded Total RNA-Seq")
+            line("Stranded Total RNA-Seq", "SUB-SECT-001", "SECT-001")
             line()
 
             line("Links", "Type", "Assay type", "Experiment type", "Primary id")
