@@ -117,6 +117,7 @@ internal class SecurityService(
             email = registerRequest.email,
             fullName = registerRequest.username,
             secret = securityUtil.newKey(),
+            superuser = registerRequest.superUser,
             passwordDigest = securityUtil.getPasswordDigest(registerRequest.password))
     }
 }

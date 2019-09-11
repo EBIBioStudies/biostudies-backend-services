@@ -6,6 +6,7 @@ dependencies {
     compile(project(":commons:commons-bio"))
     compile(project(":commons:commons-util"))
     compile(project(":commons:commons-serialization"))
+    compile(project(":submission:submission-security"))
 
     compile(CommonsIO)
 

@@ -12,7 +12,6 @@ import ac.uk.ebi.biostd.itest.common.TestConfig
 import ac.uk.ebi.biostd.itest.entities.GenericUser
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
 import arrow.core.Either
-import ebi.ac.uk.api.security.RegisterRequest
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.file
 import ebi.ac.uk.dsl.section
@@ -59,7 +58,7 @@ internal class MultipartFileSubmissionApiTest(private val tempFolder: TemporaryF
         @BeforeAll
         fun init() {
             val securityClient = SecurityWebClient.create("http://localhost:$serverPort")
-            securityClient.registerUser(RegisterRequest(GenericUser.email, GenericUser.username, GenericUser.password))
+            securityClient.registerUser(GenericUser.asRegisterRequest())
             webClient = securityClient.getAuthenticatedClient(GenericUser.username, GenericUser.password)
         }
 

@@ -18,7 +18,6 @@ import ac.uk.ebi.biostd.itest.factory.simpleSubmissionTsv
 import ac.uk.ebi.biostd.persistence.model.AccessTag
 import ac.uk.ebi.biostd.persistence.repositories.TagsDataRepository
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
-import ebi.ac.uk.api.security.RegisterRequest
 import ebi.ac.uk.dsl.line
 import ebi.ac.uk.dsl.tsv
 import ebi.ac.uk.model.extensions.title
@@ -63,7 +62,7 @@ internal class SubmissionTest(private val tempFolder: TemporaryFolder) : BaseInt
         @BeforeAll
         fun init() {
             val securityClient = SecurityWebClient.create("http://localhost:$serverPort")
-            securityClient.registerUser(RegisterRequest(GenericUser.email, GenericUser.username, GenericUser.password))
+            securityClient.registerUser(GenericUser.asRegisterRequest())
             webClient = securityClient.getAuthenticatedClient(GenericUser.username, GenericUser.password)
             assertHelper = SubmissionAssertHelper(basePath)
 
