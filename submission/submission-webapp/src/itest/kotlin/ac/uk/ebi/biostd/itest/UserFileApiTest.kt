@@ -25,6 +25,7 @@ import org.springframework.context.annotation.Import
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.io.File
+import java.nio.file.Paths
 
 @ExtendWith(TemporaryFolderExtension::class)
 internal class UserFileApiTest(private val tempFolder: TemporaryFolder) : BaseIntegrationTest(tempFolder) {
@@ -61,23 +62,24 @@ internal class UserFileApiTest(private val tempFolder: TemporaryFolder) : BaseIn
             testUserFilesGroup("test-folder")
         }
 
-        private fun assertFile(resultFile: UserFile, downloadFile: File, file: File) {
+        private fun testUserFilesGroup(path: String = "") {
+            val file = tempFolder.createFile("FileList1.txt", "An example content")
+            webClient.uploadFiles(listOf(file), relativePath = path)
+
+            val files = webClient.listUserFiles(relativePath = path)
+            assertThat(files).hasSize(1)
+            assertFile(files.first(), webClient.downloadFile(file.name, path), file, path)
+
+            webClient.deleteFile("FileList1.txt", path)
+            assertThat(webClient.listUserFiles(relativePath = path)).isEmpty()
+        }
+
+        private fun assertFile(resultFile: UserFile, downloadFile: File, file: File, relativePath: String) {
             assertThat(resultFile.name).isEqualTo(file.name)
             assertThat(resultFile.type).isEqualTo(UserFileType.FILE)
             assertThat(resultFile.size).isEqualTo(file.length())
+            assertThat(resultFile.path).isEqualTo(Paths.get("user").resolve(relativePath).toString())
             assertThat(file).hasContent(downloadFile.readText())
-        }
-
-        private fun testUserFilesGroup(relativePath: String = "") {
-            val file = tempFolder.createFile("FileList1.txt", "An example content")
-            webClient.uploadFiles(listOf(file), relativePath = relativePath)
-
-            val files = webClient.listUserFiles(relativePath = relativePath)
-            assertThat(files).hasSize(1)
-            assertFile(files.first(), webClient.downloadFile(file.name, relativePath = relativePath), file)
-
-            webClient.deleteFile("FileList1.txt", relativePath = relativePath)
-            assertThat(webClient.listUserFiles(relativePath = relativePath)).isEmpty()
         }
     }
 }

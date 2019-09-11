@@ -15,10 +15,7 @@ import java.nio.file.Paths
 @ExtendWith(TemporaryFolderExtension::class)
 class ProfileServiceTest(temporaryFolder: TemporaryFolder) {
     private val filesDir = temporaryFolder.root.toPath()
-    private val testGroup = UserGroup().apply {
-        name = "Test Group"
-        secret = "fd9f87b3-9de8-4036-be7a-3ac8cbc44ddd"
-    }
+    private val testGroup = UserGroup("Test Group", "Test Group Description", "fd9f87b3-9de8-4036-be7a-3ac8cbc44ddd")
 
     private val testUser = User(
         id = 3,
@@ -39,6 +36,7 @@ class ProfileServiceTest(temporaryFolder: TemporaryFolder) {
 
         val expectedGroupFolder = GroupMagicFolder(
             groupName = "Test Group",
+            description = "Test Group Description",
             path = Paths.get("$filesDir/fd/9f87b3-9de8-4036-be7a-3ac8cbc44ddd-b0")
         )
 

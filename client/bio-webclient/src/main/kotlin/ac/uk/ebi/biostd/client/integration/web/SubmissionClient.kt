@@ -7,6 +7,7 @@ import ebi.ac.uk.api.security.LoginRequest
 import ebi.ac.uk.api.security.RegisterRequest
 import ebi.ac.uk.api.security.UserProfile
 import ebi.ac.uk.base.EMPTY
+import ebi.ac.uk.model.Group
 import ebi.ac.uk.model.Submission
 import org.springframework.http.ResponseEntity
 import java.io.File
@@ -15,7 +16,8 @@ interface SubmissionClient :
     SubmissionOperations,
     FilesOperations,
     GroupFilesOperations,
-    MultipartSubmissionOperations
+    MultipartSubmissionOperations,
+    GeneralOperations
 
 interface FilesOperations {
     fun uploadFiles(files: List<File>, relativePath: String = EMPTY)
@@ -63,4 +65,8 @@ interface SecurityOperations {
     fun login(loginRequest: LoginRequest): UserProfile
 
     fun registerUser(registerRequest: RegisterRequest): Unit
+}
+
+interface GeneralOperations {
+    fun getGroups(): List<Group>
 }

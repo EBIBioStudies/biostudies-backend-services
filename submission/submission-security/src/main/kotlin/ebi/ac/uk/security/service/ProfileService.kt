@@ -30,13 +30,14 @@ class ProfileService(private val filesDirPath: Path) {
     }
 
     private fun groupsMagicFolder(groups: Set<UserGroup>): List<GroupMagicFolder> =
-        groups.map { GroupMagicFolder(it.name, Paths.get("$filesDirPath/${magicPath(it.secret, it.id, "b")}")) }
+        groups.map { GroupMagicFolder(it.name, userMagicFolder(it), it.description) }
+
+    private fun userMagicFolder(it: UserGroup) = Paths.get("$filesDirPath/${magicPath(it.secret, it.id, "b")}")
 
     private fun userMagicFolder(secret: String, id: Long): MagicFolder {
         val relativePath = magicPath(secret, id, "a")
         return MagicFolder(Paths.get(relativePath), Paths.get("$filesDirPath/$relativePath"))
     }
 
-    private fun magicPath(secret: String, id: Long, suffix: String) =
-        "${secret.take(2)}/${secret.drop(2)}-$suffix$id"
+    private fun magicPath(secret: String, id: Long, suffix: String) = "${secret.take(2)}/${secret.drop(2)}-$suffix$id"
 }
