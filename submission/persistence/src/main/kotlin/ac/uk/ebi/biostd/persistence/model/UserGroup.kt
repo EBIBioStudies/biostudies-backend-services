@@ -10,7 +10,7 @@ import javax.persistence.Table
 @Table(name = "UserGroup")
 class UserGroup(
     var name: String,
-    var description: String,
+    var description: String? = null,
     var secret: String
 ) {
 

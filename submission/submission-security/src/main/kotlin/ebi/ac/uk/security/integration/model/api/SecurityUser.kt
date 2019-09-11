@@ -16,4 +16,4 @@ class SecurityUser(
 )
 
 data class MagicFolder(val relativePath: Path, val path: Path)
-data class GroupMagicFolder(val groupName: String, val description: String, val path: Path)
+data class GroupMagicFolder(val groupName: String, val path: Path, val description: String? = null)

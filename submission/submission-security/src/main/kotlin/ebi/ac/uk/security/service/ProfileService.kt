@@ -30,7 +30,7 @@ class ProfileService(private val filesDirPath: Path) {
     }
 
     private fun groupsMagicFolder(groups: Set<UserGroup>): List<GroupMagicFolder> =
-        groups.map { GroupMagicFolder(it.name, it.description, userMagicFolder(it)) }
+        groups.map { GroupMagicFolder(it.name, userMagicFolder(it), it.description) }
 
     private fun userMagicFolder(it: UserGroup) = Paths.get("$filesDirPath/${magicPath(it.secret, it.id, "b")}")
 
