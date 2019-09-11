@@ -6,6 +6,7 @@ import TestVersions.JunitVersion
 import TestVersions.MockKVersion
 import TestVersions.XmlUnitVersion
 import Versions.CliKtVersion
+import Versions.CommonsCsvVersion
 import Versions.CommonsIOVersion
 import Versions.CommonsLang3Version
 import Versions.GuavaVersion
@@ -57,6 +58,7 @@ object Versions {
 
     const val CommonsLang3Version = "3.8.1"
     const val CommonsIOVersion = "2.6"
+    const val CommonsCsvVersion = "1.7"
     const val MySqlVersion = "6.0.6"
     const val XmlBuilderVersion = "1.4.2"
     const val WoodstoxVersion = "5.1.0"
@@ -139,6 +141,7 @@ object Dependencies {
     const val ArrowData = "io.arrow-kt:arrow-data:$KotlinArrowVersion"
 
     // Apache
+    const val CommonsCsv = "org.apache.commons:commons-csv:$CommonsCsvVersion"
     const val CommonsLang3 = "org.apache.commons:commons-lang3:$CommonsLang3Version"
     const val CommonsIO = "commons-io:commons-io:$CommonsIOVersion"
     const val Poi = "org.apache.poi:poi:$PoiVersion"

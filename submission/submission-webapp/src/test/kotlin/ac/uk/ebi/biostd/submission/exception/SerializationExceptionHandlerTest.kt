@@ -21,7 +21,7 @@ class SerializationExceptionHandlerTest {
     fun handle() {
         val testSubmission = submission("ABC-123") {}
         val testErrors = HashMultimap.create<Any, SerializationError>()
-        val testChunk = FileChunk(listOf(TsvChunkLine(1, ""), TsvChunkLine(2, ""), TsvChunkLine(3, "")))
+        val testChunk = FileChunk(listOf(TsvChunkLine(1, emptyList()), TsvChunkLine(2, emptyList()), TsvChunkLine(3, emptyList())))
         testErrors.put(testChunk, SerializationError(testChunk, Exception("An exception")))
 
         val validation = testInstance.handle(SerializationException(testSubmission, testErrors))

@@ -61,11 +61,6 @@ open class PersistenceContextImpl(
         }
     }
 
-    // TODO: add proper security validation
-    override fun canUserProvideAccNo(user: User): Boolean {
-        return true
-    }
-
     override fun canSubmit(accNo: String, user: User): Boolean {
         return true
     }

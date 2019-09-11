@@ -1,14 +1,12 @@
 package ac.uk.ebi.biostd.tsv.deserialization.model
 
-import ac.uk.ebi.biostd.tsv.TSV_SEPARATOR
 import ebi.ac.uk.base.EMPTY
 import ebi.ac.uk.util.collections.findSecond
 
 class TsvChunkLine(
     val index: Int,
-    val body: String,
-    private val rawLines: List<String> = body.split(TSV_SEPARATOR),
-    private val lines: List<String> = body.split(TSV_SEPARATOR).filter(String::isNotBlank)
+    val rawLines: List<String>,
+    private val lines: List<String> = rawLines.filter(String::isNotBlank)
 ) : List<String> by lines {
 
     val value: String

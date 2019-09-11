@@ -12,6 +12,7 @@ import ebi.ac.uk.security.integration.SecurityModuleConfig
 import ebi.ac.uk.security.integration.components.IGroupService
 import ebi.ac.uk.security.integration.components.ISecurityFilter
 import ebi.ac.uk.security.integration.components.ISecurityService
+import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import ebi.ac.uk.security.integration.model.events.PasswordReset
 import ebi.ac.uk.security.integration.model.events.UserRegister
 import io.reactivex.Observable
@@ -51,7 +52,6 @@ class SecurityConfig(
 
 @Configuration
 class SecurityBeansConfig(private val objectMapper: ObjectMapper, properties: ApplicationProperties) {
-
     private val securityProps = properties.security
 
     @Bean
@@ -75,6 +75,11 @@ class SecurityBeansConfig(private val objectMapper: ObjectMapper, properties: Ap
 
     @Bean
     fun groupService(securityConfig: SecurityModuleConfig): IGroupService = securityConfig.groupService()
+
+    @Bean
+    fun userPrivilegesService(
+        securityConfig: SecurityModuleConfig
+    ): IUserPrivilegesService = securityConfig.userPrivilegesService()
 
     @Bean
     fun securityFilter(securityConfig: SecurityModuleConfig): ISecurityFilter = securityConfig.securityFilter()

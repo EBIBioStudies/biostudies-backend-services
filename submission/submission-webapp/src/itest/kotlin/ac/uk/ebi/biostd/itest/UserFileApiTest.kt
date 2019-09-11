@@ -9,7 +9,6 @@ import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
 import ac.uk.ebi.biostd.itest.entities.GenericUser
 import ebi.ac.uk.api.UserFile
 import ebi.ac.uk.api.UserFileType
-import ebi.ac.uk.api.security.RegisterRequest
 import ebi.ac.uk.test.clean
 import ebi.ac.uk.test.createFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
@@ -44,11 +43,7 @@ internal class UserFileApiTest(private val tempFolder: TemporaryFolder) : BaseIn
         @BeforeAll
         fun init() {
             val securityClient = SecurityWebClient.create("http://localhost:$serverPort")
-            securityClient.registerUser(RegisterRequest(
-                GenericUser.email,
-                GenericUser.username,
-                GenericUser.password
-            ))
+            securityClient.registerUser(GenericUser.asRegisterRequest())
             webClient = securityClient.getAuthenticatedClient(GenericUser.username, GenericUser.password)
         }
 

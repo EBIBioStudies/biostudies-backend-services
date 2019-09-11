@@ -10,6 +10,7 @@ import ebi.ac.uk.model.AccNumber
 import ebi.ac.uk.model.AccPattern
 import ebi.ac.uk.model.ExtendedSubmission
 import ebi.ac.uk.persistence.PersistenceContext
+import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 
 const val DEFAULT_PATTERN = "!{S-BSST,}"
 const val PATH_DIGITS = 3
@@ -17,8 +18,10 @@ const val PATH_DIGITS = 3
 /**
  * Calculate the accession number and relative path for the given submission.
  */
-class AccNoProcessor(private val patternUtil: AccNoPatternUtil = AccNoPatternUtil()) : SubmissionProcessor {
-
+class AccNoProcessor(
+    private val userPrivilegesService: IUserPrivilegesService,
+    private val patternUtil: AccNoPatternUtil = AccNoPatternUtil()
+) : SubmissionProcessor {
     override fun process(submission: ExtendedSubmission, context: PersistenceContext) {
         val accNo = getAccNo(submission, context)
 
@@ -28,7 +31,7 @@ class AccNoProcessor(private val patternUtil: AccNoPatternUtil = AccNoPatternUti
 
     private fun getAccNo(submission: ExtendedSubmission, context: PersistenceContext): AccNumber {
         return when {
-            context.isNew(submission) && context.canUserProvideAccNo(submission.user).not() ->
+            context.isNew(submission) && userPrivilegesService.canProvideAccNo(submission.user.email).not() ->
                 throw ProvideAccessNumber(submission.user)
             context.canSubmit(submission.accNo, submission.user).not() ->
                 throw UserCanNotUpdateSubmit(submission)

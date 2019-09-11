@@ -18,6 +18,7 @@ import ac.uk.ebi.biostd.submission.processors.TimesProcessor
 import ac.uk.ebi.biostd.submission.validators.ProjectValidator
 import ac.uk.ebi.biostd.submission.validators.SubmissionValidator
 import ebi.ac.uk.paths.SubmissionFolderResolver
+import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
@@ -25,7 +26,7 @@ import org.springframework.context.annotation.Lazy
 import java.nio.file.Paths
 
 @Configuration
-@Import(ValidatorConfig::class, ProcessorConfig::class, FilesHandlerConfig::class)
+@Import(ValidatorConfig::class, ProcessorConfig::class, FilesHandlerConfig::class, SecurityBeansConfig::class)
 class SubmitterConfig {
     @Bean
     fun submissionSubmitter(
@@ -57,9 +58,9 @@ class SubmitterConfig {
     }
 
     @Configuration
-    class ProcessorConfig {
+    class ProcessorConfig(private val userPrivilegesService: IUserPrivilegesService) {
         @Bean
-        fun accNoProcessor() = AccNoProcessor()
+        fun accNoProcessor() = AccNoProcessor(userPrivilegesService)
 
         @Bean
         fun accessTagProcessor() = AccessTagProcessor()

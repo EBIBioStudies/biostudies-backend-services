@@ -11,6 +11,7 @@ dependencies {
     compile(Woodstox)
     compile(Guava)
     compile(Arrow)
+    compile(CommonsCsv)
 
     testCompile(BaseTestCompileDependencies)
     testRuntime(BaseTestRuntimeDependencies)
