@@ -1,5 +1,6 @@
-package ac.uk.ebi.biostd.tsv.deserialization
+package ac.uk.ebi.biostd.tsv.deserialization.chunks
 
+import ac.uk.ebi.biostd.tsv.deserialization.TsvSerializationContext
 import ac.uk.ebi.biostd.tsv.deserialization.common.findId
 import ac.uk.ebi.biostd.tsv.deserialization.common.getType
 import ac.uk.ebi.biostd.tsv.deserialization.common.getTypeOrElse

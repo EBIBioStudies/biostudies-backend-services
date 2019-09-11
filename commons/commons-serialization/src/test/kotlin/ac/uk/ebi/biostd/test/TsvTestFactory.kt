@@ -11,6 +11,11 @@ fun basicSubmission() = tsv {
     line()
 }
 
+fun basicSubmissionWithMultiline() = tsv {
+    line("Submission", "S-EPMC123")
+    line("Title", "\"This is a really long title \n with a break line\"")
+}
+
 fun basicSubmissionWithComments() = tsv {
     line("# This is a test submission")
     line("Submission", "S-EPMC123")
@@ -57,6 +62,19 @@ fun submissionWithRootSection() = tsv {
     line("Submission", "S-EPMC125")
     line("Title", "Test Submission")
     line()
+
+    line("Study")
+    line("Title", "Test Root Section")
+    line("Abstract", "Test abstract")
+    line()
+}
+
+fun submissionWithMultipleLineBreaks() = tsv {
+    line("Submission", "S-EPMC125")
+    line("Title", "Test Submission")
+    line()
+    line()
+    line("", "")
 
     line("Study")
     line("Title", "Test Root Section")
