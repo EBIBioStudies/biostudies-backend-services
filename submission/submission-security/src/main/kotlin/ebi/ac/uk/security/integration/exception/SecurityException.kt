@@ -23,4 +23,4 @@ class UserWithActivationKeyNotFoundException :
     SecurityException("Could not find an un-active user with the provided activation key.")
 
 class UserAlreadyRegister(email: String) :
-    SecurityException("There is already a user registered with email address '$email'.")
+    SecurityException("There is already a user registered with the email address '$email'.")
