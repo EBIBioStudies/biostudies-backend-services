@@ -30,3 +30,5 @@ The PR name should use the following convention: `{Fix/Feature/Chore} / Pivotal 
 Example: `Feature / Pivotal ID #168426599 - Submit Privilege`
 
 The type of PR should match the branch.
+
+As a last note, please set yourself as the PR's assignee and set the reviewers so all the team gets notifications.
