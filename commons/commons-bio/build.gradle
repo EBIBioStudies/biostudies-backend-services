@@ -1,9 +1,0 @@
-import static TestDependencies.BaseTestCompileDependencies
-import static TestDependencies.BaseTestRuntimeDependencies
-
-dependencies {
-    compile project(":commons:commons-util")
-
-    testCompile(BaseTestCompileDependencies)
-    testRuntime(BaseTestRuntimeDependencies)
-}
