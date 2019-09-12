@@ -6,6 +6,7 @@ internal data class Attachment(
     val color: String,
     val pretext: String,
     val text: String? = null,
-    val fields: List<Field> = emptyList())
+    val fields: List<Field> = emptyList()
+)
 
 internal data class Field(val title: String, val value: String)

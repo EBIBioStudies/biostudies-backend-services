@@ -35,9 +35,9 @@ import Versions.WoodstoxVersion
 import Versions.XmlBuilderVersion
 
 object TestVersions {
-    const val AssertJVersion = "3.11.0"
-    const val JunitVersion = "5.5.0"
-    const val JunitEngineVersion = "1.5.0"
+    const val AssertJVersion = "3.13.2"
+    const val JunitVersion = "5.5.2"
+    const val JunitEngineVersion = "1.5.2"
     const val JunitExtensionsVersion = "2.3.0"
     const val MockKVersion = "1.9.3"
     const val XmlUnitVersion = "2.6.2"
@@ -45,16 +45,16 @@ object TestVersions {
 }
 
 object Versions {
-    const val SpringBootVersion = "2.1.2.RELEASE"
-    const val SpringVersion = "5.1.2.RELEASE"
-    const val SpringDataVersion = "2.0.9.RELEASE"
-    const val SpringAdminVersion = "2.1.5"
+    const val SpringBootVersion = "2.1.8.RELEASE"
+    const val SpringVersion = "5.1.6.RELEASE"
+    const val SpringDataVersion = "2.1.10.RELEASE"
+    const val SpringAdminVersion = "2.1.6"
 
-    const val KotlinVersion = "1.3.41"
+    const val KotlinVersion = "1.3.50"
     const val KotlinLoggingVersion = "1.6.20"
     const val KotlinArrowVersion = "0.8.2"
-    const val KotlinCoroutineVersion = "1.1.1"
-    const val KMongoCoroutineVersion = "3.9.1"
+    const val KotlinCoroutineVersion = "1.3.1"
+    const val KMongoCoroutineVersion = "3.11.0"
 
     const val CommonsLang3Version = "3.8.1"
     const val CommonsIOVersion = "2.6"

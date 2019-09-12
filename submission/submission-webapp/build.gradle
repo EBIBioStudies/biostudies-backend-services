@@ -3,8 +3,8 @@ import static SpringBootDependencies.*
 import static TestDependencies.*
 
 plugins {
-    id "org.jetbrains.kotlin.plugin.spring" version "1.3.41"
-    id "io.spring.dependency-management" version "1.0.6.RELEASE"
+    id "org.jetbrains.kotlin.plugin.spring" version "1.3.50"
+    id "io.spring.dependency-management" version "1.0.8.RELEASE"
     id "org.springframework.boot" version "2.1.2.RELEASE"
 }
 

@@ -4,7 +4,8 @@ import java.util.Objects
 
 class Link(
     var url: String,
-    override var attributes: List<Attribute> = listOf()) : Attributable {
+    override var attributes: List<Attribute> = listOf()
+) : Attributable {
 
     override fun equals(other: Any?) = when {
         other !is Link -> false

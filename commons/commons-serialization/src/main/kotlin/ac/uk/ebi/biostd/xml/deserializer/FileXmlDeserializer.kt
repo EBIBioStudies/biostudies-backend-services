@@ -6,8 +6,8 @@ import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.model.constants.FileFields
 import org.w3c.dom.Node
 
-class FileXmlDeserializer(private val attributeXmlDeserializer: AttributeXmlDeserializer)
-    : BaseXmlDeserializer<File>() {
+class FileXmlDeserializer(private val attributeXmlDeserializer: AttributeXmlDeserializer) :
+    BaseXmlDeserializer<File>() {
 
     override fun deserialize(node: Node): File {
         return File(
