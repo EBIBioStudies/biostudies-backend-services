@@ -61,16 +61,12 @@ open class PersistenceContextImpl(
         }
     }
 
-    override fun canSubmit(accNo: String, user: User): Boolean {
-        return true
-    }
-
     // TODO: add proper security validation
     override fun canDelete(accNo: String, user: User): Boolean {
         return true
     }
 
-    override fun isNew(submission: ExtendedSubmission) = subRepository.existsByAccNo(submission.accNo).not()
+    override fun isNew(accNo: String) = subRepository.existsByAccNo(accNo).not()
 
     private fun getParentSubmission(submission: Submission) =
         submission.find(ATTACH_TO).toOption().map { subRepository.getByAccNoAndVersionGreaterThan(it) }

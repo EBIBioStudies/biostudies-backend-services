@@ -13,9 +13,9 @@ In order to keep the same coding standards, this project uses KtLint. You can fi
 The building process includes coverage report which is available at the `build` folder on each module.
 
 ## Branch Names
-New branches should be named using the following convention: `{fix/feature/chore}/{Pivotal ID #}-{branch-name}`
+New branches should be named using the following convention: `{fix/feature/chore}/pivotal-{Ticket ID}-{branch-name}`
 
-Example: `feature/168426599-submit-permission`
+Example: `feature/pivotal-168426599-submit-permission`
 
 * **fix** should be used for code that solves a bug
 * **feature** should be used for code that releases a new feature
@@ -25,10 +25,9 @@ Example: `feature/168426599-submit-permission`
 The project's default branch is `master`. All code to be included in this branch should be merged through a PR that
 should pass its corresponding build and have at least one approval review.
 
-The PR name should use the following convention: `{Fix/Feature/Chore} / Pivotal ID #{Ticket ID #} - {Ticket Title}`
-
-Example: `Feature / Pivotal ID #168426599 - Submit Privilege`
-
-The type of PR should match the branch.
-
-As a last note, please set yourself as the PR's assignee and set the reviewers so all the team gets notifications.
+* The PR name should use the following convention: `Pivotal ID # {Ticket ID #}: {Ticket Title}`, for example,
+`Pivotal ID #168426599: Submit Privilege`.
+* The first comment in the PR description should be the link to the pivotal tracker.
+* The last comment in the PR description should be used for the pivotal integration by adding
+`{Finishes|Fixes|Delivers} #{Ticket ID}`.
+* Please set yourself as the PR's assignee and set the reviewers so all the team gets notifications.
