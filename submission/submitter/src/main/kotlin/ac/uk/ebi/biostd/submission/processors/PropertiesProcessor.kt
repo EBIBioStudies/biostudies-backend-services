@@ -9,7 +9,7 @@ import java.util.UUID
  */
 class PropertiesProcessor : SubmissionProcessor {
     override fun process(submission: ExtendedSubmission, context: PersistenceContext) {
-        if (context.isNew(submission)) {
+        if (context.isNew(submission.accNo)) {
             submission.secretKey = UUID.randomUUID().toString()
             submission.version = 1
         }

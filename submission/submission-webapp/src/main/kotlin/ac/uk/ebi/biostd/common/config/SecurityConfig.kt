@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.common.config
 
 import ac.uk.ebi.biostd.common.property.ApplicationProperties
+import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
 import ac.uk.ebi.biostd.persistence.repositories.TokenDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserGroupDataRepository
@@ -8,6 +9,7 @@ import ac.uk.ebi.biostd.security.web.SecurityMapper
 import ac.uk.ebi.biostd.security.web.exception.SecurityAccessDeniedHandler
 import ac.uk.ebi.biostd.security.web.exception.SecurityAuthEntryPoint
 import com.fasterxml.jackson.databind.ObjectMapper
+import ebi.ac.uk.persistence.PersistenceContext
 import ebi.ac.uk.security.integration.SecurityModuleConfig
 import ebi.ac.uk.security.integration.components.IGroupService
 import ebi.ac.uk.security.integration.components.ISecurityFilter
@@ -51,6 +53,7 @@ class SecurityConfig(
 }
 
 @Configuration
+@Import(PersistenceConfig::class)
 class SecurityBeansConfig(private val objectMapper: ObjectMapper, properties: ApplicationProperties) {
     private val securityProps = properties.security
 
@@ -67,8 +70,11 @@ class SecurityBeansConfig(private val objectMapper: ObjectMapper, properties: Ap
     fun securityModuleConfig(
         userRepository: UserDataRepository,
         tokenRepository: TokenDataRepository,
-        groupRepository: UserGroupDataRepository
-    ): SecurityModuleConfig = SecurityModuleConfig(userRepository, tokenRepository, groupRepository, securityProps)
+        persistenceContext: PersistenceContext,
+        groupRepository: UserGroupDataRepository,
+        accessPermissionRepository: AccessPermissionRepository
+    ): SecurityModuleConfig = SecurityModuleConfig(
+        userRepository, tokenRepository, persistenceContext, groupRepository, accessPermissionRepository, securityProps)
 
     @Bean
     fun securityService(securityConfig: SecurityModuleConfig): ISecurityService = securityConfig.securityService()

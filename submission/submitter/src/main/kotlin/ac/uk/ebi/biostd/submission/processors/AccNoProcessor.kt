@@ -31,9 +31,9 @@ class AccNoProcessor(
 
     private fun getAccNo(submission: ExtendedSubmission, context: PersistenceContext): AccNumber {
         return when {
-            context.isNew(submission) && userPrivilegesService.canProvideAccNo(submission.user.email).not() ->
+            context.isNew(submission.accNo) && userPrivilegesService.canProvideAccNo(submission.user.email).not() ->
                 throw ProvideAccessNumber(submission.user)
-            context.canSubmit(submission.accNo, submission.user).not() ->
+            userPrivilegesService.canSubmit(submission.accNo, submission.user.email).not() ->
                 throw UserCanNotUpdateSubmit(submission)
             else ->
                 calculateAccNo(submission, context)
