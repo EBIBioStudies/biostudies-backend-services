@@ -33,10 +33,9 @@ This section will explain how to deploy a local instance of the submitter webapp
 * Docker
 
 #### Database Setup
-1. Move to [infrastructure](infrastructure) folder
-2. Execute the command `gradle setUpTestDatabase`. This will deploy a custom MySql image loaded with the application's
-schema and some initial test data.
-3. Execute the command `docker ps`. You should see the _biostudies-mysql_ image up and running.
+1. Execute the command `gradle setUpTestDatabase` in the [infrastructure](infrastructure) folder. This will deploy a
+custom MySql image loaded with the application's schema and some initial test data.
+2. Execute the command `docker ps`. You should see the _biostudies-mysql_ image up and running.
 
 #### Configure WebApp
 1. Move to [Submission WebApp](submission/submission-webapp) folder
