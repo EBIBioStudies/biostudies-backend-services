@@ -48,3 +48,8 @@ fun String.splitIgnoringEmpty(regex: Regex) = this.split(regex).filter { it.isNo
  * Removes the regex expression matching the string.
  */
 fun String.remove(regex: Regex) = replace(regex, "")
+
+/**
+ * Removes the first regex expression matching the string.
+ */
+fun String.removeFirstOccurrence(regex: Regex) = replaceFirst(regex, "")

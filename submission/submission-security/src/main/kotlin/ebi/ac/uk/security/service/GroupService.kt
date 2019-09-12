@@ -13,20 +13,14 @@ internal class GroupService(
 ) : IGroupService {
 
     // TODO: add logic to add create secret folder
-    override fun creatGroup(groupName: String): UserGroup {
-        val group = UserGroup()
-        group.name = groupName
-        group.secret = UUID.randomUUID().toString()
-        return groupRepository.save(group)
+    override fun createGroup(groupName: String, description: String): UserGroup {
+        return groupRepository.save(UserGroup(groupName, description, UUID.randomUUID().toString()))
     }
 
     // TODO: add not existing group not existing user handling
     override fun addUserInGroup(groupName: String, userEmail: String) {
         val group = groupRepository.getByName(groupName)
         val user = userRepository.getByEmail(userEmail)
-        user.addGroup(group)
-        userRepository.save(user)
-        group.users.add(user)
-        groupRepository.save(group)
+        userRepository.save(user.addGroup(group))
     }
 }
