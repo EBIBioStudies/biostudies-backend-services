@@ -39,5 +39,3 @@ val verifyCoverage = tasks.named<JacocoCoverageVerification>("jacocoTestCoverage
         rule { limit { counter = "LINE"; value = "COVEREDRATIO"; minimum = coverage?.toBigDecimal() ?: ZERO } }
     }
 }
-
-//tasks.named<DefaultTask>("check") { dependsOn(verifyCoverage) }

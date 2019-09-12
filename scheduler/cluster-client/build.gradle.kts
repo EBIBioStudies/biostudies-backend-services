@@ -5,7 +5,6 @@ import TestDependencies.BaseTestRuntimeDependencies
 
 dependencies {
     compile(KotlinStdLib)
-
     compile(project(":commons:commons-util"))
     compile(Jsch)
 
