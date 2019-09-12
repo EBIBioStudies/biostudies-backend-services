@@ -34,9 +34,8 @@ class AccNoPatternUtilTest(
         every { mockUser.email } returns "test@mail.com"
         every { mockPersistenceContext.isNew("") } returns true
         every { mockPersistenceContext.getParentAccPattern(submission) } returns Option.empty()
-        every { mockUserPrivilegesService.canSubmit("", "test@mail.com") } returns true
-        every { mockUserPrivilegesService.canSubmit("AAB12", "test@mail.com") } returns true
         every { mockUserPrivilegesService.canProvideAccNo("test@mail.com") } returns true
+        every { mockUserPrivilegesService.canResubmit("test@mail.com", mockUser, null, emptyList()) } returns true
     }
 
     @ParameterizedTest(name = "when prefix is {0}, postfix is {1} and numeric value is {2}")
@@ -83,7 +82,7 @@ class AccNoPatternUtilTest(
 
     @Test
     fun `When accession and user is not allowed to update submission`() {
-        every { mockUserPrivilegesService.canSubmit("AAB12", "test@mail.com") } returns false
+        every { mockUserPrivilegesService.canResubmit("test@mail.com", mockUser, null, emptyList()) } returns false
 
         assertThrows<InvalidPermissionsException> { testInstance.process(submission, mockPersistenceContext) }
     }

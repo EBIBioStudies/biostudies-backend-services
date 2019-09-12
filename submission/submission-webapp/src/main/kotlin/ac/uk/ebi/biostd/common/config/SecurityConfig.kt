@@ -9,7 +9,6 @@ import ac.uk.ebi.biostd.security.web.SecurityMapper
 import ac.uk.ebi.biostd.security.web.exception.SecurityAccessDeniedHandler
 import ac.uk.ebi.biostd.security.web.exception.SecurityAuthEntryPoint
 import com.fasterxml.jackson.databind.ObjectMapper
-import ebi.ac.uk.persistence.PersistenceContext
 import ebi.ac.uk.security.integration.SecurityModuleConfig
 import ebi.ac.uk.security.integration.components.IGroupService
 import ebi.ac.uk.security.integration.components.ISecurityFilter
@@ -70,11 +69,10 @@ class SecurityBeansConfig(private val objectMapper: ObjectMapper, properties: Ap
     fun securityModuleConfig(
         userRepository: UserDataRepository,
         tokenRepository: TokenDataRepository,
-        persistenceContext: PersistenceContext,
         groupRepository: UserGroupDataRepository,
         accessPermissionRepository: AccessPermissionRepository
     ): SecurityModuleConfig = SecurityModuleConfig(
-        userRepository, tokenRepository, persistenceContext, groupRepository, accessPermissionRepository, securityProps)
+        userRepository, tokenRepository, groupRepository, accessPermissionRepository, securityProps)
 
     @Bean
     fun securityService(securityConfig: SecurityModuleConfig): ISecurityService = securityConfig.securityService()
