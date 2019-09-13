@@ -2,22 +2,22 @@ package ac.uk.ebi.biostd.tsv
 
 import ac.uk.ebi.biostd.test.createVenousBloodMonocyte
 import ac.uk.ebi.biostd.test.twoBasicSubmission
-import ebi.ac.uk.asserts.assertSubmission
-import ebi.ac.uk.model.Attribute
+import ebi.ac.uk.dsl.attribute
+import ebi.ac.uk.dsl.submission
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
 internal class TsvSerializerTest {
-    private val submission = createVenousBloodMonocyte()
+    private val testSubmission = createVenousBloodMonocyte()
     private val testInstance: TsvSerializer = TsvSerializer()
 
     @Test
     fun `serialize and deserialize submission`() {
-        val tsv = testInstance.serialize(submission)
+        val tsv = testInstance.serialize(testSubmission)
         val result = testInstance.deserialize(tsv)
 
         assertThat(result).isNotNull
-        assertThat(result).isEqualTo(submission)
+        assertThat(result).isEqualTo(testSubmission)
     }
 
     @Test
@@ -26,12 +26,11 @@ internal class TsvSerializerTest {
 
         assertThat(submissions).hasSize(2)
         submissions.forEach {
-            assertSubmission(
-                it,
-                "S-EPMC123",
-                Attribute("Title", "Basic Submission"),
-                Attribute("DataSource", "EuropePMC"),
-                Attribute("AttachTo", "EuropePMC"))
+            assertThat(it).isEqualTo(submission("S-EPMC123") {
+                attribute("Title", "Basic Submission")
+                attribute("DataSource", "EuropePMC")
+                attribute("AttachTo", "EuropePMC")
+            })
         }
     }
 }
