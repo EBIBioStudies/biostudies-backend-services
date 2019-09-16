@@ -49,6 +49,13 @@ folder for fresh instances. Set this folder path in the **basepath** property of
 In order to make a submission, you can use the BioStudies CLI. Find more information
 [here](client/bio-commandline/README.md).
 
+#### Page Tab
+Page tab is the specification used to define studies in BioStudies. In order to get a better understanding you can refer
+to:
+* [Page Tab Specification](https://ebibiostudies.github.io/page-tab-specification)
+* [All In One Example](https://ebibiostudies.github.io/page-tab-specification/examples/AllInOneExample.html)
+* [File List Example](https://ebibiostudies.github.io/page-tab-specification/examples/FileListExample.html)
+
 ## Development Process
 In this section there're useful documents related to the development process
 - [Coding Conventions](/docs/Coding_Conventions.md)

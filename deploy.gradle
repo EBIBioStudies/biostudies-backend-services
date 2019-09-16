@@ -60,13 +60,7 @@ task deployBioCommandLine {
         project.ext.artifactName = "PTSubmit-2.0.jar"
     }
 
-    doLast {
-        ssh.run {
-            session(remotes[env]) {
-                put from: "$artifactPath/$artifactName", into: "$deployPath/$artifactName"
-            }
-        }
-    }
+    finalizedBy "deployArtifact"
 }
 
 task updatePmcArtifact {
@@ -75,6 +69,10 @@ task updatePmcArtifact {
         project.ext.artifactName = "pmc-processor-task-1.0.0.jar"
     }
 
+    finalizedBy "deployArtifact"
+}
+
+task deployArtifact {
     doLast {
         ssh.run {
             session(remotes[env]) {
