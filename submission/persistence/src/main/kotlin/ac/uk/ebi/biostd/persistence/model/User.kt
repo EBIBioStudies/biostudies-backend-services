@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.persistence.model
 
 import ac.uk.ebi.biostd.persistence.converters.AuxInfoConverter
+import java.time.OffsetDateTime
 import javax.persistence.CascadeType.MERGE
 import javax.persistence.CascadeType.PERSIST
 import javax.persistence.Column
@@ -32,6 +33,9 @@ class User(
 
     @Column
     var fullName: String,
+
+    @Column
+    var keyTime: Long = OffsetDateTime.now().toInstant().toEpochMilli(),
 
     @Column
     var secret: String,

@@ -1,22 +1,30 @@
 # BioStudies Backend Services
 
-Project containing the BioStudies backend services:
+Project containing the BioStudies backend services. Below you'll find a description of each main component in the
+project:
 
-* **Submitter**:
-Module that processes and generates page tab xml/json/csv formatted files and read from database.
+* **Bio Admin**:
+Spring boot administration module.
 
-* **Scheduler**:
-Module that contains scheduled task to perform BioStudies related processes like submissions export to the UI or
-Europe-PMC submissions processing.
+* **CI**:
+It contains the definitions of the CI/CD GitLab jobs as well as the required scripts.
 
-* **Bio-Web Client**:
-Web client used to interact with the submitter
+* **Client**:
+Contains the web client used to interact with the submitter and the code for the BioStudies CLI (PTSubmit)
 
 * **Commons**:
 Contains common functionality used in all modules like the model definition, serialization, utils, etc. 
 
 * **Infrastructure**:
 Contains infrastructure related tooling to help deploying the application
+
+* **Scheduler**:
+Module that contains scheduled task to perform BioStudies related processes like submissions export to the UI or
+Europe-PMC submissions processing.
+
+* **Submission**:
+Contains all the services that are specifically related to the submissions.
+
 
 ## Deploying The Submitter WebApp
 This section will explain how to deploy a local instance of the submitter webapp from scratch. You'll need to have:
@@ -25,10 +33,9 @@ This section will explain how to deploy a local instance of the submitter webapp
 * Docker
 
 #### Database Setup
-1. Move to [infrastructure](infrastructure) folder
-2. Execute the command `gradle setUpTestDatabase`. This will deploy a custom MySql image loaded with the application's
-schema and some initial test data.
-3. Execute the command `docker ps`. You should see the _biostudies-mysql_ image up and running.
+1. Execute the command `gradle setUpTestDatabase` in the [infrastructure](infrastructure) folder. This will deploy a
+custom MySql image loaded with the application's schema and some initial test data.
+2. Execute the command `docker ps`. You should see the _biostudies-mysql_ image up and running.
 
 #### Configure WebApp
 1. Move to [Submission WebApp](submission/submission-webapp) folder
@@ -38,5 +45,6 @@ the [Local Submission WebApp Config File](submission/submission-webapp/src/main/
 folder for fresh instances. Set this folder path in the **basepath** property of the configuration file
 4. Execute the command `gradle bootRun`
 
-## Others documents
-- [Coding conventions](/docs/Coding_Conventions.md)
+## Development Process
+In this section there're useful documents related to the development process
+- [Coding Conventions](/docs/Coding_Conventions.md)

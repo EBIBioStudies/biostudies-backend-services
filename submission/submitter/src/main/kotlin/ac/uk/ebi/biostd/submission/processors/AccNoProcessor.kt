@@ -9,6 +9,7 @@ import ebi.ac.uk.base.lastDigits
 import ebi.ac.uk.model.AccNumber
 import ebi.ac.uk.model.AccPattern
 import ebi.ac.uk.model.ExtendedSubmission
+import ebi.ac.uk.model.extensions.attachTo
 import ebi.ac.uk.persistence.PersistenceContext
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 
@@ -31,9 +32,10 @@ class AccNoProcessor(
 
     private fun getAccNo(submission: ExtendedSubmission, context: PersistenceContext): AccNumber {
         return when {
-            context.isNew(submission) && userPrivilegesService.canProvideAccNo(submission.user.email).not() ->
+            context.isNew(submission.accNo) && userPrivilegesService.canProvideAccNo(submission.user.email).not() ->
                 throw ProvideAccessNumber(submission.user)
-            context.canSubmit(submission.accNo, submission.user).not() ->
+            userPrivilegesService.canResubmit(
+                submission.user.email, submission.user, submission.attachTo, submission.accessTags).not() ->
                 throw UserCanNotUpdateSubmit(submission)
             else ->
                 calculateAccNo(submission, context)

@@ -1,6 +1,8 @@
 package ac.uk.ebi.biostd.persistence.repositories
 
+import ac.uk.ebi.biostd.persistence.model.AccessPermission
 import ac.uk.ebi.biostd.persistence.model.AccessTag
+import ac.uk.ebi.biostd.persistence.model.AccessType
 import ac.uk.ebi.biostd.persistence.model.FULL_DATA_GRAPH
 import ac.uk.ebi.biostd.persistence.model.SecurityToken
 import ac.uk.ebi.biostd.persistence.model.Sequence
@@ -61,4 +63,8 @@ interface TokenDataRepository : JpaRepository<SecurityToken, String>
 
 interface UserGroupDataRepository : JpaRepository<UserGroup, Long> {
     fun getByName(groupName: String): UserGroup
+}
+
+interface AccessPermissionRepository : JpaRepository<AccessPermission, Long> {
+    fun existsByAccessTagInAndAccessType(accessTags: List<String>, accessType: AccessType): Boolean
 }

@@ -7,7 +7,6 @@ import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.User
 
 interface PersistenceContext {
-
     fun getSequenceNextValue(pattern: AccPattern): Long
 
     fun getParentAccessTags(submission: Submission): List<String>
@@ -18,10 +17,7 @@ interface PersistenceContext {
 
     fun saveSubmission(submission: ExtendedSubmission)
 
-    fun isNew(submission: ExtendedSubmission): Boolean
-
-    // TODO remove once proper implementation is made in IUserPrivilegesService
-    fun canSubmit(accNo: String, user: User): Boolean
+    fun isNew(accNo: String): Boolean
 
     // TODO remove once proper implementation is made in IUserPrivilegesService
     fun canDelete(accNo: String, user: User): Boolean

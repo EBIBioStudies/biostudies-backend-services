@@ -144,7 +144,7 @@ internal class SecurityServiceTest(
             every { userRepository.existsByEmail(email) } returns true
 
             val exception = assertThrows<UserAlreadyRegister> { testInstance.registerUser(registrationRequest) }
-            assertThat(exception.message).isEqualTo("There is already a user registered with email address 'Jhon.Doe@test.com'.")
+            assertThat(exception.message).isEqualTo("There is already a user registered with the email address 'Jhon.Doe@test.com'.")
         }
     }
 

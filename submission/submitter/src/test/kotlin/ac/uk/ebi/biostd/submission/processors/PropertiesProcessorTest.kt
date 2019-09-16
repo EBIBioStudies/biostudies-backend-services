@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.submission.processors
 
+import ac.uk.ebi.biostd.submission.test.ACC_NO
 import ac.uk.ebi.biostd.submission.test.createBasicExtendedSubmission
 import ebi.ac.uk.model.ExtendedSubmission
 import ebi.ac.uk.persistence.PersistenceContext
@@ -27,7 +28,7 @@ class PropertiesProcessorTest(@MockK private val mockPersistenceContext: Persist
 
     @Test
     fun `process existing submission`() {
-        every { mockPersistenceContext.isNew(testSubmission) } returns false
+        every { mockPersistenceContext.isNew(ACC_NO) } returns false
 
         testInstance.process(testSubmission, mockPersistenceContext)
 
@@ -37,7 +38,7 @@ class PropertiesProcessorTest(@MockK private val mockPersistenceContext: Persist
 
     @Test
     fun `process new submission`() {
-        every { mockPersistenceContext.isNew(testSubmission) } returns true
+        every { mockPersistenceContext.isNew(ACC_NO) } returns true
 
         testInstance.process(testSubmission, mockPersistenceContext)
 

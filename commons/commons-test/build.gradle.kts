@@ -1,7 +1,7 @@
-import static Dependencies.Arrow
-import static Dependencies.KotlinStdLib
-import static TestDependencies.AssertJ
-import static TestDependencies.JunitExtensions
+import Dependencies.Arrow
+import Dependencies.KotlinStdLib
+import TestDependencies.AssertJ
+import TestDependencies.JunitExtensions
 
 dependencies {
     compile(project(":commons:commons-bio"))

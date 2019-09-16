@@ -16,10 +16,11 @@ allprojects {
         maven(url = "https://oss.sonatypeorg/content/repositories/snapshots")
     }
 
-    apply(plugin = "jacoco")
     apply(plugin = "org.jetbrains.kotlin.jvm")
     apply(plugin = "io.gitlab.arturbosch.detekt")
     apply(plugin = "org.jlleitschuh.gradle.ktlint")
+
+    apply(from = "$rootDir/gradle/jacoco.gradle.kts")
 
     tasks {
 
@@ -49,29 +50,6 @@ allprojects {
         compileTestKotlin {
             kotlinOptions {
                 jvmTarget = "1.8"
-            }
-        }
-
-        jacoco {
-            toolVersion = "0.8.4"
-        }
-
-        test {
-            useJUnitPlatform()
-            finalizedBy(jacocoTestReport)
-            jacoco {
-                reportsDir = file("$buildDir/jacoco")
-            }
-        }
-
-        jacocoTestReport {
-            executionData("$buildDir/jacoco/test.exec")
-            reports {
-                xml.isEnabled = false
-                html.apply {
-                    isEnabled = true
-                    destination = File("$buildDir/reports/jacoco")
-                }
             }
         }
 

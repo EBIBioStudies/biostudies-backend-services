@@ -24,8 +24,6 @@ import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.constants.SubFields.SUBMISSION
 
-private const val ALLOWED_TYPES = "Study"
-
 internal class ChunkProcessor {
     fun getSubmission(tsvChunk: TsvChunk): Submission {
         validate(tsvChunk.getType() like SUBMISSION) { "Expected to find block type of $SUBMISSION" }
@@ -36,15 +34,10 @@ internal class ChunkProcessor {
         )
     }
 
-    fun getRootSection(tsvChunk: TsvChunk): Section {
-        val type = tsvChunk.getTypeOrElse(InvalidElementException(REQUIRED_ROOT_SECTION))
-        validate(type in ALLOWED_TYPES) { "Expected to find block type of $ALLOWED_TYPES" }
-
-        return Section(
-            accNo = tsvChunk.findId(),
-            type = type,
-            attributes = toAttributes(tsvChunk.lines))
-    }
+    fun getRootSection(tsvChunk: TsvChunk) = Section(
+        accNo = tsvChunk.findId(),
+        type = tsvChunk.getTypeOrElse(InvalidElementException(REQUIRED_ROOT_SECTION)),
+        attributes = toAttributes(tsvChunk.lines))
 
     inline fun <reified T> processIsolatedChunk(chunk: TsvChunk) = when (chunk) {
         is LinkChunk -> chunk.asLink() as T
