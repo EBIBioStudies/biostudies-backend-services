@@ -1,451 +1,326 @@
 package ac.uk.ebi.biostd.tsv
 
-import ac.uk.ebi.biostd.common.assertAttributes
 import ac.uk.ebi.biostd.test.basicSubmission
 import ac.uk.ebi.biostd.test.basicSubmissionWithComments
 import ac.uk.ebi.biostd.test.basicSubmissionWithMultiline
 import ac.uk.ebi.biostd.test.submissionWithDetailedAttributes
 import ac.uk.ebi.biostd.test.submissionWithFiles
 import ac.uk.ebi.biostd.test.submissionWithFilesTable
+import ac.uk.ebi.biostd.test.submissionWithGenericRootSection
 import ac.uk.ebi.biostd.test.submissionWithInnerSubsections
 import ac.uk.ebi.biostd.test.submissionWithInnerSubsectionsTable
-import ac.uk.ebi.biostd.test.submissionWithInvalidAttribute
-import ac.uk.ebi.biostd.test.submissionWithInvalidInnerSubsection
-import ac.uk.ebi.biostd.test.submissionWithInvalidNameAttributeDetail
-import ac.uk.ebi.biostd.test.submissionWithInvalidValueAttributeDetail
 import ac.uk.ebi.biostd.test.submissionWithLinks
 import ac.uk.ebi.biostd.test.submissionWithLinksTable
 import ac.uk.ebi.biostd.test.submissionWithMultipleLineBreaks
 import ac.uk.ebi.biostd.test.submissionWithRootSection
 import ac.uk.ebi.biostd.test.submissionWithSectionsTable
 import ac.uk.ebi.biostd.test.submissionWithSubsection
-import ac.uk.ebi.biostd.test.submissionWithTableWithMoreAttributes
-import ac.uk.ebi.biostd.test.submissionWithTableWithNoRows
 import ac.uk.ebi.biostd.tsv.deserialization.TsvDeserializer
-import ac.uk.ebi.biostd.validation.InvalidChunkSizeException
-import ac.uk.ebi.biostd.validation.InvalidElementException
-import ac.uk.ebi.biostd.validation.MISPLACED_ATTR_NAME
-import ac.uk.ebi.biostd.validation.MISPLACED_ATTR_VAL
-import ac.uk.ebi.biostd.validation.REQUIRED_ATTR_VALUE
-import ac.uk.ebi.biostd.validation.REQUIRED_TABLE_ROWS
-import ac.uk.ebi.biostd.validation.SerializationException
-import arrow.core.Either
-import ebi.ac.uk.asserts.assertSingleElement
-import ebi.ac.uk.asserts.assertSubmission
-import ebi.ac.uk.asserts.assertTable
-import ebi.ac.uk.dsl.Tsv
-import ebi.ac.uk.dsl.line
-import ebi.ac.uk.dsl.tsv
-import ebi.ac.uk.model.Attribute
+import ebi.ac.uk.dsl.attribute
+import ebi.ac.uk.dsl.file
+import ebi.ac.uk.dsl.filesTable
+import ebi.ac.uk.dsl.link
+import ebi.ac.uk.dsl.linksTable
+import ebi.ac.uk.dsl.submission
+import ebi.ac.uk.dsl.section
+import ebi.ac.uk.dsl.sectionsTable
 import ebi.ac.uk.model.AttributeDetail
-import ebi.ac.uk.model.File
-import ebi.ac.uk.model.FilesTable
-import ebi.ac.uk.model.Link
-import ebi.ac.uk.model.LinksTable
-import ebi.ac.uk.model.Section
-import ebi.ac.uk.model.SectionsTable
-import ebi.ac.uk.model.Submission
-import ebi.ac.uk.util.collections.ifLeft
-import ebi.ac.uk.util.collections.ifRight
-import ebi.ac.uk.util.collections.second
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 
 class TsvDeserializerTest {
     private val deserializer = TsvDeserializer()
 
-    @Nested
-    inner class SubmissionTestCases {
-        @Test
-        fun `basic submission`() {
-            val submission: Submission = deserializer.deserialize(basicSubmission().toString())
+    @Test
+    fun `basic submission`() {
+        val result = deserializer.deserialize(basicSubmission().toString())
 
-            assertSubmission(
-                submission,
-                "S-EPMC123",
-                Attribute("Title", "Basic Submission"),
-                Attribute("DataSource", "EuropePMC"),
-                Attribute("AttachTo", "EuropePMC"))
-        }
+        assertThat(result).isEqualTo(submission("S-EPMC123") {
+            attribute("Title", "Basic Submission")
+            attribute("DataSource", "EuropePMC")
+            attribute("AttachTo", "EuropePMC")
+        })
+    }
 
-        @Test
-        fun `basic submission with comments`() {
-            val submission: Submission = deserializer.deserialize(basicSubmissionWithComments().toString())
+    @Test
+    fun `basic submission with comments`() {
+        val result = deserializer.deserialize(basicSubmissionWithComments().toString())
 
-            assertSubmission(
-                submission,
-                "S-EPMC123",
-                Attribute("Title", "Basic Submission"),
-                Attribute("DataSource", "EuropePMC"),
-                Attribute("AttachTo", "EuropePMC"))
-        }
+        assertThat(result).isEqualTo(submission("S-EPMC123") {
+            attribute("Title", "Basic Submission")
+            attribute("DataSource", "EuropePMC")
+            attribute("AttachTo", "EuropePMC")
+        })
+    }
 
-        @Test
-        fun `submission with multiline attribute value`() {
-            val submission: Submission = deserializer.deserialize(basicSubmissionWithMultiline().toString())
+    @Test
+    fun `submission with multiline attribute value`() {
+        val result = deserializer.deserialize(basicSubmissionWithMultiline().toString())
 
-            assertSubmission(
-                submission,
-                "S-EPMC123",
-                Attribute("Title", "This is a really long title \n with a break line"))
-        }
+        assertThat(result).isEqualTo(submission("S-EPMC123") {
+            attribute("Title", "This is a really long title \n with a break line")
+        })
+    }
 
-        @Test
-        fun `detailed attributes`() {
-            val submission: Submission = deserializer.deserialize(submissionWithDetailedAttributes().toString())
-            val detailedAttribute = Attribute(
+    @Test
+    fun `detailed attributes`() {
+        val result = deserializer.deserialize(submissionWithDetailedAttributes().toString())
+
+        assertThat(result).isEqualTo(submission("S-EPMC124") {
+            attribute("Title", "Submission With Detailed Attributes")
+
+            attribute(
                 "Submission Type",
                 "RNA-seq of non coding RNA",
                 false,
-                mutableListOf(AttributeDetail("Seq Type", "RNA")),
-                mutableListOf(AttributeDetail("Ontology", "EFO")))
+                mutableListOf(AttributeDetail("Ontology", "EFO")),
+                mutableListOf(AttributeDetail("Seq Type", "RNA")))
 
-            assertSubmission(
-                submission,
-                "S-EPMC124",
-                Attribute("Title", "Submission With Detailed Attributes"),
-                detailedAttribute,
-                Attribute("affiliation", "EuropePMC", true))
-        }
-
-        @Test
-        fun `submission with root section`() {
-            val submission: Submission = deserializer.deserialize(submissionWithRootSection().toString())
-
-            assertSubmission(submission, "S-EPMC125", Attribute("Title", "Test Submission"))
-            assertThat(submission.section).isEqualTo(Section(
-                type = "Study",
-                attributes = listOf(Attribute("Title", "Test Root Section"), Attribute("Abstract", "Test abstract"))
-            ))
-        }
-
-        @Test
-        fun `submission with multiple line breaks`() {
-            val submission: Submission = deserializer.deserialize(submissionWithMultipleLineBreaks().toString())
-
-            assertSubmission(submission, "S-EPMC125", Attribute("Title", "Test Submission"))
-            assertThat(submission.section).isEqualTo(Section(
-                type = "Study",
-                attributes = listOf(Attribute("Title", "Test Root Section"), Attribute("Abstract", "Test abstract"))
-            ))
-        }
-
-        @Test
-        fun `submission with sections table`() {
-            val submission: Submission = deserializer.deserialize(submissionWithSectionsTable().toString())
-
-            assertThat(submission.section.sections).hasSize(1)
-            assertTable(
-                submission.section.sections.first(),
-                Section(
-                    accNo = "DT-1",
-                    type = "Data",
-                    attributes = listOf(Attribute("Title", "Data 1"), Attribute("Desc", "Group 1"))),
-                Section(
-                    accNo = "DT-2",
-                    type = "Data",
-                    attributes = listOf(Attribute("Title", "Data 2"), Attribute("Desc", "Group 2"))))
-        }
-
-        @Test
-        fun subsection() {
-            val submission: Submission = deserializer.deserialize(submissionWithSubsection().toString())
-
-            assertThat(submission.section.sections).hasSize(1)
-            assertSingleElement(
-                submission.section.sections.first(),
-                Section(
-                    accNo = "F-001",
-                    type = "Funding",
-                    attributes = listOf(
-                        Attribute("Agency", "National Support Program of China"),
-                        Attribute("Grant Id", "No. 2015BAD27B01"))))
-        }
-
-        @Test
-        fun `inner subsections`() {
-            val submission: Submission = deserializer.deserialize(submissionWithInnerSubsections().toString())
-
-            assertThat(submission.section.sections).hasSize(2)
-            submission.section.sections.first().ifLeft { section ->
-                assertThat(section.sections).hasSize(1)
-                assertThat(section).isEqualTo(Section(
-                    accNo = "F-001",
-                    type = "Funding",
-                    attributes = listOf(
-                        Attribute("Agency", "National Support Program of China"),
-                        Attribute("Grant Id", "No. 2015BAD27B01")),
-                    sections = mutableListOf(
-                        Either.left(Section(
-                            type = "Expense",
-                            accNo = "E-001",
-                            parentAccNo = "F-001",
-                            attributes = listOf(Attribute("Description", "Travel"))))
-                    )))
-            }
-
-            submission.section.sections.second().ifLeft { section ->
-                assertThat(section.sections).isEmpty()
-                assertThat(section).isEqualTo(Section(
-                    accNo = "F-002",
-                    type = "Funding",
-                    attributes = listOf(
-                        Attribute("Agency", "National Support Program of Japan"),
-                        Attribute("Grant Id", "No. 2015BAD27A03"))))
-            }
-        }
-
-        @Test
-        fun `inner subsections table`() {
-            val submission: Submission = deserializer.deserialize(submissionWithInnerSubsectionsTable().toString())
-            assertThat(submission.section.sections).hasSize(2)
-
-            submission.section.sections.first().ifLeft { section ->
-                assertThat(section.sections).isEmpty()
-                assertThat(section).isEqualTo(Section(
-                    accNo = "F-001",
-                    type = "Funding",
-                    attributes = listOf(
-                        Attribute("Agency", "National Support Program of China"),
-                        Attribute("Grant Id", "No. 2015BAD27B01"))))
-            }
-
-            submission.section.sections.second().ifLeft { section ->
-                assertThat(section.sections).hasSize(1)
-
-                assertThat(section).isEqualTo(
-                    Section(
-                        accNo = "S-001",
-                        type = "Study",
-                        attributes = listOf(Attribute("Type", "Imaging")),
-                        sections = mutableListOf(
-                            Either.right(SectionsTable(listOf(
-                                Section(
-                                    accNo = "SMP-1",
-                                    type = "Sample",
-                                    parentAccNo = "S-001",
-                                    attributes = listOf(Attribute("Title", "Sample1"), Attribute("Desc", "Measure 1"))),
-                                Section(
-                                    accNo = "SMP-2",
-                                    type = "Sample",
-                                    parentAccNo = "S-001",
-                                    attributes = listOf(Attribute("Title", "Sample2"), Attribute("Desc", "Measure 2")))
-                            )))
-                        )))
-            }
-        }
-
-        @Test
-        fun links() {
-            val submission: Submission = deserializer.deserialize(submissionWithLinks().toString())
-
-            assertThat(submission.section.links).hasSize(2)
-            assertSingleElement(submission.section.links.first(), Link("http://arandomsite.org"))
-            assertSingleElement(submission.section.links.second(), Link("http://completelyunrelatedsite.org"))
-        }
-
-        @Test
-        fun `links table`() {
-            val submission: Submission = deserializer.deserialize(submissionWithLinksTable().toString())
-
-            assertThat(submission.section.links).hasSize(1)
-            assertTable(
-                submission.section.links.first(),
-                Link("AF069309", listOf(Attribute("Type", "gen"))),
-                Link("AF069123", listOf(Attribute("Type", "gen"))))
-        }
-
-        @Test
-        fun files() {
-            val submission: Submission = deserializer.deserialize(submissionWithFiles().toString())
-
-            assertThat(submission.section.files).hasSize(2)
-            submission.section.files.first().ifLeft { file -> assertFile(file, "12870_2017_1225_MOESM10_ESM.docx") }
-            submission.section.files.second().ifLeft { file -> assertFile(file, "12870_2017_1225_MOESM1_ESM.docx") }
-        }
-
-        @Test
-        fun `files table`() {
-            val submission: Submission = deserializer.deserialize(submissionWithFilesTable().toString())
-            assertThat(submission.section.files).hasSize(1)
-
-            submission.section.files.first().ifRight { filesTable ->
-                assertThat(filesTable.elements).hasSize(2)
-                assertFile(
-                    filesTable.elements.first(),
-                    "Abstract.pdf",
-                    Attribute("Description", "An abstract file"),
-                    Attribute("Usage", "Testing"))
-                assertFile(
-                    filesTable.elements.second(),
-                    "SuperImportantFile1.docx",
-                    Attribute("Description", "A super important file"),
-                    Attribute("Usage", "Important stuff"))
-            }
-        }
-
-        private fun assertFile(file: File, expectedName: String, vararg expectedAttributes: Attribute) {
-            assertThat(file.path).isEqualTo(expectedName)
-            assertAttributes(file.attributes, expectedAttributes)
-        }
+            attribute("affiliation", "EuropePMC", true)
+        })
     }
 
-    /**
-     * Contains single element deserialization test.
-     *
-     */
-    @Nested
-    inner class ElementDeserialization {
-        @Test
-        fun `single file`() {
-            val tsv = tsv {
-                line("File", "File1.txt")
-                line("Attr", "Value")
-                line()
-            }.toString()
+    @Test
+    fun `submission with root section`() {
+        val result = deserializer.deserialize(submissionWithRootSection().toString())
 
-            val file = deserializer.deserializeElement(tsv, File::class.java)
-            assertThat(file).isEqualTo(File("File1.txt", attributes = listOf(Attribute("Attr", "Value"))))
-        }
+        assertThat(result).isEqualTo(submission("S-EPMC125") {
+            attribute("Title", "Test Submission")
 
-        @Test
-        fun `single files table`() {
-            val tsv = tsv {
-                line("Files", "Attr")
-                line("File1.txt", "Value")
-                line()
-            }.toString()
+            section("Study") {
+                attribute("Title", "Test Root Section")
+                attribute("Abstract", "Test abstract")
+            }
+        })
+    }
 
-            val filesTable = deserializer.deserializeElement<FilesTable>(tsv)
-            assertThat(filesTable).isEqualTo(
-                FilesTable(listOf(File("File1.txt", attributes = listOf(Attribute("Attr", "Value"))))))
-        }
+    @Test
+    fun `submission with generic root section`() {
+        val result = deserializer.deserialize(submissionWithGenericRootSection().toString())
 
-        @Test
-        fun `single link`() {
-            val tsv = tsv {
-                line("Link", "http://alink.org")
-                line("Attr", "Value")
-                line()
-            }.toString()
+        assertThat(result).isEqualTo(submission("S-EPMC125") {
+            attribute("Title", "Test Submission")
+            section("Compound") {
+                attribute("Title", "Generic Root Section")
+            }
+        })
+    }
 
-            val link = deserializer.deserializeElement<Link>(tsv)
-            assertThat(link).isEqualTo(Link("http://alink.org", attributes = listOf(Attribute("Attr", "Value"))))
-        }
+    @Test
+    fun `submission with multiple line breaks`() {
+        val result = deserializer.deserialize(submissionWithMultipleLineBreaks().toString())
 
-        @Test
-        fun `single links table`() {
-            val tsv = tsv {
-                line("Links", "Attr")
-                line("http://alink.org", "Value")
-                line()
-            }.toString()
+        assertThat(result).isEqualTo(submission("S-EPMC125") {
+            attribute("Title", "Test Submission")
 
-            val linksTable = deserializer.deserializeElement<LinksTable>(tsv)
-            assertThat(linksTable).isEqualTo(
-                LinksTable(listOf(Link("http://alink.org", attributes = listOf(Attribute("Attr", "Value"))))))
-        }
+            section("Study") {
+                attribute("Title", "Test Root Section")
+                attribute("Abstract", "Test abstract")
+            }
+        })
+    }
 
-        @Test
-        fun `table containing a row with less attributes`() {
-            val tsv = tsv {
-                line("Links", "Attr1", "Attr2")
-                line("AF069307", "Value 1", "Value 2")
-                line("AF069308", "", "Value 2")
-                line("AF069309", "Value 1")
-                line()
-            }.toString()
+    @Test
+    fun `submission with sections table`() {
+        val result = deserializer.deserialize(submissionWithSectionsTable().toString())
 
-            val linksTable = deserializer.deserializeElement<LinksTable>(tsv)
+        assertThat(result).isEqualTo(submission("S-EPMC125") {
+            attribute("Title", "Test Submission")
 
-            assertThat(linksTable).isEqualTo(
-                LinksTable(listOf(
-                    Link("AF069307", attributes = listOf(Attribute("Attr1", "Value 1"), Attribute("Attr2", "Value 2"))),
-                    Link("AF069308", attributes = listOf(Attribute("Attr2", "Value 2"))),
-                    Link("AF069309", attributes = listOf(Attribute("Attr1", "Value 1"))))))
-        }
+            section("Study") {
+                attribute("Title", "Test Root Section")
+                attribute("Abstract", "Test abstract")
 
-        @Nested
-        inner class NegativeTestCases {
-            @Test
-            fun `subsection with invalid parent`() {
-                assertThrows<SerializationException> {
-                    deserializer.deserialize(submissionWithInvalidInnerSubsection().toString())
+                sectionsTable {
+                    section("Data") {
+                        accNo = "DT-1"
+                        attribute("Title", "Data 1")
+                        attribute("Desc", "Group 1")
+                    }
+
+                    section("Data") {
+                        accNo = "DT-2"
+                        attribute("Title", "Data 2")
+                        attribute("Desc", "Group 2")
+                    }
                 }
             }
+        })
+    }
 
-            @Test
-            fun `invalid single element`() {
-                val tsv = tsv {
-                    line("Submission", "S-BIAD2")
-                    line("Title", "A Title")
-                    line()
-                }.toString()
+    @Test
+    fun subsection() {
+        val result = deserializer.deserialize(submissionWithSubsection().toString())
 
-                assertThrows<NotImplementedError> { deserializer.deserializeElement<Submission>(tsv) }
+        assertThat(result).isEqualTo(submission("S-EPMC125") {
+            attribute("Title", "Test Submission")
+
+            section("Study") {
+                attribute("Title", "Test Root Section")
+                attribute("Abstract", "Test abstract")
+
+                section("Funding") {
+                    accNo = "F-001"
+                    attribute("Agency", "National Support Program of China")
+                    attribute("Grant Id", "No. 2015BAD27B01")
+                }
             }
+        })
+    }
 
-            @Test
-            fun `invalid processing class`() {
-                val tsv = tsv {
-                    line("Links", "Attr")
-                    line("http://alink.org", "Value")
-                    line()
-                }.toString()
+    @Test
+    fun `inner subsections`() {
+        val result = deserializer.deserialize(submissionWithInnerSubsections().toString())
 
-                assertThrows<ClassCastException> { deserializer.deserializeElement<File>(tsv) }
+        assertThat(result).isEqualTo(submission("S-EPMC125") {
+            attribute("Title", "Test Submission")
+
+            section("Study") {
+                attribute("Title", "Test Root Section")
+                attribute("Abstract", "Test abstract")
+
+                section("Funding") {
+                    accNo = "F-001"
+                    attribute("Agency", "National Support Program of China")
+                    attribute("Grant Id", "No. 2015BAD27B01")
+
+                    section("Expense") {
+                        accNo = "E-001"
+                        attribute("Description", "Travel")
+                    }
+                }
+
+                section("Funding") {
+                    accNo = "F-002"
+                    attribute("Agency", "National Support Program of Japan")
+                    attribute("Grant Id", "No. 2015BAD27A03")
+                }
             }
+        })
+    }
 
-            @Test
-            fun `empty single element`() {
-                assertThrows<InvalidChunkSizeException> { deserializer.deserializeElement<File>("") }
+    @Test
+    fun `inner subsections table`() {
+        val result = deserializer.deserialize(submissionWithInnerSubsectionsTable().toString())
+
+        assertThat(result).isEqualTo(submission("S-EPMC125") {
+            attribute("Title", "Test Submission")
+
+            section("Study") {
+                attribute("Title", "Test Root Section")
+                attribute("Abstract", "Test abstract")
+
+                section("Funding") {
+                    accNo = "F-001"
+                    attribute("Agency", "National Support Program of China")
+                    attribute("Grant Id", "No. 2015BAD27B01")
+                }
+
+                section("Study") {
+                    accNo = "S-001"
+                    attribute("Type", "Imaging")
+
+                    sectionsTable {
+                        section("Sample") {
+                            accNo = "SMP-1"
+                            parentAccNo = "S-001"
+                            attribute("Title", "Sample1")
+                            attribute("Desc", "Measure 1")
+                        }
+
+                        section("Sample") {
+                            accNo = "SMP-2"
+                            parentAccNo = "S-001"
+                            attribute("Title", "Sample2")
+                            attribute("Desc", "Measure 2")
+                        }
+                    }
+                }
             }
+        })
+    }
 
-            @Test
-            fun `invalid chunk size`() {
-                val tsv = tsv {
-                    line("Links", "Attr")
-                    line("http://alink.org", "Value")
-                    line()
+    @Test
+    fun links() {
+        val result = deserializer.deserialize(submissionWithLinks().toString())
 
-                    line("Links", "Attr")
-                    line("http://otherlink.org", "Value")
-                    line()
-                }.toString()
+        assertThat(result).isEqualTo(submission("S-EPMC125") {
+            attribute("Title", "Test Submission")
 
-                assertThrows<InvalidChunkSizeException> { deserializer.deserializeElement<Link>(tsv) }
+            section("Study") {
+                attribute("Title", "Test Root Section")
+                attribute("Abstract", "Test abstract")
+
+                link("http://arandomsite.org")
+                link("http://completelyunrelatedsite.org")
             }
+        })
+    }
 
-            @Test
-            fun `invalid attribute`() =
-                testInvalidElement(submissionWithInvalidAttribute(), REQUIRED_ATTR_VALUE)
+    @Test
+    fun `links table`() {
+        val result = deserializer.deserialize(submissionWithLinksTable().toString())
 
-            @Test
-            fun `invalid name attribute detail`(): Unit =
-                testInvalidElement(submissionWithInvalidNameAttributeDetail(), MISPLACED_ATTR_NAME)
+        assertThat(result).isEqualTo(submission("S-EPMC125") {
+            attribute("Title", "Test Submission")
 
-            @Test
-            fun `invalid value attribute detail`(): Unit =
-                testInvalidElement(submissionWithInvalidValueAttributeDetail(), MISPLACED_ATTR_VAL)
+            section("Study") {
+                attribute("Title", "Test Root Section")
+                attribute("Abstract", "Test abstract")
 
-            @Test
-            fun `table with no rows`(): Unit =
-                testInvalidElement(submissionWithTableWithNoRows(), REQUIRED_TABLE_ROWS)
+                linksTable {
+                    link("AF069309") {
+                        attribute("Type", "gen")
+                    }
 
-            @Test
-            fun `table with more attributes than expected`(): Unit = testInvalidElement(
-                submissionWithTableWithMoreAttributes(), "A row table can't have more attributes than the table header")
-
-            private fun testInvalidElement(submissionTsv: Tsv, expectedMessage: String) {
-                val exception = assertThrows<SerializationException> { deserializer.deserialize(submissionTsv.toString()) }
-                assertThat(exception.errors.values()).hasSize(1)
-
-                val cause = exception.errors.values().first().cause
-                assertThat(cause).isInstanceOf(InvalidElementException::class.java)
-                assertThat(cause).hasMessage("$expectedMessage. Element was not created.")
+                    link("AF069123") {
+                        attribute("Type", "gen")
+                    }
+                }
             }
-        }
+        })
+    }
+
+    @Test
+    fun files() {
+        val result = deserializer.deserialize(submissionWithFiles().toString())
+
+        assertThat(result).isEqualTo(submission("S-EPMC125") {
+            attribute("Title", "Test Submission")
+
+            section("Study") {
+                attribute("Title", "Test Root Section")
+                attribute("Abstract", "Test abstract")
+
+                file("12870_2017_1225_MOESM10_ESM.docx")
+                file("12870_2017_1225_MOESM1_ESM.docx")
+            }
+        })
+    }
+
+    @Test
+    fun `files table`() {
+        val result = deserializer.deserialize(submissionWithFilesTable().toString())
+
+        assertThat(result).isEqualTo(submission("S-EPMC125") {
+            attribute("Title", "Test Submission")
+
+            section("Study") {
+                attribute("Title", "Test Root Section")
+                attribute("Abstract", "Test abstract")
+
+                filesTable {
+                    file("Abstract.pdf") {
+                        attribute("Description", "An abstract file")
+                        attribute("Usage", "Testing")
+                    }
+
+                    file("SuperImportantFile1.docx") {
+                        attribute("Description", "A super important file")
+                        attribute("Usage", "Important stuff")
+                    }
+                }
+            }
+        })
     }
 }

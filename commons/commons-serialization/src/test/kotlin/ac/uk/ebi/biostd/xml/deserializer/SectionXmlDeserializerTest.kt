@@ -20,4 +20,15 @@ class SectionXmlDeserializerTest {
 
         assertThat(testInstance.deserialize(xmlSection)).isEqualTo(Section("Study", "SECT-123"))
     }
+
+    @Test
+    fun `deserialize generic section`() {
+        val xmlSection = createXmlDocument(
+            xml("section") {
+                attribute("accno", "CMP-123")
+                attribute("type", "Compound")
+            }.toString())
+
+        assertThat(testInstance.deserialize(xmlSection)).isEqualTo(Section("Compound", "CMP-123"))
+    }
 }

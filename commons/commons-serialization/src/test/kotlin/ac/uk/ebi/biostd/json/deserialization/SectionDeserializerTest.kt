@@ -4,6 +4,7 @@ import ac.uk.ebi.biostd.ext.deserialize
 import ac.uk.ebi.biostd.json.JsonSerializer
 import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
+import ebi.ac.uk.dsl.section
 import ebi.ac.uk.model.Section
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -24,14 +25,28 @@ class SectionDeserializerTest {
     }
 
     @Test
-    fun `deserialize`() {
+    fun deserialize() {
         val json = jsonObj {
             "accno" to "abc123"
             "type" to "Study"
         }.toString()
 
-        val section = testInstance.deserialize<Section>(json)
+        assertThat(testInstance.deserialize<Section>(json)).isEqualTo(
+            section("Study") {
+                accNo = "abc123"
+            })
+    }
 
-        assertThat(section).isEqualTo(Section(accNo = "abc123", type = "Study"))
+    @Test
+    fun `deserialize generic type`() {
+        val json = jsonObj {
+            "accno" to "abc123"
+            "type" to "Compound"
+        }.toString()
+
+        assertThat(testInstance.deserialize<Section>(json)).isEqualTo(
+            section("Compound") {
+                accNo = "abc123"
+            })
     }
 }

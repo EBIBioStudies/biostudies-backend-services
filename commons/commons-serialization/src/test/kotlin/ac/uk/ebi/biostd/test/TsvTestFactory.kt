@@ -69,6 +69,16 @@ fun submissionWithRootSection() = tsv {
     line()
 }
 
+fun submissionWithGenericRootSection() = tsv {
+    line("Submission", "S-EPMC125")
+    line("Title", "Test Submission")
+    line()
+
+    line("Compound")
+    line("Title", "Generic Root Section")
+    line()
+}
+
 fun submissionWithMultipleLineBreaks() = tsv {
     line("Submission", "S-EPMC125")
     line("Title", "Test Submission")
