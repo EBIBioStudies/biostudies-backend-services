@@ -54,6 +54,20 @@ task deployBioAdmin {
     finalizedBy "deploy"
 }
 
+task deployBioCommandLine {
+    doFirst {
+        project.ext.artifactPath = "client/bio-commandline/build/libs"
+        project.ext.artifactName = "PTSubmit-2.0.jar"
+    }
+
+    doLast {
+        ssh.run {
+            session(remotes[env]) {
+                put from: "$artifactPath/$artifactName", into: "$deployPath/$artifactName"
+            }
+        }
+    }
+}
 
 task updatePmcArtifact {
     doFirst {

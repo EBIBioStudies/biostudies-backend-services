@@ -29,6 +29,9 @@ dependencies {
 tasks {
     shadowJar {
         archiveBaseName.set("PTSubmit")
+        archiveVersion.set("2.0")
+        archiveClassifier.set("")
+
         manifest {
             attributes(mapOf("Main-Class" to "uk.ac.ebi.biostd.client.cli.BioStudiesCommandLineKt"))
         }

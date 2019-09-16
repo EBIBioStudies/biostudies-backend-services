@@ -1,0 +1,13 @@
+build-bio-commandline:
+  stage: build-artifact
+  script: gradle client:bio-commandline:shadowJar
+  artifacts:
+    paths:
+      - client/bio-commandline/build/libs/PTSubmit-2.0.jar
+
+deploy-bio-commandline:
+  stage: deploy-bio-commandline
+  when: manual
+  dependencies:
+    - build-bio-commandline
+  script: gradle deployBioCommandLine -PdeployPath=/nfs/biostudies/.adm/apps/cli

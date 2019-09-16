@@ -4,6 +4,7 @@ include:
   - local: '/ci/pmc-processor.yml'
   - local: '/ci/scheduler.yml'
   - local: '/ci/bio-admin.yml'
+  - local: '/ci/bio-commandline.yml'
 
 stages:
   - build-test
@@ -18,6 +19,7 @@ stages:
   - deploy-beta-scheduler
   - deploy-prod-scheduler
   - deploy-bio-admin
+  - deploy-bio-commandline
 
 build-test:
   stage: build-test
