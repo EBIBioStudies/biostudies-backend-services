@@ -58,16 +58,3 @@ allprojects {
         }
     }
 }
-
-project(":scheduler:pmc-processor-task").tasks {
-    compileKotlin {
-        sourceCompatibility = "1.8"
-        targetCompatibility = "1.8"
-
-        kotlinOptions {
-            includeRuntime = true
-            jvmTarget = "1.8"
-            freeCompilerArgs = listOf("-Xuse-experimental=kotlinx.coroutines.ExperimentalCoroutinesApi")
-        }
-    }
-}

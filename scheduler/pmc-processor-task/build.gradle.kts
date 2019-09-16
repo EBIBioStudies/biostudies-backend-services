@@ -7,6 +7,7 @@ import SpringBootDependencies.SpringBootStarter
 import SpringBootDependencies.SpringBootStarterConfigProcessor
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.springframework.boot.gradle.tasks.bundling.BootJar
 
 plugins {
@@ -39,4 +40,15 @@ dependencies {
 tasks.named<BootJar>("bootJar") {
     archiveBaseName.set("pmc-processor-task")
     archiveVersion.set("1.0.0")
+}
+
+tasks.named<KotlinCompile>("compileKotlin") {
+    sourceCompatibility = "1.8"
+    targetCompatibility = "1.8"
+
+    kotlinOptions {
+        includeRuntime = true
+        jvmTarget = "1.8"
+        freeCompilerArgs = listOf("-Xuse-experimental=kotlinx.coroutines.ExperimentalCoroutinesApi")
+    }
 }
