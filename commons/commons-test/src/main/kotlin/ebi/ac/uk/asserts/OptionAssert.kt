@@ -10,8 +10,8 @@ fun <T> assertThat(option: Option<T>): OptionAssert<T> {
     return OptionAssert(option)
 }
 
-class OptionAssert<T>(actual: Option<T>)
-    : AbstractAssert<OptionAssert<T>, Option<*>>(actual, OptionAssert::class.java) {
+class OptionAssert<T>(actual: Option<T>) :
+    AbstractAssert<OptionAssert<T>, Option<*>>(actual, OptionAssert::class.java) {
 
     fun contains(value: T) {
         val optionValue = actual.getOrElse { Failures.instance().failure("Expecting option to contain a value") }

@@ -12,8 +12,8 @@ import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.AttributeDetail
 import org.w3c.dom.Node
 
-class AttributeXmlDeserializer(private val detailDeserializer: DetailsXmlDeserializer)
-    : BaseXmlDeserializer<Attribute>() {
+class AttributeXmlDeserializer(private val detailDeserializer: DetailsXmlDeserializer) :
+    BaseXmlDeserializer<Attribute>() {
 
     override fun deserialize(node: Node): Attribute {
         return Attribute(

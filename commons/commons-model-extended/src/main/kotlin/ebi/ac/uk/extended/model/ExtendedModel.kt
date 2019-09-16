@@ -28,7 +28,8 @@ data class ExtSection(
     val attributes: List<ExtAttribute>,
     val sections: List<Either<ExtSection, ExtSectionTable>> = listOf(),
     val files: List<Either<ExtFile, ExtFileTable>> = listOf(),
-    val links: List<Either<ExtLink, ExtLinkTable>> = listOf())
+    val links: List<Either<ExtLink, ExtLinkTable>> = listOf()
+)
 
 data class ExtSubmission(
     val accNo: String,

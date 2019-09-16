@@ -1,7 +1,7 @@
 plugins {
-    id("io.gitlab.arturbosch.detekt") version "1.0.0-RC12"
-    id("org.jetbrains.kotlin.jvm") version "1.3.41"
-    id("org.jlleitschuh.gradle.ktlint") version "7.1.0"
+    id("io.gitlab.arturbosch.detekt") version "1.0.1"
+    id("org.jetbrains.kotlin.jvm") version "1.3.50"
+    id("org.jlleitschuh.gradle.ktlint") version "8.2.0"
     id("org.hidetake.ssh") version "2.10.1"
     id("jacoco")
 }
@@ -25,7 +25,7 @@ allprojects {
     tasks {
 
         detekt {
-            version = "1.0.0.RC7-3"
+            version = "1.0.1"
             config = files("$rootDir/deteck-config.yml")
             input = files("src/main/kotlin")
             filters = ".*/resources/.*,.*/build/.*"
@@ -55,19 +55,6 @@ allprojects {
 
         check {
             dependsOn(ktlintFormat)
-        }
-    }
-}
-
-project(":scheduler:pmc-processor-task").tasks {
-    compileKotlin {
-        sourceCompatibility = "1.8"
-        targetCompatibility = "1.8"
-
-        kotlinOptions {
-            includeRuntime = true
-            jvmTarget = "1.8"
-            freeCompilerArgs = listOf("-Xuse-experimental=kotlinx.coroutines.ExperimentalCoroutinesApi")
         }
     }
 }

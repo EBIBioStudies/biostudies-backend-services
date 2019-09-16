@@ -84,8 +84,8 @@ open class Attribute(
         reference: Boolean,
         nameAttrs: Details,
         valueAttrs: Details
-    )
-        : this(name, value, order, reference) {
+    ) :
+        this(name, value, order, reference) {
         nameQualifier = nameAttrs
         valueQualifier = valueAttrs
     }

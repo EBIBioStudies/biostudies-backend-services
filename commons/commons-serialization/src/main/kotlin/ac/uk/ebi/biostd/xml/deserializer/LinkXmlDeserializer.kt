@@ -6,8 +6,8 @@ import ebi.ac.uk.model.LinksTable
 import ebi.ac.uk.model.constants.LinkFields
 import org.w3c.dom.Node
 
-class LinkXmlDeserializer(private val attributeXmlDeserializer: AttributeXmlDeserializer)
-    : BaseXmlDeserializer<Link>() {
+class LinkXmlDeserializer(private val attributeXmlDeserializer: AttributeXmlDeserializer) :
+    BaseXmlDeserializer<Link>() {
 
     override fun deserialize(node: Node): Link {
         return Link(

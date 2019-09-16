@@ -6,7 +6,8 @@ import java.util.Objects.hash
 class File(
     var path: String,
     var size: Long = 0,
-    override var attributes: List<Attribute> = listOf()) : Attributable {
+    override var attributes: List<Attribute> = listOf()
+) : Attributable {
 
     override fun equals(other: Any?): Boolean {
         if (other !is File) return false

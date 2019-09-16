@@ -11,6 +11,7 @@ import TestDependencies.JsonAssert
 import TestDependencies.KotlinXmlBuilder
 import TestDependencies.XmlUnitCore
 import TestDependencies.XmlUnitMatchers
+import org.springframework.boot.gradle.tasks.bundling.BootJar
 
 plugins {
     id("org.jetbrains.kotlin.plugin.spring") version "1.3.41"
@@ -47,3 +48,8 @@ dependencies {
 }
 
 apply(from = "$rootDir/gradle/itest.gradle.kts")
+
+tasks.named<BootJar>("bootJar") {
+    archiveBaseName.set("submission-webapp")
+    archiveVersion.set("1.0.0")
+}
