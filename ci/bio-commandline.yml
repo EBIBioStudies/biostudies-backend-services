@@ -10,4 +10,4 @@ deploy-bio-commandline:
   when: manual
   dependencies:
     - build-bio-commandline
-  script: gradle deployBioCommandLine -PdeployPath=/nfs/biostudies/.adm/apps/cli
+  script: gradle deployBioCommandLine -Penv=prod -PdeployPath=/nfs/biostudies/.adm/apps/cli
