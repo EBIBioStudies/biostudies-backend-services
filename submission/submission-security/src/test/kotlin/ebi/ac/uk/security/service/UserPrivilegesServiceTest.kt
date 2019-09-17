@@ -19,11 +19,13 @@ import java.util.Optional
 @ExtendWith(MockKExtension::class)
 class UserPrivilegesServiceTest(
     @MockK private val author: UserDB,
+    @MockK private val otherAuthor: UserDB,
     @MockK private val superuser: UserDB,
     @MockK private val userRepository: UserDataRepository,
     @MockK private val accessPermissionRepository: AccessPermissionRepository
 ) {
     private val testAuthor = User(124, "author@mail.com", "a-secret")
+    private val testOtherAuthor = User(125, "otherAuthor@mail.com", "other-secret")
     private val testInstance = UserPrivilegesService(userRepository, accessPermissionRepository)
 
     @BeforeEach
@@ -64,6 +66,31 @@ class UserPrivilegesServiceTest(
     }
 
     @Test
+    fun `super user deletes a submission`() {
+        assertThat(testInstance.canDelete("superuser@mail.com", testAuthor, emptyList())).isTrue()
+    }
+
+    @Test
+    fun `author user deletes own submission`() {
+        assertThat(testInstance.canDelete("author@mail.com", testAuthor, emptyList())).isTrue()
+    }
+
+    @Test
+    fun `author user deletes not own submission`() {
+        assertThat(testInstance.canDelete("author@mail.com", testOtherAuthor, emptyList())).isFalse()
+    }
+
+    @Test
+    fun `other author user deletes submission with tag`() {
+        assertThat(testInstance.canDelete("otherAuthor@mail.com", testAuthor, listOf("A-Project"))).isTrue()
+    }
+
+    @Test
+    fun `other author user deletes submission without tag`() {
+        assertThat(testInstance.canDelete("otherAuthor@mail.com", testAuthor, emptyList())).isFalse()
+    }
+
+    @Test
     fun `non existing user`() {
         assertThrows<UserNotFoundByEmailException> { testInstance.canProvideAccNo("empty@mail.com") }
     }
@@ -75,8 +102,12 @@ class UserPrivilegesServiceTest(
         every { author.id } returns 124
         every { author.superuser } returns false
 
+        every { otherAuthor.id } returns 125
+        every { otherAuthor.superuser } returns false
+
         every { userRepository.findByEmailAndActive("empty@mail.com", true) } returns Optional.empty()
         every { userRepository.findByEmailAndActive("author@mail.com", true) } returns Optional.of(author)
+        every { userRepository.findByEmailAndActive("otherAuthor@mail.com", true) } returns Optional.of(otherAuthor)
         every { userRepository.findByEmailAndActive("superuser@mail.com", true) } returns Optional.of(superuser)
     }
 
@@ -88,5 +119,13 @@ class UserPrivilegesServiceTest(
         every {
             accessPermissionRepository.existsByAccessTagInAndAccessType(emptyList(), AccessType.SUBMIT)
         } returns false
+
+        every {
+            accessPermissionRepository.existsByAccessTagInAndAccessType(emptyList(), AccessType.DELETE)
+        } returns false
+
+        every {
+            accessPermissionRepository.existsByAccessTagInAndAccessType(listOf("A-Project"), AccessType.DELETE)
+        } returns true
     }
 }

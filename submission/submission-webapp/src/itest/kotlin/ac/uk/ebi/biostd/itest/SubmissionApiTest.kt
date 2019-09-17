@@ -8,15 +8,17 @@ import ac.uk.ebi.biostd.common.config.SubmitterConfig
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
 import ac.uk.ebi.biostd.itest.common.TestConfig
 import ac.uk.ebi.biostd.itest.entities.GenericUser
+import ac.uk.ebi.biostd.itest.entities.RegularUser
 import ac.uk.ebi.biostd.persistence.model.Tag
 import ac.uk.ebi.biostd.persistence.repositories.TagsRefRepository
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
 import ebi.ac.uk.asserts.assertThat
-import ebi.ac.uk.model.Submission
-import ebi.ac.uk.model.constants.SubFields
+import ebi.ac.uk.dsl.submission
+import ebi.ac.uk.model.extensions.title
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -28,6 +30,7 @@ import org.springframework.context.annotation.Import
 import org.springframework.http.HttpStatus
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
+import org.springframework.web.client.HttpServerErrorException
 
 @ExtendWith(TemporaryFolderExtension::class)
 internal class SubmissionApiTest(tempFolder: TemporaryFolder) : BaseIntegrationTest(tempFolder) {
@@ -43,63 +46,76 @@ internal class SubmissionApiTest(tempFolder: TemporaryFolder) : BaseIntegrationT
         @LocalServerPort
         private var serverPort: Int = 0
 
-        private lateinit var webClient: BioWebClient
+        private lateinit var superUserWebClient: BioWebClient
+        private lateinit var regularUserWebClient: BioWebClient
 
         @BeforeAll
         fun init() {
             val securityClient = SecurityWebClient.create("http://localhost:$serverPort")
             securityClient.registerUser(GenericUser.asRegisterRequest())
-            webClient = securityClient.getAuthenticatedClient(GenericUser.username, GenericUser.password)
+            securityClient.registerUser(RegularUser.asRegisterRequest())
+
+            superUserWebClient = securityClient.getAuthenticatedClient(GenericUser.username, GenericUser.password)
+            regularUserWebClient = securityClient.getAuthenticatedClient(RegularUser.username, RegularUser.password)
 
             tagsRefRepository.save(Tag(classifier = "classifier", name = "tag"))
         }
 
         @Test
         fun `submit simple submission`() {
-            val accNo = "SimpleAcc1"
-            val title = "Simple Submission"
-            val submission = Submission(accNo = accNo)
-            submission[SubFields.TITLE] = title
+            val submission = submission("SimpleAcc1") {
+                title = "Simple Submission"
+            }
 
-            val response = webClient.submitSingle(submission, SubmissionFormat.XML)
+            val response = superUserWebClient.submitSingle(submission, SubmissionFormat.XML)
 
             assertThat(response).isNotNull
             assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
 
-            val savedSubmission = submissionRepository.getByAccNo(accNo)
+            val savedSubmission = submissionRepository.getByAccNo("SimpleAcc1")
             assertThat(savedSubmission).isNotNull
             assertThat(savedSubmission).isEqualTo(submission)
         }
 
         @Test
         fun `submit and delete submission`() {
-            val accNo = "SimpleAcc2"
-            val title = "Simple Submission"
-            val submission = Submission(accNo = accNo)
-            submission[SubFields.TITLE] = title
+            val submission = submission("SimpleAcc2") {
+                title = "Simple Submission"
+            }
 
-            webClient.submitSingle(submission, SubmissionFormat.JSON)
-            webClient.deleteSubmission(submission.accNo)
+            superUserWebClient.submitSingle(submission, SubmissionFormat.JSON)
+            superUserWebClient.deleteSubmission(submission.accNo)
 
-            val storeSubmission = submissionRepository.getExtendedLastVersionByAccNo(accNo)
-            assertThat(storeSubmission.version).isEqualTo(-1)
+            val deletedSubmission = submissionRepository.getExtendedLastVersionByAccNo("SimpleAcc2")
+            assertThat(deletedSubmission.version).isEqualTo(-1)
+        }
+
+        @Test
+        fun `submit with one user and delete with another`() {
+            val submission = submission("SimpleAcc3") {
+                title = "Simple Submission"
+            }
+
+            superUserWebClient.submitSingle(submission, SubmissionFormat.JSON)
+
+            assertThatExceptionOfType(HttpServerErrorException::class.java).isThrownBy {
+                regularUserWebClient.deleteSubmission(submission.accNo)
+            }
         }
 
         @Test
         fun `submision with tags`() {
-            val accNo = "SimpleAcc3"
-            val title = "Simple Submission With Tags"
-            val submission = Submission(accNo = accNo)
+            val submission = submission("SimpleAcc4") {
+                title = "Simple Submission With Tags"
+                tags = mutableListOf(Pair("classifier", "tag"))
+            }
 
-            submission[SubFields.TITLE] = title
-            submission.tags.add(Pair("classifier", "tag"))
-
-            val response = webClient.submitSingle(submission, SubmissionFormat.JSON)
+            val response = superUserWebClient.submitSingle(submission, SubmissionFormat.JSON)
 
             assertThat(response).isNotNull
             assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
 
-            val savedSubmission = submissionRepository.getByAccNo(accNo)
+            val savedSubmission = submissionRepository.getByAccNo("SimpleAcc4")
             assertThat(savedSubmission).isNotNull
             assertThat(savedSubmission).isEqualTo(submission)
         }
