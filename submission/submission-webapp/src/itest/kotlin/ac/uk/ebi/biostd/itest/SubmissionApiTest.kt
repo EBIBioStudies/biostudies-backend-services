@@ -49,8 +49,7 @@ internal class SubmissionApiTest(tempFolder: TemporaryFolder) : BaseIntegrationT
         fun init() {
             val securityClient = SecurityWebClient.create("http://localhost:$serverPort")
             securityClient.registerUser(GenericUser.asRegisterRequest())
-            webClient = securityClient.getAuthenticatedClient(GenericUser.username, GenericUser.password)
-
+            webClient = securityClient.getAuthenticatedClient(GenericUser.email, GenericUser.password)
             tagsRefRepository.save(Tag(classifier = "classifier", name = "tag"))
         }
 
@@ -86,7 +85,7 @@ internal class SubmissionApiTest(tempFolder: TemporaryFolder) : BaseIntegrationT
         }
 
         @Test
-        fun `submision with tags`() {
+        fun `submission with tags`() {
             val accNo = "SimpleAcc3"
             val title = "Simple Submission With Tags"
             val submission = Submission(accNo = accNo)

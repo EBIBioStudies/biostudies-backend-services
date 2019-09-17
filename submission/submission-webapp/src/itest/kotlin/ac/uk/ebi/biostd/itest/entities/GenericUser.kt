@@ -6,9 +6,9 @@ import ebi.ac.uk.api.security.RegisterRequest
  * Represent a Generic bio studies user.
  */
 object GenericUser {
-    const val username = "jhon doe"
-    const val email = "test@biostudies.com"
+    const val name = "BioStudies Developer"
+    const val email = "biostudies-dev@ebi.ac.uk"
     const val password = "12345"
 
-    fun asRegisterRequest() = RegisterRequest(email, username, password, superUser = true)
+    fun asRegisterRequest() = RegisterRequest(name, email, password, superUser = true)
 }

@@ -59,7 +59,7 @@ internal class MultipartFileSubmissionApiTest(private val tempFolder: TemporaryF
         fun init() {
             val securityClient = SecurityWebClient.create("http://localhost:$serverPort")
             securityClient.registerUser(GenericUser.asRegisterRequest())
-            webClient = securityClient.getAuthenticatedClient(GenericUser.username, GenericUser.password)
+            webClient = securityClient.getAuthenticatedClient(GenericUser.email, GenericUser.password)
         }
 
         @Test

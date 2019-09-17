@@ -63,7 +63,7 @@ internal class SubmissionTest(private val tempFolder: TemporaryFolder) : BaseInt
         fun init() {
             val securityClient = SecurityWebClient.create("http://localhost:$serverPort")
             securityClient.registerUser(GenericUser.asRegisterRequest())
-            webClient = securityClient.getAuthenticatedClient(GenericUser.username, GenericUser.password)
+            webClient = securityClient.getAuthenticatedClient(GenericUser.email, GenericUser.password)
             assertHelper = SubmissionAssertHelper(basePath)
 
             tempFolder.createDirectory("Folder1")

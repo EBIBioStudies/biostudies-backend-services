@@ -40,7 +40,7 @@ internal class SecurityTest(tempFolder: TemporaryFolder) : BaseIntegrationTest(t
         @Test
         fun `register when activation is not enable`() {
             webClient.registerUser(GenericUser.asRegisterRequest())
-            webClient.getAuthenticatedClient(GenericUser.username, GenericUser.password)
+            webClient.getAuthenticatedClient(GenericUser.email, GenericUser.password)
         }
     }
 }
