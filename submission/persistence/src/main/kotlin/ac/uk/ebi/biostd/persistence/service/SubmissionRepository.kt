@@ -8,7 +8,6 @@ class SubmissionRepository(
     private val submissionRepository: SubmissionDataRepository,
     private val submissionDbMapper: SubmissionDbMapper
 ) {
-    val PROJECT_TYPE = "Project" //TODO: refactor to enum when submission type is handled
 
     fun getByAccNo(accNo: String) =
         submissionDbMapper.toSubmission(submissionRepository.getByAccNoAndVersionGreaterThan(accNo))
@@ -28,6 +27,10 @@ class SubmissionRepository(
 
     fun findSubmissionsByAccessTags(accessTags: List<AccessTag>) =
         submissionRepository.findDistinctByRootSectionTypeAndAccessTagsInAndVersionGreaterThan(
-            PROJECT_TYPE, accessTags, 0).map { submissionDbMapper.toSubmission(it) }
+            Companion.PROJECT_TYPE, accessTags, 0).map { submissionDbMapper.toSubmission(it) }
+
+    companion object {
+        const val PROJECT_TYPE = "Project" //TODO: refactor to enum when submission type is handled
+    }
 
 }

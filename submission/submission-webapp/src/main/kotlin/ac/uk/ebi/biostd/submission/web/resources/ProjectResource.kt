@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.submission.web.resources
 
 import ac.uk.ebi.biostd.persistence.model.AccessType
+import ac.uk.ebi.biostd.submission.domain.service.ProjectService
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionService
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import org.springframework.security.access.prepost.PreAuthorize
@@ -13,10 +14,10 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/projects")
 @PreAuthorize("isAuthenticated()")
-class ProjectResource(private val submissionService: SubmissionService) {
+class ProjectResource(private val projectService: ProjectService) {
 
     @GetMapping
     @ResponseBody
     fun getUserProjects(
-        @AuthenticationPrincipal user: SecurityUser) = submissionService.getAllowedProjects(user, AccessType.ATTACH)
+        @AuthenticationPrincipal user: SecurityUser) = projectService.getAllowedProjects(user, AccessType.ATTACH)
 }

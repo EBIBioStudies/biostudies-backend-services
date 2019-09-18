@@ -20,10 +20,7 @@ class SubmissionService(
     private val submissionRepository: SubmissionRepository,
     private val persistenceContext: PersistenceContext,
     private val serializationService: SerializationService,
-    private val submitter: SubmissionSubmitter,
-    private val accessPermissionRepository: AccessPermissionRepository,
-    private val tagsDataRepository: TagsDataRepository
-
+    private val submitter: SubmissionSubmitter
 ) {
 
     fun getSubmissionAsJson(accNo: String): String {
@@ -52,11 +49,4 @@ class SubmissionService(
     private fun asUser(securityUser: SecurityUser): User =
         User(securityUser.id, securityUser.email, securityUser.secret)
 
-    fun getAllowedProjects(user: SecurityUser, accessType: AccessType): List<Project> {
-        var accessTags = if (user.superuser) tagsDataRepository.findAll() else
-                accessPermissionRepository.findByUserIdAndAccessType(user.id, accessType).map { it.accessTag }
-        return submissionRepository.findSubmissionsByAccessTags(accessTags).map { submission->
-            Project(submission.accNo, submission.title)
-        }
-    }
 }

@@ -132,7 +132,7 @@ internal class SubmissionApiTest(tempFolder: TemporaryFolder) : BaseIntegrationT
                 accessType = AccessType.ATTACH) )
             val savedSubmission = submissionRepository.getExtendedByAccNo(accNo)
             savedSubmission.addAccessTag(accNo)
-            savedSubmission.extendedSection.type = submissionRepository.PROJECT_TYPE //TODO: Move to top once submission type is supported
+            savedSubmission.extendedSection.type = SubmissionRepository.PROJECT_TYPE //TODO: Move to top once submission type is supported
             persistenceContext.saveSubmission(savedSubmission)
             val projects = webClient.getProjects()
             assertThat(projects).isNotEmpty
