@@ -10,5 +10,5 @@ object RegularUser {
     const val email = "jane@biostudies.com"
     const val password = "678910"
 
-    fun asRegisterRequest() = RegisterRequest(email, username, password, superUser = false)
+    fun asRegisterRequest() = RegisterRequest(username, email, password, superUser = false)
 }

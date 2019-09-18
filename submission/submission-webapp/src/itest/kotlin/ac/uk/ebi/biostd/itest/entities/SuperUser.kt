@@ -10,5 +10,5 @@ object SuperUser {
     const val email = "test@biostudies.com"
     const val password = "12345"
 
-    fun asRegisterRequest() = RegisterRequest(email, username, password, superUser = true)
+    fun asRegisterRequest() = RegisterRequest(username, email, password, superUser = true)
 }
