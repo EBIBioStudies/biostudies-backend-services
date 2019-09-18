@@ -9,7 +9,7 @@ import ac.uk.ebi.biostd.files.FileConfig
 import ac.uk.ebi.biostd.itest.assertions.SubmissionAssertHelper
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
 import ac.uk.ebi.biostd.itest.common.TestConfig
-import ac.uk.ebi.biostd.itest.entities.GenericUser
+import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.factory.allInOneSubmissionJson
 import ac.uk.ebi.biostd.itest.factory.allInOneSubmissionTsv
 import ac.uk.ebi.biostd.itest.factory.allInOneSubmissionXml
@@ -62,8 +62,8 @@ internal class SubmissionTest(private val tempFolder: TemporaryFolder) : BaseInt
         @BeforeAll
         fun init() {
             val securityClient = SecurityWebClient.create("http://localhost:$serverPort")
-            securityClient.registerUser(GenericUser.asRegisterRequest())
-            webClient = securityClient.getAuthenticatedClient(GenericUser.username, GenericUser.password)
+            securityClient.registerUser(SuperUser.asRegisterRequest())
+            webClient = securityClient.getAuthenticatedClient(SuperUser.email, SuperUser.password)
             assertHelper = SubmissionAssertHelper(basePath)
 
             tempFolder.createDirectory("Folder1")

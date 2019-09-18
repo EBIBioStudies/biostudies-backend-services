@@ -3,9 +3,9 @@ package ac.uk.ebi.biostd.itest.entities
 import ebi.ac.uk.api.security.RegisterRequest
 
 /**
- * Represent a Generic bio studies user.
+ * Represents a bio studies super user.
  */
-object GenericUser {
+object SuperUser {
     const val username = "jhon doe"
     const val email = "test@biostudies.com"
     const val password = "12345"
