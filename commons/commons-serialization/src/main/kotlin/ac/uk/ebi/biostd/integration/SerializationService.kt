@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.integration
 
-import ebi.ac.uk.io.FilesSource
+import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.model.Submission
 import java.io.File
 

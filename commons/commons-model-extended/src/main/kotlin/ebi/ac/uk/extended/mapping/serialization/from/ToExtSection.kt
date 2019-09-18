@@ -1,7 +1,7 @@
 package ebi.ac.uk.extended.mapping.serialization.from
 
 import ebi.ac.uk.extended.model.ExtSection
-import ebi.ac.uk.io.FilesSource
+import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.model.Section
 
 internal const val TO_EXT_SECTION_EXTENSIONS = "ebi.ac.uk.extended.mapping.serialization.from.ToExtSectionKt"
