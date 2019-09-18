@@ -9,12 +9,14 @@ import ebi.ac.uk.model.ExtendedSubmission
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.User
 import ebi.ac.uk.persistence.PersistenceContext
+import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 
 class SubmissionService(
     private val submissionRepository: SubmissionRepository,
     private val persistenceContext: PersistenceContext,
     private val serializationService: SerializationService,
+    private val userPrivilegesService: IUserPrivilegesService,
     private val submitter: SubmissionSubmitter
 ) {
     fun getSubmissionAsJson(accNo: String): String {
@@ -33,7 +35,9 @@ class SubmissionService(
     }
 
     fun deleteSubmission(accNo: String, user: SecurityUser) {
-        require(persistenceContext.canDelete(accNo, asUser(user)))
+        val submission = persistenceContext.getSubmission(accNo)!!
+
+        require(userPrivilegesService.canDelete(user.email, submission.user, submission.accessTags))
         submissionRepository.expireSubmission(accNo)
     }
 

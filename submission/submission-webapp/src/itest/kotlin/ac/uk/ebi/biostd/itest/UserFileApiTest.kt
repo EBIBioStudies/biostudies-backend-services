@@ -6,7 +6,7 @@ import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.common.config.SubmitterConfig
 import ac.uk.ebi.biostd.files.FileConfig
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
-import ac.uk.ebi.biostd.itest.entities.GenericUser
+import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ebi.ac.uk.api.UserFile
 import ebi.ac.uk.api.UserFileType
 import ebi.ac.uk.test.clean
@@ -43,8 +43,8 @@ internal class UserFileApiTest(private val tempFolder: TemporaryFolder) : BaseIn
         @BeforeAll
         fun init() {
             val securityClient = SecurityWebClient.create("http://localhost:$serverPort")
-            securityClient.registerUser(GenericUser.asRegisterRequest())
-            webClient = securityClient.getAuthenticatedClient(GenericUser.username, GenericUser.password)
+            securityClient.registerUser(SuperUser.asRegisterRequest())
+            webClient = securityClient.getAuthenticatedClient(SuperUser.email, SuperUser.password)
         }
 
         @BeforeEach

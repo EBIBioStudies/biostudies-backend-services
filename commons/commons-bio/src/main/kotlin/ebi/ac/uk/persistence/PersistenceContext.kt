@@ -4,7 +4,6 @@ import arrow.core.Option
 import ebi.ac.uk.model.AccPattern
 import ebi.ac.uk.model.ExtendedSubmission
 import ebi.ac.uk.model.Submission
-import ebi.ac.uk.model.User
 
 interface PersistenceContext {
     fun getSequenceNextValue(pattern: AccPattern): Long
@@ -18,7 +17,4 @@ interface PersistenceContext {
     fun saveSubmission(submission: ExtendedSubmission)
 
     fun isNew(accNo: String): Boolean
-
-    // TODO remove once proper implementation is made in IUserPrivilegesService
-    fun canDelete(accNo: String, user: User): Boolean
 }

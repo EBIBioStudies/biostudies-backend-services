@@ -13,16 +13,15 @@ internal class UserPrivilegesService(
 ) : IUserPrivilegesService {
     override fun canProvideAccNo(email: String) = isSuperUser(email)
 
-    override fun canResubmit(email: String, author: User, project: String?, accessTags: List<String>): Boolean {
-        return isSuperUser(email)
+    override fun canResubmit(email: String, author: User, project: String?, accessTags: List<String>) =
+        isSuperUser(email)
             .or(isAuthor(author, email).and(isNotInProject(project)))
             .or(hasTag(accessTags, AccessType.SUBMIT))
-    }
 
-    // TODO: add proper security validation
-    override fun canDelete(accNo: String, email: String): Boolean {
-        return true
-    }
+    override fun canDelete(email: String, author: User, accessTags: List<String>) =
+        isSuperUser(email)
+            .or(isAuthor(author, email))
+            .or(hasTag(accessTags, AccessType.DELETE))
 
     private fun isNotInProject(project: String?) = project.isNullOrBlank()
 
