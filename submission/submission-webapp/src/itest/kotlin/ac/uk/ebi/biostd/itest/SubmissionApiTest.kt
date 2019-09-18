@@ -8,12 +8,20 @@ import ac.uk.ebi.biostd.common.config.SubmitterConfig
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
 import ac.uk.ebi.biostd.itest.common.TestConfig
 import ac.uk.ebi.biostd.itest.entities.GenericUser
+import ac.uk.ebi.biostd.persistence.model.AccessPermission
+import ac.uk.ebi.biostd.persistence.model.AccessTag
+import ac.uk.ebi.biostd.persistence.model.AccessType
 import ac.uk.ebi.biostd.persistence.model.Tag
+import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
+import ac.uk.ebi.biostd.persistence.repositories.TagsDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.TagsRefRepository
+import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.constants.SubFields
+import ebi.ac.uk.model.extensions.addAccessTag
+import ebi.ac.uk.persistence.PersistenceContext
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
@@ -38,8 +46,12 @@ internal class SubmissionApiTest(tempFolder: TemporaryFolder) : BaseIntegrationT
     @DirtiesContext
     inner class SingleSubmissionTest(
         @Autowired val submissionRepository: SubmissionRepository,
-        @Autowired val tagsRefRepository: TagsRefRepository
-    ) {
+        @Autowired val tagsRefRepository: TagsRefRepository,
+        @Autowired val tagsDataRepository: TagsDataRepository,
+        @Autowired val accessPermissionRepository: AccessPermissionRepository,
+        @Autowired val userDataRepository: UserDataRepository,
+        @Autowired val persistenceContext: PersistenceContext
+        ) {
         @LocalServerPort
         private var serverPort: Int = 0
 
@@ -102,6 +114,29 @@ internal class SubmissionApiTest(tempFolder: TemporaryFolder) : BaseIntegrationT
             val savedSubmission = submissionRepository.getByAccNo(accNo)
             assertThat(savedSubmission).isNotNull
             assertThat(savedSubmission).isEqualTo(submission)
+        }
+
+        @Test
+        fun `get projects`() {
+            val accNo = "SampleProject1"
+            val title = "Sample Project"
+            val accessTag = tagsDataRepository.save(AccessTag(name = accNo))
+            val submission = Submission(accNo = accNo)
+            submission[SubFields.TITLE] = title
+            submission.accessTags.add(accNo)
+            webClient.submitSingle(submission, SubmissionFormat.JSON)
+
+            accessPermissionRepository.save( AccessPermission(
+                user = userDataRepository.getOne(1), //TODO: Replace by userDataRepository.findByEmail
+                accessTag = accessTag,
+                accessType = AccessType.ATTACH) )
+            val savedSubmission = submissionRepository.getExtendedByAccNo(accNo)
+            savedSubmission.addAccessTag(accNo)
+            savedSubmission.extendedSection.type = submissionRepository.PROJECT_TYPE //TODO: Move to top once submission type is supported
+            persistenceContext.saveSubmission(savedSubmission)
+            val projects = webClient.getProjects()
+            assertThat(projects).isNotEmpty
+            assertThat(projects.first().accno).isEqualTo(accNo)
         }
     }
 }

@@ -88,6 +88,7 @@ private object SectionMapper {
                 toSections(index, section, parentSubmission)
             }.flatten().toSortedSet()
             section.fileList?.let { fileList = toFileList(it) }
+            type = section.type
         }
 
     fun toTableSection(section: Section, index: Int, sectionTableIndex: Int) =
