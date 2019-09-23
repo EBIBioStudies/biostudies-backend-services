@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.persistence.service
 
+import ac.uk.ebi.biostd.persistence.common.SubmissionTypes
 import ac.uk.ebi.biostd.persistence.mapping.SubmissionDbMapper
 import ac.uk.ebi.biostd.persistence.model.AccessTag
 import ac.uk.ebi.biostd.persistence.repositories.SubmissionDataRepository
@@ -27,10 +28,5 @@ class SubmissionRepository(
 
     fun findSubmissionsByAccessTags(accessTags: List<AccessTag>) =
         submissionRepository.findDistinctByRootSectionTypeAndAccessTagsInAndVersionGreaterThan(
-            Companion.PROJECT_TYPE, accessTags, 0).map { submissionDbMapper.toSubmission(it) }
-
-    companion object {
-        const val PROJECT_TYPE = "Project" //TODO: refactor to enum when submission type is handled
-    }
-
+            SubmissionTypes.Project.value, accessTags, 0).map { submissionDbMapper.toSubmission(it) }
 }
