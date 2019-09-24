@@ -11,8 +11,6 @@ import ebi.ac.uk.io.isExcel
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import ebi.ac.uk.util.file.ExcelReader
-import org.springframework.security.core.annotation.AuthenticationPrincipal
-import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.multipart.MultipartFile
 import java.io.File
 
