@@ -2,13 +2,17 @@ package ac.uk.ebi.biostd.submission.web.handlers
 
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat
+import ac.uk.ebi.biostd.persistence.util.SubmissionFilter
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionService
 import ac.uk.ebi.biostd.submission.domain.service.TempFileGenerator
 import ac.uk.ebi.biostd.submission.model.UserSource
+import ebi.ac.uk.api.dto.SubmissionDto
 import ebi.ac.uk.io.isExcel
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import ebi.ac.uk.util.file.ExcelReader
+import org.springframework.security.core.annotation.AuthenticationPrincipal
+import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.multipart.MultipartFile
 import java.io.File
 
@@ -46,4 +50,13 @@ class SubmissionWebHandler(
 
     private fun readSubmissionFile(file: File) =
         if (file.isExcel()) excelReader.readContentAsTsv(file) else file.readText()
+
+    fun getSubmissions(user: SecurityUser, filter: SubmissionFilter) =
+        submissionService.getSubmissions(user, filter).map { submission->
+            SubmissionDto(submission.accNo,
+                submission.title,
+                submission.creationTime,
+                submission.modificationTime,
+                submission.releaseTime)
+        }
 }

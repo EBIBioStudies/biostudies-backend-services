@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.client.api
 
+import ebi.ac.uk.api.dto.SubmissionDto
 import ac.uk.ebi.biostd.client.extensions.map
 import ac.uk.ebi.biostd.client.extensions.setSubmissionType
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
@@ -11,7 +12,9 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.client.RestTemplate
+import org.springframework.web.client.getForObject
 import org.springframework.web.client.postForEntity
+import org.springframework.web.util.UriComponentsBuilder
 
 private const val SUBMISSIONS_URL = "/submissions"
 
@@ -39,5 +42,11 @@ internal class SubmissionClient(
         headers.accept = listOf(format.mediaType, MediaType.APPLICATION_JSON)
         headers.setSubmissionType(format.mediaType)
         return headers
+    }
+
+    override fun getSubmissions(filter: Map<String, Any>): List<SubmissionDto> {
+        val builder = UriComponentsBuilder.fromUriString(SUBMISSIONS_URL);
+        filter.entries.forEach { builder.queryParam(it.key, it.value) }
+        return template.getForObject<Array<SubmissionDto>>(builder.toUriString()).orEmpty().toList()
     }
 }

@@ -7,13 +7,12 @@ import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.common.config.SubmitterConfig
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
 import ac.uk.ebi.biostd.itest.common.TestConfig
-import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.entities.RegularUser
-import ac.uk.ebi.biostd.persistence.model.Tag
+import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.persistence.repositories.TagsRefRepository
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
-import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.submission
+import ebi.ac.uk.model.extensions.releaseTime
 import ebi.ac.uk.model.extensions.title
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
@@ -26,12 +25,12 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
-import org.springframework.http.HttpStatus
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
+import java.time.OffsetDateTime
 
 @ExtendWith(TemporaryFolderExtension::class)
-internal class SubmissionApiTest(tempFolder: TemporaryFolder) : BaseIntegrationTest(tempFolder) {
+internal class SubmissionListApiTest(tempFolder: TemporaryFolder) : BaseIntegrationTest(tempFolder) {
     @Nested
     @ExtendWith(SpringExtension::class)
     @Import(value = [TestConfig::class, SubmitterConfig::class, PersistenceConfig::class, TestConfig::class])
@@ -53,40 +52,49 @@ internal class SubmissionApiTest(tempFolder: TemporaryFolder) : BaseIntegrationT
             securityClient.registerUser(RegularUser.asRegisterRequest())
 
             webClient = securityClient.getAuthenticatedClient(SuperUser.email, SuperUser.password)
-            tagsRefRepository.save(Tag(classifier = "classifier", name = "tag"))
+            for (i in 1..20) {
+                val submission = submission("SimpleAcc$i") {
+                    title = "Simple Submission $i - keyword$i"
+                    releaseTime = OffsetDateTime.now().plusDays(i.toLong())
+                }
+                webClient.submitSingle(submission, SubmissionFormat.JSON)
+            }
         }
 
         @Test
-        fun `submit simple submission`() {
-            val submission = submission("SimpleAcc1") {
-                title = "Simple Submission"
-            }
-
-            val response = webClient.submitSingle(submission, SubmissionFormat.XML)
-
-            assertThat(response).isNotNull
-            assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
-
-            val savedSubmission = submissionRepository.getByAccNo("SimpleAcc1")
-            assertThat(savedSubmission).isNotNull
-            assertThat(savedSubmission).isEqualTo(submission)
+        fun `get submission list`() {
+            val submissionList = webClient.getSubmissions()
+            assertThat(submissionList).isNotNull
+            assertThat(submissionList).hasSize(15)
+            assertThat(submissionList).isSortedAccordingTo { a, b -> b.rtime.compareTo(a.rtime) }
         }
 
         @Test
-        fun `submission with tags`() {
-            val submission = submission("SimpleAcc2") {
-                title = "Simple Submission With Tags"
-                tags = mutableListOf(Pair("classifier", "tag"))
+        fun `get submission list by accession`() {
+            val submissionList = webClient.getSubmissions(mapOf(
+                "accNo" to "SimpleAcc10"
+            ))
+            assertThat(submissionList).hasOnlyOneElementSatisfying { submissionDto ->
+                assertThat(submissionDto.accno).isEqualTo("SimpleAcc10")
             }
+        }
 
-            val response = webClient.submitSingle(submission, SubmissionFormat.JSON)
+        @Test
+        fun `get submission list by keywords`() {
+            val submissionList = webClient.getSubmissions(mapOf(
+                "keywords" to "keyword20"
+            ))
+            assertThat(submissionList).hasOnlyOneElementSatisfying { submissionDto ->
+                assertThat(submissionDto.title).contains("keyword20")
+            }
+        }
 
-            assertThat(response).isNotNull
-            assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
-
-            val savedSubmission = submissionRepository.getByAccNo("SimpleAcc2")
-            assertThat(savedSubmission).isNotNull
-            assertThat(savedSubmission).isEqualTo(submission)
+        @Test
+        fun `get submission list pagination`() {
+            val submissionList = webClient.getSubmissions(mapOf(
+                "offset" to 15
+            ))
+            assertThat(submissionList).hasSize(5)
         }
     }
 }

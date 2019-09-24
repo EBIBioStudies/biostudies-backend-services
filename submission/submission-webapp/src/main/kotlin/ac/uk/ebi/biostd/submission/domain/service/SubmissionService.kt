@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.submission.domain.service
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
+import ac.uk.ebi.biostd.persistence.util.SubmissionFilter
 import ac.uk.ebi.biostd.submission.SubmissionSubmitter
 import ac.uk.ebi.biostd.submission.model.UserSource
 import ebi.ac.uk.model.ExtendedSubmission
@@ -46,4 +47,8 @@ class SubmissionService(
 
     private fun asUser(securityUser: SecurityUser): User =
         User(securityUser.id, securityUser.email, securityUser.secret)
+
+    fun getSubmissions(user: SecurityUser, filter: SubmissionFilter) =
+        submissionRepository.getSubmissionsByUser( user.id , filter)
 }
+
