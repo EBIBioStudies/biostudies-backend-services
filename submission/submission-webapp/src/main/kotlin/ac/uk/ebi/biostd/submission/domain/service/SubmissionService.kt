@@ -22,7 +22,6 @@ class SubmissionService(
     private val serializationService: SerializationService,
     private val submitter: SubmissionSubmitter
 ) {
-
     fun getSubmissionAsJson(accNo: String): String {
         val submission = submissionRepository.getByAccNo(accNo)
         return serializationService.serializeSubmission(submission, SubFormat.JSON_PRETTY)
@@ -48,5 +47,4 @@ class SubmissionService(
 
     private fun asUser(securityUser: SecurityUser): User =
         User(securityUser.id, securityUser.email, securityUser.secret)
-
 }

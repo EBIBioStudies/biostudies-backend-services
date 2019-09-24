@@ -9,7 +9,6 @@ class SubmissionRepository(
     private val submissionRepository: SubmissionDataRepository,
     private val submissionDbMapper: SubmissionDbMapper
 ) {
-
     fun getByAccNo(accNo: String) =
         submissionDbMapper.toSubmission(submissionRepository.getByAccNoAndVersionGreaterThan(accNo))
 
@@ -26,7 +25,7 @@ class SubmissionRepository(
         }
     }
 
-    fun findSubmissionsByAccessTags(accessTags: List<AccessTag>) =
+    fun findProjectsByAccessTags(accessTags: List<AccessTag>) =
         submissionRepository.findDistinctByRootSectionTypeAndAccessTagsInAndVersionGreaterThan(
             SubmissionTypes.Project.value, accessTags, 0).map { submissionDbMapper.toSubmission(it) }
 }

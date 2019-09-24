@@ -16,7 +16,7 @@ import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
 import ac.uk.ebi.biostd.persistence.repositories.TagsDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
-import ebi.ac.uk.dsl.submission
+import ebi.ac.uk.dsl.*
 import ebi.ac.uk.model.extensions.addAccessTag
 import ebi.ac.uk.model.extensions.title
 import ebi.ac.uk.persistence.PersistenceContext
@@ -41,13 +41,13 @@ internal class ProjectsApiTest(tempFolder: TemporaryFolder) : BaseIntegrationTes
     @Import(value = [TestConfig::class, SubmitterConfig::class, PersistenceConfig::class, TestConfig::class])
     @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
     @DirtiesContext
-    inner class SingleSubmissionTest(
+    inner class ProjectListTest(
         @Autowired val submissionRepository: SubmissionRepository,
         @Autowired val tagsDataRepository: TagsDataRepository,
         @Autowired val accessPermissionRepository: AccessPermissionRepository,
         @Autowired val userDataRepository: UserDataRepository,
         @Autowired val persistenceContext: PersistenceContext
-        ) {
+    ) {
         @LocalServerPort
         private var serverPort: Int = 0
 
@@ -74,9 +74,9 @@ internal class ProjectsApiTest(tempFolder: TemporaryFolder) : BaseIntegrationTes
         fun `get projects`() {
             val submission = submission(projectAccNo) {
                 title = "Sample Project"
+                accessTags = mutableListOf(projectAccNo)
+                section(SubmissionTypes.Project.value) {}
             }
-            submission.accessTags.add(projectAccNo)
-            submission.section.type = SubmissionTypes.Project.value
             webClient.submitSingle(submission, SubmissionFormat.JSON)
 
             val savedSubmission = submissionRepository.getExtendedByAccNo(projectAccNo)

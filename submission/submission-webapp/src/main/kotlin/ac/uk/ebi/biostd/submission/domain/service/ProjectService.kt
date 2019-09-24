@@ -12,14 +12,14 @@ class ProjectService(
     private val submissionRepository: SubmissionRepository,
     private val accessPermissionRepository: AccessPermissionRepository,
     private val tagsDataRepository: TagsDataRepository
-
 ) {
-
     fun getAllowedProjects(user: SecurityUser, accessType: AccessType): List<Project> {
         var accessTags = if (user.superuser) tagsDataRepository.findAll() else
-            accessPermissionRepository.findByUserIdAndAccessType(user.id, accessType).map { it.accessTag }
-        return submissionRepository.findSubmissionsByAccessTags(accessTags).map { submission ->
-            Project(submission.accNo, submission.title)
-        }
+            accessPermissionRepository
+                .findByUserIdAndAccessType(user.id, accessType)
+                .map { it.accessTag }
+        return submissionRepository
+            .findProjectsByAccessTags(accessTags)
+            .map { Project(it.accNo, it.title) }
     }
 }
