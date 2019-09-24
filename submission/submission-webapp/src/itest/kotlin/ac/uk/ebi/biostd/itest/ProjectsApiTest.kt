@@ -16,7 +16,8 @@ import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
 import ac.uk.ebi.biostd.persistence.repositories.TagsDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
-import ebi.ac.uk.dsl.*
+import ebi.ac.uk.dsl.submission
+import ebi.ac.uk.dsl.section
 import ebi.ac.uk.model.extensions.addAccessTag
 import ebi.ac.uk.model.extensions.title
 import ebi.ac.uk.persistence.PersistenceContext
