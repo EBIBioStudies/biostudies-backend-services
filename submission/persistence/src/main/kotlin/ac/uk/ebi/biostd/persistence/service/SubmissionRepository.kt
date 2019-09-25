@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.persistence.service
 
-import ac.uk.ebi.biostd.persistence.common.SubmissionTypes
+import ac.uk.ebi.biostd.persistence.common.SubmissionTypes.Project
 import ac.uk.ebi.biostd.persistence.mapping.SubmissionDbMapper
 import ac.uk.ebi.biostd.persistence.model.AccessTag
 import ac.uk.ebi.biostd.persistence.repositories.SubmissionDataRepository
@@ -25,7 +25,7 @@ class SubmissionRepository(
         }
     }
 
-    fun findProjectsByAccessTags(accessTags: List<AccessTag>) =
-        submissionRepository.findDistinctByRootSectionTypeAndAccessTagsInAndVersionGreaterThan(
-            SubmissionTypes.Project.value, accessTags, 0).map { submissionDbMapper.toSubmission(it) }
+    fun findProjectsByAccessTags(tags: List<AccessTag>) =
+        submissionRepository.findByTypeAndAccNo(Project.value, tags.map { it.name })
+            .map { submissionDbMapper.toSubmission(it) }
 }
