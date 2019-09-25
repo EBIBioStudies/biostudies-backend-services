@@ -4,7 +4,7 @@ import ac.uk.ebi.biostd.persistence.model.AccessTag
 import ac.uk.ebi.biostd.persistence.model.Submission
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.functions.secondsToInstant
-import ebi.ac.uk.io.FilesSource
+import ebi.ac.uk.io.sources.FilesSource
 import java.time.ZoneOffset
 
 internal const val TO_EXT_SUBMISSION_EXTENSIONS = "ac.uk.ebi.biostd.persistence.mapping.extended.to.ToExtSubmissionKt"

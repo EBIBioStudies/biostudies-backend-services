@@ -3,7 +3,7 @@ package ac.uk.ebi.biostd.persistence.mapping.extended.to
 import ac.uk.ebi.biostd.persistence.model.FileList
 import ac.uk.ebi.biostd.persistence.model.ReferencedFile
 import ebi.ac.uk.extended.model.ExtFile
-import ebi.ac.uk.io.FilesSource
+import ebi.ac.uk.io.sources.FilesSource
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension

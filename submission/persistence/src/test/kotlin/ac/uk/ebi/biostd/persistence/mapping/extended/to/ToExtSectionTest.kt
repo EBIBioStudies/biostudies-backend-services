@@ -11,7 +11,7 @@ import ac.uk.ebi.biostd.persistence.model.Link
 import ac.uk.ebi.biostd.persistence.model.Section
 import arrow.core.Either
 import ebi.ac.uk.extended.model.ExtFileList
-import ebi.ac.uk.io.FilesSource
+import ebi.ac.uk.io.sources.FilesSource
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension

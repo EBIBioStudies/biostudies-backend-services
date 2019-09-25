@@ -12,7 +12,6 @@ import ebi.ac.uk.base.toOption
 import ebi.ac.uk.model.AccPattern
 import ebi.ac.uk.model.ExtendedSubmission
 import ebi.ac.uk.model.Submission
-import ebi.ac.uk.model.User
 import ebi.ac.uk.model.constants.SubFields
 import ebi.ac.uk.model.constants.SubFields.ATTACH_TO
 import ebi.ac.uk.persistence.PersistenceContext
@@ -59,11 +58,6 @@ open class PersistenceContextImpl(
             submission.version = nextVersion
             subRepository.save(subMapper.toSubmissionDb(submission))
         }
-    }
-
-    // TODO: add proper security validation
-    override fun canDelete(accNo: String, user: User): Boolean {
-        return true
     }
 
     override fun isNew(accNo: String) = subRepository.existsByAccNo(accNo).not()

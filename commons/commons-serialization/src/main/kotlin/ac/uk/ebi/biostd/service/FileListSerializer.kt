@@ -1,9 +1,9 @@
 package ac.uk.ebi.biostd.service
 
 import ac.uk.ebi.biostd.integration.SubFormat
-import ebi.ac.uk.io.FilesSource
-import ebi.ac.uk.model.FilesTable
+import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.model.FileList
+import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.extensions.allSections
 import ebi.ac.uk.model.extensions.fileListName

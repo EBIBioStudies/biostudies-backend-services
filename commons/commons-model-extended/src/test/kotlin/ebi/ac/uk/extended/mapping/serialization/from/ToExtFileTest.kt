@@ -1,7 +1,7 @@
 package ebi.ac.uk.extended.mapping.serialization.from
 
 import ebi.ac.uk.extended.model.ExtAttribute
-import ebi.ac.uk.io.FilesSource
+import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.File
 import io.mockk.every

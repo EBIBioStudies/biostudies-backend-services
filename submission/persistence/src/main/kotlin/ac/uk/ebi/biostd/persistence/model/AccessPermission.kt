@@ -13,7 +13,6 @@ import javax.persistence.Table
 @Entity
 @Table(name = "AccessPermission")
 class AccessPermission(
-
     @Id
     @GeneratedValue
     val id: Long = 0,
