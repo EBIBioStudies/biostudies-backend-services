@@ -7,7 +7,8 @@ import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.common.config.SubmitterConfig
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
 import ac.uk.ebi.biostd.itest.common.TestConfig
-import ac.uk.ebi.biostd.itest.entities.GenericUser
+import ac.uk.ebi.biostd.itest.entities.RegularUser
+import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.persistence.common.SubmissionTypes
 import ac.uk.ebi.biostd.persistence.model.AccessPermission
 import ac.uk.ebi.biostd.persistence.model.AccessTag
@@ -61,12 +62,13 @@ internal class ProjectsApiTest(tempFolder: TemporaryFolder) : BaseIntegrationTes
         @BeforeAll
         fun init() {
             val securityClient = SecurityWebClient.create("http://localhost:$serverPort")
-            securityClient.registerUser(GenericUser.asRegisterRequest())
-            webClient = securityClient.getAuthenticatedClient(GenericUser.username, GenericUser.password)
+            securityClient.registerUser(SuperUser.asRegisterRequest())
+
+            webClient = securityClient.getAuthenticatedClient(SuperUser.email, SuperUser.password)
             accessTag = AccessTag(name = projectAccNo)
             tagsDataRepository.save(accessTag)
             accessPermissionRepository.save( AccessPermission(
-                user = userDataRepository.getOne(1), //TODO: Replace by userDataRepository.findByEmail after merging PR#113
+                user = userDataRepository.findByEmailAndActive(SuperUser.email, true).get(),
                 accessTag = accessTag,
                 accessType = AccessType.ATTACH) )
         }

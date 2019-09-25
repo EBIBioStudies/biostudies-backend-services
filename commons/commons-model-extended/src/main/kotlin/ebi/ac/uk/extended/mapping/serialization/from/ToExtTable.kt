@@ -3,7 +3,7 @@ package ebi.ac.uk.extended.mapping.serialization.from
 import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.ExtLinkTable
 import ebi.ac.uk.extended.model.ExtSectionTable
-import ebi.ac.uk.io.FilesSource
+import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.model.LinksTable
 import ebi.ac.uk.model.SectionsTable

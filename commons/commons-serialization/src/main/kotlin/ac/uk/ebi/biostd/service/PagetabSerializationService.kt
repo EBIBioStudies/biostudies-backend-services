@@ -3,7 +3,7 @@ package ac.uk.ebi.biostd.service
 import ac.uk.ebi.biostd.exception.InvalidExtensionException
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat
-import ebi.ac.uk.io.FilesSource
+import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.model.Submission
 import java.io.File
 

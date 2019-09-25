@@ -10,27 +10,28 @@ import ac.uk.ebi.biostd.submission.domain.service.SubmissionService
 import ac.uk.ebi.biostd.submission.domain.service.TempFileGenerator
 import ac.uk.ebi.biostd.submission.web.handlers.SubmissionWebHandler
 import ebi.ac.uk.persistence.PersistenceContext
+import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import ebi.ac.uk.util.file.ExcelReader
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 
 @Configuration
-@Import(PersistenceConfig::class)
+@Import(value = [PersistenceConfig::class, SecurityBeansConfig::class])
 class SubmissionConfig(
     private val excelReader: ExcelReader,
     private val tmpFileGenerator: TempFileGenerator,
     private val serializationService: SerializationService
 ) {
-
     @Bean
     fun submissionService(
         subRepository: SubmissionRepository,
         serializationService: SerializationService,
         persistenceContext: PersistenceContext,
+        userPrivilegeService: IUserPrivilegesService,
         submissionSubmitter: SubmissionSubmitter
-    ): SubmissionService =
-        SubmissionService(subRepository, persistenceContext, serializationService, submissionSubmitter)
+    ): SubmissionService = SubmissionService(
+        subRepository, persistenceContext, serializationService, userPrivilegeService, submissionSubmitter)
 
     @Bean
     fun projectService(
