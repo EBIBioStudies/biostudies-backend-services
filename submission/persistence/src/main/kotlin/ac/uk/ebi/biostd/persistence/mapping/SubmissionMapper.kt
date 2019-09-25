@@ -25,20 +25,21 @@ import ebi.ac.uk.model.AttributeDetail
 import ebi.ac.uk.model.ExtendedSection
 import ebi.ac.uk.model.ExtendedSubmission
 import ebi.ac.uk.model.File
-import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.model.FileList
+import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.model.Link
 import ebi.ac.uk.model.LinksTable
 import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.SectionsTable
 import ebi.ac.uk.model.extensions.rootPath
 import ebi.ac.uk.model.extensions.title
+import java.util.TreeSet
 import ac.uk.ebi.biostd.persistence.model.Attribute as AttributeDb
 import ac.uk.ebi.biostd.persistence.model.AttributeDetail as AttributeDetailDb
 import ac.uk.ebi.biostd.persistence.model.File as FileDb
-import ac.uk.ebi.biostd.persistence.model.FileList as FileListDb
 import ac.uk.ebi.biostd.persistence.model.Link as LinkDb
 import ac.uk.ebi.biostd.persistence.model.ReferencedFile as ReferencedFileDb
+import ac.uk.ebi.biostd.persistence.model.ReferencedFileList as FileListDb
 import ac.uk.ebi.biostd.persistence.model.Section as SectionDb
 import ac.uk.ebi.biostd.persistence.model.Submission as SubmissionDb
 
@@ -124,11 +125,14 @@ private object EntityMapper {
     fun toFile(file: File, order: Int, tableIndex: Int = NO_TABLE_INDEX) = FileDb(
         file.path, order, file.size, toAttributes(file.attributes).mapTo(sortedSetOf(), ::FileAttribute), tableIndex)
 
-    fun toRefFile(file: File) = ReferencedFileDb(
-        file.path, file.size, toAttributes(file.attributes).mapTo(sortedSetOf(), ::ReferencedFileAttribute))
+    fun toRefFile(file: File, ord: Int) = ReferencedFileDb(
+        file.path, ord, file.size, toAttributes(file.attributes).mapTo(sortedSetOf(), ::ReferencedFileAttribute))
 
-    fun toFileList(fileList: FileList) =
-        FileListDb(fileList.name).apply { files = fileList.referencedFiles.map { toRefFile(it) }.toSet() }
+    fun toFileList(fileList: FileList): FileListDb =
+        FileListDb(fileList.name).apply { files = getFiles(fileList) }
+
+    private fun getFiles(fileList: FileList) =
+        fileList.referencedFiles.mapIndexedTo(TreeSet()) { index, file -> toRefFile(file, index) }
 }
 
 private object AttributeMapper {
