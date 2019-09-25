@@ -15,7 +15,7 @@ import javax.persistence.Table
 
 @Entity
 @Table(name = "FileList")
-class FileList(
+class ReferencedFileList(
     @Column
     var name: String
 ) {
@@ -25,10 +25,11 @@ class FileList(
 
     @OneToMany(cascade = [CascadeType.ALL])
     @JoinColumn(name = "fileListId")
+    @OrderBy("order ASC")
     @Basic(fetch = FetchType.LAZY)
-    var files: Set<ReferencedFile> = setOf()
+    var files: SortedSet<ReferencedFile> = sortedSetOf()
 
-    constructor(name: String, files: Set<ReferencedFile>) : this(name) {
+    constructor(name: String, files: SortedSet<ReferencedFile>) : this(name) {
         this.files = files
     }
 }
@@ -37,8 +38,12 @@ class FileList(
 @Table(name = "ReferencedFile")
 class ReferencedFile(
     @Column
-    val name: String
-) {
+    val name: String,
+
+    @Column(name = "ord")
+    override var order: Int
+
+) : Sortable, Comparable<ReferencedFile> {
     @Id
     @GeneratedValue
     var id: Long = 0L
@@ -50,8 +55,11 @@ class ReferencedFile(
     @OrderBy("order ASC")
     var attributes: SortedSet<ReferencedFileAttribute> = sortedSetOf()
 
-    constructor(name: String, size: Long, attributes: SortedSet<ReferencedFileAttribute>) : this(name) {
+    constructor(name: String, order: Int, size: Long, attributes: SortedSet<ReferencedFileAttribute>) :
+        this(name, order) {
         this.size = size
         this.attributes = attributes
     }
+
+    override fun compareTo(other: ReferencedFile) = this.order.compareTo(other.order)
 }
