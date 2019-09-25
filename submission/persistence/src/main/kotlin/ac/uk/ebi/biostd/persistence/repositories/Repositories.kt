@@ -36,6 +36,14 @@ interface SubmissionDataRepository : JpaRepository<Submission, Long> {
     fun getFirstByAccNoOrderByVersionDesc(accNo: String): Submission
 
     fun existsByAccNo(accNo: String): Boolean
+
+    fun findDistinctByRootSectionTypeAndAccessTagsInAndVersionGreaterThan(
+        type: String, accessTags: List<AccessTag>, version: Int): List<Submission>
+
+    @Query("Select sub From Submission sub, Section se Where " +
+        "sub.version > 0 and sub.rootSection = se and se.type = :type and sub.accNo in (:accessTags)")
+    fun findByTypeAndAccNo(type: String, accessTags: List<String>): List<Submission>
+
 }
 
 interface TagsDataRepository : JpaRepository<AccessTag, Long> {
@@ -67,4 +75,5 @@ interface UserGroupDataRepository : JpaRepository<UserGroup, Long> {
 
 interface AccessPermissionRepository : JpaRepository<AccessPermission, Long> {
     fun existsByAccessTagInAndAccessType(accessTags: List<String>, accessType: AccessType): Boolean
+    fun findByUserIdAndAccessType(userId: Long, accessType: AccessType): List<AccessPermission>
 }

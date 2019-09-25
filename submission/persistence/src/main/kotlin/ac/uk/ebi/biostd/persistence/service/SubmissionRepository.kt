@@ -1,6 +1,8 @@
 package ac.uk.ebi.biostd.persistence.service
 
+import ac.uk.ebi.biostd.persistence.common.SubmissionTypes.Project
 import ac.uk.ebi.biostd.persistence.mapping.SubmissionDbMapper
+import ac.uk.ebi.biostd.persistence.model.AccessTag
 import ac.uk.ebi.biostd.persistence.repositories.SubmissionDataRepository
 
 class SubmissionRepository(
@@ -22,4 +24,8 @@ class SubmissionRepository(
             submissionRepository.save(it)
         }
     }
+
+    fun findProjectsByAccessTags(tags: List<AccessTag>) =
+        submissionRepository.findByTypeAndAccNo(Project.value, tags.map { it.name })
+            .map { submissionDbMapper.toSubmission(it) }
 }
