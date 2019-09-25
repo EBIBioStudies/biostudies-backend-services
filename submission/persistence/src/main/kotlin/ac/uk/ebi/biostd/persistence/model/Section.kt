@@ -46,7 +46,7 @@ class Section(
 
     @OneToOne(cascade = [CascadeType.ALL])
     @JoinColumn(name = "fileListId")
-    var fileList: FileList? = null
+    var fileList: ReferencedFileList? = null
 
     @OneToMany(cascade = [CascadeType.ALL])
     @JoinColumn(name = "section_id")

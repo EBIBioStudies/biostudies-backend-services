@@ -26,7 +26,7 @@ import ebi.ac.uk.security.test.SecurityTestEntities.Companion.resetPasswordReque
 import ebi.ac.uk.security.test.SecurityTestEntities.Companion.retryActivation
 import ebi.ac.uk.security.test.SecurityTestEntities.Companion.securityUser
 import ebi.ac.uk.security.test.SecurityTestEntities.Companion.simpleUser
-import ebi.ac.uk.security.test.SecurityTestEntities.Companion.username
+import ebi.ac.uk.security.test.SecurityTestEntities.Companion.name
 import ebi.ac.uk.security.util.SecurityUtil
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -58,29 +58,29 @@ internal class SecurityServiceTest(
     inner class Login {
         @Test
         fun `login when user is not found`() {
-            every { userRepository.findByLoginOrEmailAndActive(username, username, true) } returns Optional.empty()
+            every { userRepository.findByLoginOrEmailAndActive(email, email, true) } returns Optional.empty()
 
-            assertThrows<LoginException> { testInstance.login(LoginRequest(username, password)) }
+            assertThrows<LoginException> { testInstance.login(LoginRequest(email, password)) }
         }
 
         @Test
         fun `login when invalid password`() {
-            every { userRepository.findByLoginOrEmailAndActive(username, username, true) } returns Optional.of(simpleUser)
+            every { userRepository.findByLoginOrEmailAndActive(email, email, true) } returns Optional.of(simpleUser)
             every { securityUtil.checkPassword(passwordDiggest, password) } returns false
 
-            assertThrows<LoginException> { testInstance.login(LoginRequest(username, password)) }
+            assertThrows<LoginException> { testInstance.login(LoginRequest(email, password)) }
         }
 
         @Test
         fun login() {
             val userToken = "token"
 
-            every { userRepository.findByLoginOrEmailAndActive(username, username, true) } returns Optional.of(simpleUser)
+            every { userRepository.findByLoginOrEmailAndActive(email, email, true) } returns Optional.of(simpleUser)
             every { securityUtil.checkPassword(passwordDiggest, password) } returns true
             every { securityUtil.createToken(simpleUser) } returns userToken
             every { profileService.getUserProfile(simpleUser, userToken) } returns UserInfo(securityUser, userToken)
 
-            val (user, token) = testInstance.login(LoginRequest(username, password))
+            val (user, token) = testInstance.login(LoginRequest(email, password))
 
             assertThat(user).isEqualTo(securityUser)
             assertThat(token).isEqualTo(userToken)
@@ -110,7 +110,7 @@ internal class SecurityServiceTest(
             assertThat(subscriber.values()).hasSize(1)
             assertThat(subscriber.values()).first().satisfies {
                 assertThat(it.user.active).isTrue()
-                assertThat(it.user.fullName).isEqualTo(username)
+                assertThat(it.user.fullName).isEqualTo(name)
                 assertThat(it.user.email).isEqualTo(email)
                 assertThat(it.user.passwordDigest).isEqualTo(PASSWORD_DIGGEST)
 
@@ -144,7 +144,7 @@ internal class SecurityServiceTest(
             every { userRepository.existsByEmail(email) } returns true
 
             val exception = assertThrows<UserAlreadyRegister> { testInstance.registerUser(registrationRequest) }
-            assertThat(exception.message).isEqualTo("There is already a user registered with the email address 'Jhon.Doe@test.com'.")
+            assertThat(exception.message).isEqualTo("There is already a user registered with the email address '$email'.")
         }
     }
 

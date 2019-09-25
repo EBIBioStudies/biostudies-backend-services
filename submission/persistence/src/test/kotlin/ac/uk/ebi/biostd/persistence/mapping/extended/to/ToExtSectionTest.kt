@@ -6,8 +6,8 @@ import ac.uk.ebi.biostd.persistence.mapping.extended.to.test.extTestLink
 import ac.uk.ebi.biostd.persistence.mapping.extended.to.test.extTestSection
 import ac.uk.ebi.biostd.persistence.mapping.extended.to.test.sectionAttribute
 import ac.uk.ebi.biostd.persistence.model.File
-import ac.uk.ebi.biostd.persistence.model.FileList
 import ac.uk.ebi.biostd.persistence.model.Link
+import ac.uk.ebi.biostd.persistence.model.ReferencedFileList
 import ac.uk.ebi.biostd.persistence.model.Section
 import arrow.core.Either
 import ebi.ac.uk.extended.model.ExtFileList
@@ -25,7 +25,7 @@ import java.util.SortedSet
 @ExtendWith(MockKExtension::class)
 class ToExtSectionTest(
     @MockK val fileSource: FilesSource,
-    @MockK val fileList: FileList,
+    @MockK val fileList: ReferencedFileList,
     @MockK val extFileList: ExtFileList
 ) {
     private val sections: SortedSet<Section> = emptySortedSet()

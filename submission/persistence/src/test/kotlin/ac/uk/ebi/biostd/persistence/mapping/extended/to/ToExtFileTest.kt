@@ -38,7 +38,7 @@ internal class ToExtFileTest(
 
     @Test
     fun `ReferencedFile to ExtFile`() {
-        val refFile = ReferencedFile("fileName", 55L, sortedSetOf(refAttribute))
+        val refFile = ReferencedFile("fileName", 0, 55L, sortedSetOf(refAttribute))
 
         mockkStatic(TO_EXT_ATTRIBUTE_EXTENSIONS) {
             every { attribute.toExtAttribute() } returns extTestAttribute

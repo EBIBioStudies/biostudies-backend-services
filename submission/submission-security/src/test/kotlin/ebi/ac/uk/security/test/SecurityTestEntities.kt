@@ -12,8 +12,8 @@ internal class SecurityTestEntities {
 
     companion object {
         const val userId = 55L
-        const val username = "Jhon Doe"
-        const val email = "Jhon.Doe@test.com"
+        const val name = "BioStudies Developer"
+        const val email = "biostudies-dev@ebi.ac.uk"
         const val password = "abc123"
         const val instanceKey = "12345"
         const val path = "/activate_url_path"
@@ -24,11 +24,11 @@ internal class SecurityTestEntities {
         const val adminId = 70L
 
         val registrationRequest: RegisterRequest
-            get() = RegisterRequest(username, email, password)
+            get() = RegisterRequest(name, email, password)
 
         val preRegisterRequest: RegisterRequest
             get() = RegisterRequest(
-                username = username,
+                name = name,
                 email = email,
                 password = password,
                 instanceKey = instanceKey,
@@ -53,7 +53,7 @@ internal class SecurityTestEntities {
             User(
                 id = userId,
                 email = email,
-                fullName = username,
+                fullName = name,
                 secret = secret,
                 passwordDigest = passwordDiggest)
         }
@@ -63,7 +63,7 @@ internal class SecurityTestEntities {
                 id = userId,
                 email = email,
                 login = null,
-                fullName = username,
+                fullName = name,
                 secret = secret,
                 permissions = emptySet(),
                 groupsFolders = emptyList(),
@@ -76,7 +76,7 @@ internal class SecurityTestEntities {
             User(
                 id = adminId,
                 email = email,
-                fullName = username,
+                fullName = name,
                 secret = secret,
                 passwordDigest = passwordDiggest,
                 superuser = true)

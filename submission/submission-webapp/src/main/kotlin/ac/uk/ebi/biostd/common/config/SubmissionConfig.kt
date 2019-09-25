@@ -1,8 +1,11 @@
 package ac.uk.ebi.biostd.common.config
 
 import ac.uk.ebi.biostd.integration.SerializationService
+import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
+import ac.uk.ebi.biostd.persistence.repositories.TagsDataRepository
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
 import ac.uk.ebi.biostd.submission.SubmissionSubmitter
+import ac.uk.ebi.biostd.submission.domain.service.ProjectService
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionService
 import ac.uk.ebi.biostd.submission.domain.service.TempFileGenerator
 import ac.uk.ebi.biostd.submission.web.handlers.SubmissionWebHandler
@@ -29,6 +32,15 @@ class SubmissionConfig(
         submissionSubmitter: SubmissionSubmitter
     ): SubmissionService = SubmissionService(
         subRepository, persistenceContext, serializationService, userPrivilegeService, submissionSubmitter)
+
+    @Bean
+    fun projectService(
+        submissionRepository: SubmissionRepository,
+        accessPermissionRepository: AccessPermissionRepository,
+        tagsDataRepository: TagsDataRepository
+    ): ProjectService =
+        ProjectService(submissionRepository, accessPermissionRepository, tagsDataRepository)
+
 
     @Bean
     fun submissionHandler(submissionService: SubmissionService): SubmissionWebHandler =
