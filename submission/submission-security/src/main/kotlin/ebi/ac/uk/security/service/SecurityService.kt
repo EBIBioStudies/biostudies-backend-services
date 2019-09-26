@@ -115,7 +115,7 @@ internal class SecurityService(
     private fun asUser(registerRequest: RegisterRequest): User {
         return User(
             email = registerRequest.email,
-            fullName = registerRequest.username,
+            fullName = registerRequest.name,
             secret = securityUtil.newKey(),
             superuser = registerRequest.superUser,
             passwordDigest = securityUtil.getPasswordDigest(registerRequest.password))
