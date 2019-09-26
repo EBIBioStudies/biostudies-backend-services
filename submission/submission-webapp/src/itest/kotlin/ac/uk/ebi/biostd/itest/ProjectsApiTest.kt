@@ -7,7 +7,6 @@ import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.common.config.SubmitterConfig
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
 import ac.uk.ebi.biostd.itest.common.TestConfig
-import ac.uk.ebi.biostd.itest.entities.RegularUser
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.persistence.common.SubmissionTypes
 import ac.uk.ebi.biostd.persistence.model.AccessPermission
@@ -67,10 +66,10 @@ internal class ProjectsApiTest(tempFolder: TemporaryFolder) : BaseIntegrationTes
             webClient = securityClient.getAuthenticatedClient(SuperUser.email, SuperUser.password)
             accessTag = AccessTag(name = projectAccNo)
             tagsDataRepository.save(accessTag)
-            accessPermissionRepository.save( AccessPermission(
+            accessPermissionRepository.save(AccessPermission(
                 user = userDataRepository.findByEmailAndActive(SuperUser.email, true).get(),
                 accessTag = accessTag,
-                accessType = AccessType.ATTACH) )
+                accessType = AccessType.ATTACH))
         }
 
         @Test
@@ -83,7 +82,7 @@ internal class ProjectsApiTest(tempFolder: TemporaryFolder) : BaseIntegrationTes
             webClient.submitSingle(submission, SubmissionFormat.JSON)
 
             val savedSubmission = submissionRepository.getExtendedByAccNo(projectAccNo)
-            savedSubmission.addAccessTag(projectAccNo) //TODO: Remove when access tag has been handled automatically
+            savedSubmission.addAccessTag(projectAccNo) // TODO: Remove when access tag has been handled automatically
             persistenceContext.saveSubmission(savedSubmission)
 
             val projects = webClient.getProjects()

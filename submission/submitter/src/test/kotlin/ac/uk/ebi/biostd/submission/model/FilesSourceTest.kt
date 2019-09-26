@@ -1,5 +1,8 @@
 package ac.uk.ebi.biostd.submission.model
 
+import ebi.ac.uk.io.sources.ComposeFileSource
+import ebi.ac.uk.io.sources.ListFilesSource
+import ebi.ac.uk.io.sources.PathFilesSource
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.apache.commons.io.FileUtils
@@ -8,7 +11,6 @@ import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
-import java.io.FileNotFoundException
 import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
 import java.nio.file.Paths
@@ -24,7 +26,9 @@ const val TEST_GHOST_FILE = "ghost.txt"
 class FilesSourceTest(temporaryFolder: TemporaryFolder) {
     private val testFile = temporaryFolder.createFile(TEST_USER_FILE)
     private val testResourceFile = temporaryFolder.createFile(TEST_ATTACHED_FILE)
-    private val testInstance = UserSource(listOf(testResourceFile), Paths.get(temporaryFolder.root.absolutePath))
+    private val testInstance = ComposeFileSource(
+        ListFilesSource(listOf(testResourceFile)),
+        PathFilesSource(Paths.get(temporaryFolder.root.absolutePath)))
 
     @BeforeAll
     fun beforeAll() {
@@ -51,7 +55,7 @@ class FilesSourceTest(temporaryFolder: TemporaryFolder) {
 
     @Test
     fun `get size of non existing file`() {
-        assertThat(testInstance.size(TEST_GHOST_FILE)).isEqualTo(0)
+        assertThrows<NoSuchElementException> { testInstance.readText(TEST_GHOST_FILE) }
     }
 
     @Test
@@ -66,6 +70,6 @@ class FilesSourceTest(temporaryFolder: TemporaryFolder) {
 
     @Test
     fun `read text of non existing file`() {
-        assertThrows<FileNotFoundException> { testInstance.readText(TEST_GHOST_FILE) }
+        assertThrows<NoSuchElementException> { testInstance.readText(TEST_GHOST_FILE) }
     }
 }

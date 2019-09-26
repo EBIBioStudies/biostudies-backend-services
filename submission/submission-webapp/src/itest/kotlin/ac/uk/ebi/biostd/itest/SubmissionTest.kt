@@ -15,11 +15,16 @@ import ac.uk.ebi.biostd.itest.factory.allInOneSubmissionTsv
 import ac.uk.ebi.biostd.itest.factory.allInOneSubmissionXml
 import ac.uk.ebi.biostd.itest.factory.invalidLinkUrl
 import ac.uk.ebi.biostd.itest.factory.simpleSubmissionTsv
+import ac.uk.ebi.biostd.persistence.common.SubmissionTypes.Study
 import ac.uk.ebi.biostd.persistence.model.AccessTag
 import ac.uk.ebi.biostd.persistence.repositories.TagsDataRepository
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
+import ebi.ac.uk.dsl.file
 import ebi.ac.uk.dsl.line
+import ebi.ac.uk.dsl.section
+import ebi.ac.uk.dsl.submission
 import ebi.ac.uk.dsl.tsv
+import ebi.ac.uk.model.extensions.rootPath
 import ebi.ac.uk.model.extensions.title
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
@@ -104,6 +109,22 @@ internal class SubmissionTest(private val tempFolder: TemporaryFolder) : BaseInt
             assertThat(response).isNotNull
             assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
             assertHelper.assertSavedSubmission(accNo, submissionRepository.getExtendedByAccNo(accNo))
+        }
+
+        @Test
+        fun `submission with rootPath file`() {
+            tempFolder.createDirectory("RootPathFolder")
+            webClient.uploadFiles(listOf(tempFolder.createFile("RootPathFolder/DataFile5.txt")), "RootPathFolder")
+
+            val submission = submission("S-12364") {
+                rootPath = "RootPathFolder"
+                title = "Sample Submission"
+                section(Study.value) { file("DataFile5.txt") }
+            }
+
+            val response = webClient.submitSingle(submission, SubmissionFormat.TSV)
+            assertThat(response).isNotNull
+            assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
         }
 
         @Test
