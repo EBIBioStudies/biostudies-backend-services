@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.submission.domain.service
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
+import ac.uk.ebi.biostd.persistence.util.SubmissionFilter
 import ac.uk.ebi.biostd.submission.SubmissionSubmitter
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.model.ExtendedSubmission
@@ -44,5 +45,9 @@ class SubmissionService(
     fun submit(submission: Submission, user: SecurityUser, files: FilesSource) =
         submitter.submit(ExtendedSubmission(submission, asUser(user)), files, persistenceContext)
 
-    private fun asUser(securityUser: SecurityUser) = User(securityUser.id, securityUser.email, securityUser.secret)
+    private fun asUser(securityUser: SecurityUser): User =
+        User(securityUser.id, securityUser.email, securityUser.secret)
+
+    fun getSubmissions(user: SecurityUser, filter: SubmissionFilter) =
+        submissionRepository.getSubmissionsByUser(user.id, filter)
 }

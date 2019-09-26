@@ -3,7 +3,12 @@ package ac.uk.ebi.biostd.persistence.service
 import ac.uk.ebi.biostd.persistence.common.SubmissionTypes.Project
 import ac.uk.ebi.biostd.persistence.mapping.SubmissionDbMapper
 import ac.uk.ebi.biostd.persistence.model.AccessTag
+import ac.uk.ebi.biostd.persistence.model.Submission
 import ac.uk.ebi.biostd.persistence.repositories.SubmissionDataRepository
+import ac.uk.ebi.biostd.persistence.util.SubmissionFilter
+import ac.uk.ebi.biostd.persistence.util.SubmissionFilterSpecification
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Sort
 
 class SubmissionRepository(
     private val submissionRepository: SubmissionDataRepository,
@@ -28,4 +33,11 @@ class SubmissionRepository(
     fun findProjectsByAccessTags(tags: List<AccessTag>) =
         submissionRepository.findByTypeAndAccNo(Project.value, tags.map { it.name })
             .map { submissionDbMapper.toSubmission(it) }
+
+    fun getSubmissionsByUser(userId: Long, filter: SubmissionFilter): List<Submission> {
+        val filterSpecs = SubmissionFilterSpecification(userId, filter)
+        return submissionRepository.findAll(filterSpecs.specification,
+            PageRequest.of(filter.offset / filter.limit, filter.limit, Sort.by("releaseTime").descending())
+        ).content
+    }
 }

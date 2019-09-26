@@ -13,13 +13,14 @@ import ac.uk.ebi.biostd.persistence.model.UserGroup
 import org.springframework.data.jpa.repository.EntityGraph
 import org.springframework.data.jpa.repository.EntityGraph.EntityGraphType.LOAD
 import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor
+import org.springframework.data.jpa.repository.Query
 import org.springframework.data.jpa.repository.Lock
 import org.springframework.data.jpa.repository.Modifying
-import org.springframework.data.jpa.repository.Query
 import java.util.Optional
 import javax.persistence.LockModeType
 
-interface SubmissionDataRepository : JpaRepository<Submission, Long> {
+interface SubmissionDataRepository : JpaRepository<Submission, Long>, JpaSpecificationExecutor<Submission> {
     @EntityGraph(value = FULL_DATA_GRAPH, type = LOAD)
     fun getByAccNoAndVersionGreaterThan(id: String, long: Int = 0): Submission
 
