@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.persistence.model.AccessType
 import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
 import ac.uk.ebi.biostd.persistence.repositories.TagsDataRepository
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
+import ac.uk.ebi.biostd.persistence.util.SubmissionFilter
 import ac.uk.ebi.biostd.submission.SubmissionSubmitter
 import ebi.ac.uk.model.Project
 import ac.uk.ebi.biostd.submission.model.UserSource
@@ -51,4 +52,8 @@ class SubmissionService(
 
     private fun asUser(securityUser: SecurityUser): User =
         User(securityUser.id, securityUser.email, securityUser.secret)
+
+    fun getSubmissions(user: SecurityUser, filter: SubmissionFilter) =
+        submissionRepository.getSubmissionsByUser( user.id , filter)
 }
+

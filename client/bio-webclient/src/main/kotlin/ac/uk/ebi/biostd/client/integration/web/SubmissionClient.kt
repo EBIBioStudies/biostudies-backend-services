@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.client.integration.web
 
+import ebi.ac.uk.api.dto.SubmissionDto
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.JSON
 import ebi.ac.uk.api.UserFile
@@ -50,6 +51,8 @@ interface SubmissionOperations {
     fun submitSingle(submission: String, format: SubmissionFormat = JSON): ResponseEntity<Submission>
 
     fun deleteSubmission(accNo: String)
+
+    fun getSubmissions(filter: Map<String, Any> = mapOf()): List<SubmissionDto>
 }
 
 interface MultipartSubmissionOperations {
