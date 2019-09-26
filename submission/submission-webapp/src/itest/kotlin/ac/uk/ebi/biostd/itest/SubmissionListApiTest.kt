@@ -9,8 +9,6 @@ import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
 import ac.uk.ebi.biostd.itest.common.TestConfig
 import ac.uk.ebi.biostd.itest.entities.RegularUser
 import ac.uk.ebi.biostd.itest.entities.SuperUser
-import ac.uk.ebi.biostd.persistence.repositories.TagsRefRepository
-import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
 import ebi.ac.uk.dsl.submission
 import ebi.ac.uk.model.extensions.releaseTime
 import ebi.ac.uk.model.extensions.title
@@ -21,7 +19,6 @@ import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
@@ -36,10 +33,7 @@ internal class SubmissionListApiTest(tempFolder: TemporaryFolder) : BaseIntegrat
     @Import(value = [TestConfig::class, SubmitterConfig::class, PersistenceConfig::class, TestConfig::class])
     @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
     @DirtiesContext
-    inner class SingleSubmissionTest(
-        @Autowired val submissionRepository: SubmissionRepository,
-        @Autowired val tagsRefRepository: TagsRefRepository
-    ) {
+    inner class SingleSubmissionTest {
         @LocalServerPort
         private var serverPort: Int = 0
 
@@ -74,8 +68,8 @@ internal class SubmissionListApiTest(tempFolder: TemporaryFolder) : BaseIntegrat
             val submissionList = webClient.getSubmissions(mapOf(
                 "accNo" to "SimpleAcc10"
             ))
-            assertThat(submissionList).hasOnlyOneElementSatisfying { submissionDto ->
-                assertThat(submissionDto.accno).isEqualTo("SimpleAcc10")
+            assertThat(submissionList).hasOnlyOneElementSatisfying {
+                assertThat(it.accno).isEqualTo("SimpleAcc10")
             }
         }
 
@@ -84,8 +78,8 @@ internal class SubmissionListApiTest(tempFolder: TemporaryFolder) : BaseIntegrat
             val submissionList = webClient.getSubmissions(mapOf(
                 "keywords" to "keyword20"
             ))
-            assertThat(submissionList).hasOnlyOneElementSatisfying { submissionDto ->
-                assertThat(submissionDto.title).contains("keyword20")
+            assertThat(submissionList).hasOnlyOneElementSatisfying {
+                assertThat(it.title).contains("keyword20")
             }
         }
 

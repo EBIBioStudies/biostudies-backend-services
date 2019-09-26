@@ -7,5 +7,5 @@ data class SubmissionFilter(
     val accNo: String? = null,
     val keywords: String? = null,
     val limit: Int = 15,
-    val offset: Long = 0
+    val offset: Int = 0
 )

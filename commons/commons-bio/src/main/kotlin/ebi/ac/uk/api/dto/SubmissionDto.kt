@@ -1,10 +1,9 @@
 package ebi.ac.uk.api.dto
 
-data class SubmissionDto (
-    var accno: String,
-    var title: String?,
-    var ctime: Long,
-    var mtime: Long,
-    var rtime: Long
+data class SubmissionDto(
+    val accno: String,
+    val title: String?,
+    val ctime: Long,
+    val mtime: Long,
+    val rtime: Long
 )
-

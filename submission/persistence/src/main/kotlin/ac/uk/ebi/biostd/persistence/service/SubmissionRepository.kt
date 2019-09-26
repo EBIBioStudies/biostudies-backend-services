@@ -5,9 +5,9 @@ import ac.uk.ebi.biostd.persistence.mapping.SubmissionDbMapper
 import ac.uk.ebi.biostd.persistence.model.AccessTag
 import ac.uk.ebi.biostd.persistence.model.Submission
 import ac.uk.ebi.biostd.persistence.repositories.SubmissionDataRepository
-import ac.uk.ebi.biostd.persistence.util.OffsetLimitPageable
 import ac.uk.ebi.biostd.persistence.util.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.util.SubmissionFilterSpecification
+import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 
 class SubmissionRepository(
@@ -37,7 +37,7 @@ class SubmissionRepository(
     fun getSubmissionsByUser(userId: Long, filter: SubmissionFilter): List<Submission> {
         val filterSpecs = SubmissionFilterSpecification(userId, filter)
         return submissionRepository.findAll(filterSpecs.specification,
-            OffsetLimitPageable(filter.offset, filter.limit, Sort.by("releaseTime").descending())
-        ).getContent()
+            PageRequest.of(filter.offset / filter.limit, filter.limit, Sort.by("releaseTime").descending())
+        ).content
     }
 }
