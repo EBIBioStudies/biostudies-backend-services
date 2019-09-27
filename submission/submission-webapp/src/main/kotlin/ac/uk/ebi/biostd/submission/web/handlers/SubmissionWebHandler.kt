@@ -2,10 +2,16 @@ package ac.uk.ebi.biostd.submission.web.handlers
 
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat
+import ac.uk.ebi.biostd.persistence.model.Submission as SubmissionDB
+import ac.uk.ebi.biostd.persistence.util.SubmissionFilter
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionService
 import ac.uk.ebi.biostd.submission.domain.service.TempFileGenerator
-import ac.uk.ebi.biostd.submission.model.UserSource
+import ebi.ac.uk.api.dto.SubmissionDto
+import ebi.ac.uk.io.sources.ComposedFileSource
+import ebi.ac.uk.io.sources.ListFilesSource
+import ebi.ac.uk.io.sources.PathFilesSource
 import ebi.ac.uk.model.Submission
+import ebi.ac.uk.model.extensions.rootPath
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import org.springframework.web.multipart.MultipartFile
 
@@ -17,27 +23,45 @@ class SubmissionWebHandler(
 ) {
     fun submit(user: SecurityUser, files: Array<MultipartFile>, content: String, format: SubFormat):
         Submission {
-        val fileSource = UserSource(tempFileGenerator.asFiles(files), user.magicFolder.path)
-        val submission = serializationService.deserializeSubmission(content, format, fileSource)
-
-        return submissionService.submit(submission, user, fileSource)
+        val filesSource = ComposedFileSource(
+            PathFilesSource(user.magicFolder.path.resolve(rootPath(content, format))),
+            ListFilesSource(tempFileGenerator.asFiles(files)))
+        val submission = serializationService.deserializeSubmission(content, format, filesSource)
+        return submissionService.submit(submission, user, filesSource)
     }
 
     fun submit(user: SecurityUser, content: String, format: SubFormat): Submission {
-        val fileSource = UserSource(emptyList(), user.magicFolder.path)
+        val fileSource = ComposedFileSource(PathFilesSource(user.magicFolder.path.resolve(rootPath(content, format))))
         val submission = serializationService.deserializeSubmission(content, format, fileSource)
-
         return submissionService.submit(submission, user, fileSource)
     }
 
     fun submit(user: SecurityUser, multipartFile: MultipartFile, files: Array<MultipartFile>): Submission {
         val file = tempFileGenerator.asFile(multipartFile)
-        val fileSource = UserSource(tempFileGenerator.asFiles(files), user.magicFolder.path)
         val format = serializationService.getSubmissionFormat(file)
-        val submission = serializationService.deserializeSubmission(pageTabReader.read(file), format, fileSource)
+        val content = pageTabReader.read(file)
 
-        return submissionService.submit(submission, user, fileSource)
+        val filesSource = ComposedFileSource(
+            PathFilesSource(user.magicFolder.path.resolve(rootPath(content, format))),
+            ListFilesSource(tempFileGenerator.asFiles(files)))
+
+        val submission = serializationService.deserializeSubmission(content, format, filesSource)
+        return submissionService.submit(submission, user, filesSource)
     }
 
+    fun getSubmissions(user: SecurityUser, filter: SubmissionFilter) =
+        submissionService.getSubmissions(user, filter).map(this::asSubmissionDto)
+
     fun deleteSubmission(accNo: String, user: SecurityUser): Unit = submissionService.deleteSubmission(accNo, user)
+
+    private fun rootPath(submission: String, format: SubFormat) =
+        serializationService.deserializeSubmission(submission, format).rootPath.orEmpty()
+
+    private fun asSubmissionDto(submission: SubmissionDB) = SubmissionDto(
+        submission.accNo,
+        submission.title,
+        submission.creationTime,
+        submission.modificationTime,
+        submission.releaseTime
+    )
 }

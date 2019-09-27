@@ -3,8 +3,9 @@ package ac.uk.ebi.biostd.submission.domain.service
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
+import ac.uk.ebi.biostd.persistence.util.SubmissionFilter
 import ac.uk.ebi.biostd.submission.SubmissionSubmitter
-import ac.uk.ebi.biostd.submission.model.UserSource
+import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.model.ExtendedSubmission
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.persistence.PersistenceContext
@@ -33,6 +34,9 @@ class SubmissionService(
         return serializationService.serializeSubmission(submission, SubFormat.TSV)
     }
 
+    fun getSubmissions(user: SecurityUser, filter: SubmissionFilter) =
+        submissionRepository.getSubmissionsByUser(user.id, filter)
+
     fun deleteSubmission(accNo: String, user: SecurityUser) {
         val submission = persistenceContext.getSubmission(accNo)!!
 
@@ -40,6 +44,6 @@ class SubmissionService(
         submissionRepository.expireSubmission(accNo)
     }
 
-    fun submit(submission: Submission, user: SecurityUser, files: UserSource) =
+    fun submit(submission: Submission, user: SecurityUser, files: FilesSource) =
         submitter.submit(ExtendedSubmission(submission, user.asUser()), files, persistenceContext)
 }

@@ -20,7 +20,6 @@ internal class FileListSerializer(private val serializer: PagetabSerializer) {
     private fun getFileList(fileList: String, format: SubFormat, source: FilesSource): FileList {
         val fileContent = source.getFile(fileList).readText()
         val filesTable = serializer.deserializeElement<FilesTable>(fileContent, format)
-
         return FileList(fileList, filesTable.elements)
     }
 }
