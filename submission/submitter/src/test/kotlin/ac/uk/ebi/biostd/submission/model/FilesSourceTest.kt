@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.submission.model
 
-import ebi.ac.uk.io.sources.ComposeFileSource
+import ebi.ac.uk.io.sources.ComposedFileSource
 import ebi.ac.uk.io.sources.ListFilesSource
 import ebi.ac.uk.io.sources.PathFilesSource
 import io.github.glytching.junit.extension.folder.TemporaryFolder
@@ -26,7 +26,7 @@ const val TEST_GHOST_FILE = "ghost.txt"
 class FilesSourceTest(temporaryFolder: TemporaryFolder) {
     private val testFile = temporaryFolder.createFile(TEST_USER_FILE)
     private val testResourceFile = temporaryFolder.createFile(TEST_ATTACHED_FILE)
-    private val testInstance = ComposeFileSource(
+    private val testInstance = ComposedFileSource(
         ListFilesSource(listOf(testResourceFile)),
         PathFilesSource(Paths.get(temporaryFolder.root.absolutePath)))
 

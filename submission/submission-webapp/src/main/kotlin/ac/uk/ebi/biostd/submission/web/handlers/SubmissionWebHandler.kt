@@ -7,7 +7,7 @@ import ac.uk.ebi.biostd.submission.domain.service.SubmissionService
 import ac.uk.ebi.biostd.submission.domain.service.TempFileGenerator
 import ebi.ac.uk.api.dto.SubmissionDto
 import ebi.ac.uk.io.isExcel
-import ebi.ac.uk.io.sources.ComposeFileSource
+import ebi.ac.uk.io.sources.ComposedFileSource
 import ebi.ac.uk.io.sources.ListFilesSource
 import ebi.ac.uk.io.sources.PathFilesSource
 import ebi.ac.uk.model.Submission
@@ -25,15 +25,15 @@ class SubmissionWebHandler(
 ) {
     fun submit(user: SecurityUser, files: Array<MultipartFile>, content: String, format: SubFormat):
         Submission {
-        val filesSource = ComposeFileSource(
-            PathFilesSource(user.magicFolder.path.resolve(getRootPath(content, format))),
+        val filesSource = ComposedFileSource(
+            PathFilesSource(user.magicFolder.path.resolve(rootPath(content, format))),
             ListFilesSource(tempFileGenerator.asFiles(files)))
         val submission = serializationService.deserializeSubmission(content, format, filesSource)
         return submissionService.submit(submission, user, filesSource)
     }
 
     fun submit(user: SecurityUser, content: String, format: SubFormat): Submission {
-        val fileSource = ComposeFileSource(PathFilesSource(user.magicFolder.path.resolve(getRootPath(content, format))))
+        val fileSource = ComposedFileSource(PathFilesSource(user.magicFolder.path.resolve(rootPath(content, format))))
         val submission = serializationService.deserializeSubmission(content, format, fileSource)
         return submissionService.submit(submission, user, fileSource)
     }
@@ -43,8 +43,8 @@ class SubmissionWebHandler(
         val format = serializationService.getSubmissionFormat(file)
         val content = readSubmissionFile(file)
 
-        val filesSource = ComposeFileSource(
-            PathFilesSource(user.magicFolder.path.resolve(getRootPath(content, format))),
+        val filesSource = ComposedFileSource(
+            PathFilesSource(user.magicFolder.path.resolve(rootPath(content, format))),
             ListFilesSource(tempFileGenerator.asFiles(files)))
 
         val submission = serializationService.deserializeSubmission(content, format, filesSource)
@@ -53,7 +53,7 @@ class SubmissionWebHandler(
 
     fun deleteSubmission(accNo: String, user: SecurityUser): Unit = submissionService.deleteSubmission(accNo, user)
 
-    private fun getRootPath(submission: String, format: SubFormat) =
+    private fun rootPath(submission: String, format: SubFormat) =
         serializationService.deserializeSubmission(submission, format).rootPath.orEmpty()
 
     private fun readSubmissionFile(file: File) =
