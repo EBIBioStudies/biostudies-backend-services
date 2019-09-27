@@ -17,5 +17,6 @@ class ProjectResource(private val projectService: ProjectService) {
     @GetMapping
     @ResponseBody
     fun getUserProjects(
-        @AuthenticationPrincipal user: SecurityUser) = projectService.getAllowedProjects(user, AccessType.ATTACH)
+        @AuthenticationPrincipal user: SecurityUser
+    ) = projectService.getAllowedProjects(user, AccessType.ATTACH)
 }

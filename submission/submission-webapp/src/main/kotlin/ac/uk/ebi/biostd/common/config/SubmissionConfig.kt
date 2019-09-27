@@ -41,7 +41,6 @@ class SubmissionConfig(
     ): ProjectService =
         ProjectService(submissionRepository, accessPermissionRepository, tagsDataRepository)
 
-
     @Bean
     fun submissionHandler(submissionService: SubmissionService): SubmissionWebHandler =
         SubmissionWebHandler(excelReader, submissionService, tmpFileGenerator, serializationService)

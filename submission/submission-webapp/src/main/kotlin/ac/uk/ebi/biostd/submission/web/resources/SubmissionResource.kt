@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.ModelAttribute
 
-
 @RestController
 @RequestMapping("/submissions")
 @PreAuthorize("isAuthenticated()")
@@ -41,6 +40,7 @@ class SubmissionResource(
     @GetMapping
     fun getSubmissions(
         @ModelAttribute filter: SubmissionFilter,
-        @AuthenticationPrincipal user: SecurityUser) =
+        @AuthenticationPrincipal user: SecurityUser
+    ) =
         submissionWebHandler.getSubmissions(user, filter)
 }

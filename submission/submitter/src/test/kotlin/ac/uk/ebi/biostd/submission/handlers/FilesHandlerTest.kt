@@ -1,9 +1,9 @@
 package ac.uk.ebi.biostd.submission.handlers
 
-import ac.uk.ebi.biostd.submission.model.UserSource
 import ac.uk.ebi.biostd.submission.test.ACC_NO
 import ac.uk.ebi.biostd.submission.test.USER_SECRET_KEY
 import ac.uk.ebi.biostd.submission.test.createBasicExtendedSubmission
+import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.model.ExtendedSubmission
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
@@ -42,7 +42,7 @@ class FilesHandlerTest(
 
     // TODO add unit tests for the individual processors
     @Test
-    fun `process submission files`(@MockK userSource: UserSource) {
+    fun `process submission files`(@MockK userSource: FilesSource) {
         testInstance.processFiles(submission, userSource)
 
         verify(exactly = 1) { mockFilesCopier.copy(submission, userSource) }

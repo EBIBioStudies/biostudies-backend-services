@@ -17,7 +17,7 @@ class SubmissionFilterSpecification(userId: Long, filter: SubmissionFilter) {
         specification = specs
     }
 
-    //TODO: Replace string property names by constants
+    // TODO: Replace string property names by constants
     private fun withVersionGreaterThan(version: Int): Specification<Submission> =
         Specification { root, _, cb -> cb.greaterThan<Int>(root.get<Int>("version"), version) }
 
