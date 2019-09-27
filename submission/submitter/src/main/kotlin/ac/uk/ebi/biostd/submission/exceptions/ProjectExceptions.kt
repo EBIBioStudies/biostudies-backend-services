@@ -1,9 +1,12 @@
 package ac.uk.ebi.biostd.submission.exceptions
 
-/**
- * Generated when submission is trying to be attached to a nonexistent project.
- */
 class InvalidProjectException(project: String) : RuntimeException("The project $project doesn't exist")
+
+class ProjectAlreadyExistingException(project: String) : RuntimeException("The project $project already exists")
+
+class ProjectAccessTagAlreadyExistingException(
+    project: String
+) : RuntimeException("The access tag with name $project already exists")
 
 class MissingProjectAccessTagException(
     project: String

@@ -17,4 +17,8 @@ interface PersistenceContext {
     fun saveSubmission(submission: ExtendedSubmission)
 
     fun isNew(accNo: String): Boolean
+
+    fun saveAccessTag(accessTag: String)
+
+    fun accessTagExists(accessTag: String): Boolean
 }

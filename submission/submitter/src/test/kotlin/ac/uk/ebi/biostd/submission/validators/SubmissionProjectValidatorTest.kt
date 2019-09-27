@@ -23,8 +23,8 @@ const val VALID_PROJECT = "BioImages"
 const val INVALID_PROJECT = "BioPDFs"
 
 @ExtendWith(MockKExtension::class)
-class ProjectValidatorTest(@MockK private val mockPersistenceContext: PersistenceContext) {
-    private val testInstance = ProjectValidator()
+class SubmissionProjectValidatorTest(@MockK private val mockPersistenceContext: PersistenceContext) {
+    private val testInstance = SubmissionProjectValidator()
     private lateinit var submission: ExtendedSubmission
 
     @BeforeEach

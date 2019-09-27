@@ -15,7 +15,8 @@ import ac.uk.ebi.biostd.submission.processors.AccessTagProcessor
 import ac.uk.ebi.biostd.submission.processors.PropertiesProcessor
 import ac.uk.ebi.biostd.submission.processors.SubmissionProcessor
 import ac.uk.ebi.biostd.submission.processors.TimesProcessor
-import ac.uk.ebi.biostd.submission.validators.ProjectValidator
+import ac.uk.ebi.biostd.submission.submitter.ProjectSubmitter
+import ac.uk.ebi.biostd.submission.validators.SubmissionProjectValidator
 import ac.uk.ebi.biostd.submission.validators.SubmissionValidator
 import ebi.ac.uk.paths.SubmissionFolderResolver
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
@@ -34,6 +35,9 @@ class SubmitterConfig {
         processors: List<SubmissionProcessor>,
         filesHandler: FilesHandler
     ) = SubmissionSubmitter(validators, processors, filesHandler)
+
+    @Bean
+    fun projectSubmitter() = ProjectSubmitter()
 
     @Configuration
     class FilesHandlerConfig(private val appProperties: ApplicationProperties) {
@@ -75,6 +79,6 @@ class SubmitterConfig {
     @Configuration
     class ValidatorConfig {
         @Bean
-        fun projectValidator() = ProjectValidator()
+        fun projectValidator() = SubmissionProjectValidator()
     }
 }

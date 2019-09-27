@@ -41,6 +41,12 @@ class PersistenceConfig(
     fun lockExecutor(): LockExecutor = JdbcLockExecutor(template)
 
     @Bean
-    fun persistenceContext(lockExecutor: LockExecutor) = PersistenceContextImpl(
-        submissionDataRepository, sequenceRepository, lockExecutor, submissionDbMapper(), submissionMapper())
+    fun persistenceContext(lockExecutor: LockExecutor) =
+        PersistenceContextImpl(
+            submissionDataRepository,
+            sequenceRepository,
+            tagsDataRepository,
+            lockExecutor,
+            submissionDbMapper(),
+            submissionMapper())
 }

@@ -17,6 +17,7 @@ interface SubmissionClient :
     SubmissionOperations,
     FilesOperations,
     GroupFilesOperations,
+    ProjectOperations,
     MultipartSubmissionOperations,
     GeneralOperations
 
@@ -58,6 +59,10 @@ interface MultipartSubmissionOperations {
     fun submitSingle(submission: Submission, format: SubmissionFormat, files: List<File>): ResponseEntity<Submission>
 
     fun submitSingle(submission: File, files: List<File>): ResponseEntity<Submission>
+}
+
+interface ProjectOperations {
+    fun submitProject(project: File): ResponseEntity<Submission>
 }
 
 interface SecurityOperations {

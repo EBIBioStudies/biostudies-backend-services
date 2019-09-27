@@ -2,6 +2,7 @@ package ebi.ac.uk.model.constants
 
 const val SUBMISSION_TYPE = "Submission_Type"
 const val FILES = "files"
+const val PROJECT = "project"
 const val SUBMISSION = "submission"
 
 const val APPLICATION_JSON = "application/json"
