@@ -6,3 +6,5 @@ VALUES(0, 0, 0, 'EuropePMC', 'EuropePMC', 1, 1, 3, 'secret-key');
 UPDATE Section SET submission_id = 1;
 
 UPDATE Submission SET rootSection_id = 1;
+
+INSERT INTO Submission_AccessTag VALUES(1, 2);

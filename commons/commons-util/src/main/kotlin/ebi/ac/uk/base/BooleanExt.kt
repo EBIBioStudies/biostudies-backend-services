@@ -15,6 +15,15 @@ inline fun Boolean.ifTrue(function: () -> Unit) {
 }
 
 /**
+ * Executes the given lambda when the value is false.
+ */
+inline fun Boolean.ifFalse(function: () -> Unit) {
+    if (!this) {
+        function.invoke()
+    }
+}
+
+/**
  * Executes the given lambda based on the boolean value.
  *
  * @param ifTrue Function to be executed if the boolean is true

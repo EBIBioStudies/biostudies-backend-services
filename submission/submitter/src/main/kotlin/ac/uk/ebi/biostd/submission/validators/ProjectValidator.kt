@@ -1,12 +1,20 @@
 package ac.uk.ebi.biostd.submission.validators
 
-import ac.uk.ebi.biostd.submission.exceptions.InvalidProjectException
+import ac.uk.ebi.biostd.submission.exceptions.ProjectAccessTagAlreadyExistingException
+import ac.uk.ebi.biostd.submission.exceptions.ProjectAlreadyExistingException
+import ebi.ac.uk.base.ifFalse
+import ebi.ac.uk.base.ifTrue
 import ebi.ac.uk.model.ExtendedSubmission
-import ebi.ac.uk.model.extensions.attachTo
 import ebi.ac.uk.persistence.PersistenceContext
 
-class ProjectValidator : SubmissionValidator {
-    override fun validate(submission: ExtendedSubmission, context: PersistenceContext) {
-        submission.attachTo?.let { context.getSubmission(it) ?: throw InvalidProjectException(it) }
+class ProjectValidator : IProjectValidator {
+    override fun validate(project: ExtendedSubmission, context: PersistenceContext) {
+        context.isNew(project.accNo).ifFalse {
+            throw ProjectAlreadyExistingException(project.accNo)
+        }
+
+        context.accessTagExists(project.accNo).ifTrue {
+            throw ProjectAccessTagAlreadyExistingException(project.accNo)
+        }
     }
 }

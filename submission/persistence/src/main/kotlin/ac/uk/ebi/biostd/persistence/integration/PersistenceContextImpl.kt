@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.persistence.model.AccessTag
 import ac.uk.ebi.biostd.persistence.repositories.LockExecutor
 import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.SubmissionDataRepository
+import ac.uk.ebi.biostd.persistence.repositories.TagsDataRepository
 import arrow.core.getOrElse
 import arrow.core.toOption
 import ebi.ac.uk.base.toOption
@@ -22,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional
 open class PersistenceContextImpl(
     private val subRepository: SubmissionDataRepository,
     private val sequenceRepository: SequenceDataRepository,
+    private val accessTagsDataRepository: TagsDataRepository,
     private val lockExecutor: LockExecutor,
     private val subDbMapper: SubmissionDbMapper,
     private val subMapper: SubmissionMapper
@@ -59,6 +61,12 @@ open class PersistenceContextImpl(
             subRepository.save(subMapper.toSubmissionDb(submission))
         }
     }
+
+    override fun saveAccessTag(accessTag: String) {
+        accessTagsDataRepository.save(AccessTag(name = accessTag))
+    }
+
+    override fun accessTagExists(accessTag: String) = accessTagsDataRepository.existsByName(accessTag)
 
     override fun isNew(accNo: String) = subRepository.existsByAccNo(accNo).not()
 
