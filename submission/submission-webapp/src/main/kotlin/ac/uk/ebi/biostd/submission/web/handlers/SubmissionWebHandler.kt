@@ -21,18 +21,17 @@ class SubmissionWebHandler(
     private val tempFileGenerator: TempFileGenerator,
     private val serializationService: SerializationService
 ) {
-    fun submit(user: SecurityUser, files: Array<MultipartFile>, content: String, format: SubFormat):
-        Submission {
-        val filesSource = ComposedFileSource(
-            PathFilesSource(user.magicFolder.path.resolve(rootPath(content, format))),
-            ListFilesSource(tempFileGenerator.asFiles(files)))
+    fun submit(user: SecurityUser, files: Array<MultipartFile>, content: String, format: SubFormat): Submission {
+        val filesSource = getComposedFilesSource(user, files, content, format)
         val submission = serializationService.deserializeSubmission(content, format, filesSource)
+
         return submissionService.submit(submission, user, filesSource)
     }
 
     fun submit(user: SecurityUser, content: String, format: SubFormat): Submission {
-        val fileSource = ComposedFileSource(PathFilesSource(user.magicFolder.path.resolve(rootPath(content, format))))
+        val fileSource = getUserFilesSource(user, content, format)
         val submission = serializationService.deserializeSubmission(content, format, fileSource)
+
         return submissionService.submit(submission, user, fileSource)
     }
 
@@ -40,12 +39,9 @@ class SubmissionWebHandler(
         val file = tempFileGenerator.asFile(multipartFile)
         val format = serializationService.getSubmissionFormat(file)
         val content = pageTabReader.read(file)
-
-        val filesSource = ComposedFileSource(
-            PathFilesSource(user.magicFolder.path.resolve(rootPath(content, format))),
-            ListFilesSource(tempFileGenerator.asFiles(files)))
-
+        val filesSource = getComposedFilesSource(user, files, content, format)
         val submission = serializationService.deserializeSubmission(content, format, filesSource)
+
         return submissionService.submit(submission, user, filesSource)
     }
 
@@ -54,8 +50,21 @@ class SubmissionWebHandler(
 
     fun deleteSubmission(accNo: String, user: SecurityUser): Unit = submissionService.deleteSubmission(accNo, user)
 
-    private fun rootPath(submission: String, format: SubFormat) =
+    private fun getRootPath(submission: String, format: SubFormat) =
         serializationService.deserializeSubmission(submission, format).rootPath.orEmpty()
+
+    internal fun getComposedFilesSource(
+        user: SecurityUser,
+        files: Array<MultipartFile>,
+        content: String,
+        format: SubFormat
+    ) =
+        ComposedFileSource(
+            PathFilesSource(user.magicFolder.path.resolve(getRootPath(content, format))),
+            ListFilesSource(tempFileGenerator.asFiles(files)))
+
+    internal fun getUserFilesSource(user: SecurityUser, content: String, format: SubFormat) =
+        ComposedFileSource(PathFilesSource(user.magicFolder.path.resolve(getRootPath(content, format))))
 
     private fun asSubmissionDto(submission: SubmissionDB) = SubmissionDto(
         submission.accNo,
