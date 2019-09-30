@@ -7,7 +7,3 @@ class ProjectAlreadyExistingException(project: String) : RuntimeException("The p
 class ProjectAccessTagAlreadyExistingException(
     project: String
 ) : RuntimeException("The access tag with name $project already exists")
-
-class MissingProjectAccessTagException(
-    project: String
-) : RuntimeException("The project $project doesn't have an access tag")

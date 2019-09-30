@@ -1,7 +1,6 @@
 package ac.uk.ebi.biostd.submission.validators
 
 import ac.uk.ebi.biostd.submission.exceptions.InvalidProjectException
-import ac.uk.ebi.biostd.submission.exceptions.MissingProjectAccessTagException
 import ac.uk.ebi.biostd.submission.test.createBasicExtendedSubmission
 import ac.uk.ebi.biostd.submission.test.createTestUser
 import ebi.ac.uk.model.ExtendedSubmission
@@ -63,19 +62,6 @@ class SubmissionProjectValidatorTest(@MockK private val mockPersistenceContext: 
         submission.attachTo = VALID_PROJECT
 
         validateSubmission()
-        verify(exactly = 1) {
-            mockPersistenceContext.getSubmission(VALID_PROJECT)
-            mockPersistenceContext.getParentAccessTags(submission)
-        }
-    }
-
-    @Test
-    fun `submission with valid project but missing access tag`() {
-        submission.attachTo = VALID_PROJECT
-        every { mockPersistenceContext.getParentAccessTags(submission) } returns emptyList()
-
-        val exception = assertThrows<MissingProjectAccessTagException> { validateSubmission() }
-        assertThat(exception).hasMessage("The project BioImages doesn't have an access tag")
         verify(exactly = 1) { mockPersistenceContext.getSubmission(VALID_PROJECT) }
     }
 
@@ -95,6 +81,5 @@ class SubmissionProjectValidatorTest(@MockK private val mockPersistenceContext: 
 
         val project = ExtendedSubmission(VALID_PROJECT, createTestUser())
         every { mockPersistenceContext.getSubmission(VALID_PROJECT) } returns project
-        every { mockPersistenceContext.getParentAccessTags(submission) } returns listOf(VALID_PROJECT)
     }
 }

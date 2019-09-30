@@ -12,10 +12,14 @@ import ac.uk.ebi.biostd.submission.handlers.FilesValidator
 import ac.uk.ebi.biostd.submission.handlers.OutputFilesGenerator
 import ac.uk.ebi.biostd.submission.processors.AccNoProcessor
 import ac.uk.ebi.biostd.submission.processors.AccessTagProcessor
+import ac.uk.ebi.biostd.submission.processors.IProjectProcessor
+import ac.uk.ebi.biostd.submission.processors.ProjectProcessor
 import ac.uk.ebi.biostd.submission.processors.PropertiesProcessor
 import ac.uk.ebi.biostd.submission.processors.SubmissionProcessor
 import ac.uk.ebi.biostd.submission.processors.TimesProcessor
 import ac.uk.ebi.biostd.submission.submitter.ProjectSubmitter
+import ac.uk.ebi.biostd.submission.validators.IProjectValidator
+import ac.uk.ebi.biostd.submission.validators.ProjectValidator
 import ac.uk.ebi.biostd.submission.validators.SubmissionProjectValidator
 import ac.uk.ebi.biostd.submission.validators.SubmissionValidator
 import ebi.ac.uk.paths.SubmissionFolderResolver
@@ -37,7 +41,10 @@ class SubmitterConfig {
     ) = SubmissionSubmitter(validators, processors, filesHandler)
 
     @Bean
-    fun projectSubmitter() = ProjectSubmitter()
+    fun projectSubmitter(
+        validators: List<IProjectValidator>,
+        processors: List<IProjectProcessor>
+    ) = ProjectSubmitter(validators, processors)
 
     @Configuration
     class FilesHandlerConfig(private val appProperties: ApplicationProperties) {
@@ -74,11 +81,17 @@ class SubmitterConfig {
 
         @Bean
         fun propertiesProcessor() = PropertiesProcessor()
+
+        @Bean
+        fun projectProcessor() = ProjectProcessor()
     }
 
     @Configuration
     class ValidatorConfig {
         @Bean
-        fun projectValidator() = SubmissionProjectValidator()
+        fun submissionProjectValidator() = SubmissionProjectValidator()
+
+        @Bean
+        fun projectValidator() = ProjectValidator()
     }
 }
