@@ -5,7 +5,7 @@ import ac.uk.ebi.biostd.common.config.SubmitterConfig.ProcessorConfig
 import ac.uk.ebi.biostd.common.config.SubmitterConfig.ValidatorConfig
 import ac.uk.ebi.biostd.common.property.ApplicationProperties
 import ac.uk.ebi.biostd.integration.SerializationConfig
-import ac.uk.ebi.biostd.submission.SubmissionSubmitter
+import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
 import ac.uk.ebi.biostd.submission.handlers.FilesCopier
 import ac.uk.ebi.biostd.submission.handlers.FilesHandler
 import ac.uk.ebi.biostd.submission.handlers.FilesValidator
@@ -87,11 +87,11 @@ class SubmitterConfig {
     }
 
     @Configuration
-    class ValidatorConfig {
+    class ValidatorConfig(private val userPrivilegesService: IUserPrivilegesService) {
         @Bean
         fun submissionProjectValidator() = SubmissionProjectValidator()
 
         @Bean
-        fun projectValidator() = ProjectValidator()
+        fun projectValidator() = ProjectValidator(userPrivilegesService)
     }
 }

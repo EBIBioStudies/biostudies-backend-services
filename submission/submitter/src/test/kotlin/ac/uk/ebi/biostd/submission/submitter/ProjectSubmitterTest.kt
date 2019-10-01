@@ -1,0 +1,43 @@
+package ac.uk.ebi.biostd.submission.submitter
+
+import ac.uk.ebi.biostd.submission.processors.IProjectProcessor
+import ac.uk.ebi.biostd.submission.test.createBasicExtendedSubmission
+import ac.uk.ebi.biostd.submission.validators.IProjectValidator
+import ebi.ac.uk.persistence.PersistenceContext
+import io.mockk.every
+import io.mockk.impl.annotations.MockK
+import io.mockk.junit5.MockKExtension
+import io.mockk.verify
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
+
+@ExtendWith(MockKExtension::class)
+class ProjectSubmitterTest(
+    @MockK private val projectValidator: IProjectValidator,
+    @MockK private val projectProcessor: IProjectProcessor,
+    @MockK private val persistenceContext: PersistenceContext
+) {
+    private val project = createBasicExtendedSubmission()
+    private val testInstance = ProjectSubmitter(listOf(projectValidator), listOf(projectProcessor))
+
+    @BeforeEach
+    fun beforeEach() {
+        every { persistenceContext.saveAccessTag("ABC456") } answers { nothing }
+        every { persistenceContext.saveSubmission(project) } answers { nothing }
+        every { projectProcessor.process(project, persistenceContext) } answers { nothing }
+        every { projectValidator.validate(project, persistenceContext) } answers { nothing }
+    }
+
+    @Test
+    fun submit() {
+        testInstance.submit(project, persistenceContext)
+
+        verify(exactly = 1) {
+            persistenceContext.saveAccessTag("ABC456")
+            persistenceContext.saveSubmission(project)
+            projectProcessor.process(project, persistenceContext)
+            projectValidator.validate(project, persistenceContext)
+        }
+    }
+}

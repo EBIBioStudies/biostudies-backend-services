@@ -12,8 +12,10 @@ import ac.uk.ebi.biostd.persistence.model.AccessType
 import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
 import ac.uk.ebi.biostd.persistence.repositories.TagsDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
+import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
 import ebi.ac.uk.dsl.line
 import ebi.ac.uk.dsl.tsv
+import ebi.ac.uk.model.extensions.title
 import ebi.ac.uk.test.createFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
@@ -26,6 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
+import org.springframework.http.HttpStatus
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
 
@@ -39,6 +42,7 @@ internal class ProjectsApiTest(private val tempFolder: TemporaryFolder) : BaseIn
     inner class ProjectListTest(
         @Autowired val userDataRepository: UserDataRepository,
         @Autowired val tagsDataRepository: TagsDataRepository,
+        @Autowired val submissionRepository: SubmissionRepository,
         @Autowired val accessPermissionRepository: AccessPermissionRepository
     ) {
         @LocalServerPort
@@ -75,7 +79,22 @@ internal class ProjectsApiTest(private val tempFolder: TemporaryFolder) : BaseIn
 
         @Test
         fun `submit project`() {
-            // TODO create a project and verify it exitst with the proper access tags
+            val project = tsv {
+                line("Submission", "AProject")
+                line("Title", "A Project")
+                line()
+
+                line("Project")
+            }
+
+            val response = webClient.submitProject(tempFolder.createFile("a-project.tsv", project.toString()))
+            assertThat(response).isNotNull
+            assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
+
+            val submittedProject = submissionRepository.getExtendedByAccNo("AProject")
+            assertThat(submittedProject.accNo).isEqualTo("AProject")
+            assertThat(submittedProject.title).isEqualTo("A Project")
+            assertThat(tagsDataRepository.existsByName("AProject")).isTrue()
         }
 
         @Test

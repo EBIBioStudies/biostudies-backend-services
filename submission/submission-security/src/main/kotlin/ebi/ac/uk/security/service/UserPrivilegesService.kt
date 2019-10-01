@@ -13,6 +13,8 @@ internal class UserPrivilegesService(
 ) : IUserPrivilegesService {
     override fun canProvideAccNo(email: String) = isSuperUser(email)
 
+    override fun canSubmitProjects(email: String) = isSuperUser(email)
+
     override fun canResubmit(email: String, author: User, project: String?, accessTags: List<String>) =
         isSuperUser(email)
             .or(isAuthor(author, email).and(isNotInProject(project)))
