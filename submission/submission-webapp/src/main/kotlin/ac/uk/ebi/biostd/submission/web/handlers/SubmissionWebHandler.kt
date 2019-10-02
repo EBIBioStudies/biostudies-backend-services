@@ -5,7 +5,7 @@ import ac.uk.ebi.biostd.integration.SubFormat
 import ac.uk.ebi.biostd.persistence.util.SubmissionFilter
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionService
 import ac.uk.ebi.biostd.submission.domain.service.TempFileGenerator
-import ac.uk.ebi.biostd.submission.model.GroupFileSource
+import ac.uk.ebi.biostd.submission.model.GroupSource
 import ebi.ac.uk.io.isExcel
 import ebi.ac.uk.io.sources.ComposedFileSource
 import ebi.ac.uk.io.sources.FilesSource
@@ -19,6 +19,7 @@ import ebi.ac.uk.util.file.ExcelReader
 import org.springframework.web.multipart.MultipartFile
 import java.io.File
 
+@Suppress("SpreadOperator")
 class SubmissionWebHandler(
     private val excelReader: ExcelReader,
     private val submissionService: SubmissionService,
@@ -68,7 +69,5 @@ class SubmissionWebHandler(
         if (file.isExcel()) excelReader.readContentAsTsv(file) else file.readText()
 
     private fun getGroupSources(groups: List<GroupMagicFolder>): Array<FilesSource> =
-        groups.map { GroupFileSource(it.groupName, it.path) }.toTypedArray()
+        groups.map { GroupSource(it.groupName, it.path) }.toTypedArray()
 }
-
-
