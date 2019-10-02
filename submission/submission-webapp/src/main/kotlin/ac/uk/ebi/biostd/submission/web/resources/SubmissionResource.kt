@@ -42,6 +42,7 @@ class SubmissionResource(
     fun getSubmissions(
         @ModelAttribute filter: SubmissionFilter,
         @AuthenticationPrincipal user: SecurityUser
-    ): List<SubmissionDto> = submissionWebHandler.getSubmissions(user, filter)
+    ): List<SubmissionDto> = submissionWebHandler
+        .getSubmissions(user, filter)
         .map { SubmissionDto(it.accNo, it.title, it.creationTime, it.modificationTime, it.releaseTime) }
 }

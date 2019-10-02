@@ -9,9 +9,11 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import java.io.File
 
+private const val GROUP_NAME = "A-Bio-Group"
+private const val FILE_NAME = "myFile.txt"
+
 @ExtendWith(MockKExtension::class)
 internal class GroupSourceTest(@MockK private val pathFileSource: PathFilesSource) {
-
     private val testInstance = GroupSource(GROUP_NAME, pathFileSource)
 
     @Test
@@ -43,10 +45,5 @@ internal class GroupSourceTest(@MockK private val pathFileSource: PathFilesSourc
         every { pathFileSource.readText(FILE_NAME) } returns fileText
 
         assertThat(testInstance.readText("Groups/$GROUP_NAME/$FILE_NAME")).isEqualTo(fileText)
-    }
-
-    companion object {
-        const val GROUP_NAME = "A-Bio-Group"
-        const val FILE_NAME = "myFile.txt"
     }
 }
