@@ -94,6 +94,10 @@ internal class ProjectsApiTest(private val tempFolder: TemporaryFolder) : BaseIn
             val submittedProject = submissionRepository.getExtendedByAccNo("AProject")
             assertThat(submittedProject.accNo).isEqualTo("AProject")
             assertThat(submittedProject.title).isEqualTo("A Project")
+
+            assertThat(submittedProject.accessTags).hasSize(1)
+            assertThat(submittedProject.accessTags.first()).isEqualTo("AProject")
+
             assertThat(tagsDataRepository.existsByName("AProject")).isTrue()
         }
 

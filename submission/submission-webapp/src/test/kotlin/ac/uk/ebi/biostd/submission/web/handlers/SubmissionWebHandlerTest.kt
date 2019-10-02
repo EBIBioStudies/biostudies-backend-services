@@ -21,13 +21,14 @@ import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.web.multipart.MultipartFile
 
 @ExtendWith(TemporaryFolderExtension::class, MockKExtension::class)
 class SubmissionWebHandlerTest(
-    temporaryFolder: TemporaryFolder,
+    private val temporaryFolder: TemporaryFolder,
     @MockK private val user: SecurityUser,
     @MockK private val pageTabReader: PageTabReader,
     @MockK private val multiPartAttachedFile: MultipartFile,
@@ -37,83 +38,100 @@ class SubmissionWebHandlerTest(
     @MockK private val composedFileSource: ComposedFileSource,
     @MockK private val serializationService: SerializationService
 ) {
-    private val submissionFilter = SubmissionFilter()
-    private val submission = submission("S-TEST123") { }
-    private val submissionFile = temporaryFolder.createFile("submission.tsv")
-    private val submissionDB = SubmissionDB("S-TEST123").apply {
-        title = "Test Submission"
-        releaseTime = 123L
-        creationTime = 123L
-        modificationTime = 123L
-    }
-
     @SpyK private var testInstance =
         SubmissionWebHandler(pageTabReader, submissionService, tempFileGenerator, serializationService)
 
-    @BeforeEach
-    fun beforeEach() {
-        every { pageTabReader.read(submissionFile) } returns "Submission"
-        every { serializationService.getSubmissionFormat(submissionFile) } returns TSV
-        every { tempFileGenerator.asFile(multiPartSubmissionFile) } returns submissionFile
-        every { submissionService.deleteSubmission("S-TEST123", user) } answers { nothing }
-        every { submissionService.submit(submission, user, composedFileSource) } returns submission
-        every { testInstance.getUserFilesSource(user, "Submission", TSV) } returns composedFileSource
-        every { submissionService.getSubmissions(user, submissionFilter) } returns listOf(submissionDB)
-        every { serializationService.deserializeSubmission("Submission", TSV, composedFileSource) } returns submission
-        every {
-            testInstance.getComposedFilesSource(user, arrayOf(multiPartAttachedFile), "Submission", TSV)
-        } returns composedFileSource
-    }
+    @Nested
+    inner class SubmissionOperationTest {
+        private val submission = submission("S-TEST123") { }
+        private val submissionFile = temporaryFolder.createFile("submission.tsv")
 
-    @AfterEach
-    fun afterEach() = clearAllMocks()
+        @BeforeEach
+        fun beforeEach() {
+            every { submissionService.submit(submission, user, composedFileSource) } returns submission
+            every {
+                testInstance.getComposedFilesSource(user, arrayOf(multiPartAttachedFile), "Submission", TSV)
+            } returns composedFileSource
+            every {
+                serializationService.deserializeSubmission("Submission", TSV, composedFileSource)
+            } returns submission
+        }
 
-    @Test
-    fun `submit with user directory and multipart files`() {
-        testInstance.submit(user, arrayOf(multiPartAttachedFile), "Submission", TSV)
+        @AfterEach
+        fun afterEach() = clearAllMocks()
 
-        verify(exactly = 1) {
-            submissionService.submit(submission, user, composedFileSource)
-            serializationService.deserializeSubmission("Submission", TSV, composedFileSource)
+        @Test
+        fun `submit with user directory and multipart files`() {
+            testInstance.submit(user, arrayOf(multiPartAttachedFile), "Submission", TSV)
+
+            verify(exactly = 1) {
+                submissionService.submit(submission, user, composedFileSource)
+                serializationService.deserializeSubmission("Submission", TSV, composedFileSource)
+            }
+        }
+
+        @Test
+        fun `submit only with user files`() {
+            every { testInstance.getUserFilesSource(user, "Submission", TSV) } returns composedFileSource
+
+            testInstance.submit(user, "Submission", TSV)
+
+            verify(exactly = 1) {
+                submissionService.submit(submission, user, composedFileSource)
+                serializationService.deserializeSubmission("Submission", TSV, composedFileSource)
+            }
+        }
+
+        @Test
+        fun `submission as file with user directory and multipart files`() {
+            every { pageTabReader.read(submissionFile) } returns "Submission"
+            every { serializationService.getSubmissionFormat(submissionFile) } returns TSV
+            every { tempFileGenerator.asFile(multiPartSubmissionFile) } returns submissionFile
+
+            testInstance.submit(user, multiPartSubmissionFile, arrayOf(multiPartAttachedFile))
+
+            verify(exactly = 1) {
+                pageTabReader.read(submissionFile)
+                tempFileGenerator.asFile(multiPartSubmissionFile)
+                serializationService.getSubmissionFormat(submissionFile)
+                submissionService.submit(submission, user, composedFileSource)
+                serializationService.deserializeSubmission("Submission", TSV, composedFileSource)
+            }
         }
     }
 
-    @Test
-    fun `submit only with user files`() {
-        testInstance.submit(user, "Submission", TSV)
+    @Nested
+    inner class GetOperation {
+        private val submissionFilter = SubmissionFilter()
+        private val submissionDB = SubmissionDB("S-TEST123").apply {
+            title = "Test Submission"
+            releaseTime = 123L
+            creationTime = 123L
+            modificationTime = 123L
+        }
 
-        verify(exactly = 1) {
-            submissionService.submit(submission, user, composedFileSource)
-            serializationService.deserializeSubmission("Submission", TSV, composedFileSource)
+        @Test
+        fun getSubmissions() {
+            every { submissionService.getSubmissions(user, submissionFilter) } returns listOf(submissionDB)
+
+            val submissions = testInstance.getSubmissions(user, submissionFilter)
+
+            assertThat(submissions).hasSize(1)
+            assertThat(submissions.first()).isEqualTo(SubmissionDto("S-TEST123", "Test Submission", 123L, 123L, 123L))
+
+            verify(exactly = 1) { submissionService.getSubmissions(user, submissionFilter) }
         }
     }
 
-    @Test
-    fun `submission as file with user directory and multipart files`() {
-        testInstance.submit(user, multiPartSubmissionFile, arrayOf(multiPartAttachedFile))
+    @Nested
+    inner class DeleteOperation {
+        @Test
+        fun deleteSubmission() {
+            every { submissionService.deleteSubmission("S-TEST123", user) } answers { nothing }
 
-        verify(exactly = 1) {
-            pageTabReader.read(submissionFile)
-            tempFileGenerator.asFile(multiPartSubmissionFile)
-            serializationService.getSubmissionFormat(submissionFile)
-            submissionService.submit(submission, user, composedFileSource)
-            serializationService.deserializeSubmission("Submission", TSV, composedFileSource)
+            testInstance.deleteSubmission("S-TEST123", user)
+
+            verify(exactly = 1) { submissionService.deleteSubmission("S-TEST123", user) }
         }
-    }
-
-    @Test
-    fun getSubmissions() {
-        val submissions = testInstance.getSubmissions(user, submissionFilter)
-
-        assertThat(submissions).hasSize(1)
-        assertThat(submissions.first()).isEqualTo(SubmissionDto("S-TEST123", "Test Submission", 123L, 123L, 123L))
-
-        verify(exactly = 1) { submissionService.getSubmissions(user, submissionFilter) }
-    }
-
-    @Test
-    fun deleteSubmission() {
-        testInstance.deleteSubmission("S-TEST123", user)
-        verify(exactly = 1) { submissionService.deleteSubmission("S-TEST123", user) }
     }
 }
