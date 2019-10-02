@@ -131,15 +131,16 @@ internal class SubmissionTest(private val tempFolder: TemporaryFolder) : BaseInt
 
         @Test
         fun `submission with group file`() {
-            groupService.addUserInGroup(groupService.createGroup("The-Group", "group-desc").name, SuperUser.email)
-            webClient.uploadGroupFiles("The-Group", listOf(tempFolder.createFile("GroupFile1.txt")))
-            webClient.uploadGroupFiles("The-Group", listOf(tempFolder.createFile("GroupFile2.txt")), "folder")
+            val groupName = "The-Group"
+            groupService.addUserInGroup(groupService.createGroup(groupName, "group-desc").name, SuperUser.email)
+            webClient.uploadGroupFiles(groupName, listOf(tempFolder.createFile("GroupFile1.txt")))
+            webClient.uploadGroupFiles(groupName, listOf(tempFolder.createFile("GroupFile2.txt")), "folder")
 
             val submission = submission("S-54896") {
                 title = "Sample Submission"
                 section(Study.value) {
-                    file("Groups/The-Group/GroupFile1.txt")
-                    file("Groups/The-Group/folder/GroupFile2.txt")
+                    file("Groups/$groupName/GroupFile1.txt")
+                    file("Groups/$groupName/folder/GroupFile2.txt")
                 }
             }
 
