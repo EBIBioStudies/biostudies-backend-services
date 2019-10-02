@@ -1,5 +1,3 @@
-import io.gitlab.arturbosch.detekt.Detekt
-
 plugins {
     id("io.gitlab.arturbosch.detekt") version "1.0.1"
     id("org.jetbrains.kotlin.jvm") version "1.3.50"
@@ -24,21 +22,20 @@ allprojects {
 
     apply(from = "$rootDir/gradle/jacoco.gradle.kts")
 
-    tasks.named<Detekt>("detekt") {
-        version = "1.0.1"
-        config = files("$rootDir/detekt-config.yml")
-        setSource(files("src/main/kotlin"))
-        exclude(".*/resources/.*", ".*/build/.*")
-
-        reports {
-            html {
-                enabled = true
-                destination = file("build/reports/detekt.html")
+    tasks {
+        detekt {
+            version = "1.0.1"
+            config = files("$rootDir/detekt-config.yml")
+            input = files("src/main/kotlin")
+            filters = ".*/resources/.*,.*/build/.*"
+            reports {
+                html {
+                    enabled = true
+                    destination = file("build/reports/detekt.html")
+                }
             }
         }
-    }
 
-    tasks {
         compileKotlin {
             sourceCompatibility = "1.8"
             targetCompatibility = "1.8"
