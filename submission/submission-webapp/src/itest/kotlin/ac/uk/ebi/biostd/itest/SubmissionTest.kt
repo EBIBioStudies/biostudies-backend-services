@@ -26,6 +26,7 @@ import ebi.ac.uk.dsl.submission
 import ebi.ac.uk.dsl.tsv
 import ebi.ac.uk.model.extensions.rootPath
 import ebi.ac.uk.model.extensions.title
+import ebi.ac.uk.security.integration.components.IGroupService
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
@@ -55,7 +56,8 @@ internal class SubmissionTest(private val tempFolder: TemporaryFolder) : BaseInt
     @DirtiesContext
     inner class SingleSubmissionTest(
         @Autowired val tagsDataRepository: TagsDataRepository,
-        @Autowired val submissionRepository: SubmissionRepository
+        @Autowired val submissionRepository: SubmissionRepository,
+        @Autowired val groupService: IGroupService
     ) {
         @LocalServerPort
         private var serverPort: Int = 0
@@ -120,6 +122,25 @@ internal class SubmissionTest(private val tempFolder: TemporaryFolder) : BaseInt
                 rootPath = "RootPathFolder"
                 title = "Sample Submission"
                 section(Study.value) { file("DataFile5.txt") }
+            }
+
+            val response = webClient.submitSingle(submission, SubmissionFormat.TSV)
+            assertThat(response).isNotNull
+            assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
+        }
+
+        @Test
+        fun `submission with group file`() {
+            groupService.addUserInGroup(groupService.createGroup("The-Group", "group-desc").name, SuperUser.email)
+            webClient.uploadGroupFiles("The-Group", listOf(tempFolder.createFile("GroupFile1.txt")))
+            webClient.uploadGroupFiles("The-Group", listOf(tempFolder.createFile("GroupFile2.txt")), "folder")
+
+            val submission = submission("S-54896") {
+                title = "Sample Submission"
+                section(Study.value) {
+                    file("Groups/The-Group/GroupFile1.txt")
+                    file("Groups/The-Group/folder/GroupFile2.txt")
+                }
             }
 
             val response = webClient.submitSingle(submission, SubmissionFormat.TSV)

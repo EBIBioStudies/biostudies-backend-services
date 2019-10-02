@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.submission.web.resources
 import ac.uk.ebi.biostd.persistence.util.SubmissionFilter
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionService
 import ac.uk.ebi.biostd.submission.web.handlers.SubmissionWebHandler
+import ebi.ac.uk.api.dto.SubmissionDto
 import ebi.ac.uk.model.constants.APPLICATION_JSON
 import ebi.ac.uk.model.constants.SUBMISSION_TYPE
 import ebi.ac.uk.model.constants.TEXT_PLAIN
@@ -12,11 +13,11 @@ import org.springframework.http.HttpHeaders.CONTENT_TYPE
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.ModelAttribute
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.ResponseBody
 import org.springframework.web.bind.annotation.RestController
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.ModelAttribute
 
 @RestController
 @RequestMapping("/submissions")
@@ -41,6 +42,6 @@ class SubmissionResource(
     fun getSubmissions(
         @ModelAttribute filter: SubmissionFilter,
         @AuthenticationPrincipal user: SecurityUser
-    ) =
-        submissionWebHandler.getSubmissions(user, filter)
+    ): List<SubmissionDto> = submissionWebHandler.getSubmissions(user, filter)
+        .map { SubmissionDto(it.accNo, it.title, it.creationTime, it.modificationTime, it.releaseTime) }
 }
