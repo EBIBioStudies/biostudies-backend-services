@@ -6,7 +6,6 @@ import ac.uk.ebi.biostd.persistence.util.SubmissionFilter
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionService
 import ac.uk.ebi.biostd.submission.domain.service.TempFileGenerator
 import ac.uk.ebi.biostd.submission.model.GroupSource
-import ebi.ac.uk.io.isExcel
 import ebi.ac.uk.io.sources.ComposedFileSource
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.io.sources.ListFilesSource
@@ -15,13 +14,11 @@ import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.extensions.rootPath
 import ebi.ac.uk.security.integration.model.api.GroupMagicFolder
 import ebi.ac.uk.security.integration.model.api.SecurityUser
-import ebi.ac.uk.util.file.ExcelReader
 import org.springframework.web.multipart.MultipartFile
-import java.io.File
 
 @Suppress("SpreadOperator")
 class SubmissionWebHandler(
-    private val excelReader: ExcelReader,
+    private val pageTabReader: PageTabReader,
     private val submissionService: SubmissionService,
     private val tempFileGenerator: TempFileGenerator,
     private val serializationService: SerializationService
@@ -47,7 +44,7 @@ class SubmissionWebHandler(
     fun submit(user: SecurityUser, multipartFile: MultipartFile, files: Array<MultipartFile>): Submission {
         val file = tempFileGenerator.asFile(multipartFile)
         val format = serializationService.getSubmissionFormat(file)
-        val content = readSubmissionFile(file)
+        val content = pageTabReader.read(file)
 
         val filesSource = ComposedFileSource(
             PathFilesSource(user.magicFolder.path.resolve(rootPath(content, format))),
@@ -62,11 +59,8 @@ class SubmissionWebHandler(
 
     fun getSubmissions(user: SecurityUser, filter: SubmissionFilter) = submissionService.getSubmissions(user, filter)
 
-    private fun rootPath(submission: String, format: SubFormat) =
+    private fun rootPath(submission: String, format: SubFormat): String =
         serializationService.deserializeSubmission(submission, format).rootPath.orEmpty()
-
-    private fun readSubmissionFile(file: File) =
-        if (file.isExcel()) excelReader.readContentAsTsv(file) else file.readText()
 
     private fun getGroupSources(groups: List<GroupMagicFolder>): Array<FilesSource> =
         groups.map { GroupSource(it.groupName, it.path) }.toTypedArray()

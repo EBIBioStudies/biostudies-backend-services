@@ -34,6 +34,7 @@ class SubmissionRepository(
         submissionRepository.findByTypeAndAccNo(Project.value, tags.map { it.name })
             .map { submissionDbMapper.toSubmission(it) }
 
+    // TODO this method should return the submission model, not the persistence object
     fun getSubmissionsByUser(userId: Long, filter: SubmissionFilter): List<Submission> {
         val filterSpecs = SubmissionFilterSpecification(userId, filter)
         return submissionRepository.findAll(

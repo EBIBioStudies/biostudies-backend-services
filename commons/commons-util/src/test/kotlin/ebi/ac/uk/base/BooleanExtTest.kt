@@ -34,6 +34,22 @@ class BooleanExtTest {
     }
 
     @Test
+    fun `ifFalse when true`() {
+        val count = AtomicInteger(0)
+        true.ifFalse { count.incrementAndGet() }
+
+        assertThat(count).hasValue(0)
+    }
+
+    @Test
+    fun `ifFalse with false`() {
+        val count = AtomicInteger(0)
+        false.ifFalse { count.incrementAndGet() }
+
+        assertThat(count).hasValue(1)
+    }
+
+    @Test
     fun `fold when true`() {
         val count = AtomicInteger(0)
         true.fold({ count.addAndGet(1) }, { count.addAndGet(2) })

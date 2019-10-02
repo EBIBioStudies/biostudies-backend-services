@@ -45,6 +45,7 @@ interface SubmissionDataRepository : JpaRepository<Submission, Long>, JpaSpecifi
 
 interface TagsDataRepository : JpaRepository<AccessTag, Long> {
     fun findByName(name: String): AccessTag
+    fun existsByName(name: String): Boolean
 }
 
 interface TagsRefRepository : JpaRepository<Tag, Long> {
