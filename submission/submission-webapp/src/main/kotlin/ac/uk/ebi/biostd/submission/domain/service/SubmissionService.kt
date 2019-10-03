@@ -4,7 +4,7 @@ import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
 import ac.uk.ebi.biostd.persistence.util.SubmissionFilter
-import ac.uk.ebi.biostd.submission.SubmissionSubmitter
+import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.model.ExtendedSubmission
 import ebi.ac.uk.model.Submission

@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.submission
+package ac.uk.ebi.biostd.submission.submitter
 
 import ac.uk.ebi.biostd.submission.handlers.FilesHandler
 import ac.uk.ebi.biostd.submission.processors.SubmissionProcessor
