@@ -20,4 +20,4 @@ val itest = tasks.create<Test>("itest") {
     }
 }
 
-tasks.getByName<Test>("test") { dependsOn(itest) }
+tasks.getByName<JacocoCoverageVerification>("jacocoTestCoverageVerification") { dependsOn(itest) }

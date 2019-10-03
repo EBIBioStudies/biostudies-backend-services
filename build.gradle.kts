@@ -23,10 +23,9 @@ allprojects {
     apply(from = "$rootDir/gradle/jacoco.gradle.kts")
 
     tasks {
-
         detekt {
             version = "1.0.1"
-            config = files("$rootDir/deteck-config.yml")
+            config = files("$rootDir/detekt-config.yml")
             input = files("src/main/kotlin")
             filters = ".*/resources/.*,.*/build/.*"
             reports {

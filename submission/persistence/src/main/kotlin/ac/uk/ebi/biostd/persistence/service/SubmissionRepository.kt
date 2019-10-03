@@ -37,8 +37,9 @@ class SubmissionRepository(
     // TODO this method should return the submission model, not the persistence object
     fun getSubmissionsByUser(userId: Long, filter: SubmissionFilter): List<Submission> {
         val filterSpecs = SubmissionFilterSpecification(userId, filter)
-        return submissionRepository.findAll(filterSpecs.specification,
-            PageRequest.of(filter.offset / filter.limit, filter.limit, Sort.by("releaseTime").descending())
-        ).content
+        return submissionRepository.findAll(
+            filterSpecs.specification,
+            PageRequest.of(filter.pageNumber, filter.limit, Sort.by("releaseTime").descending()))
+            .content
     }
 }

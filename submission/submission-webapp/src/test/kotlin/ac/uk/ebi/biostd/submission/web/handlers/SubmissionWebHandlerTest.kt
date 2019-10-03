@@ -6,7 +6,6 @@ import ac.uk.ebi.biostd.persistence.model.Submission as SubmissionDB
 import ac.uk.ebi.biostd.persistence.util.SubmissionFilter
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionService
 import ac.uk.ebi.biostd.submission.domain.service.TempFileGenerator
-import ebi.ac.uk.api.dto.SubmissionDto
 import ebi.ac.uk.dsl.submission
 import ebi.ac.uk.io.sources.ComposedFileSource
 import ebi.ac.uk.security.integration.model.api.SecurityUser
@@ -117,7 +116,7 @@ class SubmissionWebHandlerTest(
             val submissions = testInstance.getSubmissions(user, submissionFilter)
 
             assertThat(submissions).hasSize(1)
-            assertThat(submissions.first()).isEqualTo(SubmissionDto("S-TEST123", "Test Submission", 123L, 123L, 123L))
+            assertThat(submissions.first()).isEqualTo(submissionDB)
 
             verify(exactly = 1) { submissionService.getSubmissions(user, submissionFilter) }
         }
