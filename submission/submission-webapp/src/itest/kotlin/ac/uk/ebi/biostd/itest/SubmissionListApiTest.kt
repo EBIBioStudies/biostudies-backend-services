@@ -46,11 +46,12 @@ internal class SubmissionListApiTest(tempFolder: TemporaryFolder) : BaseIntegrat
             securityClient.registerUser(RegularUser.asRegisterRequest())
 
             webClient = securityClient.getAuthenticatedClient(SuperUser.email, SuperUser.password)
-            for (i in 1..20) {
-                val submission = submission("SimpleAcc$i") {
-                    title = "Simple Submission $i - keyword$i"
-                    releaseTime = OffsetDateTime.now().plusDays(i.toLong())
+            for (idx in 1..20) {
+                val submission = submission("SimpleAcc$idx") {
+                    title = "Simple Submission $idx - keyword$idx"
+                    releaseTime = OffsetDateTime.now().plusDays(idx.toLong())
                 }
+
                 webClient.submitSingle(submission, SubmissionFormat.JSON)
             }
         }
@@ -58,6 +59,7 @@ internal class SubmissionListApiTest(tempFolder: TemporaryFolder) : BaseIntegrat
         @Test
         fun `get submission list`() {
             val submissionList = webClient.getSubmissions()
+
             assertThat(submissionList).isNotNull
             assertThat(submissionList).hasSize(15)
             assertThat(submissionList).isSortedAccordingTo { a, b -> b.rtime.compareTo(a.rtime) }
@@ -68,6 +70,7 @@ internal class SubmissionListApiTest(tempFolder: TemporaryFolder) : BaseIntegrat
             val submissionList = webClient.getSubmissions(mapOf(
                 "accNo" to "SimpleAcc10"
             ))
+
             assertThat(submissionList).hasOnlyOneElementSatisfying {
                 assertThat(it.accno).isEqualTo("SimpleAcc10")
             }
@@ -78,6 +81,7 @@ internal class SubmissionListApiTest(tempFolder: TemporaryFolder) : BaseIntegrat
             val submissionList = webClient.getSubmissions(mapOf(
                 "keywords" to "keyword20"
             ))
+
             assertThat(submissionList).hasOnlyOneElementSatisfying {
                 assertThat(it.title).contains("keyword20")
             }
@@ -88,6 +92,7 @@ internal class SubmissionListApiTest(tempFolder: TemporaryFolder) : BaseIntegrat
             val submissionList = webClient.getSubmissions(mapOf(
                 "offset" to 15
             ))
+
             assertThat(submissionList).hasSize(5)
         }
     }

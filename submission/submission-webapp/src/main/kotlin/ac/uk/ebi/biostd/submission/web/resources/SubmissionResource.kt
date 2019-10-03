@@ -8,6 +8,7 @@ import ebi.ac.uk.model.constants.APPLICATION_JSON
 import ebi.ac.uk.model.constants.SUBMISSION_TYPE
 import ebi.ac.uk.model.constants.TEXT_PLAIN
 import ebi.ac.uk.model.constants.TEXT_XML
+import ebi.ac.uk.model.extensions.title
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import org.springframework.http.HttpHeaders.CONTENT_TYPE
 import org.springframework.security.access.prepost.PreAuthorize

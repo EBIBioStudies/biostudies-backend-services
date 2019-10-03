@@ -1,9 +1,11 @@
 package ebi.ac.uk.api.dto
 
+import java.time.OffsetDateTime
+
 data class SubmissionDto(
     val accno: String,
     val title: String?,
-    val ctime: Long,
-    val mtime: Long,
-    val rtime: Long
+    val ctime: OffsetDateTime,
+    val mtime: OffsetDateTime,
+    val rtime: OffsetDateTime
 )

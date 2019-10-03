@@ -2,12 +2,13 @@ package ac.uk.ebi.biostd.submission.web.handlers
 
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat.TSV
-import ac.uk.ebi.biostd.persistence.model.Submission as SubmissionDB
 import ac.uk.ebi.biostd.persistence.util.SubmissionFilter
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionService
 import ac.uk.ebi.biostd.submission.domain.service.TempFileGenerator
 import ebi.ac.uk.dsl.submission
 import ebi.ac.uk.io.sources.ComposedFileSource
+import ebi.ac.uk.model.ExtendedSubmission
+import ebi.ac.uk.model.User
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
@@ -28,6 +29,7 @@ import org.springframework.web.multipart.MultipartFile
 @ExtendWith(TemporaryFolderExtension::class, MockKExtension::class)
 class SubmissionWebHandlerTest(
     private val temporaryFolder: TemporaryFolder,
+    @MockK private val userModel: User,
     @MockK private val user: SecurityUser,
     @MockK private val pageTabReader: PageTabReader,
     @MockK private val multiPartAttachedFile: MultipartFile,
@@ -102,21 +104,16 @@ class SubmissionWebHandlerTest(
     @Nested
     inner class GetOperation {
         private val submissionFilter = SubmissionFilter()
-        private val submissionDB = SubmissionDB("S-TEST123").apply {
-            title = "Test Submission"
-            releaseTime = 123L
-            creationTime = 123L
-            modificationTime = 123L
-        }
+        private val submission = ExtendedSubmission(submission("S-TEST123") { }, userModel)
 
         @Test
         fun getSubmissions() {
-            every { submissionService.getSubmissions(user, submissionFilter) } returns listOf(submissionDB)
+            every { submissionService.getSubmissions(user, submissionFilter) } returns listOf(submission)
 
             val submissions = testInstance.getSubmissions(user, submissionFilter)
 
             assertThat(submissions).hasSize(1)
-            assertThat(submissions.first()).isEqualTo(submissionDB)
+            assertThat(submissions.first()).isEqualTo(submission)
 
             verify(exactly = 1) { submissionService.getSubmissions(user, submissionFilter) }
         }
