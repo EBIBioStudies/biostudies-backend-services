@@ -9,14 +9,16 @@ import ac.uk.ebi.biostd.persistence.model.Sequence
 import ac.uk.ebi.biostd.persistence.model.Submission
 import ac.uk.ebi.biostd.persistence.model.Tag
 import ac.uk.ebi.biostd.persistence.model.User
+import ac.uk.ebi.biostd.persistence.model.UserData
+import ac.uk.ebi.biostd.persistence.model.UserDataId
 import ac.uk.ebi.biostd.persistence.model.UserGroup
 import org.springframework.data.jpa.repository.EntityGraph
 import org.springframework.data.jpa.repository.EntityGraph.EntityGraphType.LOAD
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor
-import org.springframework.data.jpa.repository.Query
 import org.springframework.data.jpa.repository.Lock
 import org.springframework.data.jpa.repository.Modifying
+import org.springframework.data.jpa.repository.Query
 import java.util.Optional
 import javax.persistence.LockModeType
 
@@ -74,4 +76,11 @@ interface UserGroupDataRepository : JpaRepository<UserGroup, Long> {
 interface AccessPermissionRepository : JpaRepository<AccessPermission, Long> {
     fun existsByAccessTagInAndAccessType(accessTags: List<String>, accessType: AccessType): Boolean
     fun findByUserIdAndAccessType(userId: Long, accessType: AccessType): List<AccessPermission>
+}
+
+interface UserDataDataRepository : JpaRepository<UserData, UserDataId> {
+    @Query("From UserData ud WHERE ud.userId = :userId and lower(ud.key) LIKE %:dataKey%")
+    fun findByUserAndKey(userId: Long, dataKey: String): List<UserData>
+
+    fun findByUserId(userId: Long): List<UserData>
 }

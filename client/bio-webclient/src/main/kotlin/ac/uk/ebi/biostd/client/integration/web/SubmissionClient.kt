@@ -1,13 +1,14 @@
 package ac.uk.ebi.biostd.client.integration.web
 
-import ebi.ac.uk.api.dto.SubmissionDto
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.JSON
 import ebi.ac.uk.api.UserFile
+import ebi.ac.uk.api.dto.SubmissionDto
 import ebi.ac.uk.api.security.LoginRequest
 import ebi.ac.uk.api.security.RegisterRequest
 import ebi.ac.uk.api.security.UserProfile
 import ebi.ac.uk.base.EMPTY
+import ebi.ac.uk.model.DraftSubmission
 import ebi.ac.uk.model.Group
 import ebi.ac.uk.model.Project
 import ebi.ac.uk.model.Submission
@@ -20,7 +21,8 @@ interface SubmissionClient :
     GroupFilesOperations,
     ProjectOperations,
     MultipartSubmissionOperations,
-    GeneralOperations
+    GeneralOperations,
+    DraftSubmissionOperations
 
 interface FilesOperations {
     fun uploadFiles(files: List<File>, relativePath: String = EMPTY)
@@ -80,4 +82,14 @@ interface GeneralOperations {
     fun getGroups(): List<Group>
 
     fun getProjects(): List<Project>
+}
+
+interface DraftSubmissionOperations {
+    fun getDraftSubmission(accNo: String): DraftSubmission
+
+    fun searchDraftSubmission(searchText: String): List<DraftSubmission>
+
+    fun deleteDraftSubmission(accNo: String)
+
+    fun saveDraftSubmission(accNo: String, content: String): DraftSubmission
 }
