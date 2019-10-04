@@ -73,6 +73,7 @@ internal class SubmissionListApiTest(tempFolder: TemporaryFolder) : BaseIntegrat
 
             assertThat(submissionList).hasOnlyOneElementSatisfying {
                 assertThat(it.accno).isEqualTo("SimpleAcc10")
+                assertThat(it.version).isEqualTo(1)
             }
         }
 

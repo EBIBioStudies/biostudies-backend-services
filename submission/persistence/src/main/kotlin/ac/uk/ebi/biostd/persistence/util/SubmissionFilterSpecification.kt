@@ -4,6 +4,7 @@ import ac.uk.ebi.biostd.persistence.model.Submission
 import ac.uk.ebi.biostd.persistence.model.User
 import ebi.ac.uk.base.applyIfNotBlank
 import org.springframework.data.jpa.domain.Specification
+import java.time.OffsetDateTime
 
 class SubmissionFilterSpecification(userId: Long, filter: SubmissionFilter) {
     val specification: Specification<Submission>
@@ -30,9 +31,9 @@ class SubmissionFilterSpecification(userId: Long, filter: SubmissionFilter) {
     private fun withUser(userId: Long): Specification<Submission> =
         Specification { root, _, cb -> cb.equal(root.get<User>("owner").get<Long>("id"), userId) }
 
-    private fun withFrom(from: Long): Specification<Submission> =
+    private fun withFrom(from: OffsetDateTime): Specification<Submission> =
         Specification { root, _, cb -> cb.greaterThan(root.get("releaseTime"), from) }
 
-    private fun withTo(to: Long): Specification<Submission> =
+    private fun withTo(to: OffsetDateTime): Specification<Submission> =
         Specification { root, _, cb -> cb.lessThan(root.get("releaseTime"), to) }
 }
