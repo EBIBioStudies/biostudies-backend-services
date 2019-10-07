@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.itest
+package ac.uk.ebi.biostd.itest.user
 
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
@@ -6,9 +6,12 @@ import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.common.config.SubmitterConfig
 import ac.uk.ebi.biostd.files.FileConfig
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
+import ac.uk.ebi.biostd.itest.common.TestConfig
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ebi.ac.uk.api.UserFile
 import ebi.ac.uk.api.UserFileType
+import ebi.ac.uk.api.security.RegisterRequest
+import ebi.ac.uk.security.integration.components.IGroupService
 import ebi.ac.uk.test.clean
 import ebi.ac.uk.test.createFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
@@ -19,6 +22,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
@@ -27,14 +31,17 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.io.File
 import java.nio.file.Paths
 
+private const val GROUP_NAME = "Bio-test-group"
+private const val GROUP_DESC = "Bio-test-group description"
+
 @ExtendWith(TemporaryFolderExtension::class)
-internal class UserFileApiTest(private val tempFolder: TemporaryFolder) : BaseIntegrationTest(tempFolder) {
+internal class GroupFilesApiTest(private val tempFolder: TemporaryFolder) : BaseIntegrationTest(tempFolder) {
     @Nested
     @ExtendWith(SpringExtension::class)
-    @Import(value = [SubmitterConfig::class, PersistenceConfig::class, FileConfig::class])
+    @Import(value = [TestConfig::class, SubmitterConfig::class, PersistenceConfig::class, FileConfig::class])
     @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
     @DirtiesContext
-    inner class FilesTest {
+    inner class GroupFilesApi(@Autowired val groupService: IGroupService) {
         @LocalServerPort
         private var serverPort: Int = 0
 
@@ -43,7 +50,8 @@ internal class UserFileApiTest(private val tempFolder: TemporaryFolder) : BaseIn
         @BeforeAll
         fun init() {
             val securityClient = SecurityWebClient.create("http://localhost:$serverPort")
-            securityClient.registerUser(SuperUser.asRegisterRequest())
+            securityClient.registerUser(RegisterRequest(SuperUser.username, SuperUser.email, SuperUser.password))
+            groupService.addUserInGroup(groupService.createGroup(GROUP_NAME, GROUP_DESC).name, SuperUser.email)
             webClient = securityClient.getAuthenticatedClient(SuperUser.email, SuperUser.password)
         }
 
@@ -64,21 +72,21 @@ internal class UserFileApiTest(private val tempFolder: TemporaryFolder) : BaseIn
 
         private fun testUserFilesGroup(path: String = "") {
             val file = tempFolder.createFile("FileList1.txt", "An example content")
-            webClient.uploadFiles(listOf(file), relativePath = path)
+            webClient.uploadGroupFiles(GROUP_NAME, listOf(file), path)
 
-            val files = webClient.listUserFiles(relativePath = path)
+            val files = webClient.listGroupFiles(GROUP_NAME, path)
             assertThat(files).hasSize(1)
-            assertFile(files.first(), webClient.downloadFile(file.name, path), file, path)
+            assertFile(files.first(), webClient.downloadGroupFile(GROUP_NAME, file.name, path), file, path)
 
-            webClient.deleteFile("FileList1.txt", path)
-            assertThat(webClient.listUserFiles(relativePath = path)).isEmpty()
+            webClient.deleteGroupFile(GROUP_NAME, "FileList1.txt", path)
+            assertThat(webClient.listGroupFiles(GROUP_NAME, path)).isEmpty()
         }
 
-        private fun assertFile(resultFile: UserFile, downloadFile: File, file: File, relativePath: String) {
+        private fun assertFile(resultFile: UserFile, downloadFile: File, file: File, path: String) {
             assertThat(resultFile.name).isEqualTo(file.name)
             assertThat(resultFile.type).isEqualTo(UserFileType.FILE)
+            assertThat(resultFile.path).isEqualTo(Paths.get("groups").resolve(GROUP_NAME).resolve(path).toString())
             assertThat(resultFile.size).isEqualTo(file.length())
-            assertThat(resultFile.path).isEqualTo(Paths.get("user").resolve(relativePath).toString())
             assertThat(file).hasContent(downloadFile.readText())
         }
     }

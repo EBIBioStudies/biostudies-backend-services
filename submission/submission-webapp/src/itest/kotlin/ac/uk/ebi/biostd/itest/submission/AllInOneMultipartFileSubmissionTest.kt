@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.itest
+package ac.uk.ebi.biostd.itest.submission
 
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
@@ -39,7 +39,7 @@ import java.nio.file.Paths
 import java.io.File as SystemFile
 
 @ExtendWith(TemporaryFolderExtension::class)
-internal class MultipartFileSubmissionApiTest(private val tempFolder: TemporaryFolder) : BaseIntegrationTest(tempFolder) {
+internal class AllInOneMultipartFileSubmissionTest(private val tempFolder: TemporaryFolder) : BaseIntegrationTest(tempFolder) {
     @Nested
     @ExtendWith(SpringExtension::class)
     @Import(value = [TestConfig::class, SubmitterConfig::class, PersistenceConfig::class, FileConfig::class])

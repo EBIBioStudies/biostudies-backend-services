@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.itest
+package ac.uk.ebi.biostd.itest.submission
 
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
@@ -44,7 +44,7 @@ import org.springframework.transaction.annotation.Transactional
 import java.nio.file.Paths
 
 @ExtendWith(TemporaryFolderExtension::class)
-internal class MultipartSubmissionApiTest(private val tempFolder: TemporaryFolder) : BaseIntegrationTest(tempFolder) {
+internal class MultipartFileSubmissionApiTest(private val tempFolder: TemporaryFolder) : BaseIntegrationTest(tempFolder) {
     @Nested
     @ExtendWith(SpringExtension::class)
     @Import(value = [TestConfig::class, SubmitterConfig::class, PersistenceConfig::class, FileConfig::class])

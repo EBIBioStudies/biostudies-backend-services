@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.itest
+package ac.uk.ebi.biostd.itest.user
 
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient

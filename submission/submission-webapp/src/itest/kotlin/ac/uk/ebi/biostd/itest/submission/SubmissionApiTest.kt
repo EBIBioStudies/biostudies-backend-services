@@ -1,24 +1,23 @@
-package ac.uk.ebi.biostd.itest
+package ac.uk.ebi.biostd.itest.submission
 
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.common.config.SubmitterConfig
-import ac.uk.ebi.biostd.files.FileConfig
-import ac.uk.ebi.biostd.itest.assertions.SubmissionAssertHelper
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
 import ac.uk.ebi.biostd.itest.common.TestConfig
+import ac.uk.ebi.biostd.itest.entities.RegularUser
 import ac.uk.ebi.biostd.itest.entities.SuperUser
-import ac.uk.ebi.biostd.itest.factory.allInOneSubmissionJson
-import ac.uk.ebi.biostd.itest.factory.allInOneSubmissionTsv
-import ac.uk.ebi.biostd.itest.factory.allInOneSubmissionXml
 import ac.uk.ebi.biostd.itest.factory.invalidLinkUrl
 import ac.uk.ebi.biostd.itest.factory.simpleSubmissionTsv
-import ac.uk.ebi.biostd.persistence.common.SubmissionTypes.Study
+import ac.uk.ebi.biostd.persistence.common.SubmissionTypes
 import ac.uk.ebi.biostd.persistence.model.AccessTag
+import ac.uk.ebi.biostd.persistence.model.Tag
 import ac.uk.ebi.biostd.persistence.repositories.TagsDataRepository
+import ac.uk.ebi.biostd.persistence.repositories.TagsRefRepository
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
+import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.file
 import ebi.ac.uk.dsl.line
 import ebi.ac.uk.dsl.section
@@ -30,7 +29,7 @@ import ebi.ac.uk.security.integration.components.IGroupService
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.Assertions.assertThrows
+import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -44,19 +43,17 @@ import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.web.client.HttpClientErrorException
 
-/**
- * Integration test for submission in all formats using "all features includes" submission example.
- */
 @ExtendWith(TemporaryFolderExtension::class)
-internal class SubmissionTest(private val tempFolder: TemporaryFolder) : BaseIntegrationTest(tempFolder) {
+internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : BaseIntegrationTest(tempFolder) {
     @Nested
     @ExtendWith(SpringExtension::class)
-    @Import(value = [TestConfig::class, SubmitterConfig::class, PersistenceConfig::class, FileConfig::class])
+    @Import(value = [TestConfig::class, SubmitterConfig::class, PersistenceConfig::class, TestConfig::class])
     @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
     @DirtiesContext
     inner class SingleSubmissionTest(
-        @Autowired val tagsDataRepository: TagsDataRepository,
         @Autowired val submissionRepository: SubmissionRepository,
+        @Autowired val tagsDataRepository: TagsDataRepository,
+        @Autowired val tagsRefRepository: TagsRefRepository,
         @Autowired val groupService: IGroupService
     ) {
         @LocalServerPort
@@ -64,53 +61,48 @@ internal class SubmissionTest(private val tempFolder: TemporaryFolder) : BaseInt
 
         private lateinit var webClient: BioWebClient
 
-        private lateinit var assertHelper: SubmissionAssertHelper
-
         @BeforeAll
         fun init() {
             val securityClient = SecurityWebClient.create("http://localhost:$serverPort")
             securityClient.registerUser(SuperUser.asRegisterRequest())
+            securityClient.registerUser(RegularUser.asRegisterRequest())
             webClient = securityClient.getAuthenticatedClient(SuperUser.email, SuperUser.password)
-            assertHelper = SubmissionAssertHelper(basePath)
-
-            tempFolder.createDirectory("Folder1")
-            tempFolder.createDirectory("Folder1/Folder2")
-
-            webClient.uploadFiles(listOf(tempFolder.createFile("DataFile1.txt"), tempFolder.createFile("DataFile2.txt")))
-            webClient.uploadFiles(listOf(tempFolder.createFile("Folder1/DataFile3.txt")), "Folder1")
-            webClient.uploadFiles(listOf(tempFolder.createFile("Folder1/Folder2/DataFile4.txt")), "Folder1/Folder2")
 
             tagsDataRepository.save(AccessTag(name = "Public"))
+            tagsRefRepository.save(Tag(classifier = "classifier", name = "tag"))
         }
 
         @Test
-        fun `submit all in one TSV submission`() {
-            val accNo = "S-EPMC124"
+        fun `submit simple submission`() {
+            val submission = submission("SimpleAcc1") {
+                title = "Simple Submission"
+            }
 
-            val response = webClient.submitSingle(allInOneSubmissionTsv(accNo).toString(), SubmissionFormat.TSV)
+            val response = webClient.submitSingle(submission, SubmissionFormat.XML)
+
             assertThat(response).isNotNull
             assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
-            assertHelper.assertSavedSubmission(accNo, submissionRepository.getExtendedByAccNo(accNo))
+
+            val savedSubmission = submissionRepository.getByAccNo("SimpleAcc1")
+            assertThat(savedSubmission).isNotNull
+            assertThat(savedSubmission).isEqualTo(submission)
         }
 
         @Test
-        fun `submit all in one JSON submission`() {
-            val accNo = "S-EPMC125"
+        fun `submission with tags`() {
+            val submission = submission("SimpleAcc2") {
+                title = "Simple Submission With Tags"
+                tags = mutableListOf(Pair("classifier", "tag"))
+            }
 
-            val response = webClient.submitSingle(allInOneSubmissionJson(accNo).toString(), SubmissionFormat.JSON)
+            val response = webClient.submitSingle(submission, SubmissionFormat.JSON)
+
             assertThat(response).isNotNull
             assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
-            assertHelper.assertSavedSubmission(accNo, submissionRepository.getExtendedByAccNo(accNo))
-        }
 
-        @Test
-        fun `submit all in one XML submission`() {
-            val accNo = "S-EPMC126"
-
-            val response = webClient.submitSingle(allInOneSubmissionXml(accNo).toString(), SubmissionFormat.XML)
-            assertThat(response).isNotNull
-            assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
-            assertHelper.assertSavedSubmission(accNo, submissionRepository.getExtendedByAccNo(accNo))
+            val savedSubmission = submissionRepository.getByAccNo("SimpleAcc2")
+            assertThat(savedSubmission).isNotNull
+            assertThat(savedSubmission).isEqualTo(submission)
         }
 
         @Test
@@ -121,7 +113,7 @@ internal class SubmissionTest(private val tempFolder: TemporaryFolder) : BaseInt
             val submission = submission("S-12364") {
                 rootPath = "RootPathFolder"
                 title = "Sample Submission"
-                section(Study.value) { file("DataFile5.txt") }
+                section(SubmissionTypes.Study.value) { file("DataFile5.txt") }
             }
 
             val response = webClient.submitSingle(submission, SubmissionFormat.TSV)
@@ -138,7 +130,7 @@ internal class SubmissionTest(private val tempFolder: TemporaryFolder) : BaseInt
 
             val submission = submission("S-54896") {
                 title = "Sample Submission"
-                section(Study.value) {
+                section(SubmissionTypes.Study.value) {
                     file("Groups/$groupName/GroupFile1.txt")
                     file("Groups/$groupName/folder/GroupFile2.txt")
                 }
@@ -188,7 +180,7 @@ internal class SubmissionTest(private val tempFolder: TemporaryFolder) : BaseInt
 
         @Test
         fun `submit with invalid link Url`() {
-            val exception = assertThrows(HttpClientErrorException::class.java) {
+            val exception = Assertions.assertThrows(HttpClientErrorException::class.java) {
                 webClient.submitSingle(invalidLinkUrl().toString(), SubmissionFormat.TSV)
             }
 

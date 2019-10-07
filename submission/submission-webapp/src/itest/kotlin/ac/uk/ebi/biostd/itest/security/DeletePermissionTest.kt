@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.itest
+package ac.uk.ebi.biostd.itest.security
 
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
