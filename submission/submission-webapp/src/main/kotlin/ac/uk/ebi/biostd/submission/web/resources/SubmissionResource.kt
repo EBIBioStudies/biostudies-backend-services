@@ -43,6 +43,6 @@ class SubmissionResource(
         .getSubmissions(user, filter)
         .map {
             SubmissionDto(
-                it.accNo, it.title ?: "", it.version, it.creationTime, it.modificationTime, it.releaseTime)
+                it.accNo, it.title.orEmpty(), it.version, it.creationTime, it.modificationTime, it.releaseTime)
         }
 }
