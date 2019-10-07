@@ -11,10 +11,12 @@ class SubmissionFilterSpecification(userId: Long, filter: SubmissionFilter) {
 
     init {
         var specs = Specification.where(withUser(userId)).and(withVersionGreaterThan(0))
+
         filter.accNo?.let { specs = specs.and(withAccession(it)) }
-        filter.rTimeFrom?.let { specs = specs.and(withFrom(it)) }
-        filter.rTimeTo?.let { specs = specs.and(withTo(it)) }
         filter.keywords?.applyIfNotBlank { specs = specs.and(withTitleLike(it)) }
+        filter.rTimeTo?.let { specs = specs.and(withTo(OffsetDateTime.parse(it))) }
+        filter.rTimeFrom?.let { specs = specs.and(withFrom(OffsetDateTime.parse(it))) }
+
         specification = specs
     }
 
@@ -32,8 +34,8 @@ class SubmissionFilterSpecification(userId: Long, filter: SubmissionFilter) {
         Specification { root, _, cb -> cb.equal(root.get<User>("owner").get<Long>("id"), userId) }
 
     private fun withFrom(from: OffsetDateTime): Specification<Submission> =
-        Specification { root, _, cb -> cb.greaterThan(root.get("releaseTime"), from) }
+        Specification { root, _, cb -> cb.greaterThan(root.get("releaseTime"), from.toEpochSecond()) }
 
     private fun withTo(to: OffsetDateTime): Specification<Submission> =
-        Specification { root, _, cb -> cb.lessThan(root.get("releaseTime"), to) }
+        Specification { root, _, cb -> cb.lessThan(root.get("releaseTime"), to.toEpochSecond()) }
 }
