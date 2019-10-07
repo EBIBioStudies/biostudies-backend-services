@@ -6,7 +6,7 @@ import org.springframework.web.client.RestTemplate
 import org.springframework.web.client.getForObject
 import org.springframework.web.client.postForObject
 
-private const val TEMP_SUBMISSION_URL = "/draft/submissions"
+private const val TEMP_SUBMISSION_URL = "/submissions/drafts"
 
 class DraftSubmissionClient(private val template: RestTemplate) : DraftSubmissionOperations {
     override fun getDraftSubmission(accNo: String): DraftSubmission =
