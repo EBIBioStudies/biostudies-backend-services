@@ -10,20 +10,20 @@ import org.springframework.web.client.postForObject
 private const val SUBMISSION_DRAFT_URL = "/submissions/drafts"
 
 class SubmissionDraftClient(private val template: RestTemplate) : DraftSubmissionOperations {
-    override fun getAllSubmissionDrafts(): List<DraftSubmission> =
-        template.getForObject<Array<DraftSubmission>>(SUBMISSION_DRAFT_URL).orEmpty().toList()
+    override fun getAllSubmissionDrafts(): List<String> =
+        template.getForObject<Array<String>>(SUBMISSION_DRAFT_URL).orEmpty().toList()
 
-    override fun createSubmissionDraft(content: String): DraftSubmission =
-        template.postForObject(SUBMISSION_DRAFT_URL, DraftContent(content))!!
+    override fun createSubmissionDraft(content: String): String =
+        template.postForObject(SUBMISSION_DRAFT_URL, content)!!
 
-    override fun getSubmissionDraft(accNo: String): DraftSubmission =
+    override fun getSubmissionDraft(accNo: String): String =
         template.getForObject("$SUBMISSION_DRAFT_URL/$accNo")!!
 
-    override fun searchSubmissionDraft(searchText: String): List<DraftSubmission> =
-        template.getForObject<Array<DraftSubmission>>("$SUBMISSION_DRAFT_URL?searchText=$searchText").orEmpty().toList()
+    override fun searchSubmissionDraft(searchText: String): List<String> =
+        template.getForObject<Array<String>>("$SUBMISSION_DRAFT_URL?searchText=$searchText").orEmpty().toList()
 
     override fun deleteSubmissionDraft(accNo: String) = template.delete("$SUBMISSION_DRAFT_URL/$accNo")
 
     override fun updateSubmissionDraft(accNo: String, content: String): Unit =
-        template.put("$SUBMISSION_DRAFT_URL/$accNo", DraftSubmission(accNo, content))
+        template.put("$SUBMISSION_DRAFT_URL/$accNo", content)
 }
