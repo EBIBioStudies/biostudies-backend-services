@@ -5,7 +5,7 @@ import ac.uk.ebi.biostd.submission.domain.service.SubmissionService
 import arrow.core.getOrElse
 import java.time.Instant
 
-class SubDraftService(
+class SubmissionDraftService(
     private val userDataService: UserDataService,
     private val submissionService: SubmissionService
 ) {
