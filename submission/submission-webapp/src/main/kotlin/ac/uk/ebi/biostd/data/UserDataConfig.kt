@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.data
 
-import ac.uk.ebi.biostd.data.service.DraftSubService
+import ac.uk.ebi.biostd.data.service.SubDraftService
 import ac.uk.ebi.biostd.data.service.UserDataService
 import ac.uk.ebi.biostd.persistence.repositories.UserDataDataRepository
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionService
@@ -13,7 +13,7 @@ class UserDataConfig(
     private val submissionService: SubmissionService
 ) {
     @Bean
-    fun tmpSubService() = DraftSubService(userDataService(), submissionService)
+    fun tmpSubService() = SubDraftService(userDataService(), submissionService)
 
     @Bean
     fun userDataService() = UserDataService(userDataDataRepository)

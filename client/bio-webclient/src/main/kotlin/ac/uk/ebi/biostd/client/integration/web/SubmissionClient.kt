@@ -85,11 +85,15 @@ interface GeneralOperations {
 }
 
 interface DraftSubmissionOperations {
-    fun getDraftSubmission(accNo: String): DraftSubmission
+    fun getSubmissionDraft(accNo: String): DraftSubmission
 
-    fun searchDraftSubmission(searchText: String): List<DraftSubmission>
+    fun searchSubmissionDraft(searchText: String): List<DraftSubmission>
 
-    fun deleteDraftSubmission(accNo: String)
+    fun getAllSubmissionDrafts(): List<DraftSubmission>
 
-    fun saveDraftSubmission(accNo: String, content: String): DraftSubmission
+    fun deleteSubmissionDraft(accNo: String)
+
+    fun updateSubmissionDraft(accNo: String, content: String): Unit
+
+    fun createSubmissionDraft(content: String): DraftSubmission
 }
