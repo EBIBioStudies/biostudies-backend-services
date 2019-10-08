@@ -19,7 +19,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor
 import org.springframework.data.jpa.repository.Lock
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
-import java.util.Optional
+import java.util.*
 import javax.persistence.LockModeType
 
 interface SubmissionDataRepository : JpaRepository<Submission, Long>, JpaSpecificationExecutor<Submission> {
@@ -79,7 +79,7 @@ interface AccessPermissionRepository : JpaRepository<AccessPermission, Long> {
 }
 
 interface UserDataDataRepository : JpaRepository<UserData, UserDataId> {
-    @Query("From UserData ud WHERE ud.userId = :userId and lower(ud.key) LIKE %:dataKey%")
+    @Query("FROM UserData ud WHERE ud.userId = :userId AND LOWER(ud.key) LIKE %:dataKey%")
     fun findByUserAndKey(userId: Long, dataKey: String): List<UserData>
 
     fun findByUserId(userId: Long): List<UserData>

@@ -21,4 +21,4 @@ internal class SubmissionClientImpl(
     ProjectOperations by ProjectClient(template, serializationService),
     MultipartSubmissionOperations by MultiPartSubmissionClient(template, serializationService),
     GeneralOperations by CommonOperationsClient(template),
-    DraftSubmissionOperations by DraftSubmissionClient(template)
+    DraftSubmissionOperations by SubmissionDraftClient(template)
