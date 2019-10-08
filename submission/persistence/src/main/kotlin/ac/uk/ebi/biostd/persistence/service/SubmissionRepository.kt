@@ -3,10 +3,10 @@ package ac.uk.ebi.biostd.persistence.service
 import ac.uk.ebi.biostd.persistence.common.SubmissionTypes.Project
 import ac.uk.ebi.biostd.persistence.mapping.SubmissionDbMapper
 import ac.uk.ebi.biostd.persistence.model.AccessTag
-import ac.uk.ebi.biostd.persistence.model.Submission
 import ac.uk.ebi.biostd.persistence.repositories.SubmissionDataRepository
 import ac.uk.ebi.biostd.persistence.util.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.util.SubmissionFilterSpecification
+import ebi.ac.uk.model.ExtendedSubmission
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 
@@ -34,12 +34,13 @@ class SubmissionRepository(
         submissionRepository.findByTypeAndAccNo(Project.value, tags.map { it.name })
             .map { submissionDbMapper.toSubmission(it) }
 
-    // TODO this method should return the submission model, not the persistence object
-    fun getSubmissionsByUser(userId: Long, filter: SubmissionFilter): List<Submission> {
+    fun getSubmissionsByUser(userId: Long, filter: SubmissionFilter): List<ExtendedSubmission> {
         val filterSpecs = SubmissionFilterSpecification(userId, filter)
-        return submissionRepository.findAll(
-            filterSpecs.specification,
-            PageRequest.of(filter.pageNumber, filter.limit, Sort.by("releaseTime").descending()))
+        val pageable = PageRequest.of(filter.pageNumber, filter.limit, Sort.by("releaseTime").descending())
+
+        return submissionRepository
+            .findAll(filterSpecs.specification, pageable)
             .content
+            .map { submissionDbMapper.toExtSubmission(it) }
     }
 }
