@@ -1,9 +1,6 @@
-package ac.uk.ebi.biostd.itest
+package ac.uk.ebi.biostd.itest.test.security
 
 import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
-import ac.uk.ebi.biostd.common.config.PersistenceConfig
-import ac.uk.ebi.biostd.common.config.SubmitterConfig
-import ac.uk.ebi.biostd.files.FileConfig
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import io.github.glytching.junit.extension.folder.TemporaryFolder
@@ -14,7 +11,6 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.web.server.LocalServerPort
-import org.springframework.context.annotation.Import
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
 
@@ -22,7 +18,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 internal class SecurityTest(tempFolder: TemporaryFolder) : BaseIntegrationTest(tempFolder) {
     @Nested
     @ExtendWith(SpringExtension::class)
-    @Import(value = [SubmitterConfig::class, PersistenceConfig::class, FileConfig::class])
     @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
     @DirtiesContext
     inner class SecurityTest {

@@ -1,10 +1,7 @@
-package ac.uk.ebi.biostd.itest
+package ac.uk.ebi.biostd.itest.test.files
 
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
-import ac.uk.ebi.biostd.common.config.PersistenceConfig
-import ac.uk.ebi.biostd.common.config.SubmitterConfig
-import ac.uk.ebi.biostd.files.FileConfig
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ebi.ac.uk.api.UserFile
@@ -21,7 +18,6 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.web.server.LocalServerPort
-import org.springframework.context.annotation.Import
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.io.File
@@ -31,19 +27,18 @@ import java.nio.file.Paths
 internal class UserFileApiTest(private val tempFolder: TemporaryFolder) : BaseIntegrationTest(tempFolder) {
     @Nested
     @ExtendWith(SpringExtension::class)
-    @Import(value = [SubmitterConfig::class, PersistenceConfig::class, FileConfig::class])
     @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
     @DirtiesContext
     inner class FilesTest {
         @LocalServerPort
         private var serverPort: Int = 0
-
         private lateinit var webClient: BioWebClient
 
         @BeforeAll
         fun init() {
             val securityClient = SecurityWebClient.create("http://localhost:$serverPort")
             securityClient.registerUser(SuperUser.asRegisterRequest())
+
             webClient = securityClient.getAuthenticatedClient(SuperUser.email, SuperUser.password)
         }
 

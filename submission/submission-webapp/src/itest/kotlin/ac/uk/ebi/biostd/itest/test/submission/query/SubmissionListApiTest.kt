@@ -1,12 +1,10 @@
-package ac.uk.ebi.biostd.itest
+package ac.uk.ebi.biostd.itest.test.submission.query
 
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
-import ac.uk.ebi.biostd.common.config.SubmitterConfig
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
-import ac.uk.ebi.biostd.itest.common.TestConfig
 import ac.uk.ebi.biostd.itest.entities.RegularUser
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.persistence.model.AccessTag
@@ -31,8 +29,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 @ExtendWith(TemporaryFolderExtension::class)
 internal class SubmissionListApiTest(tempFolder: TemporaryFolder) : BaseIntegrationTest(tempFolder) {
     @Nested
+    @Import(PersistenceConfig::class)
     @ExtendWith(SpringExtension::class)
-    @Import(value = [TestConfig::class, SubmitterConfig::class, PersistenceConfig::class, TestConfig::class])
     @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
     @DirtiesContext
     inner class SingleSubmissionTest(@Autowired val tagsDataRepository: TagsDataRepository) {
