@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.itest.submission
+package ac.uk.ebi.biostd.itest.test.submission.submit
 
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient

@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.itest.security
+package ac.uk.ebi.biostd.itest.test.security
 
 import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
