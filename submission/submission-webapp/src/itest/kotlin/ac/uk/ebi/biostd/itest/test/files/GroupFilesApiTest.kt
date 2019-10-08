@@ -2,11 +2,8 @@ package ac.uk.ebi.biostd.itest.test.files
 
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
-import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.common.config.SubmitterConfig
-import ac.uk.ebi.biostd.files.FileConfig
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
-import ac.uk.ebi.biostd.itest.common.TestConfig
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ebi.ac.uk.api.UserFile
 import ebi.ac.uk.api.UserFileType
@@ -37,14 +34,13 @@ private const val GROUP_DESC = "Bio-test-group description"
 @ExtendWith(TemporaryFolderExtension::class)
 internal class GroupFilesApiTest(private val tempFolder: TemporaryFolder) : BaseIntegrationTest(tempFolder) {
     @Nested
+    @Import(SubmitterConfig::class)
     @ExtendWith(SpringExtension::class)
-    @Import(value = [TestConfig::class, SubmitterConfig::class, PersistenceConfig::class, FileConfig::class])
     @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
     @DirtiesContext
     inner class GroupFilesApi(@Autowired val groupService: IGroupService) {
         @LocalServerPort
         private var serverPort: Int = 0
-
         private lateinit var webClient: BioWebClient
 
         @BeforeAll

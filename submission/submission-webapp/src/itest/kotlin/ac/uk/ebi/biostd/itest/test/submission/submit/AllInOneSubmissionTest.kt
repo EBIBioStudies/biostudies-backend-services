@@ -6,7 +6,6 @@ import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.itest.assertions.SubmissionAssertHelper
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
-import ac.uk.ebi.biostd.itest.common.TestConfig
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.factory.allInOneSubmissionJson
 import ac.uk.ebi.biostd.itest.factory.allInOneSubmissionTsv
@@ -30,8 +29,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 @ExtendWith(TemporaryFolderExtension::class)
 internal class AllInOneSubmissionTest(private val tempFolder: TemporaryFolder) : BaseIntegrationTest(tempFolder) {
     @Nested
+    @Import(PersistenceConfig::class)
     @ExtendWith(SpringExtension::class)
-    @Import(value = [TestConfig::class, PersistenceConfig::class])
     @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
     @DirtiesContext
     inner class SingleSubmissionTest(@Autowired val submissionRepository: SubmissionRepository) {
