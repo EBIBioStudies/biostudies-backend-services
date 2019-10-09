@@ -2,10 +2,8 @@ package ac.uk.ebi.biostd.itest.test.submission.query
 
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
-import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
-import ac.uk.ebi.biostd.itest.entities.RegularUser
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.persistence.model.AccessTag
 import ac.uk.ebi.biostd.persistence.repositories.TagsDataRepository
@@ -41,12 +39,9 @@ internal class SubmissionListApiTest(tempFolder: TemporaryFolder) : BaseIntegrat
 
         @BeforeAll
         fun init() {
-            val securityClient = SecurityWebClient.create("http://localhost:$serverPort")
-            securityClient.registerUser(SuperUser.asRegisterRequest())
-            securityClient.registerUser(RegularUser.asRegisterRequest())
+            webClient = getWebClient(serverPort, SuperUser)
             tagsDataRepository.save(AccessTag(name = "Public"))
 
-            webClient = securityClient.getAuthenticatedClient(SuperUser.email, SuperUser.password)
             for (idx in 11..30) {
                 val submission = submission("SimpleAcc$idx") {
                     title = "Simple Submission $idx - keyword$idx"

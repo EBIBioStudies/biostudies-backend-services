@@ -1,8 +1,6 @@
 package ac.uk.ebi.biostd.client.api
 
 import ac.uk.ebi.biostd.client.integration.web.DraftSubmissionOperations
-import ebi.ac.uk.model.DraftContent
-import ebi.ac.uk.model.DraftSubmission
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.client.getForObject
 import org.springframework.web.client.postForObject

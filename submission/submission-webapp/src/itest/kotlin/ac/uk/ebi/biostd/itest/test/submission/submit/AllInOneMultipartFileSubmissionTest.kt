@@ -1,7 +1,6 @@
 package ac.uk.ebi.biostd.itest.test.submission.submit
 
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
-import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.common.config.SubmitterConfig
 import ac.uk.ebi.biostd.integration.SerializationService
@@ -57,9 +56,7 @@ internal class AllInOneMultipartFileSubmissionTest(
 
         @BeforeAll
         fun init() {
-            val securityClient = SecurityWebClient.create("http://localhost:$serverPort")
-            securityClient.registerUser(SuperUser.asRegisterRequest())
-            webClient = securityClient.getAuthenticatedClient(SuperUser.email, SuperUser.password)
+            webClient = getWebClient(serverPort, SuperUser)
         }
 
         @Test

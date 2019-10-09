@@ -1,7 +1,6 @@
 package ac.uk.ebi.biostd.data.web
 
 import ac.uk.ebi.biostd.data.service.SubmissionDraftService
-import ac.uk.ebi.biostd.persistence.model.UserData
 import ebi.ac.uk.model.constants.APPLICATION_JSON
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import org.springframework.security.access.prepost.PreAuthorize

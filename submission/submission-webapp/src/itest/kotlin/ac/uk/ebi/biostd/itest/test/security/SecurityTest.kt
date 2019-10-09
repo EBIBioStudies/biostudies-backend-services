@@ -21,7 +21,6 @@ internal class SecurityTest(tempFolder: TemporaryFolder) : BaseIntegrationTest(t
     @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
     @DirtiesContext
     inner class SecurityTest {
-
         @LocalServerPort
         private var serverPort: Int = 0
 

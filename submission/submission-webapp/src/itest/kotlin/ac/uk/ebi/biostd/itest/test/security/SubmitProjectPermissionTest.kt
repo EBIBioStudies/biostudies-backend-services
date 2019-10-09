@@ -1,7 +1,6 @@
 package ac.uk.ebi.biostd.itest.test.security
 
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
-import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
 import ac.uk.ebi.biostd.itest.entities.RegularUser
 import ac.uk.ebi.biostd.itest.entities.SuperUser
@@ -47,17 +46,14 @@ internal class SubmitProjectPermissionTest(private val tempFolder: TemporaryFold
 
         @BeforeAll
         fun init() {
-            val securityClient = SecurityWebClient.create("http://localhost:$serverPort")
-            securityClient.registerUser(SuperUser.asRegisterRequest())
-            securityClient.registerUser(RegularUser.asRegisterRequest())
-
-            superUserWebClient = securityClient.getAuthenticatedClient(SuperUser.email, SuperUser.password)
-            regularUserWebClient = securityClient.getAuthenticatedClient(RegularUser.email, RegularUser.password)
+            superUserWebClient = getWebClient(serverPort, SuperUser)
+            regularUserWebClient = getWebClient(serverPort, RegularUser)
         }
 
         @Test
         fun `create project with superuser`() {
             val response = superUserWebClient.submitProject(projectFile)
+
             assertThat(response).isNotNull
             assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
         }

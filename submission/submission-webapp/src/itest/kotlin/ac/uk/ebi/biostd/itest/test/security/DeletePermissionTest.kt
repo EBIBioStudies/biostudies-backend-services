@@ -2,7 +2,6 @@ package ac.uk.ebi.biostd.itest.test.security
 
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
-import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
 import ac.uk.ebi.biostd.itest.entities.SuperUser
@@ -42,12 +41,8 @@ internal class DeletePermissionTest(tempFolder: TemporaryFolder) : BaseIntegrati
 
         @BeforeAll
         fun init() {
-            val securityClient = SecurityWebClient.create("http://localhost:$serverPort")
-            securityClient.registerUser(SuperUser.asRegisterRequest())
-            securityClient.registerUser(RegularUser.asRegisterRequest())
-
-            superUserWebClient = securityClient.getAuthenticatedClient(SuperUser.email, SuperUser.password)
-            regularUserWebClient = securityClient.getAuthenticatedClient(RegularUser.email, RegularUser.password)
+            superUserWebClient = getWebClient(serverPort, SuperUser)
+            regularUserWebClient = getWebClient(serverPort, RegularUser)
         }
 
         @Test
