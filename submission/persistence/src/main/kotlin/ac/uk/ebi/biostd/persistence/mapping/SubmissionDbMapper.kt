@@ -59,7 +59,7 @@ class SubmissionDbMapper {
 
             section = sectionMapper.toSection(submissionDb.rootSection)
             extendedSection = sectionMapper.toExtendedSection(submissionDb.rootSection)
-            attributes = toAttributes(submissionDb.attributes)
+            attributes = attributes + toAttributes(submissionDb.attributes)
             accessTags = submissionDb.accessTags.mapTo(mutableListOf(), AccessTag::name)
             tags = submissionDb.tags.mapTo(mutableListOf(), ::toTag)
         }

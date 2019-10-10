@@ -59,7 +59,6 @@ class SubmissionDraftResource(private val subDraftService: SubmissionDraftServic
 }
 
 class SubmissionDraft(private val value: String) {
-
     @JsonValue
     @JsonRawValue
     fun value(): String = value
