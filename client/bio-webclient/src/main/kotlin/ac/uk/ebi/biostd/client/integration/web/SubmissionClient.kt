@@ -11,6 +11,7 @@ import ebi.ac.uk.base.EMPTY
 import ebi.ac.uk.model.Group
 import ebi.ac.uk.model.Project
 import ebi.ac.uk.model.Submission
+import ebi.ac.uk.model.SubmissionDraftKey
 import org.springframework.http.ResponseEntity
 import java.io.File
 
@@ -94,5 +95,5 @@ interface DraftSubmissionOperations {
 
     fun updateSubmissionDraft(accNo: String, content: String): Unit
 
-    fun createSubmissionDraft(content: String): String
+    fun createSubmissionDraft(content: String): SubmissionDraftKey
 }

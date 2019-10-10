@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.client.api
 
 import ac.uk.ebi.biostd.client.integration.web.DraftSubmissionOperations
+import ebi.ac.uk.model.SubmissionDraftKey
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.client.getForObject
 import org.springframework.web.client.postForObject
@@ -11,7 +12,7 @@ class SubmissionDraftClient(private val template: RestTemplate) : DraftSubmissio
     override fun getAllSubmissionDrafts(): List<String> =
         template.getForObject<Array<String>>(SUBMISSION_DRAFT_URL).orEmpty().toList()
 
-    override fun createSubmissionDraft(content: String): String =
+    override fun createSubmissionDraft(content: String): SubmissionDraftKey =
         template.postForObject(SUBMISSION_DRAFT_URL, content)!!
 
     override fun getSubmissionDraft(accNo: String): String =

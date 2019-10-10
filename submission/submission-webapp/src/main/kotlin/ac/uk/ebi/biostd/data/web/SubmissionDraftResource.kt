@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.data.web
 import ac.uk.ebi.biostd.data.service.SubmissionDraftService
 import com.fasterxml.jackson.annotation.JsonRawValue
 import com.fasterxml.jackson.annotation.JsonValue
+import ebi.ac.uk.model.SubmissionDraftKey
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.security.access.prepost.PreAuthorize
@@ -54,8 +55,7 @@ class SubmissionDraftResource(private val subDraftService: SubmissionDraftServic
     fun createDraftSubmission(
         @AuthenticationPrincipal user: SecurityUser,
         @RequestBody content: String
-    ): SubmissionDraft =
-        SubmissionDraft(subDraftService.createSubmissionDraft(user.id, content).key)
+    ): SubmissionDraftKey = SubmissionDraftKey(subDraftService.createSubmissionDraft(user.id, content).key)
 }
 
 class SubmissionDraft(private val value: String) {
@@ -63,3 +63,4 @@ class SubmissionDraft(private val value: String) {
     @JsonRawValue
     fun value(): String = value
 }
+

@@ -58,29 +58,29 @@ class SubmissionDraftApiTest {
 
         @Test
         fun `create and get submission draft`() {
-            val accession = webClient.createSubmissionDraft(pageTab)
-            val resultDraft = webClient.getSubmissionDraft(accession)
+            val submissionDraftKey = webClient.createSubmissionDraft(pageTab)
+            val resultDraft = webClient.getSubmissionDraft(submissionDraftKey.accno)
             assertThat(resultDraft).isEqualTo(pageTab)
         }
 
         @Test
         fun `create and update submission draft`() {
-            val accession = webClient.createSubmissionDraft(pageTab)
-            webClient.updateSubmissionDraft(accession, "new draft content")
+            val submissionDraftKey = webClient.createSubmissionDraft(pageTab)
+            webClient.updateSubmissionDraft(submissionDraftKey.accno, "new draft content")
 
-            val draftResult = webClient.getSubmissionDraft(accession)
+            val draftResult = webClient.getSubmissionDraft(submissionDraftKey.accno)
             assertThat(draftResult).isEqualTo("new draft content")
         }
 
         @Test
         fun `search submission draft`() {
-            val accession = webClient.createSubmissionDraft(pageTab)
-            val submissions = webClient.searchSubmissionDraft(accession)
+            val submissionDraftKey = webClient.createSubmissionDraft(pageTab)
+            val submissions = webClient.searchSubmissionDraft(submissionDraftKey.accno)
             assertThat(submissions).hasSize(1)
             assertThat(submissions.first()).isEqualTo(pageTab)
 
-            webClient.deleteSubmissionDraft(accession)
-            assertThat(webClient.searchSubmissionDraft(accession)).isEmpty()
+            webClient.deleteSubmissionDraft(submissionDraftKey.accno)
+            assertThat(webClient.searchSubmissionDraft(submissionDraftKey.accno)).isEmpty()
         }
     }
 }
