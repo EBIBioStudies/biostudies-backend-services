@@ -6,9 +6,7 @@ import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
-import arrow.core.Either
 import ebi.ac.uk.asserts.assertThat
-import ebi.ac.uk.dsl.file
 import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.dsl.line
@@ -58,29 +56,6 @@ internal class MultipartFileSubmissionApiTest(
         @BeforeAll
         fun init() {
             webClient = getWebClient(serverPort, SuperUser)
-        }
-
-        @Test
-        fun `submit multipart JSON submission`() {
-            val fileName = "DataFile1.txt"
-            val accNo = "SimpleAcc1"
-
-            val file = tempFolder.createFile(fileName)
-            val submission = submission(accNo) {
-                section(type = "Study") {
-                    file(fileName)
-                }
-            }
-
-            val response = webClient.submitSingle(submission, SubmissionFormat.JSON, listOf(file))
-            assertSuccessfulResponse(response)
-
-            val createdSubmission = submissionRepository.getExtendedByAccNo(accNo)
-            assertThat(createdSubmission).hasAccNo(accNo)
-            assertThat(createdSubmission.section.files).containsExactly(Either.left(File("DataFile1.txt")))
-
-            val submissionFolderPath = "$basePath/submission/${createdSubmission.relPath}/Files"
-            assertThat(Paths.get("$submissionFolderPath/$fileName")).exists()
         }
 
         @Test

@@ -32,7 +32,7 @@ internal class DeletePermissionTest(tempFolder: TemporaryFolder) : BaseIntegrati
     @ExtendWith(SpringExtension::class)
     @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
     @DirtiesContext
-    inner class DeleteTest(@Autowired private val submissionRepository: SubmissionRepository) {
+    inner class DeleteSubmissionTest(@Autowired private val submissionRepository: SubmissionRepository) {
         @LocalServerPort
         private var serverPort: Int = 0
 

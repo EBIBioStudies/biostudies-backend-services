@@ -23,12 +23,12 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.web.client.HttpServerErrorException
 
 @ExtendWith(TemporaryFolderExtension::class)
-internal class SubmitProjectPermissionTest(private val tempFolder: TemporaryFolder) : BaseIntegrationTest(tempFolder) {
+internal class SubmitPermissionTest(private val tempFolder: TemporaryFolder) : BaseIntegrationTest(tempFolder) {
     @Nested
     @ExtendWith(SpringExtension::class)
     @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
     @DirtiesContext
-    inner class SubmitTest {
+    inner class SubmitProjectTest {
         @LocalServerPort
         private var serverPort: Int = 0
 
