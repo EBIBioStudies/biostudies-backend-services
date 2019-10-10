@@ -7,13 +7,11 @@ import ac.uk.ebi.biostd.submission.processors.SubmissionProcessor
 import ac.uk.ebi.biostd.submission.validators.SubmissionValidator
 import ebi.ac.uk.errors.ValidationNode
 import ebi.ac.uk.errors.ValidationNodeStatus
-import ebi.ac.uk.errors.ValidationTree
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.model.ExtendedSubmission
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.persistence.PersistenceContext
 import ebi.ac.uk.util.collections.ifNotEmpty
-import java.lang.Exception
 
 class SubmissionSubmitter(
     private val validators: List<SubmissionValidator>,
@@ -24,10 +22,9 @@ class SubmissionSubmitter(
         submission: ExtendedSubmission,
         files: FilesSource,
         context: PersistenceContext
+
     ): Submission {
-
-
-        var validationNodes = mutableListOf<ValidationNode>()
+        val validationNodes = mutableListOf<ValidationNode>()
 
         validators.map {
             try {
@@ -36,7 +33,7 @@ class SubmissionSubmitter(
                 ValidationNode(ValidationNodeStatus.ERROR, e.message ?: e.javaClass.name)
             }
         }.filterIsInstance<ValidationNode>().ifNotEmpty {
-           validationNodes.add(ValidationNode(ValidationNodeStatus.ERROR, "Validation errors", it))
+            validationNodes.add(ValidationNode(ValidationNodeStatus.ERROR, "Validation errors", it))
         }
 
         processors.map {
@@ -61,5 +58,4 @@ class SubmissionSubmitter(
         context.saveSubmission(submission)
         return submission
     }
-
 }
