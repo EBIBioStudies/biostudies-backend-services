@@ -3,8 +3,8 @@ package ac.uk.ebi.biostd.data.web
 import ac.uk.ebi.biostd.data.service.SubmissionDraftService
 import com.fasterxml.jackson.annotation.JsonRawValue
 import com.fasterxml.jackson.annotation.JsonValue
-import ebi.ac.uk.model.constants.APPLICATION_JSON
 import ebi.ac.uk.security.integration.model.api.SecurityUser
+import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -19,20 +19,20 @@ import org.springframework.web.bind.annotation.ResponseBody
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-@RequestMapping("submissions/drafts")
+@RequestMapping(value = ["submissions/drafts"], produces = [APPLICATION_JSON_VALUE])
 @PreAuthorize("isAuthenticated()")
 class SubmissionDraftResource(private val subDraftService: SubmissionDraftService) {
-    @GetMapping(value = ["/{accNo}"], produces = [APPLICATION_JSON])
+    @GetMapping(value = ["/{accNo}"])
     @ResponseBody
     fun getDraftSubmission(@AuthenticationPrincipal user: SecurityUser, @PathVariable accNo: String): SubmissionDraft =
         SubmissionDraft(subDraftService.getSubmissionDraft(user.id, accNo).data)
 
-    @GetMapping(params = ["searchText"], produces = [APPLICATION_JSON])
+    @GetMapping(params = ["searchText"])
     @ResponseBody
     fun searchDraftSubmission(@AuthenticationPrincipal user: SecurityUser, @RequestParam searchText: String):
         List<String> = subDraftService.searchSubmissionsDraft(user.id, searchText).map { it.data }
 
-    @GetMapping(params = ["!searchText"], produces = [APPLICATION_JSON])
+    @GetMapping(params = ["!searchText"])
     @ResponseBody
     fun searchDraftSubmission(@AuthenticationPrincipal user: SecurityUser): List<SubmissionDraft> =
         subDraftService.getSubmissionsDraft(user.id).map { SubmissionDraft(it.data) }
