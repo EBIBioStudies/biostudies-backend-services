@@ -12,10 +12,10 @@ open class Submission(
     override fun equals(other: Any?) = when {
         other !is Submission -> false
         other === this -> true
-        else -> (accNo == other.accNo)
-            .and(section == other.section)
-            .and(accessTags == other.accessTags)
-            .and(attributes == other.attributes)
+        else -> Objects.equals(accNo, other.accNo)
+            .and(Objects.equals(section, other.section))
+            .and(Objects.equals(accessTags, other.accessTags))
+            .and(Objects.equals(attributes, other.attributes))
     }
 
     override fun hashCode() = Objects.hash(accNo, section, attributes)

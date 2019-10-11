@@ -38,8 +38,7 @@ internal open class BaseIntegrationTest(private val tempFolder: TemporaryFolder)
         submission: String,
         format: SubmissionFormat = TSV,
         files: List<File> = emptyList()
-    ) =
-        assertSuccessfulResponse(webClient.submitSingle(submission, format, files))
+    ) = assertSuccessfulResponse(webClient.submitSingle(submission, format, files))
 
     protected fun submitFile(webClient: BioWebClient, submission: File, files: List<File> = emptyList()) =
         assertSuccessfulResponse(webClient.submitSingle(submission, files))
