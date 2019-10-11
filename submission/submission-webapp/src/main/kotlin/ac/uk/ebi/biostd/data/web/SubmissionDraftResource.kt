@@ -2,8 +2,6 @@ package ac.uk.ebi.biostd.data.web
 
 import ac.uk.ebi.biostd.data.service.SubmissionDraftService
 import com.fasterxml.jackson.annotation.JsonRawValue
-import com.fasterxml.jackson.annotation.JsonValue
-import ebi.ac.uk.model.SubmissionDraftKey
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.security.access.prepost.PreAuthorize
@@ -22,21 +20,24 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping(value = ["submissions/drafts"], produces = [APPLICATION_JSON_VALUE])
 @PreAuthorize("isAuthenticated()")
-class SubmissionDraftResource(private val subDraftService: SubmissionDraftService) {
+internal class SubmissionDraftResource(private val subDraftService: SubmissionDraftService) {
     @GetMapping(value = ["/{accNo}"])
     @ResponseBody
-    fun getDraftSubmission(@AuthenticationPrincipal user: SecurityUser, @PathVariable accNo: String): SubmissionDraft =
-        SubmissionDraft(subDraftService.getSubmissionDraft(user.id, accNo).data)
+    fun getDraftSubmission(@AuthenticationPrincipal user: SecurityUser, @PathVariable accNo: String): SubmissionDraft {
+        val draft = subDraftService.getSubmissionDraft(user.id, accNo)
+        return SubmissionDraft(draft.key, draft.data)
+    }
 
     @GetMapping(params = ["searchText"])
     @ResponseBody
     fun searchDraftSubmission(@AuthenticationPrincipal user: SecurityUser, @RequestParam searchText: String):
-        List<String> = subDraftService.searchSubmissionsDraft(user.id, searchText).map { it.data }
+        List<SubmissionDraft> = subDraftService.searchSubmissionsDraft(user.id, searchText)
+        .map { SubmissionDraft(it.key, it.data) }
 
     @GetMapping(params = ["!searchText"])
     @ResponseBody
     fun searchDraftSubmission(@AuthenticationPrincipal user: SecurityUser): List<SubmissionDraft> =
-        subDraftService.getSubmissionsDraft(user.id).map { SubmissionDraft(it.data) }
+        subDraftService.getSubmissionsDraft(user.id).map { SubmissionDraft(it.key, it.data) }
 
     @DeleteMapping("/{accNo}")
     fun deleteDraftSubmission(@AuthenticationPrincipal user: SecurityUser, @PathVariable accNo: String): Unit =
@@ -48,19 +49,19 @@ class SubmissionDraftResource(private val subDraftService: SubmissionDraftServic
         @AuthenticationPrincipal user: SecurityUser,
         @RequestBody content: String,
         @PathVariable accNo: String
-    ): SubmissionDraft = SubmissionDraft(subDraftService.updateSubmissionDraft(user.id, accNo, content).data)
+    ) {
+        subDraftService.updateSubmissionDraft(user.id, accNo, content)
+    }
 
     @PostMapping
     @ResponseBody
     fun createDraftSubmission(
         @AuthenticationPrincipal user: SecurityUser,
         @RequestBody content: String
-    ): SubmissionDraftKey = SubmissionDraftKey(subDraftService.createSubmissionDraft(user.id, content).key)
+    ): SubmissionDraft {
+        val draft = subDraftService.createSubmissionDraft(user.id, content)
+        return SubmissionDraft(draft.key, draft.data)
+    }
 }
 
-class SubmissionDraft(private val value: String) {
-    @JsonValue
-    @JsonRawValue
-    fun value(): String = value
-}
-
+internal class SubmissionDraft(val key: String, @JsonRawValue val value: String)

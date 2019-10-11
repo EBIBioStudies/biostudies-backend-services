@@ -11,7 +11,7 @@ import ebi.ac.uk.base.EMPTY
 import ebi.ac.uk.model.Group
 import ebi.ac.uk.model.Project
 import ebi.ac.uk.model.Submission
-import ebi.ac.uk.model.SubmissionDraftKey
+import ebi.ac.uk.model.SubmissionDraft
 import org.springframework.http.ResponseEntity
 import java.io.File
 
@@ -85,15 +85,15 @@ interface GeneralOperations {
 }
 
 interface DraftSubmissionOperations {
-    fun getSubmissionDraft(accNo: String): String
+    fun getSubmissionDraft(accNo: String): SubmissionDraft
 
-    fun searchSubmissionDraft(searchText: String): List<String>
+    fun searchSubmissionDraft(searchText: String): List<SubmissionDraft>
 
-    fun getAllSubmissionDrafts(): List<String>
+    fun getAllSubmissionDrafts(): List<SubmissionDraft>
 
     fun deleteSubmissionDraft(accNo: String)
 
     fun updateSubmissionDraft(accNo: String, content: String): Unit
 
-    fun createSubmissionDraft(content: String): SubmissionDraftKey
+    fun createSubmissionDraft(content: String): SubmissionDraft
 }
