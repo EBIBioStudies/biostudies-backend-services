@@ -1,12 +1,11 @@
 package ac.uk.ebi.biostd.submission.submitter
 
-import ac.uk.ebi.biostd.submission.exceptions.InvalidFilesException
-import ac.uk.ebi.biostd.submission.exceptions.ValidationException
+import ac.uk.ebi.biostd.submission.exceptions.InvalidSubmissionException
 import ac.uk.ebi.biostd.submission.handlers.FilesHandler
 import ac.uk.ebi.biostd.submission.processors.SubmissionProcessor
 import ac.uk.ebi.biostd.submission.validators.SubmissionValidator
-import ebi.ac.uk.errors.ValidationNode
-import ebi.ac.uk.errors.ValidationNodeStatus
+import arrow.core.Try
+import arrow.core.getOrElse
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.model.ExtendedSubmission
 import ebi.ac.uk.model.Submission
@@ -22,38 +21,16 @@ class SubmissionSubmitter(
         submission: ExtendedSubmission,
         files: FilesSource,
         context: PersistenceContext
-
     ): Submission {
-        val validationNodes = mutableListOf<ValidationNode>()
+        val exceptionList = mutableListOf<Throwable>()
 
-        validators.map {
-            try {
-                it.validate(submission, context)
-            } catch (e: ValidationException) {
-                ValidationNode(ValidationNodeStatus.ERROR, e.message ?: e.javaClass.name)
-            }
-        }.filterIsInstance<ValidationNode>().ifNotEmpty {
-            validationNodes.add(ValidationNode(ValidationNodeStatus.ERROR, "Validation errors", it))
+        validators.map { Try { it.validate(submission, context) }.getOrElse { exceptionList.add(it)} }
+        processors.map { Try { it.process(submission, context) }.getOrElse { exceptionList.add(it)} }
+        Try { filesHandler.processFiles(submission, files) }.getOrElse { exceptionList.add(it) }
+
+        exceptionList.ifNotEmpty {
+            throw InvalidSubmissionException("Submission validation errors", exceptionList)
         }
-
-        processors.map {
-            try {
-                it.process(submission, context)
-            } catch (e: ValidationException) {
-                ValidationNode(ValidationNodeStatus.ERROR, e.message ?: e.javaClass.name)
-            }
-        }.filterIsInstance<ValidationNode>().ifNotEmpty {
-            validationNodes.add(ValidationNode(ValidationNodeStatus.ERROR, "Processing errors", it))
-        }
-
-        try {
-            filesHandler.processFiles(submission, files)
-        } catch (e: InvalidFilesException) {
-            validationNodes.add(ValidationNode(ValidationNodeStatus.ERROR,
-                e.message.plus(" ").plus(e.invalidFiles.joinToString { it.path })))
-        }
-
-        validationNodes.ifNotEmpty { throw ValidationException("Submission validation errors", validationNodes) }
 
         context.saveSubmission(submission)
         return submission
