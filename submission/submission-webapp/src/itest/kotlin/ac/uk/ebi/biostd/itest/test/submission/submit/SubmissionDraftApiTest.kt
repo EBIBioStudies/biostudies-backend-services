@@ -4,8 +4,7 @@ import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
 import ac.uk.ebi.biostd.itest.entities.SuperUser
-import ebi.ac.uk.dsl.line
-import ebi.ac.uk.dsl.tsv
+import ebi.ac.uk.dsl.json.jsonObj
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
@@ -33,10 +32,9 @@ internal class SubmissionDraftApiTest(tempFolder: TemporaryFolder) : BaseIntegra
 
         private lateinit var webClient: BioWebClient
 
-        private val pageTab = tsv {
-            line("Submission", "ABC-123")
-            line("Title", "Test Public Submission")
-            line()
+        val pageTab = jsonObj {
+            "accno" to "ABC-123"
+            "type" to "Study"
         }.toString()
 
         @BeforeAll
@@ -45,8 +43,8 @@ internal class SubmissionDraftApiTest(tempFolder: TemporaryFolder) : BaseIntegra
         }
 
         @Test
-        fun `get submission draft when draft does not exit`() {
-            webClient.submitSingle(pageTab, SubmissionFormat.TSV)
+        fun `get draft submission when draft does not exit but submissions does`() {
+            webClient.submitSingle(pageTab, SubmissionFormat.JSON)
             val tmpSubmission = JSONObject(webClient.getSubmissionDraft("ABC-123"))
             assertThat(tmpSubmission.getString("accno")).isEqualTo("ABC-123")
         }
