@@ -46,9 +46,9 @@ internal class SubmissionListApiTest(tempFolder: TemporaryFolder) : BaseIntegrat
                     line("Title", "Simple Submission $idx - keyword$idx")
                     line("ReleaseDate", "2019-09-$idx")
                     line()
-                }
+                }.toString()
 
-                submitTSV(webClient, submission)
+                submitString(webClient, submission)
             }
         }
 

@@ -21,7 +21,9 @@ class ExtendedSection(type: String) : Section(type) {
     fun asSection() = Section(type, accNo, fileList, toSections(), files, links, attributes, parentAccNo)
 
     private fun toSections(): MutableList<Either<Section, SectionsTable>> =
-        extendedSections.mapTo(mutableListOf()) { extSect -> extSect.bimap({ it.asSection() }, { it }) }
+        extendedSections.mapTo(mutableListOf()) {
+            extSect -> extSect.bimap({ it.asSection() }, { it.asSectionsTable() })
+        }
 
     override fun equals(other: Any?) = when {
         other !is ExtendedSection -> false

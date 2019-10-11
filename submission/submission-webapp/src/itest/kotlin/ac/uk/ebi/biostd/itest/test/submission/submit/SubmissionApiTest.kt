@@ -86,11 +86,11 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
 
                 line("File", "DataFile5.txt")
                 line()
-            }
+            }.toString()
 
             tempFolder.createDirectory("RootPathFolder")
             webClient.uploadFiles(listOf(tempFolder.createFile("RootPathFolder/DataFile5.txt")), "RootPathFolder")
-            submitTSV(webClient, submission)
+            submitString(webClient, submission)
 
             assertThat(submissionRepository.getByAccNo("S-12364")).isEqualTo(
                 submission("S-12364") {
@@ -118,11 +118,12 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
 
                 line("File", "Groups/$groupName/folder/GroupFile2.txt")
                 line()
-            }
+            }.toString()
+
             groupService.addUserInGroup(groupService.createGroup(groupName, "group-desc").name, SuperUser.email)
             webClient.uploadGroupFiles(groupName, listOf(tempFolder.createFile("GroupFile1.txt")))
             webClient.uploadGroupFiles(groupName, listOf(tempFolder.createFile("GroupFile2.txt")), "folder")
-            submitTSV(webClient, submission)
+            submitString(webClient, submission)
 
             assertThat(submissionRepository.getByAccNo("S-54896")).isEqualTo(
                 submission("S-54896") {
@@ -142,14 +143,14 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
                 line("Submission", "S-ABC123")
                 line("Title", "Simple Submission")
                 line()
-            }
+            }.toString()
 
-            submitTSV(webClient, submission)
+            submitString(webClient, submission)
             val original = submissionRepository.getExtendedByAccNo("S-ABC123")
             assertThat(original.title).isEqualTo("Simple Submission")
             assertThat(original.version).isEqualTo(1)
 
-            submitTSV(webClient, submission)
+            submitString(webClient, submission)
             val resubmitted = submissionRepository.getExtendedByAccNo("S-ABC123")
             assertThat(resubmitted.title).isEqualTo("Simple Submission")
             assertThat(resubmitted.version).isEqualTo(2)
@@ -162,8 +163,8 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
                 line("Title", "Test Public Submission")
                 line("ReleaseDate", "2000-01-31")
                 line()
-            }
-            submitTSV(webClient, submission)
+            }.toString()
+            submitString(webClient, submission)
 
             val savedSubmission = submissionRepository.getExtendedByAccNo("S-RLSD123")
             assertThat(savedSubmission.accNo).isEqualTo("S-RLSD123")
@@ -181,11 +182,5 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
 
             assertThat(exception.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
         }
-
-//        private fun submitTSV(submission: Tsv) {
-//            val response = webClient.submitSingle(submission.toString(), SubmissionFormat.TSV)
-//            assertThat(response).isNotNull
-//            assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
-//        }
     }
 }

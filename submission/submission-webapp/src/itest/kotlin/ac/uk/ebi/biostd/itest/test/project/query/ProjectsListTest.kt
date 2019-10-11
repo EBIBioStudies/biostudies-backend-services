@@ -65,7 +65,7 @@ internal class ProjectsListTest(private val tempFolder: TemporaryFolder) : BaseI
                 line("Project")
             }
 
-            webClient.submitProject(tempFolder.createFile("project.tsv", project.toString()))
+            submitProject(webClient, tempFolder.createFile("project.tsv", project.toString()))
 
             // TODO add operation to provide permissions
             accessPermissionRepository.save(AccessPermission(

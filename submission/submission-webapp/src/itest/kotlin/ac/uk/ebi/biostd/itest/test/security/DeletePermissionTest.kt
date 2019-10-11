@@ -1,14 +1,13 @@
 package ac.uk.ebi.biostd.itest.test.security
 
-import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.entities.RegularUser
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
-import ebi.ac.uk.dsl.submission
-import ebi.ac.uk.model.extensions.title
+import ebi.ac.uk.dsl.line
+import ebi.ac.uk.dsl.tsv
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
@@ -47,12 +46,14 @@ internal class DeletePermissionTest(tempFolder: TemporaryFolder) : BaseIntegrati
 
         @Test
         fun `submit and delete submission`() {
-            val submission = submission("SimpleAcc1") {
-                title = "Simple Submission"
-            }
+            val submission = tsv {
+                line("Submission", "SimpleAcc1")
+                line("Title", "Simple Submission")
+                line()
+            }.toString()
 
-            superUserWebClient.submitSingle(submission, SubmissionFormat.JSON)
-            superUserWebClient.deleteSubmission(submission.accNo)
+            submitString(superUserWebClient, submission)
+            superUserWebClient.deleteSubmission("SimpleAcc1")
 
             val deletedSubmission = submissionRepository.getExtendedLastVersionByAccNo("SimpleAcc1")
             assertThat(deletedSubmission.version).isEqualTo(-1)
@@ -60,14 +61,16 @@ internal class DeletePermissionTest(tempFolder: TemporaryFolder) : BaseIntegrati
 
         @Test
         fun `submit with one user and delete with another`() {
-            val submission = submission("SimpleAcc2") {
-                title = "Simple Submission"
-            }
+            val submission = tsv {
+                line("Submission", "SimpleAcc2")
+                line("Title", "Simple Submission")
+                line()
+            }.toString()
 
-            superUserWebClient.submitSingle(submission, SubmissionFormat.JSON)
+            submitString(superUserWebClient, submission)
 
             assertThatExceptionOfType(HttpServerErrorException::class.java).isThrownBy {
-                regularUserWebClient.deleteSubmission(submission.accNo)
+                regularUserWebClient.deleteSubmission("SimpleAcc2")
             }
         }
     }

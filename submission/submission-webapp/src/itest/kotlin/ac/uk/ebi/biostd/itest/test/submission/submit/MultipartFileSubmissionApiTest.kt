@@ -6,13 +6,10 @@ import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
-import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.dsl.line
 import ebi.ac.uk.dsl.excel.excel
-import ebi.ac.uk.dsl.section
-import ebi.ac.uk.dsl.submission
 import ebi.ac.uk.dsl.tsv
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.File
@@ -30,8 +27,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
-import org.springframework.http.HttpStatus
-import org.springframework.http.ResponseEntity
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.transaction.annotation.Transactional
@@ -47,7 +42,7 @@ internal class MultipartFileSubmissionApiTest(
     @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
     @Transactional
     @DirtiesContext
-    inner class SingleSubmissionTest(@Autowired val submissionRepository: SubmissionRepository) {
+    inner class SingleSubmissionTest(@Autowired private val submissionRepository: SubmissionRepository) {
         @LocalServerPort
         private var serverPort: Int = 0
 
@@ -95,8 +90,7 @@ internal class MultipartFileSubmissionApiTest(
                 }.toString().toByteArray())
             }
 
-            val response = webClient.submitSingle(excelPageTab, listOf(fileList, tempFolder.createFile("SomeFile.txt")))
-            assertSuccessfulResponse(response)
+            submitFile(webClient, excelPageTab, listOf(fileList, tempFolder.createFile("SomeFile.txt")))
             assertSubmissionFiles("S-EXC123", "SomeFile.txt")
             fileList.delete()
         }
@@ -112,7 +106,7 @@ internal class MultipartFileSubmissionApiTest(
                 line("Title", "Root Section")
                 line("File List", "FileList.tsv")
                 line()
-            }
+            }.toString()
 
             val fileList = tempFolder.createFile("FileList.tsv").apply {
                 writeBytes(tsv {
@@ -121,10 +115,7 @@ internal class MultipartFileSubmissionApiTest(
                 }.toString().toByteArray())
             }
 
-            val response = webClient.submitSingle(
-                submission.toString(), SubmissionFormat.TSV, listOf(fileList, tempFolder.createFile("File1.txt")))
-
-            assertSuccessfulResponse(response)
+            submitString(webClient, submission, SubmissionFormat.TSV, listOf(fileList, tempFolder.createFile("File1.txt")))
             assertSubmissionFiles("S-TEST1", "File1.txt")
             fileList.delete()
         }
@@ -148,7 +139,7 @@ internal class MultipartFileSubmissionApiTest(
                         "value" to "FileList.json"
                     })
                 }
-            }
+            }.toString()
 
             val fileList = tempFolder.createFile("FileList.json").apply {
                 writeBytes(jsonArray({
@@ -160,10 +151,7 @@ internal class MultipartFileSubmissionApiTest(
                 }).toString().toByteArray())
             }
 
-            val response = webClient.submitSingle(
-                submission.toString(), SubmissionFormat.JSON, listOf(fileList, tempFolder.createFile("File2.txt")))
-
-            assertSuccessfulResponse(response)
+            submitString(webClient, submission, SubmissionFormat.JSON, listOf(fileList, tempFolder.createFile("File2.txt")))
             assertSubmissionFiles("S-TEST2", "File2.txt")
         }
 
@@ -192,7 +180,7 @@ internal class MultipartFileSubmissionApiTest(
                         }
                     }
                 }
-            }
+            }.toString()
 
             val fileList = tempFolder.createFile("FileList.xml").apply {
                 writeBytes(xml("table") {
@@ -208,17 +196,8 @@ internal class MultipartFileSubmissionApiTest(
                 }.toString().toByteArray())
             }
 
-            val response = webClient.submitSingle(
-                submission.toString(), SubmissionFormat.XML, listOf(fileList, tempFolder.createFile("File3.txt")))
-
-            assertSuccessfulResponse(response)
+            submitString(webClient, submission, SubmissionFormat.XML, listOf(fileList, tempFolder.createFile("File3.txt")))
             assertSubmissionFiles("S-TEST3", "File3.txt")
-        }
-
-        private fun <T> assertSuccessfulResponse(response: ResponseEntity<T>) {
-            assertThat(response).isNotNull
-            assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
-            assertThat(response.body).isNotNull
         }
 
         private fun assertSubmissionFiles(accNo: String, testFile: String) {

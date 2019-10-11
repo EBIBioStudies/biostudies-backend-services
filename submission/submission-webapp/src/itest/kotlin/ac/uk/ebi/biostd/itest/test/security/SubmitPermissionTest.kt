@@ -9,7 +9,6 @@ import ebi.ac.uk.dsl.tsv
 import ebi.ac.uk.test.createFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
-import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Nested
@@ -17,7 +16,6 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.web.server.LocalServerPort
-import org.springframework.http.HttpStatus
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.web.client.HttpServerErrorException
@@ -52,16 +50,13 @@ internal class SubmitPermissionTest(private val tempFolder: TemporaryFolder) : B
 
         @Test
         fun `create project with superuser`() {
-            val response = superUserWebClient.submitProject(projectFile)
-
-            assertThat(response).isNotNull
-            assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
+            submitProject(superUserWebClient, projectFile)
         }
 
         @Test
         fun `create project with regular user`() {
             assertThatExceptionOfType(HttpServerErrorException::class.java).isThrownBy {
-                regularUserWebClient.submitProject(projectFile)
+                submitProject(regularUserWebClient, projectFile)
             }
         }
     }

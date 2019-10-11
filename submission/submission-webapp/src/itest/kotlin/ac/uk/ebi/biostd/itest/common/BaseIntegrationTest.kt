@@ -1,14 +1,15 @@
 package ac.uk.ebi.biostd.itest.common
 
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
+import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
 import ac.uk.ebi.biostd.itest.entities.TestUser
-import ebi.ac.uk.dsl.Tsv
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
 import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import java.io.File
 
 internal open class BaseIntegrationTest(private val tempFolder: TemporaryFolder) {
@@ -32,9 +33,23 @@ internal open class BaseIntegrationTest(private val tempFolder: TemporaryFolder)
         return securityClient.getAuthenticatedClient(user.email, user.password)
     }
 
-    protected fun submitTSV(webClient: BioWebClient, submission: Tsv, files: List<File> = emptyList()) {
-        val response = webClient.submitSingle(submission.toString(), SubmissionFormat.TSV, files)
+    protected fun submitString(
+        webClient: BioWebClient,
+        submission: String,
+        format: SubmissionFormat = TSV,
+        files: List<File> = emptyList()
+    ) =
+        assertSuccessfulResponse(webClient.submitSingle(submission, format, files))
+
+    protected fun submitFile(webClient: BioWebClient, submission: File, files: List<File> = emptyList()) =
+        assertSuccessfulResponse(webClient.submitSingle(submission, files))
+
+    protected fun submitProject(webClient: BioWebClient, project: File) =
+        assertSuccessfulResponse(webClient.submitProject(project))
+
+    private fun <T> assertSuccessfulResponse(response: ResponseEntity<T>) {
         assertThat(response).isNotNull
         assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
+        assertThat(response.body).isNotNull
     }
 }

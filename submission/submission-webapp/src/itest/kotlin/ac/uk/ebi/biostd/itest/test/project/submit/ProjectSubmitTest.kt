@@ -21,7 +21,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
-import org.springframework.http.HttpStatus
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
 
@@ -56,9 +55,7 @@ internal class ProjectSubmitTest(private val tempFolder: TemporaryFolder) : Base
                 line("Project")
             }
 
-            val response = webClient.submitProject(tempFolder.createFile("a-project.tsv", project.toString()))
-            assertThat(response).isNotNull
-            assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
+            submitProject(webClient, tempFolder.createFile("a-project.tsv", project.toString()))
 
             val submittedProject = submissionRepository.getExtendedByAccNo("AProject")
             assertThat(submittedProject.accNo).isEqualTo("AProject")
