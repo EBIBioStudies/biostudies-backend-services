@@ -60,7 +60,7 @@ class SubmissionDraftApiTest {
         fun `create and get submission draft`() {
             val draftSubmission = webClient.createSubmissionDraft(pageTab)
             val resultDraft = webClient.getSubmissionDraft(draftSubmission.key)
-            assertEquals(resultDraft.value.toString(), pageTab, false)
+            assertEquals(resultDraft.content.toString(), pageTab, false)
         }
 
         @Test
@@ -70,7 +70,7 @@ class SubmissionDraftApiTest {
             webClient.updateSubmissionDraft(draftSubmission.key, "{ \"value\": 1 }")
 
             val draftResult = webClient.getSubmissionDraft(draftSubmission.key)
-            assertEquals(draftResult.value.toString(), updatedValue, false)
+            assertEquals(draftResult.content.toString(), updatedValue, false)
         }
 
         @Test
@@ -78,7 +78,7 @@ class SubmissionDraftApiTest {
             val draftSubmission = webClient.createSubmissionDraft(pageTab)
             val submissions = webClient.searchSubmissionDraft(draftSubmission.key)
             assertThat(submissions).hasSize(1)
-            assertEquals(submissions.first().value.toString(), pageTab, true)
+            assertEquals(submissions.first().content.toString(), pageTab, true)
 
             webClient.deleteSubmissionDraft(draftSubmission.key)
             assertThat(webClient.getAllSubmissionDrafts()).isEmpty()

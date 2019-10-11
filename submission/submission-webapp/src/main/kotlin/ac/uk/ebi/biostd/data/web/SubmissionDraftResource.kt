@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.data.web
 
 import ac.uk.ebi.biostd.data.service.SubmissionDraftService
 import com.fasterxml.jackson.annotation.JsonRawValue
+import com.fasterxml.jackson.annotation.JsonValue
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.security.access.prepost.PreAuthorize
@@ -27,6 +28,11 @@ internal class SubmissionDraftResource(private val subDraftService: SubmissionDr
         val draft = subDraftService.getSubmissionDraft(user.id, accNo)
         return SubmissionDraft(draft.key, draft.data)
     }
+
+    @GetMapping(value = ["/{accNo}/content"])
+    @ResponseBody
+    fun getDraftSubmissionValue(@AuthenticationPrincipal user: SecurityUser, @PathVariable accNo: String):
+        SubmissionDraftContent = SubmissionDraftContent(subDraftService.getSubmissionDraft(user.id, accNo).data)
 
     @GetMapping(params = ["searchText"])
     @ResponseBody
@@ -64,4 +70,5 @@ internal class SubmissionDraftResource(private val subDraftService: SubmissionDr
     }
 }
 
-internal class SubmissionDraft(val key: String, @JsonRawValue val value: String)
+internal class SubmissionDraft(val key: String, @JsonRawValue val content: String)
+internal class SubmissionDraftContent(@JsonRawValue @JsonValue val value: String)
