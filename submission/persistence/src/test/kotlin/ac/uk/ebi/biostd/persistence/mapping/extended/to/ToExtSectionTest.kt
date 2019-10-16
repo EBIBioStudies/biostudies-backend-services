@@ -1,9 +1,9 @@
 package ac.uk.ebi.biostd.persistence.mapping.extended.to
 
-import ac.uk.ebi.biostd.persistence.mapping.extended.to.test.extTestAttribute2
-import ac.uk.ebi.biostd.persistence.mapping.extended.to.test.extTestFile2
-import ac.uk.ebi.biostd.persistence.mapping.extended.to.test.extTestLink2
-import ac.uk.ebi.biostd.persistence.mapping.extended.to.test.extTestSection2
+import ac.uk.ebi.biostd.persistence.mapping.extended.to.test.extTestAttr
+import ac.uk.ebi.biostd.persistence.mapping.extended.to.test.extTestFile
+import ac.uk.ebi.biostd.persistence.mapping.extended.to.test.extTestLink
+import ac.uk.ebi.biostd.persistence.mapping.extended.to.test.extTestSection
 import ac.uk.ebi.biostd.persistence.mapping.extended.to.test.sectionAttribute
 import ac.uk.ebi.biostd.persistence.model.File
 import ac.uk.ebi.biostd.persistence.model.Link
@@ -49,20 +49,20 @@ class ToExtSectionTest(
             TO_EXT_LINK_EXTENSIONS,
             TO_EXT_EITHER_LIST_EXTENSIONS) {
             every { fileList.toExtFileList(fileSource) } returns extFileList
-            every { sectionAttribute.toExtAttribute() } returns extTestAttribute2
-            every { sections.toExtSections(fileSource) } returns listOf(Either.left(extTestSection2))
-            every { files.toExtFiles(fileSource) } returns listOf(Either.left(extTestFile2))
-            every { links.toExtLinks() } returns listOf(Either.left(extTestLink2))
+            every { sectionAttribute.toExtAttribute() } returns extTestAttr
+            every { sections.toExtSections(fileSource) } returns listOf(Either.left(extTestSection))
+            every { files.toExtFiles(fileSource) } returns listOf(Either.left(extTestFile))
+            every { links.toExtLinks() } returns listOf(Either.left(extTestLink))
 
             val sectionResult = section.toExtSection(fileSource)
 
             assertThat(sectionResult.accNo).isEqualTo(section.accNo)
             assertThat(sectionResult.type).isEqualTo(section.type)
             assertThat(sectionResult.fileList).isEqualTo(extFileList)
-            assertThat(sectionResult.attributes).containsExactly(extTestAttribute2)
-            assertThat(sectionResult.sections).containsExactly(Either.left(extTestSection2))
-            assertThat(sectionResult.files).containsExactly(Either.left(extTestFile2))
-            assertThat(sectionResult.links).containsExactly(Either.left(extTestLink2))
+            assertThat(sectionResult.attributes).containsExactly(extTestAttr)
+            assertThat(sectionResult.sections).containsExactly(Either.left(extTestSection))
+            assertThat(sectionResult.files).containsExactly(Either.left(extTestFile))
+            assertThat(sectionResult.links).containsExactly(Either.left(extTestLink))
         }
     }
 }
