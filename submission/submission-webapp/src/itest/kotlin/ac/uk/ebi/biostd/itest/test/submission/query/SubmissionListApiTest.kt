@@ -1,11 +1,13 @@
 package ac.uk.ebi.biostd.itest.test.submission.query
 
+import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.persistence.model.AccessTag
 import ac.uk.ebi.biostd.persistence.repositories.TagsDataRepository
+import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.line
 import ebi.ac.uk.dsl.tsv
 import io.github.glytching.junit.extension.folder.TemporaryFolder
@@ -48,7 +50,7 @@ internal class SubmissionListApiTest(tempFolder: TemporaryFolder) : BaseIntegrat
                     line()
                 }.toString()
 
-                submitString(webClient, submission)
+                assertThat(webClient.submitSingle(submission, SubmissionFormat.TSV)).isSuccessful()
             }
         }
 

@@ -1,11 +1,13 @@
 package ac.uk.ebi.biostd.itest.test.security
 
+import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.entities.RegularUser
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
+import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.line
 import ebi.ac.uk.dsl.tsv
 import io.github.glytching.junit.extension.folder.TemporaryFolder
@@ -52,7 +54,7 @@ internal class DeletePermissionTest(tempFolder: TemporaryFolder) : BaseIntegrati
                 line()
             }.toString()
 
-            submitString(superUserWebClient, submission)
+            assertThat(superUserWebClient.submitSingle(submission, SubmissionFormat.TSV)).isSuccessful()
             superUserWebClient.deleteSubmission("SimpleAcc1")
 
             val deletedSubmission = submissionRepository.getExtendedLastVersionByAccNo("SimpleAcc1")
@@ -67,7 +69,7 @@ internal class DeletePermissionTest(tempFolder: TemporaryFolder) : BaseIntegrati
                 line()
             }.toString()
 
-            submitString(superUserWebClient, submission)
+            assertThat(superUserWebClient.submitSingle(submission, SubmissionFormat.TSV)).isSuccessful()
 
             assertThatExceptionOfType(HttpServerErrorException::class.java).isThrownBy {
                 regularUserWebClient.deleteSubmission("SimpleAcc2")

@@ -1,11 +1,14 @@
 package ac.uk.ebi.biostd.itest.test.submission.submit
 
-import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
+import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.JSON
+import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
+import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.XML
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
+import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.dsl.line
@@ -15,6 +18,7 @@ import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.File
 import ebi.ac.uk.model.FileList
 import ebi.ac.uk.model.extensions.fileListName
+import ebi.ac.uk.test.createFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
@@ -83,14 +87,15 @@ internal class MultipartFileSubmissionApiTest(
                 }
             }
 
-            val fileList = tempFolder.createFile("FileList.tsv").apply {
-                writeBytes(tsv {
+            val fileList = tempFolder.createFile(
+                "FileList.tsv",
+                tsv {
                     line("Files", "GEN")
                     line("SomeFile.txt", "ABC")
-                }.toString().toByteArray())
-            }
+                }.toString())
 
-            submitFile(webClient, excelPageTab, listOf(fileList, tempFolder.createFile("SomeFile.txt")))
+            val response = webClient.submitSingle(excelPageTab, listOf(fileList, tempFolder.createFile("SomeFile.txt")))
+            assertThat(response).isSuccessful()
             assertSubmissionFiles("S-EXC123", "SomeFile.txt")
             fileList.delete()
         }
@@ -108,14 +113,15 @@ internal class MultipartFileSubmissionApiTest(
                 line()
             }.toString()
 
-            val fileList = tempFolder.createFile("FileList.tsv").apply {
-                writeBytes(tsv {
+            val fileList = tempFolder.createFile(
+                "FileList.tsv",
+                tsv {
                     line("Files", "GEN")
                     line("File1.txt", "ABC")
-                }.toString().toByteArray())
-            }
+                }.toString())
 
-            submitString(webClient, submission, SubmissionFormat.TSV, listOf(fileList, tempFolder.createFile("File1.txt")))
+            val response = webClient.submitSingle(submission, TSV, listOf(fileList, tempFolder.createFile("File1.txt")))
+            assertThat(response).isSuccessful()
             assertSubmissionFiles("S-TEST1", "File1.txt")
             fileList.delete()
         }
@@ -141,17 +147,18 @@ internal class MultipartFileSubmissionApiTest(
                 }
             }.toString()
 
-            val fileList = tempFolder.createFile("FileList.json").apply {
-                writeBytes(jsonArray({
+            val fileList = tempFolder.createFile(
+                "FileList.json",
+                jsonArray({
                     "path" to "File2.txt"
                     "attributes" to jsonArray({
                         "name" to "GEN"
                         "value" to "ABC"
                     })
-                }).toString().toByteArray())
-            }
+                }).toString())
 
-            submitString(webClient, submission, SubmissionFormat.JSON, listOf(fileList, tempFolder.createFile("File2.txt")))
+            val response = webClient.submitSingle(submission, JSON, listOf(fileList, tempFolder.createFile("File2.txt")))
+            assertThat(response).isSuccessful()
             assertSubmissionFiles("S-TEST2", "File2.txt")
         }
 
@@ -182,8 +189,9 @@ internal class MultipartFileSubmissionApiTest(
                 }
             }.toString()
 
-            val fileList = tempFolder.createFile("FileList.xml").apply {
-                writeBytes(xml("table") {
+            val fileList = tempFolder.createFile(
+                "FileList.xml",
+                xml("table") {
                     "file" {
                         "path" { -"File3.txt" }
                         "attributes" {
@@ -193,10 +201,10 @@ internal class MultipartFileSubmissionApiTest(
                             }
                         }
                     }
-                }.toString().toByteArray())
-            }
+                }.toString())
 
-            submitString(webClient, submission, SubmissionFormat.XML, listOf(fileList, tempFolder.createFile("File3.txt")))
+            val response = webClient.submitSingle(submission, XML, listOf(fileList, tempFolder.createFile("File3.txt")))
+            assertThat(response).isSuccessful()
             assertSubmissionFiles("S-TEST3", "File3.txt")
         }
 

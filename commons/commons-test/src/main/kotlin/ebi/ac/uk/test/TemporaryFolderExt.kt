@@ -6,7 +6,7 @@ import java.io.File
 import java.nio.charset.Charset
 
 /**
- * Create a file with the given content in the temporally folder.
+ * Creates a file with the given content in the temporary folder.
  */
 fun TemporaryFolder.createFile(fileName: String, content: String, charset: Charset = Charsets.UTF_8): File {
     val file = createFile(fileName)
@@ -15,12 +15,21 @@ fun TemporaryFolder.createFile(fileName: String, content: String, charset: Chars
 }
 
 /**
- * Creates a file with the given name or replace current if already exist.
+ * Creates a file with the given name or replaces it if already exist.
  */
-fun TemporaryFolder.createNewFile(fileName: String): File {
+fun TemporaryFolder.createOrReplaceFile(fileName: String): File {
     val file = root.resolve(fileName)
     if (file.exists()) file.delete()
     return createFile(fileName)
+}
+
+/**
+ * Creates a directory with the given name or replaces it if already exist.
+ */
+fun TemporaryFolder.createOrReplaceDirectory(directoryName: String): File {
+    val file = root.resolve(directoryName)
+    if (file.exists()) FileUtils.deleteDirectory(file)
+    return createDirectory(directoryName)
 }
 
 /**

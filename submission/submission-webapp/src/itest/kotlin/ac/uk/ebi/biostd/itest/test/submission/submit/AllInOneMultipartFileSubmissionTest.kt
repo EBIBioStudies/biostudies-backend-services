@@ -1,15 +1,14 @@
 package ac.uk.ebi.biostd.itest.test.submission.submit
 
+import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.JSON
+import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
+import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.XML
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.itest.assertions.AllInOneSubmissionHelper
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
 import ac.uk.ebi.biostd.itest.entities.SuperUser
-import ac.uk.ebi.biostd.itest.factory.allInOneSubmissionJson
-import ac.uk.ebi.biostd.itest.factory.allInOneSubmissionTsv
-import ac.uk.ebi.biostd.itest.factory.allInOneSubmissionXml
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
-import ebi.ac.uk.test.createFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.junit.jupiter.api.BeforeAll
@@ -45,27 +44,23 @@ internal class AllInOneMultipartFileSubmissionTest(
         fun init() {
             webClient = getWebClient(serverPort, SuperUser)
             allInOneSubmissionHelper = AllInOneSubmissionHelper(basePath, submissionRepository)
-            allInOneSubmissionHelper.createAllInOneSubmissionFiles(webClient, tempFolder)
         }
 
         @Test
         fun `submit multipart all in one TSV`() {
-            val tsvSubmission = tempFolder.createFile("S-EPMC124.tsv", allInOneSubmissionTsv("S-EPMC124").toString())
-            submitFile(webClient, tsvSubmission)
+            allInOneSubmissionHelper.submitAllInOneMultipartSubmission("S-EPMC124", TSV, webClient, tempFolder)
             allInOneSubmissionHelper.assertSavedSubmission("S-EPMC124")
         }
 
         @Test
         fun `submit multipart all in one JSON`() {
-            val jsonSubmission = tempFolder.createFile("S-EPMC125.json", allInOneSubmissionJson("S-EPMC125").toString())
-            submitFile(webClient, jsonSubmission)
+            allInOneSubmissionHelper.submitAllInOneMultipartSubmission("S-EPMC125", JSON, webClient, tempFolder)
             allInOneSubmissionHelper.assertSavedSubmission("S-EPMC125")
         }
 
         @Test
         fun `submit multipart all in one XML`() {
-            val xmlSubmission = tempFolder.createFile("S-EPMC126.xml", allInOneSubmissionXml("S-EPMC126").toString())
-            submitFile(webClient, xmlSubmission)
+            allInOneSubmissionHelper.submitAllInOneMultipartSubmission("S-EPMC126", XML, webClient, tempFolder)
             allInOneSubmissionHelper.assertSavedSubmission("S-EPMC126")
         }
     }

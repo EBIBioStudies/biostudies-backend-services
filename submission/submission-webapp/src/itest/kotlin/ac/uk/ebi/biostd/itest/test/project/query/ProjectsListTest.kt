@@ -8,6 +8,7 @@ import ac.uk.ebi.biostd.persistence.model.AccessType
 import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
 import ac.uk.ebi.biostd.persistence.repositories.TagsDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
+import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.line
 import ebi.ac.uk.dsl.tsv
 import ebi.ac.uk.test.createFile
@@ -65,7 +66,8 @@ internal class ProjectsListTest(private val tempFolder: TemporaryFolder) : BaseI
                 line("Project")
             }
 
-            submitProject(webClient, tempFolder.createFile("project.tsv", project.toString()))
+            val projectFile = tempFolder.createFile("project.tsv", project.toString())
+            assertThat(webClient.submitProject(projectFile)).isSuccessful()
 
             // TODO add operation to provide permissions
             accessPermissionRepository.save(AccessPermission(

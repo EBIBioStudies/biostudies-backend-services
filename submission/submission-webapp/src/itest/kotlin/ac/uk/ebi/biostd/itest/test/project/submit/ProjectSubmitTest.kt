@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.persistence.repositories.TagsDataRepository
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
+import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.line
 import ebi.ac.uk.dsl.tsv
 import ebi.ac.uk.model.extensions.title
@@ -55,7 +56,8 @@ internal class ProjectSubmitTest(private val tempFolder: TemporaryFolder) : Base
                 line("Project")
             }
 
-            submitProject(webClient, tempFolder.createFile("a-project.tsv", project.toString()))
+            val projectFile = tempFolder.createFile("a-project.tsv", project.toString())
+            assertThat(webClient.submitProject(projectFile)).isSuccessful()
 
             val submittedProject = submissionRepository.getExtendedByAccNo("AProject")
             assertThat(submittedProject.accNo).isEqualTo("AProject")

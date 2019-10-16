@@ -4,6 +4,7 @@ import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
 import ac.uk.ebi.biostd.itest.entities.RegularUser
 import ac.uk.ebi.biostd.itest.entities.SuperUser
+import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.line
 import ebi.ac.uk.dsl.tsv
 import ebi.ac.uk.test.createFile
@@ -50,13 +51,13 @@ internal class SubmitPermissionTest(private val tempFolder: TemporaryFolder) : B
 
         @Test
         fun `create project with superuser`() {
-            submitProject(superUserWebClient, projectFile)
+            assertThat(superUserWebClient.submitProject(projectFile)).isSuccessful()
         }
 
         @Test
         fun `create project with regular user`() {
             assertThatExceptionOfType(HttpServerErrorException::class.java).isThrownBy {
-                submitProject(regularUserWebClient, projectFile)
+                regularUserWebClient.submitProject(projectFile)
             }
         }
     }
