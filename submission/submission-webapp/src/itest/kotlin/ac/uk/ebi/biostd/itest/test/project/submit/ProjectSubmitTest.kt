@@ -5,7 +5,7 @@ import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
 import ac.uk.ebi.biostd.itest.entities.SuperUser
-import ac.uk.ebi.biostd.persistence.repositories.TagsDataRepository
+import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepository
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
 import ebi.ac.uk.dsl.line
 import ebi.ac.uk.dsl.tsv
@@ -34,7 +34,7 @@ internal class ProjectSubmitTest(private val tempFolder: TemporaryFolder) : Base
     @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
     @DirtiesContext
     inner class ProjectSubmitTest(
-        @Autowired val tagsDataRepository: TagsDataRepository,
+        @Autowired val tagsDataRepository: AccessTagDataRepository,
         @Autowired val submissionRepository: SubmissionRepository
     ) {
         @LocalServerPort

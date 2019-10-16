@@ -3,12 +3,12 @@ package ac.uk.ebi.biostd.common.config
 import ac.uk.ebi.biostd.persistence.integration.PersistenceContextImpl
 import ac.uk.ebi.biostd.persistence.mapping.SubmissionDbMapper
 import ac.uk.ebi.biostd.persistence.mapping.SubmissionMapper
+import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.JdbcLockExecutor
 import ac.uk.ebi.biostd.persistence.repositories.LockExecutor
 import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.SubmissionDataRepository
-import ac.uk.ebi.biostd.persistence.repositories.TagsDataRepository
-import ac.uk.ebi.biostd.persistence.repositories.TagsRefRepository
+import ac.uk.ebi.biostd.persistence.repositories.TagDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
@@ -22,8 +22,8 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 class PersistenceConfig(
     private val submissionDataRepository: SubmissionDataRepository,
     private val sequenceRepository: SequenceDataRepository,
-    private val tagsDataRepository: TagsDataRepository,
-    private val tagsRefRepository: TagsRefRepository,
+    private val tagsDataRepository: AccessTagDataRepository,
+    private val tagsRefRepository: TagDataRepository,
     private val userRepository: UserDataRepository,
     private val template: NamedParameterJdbcTemplate
 ) {

@@ -1,7 +1,8 @@
 package ac.uk.ebi.biostd.persistence.model
 
 import ac.uk.ebi.biostd.persistence.common.NO_TABLE_INDEX
-import java.util.Objects
+import java.util.Objects.equals
+import java.util.Objects.hash
 import java.util.SortedSet
 import javax.persistence.CascadeType
 import javax.persistence.Column
@@ -43,14 +44,14 @@ class Link(
 
     override fun compareTo(other: Link) = this.order.compareTo(other.order)
 
-    override fun equals(other: Any?): Boolean {
-        if (other !is Link) return false
-        if (this === other) return true
-
-        return Objects.equals(this.url, other.url).and(Objects.equals(this.order, other.order))
+    override fun equals(other: Any?): Boolean = when {
+        other !is Link -> false
+        this === other -> true
+        else -> equals(id, other.id)
+            .and(equals(url, other.url))
+            .and(equals(order, other.order))
+            .and(equals(tableIndex, other.tableIndex))
     }
 
-    override fun hashCode(): Int {
-        return Objects.hash(this.url, this.order)
-    }
+    override fun hashCode(): Int = hash(id, url, order, tableIndex)
 }
