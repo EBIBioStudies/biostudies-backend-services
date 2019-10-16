@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.XML
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.itest.assertions.AllInOneSubmissionHelper
+import ac.uk.ebi.biostd.itest.assertions.submitAllInOneMultipartSubmission
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
@@ -48,19 +49,19 @@ internal class AllInOneMultipartFileSubmissionTest(
 
         @Test
         fun `submit multipart all in one TSV`() {
-            allInOneSubmissionHelper.submitAllInOneMultipartSubmission("S-EPMC124", TSV, webClient, tempFolder)
+            webClient.submitAllInOneMultipartSubmission("S-EPMC124", TSV, tempFolder)
             allInOneSubmissionHelper.assertSavedSubmission("S-EPMC124")
         }
 
         @Test
         fun `submit multipart all in one JSON`() {
-            allInOneSubmissionHelper.submitAllInOneMultipartSubmission("S-EPMC125", JSON, webClient, tempFolder)
+            webClient.submitAllInOneMultipartSubmission("S-EPMC125", JSON, tempFolder)
             allInOneSubmissionHelper.assertSavedSubmission("S-EPMC125")
         }
 
         @Test
         fun `submit multipart all in one XML`() {
-            allInOneSubmissionHelper.submitAllInOneMultipartSubmission("S-EPMC126", XML, webClient, tempFolder)
+            webClient.submitAllInOneMultipartSubmission("S-EPMC126", XML, tempFolder)
             allInOneSubmissionHelper.assertSavedSubmission("S-EPMC126")
         }
     }

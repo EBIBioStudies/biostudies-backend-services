@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.XML
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.itest.assertions.AllInOneSubmissionHelper
+import ac.uk.ebi.biostd.itest.assertions.submitAllInOneSubmission
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
@@ -44,19 +45,19 @@ internal class AllInOneSubmissionTest(private val tempFolder: TemporaryFolder) :
 
         @Test
         fun `submit all in one TSV submission`() {
-            allInOneSubmissionHelper.submitAllInOneSubmission("S-EPMC124", TSV, webClient, tempFolder)
+            webClient.submitAllInOneSubmission("S-EPMC124", TSV, tempFolder)
             allInOneSubmissionHelper.assertSavedSubmission("S-EPMC124")
         }
 
         @Test
         fun `submit all in one JSON submission`() {
-            allInOneSubmissionHelper.submitAllInOneSubmission("S-EPMC125", JSON, webClient, tempFolder)
+            webClient.submitAllInOneSubmission("S-EPMC125", JSON, tempFolder)
             allInOneSubmissionHelper.assertSavedSubmission("S-EPMC125")
         }
 
         @Test
         fun `submit all in one XML submission`() {
-            allInOneSubmissionHelper.submitAllInOneSubmission("S-EPMC126", XML, webClient, tempFolder)
+            webClient.submitAllInOneSubmission("S-EPMC126", XML, tempFolder)
             allInOneSubmissionHelper.assertSavedSubmission("S-EPMC126")
         }
     }
