@@ -5,10 +5,10 @@ import ebi.ac.uk.api.security.RegisterRequest
 /**
  * Represents a bio studies super user.
  */
-object SuperUser {
-    const val username = "Super User"
-    const val email = "biostudies-mgmt@ebi.ac.uk"
-    const val password = "12345"
+object SuperUser : TestUser {
+    override val username = "Super User"
+    override val email = "biostudies-mgmt@ebi.ac.uk"
+    override val password = "12345"
 
-    fun asRegisterRequest() = RegisterRequest(username, email, password, superUser = true)
+    override fun asRegisterRequest() = RegisterRequest(username, email, password, superUser = true)
 }

@@ -1,26 +1,24 @@
 package ac.uk.ebi.biostd.itest.test.submission.submit
 
-import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
+import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.JSON
+import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
+import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.XML
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
-import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
-import arrow.core.Either
 import ebi.ac.uk.asserts.assertThat
-import ebi.ac.uk.dsl.file
 import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.dsl.line
 import ebi.ac.uk.dsl.excel.excel
-import ebi.ac.uk.dsl.section
-import ebi.ac.uk.dsl.submission
 import ebi.ac.uk.dsl.tsv
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.File
 import ebi.ac.uk.model.FileList
 import ebi.ac.uk.model.extensions.fileListName
+import ebi.ac.uk.test.createFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
@@ -33,8 +31,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
-import org.springframework.http.HttpStatus
-import org.springframework.http.ResponseEntity
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.transaction.annotation.Transactional
@@ -50,7 +46,7 @@ internal class MultipartFileSubmissionApiTest(
     @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
     @Transactional
     @DirtiesContext
-    inner class SingleSubmissionTest(@Autowired val submissionRepository: SubmissionRepository) {
+    inner class SingleSubmissionTest(@Autowired private val submissionRepository: SubmissionRepository) {
         @LocalServerPort
         private var serverPort: Int = 0
 
@@ -58,32 +54,7 @@ internal class MultipartFileSubmissionApiTest(
 
         @BeforeAll
         fun init() {
-            val securityClient = SecurityWebClient.create("http://localhost:$serverPort")
-            securityClient.registerUser(SuperUser.asRegisterRequest())
-            webClient = securityClient.getAuthenticatedClient(SuperUser.email, SuperUser.password)
-        }
-
-        @Test
-        fun `submit multipart JSON submission`() {
-            val fileName = "DataFile1.txt"
-            val accNo = "SimpleAcc1"
-
-            val file = tempFolder.createFile(fileName)
-            val submission = submission(accNo) {
-                section(type = "Study") {
-                    file(fileName)
-                }
-            }
-
-            val response = webClient.submitSingle(submission, SubmissionFormat.JSON, listOf(file))
-            assertSuccessfulResponse(response)
-
-            val createdSubmission = submissionRepository.getExtendedByAccNo(accNo)
-            assertThat(createdSubmission).hasAccNo(accNo)
-            assertThat(createdSubmission.section.files).containsExactly(Either.left(File("DataFile1.txt")))
-
-            val submissionFolderPath = "$basePath/submission/${createdSubmission.relPath}/Files"
-            assertThat(Paths.get("$submissionFolderPath/$fileName")).exists()
+            webClient = getWebClient(serverPort, SuperUser)
         }
 
         @Test
@@ -116,15 +87,15 @@ internal class MultipartFileSubmissionApiTest(
                 }
             }
 
-            val fileList = tempFolder.createFile("FileList.tsv").apply {
-                writeBytes(tsv {
+            val fileList = tempFolder.createFile(
+                "FileList.tsv",
+                tsv {
                     line("Files", "GEN")
                     line("SomeFile.txt", "ABC")
-                }.toString().toByteArray())
-            }
+                }.toString())
 
             val response = webClient.submitSingle(excelPageTab, listOf(fileList, tempFolder.createFile("SomeFile.txt")))
-            assertSuccessfulResponse(response)
+            assertThat(response).isSuccessful()
             assertSubmissionFiles("S-EXC123", "SomeFile.txt")
             fileList.delete()
         }
@@ -140,19 +111,17 @@ internal class MultipartFileSubmissionApiTest(
                 line("Title", "Root Section")
                 line("File List", "FileList.tsv")
                 line()
-            }
+            }.toString()
 
-            val fileList = tempFolder.createFile("FileList.tsv").apply {
-                writeBytes(tsv {
+            val fileList = tempFolder.createFile(
+                "FileList.tsv",
+                tsv {
                     line("Files", "GEN")
                     line("File1.txt", "ABC")
-                }.toString().toByteArray())
-            }
+                }.toString())
 
-            val response = webClient.submitSingle(
-                submission.toString(), SubmissionFormat.TSV, listOf(fileList, tempFolder.createFile("File1.txt")))
-
-            assertSuccessfulResponse(response)
+            val response = webClient.submitSingle(submission, TSV, listOf(fileList, tempFolder.createFile("File1.txt")))
+            assertThat(response).isSuccessful()
             assertSubmissionFiles("S-TEST1", "File1.txt")
             fileList.delete()
         }
@@ -176,22 +145,20 @@ internal class MultipartFileSubmissionApiTest(
                         "value" to "FileList.json"
                     })
                 }
-            }
+            }.toString()
 
-            val fileList = tempFolder.createFile("FileList.json").apply {
-                writeBytes(jsonArray({
+            val fileList = tempFolder.createFile(
+                "FileList.json",
+                jsonArray({
                     "path" to "File2.txt"
                     "attributes" to jsonArray({
                         "name" to "GEN"
                         "value" to "ABC"
                     })
-                }).toString().toByteArray())
-            }
+                }).toString())
 
-            val response = webClient.submitSingle(
-                submission.toString(), SubmissionFormat.JSON, listOf(fileList, tempFolder.createFile("File2.txt")))
-
-            assertSuccessfulResponse(response)
+            val response = webClient.submitSingle(submission, JSON, listOf(fileList, tempFolder.createFile("File2.txt")))
+            assertThat(response).isSuccessful()
             assertSubmissionFiles("S-TEST2", "File2.txt")
         }
 
@@ -220,10 +187,11 @@ internal class MultipartFileSubmissionApiTest(
                         }
                     }
                 }
-            }
+            }.toString()
 
-            val fileList = tempFolder.createFile("FileList.xml").apply {
-                writeBytes(xml("table") {
+            val fileList = tempFolder.createFile(
+                "FileList.xml",
+                xml("table") {
                     "file" {
                         "path" { -"File3.txt" }
                         "attributes" {
@@ -233,20 +201,11 @@ internal class MultipartFileSubmissionApiTest(
                             }
                         }
                     }
-                }.toString().toByteArray())
-            }
+                }.toString())
 
-            val response = webClient.submitSingle(
-                submission.toString(), SubmissionFormat.XML, listOf(fileList, tempFolder.createFile("File3.txt")))
-
-            assertSuccessfulResponse(response)
+            val response = webClient.submitSingle(submission, XML, listOf(fileList, tempFolder.createFile("File3.txt")))
+            assertThat(response).isSuccessful()
             assertSubmissionFiles("S-TEST3", "File3.txt")
-        }
-
-        private fun <T> assertSuccessfulResponse(response: ResponseEntity<T>) {
-            assertThat(response).isNotNull
-            assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
-            assertThat(response.body).isNotNull
         }
 
         private fun assertSubmissionFiles(accNo: String, testFile: String) {
