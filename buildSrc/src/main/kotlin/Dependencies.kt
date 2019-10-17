@@ -32,6 +32,7 @@ import Versions.SpringAdminVersion
 import Versions.SpringDataVersion
 import Versions.SpringVersion
 import Versions.WoodstoxVersion
+import Versions.XlsxStreamerVersion
 import Versions.XmlBuilderVersion
 
 object TestVersions {
@@ -76,6 +77,7 @@ object Versions {
     const val CliKtVersion = "1.7.0"
     const val RxJava2Version = "2.2.8"
     const val PoiVersion = "4.1.0"
+    const val XlsxStreamerVersion = "2.1.0"
 }
 
 object TestDependencies {
@@ -128,6 +130,7 @@ object Dependencies {
     const val Jsch = "com.jcraft:jsch:$JschVersion"
     const val CliKt = "com.github.ajalt:clikt:$CliKtVersion"
     const val RxJava2 = "io.reactivex.rxjava2:rxjava:$RxJava2Version"
+    const val XlsxStreamer = "com.monitorjbl:xlsx-streamer:$XlsxStreamerVersion"
 
     // Kotlin specific
     const val KotlinStdLib = "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$KotlinVersion"
