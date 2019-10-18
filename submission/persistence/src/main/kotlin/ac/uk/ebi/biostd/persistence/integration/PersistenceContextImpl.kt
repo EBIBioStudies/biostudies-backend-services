@@ -28,13 +28,14 @@ open class PersistenceContextImpl(
     private val subDbMapper: SubmissionDbMapper,
     private val subMapper: SubmissionMapper
 ) : PersistenceContext {
-
     @Transactional
     override fun getSequenceNextValue(pattern: AccPattern): Long {
         val sequence = sequenceRepository.getByPrefixAndSuffix(pattern.prefix, pattern.postfix)
-        sequence.counter = sequence.counter + 1
+
+        sequence.counter.count = sequence.counter.count + 1
         sequenceRepository.save(sequence)
-        return sequence.id
+
+        return sequence.counter.count
     }
 
     override fun getParentAccessTags(submission: Submission): List<String> =

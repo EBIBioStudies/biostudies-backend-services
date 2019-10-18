@@ -21,7 +21,7 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
 
 @ExtendWith(MockKExtension::class)
-class AccNoPatternUtilTest(
+class AccNoProcessorTest(
     @MockK private val mockUser: User,
     @MockK private val mockPersistenceContext: PersistenceContext,
     @MockK private val mockUserPrivilegesService: IUserPrivilegesService
