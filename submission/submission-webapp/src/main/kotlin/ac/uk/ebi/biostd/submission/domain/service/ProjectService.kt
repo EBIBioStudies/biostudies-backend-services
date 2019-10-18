@@ -3,7 +3,7 @@ package ac.uk.ebi.biostd.submission.domain.service
 import ac.uk.ebi.biostd.persistence.model.AccessTag
 import ac.uk.ebi.biostd.persistence.model.AccessType
 import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
-import ac.uk.ebi.biostd.persistence.repositories.TagsDataRepository
+import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepository
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
 import ac.uk.ebi.biostd.submission.submitter.ProjectSubmitter
 import ebi.ac.uk.model.ExtendedSubmission
@@ -16,7 +16,7 @@ import ebi.ac.uk.security.integration.model.api.SecurityUser
 class ProjectService(
     private val submitter: ProjectSubmitter,
     private val persistenceContext: PersistenceContext,
-    private val tagsDataRepository: TagsDataRepository,
+    private val tagsDataRepository: AccessTagDataRepository,
     private val submissionRepository: SubmissionRepository,
     private val accessPermissionRepository: AccessPermissionRepository
 ) {

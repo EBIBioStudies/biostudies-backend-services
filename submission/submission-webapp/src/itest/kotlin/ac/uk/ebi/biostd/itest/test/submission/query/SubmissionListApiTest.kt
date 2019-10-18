@@ -6,7 +6,7 @@ import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.persistence.model.AccessTag
-import ac.uk.ebi.biostd.persistence.repositories.TagsDataRepository
+import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepository
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.line
 import ebi.ac.uk.dsl.tsv
@@ -31,7 +31,7 @@ internal class SubmissionListApiTest(tempFolder: TemporaryFolder) : BaseIntegrat
     @ExtendWith(SpringExtension::class)
     @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
     @DirtiesContext
-    inner class SingleSubmissionTest(@Autowired val tagsDataRepository: TagsDataRepository) {
+    inner class SingleSubmissionTest(@Autowired val tagsDataRepository: AccessTagDataRepository) {
         @LocalServerPort
         private var serverPort: Int = 0
 

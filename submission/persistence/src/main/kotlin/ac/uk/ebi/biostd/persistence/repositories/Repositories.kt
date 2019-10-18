@@ -19,7 +19,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor
 import org.springframework.data.jpa.repository.Lock
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
-import java.util.*
+import java.util.Optional
 import javax.persistence.LockModeType
 
 interface SubmissionDataRepository : JpaRepository<Submission, Long>, JpaSpecificationExecutor<Submission> {
@@ -45,12 +45,12 @@ interface SubmissionDataRepository : JpaRepository<Submission, Long>, JpaSpecifi
     fun findByTypeAndAccNo(type: String, accessTags: List<String>): List<Submission>
 }
 
-interface TagsDataRepository : JpaRepository<AccessTag, Long> {
+interface AccessTagDataRepository : JpaRepository<AccessTag, Long> {
     fun findByName(name: String): AccessTag
     fun existsByName(name: String): Boolean
 }
 
-interface TagsRefRepository : JpaRepository<Tag, Long> {
+interface TagDataRepository : JpaRepository<Tag, Long> {
     fun findByClassifierAndName(classifier: String, name: String): Tag
 }
 

@@ -143,7 +143,8 @@ private object DbEntityMapper {
 }
 
 private object DbAttributeMapper {
-    internal fun toAttributes(attrs: Set<AttributeDb>) = attrs.mapTo(mutableListOf()) { toAttribute(it) }
+    internal fun toAttributes(attrs: Set<AttributeDb>): MutableList<Attribute> =
+        attrs.mapTo(mutableListOf()) { toAttribute(it) }
 
     private fun toAttribute(attrDb: AttributeDb) =
         attrDb.run { Attribute(name, value, reference.orFalse(), toDetails(nameQualifier), toDetails(valueQualifier)) }

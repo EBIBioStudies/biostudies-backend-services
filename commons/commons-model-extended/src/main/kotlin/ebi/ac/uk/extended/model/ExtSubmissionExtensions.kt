@@ -10,4 +10,4 @@ val ExtSubmission.allFiles
     get(): List<ExtFile> = allSections.flatMap { it.allFiles }
 
 val ExtSubmission.allFileLists
-    get(): List<ExtFileList> = allSections.filterNot { it.fileList == null }.map { it.fileList!! }
+    get(): List<ExtFileList> = allSections.mapNotNull { it.fileList }
