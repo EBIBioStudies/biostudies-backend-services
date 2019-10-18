@@ -1,5 +1,6 @@
 import Dependencies.Arrow
 import Dependencies.KotlinStdLib
+import Dependencies.SpringWeb
 import TestDependencies.AssertJ
 import TestDependencies.JunitExtensions
 
@@ -10,4 +11,5 @@ dependencies {
     compile(AssertJ)
     compile(JunitExtensions)
     compile(KotlinStdLib)
+    compile(SpringWeb)
 }

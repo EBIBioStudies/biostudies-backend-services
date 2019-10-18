@@ -1,7 +1,6 @@
 package ac.uk.ebi.biostd.itest.test.files
 
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
-import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ebi.ac.uk.api.UserFile
@@ -36,10 +35,7 @@ internal class UserFileApiTest(private val tempFolder: TemporaryFolder) : BaseIn
 
         @BeforeAll
         fun init() {
-            val securityClient = SecurityWebClient.create("http://localhost:$serverPort")
-            securityClient.registerUser(SuperUser.asRegisterRequest())
-
-            webClient = securityClient.getAuthenticatedClient(SuperUser.email, SuperUser.password)
+            webClient = getWebClient(serverPort, SuperUser)
         }
 
         @BeforeEach

@@ -99,7 +99,6 @@ class FilesTable(files: List<File> = emptyList()) : Table<File>(files) {
 }
 
 class SectionsTable(sections: List<Section> = emptyList()) : Table<Section>(sections) {
-
     private var sectionType = ""
     private var parentAccNo: String? = null
 
@@ -119,4 +118,7 @@ class SectionsTable(sections: List<Section> = emptyList()) : Table<Section>(sect
         override val id = t.accNo!!
         override val attributes = t.attributes
     }
+
+    fun asSectionsTable() = SectionsTable(
+        elements.map { if (it is ExtendedSection) it.asSection() else it })
 }

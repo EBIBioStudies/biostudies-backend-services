@@ -5,12 +5,6 @@ import ebi.ac.uk.dsl.line
 import ebi.ac.uk.dsl.tsv
 import org.assertj.core.api.Assertions.assertThat
 
-fun simpleSubmissionTsv() = tsv {
-    line("Submission", "S-ABC123")
-    line("Title", "Simple Submission")
-    line()
-}
-
 fun allInOneSubmissionTsv(accNo: String) = tsv {
     line("# All in one submission")
     line("Submission", accNo)
