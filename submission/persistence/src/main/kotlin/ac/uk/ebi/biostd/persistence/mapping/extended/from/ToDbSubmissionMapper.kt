@@ -30,11 +30,11 @@ class ToDbSubmissionMapper(
         accessTags = toAccessTag(submission.accessTags)
         tags = toTags(submission.tags)
         released = submission.released
-        attributes = submission.attributes.mapIndexedTo(sortedSetOf(), ::asSubmissionAttribute)
+        attributes = submission.attributes.mapIndexedTo(sortedSetOf(), ::toDbSubmissionAttribute)
         rootSection = submission.section.toDbSection(this, ROOT_SECTION_ORDER)
     }
 
-    private fun asSubmissionAttribute(index: Int, attr: ExtAttribute) = SubmissionAttribute(attr.toDbAttribute(index))
+    private fun toDbSubmissionAttribute(index: Int, attr: ExtAttribute) = SubmissionAttribute(attr.toDbAttribute(index))
 
     private fun toAccessTag(accessTags: List<ExtAccessTag>) =
         accessTags.mapTo(mutableSetOf()) { tagsRepository.findByName(it.name) }

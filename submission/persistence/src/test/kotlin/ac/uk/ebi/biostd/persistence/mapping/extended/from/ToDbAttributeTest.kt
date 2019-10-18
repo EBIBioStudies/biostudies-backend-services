@@ -5,7 +5,6 @@ import ac.uk.ebi.biostd.persistence.test.extAttribute
 import org.junit.jupiter.api.Test
 
 internal class ToDbAttributeTest {
-
     @Test
     fun toDbAttribute() {
         val attribute = extAttribute

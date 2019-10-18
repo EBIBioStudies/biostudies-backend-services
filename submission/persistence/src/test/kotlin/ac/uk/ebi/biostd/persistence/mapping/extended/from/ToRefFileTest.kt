@@ -5,7 +5,6 @@ import ac.uk.ebi.biostd.persistence.test.extTestRefFile
 import org.junit.jupiter.api.Test
 
 internal class ToRefFileTest {
-
     @Test
     fun toRefFile() {
         val refFile = extTestRefFile

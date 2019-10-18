@@ -10,13 +10,11 @@ fun List<Either<ExtFile, ExtFileTable>>.toDbFiles(): SortedSet<File> {
     var idx = 0
     val files = sortedSetOf<File>()
 
-    for (either in this) {
-        when (either) {
-            is Either.Left ->
-                files.add(either.a.toDbFile(idx++))
-            is Either.Right ->
-                either.b.files.forEachIndexed { tableIdx, file -> files.add(file.toDbFile(idx++, tableIdx)) }
-        }
+    forEach { either ->
+        either.fold(
+            { files.add(it.toDbFile(idx++)) },
+            { it.files.forEachIndexed { tIdx, sec -> files.add(sec.toDbFile(idx++, tIdx)) } }
+        )
     }
 
     return files

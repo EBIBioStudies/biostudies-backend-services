@@ -5,7 +5,6 @@ import ac.uk.ebi.biostd.persistence.test.extTestFile
 import org.junit.jupiter.api.Test
 
 internal class ToDbFileTest {
-
     @Test
     fun `toDbFile list file`() {
         val extFile = extTestFile

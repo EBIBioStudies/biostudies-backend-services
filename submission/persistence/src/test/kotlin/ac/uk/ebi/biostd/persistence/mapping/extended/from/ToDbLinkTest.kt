@@ -5,7 +5,6 @@ import ac.uk.ebi.biostd.persistence.test.extTestLink
 import org.junit.jupiter.api.Test
 
 internal class ToDbLinkTest {
-
     @Test
     fun `to db link when list link`() {
         val extLink = extTestLink

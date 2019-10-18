@@ -10,13 +10,11 @@ fun List<Either<ExtLink, ExtLinkTable>>.toDbLinks(): SortedSet<Link> {
     var idx = 0
     val links = sortedSetOf<Link>()
 
-    for (either in this) {
-        when (either) {
-            is Either.Left ->
-                links.add(either.a.toDbLink(idx++))
-            is Either.Right ->
-                either.b.links.forEachIndexed { tableIdx, link -> links.add(link.toDbLink(idx++, tableIdx)) }
-        }
+    forEach { either ->
+        either.fold(
+            { links.add(it.toDbLink(idx++)) },
+            { it.links.forEachIndexed { tIdx, sec -> links.add(sec.toDbLink(idx++, tIdx)) } }
+        )
     }
 
     return links

@@ -6,7 +6,6 @@ import ac.uk.ebi.biostd.persistence.test.extSection
 import org.junit.jupiter.api.Test
 
 class ToDbSectionTest {
-
     @Test
     fun toDbSection() {
         val extSection = extSection

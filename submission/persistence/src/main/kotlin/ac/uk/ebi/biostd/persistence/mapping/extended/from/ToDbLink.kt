@@ -7,6 +7,6 @@ import ebi.ac.uk.extended.model.ExtAttribute
 import ebi.ac.uk.extended.model.ExtLink
 
 internal fun ExtLink.toDbLink(order: Int, tableIndex: Int = NO_TABLE_INDEX) =
-    Link(url, order, attributes.mapIndexedTo(sortedSetOf(), ::asLinkAttribute), tableIndex)
+    Link(url, order, attributes.mapIndexedTo(sortedSetOf(), ::toLinkAttributeDb), tableIndex)
 
-private fun asLinkAttribute(index: Int, attr: ExtAttribute) = LinkAttribute(attr.toDbAttribute(index))
+private fun toLinkAttributeDb(index: Int, attr: ExtAttribute) = LinkAttribute(attr.toDbAttribute(index))

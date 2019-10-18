@@ -25,7 +25,7 @@ internal fun assertDbAttribute(dbAttribute: Attribute, simpleAttribute: ExtAttri
 
 private fun assertDetails(dbDetail: List<AttributeDetail>, extDetail: List<ExtAttributeDetail>) {
     assertThat(dbDetail).hasSameSizeAs(extDetail)
-    for (i in dbDetail.indices) assertDbDetails(dbDetail[i], extDetail[i])
+    for (index in dbDetail.indices) assertDbDetails(dbDetail[index], extDetail[index])
 }
 
 private fun assertDbDetails(dbDetail: AttributeDetail, extDetail: ExtAttributeDetail) {

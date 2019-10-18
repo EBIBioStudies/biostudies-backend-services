@@ -5,8 +5,6 @@ import ac.uk.ebi.biostd.persistence.model.Section
 import ac.uk.ebi.biostd.persistence.model.SectionAttribute
 import ac.uk.ebi.biostd.persistence.model.Submission
 import arrow.core.Either
-import arrow.core.Either.Left
-import arrow.core.Either.Right
 import ebi.ac.uk.extended.model.ExtAttribute
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSectionTable
@@ -32,15 +30,11 @@ private fun List<Either<ExtSection, ExtSectionTable>>.toDbSections(submission: S
     var idx = 0
     val sections = sortedSetOf<Section>()
 
-    for (either in this) {
-        when (either) {
-            is Left ->
-                sections.add(either.a.toDbSection(submission, idx++))
-            is Right ->
-                either.b.sections.forEachIndexed { tableIdx, section ->
-                    sections.add(section.toDbTableSection(submission, idx++, tableIdx))
-                }
-        }
+    forEach { either ->
+        either.fold(
+            { sections.add(it.toDbSection(submission, idx++)) },
+            { it.sections.forEachIndexed { tIdx, sec -> sections.add(sec.toDbTableSection(submission, idx++, tIdx)) } }
+        )
     }
 
     return sections

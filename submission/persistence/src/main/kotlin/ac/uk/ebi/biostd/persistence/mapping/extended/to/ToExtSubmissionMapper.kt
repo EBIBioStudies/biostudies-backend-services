@@ -12,7 +12,6 @@ import java.time.ZoneOffset
 internal const val TO_EXT_SUBMISSION_EXTENSIONS = "ac.uk.ebi.biostd.persistence.mapping.extended.to.ToExtSubmissionKt"
 
 class ToExtSubmissionMapper(private val submissionsPath: Path) {
-
     internal fun toExtSubmission(dbSubmission: Submission): ExtSubmission {
         val submissionFileSource = PathFilesSource(submissionsPath.resolve(dbSubmission.relPath))
         return ExtSubmission(

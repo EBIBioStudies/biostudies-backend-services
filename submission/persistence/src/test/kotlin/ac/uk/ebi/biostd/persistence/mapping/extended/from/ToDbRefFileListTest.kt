@@ -5,7 +5,6 @@ import ac.uk.ebi.biostd.persistence.test.extFileList
 import org.junit.jupiter.api.Test
 
 internal class ToDbRefFileListTest {
-
     @Test
     fun toDbFileList() {
         val extFiles = extFileList

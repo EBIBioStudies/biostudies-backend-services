@@ -9,6 +9,7 @@ import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtTag
 import org.assertj.core.api.Assertions.assertThat
 import java.time.OffsetDateTime
+import java.time.ZoneOffset
 
 internal const val SECRET_KEY = "ABC-123"
 internal const val SUB_ACC_NO = "Sub-Accno"
@@ -16,7 +17,7 @@ internal const val SUB_TITLE = "Study"
 internal const val SUB_RELPATH = "/submission/relpath"
 internal const val SUB_ROOT_PATH = "/rootpah"
 
-internal val creationTime = OffsetDateTime.now()
+internal val creationTime = OffsetDateTime.of(2018, 1, 1, 5, 10, 22, 1, ZoneOffset.UTC)
 internal val modificationTime = creationTime.plusDays(1)
 internal val releaseTime = modificationTime.plusDays(1)
 
