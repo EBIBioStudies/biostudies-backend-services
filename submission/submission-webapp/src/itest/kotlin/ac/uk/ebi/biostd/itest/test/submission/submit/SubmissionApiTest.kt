@@ -8,8 +8,8 @@ import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.factory.invalidLinkUrl
 import ac.uk.ebi.biostd.persistence.model.AccessTag
 import ac.uk.ebi.biostd.persistence.model.Tag
-import ac.uk.ebi.biostd.persistence.repositories.TagsDataRepository
-import ac.uk.ebi.biostd.persistence.repositories.TagsRefRepository
+import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepository
+import ac.uk.ebi.biostd.persistence.repositories.TagDataRepository
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.file
@@ -46,8 +46,8 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
     @DirtiesContext
     inner class SubmissionApiTest(
         @Autowired val submissionRepository: SubmissionRepository,
-        @Autowired val tagsDataRepository: TagsDataRepository,
-        @Autowired val tagsRefRepository: TagsRefRepository,
+        @Autowired val tagsDataRepository: AccessTagDataRepository,
+        @Autowired val tagsRefRepository: TagDataRepository,
         @Autowired val groupService: IGroupService
     ) {
         @LocalServerPort

@@ -15,8 +15,8 @@ import ac.uk.ebi.biostd.persistence.model.LinkAttribute
 import ac.uk.ebi.biostd.persistence.model.ReferencedFileAttribute
 import ac.uk.ebi.biostd.persistence.model.SectionAttribute
 import ac.uk.ebi.biostd.persistence.model.SubmissionAttribute
-import ac.uk.ebi.biostd.persistence.repositories.TagsDataRepository
-import ac.uk.ebi.biostd.persistence.repositories.TagsRefRepository
+import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepository
+import ac.uk.ebi.biostd.persistence.repositories.TagDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import arrow.core.Either
 import ebi.ac.uk.base.orFalse
@@ -44,8 +44,8 @@ import ac.uk.ebi.biostd.persistence.model.Section as SectionDb
 import ac.uk.ebi.biostd.persistence.model.Submission as SubmissionDb
 
 class SubmissionMapper(
-    private val tagsRepository: TagsDataRepository,
-    private val tagsRefRepository: TagsRefRepository,
+    private val tagsRepository: AccessTagDataRepository,
+    private val tagsRefRepository: TagDataRepository,
     private var userRepository: UserDataRepository
 ) {
     fun toSubmissionDb(submission: ExtendedSubmission) = SubmissionDb().apply {

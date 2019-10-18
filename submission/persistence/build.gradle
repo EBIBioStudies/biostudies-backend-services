@@ -12,6 +12,7 @@ dependencies {
     compile project(":commons:commons-util")
     compile project(":commons:commons-bio")
     compile project(":commons:commons-model-extended")
+    compile(project(":commons:commons-test"))
 
     compile(HibernateEntityManager)
     compile(SpringDataJpa)

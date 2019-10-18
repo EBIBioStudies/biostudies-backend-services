@@ -3,10 +3,10 @@ package ac.uk.ebi.biostd.persistence.integration
 import ac.uk.ebi.biostd.persistence.mapping.SubmissionDbMapper
 import ac.uk.ebi.biostd.persistence.mapping.SubmissionMapper
 import ac.uk.ebi.biostd.persistence.model.AccessTag
+import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.LockExecutor
 import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.SubmissionDataRepository
-import ac.uk.ebi.biostd.persistence.repositories.TagsDataRepository
 import arrow.core.getOrElse
 import arrow.core.toOption
 import ebi.ac.uk.base.toOption
@@ -23,7 +23,7 @@ import org.springframework.transaction.annotation.Transactional
 open class PersistenceContextImpl(
     private val subRepository: SubmissionDataRepository,
     private val sequenceRepository: SequenceDataRepository,
-    private val accessTagsDataRepository: TagsDataRepository,
+    private val accessTagsDataRepository: AccessTagDataRepository,
     private val lockExecutor: LockExecutor,
     private val subDbMapper: SubmissionDbMapper,
     private val subMapper: SubmissionMapper
@@ -46,7 +46,8 @@ open class PersistenceContextImpl(
     override fun getParentAccPattern(submission: Submission) =
         getParentSubmission(submission)
             .flatMap { parent ->
-                parent.attributes.firstOrNull { it.name == SubFields.ACC_NO_TEMPLATE.toString() }.toOption() }
+                parent.attributes.firstOrNull { it.name == SubFields.ACC_NO_TEMPLATE.toString() }.toOption()
+            }
             .map { it.value }
 
     override fun getSubmission(accNo: String) =

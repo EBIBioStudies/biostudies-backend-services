@@ -15,7 +15,7 @@ fun ExtSubmission.toSimpleSubmission(): Submission {
         accNo = accNo,
         section = section.toSection(),
         attributes = attributes.map { it.toAttribute() }.toMutableList(),
-        tags = tags.toMutableList()
+        tags = tags.mapTo(mutableListOf()) { Pair(it.name, it.value) }
     )
 }
 
@@ -27,8 +27,8 @@ fun ExtSubmission.toExtSubmission(): Submission {
         accNo = accNo,
         section = section.toSection(),
         attributes = attributes.map { it.toAttribute() }.toMutableList(),
-        tags = tags.toMutableList(),
-        accessTags = accessTags.toMutableList()
+        tags = tags.mapTo(mutableListOf()) { Pair(it.name, it.value) },
+        accessTags = accessTags.mapTo(mutableListOf()) { it.name }
     )
 
     submission.secretKey = secretKey

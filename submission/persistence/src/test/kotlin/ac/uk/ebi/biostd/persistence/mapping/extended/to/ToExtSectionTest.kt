@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.persistence.mapping.extended.to
 
-import ac.uk.ebi.biostd.persistence.mapping.extended.to.test.extTestAttribute
+import ac.uk.ebi.biostd.persistence.mapping.extended.to.test.extTestAttr
 import ac.uk.ebi.biostd.persistence.mapping.extended.to.test.extTestFile
 import ac.uk.ebi.biostd.persistence.mapping.extended.to.test.extTestLink
 import ac.uk.ebi.biostd.persistence.mapping.extended.to.test.extTestSection
@@ -49,7 +49,7 @@ class ToExtSectionTest(
             TO_EXT_LINK_EXTENSIONS,
             TO_EXT_EITHER_LIST_EXTENSIONS) {
             every { fileList.toExtFileList(fileSource) } returns extFileList
-            every { sectionAttribute.toExtAttribute() } returns extTestAttribute
+            every { sectionAttribute.toExtAttribute() } returns extTestAttr
             every { sections.toExtSections(fileSource) } returns listOf(Either.left(extTestSection))
             every { files.toExtFiles(fileSource) } returns listOf(Either.left(extTestFile))
             every { links.toExtLinks() } returns listOf(Either.left(extTestLink))
@@ -59,7 +59,7 @@ class ToExtSectionTest(
             assertThat(sectionResult.accNo).isEqualTo(section.accNo)
             assertThat(sectionResult.type).isEqualTo(section.type)
             assertThat(sectionResult.fileList).isEqualTo(extFileList)
-            assertThat(sectionResult.attributes).containsExactly(extTestAttribute)
+            assertThat(sectionResult.attributes).containsExactly(extTestAttr)
             assertThat(sectionResult.sections).containsExactly(Either.left(extTestSection))
             assertThat(sectionResult.files).containsExactly(Either.left(extTestFile))
             assertThat(sectionResult.links).containsExactly(Either.left(extTestLink))
