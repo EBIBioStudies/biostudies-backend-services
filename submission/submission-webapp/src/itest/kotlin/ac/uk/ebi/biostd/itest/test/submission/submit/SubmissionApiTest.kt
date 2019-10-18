@@ -2,14 +2,10 @@ package ac.uk.ebi.biostd.itest.test.submission.submit
 
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
-import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
-import ac.uk.ebi.biostd.itest.entities.RegularUser
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.factory.invalidLinkUrl
-import ac.uk.ebi.biostd.itest.factory.simpleSubmissionTsv
-import ac.uk.ebi.biostd.persistence.common.SubmissionTypes.Study
 import ac.uk.ebi.biostd.persistence.model.AccessTag
 import ac.uk.ebi.biostd.persistence.model.Tag
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepository
@@ -48,7 +44,7 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
     @ExtendWith(SpringExtension::class)
     @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
     @DirtiesContext
-    inner class SingleSubmissionTest(
+    inner class SubmissionApiTest(
         @Autowired val submissionRepository: SubmissionRepository,
         @Autowired val tagsDataRepository: AccessTagDataRepository,
         @Autowired val tagsRefRepository: TagDataRepository,
@@ -61,119 +57,122 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
 
         @BeforeAll
         fun init() {
-            val securityClient = SecurityWebClient.create("http://localhost:$serverPort")
-            securityClient.registerUser(SuperUser.asRegisterRequest())
-            securityClient.registerUser(RegularUser.asRegisterRequest())
-            webClient = securityClient.getAuthenticatedClient(SuperUser.email, SuperUser.password)
-
+            webClient = getWebClient(serverPort, SuperUser)
             tagsDataRepository.save(AccessTag(name = "Public"))
             tagsRefRepository.save(Tag(classifier = "classifier", name = "tag"))
         }
 
         @Test
-        fun `submit simple submission`() {
+        fun `submit with submission object`() {
             val submission = submission("SimpleAcc1") {
                 title = "Simple Submission"
             }
 
-            val response = webClient.submitSingle(submission, SubmissionFormat.XML)
-
-            assertThat(response).isNotNull
-            assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
-
-            val savedSubmission = submissionRepository.getByAccNo("SimpleAcc1")
-            assertThat(savedSubmission).isNotNull
-            assertThat(savedSubmission).isEqualTo(submission)
+            assertThat(webClient.submitSingle(submission, SubmissionFormat.TSV)).isSuccessful()
+            assertThat(submissionRepository.getByAccNo("SimpleAcc1")).isEqualTo(submission)
         }
 
         @Test
-        fun `submission with tags`() {
-            val submission = submission("SimpleAcc2") {
-                title = "Simple Submission With Tags"
-                tags = mutableListOf(Pair("classifier", "tag"))
-            }
+        fun `submission with root path`() {
+            val submission = tsv {
+                line("Submission", "S-12364")
+                line("Title", "Sample Submission")
+                line("RootPath", "RootPathFolder")
+                line()
 
-            val response = webClient.submitSingle(submission, SubmissionFormat.JSON)
+                line("Study")
+                line()
 
-            assertThat(response).isNotNull
-            assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
+                line("File", "DataFile5.txt")
+                line()
+            }.toString()
 
-            val savedSubmission = submissionRepository.getByAccNo("SimpleAcc2")
-            assertThat(savedSubmission).isNotNull
-            assertThat(savedSubmission).isEqualTo(submission)
-        }
-
-        @Test
-        fun `submission with rootPath file`() {
             tempFolder.createDirectory("RootPathFolder")
             webClient.uploadFiles(listOf(tempFolder.createFile("RootPathFolder/DataFile5.txt")), "RootPathFolder")
 
-            val submission = submission("S-12364") {
-                rootPath = "RootPathFolder"
-                title = "Sample Submission"
-                section(Study.value) { file("DataFile5.txt") }
-            }
+            assertThat(webClient.submitSingle(submission, SubmissionFormat.TSV)).isSuccessful()
+            assertThat(submissionRepository.getByAccNo("S-12364")).isEqualTo(
+                submission("S-12364") {
+                    title = "Sample Submission"
+                    rootPath = "RootPathFolder"
 
-            val response = webClient.submitSingle(submission, SubmissionFormat.TSV)
-            assertThat(response).isNotNull
-            assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
+                    section("Study") { file("DataFile5.txt") }
+                }
+            )
         }
 
         @Test
         fun `submission with group file`() {
             val groupName = "The-Group"
+            val submission = tsv {
+                line("Submission", "S-54896")
+                line("Title", "Sample Submission")
+                line()
+
+                line("Study")
+                line()
+
+                line("File", "Groups/$groupName/GroupFile1.txt")
+                line()
+
+                line("File", "Groups/$groupName/folder/GroupFile2.txt")
+                line()
+            }.toString()
+
             groupService.addUserInGroup(groupService.createGroup(groupName, "group-desc").name, SuperUser.email)
             webClient.uploadGroupFiles(groupName, listOf(tempFolder.createFile("GroupFile1.txt")))
             webClient.uploadGroupFiles(groupName, listOf(tempFolder.createFile("GroupFile2.txt")), "folder")
 
-            val submission = submission("S-54896") {
-                title = "Sample Submission"
-                section(Study.value) {
-                    file("Groups/$groupName/GroupFile1.txt")
-                    file("Groups/$groupName/folder/GroupFile2.txt")
-                }
-            }
+            assertThat(webClient.submitSingle(submission, SubmissionFormat.TSV)).isSuccessful()
+            assertThat(submissionRepository.getByAccNo("S-54896")).isEqualTo(
+                submission("S-54896") {
+                    title = "Sample Submission"
 
-            val response = webClient.submitSingle(submission, SubmissionFormat.TSV)
-            assertThat(response).isNotNull
-            assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
+                    section("Study") {
+                        file("Groups/$groupName/GroupFile1.txt")
+                        file("Groups/$groupName/folder/GroupFile2.txt")
+                    }
+                }
+            )
         }
 
         @Test
         fun `resubmit existing submission`() {
-            val accNo = "S-ABC123"
-            val title = "Simple Submission"
-            val submission = simpleSubmissionTsv().toString()
-            val response = webClient.submitSingle(submission, SubmissionFormat.TSV)
-            assertThat(response).isNotNull
-            assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
-            assertExtSubmission(accNo, title)
+            val submission = tsv {
+                line("Submission", "S-ABC123")
+                line("Title", "Simple Submission")
+                line()
+            }.toString()
 
-            val resubmitResponse = webClient.submitSingle(submission, SubmissionFormat.TSV)
-            assertThat(resubmitResponse).isNotNull
-            assertThat(resubmitResponse.statusCode).isEqualTo(HttpStatus.OK)
-            assertExtSubmission(accNo, title, 2)
+            assertThat(webClient.submitSingle(submission, SubmissionFormat.TSV)).isSuccessful()
+
+            val original = submissionRepository.getExtendedByAccNo("S-ABC123")
+            assertThat(original.title).isEqualTo("Simple Submission")
+            assertThat(original.version).isEqualTo(1)
+
+            assertThat(webClient.submitSingle(submission, SubmissionFormat.TSV)).isSuccessful()
+            val resubmitted = submissionRepository.getExtendedByAccNo("S-ABC123")
+            assertThat(resubmitted.title).isEqualTo("Simple Submission")
+            assertThat(resubmitted.version).isEqualTo(2)
         }
 
         @Test
         fun `new submission with past release date`() {
-            val pageTab = tsv {
+            val submission = tsv {
                 line("Submission", "S-RLSD123")
                 line("Title", "Test Public Submission")
                 line("ReleaseDate", "2000-01-31")
                 line()
             }.toString()
 
-            val response = webClient.submitSingle(pageTab, SubmissionFormat.TSV)
-            assertThat(response).isNotNull
-            assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
+            assertThat(webClient.submitSingle(submission, SubmissionFormat.TSV)).isSuccessful()
 
-            val submission = submissionRepository.getExtendedByAccNo("S-RLSD123")
-            assertThat(submission.accNo).isEqualTo("S-RLSD123")
-            assertThat(submission.title).isEqualTo("Test Public Submission")
-            assertThat(submission.released).isTrue()
-            assertThat(submission.accessTags).hasSize(1)
-            assertThat(submission.accessTags.first()).isEqualTo("Public")
+            val savedSubmission = submissionRepository.getExtendedByAccNo("S-RLSD123")
+            assertThat(savedSubmission.accNo).isEqualTo("S-RLSD123")
+            assertThat(savedSubmission.title).isEqualTo("Test Public Submission")
+            assertThat(savedSubmission.released).isTrue()
+            assertThat(savedSubmission.accessTags).hasSize(1)
+            assertThat(savedSubmission.accessTags.first()).isEqualTo("Public")
         }
 
         @Test
@@ -183,13 +182,6 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
             }
 
             assertThat(exception.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
-        }
-
-        private fun assertExtSubmission(accNo: String, expectedTitle: String, expectedVersion: Int = 1) {
-            val submission = submissionRepository.getExtendedByAccNo(accNo)
-
-            assertThat(submission.title).isEqualTo(expectedTitle)
-            assertThat(submission.version).isEqualTo(expectedVersion)
         }
     }
 }

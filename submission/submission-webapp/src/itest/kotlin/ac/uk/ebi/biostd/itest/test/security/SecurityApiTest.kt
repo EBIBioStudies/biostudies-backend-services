@@ -15,13 +15,12 @@ import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
 
 @ExtendWith(TemporaryFolderExtension::class)
-internal class SecurityTest(tempFolder: TemporaryFolder) : BaseIntegrationTest(tempFolder) {
+internal class SecurityApiTest(tempFolder: TemporaryFolder) : BaseIntegrationTest(tempFolder) {
     @Nested
     @ExtendWith(SpringExtension::class)
     @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
     @DirtiesContext
-    inner class SecurityTest {
-
+    inner class SecurityApiTest {
         @LocalServerPort
         private var serverPort: Int = 0
 

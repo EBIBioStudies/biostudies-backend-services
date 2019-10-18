@@ -1,13 +1,11 @@
 package ac.uk.ebi.biostd.itest.test.files
 
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
-import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
 import ac.uk.ebi.biostd.common.config.SubmitterConfig
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ebi.ac.uk.api.UserFile
 import ebi.ac.uk.api.UserFileType
-import ebi.ac.uk.api.security.RegisterRequest
 import ebi.ac.uk.security.integration.components.IGroupService
 import ebi.ac.uk.test.clean
 import ebi.ac.uk.test.createFile
@@ -45,10 +43,8 @@ internal class GroupFilesApiTest(private val tempFolder: TemporaryFolder) : Base
 
         @BeforeAll
         fun init() {
-            val securityClient = SecurityWebClient.create("http://localhost:$serverPort")
-            securityClient.registerUser(RegisterRequest(SuperUser.username, SuperUser.email, SuperUser.password))
+            webClient = getWebClient(serverPort, SuperUser)
             groupService.addUserInGroup(groupService.createGroup(GROUP_NAME, GROUP_DESC).name, SuperUser.email)
-            webClient = securityClient.getAuthenticatedClient(SuperUser.email, SuperUser.password)
         }
 
         @BeforeEach
