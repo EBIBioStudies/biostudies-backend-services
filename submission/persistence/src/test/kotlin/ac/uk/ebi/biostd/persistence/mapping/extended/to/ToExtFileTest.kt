@@ -1,17 +1,12 @@
 package ac.uk.ebi.biostd.persistence.mapping.extended.to
 
-import ac.uk.ebi.biostd.persistence.mapping.extended.to.test.attribute
-import ac.uk.ebi.biostd.persistence.mapping.extended.to.test.extTestAttr
-import ac.uk.ebi.biostd.persistence.mapping.extended.to.test.fileAttribute
-import ac.uk.ebi.biostd.persistence.mapping.extended.to.test.refAttribute
-import ac.uk.ebi.biostd.persistence.model.File
-import ac.uk.ebi.biostd.persistence.model.ReferencedFile
+import ac.uk.ebi.biostd.persistence.mapping.extended.to.test.assertFileDb
+import ac.uk.ebi.biostd.persistence.mapping.extended.to.test.fileDb
+import ac.uk.ebi.biostd.persistence.mapping.extended.to.test.refRileDb
 import ebi.ac.uk.io.sources.FilesSource
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
-import io.mockk.mockkStatic
-import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import java.io.File as SystemFile
@@ -23,31 +18,17 @@ internal class ToExtFileTest(
 ) {
     @Test
     fun `File to ExtFile`() {
-        val file = File("fileName", 1, 55L, sortedSetOf(fileAttribute))
+        val file = fileDb
+        every { filesSource.getFile(file.name) } returns systemFile
 
-        mockkStatic(TO_EXT_ATTRIBUTE_EXTENSIONS) {
-            every { attribute.toExtAttribute() } returns extTestAttr
-            every { filesSource.getFile(file.name) } returns systemFile
-
-            val extFile = file.toExtFile(filesSource)
-            assertThat(extFile.fileName).isEqualTo(file.name)
-            assertThat(extFile.file).isEqualTo(systemFile)
-            assertThat(extFile.attributes).containsOnly(extTestAttr)
-        }
+        assertFileDb(file.toExtFile(filesSource), systemFile)
     }
 
     @Test
     fun `ReferencedFile to ExtFile`() {
-        val refFile = ReferencedFile("fileName", 0, 55L, sortedSetOf(refAttribute))
+        val refFile = refRileDb
+        every { filesSource.getFile(refFile.name) } returns systemFile
 
-        mockkStatic(TO_EXT_ATTRIBUTE_EXTENSIONS) {
-            every { attribute.toExtAttribute() } returns extTestAttr
-            every { filesSource.getFile(refFile.name) } returns systemFile
-
-            val extRefFile = refFile.toExtFile(filesSource)
-            assertThat(extRefFile.fileName).isEqualTo(refFile.name)
-            assertThat(extRefFile.file).isEqualTo(systemFile)
-            assertThat(extRefFile.attributes).containsOnly(extTestAttr)
-        }
+        assertFileDb(refFile.toExtFile(filesSource), systemFile)
     }
 }
