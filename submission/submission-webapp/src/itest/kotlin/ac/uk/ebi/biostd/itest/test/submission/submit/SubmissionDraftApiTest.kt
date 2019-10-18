@@ -8,11 +8,11 @@ import ebi.ac.uk.dsl.json.jsonObj
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
-import org.json.JSONObject
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import org.skyscreamer.jsonassert.JSONAssert.assertEquals
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.test.annotation.DirtiesContext
@@ -45,35 +45,36 @@ internal class SubmissionDraftApiTest(tempFolder: TemporaryFolder) : BaseIntegra
         @Test
         fun `get draft submission when draft does not exit but submissions does`() {
             webClient.submitSingle(pageTab, SubmissionFormat.JSON)
-            val tmpSubmission = JSONObject(webClient.getSubmissionDraft("ABC-123"))
-            assertThat(tmpSubmission.getString("accno")).isEqualTo("ABC-123")
+            val draftSubmission = webClient.getSubmissionDraft("ABC-123")
+            assertThat(draftSubmission.key).isEqualTo("ABC-123")
         }
 
         @Test
         fun `create and get submission draft`() {
-            val accession = webClient.createSubmissionDraft(pageTab)
-            val resultDraft = webClient.getSubmissionDraft(accession)
-            assertThat(resultDraft).isEqualTo(pageTab)
+            val draftSubmission = webClient.createSubmissionDraft(pageTab)
+            val resultDraft = webClient.getSubmissionDraft(draftSubmission.key)
+            assertEquals(resultDraft.content.toString(), pageTab, false)
         }
 
         @Test
         fun `create and update submission draft`() {
-            val accession = webClient.createSubmissionDraft(pageTab)
-            webClient.updateSubmissionDraft(accession, "new draft content")
+            val updatedValue = "{ \"value\": 1 }"
+            val draftSubmission = webClient.createSubmissionDraft(pageTab)
+            webClient.updateSubmissionDraft(draftSubmission.key, "{ \"value\": 1 }")
 
-            val draftResult = webClient.getSubmissionDraft(accession)
-            assertThat(draftResult).isEqualTo("new draft content")
+            val draftResult = webClient.getSubmissionDraft(draftSubmission.key)
+            assertEquals(draftResult.content.toString(), updatedValue, false)
         }
 
         @Test
         fun `search submission draft`() {
-            val accession = webClient.createSubmissionDraft(pageTab)
-            val submissions = webClient.searchSubmissionDraft(accession)
+            val draftSubmission = webClient.createSubmissionDraft(pageTab)
+            val submissions = webClient.searchSubmissionDraft(draftSubmission.key)
             assertThat(submissions).hasSize(1)
-            assertThat(submissions.first()).isEqualTo(pageTab)
+            assertEquals(submissions.first().content.toString(), pageTab, true)
 
-            webClient.deleteSubmissionDraft(accession)
-            assertThat(webClient.searchSubmissionDraft(accession)).isEmpty()
+            webClient.deleteSubmissionDraft(draftSubmission.key)
+            assertThat(webClient.getAllSubmissionDrafts()).isEmpty()
         }
     }
 }
