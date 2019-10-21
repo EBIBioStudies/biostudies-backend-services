@@ -107,4 +107,16 @@ class TimesProcessorTest(@MockK private val mockPersistenceContext: PersistenceC
         assertThat(submission.releaseTime).isEqualTo(releaseTime)
         assertThat(submission.modificationTime).isEqualTo(modificationTime)
     }
+
+    @Test
+    fun `process iso release date`() {
+        val releaseTime = OffsetDateTime.of(2019, 10, 10, 0, 0, 0, 0, ZoneOffset.UTC)
+        submission.releaseDate = "2019-10-10T09:27:04.000Z"
+
+        testInstance.process(submission, mockPersistenceContext)
+        assertTimeProcessing(mockNow, releaseTime, mockNow)
+
+        assertThat(submission.released).isFalse()
+        assertThat(submission.accessTags).isEmpty()
+    }
 }
