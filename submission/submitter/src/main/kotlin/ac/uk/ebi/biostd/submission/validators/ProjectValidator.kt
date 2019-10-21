@@ -2,10 +2,12 @@ package ac.uk.ebi.biostd.submission.validators
 
 import ac.uk.ebi.biostd.submission.exceptions.ProjectAccessTagAlreadyExistingException
 import ac.uk.ebi.biostd.submission.exceptions.ProjectAlreadyExistingException
+import ac.uk.ebi.biostd.submission.exceptions.ProjectMissingAccNoPatternException
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotSubmitProjectsException
 import ebi.ac.uk.base.ifFalse
 import ebi.ac.uk.base.ifTrue
 import ebi.ac.uk.model.ExtendedSubmission
+import ebi.ac.uk.model.extensions.accNoTemplate
 import ebi.ac.uk.persistence.PersistenceContext
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 
@@ -22,6 +24,8 @@ class ProjectValidator(private val userPrivilegesService: IUserPrivilegesService
     }
 
     private fun validateProject(project: ExtendedSubmission, context: PersistenceContext) {
+        project.accNoTemplate.isNullOrBlank().ifTrue { throw ProjectMissingAccNoPatternException() }
+
         context.isNew(project.accNo).ifFalse {
             throw ProjectAlreadyExistingException(project.accNo)
         }

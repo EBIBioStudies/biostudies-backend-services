@@ -2,8 +2,10 @@ package ac.uk.ebi.biostd.submission.validators
 
 import ac.uk.ebi.biostd.submission.exceptions.ProjectAccessTagAlreadyExistingException
 import ac.uk.ebi.biostd.submission.exceptions.ProjectAlreadyExistingException
+import ac.uk.ebi.biostd.submission.exceptions.ProjectMissingAccNoPatternException
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotSubmitProjectsException
 import ac.uk.ebi.biostd.submission.test.createBasicExtendedSubmission
+import ac.uk.ebi.biostd.submission.test.createBasicProject
 import ebi.ac.uk.persistence.PersistenceContext
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import io.mockk.clearAllMocks
@@ -23,7 +25,7 @@ class ProjectValidatorTest(
     @MockK private val persistenceContext: PersistenceContext,
     @MockK private val userPrivilegesService: IUserPrivilegesService
 ) {
-    private val project = createBasicExtendedSubmission()
+    private val project = createBasicProject()
     private val testInstance = ProjectValidator(userPrivilegesService)
 
     @BeforeEach
@@ -59,6 +61,14 @@ class ProjectValidatorTest(
             persistenceContext.isNew("ABC456")
             persistenceContext.accessTagExists("ABC456")
         }
+    }
+
+    @Test
+    fun `missing acc no pattern`() {
+        val error = assertThrows<ProjectMissingAccNoPatternException> {
+            testInstance.validate(createBasicExtendedSubmission(), persistenceContext)
+        }
+        assertThat(error.message).isEqualTo("The project accession number pattern is required")
     }
 
     @Test

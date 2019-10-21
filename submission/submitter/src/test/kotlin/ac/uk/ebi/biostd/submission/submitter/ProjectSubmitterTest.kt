@@ -1,8 +1,9 @@
 package ac.uk.ebi.biostd.submission.submitter
 
 import ac.uk.ebi.biostd.submission.processors.IProjectProcessor
-import ac.uk.ebi.biostd.submission.test.createBasicExtendedSubmission
+import ac.uk.ebi.biostd.submission.test.createBasicProject
 import ac.uk.ebi.biostd.submission.validators.IProjectValidator
+import ebi.ac.uk.model.AccPattern
 import ebi.ac.uk.persistence.PersistenceContext
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -18,7 +19,7 @@ class ProjectSubmitterTest(
     @MockK private val projectProcessor: IProjectProcessor,
     @MockK private val persistenceContext: PersistenceContext
 ) {
-    private val project = createBasicExtendedSubmission()
+    private val project = createBasicProject()
     private val testInstance = ProjectSubmitter(listOf(projectValidator), listOf(projectProcessor))
 
     @BeforeEach
@@ -27,6 +28,7 @@ class ProjectSubmitterTest(
         every { persistenceContext.saveSubmission(project) } answers { nothing }
         every { projectProcessor.process(project, persistenceContext) } answers { nothing }
         every { projectValidator.validate(project, persistenceContext) } answers { nothing }
+        every { persistenceContext.createAccNoPatternSequence(AccPattern("S-ABC")) } answers { nothing }
     }
 
     @Test
@@ -36,6 +38,8 @@ class ProjectSubmitterTest(
         verify(exactly = 1) {
             persistenceContext.saveAccessTag("ABC456")
             persistenceContext.saveSubmission(project)
+            persistenceContext.createAccNoPatternSequence(AccPattern("S-ABC"))
+
             projectProcessor.process(project, persistenceContext)
             projectValidator.validate(project, persistenceContext)
         }

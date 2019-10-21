@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.persistence.integration
 import ac.uk.ebi.biostd.persistence.mapping.SubmissionDbMapper
 import ac.uk.ebi.biostd.persistence.mapping.SubmissionMapper
 import ac.uk.ebi.biostd.persistence.model.AccessTag
+import ac.uk.ebi.biostd.persistence.model.Sequence
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.LockExecutor
 import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
@@ -28,6 +29,10 @@ open class PersistenceContextImpl(
     private val subDbMapper: SubmissionDbMapper,
     private val subMapper: SubmissionMapper
 ) : PersistenceContext {
+    override fun createAccNoPatternSequence(pattern: AccPattern) {
+        sequenceRepository.save(Sequence(pattern.prefix))
+    }
+
     @Transactional
     override fun getSequenceNextValue(pattern: AccPattern): Long {
         val sequence = sequenceRepository.getByPrefixAndSuffix(pattern.prefix, pattern.postfix)

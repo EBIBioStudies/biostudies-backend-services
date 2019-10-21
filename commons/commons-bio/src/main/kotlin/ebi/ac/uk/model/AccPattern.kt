@@ -4,7 +4,7 @@ import ebi.ac.uk.base.EMPTY
 
 /**
  * Represents a submission accession pattern which can be used for specific project to generate submission accession
- * number based on the same patter.
+ * number based on the same pattern.
  */
 class AccPattern(val prefix: String = EMPTY, val postfix: String = EMPTY) {
 

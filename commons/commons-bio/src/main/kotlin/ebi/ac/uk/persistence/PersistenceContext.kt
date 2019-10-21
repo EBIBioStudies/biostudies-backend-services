@@ -6,6 +6,8 @@ import ebi.ac.uk.model.ExtendedSubmission
 import ebi.ac.uk.model.Submission
 
 interface PersistenceContext {
+    fun createAccNoPatternSequence(pattern: AccPattern)
+
     fun getSequenceNextValue(pattern: AccPattern): Long
 
     fun getParentAccessTags(submission: Submission): List<String>
