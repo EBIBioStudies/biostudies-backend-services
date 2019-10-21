@@ -3,8 +3,6 @@ package ac.uk.ebi.biostd.submission.handlers
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.model.ExtendedSubmission
 
-const val INVALID_FILES_ERROR_MSG = "Submission contains invalid files"
-
 class FilesHandler(
     private val filesValidator: FilesValidator,
     private val filesCopier: FilesCopier,

@@ -36,6 +36,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.web.client.HttpClientErrorException
+import kotlin.test.assertFailsWith
 
 @ExtendWith(TemporaryFolderExtension::class)
 internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : BaseIntegrationTest(tempFolder) {
@@ -182,6 +183,19 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
             }
 
             assertThat(exception.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
+        }
+
+        @Test
+        fun `submission with validation error`() {
+            val submission = submission("S-400") {
+                title = "Submission with invalid file"
+                section("Study") { file("invalidfile.txt") }
+            }
+
+            val exception = assertFailsWith<HttpClientErrorException.BadRequest> {
+                webClient.submitSingle(submission, SubmissionFormat.XML)
+            }
+            assertThat(exception.responseBodyAsString.contains("Submission contains invalid files invalidfile.txt"))
         }
     }
 }

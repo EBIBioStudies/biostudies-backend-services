@@ -5,4 +5,10 @@ import ebi.ac.uk.model.File
 /**
  * Generated when a submission includes a reference to a file which is not present.
  */
-class InvalidFilesException(val invalidFiles: List<File>, message: String) : RuntimeException(message)
+class InvalidFilesException(private val invalidFiles: List<File>) : RuntimeException() {
+
+    override val message: String
+        get() = invalidFiles.joinToString(
+            prefix = (if (invalidFiles.size == 1) "File" else "Files").plus(" not uploaded: "),
+            separator = ", ") { it.path }
+}
