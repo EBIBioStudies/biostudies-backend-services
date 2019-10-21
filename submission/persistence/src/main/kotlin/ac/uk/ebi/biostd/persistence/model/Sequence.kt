@@ -1,25 +1,32 @@
 package ac.uk.ebi.biostd.persistence.model
 
+import javax.persistence.CascadeType
 import javax.persistence.Column
 import javax.persistence.Entity
 import javax.persistence.GeneratedValue
 import javax.persistence.Id
+import javax.persistence.JoinColumn
+import javax.persistence.OneToOne
 import javax.persistence.Table
 
 @Entity
 @Table(name = "IdGen")
-class Sequence {
+class Sequence(
+    @Column
+    var prefix: String,
 
+    @Column
+    var suffix: String
+) {
     @Id
     @GeneratedValue
     var id: Long = 0L
 
-    @Column
-    lateinit var prefix: String
+    @OneToOne(cascade = [CascadeType.ALL])
+    @JoinColumn(name = "counter_id")
+    lateinit var counter: Counter
 
-    @Column
-    lateinit var suffix: String
-
-    @Column(name = "counter_id")
-    var counter: Long = 0L
+    constructor(prefix: String) : this (prefix, "") {
+        counter = Counter(prefix)
+    }
 }
