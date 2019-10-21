@@ -10,14 +10,13 @@ const val ROW_CACHE_SIZE = 1000
 
 class ExcelReader {
     fun readContentAsTsv(file: File): String {
-        val inputStream = file.inputStream()
-        val sheet = StreamingReader.builder()
-            .rowCacheSize(ROW_CACHE_SIZE)
-            .bufferSize(BUFFER_SIZE)
-            .open(inputStream)
-            .getSheetAt(0)
-
-        inputStream.close()
+        val sheet = file.inputStream().use {
+            StreamingReader.builder()
+                .rowCacheSize(ROW_CACHE_SIZE)
+                .bufferSize(BUFFER_SIZE)
+                .open(it)
+                .getSheetAt(0)
+        }
 
         val tsvLines = sheet.map(
             { TsvLine(it.map { cell -> cell.valueAsString }) },
