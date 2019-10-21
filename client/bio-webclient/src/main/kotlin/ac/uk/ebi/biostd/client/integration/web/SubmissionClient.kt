@@ -8,7 +8,6 @@ import ebi.ac.uk.api.security.LoginRequest
 import ebi.ac.uk.api.security.RegisterRequest
 import ebi.ac.uk.api.security.UserProfile
 import ebi.ac.uk.base.EMPTY
-import ebi.ac.uk.model.DraftSubmission
 import ebi.ac.uk.model.Group
 import ebi.ac.uk.model.Project
 import ebi.ac.uk.model.Submission

@@ -1,7 +1,6 @@
 package ac.uk.ebi.biostd.itest.test.project.query
 
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
-import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.persistence.model.AccessPermission
@@ -9,6 +8,7 @@ import ac.uk.ebi.biostd.persistence.model.AccessType
 import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
 import ac.uk.ebi.biostd.persistence.repositories.TagsDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
+import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.line
 import ebi.ac.uk.dsl.tsv
 import ebi.ac.uk.test.createFile
@@ -43,10 +43,7 @@ internal class ProjectsListTest(private val tempFolder: TemporaryFolder) : BaseI
 
         @BeforeAll
         fun init() {
-            val securityClient = SecurityWebClient.create("http://localhost:$serverPort")
-            securityClient.registerUser(SuperUser.asRegisterRequest())
-
-            webClient = securityClient.getAuthenticatedClient(SuperUser.email, SuperUser.password)
+            webClient = getWebClient(serverPort, SuperUser)
             registerProject()
         }
 
@@ -69,7 +66,8 @@ internal class ProjectsListTest(private val tempFolder: TemporaryFolder) : BaseI
                 line("Project")
             }
 
-            webClient.submitProject(tempFolder.createFile("project.tsv", project.toString()))
+            val projectFile = tempFolder.createFile("project.tsv", project.toString())
+            assertThat(webClient.submitProject(projectFile)).isSuccessful()
 
             // TODO add operation to provide permissions
             accessPermissionRepository.save(AccessPermission(

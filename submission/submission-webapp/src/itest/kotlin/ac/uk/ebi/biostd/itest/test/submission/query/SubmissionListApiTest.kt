@@ -2,16 +2,14 @@ package ac.uk.ebi.biostd.itest.test.submission.query
 
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
-import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
-import ac.uk.ebi.biostd.itest.entities.RegularUser
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.persistence.model.AccessTag
 import ac.uk.ebi.biostd.persistence.repositories.TagsDataRepository
-import ebi.ac.uk.dsl.submission
-import ebi.ac.uk.model.extensions.releaseDate
-import ebi.ac.uk.model.extensions.title
+import ebi.ac.uk.asserts.assertThat
+import ebi.ac.uk.dsl.line
+import ebi.ac.uk.dsl.tsv
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
@@ -41,19 +39,18 @@ internal class SubmissionListApiTest(tempFolder: TemporaryFolder) : BaseIntegrat
 
         @BeforeAll
         fun init() {
-            val securityClient = SecurityWebClient.create("http://localhost:$serverPort")
-            securityClient.registerUser(SuperUser.asRegisterRequest())
-            securityClient.registerUser(RegularUser.asRegisterRequest())
+            webClient = getWebClient(serverPort, SuperUser)
             tagsDataRepository.save(AccessTag(name = "Public"))
 
-            webClient = securityClient.getAuthenticatedClient(SuperUser.email, SuperUser.password)
             for (idx in 11..30) {
-                val submission = submission("SimpleAcc$idx") {
-                    title = "Simple Submission $idx - keyword$idx"
-                    releaseDate = "2019-09-$idx"
-                }
+                val submission = tsv {
+                    line("Submission", "SimpleAcc$idx")
+                    line("Title", "Simple Submission $idx - keyword$idx")
+                    line("ReleaseDate", "2019-09-$idx")
+                    line()
+                }.toString()
 
-                webClient.submitSingle(submission, SubmissionFormat.JSON)
+                assertThat(webClient.submitSingle(submission, SubmissionFormat.TSV)).isSuccessful()
             }
         }
 

@@ -29,8 +29,8 @@ import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.SectionsTable
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.User
-import ebi.ac.uk.model.extensions.rootPath
-import ebi.ac.uk.model.extensions.title
+import ebi.ac.uk.model.constants.SubFields
+import ebi.ac.uk.model.constants.SubFields.TITLE
 import java.time.ZoneOffset.UTC
 import ac.uk.ebi.biostd.persistence.model.Attribute as AttributeDb
 import ac.uk.ebi.biostd.persistence.model.AttributeDetail as AttributeDetailDb
@@ -48,21 +48,25 @@ class SubmissionDbMapper {
     fun toExtSubmission(submissionDb: SubmissionDb) =
         ExtendedSubmission(submissionDb.accNo, toUser(submissionDb.owner)).apply {
             version = submissionDb.version
-            title = submissionDb.title
             secretKey = submissionDb.secretKey
             relPath = submissionDb.relPath
-            rootPath = submissionDb.rootPath
             released = submissionDb.released
             creationTime = toInstant(submissionDb.creationTime)
             modificationTime = toInstant(submissionDb.releaseTime)
             releaseTime = toInstant(submissionDb.releaseTime)
-
             section = sectionMapper.toSection(submissionDb.rootSection)
             extendedSection = sectionMapper.toExtendedSection(submissionDb.rootSection)
-            attributes = toAttributes(submissionDb.attributes)
+            attributes = getAttributes(submissionDb)
             accessTags = submissionDb.accessTags.mapTo(mutableListOf(), AccessTag::name)
             tags = submissionDb.tags.mapTo(mutableListOf(), ::toTag)
         }
+
+    private fun getAttributes(sub: SubmissionDb): List<Attribute> {
+        val attrs = toAttributes(sub.attributes)
+        sub.title?.also { title -> if (attrs.all { it.name != TITLE.value }) attrs.add(Attribute(TITLE.value, title)) }
+        sub.rootPath?.also { attrs.add(Attribute(SubFields.ROOT_PATH.value, it)) }
+        return attrs
+    }
 
     fun toSubmission(submissionDb: SubmissionDb) =
         Submission(submissionDb.accNo, attributes = toAttributes(submissionDb.attributes)).apply {
