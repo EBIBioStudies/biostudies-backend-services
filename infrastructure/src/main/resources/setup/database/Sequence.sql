@@ -1,0 +1,2 @@
+INSERT INTO Counter VALUES(1, -1, 'S-BSST');
+INSERT INTO IdGen VALUES(1, 'S-BSST', '', 1)

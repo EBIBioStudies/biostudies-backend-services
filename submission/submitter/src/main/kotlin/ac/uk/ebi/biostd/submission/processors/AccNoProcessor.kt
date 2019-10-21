@@ -71,5 +71,5 @@ class AccNoProcessor(
     }
 
     private fun getPatternOrDefault(pattern: Option<String>) =
-            pattern.map { patternUtil.getPattern(it) }.getOrElse { patternUtil.getPattern(DEFAULT_PATTERN) }
+        pattern.map { patternUtil.getPattern(it) }.getOrElse { patternUtil.getPattern(DEFAULT_PATTERN) }
 }
