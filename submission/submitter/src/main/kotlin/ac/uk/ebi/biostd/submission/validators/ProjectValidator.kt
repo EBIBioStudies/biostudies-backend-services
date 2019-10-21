@@ -4,8 +4,7 @@ import ac.uk.ebi.biostd.submission.exceptions.ProjectAccessTagAlreadyExistingExc
 import ac.uk.ebi.biostd.submission.exceptions.ProjectAlreadyExistingException
 import ac.uk.ebi.biostd.submission.exceptions.ProjectMissingAccNoPatternException
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotSubmitProjectsException
-import ebi.ac.uk.base.ifFalse
-import ebi.ac.uk.base.ifTrue
+import ebi.ac.uk.base.isNotBlank
 import ebi.ac.uk.model.ExtendedSubmission
 import ebi.ac.uk.model.extensions.accNoTemplate
 import ebi.ac.uk.persistence.PersistenceContext
@@ -18,19 +17,15 @@ class ProjectValidator(private val userPrivilegesService: IUserPrivilegesService
     }
 
     private fun validatePrivileges(project: ExtendedSubmission) {
-        userPrivilegesService.canSubmitProjects(project.user.email).ifFalse {
+        require(userPrivilegesService.canSubmitProjects(project.user.email)) {
             throw UserCanNotSubmitProjectsException(project.user)
         }
     }
 
     private fun validateProject(project: ExtendedSubmission, context: PersistenceContext) {
-        project.accNoTemplate.isNullOrBlank().ifTrue { throw ProjectMissingAccNoPatternException() }
-
-        context.isNew(project.accNo).ifFalse {
-            throw ProjectAlreadyExistingException(project.accNo)
-        }
-
-        context.accessTagExists(project.accNo).ifTrue {
+        require(project.accNoTemplate.isNotBlank()) { throw ProjectMissingAccNoPatternException() }
+        require(context.isNew(project.accNo)) { throw ProjectAlreadyExistingException(project.accNo) }
+        require(context.accessTagExists(project.accNo).not()) {
             throw ProjectAccessTagAlreadyExistingException(project.accNo)
         }
     }
