@@ -25,4 +25,8 @@ class Sequence(
     @OneToOne(cascade = [CascadeType.ALL])
     @JoinColumn(name = "counter_id")
     lateinit var counter: Counter
+
+    constructor(prefix: String) : this (prefix, "") {
+        counter = Counter(prefix)
+    }
 }

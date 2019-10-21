@@ -5,7 +5,6 @@ import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
 import ac.uk.ebi.biostd.itest.entities.SuperUser
-import ac.uk.ebi.biostd.persistence.model.Counter
 import ac.uk.ebi.biostd.persistence.model.Sequence
 import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
@@ -47,7 +46,7 @@ internal class EmptyAccNoApiTest(tempFolder: TemporaryFolder) : BaseIntegrationT
         @BeforeAll
         fun init() {
             webClient = getWebClient(serverPort, SuperUser)
-            sequenceRepository.save(Sequence("S-BSST", "").apply { counter = Counter("S-BSST") })
+            sequenceRepository.save(Sequence("S-BSST"))
         }
 
         @Test
