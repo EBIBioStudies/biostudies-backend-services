@@ -47,5 +47,4 @@ class TimesProcessor : SubmissionProcessor {
             { throw InvalidDateFormatException(date) },
             { it.atStartOfDay().atOffset(ZoneOffset.UTC) }
         )
-
 }

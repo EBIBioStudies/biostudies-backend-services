@@ -5,6 +5,7 @@ import Dependencies.KotlinReflect
 import Dependencies.KotlinStdLib
 import Dependencies.Poi
 import Dependencies.PoiOxml
+import Dependencies.XlsxStreamer
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
 import TestDependencies.XmlUnitAssertJ
@@ -15,6 +16,7 @@ dependencies {
     compile(Arrow)
     compile(KotlinStdLib)
     compile(KotlinReflect)
+    compile(XlsxStreamer)
 
     // Apache commons
     compile(Poi)
