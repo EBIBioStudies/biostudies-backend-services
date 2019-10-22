@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.persistence.mapping.extended.to.test
 import ac.uk.ebi.biostd.persistence.model.Attribute
 import ac.uk.ebi.biostd.persistence.model.AttributeDetail
 import ac.uk.ebi.biostd.persistence.model.FileAttribute
+import ac.uk.ebi.biostd.persistence.model.LinkAttribute
 import ac.uk.ebi.biostd.persistence.model.ReferencedFileAttribute
 import ebi.ac.uk.extended.model.ExtAttribute
 import ebi.ac.uk.extended.model.ExtAttributeDetail
@@ -14,6 +15,7 @@ internal val valueDetailDb get() = AttributeDetail("value attribute name", "valu
 
 internal val fileAttributeDb = FileAttribute(attributeDb)
 internal val refAttributeDb = ReferencedFileAttribute(attributeDb)
+internal val linkAttributeDb = LinkAttribute(attributeDb)
 
 internal fun assertExtAttribute(extAttribute: ExtAttribute) {
     Assertions.assertThat(extAttribute.name).isEqualTo(attributeDb.name)
