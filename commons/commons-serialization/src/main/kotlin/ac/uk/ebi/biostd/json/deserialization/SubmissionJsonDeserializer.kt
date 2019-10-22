@@ -20,7 +20,7 @@ internal class SubmissionJsonDeserializer : StdDeserializer<Submission>(Submissi
 
         return Submission(
             accNo = node.findNode<TextNode>(SubFields.ACC_NO.value)?.textValue().orEmpty(),
-            attributes = mapper.convertList(node.findNode<JsonNode>(SubFields.ATTRIBUTES.value)),
-            section = mapper.convertNode(node.findNode<JsonNode>(SubFields.SECTION.value)) ?: Section())
+            attributes = mapper.convertList(node.findNode(SubFields.ATTRIBUTES.value)),
+            section = mapper.convertNode(node.findNode(SubFields.SECTION.value)) ?: Section())
     }
 }

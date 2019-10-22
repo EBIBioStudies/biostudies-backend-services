@@ -2,13 +2,16 @@ package ac.uk.ebi.biostd.submission.processors
 
 import ac.uk.ebi.biostd.submission.exceptions.InvalidDateFormatException
 import arrow.core.Try
+import arrow.core.recoverWith
 import ebi.ac.uk.model.ExtendedSubmission
 import ebi.ac.uk.model.constants.SubFields
 import ebi.ac.uk.model.extensions.addAccessTag
 import ebi.ac.uk.model.extensions.releaseDate
 import ebi.ac.uk.persistence.PersistenceContext
+import java.time.Instant
 import java.time.LocalDate
 import java.time.OffsetDateTime
+import java.time.ZoneId
 import java.time.ZoneOffset
 
 /**
@@ -35,7 +38,13 @@ class TimesProcessor : SubmissionProcessor {
     private fun parseDate(date: String): OffsetDateTime =
         Try {
             LocalDate.parse(date)
-                .atStartOfDay()
-                .atOffset(ZoneOffset.UTC)
-        }.fold({ throw InvalidDateFormatException(date) }, { it })
+        }.recoverWith {
+            Try {
+                Instant.parse(date).atZone(ZoneId.systemDefault())
+                    .toLocalDate()
+            }
+        }.fold(
+            { throw InvalidDateFormatException(date) },
+            { it.atStartOfDay().atOffset(ZoneOffset.UTC) }
+        )
 }

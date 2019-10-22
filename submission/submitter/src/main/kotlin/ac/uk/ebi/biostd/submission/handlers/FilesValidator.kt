@@ -14,6 +14,6 @@ class FilesValidator {
     private fun validateFiles(submission: ExtendedSubmission, filesSource: FilesSource) {
         submission.allFiles()
             .filter { file -> filesSource.exists(file.path).not() }
-            .ifNotEmpty { throw InvalidFilesException(it, INVALID_FILES_ERROR_MSG) }
+            .ifNotEmpty { throw InvalidFilesException(it) }
     }
 }
