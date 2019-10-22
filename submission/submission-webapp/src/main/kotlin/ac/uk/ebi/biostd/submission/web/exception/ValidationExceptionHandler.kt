@@ -1,7 +1,6 @@
 package ac.uk.ebi.biostd.submission.web.exception
 
 import ac.uk.ebi.biostd.submission.exceptions.InvalidSubmissionException
-import ac.uk.ebi.biostd.submission.exceptions.ValidationException
 import ebi.ac.uk.errors.ValidationNode
 import ebi.ac.uk.errors.ValidationNodeStatus.ERROR
 import ebi.ac.uk.errors.ValidationTree
@@ -24,5 +23,4 @@ class ValidationExceptionHandler {
         )
         return ValidationTree(FAIL, node)
     }
-
 }

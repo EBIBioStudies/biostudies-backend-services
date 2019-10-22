@@ -32,7 +32,9 @@ class AccNoProcessor(
 
     private fun getAccNo(submission: ExtendedSubmission, context: PersistenceContext): AccNumber {
         return when {
-            context.isNew(submission.accNo) && userPrivilegesService.canProvideAccNo(submission.user.email).not() ->
+            submission.accNo.isNotEmpty() &&
+                context.isNew(submission.accNo) &&
+                userPrivilegesService.canProvideAccNo(submission.user.email).not() ->
                 throw ProvideAccessNumber(submission.user)
             userPrivilegesService.canResubmit(
                 submission.user.email, submission.user, submission.attachTo, submission.accessTags).not() ->
@@ -44,10 +46,10 @@ class AccNoProcessor(
 
     private fun calculateAccNo(submission: ExtendedSubmission, context: PersistenceContext): AccNumber {
         return when {
-            patternUtil.isPattern(submission.accNo) ->
-                calculateAccNo(patternUtil.getPattern(submission.accNo), context)
             submission.accNo.isEmpty() ->
                 calculateAccNo(getPatternOrDefault(context.getParentAccPattern(submission)), context)
+            patternUtil.isPattern(submission.accNo) ->
+                calculateAccNo(patternUtil.getPattern(submission.accNo), context)
             else ->
                 patternUtil.extractAccessNumber(submission.accNo)
         }

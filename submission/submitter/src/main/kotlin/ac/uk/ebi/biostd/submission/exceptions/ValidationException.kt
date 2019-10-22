@@ -4,4 +4,3 @@ import java.lang.RuntimeException
 
 class ValidationException(message: String, val causes: List<ValidationNode>) :
     RuntimeException(message)
-

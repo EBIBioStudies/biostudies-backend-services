@@ -25,16 +25,23 @@ class SectionDeserializerTest {
     }
 
     @Test
-    fun deserialize() {
+    fun `deserialize study submission`() {
         val json = jsonObj {
             "accno" to "abc123"
             "type" to "Study"
         }.toString()
 
-        assertThat(testInstance.deserialize<Section>(json)).isEqualTo(
-            section("Study") {
-                accNo = "abc123"
-            })
+        assertThat(testInstance.deserialize<Section>(json)).isEqualTo(section("Study") { accNo = "abc123" })
+    }
+
+    @Test
+    fun `deserialize with null acc number`() {
+        val json = jsonObj {
+            "accno" to null
+            "type" to "Study"
+        }.toString()
+
+        assertThat(testInstance.deserialize<Section>(json)).isEqualTo(section("Study") { })
     }
 
     @Test
@@ -44,9 +51,6 @@ class SectionDeserializerTest {
             "type" to "Compound"
         }.toString()
 
-        assertThat(testInstance.deserialize<Section>(json)).isEqualTo(
-            section("Compound") {
-                accNo = "abc123"
-            })
+        assertThat(testInstance.deserialize<Section>(json)).isEqualTo(section("Compound") { accNo = "abc123" })
     }
 }

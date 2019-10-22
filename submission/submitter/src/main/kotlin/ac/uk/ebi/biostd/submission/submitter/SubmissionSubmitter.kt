@@ -24,8 +24,8 @@ class SubmissionSubmitter(
     ): Submission {
         val exceptionList = mutableListOf<Throwable>()
 
-        validators.map { Try { it.validate(submission, context) }.getOrElse { exceptionList.add(it)} }
-        processors.map { Try { it.process(submission, context) }.getOrElse { exceptionList.add(it)} }
+        validators.map { Try { it.validate(submission, context) }.getOrElse { exceptionList.add(it) } }
+        processors.map { Try { it.process(submission, context) }.getOrElse { exceptionList.add(it) } }
         Try { filesHandler.processFiles(submission, files) }.getOrElse { exceptionList.add(it) }
 
         exceptionList.ifNotEmpty {
