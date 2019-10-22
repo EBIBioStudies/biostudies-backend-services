@@ -8,4 +8,4 @@ class ProjectAccessTagAlreadyExistingException(
     project: String
 ) : RuntimeException("The access tag with name $project already exists")
 
-class ProjectMissingAccNoPatternException : RuntimeException("The project accession number pattern is required")
+class ProjectInvalidAccNoPatternException(message: String) : RuntimeException(message)

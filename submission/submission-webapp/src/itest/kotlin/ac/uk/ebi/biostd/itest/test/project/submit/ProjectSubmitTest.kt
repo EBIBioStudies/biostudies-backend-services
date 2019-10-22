@@ -53,7 +53,7 @@ internal class ProjectSubmitTest(private val tempFolder: TemporaryFolder) : Base
             val project = tsv {
                 line("Submission", "AProject")
                 line("Title", "A Project")
-                line("AccNoTemplate", "S-APR")
+                line("AccNoTemplate", "!{S-APR,}")
                 line()
 
                 line("Project")

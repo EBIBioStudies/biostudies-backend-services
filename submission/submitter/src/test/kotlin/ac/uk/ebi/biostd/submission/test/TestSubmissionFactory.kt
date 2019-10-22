@@ -6,7 +6,7 @@ import ebi.ac.uk.model.extensions.accNoTemplate
 
 const val USER_ID = 123L
 const val ACC_NO = "ABC456"
-const val ACC_NO_TEMPLATE = "S-ABC"
+const val ACC_NO_TEMPLATE = "!{S-ABC}"
 const val USER_EMAIL = "user@mail.com"
 const val USER_SECRET_KEY = "SecretKey"
 

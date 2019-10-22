@@ -21,7 +21,7 @@ const val PATH_DIGITS = 3
  */
 class AccNoProcessor(
     private val userPrivilegesService: IUserPrivilegesService,
-    private val patternUtil: AccNoPatternUtil = AccNoPatternUtil()
+    private val patternUtil: AccNoPatternUtil
 ) : SubmissionProcessor {
     override fun process(submission: ExtendedSubmission, context: PersistenceContext) {
         val accNo = getAccNo(submission, context)

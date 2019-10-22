@@ -21,12 +21,11 @@ private val prefixPostfix = ACC_PATTERN.format(EXPECTED_PATTERN).toPattern()
 private val extractionPattern = "(\\D*)([0-9]+)(\\D*)".toPattern()
 
 class AccNoPatternUtil {
-
     fun getPattern(accPattern: String) =
-            getPrefixAccPattern(accPattern)
-                    .orElse { getPostfixAccPattern(accPattern) }
-                    .orElse { getPrefixPostfixPattern(accPattern) }
-                    .getOrElse { throw InvalidPatternException(accPattern, EXPECTED_PATTERN) }
+        getPrefixAccPattern(accPattern)
+            .orElse { getPostfixAccPattern(accPattern) }
+            .orElse { getPrefixPostfixPattern(accPattern) }
+            .getOrElse { throw InvalidPatternException(accPattern, EXPECTED_PATTERN) }
 
     /**
      * Checks if the submission accession number is a pattern, based on whether or not it matches the @see [ACC_PATTERN]

@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.submission.processors
 
 import ac.uk.ebi.biostd.submission.exceptions.InvalidPermissionsException
+import ac.uk.ebi.biostd.submission.util.AccNoPatternUtil
 import arrow.core.Option
 import ebi.ac.uk.base.EMPTY
 import ebi.ac.uk.model.AccNumber
@@ -27,7 +28,9 @@ class AccNoProcessorTest(
     @MockK private val mockUserPrivilegesService: IUserPrivilegesService
 ) {
     private val submission: ExtendedSubmission = ExtendedSubmission("AAB12", mockUser)
-    private val testInstance = AccNoProcessor(mockUserPrivilegesService)
+
+    // TODO change to a mock instance of AccNoPatternUtil
+    private val testInstance = AccNoProcessor(mockUserPrivilegesService, AccNoPatternUtil())
 
     @BeforeEach
     fun init() {

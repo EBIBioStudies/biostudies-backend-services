@@ -61,7 +61,7 @@ internal class ProjectsListTest(private val tempFolder: TemporaryFolder) : BaseI
             val project = tsv {
                 line("Submission", "SampleProject")
                 line("Title", "Sample Project")
-                line("AccNoTemplate", "S-SAMP")
+                line("AccNoTemplate", "!{S-SAMP,}")
                 line()
 
                 line("Project")
