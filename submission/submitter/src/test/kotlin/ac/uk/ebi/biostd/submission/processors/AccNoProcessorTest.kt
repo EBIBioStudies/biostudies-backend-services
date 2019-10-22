@@ -74,7 +74,6 @@ class AccNoProcessorTest(
 
     @Test
     fun `When submission is new and user is not allowed provide accession number`() {
-        submission.accNo = "AAB12"
         every { mockPersistenceContext.isNew("AAB12") } returns true
         every { mockUserPrivilegesService.canProvideAccNo("test@mail.com") } returns false
 
