@@ -40,12 +40,12 @@ class AccNoProcessorTest(
 
     @ParameterizedTest(name = "when prefix is {0}, postfix is {1} and numeric value is {2}")
     @CsvSource(
-            "AA, BB, 88, AA/AA0-99BB/AA88BB",
-            "AA, BB, 200, AA/AAxxx200BB/AA200BB",
-            "AA, '', 88, AA/AA0-99/AA88",
-            "AA, '', 200, AA/AAxxx200/AA200",
-            "'', 'BB', 88, 0-99BB/88BB",
-            "'', 'BB', 200, xxx200BB/200BB"
+        "AA, BB, 88, AA/AA0-99BB/AA88BB",
+        "AA, BB, 200, AA/AAxxx200BB/AA200BB",
+        "AA, '', 88, AA/AA0-99/AA88",
+        "AA, '', 200, AA/AAxxx200/AA200",
+        "'', 'BB', 88, 0-99BB/88BB",
+        "'', 'BB', 200, xxx200BB/200BB"
     )
     fun submitWhenUserCanSubmit(prefix: String, postfix: String, value: Long, expected: String) {
         assertThat(testInstance.getRelPath(AccNumber(AccPattern(prefix, postfix), value))).isEqualTo(expected)
@@ -74,6 +74,7 @@ class AccNoProcessorTest(
 
     @Test
     fun `When submission is new and user is not allowed provide accession number`() {
+        submission.accNo = "AAB12"
         every { mockPersistenceContext.isNew("AAB12") } returns true
         every { mockUserPrivilegesService.canProvideAccNo("test@mail.com") } returns false
 
