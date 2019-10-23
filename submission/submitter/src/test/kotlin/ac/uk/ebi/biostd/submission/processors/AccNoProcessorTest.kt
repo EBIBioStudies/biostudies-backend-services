@@ -28,7 +28,7 @@ class AccNoProcessorTest(
     @MockK private val persistenceContext: PersistenceContext,
     @MockK private val userPrivilegesService: IUserPrivilegesService
 ) {
-    private val submission: ExtendedSubmission = ExtendedSubmission("AAB12", user)
+    private val submission = ExtendedSubmission("AAB12", user)
     private val testInstance = AccNoProcessor(userPrivilegesService, accNoPatternUtil)
 
     @BeforeEach
@@ -41,44 +41,45 @@ class AccNoProcessorTest(
         every { userPrivilegesService.canResubmit("test@mail.com", user, null, emptyList()) } returns true
     }
 
-    @ParameterizedTest(name = "when prefix is {0}, postfix is {1} and numeric value is {2}")
+    @ParameterizedTest(name = "prefix is {0}, postfix is {1} and numeric value is {2}")
     @CsvSource(
-            "AA, BB, 88, AA/AA0-99BB/AA88BB",
-            "AA, BB, 200, AA/AAxxx200BB/AA200BB",
-            "AA, '', 88, AA/AA0-99/AA88",
-            "AA, '', 200, AA/AAxxx200/AA200",
-            "'', 'BB', 88, 0-99BB/88BB",
-            "'', 'BB', 200, xxx200BB/200BB"
+        "AA, BB, 88, AA/AA0-99BB/AA88BB",
+        "AA, BB, 200, AA/AAxxx200BB/AA200BB",
+        "AA, '', 88, AA/AA0-99/AA88",
+        "AA, '', 200, AA/AAxxx200/AA200",
+        "'', 'BB', 88, 0-99BB/88BB",
+        "'', 'BB', 200, xxx200BB/200BB"
     )
-    fun submitWhenUserCanSubmit(prefix: String, postfix: String, value: Long, expected: String) {
+    fun submitUserCanSubmit(prefix: String, postfix: String, value: Long, expected: String) {
         assertThat(testInstance.getRelPath(AccNumber(AccPattern(prefix, postfix), value))).isEqualTo(expected)
     }
 
     @Test
-    fun `When no accession number, no parent accession`() {
+    fun `no accession number, no parent accession`() {
+        val submission = ExtendedSubmission(EMPTY, user)
+
         every { accNoPatternUtil.getPattern(DEFAULT_PATTERN) } returns AccPattern("S-BSST")
         every { persistenceContext.getParentAccPattern(submission) } returns Option.empty()
         every { persistenceContext.getSequenceNextValue(AccPattern("S-BSST")) } returns 1L
-
-        submission.accNo = EMPTY
 
         testInstance.process(submission, persistenceContext)
         assertThat(submission.accNo).isEqualTo("S-BSST1")
     }
 
     @Test
-    fun `When no accession number but parent accession`() {
+    fun `no accession number but parent accession`() {
+        val submission = ExtendedSubmission(EMPTY, user)
+
         every { accNoPatternUtil.getPattern("!{P-ARENT,}") } returns AccPattern("P-ARENT")
         every { persistenceContext.getParentAccPattern(submission) } returns Option.just("!{P-ARENT,}")
         every { persistenceContext.getSequenceNextValue(AccPattern("P-ARENT")) } returns 1
-        submission.accNo = EMPTY
 
         testInstance.process(submission, persistenceContext)
         assertThat(submission.accNo).isEqualTo("P-ARENT1")
     }
 
     @Test
-    fun `When submission is new and user is not allowed provide accession number`() {
+    fun `submission is new and user is not allowed provide accession number`() {
         every { persistenceContext.isNew("AAB12") } returns true
         every { userPrivilegesService.canProvideAccNo("test@mail.com") } returns false
 
@@ -86,7 +87,8 @@ class AccNoProcessorTest(
     }
 
     @Test
-    fun `When accession and user is not allowed to update submission`() {
+    fun `submission is not new and user is not allowed to update submission`() {
+        every { persistenceContext.isNew("AAB12") } returns false
         every { userPrivilegesService.canResubmit("test@mail.com", user, null, emptyList()) } returns false
 
         assertThrows<InvalidPermissionsException> { testInstance.process(submission, persistenceContext) }
