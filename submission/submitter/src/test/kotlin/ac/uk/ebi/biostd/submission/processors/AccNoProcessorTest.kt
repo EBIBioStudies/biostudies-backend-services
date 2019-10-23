@@ -23,22 +23,22 @@ import org.junit.jupiter.params.provider.CsvSource
 
 @ExtendWith(MockKExtension::class)
 class AccNoProcessorTest(
-    @MockK private val mockUser: User,
-    @MockK private val mockPersistenceContext: PersistenceContext,
-    @MockK private val mockUserPrivilegesService: IUserPrivilegesService
+    @MockK private val user: User,
+    @MockK private val accNoPatternUtil: AccNoPatternUtil,
+    @MockK private val persistenceContext: PersistenceContext,
+    @MockK private val userPrivilegesService: IUserPrivilegesService
 ) {
-    private val submission: ExtendedSubmission = ExtendedSubmission("AAB12", mockUser)
-
-    // TODO change to a mock instance of AccNoPatternUtil
-    private val testInstance = AccNoProcessor(mockUserPrivilegesService, AccNoPatternUtil())
+    private val submission: ExtendedSubmission = ExtendedSubmission("AAB12", user)
+    private val testInstance = AccNoProcessor(userPrivilegesService, accNoPatternUtil)
 
     @BeforeEach
     fun init() {
-        every { mockUser.email } returns "test@mail.com"
-        every { mockPersistenceContext.isNew("") } returns true
-        every { mockPersistenceContext.getParentAccPattern(submission) } returns Option.empty()
-        every { mockUserPrivilegesService.canProvideAccNo("test@mail.com") } returns true
-        every { mockUserPrivilegesService.canResubmit("test@mail.com", mockUser, null, emptyList()) } returns true
+        every { user.email } returns "test@mail.com"
+        every { persistenceContext.isNew("") } returns true
+        every { persistenceContext.getParentAccPattern(submission) } returns Option.empty()
+        every { accNoPatternUtil.isPattern(EMPTY) } returns false
+        every { userPrivilegesService.canProvideAccNo("test@mail.com") } returns true
+        every { userPrivilegesService.canResubmit("test@mail.com", user, null, emptyList()) } returns true
     }
 
     @ParameterizedTest(name = "when prefix is {0}, postfix is {1} and numeric value is {2}")
@@ -56,37 +56,39 @@ class AccNoProcessorTest(
 
     @Test
     fun `When no accession number, no parent accession`() {
-        every { mockPersistenceContext.getParentAccPattern(submission) } returns Option.empty()
-        every { mockPersistenceContext.getSequenceNextValue(AccPattern("S-BSST")) } returns 1L
+        every { accNoPatternUtil.getPattern(DEFAULT_PATTERN) } returns AccPattern("S-BSST")
+        every { persistenceContext.getParentAccPattern(submission) } returns Option.empty()
+        every { persistenceContext.getSequenceNextValue(AccPattern("S-BSST")) } returns 1L
 
         submission.accNo = EMPTY
 
-        testInstance.process(submission, mockPersistenceContext)
+        testInstance.process(submission, persistenceContext)
         assertThat(submission.accNo).isEqualTo("S-BSST1")
     }
 
     @Test
     fun `When no accession number but parent accession`() {
-        every { mockPersistenceContext.getParentAccPattern(submission) } returns Option.just("!{P-ARENT,}")
-        every { mockPersistenceContext.getSequenceNextValue(AccPattern("P-ARENT")) } returns 1
+        every { accNoPatternUtil.getPattern("!{P-ARENT,}") } returns AccPattern("P-ARENT")
+        every { persistenceContext.getParentAccPattern(submission) } returns Option.just("!{P-ARENT,}")
+        every { persistenceContext.getSequenceNextValue(AccPattern("P-ARENT")) } returns 1
         submission.accNo = EMPTY
 
-        testInstance.process(submission, mockPersistenceContext)
+        testInstance.process(submission, persistenceContext)
         assertThat(submission.accNo).isEqualTo("P-ARENT1")
     }
 
     @Test
     fun `When submission is new and user is not allowed provide accession number`() {
-        every { mockPersistenceContext.isNew("AAB12") } returns true
-        every { mockUserPrivilegesService.canProvideAccNo("test@mail.com") } returns false
+        every { persistenceContext.isNew("AAB12") } returns true
+        every { userPrivilegesService.canProvideAccNo("test@mail.com") } returns false
 
-        assertThrows<InvalidPermissionsException> { testInstance.process(submission, mockPersistenceContext) }
+        assertThrows<InvalidPermissionsException> { testInstance.process(submission, persistenceContext) }
     }
 
     @Test
     fun `When accession and user is not allowed to update submission`() {
-        every { mockUserPrivilegesService.canResubmit("test@mail.com", mockUser, null, emptyList()) } returns false
+        every { userPrivilegesService.canResubmit("test@mail.com", user, null, emptyList()) } returns false
 
-        assertThrows<InvalidPermissionsException> { testInstance.process(submission, mockPersistenceContext) }
+        assertThrows<InvalidPermissionsException> { testInstance.process(submission, persistenceContext) }
     }
 }
