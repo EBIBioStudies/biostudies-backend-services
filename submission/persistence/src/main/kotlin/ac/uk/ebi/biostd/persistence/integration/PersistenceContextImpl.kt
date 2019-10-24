@@ -55,17 +55,18 @@ open class PersistenceContextImpl(
     override fun getSubmission(accNo: String) =
         subRepository.findByAccNoAndVersionGreaterThan(accNo)?.let { subDbMapper.toExtSubmission(it) }
 
-    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
     override fun saveSubmission(submission: ExtendedSubmission) {
         lockExecutor.executeLocking(submission.accNo) {
             val nextVersion = (subRepository.getLastVersion(submission.accNo) ?: 0) + 1
             subRepository.expireActiveVersions(submission.accNo)
             submission.version = nextVersion
             subRepository.save(subMapper.toSubmissionDb(submission))
-            // TODO: Refactor draft deletion by making DraftService listen to a successful submission event
-            userDataRepository.findByUserIdAndKeyIgnoreCaseContaining(submission.user.id, submission.accNo).ifNotEmpty {
-                userDataRepository.deleteAll(it)
-            }
+        }
+    }
+
+    override fun deleteSubmissionDrafts(submission: ExtendedSubmission) {
+        userDataRepository.findByUserIdAndKeyIgnoreCaseContaining(submission.user.id, submission.accNo).ifNotEmpty {
+            userDataRepository.deleteAll(it)
         }
     }
 

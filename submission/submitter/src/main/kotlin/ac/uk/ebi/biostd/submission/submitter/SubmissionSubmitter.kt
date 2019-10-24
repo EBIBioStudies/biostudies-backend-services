@@ -11,13 +11,16 @@ import ebi.ac.uk.model.ExtendedSubmission
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.persistence.PersistenceContext
 import ebi.ac.uk.util.collections.ifNotEmpty
+import org.springframework.transaction.annotation.Isolation
+import org.springframework.transaction.annotation.Transactional
 
-class SubmissionSubmitter(
+open class SubmissionSubmitter(
     private val validators: List<SubmissionValidator>,
     private val processors: List<SubmissionProcessor>,
     private val filesHandler: FilesHandler
 ) {
-    fun submit(
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    open fun submit(
         submission: ExtendedSubmission,
         files: FilesSource,
         context: PersistenceContext
@@ -33,6 +36,7 @@ class SubmissionSubmitter(
         }
 
         context.saveSubmission(submission)
+        context.deleteSubmissionDrafts(submission)
         return submission
     }
 }

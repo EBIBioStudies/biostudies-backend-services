@@ -21,4 +21,6 @@ interface PersistenceContext {
     fun saveAccessTag(accessTag: String)
 
     fun accessTagExists(accessTag: String): Boolean
+
+    fun deleteSubmissionDrafts(submission: ExtendedSubmission)
 }
