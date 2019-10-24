@@ -79,8 +79,7 @@ interface AccessPermissionRepository : JpaRepository<AccessPermission, Long> {
 }
 
 interface UserDataDataRepository : JpaRepository<UserData, UserDataId> {
-    @Query("FROM UserData ud WHERE ud.userId = :userId AND LOWER(ud.key) LIKE %:dataKey%")
-    fun findByUserAndKey(userId: Long, dataKey: String): List<UserData>
+    fun findByUserIdAndKeyIgnoreCaseContaining(userId: Long, dataKey: String): List<UserData>
 
     fun findByUserId(userId: Long): List<UserData>
 }
