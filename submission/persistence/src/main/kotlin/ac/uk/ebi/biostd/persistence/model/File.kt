@@ -19,7 +19,7 @@ import javax.persistence.Table
 class File(
 
     @Column
-    val name: String,
+    var name: String,
 
     @Column(name = "ord")
     override var order: Int
