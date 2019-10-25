@@ -13,7 +13,7 @@ import ebi.ac.uk.model.extensions.attachTo
 import ebi.ac.uk.persistence.PersistenceContext
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 
-const val DEFAULT_PATTERN = "!{S-BSST,}"
+const val DEFAULT_PATTERN = "!{S-BSST}"
 const val PATH_DIGITS = 3
 
 /**

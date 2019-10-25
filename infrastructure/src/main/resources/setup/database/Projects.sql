@@ -8,3 +8,6 @@ UPDATE Section SET submission_id = 1;
 UPDATE Submission SET rootSection_id = 1;
 
 INSERT INTO Submission_AccessTag VALUES(1, 2);
+
+INSERT INTO SubmissionAttribute(name, reference, value, submission_id, ord)
+VALUES('AccNoTemplate', false, '!{S-EPMC}', 1, 0);
