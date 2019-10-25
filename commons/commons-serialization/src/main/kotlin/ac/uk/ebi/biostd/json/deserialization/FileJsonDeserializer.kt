@@ -19,6 +19,6 @@ internal class FileJsonDeserializer : StdDeserializer<File>(File::class.java) {
 
         return File(
             path = node.getNode<TextNode>(FileFields.PATH.value).textValue(),
-            attributes = mapper.convertList(node.findNode<JsonNode>(FileFields.ATTRIBUTES.value)))
+            attributes = mapper.convertList(node.findNode(FileFields.ATTRIBUTES.value)))
     }
 }

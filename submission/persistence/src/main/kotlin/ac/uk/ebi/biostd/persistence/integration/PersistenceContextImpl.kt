@@ -36,10 +36,8 @@ open class PersistenceContextImpl(
     @Transactional
     override fun getSequenceNextValue(pattern: AccPattern): Long {
         val sequence = sequenceRepository.getByPrefixAndSuffix(pattern.prefix, pattern.postfix)
-
         sequence.counter.count = sequence.counter.count + 1
         sequenceRepository.save(sequence)
-
         return sequence.counter.count
     }
 
