@@ -18,19 +18,19 @@ class AccNoPatternUtil {
     private val prefix = ACC_PATTERN.format("([A-Z,-]*)").toPattern()
     private val extractionPattern = "(\\D*)([0-9]+)(\\D*)".toPattern()
 
-    fun getPattern(accPattern: String) =
+    fun getPattern(accPattern: String): AccPattern =
         getPrefixAccPattern(accPattern).getOrElse { throw InvalidPatternException(accPattern, EXPECTED_PATTERN) }
 
     /**
      * Checks if the submission accession number is a pattern, based on whether or not it matches the @see [ACC_PATTERN]
      * expression.
      */
-    fun isPattern(accNo: String) = ACC_PATTERN.format(".*").toPattern().matcher(accNo).matches()
+    fun isPattern(accNo: String): Boolean = ACC_PATTERN.format(".*").toPattern().matcher(accNo).matches()
 
     /**
      * Extracts the @see [AccNumber] for the given accession string.
      */
-    fun extractAccessNumber(accNo: String) =
+    fun toAccNumber(accNo: String): AccNumber =
         extractionPattern
             .match(accNo)
             .map(::asAccNumber)

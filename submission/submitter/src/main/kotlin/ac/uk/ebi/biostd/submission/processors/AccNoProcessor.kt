@@ -50,8 +50,7 @@ class AccNoProcessor(
                 calculateAccNo(getPatternOrDefault(context.getParentAccPattern(submission)), context)
             patternUtil.isPattern(submission.accNo) ->
                 calculateAccNo(patternUtil.getPattern(submission.accNo), context)
-            else ->
-                patternUtil.extractAccessNumber(submission.accNo)
+            else -> patternUtil.toAccNumber(submission.accNo)
         }
     }
 

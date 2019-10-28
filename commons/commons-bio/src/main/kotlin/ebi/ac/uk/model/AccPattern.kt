@@ -7,7 +7,6 @@ import ebi.ac.uk.base.EMPTY
  * number based on the same pattern.
  */
 class AccPattern(val prefix: String = EMPTY, val postfix: String = EMPTY) {
-
     override fun toString() = "$prefix,$postfix"
 
     override fun hashCode() = this.toString().hashCode()
@@ -19,6 +18,5 @@ class AccPattern(val prefix: String = EMPTY, val postfix: String = EMPTY) {
  * Represents an submission accession number which include a pattern an a numeric value.
  */
 class AccNumber(val pattern: AccPattern, val numericValue: Long) {
-
     override fun toString() = "${pattern.prefix}$numericValue${pattern.postfix}"
 }

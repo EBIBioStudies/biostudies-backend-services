@@ -100,7 +100,7 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
         fun `empty accNo with parent`() {
             val project = tsv {
                 line("Submission", "A-Project")
-                line("AccNoTemplate", "!{S-APR,}")
+                line("AccNoTemplate", "!{S-APR}")
                 line()
 
                 line("Project")
