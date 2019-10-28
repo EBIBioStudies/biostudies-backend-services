@@ -5,6 +5,7 @@ import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepository
+import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.line
@@ -34,7 +35,8 @@ internal class ProjectSubmitTest(private val tempFolder: TemporaryFolder) : Base
     @DirtiesContext
     inner class ProjectSubmitTest(
         @Autowired val tagsDataRepository: AccessTagDataRepository,
-        @Autowired val submissionRepository: SubmissionRepository
+        @Autowired val submissionRepository: SubmissionRepository,
+        @Autowired val sequenceRepository: SequenceDataRepository
     ) {
         @LocalServerPort
         private var serverPort: Int = 0
@@ -51,6 +53,7 @@ internal class ProjectSubmitTest(private val tempFolder: TemporaryFolder) : Base
             val project = tsv {
                 line("Submission", "AProject")
                 line("Title", "A Project")
+                line("AccNoTemplate", "!{S-APR}")
                 line()
 
                 line("Project")
@@ -67,6 +70,7 @@ internal class ProjectSubmitTest(private val tempFolder: TemporaryFolder) : Base
             assertThat(submittedProject.accessTags.first()).isEqualTo("AProject")
 
             assertThat(tagsDataRepository.existsByName("AProject")).isTrue()
+            assertThat(sequenceRepository.existsByPrefix("S-APR")).isTrue()
         }
     }
 }

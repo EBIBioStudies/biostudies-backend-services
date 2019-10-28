@@ -56,7 +56,9 @@ interface TagDataRepository : JpaRepository<Tag, Long> {
 
 interface SequenceDataRepository : JpaRepository<Sequence, Long> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    fun getByPrefixAndSuffix(prefix: String, suffix: String): Sequence
+    fun getByPrefix(prefix: String): Sequence
+
+    fun existsByPrefix(prefix: String): Boolean
 }
 
 interface UserDataRepository : JpaRepository<User, Long> {

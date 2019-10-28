@@ -1,10 +1,10 @@
 package ac.uk.ebi.biostd.submission.processors
 
 import ac.uk.ebi.biostd.submission.exceptions.InvalidPermissionsException
+import ac.uk.ebi.biostd.submission.util.AccNoPatternUtil
 import arrow.core.Option
 import ebi.ac.uk.base.EMPTY
 import ebi.ac.uk.model.AccNumber
-import ebi.ac.uk.model.AccPattern
 import ebi.ac.uk.model.ExtendedSubmission
 import ebi.ac.uk.model.User
 import ebi.ac.uk.persistence.PersistenceContext
@@ -22,68 +22,70 @@ import org.junit.jupiter.params.provider.CsvSource
 
 @ExtendWith(MockKExtension::class)
 class AccNoProcessorTest(
-    @MockK private val mockUser: User,
-    @MockK private val mockPersistenceContext: PersistenceContext,
-    @MockK private val mockUserPrivilegesService: IUserPrivilegesService
+    @MockK private val user: User,
+    @MockK private val accNoPatternUtil: AccNoPatternUtil,
+    @MockK private val persistenceContext: PersistenceContext,
+    @MockK private val userPrivilegesService: IUserPrivilegesService
 ) {
-    private val submission: ExtendedSubmission = ExtendedSubmission("AAB12", mockUser)
-    private val testInstance = AccNoProcessor(mockUserPrivilegesService)
+    private val submission = ExtendedSubmission("AAB12", user)
+    private val testInstance = AccNoProcessor(userPrivilegesService, accNoPatternUtil)
 
     @BeforeEach
     fun init() {
-        every { mockUser.email } returns "test@mail.com"
-        every { mockPersistenceContext.isNew("") } returns true
-        every { mockPersistenceContext.getParentAccPattern(submission) } returns Option.empty()
-        every { mockUserPrivilegesService.canProvideAccNo("test@mail.com") } returns true
-        every { mockUserPrivilegesService.canResubmit("test@mail.com", mockUser, null, emptyList()) } returns true
+        every { user.email } returns "test@mail.com"
+        every { persistenceContext.isNew("") } returns true
+        every { persistenceContext.getParentAccPattern(submission) } returns Option.empty()
+        every { accNoPatternUtil.isPattern(EMPTY) } returns false
+        every { userPrivilegesService.canProvideAccNo("test@mail.com") } returns true
+        every { userPrivilegesService.canResubmit("test@mail.com", user, null, emptyList()) } returns true
     }
 
-    @ParameterizedTest(name = "when prefix is {0}, postfix is {1} and numeric value is {2}")
+    @ParameterizedTest(name = "prefix is {0} and numeric value is {1}")
     @CsvSource(
-        "AA, BB, 88, AA/AA0-99BB/AA88BB",
-        "AA, BB, 200, AA/AAxxx200BB/AA200BB",
-        "AA, '', 88, AA/AA0-99/AA88",
-        "AA, '', 200, AA/AAxxx200/AA200",
-        "'', 'BB', 88, 0-99BB/88BB",
-        "'', 'BB', 200, xxx200BB/200BB"
+        "AA, 88, AA/AA0-99/AA88",
+        "AA, 200, AA/AAxxx200/AA200"
     )
-    fun submitWhenUserCanSubmit(prefix: String, postfix: String, value: Long, expected: String) {
-        assertThat(testInstance.getRelPath(AccNumber(AccPattern(prefix, postfix), value))).isEqualTo(expected)
+    fun submitUserCanSubmit(prefix: String, value: Long, expected: String) {
+        assertThat(testInstance.getRelPath(AccNumber(prefix, value))).isEqualTo(expected)
     }
 
     @Test
-    fun `When no accession number, no parent accession`() {
-        every { mockPersistenceContext.getParentAccPattern(submission) } returns Option.empty()
-        every { mockPersistenceContext.getSequenceNextValue(AccPattern("S-BSST")) } returns 1L
+    fun `no accession number, no parent accession`() {
+        val submission = ExtendedSubmission(EMPTY, user)
 
-        submission.accNo = EMPTY
+        every { accNoPatternUtil.getPattern(DEFAULT_PATTERN) } returns "S-BSST"
+        every { persistenceContext.getParentAccPattern(submission) } returns Option.empty()
+        every { persistenceContext.getSequenceNextValue("S-BSST") } returns 1L
 
-        testInstance.process(submission, mockPersistenceContext)
+        testInstance.process(submission, persistenceContext)
         assertThat(submission.accNo).isEqualTo("S-BSST1")
     }
 
     @Test
-    fun `When no accession number but parent accession`() {
-        every { mockPersistenceContext.getParentAccPattern(submission) } returns Option.just("!{P-ARENT,}")
-        every { mockPersistenceContext.getSequenceNextValue(AccPattern("P-ARENT")) } returns 1
-        submission.accNo = EMPTY
+    fun `no accession number but parent accession`() {
+        val submission = ExtendedSubmission(EMPTY, user)
 
-        testInstance.process(submission, mockPersistenceContext)
+        every { accNoPatternUtil.getPattern("!{P-ARENT,}") } returns "P-ARENT"
+        every { persistenceContext.getParentAccPattern(submission) } returns Option.just("!{P-ARENT,}")
+        every { persistenceContext.getSequenceNextValue("P-ARENT") } returns 1
+
+        testInstance.process(submission, persistenceContext)
         assertThat(submission.accNo).isEqualTo("P-ARENT1")
     }
 
     @Test
-    fun `When submission is new and user is not allowed provide accession number`() {
-        every { mockPersistenceContext.isNew("AAB12") } returns true
-        every { mockUserPrivilegesService.canProvideAccNo("test@mail.com") } returns false
+    fun `submission is new and user is not allowed provide accession number`() {
+        every { persistenceContext.isNew("AAB12") } returns true
+        every { userPrivilegesService.canProvideAccNo("test@mail.com") } returns false
 
-        assertThrows<InvalidPermissionsException> { testInstance.process(submission, mockPersistenceContext) }
+        assertThrows<InvalidPermissionsException> { testInstance.process(submission, persistenceContext) }
     }
 
     @Test
-    fun `When accession and user is not allowed to update submission`() {
-        every { mockUserPrivilegesService.canResubmit("test@mail.com", mockUser, null, emptyList()) } returns false
+    fun `submission is not new and user is not allowed to update submission`() {
+        every { persistenceContext.isNew("AAB12") } returns false
+        every { userPrivilegesService.canResubmit("test@mail.com", user, null, emptyList()) } returns false
 
-        assertThrows<InvalidPermissionsException> { testInstance.process(submission, mockPersistenceContext) }
+        assertThrows<InvalidPermissionsException> { testInstance.process(submission, persistenceContext) }
     }
 }
