@@ -9,14 +9,13 @@ import javax.persistence.JoinColumn
 import javax.persistence.OneToOne
 import javax.persistence.Table
 
+const val DEFAULT_SUFFIX = "000null"
+
 @Entity
 @Table(name = "IdGen")
 class Sequence(
     @Column
-    var prefix: String,
-
-    @Column
-    var suffix: String
+    val prefix: String
 ) {
     @Id
     @GeneratedValue
@@ -24,9 +23,5 @@ class Sequence(
 
     @OneToOne(cascade = [CascadeType.ALL])
     @JoinColumn(name = "counter_id")
-    lateinit var counter: Counter
-
-    constructor(prefix: String) : this (prefix, "") {
-        counter = Counter(prefix)
-    }
+    var counter: Counter = Counter("$prefix$DEFAULT_SUFFIX")
 }

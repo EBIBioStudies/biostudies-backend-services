@@ -53,7 +53,7 @@ internal class ProjectSubmitTest(private val tempFolder: TemporaryFolder) : Base
             val project = tsv {
                 line("Submission", "AProject")
                 line("Title", "A Project")
-                line("AccNoTemplate", "!{S-APR,}")
+                line("AccNoTemplate", "!{S-APR}")
                 line()
 
                 line("Project")
@@ -70,7 +70,7 @@ internal class ProjectSubmitTest(private val tempFolder: TemporaryFolder) : Base
             assertThat(submittedProject.accessTags.first()).isEqualTo("AProject")
 
             assertThat(tagsDataRepository.existsByName("AProject")).isTrue()
-            assertThat(sequenceRepository.existsByPrefixAndSuffix("S-APR", "")).isTrue()
+            assertThat(sequenceRepository.existsByPrefix("S-APR")).isTrue()
         }
     }
 }

@@ -1,14 +1,13 @@
 package ebi.ac.uk.persistence
 
 import arrow.core.Option
-import ebi.ac.uk.model.AccPattern
 import ebi.ac.uk.model.ExtendedSubmission
 import ebi.ac.uk.model.Submission
 
 interface PersistenceContext {
-    fun createAccNoPatternSequence(pattern: AccPattern)
+    fun createAccNoPatternSequence(pattern: String)
 
-    fun getSequenceNextValue(pattern: AccPattern): Long
+    fun getSequenceNextValue(pattern: String): Long
 
     fun getParentAccessTags(submission: Submission): List<String>
 

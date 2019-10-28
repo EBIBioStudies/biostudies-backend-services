@@ -7,13 +7,12 @@ import arrow.core.Option
 import arrow.core.getOrElse
 import ebi.ac.uk.base.lastDigits
 import ebi.ac.uk.model.AccNumber
-import ebi.ac.uk.model.AccPattern
 import ebi.ac.uk.model.ExtendedSubmission
 import ebi.ac.uk.model.extensions.attachTo
 import ebi.ac.uk.persistence.PersistenceContext
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 
-const val DEFAULT_PATTERN = "!{S-BSST,}"
+const val DEFAULT_PATTERN = "!{S-BSST}"
 const val PATH_DIGITS = 3
 
 /**
@@ -50,25 +49,23 @@ class AccNoProcessor(
                 calculateAccNo(getPatternOrDefault(context.getParentAccPattern(submission)), context)
             patternUtil.isPattern(submission.accNo) ->
                 calculateAccNo(patternUtil.getPattern(submission.accNo), context)
-            else ->
-                patternUtil.extractAccessNumber(submission.accNo)
+            else -> patternUtil.toAccNumber(submission.accNo)
         }
     }
 
-    private fun calculateAccNo(pattern: AccPattern, context: PersistenceContext) =
-        AccNumber(pattern, context.getSequenceNextValue(pattern))
+    private fun calculateAccNo(prefix: String, context: PersistenceContext) =
+        AccNumber(prefix, context.getSequenceNextValue(prefix))
 
     @Suppress("MagicNumber")
     internal fun getRelPath(accNo: AccNumber): String {
-        val prefix = accNo.pattern.prefix
-        val postfix = accNo.pattern.postfix
+        val prefix = accNo.prefix
         val value = accNo.numericValue
 
         return when {
             accNo.numericValue < 99 ->
-                "$prefix/${prefix}0-99$postfix/$prefix$value$postfix".removePrefix("/")
+                "$prefix/${prefix}0-99/$prefix$value".removePrefix("/")
             else ->
-                "$prefix/${prefix}xxx${value.lastDigits(PATH_DIGITS)}$postfix/$prefix$value$postfix".removePrefix("/")
+                "$prefix/${prefix}xxx${value.lastDigits(PATH_DIGITS)}/$prefix$value".removePrefix("/")
         }
     }
 
