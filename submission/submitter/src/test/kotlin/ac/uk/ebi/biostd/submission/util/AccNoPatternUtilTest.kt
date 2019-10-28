@@ -2,7 +2,6 @@ package ac.uk.ebi.biostd.submission.util
 
 import ac.uk.ebi.biostd.submission.exceptions.InvalidAccNoPattern
 import ac.uk.ebi.biostd.submission.exceptions.InvalidPatternException
-import ebi.ac.uk.model.AccPattern
 import ebi.ac.uk.persistence.PersistenceContext
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -24,12 +23,10 @@ class AccNoPatternUtilTest(@MockK private val context: PersistenceContext) {
 
     @Test
     fun `get acc pattern prefix`() {
-        val prefix = "!{ABC}"
+        val prefix = "!{S-ABC}"
         val pattern = testInstance.getPattern(prefix)
 
-        assertThat(pattern).isInstanceOf(AccPattern::class.java)
-        assertThat(pattern.prefix).isEqualTo("ABC")
-        assertThat(pattern.postfix).isEmpty()
+        assertThat(pattern).isEqualTo("S-ABC")
     }
 
     @Test
@@ -49,7 +46,7 @@ class AccNoPatternUtilTest(@MockK private val context: PersistenceContext) {
     fun `extract accession number`() {
         val accNo = testInstance.toAccNumber("S-TEST123")
 
-        assertThat(accNo.pattern.prefix).isEqualTo("S-TEST")
+        assertThat(accNo.prefix).isEqualTo("S-TEST")
         assertThat(accNo.numericValue).isEqualTo(123L)
     }
 

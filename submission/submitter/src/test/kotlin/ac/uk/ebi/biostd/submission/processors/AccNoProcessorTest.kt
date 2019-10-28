@@ -5,7 +5,6 @@ import ac.uk.ebi.biostd.submission.util.AccNoPatternUtil
 import arrow.core.Option
 import ebi.ac.uk.base.EMPTY
 import ebi.ac.uk.model.AccNumber
-import ebi.ac.uk.model.AccPattern
 import ebi.ac.uk.model.ExtendedSubmission
 import ebi.ac.uk.model.User
 import ebi.ac.uk.persistence.PersistenceContext
@@ -41,26 +40,22 @@ class AccNoProcessorTest(
         every { userPrivilegesService.canResubmit("test@mail.com", user, null, emptyList()) } returns true
     }
 
-    @ParameterizedTest(name = "prefix is {0}, postfix is {1} and numeric value is {2}")
+    @ParameterizedTest(name = "prefix is {0} and numeric value is {1}")
     @CsvSource(
-        "AA, BB, 88, AA/AA0-99BB/AA88BB",
-        "AA, BB, 200, AA/AAxxx200BB/AA200BB",
-        "AA, '', 88, AA/AA0-99/AA88",
-        "AA, '', 200, AA/AAxxx200/AA200",
-        "'', 'BB', 88, 0-99BB/88BB",
-        "'', 'BB', 200, xxx200BB/200BB"
+        "AA, 88, AA/AA0-99/AA88",
+        "AA, 200, AA/AAxxx200/AA200"
     )
-    fun submitUserCanSubmit(prefix: String, postfix: String, value: Long, expected: String) {
-        assertThat(testInstance.getRelPath(AccNumber(AccPattern(prefix, postfix), value))).isEqualTo(expected)
+    fun submitUserCanSubmit(prefix: String, value: Long, expected: String) {
+        assertThat(testInstance.getRelPath(AccNumber(prefix, value))).isEqualTo(expected)
     }
 
     @Test
     fun `no accession number, no parent accession`() {
         val submission = ExtendedSubmission(EMPTY, user)
 
-        every { accNoPatternUtil.getPattern(DEFAULT_PATTERN) } returns AccPattern("S-BSST")
+        every { accNoPatternUtil.getPattern(DEFAULT_PATTERN) } returns "S-BSST"
         every { persistenceContext.getParentAccPattern(submission) } returns Option.empty()
-        every { persistenceContext.getSequenceNextValue(AccPattern("S-BSST")) } returns 1L
+        every { persistenceContext.getSequenceNextValue("S-BSST") } returns 1L
 
         testInstance.process(submission, persistenceContext)
         assertThat(submission.accNo).isEqualTo("S-BSST1")
@@ -70,9 +65,9 @@ class AccNoProcessorTest(
     fun `no accession number but parent accession`() {
         val submission = ExtendedSubmission(EMPTY, user)
 
-        every { accNoPatternUtil.getPattern("!{P-ARENT,}") } returns AccPattern("P-ARENT")
+        every { accNoPatternUtil.getPattern("!{P-ARENT,}") } returns "P-ARENT"
         every { persistenceContext.getParentAccPattern(submission) } returns Option.just("!{P-ARENT,}")
-        every { persistenceContext.getSequenceNextValue(AccPattern("P-ARENT")) } returns 1
+        every { persistenceContext.getSequenceNextValue("P-ARENT") } returns 1
 
         testInstance.process(submission, persistenceContext)
         assertThat(submission.accNo).isEqualTo("P-ARENT1")

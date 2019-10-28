@@ -11,7 +11,6 @@ import ac.uk.ebi.biostd.persistence.repositories.SubmissionDataRepository
 import arrow.core.getOrElse
 import arrow.core.toOption
 import ebi.ac.uk.base.toOption
-import ebi.ac.uk.model.AccPattern
 import ebi.ac.uk.model.ExtendedSubmission
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.constants.SubFields
@@ -29,13 +28,13 @@ open class PersistenceContextImpl(
     private val subDbMapper: SubmissionDbMapper,
     private val subMapper: SubmissionMapper
 ) : PersistenceContext {
-    override fun createAccNoPatternSequence(pattern: AccPattern) {
-        sequenceRepository.save(Sequence(pattern.prefix))
+    override fun createAccNoPatternSequence(pattern: String) {
+        sequenceRepository.save(Sequence(pattern))
     }
 
     @Transactional
-    override fun getSequenceNextValue(pattern: AccPattern): Long {
-        val sequence = sequenceRepository.getByPrefix(pattern.prefix)
+    override fun getSequenceNextValue(pattern: String): Long {
+        val sequence = sequenceRepository.getByPrefix(pattern)
         sequence.counter.count = sequence.counter.count + 1
         sequenceRepository.save(sequence)
         return sequence.counter.count
