@@ -9,6 +9,7 @@ include:
 stages:
   - build-test
   - build-artifact
+  - auto-deploy-dev-submitter
   - deploy-dev-submitter
   - deploy-beta-submitter
   - deploy-prod-submitter

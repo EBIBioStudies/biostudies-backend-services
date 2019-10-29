@@ -10,9 +10,9 @@ build-submitter:
     - build-submitter
   script: gradle deploySubmitter -Penv=dev -PdeployPath=/nfs/biostudies/.adm/apps/submitter/dev
 
-auto-deploy-dev-submitter-master:
+auto-deploy-dev-submitter:
   extends: .deploy-dev-submitter
-  stage: auto-deploy-dev-submitter-master
+  stage: auto-deploy-dev-submitter
   only:
     refs:
       - master
