@@ -16,7 +16,6 @@ auto-deploy-dev-submitter:
   only:
     refs:
       - master
-      - chore/pivotal-169314439-automatic-cd-dev
 
 deploy-dev-submitter:
   extends: .deploy-dev-submitter
