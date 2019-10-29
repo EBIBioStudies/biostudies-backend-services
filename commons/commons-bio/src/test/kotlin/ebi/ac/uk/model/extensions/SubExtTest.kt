@@ -49,6 +49,15 @@ class SubExtTest {
     }
 
     @Test
+    fun `accNo template`() {
+        val submission = submission("ABC-123") {}
+        submission.accNoTemplate = "!{ABC}"
+
+        assertThat(submission.accNoTemplate).isEqualTo("!{ABC}")
+        assertExtendedAttribute(submission, SubFields.ACC_NO_TEMPLATE, "!{ABC}")
+    }
+
+    @Test
     fun `all submission files`() {
         val submission = submission("ABC-123") {
             section("Study") {

@@ -18,6 +18,7 @@ import ac.uk.ebi.biostd.submission.processors.PropertiesProcessor
 import ac.uk.ebi.biostd.submission.processors.SubmissionProcessor
 import ac.uk.ebi.biostd.submission.processors.TimesProcessor
 import ac.uk.ebi.biostd.submission.submitter.ProjectSubmitter
+import ac.uk.ebi.biostd.submission.util.AccNoPatternUtil
 import ac.uk.ebi.biostd.submission.validators.IProjectValidator
 import ac.uk.ebi.biostd.submission.validators.ProjectValidator
 import ac.uk.ebi.biostd.submission.validators.SubmissionProjectValidator
@@ -42,9 +43,10 @@ class SubmitterConfig {
 
     @Bean
     fun projectSubmitter(
+        accNoPatternUtil: AccNoPatternUtil,
         validators: List<IProjectValidator>,
         processors: List<IProjectProcessor>
-    ) = ProjectSubmitter(validators, processors)
+    ) = ProjectSubmitter(accNoPatternUtil, validators, processors)
 
     @Configuration
     class FilesHandlerConfig(private val appProperties: ApplicationProperties) {
@@ -71,7 +73,10 @@ class SubmitterConfig {
     @Configuration
     class ProcessorConfig(private val userPrivilegesService: IUserPrivilegesService) {
         @Bean
-        fun accNoProcessor() = AccNoProcessor(userPrivilegesService)
+        fun accNoProcessor() = AccNoProcessor(userPrivilegesService, accNoPatternUtil())
+
+        @Bean
+        fun accNoPatternUtil() = AccNoPatternUtil()
 
         @Bean
         fun accessTagProcessor() = AccessTagProcessor()
@@ -87,11 +92,14 @@ class SubmitterConfig {
     }
 
     @Configuration
-    class ValidatorConfig(private val userPrivilegesService: IUserPrivilegesService) {
+    class ValidatorConfig(
+        private val accNoPatternUtil: AccNoPatternUtil,
+        private val userPrivilegesService: IUserPrivilegesService
+    ) {
         @Bean
         fun submissionProjectValidator() = SubmissionProjectValidator()
 
         @Bean
-        fun projectValidator() = ProjectValidator(userPrivilegesService)
+        fun projectValidator() = ProjectValidator(accNoPatternUtil, userPrivilegesService)
     }
 }

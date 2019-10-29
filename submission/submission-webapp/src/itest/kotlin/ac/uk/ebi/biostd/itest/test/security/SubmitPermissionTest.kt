@@ -33,6 +33,7 @@ internal class SubmitPermissionTest(private val tempFolder: TemporaryFolder) : B
 
         private val project = tsv {
             line("Submission", "AProject")
+            line("AccNoTemplate", "!{S-APR,}")
             line()
 
             line("Project")
