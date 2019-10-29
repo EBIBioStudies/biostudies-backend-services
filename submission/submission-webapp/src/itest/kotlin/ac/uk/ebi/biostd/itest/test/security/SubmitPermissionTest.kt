@@ -1,9 +1,17 @@
 package ac.uk.ebi.biostd.itest.test.security
 
+import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
+import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
 import ac.uk.ebi.biostd.itest.entities.RegularUser
 import ac.uk.ebi.biostd.itest.entities.SuperUser
+import ac.uk.ebi.biostd.persistence.model.AccessPermission
+import ac.uk.ebi.biostd.persistence.model.AccessType.ATTACH
+import ac.uk.ebi.biostd.persistence.model.AccessType.SUBMIT
+import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
+import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepository
+import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.line
 import ebi.ac.uk.dsl.tsv
@@ -15,25 +23,33 @@ import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.web.server.LocalServerPort
+import org.springframework.context.annotation.Import
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
+import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.HttpServerErrorException
 
 @ExtendWith(TemporaryFolderExtension::class)
 internal class SubmitPermissionTest(private val tempFolder: TemporaryFolder) : BaseIntegrationTest(tempFolder) {
     @Nested
+    @Import(PersistenceConfig::class)
     @ExtendWith(SpringExtension::class)
     @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
     @DirtiesContext
-    inner class SubmitProjectTest {
+    inner class SubmitProjectTest(
+        @Autowired private val userDataRepository: UserDataRepository,
+        @Autowired private val tagsDataRepository: AccessTagDataRepository,
+        @Autowired private val accessPermissionRepository: AccessPermissionRepository
+    ) {
         @LocalServerPort
         private var serverPort: Int = 0
 
         private val project = tsv {
             line("Submission", "AProject")
-            line("AccNoTemplate", "!{S-APR,}")
+            line("AccNoTemplate", "!{S-APR}")
             line()
 
             line("Project")
@@ -60,6 +76,56 @@ internal class SubmitPermissionTest(private val tempFolder: TemporaryFolder) : B
             assertThatExceptionOfType(HttpServerErrorException::class.java).isThrownBy {
                 regularUserWebClient.submitProject(projectFile)
             }
+        }
+
+        @Test
+        fun `submit without attach permission`() {
+            val project = tsv {
+                line("Submission", "TestProject")
+                line("AccNoTemplate", "!{S-TPR}")
+                line()
+
+                line("Project")
+            }.toString()
+
+            val submission = tsv {
+                line("Submission")
+                line("AttachTo", "TestProject")
+                line("Title", "Test Submission")
+            }.toString()
+
+            assertThat(superUserWebClient.submitProject(tempFolder.createFile("test.tsv", project))).isSuccessful()
+            assertThatExceptionOfType(HttpClientErrorException::class.java).isThrownBy {
+                regularUserWebClient.submitSingle(submission, SubmissionFormat.TSV)
+            }
+        }
+
+        @Test
+        fun `submit with attach permission access tag`() {
+            val project = tsv {
+                line("Submission", "TestProject2")
+                line("AccNoTemplate", "!{S-TPRJ}")
+                line()
+
+                line("Project")
+            }.toString()
+
+            val submission = tsv {
+                line("Submission")
+                line("AttachTo", "TestProject2")
+                line("Title", "Test Submission")
+            }.toString()
+
+            assertThat(superUserWebClient.submitProject(tempFolder.createFile("test2.tsv", project))).isSuccessful()
+
+            val accessTag = tagsDataRepository.findByName("TestProject2")
+            val user = userDataRepository.findByEmailAndActive(RegularUser.email, active = true)
+            val attachPermission = AccessPermission(accessType = ATTACH, user = user.get(), accessTag = accessTag)
+            val submitPermission = AccessPermission(accessType = SUBMIT, user = user.get(), accessTag = accessTag)
+
+            accessPermissionRepository.save(attachPermission)
+            accessPermissionRepository.save(submitPermission)
+            assertThat(regularUserWebClient.submitSingle(submission, SubmissionFormat.TSV)).isSuccessful()
         }
     }
 }

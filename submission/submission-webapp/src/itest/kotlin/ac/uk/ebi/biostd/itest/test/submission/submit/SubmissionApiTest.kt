@@ -153,6 +153,51 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
         }
 
         @Test
+        fun `submission with generic root section`() {
+            val submission = tsv {
+                line("Submission", "E-MTAB123")
+                line("Title", "Generic Submission")
+                line()
+
+                line("Experiment")
+                line()
+            }.toString()
+
+            assertThat(webClient.submitSingle(submission, SubmissionFormat.TSV)).isSuccessful()
+            assertThat(submissionRepository.getByAccNo("E-MTAB123")).isEqualTo(
+                submission("E-MTAB123") {
+                    title = "Generic Submission"
+
+                    section("Experiment") { }
+                }
+            )
+        }
+
+        @Test
+        fun `submission with tags`() {
+            val submission = tsv {
+                line("Submission", "S-TEST123")
+                line("Title", "Submission With Tags")
+                line()
+
+                line("Study", "SECT-001", "", "classifier:tag")
+                line()
+            }.toString()
+
+            assertThat(webClient.submitSingle(submission, SubmissionFormat.TSV)).isSuccessful()
+            assertThat(submissionRepository.getByAccNo("S-TEST123")).isEqualTo(
+                submission("S-TEST123") {
+                    title = "Submission With Tags"
+
+                    section("Study") {
+                        accNo = "SECT-001"
+                        tags = mutableListOf(Pair("Classifier", "Tag"))
+                    }
+                }
+            )
+        }
+
+        @Test
         fun `submission with group file`() {
             val groupName = "The-Group"
             val submission = tsv {
