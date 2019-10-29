@@ -28,7 +28,7 @@ internal class UserPrivilegesService(
     private fun isNotInProject(project: String?) = project.isNullOrBlank()
 
     private fun hasTag(accessTags: List<String>, accessType: AccessType) =
-        accessPermissionRepository.existsByAccessTagInAndAccessType(accessTags, accessType)
+        accessPermissionRepository.existsByAccessTagNameInAndAccessType(accessTags, accessType)
 
     private fun isSuperUser(email: String) = getUser(email).superuser
 
