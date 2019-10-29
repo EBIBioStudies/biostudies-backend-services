@@ -5,12 +5,21 @@ build-submitter:
     paths:
       - submission/submission-webapp/build/libs/submission-webapp-1.0.0.jar
 
-deploy-dev-submitter:
-  stage: deploy-dev-submitter
-  when: manual
+.deploy-dev-submitter:
   dependencies:
     - build-submitter
   script: gradle deploySubmitter -Penv=dev -PdeployPath=/nfs/biostudies/.adm/apps/submitter/dev
+
+auto-deploy-dev-submitter-master:
+  extends: .deploy-dev-submitter
+  stage: auto-deploy-dev-submitter-master
+  only:
+    refs:
+      - master
+
+deploy-dev-submitter:
+  stage: deploy-dev-submitter
+  when: manual
 
 deploy-beta-submitter:
   stage: deploy-beta-submitter
