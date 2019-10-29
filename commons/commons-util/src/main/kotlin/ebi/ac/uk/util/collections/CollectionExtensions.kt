@@ -7,8 +7,8 @@ import arrow.core.Option
  *
  * @function lambda function to execute.
  */
-fun <T, A : Collection<T>> A?.ifNotEmpty(function: (A) -> Unit) {
-    if (!this.isNullOrEmpty()) {
+fun <T, A : Collection<T>> A.ifNotEmpty(function: (A) -> Unit) {
+    if (isNotEmpty()) {
         function(this)
     }
 }
