@@ -18,6 +18,7 @@ auto-deploy-dev-submitter:
       - master
 
 deploy-dev-submitter:
+  extends: .deploy-dev-submitter
   stage: deploy-dev-submitter
   when: manual
 
