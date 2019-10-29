@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.persistence.mapping.extended.to
 
-import ac.uk.ebi.biostd.persistence.mapping.extended.to.test.assertLinkDb
+import ac.uk.ebi.biostd.persistence.mapping.extended.to.test.assertExtLink
 import ac.uk.ebi.biostd.persistence.mapping.extended.to.test.linkDb
 import io.mockk.junit5.MockKExtension
 import org.junit.jupiter.api.Test
@@ -12,6 +12,6 @@ internal class ToExtLinkTest {
     fun `Link to ExtLink`() {
         val extLink = linkDb.toExtLink()
 
-        assertLinkDb(extLink)
+        assertExtLink(extLink)
     }
 }

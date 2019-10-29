@@ -10,5 +10,5 @@ fun <V, K> Map<Boolean, List<V>>.fold(whenTrue: (List<V>) -> K, whenFalse: (List
     return result
 }
 
-operator fun <V> Map<Boolean, List<V>>.component1() = this[true].orEmpty()
-operator fun <V> Map<Boolean, List<V>>.component2() = this[false].orEmpty()
+operator fun <V> Map<Boolean, List<V>>.component1() = this[true]
+operator fun <V> Map<Boolean, List<V>>.component2() = this[false]

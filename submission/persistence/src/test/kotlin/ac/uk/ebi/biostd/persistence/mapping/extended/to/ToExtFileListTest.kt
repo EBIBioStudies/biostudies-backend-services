@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.persistence.mapping.extended.to
 
-import ac.uk.ebi.biostd.persistence.mapping.extended.to.test.assertFileDb
+import ac.uk.ebi.biostd.persistence.mapping.extended.to.test.assertExtFile
 import ac.uk.ebi.biostd.persistence.mapping.extended.to.test.refRileDb
 import ac.uk.ebi.biostd.persistence.model.ReferencedFile
 import ac.uk.ebi.biostd.persistence.model.ReferencedFileList
@@ -33,6 +33,6 @@ internal class ToExtFileListTest(
         assertThat(extFileList.file).isEqualTo(systemFile)
 
         assertThat(extFileList.files).hasSize(1)
-        assertFileDb(extFileList.files.first(), anotherSystemFile)
+        assertExtFile(extFileList.files.first(), anotherSystemFile, file.name)
     }
 }

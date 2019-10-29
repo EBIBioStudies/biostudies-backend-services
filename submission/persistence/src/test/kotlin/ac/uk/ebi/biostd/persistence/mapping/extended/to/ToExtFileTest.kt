@@ -1,6 +1,8 @@
 package ac.uk.ebi.biostd.persistence.mapping.extended.to
 
-import ac.uk.ebi.biostd.persistence.mapping.extended.to.test.assertFileDb
+import ac.uk.ebi.biostd.persistence.mapping.extended.to.test.FILE_NAME
+import ac.uk.ebi.biostd.persistence.mapping.extended.to.test.FILE_REF_NAME
+import ac.uk.ebi.biostd.persistence.mapping.extended.to.test.assertExtFile
 import ac.uk.ebi.biostd.persistence.mapping.extended.to.test.fileDb
 import ac.uk.ebi.biostd.persistence.mapping.extended.to.test.refRileDb
 import ebi.ac.uk.io.sources.FilesSource
@@ -21,7 +23,7 @@ internal class ToExtFileTest(
         val file = fileDb
         every { filesSource.getFile(file.name) } returns systemFile
 
-        assertFileDb(file.toExtFile(filesSource), systemFile)
+        assertExtFile(file.toExtFile(filesSource), systemFile, FILE_NAME)
     }
 
     @Test
@@ -29,6 +31,6 @@ internal class ToExtFileTest(
         val refFile = refRileDb
         every { filesSource.getFile(refFile.name) } returns systemFile
 
-        assertFileDb(refFile.toExtFile(filesSource), systemFile)
+        assertExtFile(refFile.toExtFile(filesSource), systemFile, FILE_REF_NAME)
     }
 }

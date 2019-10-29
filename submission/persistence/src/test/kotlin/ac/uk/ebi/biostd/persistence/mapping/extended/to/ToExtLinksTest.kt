@@ -13,7 +13,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @Nested
 @ExtendWith(MockKExtension::class)
-class ToLinksTableTest {
+class ToExtLinksTest {
     private val link = linkDb.apply { order = 0; tableIndex = NO_TABLE_INDEX; }
     private val tableLink = linkDb.apply { order = 1; tableIndex = 0 }
     private val anotherTableLink = linkDb.apply { order = 2; tableIndex = 1; }
@@ -28,7 +28,7 @@ class ToLinksTableTest {
         assertThat(links.second()).containsRight { table ->
             assertThat(table.links).hasSize(2)
             assertDbLink(tableLink, table.links.first(), 1, 0)
-            assertDbLink(anotherTableLink, table.links.first(), 2, 1)
+            assertDbLink(anotherTableLink, table.links.second(), 2, 1)
         }
     }
 }
