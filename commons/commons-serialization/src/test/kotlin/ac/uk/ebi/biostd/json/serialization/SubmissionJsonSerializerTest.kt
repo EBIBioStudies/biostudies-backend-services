@@ -23,9 +23,7 @@ import java.time.ZoneOffset
 
 @ExtendWith(MockKExtension::class)
 internal class SubmissionJsonSerializerTest {
-
     private val testInstance = createSerializer()
-
     private val submission = submission("abc123") { attribute("attr-name", "attr-value") }
 
     @Test
