@@ -10,13 +10,11 @@ internal inline fun <reified T : JsonNode> JsonNode.findNode(property: String): 
         else -> ensureType<T>(node, property)
     }
 
-
 internal inline fun <reified T : JsonNode> JsonNode.getNode(property: String): T =
     when (val node = get(property)) {
         is NullNode, null -> throw IllegalStateException("Expecting to find property with '$property' in node '$this'")
         else -> ensureType(node, property)
     }
-
 
 private inline fun <reified T : JsonNode?> JsonNode.ensureType(node: JsonNode, property: String): T {
     require(node is T) {

@@ -56,7 +56,9 @@ interface TagDataRepository : JpaRepository<Tag, Long> {
 
 interface SequenceDataRepository : JpaRepository<Sequence, Long> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    fun getByPrefixAndSuffix(prefix: String, suffix: String): Sequence
+    fun getByPrefix(prefix: String): Sequence
+
+    fun existsByPrefix(prefix: String): Boolean
 }
 
 interface UserDataRepository : JpaRepository<User, Long> {
@@ -74,7 +76,7 @@ interface UserGroupDataRepository : JpaRepository<UserGroup, Long> {
 }
 
 interface AccessPermissionRepository : JpaRepository<AccessPermission, Long> {
-    fun existsByAccessTagInAndAccessType(accessTags: List<String>, accessType: AccessType): Boolean
+    fun existsByAccessTagNameInAndAccessType(accessTags: List<String>, accessType: AccessType): Boolean
     fun findByUserIdAndAccessType(userId: Long, accessType: AccessType): List<AccessPermission>
 }
 

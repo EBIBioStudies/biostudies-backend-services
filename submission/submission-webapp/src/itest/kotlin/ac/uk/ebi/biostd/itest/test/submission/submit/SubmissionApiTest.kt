@@ -7,8 +7,10 @@ import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.factory.invalidLinkUrl
 import ac.uk.ebi.biostd.persistence.model.AccessTag
+import ac.uk.ebi.biostd.persistence.model.Sequence
 import ac.uk.ebi.biostd.persistence.model.Tag
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepository
+import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.TagDataRepository
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
 import ebi.ac.uk.asserts.assertThat
@@ -17,9 +19,12 @@ import ebi.ac.uk.dsl.line
 import ebi.ac.uk.dsl.section
 import ebi.ac.uk.dsl.submission
 import ebi.ac.uk.dsl.tsv
+import ebi.ac.uk.model.extensions.addAccessTag
+import ebi.ac.uk.model.extensions.attachTo
 import ebi.ac.uk.model.extensions.rootPath
 import ebi.ac.uk.model.extensions.title
 import ebi.ac.uk.security.integration.components.IGroupService
+import ebi.ac.uk.test.createFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
@@ -48,6 +53,7 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
     inner class SubmissionApiTest(
         @Autowired val submissionRepository: SubmissionRepository,
         @Autowired val tagsDataRepository: AccessTagDataRepository,
+        @Autowired val sequenceRepository: SequenceDataRepository,
         @Autowired val tagsRefRepository: TagDataRepository,
         @Autowired val groupService: IGroupService
     ) {
@@ -59,6 +65,8 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
         @BeforeAll
         fun init() {
             webClient = getWebClient(serverPort, SuperUser)
+
+            sequenceRepository.save(Sequence("S-BSST"))
             tagsDataRepository.save(AccessTag(name = "Public"))
             tagsRefRepository.save(Tag(classifier = "classifier", name = "tag"))
         }
@@ -71,6 +79,48 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
 
             assertThat(webClient.submitSingle(submission, SubmissionFormat.TSV)).isSuccessful()
             assertThat(submissionRepository.getByAccNo("SimpleAcc1")).isEqualTo(submission)
+        }
+
+        @Test
+        fun `empty accNo`() {
+            val submission = tsv {
+                line("Submission")
+                line("Title", "Empty AccNo")
+            }.toString()
+
+            assertThat(webClient.submitSingle(submission, SubmissionFormat.TSV)).isSuccessful()
+            assertThat(submissionRepository.getByAccNo("S-BSST0")).isEqualTo(
+                submission("S-BSST0") {
+                    title = "Empty AccNo"
+                }
+            )
+        }
+
+        @Test
+        fun `empty accNo with parent`() {
+            val project = tsv {
+                line("Submission", "A-Project")
+                line("AccNoTemplate", "!{S-APR}")
+                line()
+
+                line("Project")
+            }.toString()
+
+            val submission = tsv {
+                line("Submission")
+                line("AttachTo", "A-Project")
+                line("Title", "Empty AccNo With Parent")
+            }.toString()
+
+            assertThat(webClient.submitProject(tempFolder.createFile("project.tsv", project))).isSuccessful()
+            assertThat(webClient.submitSingle(submission, SubmissionFormat.TSV)).isSuccessful()
+            assertThat(submissionRepository.getByAccNo("S-APR0")).isEqualTo(
+                submission("S-APR0") {
+                    attachTo = "A-Project"
+                    title = "Empty AccNo With Parent"
+                    addAccessTag("A-Project")
+                }
+            )
         }
 
         @Test
@@ -98,6 +148,51 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
                     rootPath = "RootPathFolder"
 
                     section("Study") { file("DataFile5.txt") }
+                }
+            )
+        }
+
+        @Test
+        fun `submission with generic root section`() {
+            val submission = tsv {
+                line("Submission", "E-MTAB123")
+                line("Title", "Generic Submission")
+                line()
+
+                line("Experiment")
+                line()
+            }.toString()
+
+            assertThat(webClient.submitSingle(submission, SubmissionFormat.TSV)).isSuccessful()
+            assertThat(submissionRepository.getByAccNo("E-MTAB123")).isEqualTo(
+                submission("E-MTAB123") {
+                    title = "Generic Submission"
+
+                    section("Experiment") { }
+                }
+            )
+        }
+
+        @Test
+        fun `submission with tags`() {
+            val submission = tsv {
+                line("Submission", "S-TEST123")
+                line("Title", "Submission With Tags")
+                line()
+
+                line("Study", "SECT-001", "", "classifier:tag")
+                line()
+            }.toString()
+
+            assertThat(webClient.submitSingle(submission, SubmissionFormat.TSV)).isSuccessful()
+            assertThat(submissionRepository.getByAccNo("S-TEST123")).isEqualTo(
+                submission("S-TEST123") {
+                    title = "Submission With Tags"
+
+                    section("Study") {
+                        accNo = "SECT-001"
+                        tags = mutableListOf(Pair("Classifier", "Tag"))
+                    }
                 }
             )
         }

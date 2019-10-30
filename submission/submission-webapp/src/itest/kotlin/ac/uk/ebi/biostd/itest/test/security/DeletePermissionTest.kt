@@ -6,10 +6,16 @@ import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.entities.RegularUser
+import ac.uk.ebi.biostd.persistence.model.AccessPermission
+import ac.uk.ebi.biostd.persistence.model.AccessType.DELETE
+import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
+import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepository
+import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.line
 import ebi.ac.uk.dsl.tsv
+import ebi.ac.uk.test.createFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
@@ -27,13 +33,18 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.web.client.HttpServerErrorException
 
 @ExtendWith(TemporaryFolderExtension::class)
-internal class DeletePermissionTest(tempFolder: TemporaryFolder) : BaseIntegrationTest(tempFolder) {
+internal class DeletePermissionTest(private val tempFolder: TemporaryFolder) : BaseIntegrationTest(tempFolder) {
     @Nested
     @Import(PersistenceConfig::class)
     @ExtendWith(SpringExtension::class)
     @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
     @DirtiesContext
-    inner class DeleteSubmissionTest(@Autowired private val submissionRepository: SubmissionRepository) {
+    inner class DeleteSubmissionTest(
+        @Autowired private val userDataRepository: UserDataRepository,
+        @Autowired private val submissionRepository: SubmissionRepository,
+        @Autowired private val tagsDataRepository: AccessTagDataRepository,
+        @Autowired private val accessPermissionRepository: AccessPermissionRepository
+    ) {
         @LocalServerPort
         private var serverPort: Int = 0
 
@@ -62,7 +73,7 @@ internal class DeletePermissionTest(tempFolder: TemporaryFolder) : BaseIntegrati
         }
 
         @Test
-        fun `submit with one user and delete with another`() {
+        fun `delete with regular user`() {
             val submission = tsv {
                 line("Submission", "SimpleAcc2")
                 line("Title", "Simple Submission")
@@ -74,6 +85,42 @@ internal class DeletePermissionTest(tempFolder: TemporaryFolder) : BaseIntegrati
             assertThatExceptionOfType(HttpServerErrorException::class.java).isThrownBy {
                 regularUserWebClient.deleteSubmission("SimpleAcc2")
             }
+        }
+
+        @Test
+        fun `delete with regular user and tag access permission`() {
+            val submission = tsv {
+                line("Submission", "SimpleAcc3")
+                line("Title", "Simple Submission")
+                line("AttachTo", "AProject")
+                line()
+            }.toString()
+
+            setUpPermissions()
+            assertThat(superUserWebClient.submitSingle(submission, SubmissionFormat.TSV)).isSuccessful()
+
+            regularUserWebClient.deleteSubmission("SimpleAcc3")
+
+            val deletedSubmission = submissionRepository.getExtendedLastVersionByAccNo("SimpleAcc3")
+            assertThat(deletedSubmission.version).isEqualTo(-1)
+        }
+
+        private fun setUpPermissions() {
+            val project = tsv {
+                line("Submission", "AProject")
+                line("AccNoTemplate", "!{S-APR}")
+                line()
+
+                line("Project")
+            }.toString()
+
+            assertThat(superUserWebClient.submitProject(tempFolder.createFile("a-project.tsv", project))).isSuccessful()
+
+            val accessTag = tagsDataRepository.findByName("AProject")
+            val user = userDataRepository.findByEmailAndActive(RegularUser.email, active = true)
+            val accessPermission = AccessPermission(accessType = DELETE, user = user.get(), accessTag = accessTag)
+
+            accessPermissionRepository.save(accessPermission)
         }
     }
 }

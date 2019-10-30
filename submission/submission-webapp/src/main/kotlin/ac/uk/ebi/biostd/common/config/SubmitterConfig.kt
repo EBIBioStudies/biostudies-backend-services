@@ -18,6 +18,7 @@ import ac.uk.ebi.biostd.submission.processors.PropertiesProcessor
 import ac.uk.ebi.biostd.submission.processors.SubmissionProcessor
 import ac.uk.ebi.biostd.submission.processors.TimesProcessor
 import ac.uk.ebi.biostd.submission.submitter.ProjectSubmitter
+import ac.uk.ebi.biostd.submission.util.AccNoPatternUtil
 import ac.uk.ebi.biostd.submission.validators.IProjectValidator
 import ac.uk.ebi.biostd.submission.validators.ProjectValidator
 import ac.uk.ebi.biostd.submission.validators.SubmissionProjectValidator
@@ -28,6 +29,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 import org.springframework.context.annotation.Lazy
+import org.springframework.core.annotation.Order
 import java.nio.file.Paths
 
 @Configuration
@@ -42,9 +44,10 @@ class SubmitterConfig {
 
     @Bean
     fun projectSubmitter(
+        accNoPatternUtil: AccNoPatternUtil,
         validators: List<IProjectValidator>,
         processors: List<IProjectProcessor>
-    ) = ProjectSubmitter(validators, processors)
+    ) = ProjectSubmitter(accNoPatternUtil, validators, processors)
 
     @Configuration
     class FilesHandlerConfig(private val appProperties: ApplicationProperties) {
@@ -69,29 +72,40 @@ class SubmitterConfig {
     }
 
     @Configuration
+    @Suppress("MagicNumber")
     class ProcessorConfig(private val userPrivilegesService: IUserPrivilegesService) {
         @Bean
-        fun accNoProcessor() = AccNoProcessor(userPrivilegesService)
-
-        @Bean
+        @Order(0)
         fun accessTagProcessor() = AccessTagProcessor()
 
         @Bean
+        @Order(1)
+        fun accNoProcessor() = AccNoProcessor(userPrivilegesService, accNoPatternUtil())
+
+        @Bean
+        @Order(2)
         fun timesProcessor() = TimesProcessor()
 
         @Bean
+        @Order(3)
         fun propertiesProcessor() = PropertiesProcessor()
+
+        @Bean
+        fun accNoPatternUtil() = AccNoPatternUtil()
 
         @Bean
         fun projectProcessor() = ProjectProcessor()
     }
 
     @Configuration
-    class ValidatorConfig(private val userPrivilegesService: IUserPrivilegesService) {
+    class ValidatorConfig(
+        private val accNoPatternUtil: AccNoPatternUtil,
+        private val userPrivilegesService: IUserPrivilegesService
+    ) {
         @Bean
         fun submissionProjectValidator() = SubmissionProjectValidator()
 
         @Bean
-        fun projectValidator() = ProjectValidator(userPrivilegesService)
+        fun projectValidator() = ProjectValidator(accNoPatternUtil, userPrivilegesService)
     }
 }

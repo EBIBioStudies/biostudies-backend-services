@@ -83,6 +83,15 @@ var Submission.title: String?
         value?.let { this[SubFields.TITLE] = it }
     }
 
+/**
+ * Obtain the submission accession number template if present.
+ */
+var Submission.accNoTemplate: String?
+    get() = find(SubFields.ACC_NO_TEMPLATE)
+    set(value) {
+        value?.let { this[SubFields.ACC_NO_TEMPLATE] = it }
+    }
+
 fun Submission.addAccessTag(accessTag: String) = accessTags.add(accessTag)
 fun Submission.allFiles() = section.allFiles() + section.allSections().flatMap { it.allFiles() }
 fun Submission.getSectionByType(name: String): Section = section.allSections().first { it.type == name }

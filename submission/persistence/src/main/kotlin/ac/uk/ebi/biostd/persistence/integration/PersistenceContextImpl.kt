@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.persistence.integration
 import ac.uk.ebi.biostd.persistence.mapping.SubmissionDbMapper
 import ac.uk.ebi.biostd.persistence.mapping.SubmissionMapper
 import ac.uk.ebi.biostd.persistence.model.AccessTag
+import ac.uk.ebi.biostd.persistence.model.Sequence
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.LockExecutor
 import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
@@ -11,14 +12,12 @@ import ac.uk.ebi.biostd.persistence.repositories.UserDataDataRepository
 import arrow.core.getOrElse
 import arrow.core.toOption
 import ebi.ac.uk.base.toOption
-import ebi.ac.uk.model.AccPattern
 import ebi.ac.uk.model.ExtendedSubmission
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.constants.SubFields
 import ebi.ac.uk.model.constants.SubFields.ATTACH_TO
 import ebi.ac.uk.persistence.PersistenceContext
 import ebi.ac.uk.util.collections.ifNotEmpty
-import org.springframework.transaction.annotation.Isolation
 import org.springframework.transaction.annotation.Transactional
 
 @Suppress("TooManyFunctions")
@@ -31,9 +30,13 @@ open class PersistenceContextImpl(
     private val subMapper: SubmissionMapper,
     private val userDataRepository: UserDataDataRepository
 ) : PersistenceContext {
+    override fun createAccNoPatternSequence(pattern: String) {
+        sequenceRepository.save(Sequence(pattern))
+    }
+
     @Transactional
-    override fun getSequenceNextValue(pattern: AccPattern): Long {
-        val sequence = sequenceRepository.getByPrefixAndSuffix(pattern.prefix, pattern.postfix)
+    override fun getSequenceNextValue(pattern: String): Long {
+        val sequence = sequenceRepository.getByPrefix(pattern)
         sequence.counter.count = sequence.counter.count + 1
         sequenceRepository.save(sequence)
         return sequence.counter.count
