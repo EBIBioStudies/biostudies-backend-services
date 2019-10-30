@@ -68,6 +68,20 @@ class Section(
     @OrderBy("order ASC")
     var sections: SortedSet<Section> = sortedSetOf()
 
+    constructor(
+        accNo: String,
+        type: String,
+        attributes: SortedSet<SectionAttribute>,
+        files: SortedSet<File>,
+        links: SortedSet<Link>,
+        tableIndex: Int = NO_TABLE_INDEX
+    ) : this(accNo, type) {
+        this.tableIndex = tableIndex
+        this.attributes = attributes
+        this.files = files
+        this.links = links
+    }
+
     override fun compareTo(other: Section) = order.compareTo(other.order)
 
     override fun equals(other: Any?) = when {

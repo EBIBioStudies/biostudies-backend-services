@@ -1,68 +1,63 @@
 package ac.uk.ebi.biostd.persistence.mapping.extended.to
 
-import ac.uk.ebi.biostd.persistence.mapping.extended.to.test.extTestAttr
-import ac.uk.ebi.biostd.persistence.mapping.extended.to.test.extTestFile
-import ac.uk.ebi.biostd.persistence.mapping.extended.to.test.extTestLink
-import ac.uk.ebi.biostd.persistence.mapping.extended.to.test.extTestSection
-import ac.uk.ebi.biostd.persistence.mapping.extended.to.test.sectionAttribute
-import ac.uk.ebi.biostd.persistence.model.File
-import ac.uk.ebi.biostd.persistence.model.Link
-import ac.uk.ebi.biostd.persistence.model.ReferencedFileList
+import ac.uk.ebi.biostd.persistence.mapping.extended.to.test.FILE_LIST_NAME
+import ac.uk.ebi.biostd.persistence.mapping.extended.to.test.FILE_NAME
+import ac.uk.ebi.biostd.persistence.mapping.extended.to.test.FILE_REF_NAME
+import ac.uk.ebi.biostd.persistence.mapping.extended.to.test.assertExtAttribute
+import ac.uk.ebi.biostd.persistence.mapping.extended.to.test.assertExtFile
+import ac.uk.ebi.biostd.persistence.mapping.extended.to.test.assertExtLink
+import ac.uk.ebi.biostd.persistence.mapping.extended.to.test.fileDb
+import ac.uk.ebi.biostd.persistence.mapping.extended.to.test.linkDb
+import ac.uk.ebi.biostd.persistence.mapping.extended.to.test.refFileListDb
+import ac.uk.ebi.biostd.persistence.mapping.extended.to.test.sectAttributeDb
+import ac.uk.ebi.biostd.persistence.mapping.extended.to.test.sectionDb
 import ac.uk.ebi.biostd.persistence.model.Section
-import arrow.core.Either
-import ebi.ac.uk.extended.model.ExtFileList
+import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.io.sources.FilesSource
+import io.github.glytching.junit.extension.folder.TemporaryFolder
+import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
-import io.mockk.mockkStatic
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import java.util.Collections.emptySortedSet
-import java.util.SortedSet
 
-@ExtendWith(MockKExtension::class)
-class ToExtSectionTest(
-    @MockK val fileSource: FilesSource,
-    @MockK val fileList: ReferencedFileList,
-    @MockK val extFileList: ExtFileList
-) {
-    private val sections: SortedSet<Section> = emptySortedSet()
-    private val files: SortedSet<File> = emptySortedSet()
-    private val links: SortedSet<Link> = emptySortedSet()
+@ExtendWith(value = [MockKExtension::class, TemporaryFolderExtension::class])
+class ToExtSectionTest(@MockK val filesSource: FilesSource, tempFolder: TemporaryFolder) {
+    private val systemFile1 = tempFolder.createFile(FILE_NAME)
+    private val systemFile2 = tempFolder.createFile(FILE_REF_NAME)
+    private val systemFile3 = tempFolder.createFile(FILE_LIST_NAME)
 
     private val section = Section(type = "type", accNo = "accNo")
         .also {
-            it.fileList = fileList
-            it.attributes = sortedSetOf(sectionAttribute)
-            it.sections = sections
-            it.files = files
-            it.links = links
+            it.fileList = refFileListDb
+            it.attributes = sortedSetOf(sectAttributeDb)
+            it.sections = sortedSetOf(sectionDb)
+            it.files = sortedSetOf(fileDb)
+            it.links = sortedSetOf(linkDb)
         }
 
     @Test
     fun toExtSection() {
-        mockkStatic(
-            TO_EXT_ATTRIBUTE_EXTENSIONS,
-            TO_EXT_FILE_LIST_EXTENSION,
-            TO_EXT_LINK_EXTENSIONS,
-            TO_EXT_EITHER_LIST_EXTENSIONS) {
-            every { fileList.toExtFileList(fileSource) } returns extFileList
-            every { sectionAttribute.toExtAttribute() } returns extTestAttr
-            every { sections.toExtSections(fileSource) } returns listOf(Either.left(extTestSection))
-            every { files.toExtFiles(fileSource) } returns listOf(Either.left(extTestFile))
-            every { links.toExtLinks() } returns listOf(Either.left(extTestLink))
+        every { filesSource.getFile(FILE_NAME) } returns systemFile1
+        every { filesSource.getFile(FILE_REF_NAME) } returns systemFile2
+        every { filesSource.getFile(FILE_LIST_NAME) } returns systemFile3
 
-            val sectionResult = section.toExtSection(fileSource)
+        val extSection = section.toExtSection(filesSource)
 
-            assertThat(sectionResult.accNo).isEqualTo(section.accNo)
-            assertThat(sectionResult.type).isEqualTo(section.type)
-            assertThat(sectionResult.fileList).isEqualTo(extFileList)
-            assertThat(sectionResult.attributes).containsExactly(extTestAttr)
-            assertThat(sectionResult.sections).containsExactly(Either.left(extTestSection))
-            assertThat(sectionResult.files).containsExactly(Either.left(extTestFile))
-            assertThat(sectionResult.links).containsExactly(Either.left(extTestLink))
-        }
+        assertThat(extSection.accNo).isEqualTo(section.accNo)
+        assertThat(extSection.attributes).hasSize(1)
+        assertExtAttribute(extSection.attributes.first())
+
+        assertThat(extSection.files).hasSize(1)
+        assertThat(extSection.files.first()).hasLeftValueSatisfying { assertExtFile(it, systemFile1, FILE_NAME) }
+
+        assertThat(extSection.links).hasSize(1)
+        assertThat(extSection.links.first()).hasLeftValueSatisfying { assertExtLink(it) }
+
+        assertThat(extSection.fileList).isNotNull()
+        assertThat(extSection.fileList!!.file).isEqualTo(systemFile3)
+        assertThat(extSection.fileList!!.fileName).isEqualTo(FILE_LIST_NAME)
     }
 }

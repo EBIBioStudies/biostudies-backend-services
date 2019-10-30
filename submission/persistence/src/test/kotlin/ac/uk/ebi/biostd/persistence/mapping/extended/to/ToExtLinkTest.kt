@@ -1,13 +1,8 @@
 package ac.uk.ebi.biostd.persistence.mapping.extended.to
 
-import ac.uk.ebi.biostd.persistence.mapping.extended.to.test.attribute
-import ac.uk.ebi.biostd.persistence.mapping.extended.to.test.extTestAttr
-import ac.uk.ebi.biostd.persistence.mapping.extended.to.test.linkAttribute
-import ac.uk.ebi.biostd.persistence.model.Link
-import io.mockk.every
+import ac.uk.ebi.biostd.persistence.mapping.extended.to.test.assertExtLink
+import ac.uk.ebi.biostd.persistence.mapping.extended.to.test.linkDb
 import io.mockk.junit5.MockKExtension
-import io.mockk.mockkStatic
-import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -15,14 +10,8 @@ import org.junit.jupiter.api.extension.ExtendWith
 internal class ToExtLinkTest {
     @Test
     fun `Link to ExtLink`() {
-        val link = Link(url = "link name", order = 1, attributes = sortedSetOf(linkAttribute))
+        val extLink = linkDb.toExtLink()
 
-        mockkStatic(TO_EXT_ATTRIBUTE_EXTENSIONS) {
-            every { attribute.toExtAttribute() } returns extTestAttr
-
-            val extLink = link.toExtLink()
-            assertThat(extLink.url).isEqualTo(link.url)
-            assertThat(extLink.attributes).containsOnly(extTestAttr)
-        }
+        assertExtLink(extLink)
     }
 }
