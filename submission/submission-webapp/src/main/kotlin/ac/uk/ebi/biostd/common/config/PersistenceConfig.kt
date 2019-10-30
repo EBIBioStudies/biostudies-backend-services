@@ -10,6 +10,7 @@ import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.SubmissionDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.TagDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
+import ac.uk.ebi.biostd.persistence.repositories.UserDataDataRepository
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.context.annotation.Bean
@@ -25,8 +26,9 @@ class PersistenceConfig(
     private val tagsDataRepository: AccessTagDataRepository,
     private val tagsRefRepository: TagDataRepository,
     private val userRepository: UserDataRepository,
-    private val template: NamedParameterJdbcTemplate
-) {
+    private val template: NamedParameterJdbcTemplate,
+    private val userDataRepository: UserDataDataRepository
+    ) {
     @Bean
     fun submissionRepository() = SubmissionRepository(submissionDataRepository, submissionDbMapper())
 
@@ -48,5 +50,7 @@ class PersistenceConfig(
             tagsDataRepository,
             lockExecutor,
             submissionDbMapper(),
-            submissionMapper())
+            submissionMapper(),
+            userDataRepository
+            )
 }

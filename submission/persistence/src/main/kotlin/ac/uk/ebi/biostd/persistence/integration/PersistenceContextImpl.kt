@@ -8,6 +8,7 @@ import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.LockExecutor
 import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.SubmissionDataRepository
+import ac.uk.ebi.biostd.persistence.repositories.UserDataDataRepository
 import arrow.core.getOrElse
 import arrow.core.toOption
 import ebi.ac.uk.base.toOption
@@ -16,7 +17,7 @@ import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.constants.SubFields
 import ebi.ac.uk.model.constants.SubFields.ATTACH_TO
 import ebi.ac.uk.persistence.PersistenceContext
-import org.springframework.transaction.annotation.Isolation
+import ebi.ac.uk.util.collections.ifNotEmpty
 import org.springframework.transaction.annotation.Transactional
 
 @Suppress("TooManyFunctions")
@@ -26,7 +27,8 @@ open class PersistenceContextImpl(
     private val accessTagsDataRepository: AccessTagDataRepository,
     private val lockExecutor: LockExecutor,
     private val subDbMapper: SubmissionDbMapper,
-    private val subMapper: SubmissionMapper
+    private val subMapper: SubmissionMapper,
+    private val userDataRepository: UserDataDataRepository
 ) : PersistenceContext {
     override fun createAccNoPatternSequence(pattern: String) {
         sequenceRepository.save(Sequence(pattern))
@@ -56,13 +58,18 @@ open class PersistenceContextImpl(
     override fun getSubmission(accNo: String) =
         subRepository.findByAccNoAndVersionGreaterThan(accNo)?.let { subDbMapper.toExtSubmission(it) }
 
-    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
     override fun saveSubmission(submission: ExtendedSubmission) {
         lockExecutor.executeLocking(submission.accNo) {
             val nextVersion = (subRepository.getLastVersion(submission.accNo) ?: 0) + 1
             subRepository.expireActiveVersions(submission.accNo)
             submission.version = nextVersion
             subRepository.save(subMapper.toSubmissionDb(submission))
+        }
+    }
+
+    override fun deleteSubmissionDrafts(submission: ExtendedSubmission) {
+        userDataRepository.findByUserIdAndKeyIgnoreCaseContaining(submission.user.id, submission.accNo).ifNotEmpty {
+            userDataRepository.deleteAll(it)
         }
     }
 

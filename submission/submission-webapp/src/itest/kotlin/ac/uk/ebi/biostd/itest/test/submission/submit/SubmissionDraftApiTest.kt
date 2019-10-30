@@ -4,7 +4,10 @@ import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
 import ac.uk.ebi.biostd.itest.entities.SuperUser
+import ebi.ac.uk.dsl.Tsv
 import ebi.ac.uk.dsl.json.jsonObj
+import ebi.ac.uk.dsl.line
+import ebi.ac.uk.dsl.tsv
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
@@ -74,6 +77,18 @@ internal class SubmissionDraftApiTest(tempFolder: TemporaryFolder) : BaseIntegra
             assertEquals(submissions.first().content.toString(), pageTab, true)
 
             webClient.deleteSubmissionDraft(draftSubmission.key)
+            assertThat(webClient.getAllSubmissionDrafts()).isEmpty()
+        }
+
+        @Test
+        fun `delete submission draft after submission`() {
+            webClient.submitSingle(pageTab, SubmissionFormat.JSON)
+            webClient.getSubmissionDraft("ABC-123")
+            val updatedDraft = tsv {
+                line("Submission", "ABC-123")
+                line("Description", "Updated submission")
+            }
+            webClient.submitSingle(updatedDraft.toString(), SubmissionFormat.TSV)
             assertThat(webClient.getAllSubmissionDrafts()).isEmpty()
         }
     }
