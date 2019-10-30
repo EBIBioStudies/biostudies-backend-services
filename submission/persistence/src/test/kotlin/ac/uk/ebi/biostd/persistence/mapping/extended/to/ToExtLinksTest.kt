@@ -5,14 +5,9 @@ import ac.uk.ebi.biostd.persistence.mapping.extended.to.test.linkDb
 import ac.uk.ebi.biostd.persistence.test.assertDbLink
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.util.collections.second
-import io.mockk.junit5.MockKExtension
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
 
-@Nested
-@ExtendWith(MockKExtension::class)
 class ToExtLinksTest {
     private val link = linkDb.apply { order = 0; tableIndex = NO_TABLE_INDEX; }
     private val tableLink = linkDb.apply { order = 1; tableIndex = 0 }
@@ -24,8 +19,8 @@ class ToExtLinksTest {
     fun `Links to ExtLinkTable`() {
         val links = links.toExtLinks()
 
-        assertThat(links.first()).containsLeft { assertDbLink(link, it, 0, NO_TABLE_INDEX) }
-        assertThat(links.second()).containsRight { table ->
+        assertThat(links.first()).hasLeftValueSatisfying { assertDbLink(link, it, 0, NO_TABLE_INDEX) }
+        assertThat(links.second()).hasRightValueSatisfying { table ->
             assertThat(table.links).hasSize(2)
             assertDbLink(tableLink, table.links.first(), 1, 0)
             assertDbLink(anotherTableLink, table.links.second(), 2, 1)

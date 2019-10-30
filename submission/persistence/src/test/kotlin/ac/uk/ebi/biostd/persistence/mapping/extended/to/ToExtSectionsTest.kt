@@ -6,15 +6,10 @@ import ac.uk.ebi.biostd.persistence.mapping.extended.to.test.sectionDb
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.util.collections.second
-import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
 
-@Nested
-@ExtendWith(MockKExtension::class)
 class ToExtSectionsTest {
     private val fileSource = mockk<FilesSource>()
 
@@ -28,8 +23,8 @@ class ToExtSectionsTest {
     fun `Sections to ExtSectionTable`() {
         val sections = sections.toExtSections(fileSource)
 
-        assertThat(sections.first()).containsLeft { assertExtSection(section, it) }
-        assertThat(sections.second()).containsRight { table ->
+        assertThat(sections.first()).hasLeftValueSatisfying { assertExtSection(section, it) }
+        assertThat(sections.second()).hasRightValueSatisfying { table ->
             assertThat(table.sections).hasSize(2)
             assertExtSection(tableSection, table.sections.first())
             assertExtSection(anotherTableSection, table.sections.second())

@@ -51,10 +51,10 @@ class ToExtSectionTest(@MockK val filesSource: FilesSource, tempFolder: Temporar
         assertExtAttribute(extSection.attributes.first())
 
         assertThat(extSection.files).hasSize(1)
-        assertThat(extSection.files.first()).containsLeft { assertExtFile(it, systemFile1, FILE_NAME) }
+        assertThat(extSection.files.first()).hasLeftValueSatisfying { assertExtFile(it, systemFile1, FILE_NAME) }
 
         assertThat(extSection.links).hasSize(1)
-        assertThat(extSection.links.first()).containsLeft { assertExtLink(it) }
+        assertThat(extSection.links.first()).hasLeftValueSatisfying { assertExtLink(it) }
 
         assertThat(extSection.fileList).isNotNull()
         assertThat(extSection.fileList!!.file).isEqualTo(systemFile3)

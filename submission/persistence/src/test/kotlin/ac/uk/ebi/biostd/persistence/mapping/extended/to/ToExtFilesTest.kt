@@ -9,7 +9,6 @@ import ebi.ac.uk.util.collections.second
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.every
-import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -19,7 +18,7 @@ private const val FILE_1 = "file1"
 private const val FILE_2 = "file2"
 private const val FILE_3 = "file3"
 
-@ExtendWith(value = [MockKExtension::class, TemporaryFolderExtension::class])
+@ExtendWith(TemporaryFolderExtension::class)
 class ToExtFilesTest(tempFolder: TemporaryFolder) {
     private val filesSource = mockk<FilesSource>()
     private val systemFile1 = tempFolder.createFile(FILE_1)
@@ -40,8 +39,8 @@ class ToExtFilesTest(tempFolder: TemporaryFolder) {
 
         val files = files.toExtFiles(filesSource)
 
-        assertThat(files.first()).containsLeft { assertExtFile(it, systemFile1, FILE_1) }
-        assertThat(files.second()).containsRight { table ->
+        assertThat(files.first()).hasLeftValueSatisfying { assertExtFile(it, systemFile1, FILE_1) }
+        assertThat(files.second()).hasRightValueSatisfying { table ->
             assertThat1(table.files).hasSize(2)
             assertExtFile(table.files.first(), systemFile2, FILE_2)
             assertExtFile(table.files.second(), systemFile3, FILE_3)
