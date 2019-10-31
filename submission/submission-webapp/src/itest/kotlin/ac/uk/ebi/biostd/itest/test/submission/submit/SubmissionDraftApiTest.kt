@@ -4,7 +4,6 @@ import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
 import ac.uk.ebi.biostd.itest.entities.SuperUser
-import ebi.ac.uk.dsl.Tsv
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.dsl.line
 import ebi.ac.uk.dsl.tsv

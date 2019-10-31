@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.persistence.integration
 
+import ac.uk.ebi.biostd.persistence.exception.ProjectNotFoundException
 import ac.uk.ebi.biostd.persistence.mapping.SubmissionDbMapper
 import ac.uk.ebi.biostd.persistence.mapping.SubmissionMapper
 import ac.uk.ebi.biostd.persistence.model.AccessTag
@@ -11,11 +12,10 @@ import ac.uk.ebi.biostd.persistence.repositories.SubmissionDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataDataRepository
 import arrow.core.getOrElse
 import arrow.core.toOption
-import ebi.ac.uk.base.toOption
 import ebi.ac.uk.model.ExtendedSubmission
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.constants.SubFields
-import ebi.ac.uk.model.constants.SubFields.ATTACH_TO
+import ebi.ac.uk.model.extensions.attachTo
 import ebi.ac.uk.persistence.PersistenceContext
 import ebi.ac.uk.util.collections.ifNotEmpty
 import org.springframework.transaction.annotation.Transactional
@@ -51,7 +51,7 @@ open class PersistenceContextImpl(
     override fun getParentAccPattern(submission: Submission) =
         getParentSubmission(submission)
             .flatMap { parent ->
-                parent.attributes.firstOrNull { it.name == SubFields.ACC_NO_TEMPLATE.toString() }.toOption()
+                parent.attributes.firstOrNull { it.name == SubFields.ACC_NO_TEMPLATE.value }.toOption()
             }
             .map { it.value }
 
@@ -82,5 +82,7 @@ open class PersistenceContextImpl(
     override fun isNew(accNo: String) = subRepository.existsByAccNo(accNo).not()
 
     private fun getParentSubmission(submission: Submission) =
-        submission.find(ATTACH_TO).toOption().map { subRepository.getByAccNoAndVersionGreaterThan(it) }
+        submission.attachTo?.let {
+            subRepository.findByAccNoAndVersionGreaterThan(it) ?: throw ProjectNotFoundException(it)
+        }.toOption()
 }

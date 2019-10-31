@@ -8,12 +8,17 @@ import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.file
 import ebi.ac.uk.base.isNotBlank
 import org.json.JSONObject
+import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.ResourceAccessException
-import org.springframework.web.client.RestClientResponseException
 import java.io.File
+import java.io.FileNotFoundException
+import java.net.ConnectException
+import java.net.HttpRetryException
 
-const val FILES_SEPARATOR = ','
-const val FILES_NOT_FOUND_ERROR_MSG = "Some of the given files were not found"
+private const val FILES_SEPARATOR = ','
+internal const val INVALID_SERVER_ERROR_MSG = "Connection Error: The provided server is invalid"
+internal const val AUTHENTICATION_ERROR_MSG = "Authentication Error: Invalid email address or password"
+internal const val FILES_NOT_FOUND_ERROR_MSG = "Files Not Found Error: Some of the attached files were not found"
 
 class BioStudiesCommandLine : CliktCommand(name = "PTSubmit") {
     private val server by option("-s", "--server", help = "BioStudies host url").required()
@@ -39,8 +44,8 @@ class BioStudiesCommandLine : CliktCommand(name = "PTSubmit") {
             echo("SUCCESS: Submission with AccNo ${submission.accNo} was submitted")
         } catch (exception: Exception) {
             when (exception) {
-                is ResourceAccessException -> throw PrintMessage(exception.cause?.message ?: FILES_NOT_FOUND_ERROR_MSG)
-                is RestClientResponseException -> throw PrintMessage(formatException(exception))
+                is HttpClientErrorException -> throw PrintMessage(formatRestException(exception))
+                is ResourceAccessException -> throw PrintMessage(formatConnectionException(exception))
                 else -> throw exception
             }
         }
@@ -49,8 +54,15 @@ class BioStudiesCommandLine : CliktCommand(name = "PTSubmit") {
     internal fun getClient(host: String, user: String, password: String) =
         SecurityWebClient.create(host).getAuthenticatedClient(user, password)
 
-    // TODO The exceptions should be formatted at bio-webclient level
-    private fun formatException(exception: RestClientResponseException) =
+    private fun formatConnectionException(exception: ResourceAccessException) =
+        when (exception.cause) {
+            is ConnectException -> INVALID_SERVER_ERROR_MSG
+            is HttpRetryException -> AUTHENTICATION_ERROR_MSG
+            is FileNotFoundException -> FILES_NOT_FOUND_ERROR_MSG
+            else -> throw exception
+        }
+
+    private fun formatRestException(exception: HttpClientErrorException) =
         when {
             exception.responseBodyAsString.isNotBlank() -> JSONObject(exception.responseBodyAsString).toString(2)
             exception.message.isNotBlank() -> exception.message!!

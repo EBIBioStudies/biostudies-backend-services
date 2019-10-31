@@ -28,7 +28,7 @@ class PersistenceConfig(
     private val userRepository: UserDataRepository,
     private val template: NamedParameterJdbcTemplate,
     private val userDataRepository: UserDataDataRepository
-    ) {
+) {
     @Bean
     fun submissionRepository() = SubmissionRepository(submissionDataRepository, submissionDbMapper())
 
