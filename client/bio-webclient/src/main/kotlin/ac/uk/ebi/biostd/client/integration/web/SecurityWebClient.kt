@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.client.integration.web
 
-import ac.uk.ebi.biostd.client.exception.InvalidHostErrorHandler
+import ac.uk.ebi.biostd.client.exception.SecurityWebClientErrorHandler
+import ac.uk.ebi.biostd.client.interceptor.ServerValidationInterceptor
 import ebi.ac.uk.api.security.LoginRequest
 import ebi.ac.uk.api.security.RegisterRequest
 import ebi.ac.uk.api.security.UserProfile
@@ -12,7 +13,6 @@ class SecurityWebClient private constructor(
     private val baseUrl: String,
     private val restTemplate: RestTemplate
 ) : SecurityOperations {
-
     override fun getAuthenticatedClient(user: String, password: String): BioWebClient =
         BioWebClient.create(baseUrl, login(LoginRequest(user, password)).sessid)
 
@@ -24,11 +24,11 @@ class SecurityWebClient private constructor(
     }
 
     companion object {
-
         fun create(baseUrl: String) = SecurityWebClient(
             baseUrl,
             RestTemplate().apply {
-                errorHandler = InvalidHostErrorHandler()
+                errorHandler = SecurityWebClientErrorHandler()
+                interceptors.add(ServerValidationInterceptor())
                 uriTemplateHandler = DefaultUriBuilderFactory(baseUrl)
             })
     }

@@ -1,5 +1,6 @@
 package uk.ac.ebi.biostd.client.cli
 
+import ac.uk.ebi.biostd.client.exception.WebClientException
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import com.github.ajalt.clikt.core.IncorrectOptionValueCount
 import com.github.ajalt.clikt.core.MissingParameter
@@ -18,14 +19,9 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
-import org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR
+import org.springframework.http.HttpStatus.BAD_REQUEST
 import org.springframework.http.ResponseEntity
-import org.springframework.web.client.HttpClientErrorException
-import org.springframework.web.client.ResourceAccessException
 import java.io.File
-import java.io.FileNotFoundException
-import java.net.ConnectException
-import java.net.HttpRetryException
 
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
 class BioStudiesCommandLineTest(
@@ -91,58 +87,10 @@ class BioStudiesCommandLineTest(
 
         every {
             mockWebClient.submitSingle(submissionFile, listOf())
-        } throws ResourceAccessException("Invalid files", FileNotFoundException("Invalid Files"))
-
-        val exceptionMessage = assertThrows<PrintMessage> { testInstance.parse(args) }.message
-        assertThat(exceptionMessage).isEqualTo(FILES_NOT_FOUND_ERROR_MSG)
-    }
-
-    @Test
-    fun `submit single with server error`() {
-        val args = arrayOf(
-            "-s", "http://localhost:8080",
-            "-u", "user",
-            "-p", "123456",
-            "-i", "$rootFolder/Submission.tsv")
-        val exception =
-            HttpClientErrorException(INTERNAL_SERVER_ERROR, "Error", null, "{\"msg\":\"error\"}".toByteArray(), null)
-
-        every { mockWebClient.submitSingle(submissionFile, listOf()) } throws exception
-
-        val exceptionMessage = assertThrows<PrintMessage> { testInstance.parse(args) }.message
-        assertThat(exceptionMessage).isEqualTo("{\"msg\": \"error\"}")
-    }
-
-    @Test
-    fun `submit single with invalid server`() {
-        val args = arrayOf(
-            "-s", "http://localhost:808",
-            "-u", "user",
-            "-p", "123456",
-            "-i", "$rootFolder/Submission.tsv")
-
-        every {
-            mockWebClient.submitSingle(submissionFile, listOf())
-        } throws ResourceAccessException("Invalid Server", ConnectException("Invalid Server"))
+        } throws WebClientException(BAD_REQUEST, "Invalid Files")
 
         val exception = assertThrows<PrintMessage> { testInstance.parse(args) }
-        assertThat(exception.message).isEqualTo(INVALID_SERVER_ERROR_MSG)
-    }
-
-    @Test
-    fun `submit single with authentication error`() {
-        val args = arrayOf(
-            "-s", "http://localhost:8080",
-            "-u", "user",
-            "-p", "123456",
-            "-i", "$rootFolder/Submission.tsv")
-
-        every {
-            mockWebClient.submitSingle(submissionFile, listOf())
-        } throws ResourceAccessException("Authentication Error", HttpRetryException("Authentication Error", 500))
-
-        val exception = assertThrows<PrintMessage> { testInstance.parse(args) }
-        assertThat(exception.message).isEqualTo(AUTHENTICATION_ERROR_MSG)
+        assertThat(exception.message).isEqualTo("Invalid Files")
     }
 
     @Test

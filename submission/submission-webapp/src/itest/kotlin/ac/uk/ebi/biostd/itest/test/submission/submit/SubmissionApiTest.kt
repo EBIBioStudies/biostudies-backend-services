@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.itest.test.submission.submit
 
+import ac.uk.ebi.biostd.client.exception.WebClientException
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
@@ -40,7 +41,6 @@ import org.springframework.context.annotation.Import
 import org.springframework.http.HttpStatus
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
-import org.springframework.web.client.HttpClientErrorException
 import kotlin.test.assertFailsWith
 
 @ExtendWith(TemporaryFolderExtension::class)
@@ -273,7 +273,7 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
 
         @Test
         fun `submit with invalid link Url`() {
-            val exception = assertThrows(HttpClientErrorException::class.java) {
+            val exception = assertThrows(WebClientException::class.java) {
                 webClient.submitSingle(invalidLinkUrl().toString(), SubmissionFormat.TSV)
             }
 
@@ -287,10 +287,10 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
                 section("Study") { file("invalidfile.txt") }
             }
 
-            val exception = assertFailsWith<HttpClientErrorException.BadRequest> {
+            val exception = assertFailsWith<WebClientException> {
                 webClient.submitSingle(submission, SubmissionFormat.XML)
             }
-            assertThat(exception.responseBodyAsString.contains("Submission contains invalid files invalidfile.txt"))
+            assertThat(exception.message!!.contains("Submission contains invalid files invalid file.txt"))
         }
     }
 }

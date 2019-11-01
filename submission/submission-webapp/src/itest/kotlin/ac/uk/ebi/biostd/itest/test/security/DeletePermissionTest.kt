@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.itest.test.security
 
+import ac.uk.ebi.biostd.client.exception.WebClientException
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
@@ -30,7 +31,6 @@ import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
-import org.springframework.web.client.HttpServerErrorException
 
 @ExtendWith(TemporaryFolderExtension::class)
 internal class DeletePermissionTest(private val tempFolder: TemporaryFolder) : BaseIntegrationTest(tempFolder) {
@@ -82,7 +82,7 @@ internal class DeletePermissionTest(private val tempFolder: TemporaryFolder) : B
 
             assertThat(superUserWebClient.submitSingle(submission, SubmissionFormat.TSV)).isSuccessful()
 
-            assertThatExceptionOfType(HttpServerErrorException::class.java).isThrownBy {
+            assertThatExceptionOfType(WebClientException::class.java).isThrownBy {
                 regularUserWebClient.deleteSubmission("SimpleAcc2")
             }
         }

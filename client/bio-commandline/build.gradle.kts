@@ -1,5 +1,4 @@
 import Dependencies.CliKt
-import Dependencies.JSONOrg
 import TestDependencies.AssertJ
 import TestDependencies.Junit
 import TestDependencies.Junit5Console
@@ -15,7 +14,6 @@ dependencies {
     compile(project(":commons:commons-util"))
     compile(project(":client:bio-webclient"))
 
-    compile(JSONOrg)
     compile(CliKt)
 
     testCompile(Junit)
