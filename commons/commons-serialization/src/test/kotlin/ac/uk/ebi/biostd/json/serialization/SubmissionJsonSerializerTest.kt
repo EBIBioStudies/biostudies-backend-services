@@ -9,10 +9,7 @@ import ebi.ac.uk.dsl.attribute
 import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.dsl.submission
-import ebi.ac.uk.model.ExtendedSubmission
 import ebi.ac.uk.model.Submission
-import ebi.ac.uk.model.User
-import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -24,7 +21,12 @@ import java.time.ZoneOffset
 @ExtendWith(MockKExtension::class)
 internal class SubmissionJsonSerializerTest {
     private val testInstance = createSerializer()
-    private val submission = submission("abc123") { attribute("attr-name", "attr-value") }
+
+    private val releaseDate = OffsetDateTime.of(2018, 12, 31, 0, 0, 0, 0, ZoneOffset.UTC).toString()
+    private val submission = submission("abc123") {
+        attribute("attr-name", "attr-value")
+        attribute("releaseDate", releaseDate)
+    }
 
     @Test
     fun `serialize submission`() {
@@ -32,24 +34,12 @@ internal class SubmissionJsonSerializerTest {
         val expected = jsonObj {
             "accno" to "abc123"
             "section" to jsonObj { }
-            "attributes" to jsonArray(jsonObj { "reference" to false; "name" to "attr-name"; "value" to "attr-value" })
+            "attributes" to jsonArray(
+                jsonObj { "reference" to false; "name" to "attr-name"; "value" to "attr-value" },
+                jsonObj { "reference" to false; "name" to "releaseDate"; "value" to releaseDate }
+            )
         }
-        assertEquals("invalid submission jso", json, expected.toString(), LENIENT)
-    }
-
-    @Test
-    fun `serialize extended submission`(@MockK user: User) {
-        val dateTime = OffsetDateTime.of(2018, 12, 31, 0, 0, 0, 0, ZoneOffset.UTC)
-        val extendedSubmission = ExtendedSubmission(submission, user).apply { releaseTime = dateTime }
-
-        val json = testInstance.writeValueAsString(extendedSubmission)
-        val expected = jsonObj {
-            "accno" to "abc123"
-            "section" to jsonObj { }
-            "rtime" to "2018-12-31Z"
-            "attributes" to jsonArray(jsonObj { "reference" to false; "name" to "attr-name"; "value" to "attr-value" })
-        }
-        assertEquals("invalid submission jso", json, expected.toString(), LENIENT)
+        assertEquals("invalid submission json", json, expected.toString(), LENIENT)
     }
 
     companion object {
