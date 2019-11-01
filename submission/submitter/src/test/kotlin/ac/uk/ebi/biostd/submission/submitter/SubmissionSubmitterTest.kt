@@ -28,6 +28,7 @@ class SubmissionSubmitterTest(
 
     @BeforeEach
     fun beforeEach() {
+        every { persistenceContext.deleteSubmissionDrafts(submission) } answers { nothing }
         every { persistenceContext.saveSubmission(submission) } answers { submission }
         every { filesHandler.processFiles(submission, filesSource) } answers { nothing }
         every { submissionProcessor.process(submission, persistenceContext) } answers { nothing }

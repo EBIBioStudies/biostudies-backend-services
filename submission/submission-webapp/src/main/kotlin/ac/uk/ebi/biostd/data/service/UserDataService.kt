@@ -11,7 +11,7 @@ class UserDataService(private val dataRepository: UserDataDataRepository) {
         dataRepository.findById(UserDataId(userId, key)).toOption()
 
     fun searchByKey(userId: Long, key: String): List<UserData> =
-        dataRepository.findByUserAndKey(userId, key.toLowerCase())
+        dataRepository.findByUserIdAndKeyIgnoreCaseContaining(userId, key)
 
     fun saveUserData(userId: Long, key: String, content: String): UserData {
         return dataRepository.save(UserData(userId, key, content))

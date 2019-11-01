@@ -113,19 +113,19 @@ class UserPrivilegesServiceTest(
 
     private fun initAccessPermissions() {
         every {
-            accessPermissionRepository.existsByAccessTagInAndAccessType(listOf("A-Project"), AccessType.SUBMIT)
+            accessPermissionRepository.existsByAccessTagNameInAndAccessType(listOf("A-Project"), AccessType.SUBMIT)
         } returns true
 
         every {
-            accessPermissionRepository.existsByAccessTagInAndAccessType(emptyList(), AccessType.SUBMIT)
+            accessPermissionRepository.existsByAccessTagNameInAndAccessType(emptyList(), AccessType.SUBMIT)
         } returns false
 
         every {
-            accessPermissionRepository.existsByAccessTagInAndAccessType(emptyList(), AccessType.DELETE)
+            accessPermissionRepository.existsByAccessTagNameInAndAccessType(emptyList(), AccessType.DELETE)
         } returns false
 
         every {
-            accessPermissionRepository.existsByAccessTagInAndAccessType(listOf("A-Project"), AccessType.DELETE)
+            accessPermissionRepository.existsByAccessTagNameInAndAccessType(listOf("A-Project"), AccessType.DELETE)
         } returns true
     }
 }

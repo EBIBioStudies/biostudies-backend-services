@@ -7,7 +7,5 @@ class FileBuilder {
     var path: String? = null
     var attributes: List<Attribute> = emptyList()
 
-    fun build(): File {
-        return File(requireNotNull(path) { "file path is required" }, attributes = attributes)
-    }
+    fun build(): File = File(requireNotNull(path) { "file path is required" }, attributes = attributes)
 }

@@ -11,7 +11,10 @@ data class ExtFile(val fileName: String, val file: File, val attributes: List<Ex
 data class ExtFileList(val fileName: String, val file: File, val files: List<ExtFile>)
 
 data class ExtSectionTable(val sections: List<ExtSection>)
-data class ExtFileTable(val files: List<ExtFile>)
+data class ExtFileTable(val files: List<ExtFile>) {
+    constructor(vararg files: ExtFile) : this(files.toList())
+}
+
 data class ExtLinkTable(val links: List<ExtLink>)
 
 data class ExtAttribute(

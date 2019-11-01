@@ -29,6 +29,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 import org.springframework.context.annotation.Lazy
+import org.springframework.core.annotation.Order
 import java.nio.file.Paths
 
 @Configuration
@@ -71,21 +72,26 @@ class SubmitterConfig {
     }
 
     @Configuration
+    @Suppress("MagicNumber")
     class ProcessorConfig(private val userPrivilegesService: IUserPrivilegesService) {
         @Bean
-        fun accNoProcessor() = AccNoProcessor(userPrivilegesService, accNoPatternUtil())
-
-        @Bean
-        fun accNoPatternUtil() = AccNoPatternUtil()
-
-        @Bean
+        @Order(0)
         fun accessTagProcessor() = AccessTagProcessor()
 
         @Bean
+        @Order(1)
+        fun accNoProcessor() = AccNoProcessor(userPrivilegesService, accNoPatternUtil())
+
+        @Bean
+        @Order(2)
         fun timesProcessor() = TimesProcessor()
 
         @Bean
+        @Order(3)
         fun propertiesProcessor() = PropertiesProcessor()
+
+        @Bean
+        fun accNoPatternUtil() = AccNoPatternUtil()
 
         @Bean
         fun projectProcessor() = ProjectProcessor()
