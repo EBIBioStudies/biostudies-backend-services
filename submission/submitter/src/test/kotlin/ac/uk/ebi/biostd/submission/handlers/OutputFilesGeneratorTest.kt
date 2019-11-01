@@ -26,9 +26,9 @@ class OutputFilesGeneratorTest(
 
     @BeforeEach
     fun beforeEach() {
-        every { mockSerializationService.serializeElement(submission, SubFormat.XML) } returns ""
-        every { mockSerializationService.serializeElement(submission, SubFormat.TSV) } returns ""
-        every { mockSerializationService.serializeElement(submission, SubFormat.JSON_PRETTY) } returns ""
+        every { mockSerializationService.serializeElement(submission.asSubmission(), SubFormat.XML) } returns ""
+        every { mockSerializationService.serializeElement(submission.asSubmission(), SubFormat.TSV) } returns ""
+        every { mockSerializationService.serializeElement(submission.asSubmission(), SubFormat.JSON_PRETTY) } returns ""
         every { mockFolderResolver.getSubmissionFolder(submission) } returns temporaryFolder.root.toPath()
     }
 

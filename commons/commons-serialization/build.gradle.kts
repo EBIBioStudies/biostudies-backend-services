@@ -5,6 +5,7 @@ import Dependencies.JacksonKotlin
 import Dependencies.JacksonXml
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
+import TestDependencies.JsonAssert
 import TestDependencies.KotlinXmlBuilder
 import TestDependencies.Woodstox
 import TestDependencies.XmlUnitAssertJ
@@ -28,4 +29,5 @@ dependencies {
     testCompile(XmlUnitCore)
     testCompile(XmlUnitAssertJ)
     testCompile(KotlinXmlBuilder)
+    testCompile(JsonAssert)
 }

@@ -7,6 +7,7 @@ import ac.uk.ebi.biostd.persistence.repositories.SubmissionDataRepository
 import ac.uk.ebi.biostd.persistence.util.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.util.SubmissionFilterSpecification
 import ebi.ac.uk.model.ExtendedSubmission
+import ebi.ac.uk.model.Submission
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 
@@ -14,13 +15,13 @@ class SubmissionRepository(
     private val submissionRepository: SubmissionDataRepository,
     private val submissionDbMapper: SubmissionDbMapper
 ) {
-    fun getByAccNo(accNo: String) =
+    fun getByAccNo(accNo: String): Submission =
         submissionDbMapper.toSubmission(submissionRepository.getByAccNoAndVersionGreaterThan(accNo))
 
-    fun getExtendedByAccNo(accNo: String) =
+    fun getExtendedByAccNo(accNo: String): ExtendedSubmission =
         submissionDbMapper.toExtSubmission(submissionRepository.getByAccNoAndVersionGreaterThan(accNo))
 
-    fun getExtendedLastVersionByAccNo(accNo: String) =
+    fun getExtendedLastVersionByAccNo(accNo: String): ExtendedSubmission =
         submissionDbMapper.toExtSubmission(submissionRepository.getFirstByAccNoOrderByVersionDesc(accNo))
 
     fun expireSubmission(accNo: String) {
@@ -30,7 +31,7 @@ class SubmissionRepository(
         }
     }
 
-    fun findProjectsByAccessTags(tags: List<AccessTag>) =
+    fun findProjectsByAccessTags(tags: List<AccessTag>): List<Submission> =
         submissionRepository.findByTypeAndAccNo(Project.value, tags.map { it.name })
             .map { submissionDbMapper.toSubmission(it) }
 
