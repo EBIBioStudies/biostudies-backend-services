@@ -32,7 +32,6 @@ class SubmissionSubmitter(
             throw InvalidSubmissionException("Submission validation errors", exceptionList)
         }
 
-        context.saveSubmission(submission)
-        return submission
+        return context.saveSubmission(submission)
     }
 }

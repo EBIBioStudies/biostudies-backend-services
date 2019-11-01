@@ -44,6 +44,6 @@ class SubmissionService(
         submissionRepository.expireSubmission(accNo)
     }
 
-    fun submit(submission: Submission, user: SecurityUser, files: FilesSource) =
+    fun submit(submission: Submission, user: SecurityUser, files: FilesSource): Submission =
         submitter.submit(ExtendedSubmission(submission, user.asUser()), files, persistenceContext)
 }

@@ -68,11 +68,18 @@ class SubmissionDbMapper {
         return attrs
     }
 
-    fun toSubmission(submissionDb: SubmissionDb) =
-        Submission(submissionDb.accNo, attributes = toAttributes(submissionDb.attributes)).apply {
-            accessTags = submissionDb.accessTags.mapTo(mutableListOf(), AccessTag::name)
-            section = sectionMapper.toSection(submissionDb.rootSection)
-        }
+    fun toSubmission(submissionDb: SubmissionDb): Submission =
+        Submission(
+            accNo = submissionDb.accNo,
+            attributes = getSubAttributes(submissionDb))
+            .apply {
+                accessTags = submissionDb.accessTags.mapTo(mutableListOf(), AccessTag::name)
+                section = sectionMapper.toSection(submissionDb.rootSection)
+            }
+
+    private fun getSubAttributes(submissionDb: SubmissionDb): List<Attribute> =
+        toAttributes(submissionDb.attributes)
+            .plus(Attribute(SubFields.RELEASE_DATE, toInstant(submissionDb.releaseTime).toLocalDate()))
 
     private fun toInstant(dateSeconds: Long) = secondsToInstant(dateSeconds).atOffset(UTC)
 

@@ -15,28 +15,27 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.skyscreamer.jsonassert.JSONAssert.assertEquals
 import org.skyscreamer.jsonassert.JSONCompareMode.LENIENT
-import java.time.OffsetDateTime
-import java.time.ZoneOffset
+import java.time.LocalDate
 
 @ExtendWith(MockKExtension::class)
 internal class SubmissionJsonSerializerTest {
     private val testInstance = createSerializer()
 
-    private val releaseDate = OffsetDateTime.of(2018, 12, 31, 0, 0, 0, 0, ZoneOffset.UTC).toString()
+    private val releaseDate = LocalDate.of(2018, 12, 31).toString()
     private val submission = submission("abc123") {
         attribute("attr-name", "attr-value")
         attribute("releaseDate", releaseDate)
     }
 
     @Test
-    fun `serialize submission`() {
+    fun `serialize local date`() {
         val json = testInstance.writeValueAsString(submission)
         val expected = jsonObj {
             "accno" to "abc123"
             "section" to jsonObj { }
             "attributes" to jsonArray(
                 jsonObj { "reference" to false; "name" to "attr-name"; "value" to "attr-value" },
-                jsonObj { "reference" to false; "name" to "releaseDate"; "value" to releaseDate }
+                jsonObj { "reference" to false; "name" to "releaseDate"; "value" to "2018-12-31" }
             )
         }
         assertEquals("invalid submission json", json, expected.toString(), LENIENT)

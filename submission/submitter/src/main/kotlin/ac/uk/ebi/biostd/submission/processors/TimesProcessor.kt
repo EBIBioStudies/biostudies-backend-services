@@ -26,6 +26,7 @@ class TimesProcessor : SubmissionProcessor {
         submission.modificationTime = now
         submission.creationTime = createDate ?: now
         submission.releaseTime = submission.releaseDate?.let { parseDate(it) } ?: now
+        submission.releaseDate = null
 
         if (submission.releaseTime.isBefore(now)) {
             submission.released = true

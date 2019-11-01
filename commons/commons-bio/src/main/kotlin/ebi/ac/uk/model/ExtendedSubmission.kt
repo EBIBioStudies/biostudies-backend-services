@@ -1,6 +1,7 @@
 package ebi.ac.uk.model
 
 import ebi.ac.uk.base.EMPTY
+import ebi.ac.uk.model.constants.SubFields
 import java.time.OffsetDateTime
 import java.util.Objects
 
@@ -21,7 +22,10 @@ class ExtendedSubmission(accNo: String, val user: User) : Submission(accNo) {
     var modificationTime: OffsetDateTime = OffsetDateTime.now()
     var creationTime: OffsetDateTime = OffsetDateTime.now()
 
-    fun asSubmission() = Submission(accNo, extendedSection.asSection(), attributes = attributes)
+    fun asSubmission() = Submission(accNo, extendedSection.asSection(), attributes = subAttributes())
+
+    private fun subAttributes(): List<Attribute> =
+        attributes.plus(Attribute(SubFields.RELEASE_DATE, releaseTime.toLocalDate()))
 
     override fun equals(other: Any?) = when {
         other !is ExtendedSubmission -> false

@@ -57,12 +57,12 @@ open class PersistenceContextImpl(
         subRepository.findByAccNoAndVersionGreaterThan(accNo)?.let { subDbMapper.toExtSubmission(it) }
 
     @Transactional(isolation = Isolation.READ_UNCOMMITTED)
-    override fun saveSubmission(submission: ExtendedSubmission) {
-        lockExecutor.executeLocking(submission.accNo) {
+    override fun saveSubmission(submission: ExtendedSubmission): Submission {
+        return lockExecutor.executeLocking(submission.accNo) {
             val nextVersion = (subRepository.getLastVersion(submission.accNo) ?: 0) + 1
             subRepository.expireActiveVersions(submission.accNo)
             submission.version = nextVersion
-            subRepository.save(subMapper.toSubmissionDb(submission))
+            subDbMapper.toSubmission(subRepository.save(subMapper.toSubmissionDb(submission)))
         }
     }
 
