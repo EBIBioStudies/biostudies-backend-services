@@ -1,3 +1,4 @@
+import Dependencies.JSONOrg
 import Dependencies.SpringWeb
 
 dependencies {
@@ -6,5 +7,6 @@ dependencies {
     compile(project(":commons:commons-bio"))
     compile(project(":commons:commons-serialization"))
 
+    compile(JSONOrg)
     compile(SpringWeb)
 }

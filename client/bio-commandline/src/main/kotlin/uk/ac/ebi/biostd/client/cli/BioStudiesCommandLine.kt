@@ -6,14 +6,9 @@ import com.github.ajalt.clikt.core.PrintMessage
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.file
-import ebi.ac.uk.base.isNotBlank
-import org.json.JSONObject
-import org.springframework.web.client.ResourceAccessException
-import org.springframework.web.client.RestClientResponseException
 import java.io.File
 
-const val FILES_SEPARATOR = ','
-const val FILES_NOT_FOUND_ERROR_MSG = "Some of the given files were not found"
+private const val FILES_SEPARATOR = ','
 
 class BioStudiesCommandLine : CliktCommand(name = "PTSubmit") {
     private val server by option("-s", "--server", help = "BioStudies host url").required()
@@ -26,7 +21,7 @@ class BioStudiesCommandLine : CliktCommand(name = "PTSubmit") {
 
     @Suppress("TooGenericExceptionCaught")
     override fun run() {
-        try {
+        runCatching {
             val files: MutableList<File> = mutableListOf()
 
             attached?.let {
@@ -37,25 +32,13 @@ class BioStudiesCommandLine : CliktCommand(name = "PTSubmit") {
             val submission = client.submitSingle(input!!, files).body!!
 
             echo("SUCCESS: Submission with AccNo ${submission.accNo} was submitted")
-        } catch (exception: Exception) {
-            when (exception) {
-                is ResourceAccessException -> throw PrintMessage(exception.cause?.message ?: FILES_NOT_FOUND_ERROR_MSG)
-                is RestClientResponseException -> throw PrintMessage(formatException(exception))
-                else -> throw exception
-            }
+        }.onFailure {
+            throw PrintMessage(it.message!!)
         }
     }
 
     internal fun getClient(host: String, user: String, password: String) =
         SecurityWebClient.create(host).getAuthenticatedClient(user, password)
-
-    // TODO The exceptions should be formatted at bio-webclient level
-    private fun formatException(exception: RestClientResponseException) =
-        when {
-            exception.responseBodyAsString.isNotBlank() -> JSONObject(exception.responseBodyAsString).toString(2)
-            exception.message.isNotBlank() -> exception.message!!
-            else -> throw exception
-        }
 
     private fun addFiles(files: MutableList<File>, path: String) {
         val file = File(path)

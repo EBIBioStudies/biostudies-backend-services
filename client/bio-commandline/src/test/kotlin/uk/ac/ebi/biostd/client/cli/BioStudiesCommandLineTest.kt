@@ -1,5 +1,6 @@
 package uk.ac.ebi.biostd.client.cli
 
+import ac.uk.ebi.biostd.client.exception.WebClientException
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import com.github.ajalt.clikt.core.IncorrectOptionValueCount
 import com.github.ajalt.clikt.core.MissingParameter
@@ -18,11 +19,9 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
+import org.springframework.http.HttpStatus.BAD_REQUEST
 import org.springframework.http.ResponseEntity
-import org.springframework.web.client.ResourceAccessException
-import org.springframework.web.client.RestClientResponseException
 import java.io.File
-import java.io.IOException
 
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
 class BioStudiesCommandLineTest(
@@ -88,26 +87,24 @@ class BioStudiesCommandLineTest(
 
         every {
             mockWebClient.submitSingle(submissionFile, listOf())
-        } throws ResourceAccessException("Invalid files", IOException("Invalid Files"))
+        } throws WebClientException(BAD_REQUEST, "Invalid Files")
 
-        val exceptionMessage = assertThrows<PrintMessage> { testInstance.parse(args) }.message
-        assertThat(exceptionMessage).isEqualTo("Invalid Files")
+        val exception = assertThrows<PrintMessage> { testInstance.parse(args) }
+        assertThat(exception.message).isEqualTo("Invalid Files")
     }
 
     @Test
-    fun `submit single with server error`() {
+    fun `submit single with generic exception`() {
         val args = arrayOf(
             "-s", "http://localhost:8080",
             "-u", "user",
             "-p", "123456",
             "-i", "$rootFolder/Submission.tsv")
-        val exception =
-            RestClientResponseException("Error", 500, "Error", null, "{\"msg\":\"error\"}".toByteArray(), null)
 
-        every { mockWebClient.submitSingle(submissionFile, listOf()) } throws exception
+        every { mockWebClient.submitSingle(submissionFile, listOf()) } throws Exception("Generic Exception")
 
-        val exceptionMessage = assertThrows<PrintMessage> { testInstance.parse(args) }.message
-        assertThat(exceptionMessage).isEqualTo("{\"msg\": \"error\"}")
+        val exception = assertThrows<Exception> { testInstance.parse(args) }
+        assertThat(exception.message).isEqualTo("Generic Exception")
     }
 
     @Test

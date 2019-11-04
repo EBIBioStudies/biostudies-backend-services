@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.itest.test.security
 
+import ac.uk.ebi.biostd.client.exception.WebClientException
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
@@ -29,8 +30,6 @@ import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
-import org.springframework.web.client.HttpClientErrorException
-import org.springframework.web.client.HttpServerErrorException
 
 @ExtendWith(TemporaryFolderExtension::class)
 internal class SubmitPermissionTest(private val tempFolder: TemporaryFolder) : BaseIntegrationTest(tempFolder) {
@@ -73,7 +72,7 @@ internal class SubmitPermissionTest(private val tempFolder: TemporaryFolder) : B
 
         @Test
         fun `create project with regular user`() {
-            assertThatExceptionOfType(HttpServerErrorException::class.java).isThrownBy {
+            assertThatExceptionOfType(WebClientException::class.java).isThrownBy {
                 regularUserWebClient.submitProject(projectFile)
             }
         }
@@ -95,7 +94,7 @@ internal class SubmitPermissionTest(private val tempFolder: TemporaryFolder) : B
             }.toString()
 
             assertThat(superUserWebClient.submitProject(tempFolder.createFile("test.tsv", project))).isSuccessful()
-            assertThatExceptionOfType(HttpClientErrorException::class.java).isThrownBy {
+            assertThatExceptionOfType(WebClientException::class.java).isThrownBy {
                 regularUserWebClient.submitSingle(submission, SubmissionFormat.TSV)
             }
         }
