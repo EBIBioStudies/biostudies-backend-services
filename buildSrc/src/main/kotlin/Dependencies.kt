@@ -1,5 +1,6 @@
 import TestVersions.AssertJVersion
 import TestVersions.JsonAssertVersion
+import TestVersions.JsonPathAssertVersion
 import TestVersions.JunitEngineVersion
 import TestVersions.JunitExtensionsVersion
 import TestVersions.JunitVersion
@@ -42,7 +43,8 @@ object TestVersions {
     const val JunitExtensionsVersion = "2.3.0"
     const val MockKVersion = "1.9.3"
     const val XmlUnitVersion = "2.6.2"
-    const val JsonAssertVersion = "2.4.0"
+    const val JsonPathAssertVersion = "2.4.0"
+    const val JsonAssertVersion = "1.5.0"
 }
 
 object Versions {
@@ -101,7 +103,8 @@ object TestDependencies {
 
     const val H2 = "com.h2database:h2:$H2Version"
 
-    const val JsonAssert = "com.jayway.jsonpath:json-path-assert:$JsonAssertVersion"
+    const val JsonPathAssert = "com.jayway.jsonpath:json-path-assert:$JsonPathAssertVersion"
+    const val JsonAssert = "org.skyscreamer:jsonassert:$JsonAssertVersion"
 }
 
 object Dependencies {

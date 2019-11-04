@@ -26,7 +26,10 @@ var Submission.attachTo: String?
 var Submission.releaseDate: String?
     get() = find(SubFields.RELEASE_DATE)
     set(value) {
-        value?.let { this[SubFields.RELEASE_DATE] = it }
+        when (value) {
+            null -> attributes = attributes.filterNot { it.name == SubFields.RELEASE_DATE.value }
+            else -> this[SubFields.RELEASE_DATE] = value
+        }
     }
 
 /**

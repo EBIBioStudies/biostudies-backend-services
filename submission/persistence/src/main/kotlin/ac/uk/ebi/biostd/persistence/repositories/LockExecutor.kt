@@ -10,19 +10,21 @@ private const val LOCK_QUERY = "SELECT GET_LOCK(:LOCK_NAME, :TIMEOUT)"
 private const val RELEASE_QUERY = "SELECT RELEASE_LOCK(:LOCK_NAME)"
 
 interface LockExecutor {
-    fun executeLocking(lockName: String, timeout: Int = 3, executable: () -> Unit)
+    fun <T> executeLocking(lockName: String, timeout: Int = 3, executable: () -> T): T
 }
 
 class JdbcLockExecutor(private val template: NamedParameterJdbcTemplate) : LockExecutor {
 
-    override fun executeLocking(lockName: String, timeout: Int, executable: () -> Unit) {
+    override fun <T> executeLocking(lockName: String, timeout: Int, executable: () -> T): T {
         if (acquireLock(lockName, timeout)) {
             try {
-                executable()
+                return executable()
             } finally {
                 releaseLock(lockName)
             }
         }
+
+        throw IllegalStateException("could not acquire lock")
     }
 
     private fun releaseLock(lockName: String) {

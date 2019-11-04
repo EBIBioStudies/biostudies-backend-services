@@ -82,12 +82,12 @@ open class Attribute(
         value: String,
         order: Int,
         reference: Boolean,
-        nameAttrs: Details,
-        valueAttrs: Details
+        nameAttrs: List<AttributeDetail>,
+        valueAttrs: List<AttributeDetail>
     ) :
         this(name, value, order, reference) {
-        nameQualifier = nameAttrs
-        valueQualifier = valueAttrs
+        nameQualifier = nameAttrs.toMutableList()
+        valueQualifier = valueAttrs.toMutableList()
     }
 
     @Id

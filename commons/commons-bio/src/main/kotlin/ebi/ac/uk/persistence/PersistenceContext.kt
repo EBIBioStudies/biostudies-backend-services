@@ -15,7 +15,7 @@ interface PersistenceContext {
 
     fun getSubmission(accNo: String): ExtendedSubmission?
 
-    fun saveSubmission(submission: ExtendedSubmission)
+    fun saveSubmission(submission: ExtendedSubmission): Submission
 
     fun isNew(accNo: String): Boolean
 

@@ -7,7 +7,7 @@ import SpringBootDependencies.SpringBootStarterWeb
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
 import TestDependencies.H2
-import TestDependencies.JsonAssert
+import TestDependencies.JsonPathAssert
 import TestDependencies.KotlinXmlBuilder
 import TestDependencies.XmlUnitCore
 import TestDependencies.XmlUnitMatchers
@@ -42,7 +42,7 @@ dependencies {
     testCompile(SpringBootStarterTest)
     testCompile(H2)
     testCompile(KotlinXmlBuilder)
-    testCompile(JsonAssert)
+    testCompile(JsonPathAssert)
     testCompile(XmlUnitCore)
     testCompile(XmlUnitMatchers)
 }
