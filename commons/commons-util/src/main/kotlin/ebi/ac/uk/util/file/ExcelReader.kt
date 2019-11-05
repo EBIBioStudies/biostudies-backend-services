@@ -1,8 +1,6 @@
 package ebi.ac.uk.util.file
 
 import com.monitorjbl.xlsx.StreamingReader
-import ebi.ac.uk.dsl.Tsv
-import ebi.ac.uk.dsl.TsvLine
 import org.apache.poi.ss.usermodel.Sheet
 import java.io.File
 
@@ -15,10 +13,7 @@ class ExcelReader {
             .rowCacheSize(ROW_CACHE_SIZE)
             .bufferSize(BUFFER_SIZE)
             .open(file)
-            .use { Tsv(getTsvLines(it.getSheetAt(0))).toString() }
+            .use { getTsvLines(it.getSheetAt(0)) }
 
-    private fun getTsvLines(sheet: Sheet) =
-        sheet.map(
-            { TsvLine(it.map { cell -> cell.valueAsString }) },
-            { TsvLine() })
+    private fun getTsvLines(sheet: Sheet) = sheet.asTsvList().joinToString("\n")
 }

@@ -42,7 +42,6 @@ import org.springframework.context.annotation.Import
 import org.springframework.http.HttpStatus
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
-import org.springframework.web.client.HttpClientErrorException
 import java.time.LocalDate
 import kotlin.test.assertFailsWith
 
