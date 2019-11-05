@@ -5,6 +5,5 @@ import ebi.ac.uk.util.file.ExcelReader
 import java.io.File
 
 class PageTabReader(private val excelReader: ExcelReader) {
-    fun read(file: File): String =
-        if (file.isExcel()) excelReader.readContentAsTsv(file) else file.readText()
+    fun read(file: File): String = if (file.isExcel()) excelReader.readContentAsTsv(file) else file.readText()
 }

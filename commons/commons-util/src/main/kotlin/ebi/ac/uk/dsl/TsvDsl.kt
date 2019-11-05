@@ -2,8 +2,7 @@ package ebi.ac.uk.dsl
 
 class Tsv(val lines: MutableList<TsvLine> = mutableListOf()) {
 
-    override fun toString() =
-        lines.joinToString(separator = "\n") { it.values.joinToString(separator = "\t") }
+    override fun toString() = lines.joinToString(separator = "\n") { it.values.joinToString(separator = "\t") }
 }
 
 class TsvLine(val values: MutableList<String> = mutableListOf())
