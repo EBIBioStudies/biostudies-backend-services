@@ -8,7 +8,8 @@ import org.apache.poi.ss.usermodel.Sheet
 import java.util.LinkedList
 
 /**
- * Retrieve the sheet representation as a list of tsv separated string List.
+ * Retrieve the sheet representation as a list of tsv separated string List. Note that as stream reader ignored empty
+ * rows they are completed with emtpy values.
  */
 fun Sheet.asTsvList(): List<String> {
     val elements = LinkedList<String>()
