@@ -32,6 +32,7 @@ import Versions.ServletVersion
 import Versions.SpringAdminVersion
 import Versions.SpringDataVersion
 import Versions.SpringVersion
+import Versions.SpringfoxSwaggerVersion
 import Versions.WoodstoxVersion
 import Versions.XlsxStreamerVersion
 import Versions.XmlBuilderVersion
@@ -80,6 +81,7 @@ object Versions {
     const val RxJava2Version = "2.2.8"
     const val PoiVersion = "4.1.0"
     const val XlsxStreamerVersion = "2.1.0"
+    const val SpringfoxSwaggerVersion = "2.9.2"
 }
 
 object TestDependencies {
@@ -135,6 +137,8 @@ object Dependencies {
     const val CliKt = "com.github.ajalt:clikt:$CliKtVersion"
     const val RxJava2 = "io.reactivex.rxjava2:rxjava:$RxJava2Version"
     const val XlsxStreamer = "com.monitorjbl:xlsx-streamer:$XlsxStreamerVersion"
+    const val SpringfoxSwagger = "io.springfox:springfox-swagger2:$SpringfoxSwaggerVersion"
+    const val SpringfoxSwaggerUI = "io.springfox:springfox-swagger-ui:$SpringfoxSwaggerVersion"
 
     // Kotlin specific
     const val KotlinStdLib = "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$KotlinVersion"
