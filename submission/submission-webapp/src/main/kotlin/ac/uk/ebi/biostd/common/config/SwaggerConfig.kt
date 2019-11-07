@@ -2,6 +2,8 @@ package ac.uk.ebi.biostd.common.config
 
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.http.HttpStatus
+import org.springframework.web.bind.annotation.RequestMethod
 import springfox.documentation.builders.ApiInfoBuilder
 import springfox.documentation.builders.PathSelectors
 import springfox.documentation.builders.RequestHandlerSelectors
@@ -23,6 +25,8 @@ class SwaggerConfig {
             .build()
             .apiInfo(apiInfo())
             .useDefaultResponseMessages(false)
+            .globalResponseMessage(RequestMethod.GET, listOf(unauthorizedResponseMessage()))
+            .globalResponseMessage(RequestMethod.POST, listOf(unauthorizedResponseMessage()))
 
 
     private fun apiInfo() =
@@ -34,5 +38,8 @@ class SwaggerConfig {
             .build()
 
     private fun unauthorizedResponseMessage() =
-        ResponseMessageBuilder().code(401).message("Invalid X-Session-Token")
+        ResponseMessageBuilder()
+            .code(HttpStatus.UNAUTHORIZED.value())
+            .message("Invalid X-Session-Token")
+            .build()
 }
