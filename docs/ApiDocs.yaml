@@ -1,0 +1,116 @@
+swagger: '2.0'
+info:
+  title: BioStudies API
+  version: 1.0.0
+  description: Documentation for the BioStudies API.
+  contact:
+    email: biostudies@ebi.ac.uk
+    url: http://www.ebi.ac.uk/biostudies
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+tags:
+  - name: "Projects"
+
+paths:
+  /projects:
+    get:
+      tags:
+        - Projects
+      summary: Available projects list
+      description: Retrieves the list of available projects for the current user
+      produces:
+        - application/json
+      parameters:
+        - name: X-Session-Token
+          in: header
+          required: true
+          type: string
+      security:
+        - SessionToken: []
+      responses:
+        200:
+          description: List of available projects for the current user
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Project'
+        401:
+          description: Invalid X-Session-Token
+
+    post:
+      tags:
+        - Projects
+      summary: Register a project
+      description: Register a new project in BioStudies. Only super users can perform this action.
+      produces:
+        - application/json
+      parameters:
+        - name: X-Session-Token
+          in: header
+          required: true
+          type: string
+      security:
+        - SessionToken: []
+      responses:
+        200:
+          description: The project was succesfuly registered
+          schema:
+            $ref: '#/definitions/Submission'
+        401:
+          description: Invalid X-Session-Token
+
+definitions:
+  Attribute:
+    required:
+      - name
+      - value
+    properties:
+      name:
+        type: string
+        example: Type
+      value:
+        type: string
+        example: Test
+  Submission:
+    required:
+      - accno
+    properties:
+      accno:
+        type: string
+        example: S-BIAD123
+      attributes:
+        type: array
+        items:
+          $ref: '#/definitions/Attribute'
+        example: [{ name: Type, value: Test }]
+      section:
+        type: string
+        example: Study
+      tags:
+        type: array
+        items:
+          type: string
+        example: [page]
+      accessTags:
+        type: array
+        items:
+          type: string
+        example: [Public]
+  Project:
+    type: object
+    required:
+      - accno
+    properties:
+      accno:
+        type: string
+        example: BioImages
+      title:
+        type: string
+        example: Bio Images Archive Project
+
+securityDefinitions:
+  SessionToken:
+    type: apiKey
+    in: header
+    name: X-Session-Token
