@@ -8,11 +8,10 @@ import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.constants.MULTIPART_FORM_DATA
 import ebi.ac.uk.model.constants.PROJECT
 import ebi.ac.uk.security.integration.model.api.SecurityUser
+import io.swagger.annotations.Api
 import io.swagger.annotations.ApiImplicitParam
 import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiParam
-import io.swagger.annotations.ApiResponse
-import io.swagger.annotations.ApiResponses
 import org.springframework.http.HttpHeaders
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -28,8 +27,9 @@ import springfox.documentation.annotations.ApiIgnore
 @RestController
 @RequestMapping("/projects")
 @PreAuthorize("isAuthenticated()")
+@Api(tags = ["Projects"])
 class ProjectResource(private val projectService: ProjectService, private val projectWebHandler: ProjectWebHandler) {
-    @GetMapping(produces = ["application/json"])
+    @GetMapping
     @ResponseBody
     @ApiOperation("Get the list of available projects for the current user")
     @ApiImplicitParam(name = "X-Session-Token", value = "The authentication token", required = true)
@@ -45,7 +45,9 @@ class ProjectResource(private val projectService: ProjectService, private val pr
     @ApiImplicitParam(name = "X-Session-Token", value = "The authentication token", required = true)
     fun submit(
         @ApiIgnore
-        @AuthenticationPrincipal user: SecurityUser,
+        @AuthenticationPrincipal
+        user: SecurityUser,
+
         @ApiParam(name = "Project File", value = "File containing the project page tab definition")
         @RequestParam(PROJECT) file: MultipartFile
     ): Submission = projectWebHandler.submit(user, file)
