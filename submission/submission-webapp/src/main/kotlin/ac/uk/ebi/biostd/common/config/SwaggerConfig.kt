@@ -20,8 +20,8 @@ class SwaggerConfig {
     fun api(): Docket =
         Docket(DocumentationType.SWAGGER_2)
             .select()
-            .apis(RequestHandlerSelectors.any())
-            .paths(PathSelectors.any())
+            .apis(RequestHandlerSelectors.basePackage("ac.uk.ebi.biostd.submission.web.resources"))
+            .paths(PathSelectors.ant("/projects"))
             .build()
             .apiInfo(apiInfo())
             .useDefaultResponseMessages(false)
