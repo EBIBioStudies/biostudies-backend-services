@@ -22,7 +22,6 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseBody
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.multipart.MultipartFile
-import springfox.documentation.annotations.ApiIgnore
 
 @RestController
 @RequestMapping("/projects")
@@ -34,7 +33,6 @@ class ProjectResource(private val projectService: ProjectService, private val pr
     @ApiOperation("Get the list of available projects for the current user")
     @ApiImplicitParam(name = "X-Session-Token", value = "The authentication token", required = true)
     fun getUserProjects(
-        @ApiIgnore
         @AuthenticationPrincipal
         user: SecurityUser
     ): List<Project> = projectService.getAllowedProjects(user, AccessType.ATTACH)
@@ -44,7 +42,6 @@ class ProjectResource(private val projectService: ProjectService, private val pr
     @ApiOperation("Register a new project")
     @ApiImplicitParam(name = "X-Session-Token", value = "The authentication token", required = true)
     fun submit(
-        @ApiIgnore
         @AuthenticationPrincipal
         user: SecurityUser,
 
