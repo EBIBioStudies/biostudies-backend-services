@@ -1,4 +1,6 @@
 import Dependencies.MySql
+import Dependencies.SpringfoxSwagger
+import Dependencies.SpringfoxSwaggerUI
 import SpringBootDependencies.SpringBootStarterConfigProcessor
 import SpringBootDependencies.SpringBootStarterDataJpa
 import SpringBootDependencies.SpringBootStarterSecurity
@@ -35,6 +37,8 @@ dependencies {
     compile(SpringBootStarterSecurity)
 
     compile(MySql)
+    compile(SpringfoxSwagger)
+    compile(SpringfoxSwaggerUI)
 
     testCompile(project(":client:bio-webclient"))
     BaseTestCompileDependencies.forEach { testCompile(it) }
