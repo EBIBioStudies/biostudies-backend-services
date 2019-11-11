@@ -5,22 +5,23 @@ import ebi.ac.uk.model.SubmissionDraft
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.client.getForObject
 import org.springframework.web.client.postForObject
+import org.springframework.web.util.UriComponentsBuilder
 
 private const val SUBMISSION_DRAFT_URL = "/submissions/drafts"
 
 class SubmissionDraftClient(private val template: RestTemplate) : DraftSubmissionOperations {
-
     override fun createSubmissionDraft(content: String): SubmissionDraft =
         template.postForObject(SUBMISSION_DRAFT_URL, content)!!
 
     override fun getSubmissionDraft(accNo: String): SubmissionDraft =
         template.getForObject("$SUBMISSION_DRAFT_URL/$accNo")!!
 
-    override fun searchSubmissionDraft(searchText: String): List<SubmissionDraft> =
-        template.getForObject<Array<SubmissionDraft>>("$SUBMISSION_DRAFT_URL?searchText=$searchText").orEmpty().toList()
+    override fun getAllSubmissionDrafts(filter: Map<String, Any>): List<SubmissionDraft> {
+        val builder = UriComponentsBuilder.fromUriString(SUBMISSION_DRAFT_URL)
+        filter.entries.forEach { builder.queryParam(it.key, it.value) }
 
-    override fun getAllSubmissionDrafts(): List<SubmissionDraft> =
-        template.getForObject<Array<SubmissionDraft>>(SUBMISSION_DRAFT_URL).orEmpty().toList()
+        return template.getForObject<Array<SubmissionDraft>>(builder.toUriString()).orEmpty().toList()
+    }
 
     override fun deleteSubmissionDraft(accNo: String) = template.delete("$SUBMISSION_DRAFT_URL/$accNo")
 

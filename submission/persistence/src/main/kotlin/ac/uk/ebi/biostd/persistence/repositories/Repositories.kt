@@ -12,6 +12,7 @@ import ac.uk.ebi.biostd.persistence.model.User
 import ac.uk.ebi.biostd.persistence.model.UserData
 import ac.uk.ebi.biostd.persistence.model.UserDataId
 import ac.uk.ebi.biostd.persistence.model.UserGroup
+import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.EntityGraph
 import org.springframework.data.jpa.repository.EntityGraph.EntityGraphType.LOAD
 import org.springframework.data.jpa.repository.JpaRepository
@@ -81,7 +82,9 @@ interface AccessPermissionRepository : JpaRepository<AccessPermission, Long> {
 }
 
 interface UserDataDataRepository : JpaRepository<UserData, UserDataId> {
+    fun findByUserIdAndDataContaining(userId: Long, accNo: String): UserData
+
     fun findByUserIdAndKeyIgnoreCaseContaining(userId: Long, dataKey: String): List<UserData>
 
-    fun findByUserId(userId: Long): List<UserData>
+    fun findByUserId(userId: Long, pageRequest: Pageable): List<UserData>
 }

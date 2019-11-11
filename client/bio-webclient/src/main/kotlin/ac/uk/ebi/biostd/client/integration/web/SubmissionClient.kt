@@ -75,7 +75,7 @@ interface SecurityOperations {
 
     fun login(loginRequest: LoginRequest): UserProfile
 
-    fun registerUser(registerRequest: RegisterRequest): Unit
+    fun registerUser(registerRequest: RegisterRequest)
 }
 
 interface GeneralOperations {
@@ -85,15 +85,13 @@ interface GeneralOperations {
 }
 
 interface DraftSubmissionOperations {
+    fun getAllSubmissionDrafts(filter: Map<String, Any> = mapOf()): List<SubmissionDraft>
+
     fun getSubmissionDraft(accNo: String): SubmissionDraft
-
-    fun searchSubmissionDraft(searchText: String): List<SubmissionDraft>
-
-    fun getAllSubmissionDrafts(): List<SubmissionDraft>
 
     fun deleteSubmissionDraft(accNo: String)
 
-    fun updateSubmissionDraft(accNo: String, content: String): Unit
+    fun updateSubmissionDraft(accNo: String, content: String)
 
     fun createSubmissionDraft(content: String): SubmissionDraft
 }

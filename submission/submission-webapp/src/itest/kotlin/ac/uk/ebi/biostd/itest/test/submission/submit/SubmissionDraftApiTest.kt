@@ -69,17 +69,6 @@ internal class SubmissionDraftApiTest(tempFolder: TemporaryFolder) : BaseIntegra
         }
 
         @Test
-        fun `search submission draft`() {
-            val draftSubmission = webClient.createSubmissionDraft(pageTab)
-            val submissions = webClient.searchSubmissionDraft(draftSubmission.key)
-            assertThat(submissions).hasSize(1)
-            assertEquals(submissions.first().content.toString(), pageTab, true)
-
-            webClient.deleteSubmissionDraft(draftSubmission.key)
-            assertThat(webClient.getAllSubmissionDrafts()).isEmpty()
-        }
-
-        @Test
         fun `delete submission draft after submission`() {
             webClient.submitSingle(pageTab, SubmissionFormat.JSON)
             webClient.getSubmissionDraft("ABC-123")
