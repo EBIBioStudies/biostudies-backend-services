@@ -10,14 +10,13 @@ class SubmissionDraftService(
     private val userDataService: UserDataService,
     private val submissionService: SubmissionService
 ) {
-    fun getSubmissionDraft(userId: Long, accNo: String): UserData =
-        userDataService.getUserData(userId, accNo) ?: create(userId, accNo)
+    fun getSubmissionDraft(userId: Long, key: String): UserData =
+        userDataService.getUserData(userId, key).getOrElse { create(userId, key) }
 
-    fun updateSubmissionDraft(userId: Long, accNo: String, content: String): UserData =
-        userDataService.saveUserData(userId, accNo, content)
+    fun updateSubmissionDraft(userId: Long, key: String, content: String): UserData =
+        userDataService.saveUserData(userId, key, content)
 
-    fun deleteSubmissionDraft(userId: Long, accNo: String): Unit =
-        userDataService.delete(userId, accNo)
+    fun deleteSubmissionDraft(userId: Long, key: String) = userDataService.delete(userId, key)
 
     fun getSubmissionsDraft(userId: Long, filter: PaginationFilter = PaginationFilter()): List<UserData> =
         userDataService.findAll(userId, filter)
@@ -26,8 +25,8 @@ class SubmissionDraftService(
         return userDataService.saveUserData(userId, "TMP_${Instant.now().toEpochMilli()}", content)
     }
 
-    private fun create(userId: Long, accNo: String): UserData {
-        val submission = submissionService.getSubmissionAsJson(accNo)
-        return userDataService.saveUserData(userId, accNo, submission)
+    private fun create(userId: Long, key: String): UserData {
+        val submission = submissionService.getSubmissionAsJson(key)
+        return userDataService.saveUserData(userId, key, submission)
     }
 }

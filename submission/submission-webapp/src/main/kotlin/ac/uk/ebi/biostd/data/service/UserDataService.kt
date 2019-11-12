@@ -10,8 +10,8 @@ import ebi.ac.uk.base.toOption
 import org.springframework.data.domain.PageRequest
 
 class UserDataService(private val dataRepository: UserDataDataRepository) {
-    fun getUserData(userId: Long, key: String): UserData? =
-        dataRepository.findByUserIdAndDataContaining(userId, key)
+    fun getUserData(userId: Long, key: String): Option<UserData> =
+        dataRepository.findById(UserDataId(userId, key)).toOption()
 
     fun saveUserData(userId: Long, key: String, content: String): UserData =
         dataRepository.save(UserData(userId, key, content))

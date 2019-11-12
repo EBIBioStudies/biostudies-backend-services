@@ -82,8 +82,6 @@ interface AccessPermissionRepository : JpaRepository<AccessPermission, Long> {
 }
 
 interface UserDataDataRepository : JpaRepository<UserData, UserDataId> {
-    fun findByUserIdAndDataContaining(userId: Long, accNo: String): UserData
-
     fun findByUserIdAndKeyIgnoreCaseContaining(userId: Long, dataKey: String): List<UserData>
 
     fun findByUserId(userId: Long, pageRequest: Pageable): List<UserData>

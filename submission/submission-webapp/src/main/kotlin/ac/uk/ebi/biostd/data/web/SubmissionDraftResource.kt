@@ -25,40 +25,40 @@ import org.springframework.web.bind.annotation.RestController
 internal class SubmissionDraftResource(private val subDraftService: SubmissionDraftService) {
     @GetMapping
     @ResponseBody
-    fun getDraftSubmission(
+    fun getDraftSubmissions(
         @AuthenticationPrincipal user: SecurityUser,
         @ModelAttribute filter: PaginationFilter
     ): List<SubmissionDraft> =
         subDraftService.getSubmissionsDraft(user.id, filter).map { SubmissionDraft(it.key, it.data) }
 
-    @GetMapping("/{accNo}")
+    @GetMapping("/{key}")
     @ResponseBody
     fun getDraftSubmission(
         @AuthenticationPrincipal user: SecurityUser,
         @ModelAttribute filter: PaginationFilter,
-        @PathVariable accNo: String
+        @PathVariable key: String
     ): SubmissionDraft {
-        val draft = subDraftService.getSubmissionDraft(user.id, accNo)
+        val draft = subDraftService.getSubmissionDraft(user.id, key)
         return SubmissionDraft(draft.key, draft.data)
     }
 
-    @GetMapping("/{accNo}/content")
+    @GetMapping("/{key}/content")
     @ResponseBody
-    fun getDraftSubmissionValue(@AuthenticationPrincipal user: SecurityUser, @PathVariable accNo: String):
-        SubmissionDraftContent = SubmissionDraftContent(subDraftService.getSubmissionDraft(user.id, accNo).data)
+    fun getDraftSubmissionContent(@AuthenticationPrincipal user: SecurityUser, @PathVariable key: String):
+        SubmissionDraftContent = SubmissionDraftContent(subDraftService.getSubmissionDraft(user.id, key).data)
 
-    @DeleteMapping("/{accNo}")
-    fun deleteDraftSubmission(@AuthenticationPrincipal user: SecurityUser, @PathVariable accNo: String): Unit =
-        subDraftService.deleteSubmissionDraft(user.id, accNo)
+    @DeleteMapping("/{key}")
+    fun deleteDraftSubmission(@AuthenticationPrincipal user: SecurityUser, @PathVariable key: String): Unit =
+        subDraftService.deleteSubmissionDraft(user.id, key)
 
-    @PutMapping("/{accNo}")
+    @PutMapping("/{key}")
     @ResponseBody
     fun updateDraftSubmission(
         @AuthenticationPrincipal user: SecurityUser,
         @RequestBody content: String,
-        @PathVariable accNo: String
+        @PathVariable key: String
     ) {
-        subDraftService.updateSubmissionDraft(user.id, accNo, content)
+        subDraftService.updateSubmissionDraft(user.id, key, content)
     }
 
     @PostMapping
