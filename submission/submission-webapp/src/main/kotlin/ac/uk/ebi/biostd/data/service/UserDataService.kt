@@ -5,7 +5,6 @@ import ac.uk.ebi.biostd.persistence.model.UserData
 import ac.uk.ebi.biostd.persistence.model.UserDataId
 import ac.uk.ebi.biostd.persistence.repositories.UserDataDataRepository
 import arrow.core.Option
-import arrow.core.toOption
 import ebi.ac.uk.base.toOption
 import org.springframework.data.domain.PageRequest
 

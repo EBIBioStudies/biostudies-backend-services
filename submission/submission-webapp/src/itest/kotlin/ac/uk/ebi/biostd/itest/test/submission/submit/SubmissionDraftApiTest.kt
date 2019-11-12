@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.itest.test.submission.submit
 
+import ac.uk.ebi.biostd.client.exception.WebClientException
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
@@ -10,6 +11,7 @@ import ebi.ac.uk.dsl.tsv
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -45,7 +47,7 @@ internal class SubmissionDraftApiTest(tempFolder: TemporaryFolder) : BaseIntegra
         }
 
         @Test
-        fun `get draft submission when draft does not exit but submissions does`() {
+        fun `get draft submission when draft does not exist but submission does`() {
             webClient.submitSingle(pageTab, SubmissionFormat.JSON)
             val draftSubmission = webClient.getSubmissionDraft("ABC-123")
             assertThat(draftSubmission.key).isEqualTo("ABC-123")
@@ -78,6 +80,13 @@ internal class SubmissionDraftApiTest(tempFolder: TemporaryFolder) : BaseIntegra
             }
             webClient.submitSingle(updatedDraft.toString(), SubmissionFormat.TSV)
             assertThat(webClient.getAllSubmissionDrafts()).isEmpty()
+        }
+
+        @Test
+        fun `get draft submission when neither draft nor submission exists`() {
+            assertThatExceptionOfType(WebClientException::class.java).isThrownBy {
+                webClient.getSubmissionDraft("ABC-124")
+            }
         }
     }
 }
