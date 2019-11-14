@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.persistence.util
+package ac.uk.ebi.biostd.persistence.filter
 
 import ac.uk.ebi.biostd.persistence.model.Submission
 import ac.uk.ebi.biostd.persistence.model.User

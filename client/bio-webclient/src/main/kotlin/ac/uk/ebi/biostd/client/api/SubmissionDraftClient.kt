@@ -5,25 +5,28 @@ import ebi.ac.uk.model.SubmissionDraft
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.client.getForObject
 import org.springframework.web.client.postForObject
+import org.springframework.web.util.UriComponentsBuilder
 
 private const val SUBMISSION_DRAFT_URL = "/submissions/drafts"
 
 class SubmissionDraftClient(private val template: RestTemplate) : DraftSubmissionOperations {
-
     override fun createSubmissionDraft(content: String): SubmissionDraft =
         template.postForObject(SUBMISSION_DRAFT_URL, content)!!
 
     override fun getSubmissionDraft(accNo: String): SubmissionDraft =
         template.getForObject("$SUBMISSION_DRAFT_URL/$accNo")!!
 
-    override fun searchSubmissionDraft(searchText: String): List<SubmissionDraft> =
-        template.getForObject<Array<SubmissionDraft>>("$SUBMISSION_DRAFT_URL?searchText=$searchText").orEmpty().toList()
-
-    override fun getAllSubmissionDrafts(): List<SubmissionDraft> =
-        template.getForObject<Array<SubmissionDraft>>(SUBMISSION_DRAFT_URL).orEmpty().toList()
+    override fun getAllSubmissionDrafts(limit: Int, offset: Int): List<SubmissionDraft> =
+        template.getForObject<Array<SubmissionDraft>>(buildDraftsUrl(limit, offset)).orEmpty().toList()
 
     override fun deleteSubmissionDraft(accNo: String) = template.delete("$SUBMISSION_DRAFT_URL/$accNo")
 
     override fun updateSubmissionDraft(accNo: String, content: String): Unit =
         template.put("$SUBMISSION_DRAFT_URL/$accNo", content)
+
+    private fun buildDraftsUrl(limit: Int, offset: Int) =
+        UriComponentsBuilder.fromUriString(SUBMISSION_DRAFT_URL).apply {
+            queryParam("limit", limit)
+            queryParam("offset", offset)
+        }.toUriString()
 }

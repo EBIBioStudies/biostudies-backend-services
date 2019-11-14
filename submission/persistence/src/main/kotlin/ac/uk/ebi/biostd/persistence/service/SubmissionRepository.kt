@@ -4,8 +4,8 @@ import ac.uk.ebi.biostd.persistence.common.SubmissionTypes.Project
 import ac.uk.ebi.biostd.persistence.mapping.SubmissionDbMapper
 import ac.uk.ebi.biostd.persistence.model.AccessTag
 import ac.uk.ebi.biostd.persistence.repositories.SubmissionDataRepository
-import ac.uk.ebi.biostd.persistence.util.SubmissionFilter
-import ac.uk.ebi.biostd.persistence.util.SubmissionFilterSpecification
+import ac.uk.ebi.biostd.persistence.filter.SubmissionFilter
+import ac.uk.ebi.biostd.persistence.filter.SubmissionFilterSpecification
 import ebi.ac.uk.model.ExtendedSubmission
 import ebi.ac.uk.model.Submission
 import org.springframework.data.domain.PageRequest
