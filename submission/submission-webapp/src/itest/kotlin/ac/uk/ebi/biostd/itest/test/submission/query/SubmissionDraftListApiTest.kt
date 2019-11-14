@@ -56,8 +56,8 @@ internal class SubmissionDraftListApiTest(tempFolder: TemporaryFolder) : BaseInt
 
         @Test
         fun `get drafts with pagination`() {
-            val page1 = webClient.getAllSubmissionDrafts(mapOf("offset" to 0, "limit" to 2))
-            val page2 = webClient.getAllSubmissionDrafts(mapOf("offset" to 2, "limit" to 2))
+            val page1 = webClient.getAllSubmissionDrafts(offset = 0, limit = 2)
+            val page2 = webClient.getAllSubmissionDrafts(offset = 2, limit = 2)
 
             assertThat(page1).hasSize(2)
             assertDraft(testDrafts.first().key, "ABC-0", page1.first())

@@ -16,15 +16,17 @@ class SubmissionDraftClient(private val template: RestTemplate) : DraftSubmissio
     override fun getSubmissionDraft(accNo: String): SubmissionDraft =
         template.getForObject("$SUBMISSION_DRAFT_URL/$accNo")!!
 
-    override fun getAllSubmissionDrafts(filter: Map<String, Any>): List<SubmissionDraft> {
-        val builder = UriComponentsBuilder.fromUriString(SUBMISSION_DRAFT_URL)
-        filter.entries.forEach { builder.queryParam(it.key, it.value) }
-
-        return template.getForObject<Array<SubmissionDraft>>(builder.toUriString()).orEmpty().toList()
-    }
+    override fun getAllSubmissionDrafts(limit: Int, offset: Int): List<SubmissionDraft> =
+        template.getForObject<Array<SubmissionDraft>>(buildDraftsUrl(limit, offset)).orEmpty().toList()
 
     override fun deleteSubmissionDraft(accNo: String) = template.delete("$SUBMISSION_DRAFT_URL/$accNo")
 
     override fun updateSubmissionDraft(accNo: String, content: String): Unit =
         template.put("$SUBMISSION_DRAFT_URL/$accNo", content)
+
+    private fun buildDraftsUrl(limit: Int, offset: Int) =
+        UriComponentsBuilder.fromUriString(SUBMISSION_DRAFT_URL).apply {
+            queryParam("limit", limit)
+            queryParam("offset", offset)
+        }.toUriString()
 }

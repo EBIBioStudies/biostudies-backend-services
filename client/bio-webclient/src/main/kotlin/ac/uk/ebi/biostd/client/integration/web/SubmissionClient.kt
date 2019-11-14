@@ -85,7 +85,7 @@ interface GeneralOperations {
 }
 
 interface DraftSubmissionOperations {
-    fun getAllSubmissionDrafts(filter: Map<String, Any> = mapOf()): List<SubmissionDraft>
+    fun getAllSubmissionDrafts(limit: Int = 15, offset: Int = 0): List<SubmissionDraft>
 
     fun getSubmissionDraft(accNo: String): SubmissionDraft
 
