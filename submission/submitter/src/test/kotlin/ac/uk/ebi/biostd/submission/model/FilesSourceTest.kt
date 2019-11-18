@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.submission.model
 
+import ebi.ac.uk.errors.FileNotFoundException
 import ebi.ac.uk.io.sources.ComposedFileSource
 import ebi.ac.uk.io.sources.ListFilesSource
 import ebi.ac.uk.io.sources.PathFilesSource
@@ -55,7 +56,8 @@ class FilesSourceTest(temporaryFolder: TemporaryFolder) {
 
     @Test
     fun `get size of non existing file`() {
-        assertThrows<NoSuchElementException> { testInstance.readText(TEST_GHOST_FILE) }
+        val exception = assertThrows<FileNotFoundException> { testInstance.readText(TEST_GHOST_FILE) }
+        assertThat(exception.message).isEqualTo("File not found: $TEST_GHOST_FILE")
     }
 
     @Test
@@ -70,6 +72,7 @@ class FilesSourceTest(temporaryFolder: TemporaryFolder) {
 
     @Test
     fun `read text of non existing file`() {
-        assertThrows<NoSuchElementException> { testInstance.readText(TEST_GHOST_FILE) }
+        val exception = assertThrows<FileNotFoundException> { testInstance.readText(TEST_GHOST_FILE) }
+        assertThat(exception.message).isEqualTo("File not found: $TEST_GHOST_FILE")
     }
 }
