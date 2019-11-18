@@ -1,10 +1,11 @@
 package ac.uk.ebi.biostd.service
 
+import ac.uk.ebi.biostd.integration.JsonFormat
+import ac.uk.ebi.biostd.integration.PlainJson
+import ac.uk.ebi.biostd.integration.PrettyJson
 import ac.uk.ebi.biostd.integration.SubFormat
-import ac.uk.ebi.biostd.integration.SubFormat.JSON
-import ac.uk.ebi.biostd.integration.SubFormat.JSON_PRETTY
-import ac.uk.ebi.biostd.integration.SubFormat.TSV
-import ac.uk.ebi.biostd.integration.SubFormat.XML
+import ac.uk.ebi.biostd.integration.TsvFormat
+import ac.uk.ebi.biostd.integration.XmlFormat
 import ac.uk.ebi.biostd.json.JsonSerializer
 import ac.uk.ebi.biostd.tsv.TsvSerializer
 import ac.uk.ebi.biostd.xml.XmlSerializer
@@ -18,26 +19,24 @@ internal class PagetabSerializer(
     fun serializeSubmission(submission: Submission, format: SubFormat): String = serializeElement(submission, format)
 
     fun <T> serializeElement(element: T, format: SubFormat) = when (format) {
-        XML -> xmlSerializer.serialize(element)
-        JSON -> jsonSerializer.serialize(element)
-        JSON_PRETTY -> jsonSerializer.serialize(element, true)
-        TSV -> tsvSerializer.serialize(element)
+        XmlFormat -> xmlSerializer.serialize(element)
+        PlainJson -> jsonSerializer.serialize(element)
+        PrettyJson -> jsonSerializer.serialize(element, true)
+        is TsvFormat -> tsvSerializer.serialize(element)
     }
 
     fun deserializeSubmission(submission: String, format: SubFormat) = when (format) {
-        XML -> xmlSerializer.deserialize(submission)
-        JSON -> jsonSerializer.deserialize(submission)
-        JSON_PRETTY -> jsonSerializer.deserialize(submission)
-        TSV -> tsvSerializer.deserialize(submission)
+        XmlFormat -> xmlSerializer.deserialize(submission)
+        is JsonFormat -> jsonSerializer.deserialize(submission)
+        is TsvFormat -> tsvSerializer.deserialize(submission)
     }
 
     inline fun <reified T> deserializeElement(element: String, format: SubFormat) =
         deserializeElement(element, format, T::class.java)
 
     fun <T> deserializeElement(element: String, format: SubFormat, type: Class<out T>): T = when (format) {
-        XML -> xmlSerializer.deserialize(element, type)
-        JSON -> jsonSerializer.deserialize(element, type)
-        JSON_PRETTY -> jsonSerializer.deserialize(element, type)
-        TSV -> tsvSerializer.deserializeElement(element, type)
+        XmlFormat -> xmlSerializer.deserialize(element, type)
+        is JsonFormat -> jsonSerializer.deserialize(element, type)
+        is TsvFormat -> tsvSerializer.deserializeElement(element, type)
     }
 }

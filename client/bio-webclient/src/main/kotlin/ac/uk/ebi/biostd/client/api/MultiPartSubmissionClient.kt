@@ -4,7 +4,9 @@ import ac.uk.ebi.biostd.client.extensions.map
 import ac.uk.ebi.biostd.client.extensions.setSubmissionType
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.web.MultipartSubmissionOperations
+import ac.uk.ebi.biostd.integration.PrettyJson
 import ac.uk.ebi.biostd.integration.SerializationService
+import ac.uk.ebi.biostd.integration.SubFormat.Companion.JSON
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.constants.FILES
 import ebi.ac.uk.model.constants.SUBMISSION
@@ -28,27 +30,28 @@ internal class MultiPartSubmissionClient(
     private val serializationService: SerializationService
 ) : MultipartSubmissionOperations {
     override fun submitSingle(submission: File, files: List<File>): SubmissionResponse {
-        val format = SubmissionFormat.fromSubFormat(serializationService.getSubmissionFormat(submission))
-        val headers = createHeaders(format)
-        val body = getMultipartBody(files, FileSystemResource(submission))
-        return submit(HttpEntity(body, headers), format, "$SUBMIT_URL/direct")
+        val headers = HttpHeaders().apply { contentType = MediaType.MULTIPART_FORM_DATA }
+        val multiPartBody = getMultipartBody(files, FileSystemResource(submission))
+        return template.postForEntity<String>(
+            "$SUBMIT_URL/direct",
+            (HttpEntity(multiPartBody, headers)))
+            .map { body -> serializationService.deserializeSubmission(body, PrettyJson) }
     }
 
     override fun submitSingle(submission: String, format: SubmissionFormat, files: List<File>): SubmissionResponse {
         val headers = createHeaders(format)
         val body = getMultipartBody(files, submission)
-        return submit(HttpEntity(body, headers), format)
+        return submit(HttpEntity(body, headers))
     }
 
     override fun submitSingle(submission: Submission, format: SubmissionFormat, files: List<File>): SubmissionResponse {
         val headers = createHeaders(format)
         val body = getMultipartBody(files, serializationService.serializeSubmission(submission, format.asSubFormat()))
-        return submit(HttpEntity(body, headers), format)
+        return submit(HttpEntity(body, headers))
     }
 
-    private fun submit(request: RequestMap, format: SubmissionFormat, url: String = SUBMIT_URL): SubmissionResponse =
-        template.postForEntity<String>(url, request)
-            .map { body -> serializationService.deserializeSubmission(body, format.asSubFormat()) }
+    private fun submit(request: RequestMap, url: String = SUBMIT_URL): SubmissionResponse =
+        template.postForEntity<String>(url, request).map { serializationService.deserializeSubmission(it, JSON) }
 
     private fun createHeaders(format: SubmissionFormat) = HttpHeaders().apply {
         contentType = MediaType.MULTIPART_FORM_DATA

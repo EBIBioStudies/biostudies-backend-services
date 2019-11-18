@@ -1,9 +1,9 @@
 package ac.uk.ebi.biostd.submission.converters
 
+import ac.uk.ebi.biostd.integration.PlainTsv
+import ac.uk.ebi.biostd.integration.PrettyJson
 import ac.uk.ebi.biostd.integration.SerializationService
-import ac.uk.ebi.biostd.integration.SubFormat
-import ac.uk.ebi.biostd.integration.SubFormat.JSON
-import ac.uk.ebi.biostd.integration.SubFormat.XML
+import ac.uk.ebi.biostd.integration.XmlFormat
 import ebi.ac.uk.model.Submission
 import org.springframework.http.HttpInputMessage
 import org.springframework.http.HttpOutputMessage
@@ -29,9 +29,9 @@ class PagetabConverter(private val serializerService: SerializationService) : Ht
 
     private fun asFormat(mediaType: MediaType?) =
         when (mediaType) {
-            APPLICATION_JSON -> JSON
-            TEXT_PLAIN -> SubFormat.TSV
-            TEXT_XML -> XML
-            else -> JSON
+            APPLICATION_JSON -> PrettyJson
+            TEXT_PLAIN -> PlainTsv
+            TEXT_XML -> XmlFormat
+            else -> PrettyJson
         }
 }
