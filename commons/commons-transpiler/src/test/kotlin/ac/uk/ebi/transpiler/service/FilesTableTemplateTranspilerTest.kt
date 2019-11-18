@@ -2,6 +2,7 @@ package ac.uk.ebi.transpiler.service
 
 import ac.uk.ebi.biostd.integration.PlainTsv
 import ac.uk.ebi.biostd.integration.SerializationService
+import ac.uk.ebi.biostd.integration.SubFormat
 import ac.uk.ebi.transpiler.common.FilesTableTemplate
 import ac.uk.ebi.transpiler.factory.testTemplate
 import ac.uk.ebi.transpiler.mapper.FilesTableTemplateMapper
@@ -34,7 +35,7 @@ class FilesTableTemplateTranspilerTest(
 
     @BeforeEach
     fun setUp() {
-        every { mockSerializationService.serializeElement(testFilesTable, PlainTsv) } returns ""
+        every { mockSerializationService.serializeElement(testFilesTable, SubFormat.TSV) } returns ""
         every { mockTemplateValidator.validate(testFilesTableTemplate, testFilesPath) }.answers { nothing }
         every { mockTemplateProcessor.process(testTemplate, testBaseColumns) } returns testFilesTableTemplate
         every { mockTemplateMapper.map(testFilesTableTemplate, testFilesPath, testParentFolder) } returns testFilesTable
