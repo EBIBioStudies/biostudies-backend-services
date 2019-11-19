@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.submission.validators
+package ac.uk.ebi.biostd.submission.processors
 
 import ac.uk.ebi.biostd.submission.exceptions.InvalidProjectException
 import ac.uk.ebi.biostd.submission.test.createBasicExtendedSubmission
@@ -22,8 +22,8 @@ const val VALID_PROJECT = "BioImages"
 const val INVALID_PROJECT = "BioPDFs"
 
 @ExtendWith(MockKExtension::class)
-class SubmissionProjectValidatorTest(@MockK private val mockPersistenceContext: PersistenceContext) {
-    private val testInstance = SubmissionProjectValidator()
+class SubmissionProjectProcessorTest(@MockK private val mockPersistenceContext: PersistenceContext) {
+    private val testInstance = SubmissionProjectProcessor()
     private lateinit var submission: ExtendedSubmission
 
     @BeforeEach
@@ -39,7 +39,7 @@ class SubmissionProjectValidatorTest(@MockK private val mockPersistenceContext: 
 
     @Test
     fun `submission without project`() {
-        validateSubmission()
+        processSubmission()
         verify(exactly = 0) {
             mockPersistenceContext.getSubmission(VALID_PROJECT)
             mockPersistenceContext.getSubmission(INVALID_PROJECT)
@@ -50,7 +50,7 @@ class SubmissionProjectValidatorTest(@MockK private val mockPersistenceContext: 
     fun `submission with null project`() {
         submission.attachTo = null
 
-        validateSubmission()
+        processSubmission()
         verify(exactly = 0) {
             mockPersistenceContext.getSubmission(VALID_PROJECT)
             mockPersistenceContext.getSubmission(INVALID_PROJECT)
@@ -61,7 +61,7 @@ class SubmissionProjectValidatorTest(@MockK private val mockPersistenceContext: 
     fun `submission with valid project`() {
         submission.attachTo = VALID_PROJECT
 
-        validateSubmission()
+        processSubmission()
         verify(exactly = 1) { mockPersistenceContext.getSubmission(VALID_PROJECT) }
     }
 
@@ -69,12 +69,12 @@ class SubmissionProjectValidatorTest(@MockK private val mockPersistenceContext: 
     fun `submission with invalid project`() {
         submission.attachTo = INVALID_PROJECT
 
-        val exception = assertThrows<InvalidProjectException> { validateSubmission() }
+        val exception = assertThrows<InvalidProjectException> { processSubmission() }
         assertThat(exception).hasMessage("The project BioPDFs doesn't exist")
         verify(exactly = 1) { mockPersistenceContext.getSubmission(INVALID_PROJECT) }
     }
 
-    private fun validateSubmission() = testInstance.validate(submission, mockPersistenceContext)
+    private fun processSubmission() = testInstance.process(submission, mockPersistenceContext)
 
     private fun initTestProjects() {
         every { mockPersistenceContext.getSubmission(INVALID_PROJECT) } returns null

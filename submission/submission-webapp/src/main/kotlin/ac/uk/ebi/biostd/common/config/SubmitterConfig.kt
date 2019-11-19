@@ -2,7 +2,6 @@ package ac.uk.ebi.biostd.common.config
 
 import ac.uk.ebi.biostd.common.config.SubmitterConfig.FilesHandlerConfig
 import ac.uk.ebi.biostd.common.config.SubmitterConfig.ProcessorConfig
-import ac.uk.ebi.biostd.common.config.SubmitterConfig.ValidatorConfig
 import ac.uk.ebi.biostd.common.property.ApplicationProperties
 import ac.uk.ebi.biostd.integration.SerializationConfig
 import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
@@ -16,13 +15,10 @@ import ac.uk.ebi.biostd.submission.processors.IProjectProcessor
 import ac.uk.ebi.biostd.submission.processors.ProjectProcessor
 import ac.uk.ebi.biostd.submission.processors.PropertiesProcessor
 import ac.uk.ebi.biostd.submission.processors.SubmissionProcessor
+import ac.uk.ebi.biostd.submission.processors.SubmissionProjectProcessor
 import ac.uk.ebi.biostd.submission.processors.TimesProcessor
 import ac.uk.ebi.biostd.submission.submitter.ProjectSubmitter
 import ac.uk.ebi.biostd.submission.util.AccNoPatternUtil
-import ac.uk.ebi.biostd.submission.validators.IProjectValidator
-import ac.uk.ebi.biostd.submission.validators.ProjectValidator
-import ac.uk.ebi.biostd.submission.validators.SubmissionProjectValidator
-import ac.uk.ebi.biostd.submission.validators.SubmissionValidator
 import ebi.ac.uk.paths.SubmissionFolderResolver
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import org.springframework.context.annotation.Bean
@@ -33,21 +29,19 @@ import org.springframework.core.annotation.Order
 import java.nio.file.Paths
 
 @Configuration
-@Import(ValidatorConfig::class, ProcessorConfig::class, FilesHandlerConfig::class, SecurityBeansConfig::class)
+@Import(ProcessorConfig::class, FilesHandlerConfig::class, SecurityBeansConfig::class)
 class SubmitterConfig {
     @Bean
     fun submissionSubmitter(
-        validators: List<SubmissionValidator>,
         processors: List<SubmissionProcessor>,
         filesHandler: FilesHandler
-    ) = SubmissionSubmitter(validators, processors, filesHandler)
+    ) = SubmissionSubmitter(processors, filesHandler)
 
     @Bean
     fun projectSubmitter(
         accNoPatternUtil: AccNoPatternUtil,
-        validators: List<IProjectValidator>,
         processors: List<IProjectProcessor>
-    ) = ProjectSubmitter(accNoPatternUtil, validators, processors)
+    ) = ProjectSubmitter(accNoPatternUtil, processors)
 
     @Configuration
     class FilesHandlerConfig(private val appProperties: ApplicationProperties) {
@@ -73,39 +67,34 @@ class SubmitterConfig {
 
     @Configuration
     @Suppress("MagicNumber")
-    class ProcessorConfig(private val userPrivilegesService: IUserPrivilegesService) {
+    class ProcessorConfig(
+        private val accNoPatternUtil: AccNoPatternUtil,
+        private val userPrivilegesService: IUserPrivilegesService
+    ) {
         @Bean
         @Order(0)
-        fun accessTagProcessor() = AccessTagProcessor()
+        fun submissionProjectProcessor() = SubmissionProjectProcessor()
 
         @Bean
         @Order(1)
-        fun accNoProcessor() = AccNoProcessor(userPrivilegesService, accNoPatternUtil())
+        fun accessTagProcessor() = AccessTagProcessor()
 
         @Bean
         @Order(2)
-        fun timesProcessor() = TimesProcessor()
+        fun accNoProcessor() = AccNoProcessor(userPrivilegesService, accNoPatternUtil())
 
         @Bean
         @Order(3)
+        fun timesProcessor() = TimesProcessor()
+
+        @Bean
+        @Order(4)
         fun propertiesProcessor() = PropertiesProcessor()
 
         @Bean
         fun accNoPatternUtil() = AccNoPatternUtil()
 
         @Bean
-        fun projectProcessor() = ProjectProcessor()
-    }
-
-    @Configuration
-    class ValidatorConfig(
-        private val accNoPatternUtil: AccNoPatternUtil,
-        private val userPrivilegesService: IUserPrivilegesService
-    ) {
-        @Bean
-        fun submissionProjectValidator() = SubmissionProjectValidator()
-
-        @Bean
-        fun projectValidator() = ProjectValidator(accNoPatternUtil, userPrivilegesService)
+        fun projectProcessor() = ProjectProcessor(accNoPatternUtil, userPrivilegesService)
     }
 }
