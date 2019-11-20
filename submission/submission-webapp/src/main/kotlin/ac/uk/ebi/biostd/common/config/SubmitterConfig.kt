@@ -67,10 +67,7 @@ class SubmitterConfig {
 
     @Configuration
     @Suppress("MagicNumber")
-    class ProcessorConfig(
-        private val accNoPatternUtil: AccNoPatternUtil,
-        private val userPrivilegesService: IUserPrivilegesService
-    ) {
+    class ProcessorConfig(private val userPrivilegesService: IUserPrivilegesService) {
         @Bean
         @Order(0)
         fun submissionProjectProcessor() = SubmissionProjectProcessor()
@@ -95,6 +92,6 @@ class SubmitterConfig {
         fun accNoPatternUtil() = AccNoPatternUtil()
 
         @Bean
-        fun projectProcessor() = ProjectProcessor(accNoPatternUtil, userPrivilegesService)
+        fun projectProcessor() = ProjectProcessor(accNoPatternUtil(), userPrivilegesService)
     }
 }
