@@ -52,7 +52,9 @@ class TranspilerCommandLineTest(
 
     @Test
     fun `transpiler exception`() {
-        every { mockTranspiler.transpile("", listOf("colA", "colB"), "/path", "base", SubFormat.TSV) } throws Exception("Some exception")
+        every {
+            mockTranspiler.transpile("", listOf("colA", "colB"), "/path", "base", SubFormat.TSV)
+        } throws Exception("Some exception")
 
         val args = arrayOf(
             "-b", "base",

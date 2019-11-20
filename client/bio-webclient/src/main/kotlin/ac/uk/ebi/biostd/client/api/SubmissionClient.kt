@@ -1,11 +1,12 @@
 package ac.uk.ebi.biostd.client.api
 
-import ebi.ac.uk.api.dto.SubmissionDto
 import ac.uk.ebi.biostd.client.extensions.map
 import ac.uk.ebi.biostd.client.extensions.setSubmissionType
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.web.SubmissionOperations
 import ac.uk.ebi.biostd.integration.SerializationService
+import ac.uk.ebi.biostd.integration.SubFormat
+import ebi.ac.uk.api.dto.SubmissionDto
 import ebi.ac.uk.model.Submission
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
@@ -23,18 +24,17 @@ internal class SubmissionClient(
     private val serializationService: SerializationService
 ) : SubmissionOperations {
 
-    override fun submitSingle(submission: Submission, format: SubmissionFormat) = submitSingle(HttpEntity(
-            serializationService.serializeSubmission(submission, format.asSubFormat()),
-            createHeaders(format)), format)
+    override fun submitSingle(submission: Submission, format: SubmissionFormat) = submitSingle(
+        HttpEntity(serializationService.serializeSubmission(submission, format.asSubFormat()), createHeaders(format)))
 
     override fun submitSingle(submission: String, format: SubmissionFormat) =
-        submitSingle(HttpEntity(submission, createHeaders(format)), format)
+        submitSingle(HttpEntity(submission, createHeaders(format)))
 
     override fun deleteSubmission(accNo: String) = template.delete("$SUBMISSIONS_URL/$accNo")
 
-    private fun submitSingle(request: HttpEntity<String>, format: SubmissionFormat): ResponseEntity<Submission> =
+    private fun submitSingle(request: HttpEntity<String>): ResponseEntity<Submission> =
         template.postForEntity<String>(SUBMISSIONS_URL, request)
-            .map { body -> serializationService.deserializeSubmission(body, format.asSubFormat()) }
+            .map { body -> serializationService.deserializeSubmission(body, SubFormat.JSON) }
 
     private fun createHeaders(format: SubmissionFormat): HttpHeaders {
         val headers = HttpHeaders()

@@ -4,12 +4,11 @@ import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepository
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
+import ac.uk.ebi.biostd.submission.domain.helpers.SourceGenerator
 import ac.uk.ebi.biostd.submission.domain.service.ProjectService
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionService
-import ac.uk.ebi.biostd.submission.domain.service.TempFileGenerator
 import ac.uk.ebi.biostd.submission.submitter.ProjectSubmitter
 import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
-import ac.uk.ebi.biostd.submission.web.handlers.PageTabReader
 import ac.uk.ebi.biostd.submission.web.handlers.ProjectWebHandler
 import ac.uk.ebi.biostd.submission.web.handlers.SubmissionWebHandler
 import ebi.ac.uk.persistence.PersistenceContext
@@ -21,8 +20,7 @@ import org.springframework.context.annotation.Import
 @Configuration
 @Import(value = [PersistenceConfig::class, SecurityBeansConfig::class])
 class SubmissionConfig(
-    private val pageTabReader: PageTabReader,
-    private val tmpFileGenerator: TempFileGenerator,
+    private val sourceGenerator: SourceGenerator,
     private val serializationService: SerializationService
 ) {
     @Bean
@@ -47,9 +45,9 @@ class SubmissionConfig(
 
     @Bean
     fun submissionHandler(submissionService: SubmissionService): SubmissionWebHandler =
-        SubmissionWebHandler(pageTabReader, submissionService, tmpFileGenerator, serializationService)
+        SubmissionWebHandler(submissionService, sourceGenerator, serializationService)
 
     @Bean
     fun projectHandler(projectService: ProjectService) =
-        ProjectWebHandler(pageTabReader, projectService, tmpFileGenerator, serializationService)
+        ProjectWebHandler(projectService, serializationService)
 }

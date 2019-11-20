@@ -9,9 +9,11 @@ interface SerializationService {
 
     fun deserializeSubmission(content: String, format: SubFormat, source: FilesSource): Submission
 
+    fun deserializeSubmission(file: File): Submission
+
+    fun deserializeSubmission(file: File, source: FilesSource): Submission
+
     fun serializeSubmission(submission: Submission, format: SubFormat): String
 
     fun <T> serializeElement(element: T, format: SubFormat): String
-
-    fun getSubmissionFormat(file: File): SubFormat
 }
