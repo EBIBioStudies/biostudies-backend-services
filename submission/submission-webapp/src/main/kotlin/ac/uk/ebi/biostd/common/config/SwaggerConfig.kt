@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.common.config
 
 import ac.uk.ebi.biostd.common.property.ApplicationProperties
-import ac.uk.ebi.biostd.submission.converters.Submitter
+import ac.uk.ebi.biostd.submission.converters.BioUser
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpStatus
@@ -29,7 +29,7 @@ class SwaggerConfig(private val properties: ApplicationProperties) {
             .useDefaultResponseMessages(false)
             .globalResponseMessage(RequestMethod.GET, listOf(unauthorizedResponseMessage()))
             .globalResponseMessage(RequestMethod.POST, listOf(unauthorizedResponseMessage()))
-            .ignoredParameterTypes(Submitter::class.java)
+            .ignoredParameterTypes(BioUser::class.java)
 
     private fun apiInfo() =
         ApiInfoBuilder()

@@ -4,7 +4,7 @@ import ac.uk.ebi.biostd.integration.SubFormat.Companion.JSON
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.JSON_PRETTY
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.TSV
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.XML
-import ac.uk.ebi.biostd.submission.converters.Submitter
+import ac.uk.ebi.biostd.submission.converters.BioUser
 import ac.uk.ebi.biostd.submission.domain.service.TempFileGenerator
 import ac.uk.ebi.biostd.submission.web.handlers.SubmissionWebHandler
 import ebi.ac.uk.model.Submission
@@ -41,7 +41,7 @@ class SubmitResource(
         produces = [APPLICATION_JSON_VALUE])
     @ResponseBody
     fun submitMultipartJson(
-        @Submitter user: SecurityUser,
+        @BioUser user: SecurityUser,
         @RequestParam(SUBMISSION) submissionContent: String,
         @RequestParam(FILES) files: Array<MultipartFile>
     ) = submissionWebHandler.submit(user, tempFileGenerator.asFiles(files), submissionContent, JSON)
@@ -51,7 +51,7 @@ class SubmitResource(
         produces = [APPLICATION_JSON_VALUE])
     @ResponseBody
     fun submitMultipartXml(
-        @Submitter user: SecurityUser,
+        @BioUser user: SecurityUser,
         @RequestParam(SUBMISSION) submissionContent: String,
         @RequestParam(FILES) files: Array<MultipartFile>
     ): Submission = submissionWebHandler.submit(user, tempFileGenerator.asFiles(files), submissionContent, XML)
@@ -61,7 +61,7 @@ class SubmitResource(
         produces = [APPLICATION_JSON_VALUE])
     @ResponseBody
     fun submitMultipartTsv(
-        @Submitter user: SecurityUser,
+        @BioUser user: SecurityUser,
         @RequestParam(SUBMISSION) submissionContent: String,
         @RequestParam(FILES) files: Array<MultipartFile>
     ): Submission = submissionWebHandler.submit(user, tempFileGenerator.asFiles(files), submissionContent, TSV)
@@ -72,7 +72,7 @@ class SubmitResource(
         produces = [APPLICATION_JSON_VALUE])
     @ResponseBody
     fun submitFile(
-        @Submitter user: SecurityUser,
+        @BioUser user: SecurityUser,
         @RequestParam(SUBMISSION) file: MultipartFile,
         @RequestParam(FILES) files: Array<MultipartFile>
     ): Submission = submissionWebHandler.submit(user, tempFileGenerator.asFile(file), tempFileGenerator.asFiles(files))
@@ -81,24 +81,24 @@ class SubmitResource(
         headers = ["$SUBMISSION_TYPE=$TEXT_XML"],
         produces = [APPLICATION_JSON_VALUE])
     @ResponseBody
-    fun submitXml(@Submitter user: SecurityUser, @RequestBody submission: String): Submission =
+    fun submitXml(@BioUser user: SecurityUser, @RequestBody submission: String): Submission =
         submissionWebHandler.submit(user, submission, XML)
 
     @PostMapping(
         headers = ["$SUBMISSION_TYPE=$TEXT_PLAIN"],
         produces = [APPLICATION_JSON_VALUE])
     @ResponseBody
-    fun submitTsv(@Submitter user: SecurityUser, @RequestBody submission: String): Submission =
+    fun submitTsv(@BioUser user: SecurityUser, @RequestBody submission: String): Submission =
         submissionWebHandler.submit(user, submission, TSV)
 
     @PostMapping(
         headers = ["$SUBMISSION_TYPE=$APPLICATION_JSON"],
         produces = [APPLICATION_JSON_VALUE])
     @ResponseBody
-    fun submitJson(@Submitter user: SecurityUser, @RequestBody submission: String): Submission =
+    fun submitJson(@BioUser user: SecurityUser, @RequestBody submission: String): Submission =
         submissionWebHandler.submit(user, submission, JSON_PRETTY)
 
     @DeleteMapping("/{accNo}")
-    fun deleteSubmission(@Submitter user: SecurityUser, @PathVariable accNo: String) =
+    fun deleteSubmission(@BioUser user: SecurityUser, @PathVariable accNo: String) =
         submissionWebHandler.deleteSubmission(accNo, user)
 }

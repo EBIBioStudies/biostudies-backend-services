@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.submission.web.resources
 
 import ac.uk.ebi.biostd.persistence.model.AccessType
+import ac.uk.ebi.biostd.submission.converters.BioUser
 import ac.uk.ebi.biostd.submission.domain.service.ProjectService
 import ac.uk.ebi.biostd.submission.domain.service.TempFileGenerator
 import ac.uk.ebi.biostd.submission.web.handlers.ProjectWebHandler
@@ -16,7 +17,6 @@ import io.swagger.annotations.ApiParam
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.security.access.prepost.PreAuthorize
-import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
@@ -39,7 +39,7 @@ class ProjectResource(
     @ApiOperation("Get the list of available projects for the current user")
     @ApiImplicitParam(name = "X-Session-Token", value = "The authentication token", required = true)
     fun getUserProjects(
-        @AuthenticationPrincipal
+        @BioUser
         user: SecurityUser
     ): List<Project> = projectService.getAllowedProjects(user, AccessType.ATTACH)
 
@@ -48,7 +48,7 @@ class ProjectResource(
     @ApiOperation("Register a new project")
     @ApiImplicitParam(name = "X-Session-Token", value = "The authentication token", required = true)
     fun submit(
-        @AuthenticationPrincipal
+        @BioUser
         user: SecurityUser,
 
         @ApiParam(name = "Project File", value = "File containing the project page tab definition")

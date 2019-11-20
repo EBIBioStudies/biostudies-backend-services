@@ -3,12 +3,12 @@ package ac.uk.ebi.biostd.files.web.resources
 import ac.uk.ebi.biostd.files.service.UserFilesService
 import ac.uk.ebi.biostd.files.web.common.FilesMapper
 import ac.uk.ebi.biostd.files.web.common.UserPath
+import ac.uk.ebi.biostd.submission.converters.BioUser
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import org.springframework.core.io.FileSystemResource
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.security.access.prepost.PreAuthorize
-import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -27,14 +27,14 @@ class UserFilesResource(
     @GetMapping("/files/user/**")
     @ResponseBody
     fun listFiles(
-        @AuthenticationPrincipal user: SecurityUser,
+        @BioUser user: SecurityUser,
         pathDescriptor: UserPath
     ) = filesMapper.asUserFiles(fileManager.listFiles(user, pathDescriptor.path))
 
     @GetMapping("/files/user/**", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE], params = ["fileName"])
     @ResponseBody
     fun downloadFile(
-        @AuthenticationPrincipal user: SecurityUser,
+        @BioUser user: SecurityUser,
         @RequestParam(name = "fileName") fileName: String,
         pathDescriptor: UserPath
     ): FileSystemResource = FileSystemResource(fileManager.getFile(user, pathDescriptor.path, fileName))
@@ -42,7 +42,7 @@ class UserFilesResource(
     @PostMapping("/files/user/**")
     @ResponseStatus(value = HttpStatus.OK)
     fun uploadFile(
-        @AuthenticationPrincipal user: SecurityUser,
+        @BioUser user: SecurityUser,
         pathDescriptor: UserPath,
         @RequestParam("files") files: Array<MultipartFile>
     ) = fileManager.uploadFiles(user, pathDescriptor.path, files)
@@ -50,7 +50,7 @@ class UserFilesResource(
     @DeleteMapping("/files/user/**")
     @ResponseStatus(value = HttpStatus.OK)
     fun deleteFile(
-        @AuthenticationPrincipal user: SecurityUser,
+        @BioUser user: SecurityUser,
         @RequestParam(name = "fileName") fileName: String,
         pathDescriptor: UserPath
     ) = fileManager.deleteFile(user, pathDescriptor.path, fileName)
@@ -58,7 +58,7 @@ class UserFilesResource(
     @PostMapping("/folder/user/**")
     @ResponseStatus(value = HttpStatus.OK)
     fun createFolder(
-        @AuthenticationPrincipal user: SecurityUser,
+        @BioUser user: SecurityUser,
         @RequestParam(name = "folder") folder: String,
         pathDescriptor: UserPath
     ) = fileManager.createFolder(user, pathDescriptor.path, folder)

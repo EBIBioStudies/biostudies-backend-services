@@ -207,7 +207,6 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
             )
         }
 
-
         @Test
         fun `submission with tags`() {
             val submission = tsv {

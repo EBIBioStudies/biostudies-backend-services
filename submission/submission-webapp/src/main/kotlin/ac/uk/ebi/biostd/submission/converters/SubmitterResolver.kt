@@ -16,7 +16,7 @@ class SubmitterResolver(
 
 ) : HandlerMethodArgumentResolver {
     override fun supportsParameter(parameter: MethodParameter): Boolean {
-        return parameter.getParameterAnnotation(Submitter::class.java) != null
+        return parameter.getParameterAnnotation(BioUser::class.java) != null
     }
 
     override fun resolveArgument(
@@ -41,4 +41,4 @@ class SubmitterResolver(
 @Retention(AnnotationRetention.RUNTIME)
 @Target(AnnotationTarget.VALUE_PARAMETER)
 @AuthenticationPrincipal
-annotation class Submitter
+annotation class BioUser
