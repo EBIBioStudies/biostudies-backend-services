@@ -34,7 +34,6 @@ internal class SecurityService(
     private val securityProps: SecurityProperties,
     private val profileService: ProfileService
 ) : ISecurityService {
-
     override fun login(request: LoginRequest): UserInfo =
         userRepository
             .findByLoginOrEmailAndActive(request.login, request.login, true)
@@ -52,6 +51,12 @@ internal class SecurityService(
             securityProps.requireActivation -> register(request)
             else -> activate(request)
         }
+    }
+
+    override fun getUser(email: String): SecurityUser {
+        return userRepository.findByEmailAndActive(email, true)
+            .map { profileService.asSecurityUser(it) }
+            .orElseThrow { throw UserAlreadyRegister(email) }
     }
 
     override fun activate(activationKey: String) {

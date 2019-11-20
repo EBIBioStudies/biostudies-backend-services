@@ -4,19 +4,31 @@ import ac.uk.ebi.biostd.files.web.common.GroupPathDescriptorResolver
 import ac.uk.ebi.biostd.files.web.common.UserPathDescriptorResolver
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.submission.converters.PagetabConverter
+import ac.uk.ebi.biostd.submission.converters.SubmitterResolver
+import ebi.ac.uk.security.integration.components.ISecurityService
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.security.web.method.annotation.AuthenticationPrincipalArgumentResolver
 import org.springframework.web.method.support.HandlerMethodArgumentResolver
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 
 @Configuration
-class WebConfig : WebMvcConfigurer {
+class WebConfig(
+    private val securityService: ISecurityService
+) : WebMvcConfigurer {
 
     @Bean
     fun jsonPagetabConverter(serializationService: SerializationService) = PagetabConverter(serializationService)
 
+    @Bean
+    fun submitterConverter() = SubmitterResolver(principalResolver(), securityService)
+
+    @Bean
+    fun principalResolver() = AuthenticationPrincipalArgumentResolver()
+
     override fun addArgumentResolvers(argumentResolvers: MutableList<HandlerMethodArgumentResolver>) {
         argumentResolvers.add(UserPathDescriptorResolver())
         argumentResolvers.add(GroupPathDescriptorResolver())
+        argumentResolvers.add(submitterConverter())
     }
 }

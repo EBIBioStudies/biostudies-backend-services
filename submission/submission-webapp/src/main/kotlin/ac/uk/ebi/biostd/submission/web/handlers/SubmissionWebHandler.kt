@@ -39,7 +39,7 @@ class SubmissionWebHandler(
     fun getSubmissions(user: SecurityUser, filter: SubmissionFilter): List<ExtendedSubmission> =
         submissionService.getSubmissions(user, filter)
 
-    private fun rootPath(subFile: File): String =
+    private fun rootPath(subFile: File) =
         serializationService.deserializeSubmission(subFile).rootPath.orEmpty()
 
     private fun rootPath(content: String, format: SubFormat) =

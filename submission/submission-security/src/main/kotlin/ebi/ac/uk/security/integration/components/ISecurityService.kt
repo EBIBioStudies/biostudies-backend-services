@@ -12,6 +12,8 @@ interface ISecurityService {
 
     fun registerUser(request: RegisterRequest): SecurityUser
 
+    fun getUser(email: String): SecurityUser
+
     fun login(request: LoginRequest): UserInfo
 
     fun logout(authToken: String)

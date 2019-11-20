@@ -3,8 +3,10 @@ package ac.uk.ebi.biostd.itest.test.submission.submit
 import ac.uk.ebi.biostd.client.exception.WebClientException
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
+import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
+import ac.uk.ebi.biostd.itest.entities.RegularUser
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.factory.invalidLinkUrl
 import ac.uk.ebi.biostd.persistence.model.AccessTag
@@ -160,6 +162,31 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
         }
 
         @Test
+        fun `submission with on behalf`() {
+            createUser(RegularUser, serverPort)
+
+            val submission = tsv {
+                line("Submission")
+                line("Title", "Submission Title")
+            }.toString()
+
+            val onBehalfClient = SecurityWebClient
+                .create("http://localhost:$serverPort")
+                .getAuthenticatedClient(SuperUser.email, SuperUser.password, RegularUser.email)
+
+            val response = onBehalfClient.submitSingle(submission, SubmissionFormat.TSV)
+            assertThat(response).isSuccessful()
+
+            val accNo = response.body.accNo
+            assertThat(submissionRepository.getByAccNo(accNo)).isEqualTo(
+                submission(accNo) {
+                    title = "Submission Title"
+                    releaseDate = LocalDate.now().toString()
+                }
+            )
+        }
+
+        @Test
         fun `submission with generic root section`() {
             val submission = tsv {
                 line("Submission", "E-MTAB123")
@@ -179,6 +206,7 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
                 }
             )
         }
+
 
         @Test
         fun `submission with tags`() {

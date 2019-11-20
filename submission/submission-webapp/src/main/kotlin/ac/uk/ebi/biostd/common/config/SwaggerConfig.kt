@@ -1,10 +1,10 @@
 package ac.uk.ebi.biostd.common.config
 
 import ac.uk.ebi.biostd.common.property.ApplicationProperties
+import ac.uk.ebi.biostd.submission.converters.Submitter
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpStatus
-import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.RequestMethod
 import springfox.documentation.builders.ApiInfoBuilder
 import springfox.documentation.builders.PathSelectors
@@ -29,7 +29,7 @@ class SwaggerConfig(private val properties: ApplicationProperties) {
             .useDefaultResponseMessages(false)
             .globalResponseMessage(RequestMethod.GET, listOf(unauthorizedResponseMessage()))
             .globalResponseMessage(RequestMethod.POST, listOf(unauthorizedResponseMessage()))
-            .ignoredParameterTypes(AuthenticationPrincipal::class.java)
+            .ignoredParameterTypes(Submitter::class.java)
 
     private fun apiInfo() =
         ApiInfoBuilder()

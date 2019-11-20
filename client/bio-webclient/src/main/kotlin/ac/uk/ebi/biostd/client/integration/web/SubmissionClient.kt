@@ -73,6 +73,8 @@ interface ProjectOperations {
 interface SecurityOperations {
     fun getAuthenticatedClient(user: String, password: String): BioWebClient
 
+    fun getAuthenticatedClient(user: String, password: String, onBehalf: String): BioWebClient
+
     fun login(loginRequest: LoginRequest): UserProfile
 
     fun registerUser(registerRequest: RegisterRequest)
