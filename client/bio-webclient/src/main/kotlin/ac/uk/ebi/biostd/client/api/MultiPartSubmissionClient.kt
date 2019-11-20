@@ -4,7 +4,7 @@ import ac.uk.ebi.biostd.client.extensions.map
 import ac.uk.ebi.biostd.client.extensions.setSubmissionType
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.web.MultipartSubmissionOperations
-import ac.uk.ebi.biostd.integration.PrettyJson
+import ac.uk.ebi.biostd.integration.JsonPretty
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.JSON
 import ebi.ac.uk.model.Submission
@@ -35,7 +35,7 @@ internal class MultiPartSubmissionClient(
         return template.postForEntity<String>(
             "$SUBMIT_URL/direct",
             (HttpEntity(multiPartBody, headers)))
-            .map { body -> serializationService.deserializeSubmission(body, PrettyJson) }
+            .map { body -> serializationService.deserializeSubmission(body, JsonPretty) }
     }
 
     override fun submitSingle(submission: String, format: SubmissionFormat, files: List<File>): SubmissionResponse {

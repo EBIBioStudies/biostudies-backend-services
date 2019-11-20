@@ -1,11 +1,11 @@
 package ac.uk.ebi.biostd.submission.domain.service
 
-import ac.uk.ebi.biostd.integration.PlainTsv
-import ac.uk.ebi.biostd.integration.PrettyJson
+import ac.uk.ebi.biostd.integration.JsonPretty
 import ac.uk.ebi.biostd.integration.SerializationService
+import ac.uk.ebi.biostd.integration.Tsv
 import ac.uk.ebi.biostd.integration.XmlFormat
-import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
 import ac.uk.ebi.biostd.persistence.filter.SubmissionFilter
+import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
 import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.model.ExtendedSubmission
@@ -23,7 +23,7 @@ class SubmissionService(
 ) {
     fun getSubmissionAsJson(accNo: String): String {
         val submission = submissionRepository.getByAccNo(accNo)
-        return serializationService.serializeSubmission(submission, PrettyJson)
+        return serializationService.serializeSubmission(submission, JsonPretty)
     }
 
     fun getSubmissionAsXml(accNo: String): String {
@@ -33,7 +33,7 @@ class SubmissionService(
 
     fun getSubmissionAsTsv(accNo: String): String {
         val submission = submissionRepository.getByAccNo(accNo)
-        return serializationService.serializeSubmission(submission, PlainTsv)
+        return serializationService.serializeSubmission(submission, Tsv)
     }
 
     fun getSubmissions(user: SecurityUser, filter: SubmissionFilter) =

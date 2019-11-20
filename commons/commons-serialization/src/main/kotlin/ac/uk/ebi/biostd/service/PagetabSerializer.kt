@@ -1,8 +1,8 @@
 package ac.uk.ebi.biostd.service
 
 import ac.uk.ebi.biostd.integration.JsonFormat
+import ac.uk.ebi.biostd.integration.JsonPretty
 import ac.uk.ebi.biostd.integration.PlainJson
-import ac.uk.ebi.biostd.integration.PrettyJson
 import ac.uk.ebi.biostd.integration.SubFormat
 import ac.uk.ebi.biostd.integration.TsvFormat
 import ac.uk.ebi.biostd.integration.XmlFormat
@@ -21,7 +21,7 @@ internal class PagetabSerializer(
     fun <T> serializeElement(element: T, format: SubFormat) = when (format) {
         XmlFormat -> xmlSerializer.serialize(element)
         PlainJson -> jsonSerializer.serialize(element)
-        PrettyJson -> jsonSerializer.serialize(element, true)
+        JsonPretty -> jsonSerializer.serialize(element, true)
         is TsvFormat -> tsvSerializer.serialize(element)
     }
 

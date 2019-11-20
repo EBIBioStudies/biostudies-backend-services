@@ -20,7 +20,6 @@ internal class TempFileGeneratorTest(
     private val temporaryFolder: TemporaryFolder,
     @MockK private val properties: ApplicationProperties
 ) {
-
     private val testInstance = TempFileGenerator(properties)
     private val requestFile =
         MockMultipartFile(FILE_NAME, "request-folder/$FILE_NAME", "Text/plain", FILE_CONTENT.toByteArray())

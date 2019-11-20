@@ -1,13 +1,13 @@
 package ac.uk.ebi.biostd.service
 
 import ac.uk.ebi.biostd.integration.JsonFormat
-import ac.uk.ebi.biostd.integration.PlainTsv
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.JSON
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.TSV
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.XML
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.fromExtension
+import ac.uk.ebi.biostd.integration.Tsv
 import ac.uk.ebi.biostd.integration.XlsxTsv
 import ac.uk.ebi.biostd.integration.XmlFormat
 import ebi.ac.uk.io.sources.FilesSource
@@ -33,14 +33,13 @@ internal class PagetabSerializationService(
     override fun deserializeSubmission(content: String, format: SubFormat, source: FilesSource): Submission =
         fileListSerializer.deserializeFileList(serializer.deserializeSubmission(content, format), format, source)
 
-    override fun deserializeSubmission(file: File): Submission {
-        return when (fromExtension(file.extension)) {
+    override fun deserializeSubmission(file: File): Submission =
+        when (fromExtension(file.extension)) {
             XmlFormat -> deserializeSubmission(file.readText(), XML)
             is JsonFormat -> deserializeSubmission(file.readText(), JSON)
-            PlainTsv -> deserializeSubmission(file.readText(), TSV)
+            Tsv -> deserializeSubmission(file.readText(), TSV)
             XlsxTsv -> deserializeSubmission(excelReader.readContentAsTsv(file), TSV)
         }
-    }
 
     override fun deserializeSubmission(file: File, source: FilesSource): Submission =
         fileListSerializer.deserializeFileList(deserializeSubmission(file), fromExtension(file.extension), source)

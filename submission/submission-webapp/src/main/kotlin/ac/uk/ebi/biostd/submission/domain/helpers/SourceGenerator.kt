@@ -11,7 +11,6 @@ import java.io.File
 
 @Suppress("SpreadOperator")
 class SourceGenerator {
-
     fun getSubmissionSources(user: SecurityUser, files: List<File>, rootPath: String) =
         ComposedFileSource(userFiles(user, rootPath), requestFiles(files), *getGroupSources(user.groupsFolders))
 
