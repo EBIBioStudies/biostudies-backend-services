@@ -43,7 +43,6 @@ class ProjectProcessorTest(
 
     @Test
     fun process() {
-        val project = createBasicExtendedSubmission()
         testInstance.process(project, persistenceContext)
 
         assertThat(project.accessTags).hasSize(1)
