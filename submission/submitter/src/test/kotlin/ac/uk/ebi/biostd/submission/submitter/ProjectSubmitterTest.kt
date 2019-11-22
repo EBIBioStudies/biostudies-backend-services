@@ -3,7 +3,6 @@ package ac.uk.ebi.biostd.submission.submitter
 import ac.uk.ebi.biostd.submission.processors.IProjectProcessor
 import ac.uk.ebi.biostd.submission.test.createBasicProject
 import ac.uk.ebi.biostd.submission.util.AccNoPatternUtil
-import ac.uk.ebi.biostd.submission.validators.IProjectValidator
 import ebi.ac.uk.persistence.PersistenceContext
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -16,12 +15,11 @@ import org.junit.jupiter.api.extension.ExtendWith
 @ExtendWith(MockKExtension::class)
 class ProjectSubmitterTest(
     @MockK private val accNoPatternUtil: AccNoPatternUtil,
-    @MockK private val projectValidator: IProjectValidator,
     @MockK private val projectProcessor: IProjectProcessor,
     @MockK private val persistenceContext: PersistenceContext
 ) {
     private val project = createBasicProject()
-    private val testInstance = ProjectSubmitter(accNoPatternUtil, listOf(projectValidator), listOf(projectProcessor))
+    private val testInstance = ProjectSubmitter(accNoPatternUtil, listOf(projectProcessor))
 
     @BeforeEach
     fun beforeEach() {
@@ -29,7 +27,6 @@ class ProjectSubmitterTest(
         every { persistenceContext.saveAccessTag("ABC456") } answers { nothing }
         every { persistenceContext.saveSubmission(project) } answers { project }
         every { projectProcessor.process(project, persistenceContext) } answers { nothing }
-        every { projectValidator.validate(project, persistenceContext) } answers { nothing }
         every { persistenceContext.createAccNoPatternSequence("S-ABC") } answers { nothing }
     }
 
@@ -44,7 +41,6 @@ class ProjectSubmitterTest(
             persistenceContext.createAccNoPatternSequence("S-ABC")
 
             projectProcessor.process(project, persistenceContext)
-            projectValidator.validate(project, persistenceContext)
         }
     }
 }
