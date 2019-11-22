@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.submission.converters
 
 import ebi.ac.uk.security.integration.components.ISecurityService
+import ebi.ac.uk.security.integration.exception.UnauthorizedOperation
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import org.springframework.core.MethodParameter
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -10,10 +11,9 @@ import org.springframework.web.context.request.NativeWebRequest
 import org.springframework.web.method.support.HandlerMethodArgumentResolver
 import org.springframework.web.method.support.ModelAndViewContainer
 
-class SubmitterResolver(
+class BioUserResolver(
     private val principalResolver: AuthenticationPrincipalArgumentResolver,
     private val securityService: ISecurityService
-
 ) : HandlerMethodArgumentResolver {
     override fun supportsParameter(parameter: MethodParameter): Boolean {
         return parameter.getParameterAnnotation(BioUser::class.java) != null
@@ -33,7 +33,7 @@ class SubmitterResolver(
     }
 
     private fun getUser(securityUser: SecurityUser, onBehalf: String): SecurityUser {
-        require(securityUser.superuser) { "User need to be admin to use onBehalf option" }
+        if (securityUser.superuser.not()) throw UnauthorizedOperation("User need to be admin to use onBehalf option")
         return securityService.getUser(onBehalf)
     }
 }

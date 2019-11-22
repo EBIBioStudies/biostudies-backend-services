@@ -3,8 +3,8 @@ package ac.uk.ebi.biostd.common.config
 import ac.uk.ebi.biostd.files.web.common.GroupPathDescriptorResolver
 import ac.uk.ebi.biostd.files.web.common.UserPathDescriptorResolver
 import ac.uk.ebi.biostd.integration.SerializationService
+import ac.uk.ebi.biostd.submission.converters.BioUserResolver
 import ac.uk.ebi.biostd.submission.converters.PagetabConverter
-import ac.uk.ebi.biostd.submission.converters.SubmitterResolver
 import ebi.ac.uk.security.integration.components.ISecurityService
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -21,7 +21,7 @@ class WebConfig(
     fun jsonPagetabConverter(serializationService: SerializationService) = PagetabConverter(serializationService)
 
     @Bean
-    fun submitterConverter() = SubmitterResolver(principalResolver(), securityService)
+    fun submitterConverter() = BioUserResolver(principalResolver(), securityService)
 
     @Bean
     fun principalResolver() = AuthenticationPrincipalArgumentResolver()

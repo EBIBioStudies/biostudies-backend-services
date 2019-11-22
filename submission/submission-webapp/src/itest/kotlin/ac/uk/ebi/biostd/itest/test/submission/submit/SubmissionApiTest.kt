@@ -162,7 +162,7 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
         }
 
         @Test
-        fun `submission with on behalf`() {
+        fun `submission with on behalf regular user`() {
             createUser(RegularUser, serverPort)
 
             val submission = tsv {
