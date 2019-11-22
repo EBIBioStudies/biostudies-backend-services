@@ -1,7 +1,5 @@
 package ac.uk.ebi.biostd.submission.exceptions
 
-import arrow.core.Try
-import arrow.core.getOrElse
 import ebi.ac.uk.util.collections.ifNotEmpty
 import mu.KotlinLogging
 
@@ -9,7 +7,9 @@ internal class SubmissionErrorsContext {
     private val logger = KotlinLogging.logger {}
     private val exceptionList = mutableListOf<Throwable>()
 
-    fun runCatching(function: () -> Unit) = Try { function() }.getOrElse { registerError(it) }
+    fun runCatching(function: () -> Unit) {
+        Result.runCatching { function() }.onFailure { registerError(it) }
+    }
 
     fun handleErrors() = exceptionList.ifNotEmpty {
         throw InvalidSubmissionException("Submission validation errors", exceptionList)
