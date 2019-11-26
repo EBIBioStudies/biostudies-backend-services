@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.submission.converters
 
 import ebi.ac.uk.security.integration.components.ISecurityService
+import ebi.ac.uk.security.integration.exception.UnauthorizedOperation
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -8,6 +9,7 @@ import io.mockk.junit5.MockKExtension
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.core.MethodParameter
 import org.springframework.security.web.method.annotation.AuthenticationPrincipalArgumentResolver
@@ -73,6 +75,15 @@ internal class BioUserResolverTest(
 
             val user = testInstance.resolveArgument(parameter, container, request, factory)
             assertThat(user).isEqualTo(onBehalfUser)
+        }
+
+        @Test
+        fun `resolve argument when user is not admin`() {
+            every { securityUser.superuser } returns false
+            every { principalResolver.resolveArgument(parameter, container, request, factory) } returns securityUser
+            every { request.getParameter("onBehalf") } returns onBehalfUserEmail
+
+            assertThrows<UnauthorizedOperation> { testInstance.resolveArgument(parameter, container, request, factory) }
         }
     }
 }
