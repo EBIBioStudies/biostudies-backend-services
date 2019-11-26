@@ -16,6 +16,9 @@ class SecurityWebClient private constructor(
     override fun getAuthenticatedClient(user: String, password: String): BioWebClient =
         BioWebClient.create(baseUrl, login(LoginRequest(user, password)).sessid)
 
+    override fun getAuthenticatedClient(user: String, password: String, onBehalf: String): BioWebClient =
+        BioWebClient.create(baseUrl, login(LoginRequest(user, password)).sessid, onBehalf)
+
     override fun login(loginRequest: LoginRequest): UserProfile =
         restTemplate.postForObject("/auth/login", loginRequest)!!
 

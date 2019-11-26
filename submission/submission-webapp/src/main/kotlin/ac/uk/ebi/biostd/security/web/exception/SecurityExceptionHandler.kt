@@ -4,6 +4,7 @@ import ac.uk.ebi.biostd.security.web.dto.SecurityError
 import ebi.ac.uk.security.integration.exception.ActKeyNotFoundException
 import ebi.ac.uk.security.integration.exception.LoginException
 import ebi.ac.uk.security.integration.exception.SecurityException
+import ebi.ac.uk.security.integration.exception.UnauthorizedOperation
 import ebi.ac.uk.security.integration.exception.UserAlreadyRegister
 import ebi.ac.uk.security.integration.exception.UserNotFoundByEmailException
 import ebi.ac.uk.security.integration.exception.UserNotFoundByTokenException
@@ -31,6 +32,7 @@ class SecurityExceptionHandler {
             is UserPendingRegistrationException,
             is UserWithActivationKeyNotFoundException,
             is UserAlreadyRegister -> badRequest(SecurityError(exception.message))
+            is UnauthorizedOperation -> unauthorized(SecurityError(exception.message))
         }
     }
 

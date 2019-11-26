@@ -23,7 +23,10 @@ internal open class BaseIntegrationTest(private val tempFolder: TemporaryFolder)
     protected fun getWebClient(serverPort: Int, user: TestUser): BioWebClient {
         val securityClient = SecurityWebClient.create("http://localhost:$serverPort")
         securityClient.registerUser(user.asRegisterRequest())
-
         return securityClient.getAuthenticatedClient(user.email, user.password)
+    }
+
+    protected fun createUser(testUser: TestUser, serverPort: Int) {
+        SecurityWebClient.create("http://localhost:$serverPort").registerUser(testUser.asRegisterRequest())
     }
 }

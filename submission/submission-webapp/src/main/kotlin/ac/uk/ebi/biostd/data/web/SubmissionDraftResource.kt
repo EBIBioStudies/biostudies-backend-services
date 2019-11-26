@@ -2,12 +2,12 @@ package ac.uk.ebi.biostd.data.web
 
 import ac.uk.ebi.biostd.data.service.SubmissionDraftService
 import ac.uk.ebi.biostd.persistence.filter.PaginationFilter
+import ac.uk.ebi.biostd.submission.converters.BioUser
 import com.fasterxml.jackson.annotation.JsonRawValue
 import com.fasterxml.jackson.annotation.JsonValue
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.security.access.prepost.PreAuthorize
-import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
@@ -26,7 +26,7 @@ internal class SubmissionDraftResource(private val subDraftService: SubmissionDr
     @GetMapping
     @ResponseBody
     fun getDraftSubmissions(
-        @AuthenticationPrincipal user: SecurityUser,
+        @BioUser user: SecurityUser,
         @ModelAttribute filter: PaginationFilter
     ): List<SubmissionDraft> =
         subDraftService.getSubmissionsDraft(user.id, filter).map { SubmissionDraft(it.key, it.data) }
@@ -34,7 +34,7 @@ internal class SubmissionDraftResource(private val subDraftService: SubmissionDr
     @GetMapping("/{key}")
     @ResponseBody
     fun getDraftSubmission(
-        @AuthenticationPrincipal user: SecurityUser,
+        @BioUser user: SecurityUser,
         @ModelAttribute filter: PaginationFilter,
         @PathVariable key: String
     ): SubmissionDraft {
@@ -44,17 +44,17 @@ internal class SubmissionDraftResource(private val subDraftService: SubmissionDr
 
     @GetMapping("/{key}/content")
     @ResponseBody
-    fun getDraftSubmissionContent(@AuthenticationPrincipal user: SecurityUser, @PathVariable key: String):
+    fun getDraftSubmissionContent(@BioUser user: SecurityUser, @PathVariable key: String):
         SubmissionDraftContent = SubmissionDraftContent(subDraftService.getSubmissionDraft(user.id, key).data)
 
     @DeleteMapping("/{key}")
-    fun deleteDraftSubmission(@AuthenticationPrincipal user: SecurityUser, @PathVariable key: String): Unit =
+    fun deleteDraftSubmission(@BioUser user: SecurityUser, @PathVariable key: String): Unit =
         subDraftService.deleteSubmissionDraft(user.id, key)
 
     @PutMapping("/{key}")
     @ResponseBody
     fun updateDraftSubmission(
-        @AuthenticationPrincipal user: SecurityUser,
+        @BioUser user: SecurityUser,
         @RequestBody content: String,
         @PathVariable key: String
     ) {
@@ -64,7 +64,7 @@ internal class SubmissionDraftResource(private val subDraftService: SubmissionDr
     @PostMapping
     @ResponseBody
     fun createDraftSubmission(
-        @AuthenticationPrincipal user: SecurityUser,
+        @BioUser user: SecurityUser,
         @RequestBody content: String
     ): SubmissionDraft {
         val draft = subDraftService.createSubmissionDraft(user.id, content)
