@@ -99,6 +99,6 @@ class SubmitResource(
         submissionWebHandler.submit(user, submission, JSON_PRETTY)
 
     @DeleteMapping("/{accNo}")
-    fun deleteSubmission(@BioUser user: SecurityUser, @PathVariable accNo: String) =
+    fun deleteSubmission(@BioUser user: SecurityUser, @PathVariable accNo: String): Unit =
         submissionWebHandler.deleteSubmission(accNo, user)
 }

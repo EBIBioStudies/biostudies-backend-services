@@ -1,15 +1,15 @@
 package ac.uk.ebi.biostd.service
 
-import ac.uk.ebi.biostd.integration.JsonFormat
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.JSON
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.TSV
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.XML
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.fromExtension
-import ac.uk.ebi.biostd.integration.Tsv
-import ac.uk.ebi.biostd.integration.XlsxTsv
-import ac.uk.ebi.biostd.integration.XmlFormat
+import ac.uk.ebi.biostd.integration.SubFormat.JsonFormat
+import ac.uk.ebi.biostd.integration.SubFormat.TsvFormat.Tsv
+import ac.uk.ebi.biostd.integration.SubFormat.TsvFormat.XlsxTsv
+import ac.uk.ebi.biostd.integration.SubFormat.XmlFormat
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.util.file.ExcelReader

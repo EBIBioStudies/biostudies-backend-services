@@ -1,11 +1,11 @@
 package ac.uk.ebi.biostd.service
 
-import ac.uk.ebi.biostd.integration.JsonFormat
-import ac.uk.ebi.biostd.integration.JsonPretty
-import ac.uk.ebi.biostd.integration.PlainJson
 import ac.uk.ebi.biostd.integration.SubFormat
-import ac.uk.ebi.biostd.integration.TsvFormat
-import ac.uk.ebi.biostd.integration.XmlFormat
+import ac.uk.ebi.biostd.integration.SubFormat.JsonFormat
+import ac.uk.ebi.biostd.integration.SubFormat.JsonFormat.JsonPretty
+import ac.uk.ebi.biostd.integration.SubFormat.JsonFormat.PlainJson
+import ac.uk.ebi.biostd.integration.SubFormat.TsvFormat
+import ac.uk.ebi.biostd.integration.SubFormat.XmlFormat
 import ac.uk.ebi.biostd.json.JsonSerializer
 import ac.uk.ebi.biostd.tsv.TsvSerializer
 import ac.uk.ebi.biostd.xml.XmlSerializer

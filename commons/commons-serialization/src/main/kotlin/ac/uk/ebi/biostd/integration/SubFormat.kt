@@ -1,41 +1,45 @@
 package ac.uk.ebi.biostd.integration
 
 import ac.uk.ebi.biostd.exception.InvalidExtensionException
+import ac.uk.ebi.biostd.integration.SubFormat.JsonFormat.JsonPretty
+import ac.uk.ebi.biostd.integration.SubFormat.JsonFormat.PlainJson
 
 sealed class SubFormat {
     companion object {
         fun valueOf(format: String): SubFormat {
             return when (format) {
-                "TSV" -> Tsv
-                "XML" -> XmlFormat
-                "JSON" -> PlainJson
+                "TSV" -> TSV
+                "XML" -> XML
+                "JSON" -> JSON
                 else -> throw InvalidExtensionException(format)
             }
         }
 
         fun fromExtension(extension: String): SubFormat {
             return when (extension) {
-                "tsv" -> Tsv
-                "xlsx" -> XlsxTsv
+                "tsv" -> TsvFormat.Tsv
+                "xlsx" -> TsvFormat.XlsxTsv
                 "xml" -> XmlFormat
                 "json" -> PlainJson
                 else -> throw InvalidExtensionException(extension)
             }
         }
 
-        val TSV = Tsv
-        val XML = XmlFormat
-        val JSON_PRETTY = JsonPretty
-        val JSON = PlainJson
+        val TSV: TsvFormat get() = TsvFormat.Tsv
+        val XML: XmlFormat get() = XmlFormat
+        val JSON_PRETTY: JsonPretty get() = JsonPretty
+        val JSON: PlainJson get() = PlainJson
+    }
+
+    object XmlFormat : SubFormat()
+
+    sealed class TsvFormat : SubFormat() {
+        object Tsv : TsvFormat()
+        object XlsxTsv : TsvFormat()
+    }
+
+    sealed class JsonFormat : SubFormat() {
+        object PlainJson : JsonFormat()
+        object JsonPretty : JsonFormat()
     }
 }
-
-object XmlFormat : SubFormat()
-
-sealed class JsonFormat : SubFormat()
-object PlainJson : JsonFormat()
-object JsonPretty : JsonFormat()
-
-sealed class TsvFormat : SubFormat()
-object Tsv : TsvFormat()
-object XlsxTsv : TsvFormat()
