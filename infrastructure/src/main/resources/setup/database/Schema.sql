@@ -58,7 +58,8 @@ CREATE TABLE ReferencedFile (
     name           VARCHAR(255) NULL,
     size           BIGINT       NOT NULL,
     fileListId     BIGINT       NULL,
-    path           VARCHAR(255) NULL
+    path           VARCHAR(255) NULL,
+    ord            INT          NULL
 );
 
 CREATE INDEX ReferencedFile_FileList_IDX ON ReferencedFile (fileListId);

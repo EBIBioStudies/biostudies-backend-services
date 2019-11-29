@@ -1,4 +1,5 @@
 import Dependencies.CliKt
+import Dependencies.Log4J
 import TestDependencies.AssertJ
 import TestDependencies.Junit
 import TestDependencies.Junit5Console
@@ -15,6 +16,7 @@ dependencies {
     compile(project(":client:bio-webclient"))
 
     compile(CliKt)
+    compile(Log4J)
 
     testCompile(Junit)
     testCompile(JunitExtensions)

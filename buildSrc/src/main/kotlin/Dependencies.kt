@@ -22,6 +22,7 @@ import Versions.KotlinArrowVersion
 import Versions.KotlinCoroutineVersion
 import Versions.KotlinLoggingVersion
 import Versions.KotlinVersion
+import Versions.Log4JVersion
 import Versions.LogbackVersion
 import Versions.MySqlVersion
 import Versions.PoiVersion
@@ -82,6 +83,7 @@ object Versions {
     const val PoiVersion = "4.1.0"
     const val XlsxStreamerVersion = "2.1.0"
     const val SpringfoxSwaggerVersion = "2.9.2"
+    const val Log4JVersion = "1.7.29"
 }
 
 object TestDependencies {
@@ -139,6 +141,7 @@ object Dependencies {
     const val XlsxStreamer = "com.monitorjbl:xlsx-streamer:$XlsxStreamerVersion"
     const val SpringfoxSwagger = "io.springfox:springfox-swagger2:$SpringfoxSwaggerVersion"
     const val SpringfoxSwaggerUI = "io.springfox:springfox-swagger-ui:$SpringfoxSwaggerVersion"
+    const val Log4J = "org.slf4j:slf4j-simple:$Log4JVersion"
 
     // Kotlin specific
     const val KotlinStdLib = "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$KotlinVersion"
