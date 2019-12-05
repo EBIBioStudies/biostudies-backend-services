@@ -12,7 +12,7 @@ import org.springframework.http.MediaType.TEXT_XML
 import org.springframework.http.converter.HttpMessageConverter
 import kotlin.reflect.full.isSuperclassOf
 
-private val mediaTypes = mutableListOf(APPLICATION_JSON, TEXT_PLAIN, TEXT_XML)
+private val mediaTypes = listOf(APPLICATION_JSON, TEXT_PLAIN, TEXT_XML)
 
 class JsonPagetabConverter(
     private val serializerService: SerializationService

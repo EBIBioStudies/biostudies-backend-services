@@ -11,7 +11,6 @@ import java.nio.file.Paths
 
 @ExtendWith(MockKExtension::class)
 internal class SubmissionFolderResolverTest(@MockK val submission: ExtendedSubmission) {
-
     private val testInstance = SubmissionFolderResolver(Paths.get("/tmp/nfs"))
 
     @Test
