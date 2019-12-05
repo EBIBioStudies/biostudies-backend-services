@@ -29,6 +29,7 @@ import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.SectionsTable
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.User
+import ebi.ac.uk.model.constants.ProcessingStatus
 import ebi.ac.uk.model.constants.SubFields
 import ebi.ac.uk.model.constants.SubFields.TITLE
 import java.time.ZoneOffset.UTC
@@ -55,6 +56,7 @@ class SubmissionDbMapper {
             modificationTime = toInstant(submissionDb.releaseTime)
             releaseTime = toInstant(submissionDb.releaseTime)
             section = sectionMapper.toSection(submissionDb.rootSection)
+            processingStatus = ProcessingStatus.valueOf(submissionDb.status)
             extendedSection = sectionMapper.toExtendedSection(submissionDb.rootSection)
             attributes = getAttributes(submissionDb)
             accessTags = submissionDb.accessTags.mapTo(mutableListOf(), AccessTag::name)

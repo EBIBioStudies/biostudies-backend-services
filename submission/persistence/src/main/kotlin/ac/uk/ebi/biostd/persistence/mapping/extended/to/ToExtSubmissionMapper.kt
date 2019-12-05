@@ -6,6 +6,7 @@ import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtTag
 import ebi.ac.uk.functions.secondsToInstant
 import ebi.ac.uk.io.sources.PathFilesSource
+import ebi.ac.uk.model.constants.ProcessingStatus
 import java.nio.file.Path
 import java.time.ZoneOffset
 
@@ -23,6 +24,7 @@ class ToExtSubmissionMapper(private val submissionsPath: Path) {
             secretKey = dbSubmission.secretKey,
             releaseTime = asOffset(dbSubmission.releaseTime),
             modificationTime = asOffset(dbSubmission.releaseTime),
+            status = ProcessingStatus.valueOf(dbSubmission.status),
             creationTime = asOffset(dbSubmission.creationTime),
             attributes = dbSubmission.attributes.map { it.toExtAttribute() },
             accessTags = dbSubmission.accessTags.map { ExtAccessTag(it.name) },

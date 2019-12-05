@@ -30,6 +30,7 @@ class ToDbSubmissionMapper(
         accessTags = toAccessTag(submission.accessTags)
         tags = toTags(submission.tags)
         released = submission.released
+        status = submission.status.value
         attributes = submission.attributes.mapIndexedTo(sortedSetOf(), ::toDbSubmissionAttribute)
         rootSection = submission.section.toDbSection(this, ROOT_SECTION_ORDER)
     }

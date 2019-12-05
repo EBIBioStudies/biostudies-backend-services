@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.submission.processors.SubmissionProcessor
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.model.ExtendedSubmission
 import ebi.ac.uk.model.Submission
+import ebi.ac.uk.model.constants.Processed
 import ebi.ac.uk.persistence.PersistenceContext
 import org.springframework.transaction.annotation.Isolation
 import org.springframework.transaction.annotation.Transactional
@@ -27,6 +28,7 @@ open class SubmissionSubmitter(
         errorContext.handleErrors()
 
         persistenceContext.deleteSubmissionDrafts(submission)
+        submission.processingStatus = Processed
 
         return persistenceContext.saveSubmission(submission)
     }

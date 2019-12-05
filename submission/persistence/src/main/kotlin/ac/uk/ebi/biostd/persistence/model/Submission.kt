@@ -91,6 +91,9 @@ class Submission(
     @Column
     var secretKey: String = ""
 
+    @Column
+    var status: String = ""
+
     @OneToOne(cascade = [CascadeType.ALL])
     @JoinColumn(name = "rootSection_id")
     lateinit var rootSection: SectionDb

@@ -161,12 +161,14 @@ CREATE TABLE Submission (
     owner_id       BIGINT       NULL,
     rootSection_id BIGINT       NULL,
     secretKey      VARCHAR(255) NOT NULL,
+    status         VARCHAR(20)  NOT NULL,
     CONSTRAINT Submission_accNo_version_UNQ UNIQUE (accNo, version),
     CONSTRAINT Submission_RootSection_FRG_KEY FOREIGN KEY (rootSection_id) REFERENCES Section (id) ON DELETE SET NULL
 );
 
 CREATE INDEX Submission_Root_Section_IDX ON Submission (rootSection_id);
 CREATE INDEX Submission_Owner_IDX ON Submission (owner_id);
+CREATE INDEX Submission_Status_IDX ON Submission (status);
 CREATE INDEX released_idx ON Submission (released);
 CREATE INDEX rtime_idx ON Submission (RTime);
 
