@@ -100,6 +100,14 @@ fun allInOneSubmissionJson(accNo: String) = jsonObj {
                 }, {
                     "name" to "Assay type"
                     "value" to "RNA-Seq"
+                    "valqual" to jsonArray({
+                        "name" to "Ontology"
+                        "value" to "EFO"
+                    })
+                    "nmqual" to jsonArray({
+                        "name" to "TermId"
+                        "value" to "EFO_0002768"
+                    })
                 })
             }))
         }, jsonArray({

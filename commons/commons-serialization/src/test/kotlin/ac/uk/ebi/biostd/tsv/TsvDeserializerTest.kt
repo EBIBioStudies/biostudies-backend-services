@@ -258,7 +258,7 @@ class TsvDeserializerTest {
     }
 
     @Test
-    fun `links table`() {
+    fun `links table with attribute details`() {
         val result = deserializer.deserialize(submissionWithLinksTable().toString())
 
         assertThat(result).isEqualTo(submission("S-EPMC125") {
@@ -270,11 +270,19 @@ class TsvDeserializerTest {
 
                 linksTable {
                     link("AF069309") {
-                        attribute("Type", "gen")
+                        attribute(
+                            name = "Type",
+                            value = "gen",
+                            valueAttrs = mutableListOf(AttributeDetail("Ontology", "EFO")),
+                            nameAttrs = mutableListOf(AttributeDetail("TermId", "EFO_0002768")))
                     }
 
                     link("AF069123") {
-                        attribute("Type", "gen")
+                        attribute(
+                            name = "Type",
+                            value = "gen",
+                            valueAttrs = mutableListOf(AttributeDetail("Ontology", "EFO")),
+                            nameAttrs = mutableListOf(AttributeDetail("TermId", "EFO_0002769")))
                     }
                 }
             }

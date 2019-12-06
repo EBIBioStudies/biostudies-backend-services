@@ -142,9 +142,9 @@ fun submissionWithLinks() = submissionWithRootSection().apply {
 }
 
 fun submissionWithLinksTable() = submissionWithRootSection().apply {
-    line("Links", "Type")
-    line("AF069309", "gen")
-    line("AF069123", "gen")
+    line("Links", "Type", "(TermId)", "[Ontology]")
+    line("AF069309", "gen", "EFO_0002768", "EFO")
+    line("AF069123", "gen", "EFO_0002769", "EFO")
     line()
 }
 

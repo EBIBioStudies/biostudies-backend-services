@@ -42,8 +42,27 @@ internal fun <T> asTable(chunk: TsvChunk, initializer: (String, MutableList<Attr
 
         validate(rowAttrsSize <= headerAttrsSize) { throw InvalidElementException(INVALID_TABLE_ROW) }
 
+        var nameAttrs: MutableList<AttributeDetail> = mutableListOf()
+        var valueAttrs: MutableList<AttributeDetail> = mutableListOf()
+
         it.rawValues.forEachIndexed { index, attr ->
-            attr.applyIfNotBlank { attrs.add(Attribute(chunk.header[index + 1], attr)) }
+            attr.applyIfNotBlank {
+                val attrName = chunk.header[index + 1]
+                when {
+                    isNameDetail(attrName) -> nameAttrs.add(AttributeDetail(attrName.substring(1, attrName.lastIndex), attr))
+                    isValueDetail(attrName) -> valueAttrs.add(AttributeDetail(attrName.substring(1, attrName.lastIndex), attr))
+                    else -> {
+                        attrs.add(Attribute(
+                            name = chunk.header[index + 1],
+                            value = attr,
+                            nameAttrs = nameAttrs,
+                            valueAttrs = valueAttrs))
+
+                        nameAttrs = mutableListOf()
+                        valueAttrs = mutableListOf()
+                    }
+                }
+            }
         }
 
         rows.add(initializer(it.name(), attrs))
