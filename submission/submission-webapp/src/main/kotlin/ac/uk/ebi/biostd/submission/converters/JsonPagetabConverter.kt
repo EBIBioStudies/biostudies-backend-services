@@ -1,9 +1,7 @@
 package ac.uk.ebi.biostd.submission.converters
 
-import ac.uk.ebi.biostd.integration.JsonPretty
 import ac.uk.ebi.biostd.integration.SerializationService
-import ac.uk.ebi.biostd.integration.Tsv
-import ac.uk.ebi.biostd.integration.XmlFormat
+import ac.uk.ebi.biostd.integration.SubFormat
 import ebi.ac.uk.model.Submission
 import org.springframework.http.HttpInputMessage
 import org.springframework.http.HttpOutputMessage
@@ -14,24 +12,22 @@ import org.springframework.http.MediaType.TEXT_XML
 import org.springframework.http.converter.HttpMessageConverter
 import kotlin.reflect.full.isSuperclassOf
 
-class PagetabConverter(private val serializerService: SerializationService) : HttpMessageConverter<Submission> {
+private val mediaTypes = listOf(APPLICATION_JSON, TEXT_PLAIN, TEXT_XML)
 
+class JsonPagetabConverter(
+    private val serializerService: SerializationService
+) :
+    HttpMessageConverter<Submission> {
     override fun canRead(clazz: Class<*>, mediaType: MediaType?) = false
 
     override fun canWrite(clazz: Class<*>, mediaType: MediaType?) = Submission::class.isSuperclassOf(clazz.kotlin)
 
-    override fun getSupportedMediaTypes() = listOf(APPLICATION_JSON, TEXT_PLAIN, TEXT_XML)
+    override fun getSupportedMediaTypes() = mediaTypes
 
-    override fun write(submission: Submission, contentType: MediaType?, message: HttpOutputMessage) =
-        message.body.write(serializerService.serializeSubmission(submission, asFormat(contentType)).toByteArray())
+    override fun write(submission: Submission, contentType: MediaType?, message: HttpOutputMessage) {
+        message.headers.contentType = APPLICATION_JSON
+        message.body.write(serializerService.serializeSubmission(submission, SubFormat.JSON_PRETTY).toByteArray())
+    }
 
     override fun read(clazz: Class<out Submission>, message: HttpInputMessage) = throw NotImplementedError()
-
-    private fun asFormat(mediaType: MediaType?) =
-        when (mediaType) {
-            APPLICATION_JSON -> JsonPretty
-            TEXT_PLAIN -> Tsv
-            TEXT_XML -> XmlFormat
-            else -> JsonPretty
-        }
 }

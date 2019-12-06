@@ -1,9 +1,9 @@
 package ac.uk.ebi.biostd.submission.domain.service
 
-import ac.uk.ebi.biostd.integration.JsonPretty
 import ac.uk.ebi.biostd.integration.SerializationService
-import ac.uk.ebi.biostd.integration.Tsv
-import ac.uk.ebi.biostd.integration.XmlFormat
+import ac.uk.ebi.biostd.integration.SubFormat.JsonFormat.JsonPretty
+import ac.uk.ebi.biostd.integration.SubFormat.TsvFormat.Tsv
+import ac.uk.ebi.biostd.integration.SubFormat.XmlFormat
 import ac.uk.ebi.biostd.persistence.filter.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
 import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter

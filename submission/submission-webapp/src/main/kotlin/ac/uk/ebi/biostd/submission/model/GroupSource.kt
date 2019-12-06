@@ -8,7 +8,7 @@ import java.nio.file.Path
 
 class GroupSource(groupName: String, private val pathSource: PathFilesSource) : FilesSource by pathSource {
 
-    private val groupPattern = "Groups/$groupName/".toRegex()
+    private val groupPattern = "/?groups/$groupName/".toRegex()
 
     constructor(groupName: String, path: Path) : this(groupName, PathFilesSource(path))
 

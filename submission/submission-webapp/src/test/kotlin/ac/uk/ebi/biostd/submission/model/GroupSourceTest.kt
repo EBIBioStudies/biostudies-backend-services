@@ -20,7 +20,7 @@ internal class GroupSourceTest(@MockK private val pathFileSource: PathFilesSourc
     fun exists() {
         every { pathFileSource.exists(FILE_NAME) } returns true
 
-        assertThat(testInstance.exists("Groups/$GROUP_NAME/$FILE_NAME")).isTrue()
+        assertThat(testInstance.exists("groups/$GROUP_NAME/$FILE_NAME")).isTrue()
     }
 
     @Test
@@ -28,7 +28,7 @@ internal class GroupSourceTest(@MockK private val pathFileSource: PathFilesSourc
         val file = File(FILE_NAME)
         every { pathFileSource.getFile(FILE_NAME) } returns file
 
-        assertThat(testInstance.getFile("Groups/$GROUP_NAME/$FILE_NAME")).isEqualTo(file)
+        assertThat(testInstance.getFile("groups/$GROUP_NAME/$FILE_NAME")).isEqualTo(file)
     }
 
     @Test
@@ -36,7 +36,7 @@ internal class GroupSourceTest(@MockK private val pathFileSource: PathFilesSourc
         val fileSize = 55L
         every { pathFileSource.size(FILE_NAME) } returns fileSize
 
-        assertThat(testInstance.size("Groups/$GROUP_NAME/$FILE_NAME")).isEqualTo(fileSize)
+        assertThat(testInstance.size("groups/$GROUP_NAME/$FILE_NAME")).isEqualTo(fileSize)
     }
 
     @Test
@@ -44,6 +44,6 @@ internal class GroupSourceTest(@MockK private val pathFileSource: PathFilesSourc
         val fileText = "file content"
         every { pathFileSource.readText(FILE_NAME) } returns fileText
 
-        assertThat(testInstance.readText("Groups/$GROUP_NAME/$FILE_NAME")).isEqualTo(fileText)
+        assertThat(testInstance.readText("groups/$GROUP_NAME/$FILE_NAME")).isEqualTo(fileText)
     }
 }

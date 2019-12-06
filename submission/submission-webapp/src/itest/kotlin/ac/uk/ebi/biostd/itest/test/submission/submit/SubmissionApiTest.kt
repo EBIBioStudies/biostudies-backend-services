@@ -242,10 +242,10 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
                 line("Study")
                 line()
 
-                line("File", "Groups/$groupName/GroupFile1.txt")
+                line("File", "groups/$groupName/GroupFile1.txt")
                 line()
 
-                line("File", "Groups/$groupName/folder/GroupFile2.txt")
+                line("File", "groups/$groupName/folder/GroupFile2.txt")
                 line()
             }.toString()
 
@@ -259,8 +259,8 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
                     title = "Sample Submission"
                     releaseDate = LocalDate.now().toString()
                     section("Study") {
-                        file("Groups/$groupName/GroupFile1.txt")
-                        file("Groups/$groupName/folder/GroupFile2.txt")
+                        file("groups/$groupName/GroupFile1.txt")
+                        file("groups/$groupName/folder/GroupFile2.txt")
                     }
                 }
             )

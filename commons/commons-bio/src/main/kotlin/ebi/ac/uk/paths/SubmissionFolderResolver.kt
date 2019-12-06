@@ -10,6 +10,8 @@ class SubmissionFolderResolver(private val basePath: Path) {
     fun getSubmissionFolder(submission: ExtendedSubmission): Path =
         basePath.resolve(SUBMISSION_PATH).resolve(submission.relPath)
 
-    fun getSubFilePath(relPath: String, fileName: String) =
-        basePath.resolve(SUBMISSION_PATH).resolve(relPath).resolve(FILES_PATH).resolve(fileName)!!
+    fun getSubFilePath(relPath: String, fileName: String): Path =
+        basePath.resolve(SUBMISSION_PATH).resolve(relPath).resolve(FILES_PATH).resolve(escapeFileName(fileName))
+
+    private fun escapeFileName(fileName: String) = fileName.removePrefix("/")
 }
