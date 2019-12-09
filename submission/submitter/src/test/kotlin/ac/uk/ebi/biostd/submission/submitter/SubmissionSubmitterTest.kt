@@ -4,11 +4,13 @@ import ac.uk.ebi.biostd.submission.handlers.FilesHandler
 import ac.uk.ebi.biostd.submission.processors.SubmissionProcessor
 import ac.uk.ebi.biostd.submission.test.createBasicExtendedSubmission
 import ebi.ac.uk.io.sources.FilesSource
+import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSED
 import ebi.ac.uk.persistence.PersistenceContext
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.verify
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -35,6 +37,7 @@ class SubmissionSubmitterTest(
     @Test
     fun submit() {
         testInstance.submit(submission, filesSource, persistenceContext)
+        assertThat(submission.processingStatus).isEqualTo(PROCESSED)
 
         verify(exactly = 1) {
             persistenceContext.saveSubmission(submission)
