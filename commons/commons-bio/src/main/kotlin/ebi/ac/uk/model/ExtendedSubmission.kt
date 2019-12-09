@@ -1,9 +1,8 @@
 package ebi.ac.uk.model
 
 import ebi.ac.uk.base.EMPTY
-import ebi.ac.uk.model.constants.Processing
-import ebi.ac.uk.model.constants.ProcessingStatus
 import ebi.ac.uk.model.constants.SubFields
+import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSING
 import java.time.OffsetDateTime
 import java.util.Objects
 
@@ -20,7 +19,7 @@ class ExtendedSubmission(accNo: String, val user: User) : Submission(accNo) {
     var secretKey = EMPTY
     var version = 1
     var extendedSection = ExtendedSection(section)
-    var processingStatus: ProcessingStatus = Processing
+    var processingStatus = PROCESSING
     var releaseTime: OffsetDateTime = OffsetDateTime.now()
     var modificationTime: OffsetDateTime = OffsetDateTime.now()
     var creationTime: OffsetDateTime = OffsetDateTime.now()

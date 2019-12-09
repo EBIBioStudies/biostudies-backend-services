@@ -10,7 +10,7 @@ import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.line
 import ebi.ac.uk.dsl.tsv
-import ebi.ac.uk.model.constants.Processed
+import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSED
 import ebi.ac.uk.model.extensions.title
 import ebi.ac.uk.test.createFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
@@ -66,7 +66,7 @@ internal class ProjectSubmitTest(private val tempFolder: TemporaryFolder) : Base
             val submittedProject = submissionRepository.getExtendedByAccNo("AProject")
             assertThat(submittedProject.accNo).isEqualTo("AProject")
             assertThat(submittedProject.title).isEqualTo("A Project")
-            assertThat(submittedProject.processingStatus).isEqualTo(Processed)
+            assertThat(submittedProject.processingStatus).isEqualTo(PROCESSED)
 
             assertThat(submittedProject.accessTags).hasSize(1)
             assertThat(submittedProject.accessTags.first()).isEqualTo("AProject")

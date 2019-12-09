@@ -20,9 +20,10 @@ class ToDbSubmissionMapper(
     fun toSubmissionDb(submission: ExtSubmission, submitter: String) = SubmissionDb().apply {
         accNo = submission.accNo
         title = submission.title
-        secretKey = submission.secretKey
+        status = submission.status
         relPath = submission.relPath
         rootPath = submission.rootPath
+        secretKey = submission.secretKey
         creationTime = submission.creationTime.toEpochSecond()
         modificationTime = submission.modificationTime.toEpochSecond()
         releaseTime = submission.releaseTime.toEpochSecond()
@@ -30,7 +31,6 @@ class ToDbSubmissionMapper(
         accessTags = toAccessTag(submission.accessTags)
         tags = toTags(submission.tags)
         released = submission.released
-        status = submission.status.value
         attributes = submission.attributes.mapIndexedTo(sortedSetOf(), ::toDbSubmissionAttribute)
         rootSection = submission.section.toDbSection(this, ROOT_SECTION_ORDER)
     }

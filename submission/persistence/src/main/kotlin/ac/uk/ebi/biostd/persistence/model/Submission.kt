@@ -1,8 +1,12 @@
 package ac.uk.ebi.biostd.persistence.model
 
+import ac.uk.ebi.biostd.persistence.converters.ProcessingStatusConverter
+import ebi.ac.uk.model.constants.ProcessingStatus
+import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSING
 import java.util.SortedSet
 import javax.persistence.CascadeType
 import javax.persistence.Column
+import javax.persistence.Convert
 import javax.persistence.Entity
 import javax.persistence.GeneratedValue
 import javax.persistence.Id
@@ -92,7 +96,8 @@ class Submission(
     var secretKey: String = ""
 
     @Column
-    var status: String = ""
+    @Convert(converter = ProcessingStatusConverter::class)
+    var status: ProcessingStatus = PROCESSING
 
     @OneToOne(cascade = [CascadeType.ALL])
     @JoinColumn(name = "rootSection_id")

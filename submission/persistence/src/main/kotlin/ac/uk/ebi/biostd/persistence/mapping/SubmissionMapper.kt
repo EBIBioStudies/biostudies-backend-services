@@ -56,7 +56,7 @@ class SubmissionMapper(
         relPath = submission.relPath
         rootPath = submission.rootPath
         released = submission.released
-        status = submission.processingStatus.value
+        status = submission.processingStatus
         creationTime = submission.creationTime.toEpochSecond()
         modificationTime = submission.modificationTime.toEpochSecond()
         releaseTime = submission.releaseTime.toEpochSecond()

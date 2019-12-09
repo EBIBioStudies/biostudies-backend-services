@@ -3,7 +3,7 @@ package ac.uk.ebi.biostd.submission.submitter
 import ac.uk.ebi.biostd.submission.processors.IProjectProcessor
 import ac.uk.ebi.biostd.submission.test.createBasicProject
 import ac.uk.ebi.biostd.submission.util.AccNoPatternUtil
-import ebi.ac.uk.model.constants.Processed
+import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSED
 import ebi.ac.uk.persistence.PersistenceContext
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -36,7 +36,7 @@ class ProjectSubmitterTest(
     fun submit() {
         testInstance.submit(project, persistenceContext)
 
-        assertThat(project.processingStatus).isEqualTo(Processed)
+        assertThat(project.processingStatus).isEqualTo(PROCESSED)
         verify(exactly = 1) {
             accNoPatternUtil.getPattern("!{S-ABC}")
             persistenceContext.saveAccessTag("ABC456")

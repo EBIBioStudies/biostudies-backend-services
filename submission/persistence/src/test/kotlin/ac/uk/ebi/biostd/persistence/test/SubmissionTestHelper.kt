@@ -7,7 +7,7 @@ import ac.uk.ebi.biostd.persistence.model.User
 import ebi.ac.uk.extended.model.ExtAccessTag
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtTag
-import ebi.ac.uk.model.constants.Processed
+import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSED
 import org.assertj.core.api.Assertions.assertThat
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
@@ -31,7 +31,7 @@ internal val extSubmission
         secretKey = SECRET_KEY,
         attributes = listOf(extAttribute),
         released = true,
-        status = Processed,
+        status = PROCESSED,
         modificationTime = modificationTime,
         releaseTime = releaseTime,
         creationTime = creationTime,
@@ -49,10 +49,10 @@ internal val extAccessTag: ExtAccessTag
 internal fun assertSubmission(submission: Submission, accessTags: List<AccessTag>, tags: List<Tag>, owner: User) {
     assertThat(submission.accNo).isEqualTo(SUB_ACC_NO)
     assertThat(submission.title).isEqualTo(SUB_TITLE)
+    assertThat(submission.status).isEqualTo(PROCESSED)
     assertThat(submission.relPath).isEqualTo(SUB_RELPATH)
     assertThat(submission.rootPath).isEqualTo(SUB_ROOT_PATH)
     assertThat(submission.secretKey).isEqualTo(SECRET_KEY)
-    assertThat(submission.status).isEqualTo(Processed.value)
     assertThat(submission.creationTime).isEqualTo(creationTime.toEpochSecond())
     assertThat(submission.modificationTime).isEqualTo(modificationTime.toEpochSecond())
     assertThat(submission.releaseTime).isEqualTo(releaseTime.toEpochSecond())
