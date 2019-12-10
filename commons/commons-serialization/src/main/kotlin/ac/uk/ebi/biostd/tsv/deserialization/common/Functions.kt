@@ -42,27 +42,8 @@ internal fun <T> asTable(chunk: TsvChunk, initializer: (String, MutableList<Attr
 
         validate(rowAttrsSize <= headerAttrsSize) { throw InvalidElementException(INVALID_TABLE_ROW) }
 
-        var nameAttrs: MutableList<AttributeDetail> = mutableListOf()
-        var valueAttrs: MutableList<AttributeDetail> = mutableListOf()
-
         it.rawValues.forEachIndexed { index, attr ->
-            attr.applyIfNotBlank {
-                val attrName = chunk.header[index + 1]
-                when {
-                    isNameDetail(attrName) -> nameAttrs.add(AttributeDetail(attrName.substring(1, attrName.lastIndex), attr))
-                    isValueDetail(attrName) -> valueAttrs.add(AttributeDetail(attrName.substring(1, attrName.lastIndex), attr))
-                    else -> {
-                        attrs.add(Attribute(
-                            name = chunk.header[index + 1],
-                            value = attr,
-                            nameAttrs = nameAttrs,
-                            valueAttrs = valueAttrs))
-
-                        nameAttrs = mutableListOf()
-                        valueAttrs = mutableListOf()
-                    }
-                }
-            }
+            attr.applyIfNotBlank { parseTableAttribute(chunk.header[index + 1], attr, attrs) }
         }
 
         rows.add(initializer(it.name(), attrs))
@@ -70,6 +51,14 @@ internal fun <T> asTable(chunk: TsvChunk, initializer: (String, MutableList<Attr
 
     return rows.toList()
 }
+
+private fun parseTableAttribute(name: String, value: String, attributes: MutableList<Attribute>) = when {
+    isNameDetail(name) -> attributes.last().addNameDetail(AttributeDetail(getDetailName(name), value))
+    isValueDetail(name) -> attributes.last().addValueDetail(AttributeDetail(getDetailName(name), value))
+    else -> attributes.add(Attribute(name, value))
+}
+
+private fun getDetailName(attrName: String) = attrName.substring(1, attrName.lastIndex)
 
 private fun addNameAttributeDetail(attributes: MutableList<Attribute>, line: TsvChunkLine) {
     attributes.ifEmpty { throw InvalidElementException(MISPLACED_ATTR_NAME) }

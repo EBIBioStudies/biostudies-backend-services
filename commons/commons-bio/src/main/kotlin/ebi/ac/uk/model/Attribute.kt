@@ -12,12 +12,15 @@ data class Attribute(
     var nameAttrs: Attributes = mutableListOf(),
     var valueAttrs: Attributes = mutableListOf()
 ) {
-
     constructor(name: Any, value: Any) : this(name.toString(), value.toString())
 
     companion object {
         val EMPTY_ATTR: Attribute = Attribute(EMPTY, EMPTY, false, mutableListOf())
     }
+
+    fun addNameDetail(nameDetail: AttributeDetail) = nameAttrs.add(nameDetail)
+
+    fun addValueDetail(valueDetail: AttributeDetail) = valueAttrs.add(valueDetail)
 
     override fun equals(other: Any?) = when {
         other !is Attribute -> false
