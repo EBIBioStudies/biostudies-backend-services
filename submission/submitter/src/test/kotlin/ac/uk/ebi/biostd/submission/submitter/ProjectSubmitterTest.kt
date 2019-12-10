@@ -3,11 +3,13 @@ package ac.uk.ebi.biostd.submission.submitter
 import ac.uk.ebi.biostd.submission.processors.IProjectProcessor
 import ac.uk.ebi.biostd.submission.test.createBasicProject
 import ac.uk.ebi.biostd.submission.util.AccNoPatternUtil
+import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSED
 import ebi.ac.uk.persistence.PersistenceContext
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.verify
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -34,6 +36,7 @@ class ProjectSubmitterTest(
     fun submit() {
         testInstance.submit(project, persistenceContext)
 
+        assertThat(project.processingStatus).isEqualTo(PROCESSED)
         verify(exactly = 1) {
             accNoPatternUtil.getPattern("!{S-ABC}")
             persistenceContext.saveAccessTag("ABC456")

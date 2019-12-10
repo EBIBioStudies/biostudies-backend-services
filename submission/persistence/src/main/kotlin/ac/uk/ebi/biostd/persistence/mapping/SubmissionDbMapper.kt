@@ -55,6 +55,7 @@ class SubmissionDbMapper {
             modificationTime = toInstant(submissionDb.releaseTime)
             releaseTime = toInstant(submissionDb.releaseTime)
             section = sectionMapper.toSection(submissionDb.rootSection)
+            processingStatus = submissionDb.status
             extendedSection = sectionMapper.toExtendedSection(submissionDb.rootSection)
             attributes = getAttributes(submissionDb)
             accessTags = submissionDb.accessTags.mapTo(mutableListOf(), AccessTag::name)
