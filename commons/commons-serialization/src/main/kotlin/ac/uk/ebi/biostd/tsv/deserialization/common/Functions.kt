@@ -23,8 +23,8 @@ internal fun toAttributes(chunkLines: List<TsvChunkLine>): MutableList<Attribute
     chunkLines.forEach { line ->
         line.value.ifBlank { throw InvalidElementException(REQUIRED_ATTR_VALUE) }
         when {
-            line.isNameDetail() -> addNameAttributeDetail(attributes, line)
-            line.isValueDetail() -> addValueAttributeDetail(attributes, line)
+            line.isNameDetail() -> addNameAttributeDetail(line.name(), line.value, attributes)
+            line.isValueDetail() -> addValueAttributeDetail(line.name(), line.value, attributes)
             else -> attributes.add(Attribute(line.name(), line.value, line.isReference()))
         }
     }
@@ -52,20 +52,22 @@ internal fun <T> asTable(chunk: TsvChunk, initializer: (String, MutableList<Attr
     return rows.toList()
 }
 
-private fun parseTableAttribute(name: String, value: String, attributes: MutableList<Attribute>) = when {
-    isNameDetail(name) -> attributes.last().addNameDetail(AttributeDetail(getDetailName(name), value))
-    isValueDetail(name) -> attributes.last().addValueDetail(AttributeDetail(getDetailName(name), value))
-    else -> attributes.add(Attribute(name, value))
+private fun parseTableAttribute(name: String, value: String, attributes: MutableList<Attribute>) {
+    when {
+        isNameDetail(name) -> addNameAttributeDetail(getDetailName(name), value, attributes)
+        isValueDetail(name) -> addValueAttributeDetail(getDetailName(name), value, attributes)
+        else -> attributes.add(Attribute(name, value))
+    }
 }
 
 private fun getDetailName(attrName: String) = attrName.substring(1, attrName.lastIndex)
 
-private fun addNameAttributeDetail(attributes: MutableList<Attribute>, line: TsvChunkLine) {
+private fun addNameAttributeDetail(name: String, value: String, attributes: MutableList<Attribute>) {
     attributes.ifEmpty { throw InvalidElementException(MISPLACED_ATTR_NAME) }
-    attributes.last().nameAttrs.add(AttributeDetail(line.name(), line.value))
+    attributes.last().nameAttrs.add(AttributeDetail(name, value))
 }
 
-private fun addValueAttributeDetail(attributes: MutableList<Attribute>, line: TsvChunkLine) {
+private fun addValueAttributeDetail(name: String, value: String, attributes: MutableList<Attribute>) {
     attributes.ifEmpty { throw InvalidElementException(MISPLACED_ATTR_VAL) }
-    attributes.last().valueAttrs.add(AttributeDetail(line.name(), line.value))
+    attributes.last().valueAttrs.add(AttributeDetail(name, value))
 }
