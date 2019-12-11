@@ -130,6 +130,14 @@ fun allInOneSubmissionXml(accNo: String) = xml("submission") {
                                 "attribute" {
                                     "name" { -"Assay type" }
                                     "value" { -"RNA-Seq" }
+                                    "valqual" {
+                                        "name" { -"Ontology" }
+                                        "value" { -"EFO" }
+                                    }
+                                    "nmqual" {
+                                        "name" { -"TermId" }
+                                        "value" { -"EFO_0002768" }
+                                    }
                                 }
                             }
                         }

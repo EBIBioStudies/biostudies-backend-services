@@ -60,7 +60,12 @@ fun allInOneSubmission(accNo: String) = submission(accNo) {
             linksTable {
                 link("EGAD00001001282") {
                     attribute("Type", "EGA")
-                    attribute("Assay type", "RNA-Seq")
+                    attribute(
+                        name = "Assay type",
+                        value = "RNA-Seq",
+                        ref = false,
+                        nameAttrs = mutableListOf(AttributeDetail("TermId", "EFO_0002768")),
+                        valueAttrs = mutableListOf(AttributeDetail("Ontology", "EFO")))
                 }
             }
         }

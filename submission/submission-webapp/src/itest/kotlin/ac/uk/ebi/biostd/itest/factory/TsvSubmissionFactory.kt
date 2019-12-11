@@ -41,8 +41,8 @@ fun allInOneSubmissionTsv(accNo: String) = tsv {
     line("DT-1", "Group 1 Transcription Data", "The data for zygotic transcription in mammals group 1")
     line()
 
-    line("Links", "Type", "Assay type")
-    line("EGAD00001001282", "EGA", "RNA-Seq")
+    line("Links", "Type", "Assay type", "(TermId)", "[Ontology]")
+    line("EGAD00001001282", "EGA", "RNA-Seq", "EFO_0002768", "EFO")
     line()
 }
 
@@ -115,8 +115,8 @@ fun assertAllInOneSubmissionTsv(tsv: String, accNo: String) {
     assertTsvBlock(lines, 23, 24, expectedSubsection)
 
     val expectedSubsectionLinksTable = tsv {
-        line("Links", "Type", "Assay type")
-        line("EGAD00001001282", "EGA", "RNA-Seq")
+        line("Links", "Type", "Assay type", "(TermId)", "[Ontology]")
+        line("EGAD00001001282", "EGA", "RNA-Seq", "EFO_0002768", "EFO")
         line()
     }
     assertTsvBlock(lines, 25, 27, expectedSubsectionLinksTable)
