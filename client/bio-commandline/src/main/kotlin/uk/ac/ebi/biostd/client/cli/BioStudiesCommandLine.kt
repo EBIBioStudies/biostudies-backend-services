@@ -14,6 +14,7 @@ class BioStudiesCommandLine : CliktCommand(name = "PTSubmit") {
     private val server by option("-s", "--server", help = "BioStudies host url").required()
     private val user by option("-u", "--user", help = "User that will perform the submission").required()
     private val password by option("-p", "--password", help = "The user password").required()
+    private val onBehalf by option("-b", "--onBehalf", help = "Perform the operation on behalf of this user")
     private val input by option(
         "-i", "--input", help = "Path to the file containing the submission page tab").file(exists = true)
     private val attached by option(
@@ -28,7 +29,7 @@ class BioStudiesCommandLine : CliktCommand(name = "PTSubmit") {
                 it.split(FILES_SEPARATOR).forEach { path -> addFiles(files, path) }
             }
 
-            val client = getClient(server, user, password)
+            val client = getClient(server, user, password, onBehalf)
             val submission = client.submitSingle(input!!, files).body!!
 
             echo("SUCCESS: Submission with AccNo ${submission.accNo} was submitted")
@@ -37,8 +38,10 @@ class BioStudiesCommandLine : CliktCommand(name = "PTSubmit") {
         }
     }
 
-    internal fun getClient(host: String, user: String, password: String) =
-        SecurityWebClient.create(host).getAuthenticatedClient(user, password)
+    internal fun getClient(host: String, user: String, password: String, onBehalf: String?) = when {
+        onBehalf.isNullOrBlank() -> SecurityWebClient.create(host).getAuthenticatedClient(user, password)
+        else -> SecurityWebClient.create(host).getAuthenticatedClient(user, password, onBehalf)
+    }
 
     private fun addFiles(files: MutableList<File>, path: String) {
         val file = File(path)

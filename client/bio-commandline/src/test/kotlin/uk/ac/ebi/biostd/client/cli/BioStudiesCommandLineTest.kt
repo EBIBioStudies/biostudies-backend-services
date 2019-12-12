@@ -13,6 +13,7 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.impl.annotations.SpyK
 import io.mockk.junit5.MockKExtension
+import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -47,8 +48,9 @@ class BioStudiesCommandLineTest(
         val refFile = temporaryFolder.createFile("attachments/inner/RefFile.txt")
 
         every { mockWebClient.submitSingle(submissionFile, listOf()) } returns mockResponse
-        every { testInstance.getClient("http://localhost:8080", "user", "123456") } returns mockWebClient
         every { mockWebClient.submitSingle(submissionFile, listOf(libFile, refFile)) } returns mockResponse
+        every { testInstance.getClient("http://localhost:8080", "user", "123456", null) } returns mockWebClient
+        every { testInstance.getClient("http://localhost:8080", "user", "123456", "other") } returns mockWebClient
     }
 
     @AfterEach
@@ -63,6 +65,20 @@ class BioStudiesCommandLineTest(
             "-i", "$rootFolder/Submission.tsv")
 
         testInstance.main(args)
+        verify(exactly = 1) { testInstance.getClient("http://localhost:8080", "user", "123456", null) }
+    }
+
+    @Test
+    fun `submit single on behalf`() {
+        val args = arrayOf(
+            "-s", "http://localhost:8080",
+            "-u", "user",
+            "-p", "123456",
+            "-b", "other",
+            "-i", "$rootFolder/Submission.tsv")
+
+        testInstance.main(args)
+        verify(exactly = 1) { testInstance.getClient("http://localhost:8080", "user", "123456", "other") }
     }
 
     @Test
