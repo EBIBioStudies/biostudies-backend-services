@@ -6,14 +6,12 @@ import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserGroupDataRepository
 import ebi.ac.uk.commons.http.JacksonFactory
 import ebi.ac.uk.security.events.Events
-import ebi.ac.uk.security.integration.components.IAutomatedSecurityService
 import ebi.ac.uk.security.integration.components.IGroupService
 import ebi.ac.uk.security.integration.components.ISecurityFilter
 import ebi.ac.uk.security.integration.components.ISecurityService
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import ebi.ac.uk.security.integration.model.events.PasswordReset
 import ebi.ac.uk.security.integration.model.events.UserRegister
-import ebi.ac.uk.security.service.AutomatedSecurityService
 import ebi.ac.uk.security.service.GroupService
 import ebi.ac.uk.security.service.ProfileService
 import ebi.ac.uk.security.service.SecurityService
@@ -31,7 +29,6 @@ class SecurityModuleConfig(
     private val accessPermissionRepository: AccessPermissionRepository,
     private var props: SecurityProperties
 ) {
-    fun automatedSecurityService(): IAutomatedSecurityService = automatedSecurityService
     fun securityService(): ISecurityService = securityService
     fun groupService(): IGroupService = groupService
     fun securityFilter(): ISecurityFilter = securityFilter
@@ -42,7 +39,6 @@ class SecurityModuleConfig(
 
     private val groupService by lazy { GroupService(groupRepository, userRepo) }
     private val securityService by lazy { SecurityService(userRepo, securityUtil, props, profileService) }
-    private val automatedSecurityService by lazy { AutomatedSecurityService(profileService, securityUtil, userRepo) }
     private val securityFilter by lazy { SecurityFilter(props.environment, securityService) }
     private val userPrivilegesService by lazy { UserPrivilegesService(userRepo, accessPermissionRepository) }
 

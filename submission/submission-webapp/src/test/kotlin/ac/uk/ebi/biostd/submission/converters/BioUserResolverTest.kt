@@ -2,7 +2,6 @@ package ac.uk.ebi.biostd.submission.converters
 
 import ebi.ac.uk.api.REGISTER_PARAM
 import ebi.ac.uk.api.USER_NAME_PARAM
-import ebi.ac.uk.security.integration.components.IAutomatedSecurityService
 import ebi.ac.uk.security.integration.components.ISecurityService
 import ebi.ac.uk.security.integration.exception.UnauthorizedOperation
 import ebi.ac.uk.security.integration.model.api.SecurityUser
@@ -24,11 +23,10 @@ import kotlin.reflect.jvm.javaMethod
 @ExtendWith(MockKExtension::class)
 internal class BioUserResolverTest(
     @MockK private val principalResolver: AuthenticationPrincipalArgumentResolver,
-    @MockK private val securityService: ISecurityService,
-    @MockK private val unifiedSecurityServiceI: IAutomatedSecurityService
+    @MockK private val securityService: ISecurityService
 ) {
 
-    private val testInstance = BioUserResolver(principalResolver, securityService, unifiedSecurityServiceI)
+    private val testInstance = BioUserResolver(principalResolver, securityService)
 
     @Nested
     @ExtendWith(MockKExtension::class)
@@ -102,7 +100,7 @@ internal class BioUserResolverTest(
             every { request.getParameter(USER_NAME_PARAM) } returns userName
             every { securityUser.superuser } returns true
 
-            every { unifiedSecurityServiceI.getOrCreate(onBehalfUserEmail, userName) } returns onBehalfUser
+            every { securityService.getOrCreateInactive(onBehalfUserEmail, userName) } returns onBehalfUser
 
             val user = testInstance.resolveArgument(parameter, container, request, factory)
             assertThat(user).isEqualTo(onBehalfUser)

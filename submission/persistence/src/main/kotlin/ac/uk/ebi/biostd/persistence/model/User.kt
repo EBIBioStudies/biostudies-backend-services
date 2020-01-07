@@ -60,9 +60,6 @@ class User(
     @Column
     var activationKey: String? = null
 
-    @Column(name = "ssoSubject")
-    var domainGroup: String? = null
-
     @Column(name = "auxProfileInfo")
     @Convert(converter = AuxInfoConverter::class)
     var auxInfo: AuxInfo = AuxInfo()

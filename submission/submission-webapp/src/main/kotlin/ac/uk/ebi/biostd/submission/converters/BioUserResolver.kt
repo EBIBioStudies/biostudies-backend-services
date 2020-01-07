@@ -4,7 +4,6 @@ import ebi.ac.uk.api.ON_BEHALF_PARAM
 import ebi.ac.uk.api.REGISTER_PARAM
 import ebi.ac.uk.api.USER_NAME_PARAM
 import ebi.ac.uk.base.orFalse
-import ebi.ac.uk.security.integration.components.IAutomatedSecurityService
 import ebi.ac.uk.security.integration.components.ISecurityService
 import ebi.ac.uk.security.integration.exception.InvalidSseConfiguration
 import ebi.ac.uk.security.integration.exception.UnauthorizedOperation
@@ -19,9 +18,7 @@ import org.springframework.web.method.support.ModelAndViewContainer
 
 class BioUserResolver(
     private val principalResolver: AuthenticationPrincipalArgumentResolver,
-    private val securityService: ISecurityService,
-    private val unifiedServiceI: IAutomatedSecurityService
-
+    private val securityService: ISecurityService
 ) : HandlerMethodArgumentResolver {
     override fun supportsParameter(parameter: MethodParameter): Boolean {
         return parameter.getParameterAnnotation(BioUser::class.java) != null
@@ -49,7 +46,7 @@ class BioUserResolver(
         if (securityUser.superuser.not()) throw UnauthorizedOperation("User need to be admin to use onBehalf option")
         if (onBehalf.isNullOrBlank()) throw InvalidSseConfiguration("'onBehalf'should contain email in register mode")
         if (name.isNullOrBlank()) throw InvalidSseConfiguration("'username' should contain user in register mode")
-        return unifiedServiceI.getOrCreate(onBehalf, name)
+        return securityService.getOrCreateInactive(onBehalf, name)
     }
 
     private fun getUser(securityUser: SecurityUser, onBehalf: String): SecurityUser {

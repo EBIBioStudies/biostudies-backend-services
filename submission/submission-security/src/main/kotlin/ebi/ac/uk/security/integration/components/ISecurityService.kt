@@ -27,4 +27,6 @@ interface ISecurityService {
     fun resetPassword(request: ResetPasswordRequest)
 
     fun getUserProfile(authToken: String): UserInfo
+
+    fun getOrCreateInactive(email: String, username: String): SecurityUser
 }

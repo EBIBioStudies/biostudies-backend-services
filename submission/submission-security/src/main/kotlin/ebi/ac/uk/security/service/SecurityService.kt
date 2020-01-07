@@ -53,6 +53,22 @@ internal class SecurityService(
         }
     }
 
+    override fun getOrCreateInactive(email: String, username: String): SecurityUser {
+        return userRepository.findByEmail(email)
+            .orElseGet { createUserInactive(email, username) }
+            .let { profileService.asSecurityUser(it) }
+    }
+
+    private fun createUserInactive(email: String, username: String): User {
+        val user = User(
+            email = email,
+            fullName = username,
+            secret = securityUtil.newKey(),
+            passwordDigest = ByteArray(0))
+        user.active = false
+        return userRepository.save(user)
+    }
+
     override fun getUser(email: String): SecurityUser {
         return userRepository.findByEmailAndActive(email, true)
             .map { profileService.asSecurityUser(it) }
