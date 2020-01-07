@@ -1,7 +1,6 @@
 package ebi.ac.uk.security.service
 
 import ac.uk.ebi.biostd.persistence.model.AccessType
-import ac.uk.ebi.biostd.persistence.model.User as UserDB
 import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ebi.ac.uk.model.User
@@ -15,6 +14,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import java.util.Optional
+import ac.uk.ebi.biostd.persistence.model.User as UserDB
 
 @ExtendWith(MockKExtension::class)
 class UserPrivilegesServiceTest(
@@ -105,10 +105,10 @@ class UserPrivilegesServiceTest(
         every { otherAuthor.id } returns 125
         every { otherAuthor.superuser } returns false
 
-        every { userRepository.findByEmailAndActive("empty@mail.com", true) } returns Optional.empty()
-        every { userRepository.findByEmailAndActive("author@mail.com", true) } returns Optional.of(author)
-        every { userRepository.findByEmailAndActive("otherAuthor@mail.com", true) } returns Optional.of(otherAuthor)
-        every { userRepository.findByEmailAndActive("superuser@mail.com", true) } returns Optional.of(superuser)
+        every { userRepository.findByEmail("empty@mail.com") } returns Optional.empty()
+        every { userRepository.findByEmail("author@mail.com") } returns Optional.of(author)
+        every { userRepository.findByEmail("otherAuthor@mail.com") } returns Optional.of(otherAuthor)
+        every { userRepository.findByEmail("superuser@mail.com") } returns Optional.of(superuser)
     }
 
     private fun initAccessPermissions() {

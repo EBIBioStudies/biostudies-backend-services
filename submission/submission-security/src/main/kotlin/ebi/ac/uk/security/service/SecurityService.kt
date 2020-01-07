@@ -62,7 +62,6 @@ internal class SecurityService(
     override fun activate(activationKey: String) {
         val user = userRepository.findByActivationKeyAndActive(activationKey, false)
             .orElseThrow { UserWithActivationKeyNotFoundException() }
-
         user.activationKey = null
         user.active = true
         userRepository.save(user)

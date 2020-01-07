@@ -55,14 +55,17 @@ class User(
     @Column
     var active: Boolean = false
 
-    @Column(name = "auxProfileInfo")
-    @Convert(converter = AuxInfoConverter::class)
-    var auxInfo: AuxInfo = AuxInfo()
-
     var login: String? = null
 
     @Column
     var activationKey: String? = null
+
+    @Column(name = "ssoSubject")
+    var domainGroup: String? = null
+
+    @Column(name = "auxProfileInfo")
+    @Convert(converter = AuxInfoConverter::class)
+    var auxInfo: AuxInfo = AuxInfo()
 
     @OneToMany(mappedBy = "user", cascade = [PERSIST, MERGE])
     val permissions: Set<AccessPermission> = emptySet()

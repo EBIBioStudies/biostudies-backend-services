@@ -6,7 +6,13 @@ import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.web.SubmissionOperations
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat
+import ebi.ac.uk.api.ON_BEHALF_PARAM
+import ebi.ac.uk.api.REGISTER_PARAM
+import ebi.ac.uk.api.USER_NAME_PARAM
+import ebi.ac.uk.api.dto.NonRegistration
+import ebi.ac.uk.api.dto.RegisterConfig
 import ebi.ac.uk.api.dto.SubmissionDto
+import ebi.ac.uk.api.dto.UserRegistration
 import ebi.ac.uk.model.Submission
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
@@ -24,17 +30,40 @@ internal class SubmissionClient(
     private val serializationService: SerializationService
 ) : SubmissionOperations {
 
-    override fun submitSingle(submission: Submission, format: SubmissionFormat) = submitSingle(
-        HttpEntity(serializationService.serializeSubmission(submission, format.asSubFormat()), createHeaders(format)))
+    override fun submitSingle(submission: Submission, format: SubmissionFormat, register: RegisterConfig) =
+        submitSingle(HttpEntity(asString(submission, format), createHeaders(format)), register)
 
-    override fun submitSingle(submission: String, format: SubmissionFormat) =
-        submitSingle(HttpEntity(submission, createHeaders(format)))
+    override fun submitSingle(submission: String, format: SubmissionFormat, register: RegisterConfig) =
+        submitSingle(HttpEntity(submission, createHeaders(format)), register)
 
     override fun deleteSubmission(accNo: String) = template.delete("$SUBMISSIONS_URL/$accNo")
 
-    private fun submitSingle(request: HttpEntity<String>): ResponseEntity<Submission> =
-        template.postForEntity<String>(SUBMISSIONS_URL, request)
+    override fun getSubmissions(filter: Map<String, Any>): List<SubmissionDto> {
+        val builder = UriComponentsBuilder.fromUriString(SUBMISSIONS_URL)
+        filter.entries.forEach { builder.queryParam(it.key, it.value) }
+        return template.getForObject<Array<SubmissionDto>>(builder.toUriString()).orEmpty().toList()
+    }
+
+    private fun submitSingle(request: HttpEntity<String>, register: RegisterConfig): ResponseEntity<Submission> {
+        return template
+            .postForEntity<String>(buildUrl(register), request)
             .map { body -> serializationService.deserializeSubmission(body, SubFormat.JSON) }
+    }
+
+    private fun asString(submission: Submission, format: SubmissionFormat) =
+        serializationService.serializeSubmission(submission, format.asSubFormat())
+
+    private fun buildUrl(config: RegisterConfig): String {
+        val builder = UriComponentsBuilder.fromUriString(SUBMISSIONS_URL)
+        return when (config) {
+            NonRegistration -> builder.toUriString()
+            is UserRegistration -> builder
+                .queryParam(REGISTER_PARAM, true)
+                .queryParam(USER_NAME_PARAM, config.name)
+                .queryParam(ON_BEHALF_PARAM, config.email)
+                .toUriString()
+        }
+    }
 
     private fun createHeaders(format: SubmissionFormat): HttpHeaders {
         val headers = HttpHeaders()
@@ -42,11 +71,5 @@ internal class SubmissionClient(
         headers.accept = listOf(format.mediaType, MediaType.APPLICATION_JSON)
         headers.setSubmissionType(format.mediaType)
         return headers
-    }
-
-    override fun getSubmissions(filter: Map<String, Any>): List<SubmissionDto> {
-        val builder = UriComponentsBuilder.fromUriString(SUBMISSIONS_URL)
-        filter.entries.forEach { builder.queryParam(it.key, it.value) }
-        return template.getForObject<Array<SubmissionDto>>(builder.toUriString()).orEmpty().toList()
     }
 }

@@ -10,6 +10,7 @@ import ac.uk.ebi.biostd.security.web.exception.SecurityAccessDeniedHandler
 import ac.uk.ebi.biostd.security.web.exception.SecurityAuthEntryPoint
 import com.fasterxml.jackson.databind.ObjectMapper
 import ebi.ac.uk.security.integration.SecurityModuleConfig
+import ebi.ac.uk.security.integration.components.IAutomatedSecurityService
 import ebi.ac.uk.security.integration.components.IGroupService
 import ebi.ac.uk.security.integration.components.ISecurityFilter
 import ebi.ac.uk.security.integration.components.ISecurityService
@@ -57,6 +58,7 @@ class SecurityConfig(
 
 @Configuration
 @Import(PersistenceConfig::class)
+@Suppress("TooManyFunctions")
 class SecurityBeansConfig(private val objectMapper: ObjectMapper, properties: ApplicationProperties) {
     private val securityProps = properties.security
 
@@ -82,12 +84,15 @@ class SecurityBeansConfig(private val objectMapper: ObjectMapper, properties: Ap
     fun securityService(securityConfig: SecurityModuleConfig): ISecurityService = securityConfig.securityService()
 
     @Bean
+    fun automatedSecurityService(securityConfig: SecurityModuleConfig): IAutomatedSecurityService =
+        securityConfig.automatedSecurityService()
+
+    @Bean
     fun groupService(securityConfig: SecurityModuleConfig): IGroupService = securityConfig.groupService()
 
     @Bean
-    fun userPrivilegesService(
-        securityConfig: SecurityModuleConfig
-    ): IUserPrivilegesService = securityConfig.userPrivilegesService()
+    fun userPrivilegesService(securityConfig: SecurityModuleConfig): IUserPrivilegesService =
+        securityConfig.userPrivilegesService()
 
     @Bean
     fun securityFilter(securityConfig: SecurityModuleConfig): ISecurityFilter = securityConfig.securityFilter()
