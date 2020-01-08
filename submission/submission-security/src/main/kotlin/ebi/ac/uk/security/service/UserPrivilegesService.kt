@@ -35,7 +35,5 @@ internal class UserPrivilegesService(
     private fun isAuthor(author: User, email: String) = getUser(email).id == author.id
 
     private fun getUser(email: String) =
-        userRepository
-            .findByEmailAndActive(email, true)
-            .orElseThrow { UserNotFoundByEmailException(email) }
+        userRepository.findByEmail(email).orElseThrow { UserNotFoundByEmailException(email) }
 }

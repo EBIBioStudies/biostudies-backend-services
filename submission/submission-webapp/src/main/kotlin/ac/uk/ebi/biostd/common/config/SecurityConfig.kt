@@ -57,6 +57,7 @@ class SecurityConfig(
 
 @Configuration
 @Import(PersistenceConfig::class)
+@Suppress("TooManyFunctions")
 class SecurityBeansConfig(private val objectMapper: ObjectMapper, properties: ApplicationProperties) {
     private val securityProps = properties.security
 
@@ -85,9 +86,8 @@ class SecurityBeansConfig(private val objectMapper: ObjectMapper, properties: Ap
     fun groupService(securityConfig: SecurityModuleConfig): IGroupService = securityConfig.groupService()
 
     @Bean
-    fun userPrivilegesService(
-        securityConfig: SecurityModuleConfig
-    ): IUserPrivilegesService = securityConfig.userPrivilegesService()
+    fun userPrivilegesService(securityConfig: SecurityModuleConfig): IUserPrivilegesService =
+        securityConfig.userPrivilegesService()
 
     @Bean
     fun securityFilter(securityConfig: SecurityModuleConfig): ISecurityFilter = securityConfig.securityFilter()

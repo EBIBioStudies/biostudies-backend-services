@@ -68,6 +68,7 @@ interface UserDataRepository : JpaRepository<User, Long> {
     fun existsByEmail(email: String): Boolean
     fun findByActivationKeyAndActive(key: String, active: Boolean): Optional<User>
     fun findByEmailAndActive(email: String, active: Boolean): Optional<User>
+    fun findByEmail(email: String): Optional<User>
 }
 
 interface TokenDataRepository : JpaRepository<SecurityToken, String>

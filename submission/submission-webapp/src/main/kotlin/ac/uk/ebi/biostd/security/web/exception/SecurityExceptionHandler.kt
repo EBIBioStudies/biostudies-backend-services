@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.security.web.exception
 
 import ac.uk.ebi.biostd.security.web.dto.SecurityError
 import ebi.ac.uk.security.integration.exception.ActKeyNotFoundException
+import ebi.ac.uk.security.integration.exception.InvalidSseConfiguration
 import ebi.ac.uk.security.integration.exception.LoginException
 import ebi.ac.uk.security.integration.exception.SecurityException
 import ebi.ac.uk.security.integration.exception.UnauthorizedOperation
@@ -33,6 +34,7 @@ class SecurityExceptionHandler {
             is UserWithActivationKeyNotFoundException,
             is UserAlreadyRegister -> badRequest(SecurityError(exception.message))
             is UnauthorizedOperation -> unauthorized(SecurityError(exception.message))
+            is InvalidSseConfiguration -> badRequest(SecurityError(exception.message))
         }
     }
 

@@ -26,3 +26,5 @@ class UserAlreadyRegister(email: String) :
     SecurityException("There is already a user registered with the email address '$email'.")
 
 class UnauthorizedOperation(message: String) : SecurityException(message)
+
+class InvalidSseConfiguration(message: String) : SecurityException(message)

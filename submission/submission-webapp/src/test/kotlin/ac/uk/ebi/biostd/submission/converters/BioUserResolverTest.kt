@@ -1,5 +1,7 @@
 package ac.uk.ebi.biostd.submission.converters
 
+import ebi.ac.uk.api.REGISTER_PARAM
+import ebi.ac.uk.api.USER_NAME_PARAM
 import ebi.ac.uk.security.integration.components.ISecurityService
 import ebi.ac.uk.security.integration.exception.UnauthorizedOperation
 import ebi.ac.uk.security.integration.model.api.SecurityUser
@@ -65,6 +67,12 @@ internal class BioUserResolverTest(
         lateinit var onBehalfUser: SecurityUser
 
         private val onBehalfUserEmail = "user@email.com"
+        private val userName = "john Doe"
+
+        @Test
+        fun `bio user resolver`() {
+            every { request.getParameter("sse") } returns null
+        }
 
         @Test
         fun `resolve argument`() {
@@ -84,6 +92,18 @@ internal class BioUserResolverTest(
             every { request.getParameter("onBehalf") } returns onBehalfUserEmail
 
             assertThrows<UnauthorizedOperation> { testInstance.resolveArgument(parameter, container, request, factory) }
+        }
+
+        @Test
+        fun `resolve argument when automated user registration`() {
+            every { request.getParameter(REGISTER_PARAM) } returns "true"
+            every { request.getParameter(USER_NAME_PARAM) } returns userName
+            every { securityUser.superuser } returns true
+
+            every { securityService.getOrCreateInactive(onBehalfUserEmail, userName) } returns onBehalfUser
+
+            val user = testInstance.resolveArgument(parameter, container, request, factory)
+            assertThat(user).isEqualTo(onBehalfUser)
         }
     }
 }

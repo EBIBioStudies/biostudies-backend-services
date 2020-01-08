@@ -1,6 +1,11 @@
 package ac.uk.ebi.biostd.submission.converters
 
+import ebi.ac.uk.api.ON_BEHALF_PARAM
+import ebi.ac.uk.api.REGISTER_PARAM
+import ebi.ac.uk.api.USER_NAME_PARAM
+import ebi.ac.uk.base.orFalse
 import ebi.ac.uk.security.integration.components.ISecurityService
+import ebi.ac.uk.security.integration.exception.InvalidSseConfiguration
 import ebi.ac.uk.security.integration.exception.UnauthorizedOperation
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import org.springframework.core.MethodParameter
@@ -25,11 +30,23 @@ class BioUserResolver(
         request: NativeWebRequest,
         factory: WebDataBinderFactory?
     ): Any? {
+
         val user = principalResolver.resolveArgument(parameter, container, request, factory) as SecurityUser
-        return when (val onBehalf = request.getParameter("onBehalf")) {
-            is String -> getUser(user, onBehalf)
+        val onBehalf = request.getParameter(ON_BEHALF_PARAM)
+        val registerUser = request.getParameter(REGISTER_PARAM)?.toBoolean().orFalse()
+
+        return when {
+            registerUser -> getOrCreate(user, onBehalf, request.getParameter(USER_NAME_PARAM))
+            onBehalf is String -> getUser(user, onBehalf)
             else -> user
         }
+    }
+
+    private fun getOrCreate(securityUser: SecurityUser, onBehalf: String?, name: String?): SecurityUser {
+        if (securityUser.superuser.not()) throw UnauthorizedOperation("User need to be admin to use onBehalf option")
+        if (onBehalf.isNullOrBlank()) throw InvalidSseConfiguration("'onBehalf'should contain email in register mode")
+        if (name.isNullOrBlank()) throw InvalidSseConfiguration("'username' should contain user in register mode")
+        return securityService.getOrCreateInactive(onBehalf, name)
     }
 
     private fun getUser(securityUser: SecurityUser, onBehalf: String): SecurityUser {

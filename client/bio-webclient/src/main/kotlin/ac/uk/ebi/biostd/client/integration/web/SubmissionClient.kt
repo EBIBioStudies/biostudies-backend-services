@@ -3,6 +3,8 @@ package ac.uk.ebi.biostd.client.integration.web
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.JSON
 import ebi.ac.uk.api.UserFile
+import ebi.ac.uk.api.dto.NonRegistration
+import ebi.ac.uk.api.dto.RegisterConfig
 import ebi.ac.uk.api.dto.SubmissionDto
 import ebi.ac.uk.api.security.LoginRequest
 import ebi.ac.uk.api.security.RegisterRequest
@@ -49,9 +51,17 @@ interface GroupFilesOperations {
 }
 
 interface SubmissionOperations {
-    fun submitSingle(submission: Submission, format: SubmissionFormat = JSON): ResponseEntity<Submission>
+    fun submitSingle(
+        submission: Submission,
+        format: SubmissionFormat = JSON,
+        register: RegisterConfig = NonRegistration
+    ): ResponseEntity<Submission>
 
-    fun submitSingle(submission: String, format: SubmissionFormat = JSON): ResponseEntity<Submission>
+    fun submitSingle(
+        submission: String,
+        format: SubmissionFormat = JSON,
+        register: RegisterConfig = NonRegistration
+    ): ResponseEntity<Submission>
 
     fun deleteSubmission(accNo: String)
 

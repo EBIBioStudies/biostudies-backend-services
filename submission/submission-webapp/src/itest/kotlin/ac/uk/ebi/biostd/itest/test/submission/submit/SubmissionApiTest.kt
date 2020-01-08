@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.itest.test.submission.submit
 
 import ac.uk.ebi.biostd.client.exception.WebClientException
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
+import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
@@ -16,6 +17,7 @@ import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.TagDataRepository
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
+import ebi.ac.uk.api.dto.UserRegistration
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.file
 import ebi.ac.uk.dsl.line
@@ -81,7 +83,7 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
                 title = "Simple Submission"
             }
 
-            assertThat(webClient.submitSingle(submission, SubmissionFormat.TSV)).isSuccessful()
+            assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
             assertThat(submissionRepository.getByAccNo("SimpleAcc1")).isEqualTo(submission("SimpleAcc1") {
                 title = "Simple Submission"
                 releaseDate = LocalDate.now().toString()
@@ -95,7 +97,7 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
                 line("Title", "Empty AccNo")
             }.toString()
 
-            assertThat(webClient.submitSingle(submission, SubmissionFormat.TSV)).isSuccessful()
+            assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
             assertThat(submissionRepository.getByAccNo("S-BSST0")).isEqualTo(
                 submission("S-BSST0") {
                     title = "Empty AccNo"
@@ -121,7 +123,7 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
             }.toString()
 
             assertThat(webClient.submitProject(tempFolder.createFile("project.tsv", project))).isSuccessful()
-            assertThat(webClient.submitSingle(submission, SubmissionFormat.TSV)).isSuccessful()
+            assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
             assertThat(submissionRepository.getByAccNo("S-APR0")).isEqualTo(
                 submission("S-APR0") {
                     attachTo = "A-Project"
@@ -150,7 +152,7 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
             tempFolder.createDirectory("RootPathFolder")
             webClient.uploadFiles(listOf(tempFolder.createFile("RootPathFolder/DataFile5.txt")), "RootPathFolder")
 
-            assertThat(webClient.submitSingle(submission, SubmissionFormat.TSV)).isSuccessful()
+            assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
             assertThat(submissionRepository.getByAccNo("S-12364")).isEqualTo(
                 submission("S-12364") {
                     title = "Sample Submission"
@@ -162,7 +164,7 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
         }
 
         @Test
-        fun `submission with on behalf regular user`() {
+        fun `submission with on behalf another user`() {
             createUser(RegularUser, serverPort)
 
             val submission = tsv {
@@ -174,7 +176,7 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
                 .create("http://localhost:$serverPort")
                 .getAuthenticatedClient(SuperUser.email, SuperUser.password, RegularUser.email)
 
-            val response = onBehalfClient.submitSingle(submission, SubmissionFormat.TSV)
+            val response = onBehalfClient.submitSingle(submission, TSV)
             assertThat(response).isSuccessful()
 
             val accNo = response.body.accNo
@@ -184,6 +186,21 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
                     releaseDate = LocalDate.now().toString()
                 }
             )
+        }
+
+        @Test
+        fun `submission with on behalf new user`() {
+            val username = "Jhon doe"
+            val email = "jhon@doe.email.com"
+
+            val submission = tsv {
+                line("Submission")
+                line("Title", "Submission Title")
+            }.toString()
+
+            val response = webClient.submitSingle(submission, TSV, UserRegistration(username, email))
+            val saved = submissionRepository.getExtendedByAccNo(response.body.accNo)
+            assertThat(saved.user.email).isEqualTo(email)
         }
 
         @Test
@@ -197,7 +214,7 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
                 line()
             }.toString()
 
-            assertThat(webClient.submitSingle(submission, SubmissionFormat.TSV)).isSuccessful()
+            assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
             assertThat(submissionRepository.getByAccNo("E-MTAB123")).isEqualTo(
                 submission("E-MTAB123") {
                     title = "Generic Submission"
@@ -218,7 +235,7 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
                 line()
             }.toString()
 
-            assertThat(webClient.submitSingle(submission, SubmissionFormat.TSV)).isSuccessful()
+            assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
             assertThat(submissionRepository.getByAccNo("S-TEST123")).isEqualTo(
                 submission("S-TEST123") {
                     title = "Submission With Tags"
@@ -253,7 +270,7 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
             webClient.uploadGroupFiles(groupName, listOf(tempFolder.createFile("GroupFile1.txt")))
             webClient.uploadGroupFiles(groupName, listOf(tempFolder.createFile("GroupFile2.txt")), "folder")
 
-            assertThat(webClient.submitSingle(submission, SubmissionFormat.TSV)).isSuccessful()
+            assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
             assertThat(submissionRepository.getByAccNo("S-54896")).isEqualTo(
                 submission("S-54896") {
                     title = "Sample Submission"
@@ -274,13 +291,13 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
                 line()
             }.toString()
 
-            assertThat(webClient.submitSingle(submission, SubmissionFormat.TSV)).isSuccessful()
+            assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
 
             val original = submissionRepository.getExtendedByAccNo("S-ABC123")
             assertThat(original.title).isEqualTo("Simple Submission")
             assertThat(original.version).isEqualTo(1)
 
-            assertThat(webClient.submitSingle(submission, SubmissionFormat.TSV)).isSuccessful()
+            assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
             val resubmitted = submissionRepository.getExtendedByAccNo("S-ABC123")
             assertThat(resubmitted.title).isEqualTo("Simple Submission")
             assertThat(resubmitted.version).isEqualTo(2)
@@ -295,7 +312,7 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
                 line()
             }.toString()
 
-            assertThat(webClient.submitSingle(submission, SubmissionFormat.TSV)).isSuccessful()
+            assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
 
             val savedSubmission = submissionRepository.getExtendedByAccNo("S-RLSD123")
             assertThat(savedSubmission.accNo).isEqualTo("S-RLSD123")
@@ -308,7 +325,7 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
         @Test
         fun `submit with invalid link Url`() {
             val exception = assertThrows(WebClientException::class.java) {
-                webClient.submitSingle(invalidLinkUrl().toString(), SubmissionFormat.TSV)
+                webClient.submitSingle(invalidLinkUrl().toString(), TSV)
             }
 
             assertThat(exception.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
