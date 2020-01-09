@@ -38,10 +38,9 @@ class BioStudiesCommandLine : CliktCommand(name = "PTSubmit") {
         }
     }
 
-    internal fun getClient(host: String, user: String, password: String, onBehalf: String?) = when {
-        onBehalf.isNullOrBlank() -> SecurityWebClient.create(host).getAuthenticatedClient(user, password)
-        else -> SecurityWebClient.create(host).getAuthenticatedClient(user, password, onBehalf)
-    }
+    internal fun getClient(host: String, user: String, password: String, onBehalf: String?) =
+        if (onBehalf.isNullOrBlank()) SecurityWebClient.create(host).getAuthenticatedClient(user, password)
+        else SecurityWebClient.create(host).getAuthenticatedClient(user, password, onBehalf)
 
     private fun addFiles(files: MutableList<File>, path: String) {
         val file = File(path)

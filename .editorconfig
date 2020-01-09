@@ -2,3 +2,4 @@
 indent_size=4
 insert_final_newline=true
 continuation_indent_size=4
+disabled_rules=import-ordering

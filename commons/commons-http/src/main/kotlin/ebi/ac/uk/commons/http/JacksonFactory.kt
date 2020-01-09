@@ -6,18 +6,14 @@ import com.fasterxml.jackson.module.kotlin.KotlinModule
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter
 import org.springframework.web.client.RestTemplate
 
-class JacksonFactory {
-
-    companion object {
-
-        fun createMapper(): ObjectMapper = ObjectMapper().apply {
-            configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-            registerModule(KotlinModule())
-        }
-
-        fun jsonRestTemplate(): RestTemplate =
-            RestTemplate().apply {
-                messageConverters = listOf(MappingJackson2HttpMessageConverter())
-            }
+object JacksonFactory {
+    fun createMapper(): ObjectMapper = ObjectMapper().apply {
+        configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+        registerModule(KotlinModule())
     }
+
+    fun jsonRestTemplate(): RestTemplate =
+        RestTemplate().apply {
+            messageConverters = listOf(MappingJackson2HttpMessageConverter())
+        }
 }

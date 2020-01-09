@@ -36,6 +36,7 @@ fun <T> XMLStreamReader.map(name: String, function: XMLStreamReader.() -> T): Li
  * @param name The name of the XML element
  * @param function The function to be applied to each element
  */
+@Suppress("LoopWithTooManyJumpStatements")
 fun XMLStreamReader.forEach(name: String, function: XMLStreamReader.() -> Unit) {
     require(eventType == XMLStreamConstants.START_ELEMENT && localName == name) { "Expected start object $name" }
 

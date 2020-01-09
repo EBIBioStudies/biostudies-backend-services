@@ -10,14 +10,12 @@ class SubmissionFilterSpecification(userId: Long, filter: SubmissionFilter) {
     val specification: Specification<Submission>
 
     init {
-        var specs = Specification.where(withUser(userId)).and(withVersionGreaterThan(0))
-
-        filter.accNo?.let { specs = specs.and(withAccession(it)) }
-        filter.keywords?.applyIfNotBlank { specs = specs.and(withTitleLike(it)) }
-        filter.rTimeTo?.let { specs = specs.and(withTo(OffsetDateTime.parse(it))) }
-        filter.rTimeFrom?.let { specs = specs.and(withFrom(OffsetDateTime.parse(it))) }
-
-        specification = specs
+        var specs = Specification.where(withUser(userId))?.and(withVersionGreaterThan(0))
+        filter.accNo?.let { specs = specs?.and(withAccession(it)) }
+        filter.keywords?.applyIfNotBlank { specs = specs?.and(withTitleLike(it)) }
+        filter.rTimeTo?.let { specs = specs?.and(withTo(OffsetDateTime.parse(it))) }
+        filter.rTimeFrom?.let { specs = specs?.and(withFrom(OffsetDateTime.parse(it))) }
+        specification = specs!!
     }
 
     // TODO: Replace string property names by constants
