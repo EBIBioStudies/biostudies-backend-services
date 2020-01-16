@@ -111,7 +111,7 @@ class Submission(
     @Convert(converter = ProcessingStatusConverter::class)
     var status: ProcessingStatus = PROCESSING
 
-    @OneToOne(optional = false, cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
+    @OneToOne(cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
     @JoinColumn(name = "rootSection_id")
     lateinit var rootSection: SectionDb
 
