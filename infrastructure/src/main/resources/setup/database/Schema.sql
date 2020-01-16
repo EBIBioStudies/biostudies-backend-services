@@ -169,6 +169,7 @@ CREATE TABLE Submission (
 CREATE INDEX Submission_Root_Section_IDX ON Submission (rootSection_id);
 CREATE INDEX Submission_Owner_IDX ON Submission (owner_id);
 CREATE INDEX Submission_Status_IDX ON Submission (status);
+CREATE INDEX version_idx ON Submission (version);
 CREATE INDEX released_idx ON Submission (released);
 CREATE INDEX rtime_idx ON Submission (RTime);
 

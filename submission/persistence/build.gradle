@@ -1,5 +1,4 @@
-import static Dependencies.HibernateEntityManager
-import static Dependencies.SpringDataJpa
+import static Dependencies.*
 import static TestDependencies.BaseTestCompileDependencies
 import static TestDependencies.BaseTestRuntimeDependencies
 
@@ -16,6 +15,7 @@ dependencies {
 
     compile(HibernateEntityManager)
     compile(SpringDataJpa)
+    compile(JpaEntityGraph)
 
     testCompile(BaseTestCompileDependencies)
     testRuntime(BaseTestRuntimeDependencies)

@@ -1,15 +1,14 @@
 package ac.uk.ebi.biostd.submission.web.resources
 
 import ac.uk.ebi.biostd.persistence.filter.SubmissionFilter
+import ac.uk.ebi.biostd.persistence.projections.SimpleSubmission
 import ac.uk.ebi.biostd.submission.converters.BioUser
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionService
 import ac.uk.ebi.biostd.submission.web.handlers.SubmissionWebHandler
 import ebi.ac.uk.api.dto.SubmissionDto
-import ebi.ac.uk.model.ExtendedSubmission
 import ebi.ac.uk.model.constants.APPLICATION_JSON
 import ebi.ac.uk.model.constants.TEXT_PLAIN
 import ebi.ac.uk.model.constants.TEXT_XML
-import ebi.ac.uk.model.extensions.title
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.GetMapping
@@ -42,6 +41,6 @@ class SubmissionResource(
         @BioUser user: SecurityUser
     ): List<SubmissionDto> = submissionWebHandler.getSubmissions(user, filter).map { it.asDto() }
 
-    private fun ExtendedSubmission.asDto() =
+    private fun SimpleSubmission.asDto() =
         SubmissionDto(accNo, title.orEmpty(), version, creationTime, modificationTime, releaseTime)
 }

@@ -15,6 +15,7 @@ import Versions.H2Version
 import Versions.HibernateEMVersion
 import Versions.JSONOrgVersion
 import Versions.JacksonVersion
+import Versions.JpaEntityGraphVersion
 import Versions.JschVersion
 import Versions.JwtVersion
 import Versions.KMongoCoroutineVersion
@@ -60,6 +61,7 @@ object Versions {
     const val KotlinArrowVersion = "0.8.2"
     const val KotlinCoroutineVersion = "1.3.1"
     const val KMongoCoroutineVersion = "3.11.0"
+    const val JpaEntityGraphVersion = "2.2.3"
 
     const val CommonsLang3Version = "3.8.1"
     const val CommonsIOVersion = "2.6"
@@ -129,6 +131,7 @@ object Dependencies {
     const val HibernateEntityManager = "org.hibernate:hibernate-entitymanager:$HibernateEMVersion"
     const val MySql = "mysql:mysql-connector-java:$MySqlVersion"
     const val KMongoCoroutine = "org.litote.kmongo:kmongo-coroutine:$KMongoCoroutineVersion"
+    const val JpaEntityGraph = "com.cosium.spring.data:spring-data-jpa-entity-graph:$JpaEntityGraphVersion"
 
     // Misc
     const val ServletApi = "javax.servlet:javax.servlet-api:$ServletVersion"
