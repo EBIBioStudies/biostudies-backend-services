@@ -9,8 +9,9 @@ import ac.uk.ebi.biostd.persistence.repositories.LockExecutor
 import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.SubmissionDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.TagDataRepository
-import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataDataRepository
+import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
+import ac.uk.ebi.biostd.persistence.service.ProjectRepository
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
 import com.cosium.spring.data.jpa.entity.graph.repository.support.EntityGraphJpaRepositoryFactoryBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
@@ -34,6 +35,9 @@ class PersistenceConfig(
 ) {
     @Bean
     fun submissionRepository() = SubmissionRepository(submissionDataRepository, submissionDbMapper())
+
+    @Bean
+    fun projectRepository() = ProjectRepository(submissionDataRepository)
 
     @Bean
     fun submissionDbMapper() = SubmissionDbMapper()

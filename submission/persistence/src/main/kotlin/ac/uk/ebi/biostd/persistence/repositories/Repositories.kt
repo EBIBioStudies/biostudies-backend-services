@@ -23,9 +23,11 @@ import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
 import java.util.Optional
 import javax.persistence.LockModeType
+import com.cosium.spring.data.jpa.entity.graph.domain.EntityGraph as GraphSpecification
 
 interface SubmissionDataRepository :
     EntityGraphJpaRepository<Submission, Long>, EntityGraphJpaSpecificationExecutor<Submission> {
+
     @EntityGraph(value = FULL_DATA_GRAPH, type = LOAD)
     fun getByAccNoAndVersionGreaterThan(id: String, long: Int = 0): Submission
 
@@ -43,9 +45,7 @@ interface SubmissionDataRepository :
 
     fun existsByAccNo(accNo: String): Boolean
 
-    @Query("Select sub From Submission sub, Section se Where " +
-        "sub.version > 0 and sub.rootSection = se and se.type = :type and sub.accNo in (:accessTags) ")
-    fun findByTypeAndAccNo(type: String, accessTags: List<String>): List<Submission>
+    fun findByRootSectionTypeAndAccNoIn(type: String, tags: List<String>, graph: GraphSpecification): List<Submission>
 }
 
 interface AccessTagDataRepository : JpaRepository<AccessTag, Long> {

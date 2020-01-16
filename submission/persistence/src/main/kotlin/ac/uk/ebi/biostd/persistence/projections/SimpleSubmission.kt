@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.persistence.projections
 
-import ac.uk.ebi.biostd.persistence.model.SIMPLE_GRAPH
+import ac.uk.ebi.biostd.persistence.model.SIMPLE_QUERY_GRAPH
 import ebi.ac.uk.functions.secondsToInstant
 import ebi.ac.uk.model.constants.ProcessingStatus
 import java.time.OffsetDateTime
@@ -25,7 +25,7 @@ data class SimpleSubmission(
 
     companion object {
 
-        const val GRAPH_NAME: String = SIMPLE_GRAPH
+        const val SIMPLE_GRAPH: String = SIMPLE_QUERY_GRAPH
         fun SubmissionDb.asSimpleSubmission(): SimpleSubmission {
             return SimpleSubmission(
                 accNo = accNo,
