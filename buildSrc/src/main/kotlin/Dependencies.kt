@@ -51,15 +51,15 @@ object TestVersions {
 }
 
 object Versions {
-    const val SpringBootVersion = "2.1.8.RELEASE"
-    const val SpringVersion = "5.1.6.RELEASE"
-    const val SpringDataVersion = "2.1.10.RELEASE"
+    const val SpringBootVersion = "2.2.2.RELEASE"
+    const val SpringDataVersion = "2.2.3.RELEASE"
+    const val SpringVersion = "5.2.1.RELEASE"
     const val SpringAdminVersion = "2.1.6"
 
-    const val KotlinVersion = "1.3.50"
+    const val KotlinVersion = "1.3.61"
     const val KotlinLoggingVersion = "1.6.20"
     const val KotlinArrowVersion = "0.8.2"
-    const val KotlinCoroutineVersion = "1.3.1"
+    const val KotlinCoroutineVersion = "1.3.3"
     const val KMongoCoroutineVersion = "3.11.0"
     const val JpaEntityGraphVersion = "2.2.3"
 

@@ -10,8 +10,8 @@ import ebi.ac.uk.api.security.RegisterRequest
 import ebi.ac.uk.api.security.ResetPasswordRequest
 import ebi.ac.uk.api.security.RetryActivationRequest
 import ebi.ac.uk.security.events.Events
-import ebi.ac.uk.security.events.Events.Companion.userPreRegister
-import ebi.ac.uk.security.events.Events.Companion.userRegister
+import ebi.ac.uk.security.events.Events.userPreRegister
+import ebi.ac.uk.security.events.Events.userRegister
 import ebi.ac.uk.security.integration.SecurityProperties
 import ebi.ac.uk.security.integration.components.ISecurityService
 import ebi.ac.uk.security.integration.exception.LoginException

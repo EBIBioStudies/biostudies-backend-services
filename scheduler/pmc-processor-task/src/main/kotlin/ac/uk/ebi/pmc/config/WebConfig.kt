@@ -2,13 +2,13 @@ package ac.uk.ebi.pmc.config
 
 import ac.uk.ebi.pmc.client.PmcApi
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
+import java.util.concurrent.TimeUnit
 import okhttp3.Interceptor
 import okhttp3.Interceptor.Chain
 import okhttp3.OkHttpClient
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import retrofit2.Retrofit
-import java.util.concurrent.TimeUnit
 
 private val SERVERS = listOf(
     "ves-pg-a6.ebi.ac.uk",
@@ -53,6 +53,7 @@ class WebConfig {
         }
     }
 
+    @Suppress("IteratorNotThrowingNoSuchElementException")
     private class RoundRobinIterable(private val source: List<String>) : Iterable<String> {
         override fun iterator(): Iterator<String> {
             return object : Iterator<String> {

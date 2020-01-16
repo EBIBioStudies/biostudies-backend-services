@@ -1,12 +1,16 @@
 plugins {
-    id("io.gitlab.arturbosch.detekt") version "1.0.1"
-    id("org.jetbrains.kotlin.jvm") version "1.3.50"
-    id("org.jlleitschuh.gradle.ktlint") version "8.2.0"
+    id("io.gitlab.arturbosch.detekt") version "1.3.1"
+    id("org.jetbrains.kotlin.jvm") version "1.3.61"
+    id("org.jlleitschuh.gradle.ktlint") version "9.1.1"
     id("org.hidetake.ssh") version "2.10.1"
     id("jacoco")
 }
 
 apply(from = "deploy.gradle")
+
+dependencies {
+    detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.3.1")
+}
 
 allprojects {
     repositories {
@@ -19,15 +23,16 @@ allprojects {
     apply(plugin = "org.jetbrains.kotlin.jvm")
     apply(plugin = "io.gitlab.arturbosch.detekt")
     apply(plugin = "org.jlleitschuh.gradle.ktlint")
-
     apply(from = "$rootDir/gradle/jacoco.gradle.kts")
 
     tasks {
         detekt {
-            version = "1.0.1"
+            failFast = true
+            autoCorrect = true
+            buildUponDefaultConfig = true
+            version = "1.3.1"
             config = files("$rootDir/detekt-config.yml")
             input = files("src/main/kotlin")
-            filters = ".*/resources/.*,.*/build/.*"
             reports {
                 html {
                     enabled = true
