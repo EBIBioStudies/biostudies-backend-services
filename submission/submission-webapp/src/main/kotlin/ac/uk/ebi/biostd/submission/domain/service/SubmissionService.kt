@@ -5,6 +5,7 @@ import ac.uk.ebi.biostd.integration.SubFormat.JsonFormat.JsonPretty
 import ac.uk.ebi.biostd.integration.SubFormat.TsvFormat.Tsv
 import ac.uk.ebi.biostd.integration.SubFormat.XmlFormat
 import ac.uk.ebi.biostd.persistence.filter.SubmissionFilter
+import ac.uk.ebi.biostd.persistence.projections.SimpleSubmission
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
 import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
 import ebi.ac.uk.io.sources.FilesSource
@@ -36,7 +37,7 @@ class SubmissionService(
         return serializationService.serializeSubmission(submission, Tsv)
     }
 
-    fun getSubmissions(user: SecurityUser, filter: SubmissionFilter) =
+    fun getSubmissions(user: SecurityUser, filter: SubmissionFilter): List<SimpleSubmission> =
         submissionRepository.getSubmissionsByUser(user.id, filter)
 
     fun deleteSubmission(accNo: String, user: SecurityUser) {

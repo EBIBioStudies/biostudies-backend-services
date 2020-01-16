@@ -8,6 +8,7 @@ import javax.persistence.CascadeType
 import javax.persistence.Column
 import javax.persistence.Convert
 import javax.persistence.Entity
+import javax.persistence.FetchType
 import javax.persistence.GeneratedValue
 import javax.persistence.Id
 import javax.persistence.JoinColumn
@@ -16,6 +17,7 @@ import javax.persistence.ManyToMany
 import javax.persistence.ManyToOne
 import javax.persistence.NamedAttributeNode
 import javax.persistence.NamedEntityGraph
+import javax.persistence.NamedEntityGraphs
 import javax.persistence.NamedSubgraph
 import javax.persistence.OneToMany
 import javax.persistence.OneToOne
@@ -24,6 +26,8 @@ import javax.persistence.Table
 import ac.uk.ebi.biostd.persistence.model.Section as SectionDb
 
 internal const val FULL_DATA_GRAPH = "Submission.fullData"
+internal const val SIMPLE_GRAPH = "Submission.simpleGraph"
+
 internal const val ATTRS = "attributes"
 internal const val FILES = "files"
 internal const val LINKS = "links"
@@ -33,30 +37,38 @@ typealias Node = NamedAttributeNode
 typealias Graph = NamedSubgraph
 
 @Entity
-@NamedEntityGraph(name = FULL_DATA_GRAPH,
-    attributeNodes = [
-        Node(value = "rootSection", subgraph = "root"), Node("accessTags"), Node("tags"), Node(ATTRS), Node("owner") ],
-    subgraphs = [
-        Graph(name = "root", attributeNodes = [
-            Node(LINKS, subgraph = "attrs"),
+@NamedEntityGraphs(value = [
+    NamedEntityGraph(name = FULL_DATA_GRAPH,
+        attributeNodes = [
+            Node(value = "rootSection", subgraph = "root"),
+            Node("accessTags"),
+            Node("tags"),
             Node(ATTRS),
-            Node(FILES, subgraph = "attrs"),
-            Node(SECTS, subgraph = "l1")]),
-        Graph(name = "l1", attributeNodes = [
-            Node(LINKS, subgraph = "attrs"),
-            Node(ATTRS), Node(FILES, subgraph = "attrs"),
-            Node(SECTS, subgraph = "l2")]),
-        Graph(name = "l2", attributeNodes = [
-            Node(LINKS, subgraph = "attrs"),
-            Node(ATTRS),
-            Node(FILES, subgraph = "attrs"),
-            Node(SECTS, subgraph = "l3")]),
-        Graph(name = "l3", attributeNodes = [
-            Node(LINKS, subgraph = "attrs"),
-            Node(ATTRS),
-            Node(FILES, subgraph = "attrs")]),
-        Graph(name = "attrs", attributeNodes = [Node(ATTRS)])
-    ])
+            Node("owner")
+        ],
+        subgraphs = [
+            Graph(name = "root", attributeNodes = [
+                Node(LINKS, subgraph = "attrs"),
+                Node(ATTRS),
+                Node(FILES, subgraph = "attrs"),
+                Node(SECTS, subgraph = "l1")]),
+            Graph(name = "l1", attributeNodes = [
+                Node(LINKS, subgraph = "attrs"),
+                Node(ATTRS), Node(FILES, subgraph = "attrs"),
+                Node(SECTS, subgraph = "l2")]),
+            Graph(name = "l2", attributeNodes = [
+                Node(LINKS, subgraph = "attrs"),
+                Node(ATTRS),
+                Node(FILES, subgraph = "attrs"),
+                Node(SECTS, subgraph = "l3")]),
+            Graph(name = "l3", attributeNodes = [
+                Node(LINKS, subgraph = "attrs"),
+                Node(ATTRS),
+                Node(FILES, subgraph = "attrs")]),
+            Graph(name = "attrs", attributeNodes = [Node(ATTRS)])
+        ]),
+    NamedEntityGraph(name = SIMPLE_GRAPH, attributeNodes = [Node(value = "rootSection")])
+])
 @Table(name = "Submission")
 class Submission(
 
@@ -99,7 +111,7 @@ class Submission(
     @Convert(converter = ProcessingStatusConverter::class)
     var status: ProcessingStatus = PROCESSING
 
-    @OneToOne(cascade = [CascadeType.ALL])
+    @OneToOne(optional = false, cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
     @JoinColumn(name = "rootSection_id")
     lateinit var rootSection: SectionDb
 

@@ -9,7 +9,7 @@ import javax.persistence.CascadeType
 import javax.persistence.Column
 import javax.persistence.Convert
 import javax.persistence.Entity
-import javax.persistence.FetchType
+import javax.persistence.FetchType.LAZY
 import javax.persistence.GeneratedValue
 import javax.persistence.Id
 import javax.persistence.JoinColumn
@@ -40,11 +40,11 @@ class Section(
     @Convert(converter = NullableIntConverter::class)
     override var order: Int = 0
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "submission_id")
     var submission: Submission? = null
 
-    @OneToOne(cascade = [CascadeType.ALL])
+    @OneToOne(cascade = [CascadeType.ALL], fetch = LAZY)
     @JoinColumn(name = "fileListId")
     var fileList: ReferencedFileList? = null
 

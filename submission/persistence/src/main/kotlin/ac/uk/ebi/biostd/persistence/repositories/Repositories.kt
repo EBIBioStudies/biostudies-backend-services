@@ -12,18 +12,20 @@ import ac.uk.ebi.biostd.persistence.model.User
 import ac.uk.ebi.biostd.persistence.model.UserData
 import ac.uk.ebi.biostd.persistence.model.UserDataId
 import ac.uk.ebi.biostd.persistence.model.UserGroup
+import com.cosium.spring.data.jpa.entity.graph.repository.EntityGraphJpaRepository
+import com.cosium.spring.data.jpa.entity.graph.repository.EntityGraphJpaSpecificationExecutor
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.EntityGraph
 import org.springframework.data.jpa.repository.EntityGraph.EntityGraphType.LOAD
 import org.springframework.data.jpa.repository.JpaRepository
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor
 import org.springframework.data.jpa.repository.Lock
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
 import java.util.Optional
 import javax.persistence.LockModeType
 
-interface SubmissionDataRepository : JpaRepository<Submission, Long>, JpaSpecificationExecutor<Submission> {
+interface SubmissionDataRepository :
+    EntityGraphJpaRepository<Submission, Long>, EntityGraphJpaSpecificationExecutor<Submission> {
     @EntityGraph(value = FULL_DATA_GRAPH, type = LOAD)
     fun getByAccNoAndVersionGreaterThan(id: String, long: Int = 0): Submission
 
@@ -42,7 +44,7 @@ interface SubmissionDataRepository : JpaRepository<Submission, Long>, JpaSpecifi
     fun existsByAccNo(accNo: String): Boolean
 
     @Query("Select sub From Submission sub, Section se Where " +
-        "sub.version > 0 and sub.rootSection = se and se.type = :type and sub.accNo in (:accessTags)")
+        "sub.version > 0 and sub.rootSection = se and se.type = :type and sub.accNo in (:accessTags) ")
     fun findByTypeAndAccNo(type: String, accessTags: List<String>): List<Submission>
 }
 

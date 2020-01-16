@@ -3,9 +3,9 @@ package ac.uk.ebi.biostd.submission.web.handlers
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat
 import ac.uk.ebi.biostd.persistence.filter.SubmissionFilter
+import ac.uk.ebi.biostd.persistence.projections.SimpleSubmission
 import ac.uk.ebi.biostd.submission.domain.helpers.SourceGenerator
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionService
-import ebi.ac.uk.model.ExtendedSubmission
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.extensions.rootPath
 import ebi.ac.uk.security.integration.model.api.SecurityUser
@@ -36,7 +36,7 @@ class SubmissionWebHandler(
 
     fun deleteSubmission(accNo: String, user: SecurityUser): Unit = submissionService.deleteSubmission(accNo, user)
 
-    fun getSubmissions(user: SecurityUser, filter: SubmissionFilter): List<ExtendedSubmission> =
+    fun getSubmissions(user: SecurityUser, filter: SubmissionFilter): List<SimpleSubmission> =
         submissionService.getSubmissions(user, filter)
 
     private fun rootPath(subFile: File) =

@@ -12,6 +12,7 @@ import ac.uk.ebi.biostd.persistence.repositories.TagDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataDataRepository
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
+import com.cosium.spring.data.jpa.entity.graph.repository.support.EntityGraphJpaRepositoryFactoryBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -19,7 +20,9 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 
 @Configuration
-@EnableJpaRepositories(basePackageClasses = [SubmissionDataRepository::class])
+@EnableJpaRepositories(
+    basePackageClasses = [SubmissionDataRepository::class],
+    repositoryFactoryBeanClass = EntityGraphJpaRepositoryFactoryBean::class)
 class PersistenceConfig(
     private val submissionDataRepository: SubmissionDataRepository,
     private val sequenceRepository: SequenceDataRepository,
@@ -52,5 +55,5 @@ class PersistenceConfig(
             submissionDbMapper(),
             submissionMapper(),
             userDataRepository
-            )
+        )
 }
