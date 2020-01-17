@@ -17,7 +17,6 @@ import org.springframework.web.util.UriComponentsBuilder
 import java.security.MessageDigest
 import java.time.Clock
 import java.time.OffsetDateTime
-import java.util.Arrays
 import java.util.UUID
 
 internal const val DEV_KEY = "975dd2ca-58eb-407b-ba0f-858f15f7304d"
@@ -57,7 +56,7 @@ internal class SecurityUtil(
     fun checkPassword(passwordDigest: ByteArray, password: String): Boolean {
         val tokenUser = fromToken(password)
         val isValidSuperUser = tokenUser.fold({ false }, { it.superuser })
-        val isValidRegularUser = Arrays.equals(this.getPasswordDigest(password), passwordDigest)
+        val isValidRegularUser = getPasswordDigest(password).contentEquals(passwordDigest)
         return isValidSuperUser || isValidRegularUser
     }
 

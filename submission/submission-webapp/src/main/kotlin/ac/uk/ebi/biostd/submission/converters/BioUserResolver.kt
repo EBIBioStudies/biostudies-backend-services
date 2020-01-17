@@ -42,6 +42,7 @@ class BioUserResolver(
         }
     }
 
+    @Suppress("ThrowsCount")
     private fun getOrCreate(securityUser: SecurityUser, onBehalf: String?, name: String?): SecurityUser {
         if (securityUser.superuser.not()) throw UnauthorizedOperation("User need to be admin to use onBehalf option")
         if (onBehalf.isNullOrBlank()) throw InvalidSseConfiguration("'onBehalf'should contain email in register mode")

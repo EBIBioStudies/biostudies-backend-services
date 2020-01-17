@@ -26,7 +26,7 @@ import javax.persistence.Table
 import ac.uk.ebi.biostd.persistence.model.Section as SectionDb
 
 internal const val FULL_DATA_GRAPH = "Submission.fullData"
-internal const val SIMPLE_GRAPH = "Submission.simpleGraph"
+internal const val SIMPLE_QUERY_GRAPH = "Submission.simpleGraph"
 
 internal const val ATTRS = "attributes"
 internal const val FILES = "files"
@@ -67,7 +67,7 @@ typealias Graph = NamedSubgraph
                 Node(FILES, subgraph = "attrs")]),
             Graph(name = "attrs", attributeNodes = [Node(ATTRS)])
         ]),
-    NamedEntityGraph(name = SIMPLE_GRAPH, attributeNodes = [Node(value = "rootSection")])
+    NamedEntityGraph(name = SIMPLE_QUERY_GRAPH, attributeNodes = [Node(value = "rootSection")])
 ])
 @Table(name = "Submission")
 class Submission(
