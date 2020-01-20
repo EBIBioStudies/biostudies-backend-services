@@ -17,8 +17,8 @@ spring:
       max-file-size: 10240MB
       max-request-size: 10240MB
 
+logging.file: logs/application_logs.txt
 logging:
-  path: logs
   file:
     max-history: 7
 
