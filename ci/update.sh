@@ -24,4 +24,4 @@ nohup ${JAVA_HOME}/bin/java JVM_PARAMS \
     -Xdebug -Xrunjdwp:transport=dt_socket,server=y,address=DEBUG_PORT,suspend=n \
     -jar APP_PATH/APP_NAME \
     --spring.config.location=classpath:/application.yml,APP_PATH/application.yml \
-    --server.port=APP_PORT >> logs.txt &
+    --server.port=APP_PORT >> start_logs.txt &
