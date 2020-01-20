@@ -1,12 +1,12 @@
 spring:
   datasource:
-    url: # Database connection URL
-    username:
-    password:
+    url: jdbc:mysql://mysql-fg-biostudy.ebi.ac.uk:4469/biostd_beta
+    username: biostd
+    password: biostd
     driver-class-name: com.mysql.jdbc.Driver
 
   jpa:
-    show-sql: false
+    show-sql: true
     hibernate:
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
@@ -17,13 +17,18 @@ spring:
       max-file-size: 10240MB
       max-request-size: 10240MB
 
+logging:
+  config: /logs
+  file:
+    max-history: 7
+
 app:
   basepath: # Absolute path to the folder to be used as storage
   tempDirPath: # Absolute of the temp folder to store files
   security:
-    tokenHash: # Token used for hash authentication
     filesDirPath: # Absolute path to the folder to be used for the user/groups files
-    environment: # Current application execution environment
+    environment: BETA
+    tokenHash: BIO-B3T4
     requiresActivation: # Indicates whether or not, new user need activation before being used
   notifications:
     smtp: smtp.ebi.ac.uk
