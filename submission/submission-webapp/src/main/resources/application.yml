@@ -6,7 +6,7 @@ spring:
     driver-class-name: com.mysql.jdbc.Driver
 
   jpa:
-    show-sql: false
+    show-sql: true
     hibernate:
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
@@ -16,6 +16,11 @@ spring:
     multipart:
       max-file-size: 10240MB
       max-request-size: 10240MB
+
+logging.file: logs/application_logs.txt
+logging:
+  file:
+    max-history: 7
 
 app:
   basepath: # Absolute path to the folder to be used as storage
