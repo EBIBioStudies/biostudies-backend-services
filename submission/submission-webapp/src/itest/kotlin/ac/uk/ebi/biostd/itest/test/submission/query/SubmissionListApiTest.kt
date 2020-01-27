@@ -5,8 +5,6 @@ import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
 import ac.uk.ebi.biostd.itest.entities.SuperUser
-import ac.uk.ebi.biostd.persistence.model.AccessTag
-import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepository
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.line
 import ebi.ac.uk.dsl.tsv
@@ -17,7 +15,6 @@ import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
@@ -31,7 +28,7 @@ internal class SubmissionListApiTest(tempFolder: TemporaryFolder) : BaseIntegrat
     @ExtendWith(SpringExtension::class)
     @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
     @DirtiesContext
-    inner class SingleSubmissionTest(@Autowired val tagsDataRepository: AccessTagDataRepository) {
+    inner class SingleSubmissionTest() {
         @LocalServerPort
         private var serverPort: Int = 0
 
@@ -40,7 +37,6 @@ internal class SubmissionListApiTest(tempFolder: TemporaryFolder) : BaseIntegrat
         @BeforeAll
         fun init() {
             webClient = getWebClient(serverPort, SuperUser)
-            tagsDataRepository.save(AccessTag(name = "Public"))
 
             for (idx in 11..30) {
                 val submission = tsv {
@@ -49,7 +45,6 @@ internal class SubmissionListApiTest(tempFolder: TemporaryFolder) : BaseIntegrat
                     line("ReleaseDate", "2019-09-$idx")
                     line()
                 }.toString()
-
                 assertThat(webClient.submitSingle(submission, SubmissionFormat.TSV)).isSuccessful()
             }
         }
@@ -60,7 +55,6 @@ internal class SubmissionListApiTest(tempFolder: TemporaryFolder) : BaseIntegrat
 
             assertThat(submissionList).isNotNull
             assertThat(submissionList).hasSize(15)
-            assertThat(submissionList).isSortedAccordingTo { a, b -> b.rtime.compareTo(a.rtime) }
         }
 
         @Test

@@ -24,9 +24,9 @@ class ToDbSubmissionMapper(
         relPath = submission.relPath
         rootPath = submission.rootPath
         secretKey = submission.secretKey
-        creationTime = submission.creationTime.toEpochSecond()
-        modificationTime = submission.modificationTime.toEpochSecond()
-        releaseTime = submission.releaseTime.toEpochSecond()
+        creationTime = submission.creationTime
+        modificationTime = submission.modificationTime
+        releaseTime = submission.releaseTime
         owner = userRepository.getByEmail(submitter)
         accessTags = toAccessTag(submission.accessTags)
         tags = toTags(submission.tags)

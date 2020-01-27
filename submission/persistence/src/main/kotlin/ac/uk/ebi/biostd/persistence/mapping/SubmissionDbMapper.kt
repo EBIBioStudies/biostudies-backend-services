@@ -15,7 +15,6 @@ import arrow.core.Either
 import arrow.core.Either.Companion.left
 import arrow.core.Either.Companion.right
 import ebi.ac.uk.base.orFalse
-import ebi.ac.uk.functions.secondsToInstant
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.AttributeDetail
 import ebi.ac.uk.model.ExtendedSection
@@ -30,8 +29,8 @@ import ebi.ac.uk.model.SectionsTable
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.User
 import ebi.ac.uk.model.constants.SubFields
+import ebi.ac.uk.model.constants.SubFields.RELEASE_DATE
 import ebi.ac.uk.model.constants.SubFields.TITLE
-import java.time.ZoneOffset.UTC
 import ac.uk.ebi.biostd.persistence.model.Attribute as AttributeDb
 import ac.uk.ebi.biostd.persistence.model.AttributeDetail as AttributeDetailDb
 import ac.uk.ebi.biostd.persistence.model.File as FileDb
@@ -51,9 +50,9 @@ class SubmissionDbMapper {
             secretKey = submissionDb.secretKey
             relPath = submissionDb.relPath
             released = submissionDb.released
-            creationTime = toInstant(submissionDb.creationTime)
-            modificationTime = toInstant(submissionDb.releaseTime)
-            releaseTime = toInstant(submissionDb.releaseTime)
+            creationTime = submissionDb.creationTime
+            modificationTime = submissionDb.modificationTime
+            releaseTime = submissionDb.releaseTime
             section = sectionMapper.toSection(submissionDb.rootSection)
             processingStatus = submissionDb.status
             extendedSection = sectionMapper.toExtendedSection(submissionDb.rootSection)
@@ -78,11 +77,12 @@ class SubmissionDbMapper {
                 section = sectionMapper.toSection(submissionDb.rootSection)
             }
 
-    private fun getSubAttributes(submissionDb: SubmissionDb): List<Attribute> =
-        toAttributes(submissionDb.attributes)
-            .plus(Attribute(SubFields.RELEASE_DATE, toInstant(submissionDb.releaseTime).toLocalDate()))
-
-    private fun toInstant(dateSeconds: Long) = secondsToInstant(dateSeconds).atOffset(UTC)
+    private fun getSubAttributes(submissionDb: SubmissionDb): List<Attribute> {
+        return when (val releaseTime = submissionDb.releaseTime) {
+            null -> toAttributes(submissionDb.attributes)
+            else -> toAttributes(submissionDb.attributes).plus(Attribute(RELEASE_DATE, releaseTime.toLocalDate()))
+        }
+    }
 
     private fun toTag(tag: Tag) = Pair(tag.classifier, tag.name)
 }

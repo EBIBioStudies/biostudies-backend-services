@@ -4,6 +4,7 @@ import ac.uk.ebi.biostd.submission.exceptions.InvalidDateFormatException
 import ac.uk.ebi.biostd.submission.test.ACC_NO
 import ac.uk.ebi.biostd.submission.test.createBasicExtendedSubmission
 import ebi.ac.uk.model.ExtendedSubmission
+import ebi.ac.uk.model.constants.SubFields.PUBLIC_ACCESS_TAG
 import ebi.ac.uk.model.extensions.releaseDate
 import ebi.ac.uk.persistence.PersistenceContext
 import io.mockk.every
@@ -12,6 +13,7 @@ import io.mockk.junit5.MockKExtension
 import io.mockk.mockkStatic
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
@@ -19,104 +21,116 @@ import java.time.OffsetDateTime
 import java.time.ZoneOffset
 
 @ExtendWith(MockKExtension::class)
-class TimesProcessorTest(@MockK private val mockPersistenceContext: PersistenceContext) {
-    private lateinit var submission: ExtendedSubmission
-    private val mockNow: OffsetDateTime = OffsetDateTime.of(2018, 12, 31, 0, 0, 0, 0, ZoneOffset.UTC)
-    private val testInstance = TimesProcessor()
+class TimesProcessorTest(@MockK private val mockContext: PersistenceContext) {
 
     private val testTime = OffsetDateTime.of(2018, 10, 10, 0, 0, 0, 0, ZoneOffset.UTC)
+    private lateinit var submission: ExtendedSubmission
+    private val mockNow = OffsetDateTime.of(2018, 12, 31, 0, 0, 0, 0, ZoneOffset.UTC)
+
+    private val testInstance = TimesProcessor()
 
     @BeforeEach
     fun setUp() {
+        submission = createBasicExtendedSubmission()
+
         mockkStatic(OffsetDateTime::class)
         every { OffsetDateTime.now() } returns mockNow
-        every { mockPersistenceContext.getSubmission(ACC_NO) } returns null
-
-        submission = createBasicExtendedSubmission()
+        every { mockContext.hasParent(submission) } returns false
+        every { mockContext.getSubmission(ACC_NO) } returns null
     }
 
-    @Test
-    fun `process submission when no existing submission`() {
-        testInstance.process(submission, mockPersistenceContext)
+    @Nested
+    inner class ModificationTime {
 
-        assertTimeProcessing(mockNow, mockNow, mockNow)
+        @Test
+        fun `calculate modification time`() {
+            testInstance.process(submission, mockContext)
+
+            assertThat(submission.modificationTime).isEqualTo(mockNow)
+        }
     }
 
-    @Test
-    fun `process existing submission`() {
-        val existingSubmission = createBasicExtendedSubmission().apply { creationTime = testTime }
-        every { mockPersistenceContext.getSubmission(ACC_NO) } returns existingSubmission
+    @Nested
+    inner class CreationTime {
 
-        testInstance.process(submission, mockPersistenceContext)
-        assertTimeProcessing(testTime, mockNow, mockNow)
-    }
+        @Test
+        fun `when exists`() {
+            val existingSubmission = createBasicExtendedSubmission().apply { creationTime = testTime }
+            every { mockContext.getSubmission(ACC_NO) } returns existingSubmission
 
-    @Test
-    fun `process submission with release date`() {
-        submission.releaseDate = "2018-10-10"
+            testInstance.process(submission, mockContext)
 
-        testInstance.process(submission, mockPersistenceContext)
-        assertTimeProcessing(mockNow, testTime, mockNow)
-
-        assertThat(submission.released).isTrue()
-        assertThat(submission.accessTags).hasSize(1)
-        assertThat(submission.accessTags.first()).isEqualTo("Public")
-    }
-
-    @Test
-    fun `process submission with release date in the future`() {
-        val releaseTime = OffsetDateTime.of(2020, 12, 31, 0, 0, 0, 0, ZoneOffset.UTC)
-        submission.releaseDate = "2020-12-31"
-
-        testInstance.process(submission, mockPersistenceContext)
-        assertTimeProcessing(mockNow, releaseTime, mockNow)
-
-        assertThat(submission.released).isFalse()
-        assertThat(submission.accessTags).isEmpty()
-    }
-
-    @Test
-    fun `process submission with null release date`() {
-        submission.releaseDate = null
-
-        testInstance.process(submission, mockPersistenceContext)
-        assertTimeProcessing(mockNow, mockNow, mockNow)
-
-        assertThat(submission.released).isFalse()
-        assertThat(submission.accessTags).isEmpty()
-    }
-
-    @Test
-    fun `process submission with release date with invalid format`() {
-        submission.releaseDate = "2018/10/10"
-
-        val exception = assertThrows<InvalidDateFormatException> {
-            testInstance.process(submission, mockPersistenceContext)
+            assertThat(submission.creationTime).isEqualTo(testTime)
         }
 
-        assertThat(exception.message).isEqualTo(
-            "Provided date 2018/10/10 could not be parsed. Expected format is YYYY-MM-DD")
+        @Test
+        fun `when is new`() {
+            testInstance.process(submission, mockContext)
+
+            assertThat(submission.creationTime).isEqualTo(mockNow)
+        }
     }
 
-    private fun assertTimeProcessing(
-        creationTime: OffsetDateTime,
-        releaseTime: OffsetDateTime,
-        modificationTime: OffsetDateTime
-    ) {
-        assertThat(submission.creationTime).isEqualTo(creationTime)
-        assertThat(submission.releaseTime).isEqualTo(releaseTime)
-        assertThat(submission.modificationTime).isEqualTo(modificationTime)
-    }
+    @Nested
+    inner class ReleaseTime {
 
-    @Test
-    fun `process iso release date`() {
-        val releaseTime = OffsetDateTime.of(2019, 10, 10, 0, 0, 0, 0, ZoneOffset.UTC)
-        submission.releaseDate = "2019-10-10T09:27:04.000Z"
+        @Nested
+        inner class WhenNoParent {
 
-        testInstance.process(submission, mockPersistenceContext)
-        assertTimeProcessing(mockNow, releaseTime, mockNow)
+            @Test
+            fun `when release date with invalid format`() {
+                submission.releaseDate = "2018/10/10"
 
-        assertThat(submission.released).isFalse()
-        assertThat(submission.accessTags).isEmpty()
+                val exception = assertThrows<InvalidDateFormatException> { testInstance.process(submission, mockContext) }
+
+                assertThat(exception.message).isEqualTo(
+                    "Provided date 2018/10/10 could not be parsed. Expected format is YYYY-MM-DD")
+            }
+
+            @Test
+            fun `when release date with valid format`() {
+                val releaseTime = OffsetDateTime.of(2019, 10, 10, 0, 0, 0, 0, ZoneOffset.UTC)
+                submission.releaseDate = "2019-10-10T09:27:04.000Z"
+
+                testInstance.process(submission, mockContext)
+
+                assertThat(submission.releaseTime).isEqualTo(releaseTime)
+                assertThat(submission.released).isFalse()
+                assertThat(submission.accessTags).isEmpty()
+            }
+
+            @Test
+            fun `when no release date now is used`() {
+                testInstance.process(submission, mockContext)
+
+                assertThat(submission.releaseTime).isEqualTo(mockNow)
+                assertThat(submission.released).isTrue()
+                assertThat(submission.accessTags).contains(PUBLIC_ACCESS_TAG.value)
+            }
+        }
+
+        @Test
+        fun `when parent project not released`() {
+            every { mockContext.hasParent(submission) } returns true
+            every { mockContext.getParentReleaseTime(submission) } returns null
+
+            testInstance.process(submission, mockContext)
+
+            assertThat(submission.releaseTime).isNull()
+            assertThat(submission.released).isFalse()
+            assertThat(submission.accessTags).isEmpty()
+        }
+
+        @Test
+        fun `when no relase date`() {
+            every { mockContext.hasParent(submission) } returns true
+            every { mockContext.getParentReleaseTime(submission) } returns null
+
+            testInstance.process(submission, mockContext)
+
+            assertThat(submission.releaseTime).isNull()
+            assertThat(submission.released).isFalse()
+            assertThat(submission.accessTags).isEmpty()
+        }
     }
 }

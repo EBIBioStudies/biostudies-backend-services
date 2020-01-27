@@ -4,7 +4,6 @@ import ac.uk.ebi.biostd.common.config.SubmitterConfig.FilesHandlerConfig
 import ac.uk.ebi.biostd.common.config.SubmitterConfig.ProcessorConfig
 import ac.uk.ebi.biostd.common.property.ApplicationProperties
 import ac.uk.ebi.biostd.integration.SerializationConfig
-import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
 import ac.uk.ebi.biostd.submission.handlers.FilesCopier
 import ac.uk.ebi.biostd.submission.handlers.FilesHandler
 import ac.uk.ebi.biostd.submission.handlers.FilesValidator
@@ -18,6 +17,7 @@ import ac.uk.ebi.biostd.submission.processors.SubmissionProcessor
 import ac.uk.ebi.biostd.submission.processors.SubmissionProjectProcessor
 import ac.uk.ebi.biostd.submission.processors.TimesProcessor
 import ac.uk.ebi.biostd.submission.submitter.ProjectSubmitter
+import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
 import ac.uk.ebi.biostd.submission.util.AccNoPatternUtil
 import ebi.ac.uk.paths.SubmissionFolderResolver
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService

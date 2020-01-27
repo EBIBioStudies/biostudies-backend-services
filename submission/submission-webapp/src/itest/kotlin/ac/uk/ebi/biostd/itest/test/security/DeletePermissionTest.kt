@@ -5,8 +5,8 @@ import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
-import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.entities.RegularUser
+import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.persistence.model.AccessPermission
 import ac.uk.ebi.biostd.persistence.model.AccessType.DELETE
 import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
@@ -119,7 +119,6 @@ internal class DeletePermissionTest(private val tempFolder: TemporaryFolder) : B
             val accessTag = tagsDataRepository.findByName("AProject")
             val user = userDataRepository.findByEmailAndActive(RegularUser.email, active = true)
             val accessPermission = AccessPermission(accessType = DELETE, user = user.get(), accessTag = accessTag)
-
             accessPermissionRepository.save(accessPermission)
         }
     }
