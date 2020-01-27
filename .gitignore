@@ -6,3 +6,4 @@ reports/
 *.iml
 ~$*.xlsx
 .DS_Store
+logs/*

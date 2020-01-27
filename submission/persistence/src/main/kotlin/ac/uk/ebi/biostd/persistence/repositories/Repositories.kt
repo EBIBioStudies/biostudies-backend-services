@@ -45,7 +45,12 @@ interface SubmissionDataRepository :
 
     fun existsByAccNo(accNo: String): Boolean
 
-    fun findByRootSectionTypeAndAccNoIn(type: String, tags: List<String>, graph: GraphSpecification): List<Submission>
+    fun findByRootSectionTypeAndAccNoInAndVersionGreaterThan(
+        type: String,
+        tags: List<String>,
+        graph: GraphSpecification,
+        long: Int = 0
+    ): List<Submission>
 }
 
 interface AccessTagDataRepository : JpaRepository<AccessTag, Long> {
