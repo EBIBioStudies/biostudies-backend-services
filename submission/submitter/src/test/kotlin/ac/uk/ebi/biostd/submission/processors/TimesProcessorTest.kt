@@ -122,7 +122,7 @@ class TimesProcessorTest(@MockK private val mockContext: PersistenceContext) {
         }
 
         @Test
-        fun `when no relase date`() {
+        fun `when no release date`() {
             every { mockContext.hasParent(submission) } returns true
             every { mockContext.getParentReleaseTime(submission) } returns null
 
