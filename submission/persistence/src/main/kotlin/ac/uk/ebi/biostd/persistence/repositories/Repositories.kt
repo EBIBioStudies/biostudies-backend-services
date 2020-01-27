@@ -27,11 +27,10 @@ import com.cosium.spring.data.jpa.entity.graph.domain.EntityGraph as GraphSpecif
 
 interface SubmissionDataRepository :
     EntityGraphJpaRepository<Submission, Long>, EntityGraphJpaSpecificationExecutor<Submission> {
-
     @EntityGraph(value = FULL_DATA_GRAPH, type = LOAD)
-    fun getByAccNoAndVersionGreaterThan(id: String, long: Int = 0): Submission
+    fun getByAccNoAndVersionGreaterThan(id: String, version: Int = 0): Submission
 
-    fun findByAccNoAndVersionGreaterThan(id: String, long: Int = 0): Submission?
+    fun findByAccNoAndVersionGreaterThan(id: String, version: Int = 0): Submission?
 
     @Query("Select max(s.version) from Submission s where s.accNo=?1")
     fun getLastVersion(accNo: String): Int?
@@ -45,7 +44,12 @@ interface SubmissionDataRepository :
 
     fun existsByAccNo(accNo: String): Boolean
 
-    fun findByRootSectionTypeAndAccNoIn(type: String, tags: List<String>, graph: GraphSpecification): List<Submission>
+    fun findByRootSectionTypeAndAccNoInAndVersionGreaterThan(
+        type: String,
+        tags: List<String>,
+        graph: GraphSpecification,
+        version: Int = 0
+    ): List<Submission>
 }
 
 interface AccessTagDataRepository : JpaRepository<AccessTag, Long> {
