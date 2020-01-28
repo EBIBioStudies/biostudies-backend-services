@@ -1,7 +1,8 @@
 package ac.uk.ebi.biostd.submission.submitter
 
-import ac.uk.ebi.biostd.submission.exceptions.SubmissionErrorsContext
+import ac.uk.ebi.biostd.submission.exceptions.InvalidSubmissionException
 import ac.uk.ebi.biostd.submission.handlers.FilesHandler
+import ac.uk.ebi.biostd.submission.model.SubmissionRequest
 import ac.uk.ebi.biostd.submission.processors.SubmissionProcessor
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.model.ExtendedSubmission
@@ -16,20 +17,23 @@ open class SubmissionSubmitter(
     private val filesHandler: FilesHandler
 ) {
     @Transactional(isolation = Isolation.READ_UNCOMMITTED)
-    open fun submit(
-        submission: ExtendedSubmission,
-        files: FilesSource,
-        persistenceContext: PersistenceContext
-    ): Submission {
-        val errorContext = SubmissionErrorsContext()
+    open fun submit(request: SubmissionRequest, persistenceContext: PersistenceContext): Submission {
+        val submission = ExtendedSubmission(request.submission, request.user.asUser())
+        val processingErrors = process(submission, request.files, persistenceContext)
 
-        processors.map { errorContext.runCatching { it.process(submission, persistenceContext) } }
-        errorContext.runCatching { filesHandler.processFiles(submission, files) }
-        errorContext.handleErrors()
+        if (processingErrors.isEmpty()) {
+            persistenceContext.deleteSubmissionDrafts(submission)
+            submission.processingStatus = PROCESSED
+            submission.source = request.source
+            return persistenceContext.saveSubmission(submission)
+        }
 
-        persistenceContext.deleteSubmissionDrafts(submission)
-        submission.processingStatus = PROCESSED
-
-        return persistenceContext.saveSubmission(submission)
+        throw InvalidSubmissionException("Submission validation errors", processingErrors)
     }
+
+    private fun process(submission: ExtendedSubmission, source: FilesSource, context: PersistenceContext) =
+        processors
+            .map { runCatching { it.process(submission, context) } }
+            .plus(runCatching { filesHandler.processFiles(submission, source) })
+            .mapNotNull { it.exceptionOrNull() }
 }

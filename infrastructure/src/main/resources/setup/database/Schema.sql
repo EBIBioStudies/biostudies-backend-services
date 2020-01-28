@@ -154,6 +154,7 @@ CREATE TABLE Submission (
     RTime          BIGINT       NOT NULL,
     accNo          VARCHAR(255) NULL,
     relPath        LONGTEXT     NULL,
+    s_source       LONGTEXT     NULL,
     released       BIT          NOT NULL,
     rootPath       LONGTEXT     NULL,
     title          LONGTEXT     NULL,
