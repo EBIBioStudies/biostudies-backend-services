@@ -8,5 +8,5 @@ data class SubmissionDto(
     val version: Int,
     val ctime: OffsetDateTime,
     val mtime: OffsetDateTime,
-    val rtime: OffsetDateTime
+    val rtime: OffsetDateTime?
 )

@@ -1,8 +1,11 @@
 package ac.uk.ebi.biostd.persistence.model
 
+import ac.uk.ebi.biostd.persistence.converters.EpochDateConverter
+import ac.uk.ebi.biostd.persistence.converters.NullableEpochDateConverter
 import ac.uk.ebi.biostd.persistence.converters.ProcessingStatusConverter
 import ebi.ac.uk.model.constants.ProcessingStatus
 import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSING
+import java.time.OffsetDateTime
 import java.util.SortedSet
 import javax.persistence.CascadeType
 import javax.persistence.Column
@@ -84,13 +87,16 @@ class Submission(
     var id: Long = 0L
 
     @Column(name = "RTime")
-    var releaseTime: Long = 0
+    @Convert(converter = NullableEpochDateConverter::class)
+    var releaseTime: OffsetDateTime? = null
 
     @Column(name = "CTime")
-    var creationTime: Long = 0
+    @Convert(converter = EpochDateConverter::class)
+    lateinit var creationTime: OffsetDateTime
 
     @Column(name = "MTime")
-    var modificationTime: Long = 0
+    @Convert(converter = EpochDateConverter::class)
+    lateinit var modificationTime: OffsetDateTime
 
     @Column
     var relPath: String = ""

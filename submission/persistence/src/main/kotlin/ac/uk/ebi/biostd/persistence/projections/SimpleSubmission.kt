@@ -17,7 +17,7 @@ data class SimpleSubmission(
     val secretKey: String,
     val title: String?,
     val version: Int,
-    val releaseTime: OffsetDateTime,
+    val releaseTime: OffsetDateTime?,
     val modificationTime: OffsetDateTime,
     val creationTime: OffsetDateTime,
     var status: ProcessingStatus
@@ -34,9 +34,9 @@ data class SimpleSubmission(
                 title = title,
                 relPath = relPath,
                 released = released,
-                creationTime = toInstant(creationTime),
-                modificationTime = toInstant(releaseTime),
-                releaseTime = toInstant(releaseTime),
+                creationTime = creationTime,
+                modificationTime = modificationTime,
+                releaseTime = releaseTime,
                 status = status
             )
         }

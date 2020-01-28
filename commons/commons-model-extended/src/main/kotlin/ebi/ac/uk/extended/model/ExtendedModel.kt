@@ -44,7 +44,7 @@ data class ExtSubmission(
     val released: Boolean,
     val secretKey: String,
     val status: ProcessingStatus,
-    val releaseTime: OffsetDateTime,
+    val releaseTime: OffsetDateTime?,
     val modificationTime: OffsetDateTime,
     val creationTime: OffsetDateTime,
     val attributes: List<ExtAttribute>,

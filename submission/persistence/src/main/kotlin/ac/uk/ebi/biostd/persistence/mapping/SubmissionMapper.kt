@@ -57,9 +57,9 @@ class SubmissionMapper(
         rootPath = submission.rootPath
         released = submission.released
         status = submission.processingStatus
-        creationTime = submission.creationTime.toEpochSecond()
-        modificationTime = submission.modificationTime.toEpochSecond()
-        releaseTime = submission.releaseTime.toEpochSecond()
+        creationTime = submission.creationTime
+        modificationTime = submission.modificationTime
+        releaseTime = submission.releaseTime
 
         owner = userRepository.getByEmail(submission.user.email)
         rootSection = toSection(submission.extendedSection, this, NO_TABLE_INDEX)

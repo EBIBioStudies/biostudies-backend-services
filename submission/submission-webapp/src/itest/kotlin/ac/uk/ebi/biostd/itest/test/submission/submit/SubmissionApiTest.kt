@@ -10,7 +10,6 @@ import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
 import ac.uk.ebi.biostd.itest.entities.RegularUser
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.factory.invalidLinkUrl
-import ac.uk.ebi.biostd.persistence.model.AccessTag
 import ac.uk.ebi.biostd.persistence.model.Sequence
 import ac.uk.ebi.biostd.persistence.model.Tag
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepository
@@ -24,7 +23,6 @@ import ebi.ac.uk.dsl.line
 import ebi.ac.uk.dsl.section
 import ebi.ac.uk.dsl.submission
 import ebi.ac.uk.dsl.tsv
-import ebi.ac.uk.model.extensions.addAccessTag
 import ebi.ac.uk.model.extensions.attachTo
 import ebi.ac.uk.model.extensions.releaseDate
 import ebi.ac.uk.model.extensions.rootPath
@@ -73,7 +71,6 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
             webClient = getWebClient(serverPort, SuperUser)
 
             sequenceRepository.save(Sequence("S-BSST"))
-            tagsDataRepository.save(AccessTag(name = "Public"))
             tagsRefRepository.save(Tag(classifier = "classifier", name = "tag"))
         }
 
@@ -86,6 +83,7 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
             assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
             assertThat(submissionRepository.getByAccNo("SimpleAcc1")).isEqualTo(submission("SimpleAcc1") {
                 title = "Simple Submission"
+                accessTags = mutableListOf("Public")
                 releaseDate = LocalDate.now().toString()
             })
         }
@@ -102,6 +100,7 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
                 submission("S-BSST0") {
                     title = "Empty AccNo"
                     releaseDate = LocalDate.now().toString()
+                    accessTags = mutableListOf("Public")
                 }
             )
         }
@@ -129,7 +128,7 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
                     attachTo = "A-Project"
                     title = "Empty AccNo With Parent"
                     releaseDate = LocalDate.now().toString()
-                    addAccessTag("A-Project")
+                    accessTags = mutableListOf("A-Project", "Public")
                 }
             )
         }
@@ -158,6 +157,7 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
                     title = "Sample Submission"
                     rootPath = "RootPathFolder"
                     releaseDate = LocalDate.now().toString()
+                    accessTags = mutableListOf("Public")
                     section("Study") { file("DataFile5.txt") }
                 }
             )
@@ -184,6 +184,7 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
                 submission(accNo) {
                     title = "Submission Title"
                     releaseDate = LocalDate.now().toString()
+                    accessTags = mutableListOf("Public")
                 }
             )
         }
@@ -219,6 +220,7 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
                 submission("E-MTAB123") {
                     title = "Generic Submission"
                     releaseDate = LocalDate.now().toString()
+                    accessTags = mutableListOf("Public")
                     section("Experiment") { }
                 }
             )
@@ -240,6 +242,7 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
                 submission("S-TEST123") {
                     title = "Submission With Tags"
                     releaseDate = LocalDate.now().toString()
+                    accessTags = mutableListOf("Public")
                     section("Study") {
                         accNo = "SECT-001"
                         tags = mutableListOf(Pair("Classifier", "Tag"))
@@ -275,6 +278,7 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
                 submission("S-54896") {
                     title = "Sample Submission"
                     releaseDate = LocalDate.now().toString()
+                    accessTags = mutableListOf("Public")
                     section("Study") {
                         file("groups/$groupName/GroupFile1.txt")
                         file("groups/$groupName/folder/GroupFile2.txt")

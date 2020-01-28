@@ -53,9 +53,9 @@ internal fun assertSubmission(submission: Submission, accessTags: List<AccessTag
     assertThat(submission.relPath).isEqualTo(SUB_RELPATH)
     assertThat(submission.rootPath).isEqualTo(SUB_ROOT_PATH)
     assertThat(submission.secretKey).isEqualTo(SECRET_KEY)
-    assertThat(submission.creationTime).isEqualTo(creationTime.toEpochSecond())
-    assertThat(submission.modificationTime).isEqualTo(modificationTime.toEpochSecond())
-    assertThat(submission.releaseTime).isEqualTo(releaseTime.toEpochSecond())
+    assertThat(submission.creationTime).isEqualTo(creationTime)
+    assertThat(submission.modificationTime).isEqualTo(modificationTime)
+    assertThat(submission.releaseTime).isEqualTo(releaseTime)
     assertThat(submission.released).isTrue()
 
     assertThat(submission.attributes).hasSize(1)

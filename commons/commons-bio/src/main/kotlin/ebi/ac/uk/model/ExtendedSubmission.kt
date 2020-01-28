@@ -1,8 +1,8 @@
 package ebi.ac.uk.model
 
 import ebi.ac.uk.base.EMPTY
-import ebi.ac.uk.model.constants.SubFields
 import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSING
+import ebi.ac.uk.model.constants.SubFields
 import java.time.OffsetDateTime
 import java.util.Objects
 
@@ -20,14 +20,18 @@ class ExtendedSubmission(accNo: String, val user: User) : Submission(accNo) {
     var version = 1
     var extendedSection = ExtendedSection(section)
     var processingStatus = PROCESSING
-    var releaseTime: OffsetDateTime = OffsetDateTime.now()
+    var releaseTime: OffsetDateTime? = null
     var modificationTime: OffsetDateTime = OffsetDateTime.now()
     var creationTime: OffsetDateTime = OffsetDateTime.now()
 
     fun asSubmission() = Submission(accNo, extendedSection.asSection(), attributes = subAttributes())
 
-    private fun subAttributes(): List<Attribute> =
-        attributes.plus(Attribute(SubFields.RELEASE_DATE, releaseTime.toLocalDate()))
+    private fun subAttributes(): List<Attribute> {
+        return when (val release = releaseTime) {
+            null -> attributes
+            else -> attributes.plus(Attribute(SubFields.RELEASE_DATE, release.toLocalDate()))
+        }
+    }
 
     override fun equals(other: Any?) = when {
         other !is ExtendedSubmission -> false
