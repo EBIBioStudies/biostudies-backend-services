@@ -27,10 +27,9 @@ class ExtendedSubmission(accNo: String, val user: User) : Submission(accNo) {
     fun asSubmission() = Submission(accNo, extendedSection.asSection(), attributes = subAttributes())
 
     private fun subAttributes(): List<Attribute> {
-        val release = releaseTime
-        return when {
-            release != null -> attributes.plus(Attribute(SubFields.RELEASE_DATE, release.toLocalDate()))
-            else -> attributes
+        return when (val release = releaseTime) {
+            null -> attributes
+            else -> attributes.plus(Attribute(SubFields.RELEASE_DATE, release.toLocalDate()))
         }
     }
 
