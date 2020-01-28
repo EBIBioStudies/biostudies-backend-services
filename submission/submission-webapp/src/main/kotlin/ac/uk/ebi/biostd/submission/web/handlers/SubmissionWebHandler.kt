@@ -7,6 +7,7 @@ import ac.uk.ebi.biostd.persistence.projections.SimpleSubmission
 import ac.uk.ebi.biostd.submission.domain.helpers.SourceGenerator
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionService
 import ebi.ac.uk.model.Submission
+import ebi.ac.uk.model.extensions.attachTo
 import ebi.ac.uk.model.extensions.rootPath
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import java.io.File
@@ -31,6 +32,14 @@ class SubmissionWebHandler(
     fun submit(user: SecurityUser, subFile: File, files: List<File>): Submission {
         val fileSource = sourceGenerator.getSubmissionSources(user, files.plus(subFile), rootPath(subFile))
         val submission = serializationService.deserializeSubmission(subFile, fileSource)
+        return submissionService.submit(submission, user, fileSource)
+    }
+
+    fun submit(user: SecurityUser, subFile: File, files: List<File>, attachTo: String?): Submission {
+        val fileSource = sourceGenerator.getSubmissionSources(user, files.plus(subFile), rootPath(subFile))
+        val submission = serializationService.deserializeSubmission(subFile, fileSource)
+        attachTo?.let { submission.attachTo = attachTo }
+
         return submissionService.submit(submission, user, fileSource)
     }
 

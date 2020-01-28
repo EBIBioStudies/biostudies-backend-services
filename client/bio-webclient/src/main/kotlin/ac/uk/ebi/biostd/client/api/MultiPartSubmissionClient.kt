@@ -8,6 +8,7 @@ import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.JSON
 import ac.uk.ebi.biostd.integration.SubFormat.JsonFormat.JsonPretty
 import ebi.ac.uk.model.Submission
+import ebi.ac.uk.model.constants.ATTACH_TO
 import ebi.ac.uk.model.constants.FILES
 import ebi.ac.uk.model.constants.SUBMISSION
 import org.springframework.core.io.FileSystemResource
@@ -29,9 +30,10 @@ internal class MultiPartSubmissionClient(
     private val template: RestTemplate,
     private val serializationService: SerializationService
 ) : MultipartSubmissionOperations {
-    override fun submitSingle(submission: File, files: List<File>): SubmissionResponse {
+    override fun submitSingle(submission: File, files: List<File>, attachTo: String?): SubmissionResponse {
         val headers = HttpHeaders().apply { contentType = MediaType.MULTIPART_FORM_DATA }
-        val multiPartBody = getMultipartBody(files, FileSystemResource(submission))
+        val multiPartBody = getMultipartBody(files, FileSystemResource(submission)).apply { add(ATTACH_TO, attachTo) }
+
         return template.postForEntity<String>(
             "$SUBMIT_URL/direct",
             (HttpEntity(multiPartBody, headers)))
