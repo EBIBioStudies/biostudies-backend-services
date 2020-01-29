@@ -109,7 +109,7 @@ class Submission(
     var rootPath: String? = null
 
     @Column
-    var source: SubmissionSource = SubmissionSource.PAGE_TAB
+    var source: SubmissionSource? = null
 
     @Column
     var title: String? = null

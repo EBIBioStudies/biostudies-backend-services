@@ -6,6 +6,8 @@ import ac.uk.ebi.biostd.itest.factory.assertAllInOneSubmissionTsv
 import ac.uk.ebi.biostd.itest.factory.assertAllInOneSubmissionXml
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
 import ebi.ac.uk.model.ExtendedSubmission
+import ebi.ac.uk.model.SubmissionSource
+import ebi.ac.uk.model.SubmissionSource.PAGE_TAB
 import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSED
 import org.assertj.core.api.Assertions.assertThat
 import java.nio.file.Paths
@@ -14,9 +16,10 @@ internal class AllInOneSubmissionHelper(
     private val basePath: String,
     private val submissionRepository: SubmissionRepository
 ) {
-    internal fun assertSavedSubmission(accNo: String) {
+    internal fun assertSavedSubmission(accNo: String, source: SubmissionSource = PAGE_TAB) {
         val extendedSubmission = submissionRepository.getExtendedByAccNo(accNo)
         assertThat(extendedSubmission.processingStatus).isEqualTo(PROCESSED)
+        assertThat(extendedSubmission.source).isEqualTo(source)
         assertThat(extendedSubmission.asSubmission()).isEqualTo(allInOneSubmission(accNo))
         assertSubmissionFiles(extendedSubmission)
     }
