@@ -9,6 +9,7 @@ import ac.uk.ebi.biostd.submission.domain.service.TempFileGenerator
 import ac.uk.ebi.biostd.submission.web.handlers.SubmissionWebHandler
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.constants.APPLICATION_JSON
+import ebi.ac.uk.model.constants.ATTACH_TO
 import ebi.ac.uk.model.constants.FILES
 import ebi.ac.uk.model.constants.MULTIPART_FORM_DATA
 import ebi.ac.uk.model.constants.SUBMISSION
@@ -74,8 +75,10 @@ class SubmitResource(
     fun submitFile(
         @BioUser user: SecurityUser,
         @RequestParam(SUBMISSION) file: MultipartFile,
-        @RequestParam(FILES) files: Array<MultipartFile>
-    ): Submission = submissionWebHandler.submit(user, tempFileGenerator.asFile(file), tempFileGenerator.asFiles(files))
+        @RequestParam(FILES) files: Array<MultipartFile>,
+        @RequestParam(ATTACH_TO) attachTo: String? = null
+    ): Submission =
+        submissionWebHandler.submit(user, tempFileGenerator.asFile(file), tempFileGenerator.asFiles(files), attachTo)
 
     @PostMapping(
         headers = ["$SUBMISSION_TYPE=$TEXT_XML"],
