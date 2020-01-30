@@ -17,7 +17,6 @@ import ebi.ac.uk.dsl.tsv
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.File
 import ebi.ac.uk.model.FileList
-import ebi.ac.uk.model.extensions.attachTo
 import ebi.ac.uk.model.extensions.fileListName
 import ebi.ac.uk.test.createFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
@@ -207,30 +206,6 @@ internal class MultipartFileSubmissionApiTest(
             val response = webClient.submitSingle(submission, XML, listOf(fileList, tempFolder.createFile("File3.txt")))
             assertThat(response).isSuccessful()
             assertSubmissionFiles("S-TEST3", "File3.txt")
-        }
-
-        @Test
-        fun `direct submission attached to a project`() {
-            val project = tsv {
-                line("Submission", "A-Project")
-                line("AccNoTemplate", "!{S-APR}")
-                line()
-
-                line("Project")
-            }.toString()
-
-            val submission = tempFolder.createFile("submission.tsv", tsv {
-                line("Submission", "S-TEST4")
-                line("Title", "Attached Submission")
-            }.toString())
-
-            assertThat(webClient.submitProject(tempFolder.createFile("project.tsv", project))).isSuccessful()
-
-            val response = webClient.submitSingle(submission, listOf(), "A-Project")
-            assertThat(response).isSuccessful()
-
-            val savedSubmission = submissionRepository.getByAccNo("S-TEST4")
-            assertThat(savedSubmission.attachTo).isEqualTo("A-Project")
         }
 
         private fun assertSubmissionFiles(accNo: String, testFile: String) {
