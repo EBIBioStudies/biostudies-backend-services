@@ -1,4 +1,4 @@
-**Title**: Pivotal ID # {Pivotal Id}: PR Name
+**Title**: Pivotal ID # {Pivotal Id}: {Pivotal Title}
 
 **Pivotal Link:** {Ticket Link}
 
