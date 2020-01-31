@@ -11,6 +11,7 @@ import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.line
 import ebi.ac.uk.dsl.tsv
 import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSED
+import ebi.ac.uk.model.extensions.attachTo
 import ebi.ac.uk.model.extensions.title
 import ebi.ac.uk.test.createFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
@@ -73,6 +74,30 @@ internal class ProjectSubmitTest(private val tempFolder: TemporaryFolder) : Base
 
             assertThat(tagsDataRepository.existsByName("AProject")).isTrue()
             assertThat(sequenceRepository.existsByPrefix("S-APR")).isTrue()
+        }
+
+        @Test
+        fun `attach submission to a project`() {
+            val project = tsv {
+                line("Submission", "A-Project")
+                line("AccNoTemplate", "!{S-APR}")
+                line()
+
+                line("Project")
+            }.toString()
+
+            val submission = tempFolder.createFile("submission.tsv", tsv {
+                line("Submission", "S-TEST4")
+                line("Title", "Attached Submission")
+            }.toString())
+
+            assertThat(webClient.submitProject(tempFolder.createFile("project.tsv", project))).isSuccessful()
+
+            val response = webClient.attachSubmission("A-Project", submission, listOf())
+            assertThat(response).isSuccessful()
+
+            val savedSubmission = submissionRepository.getByAccNo("S-TEST4")
+            assertThat(savedSubmission.attachTo).isEqualTo("A-Project")
         }
     }
 }
