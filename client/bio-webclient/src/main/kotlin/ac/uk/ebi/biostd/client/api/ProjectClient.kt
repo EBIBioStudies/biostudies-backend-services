@@ -34,4 +34,3 @@ class ProjectClient(
     }
 }
 
-data class Test(var propA: String = "", var propB: String = "")

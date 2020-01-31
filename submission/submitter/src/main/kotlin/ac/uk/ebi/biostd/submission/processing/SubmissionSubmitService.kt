@@ -71,4 +71,3 @@ open class SubmissionSubmitService(
     }
 }
 
-data class Test(val asd: String, val b: String)
