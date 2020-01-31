@@ -18,7 +18,7 @@ class ExtendedSubmission(accNo: String, val user: User) : Submission(accNo) {
     var released = false
     var secretKey = EMPTY
     var version = 1
-    var source: SubmissionSource? = null
+    var method: SubmissionMethod? = null
     var extendedSection = ExtendedSection(section)
     var processingStatus = PROCESSING
     var releaseTime: OffsetDateTime? = null

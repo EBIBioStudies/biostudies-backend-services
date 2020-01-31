@@ -24,7 +24,7 @@ open class SubmissionSubmitter(
         if (processingErrors.isEmpty()) {
             persistenceContext.deleteSubmissionDrafts(submission)
             submission.processingStatus = PROCESSED
-            submission.source = request.source
+            submission.method = request.method
             return persistenceContext.saveSubmission(submission)
         }
 

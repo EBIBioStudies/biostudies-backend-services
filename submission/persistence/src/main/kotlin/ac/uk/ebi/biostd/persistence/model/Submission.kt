@@ -3,7 +3,7 @@ package ac.uk.ebi.biostd.persistence.model
 import ac.uk.ebi.biostd.persistence.converters.EpochDateConverter
 import ac.uk.ebi.biostd.persistence.converters.NullableEpochDateConverter
 import ac.uk.ebi.biostd.persistence.converters.ProcessingStatusConverter
-import ebi.ac.uk.model.SubmissionSource
+import ebi.ac.uk.model.SubmissionMethod
 import ebi.ac.uk.model.constants.ProcessingStatus
 import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSING
 import java.time.OffsetDateTime
@@ -109,7 +109,7 @@ class Submission(
     var rootPath: String? = null
 
     @Column
-    var source: SubmissionSource? = null
+    var method: SubmissionMethod? = null
 
     @Column
     var title: String? = null

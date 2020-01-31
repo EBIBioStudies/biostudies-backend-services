@@ -38,7 +38,7 @@ class SubmissionSubmitterTest(
         every { submissionRequest.files } answers { filesSource }
         every { submissionRequest.submission } answers { submission.asSubmission() }
         every { submissionRequest.user } answers { user }
-        every { submissionRequest.source } answers { null }
+        every { submissionRequest.method } answers { null }
 
         every { persistenceContext.deleteSubmissionDrafts(submission) } answers { nothing }
         every { persistenceContext.saveSubmission(capture(savedSubmission)) } answers { submission }

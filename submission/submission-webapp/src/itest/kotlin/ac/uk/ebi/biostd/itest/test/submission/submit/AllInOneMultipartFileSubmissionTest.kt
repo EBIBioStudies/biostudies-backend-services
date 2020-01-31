@@ -10,7 +10,7 @@ import ac.uk.ebi.biostd.itest.assertions.submitAllInOneMultipartSubmission
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
-import ebi.ac.uk.model.SubmissionSource.PAGE_TAB_FILE
+import ebi.ac.uk.model.SubmissionMethod.FILE
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.junit.jupiter.api.BeforeAll
@@ -51,19 +51,19 @@ internal class AllInOneMultipartFileSubmissionTest(
         @Test
         fun `submit multipart all in one TSV`() {
             webClient.submitAllInOneMultipartSubmission("S-EPMC124", TSV, tempFolder)
-            allInOneSubmissionHelper.assertSavedSubmission("S-EPMC124", PAGE_TAB_FILE)
+            allInOneSubmissionHelper.assertSavedSubmission("S-EPMC124", FILE)
         }
 
         @Test
         fun `submit multipart all in one JSON`() {
             webClient.submitAllInOneMultipartSubmission("S-EPMC125", JSON, tempFolder)
-            allInOneSubmissionHelper.assertSavedSubmission("S-EPMC125", PAGE_TAB_FILE)
+            allInOneSubmissionHelper.assertSavedSubmission("S-EPMC125", FILE)
         }
 
         @Test
         fun `submit multipart all in one XML`() {
             webClient.submitAllInOneMultipartSubmission("S-EPMC126", XML, tempFolder)
-            allInOneSubmissionHelper.assertSavedSubmission("S-EPMC126", PAGE_TAB_FILE)
+            allInOneSubmissionHelper.assertSavedSubmission("S-EPMC126", FILE)
         }
     }
 }

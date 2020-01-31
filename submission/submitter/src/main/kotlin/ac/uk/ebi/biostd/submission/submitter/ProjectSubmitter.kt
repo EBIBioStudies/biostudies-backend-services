@@ -29,9 +29,8 @@ open class ProjectSubmitter(
         throw InvalidSubmissionException("Submission validation errors", processingErrors)
     }
 
-    private fun process(submission: ExtendedSubmission, context: PersistenceContext): List<Throwable> {
-        return processors
+    private fun process(submission: ExtendedSubmission, context: PersistenceContext) =
+        processors
             .map { runCatching { it.process(submission, context) } }
             .mapNotNull { it.exceptionOrNull() }
-    }
 }
