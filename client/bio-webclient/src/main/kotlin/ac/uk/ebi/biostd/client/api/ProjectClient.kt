@@ -33,3 +33,5 @@ class ProjectClient(
         add(PROJECT, project)
     }
 }
+
+data class Test(var propA: String = "", var propB: String = "")

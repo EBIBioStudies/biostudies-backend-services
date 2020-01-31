@@ -79,6 +79,8 @@ open class PersistenceContextImpl(
         }
     }
 
+    override fun getSecret(accNo: String): String = getSubmission(accNo)!!.secretKey
+
     override fun saveAccessTag(accessTag: String) {
         accessTagsDataRepository.save(AccessTag(name = accessTag))
     }
