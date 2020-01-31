@@ -45,7 +45,7 @@ class Section(
     @JoinColumn(name = "submission_id")
     var submission: Submission? = null
 
-    @Column(name = "s_source")
+    @Column(name = "method")
     var method: SubmissionMethod? = null
 
     @OneToOne(cascade = [CascadeType.ALL], fetch = LAZY)
