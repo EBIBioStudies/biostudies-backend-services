@@ -60,8 +60,9 @@ internal class MultiPartSubmissionClient(
         setSubmissionType(format.submissionType)
     }
 
-    private fun getMultipartBody(files: List<File>, submission: Any) = LinkedMultiValueMap<String, Any>().apply {
-        files.forEach { add(FILES, FileSystemResource(it)) }
-        add(SUBMISSION, submission)
-    }
+    private fun getMultipartBody(files: List<File>, submission: Any) =
+        LinkedMultiValueMap<String, Any>(
+            files.map { FILES to FileSystemResource(it) }
+                .plus(SUBMISSION to submission)
+                .groupBy({ it.first }, { it.second }))
 }

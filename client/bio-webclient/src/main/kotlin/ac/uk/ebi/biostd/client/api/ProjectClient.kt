@@ -39,15 +39,16 @@ class ProjectClient(
         files: List<File>
     ): ResponseEntity<Submission> {
         val headers = HttpHeaders().apply { MediaType.MULTIPART_FORM_DATA }
-        val body = getMultipartBody(files, FileSystemResource(submission))
+        val body = getMultipartBody(files, submission)
 
         return template
             .postForEntity<String>("/projects/$projectAccNo/submissions", HttpEntity(body, headers))
             .map { serializationService.deserializeSubmission(it, SubFormat.JSON_PRETTY) }
     }
 
-    private fun getMultipartBody(files: List<File>, submission: Any) = LinkedMultiValueMap<String, Any>().apply {
-        files.forEach { add(FILES, FileSystemResource(it)) }
-        add(SUBMISSION, submission)
-    }
+    private fun getMultipartBody(files: List<File>, submission: File) =
+        LinkedMultiValueMap<String, FileSystemResource>(
+            files.map { FILES to FileSystemResource(it) }
+                .plus(SUBMISSION to FileSystemResource(submission))
+                .groupBy({ it.first }, { it.second }))
 }
