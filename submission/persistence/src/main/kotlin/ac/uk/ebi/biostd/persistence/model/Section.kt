@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.persistence.model
 
 import ac.uk.ebi.biostd.persistence.common.NO_TABLE_INDEX
 import ac.uk.ebi.biostd.persistence.converters.NullableIntConverter
+import ebi.ac.uk.model.SubmissionMethod
 import java.util.Objects.equals
 import java.util.Objects.hash
 import java.util.SortedSet
@@ -43,6 +44,9 @@ class Section(
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "submission_id")
     var submission: Submission? = null
+
+    @Column(name = "method")
+    var method: SubmissionMethod? = null
 
     @OneToOne(cascade = [CascadeType.ALL], fetch = LAZY)
     @JoinColumn(name = "fileListId")

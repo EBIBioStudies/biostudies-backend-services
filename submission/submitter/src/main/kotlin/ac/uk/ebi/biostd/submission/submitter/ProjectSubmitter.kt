@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.submission.submitter
 
-import ac.uk.ebi.biostd.submission.exceptions.SubmissionErrorsContext
+import ac.uk.ebi.biostd.submission.exceptions.InvalidSubmissionException
 import ac.uk.ebi.biostd.submission.processors.IProjectProcessor
 import ac.uk.ebi.biostd.submission.util.AccNoPatternUtil
 import ebi.ac.uk.model.ExtendedSubmission
@@ -17,18 +17,20 @@ open class ProjectSubmitter(
 ) {
     @Transactional(isolation = Isolation.READ_UNCOMMITTED)
     open fun submit(project: ExtendedSubmission, context: PersistenceContext): Submission {
-        val errorContext = SubmissionErrorsContext()
+        val processingErrors = process(project, context)
+        if (processingErrors.isEmpty()) {
+            val sequencePrefix = accNoPatternUtil.getPattern(project.accNoTemplate!!)
+            context.createAccNoPatternSequence(sequencePrefix)
+            context.saveAccessTag(project.accNo)
+            project.processingStatus = PROCESSED
+            return context.saveSubmission(project)
+        }
 
-        processors.forEach { errorContext.runCatching { it.process(project, context) } }
-        errorContext.handleErrors()
-
-        val sequencePrefix = accNoPatternUtil.getPattern(project.accNoTemplate!!)
-        context.createAccNoPatternSequence(sequencePrefix)
-        context.saveAccessTag(project.accNo)
-
-        project.processingStatus = PROCESSED
-        context.saveSubmission(project)
-
-        return project
+        throw InvalidSubmissionException("Submission validation errors", processingErrors)
     }
+
+    private fun process(submission: ExtendedSubmission, context: PersistenceContext) =
+        processors
+            .map { runCatching { it.process(submission, context) } }
+            .mapNotNull { it.exceptionOrNull() }
 }

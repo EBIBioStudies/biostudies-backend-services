@@ -7,9 +7,8 @@ import ac.uk.ebi.biostd.integration.SubFormat.XmlFormat
 import ac.uk.ebi.biostd.persistence.filter.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.projections.SimpleSubmission
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
+import ac.uk.ebi.biostd.submission.model.SubmissionRequest
 import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
-import ebi.ac.uk.io.sources.FilesSource
-import ebi.ac.uk.model.ExtendedSubmission
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.persistence.PersistenceContext
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
@@ -47,6 +46,5 @@ class SubmissionService(
         submissionRepository.expireSubmission(accNo)
     }
 
-    fun submit(submission: Submission, user: SecurityUser, files: FilesSource): Submission =
-        submitter.submit(ExtendedSubmission(submission, user.asUser()), files, persistenceContext)
+    fun submit(request: SubmissionRequest): Submission = submitter.submit(request, persistenceContext)
 }

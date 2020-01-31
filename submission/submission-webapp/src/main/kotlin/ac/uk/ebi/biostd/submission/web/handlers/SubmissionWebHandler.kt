@@ -6,7 +6,9 @@ import ac.uk.ebi.biostd.persistence.filter.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.projections.SimpleSubmission
 import ac.uk.ebi.biostd.submission.domain.helpers.SourceGenerator
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionService
+import ac.uk.ebi.biostd.submission.model.SubmissionRequest
 import ebi.ac.uk.model.Submission
+import ebi.ac.uk.model.SubmissionMethod
 import ebi.ac.uk.model.extensions.attachTo
 import ebi.ac.uk.model.extensions.rootPath
 import ebi.ac.uk.security.integration.model.api.SecurityUser
@@ -20,27 +22,26 @@ class SubmissionWebHandler(
     fun submit(user: SecurityUser, files: List<File>, content: String, format: SubFormat): Submission {
         val filesSource = sourceGenerator.getSubmissionSources(user, files, rootPath(content, format))
         val submission = serializationService.deserializeSubmission(content, format, filesSource)
-        return submissionService.submit(submission, user, filesSource)
+        return submissionService.submit(SubmissionRequest(submission, user, filesSource, SubmissionMethod.PAGE_TAB))
     }
 
     fun submit(user: SecurityUser, content: String, format: SubFormat): Submission {
         val fileSource = sourceGenerator.getSubmissionSources(user, rootPath(content, format))
         val submission = serializationService.deserializeSubmission(content, format, fileSource)
-        return submissionService.submit(submission, user, fileSource)
+        return submissionService.submit(SubmissionRequest(submission, user, fileSource, SubmissionMethod.PAGE_TAB))
     }
 
     fun submit(user: SecurityUser, subFile: File, files: List<File>): Submission {
         val fileSource = sourceGenerator.getSubmissionSources(user, files.plus(subFile), rootPath(subFile))
         val submission = serializationService.deserializeSubmission(subFile, fileSource)
-        return submissionService.submit(submission, user, fileSource)
+        return submissionService.submit(SubmissionRequest(submission, user, fileSource, SubmissionMethod.FILE))
     }
 
     fun submit(user: SecurityUser, subFile: File, files: List<File>, attachTo: String?): Submission {
         val fileSource = sourceGenerator.getSubmissionSources(user, files.plus(subFile), rootPath(subFile))
         val submission = serializationService.deserializeSubmission(subFile, fileSource)
         attachTo?.let { submission.attachTo = attachTo }
-
-        return submissionService.submit(submission, user, fileSource)
+        return submissionService.submit(SubmissionRequest(submission, user, fileSource, SubmissionMethod.FILE))
     }
 
     fun deleteSubmission(accNo: String, user: SecurityUser): Unit = submissionService.deleteSubmission(accNo, user)
