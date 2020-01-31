@@ -23,7 +23,8 @@ open class SubmissionSubmitService(
     private val filesHandler: FilesHandler,
     val context: PersistenceContext,
     val userPrivilegesService: IUserPrivilegesService,
-    val patternUtil: AccNoPatternUtil
+    val patternUtil: AccNoPatternUtil,
+    private val timesService: TimesService
 ) {
 
     @Transactional(isolation = Isolation.READ_UNCOMMITTED)
@@ -51,8 +52,8 @@ open class SubmissionSubmitService(
         val accNo = getAccNo(submission)
         val accString = accNo.toString()
         val relPath = getRelPath(accNo)
-        val (creationTime, modificationTime, releaseTime) = getTimes(submission)
-        val parentTags = parentTags(submission)
+        val (creationTime, modificationTime, releaseTime) = timesService.getTimes(submission)
+        val parentTags = context.getParentAccessTags(submission).filterNot { it == "Public" }
         val secretKey = if (context.isNew(accString)) UUID.randomUUID().toString() else context.getSecret(accString)
         submission.accNo = accString
         submission.relPath = relPath
@@ -70,4 +71,3 @@ open class SubmissionSubmitService(
         return submission
     }
 }
-
