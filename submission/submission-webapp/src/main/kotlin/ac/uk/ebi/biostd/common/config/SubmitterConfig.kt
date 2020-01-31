@@ -8,24 +8,22 @@ import ac.uk.ebi.biostd.submission.handlers.FilesCopier
 import ac.uk.ebi.biostd.submission.handlers.FilesHandler
 import ac.uk.ebi.biostd.submission.handlers.FilesValidator
 import ac.uk.ebi.biostd.submission.handlers.OutputFilesGenerator
-import ac.uk.ebi.biostd.submission.processors.AccNoProcessor
-import ac.uk.ebi.biostd.submission.processors.AccessTagProcessor
+import ac.uk.ebi.biostd.submission.processing.AccNoService
+import ac.uk.ebi.biostd.submission.processing.SubmissionSubmitService
+import ac.uk.ebi.biostd.submission.processing.TimesService
 import ac.uk.ebi.biostd.submission.processors.IProjectProcessor
 import ac.uk.ebi.biostd.submission.processors.ProjectProcessor
-import ac.uk.ebi.biostd.submission.processors.PropertiesProcessor
 import ac.uk.ebi.biostd.submission.processors.SubmissionProcessor
-import ac.uk.ebi.biostd.submission.processors.SubmissionProjectProcessor
-import ac.uk.ebi.biostd.submission.processors.TimesProcessor
 import ac.uk.ebi.biostd.submission.submitter.ProjectSubmitter
 import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
 import ac.uk.ebi.biostd.submission.util.AccNoPatternUtil
 import ebi.ac.uk.paths.SubmissionFolderResolver
+import ebi.ac.uk.persistence.PersistenceContext
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 import org.springframework.context.annotation.Lazy
-import org.springframework.core.annotation.Order
 import java.nio.file.Paths
 
 @Configuration
@@ -36,6 +34,14 @@ class SubmitterConfig {
         processors: List<SubmissionProcessor>,
         filesHandler: FilesHandler
     ) = SubmissionSubmitter(processors, filesHandler)
+
+    @Bean
+    fun submissionSubmitService(
+        context: PersistenceContext,
+        filesHandler: FilesHandler,
+        timesService: TimesService,
+        accNoService: AccNoService
+    ) = SubmissionSubmitService(filesHandler, context, timesService, accNoService)
 
     @Bean
     fun projectSubmitter(
@@ -67,31 +73,40 @@ class SubmitterConfig {
 
     @Configuration
     @Suppress("MagicNumber")
-    class ProcessorConfig(private val userPrivilegesService: IUserPrivilegesService) {
-        @Bean
-        @Order(0)
-        fun submissionProjectProcessor() = SubmissionProjectProcessor()
-
-        @Bean
-        @Order(1)
-        fun accessTagProcessor() = AccessTagProcessor()
-
-        @Bean
-        @Order(2)
-        fun accNoProcessor() = AccNoProcessor(userPrivilegesService, accNoPatternUtil())
-
-        @Bean
-        @Order(3)
-        fun timesProcessor() = TimesProcessor()
-
-        @Bean
-        @Order(4)
-        fun propertiesProcessor() = PropertiesProcessor()
+    class ProcessorConfig(
+        private val context: PersistenceContext,
+        private val userPrivilegesService: IUserPrivilegesService
+    ) {
+//        @Bean
+//        @Order(0)
+//        fun submissionProjectProcessor() = SubmissionProjectProcessor()
+//
+//        @Bean
+//        @Order(1)
+//        fun accessTagProcessor() = AccessTagProcessor()
+//
+//        @Bean
+//        @Order(2)
+//        fun accNoProcessor() = AccNoProcessor(userPrivilegesService, accNoPatternUtil())
+//
+//        @Bean
+//        @Order(3)
+//        fun timesProcessor() = TimesProcessor()
+//
+//        @Bean
+//        @Order(4)
+//        fun propertiesProcessor() = PropertiesProcessor()
 
         @Bean
         fun accNoPatternUtil() = AccNoPatternUtil()
 
         @Bean
         fun projectProcessor() = ProjectProcessor(accNoPatternUtil(), userPrivilegesService)
+
+        @Bean
+        fun accNoService() = AccNoService(context, accNoPatternUtil(), userPrivilegesService)
+
+        @Bean
+        fun timesService() = TimesService(context)
     }
 }

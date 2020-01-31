@@ -8,7 +8,7 @@ import ac.uk.ebi.biostd.persistence.filter.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.projections.SimpleSubmission
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
 import ac.uk.ebi.biostd.submission.model.SubmissionRequest
-import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
+import ac.uk.ebi.biostd.submission.processing.SubmissionSubmitService
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.persistence.PersistenceContext
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
@@ -19,7 +19,8 @@ class SubmissionService(
     private val persistenceContext: PersistenceContext,
     private val serializationService: SerializationService,
     private val userPrivilegesService: IUserPrivilegesService,
-    private val submitter: SubmissionSubmitter
+    private val submissionSubmitService: SubmissionSubmitService
+//    private val submitter: SubmissionSubmitter
 ) {
     fun getSubmissionAsJson(accNo: String): String {
         val submission = submissionRepository.getByAccNo(accNo)
@@ -46,5 +47,5 @@ class SubmissionService(
         submissionRepository.expireSubmission(accNo)
     }
 
-    fun submit(request: SubmissionRequest): Submission = submitter.submit(request, persistenceContext)
+    fun submit(request: SubmissionRequest): Submission = submissionSubmitService.submit(request, persistenceContext)
 }
