@@ -53,7 +53,7 @@ class AccNoServiceTest(
     fun `no accession number, no parent accession`() {
         val submission = ExtendedSubmission(EMPTY, user)
 
-        every { accNoPatternUtil.getPattern(ac.uk.ebi.biostd.submission.processors.DEFAULT_PATTERN) } returns "S-BSST"
+        every { accNoPatternUtil.getPattern(DEFAULT_PATTERN) } returns "S-BSST"
         every { persistenceContext.getParentAccPattern(submission) } returns Option.empty()
         every { persistenceContext.getSequenceNextValue("S-BSST") } returns 1L
 

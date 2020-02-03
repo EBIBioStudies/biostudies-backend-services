@@ -9,13 +9,11 @@ import ac.uk.ebi.biostd.submission.handlers.FilesHandler
 import ac.uk.ebi.biostd.submission.handlers.FilesValidator
 import ac.uk.ebi.biostd.submission.handlers.OutputFilesGenerator
 import ac.uk.ebi.biostd.submission.processing.AccNoService
-import ac.uk.ebi.biostd.submission.processing.SubmissionSubmitService
+import ac.uk.ebi.biostd.submission.processing.SubmissionSubmitter
 import ac.uk.ebi.biostd.submission.processing.TimesService
 import ac.uk.ebi.biostd.submission.processors.IProjectProcessor
 import ac.uk.ebi.biostd.submission.processors.ProjectProcessor
-import ac.uk.ebi.biostd.submission.processors.SubmissionProcessor
 import ac.uk.ebi.biostd.submission.submitter.ProjectSubmitter
-import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
 import ac.uk.ebi.biostd.submission.util.AccNoPatternUtil
 import ebi.ac.uk.paths.SubmissionFolderResolver
 import ebi.ac.uk.persistence.PersistenceContext
@@ -30,18 +28,12 @@ import java.nio.file.Paths
 @Import(ProcessorConfig::class, FilesHandlerConfig::class, SecurityBeansConfig::class)
 class SubmitterConfig {
     @Bean
-    fun submissionSubmitter(
-        processors: List<SubmissionProcessor>,
-        filesHandler: FilesHandler
-    ) = SubmissionSubmitter(processors, filesHandler)
-
-    @Bean
     fun submissionSubmitService(
         context: PersistenceContext,
         filesHandler: FilesHandler,
         timesService: TimesService,
         accNoService: AccNoService
-    ) = SubmissionSubmitService(filesHandler, context, timesService, accNoService)
+    ) = SubmissionSubmitter(filesHandler, context, timesService, accNoService)
 
     @Bean
     fun projectSubmitter(

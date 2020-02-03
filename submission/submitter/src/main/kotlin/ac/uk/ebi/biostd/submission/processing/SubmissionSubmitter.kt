@@ -18,7 +18,7 @@ import org.springframework.transaction.annotation.Transactional
 import java.time.OffsetDateTime
 import java.util.UUID
 
-open class SubmissionSubmitService(
+open class SubmissionSubmitter(
     private val filesHandler: FilesHandler,
     private val context: PersistenceContext,
     private val timesService: TimesService,
