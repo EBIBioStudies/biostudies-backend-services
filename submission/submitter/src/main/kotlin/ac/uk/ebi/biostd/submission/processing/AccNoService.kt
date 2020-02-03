@@ -61,17 +61,3 @@ class AccNoService(
     private fun getPatternOrDefault(pattern: Option<String>) =
         pattern.map { patternUtil.getPattern(it) }.getOrElse { patternUtil.getPattern(DEFAULT_PATTERN) }
 }
-
-// fun SubmissionSubmitService.getAccNo(submission: ExtendedSubmission): AccNumber {
-//    return when {
-//        submission.accNo.isNotEmpty() &&
-//            context.isNew(submission.accNo) &&
-//            userPrivilegesService.canProvideAccNo(submission.user.email).not() ->
-//            throw ProvideAccessNumber(submission.user)
-//        userPrivilegesService.canResubmit(
-//            submission.user.email, submission.user, submission.attachTo, submission.accessTags).not() ->
-//            throw UserCanNotUpdateSubmit(submission)
-//        else ->
-//            calculateAccNo(submission)
-//    }
-// }

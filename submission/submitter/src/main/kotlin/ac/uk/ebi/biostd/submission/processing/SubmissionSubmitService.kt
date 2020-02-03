@@ -24,7 +24,6 @@ open class SubmissionSubmitService(
     private val timesService: TimesService,
     private val accNoService: AccNoService
 ) {
-
     @Transactional(isolation = Isolation.READ_UNCOMMITTED)
     open fun submit(request: SubmissionRequest, persistenceContext: PersistenceContext): Submission {
         val submission = ExtendedSubmission(request.submission, request.user.asUser())
