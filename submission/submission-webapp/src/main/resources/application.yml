@@ -14,8 +14,8 @@ spring:
 
   servlet:
     multipart:
-      max-file-size: 10240MB
-      max-request-size: 10240MB
+      max-file-size: 20GB
+      max-request-size: 20GB
 
 logging.file: logs/application_logs.txt
 logging:
