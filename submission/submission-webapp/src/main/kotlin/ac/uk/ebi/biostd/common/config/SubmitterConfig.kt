@@ -28,7 +28,7 @@ import java.nio.file.Paths
 @Import(ProcessorConfig::class, FilesHandlerConfig::class, SecurityBeansConfig::class)
 class SubmitterConfig {
     @Bean
-    fun submissionSubmitService(
+    fun submissionSubmitter(
         context: PersistenceContext,
         filesHandler: FilesHandler,
         timesService: TimesService,
@@ -69,26 +69,6 @@ class SubmitterConfig {
         private val context: PersistenceContext,
         private val userPrivilegesService: IUserPrivilegesService
     ) {
-//        @Bean
-//        @Order(0)
-//        fun submissionProjectProcessor() = SubmissionProjectProcessor()
-//
-//        @Bean
-//        @Order(1)
-//        fun accessTagProcessor() = AccessTagProcessor()
-//
-//        @Bean
-//        @Order(2)
-//        fun accNoProcessor() = AccNoProcessor(userPrivilegesService, accNoPatternUtil())
-//
-//        @Bean
-//        @Order(3)
-//        fun timesProcessor() = TimesProcessor()
-//
-//        @Bean
-//        @Order(4)
-//        fun propertiesProcessor() = PropertiesProcessor()
-
         @Bean
         fun accNoPatternUtil() = AccNoPatternUtil()
 
