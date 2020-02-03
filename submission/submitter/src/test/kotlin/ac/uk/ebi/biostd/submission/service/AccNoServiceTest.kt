@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.submission.processing
+package ac.uk.ebi.biostd.submission.service
 
 import ac.uk.ebi.biostd.submission.exceptions.InvalidPermissionsException
 import ac.uk.ebi.biostd.submission.util.AccNoPatternUtil

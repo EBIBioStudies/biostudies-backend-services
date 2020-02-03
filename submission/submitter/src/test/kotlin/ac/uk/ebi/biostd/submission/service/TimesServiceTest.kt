@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.submission.processing
+package ac.uk.ebi.biostd.submission.service
 
 import ac.uk.ebi.biostd.submission.exceptions.InvalidDateFormatException
 import ac.uk.ebi.biostd.submission.test.ACC_NO

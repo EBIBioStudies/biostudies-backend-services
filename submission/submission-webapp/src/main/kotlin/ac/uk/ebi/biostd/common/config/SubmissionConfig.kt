@@ -8,7 +8,7 @@ import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
 import ac.uk.ebi.biostd.submission.domain.helpers.SourceGenerator
 import ac.uk.ebi.biostd.submission.domain.service.ProjectService
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionService
-import ac.uk.ebi.biostd.submission.processing.SubmissionSubmitter
+import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
 import ac.uk.ebi.biostd.submission.submitter.ProjectSubmitter
 import ac.uk.ebi.biostd.submission.web.handlers.ProjectWebHandler
 import ac.uk.ebi.biostd.submission.web.handlers.SubmissionWebHandler

@@ -8,9 +8,9 @@ import ac.uk.ebi.biostd.submission.handlers.FilesCopier
 import ac.uk.ebi.biostd.submission.handlers.FilesHandler
 import ac.uk.ebi.biostd.submission.handlers.FilesValidator
 import ac.uk.ebi.biostd.submission.handlers.OutputFilesGenerator
-import ac.uk.ebi.biostd.submission.processing.AccNoService
-import ac.uk.ebi.biostd.submission.processing.SubmissionSubmitter
-import ac.uk.ebi.biostd.submission.processing.TimesService
+import ac.uk.ebi.biostd.submission.service.AccNoService
+import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
+import ac.uk.ebi.biostd.submission.service.TimesService
 import ac.uk.ebi.biostd.submission.processors.IProjectProcessor
 import ac.uk.ebi.biostd.submission.processors.ProjectProcessor
 import ac.uk.ebi.biostd.submission.submitter.ProjectSubmitter
