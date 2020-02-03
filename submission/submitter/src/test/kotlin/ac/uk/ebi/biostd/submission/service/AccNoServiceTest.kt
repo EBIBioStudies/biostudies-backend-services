@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.submission.processors
+package ac.uk.ebi.biostd.submission.service
 
 import ac.uk.ebi.biostd.submission.exceptions.InvalidPermissionsException
 import ac.uk.ebi.biostd.submission.util.AccNoPatternUtil
@@ -21,14 +21,14 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
 
 @ExtendWith(MockKExtension::class)
-class AccNoProcessorTest(
+class AccNoServiceTest(
     @MockK private val user: User,
     @MockK private val accNoPatternUtil: AccNoPatternUtil,
     @MockK private val persistenceContext: PersistenceContext,
     @MockK private val userPrivilegesService: IUserPrivilegesService
 ) {
     private val submission = ExtendedSubmission("AAB12", user)
-    private val testInstance = AccNoProcessor(userPrivilegesService, accNoPatternUtil)
+    private val testInstance = AccNoService(persistenceContext, accNoPatternUtil, userPrivilegesService)
 
     @BeforeEach
     fun init() {
@@ -57,8 +57,8 @@ class AccNoProcessorTest(
         every { persistenceContext.getParentAccPattern(submission) } returns Option.empty()
         every { persistenceContext.getSequenceNextValue("S-BSST") } returns 1L
 
-        testInstance.process(submission, persistenceContext)
-        assertThat(submission.accNo).isEqualTo("S-BSST1")
+        val accNo = testInstance.getAccNo(submission).toString()
+        assertThat(accNo).isEqualTo("S-BSST1")
     }
 
     @Test
@@ -69,8 +69,8 @@ class AccNoProcessorTest(
         every { persistenceContext.getParentAccPattern(submission) } returns Option.just("!{P-ARENT,}")
         every { persistenceContext.getSequenceNextValue("P-ARENT") } returns 1
 
-        testInstance.process(submission, persistenceContext)
-        assertThat(submission.accNo).isEqualTo("P-ARENT1")
+        val accNo = testInstance.getAccNo(submission).toString()
+        assertThat(accNo).isEqualTo("P-ARENT1")
     }
 
     @Test
@@ -78,7 +78,7 @@ class AccNoProcessorTest(
         every { persistenceContext.isNew("AAB12") } returns true
         every { userPrivilegesService.canProvideAccNo("test@mail.com") } returns false
 
-        assertThrows<InvalidPermissionsException> { testInstance.process(submission, persistenceContext) }
+        assertThrows<InvalidPermissionsException> { testInstance.getAccNo(submission) }
     }
 
     @Test
@@ -86,6 +86,6 @@ class AccNoProcessorTest(
         every { persistenceContext.isNew("AAB12") } returns false
         every { userPrivilegesService.canResubmit("test@mail.com", user, null, emptyList()) } returns false
 
-        assertThrows<InvalidPermissionsException> { testInstance.process(submission, persistenceContext) }
+        assertThrows<InvalidPermissionsException> { testInstance.getAccNo(submission) }
     }
 }

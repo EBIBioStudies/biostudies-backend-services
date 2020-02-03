@@ -19,7 +19,7 @@ class SubmissionService(
     private val persistenceContext: PersistenceContext,
     private val serializationService: SerializationService,
     private val userPrivilegesService: IUserPrivilegesService,
-    private val submitter: SubmissionSubmitter
+    private val submissionSubmitter: SubmissionSubmitter
 ) {
     fun getSubmissionAsJson(accNo: String): String {
         val submission = submissionRepository.getByAccNo(accNo)
@@ -46,5 +46,5 @@ class SubmissionService(
         submissionRepository.expireSubmission(accNo)
     }
 
-    fun submit(request: SubmissionRequest): Submission = submitter.submit(request, persistenceContext)
+    fun submit(request: SubmissionRequest): Submission = submissionSubmitter.submit(request, persistenceContext)
 }

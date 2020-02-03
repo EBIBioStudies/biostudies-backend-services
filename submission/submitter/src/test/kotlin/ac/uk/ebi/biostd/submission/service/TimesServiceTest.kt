@@ -1,10 +1,9 @@
-package ac.uk.ebi.biostd.submission.processors
+package ac.uk.ebi.biostd.submission.service
 
 import ac.uk.ebi.biostd.submission.exceptions.InvalidDateFormatException
 import ac.uk.ebi.biostd.submission.test.ACC_NO
 import ac.uk.ebi.biostd.submission.test.createBasicExtendedSubmission
 import ebi.ac.uk.model.ExtendedSubmission
-import ebi.ac.uk.model.constants.SubFields.PUBLIC_ACCESS_TAG
 import ebi.ac.uk.model.extensions.releaseDate
 import ebi.ac.uk.persistence.PersistenceContext
 import io.mockk.every
@@ -21,16 +20,14 @@ import java.time.OffsetDateTime
 import java.time.ZoneOffset
 
 @ExtendWith(MockKExtension::class)
-class TimesProcessorTest(@MockK private val mockContext: PersistenceContext) {
-
-    private val testTime = OffsetDateTime.of(2018, 10, 10, 0, 0, 0, 0, ZoneOffset.UTC)
+class TimesServiceTest(@MockK private val mockContext: PersistenceContext) {
     private lateinit var submission: ExtendedSubmission
+    private val testInstance = TimesService(mockContext)
+    private val testTime = OffsetDateTime.of(2018, 10, 10, 0, 0, 0, 0, ZoneOffset.UTC)
     private val mockNow = OffsetDateTime.of(2018, 12, 31, 0, 0, 0, 0, ZoneOffset.UTC)
 
-    private val testInstance = TimesProcessor()
-
     @BeforeEach
-    fun setUp() {
+    fun beforeEach() {
         submission = createBasicExtendedSubmission()
 
         mockkStatic(OffsetDateTime::class)
@@ -41,47 +38,40 @@ class TimesProcessorTest(@MockK private val mockContext: PersistenceContext) {
 
     @Nested
     inner class ModificationTime {
-
         @Test
         fun `calculate modification time`() {
-            testInstance.process(submission, mockContext)
-
-            assertThat(submission.modificationTime).isEqualTo(mockNow)
+            val times = testInstance.getTimes(submission)
+            assertThat(times.modificationTime).isEqualTo(mockNow)
         }
     }
 
     @Nested
     inner class CreationTime {
-
         @Test
         fun `when exists`() {
             val existingSubmission = createBasicExtendedSubmission().apply { creationTime = testTime }
             every { mockContext.getSubmission(ACC_NO) } returns existingSubmission
 
-            testInstance.process(submission, mockContext)
-
-            assertThat(submission.creationTime).isEqualTo(testTime)
+            val times = testInstance.getTimes(submission)
+            assertThat(times.createTime).isEqualTo(testTime)
         }
 
         @Test
         fun `when is new`() {
-            testInstance.process(submission, mockContext)
-
-            assertThat(submission.creationTime).isEqualTo(mockNow)
+            val times = testInstance.getTimes(submission)
+            assertThat(times.createTime).isEqualTo(mockNow)
         }
     }
 
     @Nested
     inner class ReleaseTime {
-
         @Nested
         inner class WhenNoParent {
-
             @Test
             fun `when release date with invalid format`() {
                 submission.releaseDate = "2018/10/10"
 
-                val exception = assertThrows<InvalidDateFormatException> { testInstance.process(submission, mockContext) }
+                val exception = assertThrows<InvalidDateFormatException> { testInstance.getTimes(submission) }
 
                 assertThat(exception.message).isEqualTo(
                     "Provided date 2018/10/10 could not be parsed. Expected format is YYYY-MM-DD")
@@ -92,20 +82,14 @@ class TimesProcessorTest(@MockK private val mockContext: PersistenceContext) {
                 val releaseTime = OffsetDateTime.of(2019, 10, 10, 0, 0, 0, 0, ZoneOffset.UTC)
                 submission.releaseDate = "2019-10-10T09:27:04.000Z"
 
-                testInstance.process(submission, mockContext)
-
-                assertThat(submission.releaseTime).isEqualTo(releaseTime)
-                assertThat(submission.released).isFalse()
-                assertThat(submission.accessTags).isEmpty()
+                val times = testInstance.getTimes(submission)
+                assertThat(times.releaseTime).isEqualTo(releaseTime)
             }
 
             @Test
             fun `when no release date now is used`() {
-                testInstance.process(submission, mockContext)
-
-                assertThat(submission.releaseTime).isEqualTo(mockNow)
-                assertThat(submission.released).isTrue()
-                assertThat(submission.accessTags).contains(PUBLIC_ACCESS_TAG.value)
+                val times = testInstance.getTimes(submission)
+                assertThat(times.releaseTime).isEqualTo(mockNow)
             }
         }
 
@@ -114,11 +98,8 @@ class TimesProcessorTest(@MockK private val mockContext: PersistenceContext) {
             every { mockContext.hasParent(submission) } returns true
             every { mockContext.getParentReleaseTime(submission) } returns null
 
-            testInstance.process(submission, mockContext)
-
-            assertThat(submission.releaseTime).isNull()
-            assertThat(submission.released).isFalse()
-            assertThat(submission.accessTags).isEmpty()
+            val times = testInstance.getTimes(submission)
+            assertThat(times.releaseTime).isNull()
         }
 
         @Test
@@ -126,11 +107,8 @@ class TimesProcessorTest(@MockK private val mockContext: PersistenceContext) {
             every { mockContext.hasParent(submission) } returns true
             every { mockContext.getParentReleaseTime(submission) } returns null
 
-            testInstance.process(submission, mockContext)
-
-            assertThat(submission.releaseTime).isNull()
-            assertThat(submission.released).isFalse()
-            assertThat(submission.accessTags).isEmpty()
+            val times = testInstance.getTimes(submission)
+            assertThat(times.releaseTime).isNull()
         }
     }
 }
