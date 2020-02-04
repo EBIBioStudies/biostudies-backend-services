@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.submission.submitter
 
-import ac.uk.ebi.biostd.submission.processors.IProjectProcessor
+import ac.uk.ebi.biostd.submission.service.ProjectValidationService
 import ac.uk.ebi.biostd.submission.test.createBasicProject
 import ac.uk.ebi.biostd.submission.util.AccNoPatternUtil
 import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSED
@@ -17,33 +17,32 @@ import org.junit.jupiter.api.extension.ExtendWith
 @ExtendWith(MockKExtension::class)
 class ProjectSubmitterTest(
     @MockK private val accNoPatternUtil: AccNoPatternUtil,
-    @MockK private val projectProcessor: IProjectProcessor,
-    @MockK private val persistenceContext: PersistenceContext
+    @MockK private val persistenceContext: PersistenceContext,
+    @MockK private val projectValidationService: ProjectValidationService
 ) {
     private val project = createBasicProject()
-    private val testInstance = ProjectSubmitter(accNoPatternUtil, listOf(projectProcessor))
+    private val testInstance = ProjectSubmitter(accNoPatternUtil, persistenceContext, projectValidationService)
 
     @BeforeEach
     fun beforeEach() {
         every { accNoPatternUtil.getPattern("!{S-ABC}") } returns "S-ABC"
         every { persistenceContext.saveAccessTag("ABC456") } answers { nothing }
         every { persistenceContext.saveSubmission(project) } answers { project }
-        every { projectProcessor.process(project, persistenceContext) } answers { nothing }
+        every { projectValidationService.validate(project) } answers { nothing }
         every { persistenceContext.createAccNoPatternSequence("S-ABC") } answers { nothing }
     }
 
     @Test
     fun submit() {
-        testInstance.submit(project, persistenceContext)
+        testInstance.submit(project)
 
         assertThat(project.processingStatus).isEqualTo(PROCESSED)
         verify(exactly = 1) {
             accNoPatternUtil.getPattern("!{S-ABC}")
-            persistenceContext.saveAccessTag("ABC456")
+            projectValidationService.validate(project)
             persistenceContext.saveSubmission(project)
+            persistenceContext.saveAccessTag("ABC456")
             persistenceContext.createAccNoPatternSequence("S-ABC")
-
-            projectProcessor.process(project, persistenceContext)
         }
     }
 }

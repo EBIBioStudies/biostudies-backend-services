@@ -46,5 +46,5 @@ class SubmissionService(
         submissionRepository.expireSubmission(accNo)
     }
 
-    fun submit(request: SubmissionRequest): Submission = submissionSubmitter.submit(request, persistenceContext)
+    fun submit(request: SubmissionRequest): Submission = submissionSubmitter.submit(request)
 }

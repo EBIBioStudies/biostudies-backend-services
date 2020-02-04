@@ -10,18 +10,16 @@ import ebi.ac.uk.model.ExtendedSubmission
 import ebi.ac.uk.model.Project
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.extensions.title
-import ebi.ac.uk.persistence.PersistenceContext
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 
 class ProjectService(
     private val submitter: ProjectSubmitter,
-    private val persistenceContext: PersistenceContext,
     private val tagsDataRepository: AccessTagDataRepository,
     private val projectRepository: ProjectRepository,
     private val accessPermissionRepository: AccessPermissionRepository
 ) {
     fun submit(project: Submission, user: SecurityUser) =
-        submitter.submit(ExtendedSubmission(project, user.asUser()), persistenceContext)
+        submitter.submit(ExtendedSubmission(project, user.asUser()))
 
     fun getAllowedProjects(user: SecurityUser, accessType: AccessType): List<Project> {
         val accessTags = if (user.superuser) tagsDataRepository.findAll() else getUserTags(user, accessType)

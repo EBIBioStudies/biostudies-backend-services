@@ -37,12 +37,11 @@ class SubmissionConfig(
     @Bean
     fun projectService(
         projectSubmitter: ProjectSubmitter,
-        persistenceContext: PersistenceContext,
         tagsDataRepository: AccessTagDataRepository,
         projectRepository: ProjectRepository,
         accessPermissionRepository: AccessPermissionRepository
     ): ProjectService = ProjectService(
-        projectSubmitter, persistenceContext, tagsDataRepository, projectRepository, accessPermissionRepository)
+        projectSubmitter, tagsDataRepository, projectRepository, accessPermissionRepository)
 
     @Bean
     fun submissionHandler(submissionService: SubmissionService): SubmissionWebHandler =

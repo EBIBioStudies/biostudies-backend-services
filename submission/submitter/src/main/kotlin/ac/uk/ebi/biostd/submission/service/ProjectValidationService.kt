@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.submission.processors
+package ac.uk.ebi.biostd.submission.service
 
 import ac.uk.ebi.biostd.submission.exceptions.ProjectAccessTagAlreadyExistingException
 import ac.uk.ebi.biostd.submission.exceptions.ProjectAlreadyExistingException
@@ -8,26 +8,21 @@ import ac.uk.ebi.biostd.submission.util.AccNoPatternUtil
 import ebi.ac.uk.base.isNotBlank
 import ebi.ac.uk.model.ExtendedSubmission
 import ebi.ac.uk.model.extensions.accNoTemplate
-import ebi.ac.uk.model.extensions.addAccessTag
 import ebi.ac.uk.persistence.PersistenceContext
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 
 internal const val ACC_NO_TEMPLATE_REQUIRED = "The project accession number pattern is required"
 internal const val ACC_NO_TEMPLATE_INVALID = "The given template is invalid. Expected pattern is !{TEMPLATE}"
 
-class ProjectProcessor(
+class ProjectValidationService(
+    private val persistenceContext: PersistenceContext,
     private val accNoPatternUtil: AccNoPatternUtil,
     private val userPrivilegesService: IUserPrivilegesService
-) : IProjectProcessor {
-    override fun process(project: ExtendedSubmission, context: PersistenceContext) {
-        validate(project, context)
-        project.addAccessTag(project.accNo)
-    }
-
-    fun validate(project: ExtendedSubmission, context: PersistenceContext) {
+) {
+    fun validate(project: ExtendedSubmission) {
         validatePrivileges(project)
         validateAccNoTemplate(project)
-        validateProject(project, context)
+        validateProject(project)
     }
 
     private fun validatePrivileges(project: ExtendedSubmission) {
@@ -46,9 +41,9 @@ class ProjectProcessor(
         }
     }
 
-    private fun validateProject(project: ExtendedSubmission, context: PersistenceContext) {
-        require(context.isNew(project.accNo)) { throw ProjectAlreadyExistingException(project.accNo) }
-        require(context.accessTagExists(project.accNo).not()) {
+    private fun validateProject(project: ExtendedSubmission) {
+        require(persistenceContext.isNew(project.accNo)) { throw ProjectAlreadyExistingException(project.accNo) }
+        require(persistenceContext.accessTagExists(project.accNo).not()) {
             throw ProjectAccessTagAlreadyExistingException(project.accNo)
         }
     }
