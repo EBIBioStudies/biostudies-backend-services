@@ -1,16 +1,15 @@
 package ac.uk.ebi.biostd.files.service
 
 import ac.uk.ebi.biostd.files.model.FilesSpec
-import ac.uk.ebi.biostd.files.utils.copyFile
+import ac.uk.ebi.biostd.files.utils.moveFile
 import ebi.ac.uk.io.asFileList
 import ebi.ac.uk.security.integration.model.api.SecurityUser
-import org.springframework.web.multipart.MultipartFile
 import java.io.File
 
 class UserFilesService {
-    fun uploadFiles(user: SecurityUser, path: String, files: Array<MultipartFile>) {
+    fun uploadFiles(user: SecurityUser, path: String, files: List<File>) {
         val userPath = user.magicFolder.path
-        files.forEach { file -> copyFile(userPath.resolve(path), file) }
+        files.forEach { file -> moveFile(userPath.resolve(path), file) }
     }
 
     fun getFile(user: SecurityUser, path: String, fileName: String): File {

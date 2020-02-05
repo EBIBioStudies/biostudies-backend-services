@@ -4,6 +4,7 @@ import ac.uk.ebi.biostd.files.service.UserFilesService
 import ac.uk.ebi.biostd.files.web.common.FilesMapper
 import ac.uk.ebi.biostd.files.web.common.UserPath
 import ac.uk.ebi.biostd.submission.converters.BioUser
+import ac.uk.ebi.biostd.submission.domain.service.TempFileGenerator
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import org.springframework.core.io.FileSystemResource
 import org.springframework.http.HttpStatus
@@ -22,7 +23,8 @@ import org.springframework.web.multipart.MultipartFile
 @PreAuthorize("isAuthenticated()")
 class UserFilesResource(
     private val fileManager: UserFilesService,
-    private val filesMapper: FilesMapper
+    private val filesMapper: FilesMapper,
+    private val tmpFileGenerator: TempFileGenerator
 ) {
     @GetMapping("/files/user/**")
     @ResponseBody
@@ -45,7 +47,7 @@ class UserFilesResource(
         @BioUser user: SecurityUser,
         pathDescriptor: UserPath,
         @RequestParam("files") files: Array<MultipartFile>
-    ) = fileManager.uploadFiles(user, pathDescriptor.path, files)
+    ) = fileManager.uploadFiles(user, pathDescriptor.path, tmpFileGenerator.asFiles(files))
 
     @DeleteMapping("/files/user/**")
     @ResponseStatus(value = HttpStatus.OK)

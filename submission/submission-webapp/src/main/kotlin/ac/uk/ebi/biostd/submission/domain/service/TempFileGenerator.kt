@@ -10,6 +10,7 @@ class TempFileGenerator(private val properties: ApplicationProperties) {
 
     fun asFile(file: MultipartFile): File {
         val tempFile = File(properties.tempDirPath, FilenameUtils.getName(file.originalFilename))
+        tempFile.createNewFile()
         file.transferTo(tempFile)
         return tempFile
     }
