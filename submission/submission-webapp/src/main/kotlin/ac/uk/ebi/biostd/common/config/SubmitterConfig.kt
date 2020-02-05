@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.common.config
 
 import ac.uk.ebi.biostd.common.config.SubmitterConfig.FilesHandlerConfig
-import ac.uk.ebi.biostd.common.config.SubmitterConfig.ProcessorConfig
+import ac.uk.ebi.biostd.common.config.SubmitterConfig.ServiceConfig
 import ac.uk.ebi.biostd.common.property.ApplicationProperties
 import ac.uk.ebi.biostd.integration.SerializationConfig
 import ac.uk.ebi.biostd.submission.handlers.FilesCopier
@@ -11,8 +11,7 @@ import ac.uk.ebi.biostd.submission.handlers.OutputFilesGenerator
 import ac.uk.ebi.biostd.submission.service.AccNoService
 import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
 import ac.uk.ebi.biostd.submission.service.TimesService
-import ac.uk.ebi.biostd.submission.processors.IProjectProcessor
-import ac.uk.ebi.biostd.submission.processors.ProjectProcessor
+import ac.uk.ebi.biostd.submission.service.ProjectValidationService
 import ac.uk.ebi.biostd.submission.submitter.ProjectSubmitter
 import ac.uk.ebi.biostd.submission.util.AccNoPatternUtil
 import ebi.ac.uk.paths.SubmissionFolderResolver
@@ -25,21 +24,22 @@ import org.springframework.context.annotation.Lazy
 import java.nio.file.Paths
 
 @Configuration
-@Import(ProcessorConfig::class, FilesHandlerConfig::class, SecurityBeansConfig::class)
+@Import(ServiceConfig::class, FilesHandlerConfig::class, SecurityBeansConfig::class)
 class SubmitterConfig {
     @Bean
     fun submissionSubmitter(
-        context: PersistenceContext,
         filesHandler: FilesHandler,
         timesService: TimesService,
-        accNoService: AccNoService
-    ) = SubmissionSubmitter(filesHandler, context, timesService, accNoService)
+        accNoService: AccNoService,
+        persistenceContext: PersistenceContext
+    ) = SubmissionSubmitter(filesHandler, timesService, accNoService, persistenceContext)
 
     @Bean
     fun projectSubmitter(
         accNoPatternUtil: AccNoPatternUtil,
-        processors: List<IProjectProcessor>
-    ) = ProjectSubmitter(accNoPatternUtil, processors)
+        persistenceContext: PersistenceContext,
+        projectValidationService: ProjectValidationService
+    ) = ProjectSubmitter(accNoPatternUtil, persistenceContext, projectValidationService)
 
     @Configuration
     class FilesHandlerConfig(private val appProperties: ApplicationProperties) {
@@ -65,7 +65,7 @@ class SubmitterConfig {
 
     @Configuration
     @Suppress("MagicNumber")
-    class ProcessorConfig(
+    class ServiceConfig(
         private val context: PersistenceContext,
         private val userPrivilegesService: IUserPrivilegesService
     ) {
@@ -73,10 +73,10 @@ class SubmitterConfig {
         fun accNoPatternUtil() = AccNoPatternUtil()
 
         @Bean
-        fun projectProcessor() = ProjectProcessor(accNoPatternUtil(), userPrivilegesService)
+        fun accNoService() = AccNoService(context, accNoPatternUtil(), userPrivilegesService)
 
         @Bean
-        fun accNoService() = AccNoService(context, accNoPatternUtil(), userPrivilegesService)
+        fun projectValidationService() = ProjectValidationService(context, accNoPatternUtil(), userPrivilegesService)
 
         @Bean
         fun timesService() = TimesService(context)

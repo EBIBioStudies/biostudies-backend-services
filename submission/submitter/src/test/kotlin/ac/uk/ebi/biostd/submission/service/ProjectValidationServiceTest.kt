@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.submission.processors
+package ac.uk.ebi.biostd.submission.service
 
 import ac.uk.ebi.biostd.submission.exceptions.ProjectAccessTagAlreadyExistingException
 import ac.uk.ebi.biostd.submission.exceptions.ProjectAlreadyExistingException
@@ -22,13 +22,13 @@ import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(MockKExtension::class)
-class ProjectProcessorTest(
+class ProjectValidationServiceTest(
     @MockK private val accNoPatternUtil: AccNoPatternUtil,
     @MockK private val persistenceContext: PersistenceContext,
     @MockK private val userPrivilegesService: IUserPrivilegesService
 ) {
     private val project = createBasicProject()
-    private val testInstance = ProjectProcessor(accNoPatternUtil, userPrivilegesService)
+    private val testInstance = ProjectValidationService(persistenceContext, accNoPatternUtil, userPrivilegesService)
 
     @BeforeEach
     fun beforeEach() {
@@ -42,16 +42,8 @@ class ProjectProcessorTest(
     fun afterEach() = clearAllMocks()
 
     @Test
-    fun process() {
-        testInstance.process(project, persistenceContext)
-
-        assertThat(project.accessTags).hasSize(1)
-        assertThat(project.accessTags.first()).isEqualTo("ABC456")
-    }
-
-    @Test
     fun validate() {
-        testInstance.validate(project, persistenceContext)
+        testInstance.validate(project)
         verify(exactly = 1) {
             persistenceContext.isNew("ABC456")
             accNoPatternUtil.isPattern("!{S-ABC}")
@@ -65,7 +57,7 @@ class ProjectProcessorTest(
         every { userPrivilegesService.canSubmitProjects("user@mail.com") } returns false
 
         val error =
-            assertThrows<UserCanNotSubmitProjectsException> { testInstance.validate(project, persistenceContext) }
+            assertThrows<UserCanNotSubmitProjectsException> { testInstance.validate(project) }
         assertThat(error.message).isEqualTo("The user user@mail.com is not allowed to submit projects")
 
         verify(exactly = 1) { userPrivilegesService.canSubmitProjects("user@mail.com") }
@@ -79,7 +71,7 @@ class ProjectProcessorTest(
     @Test
     fun `missing acc no pattern`() {
         val error = assertThrows<ProjectInvalidAccNoPatternException> {
-            testInstance.validate(createBasicExtendedSubmission(), persistenceContext)
+            testInstance.validate(createBasicExtendedSubmission())
         }
         assertThat(error.message).isEqualTo(ACC_NO_TEMPLATE_REQUIRED)
 
@@ -95,7 +87,7 @@ class ProjectProcessorTest(
         every { accNoPatternUtil.isPattern("!{S-ABC}") } returns false
 
         val error = assertThrows<ProjectInvalidAccNoPatternException> {
-            testInstance.validate(project, persistenceContext)
+            testInstance.validate(project)
         }
         assertThat(error.message).isEqualTo(ACC_NO_TEMPLATE_INVALID)
 
@@ -110,7 +102,7 @@ class ProjectProcessorTest(
     fun `already existing project`() {
         every { persistenceContext.isNew("ABC456") } returns false
 
-        val error = assertThrows<ProjectAlreadyExistingException> { testInstance.validate(project, persistenceContext) }
+        val error = assertThrows<ProjectAlreadyExistingException> { testInstance.validate(project) }
         assertThat(error.message).isEqualTo("The project ABC456 already exists")
 
         verify(exactly = 0) { persistenceContext.accessTagExists("ABC456") }
@@ -126,7 +118,7 @@ class ProjectProcessorTest(
         every { persistenceContext.accessTagExists("ABC456") } returns true
 
         val error = assertThrows<ProjectAccessTagAlreadyExistingException> {
-            testInstance.validate(project, persistenceContext)
+            testInstance.validate(project)
         }
         assertThat(error.message).isEqualTo("The access tag with name ABC456 already exists")
 

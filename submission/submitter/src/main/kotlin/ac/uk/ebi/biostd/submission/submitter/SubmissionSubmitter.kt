@@ -22,12 +22,12 @@ import java.util.UUID
 
 open class SubmissionSubmitter(
     private val filesHandler: FilesHandler,
-    private val context: PersistenceContext,
     private val timesService: TimesService,
-    private val accNoService: AccNoService
+    private val accNoService: AccNoService,
+    private val persistenceContext: PersistenceContext
 ) {
     @Transactional(isolation = Isolation.READ_UNCOMMITTED)
-    open fun submit(request: SubmissionRequest, persistenceContext: PersistenceContext): Submission {
+    open fun submit(request: SubmissionRequest): Submission {
         val submission = ExtendedSubmission(request.submission, request.user.asUser())
         val processingErrors = process(submission, request.files)
 
@@ -48,7 +48,7 @@ open class SubmissionSubmitter(
         ).mapNotNull { it.exceptionOrNull() }
 
     private fun processSubmission(submission: ExtendedSubmission): ExtendedSubmission {
-        val parentTags = context.getParentAccessTags(submission).filterNot { it == "Public" }
+        val parentTags = persistenceContext.getParentAccessTags(submission).filterNot { it == "Public" }
         val (creationTime, modificationTime, releaseTime) = timesService.getTimes(submission)
 
         submission.accessTags = parentTags.toMutableList()
@@ -60,7 +60,9 @@ open class SubmissionSubmitter(
         val accNo = accNoService.getAccNo(submission)
         val accString = accNo.toString()
         val relPath = accNoService.getRelPath(accNo)
-        val secretKey = if (context.isNew(accString)) UUID.randomUUID().toString() else context.getSecret(accString)
+        val secretKey =
+            if (persistenceContext.isNew(accString)) UUID.randomUUID().toString()
+            else persistenceContext.getSecret(accString)
 
         submission.accNo = accString
         submission.relPath = relPath

@@ -39,7 +39,7 @@ class SubmissionSubmitterTest(
 
     private val testAccNo = AccNumber("ABC", 456)
     private val testTime = OffsetDateTime.of(2018, 10, 10, 0, 0, 0, 0, ZoneOffset.UTC)
-    private val testInstance = SubmissionSubmitter(filesHandler, persistenceContext, timesService, accNoService)
+    private val testInstance = SubmissionSubmitter(filesHandler, timesService, accNoService, persistenceContext)
 
     @BeforeEach
     fun beforeEach() {
@@ -64,7 +64,7 @@ class SubmissionSubmitterTest(
 
     @Test
     fun submit() {
-        testInstance.submit(submissionRequest, persistenceContext)
+        testInstance.submit(submissionRequest)
 
         assertThat(savedSubmission.captured.processingStatus).isEqualTo(ProcessingStatus.PROCESSED)
         verify(exactly = 1) {
