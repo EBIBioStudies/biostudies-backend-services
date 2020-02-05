@@ -18,28 +18,24 @@ open class ProjectSubmitter(
     private val projectValidationService: ProjectValidationService
 ) {
     @Transactional(isolation = Isolation.READ_UNCOMMITTED)
-    open fun submit(project: ExtendedSubmission): Submission {
-        val processingErrors = process(project)
-        if (processingErrors.isEmpty()) {
-            val sequencePrefix = accNoPatternUtil.getPattern(project.accNoTemplate!!)
-            persistenceContext.createAccNoPatternSequence(sequencePrefix)
-            persistenceContext.saveAccessTag(project.accNo)
-            project.processingStatus = PROCESSED
-            return persistenceContext.saveSubmission(project)
-        }
+    open fun submit(project: ExtendedSubmission): Submission =
+        runCatching { process(project) }.fold(
+            { persist(project) },
+            { throw InvalidSubmissionException("Submission validation errors", listOf(it)) })
 
-        throw InvalidSubmissionException("Submission validation errors", processingErrors)
-    }
-
-    private fun process(project: ExtendedSubmission) =
-        listOf(
-            runCatching { processProject(project) }
-        ).mapNotNull { it.exceptionOrNull() }
-
-    private fun processProject(project: ExtendedSubmission): ExtendedSubmission {
+    private fun process(project: ExtendedSubmission): ExtendedSubmission {
         projectValidationService.validate(project)
         project.addAccessTag(project.accNo)
 
         return project
+    }
+
+    private fun persist(project: ExtendedSubmission): Submission {
+        val sequencePrefix = accNoPatternUtil.getPattern(project.accNoTemplate!!)
+        persistenceContext.createAccNoPatternSequence(sequencePrefix)
+        persistenceContext.saveAccessTag(project.accNo)
+        project.processingStatus = PROCESSED
+
+        return persistenceContext.saveSubmission(project)
     }
 }
