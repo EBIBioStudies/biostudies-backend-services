@@ -47,7 +47,7 @@ class UserFilesResource(
         @BioUser user: SecurityUser,
         pathDescriptor: UserPath,
         @RequestParam("files") files: Array<MultipartFile>
-    ) = fileManager.uploadFiles(user, pathDescriptor.path, tmpFileGenerator.asFiles(files))
+    ) = fileManager.uploadFiles(user, pathDescriptor.path, files.toList())
 
     @DeleteMapping("/files/user/**")
     @ResponseStatus(value = HttpStatus.OK)
