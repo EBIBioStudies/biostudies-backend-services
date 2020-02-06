@@ -5,7 +5,6 @@ import ac.uk.ebi.biostd.submission.util.AccNoPatternUtil
 import arrow.core.Option
 import ebi.ac.uk.base.EMPTY
 import ebi.ac.uk.model.AccNumber
-import ebi.ac.uk.model.ExtendedSubmission
 import ebi.ac.uk.model.User
 import ebi.ac.uk.persistence.PersistenceContext
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
@@ -27,14 +26,13 @@ class AccNoServiceTest(
     @MockK private val persistenceContext: PersistenceContext,
     @MockK private val userPrivilegesService: IUserPrivilegesService
 ) {
-    private val submission = ExtendedSubmission("AAB12", user)
     private val testInstance = AccNoService(persistenceContext, accNoPatternUtil, userPrivilegesService)
+    private val testRequest = AccNoServiceRequest(user, "AAB12", emptyList())
 
     @BeforeEach
     fun init() {
         every { user.email } returns "test@mail.com"
         every { persistenceContext.isNew("") } returns true
-        every { persistenceContext.getParentAccPattern(submission) } returns Option.empty()
         every { accNoPatternUtil.isPattern(EMPTY) } returns false
         every { userPrivilegesService.canProvideAccNo("test@mail.com") } returns true
         every { userPrivilegesService.canResubmit("test@mail.com", user, null, emptyList()) } returns true
@@ -51,25 +49,25 @@ class AccNoServiceTest(
 
     @Test
     fun `no accession number, no parent accession`() {
-        val submission = ExtendedSubmission(EMPTY, user)
+        val testRequest = AccNoServiceRequest(user, EMPTY, emptyList())
 
         every { accNoPatternUtil.getPattern(DEFAULT_PATTERN) } returns "S-BSST"
-        every { persistenceContext.getParentAccPattern(submission) } returns Option.empty()
         every { persistenceContext.getSequenceNextValue("S-BSST") } returns 1L
 
-        val accNo = testInstance.getAccNo(submission).toString()
+        val accNo = testInstance.getAccNo(testRequest).toString()
         assertThat(accNo).isEqualTo("S-BSST1")
     }
 
     @Test
     fun `no accession number but parent accession`() {
-        val submission = ExtendedSubmission(EMPTY, user)
+        val testRequest = AccNoServiceRequest(user, EMPTY, emptyList(), "P-ARENT")
 
         every { accNoPatternUtil.getPattern("!{P-ARENT,}") } returns "P-ARENT"
-        every { persistenceContext.getParentAccPattern(submission) } returns Option.just("!{P-ARENT,}")
+        every { persistenceContext.getParentAccPattern("P-ARENT") } returns Option.just("!{P-ARENT,}")
         every { persistenceContext.getSequenceNextValue("P-ARENT") } returns 1
+        every { userPrivilegesService.canResubmit("test@mail.com", user, "P-ARENT", emptyList()) } returns true
 
-        val accNo = testInstance.getAccNo(submission).toString()
+        val accNo = testInstance.getAccNo(testRequest).toString()
         assertThat(accNo).isEqualTo("P-ARENT1")
     }
 
@@ -78,7 +76,7 @@ class AccNoServiceTest(
         every { persistenceContext.isNew("AAB12") } returns true
         every { userPrivilegesService.canProvideAccNo("test@mail.com") } returns false
 
-        assertThrows<InvalidPermissionsException> { testInstance.getAccNo(submission) }
+        assertThrows<InvalidPermissionsException> { testInstance.getAccNo(testRequest) }
     }
 
     @Test
@@ -86,6 +84,6 @@ class AccNoServiceTest(
         every { persistenceContext.isNew("AAB12") } returns false
         every { userPrivilegesService.canResubmit("test@mail.com", user, null, emptyList()) } returns false
 
-        assertThrows<InvalidPermissionsException> { testInstance.getAccNo(submission) }
+        assertThrows<InvalidPermissionsException> { testInstance.getAccNo(testRequest) }
     }
 }

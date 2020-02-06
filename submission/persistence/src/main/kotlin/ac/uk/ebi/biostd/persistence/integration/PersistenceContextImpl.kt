@@ -52,8 +52,9 @@ open class PersistenceContextImpl(
             .getOrElse { emptyList<AccessTag>() }
             .map { it.name }
 
-    override fun getParentAccPattern(submission: Submission) =
-        getParentSubmission(submission)
+    override fun getParentAccPattern(parentAccNo: String) =
+        getParentSubmission(parentAccNo)
+            .toOption()
             .flatMap { parent -> parent.attributes.firstOrNull { it.name == ACC_NO_TEMPLATE.value }.toOption() }
             .map { it.value }
 
@@ -100,6 +101,9 @@ open class PersistenceContextImpl(
     override fun accessTagExists(accessTag: String) = accessTagsDataRepository.existsByName(accessTag)
 
     override fun isNew(accNo: String) = subRepository.existsByAccNo(accNo).not()
+
+    private fun getParentSubmission(parentAccNo: String) =
+        subRepository.findByAccNoAndVersionGreaterThan(parentAccNo) ?: throw ProjectNotFoundException(parentAccNo)
 
     private fun getParentSubmission(submission: Submission) =
         submission.attachTo?.let {

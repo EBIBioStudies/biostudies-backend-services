@@ -4,6 +4,7 @@ import ac.uk.ebi.biostd.submission.exceptions.InvalidSubmissionException
 import ac.uk.ebi.biostd.submission.handlers.FilesHandler
 import ac.uk.ebi.biostd.submission.model.SubmissionRequest
 import ac.uk.ebi.biostd.submission.service.AccNoService
+import ac.uk.ebi.biostd.submission.service.AccNoServiceRequest
 import ac.uk.ebi.biostd.submission.service.ParentInfoService
 import ac.uk.ebi.biostd.submission.service.TimesService
 import ebi.ac.uk.base.orFalse
@@ -58,7 +59,8 @@ open class SubmissionSubmitter(
         // TODO move to line 65 when accNoService does not depends of submission state
         submission.accessTags = tags.toMutableList()
 
-        val accNo = accNoService.getAccNo(submission)
+        val accNo = accNoService.getAccNo(
+            AccNoServiceRequest(submission.user, submission.accNo, submission.accessTags, submission.attachTo))
         val accString = accNo.toString()
         val relPath = accNoService.getRelPath(accNo)
 

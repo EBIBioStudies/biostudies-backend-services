@@ -3,6 +3,8 @@ package ac.uk.ebi.biostd.submission.submitter
 import ac.uk.ebi.biostd.submission.handlers.FilesHandler
 import ac.uk.ebi.biostd.submission.model.SubmissionRequest
 import ac.uk.ebi.biostd.submission.service.AccNoService
+import ac.uk.ebi.biostd.submission.service.AccNoServiceRequest
+import ac.uk.ebi.biostd.submission.service.ParentInfo
 import ac.uk.ebi.biostd.submission.service.ParentInfoService
 import ac.uk.ebi.biostd.submission.service.Times
 import ac.uk.ebi.biostd.submission.service.TimesService
@@ -20,13 +22,11 @@ import io.mockk.slot
 import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 
-@Disabled
 @ExtendWith(MockKExtension::class)
 class SubmissionSubmitterTest(
     @MockK private val filesSource: FilesSource,
@@ -40,6 +40,7 @@ class SubmissionSubmitterTest(
 ) {
     private val submission = createBasicExtendedSubmission()
     private val savedSubmission = slot<ExtendedSubmission>()
+    private val accNoServiceRequest = slot<AccNoServiceRequest>()
 
     private val testAccNo = AccNumber("ABC", 456)
     private val testTime = OffsetDateTime.of(2018, 10, 10, 0, 0, 0, 0, ZoneOffset.UTC)
@@ -53,16 +54,17 @@ class SubmissionSubmitterTest(
         every { submissionRequest.user } answers { user }
         every { submissionRequest.method } answers { null }
 
-        every { accNoService.getAccNo(submission) } returns testAccNo
         every { accNoService.getRelPath(testAccNo) } returns "ABC/ABCxxx456/ABC456"
+        every { accNoService.getAccNo(capture(accNoServiceRequest)) } returns testAccNo
+
+        every { parentInfoService.getParentInfo(null) } returns ParentInfo(emptyList(), testTime)
 
         every { persistenceContext.isNew("ABC456") } returns false
         every { persistenceContext.getSecret("ABC456") } returns "a-secret-key"
-        every { persistenceContext.getParentAccessTags(submission) } returns emptyList()
         every { persistenceContext.deleteSubmissionDrafts(submission) } answers { nothing }
         every { persistenceContext.saveSubmission(capture(savedSubmission)) } answers { submission }
 
-        every { timesService.getTimes(submission, null) } returns Times(testTime, testTime, testTime)
+        every { timesService.getTimes(submission, testTime) } returns Times(testTime, testTime, testTime)
         every { filesHandler.processFiles(submission, filesSource) } answers { nothing }
         every { user.asUser() } answers { submission.user }
     }
@@ -73,13 +75,13 @@ class SubmissionSubmitterTest(
 
         assertThat(savedSubmission.captured.processingStatus).isEqualTo(ProcessingStatus.PROCESSED)
         verify(exactly = 1) {
-            timesService.getTimes(submission, null)
-            accNoService.getAccNo(submission)
             accNoService.getRelPath(testAccNo)
+            parentInfoService.getParentInfo(null)
+            timesService.getTimes(submission, testTime)
             persistenceContext.saveSubmission(submission)
-            persistenceContext.deleteSubmissionDrafts(submission)
-            persistenceContext.getParentAccessTags(submission)
             filesHandler.processFiles(submission, filesSource)
+            accNoService.getAccNo(capture(accNoServiceRequest))
+            persistenceContext.deleteSubmissionDrafts(submission)
         }
     }
 }

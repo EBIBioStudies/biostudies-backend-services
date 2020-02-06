@@ -15,7 +15,7 @@ interface PersistenceContext {
 
     fun getParentAccessTags(submission: Submission): List<String>
 
-    fun getParentAccPattern(submission: Submission): Option<String>
+    fun getParentAccPattern(parentAccNo: String): Option<String>
 
     fun getParentReleaseTime(submission: Submission): OffsetDateTime?
 

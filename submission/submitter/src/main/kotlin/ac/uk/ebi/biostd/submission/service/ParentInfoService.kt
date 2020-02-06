@@ -4,14 +4,11 @@ import ebi.ac.uk.persistence.PersistenceContext
 import java.time.OffsetDateTime
 
 class ParentInfoService(private val ctx: PersistenceContext) {
-
-    fun getParentInfo(attachTo: String?): ParentInfo {
-        return when (attachTo) {
-            null -> ParentInfo(emptyList(), null)
-            else -> {
-                require(ctx.existByAccNo(attachTo)) { "Could not find a project register with accNo $attachTo" }
-                ParentInfo(ctx.getAccessTags(attachTo).filterNot { it == "Public" }, ctx.getReleaseTime(attachTo))
-            }
+    fun getParentInfo(parentAccNo: String?): ParentInfo = when (parentAccNo) {
+        null -> ParentInfo(emptyList(), null)
+        else -> {
+            require(ctx.existByAccNo(parentAccNo)) { "Could not find a project register with accNo $parentAccNo" }
+            ParentInfo(ctx.getAccessTags(parentAccNo).filterNot { it == "Public" }, ctx.getReleaseTime(parentAccNo))
         }
     }
 }
