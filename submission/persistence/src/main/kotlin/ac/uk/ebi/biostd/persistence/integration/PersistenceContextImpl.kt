@@ -81,6 +81,18 @@ open class PersistenceContextImpl(
 
     override fun getSecret(accNo: String): String = getSubmission(accNo)!!.secretKey
 
+    override fun getAccessTags(attachTo: String): List<String> {
+        return subRepository.getByAccNoAndVersionGreaterThan(attachTo, 0).accessTags.map { it.name }
+    }
+
+    override fun getReleaseTime(attachTo: String): OffsetDateTime? {
+        return subRepository.getByAccNoAndVersionGreaterThan(attachTo, 0).releaseTime
+    }
+
+    override fun existByAccNo(attachTo: String): Boolean {
+        return subRepository.existsByAccNo(attachTo)
+    }
+
     override fun saveAccessTag(accessTag: String) {
         accessTagsDataRepository.save(AccessTag(name = accessTag))
     }

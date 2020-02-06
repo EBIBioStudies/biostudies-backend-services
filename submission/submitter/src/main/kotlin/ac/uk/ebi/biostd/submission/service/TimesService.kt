@@ -15,17 +15,21 @@ import java.time.ZoneOffset
  * Calculates the submission release date based on current state of the submission in the system. Calculation rules.
  */
 class TimesService(private val context: PersistenceContext) {
-    internal fun getTimes(submission: ExtendedSubmission): Times {
+    internal fun getTimes(submission: ExtendedSubmission, parentReleaseTime: OffsetDateTime?): Times {
         val now = OffsetDateTime.now()
         val creationTime = context.getSubmission(submission.accNo)?.creationTime ?: now
-        val releaseTime = releaseTime(submission, context, now)
+        val releaseTime = releaseTime(submission, now, parentReleaseTime)
         return Times(creationTime, now, releaseTime)
     }
 
-    private fun releaseTime(sub: ExtendedSubmission, ctx: PersistenceContext, now: OffsetDateTime): OffsetDateTime? {
+    private fun releaseTime(
+        sub: ExtendedSubmission,
+        now: OffsetDateTime,
+        parentReleaseTime: OffsetDateTime?
+    ): OffsetDateTime? {
         val releaseTime = sub.releaseDate?.let { parseDate(it) } ?: now
         return when {
-            ctx.hasParent(sub) -> ctx.getParentReleaseTime(sub)?.let { max(it, releaseTime) }
+            parentReleaseTime != null -> max(parentReleaseTime, releaseTime)
             else -> releaseTime
         }
     }

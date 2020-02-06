@@ -9,10 +9,11 @@ import ac.uk.ebi.biostd.submission.handlers.FilesHandler
 import ac.uk.ebi.biostd.submission.handlers.FilesValidator
 import ac.uk.ebi.biostd.submission.handlers.OutputFilesGenerator
 import ac.uk.ebi.biostd.submission.service.AccNoService
-import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
-import ac.uk.ebi.biostd.submission.service.TimesService
+import ac.uk.ebi.biostd.submission.service.ParentInfoService
 import ac.uk.ebi.biostd.submission.service.ProjectValidationService
+import ac.uk.ebi.biostd.submission.service.TimesService
 import ac.uk.ebi.biostd.submission.submitter.ProjectSubmitter
+import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
 import ac.uk.ebi.biostd.submission.util.AccNoPatternUtil
 import ebi.ac.uk.paths.SubmissionFolderResolver
 import ebi.ac.uk.persistence.PersistenceContext
@@ -31,8 +32,9 @@ class SubmitterConfig {
         filesHandler: FilesHandler,
         timesService: TimesService,
         accNoService: AccNoService,
+        parentInfoService: ParentInfoService,
         persistenceContext: PersistenceContext
-    ) = SubmissionSubmitter(filesHandler, timesService, accNoService, persistenceContext)
+    ) = SubmissionSubmitter(filesHandler, timesService, accNoService, parentInfoService, persistenceContext)
 
     @Bean
     fun projectSubmitter(
@@ -74,6 +76,9 @@ class SubmitterConfig {
 
         @Bean
         fun accNoService() = AccNoService(context, accNoPatternUtil(), userPrivilegesService)
+
+        @Bean
+        fun parentInfoService() = ParentInfoService(context)
 
         @Bean
         fun projectValidationService() = ProjectValidationService(context, accNoPatternUtil(), userPrivilegesService)

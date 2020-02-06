@@ -32,4 +32,10 @@ interface PersistenceContext {
     fun deleteSubmissionDrafts(submission: ExtendedSubmission)
 
     fun getSecret(accNo: String): String
+
+    fun getAccessTags(attachTo: String): List<String>
+
+    fun getReleaseTime(attachTo: String): OffsetDateTime?
+
+    fun existByAccNo(attachTo: String): Boolean
 }
