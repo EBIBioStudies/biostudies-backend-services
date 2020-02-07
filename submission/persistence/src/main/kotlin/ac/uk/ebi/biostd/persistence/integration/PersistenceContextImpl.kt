@@ -10,6 +10,7 @@ import ac.uk.ebi.biostd.persistence.repositories.LockExecutor
 import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.SubmissionDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataDataRepository
+import ac.uk.ebi.biostd.persistence.service.FilePersistenceService
 import arrow.core.toOption
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.model.constants.SubFields.ACC_NO_TEMPLATE
@@ -26,7 +27,8 @@ open class PersistenceContextImpl(
     private val lockExecutor: LockExecutor,
     private val userDataRepository: UserDataDataRepository,
     private val toDbSubmissionMapper: ToDbSubmissionMapper,
-    private val toExtSubmissionMapper: ToExtSubmissionMapper
+    private val toExtSubmissionMapper: ToExtSubmissionMapper,
+    private val filePersistenceService: FilePersistenceService
 ) : PersistenceContext {
     override fun createAccNoPatternSequence(pattern: String) {
         sequenceRepository.save(Sequence(pattern))
@@ -53,9 +55,10 @@ open class PersistenceContextImpl(
         return lockExecutor.executeLocking(submission.accNo) {
             subRepository.expireActiveVersions(submission.accNo)
             val dbSubmission = toDbSubmissionMapper.toSubmissionDb(submission, submitter)
-            toExtSubmissionMapper.toExtSubmission(subRepository.save(dbSubmission))
+            val persistedSubmission = toExtSubmissionMapper.toExtSubmission(subRepository.save(dbSubmission))
+            filePersistenceService.persistSubmissionFiles(submission)
 
-            // TODO: Move files and generate output files
+            persistedSubmission
         }
     }
 

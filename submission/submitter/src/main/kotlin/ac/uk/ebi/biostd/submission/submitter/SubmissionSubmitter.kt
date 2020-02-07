@@ -90,10 +90,12 @@ open class SubmissionSubmitter(
             releaseTime = releaseTime,
             modificationTime = modTime,
             creationTime = createTime,
-            attributes = submission.attributes.map { it.toExtAttribute() },
             tags = submission.tags.map { ExtTag(it.first, it.second) },
             accessTags = tags.map { ExtAccessTag(it) },
-            section = submission.section.toExtSection(source)
+            section = submission.section.toExtSection(source),
+            attributes = submission.attributes
+                .filter { it.name !=  SubFields.RELEASE_DATE.value }
+                .map { it.toExtAttribute() }
         )
     }
 

@@ -8,6 +8,7 @@ class FilesHandler(
     private val filesCopier: FilesCopier,
     private val outputFilesGenerator: OutputFilesGenerator
 ) {
+    // TODO remove these classes and add proper unit testing to FilePersistenceService
     /**
      * In charge of generate submission json/tsv/xml representation files and validate all submission specified files
      * are provided or exists in  user repository or in the list of provided files.

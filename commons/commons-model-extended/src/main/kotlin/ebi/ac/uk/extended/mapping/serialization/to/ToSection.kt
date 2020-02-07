@@ -13,9 +13,10 @@ fun ExtSection.toSection(): Section {
         attributes = attributes.mapTo(mutableListOf()) { it.toAttribute() },
         files = files.mapTo(mutableListOf()) { either -> either.bimap({ it.toFile() }, { it.toTable() }) },
         links = links.mapTo(mutableListOf()) { either -> either.bimap({ it.toLink() }, { it.toTable() }) },
-        sections = sections.mapTo(mutableListOf()) { either -> either.bimap({ it.toSubSection() }, { it.toTable() }) })
+        sections = sections.mapTo(mutableListOf()) { either -> either.bimap({ it.toSection() }, { it.toTable() }) })
 }
 
+// TODO remove this method
 fun ExtSection.toSubSection(): Section {
     return Section(
         type = type,

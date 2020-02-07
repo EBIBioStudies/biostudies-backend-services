@@ -10,6 +10,9 @@ class SubmissionFolderResolver(private val basePath: Path) {
     fun getSubmissionFolder(submission: ExtendedSubmission): Path =
         basePath.resolve(SUBMISSION_PATH).resolve(submission.relPath)
 
+    fun getSubmissionFolder(submissionRelPath: String): Path =
+        basePath.resolve(SUBMISSION_PATH).resolve(submissionRelPath)
+
     fun getSubFilePath(relPath: String, fileName: String): Path =
         basePath.resolve(SUBMISSION_PATH).resolve(relPath).resolve(FILES_PATH).resolve(escapeFileName(fileName))
 

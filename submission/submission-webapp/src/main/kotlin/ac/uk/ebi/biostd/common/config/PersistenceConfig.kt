@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.common.config
 
 import ac.uk.ebi.biostd.common.property.ApplicationProperties
+import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.persistence.integration.PersistenceContextImpl
 import ac.uk.ebi.biostd.persistence.mapping.SubmissionDbMapper
 import ac.uk.ebi.biostd.persistence.mapping.SubmissionMapper
@@ -14,9 +15,11 @@ import ac.uk.ebi.biostd.persistence.repositories.SubmissionDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.TagDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
+import ac.uk.ebi.biostd.persistence.service.FilePersistenceService
 import ac.uk.ebi.biostd.persistence.service.ProjectRepository
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
 import com.cosium.spring.data.jpa.entity.graph.repository.support.EntityGraphJpaRepositoryFactoryBean
+import ebi.ac.uk.paths.SubmissionFolderResolver
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -35,7 +38,9 @@ class PersistenceConfig(
     private val userRepository: UserDataRepository,
     private val template: NamedParameterJdbcTemplate,
     private val userDataRepository: UserDataDataRepository,
-    private val applicationProperties: ApplicationProperties
+    private val applicationProperties: ApplicationProperties,
+    private val folderResolver: SubmissionFolderResolver,
+    private val serializationService: SerializationService
 ) {
     @Bean
     fun toDbSubmissionMapper(
@@ -60,6 +65,9 @@ class PersistenceConfig(
     fun submissionMapper() = SubmissionMapper(tagsDataRepository, tagsRefRepository, userRepository)
 
     @Bean
+    fun filePersistenceService() = FilePersistenceService(folderResolver, serializationService)
+
+    @Bean
     @ConditionalOnMissingBean(LockExecutor::class)
     fun lockExecutor(): LockExecutor = JdbcLockExecutor(template)
 
@@ -67,7 +75,8 @@ class PersistenceConfig(
     fun persistenceContext(
         lockExecutor: LockExecutor,
         dbSubmissionMapper: ToDbSubmissionMapper,
-        toExtSubmissionMapper: ToExtSubmissionMapper
+        toExtSubmissionMapper: ToExtSubmissionMapper,
+        filePersistenceService: FilePersistenceService
     ) =
         PersistenceContextImpl(
             submissionDataRepository,
@@ -76,6 +85,7 @@ class PersistenceConfig(
             lockExecutor,
             userDataRepository,
             dbSubmissionMapper,
-            toExtSubmissionMapper
+            toExtSubmissionMapper,
+            filePersistenceService
         )
 }

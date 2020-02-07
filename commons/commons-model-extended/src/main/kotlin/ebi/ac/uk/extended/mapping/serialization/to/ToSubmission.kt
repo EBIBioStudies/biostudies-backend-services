@@ -1,7 +1,9 @@
 package ebi.ac.uk.extended.mapping.serialization.to
 
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.Submission
+import ebi.ac.uk.model.constants.SubFields
 import ebi.ac.uk.model.extensions.creationTime
 import ebi.ac.uk.model.extensions.modificationTime
 import ebi.ac.uk.model.extensions.releaseTime
@@ -14,9 +16,18 @@ fun ExtSubmission.toSimpleSubmission(): Submission {
     return Submission(
         accNo = accNo,
         section = section.toSection(),
-        attributes = attributes.map { it.toAttribute() }.toMutableList(),
+        attributes = getSubmissionAttributes(),
         tags = tags.mapTo(mutableListOf()) { Pair(it.name, it.value) }
     )
+}
+
+private fun ExtSubmission.getSubmissionAttributes(): List<Attribute> {
+    val subAttrs = attributes.map { it.toAttribute() }.toMutableList()
+
+    return when (releaseTime) {
+        null -> subAttrs
+        else -> subAttrs.plus(Attribute(SubFields.RELEASE_DATE, releaseTime.toLocalDate()))
+    }
 }
 
 /**
