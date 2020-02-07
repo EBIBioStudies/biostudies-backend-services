@@ -46,7 +46,7 @@ class SubmitResource(
         produces = [APPLICATION_JSON_VALUE])
     @ResponseBody
     @ApiOperation("Make a submission using a JSON file. The given files will override the ones in the user folder")
-    @ApiImplicitParam(name = "X-Session-Token", value = "The authentication token", required = true)
+    @ApiImplicitParam(name = "X-Session-Token", value = "User authentication token", required = true)
     fun submitMultipartJson(
         @BioUser user: SecurityUser,
 
@@ -62,7 +62,7 @@ class SubmitResource(
         produces = [APPLICATION_JSON_VALUE])
     @ResponseBody
     @ApiOperation("Make a submission using a XML file. The given files will override the ones in the user folder")
-    @ApiImplicitParam(name = "X-Session-Token", value = "The authentication token", required = true)
+    @ApiImplicitParam(name = "X-Session-Token", value = "User authentication token", required = true)
     fun submitMultipartXml(
         @BioUser user: SecurityUser,
 
@@ -78,7 +78,7 @@ class SubmitResource(
         produces = [APPLICATION_JSON_VALUE])
     @ResponseBody
     @ApiOperation("Make a submission using a TSV file. The given files will override the ones in the user folder")
-    @ApiImplicitParam(name = "X-Session-Token", value = "The authentication token", required = true)
+    @ApiImplicitParam(name = "X-Session-Token", value = "User authentication token", required = true)
     fun submitMultipartTsv(
         @BioUser user: SecurityUser,
 
@@ -95,7 +95,7 @@ class SubmitResource(
         produces = [APPLICATION_JSON_VALUE])
     @ResponseBody
     @ApiOperation("Make a submission using a file. The given files will override the ones in the user folder")
-    @ApiImplicitParam(name = "X-Session-Token", value = "The authentication token", required = true)
+    @ApiImplicitParam(name = "X-Session-Token", value = "User authentication token", required = true)
     fun submitFile(
         @BioUser user: SecurityUser,
 
@@ -114,7 +114,7 @@ class SubmitResource(
         produces = [APPLICATION_JSON_VALUE])
     @ResponseBody
     @ApiOperation("Make a submission in XML format")
-    @ApiImplicitParam(name = "X-Session-Token", value = "The authentication token", required = true)
+    @ApiImplicitParam(name = "X-Session-Token", value = "User authentication token", required = true)
     fun submitXml(
         @BioUser user: SecurityUser,
 
@@ -127,7 +127,7 @@ class SubmitResource(
         produces = [APPLICATION_JSON_VALUE])
     @ResponseBody
     @ApiOperation("Make a submission in TSV format")
-    @ApiImplicitParam(name = "X-Session-Token", value = "The authentication token", required = true)
+    @ApiImplicitParam(name = "X-Session-Token", value = "User authentication token", required = true)
     fun submitTsv(
         @BioUser user: SecurityUser,
 
@@ -140,7 +140,7 @@ class SubmitResource(
         produces = [APPLICATION_JSON_VALUE])
     @ResponseBody
     @ApiOperation("Make a submission in JSON format")
-    @ApiImplicitParam(name = "X-Session-Token", value = "The authentication token", required = true)
+    @ApiImplicitParam(name = "X-Session-Token", value = "User authentication token", required = true)
     fun submitJson(
         @BioUser user: SecurityUser,
 
@@ -150,7 +150,7 @@ class SubmitResource(
 
     @DeleteMapping("/{accNo}")
     @ApiOperation("Delete the submission with the given accession number")
-    @ApiImplicitParam(name = "X-Session-Token", value = "The authentication token", required = true)
+    @ApiImplicitParam(name = "X-Session-Token", value = "User authentication token", required = true)
     fun deleteSubmission(
         @BioUser user: SecurityUser,
 

@@ -43,7 +43,7 @@ class ProjectResource(
     @GetMapping
     @ResponseBody
     @ApiOperation("Get the list of available projects for the current user")
-    @ApiImplicitParam(name = "X-Session-Token", value = "The authentication token", required = true)
+    @ApiImplicitParam(name = "X-Session-Token", value = "User authentication token", required = true)
     fun getUserProjects(
         @BioUser user: SecurityUser
     ): List<Project> = projectService.getAllowedProjects(user, AccessType.ATTACH)
@@ -51,7 +51,7 @@ class ProjectResource(
     @PostMapping(headers = ["${HttpHeaders.CONTENT_TYPE}=$MULTIPART_FORM_DATA"], produces = [APPLICATION_JSON_VALUE])
     @ResponseBody
     @ApiOperation("Register a new project")
-    @ApiImplicitParam(name = "X-Session-Token", value = "The authentication token", required = true)
+    @ApiImplicitParam(name = "X-Session-Token", value = "User authentication token", required = true)
     fun submit(
         @BioUser user: SecurityUser,
 
@@ -65,7 +65,7 @@ class ProjectResource(
         produces = [APPLICATION_JSON_VALUE])
     @ResponseBody
     @ApiOperation("Attach the submission to the project with the given accession")
-    @ApiImplicitParam(name = "X-Session-Token", value = "The authentication token", required = true)
+    @ApiImplicitParam(name = "X-Session-Token", value = "User authentication token", required = true)
     fun attachSubmission(
         @BioUser user: SecurityUser,
 

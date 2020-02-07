@@ -33,7 +33,7 @@ internal class SubmissionDraftResource(private val subDraftService: SubmissionDr
     @ResponseBody
     @ApiOperation("Get the submission drafts that matches the given filter")
     @ApiImplicitParams(value = [
-        ApiImplicitParam(name = "X-Session-Token", value = "The authentication token", required = true),
+        ApiImplicitParam(name = "X-Session-Token", value = "User authentication token", required = true),
         ApiImplicitParam(
             name = "limit",
             value = "Optional query parameter used to set the maximum amount of drafts in the response"),
@@ -49,7 +49,7 @@ internal class SubmissionDraftResource(private val subDraftService: SubmissionDr
     @ResponseBody
     @ApiOperation("Get the submission drafts that matches the given key and filter")
     @ApiImplicitParams(value = [
-        ApiImplicitParam(name = "X-Session-Token", value = "The authentication token", required = true),
+        ApiImplicitParam(name = "X-Session-Token", value = "User authentication token", required = true),
         ApiImplicitParam(
             name = "limit",
             value = "Optional query parameter used to set the maximum amount of drafts in the response"),
@@ -71,7 +71,7 @@ internal class SubmissionDraftResource(private val subDraftService: SubmissionDr
     @GetMapping("/{key}/content")
     @ResponseBody
     @ApiOperation("Get the content of the submission draft with the given key")
-    @ApiImplicitParam(name = "X-Session-Token", value = "The authentication token", required = true)
+    @ApiImplicitParam(name = "X-Session-Token", value = "User authentication token", required = true)
     fun getDraftSubmissionContent(
         @BioUser user: SecurityUser,
 
@@ -81,7 +81,7 @@ internal class SubmissionDraftResource(private val subDraftService: SubmissionDr
 
     @DeleteMapping("/{key}")
     @ApiOperation("Delete the submission draft with the given key")
-    @ApiImplicitParam(name = "X-Session-Token", value = "The authentication token", required = true)
+    @ApiImplicitParam(name = "X-Session-Token", value = "User authentication token", required = true)
     fun deleteDraftSubmission(
         @BioUser user: SecurityUser,
 
@@ -92,7 +92,7 @@ internal class SubmissionDraftResource(private val subDraftService: SubmissionDr
     @PutMapping("/{key}")
     @ResponseBody
     @ApiOperation("Update the submission draft with the given key")
-    @ApiImplicitParam(name = "X-Session-Token", value = "The authentication token", required = true)
+    @ApiImplicitParam(name = "X-Session-Token", value = "User authentication token", required = true)
     fun updateSubmissionDraft(
         @BioUser user: SecurityUser,
 
@@ -108,7 +108,7 @@ internal class SubmissionDraftResource(private val subDraftService: SubmissionDr
     @PostMapping
     @ResponseBody
     @ApiOperation("Create a submission draft")
-    @ApiImplicitParam(name = "X-Session-Token", value = "The authentication token", required = true)
+    @ApiImplicitParam(name = "X-Session-Token", value = "User authentication token", required = true)
     fun createDraftSubmission(
         @BioUser user: SecurityUser,
 

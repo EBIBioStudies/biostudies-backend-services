@@ -34,7 +34,7 @@ class SubmissionResource(
     @GetMapping("/{accNo}.json", produces = [APPLICATION_JSON])
     @ResponseBody
     @ApiOperation("Get the JSON file for the submission with the given accession")
-    @ApiImplicitParam(name = "X-Session-Token", value = "The authentication token", required = true)
+    @ApiImplicitParam(name = "X-Session-Token", value = "User authentication token", required = true)
     fun asJson(
         @ApiParam(name = "AccNo", value = "The submission accession number")
         @PathVariable accNo: String
@@ -42,7 +42,7 @@ class SubmissionResource(
 
     @GetMapping("/{accNo}.xml", produces = [TEXT_XML])
     @ApiOperation("Get the XML file for the submission with the given accession")
-    @ApiImplicitParam(name = "X-Session-Token", value = "The authentication token", required = true)
+    @ApiImplicitParam(name = "X-Session-Token", value = "User authentication token", required = true)
     fun asXml(
         @ApiParam(name = "AccNo", value = "The submission accession number")
         @PathVariable accNo: String
@@ -50,7 +50,7 @@ class SubmissionResource(
 
     @GetMapping("/{accNo}.tsv", produces = [TEXT_PLAIN])
     @ApiOperation("Get the TSV file for the submission with the given accession")
-    @ApiImplicitParam(name = "X-Session-Token", value = "The authentication token", required = true)
+    @ApiImplicitParam(name = "X-Session-Token", value = "User authentication token", required = true)
     fun asTsv(
         @ApiParam(name = "AccNo", value = "The submission accession number")
         @PathVariable accNo: String
@@ -59,7 +59,7 @@ class SubmissionResource(
     @GetMapping
     @ApiOperation("Get the basic data for the submissions that matches the given filter")
     @ApiImplicitParams(value = [
-        ApiImplicitParam(name = "X-Session-Token", value = "The authentication token", required = true),
+        ApiImplicitParam(name = "X-Session-Token", value = "User authentication token", required = true),
         ApiImplicitParam(
             name = "limit",
             value = "Optional query parameter used to set the maximum amount of drafts in the response"),
