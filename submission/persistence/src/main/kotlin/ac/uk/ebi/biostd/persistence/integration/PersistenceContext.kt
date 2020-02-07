@@ -30,7 +30,7 @@ interface PersistenceContext {
 
     fun accessTagExists(accessTag: String): Boolean
 
-    fun deleteSubmissionDrafts(submission: ExtendedSubmission)
+    fun deleteSubmissionDrafts(userId: Long, accNo: String)
 
     fun getSecret(accNo: String): String
 

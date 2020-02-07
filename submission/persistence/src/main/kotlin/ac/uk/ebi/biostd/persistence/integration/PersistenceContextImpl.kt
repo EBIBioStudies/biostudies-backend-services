@@ -84,11 +84,13 @@ open class PersistenceContextImpl(
             subRepository.expireActiveVersions(submission.accNo)
             val dbSubmission = toDbSubmissionMapper.toSubmissionDb(submission, submitter)
             toExtSubmissionMapper.toExtSubmission(subRepository.save(dbSubmission))
+
+            // TODO: Move files and generate output files
         }
     }
 
-    override fun deleteSubmissionDrafts(submission: ExtendedSubmission) {
-        userDataRepository.findByUserIdAndKeyIgnoreCaseContaining(submission.user.id, submission.accNo).ifNotEmpty {
+    override fun deleteSubmissionDrafts(userId: Long, accNo: String) {
+        userDataRepository.findByUserIdAndKeyIgnoreCaseContaining(userId, accNo).ifNotEmpty {
             userDataRepository.deleteAll(it)
         }
     }

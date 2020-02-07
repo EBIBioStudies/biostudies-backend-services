@@ -13,7 +13,7 @@ class FilesHandler(
      * are provided or exists in  user repository or in the list of provided files.
      */
     fun processFiles(submission: ExtendedSubmission, fileSource: FilesSource) {
-        filesValidator.validate(submission, fileSource)
+        // filesValidator.validate(submission, fileSource)
         filesCopier.copy(submission, fileSource)
         outputFilesGenerator.generate(submission)
     }

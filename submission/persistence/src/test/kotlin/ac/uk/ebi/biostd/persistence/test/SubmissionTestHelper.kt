@@ -7,6 +7,7 @@ import ac.uk.ebi.biostd.persistence.model.User
 import ebi.ac.uk.extended.model.ExtAccessTag
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtTag
+import ebi.ac.uk.model.SubmissionMethod
 import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSED
 import org.assertj.core.api.Assertions.assertThat
 import java.time.OffsetDateTime
@@ -17,6 +18,8 @@ internal const val SUB_ACC_NO = "Sub-Accno"
 internal const val SUB_TITLE = "Study"
 internal const val SUB_RELPATH = "/submission/relpath"
 internal const val SUB_ROOT_PATH = "/rootpah"
+internal const val VERSION = 52
+internal val STATUS = PROCESSED
 
 internal val creationTime = OffsetDateTime.of(2018, 1, 1, 5, 10, 22, 1, ZoneOffset.UTC)
 internal val modificationTime = creationTime.plusDays(1)
@@ -32,6 +35,8 @@ internal val extSubmission
         attributes = listOf(extAttribute),
         released = true,
         status = PROCESSED,
+        version = VERSION,
+        method = SubmissionMethod.FILE,
         modificationTime = modificationTime,
         releaseTime = releaseTime,
         creationTime = creationTime,

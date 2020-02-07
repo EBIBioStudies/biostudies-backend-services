@@ -21,6 +21,8 @@ class ToDbSubmissionMapper(
         accNo = submission.accNo
         title = submission.title
         status = submission.status
+        method = submission.method
+        version = submission.version
         relPath = submission.relPath
         rootPath = submission.rootPath
         secretKey = submission.secretKey
