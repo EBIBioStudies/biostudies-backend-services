@@ -2,7 +2,6 @@ package ac.uk.ebi.biostd.submission.service
 
 import ac.uk.ebi.biostd.submission.exceptions.InvalidPermissionsException
 import ac.uk.ebi.biostd.submission.util.AccNoPatternUtil
-import arrow.core.Option
 import ebi.ac.uk.base.EMPTY
 import ebi.ac.uk.model.AccNumber
 import ebi.ac.uk.model.User
@@ -60,10 +59,9 @@ class AccNoServiceTest(
 
     @Test
     fun `no accession number but parent accession`() {
-        val testRequest = AccNoServiceRequest(user, EMPTY, emptyList(), "P-ARENT")
+        val testRequest = AccNoServiceRequest(user, EMPTY, emptyList(), "P-ARENT", "!{P-ARENT,}")
 
         every { accNoPatternUtil.getPattern("!{P-ARENT,}") } returns "P-ARENT"
-        every { persistenceContext.getParentAccPattern("P-ARENT") } returns Option.just("!{P-ARENT,}")
         every { persistenceContext.getSequenceNextValue("P-ARENT") } returns 1
         every { userPrivilegesService.canResubmit("test@mail.com", user, "P-ARENT", emptyList()) } returns true
 

@@ -3,7 +3,6 @@ package ac.uk.ebi.biostd.submission.service
 import ac.uk.ebi.biostd.submission.exceptions.ProvideAccessNumber
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotUpdateSubmit
 import ac.uk.ebi.biostd.submission.util.AccNoPatternUtil
-import arrow.core.getOrElse
 import ebi.ac.uk.base.lastDigits
 import ebi.ac.uk.model.AccNumber
 import ebi.ac.uk.model.User
@@ -30,7 +29,7 @@ class AccNoService(
     }
 
     private fun calculateAccNo(request: AccNoServiceRequest): AccNumber = when {
-        request.accNo.isEmpty() -> calculateAccNo(getPatternOrDefault(request.parentAccNo))
+        request.accNo.isEmpty() -> calculateAccNo(getPatternOrDefault(request))
         patternUtil.isPattern(request.accNo) -> calculateAccNo(patternUtil.getPattern(request.accNo))
         else -> patternUtil.toAccNumber(request.accNo)
     }
@@ -50,11 +49,9 @@ class AccNoService(
         }
     }
 
-    private fun getPatternOrDefault(parentAccNo: String?) = when (parentAccNo) {
+    private fun getPatternOrDefault(request: AccNoServiceRequest) = when (request.parentAccNo) {
         null -> patternUtil.getPattern(DEFAULT_PATTERN)
-        else -> context.getParentAccPattern(parentAccNo)
-            .map { patternUtil.getPattern(it) }
-            .getOrElse { patternUtil.getPattern(DEFAULT_PATTERN) }
+        else -> patternUtil.getPattern(request.parentPattern!!)
     }
 }
 
@@ -62,5 +59,6 @@ data class AccNoServiceRequest(
     val user: User,
     val accNo: String,
     val accessTags: List<String>,
-    val parentAccNo: String? = null
+    val parentAccNo: String? = null,
+    val parentPattern: String? = null
 )

@@ -51,35 +51,35 @@ open class SubmissionSubmitter(
             runCatching { filesHandler.processFiles(submission, source) }
         ).mapNotNull { it.exceptionOrNull() }
 
-    private fun processSubmission(submission: ExtendedSubmission): ExtendedSubmission {
-        val (parentTags, parentReleaseTime) = parentInfoService.getParentInfo(submission.attachTo)
+    private fun processSubmission(sub: ExtendedSubmission): ExtendedSubmission {
+        val (parentTags, parentReleaseTime, parentPattern) = parentInfoService.getParentInfo(sub.attachTo)
         val (creationTime, modificationTime, releaseTime) =
-            timesService.getTimes(TimesRequest(submission.accNo, submission.releaseDate, parentReleaseTime))
+            timesService.getTimes(TimesRequest(sub.accNo, sub.releaseDate, parentReleaseTime))
         val released = releaseTime?.isBeforeOrEqual(OffsetDateTime.now()).orFalse()
         val tags = if (released) parentTags + SubFields.PUBLIC_ACCESS_TAG.value else parentTags
 
         // TODO move to line 65 when accNoService does not depends of submission state
-        submission.accessTags = tags.toMutableList()
+        sub.accessTags = tags.toMutableList()
 
         val accNo = accNoService.getAccNo(
-            AccNoServiceRequest(submission.user, submission.accNo, submission.accessTags, submission.attachTo))
+            AccNoServiceRequest(sub.user, sub.accNo, sub.accessTags, sub.attachTo, parentPattern))
         val accString = accNo.toString()
         val relPath = accNoService.getRelPath(accNo)
 
         // TODO: move to accNoService and renamed class to make sense ot if and RelPath
         val secretKey = getSecret(accString)
 
-        submission.version = context.getNextVersion(accString)
-        submission.accNo = accString
-        submission.relPath = relPath
-        submission.accessTags = tags.toMutableList()
-        submission.releaseDate = null
-        submission.creationTime = creationTime
-        submission.modificationTime = modificationTime
-        submission.releaseTime = releaseTime
-        submission.released = released
-        submission.secretKey = secretKey
-        return submission
+        sub.version = context.getNextVersion(accString)
+        sub.accNo = accString
+        sub.relPath = relPath
+        sub.accessTags = tags.toMutableList()
+        sub.releaseDate = null
+        sub.creationTime = creationTime
+        sub.modificationTime = modificationTime
+        sub.releaseTime = releaseTime
+        sub.released = released
+        sub.secretKey = secretKey
+        return sub
     }
 
     private fun getSecret(accString: String) =

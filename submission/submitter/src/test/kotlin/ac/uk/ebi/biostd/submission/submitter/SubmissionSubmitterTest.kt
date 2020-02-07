@@ -59,9 +59,10 @@ class SubmissionSubmitterTest(
         every { accNoService.getRelPath(testAccNo) } returns "ABC/ABCxxx456/ABC456"
         every { accNoService.getAccNo(capture(accNoServiceRequest)) } returns testAccNo
 
-        every { parentInfoService.getParentInfo(null) } returns ParentInfo(emptyList(), testTime)
+        every { parentInfoService.getParentInfo(null) } returns ParentInfo(emptyList(), null, null)
 
         every { persistenceContext.isNew("ABC456") } returns false
+        every { persistenceContext.getNextVersion("ABC456") } returns 1
         every { persistenceContext.getSecret("ABC456") } returns "a-secret-key"
         every { persistenceContext.deleteSubmissionDrafts(submission) } answers { nothing }
         every { persistenceContext.saveSubmission(capture(savedSubmission)) } answers { submission }
