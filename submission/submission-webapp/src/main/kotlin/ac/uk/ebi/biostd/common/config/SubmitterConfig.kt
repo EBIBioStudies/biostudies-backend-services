@@ -4,6 +4,7 @@ import ac.uk.ebi.biostd.common.config.SubmitterConfig.FilesHandlerConfig
 import ac.uk.ebi.biostd.common.config.SubmitterConfig.ServiceConfig
 import ac.uk.ebi.biostd.common.property.ApplicationProperties
 import ac.uk.ebi.biostd.integration.SerializationConfig
+import ac.uk.ebi.biostd.persistence.integration.PersistenceContext
 import ac.uk.ebi.biostd.submission.handlers.FilesCopier
 import ac.uk.ebi.biostd.submission.handlers.FilesHandler
 import ac.uk.ebi.biostd.submission.handlers.FilesValidator
@@ -16,7 +17,6 @@ import ac.uk.ebi.biostd.submission.submitter.ProjectSubmitter
 import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
 import ac.uk.ebi.biostd.submission.util.AccNoPatternUtil
 import ebi.ac.uk.paths.SubmissionFolderResolver
-import ebi.ac.uk.persistence.PersistenceContext
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration

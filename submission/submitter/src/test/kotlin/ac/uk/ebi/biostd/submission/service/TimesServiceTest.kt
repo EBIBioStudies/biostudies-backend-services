@@ -1,9 +1,9 @@
 package ac.uk.ebi.biostd.submission.service
 
+import ac.uk.ebi.biostd.persistence.integration.PersistenceContext
 import ac.uk.ebi.biostd.submission.exceptions.InvalidDateFormatException
 import ac.uk.ebi.biostd.submission.test.ACC_NO
 import ac.uk.ebi.biostd.submission.test.createBasicExtendedSubmission
-import ebi.ac.uk.persistence.PersistenceContext
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension

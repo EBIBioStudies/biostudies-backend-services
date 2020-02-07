@@ -1,11 +1,11 @@
 package ac.uk.ebi.biostd.submission.service
 
+import ac.uk.ebi.biostd.persistence.integration.PersistenceContext
 import ac.uk.ebi.biostd.submission.exceptions.InvalidPermissionsException
 import ac.uk.ebi.biostd.submission.util.AccNoPatternUtil
 import ebi.ac.uk.base.EMPTY
 import ebi.ac.uk.model.AccNumber
 import ebi.ac.uk.model.User
-import ebi.ac.uk.persistence.PersistenceContext
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import io.mockk.every
 import io.mockk.impl.annotations.MockK

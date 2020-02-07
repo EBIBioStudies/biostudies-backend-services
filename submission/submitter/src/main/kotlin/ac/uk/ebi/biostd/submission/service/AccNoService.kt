@@ -1,12 +1,12 @@
 package ac.uk.ebi.biostd.submission.service
 
+import ac.uk.ebi.biostd.persistence.integration.PersistenceContext
 import ac.uk.ebi.biostd.submission.exceptions.ProvideAccessNumber
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotUpdateSubmit
 import ac.uk.ebi.biostd.submission.util.AccNoPatternUtil
 import ebi.ac.uk.base.lastDigits
 import ebi.ac.uk.model.AccNumber
 import ebi.ac.uk.model.User
-import ebi.ac.uk.persistence.PersistenceContext
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 
 const val DEFAULT_PATTERN = "!{S-BSST}"

@@ -1,8 +1,8 @@
 package ac.uk.ebi.biostd.submission.util
 
+import ac.uk.ebi.biostd.persistence.integration.PersistenceContext
 import ac.uk.ebi.biostd.submission.exceptions.InvalidAccNoPattern
 import ac.uk.ebi.biostd.submission.exceptions.InvalidPatternException
-import ebi.ac.uk.persistence.PersistenceContext
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension

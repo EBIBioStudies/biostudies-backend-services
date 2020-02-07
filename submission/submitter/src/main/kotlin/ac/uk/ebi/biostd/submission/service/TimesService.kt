@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.submission.service
 
+import ac.uk.ebi.biostd.persistence.integration.PersistenceContext
 import ac.uk.ebi.biostd.submission.exceptions.InvalidDateFormatException
-import ebi.ac.uk.persistence.PersistenceContext
 import ebi.ac.uk.util.date.max
 import java.time.Instant
 import java.time.LocalDate

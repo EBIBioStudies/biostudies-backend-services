@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.submission.submitter
 
+import ac.uk.ebi.biostd.persistence.integration.PersistenceContext
 import ac.uk.ebi.biostd.submission.exceptions.InvalidSubmissionException
 import ac.uk.ebi.biostd.submission.handlers.FilesHandler
 import ac.uk.ebi.biostd.submission.model.SubmissionRequest
@@ -16,7 +17,6 @@ import ebi.ac.uk.model.constants.ProcessingStatus
 import ebi.ac.uk.model.constants.SubFields
 import ebi.ac.uk.model.extensions.attachTo
 import ebi.ac.uk.model.extensions.releaseDate
-import ebi.ac.uk.persistence.PersistenceContext
 import ebi.ac.uk.util.date.isBeforeOrEqual
 import org.springframework.transaction.annotation.Isolation
 import org.springframework.transaction.annotation.Transactional

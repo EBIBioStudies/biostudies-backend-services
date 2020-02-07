@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.submission.submitter
 
+import ac.uk.ebi.biostd.persistence.integration.PersistenceContext
 import ac.uk.ebi.biostd.submission.exceptions.InvalidSubmissionException
 import ac.uk.ebi.biostd.submission.service.ProjectValidationService
 import ac.uk.ebi.biostd.submission.util.AccNoPatternUtil
@@ -8,7 +9,6 @@ import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSED
 import ebi.ac.uk.model.extensions.accNoTemplate
 import ebi.ac.uk.model.extensions.addAccessTag
-import ebi.ac.uk.persistence.PersistenceContext
 import org.springframework.transaction.annotation.Isolation
 import org.springframework.transaction.annotation.Transactional
 

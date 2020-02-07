@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.submission.submitter
 
+import ac.uk.ebi.biostd.persistence.integration.PersistenceContext
 import ac.uk.ebi.biostd.submission.handlers.FilesHandler
 import ac.uk.ebi.biostd.submission.model.SubmissionRequest
 import ac.uk.ebi.biostd.submission.service.AccNoService
@@ -14,7 +15,6 @@ import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.model.AccNumber
 import ebi.ac.uk.model.ExtendedSubmission
 import ebi.ac.uk.model.constants.ProcessingStatus
-import ebi.ac.uk.persistence.PersistenceContext
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import io.mockk.every
 import io.mockk.impl.annotations.MockK

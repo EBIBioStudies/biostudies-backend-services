@@ -5,12 +5,12 @@ import ac.uk.ebi.biostd.integration.SubFormat.JsonFormat.JsonPretty
 import ac.uk.ebi.biostd.integration.SubFormat.TsvFormat.Tsv
 import ac.uk.ebi.biostd.integration.SubFormat.XmlFormat
 import ac.uk.ebi.biostd.persistence.filter.SubmissionFilter
+import ac.uk.ebi.biostd.persistence.integration.PersistenceContext
 import ac.uk.ebi.biostd.persistence.projections.SimpleSubmission
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
 import ac.uk.ebi.biostd.submission.model.SubmissionRequest
 import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
 import ebi.ac.uk.model.Submission
-import ebi.ac.uk.persistence.PersistenceContext
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 

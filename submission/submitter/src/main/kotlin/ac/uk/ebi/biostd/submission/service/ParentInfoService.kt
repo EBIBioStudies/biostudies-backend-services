@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.submission.service
 
-import ebi.ac.uk.persistence.PersistenceContext
+import ac.uk.ebi.biostd.persistence.integration.PersistenceContext
 import java.time.OffsetDateTime
 
 class ParentInfoService(private val ctx: PersistenceContext) {

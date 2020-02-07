@@ -1,10 +1,10 @@
 package ac.uk.ebi.biostd.submission.submitter
 
+import ac.uk.ebi.biostd.persistence.integration.PersistenceContext
 import ac.uk.ebi.biostd.submission.service.ProjectValidationService
 import ac.uk.ebi.biostd.submission.test.createBasicProject
 import ac.uk.ebi.biostd.submission.util.AccNoPatternUtil
 import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSED
-import ebi.ac.uk.persistence.PersistenceContext
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension

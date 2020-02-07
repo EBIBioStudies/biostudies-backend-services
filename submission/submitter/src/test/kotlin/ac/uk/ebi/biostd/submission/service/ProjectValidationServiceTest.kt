@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.submission.service
 
+import ac.uk.ebi.biostd.persistence.integration.PersistenceContext
 import ac.uk.ebi.biostd.submission.exceptions.ProjectAccessTagAlreadyExistingException
 import ac.uk.ebi.biostd.submission.exceptions.ProjectAlreadyExistingException
 import ac.uk.ebi.biostd.submission.exceptions.ProjectInvalidAccNoPatternException
@@ -7,7 +8,6 @@ import ac.uk.ebi.biostd.submission.exceptions.UserCanNotSubmitProjectsException
 import ac.uk.ebi.biostd.submission.test.createBasicExtendedSubmission
 import ac.uk.ebi.biostd.submission.test.createBasicProject
 import ac.uk.ebi.biostd.submission.util.AccNoPatternUtil
-import ebi.ac.uk.persistence.PersistenceContext
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import io.mockk.clearAllMocks
 import io.mockk.every

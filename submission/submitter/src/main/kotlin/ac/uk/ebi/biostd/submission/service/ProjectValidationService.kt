@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.submission.service
 
+import ac.uk.ebi.biostd.persistence.integration.PersistenceContext
 import ac.uk.ebi.biostd.submission.exceptions.ProjectAccessTagAlreadyExistingException
 import ac.uk.ebi.biostd.submission.exceptions.ProjectAlreadyExistingException
 import ac.uk.ebi.biostd.submission.exceptions.ProjectInvalidAccNoPatternException
@@ -8,7 +9,6 @@ import ac.uk.ebi.biostd.submission.util.AccNoPatternUtil
 import ebi.ac.uk.base.isNotBlank
 import ebi.ac.uk.model.ExtendedSubmission
 import ebi.ac.uk.model.extensions.accNoTemplate
-import ebi.ac.uk.persistence.PersistenceContext
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 
 internal const val ACC_NO_TEMPLATE_REQUIRED = "The project accession number pattern is required"

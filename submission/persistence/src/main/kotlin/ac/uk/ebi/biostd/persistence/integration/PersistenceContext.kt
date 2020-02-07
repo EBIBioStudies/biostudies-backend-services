@@ -1,6 +1,7 @@
-package ebi.ac.uk.persistence
+package ac.uk.ebi.biostd.persistence.integration
 
 import arrow.core.Option
+import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.model.ExtendedSubmission
 import ebi.ac.uk.model.Submission
 import java.time.OffsetDateTime
@@ -40,4 +41,6 @@ interface PersistenceContext {
     fun existByAccNo(attachTo: String): Boolean
 
     fun getNextVersion(accNo: String): Int
+
+    fun saveSubmission(submission: ExtSubmission, submitter: String): ExtSubmission
 }
