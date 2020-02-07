@@ -94,6 +94,8 @@ open class PersistenceContextImpl(
         return subRepository.existsByAccNo(attachTo)
     }
 
+    override fun getNextVersion(accNo: String): Int = (subRepository.getLastVersion(accNo) ?: 0) + 1
+
     override fun saveAccessTag(accessTag: String) {
         accessTagsDataRepository.save(AccessTag(name = accessTag))
     }

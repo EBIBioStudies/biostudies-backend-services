@@ -6,8 +6,8 @@ import ac.uk.ebi.biostd.submission.model.SubmissionRequest
 import ac.uk.ebi.biostd.submission.service.AccNoService
 import ac.uk.ebi.biostd.submission.service.AccNoServiceRequest
 import ac.uk.ebi.biostd.submission.service.ParentInfoService
-import ac.uk.ebi.biostd.submission.service.TimesService
 import ac.uk.ebi.biostd.submission.service.TimesRequest
+import ac.uk.ebi.biostd.submission.service.TimesService
 import ebi.ac.uk.base.orFalse
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.model.ExtendedSubmission
@@ -69,6 +69,7 @@ open class SubmissionSubmitter(
         // TODO: move to accNoService and renamed class to make sense ot if and RelPath
         val secretKey = getSecret(accString)
 
+        submission.version = context.getNextVersion(accString)
         submission.accNo = accString
         submission.relPath = relPath
         submission.accessTags = tags.toMutableList()

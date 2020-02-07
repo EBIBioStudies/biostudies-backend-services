@@ -38,4 +38,6 @@ interface PersistenceContext {
     fun getReleaseTime(attachTo: String): OffsetDateTime?
 
     fun existByAccNo(attachTo: String): Boolean
+
+    fun getNextVersion(accNo: String): Int
 }
