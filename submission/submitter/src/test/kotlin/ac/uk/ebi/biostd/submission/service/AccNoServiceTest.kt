@@ -34,7 +34,7 @@ class AccNoServiceTest(
         every { persistenceContext.isNew("") } returns true
         every { accNoPatternUtil.isPattern(EMPTY) } returns false
         every { userPrivilegesService.canProvideAccNo("test@mail.com") } returns true
-        every { userPrivilegesService.canResubmit("test@mail.com", user, null, emptyList()) } returns true
+        every { userPrivilegesService.canResubmit("test@mail.com", "test@mail.com", null, emptyList()) } returns true
     }
 
     @ParameterizedTest(name = "prefix is {0} and numeric value is {1}")
@@ -63,7 +63,7 @@ class AccNoServiceTest(
 
         every { accNoPatternUtil.getPattern("!{P-ARENT,}") } returns "P-ARENT"
         every { persistenceContext.getSequenceNextValue("P-ARENT") } returns 1
-        every { userPrivilegesService.canResubmit("test@mail.com", user, "P-ARENT", emptyList()) } returns true
+        every { userPrivilegesService.canResubmit("test@mail.com", "test@mail.com", "P-ARENT", emptyList()) } returns true
 
         val accNo = testInstance.getAccNo(testRequest).toString()
         assertThat(accNo).isEqualTo("P-ARENT1")
@@ -80,7 +80,7 @@ class AccNoServiceTest(
     @Test
     fun `submission is not new and user is not allowed to update submission`() {
         every { persistenceContext.isNew("AAB12") } returns false
-        every { userPrivilegesService.canResubmit("test@mail.com", user, null, emptyList()) } returns false
+        every { userPrivilegesService.canResubmit("test@mail.com", "test@mail.com", null, emptyList()) } returns false
 
         assertThrows<InvalidPermissionsException> { testInstance.getAccNo(testRequest) }
     }

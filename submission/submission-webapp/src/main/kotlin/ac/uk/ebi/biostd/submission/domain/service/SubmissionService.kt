@@ -40,12 +40,11 @@ class SubmissionService(
         submissionRepository.getSubmissionsByUser(user.id, filter)
 
     fun deleteSubmission(accNo: String, user: SecurityUser) {
-        /*val submission = persistenceContext.getSubmission(accNo)!!
+        val tags = persistenceContext.getAccessTags(accNo)
+        val authorEmail = persistenceContext.getAuthor(accNo)
 
-        require(userPrivilegesService.canDelete(user.email, submission.user, submission.accessTags))
+        require(userPrivilegesService.canDelete(user.email, authorEmail, tags))
         submissionRepository.expireSubmission(accNo)
-        */
-        TODO()
     }
 
     fun submit(request: SubmissionRequest): Submission = submissionSubmitter.submit(request)

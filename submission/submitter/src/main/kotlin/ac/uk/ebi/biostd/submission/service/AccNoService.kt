@@ -22,8 +22,9 @@ class AccNoService(
             context.isNew(request.accNo) &&
             userPrivilegesService.canProvideAccNo(request.user.email).not() ->
             throw ProvideAccessNumber(request.user.email)
+        // TODO diferenciate beetween user and author
         userPrivilegesService.canResubmit(
-            request.user.email, request.user, request.parentAccNo, request.accessTags).not() ->
+            request.user.email, request.user.email, request.parentAccNo, request.accessTags).not() ->
             throw UserCanNotUpdateSubmit(request.accNo, request.user.email)
         else -> calculateAccNo(request)
     }

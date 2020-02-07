@@ -59,6 +59,10 @@ open class PersistenceContextImpl(
         }
     }
 
+    override fun getAuthor(accNo: String): String {
+        return getSubmission(accNo)!!.owner.email
+    }
+
     override fun deleteSubmissionDrafts(userId: Long, accNo: String) {
         userDataRepository.findByUserIdAndKeyIgnoreCaseContaining(userId, accNo).ifNotEmpty {
             userDataRepository.deleteAll(it)

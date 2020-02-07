@@ -3,7 +3,6 @@ package ebi.ac.uk.security.service
 import ac.uk.ebi.biostd.persistence.model.AccessType
 import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
-import ebi.ac.uk.model.User
 import ebi.ac.uk.security.integration.exception.UserNotFoundByEmailException
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -24,8 +23,8 @@ class UserPrivilegesServiceTest(
     @MockK private val userRepository: UserDataRepository,
     @MockK private val accessPermissionRepository: AccessPermissionRepository
 ) {
-    private val testAuthor = User(124, "author@mail.com", "a-secret")
-    private val testOtherAuthor = User(125, "otherAuthor@mail.com", "other-secret")
+    private val testAuthor = "author@mail.com"
+    private val testOtherAuthor = "otherAuthor@mail.com"
     private val testInstance = UserPrivilegesService(userRepository, accessPermissionRepository)
 
     @BeforeEach

@@ -27,7 +27,7 @@ class TimesServiceTest(@MockK private val mockContext: PersistenceContext) {
     fun beforeEach() {
         mockkStatic(OffsetDateTime::class)
         every { OffsetDateTime.now() } returns mockNow
-        every { mockContext.getSubmission(ACC_NO) } returns null
+        // every { mockContext.getSubmission(ACC_NO) } returns null
     }
 
     @Nested
@@ -44,7 +44,7 @@ class TimesServiceTest(@MockK private val mockContext: PersistenceContext) {
         @Test
         fun `when exists`() {
             val existingSubmission = createBasicExtendedSubmission().apply { creationTime = testTime }
-            every { mockContext.getSubmission(ACC_NO) } returns existingSubmission
+            // every { mockContext.getSubmission(ACC_NO) } returns existingSubmission
 
             val times = testInstance.getTimes(TimesRequest(ACC_NO))
             assertThat(times.createTime).isEqualTo(testTime)

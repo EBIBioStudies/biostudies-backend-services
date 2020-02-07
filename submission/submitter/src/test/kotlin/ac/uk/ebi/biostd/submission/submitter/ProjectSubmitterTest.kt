@@ -27,7 +27,7 @@ class ProjectSubmitterTest(
     fun beforeEach() {
         every { accNoPatternUtil.getPattern("!{S-ABC}") } returns "S-ABC"
         every { persistenceContext.saveAccessTag("ABC456") } answers { nothing }
-        every { persistenceContext.saveSubmission(project) } answers { project }
+        //    every { persistenceContext.saveSubmission(project) } answers { project }
         every { projectValidationService.validate(project) } answers { nothing }
         every { persistenceContext.createAccNoPatternSequence("S-ABC") } answers { nothing }
     }
@@ -40,7 +40,7 @@ class ProjectSubmitterTest(
         verify(exactly = 1) {
             accNoPatternUtil.getPattern("!{S-ABC}")
             projectValidationService.validate(project)
-            persistenceContext.saveSubmission(project)
+            // persistenceContext.saveSubmission(project)
             persistenceContext.saveAccessTag("ABC456")
             persistenceContext.createAccNoPatternSequence("S-ABC")
         }
