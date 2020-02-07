@@ -7,6 +7,7 @@ import ac.uk.ebi.biostd.submission.service.AccNoService
 import ac.uk.ebi.biostd.submission.service.AccNoServiceRequest
 import ac.uk.ebi.biostd.submission.service.ParentInfoService
 import ac.uk.ebi.biostd.submission.service.TimesService
+import ac.uk.ebi.biostd.submission.service.TimesRequest
 import ebi.ac.uk.base.orFalse
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.model.ExtendedSubmission
@@ -52,7 +53,8 @@ open class SubmissionSubmitter(
 
     private fun processSubmission(submission: ExtendedSubmission): ExtendedSubmission {
         val (parentTags, parentReleaseTime) = parentInfoService.getParentInfo(submission.attachTo)
-        val (creationTime, modificationTime, releaseTime) = timesService.getTimes(submission, parentReleaseTime)
+        val (creationTime, modificationTime, releaseTime) =
+            timesService.getTimes(TimesRequest(submission.accNo, submission.releaseDate, parentReleaseTime))
         val released = releaseTime?.isBeforeOrEqual(OffsetDateTime.now()).orFalse()
         val tags = if (released) parentTags + SubFields.PUBLIC_ACCESS_TAG.value else parentTags
 

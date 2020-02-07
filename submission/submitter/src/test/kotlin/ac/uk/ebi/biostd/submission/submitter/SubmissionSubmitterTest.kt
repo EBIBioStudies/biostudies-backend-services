@@ -7,6 +7,7 @@ import ac.uk.ebi.biostd.submission.service.AccNoServiceRequest
 import ac.uk.ebi.biostd.submission.service.ParentInfo
 import ac.uk.ebi.biostd.submission.service.ParentInfoService
 import ac.uk.ebi.biostd.submission.service.Times
+import ac.uk.ebi.biostd.submission.service.TimesRequest
 import ac.uk.ebi.biostd.submission.service.TimesService
 import ac.uk.ebi.biostd.submission.test.createBasicExtendedSubmission
 import ebi.ac.uk.io.sources.FilesSource
@@ -38,6 +39,7 @@ class SubmissionSubmitterTest(
     @MockK private val submissionRequest: SubmissionRequest,
     @MockK private val user: SecurityUser
 ) {
+    private val timesRequest = slot<TimesRequest>()
     private val submission = createBasicExtendedSubmission()
     private val savedSubmission = slot<ExtendedSubmission>()
     private val accNoServiceRequest = slot<AccNoServiceRequest>()
@@ -64,7 +66,7 @@ class SubmissionSubmitterTest(
         every { persistenceContext.deleteSubmissionDrafts(submission) } answers { nothing }
         every { persistenceContext.saveSubmission(capture(savedSubmission)) } answers { submission }
 
-        every { timesService.getTimes(submission, testTime) } returns Times(testTime, testTime, testTime)
+        every { timesService.getTimes(capture(timesRequest)) } returns Times(testTime, testTime, testTime)
         every { filesHandler.processFiles(submission, filesSource) } answers { nothing }
         every { user.asUser() } answers { submission.user }
     }
@@ -77,7 +79,7 @@ class SubmissionSubmitterTest(
         verify(exactly = 1) {
             accNoService.getRelPath(testAccNo)
             parentInfoService.getParentInfo(null)
-            timesService.getTimes(submission, testTime)
+            timesService.getTimes(capture(timesRequest))
             persistenceContext.saveSubmission(submission)
             filesHandler.processFiles(submission, filesSource)
             accNoService.getAccNo(capture(accNoServiceRequest))
