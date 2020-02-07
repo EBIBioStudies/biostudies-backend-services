@@ -6,7 +6,7 @@ import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.persistence.model.AccessPermission
 import ac.uk.ebi.biostd.persistence.model.AccessType
 import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
-import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepository
+import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.line
@@ -33,7 +33,7 @@ internal class ProjectsListTest(private val tempFolder: TemporaryFolder) : BaseI
     @DirtiesContext
     inner class ProjectListTest(
         @Autowired val userDataRepository: UserDataRepository,
-        @Autowired val tagsDataRepository: AccessTagDataRepository,
+        @Autowired val tagsDataRepository: AccessTagDataRepo,
         @Autowired val accessPermissionRepository: AccessPermissionRepository
     ) {
         @LocalServerPort

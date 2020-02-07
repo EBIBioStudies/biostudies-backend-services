@@ -52,7 +52,7 @@ interface SubmissionDataRepository :
     ): List<Submission>
 }
 
-interface AccessTagDataRepository : JpaRepository<AccessTag, Long> {
+interface AccessTagDataRepo : JpaRepository<AccessTag, Long> {
     fun findByName(name: String): AccessTag
     fun existsByName(name: String): Boolean
 }

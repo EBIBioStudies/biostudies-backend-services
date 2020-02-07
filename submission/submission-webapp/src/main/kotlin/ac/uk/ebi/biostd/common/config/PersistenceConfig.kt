@@ -6,7 +6,7 @@ import ac.uk.ebi.biostd.persistence.mapping.SubmissionDbMapper
 import ac.uk.ebi.biostd.persistence.mapping.SubmissionMapper
 import ac.uk.ebi.biostd.persistence.mapping.extended.from.ToDbSubmissionMapper
 import ac.uk.ebi.biostd.persistence.mapping.extended.to.ToExtSubmissionMapper
-import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepository
+import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
 import ac.uk.ebi.biostd.persistence.repositories.JdbcLockExecutor
 import ac.uk.ebi.biostd.persistence.repositories.LockExecutor
 import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
@@ -30,7 +30,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 class PersistenceConfig(
     private val submissionDataRepository: SubmissionDataRepository,
     private val sequenceRepository: SequenceDataRepository,
-    private val tagsDataRepository: AccessTagDataRepository,
+    private val tagsDataRepository: AccessTagDataRepo,
     private val tagsRefRepository: TagDataRepository,
     private val userRepository: UserDataRepository,
     private val template: NamedParameterJdbcTemplate,
@@ -39,11 +39,10 @@ class PersistenceConfig(
 ) {
     @Bean
     fun toDbSubmissionMapper(
-        tagsRepository: AccessTagDataRepository,
-        tagsRefRepository: TagDataRepository,
-        userRepository: UserDataRepository
-    ) =
-        ToDbSubmissionMapper(tagsRepository, tagsRefRepository, userRepository)
+        tagsRepo: AccessTagDataRepo,
+        tagsRefRepo: TagDataRepository,
+        userRepo: UserDataRepository
+    ) = ToDbSubmissionMapper(tagsRepo, tagsRefRepo, userRepo)
 
     @Bean
     fun toExtSubmissionMapper() = ToExtSubmissionMapper(applicationProperties.submissionsPath)
@@ -75,8 +74,6 @@ class PersistenceConfig(
             sequenceRepository,
             tagsDataRepository,
             lockExecutor,
-            submissionDbMapper(),
-            submissionMapper(),
             userDataRepository,
             dbSubmissionMapper,
             toExtSubmissionMapper

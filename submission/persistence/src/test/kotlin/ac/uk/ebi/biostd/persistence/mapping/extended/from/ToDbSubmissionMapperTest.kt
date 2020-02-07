@@ -3,7 +3,7 @@ package ac.uk.ebi.biostd.persistence.mapping.extended.from
 import ac.uk.ebi.biostd.persistence.model.AccessTag
 import ac.uk.ebi.biostd.persistence.model.Tag
 import ac.uk.ebi.biostd.persistence.model.User
-import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepository
+import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
 import ac.uk.ebi.biostd.persistence.repositories.TagDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ac.uk.ebi.biostd.persistence.test.assertSubmission
@@ -20,7 +20,7 @@ private const val submitter = "user@ebi.email.com"
 
 @ExtendWith(MockKExtension::class)
 internal class ToDbSubmissionMapperTest(
-    @MockK private val accessTagsRepository: AccessTagDataRepository,
+    @MockK private val accessTagsRepository: AccessTagDataRepo,
     @MockK private val tagsRepository: TagDataRepository,
     @MockK private var userRepository: UserDataRepository
 ) {

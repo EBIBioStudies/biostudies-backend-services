@@ -11,7 +11,7 @@ import ac.uk.ebi.biostd.persistence.model.AccessPermission
 import ac.uk.ebi.biostd.persistence.model.AccessType.ATTACH
 import ac.uk.ebi.biostd.persistence.model.AccessType.SUBMIT
 import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
-import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepository
+import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.line
@@ -40,7 +40,7 @@ internal class SubmitPermissionTest(private val tempFolder: TemporaryFolder) : B
     @DirtiesContext
     inner class SubmitProjectTest(
         @Autowired private val userDataRepository: UserDataRepository,
-        @Autowired private val tagsDataRepository: AccessTagDataRepository,
+        @Autowired private val tagsDataRepository: AccessTagDataRepo,
         @Autowired private val accessPermissionRepository: AccessPermissionRepository
     ) {
         @LocalServerPort

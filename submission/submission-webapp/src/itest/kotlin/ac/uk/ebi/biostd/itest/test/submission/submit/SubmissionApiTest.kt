@@ -12,7 +12,7 @@ import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.factory.invalidLinkUrl
 import ac.uk.ebi.biostd.persistence.model.Sequence
 import ac.uk.ebi.biostd.persistence.model.Tag
-import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepository
+import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
 import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.TagDataRepository
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
@@ -56,7 +56,7 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
     @DirtiesContext
     inner class SubmissionApiTest(
         @Autowired val submissionRepository: SubmissionRepository,
-        @Autowired val tagsDataRepository: AccessTagDataRepository,
+        @Autowired val tagsDataRepository: AccessTagDataRepo,
         @Autowired val sequenceRepository: SequenceDataRepository,
         @Autowired val tagsRefRepository: TagDataRepository,
         @Autowired val groupService: IGroupService

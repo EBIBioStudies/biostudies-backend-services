@@ -15,7 +15,7 @@ import java.time.ZoneOffset
 class TimesService(private val context: PersistenceContext) {
     internal fun getTimes(request: TimesRequest): Times {
         val now = OffsetDateTime.now()
-        val creationTime = context.getSubmission(request.accNo)?.creationTime ?: now
+        val creationTime = context.findCreationTime(request.accNo) ?: now
         val releaseTime = releaseTime(request, now)
         return Times(creationTime, now, releaseTime)
     }

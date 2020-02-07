@@ -3,7 +3,7 @@ package ac.uk.ebi.biostd.common.config
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.persistence.integration.PersistenceContext
 import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
-import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepository
+import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
 import ac.uk.ebi.biostd.persistence.service.ProjectRepository
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
 import ac.uk.ebi.biostd.submission.domain.helpers.SourceGenerator
@@ -37,7 +37,7 @@ class SubmissionConfig(
     @Bean
     fun projectService(
         projectSubmitter: ProjectSubmitter,
-        tagsDataRepository: AccessTagDataRepository,
+        tagsDataRepository: AccessTagDataRepo,
         projectRepository: ProjectRepository,
         accessPermissionRepository: AccessPermissionRepository
     ): ProjectService = ProjectService(
