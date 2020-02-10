@@ -20,9 +20,10 @@ class AccNoService(
     fun getAccNo(request: AccNoServiceRequest): AccNumber = when {
         request.accNo.isNotEmpty() &&
             context.isNew(request.accNo) ->
-            if (userPrivilegesService.canProvideAccNo(request.user.email).not()) throw ProvideAccessNumber(request.user.email)
+            if (userPrivilegesService.canProvideAccNo(request.user.email).not())
+                throw ProvideAccessNumber(request.user.email)
             else AccNumber(request.accNo, null)
-        // TODO diferenciate beetween user and author
+        // TODO differentiate between user and author
         userPrivilegesService.canResubmit(
             request.user.email, request.user.email, request.parentAccNo, request.accessTags).not() ->
             throw UserCanNotUpdateSubmit(request.accNo, request.user.email)

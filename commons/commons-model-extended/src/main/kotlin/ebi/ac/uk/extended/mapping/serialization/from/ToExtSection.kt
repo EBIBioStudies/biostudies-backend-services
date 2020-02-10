@@ -16,13 +16,3 @@ fun Section.toExtSection(source: FilesSource): ExtSection {
         links = links.map { either -> either.bimap({ it.toExtLink() }, { it.toExtTable() }) },
         sections = sections.map { either -> either.bimap({ it.toExtSection(source) }, { it.toExtTable(source) }) })
 }
-
-// TODO remove this method
-fun Section.toExtSubSection(source: FilesSource): ExtSection {
-    return ExtSection(
-        type = type,
-        accNo = accNo,
-        fileList = fileList?.toExtFileList(source),
-        attributes = attributes.map { it.toExtAttribute() }
-    )
-}

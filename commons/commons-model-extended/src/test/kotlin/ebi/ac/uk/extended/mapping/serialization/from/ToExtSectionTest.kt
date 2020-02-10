@@ -8,7 +8,6 @@ import ebi.ac.uk.extended.model.ExtFileList
 import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.ExtLink
 import ebi.ac.uk.extended.model.ExtLinkTable
-import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSectionTable
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.model.Attribute
@@ -37,7 +36,6 @@ class ToExtSectionTest(
     @MockK val fileTable: FilesTable,
     @MockK val link: Link,
     @MockK val linkTable: LinksTable,
-    @MockK val subsection: Section,
     @MockK val sectionTable: SectionsTable,
     @MockK val extFileList: ExtFileList,
     @MockK val extAttribute: ExtAttribute,
@@ -45,9 +43,9 @@ class ToExtSectionTest(
     @MockK val extFileTable: ExtFileTable,
     @MockK val extLink: ExtLink,
     @MockK val extLinkTable: ExtLinkTable,
-    @MockK val extSubsection: ExtSection,
     @MockK val extSectionTable: ExtSectionTable
 ) {
+    private val subSection = Section(type = "subtype", accNo = "accNo1")
     private val section = Section(
         type = "type",
         accNo = "accNo",
@@ -55,7 +53,7 @@ class ToExtSectionTest(
         attributes = listOf(attribute),
         files = mutableListOf(left(file), right(fileTable)),
         links = mutableListOf(left(link), right(linkTable)),
-        sections = mutableListOf(left(subsection), right(sectionTable))
+        sections = mutableListOf(left(subSection), right(sectionTable))
     )
 
     @Test
@@ -76,7 +74,6 @@ class ToExtSectionTest(
             every { linkTable.toExtTable() } returns extLinkTable
             every { sectionTable.toExtTable(fileSource) } returns extSectionTable
             every { fileList.toExtFileList(fileSource) } returns extFileList
-            every { subsection.toExtSubSection(fileSource) } returns extSubsection
 
             val sectionResult = section.toExtSection(fileSource)
             assertThat(sectionResult.accNo).isEqualTo(section.accNo)
@@ -87,8 +84,11 @@ class ToExtSectionTest(
             assertThat(sectionResult.files.second()).isEqualTo(right(extFileTable))
             assertThat(sectionResult.links.first()).isEqualTo(left(extLink))
             assertThat(sectionResult.links.second()).isEqualTo(right(extLinkTable))
-            assertThat(sectionResult.sections.first()).isEqualTo(left(extSubsection))
             assertThat(sectionResult.sections.second()).isEqualTo(right(extSectionTable))
+            sectionResult.sections.first().mapLeft {
+                assertThat(it.type).isEqualTo("subtype")
+                assertThat(it.accNo).isEqualTo("accNo1")
+            }
         }
     }
 }

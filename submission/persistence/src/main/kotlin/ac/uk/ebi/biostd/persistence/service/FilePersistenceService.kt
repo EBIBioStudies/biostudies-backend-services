@@ -20,12 +20,12 @@ class FilePersistenceService(
         generateOutputFiles(submission)
     }
 
-    internal fun persistFiles(submission: ExtSubmission) {
+    private fun persistFiles(submission: ExtSubmission) {
         copy(submission.allFiles, submission.relPath)
         copy(submission.allReferencedFiles, submission.relPath)
     }
 
-    internal fun generateOutputFiles(submission: ExtSubmission) {
+    private fun generateOutputFiles(submission: ExtSubmission) {
         generateOutputFiles(submission.toSimpleSubmission(), submission, submission.accNo)
         submission.allFileListSections.forEach { generateOutputFiles(it, submission, it.fileName) }
     }

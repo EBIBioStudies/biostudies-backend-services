@@ -3,7 +3,6 @@ package ac.uk.ebi.biostd.submission.service
 import ac.uk.ebi.biostd.persistence.integration.PersistenceContext
 import ac.uk.ebi.biostd.submission.exceptions.InvalidDateFormatException
 import ac.uk.ebi.biostd.submission.test.ACC_NO
-import ac.uk.ebi.biostd.submission.test.createBasicExtendedSubmission
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
@@ -27,7 +26,7 @@ class TimesServiceTest(@MockK private val mockContext: PersistenceContext) {
     fun beforeEach() {
         mockkStatic(OffsetDateTime::class)
         every { OffsetDateTime.now() } returns mockNow
-        // every { mockContext.getSubmission(ACC_NO) } returns null
+        every { mockContext.findCreationTime(ACC_NO) } returns null
     }
 
     @Nested
@@ -43,8 +42,7 @@ class TimesServiceTest(@MockK private val mockContext: PersistenceContext) {
     inner class CreationTime {
         @Test
         fun `when exists`() {
-            val existingSubmission = createBasicExtendedSubmission().apply { creationTime = testTime }
-            // every { mockContext.getSubmission(ACC_NO) } returns existingSubmission
+            every { mockContext.findCreationTime(ACC_NO) } returns testTime
 
             val times = testInstance.getTimes(TimesRequest(ACC_NO))
             assertThat(times.createTime).isEqualTo(testTime)

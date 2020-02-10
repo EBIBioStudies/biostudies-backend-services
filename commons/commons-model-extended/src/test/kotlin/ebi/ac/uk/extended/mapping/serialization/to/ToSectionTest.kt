@@ -16,7 +16,6 @@ import ebi.ac.uk.model.FileList
 import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.model.Link
 import ebi.ac.uk.model.LinksTable
-import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.SectionsTable
 import ebi.ac.uk.util.collections.second
 import io.mockk.every
@@ -35,7 +34,6 @@ class ToSectionTest(
     @MockK val fileTable: FilesTable,
     @MockK val link: Link,
     @MockK val linkTable: LinksTable,
-    @MockK val subsection: Section,
     @MockK val sectionTable: SectionsTable,
     @MockK val extFileList: ExtFileList,
     @MockK val extAttribute: ExtAttribute,
@@ -43,9 +41,9 @@ class ToSectionTest(
     @MockK val extFileTable: ExtFileTable,
     @MockK val extLink: ExtLink,
     @MockK val extLinkTable: ExtLinkTable,
-    @MockK val extSubsection: ExtSection,
     @MockK val extSectionTable: ExtSectionTable
 ) {
+    private val subSection = ExtSection(type = "subtype", accNo = "accNo1")
     private val section = ExtSection(
         type = "type",
         accNo = "accNo",
@@ -53,7 +51,7 @@ class ToSectionTest(
         attributes = listOf(extAttribute),
         files = listOf(left(extFile), right(extFileTable)),
         links = listOf(left(extLink), right(extLinkTable)),
-        sections = listOf(left(extSubsection), right(extSectionTable))
+        sections = listOf(left(subSection), right(extSectionTable))
     )
 
     @Test
@@ -74,7 +72,6 @@ class ToSectionTest(
             every { extLinkTable.toTable() } returns linkTable
             every { extSectionTable.toTable() } returns sectionTable
             every { extFileList.toFileList() } returns fileList
-            every { extSubsection.toSubSection() } returns subsection
 
             val sectionResult = section.toSection()
             assertThat(sectionResult.accNo).isEqualTo(section.accNo)
@@ -85,8 +82,11 @@ class ToSectionTest(
             assertThat(sectionResult.files.second()).isEqualTo(right(fileTable))
             assertThat(sectionResult.links.first()).isEqualTo(left(link))
             assertThat(sectionResult.links.second()).isEqualTo(right(linkTable))
-            assertThat(sectionResult.sections.first()).isEqualTo(left(subsection))
             assertThat(sectionResult.sections.second()).isEqualTo(right(sectionTable))
+            sectionResult.sections.first().mapLeft {
+                assertThat(it.type).isEqualTo("subtype")
+                assertThat(it.accNo).isEqualTo("accNo1")
+            }
         }
     }
 }

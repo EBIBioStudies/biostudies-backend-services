@@ -5,10 +5,6 @@ import ac.uk.ebi.biostd.common.config.SubmitterConfig.ServiceConfig
 import ac.uk.ebi.biostd.common.property.ApplicationProperties
 import ac.uk.ebi.biostd.integration.SerializationConfig
 import ac.uk.ebi.biostd.persistence.integration.PersistenceContext
-import ac.uk.ebi.biostd.submission.handlers.FilesCopier
-import ac.uk.ebi.biostd.submission.handlers.FilesHandler
-import ac.uk.ebi.biostd.submission.handlers.FilesValidator
-import ac.uk.ebi.biostd.submission.handlers.OutputFilesGenerator
 import ac.uk.ebi.biostd.submission.service.AccNoService
 import ac.uk.ebi.biostd.submission.service.ParentInfoService
 import ac.uk.ebi.biostd.submission.service.ProjectService
@@ -50,18 +46,6 @@ class SubmitterConfig {
 
         @Bean
         fun serializationService() = SerializationConfig.serializationService()
-
-        @Bean
-        fun filesHandler() = FilesHandler(filesValidator(), filesCopier(), outputFilesGenerator())
-
-        @Bean
-        fun outputFilesGenerator() = OutputFilesGenerator(folderResolver(), serializationService())
-
-        @Bean
-        fun filesCopier() = FilesCopier(folderResolver())
-
-        @Bean
-        fun filesValidator() = FilesValidator()
     }
 
     @Configuration
