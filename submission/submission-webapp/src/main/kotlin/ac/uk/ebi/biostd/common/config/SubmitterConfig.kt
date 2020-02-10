@@ -11,9 +11,8 @@ import ac.uk.ebi.biostd.submission.handlers.FilesValidator
 import ac.uk.ebi.biostd.submission.handlers.OutputFilesGenerator
 import ac.uk.ebi.biostd.submission.service.AccNoService
 import ac.uk.ebi.biostd.submission.service.ParentInfoService
-import ac.uk.ebi.biostd.submission.service.ProjectValidationService
+import ac.uk.ebi.biostd.submission.service.ProjectService
 import ac.uk.ebi.biostd.submission.service.TimesService
-import ac.uk.ebi.biostd.submission.submitter.ProjectSubmitter
 import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
 import ac.uk.ebi.biostd.submission.util.AccNoPatternUtil
 import ebi.ac.uk.paths.SubmissionFolderResolver
@@ -29,19 +28,19 @@ import java.nio.file.Paths
 class SubmitterConfig {
     @Bean
     fun submissionSubmitter(
-        filesHandler: FilesHandler,
         timesService: TimesService,
         accNoService: AccNoService,
         parentInfoService: ParentInfoService,
+        projectService: ProjectService,
         persistenceContext: PersistenceContext
-    ) = SubmissionSubmitter(filesHandler, timesService, accNoService, parentInfoService, persistenceContext)
+    ) = SubmissionSubmitter(timesService, accNoService, parentInfoService, projectService, persistenceContext)
 
     @Bean
-    fun projectSubmitter(
-        accNoPatternUtil: AccNoPatternUtil,
+    fun projectService(
         persistenceContext: PersistenceContext,
-        projectValidationService: ProjectValidationService
-    ) = ProjectSubmitter(accNoPatternUtil, persistenceContext, projectValidationService)
+        accNoPatternUtil: AccNoPatternUtil,
+        privilegesService: IUserPrivilegesService
+    ) = ProjectService(persistenceContext, accNoPatternUtil, privilegesService)
 
     @Configuration
     class FilesHandlerConfig(private val appProperties: ApplicationProperties) {
@@ -81,7 +80,7 @@ class SubmitterConfig {
         fun parentInfoService() = ParentInfoService(context)
 
         @Bean
-        fun projectValidationService() = ProjectValidationService(context, accNoPatternUtil(), userPrivilegesService)
+        fun projectValidationService() = ProjectService(context, accNoPatternUtil(), userPrivilegesService)
 
         @Bean
         fun timesService() = TimesService(context)

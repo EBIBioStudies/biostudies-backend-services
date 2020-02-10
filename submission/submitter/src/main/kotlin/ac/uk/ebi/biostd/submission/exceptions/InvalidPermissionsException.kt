@@ -1,7 +1,5 @@
 package ac.uk.ebi.biostd.submission.exceptions
 
-import ebi.ac.uk.model.User
-
 /**
  * Generated when user is not allowed to perform an operation.
  */
@@ -13,5 +11,5 @@ class ProvideAccessNumber(user: String) : InvalidPermissionsException(
 class UserCanNotUpdateSubmit(accNo: String, user: String) : InvalidPermissionsException(
     "{$user} is not allowed to update submission $accNo")
 
-class UserCanNotSubmitProjectsException(user: User) : InvalidPermissionsException(
-    "The user ${user.email} is not allowed to submit projects")
+class UserCanNotSubmitProjectsException(user: String) : InvalidPermissionsException(
+    "The user $user is not allowed to submit projects")

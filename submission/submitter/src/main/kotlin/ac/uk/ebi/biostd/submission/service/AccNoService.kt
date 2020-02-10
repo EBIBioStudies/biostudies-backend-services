@@ -19,9 +19,9 @@ class AccNoService(
 ) {
     fun getAccNo(request: AccNoServiceRequest): AccNumber = when {
         request.accNo.isNotEmpty() &&
-            context.isNew(request.accNo) &&
-            userPrivilegesService.canProvideAccNo(request.user.email).not() ->
-            throw ProvideAccessNumber(request.user.email)
+            context.isNew(request.accNo) ->
+            if (userPrivilegesService.canProvideAccNo(request.user.email).not()) throw ProvideAccessNumber(request.user.email)
+            else AccNumber(request.accNo, null)
         // TODO diferenciate beetween user and author
         userPrivilegesService.canResubmit(
             request.user.email, request.user.email, request.parentAccNo, request.accessTags).not() ->
@@ -43,7 +43,9 @@ class AccNoService(
         val value = accNo.numericValue
 
         return when {
-            accNo.numericValue < 99 ->
+            value == null ->
+                prefix.removePrefix("/")
+            value < 99 ->
                 "$prefix/${prefix}0-99/$prefix$value".removePrefix("/")
             else ->
                 "$prefix/${prefix}xxx${value.lastDigits(PATH_DIGITS)}/$prefix$value".removePrefix("/")

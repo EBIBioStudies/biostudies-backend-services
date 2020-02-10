@@ -32,7 +32,7 @@ interface PersistenceContext {
 
     fun findCreationTime(accNo: String): OffsetDateTime?
 
-    fun saveSubmission(submission: ExtSubmission, submitter: String): ExtSubmission
+    fun saveSubmission(submission: ExtSubmission, submitter: String, submitterId: Long): ExtSubmission
 
     fun getAuthor(accNo: String): String
 }
