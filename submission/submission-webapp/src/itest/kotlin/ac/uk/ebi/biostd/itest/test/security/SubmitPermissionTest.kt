@@ -21,6 +21,7 @@ import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -101,8 +102,11 @@ internal class SubmitPermissionTest(private val tempFolder: TemporaryFolder) : B
             }
         }
 
+        @Disabled
         @Test
         fun `submit with attach permission access tag`() {
+            // TODO discuss whether or not this will be a case that will be covered
+            // TODO discuss whther or not access tags will be supported or removed
             val project = tsv {
                 line("Submission", "TestProject2")
                 line("AccNoTemplate", "!{S-TPRJ}")

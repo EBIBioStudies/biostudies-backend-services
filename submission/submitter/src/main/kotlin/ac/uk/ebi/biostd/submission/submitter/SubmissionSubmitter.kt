@@ -29,6 +29,7 @@ import ebi.ac.uk.model.extensions.accNoTemplate
 import ebi.ac.uk.model.extensions.attachTo
 import ebi.ac.uk.model.extensions.releaseDate
 import ebi.ac.uk.model.extensions.rootPath
+import ebi.ac.uk.model.extensions.title
 import ebi.ac.uk.util.date.isBeforeOrEqual
 import org.springframework.transaction.annotation.Isolation
 import org.springframework.transaction.annotation.Transactional
@@ -80,7 +81,7 @@ open class SubmissionSubmitter(
             accNo = accNoString,
             version = nextVersion,
             method = method,
-            title = null,
+            title = submission.title,
             relPath = relPath,
             rootPath = submission.rootPath,
             released = released,
@@ -111,7 +112,8 @@ open class SubmissionSubmitter(
         .map { it.toExtAttribute() }
 
     private fun getAccNumber(sub: Submission, user: User, parentPattern: String?) =
-        accNoService.getAccNo(AccNoServiceRequest(user, sub.accNo, sub.accessTags, sub.attachTo, parentPattern))
+        accNoService.getAccNo(
+            AccNoServiceRequest(user, sub.accNo, sub.section.type, sub.accessTags, sub.attachTo, parentPattern))
 
     private fun getTimes(sub: Submission, parentReleaseTime: OffsetDateTime?) =
         timesService.getTimes(TimesRequest(sub.accNo, sub.releaseDate, parentReleaseTime))

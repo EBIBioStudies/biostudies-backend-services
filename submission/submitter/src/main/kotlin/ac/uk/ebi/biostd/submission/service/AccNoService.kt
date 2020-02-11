@@ -18,11 +18,10 @@ class AccNoService(
     private val userPrivilegesService: IUserPrivilegesService
 ) {
     fun getAccNo(request: AccNoServiceRequest): AccNumber = when {
-        request.accNo.isNotEmpty() &&
-            context.isNew(request.accNo) ->
+        request.accNo.isNotEmpty() && context.isNew(request.accNo) ->
             if (userPrivilegesService.canProvideAccNo(request.user.email).not())
                 throw ProvideAccessNumber(request.user.email)
-            else AccNumber(request.accNo, null)
+            else calculateAccNo(request)
         // TODO differentiate between user and author
         userPrivilegesService.canResubmit(
             request.user.email, request.user.email, request.parentAccNo, request.accessTags).not() ->
@@ -32,6 +31,7 @@ class AccNoService(
 
     private fun calculateAccNo(request: AccNoServiceRequest): AccNumber = when {
         request.accNo.isEmpty() -> calculateAccNo(getPatternOrDefault(request))
+        request.subType == "Project" -> AccNumber(request.accNo, null)
         patternUtil.isPattern(request.accNo) -> calculateAccNo(patternUtil.getPattern(request.accNo))
         else -> patternUtil.toAccNumber(request.accNo)
     }
@@ -62,6 +62,7 @@ class AccNoService(
 data class AccNoServiceRequest(
     val user: User,
     val accNo: String,
+    val subType: String,
     val accessTags: List<String>,
     val parentAccNo: String? = null,
     val parentPattern: String? = null

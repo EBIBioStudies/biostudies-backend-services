@@ -26,7 +26,7 @@ class AccNoServiceTest(
     @MockK private val userPrivilegesService: IUserPrivilegesService
 ) {
     private val testInstance = AccNoService(persistenceContext, accNoPatternUtil, userPrivilegesService)
-    private val testRequest = AccNoServiceRequest(user, "AAB12", emptyList())
+    private val testRequest = AccNoServiceRequest(user, "AAB12", "Study", emptyList())
 
     @BeforeEach
     fun init() {
@@ -48,7 +48,7 @@ class AccNoServiceTest(
 
     @Test
     fun `no accession number, no parent accession`() {
-        val testRequest = AccNoServiceRequest(user, EMPTY, emptyList())
+        val testRequest = AccNoServiceRequest(user, EMPTY, "Study", emptyList())
 
         every { accNoPatternUtil.getPattern(DEFAULT_PATTERN) } returns "S-BSST"
         every { persistenceContext.getSequenceNextValue("S-BSST") } returns 1L
@@ -59,14 +59,26 @@ class AccNoServiceTest(
 
     @Test
     fun `no accession number but parent accession`() {
-        val testRequest = AccNoServiceRequest(user, EMPTY, emptyList(), "P-ARENT", "!{P-ARENT,}")
+        val testRequest = AccNoServiceRequest(user, EMPTY, "Study", emptyList(), "P-ARENT", "!{P-ARENT,}")
 
         every { accNoPatternUtil.getPattern("!{P-ARENT,}") } returns "P-ARENT"
         every { persistenceContext.getSequenceNextValue("P-ARENT") } returns 1
-        every { userPrivilegesService.canResubmit("test@mail.com", "test@mail.com", "P-ARENT", emptyList()) } returns true
+        every {
+            userPrivilegesService.canResubmit("test@mail.com", "test@mail.com", "P-ARENT", emptyList())
+        } returns true
 
         val accNo = testInstance.getAccNo(testRequest).toString()
         assertThat(accNo).isEqualTo("P-ARENT1")
+    }
+
+    @Test
+    fun `accession number for a project`() {
+        val testRequest = AccNoServiceRequest(user, "AProject", "Project", emptyList())
+
+        every { persistenceContext.isNew("AProject") } returns true
+
+        val accNo = testInstance.getAccNo(testRequest).toString()
+        assertThat(accNo).isEqualTo("AProject")
     }
 
     @Test

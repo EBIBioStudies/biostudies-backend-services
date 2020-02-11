@@ -11,9 +11,9 @@ import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.line
 import ebi.ac.uk.dsl.tsv
 import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSED
-import ebi.ac.uk.model.extensions.attachTo
 import ebi.ac.uk.model.extensions.title
 import ebi.ac.uk.test.createFile
+import ebi.ac.uk.util.collections.second
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
@@ -69,8 +69,9 @@ internal class ProjectSubmitTest(private val tempFolder: TemporaryFolder) : Base
             assertThat(submittedProject.title).isEqualTo("A Project")
             assertThat(submittedProject.processingStatus).isEqualTo(PROCESSED)
 
-            assertThat(submittedProject.accessTags).hasSize(1)
+            assertThat(submittedProject.accessTags).hasSize(2)
             assertThat(submittedProject.accessTags.first()).isEqualTo("AProject")
+            assertThat(submittedProject.accessTags.second()).isEqualTo("Public")
 
             assertThat(tagsDataRepository.existsByName("AProject")).isTrue()
             assertThat(sequenceRepository.existsByPrefix("S-APR")).isTrue()
