@@ -113,8 +113,9 @@ internal class DeletePermissionTest(private val tempFolder: TemporaryFolder) : B
 
                 line("Project")
             }.toString()
+            val projectFile = tempFolder.createFile("a-project.tsv", project)
 
-            assertThat(superUserWebClient.submitProject(tempFolder.createFile("a-project.tsv", project))).isSuccessful()
+            assertThat(superUserWebClient.submitSingle(projectFile, emptyList())).isSuccessful()
 
             val accessTag = tagsDataRepository.findByName("AProject")
             val user = userDataRepository.findByEmailAndActive(RegularUser.email, active = true)

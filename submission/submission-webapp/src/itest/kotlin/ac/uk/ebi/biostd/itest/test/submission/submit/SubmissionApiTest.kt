@@ -120,8 +120,9 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
                 line("AttachTo", "A-Project")
                 line("Title", "Empty AccNo With Parent")
             }.toString()
+            val projectFile = tempFolder.createFile("project.tsv", project)
 
-            assertThat(webClient.submitProject(tempFolder.createFile("project.tsv", project))).isSuccessful()
+            assertThat(webClient.submitSingle(projectFile, emptyList())).isSuccessful()
             assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
             assertThat(submissionRepository.getByAccNo("S-APR0")).isEqualTo(
                 submission("S-APR0") {

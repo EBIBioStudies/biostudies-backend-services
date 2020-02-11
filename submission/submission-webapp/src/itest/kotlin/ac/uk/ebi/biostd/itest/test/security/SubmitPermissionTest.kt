@@ -67,13 +67,13 @@ internal class SubmitPermissionTest(private val tempFolder: TemporaryFolder) : B
 
         @Test
         fun `create project with superuser`() {
-            assertThat(superUserWebClient.submitProject(projectFile)).isSuccessful()
+            assertThat(superUserWebClient.submitSingle(projectFile, emptyList())).isSuccessful()
         }
 
         @Test
         fun `create project with regular user`() {
             assertThatExceptionOfType(WebClientException::class.java).isThrownBy {
-                regularUserWebClient.submitProject(projectFile)
+                regularUserWebClient.submitSingle(projectFile, emptyList())
             }
         }
 
@@ -93,7 +93,9 @@ internal class SubmitPermissionTest(private val tempFolder: TemporaryFolder) : B
                 line("Title", "Test Submission")
             }.toString()
 
-            assertThat(superUserWebClient.submitProject(tempFolder.createFile("test.tsv", project))).isSuccessful()
+            val projectFile = tempFolder.createFile("test.tsv", project)
+
+            assertThat(superUserWebClient.submitSingle(projectFile, emptyList())).isSuccessful()
             assertThatExceptionOfType(WebClientException::class.java).isThrownBy {
                 regularUserWebClient.submitSingle(submission, SubmissionFormat.TSV)
             }
@@ -115,7 +117,9 @@ internal class SubmitPermissionTest(private val tempFolder: TemporaryFolder) : B
                 line("Title", "Test Submission")
             }.toString()
 
-            assertThat(superUserWebClient.submitProject(tempFolder.createFile("test2.tsv", project))).isSuccessful()
+            val projectFile = tempFolder.createFile("test2.tsv", project)
+
+            assertThat(superUserWebClient.submitSingle(projectFile, emptyList())).isSuccessful()
 
             val accessTag = tagsDataRepository.findByName("TestProject2")
             val user = userDataRepository.findByEmailAndActive(RegularUser.email, active = true)
