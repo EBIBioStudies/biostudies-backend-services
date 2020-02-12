@@ -2,7 +2,7 @@ package ac.uk.ebi.biostd.files.service
 
 import ac.uk.ebi.biostd.files.exception.UserGroupNotFound
 import ac.uk.ebi.biostd.files.model.FilesSpec
-import ac.uk.ebi.biostd.files.utils.copyFile
+import ac.uk.ebi.biostd.files.utils.transferTo
 import ebi.ac.uk.io.asFileList
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import org.springframework.web.multipart.MultipartFile
@@ -18,7 +18,7 @@ class GroupFilesService {
 
     fun uploadFiles(groupName: String, user: SecurityUser, path: String, files: Array<MultipartFile>) {
         val groupPath = getGroupPath(groupName, user)
-        files.forEach { file -> copyFile(groupPath.resolve(path), file) }
+        files.forEach { file -> transferTo(groupPath.resolve(path), file) }
     }
 
     fun getFile(groupName: String, user: SecurityUser, path: String, fileName: String): File {
