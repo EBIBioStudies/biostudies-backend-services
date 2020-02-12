@@ -55,7 +55,7 @@ internal class ProjectsListTest(tempFolder: TemporaryFolder) : BaseIntegrationTe
 
             val project = projects.first()
             assertThat(project.accno).isEqualTo("SampleProject")
-//            assertThat(project.title).isEqualTo("Sample Project") TODO: fix when adding title from rootSection
+            assertThat(project.title).isEqualTo("Sample Project")
         }
 
         private fun registerProject() {
