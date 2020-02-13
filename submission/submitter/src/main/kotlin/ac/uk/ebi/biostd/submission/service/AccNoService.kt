@@ -2,11 +2,13 @@ package ac.uk.ebi.biostd.submission.service
 
 import ac.uk.ebi.biostd.persistence.integration.PersistenceContext
 import ac.uk.ebi.biostd.submission.exceptions.ProvideAccessNumber
+import ac.uk.ebi.biostd.submission.exceptions.UserCanNotSubmitProjectsException
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotUpdateSubmit
 import ac.uk.ebi.biostd.submission.util.AccNoPatternUtil
 import ebi.ac.uk.base.lastDigits
 import ebi.ac.uk.model.AccNumber
 import ebi.ac.uk.model.User
+import ebi.ac.uk.model.constants.SubFields
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 
 const val DEFAULT_PATTERN = "!{S-BSST}"
@@ -15,25 +17,36 @@ const val PATH_DIGITS = 3
 class AccNoService(
     private val context: PersistenceContext,
     private val patternUtil: AccNoPatternUtil,
-    private val userPrivilegesService: IUserPrivilegesService
+    private val privilegesService: IUserPrivilegesService
 ) {
-    fun getAccNo(request: AccNoServiceRequest): AccNumber = when {
-        request.accNo.isNotEmpty() && context.isNew(request.accNo) ->
-            if (userPrivilegesService.canProvideAccNo(request.user.email).not())
-                throw ProvideAccessNumber(request.user.email)
-            else calculateAccNo(request)
-        // TODO differentiate between user and author
-        userPrivilegesService.canResubmit(
-            request.user.email, request.user.email, request.parentAccNo, request.accessTags).not() ->
-            throw UserCanNotUpdateSubmit(request.accNo, request.user.email)
-        else -> calculateAccNo(request)
-    }
+    @Suppress("ThrowsCount")
+    fun getAccNo(request: AccNoServiceRequest): AccNumber {
+        val submitter = request.user.email
+        val accNo = request.accNo
+        val project = request.parentAccNo
 
-    private fun calculateAccNo(request: AccNoServiceRequest): AccNumber = when {
-        request.accNo.isEmpty() -> calculateAccNo(getPatternOrDefault(request))
-        request.subType == "Project" -> AccNumber(request.accNo, null)
-        patternUtil.isPattern(request.accNo) -> calculateAccNo(patternUtil.getPattern(request.accNo))
-        else -> patternUtil.toAccNumber(request.accNo)
+        when {
+            context.isNew(request.accNo) -> {
+                if (accNo.isNotEmpty() && privilegesService.canProvideAccNo(submitter).not())
+                    throw ProvideAccessNumber(submitter)
+                if (project != null && privilegesService.canSubmitToProject(submitter, project).not())
+                    throw UserCanNotSubmitProjectsException(submitter)
+
+                return if (accNo.isEmpty())
+                    calculateAccNo(getPatternOrDefault(request.parentPattern))
+                else AccNumber(request.accNo, null)
+            }
+            else -> {
+                val tags = context.getAccessTags(request.accNo).filterNot { it == SubFields.PUBLIC_ACCESS_TAG.value }
+                if (project != null && privilegesService.canSubmitToProject(submitter, project).not())
+                    throw UserCanNotSubmitProjectsException(request.user.email)
+
+                if (privilegesService.canResubmit(submitter, context.getAuthor(accNo), tags).not())
+                    throw UserCanNotUpdateSubmit(request.accNo, submitter)
+
+                return AccNumber(request.accNo, null)
+            }
+        }
     }
 
     private fun calculateAccNo(prefix: String) = AccNumber(prefix, context.getSequenceNextValue(prefix))
@@ -53,9 +66,9 @@ class AccNoService(
         }
     }
 
-    private fun getPatternOrDefault(request: AccNoServiceRequest) = when (request.parentAccNo) {
+    private fun getPatternOrDefault(parentPattern: String?) = when (parentPattern) {
         null -> patternUtil.getPattern(DEFAULT_PATTERN)
-        else -> patternUtil.getPattern(request.parentPattern!!)
+        else -> patternUtil.getPattern(parentPattern)
     }
 }
 
@@ -63,7 +76,6 @@ data class AccNoServiceRequest(
     val user: User,
     val accNo: String,
     val subType: String,
-    val accessTags: List<String>,
     val parentAccNo: String? = null,
     val parentPattern: String? = null
 )

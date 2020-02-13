@@ -112,8 +112,7 @@ open class SubmissionSubmitter(
         .map { it.toExtAttribute() }
 
     private fun getAccNumber(sub: Submission, user: User, parentPattern: String?) =
-        accNoService.getAccNo(
-            AccNoServiceRequest(user, sub.accNo, sub.section.type, sub.accessTags, sub.attachTo, parentPattern))
+        accNoService.getAccNo(AccNoServiceRequest(user, sub.accNo, sub.section.type, sub.attachTo, parentPattern))
 
     private fun getTimes(sub: Submission, parentReleaseTime: OffsetDateTime?) =
         timesService.getTimes(TimesRequest(sub.accNo, sub.releaseDate, parentReleaseTime))

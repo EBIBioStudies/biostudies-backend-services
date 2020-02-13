@@ -1,33 +1,40 @@
 package ebi.ac.uk.security.service
 
 import ac.uk.ebi.biostd.persistence.model.AccessType
+import ac.uk.ebi.biostd.persistence.model.AccessType.ATTACH
+import ac.uk.ebi.biostd.persistence.model.AccessType.UPDATE
 import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
+import ebi.ac.uk.model.constants.SubFields.PUBLIC_ACCESS_TAG
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import ebi.ac.uk.security.integration.exception.UserNotFoundByEmailException
 
 internal class UserPrivilegesService(
     private val userRepository: UserDataRepository,
-    private val accessPermissionRepository: AccessPermissionRepository
+    private val permissionRepository: AccessPermissionRepository
 ) : IUserPrivilegesService {
     override fun canProvideAccNo(email: String) = isSuperUser(email)
 
     override fun canSubmitProjects(email: String) = isSuperUser(email)
 
-    override fun canResubmit(email: String, author: String, project: String?, accessTags: List<String>) =
-        isSuperUser(email)
-            .or(isAuthor(author, email).and(isNotInProject(project)))
-            .or(hasTag(accessTags, AccessType.SUBMIT))
+    override fun canSubmitToProject(submitter: String, project: String): Boolean =
+        isSuperUser(submitter)
+            .or(permissionRepository.existsByUserEmailAndAccessTypeAndAccessTagName(submitter, ATTACH, project))
 
-    override fun canDelete(email: String, author: String, accessTags: List<String>) =
-        isSuperUser(email)
-            .or(isAuthor(author, email))
-            .or(hasTag(accessTags, AccessType.DELETE))
+    override fun canResubmit(submitter: String, author: String, accessTags: List<String>) =
+        isSuperUser(submitter).or(isAuthor(author, submitter))
+            .or(hasPermissions(submitter, accessTags, UPDATE))
 
-    private fun isNotInProject(project: String?) = project.isNullOrBlank()
+    override fun canDelete(submitter: String, author: String, accessTags: List<String>) =
+        isSuperUser(submitter)
+            .or(isAuthor(author, submitter))
+            .or(hasPermissions(submitter, accessTags, AccessType.DELETE))
 
-    private fun hasTag(accessTags: List<String>, accessType: AccessType) =
-        accessPermissionRepository.existsByAccessTagNameInAndAccessType(accessTags, accessType)
+    private fun hasPermissions(user: String, accessTags: List<String>, accessType: AccessType): Boolean {
+        val tags = accessTags.filter { it != PUBLIC_ACCESS_TAG.value }
+        return tags.isNotEmpty() &&
+            tags.all { permissionRepository.existsByUserEmailAndAccessTypeAndAccessTagName(user, accessType, it) }
+    }
 
     private fun isSuperUser(email: String) = getUser(email).superuser
 
