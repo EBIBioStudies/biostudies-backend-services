@@ -36,10 +36,11 @@ class SubmitterConfig {
 
     @Bean
     fun projectSubmitter(
+        timesService: TimesService,
         accNoPatternUtil: AccNoPatternUtil,
         persistenceContext: PersistenceContext,
         projectValidationService: ProjectValidationService
-    ) = ProjectSubmitter(accNoPatternUtil, persistenceContext, projectValidationService)
+    ) = ProjectSubmitter(timesService, accNoPatternUtil, persistenceContext, projectValidationService)
 
     @Configuration
     class FilesHandlerConfig(private val appProperties: ApplicationProperties) {
