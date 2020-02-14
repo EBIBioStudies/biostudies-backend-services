@@ -22,7 +22,6 @@ import ebi.ac.uk.dsl.line
 import ebi.ac.uk.dsl.section
 import ebi.ac.uk.dsl.submission
 import ebi.ac.uk.dsl.tsv
-import ebi.ac.uk.model.extensions.releaseDate
 import ebi.ac.uk.model.extensions.rootPath
 import ebi.ac.uk.model.extensions.title
 import ebi.ac.uk.security.integration.components.IGroupService
@@ -41,7 +40,6 @@ import org.springframework.context.annotation.Import
 import org.springframework.http.HttpStatus
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
-import java.time.LocalDate
 import kotlin.test.assertFailsWith
 
 @ExtendWith(TemporaryFolderExtension::class)
@@ -79,8 +77,6 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
             assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
             assertThat(submissionRepository.getByAccNo("SimpleAcc1")).isEqualTo(submission("SimpleAcc1") {
                 title = "Simple Submission"
-                accessTags = mutableListOf("Public")
-                releaseDate = LocalDate.now().toString()
             })
         }
 
@@ -95,8 +91,6 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
             assertThat(submissionRepository.getByAccNo("S-BSST0")).isEqualTo(
                 submission("S-BSST0") {
                     title = "Empty AccNo"
-                    releaseDate = LocalDate.now().toString()
-                    accessTags = mutableListOf("Public")
                 }
             )
         }
@@ -124,8 +118,6 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
                 submission("S-12364") {
                     title = "Sample Submission"
                     rootPath = "RootPathFolder"
-                    releaseDate = LocalDate.now().toString()
-                    accessTags = mutableListOf("Public")
                     section("Study") { file("DataFile5.txt") }
                 }
             )
@@ -151,8 +143,6 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
             assertThat(submissionRepository.getByAccNo(accNo)).isEqualTo(
                 submission(accNo) {
                     title = "Submission Title"
-                    releaseDate = LocalDate.now().toString()
-                    accessTags = mutableListOf("Public")
                 }
             )
         }
@@ -187,8 +177,6 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
             assertThat(submissionRepository.getByAccNo("E-MTAB123")).isEqualTo(
                 submission("E-MTAB123") {
                     title = "Generic Submission"
-                    releaseDate = LocalDate.now().toString()
-                    accessTags = mutableListOf("Public")
                     section("Experiment") { }
                 }
             )
@@ -209,8 +197,6 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
             assertThat(submissionRepository.getByAccNo("S-TEST123")).isEqualTo(
                 submission("S-TEST123") {
                     title = "Submission With Tags"
-                    releaseDate = LocalDate.now().toString()
-                    accessTags = mutableListOf("Public")
                     section("Study") {
                         accNo = "SECT-001"
                         tags = mutableListOf(Pair("Classifier", "Tag"))
@@ -245,8 +231,6 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
             assertThat(submissionRepository.getByAccNo("S-54896")).isEqualTo(
                 submission("S-54896") {
                     title = "Sample Submission"
-                    releaseDate = LocalDate.now().toString()
-                    accessTags = mutableListOf("Public")
                     section("Study") {
                         file("groups/$groupName/GroupFile1.txt")
                         file("groups/$groupName/folder/GroupFile2.txt")

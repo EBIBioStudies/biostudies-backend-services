@@ -48,9 +48,27 @@ internal class SubmissionToProjectsTest(private val tempFolder: TemporaryFolder)
         }
 
         @Test
-        fun `no release date to private project`() {
+        fun `accNo generation from project template`() {
             val submission = tsv {
                 line("Submission")
+                line("AttachTo", "Test-Project")
+                line("Title", "AccNo Generation Test")
+            }.toString()
+
+            assertThat(webClient.submitSingle(submission, SubmissionFormat.TSV)).isSuccessful()
+            assertThat(submissionRepository.getByAccNo("S-TEST0")).isEqualTo(
+                submission("S-TEST0") {
+                    attachTo = "Test-Project"
+                    title = "AccNo Generation Test"
+                    accessTags = mutableListOf("Test-Project")
+                }
+            )
+        }
+
+        @Test
+        fun `no release date to private project`() {
+            val submission = tsv {
+                line("Submission", "S-PRP0")
                 line("AttachTo", "Private-Project")
                 line("Title", "No Release Date To Private Project")
             }.toString()
@@ -68,18 +86,19 @@ internal class SubmissionToProjectsTest(private val tempFolder: TemporaryFolder)
         @Test
         fun `public submission to private project`() {
             val submission = tsv {
-                line("Submission")
+                line("Submission", "S-PRP1")
                 line("AttachTo", "Private-Project")
-                line("ReleaseDate", "2018-09-21")
-                line("Title", "Public submission into private project")
+                line("ReleaseDate", "2015-12-24")
+                line("Title", "Public Submission To Private Project")
             }.toString()
 
             assertThat(webClient.submitSingle(submission, SubmissionFormat.TSV)).isSuccessful()
             assertThat(submissionRepository.getByAccNo("S-PRP1")).isEqualTo(
                 submission("S-PRP1") {
                     attachTo = "Private-Project"
-                    title = "Public submission into private project"
-                    accessTags = mutableListOf("Private-Project")
+                    title = "Public Submission To Private Project"
+                    releaseDate = "2015-12-24"
+                    accessTags = mutableListOf("Public", "Private-Project")
                 }
             )
         }
@@ -105,46 +124,32 @@ internal class SubmissionToProjectsTest(private val tempFolder: TemporaryFolder)
         }
 
         @Test
-        fun `public submission with past release date to public project`() {
+        fun `no release date to public project`() {
             val submission = tsv {
                 line("Submission", "S-PUP1")
                 line("AttachTo", "Public-Project")
-                line("ReleaseDate", "2016-06-09")
-                line("Title", "Public Submission With Past Release Date")
+                line("Title", "No Release Date To Public Project")
             }.toString()
 
             assertThat(webClient.submitSingle(submission, SubmissionFormat.TSV)).isSuccessful()
             assertThat(submissionRepository.getByAccNo("S-PUP1")).isEqualTo(
                 submission("S-PUP1") {
                     attachTo = "Public-Project"
-                    title = "Public Submission With Past Release Date"
-                    releaseDate = "2018-09-21"
-                    accessTags = mutableListOf("Public-Project", "Public")
-                }
-            )
-        }
-
-        @Test
-        fun `public submission with future release date to public project`() {
-            val submission = tsv {
-                line("Submission", "S-PUP2")
-                line("AttachTo", "Public-Project")
-                line("ReleaseDate", "2019-06-09")
-                line("Title", "Public Submission With Future Release Date")
-            }.toString()
-
-            assertThat(webClient.submitSingle(submission, SubmissionFormat.TSV)).isSuccessful()
-            assertThat(submissionRepository.getByAccNo("S-PUP2")).isEqualTo(
-                submission("S-PUP2") {
-                    attachTo = "Public-Project"
-                    title = "Public Submission With Future Release Date"
-                    releaseDate = "2019-06-09"
-                    accessTags = mutableListOf("Public-Project", "Public")
+                    title = "No Release Date To Public Project"
+                    accessTags = mutableListOf("Public-Project")
                 }
             )
         }
 
         private fun setUpProjects() {
+            val testProject = tsv {
+                line("Submission", "Test-Project")
+                line("AccNoTemplate", "!{S-TEST}")
+                line()
+
+                line("Project")
+            }.toString()
+
             val privateProject = tsv {
                 line("Submission", "Private-Project")
                 line("AccNoTemplate", "!{S-PRP}")
@@ -163,6 +168,7 @@ internal class SubmissionToProjectsTest(private val tempFolder: TemporaryFolder)
             }.toString()
 
             // TODO these won't need to be files once the refactor to the model is merged
+            assertThat(webClient.submitProject(tempFolder.createFile("test.tsv", testProject))).isSuccessful()
             assertThat(webClient.submitProject(tempFolder.createFile("public.tsv", publicProject))).isSuccessful()
             assertThat(webClient.submitProject(tempFolder.createFile("private.tsv", privateProject))).isSuccessful()
         }
