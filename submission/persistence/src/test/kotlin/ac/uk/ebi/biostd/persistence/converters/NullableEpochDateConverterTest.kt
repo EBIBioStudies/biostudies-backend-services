@@ -5,12 +5,13 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.time.ZoneOffset
 
-class EpochDateConverterTest {
-    private val testInstance = EpochDateConverter()
+class NullableEpochDateConverterTest {
+    private val testInstance = NullableEpochDateConverter()
 
     @Test
     fun `convert to entity`() {
         val expected = secondsToInstant(1).atOffset(ZoneOffset.UTC)
+        assertThat(testInstance.convertToEntityAttribute(-1)).isNull()
         assertThat(testInstance.convertToEntityAttribute(1)).isEqualTo(expected)
     }
 
