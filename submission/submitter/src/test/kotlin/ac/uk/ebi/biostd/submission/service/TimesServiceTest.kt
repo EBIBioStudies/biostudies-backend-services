@@ -57,31 +57,28 @@ class TimesServiceTest(@MockK private val mockContext: PersistenceContext) {
 
     @Nested
     inner class ReleaseTime {
-        @Nested
-        inner class WhenNoParent {
-            @Test
-            fun `when release date with invalid format`() {
-                val exception = assertThrows<InvalidDateFormatException> {
-                    testInstance.getTimes(TimesRequest(ACC_NO, "2018/10/10"))
-                }
-
-                assertThat(exception.message).isEqualTo(
-                    "Provided date 2018/10/10 could not be parsed. Expected format is YYYY-MM-DD")
+        @Test
+        fun `when release date with invalid format`() {
+            val exception = assertThrows<InvalidDateFormatException> {
+                testInstance.getTimes(TimesRequest(ACC_NO, "2018/10/10"))
             }
 
-            @Test
-            fun `when release date with valid format`() {
-                val releaseTime = OffsetDateTime.of(2019, 10, 10, 0, 0, 0, 0, ZoneOffset.UTC)
-                val times = testInstance.getTimes(TimesRequest(ACC_NO, "2019-10-10T09:27:04.000Z"))
+            assertThat(exception.message).isEqualTo(
+                "Provided date 2018/10/10 could not be parsed. Expected format is YYYY-MM-DD")
+        }
 
-                assertThat(times.releaseTime).isEqualTo(releaseTime)
-            }
+        @Test
+        fun `when release date with valid format`() {
+            val releaseTime = OffsetDateTime.of(2019, 10, 10, 0, 0, 0, 0, ZoneOffset.UTC)
+            val times = testInstance.getTimes(TimesRequest(ACC_NO, "2019-10-10T09:27:04.000Z"))
 
-            @Test
-            fun `when no release date now is used`() {
-                val times = testInstance.getTimes(TimesRequest(ACC_NO))
-                assertThat(times.releaseTime).isEqualTo(mockNow)
-            }
+            assertThat(times.releaseTime).isEqualTo(releaseTime)
+        }
+
+        @Test
+        fun `when no release date`() {
+            val times = testInstance.getTimes(TimesRequest(ACC_NO))
+            assertThat(times.releaseTime).isNull()
         }
     }
 }

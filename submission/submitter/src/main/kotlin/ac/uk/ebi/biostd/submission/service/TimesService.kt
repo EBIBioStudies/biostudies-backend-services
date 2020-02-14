@@ -2,7 +2,6 @@ package ac.uk.ebi.biostd.submission.service
 
 import ac.uk.ebi.biostd.persistence.integration.PersistenceContext
 import ac.uk.ebi.biostd.submission.exceptions.InvalidDateFormatException
-import ebi.ac.uk.util.date.max
 import java.time.Instant
 import java.time.LocalDate
 import java.time.OffsetDateTime
@@ -16,16 +15,8 @@ class TimesService(private val context: PersistenceContext) {
     internal fun getTimes(request: TimesRequest): Times {
         val now = OffsetDateTime.now()
         val creationTime = context.findCreationTime(request.accNo) ?: now
-        val releaseTime = releaseTime(request, now)
+        val releaseTime = request.releaseDate?.let { parseDate(it) }
         return Times(creationTime, now, releaseTime)
-    }
-
-    private fun releaseTime(request: TimesRequest, now: OffsetDateTime): OffsetDateTime? {
-        val releaseTime = request.releaseDate?.let { parseDate(it) } ?: now
-        return when {
-            request.parentReleaseTime != null -> max(request.parentReleaseTime, releaseTime)
-            else -> releaseTime
-        }
     }
 
     private fun parseDate(date: String): OffsetDateTime =

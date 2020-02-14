@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.itest.test.project.submit
 
+import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
@@ -12,7 +13,6 @@ import ebi.ac.uk.dsl.line
 import ebi.ac.uk.dsl.tsv
 import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSED
 import ebi.ac.uk.model.extensions.title
-import ebi.ac.uk.test.createFile
 import ebi.ac.uk.util.collections.second
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
@@ -51,30 +51,55 @@ internal class ProjectSubmitTest(private val tempFolder: TemporaryFolder) : Base
         }
 
         @Test
-        fun `submit project`() {
-            val project = tsv {
-                line("Submission", "AProject")
-                line("Title", "A Project")
-                line("AccNoTemplate", "!{S-APR}")
+        fun `submit private project`() {
+            val privateProject = tsv {
+                line("Submission", "PrivateProject")
+                line("Title", "A Private Project")
+                line("AccNoTemplate", "!{S-PRP}")
                 line()
 
                 line("Project")
-            }
+            }.toString()
 
-            val projectFile = tempFolder.createFile("a-project.tsv", project.toString())
-            assertThat(webClient.submitSingle(projectFile, emptyList())).isSuccessful()
+            assertThat(webClient.submitSingle(privateProject, SubmissionFormat.TSV)).isSuccessful()
 
-            val submittedProject = submissionRepository.getExtendedByAccNo("AProject")
-            assertThat(submittedProject.accNo).isEqualTo("AProject")
-            assertThat(submittedProject.title).isEqualTo("A Project")
+            val submittedProject = submissionRepository.getExtendedByAccNo("PrivateProject")
+            assertThat(submittedProject.accNo).isEqualTo("PrivateProject")
+            assertThat(submittedProject.title).isEqualTo("A Private Project")
+            assertThat(submittedProject.processingStatus).isEqualTo(PROCESSED)
+
+            assertThat(submittedProject.accessTags).hasSize(1)
+            assertThat(submittedProject.accessTags.first()).isEqualTo("PrivateProject")
+
+            assertThat(tagsDataRepository.existsByName("PrivateProject")).isTrue()
+            assertThat(sequenceRepository.existsByPrefix("S-PRP")).isTrue()
+        }
+
+        @Test
+        fun `submit public project`() {
+            val publicProject = tsv {
+                line("Submission", "PublicProject")
+                line("Title", "Public Project")
+                line("AccNoTemplate", "!{S-PUP}")
+                line("ReleaseDate", "2015-06-09")
+                line()
+
+                line("Project")
+            }.toString()
+
+            assertThat(webClient.submitSingle(publicProject, SubmissionFormat.TSV)).isSuccessful()
+
+            val submittedProject = submissionRepository.getExtendedByAccNo("PublicProject")
+            assertThat(submittedProject.accNo).isEqualTo("PublicProject")
+            assertThat(submittedProject.title).isEqualTo("Public Project")
             assertThat(submittedProject.processingStatus).isEqualTo(PROCESSED)
 
             assertThat(submittedProject.accessTags).hasSize(2)
-            assertThat(submittedProject.accessTags.first()).isEqualTo("AProject")
+            assertThat(submittedProject.accessTags.first()).isEqualTo("PublicProject")
             assertThat(submittedProject.accessTags.second()).isEqualTo("Public")
 
-            assertThat(tagsDataRepository.existsByName("AProject")).isTrue()
-            assertThat(sequenceRepository.existsByPrefix("S-APR")).isTrue()
+            assertThat(tagsDataRepository.existsByName("PublicProject")).isTrue()
+            assertThat(sequenceRepository.existsByPrefix("S-PUP")).isTrue()
         }
     }
 }

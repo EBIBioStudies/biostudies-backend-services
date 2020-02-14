@@ -6,7 +6,8 @@ import java.time.ZoneOffset.UTC
 import javax.persistence.AttributeConverter
 
 class NullableEpochDateConverter : AttributeConverter<OffsetDateTime?, Long> {
-    override fun convertToEntityAttribute(seconds: Long): OffsetDateTime? = secondsToInstant(seconds).atOffset(UTC)
+    override fun convertToEntityAttribute(seconds: Long): OffsetDateTime? =
+        if (seconds == -1L) null else secondsToInstant(seconds).atOffset(UTC)
 
     override fun convertToDatabaseColumn(dbData: OffsetDateTime?): Long = dbData?.toEpochSecond() ?: -1
 }
