@@ -12,7 +12,6 @@ import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.factory.invalidLinkUrl
 import ac.uk.ebi.biostd.persistence.model.Sequence
 import ac.uk.ebi.biostd.persistence.model.Tag
-import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.TagDataRepository
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
@@ -23,12 +22,9 @@ import ebi.ac.uk.dsl.line
 import ebi.ac.uk.dsl.section
 import ebi.ac.uk.dsl.submission
 import ebi.ac.uk.dsl.tsv
-import ebi.ac.uk.model.extensions.attachTo
-import ebi.ac.uk.model.extensions.releaseDate
 import ebi.ac.uk.model.extensions.rootPath
 import ebi.ac.uk.model.extensions.title
 import ebi.ac.uk.security.integration.components.IGroupService
-import ebi.ac.uk.test.createFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
@@ -44,7 +40,6 @@ import org.springframework.context.annotation.Import
 import org.springframework.http.HttpStatus
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
-import java.time.LocalDate
 import kotlin.test.assertFailsWith
 
 @ExtendWith(TemporaryFolderExtension::class)
@@ -56,7 +51,6 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
     @DirtiesContext
     inner class SubmissionApiTest(
         @Autowired val submissionRepository: SubmissionRepository,
-        @Autowired val tagsDataRepository: AccessTagDataRepository,
         @Autowired val sequenceRepository: SequenceDataRepository,
         @Autowired val tagsRefRepository: TagDataRepository,
         @Autowired val groupService: IGroupService
@@ -83,8 +77,6 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
             assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
             assertThat(submissionRepository.getByAccNo("SimpleAcc1")).isEqualTo(submission("SimpleAcc1") {
                 title = "Simple Submission"
-                accessTags = mutableListOf("Public")
-                releaseDate = LocalDate.now().toString()
             })
         }
 
@@ -99,36 +91,6 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
             assertThat(submissionRepository.getByAccNo("S-BSST0")).isEqualTo(
                 submission("S-BSST0") {
                     title = "Empty AccNo"
-                    releaseDate = LocalDate.now().toString()
-                    accessTags = mutableListOf("Public")
-                }
-            )
-        }
-
-        @Test
-        fun `empty accNo with parent`() {
-            val project = tsv {
-                line("Submission", "A-Project")
-                line("AccNoTemplate", "!{S-APR}")
-                line()
-
-                line("Project")
-            }.toString()
-
-            val submission = tsv {
-                line("Submission")
-                line("AttachTo", "A-Project")
-                line("Title", "Empty AccNo With Parent")
-            }.toString()
-
-            assertThat(webClient.submitProject(tempFolder.createFile("project.tsv", project))).isSuccessful()
-            assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
-            assertThat(submissionRepository.getByAccNo("S-APR0")).isEqualTo(
-                submission("S-APR0") {
-                    attachTo = "A-Project"
-                    title = "Empty AccNo With Parent"
-                    releaseDate = LocalDate.now().toString()
-                    accessTags = mutableListOf("A-Project", "Public")
                 }
             )
         }
@@ -156,8 +118,6 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
                 submission("S-12364") {
                     title = "Sample Submission"
                     rootPath = "RootPathFolder"
-                    releaseDate = LocalDate.now().toString()
-                    accessTags = mutableListOf("Public")
                     section("Study") { file("DataFile5.txt") }
                 }
             )
@@ -183,8 +143,6 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
             assertThat(submissionRepository.getByAccNo(accNo)).isEqualTo(
                 submission(accNo) {
                     title = "Submission Title"
-                    releaseDate = LocalDate.now().toString()
-                    accessTags = mutableListOf("Public")
                 }
             )
         }
@@ -219,8 +177,6 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
             assertThat(submissionRepository.getByAccNo("E-MTAB123")).isEqualTo(
                 submission("E-MTAB123") {
                     title = "Generic Submission"
-                    releaseDate = LocalDate.now().toString()
-                    accessTags = mutableListOf("Public")
                     section("Experiment") { }
                 }
             )
@@ -241,8 +197,6 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
             assertThat(submissionRepository.getByAccNo("S-TEST123")).isEqualTo(
                 submission("S-TEST123") {
                     title = "Submission With Tags"
-                    releaseDate = LocalDate.now().toString()
-                    accessTags = mutableListOf("Public")
                     section("Study") {
                         accNo = "SECT-001"
                         tags = mutableListOf(Pair("Classifier", "Tag"))
@@ -277,8 +231,6 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
             assertThat(submissionRepository.getByAccNo("S-54896")).isEqualTo(
                 submission("S-54896") {
                     title = "Sample Submission"
-                    releaseDate = LocalDate.now().toString()
-                    accessTags = mutableListOf("Public")
                     section("Study") {
                         file("groups/$groupName/GroupFile1.txt")
                         file("groups/$groupName/folder/GroupFile2.txt")
