@@ -36,10 +36,11 @@ open class PersistenceContextImpl(
 
     @Transactional
     override fun getSequenceNextValue(pattern: String): Long {
-        val sequence = sequenceRepository.getByPrefix(pattern)
-        sequence.counter.count = sequence.counter.count + 1
-        sequenceRepository.save(sequence)
-        return sequence.counter.count
+        return lockExecutor.executeLocking(pattern) {
+            val sequence = sequenceRepository.getByPrefix(pattern)
+            sequence.counter.count = sequence.counter.count + 1
+            sequenceRepository.save(sequence).counter.count
+        }
     }
 
     override fun getParentAccPattern(parentAccNo: String) =

@@ -7,8 +7,6 @@ import ac.uk.ebi.biostd.submission.exceptions.UserCanNotUpdateSubmit
 import ac.uk.ebi.biostd.submission.util.AccNoPatternUtil
 import ebi.ac.uk.base.lastDigits
 import ebi.ac.uk.model.AccNumber
-import ebi.ac.uk.model.User
-import ebi.ac.uk.model.constants.SubFields
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 
 const val DEFAULT_PATTERN = "!{S-BSST}"
@@ -21,35 +19,30 @@ class AccNoService(
 ) {
     @Suppress("ThrowsCount")
     fun getAccNo(request: AccNoServiceRequest): AccNumber {
-        val submitter = request.user.email
-        val accNo = request.accNo
-        val project = request.parentAccNo
+        val (submitter, accNo, project, projectPattern) = request
 
         when {
-            context.isNew(request.accNo) -> {
-                if (accNo.isNotEmpty() && privilegesService.canProvideAccNo(submitter).not())
+            accNo == null || context.isNew(accNo) -> {
+                if (accNo != null && privilegesService.canProvideAccNo(submitter).not())
                     throw ProvideAccessNumber(submitter)
                 if (project != null && privilegesService.canSubmitToProject(submitter, project).not())
                     throw UserCanNotSubmitProjectsException(submitter)
 
-                return if (accNo.isEmpty())
-                    calculateAccNo(getPatternOrDefault(request.parentPattern))
-                else AccNumber(request.accNo, null)
+                return accNo?.let { AccNumber(accNo) } ?: calculateAccNo(getPatternOrDefault(projectPattern))
             }
             else -> {
-                val tags = context.getAccessTags(request.accNo).filterNot { it == SubFields.PUBLIC_ACCESS_TAG.value }
                 if (project != null && privilegesService.canSubmitToProject(submitter, project).not())
-                    throw UserCanNotSubmitProjectsException(request.user.email)
+                    throw UserCanNotSubmitProjectsException(submitter)
 
-                if (privilegesService.canResubmit(submitter, context.getAuthor(accNo), tags).not())
-                    throw UserCanNotUpdateSubmit(request.accNo, submitter)
+                if (privilegesService.canResubmit(submitter, accNo).not())
+                    throw UserCanNotUpdateSubmit(accNo, submitter)
 
-                return AccNumber(request.accNo, null)
+                return AccNumber(accNo)
             }
         }
     }
 
-    private fun calculateAccNo(prefix: String) = AccNumber(prefix, context.getSequenceNextValue(prefix))
+    private fun calculateAccNo(pattern: String) = AccNumber(pattern, context.getSequenceNextValue(pattern))
 
     @Suppress("MagicNumber")
     internal fun getRelPath(accNo: AccNumber): String {
@@ -73,9 +66,8 @@ class AccNoService(
 }
 
 data class AccNoServiceRequest(
-    val user: User,
-    val accNo: String,
-    val subType: String,
-    val parentAccNo: String? = null,
-    val parentPattern: String? = null
+    val submitter: String,
+    val accNo: String? = null,
+    val project: String? = null,
+    val projectPattern: String? = null
 )
