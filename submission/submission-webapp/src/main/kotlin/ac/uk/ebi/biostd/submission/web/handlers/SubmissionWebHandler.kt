@@ -31,9 +31,11 @@ class SubmissionWebHandler(
         return submissionService.submit(SubmissionRequest(submission, user, fileSource, SubmissionMethod.PAGE_TAB))
     }
 
-    fun submit(user: SecurityUser, subFile: File, files: List<File>): Submission {
+    fun submit(user: SecurityUser, subFile: File, files: List<File>, subAttrs: Map<String, String>): Submission {
         val fileSource = sourceGenerator.getSubmissionSources(user, files.plus(subFile), rootPath(subFile))
         val submission = serializationService.deserializeSubmission(subFile, fileSource)
+        subAttrs.forEach { submission[it.key] = it.value }
+
         return submissionService.submit(SubmissionRequest(submission, user, fileSource, SubmissionMethod.FILE))
     }
 

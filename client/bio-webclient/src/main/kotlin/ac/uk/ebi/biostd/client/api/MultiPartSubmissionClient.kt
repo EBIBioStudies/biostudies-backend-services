@@ -29,9 +29,11 @@ internal class MultiPartSubmissionClient(
     private val template: RestTemplate,
     private val serializationService: SerializationService
 ) : MultipartSubmissionOperations {
-    override fun submitSingle(submission: File, files: List<File>): SubmissionResponse {
+    override fun submitSingle(submission: File, files: List<File>, subAttrs: Map<String, String>): SubmissionResponse {
         val headers = HttpHeaders().apply { contentType = MediaType.MULTIPART_FORM_DATA }
-        val multiPartBody = getMultipartBody(files, FileSystemResource(submission))
+        val multiPartBody = getMultipartBody(files, FileSystemResource(submission)).apply {
+            subAttrs.entries.forEach { add(it.key, it.value) }
+        }
 
         return template.postForEntity<String>(
             "$SUBMIT_URL/direct",

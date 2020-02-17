@@ -208,6 +208,32 @@ internal class MultipartFileSubmissionApiTest(
             assertSubmissionFiles("S-TEST3", "File3.txt")
         }
 
+        @Test
+        fun `direct submission with overriden attributes`() {
+            val submission = tempFolder.createFile(
+                "submission.tsv",
+                tsv {
+                    line("Submission", "S-TEST4")
+                    line("Title", "Test Submission")
+                    line("Type", "Test")
+                    line()
+
+                    line("Study", "SECT-001")
+                    line("Title", "Root Section")
+                    line()
+                }.toString())
+
+            val response = webClient.submitSingle(submission, emptyList(), hashMapOf(("Type" to "Exp"), ("Exp" to "1")))
+            assertThat(response).isSuccessful()
+            submission.delete()
+
+            val savedSubmission = submissionRepository.getByAccNo("S-TEST4")
+            assertThat(savedSubmission.attributes).hasSize(3)
+            assertThat(savedSubmission["Exp"]).isEqualTo("1")
+            assertThat(savedSubmission["Type"]).isEqualTo("Exp")
+            assertThat(savedSubmission["Title"]).isEqualTo("Test Submission")
+        }
+
         private fun assertSubmissionFiles(accNo: String, testFile: String) {
             val fileListName = "FileList"
             val createdSubmission = submissionRepository.getExtendedByAccNo(accNo)
