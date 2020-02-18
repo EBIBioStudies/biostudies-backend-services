@@ -20,7 +20,6 @@ import ebi.ac.uk.persistence.PersistenceContext
 import ebi.ac.uk.util.collections.ifNotEmpty
 import org.springframework.transaction.annotation.Isolation
 import org.springframework.transaction.annotation.Transactional
-import java.time.OffsetDateTime
 
 @Suppress("TooManyFunctions")
 open class PersistenceContextImpl(
@@ -44,8 +43,6 @@ open class PersistenceContextImpl(
         return sequence.counter.count
     }
 
-    override fun hasParent(submission: ExtendedSubmission): Boolean = getParentSubmission(submission).isDefined()
-
     override fun getParentAccessTags(submission: Submission): List<String> =
         getParentSubmission(submission)
             .map { it.accessTags }
@@ -56,9 +53,6 @@ open class PersistenceContextImpl(
         getParentSubmission(submission)
             .flatMap { parent -> parent.attributes.firstOrNull { it.name == ACC_NO_TEMPLATE.value }.toOption() }
             .map { it.value }
-
-    override fun getParentReleaseTime(submission: Submission): OffsetDateTime? =
-        getParentSubmission(submission).map { parent -> parent.releaseTime }.orNull()
 
     override fun getSubmission(accNo: String) =
         subRepository.findByAccNoAndVersionGreaterThan(accNo)?.let { subDbMapper.toExtSubmission(it) }

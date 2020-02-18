@@ -23,7 +23,10 @@ import java.io.File
 import java.nio.file.Paths
 
 @ExtendWith(TemporaryFolderExtension::class)
-internal class UserFileApiTest(private val tempFolder: TemporaryFolder) : BaseIntegrationTest(tempFolder) {
+internal class UserFileApiTest(
+    tempFolder: TemporaryFolder,
+    private val localFolder: TemporaryFolder
+) : BaseIntegrationTest(tempFolder) {
     @Nested
     @ExtendWith(SpringExtension::class)
     @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -40,7 +43,7 @@ internal class UserFileApiTest(private val tempFolder: TemporaryFolder) : BaseIn
 
         @BeforeEach
         fun beforeEach() {
-            tempFolder.clean()
+            localFolder.clean()
         }
 
         @Test
@@ -54,7 +57,7 @@ internal class UserFileApiTest(private val tempFolder: TemporaryFolder) : BaseIn
         }
 
         private fun testUserFilesGroup(path: String = "") {
-            val file = tempFolder.createFile("FileList1.txt", "An example content")
+            val file = localFolder.createFile("FileList1.txt", "An example content")
             webClient.uploadFiles(listOf(file), relativePath = path)
 
             val files = webClient.listUserFiles(relativePath = path)
