@@ -74,9 +74,10 @@ class SubmitResource(
     fun submitFile(
         @BioUser user: SecurityUser,
         @RequestParam(SUBMISSION) file: MultipartFile,
-        @RequestParam(FILES) files: Array<MultipartFile>
+        @RequestParam(FILES) files: Array<MultipartFile>,
+        @RequestParam attributes: Map<String, String> = emptyMap()
     ): Submission =
-        submissionWebHandler.submit(user, tempFileGenerator.asFile(file), tempFileGenerator.asFiles(files))
+        submissionWebHandler.submit(user, tempFileGenerator.asFile(file), tempFileGenerator.asFiles(files), attributes)
 
     @PostMapping(
         headers = ["$SUBMISSION_TYPE=$TEXT_XML"],
