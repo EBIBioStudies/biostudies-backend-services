@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.persistence.projections
 
 import ac.uk.ebi.biostd.persistence.model.SIMPLE_QUERY_GRAPH
 import ebi.ac.uk.functions.secondsToInstant
+import ebi.ac.uk.model.SubmissionMethod
 import ebi.ac.uk.model.constants.ProcessingStatus
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
@@ -20,6 +21,7 @@ data class SimpleSubmission(
     val releaseTime: OffsetDateTime?,
     val modificationTime: OffsetDateTime,
     val creationTime: OffsetDateTime,
+    val method: SubmissionMethod?,
     var status: ProcessingStatus
 ) {
 
@@ -37,7 +39,8 @@ data class SimpleSubmission(
                 creationTime = creationTime,
                 modificationTime = modificationTime,
                 releaseTime = releaseTime,
-                status = status
+                status = status,
+                method = method
             )
         }
 

@@ -42,5 +42,5 @@ class SubmissionResource(
     ): List<SubmissionDto> = submissionWebHandler.getSubmissions(user, filter).map { it.asDto() }
 
     private fun SimpleSubmission.asDto() =
-        SubmissionDto(accNo, title.orEmpty(), version, creationTime, modificationTime, releaseTime)
+        SubmissionDto(accNo, title.orEmpty(), version, creationTime, modificationTime, releaseTime, method)
 }

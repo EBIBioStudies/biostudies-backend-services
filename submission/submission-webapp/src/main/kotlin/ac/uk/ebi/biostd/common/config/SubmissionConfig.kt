@@ -1,7 +1,6 @@
 package ac.uk.ebi.biostd.common.config
 
 import ac.uk.ebi.biostd.integration.SerializationService
-import ac.uk.ebi.biostd.persistence.integration.PersistenceContext
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
 import ac.uk.ebi.biostd.submission.domain.helpers.SourceGenerator
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionService
@@ -22,11 +21,10 @@ class SubmissionConfig(
     fun submissionService(
         subRepository: SubmissionRepository,
         serializationService: SerializationService,
-        persistenceContext: PersistenceContext,
         userPrivilegeService: IUserPrivilegesService,
         submissionSubmitter: SubmissionSubmitter
     ): SubmissionService = SubmissionService(
-        subRepository, persistenceContext, serializationService, userPrivilegeService, submissionSubmitter)
+        subRepository, serializationService, userPrivilegeService, submissionSubmitter)
 
     @Bean
     fun submissionHandler(submissionService: SubmissionService): SubmissionWebHandler =
