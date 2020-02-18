@@ -42,8 +42,12 @@ class SwaggerConfig(private val properties: ApplicationProperties) {
             .license("Apache 2.0")
             .build()
 
-    private fun paths() =
-        or(regex("/projects.*"), regex("/submissions.*"), regex("/auth.*"))
+    private fun paths() = or(
+        regex("/projects.*"),
+        regex("/submissions.*"),
+        regex("/auth.*"),
+        regex("/files/user.*"),
+        regex("/folder/user.*"))
 
     private fun unauthorizedResponseMessage() =
         ResponseMessageBuilder()
