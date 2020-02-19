@@ -50,7 +50,7 @@ internal class ProjectsListTest(tempFolder: TemporaryFolder) : BaseIntegrationTe
 
         @Test
         fun `get projects`() {
-            val projects = webClient.getSubmissions(mapOf("type" to "Project"))
+            val projects = webClient.getProjects()
             assertThat(projects).hasSize(1)
 
             val project = projects.first()

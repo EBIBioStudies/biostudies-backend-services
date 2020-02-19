@@ -8,7 +8,7 @@ import ac.uk.ebi.biostd.submission.service.AccNoServiceRequest
 import ac.uk.ebi.biostd.submission.service.ParentInfoService
 import ac.uk.ebi.biostd.submission.service.ProjectRequest
 import ac.uk.ebi.biostd.submission.service.ProjectResponse
-import ac.uk.ebi.biostd.submission.service.ProjectService
+import ac.uk.ebi.biostd.submission.service.ProjectInfoService
 import ac.uk.ebi.biostd.submission.service.TimesRequest
 import ac.uk.ebi.biostd.submission.service.TimesService
 import ebi.ac.uk.base.orFalse
@@ -40,7 +40,7 @@ open class SubmissionSubmitter(
     private val timesService: TimesService,
     private val accNoService: AccNoService,
     private val parentInfoService: ParentInfoService,
-    private val projectService: ProjectService,
+    private val projectInfoService: ProjectInfoService,
     private val context: PersistenceContext
 ) {
     @Transactional(isolation = Isolation.READ_UNCOMMITTED)
@@ -105,7 +105,7 @@ open class SubmissionSubmitter(
     }
 
     private fun getProjectInfo(user: User, submission: Submission, accNo: String) =
-        projectService.process(ProjectRequest(user.email, submission.section.type, submission.accNoTemplate, accNo))
+        projectInfoService.process(ProjectRequest(user.email, submission.section.type, submission.accNoTemplate, accNo))
 
     private fun getAttributes(submission: Submission) = submission.attributes
         .filter { it.name != SubFields.RELEASE_DATE.value }

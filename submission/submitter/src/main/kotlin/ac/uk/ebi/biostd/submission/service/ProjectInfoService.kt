@@ -10,7 +10,7 @@ import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 internal const val ACC_NO_TEMPLATE_REQUIRED = "The project accession number pattern is required"
 internal const val ACC_NO_TEMPLATE_INVALID = "The given template is invalid. Expected pattern is !{TEMPLATE}"
 
-class ProjectService(
+class ProjectInfoService(
     private val context: PersistenceContext,
     private val accNoUtil: AccNoPatternUtil,
     private val privilegesService: IUserPrivilegesService

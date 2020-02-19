@@ -7,7 +7,7 @@ import ac.uk.ebi.biostd.integration.SerializationConfig
 import ac.uk.ebi.biostd.persistence.integration.PersistenceContext
 import ac.uk.ebi.biostd.submission.service.AccNoService
 import ac.uk.ebi.biostd.submission.service.ParentInfoService
-import ac.uk.ebi.biostd.submission.service.ProjectService
+import ac.uk.ebi.biostd.submission.service.ProjectInfoService
 import ac.uk.ebi.biostd.submission.service.TimesService
 import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
 import ac.uk.ebi.biostd.submission.util.AccNoPatternUtil
@@ -27,16 +27,9 @@ class SubmitterConfig {
         timesService: TimesService,
         accNoService: AccNoService,
         parentInfoService: ParentInfoService,
-        projectService: ProjectService,
+        projectInfoService: ProjectInfoService,
         persistenceContext: PersistenceContext
-    ) = SubmissionSubmitter(timesService, accNoService, parentInfoService, projectService, persistenceContext)
-
-    @Bean
-    fun projectService(
-        persistenceContext: PersistenceContext,
-        accNoPatternUtil: AccNoPatternUtil,
-        privilegesService: IUserPrivilegesService
-    ) = ProjectService(persistenceContext, accNoPatternUtil, privilegesService)
+    ) = SubmissionSubmitter(timesService, accNoService, parentInfoService, projectInfoService, persistenceContext)
 
     @Configuration
     class FilesHandlerConfig(private val appProperties: ApplicationProperties) {
@@ -64,7 +57,7 @@ class SubmitterConfig {
         fun parentInfoService() = ParentInfoService(context)
 
         @Bean
-        fun projectValidationService() = ProjectService(context, accNoPatternUtil(), userPrivilegesService)
+        fun projectInfoService() = ProjectInfoService(context, accNoPatternUtil(), userPrivilegesService)
 
         @Bean
         fun timesService() = TimesService(context)
