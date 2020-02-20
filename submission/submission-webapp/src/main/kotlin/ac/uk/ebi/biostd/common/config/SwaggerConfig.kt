@@ -1,13 +1,15 @@
 package ac.uk.ebi.biostd.common.config
 
 import ac.uk.ebi.biostd.common.property.ApplicationProperties
+import ac.uk.ebi.biostd.persistence.filter.PaginationFilter
 import ac.uk.ebi.biostd.submission.converters.BioUser
+import com.google.common.base.Predicates.or
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.RequestMethod
 import springfox.documentation.builders.ApiInfoBuilder
-import springfox.documentation.builders.PathSelectors
+import springfox.documentation.builders.PathSelectors.regex
 import springfox.documentation.builders.RequestHandlerSelectors
 import springfox.documentation.builders.ResponseMessageBuilder
 import springfox.documentation.service.Contact
@@ -23,13 +25,13 @@ class SwaggerConfig(private val properties: ApplicationProperties) {
         Docket(DocumentationType.SWAGGER_2)
             .select()
             .apis(RequestHandlerSelectors.any())
-            .paths(PathSelectors.ant("/projects"))
+            .paths(paths())
             .build()
             .apiInfo(apiInfo())
             .useDefaultResponseMessages(false)
             .globalResponseMessage(RequestMethod.GET, listOf(unauthorizedResponseMessage()))
             .globalResponseMessage(RequestMethod.POST, listOf(unauthorizedResponseMessage()))
-            .ignoredParameterTypes(BioUser::class.java)
+            .ignoredParameterTypes(BioUser::class.java, PaginationFilter::class.java)
 
     private fun apiInfo() =
         ApiInfoBuilder()
@@ -38,6 +40,16 @@ class SwaggerConfig(private val properties: ApplicationProperties) {
             .contact(Contact("BioStudies Team", "http://www.ebi.ac.uk/biostudies", "biostudies@ebi.ac.uk"))
             .license("Apache 2.0")
             .build()
+
+    private fun paths() = or(
+        regex("/auth.*"),
+        regex("/groups.*"),
+        regex("/projects.*"),
+        regex("/submissions.*"),
+        regex("/files/user.*"),
+        regex("/folder/user.*"),
+        regex("/files/groups.*"),
+        regex("/folder/groups.*"))
 
     private fun unauthorizedResponseMessage() =
         ResponseMessageBuilder()

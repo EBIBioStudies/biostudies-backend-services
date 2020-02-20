@@ -10,6 +10,11 @@ import ebi.ac.uk.model.constants.APPLICATION_JSON
 import ebi.ac.uk.model.constants.TEXT_PLAIN
 import ebi.ac.uk.model.constants.TEXT_XML
 import ebi.ac.uk.security.integration.model.api.SecurityUser
+import io.swagger.annotations.Api
+import io.swagger.annotations.ApiImplicitParam
+import io.swagger.annotations.ApiImplicitParams
+import io.swagger.annotations.ApiOperation
+import io.swagger.annotations.ApiParam
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
@@ -21,24 +26,50 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/submissions")
 @PreAuthorize("isAuthenticated()")
+@Api(tags = ["Submissions"])
 class SubmissionResource(
     private val submissionService: SubmissionService,
     private val submissionWebHandler: SubmissionWebHandler
 ) {
     @GetMapping("/{accNo}.json", produces = [APPLICATION_JSON])
     @ResponseBody
-    fun asJson(@PathVariable accNo: String) = submissionService.getSubmissionAsJson(accNo)
+    @ApiOperation("Get the JSON file for the submission with the given accession")
+    @ApiImplicitParam(name = "X-Session-Token", value = "User authentication token", required = true)
+    fun asJson(
+        @ApiParam(name = "AccNo", value = "The submission accession number")
+        @PathVariable accNo: String
+    ) = submissionService.getSubmissionAsJson(accNo)
 
     @GetMapping("/{accNo}.xml", produces = [TEXT_XML])
-    fun asXml(@PathVariable accNo: String) = submissionService.getSubmissionAsXml(accNo)
+    @ApiOperation("Get the XML file for the submission with the given accession")
+    @ApiImplicitParam(name = "X-Session-Token", value = "User authentication token", required = true)
+    fun asXml(
+        @ApiParam(name = "AccNo", value = "The submission accession number")
+        @PathVariable accNo: String
+    ) = submissionService.getSubmissionAsXml(accNo)
 
     @GetMapping("/{accNo}.tsv", produces = [TEXT_PLAIN])
-    fun asTsv(@PathVariable accNo: String) = submissionService.getSubmissionAsTsv(accNo)
+    @ApiOperation("Get the TSV file for the submission with the given accession")
+    @ApiImplicitParam(name = "X-Session-Token", value = "User authentication token", required = true)
+    fun asTsv(
+        @ApiParam(name = "AccNo", value = "The submission accession number")
+        @PathVariable accNo: String
+    ) = submissionService.getSubmissionAsTsv(accNo)
 
     @GetMapping
+    @ApiOperation("Get the basic data for the submissions that matches the given filter")
+    @ApiImplicitParams(value = [
+        ApiImplicitParam(name = "X-Session-Token", value = "User authentication token", required = true),
+        ApiImplicitParam(
+            name = "limit",
+            value = "Optional query parameter used to set the maximum amount of drafts in the response"),
+        ApiImplicitParam(
+            name = "offset",
+            value = "Optional query parameter used to indicate from which submission should the response start")
+    ])
     fun getSubmissions(
-        @ModelAttribute filter: SubmissionFilter,
-        @BioUser user: SecurityUser
+        @BioUser user: SecurityUser,
+        @ModelAttribute filter: SubmissionFilter
     ): List<SubmissionDto> = submissionWebHandler.getSubmissions(user, filter).map { it.asDto() }
 
     private fun SimpleSubmission.asDto() =
