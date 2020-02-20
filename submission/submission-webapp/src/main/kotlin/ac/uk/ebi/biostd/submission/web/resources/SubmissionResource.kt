@@ -68,7 +68,8 @@ class SubmissionResource(
             value = "Optional query parameter used to indicate from which submission should the response start")
     ])
     fun getSubmissions(
-        @BioUser user: SecurityUser, @ModelAttribute filter: SubmissionFilter
+        @BioUser user: SecurityUser,
+        @ModelAttribute filter: SubmissionFilter
     ): List<SubmissionDto> = submissionWebHandler.getSubmissions(user, filter).map { it.asDto() }
 
     private fun SimpleSubmission.asDto() =

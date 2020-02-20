@@ -42,7 +42,9 @@ internal class SubmissionDraftResource(private val subDraftService: SubmissionDr
             value = "Optional query parameter used to indicate from which submission should the response start")
     ])
     fun getDraftSubmissions(
-        @BioUser user: SecurityUser, @ModelAttribute filter: PaginationFilter): List<SubmissionDraft> =
+        @BioUser user: SecurityUser,
+        @ModelAttribute filter: PaginationFilter
+    ): List<SubmissionDraft> =
         subDraftService.getSubmissionsDraft(user.id, filter).map { SubmissionDraft(it.key, it.data) }
 
     @GetMapping("/{key}")

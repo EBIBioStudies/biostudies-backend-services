@@ -9,7 +9,6 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.RequestMethod
 import springfox.documentation.builders.ApiInfoBuilder
-import springfox.documentation.builders.PathSelectors
 import springfox.documentation.builders.PathSelectors.regex
 import springfox.documentation.builders.RequestHandlerSelectors
 import springfox.documentation.builders.ResponseMessageBuilder
