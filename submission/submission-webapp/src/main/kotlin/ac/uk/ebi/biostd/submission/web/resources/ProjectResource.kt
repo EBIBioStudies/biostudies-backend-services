@@ -22,9 +22,8 @@ class ProjectResource(private val projectService: ProjectService) {
     @GetMapping
     @ResponseBody
     @ApiOperation("Get the list of available projects for the current user")
-    @ApiImplicitParam(name = "X-Session-Token", value = "The authentication token", required = true)
+    @ApiImplicitParam(name = "X-Session-Token", value = "User authentication token", required = true)
     fun getUserProjects(
-        @BioUser
-        user: SecurityUser
+        @BioUser user: SecurityUser
     ): List<Project> = projectService.getAllowedProjects(user, AccessType.ATTACH)
 }

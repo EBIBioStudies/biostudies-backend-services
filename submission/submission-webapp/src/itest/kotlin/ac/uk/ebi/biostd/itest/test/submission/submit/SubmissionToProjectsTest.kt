@@ -13,6 +13,7 @@ import ebi.ac.uk.dsl.tsv
 import ebi.ac.uk.model.extensions.attachTo
 import ebi.ac.uk.model.extensions.releaseDate
 import ebi.ac.uk.model.extensions.title
+import ebi.ac.uk.test.createFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
@@ -26,6 +27,7 @@ import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
+import java.util.Collections.singletonMap
 
 @ExtendWith(TemporaryFolderExtension::class)
 internal class SubmissionToProjectsTest(private val tempFolder: TemporaryFolder) : BaseIntegrationTest(tempFolder) {
@@ -60,6 +62,28 @@ internal class SubmissionToProjectsTest(private val tempFolder: TemporaryFolder)
                     attachTo = "Test-Project"
                     title = "AccNo Generation Test"
                     accessTags = mutableListOf("Test-Project")
+                }
+            )
+        }
+
+        @Test
+        fun `direct submission overriding project`() {
+            val submissionFile = tempFolder.createFile(
+                "submission.tsv",
+                tsv {
+                    line("Submission", "S-TEST1")
+                    line("AttachTo", "Test-Project")
+                    line("Title", "Overridden Project")
+                }.toString())
+
+            assertThat(webClient.submitSingle(
+                submissionFile, emptyList(), singletonMap("AttachTo", "Public-Project"))).isSuccessful()
+
+            assertThat(submissionRepository.getByAccNo("S-TEST1")).isEqualTo(
+                submission("S-TEST1") {
+                    attachTo = "Public-Project"
+                    title = "Overridden Project"
+                    accessTags = mutableListOf("Public-Project")
                 }
             )
         }

@@ -72,7 +72,11 @@ interface MultipartSubmissionOperations {
 
     fun submitSingle(submission: Submission, format: SubmissionFormat, files: List<File>): ResponseEntity<Submission>
 
-    fun submitSingle(submission: File, files: List<File>): ResponseEntity<Submission>
+    fun submitSingle(
+        submission: File,
+        files: List<File>,
+        subAttrs: Map<String, String> = emptyMap()
+    ): ResponseEntity<Submission>
 }
 
 interface SecurityOperations {

@@ -1,6 +1,5 @@
 package ebi.ac.uk.model.constants
 
-const val ATTACH_TO = "attachTo"
 const val SUBMISSION_TYPE = "Submission_Type"
 const val FILES = "files"
 const val PROJECT = "project"
