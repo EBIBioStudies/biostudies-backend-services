@@ -43,11 +43,14 @@ class SwaggerConfig(private val properties: ApplicationProperties) {
             .build()
 
     private fun paths() = or(
+        regex("/auth.*"),
+        regex("/groups.*"),
         regex("/projects.*"),
         regex("/submissions.*"),
-        regex("/auth.*"),
         regex("/files/user.*"),
-        regex("/folder/user.*"))
+        regex("/folder/user.*"),
+        regex("/files/groups.*"),
+        regex("/folder/groups.*"))
 
     private fun unauthorizedResponseMessage() =
         ResponseMessageBuilder()

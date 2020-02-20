@@ -4,7 +4,6 @@ import ac.uk.ebi.biostd.files.service.UserFilesService
 import ac.uk.ebi.biostd.files.web.common.FilesMapper
 import ac.uk.ebi.biostd.files.web.common.UserPath
 import ac.uk.ebi.biostd.submission.converters.BioUser
-import ac.uk.ebi.biostd.submission.domain.service.TempFileGenerator
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiImplicitParam
@@ -90,7 +89,7 @@ class UserFilesResource(
     fun createFolder(
         @BioUser user: SecurityUser,
 
-        @ApiParam(name = "folder", value = "Name of the folder to be deleted")
+        @ApiParam(name = "folder", value = "Name of the folder to be created")
         @RequestParam(name = "folder") folder: String,
 
         @ApiParam(name = "path", value = "Sub directory to look up inside the user directory")
