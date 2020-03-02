@@ -1,5 +1,6 @@
 package ebi.ac.uk.security.integration
 
+import ac.uk.ebi.biostd.persistence.integration.PersistenceContext
 import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
 import ac.uk.ebi.biostd.persistence.repositories.TokenDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
@@ -27,6 +28,7 @@ class SecurityModuleConfig(
     private val tokenRepo: TokenDataRepository,
     private val groupRepository: UserGroupDataRepository,
     private val accessPermissionRepository: AccessPermissionRepository,
+    private val context: PersistenceContext,
     private var props: SecurityProperties
 ) {
     fun securityService(): ISecurityService = securityService
@@ -40,7 +42,7 @@ class SecurityModuleConfig(
     private val groupService by lazy { GroupService(groupRepository, userRepo) }
     private val securityService by lazy { SecurityService(userRepo, securityUtil, props, profileService) }
     private val securityFilter by lazy { SecurityFilter(props.environment, securityService) }
-    private val userPrivilegesService by lazy { UserPrivilegesService(userRepo, accessPermissionRepository) }
+    private val userPrivilegesService by lazy { UserPrivilegesService(userRepo, context, accessPermissionRepository) }
 
     private val securityUtil by lazy { SecurityUtil(jwtParser, objectMapper, tokenRepo, userRepo, props.tokenHash) }
     private val objectMapper by lazy { JacksonFactory.createMapper() }

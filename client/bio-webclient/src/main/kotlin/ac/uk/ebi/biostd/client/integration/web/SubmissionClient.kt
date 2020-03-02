@@ -21,7 +21,6 @@ interface SubmissionClient :
     SubmissionOperations,
     FilesOperations,
     GroupFilesOperations,
-    ProjectOperations,
     MultipartSubmissionOperations,
     GeneralOperations,
     DraftSubmissionOperations
@@ -78,12 +77,6 @@ interface MultipartSubmissionOperations {
         files: List<File>,
         subAttrs: Map<String, String> = emptyMap()
     ): ResponseEntity<Submission>
-}
-
-interface ProjectOperations {
-    fun submitProject(project: File): ResponseEntity<Submission>
-
-    fun attachSubmission(projectAccNo: String, submission: File, files: List<File>): ResponseEntity<Submission>
 }
 
 interface SecurityOperations {

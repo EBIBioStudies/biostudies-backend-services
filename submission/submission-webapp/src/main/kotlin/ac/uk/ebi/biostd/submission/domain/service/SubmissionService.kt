@@ -10,13 +10,11 @@ import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
 import ac.uk.ebi.biostd.submission.model.SubmissionRequest
 import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
 import ebi.ac.uk.model.Submission
-import ebi.ac.uk.persistence.PersistenceContext
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 
 class SubmissionService(
     private val submissionRepository: SubmissionRepository,
-    private val persistenceContext: PersistenceContext,
     private val serializationService: SerializationService,
     private val userPrivilegesService: IUserPrivilegesService,
     private val submissionSubmitter: SubmissionSubmitter
@@ -40,9 +38,7 @@ class SubmissionService(
         submissionRepository.getSubmissionsByUser(user.id, filter)
 
     fun deleteSubmission(accNo: String, user: SecurityUser) {
-        val submission = persistenceContext.getSubmission(accNo)!!
-
-        require(userPrivilegesService.canDelete(user.email, submission.user, submission.accessTags))
+        require(userPrivilegesService.canDelete(user.email, accNo))
         submissionRepository.expireSubmission(accNo)
     }
 

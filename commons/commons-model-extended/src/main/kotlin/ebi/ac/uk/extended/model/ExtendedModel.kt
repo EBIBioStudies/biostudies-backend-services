@@ -1,6 +1,7 @@
 package ebi.ac.uk.extended.model
 
 import arrow.core.Either
+import ebi.ac.uk.model.SubmissionMethod
 import ebi.ac.uk.model.constants.ProcessingStatus
 import java.io.File
 import java.time.OffsetDateTime
@@ -38,7 +39,9 @@ data class ExtSection(
 
 data class ExtSubmission(
     val accNo: String,
+    var version: Int,
     val title: String?,
+    val method: SubmissionMethod,
     val relPath: String,
     val rootPath: String?,
     val released: Boolean,

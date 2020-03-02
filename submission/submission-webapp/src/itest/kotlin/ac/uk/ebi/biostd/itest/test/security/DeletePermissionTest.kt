@@ -10,7 +10,7 @@ import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.persistence.model.AccessPermission
 import ac.uk.ebi.biostd.persistence.model.AccessType.DELETE
 import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
-import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepository
+import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
 import ebi.ac.uk.asserts.assertThat
@@ -42,7 +42,7 @@ internal class DeletePermissionTest(private val tempFolder: TemporaryFolder) : B
     inner class DeleteSubmissionTest(
         @Autowired private val userDataRepository: UserDataRepository,
         @Autowired private val submissionRepository: SubmissionRepository,
-        @Autowired private val tagsDataRepository: AccessTagDataRepository,
+        @Autowired private val tagsDataRepository: AccessTagDataRepo,
         @Autowired private val accessPermissionRepository: AccessPermissionRepository
     ) {
         @LocalServerPort
@@ -113,8 +113,9 @@ internal class DeletePermissionTest(private val tempFolder: TemporaryFolder) : B
 
                 line("Project")
             }.toString()
+            val projectFile = tempFolder.createFile("a-project.tsv", project)
 
-            assertThat(superUserWebClient.submitProject(tempFolder.createFile("a-project.tsv", project))).isSuccessful()
+            assertThat(superUserWebClient.submitSingle(projectFile, emptyList())).isSuccessful()
 
             val accessTag = tagsDataRepository.findByName("AProject")
             val user = userDataRepository.findByEmailAndActive(RegularUser.email, active = true)

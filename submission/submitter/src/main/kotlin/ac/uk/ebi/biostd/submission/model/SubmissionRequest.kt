@@ -9,5 +9,5 @@ data class SubmissionRequest(
     val submission: Submission,
     val user: SecurityUser,
     val files: FilesSource,
-    val method: SubmissionMethod?
+    val method: SubmissionMethod
 )

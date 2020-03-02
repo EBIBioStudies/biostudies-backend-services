@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.common.config
 
 import ac.uk.ebi.biostd.common.property.ApplicationProperties
+import ac.uk.ebi.biostd.persistence.integration.PersistenceContext
 import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
 import ac.uk.ebi.biostd.persistence.repositories.TokenDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
@@ -72,12 +73,13 @@ class SecurityBeansConfig(private val objectMapper: ObjectMapper, properties: Ap
 
     @Bean
     fun securityModuleConfig(
+        context: PersistenceContext,
         userRepository: UserDataRepository,
         tokenRepository: TokenDataRepository,
         groupRepository: UserGroupDataRepository,
         accessPermissionRepository: AccessPermissionRepository
     ): SecurityModuleConfig = SecurityModuleConfig(
-        userRepository, tokenRepository, groupRepository, accessPermissionRepository, securityProps)
+        userRepository, tokenRepository, groupRepository, accessPermissionRepository, context, securityProps)
 
     @Bean
     fun securityService(securityConfig: SecurityModuleConfig): ISecurityService = securityConfig.securityService()

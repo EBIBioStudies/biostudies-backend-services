@@ -17,6 +17,8 @@ class ToExtSubmissionMapper(private val submissionsPath: Path) {
         return ExtSubmission(
             accNo = dbSubmission.accNo,
             title = dbSubmission.title,
+            version = dbSubmission.version,
+            method = dbSubmission.method!!, // FIX this add default status
             status = dbSubmission.status,
             relPath = dbSubmission.relPath,
             rootPath = dbSubmission.rootPath,

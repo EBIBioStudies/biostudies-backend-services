@@ -1,5 +1,6 @@
 package ebi.ac.uk.api.dto
 
+import ebi.ac.uk.model.SubmissionMethod
 import java.time.OffsetDateTime
 
 data class SubmissionDto(
@@ -8,5 +9,6 @@ data class SubmissionDto(
     val version: Int,
     val ctime: OffsetDateTime,
     val mtime: OffsetDateTime,
-    val rtime: OffsetDateTime?
+    val rtime: OffsetDateTime?,
+    val method: SubmissionMethod?
 )

@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.persistence.filter
 
+import ac.uk.ebi.biostd.persistence.model.Section
 import ac.uk.ebi.biostd.persistence.model.Submission
 import ac.uk.ebi.biostd.persistence.model.User
 import ebi.ac.uk.base.applyIfNotBlank
@@ -15,6 +16,7 @@ class SubmissionFilterSpecification(userId: Long, filter: SubmissionFilter) {
         filter.keywords?.applyIfNotBlank { specs = specs and (withTitleLike(it)) }
         filter.rTimeTo?.let { specs = specs and (withTo(OffsetDateTime.parse(it))) }
         filter.rTimeFrom?.let { specs = specs and (withFrom(OffsetDateTime.parse(it))) }
+        filter.type?.let { specs = specs and (withType(it)) }
         specification = specs
     }
 
@@ -24,6 +26,9 @@ class SubmissionFilterSpecification(userId: Long, filter: SubmissionFilter) {
 
     private fun withAccession(accNo: String): Specification<Submission> =
         Specification { root, _, cb -> cb.equal(root.get<Int>("accNo"), accNo) }
+
+    private fun withType(type: String): Specification<Submission> =
+        Specification { root, _, cb -> cb.equal(root.get<Section>("rootSection").get<String>("type"), type) }
 
     private fun withTitleLike(title: String): Specification<Submission> =
         Specification { root, _, cb -> cb.like(cb.lower(root.get("title")), "%" + title.toLowerCase() + "%") }

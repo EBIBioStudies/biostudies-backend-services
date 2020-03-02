@@ -8,6 +8,8 @@ import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.line
 import ebi.ac.uk.dsl.tsv
+import ebi.ac.uk.model.SubmissionMethod
+import ebi.ac.uk.test.createFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
@@ -22,13 +24,13 @@ import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
 
 @ExtendWith(TemporaryFolderExtension::class)
-internal class SubmissionListApiTest(tempFolder: TemporaryFolder) : BaseIntegrationTest(tempFolder) {
+internal class SubmissionListApiTest(private val tempFolder: TemporaryFolder) : BaseIntegrationTest(tempFolder) {
     @Nested
     @Import(PersistenceConfig::class)
     @ExtendWith(SpringExtension::class)
     @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
     @DirtiesContext
-    inner class SingleSubmissionTest() {
+    inner class SingleSubmissionTest {
         @LocalServerPort
         private var serverPort: Int = 0
 
@@ -38,14 +40,13 @@ internal class SubmissionListApiTest(tempFolder: TemporaryFolder) : BaseIntegrat
         fun init() {
             webClient = getWebClient(serverPort, SuperUser)
 
-            for (idx in 11..30) {
-                val submission = tsv {
-                    line("Submission", "SimpleAcc$idx")
-                    line("Title", "Simple Submission $idx - keyword$idx")
-                    line("ReleaseDate", "2019-09-$idx")
-                    line()
-                }.toString()
-                assertThat(webClient.submitSingle(submission, SubmissionFormat.TSV)).isSuccessful()
+            for (idx in 11..20) {
+                assertThat(webClient.submitSingle(getSimpleSubmission(idx), SubmissionFormat.TSV)).isSuccessful()
+            }
+
+            for (idx in 21..30) {
+                val submission = tempFolder.createFile("submission$idx.tsv", getSimpleSubmission(idx))
+                assertThat(webClient.submitSingle(submission, emptyList())).isSuccessful()
             }
         }
 
@@ -66,6 +67,20 @@ internal class SubmissionListApiTest(tempFolder: TemporaryFolder) : BaseIntegrat
             assertThat(submissionList).hasOnlyOneElementSatisfying {
                 assertThat(it.accno).isEqualTo("SimpleAcc17")
                 assertThat(it.version).isEqualTo(1)
+                assertThat(it.method).isEqualTo(SubmissionMethod.PAGE_TAB)
+            }
+        }
+
+        @Test
+        fun `get direct submission list by accession`() {
+            val submissionList = webClient.getSubmissions(mapOf(
+                "accNo" to "SimpleAcc27"
+            ))
+
+            assertThat(submissionList).hasOnlyOneElementSatisfying {
+                assertThat(it.accno).isEqualTo("SimpleAcc27")
+                assertThat(it.version).isEqualTo(1)
+                assertThat(it.method).isEqualTo(SubmissionMethod.FILE)
             }
         }
 
@@ -98,5 +113,12 @@ internal class SubmissionListApiTest(tempFolder: TemporaryFolder) : BaseIntegrat
 
             assertThat(submissionList).hasSize(5)
         }
+
+        private fun getSimpleSubmission(idx: Int) = tsv {
+            line("Submission", "SimpleAcc$idx")
+            line("Title", "Simple Submission $idx - keyword$idx")
+            line("ReleaseDate", "2019-09-$idx")
+            line()
+        }.toString()
     }
 }

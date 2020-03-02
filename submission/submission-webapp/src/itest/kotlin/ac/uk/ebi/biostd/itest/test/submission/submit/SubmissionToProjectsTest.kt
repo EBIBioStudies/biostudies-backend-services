@@ -190,10 +190,9 @@ internal class SubmissionToProjectsTest(private val tempFolder: TemporaryFolder)
                 line("Project")
             }.toString()
 
-            // TODO these won't need to be files once the refactor to the model is merged
-            assertThat(webClient.submitProject(tempFolder.createFile("test.tsv", testProject))).isSuccessful()
-            assertThat(webClient.submitProject(tempFolder.createFile("public.tsv", publicProject))).isSuccessful()
-            assertThat(webClient.submitProject(tempFolder.createFile("private.tsv", privateProject))).isSuccessful()
+            assertThat(webClient.submitSingle(testProject, SubmissionFormat.TSV)).isSuccessful()
+            assertThat(webClient.submitSingle(publicProject, SubmissionFormat.TSV)).isSuccessful()
+            assertThat(webClient.submitSingle(privateProject, SubmissionFormat.TSV)).isSuccessful()
         }
     }
 }

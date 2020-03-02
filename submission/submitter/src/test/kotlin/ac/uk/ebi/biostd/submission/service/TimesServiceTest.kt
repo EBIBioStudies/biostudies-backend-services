@@ -1,11 +1,8 @@
 package ac.uk.ebi.biostd.submission.service
 
+import ac.uk.ebi.biostd.persistence.integration.PersistenceContext
 import ac.uk.ebi.biostd.submission.exceptions.InvalidDateFormatException
 import ac.uk.ebi.biostd.submission.test.ACC_NO
-import ac.uk.ebi.biostd.submission.test.createBasicExtendedSubmission
-import ebi.ac.uk.model.ExtendedSubmission
-import ebi.ac.uk.model.extensions.releaseDate
-import ebi.ac.uk.persistence.PersistenceContext
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
@@ -21,25 +18,22 @@ import java.time.ZoneOffset
 
 @ExtendWith(MockKExtension::class)
 class TimesServiceTest(@MockK private val mockContext: PersistenceContext) {
-    private lateinit var submission: ExtendedSubmission
     private val testInstance = TimesService(mockContext)
     private val testTime = OffsetDateTime.of(2018, 10, 10, 0, 0, 0, 0, ZoneOffset.UTC)
     private val mockNow = OffsetDateTime.of(2018, 12, 31, 0, 0, 0, 0, ZoneOffset.UTC)
 
     @BeforeEach
     fun beforeEach() {
-        submission = createBasicExtendedSubmission()
-
         mockkStatic(OffsetDateTime::class)
         every { OffsetDateTime.now() } returns mockNow
-        every { mockContext.getSubmission(ACC_NO) } returns null
+        every { mockContext.findCreationTime(ACC_NO) } returns null
     }
 
     @Nested
     inner class ModificationTime {
         @Test
         fun `calculate modification time`() {
-            val times = testInstance.getTimes(submission)
+            val times = testInstance.getTimes(TimesRequest(ACC_NO))
             assertThat(times.modificationTime).isEqualTo(mockNow)
         }
     }
@@ -48,16 +42,15 @@ class TimesServiceTest(@MockK private val mockContext: PersistenceContext) {
     inner class CreationTime {
         @Test
         fun `when exists`() {
-            val existingSubmission = createBasicExtendedSubmission().apply { creationTime = testTime }
-            every { mockContext.getSubmission(ACC_NO) } returns existingSubmission
+            every { mockContext.findCreationTime(ACC_NO) } returns testTime
 
-            val times = testInstance.getTimes(submission)
+            val times = testInstance.getTimes(TimesRequest(ACC_NO))
             assertThat(times.createTime).isEqualTo(testTime)
         }
 
         @Test
         fun `when is new`() {
-            val times = testInstance.getTimes(submission)
+            val times = testInstance.getTimes(TimesRequest(ACC_NO))
             assertThat(times.createTime).isEqualTo(mockNow)
         }
     }
@@ -66,9 +59,9 @@ class TimesServiceTest(@MockK private val mockContext: PersistenceContext) {
     inner class ReleaseTime {
         @Test
         fun `when release date with invalid format`() {
-            submission.releaseDate = "2018/10/10"
-
-            val exception = assertThrows<InvalidDateFormatException> { testInstance.getTimes(submission) }
+            val exception = assertThrows<InvalidDateFormatException> {
+                testInstance.getTimes(TimesRequest(ACC_NO, "2018/10/10"))
+            }
 
             assertThat(exception.message).isEqualTo(
                 "Provided date 2018/10/10 could not be parsed. Expected format is YYYY-MM-DD")
@@ -77,15 +70,14 @@ class TimesServiceTest(@MockK private val mockContext: PersistenceContext) {
         @Test
         fun `when release date with valid format`() {
             val releaseTime = OffsetDateTime.of(2019, 10, 10, 0, 0, 0, 0, ZoneOffset.UTC)
-            submission.releaseDate = "2019-10-10T09:27:04.000Z"
+            val times = testInstance.getTimes(TimesRequest(ACC_NO, "2019-10-10T09:27:04.000Z"))
 
-            val times = testInstance.getTimes(submission)
             assertThat(times.releaseTime).isEqualTo(releaseTime)
         }
 
         @Test
         fun `when no release date`() {
-            val times = testInstance.getTimes(submission)
+            val times = testInstance.getTimes(TimesRequest(ACC_NO))
             assertThat(times.releaseTime).isNull()
         }
     }

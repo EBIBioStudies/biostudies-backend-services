@@ -4,18 +4,14 @@ import ac.uk.ebi.biostd.common.config.SubmitterConfig.FilesHandlerConfig
 import ac.uk.ebi.biostd.common.config.SubmitterConfig.ServiceConfig
 import ac.uk.ebi.biostd.common.property.ApplicationProperties
 import ac.uk.ebi.biostd.integration.SerializationConfig
-import ac.uk.ebi.biostd.submission.handlers.FilesCopier
-import ac.uk.ebi.biostd.submission.handlers.FilesHandler
-import ac.uk.ebi.biostd.submission.handlers.FilesValidator
-import ac.uk.ebi.biostd.submission.handlers.OutputFilesGenerator
+import ac.uk.ebi.biostd.persistence.integration.PersistenceContext
 import ac.uk.ebi.biostd.submission.service.AccNoService
-import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
+import ac.uk.ebi.biostd.submission.service.ParentInfoService
+import ac.uk.ebi.biostd.submission.service.ProjectInfoService
 import ac.uk.ebi.biostd.submission.service.TimesService
-import ac.uk.ebi.biostd.submission.service.ProjectValidationService
-import ac.uk.ebi.biostd.submission.submitter.ProjectSubmitter
+import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
 import ac.uk.ebi.biostd.submission.util.AccNoPatternUtil
 import ebi.ac.uk.paths.SubmissionFolderResolver
-import ebi.ac.uk.persistence.PersistenceContext
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -28,19 +24,12 @@ import java.nio.file.Paths
 class SubmitterConfig {
     @Bean
     fun submissionSubmitter(
-        filesHandler: FilesHandler,
         timesService: TimesService,
         accNoService: AccNoService,
+        parentInfoService: ParentInfoService,
+        projectInfoService: ProjectInfoService,
         persistenceContext: PersistenceContext
-    ) = SubmissionSubmitter(filesHandler, timesService, accNoService, persistenceContext)
-
-    @Bean
-    fun projectSubmitter(
-        timesService: TimesService,
-        accNoPatternUtil: AccNoPatternUtil,
-        persistenceContext: PersistenceContext,
-        projectValidationService: ProjectValidationService
-    ) = ProjectSubmitter(timesService, accNoPatternUtil, persistenceContext, projectValidationService)
+    ) = SubmissionSubmitter(timesService, accNoService, parentInfoService, projectInfoService, persistenceContext)
 
     @Configuration
     class FilesHandlerConfig(private val appProperties: ApplicationProperties) {
@@ -50,18 +39,6 @@ class SubmitterConfig {
 
         @Bean
         fun serializationService() = SerializationConfig.serializationService()
-
-        @Bean
-        fun filesHandler() = FilesHandler(filesValidator(), filesCopier(), outputFilesGenerator())
-
-        @Bean
-        fun outputFilesGenerator() = OutputFilesGenerator(folderResolver(), serializationService())
-
-        @Bean
-        fun filesCopier() = FilesCopier(folderResolver())
-
-        @Bean
-        fun filesValidator() = FilesValidator()
     }
 
     @Configuration
@@ -77,7 +54,10 @@ class SubmitterConfig {
         fun accNoService() = AccNoService(context, accNoPatternUtil(), userPrivilegesService)
 
         @Bean
-        fun projectValidationService() = ProjectValidationService(context, accNoPatternUtil(), userPrivilegesService)
+        fun parentInfoService() = ParentInfoService(context)
+
+        @Bean
+        fun projectInfoService() = ProjectInfoService(context, accNoPatternUtil(), userPrivilegesService)
 
         @Bean
         fun timesService() = TimesService(context)

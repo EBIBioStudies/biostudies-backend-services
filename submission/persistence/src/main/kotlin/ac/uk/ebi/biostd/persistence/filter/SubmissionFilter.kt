@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.persistence.filter
 class SubmissionFilter(
     val accNo: String? = null,
     val version: Long? = null,
+    val type: String? = null,
     val rTimeFrom: String? = null,
     val rTimeTo: String? = null,
     val keywords: String? = null,
