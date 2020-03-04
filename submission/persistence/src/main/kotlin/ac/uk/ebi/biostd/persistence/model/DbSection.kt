@@ -21,14 +21,14 @@ import javax.persistence.Table
 
 @Entity
 @Table(name = "Section")
-class Section(
+class DbSection(
     @Column
     var accNo: String?,
 
     @Column
     var type: String
 
-) : Tabular, Comparable<Section> {
+) : Tabular, Comparable<DbSection> {
     @Id
     @GeneratedValue
     var id: Long = 0L
@@ -51,29 +51,29 @@ class Section(
     @OneToMany(cascade = [CascadeType.ALL])
     @JoinColumn(name = "section_id")
     @OrderBy("order ASC")
-    var attributes: SortedSet<SectionAttribute> = sortedSetOf()
+    var attributes: SortedSet<DbSectionAttribute> = sortedSetOf()
 
     @OneToMany(cascade = [CascadeType.ALL])
     @JoinColumn(name = "section_id")
     @OrderBy("order ASC")
-    var links: SortedSet<Link> = sortedSetOf()
+    var links: SortedSet<DbLink> = sortedSetOf()
 
     @OneToMany(cascade = [CascadeType.ALL])
     @JoinColumn(name = "sectionId")
     @OrderBy("order ASC")
-    var files: SortedSet<File> = sortedSetOf()
+    var files: SortedSet<DbFile> = sortedSetOf()
 
     @OneToMany(cascade = [CascadeType.ALL])
     @JoinColumn(name = "parent_id")
     @OrderBy("order ASC")
-    var sections: SortedSet<Section> = sortedSetOf()
+    var sections: SortedSet<DbSection> = sortedSetOf()
 
     constructor(
         accNo: String,
         type: String,
-        attributes: SortedSet<SectionAttribute>,
-        files: SortedSet<File>,
-        links: SortedSet<Link>,
+        attributes: SortedSet<DbSectionAttribute>,
+        files: SortedSet<DbFile>,
+        links: SortedSet<DbLink>,
         tableIndex: Int = NO_TABLE_INDEX
     ) : this(accNo, type) {
         this.tableIndex = tableIndex
@@ -82,10 +82,10 @@ class Section(
         this.links = links
     }
 
-    override fun compareTo(other: Section) = order.compareTo(other.order)
+    override fun compareTo(other: DbSection) = order.compareTo(other.order)
 
     override fun equals(other: Any?) = when {
-        (other !is Section) -> false
+        (other !is DbSection) -> false
         (this === other) -> true
         else -> equals(id, other.id)
             .and(equals(accNo, other.accNo))

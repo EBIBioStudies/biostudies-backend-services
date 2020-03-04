@@ -1,8 +1,8 @@
 package ac.uk.ebi.biostd.persistence.mapping.extended.from
 
-import ac.uk.ebi.biostd.persistence.model.AccessTag
-import ac.uk.ebi.biostd.persistence.model.Tag
-import ac.uk.ebi.biostd.persistence.model.User
+import ac.uk.ebi.biostd.persistence.model.DbAccessTag
+import ac.uk.ebi.biostd.persistence.model.DbTag
+import ac.uk.ebi.biostd.persistence.model.DbUser
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
 import ac.uk.ebi.biostd.persistence.repositories.TagDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
@@ -27,7 +27,7 @@ internal class ToDbSubmissionMapperTest(
     private val testInstance = ToDbSubmissionMapper(accessTagsRepository, tagsRepository, userRepository)
 
     @Test
-    fun toSubmissionDb(@MockK accessTag: AccessTag, @MockK tag: Tag, @MockK user: User) {
+    fun toSubmissionDb(@MockK accessTag: DbAccessTag, @MockK tag: DbTag, @MockK user: DbUser) {
         every { accessTagsRepository.findByName(extAccessTag.name) } returns accessTag
         every { tagsRepository.findByClassifierAndName(extTag.name, extTag.value) } returns tag
         every { userRepository.getByEmail(submitter) } returns user

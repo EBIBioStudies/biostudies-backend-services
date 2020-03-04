@@ -1,6 +1,6 @@
 package ebi.ac.uk.security.service
 
-import ac.uk.ebi.biostd.persistence.model.User
+import ac.uk.ebi.biostd.persistence.model.DbUser
 import ac.uk.ebi.biostd.persistence.model.ext.activated
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import arrow.core.getOrElse
@@ -59,8 +59,8 @@ internal class SecurityService(
             .let { profileService.asSecurityUser(it) }
     }
 
-    private fun createUserInactive(email: String, username: String): User {
-        val user = User(
+    private fun createUserInactive(email: String, username: String): DbUser {
+        val user = DbUser(
             email = email,
             fullName = username,
             secret = securityUtil.newKey(),
@@ -119,7 +119,7 @@ internal class SecurityService(
         return register(asUser(request), instanceKey, activationPath)
     }
 
-    private fun register(user: User, instanceKey: String, activationPath: String): SecurityUser {
+    private fun register(user: DbUser, instanceKey: String, activationPath: String): SecurityUser {
         val key = securityUtil.newKey()
         val saved = userRepository.save(user.apply { user.activationKey = key })
         userPreRegister.onNext(UserRegister(saved, securityUtil.getActivationUrl(instanceKey, activationPath, key)))
@@ -132,8 +132,8 @@ internal class SecurityService(
         return profileService.asSecurityUser(user)
     }
 
-    private fun asUser(registerRequest: RegisterRequest): User {
-        return User(
+    private fun asUser(registerRequest: RegisterRequest): DbUser {
+        return DbUser(
             email = registerRequest.email,
             fullName = registerRequest.name,
             secret = securityUtil.newKey(),

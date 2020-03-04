@@ -1,8 +1,8 @@
 package ac.uk.ebi.biostd.persistence.filter
 
-import ac.uk.ebi.biostd.persistence.model.Section
+import ac.uk.ebi.biostd.persistence.model.DbSection
+import ac.uk.ebi.biostd.persistence.model.DbUser
 import ac.uk.ebi.biostd.persistence.model.Submission
-import ac.uk.ebi.biostd.persistence.model.User
 import ebi.ac.uk.base.applyIfNotBlank
 import org.springframework.data.jpa.domain.Specification
 import java.time.OffsetDateTime
@@ -28,13 +28,13 @@ class SubmissionFilterSpecification(userId: Long, filter: SubmissionFilter) {
         Specification { root, _, cb -> cb.equal(root.get<Int>("accNo"), accNo) }
 
     private fun withType(type: String): Specification<Submission> =
-        Specification { root, _, cb -> cb.equal(root.get<Section>("rootSection").get<String>("type"), type) }
+        Specification { root, _, cb -> cb.equal(root.get<DbSection>("rootSection").get<String>("type"), type) }
 
     private fun withTitleLike(title: String): Specification<Submission> =
         Specification { root, _, cb -> cb.like(cb.lower(root.get("title")), "%" + title.toLowerCase() + "%") }
 
     private fun withUser(userId: Long): Specification<Submission> =
-        Specification { root, _, cb -> cb.equal(root.get<User>("owner").get<Long>("id"), userId) }
+        Specification { root, _, cb -> cb.equal(root.get<DbUser>("owner").get<Long>("id"), userId) }
 
     private fun withFrom(from: OffsetDateTime): Specification<Submission> =
         Specification { root, _, cb -> cb.greaterThan(root.get("releaseTime"), from.toEpochSecond()) }

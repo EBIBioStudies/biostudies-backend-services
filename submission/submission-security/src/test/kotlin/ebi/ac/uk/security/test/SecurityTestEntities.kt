@@ -1,6 +1,6 @@
 package ebi.ac.uk.security.test
 
-import ac.uk.ebi.biostd.persistence.model.User
+import ac.uk.ebi.biostd.persistence.model.DbUser
 import ebi.ac.uk.api.security.RegisterRequest
 import ebi.ac.uk.api.security.ResetPasswordRequest
 import ebi.ac.uk.api.security.RetryActivationRequest
@@ -49,8 +49,8 @@ internal class SecurityTestEntities {
         const val secret = "secret"
         val passwordDiggest = ByteArray(0)
 
-        val simpleUser: User by lazy {
-            User(
+        val simpleUser: DbUser by lazy {
+            DbUser(
                 id = userId,
                 email = email,
                 fullName = name,
@@ -72,8 +72,8 @@ internal class SecurityTestEntities {
             )
         }
 
-        val adminUser: User by lazy {
-            User(
+        val adminUser: DbUser by lazy {
+            DbUser(
                 id = adminId,
                 email = email,
                 fullName = name,

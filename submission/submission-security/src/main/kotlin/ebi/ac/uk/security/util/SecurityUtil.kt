@@ -1,7 +1,7 @@
 package ebi.ac.uk.security.util
 
+import ac.uk.ebi.biostd.persistence.model.DbUser
 import ac.uk.ebi.biostd.persistence.model.SecurityToken
-import ac.uk.ebi.biostd.persistence.model.User
 import ac.uk.ebi.biostd.persistence.repositories.TokenDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import arrow.core.Option
@@ -40,14 +40,14 @@ internal class SecurityUtil(
     private val userRepository: UserDataRepository,
     private val tokenHash: String
 ) {
-    fun createToken(user: User): String {
+    fun createToken(user: DbUser): String {
         return Jwts.builder()
             .setSubject(objectMapper.writeValueAsString(TokenPayload(user.id, user.email, user.fullName)))
             .signWith(SignatureAlgorithm.HS512, tokenHash)
             .compact()
     }
 
-    fun fromToken(token: String): Option<User> {
+    fun fromToken(token: String): Option<DbUser> {
         return if (jwtParser.isSigned(token)) getFromToken(token) else Option.empty()
     }
 
@@ -84,7 +84,7 @@ internal class SecurityUtil(
 
     private fun normalizePath(path: String) = path.trim('/')
 
-    fun checkToken(tokenKey: String): Option<User> {
+    fun checkToken(tokenKey: String): Option<DbUser> {
         val token = tokenRepository.findById(tokenKey)
         return when {
             token.isPresent -> Option.empty()
@@ -99,7 +99,7 @@ internal class SecurityUtil(
     private fun isLocalEnvironment(instanceKey: String) =
         instanceKey.startsWith("http://localhost") || instanceKey.startsWith("https://localhost")
 
-    private fun getFromToken(token: String): Option<User> {
+    private fun getFromToken(token: String): Option<DbUser> {
         var tokenUser = Option.empty<TokenPayload>()
         try {
             val payload = jwtParser.setSigningKey(tokenHash).parseClaimsJws(token).body.subject

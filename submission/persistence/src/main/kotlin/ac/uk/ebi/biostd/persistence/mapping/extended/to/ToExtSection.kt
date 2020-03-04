@@ -1,10 +1,10 @@
 package ac.uk.ebi.biostd.persistence.mapping.extended.to
 
-import ac.uk.ebi.biostd.persistence.model.Section
+import ac.uk.ebi.biostd.persistence.model.DbSection
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.io.sources.FilesSource
 
-internal fun Section.toExtSection(filesSource: FilesSource): ExtSection {
+internal fun DbSection.toExtSection(filesSource: FilesSource): ExtSection {
     return ExtSection(
         accNo = accNo,
         type = type,

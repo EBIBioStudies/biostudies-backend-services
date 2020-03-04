@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.submission.service
 
 import ac.uk.ebi.biostd.persistence.integration.PersistenceContext
+import ac.uk.ebi.biostd.persistence.integration.SubmissionQueryService
 import ac.uk.ebi.biostd.submission.exceptions.ProjectAlreadyExistingException
 import ac.uk.ebi.biostd.submission.exceptions.ProjectInvalidAccNoPatternException
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotSubmitProjectsException
@@ -12,6 +13,7 @@ internal const val ACC_NO_TEMPLATE_INVALID = "The given template is invalid. Exp
 
 class ProjectInfoService(
     private val context: PersistenceContext,
+    private val queryService: SubmissionQueryService,
     private val accNoUtil: AccNoPatternUtil,
     private val privilegesService: IUserPrivilegesService
 ) {
@@ -26,7 +28,7 @@ class ProjectInfoService(
         require(privilegesService.canSubmitProjects(submitter)) { throw UserCanNotSubmitProjectsException(submitter) }
         require(template != null) { throw ProjectInvalidAccNoPatternException(ACC_NO_TEMPLATE_REQUIRED) }
         require(accNoUtil.isPattern(template)) { throw ProjectInvalidAccNoPatternException(ACC_NO_TEMPLATE_INVALID) }
-        require(context.isNew(accNo).not() || context.accessTagExists(accNo).not()) {
+        require(queryService.isNew(accNo).not() || context.accessTagExists(accNo).not()) {
             throw ProjectAlreadyExistingException(accNo)
         }
 

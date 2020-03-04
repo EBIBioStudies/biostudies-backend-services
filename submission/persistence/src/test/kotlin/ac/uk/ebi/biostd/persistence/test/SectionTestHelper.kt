@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.persistence.test
 
 import ac.uk.ebi.biostd.persistence.common.NO_TABLE_INDEX
-import ac.uk.ebi.biostd.persistence.model.Section
+import ac.uk.ebi.biostd.persistence.model.DbSection
 import arrow.core.Either.Companion.left
 import arrow.core.Either.Companion.right
 import ebi.ac.uk.extended.model.ExtSection
@@ -29,7 +29,7 @@ internal val extSectionTable
 internal val simpleExtSection
     get() = ExtSection(type = "type", attributes = listOf(extAttribute))
 
-internal fun assertDbExtSection(section: Section) {
+internal fun assertDbExtSection(section: DbSection) {
     assertThat(section.accNo).isEqualTo(ACC_NO)
     assertThat(section.type).isEqualTo(SEC_TYPE)
 
@@ -39,7 +39,7 @@ internal fun assertDbExtSection(section: Section) {
     assertDbLinks(section.links)
 }
 
-private fun assertDbExtSections(sectionsSet: SortedSet<Section>) {
+private fun assertDbExtSections(sectionsSet: SortedSet<DbSection>) {
     val sections = sectionsSet.toList()
 
     assertThat(sections).hasSize(3)

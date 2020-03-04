@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.submission.service
 
 import ac.uk.ebi.biostd.persistence.integration.PersistenceContext
+import ac.uk.ebi.biostd.persistence.integration.SubmissionQueryService
 import ac.uk.ebi.biostd.submission.exceptions.ProvideAccessNumber
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotSubmitProjectsException
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotUpdateSubmit
@@ -14,6 +15,7 @@ const val PATH_DIGITS = 3
 
 class AccNoService(
     private val context: PersistenceContext,
+    private val queryService: SubmissionQueryService,
     private val patternUtil: AccNoPatternUtil,
     private val privilegesService: IUserPrivilegesService
 ) {
@@ -22,7 +24,7 @@ class AccNoService(
         val (submitter, accNo, project, projectPattern) = request
 
         when {
-            accNo == null || context.isNew(accNo) -> {
+            accNo == null || queryService.isNew(accNo) -> {
                 if (accNo != null && privilegesService.canProvideAccNo(submitter).not())
                     throw ProvideAccessNumber(submitter)
                 if (project != null && privilegesService.canSubmitToProject(submitter, project).not())

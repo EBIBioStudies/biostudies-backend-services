@@ -10,7 +10,7 @@ import javax.persistence.Table
 @Table(name = "UserData")
 @Entity
 @IdClass(UserDataId::class)
-class UserData(
+class DbUserData(
     @Id
     val userId: Long,
 

@@ -1,18 +1,20 @@
 package ac.uk.ebi.biostd.submission.service
 
-import ac.uk.ebi.biostd.persistence.integration.PersistenceContext
+import ac.uk.ebi.biostd.persistence.integration.SubmissionQueryService
 import java.time.OffsetDateTime
 
-class ParentInfoService(private val ctx: PersistenceContext) {
+class ParentInfoService(private val queryService: SubmissionQueryService) {
     fun getParentInfo(parentAccNo: String?): ParentInfo = when (parentAccNo) {
         null -> ParentInfo(emptyList(), null, null)
-        else -> {
-            require(ctx.existByAccNo(parentAccNo)) { "Could not find a project register with accNo $parentAccNo" }
-            ParentInfo(
-                ctx.getAccessTags(parentAccNo).filterNot { it == "Public" },
-                ctx.getReleaseTime(parentAccNo),
-                ctx.getParentAccPattern(parentAccNo).orNull())
-        }
+        else -> parentInfo(parentAccNo)
+    }
+
+    private fun parentInfo(parentAccNo: String): ParentInfo {
+        require(queryService.existByAccNo(parentAccNo)) { "Could not find a project register with accNo $parentAccNo" }
+        return ParentInfo(
+            queryService.getAccessTags(parentAccNo).filterNot { it == "Public" },
+            queryService.getReleaseTime(parentAccNo),
+            queryService.getParentAccPattern(parentAccNo))
     }
 }
 

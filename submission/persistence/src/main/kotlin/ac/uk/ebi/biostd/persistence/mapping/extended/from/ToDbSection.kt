@@ -1,8 +1,8 @@
 package ac.uk.ebi.biostd.persistence.mapping.extended.from
 
 import ac.uk.ebi.biostd.persistence.common.NO_TABLE_INDEX
-import ac.uk.ebi.biostd.persistence.model.Section
-import ac.uk.ebi.biostd.persistence.model.SectionAttribute
+import ac.uk.ebi.biostd.persistence.model.DbSection
+import ac.uk.ebi.biostd.persistence.model.DbSectionAttribute
 import ac.uk.ebi.biostd.persistence.model.Submission
 import arrow.core.Either
 import ebi.ac.uk.extended.model.ExtAttribute
@@ -10,7 +10,7 @@ import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSectionTable
 import java.util.SortedSet
 
-internal fun ExtSection.toDbSection(submission: Submission, index: Int): Section {
+internal fun ExtSection.toDbSection(submission: Submission, index: Int): DbSection {
     val section = asSection(submission, index)
     section.tableIndex = NO_TABLE_INDEX
     section.sections = sections.toDbSections(submission)
@@ -20,15 +20,15 @@ internal fun ExtSection.toDbSection(submission: Submission, index: Int): Section
     return section
 }
 
-private fun ExtSection.toDbTableSection(submission: Submission, index: Int, tableIndex: Int): Section {
+private fun ExtSection.toDbTableSection(submission: Submission, index: Int, tableIndex: Int): DbSection {
     val section = asSection(submission, index)
     section.tableIndex = tableIndex
     return section
 }
 
-private fun List<Either<ExtSection, ExtSectionTable>>.toDbSections(submission: Submission): SortedSet<Section> {
+private fun List<Either<ExtSection, ExtSectionTable>>.toDbSections(submission: Submission): SortedSet<DbSection> {
     var idx = 0
-    val sections = sortedSetOf<Section>()
+    val sections = sortedSetOf<DbSection>()
 
     forEach { either ->
         either.fold(
@@ -40,8 +40,8 @@ private fun List<Either<ExtSection, ExtSectionTable>>.toDbSections(submission: S
     return sections
 }
 
-private fun ExtSection.asSection(submission: Submission, sectionIndex: Int): Section {
-    val section = Section(accNo, type)
+private fun ExtSection.asSection(submission: Submission, sectionIndex: Int): DbSection {
+    val section = DbSection(accNo, type)
     section.submission = submission
     section.order = sectionIndex
     section.attributes = getAttributes(attributes)
@@ -49,4 +49,4 @@ private fun ExtSection.asSection(submission: Submission, sectionIndex: Int): Sec
 }
 
 private fun getAttributes(attributes: List<ExtAttribute>) =
-    attributes.mapIndexedTo(sortedSetOf()) { idx, attr -> SectionAttribute(attr.toDbAttribute(idx)) }
+    attributes.mapIndexedTo(sortedSetOf()) { idx, attr -> DbSectionAttribute(attr.toDbAttribute(idx)) }

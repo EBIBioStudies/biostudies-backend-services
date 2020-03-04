@@ -16,14 +16,14 @@ import javax.persistence.Table
 
 @Entity
 @Table(name = "FileRef")
-class File(
+class DbFile(
 
     @Column
     var name: String,
 
     @Column(name = "ord")
     override var order: Int
-) : Tabular, Comparable<File> {
+) : Tabular, Comparable<DbFile> {
 
     @Id
     @GeneratedValue
@@ -34,28 +34,33 @@ class File(
     @OneToMany(cascade = [CascadeType.ALL])
     @JoinColumn(name = "file_id")
     @OrderBy("order ASC")
-    var attributes: SortedSet<FileAttribute> = sortedSetOf()
+    var attributes: SortedSet<DbFileAttribute> = sortedSetOf()
+
+    @Column
+    var md5: String? = null
+
+    @Column
+    override var tableIndex = NO_TABLE_INDEX
 
     constructor(
         name: String,
         order: Int,
+        md5: String?,
         size: Long,
-        attributes: SortedSet<FileAttribute>,
+        attributes: SortedSet<DbFileAttribute>,
         tableIndex: Int = NO_TABLE_INDEX
     ) : this(name, order) {
+        this.md5 = md5
         this.size = size
         this.attributes = attributes
         this.tableIndex = tableIndex
     }
 
-    @Column
-    override var tableIndex = NO_TABLE_INDEX
-
-    override fun compareTo(other: File) =
-        Comparator.comparing(File::order).thenComparing(File::tableIndex).compare(this, other)
+    override fun compareTo(other: DbFile) =
+        Comparator.comparing(DbFile::order).thenComparing(DbFile::tableIndex).compare(this, other)
 
     override fun equals(other: Any?) = when {
-        other !is File -> false
+        other !is DbFile -> false
         this === other -> true
         else -> equals(id, other.id)
             .and(equals(name, other.name))

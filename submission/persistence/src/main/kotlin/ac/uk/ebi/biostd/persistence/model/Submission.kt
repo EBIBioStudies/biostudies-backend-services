@@ -27,7 +27,7 @@ import javax.persistence.OneToMany
 import javax.persistence.OneToOne
 import javax.persistence.OrderBy
 import javax.persistence.Table
-import ac.uk.ebi.biostd.persistence.model.Section as SectionDb
+import ac.uk.ebi.biostd.persistence.model.DbSection as SectionDb
 
 internal const val FULL_DATA_GRAPH = "Submission.fullData"
 internal const val SIMPLE_QUERY_GRAPH = "Submission.simpleGraph"
@@ -127,22 +127,22 @@ class Submission(
 
     @ManyToOne
     @JoinColumn(name = "owner_id")
-    lateinit var owner: User
+    lateinit var owner: DbUser
 
     @ManyToMany(cascade = [CascadeType.ALL])
     @JoinTable(name = "Submission_AccessTag",
         joinColumns = [JoinColumn(name = "Submission_Id", referencedColumnName = "id")],
         inverseJoinColumns = [JoinColumn(name = "accessTags_id", referencedColumnName = "id")])
-    var accessTags: MutableSet<AccessTag> = sortedSetOf()
+    var accessTags: MutableSet<DbAccessTag> = sortedSetOf()
 
     @ManyToMany(cascade = [CascadeType.ALL])
     @JoinTable(name = "Submission_ElementTag",
         joinColumns = [JoinColumn(name = "submission_Id", referencedColumnName = "id")],
         inverseJoinColumns = [JoinColumn(name = "tag_id", referencedColumnName = "id")])
-    var tags: MutableSet<Tag> = sortedSetOf()
+    var tags: MutableSet<DbTag> = sortedSetOf()
 
     @OneToMany(cascade = [CascadeType.ALL])
     @JoinColumn(name = "submission_id")
     @OrderBy("order ASC")
-    var attributes: SortedSet<SubmissionAttribute> = sortedSetOf()
+    var attributes: SortedSet<DbSubmissionAttribute> = sortedSetOf()
 }

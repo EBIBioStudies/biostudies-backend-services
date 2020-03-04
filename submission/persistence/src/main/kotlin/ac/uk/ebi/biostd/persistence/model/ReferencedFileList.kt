@@ -27,39 +27,41 @@ class ReferencedFileList(
     @JoinColumn(name = "fileListId")
     @OrderBy("order ASC")
     @Basic(fetch = FetchType.LAZY)
-    var files: SortedSet<ReferencedFile> = sortedSetOf()
+    var files: SortedSet<DbReferencedFile> = sortedSetOf()
 
-    constructor(name: String, files: SortedSet<ReferencedFile>) : this(name) {
+    constructor(name: String, files: SortedSet<DbReferencedFile>) : this(name) {
         this.files = files
     }
 }
 
 @Entity
 @Table(name = "ReferencedFile")
-class ReferencedFile(
+class DbReferencedFile(
     @Column
     val name: String,
 
     @Column(name = "ord")
     override var order: Int
 
-) : Sortable, Comparable<ReferencedFile> {
+) : Sortable, Comparable<DbReferencedFile> {
     @Id
     @GeneratedValue
     var id: Long = 0L
 
     var size: Long = 0L
 
+    var md5: String? = null
+
     @OneToMany(cascade = [CascadeType.ALL])
     @JoinColumn(name = "referenced_file_id")
     @OrderBy("order ASC")
-    var attributes: SortedSet<ReferencedFileAttribute> = sortedSetOf()
+    var attributes: SortedSet<DbReferencedFileAttribute> = sortedSetOf()
 
-    constructor(name: String, order: Int, size: Long, attributes: SortedSet<ReferencedFileAttribute>) :
+    constructor(name: String, order: Int, size: Long, attributes: SortedSet<DbReferencedFileAttribute>) :
         this(name, order) {
         this.size = size
         this.attributes = attributes
     }
 
-    override fun compareTo(other: ReferencedFile) = this.order.compareTo(other.order)
+    override fun compareTo(other: DbReferencedFile) = this.order.compareTo(other.order)
 }

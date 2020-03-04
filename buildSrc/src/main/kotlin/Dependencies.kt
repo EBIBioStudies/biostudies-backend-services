@@ -71,7 +71,7 @@ object Versions {
     const val WoodstoxVersion = "5.1.0"
     const val JacksonVersion = "2.9.8"
     const val LogbackVersion = "1.2.3"
-    const val GuavaVersion = "27.0.1-jre"
+    const val GuavaVersion = "28.2-jre"
     const val JwtVersion = "0.9.1"
     const val H2Version = "1.4.197"
     const val ServletVersion = "4.0.1"

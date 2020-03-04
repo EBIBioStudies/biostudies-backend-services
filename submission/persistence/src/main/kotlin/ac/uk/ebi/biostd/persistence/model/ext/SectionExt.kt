@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.persistence.model.ext
 
 import ac.uk.ebi.biostd.persistence.common.NO_TABLE_INDEX
-import ac.uk.ebi.biostd.persistence.model.Section
+import ac.uk.ebi.biostd.persistence.model.DbSection
 
-internal fun Section.isTableElement() = tableIndex != NO_TABLE_INDEX
+internal fun DbSection.isTableElement() = tableIndex != NO_TABLE_INDEX

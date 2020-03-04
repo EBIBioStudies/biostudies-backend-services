@@ -9,7 +9,7 @@ import javax.persistence.Table
 
 @Entity
 @Table(name = "AccessTag")
-class AccessTag(
+class DbAccessTag(
     @Id
     @GeneratedValue
     var id: Long = 0L,
@@ -19,7 +19,7 @@ class AccessTag(
 ) {
 
     override fun equals(other: Any?): Boolean {
-        if (other !is AccessTag) return false
+        if (other !is DbAccessTag) return false
         if (this === other) return true
 
         return Objects.equals(this.name, other.name)

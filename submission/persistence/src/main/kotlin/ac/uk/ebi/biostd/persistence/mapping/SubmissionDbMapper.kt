@@ -8,9 +8,9 @@ import ac.uk.ebi.biostd.persistence.mapping.DbEitherMapper.toLinks
 import ac.uk.ebi.biostd.persistence.mapping.DbEitherMapper.toSections
 import ac.uk.ebi.biostd.persistence.mapping.DbEntityMapper.toFileList
 import ac.uk.ebi.biostd.persistence.mapping.DbEntityMapper.toUser
-import ac.uk.ebi.biostd.persistence.model.AccessTag
+import ac.uk.ebi.biostd.persistence.model.DbAccessTag
+import ac.uk.ebi.biostd.persistence.model.DbTag
 import ac.uk.ebi.biostd.persistence.model.Tabular
-import ac.uk.ebi.biostd.persistence.model.Tag
 import arrow.core.Either
 import arrow.core.Either.Companion.left
 import arrow.core.Either.Companion.right
@@ -31,15 +31,15 @@ import ebi.ac.uk.model.User
 import ebi.ac.uk.model.constants.SubFields
 import ebi.ac.uk.model.constants.SubFields.RELEASE_DATE
 import ebi.ac.uk.model.constants.SubFields.TITLE
-import ac.uk.ebi.biostd.persistence.model.Attribute as AttributeDb
 import ac.uk.ebi.biostd.persistence.model.AttributeDetail as AttributeDetailDb
-import ac.uk.ebi.biostd.persistence.model.File as FileDb
-import ac.uk.ebi.biostd.persistence.model.Link as LinkDb
-import ac.uk.ebi.biostd.persistence.model.ReferencedFile as ReferencedFileDb
+import ac.uk.ebi.biostd.persistence.model.DbAttribute as AttributeDb
+import ac.uk.ebi.biostd.persistence.model.DbFile as FileDb
+import ac.uk.ebi.biostd.persistence.model.DbLink as LinkDb
+import ac.uk.ebi.biostd.persistence.model.DbReferencedFile as ReferencedFileDb
+import ac.uk.ebi.biostd.persistence.model.DbSection as SectionDb
+import ac.uk.ebi.biostd.persistence.model.DbUser as UserDb
 import ac.uk.ebi.biostd.persistence.model.ReferencedFileList as FileListDb
-import ac.uk.ebi.biostd.persistence.model.Section as SectionDb
 import ac.uk.ebi.biostd.persistence.model.Submission as SubmissionDb
-import ac.uk.ebi.biostd.persistence.model.User as UserDb
 
 class SubmissionDbMapper {
     private val sectionMapper = DbSectionMapper()
@@ -58,7 +58,7 @@ class SubmissionDbMapper {
             processingStatus = submissionDb.status
             extendedSection = sectionMapper.toExtendedSection(submissionDb.rootSection)
             attributes = getAttributes(submissionDb)
-            accessTags = submissionDb.accessTags.mapTo(mutableListOf(), AccessTag::name)
+            accessTags = submissionDb.accessTags.mapTo(mutableListOf(), DbAccessTag::name)
             tags = submissionDb.tags.mapTo(mutableListOf(), ::toTag)
         }
 
@@ -74,7 +74,7 @@ class SubmissionDbMapper {
             accNo = submissionDb.accNo,
             attributes = getSubAttributes(submissionDb))
             .apply {
-                accessTags = submissionDb.accessTags.mapTo(mutableListOf(), AccessTag::name)
+                accessTags = submissionDb.accessTags.mapTo(mutableListOf(), DbAccessTag::name)
                 section = sectionMapper.toSection(submissionDb.rootSection)
             }
 
@@ -85,7 +85,7 @@ class SubmissionDbMapper {
         }
     }
 
-    private fun toTag(tag: Tag) = Pair(tag.classifier, tag.name)
+    private fun toTag(tag: DbTag) = Pair(tag.classifier, tag.name)
 }
 
 private class DbSectionMapper {

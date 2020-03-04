@@ -11,7 +11,7 @@ import ac.uk.ebi.biostd.persistence.mapping.extended.to.test.linkDb
 import ac.uk.ebi.biostd.persistence.mapping.extended.to.test.refFileListDb
 import ac.uk.ebi.biostd.persistence.mapping.extended.to.test.sectAttributeDb
 import ac.uk.ebi.biostd.persistence.mapping.extended.to.test.sectionDb
-import ac.uk.ebi.biostd.persistence.model.Section
+import ac.uk.ebi.biostd.persistence.model.DbSection
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.io.sources.FilesSource
 import io.github.glytching.junit.extension.folder.TemporaryFolder
@@ -29,7 +29,7 @@ class ToExtSectionTest(@MockK val filesSource: FilesSource, tempFolder: Temporar
     private val systemFile2 = tempFolder.createFile(FILE_REF_NAME)
     private val systemFile3 = tempFolder.createFile(FILE_LIST_NAME)
 
-    private val section = Section(type = "type", accNo = "accNo")
+    private val section = DbSection(type = "type", accNo = "accNo")
         .also {
             it.fileList = refFileListDb
             it.attributes = sortedSetOf(sectAttributeDb)

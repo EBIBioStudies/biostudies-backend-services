@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.persistence.test
 
-import ac.uk.ebi.biostd.persistence.model.Link
+import ac.uk.ebi.biostd.persistence.model.DbLink
 import arrow.core.Either.Companion.left
 import arrow.core.Either.Companion.right
 import ebi.ac.uk.extended.model.ExtLinkTable
@@ -13,7 +13,7 @@ internal val extLinkTable
 internal val extLinks
     get() = listOf(right(extLinkTable), left(extTestLink), right(extLinkTable))
 
-internal fun assertDbLinks(links: SortedSet<Link>) {
+internal fun assertDbLinks(links: SortedSet<DbLink>) {
     val linkList = links.toList()
     assertThat(linkList).hasSize(5)
 

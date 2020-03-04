@@ -1,15 +1,15 @@
 package ac.uk.ebi.biostd.persistence.repositories
 
 import ac.uk.ebi.biostd.persistence.model.AccessPermission
-import ac.uk.ebi.biostd.persistence.model.AccessTag
 import ac.uk.ebi.biostd.persistence.model.AccessType
+import ac.uk.ebi.biostd.persistence.model.DbAccessTag
+import ac.uk.ebi.biostd.persistence.model.DbTag
+import ac.uk.ebi.biostd.persistence.model.DbUser
+import ac.uk.ebi.biostd.persistence.model.DbUserData
 import ac.uk.ebi.biostd.persistence.model.FULL_DATA_GRAPH
 import ac.uk.ebi.biostd.persistence.model.SecurityToken
 import ac.uk.ebi.biostd.persistence.model.Sequence
 import ac.uk.ebi.biostd.persistence.model.Submission
-import ac.uk.ebi.biostd.persistence.model.Tag
-import ac.uk.ebi.biostd.persistence.model.User
-import ac.uk.ebi.biostd.persistence.model.UserData
 import ac.uk.ebi.biostd.persistence.model.UserDataId
 import ac.uk.ebi.biostd.persistence.model.UserGroup
 import com.cosium.spring.data.jpa.entity.graph.repository.EntityGraphJpaRepository
@@ -52,13 +52,13 @@ interface SubmissionDataRepository :
     ): List<Submission>
 }
 
-interface AccessTagDataRepo : JpaRepository<AccessTag, Long> {
-    fun findByName(name: String): AccessTag
+interface AccessTagDataRepo : JpaRepository<DbAccessTag, Long> {
+    fun findByName(name: String): DbAccessTag
     fun existsByName(name: String): Boolean
 }
 
-interface TagDataRepository : JpaRepository<Tag, Long> {
-    fun findByClassifierAndName(classifier: String, name: String): Tag
+interface TagDataRepository : JpaRepository<DbTag, Long> {
+    fun findByClassifierAndName(classifier: String, name: String): DbTag
 }
 
 interface SequenceDataRepository : JpaRepository<Sequence, Long> {
@@ -68,13 +68,13 @@ interface SequenceDataRepository : JpaRepository<Sequence, Long> {
     fun existsByPrefix(prefix: String): Boolean
 }
 
-interface UserDataRepository : JpaRepository<User, Long> {
-    fun findByLoginOrEmailAndActive(login: String, email: String, active: Boolean): Optional<User>
-    fun getByEmail(userEmail: String): User
+interface UserDataRepository : JpaRepository<DbUser, Long> {
+    fun findByLoginOrEmailAndActive(login: String, email: String, active: Boolean): Optional<DbUser>
+    fun getByEmail(userEmail: String): DbUser
     fun existsByEmail(email: String): Boolean
-    fun findByActivationKeyAndActive(key: String, active: Boolean): Optional<User>
-    fun findByEmailAndActive(email: String, active: Boolean): Optional<User>
-    fun findByEmail(email: String): Optional<User>
+    fun findByActivationKeyAndActive(key: String, active: Boolean): Optional<DbUser>
+    fun findByEmailAndActive(email: String, active: Boolean): Optional<DbUser>
+    fun findByEmail(email: String): Optional<DbUser>
 }
 
 interface TokenDataRepository : JpaRepository<SecurityToken, String>
@@ -89,8 +89,8 @@ interface AccessPermissionRepository : JpaRepository<AccessPermission, Long> {
     fun existsByUserEmailAndAccessTypeAndAccessTagName(user: String, type: AccessType, accessTag: String): Boolean
 }
 
-interface UserDataDataRepository : JpaRepository<UserData, UserDataId> {
-    fun findByUserIdAndKeyIgnoreCaseContaining(userId: Long, dataKey: String): List<UserData>
+interface UserDataDataRepository : JpaRepository<DbUserData, UserDataId> {
+    fun findByUserIdAndKeyIgnoreCaseContaining(userId: Long, dataKey: String): List<DbUserData>
 
-    fun findByUserId(userId: Long, pageRequest: Pageable): List<UserData>
+    fun findByUserId(userId: Long, pageRequest: Pageable): List<DbUserData>
 }

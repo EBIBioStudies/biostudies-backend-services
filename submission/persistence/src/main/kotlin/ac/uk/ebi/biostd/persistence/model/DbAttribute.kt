@@ -10,8 +10,8 @@ import javax.persistence.Id
 import javax.persistence.MappedSuperclass
 
 @Entity
-class SectionAttribute(attribute: Attribute) :
-    Attribute(attribute.name, attribute.value, attribute.order, attribute.reference) {
+class DbSectionAttribute(attribute: DbAttribute) :
+    DbAttribute(attribute.name, attribute.value, attribute.order, attribute.reference) {
     init {
         this.nameQualifier = attribute.nameQualifier
         this.valueQualifier = attribute.valueQualifier
@@ -19,8 +19,8 @@ class SectionAttribute(attribute: Attribute) :
 }
 
 @Entity
-class LinkAttribute(attribute: Attribute) :
-    Attribute(attribute.name, attribute.value, attribute.order, attribute.reference) {
+class DbLinkAttribute(attribute: DbAttribute) :
+    DbAttribute(attribute.name, attribute.value, attribute.order, attribute.reference) {
     init {
         this.nameQualifier = attribute.nameQualifier
         this.valueQualifier = attribute.valueQualifier
@@ -28,8 +28,8 @@ class LinkAttribute(attribute: Attribute) :
 }
 
 @Entity
-class FileAttribute(attribute: Attribute) :
-    Attribute(attribute.name, attribute.value, attribute.order, attribute.reference) {
+class DbFileAttribute(attribute: DbAttribute) :
+    DbAttribute(attribute.name, attribute.value, attribute.order, attribute.reference) {
     init {
         this.nameQualifier = attribute.nameQualifier
         this.valueQualifier = attribute.valueQualifier
@@ -37,8 +37,8 @@ class FileAttribute(attribute: Attribute) :
 }
 
 @Entity
-class ReferencedFileAttribute(attribute: Attribute) :
-    Attribute(attribute.name, attribute.value, attribute.order, attribute.reference) {
+class DbReferencedFileAttribute(attribute: DbAttribute) :
+    DbAttribute(attribute.name, attribute.value, attribute.order, attribute.reference) {
     init {
         this.nameQualifier = attribute.nameQualifier
         this.valueQualifier = attribute.valueQualifier
@@ -46,8 +46,8 @@ class ReferencedFileAttribute(attribute: Attribute) :
 }
 
 @Entity
-class SubmissionAttribute(attribute: Attribute) :
-    Attribute(attribute.name, attribute.value, attribute.order, attribute.reference) {
+class DbSubmissionAttribute(attribute: DbAttribute) :
+    DbAttribute(attribute.name, attribute.value, attribute.order, attribute.reference) {
     init {
         this.nameQualifier = attribute.nameQualifier
         this.valueQualifier = attribute.valueQualifier
@@ -56,10 +56,8 @@ class SubmissionAttribute(attribute: Attribute) :
 
 data class AttributeDetail(val name: String, val value: String)
 
-typealias Details = MutableList<AttributeDetail>
-
 @MappedSuperclass
-open class Attribute(
+open class DbAttribute(
 
     @Column
     val name: String,
@@ -69,9 +67,9 @@ open class Attribute(
 
     @Column(name = "ord")
     val order: Int
-) : Comparable<Attribute> {
+) : Comparable<DbAttribute> {
 
-    override fun compareTo(other: Attribute) = order.compareTo(other.order)
+    override fun compareTo(other: DbAttribute) = order.compareTo(other.order)
 
     constructor(name: String, value: String, order: Int, reference: Boolean) : this(name, value, order) {
         this.reference = reference
@@ -106,7 +104,7 @@ open class Attribute(
     var valueQualifier: MutableList<AttributeDetail> = mutableListOf()
 
     override fun equals(other: Any?): Boolean {
-        if (other !is Attribute) return false
+        if (other !is DbAttribute) return false
         if (this === other) return true
 
         return Objects.equals(this.name, other.name)

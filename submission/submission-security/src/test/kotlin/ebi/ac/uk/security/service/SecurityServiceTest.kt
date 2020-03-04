@@ -1,6 +1,6 @@
 package ebi.ac.uk.security.service
 
-import ac.uk.ebi.biostd.persistence.model.User
+import ac.uk.ebi.biostd.persistence.model.DbUser
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ebi.ac.uk.api.security.ChangePasswordRequest
 import ebi.ac.uk.api.security.LoginRequest
@@ -18,6 +18,7 @@ import ebi.ac.uk.security.integration.model.events.UserRegister
 import ebi.ac.uk.security.test.SecurityTestEntities
 import ebi.ac.uk.security.test.SecurityTestEntities.Companion.email
 import ebi.ac.uk.security.test.SecurityTestEntities.Companion.instanceKey
+import ebi.ac.uk.security.test.SecurityTestEntities.Companion.name
 import ebi.ac.uk.security.test.SecurityTestEntities.Companion.password
 import ebi.ac.uk.security.test.SecurityTestEntities.Companion.passwordDiggest
 import ebi.ac.uk.security.test.SecurityTestEntities.Companion.path
@@ -26,7 +27,6 @@ import ebi.ac.uk.security.test.SecurityTestEntities.Companion.resetPasswordReque
 import ebi.ac.uk.security.test.SecurityTestEntities.Companion.retryActivation
 import ebi.ac.uk.security.test.SecurityTestEntities.Companion.securityUser
 import ebi.ac.uk.security.test.SecurityTestEntities.Companion.simpleUser
-import ebi.ac.uk.security.test.SecurityTestEntities.Companion.name
 import ebi.ac.uk.security.util.SecurityUtil
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -92,7 +92,7 @@ internal class SecurityServiceTest(
         @BeforeEach
         fun beforeEach() {
             every { userRepository.existsByEmail(email) } returns false
-            every { userRepository.save(any<User>()) } answers { firstArg() }
+            every { userRepository.save(any<DbUser>()) } answers { firstArg() }
             every { securityUtil.getPasswordDigest(password) } returns PASSWORD_DIGGEST
             every { profileService.asSecurityUser(any()) } returns securityUser
         }
@@ -161,7 +161,7 @@ internal class SecurityServiceTest(
         fun `activate when user is found`() {
             val user = simpleUser
             every { userRepository.findByActivationKeyAndActive(ACTIVATION_KEY, false) } returns Optional.of(user)
-            every { userRepository.save(any<User>()) } answers { firstArg() }
+            every { userRepository.save(any<DbUser>()) } answers { firstArg() }
 
             testInstance.activate(ACTIVATION_KEY)
 
@@ -187,7 +187,7 @@ internal class SecurityServiceTest(
             every { userRepository.findByEmailAndActive(email, false) } returns Optional.of(user)
             every { securityUtil.newKey() } returns ACTIVATION_KEY
             every { securityUtil.getActivationUrl(instanceKey, path, ACTIVATION_KEY) } returns activationUrl
-            every { userRepository.save(any<User>()) } answers { firstArg() }
+            every { userRepository.save(any<DbUser>()) } answers { firstArg() }
             every { profileService.asSecurityUser(any()) } returns securityUser
 
             val subscriber = TestObserver<UserRegister>()
@@ -219,7 +219,7 @@ internal class SecurityServiceTest(
             val passwordDiggest = ByteArray(0)
             every { userRepository.findByActivationKeyAndActive(ACTIVATION_KEY, true) } returns Optional.of(simpleUser)
             every { securityUtil.getPasswordDigest(password) } returns passwordDiggest
-            every { userRepository.save(any<User>()) } answers { firstArg() }
+            every { userRepository.save(any<DbUser>()) } answers { firstArg() }
 
             testInstance.changePassword(ChangePasswordRequest(ACTIVATION_KEY, "new password"))
 
@@ -243,7 +243,7 @@ internal class SecurityServiceTest(
 
             every { userRepository.findByLoginOrEmailAndActive(email, email, true) } returns Optional.of(simpleUser)
             every { securityUtil.newKey() } returns ACTIVATION_KEY
-            every { userRepository.save(any<User>()) } answers { firstArg() }
+            every { userRepository.save(any<DbUser>()) } answers { firstArg() }
             every { securityUtil.getActivationUrl(instanceKey, path, ACTIVATION_KEY) } returns activationUrl
 
             val subscriber = TestObserver<PasswordReset>()

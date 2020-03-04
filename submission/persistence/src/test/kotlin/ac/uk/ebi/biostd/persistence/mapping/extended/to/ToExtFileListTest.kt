@@ -2,7 +2,7 @@ package ac.uk.ebi.biostd.persistence.mapping.extended.to
 
 import ac.uk.ebi.biostd.persistence.mapping.extended.to.test.assertExtFile
 import ac.uk.ebi.biostd.persistence.mapping.extended.to.test.refRileDb
-import ac.uk.ebi.biostd.persistence.model.ReferencedFile
+import ac.uk.ebi.biostd.persistence.model.DbReferencedFile
 import ac.uk.ebi.biostd.persistence.model.ReferencedFileList
 import ebi.ac.uk.io.sources.FilesSource
 import io.mockk.every
@@ -20,7 +20,7 @@ internal class ToExtFileListTest(
     @MockK val anotherSystemFile: SystemFile
 ) {
 
-    private var file: ReferencedFile = refRileDb
+    private var file: DbReferencedFile = refRileDb
     private val fileList = ReferencedFileList("fileList", sortedSetOf(file))
 
     @Test

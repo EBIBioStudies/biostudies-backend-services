@@ -1,14 +1,15 @@
 package ac.uk.ebi.biostd.submission.submitter
 
 import ac.uk.ebi.biostd.persistence.integration.PersistenceContext
+import ac.uk.ebi.biostd.persistence.integration.SubmissionQueryService
 import ac.uk.ebi.biostd.submission.exceptions.InvalidSubmissionException
 import ac.uk.ebi.biostd.submission.model.SubmissionRequest
 import ac.uk.ebi.biostd.submission.service.AccNoService
 import ac.uk.ebi.biostd.submission.service.AccNoServiceRequest
 import ac.uk.ebi.biostd.submission.service.ParentInfoService
+import ac.uk.ebi.biostd.submission.service.ProjectInfoService
 import ac.uk.ebi.biostd.submission.service.ProjectRequest
 import ac.uk.ebi.biostd.submission.service.ProjectResponse
-import ac.uk.ebi.biostd.submission.service.ProjectInfoService
 import ac.uk.ebi.biostd.submission.service.TimesRequest
 import ac.uk.ebi.biostd.submission.service.TimesService
 import ebi.ac.uk.base.orFalse
@@ -41,7 +42,8 @@ open class SubmissionSubmitter(
     private val accNoService: AccNoService,
     private val parentInfoService: ParentInfoService,
     private val projectInfoService: ProjectInfoService,
-    private val context: PersistenceContext
+    private val context: PersistenceContext,
+    private val queryService: SubmissionQueryService
 ) {
     @Transactional(isolation = Isolation.READ_UNCOMMITTED)
     open fun submit(request: SubmissionRequest): Submission {
@@ -118,5 +120,5 @@ open class SubmissionSubmitter(
         timesService.getTimes(TimesRequest(sub.accNo, sub.releaseDate, parentReleaseTime))
 
     private fun getSecret(accString: String) =
-        if (context.isNew(accString)) UUID.randomUUID().toString() else context.getSecret(accString)
+        if (queryService.isNew(accString)) UUID.randomUUID().toString() else queryService.getSecret(accString)
 }
