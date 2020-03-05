@@ -37,7 +37,7 @@ class AccNoService(
                 if (privilegesService.canResubmit(submitter, accNo).not())
                     throw UserCanNotUpdateSubmit(accNo, submitter)
 
-                return AccNumber(accNo)
+                return patternUtil.toAccNumber(accNo)
             }
         }
     }
