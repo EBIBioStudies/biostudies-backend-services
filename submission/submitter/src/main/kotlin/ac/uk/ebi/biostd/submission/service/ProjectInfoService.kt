@@ -7,6 +7,7 @@ import ac.uk.ebi.biostd.submission.exceptions.UserCanNotSubmitProjectsException
 import ac.uk.ebi.biostd.submission.util.AccNoPatternUtil
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 
+internal const val PROJECT_TYPE = "Project"
 internal const val ACC_NO_TEMPLATE_REQUIRED = "The project accession number pattern is required"
 internal const val ACC_NO_TEMPLATE_INVALID = "The given template is invalid. Expected pattern is !{TEMPLATE}"
 
@@ -17,7 +18,7 @@ class ProjectInfoService(
 ) {
     @Suppress("ThrowsCount")
     fun process(request: ProjectRequest): ProjectResponse? {
-        if (request.subType != "Project") return null
+        if (request.subType != PROJECT_TYPE) return null
 
         val submitter = request.submitter
         val template = request.accNoTemplate

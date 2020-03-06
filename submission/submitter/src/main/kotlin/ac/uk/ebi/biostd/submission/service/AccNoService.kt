@@ -1,10 +1,12 @@
 package ac.uk.ebi.biostd.submission.service
 
 import ac.uk.ebi.biostd.persistence.integration.PersistenceContext
+import ac.uk.ebi.biostd.submission.exceptions.InvalidProjectAccNoException
 import ac.uk.ebi.biostd.submission.exceptions.ProvideAccessNumber
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotSubmitProjectsException
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotUpdateSubmit
 import ac.uk.ebi.biostd.submission.util.AccNoPatternUtil
+import ebi.ac.uk.base.isNotBlank
 import ebi.ac.uk.base.lastDigits
 import ebi.ac.uk.model.AccNumber
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
@@ -17,18 +19,22 @@ class AccNoService(
     private val patternUtil: AccNoPatternUtil,
     private val privilegesService: IUserPrivilegesService
 ) {
-    @Suppress("ThrowsCount")
+    @Suppress("ThrowsCount", "ReturnCount")
     fun getAccNo(request: AccNoServiceRequest): AccNumber {
-        val (submitter, accNo, project, projectPattern) = request
+        val (type, submitter, accNo, project, projectPattern) = request
 
         when {
+            type == PROJECT_TYPE -> {
+                require(accNo.isNotBlank()) { throw InvalidProjectAccNoException() }
+                return AccNumber(accNo!!)
+            }
             accNo == null || context.isNew(accNo) -> {
                 if (accNo != null && privilegesService.canProvideAccNo(submitter).not())
                     throw ProvideAccessNumber(submitter)
                 if (project != null && privilegesService.canSubmitToProject(submitter, project).not())
                     throw UserCanNotSubmitProjectsException(submitter)
 
-                return accNo?.let { AccNumber(accNo) } ?: calculateAccNo(getPatternOrDefault(projectPattern))
+                return accNo?.let { patternUtil.toAccNumber(it) } ?: calculateAccNo(getPatternOrDefault(projectPattern))
             }
             else -> {
                 if (project != null && privilegesService.canSubmitToProject(submitter, project).not())
@@ -66,6 +72,7 @@ class AccNoService(
 }
 
 data class AccNoServiceRequest(
+    val type: String,
     val submitter: String,
     val accNo: String? = null,
     val project: String? = null,

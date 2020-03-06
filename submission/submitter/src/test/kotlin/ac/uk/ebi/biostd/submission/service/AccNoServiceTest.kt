@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.submission.service
 
 import ac.uk.ebi.biostd.persistence.integration.PersistenceContext
+import ac.uk.ebi.biostd.submission.exceptions.InvalidProjectAccNoException
 import ac.uk.ebi.biostd.submission.exceptions.ProvideAccessNumber
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotSubmitProjectsException
 import ac.uk.ebi.biostd.submission.util.AccNoPatternUtil
@@ -22,13 +23,16 @@ private const val SUB_ACC_NO = "AAB12"
 private const val SUBMITTER = "submiter@email.com"
 private const val PROJECT = "CC123"
 private const val PROJECT_PATTERN = "!{ABC-}"
+private const val PROJECT_TYPE = "Project"
+private const val STUDY_TYPE = "Study"
 
 @ExtendWith(MockKExtension::class)
 class AccNoServiceTest(
-    @MockK private val accNoPatternUtil: AccNoPatternUtil,
     @MockK private val context: PersistenceContext,
+    @MockK private val accNoPatternUtil: AccNoPatternUtil,
     @MockK private val privilegesService: IUserPrivilegesService
 ) {
+    private val accNo = AccNumber("AAB", 12L)
     private val testInstance = AccNoService(context, accNoPatternUtil, privilegesService)
 
     @ParameterizedTest(name = "prefix is {0} and numeric value is {1}")
@@ -41,11 +45,27 @@ class AccNoServiceTest(
     }
 
     @Nested
-    inner class WhenIsNew {
+    inner class WhenIsProject {
+        @Test
+        fun `project with valid accNo`() {
+            assertThat(testInstance.getAccNo(
+                AccNoServiceRequest(PROJECT_TYPE, SUBMITTER, SUB_ACC_NO))).isEqualTo(AccNumber(SUB_ACC_NO))
+        }
 
+        @Test
+        fun `project with invalid accNo`() {
+            assertThrows<InvalidProjectAccNoException> {
+                testInstance.getAccNo(AccNoServiceRequest(PROJECT_TYPE, SUBMITTER))
+            }
+        }
+    }
+
+    @Nested
+    inner class WhenIsNew {
         @BeforeEach
         fun beforeEach() {
             every { context.isNew(SUB_ACC_NO) } returns true
+            every { accNoPatternUtil.toAccNumber(SUB_ACC_NO) } returns accNo
         }
 
         @Test
@@ -53,7 +73,7 @@ class AccNoServiceTest(
             every { privilegesService.canProvideAccNo(SUBMITTER) } returns false
 
             assertThrows<ProvideAccessNumber> {
-                testInstance.getAccNo(AccNoServiceRequest(SUBMITTER, SUB_ACC_NO))
+                testInstance.getAccNo(AccNoServiceRequest(STUDY_TYPE, SUBMITTER, SUB_ACC_NO))
             }
         }
 
@@ -62,19 +82,19 @@ class AccNoServiceTest(
             every { privilegesService.canSubmitToProject(SUBMITTER, PROJECT) } returns false
 
             assertThrows<UserCanNotSubmitProjectsException> {
-                testInstance.getAccNo(AccNoServiceRequest(submitter = SUBMITTER, project = PROJECT))
+                testInstance.getAccNo(AccNoServiceRequest(type = STUDY_TYPE, submitter = SUBMITTER, project = PROJECT))
             }
         }
 
         @Nested
         inner class WhenAccNo {
-
             @Test
             fun whenNoProject() {
                 every { privilegesService.canProvideAccNo(SUBMITTER) } returns true
 
-                assertThat(testInstance.getAccNo(AccNoServiceRequest(submitter = SUBMITTER, accNo = SUB_ACC_NO)))
-                    .isEqualTo(AccNumber(SUB_ACC_NO))
+                assertThat(testInstance.getAccNo(
+                    AccNoServiceRequest(type = STUDY_TYPE, submitter = SUBMITTER, accNo = SUB_ACC_NO)))
+                    .isEqualTo(accNo)
             }
 
             @Test
@@ -83,8 +103,12 @@ class AccNoServiceTest(
                 every { privilegesService.canSubmitToProject(SUBMITTER, PROJECT) } returns true
 
                 assertThat(testInstance.getAccNo(
-                    AccNoServiceRequest(submitter = SUBMITTER, accNo = SUB_ACC_NO, project = PROJECT)))
-                    .isEqualTo(AccNumber(SUB_ACC_NO))
+                    AccNoServiceRequest(
+                        type = STUDY_TYPE,
+                        submitter = SUBMITTER,
+                        accNo = SUB_ACC_NO,
+                        project = PROJECT)))
+                    .isEqualTo(accNo)
             }
         }
 
@@ -99,6 +123,7 @@ class AccNoServiceTest(
                 every { context.getSequenceNextValue(projectSequence) } returns 10
 
                 assertThat(testInstance.getAccNo(AccNoServiceRequest(
+                    type = STUDY_TYPE,
                     submitter = SUBMITTER,
                     project = PROJECT,
                     projectPattern = PROJECT_PATTERN)))
@@ -115,6 +140,7 @@ class AccNoServiceTest(
                 every { context.getSequenceNextValue(defaultSequence) } returns 99
 
                 assertThat(testInstance.getAccNo(AccNoServiceRequest(
+                    type = STUDY_TYPE,
                     submitter = SUBMITTER,
                     project = PROJECT)))
                     .isEqualTo(AccNumber("default-", 99))
@@ -124,7 +150,6 @@ class AccNoServiceTest(
 
     @Nested
     inner class WhenIsNotNew {
-
         @BeforeEach
         fun beforeEach() {
             every { context.isNew(SUB_ACC_NO) } returns false
@@ -135,7 +160,7 @@ class AccNoServiceTest(
             every { privilegesService.canSubmitToProject(SUBMITTER, PROJECT) } returns false
 
             assertThrows<UserCanNotSubmitProjectsException> {
-                testInstance.getAccNo(AccNoServiceRequest(submitter = SUBMITTER, accNo = SUB_ACC_NO, project = PROJECT))
+                testInstance.getAccNo(AccNoServiceRequest(type = STUDY_TYPE, submitter = SUBMITTER, accNo = SUB_ACC_NO, project = PROJECT))
             }
         }
 
@@ -144,7 +169,7 @@ class AccNoServiceTest(
             every { privilegesService.canSubmitToProject(SUBMITTER, PROJECT) } returns false
 
             assertThrows<UserCanNotSubmitProjectsException> {
-                testInstance.getAccNo(AccNoServiceRequest(submitter = SUBMITTER, accNo = SUB_ACC_NO, project = PROJECT))
+                testInstance.getAccNo(AccNoServiceRequest(type = STUDY_TYPE, submitter = SUBMITTER, accNo = SUB_ACC_NO, project = PROJECT))
             }
         }
     }

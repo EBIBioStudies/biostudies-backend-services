@@ -69,7 +69,7 @@ open class SubmissionSubmitter(
         val (parentTags, parentReleaseTime, parentPattern) = parentInfoService.getParentInfo(submission.attachTo)
         val (createTime, modTime, releaseTime) = getTimes(submission, parentReleaseTime)
         val released = releaseTime?.isBeforeOrEqual(OffsetDateTime.now()).orFalse()
-        val accNo = getAccNumber(submission, user, parentPattern)
+        val accNo = getAccNumber(submission.section.type, submission, user, parentPattern)
         val accNoString = accNo.toString()
         val projectInfo = getProjectInfo(user, submission, accNoString)
         val secretKey = getSecret(accNoString)
@@ -111,8 +111,9 @@ open class SubmissionSubmitter(
         .filter { it.name != SubFields.RELEASE_DATE.value }
         .map { it.toExtAttribute() }
 
-    private fun getAccNumber(sub: Submission, user: User, parentPattern: String?) =
-        accNoService.getAccNo(AccNoServiceRequest(user.email, sub.accNo.ifBlank { null }, sub.attachTo, parentPattern))
+    private fun getAccNumber(type: String, sub: Submission, user: User, parentPattern: String?) =
+        accNoService.getAccNo(
+            AccNoServiceRequest(type, user.email, sub.accNo.ifBlank { null }, sub.attachTo, parentPattern))
 
     private fun getTimes(sub: Submission, parentReleaseTime: OffsetDateTime?) =
         timesService.getTimes(TimesRequest(sub.accNo, sub.releaseDate, parentReleaseTime))
