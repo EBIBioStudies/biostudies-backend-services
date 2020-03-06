@@ -10,6 +10,7 @@ import ebi.ac.uk.extended.model.allFiles
 import ebi.ac.uk.extended.model.allReferencedFiles
 import ebi.ac.uk.paths.SubmissionFolderResolver
 import org.apache.commons.io.FileUtils
+import java.io.File
 
 class FilePersistenceService(
     private val folderResolver: SubmissionFolderResolver,
@@ -37,7 +38,11 @@ class FilePersistenceService(
         }
     }
 
-    private fun <T> generateOutputFiles(element: T, submission: ExtSubmission, outputFileName: String) {
+    private fun smartCopy(source: File, target: File) {
+        
+    }
+
+    fun <T> generateOutputFiles(element: T, submission: ExtSubmission, outputFileName: String) {
         val json = serializationService.serializeElement(element, SubFormat.JSON_PRETTY)
         val xml = serializationService.serializeElement(element, SubFormat.XML)
         val tsv = serializationService.serializeElement(element, SubFormat.TSV)
