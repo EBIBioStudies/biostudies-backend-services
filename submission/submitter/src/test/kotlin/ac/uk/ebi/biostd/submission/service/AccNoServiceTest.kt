@@ -68,6 +68,10 @@ class AccNoServiceTest(
 
         @Nested
         inner class WhenAccNo {
+            @BeforeEach
+            fun beforeEach() {
+                every { accNoPatternUtil.toAccNumber(SUB_ACC_NO) } returns AccNumber(SUB_ACC_NO)
+            }
 
             @Test
             fun whenNoProject() {
