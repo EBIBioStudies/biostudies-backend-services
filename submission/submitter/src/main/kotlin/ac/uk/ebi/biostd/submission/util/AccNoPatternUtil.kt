@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.submission.util
 
-import ac.uk.ebi.biostd.submission.exceptions.InvalidAccNoPattern
 import ac.uk.ebi.biostd.submission.exceptions.InvalidPatternException
 import arrow.core.getOrElse
 import ebi.ac.uk.model.AccNumber
@@ -32,7 +31,7 @@ class AccNoPatternUtil {
         extractionPattern
             .match(accNo)
             .map(::asAccNumber)
-            .getOrElse { throw InvalidAccNoPattern(accNo, extractionPattern) }
+            .getOrElse { AccNumber((accNo)) }
 
     private fun asAccNumber(it: Matcher) = AccNumber(it.firstGroup(), it.secondGroup().toLong())
 

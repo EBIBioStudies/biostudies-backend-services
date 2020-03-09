@@ -1,7 +1,6 @@
 package ac.uk.ebi.biostd.submission.util
 
 import ac.uk.ebi.biostd.persistence.integration.PersistenceContext
-import ac.uk.ebi.biostd.submission.exceptions.InvalidAccNoPattern
 import ac.uk.ebi.biostd.submission.exceptions.InvalidPatternException
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -51,10 +50,10 @@ class AccNoPatternUtilTest(@MockK private val context: PersistenceContext) {
     }
 
     @Test
-    fun `extract invalid pattern`() {
-        val error = assertThrows<InvalidAccNoPattern> { testInstance.toAccNumber("!A") }
+    fun `extract any accession number`() {
+        val accNo = testInstance.toAccNumber("ARandomPattern")
 
-        assertThat(error.message).isEqualTo(
-            "Invalid accession number '!A', number should match the pattern (\\D*)([0-9]+)(\\D*)")
+        assertThat(accNo.prefix).isEqualTo("ARandomPattern")
+        assertThat(accNo.numericValue).isNull()
     }
 }
