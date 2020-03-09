@@ -21,7 +21,6 @@ internal class ToExtFileTest(private val tempFolder: TemporaryFolder) {
 
         assertThat(extFile.fileName).isEqualTo(file.path)
         assertThat(extFile.file).isEqualTo(systemFile)
-        assertThat(extFile.md5).isEqualTo("d41d8cd98f00b204e9800998ecf8427e")
         assertThat(extFile.attributes).hasSize(1)
         assertAttribute(extFile.attributes.first(), file.attributes.first())
     }

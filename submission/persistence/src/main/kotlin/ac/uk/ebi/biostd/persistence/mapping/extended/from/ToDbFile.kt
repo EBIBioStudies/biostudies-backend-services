@@ -7,6 +7,6 @@ import ebi.ac.uk.extended.model.ExtAttribute
 import ebi.ac.uk.extended.model.ExtFile
 
 internal fun ExtFile.toDbFile(order: Int, tableIndex: Int = NO_TABLE_INDEX) =
-    DbFile(fileName, order, md5, file.length(), attributes.mapIndexedTo(sortedSetOf(), ::toDbFileAttribute), tableIndex)
+    DbFile(fileName, order, file.length(), attributes.mapIndexedTo(sortedSetOf(), ::toDbFileAttribute), tableIndex)
 
 private fun toDbFileAttribute(index: Int, attr: ExtAttribute) = DbFileAttribute(attr.toDbAttribute(index))

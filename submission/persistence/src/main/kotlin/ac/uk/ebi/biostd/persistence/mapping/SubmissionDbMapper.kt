@@ -10,6 +10,7 @@ import ac.uk.ebi.biostd.persistence.mapping.DbEntityMapper.toFileList
 import ac.uk.ebi.biostd.persistence.mapping.DbEntityMapper.toUser
 import ac.uk.ebi.biostd.persistence.model.DbAccessTag
 import ac.uk.ebi.biostd.persistence.model.DbTag
+import ac.uk.ebi.biostd.persistence.model.SubmissionDb
 import ac.uk.ebi.biostd.persistence.model.Tabular
 import arrow.core.Either
 import arrow.core.Either.Companion.left
@@ -39,7 +40,6 @@ import ac.uk.ebi.biostd.persistence.model.DbReferencedFile as ReferencedFileDb
 import ac.uk.ebi.biostd.persistence.model.DbSection as SectionDb
 import ac.uk.ebi.biostd.persistence.model.DbUser as UserDb
 import ac.uk.ebi.biostd.persistence.model.ReferencedFileList as FileListDb
-import ac.uk.ebi.biostd.persistence.model.Submission as SubmissionDb
 
 class SubmissionDbMapper {
     private val sectionMapper = DbSectionMapper()

@@ -45,12 +45,10 @@ class DbFile(
     constructor(
         name: String,
         order: Int,
-        md5: String?,
         size: Long,
         attributes: SortedSet<DbFileAttribute>,
         tableIndex: Int = NO_TABLE_INDEX
     ) : this(name, order) {
-        this.md5 = md5
         this.size = size
         this.attributes = attributes
         this.tableIndex = tableIndex

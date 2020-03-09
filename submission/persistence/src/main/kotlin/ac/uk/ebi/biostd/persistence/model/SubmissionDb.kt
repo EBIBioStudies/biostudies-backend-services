@@ -74,7 +74,7 @@ typealias Graph = NamedSubgraph
     NamedEntityGraph(name = SIMPLE_QUERY_GRAPH, attributeNodes = [Node(value = "rootSection")])
 ])
 @Table(name = "Submission")
-class Submission(
+class SubmissionDb(
 
     @Column
     var accNo: String = "",

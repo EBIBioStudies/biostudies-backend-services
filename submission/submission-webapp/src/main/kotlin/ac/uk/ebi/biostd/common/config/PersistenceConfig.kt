@@ -87,5 +87,6 @@ class PersistenceConfig(
         )
 
     @Bean
-    fun submissionQueryService(): SubmissionQueryService = SubmissionSqlQueryService(submissionDataRepository)
+    fun submissionQueryService(): SubmissionQueryService =
+        SubmissionSqlQueryService(submissionDataRepository, folderResolver)
 }

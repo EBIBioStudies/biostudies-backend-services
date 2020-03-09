@@ -5,7 +5,7 @@ import ebi.ac.uk.extended.model.ExtFile
 import org.assertj.core.api.Assertions.assertThat
 import java.nio.file.Files
 
-internal val extTestRefFile get() = ExtFile("fileName", "md5", createTempFile, listOf(extAttribute))
+internal val extTestRefFile get() = ExtFile("fileName", createTempFile, listOf(extAttribute))
 
 private val createTempFile
     get() = Files.createTempFile("file", ".tmp").toFile().apply { writeText("example text content") }

@@ -1,12 +1,12 @@
 package ac.uk.ebi.biostd.persistence.projections
 
 import ac.uk.ebi.biostd.persistence.model.SIMPLE_QUERY_GRAPH
+import ac.uk.ebi.biostd.persistence.model.SubmissionDb
 import ebi.ac.uk.functions.secondsToInstant
 import ebi.ac.uk.model.SubmissionMethod
 import ebi.ac.uk.model.constants.ProcessingStatus
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
-import ac.uk.ebi.biostd.persistence.model.Submission as SubmissionDb
 
 /**
  * Submission simple projection. Contains only submission attributes (no related entities).

@@ -8,9 +8,8 @@ import org.assertj.core.api.Assertions.assertThat
 import java.io.File as SystemFile
 
 internal const val FILE_NAME = "fileName"
-internal const val MD5 = "md5"
 
-internal val fileDb get() = DbFile(FILE_NAME, 1, MD5, 55L, sortedSetOf(fileAttributeDb))
+internal val fileDb get() = DbFile(FILE_NAME, 1, 55L, sortedSetOf(fileAttributeDb))
 
 internal const val FILE_REF_NAME = "fileRefName"
 internal val refRileDb get() = DbReferencedFile(FILE_REF_NAME, 0, 55L, sortedSetOf(refAttributeDb))

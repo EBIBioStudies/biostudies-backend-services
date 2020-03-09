@@ -8,6 +8,6 @@ import ebi.ac.uk.security.integration.model.api.SecurityUser
 data class SubmissionRequest(
     val submission: Submission,
     val user: SecurityUser,
-    val files: FilesSource,
+    val sources: FilesSource,
     val method: SubmissionMethod
 )

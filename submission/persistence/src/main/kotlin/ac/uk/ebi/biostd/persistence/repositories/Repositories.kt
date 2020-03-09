@@ -9,7 +9,7 @@ import ac.uk.ebi.biostd.persistence.model.DbUserData
 import ac.uk.ebi.biostd.persistence.model.FULL_DATA_GRAPH
 import ac.uk.ebi.biostd.persistence.model.SecurityToken
 import ac.uk.ebi.biostd.persistence.model.Sequence
-import ac.uk.ebi.biostd.persistence.model.Submission
+import ac.uk.ebi.biostd.persistence.model.SubmissionDb
 import ac.uk.ebi.biostd.persistence.model.UserDataId
 import ac.uk.ebi.biostd.persistence.model.UserGroup
 import com.cosium.spring.data.jpa.entity.graph.repository.EntityGraphJpaRepository
@@ -26,21 +26,21 @@ import javax.persistence.LockModeType
 import com.cosium.spring.data.jpa.entity.graph.domain.EntityGraph as GraphSpecification
 
 interface SubmissionDataRepository :
-    EntityGraphJpaRepository<Submission, Long>, EntityGraphJpaSpecificationExecutor<Submission> {
+    EntityGraphJpaRepository<SubmissionDb, Long>, EntityGraphJpaSpecificationExecutor<SubmissionDb> {
     @EntityGraph(value = FULL_DATA_GRAPH, type = LOAD)
-    fun getByAccNoAndVersionGreaterThan(id: String, version: Int = 0): Submission
+    fun getByAccNoAndVersionGreaterThan(id: String, version: Int = 0): SubmissionDb
 
-    fun findByAccNoAndVersionGreaterThan(id: String, version: Int = 0): Submission?
+    fun findByAccNoAndVersionGreaterThan(id: String, version: Int = 0): SubmissionDb?
 
-    @Query("Select max(s.version) from Submission s where s.accNo=?1")
+    @Query("Select max(s.version) from SubmissionDb s where s.accNo=?1")
     fun getLastVersion(accNo: String): Int?
 
-    @Query("Update Submission s set s.version = -s.version  where s.accNo=?1 and s.version > 0")
+    @Query("Update SubmissionDb s set s.version = -s.version  where s.accNo=?1 and s.version > 0")
     @Modifying
     fun expireActiveVersions(accNo: String)
 
     @EntityGraph(value = FULL_DATA_GRAPH, type = LOAD)
-    fun getFirstByAccNoOrderByVersionDesc(accNo: String): Submission
+    fun getFirstByAccNoOrderByVersionDesc(accNo: String): SubmissionDb
 
     fun existsByAccNo(accNo: String): Boolean
 
@@ -49,7 +49,7 @@ interface SubmissionDataRepository :
         tags: List<String>,
         graph: GraphSpecification,
         version: Int = 0
-    ): List<Submission>
+    ): List<SubmissionDb>
 }
 
 interface AccessTagDataRepo : JpaRepository<DbAccessTag, Long> {

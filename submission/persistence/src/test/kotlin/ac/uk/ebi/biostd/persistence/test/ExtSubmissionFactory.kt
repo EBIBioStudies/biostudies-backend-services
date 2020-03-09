@@ -17,7 +17,7 @@ fun extSubmissionWithFileList(files: List<File>, fileList: File, referencedFiles
         version = 1,
         title = "A Test Submission",
         method = SubmissionMethod.PAGE_TAB,
-        relPath = "/ABC/ABCxxx123/ABC-123",
+        relPath = "ABC/ABCxxx123/ABC-123",
         rootPath = null,
         released = false,
         secretKey = "a-secret-key",
@@ -33,5 +33,5 @@ fun extSubmissionWithFileList(files: List<File>, fileList: File, referencedFiles
 fun extSectionWithFileList(files: List<File>, fileList: File, referencedFiles: List<File>) =
     ExtSection(
         type = "Study",
-        files = files.map { left(ExtFile(it.name, "md5", it, emptyList())) },
-        fileList = ExtFileList("fileList", fileList, referencedFiles.map { ExtFile(it.name, "md5", it, emptyList()) }))
+        files = files.map { left(ExtFile(it.name, it, emptyList())) },
+        fileList = ExtFileList("fileList", fileList, referencedFiles.map { ExtFile(it.name, it, emptyList()) }))

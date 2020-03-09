@@ -3,7 +3,7 @@ package ac.uk.ebi.biostd.persistence.test
 import ac.uk.ebi.biostd.persistence.model.DbAccessTag
 import ac.uk.ebi.biostd.persistence.model.DbTag
 import ac.uk.ebi.biostd.persistence.model.DbUser
-import ac.uk.ebi.biostd.persistence.model.Submission
+import ac.uk.ebi.biostd.persistence.model.SubmissionDb
 import ebi.ac.uk.extended.model.ExtAccessTag
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtTag
@@ -51,7 +51,7 @@ internal val extTag: ExtTag
 internal val extAccessTag: ExtAccessTag
     get() = ExtAccessTag("access-tag")
 
-internal fun assertSubmission(submission: Submission, accessTags: List<DbAccessTag>, tags: List<DbTag>, owner: DbUser) {
+internal fun assertSubmission(submission: SubmissionDb, accessTags: List<DbAccessTag>, tags: List<DbTag>, owner: DbUser) {
     assertThat(submission.accNo).isEqualTo(SUB_ACC_NO)
     assertThat(submission.title).isEqualTo(SUB_TITLE)
     assertThat(submission.status).isEqualTo(PROCESSED)

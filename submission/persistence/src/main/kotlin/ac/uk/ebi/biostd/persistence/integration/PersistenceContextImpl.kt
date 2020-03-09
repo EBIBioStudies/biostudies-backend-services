@@ -41,13 +41,18 @@ open class PersistenceContextImpl(
     @Transactional(isolation = Isolation.READ_UNCOMMITTED)
     override fun saveSubmission(submission: ExtSubmission, submitter: String, submitterId: Long): ExtSubmission {
         return lockExecutor.executeLocking(submission.accNo) {
+            val newSubmission = saveNewVersion(submission, submitter)
             subRepository.expireActiveVersions(submission.accNo)
-            val dbSubmission = toDbSubmissionMapper.toSubmissionDb(submission, submitter)
-            val persistedSubmission = toExtSubmissionMapper.toExtSubmission(subRepository.save(dbSubmission))
-            filePersistenceService.persistSubmissionFiles(submission)
             deleteSubmissionDrafts(submitterId, submission.accNo)
-            persistedSubmission
+
+            filePersistenceService.persistSubmissionFiles(newSubmission)
+            newSubmission
         }
+    }
+
+    private fun saveNewVersion(submission: ExtSubmission, submitter: String): ExtSubmission {
+        val dbSubmission = toDbSubmissionMapper.toSubmissionDb(submission, submitter)
+        return toExtSubmissionMapper.toExtSubmission(subRepository.save(dbSubmission))
     }
 
     override fun deleteSubmissionDrafts(userId: Long, accNo: String) {
