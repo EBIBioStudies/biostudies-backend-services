@@ -50,8 +50,6 @@ class DbReferencedFile(
 
     var size: Long = 0L
 
-    var md5: String? = null
-
     @OneToMany(cascade = [CascadeType.ALL])
     @JoinColumn(name = "referenced_file_id")
     @OrderBy("order ASC")

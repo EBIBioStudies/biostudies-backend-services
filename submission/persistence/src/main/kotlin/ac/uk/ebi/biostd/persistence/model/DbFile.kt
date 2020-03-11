@@ -37,9 +37,6 @@ class DbFile(
     var attributes: SortedSet<DbFileAttribute> = sortedSetOf()
 
     @Column
-    var md5: String? = null
-
-    @Column
     override var tableIndex = NO_TABLE_INDEX
 
     constructor(

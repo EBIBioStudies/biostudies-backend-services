@@ -27,9 +27,9 @@ const val TEST_GHOST_FILE = "ghost.txt"
 class FilesSourceTest(temporaryFolder: TemporaryFolder) {
     private val testFile = temporaryFolder.createFile(TEST_USER_FILE)
     private val testResourceFile = temporaryFolder.createFile(TEST_ATTACHED_FILE)
-    private val testInstance = ComposedFileSource(
+    private val testInstance = ComposedFileSource(listOf(
         ListFilesSource(listOf(testResourceFile)),
-        PathFilesSource(Paths.get(temporaryFolder.root.absolutePath)))
+        PathFilesSource(Paths.get(temporaryFolder.root.absolutePath))))
 
     @BeforeAll
     fun beforeAll() {
