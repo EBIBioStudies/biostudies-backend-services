@@ -23,7 +23,16 @@ open class Section(
 
     fun addFilesTable(table: FilesTable) = files.addRight(table)
     fun addLinksTable(table: LinksTable) = links.addRight(table)
-    fun addSectionTable(table: SectionsTable) = sections.addRight(table)
+    fun addSectionTable(table: SectionsTable) = sections.addRight(table.apply { parentAccNo = this@Section.accNo })
+
+    fun addSections(sections: MutableList<Either<Section, SectionsTable>>) {
+        sections.forEach { it.fold(
+            { sec -> sec.parentAccNo = this@Section.accNo },
+            { secTable -> secTable.setParent(this@Section.accNo) }
+        ) }
+
+        this.sections.addAll(sections)
+    }
 
     override fun equals(other: Any?) = when {
         other !is Section -> false

@@ -21,14 +21,12 @@ class SectionXmlDeserializer(
     private val linkXmlDeserializer: LinkXmlDeserializer,
     private val fileXmlDeserializer: FileXmlDeserializer
 ) : BaseXmlDeserializer<Section>() {
-
-    override fun deserialize(node: Node): Section {
-        return Section(
+    override fun deserialize(node: Node): Section =
+        Section(
             accNo = node.findProperty(ACC_NO),
             type = node.getProperty(TYPE),
             attributes = attributeXmlDeserializer.deserializeList(node.findNode(ATTRIBUTES)),
             links = linkXmlDeserializer.deserializeTableList(node.findNode(LINKS), LinkFields.LINK.value, ::LinksTable),
-            files = fileXmlDeserializer.deserializeTableList(node.findNode(FILES), FileFields.FILE.value, ::FilesTable),
-            sections = deserializeTableList(node.findNode(SUBSECTIONS), SECTION.value, ::SectionsTable))
-    }
+            files = fileXmlDeserializer.deserializeTableList(node.findNode(FILES), FileFields.FILE.value, ::FilesTable))
+            .apply { addSections(deserializeTableList(node.findNode(SUBSECTIONS), SECTION.value, ::SectionsTable)) }
 }

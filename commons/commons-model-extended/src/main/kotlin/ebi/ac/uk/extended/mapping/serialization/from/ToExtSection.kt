@@ -10,6 +10,7 @@ fun Section.toExtSection(source: FilesSource): ExtSection {
     return ExtSection(
         type = type,
         accNo = accNo,
+        parentAccNo = parentAccNo,
         fileList = fileList?.toExtFileList(source),
         attributes = attributes.map { it.toExtAttribute() },
         files = files.map { either -> either.bimap({ it.toExtFile(source) }, { it.toExtTable(source) }) },

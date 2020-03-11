@@ -8,6 +8,7 @@ internal fun Section.toExtSection(filesSource: FilesSource): ExtSection {
     return ExtSection(
         accNo = accNo,
         type = type,
+        parentAccNo = parentAccNo,
         fileList = fileList?.toExtFileList(filesSource),
         attributes = attributes.map { it.toExtAttribute() },
         sections = sections.toExtSections(filesSource),

@@ -40,6 +40,9 @@ class Section(
     @Convert(converter = NullableIntConverter::class)
     override var order: Int = 0
 
+    @Column
+    var parentAccNo: String? = null
+
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "submission_id")
     var submission: Submission? = null

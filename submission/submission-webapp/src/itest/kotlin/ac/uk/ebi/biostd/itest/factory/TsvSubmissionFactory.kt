@@ -120,6 +120,13 @@ fun assertAllInOneSubmissionTsv(tsv: String, accNo: String) {
         line()
     }
     assertTsvBlock(lines, 25, 27, expectedSubsectionLinksTable)
+
+    val expectedSubsectionsTable = tsv {
+        line("Data[SECT-001]", "Title", "Description")
+        line("DT-1", "Group 1 Transcription Data", "The data for zygotic transcription in mammals group 1")
+        line()
+    }
+    assertTsvBlock(lines, 28, 30, expectedSubsectionsTable)
 }
 
 private fun assertTsvBlock(lines: List<String>, from: Int, to: Int, expected: Tsv) {

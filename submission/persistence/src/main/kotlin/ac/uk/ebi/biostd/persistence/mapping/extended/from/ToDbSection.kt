@@ -13,6 +13,7 @@ import java.util.SortedSet
 internal fun ExtSection.toDbSection(submission: Submission, index: Int): Section {
     val section = asSection(submission, index)
     section.tableIndex = NO_TABLE_INDEX
+    section.parentAccNo = parentAccNo
     section.sections = sections.toDbSections(submission)
     section.fileList = fileList?.toDbFileList()
     section.links = links.toDbLinks()
@@ -22,6 +23,7 @@ internal fun ExtSection.toDbSection(submission: Submission, index: Int): Section
 
 private fun ExtSection.toDbTableSection(submission: Submission, index: Int, tableIndex: Int): Section {
     val section = asSection(submission, index)
+    section.parentAccNo = parentAccNo
     section.tableIndex = tableIndex
     return section
 }

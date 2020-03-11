@@ -31,6 +31,7 @@ data class ExtSection(
     val accNo: String? = null,
     val type: String,
     val fileList: ExtFileList? = null,
+    val parentAccNo: String? = null,
     val attributes: List<ExtAttribute> = listOf(),
     val sections: List<Either<ExtSection, ExtSectionTable>> = listOf(),
     val files: List<Either<ExtFile, ExtFileTable>> = listOf(),

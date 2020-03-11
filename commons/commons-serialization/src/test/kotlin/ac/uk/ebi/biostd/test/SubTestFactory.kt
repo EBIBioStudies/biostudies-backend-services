@@ -50,6 +50,8 @@ fun createVenousBloodMonocyte() = submission("S-IHECRE00000919.1") {
 
         section("Stranded Total RNA-Seq") {
             accNo = "SUB-SECT-001"
+            parentAccNo = "SECT-001"
+
             filesTable {
                 file("Results.xls") {
                     attribute("Type", "Results File")
@@ -67,7 +69,10 @@ fun createVenousBloodMonocyte() = submission("S-IHECRE00000919.1") {
         }
 
         sectionsTable {
-            section("Data") { accNo = "DT-1" }
+            section("Data") {
+                accNo = "DT-1"
+                parentAccNo = "SECT-001"
+            }
         }
     }
 }

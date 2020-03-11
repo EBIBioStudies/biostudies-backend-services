@@ -23,7 +23,6 @@ internal object LinksType : TypeReference<MutableList<Either<Link, LinksTable>>>
 internal object FileType : TypeReference<MutableList<Either<File, FilesTable>>>()
 
 internal class SectionJsonDeserializer : StdDeserializer<Section>(Section::class.java) {
-
     override fun deserialize(jp: JsonParser, ctxt: DeserializationContext): Section {
         val mapper = jp.codec as ObjectMapper
         val node: JsonNode = mapper.readTree(jp)
@@ -33,7 +32,8 @@ internal class SectionJsonDeserializer : StdDeserializer<Section>(Section::class
             type = node.findNode<TextNode>(SectionFields.TYPE.value)?.textValue().orEmpty(),
             attributes = mapper.convertList(node.findNode(SectionFields.ATTRIBUTES.value)),
             links = mapper.convertList(node.findNode(SectionFields.LINKS.value), LinksType),
-            files = mapper.convertList(node.findNode(SectionFields.FILES.value), FileType),
-            sections = mapper.convertList(node.findNode(SectionFields.SUBSECTIONS.value), SectionsType))
+            files = mapper.convertList(node.findNode(SectionFields.FILES.value), FileType)).apply {
+            addSections(mapper.convertList(node.findNode(SectionFields.SUBSECTIONS.value), SectionsType))
+        }
     }
 }
