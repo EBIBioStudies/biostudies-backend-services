@@ -7,6 +7,7 @@ import ac.uk.ebi.biostd.tsv.deserialization.model.LinksTableChunk
 import ac.uk.ebi.biostd.tsv.deserialization.model.SectionChunk
 import ac.uk.ebi.biostd.tsv.deserialization.model.SectionTableChunk
 import ac.uk.ebi.biostd.tsv.deserialization.model.TsvChunk
+import ac.uk.ebi.biostd.validation.DuplicatedSectionAccNoException
 import ac.uk.ebi.biostd.validation.InvalidSectionException
 import ac.uk.ebi.biostd.validation.SerializationError
 import ac.uk.ebi.biostd.validation.SerializationException
@@ -77,7 +78,10 @@ internal class TsvSerializationContext {
 internal class TsvSectionContext {
     private val sections: MutableMap<String, Section> = mutableMapOf()
 
-    fun addSection(accNo: String, section: Section) = sections.put(accNo, section)
+    fun addSection(accNo: String, section: Section) {
+        require(sections.containsKey(accNo).not()) { throw DuplicatedSectionAccNoException(accNo) }
+        sections[accNo] = section
+    }
 
     fun getSection(accNo: String) = sections.getOrElse(accNo, { throw InvalidSectionException(accNo) })
 }

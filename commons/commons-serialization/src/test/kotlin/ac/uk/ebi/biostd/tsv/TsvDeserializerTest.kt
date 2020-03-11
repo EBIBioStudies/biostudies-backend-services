@@ -16,17 +16,22 @@ import ac.uk.ebi.biostd.test.submissionWithRootSection
 import ac.uk.ebi.biostd.test.submissionWithSectionsTable
 import ac.uk.ebi.biostd.test.submissionWithSubsection
 import ac.uk.ebi.biostd.tsv.deserialization.TsvDeserializer
+import ac.uk.ebi.biostd.validation.DuplicatedSectionAccNoException
+import ac.uk.ebi.biostd.validation.SerializationException
 import ebi.ac.uk.dsl.attribute
 import ebi.ac.uk.dsl.file
 import ebi.ac.uk.dsl.filesTable
+import ebi.ac.uk.dsl.line
 import ebi.ac.uk.dsl.link
 import ebi.ac.uk.dsl.linksTable
 import ebi.ac.uk.dsl.submission
 import ebi.ac.uk.dsl.section
 import ebi.ac.uk.dsl.sectionsTable
+import ebi.ac.uk.dsl.tsv
 import ebi.ac.uk.model.AttributeDetail
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 
 class TsvDeserializerTest {
     private val deserializer = TsvDeserializer()
@@ -330,5 +335,28 @@ class TsvDeserializerTest {
                 }
             }
         })
+    }
+
+    @Test
+    fun `duplicated section accNo`() {
+        val submission = tsv {
+            line("Submission", "E-MTAB-8568")
+            line("Title", "Duplicated Section AccNo")
+            line()
+
+            line("Study", "s-E-MTAB-8568")
+            line("Description", "A description")
+            line()
+
+            line("Author", "s-E-MTAB-8568")
+            line("Name", "Connor Rogerson")
+            line()
+        }
+
+        val exception = assertThrows<SerializationException> { deserializer.deserialize(submission.toString()) }
+        val errorCause = exception.errors.entries().first().value.cause
+
+        assertThat(errorCause).isInstanceOf(DuplicatedSectionAccNoException::class.java)
+        assertThat(errorCause.message).isEqualTo("A section with accNo s-E-MTAB-8568 already exists")
     }
 }

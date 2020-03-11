@@ -1,50 +1,41 @@
 package ebi.ac.uk.model
 
-import ebi.ac.uk.base.isNotBlank
-import ebi.ac.uk.model.constants.TableFields
 import ebi.ac.uk.model.extensions.nameAttrsNames
 import ebi.ac.uk.model.extensions.nameAttrsValues
 import ebi.ac.uk.model.extensions.valueAttrsNames
 import ebi.ac.uk.model.extensions.valueAttrsValues
-import ebi.ac.uk.util.collections.ifNotEmpty
 import java.util.Objects
 
 sealed class Table<T : Any>(elements: List<T>) {
-
-    protected abstract val header: String
     abstract fun toTableRow(t: T): Row<T>
 
-    private val _headers: MutableSet<Header> = mutableSetOf()
+    val headers: MutableSet<Header> = mutableSetOf()
     private val _rows: MutableList<Row<T>> = mutableListOf()
 
     init {
         elements.forEach { addRow(it) }
     }
 
-    val headers: List<Header>
-        get() = listOf(Header(header)) + _headers.toList()
-
     val rows: List<List<String>>
-        get() = _rows.mapTo(mutableListOf()) { row -> listOf(row.id) + row.values(_headers.toList()) }
+        get() = _rows.mapTo(mutableListOf()) { row -> listOf(row.id) + row.values(headers.toList()) }
 
     val elements: List<T>
         get() = _rows.map { it.original }
 
     fun addRow(data: T) {
         val row = toTableRow(data)
-        _headers.addAll(row.headers())
+        headers.addAll(row.headers())
         _rows.add(row)
     }
 
     override fun equals(other: Any?) = when {
         other !is Table<*> -> false
         other === this -> true
-        else -> Objects.equals(header, other.header)
-            .and(Objects.equals(_headers, other._headers))
+        else -> Objects.equals(headers, other.headers)
             .and(Objects.equals(_rows, other._rows))
     }
 
-    override fun hashCode() = Objects.hash(header, _headers, _rows)
+    override fun hashCode() = Objects.hash(headers, _rows)
 }
 
 class Header(val name: String, val termNames: List<String> = listOf(), val termValues: List<String> = listOf()) {
@@ -81,8 +72,6 @@ abstract class Row<T>(val original: T) {
 }
 
 class LinksTable(links: List<Link> = emptyList()) : Table<Link>(links) {
-    override val header = TableFields.LINKS_TABLE.toString()
-
     override fun toTableRow(t: Link) = object : Row<Link>(t) {
         override val id = t.url
         override val attributes = t.attributes
@@ -90,8 +79,6 @@ class LinksTable(links: List<Link> = emptyList()) : Table<Link>(links) {
 }
 
 class FilesTable(files: List<File> = emptyList()) : Table<File>(files) {
-    override val header = TableFields.FILES_TABLE.toString()
-
     override fun toTableRow(t: File) = object : Row<File>(t) {
         override val id = t.path
         override val attributes = t.attributes
@@ -99,21 +86,6 @@ class FilesTable(files: List<File> = emptyList()) : Table<File>(files) {
 }
 
 class SectionsTable(sections: List<Section> = emptyList()) : Table<Section>(sections) {
-    private var sectionType = ""
-    private var parentAccNo: String? = null
-
-    override val header: String
-        get() {
-            sectionType.ifBlank { elements.ifNotEmpty {
-                elements.first().let {
-                    sectionType = it.type
-                    parentAccNo = it.parentAccNo
-                }
-            } }
-
-            return "$sectionType[${if (parentAccNo.isNotBlank()) "$parentAccNo" else ""}]"
-        }
-
     override fun toTableRow(t: Section) = object : Row<Section>(t) {
         override val id = t.accNo!!
         override val attributes = t.attributes

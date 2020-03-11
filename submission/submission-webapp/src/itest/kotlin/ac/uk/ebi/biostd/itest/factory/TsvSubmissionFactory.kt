@@ -107,7 +107,6 @@ fun assertAllInOneSubmissionTsv(tsv: String, accNo: String) {
     }
     assertTsvBlock(lines, 18, 22, expectedRootSectionFilesTable)
 
-    // TODO add parent acc no validation and subsections table validation after fixing Pivotal ID #168286132
     val expectedSubsection = tsv {
         line("Stranded Total RNA-Seq", "SUBSECT-001", "SECT-001")
         line()
@@ -120,6 +119,13 @@ fun assertAllInOneSubmissionTsv(tsv: String, accNo: String) {
         line()
     }
     assertTsvBlock(lines, 25, 27, expectedSubsectionLinksTable)
+
+    val expectedSubsectionsTable = tsv {
+        line("Data[SECT-001]", "Title", "Description")
+        line("DT-1", "Group 1 Transcription Data", "The data for zygotic transcription in mammals group 1")
+        line()
+    }
+    assertTsvBlock(lines, 28, 30, expectedSubsectionsTable)
 }
 
 private fun assertTsvBlock(lines: List<String>, from: Int, to: Int, expected: Tsv) {

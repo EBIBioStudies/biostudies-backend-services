@@ -7,8 +7,16 @@ import ebi.ac.uk.model.Submission
 const val CHUNK_SIZE_ERROR_MSG = "Exactly one element must be provided"
 
 class InvalidElementException(message: String) : RuntimeException("$message. Element was not created.")
-class SerializationException(val submission: Submission, val errors: Multimap<Any, SerializationError>) :
-    RuntimeException()
+
 class SerializationError(val chunk: TsvChunk, val cause: Exception)
+
 class InvalidChunkSizeException : RuntimeException(CHUNK_SIZE_ERROR_MSG)
+
 class InvalidSectionException(accNo: String) : RuntimeException(String.format(SECTION_NOT_CREATED, accNo))
+
+class DuplicatedSectionAccNoException(accNo: String) : RuntimeException("A section with accNo $accNo already exists")
+
+class SerializationException(
+    val submission: Submission,
+    val errors: Multimap<Any, SerializationError>
+) : RuntimeException()
