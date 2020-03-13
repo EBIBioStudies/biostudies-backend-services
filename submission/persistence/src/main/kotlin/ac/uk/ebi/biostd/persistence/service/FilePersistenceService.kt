@@ -6,9 +6,12 @@ import ebi.ac.uk.extended.mapping.serialization.to.toSimpleSubmission
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.allFileListSections
 import ebi.ac.uk.extended.model.allFiles
+import ebi.ac.uk.extended.model.allReferencedFiles
 import ebi.ac.uk.paths.SubmissionFolderResolver
 import org.apache.commons.io.FileUtils
 import java.io.File
+
+private const val SUBMISSION_FOLDER_REP = "Files"
 
 class FilePersistenceService(
     private val folderResolver: SubmissionFolderResolver,
@@ -20,16 +23,23 @@ class FilePersistenceService(
     }
 
     private fun persistFiles(submission: ExtSubmission) {
-        val submissionFolder = folderResolver.getSubmissionFolder(submission.relPath).toFile()
-        val temporally = createTempFolder(submissionFolder)
+        val submissionFolder = getSubmissionFolder(submission.relPath)
+        val temporally = createTempFolder(submissionFolder, submission.accNo)
 
         submission.allFiles.forEach { it.file.renameTo(temporally.resolve(it.fileName)) }
-        submission.allFiles.forEach { it.file.renameTo(temporally.resolve(it.fileName)) }
-        submissionFolder.deleteRecursively()
-        temporally.renameTo(submissionFolder)
+        submission.allReferencedFiles.forEach { it.file.renameTo(temporally.resolve(it.fileName)) }
+
+        FileUtils.cleanDirectory(submissionFolder)
+        temporally.renameTo(submissionFolder.resolve(SUBMISSION_FOLDER_REP))
     }
 
-    private fun <T> generateOutputFiles(element: T, submission: ExtSubmission, outputFileName: String) {
+    private fun getSubmissionFolder(relPath: String): File {
+        val submissionFolder = folderResolver.getSubmissionFolder(relPath).toFile()
+        submissionFolder.mkdirs()
+        return submissionFolder
+    }
+
+    fun <T> generateOutputFiles(element: T, submission: ExtSubmission, outputFileName: String) {
         val json = serializationService.serializeElement(element, SubFormat.JSON_PRETTY)
         val xml = serializationService.serializeElement(element, SubFormat.XML)
         val tsv = serializationService.serializeElement(element, SubFormat.TSV)
@@ -40,8 +50,8 @@ class FilePersistenceService(
         FileUtils.writeStringToFile(submissionPath.resolve("$outputFileName.pagetab.tsv").toFile(), tsv, Charsets.UTF_8)
     }
 
-    private fun createTempFolder(submissionFolder: File): File {
-        val tempDir = submissionFolder.resolve("_temp")
+    private fun createTempFolder(submissionFolder: File, accNo: String): File {
+        val tempDir = submissionFolder.parentFile.resolve("${accNo}_temp")
         tempDir.mkdirs()
         return tempDir
     }

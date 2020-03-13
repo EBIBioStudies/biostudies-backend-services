@@ -11,7 +11,6 @@ import ac.uk.ebi.biostd.persistence.repositories.SubmissionDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataDataRepository
 import ac.uk.ebi.biostd.persistence.service.FilePersistenceService
 import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.util.collections.ifNotEmpty
 import org.springframework.transaction.annotation.Isolation
 import org.springframework.transaction.annotation.Transactional
 
@@ -41,11 +40,11 @@ open class PersistenceContextImpl(
     @Transactional(isolation = Isolation.READ_UNCOMMITTED)
     override fun saveSubmission(submission: ExtSubmission, submitter: String, submitterId: Long): ExtSubmission {
         return lockExecutor.executeLocking(submission.accNo) {
-            val newSubmission = saveNewVersion(submission, submitter)
             subRepository.expireActiveVersions(submission.accNo)
             deleteSubmissionDrafts(submitterId, submission.accNo)
 
-            filePersistenceService.persistSubmissionFiles(newSubmission)
+            val newSubmission = saveNewVersion(submission, submitter)
+            filePersistenceService.persistSubmissionFiles(submission)
             newSubmission
         }
     }
@@ -56,9 +55,7 @@ open class PersistenceContextImpl(
     }
 
     override fun deleteSubmissionDrafts(userId: Long, accNo: String) {
-        userDataRepository.findByUserIdAndKeyIgnoreCaseContaining(userId, accNo).ifNotEmpty {
-            userDataRepository.deleteAll(it)
-        }
+        userDataRepository.deleteByUserIdAndKeyIgnoreCaseContaining(userId, accNo)
     }
 
     override fun getNextVersion(accNo: String): Int = (subRepository.getLastVersion(accNo) ?: 0) + 1

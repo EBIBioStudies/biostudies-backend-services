@@ -51,16 +51,16 @@ class FilePersistenceServiceTest(
     fun persistSubmissionFiles() {
         testInstance.persistSubmissionFiles(extSubmission)
 
-        assertThat(getPath("$relPath/file.txt")).exists()
-        assertThat(getPath("$relPath/file2.txt")).exists()
+        assertThat(getPath("submission/$relPath/Files/file.txt")).exists()
+        assertThat(getPath("submission/$relPath/Files/file2.txt")).exists()
 
-        assertThat(getPath("$relPath/ABC-123.xml")).exists()
-        assertThat(getPath("$relPath/ABC-123.json")).exists()
-        assertThat(getPath("$relPath/ABC-123.pagetab.tsv")).exists()
+        assertThat(getPath("submission/$relPath/ABC-123.xml")).exists()
+        assertThat(getPath("submission/$relPath/ABC-123.json")).exists()
+        assertThat(getPath("submission/$relPath/ABC-123.pagetab.tsv")).exists()
 
-        assertThat(getPath("$relPath/fileList.xml")).exists()
-        assertThat(getPath("$relPath/fileList.json")).exists()
-        assertThat(getPath("$relPath/fileList.pagetab.tsv")).exists()
+        assertThat(getPath("submission/$relPath/fileList.xml")).exists()
+        assertThat(getPath("submission/$relPath/fileList.json")).exists()
+        assertThat(getPath("submission/$relPath/fileList.pagetab.tsv")).exists()
     }
 
     private fun getPath(path: String) = Paths.get("${temporaryFolder.root.absolutePath}/$path")
