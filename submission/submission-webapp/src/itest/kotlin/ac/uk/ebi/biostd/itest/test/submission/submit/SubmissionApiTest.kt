@@ -124,6 +124,53 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
         }
 
         @Test
+        fun `submission with section title`() {
+            val submission = tsv {
+                line("Submission", "S-TEST789")
+                line()
+
+                line("Study")
+                line("Title", "Section Title")
+                line()
+            }.toString()
+
+            assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
+            assertThat(submissionRepository.getByAccNo("S-TEST789")).isEqualTo(
+                submission("S-TEST789") {
+                    title = "Section Title"
+
+                    section("Study") {
+                        title = "Section Title"
+                    }
+                }
+            )
+        }
+
+        @Test
+        fun `submission with title`() {
+            val submission = tsv {
+                line("Submission", "S-TEST101112")
+                line("Title", "Actual Title")
+                line()
+
+                line("Study")
+                line("Title", "Section Title")
+                line()
+            }.toString()
+
+            assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
+            assertThat(submissionRepository.getByAccNo("S-TEST101112")).isEqualTo(
+                submission("S-TEST101112") {
+                    title = "Actual Title"
+
+                    section("Study") {
+                        title = "Section Title"
+                    }
+                }
+            )
+        }
+
+        @Test
         fun `submission with on behalf another user`() {
             createUser(RegularUser, serverPort)
 

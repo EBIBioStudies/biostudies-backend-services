@@ -11,7 +11,9 @@ import ac.uk.ebi.biostd.submission.service.ProjectResponse
 import ac.uk.ebi.biostd.submission.service.ProjectInfoService
 import ac.uk.ebi.biostd.submission.service.TimesRequest
 import ac.uk.ebi.biostd.submission.service.TimesService
+import ebi.ac.uk.base.isNotBlank
 import ebi.ac.uk.base.orFalse
+import ebi.ac.uk.dsl.section
 import ebi.ac.uk.extended.mapping.serialization.from.toExtAttribute
 import ebi.ac.uk.extended.mapping.serialization.from.toExtSection
 import ebi.ac.uk.extended.mapping.serialization.to.toSimpleSubmission
@@ -76,12 +78,13 @@ open class SubmissionSubmitter(
         val nextVersion = context.getNextVersion(accNoString)
         val relPath = accNoService.getRelPath(accNo)
         val tags = getTags(released, parentTags, projectInfo)
+        val title = getSubmissionTitle(submission)
 
         return ExtSubmission(
             accNo = accNoString,
             version = nextVersion,
+            title = title,
             method = method,
-            title = submission.title,
             relPath = relPath,
             rootPath = submission.rootPath,
             released = released,
@@ -95,6 +98,14 @@ open class SubmissionSubmitter(
             section = submission.section.toExtSection(source),
             attributes = getAttributes(submission)
         )
+    }
+
+    private fun getSubmissionTitle(submission: Submission): String? {
+        if (submission.title.isNullOrBlank().and(submission.section.title.isNotBlank())) {
+            submission.title = submission.section.title
+        }
+
+        return submission.title
     }
 
     private fun getTags(released: Boolean, parentTags: List<String>, project: ProjectResponse?): MutableList<String> {

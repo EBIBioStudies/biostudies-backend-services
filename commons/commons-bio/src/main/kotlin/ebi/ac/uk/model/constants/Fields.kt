@@ -44,7 +44,6 @@ enum class SubFields(override val value: String) : Fields {
 
 enum class SectionFields(override val value: String) : Fields {
     ACC_NO(ACC_NO_FIELD),
-    ACCESS_TAGS(ACCESS_FIELD),
     ATTRIBUTES(ATTRIBUTES_FIELD),
     SECTION(SECTION_FIELD),
     LINKS("links"),
@@ -52,7 +51,7 @@ enum class SectionFields(override val value: String) : Fields {
     TYPE("type"),
     FILES("files"),
     FILE_LIST("File List"),
-    PARENT_ACC_NO("parentAccNo");
+    TITLE("Title");
 
     override fun toString(): String {
         return value

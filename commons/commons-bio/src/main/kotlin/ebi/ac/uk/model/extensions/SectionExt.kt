@@ -9,5 +9,11 @@ var Section.fileListName: String?
         value?.let { this[SectionFields.FILE_LIST] = it }
     }
 
+var Section.title: String?
+    get() = find(SectionFields.TITLE)
+    set(value) {
+        value?.let { this[SectionFields.TITLE] = it }
+    }
+
 fun Section.allFiles() = files.flatMap { either -> either.fold({ listOf(it) }, { it.elements }) }
 fun Section.allSections() = sections.flatMap { either -> either.fold({ listOf(it) }, { it.elements }) }
