@@ -10,6 +10,4 @@ interface FilesSource {
     fun size(filePath: String): Long
 
     fun readText(filePath: String): String
-
-    fun and(filesSource: FilesSource): ComposedFileSource = ComposedFileSource(listOf(this, filesSource))
 }
