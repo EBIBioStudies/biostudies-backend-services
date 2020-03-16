@@ -1,6 +1,8 @@
 package ac.uk.ebi.biostd.submission.submitter
 
 import ac.uk.ebi.biostd.persistence.integration.PersistenceContext
+import ac.uk.ebi.biostd.submission.events.SubmissionEvents.successfulSubmission
+import ac.uk.ebi.biostd.submission.events.SuccessfulSubmission
 import ac.uk.ebi.biostd.submission.exceptions.InvalidSubmissionException
 import ac.uk.ebi.biostd.submission.model.SubmissionRequest
 import ac.uk.ebi.biostd.submission.service.AccNoService
@@ -58,7 +60,12 @@ open class SubmissionSubmitter(
         method: SubmissionMethod
     ): ExtSubmission {
         try {
-            return processSubmission(submission, user, source, method)
+            val submitted = processSubmission(submission, user, source, method)
+
+            // TODO we might want to do this based on a config param to avoid spam on local and dev environments
+            successfulSubmission.onNext(SuccessfulSubmission(user, submission.accNo))
+
+            return submitted
         } catch (e: RuntimeException) {
             throw InvalidSubmissionException("Submission validation errors", listOf(e))
         }
