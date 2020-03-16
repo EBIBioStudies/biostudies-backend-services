@@ -1,11 +1,10 @@
 package ac.uk.ebi.biostd.persistence.projections
 
 import ac.uk.ebi.biostd.persistence.model.SIMPLE_QUERY_GRAPH
-import ebi.ac.uk.functions.secondsToInstant
+import ac.uk.ebi.biostd.persistence.model.ext.title
 import ebi.ac.uk.model.SubmissionMethod
 import ebi.ac.uk.model.constants.ProcessingStatus
 import java.time.OffsetDateTime
-import java.time.ZoneOffset
 import ac.uk.ebi.biostd.persistence.model.Submission as SubmissionDb
 
 /**
@@ -26,9 +25,11 @@ data class SimpleSubmission(
 ) {
 
     companion object {
-
         const val SIMPLE_GRAPH: String = SIMPLE_QUERY_GRAPH
+
         fun SubmissionDb.asSimpleSubmission(): SimpleSubmission {
+            val title = if (title.isNullOrBlank()) rootSection.title else title
+
             return SimpleSubmission(
                 accNo = accNo,
                 version = version,
@@ -43,7 +44,5 @@ data class SimpleSubmission(
                 method = method
             )
         }
-
-        private fun toInstant(dateSeconds: Long) = secondsToInstant(dateSeconds).atOffset(ZoneOffset.UTC)
     }
 }
