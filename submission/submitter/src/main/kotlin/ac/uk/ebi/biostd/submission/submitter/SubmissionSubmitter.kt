@@ -63,7 +63,8 @@ open class SubmissionSubmitter(
             val submitted = processSubmission(submission, user, source, method)
 
             // TODO config param to avoid spam on local and dev environments
-            successfulSubmission.onNext(SuccessfulSubmission(user, submission.accNo, submission.title ?: ""))
+            successfulSubmission.onNext(SuccessfulSubmission(
+                user, submitted.accNo, submitted.released, submitted.title, submission.releaseDate))
 
             return submitted
         } catch (e: RuntimeException) {

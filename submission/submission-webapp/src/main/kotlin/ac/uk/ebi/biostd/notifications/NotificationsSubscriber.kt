@@ -58,7 +58,15 @@ internal class NotificationsSubscriber(
     private fun asSuccessfulSubmissionNotification(source: SuccessfulSubmission) =
         Notification(
             source.user.email,
-            SuccessfulSubmissionModel(FROM, source.user.fullName!!, source.accNo, source.title, source.user.secretKey))
+            SuccessfulSubmissionModel(
+                FROM,
+                source.user.fullName!!,
+                source.accNo,
+                source.user.secretKey,
+                source.released,
+                source.title,
+                source.releaseDate
+            ))
 
     private fun getTemplateContent(templateName: String): String {
         val resource = resourceLoader.getResource("classpath:emails/$templateName")

@@ -6,16 +6,24 @@
   number ${ACC_NO}.
 </p>
 <p>
-  You'll be able to see it <a href="'https://www.ebi.ac.uk/biostudies/studies/' + ${ACC_NO}">here</a> in the next 24
+  You'll be able to see it <a href="https://www.ebi.ac.uk/biostudies/studies/${ACC_NO}">here</a> in the next 24
   hours.
 </p>
+<div style="display: ${IS_PRIVATE};">
+  <p>
+    Your submission is private so is not publicly available. You will be able to see it only by logging in or by accessing
+    it through this <a href="'https://www.ebi.ac.uk/biostudies/studies/${ACC_NO}/${SECRET_KEY}">link</a>.
+  </p>
+</div>
+<div style="display: ${IS_PRIVATE_RELEASE_DATE};">
+  <p>
+    The release date of this study is set to ${RELEASE_DATE}, and it will be publicly available after that. You will be
+    able to see it only by logging in or by accessing it through this
+    <a href="'https://www.ebi.ac.uk/biostudies/studies/${ACC_NO}/${SECRET_KEY}">link</a>.
+  </p>
+</div>
 <p>
-  The release date of this study is set to ${RELEASE_DATE}, and it will be publicly available after that. Before that
-  you will be able to see it only by logging in or by accessing it through this
-  <a href="'https://www.ebi.ac.uk/biostudies/studies/' + ${ACC_NO} + '/' + ${SECRET_KEY}">link</a>.
-</p>
-<p>
-  Should you have any further questions, please contact us at <a href="'mailto:'  + ${MAILTO}">${MAILTO}</a>
+  Should you have any further questions, please contact us at <a href="mailto:${MAILTO}">${MAILTO}</a>
 </p>
 <br/>
 
