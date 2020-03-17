@@ -61,14 +61,12 @@ open class SubmissionSubmitter(
     ): ExtSubmission {
         try {
             val submitted = processSubmission(submission, user, source, method)
-
-            // TODO config param to avoid spam on local and dev environments
             successfulSubmission.onNext(SuccessfulSubmission(
                 user, submitted.accNo, submitted.released, submitted.title, submission.releaseDate))
 
             return submitted
-        } catch (e: RuntimeException) {
-            throw InvalidSubmissionException("Submission validation errors", listOf(e))
+        } catch (exception: RuntimeException) {
+            throw InvalidSubmissionException("Submission validation errors", listOf(exception))
         }
     }
 
