@@ -45,7 +45,7 @@ internal class NotificationsSubscriber(
     @PostConstruct
     fun successfulSubmission() {
         val template = SuccessfulSubmissionTemplate(getTemplateContent("successful-submission.html"))
-        val subscription = NotificationType(EMAIL_FROM, "BioStudies successful submission", template)
+        val subscription = NotificationType(EMAIL_FROM, "BioStudies Successful Submission", template)
         subscriptionService.create(subscription, successfulSubmission.map { asSuccessfulSubmissionNotification(it) })
     }
 
@@ -56,7 +56,9 @@ internal class NotificationsSubscriber(
         Notification(source.user.email, PasswordResetModel(FROM, source.activationLink, source.user.fullName))
 
     private fun asSuccessfulSubmissionNotification(source: SuccessfulSubmission) =
-        Notification(source.user.email, SuccessfulSubmissionModel(FROM, source.accNo))
+        Notification(
+            source.user.email,
+            SuccessfulSubmissionModel(FROM, source.user.fullName!!, source.accNo, source.title, source.user.secretKey))
 
     private fun getTemplateContent(templateName: String): String {
         val resource = resourceLoader.getResource("classpath:emails/$templateName")

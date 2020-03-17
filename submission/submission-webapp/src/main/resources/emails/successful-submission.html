@@ -1,18 +1,33 @@
 <html>
 <body>
-<p>Dear ${ACCNO}<p/>
+<p>Dear ${USERNAME}<p/>
 <p>
-  If you experience any problems, please contact us at
-  <a href="'mailto:'  + ${MAILTO}">${MAILTO}</a>
+  Thank you for submitting your data to BioStudies. Your submission "${TITLE}" has been assigned BioStudies accession
+  number ${ACC_NO}.
+</p>
+<p>
+  You'll be able to see it <a href="'https://www.ebi.ac.uk/biostudies/studies/' + ${ACC_NO}">here</a> in the next 24
+  hours.
+</p>
+<p>
+  The release date of this study is set to ${RELEASE_DATE}, and it will be publicly available after that. Before that
+  you will be able to see it only by logging in or by accessing it through this
+  <a href="'https://www.ebi.ac.uk/biostudies/studies/' + ${ACC_NO} + '/' + ${SECRET_KEY}">link</a>.
+</p>
+<p>
+  Should you have any further questions, please contact us at <a href="'mailto:'  + ${MAILTO}">${MAILTO}</a>
 </p>
 <br/>
-Regards<br/>
+
+Best regards,<br/>
+
 BioStudies Team
-
 <br/>
 <p>
-  Privacy notice: BioStudies database requires limited processing of your personal data. By using the service you are agreeing to this as outlined in our <a href="https://www.ebi.ac.uk/data-protection/privacy-notice/biostudies-database-support">Privacy Notice</a> and <a href="https://www.ebi.ac.uk/about/terms-of-use">Terms of Use</a>.
+  Privacy notice: BioStudies database requires limited processing of your personal data. By using the service you are
+  agreeing to this as outlined in our <a
+    href="https://www.ebi.ac.uk/data-protection/privacy-notice/biostudies-database-support">Privacy Notice</a> and <a
+    href="https://www.ebi.ac.uk/about/terms-of-use">Terms of Use</a>.
 </p>
-
 </body>
 </html>

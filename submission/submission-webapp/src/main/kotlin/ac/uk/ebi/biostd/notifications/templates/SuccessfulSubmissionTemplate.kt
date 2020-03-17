@@ -7,7 +7,15 @@ internal class SuccessfulSubmissionTemplate(content: String) : NotificationTempl
 
 internal class SuccessfulSubmissionModel(
     private val mailto: String,
-    private val accNo: String
+    private val username: String,
+    private val accNo: String,
+    private val title: String,
+    private val secretKey: String
 ) : NotificationTemplateModel {
-    override fun getParams(): List<Pair<String, String>> = listOf("ACCNO" to accNo, "MAILTO" to mailto)
+    override fun getParams(): List<Pair<String, String>> =
+        listOf("MAILTO" to mailto,
+            "USERNAME" to username,
+            "ACC_NO" to accNo,
+            "TITLE" to title,
+            "SECRET_KEY" to secretKey)
 }

@@ -146,7 +146,7 @@ private object DbEntityMapper {
     internal fun toLink(link: LinkDb) = Link(link.url, toAttributes(link.attributes))
     internal fun toFile(file: FileDb) = File(file.name, file.size, toAttributes(file.attributes))
 
-    internal fun toUser(owner: UserDb) = User(owner.id, owner.email, owner.secret)
+    internal fun toUser(owner: UserDb) = User(owner.id, owner.email, owner.secret, owner.fullName)
     internal fun toFile(file: ReferencedFileDb) = File(file.name, file.size, toAttributes(file.attributes))
     internal fun toFileList(fileList: FileListDb) = FileList(fileList.name, fileList.files.map { toFile(it) })
 }

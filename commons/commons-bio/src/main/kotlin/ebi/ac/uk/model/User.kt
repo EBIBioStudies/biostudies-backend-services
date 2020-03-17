@@ -1,3 +1,4 @@
 package ebi.ac.uk.model
 
-data class User(val id: Long, val email: String, val secretKey: String)
+// TODO fullname shoudln't be nullable
+data class User(val id: Long, val email: String, val secretKey: String, val fullName: String? = null)
