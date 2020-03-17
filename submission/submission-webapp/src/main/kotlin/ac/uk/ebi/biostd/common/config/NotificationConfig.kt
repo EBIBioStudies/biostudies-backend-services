@@ -18,9 +18,7 @@ import org.springframework.core.io.ResourceLoader
 @ConditionalOnProperty("app.notifications.smtp")
 internal class NotificationConfig(private val properties: ApplicationProperties) {
     @Bean
-    fun emailConfig(): NotificationConfig {
-        return NotificationConfig(properties.notifications)
-    }
+    fun emailConfig(): NotificationConfig = NotificationConfig(properties.notifications)
 
     @Bean
     fun subscriptionService(emailConfig: NotificationConfig): SubscriptionService = emailConfig.subscriptionService()
@@ -37,5 +35,10 @@ internal class NotificationConfig(private val properties: ApplicationProperties)
         successfulSubmission: Observable<SuccessfulSubmission>
     ): NotificationsSubscriber =
         NotificationsSubscriber(
-            subscriptionService, resourceLoader, userPreRegister, passwordReset, successfulSubmission)
+            subscriptionService,
+            resourceLoader,
+            userPreRegister,
+            passwordReset,
+            successfulSubmission,
+            properties.notifications)
 }

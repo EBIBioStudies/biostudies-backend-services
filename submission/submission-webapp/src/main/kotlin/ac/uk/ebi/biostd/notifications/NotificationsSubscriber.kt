@@ -7,6 +7,7 @@ import ac.uk.ebi.biostd.notifications.templates.PasswordResetTemplate
 import ac.uk.ebi.biostd.notifications.templates.SuccessfulSubmissionModel
 import ac.uk.ebi.biostd.notifications.templates.SuccessfulSubmissionTemplate
 import ac.uk.ebi.biostd.submission.events.SuccessfulSubmission
+import ebi.ac.uk.notifications.integration.NotificationProperties
 import ebi.ac.uk.notifications.integration.components.SubscriptionService
 import ebi.ac.uk.notifications.integration.model.Notification
 import ebi.ac.uk.notifications.integration.model.NotificationType
@@ -26,7 +27,8 @@ internal class NotificationsSubscriber(
     private val resourceLoader: ResourceLoader,
     private val userPreRegister: Observable<UserRegister>,
     private val passwordReset: Observable<PasswordReset>,
-    private val successfulSubmission: Observable<SuccessfulSubmission>
+    private val successfulSubmission: Observable<SuccessfulSubmission>,
+    private val notificationProperties: NotificationProperties
 ) {
     @PostConstruct
     fun activationSubscription() {
@@ -44,9 +46,11 @@ internal class NotificationsSubscriber(
 
     @PostConstruct
     fun successfulSubmission() {
-        val template = SuccessfulSubmissionTemplate(getTemplateContent("successful-submission.html"))
-        val subscription = NotificationType(EMAIL_FROM, "BioStudies Successful Submission", template)
-        subscriptionService.create(subscription, successfulSubmission.map { asSuccessfulSubmissionNotification(it) })
+        if (notificationProperties.submissionNotification) {
+            val template = SuccessfulSubmissionTemplate(getTemplateContent("successful-submission.html"))
+            val subscription = NotificationType(EMAIL_FROM, "BioStudies Successful Submission", template)
+            subscriptionService.create(subscription, successfulSubmission.map { asSubmissionNotification(it) })
+        }
     }
 
     private fun asActivationNotification(source: UserRegister) =
@@ -55,7 +59,7 @@ internal class NotificationsSubscriber(
     private fun asPasswordResetNotification(source: PasswordReset) =
         Notification(source.user.email, PasswordResetModel(FROM, source.activationLink, source.user.fullName))
 
-    private fun asSuccessfulSubmissionNotification(source: SuccessfulSubmission) =
+    private fun asSubmissionNotification(source: SuccessfulSubmission) =
         Notification(
             source.user.email,
             SuccessfulSubmissionModel(

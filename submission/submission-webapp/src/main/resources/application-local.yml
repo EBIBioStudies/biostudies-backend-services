@@ -27,3 +27,4 @@ app:
     requireActivation: false
   notifications:
     smtp: smtp.ebi.ac.uk
+    submissionNotification: false
