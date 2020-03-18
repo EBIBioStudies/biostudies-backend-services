@@ -1,15 +1,17 @@
 package ac.uk.ebi.biostd.persistence.model
 
 import ac.uk.ebi.biostd.persistence.converters.AttributeDetailConverter
-import java.util.Objects
+import java.util.*
 import javax.persistence.Column
 import javax.persistence.Convert
 import javax.persistence.Entity
 import javax.persistence.GeneratedValue
 import javax.persistence.Id
 import javax.persistence.MappedSuperclass
+import javax.persistence.Table
 
 @Entity
+@Table(name = "SectionAttribute")
 class DbSectionAttribute(attribute: DbAttribute) :
     DbAttribute(attribute.name, attribute.value, attribute.order, attribute.reference) {
     init {
@@ -19,6 +21,7 @@ class DbSectionAttribute(attribute: DbAttribute) :
 }
 
 @Entity
+@Table(name = "LinkAttribute")
 class DbLinkAttribute(attribute: DbAttribute) :
     DbAttribute(attribute.name, attribute.value, attribute.order, attribute.reference) {
     init {
@@ -28,6 +31,7 @@ class DbLinkAttribute(attribute: DbAttribute) :
 }
 
 @Entity
+@Table(name = "FileAttribute")
 class DbFileAttribute(attribute: DbAttribute) :
     DbAttribute(attribute.name, attribute.value, attribute.order, attribute.reference) {
     init {
@@ -37,6 +41,7 @@ class DbFileAttribute(attribute: DbAttribute) :
 }
 
 @Entity
+@Table(name = "ReferencedFileAttribute")
 class DbReferencedFileAttribute(attribute: DbAttribute) :
     DbAttribute(attribute.name, attribute.value, attribute.order, attribute.reference) {
     init {
@@ -46,6 +51,7 @@ class DbReferencedFileAttribute(attribute: DbAttribute) :
 }
 
 @Entity
+@Table(name = "SubmissionAttribute")
 class DbSubmissionAttribute(attribute: DbAttribute) :
     DbAttribute(attribute.name, attribute.value, attribute.order, attribute.reference) {
     init {
