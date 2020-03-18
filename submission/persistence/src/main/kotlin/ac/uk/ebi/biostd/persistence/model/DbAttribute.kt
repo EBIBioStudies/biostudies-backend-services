@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.persistence.model
 
 import ac.uk.ebi.biostd.persistence.converters.AttributeDetailConverter
-import java.util.*
+import java.util.Objects
 import javax.persistence.Column
 import javax.persistence.Convert
 import javax.persistence.Entity
