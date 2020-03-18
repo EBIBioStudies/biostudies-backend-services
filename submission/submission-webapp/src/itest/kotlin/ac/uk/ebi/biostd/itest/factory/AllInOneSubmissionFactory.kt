@@ -13,7 +13,7 @@ import ebi.ac.uk.model.extensions.releaseDate
 import ebi.ac.uk.model.extensions.title
 
 fun allInOneSubmission(accNo: String) = submission(accNo) {
-    title = "venous blood, Monocyte"
+    title = "venous blood, ∆Monocyte"
     releaseDate = "2021-02-12"
 
     section("Study") {
