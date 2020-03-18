@@ -27,22 +27,18 @@ data class SimpleSubmission(
     companion object {
         const val SIMPLE_GRAPH: String = SIMPLE_QUERY_GRAPH
 
-        fun SubmissionDb.asSimpleSubmission(): SimpleSubmission {
-            val title = if (title.isNullOrBlank()) rootSection.title else title
-
-            return SimpleSubmission(
+        fun SubmissionDb.asSimpleSubmission(): SimpleSubmission =
+            SimpleSubmission(
                 accNo = accNo,
                 version = version,
                 secretKey = secretKey,
-                title = title,
+                title = title ?: rootSection.title,
                 relPath = relPath,
                 released = released,
                 creationTime = creationTime,
                 modificationTime = modificationTime,
                 releaseTime = releaseTime,
                 status = status,
-                method = method
-            )
-        }
+                method = method)
     }
 }
