@@ -169,6 +169,7 @@ object SpringBootDependencies {
     const val SpringBootStarter = "org.springframework.boot:spring-boot-starter"
     const val SpringBootStarterTest = "org.springframework.boot:spring-boot-starter-test"
     const val SpringBootStarterWeb = "org.springframework.boot:spring-boot-starter-web"
+    const val SpringBootStarterActuator = "org.springframework.boot:spring-boot-starter-actuator"
     const val SpringBootStarterDataJpa = "org.springframework.boot:spring-boot-starter-data-jpa"
     const val SpringBootStarterConfigProcessor = "org.springframework.boot:spring-boot-configuration-processor"
     const val SpringBootStarterSecurity = "org.springframework.boot:spring-boot-starter-security"

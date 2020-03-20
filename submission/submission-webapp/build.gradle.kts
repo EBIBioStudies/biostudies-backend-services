@@ -2,6 +2,7 @@ import Dependencies.MySql
 import Dependencies.SpringfoxSwagger
 import Dependencies.SpringfoxSwaggerUI
 import SpringBootDependencies.SpringBootStartedAdminClient
+import SpringBootDependencies.SpringBootStarterActuator
 import SpringBootDependencies.SpringBootStarterConfigProcessor
 import SpringBootDependencies.SpringBootStarterDataJpa
 import SpringBootDependencies.SpringBootStarterSecurity
@@ -36,6 +37,7 @@ dependencies {
     implementation(SpringBootStarterDataJpa)
     implementation(SpringBootStarterConfigProcessor)
     implementation(SpringBootStarterSecurity)
+    implementation(SpringBootStarterActuator)
 
     // Registers the application in the Spring Dashboard
     implementation(SpringBootStartedAdminClient)
