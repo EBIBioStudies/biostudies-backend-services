@@ -3,6 +3,7 @@ spring:
     admin:
       client:
         url: http://biostudy-prod.ebi.ac.uk:8590
+        enabled: false
   datasource:
     url: # Database connection URL
     username:

@@ -1,6 +1,7 @@
 import Dependencies.MySql
 import Dependencies.SpringfoxSwagger
 import Dependencies.SpringfoxSwaggerUI
+import SpringBootDependencies.SpringBootStartedAdminClient
 import SpringBootDependencies.SpringBootStarterConfigProcessor
 import SpringBootDependencies.SpringBootStarterDataJpa
 import SpringBootDependencies.SpringBootStarterSecurity
@@ -22,33 +23,36 @@ plugins {
 }
 
 dependencies {
-    compile(project(":submission:persistence"))
-    compile(project(":submission:submitter"))
-    compile(project(":submission:submission-security"))
-    compile(project(":submission:notifications"))
-    compile(project(":commons:commons-serialization"))
-    compile(project(":commons:commons-util"))
-    compile(project(":commons:commons-test"))
-    compile(project(":commons:commons-http"))
+    implementation(project(":submission:persistence"))
+    implementation(project(":submission:submitter"))
+    implementation(project(":submission:submission-security"))
+    implementation(project(":submission:notifications"))
+    implementation(project(":commons:commons-serialization"))
+    implementation(project(":commons:commons-util"))
+    implementation(project(":commons:commons-test"))
+    implementation(project(":commons:commons-http"))
 
-    compile(SpringBootStarterWeb)
-    compile(SpringBootStarterDataJpa)
-    compile(SpringBootStarterConfigProcessor)
-    compile(SpringBootStarterSecurity)
+    implementation(SpringBootStarterWeb)
+    implementation(SpringBootStarterDataJpa)
+    implementation(SpringBootStarterConfigProcessor)
+    implementation(SpringBootStarterSecurity)
 
-    compile(MySql)
-    compile(SpringfoxSwagger)
-    compile(SpringfoxSwaggerUI)
+    // Registers the application in the Spring Dashboard
+    implementation(SpringBootStartedAdminClient)
 
-    testCompile(project(":client:bio-webclient"))
-    BaseTestCompileDependencies.forEach { testCompile(it) }
-    BaseTestRuntimeDependencies.forEach { testCompile(it) }
-    testCompile(SpringBootStarterTest)
-    testCompile(H2)
-    testCompile(KotlinXmlBuilder)
-    testCompile(JsonPathAssert)
-    testCompile(XmlUnitCore)
-    testCompile(XmlUnitMatchers)
+    implementation(MySql)
+    implementation(SpringfoxSwagger)
+    implementation(SpringfoxSwaggerUI)
+
+    testImplementation(project(":client:bio-webclient"))
+    BaseTestCompileDependencies.forEach { testImplementation(it) }
+    BaseTestRuntimeDependencies.forEach { testImplementation(it) }
+    testImplementation(SpringBootStarterTest)
+    testImplementation(H2)
+    testImplementation(KotlinXmlBuilder)
+    testImplementation(JsonPathAssert)
+    testImplementation(XmlUnitCore)
+    testImplementation(XmlUnitMatchers)
 }
 
 apply(from = "$rootDir/gradle/itest.gradle.kts")
