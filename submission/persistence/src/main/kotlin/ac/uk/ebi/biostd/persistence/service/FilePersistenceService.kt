@@ -11,7 +11,7 @@ import ebi.ac.uk.paths.SubmissionFolderResolver
 import org.apache.commons.io.FileUtils
 import java.io.File
 
-private const val SUBMISSION_FOLDER_REP = "Files"
+private const val SUBMISSION_FOLDER_REL_PATH = "Files"
 
 class FilePersistenceService(
     private val folderResolver: SubmissionFolderResolver,
@@ -20,23 +20,6 @@ class FilePersistenceService(
     fun persistSubmissionFiles(submission: ExtSubmission) {
         persistFiles(submission)
         generateOutputFiles(submission)
-    }
-
-    private fun persistFiles(submission: ExtSubmission) {
-        val submissionFolder = getSubmissionFolder(submission.relPath)
-        val temporally = createTempFolder(submissionFolder, submission.accNo)
-
-        submission.allFiles.forEach { it.file.renameTo(temporally.resolve(it.fileName)) }
-        submission.allReferencedFiles.forEach { it.file.renameTo(temporally.resolve(it.fileName)) }
-
-        FileUtils.cleanDirectory(submissionFolder)
-        temporally.renameTo(submissionFolder.resolve(SUBMISSION_FOLDER_REP))
-    }
-
-    private fun getSubmissionFolder(relPath: String): File {
-        val submissionFolder = folderResolver.getSubmissionFolder(relPath).toFile()
-        submissionFolder.mkdirs()
-        return submissionFolder
     }
 
     fun <T> generateOutputFiles(element: T, submission: ExtSubmission, outputFileName: String) {
@@ -48,6 +31,23 @@ class FilePersistenceService(
         FileUtils.writeStringToFile(submissionPath.resolve("$outputFileName.json").toFile(), json, Charsets.UTF_8)
         FileUtils.writeStringToFile(submissionPath.resolve("$outputFileName.xml").toFile(), xml, Charsets.UTF_8)
         FileUtils.writeStringToFile(submissionPath.resolve("$outputFileName.pagetab.tsv").toFile(), tsv, Charsets.UTF_8)
+    }
+
+    private fun persistFiles(submission: ExtSubmission) {
+        val submissionFolder = getSubmissionFolder(submission.relPath)
+        val temporally = createTempFolder(submissionFolder, submission.accNo)
+
+        submission.allFiles.forEach { it.file.renameTo(temporally.resolve(it.fileName)) }
+        submission.allReferencedFiles.forEach { it.file.renameTo(temporally.resolve(it.fileName)) }
+
+        FileUtils.cleanDirectory(submissionFolder)
+        temporally.renameTo(submissionFolder.resolve(SUBMISSION_FOLDER_REL_PATH))
+    }
+
+    private fun getSubmissionFolder(relPath: String): File {
+        val submissionFolder = folderResolver.getSubmissionFolder(relPath).toFile()
+        submissionFolder.mkdirs()
+        return submissionFolder
     }
 
     private fun createTempFolder(submissionFolder: File, accNo: String): File {

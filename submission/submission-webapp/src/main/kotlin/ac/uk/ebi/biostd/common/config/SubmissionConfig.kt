@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.common.config
 
 import ac.uk.ebi.biostd.integration.SerializationService
+import ac.uk.ebi.biostd.persistence.integration.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
 import ac.uk.ebi.biostd.persistence.service.ProjectRepository
@@ -26,9 +27,10 @@ class SubmissionConfig(
         subRepository: SubmissionRepository,
         serializationService: SerializationService,
         userPrivilegeService: IUserPrivilegesService,
+        queryService: SubmissionQueryService,
         submissionSubmitter: SubmissionSubmitter
     ): SubmissionService = SubmissionService(
-        subRepository, serializationService, userPrivilegeService, submissionSubmitter)
+        subRepository, serializationService, userPrivilegeService, queryService, submissionSubmitter)
 
     @Bean
     fun projectService(

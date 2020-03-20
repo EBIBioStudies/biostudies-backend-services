@@ -1,29 +1,38 @@
 package ac.uk.ebi.biostd.submission.domain.helpers
 
 import ac.uk.ebi.biostd.submission.model.GroupSource
+import com.google.common.collect.ImmutableList
 import ebi.ac.uk.io.sources.ComposedFileSource
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.io.sources.ListFilesSource
 import ebi.ac.uk.io.sources.PathFilesSource
+import ebi.ac.uk.security.integration.model.api.GroupMagicFolder
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import java.io.File
+import java.nio.file.Path
 
 class SourceGenerator {
-    fun getSubmissionSources(user: SecurityUser, files: List<File>, rootPath: String): FilesSource {
-        val sources = mutableListOf<FilesSource>()
-        sources.add(ListFilesSource(files))
-        sources.add(userFiles(user, rootPath))
-        sources.addAll(user.groupsFolders.map { GroupSource(it.groupName, it.path) })
-        return ComposedFileSource(sources)
+
+    fun submissionSources(requestSources: RequestSources): FilesSource {
+        val (user, files, rootPath, subFolder) = requestSources
+        val sources = ImmutableList.builder<FilesSource>()
+            .add(ListFilesSource(files))
+            .add(createPathSource(user.magicFolder.path, rootPath.orEmpty()))
+            .addAll(groupSources(user.groupsFolders))
+        return when (subFolder) {
+            null -> ComposedFileSource(sources.build())
+            else -> ComposedFileSource(sources.add(PathFilesSource(subFolder.toPath())).build())
+        }
     }
 
-    fun getSubmissionSources(user: SecurityUser, rootPath: String): FilesSource {
-        val sources = mutableListOf<FilesSource>()
-        sources.add(userFiles(user, rootPath))
-        sources.addAll(user.groupsFolders.map { GroupSource(it.groupName, it.path) })
-        return ComposedFileSource(sources)
-    }
+    private fun createPathSource(folder: Path, rootPath: String?) = PathFilesSource(folder.resolve(rootPath.orEmpty()))
 
-    private fun userFiles(user: SecurityUser, rootPath: String) =
-        PathFilesSource(user.magicFolder.path.resolve(rootPath))
+    private fun groupSources(groups: List<GroupMagicFolder>) = groups.map { GroupSource(it.groupName, it.path) }
 }
+
+data class RequestSources(
+    val user: SecurityUser,
+    val files: List<File> = emptyList(),
+    val rootPath: String? = null,
+    val subFolder: File? = null
+)

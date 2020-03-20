@@ -6,7 +6,5 @@ import ebi.ac.uk.model.File
 
 internal const val TO_EXT_FILE_EXTENSIONS = "ebi.ac.uk.extended.mapping.serialization.from.ToExtFileKt"
 
-fun File.toExtFile(fileSource: FilesSource): ExtFile {
-    val file = fileSource.getFile(path)
-    return ExtFile(path, file, attributes.map { it.toExtAttribute() })
-}
+fun File.toExtFile(fileSource: FilesSource): ExtFile =
+    ExtFile(path, fileSource.getFile(path), attributes.map { it.toExtAttribute() })

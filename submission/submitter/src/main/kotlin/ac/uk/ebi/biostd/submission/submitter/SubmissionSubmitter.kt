@@ -19,9 +19,7 @@ import ebi.ac.uk.extended.mapping.serialization.to.toSimpleSubmission
 import ebi.ac.uk.extended.model.ExtAccessTag
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtTag
-import ebi.ac.uk.io.sources.ComposedFileSource
 import ebi.ac.uk.io.sources.FilesSource
-import ebi.ac.uk.io.sources.PathFilesSource
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.SubmissionMethod
 import ebi.ac.uk.model.User
@@ -50,16 +48,9 @@ open class SubmissionSubmitter(
     @Transactional(isolation = Isolation.READ_UNCOMMITTED)
     open fun submit(request: SubmissionRequest): Submission {
         val user = request.user.asUser()
-        val sources = sources(request.submission.accNo, request.sources)
-        val extSubmission = process(request.submission, request.user.asUser(), sources, request.method)
+        val extSubmission = process(request.submission, request.user.asUser(), request.sources, request.method)
         return context.saveSubmission(extSubmission, user.email, user.id).toSimpleSubmission()
     }
-
-    private fun sources(accNo: String, sources: FilesSource): FilesSource =
-        when (val submissionFolder = queryService.getExistingFolder(accNo)) {
-            null -> sources
-            else -> ComposedFileSource(listOf(sources, PathFilesSource(submissionFolder.toPath())))
-        }
 
     @Suppress("TooGenericExceptionCaught")
     private fun process(

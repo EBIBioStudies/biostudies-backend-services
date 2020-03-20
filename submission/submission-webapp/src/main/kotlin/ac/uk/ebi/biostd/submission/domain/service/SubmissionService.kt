@@ -5,6 +5,7 @@ import ac.uk.ebi.biostd.integration.SubFormat.JsonFormat.JsonPretty
 import ac.uk.ebi.biostd.integration.SubFormat.TsvFormat.Tsv
 import ac.uk.ebi.biostd.integration.SubFormat.XmlFormat
 import ac.uk.ebi.biostd.persistence.filter.SubmissionFilter
+import ac.uk.ebi.biostd.persistence.integration.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.projections.SimpleSubmission
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
 import ac.uk.ebi.biostd.submission.model.SubmissionRequest
@@ -17,8 +18,11 @@ class SubmissionService(
     private val submissionRepository: SubmissionRepository,
     private val serializationService: SerializationService,
     private val userPrivilegesService: IUserPrivilegesService,
+    private val queryService: SubmissionQueryService,
     private val submissionSubmitter: SubmissionSubmitter
 ) {
+    fun submit(request: SubmissionRequest): Submission = submissionSubmitter.submit(request)
+
     fun getSubmissionAsJson(accNo: String): String {
         val submission = submissionRepository.getByAccNo(accNo)
         return serializationService.serializeSubmission(submission, JsonPretty)
@@ -42,5 +46,5 @@ class SubmissionService(
         submissionRepository.expireSubmission(accNo)
     }
 
-    fun submit(request: SubmissionRequest): Submission = submissionSubmitter.submit(request)
+    fun submissionFolder(accNo: String): java.io.File? = queryService.getExistingFolder(accNo)
 }

@@ -17,9 +17,9 @@ interface Attributable {
     }
 
     fun addAttribute(attr: Attribute) {
-        when (val index = attributes.indexOf { it.name == attr.name }) {
-            null -> attributes = attributes + attr
-            else -> attributes = attributes.toMutableList().apply { set(index, attr) }
+        attributes = when (val index = attributes.indexOf { it.name == attr.name }) {
+            null -> attributes + attr
+            else -> attributes.toMutableList().apply { set(index, attr) }
         }
     }
 }

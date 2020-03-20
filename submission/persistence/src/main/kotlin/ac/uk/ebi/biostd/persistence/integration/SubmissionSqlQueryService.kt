@@ -12,7 +12,6 @@ class SubmissionSqlQueryService(
     private val subRepository: SubmissionDataRepository,
     private val folderResolver: SubmissionFolderResolver
 ) : SubmissionQueryService {
-
     override fun getParentAccPattern(parentAccNo: String) =
         getParentSubmission(parentAccNo)
             .let { parent -> parent.attributes.firstOrNull { it.name == SubFields.ACC_NO_TEMPLATE.value } }
@@ -43,24 +42,4 @@ class SubmissionSqlQueryService(
         subRepository.findByAccNoAndVersionGreaterThan(parentAccNo) ?: throw ProjectNotFoundException(parentAccNo)
 
     private fun findActiveVersion(accNo: String) = subRepository.findByAccNoAndVersionGreaterThan(accNo, 0)
-}
-
-interface SubmissionQueryService {
-    fun getParentAccPattern(parentAccNo: String): String?
-
-    fun isNew(accNo: String): Boolean
-
-    fun getSecret(accNo: String): String
-
-    fun getAccessTags(accNo: String): List<String>
-
-    fun getReleaseTime(accNo: String): OffsetDateTime?
-
-    fun existByAccNo(accNo: String): Boolean
-
-    fun findCreationTime(accNo: String): OffsetDateTime?
-
-    fun getAuthor(accNo: String): String
-
-    fun getExistingFolder(accNo: String): File?
 }
