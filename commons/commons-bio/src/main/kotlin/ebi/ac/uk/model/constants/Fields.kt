@@ -20,9 +20,7 @@ enum class OtherFields(override val value: String) : Fields {
 
 enum class SubFields(override val value: String) : Fields {
     SUBMISSION("submission"),
-    REL_PATH("relPath"),
     ACC_NO(ACC_NO_FIELD),
-    ACCESS_TAGS(ACCESS_FIELD),
     ATTRIBUTES(ATTRIBUTES_FIELD),
     SECTION(SECTION_FIELD),
     TITLE("Title"),
@@ -44,15 +42,14 @@ enum class SubFields(override val value: String) : Fields {
 
 enum class SectionFields(override val value: String) : Fields {
     ACC_NO(ACC_NO_FIELD),
-    ACCESS_TAGS(ACCESS_FIELD),
     ATTRIBUTES(ATTRIBUTES_FIELD),
     SECTION(SECTION_FIELD),
+    TITLE("Title"),
     LINKS("links"),
     SUBSECTIONS("subsections"),
     TYPE("type"),
     FILES("files"),
-    FILE_LIST("File List"),
-    PARENT_ACC_NO("parentAccNo");
+    FILE_LIST("File List");
 
     override fun toString(): String {
         return value
