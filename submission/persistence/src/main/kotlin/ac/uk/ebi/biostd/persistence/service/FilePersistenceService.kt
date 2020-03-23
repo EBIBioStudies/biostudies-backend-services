@@ -11,7 +11,7 @@ import ebi.ac.uk.paths.SubmissionFolderResolver
 import org.apache.commons.io.FileUtils
 import java.io.File
 
-private const val SUBMISSION_FOLDER_REL_PATH = "Files"
+const val SUBMISSION_FOLDER_FILES_PATH = "Files"
 
 class FilePersistenceService(
     private val folderResolver: SubmissionFolderResolver,
@@ -41,7 +41,7 @@ class FilePersistenceService(
         submission.allReferencedFiles.forEach { it.file.renameTo(temporally.resolve(it.fileName)) }
 
         FileUtils.cleanDirectory(submissionFolder)
-        temporally.renameTo(submissionFolder.resolve(SUBMISSION_FOLDER_REL_PATH))
+        temporally.renameTo(submissionFolder.resolve(SUBMISSION_FOLDER_FILES_PATH))
     }
 
     private fun getSubmissionFolder(relPath: String): File {
