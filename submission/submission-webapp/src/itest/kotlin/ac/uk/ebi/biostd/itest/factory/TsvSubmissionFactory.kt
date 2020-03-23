@@ -8,7 +8,7 @@ import org.assertj.core.api.Assertions.assertThat
 fun allInOneSubmissionTsv(accNo: String) = tsv {
     line("# All in one submission")
     line("Submission", accNo)
-    line("Title", "venous blood, Monocyte")
+    line("Title", "venous blood, ∆Monocyte")
     line("ReleaseDate", "2021-02-12")
     line()
 
@@ -67,7 +67,7 @@ fun assertAllInOneSubmissionTsv(tsv: String, accNo: String) {
 
     val expectedSubmission = tsv {
         line("Submission", accNo)
-        line("Title", "venous blood, Monocyte")
+        line("Title", "venous blood, ∆Monocyte")
         line("ReleaseDate", "2021-02-12")
         line()
     }

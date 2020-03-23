@@ -19,7 +19,7 @@ fun allInOneSubmissionJson(accNo: String) = jsonObj {
     "accno" to accNo
     "attributes" to jsonArray({
         "name" to "Title"
-        "value" to "venous blood, Monocyte"
+        "value" to "venous blood, ∆Monocyte"
     }, {
         "name" to "ReleaseDate"
         "value" to "2021-02-12"
@@ -127,7 +127,7 @@ fun allInOneSubmissionJson(accNo: String) = jsonObj {
 fun assertAllInOneSubmissionJson(json: String, accNo: String) {
     assertThat(json, isJson(withJsonPath("$.accno", equalTo(accNo))))
     assertJsonAttributes(
-        json, "$", listOf(Attribute("Title", "venous blood, Monocyte"), Attribute("ReleaseDate", "2021-02-12")))
+        json, "$", listOf(Attribute("Title", "venous blood, ∆Monocyte"), Attribute("ReleaseDate", "2021-02-12")))
 
     val section = allInOneRootSection()
     assertJsonSection(json, "$.section", section)
