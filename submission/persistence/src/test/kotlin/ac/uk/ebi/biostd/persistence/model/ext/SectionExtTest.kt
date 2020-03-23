@@ -1,0 +1,38 @@
+package ac.uk.ebi.biostd.persistence.model.ext
+
+import ac.uk.ebi.biostd.persistence.model.Attribute
+import ac.uk.ebi.biostd.persistence.model.Section
+import ac.uk.ebi.biostd.persistence.model.SectionAttribute
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Test
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
+
+class SectionExtTest {
+    @Test
+    fun `table element`() {
+        val section = Section("SECT-001", "Study").apply { tableIndex = 0 }
+        assertTrue { section.isTableElement() }
+    }
+
+    @Test
+    fun `not table element`() {
+        val section = Section("SECT-001", "Study")
+        assertFalse { section.isTableElement() }
+    }
+
+    @Test
+    fun `section title`() {
+        val section = Section("SECT-001", "Study").apply {
+            attributes.add(SectionAttribute(Attribute("Title", "Section Title", 0)))
+        }
+
+        assertThat(section.title).isEqualTo("Section Title")
+    }
+
+    @Test
+    fun `section without title`() {
+        val section = Section("SECT-001", "Study")
+        assertThat(section.title).isNull()
+    }
+}

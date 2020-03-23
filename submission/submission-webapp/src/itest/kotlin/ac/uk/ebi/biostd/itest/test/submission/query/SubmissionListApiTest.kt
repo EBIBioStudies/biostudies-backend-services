@@ -68,6 +68,7 @@ internal class SubmissionListApiTest(private val tempFolder: TemporaryFolder) : 
                 assertThat(it.accno).isEqualTo("SimpleAcc17")
                 assertThat(it.version).isEqualTo(1)
                 assertThat(it.method).isEqualTo(SubmissionMethod.PAGE_TAB)
+                assertThat(it.title).isEqualTo("Simple Submission 17 - keyword17")
             }
         }
 
@@ -81,6 +82,7 @@ internal class SubmissionListApiTest(private val tempFolder: TemporaryFolder) : 
                 assertThat(it.accno).isEqualTo("SimpleAcc27")
                 assertThat(it.version).isEqualTo(1)
                 assertThat(it.method).isEqualTo(SubmissionMethod.FILE)
+                assertThat(it.title).isEqualTo("Simple Submission 27 - keyword27")
             }
         }
 
@@ -112,6 +114,57 @@ internal class SubmissionListApiTest(private val tempFolder: TemporaryFolder) : 
             ))
 
             assertThat(submissionList).hasSize(5)
+        }
+
+        @Test
+        fun `submission with section title`() {
+            val submission = tsv {
+                line("Submission", "SECT-123")
+                line()
+
+                line("Study")
+                line("Title", "Submission With Section Title")
+                line()
+            }.toString()
+
+            assertThat(webClient.submitSingle(submission, SubmissionFormat.TSV)).isSuccessful()
+
+            val submissionList = webClient.getSubmissions(mapOf(
+                "accNo" to "SECT-123"
+            ))
+
+            assertThat(submissionList).hasOnlyOneElementSatisfying {
+                assertThat(it.accno).isEqualTo("SECT-123")
+                assertThat(it.version).isEqualTo(1)
+                assertThat(it.method).isEqualTo(SubmissionMethod.PAGE_TAB)
+                assertThat(it.title).isEqualTo("Submission With Section Title")
+            }
+        }
+
+        @Test
+        fun `submission with both titles`() {
+            val submission = tsv {
+                line("Submission", "SECT-124")
+                line("Title", "Submission Title")
+                line()
+
+                line("Study")
+                line("Title", "Section Title")
+                line()
+            }.toString()
+
+            assertThat(webClient.submitSingle(submission, SubmissionFormat.TSV)).isSuccessful()
+
+            val submissionList = webClient.getSubmissions(mapOf(
+                "accNo" to "SECT-124"
+            ))
+
+            assertThat(submissionList).hasOnlyOneElementSatisfying {
+                assertThat(it.accno).isEqualTo("SECT-124")
+                assertThat(it.version).isEqualTo(1)
+                assertThat(it.method).isEqualTo(SubmissionMethod.PAGE_TAB)
+                assertThat(it.title).isEqualTo("Submission Title")
+            }
         }
 
         private fun getSimpleSubmission(idx: Int) = tsv {

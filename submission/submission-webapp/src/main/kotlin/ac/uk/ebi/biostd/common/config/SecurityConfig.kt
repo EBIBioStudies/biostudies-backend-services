@@ -35,7 +35,6 @@ class SecurityConfig(
     private val accessDeniedHandler: SecurityAccessDeniedHandler,
     private val authEntryPoint: SecurityAuthEntryPoint
 ) : WebSecurityConfigurerAdapter() {
-
     @Suppress("SpreadOperator")
     override fun configure(http: HttpSecurity) {
         http.csrf()
@@ -49,6 +48,7 @@ class SecurityConfig(
             .antMatchers("/webjars/**").permitAll()
             .antMatchers("/swagger**").permitAll()
             .antMatchers("/swagger-resources/**").permitAll()
+            .antMatchers("/actuator/**").permitAll()
             .anyRequest().fullyAuthenticated()
             .and()
             .exceptionHandling().accessDeniedHandler(accessDeniedHandler)
