@@ -2,10 +2,12 @@ package ac.uk.ebi.biostd.common.config
 
 import ac.uk.ebi.biostd.common.property.ApplicationProperties
 import ac.uk.ebi.biostd.notifications.NotificationsSubscriber
+import ac.uk.ebi.biostd.notifications.RtNotificationSubscriber
 import ac.uk.ebi.biostd.submission.events.SubmissionEvents
 import ac.uk.ebi.biostd.submission.events.SuccessfulSubmission
 import ebi.ac.uk.notifications.integration.NotificationConfig
 import ebi.ac.uk.notifications.integration.components.SubscriptionService
+import ebi.ac.uk.notifications.persistence.repositories.SubmissionRtRepository
 import ebi.ac.uk.security.integration.model.events.PasswordReset
 import ebi.ac.uk.security.integration.model.events.UserRegister
 import io.reactivex.Observable
@@ -16,12 +18,18 @@ import org.springframework.core.io.ResourceLoader
 
 @Configuration
 @ConditionalOnProperty("app.notifications.smtp")
-internal class NotificationConfig(private val properties: ApplicationProperties) {
+internal class NotificationConfig(
+    private val properties: ApplicationProperties,
+    private val submissionRtRepository: SubmissionRtRepository
+) {
     @Bean
-    fun emailConfig(): NotificationConfig = NotificationConfig(properties.notifications)
+    fun emailConfig(): NotificationConfig = NotificationConfig(properties.notifications, submissionRtRepository)
 
     @Bean
     fun subscriptionService(emailConfig: NotificationConfig): SubscriptionService = emailConfig.subscriptionService()
+
+    @Bean
+    fun rtSubscriptionService(emailConfig: NotificationConfig): SubscriptionService = emailConfig.rtSubscriptionService()
 
     @Bean
     fun successfulSubmission(): Observable<SuccessfulSubmission> = SubmissionEvents.successfulSubmission
@@ -31,14 +39,14 @@ internal class NotificationConfig(private val properties: ApplicationProperties)
         subscriptionService: SubscriptionService,
         resourceLoader: ResourceLoader,
         userPreRegister: Observable<UserRegister>,
-        passwordReset: Observable<PasswordReset>,
-        successfulSubmission: Observable<SuccessfulSubmission>
+        passwordReset: Observable<PasswordReset>
     ): NotificationsSubscriber =
-        NotificationsSubscriber(
-            subscriptionService,
-            resourceLoader,
-            userPreRegister,
-            passwordReset,
-            successfulSubmission,
-            properties.notifications)
+        NotificationsSubscriber(subscriptionService, resourceLoader, userPreRegister, passwordReset)
+
+    @Bean
+    fun rtNotificationService(
+        resourceLoader: ResourceLoader,
+        rtSubscriptionService: SubscriptionService,
+        successfulSubmission: Observable<SuccessfulSubmission>
+    ): RtNotificationSubscriber = RtNotificationSubscriber(resourceLoader, rtSubscriptionService, successfulSubmission)
 }

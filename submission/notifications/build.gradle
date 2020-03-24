@@ -1,9 +1,24 @@
+import static Dependencies.HibernateEntityManager
+import static Dependencies.JpaEntityGraph
 import static Dependencies.KotlinStdLib
 import static Dependencies.RxJava2
+import static Dependencies.SpringDataJpa
+import static Dependencies.SpringWeb
 import static SpringBootDependencies.SpringBootStarterMail
+import static TestDependencies.BaseTestCompileDependencies
+import static TestDependencies.BaseTestRuntimeDependencies
 
 dependencies {
+    implementation(project(":commons:commons-util"))
+
     implementation("$SpringBootStarterMail:${Versions.SpringBootVersion}")
+    implementation(HibernateEntityManager)
+    implementation(JpaEntityGraph)
+    implementation(SpringDataJpa)
+    implementation(SpringWeb)
     implementation(KotlinStdLib)
     implementation(RxJava2)
+
+    testCompile(BaseTestCompileDependencies)
+    testRuntime(BaseTestRuntimeDependencies)
 }

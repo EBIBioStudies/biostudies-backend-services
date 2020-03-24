@@ -8,7 +8,6 @@ import ebi.ac.uk.notifications.model.Email
 import io.reactivex.Observable
 
 internal class SimpleSubscriptionService(private val emailService: SimpleEmailService) : SubscriptionService {
-
     /**
      * Create a subscription based on the given notification and Observable.
      */

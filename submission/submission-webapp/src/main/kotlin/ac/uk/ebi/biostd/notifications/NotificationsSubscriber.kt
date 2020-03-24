@@ -26,9 +26,7 @@ internal class NotificationsSubscriber(
     private val subscriptionService: SubscriptionService,
     private val resourceLoader: ResourceLoader,
     private val userPreRegister: Observable<UserRegister>,
-    private val passwordReset: Observable<PasswordReset>,
-    private val successfulSubmission: Observable<SuccessfulSubmission>,
-    private val notificationProperties: NotificationProperties
+    private val passwordReset: Observable<PasswordReset>
 ) {
     @PostConstruct
     fun activationSubscription() {
@@ -44,33 +42,11 @@ internal class NotificationsSubscriber(
         subscriptionService.create(subscription, passwordReset.map { asPasswordResetNotification(it) })
     }
 
-    @PostConstruct
-    fun successfulSubmission() {
-        if (notificationProperties.submissionNotification) {
-            val template = SuccessfulSubmissionTemplate(getTemplateContent("successful-submission.html"))
-            val subscription = NotificationType(EMAIL_FROM, "BioStudies Successful Submission", template)
-            subscriptionService.create(subscription, successfulSubmission.map { asSubmissionNotification(it) })
-        }
-    }
-
     private fun asActivationNotification(source: UserRegister) =
         Notification(source.user.email, ActivationModel(FROM, source.activationLink, source.user.fullName))
 
     private fun asPasswordResetNotification(source: PasswordReset) =
         Notification(source.user.email, PasswordResetModel(FROM, source.activationLink, source.user.fullName))
-
-    private fun asSubmissionNotification(source: SuccessfulSubmission) =
-        Notification(
-            source.user.email,
-            SuccessfulSubmissionModel(
-                FROM,
-                source.user.fullName!!,
-                source.accNo,
-                source.user.secretKey,
-                source.released,
-                source.title,
-                source.releaseDate
-            ))
 
     private fun getTemplateContent(templateName: String): String {
         val resource = resourceLoader.getResource("classpath:emails/$templateName")

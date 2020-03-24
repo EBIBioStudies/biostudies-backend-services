@@ -7,7 +7,7 @@ open class NotificationTemplate<T : NotificationTemplateModel>(private var templ
     /**
      * Obtaining the string representation by replacing model properties into template string.
      */
-    fun getContent(model: T): String {
+    open fun getContent(model: T): String {
         return getContent(model.getParams())
     }
 

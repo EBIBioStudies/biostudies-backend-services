@@ -219,6 +219,12 @@ CREATE TABLE Submission_ElementTag (
 CREATE INDEX Submission_ElementTag_Tag_Id_IDX ON Submission_ElementTag (tag_id);
 CREATE INDEX Submission_ElementTag_Submission_Id_IDX ON Submission_ElementTag (submission_id);
 
+CREATE TABLE SubmissionRT(
+    id          BIGINT AUTO_INCREMENT PRIMARY KEY,
+    accNo       LONGTEXT NOT NULL,
+    ticketId    LONGTEXT NOT NULL
+);
+
 -- Security
 CREATE TABLE User (
     id             BIGINT AUTO_INCREMENT PRIMARY KEY,
