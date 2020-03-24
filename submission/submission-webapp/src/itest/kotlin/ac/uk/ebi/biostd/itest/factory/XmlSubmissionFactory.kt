@@ -17,7 +17,7 @@ fun allInOneSubmissionXml(accNo: String) = xml("submission") {
     "attributes" {
         "attribute" {
             "name" { -"Title" }
-            "value" { -"venous blood, Monocyte" }
+            "value" { -"venous blood, ∆Monocyte" }
         }
         "attribute" {
             "name" { -"ReleaseDate" }
@@ -169,7 +169,7 @@ fun assertAllInOneSubmissionXml(xml: String, accNo: String) {
     assertXmlAttributes(
         xml,
         "//submission",
-        listOf(Attribute("Title", "venous blood, Monocyte"), Attribute("ReleaseDate", "2021-02-12")))
+        listOf(Attribute("Title", "venous blood, ∆Monocyte"), Attribute("ReleaseDate", "2021-02-12")))
 
     assertXmlSection(xml, "//submission/section", allInOneRootSection())
     assertThat(xml, hasXPath("//submission/section/attributes/attribute[2]/@reference", equalTo("true")))

@@ -30,7 +30,7 @@ class AccNoService(
                 if (project != null && privilegesService.canSubmitToProject(submitter, project).not())
                     throw UserCanNotSubmitProjectsException(submitter)
 
-                return accNo?.let { AccNumber(accNo) } ?: calculateAccNo(getPatternOrDefault(projectPattern))
+                return accNo?.let { patternUtil.toAccNumber(it) } ?: calculateAccNo(getPatternOrDefault(projectPattern))
             }
             else -> {
                 if (project != null && privilegesService.canSubmitToProject(submitter, project).not())
@@ -39,7 +39,7 @@ class AccNoService(
                 if (privilegesService.canResubmit(submitter, accNo).not())
                     throw UserCanNotUpdateSubmit(accNo, submitter)
 
-                return AccNumber(accNo)
+                return patternUtil.toAccNumber(accNo)
             }
         }
     }

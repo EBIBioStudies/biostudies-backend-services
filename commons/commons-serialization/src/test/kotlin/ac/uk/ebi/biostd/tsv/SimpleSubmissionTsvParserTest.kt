@@ -66,7 +66,7 @@ class SimpleSubmissionTsvParserTest {
             line("Results.xls", "Results File")
             line()
 
-            line("Data[]")
+            line("Data[SECT-001]")
             line("DT-1")
             line()
         }.toString()

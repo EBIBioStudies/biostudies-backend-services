@@ -1,10 +1,17 @@
 package ac.uk.ebi.biostd.tsv.serialization
 
+import ebi.ac.uk.base.isNotBlank
 import ebi.ac.uk.model.File
+import ebi.ac.uk.model.FilesTable
+import ebi.ac.uk.model.Header
 import ebi.ac.uk.model.Link
+import ebi.ac.uk.model.LinksTable
 import ebi.ac.uk.model.Section
+import ebi.ac.uk.model.SectionsTable
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.Table
+import ebi.ac.uk.model.constants.TableFields.FILES_TABLE
+import ebi.ac.uk.model.constants.TableFields.LINKS_TABLE
 
 class TsvToStringSerializer {
     fun <T> serialize(element: T): String {
@@ -18,7 +25,9 @@ class TsvToStringSerializer {
             }
             is File -> addFile(builder, element as File)
             is Link -> addLink(builder, element as Link)
-            is Table<*> -> addTable(builder, element as Table<*>)
+            is FilesTable -> addTable(builder, element, FILES_TABLE.toString())
+            is LinksTable -> addTable(builder, element, LINKS_TABLE.toString())
+            is SectionsTable -> addTable(builder, element, getHeader(element))
         }
 
         return builder.toString()
@@ -35,12 +44,19 @@ class TsvToStringSerializer {
         builder.addSecDescriptor(section.type, section.accNo, parentAccNo)
         section.attributes.forEach(builder::addAttr)
 
-        section.links.forEach { either -> either.fold({ addLink(builder, it) }, { addTable(builder, it) }) }
-        section.files.forEach { either -> either.fold({ addFile(builder, it) }, { addTable(builder, it) }) }
+        section.links.forEach {
+            either -> either.fold({ addLink(builder, it) }, { addTable(builder, it, LINKS_TABLE.toString()) }) }
+        section.files.forEach {
+            either -> either.fold({ addFile(builder, it) }, { addTable(builder, it, FILES_TABLE.toString()) }) }
         section.sections.forEach {
-            either -> either.fold({ serializeSection(builder, it, section.accNo) }) { addTable(builder, it) }
+            either -> either.fold(
+                { serializeSection(builder, it, section.accNo) },
+                { addTable(builder, it, getHeader(it, section.accNo)) })
         }
     }
+
+    private fun getHeader(table: SectionsTable, parentAccNo: String? = null) =
+        "${table.elements.first().type}[${if (parentAccNo.isNotBlank()) "$parentAccNo" else ""}]"
 
     private fun addFile(builder: TsvBuilder, file: File) {
         builder.addSeparator()
@@ -54,9 +70,11 @@ class TsvToStringSerializer {
         builder.addAttributes(link.attributes)
     }
 
-    private fun <T : Any> addTable(builder: TsvBuilder, table: Table<T>) {
+    private fun <T : Any> addTable(builder: TsvBuilder, table: Table<T>, mainHeader: String) {
+        val headers = listOf(Header(mainHeader)) + table.headers
+
         builder.addSeparator()
-        builder.addTableRow(table.headers.flatMap { header ->
+        builder.addTableRow(headers.flatMap { header ->
             listOf(header.name) + header.termNames.map { "($it)" } + header.termValues.map { "[$it]" } })
 
         table.rows.forEach { builder.addTableRow(it) }
