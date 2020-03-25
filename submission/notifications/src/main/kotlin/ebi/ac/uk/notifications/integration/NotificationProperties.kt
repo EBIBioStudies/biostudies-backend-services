@@ -18,4 +18,3 @@ class RtConfig {
     lateinit var user: String
     lateinit var password: String
 }
-

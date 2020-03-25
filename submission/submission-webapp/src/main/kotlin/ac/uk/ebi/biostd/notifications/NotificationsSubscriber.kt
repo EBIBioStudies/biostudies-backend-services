@@ -4,10 +4,6 @@ import ac.uk.ebi.biostd.notifications.templates.ActivationModel
 import ac.uk.ebi.biostd.notifications.templates.ActivationTemplate
 import ac.uk.ebi.biostd.notifications.templates.PasswordResetModel
 import ac.uk.ebi.biostd.notifications.templates.PasswordResetTemplate
-import ac.uk.ebi.biostd.notifications.templates.SuccessfulSubmissionModel
-import ac.uk.ebi.biostd.notifications.templates.SuccessfulSubmissionTemplate
-import ac.uk.ebi.biostd.submission.events.SuccessfulSubmission
-import ebi.ac.uk.notifications.integration.NotificationProperties
 import ebi.ac.uk.notifications.integration.components.SubscriptionService
 import ebi.ac.uk.notifications.integration.model.Notification
 import ebi.ac.uk.notifications.integration.model.NotificationType

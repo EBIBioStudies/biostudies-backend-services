@@ -26,10 +26,14 @@ internal class NotificationConfig(
     fun emailConfig(): NotificationConfig = NotificationConfig(properties.notifications, submissionRtRepository)
 
     @Bean
-    fun subscriptionService(emailConfig: NotificationConfig): SubscriptionService = emailConfig.subscriptionService()
+    fun subscriptionService(
+        notificationConfig: NotificationConfig
+    ): SubscriptionService = notificationConfig.subscriptionService()
 
     @Bean
-    fun rtSubscriptionService(emailConfig: NotificationConfig): SubscriptionService = emailConfig.rtSubscriptionService()
+    fun rtSubscriptionService(
+        notificationConfig: NotificationConfig
+    ): SubscriptionService = notificationConfig.rtSubscriptionService()
 
     @Bean
     fun successfulSubmission(): Observable<SuccessfulSubmission> = SubmissionEvents.successfulSubmission
@@ -45,8 +49,7 @@ internal class NotificationConfig(
 
     @Bean
     fun rtNotificationService(
-        resourceLoader: ResourceLoader,
         rtSubscriptionService: SubscriptionService,
         successfulSubmission: Observable<SuccessfulSubmission>
-    ): RtNotificationSubscriber = RtNotificationSubscriber(resourceLoader, rtSubscriptionService, successfulSubmission)
+    ): RtNotificationSubscriber = RtNotificationSubscriber(rtSubscriptionService, successfulSubmission)
 }
