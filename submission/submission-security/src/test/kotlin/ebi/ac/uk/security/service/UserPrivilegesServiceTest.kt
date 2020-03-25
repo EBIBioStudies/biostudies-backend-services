@@ -1,6 +1,6 @@
 package ebi.ac.uk.security.service
 
-import ac.uk.ebi.biostd.persistence.integration.PersistenceContext
+import ac.uk.ebi.biostd.persistence.integration.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.model.AccessType
 import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import java.util.Optional
-import ac.uk.ebi.biostd.persistence.model.User as UserDB
+import ac.uk.ebi.biostd.persistence.model.DbUser as UserDB
 
 @ExtendWith(MockKExtension::class)
 @Disabled
@@ -24,12 +24,12 @@ class UserPrivilegesServiceTest(
     @MockK private val otherAuthor: UserDB,
     @MockK private val superuser: UserDB,
     @MockK private val userRepository: UserDataRepository,
-    @MockK private val context: PersistenceContext,
+    @MockK private val queryService: SubmissionQueryService,
     @MockK private val accessPermissionRepository: AccessPermissionRepository
 ) {
     private val testAuthor = "author@mail.com"
     private val testOtherAuthor = "otherAuthor@mail.com"
-    private val testInstance = UserPrivilegesService(userRepository, context, accessPermissionRepository)
+    private val testInstance = UserPrivilegesService(userRepository, queryService, accessPermissionRepository)
 
     @BeforeEach
     fun beforeEach() {

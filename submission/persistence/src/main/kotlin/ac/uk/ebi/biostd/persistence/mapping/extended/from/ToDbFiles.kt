@@ -1,14 +1,14 @@
 package ac.uk.ebi.biostd.persistence.mapping.extended.from
 
-import ac.uk.ebi.biostd.persistence.model.File
+import ac.uk.ebi.biostd.persistence.model.DbFile
 import arrow.core.Either
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileTable
 import java.util.SortedSet
 
-fun List<Either<ExtFile, ExtFileTable>>.toDbFiles(): SortedSet<File> {
+fun List<Either<ExtFile, ExtFileTable>>.toDbFiles(): SortedSet<DbFile> {
     var idx = 0
-    val files = sortedSetOf<File>()
+    val files = sortedSetOf<DbFile>()
 
     forEach { either ->
         either.fold(

@@ -8,6 +8,7 @@ import ac.uk.ebi.biostd.persistence.test.extSubmissionWithFileList
 import ebi.ac.uk.extended.mapping.serialization.to.toSimpleSubmission
 import ebi.ac.uk.extended.model.allFileListSections
 import ebi.ac.uk.paths.SubmissionFolderResolver
+import ebi.ac.uk.test.createFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.every
@@ -22,23 +23,19 @@ import java.nio.file.Paths
 @ExtendWith(TemporaryFolderExtension::class, MockKExtension::class)
 class FilePersistenceServiceTest(
     private val temporaryFolder: TemporaryFolder,
-    @MockK private val mockFolderResolver: SubmissionFolderResolver,
     @MockK private val mockSerializationService: SerializationService
 ) {
-    private val sectionFile = createTempFile("file.txt")
-    private val fileList = createTempFile("fileList.json")
-    private val referencedFile = createTempFile("file2.txt")
+    private val sectionFile = temporaryFolder.createFile("file.txt", "text-1")
+    private val fileList = temporaryFolder.createFile("fileList.json", "text-2")
+    private val referencedFile = temporaryFolder.createFile("file2.txt", "text-3")
     private val extSubmission = extSubmissionWithFileList(listOf(sectionFile), fileList, listOf(referencedFile))
     private val relPath = extSubmission.relPath
 
-    private val testInstance = FilePersistenceService(mockFolderResolver, mockSerializationService)
+    private val testInstance =
+        FilePersistenceService(SubmissionFolderResolver(temporaryFolder.root.toPath()), mockSerializationService)
 
     @BeforeEach
     fun beforeEach() {
-        every { mockFolderResolver.getSubmissionFolder(relPath) } returns getPath(relPath)
-        every { mockFolderResolver.getSubFilePath(relPath, sectionFile.name) } returns getPath("$relPath/file.txt")
-        every { mockFolderResolver.getSubFilePath(relPath, referencedFile.name) } returns getPath("$relPath/file2.txt")
-
         val simpleSubmission = extSubmission.toSimpleSubmission()
         every { mockSerializationService.serializeElement(simpleSubmission, XML) } returns ""
         every { mockSerializationService.serializeElement(simpleSubmission, TSV) } returns ""
@@ -54,16 +51,16 @@ class FilePersistenceServiceTest(
     fun persistSubmissionFiles() {
         testInstance.persistSubmissionFiles(extSubmission)
 
-        assertThat(getPath("$relPath/file.txt")).exists()
-        assertThat(getPath("$relPath/file2.txt")).exists()
+        assertThat(getPath("submission/$relPath/Files/file.txt")).exists()
+        assertThat(getPath("submission/$relPath/Files/file2.txt")).exists()
 
-        assertThat(getPath("$relPath/ABC-123.xml")).exists()
-        assertThat(getPath("$relPath/ABC-123.json")).exists()
-        assertThat(getPath("$relPath/ABC-123.pagetab.tsv")).exists()
+        assertThat(getPath("submission/$relPath/ABC-123.xml")).exists()
+        assertThat(getPath("submission/$relPath/ABC-123.json")).exists()
+        assertThat(getPath("submission/$relPath/ABC-123.pagetab.tsv")).exists()
 
-        assertThat(getPath("$relPath/fileList.xml")).exists()
-        assertThat(getPath("$relPath/fileList.json")).exists()
-        assertThat(getPath("$relPath/fileList.pagetab.tsv")).exists()
+        assertThat(getPath("submission/$relPath/fileList.xml")).exists()
+        assertThat(getPath("submission/$relPath/fileList.json")).exists()
+        assertThat(getPath("submission/$relPath/fileList.pagetab.tsv")).exists()
     }
 
     private fun getPath(path: String) = Paths.get("${temporaryFolder.root.absolutePath}/$path")

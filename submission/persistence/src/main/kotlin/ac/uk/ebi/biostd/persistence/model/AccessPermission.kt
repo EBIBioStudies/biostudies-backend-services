@@ -23,11 +23,11 @@ class AccessPermission(
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    val user: User,
+    val user: DbUser,
 
     @ManyToOne
     @JoinColumn(name = "access_tag_id")
-    val accessTag: AccessTag
+    val accessTag: DbAccessTag
 )
 
 enum class AccessType {

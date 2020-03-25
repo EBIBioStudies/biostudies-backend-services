@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.persistence.mapping.extended.from
 
-import ac.uk.ebi.biostd.persistence.model.SubmissionAttribute
+import ac.uk.ebi.biostd.persistence.model.DbSubmissionAttribute
+import ac.uk.ebi.biostd.persistence.model.SubmissionDb
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
 import ac.uk.ebi.biostd.persistence.repositories.TagDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
@@ -8,7 +9,6 @@ import ebi.ac.uk.extended.model.ExtAccessTag
 import ebi.ac.uk.extended.model.ExtAttribute
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtTag
-import ac.uk.ebi.biostd.persistence.model.Submission as SubmissionDb
 
 private const val ROOT_SECTION_ORDER = 0
 
@@ -37,7 +37,7 @@ class ToDbSubmissionMapper(
         rootSection = submission.section.toDbSection(this, ROOT_SECTION_ORDER)
     }
 
-    private fun toDbSubmissionAttribute(index: Int, attr: ExtAttribute) = SubmissionAttribute(attr.toDbAttribute(index))
+    private fun toDbSubmissionAttribute(idx: Int, attr: ExtAttribute) = DbSubmissionAttribute(attr.toDbAttribute(idx))
 
     private fun toAccessTag(accessTags: List<ExtAccessTag>) =
         accessTags.mapTo(mutableSetOf()) { tagsRepository.findByName(it.name) }

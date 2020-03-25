@@ -10,8 +10,8 @@ import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
 import ac.uk.ebi.biostd.itest.entities.RegularUser
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.factory.invalidLinkUrl
+import ac.uk.ebi.biostd.persistence.model.DbTag
 import ac.uk.ebi.biostd.persistence.model.Sequence
-import ac.uk.ebi.biostd.persistence.model.Tag
 import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.TagDataRepository
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
@@ -65,7 +65,7 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
             webClient = getWebClient(serverPort, SuperUser)
 
             sequenceRepository.save(Sequence("S-BSST"))
-            tagsRefRepository.save(Tag(classifier = "classifier", name = "tag"))
+            tagsRefRepository.save(DbTag(classifier = "classifier", name = "tag"))
         }
 
         @Test

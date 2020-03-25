@@ -1,6 +1,6 @@
 package ebi.ac.uk.security.service
 
-import ac.uk.ebi.biostd.persistence.model.User
+import ac.uk.ebi.biostd.persistence.model.DbUser
 import ac.uk.ebi.biostd.persistence.model.UserGroup
 import ebi.ac.uk.security.integration.model.api.GroupMagicFolder
 import ebi.ac.uk.security.integration.model.api.MagicFolder
@@ -10,11 +10,11 @@ import java.nio.file.Path
 import java.nio.file.Paths
 
 class ProfileService(private val filesDirPath: Path) {
-    fun getUserProfile(user: User, token: String): UserInfo {
+    fun getUserProfile(user: DbUser, token: String): UserInfo {
         return UserInfo(asSecurityUser(user), token)
     }
 
-    fun asSecurityUser(user: User): SecurityUser {
+    fun asSecurityUser(user: DbUser): SecurityUser {
         return user.run {
             SecurityUser(
                 id = id,

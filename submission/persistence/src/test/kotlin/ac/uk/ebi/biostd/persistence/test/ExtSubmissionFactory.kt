@@ -17,7 +17,7 @@ fun extSubmissionWithFileList(files: List<File>, fileList: File, referencedFiles
         version = 1,
         title = "A Test Submission",
         method = SubmissionMethod.PAGE_TAB,
-        relPath = "/ABC/ABCxxx123/ABC-123",
+        relPath = "ABC/ABCxxx123/ABC-123",
         rootPath = null,
         released = false,
         secretKey = "a-secret-key",

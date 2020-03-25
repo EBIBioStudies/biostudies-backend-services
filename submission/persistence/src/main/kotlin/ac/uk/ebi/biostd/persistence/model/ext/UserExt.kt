@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.persistence.model.ext
 
-import ac.uk.ebi.biostd.persistence.model.User
+import ac.uk.ebi.biostd.persistence.model.DbUser
 import ac.uk.ebi.biostd.persistence.model.UserGroup
 
-fun User.addGroup(userGroup: UserGroup): User = also { groups.add(userGroup) }
-fun User.activated(): User = also { active = true }
+fun DbUser.addGroup(userGroup: UserGroup): DbUser = also { groups.add(userGroup) }
+fun DbUser.activated(): DbUser = also { active = true }

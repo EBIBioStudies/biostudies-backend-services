@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.data.service
 
 import ac.uk.ebi.biostd.persistence.filter.PaginationFilter
-import ac.uk.ebi.biostd.persistence.model.UserData
+import ac.uk.ebi.biostd.persistence.model.DbUserData
 import ac.uk.ebi.biostd.persistence.model.UserDataId
 import ac.uk.ebi.biostd.persistence.repositories.UserDataDataRepository
 import arrow.core.Option
@@ -9,16 +9,16 @@ import ebi.ac.uk.base.toOption
 import org.springframework.data.domain.PageRequest
 
 class UserDataService(private val dataRepository: UserDataDataRepository) {
-    fun getUserData(userId: Long, key: String): Option<UserData> =
+    fun getUserData(userId: Long, key: String): Option<DbUserData> =
         dataRepository.findById(UserDataId(userId, key)).toOption()
 
-    fun saveUserData(userId: Long, key: String, content: String): UserData =
-        dataRepository.save(UserData(userId, key, content))
+    fun saveUserData(userId: Long, key: String, content: String): DbUserData =
+        dataRepository.save(DbUserData(userId, key, content))
 
     fun delete(userId: Long, accNo: String) {
         dataRepository.deleteById(UserDataId(userId, accNo))
     }
 
-    fun findAll(userId: Long, filter: PaginationFilter = PaginationFilter()): List<UserData> =
+    fun findAll(userId: Long, filter: PaginationFilter = PaginationFilter()): List<DbUserData> =
         dataRepository.findByUserId(userId, PageRequest.of(filter.pageNumber, filter.limit))
 }

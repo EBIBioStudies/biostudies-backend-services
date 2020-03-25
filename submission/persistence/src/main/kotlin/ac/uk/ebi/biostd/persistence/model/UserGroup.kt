@@ -19,5 +19,5 @@ class UserGroup(
     val id: Long = 0
 
     @ManyToMany(mappedBy = "groups")
-    val users = mutableSetOf<User>()
+    val users = mutableSetOf<DbUser>()
 }

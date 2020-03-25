@@ -1,23 +1,23 @@
 package ac.uk.ebi.biostd.persistence.mapping.extended.to.test
 
-import ac.uk.ebi.biostd.persistence.model.Attribute
 import ac.uk.ebi.biostd.persistence.model.AttributeDetail
-import ac.uk.ebi.biostd.persistence.model.FileAttribute
-import ac.uk.ebi.biostd.persistence.model.LinkAttribute
-import ac.uk.ebi.biostd.persistence.model.ReferencedFileAttribute
-import ac.uk.ebi.biostd.persistence.model.SectionAttribute
+import ac.uk.ebi.biostd.persistence.model.DbAttribute
+import ac.uk.ebi.biostd.persistence.model.DbFileAttribute
+import ac.uk.ebi.biostd.persistence.model.DbLinkAttribute
+import ac.uk.ebi.biostd.persistence.model.DbReferencedFileAttribute
+import ac.uk.ebi.biostd.persistence.model.DbSectionAttribute
 import ebi.ac.uk.extended.model.ExtAttribute
 import ebi.ac.uk.extended.model.ExtAttributeDetail
 import org.assertj.core.api.Assertions.assertThat
 
-internal val attributeDb get() = Attribute("a", "b", 1, false, listOf(nameDetailDb), listOf(valueDetailDb))
+internal val attributeDb get() = DbAttribute("a", "b", 1, false, listOf(nameDetailDb), listOf(valueDetailDb))
 internal val nameDetailDb get() = AttributeDetail("name attribute name", "name attribute value")
 internal val valueDetailDb get() = AttributeDetail("value attribute name", "value attribute value")
 
-internal val fileAttributeDb = FileAttribute(attributeDb)
-internal val refAttributeDb = ReferencedFileAttribute(attributeDb)
-internal val linkAttributeDb = LinkAttribute(attributeDb)
-internal val sectAttributeDb = SectionAttribute(attributeDb)
+internal val fileAttributeDb = DbFileAttribute(attributeDb)
+internal val refAttributeDb = DbReferencedFileAttribute(attributeDb)
+internal val linkAttributeDb = DbLinkAttribute(attributeDb)
+internal val sectAttributeDb = DbSectionAttribute(attributeDb)
 
 internal fun assertExtAttribute(extAttribute: ExtAttribute) {
     assertThat(extAttribute.name).isEqualTo(attributeDb.name)

@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.persistence.test
 
-import ac.uk.ebi.biostd.persistence.model.File
+import ac.uk.ebi.biostd.persistence.model.DbFile
 import arrow.core.Either.Companion.left
 import arrow.core.Either.Companion.right
 import ebi.ac.uk.extended.model.ExtFileTable
@@ -13,7 +13,7 @@ internal val extFileTable
 internal val extFiles
     get() = listOf(right(extFileTable), left(extTestFile), right(extFileTable))
 
-internal fun assertDbFiles(files: SortedSet<File>) {
+internal fun assertDbFiles(files: SortedSet<DbFile>) {
     val fileList = files.toList()
     assertThat(fileList).hasSize(5)
 

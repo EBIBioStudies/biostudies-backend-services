@@ -15,53 +15,43 @@ import javax.persistence.OrderBy
 import javax.persistence.Table
 
 @Entity
-@Table(name = "FileRef")
-class File(
-
+@Table(name = "Link")
+class DbLink(
     @Column
-    var name: String,
+    val url: String,
 
     @Column(name = "ord")
     override var order: Int
-) : Tabular, Comparable<File> {
+) : Tabular, Comparable<DbLink> {
 
     @Id
     @GeneratedValue
     var id: Long = 0L
 
-    var size: Long = 0L
-
     @OneToMany(cascade = [CascadeType.ALL])
-    @JoinColumn(name = "file_id")
+    @JoinColumn(name = "link_id")
     @OrderBy("order ASC")
-    var attributes: SortedSet<FileAttribute> = sortedSetOf()
-
-    constructor(
-        name: String,
-        order: Int,
-        size: Long,
-        attributes: SortedSet<FileAttribute>,
-        tableIndex: Int = NO_TABLE_INDEX
-    ) : this(name, order) {
-        this.size = size
-        this.attributes = attributes
-        this.tableIndex = tableIndex
-    }
+    var attributes: SortedSet<DbLinkAttribute> = sortedSetOf()
 
     @Column
     override var tableIndex = NO_TABLE_INDEX
 
-    override fun compareTo(other: File) =
-        Comparator.comparing(File::order).thenComparing(File::tableIndex).compare(this, other)
+    constructor(url: String, order: Int, attributes: SortedSet<DbLinkAttribute>, tableIndex: Int = NO_TABLE_INDEX) :
+        this(url, order) {
+        this.attributes = attributes
+        this.tableIndex = tableIndex
+    }
 
-    override fun equals(other: Any?) = when {
-        other !is File -> false
+    override fun compareTo(other: DbLink) = this.order.compareTo(other.order)
+
+    override fun equals(other: Any?): Boolean = when {
+        other !is DbLink -> false
         this === other -> true
         else -> equals(id, other.id)
-            .and(equals(name, other.name))
+            .and(equals(url, other.url))
             .and(equals(order, other.order))
             .and(equals(tableIndex, other.tableIndex))
     }
 
-    override fun hashCode() = hash(id, name, order, tableIndex)
+    override fun hashCode(): Int = hash(id, url, order, tableIndex)
 }

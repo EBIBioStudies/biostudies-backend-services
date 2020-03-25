@@ -5,6 +5,7 @@ import ac.uk.ebi.biostd.common.config.SubmitterConfig.ServiceConfig
 import ac.uk.ebi.biostd.common.property.ApplicationProperties
 import ac.uk.ebi.biostd.integration.SerializationConfig
 import ac.uk.ebi.biostd.persistence.integration.PersistenceContext
+import ac.uk.ebi.biostd.persistence.integration.SubmissionQueryService
 import ac.uk.ebi.biostd.submission.service.AccNoService
 import ac.uk.ebi.biostd.submission.service.ParentInfoService
 import ac.uk.ebi.biostd.submission.service.ProjectInfoService
@@ -19,6 +20,7 @@ import org.springframework.context.annotation.Import
 import org.springframework.context.annotation.Lazy
 import java.nio.file.Paths
 
+@Suppress("LongParameterList")
 @Configuration
 @Import(ServiceConfig::class, FilesHandlerConfig::class, SecurityBeansConfig::class)
 class SubmitterConfig {
@@ -28,8 +30,15 @@ class SubmitterConfig {
         accNoService: AccNoService,
         parentInfoService: ParentInfoService,
         projectInfoService: ProjectInfoService,
-        persistenceContext: PersistenceContext
-    ) = SubmissionSubmitter(timesService, accNoService, parentInfoService, projectInfoService, persistenceContext)
+        persistenceContext: PersistenceContext,
+        submissionQueryService: SubmissionQueryService
+    ) = SubmissionSubmitter(
+        timesService,
+        accNoService,
+        parentInfoService,
+        projectInfoService,
+        persistenceContext,
+        submissionQueryService)
 
     @Configuration
     class FilesHandlerConfig(private val appProperties: ApplicationProperties) {
@@ -45,21 +54,22 @@ class SubmitterConfig {
     @Suppress("MagicNumber")
     class ServiceConfig(
         private val context: PersistenceContext,
+        private val queryService: SubmissionQueryService,
         private val userPrivilegesService: IUserPrivilegesService
     ) {
         @Bean
         fun accNoPatternUtil() = AccNoPatternUtil()
 
         @Bean
-        fun accNoService() = AccNoService(context, accNoPatternUtil(), userPrivilegesService)
+        fun accNoService() = AccNoService(context, queryService, accNoPatternUtil(), userPrivilegesService)
 
         @Bean
-        fun parentInfoService() = ParentInfoService(context)
+        fun parentInfoService() = ParentInfoService(queryService)
 
         @Bean
-        fun projectInfoService() = ProjectInfoService(context, accNoPatternUtil(), userPrivilegesService)
+        fun projectInfoService() = ProjectInfoService(context, queryService, accNoPatternUtil(), userPrivilegesService)
 
         @Bean
-        fun timesService() = TimesService(context)
+        fun timesService() = TimesService(queryService)
     }
 }
