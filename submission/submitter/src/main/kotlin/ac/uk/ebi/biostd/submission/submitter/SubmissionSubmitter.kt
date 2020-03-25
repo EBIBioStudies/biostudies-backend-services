@@ -49,7 +49,12 @@ open class SubmissionSubmitter(
     open fun submit(request: SubmissionRequest): Submission {
         val user = request.user.asUser()
         val extSubmission = process(request.submission, request.user.asUser(), request.files, request.method)
-        return context.saveSubmission(extSubmission, user.email, user.id).toSimpleSubmission()
+        val submitted = context.saveSubmission(extSubmission, user.email, user.id).toSimpleSubmission()
+
+        successfulSubmission.onNext(SuccessfulSubmission(
+            user, extSubmission.accNo, extSubmission.released, extSubmission.title, request.submission.releaseDate))
+
+        return submitted
     }
 
     @Suppress("TooGenericExceptionCaught")
@@ -60,11 +65,7 @@ open class SubmissionSubmitter(
         method: SubmissionMethod
     ): ExtSubmission {
         try {
-            val submitted = processSubmission(submission, user, source, method)
-            successfulSubmission.onNext(SuccessfulSubmission(
-                user, submitted.accNo, submitted.released, submitted.title, submission.releaseDate))
-
-            return submitted
+            return processSubmission(submission, user, source, method)
         } catch (exception: RuntimeException) {
             throw InvalidSubmissionException("Submission validation errors", listOf(exception))
         }
