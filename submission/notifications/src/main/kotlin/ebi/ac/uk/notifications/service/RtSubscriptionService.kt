@@ -18,7 +18,8 @@ internal class RtSubscriptionService(
     ) {
         event.subscribe {
             val accNo = it.templateModel.getParams().first { param -> param.first == "ACC_NO" }.second
-            val ticketId = rtClient.createTicket(subscription.template.getContent(it.templateModel))
+            val ticketId = rtClient.createTicket(
+                subscription.subject, it.receiver, subscription.template.getContent(it.templateModel))
 
             notificationPersistenceService.saveRtNotification(accNo, ticketId)
         }

@@ -50,9 +50,7 @@ open class SubmissionSubmitter(
         val user = request.user.asUser()
         val extSubmission = process(request.submission, request.user.asUser(), request.files, request.method)
         val submitted = context.saveSubmission(extSubmission, user.email, user.id).toSimpleSubmission()
-
-        successfulSubmission.onNext(SuccessfulSubmission(
-            user, extSubmission.accNo, extSubmission.released, extSubmission.title, request.submission.releaseDate))
+        successfulSubmission.onNext(SuccessfulSubmission(user, extSubmission))
 
         return submitted
     }

@@ -1,14 +1,12 @@
 package ac.uk.ebi.biostd.submission.events
 
+import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.model.User
 import io.reactivex.subjects.PublishSubject
 
 class SuccessfulSubmission(
     val user: User,
-    val accNo: String,
-    val released: Boolean,
-    val title: String?,
-    val releaseDate: String?
+    val submission: ExtSubmission
 )
 
 object SubmissionEvents {

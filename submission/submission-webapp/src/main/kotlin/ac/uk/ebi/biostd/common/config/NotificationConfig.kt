@@ -49,7 +49,8 @@ internal class NotificationConfig(
 
     @Bean
     fun rtNotificationService(
+        resourceLoader: ResourceLoader,
         rtSubscriptionService: SubscriptionService,
         successfulSubmission: Observable<SuccessfulSubmission>
-    ): RtNotificationSubscriber = RtNotificationSubscriber(rtSubscriptionService, successfulSubmission)
+    ): RtNotificationSubscriber = RtNotificationSubscriber(resourceLoader, rtSubscriptionService, successfulSubmission)
 }

@@ -8,31 +8,40 @@ import ebi.ac.uk.util.collections.second
 import ebi.ac.uk.util.regex.match
 import ebi.ac.uk.util.regex.secondGroup
 import org.springframework.util.LinkedMultiValueMap
+import org.springframework.util.MultiValueMap
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.client.postForEntity
 import org.springframework.web.util.UriComponentsBuilder
 
 class RtClient(private val rtConfig: RtConfig) {
-    fun createTicket(content: String): String {
+    private val restTemplate = RestTemplate()
+    private val ticketIdPattern = "(# Ticket )(\\d+)( created.)".toPattern()
+
+    fun createTicket(subject:String, owner:String, content: String): String {
         val url = UriComponentsBuilder
             .fromUriString("${rtConfig.host}/REST/1.0/ticket/new")
             .queryParam("user", rtConfig.user)
             .queryParam("pass", rtConfig.password)
             .build()
             .toUriString()
-
-        val response = RestTemplate().postForEntity<String>(
-            url, getRequestBody(content)).body ?: throw InvalidResponseException()
+        val body = getRequestBody(subject, owner, content)
+        val response = restTemplate.postForEntity<String>(url, body).body ?: throw InvalidResponseException()
 
         return getTicketId(response)
     }
 
-    private fun getRequestBody(content: String) =
-        LinkedMultiValueMap<String, String>(mapOf("content" to listOf(content.plus("\nQueue: ${rtConfig.queue}"))))
+    private fun getRequestBody(subject:String, owner:String, content: String): MultiValueMap<String, String> {
+        val text = content
+            .split("\n\n")
+            .filter { it.isNotBlank() }
+            .joinToString(" ") { "${it.trim()}\n\n " }
+
+        return LinkedMultiValueMap<String, String>(
+            mapOf("content" to listOf("Queue: ${rtConfig.queue}\nSubject: $subject\nOwner: $owner\nText: $text")))
+    }
 
     fun getTicketId(response: String): String {
         val body = response.split("\n\n")
-        val ticketIdPattern = "(# Ticket )(\\d+)( created.)".toPattern()
 
         require(body.size > 2) { throw InvalidTicketIdException() }
         return ticketIdPattern
