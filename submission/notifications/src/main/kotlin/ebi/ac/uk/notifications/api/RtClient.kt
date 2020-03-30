@@ -42,7 +42,7 @@ class RtClient(
             mapOf("content" to listOf("Queue: ${rtConfig.queue}\nSubject: $subject\nOwner: $owner\nText: $text")))
     }
 
-    fun getTicketId(response: String): String {
+    private fun getTicketId(response: String): String {
         val body = response.split("\n\n")
 
         require(body.size > 2) { throw InvalidTicketIdException() }

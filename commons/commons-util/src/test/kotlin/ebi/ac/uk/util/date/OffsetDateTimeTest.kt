@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import java.time.OffsetDateTime
 import java.time.ZoneId
+import java.time.ZoneOffset
 
 internal class OffsetDateTimeTest {
 
@@ -27,9 +28,14 @@ internal class OffsetDateTimeTest {
         assertThat(date.second).isEqualTo(41)
     }
 
+    @Test
+    fun toStringDate() {
+        val time = OffsetDateTime.of(2018, 9, 21, 2, 3, 45, 0, ZoneOffset.UTC)
+        assertThat(time.toStringDate()).isEqualTo("2018-09-21")
+    }
+
     @Nested
     inner class IsBeforeOrEqual {
-
         private val oneDate = OffsetDateTime.now()
         private val anotherDate = oneDate.plusDays(1)
 
@@ -51,7 +57,6 @@ internal class OffsetDateTimeTest {
 
     @Nested
     inner class Max {
-
         private val oneDate = OffsetDateTime.now()
         private val anotherDate = oneDate.plusDays(1)
 
