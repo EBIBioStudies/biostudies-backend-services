@@ -4,10 +4,12 @@ import ebi.ac.uk.notifications.integration.RtConfig
 import io.mockk.mockk
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import org.springframework.web.client.RestTemplate
 
 class RtClientTest {
     private val rtConfig = mockk<RtConfig>()
-    private val testInstance = RtClient(rtConfig)
+    private val restTemplate = mockk<RestTemplate>()
+    private val testInstance = RtClient(rtConfig, restTemplate)
 
     @Test
     fun `get ticket id`() {

@@ -13,11 +13,13 @@ import org.springframework.web.client.RestTemplate
 import org.springframework.web.client.postForEntity
 import org.springframework.web.util.UriComponentsBuilder
 
-class RtClient(private val rtConfig: RtConfig) {
-    private val restTemplate = RestTemplate()
+class RtClient(
+    private val rtConfig: RtConfig,
+    private val restTemplate: RestTemplate
+) {
     private val ticketIdPattern = "(# Ticket )(\\d+)( created.)".toPattern()
 
-    fun createTicket(subject:String, owner:String, content: String): String {
+    fun createTicket(subject: String, owner: String, content: String): String {
         val url = UriComponentsBuilder
             .fromUriString("${rtConfig.host}/REST/1.0/ticket/new")
             .queryParam("user", rtConfig.user)
@@ -30,7 +32,7 @@ class RtClient(private val rtConfig: RtConfig) {
         return getTicketId(response)
     }
 
-    private fun getRequestBody(subject:String, owner:String, content: String): MultiValueMap<String, String> {
+    private fun getRequestBody(subject: String, owner: String, content: String): MultiValueMap<String, String> {
         val text = content
             .split("\n\n")
             .filter { it.isNotBlank() }

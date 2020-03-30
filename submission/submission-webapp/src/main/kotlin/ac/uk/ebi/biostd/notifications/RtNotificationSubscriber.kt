@@ -31,15 +31,12 @@ internal class RtNotificationSubscriber(
         rtSubscriptionService.create(subs, successfulSubmission.map { asSubmissionNotification(it) })
     }
 
-
-    // TODO test all scenarios
-    // TODO fix the nullable fullname
     private fun asSubmissionNotification(source: SuccessfulSubmission) =
         Notification(
             source.user.email,
             SuccessfulSubmissionModel(
                 FROM,
-                source.user.fullName!!,
+                source.user.fullName,
                 source.submission.accNo,
                 source.user.secretKey,
                 source.submission.released,

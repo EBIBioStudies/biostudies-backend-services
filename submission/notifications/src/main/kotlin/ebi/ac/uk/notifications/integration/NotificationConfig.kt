@@ -8,6 +8,7 @@ import ebi.ac.uk.notifications.service.RtSubscriptionService
 import ebi.ac.uk.notifications.service.SimpleEmailService
 import ebi.ac.uk.notifications.service.SimpleSubscriptionService
 import org.springframework.mail.javamail.JavaMailSenderImpl
+import org.springframework.web.client.RestTemplate
 
 class NotificationConfig(
     private val notificationProperties: NotificationProperties,
@@ -16,6 +17,8 @@ class NotificationConfig(
     fun subscriptionService(): SubscriptionService = subscriptionService
 
     fun rtSubscriptionService(): SubscriptionService = rtSubscriptionService
+
+    private val restTemplate by lazy { RestTemplate() }
 
     private val emailService by lazy { SimpleEmailService(mailSender) }
 
@@ -30,6 +33,6 @@ class NotificationConfig(
     }
 
     private val rtSubscriptionService: SubscriptionService by lazy {
-        RtSubscriptionService(RtClient(notificationProperties.rt), notificationPersistenceService)
+        RtSubscriptionService(RtClient(notificationProperties.rt, restTemplate), notificationPersistenceService)
     }
 }
