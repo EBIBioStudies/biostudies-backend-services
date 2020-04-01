@@ -58,7 +58,7 @@ internal class MultipartFileSubmissionApiTest(
         }
 
         @Test
-        fun `submit excel submission`() {
+        fun `XLS submission with file list`() {
             val excelPageTab = excel("${tempFolder.root.absolutePath}/ExcelSubmission.xlsx") {
                 sheet("page tab") {
                     row {
@@ -82,17 +82,23 @@ internal class MultipartFileSubmissionApiTest(
                     }
                     row {
                         cell("File List")
-                        cell("FileList.tsv")
+                        cell("FileList.xlsx")
                     }
                 }
             }
 
-            val fileList = tempFolder.createFile(
-                "FileList.tsv",
-                tsv {
-                    line("Files", "GEN")
-                    line("SomeFile.txt", "ABC")
-                }.toString())
+            val fileList = excel("${tempFolder.root.absolutePath}/FileList.xlsx") {
+                sheet("page tab") {
+                    row {
+                        cell("Files")
+                        cell("GEN")
+                    }
+                    row {
+                        cell("SomeFile.txt")
+                        cell("ABC")
+                    }
+                }
+            }
 
             val response = webClient.submitSingle(excelPageTab, listOf(fileList, tempFolder.createFile("SomeFile.txt")))
             assertThat(response).isSuccessful()
@@ -101,7 +107,7 @@ internal class MultipartFileSubmissionApiTest(
         }
 
         @Test
-        fun `submission with file list TSV`() {
+        fun `TSV submission with file list`() {
             val submission = tsv {
                 line("Submission", "S-TEST1")
                 line("Title", "Test Submission")
@@ -127,7 +133,7 @@ internal class MultipartFileSubmissionApiTest(
         }
 
         @Test
-        fun `submission with file list JSON`() {
+        fun `JSON submission with file list`() {
             val submission = jsonObj {
                 "accno" to "S-TEST2"
                 "attributes" to jsonArray({
@@ -160,10 +166,11 @@ internal class MultipartFileSubmissionApiTest(
             val response = webClient.submitSingle(submission, JSON, listOf(fileList, tempFolder.createFile("File2.txt")))
             assertThat(response).isSuccessful()
             assertSubmissionFiles("S-TEST2", "File2.txt")
+            fileList.delete()
         }
 
         @Test
-        fun `submission with file list XML`() {
+        fun `XML submission with file list`() {
             val submission = xml("submission") {
                 attribute("accno", "S-TEST3")
                 "attributes" {
@@ -206,6 +213,81 @@ internal class MultipartFileSubmissionApiTest(
             val response = webClient.submitSingle(submission, XML, listOf(fileList, tempFolder.createFile("File3.txt")))
             assertThat(response).isSuccessful()
             assertSubmissionFiles("S-TEST3", "File3.txt")
+            fileList.delete()
+        }
+
+        @Test
+        fun `JSON submission with TSV file list`() {
+            val submission = jsonObj {
+                "accno" to "S-TEST4"
+                "attributes" to jsonArray({
+                    "name" to "Title"
+                    "value" to "Test Submission"
+                })
+                "section" to {
+                    "accno" to "SECT-001"
+                    "type" to "Study"
+                    "attributes" to jsonArray({
+                        "name" to "Title"
+                        "value" to "Root Section"
+                    }, {
+                        "name" to "File List"
+                        "value" to "FileList.tsv"
+                    })
+                }
+            }.toString()
+
+            val fileList = tempFolder.createFile(
+                "FileList.tsv",
+                tsv {
+                    line("Files", "GEN")
+                    line("File4.txt", "ABC")
+                }.toString())
+
+            val response = webClient.submitSingle(submission, JSON, listOf(fileList, tempFolder.createFile("File4.txt")))
+            assertThat(response).isSuccessful()
+            assertSubmissionFiles("S-TEST4", "File4.txt")
+            fileList.delete()
+        }
+
+        @Test
+        fun `JSON submission with XSL file list`() {
+            val submission = jsonObj {
+                "accno" to "S-TEST5"
+                "attributes" to jsonArray({
+                    "name" to "Title"
+                    "value" to "Test Submission"
+                })
+                "section" to {
+                    "accno" to "SECT-001"
+                    "type" to "Study"
+                    "attributes" to jsonArray({
+                        "name" to "Title"
+                        "value" to "Root Section"
+                    }, {
+                        "name" to "File List"
+                        "value" to "FileList.xlsx"
+                    })
+                }
+            }.toString()
+
+            val fileList = excel("${tempFolder.root.absolutePath}/FileList.xlsx") {
+                sheet("page tab") {
+                    row {
+                        cell("Files")
+                        cell("GEN")
+                    }
+                    row {
+                        cell("File5.txt")
+                        cell("ABC")
+                    }
+                }
+            }
+
+            val response = webClient.submitSingle(submission, JSON, listOf(fileList, tempFolder.createFile("File5.txt")))
+            assertThat(response).isSuccessful()
+            assertSubmissionFiles("S-TEST5", "File5.txt")
+            fileList.delete()
         }
 
         @Test
@@ -213,7 +295,7 @@ internal class MultipartFileSubmissionApiTest(
             val submission = tempFolder.createFile(
                 "submission.tsv",
                 tsv {
-                    line("Submission", "S-TEST4")
+                    line("Submission", "S-TEST6")
                     line("Title", "Test Submission")
                     line("Type", "Test")
                     line()
@@ -227,7 +309,7 @@ internal class MultipartFileSubmissionApiTest(
             assertThat(response).isSuccessful()
             submission.delete()
 
-            val savedSubmission = submissionRepository.getByAccNo("S-TEST4")
+            val savedSubmission = submissionRepository.getByAccNo("S-TEST6")
             assertThat(savedSubmission.attributes).hasSize(3)
             assertThat(savedSubmission["Exp"]).isEqualTo("1")
             assertThat(savedSubmission["Type"]).isEqualTo("Exp")
