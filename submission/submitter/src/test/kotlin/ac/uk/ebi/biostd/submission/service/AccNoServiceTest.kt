@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.submission.service
 
 import ac.uk.ebi.biostd.persistence.integration.PersistenceContext
+import ac.uk.ebi.biostd.persistence.integration.SubmissionQueryService
 import ac.uk.ebi.biostd.submission.exceptions.ProvideAccessNumber
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotSubmitProjectsException
 import ac.uk.ebi.biostd.submission.util.AccNoPatternUtil
@@ -27,9 +28,10 @@ private const val PROJECT_PATTERN = "!{ABC-}"
 class AccNoServiceTest(
     @MockK private val accNoPatternUtil: AccNoPatternUtil,
     @MockK private val context: PersistenceContext,
+    @MockK private val submissionQueryService: SubmissionQueryService,
     @MockK private val privilegesService: IUserPrivilegesService
 ) {
-    private val testInstance = AccNoService(context, accNoPatternUtil, privilegesService)
+    private val testInstance = AccNoService(context, submissionQueryService, accNoPatternUtil, privilegesService)
 
     @ParameterizedTest(name = "prefix is {0} and numeric value is {1}")
     @CsvSource(
@@ -45,7 +47,7 @@ class AccNoServiceTest(
 
         @BeforeEach
         fun beforeEach() {
-            every { context.isNew(SUB_ACC_NO) } returns true
+            every { submissionQueryService.isNew(SUB_ACC_NO) } returns true
         }
 
         @Test
@@ -131,7 +133,7 @@ class AccNoServiceTest(
 
         @BeforeEach
         fun beforeEach() {
-            every { context.isNew(SUB_ACC_NO) } returns false
+            every { submissionQueryService.isNew(SUB_ACC_NO) } returns false
         }
 
         @Test

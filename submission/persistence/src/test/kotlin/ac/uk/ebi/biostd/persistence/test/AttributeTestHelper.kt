@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.persistence.test
 
-import ac.uk.ebi.biostd.persistence.model.Attribute
 import ac.uk.ebi.biostd.persistence.model.AttributeDetail
+import ac.uk.ebi.biostd.persistence.model.DbAttribute
 import ebi.ac.uk.extended.model.ExtAttribute
 import ebi.ac.uk.extended.model.ExtAttributeDetail
 import org.assertj.core.api.Assertions.assertThat
@@ -15,7 +15,7 @@ internal val extNameDetail
 internal val extValueDetail
     get() = ExtAttributeDetail("value attribute name", "value attribute value")
 
-internal fun assertDbAttribute(dbAttribute: Attribute, simpleAttribute: ExtAttribute) {
+internal fun assertDbAttribute(dbAttribute: DbAttribute, simpleAttribute: ExtAttribute) {
     assertThat(dbAttribute.name).isEqualTo(simpleAttribute.name)
     assertThat(dbAttribute.value).isEqualTo(simpleAttribute.value)
 

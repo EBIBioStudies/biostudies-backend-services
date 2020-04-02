@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.submission.domain.service
 
-import ac.uk.ebi.biostd.persistence.model.AccessTag
 import ac.uk.ebi.biostd.persistence.model.AccessType
+import ac.uk.ebi.biostd.persistence.model.DbAccessTag
 import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
 import ac.uk.ebi.biostd.persistence.service.ProjectRepository
@@ -18,6 +18,6 @@ class ProjectService(
         return projectRepository.findProjectsByAccessTags(accessTags).map { Project(it.accNo, it.title) }
     }
 
-    private fun getUserTags(user: SecurityUser, accessType: AccessType): List<AccessTag> =
+    private fun getUserTags(user: SecurityUser, accessType: AccessType): List<DbAccessTag> =
         accessPermissionRepository.findByUserIdAndAccessType(user.id, accessType).map { it.accessTag }
 }

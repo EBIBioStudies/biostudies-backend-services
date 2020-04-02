@@ -23,7 +23,7 @@ import javax.xml.bind.annotation.XmlRootElement
 
 @Entity
 @Table(name = "User")
-class User(
+class DbUser(
     @Id
     @GeneratedValue
     var id: Long = 0L,

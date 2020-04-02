@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.persistence.mapping.extended.to
 
-import ac.uk.ebi.biostd.persistence.model.Submission
+import ac.uk.ebi.biostd.persistence.model.SubmissionDb
 import ebi.ac.uk.extended.model.ExtAccessTag
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtTag
@@ -12,7 +12,7 @@ import java.time.ZoneOffset
 internal const val TO_EXT_SUBMISSION_EXTENSIONS = "ac.uk.ebi.biostd.persistence.mapping.extended.to.ToExtSubmissionKt"
 
 class ToExtSubmissionMapper(private val submissionsPath: Path) {
-    internal fun toExtSubmission(dbSubmission: Submission): ExtSubmission {
+    internal fun toExtSubmission(dbSubmission: SubmissionDb): ExtSubmission {
         val submissionFileSource = PathFilesSource(submissionsPath.resolve(dbSubmission.relPath))
         return ExtSubmission(
             accNo = dbSubmission.accNo,

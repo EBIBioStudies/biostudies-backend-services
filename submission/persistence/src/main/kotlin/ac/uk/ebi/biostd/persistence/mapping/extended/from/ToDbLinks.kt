@@ -1,14 +1,14 @@
 package ac.uk.ebi.biostd.persistence.mapping.extended.from
 
-import ac.uk.ebi.biostd.persistence.model.Link
+import ac.uk.ebi.biostd.persistence.model.DbLink
 import arrow.core.Either
 import ebi.ac.uk.extended.model.ExtLink
 import ebi.ac.uk.extended.model.ExtLinkTable
 import java.util.SortedSet
 
-fun List<Either<ExtLink, ExtLinkTable>>.toDbLinks(): SortedSet<Link> {
+fun List<Either<ExtLink, ExtLinkTable>>.toDbLinks(): SortedSet<DbLink> {
     var idx = 0
-    val links = sortedSetOf<Link>()
+    val links = sortedSetOf<DbLink>()
 
     forEach { either ->
         either.fold(

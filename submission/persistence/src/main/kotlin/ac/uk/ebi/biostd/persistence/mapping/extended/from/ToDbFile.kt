@@ -1,12 +1,12 @@
 package ac.uk.ebi.biostd.persistence.mapping.extended.from
 
 import ac.uk.ebi.biostd.persistence.common.NO_TABLE_INDEX
-import ac.uk.ebi.biostd.persistence.model.File
-import ac.uk.ebi.biostd.persistence.model.FileAttribute
+import ac.uk.ebi.biostd.persistence.model.DbFile
+import ac.uk.ebi.biostd.persistence.model.DbFileAttribute
 import ebi.ac.uk.extended.model.ExtAttribute
 import ebi.ac.uk.extended.model.ExtFile
 
 internal fun ExtFile.toDbFile(order: Int, tableIndex: Int = NO_TABLE_INDEX) =
-    File(fileName, order, file.length(), attributes.mapIndexedTo(sortedSetOf(), ::toDbFileAttribute), tableIndex)
+    DbFile(fileName, order, file.length(), attributes.mapIndexedTo(sortedSetOf(), ::toDbFileAttribute), tableIndex)
 
-private fun toDbFileAttribute(index: Int, attr: ExtAttribute) = FileAttribute(attr.toDbAttribute(index))
+private fun toDbFileAttribute(index: Int, attr: ExtAttribute) = DbFileAttribute(attr.toDbAttribute(index))

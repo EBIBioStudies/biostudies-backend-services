@@ -16,7 +16,7 @@ internal class ComposedFileSourceTest(
     @MockK private val oneFileSource: FilesSource,
     @MockK private val anotherFileSource: FilesSource
 ) {
-    private val testInstance = ComposedFileSource(oneFileSource, anotherFileSource)
+    private val testInstance = ComposedFileSource(listOf(oneFileSource, anotherFileSource))
     private val filePath = "path/to/a/file.txt"
 
     @Nested

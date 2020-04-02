@@ -9,8 +9,8 @@ import javax.persistence.Table
 import javax.persistence.UniqueConstraint
 
 @Entity
-@Table(name = "ElementTag", uniqueConstraints = [ UniqueConstraint(columnNames = ["name", "classifier" ]) ])
-class Tag(
+@Table(name = "ElementTag", uniqueConstraints = [UniqueConstraint(columnNames = ["name", "classifier"])])
+class DbTag(
     @Id
     @GeneratedValue
     var id: Long = 0,
@@ -22,7 +22,7 @@ class Tag(
     var name: String
 ) {
     override fun equals(other: Any?) = when {
-        other !is Tag -> false
+        other !is DbTag -> false
         other === this -> true
         else -> Objects.equals(id, other.id)
             .and(Objects.equals(name, other.name))

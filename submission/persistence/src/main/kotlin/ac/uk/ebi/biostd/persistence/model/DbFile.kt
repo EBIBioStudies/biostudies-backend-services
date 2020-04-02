@@ -15,43 +15,53 @@ import javax.persistence.OrderBy
 import javax.persistence.Table
 
 @Entity
-@Table(name = "Link")
-class Link(
+@Table(name = "FileRef")
+class DbFile(
+
     @Column
-    val url: String,
+    var name: String,
 
     @Column(name = "ord")
     override var order: Int
-) : Tabular, Comparable<Link> {
+) : Tabular, Comparable<DbFile> {
 
     @Id
     @GeneratedValue
     var id: Long = 0L
 
+    var size: Long = 0L
+
     @OneToMany(cascade = [CascadeType.ALL])
-    @JoinColumn(name = "link_id")
+    @JoinColumn(name = "file_id")
     @OrderBy("order ASC")
-    var attributes: SortedSet<LinkAttribute> = sortedSetOf()
+    var attributes: SortedSet<DbFileAttribute> = sortedSetOf()
 
     @Column
     override var tableIndex = NO_TABLE_INDEX
 
-    constructor(url: String, order: Int, attributes: SortedSet<LinkAttribute>, tableIndex: Int = NO_TABLE_INDEX) :
-        this(url, order) {
+    constructor(
+        name: String,
+        order: Int,
+        size: Long,
+        attributes: SortedSet<DbFileAttribute>,
+        tableIndex: Int = NO_TABLE_INDEX
+    ) : this(name, order) {
+        this.size = size
         this.attributes = attributes
         this.tableIndex = tableIndex
     }
 
-    override fun compareTo(other: Link) = this.order.compareTo(other.order)
+    override fun compareTo(other: DbFile) =
+        Comparator.comparing(DbFile::order).thenComparing(DbFile::tableIndex).compare(this, other)
 
-    override fun equals(other: Any?): Boolean = when {
-        other !is Link -> false
+    override fun equals(other: Any?) = when {
+        other !is DbFile -> false
         this === other -> true
         else -> equals(id, other.id)
-            .and(equals(url, other.url))
+            .and(equals(name, other.name))
             .and(equals(order, other.order))
             .and(equals(tableIndex, other.tableIndex))
     }
 
-    override fun hashCode(): Int = hash(id, url, order, tableIndex)
+    override fun hashCode() = hash(id, name, order, tableIndex)
 }

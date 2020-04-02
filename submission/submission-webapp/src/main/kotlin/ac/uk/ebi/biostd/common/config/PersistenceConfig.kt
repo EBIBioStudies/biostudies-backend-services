@@ -2,9 +2,11 @@ package ac.uk.ebi.biostd.common.config
 
 import ac.uk.ebi.biostd.common.property.ApplicationProperties
 import ac.uk.ebi.biostd.integration.SerializationService
+import ac.uk.ebi.biostd.persistence.integration.PersistenceContext
 import ac.uk.ebi.biostd.persistence.integration.PersistenceContextImpl
+import ac.uk.ebi.biostd.persistence.integration.SubmissionQueryService
+import ac.uk.ebi.biostd.persistence.integration.SubmissionSqlQueryService
 import ac.uk.ebi.biostd.persistence.mapping.SubmissionDbMapper
-import ac.uk.ebi.biostd.persistence.mapping.SubmissionMapper
 import ac.uk.ebi.biostd.persistence.mapping.extended.from.ToDbSubmissionMapper
 import ac.uk.ebi.biostd.persistence.mapping.extended.to.ToExtSubmissionMapper
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
@@ -37,8 +39,6 @@ class PersistenceConfig(
     private val submissionDataRepository: SubmissionDataRepository,
     private val sequenceRepository: SequenceDataRepository,
     private val tagsDataRepository: AccessTagDataRepo,
-    private val tagsRefRepository: TagDataRepository,
-    private val userRepository: UserDataRepository,
     private val template: NamedParameterJdbcTemplate,
     private val userDataRepository: UserDataDataRepository,
     private val applicationProperties: ApplicationProperties,
@@ -65,9 +65,6 @@ class PersistenceConfig(
     fun submissionDbMapper() = SubmissionDbMapper()
 
     @Bean
-    fun submissionMapper() = SubmissionMapper(tagsDataRepository, tagsRefRepository, userRepository)
-
-    @Bean
     fun filePersistenceService() = FilePersistenceService(folderResolver, serializationService)
 
     @Bean
@@ -80,7 +77,7 @@ class PersistenceConfig(
         dbSubmissionMapper: ToDbSubmissionMapper,
         toExtSubmissionMapper: ToExtSubmissionMapper,
         filePersistenceService: FilePersistenceService
-    ) =
+    ): PersistenceContext =
         PersistenceContextImpl(
             submissionDataRepository,
             sequenceRepository,
@@ -91,4 +88,8 @@ class PersistenceConfig(
             toExtSubmissionMapper,
             filePersistenceService
         )
+
+    @Bean
+    fun submissionQueryService(): SubmissionQueryService =
+        SubmissionSqlQueryService(submissionDataRepository, folderResolver)
 }

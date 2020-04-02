@@ -1,6 +1,7 @@
 import Dependencies.Arrow
 import Dependencies.CommonsIO
 import Dependencies.CommonsLang3
+import Dependencies.Guava
 import Dependencies.KotlinReflect
 import Dependencies.KotlinStdLib
 import Dependencies.Poi
@@ -13,6 +14,7 @@ import TestDependencies.XmlUnitCore
 
 dependencies {
     compile(CommonsIO)
+    compileOnly(Guava)
     compile(Arrow)
     compile(KotlinStdLib)
     compile(KotlinReflect)

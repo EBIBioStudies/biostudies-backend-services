@@ -1,8 +1,8 @@
 package ac.uk.ebi.biostd.persistence.mapping.extended.to
 
-import ac.uk.ebi.biostd.persistence.model.File
-import ac.uk.ebi.biostd.persistence.model.Link
-import ac.uk.ebi.biostd.persistence.model.Section
+import ac.uk.ebi.biostd.persistence.model.DbFile
+import ac.uk.ebi.biostd.persistence.model.DbLink
+import ac.uk.ebi.biostd.persistence.model.DbSection
 import ac.uk.ebi.biostd.persistence.model.Tabular
 import ac.uk.ebi.biostd.persistence.model.ext.isTableElement
 import arrow.core.Either
@@ -19,17 +19,17 @@ import ebi.ac.uk.util.collections.component1
 import ebi.ac.uk.util.collections.component2
 import java.util.SortedSet
 
-internal fun SortedSet<Link>.toExtLinks(): List<Either<ExtLink, ExtLinkTable>> =
+internal fun SortedSet<DbLink>.toExtLinks(): List<Either<ExtLink, ExtLinkTable>> =
     groupBy { it.isTableElement() }
         .let { (tableLinks, links) -> asOrderedList(tableLinks, links) }
         .map { it.bimap({ it.toExtLink() }, { ExtLinkTable(it.map { it.toExtLink() }) }) }
 
-internal fun SortedSet<File>.toExtFiles(source: FilesSource): List<Either<ExtFile, ExtFileTable>> =
+internal fun SortedSet<DbFile>.toExtFiles(source: FilesSource): List<Either<ExtFile, ExtFileTable>> =
     groupBy { it.isTableElement() }
         .let { (tableFiles, files) -> asOrderedList(tableFiles, files) }
         .map { it.bimap({ it.toExtFile(source) }, { ExtFileTable(it.map { it.toExtFile(source) }) }) }
 
-internal fun SortedSet<Section>.toExtSections(source: FilesSource): List<Either<ExtSection, ExtSectionTable>> =
+internal fun SortedSet<DbSection>.toExtSections(source: FilesSource): List<Either<ExtSection, ExtSectionTable>> =
     groupBy { it.isTableElement() }
         .let { (tableSections, sections) -> asOrderedList(tableSections, sections) }
         .map { it.bimap({ it.toExtSection(source) }, { ExtSectionTable(it.map { it.toExtSection(source) }) }) }

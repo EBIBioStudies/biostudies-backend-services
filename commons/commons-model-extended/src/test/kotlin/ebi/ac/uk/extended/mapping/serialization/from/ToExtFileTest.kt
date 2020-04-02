@@ -1,37 +1,27 @@
 package ebi.ac.uk.extended.mapping.serialization.from
 
-import ebi.ac.uk.extended.model.ExtAttribute
-import ebi.ac.uk.io.sources.FilesSource
-import ebi.ac.uk.model.Attribute
+import ebi.ac.uk.io.sources.PathFilesSource
 import ebi.ac.uk.model.File
-import io.mockk.every
-import io.mockk.impl.annotations.MockK
+import io.github.glytching.junit.extension.folder.TemporaryFolder
+import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.junit5.MockKExtension
-import io.mockk.mockkStatic
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import java.io.File as SystemFile
 
-@ExtendWith(MockKExtension::class)
-internal class ToExtFileTest(
-    @MockK val filesSource: FilesSource,
-    @MockK val attribute: Attribute,
-    @MockK val extAttribute: ExtAttribute,
-    @MockK val systemFile: SystemFile
-) {
+@ExtendWith(value = [MockKExtension::class, TemporaryFolderExtension::class])
+internal class ToExtFileTest(private val tempFolder: TemporaryFolder) {
+
     private val file = File("fileName", 55L, listOf(attribute))
+    private val systemFile = tempFolder.createFile(file.path)
 
     @Test
     fun toExtFile() {
-        mockkStatic(TO_EXT_ATTRIBUTE_EXTENSIONS) {
-            every { attribute.toExtAttribute() } returns extAttribute
-            every { filesSource.getFile(file.path) } returns systemFile
+        val extFile = file.toExtFile(PathFilesSource(tempFolder.root.toPath()))
 
-            val extFile = file.toExtFile(filesSource)
-            assertThat(extFile.attributes).containsExactly(extAttribute)
-            assertThat(extFile.fileName).isEqualTo(file.path)
-            assertThat(extFile.file).isEqualTo(systemFile)
-        }
+        assertThat(extFile.fileName).isEqualTo(file.path)
+        assertThat(extFile.file).isEqualTo(systemFile)
+        assertThat(extFile.attributes).hasSize(1)
+        assertAttribute(extFile.attributes.first(), file.attributes.first())
     }
 }

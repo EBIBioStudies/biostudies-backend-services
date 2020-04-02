@@ -1,6 +1,6 @@
 package ebi.ac.uk.security.service
 
-import ac.uk.ebi.biostd.persistence.model.User
+import ac.uk.ebi.biostd.persistence.model.DbUser
 import ac.uk.ebi.biostd.persistence.model.UserGroup
 import ebi.ac.uk.security.integration.model.api.GroupMagicFolder
 import ebi.ac.uk.security.integration.model.api.MagicFolder
@@ -17,7 +17,7 @@ class ProfileServiceTest(temporaryFolder: TemporaryFolder) {
     private val filesDir = temporaryFolder.root.toPath()
     private val testGroup = UserGroup("Test Group", "Test Group Description", "fd9f87b3-9de8-4036-be7a-3ac8cbc44ddd")
 
-    private val testUser = User(
+    private val testUser = DbUser(
         id = 3,
         email = "admin_user@ebi.ac.uk",
         fullName = "admin_user",
