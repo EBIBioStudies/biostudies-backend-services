@@ -8,7 +8,6 @@ import ebi.ac.uk.util.collections.second
 import ebi.ac.uk.util.regex.match
 import ebi.ac.uk.util.regex.secondGroup
 import org.springframework.util.LinkedMultiValueMap
-import org.springframework.util.MultiValueMap
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.client.postForEntity
 import org.springframework.web.util.UriComponentsBuilder
@@ -32,15 +31,9 @@ class RtClient(
         return getTicketId(response)
     }
 
-    private fun getRequestBody(subject: String, owner: String, content: String): MultiValueMap<String, String> {
-        val text = content
-            .split("\n\n")
-            .filter { it.isNotBlank() }
-            .joinToString(" ") { "${it.trim()}\n\n " }
-
-        return LinkedMultiValueMap<String, String>(
-            mapOf("content" to listOf("Queue: ${rtConfig.queue}\nSubject: $subject\nOwner: $owner\nText: $text")))
-    }
+    private fun getRequestBody(subject: String, owner: String, content: String) = LinkedMultiValueMap<String, String>(
+        mapOf("content" to listOf(
+            "Queue: ${rtConfig.queue}\nSubject: $subject\nRequestor: $owner\nText: ${content.replace("\n", "\n ")}")))
 
     private fun getTicketId(response: String): String {
         val body = response.split("\n\n")

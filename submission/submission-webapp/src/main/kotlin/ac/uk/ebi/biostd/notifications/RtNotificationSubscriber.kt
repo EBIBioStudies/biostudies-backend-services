@@ -3,10 +3,10 @@ package ac.uk.ebi.biostd.notifications
 import ac.uk.ebi.biostd.notifications.templates.SuccessfulSubmissionModel
 import ac.uk.ebi.biostd.notifications.templates.SuccessfulSubmissionTemplate
 import ac.uk.ebi.biostd.submission.events.SuccessfulSubmission
-import ebi.ac.uk.extended.model.releaseDate
 import ebi.ac.uk.notifications.integration.components.SubscriptionService
 import ebi.ac.uk.notifications.integration.model.Notification
 import ebi.ac.uk.notifications.integration.model.NotificationType
+import ebi.ac.uk.util.date.toStringDate
 import io.reactivex.Observable
 import org.apache.commons.io.IOUtils
 import org.springframework.core.io.ResourceLoader
@@ -41,6 +41,6 @@ internal class RtNotificationSubscriber(
                 source.user.secretKey,
                 source.submission.released,
                 source.submission.title ?: "",
-                source.submission.releaseDate
+                source.submission.releaseTime?.toStringDate() ?: ""
             ))
 }

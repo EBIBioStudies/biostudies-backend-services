@@ -1,7 +1,5 @@
 package ebi.ac.uk.extended.model
 
-import ebi.ac.uk.util.date.toStringDate
-
 val ExtSubmission.allSections
     get(): List<ExtSection> = section.allSections + section
 
@@ -13,6 +11,3 @@ val ExtSubmission.allFiles
 
 val ExtSubmission.allFileListSections
     get(): List<ExtFileList> = allSections.mapNotNull { it.fileList }
-
-val ExtSubmission.releaseDate
-    get(): String = releaseTime?.toStringDate() ?: ""

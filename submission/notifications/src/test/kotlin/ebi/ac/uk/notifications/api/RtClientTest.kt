@@ -21,7 +21,7 @@ class RtClientTest {
     private val testInstance = RtClient(rtConfig, restTemplate)
     private val testBody = LinkedMultiValueMap<String, String>(
         mapOf("content" to listOf(
-            "Queue: test-queue\nSubject: Test\nOwner: test@mail.org\nText: A notification\n\n ")))
+            "Queue: test-queue\nSubject: Test\nRequestor: test@mail.org\nText: A notification")))
 
     @BeforeEach
     fun beforeEach() {
