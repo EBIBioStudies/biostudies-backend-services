@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.persistence.service
 
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat
+import ebi.ac.uk.extended.mapping.serialization.to.toFilesTable
 import ebi.ac.uk.extended.mapping.serialization.to.toSimpleSubmission
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.allFileListSections
@@ -22,11 +23,21 @@ class FilePersistenceService(
         generateOutputFiles(submission)
     }
 
-    fun <T> generateOutputFiles(element: T, submission: ExtSubmission, outputFileName: String) {
+    private fun generateOutputFiles(submission: ExtSubmission) {
+        val simpleSubmission = submission.toSimpleSubmission()
+
+        generateOutputFiles(simpleSubmission, submission.relPath, submission.accNo)
+        submission.allFileListSections.forEach {
+            generateOutputFiles(it.toFilesTable(), submission.relPath, it.fileName)
+        }
+    }
+
+    // TODO add file list content validation to integration tests
+    private fun <T> generateOutputFiles(element: T, relPath: String, outputFileName: String) {
         val json = serializationService.serializeElement(element, SubFormat.JSON_PRETTY)
         val xml = serializationService.serializeElement(element, SubFormat.XML)
         val tsv = serializationService.serializeElement(element, SubFormat.TSV)
-        val submissionPath = folderResolver.getSubmissionFolder(submission.relPath)
+        val submissionPath = folderResolver.getSubmissionFolder(relPath)
 
         FileUtils.writeStringToFile(submissionPath.resolve("$outputFileName.json").toFile(), json, Charsets.UTF_8)
         FileUtils.writeStringToFile(submissionPath.resolve("$outputFileName.xml").toFile(), xml, Charsets.UTF_8)
@@ -54,10 +65,5 @@ class FilePersistenceService(
         val tempDir = submissionFolder.parentFile.resolve("${accNo}_temp")
         tempDir.mkdirs()
         return tempDir
-    }
-
-    private fun generateOutputFiles(submission: ExtSubmission) {
-        generateOutputFiles(submission.toSimpleSubmission(), submission, submission.accNo)
-        submission.allFileListSections.forEach { generateOutputFiles(it, submission, it.fileName) }
     }
 }

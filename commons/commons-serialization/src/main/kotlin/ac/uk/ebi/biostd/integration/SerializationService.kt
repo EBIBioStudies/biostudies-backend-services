@@ -15,5 +15,6 @@ interface SerializationService {
 
     fun serializeSubmission(submission: Submission, format: SubFormat): String
 
+    // TODO allow only permitted elements
     fun <T> serializeElement(element: T, format: SubFormat): String
 }
