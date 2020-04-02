@@ -7,11 +7,11 @@ import ac.uk.ebi.biostd.integration.SubFormat.XmlFormat
 import ac.uk.ebi.biostd.persistence.filter.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.integration.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.projections.SimpleSubmission
-import ac.uk.ebi.biostd.persistence.service.SUBMISSION_FOLDER_FILES_PATH
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
 import ac.uk.ebi.biostd.submission.model.SubmissionRequest
 import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
 import ebi.ac.uk.model.Submission
+import ebi.ac.uk.paths.FILES_PATH
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 
@@ -48,5 +48,5 @@ class SubmissionService(
     }
 
     fun submissionFolder(accNo: String): java.io.File? =
-        queryService.getExistingFolder(accNo)?.resolve(SUBMISSION_FOLDER_FILES_PATH)
+        queryService.getExistingFolder(accNo)?.resolve(FILES_PATH)
 }

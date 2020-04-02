@@ -4,15 +4,15 @@ import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat
 import ebi.ac.uk.extended.mapping.serialization.to.toFilesTable
 import ebi.ac.uk.extended.mapping.serialization.to.toSimpleSubmission
+import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.allFileListSections
 import ebi.ac.uk.extended.model.allFiles
 import ebi.ac.uk.extended.model.allReferencedFiles
+import ebi.ac.uk.paths.FILES_PATH
 import ebi.ac.uk.paths.SubmissionFolderResolver
 import org.apache.commons.io.FileUtils
 import java.io.File
-
-const val SUBMISSION_FOLDER_FILES_PATH = "Files"
 
 class FilePersistenceService(
     private val folderResolver: SubmissionFolderResolver,
@@ -52,15 +52,17 @@ class FilePersistenceService(
         submission.allReferencedFiles.forEach { it.file.renameTo(temporally.resolve(it.fileName)) }
 
         FileUtils.cleanDirectory(submissionFolder)
-        temporally.renameTo(submissionFolder.resolve(SUBMISSION_FOLDER_FILES_PATH))
+        temporally.renameTo(submissionFolder.resolve(FILES_PATH))
     }
 
     // TODO before all process start will not work
     private fun copyFiles(submission: ExtSubmission) {
-        val fileFolder = getSubmissionFolder(submission.relPath).resolve(SUBMISSION_FOLDER_FILES_PATH)
-        submission.allFiles.forEach { FileUtils.copyFile(it.file, fileFolder.resolve(it.fileName)) }
-        submission.allReferencedFiles.forEach { FileUtils.copyFile(it.file, fileFolder.resolve(it.fileName)) }
+        submission.allFiles.forEach { copy(it, submission.relPath) }
+        submission.allReferencedFiles.forEach { copy(it, submission.relPath) }
     }
+
+    private fun copy(file: ExtFile, relPath: String) =
+        FileUtils.copyFile(file.file, folderResolver.getSubFilePath(relPath, file.fileName).toFile())
 
     private fun getSubmissionFolder(relPath: String): File {
         val submissionFolder = folderResolver.getSubmissionFolder(relPath).toFile()
