@@ -19,7 +19,7 @@ class FilePersistenceService(
     private val serializationService: SerializationService
 ) {
     fun persistSubmissionFiles(submission: ExtSubmission) {
-        persistFiles(submission)
+        copyFiles(submission)
         generateOutputFiles(submission)
     }
 
@@ -44,7 +44,7 @@ class FilePersistenceService(
         FileUtils.writeStringToFile(submissionPath.resolve("$outputFileName.pagetab.tsv").toFile(), tsv, Charsets.UTF_8)
     }
 
-    private fun persistFiles(submission: ExtSubmission) {
+    private fun moveFiles(submission: ExtSubmission) {
         val submissionFolder = getSubmissionFolder(submission.relPath)
         val temporally = createTempFolder(submissionFolder, submission.accNo)
 
@@ -53,6 +53,13 @@ class FilePersistenceService(
 
         FileUtils.cleanDirectory(submissionFolder)
         temporally.renameTo(submissionFolder.resolve(SUBMISSION_FOLDER_FILES_PATH))
+    }
+
+    // TODO before all process start will not work
+    private fun copyFiles(submission: ExtSubmission) {
+        val fileFolder = getSubmissionFolder(submission.relPath).resolve(SUBMISSION_FOLDER_FILES_PATH)
+        submission.allFiles.forEach { FileUtils.copyFile(it.file, fileFolder.resolve(it.fileName)) }
+        submission.allReferencedFiles.forEach { FileUtils.copyFile(it.file, fileFolder.resolve(it.fileName)) }
     }
 
     private fun getSubmissionFolder(relPath: String): File {
