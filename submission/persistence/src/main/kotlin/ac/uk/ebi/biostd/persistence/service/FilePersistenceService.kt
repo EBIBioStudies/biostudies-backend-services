@@ -13,6 +13,8 @@ import ebi.ac.uk.paths.FILES_PATH
 import ebi.ac.uk.paths.SubmissionFolderResolver
 import org.apache.commons.io.FileUtils
 import java.io.File
+import java.nio.file.Files
+import java.nio.file.StandardCopyOption
 
 class FilePersistenceService(
     private val folderResolver: SubmissionFolderResolver,
@@ -61,8 +63,11 @@ class FilePersistenceService(
         submission.allReferencedFiles.forEach { copy(it, submission.relPath) }
     }
 
-    private fun copy(file: ExtFile, relPath: String) =
-        FileUtils.copyFile(file.file, folderResolver.getSubFilePath(relPath, file.fileName).toFile())
+    private fun copy(file: ExtFile, relPath: String) {
+        val targetPath = folderResolver.getSubFilePath(relPath, file.fileName)
+        Files.createDirectories(targetPath)
+        Files.copy(file.file.toPath(), targetPath, StandardCopyOption.REPLACE_EXISTING)
+    }
 
     private fun getSubmissionFolder(relPath: String): File {
         val submissionFolder = folderResolver.getSubmissionFolder(relPath).toFile()
