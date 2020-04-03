@@ -14,6 +14,7 @@ import ebi.ac.uk.paths.SubmissionFolderResolver
 import org.apache.commons.io.FileUtils
 import java.io.File
 import java.nio.file.Files
+import java.nio.file.Path
 import java.nio.file.StandardCopyOption
 
 class FilePersistenceService(
@@ -35,6 +36,9 @@ class FilePersistenceService(
     }
 
     // TODO add file list content validation to integration tests
+    // TODO add special character folders/files names test
+    // TODO Test temporally folder already existing
+    // TODO we need to remove also pagetab files as only FILES are clean right now
     private fun <T> generateOutputFiles(element: T, relPath: String, outputFileName: String) {
         val json = serializationService.serializeElement(element, SubFormat.JSON_PRETTY)
         val xml = serializationService.serializeElement(element, SubFormat.XML)
@@ -53,11 +57,11 @@ class FilePersistenceService(
         submission.allFiles.forEach { it.file.renameTo(temporally.resolve(it.fileName)) }
         submission.allReferencedFiles.forEach { it.file.renameTo(temporally.resolve(it.fileName)) }
 
-        FileUtils.cleanDirectory(submissionFolder)
-        temporally.renameTo(submissionFolder.resolve(FILES_PATH))
+        val filesPath = submissionFolder.resolve(FILES_PATH)
+        deleteDirectory(filesPath.toPath())
+        temporally.renameTo(filesPath)
     }
 
-    // TODO before all process start will not work
     private fun copyFiles(submission: ExtSubmission) {
         val submissionFolder = getSubmissionFolder(submission.relPath)
         val temporally = createTempFolder(submissionFolder, submission.accNo)
@@ -65,8 +69,9 @@ class FilePersistenceService(
         submission.allFiles.forEach { copy(it, temporally) }
         submission.allReferencedFiles.forEach { copy(it, temporally) }
 
-        FileUtils.cleanDirectory(submissionFolder)
-        temporally.renameTo(submissionFolder.resolve(FILES_PATH))
+        val filesPath = submissionFolder.resolve(FILES_PATH)
+        deleteDirectory(filesPath.toPath())
+        temporally.renameTo(filesPath)
     }
 
     private fun copy(file: ExtFile, path: File) {
@@ -83,8 +88,16 @@ class FilePersistenceService(
 
     private fun createTempFolder(submissionFolder: File, accNo: String): File {
         val tempDir = submissionFolder.parentFile.resolve("${accNo}_temp").toPath()
-        Files.deleteIfExists(tempDir)
+        deleteDirectory(tempDir)
         Files.createDirectory(tempDir)
         return tempDir.toFile()
+    }
+
+    private fun deleteDirectory(path: Path) {
+        if (Files.exists(path)) {
+            Files.walk(path)
+                .sorted(Comparator.reverseOrder())
+                .forEach { Files.deleteIfExists(it) }
+        }
     }
 }
