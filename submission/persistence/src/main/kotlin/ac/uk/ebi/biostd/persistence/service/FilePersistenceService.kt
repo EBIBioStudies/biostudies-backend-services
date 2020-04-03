@@ -50,7 +50,6 @@ class FilePersistenceService(
         val submissionFolder = getSubmissionFolder(submission.relPath)
         val temporally = createTempFolder(submissionFolder, submission.accNo)
 
-
         submission.allFiles.forEach { it.file.renameTo(temporally.resolve(it.fileName)) }
         submission.allReferencedFiles.forEach { it.file.renameTo(temporally.resolve(it.fileName)) }
 
