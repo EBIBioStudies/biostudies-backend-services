@@ -12,6 +12,7 @@ internal class ExtSectionExtensionsTest {
     fun getAllSections() {
         val tableSec = mockk<ExtSection>()
         val simpleSection = mockk<ExtSection>()
+        every { simpleSection.sections } returns emptyList()
 
         val section = ExtSection(
             type = "study",

@@ -39,6 +39,7 @@ class FilePersistenceService(
     // TODO add special character folders/files names test
     // TODO Test temporally folder already existing
     // TODO we need to remove also pagetab files as only FILES are clean right now
+    // TODO add integration test for file list within subsections
     private fun <T> generateOutputFiles(element: T, relPath: String, outputFileName: String) {
         val json = serializationService.serializeElement(element, SubFormat.JSON_PRETTY)
         val xml = serializationService.serializeElement(element, SubFormat.XML)
