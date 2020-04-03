@@ -59,7 +59,7 @@ class FilePersistenceService(
 
     // TODO before all process start will not work
     private fun copyFiles(submission: ExtSubmission) {
-        val submissionFolder = folderResolver.getSubmissionFolder(submission.relPath).toFile()
+        val submissionFolder = getSubmissionFolder(submission.relPath)
         val temporally = createTempFolder(submissionFolder, submission.accNo)
 
         submission.allFiles.forEach { copy(it, temporally) }
