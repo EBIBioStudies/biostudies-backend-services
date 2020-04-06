@@ -11,6 +11,7 @@ import org.springframework.util.LinkedMultiValueMap
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.client.postForEntity
 import org.springframework.web.util.UriComponentsBuilder
+import java.lang.StringBuilder
 
 class RtClient(
     private val rtConfig: RtConfig,
@@ -25,15 +26,18 @@ class RtClient(
             .queryParam("pass", rtConfig.password)
             .build()
             .toUriString()
-        val body = getRequestBody(subject, owner, content)
+        val body = LinkedMultiValueMap<String, String>(mapOf("content" to listOf(getContent(subject, owner, content))))
         val response = restTemplate.postForEntity<String>(url, body).body ?: throw InvalidResponseException()
 
         return getTicketId(response)
     }
 
-    private fun getRequestBody(subject: String, owner: String, content: String) = LinkedMultiValueMap<String, String>(
-        mapOf("content" to listOf(
-            "Queue: ${rtConfig.queue}\nSubject: $subject\nRequestor: $owner\nText: ${content.replace("\n", "\n ")}")))
+    private fun getContent(subject: String, owner: String, content: String) =
+        StringBuilder("Queue: ${rtConfig.queue}\n")
+            .append("Subject: $subject\n")
+            .append("Requestor: $owner\n")
+            .append("Text: ${content.replace("\n", "\n ")}")
+            .toString()
 
     private fun getTicketId(response: String): String {
         val body = response.split("\n\n")

@@ -27,3 +27,8 @@ app:
     requireActivation: false
   notifications:
     smtp: smtp.ebi.ac.uk
+    rt:
+      host: # RT server host
+      queue: # Queue used for RT notifications
+      user: # RT user
+      password: # RT password
