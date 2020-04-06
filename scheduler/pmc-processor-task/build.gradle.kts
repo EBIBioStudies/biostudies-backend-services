@@ -1,8 +1,12 @@
+import Dependencies.Arrow
+import Dependencies.CommonsIO
+import Dependencies.CommonsLang3
 import Dependencies.Coroutines
 import Dependencies.KMongoCoroutine
 import Dependencies.KotlinLogging
 import Dependencies.Retrofit2
 import Dependencies.RetrofitCoroutine
+import Dependencies.SpringWeb
 import SpringBootDependencies.SpringBootStarter
 import SpringBootDependencies.SpringBootStarterConfigProcessor
 import TestDependencies.BaseTestCompileDependencies
@@ -22,19 +26,20 @@ dependencies {
     implementation(project(":scheduler:task-properties"))
     implementation(project(":commons:commons-http"))
 
-    implementation(SpringBootStarter)
-    implementation(SpringBootStarterConfigProcessor)
-
-    implementation(KMongoCoroutine)
+    implementation(Arrow)
+    implementation(CommonsIO)
+    implementation(CommonsLang3)
     implementation(Coroutines)
+    implementation(KMongoCoroutine)
     implementation(KotlinLogging)
-
     implementation(Retrofit2)
     implementation(RetrofitCoroutine)
+    implementation(SpringBootStarter)
+    implementation(SpringWeb)
+    implementation(SpringBootStarterConfigProcessor)
 
-    // Junit dependencies
-    BaseTestCompileDependencies.forEach { testCompile(it) }
-    BaseTestRuntimeDependencies.forEach { testCompile(it) }
+    BaseTestCompileDependencies.forEach { testImplementation(it) }
+    BaseTestRuntimeDependencies.forEach { testImplementation(it) }
 }
 
 tasks.named<BootJar>("bootJar") {

@@ -11,16 +11,17 @@ plugins {
 }
 
 dependencies {
-    compile(CliKt)
-    compile(project(":commons:commons-util"))
-    compile(project(":commons:commons-serialization"))
+    api(project(":commons:commons-util"))
+    api(project(":commons:commons-serialization"))
 
-    testCompile(Junit)
-    testCompile(JunitExtensions)
-    testCompile(AssertJ)
-    testCompile(MockK)
-    testCompile(KotlinTestJunit)
-    testRuntime(Junit5Console)
+    implementation(CliKt)
+
+    testImplementation(Junit)
+    testImplementation(JunitExtensions)
+    testImplementation(AssertJ)
+    testImplementation(MockK)
+    testImplementation(KotlinTestJunit)
+    testRuntimeOnly(Junit5Console)
 }
 
 tasks {

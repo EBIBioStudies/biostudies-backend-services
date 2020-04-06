@@ -1,15 +1,17 @@
 import Dependencies.Arrow
+import Dependencies.CommonsIO
 import Dependencies.KotlinStdLib
 import Dependencies.SpringWeb
 import TestDependencies.AssertJ
 import TestDependencies.JunitExtensions
 
 dependencies {
-    compile(project(":commons:commons-bio"))
+    api(project(":commons:commons-bio"))
 
-    compile(Arrow)
-    compile(AssertJ)
-    compile(JunitExtensions)
-    compile(KotlinStdLib)
-    compile(SpringWeb)
+    implementation(Arrow)
+    implementation(AssertJ)
+    implementation(CommonsIO)
+    implementation(JunitExtensions)
+    implementation(KotlinStdLib)
+    implementation(SpringWeb)
 }

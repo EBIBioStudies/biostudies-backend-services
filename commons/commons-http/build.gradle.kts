@@ -6,13 +6,13 @@ import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
 
 dependencies {
-    compile(project(":commons:commons-util"))
+    api(project(":commons:commons-util"))
 
-    compile(JacksonKotlin)
-    compile(JacksonCore)
-    compile(SpringWeb)
+    implementation(JacksonKotlin)
+    implementation(JacksonCore)
+    implementation(SpringWeb)
     compileOnly(ServletApi)
 
-    BaseTestCompileDependencies.forEach { testCompile(it) }
-    BaseTestRuntimeDependencies.forEach { testCompile(it) }
+    BaseTestCompileDependencies.forEach { testImplementation(it) }
+    BaseTestRuntimeDependencies.forEach { testImplementation(it) }
 }

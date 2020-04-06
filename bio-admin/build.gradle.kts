@@ -17,8 +17,8 @@ configurations {
 }
 
 dependencies {
-    compile(SpringBootStarterWeb)
-    compile(SpringBootStartedJetty)
+    implementation(SpringBootStarterWeb)
+    implementation(SpringBootStartedJetty)
     implementation(SpringBootStartedAdmin)
     implementation(KotlinStdLib)
 }
