@@ -21,8 +21,10 @@ import ac.uk.ebi.biostd.persistence.service.FilePersistenceService
 import ac.uk.ebi.biostd.persistence.service.ProjectRepository
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
 import com.cosium.spring.data.jpa.entity.graph.repository.support.EntityGraphJpaRepositoryFactoryBean
+import ebi.ac.uk.notifications.persistence.repositories.SubmissionRtRepository
 import ebi.ac.uk.paths.SubmissionFolderResolver
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
+import org.springframework.boot.autoconfigure.domain.EntityScan
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories
@@ -30,8 +32,9 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 
 @Configuration
 @EnableJpaRepositories(
-    basePackageClasses = [SubmissionDataRepository::class],
+    basePackageClasses = [SubmissionDataRepository::class, SubmissionRtRepository::class],
     repositoryFactoryBeanClass = EntityGraphJpaRepositoryFactoryBean::class)
+@EntityScan(basePackages = ["ac.uk.ebi.biostd.persistence.model", "ebi.ac.uk.notifications.persistence.model"])
 class PersistenceConfig(
     private val submissionDataRepository: SubmissionDataRepository,
     private val sequenceRepository: SequenceDataRepository,

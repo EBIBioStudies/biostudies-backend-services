@@ -2,7 +2,6 @@ package ac.uk.ebi.biostd.submission.service
 
 import ac.uk.ebi.biostd.persistence.integration.SubmissionQueryService
 import ac.uk.ebi.biostd.submission.exceptions.InvalidDateFormatException
-import ac.uk.ebi.biostd.submission.test.ACC_NO
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
@@ -15,6 +14,8 @@ import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
+
+private const val ACC_NO = "ABC456"
 
 @ExtendWith(MockKExtension::class)
 class TimesServiceTest(@MockK private val queryService: SubmissionQueryService) {

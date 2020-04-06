@@ -1,6 +1,8 @@
 package ac.uk.ebi.biostd.submission.submitter
 
 import ac.uk.ebi.biostd.persistence.integration.PersistenceContext
+import ac.uk.ebi.biostd.submission.events.SubmissionEvents.successfulSubmission
+import ac.uk.ebi.biostd.submission.events.SuccessfulSubmission
 import ac.uk.ebi.biostd.persistence.integration.SubmissionQueryService
 import ac.uk.ebi.biostd.submission.exceptions.InvalidSubmissionException
 import ac.uk.ebi.biostd.submission.model.SubmissionRequest
@@ -49,7 +51,10 @@ open class SubmissionSubmitter(
     open fun submit(request: SubmissionRequest): Submission {
         val user = request.user.asUser()
         val extSubmission = process(request.submission, request.user.asUser(), request.sources, request.method)
-        return context.saveSubmission(extSubmission, user.email, user.id).toSimpleSubmission()
+        val submitted = context.saveSubmission(extSubmission, user.email, user.id).toSimpleSubmission()
+        successfulSubmission.onNext(SuccessfulSubmission(user, extSubmission))
+
+        return submitted
     }
 
     @Suppress("TooGenericExceptionCaught")
@@ -61,8 +66,8 @@ open class SubmissionSubmitter(
     ): ExtSubmission {
         try {
             return processSubmission(submission, user, source, method)
-        } catch (e: RuntimeException) {
-            throw InvalidSubmissionException("Submission validation errors", listOf(e))
+        } catch (exception: RuntimeException) {
+            throw InvalidSubmissionException("Submission validation errors", listOf(exception))
         }
     }
 

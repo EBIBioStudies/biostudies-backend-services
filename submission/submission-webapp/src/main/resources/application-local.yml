@@ -27,3 +27,8 @@ app:
     requireActivation: false
   notifications:
     smtp: smtp.ebi.ac.uk
+    rt:
+      host: # RT server host. Not required for local environment
+      queue: # Queue used for RT notifications. Not required for local environment
+      user: # RT user. Not required for local environment
+      password: # RT password. Not required for local environment
