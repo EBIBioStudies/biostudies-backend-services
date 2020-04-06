@@ -7,8 +7,8 @@ import javax.persistence.Id
 import javax.persistence.Table
 
 @Entity
-@Table(name = "SubmissionRt")
-class SubmissionRt(
+@Table(name = "SubmissionRT")
+class SubmissionRT(
     @Column
     val accNo: String,
 

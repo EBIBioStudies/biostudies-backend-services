@@ -5,7 +5,7 @@ import ebi.ac.uk.notifications.integration.model.Notification
 import ebi.ac.uk.notifications.integration.model.NotificationTemplate
 import ebi.ac.uk.notifications.integration.model.NotificationTemplateModel
 import ebi.ac.uk.notifications.integration.model.NotificationType
-import ebi.ac.uk.notifications.persistence.model.SubmissionRt
+import ebi.ac.uk.notifications.persistence.model.SubmissionRT
 import ebi.ac.uk.notifications.persistence.service.NotificationPersistenceService
 import io.mockk.every
 import io.mockk.mockk
@@ -34,7 +34,7 @@ class RtSubscriptionServiceTest {
         every { rtClient.createTicket("Test", "test@mail.org", "Test Content") } returns "8521"
         every {
             notificationPersistenceService.saveRtNotification("S-TEST123", "8521")
-        } returns SubmissionRt("S-TEST123", "8521")
+        } returns SubmissionRT("S-TEST123", "8521")
     }
 
     @Test
