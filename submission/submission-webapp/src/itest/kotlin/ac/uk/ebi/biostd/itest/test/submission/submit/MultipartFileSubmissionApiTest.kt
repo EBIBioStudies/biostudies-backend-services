@@ -58,7 +58,7 @@ internal class MultipartFileSubmissionApiTest(
         }
 
         @Test
-        fun `XLS submission with file list`() {
+        fun `XLS submission`() {
             val excelPageTab = excel("${tempFolder.root.absolutePath}/ExcelSubmission.xlsx") {
                 sheet("page tab") {
                     row {
@@ -107,7 +107,7 @@ internal class MultipartFileSubmissionApiTest(
         }
 
         @Test
-        fun `TSV submission with file list`() {
+        fun `TSV submission`() {
             val submission = tsv {
                 line("Submission", "S-TEST1")
                 line("Title", "Test Submission")
@@ -133,7 +133,7 @@ internal class MultipartFileSubmissionApiTest(
         }
 
         @Test
-        fun `JSON submission with file list`() {
+        fun `JSON submission`() {
             val submission = jsonObj {
                 "accno" to "S-TEST2"
                 "attributes" to jsonArray({
@@ -170,7 +170,7 @@ internal class MultipartFileSubmissionApiTest(
         }
 
         @Test
-        fun `XML submission with file list`() {
+        fun `XML submission`() {
             val submission = xml("submission") {
                 attribute("accno", "S-TEST3")
                 "attributes" {
@@ -213,80 +213,6 @@ internal class MultipartFileSubmissionApiTest(
             val response = webClient.submitSingle(submission, XML, listOf(fileList, tempFolder.createFile("File3.txt")))
             assertThat(response).isSuccessful()
             assertSubmissionFiles("S-TEST3", "File3.txt")
-            fileList.delete()
-        }
-
-        @Test
-        fun `JSON submission with TSV file list`() {
-            val submission = jsonObj {
-                "accno" to "S-TEST4"
-                "attributes" to jsonArray({
-                    "name" to "Title"
-                    "value" to "Test Submission"
-                })
-                "section" to {
-                    "accno" to "SECT-001"
-                    "type" to "Study"
-                    "attributes" to jsonArray({
-                        "name" to "Title"
-                        "value" to "Root Section"
-                    }, {
-                        "name" to "File List"
-                        "value" to "FileList.tsv"
-                    })
-                }
-            }.toString()
-
-            val fileList = tempFolder.createFile(
-                "FileList.tsv",
-                tsv {
-                    line("Files", "GEN")
-                    line("File4.txt", "ABC")
-                }.toString())
-
-            val response = webClient.submitSingle(submission, JSON, listOf(fileList, tempFolder.createFile("File4.txt")))
-            assertThat(response).isSuccessful()
-            assertSubmissionFiles("S-TEST4", "File4.txt")
-            fileList.delete()
-        }
-
-        @Test
-        fun `JSON submission with XSL file list`() {
-            val submission = jsonObj {
-                "accno" to "S-TEST5"
-                "attributes" to jsonArray({
-                    "name" to "Title"
-                    "value" to "Test Submission"
-                })
-                "section" to {
-                    "accno" to "SECT-001"
-                    "type" to "Study"
-                    "attributes" to jsonArray({
-                        "name" to "Title"
-                        "value" to "Root Section"
-                    }, {
-                        "name" to "File List"
-                        "value" to "FileList.xlsx"
-                    })
-                }
-            }.toString()
-
-            val fileList = excel("${tempFolder.root.absolutePath}/FileList.xlsx") {
-                sheet("page tab") {
-                    row {
-                        cell("Files")
-                        cell("GEN")
-                    }
-                    row {
-                        cell("File5.txt")
-                        cell("ABC")
-                    }
-                }
-            }
-
-            val response = webClient.submitSingle(submission, JSON, listOf(fileList, tempFolder.createFile("File5.txt")))
-            assertThat(response).isSuccessful()
-            assertSubmissionFiles("S-TEST5", "File5.txt")
             fileList.delete()
         }
 
