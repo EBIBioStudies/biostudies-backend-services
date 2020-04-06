@@ -12,22 +12,21 @@ import TestDependencies.XmlUnitAssertJ
 import TestDependencies.XmlUnitCore
 
 dependencies {
-    compile(project(":commons:commons-test"))
-    compile(project(":commons:commons-util"))
-    compile(project(":commons:commons-bio"))
+    api(project(":commons:commons-test"))
+    api(project(":commons:commons-util"))
+    api(project(":commons:commons-bio"))
 
-    compile(JacksonKotlin)
-    compile(JacksonXml)
-    compile(Woodstox)
-    compile(Guava)
-    compile(Arrow)
-    compile(CommonsCsv)
+    implementation(JacksonKotlin)
+    implementation(JacksonXml)
+    implementation(Woodstox)
+    implementation(Guava)
+    implementation(Arrow)
+    implementation(CommonsCsv)
 
-    BaseTestCompileDependencies.forEach { testCompile(it) }
-    BaseTestRuntimeDependencies.forEach { testCompile(it) }
-
-    testCompile(XmlUnitCore)
-    testCompile(XmlUnitAssertJ)
-    testCompile(KotlinXmlBuilder)
-    testCompile(JsonAssert)
+    BaseTestCompileDependencies.forEach { testImplementation(it) }
+    BaseTestRuntimeDependencies.forEach { testImplementation(it) }
+    testImplementation(XmlUnitCore)
+    testImplementation(XmlUnitAssertJ)
+    testImplementation(KotlinXmlBuilder)
+    testImplementation(JsonAssert)
 }

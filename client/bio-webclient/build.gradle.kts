@@ -2,11 +2,12 @@ import Dependencies.JSONOrg
 import Dependencies.SpringWeb
 
 dependencies {
-    compile(project(":commons:commons-util"))
-    compile(project(":commons:commons-http"))
-    compile(project(":commons:commons-bio"))
-    compile(project(":commons:commons-serialization"))
+    api(project(":commons:commons-util"))
+    api(project(":commons:commons-http"))
+    api(project(":commons:commons-bio"))
+    api(project(":commons:commons-serialization"))
 
-    compile(JSONOrg)
-    compile(SpringWeb)
+    implementation(JSONOrg)
+    implementation(SpringWeb)
+    implementation(kotlin("stdlib"))
 }

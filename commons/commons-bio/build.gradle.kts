@@ -1,13 +1,17 @@
+import Dependencies.Arrow
 import Dependencies.JacksonDataBind
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
 
 dependencies {
-    compile(project(":commons:commons-util"))
-    compile(JacksonDataBind)
+    api(project(":commons:commons-util"))
 
-    testCompile(project(":commons:commons-test"))
+    implementation(kotlin("stdlib"))
+    implementation(Arrow)
+    implementation(JacksonDataBind)
 
-    BaseTestCompileDependencies.forEach { testCompile(it) }
-    BaseTestRuntimeDependencies.forEach { testCompile(it) }
+    testApi(project(":commons:commons-test"))
+
+    BaseTestCompileDependencies.forEach { testImplementation(it) }
+    BaseTestRuntimeDependencies.forEach { testImplementation(it) }
 }

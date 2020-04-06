@@ -1,3 +1,4 @@
+import Dependencies.Arrow
 import Dependencies.KotlinLogging
 import SpringBootDependencies.SpringBootStartedAdminClient
 import SpringBootDependencies.SpringBootStarter
@@ -23,19 +24,19 @@ repositories {
 }
 
 dependencies {
-    compile(project(":scheduler:cluster-client"))
-    compile(project(":scheduler:task-properties"))
-    compile(project(":commons:commons-http"))
+    api(project(":scheduler:cluster-client"))
+    api(project(":scheduler:task-properties"))
+    api(project(":commons:commons-http"))
 
-    compile(KotlinLogging)
-    compile(SpringBootStarter)
-    compile(SpringBootStarterConfigProcessor)
-    compile(SpringBootStartedAdminClient)
-    compile(SpringBootStarterWeb)
+    implementation(Arrow)
+    implementation(KotlinLogging)
+    implementation(SpringBootStarter)
+    implementation(SpringBootStarterConfigProcessor)
+    implementation(SpringBootStartedAdminClient)
+    implementation(SpringBootStarterWeb)
 
-    // Junit dependencies
-    BaseTestCompileDependencies.forEach { testCompile(it) }
-    BaseTestRuntimeDependencies.forEach { testCompile(it) }
+    BaseTestCompileDependencies.forEach { testImplementation(it) }
+    BaseTestRuntimeDependencies.forEach { testImplementation(it) }
 }
 
 tasks.named<BootJar>("bootJar") {
