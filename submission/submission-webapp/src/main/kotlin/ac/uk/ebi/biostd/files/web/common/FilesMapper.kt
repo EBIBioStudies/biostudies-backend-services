@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.files.web.common
 import ac.uk.ebi.biostd.files.model.FilesSpec
 import ebi.ac.uk.api.UserFile
 import ebi.ac.uk.api.UserFileType.Companion.getType
+import ebi.ac.uk.io.size
 import java.io.File
 import java.nio.file.Path
 
@@ -18,7 +19,7 @@ class FilesMapper {
         fileSpec.files.map { asUserFile(it, fileSpec, "$GROUP_FOLDER_NAME/$groupName") }
 
     private fun asUserFile(file: File, fileSpec: FilesSpec, prefix: String) =
-        UserFile(file.name, getPath(file, fileSpec.source, prefix), file.length(), getType(file))
+        UserFile(file.name, getPath(file, fileSpec.source, prefix), file.size(), getType(file))
 
     private fun getPath(file: File, source: Path, replacement: String) =
         file.parentFile.absolutePath.replace(source.toAbsolutePath().toString(), replacement)

@@ -32,14 +32,6 @@ internal class GroupSourceTest(@MockK private val pathFileSource: PathFilesSourc
     }
 
     @Test
-    fun size() {
-        val fileSize = 55L
-        every { pathFileSource.size(FILE_NAME) } returns fileSize
-
-        assertThat(testInstance.size("groups/$GROUP_NAME/$FILE_NAME")).isEqualTo(fileSize)
-    }
-
-    @Test
     fun readText() {
         val fileText = "file content"
         every { pathFileSource.readText(FILE_NAME) } returns fileText

@@ -7,8 +7,6 @@ class ComposedFileSource(private val sources: List<FilesSource>) : FilesSource {
 
     override fun getFile(filePath: String) = findFile(filePath).getFile(filePath)
 
-    override fun size(filePath: String): Long = findFile(filePath).size(filePath)
-
     override fun readText(filePath: String): String = findFile(filePath).readText(filePath)
 
     private fun findFile(filePath: String) =

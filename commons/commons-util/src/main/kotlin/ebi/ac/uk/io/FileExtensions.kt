@@ -1,7 +1,13 @@
 package ebi.ac.uk.io
 
 import java.io.File
+import java.nio.file.Files
+import kotlin.streams.toList
 
-fun File.notExist() = this.exists().not()
+fun File.notExist() = Files.exists(toPath()).not()
 
-fun File.asFileList() = if (isDirectory) listFiles().toList() else listOf(this)
+fun File.asFileList(): List<File> = if (isDirectory) listFiles(this) else listOf(this)
+
+fun File.size() = Files.size(toPath())
+
+private fun listFiles(file: File): List<File> = Files.list(file.toPath()).map { it.toFile() }.toList()

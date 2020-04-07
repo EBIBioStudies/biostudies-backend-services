@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.common.property
 
 import ebi.ac.uk.notifications.integration.NotificationProperties
+import ebi.ac.uk.paths.SUBMISSION_PATH
 import ebi.ac.uk.security.integration.SecurityProperties
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.boot.context.properties.NestedConfigurationProperty
@@ -13,7 +14,7 @@ open class ApplicationProperties {
     lateinit var tempDirPath: String
 
     val submissionsPath: Path
-        get() = Paths.get(basepath).resolve("submissions")
+        get() = Paths.get(basepath).resolve(SUBMISSION_PATH)
 
     @NestedConfigurationProperty
     var security: SecurityProperties = SecurityProperties()

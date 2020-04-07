@@ -7,7 +7,5 @@ interface FilesSource {
 
     fun getFile(filePath: String): File
 
-    fun size(filePath: String): Long
-
     fun readText(filePath: String): String
 }
