@@ -9,7 +9,7 @@ const val ACCESS_TAG = "Public"
 class ExtendedSubmissionTest {
     private val rootSection = Section()
     private val attribute = Attribute("Name", "Value")
-    private val user = User(123L, "user@mail.com", "SecretKey", "Test User")
+    private val user = User(123L, "user@mail.com", "SecretKey", "Test User", notificationsEnabled = false)
 
     @Test
     fun `create empty extended submission`() {

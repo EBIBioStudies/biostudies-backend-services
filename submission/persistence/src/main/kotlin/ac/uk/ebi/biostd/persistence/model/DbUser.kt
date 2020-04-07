@@ -50,7 +50,10 @@ class DbUser(
     val groups: MutableSet<UserGroup> = mutableSetOf(),
 
     @Column
-    var superuser: Boolean = false
+    var superuser: Boolean = false,
+
+    @Column
+    var notificationsEnabled: Boolean = false
 ) {
     @Column
     var active: Boolean = false

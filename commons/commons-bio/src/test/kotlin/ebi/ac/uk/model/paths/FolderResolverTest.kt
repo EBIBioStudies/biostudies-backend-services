@@ -12,7 +12,8 @@ class FolderResolverTest {
 
     @Test
     fun `get submission folder`() {
-        val submission = ExtendedSubmission("ABC-123", User(1L, "test@mail.com", "theSecret", "Test User"))
+        val user = User(1L, "test@mail.com", "theSecret", "Test User", notificationsEnabled = false)
+        val submission = ExtendedSubmission("ABC-123", user)
             .apply { relPath = "ABCxxx123/ABC-123" }
 
         assertThat(testInstance
