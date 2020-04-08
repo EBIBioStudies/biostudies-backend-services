@@ -59,7 +59,7 @@ open class SubmissionSubmitter(
     }
 
     @Suppress("TooGenericExceptionCaught")
-    internal fun process(
+    private fun process(
         submission: Submission,
         user: User,
         source: FilesSource,
