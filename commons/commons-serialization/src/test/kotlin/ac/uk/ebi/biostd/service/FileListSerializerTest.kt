@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.service
 
+import ac.uk.ebi.biostd.exception.InvalidExtensionException
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.JSON
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.TSV
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.XML
@@ -23,6 +24,7 @@ import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import kotlin.test.assertNotNull
 
@@ -93,6 +95,18 @@ class FileListSerializerTest(private val tempFolder: TemporaryFolder) {
 
         assertFileList(submission, fileListName)
         verify(exactly = 1) { excelReader.readContentAsTsv(fileList) }
+    }
+
+    @Test
+    fun `deserialize unsupported file list format`() {
+        val fileListName = "FileList.txt"
+        val submission = testSubmission(fileListName)
+        val fileList = tempFolder.createFile(fileListName)
+
+        every { source.getFile(fileListName) } returns fileList
+        val exception = assertThrows<InvalidExtensionException> { testInstance.deserializeFileList(submission, source) }
+
+        assertThat(exception.message).isEqualTo("Unsupported submission or file list format FileList.txt")
     }
 
     private fun testSubmission(fileList: String) = submission("S-TEST123") {

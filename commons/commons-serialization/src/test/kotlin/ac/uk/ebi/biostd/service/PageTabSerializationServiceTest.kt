@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.service
 
+import ac.uk.ebi.biostd.exception.InvalidExtensionException
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.JSON
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.TSV
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.XML
@@ -13,8 +14,10 @@ import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(TemporaryFolderExtension::class)
@@ -109,5 +112,13 @@ class PageTabSerializationServiceTest(private val tempFolder: TemporaryFolder) {
             excelReader.readContentAsTsv(file)
             serializer.deserializeSubmission("test submission", TSV)
         }
+    }
+
+    @Test
+    fun `deserialize unsupported submission format`() {
+        val file = tempFolder.createFile("submission.txt")
+        val exception = assertThrows<InvalidExtensionException> { testInstance.deserializeSubmission(file) }
+
+        assertThat(exception.message).isEqualTo("Unsupported submission or file list format submission.txt")
     }
 }
