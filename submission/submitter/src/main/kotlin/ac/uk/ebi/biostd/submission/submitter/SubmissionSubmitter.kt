@@ -14,6 +14,7 @@ import ac.uk.ebi.biostd.submission.service.ProjectRequest
 import ac.uk.ebi.biostd.submission.service.ProjectResponse
 import ac.uk.ebi.biostd.submission.service.TimesRequest
 import ac.uk.ebi.biostd.submission.service.TimesService
+import ebi.ac.uk.base.ifTrue
 import ebi.ac.uk.base.orFalse
 import ebi.ac.uk.extended.mapping.serialization.from.toExtAttribute
 import ebi.ac.uk.extended.mapping.serialization.from.toExtSection
@@ -52,7 +53,7 @@ open class SubmissionSubmitter(
         val user = request.user.asUser()
         val extSubmission = process(request.submission, request.user.asUser(), request.sources, request.method)
         val submitted = context.saveSubmission(extSubmission, user.email, user.id).toSimpleSubmission()
-        successfulSubmission.onNext(SuccessfulSubmission(user, extSubmission))
+        user.notificationsEnabled.ifTrue { successfulSubmission.onNext(SuccessfulSubmission(user, extSubmission)) }
 
         return submitted
     }

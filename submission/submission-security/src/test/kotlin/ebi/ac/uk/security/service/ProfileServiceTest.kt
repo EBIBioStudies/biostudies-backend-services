@@ -24,7 +24,8 @@ class ProfileServiceTest(temporaryFolder: TemporaryFolder) {
         secret = "69214a2f-f80b-4f33-86b7-26d3bd0453aa",
         groups = mutableSetOf(testGroup),
         passwordDigest = "".toByteArray(),
-        superuser = true)
+        superuser = true,
+        notificationsEnabled = true)
 
     private val testInstance = ProfileService(filesDir)
 
@@ -49,7 +50,8 @@ class ProfileServiceTest(temporaryFolder: TemporaryFolder) {
             superuser = true,
             magicFolder = expectedUserFolder,
             groupsFolders = listOf(expectedGroupFolder),
-            permissions = emptySet())
+            permissions = emptySet(),
+            notificationsEnabled = true)
 
         val (user, token) = testInstance.getUserProfile(testUser, "a token")
 

@@ -9,9 +9,10 @@ INSERT INTO User (
   passwordDigest,
   secret,
   superuser,
-  ssoSubject)
-VALUES (null, false, null, null, 'Anonymous user', 0, '@Guest', null, null, false, null),
-       (null, false, null, null, 'Represents system owned objects', 0, '@System', null, null, false, null),
+  ssoSubject,
+  notificationsEnabled)
+VALUES (null, false, null, null, 'Anonymous user', 0, '@Guest', null, null, false, null, false),
+       (null, false, null, null, 'Represents system owned objects', 0, '@System', null, null, false, null, false),
        (null,
         true,
         null,
@@ -22,4 +23,5 @@ VALUES (null, false, null, null, 'Anonymous user', 0, '@Guest', null, null, fals
         X'7C4A8D09CA3762AF61E59520943DC26494F8941B',
         '69214a2f-f80b-4f33-86b7-26d3bd0453aa',
         true,
-        null);
+        null,
+        false);
