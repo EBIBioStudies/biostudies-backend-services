@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.persistence.integration
 
 import ac.uk.ebi.biostd.persistence.exception.ProjectNotFoundException
+import ac.uk.ebi.biostd.persistence.exception.SubmissionNotFoundException
 import ac.uk.ebi.biostd.persistence.repositories.SubmissionDataRepository
 import ebi.ac.uk.model.constants.SubFields
 import ebi.ac.uk.paths.SubmissionFolderResolver
@@ -32,14 +33,13 @@ class SubmissionSqlQueryService(
     override fun getAuthor(accNo: String): String = getSubmission(accNo).owner.email
 
     override fun getExistingFolder(accNo: String): File? =
-        findActiveVersion(accNo)?.let { folderResolver.getSubmissionFolder(it.relPath).toFile() }
+        findSubmission(accNo)?.let { folderResolver.getSubmissionFolder(it.relPath).toFile() }
 
-    private fun getSubmission(accNo: String) = subRepository.getByAccNoAndVersionGreaterThan(accNo, 0)
+    private fun getSubmission(accNo: String) =
+        subRepository.getByAccNoAndVersionGreaterThan(accNo, 0) ?: throw SubmissionNotFoundException(accNo)
 
-    private fun findSubmission(accNo: String) = findActiveVersion(accNo)
+    private fun findSubmission(accNo: String) = subRepository.findByAccNoAndVersionGreaterThan(accNo, 0)
 
     private fun getParentSubmission(parentAccNo: String) =
         subRepository.findByAccNoAndVersionGreaterThan(parentAccNo) ?: throw ProjectNotFoundException(parentAccNo)
-
-    private fun findActiveVersion(accNo: String) = subRepository.findByAccNoAndVersionGreaterThan(accNo, 0)
 }

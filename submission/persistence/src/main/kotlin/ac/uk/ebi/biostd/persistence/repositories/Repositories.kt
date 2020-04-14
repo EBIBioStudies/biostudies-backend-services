@@ -28,7 +28,7 @@ import com.cosium.spring.data.jpa.entity.graph.domain.EntityGraph as GraphSpecif
 interface SubmissionDataRepository :
     EntityGraphJpaRepository<SubmissionDb, Long>, EntityGraphJpaSpecificationExecutor<SubmissionDb> {
     @EntityGraph(value = FULL_DATA_GRAPH, type = LOAD)
-    fun getByAccNoAndVersionGreaterThan(id: String, version: Int = 0): SubmissionDb
+    fun getByAccNoAndVersionGreaterThan(id: String, version: Int = 0): SubmissionDb?
 
     fun findByAccNoAndVersionGreaterThan(id: String, version: Int = 0): SubmissionDb?
 

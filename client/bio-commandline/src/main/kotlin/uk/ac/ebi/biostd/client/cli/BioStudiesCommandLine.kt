@@ -1,5 +1,6 @@
 package uk.ac.ebi.biostd.client.cli
 
+import ac.uk.ebi.biostd.client.exception.WebClientException
 import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.PrintMessage
@@ -7,6 +8,12 @@ import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.file
 import java.io.File
+import java.io.StringReader
+import java.io.StringWriter
+import javax.xml.transform.OutputKeys
+import javax.xml.transform.TransformerFactory
+import javax.xml.transform.stream.StreamResult
+import javax.xml.transform.stream.StreamSource
 
 private const val FILES_SEPARATOR = ','
 
@@ -34,7 +41,8 @@ class BioStudiesCommandLine : CliktCommand(name = "PTSubmit") {
 
             echo("SUCCESS: Submission with AccNo ${submission.accNo} was submitted")
         }.onFailure {
-            throw PrintMessage(it.message!!)
+            val message = if (it is WebClientException) formatErrorMessage(it.message!!) else it.message!!
+            throw PrintMessage(message)
         }
     }
 
@@ -47,6 +55,22 @@ class BioStudiesCommandLine : CliktCommand(name = "PTSubmit") {
 
         if (file.isDirectory) file.walk().filter { it.isFile }.forEach { files.add(it) }
         else files.add(file)
+    }
+
+    private fun formatErrorMessage(message: String): String {
+        val xmlOutput = StreamResult(StringWriter())
+        val xmlInput = StreamSource(StringReader(message))
+        val transformer =
+            TransformerFactory
+                .newInstance()
+                .apply { setAttribute("indent-number", 2) }
+                .newTransformer()
+
+        transformer.setOutputProperty(OutputKeys.INDENT, "yes")
+        transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes")
+        transformer.transform(xmlInput, xmlOutput)
+
+        return xmlOutput.writer.toString()
     }
 }
 

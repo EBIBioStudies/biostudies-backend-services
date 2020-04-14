@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.submission.web.exception
 
-import ac.uk.ebi.biostd.submission.exceptions.InvalidSubmissionException
 import ebi.ac.uk.errors.ValidationNode
 import ebi.ac.uk.errors.ValidationNodeStatus.ERROR
 import ebi.ac.uk.errors.ValidationTree
@@ -14,17 +13,11 @@ import org.springframework.web.bind.annotation.ResponseBody
 import org.springframework.web.bind.annotation.ResponseStatus
 
 @ControllerAdvice
-@Order(Ordered.HIGHEST_PRECEDENCE)
-class ValidationExceptionHandler {
+@Order(Ordered.LOWEST_PRECEDENCE)
+class GeneralExceptionHandler {
     @ResponseBody
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(InvalidSubmissionException::class)
-    fun handle(exception: InvalidSubmissionException): ValidationTree {
-        val node = ValidationNode(
-            ERROR,
-            exception.message ?: exception.javaClass.name,
-            exception.causes.map { ValidationNode(ERROR, it.message ?: it.javaClass.name) })
-
-        return ValidationTree(FAIL, node)
-    }
+    @ExceptionHandler(RuntimeException::class)
+    fun handle(exception: RuntimeException): ValidationTree =
+        ValidationTree(FAIL, ValidationNode(ERROR, exception.message ?: exception.javaClass.name))
 }
