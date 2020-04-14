@@ -119,6 +119,6 @@ class PageTabSerializationServiceTest(private val tempFolder: TemporaryFolder) {
         val file = tempFolder.createFile("submission.txt")
         val exception = assertThrows<InvalidExtensionException> { testInstance.deserializeSubmission(file) }
 
-        assertThat(exception.message).isEqualTo("Unsupported submission or file list format submission.txt")
+        assertThat(exception.message).isEqualTo("Unsupported page tab format submission.txt")
     }
 }

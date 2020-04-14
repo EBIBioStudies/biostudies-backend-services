@@ -156,7 +156,7 @@ internal class FileListSubmissionTest(private val tempFolder: TemporaryFolder) :
 
             assertThatExceptionOfType(WebClientException::class.java)
                 .isThrownBy { webClient.submitSingle(submission, SubmissionFormat.JSON, listOf(fileList)) }
-                .withMessageContaining("Unsupported submission or file list format FileList.txt")
+                .withMessageContaining("Unsupported page tab format FileList.txt")
         }
 
         private fun assertSubmissionFiles(accNo: String, testFile: String) {

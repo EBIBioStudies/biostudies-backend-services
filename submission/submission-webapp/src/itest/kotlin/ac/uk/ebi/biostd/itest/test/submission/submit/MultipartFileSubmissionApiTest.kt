@@ -250,7 +250,7 @@ internal class MultipartFileSubmissionApiTest(
 
             assertThatExceptionOfType(WebClientException::class.java)
                 .isThrownBy { webClient.submitSingle(submission, emptyList()) }
-                .withMessageContaining("Unsupported submission or file list format submission.txt")
+                .withMessageContaining("Unsupported page tab format submission.txt")
         }
 
         private fun assertSubmissionFiles(accNo: String, testFile: String) {

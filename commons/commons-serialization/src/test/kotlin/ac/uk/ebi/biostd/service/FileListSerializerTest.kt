@@ -106,7 +106,7 @@ class FileListSerializerTest(private val tempFolder: TemporaryFolder) {
         every { source.getFile(fileListName) } returns fileList
         val exception = assertThrows<InvalidExtensionException> { testInstance.deserializeFileList(submission, source) }
 
-        assertThat(exception.message).isEqualTo("Unsupported submission or file list format FileList.txt")
+        assertThat(exception.message).isEqualTo("Unsupported page tab format FileList.txt")
     }
 
     private fun testSubmission(fileList: String) = submission("S-TEST123") {
