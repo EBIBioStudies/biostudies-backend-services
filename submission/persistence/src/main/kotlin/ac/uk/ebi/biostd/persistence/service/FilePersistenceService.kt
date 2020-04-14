@@ -6,7 +6,7 @@ import ebi.ac.uk.extended.mapping.serialization.to.toFilesTable
 import ebi.ac.uk.extended.mapping.serialization.to.toSimpleSubmission
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.extended.model.allFileListSections
+import ebi.ac.uk.extended.model.allFileList
 import ebi.ac.uk.extended.model.allFiles
 import ebi.ac.uk.extended.model.allReferencedFiles
 import ebi.ac.uk.paths.FILES_PATH
@@ -14,7 +14,6 @@ import ebi.ac.uk.paths.SubmissionFolderResolver
 import org.apache.commons.io.FileUtils
 import java.io.File
 import java.nio.file.Files
-import java.nio.file.Path
 import java.nio.file.StandardCopyOption
 
 class FilePersistenceService(
@@ -30,9 +29,7 @@ class FilePersistenceService(
         val simpleSubmission = submission.toSimpleSubmission()
 
         generateOutputFiles(simpleSubmission, submission.relPath, submission.accNo)
-        submission.allFileListSections.forEach {
-            generateOutputFiles(it.toFilesTable(), submission.relPath, it.fileName)
-        }
+        submission.allFileList.forEach { generateOutputFiles(it.toFilesTable(), submission.relPath, it.fileName) }
     }
 
     // TODO add file list content validation to integration tests
@@ -51,27 +48,23 @@ class FilePersistenceService(
         FileUtils.writeStringToFile(submissionPath.resolve("$outputFileName.pagetab.tsv").toFile(), tsv, Charsets.UTF_8)
     }
 
-    private fun moveFiles(submission: ExtSubmission) {
-        val submissionFolder = getSubmissionFolder(submission.relPath)
-        val temporally = createTempFolder(submissionFolder, submission.accNo)
-
-        submission.allFiles.forEach { it.file.renameTo(temporally.resolve(it.fileName)) }
-        submission.allReferencedFiles.forEach { it.file.renameTo(temporally.resolve(it.fileName)) }
-
-        val filesPath = submissionFolder.resolve(FILES_PATH)
-        deleteDirectory(filesPath.toPath())
-        temporally.renameTo(filesPath)
+    private fun copyFiles(submission: ExtSubmission) {
+        processFiles(submission, this::copy)
     }
 
-    private fun copyFiles(submission: ExtSubmission) {
+    private fun moveFiles(submission: ExtSubmission) {
+        processFiles(submission, this::move)
+    }
+
+    private fun processFiles(submission: ExtSubmission, process: (ExtFile, File) -> Unit) {
         val submissionFolder = getSubmissionFolder(submission.relPath)
         val temporally = createTempFolder(submissionFolder, submission.accNo)
 
-        submission.allFiles.forEach { copy(it, temporally) }
-        submission.allReferencedFiles.forEach { copy(it, temporally) }
+        submission.allFiles.forEach { process(it, temporally) }
+        submission.allReferencedFiles.forEach { process(it, temporally) }
 
         val filesPath = submissionFolder.resolve(FILES_PATH)
-        deleteDirectory(filesPath.toPath())
+        Files.deleteIfExists(filesPath.toPath())
         temporally.renameTo(filesPath)
     }
 
@@ -79,6 +72,12 @@ class FilePersistenceService(
         val targetPath = path.resolve(file.fileName).toPath()
         Files.createDirectories(targetPath)
         Files.copy(file.file.toPath(), targetPath, StandardCopyOption.REPLACE_EXISTING)
+    }
+
+    private fun move(file: ExtFile, path: File) {
+        val targetPath = path.resolve(file.fileName).toPath()
+        Files.createDirectories(targetPath)
+        file.file.renameTo(targetPath.toFile())
     }
 
     private fun getSubmissionFolder(relPath: String): File {
@@ -89,16 +88,8 @@ class FilePersistenceService(
 
     private fun createTempFolder(submissionFolder: File, accNo: String): File {
         val tempDir = submissionFolder.parentFile.resolve("${accNo}_temp").toPath()
-        deleteDirectory(tempDir)
+        Files.deleteIfExists(tempDir)
         Files.createDirectory(tempDir)
         return tempDir.toFile()
-    }
-
-    private fun deleteDirectory(path: Path) {
-        if (Files.exists(path)) {
-            Files.walk(path)
-                .sorted(Comparator.reverseOrder())
-                .forEach { Files.deleteIfExists(it) }
-        }
     }
 }
