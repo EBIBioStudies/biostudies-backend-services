@@ -23,6 +23,7 @@ dependencies {
     implementation(PoiOxml)
     implementation(CommonsLang3)
 
+    testApi(project(":commons:commons-test"))
     BaseTestCompileDependencies.forEach { testImplementation(it) }
     BaseTestRuntimeDependencies.forEach { testImplementation(it) }
     testImplementation(XmlUnitCore)

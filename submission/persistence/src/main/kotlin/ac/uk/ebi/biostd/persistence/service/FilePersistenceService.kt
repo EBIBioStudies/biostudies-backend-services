@@ -9,20 +9,23 @@ import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.allFileList
 import ebi.ac.uk.extended.model.allFiles
 import ebi.ac.uk.extended.model.allReferencedFiles
+import ebi.ac.uk.io.NfsFileUtils
+import ebi.ac.uk.io.NfsFileUtils.deleteFolder
+import ebi.ac.uk.io.NfsFileUtils.moveFile
+import ebi.ac.uk.io.NfsFileUtils.replaceFile
 import ebi.ac.uk.paths.FILES_PATH
 import ebi.ac.uk.paths.SubmissionFolderResolver
 import org.apache.commons.io.FileUtils
 import java.io.File
 import java.nio.file.Files
-import java.nio.file.StandardCopyOption
 
 class FilePersistenceService(
     private val folderResolver: SubmissionFolderResolver,
     private val serializationService: SerializationService
 ) {
     fun persistSubmissionFiles(submission: ExtSubmission) {
-        copyFiles(submission)
         generateOutputFiles(submission)
+        moveFiles(submission)
     }
 
     private fun generateOutputFiles(submission: ExtSubmission) {
@@ -64,21 +67,12 @@ class FilePersistenceService(
         submission.allReferencedFiles.forEach { process(it, temporally) }
 
         val filesPath = submissionFolder.resolve(FILES_PATH)
-        Files.deleteIfExists(filesPath.toPath())
-        temporally.renameTo(filesPath)
+        deleteFolder(filesPath)
+        moveFile(temporally, filesPath)
     }
 
-    private fun copy(file: ExtFile, path: File) {
-        val targetPath = path.resolve(file.fileName).toPath()
-        Files.createDirectories(targetPath)
-        Files.copy(file.file.toPath(), targetPath, StandardCopyOption.REPLACE_EXISTING)
-    }
-
-    private fun move(file: ExtFile, path: File) {
-        val targetPath = path.resolve(file.fileName).toPath()
-        Files.createDirectories(targetPath)
-        file.file.renameTo(targetPath.toFile())
-    }
+    private fun copy(extFile: ExtFile, file: File) = replaceFile(extFile.file, file.resolve(extFile.fileName))
+    private fun move(file: ExtFile, path: File) = NfsFileUtils.moveFile(file.file, path.resolve(file.fileName))
 
     private fun getSubmissionFolder(relPath: String): File {
         val submissionFolder = folderResolver.getSubmissionFolder(relPath).toFile()
