@@ -68,7 +68,8 @@ internal class SecurityTestEntities {
                 permissions = emptySet(),
                 groupsFolders = emptyList(),
                 magicFolder = MagicFolder(magicFolderPath, magicFolderRelativePath),
-                superuser = false
+                superuser = false,
+                notificationsEnabled = false
             )
         }
 

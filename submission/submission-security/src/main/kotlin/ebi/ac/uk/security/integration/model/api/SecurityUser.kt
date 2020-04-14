@@ -13,9 +13,10 @@ class SecurityUser(
     val superuser: Boolean,
     val magicFolder: MagicFolder,
     val groupsFolders: List<GroupMagicFolder>,
-    val permissions: Set<AccessPermission>
+    val permissions: Set<AccessPermission>,
+    val notificationsEnabled: Boolean
 ) {
-    fun asUser() = User(id, email, secret, fullName)
+    fun asUser() = User(id, email, secret, fullName, notificationsEnabled)
 }
 
 data class MagicFolder(val relativePath: Path, val path: Path)

@@ -138,6 +138,7 @@ internal class SecurityService(
             fullName = registerRequest.name,
             secret = securityUtil.newKey(),
             superuser = registerRequest.superUser,
+            notificationsEnabled = registerRequest.notificationsEnabled,
             passwordDigest = securityUtil.getPasswordDigest(registerRequest.password))
     }
 }

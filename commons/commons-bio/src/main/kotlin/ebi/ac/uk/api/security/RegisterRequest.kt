@@ -6,5 +6,6 @@ class RegisterRequest(
     val password: String,
     val superUser: Boolean = false,
     var instanceKey: String? = null,
-    var path: String? = null
+    var path: String? = null,
+    val notificationsEnabled: Boolean = false
 )
