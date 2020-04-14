@@ -12,12 +12,12 @@ import ebi.ac.uk.extended.model.allReferencedFiles
 import ebi.ac.uk.io.NfsFileUtils
 import ebi.ac.uk.io.NfsFileUtils.deleteFolder
 import ebi.ac.uk.io.NfsFileUtils.moveFile
+import ebi.ac.uk.io.NfsFileUtils.reCreateDirectory
 import ebi.ac.uk.io.NfsFileUtils.replaceFile
 import ebi.ac.uk.paths.FILES_PATH
 import ebi.ac.uk.paths.SubmissionFolderResolver
 import org.apache.commons.io.FileUtils
 import java.io.File
-import java.nio.file.Files
 
 class FilePersistenceService(
     private val folderResolver: SubmissionFolderResolver,
@@ -25,7 +25,7 @@ class FilePersistenceService(
 ) {
     fun persistSubmissionFiles(submission: ExtSubmission) {
         generateOutputFiles(submission)
-        moveFiles(submission)
+        copyFiles(submission)
     }
 
     private fun generateOutputFiles(submission: ExtSubmission) {
@@ -81,9 +81,6 @@ class FilePersistenceService(
     }
 
     private fun createTempFolder(submissionFolder: File, accNo: String): File {
-        val tempDir = submissionFolder.parentFile.resolve("${accNo}_temp").toPath()
-        Files.deleteIfExists(tempDir)
-        Files.createDirectory(tempDir)
-        return tempDir.toFile()
+        return reCreateDirectory(submissionFolder.parentFile.resolve("${accNo}_temp"))
     }
 }
