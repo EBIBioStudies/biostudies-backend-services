@@ -24,25 +24,24 @@ internal class NotificationsSubscriber(
     private val userPreRegister: Observable<UserRegister>,
     private val passwordReset: Observable<PasswordReset>
 ) {
-
     @PostConstruct
     fun activationSubscription() {
         val template = ActivationTemplate(getTemplateContent("activation.html"))
         val subscription = NotificationType(EMAIL_FROM, "BioStudies account activation", template)
-        subscriptionService.create(subscription, userPreRegister.map { asNotification(it) })
+        subscriptionService.create(subscription, userPreRegister.map { asActivationNotification(it) })
     }
-
-    private fun asNotification(source: UserRegister) =
-        Notification(source.user.email, ActivationModel(FROM, source.activationLink, source.user.fullName))
 
     @PostConstruct
     fun passwordReset() {
         val template = PasswordResetTemplate(getTemplateContent("reset-password.html"))
         val subscription = NotificationType(EMAIL_FROM, "BioStudies password reset", template)
-        subscriptionService.create(subscription, passwordReset.map { asNotification(it) })
+        subscriptionService.create(subscription, passwordReset.map { asPasswordResetNotification(it) })
     }
 
-    private fun asNotification(source: PasswordReset) =
+    private fun asActivationNotification(source: UserRegister) =
+        Notification(source.user.email, ActivationModel(FROM, source.activationLink, source.user.fullName))
+
+    private fun asPasswordResetNotification(source: PasswordReset) =
         Notification(source.user.email, PasswordResetModel(FROM, source.activationLink, source.user.fullName))
 
     private fun getTemplateContent(templateName: String): String {

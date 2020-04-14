@@ -15,7 +15,7 @@ class SecurityUser(
     val groupsFolders: List<GroupMagicFolder>,
     val permissions: Set<AccessPermission>
 ) {
-    fun asUser() = User(id, email, secret)
+    fun asUser() = User(id, email, secret, fullName)
 }
 
 data class MagicFolder(val relativePath: Path, val path: Path)

@@ -1,13 +1,18 @@
+import Dependencies.Arrow
+import Dependencies.CommonsIO
 import Dependencies.Jsch
 import Dependencies.KotlinStdLib
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
 
 dependencies {
-    compile(KotlinStdLib)
-    compile(project(":commons:commons-util"))
-    compile(Jsch)
+    api(project(":commons:commons-util"))
 
-    BaseTestCompileDependencies.forEach { testCompile(it) }
-    BaseTestRuntimeDependencies.forEach { testCompile(it) }
+    implementation(Arrow)
+    implementation(CommonsIO)
+    implementation(Jsch)
+    implementation(KotlinStdLib)
+
+    BaseTestCompileDependencies.forEach { testImplementation(it) }
+    BaseTestRuntimeDependencies.forEach { testImplementation(it) }
 }

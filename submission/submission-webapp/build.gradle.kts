@@ -1,4 +1,10 @@
+import Dependencies.Arrow
+import Dependencies.CommonsIO
+import Dependencies.JpaEntityGraph
+import Dependencies.KotlinReflect
+import Dependencies.KotlinStdLib
 import Dependencies.MySql
+import Dependencies.RxJava2
 import Dependencies.SpringfoxSwagger
 import Dependencies.SpringfoxSwaggerUI
 import SpringBootDependencies.SpringBootStartedAdminClient
@@ -42,7 +48,13 @@ dependencies {
     // Registers the application in the Spring Dashboard
     implementation(SpringBootStartedAdminClient)
 
+    implementation(Arrow)
+    implementation(CommonsIO)
     implementation(MySql)
+    implementation(JpaEntityGraph)
+    implementation(KotlinReflect)
+    implementation(KotlinStdLib)
+    implementation(RxJava2)
     implementation(SpringfoxSwagger)
     implementation(SpringfoxSwaggerUI)
 

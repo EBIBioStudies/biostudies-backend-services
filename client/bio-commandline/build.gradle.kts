@@ -1,5 +1,6 @@
 import Dependencies.CliKt
 import Dependencies.Log4J
+import Dependencies.SpringWeb
 import TestDependencies.AssertJ
 import TestDependencies.Junit
 import TestDependencies.Junit5Console
@@ -12,18 +13,19 @@ plugins {
 }
 
 dependencies {
-    compile(project(":commons:commons-util"))
-    compile(project(":client:bio-webclient"))
+    api(project(":commons:commons-util"))
+    api(project(":client:bio-webclient"))
 
-    compile(CliKt)
-    compile(Log4J)
+    implementation(CliKt)
+    implementation(Log4J)
+    implementation(SpringWeb)
 
-    testCompile(Junit)
-    testCompile(JunitExtensions)
-    testCompile(AssertJ)
-    testCompile(MockK)
-    testCompile(KotlinTestJunit)
-    testRuntime(Junit5Console)
+    testImplementation(Junit)
+    testImplementation(JunitExtensions)
+    testImplementation(AssertJ)
+    testImplementation(MockK)
+    testImplementation(KotlinTestJunit)
+    testRuntimeOnly(Junit5Console)
 }
 
 tasks {

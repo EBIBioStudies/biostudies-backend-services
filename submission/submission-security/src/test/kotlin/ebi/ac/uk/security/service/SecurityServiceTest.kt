@@ -42,7 +42,7 @@ import java.util.Optional
 
 private const val ACTIVATION_KEY: String = "code"
 private const val SECRET_KEY: String = "secretKey"
-private val PASSWORD_DIGGEST: ByteArray = ByteArray(0)
+private val PASSWORD_DIGEST: ByteArray = ByteArray(0)
 
 @ExtendWith(MockKExtension::class)
 internal class SecurityServiceTest(
@@ -93,7 +93,7 @@ internal class SecurityServiceTest(
         fun beforeEach() {
             every { userRepository.existsByEmail(email) } returns false
             every { userRepository.save(any<DbUser>()) } answers { firstArg() }
-            every { securityUtil.getPasswordDigest(password) } returns PASSWORD_DIGGEST
+            every { securityUtil.getPasswordDigest(password) } returns PASSWORD_DIGEST
             every { profileService.asSecurityUser(any()) } returns securityUser
         }
 
@@ -112,7 +112,7 @@ internal class SecurityServiceTest(
                 assertThat(it.user.active).isTrue()
                 assertThat(it.user.fullName).isEqualTo(name)
                 assertThat(it.user.email).isEqualTo(email)
-                assertThat(it.user.passwordDigest).isEqualTo(PASSWORD_DIGGEST)
+                assertThat(it.user.passwordDigest).isEqualTo(PASSWORD_DIGEST)
 
                 assertThat(it.user.superuser).isFalse()
                 assertThat(it.user.activationKey).isNull()

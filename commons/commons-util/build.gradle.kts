@@ -13,22 +13,18 @@ import TestDependencies.XmlUnitAssertJ
 import TestDependencies.XmlUnitCore
 
 dependencies {
-    compile(CommonsIO)
     compileOnly(Guava)
-    compile(Arrow)
-    compile(KotlinStdLib)
-    compile(KotlinReflect)
-    compile(XlsxStreamer)
+    implementation(CommonsIO)
+    implementation(Arrow)
+    implementation(KotlinStdLib)
+    implementation(KotlinReflect)
+    implementation(XlsxStreamer)
+    implementation(Poi)
+    implementation(PoiOxml)
+    implementation(CommonsLang3)
 
-    // Apache commons
-    compile(Poi)
-    compile(PoiOxml)
-    compile(CommonsLang3)
-
-    // General test dependencies
-    BaseTestCompileDependencies.forEach { testCompile(it) }
-    BaseTestRuntimeDependencies.forEach { testCompile(it) }
-
-    testCompile(XmlUnitCore)
-    testCompile(XmlUnitAssertJ)
+    BaseTestCompileDependencies.forEach { testImplementation(it) }
+    BaseTestRuntimeDependencies.forEach { testImplementation(it) }
+    testImplementation(XmlUnitCore)
+    testImplementation(XmlUnitAssertJ)
 }
