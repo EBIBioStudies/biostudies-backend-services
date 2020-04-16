@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.submission.model
 
+import ac.uk.ebi.biostd.persistence.integration.FileMode
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.SubmissionMethod
@@ -9,5 +10,6 @@ data class SubmissionRequest(
     val submission: Submission,
     val user: SecurityUser,
     val sources: FilesSource,
-    val method: SubmissionMethod
+    val method: SubmissionMethod,
+    val mode: FileMode
 )

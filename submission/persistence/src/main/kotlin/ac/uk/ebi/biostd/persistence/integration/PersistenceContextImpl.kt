@@ -11,6 +11,7 @@ import ac.uk.ebi.biostd.persistence.repositories.SubmissionDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataDataRepository
 import ac.uk.ebi.biostd.persistence.service.FilePersistenceService
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.model.User
 import org.springframework.transaction.annotation.Isolation
 import org.springframework.transaction.annotation.Transactional
 
@@ -38,15 +39,17 @@ open class PersistenceContextImpl(
     }
 
     @Transactional(isolation = Isolation.READ_UNCOMMITTED)
-    override fun saveSubmission(submission: ExtSubmission, submitter: String, submitterId: Long): ExtSubmission {
-        return lockExecutor.executeLocking(submission.accNo) {
-            subRepository.expireActiveVersions(submission.accNo)
-            deleteSubmissionDrafts(submitterId, submission.accNo)
+    override fun saveSubmission(saveRequest: SaveRequest): ExtSubmission {
+        val (submission, submitter, mode) = saveRequest
+        return lockExecutor.executeLocking(submission.accNo) { saveSubmission(submission, submitter, mode) }
+    }
 
-            val newSubmission = saveNewVersion(submission, submitter)
-            filePersistenceService.persistSubmissionFiles(submission)
-            newSubmission
-        }
+    private fun saveSubmission(submission: ExtSubmission, submitter: User, mode: FileMode): ExtSubmission {
+        subRepository.expireActiveVersions(submission.accNo)
+        deleteSubmissionDrafts(submitter.id, submission.accNo)
+        val newSubmission = saveNewVersion(submission, submitter.email)
+        filePersistenceService.persistSubmissionFiles(submission, mode)
+        return newSubmission
     }
 
     private fun saveNewVersion(submission: ExtSubmission, submitter: String): ExtSubmission {

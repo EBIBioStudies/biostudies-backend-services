@@ -4,6 +4,7 @@ import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.JSON_PRETTY
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.TSV
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.XML
+import ac.uk.ebi.biostd.persistence.integration.FileMode
 import ac.uk.ebi.biostd.persistence.test.extSubmissionWithFileList
 import ebi.ac.uk.extended.mapping.serialization.to.toSimpleSubmission
 import ebi.ac.uk.model.FilesTable
@@ -47,8 +48,17 @@ class FilePersistenceServiceTest(
     }
 
     @Test
-    fun persistSubmissionFiles() {
-        testInstance.persistSubmissionFiles(extSubmission)
+    fun whenMove() {
+        testPersistSubmissionFiles(FileMode.MOVE)
+    }
+
+    @Test
+    fun whenCopy() {
+        testPersistSubmissionFiles(FileMode.COPY)
+    }
+
+    private fun testPersistSubmissionFiles(mode: FileMode) {
+        testInstance.persistSubmissionFiles(extSubmission, mode)
 
         assertThat(getPath("submission/$relPath/Files/file.txt")).exists()
         assertThat(getPath("submission/$relPath/Files/file2.txt")).exists()

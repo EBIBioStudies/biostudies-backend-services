@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.persistence.service
 
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat
+import ac.uk.ebi.biostd.persistence.integration.FileMode
 import ebi.ac.uk.extended.mapping.serialization.to.toFilesTable
 import ebi.ac.uk.extended.mapping.serialization.to.toSimpleSubmission
 import ebi.ac.uk.extended.model.ExtFile
@@ -23,9 +24,12 @@ class FilePersistenceService(
     private val folderResolver: SubmissionFolderResolver,
     private val serializationService: SerializationService
 ) {
-    fun persistSubmissionFiles(submission: ExtSubmission) {
+    fun persistSubmissionFiles(submission: ExtSubmission, mode: FileMode) {
         generateOutputFiles(submission)
-        copyFiles(submission)
+        when (mode) {
+            FileMode.MOVE -> processFiles(submission, this::move)
+            FileMode.COPY -> processFiles(submission, this::copy)
+        }
     }
 
     private fun generateOutputFiles(submission: ExtSubmission) {
