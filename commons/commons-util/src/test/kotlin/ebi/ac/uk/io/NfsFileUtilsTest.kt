@@ -20,15 +20,28 @@ internal class NfsFileUtilsTest(private val temporaryFolder: TemporaryFolder) {
     @Nested
     inner class MoveFile {
 
-        @Test
-        fun moveFileWhenExistTarget() {
-            val file = temporaryFolder.createFile("one.txt", "one")
-            val another = temporaryFolder.createFile("two.txt", "two")
+        @Nested
+        inner class WhenFile {
+            @Test
+            fun whenExistTarget() {
+                val file = temporaryFolder.createFile("one.txt", "one")
+                val another = temporaryFolder.createFile("two.txt", "two")
 
-            NfsFileUtils.moveFile(file, another)
+                NfsFileUtils.moveFile(file, another)
 
-            assertThat(temporaryFolder.root.resolve("one.txt")).doesNotExist()
-            assertThat(temporaryFolder.root.resolve("two.txt")).hasContent("one")
+                assertThat(temporaryFolder.root.resolve("one.txt")).doesNotExist()
+                assertThat(temporaryFolder.root.resolve("two.txt")).hasContent("one")
+            }
+
+            @Test
+            fun whenNotExistTarget() {
+                val file = temporaryFolder.createFile("one.txt", "one")
+                val target = temporaryFolder.root.resolve("new.txt")
+
+                NfsFileUtils.moveFile(file, target)
+
+                assertThat(temporaryFolder.root.resolve("new.txt")).hasContent("one")
+            }
         }
 
         @Nested
