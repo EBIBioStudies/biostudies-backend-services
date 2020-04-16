@@ -8,8 +8,8 @@ import ac.uk.ebi.biostd.submission.exceptions.UserCanNotSubmitProjectsException
 import ac.uk.ebi.biostd.submission.util.AccNoPatternUtil
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 
-internal const val ACC_NO_TEMPLATE_REQUIRED = "The project accession number pattern is required"
-internal const val ACC_NO_TEMPLATE_INVALID = "The given template is invalid. Expected pattern is !{TEMPLATE}"
+internal const val ACC_NO_TEMPLATE_REQUIRED = "The AccNoTemplate property is required for projects"
+internal const val ACC_NO_TEMPLATE_INVALID = "The given AccNoTemplate is invalid. Expected pattern is !{TEMPLATE}"
 
 class ProjectInfoService(
     private val context: PersistenceContext,
