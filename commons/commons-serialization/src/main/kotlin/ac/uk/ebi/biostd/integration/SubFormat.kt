@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.integration
 import ac.uk.ebi.biostd.exception.InvalidExtensionException
 import ac.uk.ebi.biostd.integration.SubFormat.JsonFormat.JsonPretty
 import ac.uk.ebi.biostd.integration.SubFormat.JsonFormat.PlainJson
+import java.io.File
 
 sealed class SubFormat {
     companion object {
@@ -15,13 +16,13 @@ sealed class SubFormat {
             }
         }
 
-        fun fromExtension(extension: String): SubFormat {
-            return when (extension) {
+        fun fromFile(file: File): SubFormat {
+            return when (file.extension) {
                 "tsv" -> TsvFormat.Tsv
                 "xlsx" -> TsvFormat.XlsxTsv
                 "xml" -> XmlFormat
                 "json" -> PlainJson
-                else -> throw InvalidExtensionException(extension)
+                else -> throw InvalidExtensionException(file.name)
             }
         }
 

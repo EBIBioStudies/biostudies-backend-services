@@ -33,7 +33,7 @@ internal class FileListSerializer(
         return FileList(fileList, filesTable.elements)
     }
 
-    private fun getFilesTable(file: File): FilesTable = when (SubFormat.fromExtension(file.extension)) {
+    private fun getFilesTable(file: File): FilesTable = when (SubFormat.fromFile(file)) {
         XmlFormat -> serializer.deserializeElement(file.readText(), XML)
         is JsonFormat -> serializer.deserializeElement(file.readText(), JSON)
         TsvFormat.Tsv -> serializer.deserializeElement(file.readText(), TSV)

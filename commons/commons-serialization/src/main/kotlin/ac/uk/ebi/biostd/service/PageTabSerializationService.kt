@@ -5,7 +5,7 @@ import ac.uk.ebi.biostd.integration.SubFormat
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.JSON
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.TSV
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.XML
-import ac.uk.ebi.biostd.integration.SubFormat.Companion.fromExtension
+import ac.uk.ebi.biostd.integration.SubFormat.Companion.fromFile
 import ac.uk.ebi.biostd.integration.SubFormat.JsonFormat
 import ac.uk.ebi.biostd.integration.SubFormat.TsvFormat.Tsv
 import ac.uk.ebi.biostd.integration.SubFormat.TsvFormat.XlsxTsv
@@ -33,7 +33,7 @@ internal class PageTabSerializationService(
         fileListSerializer.deserializeFileList(serializer.deserializeSubmission(content, format), source)
 
     override fun deserializeSubmission(file: File): Submission =
-        when (fromExtension(file.extension)) {
+        when (fromFile(file)) {
             XmlFormat -> deserializeSubmission(file.readText(), XML)
             is JsonFormat -> deserializeSubmission(file.readText(), JSON)
             Tsv -> deserializeSubmission(file.readText(), TSV)

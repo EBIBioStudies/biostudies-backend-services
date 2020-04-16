@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.itest.test.submission.submit
 
+import ac.uk.ebi.biostd.client.exception.WebClientException
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.JSON
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.XML
@@ -22,6 +23,7 @@ import ebi.ac.uk.test.createFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -240,6 +242,15 @@ internal class MultipartFileSubmissionApiTest(
             assertThat(savedSubmission["Exp"]).isEqualTo("1")
             assertThat(savedSubmission["Type"]).isEqualTo("Exp")
             assertThat(savedSubmission["Title"]).isEqualTo("Test Submission")
+        }
+
+        @Test
+        fun `invalid format file`() {
+            val submission = tempFolder.createFile("submission.txt")
+
+            assertThatExceptionOfType(WebClientException::class.java)
+                .isThrownBy { webClient.submitSingle(submission, emptyList()) }
+                .withMessageContaining("Unsupported page tab format submission.txt")
         }
 
         private fun assertSubmissionFiles(accNo: String, testFile: String) {
