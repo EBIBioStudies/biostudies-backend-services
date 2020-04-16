@@ -1,8 +1,8 @@
 package ebi.ac.uk.security.integration
 
-import ac.uk.ebi.biostd.persistence.integration.PersistenceContext
 import ac.uk.ebi.biostd.persistence.integration.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
+import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
 import ac.uk.ebi.biostd.persistence.repositories.TokenDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserGroupDataRepository
@@ -27,9 +27,9 @@ import java.nio.file.Paths
 class SecurityModuleConfig(
     private val userRepo: UserDataRepository,
     private val tokenRepo: TokenDataRepository,
+    private val tagsDataRepository: AccessTagDataRepo,
     private val groupRepository: UserGroupDataRepository,
     private val permissionRepository: AccessPermissionRepository,
-    private val context: PersistenceContext,
     private val queryService: SubmissionQueryService,
     private var props: SecurityProperties
 ) {
@@ -44,7 +44,9 @@ class SecurityModuleConfig(
     private val groupService by lazy { GroupService(groupRepository, userRepo) }
     private val securityService by lazy { SecurityService(userRepo, securityUtil, props, profileService) }
     private val securityFilter by lazy { SecurityFilter(props.environment, securityService) }
-    private val userPrivilegesService by lazy { UserPrivilegesService(userRepo, queryService, permissionRepository) }
+    private val userPrivilegesService by lazy {
+        UserPrivilegesService(userRepo, tagsDataRepository, queryService, permissionRepository)
+    }
 
     private val securityUtil by lazy { SecurityUtil(jwtParser, objectMapper, tokenRepo, userRepo, props.tokenHash) }
     private val objectMapper by lazy { JacksonFactory.createMapper() }

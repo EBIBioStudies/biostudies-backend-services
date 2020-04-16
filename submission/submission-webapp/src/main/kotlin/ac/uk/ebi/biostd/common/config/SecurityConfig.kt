@@ -1,9 +1,9 @@
 package ac.uk.ebi.biostd.common.config
 
 import ac.uk.ebi.biostd.common.property.ApplicationProperties
-import ac.uk.ebi.biostd.persistence.integration.PersistenceContext
 import ac.uk.ebi.biostd.persistence.integration.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
+import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
 import ac.uk.ebi.biostd.persistence.repositories.TokenDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserGroupDataRepository
@@ -75,14 +75,20 @@ class SecurityBeansConfig(private val objectMapper: ObjectMapper, properties: Ap
     @Bean
     @SuppressWarnings("LongParameterList")
     fun securityModuleConfig(
-        context: PersistenceContext,
         queryService: SubmissionQueryService,
         userRepository: UserDataRepository,
         tokenRepository: TokenDataRepository,
+        tagsRepository: AccessTagDataRepo,
         groupRepository: UserGroupDataRepository,
         permissionRepository: AccessPermissionRepository
     ): SecurityModuleConfig = SecurityModuleConfig(
-        userRepository, tokenRepository, groupRepository, permissionRepository, context, queryService, securityProps)
+        userRepository,
+        tokenRepository,
+        tagsRepository,
+        groupRepository,
+        permissionRepository,
+        queryService,
+        securityProps)
 
     @Bean
     fun securityService(securityConfig: SecurityModuleConfig): ISecurityService = securityConfig.securityService()

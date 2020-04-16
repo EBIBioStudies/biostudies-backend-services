@@ -34,10 +34,9 @@ class SubmissionConfig(
 
     @Bean
     fun projectService(
-        tagsDataRepository: AccessTagDataRepo,
         projectRepository: ProjectRepository,
-        accessPermissionRepository: AccessPermissionRepository
-    ): ProjectService = ProjectService(tagsDataRepository, projectRepository, accessPermissionRepository)
+        userPrivilegeService: IUserPrivilegesService
+    ): ProjectService = ProjectService(projectRepository, userPrivilegeService)
 
     @Bean
     fun submissionHandler(submissionService: SubmissionService): SubmissionWebHandler =
