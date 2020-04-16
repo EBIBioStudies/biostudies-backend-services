@@ -1,5 +1,6 @@
 package uk.ac.ebi.biostd.client.cli
 
+import ac.uk.ebi.biostd.client.exception.SecurityWebClientException
 import ac.uk.ebi.biostd.client.exception.WebClientException
 import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
 import com.github.ajalt.clikt.core.CliktCommand
@@ -41,7 +42,12 @@ class BioStudiesCommandLine : CliktCommand(name = "PTSubmit") {
 
             echo("SUCCESS: Submission with AccNo ${submission.accNo} was submitted")
         }.onFailure {
-            val message = if (it is WebClientException) formatErrorMessage(it.message!!) else it.message!!
+            val message = when (it) {
+                is WebClientException -> formatErrorMessage(it.message!!)
+                is SecurityWebClientException -> it.message!!
+                else -> it.message!!
+            }
+
             throw PrintMessage(message)
         }
     }
