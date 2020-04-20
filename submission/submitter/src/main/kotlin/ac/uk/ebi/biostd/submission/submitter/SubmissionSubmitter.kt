@@ -90,7 +90,7 @@ open class SubmissionSubmitter(
             version = nextVersion,
             method = method,
             title = submission.title,
-            processingStatus = ProcessingStatus.PROCESSING,
+            processingStatus = ProcessingStatus.PROCESSED,
             relPath = relPath,
             rootPath = submission.rootPath,
             released = released,
