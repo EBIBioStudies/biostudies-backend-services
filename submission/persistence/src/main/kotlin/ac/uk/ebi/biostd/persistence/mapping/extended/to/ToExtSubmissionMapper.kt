@@ -12,7 +12,7 @@ import java.nio.file.Path
 private const val FILES_DIR = "Files"
 
 // Added for background compatibility of old submitter applications
-private const val USER_FILES_PREFIX = "u"
+private const val USER_PREFIX = "u"
 
 class ToExtSubmissionMapper(private val submissionsPath: Path) {
     internal fun toExtSubmission(dbSubmission: SubmissionDb): ExtSubmission {
@@ -38,9 +38,7 @@ class ToExtSubmissionMapper(private val submissionsPath: Path) {
     }
 
     private fun getSubmissionSource(dbSubmission: SubmissionDb): FilesSource {
-        return ComposedFileSource(listOf(
-            PathFilesSource(submissionsPath.resolve(dbSubmission.relPath).resolve(FILES_DIR)),
-            PathFilesSource(submissionsPath.resolve(dbSubmission.relPath).resolve(FILES_DIR).resolve(USER_FILES_PREFIX))
-        ))
+        val filesPath = submissionsPath.resolve(dbSubmission.relPath).resolve(FILES_DIR)
+        return ComposedFileSource(listOf(PathFilesSource(filesPath), PathFilesSource(filesPath.resolve(USER_PREFIX))))
     }
 }
