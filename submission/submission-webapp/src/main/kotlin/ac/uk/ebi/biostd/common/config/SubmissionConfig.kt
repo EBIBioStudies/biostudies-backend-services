@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.common.config
 
+import ac.uk.ebi.biostd.files.service.UserFilesService
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.persistence.integration.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
@@ -10,7 +11,8 @@ import ac.uk.ebi.biostd.submission.domain.helpers.SourceGenerator
 import ac.uk.ebi.biostd.submission.domain.service.ProjectService
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionService
 import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
-import ac.uk.ebi.biostd.submission.web.handlers.SubmissionWebHandler
+import ac.uk.ebi.biostd.submission.web.handlers.SubmissionsWebHandler
+import ac.uk.ebi.biostd.submission.web.handlers.SubmitWebHandler
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -40,6 +42,10 @@ class SubmissionConfig(
     ): ProjectService = ProjectService(tagsDataRepository, projectRepository, accessPermissionRepository)
 
     @Bean
-    fun submissionHandler(submissionService: SubmissionService): SubmissionWebHandler =
-        SubmissionWebHandler(submissionService, sourceGenerator, serializationService)
+    fun submitHandler(submissionService: SubmissionService, userFilesService: UserFilesService): SubmitWebHandler =
+        SubmitWebHandler(submissionService, sourceGenerator, serializationService, userFilesService)
+
+    @Bean
+    fun submissionHandler(submissionService: SubmissionService): SubmissionsWebHandler =
+        SubmissionsWebHandler(submissionService)
 }

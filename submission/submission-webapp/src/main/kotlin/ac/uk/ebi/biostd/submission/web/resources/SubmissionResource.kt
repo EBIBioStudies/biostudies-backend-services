@@ -4,7 +4,7 @@ import ac.uk.ebi.biostd.persistence.filter.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.projections.SimpleSubmission
 import ac.uk.ebi.biostd.submission.converters.BioUser
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionService
-import ac.uk.ebi.biostd.submission.web.handlers.SubmissionWebHandler
+import ac.uk.ebi.biostd.submission.web.handlers.SubmissionsWebHandler
 import ebi.ac.uk.api.dto.SubmissionDto
 import ebi.ac.uk.model.constants.APPLICATION_JSON
 import ebi.ac.uk.model.constants.TEXT_PLAIN
@@ -16,6 +16,7 @@ import io.swagger.annotations.ApiImplicitParams
 import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiParam
 import org.springframework.security.access.prepost.PreAuthorize
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PathVariable
@@ -29,7 +30,7 @@ import org.springframework.web.bind.annotation.RestController
 @Api(tags = ["Submissions"])
 class SubmissionResource(
     private val submissionService: SubmissionService,
-    private val submissionWebHandler: SubmissionWebHandler
+    private val submissionsWebHandler: SubmissionsWebHandler
 ) {
     @GetMapping("/{accNo}.json", produces = [APPLICATION_JSON])
     @ResponseBody
@@ -70,7 +71,17 @@ class SubmissionResource(
     fun getSubmissions(
         @BioUser user: SecurityUser,
         @ModelAttribute filter: SubmissionFilter
-    ): List<SubmissionDto> = submissionWebHandler.getSubmissions(user, filter).map { it.asDto() }
+    ): List<SubmissionDto> = submissionsWebHandler.getSubmissions(user, filter).map { it.asDto() }
+
+    @DeleteMapping("/{accNo}")
+    @ApiOperation("Delete the submission with the given accession number")
+    @ApiImplicitParam(name = "X-Session-Token", value = "User authentication token", required = true)
+    fun deleteSubmission(
+        @BioUser user: SecurityUser,
+
+        @ApiParam(name = "AccNo", value = "The accession number of the submission to be deleted")
+        @PathVariable accNo: String
+    ): Unit = submissionsWebHandler.deleteSubmission(accNo, user)
 
     private fun SimpleSubmission.asDto() =
         SubmissionDto(accNo, title.orEmpty(), version, creationTime, modificationTime, releaseTime, method)
