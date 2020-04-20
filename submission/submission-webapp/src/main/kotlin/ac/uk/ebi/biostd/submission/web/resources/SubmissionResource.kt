@@ -84,8 +84,8 @@ class SubmissionResource(
         @PathVariable accNo: String
     ): Unit = submissionsWebHandler.deleteSubmission(accNo, user)
 
-    @PostMapping("refresh//{accNo}")
-    @ApiOperation("Delete the submission with the given accession number")
+    @PostMapping("refresh/{accNo}")
+    @ApiOperation("Update submission file based on system stored information")
     @ApiImplicitParam(name = "X-Session-Token", value = "User authentication token", required = true)
     fun refreshSubmission(
         @BioUser user: SecurityUser,

@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.common.config
 
 import ac.uk.ebi.biostd.files.service.UserFilesService
 import ac.uk.ebi.biostd.integration.SerializationService
+import ac.uk.ebi.biostd.persistence.integration.PersistenceContext
 import ac.uk.ebi.biostd.persistence.integration.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
@@ -10,6 +11,7 @@ import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
 import ac.uk.ebi.biostd.submission.domain.helpers.SourceGenerator
 import ac.uk.ebi.biostd.submission.domain.service.ProjectService
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionService
+import ac.uk.ebi.biostd.submission.submitter.SubmissionPersistenceService
 import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
 import ac.uk.ebi.biostd.submission.web.handlers.SubmissionsWebHandler
 import ac.uk.ebi.biostd.submission.web.handlers.SubmitWebHandler
@@ -25,14 +27,21 @@ class SubmissionConfig(
     private val serializationService: SerializationService
 ) {
     @Bean
+    @Suppress("LongParameterList")
     fun submissionService(
         subRepository: SubmissionRepository,
+        persistenceService: SubmissionPersistenceService,
         serializationService: SerializationService,
         userPrivilegeService: IUserPrivilegesService,
         queryService: SubmissionQueryService,
         submissionSubmitter: SubmissionSubmitter
     ): SubmissionService = SubmissionService(
-        subRepository, serializationService, userPrivilegeService, queryService, submissionSubmitter)
+        subRepository,
+        persistenceService,
+        serializationService,
+        userPrivilegeService,
+        queryService,
+        submissionSubmitter)
 
     @Bean
     fun projectService(
@@ -48,4 +57,8 @@ class SubmissionConfig(
     @Bean
     fun submissionHandler(submissionService: SubmissionService): SubmissionsWebHandler =
         SubmissionsWebHandler(submissionService)
+
+    @Bean
+    fun persistenceService(submissionRepository: SubmissionRepository, persistenceContext: PersistenceContext):
+        SubmissionPersistenceService = SubmissionPersistenceService(submissionRepository, persistenceContext)
 }

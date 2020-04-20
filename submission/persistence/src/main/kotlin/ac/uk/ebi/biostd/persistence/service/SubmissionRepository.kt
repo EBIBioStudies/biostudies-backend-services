@@ -4,22 +4,28 @@ import ac.uk.ebi.biostd.persistence.exception.SubmissionNotFoundException
 import ac.uk.ebi.biostd.persistence.filter.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.filter.SubmissionFilterSpecification
 import ac.uk.ebi.biostd.persistence.mapping.SubmissionDbMapper
+import ac.uk.ebi.biostd.persistence.mapping.extended.to.ToExtSubmissionMapper
 import ac.uk.ebi.biostd.persistence.projections.SimpleSubmission
 import ac.uk.ebi.biostd.persistence.projections.SimpleSubmission.Companion.asSimpleSubmission
 import ac.uk.ebi.biostd.persistence.repositories.SubmissionDataRepository
 import com.cosium.spring.data.jpa.entity.graph.domain.EntityGraphs
+import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.model.ExtendedSubmission
 import ebi.ac.uk.model.Submission
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 
+// TODO: Remove ExtendedSubmission usage
 class SubmissionRepository(
     private val submissionRepository: SubmissionDataRepository,
-    private val submissionDbMapper: SubmissionDbMapper
+    private val submissionDbMapper: SubmissionDbMapper,
+    private var toExtSubmissionMapper: ToExtSubmissionMapper
 ) {
     fun getByAccNo(accNo: String): Submission = submissionDbMapper.toSubmission(getSubmission(accNo))
 
     fun getExtendedByAccNo(accNo: String): ExtendedSubmission = submissionDbMapper.toExtSubmission(getSubmission(accNo))
+
+    fun getExtByAccNo(accNo: String): ExtSubmission = toExtSubmissionMapper.toExtSubmission(getSubmission(accNo))
 
     fun getExtendedLastVersionByAccNo(accNo: String): ExtendedSubmission =
         submissionDbMapper.toExtSubmission(submissionRepository.getFirstByAccNoOrderByVersionDesc(accNo))
