@@ -18,12 +18,16 @@ object NfsFileUtils {
         return file
     }
 
-    fun copyFile(source: File, target: File) {
+    fun copyOrReplaceFile(source: File, target: File) {
         Files.copy(source.toPath(), createParentDirectories(target.toPath()), StandardCopyOption.REPLACE_EXISTING)
     }
 
     fun moveFile(source: File, target: File) {
         Files.move(source.toPath(), createParentDirectories(deleteIfExist(target.toPath())))
+    }
+
+    fun copyOrReplace(source: File, content: String) {
+        Files.write(createParentDirectories(source.toPath()), content.toByteArray())
     }
 
     private fun createParentDirectories(path: Path): Path {

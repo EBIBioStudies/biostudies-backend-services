@@ -44,6 +44,10 @@ open class PersistenceContextImpl(
         return lockExecutor.executeLocking(submission.accNo) { saveSubmission(submission, submitter, mode) }
     }
 
+    override fun refreshFileSystem(submission: ExtSubmission) {
+        filePersistenceService.persistSubmissionFiles(submission, FileMode.MOVE)
+    }
+
     private fun saveSubmission(submission: ExtSubmission, submitter: User, mode: FileMode): ExtSubmission {
         subRepository.expireActiveVersions(submission.accNo)
         deleteSubmissionDrafts(submitter.id, submission.accNo)

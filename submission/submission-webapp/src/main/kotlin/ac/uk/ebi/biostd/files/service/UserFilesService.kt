@@ -12,7 +12,7 @@ class UserFilesService {
 
     fun uploadFile(user: SecurityUser, path: String, file: File) {
         val folder = user.magicFolder.path.resolve(path)
-        NfsFileUtils.copyFile(file, folder.resolve(file.name).toFile())
+        NfsFileUtils.copyOrReplaceFile(file, folder.resolve(file.name).toFile())
     }
 
     fun uploadFiles(user: SecurityUser, path: String, files: List<MultipartFile>) {

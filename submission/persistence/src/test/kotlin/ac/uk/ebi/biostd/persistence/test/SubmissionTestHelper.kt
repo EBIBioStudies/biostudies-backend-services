@@ -9,6 +9,7 @@ import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtTag
 import ebi.ac.uk.model.SubmissionMethod
 import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSED
+import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSING
 import org.assertj.core.api.Assertions.assertThat
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
@@ -32,6 +33,7 @@ internal val extSubmission
         relPath = SUB_RELPATH,
         rootPath = SUB_ROOT_PATH,
         secretKey = SECRET_KEY,
+        processingStatus = PROCESSING,
         attributes = listOf(extAttribute),
         released = true,
         status = PROCESSED,

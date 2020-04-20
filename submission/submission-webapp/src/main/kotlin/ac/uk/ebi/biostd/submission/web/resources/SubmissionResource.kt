@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.ResponseBody
 import org.springframework.web.bind.annotation.RestController
@@ -82,6 +83,18 @@ class SubmissionResource(
         @ApiParam(name = "AccNo", value = "The accession number of the submission to be deleted")
         @PathVariable accNo: String
     ): Unit = submissionsWebHandler.deleteSubmission(accNo, user)
+
+    @PostMapping("refresh//{accNo}")
+    @ApiOperation("Delete the submission with the given accession number")
+    @ApiImplicitParam(name = "X-Session-Token", value = "User authentication token", required = true)
+    fun refreshSubmission(
+        @BioUser user: SecurityUser,
+
+        @ApiParam(name = "AccNo", value = "The accession number of the submission to be deleted")
+        @PathVariable accNo: String
+    ) {
+        submissionsWebHandler.refreshSubmission(accNo, user)
+    }
 
     private fun SimpleSubmission.asDto() =
         SubmissionDto(accNo, title.orEmpty(), version, creationTime, modificationTime, releaseTime, method)

@@ -17,4 +17,6 @@ interface PersistenceContext {
     fun getNextVersion(accNo: String): Int
 
     fun saveSubmission(saveRequest: SaveRequest): ExtSubmission
+
+    fun refreshFileSystem(submission: ExtSubmission)
 }
