@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.persistence.integration
 
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.model.User
 
 @Suppress("TooManyFunctions")
 interface PersistenceContext {
@@ -18,5 +19,5 @@ interface PersistenceContext {
 
     fun saveSubmission(saveRequest: SaveRequest): ExtSubmission
 
-    fun refreshFileSystem(submission: ExtSubmission)
+    fun refreshSubmission(submission: ExtSubmission, submitter: User)
 }

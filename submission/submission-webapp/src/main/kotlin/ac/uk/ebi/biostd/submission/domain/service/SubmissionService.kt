@@ -54,6 +54,6 @@ class SubmissionService(
 
     fun refreshSubmission(user: SecurityUser, accNo: String) {
         require(userPrivilegesService.canResubmit(user.email, accNo))
-        submissionPersistenceService.refresh(accNo)
+        submissionPersistenceService.refresh(accNo, user)
     }
 }

@@ -44,8 +44,9 @@ open class PersistenceContextImpl(
         return lockExecutor.executeLocking(submission.accNo) { saveSubmission(submission, submitter, mode) }
     }
 
-    override fun refreshFileSystem(submission: ExtSubmission) {
-        filePersistenceService.persistSubmissionFiles(submission, FileMode.MOVE)
+    @Transactional
+    override fun refreshSubmission(submission: ExtSubmission, submitter: User) {
+        saveSubmission(SaveRequest(submission.copy(version = submission.version + 1), submitter, FileMode.MOVE))
     }
 
     private fun saveSubmission(submission: ExtSubmission, submitter: User, mode: FileMode): ExtSubmission {
