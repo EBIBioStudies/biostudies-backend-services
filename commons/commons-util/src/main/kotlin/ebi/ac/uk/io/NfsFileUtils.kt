@@ -18,7 +18,7 @@ object NfsFileUtils {
         return file
     }
 
-    fun replaceFile(source: File, target: File) {
+    fun copyFile(source: File, target: File) {
         Files.copy(source.toPath(), createParentDirectories(target.toPath()), StandardCopyOption.REPLACE_EXISTING)
     }
 

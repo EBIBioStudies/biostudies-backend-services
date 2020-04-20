@@ -11,10 +11,10 @@ import ebi.ac.uk.extended.model.allFileList
 import ebi.ac.uk.extended.model.allFiles
 import ebi.ac.uk.extended.model.allReferencedFiles
 import ebi.ac.uk.io.NfsFileUtils
+import ebi.ac.uk.io.NfsFileUtils.copyFile
 import ebi.ac.uk.io.NfsFileUtils.deleteFolder
 import ebi.ac.uk.io.NfsFileUtils.moveFile
 import ebi.ac.uk.io.NfsFileUtils.reCreateDirectory
-import ebi.ac.uk.io.NfsFileUtils.replaceFile
 import ebi.ac.uk.paths.FILES_PATH
 import ebi.ac.uk.paths.SubmissionFolderResolver
 import org.apache.commons.io.FileUtils
@@ -67,7 +67,7 @@ class FilePersistenceService(
         moveFile(temporally, filesPath)
     }
 
-    private fun copy(extFile: ExtFile, file: File) = replaceFile(extFile.file, file.resolve(extFile.fileName))
+    private fun copy(extFile: ExtFile, file: File) = copyFile(extFile.file, file.resolve(extFile.fileName))
     private fun move(file: ExtFile, path: File) = NfsFileUtils.moveFile(file.file, path.resolve(file.fileName))
 
     private fun getSubmissionFolder(relPath: String): File {

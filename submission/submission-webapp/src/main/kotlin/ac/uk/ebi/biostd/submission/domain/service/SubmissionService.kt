@@ -47,6 +47,5 @@ class SubmissionService(
         submissionRepository.expireSubmission(accNo)
     }
 
-    fun submissionFolder(accNo: String): java.io.File? =
-        queryService.getExistingFolder(accNo)?.resolve(FILES_PATH)
+    fun submissionFolder(accNo: String): java.io.File? = queryService.getExistingFolder(accNo)?.resolve(FILES_PATH)
 }
