@@ -55,14 +55,6 @@ class FilePersistenceService(
         FileUtils.writeStringToFile(submissionPath.resolve("$outputFileName.pagetab.tsv").toFile(), tsv, Charsets.UTF_8)
     }
 
-    private fun copyFiles(submission: ExtSubmission) {
-        processFiles(submission, this::copy)
-    }
-
-    private fun moveFiles(submission: ExtSubmission) {
-        processFiles(submission, this::move)
-    }
-
     private fun processFiles(submission: ExtSubmission, process: (ExtFile, File) -> Unit) {
         val submissionFolder = getSubmissionFolder(submission.relPath)
         val temporally = createTempFolder(submissionFolder, submission.accNo)
@@ -84,7 +76,6 @@ class FilePersistenceService(
         return submissionFolder
     }
 
-    private fun createTempFolder(submissionFolder: File, accNo: String): File {
-        return reCreateDirectory(submissionFolder.parentFile.resolve("${accNo}_temp"))
-    }
+    private fun createTempFolder(submissionFolder: File, accNo: String): File =
+        reCreateDirectory(submissionFolder.parentFile.resolve("${accNo}_temp"))
 }

@@ -23,7 +23,7 @@ internal class NfsFileUtilsTest(private val temporaryFolder: TemporaryFolder) {
         @Nested
         inner class WhenFile {
             @Test
-            fun whenExistTarget() {
+            fun whenTargetExists() {
                 val file = temporaryFolder.createFile("one.txt", "one")
                 val another = temporaryFolder.createFile("two.txt", "two")
 
@@ -34,7 +34,7 @@ internal class NfsFileUtilsTest(private val temporaryFolder: TemporaryFolder) {
             }
 
             @Test
-            fun whenNotExistTarget() {
+            fun whenNoTargetExists() {
                 val file = temporaryFolder.createFile("one.txt", "one")
                 val target = temporaryFolder.root.resolve("new.txt")
 
@@ -48,7 +48,7 @@ internal class NfsFileUtilsTest(private val temporaryFolder: TemporaryFolder) {
         inner class WhenFolder {
 
             @Test
-            fun whenTargetFolderExist() {
+            fun whenTargetFolderExists() {
                 val tempDir = temporaryFolder.createDirectory("directory")
                 tempDir.addNewFile("two.txt")
 
