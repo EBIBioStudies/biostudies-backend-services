@@ -20,7 +20,7 @@ import ebi.ac.uk.model.extensions.fileListName
 import ebi.ac.uk.test.createFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
-import org.assertj.core.api.Assertions
+import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Nested
@@ -164,15 +164,15 @@ internal class FileListSubmissionTest(private val tempFolder: TemporaryFolder) :
             val createdSubmission = submissionRepository.getExtendedByAccNo(accNo)
             val submissionFolderPath = "$basePath/submission/${createdSubmission.relPath}"
 
-            Assertions.assertThat(createdSubmission.section.fileListName).isEqualTo(fileListName)
-            Assertions.assertThat(createdSubmission.extendedSection.fileList).isEqualTo(
+            assertThat(createdSubmission.section.fileListName).isEqualTo(fileListName)
+            assertThat(createdSubmission.extendedSection.fileList).isEqualTo(
                 FileList(fileListName, listOf(File(testFile, attributes = listOf(Attribute("GEN", "ABC"))))))
 
-            Assertions.assertThat(Paths.get("$submissionFolderPath/Files/$testFile")).exists()
+            assertThat(Paths.get("$submissionFolderPath/Files/$testFile")).exists()
 
-            Assertions.assertThat(Paths.get("$submissionFolderPath/$fileListName.xml")).exists()
-            Assertions.assertThat(Paths.get("$submissionFolderPath/$fileListName.json")).exists()
-            Assertions.assertThat(Paths.get("$submissionFolderPath/$fileListName.pagetab.tsv")).exists()
+            assertThat(Paths.get("$submissionFolderPath/$fileListName.xml")).exists()
+            assertThat(Paths.get("$submissionFolderPath/$fileListName.json")).exists()
+            assertThat(Paths.get("$submissionFolderPath/$fileListName.pagetab.tsv")).exists()
         }
     }
 }

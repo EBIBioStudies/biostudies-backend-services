@@ -31,7 +31,6 @@ internal class ToExtFileListTest(
             val extFileList = fileList.toExtFileList(fileSource)
             assertThat(extFileList.files.first()).isEqualTo(extFile)
             assertThat(extFileList.fileName).isEqualTo(fileList.name)
-            assertThat(extFileList.file).isEqualTo(systemFile)
         }
     }
 }

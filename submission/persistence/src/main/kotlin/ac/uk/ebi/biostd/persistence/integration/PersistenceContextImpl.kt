@@ -51,14 +51,13 @@ open class PersistenceContextImpl(
     private fun saveSubmission(submission: ExtSubmission, submitter: User, mode: FileMode): ExtSubmission {
         subRepository.expireActiveVersions(submission.accNo)
         deleteSubmissionDrafts(submitter.id, submission.accNo)
-        val newSubmission = saveNewVersion(submission, submitter.email)
-        filePersistenceService.persistSubmissionFiles(submission, mode)
-        return newSubmission
+        return saveNewVersion(submission, submitter.email, mode)
     }
 
-    private fun saveNewVersion(submission: ExtSubmission, submitter: String): ExtSubmission {
-        val dbSubmission = toDbSubmissionMapper.toSubmissionDb(submission, submitter)
-        return toExtSubmissionMapper.toExtSubmission(subRepository.save(dbSubmission))
+    private fun saveNewVersion(submission: ExtSubmission, submitter: String, mode: FileMode): ExtSubmission {
+        val dbSubmission = subRepository.save(toDbSubmissionMapper.toSubmissionDb(submission, submitter))
+        filePersistenceService.persistSubmissionFiles(submission, mode)
+        return toExtSubmissionMapper.toExtSubmission(dbSubmission)
     }
 
     override fun deleteSubmissionDrafts(userId: Long, accNo: String) {

@@ -10,7 +10,7 @@ data class ExtAttributeDetail(val name: String, val value: String)
 data class ExtLink(val url: String, val attributes: List<ExtAttribute>)
 
 data class ExtFile(val fileName: String, val file: File, val attributes: List<ExtAttribute>)
-data class ExtFileList(val fileName: String, val file: File, val files: List<ExtFile>)
+data class ExtFileList(val fileName: String, val files: List<ExtFile>)
 
 data class ExtSectionTable(val sections: List<ExtSection>)
 data class ExtFileTable(val files: List<ExtFile>) {

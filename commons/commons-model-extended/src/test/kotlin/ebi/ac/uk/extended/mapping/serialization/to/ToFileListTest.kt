@@ -10,15 +10,13 @@ import io.mockk.mockkStatic
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import java.io.File as SystemFile
 
 @ExtendWith(MockKExtension::class)
 internal class ToFileListTest(
     @MockK val file: File,
-    @MockK val systemFile: SystemFile,
     @MockK val extFile: ExtFile
 ) {
-    private val extFileList = ExtFileList("fileList", systemFile, listOf(extFile))
+    private val extFileList = ExtFileList("fileList", listOf(extFile))
 
     @Test
     fun toExtFileList() {

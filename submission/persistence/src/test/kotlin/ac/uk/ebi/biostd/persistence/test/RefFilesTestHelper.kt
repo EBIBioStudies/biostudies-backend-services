@@ -3,10 +3,9 @@ package ac.uk.ebi.biostd.persistence.test
 import ac.uk.ebi.biostd.persistence.model.ReferencedFileList
 import ebi.ac.uk.extended.model.ExtFileList
 import org.assertj.core.api.Assertions.assertThat
-import java.io.File
 
 internal val extFileList
-    get() = ExtFileList("FileList", File("references"), listOf(extTestRefFile))
+    get() = ExtFileList("FileList", listOf(extTestRefFile))
 
 internal fun assertDbRefFiles(fileList: ReferencedFileList?) {
     require(fileList != null)

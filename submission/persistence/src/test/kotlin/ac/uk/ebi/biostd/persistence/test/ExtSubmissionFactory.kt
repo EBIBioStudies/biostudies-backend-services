@@ -11,7 +11,7 @@ import java.io.File
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 
-fun extSubmissionWithFileList(files: List<File>, fileList: File, referencedFiles: List<File>) =
+fun extSubmissionWithFileList(files: List<File>, referencedFiles: List<File>) =
     ExtSubmission(
         accNo = "ABC-123",
         version = 1,
@@ -29,10 +29,10 @@ fun extSubmissionWithFileList(files: List<File>, fileList: File, referencedFiles
         attributes = emptyList(),
         tags = emptyList(),
         accessTags = emptyList(),
-        section = extSectionWithFileList(files, fileList, referencedFiles))
+        section = extSectionWithFileList(files, referencedFiles))
 
-fun extSectionWithFileList(files: List<File>, fileList: File, referencedFiles: List<File>) =
+fun extSectionWithFileList(files: List<File>, referencedFiles: List<File>) =
     ExtSection(
         type = "Study",
         files = files.map { left(ExtFile(it.name, it, emptyList())) },
-        fileList = ExtFileList("fileList", fileList, referencedFiles.map { ExtFile(it.name, it, emptyList()) }))
+        fileList = ExtFileList("fileList", referencedFiles.map { ExtFile(it.name, it, emptyList()) }))

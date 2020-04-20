@@ -57,7 +57,6 @@ class ToExtSectionTest(@MockK val filesSource: FilesSource, tempFolder: Temporar
         assertThat(extSection.links.first()).hasLeftValueSatisfying { assertExtLink(it) }
 
         assertThat(extSection.fileList).isNotNull()
-        assertThat(extSection.fileList!!.file).isEqualTo(systemFile3)
         assertThat(extSection.fileList!!.fileName).isEqualTo(FILE_LIST_NAME)
     }
 }
