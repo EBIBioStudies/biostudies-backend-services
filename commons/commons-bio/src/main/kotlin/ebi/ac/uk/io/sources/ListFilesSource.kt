@@ -9,7 +9,5 @@ class ListFilesSource(private val files: List<File>) : FilesSource {
     override fun getFile(filePath: String): File =
         files.firstOrNull { it.name == filePath } ?: throw FileNotFoundException(filePath)
 
-    override fun size(filePath: String) = getFile(filePath).length()
-
     override fun readText(filePath: String) = getFile(filePath).readText()
 }

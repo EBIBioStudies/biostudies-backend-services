@@ -12,7 +12,6 @@ import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
-import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
 import java.nio.file.Paths
 import kotlin.test.assertFalse
@@ -41,17 +40,6 @@ class FilesSourceTest(temporaryFolder: TemporaryFolder) {
         assertTrue { testInstance.exists(TEST_USER_FILE) }
         assertTrue { testInstance.exists(TEST_ATTACHED_FILE) }
         assertFalse { testInstance.exists(TEST_GHOST_FILE) }
-    }
-
-    @Test
-    fun `get user file size`() {
-        FileUtils.writeStringToFile(testFile, "abc", Charset.defaultCharset())
-        assertThat(testInstance.size(TEST_USER_FILE)).isEqualTo(3)
-    }
-
-    @Test
-    fun `get attached file size`() {
-        assertThat(testInstance.size(TEST_ATTACHED_FILE)).isEqualTo(12)
     }
 
     @Test

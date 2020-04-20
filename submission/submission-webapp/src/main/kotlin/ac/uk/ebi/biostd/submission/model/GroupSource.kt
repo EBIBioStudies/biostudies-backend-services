@@ -16,7 +16,5 @@ class GroupSource(groupName: String, private val pathSource: PathFilesSource) : 
 
     override fun getFile(filePath: String): File = pathSource.getFile(filePath.remove(groupPattern))
 
-    override fun size(filePath: String) = pathSource.size(filePath.remove(groupPattern))
-
     override fun readText(filePath: String) = pathSource.readText(filePath.remove(groupPattern))
 }

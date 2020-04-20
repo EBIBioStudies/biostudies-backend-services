@@ -9,11 +9,11 @@ import ebi.ac.uk.io.sources.PathFilesSource
 import java.nio.file.Path
 import java.time.ZoneOffset
 
-internal const val TO_EXT_SUBMISSION_EXTENSIONS = "ac.uk.ebi.biostd.persistence.mapping.extended.to.ToExtSubmissionKt"
+private const val FILES_DIR = "Files"
 
 class ToExtSubmissionMapper(private val submissionsPath: Path) {
     internal fun toExtSubmission(dbSubmission: SubmissionDb): ExtSubmission {
-        val submissionFileSource = PathFilesSource(submissionsPath.resolve(dbSubmission.relPath))
+        val submissionFileSource = PathFilesSource(submissionsPath.resolve(dbSubmission.relPath).resolve(FILES_DIR))
         return ExtSubmission(
             accNo = dbSubmission.accNo,
             title = dbSubmission.title,

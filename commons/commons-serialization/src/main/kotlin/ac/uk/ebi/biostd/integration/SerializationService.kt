@@ -15,5 +15,6 @@ interface SerializationService {
 
     fun serializeSubmission(submission: Submission, format: SubFormat): String
 
+    // Allow only submission elements instead of generic i.e. T: SubmissionElement
     fun <T> serializeElement(element: T, format: SubFormat): String
 }

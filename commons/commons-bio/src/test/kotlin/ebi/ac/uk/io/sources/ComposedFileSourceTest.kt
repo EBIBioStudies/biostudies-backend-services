@@ -69,37 +69,6 @@ internal class ComposedFileSourceTest(
     }
 
     @Nested
-    inner class Size {
-        private val size = 55L
-
-        @Test
-        fun whenOne() {
-            testWhenOne {
-                every { oneFileSource.size(filePath) } returns size
-
-                assertThat(testInstance.exists(filePath)).isTrue()
-            }
-        }
-
-        @Test
-        fun whenAnother() {
-            testWhenOne {
-                every { anotherFileSource.size(filePath) } returns size
-
-                assertThat(testInstance.exists(filePath)).isTrue()
-            }
-        }
-
-        @Test
-        fun whenNone() {
-            testWhenNone {
-                val exception = assertThrows<FileNotFoundException> { testInstance.size(filePath) }
-                assertThat(exception.message).isEqualTo("File not found: $filePath")
-            }
-        }
-    }
-
-    @Nested
     inner class ReadText {
         private val text = "file text"
 

@@ -1,7 +1,8 @@
 package ebi.ac.uk.extended.model
 
 val ExtSection.allSections
-    get(): List<ExtSection> = sections.flatMap { either -> either.fold({ listOf(it) }, { it.sections }) }
+    get(): List<ExtSection> =
+        sections.flatMap { either -> either.fold({ listOf(it) + it.allSections }, { it.sections }) }
 
 val ExtSection.allReferencedFiles
     get(): List<ExtFile> = fileList?.files.orEmpty()

@@ -9,5 +9,5 @@ val ExtSubmission.allReferencedFiles
 val ExtSubmission.allFiles
     get(): List<ExtFile> = allSections.flatMap { it.allFiles }
 
-val ExtSubmission.allFileListSections
+val ExtSubmission.allFileList
     get(): List<ExtFileList> = allSections.mapNotNull { it.fileList }

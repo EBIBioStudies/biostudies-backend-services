@@ -4,12 +4,14 @@ import ac.uk.ebi.biostd.integration.SubFormat.Companion.JSON
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.JSON_PRETTY
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.TSV
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.XML
+import ac.uk.ebi.biostd.persistence.integration.FileMode
 import ac.uk.ebi.biostd.submission.converters.BioUser
 import ac.uk.ebi.biostd.submission.domain.service.TempFileGenerator
 import ac.uk.ebi.biostd.submission.web.handlers.SubmissionWebHandler
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.constants.APPLICATION_JSON
 import ebi.ac.uk.model.constants.FILES
+import ebi.ac.uk.model.constants.FILE_MODE
 import ebi.ac.uk.model.constants.MULTIPART_FORM_DATA
 import ebi.ac.uk.model.constants.SUBMISSION
 import ebi.ac.uk.model.constants.SUBMISSION_TYPE
@@ -50,12 +52,15 @@ class SubmitResource(
     fun submitMultipartJson(
         @BioUser user: SecurityUser,
 
-        @ApiParam(name = "Submission", value = "File containing the submission page tab in JSON format")
+        @ApiParam(name = "submission", value = "File containing the submission page tab in JSON format")
         @RequestParam(SUBMISSION) submissionContent: String,
+
+        @ApiParam(name = "fileMode", value = "File mode either copy/move")
+        @RequestParam(FILE_MODE, defaultValue = "COPY") mode: FileMode,
 
         @ApiParam(name = "Files", value = "List of files to be used in the submission")
         @RequestParam(FILES) files: Array<MultipartFile>
-    ) = submissionWebHandler.submit(user, tempFileGenerator.asFiles(files), submissionContent, JSON)
+    ) = submissionWebHandler.submit(user, tempFileGenerator.asFiles(files), submissionContent, JSON, mode)
 
     @PostMapping(
         headers = ["$CONTENT_TYPE=$MULTIPART_FORM_DATA", "$SUBMISSION_TYPE=$TEXT_XML"],
@@ -69,9 +74,12 @@ class SubmitResource(
         @ApiParam(name = "Submission", value = "File containing the submission page tab in XML format")
         @RequestParam(SUBMISSION) submissionContent: String,
 
+        @ApiParam(name = "fileMode", value = "File mode either copy/move")
+        @RequestParam(FILE_MODE, defaultValue = "COPY") mode: FileMode,
+
         @ApiParam(name = "Files", value = "List of files to be used in the submission")
         @RequestParam(FILES) files: Array<MultipartFile>
-    ): Submission = submissionWebHandler.submit(user, tempFileGenerator.asFiles(files), submissionContent, XML)
+    ): Submission = submissionWebHandler.submit(user, tempFileGenerator.asFiles(files), submissionContent, XML, mode)
 
     @PostMapping(
         headers = ["$CONTENT_TYPE=$MULTIPART_FORM_DATA", "$SUBMISSION_TYPE=$TEXT_PLAIN"],
@@ -85,9 +93,12 @@ class SubmitResource(
         @ApiParam(name = "Submission", value = "File containing the submission page tab in TSV format")
         @RequestParam(SUBMISSION) submissionContent: String,
 
+        @ApiParam(name = "fileMode", value = "File mode either copy/move")
+        @RequestParam(FILE_MODE, defaultValue = "COPY") mode: FileMode,
+
         @ApiParam(name = "Files", value = "List of files to be used in the submission")
         @RequestParam(FILES) files: Array<MultipartFile>
-    ): Submission = submissionWebHandler.submit(user, tempFileGenerator.asFiles(files), submissionContent, TSV)
+    ): Submission = submissionWebHandler.submit(user, tempFileGenerator.asFiles(files), submissionContent, TSV, mode)
 
     @PostMapping(
         value = ["/direct"],
@@ -107,10 +118,13 @@ class SubmitResource(
         @ApiParam(name = "Files", value = "List of files to be used in the submission")
         @RequestParam(FILES) files: Array<MultipartFile>,
 
+        @ApiParam(name = "fileMode", value = "File mode either copy/move")
+        @RequestParam(FILE_MODE, defaultValue = "COPY") mode: FileMode,
+
         @ApiParam(name = "Attributes", value = "List of attributes to be added to the submission")
         @RequestParam attributes: Map<String, String> = emptyMap()
-    ): Submission =
-        submissionWebHandler.submit(user, tempFileGenerator.asFile(file), tempFileGenerator.asFiles(files), attributes)
+    ): Submission = submissionWebHandler.submit(
+        user, tempFileGenerator.asFile(file), tempFileGenerator.asFiles(files), attributes, mode)
 
     @PostMapping(
         headers = ["$SUBMISSION_TYPE=$TEXT_XML"],
@@ -121,9 +135,12 @@ class SubmitResource(
     fun submitXml(
         @BioUser user: SecurityUser,
 
+        @ApiParam(name = "fileMode", value = "File mode either copy/move")
+        @RequestParam(FILE_MODE, defaultValue = "COPY") mode: FileMode,
+
         @ApiParam(name = "Submission", value = "Submission page tab in XML format")
         @RequestBody submission: String
-    ): Submission = submissionWebHandler.submit(user, submission, XML)
+    ): Submission = submissionWebHandler.submit(user, submission, XML, mode)
 
     @PostMapping(
         headers = ["$SUBMISSION_TYPE=$TEXT_PLAIN"],
@@ -134,9 +151,12 @@ class SubmitResource(
     fun submitTsv(
         @BioUser user: SecurityUser,
 
+        @ApiParam(name = "fileMode", value = "File mode either copy/move")
+        @RequestParam(FILE_MODE, defaultValue = "COPY") mode: FileMode,
+
         @ApiParam(name = "Submission", value = "Submission page tab in TSV format")
         @RequestBody submission: String
-    ): Submission = submissionWebHandler.submit(user, submission, TSV)
+    ): Submission = submissionWebHandler.submit(user, submission, TSV, mode)
 
     @PostMapping(
         headers = ["$SUBMISSION_TYPE=$APPLICATION_JSON"],
@@ -147,9 +167,12 @@ class SubmitResource(
     fun submitJson(
         @BioUser user: SecurityUser,
 
+        @ApiParam(name = "fileMode", value = "File mode either copy/move")
+        @RequestParam(FILE_MODE, defaultValue = "COPY") mode: FileMode,
+
         @ApiParam(name = "Submission", value = "Submission page tab in JSON format")
         @RequestBody submission: String
-    ): Submission = submissionWebHandler.submit(user, submission, JSON_PRETTY)
+    ): Submission = submissionWebHandler.submit(user, submission, JSON_PRETTY, mode)
 
     @DeleteMapping("/{accNo}")
     @ApiOperation("Delete the submission with the given accession number")
