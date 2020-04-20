@@ -103,10 +103,11 @@ class BioStudiesCommandLineTest(
 
         every {
             mockWebClient.submitSingle(submissionFile, listOf())
-        } throws WebClientException(BAD_REQUEST, "Invalid Files")
+        } throws WebClientException(BAD_REQUEST, "<ValidationErrors><error>Invalid Files</error></ValidationErrors>")
 
         val exception = assertThrows<PrintMessage> { testInstance.parse(args) }
-        assertThat(exception.message).isEqualTo("Invalid Files")
+        assertThat(exception.message).isEqualTo(
+            "<ValidationErrors>\n  <error>Invalid Files</error>\n</ValidationErrors>\n")
     }
 
     @Test
