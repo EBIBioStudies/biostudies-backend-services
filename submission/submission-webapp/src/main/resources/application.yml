@@ -11,7 +11,7 @@ spring:
     driver-class-name: com.mysql.jdbc.Driver
 
   jpa:
-    show-sql: true
+    show-sql: false
     hibernate:
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl

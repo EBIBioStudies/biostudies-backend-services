@@ -12,6 +12,8 @@ import javax.persistence.CascadeType
 import javax.persistence.Column
 import javax.persistence.Convert
 import javax.persistence.Entity
+import javax.persistence.EnumType
+import javax.persistence.Enumerated
 import javax.persistence.FetchType
 import javax.persistence.GeneratedValue
 import javax.persistence.Id
@@ -109,6 +111,7 @@ class SubmissionDb(
     var rootPath: String? = null
 
     @Column
+    @Enumerated(EnumType.STRING)
     var method: SubmissionMethod? = null
 
     @Column

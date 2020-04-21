@@ -7,6 +7,7 @@ import ebi.ac.uk.extended.model.ExtTag
 import ebi.ac.uk.io.sources.ComposedFileSource
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.io.sources.PathFilesSource
+import ebi.ac.uk.model.SubmissionMethod.UNKNOWN
 import java.nio.file.Path
 
 private const val FILES_DIR = "Files"
@@ -21,7 +22,7 @@ class ToExtSubmissionMapper(private val submissionsPath: Path) {
             title = dbSubmission.title,
             processingStatus = dbSubmission.status,
             version = dbSubmission.version,
-            method = dbSubmission.method!!, // FIX this add default status
+            method = dbSubmission.method ?: UNKNOWN,
             status = dbSubmission.status,
             relPath = dbSubmission.relPath,
             rootPath = dbSubmission.rootPath,
