@@ -25,11 +25,6 @@ internal class PathFilesSourceTest(temporaryFolder: TemporaryFolder) {
     }
 
     @Test
-    fun size() {
-        assertThat(testInstance.size(file.name)).isEqualTo(19L)
-    }
-
-    @Test
     fun readText() {
         assertThat(testInstance.readText(file.name)).isEqualTo("the content of file")
     }

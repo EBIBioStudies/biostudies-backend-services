@@ -1,6 +1,8 @@
 package ac.uk.ebi.biostd.submission.submitter
 
+import ac.uk.ebi.biostd.persistence.integration.FileMode.COPY
 import ac.uk.ebi.biostd.persistence.integration.PersistenceContext
+import ac.uk.ebi.biostd.persistence.integration.SaveRequest
 import ac.uk.ebi.biostd.persistence.integration.SubmissionQueryService
 import ac.uk.ebi.biostd.submission.events.SubmissionEvents.successfulSubmission
 import ac.uk.ebi.biostd.submission.events.SuccessfulSubmission
@@ -50,7 +52,6 @@ class SubmissionSubmitterTest {
         title = "Test Submission"
         attachTo = "BioImages"
         releaseDate = "2018-09-21"
-
         section("Study") { }
     }
 
@@ -64,6 +65,7 @@ class SubmissionSubmitterTest {
 
     private val timesRequest = slot<TimesRequest>()
     private val extSubmission = slot<ExtSubmission>()
+    private val saveRequest = slot<SaveRequest>()
     private val projectRequest = slot<ProjectRequest>()
     private val notification = slot<SuccessfulSubmission>()
     private val accNoServiceRequest = slot<AccNoServiceRequest>()
@@ -85,7 +87,8 @@ class SubmissionSubmitterTest {
 
     @Test
     fun submit() {
-        testInstance.submit(SubmissionRequest(submission, testUser(notificationsEnabled = true), sources, PAGE_TAB))
+        testInstance.submit(
+            SubmissionRequest(submission, testUser(notificationsEnabled = true), sources, PAGE_TAB, COPY))
 
         assertCapturedValues()
         assertExtendedSubmission()
@@ -96,7 +99,8 @@ class SubmissionSubmitterTest {
 
     @Test
     fun `submit with notifications disabled`() {
-        testInstance.submit(SubmissionRequest(submission, testUser(notificationsEnabled = false), sources, PAGE_TAB))
+        testInstance.submit(
+            SubmissionRequest(submission, testUser(notificationsEnabled = false), sources, PAGE_TAB, COPY))
 
         assertCapturedValues()
         assertExtendedSubmission()
@@ -125,7 +129,7 @@ class SubmissionSubmitterTest {
     }
 
     private fun assertExtendedSubmission() {
-        val expected = extSubmission.captured
+        val expected = saveRequest.captured.submission
         assertThat(expected.accNo).isEqualTo("S-TEST123")
         assertThat(expected.version).isEqualTo(2)
         assertThat(expected.method).isEqualTo(PAGE_TAB)
@@ -165,7 +169,7 @@ class SubmissionSubmitterTest {
         projectInfoService.process(projectRequest.captured)
 
         persistenceContext.getNextVersion("S-TEST123")
-        persistenceContext.saveSubmission(extSubmission.captured, "admin_user@ebi.ac.uk", 3)
+        persistenceContext.saveSubmission(saveRequest.captured)
     }
 
     private fun mockNotificationEvents() {
@@ -185,9 +189,7 @@ class SubmissionSubmitterTest {
 
     private fun mockPersistenceContext() {
         every { persistenceContext.getNextVersion("S-TEST123") } returns 2
-        every {
-            persistenceContext.saveSubmission(capture(extSubmission), "admin_user@ebi.ac.uk", 3)
-        } returns mockk()
+        every { persistenceContext.saveSubmission(capture(saveRequest)) } returns mockk()
     }
 
     private fun testUser(notificationsEnabled: Boolean) = SecurityUser(

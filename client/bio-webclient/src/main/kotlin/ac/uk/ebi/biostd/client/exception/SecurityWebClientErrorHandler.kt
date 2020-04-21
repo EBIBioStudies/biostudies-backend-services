@@ -8,7 +8,7 @@ class SecurityWebClientErrorHandler : ResponseErrorHandler {
     override fun hasError(response: ClientHttpResponse) = response.statusCode.isError
 
     override fun handleError(response: ClientHttpResponse) =
-        throw WebClientException(response.statusCode, getErrorMessage(response))
+        throw SecurityWebClientException(response.statusCode, getErrorMessage(response))
 
     private fun getErrorMessage(response: ClientHttpResponse) = when (response.statusCode) {
         HttpStatus.NOT_FOUND -> "Connection Error: The provided server is invalid"

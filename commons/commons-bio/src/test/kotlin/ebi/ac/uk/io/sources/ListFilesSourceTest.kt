@@ -34,11 +34,6 @@ internal class ListFilesSourceTest(temporaryFolder: TemporaryFolder) {
     }
 
     @Test
-    fun size() {
-        assertThat(testInstance.size(file.name)).isEqualTo(19L)
-    }
-
-    @Test
     fun readText() {
         assertThat(testInstance.readText(file.name)).isEqualTo("the content of file")
     }
@@ -46,12 +41,6 @@ internal class ListFilesSourceTest(temporaryFolder: TemporaryFolder) {
     @Test
     fun `get non existing file`() {
         val exception = assertThrows<FileNotFoundException> { testInstance.getFile("ghost.txt") }
-        assertThat(exception.message).isEqualTo("File not found: ghost.txt")
-    }
-
-    @Test
-    fun `non existing file size`() {
-        val exception = assertThrows<FileNotFoundException> { testInstance.size("ghost.txt") }
         assertThat(exception.message).isEqualTo("File not found: ghost.txt")
     }
 

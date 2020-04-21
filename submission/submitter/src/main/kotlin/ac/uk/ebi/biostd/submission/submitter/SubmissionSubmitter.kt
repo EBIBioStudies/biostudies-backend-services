@@ -1,9 +1,10 @@
 package ac.uk.ebi.biostd.submission.submitter
 
 import ac.uk.ebi.biostd.persistence.integration.PersistenceContext
+import ac.uk.ebi.biostd.persistence.integration.SaveRequest
+import ac.uk.ebi.biostd.persistence.integration.SubmissionQueryService
 import ac.uk.ebi.biostd.submission.events.SubmissionEvents.successfulSubmission
 import ac.uk.ebi.biostd.submission.events.SuccessfulSubmission
-import ac.uk.ebi.biostd.persistence.integration.SubmissionQueryService
 import ac.uk.ebi.biostd.submission.exceptions.InvalidSubmissionException
 import ac.uk.ebi.biostd.submission.model.SubmissionRequest
 import ac.uk.ebi.biostd.submission.service.AccNoService
@@ -52,9 +53,8 @@ open class SubmissionSubmitter(
     open fun submit(request: SubmissionRequest): Submission {
         val user = request.user.asUser()
         val extSubmission = process(request.submission, request.user.asUser(), request.sources, request.method)
-        val submitted = context.saveSubmission(extSubmission, user.email, user.id).toSimpleSubmission()
+        val submitted = context.saveSubmission(SaveRequest(extSubmission, user, request.mode)).toSimpleSubmission()
         user.notificationsEnabled.ifTrue { successfulSubmission.onNext(SuccessfulSubmission(user, extSubmission)) }
-
         return submitted
     }
 

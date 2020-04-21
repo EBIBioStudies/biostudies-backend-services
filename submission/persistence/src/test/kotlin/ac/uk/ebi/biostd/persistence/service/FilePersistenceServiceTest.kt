@@ -4,9 +4,10 @@ import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.JSON_PRETTY
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.TSV
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.XML
+import ac.uk.ebi.biostd.persistence.integration.FileMode
 import ac.uk.ebi.biostd.persistence.test.extSubmissionWithFileList
 import ebi.ac.uk.extended.mapping.serialization.to.toSimpleSubmission
-import ebi.ac.uk.extended.model.allFileListSections
+import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.paths.SubmissionFolderResolver
 import ebi.ac.uk.test.createFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
@@ -41,15 +42,23 @@ class FilePersistenceServiceTest(
         every { mockSerializationService.serializeElement(simpleSubmission, TSV) } returns ""
         every { mockSerializationService.serializeElement(simpleSubmission, JSON_PRETTY) } returns ""
 
-        val sectionFileList = extSubmission.allFileListSections.first()
-        every { mockSerializationService.serializeElement(sectionFileList, XML) } returns ""
-        every { mockSerializationService.serializeElement(sectionFileList, TSV) } returns ""
-        every { mockSerializationService.serializeElement(sectionFileList, JSON_PRETTY) } returns ""
+        every { mockSerializationService.serializeElement(any<FilesTable>(), XML) } returns ""
+        every { mockSerializationService.serializeElement(any<FilesTable>(), TSV) } returns ""
+        every { mockSerializationService.serializeElement(any<FilesTable>(), JSON_PRETTY) } returns ""
     }
 
     @Test
-    fun persistSubmissionFiles() {
-        testInstance.persistSubmissionFiles(extSubmission)
+    fun whenMove() {
+        testPersistSubmissionFiles(FileMode.MOVE)
+    }
+
+    @Test
+    fun whenCopy() {
+        testPersistSubmissionFiles(FileMode.COPY)
+    }
+
+    private fun testPersistSubmissionFiles(mode: FileMode) {
+        testInstance.persistSubmissionFiles(extSubmission, mode)
 
         assertThat(getPath("submission/$relPath/Files/file.txt")).exists()
         assertThat(getPath("submission/$relPath/Files/file2.txt")).exists()

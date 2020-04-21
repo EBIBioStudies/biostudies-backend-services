@@ -11,7 +11,7 @@ class ParentInfoService(private val queryService: SubmissionQueryService) {
     }
 
     private fun parentInfo(parentAccNo: String): ParentInfo {
-        require(queryService.existByAccNo(parentAccNo)) { "Could not find a project register with accNo $parentAccNo" }
+        require(queryService.existByAccNo(parentAccNo)) { "The project '$parentAccNo' doesn't exist" }
         return ParentInfo(
             queryService.getAccessTags(parentAccNo).filterNot { it == SubFields.PUBLIC_ACCESS_TAG.value },
             queryService.getReleaseTime(parentAccNo),

@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.persistence.service
 
+import ac.uk.ebi.biostd.persistence.exception.SubmissionNotFoundException
 import ac.uk.ebi.biostd.persistence.filter.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.filter.SubmissionFilterSpecification
 import ac.uk.ebi.biostd.persistence.mapping.SubmissionDbMapper
@@ -17,11 +18,9 @@ class SubmissionRepository(
     private val submissionRepository: SubmissionDataRepository,
     private val submissionDbMapper: SubmissionDbMapper
 ) {
-    fun getByAccNo(accNo: String): Submission =
-        submissionDbMapper.toSubmission(submissionRepository.getByAccNoAndVersionGreaterThan(accNo))
+    fun getByAccNo(accNo: String): Submission = submissionDbMapper.toSubmission(getSubmission(accNo))
 
-    fun getExtendedByAccNo(accNo: String): ExtendedSubmission =
-        submissionDbMapper.toExtSubmission(submissionRepository.getByAccNoAndVersionGreaterThan(accNo))
+    fun getExtendedByAccNo(accNo: String): ExtendedSubmission = submissionDbMapper.toExtSubmission(getSubmission(accNo))
 
     fun getExtendedLastVersionByAccNo(accNo: String): ExtendedSubmission =
         submissionDbMapper.toExtSubmission(submissionRepository.getFirstByAccNoOrderByVersionDesc(accNo))
@@ -41,4 +40,7 @@ class SubmissionRepository(
             .content
             .map { it.asSimpleSubmission() }
     }
+
+    private fun getSubmission(accNo: String) =
+        submissionRepository.getByAccNoAndVersionGreaterThan(accNo) ?: throw SubmissionNotFoundException(accNo)
 }
