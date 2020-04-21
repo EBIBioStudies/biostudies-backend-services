@@ -4,6 +4,7 @@ import ac.uk.ebi.biostd.persistence.integration.PersistenceContext
 import ac.uk.ebi.biostd.persistence.integration.SubmissionQueryService
 import ac.uk.ebi.biostd.submission.exceptions.ProvideAccessNumber
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotSubmitProjectsException
+import ac.uk.ebi.biostd.submission.exceptions.UserCanNotSubmitToProjectException
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotUpdateSubmit
 import ac.uk.ebi.biostd.submission.util.AccNoPatternUtil
 import ebi.ac.uk.base.lastDigits
@@ -28,7 +29,7 @@ class AccNoService(
                 if (accNo != null && privilegesService.canProvideAccNo(submitter).not())
                     throw ProvideAccessNumber(submitter)
                 if (project != null && privilegesService.canSubmitToProject(submitter, project).not())
-                    throw UserCanNotSubmitProjectsException(submitter)
+                    throw UserCanNotSubmitToProjectException(submitter, project)
 
                 return accNo?.let { patternUtil.toAccNumber(it) } ?: calculateAccNo(getPatternOrDefault(projectPattern))
             }

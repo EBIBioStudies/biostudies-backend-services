@@ -2,11 +2,11 @@ package ac.uk.ebi.biostd.common.config
 
 import ac.uk.ebi.biostd.common.property.ApplicationProperties
 import ac.uk.ebi.biostd.persistence.integration.SubmissionQueryService
-import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
 import ac.uk.ebi.biostd.persistence.repositories.TokenDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserGroupDataRepository
+import ac.uk.ebi.biostd.persistence.service.UserPermissionsService
 import ac.uk.ebi.biostd.security.web.SecurityMapper
 import ac.uk.ebi.biostd.security.web.exception.SecurityAccessDeniedHandler
 import ac.uk.ebi.biostd.security.web.exception.SecurityAuthEntryPoint
@@ -75,19 +75,19 @@ class SecurityBeansConfig(private val objectMapper: ObjectMapper, properties: Ap
     @Bean
     @SuppressWarnings("LongParameterList")
     fun securityModuleConfig(
+        userDataRepository: UserDataRepository,
         queryService: SubmissionQueryService,
-        userRepository: UserDataRepository,
         tokenRepository: TokenDataRepository,
         tagsRepository: AccessTagDataRepo,
         groupRepository: UserGroupDataRepository,
-        permissionRepository: AccessPermissionRepository
+        userPermissionsService: UserPermissionsService
     ): SecurityModuleConfig = SecurityModuleConfig(
-        userRepository,
+        userDataRepository,
         tokenRepository,
         tagsRepository,
         groupRepository,
-        permissionRepository,
         queryService,
+        userPermissionsService,
         securityProps)
 
     @Bean

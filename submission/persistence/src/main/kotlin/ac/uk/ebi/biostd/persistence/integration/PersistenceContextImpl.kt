@@ -24,6 +24,8 @@ open class PersistenceContextImpl(
     private val toExtSubmissionMapper: ToExtSubmissionMapper,
     private val filePersistenceService: FilePersistenceService
 ) : PersistenceContext {
+    override fun sequenceAccNoPatternExists(pattern: String): Boolean = sequenceRepository.existsByPrefix(pattern)
+
     override fun createAccNoPatternSequence(pattern: String) {
         sequenceRepository.save(Sequence(pattern))
     }

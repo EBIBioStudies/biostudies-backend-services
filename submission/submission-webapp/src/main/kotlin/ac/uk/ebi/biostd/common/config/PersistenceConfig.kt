@@ -9,6 +9,7 @@ import ac.uk.ebi.biostd.persistence.integration.SubmissionSqlQueryService
 import ac.uk.ebi.biostd.persistence.mapping.SubmissionDbMapper
 import ac.uk.ebi.biostd.persistence.mapping.extended.from.ToDbSubmissionMapper
 import ac.uk.ebi.biostd.persistence.mapping.extended.to.ToExtSubmissionMapper
+import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
 import ac.uk.ebi.biostd.persistence.repositories.JdbcLockExecutor
 import ac.uk.ebi.biostd.persistence.repositories.LockExecutor
@@ -20,6 +21,7 @@ import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ac.uk.ebi.biostd.persistence.service.FilePersistenceService
 import ac.uk.ebi.biostd.persistence.service.ProjectRepository
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
+import ac.uk.ebi.biostd.persistence.service.UserPermissionsService
 import com.cosium.spring.data.jpa.entity.graph.repository.support.EntityGraphJpaRepositoryFactoryBean
 import ebi.ac.uk.notifications.persistence.repositories.SubmissionRtRepository
 import ebi.ac.uk.paths.SubmissionFolderResolver
@@ -43,7 +45,8 @@ class PersistenceConfig(
     private val userDataRepository: UserDataDataRepository,
     private val applicationProperties: ApplicationProperties,
     private val folderResolver: SubmissionFolderResolver,
-    private val serializationService: SerializationService
+    private val serializationService: SerializationService,
+    private val permissionRepository: AccessPermissionRepository
 ) {
     @Bean
     fun toDbSubmissionMapper(
@@ -66,6 +69,9 @@ class PersistenceConfig(
 
     @Bean
     fun filePersistenceService() = FilePersistenceService(folderResolver, serializationService)
+
+    @Bean
+    fun userPermissionsService() = UserPermissionsService(permissionRepository)
 
     @Bean
     @ConditionalOnMissingBean(LockExecutor::class)

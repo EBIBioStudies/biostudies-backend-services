@@ -4,6 +4,7 @@ import ac.uk.ebi.biostd.persistence.integration.PersistenceContext
 import ac.uk.ebi.biostd.persistence.integration.SubmissionQueryService
 import ac.uk.ebi.biostd.submission.exceptions.ProvideAccessNumber
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotSubmitProjectsException
+import ac.uk.ebi.biostd.submission.exceptions.UserCanNotSubmitToProjectException
 import ac.uk.ebi.biostd.submission.util.AccNoPatternUtil
 import ebi.ac.uk.model.AccNumber
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
@@ -63,7 +64,7 @@ class AccNoServiceTest(
         fun whenUserCanNotSubmitToProject() {
             every { privilegesService.canSubmitToProject(SUBMITTER, PROJECT) } returns false
 
-            assertThrows<UserCanNotSubmitProjectsException> {
+            assertThrows<UserCanNotSubmitToProjectException> {
                 testInstance.getAccNo(AccNoServiceRequest(submitter = SUBMITTER, project = PROJECT))
             }
         }

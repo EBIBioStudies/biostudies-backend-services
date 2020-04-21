@@ -1,11 +1,11 @@
 package ebi.ac.uk.security.integration
 
 import ac.uk.ebi.biostd.persistence.integration.SubmissionQueryService
-import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
 import ac.uk.ebi.biostd.persistence.repositories.TokenDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserGroupDataRepository
+import ac.uk.ebi.biostd.persistence.service.UserPermissionsService
 import ebi.ac.uk.commons.http.JacksonFactory
 import ebi.ac.uk.security.events.Events
 import ebi.ac.uk.security.integration.components.IGroupService
@@ -29,8 +29,8 @@ class SecurityModuleConfig(
     private val tokenRepo: TokenDataRepository,
     private val tagsDataRepository: AccessTagDataRepo,
     private val groupRepository: UserGroupDataRepository,
-    private val permissionRepository: AccessPermissionRepository,
     private val queryService: SubmissionQueryService,
+    private val userPermissionsService: UserPermissionsService,
     private var props: SecurityProperties
 ) {
     fun securityService(): ISecurityService = securityService
@@ -45,7 +45,7 @@ class SecurityModuleConfig(
     private val securityService by lazy { SecurityService(userRepo, securityUtil, props, profileService) }
     private val securityFilter by lazy { SecurityFilter(props.environment, securityService) }
     private val userPrivilegesService by lazy {
-        UserPrivilegesService(userRepo, tagsDataRepository, queryService, permissionRepository)
+        UserPrivilegesService(userRepo, tagsDataRepository, queryService, userPermissionsService)
     }
 
     private val securityUtil by lazy { SecurityUtil(jwtParser, objectMapper, tokenRepo, userRepo, props.tokenHash) }
