@@ -4,6 +4,8 @@ import ebi.ac.uk.extended.model.ExtSubmission
 
 @Suppress("TooManyFunctions")
 interface PersistenceContext {
+    fun sequenceAccNoPatternExists(pattern: String): Boolean
+
     fun createAccNoPatternSequence(pattern: String)
 
     fun getSequenceNextValue(pattern: String): Long
