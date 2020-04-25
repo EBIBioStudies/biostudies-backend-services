@@ -15,6 +15,7 @@ import ebi.ac.uk.model.Submission
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 
+// TODO move to repositories
 // TODO: Remove ExtendedSubmission usage
 class SubmissionRepository(
     private val submissionRepository: SubmissionDataRepository,

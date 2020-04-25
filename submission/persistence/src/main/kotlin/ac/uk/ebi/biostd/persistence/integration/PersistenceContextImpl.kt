@@ -15,6 +15,7 @@ import ebi.ac.uk.model.User
 import org.springframework.transaction.annotation.Isolation
 import org.springframework.transaction.annotation.Transactional
 
+@Suppress("TooManyFunctions")
 open class PersistenceContextImpl(
     private val subRepository: SubmissionDataRepository,
     private val sequenceRepository: SequenceDataRepository,
@@ -25,6 +26,8 @@ open class PersistenceContextImpl(
     private val toExtSubmissionMapper: ToExtSubmissionMapper,
     private val filePersistenceService: FilePersistenceService
 ) : PersistenceContext {
+    override fun sequenceAccNoPatternExists(pattern: String): Boolean = sequenceRepository.existsByPrefix(pattern)
+
     override fun createAccNoPatternSequence(pattern: String) {
         sequenceRepository.save(Sequence(pattern))
     }

@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.submission.service
 
 import ac.uk.ebi.biostd.persistence.integration.PersistenceContext
 import ac.uk.ebi.biostd.persistence.integration.SubmissionQueryService
+import ac.uk.ebi.biostd.submission.exceptions.ProjectAccNoTemplateAlreadyExistsException
 import ac.uk.ebi.biostd.submission.exceptions.ProjectAlreadyExistingException
 import ac.uk.ebi.biostd.submission.exceptions.ProjectInvalidAccNoPatternException
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotSubmitProjectsException
@@ -32,7 +33,12 @@ class ProjectInfoService(
             throw ProjectAlreadyExistingException(accNo)
         }
 
-        context.createAccNoPatternSequence(accNoUtil.getPattern(template))
+        val accNoPattern = accNoUtil.getPattern(template)
+        require(context.sequenceAccNoPatternExists(accNoPattern).not()) {
+            throw ProjectAccNoTemplateAlreadyExistsException(accNoPattern)
+        }
+
+        context.createAccNoPatternSequence(accNoPattern)
         context.saveAccessTag(accNo)
 
         return ProjectResponse(request.accNo)

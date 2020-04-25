@@ -2,8 +2,9 @@ package ebi.ac.uk.security.service
 
 import ac.uk.ebi.biostd.persistence.integration.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.model.AccessType
-import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
+import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
+import ac.uk.ebi.biostd.persistence.service.UserPermissionsService
 import ebi.ac.uk.security.integration.exception.UserNotFoundByEmailException
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -25,16 +26,16 @@ class UserPrivilegesServiceTest(
     @MockK private val superuser: UserDB,
     @MockK private val userRepository: UserDataRepository,
     @MockK private val queryService: SubmissionQueryService,
-    @MockK private val accessPermissionRepository: AccessPermissionRepository
+    @MockK private val tagsDataRepository: AccessTagDataRepo,
+    @MockK private val userPermissionsService: UserPermissionsService
 ) {
-    private val testAuthor = "author@mail.com"
-    private val testOtherAuthor = "otherAuthor@mail.com"
-    private val testInstance = UserPrivilegesService(userRepository, queryService, accessPermissionRepository)
+    private val testInstance =
+        UserPrivilegesService(userRepository, tagsDataRepository, queryService, userPermissionsService)
 
     @BeforeEach
     fun beforeEach() {
         initUsers()
-        initAccessPermissions()
+        initSubmissionQueries()
     }
 
     @Test
@@ -55,6 +56,8 @@ class UserPrivilegesServiceTest(
 
     @Test
     fun `author user with tag resubmits a submission that is in a project`() {
+        every { queryService.getAuthor("accNo") } returns "author@mail.com"
+
         assertThat(testInstance.canResubmit("author@mail.com", "accNo")).isTrue()
     }
 
@@ -65,6 +68,7 @@ class UserPrivilegesServiceTest(
 
     @Test
     fun `author user deletes own submission`() {
+        every { queryService.getAuthor("accNo") } returns "author@mail.com"
         assertThat(testInstance.canDelete("author@mail.com", "accNo")).isTrue()
     }
 
@@ -75,6 +79,11 @@ class UserPrivilegesServiceTest(
 
     @Test
     fun `other author user deletes submission with tag`() {
+        every { queryService.getAccessTags("accNo") } returns listOf("A-Project")
+        every {
+            userPermissionsService.hasPermission("otherAuthor@mail.com", "A-Project", AccessType.DELETE)
+        } returns true
+
         assertThat(testInstance.canDelete("otherAuthor@mail.com", "accNo")).isTrue()
     }
 
@@ -104,21 +113,8 @@ class UserPrivilegesServiceTest(
         every { userRepository.findByEmail("superuser@mail.com") } returns Optional.of(superuser)
     }
 
-    private fun initAccessPermissions() {
-        every {
-            accessPermissionRepository.existsByAccessTagNameInAndAccessType(listOf("A-Project"), AccessType.SUBMIT)
-        } returns true
-
-        every {
-            accessPermissionRepository.existsByAccessTagNameInAndAccessType(emptyList(), AccessType.SUBMIT)
-        } returns false
-
-        every {
-            accessPermissionRepository.existsByAccessTagNameInAndAccessType(emptyList(), AccessType.DELETE)
-        } returns false
-
-        every {
-            accessPermissionRepository.existsByAccessTagNameInAndAccessType(listOf("A-Project"), AccessType.DELETE)
-        } returns true
+    private fun initSubmissionQueries() {
+        every { queryService.getAccessTags("accNo") } returns emptyList()
+        every { queryService.getAuthor("accNo") } returns "nottheauthor@mail.com"
     }
 }

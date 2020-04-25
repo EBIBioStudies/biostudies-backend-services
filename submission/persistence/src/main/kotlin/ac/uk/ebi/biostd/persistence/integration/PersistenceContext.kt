@@ -5,6 +5,8 @@ import ebi.ac.uk.model.User
 
 @Suppress("TooManyFunctions")
 interface PersistenceContext {
+    fun sequenceAccNoPatternExists(pattern: String): Boolean
+
     fun createAccNoPatternSequence(pattern: String)
 
     fun getSequenceNextValue(pattern: String): Long

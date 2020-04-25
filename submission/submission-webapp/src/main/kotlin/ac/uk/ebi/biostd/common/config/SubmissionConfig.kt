@@ -4,8 +4,6 @@ import ac.uk.ebi.biostd.files.service.UserFilesService
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.persistence.integration.PersistenceContext
 import ac.uk.ebi.biostd.persistence.integration.SubmissionQueryService
-import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
-import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
 import ac.uk.ebi.biostd.persistence.service.ProjectRepository
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
 import ac.uk.ebi.biostd.submission.domain.helpers.SourceGenerator
@@ -45,10 +43,9 @@ class SubmissionConfig(
 
     @Bean
     fun projectService(
-        tagsDataRepository: AccessTagDataRepo,
         projectRepository: ProjectRepository,
-        accessPermissionRepository: AccessPermissionRepository
-    ): ProjectService = ProjectService(tagsDataRepository, projectRepository, accessPermissionRepository)
+        userPrivilegeService: IUserPrivilegesService
+    ): ProjectService = ProjectService(projectRepository, userPrivilegeService)
 
     @Bean
     fun submitHandler(submissionService: SubmissionService, userFilesService: UserFilesService): SubmitWebHandler =

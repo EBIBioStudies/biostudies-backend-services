@@ -13,6 +13,7 @@ INSERT INTO User (
   notificationsEnabled)
 VALUES (null, false, null, null, 'Anonymous user', 0, '@Guest', null, null, false, null, false),
        (null, false, null, null, 'Represents system owned objects', 0, '@System', null, null, false, null, false),
+       (null, false, null, 'default_user@ebi.ac.uk', 'Default User', 0, '@Default', null, null, false, null, false),
        (null,
         true,
         null,

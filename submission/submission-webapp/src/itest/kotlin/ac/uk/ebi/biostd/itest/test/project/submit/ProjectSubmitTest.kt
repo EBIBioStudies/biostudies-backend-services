@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.itest.test.project.submit
 
+import ac.uk.ebi.biostd.client.exception.WebClientException
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
@@ -17,6 +18,7 @@ import ebi.ac.uk.util.collections.second
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -100,6 +102,30 @@ internal class ProjectSubmitTest(private val tempFolder: TemporaryFolder) : Base
 
             assertThat(tagsDataRepository.existsByName("PublicProject")).isTrue()
             assertThat(sequenceRepository.existsByPrefix("S-PUP")).isTrue()
+        }
+
+        @Test
+        fun `submit duplicated accNo template`() {
+            val aProject = tsv {
+                line("Submission", "A-Project")
+                line("AccNoTemplate", "!{S-APRJ}")
+                line()
+
+                line("Project")
+            }.toString()
+
+            val anotherProject = tsv {
+                line("Submission", "Another-Project")
+                line("AccNoTemplate", "!{S-APRJ}")
+                line()
+
+                line("Project")
+            }.toString()
+
+            assertThat(webClient.submitSingle(aProject, SubmissionFormat.TSV)).isSuccessful()
+            assertThatExceptionOfType(WebClientException::class.java)
+                .isThrownBy { webClient.submitSingle(anotherProject, SubmissionFormat.TSV) }
+                .withMessageContaining("There is a project already using the accNo template S-APRJ")
         }
     }
 }

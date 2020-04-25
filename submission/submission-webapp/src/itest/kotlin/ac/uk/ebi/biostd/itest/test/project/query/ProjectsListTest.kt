@@ -3,16 +3,18 @@ package ac.uk.ebi.biostd.itest.test.project.query
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
+import ac.uk.ebi.biostd.itest.entities.DefaultUser
+import ac.uk.ebi.biostd.itest.entities.RegularUser
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.persistence.model.AccessPermission
 import ac.uk.ebi.biostd.persistence.model.AccessType
 import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
-import ebi.ac.uk.api.dto.NonRegistration
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.line
 import ebi.ac.uk.dsl.tsv
+import ebi.ac.uk.util.collections.second
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
@@ -40,40 +42,57 @@ internal class ProjectsListTest(tempFolder: TemporaryFolder) : BaseIntegrationTe
         @LocalServerPort
         private var serverPort: Int = 0
 
-        private lateinit var webClient: BioWebClient
+        private lateinit var superUserWebClient: BioWebClient
+        private lateinit var regularUserWebClient: BioWebClient
 
         @BeforeAll
         fun init() {
-            webClient = getWebClient(serverPort, SuperUser)
-            registerProject()
+            superUserWebClient = getWebClient(serverPort, SuperUser)
+            regularUserWebClient = getWebClient(serverPort, RegularUser)
+            createUser(DefaultUser, serverPort)
+            registerProjects()
         }
 
         @Test
-        fun `get projects`() {
-            val projects = webClient.getProjects()
-            assertThat(projects).hasSize(1)
+        fun `list projects for super user`() {
+            val projects = superUserWebClient.getProjects()
 
-            val project = projects.first()
-            assertThat(project.accno).isEqualTo("SampleProject")
-            assertThat(project.title).isEqualTo("Sample Project")
+            assertThat(projects).hasSize(2)
+            assertThat(projects.first().accno).isEqualTo("SampleProject")
+            assertThat(projects.second().accno).isEqualTo("DefaultProject")
         }
 
-        private fun registerProject() {
-            val project = tsv {
+        @Test
+        fun `list projects for regular user`() {
+            val projects = regularUserWebClient.getProjects()
+
+            assertThat(projects).hasSize(1)
+            assertThat(projects.first().accno).isEqualTo("DefaultProject")
+        }
+
+        private fun registerProjects() {
+            val sampleProject = tsv {
                 line("Submission", "SampleProject")
-                line("Title", "Sample Project")
-                line("AccNoTemplate", "!{S-SAMP,}")
+                line("AccNoTemplate", "!{S-SAMP}")
                 line()
 
                 line("Project")
             }.toString()
 
-            assertThat(webClient.submitSingle(project, SubmissionFormat.TSV, NonRegistration)).isSuccessful()
+            val defaultProject = tsv {
+                line("Submission", "DefaultProject")
+                line("AccNoTemplate", "!{S-DFLT}")
+                line()
 
-            // TODO add operation to provide permissions
+                line("Project")
+            }.toString()
+
+            assertThat(superUserWebClient.submitSingle(sampleProject, SubmissionFormat.TSV)).isSuccessful()
+            assertThat(superUserWebClient.submitSingle(defaultProject, SubmissionFormat.TSV)).isSuccessful()
+
             accessPermissionRepository.save(AccessPermission(
-                user = userDataRepository.findByEmailAndActive(SuperUser.email, true).get(),
-                accessTag = tagsDataRepository.findByName("SampleProject"),
+                user = userDataRepository.findByEmailAndActive(DefaultUser.email, true).get(),
+                accessTag = tagsDataRepository.findByName("DefaultProject"),
                 accessType = AccessType.ATTACH))
         }
     }
