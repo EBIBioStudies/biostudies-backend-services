@@ -15,6 +15,7 @@ import ebi.ac.uk.model.User
 import org.springframework.transaction.annotation.Isolation
 import org.springframework.transaction.annotation.Transactional
 
+@Suppress("TooManyFunctions")
 open class PersistenceContextImpl(
     private val subRepository: SubmissionDataRepository,
     private val sequenceRepository: SequenceDataRepository,
@@ -46,17 +47,21 @@ open class PersistenceContextImpl(
         return lockExecutor.executeLocking(submission.accNo) { saveSubmission(submission, submitter, mode) }
     }
 
+    @Transactional
+    override fun refreshSubmission(submission: ExtSubmission, submitter: User) {
+        saveSubmission(SaveRequest(submission.copy(version = submission.version + 1), submitter, FileMode.MOVE))
+    }
+
     private fun saveSubmission(submission: ExtSubmission, submitter: User, mode: FileMode): ExtSubmission {
         subRepository.expireActiveVersions(submission.accNo)
         deleteSubmissionDrafts(submitter.id, submission.accNo)
-        val newSubmission = saveNewVersion(submission, submitter.email)
-        filePersistenceService.persistSubmissionFiles(submission, mode)
-        return newSubmission
+        return saveNewVersion(submission, submitter.email, mode)
     }
 
-    private fun saveNewVersion(submission: ExtSubmission, submitter: String): ExtSubmission {
-        val dbSubmission = toDbSubmissionMapper.toSubmissionDb(submission, submitter)
-        return toExtSubmissionMapper.toExtSubmission(subRepository.save(dbSubmission))
+    private fun saveNewVersion(submission: ExtSubmission, submitter: String, mode: FileMode): ExtSubmission {
+        val dbSubmission = subRepository.save(toDbSubmissionMapper.toSubmissionDb(submission, submitter))
+        filePersistenceService.persistSubmissionFiles(submission, mode)
+        return toExtSubmissionMapper.toExtSubmission(dbSubmission)
     }
 
     override fun deleteSubmissionDrafts(userId: Long, accNo: String) {

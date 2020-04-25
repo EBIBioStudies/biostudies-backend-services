@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.persistence.integration
 
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.model.User
 
 @Suppress("TooManyFunctions")
 interface PersistenceContext {
@@ -19,4 +20,6 @@ interface PersistenceContext {
     fun getNextVersion(accNo: String): Int
 
     fun saveSubmission(saveRequest: SaveRequest): ExtSubmission
+
+    fun refreshSubmission(submission: ExtSubmission, submitter: User)
 }

@@ -7,4 +7,4 @@ import ebi.ac.uk.io.sources.FilesSource
 internal const val TO_EXT_FILE_LIST_EXTENSION = "ac.uk.ebi.biostd.persistence.mapping.extended.to.ToExtFileListKt"
 
 fun ReferencedFileList.toExtFileList(fileSource: FilesSource): ExtFileList =
-    ExtFileList(name, fileSource.getFile(name), files.map { it.toExtFile(fileSource) })
+    ExtFileList(name, files.map { it.toExtFile(fileSource) })

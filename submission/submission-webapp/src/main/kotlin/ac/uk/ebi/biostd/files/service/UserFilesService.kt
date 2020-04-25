@@ -2,7 +2,7 @@ package ac.uk.ebi.biostd.files.service
 
 import ac.uk.ebi.biostd.files.model.FilesSpec
 import ac.uk.ebi.biostd.files.utils.transferTo
-import ebi.ac.uk.io.NfsFileUtils
+import ebi.ac.uk.io.FileUtils
 import ebi.ac.uk.io.asFileList
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import org.springframework.web.multipart.MultipartFile
@@ -12,7 +12,7 @@ class UserFilesService {
 
     fun uploadFile(user: SecurityUser, path: String, file: File) {
         val folder = user.magicFolder.path.resolve(path)
-        NfsFileUtils.copyFile(file, folder.resolve(file.name).toFile())
+        FileUtils.copyOrReplaceFile(file, folder.resolve(file.name).toFile())
     }
 
     fun uploadFiles(user: SecurityUser, path: String, files: List<MultipartFile>) {

@@ -9,5 +9,4 @@ internal const val TO_EXT_LIBRARY_FILE_EXTENSIONS = "ebi.ac.uk.extended.mapping.
 fun FileList.toExtFileList(fileSource: FilesSource): ExtFileList =
     ExtFileList(
         name.substringBeforeLast("."),
-        fileSource.getFile(name),
         referencedFiles.map { it.toExtFile(fileSource) })

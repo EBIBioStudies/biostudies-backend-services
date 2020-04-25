@@ -29,7 +29,7 @@ class FilePersistenceServiceTest(
     private val sectionFile = temporaryFolder.createFile("file.txt", "text-1")
     private val fileList = temporaryFolder.createFile("fileList.json", "text-2")
     private val referencedFile = temporaryFolder.createFile("file2.txt", "text-3")
-    private val extSubmission = extSubmissionWithFileList(listOf(sectionFile), fileList, listOf(referencedFile))
+    private val extSubmission = extSubmissionWithFileList(listOf(sectionFile), listOf(referencedFile))
     private val relPath = extSubmission.relPath
 
     private val testInstance =

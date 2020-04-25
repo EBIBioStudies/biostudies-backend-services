@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.ResponseBody
 import org.springframework.web.bind.annotation.RestController
@@ -37,7 +38,7 @@ class SubmissionResource(
     @ApiOperation("Get the JSON file for the submission with the given accession")
     @ApiImplicitParam(name = "X-Session-Token", value = "User authentication token", required = true)
     fun asJson(
-        @ApiParam(name = "AccNo", value = "The submission accession number")
+        @ApiParam(name = "accNo", value = "The submission accession number")
         @PathVariable accNo: String
     ) = submissionService.getSubmissionAsJson(accNo)
 
@@ -45,7 +46,7 @@ class SubmissionResource(
     @ApiOperation("Get the XML file for the submission with the given accession")
     @ApiImplicitParam(name = "X-Session-Token", value = "User authentication token", required = true)
     fun asXml(
-        @ApiParam(name = "AccNo", value = "The submission accession number")
+        @ApiParam(name = "accNo", value = "The submission accession number")
         @PathVariable accNo: String
     ) = submissionService.getSubmissionAsXml(accNo)
 
@@ -53,14 +54,18 @@ class SubmissionResource(
     @ApiOperation("Get the TSV file for the submission with the given accession")
     @ApiImplicitParam(name = "X-Session-Token", value = "User authentication token", required = true)
     fun asTsv(
-        @ApiParam(name = "AccNo", value = "The submission accession number")
+        @ApiParam(name = "accNo", value = "The submission accession number")
         @PathVariable accNo: String
     ) = submissionService.getSubmissionAsTsv(accNo)
 
     @GetMapping
     @ApiOperation("Get the basic data for the submissions that matches the given filter")
     @ApiImplicitParams(value = [
-        ApiImplicitParam(name = "X-Session-Token", value = "User authentication token", required = true),
+        ApiImplicitParam(
+            name = "X-Session-Token",
+            value = "User authentication token",
+            required = true,
+            paramType = "header"),
         ApiImplicitParam(
             name = "limit",
             value = "Optional query parameter used to set the maximum amount of drafts in the response"),
@@ -75,13 +80,33 @@ class SubmissionResource(
 
     @DeleteMapping("/{accNo}")
     @ApiOperation("Delete the submission with the given accession number")
-    @ApiImplicitParam(name = "X-Session-Token", value = "User authentication token", required = true)
+    @ApiImplicitParam(
+        name = "X-Session-Token",
+        value = "User authentication token",
+        required = true,
+        paramType = "header")
     fun deleteSubmission(
         @BioUser user: SecurityUser,
 
-        @ApiParam(name = "AccNo", value = "The accession number of the submission to be deleted")
+        @ApiParam(name = "accNo", value = "The accession number of the submission to be deleted")
         @PathVariable accNo: String
     ): Unit = submissionsWebHandler.deleteSubmission(accNo, user)
+
+    @PostMapping("refresh/{accNo}")
+    @ApiOperation("Update submission based on system db stored information")
+    @ApiImplicitParam(
+        name = "X-Session-Token",
+        value = "User authentication token",
+        required = true,
+        paramType = "header")
+    fun refreshSubmission(
+        @BioUser user: SecurityUser,
+
+        @ApiParam(name = "accNo", value = "The accession number of the submission to be refresh")
+        @PathVariable accNo: String
+    ) {
+        submissionsWebHandler.refreshSubmission(accNo, user)
+    }
 
     private fun SimpleSubmission.asDto() =
         SubmissionDto(accNo, title.orEmpty(), version, creationTime, modificationTime, releaseTime, method)

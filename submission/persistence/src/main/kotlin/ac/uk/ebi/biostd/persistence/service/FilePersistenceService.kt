@@ -10,14 +10,13 @@ import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.allFileList
 import ebi.ac.uk.extended.model.allFiles
 import ebi.ac.uk.extended.model.allReferencedFiles
-import ebi.ac.uk.io.NfsFileUtils
-import ebi.ac.uk.io.NfsFileUtils.copyFile
-import ebi.ac.uk.io.NfsFileUtils.deleteFolder
-import ebi.ac.uk.io.NfsFileUtils.moveFile
-import ebi.ac.uk.io.NfsFileUtils.reCreateDirectory
+import ebi.ac.uk.io.FileUtils
+import ebi.ac.uk.io.FileUtils.copyOrReplaceFile
+import ebi.ac.uk.io.FileUtils.deleteFolder
+import ebi.ac.uk.io.FileUtils.moveFile
+import ebi.ac.uk.io.FileUtils.reCreateDirectory
 import ebi.ac.uk.paths.FILES_PATH
 import ebi.ac.uk.paths.SubmissionFolderResolver
-import org.apache.commons.io.FileUtils
 import java.io.File
 
 class FilePersistenceService(
@@ -27,8 +26,8 @@ class FilePersistenceService(
     fun persistSubmissionFiles(submission: ExtSubmission, mode: FileMode) {
         generateOutputFiles(submission)
         when (mode) {
-            FileMode.MOVE -> processFiles(submission, this::move)
-            FileMode.COPY -> processFiles(submission, this::copy)
+            FileMode.MOVE -> processFiles(submission, ::move)
+            FileMode.COPY -> processFiles(submission, ::copy)
         }
     }
 
@@ -50,9 +49,9 @@ class FilePersistenceService(
         val tsv = serializationService.serializeElement(element, SubFormat.TSV)
         val submissionPath = folderResolver.getSubmissionFolder(relPath)
 
-        FileUtils.writeStringToFile(submissionPath.resolve("$outputFileName.json").toFile(), json, Charsets.UTF_8)
-        FileUtils.writeStringToFile(submissionPath.resolve("$outputFileName.xml").toFile(), xml, Charsets.UTF_8)
-        FileUtils.writeStringToFile(submissionPath.resolve("$outputFileName.pagetab.tsv").toFile(), tsv, Charsets.UTF_8)
+        FileUtils.copyOrReplace(submissionPath.resolve("$outputFileName.json").toFile(), json)
+        FileUtils.copyOrReplace(submissionPath.resolve("$outputFileName.xml").toFile(), xml)
+        FileUtils.copyOrReplace(submissionPath.resolve("$outputFileName.pagetab.tsv").toFile(), tsv)
     }
 
     private fun processFiles(submission: ExtSubmission, process: (ExtFile, File) -> Unit) {
@@ -67,8 +66,8 @@ class FilePersistenceService(
         moveFile(temporally, filesPath)
     }
 
-    private fun copy(extFile: ExtFile, file: File) = copyFile(extFile.file, file.resolve(extFile.fileName))
-    private fun move(file: ExtFile, path: File) = NfsFileUtils.moveFile(file.file, path.resolve(file.fileName))
+    private fun copy(extFile: ExtFile, file: File) = copyOrReplaceFile(extFile.file, file.resolve(extFile.fileName))
+    private fun move(file: ExtFile, path: File) = moveFile(file.file, path.resolve(file.fileName))
 
     private fun getSubmissionFolder(relPath: String): File {
         val submissionFolder = folderResolver.getSubmissionFolder(relPath).toFile()

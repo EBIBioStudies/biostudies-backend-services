@@ -21,13 +21,12 @@ fun ExtSubmission.toSimpleSubmission(): Submission {
     )
 }
 
+// TODO: finally fix attributes by difenning which are and which not
 private fun ExtSubmission.getSubmissionAttributes(): List<Attribute> {
-    val subAttrs = attributes.map { it.toAttribute() }.toMutableList()
-
-    return when (releaseTime) {
-        null -> subAttrs
-        else -> subAttrs.plus(Attribute(SubFields.RELEASE_DATE, releaseTime.toLocalDate()))
-    }
+    val subAttrs = attributes.map { it.toAttribute() }.toMutableSet()
+    releaseTime?.let { subAttrs.add(Attribute(SubFields.RELEASE_DATE, releaseTime.toLocalDate())) }
+    title?.let { subAttrs.add(Attribute(SubFields.TITLE, title)) }
+    return subAttrs.toList()
 }
 
 /**
