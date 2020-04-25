@@ -20,7 +20,6 @@ fun extSubmissionWithFileList(files: List<File>, referencedFiles: List<File>) =
         relPath = "ABC/ABCxxx123/ABC-123",
         rootPath = null,
         released = false,
-        processingStatus = ProcessingStatus.PROCESSING,
         secretKey = "a-secret-key",
         status = ProcessingStatus.PROCESSED,
         releaseTime = null,

@@ -40,7 +40,6 @@ data class ExtSection(
 data class ExtSubmission(
     val accNo: String,
     var version: Int,
-    val processingStatus: ProcessingStatus,
     val title: String?,
     val method: SubmissionMethod,
     val relPath: String,

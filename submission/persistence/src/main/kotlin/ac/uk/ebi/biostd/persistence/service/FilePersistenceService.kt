@@ -10,11 +10,11 @@ import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.allFileList
 import ebi.ac.uk.extended.model.allFiles
 import ebi.ac.uk.extended.model.allReferencedFiles
-import ebi.ac.uk.io.NfsFileUtils
-import ebi.ac.uk.io.NfsFileUtils.copyOrReplaceFile
-import ebi.ac.uk.io.NfsFileUtils.deleteFolder
-import ebi.ac.uk.io.NfsFileUtils.moveFile
-import ebi.ac.uk.io.NfsFileUtils.reCreateDirectory
+import ebi.ac.uk.io.FileUtils
+import ebi.ac.uk.io.FileUtils.copyOrReplaceFile
+import ebi.ac.uk.io.FileUtils.deleteFolder
+import ebi.ac.uk.io.FileUtils.moveFile
+import ebi.ac.uk.io.FileUtils.reCreateDirectory
 import ebi.ac.uk.paths.FILES_PATH
 import ebi.ac.uk.paths.SubmissionFolderResolver
 import java.io.File
@@ -49,9 +49,9 @@ class FilePersistenceService(
         val tsv = serializationService.serializeElement(element, SubFormat.TSV)
         val submissionPath = folderResolver.getSubmissionFolder(relPath)
 
-        NfsFileUtils.copyOrReplace(submissionPath.resolve("$outputFileName.json").toFile(), json)
-        NfsFileUtils.copyOrReplace(submissionPath.resolve("$outputFileName.xml").toFile(), xml)
-        NfsFileUtils.copyOrReplace(submissionPath.resolve("$outputFileName.pagetab.tsv").toFile(), tsv)
+        FileUtils.copyOrReplace(submissionPath.resolve("$outputFileName.json").toFile(), json)
+        FileUtils.copyOrReplace(submissionPath.resolve("$outputFileName.xml").toFile(), xml)
+        FileUtils.copyOrReplace(submissionPath.resolve("$outputFileName.pagetab.tsv").toFile(), tsv)
     }
 
     private fun processFiles(submission: ExtSubmission, process: (ExtFile, File) -> Unit) {

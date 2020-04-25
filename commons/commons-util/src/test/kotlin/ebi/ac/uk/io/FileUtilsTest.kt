@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(TemporaryFolderExtension::class)
-internal class NfsFileUtilsTest(private val temporaryFolder: TemporaryFolder) {
+internal class FileUtilsTest(private val temporaryFolder: TemporaryFolder) {
     @BeforeEach
     fun beforeEach() {
         temporaryFolder.clean()
@@ -27,7 +27,7 @@ internal class NfsFileUtilsTest(private val temporaryFolder: TemporaryFolder) {
                 val file = temporaryFolder.createFile("one.txt", "one")
                 val another = temporaryFolder.createFile("two.txt", "two")
 
-                NfsFileUtils.moveFile(file, another)
+                FileUtils.moveFile(file, another)
 
                 assertThat(temporaryFolder.root.resolve("one.txt")).doesNotExist()
                 assertThat(temporaryFolder.root.resolve("two.txt")).hasContent("one")
@@ -38,7 +38,7 @@ internal class NfsFileUtilsTest(private val temporaryFolder: TemporaryFolder) {
                 val file = temporaryFolder.createFile("one.txt", "one")
                 val target = temporaryFolder.root.resolve("new.txt")
 
-                NfsFileUtils.moveFile(file, target)
+                FileUtils.moveFile(file, target)
 
                 assertThat(temporaryFolder.root.resolve("new.txt")).hasContent("one")
             }
@@ -55,7 +55,7 @@ internal class NfsFileUtilsTest(private val temporaryFolder: TemporaryFolder) {
                 val targetDirectory = temporaryFolder.createDirectory("directory-target")
                 targetDirectory.addNewFile("one.txt")
 
-                NfsFileUtils.moveFile(tempDir, targetDirectory)
+                FileUtils.moveFile(tempDir, targetDirectory)
 
                 assertThat(targetDirectory).isDirectory()
                 assertThat(targetDirectory.list()).containsExactly("two.txt")
@@ -67,7 +67,7 @@ internal class NfsFileUtilsTest(private val temporaryFolder: TemporaryFolder) {
                 tempDir.addNewFile("two.txt")
                 val target = temporaryFolder.root.resolve("target")
 
-                NfsFileUtils.moveFile(tempDir, target)
+                FileUtils.moveFile(tempDir, target)
 
                 assertThat(target).isDirectory()
                 assertThat(target.list()).containsExactly("two.txt")
@@ -81,7 +81,7 @@ internal class NfsFileUtilsTest(private val temporaryFolder: TemporaryFolder) {
         fun deleteFolderWhenFileExist() {
             val file = temporaryFolder.createFile("one.txt", "content.exist")
 
-            NfsFileUtils.deleteFolder(file)
+            FileUtils.deleteFolder(file)
             assertThat(file).doesNotExist()
         }
 
@@ -91,7 +91,7 @@ internal class NfsFileUtilsTest(private val temporaryFolder: TemporaryFolder) {
             val file = tempDir.resolve("two.txt")
             file.createNewFile()
 
-            NfsFileUtils.deleteFolder(tempDir)
+            FileUtils.deleteFolder(tempDir)
             assertThat(tempDir).doesNotExist()
         }
 
@@ -99,7 +99,7 @@ internal class NfsFileUtilsTest(private val temporaryFolder: TemporaryFolder) {
         fun deleteFolderWhenNotExist() {
             val tempDir = temporaryFolder.createDirectory("dir-example")
 
-            NfsFileUtils.deleteFolder(tempDir.resolve("another-dir"))
+            FileUtils.deleteFolder(tempDir.resolve("another-dir"))
         }
     }
 }

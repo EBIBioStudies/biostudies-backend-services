@@ -5,7 +5,7 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardCopyOption
 
-object NfsFileUtils {
+object FileUtils {
 
     fun deleteFolder(file: File) {
         deleteFolder(file.toPath())
