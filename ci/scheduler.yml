@@ -1,27 +1,20 @@
-build-scheduler:
-  stage: build-artifact
-  script: gradle :scheduler:scheduler:bootJar
-  artifacts:
-    paths:
-      - scheduler/scheduler/build/libs/scheduler-1.0.0.jar
-
 deploy-dev-scheduler:
   stage: deploy-dev-scheduler
   when: manual
   dependencies:
-    - build-scheduler
+    - build-test
   script: gradle deployScheduler -Penv=dev -PdeployPath=/nfs/biostudies/.adm/apps/scheduler/dev
 
 deploy-beta-scheduler:
   stage: deploy-beta-scheduler
   when: manual
   dependencies:
-    - build-scheduler
+    - build-test
   script: gradle deployScheduler -Penv=beta -PdeployPath=/nfs/biostudies/.adm/apps/scheduler/beta
 
 deploy-prod-scheduler:
   stage: deploy-prod-scheduler
   when: manual
   dependencies:
-    - build-scheduler
+    - build-test
   script: gradle deployScheduler -Penv=prod -PdeployPath=/nfs/biostudies/.adm/apps/scheduler/prod
