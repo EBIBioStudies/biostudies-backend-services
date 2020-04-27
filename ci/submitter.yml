@@ -1,13 +1,6 @@
-build-submitter:
-  stage: build-artifact
-  script: gradle :submission:submission-webapp:bootJar
-  artifacts:
-    paths:
-      - submission/submission-webapp/build/libs/submission-webapp-1.0.0.jar
-
 .deploy-dev-submitter:
   dependencies:
-    - build-submitter
+    - build-test
   script: gradle deploySubmitter -Penv=dev -PdeployPath=/nfs/biostudies/.adm/apps/submitter/dev
 
 auto-deploy-dev-submitter:

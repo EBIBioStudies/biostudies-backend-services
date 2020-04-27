@@ -1,15 +1,8 @@
-build-pmc-processor-task:
-  stage: build-artifact
-  script: gradle :scheduler:pmc-processor-task:bootJar
-  artifacts:
-    paths:
-      - scheduler/pmc-processor-task/build/libs/pmc-processor-task-1.0.0.jar
-
 deploy-dev-pmc-processor-task:
   stage: deploy-dev-pmc
   when: manual
   dependencies:
-    - build-pmc-processor-task
+    - build-test
   script: gradle updatePmcArtifact -Penv=dev -PdeployPath=/nfs/biostudies/.adm/apps/scheduler/dev/apps
 
 deploy-beta-pmc-processor-task:

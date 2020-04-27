@@ -30,7 +30,6 @@ allprojects {
             failFast = true
             autoCorrect = true
             buildUponDefaultConfig = true
-            version = "1.3.1"
             config = files("$rootDir/detekt-config.yml")
             input = files("src/main/kotlin")
             reports {
@@ -61,4 +60,12 @@ allprojects {
             dependsOn(ktlintFormat)
         }
     }
+}
+
+tasks.register("buildArtifacts") {
+    dependsOn(
+        "client:bio-commandline:shadowJar",
+        "bio-admin:bootJar",
+        "scheduler:pmc-processor-task:bootJar",
+        "submission:submission-webapp:bootJar")
 }
