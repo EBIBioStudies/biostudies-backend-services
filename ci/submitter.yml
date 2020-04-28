@@ -8,7 +8,7 @@ auto-deploy-dev-submitter:
   stage: auto-deploy-dev-submitter
   only:
     refs:
-      - master
+      - dev
 
 deploy-dev-submitter:
   extends: .deploy-dev-submitter
