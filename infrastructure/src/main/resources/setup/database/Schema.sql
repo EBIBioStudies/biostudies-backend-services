@@ -225,6 +225,13 @@ CREATE TABLE SubmissionRT(
     ticketId    LONGTEXT NOT NULL
 );
 
+CREATE TABLE SubmissionStat(
+    id          BIGINT AUTO_INCREMENT PRIMARY KEY,
+    accNo       LONGTEXT NOT NULL,
+    value       BIGINT   NOT NULL,
+    type        LONGTEXT NOT NULL
+);
+
 -- Security
 CREATE TABLE User (
     id             BIGINT AUTO_INCREMENT PRIMARY KEY,

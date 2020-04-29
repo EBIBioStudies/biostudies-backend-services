@@ -31,12 +31,19 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
+import uk.ac.ebi.stats.persistence.repositories.SubmissionStatsRepository
 
 @Configuration
 @EnableJpaRepositories(
-    basePackageClasses = [SubmissionDataRepository::class, SubmissionRtRepository::class],
-    repositoryFactoryBeanClass = EntityGraphJpaRepositoryFactoryBean::class)
-@EntityScan(basePackages = ["ac.uk.ebi.biostd.persistence.model", "ebi.ac.uk.notifications.persistence.model"])
+    repositoryFactoryBeanClass = EntityGraphJpaRepositoryFactoryBean::class,
+    basePackageClasses = [
+        SubmissionDataRepository::class,
+        SubmissionRtRepository::class,
+        SubmissionStatsRepository::class])
+@EntityScan(basePackages = [
+    "ac.uk.ebi.biostd.persistence.model",
+    "ebi.ac.uk.notifications.persistence.model",
+    "uk.ac.ebi.stats.persistence.model"])
 class PersistenceConfig(
     private val submissionDataRepository: SubmissionDataRepository,
     private val sequenceRepository: SequenceDataRepository,

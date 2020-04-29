@@ -34,6 +34,7 @@ dependencies {
     implementation(project(":submission:submitter"))
     implementation(project(":submission:submission-security"))
     implementation(project(":submission:notifications"))
+    implementation(project(":submission:stats"))
     implementation(project(":commons:commons-serialization"))
     implementation(project(":commons:commons-util"))
     implementation(project(":commons:commons-test"))
