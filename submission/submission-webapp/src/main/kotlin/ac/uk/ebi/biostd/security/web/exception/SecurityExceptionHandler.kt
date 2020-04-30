@@ -3,10 +3,11 @@ package ac.uk.ebi.biostd.security.web.exception
 import ac.uk.ebi.biostd.security.web.dto.SecurityError
 import ebi.ac.uk.security.integration.exception.ActKeyNotFoundException
 import ebi.ac.uk.security.integration.exception.InvalidSseConfiguration
+import ebi.ac.uk.security.integration.exception.InvalidUserEmailException
 import ebi.ac.uk.security.integration.exception.LoginException
 import ebi.ac.uk.security.integration.exception.SecurityException
 import ebi.ac.uk.security.integration.exception.UnauthorizedOperation
-import ebi.ac.uk.security.integration.exception.UserAlreadyRegister
+import ebi.ac.uk.security.integration.exception.UserAlreadyRegistered
 import ebi.ac.uk.security.integration.exception.UserNotFoundByEmailException
 import ebi.ac.uk.security.integration.exception.UserNotFoundByTokenException
 import ebi.ac.uk.security.integration.exception.UserPendingRegistrationException
@@ -32,7 +33,8 @@ class SecurityExceptionHandler {
             is UserNotFoundByEmailException,
             is UserPendingRegistrationException,
             is UserWithActivationKeyNotFoundException,
-            is UserAlreadyRegister -> badRequest(SecurityError(exception.message))
+            is InvalidUserEmailException -> badRequest(SecurityError(exception.message))
+            is UserAlreadyRegistered -> badRequest(SecurityError(exception.message))
             is UnauthorizedOperation -> unauthorized(SecurityError(exception.message))
             is InvalidSseConfiguration -> badRequest(SecurityError(exception.message))
         }

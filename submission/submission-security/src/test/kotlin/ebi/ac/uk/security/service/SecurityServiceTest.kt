@@ -4,10 +4,12 @@ import ac.uk.ebi.biostd.persistence.model.DbUser
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ebi.ac.uk.api.security.ChangePasswordRequest
 import ebi.ac.uk.api.security.LoginRequest
+import ebi.ac.uk.api.security.RegisterRequest
 import ebi.ac.uk.security.events.Events
 import ebi.ac.uk.security.integration.SecurityProperties
+import ebi.ac.uk.security.integration.exception.InvalidUserEmailException
 import ebi.ac.uk.security.integration.exception.LoginException
-import ebi.ac.uk.security.integration.exception.UserAlreadyRegister
+import ebi.ac.uk.security.integration.exception.UserAlreadyRegistered
 import ebi.ac.uk.security.integration.exception.UserNotFoundByEmailException
 import ebi.ac.uk.security.integration.exception.UserPendingRegistrationException
 import ebi.ac.uk.security.integration.exception.UserWithActivationKeyNotFoundException
@@ -143,8 +145,33 @@ internal class SecurityServiceTest(
         fun `register user when user already exist`() {
             every { userRepository.existsByEmail(email) } returns true
 
-            val exception = assertThrows<UserAlreadyRegister> { testInstance.registerUser(registrationRequest) }
-            assertThat(exception.message).isEqualTo("There is already a user registered with the email address '$email'.")
+            val exception = assertThrows<UserAlreadyRegistered> { testInstance.registerUser(registrationRequest) }
+            assertThat(exception.message)
+                .isEqualTo("There is already a user registered with the email address '$email'.")
+        }
+
+        @Test
+        fun `register user with invalid email and activation required`() {
+            every { securityUtil.newKey() } returns SECRET_KEY
+            every { securityProps.requireActivation } returns true
+            every { userRepository.existsByEmail("not-a-mail") } returns false
+
+            val request = RegisterRequest("Test User", "not-a-mail", "123456", instanceKey = "a-key", path = "a-path")
+            val exception = assertThrows<InvalidUserEmailException> { testInstance.registerUser(request) }
+
+            assertThat(exception.message).isEqualTo("The provided email 'not-a-mail' is invalid")
+        }
+
+        @Test
+        fun `register user with invalid email and activation not required`() {
+            every { securityUtil.newKey() } returns SECRET_KEY
+            every { securityProps.requireActivation } returns false
+            every { userRepository.existsByEmail("not-a-mail@fake") } returns false
+
+            val request = RegisterRequest("Test User", "not-a-mail@fake", "123456")
+            val exception = assertThrows<InvalidUserEmailException> { testInstance.registerUser(request) }
+
+            assertThat(exception.message).isEqualTo("The provided email 'not-a-mail@fake' is invalid")
         }
     }
 

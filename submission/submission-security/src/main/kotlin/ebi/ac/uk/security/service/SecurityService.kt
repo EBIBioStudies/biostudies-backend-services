@@ -14,8 +14,9 @@ import ebi.ac.uk.security.events.Events.userPreRegister
 import ebi.ac.uk.security.events.Events.userRegister
 import ebi.ac.uk.security.integration.SecurityProperties
 import ebi.ac.uk.security.integration.components.ISecurityService
+import ebi.ac.uk.security.integration.exception.InvalidUserEmailException
 import ebi.ac.uk.security.integration.exception.LoginException
-import ebi.ac.uk.security.integration.exception.UserAlreadyRegister
+import ebi.ac.uk.security.integration.exception.UserAlreadyRegistered
 import ebi.ac.uk.security.integration.exception.UserNotFoundByEmailException
 import ebi.ac.uk.security.integration.exception.UserNotFoundByTokenException
 import ebi.ac.uk.security.integration.exception.UserPendingRegistrationException
@@ -34,6 +35,8 @@ internal class SecurityService(
     private val securityProps: SecurityProperties,
     private val profileService: ProfileService
 ) : ISecurityService {
+    private val emailValidationPattern = ".+@\\w+.\\w+(.\\w+)+".toPattern()
+
     override fun login(request: LoginRequest): UserInfo =
         userRepository
             .findByLoginOrEmailAndActive(request.login, request.login, true)
@@ -47,7 +50,7 @@ internal class SecurityService(
 
     override fun registerUser(request: RegisterRequest): SecurityUser {
         return when {
-            userRepository.existsByEmail(request.email) -> throw UserAlreadyRegister(request.email)
+            userRepository.existsByEmail(request.email) -> throw UserAlreadyRegistered(request.email)
             securityProps.requireActivation -> register(request)
             else -> activate(request)
         }
@@ -72,7 +75,7 @@ internal class SecurityService(
     override fun getUser(email: String): SecurityUser {
         return userRepository.findByEmailAndActive(email, true)
             .map { profileService.asSecurityUser(it) }
-            .orElseThrow { throw UserAlreadyRegister(email) }
+            .orElseThrow { throw UserAlreadyRegistered(email) }
     }
 
     override fun activate(activationKey: String) {
@@ -116,6 +119,8 @@ internal class SecurityService(
     private fun register(request: RegisterRequest): SecurityUser {
         val instanceKey = checkNotNull(request.instanceKey) { "Instance key can not be null when activation" }
         val activationPath = checkNotNull(request.path) { "Activation path can not be null" }
+        validateEmail(request.email)
+
         return register(asUser(request), instanceKey, activationPath)
     }
 
@@ -127,10 +132,14 @@ internal class SecurityService(
     }
 
     private fun activate(request: RegisterRequest): SecurityUser {
+        validateEmail(request.email)
         val user = userRepository.save(asUser(request).activated())
         userRegister.onNext(UserActivated(user))
         return profileService.asSecurityUser(user)
     }
+
+    private fun validateEmail(email: String) =
+        require(emailValidationPattern.matcher(email).matches()) { throw InvalidUserEmailException(email) }
 
     private fun asUser(registerRequest: RegisterRequest): DbUser {
         return DbUser(

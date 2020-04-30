@@ -1,10 +1,13 @@
 package ac.uk.ebi.biostd.itest.test.security
 
+import ac.uk.ebi.biostd.client.exception.SecurityWebClientException
 import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
+import ac.uk.ebi.biostd.itest.entities.InvalidUser
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
+import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -35,6 +38,12 @@ internal class SecurityApiTest(tempFolder: TemporaryFolder) : BaseIntegrationTes
         fun `register when activation is not enable`() {
             webClient.registerUser(SuperUser.asRegisterRequest())
             webClient.getAuthenticatedClient(SuperUser.email, SuperUser.password)
+        }
+
+        @Test
+        fun `register with invalid email`() {
+            assertThatExceptionOfType(SecurityWebClientException::class.java)
+                .isThrownBy { webClient.registerUser(InvalidUser.asRegisterRequest()) }
         }
     }
 }
