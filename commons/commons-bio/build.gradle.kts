@@ -9,6 +9,10 @@ dependencies {
     implementation(kotlin("stdlib"))
     implementation(Arrow)
     implementation(JacksonDataBind)
+//    implementation(SpringBootStarterWeb)
+//    implementation(SpringBootStarterDataJpa)
+//    implementation("org.springframework.boot:spring-boot-starter-validation")
+    implementation("javax.validation:validation-api:2.0.1.Final")
 
     testApi(project(":commons:commons-test"))
 
