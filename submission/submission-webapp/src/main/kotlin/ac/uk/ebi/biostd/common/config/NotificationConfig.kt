@@ -39,7 +39,7 @@ internal class NotificationConfig(
     fun successfulSubmission(): Observable<SuccessfulSubmission> = SubmissionEvents.successfulSubmission
 
     @Bean
-    fun notificationService(
+    fun notificationSubscriber(
         subscriptionService: SubscriptionService,
         resourceLoader: ResourceLoader,
         userPreRegister: Observable<UserRegister>,
@@ -48,9 +48,10 @@ internal class NotificationConfig(
         NotificationsSubscriber(subscriptionService, resourceLoader, userPreRegister, passwordReset)
 
     @Bean
-    fun rtNotificationService(
+    fun rtNotificationSubscriber(
         resourceLoader: ResourceLoader,
         rtSubscriptionService: SubscriptionService,
         successfulSubmission: Observable<SuccessfulSubmission>
-    ): RtNotificationSubscriber = RtNotificationSubscriber(resourceLoader, rtSubscriptionService, successfulSubmission)
+    ): RtNotificationSubscriber =
+        RtNotificationSubscriber(resourceLoader, rtSubscriptionService, properties.notifications, successfulSubmission)
 }

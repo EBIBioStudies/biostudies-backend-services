@@ -27,6 +27,7 @@ app:
     requireActivation: false
   notifications:
     smtp: smtp.ebi.ac.uk
+    uiUrl: # The BioStudies UI url
     rt:
       host: # RT server host. Not required for local environment
       queue: # Queue used for RT notifications. Not required for local environment
