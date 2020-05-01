@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.notifications
 import ac.uk.ebi.biostd.notifications.templates.SuccessfulSubmissionModel
 import ac.uk.ebi.biostd.notifications.templates.SuccessfulSubmissionTemplate
 import ac.uk.ebi.biostd.submission.events.SuccessfulSubmission
+import ebi.ac.uk.notifications.integration.NotificationProperties
 import ebi.ac.uk.notifications.integration.components.SubscriptionService
 import ebi.ac.uk.notifications.integration.model.Notification
 import ebi.ac.uk.notifications.integration.model.NotificationType
@@ -19,6 +20,7 @@ private const val EMAIL_FROM = "BioStudy <biostudies@ebi.ac.uk>"
 internal class RtNotificationSubscriber(
     private val resourceLoader: ResourceLoader,
     private val rtSubscriptionService: SubscriptionService,
+    private val notificationProperties: NotificationProperties,
     private val successfulSubmission: Observable<SuccessfulSubmission>
 ) {
     @PostConstruct
@@ -36,6 +38,7 @@ internal class RtNotificationSubscriber(
             source.user.email,
             SuccessfulSubmissionModel(
                 FROM,
+                notificationProperties.uiUrl,
                 source.user.fullName,
                 source.submission.accNo,
                 source.user.secretKey,
