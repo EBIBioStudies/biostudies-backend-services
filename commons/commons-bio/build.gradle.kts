@@ -1,18 +1,17 @@
 import Dependencies.Arrow
 import Dependencies.JacksonDataBind
+import Dependencies.JavaValidationApi
+import Dependencies.KotlinStdLib
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
 
 dependencies {
     api(project(":commons:commons-util"))
 
-    implementation(kotlin("stdlib"))
     implementation(Arrow)
     implementation(JacksonDataBind)
-//    implementation(SpringBootStarterWeb)
-//    implementation(SpringBootStarterDataJpa)
-//    implementation("org.springframework.boot:spring-boot-starter-validation")
-    implementation("javax.validation:validation-api:2.0.1.Final")
+    implementation(JavaValidationApi)
+    implementation(KotlinStdLib)
 
     testApi(project(":commons:commons-test"))
 

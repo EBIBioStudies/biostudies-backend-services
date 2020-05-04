@@ -1,10 +1,13 @@
 package ac.uk.ebi.biostd.itest.test.security
 
+import ac.uk.ebi.biostd.client.exception.SecurityWebClientException
 import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
 import ac.uk.ebi.biostd.itest.entities.SuperUser
+import ebi.ac.uk.api.security.RegisterRequest
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
+import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -29,6 +32,14 @@ internal class SecurityApiTest(tempFolder: TemporaryFolder) : BaseIntegrationTes
         @BeforeAll
         fun init() {
             webClient = SecurityWebClient.create("http://localhost:$serverPort")
+        }
+
+        @Test
+        fun `register with invalid email`() {
+            val request = RegisterRequest("Test", "not-a-mail", "123")
+            assertThatExceptionOfType(SecurityWebClientException::class.java).isThrownBy {
+                webClient.registerUser(request)
+            }
         }
 
         @Test
