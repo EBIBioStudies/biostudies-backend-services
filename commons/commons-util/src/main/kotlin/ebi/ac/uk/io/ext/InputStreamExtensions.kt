@@ -1,4 +1,4 @@
-package ebi.ac.uk.io
+package ebi.ac.uk.io.ext
 
 import org.apache.commons.io.IOUtils
 import java.io.InputStream

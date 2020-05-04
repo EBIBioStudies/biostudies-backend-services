@@ -3,7 +3,7 @@ package ac.uk.ebi.biostd.files.service
 import ac.uk.ebi.biostd.files.model.FilesSpec
 import ac.uk.ebi.biostd.files.utils.transferTo
 import ebi.ac.uk.io.FileUtils
-import ebi.ac.uk.io.asFileList
+import ebi.ac.uk.io.ext.asFileList
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import org.springframework.web.multipart.MultipartFile
 import java.io.File

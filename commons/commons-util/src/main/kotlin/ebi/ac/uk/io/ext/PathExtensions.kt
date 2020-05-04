@@ -1,4 +1,4 @@
-package ebi.ac.uk.io
+package ebi.ac.uk.io.ext
 
 import java.nio.file.Path
 

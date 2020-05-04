@@ -7,6 +7,8 @@ import ac.uk.ebi.biostd.integration.SubFormat.Companion.XML
 import ac.uk.ebi.biostd.persistence.integration.FileMode
 import ac.uk.ebi.biostd.persistence.test.extSubmissionWithFileList
 import ebi.ac.uk.extended.mapping.serialization.to.toSimpleSubmission
+import ebi.ac.uk.io.FileUtils
+import ebi.ac.uk.io.ext.createNewFile
 import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.paths.SubmissionFolderResolver
 import ebi.ac.uk.test.createFile
@@ -27,10 +29,10 @@ class FilePersistenceServiceTest(
     @MockK private val mockSerializationService: SerializationService
 ) {
     private val sectionFile = temporaryFolder.createFile("file.txt", "text-1")
-    private val fileList = temporaryFolder.createFile("fileList.json", "text-2")
+    private val sectionFolder = temporaryFolder.createDirectory("fileDirectory")
+    private var sectionFolderFile = sectionFolder.createNewFile("file3.txt", "folder-file-content")
     private val referencedFile = temporaryFolder.createFile("file2.txt", "text-3")
-    private val extSubmission = extSubmissionWithFileList(listOf(sectionFile), listOf(referencedFile))
-    private val relPath = extSubmission.relPath
+    private val extSubmission = extSubmissionWithFileList(listOf(sectionFile, sectionFolder), listOf(referencedFile))
 
     private val testInstance =
         FilePersistenceService(SubmissionFolderResolver(temporaryFolder.root.toPath()), mockSerializationService)
@@ -60,8 +62,14 @@ class FilePersistenceServiceTest(
     private fun testPersistSubmissionFiles(mode: FileMode) {
         testInstance.persistSubmissionFiles(extSubmission, mode)
 
+        val relPath = extSubmission.relPath
+
         assertThat(getPath("submission/$relPath/Files/file.txt")).exists()
         assertThat(getPath("submission/$relPath/Files/file2.txt")).exists()
+
+        val directory = getPath("submission/$relPath/Files/fileDirectory").toFile()
+        assertThat(FileUtils.listFiles(directory).first()).hasContent("folder-file-content")
+        assertThat(FileUtils.listFiles(directory).first()).hasName("folder-file-content")
 
         assertThat(getPath("submission/$relPath/ABC-123.xml")).exists()
         assertThat(getPath("submission/$relPath/ABC-123.json")).exists()

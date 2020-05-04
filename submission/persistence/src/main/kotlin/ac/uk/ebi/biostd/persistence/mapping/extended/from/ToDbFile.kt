@@ -5,11 +5,15 @@ import ac.uk.ebi.biostd.persistence.model.DbFile
 import ac.uk.ebi.biostd.persistence.model.DbFileAttribute
 import ebi.ac.uk.extended.model.ExtAttribute
 import ebi.ac.uk.extended.model.ExtFile
-import java.io.File
-import java.nio.file.Files
+import ebi.ac.uk.io.FileUtils
 
 internal fun ExtFile.toDbFile(order: Int, tableIndex: Int = NO_TABLE_INDEX) =
-    DbFile(fileName, order, fileSize(file), attributes.mapIndexedTo(sortedSetOf(), ::toDbFileAttribute), tableIndex)
+    DbFile(
+        fileName,
+        order,
+        FileUtils.size(file),
+        attributes.mapIndexedTo(sortedSetOf(), ::toDbFileAttribute),
+        FileUtils.isDirectory(file),
+        tableIndex)
 
 private fun toDbFileAttribute(index: Int, attr: ExtAttribute) = DbFileAttribute(attr.toDbAttribute(index))
-private fun fileSize(file: File) = Files.size(file.toPath())

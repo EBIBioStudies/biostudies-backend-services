@@ -31,6 +31,8 @@ class DbFile(
 
     var size: Long = 0L
 
+    var directory: Boolean = false
+
     @OneToMany(cascade = [CascadeType.ALL])
     @JoinColumn(name = "file_id")
     @OrderBy("order ASC")
@@ -44,6 +46,7 @@ class DbFile(
         order: Int,
         size: Long,
         attributes: SortedSet<DbFileAttribute>,
+        directory: Boolean,
         tableIndex: Int = NO_TABLE_INDEX
     ) : this(name, order) {
         this.size = size
