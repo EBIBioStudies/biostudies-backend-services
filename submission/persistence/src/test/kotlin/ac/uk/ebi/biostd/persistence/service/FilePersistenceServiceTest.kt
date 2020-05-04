@@ -69,7 +69,7 @@ class FilePersistenceServiceTest(
 
         val directory = getPath("submission/$relPath/Files/fileDirectory").toFile()
         assertThat(FileUtils.listFiles(directory).first()).hasContent("folder-file-content")
-        assertThat(FileUtils.listFiles(directory).first()).hasName("folder-file-content")
+        assertThat(FileUtils.listFiles(directory).first()).hasName("file3.txt")
 
         assertThat(getPath("submission/$relPath/ABC-123.xml")).exists()
         assertThat(getPath("submission/$relPath/ABC-123.json")).exists()
