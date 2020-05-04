@@ -54,7 +54,7 @@ internal class FileUtilsTest(private val temporaryFolder: TemporaryFolder) {
                 val tempDir = temporaryFolder.createDirectory("directory")
                 tempDir.createNewFile("two.txt")
 
-                val targetDirectory = temporaryFolder.createDirectory("directory-target")
+                val targetDirectory = temporaryFolder.createDirectory("target-directory")
                 targetDirectory.createNewFile("one.txt")
 
                 FileUtils.copyOrReplaceFile(tempDir, targetDirectory)
@@ -126,7 +126,7 @@ internal class FileUtilsTest(private val temporaryFolder: TemporaryFolder) {
                 val tempDir = temporaryFolder.createDirectory("directory")
                 tempDir.createNewFile("two.txt")
 
-                val targetDirectory = temporaryFolder.createDirectory("directory-target")
+                val targetDirectory = temporaryFolder.createDirectory("target-directory")
                 targetDirectory.createNewFile("one.txt")
 
                 FileUtils.moveFile(tempDir, targetDirectory)

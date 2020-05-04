@@ -14,4 +14,9 @@ fun File.createDirectory(name: String): File = Files.createDirectory(toPath().re
 
 fun File.createNewFile(name: String): File = resolve(name).apply { createNewFile() }
 
-fun File.createNewFile(name: String, text: String): File = resolve(name).apply { createNewFile(); writeText(text) }
+fun File.createNewFile(name: String, text: String): File {
+    val file = resolve(name)
+    file.createNewFile()
+    file.writeText(text)
+    return file
+}

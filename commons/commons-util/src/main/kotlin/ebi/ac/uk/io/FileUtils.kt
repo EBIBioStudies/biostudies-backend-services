@@ -20,7 +20,7 @@ object FileUtils {
     }
 
     fun copyOrReplaceFile(source: File, target: File) {
-        when (source.isDirectory) {
+        when (isDirectory(source)) {
             true -> copyFolder(source.toPath(), target.toPath())
             false -> copyFile(source.toPath(), target.toPath())
         }
@@ -43,9 +43,7 @@ object FileUtils {
         Files.write(createParentDirectories(source.toPath()), content.toByteArray())
     }
 
-    fun isDirectory(file: File): Boolean {
-        return Files.isDirectory(file.toPath())
-    }
+    fun isDirectory(file: File): Boolean = Files.isDirectory(file.toPath())
 
     fun listFiles(file: File): List<File> {
         return when (isDirectory(file)) {
@@ -54,9 +52,7 @@ object FileUtils {
         }
     }
 
-    fun size(file: File): Long {
-        return Files.size(file.toPath())
-    }
+    fun size(file: File): Long = Files.size(file.toPath())
 
     private fun createParentDirectories(path: Path): Path {
         Files.createDirectories(path.parent)
