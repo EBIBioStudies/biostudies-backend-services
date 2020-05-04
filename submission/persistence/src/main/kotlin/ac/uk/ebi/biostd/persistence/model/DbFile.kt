@@ -52,6 +52,7 @@ class DbFile(
         this.size = size
         this.attributes = attributes
         this.tableIndex = tableIndex
+        this.directory = directory
     }
 
     override fun compareTo(other: DbFile) =
