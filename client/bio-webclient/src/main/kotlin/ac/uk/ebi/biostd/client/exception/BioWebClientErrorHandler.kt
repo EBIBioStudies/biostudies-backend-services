@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.client.exception
 
-import ebi.ac.uk.io.asString
+import ebi.ac.uk.io.ext.asString
 import org.json.JSONObject
 import org.springframework.http.client.ClientHttpResponse
 import org.springframework.web.client.ResponseErrorHandler

@@ -4,9 +4,10 @@ import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardCopyOption
+import kotlin.streams.toList
 
+@Suppress("TooManyFunctions")
 object FileUtils {
-
     fun deleteFolder(file: File) {
         deleteFolder(file.toPath())
     }
@@ -19,7 +20,19 @@ object FileUtils {
     }
 
     fun copyOrReplaceFile(source: File, target: File) {
-        Files.copy(source.toPath(), createParentDirectories(target.toPath()), StandardCopyOption.REPLACE_EXISTING)
+        when (isDirectory(source)) {
+            true -> copyFolder(source.toPath(), target.toPath())
+            false -> copyFile(source.toPath(), target.toPath())
+        }
+    }
+
+    private fun copyFile(source: Path, target: Path) {
+        Files.copy(source, createParentDirectories(target), StandardCopyOption.REPLACE_EXISTING)
+    }
+
+    private fun copyFolder(source: Path, target: Path) {
+        deleteIfExist(target)
+        Files.walkFileTree(source, CopyFileVisitor(source, target))
     }
 
     fun moveFile(source: File, target: File) {
@@ -29,6 +42,17 @@ object FileUtils {
     fun copyOrReplace(source: File, content: String) {
         Files.write(createParentDirectories(source.toPath()), content.toByteArray())
     }
+
+    fun isDirectory(file: File): Boolean = Files.isDirectory(file.toPath())
+
+    fun listFiles(file: File): List<File> {
+        return when (isDirectory(file)) {
+            true -> Files.list(file.toPath()).map { it.toFile() }.toList()
+            else -> emptyList()
+        }
+    }
+
+    fun size(file: File): Long = Files.size(file.toPath())
 
     private fun createParentDirectories(path: Path): Path {
         Files.createDirectories(path.parent)

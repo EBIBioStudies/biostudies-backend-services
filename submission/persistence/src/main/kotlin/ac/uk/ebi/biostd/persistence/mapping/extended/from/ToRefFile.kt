@@ -4,7 +4,7 @@ import ac.uk.ebi.biostd.persistence.model.DbReferencedFile
 import ac.uk.ebi.biostd.persistence.model.DbReferencedFileAttribute
 import ebi.ac.uk.extended.model.ExtAttribute
 import ebi.ac.uk.extended.model.ExtFile
-import ebi.ac.uk.io.size
+import ebi.ac.uk.io.ext.size
 
 internal fun ExtFile.toRefFile(order: Int) =
     DbReferencedFile(
