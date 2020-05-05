@@ -6,7 +6,7 @@ import uk.ac.ebi.stats.model.SubmissionStatType
 import java.io.File
 
 class StatsFileHandler {
-    fun readBulkStats(stats: File, type: SubmissionStatType): List<SubmissionStat> =
+    fun readStats(stats: File, type: SubmissionStatType): List<SubmissionStat> =
         stats.readLines()
             .map { it.split("\t") }
             .map { SubmissionStat(accNo = it.first(), value = it.second().toLong(), type = type) }

@@ -10,4 +10,6 @@ interface SubmissionStatsRepository : JpaRepository<SubmissionStatDb, Long> {
     fun findAllByType(type: SubmissionStatType): List<SubmissionStatDb>
 
     fun findByAccNoAndType(accNo: String, type: SubmissionStatType): SubmissionStatDb?
+
+    fun getByAccNoAndType(accNo: String, type: SubmissionStatType): SubmissionStatDb
 }
