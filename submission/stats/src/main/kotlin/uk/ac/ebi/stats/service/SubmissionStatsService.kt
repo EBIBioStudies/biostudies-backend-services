@@ -1,6 +1,5 @@
 package uk.ac.ebi.stats.service
 
-import uk.ac.ebi.stats.exception.StatAlreadyExistsException
 import uk.ac.ebi.stats.exception.StatNotFoundException
 import uk.ac.ebi.stats.mapping.SubmissionStatMapper
 import uk.ac.ebi.stats.model.SubmissionStat
@@ -17,11 +16,9 @@ class SubmissionStatsService(private val submissionStatsRepository: SubmissionSt
             submissionStatsRepository.findByAccNoAndType(accNo, submissionStatType) ?:
             throw StatNotFoundException(accNo, submissionStatType))
 
-    fun save(stat: SubmissionStat): SubmissionStat {
-        require(exists(stat.accNo, stat.type).not()) { throw StatAlreadyExistsException(stat.accNo, stat.type) }
-
-        val saved = SubmissionStatMapper.toSubmissionStatDb(stat)
-        return SubmissionStatMapper.toSubmissionStat(submissionStatsRepository.save(saved))
+    fun save(stat: SubmissionStat): SubmissionStat = when {
+        exists(stat.accNo, stat.type).not() -> insert(stat)
+        else -> update(stat)
     }
 
     fun update(stat: SubmissionStat): SubmissionStat {
@@ -33,9 +30,9 @@ class SubmissionStatsService(private val submissionStatsRepository: SubmissionSt
         return SubmissionStatMapper.toSubmissionStat(submissionStatsRepository.save(newStat))
     }
 
-    fun upsert(stat: SubmissionStat): SubmissionStat = when {
-        exists(stat.accNo, stat.type).not() -> save(stat)
-        else -> update(stat)
+    private fun insert(stat: SubmissionStat): SubmissionStat {
+        val saved = SubmissionStatMapper.toSubmissionStatDb(stat)
+        return SubmissionStatMapper.toSubmissionStat(submissionStatsRepository.save(saved))
     }
 
     private fun exists(accNo: String, type: SubmissionStatType) =

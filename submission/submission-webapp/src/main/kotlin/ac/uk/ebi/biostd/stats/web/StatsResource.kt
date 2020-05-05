@@ -2,8 +2,9 @@ package ac.uk.ebi.biostd.stats.web
 
 import ac.uk.ebi.biostd.stats.web.handlers.StatsFileHandler
 import ac.uk.ebi.biostd.submission.domain.service.TempFileGenerator
+import ebi.ac.uk.model.constants.MULTIPART_FORM_DATA
+import org.springframework.http.HttpHeaders.CONTENT_TYPE
 import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -38,19 +39,14 @@ class StatsResource(
         @RequestBody submissionStat: SubmissionStat
     ): SubmissionStat = submissionStatsService.save(submissionStat)
 
-    @PatchMapping
-    fun update(
-        @RequestBody submissionStat: SubmissionStat
-    ): SubmissionStat = submissionStatsService.update(submissionStat)
-
-    @PostMapping("/{type}/bulk")
-    fun bulkRegister(
+    @PostMapping("/{type}", headers = ["${CONTENT_TYPE}=$MULTIPART_FORM_DATA"])
+    fun register(
         @PathVariable type: String,
         @RequestParam("stats") stats: MultipartFile
     ): List<SubmissionStat> {
         val statsFile = tempFileGenerator.asFile(stats)
         val statsList = statsFileHandler.readBulkStats(statsFile, SubmissionStatType.valueOf(type))
 
-        return statsList.map { submissionStatsService.upsert(it) }
+        return statsList.map { submissionStatsService.save(it) }
     }
 }
