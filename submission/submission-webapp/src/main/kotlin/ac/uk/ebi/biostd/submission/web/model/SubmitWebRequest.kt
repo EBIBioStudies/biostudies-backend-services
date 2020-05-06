@@ -30,3 +30,8 @@ class FileSubmitWebRequest(
     attrs: Map<String, String> = emptyMap(),
     files: List<File> = emptyList()
 ) : SubmitWebRequest(user, format, fileMode, files, attrs)
+
+class RefreshWebRequest(
+    val accNo: String,
+    val user: SecurityUser
+)

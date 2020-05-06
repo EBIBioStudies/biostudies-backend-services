@@ -9,8 +9,8 @@ import ac.uk.ebi.biostd.persistence.integration.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.projections.SimpleSubmission
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
 import ac.uk.ebi.biostd.submission.model.SubmissionRequest
-import ac.uk.ebi.biostd.submission.submitter.SubmissionPersistenceService
 import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
+import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.paths.FILES_PATH
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
@@ -19,7 +19,6 @@ import ebi.ac.uk.security.integration.model.api.SecurityUser
 // TODO: merge with QueryService to provide operations.
 class SubmissionService(
     private val subRepository: SubmissionRepository,
-    private val submissionPersistenceService: SubmissionPersistenceService,
     private val serializationService: SerializationService,
     private val userPrivilegesService: IUserPrivilegesService,
     private val queryService: SubmissionQueryService,
@@ -52,8 +51,5 @@ class SubmissionService(
 
     fun submissionFolder(accNo: String): java.io.File? = queryService.getExistingFolder(accNo)?.resolve(FILES_PATH)
 
-    fun refreshSubmission(user: SecurityUser, accNo: String) {
-        require(userPrivilegesService.canResubmit(user.email, accNo))
-        submissionPersistenceService.refresh(accNo, user)
-    }
+    fun getSubmission(accNo: String): ExtSubmission = subRepository.getExtByAccNo(accNo)
 }

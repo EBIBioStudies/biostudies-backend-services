@@ -28,14 +28,12 @@ class SubmissionConfig(
     @Suppress("LongParameterList")
     fun submissionService(
         subRepository: SubmissionRepository,
-        persistenceService: SubmissionPersistenceService,
         serializationService: SerializationService,
         userPrivilegeService: IUserPrivilegesService,
         queryService: SubmissionQueryService,
         submissionSubmitter: SubmissionSubmitter
     ): SubmissionService = SubmissionService(
         subRepository,
-        persistenceService,
         serializationService,
         userPrivilegeService,
         queryService,
