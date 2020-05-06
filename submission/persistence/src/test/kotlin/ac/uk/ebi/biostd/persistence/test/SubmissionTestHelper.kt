@@ -5,10 +5,10 @@ import ac.uk.ebi.biostd.persistence.model.DbTag
 import ac.uk.ebi.biostd.persistence.model.DbUser
 import ac.uk.ebi.biostd.persistence.model.SubmissionDb
 import ebi.ac.uk.extended.model.ExtAccessTag
+import ebi.ac.uk.extended.model.ExtProcessingStatus.PROCESSED
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.extended.model.ExtSubmissionMethod
 import ebi.ac.uk.extended.model.ExtTag
-import ebi.ac.uk.model.SubmissionMethod
-import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSED
 import org.assertj.core.api.Assertions.assertThat
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
@@ -36,7 +36,7 @@ internal val extSubmission
         released = true,
         status = PROCESSED,
         version = VERSION,
-        method = SubmissionMethod.FILE,
+        method = ExtSubmissionMethod.FILE,
         modificationTime = modificationTime,
         releaseTime = releaseTime,
         creationTime = creationTime,

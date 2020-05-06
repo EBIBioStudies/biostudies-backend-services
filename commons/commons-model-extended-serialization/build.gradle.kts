@@ -1,18 +1,15 @@
 import Dependencies.Arrow
-import Dependencies.JacksonDataBind
-import Dependencies.JavaValidationApi
-import Dependencies.KotlinStdLib
+import Dependencies.Guava
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
 
 dependencies {
     api(project(":commons:commons-util"))
-    api(project(":commons:commons-model-extended"))
+    api(project(":commons:commons-bio"))
 
     implementation(Arrow)
-    implementation(JacksonDataBind)
-    implementation(JavaValidationApi)
-    implementation(KotlinStdLib)
+    implementation(Guava)
+    implementation(kotlin("stdlib"))
 
     testApi(project(":commons:commons-test"))
 

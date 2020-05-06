@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.persistence.service
+package ac.uk.ebi.biostd.persistence.service.filesystem
 
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat
@@ -18,24 +18,26 @@ import ebi.ac.uk.io.FileUtils.reCreateDirectory
 import ebi.ac.uk.paths.FILES_PATH
 import ebi.ac.uk.paths.SubmissionFolderResolver
 import java.io.File
+import java.nio.file.Path
 
-class FilePersistenceService(
+class RefFilesService(
     private val folderResolver: SubmissionFolderResolver,
     private val serializationService: SerializationService
 ) {
     fun persistSubmissionFiles(submission: ExtSubmission, mode: FileMode) {
-        generateOutputFiles(submission)
+        val submissionPath = folderResolver.getSubmissionFolder(submission.relPath)
+        generateOutputFiles(submission, submissionPath)
         when (mode) {
-            FileMode.MOVE -> processFiles(submission, ::move)
-            FileMode.COPY -> processFiles(submission, ::copy)
+            FileMode.MOVE -> processFiles(submission, submissionPath, ::move)
+            FileMode.COPY -> processFiles(submission, submissionPath, ::copy)
         }
     }
 
-    private fun generateOutputFiles(submission: ExtSubmission) {
+    private fun generateOutputFiles(submission: ExtSubmission, submissionPath: Path) {
         val simpleSubmission = submission.toSimpleSubmission()
 
-        generateOutputFiles(simpleSubmission, submission.relPath, submission.accNo)
-        submission.allFileList.forEach { generateOutputFiles(it.toFilesTable(), submission.relPath, it.fileName) }
+        generateOutputFiles(simpleSubmission, submissionPath, submission.accNo)
+        submission.allFileList.forEach { generateOutputFiles(it.toFilesTable(), submissionPath, it.fileName) }
     }
 
     // TODO add file list content validation to integration tests
@@ -43,19 +45,18 @@ class FilePersistenceService(
     // TODO Test temporally folder already existing
     // TODO we need to remove also pagetab files as only FILES are clean right now
     // TODO add integration test for file list within subsections
-    private fun <T> generateOutputFiles(element: T, relPath: String, outputFileName: String) {
+    private fun <T> generateOutputFiles(element: T, submissionPath: Path, outputFileName: String) {
         val json = serializationService.serializeElement(element, SubFormat.JSON_PRETTY)
         val xml = serializationService.serializeElement(element, SubFormat.XML)
         val tsv = serializationService.serializeElement(element, SubFormat.TSV)
-        val submissionPath = folderResolver.getSubmissionFolder(relPath)
 
         FileUtils.copyOrReplace(submissionPath.resolve("$outputFileName.json").toFile(), json)
         FileUtils.copyOrReplace(submissionPath.resolve("$outputFileName.xml").toFile(), xml)
         FileUtils.copyOrReplace(submissionPath.resolve("$outputFileName.pagetab.tsv").toFile(), tsv)
     }
 
-    private fun processFiles(submission: ExtSubmission, process: (ExtFile, File) -> Unit) {
-        val submissionFolder = getSubmissionFolder(submission.relPath)
+    private fun processFiles(submission: ExtSubmission, submissionPath: Path, process: (ExtFile, File) -> Unit) {
+        val submissionFolder = getSubmissionFolder(submissionPath)
         val temporally = createTempFolder(submissionFolder, submission.accNo)
 
         submission.allFiles.forEach { process(it, temporally) }
@@ -69,8 +70,8 @@ class FilePersistenceService(
     private fun copy(extFile: ExtFile, file: File) = copyOrReplaceFile(extFile.file, file.resolve(extFile.fileName))
     private fun move(file: ExtFile, path: File) = moveFile(file.file, path.resolve(file.fileName))
 
-    private fun getSubmissionFolder(relPath: String): File {
-        val submissionFolder = folderResolver.getSubmissionFolder(relPath).toFile()
+    private fun getSubmissionFolder(submissionPath: Path): File {
+        val submissionFolder = submissionPath.toFile()
         submissionFolder.mkdirs()
         return submissionFolder
     }

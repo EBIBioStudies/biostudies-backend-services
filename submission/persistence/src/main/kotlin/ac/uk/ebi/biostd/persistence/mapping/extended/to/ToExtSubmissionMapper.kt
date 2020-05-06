@@ -7,7 +7,8 @@ import ebi.ac.uk.extended.model.ExtTag
 import ebi.ac.uk.io.sources.ComposedFileSource
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.io.sources.PathFilesSource
-import ebi.ac.uk.model.SubmissionMethod.UNKNOWN
+import ebi.ac.uk.model.SubmissionMethod
+import ebi.ac.uk.model.constants.ProcessingStatus
 import java.nio.file.Path
 
 private const val FILES_DIR = "Files"
@@ -21,8 +22,8 @@ class ToExtSubmissionMapper(private val submissionsPath: Path) {
             accNo = dbSubmission.accNo,
             title = dbSubmission.title,
             version = dbSubmission.version,
-            method = dbSubmission.method ?: UNKNOWN,
-            status = dbSubmission.status,
+            method = getMethod(dbSubmission.method),
+            status = getStatus(dbSubmission.status),
             relPath = dbSubmission.relPath,
             rootPath = dbSubmission.rootPath,
             released = dbSubmission.released,
@@ -35,6 +36,22 @@ class ToExtSubmissionMapper(private val submissionsPath: Path) {
             tags = dbSubmission.tags.map { ExtTag(it.classifier, it.name) },
             section = dbSubmission.rootSection.toExtSection(getSubmissionSource(dbSubmission))
         )
+    }
+
+    private fun getStatus(status: ProcessingStatus): ebi.ac.uk.extended.model.ExtProcessingStatus {
+        return when (status) {
+            ProcessingStatus.PROCESSED -> ebi.ac.uk.extended.model.ExtProcessingStatus.PROCESSED
+            ProcessingStatus.PROCESSING -> ebi.ac.uk.extended.model.ExtProcessingStatus.PROCESSING
+        }
+    }
+
+    private fun getMethod(method: SubmissionMethod?): ebi.ac.uk.extended.model.ExtSubmissionMethod {
+        return when (method) {
+            SubmissionMethod.FILE -> ebi.ac.uk.extended.model.ExtSubmissionMethod.FILE
+            SubmissionMethod.PAGE_TAB -> ebi.ac.uk.extended.model.ExtSubmissionMethod.PAGE_TAB
+            SubmissionMethod.UNKNOWN -> ebi.ac.uk.extended.model.ExtSubmissionMethod.UNKNOWN
+            null -> ebi.ac.uk.extended.model.ExtSubmissionMethod.UNKNOWN
+        }
     }
 
     private fun getSubmissionSource(dbSubmission: SubmissionDb): FilesSource {

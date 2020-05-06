@@ -7,7 +7,9 @@ import ac.uk.ebi.biostd.persistence.repositories.TagDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ebi.ac.uk.extended.model.ExtAccessTag
 import ebi.ac.uk.extended.model.ExtAttribute
+import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.extended.model.ExtSubmissionMethod
 import ebi.ac.uk.extended.model.ExtTag
 
 private const val ROOT_SECTION_ORDER = 0
@@ -20,8 +22,8 @@ class ToDbSubmissionMapper(
     fun toSubmissionDb(submission: ExtSubmission, submitter: String) = SubmissionDb().apply {
         accNo = submission.accNo
         title = submission.title
-        status = submission.status
-        method = submission.method
+        status = getStatus(submission.status)
+        method = getMethod(submission.method)
         version = submission.version
         relPath = submission.relPath
         rootPath = submission.rootPath
@@ -35,6 +37,21 @@ class ToDbSubmissionMapper(
         released = submission.released
         attributes = submission.attributes.mapIndexedTo(sortedSetOf(), ::toDbSubmissionAttribute)
         rootSection = submission.section.toDbSection(this, ROOT_SECTION_ORDER)
+    }
+
+    private fun getStatus(status: ExtProcessingStatus): ebi.ac.uk.model.constants.ProcessingStatus {
+        return when (status) {
+            ExtProcessingStatus.PROCESSED -> ebi.ac.uk.model.constants.ProcessingStatus.PROCESSED
+            ExtProcessingStatus.PROCESSING -> ebi.ac.uk.model.constants.ProcessingStatus.PROCESSING
+        }
+    }
+
+    private fun getMethod(method: ExtSubmissionMethod): ebi.ac.uk.model.SubmissionMethod {
+        return when (method) {
+            ExtSubmissionMethod.FILE -> ebi.ac.uk.model.SubmissionMethod.FILE
+            ExtSubmissionMethod.PAGE_TAB -> ebi.ac.uk.model.SubmissionMethod.PAGE_TAB
+            ExtSubmissionMethod.UNKNOWN -> ebi.ac.uk.model.SubmissionMethod.UNKNOWN
+        }
     }
 
     private fun toDbSubmissionAttribute(idx: Int, attr: ExtAttribute) = DbSubmissionAttribute(attr.toDbAttribute(idx))

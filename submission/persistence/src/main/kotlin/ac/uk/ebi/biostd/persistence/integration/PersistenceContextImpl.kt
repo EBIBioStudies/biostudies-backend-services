@@ -9,7 +9,7 @@ import ac.uk.ebi.biostd.persistence.repositories.LockExecutor
 import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.SubmissionDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataDataRepository
-import ac.uk.ebi.biostd.persistence.service.FilePersistenceService
+import ac.uk.ebi.biostd.persistence.service.filesystem.FileSystemService
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.model.User
 import org.springframework.transaction.annotation.Isolation
@@ -24,7 +24,7 @@ open class PersistenceContextImpl(
     private val userDataRepository: UserDataDataRepository,
     private val toDbSubmissionMapper: ToDbSubmissionMapper,
     private val toExtSubmissionMapper: ToExtSubmissionMapper,
-    private val filePersistenceService: FilePersistenceService
+    private val systemService: FileSystemService
 ) : PersistenceContext {
     override fun sequenceAccNoPatternExists(pattern: String): Boolean = sequenceRepository.existsByPrefix(pattern)
 
@@ -60,7 +60,7 @@ open class PersistenceContextImpl(
 
     private fun saveNewVersion(submission: ExtSubmission, submitter: String, mode: FileMode): ExtSubmission {
         val dbSubmission = subRepository.save(toDbSubmissionMapper.toSubmissionDb(submission, submitter))
-        filePersistenceService.persistSubmissionFiles(submission, mode)
+        systemService.persistSubmissionFiles(submission, mode)
         return toExtSubmissionMapper.toExtSubmission(dbSubmission)
     }
 
