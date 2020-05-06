@@ -36,20 +36,14 @@ class SubmissionStatsServiceTest(@MockK private val statsRepository: SubmissionS
     @Test
     fun `find by type`() {
         val stats = testInstance.findByType(NUMBER_VIEWS)
-
         assertThat(stats).hasSize(1)
-        assertThat(stats.first().accNo).isEqualTo("S-TEST123")
-        assertThat(stats.first().value).isEqualTo(10)
-        assertThat(stats.first().type).isEqualTo(NUMBER_VIEWS)
+        assertTestStat(stats.first(), value = 10)
     }
 
     @Test
     fun `find by accNo and type`() {
         val stat = testInstance.findByAccNoAndType("S-TEST123", NUMBER_VIEWS)
-
-        assertThat(stat.accNo).isEqualTo("S-TEST123")
-        assertThat(stat.value).isEqualTo(10)
-        assertThat(stat.type).isEqualTo(NUMBER_VIEWS)
+        assertTestStat(stat, value = 10)
     }
 
     @Test
@@ -70,9 +64,7 @@ class SubmissionStatsServiceTest(@MockK private val statsRepository: SubmissionS
         every { statsRepository.existsByAccNoAndType("S-TEST123", NUMBER_VIEWS) } returns false
 
         val newStat = testInstance.save(stat)
-        assertThat(newStat.accNo).isEqualTo("S-TEST123")
-        assertThat(newStat.value).isEqualTo(10)
-        assertThat(newStat.type).isEqualTo(NUMBER_VIEWS)
+        assertTestStat(newStat, value = 10)
         verify(exactly = 1) { statsRepository.save(dbStat.captured) }
         verify(exactly = 1) { statsRepository.existsByAccNoAndType("S-TEST123", NUMBER_VIEWS) }
     }
@@ -86,11 +78,30 @@ class SubmissionStatsServiceTest(@MockK private val statsRepository: SubmissionS
         every { statsRepository.save(capture(dbStat)) } returns SubmissionStatDb("S-TEST123", 30, NUMBER_VIEWS)
 
         val updatedStat = testInstance.save(stat)
-        assertThat(updatedStat.accNo).isEqualTo("S-TEST123")
-        assertThat(updatedStat.value).isEqualTo(30)
-        assertThat(updatedStat.type).isEqualTo(NUMBER_VIEWS)
+        assertTestStat(updatedStat, value = 30)
         verify(exactly = 1) { statsRepository.save(dbStat.captured) }
         verify(exactly = 1) { statsRepository.getByAccNoAndType("S-TEST123", NUMBER_VIEWS) }
         verify(exactly = 1) { statsRepository.existsByAccNoAndType("S-TEST123", NUMBER_VIEWS) }
+    }
+
+    @Test
+    fun `save batch`() {
+        val dbStat = slot<SubmissionStatDb>()
+        val stat = SubmissionStat("S-TEST123", 10, NUMBER_VIEWS)
+
+        every { statsRepository.save(capture(dbStat)) } returns testStat
+        every { statsRepository.existsByAccNoAndType("S-TEST123", NUMBER_VIEWS) } returns false
+
+        val newStats = testInstance.saveAll(listOf(stat))
+        assertThat(newStats).hasSize(1)
+        assertTestStat(newStats.first(), value = 10)
+        verify(exactly = 1) { statsRepository.save(dbStat.captured) }
+        verify(exactly = 1) { statsRepository.existsByAccNoAndType("S-TEST123", NUMBER_VIEWS) }
+    }
+
+    private fun assertTestStat(stat: SubmissionStat, value: Long) {
+        assertThat(stat.value).isEqualTo(value)
+        assertThat(stat.accNo).isEqualTo("S-TEST123")
+        assertThat(stat.type).isEqualTo(NUMBER_VIEWS)
     }
 }

@@ -76,6 +76,6 @@ class StatsResource(
         val statsFile = tempFileGenerator.asFile(stats)
         val statsList = statsFileHandler.readStats(statsFile, SubmissionStatType.valueOf(type))
 
-        return statsList.map { submissionStatsService.save(it) }
+        return submissionStatsService.saveAll(statsList)
     }
 }

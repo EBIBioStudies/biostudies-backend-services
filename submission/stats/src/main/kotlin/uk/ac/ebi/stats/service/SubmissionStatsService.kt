@@ -1,5 +1,6 @@
 package uk.ac.ebi.stats.service
 
+import org.springframework.transaction.annotation.Transactional
 import uk.ac.ebi.stats.exception.StatNotFoundException
 import uk.ac.ebi.stats.mapping.SubmissionStatMapper
 import uk.ac.ebi.stats.model.SubmissionStat
@@ -7,7 +8,7 @@ import uk.ac.ebi.stats.model.SubmissionStatType
 import uk.ac.ebi.stats.persistence.model.SubmissionStatDb
 import uk.ac.ebi.stats.persistence.repositories.SubmissionStatsRepository
 
-class SubmissionStatsService(private val submissionStatsRepository: SubmissionStatsRepository) {
+open class SubmissionStatsService(private val submissionStatsRepository: SubmissionStatsRepository) {
     fun findByType(submissionStatType: SubmissionStatType): List<SubmissionStat> =
         submissionStatsRepository.findAllByType(submissionStatType).map { SubmissionStatMapper.toSubmissionStat(it) }
 
@@ -20,6 +21,9 @@ class SubmissionStatsService(private val submissionStatsRepository: SubmissionSt
         submissionStatsRepository.existsByAccNoAndType(stat.accNo, stat.type).not() -> insert(stat)
         else -> update(stat)
     }
+
+    @Transactional
+    open fun saveAll(stats: List<SubmissionStat>): List<SubmissionStat> = stats.map { save(it) }
 
     private fun insert(stat: SubmissionStat): SubmissionStat {
         val saved = SubmissionStatMapper.toSubmissionStatDb(stat)

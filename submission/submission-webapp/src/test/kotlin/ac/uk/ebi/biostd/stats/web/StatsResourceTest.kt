@@ -108,7 +108,7 @@ class StatsResourceTest(
 
     @Test
     fun `register from file`() {
-        val savedStat = slot<SubmissionStat>()
+        val savedStats = slot<List<SubmissionStat>>()
         val type = slot<SubmissionStatType>()
         val multipartStatsFile = slot<MultipartFile>()
         val statsFile = tempFolder.createFile("stats.tsv")
@@ -118,7 +118,7 @@ class StatsResourceTest(
             "value" to 10
         }).toString()
 
-        every { statsService.save(capture(savedStat)) } returns testStat
+        every { statsService.saveAll(capture(savedStats)) } returns listOf(testStat)
         every { tempFileGenerator.asFile(capture(multipartStatsFile)) } returns statsFile
         every { statsFileHandler.readStats(statsFile, capture(type)) } returns listOf(testStat)
 
@@ -131,7 +131,7 @@ class StatsResourceTest(
         }
 
         assertThat(type.captured).isEqualTo(NUMBER_VIEWS)
-        verify(exactly = 1) { statsService.save(savedStat.captured) }
+        verify(exactly = 1) { statsService.saveAll(savedStats.captured) }
         verify(exactly = 1) { tempFileGenerator.asFile(multipartStatsFile.captured) }
         verify(exactly = 1) { statsFileHandler.readStats(statsFile, type.captured) }
     }
