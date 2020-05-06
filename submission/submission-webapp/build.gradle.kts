@@ -26,7 +26,7 @@ import org.springframework.boot.gradle.tasks.bundling.BootJar
 plugins {
     id("org.jetbrains.kotlin.plugin.spring") version "1.3.41"
     id("io.spring.dependency-management") version "1.0.6.RELEASE"
-    id("org.springframework.boot") version "2.1.2.RELEASE"
+    id("org.springframework.boot") version "2.2.6.RELEASE"
 }
 
 dependencies {
@@ -34,6 +34,7 @@ dependencies {
     implementation(project(":submission:submitter"))
     implementation(project(":submission:submission-security"))
     implementation(project(":submission:notifications"))
+    implementation(project(":submission:stats"))
     implementation(project(":commons:commons-serialization"))
     implementation(project(":commons:commons-util"))
     implementation(project(":commons:commons-test"))
