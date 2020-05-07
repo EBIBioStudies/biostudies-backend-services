@@ -1,5 +1,5 @@
 package uk.ac.ebi.stats.model
 
-enum class SubmissionStatType {
-    NUMBER_VIEWS
+enum class SubmissionStatType(val value: String) {
+    VIEWS("views");
 }

@@ -1,7 +1,7 @@
 package uk.ac.ebi.stats.persistence.model
 
 import uk.ac.ebi.stats.model.SubmissionStatType
-import uk.ac.ebi.stats.model.SubmissionStatType.NUMBER_VIEWS
+import uk.ac.ebi.stats.model.SubmissionStatType.VIEWS
 import javax.persistence.Column
 import javax.persistence.Entity
 import javax.persistence.EnumType
@@ -27,5 +27,5 @@ class SubmissionStatDb(
     @GeneratedValue
     var id: Long = 0L
 
-    constructor() : this("", -1, NUMBER_VIEWS)
+    constructor() : this("", -1, VIEWS)
 }

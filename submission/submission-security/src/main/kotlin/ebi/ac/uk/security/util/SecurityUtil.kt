@@ -9,9 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import ebi.ac.uk.security.model.TokenPayload
 import io.jsonwebtoken.JwtParser
 import io.jsonwebtoken.Jwts
-import io.jsonwebtoken.MalformedJwtException
 import io.jsonwebtoken.SignatureAlgorithm
-import io.jsonwebtoken.SignatureException
 import mu.KotlinLogging
 import org.springframework.web.util.UriComponentsBuilder
 import java.security.MessageDigest
@@ -101,13 +99,12 @@ internal class SecurityUtil(
 
     private fun getFromToken(token: String): Option<DbUser> {
         var tokenUser = Option.empty<TokenPayload>()
-        try {
+
+        runCatching {
             val payload = jwtParser.setSigningKey(tokenHash).parseClaimsJws(token).body.subject
             tokenUser = Option.just(objectMapper.readValue(payload, TokenPayload::class.java))
-        } catch (exception: SignatureException) {
-            logger.error("detected invalid signature token", exception)
-        } catch (exception: MalformedJwtException) {
-            logger.error("detected invalid signature token", exception)
+        }.onFailure {
+            logger.error("detected invalid signature token: ${it.message}")
         }
 
         return tokenUser.map { userRepository.getOne(it.id) }

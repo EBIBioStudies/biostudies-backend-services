@@ -9,15 +9,15 @@ import uk.ac.ebi.stats.persistence.model.SubmissionStatDb
 import uk.ac.ebi.stats.persistence.repositories.SubmissionStatsRepository
 
 open class SubmissionStatsService(private val submissionStatsRepository: SubmissionStatsRepository) {
-    fun findByType(submissionStatType: SubmissionStatType): List<SubmissionStat> =
+    open fun findByType(submissionStatType: SubmissionStatType): List<SubmissionStat> =
         submissionStatsRepository.findAllByType(submissionStatType).map { SubmissionStatMapper.toSubmissionStat(it) }
 
-    fun findByAccNoAndType(accNo: String, submissionStatType: SubmissionStatType): SubmissionStat =
+    open fun findByAccNoAndType(accNo: String, submissionStatType: SubmissionStatType): SubmissionStat =
         SubmissionStatMapper.toSubmissionStat(
             submissionStatsRepository.findByAccNoAndType(accNo, submissionStatType)
             ?: throw StatNotFoundException(accNo, submissionStatType))
 
-    fun save(stat: SubmissionStat): SubmissionStat = when {
+    open fun save(stat: SubmissionStat): SubmissionStat = when {
         submissionStatsRepository.existsByAccNoAndType(stat.accNo, stat.type).not() -> insert(stat)
         else -> update(stat)
     }

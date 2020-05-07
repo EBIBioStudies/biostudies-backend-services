@@ -35,28 +35,28 @@ class StatsResource(
     @GetMapping("/{type}", produces = [APPLICATION_JSON_VALUE])
     @ResponseBody
     @ApiOperation("List all the registered submission stats of the given type")
-    @ApiImplicitParam(name = "X-Session-Token", value = "User authentication token", required = true)
+    @ApiImplicitParam(name = "X-SESSION-TOKEN", value = "Authentication token", required = true, paramType = "header")
     fun findByType(
-        @ApiParam(name = "type", value = "The type of stat. It should be one of the following: NUMBER_VIEWS")
+        @ApiParam(name = "type", value = "The type of stat. It should be one of the following: views")
         @PathVariable type: String
-    ): List<SubmissionStat> = submissionStatsService.findByType(SubmissionStatType.valueOf(type))
+    ): List<SubmissionStat> = submissionStatsService.findByType(SubmissionStatType.valueOf(type.toUpperCase()))
 
     @GetMapping("/{type}/{accNo}")
     @ResponseBody
     @ApiOperation("List all the registered submission stats of the given type for the given accession")
-    @ApiImplicitParam(name = "X-Session-Token", value = "User authentication token", required = true)
+    @ApiImplicitParam(name = "X-SESSION-TOKEN", value = "Authentication token", required = true, paramType = "header")
     fun findByType(
-        @ApiParam(name = "type", value = "The type of stat. It should be one of the following: NUMBER_VIEWS")
+        @ApiParam(name = "type", value = "The type of stat. It should be one of the following: views")
         @PathVariable type: String,
 
         @ApiParam(name = "accNo", value = "The submission accession number")
         @PathVariable accNo: String
-    ): SubmissionStat = submissionStatsService.findByAccNoAndType(accNo, SubmissionStatType.valueOf(type))
+    ): SubmissionStat = submissionStatsService.findByAccNoAndType(accNo, SubmissionStatType.valueOf(type.toUpperCase()))
 
     @PostMapping
     @ResponseBody
     @ApiOperation("Register a stat")
-    @ApiImplicitParam(name = "X-Session-Token", value = "User authentication token", required = true)
+    @ApiImplicitParam(name = "X-SESSION-TOKEN", value = "Authentication token", required = true, paramType = "header")
     fun register(
         @ApiParam(name = "stat", value = "The stat to register")
         @RequestBody stat: SubmissionStat
@@ -65,16 +65,16 @@ class StatsResource(
     @PostMapping("/{type}", headers = ["$CONTENT_TYPE=$MULTIPART_FORM_DATA"])
     @ResponseBody
     @ApiOperation("Register the stats contained in the given tab separated file")
-    @ApiImplicitParam(name = "X-Session-Token", value = "User authentication token", required = true)
+    @ApiImplicitParam(name = "X-SESSION-TOKEN", value = "Authentication token", required = true, paramType = "header")
     fun register(
-        @ApiParam(name = "type", value = "The type of stat. It should be one of the following: NUMBER_VIEWS")
+        @ApiParam(name = "type", value = "The type of stat. It should be one of the following: views")
         @PathVariable type: String,
 
         @ApiParam(name = "stats", value = "Tab separated file containing the stats to register")
         @RequestParam("stats") stats: MultipartFile
     ): List<SubmissionStat> {
         val statsFile = tempFileGenerator.asFile(stats)
-        val statsList = statsFileHandler.readStats(statsFile, SubmissionStatType.valueOf(type))
+        val statsList = statsFileHandler.readStats(statsFile, SubmissionStatType.valueOf(type.toUpperCase()))
 
         return submissionStatsService.saveAll(statsList)
     }
