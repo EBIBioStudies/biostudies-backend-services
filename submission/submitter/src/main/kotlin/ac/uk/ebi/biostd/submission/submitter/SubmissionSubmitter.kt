@@ -28,7 +28,7 @@ import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.SubmissionMethod
 import ebi.ac.uk.model.User
-import ebi.ac.uk.model.constants.SubFields
+import ebi.ac.uk.model.constants.RESERVED_ATTRIBUTES
 import ebi.ac.uk.model.constants.SubFields.PUBLIC_ACCESS_TAG
 import ebi.ac.uk.model.extensions.accNoTemplate
 import ebi.ac.uk.model.extensions.attachTo
@@ -124,7 +124,7 @@ open class SubmissionSubmitter(
         projectInfoService.process(ProjectRequest(user.email, submission.section.type, submission.accNoTemplate, accNo))
 
     private fun getAttributes(submission: Submission) = submission.attributes
-        .filter { it.name != SubFields.RELEASE_DATE.value }
+        .filterNot { RESERVED_ATTRIBUTES.contains(it.name) }
         .map { it.toExtAttribute() }
 
     private fun getAccNumber(sub: Submission, user: User, parentPattern: String?) =

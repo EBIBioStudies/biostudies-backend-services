@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.persistence.mapping.extended.to
 
-import ac.uk.ebi.biostd.persistence.model.SubmissionDb
+import ac.uk.ebi.biostd.persistence.model.DbSubmission
 import ebi.ac.uk.extended.model.ExtAccessTag
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtTag
@@ -17,7 +17,7 @@ private const val FILES_DIR = "Files"
 private const val USER_PREFIX = "u"
 
 class ToExtSubmissionMapper(private val submissionsPath: Path) {
-    internal fun toExtSubmission(dbSubmission: SubmissionDb): ExtSubmission {
+    internal fun toExtSubmission(dbSubmission: DbSubmission): ExtSubmission {
         return ExtSubmission(
             accNo = dbSubmission.accNo,
             title = dbSubmission.title,
@@ -54,7 +54,7 @@ class ToExtSubmissionMapper(private val submissionsPath: Path) {
         }
     }
 
-    private fun getSubmissionSource(dbSubmission: SubmissionDb): FilesSource {
+    private fun getSubmissionSource(dbSubmission: DbSubmission): FilesSource {
         val filesPath = submissionsPath.resolve(dbSubmission.relPath).resolve(FILES_DIR)
         return ComposedFileSource(listOf(PathFilesSource(filesPath), PathFilesSource(filesPath.resolve(USER_PREFIX))))
     }

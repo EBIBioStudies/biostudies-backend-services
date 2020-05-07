@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.persistence.mapping.extended.from
 
+import ac.uk.ebi.biostd.persistence.model.DbSubmission
 import ac.uk.ebi.biostd.persistence.model.DbSubmissionAttribute
-import ac.uk.ebi.biostd.persistence.model.SubmissionDb
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
 import ac.uk.ebi.biostd.persistence.repositories.TagDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
@@ -19,7 +19,7 @@ class ToDbSubmissionMapper(
     private val tagsRefRepository: TagDataRepository,
     private var userRepository: UserDataRepository
 ) {
-    fun toSubmissionDb(submission: ExtSubmission, submitter: String) = SubmissionDb().apply {
+    fun toSubmissionDb(submission: ExtSubmission, submitter: String) = DbSubmission().apply {
         accNo = submission.accNo
         title = submission.title
         status = getStatus(submission.status)

@@ -31,7 +31,6 @@ import ebi.ac.uk.model.extensions.attachTo
 import ebi.ac.uk.model.extensions.releaseDate
 import ebi.ac.uk.model.extensions.title
 import ebi.ac.uk.security.integration.model.api.SecurityUser
-import ebi.ac.uk.util.collections.second
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
@@ -146,9 +145,7 @@ class SubmissionSubmitterTest {
         assertThat(expected.accessTags).hasSize(1)
         assertThat(expected.accessTags.first().name).isEqualTo("BioImages")
         assertThat(expected.section.type).isEqualTo("Study")
-        assertThat(expected.attributes).hasSize(2)
-        assertExtAttribute(expected.attributes.first(), "Title", "Test Submission")
-        assertExtAttribute(expected.attributes.second(), "AttachTo", "BioImages")
+        assertThat(expected.attributes).isEmpty()
     }
 
     private fun assertExtAttribute(extAttr: ExtAttribute, name: String, value: String) {

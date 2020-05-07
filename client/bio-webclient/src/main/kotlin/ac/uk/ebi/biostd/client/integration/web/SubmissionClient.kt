@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.client.integration.web
 
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.JSON
+import ebi.ac.uk.api.ClientResponse
 import ebi.ac.uk.api.UserFile
 import ebi.ac.uk.api.dto.NonRegistration
 import ebi.ac.uk.api.dto.RegisterConfig
@@ -14,7 +15,6 @@ import ebi.ac.uk.model.Group
 import ebi.ac.uk.model.Project
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.SubmissionDraft
-import org.springframework.http.ResponseEntity
 import java.io.File
 
 interface SubmissionClient :
@@ -24,6 +24,8 @@ interface SubmissionClient :
     MultipartSubmissionOperations,
     GeneralOperations,
     DraftSubmissionOperations
+
+typealias SubmissionResponse = ClientResponse<Submission>
 
 interface FilesOperations {
     fun uploadFiles(files: List<File>, relativePath: String = EMPTY)
@@ -54,13 +56,15 @@ interface SubmissionOperations {
         submission: Submission,
         format: SubmissionFormat = JSON,
         register: RegisterConfig = NonRegistration
-    ): ResponseEntity<Submission>
+    ): SubmissionResponse
 
     fun submitSingle(
         submission: String,
         format: SubmissionFormat = JSON,
         register: RegisterConfig = NonRegistration
-    ): ResponseEntity<Submission>
+    ): SubmissionResponse
+
+    fun refreshSubmission(accNo: String): SubmissionResponse
 
     fun deleteSubmission(accNo: String)
 
@@ -68,15 +72,11 @@ interface SubmissionOperations {
 }
 
 interface MultipartSubmissionOperations {
-    fun submitSingle(submission: String, format: SubmissionFormat, files: List<File>): ResponseEntity<Submission>
+    fun submitSingle(submission: String, format: SubmissionFormat, files: List<File>): SubmissionResponse
 
-    fun submitSingle(submission: Submission, format: SubmissionFormat, files: List<File>): ResponseEntity<Submission>
+    fun submitSingle(submission: Submission, format: SubmissionFormat, files: List<File>): SubmissionResponse
 
-    fun submitSingle(
-        submission: File,
-        files: List<File>,
-        subAttrs: Map<String, String> = emptyMap()
-    ): ResponseEntity<Submission>
+    fun submitSingle(submission: File, files: List<File>, attrs: Map<String, String> = emptyMap()): SubmissionResponse
 }
 
 interface SecurityOperations {

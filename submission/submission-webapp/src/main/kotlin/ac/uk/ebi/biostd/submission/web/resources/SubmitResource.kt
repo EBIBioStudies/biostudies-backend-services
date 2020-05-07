@@ -114,7 +114,7 @@ class SubmitResource(private val submitWebHandler: SubmitWebHandler) {
 
         @ApiParam(name = "accNo", value = "The accession number of the submission to be refresh")
         @PathVariable accNo: String
-    ) {
-        submitWebHandler.refreshSubmission(RefreshWebRequest(accNo, user))
+    ): Submission {
+        return submitWebHandler.refreshSubmission(RefreshWebRequest(accNo, user))
     }
 }
