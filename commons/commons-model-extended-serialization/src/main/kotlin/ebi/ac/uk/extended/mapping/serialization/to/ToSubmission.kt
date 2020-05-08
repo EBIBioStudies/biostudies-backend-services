@@ -25,8 +25,8 @@ fun ExtSubmission.toSimpleSubmission(): Submission {
 
 private fun ExtSubmission.getSubmissionAttributes(): List<Attribute> {
     val subAttrs = attributes.map { it.toAttribute() }.toMutableSet()
-    releaseTime?.let { subAttrs.add(Attribute(SubFields.RELEASE_DATE, it.toLocalDate())) }
     title?.let { subAttrs.add(Attribute(SubFields.TITLE, it)) }
+    releaseTime?.let { subAttrs.add(Attribute(SubFields.RELEASE_DATE, it.toLocalDate())) }
     rootPath?.let { subAttrs.add(Attribute(SubFields.ROOT_PATH, it)) }
     accessTags.filter { it.name != PUBLIC_ACCESS_TAG.value }.forEach { subAttrs.add(Attribute(ATTACH_TO, it.name)) }
     return subAttrs.toList()
@@ -40,8 +40,7 @@ fun ExtSubmission.toExtSubmission(): Submission {
         accNo = accNo,
         section = section.toSection(),
         attributes = attributes.map { it.toAttribute() }.toMutableList(),
-        tags = tags.mapTo(mutableListOf()) { Pair(it.name, it.value) },
-        accessTags = accessTags.mapTo(mutableListOf()) { it.name }
+        tags = tags.mapTo(mutableListOf()) { Pair(it.name, it.value) }
     )
 
     submission.secretKey = secretKey

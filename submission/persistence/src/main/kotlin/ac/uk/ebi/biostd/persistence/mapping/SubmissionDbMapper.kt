@@ -8,7 +8,6 @@ import ac.uk.ebi.biostd.persistence.mapping.DbEitherMapper.toLinks
 import ac.uk.ebi.biostd.persistence.mapping.DbEitherMapper.toSections
 import ac.uk.ebi.biostd.persistence.mapping.DbEntityMapper.toFileList
 import ac.uk.ebi.biostd.persistence.mapping.DbEntityMapper.toUser
-import ac.uk.ebi.biostd.persistence.model.DbAccessTag
 import ac.uk.ebi.biostd.persistence.model.DbSubmission
 import ac.uk.ebi.biostd.persistence.model.DbTag
 import ac.uk.ebi.biostd.persistence.model.Tabular
@@ -58,7 +57,7 @@ class SubmissionDbMapper {
             processingStatus = submissionDb.status
             extendedSection = sectionMapper.toExtendedSection(submissionDb.rootSection)
             attributes = getAttributes(submissionDb)
-            accessTags = submissionDb.accessTags.mapTo(mutableListOf(), DbAccessTag::name)
+            // accessTags = submissionDb.accessTags.mapTo(mutableListOf(), DbAccessTag::name)
             tags = submissionDb.tags.mapTo(mutableListOf(), ::toTag)
         }
 
@@ -74,7 +73,7 @@ class SubmissionDbMapper {
             accNo = submissionDb.accNo,
             attributes = getSubAttributes(submissionDb))
             .apply {
-                accessTags = submissionDb.accessTags.mapTo(mutableListOf(), DbAccessTag::name)
+                // accessTags = submissionDb.accessTags.mapTo(mutableListOf(), DbAccessTag::name)
                 section = sectionMapper.toSection(submissionDb.rootSection)
             }
 
