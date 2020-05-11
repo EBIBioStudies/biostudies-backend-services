@@ -20,7 +20,7 @@ import ebi.ac.uk.paths.SubmissionFolderResolver
 import java.io.File
 import java.nio.file.Path
 
-class RefFilesService(
+class FilesService(
     private val folderResolver: SubmissionFolderResolver,
     private val serializationService: SerializationService
 ) {

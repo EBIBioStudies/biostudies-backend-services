@@ -2,7 +2,9 @@ package ac.uk.ebi.biostd.persistence.mapping.extended.to
 
 import ac.uk.ebi.biostd.persistence.model.DbSubmission
 import ebi.ac.uk.extended.model.ExtAccessTag
+import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.extended.model.ExtSubmissionMethod
 import ebi.ac.uk.extended.model.ExtTag
 import ebi.ac.uk.io.sources.ComposedFileSource
 import ebi.ac.uk.io.sources.FilesSource
@@ -38,21 +40,19 @@ class ToExtSubmissionMapper(private val submissionsPath: Path) {
         )
     }
 
-    private fun getStatus(status: ProcessingStatus): ebi.ac.uk.extended.model.ExtProcessingStatus {
-        return when (status) {
-            ProcessingStatus.PROCESSED -> ebi.ac.uk.extended.model.ExtProcessingStatus.PROCESSED
-            ProcessingStatus.PROCESSING -> ebi.ac.uk.extended.model.ExtProcessingStatus.PROCESSING
+    private fun getStatus(status: ProcessingStatus) =
+        when (status) {
+            ProcessingStatus.PROCESSED -> ExtProcessingStatus.PROCESSED
+            ProcessingStatus.PROCESSING -> ExtProcessingStatus.PROCESSING
         }
-    }
 
-    private fun getMethod(method: SubmissionMethod?): ebi.ac.uk.extended.model.ExtSubmissionMethod {
-        return when (method) {
-            SubmissionMethod.FILE -> ebi.ac.uk.extended.model.ExtSubmissionMethod.FILE
-            SubmissionMethod.PAGE_TAB -> ebi.ac.uk.extended.model.ExtSubmissionMethod.PAGE_TAB
-            SubmissionMethod.UNKNOWN -> ebi.ac.uk.extended.model.ExtSubmissionMethod.UNKNOWN
-            null -> ebi.ac.uk.extended.model.ExtSubmissionMethod.UNKNOWN
+    private fun getMethod(method: SubmissionMethod?) =
+        when (method) {
+            SubmissionMethod.FILE -> ExtSubmissionMethod.FILE
+            SubmissionMethod.PAGE_TAB -> ExtSubmissionMethod.PAGE_TAB
+            SubmissionMethod.UNKNOWN -> ExtSubmissionMethod.UNKNOWN
+            null -> ExtSubmissionMethod.UNKNOWN
         }
-    }
 
     private fun getSubmissionSource(dbSubmission: DbSubmission): FilesSource {
         val filesPath = submissionsPath.resolve(dbSubmission.relPath).resolve(FILES_DIR)

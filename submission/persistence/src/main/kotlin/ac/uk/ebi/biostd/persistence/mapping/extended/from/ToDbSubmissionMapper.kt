@@ -11,6 +11,8 @@ import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod
 import ebi.ac.uk.extended.model.ExtTag
+import ebi.ac.uk.model.SubmissionMethod
+import ebi.ac.uk.model.constants.ProcessingStatus
 
 private const val ROOT_SECTION_ORDER = 0
 
@@ -39,20 +41,18 @@ class ToDbSubmissionMapper(
         rootSection = submission.section.toDbSection(this, ROOT_SECTION_ORDER)
     }
 
-    private fun getStatus(status: ExtProcessingStatus): ebi.ac.uk.model.constants.ProcessingStatus {
-        return when (status) {
-            ExtProcessingStatus.PROCESSED -> ebi.ac.uk.model.constants.ProcessingStatus.PROCESSED
-            ExtProcessingStatus.PROCESSING -> ebi.ac.uk.model.constants.ProcessingStatus.PROCESSING
+    private fun getStatus(status: ExtProcessingStatus): ProcessingStatus =
+        when (status) {
+            ExtProcessingStatus.PROCESSED -> ProcessingStatus.PROCESSED
+            ExtProcessingStatus.PROCESSING -> ProcessingStatus.PROCESSING
         }
-    }
 
-    private fun getMethod(method: ExtSubmissionMethod): ebi.ac.uk.model.SubmissionMethod {
-        return when (method) {
-            ExtSubmissionMethod.FILE -> ebi.ac.uk.model.SubmissionMethod.FILE
-            ExtSubmissionMethod.PAGE_TAB -> ebi.ac.uk.model.SubmissionMethod.PAGE_TAB
-            ExtSubmissionMethod.UNKNOWN -> ebi.ac.uk.model.SubmissionMethod.UNKNOWN
+    private fun getMethod(method: ExtSubmissionMethod): SubmissionMethod =
+        when (method) {
+            ExtSubmissionMethod.FILE -> SubmissionMethod.FILE
+            ExtSubmissionMethod.PAGE_TAB -> SubmissionMethod.PAGE_TAB
+            ExtSubmissionMethod.UNKNOWN -> SubmissionMethod.UNKNOWN
         }
-    }
 
     private fun toDbSubmissionAttribute(idx: Int, attr: ExtAttribute) = DbSubmissionAttribute(attr.toDbAttribute(idx))
 

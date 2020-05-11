@@ -22,8 +22,8 @@ import ac.uk.ebi.biostd.persistence.service.ProjectRepository
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
 import ac.uk.ebi.biostd.persistence.service.UserPermissionsService
 import ac.uk.ebi.biostd.persistence.service.filesystem.FileSystemService
+import ac.uk.ebi.biostd.persistence.service.filesystem.FilesService
 import ac.uk.ebi.biostd.persistence.service.filesystem.FtpFilesService
-import ac.uk.ebi.biostd.persistence.service.filesystem.RefFilesService
 import com.cosium.spring.data.jpa.entity.graph.repository.support.EntityGraphJpaRepositoryFactoryBean
 import ebi.ac.uk.notifications.persistence.repositories.SubmissionRtRepository
 import ebi.ac.uk.paths.SubmissionFolderResolver
@@ -75,14 +75,14 @@ class PersistenceConfig(
     fun ftpFilesService() = FtpFilesService(folderResolver)
 
     @Bean
-    fun filePersistenceService() = RefFilesService(folderResolver, serializationService)
+    fun filePersistenceService() = FilesService(folderResolver, serializationService)
 
     @Bean
     fun userPermissionsService() = UserPermissionsService(permissionRepository)
 
     @Bean
-    fun fileSystemService(refFilesService: RefFilesService, ftpService: FtpFilesService) =
-        FileSystemService(refFilesService, ftpService)
+    fun fileSystemService(filesService: FilesService, ftpService: FtpFilesService) =
+        FileSystemService(filesService, ftpService)
 
     @Bean
     @ConditionalOnMissingBean(LockExecutor::class)
