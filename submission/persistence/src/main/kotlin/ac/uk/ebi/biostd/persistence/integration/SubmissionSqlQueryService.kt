@@ -35,6 +35,8 @@ class SubmissionSqlQueryService(
     override fun getExistingFolder(accNo: String): File? =
         findSubmission(accNo)?.let { folderResolver.getSubmissionFolder(it.relPath).toFile() }
 
+    override fun getOwner(accNo: String): String? = findSubmission(accNo)?.owner?.email
+
     private fun getSubmission(accNo: String) =
         subRepository.getByAccNoAndVersionGreaterThan(accNo, 0) ?: throw SubmissionNotFoundException(accNo)
 

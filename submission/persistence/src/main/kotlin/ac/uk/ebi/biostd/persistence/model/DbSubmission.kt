@@ -132,6 +132,10 @@ class DbSubmission(
     @JoinColumn(name = "owner_id")
     lateinit var owner: DbUser
 
+    @ManyToOne
+    @JoinColumn(name = "submitter_id")
+    lateinit var submitter: DbUser
+
     @ManyToMany(cascade = [CascadeType.ALL])
     @JoinTable(name = "Submission_AccessTag",
         joinColumns = [JoinColumn(name = "Submission_Id", referencedColumnName = "id")],

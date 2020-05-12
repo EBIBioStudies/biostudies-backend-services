@@ -6,7 +6,7 @@ import ebi.ac.uk.security.integration.model.api.SecurityUser
 import java.io.File
 
 sealed class SubmitWebRequest(
-    val user: SecurityUser,
+    val submitter: SecurityUser,
     val format: SubFormat,
     val fileMode: FileMode,
     val files: List<File>,

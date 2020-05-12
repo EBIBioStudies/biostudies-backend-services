@@ -43,6 +43,8 @@ data class ExtSection(
 data class ExtSubmission(
     val accNo: String,
     var version: Int,
+    val owner: String,
+    val submitter: String,
     val title: String?,
     val method: ExtSubmissionMethod,
     val relPath: String,

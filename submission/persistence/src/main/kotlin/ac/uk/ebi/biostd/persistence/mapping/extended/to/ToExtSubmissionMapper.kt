@@ -22,6 +22,8 @@ class ToExtSubmissionMapper(private val submissionsPath: Path) {
     internal fun toExtSubmission(dbSubmission: DbSubmission): ExtSubmission {
         return ExtSubmission(
             accNo = dbSubmission.accNo,
+            owner = dbSubmission.owner.email,
+            submitter = dbSubmission.submitter.email,
             title = dbSubmission.title,
             version = dbSubmission.version,
             method = getMethod(dbSubmission.method),

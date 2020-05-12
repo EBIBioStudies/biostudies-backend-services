@@ -3,7 +3,6 @@ package ac.uk.ebi.biostd.submission.submitter
 import ac.uk.ebi.biostd.persistence.integration.PersistenceContext
 import ac.uk.ebi.biostd.persistence.integration.SaveRequest
 import ac.uk.ebi.biostd.persistence.integration.SubmissionQueryService
-import ac.uk.ebi.biostd.submission.events.SubmissionEvents.successfulSubmission
 import ac.uk.ebi.biostd.submission.events.SuccessfulSubmission
 import ac.uk.ebi.biostd.submission.exceptions.InvalidSubmissionException
 import ac.uk.ebi.biostd.submission.model.SubmissionRequest
@@ -23,6 +22,7 @@ import ebi.ac.uk.extended.mapping.serialization.to.toSimpleSubmission
 import ebi.ac.uk.extended.model.ExtAccessTag
 import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.extended.model.ExtSubmissionMethod
 import ebi.ac.uk.extended.model.ExtTag
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.model.Submission
@@ -40,6 +40,7 @@ import org.springframework.transaction.annotation.Isolation
 import org.springframework.transaction.annotation.Transactional
 import java.time.OffsetDateTime
 import java.util.UUID
+import ac.uk.ebi.biostd.submission.events.SubmissionEvents.successfulSubmission as submitEvent
 
 open class SubmissionSubmitter(
     private val timesService: TimesService,
@@ -51,22 +52,22 @@ open class SubmissionSubmitter(
 ) {
     @Transactional(isolation = Isolation.READ_UNCOMMITTED)
     open fun submit(request: SubmissionRequest): Submission {
-        val user = request.user.asUser()
-        val extSubmission = process(request.submission, request.user.asUser(), request.sources, request.method)
-        val submitted = context.saveSubmission(SaveRequest(extSubmission, user, request.mode)).toSimpleSubmission()
-        user.notificationsEnabled.ifTrue { successfulSubmission.onNext(SuccessfulSubmission(user, extSubmission)) }
+        val submitter = request.submitter.asUser()
+        val submission = process(request.submission, request.submitter.asUser(), request.sources, request.method)
+        val submitted = context.saveSubmission(SaveRequest(submission, request.mode)).toSimpleSubmission()
+        submitter.notificationsEnabled.ifTrue { submitEvent.onNext(SuccessfulSubmission(submitter, submission)) }
         return submitted
     }
 
     @Suppress("TooGenericExceptionCaught")
     private fun process(
         submission: Submission,
-        user: User,
+        submitter: User,
         source: FilesSource,
         method: SubmissionMethod
     ): ExtSubmission {
         try {
-            return processSubmission(submission, user, source, method)
+            return processSubmission(submission, submitter, source, method)
         } catch (exception: RuntimeException) {
             throw InvalidSubmissionException("Submission validation errors", listOf(exception))
         }
@@ -84,9 +85,12 @@ open class SubmissionSubmitter(
         val nextVersion = context.getNextVersion(accNoString)
         val relPath = accNoService.getRelPath(accNo)
         val tags = getTags(released, parentTags, projectInfo)
+        val owner = queryService.getOwner(accNoString) ?: user.email
 
         return ExtSubmission(
             accNo = accNoString,
+            owner = owner,
+            submitter = user.email,
             version = nextVersion,
             method = getMethod(method),
             title = submission.title,
@@ -105,11 +109,11 @@ open class SubmissionSubmitter(
         )
     }
 
-    private fun getMethod(method: SubmissionMethod): ebi.ac.uk.extended.model.ExtSubmissionMethod {
+    private fun getMethod(method: SubmissionMethod): ExtSubmissionMethod {
         return when (method) {
-            SubmissionMethod.FILE -> ebi.ac.uk.extended.model.ExtSubmissionMethod.FILE
-            SubmissionMethod.PAGE_TAB -> ebi.ac.uk.extended.model.ExtSubmissionMethod.PAGE_TAB
-            SubmissionMethod.UNKNOWN -> ebi.ac.uk.extended.model.ExtSubmissionMethod.UNKNOWN
+            SubmissionMethod.FILE -> ExtSubmissionMethod.FILE
+            SubmissionMethod.PAGE_TAB -> ExtSubmissionMethod.PAGE_TAB
+            SubmissionMethod.UNKNOWN -> ExtSubmissionMethod.UNKNOWN
         }
     }
 

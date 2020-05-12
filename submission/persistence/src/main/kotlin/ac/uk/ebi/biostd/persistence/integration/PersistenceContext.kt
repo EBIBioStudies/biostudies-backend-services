@@ -15,7 +15,7 @@ interface PersistenceContext {
 
     fun accessTagExists(accessTag: String): Boolean
 
-    fun deleteSubmissionDrafts(userId: Long, accNo: String)
+    fun deleteSubmissionDrafts(userEmail: String, accNo: String)
 
     fun getNextVersion(accNo: String): Int
 

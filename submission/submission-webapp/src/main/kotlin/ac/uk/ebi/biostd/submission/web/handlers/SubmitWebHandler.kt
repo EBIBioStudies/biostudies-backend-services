@@ -20,6 +20,8 @@ import ebi.ac.uk.model.extensions.rootPath
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import java.io.File
 
+typealias Request = SubmissionRequest
+
 private const val DIRECT_UPLOAD_PATH = "direct-uploads"
 
 class SubmitWebHandler(
@@ -30,23 +32,23 @@ class SubmitWebHandler(
 ) {
     fun submit(request: ContentSubmitWebRequest): Submission {
         val sub = serializationService.deserializeSubmission(request.submission, request.format)
-        val source = sources(request.user, sub, request.files)
+        val source = sources(request.submitter, sub, request.files)
         val submission = withAttributes(submission(request.submission, request.format, source), request.attrs)
-        return submissionService.submit(SubmissionRequest(submission, request.user, source, PAGE_TAB, request.fileMode))
+        return submissionService.submit(Request(submission, request.submitter, source, PAGE_TAB, request.fileMode))
     }
 
     fun refreshSubmission(request: RefreshWebRequest): Submission {
         val submission = submissionService.getSubmission(request.accNo).toSimpleSubmission()
         val source = sources(request.user, submission)
-        return submissionService.submit(SubmissionRequest(submission, request.user, source, PAGE_TAB, FileMode.MOVE))
+        return submissionService.submit(Request(submission, request.user, source, PAGE_TAB, FileMode.MOVE))
     }
 
     fun submit(request: FileSubmitWebRequest): Submission {
         val sub = serializationService.deserializeSubmission(request.submission)
-        val source = sources(request.user, sub, request.files.plus(request.submission))
+        val source = sources(request.submitter, sub, request.files.plus(request.submission))
         val submission = withAttributes(submission(request.submission, source), request.attrs)
-        userFilesService.uploadFile(request.user, DIRECT_UPLOAD_PATH, request.submission)
-        return submissionService.submit(SubmissionRequest(submission, request.user, source, FILE, request.fileMode))
+        userFilesService.uploadFile(request.submitter, DIRECT_UPLOAD_PATH, request.submission)
+        return submissionService.submit(Request(submission, request.submitter, source, FILE, request.fileMode))
     }
 
     private fun sources(user: SecurityUser, submission: Submission, files: List<File> = emptyList()): FilesSource {
