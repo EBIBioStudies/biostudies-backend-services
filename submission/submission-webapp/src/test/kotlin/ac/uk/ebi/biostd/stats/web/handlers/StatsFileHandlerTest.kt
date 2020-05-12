@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.stats.model.SubmissionStat
-import uk.ac.ebi.stats.model.SubmissionStatType.NUMBER_VIEWS
+import uk.ac.ebi.stats.model.SubmissionStatType.VIEWS
 
 @ExtendWith(TemporaryFolderExtension::class)
 class StatsFileHandlerTest(private val tempFolder: TemporaryFolder) {
@@ -25,7 +25,7 @@ class StatsFileHandlerTest(private val tempFolder: TemporaryFolder) {
             line("S-TEST124", 20)
         }
         val statsFile = tempFolder.createFile("stats.tsv", fileContent.toString())
-        val stats = testInstance.readStats(statsFile, NUMBER_VIEWS)
+        val stats = testInstance.readStats(statsFile, VIEWS)
 
         assertThat(stats).hasSize(2)
         assertStat(stats.first(), "S-TEST123", 10L)
@@ -40,13 +40,13 @@ class StatsFileHandlerTest(private val tempFolder: TemporaryFolder) {
         }
         val statsFile = tempFolder.createFile("invalid-stats.tsv", fileContent.toString())
 
-        val exception = assertThrows<InvalidStatException> { testInstance.readStats(statsFile, NUMBER_VIEWS) }
+        val exception = assertThrows<InvalidStatException> { testInstance.readStats(statsFile, VIEWS) }
         assertThat(exception.message).isEqualTo("The stats should have accNo and value")
     }
 
     private fun assertStat(stat: SubmissionStat, accNo: String, value: Long) {
         assertThat(stat.accNo).isEqualTo(accNo)
         assertThat(stat.value).isEqualTo(value)
-        assertThat(stat.type).isEqualTo(NUMBER_VIEWS)
+        assertThat(stat.type).isEqualTo(VIEWS)
     }
 }

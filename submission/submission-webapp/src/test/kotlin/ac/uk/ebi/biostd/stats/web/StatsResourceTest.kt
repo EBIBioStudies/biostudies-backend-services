@@ -24,7 +24,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import org.springframework.web.multipart.MultipartFile
 import uk.ac.ebi.stats.model.SubmissionStat
 import uk.ac.ebi.stats.model.SubmissionStatType
-import uk.ac.ebi.stats.model.SubmissionStatType.NUMBER_VIEWS
+import uk.ac.ebi.stats.model.SubmissionStatType.VIEWS
 import uk.ac.ebi.stats.service.SubmissionStatsService
 
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
@@ -34,7 +34,7 @@ class StatsResourceTest(
     @MockK private val tempFileGenerator: TempFileGenerator,
     @MockK private val statsService: SubmissionStatsService
 ) {
-    private val testStat = SubmissionStat("S-TEST123", 10, NUMBER_VIEWS)
+    private val testStat = SubmissionStat("S-TEST123", 10, VIEWS)
     private val testInstance = StatsResource(statsFileHandler, tempFileGenerator, statsService)
     private val mvc = MockMvcBuilders.standaloneSetup(testInstance).build()
 
@@ -46,20 +46,20 @@ class StatsResourceTest(
         val type = slot<SubmissionStatType>()
         val expectedResponse = jsonArray(jsonObj {
             "accNo" to "S-TEST123"
-            "type" to "NUMBER_VIEWS"
+            "type" to "VIEWS"
             "value" to 10
         })
 
         every { statsService.findByType(capture(type)) } returns listOf(testStat)
 
-        mvc.get("/stats/NUMBER_VIEWS") {
+        mvc.get("/stats/views") {
             accept = APPLICATION_JSON
         }.andExpect {
             status { isOk }
             content { json(expectedResponse.toString()) }
         }
 
-        assertThat(type.captured).isEqualTo(NUMBER_VIEWS)
+        assertThat(type.captured).isEqualTo(VIEWS)
     }
 
     @Test
@@ -67,20 +67,20 @@ class StatsResourceTest(
         val type = slot<SubmissionStatType>()
         val expectedResponse = jsonObj {
             "accNo" to "S-TEST123"
-            "type" to "NUMBER_VIEWS"
+            "type" to "VIEWS"
             "value" to 10
         }
 
         every { statsService.findByAccNoAndType("S-TEST123", capture(type)) } returns testStat
 
-        mvc.get("/stats/NUMBER_VIEWS/S-TEST123") {
+        mvc.get("/stats/views/S-TEST123") {
             accept = APPLICATION_JSON
         }.andExpect {
             status { isOk }
             content { json(expectedResponse.toString()) }
         }
 
-        assertThat(type.captured).isEqualTo(NUMBER_VIEWS)
+        assertThat(type.captured).isEqualTo(VIEWS)
     }
 
     @Test
@@ -88,7 +88,7 @@ class StatsResourceTest(
         val savedStat = slot<SubmissionStat>()
         val body = jsonObj {
             "accNo" to "S-TEST123"
-            "type" to "NUMBER_VIEWS"
+            "type" to "VIEWS"
             "value" to 10
         }.toString()
 
@@ -114,7 +114,7 @@ class StatsResourceTest(
         val statsFile = tempFolder.createFile("stats.tsv")
         val body = jsonArray(jsonObj {
             "accNo" to "S-TEST123"
-            "type" to "NUMBER_VIEWS"
+            "type" to "VIEWS"
             "value" to 10
         }).toString()
 
@@ -122,7 +122,7 @@ class StatsResourceTest(
         every { tempFileGenerator.asFile(capture(multipartStatsFile)) } returns statsFile
         every { statsFileHandler.readStats(statsFile, capture(type)) } returns listOf(testStat)
 
-        mvc.multipart("/stats/NUMBER_VIEWS") {
+        mvc.multipart("/stats/views") {
             accept = APPLICATION_JSON
             file("stats", body.toByteArray())
         }.andExpect {
@@ -130,7 +130,7 @@ class StatsResourceTest(
             content { json(body) }
         }
 
-        assertThat(type.captured).isEqualTo(NUMBER_VIEWS)
+        assertThat(type.captured).isEqualTo(VIEWS)
         verify(exactly = 1) { statsService.saveAll(savedStats.captured) }
         verify(exactly = 1) { tempFileGenerator.asFile(multipartStatsFile.captured) }
         verify(exactly = 1) { statsFileHandler.readStats(statsFile, type.captured) }
