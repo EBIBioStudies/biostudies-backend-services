@@ -30,6 +30,7 @@ internal class SecurityFilter(
                 .map { (user, token) -> setSecurityUser(user, token) }
             chain.doFilter(request, response)
         }.onFailure {
+            // TODO proper spring security exception handler
             (response as HttpServletResponse).status = HttpStatus.UNAUTHORIZED.value()
             response.writer.write(it.message ?: it.localizedMessage)
         }
