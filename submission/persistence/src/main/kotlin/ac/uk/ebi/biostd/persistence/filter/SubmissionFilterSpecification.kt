@@ -1,14 +1,14 @@
 package ac.uk.ebi.biostd.persistence.filter
 
 import ac.uk.ebi.biostd.persistence.model.DbSection
+import ac.uk.ebi.biostd.persistence.model.DbSubmission
 import ac.uk.ebi.biostd.persistence.model.DbUser
-import ac.uk.ebi.biostd.persistence.model.SubmissionDb
 import ebi.ac.uk.base.applyIfNotBlank
 import org.springframework.data.jpa.domain.Specification
 import java.time.OffsetDateTime
 
 class SubmissionFilterSpecification(userId: Long, filter: SubmissionFilter) {
-    val specification: Specification<SubmissionDb>
+    val specification: Specification<DbSubmission>
 
     init {
         var specs = where(withUser(userId)) and withActiveVersion()
@@ -21,25 +21,25 @@ class SubmissionFilterSpecification(userId: Long, filter: SubmissionFilter) {
     }
 
     // TODO: Replace string property names by constants
-    private fun withActiveVersion(): Specification<SubmissionDb> =
+    private fun withActiveVersion(): Specification<DbSubmission> =
         Specification { root, _, cb -> cb.greaterThan<Int>(root.get<Int>("version"), 0) }
 
-    private fun withAccession(accNo: String): Specification<SubmissionDb> =
+    private fun withAccession(accNo: String): Specification<DbSubmission> =
         Specification { root, _, cb -> cb.equal(root.get<Int>("accNo"), accNo) }
 
-    private fun withType(type: String): Specification<SubmissionDb> =
+    private fun withType(type: String): Specification<DbSubmission> =
         Specification { root, _, cb -> cb.equal(root.get<DbSection>("rootSection").get<String>("type"), type) }
 
-    private fun withTitleLike(title: String): Specification<SubmissionDb> =
+    private fun withTitleLike(title: String): Specification<DbSubmission> =
         Specification { root, _, cb -> cb.like(cb.lower(root.get("title")), "%" + title.toLowerCase() + "%") }
 
-    private fun withUser(userId: Long): Specification<SubmissionDb> =
+    private fun withUser(userId: Long): Specification<DbSubmission> =
         Specification { root, _, cb -> cb.equal(root.get<DbUser>("owner").get<Long>("id"), userId) }
 
-    private fun withFrom(from: OffsetDateTime): Specification<SubmissionDb> =
+    private fun withFrom(from: OffsetDateTime): Specification<DbSubmission> =
         Specification { root, _, cb -> cb.greaterThan(root.get("releaseTime"), from.toEpochSecond()) }
 
-    private fun withTo(to: OffsetDateTime): Specification<SubmissionDb> =
+    private fun withTo(to: OffsetDateTime): Specification<DbSubmission> =
         Specification { root, _, cb -> cb.lessThan(root.get("releaseTime"), to.toEpochSecond()) }
 }
 

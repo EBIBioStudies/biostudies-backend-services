@@ -1,9 +1,14 @@
 package ebi.ac.uk.model.constants
 
 private const val ACC_NO_FIELD = "accno"
-private const val ACCESS_FIELD = "accessTags"
 private const val SECTION_FIELD = "section"
 private const val ATTRIBUTES_FIELD = "attributes"
+
+val RESERVED_ATTRIBUTES = setOf(
+    SubFields.RELEASE_DATE.value,
+    SubFields.TITLE.value,
+    SubFields.ATTACH_TO.value,
+    SubFields.ROOT_PATH.value)
 
 interface Fields {
 

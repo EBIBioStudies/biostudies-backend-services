@@ -21,14 +21,14 @@ import ebi.ac.uk.extended.mapping.serialization.from.toExtAttribute
 import ebi.ac.uk.extended.mapping.serialization.from.toExtSection
 import ebi.ac.uk.extended.mapping.serialization.to.toSimpleSubmission
 import ebi.ac.uk.extended.model.ExtAccessTag
+import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtTag
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.SubmissionMethod
 import ebi.ac.uk.model.User
-import ebi.ac.uk.model.constants.ProcessingStatus
-import ebi.ac.uk.model.constants.SubFields
+import ebi.ac.uk.model.constants.RESERVED_ATTRIBUTES
 import ebi.ac.uk.model.constants.SubFields.PUBLIC_ACCESS_TAG
 import ebi.ac.uk.model.extensions.accNoTemplate
 import ebi.ac.uk.model.extensions.attachTo
@@ -88,13 +88,13 @@ open class SubmissionSubmitter(
         return ExtSubmission(
             accNo = accNoString,
             version = nextVersion,
-            method = method,
+            method = getMethod(method),
             title = submission.title,
             relPath = relPath,
             rootPath = submission.rootPath,
             released = released,
             secretKey = secretKey,
-            status = ProcessingStatus.PROCESSED,
+            status = ExtProcessingStatus.PROCESSED,
             releaseTime = releaseTime,
             modificationTime = modTime,
             creationTime = createTime,
@@ -103,6 +103,14 @@ open class SubmissionSubmitter(
             section = submission.section.toExtSection(source),
             attributes = getAttributes(submission)
         )
+    }
+
+    private fun getMethod(method: SubmissionMethod): ebi.ac.uk.extended.model.ExtSubmissionMethod {
+        return when (method) {
+            SubmissionMethod.FILE -> ebi.ac.uk.extended.model.ExtSubmissionMethod.FILE
+            SubmissionMethod.PAGE_TAB -> ebi.ac.uk.extended.model.ExtSubmissionMethod.PAGE_TAB
+            SubmissionMethod.UNKNOWN -> ebi.ac.uk.extended.model.ExtSubmissionMethod.UNKNOWN
+        }
     }
 
     private fun getTags(released: Boolean, parentTags: List<String>, project: ProjectResponse?): List<String> {
@@ -116,7 +124,7 @@ open class SubmissionSubmitter(
         projectInfoService.process(ProjectRequest(user.email, submission.section.type, submission.accNoTemplate, accNo))
 
     private fun getAttributes(submission: Submission) = submission.attributes
-        .filter { it.name != SubFields.RELEASE_DATE.value }
+        .filterNot { RESERVED_ATTRIBUTES.contains(it.name) }
         .map { it.toExtAttribute() }
 
     private fun getAccNumber(sub: Submission, user: User, parentPattern: String?) =

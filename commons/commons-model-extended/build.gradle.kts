@@ -5,7 +5,6 @@ import TestDependencies.BaseTestRuntimeDependencies
 
 dependencies {
     api(project(":commons:commons-util"))
-    api(project(":commons:commons-bio"))
 
     implementation(Arrow)
     implementation(Guava)

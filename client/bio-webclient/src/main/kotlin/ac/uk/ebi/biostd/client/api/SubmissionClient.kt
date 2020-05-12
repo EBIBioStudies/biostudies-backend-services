@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.web.SubmissionOperations
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat
+import ebi.ac.uk.api.ClientResponse
 import ebi.ac.uk.api.ON_BEHALF_PARAM
 import ebi.ac.uk.api.REGISTER_PARAM
 import ebi.ac.uk.api.USER_NAME_PARAM
@@ -17,7 +18,6 @@ import ebi.ac.uk.model.Submission
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
-import org.springframework.http.ResponseEntity
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.client.getForObject
 import org.springframework.web.client.postForEntity
@@ -30,11 +30,17 @@ internal class SubmissionClient(
     private val serializationService: SerializationService
 ) : SubmissionOperations {
 
-    override fun submitSingle(submission: Submission, format: SubmissionFormat, register: RegisterConfig) =
-        submitSingle(HttpEntity(asString(submission, format), createHeaders(format)), register)
+    override fun submitSingle(submission: Submission, format: SubmissionFormat, register: RegisterConfig):
+        SubmissionResponse = submitSingle(HttpEntity(asString(submission, format), createHeaders(format)), register)
 
-    override fun submitSingle(submission: String, format: SubmissionFormat, register: RegisterConfig) =
-        submitSingle(HttpEntity(submission, createHeaders(format)), register)
+    override fun submitSingle(submission: String, format: SubmissionFormat, register: RegisterConfig):
+        SubmissionResponse = submitSingle(HttpEntity(submission, createHeaders(format)), register)
+
+    override fun refreshSubmission(accNo: String): SubmissionResponse {
+        return template.postForEntity<String>("$SUBMISSIONS_URL/refresh/$accNo")
+            .map { body -> serializationService.deserializeSubmission(body, SubFormat.JSON) }
+            .let { ClientResponse(it.body!!, it.statusCodeValue) }
+    }
 
     override fun deleteSubmission(accNo: String) = template.delete("$SUBMISSIONS_URL/$accNo")
 
@@ -44,10 +50,11 @@ internal class SubmissionClient(
         return template.getForObject<Array<SubmissionDto>>(builder.toUriString()).toList()
     }
 
-    private fun submitSingle(request: HttpEntity<String>, register: RegisterConfig): ResponseEntity<Submission> {
+    private fun submitSingle(request: HttpEntity<String>, register: RegisterConfig): SubmissionResponse {
         return template
             .postForEntity<String>(buildUrl(register), request)
             .map { body -> serializationService.deserializeSubmission(body, SubFormat.JSON) }
+            .let { ClientResponse(it.body!!, it.statusCodeValue) }
     }
 
     private fun asString(submission: Submission, format: SubmissionFormat) =

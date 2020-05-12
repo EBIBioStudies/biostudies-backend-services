@@ -4,6 +4,8 @@ import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.constants.SubFields
+import ebi.ac.uk.model.constants.SubFields.ATTACH_TO
+import ebi.ac.uk.model.constants.SubFields.PUBLIC_ACCESS_TAG
 import ebi.ac.uk.model.extensions.creationTime
 import ebi.ac.uk.model.extensions.modificationTime
 import ebi.ac.uk.model.extensions.releaseTime
@@ -21,11 +23,12 @@ fun ExtSubmission.toSimpleSubmission(): Submission {
     )
 }
 
-// TODO: finally fix attributes by difenning which are and which not
 private fun ExtSubmission.getSubmissionAttributes(): List<Attribute> {
     val subAttrs = attributes.map { it.toAttribute() }.toMutableSet()
-    releaseTime?.let { subAttrs.add(Attribute(SubFields.RELEASE_DATE, releaseTime.toLocalDate())) }
-    title?.let { subAttrs.add(Attribute(SubFields.TITLE, title)) }
+    title?.let { subAttrs.add(Attribute(SubFields.TITLE, it)) }
+    releaseTime?.let { subAttrs.add(Attribute(SubFields.RELEASE_DATE, it.toLocalDate())) }
+    rootPath?.let { subAttrs.add(Attribute(SubFields.ROOT_PATH, it)) }
+    accessTags.filter { it.name != PUBLIC_ACCESS_TAG.value }.forEach { subAttrs.add(Attribute(ATTACH_TO, it.name)) }
     return subAttrs.toList()
 }
 
@@ -37,8 +40,7 @@ fun ExtSubmission.toExtSubmission(): Submission {
         accNo = accNo,
         section = section.toSection(),
         attributes = attributes.map { it.toAttribute() }.toMutableList(),
-        tags = tags.mapTo(mutableListOf()) { Pair(it.name, it.value) },
-        accessTags = accessTags.mapTo(mutableListOf()) { it.name }
+        tags = tags.mapTo(mutableListOf()) { Pair(it.name, it.value) }
     )
 
     submission.secretKey = secretKey

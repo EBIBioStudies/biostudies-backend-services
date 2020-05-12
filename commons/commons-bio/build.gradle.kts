@@ -7,6 +7,7 @@ import TestDependencies.BaseTestRuntimeDependencies
 
 dependencies {
     api(project(":commons:commons-util"))
+    api(project(":commons:commons-model-extended"))
 
     implementation(Arrow)
     implementation(JacksonDataBind)

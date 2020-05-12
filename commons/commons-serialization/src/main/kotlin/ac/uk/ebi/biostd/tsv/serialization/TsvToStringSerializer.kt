@@ -34,7 +34,7 @@ class TsvToStringSerializer {
     }
 
     private fun serializeSubmission(builder: TsvBuilder, submission: Submission) {
-        builder.addSubAccAndTags(submission.accNo, submission.accessTags)
+        builder.addSubAcc(submission.accNo)
         submission.attributes.forEach(builder::addAttr)
         serializeSection(builder, submission.section)
     }

@@ -26,13 +26,11 @@ object FileUtils {
         }
     }
 
-    private fun copyFile(source: Path, target: Path) {
-        Files.copy(source, createParentDirectories(target), StandardCopyOption.REPLACE_EXISTING)
-    }
-
-    private fun copyFolder(source: Path, target: Path) {
-        deleteIfExist(target)
-        Files.walkFileTree(source, CopyFileVisitor(source, target))
+    fun createHardLink(source: File, target: File) {
+        when (isDirectory(source)) {
+            true -> createFolderHardLinks(source.toPath(), target.toPath())
+            false -> createFileHardLink(source.toPath(), target.toPath())
+        }
     }
 
     fun moveFile(source: File, target: File) {
@@ -53,6 +51,25 @@ object FileUtils {
     }
 
     fun size(file: File): Long = Files.size(file.toPath())
+
+    private fun copyFile(source: Path, target: Path) {
+        Files.copy(source, createParentDirectories(target), StandardCopyOption.REPLACE_EXISTING)
+    }
+
+    private fun copyFolder(source: Path, target: Path) {
+        deleteIfExist(target)
+        Files.walkFileTree(source, CopyFileVisitor(source, target))
+    }
+
+    private fun createFileHardLink(source: Path, target: Path) {
+        deleteIfExist(target)
+        Files.createLink(source, createParentDirectories(target))
+    }
+
+    private fun createFolderHardLinks(source: Path, target: Path) {
+        deleteIfExist(target)
+        Files.walkFileTree(source, HardLinkFileVisitor(source, target))
+    }
 
     private fun createParentDirectories(path: Path): Path {
         Files.createDirectories(path.parent)

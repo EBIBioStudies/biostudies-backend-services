@@ -9,6 +9,4 @@ class SubmissionsWebHandler(private val submissionService: SubmissionService) {
     fun deleteSubmission(accNo: String, user: SecurityUser): Unit = submissionService.deleteSubmission(accNo, user)
 
     fun getSubmissions(user: SecurityUser, filter: SubmissionFilter) = submissionService.getSubmissions(user, filter)
-
-    fun refreshSubmission(accNo: String, user: SecurityUser) = submissionService.refreshSubmission(user, accNo)
 }

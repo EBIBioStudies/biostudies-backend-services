@@ -42,7 +42,7 @@ class DbSection(
 
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "submission_id")
-    var submission: SubmissionDb? = null
+    var submission: DbSubmission? = null
 
     @OneToOne(cascade = [CascadeType.ALL], fetch = LAZY)
     @JoinColumn(name = "fileListId")

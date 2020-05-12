@@ -5,6 +5,7 @@ include("commons:commons-bio")
 include("commons:commons-http")
 include("commons:commons-serialization")
 include("commons:commons-model-extended")
+include("commons:commons-model-extended-serialization")
 include("commons:commons-test")
 include("commons:commons-transpiler")
 
@@ -25,4 +26,3 @@ include("scheduler:pmc-processor-task")
 include("scheduler:scheduler")
 include("scheduler:task-properties")
 include("bio-admin")
-

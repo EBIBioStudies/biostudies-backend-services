@@ -21,16 +21,16 @@ import ebi.ac.uk.dsl.section
 import ebi.ac.uk.dsl.submission
 import ebi.ac.uk.extended.mapping.serialization.to.toSimpleSubmission
 import ebi.ac.uk.extended.model.ExtAttribute
+import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.extended.model.ExtSubmissionMethod
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.model.AccNumber
 import ebi.ac.uk.model.SubmissionMethod.PAGE_TAB
-import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSED
 import ebi.ac.uk.model.extensions.attachTo
 import ebi.ac.uk.model.extensions.releaseDate
 import ebi.ac.uk.model.extensions.title
 import ebi.ac.uk.security.integration.model.api.SecurityUser
-import ebi.ac.uk.util.collections.second
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
@@ -132,12 +132,12 @@ class SubmissionSubmitterTest {
         val expected = saveRequest.captured.submission
         assertThat(expected.accNo).isEqualTo("S-TEST123")
         assertThat(expected.version).isEqualTo(2)
-        assertThat(expected.method).isEqualTo(PAGE_TAB)
+        assertThat(expected.method).isEqualTo(ExtSubmissionMethod.PAGE_TAB)
         assertThat(expected.title).isEqualTo("Test Submission")
         assertThat(expected.relPath).isEqualTo("/a/rel/path")
         assertThat(expected.rootPath).isNull()
         assertThat(expected.secretKey).isEqualTo("a-secret-key")
-        assertThat(expected.status).isEqualTo(PROCESSED)
+        assertThat(expected.status).isEqualTo(ExtProcessingStatus.PROCESSED)
         assertThat(expected.releaseTime).isNull()
         assertThat(expected.modificationTime).isEqualTo(testTime)
         assertThat(expected.creationTime).isEqualTo(testTime)
@@ -145,9 +145,7 @@ class SubmissionSubmitterTest {
         assertThat(expected.accessTags).hasSize(1)
         assertThat(expected.accessTags.first().name).isEqualTo("BioImages")
         assertThat(expected.section.type).isEqualTo("Study")
-        assertThat(expected.attributes).hasSize(2)
-        assertExtAttribute(expected.attributes.first(), "Title", "Test Submission")
-        assertExtAttribute(expected.attributes.second(), "AttachTo", "BioImages")
+        assertThat(expected.attributes).isEmpty()
     }
 
     private fun assertExtAttribute(extAttr: ExtAttribute, name: String, value: String) {

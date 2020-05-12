@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.persistence.service
+package ac.uk.ebi.biostd.persistence.service.filesystem
 
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.JSON_PRETTY
@@ -24,7 +24,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import java.nio.file.Paths
 
 @ExtendWith(TemporaryFolderExtension::class, MockKExtension::class)
-class FilePersistenceServiceTest(
+class FilesServiceTest(
     private val temporaryFolder: TemporaryFolder,
     @MockK private val mockSerializationService: SerializationService
 ) {
@@ -35,7 +35,7 @@ class FilePersistenceServiceTest(
     private val extSubmission = extSubmissionWithFileList(listOf(sectionFile, sectionFolder), listOf(referencedFile))
 
     private val testInstance =
-        FilePersistenceService(SubmissionFolderResolver(temporaryFolder.root.toPath()), mockSerializationService)
+        FilesService(SubmissionFolderResolver(temporaryFolder.root.toPath()), mockSerializationService)
 
     @BeforeEach
     fun beforeEach() {

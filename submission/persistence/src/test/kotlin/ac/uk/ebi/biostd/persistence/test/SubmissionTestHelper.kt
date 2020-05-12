@@ -1,14 +1,15 @@
 package ac.uk.ebi.biostd.persistence.test
 
 import ac.uk.ebi.biostd.persistence.model.DbAccessTag
+import ac.uk.ebi.biostd.persistence.model.DbSubmission
 import ac.uk.ebi.biostd.persistence.model.DbTag
 import ac.uk.ebi.biostd.persistence.model.DbUser
-import ac.uk.ebi.biostd.persistence.model.SubmissionDb
 import ebi.ac.uk.extended.model.ExtAccessTag
+import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.extended.model.ExtSubmissionMethod
 import ebi.ac.uk.extended.model.ExtTag
-import ebi.ac.uk.model.SubmissionMethod
-import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSED
+import ebi.ac.uk.model.constants.ProcessingStatus
 import org.assertj.core.api.Assertions.assertThat
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
@@ -19,7 +20,6 @@ internal const val SUB_TITLE = "Study"
 internal const val SUB_RELPATH = "/submission/relpath"
 internal const val SUB_ROOT_PATH = "/rootpah"
 internal const val VERSION = 52
-internal val STATUS = PROCESSED
 
 internal val creationTime = OffsetDateTime.of(2018, 1, 1, 5, 10, 22, 1, ZoneOffset.UTC)
 internal val modificationTime = creationTime.plusDays(1)
@@ -34,9 +34,9 @@ internal val extSubmission
         secretKey = SECRET_KEY,
         attributes = listOf(extAttribute),
         released = true,
-        status = PROCESSED,
+        status = ExtProcessingStatus.PROCESSED,
         version = VERSION,
-        method = SubmissionMethod.FILE,
+        method = ExtSubmissionMethod.FILE,
         modificationTime = modificationTime,
         releaseTime = releaseTime,
         creationTime = creationTime,
@@ -51,10 +51,10 @@ internal val extTag: ExtTag
 internal val extAccessTag: ExtAccessTag
     get() = ExtAccessTag("access-tag")
 
-internal fun assertSubmission(submission: SubmissionDb, accessTags: List<DbAccessTag>, tags: List<DbTag>, owner: DbUser) {
+internal fun assertSubmission(submission: DbSubmission, accessTags: List<DbAccessTag>, tags: List<DbTag>, owner: DbUser) {
     assertThat(submission.accNo).isEqualTo(SUB_ACC_NO)
     assertThat(submission.title).isEqualTo(SUB_TITLE)
-    assertThat(submission.status).isEqualTo(PROCESSED)
+    assertThat(submission.status).isEqualTo(ProcessingStatus.PROCESSED)
     assertThat(submission.relPath).isEqualTo(SUB_RELPATH)
     assertThat(submission.rootPath).isEqualTo(SUB_ROOT_PATH)
     assertThat(submission.secretKey).isEqualTo(SECRET_KEY)

@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.persistence.projections
 
+import ac.uk.ebi.biostd.persistence.model.DbSubmission
 import ac.uk.ebi.biostd.persistence.model.SIMPLE_QUERY_GRAPH
-import ac.uk.ebi.biostd.persistence.model.SubmissionDb
 import ac.uk.ebi.biostd.persistence.model.ext.title
 import ebi.ac.uk.model.SubmissionMethod
 import ebi.ac.uk.model.constants.ProcessingStatus
@@ -27,7 +27,7 @@ data class SimpleSubmission(
     companion object {
         const val SIMPLE_GRAPH: String = SIMPLE_QUERY_GRAPH
 
-        fun SubmissionDb.asSimpleSubmission(): SimpleSubmission =
+        fun DbSubmission.asSimpleSubmission(): SimpleSubmission =
             SimpleSubmission(
                 accNo = accNo,
                 version = version,

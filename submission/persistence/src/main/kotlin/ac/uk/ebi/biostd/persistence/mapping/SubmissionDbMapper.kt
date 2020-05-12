@@ -8,9 +8,8 @@ import ac.uk.ebi.biostd.persistence.mapping.DbEitherMapper.toLinks
 import ac.uk.ebi.biostd.persistence.mapping.DbEitherMapper.toSections
 import ac.uk.ebi.biostd.persistence.mapping.DbEntityMapper.toFileList
 import ac.uk.ebi.biostd.persistence.mapping.DbEntityMapper.toUser
-import ac.uk.ebi.biostd.persistence.model.DbAccessTag
+import ac.uk.ebi.biostd.persistence.model.DbSubmission
 import ac.uk.ebi.biostd.persistence.model.DbTag
-import ac.uk.ebi.biostd.persistence.model.SubmissionDb
 import ac.uk.ebi.biostd.persistence.model.Tabular
 import arrow.core.Either
 import arrow.core.Either.Companion.left
@@ -44,7 +43,7 @@ import ac.uk.ebi.biostd.persistence.model.ReferencedFileList as FileListDb
 class SubmissionDbMapper {
     private val sectionMapper = DbSectionMapper()
 
-    fun toExtSubmission(submissionDb: SubmissionDb) =
+    fun toExtSubmission(submissionDb: DbSubmission) =
         ExtendedSubmission(submissionDb.accNo, toUser(submissionDb.owner)).apply {
             version = submissionDb.version
             secretKey = submissionDb.secretKey
@@ -58,27 +57,27 @@ class SubmissionDbMapper {
             processingStatus = submissionDb.status
             extendedSection = sectionMapper.toExtendedSection(submissionDb.rootSection)
             attributes = getAttributes(submissionDb)
-            accessTags = submissionDb.accessTags.mapTo(mutableListOf(), DbAccessTag::name)
+            // accessTags = submissionDb.accessTags.mapTo(mutableListOf(), DbAccessTag::name)
             tags = submissionDb.tags.mapTo(mutableListOf(), ::toTag)
         }
 
-    private fun getAttributes(sub: SubmissionDb): List<Attribute> {
+    private fun getAttributes(sub: DbSubmission): List<Attribute> {
         val attrs = toAttributes(sub.attributes)
         sub.title?.also { title -> if (attrs.all { it.name != TITLE.value }) attrs.add(Attribute(TITLE.value, title)) }
         sub.rootPath?.also { attrs.add(Attribute(SubFields.ROOT_PATH.value, it)) }
         return attrs
     }
 
-    fun toSubmission(submissionDb: SubmissionDb): Submission =
+    fun toSubmission(submissionDb: DbSubmission): Submission =
         Submission(
             accNo = submissionDb.accNo,
             attributes = getSubAttributes(submissionDb))
             .apply {
-                accessTags = submissionDb.accessTags.mapTo(mutableListOf(), DbAccessTag::name)
+                // accessTags = submissionDb.accessTags.mapTo(mutableListOf(), DbAccessTag::name)
                 section = sectionMapper.toSection(submissionDb.rootSection)
             }
 
-    private fun getSubAttributes(submissionDb: SubmissionDb): List<Attribute> {
+    private fun getSubAttributes(submissionDb: DbSubmission): List<Attribute> {
         return when (val releaseTime = submissionDb.releaseTime) {
             null -> toAttributes(submissionDb.attributes)
             else -> toAttributes(submissionDb.attributes).plus(Attribute(RELEASE_DATE, releaseTime.toLocalDate()))

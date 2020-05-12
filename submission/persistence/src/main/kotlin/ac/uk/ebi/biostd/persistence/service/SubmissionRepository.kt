@@ -9,6 +9,7 @@ import ac.uk.ebi.biostd.persistence.projections.SimpleSubmission
 import ac.uk.ebi.biostd.persistence.projections.SimpleSubmission.Companion.asSimpleSubmission
 import ac.uk.ebi.biostd.persistence.repositories.SubmissionDataRepository
 import com.cosium.spring.data.jpa.entity.graph.domain.EntityGraphs
+import ebi.ac.uk.extended.mapping.serialization.to.toSimpleSubmission
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.model.ExtendedSubmission
 import ebi.ac.uk.model.Submission
@@ -22,8 +23,9 @@ class SubmissionRepository(
     private val submissionDbMapper: SubmissionDbMapper,
     private var toExtSubmissionMapper: ToExtSubmissionMapper
 ) {
-    fun getByAccNo(accNo: String): Submission = submissionDbMapper.toSubmission(getSubmission(accNo))
+    fun getByAccNo(accNo: String): Submission = getExtByAccNo(accNo).toSimpleSubmission()
 
+    @Deprecated("Extended model has been deprecated")
     fun getExtendedByAccNo(accNo: String): ExtendedSubmission = submissionDbMapper.toExtSubmission(getSubmission(accNo))
 
     fun getExtByAccNo(accNo: String): ExtSubmission = toExtSubmissionMapper.toExtSubmission(getSubmission(accNo))

@@ -38,7 +38,7 @@ class BioStudiesCommandLine : CliktCommand(name = "PTSubmit") {
             }
 
             val client = getClient(server, user, password, onBehalf)
-            val submission = client.submitSingle(input!!, files).body!!
+            val submission = client.submitSingle(input!!, files).body
 
             echo("SUCCESS: Submission with AccNo ${submission.accNo} was submitted")
         }.onFailure {
