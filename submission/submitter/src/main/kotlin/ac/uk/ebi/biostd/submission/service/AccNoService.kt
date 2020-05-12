@@ -3,7 +3,6 @@ package ac.uk.ebi.biostd.submission.service
 import ac.uk.ebi.biostd.persistence.integration.PersistenceContext
 import ac.uk.ebi.biostd.persistence.integration.SubmissionQueryService
 import ac.uk.ebi.biostd.submission.exceptions.ProvideAccessNumber
-import ac.uk.ebi.biostd.submission.exceptions.UserCanNotSubmitProjectsException
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotSubmitToProjectException
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotUpdateSubmit
 import ac.uk.ebi.biostd.submission.util.AccNoPatternUtil
@@ -35,7 +34,7 @@ class AccNoService(
             }
             else -> {
                 if (project != null && privilegesService.canSubmitToProject(submitter, project).not())
-                    throw UserCanNotSubmitProjectsException(submitter)
+                    throw UserCanNotSubmitToProjectException(submitter, project)
 
                 if (privilegesService.canResubmit(submitter, accNo).not())
                     throw UserCanNotUpdateSubmit(accNo, submitter)

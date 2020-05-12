@@ -3,7 +3,6 @@ package ac.uk.ebi.biostd.submission.service
 import ac.uk.ebi.biostd.persistence.integration.PersistenceContext
 import ac.uk.ebi.biostd.persistence.integration.SubmissionQueryService
 import ac.uk.ebi.biostd.submission.exceptions.ProvideAccessNumber
-import ac.uk.ebi.biostd.submission.exceptions.UserCanNotSubmitProjectsException
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotSubmitToProjectException
 import ac.uk.ebi.biostd.submission.util.AccNoPatternUtil
 import ebi.ac.uk.model.AccNumber
@@ -141,18 +140,20 @@ class AccNoServiceTest(
         fun whenUserCanNotSubmitToProject() {
             every { privilegesService.canSubmitToProject(SUBMITTER, PROJECT) } returns false
 
-            assertThrows<UserCanNotSubmitProjectsException> {
+            val error = assertThrows<UserCanNotSubmitToProjectException> {
                 testInstance.getAccNo(AccNoServiceRequest(submitter = SUBMITTER, accNo = SUB_ACC_NO, project = PROJECT))
             }
+            assertThat(error.message).isEqualTo("The user submiter@email.com is not allowed to submit to CC123 project")
         }
 
         @Test
         fun whenUserCanNotReSubmit() {
             every { privilegesService.canSubmitToProject(SUBMITTER, PROJECT) } returns false
 
-            assertThrows<UserCanNotSubmitProjectsException> {
+            val error = assertThrows<UserCanNotSubmitToProjectException> {
                 testInstance.getAccNo(AccNoServiceRequest(submitter = SUBMITTER, accNo = SUB_ACC_NO, project = PROJECT))
             }
+            assertThat(error.message).isEqualTo("The user submiter@email.com is not allowed to submit to CC123 project")
         }
     }
 }
