@@ -47,18 +47,6 @@ class SubmitWebHandler(
         ))
     }
 
-    fun refreshSubmission(request: RefreshWebRequest): Submission {
-        val submission = submissionService.getSubmission(request.accNo).toSimpleSubmission()
-        val source = sources(request.user, submission)
-        return submissionService.submit(Request(
-            submission = submission,
-            submitter = request.user,
-            sources = source,
-            method = PAGE_TAB,
-            mode = FileMode.MOVE
-        ))
-    }
-
     fun submit(request: FileSubmitWebRequest): Submission {
         val sub = serializationService.deserializeSubmission(request.submission)
         val source = sources(request.submitter, sub, request.files.plus(request.submission))
@@ -74,12 +62,28 @@ class SubmitWebHandler(
         ))
     }
 
+    fun refreshSubmission(request: RefreshWebRequest): Submission {
+        val submission = submissionService.getSubmission(request.accNo).toSimpleSubmission()
+        val source = sources(request.user, submission, emptyList())
+        return submissionService.submit(Request(
+            submission = submission,
+            submitter = request.user,
+            sources = source,
+            method = PAGE_TAB,
+            mode = FileMode.MOVE
+        ))
+    }
+
     private fun getOnBehalfUser(request: OnBehalfRequest): SecurityUser =
         securityService.getOrRegisterUser(request.asRegisterRequest())
 
-    private fun sources(user: SecurityUser, submission: Submission, files: List<File> = emptyList()): FilesSource {
-        val request = RequestSources(user, files, submission.rootPath, subFolder(submission.accNo))
-        return sourceGenerator.submissionSources(request)
+    private fun sources(user: SecurityUser, submission: Submission, files: List<File>): FilesSource {
+        return sourceGenerator.submissionSources(RequestSources(
+            user = user,
+            files = files,
+            rootPath = submission.rootPath,
+            subFolder = subFolder(submission.accNo)
+        ))
     }
 
     private fun withAttributes(submission: Submission, attrs: Map<String, String>): Submission {
