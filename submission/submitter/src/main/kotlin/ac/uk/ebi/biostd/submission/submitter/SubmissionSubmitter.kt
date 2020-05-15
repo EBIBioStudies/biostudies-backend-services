@@ -53,7 +53,8 @@ open class SubmissionSubmitter(
     @Transactional(isolation = Isolation.READ_UNCOMMITTED)
     open fun submit(request: SubmissionRequest): Submission {
         val submitter = request.submitter.asUser()
-        val submission = process(request.submission, request.submitter.asUser(), request.sources, request.method)
+        val owner = request.onBehalfUser?.asUser() ?: submitter
+        val submission = process(request.submission, request.submitter.asUser(), owner, request.sources, request.method)
         val submitted = context.saveSubmission(SaveRequest(submission, request.mode)).toSimpleSubmission()
         submitter.notificationsEnabled.ifTrue { submitEvent.onNext(SuccessfulSubmission(submitter, submission)) }
         return submitted
@@ -63,34 +64,40 @@ open class SubmissionSubmitter(
     private fun process(
         submission: Submission,
         submitter: User,
+        owner: User,
         source: FilesSource,
         method: SubmissionMethod
     ): ExtSubmission {
         try {
-            return processSubmission(submission, submitter, source, method)
+            return processSubmission(submission, submitter, owner, source, method)
         } catch (exception: RuntimeException) {
             throw InvalidSubmissionException("Submission validation errors", listOf(exception))
         }
     }
 
-    private fun processSubmission(submission: Submission, user: User, source: FilesSource, method: SubmissionMethod):
+    private fun processSubmission(
+        submission: Submission,
+        submitter: User,
+        owner: User,
+        source: FilesSource,
+        method: SubmissionMethod
+    ):
         ExtSubmission {
         val (parentTags, parentReleaseTime, parentPattern) = parentInfoService.getParentInfo(submission.attachTo)
         val (createTime, modTime, releaseTime) = getTimes(submission, parentReleaseTime)
         val released = releaseTime?.isBeforeOrEqual(OffsetDateTime.now()).orFalse()
-        val accNo = getAccNumber(submission, user, parentPattern)
+        val accNo = getAccNumber(submission, submitter, parentPattern)
         val accNoString = accNo.toString()
-        val projectInfo = getProjectInfo(user, submission, accNoString)
+        val projectInfo = getProjectInfo(submitter, submission, accNoString)
         val secretKey = getSecret(accNoString)
         val nextVersion = context.getNextVersion(accNoString)
         val relPath = accNoService.getRelPath(accNo)
         val tags = getTags(released, parentTags, projectInfo)
-        val owner = queryService.getOwner(accNoString) ?: user.email
 
         return ExtSubmission(
             accNo = accNoString,
-            owner = owner,
-            submitter = user.email,
+            owner = owner.email,
+            submitter = submitter.email,
             version = nextVersion,
             method = getMethod(method),
             title = submission.title,

@@ -158,8 +158,9 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
             }.toString()
 
             val response = webClient.submitSingle(submission, TSV, UserRegistration(username, email))
-            val saved = submissionRepository.getExtendedByAccNo(response.body.accNo)
-            assertThat(saved.user.email).isEqualTo(email)
+            val saved = submissionRepository.getExtByAccNo(response.body.accNo)
+            assertThat(saved.owner).isEqualTo(email)
+            assertThat(saved.submitter).isEqualTo(SuperUser.email)
         }
 
         @Test

@@ -5,6 +5,7 @@ import ac.uk.ebi.biostd.persistence.model.ext.activated
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import arrow.core.getOrElse
 import ebi.ac.uk.api.security.ChangePasswordRequest
+import ebi.ac.uk.api.security.GetOrRegisterUserRequest
 import ebi.ac.uk.api.security.LoginRequest
 import ebi.ac.uk.api.security.RegisterRequest
 import ebi.ac.uk.api.security.ResetPasswordRequest
@@ -59,6 +60,16 @@ internal class SecurityService(
             .let { profileService.asSecurityUser(it) }
     }
 
+    override fun getOrRegisterUser(request: GetOrRegisterUserRequest): SecurityUser {
+        return when (request.register) {
+            false -> userRepository.getByEmail(request.userEmail).let { profileService.asSecurityUser(it) }
+            true -> {
+                val userName = requireNotNull(request.userName) { " username need to be provided for registering" }
+                getOrCreateInactive(request.userEmail, userName)
+            }
+        }
+    }
+
     private fun createUserInactive(email: String, username: String): DbUser {
         val user = DbUser(
             email = email,
@@ -66,6 +77,7 @@ internal class SecurityService(
             secret = securityUtil.newKey(),
             passwordDigest = ByteArray(0))
         user.active = false
+        user.notificationsEnabled = false
         return userRepository.save(user)
     }
 

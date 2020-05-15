@@ -7,6 +7,7 @@ import ac.uk.ebi.biostd.persistence.integration.FileMode
 import ac.uk.ebi.biostd.submission.converters.BioUser
 import ac.uk.ebi.biostd.submission.web.handlers.SubmitWebHandler
 import ac.uk.ebi.biostd.submission.web.model.ContentSubmitWebRequest
+import ac.uk.ebi.biostd.submission.web.model.OnBehalfRequest
 import ac.uk.ebi.biostd.submission.web.model.RefreshWebRequest
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.constants.APPLICATION_JSON
@@ -42,8 +43,11 @@ class SubmitResource(private val submitWebHandler: SubmitWebHandler) {
     @ResponseBody
     @ApiOperation("Make a submission in XML format")
     @ApiImplicitParam(name = "X-Session-Token", value = "User authentication token", required = true)
+    @Suppress("LongParameterList")
     fun submitXml(
         @BioUser user: SecurityUser,
+
+        onBehalfRequest: OnBehalfRequest?,
 
         @ApiParam(name = "fileMode", value = "File mode either copy/move")
         @RequestParam(FILE_MODE, defaultValue = "COPY") mode: FileMode,
@@ -54,7 +58,15 @@ class SubmitResource(private val submitWebHandler: SubmitWebHandler) {
         @ApiParam(name = "Submission", value = "Submission page tab in XML format")
         @RequestBody submission: String
     ): Submission {
-        val request = ContentSubmitWebRequest(submission, user, XML, mode, attributes.orEmpty(), emptyList())
+        val request = ContentSubmitWebRequest(
+            submission = submission,
+            onBehalfRequest = onBehalfRequest,
+            user = user,
+            format = XML,
+            fileMode = mode,
+            attrs = attributes.orEmpty(),
+            files = emptyList()
+        )
         return submitWebHandler.submit(request)
     }
 
@@ -64,8 +76,11 @@ class SubmitResource(private val submitWebHandler: SubmitWebHandler) {
     @ResponseBody
     @ApiOperation("Make a submission in TSV format")
     @ApiImplicitParam(name = "X-Session-Token", value = "User authentication token", required = true)
+    @Suppress("LongParameterList")
     fun submitTsv(
         @BioUser user: SecurityUser,
+
+        onBehalfRequest: OnBehalfRequest?,
 
         @ApiParam(name = "fileMode", value = "File mode either copy/move")
         @RequestParam(FILE_MODE, defaultValue = "COPY") mode: FileMode,
@@ -76,7 +91,15 @@ class SubmitResource(private val submitWebHandler: SubmitWebHandler) {
         @ApiParam(name = "Submission", value = "Submission page tab in TSV format")
         @RequestBody submission: String
     ): Submission {
-        val request = ContentSubmitWebRequest(submission, user, TSV, mode, attributes.orEmpty(), emptyList())
+        val request = ContentSubmitWebRequest(
+            submission = submission,
+            onBehalfRequest = onBehalfRequest,
+            user = user,
+            format = TSV,
+            fileMode = mode,
+            attrs = attributes.orEmpty(),
+            files = emptyList()
+        )
         return submitWebHandler.submit(request)
     }
 
@@ -86,8 +109,11 @@ class SubmitResource(private val submitWebHandler: SubmitWebHandler) {
     @ResponseBody
     @ApiOperation("Make a submission in JSON format")
     @ApiImplicitParam(name = "X-Session-Token", value = "User authentication token", required = true)
+    @Suppress("LongParameterList")
     fun submitJson(
         @BioUser user: SecurityUser,
+
+        onBehalfRequest: OnBehalfRequest?,
 
         @ApiParam(name = "fileMode", value = "File mode either copy/move")
         @RequestParam(FILE_MODE, defaultValue = "COPY") mode: FileMode,
@@ -98,7 +124,15 @@ class SubmitResource(private val submitWebHandler: SubmitWebHandler) {
         @ApiParam(name = "Submission", value = "Submission page tab in JSON format")
         @RequestBody submission: String
     ): Submission {
-        val request = ContentSubmitWebRequest(submission, user, JSON_PRETTY, mode, attributes.orEmpty(), emptyList())
+        val request = ContentSubmitWebRequest(
+            submission = submission,
+            onBehalfRequest = onBehalfRequest,
+            user = user,
+            format = JSON_PRETTY,
+            fileMode = mode,
+            attrs = attributes.orEmpty(),
+            files = emptyList()
+        )
         return submitWebHandler.submit(request)
     }
 
