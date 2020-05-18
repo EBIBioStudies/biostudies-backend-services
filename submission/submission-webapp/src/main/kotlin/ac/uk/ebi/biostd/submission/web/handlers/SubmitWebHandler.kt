@@ -22,8 +22,6 @@ import ebi.ac.uk.security.integration.components.ISecurityService
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import java.io.File
 
-typealias Request = SubmissionRequest
-
 private const val DIRECT_UPLOAD_PATH = "direct-uploads"
 
 class SubmitWebHandler(
@@ -37,7 +35,7 @@ class SubmitWebHandler(
         val sub = serializationService.deserializeSubmission(request.submission, request.format)
         val source = sources(request.submitter, sub, request.files)
         val submission = withAttributes(submission(request.submission, request.format, source), request.attrs)
-        return submissionService.submit(Request(
+        return submissionService.submit(SubmissionRequest(
             submission = submission,
             submitter = request.submitter,
             onBehalfUser = request.onBehalfRequest?.let { getOnBehalfUser(it) },
@@ -52,7 +50,7 @@ class SubmitWebHandler(
         val source = sources(request.submitter, sub, request.files.plus(request.submission))
         val submission = withAttributes(submission(request.submission, source), request.attrs)
         userFilesService.uploadFile(request.submitter, DIRECT_UPLOAD_PATH, request.submission)
-        return submissionService.submit(Request(
+        return submissionService.submit(SubmissionRequest(
             submission = submission,
             submitter = request.submitter,
             onBehalfUser = request.onBehalfRequest?.let { getOnBehalfUser(it) },
@@ -65,7 +63,7 @@ class SubmitWebHandler(
     fun refreshSubmission(request: RefreshWebRequest): Submission {
         val submission = submissionService.getSubmission(request.accNo).toSimpleSubmission()
         val source = sources(request.user, submission, emptyList())
-        return submissionService.submit(Request(
+        return submissionService.submit(SubmissionRequest(
             submission = submission,
             submitter = request.user,
             sources = source,

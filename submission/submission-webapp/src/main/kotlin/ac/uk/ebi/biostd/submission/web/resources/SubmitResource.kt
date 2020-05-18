@@ -9,6 +9,10 @@ import ac.uk.ebi.biostd.submission.web.handlers.SubmitWebHandler
 import ac.uk.ebi.biostd.submission.web.model.ContentSubmitWebRequest
 import ac.uk.ebi.biostd.submission.web.model.OnBehalfRequest
 import ac.uk.ebi.biostd.submission.web.model.RefreshWebRequest
+import ebi.ac.uk.api.ON_BEHALF_PARAM
+import ebi.ac.uk.api.REGISTER_PARAM
+import ebi.ac.uk.api.TOKEN_HEADER
+import ebi.ac.uk.api.USER_NAME_PARAM
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.constants.APPLICATION_JSON
 import ebi.ac.uk.model.constants.ATTRIBUTES
@@ -19,6 +23,7 @@ import ebi.ac.uk.model.constants.TEXT_XML
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiImplicitParam
+import io.swagger.annotations.ApiImplicitParams
 import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiParam
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
@@ -35,6 +40,7 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/submissions")
 @PreAuthorize("isAuthenticated()")
 @Api(tags = ["Submissions"])
+@Suppress("LongParameterList")
 class SubmitResource(private val submitWebHandler: SubmitWebHandler) {
 
     @PostMapping(
@@ -42,8 +48,12 @@ class SubmitResource(private val submitWebHandler: SubmitWebHandler) {
         produces = [APPLICATION_JSON_VALUE])
     @ResponseBody
     @ApiOperation("Make a submission in XML format")
-    @ApiImplicitParam(name = "X-Session-Token", value = "User authentication token", required = true)
-    @Suppress("LongParameterList")
+    @ApiImplicitParams(value = [
+        ApiImplicitParam(name = TOKEN_HEADER, value = "User authentication token", required = true),
+        ApiImplicitParam(name = ON_BEHALF_PARAM, value = "Submission owner", required = false),
+        ApiImplicitParam(name = REGISTER_PARAM, value = "Register owner if does not exists", required = false),
+        ApiImplicitParam(name = USER_NAME_PARAM, value = "Submission owner name. For register mode", required = false)
+    ])
     fun submitXml(
         @BioUser user: SecurityUser,
 
@@ -75,8 +85,12 @@ class SubmitResource(private val submitWebHandler: SubmitWebHandler) {
         produces = [APPLICATION_JSON_VALUE])
     @ResponseBody
     @ApiOperation("Make a submission in TSV format")
-    @ApiImplicitParam(name = "X-Session-Token", value = "User authentication token", required = true)
-    @Suppress("LongParameterList")
+    @ApiImplicitParams(value = [
+        ApiImplicitParam(name = TOKEN_HEADER, value = "User authentication token", required = true),
+        ApiImplicitParam(name = ON_BEHALF_PARAM, value = "Submission owner", required = false),
+        ApiImplicitParam(name = REGISTER_PARAM, value = "Register owner if does not exists", required = false),
+        ApiImplicitParam(name = USER_NAME_PARAM, value = "Submission owner name. For register mode", required = false)
+    ])
     fun submitTsv(
         @BioUser user: SecurityUser,
 
@@ -108,8 +122,12 @@ class SubmitResource(private val submitWebHandler: SubmitWebHandler) {
         produces = [APPLICATION_JSON_VALUE])
     @ResponseBody
     @ApiOperation("Make a submission in JSON format")
-    @ApiImplicitParam(name = "X-Session-Token", value = "User authentication token", required = true)
-    @Suppress("LongParameterList")
+    @ApiImplicitParams(value = [
+        ApiImplicitParam(name = TOKEN_HEADER, value = "User authentication token", required = true),
+        ApiImplicitParam(name = ON_BEHALF_PARAM, value = "Submission owner", required = false),
+        ApiImplicitParam(name = REGISTER_PARAM, value = "Register owner if does not exists", required = false),
+        ApiImplicitParam(name = USER_NAME_PARAM, value = "Submission owner name. For register mode", required = false)
+    ])
     fun submitJson(
         @BioUser user: SecurityUser,
 

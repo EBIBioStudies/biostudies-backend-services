@@ -10,6 +10,10 @@ import ac.uk.ebi.biostd.submission.web.handlers.SubmitWebHandler
 import ac.uk.ebi.biostd.submission.web.model.ContentSubmitWebRequest
 import ac.uk.ebi.biostd.submission.web.model.FileSubmitWebRequest
 import ac.uk.ebi.biostd.submission.web.model.OnBehalfRequest
+import ebi.ac.uk.api.ON_BEHALF_PARAM
+import ebi.ac.uk.api.REGISTER_PARAM
+import ebi.ac.uk.api.TOKEN_HEADER
+import ebi.ac.uk.api.USER_NAME_PARAM
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.constants.ATTRIBUTES
 import ebi.ac.uk.model.constants.FILES
@@ -22,6 +26,7 @@ import ebi.ac.uk.model.constants.TEXT_XML
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiImplicitParam
+import io.swagger.annotations.ApiImplicitParams
 import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiParam
 import org.springframework.http.HttpHeaders.CONTENT_TYPE
@@ -38,6 +43,7 @@ import org.springframework.web.multipart.MultipartFile
 @RequestMapping("/submissions")
 @PreAuthorize("isAuthenticated()")
 @Api(tags = ["Submissions"])
+@Suppress("LongParameterList")
 class MultipartSubmitResource(
     private val submitWebHandler: SubmitWebHandler,
     private val tempFileGenerator: TempFileGenerator
@@ -47,8 +53,12 @@ class MultipartSubmitResource(
         produces = [APPLICATION_JSON_VALUE])
     @ResponseBody
     @ApiOperation("Make a submission using a JSON file. The given files will override the ones in the user folder")
-    @Suppress("LongParameterList")
-    @ApiImplicitParam(name = "X-Session-Token", value = "User authentication token", required = true)
+    @ApiImplicitParams(value = [
+        ApiImplicitParam(name = TOKEN_HEADER, value = "User authentication token", required = true),
+        ApiImplicitParam(name = ON_BEHALF_PARAM, value = "Submission owner", required = false),
+        ApiImplicitParam(name = REGISTER_PARAM, value = "Register owner if does not exists", required = false),
+        ApiImplicitParam(name = USER_NAME_PARAM, value = "Submission owner name. For register mode", required = false)
+    ])
     fun submitMultipartJson(
         @BioUser user: SecurityUser,
 
@@ -84,8 +94,12 @@ class MultipartSubmitResource(
         produces = [APPLICATION_JSON_VALUE])
     @ResponseBody
     @ApiOperation("Make a submission using a XML file. The given files will override the ones in the user folder")
-    @ApiImplicitParam(name = "X-Session-Token", value = "User authentication token", required = true)
-    @Suppress("LongParameterList")
+    @ApiImplicitParams(value = [
+        ApiImplicitParam(name = TOKEN_HEADER, value = "User authentication token", required = true),
+        ApiImplicitParam(name = ON_BEHALF_PARAM, value = "Submission owner", required = false),
+        ApiImplicitParam(name = REGISTER_PARAM, value = "Register owner if does not exists", required = false),
+        ApiImplicitParam(name = USER_NAME_PARAM, value = "Submission owner name. For register mode", required = false)
+    ])
     fun submitMultipartXml(
         @BioUser user: SecurityUser,
 
@@ -121,8 +135,12 @@ class MultipartSubmitResource(
         produces = [APPLICATION_JSON_VALUE])
     @ResponseBody
     @ApiOperation("Make a submission using a TSV file. The given files will override the ones in the user folder")
-    @ApiImplicitParam(name = "X-Session-Token", value = "User authentication token", required = true)
-    @Suppress("LongParameterList")
+    @ApiImplicitParams(value = [
+        ApiImplicitParam(name = TOKEN_HEADER, value = "User authentication token", required = true),
+        ApiImplicitParam(name = ON_BEHALF_PARAM, value = "Submission owner", required = false),
+        ApiImplicitParam(name = REGISTER_PARAM, value = "Register owner if does not exists", required = false),
+        ApiImplicitParam(name = USER_NAME_PARAM, value = "Submission owner name. For register mode", required = false)
+    ])
     fun submitMultipartTsv(
         @BioUser user: SecurityUser,
 
@@ -159,8 +177,12 @@ class MultipartSubmitResource(
         produces = [APPLICATION_JSON_VALUE])
     @ResponseBody
     @ApiOperation("Make a submission using a file. The given files will override the ones in the user folder")
-    @ApiImplicitParam(name = "X-Session-Token", value = "User authentication token", required = true)
-    @Suppress("LongParameterList")
+    @ApiImplicitParams(value = [
+        ApiImplicitParam(name = TOKEN_HEADER, value = "User authentication token", required = true),
+        ApiImplicitParam(name = ON_BEHALF_PARAM, value = "Submission owner", required = false),
+        ApiImplicitParam(name = REGISTER_PARAM, value = "Register owner if does not exists", required = false),
+        ApiImplicitParam(name = USER_NAME_PARAM, value = "Submission owner name. For register mode", required = false)
+    ])
     fun submitFile(
         @BioUser user: SecurityUser,
 
