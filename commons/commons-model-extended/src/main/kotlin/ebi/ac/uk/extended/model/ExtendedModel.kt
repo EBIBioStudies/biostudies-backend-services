@@ -1,6 +1,8 @@
 package ebi.ac.uk.extended.model
 
 import arrow.core.Either
+import com.fasterxml.jackson.databind.annotation.JsonSerialize
+import ebi.ac.uk.extended.serialization.ExtFileSerializer
 import java.io.File
 import java.time.OffsetDateTime
 
@@ -12,7 +14,15 @@ enum class ExtProcessingStatus { PROCESSED, PROCESSING }
 data class ExtAttributeDetail(val name: String, val value: String)
 data class ExtLink(val url: String, val attributes: List<ExtAttribute>)
 
-data class ExtFile(val fileName: String, val file: File, val attributes: List<ExtAttribute>)
+data class ExtFile(
+    val fileName: String,
+
+    @JsonSerialize(using = ExtFileSerializer::class)
+    val file: File,
+
+    val attributes: List<ExtAttribute>
+)
+
 data class ExtFileList(val fileName: String, val files: List<ExtFile>)
 
 data class ExtSectionTable(val sections: List<ExtSection>)
