@@ -1,5 +1,6 @@
 package ebi.ac.uk.api.security
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import javax.validation.constraints.Email
 
 class RegisterRequest(
@@ -9,12 +10,11 @@ class RegisterRequest(
     val email: String,
 
     val password: String,
-
     val superUser: Boolean = false,
-
     var instanceKey: String? = null,
-
     var path: String? = null,
+    val notificationsEnabled: Boolean = false,
 
-    val notificationsEnabled: Boolean = false
+    @JsonProperty("recaptcha2-response")
+    val captcha: String? = null
 )
