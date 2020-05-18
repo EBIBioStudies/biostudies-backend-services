@@ -97,6 +97,7 @@ internal class SecurityServiceTest(
             every { userRepository.save(any<DbUser>()) } answers { firstArg() }
             every { securityUtil.getPasswordDigest(password) } returns PASSWORD_DIGEST
             every { profileService.asSecurityUser(any()) } returns securityUser
+            every { securityProps.checkCaptcha } returns true
             every { captchaVerifier.verifyCaptcha(captcha) } returns Unit
         }
 

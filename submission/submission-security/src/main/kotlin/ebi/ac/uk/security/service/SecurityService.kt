@@ -47,7 +47,7 @@ internal class SecurityService(
     }
 
     override fun registerUser(request: RegisterRequest): SecurityUser {
-        captchaVerifier.verifyCaptcha(request.captcha)
+        if (securityProps.checkCaptcha) captchaVerifier.verifyCaptcha(request.captcha)
 
         return when {
             userRepository.existsByEmail(request.email) -> throw UserAlreadyRegister(request.email)
