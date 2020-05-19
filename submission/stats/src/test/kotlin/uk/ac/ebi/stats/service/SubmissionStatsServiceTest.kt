@@ -1,5 +1,8 @@
 package uk.ac.ebi.stats.service
 
+import ac.uk.ebi.biostd.persistence.exception.SubmissionNotFoundException
+import ac.uk.ebi.biostd.persistence.filter.PaginationFilter
+import ac.uk.ebi.biostd.persistence.integration.SubmissionQueryService
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -12,6 +15,8 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
+import org.springframework.data.domain.PageImpl
+import org.springframework.data.domain.PageRequest
 import uk.ac.ebi.stats.exception.StatNotFoundException
 import uk.ac.ebi.stats.model.SubmissionStat
 import uk.ac.ebi.stats.model.SubmissionStatType.VIEWS
@@ -19,13 +24,16 @@ import uk.ac.ebi.stats.persistence.model.SubmissionStatDb
 import uk.ac.ebi.stats.persistence.repositories.SubmissionStatsRepository
 
 @ExtendWith(MockKExtension::class)
-class SubmissionStatsServiceTest(@MockK private val statsRepository: SubmissionStatsRepository) {
-    private val testInstance = SubmissionStatsService(statsRepository)
+class SubmissionStatsServiceTest(
+    @MockK private val queryService: SubmissionQueryService,
+    @MockK private val statsRepository: SubmissionStatsRepository
+) {
     private val testStat = SubmissionStatDb("S-TEST123", 10, VIEWS)
+    private val testInstance = SubmissionStatsService(queryService, statsRepository)
 
     @BeforeEach
     fun beforeEach() {
-        every { statsRepository.findAllByType(VIEWS) } returns listOf(testStat)
+        every { queryService.existByAccNo("S-TEST123") } returns true
         every { statsRepository.getByAccNoAndType("S-TEST123", VIEWS) } returns testStat
         every { statsRepository.findByAccNoAndType("S-TEST123", VIEWS) } returns testStat
     }
@@ -35,9 +43,15 @@ class SubmissionStatsServiceTest(@MockK private val statsRepository: SubmissionS
 
     @Test
     fun `find by type`() {
-        val stats = testInstance.findByType(VIEWS)
+        val page = slot<PageRequest>()
+        val filter = PaginationFilter(limit = 1, offset = 2)
+        every { statsRepository.findAllByType(VIEWS, capture(page)) } returns PageImpl(listOf(testStat))
+
+        val stats = testInstance.findByType(VIEWS, filter)
         assertThat(stats).hasSize(1)
         assertTestStat(stats.first(), value = 10)
+        assertThat(page.captured.offset).isEqualTo(2)
+        assertThat(page.captured.pageSize).isEqualTo(1)
     }
 
     @Test
@@ -97,6 +111,12 @@ class SubmissionStatsServiceTest(@MockK private val statsRepository: SubmissionS
         assertTestStat(newStats.first(), value = 10)
         verify(exactly = 1) { statsRepository.save(dbStat.captured) }
         verify(exactly = 1) { statsRepository.existsByAccNoAndType("S-TEST123", VIEWS) }
+    }
+
+    @Test
+    fun `save not existing`() {
+        every { queryService.existByAccNo("S-TEST123") } returns false
+        assertThrows<SubmissionNotFoundException> { testInstance.save(SubmissionStat("S-TEST123", 10, VIEWS)) }
     }
 
     private fun assertTestStat(stat: SubmissionStat, value: Long) {

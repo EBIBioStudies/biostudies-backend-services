@@ -1,5 +1,9 @@
 package uk.ac.ebi.stats.service
 
+import ac.uk.ebi.biostd.persistence.exception.SubmissionNotFoundException
+import ac.uk.ebi.biostd.persistence.filter.PaginationFilter
+import ac.uk.ebi.biostd.persistence.integration.SubmissionQueryService
+import org.springframework.data.domain.PageRequest
 import org.springframework.transaction.annotation.Transactional
 import uk.ac.ebi.stats.exception.StatNotFoundException
 import uk.ac.ebi.stats.mapping.SubmissionStatMapper
@@ -8,18 +12,28 @@ import uk.ac.ebi.stats.model.SubmissionStatType
 import uk.ac.ebi.stats.persistence.model.SubmissionStatDb
 import uk.ac.ebi.stats.persistence.repositories.SubmissionStatsRepository
 
-open class SubmissionStatsService(private val submissionStatsRepository: SubmissionStatsRepository) {
-    open fun findByType(submissionStatType: SubmissionStatType): List<SubmissionStat> =
-        submissionStatsRepository.findAllByType(submissionStatType).map { SubmissionStatMapper.toSubmissionStat(it) }
+open class SubmissionStatsService(
+    private val submissionQueryService: SubmissionQueryService,
+    private val submissionStatsRepository: SubmissionStatsRepository
+) {
+    open fun findByType(submissionStatType: SubmissionStatType, filter: PaginationFilter): List<SubmissionStat> =
+        submissionStatsRepository
+            .findAllByType(submissionStatType, PageRequest.of(filter.pageNumber, filter.limit))
+            .content
+            .map { SubmissionStatMapper.toSubmissionStat(it) }
 
     open fun findByAccNoAndType(accNo: String, submissionStatType: SubmissionStatType): SubmissionStat =
         SubmissionStatMapper.toSubmissionStat(
             submissionStatsRepository.findByAccNoAndType(accNo, submissionStatType)
             ?: throw StatNotFoundException(accNo, submissionStatType))
 
-    open fun save(stat: SubmissionStat): SubmissionStat = when {
-        submissionStatsRepository.existsByAccNoAndType(stat.accNo, stat.type).not() -> insert(stat)
-        else -> update(stat)
+    open fun save(stat: SubmissionStat): SubmissionStat {
+        require(submissionQueryService.existByAccNo(stat.accNo)) { throw SubmissionNotFoundException(stat.accNo) }
+
+        return when {
+            submissionStatsRepository.existsByAccNoAndType(stat.accNo, stat.type).not() -> insert(stat)
+            else -> update(stat)
+        }
     }
 
     @Transactional

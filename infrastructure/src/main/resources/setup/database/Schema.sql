@@ -152,7 +152,7 @@ CREATE TABLE Submission (
     CTime          BIGINT       NOT NULL,
     MTime          BIGINT       NOT NULL,
     RTime          BIGINT       NOT NULL,
-    accNo          VARCHAR(255) NULL,
+    accNo          VARCHAR(255) NOT NULL,
     relPath        LONGTEXT     NULL,
     method         LONGTEXT     NULL,
     released       BIT          NOT NULL,
@@ -227,9 +227,10 @@ CREATE TABLE SubmissionRT(
 
 CREATE TABLE SubmissionStat(
     id          BIGINT AUTO_INCREMENT PRIMARY KEY,
-    accNo       LONGTEXT NOT NULL,
-    value       BIGINT   NOT NULL,
-    type        LONGTEXT NOT NULL
+    accNo       VARCHAR(255) NOT NULL,
+    value       BIGINT       NOT NULL,
+    type        LONGTEXT     NOT NULL,
+    CONSTRAINT Submission_Stat_FRG_KEY FOREIGN KEY (accNo) REFERENCES Submission (accNo) ON DELETE CASCADE
 );
 
 -- Security

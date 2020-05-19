@@ -8,6 +8,8 @@ import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
 
 dependencies {
+    api(project(":submission:persistence"))
+
     implementation(HibernateEntityManager)
     implementation(JpaEntityGraph)
     implementation(SpringDataJpa)
