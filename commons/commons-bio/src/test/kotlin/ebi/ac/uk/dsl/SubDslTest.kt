@@ -131,7 +131,7 @@ class SubDslTest {
             attribute("Attr1", "ABC")
         }
 
-        assertThat(file).isEqualTo(File("File1.txt", 4, listOf(Attribute("Attr1", "ABC"))))
+        assertThat(file).isEqualTo(File("File1.txt", 4, "file", listOf(Attribute("Attr1", "ABC"))))
     }
 
     @Test

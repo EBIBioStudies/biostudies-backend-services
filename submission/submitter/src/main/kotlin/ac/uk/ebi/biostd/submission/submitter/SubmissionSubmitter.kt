@@ -53,8 +53,13 @@ open class SubmissionSubmitter(
     @Transactional(isolation = Isolation.READ_UNCOMMITTED)
     open fun submit(request: SubmissionRequest): Submission {
         val submitter = request.submitter.asUser()
-        val owner = request.onBehalfUser?.asUser() ?: submitter
-        val submission = process(request.submission, request.submitter.asUser(), owner, request.sources, request.method)
+        val submission = process(
+            request.submission,
+            request.submitter.asUser(),
+            request.onBehalfUser?.asUser(),
+            request.sources,
+            request.method
+        )
         val submitted = context.saveSubmission(SaveRequest(submission, request.mode)).toSimpleSubmission()
         submitter.notificationsEnabled.ifTrue { submitEvent.onNext(SuccessfulSubmission(submitter, submission)) }
         return submitted
@@ -64,12 +69,12 @@ open class SubmissionSubmitter(
     private fun process(
         submission: Submission,
         submitter: User,
-        owner: User,
+        onBehalfUser: User?,
         source: FilesSource,
         method: SubmissionMethod
     ): ExtSubmission {
         try {
-            return processSubmission(submission, submitter, owner, source, method)
+            return processSubmission(submission, submitter, onBehalfUser, source, method)
         } catch (exception: RuntimeException) {
             throw InvalidSubmissionException("Submission validation errors", listOf(exception))
         }
@@ -78,7 +83,7 @@ open class SubmissionSubmitter(
     private fun processSubmission(
         submission: Submission,
         submitter: User,
-        owner: User,
+        onBehalfUser: User?,
         source: FilesSource,
         method: SubmissionMethod
     ):
@@ -93,10 +98,11 @@ open class SubmissionSubmitter(
         val nextVersion = context.getNextVersion(accNoString)
         val relPath = accNoService.getRelPath(accNo)
         val tags = getTags(released, parentTags, projectInfo)
+        val ownerEmail = onBehalfUser?.email ?: queryService.getOwner(accNoString) ?: submitter.email
 
         return ExtSubmission(
             accNo = accNoString,
-            owner = owner.email,
+            owner = ownerEmail,
             submitter = submitter.email,
             version = nextVersion,
             method = getMethod(method),
