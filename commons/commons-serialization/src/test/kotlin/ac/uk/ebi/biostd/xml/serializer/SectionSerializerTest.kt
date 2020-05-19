@@ -7,7 +7,6 @@ import ac.uk.ebi.biostd.xml.XmlSerializer
 import ebi.ac.uk.dsl.file
 import ebi.ac.uk.dsl.link
 import ebi.ac.uk.dsl.section
-import ebi.ac.uk.model.extensions.type
 import org.junit.jupiter.api.Test
 import org.redundent.kotlin.xml.xml
 import org.xmlunit.assertj.XmlAssert.assertThat
@@ -43,12 +42,7 @@ class SectionSerializerTest {
                 "file" {
                     attribute("size", FILE_SIZE)
                     "path" { -FILE_NAME }
-                    "attributes" {
-                        "attribute" {
-                            "name" { -"type" }
-                            "value" { -FILE_TYPE }
-                        }
-                    }
+                    "type" { -FILE_TYPE }
                 }
             }
         }.toString()

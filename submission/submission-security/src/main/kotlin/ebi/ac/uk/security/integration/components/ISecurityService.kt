@@ -1,6 +1,7 @@
 package ebi.ac.uk.security.integration.components
 
 import ebi.ac.uk.api.security.ChangePasswordRequest
+import ebi.ac.uk.api.security.GetOrRegisterUserRequest
 import ebi.ac.uk.api.security.LoginRequest
 import ebi.ac.uk.api.security.RegisterRequest
 import ebi.ac.uk.api.security.ResetPasswordRequest
@@ -8,6 +9,7 @@ import ebi.ac.uk.api.security.RetryActivationRequest
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import ebi.ac.uk.security.integration.model.api.UserInfo
 
+@Suppress("TooManyFunctions")
 interface ISecurityService {
 
     fun registerUser(request: RegisterRequest): SecurityUser
@@ -29,4 +31,6 @@ interface ISecurityService {
     fun getUserProfile(authToken: String): UserInfo
 
     fun getOrCreateInactive(email: String, username: String): SecurityUser
+
+    fun getOrRegisterUser(request: GetOrRegisterUserRequest): SecurityUser
 }

@@ -10,7 +10,6 @@ class ExtendedSubmission(accNo: String, val user: User) : Submission(accNo) {
     constructor(submission: Submission, user: User) : this(submission.accNo, user) {
         section = submission.section
         attributes = submission.attributes
-        accessTags = submission.accessTags
         extendedSection = ExtendedSection(submission.section)
     }
 

@@ -1,14 +1,18 @@
 package ac.uk.ebi.biostd.persistence.mapping.extended.from
 
+import ac.uk.ebi.biostd.persistence.model.DbSubmission
 import ac.uk.ebi.biostd.persistence.model.DbSubmissionAttribute
-import ac.uk.ebi.biostd.persistence.model.SubmissionDb
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
 import ac.uk.ebi.biostd.persistence.repositories.TagDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ebi.ac.uk.extended.model.ExtAccessTag
 import ebi.ac.uk.extended.model.ExtAttribute
+import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.extended.model.ExtSubmissionMethod
 import ebi.ac.uk.extended.model.ExtTag
+import ebi.ac.uk.model.SubmissionMethod
+import ebi.ac.uk.model.constants.ProcessingStatus
 
 private const val ROOT_SECTION_ORDER = 0
 
@@ -17,11 +21,11 @@ class ToDbSubmissionMapper(
     private val tagsRefRepository: TagDataRepository,
     private var userRepository: UserDataRepository
 ) {
-    fun toSubmissionDb(submission: ExtSubmission, submitter: String) = SubmissionDb().apply {
+    fun toSubmissionDb(submission: ExtSubmission) = DbSubmission().apply {
         accNo = submission.accNo
         title = submission.title
-        status = submission.status
-        method = submission.method
+        status = getStatus(submission.status)
+        method = getMethod(submission.method)
         version = submission.version
         relPath = submission.relPath
         rootPath = submission.rootPath
@@ -29,13 +33,27 @@ class ToDbSubmissionMapper(
         creationTime = submission.creationTime
         modificationTime = submission.modificationTime
         releaseTime = submission.releaseTime
-        owner = userRepository.getByEmail(submitter)
+        owner = userRepository.getByEmail(submission.owner)
+        submitter = userRepository.getByEmail(submission.submitter)
         accessTags = toAccessTag(submission.accessTags)
         tags = toTags(submission.tags)
         released = submission.released
         attributes = submission.attributes.mapIndexedTo(sortedSetOf(), ::toDbSubmissionAttribute)
         rootSection = submission.section.toDbSection(this, ROOT_SECTION_ORDER)
     }
+
+    private fun getStatus(status: ExtProcessingStatus): ProcessingStatus =
+        when (status) {
+            ExtProcessingStatus.PROCESSED -> ProcessingStatus.PROCESSED
+            ExtProcessingStatus.PROCESSING -> ProcessingStatus.PROCESSING
+        }
+
+    private fun getMethod(method: ExtSubmissionMethod): SubmissionMethod =
+        when (method) {
+            ExtSubmissionMethod.FILE -> SubmissionMethod.FILE
+            ExtSubmissionMethod.PAGE_TAB -> SubmissionMethod.PAGE_TAB
+            ExtSubmissionMethod.UNKNOWN -> SubmissionMethod.UNKNOWN
+        }
 
     private fun toDbSubmissionAttribute(idx: Int, attr: ExtAttribute) = DbSubmissionAttribute(attr.toDbAttribute(idx))
 

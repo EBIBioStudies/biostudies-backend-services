@@ -12,8 +12,7 @@ import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.line
 import ebi.ac.uk.dsl.tsv
-import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSED
-import ebi.ac.uk.model.extensions.title
+import ebi.ac.uk.extended.model.ExtProcessingStatus.PROCESSED
 import ebi.ac.uk.util.collections.second
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
@@ -65,13 +64,13 @@ internal class ProjectSubmitTest(private val tempFolder: TemporaryFolder) : Base
 
             assertThat(webClient.submitSingle(privateProject, SubmissionFormat.TSV)).isSuccessful()
 
-            val submittedProject = submissionRepository.getExtendedByAccNo("PrivateProject")
+            val submittedProject = submissionRepository.getExtByAccNo("PrivateProject")
             assertThat(submittedProject.accNo).isEqualTo("PrivateProject")
             assertThat(submittedProject.title).isEqualTo("A Private Project")
-            assertThat(submittedProject.processingStatus).isEqualTo(PROCESSED)
+            assertThat(submittedProject.status).isEqualTo(PROCESSED)
 
             assertThat(submittedProject.accessTags).hasSize(1)
-            assertThat(submittedProject.accessTags.first()).isEqualTo("PrivateProject")
+            assertThat(submittedProject.accessTags.first().name).isEqualTo("PrivateProject")
 
             assertThat(tagsDataRepository.existsByName("PrivateProject")).isTrue()
             assertThat(sequenceRepository.existsByPrefix("S-PRP")).isTrue()
@@ -91,14 +90,14 @@ internal class ProjectSubmitTest(private val tempFolder: TemporaryFolder) : Base
 
             assertThat(webClient.submitSingle(publicProject, SubmissionFormat.TSV)).isSuccessful()
 
-            val submittedProject = submissionRepository.getExtendedByAccNo("PublicProject")
+            val submittedProject = submissionRepository.getExtByAccNo("PublicProject")
             assertThat(submittedProject.accNo).isEqualTo("PublicProject")
             assertThat(submittedProject.title).isEqualTo("Public Project")
-            assertThat(submittedProject.processingStatus).isEqualTo(PROCESSED)
+            assertThat(submittedProject.status).isEqualTo(PROCESSED)
 
             assertThat(submittedProject.accessTags).hasSize(2)
-            assertThat(submittedProject.accessTags.first()).isEqualTo("PublicProject")
-            assertThat(submittedProject.accessTags.second()).isEqualTo("Public")
+            assertThat(submittedProject.accessTags.first().name).isEqualTo("PublicProject")
+            assertThat(submittedProject.accessTags.second().name).isEqualTo("Public")
 
             assertThat(tagsDataRepository.existsByName("PublicProject")).isTrue()
             assertThat(sequenceRepository.existsByPrefix("S-PUP")).isTrue()

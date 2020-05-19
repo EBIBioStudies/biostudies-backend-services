@@ -1,6 +1,6 @@
 package ebi.ac.uk.paths
 
-import ebi.ac.uk.model.ExtendedSubmission
+import ebi.ac.uk.extended.model.ExtSubmission
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
@@ -10,7 +10,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import java.nio.file.Paths
 
 @ExtendWith(MockKExtension::class)
-internal class SubmissionFolderResolverTest(@MockK val submission: ExtendedSubmission) {
+internal class SubmissionFolderResolverTest(@MockK val submission: ExtSubmission) {
     private val testInstance = SubmissionFolderResolver(Paths.get("/tmp/nfs"))
 
     @Test

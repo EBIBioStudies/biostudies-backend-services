@@ -19,6 +19,7 @@ class FileSerializerTest {
         val expected = xml("file") {
             attribute("size", "0")
             "path" { -FILE_NAME }
+            "type" { -"file" }
         }.toString()
 
         assertThat(result).and(expected).ignoreWhitespace().areIdentical()

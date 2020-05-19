@@ -22,10 +22,7 @@ class SubmissionSerializerTest {
     private val testInstance = XmlSerializer()
 
     private val testSubmission: Submission = submission(ACC_NO) {
-        accessTags = mutableListOf(TAG)
-
         attribute(ATTR_NAME, ATTR_VALUE)
-
         section(SEC_TYPE) {
             accNo = SEC_ACC_NO
         }

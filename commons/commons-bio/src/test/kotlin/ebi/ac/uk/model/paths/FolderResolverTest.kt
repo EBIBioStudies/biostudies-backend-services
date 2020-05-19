@@ -1,7 +1,5 @@
 package ebi.ac.uk.model.paths
 
-import ebi.ac.uk.model.ExtendedSubmission
-import ebi.ac.uk.model.User
 import ebi.ac.uk.paths.SubmissionFolderResolver
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -9,17 +7,6 @@ import java.nio.file.Paths
 
 class FolderResolverTest {
     private val testInstance = SubmissionFolderResolver(Paths.get("/nfs/biostudies"))
-
-    @Test
-    fun `get submission folder`() {
-        val user = User(1L, "test@mail.com", "theSecret", "Test User", notificationsEnabled = false)
-        val submission = ExtendedSubmission("ABC-123", user)
-            .apply { relPath = "ABCxxx123/ABC-123" }
-
-        assertThat(testInstance
-            .getSubmissionFolder(submission))
-            .isEqualTo(Paths.get("/nfs/biostudies/submission/ABCxxx123/ABC-123"))
-    }
 
     @Test
     fun `get submission file path`() {

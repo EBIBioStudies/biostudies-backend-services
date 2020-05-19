@@ -9,7 +9,7 @@ import ac.uk.ebi.biostd.persistence.repositories.LockExecutor
 import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.SubmissionDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataDataRepository
-import ac.uk.ebi.biostd.persistence.service.FilePersistenceService
+import ac.uk.ebi.biostd.persistence.service.filesystem.FileSystemService
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.model.User
 import org.springframework.transaction.annotation.Isolation
@@ -24,7 +24,7 @@ open class PersistenceContextImpl(
     private val userDataRepository: UserDataDataRepository,
     private val toDbSubmissionMapper: ToDbSubmissionMapper,
     private val toExtSubmissionMapper: ToExtSubmissionMapper,
-    private val filePersistenceService: FilePersistenceService
+    private val systemService: FileSystemService
 ) : PersistenceContext {
     override fun sequenceAccNoPatternExists(pattern: String): Boolean = sequenceRepository.existsByPrefix(pattern)
 
@@ -43,29 +43,30 @@ open class PersistenceContextImpl(
 
     @Transactional(isolation = Isolation.READ_UNCOMMITTED)
     override fun saveSubmission(saveRequest: SaveRequest): ExtSubmission {
-        val (submission, submitter, mode) = saveRequest
-        return lockExecutor.executeLocking(submission.accNo) { saveSubmission(submission, submitter, mode) }
+        val (submission, mode) = saveRequest
+        return lockExecutor.executeLocking(submission.accNo) { saveSubmission(submission, mode) }
     }
 
     @Transactional
     override fun refreshSubmission(submission: ExtSubmission, submitter: User) {
-        saveSubmission(SaveRequest(submission.copy(version = submission.version + 1), submitter, FileMode.MOVE))
+        saveSubmission(SaveRequest(submission.copy(version = submission.version + 1), FileMode.MOVE))
     }
 
-    private fun saveSubmission(submission: ExtSubmission, submitter: User, mode: FileMode): ExtSubmission {
+    private fun saveSubmission(submission: ExtSubmission, mode: FileMode): ExtSubmission {
         subRepository.expireActiveVersions(submission.accNo)
-        deleteSubmissionDrafts(submitter.id, submission.accNo)
-        return saveNewVersion(submission, submitter.email, mode)
+        deleteSubmissionDrafts(submission.submitter, submission.accNo)
+        deleteSubmissionDrafts(submission.owner, submission.accNo)
+        return saveNewVersion(submission, mode)
     }
 
-    private fun saveNewVersion(submission: ExtSubmission, submitter: String, mode: FileMode): ExtSubmission {
-        val dbSubmission = subRepository.save(toDbSubmissionMapper.toSubmissionDb(submission, submitter))
-        filePersistenceService.persistSubmissionFiles(submission, mode)
+    private fun saveNewVersion(submission: ExtSubmission, mode: FileMode): ExtSubmission {
+        val dbSubmission = subRepository.save(toDbSubmissionMapper.toSubmissionDb(submission))
+        systemService.persistSubmissionFiles(submission, mode)
         return toExtSubmissionMapper.toExtSubmission(dbSubmission)
     }
 
-    override fun deleteSubmissionDrafts(userId: Long, accNo: String) {
-        userDataRepository.deleteByUserIdAndKeyIgnoreCaseContaining(userId, accNo)
+    override fun deleteSubmissionDrafts(userEmail: String, accNo: String) {
+        userDataRepository.deleteByUserEmailAndKeyIgnoreCaseContaining(userEmail, accNo)
     }
 
     override fun getNextVersion(accNo: String): Int = (subRepository.getLastVersion(accNo) ?: 0) + 1

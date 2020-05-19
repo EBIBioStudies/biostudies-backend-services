@@ -46,6 +46,7 @@ class SwaggerConfig(private val properties: ApplicationProperties) {
         regex("/groups.*"),
         regex("/projects.*"),
         regex("/submissions.*"),
+        regex("/stats.*"),
         regex("/files/user.*"),
         regex("/folder/user.*"),
         regex("/files/groups.*"),

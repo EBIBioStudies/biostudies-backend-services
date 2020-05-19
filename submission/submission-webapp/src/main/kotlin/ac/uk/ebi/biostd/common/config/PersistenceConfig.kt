@@ -18,10 +18,12 @@ import ac.uk.ebi.biostd.persistence.repositories.SubmissionDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.TagDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
-import ac.uk.ebi.biostd.persistence.service.FilePersistenceService
 import ac.uk.ebi.biostd.persistence.service.ProjectRepository
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
 import ac.uk.ebi.biostd.persistence.service.UserPermissionsService
+import ac.uk.ebi.biostd.persistence.service.filesystem.FileSystemService
+import ac.uk.ebi.biostd.persistence.service.filesystem.FilesService
+import ac.uk.ebi.biostd.persistence.service.filesystem.FtpFilesService
 import com.cosium.spring.data.jpa.entity.graph.repository.support.EntityGraphJpaRepositoryFactoryBean
 import ebi.ac.uk.notifications.persistence.repositories.SubmissionRtRepository
 import ebi.ac.uk.paths.SubmissionFolderResolver
@@ -31,12 +33,20 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
+import uk.ac.ebi.stats.persistence.repositories.SubmissionStatsRepository
 
+@Suppress("TooManyFunctions")
 @Configuration
 @EnableJpaRepositories(
-    basePackageClasses = [SubmissionDataRepository::class, SubmissionRtRepository::class],
-    repositoryFactoryBeanClass = EntityGraphJpaRepositoryFactoryBean::class)
-@EntityScan(basePackages = ["ac.uk.ebi.biostd.persistence.model", "ebi.ac.uk.notifications.persistence.model"])
+    repositoryFactoryBeanClass = EntityGraphJpaRepositoryFactoryBean::class,
+    basePackageClasses = [
+        SubmissionDataRepository::class,
+        SubmissionRtRepository::class,
+        SubmissionStatsRepository::class])
+@EntityScan(basePackages = [
+    "ac.uk.ebi.biostd.persistence.model",
+    "ebi.ac.uk.notifications.persistence.model",
+    "uk.ac.ebi.stats.persistence.model"])
 class PersistenceConfig(
     private val submissionDataRepository: SubmissionDataRepository,
     private val sequenceRepository: SequenceDataRepository,
@@ -69,10 +79,17 @@ class PersistenceConfig(
     fun submissionDbMapper() = SubmissionDbMapper()
 
     @Bean
-    fun filePersistenceService() = FilePersistenceService(folderResolver, serializationService)
+    fun ftpFilesService() = FtpFilesService(folderResolver)
+
+    @Bean
+    fun filePersistenceService() = FilesService(folderResolver, serializationService)
 
     @Bean
     fun userPermissionsService() = UserPermissionsService(permissionRepository)
+
+    @Bean
+    fun fileSystemService(filesService: FilesService, ftpService: FtpFilesService) =
+        FileSystemService(filesService, ftpService)
 
     @Bean
     @ConditionalOnMissingBean(LockExecutor::class)
@@ -83,7 +100,7 @@ class PersistenceConfig(
         lockExecutor: LockExecutor,
         dbSubmissionMapper: ToDbSubmissionMapper,
         toExtSubmissionMapper: ToExtSubmissionMapper,
-        filePersistenceService: FilePersistenceService
+        fileSystemService: FileSystemService
     ): PersistenceContext =
         PersistenceContextImpl(
             submissionDataRepository,
@@ -93,7 +110,7 @@ class PersistenceConfig(
             userDataRepository,
             dbSubmissionMapper,
             toExtSubmissionMapper,
-            filePersistenceService
+            fileSystemService
         )
 
     @Bean

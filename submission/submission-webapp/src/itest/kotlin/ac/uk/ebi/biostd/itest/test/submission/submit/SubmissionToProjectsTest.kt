@@ -57,13 +57,11 @@ internal class SubmissionToProjectsTest(private val tempFolder: TemporaryFolder)
             }.toString()
 
             assertThat(webClient.submitSingle(submission, SubmissionFormat.TSV)).isSuccessful()
-            assertThat(submissionRepository.getByAccNo("S-TEST0")).isEqualTo(
-                submission("S-TEST0") {
-                    attachTo = "Test-Project"
-                    title = "AccNo Generation Test"
-                    accessTags = mutableListOf("Test-Project")
-                }
-            )
+            val expected = submission("S-TEST0") {
+                title = "AccNo Generation Test"
+                attachTo = "Test-Project"
+            }
+            assertThat(submissionRepository.getByAccNo("S-TEST0")).isEqualTo(expected)
         }
 
         @Test
@@ -81,9 +79,8 @@ internal class SubmissionToProjectsTest(private val tempFolder: TemporaryFolder)
 
             assertThat(submissionRepository.getByAccNo("S-TEST1")).isEqualTo(
                 submission("S-TEST1") {
-                    attachTo = "Public-Project"
                     title = "Overridden Project"
-                    accessTags = mutableListOf("Public-Project")
+                    attachTo = "Public-Project"
                 }
             )
         }
@@ -99,9 +96,8 @@ internal class SubmissionToProjectsTest(private val tempFolder: TemporaryFolder)
             assertThat(webClient.submitSingle(submission, SubmissionFormat.TSV)).isSuccessful()
             assertThat(submissionRepository.getByAccNo("S-PRP0")).isEqualTo(
                 submission("S-PRP0") {
-                    attachTo = "Private-Project"
                     title = "No Release Date To Private Project"
-                    accessTags = mutableListOf("Private-Project")
+                    attachTo = "Private-Project"
                 }
             )
         }
@@ -118,10 +114,9 @@ internal class SubmissionToProjectsTest(private val tempFolder: TemporaryFolder)
             assertThat(webClient.submitSingle(submission, SubmissionFormat.TSV)).isSuccessful()
             assertThat(submissionRepository.getByAccNo("S-PRP1")).isEqualTo(
                 submission("S-PRP1") {
-                    attachTo = "Private-Project"
                     title = "Public Submission To Private Project"
                     releaseDate = "2015-12-24"
-                    accessTags = mutableListOf("Public", "Private-Project")
+                    attachTo = "Private-Project"
                 }
             )
         }
@@ -138,10 +133,9 @@ internal class SubmissionToProjectsTest(private val tempFolder: TemporaryFolder)
             assertThat(webClient.submitSingle(submission, SubmissionFormat.TSV)).isSuccessful()
             assertThat(submissionRepository.getByAccNo("S-PUP0")).isEqualTo(
                 submission("S-PUP0") {
-                    attachTo = "Public-Project"
                     title = "Private submission into public project"
                     releaseDate = "2050-12-24"
-                    accessTags = mutableListOf("Public-Project")
+                    attachTo = "Public-Project"
                 }
             )
         }
@@ -157,9 +151,8 @@ internal class SubmissionToProjectsTest(private val tempFolder: TemporaryFolder)
             assertThat(webClient.submitSingle(submission, SubmissionFormat.TSV)).isSuccessful()
             assertThat(submissionRepository.getByAccNo("S-PUP1")).isEqualTo(
                 submission("S-PUP1") {
-                    attachTo = "Public-Project"
                     title = "No Release Date To Public Project"
-                    accessTags = mutableListOf("Public-Project")
+                    attachTo = "Public-Project"
                 }
             )
         }

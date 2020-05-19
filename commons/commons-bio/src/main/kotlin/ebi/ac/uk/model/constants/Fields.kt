@@ -1,9 +1,14 @@
 package ebi.ac.uk.model.constants
 
 private const val ACC_NO_FIELD = "accno"
-private const val ACCESS_FIELD = "accessTags"
 private const val SECTION_FIELD = "section"
 private const val ATTRIBUTES_FIELD = "attributes"
+
+val RESERVED_ATTRIBUTES = setOf(
+    SubFields.RELEASE_DATE.value,
+    SubFields.TITLE.value,
+    SubFields.ATTACH_TO.value,
+    SubFields.ROOT_PATH.value)
 
 interface Fields {
 
@@ -95,6 +100,8 @@ enum class FileFields(override val value: String) : Fields {
     PATH("path"),
     SIZE("size"),
     TYPE("type"),
+    FILE_TYPE("file"),
+    DIR_TYPE("directory"),
     ATTRIBUTES(ATTRIBUTES_FIELD);
 
     override fun toString(): String {
