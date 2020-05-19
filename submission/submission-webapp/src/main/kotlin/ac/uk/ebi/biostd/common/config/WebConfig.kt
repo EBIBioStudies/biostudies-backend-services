@@ -5,6 +5,7 @@ import ac.uk.ebi.biostd.files.web.common.UserPathDescriptorResolver
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.submission.converters.BioUserResolver
 import ac.uk.ebi.biostd.submission.converters.JsonPagetabConverter
+import ac.uk.ebi.biostd.submission.converters.OnBehalfUserRequestResolver
 import ebi.ac.uk.security.integration.components.ISecurityService
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -22,7 +23,7 @@ internal class WebConfig(
 ) : WebMvcConfigurer {
 
     @Bean
-    fun submitterResolver() = BioUserResolver(principalResolver(), securityService)
+    fun submitterResolver() = BioUserResolver(principalResolver())
 
     @Bean
     fun principalResolver() = AuthenticationPrincipalArgumentResolver()
@@ -39,5 +40,6 @@ internal class WebConfig(
         argumentResolvers.add(UserPathDescriptorResolver())
         argumentResolvers.add(GroupPathDescriptorResolver())
         argumentResolvers.add(submitterResolver())
+        argumentResolvers.add(OnBehalfUserRequestResolver())
     }
 }

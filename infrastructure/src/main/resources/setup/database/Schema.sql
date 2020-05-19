@@ -160,6 +160,7 @@ CREATE TABLE Submission (
     title          LONGTEXT     NULL,
     version        INT          NOT NULL,
     owner_id       BIGINT       NULL,
+    submitter_id   BIGINT       NULL,
     rootSection_id BIGINT       NULL,
     secretKey      VARCHAR(255) NOT NULL,
     status         VARCHAR(20)  NOT NULL DEFAULT 'PROCESSED',

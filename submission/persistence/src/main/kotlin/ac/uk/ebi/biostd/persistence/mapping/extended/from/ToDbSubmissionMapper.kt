@@ -21,7 +21,7 @@ class ToDbSubmissionMapper(
     private val tagsRefRepository: TagDataRepository,
     private var userRepository: UserDataRepository
 ) {
-    fun toSubmissionDb(submission: ExtSubmission, submitter: String) = DbSubmission().apply {
+    fun toSubmissionDb(submission: ExtSubmission) = DbSubmission().apply {
         accNo = submission.accNo
         title = submission.title
         status = getStatus(submission.status)
@@ -33,7 +33,8 @@ class ToDbSubmissionMapper(
         creationTime = submission.creationTime
         modificationTime = submission.modificationTime
         releaseTime = submission.releaseTime
-        owner = userRepository.getByEmail(submitter)
+        owner = userRepository.getByEmail(submission.owner)
+        submitter = userRepository.getByEmail(submission.submitter)
         accessTags = toAccessTag(submission.accessTags)
         tags = toTags(submission.tags)
         released = submission.released

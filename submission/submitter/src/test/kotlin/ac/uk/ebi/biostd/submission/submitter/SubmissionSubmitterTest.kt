@@ -178,6 +178,7 @@ class SubmissionSubmitterTest {
     private fun mockServices() {
         every { accNoService.getRelPath(accNo) } returns "/a/rel/path"
         every { accNoService.getAccNo(capture(accNoServiceRequest)) } returns accNo
+        every { queryService.getOwner("S-TEST123") } returns null
         every { queryService.isNew("S-TEST123") } returns false
         every { queryService.getSecret("S-TEST123") } returns "a-secret-key"
         every { timesService.getTimes(capture(timesRequest)) } returns Times(testTime, testTime, null)
