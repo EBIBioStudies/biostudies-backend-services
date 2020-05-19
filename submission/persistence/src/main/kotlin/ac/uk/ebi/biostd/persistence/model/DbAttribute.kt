@@ -54,6 +54,9 @@ class DbReferencedFileAttribute(attribute: DbAttribute) :
 @Table(name = "SubmissionAttribute")
 class DbSubmissionAttribute(attribute: DbAttribute) :
     DbAttribute(attribute.name, attribute.value, attribute.order, attribute.reference) {
+
+    constructor(name: String, value: String, order: Int) : this(DbAttribute(name, value, order))
+
     init {
         this.nameQualifier = attribute.nameQualifier
         this.valueQualifier = attribute.valueQualifier

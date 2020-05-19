@@ -1,5 +1,7 @@
 package ebi.ac.uk.io
 
+import ebi.ac.uk.io.ext.createDirectory
+import ebi.ac.uk.io.ext.createNewFile
 import ebi.ac.uk.test.clean
 import ebi.ac.uk.test.createFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
@@ -15,6 +17,78 @@ internal class FileUtilsTest(private val temporaryFolder: TemporaryFolder) {
     @BeforeEach
     fun beforeEach() {
         temporaryFolder.clean()
+    }
+
+    @Nested
+    inner class CopyOrReplaceFile {
+
+        @Nested
+        inner class WhenFile {
+            @Test
+            fun whenTargetExists() {
+                val file = temporaryFolder.createFile("one.txt", "one")
+                val another = temporaryFolder.createFile("two.txt", "two")
+
+                FileUtils.copyOrReplaceFile(file, another)
+
+                assertThat(temporaryFolder.root.resolve("one.txt")).hasContent("one")
+                assertThat(temporaryFolder.root.resolve("two.txt")).hasContent("one")
+            }
+
+            @Test
+            fun whenNoTargetExists() {
+                val file = temporaryFolder.createFile("one.txt", "one")
+                val target = temporaryFolder.root.resolve("new.txt")
+
+                FileUtils.copyOrReplaceFile(file, target)
+
+                assertThat(temporaryFolder.root.resolve("new.txt")).hasContent("one")
+            }
+        }
+
+        @Nested
+        inner class WhenFolder {
+
+            @Test
+            fun whenTargetFolderExists() {
+                val tempDir = temporaryFolder.createDirectory("directory")
+                tempDir.createNewFile("two.txt")
+
+                val targetDirectory = temporaryFolder.createDirectory("target-directory")
+                targetDirectory.createNewFile("one.txt")
+
+                FileUtils.copyOrReplaceFile(tempDir, targetDirectory)
+
+                assertThat(targetDirectory).isDirectory()
+                assertThat(targetDirectory.list()).containsExactly("two.txt")
+            }
+
+            @Test
+            fun whenNoTargetFolder() {
+                val tempDir = temporaryFolder.createDirectory("directory")
+                tempDir.createNewFile("two.txt")
+                val target = temporaryFolder.root.resolve("target")
+
+                FileUtils.copyOrReplaceFile(tempDir, target)
+
+                assertThat(target).isDirectory()
+                assertThat(target.list()).containsExactly("two.txt")
+            }
+
+            @Test
+            fun whenNestedFolder() {
+                val tempDir = temporaryFolder.createDirectory("directory")
+                val subTempDir = tempDir.createDirectory("subDirectory")
+                val subDirFile = subTempDir.createNewFile("subTempFile.txt", "content")
+                val target = temporaryFolder.root.resolve("target")
+
+                FileUtils.copyOrReplaceFile(tempDir, target)
+
+                assertThat(target).isDirectory()
+                assertThat(target.resolve(subTempDir.name)).isDirectory()
+                assertThat(target.resolve(subTempDir.name).resolve(subDirFile.name)).hasSameContentAs(subDirFile)
+            }
+        }
     }
 
     @Nested
@@ -50,10 +124,10 @@ internal class FileUtilsTest(private val temporaryFolder: TemporaryFolder) {
             @Test
             fun whenTargetFolderExists() {
                 val tempDir = temporaryFolder.createDirectory("directory")
-                tempDir.addNewFile("two.txt")
+                tempDir.createNewFile("two.txt")
 
-                val targetDirectory = temporaryFolder.createDirectory("directory-target")
-                targetDirectory.addNewFile("one.txt")
+                val targetDirectory = temporaryFolder.createDirectory("target-directory")
+                targetDirectory.createNewFile("one.txt")
 
                 FileUtils.moveFile(tempDir, targetDirectory)
 
@@ -64,7 +138,7 @@ internal class FileUtilsTest(private val temporaryFolder: TemporaryFolder) {
             @Test
             fun whenNoTargetFolder() {
                 val tempDir = temporaryFolder.createDirectory("directory")
-                tempDir.addNewFile("two.txt")
+                tempDir.createNewFile("two.txt")
                 val target = temporaryFolder.root.resolve("target")
 
                 FileUtils.moveFile(tempDir, target)

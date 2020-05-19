@@ -5,6 +5,7 @@ import java.util.Properties
 
 class NotificationProperties {
     lateinit var smtp: String
+    lateinit var uiUrl: String
 
     @NestedConfigurationProperty
     var rt: RtConfig = RtConfig()

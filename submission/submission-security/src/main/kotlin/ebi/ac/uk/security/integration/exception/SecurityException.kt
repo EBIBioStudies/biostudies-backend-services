@@ -28,3 +28,5 @@ class UserAlreadyRegister(email: String) :
 class UnauthorizedOperation(message: String) : SecurityException(message)
 
 class InvalidSseConfiguration(message: String) : SecurityException(message)
+
+class InvalidCaptchaException : SecurityException("The Provided catch key is empty or incorrect.")

@@ -2,6 +2,7 @@ package uk.ac.ebi.biostd.client.cli
 
 import ac.uk.ebi.biostd.client.exception.WebClientException
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
+import ac.uk.ebi.biostd.client.integration.web.SubmissionResponse
 import com.github.ajalt.clikt.core.IncorrectOptionValueCount
 import com.github.ajalt.clikt.core.MissingParameter
 import com.github.ajalt.clikt.core.PrintMessage
@@ -21,7 +22,6 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.http.HttpStatus.BAD_REQUEST
-import org.springframework.http.ResponseEntity
 import java.io.File
 
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
@@ -43,7 +43,7 @@ class BioStudiesCommandLineTest(
         temporaryFolder.createDirectory("attachments")
         temporaryFolder.createDirectory("attachments/inner")
 
-        val mockResponse = ResponseEntity.ok(Submission("S-TEST123"))
+        val mockResponse = SubmissionResponse.ok(Submission("S-TEST123"))
         val libFile = temporaryFolder.createFile("FileList.tsv")
         val refFile = temporaryFolder.createFile("attachments/inner/RefFile.txt")
 

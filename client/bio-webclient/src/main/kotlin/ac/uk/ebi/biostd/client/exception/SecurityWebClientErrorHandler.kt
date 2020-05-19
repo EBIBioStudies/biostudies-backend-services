@@ -13,6 +13,6 @@ class SecurityWebClientErrorHandler : ResponseErrorHandler {
     private fun getErrorMessage(response: ClientHttpResponse) = when (response.statusCode) {
         HttpStatus.NOT_FOUND -> "Connection Error: The provided server is invalid"
         HttpStatus.UNAUTHORIZED -> "Authentication Error: Invalid email address or password"
-        else -> response.statusText
+        else -> response.statusText.orEmpty()
     }
 }

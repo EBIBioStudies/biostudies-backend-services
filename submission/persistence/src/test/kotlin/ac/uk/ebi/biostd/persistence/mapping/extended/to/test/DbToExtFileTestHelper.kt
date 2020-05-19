@@ -9,7 +9,7 @@ import java.io.File as SystemFile
 
 internal const val FILE_NAME = "fileName"
 
-internal val fileDb get() = DbFile(FILE_NAME, 1, 55L, sortedSetOf(fileAttributeDb))
+internal val fileDb get() = DbFile(FILE_NAME, 1, 55L, sortedSetOf(fileAttributeDb), false)
 
 internal const val FILE_REF_NAME = "fileRefName"
 internal val refRileDb get() = DbReferencedFile(FILE_REF_NAME, 0, 55L, sortedSetOf(refAttributeDb))

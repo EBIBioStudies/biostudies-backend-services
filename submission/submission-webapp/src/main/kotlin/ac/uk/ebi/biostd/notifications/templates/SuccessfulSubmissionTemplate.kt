@@ -10,6 +10,7 @@ internal class SuccessfulSubmissionTemplate(
 
 internal class SuccessfulSubmissionModel(
     private val mailto: String,
+    private val uiUrl: String,
     private val username: String,
     private val accNo: String,
     private val secretKey: String,
@@ -22,12 +23,13 @@ internal class SuccessfulSubmissionModel(
         "USERNAME" to username,
         "TITLE" to title,
         "MAIL_TO" to mailto,
+        "UI_URL" to uiUrl,
         "RELEASE_MESSAGE" to releaseMessage()
     )
 
     // TODO add template engine
     private fun releaseMessage(): String {
-        val submissionUrl = "https://www.ebi.ac.uk/biostudies/studies/$accNo/$secretKey"
+        val submissionUrl = "$uiUrl/studies/$accNo/$secretKey"
         val link = "You will be able to see it only by logging in or by accessing it through this link: $submissionUrl"
         val private = "The release date of this study is not set so it's not publicly available. $link"
         val privateWithReleaseDate =

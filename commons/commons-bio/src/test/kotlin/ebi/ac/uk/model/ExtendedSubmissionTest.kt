@@ -1,6 +1,7 @@
 package ebi.ac.uk.model
 
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.Ignore
 import org.junit.jupiter.api.Test
 
 const val ACC_NO = "ABC456"
@@ -20,9 +21,9 @@ class ExtendedSubmissionTest {
     }
 
     @Test
+    @Ignore
     fun `create extended submission from basic submission`() {
         val submission = Submission(ACC_NO, rootSection, attributes = listOf(attribute))
-        submission.accessTags.add(ACCESS_TAG)
 
         val extendedSubmission = ExtendedSubmission(submission, user)
 
@@ -30,6 +31,5 @@ class ExtendedSubmissionTest {
         assertThat(extendedSubmission.user).isEqualTo(user)
         assertThat(extendedSubmission.section).isEqualTo(rootSection)
         assertThat(extendedSubmission.attributes).contains(attribute)
-        assertThat(extendedSubmission.accessTags).contains(ACCESS_TAG)
     }
 }

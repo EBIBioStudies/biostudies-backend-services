@@ -18,7 +18,7 @@ internal class FileJsonSerializer : StdSerializer<File>(File::class.java) {
             writeJsonString(FileFields.PATH, file.path)
             writeJsonNumber(FileFields.SIZE.value, file.size)
             writeJsonArray(FileFields.ATTRIBUTES, file.attributes)
-            writeJsonString(FileFields.TYPE, FileFields.FILE.value)
+            writeJsonString(FileFields.TYPE, file.type)
         }
     }
 }

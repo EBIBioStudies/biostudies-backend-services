@@ -5,5 +5,8 @@ class SecurityProperties {
     lateinit var tokenHash: String
     lateinit var environment: String
     lateinit var filesDirPath: String
+    lateinit var captchaKey: String
+
+    var checkCaptcha: Boolean = false
     var requireActivation: Boolean = false
 }

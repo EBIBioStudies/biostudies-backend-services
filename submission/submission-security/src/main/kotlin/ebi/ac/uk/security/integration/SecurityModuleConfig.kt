@@ -14,6 +14,7 @@ import ebi.ac.uk.security.integration.components.ISecurityService
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import ebi.ac.uk.security.integration.model.events.PasswordReset
 import ebi.ac.uk.security.integration.model.events.UserRegister
+import ebi.ac.uk.security.service.CaptchaVerifier
 import ebi.ac.uk.security.service.GroupService
 import ebi.ac.uk.security.service.ProfileService
 import ebi.ac.uk.security.service.SecurityService
@@ -22,6 +23,7 @@ import ebi.ac.uk.security.util.SecurityUtil
 import ebi.ac.uk.security.web.SecurityFilter
 import io.jsonwebtoken.Jwts
 import io.reactivex.Observable
+import org.springframework.web.client.RestTemplate
 import java.nio.file.Paths
 
 class SecurityModuleConfig(
@@ -42,12 +44,15 @@ class SecurityModuleConfig(
     val userRegister: Observable<UserRegister> = Events.userPreRegister
 
     private val groupService by lazy { GroupService(groupRepository, userRepo) }
-    private val securityService by lazy { SecurityService(userRepo, securityUtil, props, profileService) }
+    private val securityService by lazy {
+        SecurityService(userRepo, securityUtil, props, profileService, captchaVerifier)
+    }
     private val securityFilter by lazy { SecurityFilter(props.environment, securityService) }
     private val userPrivilegesService by lazy {
         UserPrivilegesService(userRepo, tagsDataRepository, queryService, userPermissionsService)
     }
 
+    private val captchaVerifier by lazy { CaptchaVerifier(RestTemplate(), props) }
     private val securityUtil by lazy { SecurityUtil(jwtParser, objectMapper, tokenRepo, userRepo, props.tokenHash) }
     private val objectMapper by lazy { JacksonFactory.createMapper() }
     private val jwtParser by lazy { Jwts.parser()!! }

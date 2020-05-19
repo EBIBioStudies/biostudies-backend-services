@@ -3,7 +3,7 @@ package ac.uk.ebi.biostd.files.web.common
 import ac.uk.ebi.biostd.files.model.FilesSpec
 import ebi.ac.uk.api.UserFile
 import ebi.ac.uk.api.UserFileType.Companion.getType
-import ebi.ac.uk.io.size
+import ebi.ac.uk.io.ext.size
 import java.io.File
 import java.nio.file.Path
 

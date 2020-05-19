@@ -10,9 +10,9 @@ class FileExtTest {
     @Test
     fun `file type ext`() {
         val file = File("File1.txt")
-        file.type = "Text"
+        file["type"] = "Text"
 
-        assertThat(file.type).isEqualTo("Text")
+        assertThat(file["type"]).isEqualTo("Text")
         assertThat(file.attributes).hasSize(1)
         assertThat(file.attributes.first()).isEqualTo(Attribute(FileFields.TYPE, "Text"))
     }

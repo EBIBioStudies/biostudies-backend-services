@@ -6,6 +6,8 @@ import ac.uk.ebi.biostd.persistence.model.DbUser
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
 import ac.uk.ebi.biostd.persistence.repositories.TagDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
+import ac.uk.ebi.biostd.persistence.test.OWNER
+import ac.uk.ebi.biostd.persistence.test.SUBMITTER
 import ac.uk.ebi.biostd.persistence.test.assertSubmission
 import ac.uk.ebi.biostd.persistence.test.extAccessTag
 import ac.uk.ebi.biostd.persistence.test.extSubmission
@@ -16,8 +18,6 @@ import io.mockk.junit5.MockKExtension
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
-private const val submitter = "user@ebi.email.com"
-
 @ExtendWith(MockKExtension::class)
 internal class ToDbSubmissionMapperTest(
     @MockK private val accessTagsRepository: AccessTagDataRepo,
@@ -27,13 +27,19 @@ internal class ToDbSubmissionMapperTest(
     private val testInstance = ToDbSubmissionMapper(accessTagsRepository, tagsRepository, userRepository)
 
     @Test
-    fun toSubmissionDb(@MockK accessTag: DbAccessTag, @MockK tag: DbTag, @MockK user: DbUser) {
+    fun toSubmissionDb(
+        @MockK accessTag: DbAccessTag,
+        @MockK tag: DbTag,
+        @MockK user: DbUser,
+        @MockK submitter: DbUser
+    ) {
         every { accessTagsRepository.findByName(extAccessTag.name) } returns accessTag
         every { tagsRepository.findByClassifierAndName(extTag.name, extTag.value) } returns tag
-        every { userRepository.getByEmail(submitter) } returns user
+        every { userRepository.getByEmail(OWNER) } returns user
+        every { userRepository.getByEmail(SUBMITTER) } returns submitter
 
-        val dbSubmission = testInstance.toSubmissionDb(extSubmission, submitter)
+        val dbSubmission = testInstance.toSubmissionDb(extSubmission)
 
-        assertSubmission(dbSubmission, listOf(accessTag), listOf(tag), user)
+        assertSubmission(dbSubmission, listOf(accessTag), listOf(tag), user, submitter)
     }
 }
