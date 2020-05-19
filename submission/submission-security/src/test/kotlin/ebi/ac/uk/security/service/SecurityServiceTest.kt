@@ -16,6 +16,7 @@ import ebi.ac.uk.security.integration.model.events.PasswordReset
 import ebi.ac.uk.security.integration.model.events.UserActivated
 import ebi.ac.uk.security.integration.model.events.UserRegister
 import ebi.ac.uk.security.test.SecurityTestEntities
+import ebi.ac.uk.security.test.SecurityTestEntities.Companion.captcha
 import ebi.ac.uk.security.test.SecurityTestEntities.Companion.email
 import ebi.ac.uk.security.test.SecurityTestEntities.Companion.instanceKey
 import ebi.ac.uk.security.test.SecurityTestEntities.Companion.name
@@ -49,10 +50,11 @@ internal class SecurityServiceTest(
     @MockK private val userRepository: UserDataRepository,
     @MockK private val securityProps: SecurityProperties,
     @MockK private val securityUtil: SecurityUtil,
-    @MockK private val profileService: ProfileService
+    @MockK private val profileService: ProfileService,
+    @MockK private val captchaVerifier: CaptchaVerifier
 ) {
     private val testInstance: SecurityService =
-        SecurityService(userRepository, securityUtil, securityProps, profileService)
+        SecurityService(userRepository, securityUtil, securityProps, profileService, captchaVerifier)
 
     @Nested
     inner class Login {
@@ -95,6 +97,8 @@ internal class SecurityServiceTest(
             every { userRepository.save(any<DbUser>()) } answers { firstArg() }
             every { securityUtil.getPasswordDigest(password) } returns PASSWORD_DIGEST
             every { profileService.asSecurityUser(any()) } returns securityUser
+            every { securityProps.checkCaptcha } returns true
+            every { captchaVerifier.verifyCaptcha(captcha) } returns Unit
         }
 
         @Test

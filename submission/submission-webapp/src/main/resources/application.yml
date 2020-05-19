@@ -32,6 +32,8 @@ app:
   basepath: # Absolute path to the folder to be used as storage
   tempDirPath: # Absolute of the temp folder to store files
   security:
+    captchaKey: # Captcha validation token
+    checkCaptcha: false
     tokenHash: # Token used for hash authentication
     filesDirPath: # Absolute path to the folder to be used for the user/groups files
     environment: # Current application execution environment

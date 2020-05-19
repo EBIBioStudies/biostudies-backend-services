@@ -32,7 +32,8 @@ internal class SecurityService(
     private val userRepository: UserDataRepository,
     private val securityUtil: SecurityUtil,
     private val securityProps: SecurityProperties,
-    private val profileService: ProfileService
+    private val profileService: ProfileService,
+    private val captchaVerifier: CaptchaVerifier
 ) : ISecurityService {
     override fun login(request: LoginRequest): UserInfo =
         userRepository
@@ -46,6 +47,8 @@ internal class SecurityService(
     }
 
     override fun registerUser(request: RegisterRequest): SecurityUser {
+        if (securityProps.checkCaptcha) captchaVerifier.verifyCaptcha(request.captcha)
+
         return when {
             userRepository.existsByEmail(request.email) -> throw UserAlreadyRegister(request.email)
             securityProps.requireActivation -> register(request)

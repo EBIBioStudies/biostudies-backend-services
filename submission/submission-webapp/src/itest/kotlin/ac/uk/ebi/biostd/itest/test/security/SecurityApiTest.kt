@@ -36,7 +36,7 @@ internal class SecurityApiTest(tempFolder: TemporaryFolder) : BaseIntegrationTes
 
         @Test
         fun `register with invalid email`() {
-            val request = RegisterRequest("Test", "not-a-mail", "123")
+            val request = RegisterRequest("Test", "not-a-mail", "123", captcha = "captcha")
             assertThatExceptionOfType(SecurityWebClientException::class.java).isThrownBy {
                 webClient.registerUser(request)
             }
