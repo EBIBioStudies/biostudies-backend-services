@@ -40,6 +40,32 @@ data class ExtSection(
     val links: List<Either<ExtLink, ExtLinkTable>> = listOf()
 )
 
+/*
+simples
+files : [
+ {
+   type: file
+ },
+ {
+ type: file
+ },
+ {
+ type: file
+ }
+]
+
+files: [
+  [{}, {}], [{}, {}]
+]
+
+files [
+  {type: tablet, files: [{}, {}]}, {files: [{}, [{}]}, {}
+]
+
+
+
+ */
+
 data class ExtSubmission(
     val accNo: String,
     var version: Int,

@@ -57,6 +57,7 @@ class TableSerializerTest {
             "file" {
                 attribute("size", "0")
                 "path" { -FILE_NAME }
+                "type" { -"file" }
             }
         }.toString()
 

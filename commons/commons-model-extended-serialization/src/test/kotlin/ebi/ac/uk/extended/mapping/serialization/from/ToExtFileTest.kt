@@ -12,7 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 @ExtendWith(value = [MockKExtension::class, TemporaryFolderExtension::class])
 internal class ToExtFileTest(private val tempFolder: TemporaryFolder) {
 
-    private val file = File("fileName", 55L, listOf(attribute))
+    private val file = File("fileName", 55L, "file", listOf(attribute))
     private val systemFile = tempFolder.createFile(file.path)
 
     @Test

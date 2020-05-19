@@ -17,6 +17,7 @@ class FileSerializer : XmlStdSerializer<File>(File::class.java) {
             writeXmlObj(FileFields.FILE) {
                 writeXmlAttr(FileFields.SIZE, value.size)
                 writeXmlField(FileFields.PATH, value.path)
+                writeXmlField(FileFields.TYPE, value.type)
                 writeXmlCollection(FileFields.ATTRIBUTES, value.attributes)
             }
         }
