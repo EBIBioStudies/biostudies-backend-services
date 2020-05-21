@@ -58,9 +58,6 @@ class SubmissionResource(
         @PathVariable accNo: String
     ) = submissionService.getSubmissionAsTsv(accNo)
 
-    @GetMapping("/{accNo}/extended")
-    fun asExtended(@PathVariable accNo: String):ExtSubmission = submissionService.getExtendedSubmission(accNo)
-
     @GetMapping
     @ApiOperation("Get the basic data for the submissions that matches the given filter")
     @ApiImplicitParams(value = [
