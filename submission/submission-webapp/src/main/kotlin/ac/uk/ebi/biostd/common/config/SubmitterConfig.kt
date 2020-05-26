@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.common.config
 import ac.uk.ebi.biostd.common.config.SubmitterConfig.FilesHandlerConfig
 import ac.uk.ebi.biostd.common.config.SubmitterConfig.ServiceConfig
 import ac.uk.ebi.biostd.common.property.ApplicationProperties
+import ac.uk.ebi.biostd.extended.ExtSubmissionSerializer
 import ac.uk.ebi.biostd.integration.SerializationConfig
 import ac.uk.ebi.biostd.persistence.integration.PersistenceContext
 import ac.uk.ebi.biostd.persistence.integration.SubmissionQueryService
@@ -45,9 +46,15 @@ class SubmitterConfig {
         @Bean
         @Lazy
         fun folderResolver() = SubmissionFolderResolver(Paths.get(appProperties.basepath))
+    }
 
+    @Configuration
+    class SerializationConfiguration {
         @Bean
         fun serializationService() = SerializationConfig.serializationService()
+
+        @Bean
+        fun extSubmissionSerializer(): ExtSubmissionSerializer = SerializationConfig.extSubmissionSerializer()
     }
 
     @Configuration

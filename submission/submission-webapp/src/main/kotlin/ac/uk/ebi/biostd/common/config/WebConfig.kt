@@ -1,9 +1,11 @@
 package ac.uk.ebi.biostd.common.config
 
+import ac.uk.ebi.biostd.extended.ExtSubmissionSerializer
 import ac.uk.ebi.biostd.files.web.common.GroupPathDescriptorResolver
 import ac.uk.ebi.biostd.files.web.common.UserPathDescriptorResolver
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.submission.converters.BioUserResolver
+import ac.uk.ebi.biostd.submission.converters.ExtSubmissionConverter
 import ac.uk.ebi.biostd.submission.converters.JsonPagetabConverter
 import ebi.ac.uk.security.integration.components.ISecurityService
 import org.springframework.context.annotation.Bean
@@ -18,7 +20,8 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 @Configuration
 internal class WebConfig(
     private val securityService: ISecurityService,
-    private val serializationService: SerializationService
+    private val serializationService: SerializationService,
+    private val extSubmissionSerializer: ExtSubmissionSerializer
 ) : WebMvcConfigurer {
 
     @Bean
@@ -33,6 +36,7 @@ internal class WebConfig(
 
     override fun extendMessageConverters(converters: MutableList<HttpMessageConverter<*>>) {
         converters.add(0, JsonPagetabConverter(serializationService))
+        converters.add(1, ExtSubmissionConverter(extSubmissionSerializer))
     }
 
     override fun addArgumentResolvers(argumentResolvers: MutableList<HandlerMethodArgumentResolver>) {

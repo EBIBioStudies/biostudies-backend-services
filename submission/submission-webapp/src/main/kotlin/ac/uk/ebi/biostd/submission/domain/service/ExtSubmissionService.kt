@@ -8,4 +8,8 @@ class ExtSubmissionService(private val submissionRepository: SubmissionRepositor
         // TODO validate only superusers can use it
         return submissionRepository.getExtByAccNo(accNo)
     }
+
+    fun submitExtendedSubmission(extSubmission: ExtSubmission): ExtSubmission {
+        return extSubmission
+    }
 }

@@ -7,7 +7,6 @@ import TestDependencies.BaseTestRuntimeDependencies
 
 dependencies {
     api(project(":commons:commons-util"))
-    api(project(":commons:commons-serialization"))
 
     implementation(Arrow)
     implementation(Guava)

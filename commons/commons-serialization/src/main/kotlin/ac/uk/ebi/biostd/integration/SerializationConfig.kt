@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.integration
 
+import ac.uk.ebi.biostd.extended.ExtSubmissionSerializer
 import ac.uk.ebi.biostd.service.FileListSerializer
 import ac.uk.ebi.biostd.service.PageTabSerializationService
 import ac.uk.ebi.biostd.service.PagetabSerializer
@@ -10,6 +11,8 @@ object SerializationConfig {
 
     fun serializationService(): SerializationService =
         PageTabSerializationService(excelReader(), pageTabSerializer(), fileListSerializer())
+
+    fun extSubmissionSerializer(): ExtSubmissionSerializer = ExtSubmissionSerializer()
 
     private fun pageTabSerializer(): PagetabSerializer = PagetabSerializer()
 
