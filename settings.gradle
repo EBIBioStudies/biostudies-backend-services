@@ -5,7 +5,7 @@ include("commons:commons-bio")
 include("commons:commons-http")
 include("commons:commons-serialization")
 include("commons:commons-model-extended")
-include("commons:commons-model-extended-serialization")
+include("commons:commons-model-extended-mapping")
 include("commons:commons-test")
 include("commons:commons-transpiler")
 
