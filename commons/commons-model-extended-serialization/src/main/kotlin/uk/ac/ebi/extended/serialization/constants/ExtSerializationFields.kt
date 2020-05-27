@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.extended.constants
+package uk.ac.ebi.extended.serialization.constants
 
 object ExtSerializationFields {
     const val ACC_NO = "accNo"

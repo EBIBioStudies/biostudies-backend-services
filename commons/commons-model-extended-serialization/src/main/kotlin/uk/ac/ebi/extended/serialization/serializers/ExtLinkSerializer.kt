@@ -1,13 +1,13 @@
-package ac.uk.ebi.biostd.extended.serialization
+package uk.ac.ebi.extended.serialization.serializers
 
-import ac.uk.ebi.biostd.extended.constants.ExtSerializationFields.EXT_TYPE
-import ac.uk.ebi.biostd.extended.constants.ExtSerializationFields.ATTRIBUTES
-import ac.uk.ebi.biostd.extended.constants.ExtSerializationFields.URL
-import ac.uk.ebi.biostd.extended.constants.ExtType
 import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.databind.JsonSerializer
 import com.fasterxml.jackson.databind.SerializerProvider
 import ebi.ac.uk.extended.model.ExtLink
+import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.ATTRIBUTES
+import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.EXT_TYPE
+import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.URL
+import uk.ac.ebi.extended.serialization.constants.ExtType
 
 class ExtLinkSerializer : JsonSerializer<ExtLink>() {
     override fun serialize(link: ExtLink, gen: JsonGenerator, serializers: SerializerProvider) {

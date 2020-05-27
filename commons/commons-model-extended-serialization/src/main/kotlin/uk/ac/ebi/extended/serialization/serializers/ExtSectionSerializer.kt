@@ -1,19 +1,19 @@
-package ac.uk.ebi.biostd.extended.serialization
+package uk.ac.ebi.extended.serialization.serializers
 
-import ac.uk.ebi.biostd.extended.constants.ExtSerializationFields.ACC_NO
-import ac.uk.ebi.biostd.extended.constants.ExtSerializationFields.ATTRIBUTES
-import ac.uk.ebi.biostd.extended.constants.ExtSerializationFields.EXT_TYPE
-import ac.uk.ebi.biostd.extended.constants.ExtSerializationFields.FILES
-import ac.uk.ebi.biostd.extended.constants.ExtSerializationFields.FILE_LIST
-import ac.uk.ebi.biostd.extended.constants.ExtSerializationFields.LINKS
-import ac.uk.ebi.biostd.extended.constants.ExtSerializationFields.SECTIONS
-import ac.uk.ebi.biostd.extended.constants.ExtSerializationFields.TYPE
-import ac.uk.ebi.biostd.extended.constants.ExtType
 import arrow.core.Either
 import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.databind.JsonSerializer
 import com.fasterxml.jackson.databind.SerializerProvider
 import ebi.ac.uk.extended.model.ExtSection
+import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.ACC_NO
+import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.ATTRIBUTES
+import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.EXT_TYPE
+import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILES
+import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_LIST
+import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.LINKS
+import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.SECTIONS
+import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.TYPE
+import uk.ac.ebi.extended.serialization.constants.ExtType
 
 class ExtSectionSerializer : JsonSerializer<ExtSection>() {
     override fun serialize(section: ExtSection, gen: JsonGenerator, serializers: SerializerProvider) {

@@ -1,7 +1,6 @@
 package ac.uk.ebi.biostd.submission.web.resources
 
 import ac.uk.ebi.biostd.submission.domain.service.ExtSubmissionService
-import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import io.swagger.annotations.Api
 import org.springframework.security.access.prepost.PreAuthorize

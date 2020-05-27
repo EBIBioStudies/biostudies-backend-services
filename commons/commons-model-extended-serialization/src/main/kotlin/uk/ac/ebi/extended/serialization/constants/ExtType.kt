@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.extended.constants
+package uk.ac.ebi.extended.serialization.constants
 
 private const val FILE = "file"
 private const val FILES_TABLE = "filesTable"

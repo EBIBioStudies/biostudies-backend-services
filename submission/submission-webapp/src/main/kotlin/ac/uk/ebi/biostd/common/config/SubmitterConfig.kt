@@ -3,7 +3,6 @@ package ac.uk.ebi.biostd.common.config
 import ac.uk.ebi.biostd.common.config.SubmitterConfig.FilesHandlerConfig
 import ac.uk.ebi.biostd.common.config.SubmitterConfig.ServiceConfig
 import ac.uk.ebi.biostd.common.property.ApplicationProperties
-import ac.uk.ebi.biostd.extended.ExtSubmissionSerializer
 import ac.uk.ebi.biostd.integration.SerializationConfig
 import ac.uk.ebi.biostd.persistence.integration.PersistenceContext
 import ac.uk.ebi.biostd.persistence.integration.SubmissionQueryService
@@ -19,6 +18,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 import org.springframework.context.annotation.Lazy
+import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import java.nio.file.Paths
 
 @Suppress("LongParameterList")
@@ -54,7 +54,7 @@ class SubmitterConfig {
         fun serializationService() = SerializationConfig.serializationService()
 
         @Bean
-        fun extSubmissionSerializer(): ExtSubmissionSerializer = SerializationConfig.extSubmissionSerializer()
+        fun extSerializationService(): ExtSerializationService = ExtSerializationService()
     }
 
     @Configuration

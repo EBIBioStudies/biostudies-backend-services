@@ -1,14 +1,5 @@
-package ac.uk.ebi.biostd.extended
+package uk.ac.ebi.extended.serialization.service
 
-import ac.uk.ebi.biostd.common.EitherSerializer
-import ac.uk.ebi.biostd.extended.serialization.ExtFileListSerializer
-import ac.uk.ebi.biostd.extended.serialization.ExtFileSerializer
-import ac.uk.ebi.biostd.extended.serialization.ExtFilesTableSerializer
-import ac.uk.ebi.biostd.extended.serialization.ExtLinkSerializer
-import ac.uk.ebi.biostd.extended.serialization.ExtLinksTableSerializer
-import ac.uk.ebi.biostd.extended.serialization.ExtSectionSerializer
-import ac.uk.ebi.biostd.extended.serialization.ExtSectionsTableSerializer
-import ac.uk.ebi.biostd.extended.serialization.OffsetDateTimeSerializer
 import arrow.core.Either
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.databind.DeserializationFeature
@@ -23,9 +14,18 @@ import ebi.ac.uk.extended.model.ExtLink
 import ebi.ac.uk.extended.model.ExtLinkTable
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSectionTable
+import uk.ac.ebi.extended.serialization.serializers.EitherSerializer
+import uk.ac.ebi.extended.serialization.serializers.ExtFileListSerializer
+import uk.ac.ebi.extended.serialization.serializers.ExtFileSerializer
+import uk.ac.ebi.extended.serialization.serializers.ExtFilesTableSerializer
+import uk.ac.ebi.extended.serialization.serializers.ExtLinkSerializer
+import uk.ac.ebi.extended.serialization.serializers.ExtLinksTableSerializer
+import uk.ac.ebi.extended.serialization.serializers.ExtSectionSerializer
+import uk.ac.ebi.extended.serialization.serializers.ExtSectionsTableSerializer
+import uk.ac.ebi.extended.serialization.serializers.OffsetDateTimeSerializer
 import java.time.OffsetDateTime
 
-class ExtSubmissionSerializer {
+class ExtSerializationService {
     fun <T> serialize(element: T): String =
         mapper.writerWithDefaultPrettyPrinter().writeValueAsString(element)
 
