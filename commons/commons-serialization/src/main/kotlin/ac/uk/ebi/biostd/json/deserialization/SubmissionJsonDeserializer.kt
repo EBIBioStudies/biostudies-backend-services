@@ -1,8 +1,5 @@
 package ac.uk.ebi.biostd.json.deserialization
 
-import ac.uk.ebi.biostd.ext.convertList
-import ac.uk.ebi.biostd.ext.convertNode
-import ac.uk.ebi.biostd.ext.findNode
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.JsonNode
@@ -12,6 +9,9 @@ import com.fasterxml.jackson.databind.node.TextNode
 import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.constants.SubFields
+import uk.ac.ebi.serialization.extensions.convertList
+import uk.ac.ebi.serialization.extensions.convertNode
+import uk.ac.ebi.serialization.extensions.findNode
 
 internal class SubmissionJsonDeserializer : StdDeserializer<Submission>(Submission::class.java) {
     override fun deserialize(jp: JsonParser, ctxt: DeserializationContext): Submission {

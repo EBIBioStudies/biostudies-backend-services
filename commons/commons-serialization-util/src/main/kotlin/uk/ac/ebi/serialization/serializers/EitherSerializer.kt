@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.common
+package uk.ac.ebi.serialization.serializers
 
 import arrow.core.Either
 import com.fasterxml.jackson.core.JsonGenerator

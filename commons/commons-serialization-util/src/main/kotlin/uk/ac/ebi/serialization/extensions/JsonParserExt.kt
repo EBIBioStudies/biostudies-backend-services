@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.ext
+package uk.ac.ebi.serialization.extensions
 
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.core.JsonToken
@@ -8,7 +8,7 @@ import com.fasterxml.jackson.core.JsonToken
  *
  * @param function The function that will be used to parse each array element.
  */
-internal fun <T> JsonParser.parseArray(function: (JsonParser) -> T): List<T> {
+fun <T> JsonParser.parseArray(function: (JsonParser) -> T): List<T> {
     val elements = mutableListOf<T>()
     require(nextToken() == JsonToken.START_ARRAY) { "Expected start array character" }
 
@@ -24,7 +24,7 @@ internal fun <T> JsonParser.parseArray(function: (JsonParser) -> T): List<T> {
  *
  * @param function The function to be applied to each element.
  */
-internal fun JsonParser.forEach(function: (JsonParser) -> Unit) {
+fun JsonParser.forEach(function: (JsonParser) -> Unit) {
     require(nextToken() == JsonToken.START_ARRAY) { "Expected start array character" }
 
     while (nextToken() != JsonToken.END_ARRAY) {

@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.ext
+package uk.ac.ebi.serialization.extensions
 
 import javax.xml.stream.XMLStreamConstants
 import javax.xml.stream.XMLStreamReader

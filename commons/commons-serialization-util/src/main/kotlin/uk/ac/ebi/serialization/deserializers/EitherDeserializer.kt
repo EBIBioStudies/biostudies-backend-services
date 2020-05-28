@@ -1,6 +1,5 @@
-package ac.uk.ebi.biostd.common
+package uk.ac.ebi.serialization.deserializers
 
-import ac.uk.ebi.biostd.ext.tryConvertValue
 import arrow.core.Either
 import arrow.core.getOrElse
 import arrow.core.or
@@ -13,11 +12,12 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer
+import uk.ac.ebi.serialization.extensions.tryConvertValue
 
 /**
  * Either deserializer, try to unserialize each either wrapper type to obtain the correct representation.
  */
-internal class EitherDeserializer : StdDeserializer<Either<*, *>>(Either::class.java), ContextualDeserializer {
+class EitherDeserializer : StdDeserializer<Either<*, *>>(Either::class.java), ContextualDeserializer {
     private lateinit var leftType: JavaType
     private lateinit var rightType: JavaType
 
