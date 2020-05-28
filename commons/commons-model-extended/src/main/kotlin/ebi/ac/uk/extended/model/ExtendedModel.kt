@@ -36,8 +36,8 @@ data class ExtAttribute(
     val name: String,
     val value: String,
     val reference: Boolean,
-    val nameAttrs: List<ExtAttributeDetail>,
-    val valueAttrs: List<ExtAttributeDetail>
+    val nameAttrs: List<ExtAttributeDetail> = listOf(),
+    val valueAttrs: List<ExtAttributeDetail> = listOf()
 )
 
 data class ExtSection(
@@ -63,8 +63,8 @@ data class ExtSubmission(
     val releaseTime: OffsetDateTime?,
     val modificationTime: OffsetDateTime,
     val creationTime: OffsetDateTime,
-    val attributes: List<ExtAttribute>,
-    val tags: List<ExtTag>,
-    val accessTags: List<ExtAccessTag>,
+    val attributes: List<ExtAttribute> = listOf(),
+    val tags: List<ExtTag> = listOf(),
+    val accessTags: List<ExtAccessTag> = listOf(),
     val section: ExtSection
 )

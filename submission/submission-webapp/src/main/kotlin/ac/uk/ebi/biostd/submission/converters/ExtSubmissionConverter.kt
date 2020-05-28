@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.submission.converters
 
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.io.ext.asString
 import org.springframework.http.HttpInputMessage
 import org.springframework.http.HttpOutputMessage
 import org.springframework.http.MediaType
@@ -12,8 +13,10 @@ import kotlin.reflect.full.isSuperclassOf
 class ExtSubmissionConverter(
     private val extSerializationService: ExtSerializationService
 ) : HttpMessageConverter<ExtSubmission> {
-    // TODO update accordingly once extended deserialization is ready
-    override fun canRead(clazz: Class<*>, mediaType: MediaType?): Boolean = false
+    override fun canRead(
+        clazz: Class<*>,
+        mediaType: MediaType
+    ): Boolean = ExtSubmission::class.isSuperclassOf(clazz.kotlin)
 
     override fun canWrite(
         clazz: Class<*>,
@@ -27,7 +30,6 @@ class ExtSubmissionConverter(
         message.body.write(extSerializationService.serialize(extSubmission).toByteArray())
     }
 
-    override fun read(clazz: Class<out ExtSubmission>, inputMessage: HttpInputMessage): ExtSubmission {
-        TODO("not implemented") // To change body of created functions use File | Settings | File Templates.
-    }
+    override fun read(clazz: Class<out ExtSubmission>, message: HttpInputMessage): ExtSubmission =
+        extSerializationService.deserialize(message.body.asString())
 }

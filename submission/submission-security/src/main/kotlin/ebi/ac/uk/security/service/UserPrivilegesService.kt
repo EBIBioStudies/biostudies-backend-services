@@ -11,6 +11,7 @@ import ebi.ac.uk.model.constants.SubFields.PUBLIC_ACCESS_TAG
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import ebi.ac.uk.security.integration.exception.UserNotFoundByEmailException
 
+@SuppressWarnings("TooManyFunctions")
 internal class UserPrivilegesService(
     private val userRepository: UserDataRepository,
     private val tagsDataRepository: AccessTagDataRepo,
@@ -20,6 +21,8 @@ internal class UserPrivilegesService(
     override fun canProvideAccNo(email: String) = isSuperUser(email)
 
     override fun canSubmitProjects(email: String) = isSuperUser(email)
+
+    override fun canSubmitExtended(submitter: String): Boolean = isSuperUser(submitter)
 
     override fun canSubmitToProject(submitter: String, project: String): Boolean =
         isSuperUser(submitter).or(hasPermissions(submitter, listOf(project), ATTACH))
