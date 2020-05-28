@@ -43,9 +43,10 @@ class SubmissionConfig(
 
     @Bean
     fun extSubmissionService(
+        persistenceContext: PersistenceContext,
         subRepository: SubmissionRepository,
         userPrivilegeService: IUserPrivilegesService
-    ): ExtSubmissionService = ExtSubmissionService(subRepository, userPrivilegeService)
+    ): ExtSubmissionService = ExtSubmissionService(persistenceContext, subRepository, userPrivilegeService)
 
     @Bean
     fun projectService(
