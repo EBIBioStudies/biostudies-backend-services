@@ -23,10 +23,10 @@ spring:
       max-request-size: 20GB
       location: ${app.tempDirPath}
 
-logging.file: logs/application_logs.txt
 logging:
   file:
     max-history: 7
+    name: logs/application_logs.txt
 
 app:
   basepath: # Absolute path to the folder to be used as storage
