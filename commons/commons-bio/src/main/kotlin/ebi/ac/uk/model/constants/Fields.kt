@@ -100,6 +100,8 @@ enum class FileFields(override val value: String) : Fields {
     PATH("path"),
     SIZE("size"),
     TYPE("type"),
+    FILE_TYPE("file"),
+    DIR_TYPE("directory"),
     ATTRIBUTES(ATTRIBUTES_FIELD);
 
     override fun toString(): String {

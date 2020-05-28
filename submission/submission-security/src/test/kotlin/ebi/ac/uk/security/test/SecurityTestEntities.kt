@@ -17,6 +17,7 @@ internal class SecurityTestEntities {
         const val password = "abc123"
         const val instanceKey = "12345"
         const val path = "/activate_url_path"
+        const val captcha = "captcha-key"
 
         val magicFolderPath = Paths.get("/abc/user-folder")
         val magicFolderRelativePath = Paths.get("user-folder")
@@ -24,7 +25,7 @@ internal class SecurityTestEntities {
         const val adminId = 70L
 
         val registrationRequest: RegisterRequest
-            get() = RegisterRequest(name, email, password)
+            get() = RegisterRequest(name, email, password, captcha = captcha)
 
         val preRegisterRequest: RegisterRequest
             get() = RegisterRequest(
@@ -32,6 +33,7 @@ internal class SecurityTestEntities {
                 email = email,
                 password = password,
                 instanceKey = instanceKey,
+                captcha = captcha,
                 path = path)
 
         val resetPasswordRequest: ResetPasswordRequest

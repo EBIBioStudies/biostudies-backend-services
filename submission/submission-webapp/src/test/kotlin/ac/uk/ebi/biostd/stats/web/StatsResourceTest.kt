@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.stats.web
 
+import ac.uk.ebi.biostd.persistence.filter.PaginationFilter
 import ac.uk.ebi.biostd.stats.web.handlers.StatsFileHandler
 import ac.uk.ebi.biostd.submission.domain.service.TempFileGenerator
 import ebi.ac.uk.dsl.json.jsonArray
@@ -44,15 +45,18 @@ class StatsResourceTest(
     @Test
     fun `find by type`() {
         val type = slot<SubmissionStatType>()
+        val filter = slot<PaginationFilter>()
         val expectedResponse = jsonArray(jsonObj {
             "accNo" to "S-TEST123"
             "type" to "VIEWS"
             "value" to 10
         })
 
-        every { statsService.findByType(capture(type)) } returns listOf(testStat)
+        every { statsService.findByType(capture(type), capture(filter)) } returns listOf(testStat)
 
         mvc.get("/stats/views") {
+            param("limit", "1")
+            param("offset", "1")
             accept = APPLICATION_JSON
         }.andExpect {
             status { isOk }
@@ -60,6 +64,8 @@ class StatsResourceTest(
         }
 
         assertThat(type.captured).isEqualTo(VIEWS)
+        assertThat(filter.captured.limit).isEqualTo(1)
+        assertThat(filter.captured.offset).isEqualTo(1)
     }
 
     @Test
