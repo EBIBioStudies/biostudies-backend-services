@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.json.deserialization.stream
 
-import ac.uk.ebi.biostd.ext.parseArray
 import com.fasterxml.jackson.core.JsonFactory
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.core.JsonToken.END_OBJECT
@@ -11,8 +10,9 @@ import ebi.ac.uk.model.builders.AttributeBuilder
 import ebi.ac.uk.model.builders.FileBuilder
 import ebi.ac.uk.model.constants.AttributeFields
 import ebi.ac.uk.model.constants.FileFields
-import java.io.File
 import ebi.ac.uk.model.File as RefFile
+import java.io.File
+import uk.ac.ebi.serialization.extensions.parseArray
 
 internal class FileListJsonStreamDeserializer {
     fun deserialize(file: File): FileList {

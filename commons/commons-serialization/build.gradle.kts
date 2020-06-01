@@ -12,16 +12,17 @@ import TestDependencies.XmlUnitAssertJ
 import TestDependencies.XmlUnitCore
 
 dependencies {
+    api(project(":commons:commons-bio"))
+    api(project(":commons:commons-serialization-util"))
     api(project(":commons:commons-test"))
     api(project(":commons:commons-util"))
-    api(project(":commons:commons-bio"))
 
+    implementation(Arrow)
+    implementation(CommonsCsv)
+    implementation(Guava)
     implementation(JacksonKotlin)
     implementation(JacksonXml)
     implementation(Woodstox)
-    implementation(Guava)
-    implementation(Arrow)
-    implementation(CommonsCsv)
 
     BaseTestCompileDependencies.forEach { testImplementation(it) }
     BaseTestRuntimeDependencies.forEach { testImplementation(it) }

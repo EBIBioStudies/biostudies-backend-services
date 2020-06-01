@@ -6,7 +6,7 @@ import ac.uk.ebi.biostd.integration.SubFormat.Companion.TSV
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.XML
 import ac.uk.ebi.biostd.persistence.integration.FileMode
 import ac.uk.ebi.biostd.persistence.test.extSubmissionWithFileList
-import ebi.ac.uk.extended.mapping.serialization.to.toSimpleSubmission
+import ebi.ac.uk.extended.mapping.to.toSimpleSubmission
 import ebi.ac.uk.io.FileUtils
 import ebi.ac.uk.io.ext.createNewFile
 import ebi.ac.uk.model.FilesTable

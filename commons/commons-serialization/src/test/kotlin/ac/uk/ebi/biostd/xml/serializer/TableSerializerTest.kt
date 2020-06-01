@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.xml.serializer
 
-import ac.uk.ebi.biostd.common.EitherSerializer
+import uk.ac.ebi.serialization.serializers.EitherSerializer
 import ac.uk.ebi.biostd.test.FILE_NAME
 import ac.uk.ebi.biostd.test.LINK_URL
 import ac.uk.ebi.biostd.test.SEC_ACC_NO

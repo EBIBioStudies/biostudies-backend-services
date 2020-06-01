@@ -42,7 +42,6 @@ import org.springframework.web.bind.annotation.RestController
 @Api(tags = ["Submissions"])
 @Suppress("LongParameterList")
 class SubmitResource(private val submitWebHandler: SubmitWebHandler) {
-
     @PostMapping(
         headers = ["$SUBMISSION_TYPE=$TEXT_XML"],
         produces = [APPLICATION_JSON_VALUE])

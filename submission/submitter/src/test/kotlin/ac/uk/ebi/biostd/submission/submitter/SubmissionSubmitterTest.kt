@@ -19,8 +19,7 @@ import ac.uk.ebi.biostd.submission.service.TimesRequest
 import ac.uk.ebi.biostd.submission.service.TimesService
 import ebi.ac.uk.dsl.section
 import ebi.ac.uk.dsl.submission
-import ebi.ac.uk.extended.mapping.serialization.to.toSimpleSubmission
-import ebi.ac.uk.extended.model.ExtAttribute
+import ebi.ac.uk.extended.mapping.to.toSimpleSubmission
 import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod
@@ -64,7 +63,6 @@ class SubmissionSubmitterTest {
     private val persistenceContext = mockk<PersistenceContext>()
 
     private val timesRequest = slot<TimesRequest>()
-    private val extSubmission = slot<ExtSubmission>()
     private val saveRequest = slot<SaveRequest>()
     private val projectRequest = slot<ProjectRequest>()
     private val notification = slot<SuccessfulSubmission>()
@@ -78,7 +76,7 @@ class SubmissionSubmitterTest {
         mockServices()
         mockNotificationEvents()
         mockPersistenceContext()
-        mockkStatic("ebi.ac.uk.extended.mapping.serialization.to.ToSubmissionKt")
+        mockkStatic("ebi.ac.uk.extended.mapping.to.ToSubmissionKt")
         every { any<ExtSubmission>().toSimpleSubmission() } returns submission
     }
 
@@ -146,11 +144,6 @@ class SubmissionSubmitterTest {
         assertThat(expected.accessTags.first().name).isEqualTo("BioImages")
         assertThat(expected.section.type).isEqualTo("Study")
         assertThat(expected.attributes).isEmpty()
-    }
-
-    private fun assertExtAttribute(extAttr: ExtAttribute, name: String, value: String) {
-        assertThat(extAttr.name).isEqualTo(name)
-        assertThat(extAttr.value).isEqualTo(value)
     }
 
     private fun verifyProcessServices() = verify(exactly = 1) {

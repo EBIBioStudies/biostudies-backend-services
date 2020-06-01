@@ -1,17 +1,19 @@
 import Dependencies.Arrow
-import Dependencies.Guava
+import Dependencies.JacksonKotlin
+import Dependencies.JacksonXml
+import Dependencies.KotlinStdLib
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
 
 dependencies {
-    api(project(":commons:commons-util"))
-    api(project(":commons:commons-bio"))
+    api(project(":commons:commons-model-extended"))
+    api(project(":commons:commons-serialization-util"))
+//    api(project(":commons:commons-util"))
 
     implementation(Arrow)
-    implementation(Guava)
-    implementation(kotlin("stdlib"))
-
-    testApi(project(":commons:commons-test"))
+    implementation(JacksonKotlin)
+    implementation(JacksonXml)
+    implementation(KotlinStdLib)
 
     BaseTestCompileDependencies.forEach { testImplementation(it) }
     BaseTestRuntimeDependencies.forEach { testImplementation(it) }

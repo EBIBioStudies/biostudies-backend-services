@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.common
 
-import ac.uk.ebi.biostd.ext.tryConvertValue
 import com.fasterxml.jackson.databind.JavaType
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -11,6 +10,7 @@ import io.mockk.junit5.MockKExtension
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.serialization.extensions.tryConvertValue
 
 @ExtendWith(MockKExtension::class)
 class ObjectMapperExtensionsTest(

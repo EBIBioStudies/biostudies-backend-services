@@ -4,30 +4,40 @@ import arrow.core.Either
 import java.io.File
 import java.time.OffsetDateTime
 
-data class ExtTag(val name: String, val value: String)
-data class ExtAccessTag(val name: String)
 enum class ExtSubmissionMethod { FILE, PAGE_TAB, UNKNOWN }
+
 enum class ExtProcessingStatus { PROCESSED, PROCESSING }
 
+data class ExtTag(val name: String, val value: String)
+
+data class ExtAccessTag(val name: String)
+
 data class ExtAttributeDetail(val name: String, val value: String)
+
 data class ExtLink(val url: String, val attributes: List<ExtAttribute>)
 
-data class ExtFile(val fileName: String, val file: File, val attributes: List<ExtAttribute>)
+data class ExtFile(
+    val fileName: String,
+    val file: File,
+    val attributes: List<ExtAttribute>
+)
+
 data class ExtFileList(val fileName: String, val files: List<ExtFile>)
 
 data class ExtSectionTable(val sections: List<ExtSection>)
+
+data class ExtLinkTable(val links: List<ExtLink>)
+
 data class ExtFileTable(val files: List<ExtFile>) {
     constructor(vararg files: ExtFile) : this(files.toList())
 }
-
-data class ExtLinkTable(val links: List<ExtLink>)
 
 data class ExtAttribute(
     val name: String,
     val value: String,
     val reference: Boolean,
-    val nameAttrs: List<ExtAttributeDetail>,
-    val valueAttrs: List<ExtAttributeDetail>
+    val nameAttrs: List<ExtAttributeDetail> = listOf(),
+    val valueAttrs: List<ExtAttributeDetail> = listOf()
 )
 
 data class ExtSection(
@@ -55,8 +65,8 @@ data class ExtSubmission(
     val releaseTime: OffsetDateTime?,
     val modificationTime: OffsetDateTime,
     val creationTime: OffsetDateTime,
-    val attributes: List<ExtAttribute>,
-    val tags: List<ExtTag>,
-    val accessTags: List<ExtAccessTag>,
+    val attributes: List<ExtAttribute> = listOf(),
+    val tags: List<ExtTag> = listOf(),
+    val accessTags: List<ExtAccessTag> = listOf(),
     val section: ExtSection
 )

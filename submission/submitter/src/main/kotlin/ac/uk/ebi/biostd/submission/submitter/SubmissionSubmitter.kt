@@ -16,9 +16,9 @@ import ac.uk.ebi.biostd.submission.service.TimesRequest
 import ac.uk.ebi.biostd.submission.service.TimesService
 import ebi.ac.uk.base.ifTrue
 import ebi.ac.uk.base.orFalse
-import ebi.ac.uk.extended.mapping.serialization.from.toExtAttribute
-import ebi.ac.uk.extended.mapping.serialization.from.toExtSection
-import ebi.ac.uk.extended.mapping.serialization.to.toSimpleSubmission
+import ebi.ac.uk.extended.mapping.from.toExtAttribute
+import ebi.ac.uk.extended.mapping.from.toExtSection
+import ebi.ac.uk.extended.mapping.to.toSimpleSubmission
 import ebi.ac.uk.extended.model.ExtAccessTag
 import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.ExtSubmission

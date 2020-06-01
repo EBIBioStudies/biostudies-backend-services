@@ -1,7 +1,5 @@
 package ac.uk.ebi.biostd.json
 
-import ac.uk.ebi.biostd.common.EitherDeserializer
-import ac.uk.ebi.biostd.common.EitherSerializer
 import ac.uk.ebi.biostd.json.deserialization.AttributeJsonDeserializer
 import ac.uk.ebi.biostd.json.deserialization.FileJsonDeserializer
 import ac.uk.ebi.biostd.json.deserialization.FilesTableJsonDeserializer
@@ -32,6 +30,8 @@ import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.SectionsTable
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.Table
+import uk.ac.ebi.serialization.deserializers.EitherDeserializer
+import uk.ac.ebi.serialization.serializers.EitherSerializer
 
 internal class JsonSerializer {
     fun <T> serialize(element: T, pretty: Boolean = false): String {
