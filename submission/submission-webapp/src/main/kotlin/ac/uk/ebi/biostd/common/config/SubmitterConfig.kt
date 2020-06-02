@@ -18,6 +18,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 import org.springframework.context.annotation.Lazy
+import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import java.nio.file.Paths
 
 @Suppress("LongParameterList")
@@ -45,9 +46,15 @@ class SubmitterConfig {
         @Bean
         @Lazy
         fun folderResolver() = SubmissionFolderResolver(Paths.get(appProperties.basepath))
+    }
 
+    @Configuration
+    class SerializationConfiguration {
         @Bean
         fun serializationService() = SerializationConfig.serializationService()
+
+        @Bean
+        fun extSerializationService(): ExtSerializationService = ExtSerializationService()
     }
 
     @Configuration

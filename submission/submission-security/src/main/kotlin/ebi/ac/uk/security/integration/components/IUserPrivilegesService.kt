@@ -14,4 +14,6 @@ interface IUserPrivilegesService {
     fun canSubmitToProject(submitter: String, project: String): Boolean
 
     fun canDelete(submitter: String, accNo: String): Boolean
+
+    fun canSubmitExtended(submitter: String): Boolean
 }

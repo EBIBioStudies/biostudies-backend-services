@@ -32,7 +32,8 @@ CREATE TABLE FileRef (
     tableIndex INT          NOT NULL,
     sectionId  BIGINT       NULL,
     ord        INT          NULL,
-    path       VARCHAR(255) NULL
+    path       VARCHAR(255) NULL,
+    directory  BIT NOT NULL
 );
 
 CREATE INDEX FileRef_sectionId_IDX ON FileRef (sectionId);

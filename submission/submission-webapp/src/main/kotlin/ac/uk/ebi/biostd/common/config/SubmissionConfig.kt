@@ -7,6 +7,7 @@ import ac.uk.ebi.biostd.persistence.integration.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.service.ProjectRepository
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
 import ac.uk.ebi.biostd.submission.domain.helpers.SourceGenerator
+import ac.uk.ebi.biostd.submission.domain.service.ExtSubmissionService
 import ac.uk.ebi.biostd.submission.domain.service.ProjectService
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionService
 import ac.uk.ebi.biostd.submission.submitter.SubmissionPersistenceService
@@ -39,6 +40,13 @@ class SubmissionConfig(
         userPrivilegeService,
         queryService,
         submissionSubmitter)
+
+    @Bean
+    fun extSubmissionService(
+        persistenceContext: PersistenceContext,
+        subRepository: SubmissionRepository,
+        userPrivilegeService: IUserPrivilegesService
+    ): ExtSubmissionService = ExtSubmissionService(persistenceContext, subRepository, userPrivilegeService)
 
     @Bean
     fun projectService(

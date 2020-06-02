@@ -1,4 +1,5 @@
 import Dependencies.JSONOrg
+import Dependencies.KotlinStdLib
 import Dependencies.SpringWeb
 
 dependencies {
@@ -8,6 +9,6 @@ dependencies {
     api(project(":commons:commons-serialization"))
 
     implementation(JSONOrg)
+    implementation(KotlinStdLib)
     implementation(SpringWeb)
-    implementation(kotlin("stdlib"))
 }

@@ -8,10 +8,11 @@ import org.springframework.web.bind.support.WebDataBinderFactory
 import org.springframework.web.context.request.NativeWebRequest
 import org.springframework.web.method.support.HandlerMethodArgumentResolver
 import org.springframework.web.method.support.ModelAndViewContainer
+import java.net.URLDecoder
+import java.nio.charset.StandardCharsets.UTF_8
 import javax.servlet.http.HttpServletRequest
 
 class UserPathDescriptorResolver : HandlerMethodArgumentResolver {
-
     override fun supportsParameter(parameter: MethodParameter) = parameter.parameterType == UserPath::class.java
 
     override fun resolveArgument(
@@ -23,7 +24,6 @@ class UserPathDescriptorResolver : HandlerMethodArgumentResolver {
 }
 
 class GroupPathDescriptorResolver : HandlerMethodArgumentResolver {
-
     override fun supportsParameter(parameter: MethodParameter) = parameter.parameterType == GroupPath::class.java
 
     override fun resolveArgument(
@@ -38,7 +38,7 @@ private fun getServletRequest(webRequest: NativeWebRequest) =
     webRequest.getNativeRequest(HttpServletRequest::class.java)!!
 
 private fun getPath(prefix: Regex, webRequest: HttpServletRequest): String =
-    webRequest.requestURL.toString().removeFirstOccurrence(prefix).trim('/')
+    URLDecoder.decode(webRequest.requestURL.toString().removeFirstOccurrence(prefix).trim('/'), UTF_8.name())
 
 class UserPath(val path: String)
 class GroupPath(val path: String)

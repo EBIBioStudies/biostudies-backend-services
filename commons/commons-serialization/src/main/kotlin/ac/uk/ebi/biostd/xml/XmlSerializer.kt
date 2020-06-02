@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.xml
 
-import ac.uk.ebi.biostd.common.EitherSerializer
+import uk.ac.ebi.serialization.serializers.EitherSerializer
 import ac.uk.ebi.biostd.xml.deserializer.AttributeXmlDeserializer
 import ac.uk.ebi.biostd.xml.deserializer.DetailsXmlDeserializer
 import ac.uk.ebi.biostd.xml.deserializer.FileXmlDeserializer

@@ -9,6 +9,7 @@ import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.TestInstance.Lifecycle
+import uk.ac.ebi.serialization.serializers.EitherSerializer
 
 @TestInstance(Lifecycle.PER_CLASS)
 class EitherSerializerTest {

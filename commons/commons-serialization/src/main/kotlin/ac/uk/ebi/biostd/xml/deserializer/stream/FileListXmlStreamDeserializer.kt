@@ -1,9 +1,5 @@
 package ac.uk.ebi.biostd.xml.deserializer.stream
 
-import ac.uk.ebi.biostd.ext.contentAsString
-import ac.uk.ebi.biostd.ext.forEach
-import ac.uk.ebi.biostd.ext.map
-import ac.uk.ebi.biostd.ext.use
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.File as PageTabFile
 import ebi.ac.uk.model.FileList
@@ -20,6 +16,10 @@ import java.io.File
 import javax.xml.stream.XMLInputFactory
 import javax.xml.stream.XMLStreamConstants.START_ELEMENT
 import javax.xml.stream.XMLStreamReader
+import uk.ac.ebi.serialization.extensions.contentAsString
+import uk.ac.ebi.serialization.extensions.forEach
+import uk.ac.ebi.serialization.extensions.map
+import uk.ac.ebi.serialization.extensions.use
 
 internal class FileListXmlStreamDeserializer {
     fun deserialize(file: File): FileList {
