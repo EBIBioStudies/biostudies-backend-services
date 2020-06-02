@@ -4,6 +4,7 @@ import ac.uk.ebi.biostd.files.web.common.GroupPathDescriptorResolver
 import ac.uk.ebi.biostd.files.web.common.UserPathDescriptorResolver
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.submission.converters.BioUserResolver
+import ac.uk.ebi.biostd.submission.converters.ExtSubmissionConverter
 import ac.uk.ebi.biostd.submission.converters.JsonPagetabConverter
 import ac.uk.ebi.biostd.submission.converters.OnBehalfUserRequestResolver
 import ebi.ac.uk.security.integration.components.ISecurityService
@@ -15,11 +16,13 @@ import org.springframework.security.web.method.annotation.AuthenticationPrincipa
 import org.springframework.web.method.support.HandlerMethodArgumentResolver
 import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
+import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 
 @Configuration
 internal class WebConfig(
     private val securityService: ISecurityService,
-    private val serializationService: SerializationService
+    private val serializationService: SerializationService,
+    private val extSerializationService: ExtSerializationService
 ) : WebMvcConfigurer {
 
     @Bean
@@ -34,6 +37,7 @@ internal class WebConfig(
 
     override fun extendMessageConverters(converters: MutableList<HttpMessageConverter<*>>) {
         converters.add(0, JsonPagetabConverter(serializationService))
+        converters.add(1, ExtSubmissionConverter(extSerializationService))
     }
 
     override fun addArgumentResolvers(argumentResolvers: MutableList<HandlerMethodArgumentResolver>) {

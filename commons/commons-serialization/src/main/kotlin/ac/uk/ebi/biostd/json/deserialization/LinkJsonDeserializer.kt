@@ -1,8 +1,5 @@
 package ac.uk.ebi.biostd.json.deserialization
 
-import ac.uk.ebi.biostd.ext.convertList
-import ac.uk.ebi.biostd.ext.findNode
-import ac.uk.ebi.biostd.ext.getNode
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.JsonNode
@@ -11,6 +8,9 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer
 import com.fasterxml.jackson.databind.node.TextNode
 import ebi.ac.uk.model.Link
 import ebi.ac.uk.model.constants.LinkFields
+import uk.ac.ebi.serialization.extensions.convertList
+import uk.ac.ebi.serialization.extensions.findNode
+import uk.ac.ebi.serialization.extensions.getNode
 
 internal class LinkJsonDeserializer : StdDeserializer<Link>(Link::class.java) {
     override fun deserialize(jp: JsonParser, ctxt: DeserializationContext): Link {

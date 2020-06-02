@@ -3,8 +3,8 @@ package ac.uk.ebi.biostd.persistence.service.filesystem
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat
 import ac.uk.ebi.biostd.persistence.integration.FileMode
-import ebi.ac.uk.extended.mapping.serialization.to.toFilesTable
-import ebi.ac.uk.extended.mapping.serialization.to.toSimpleSubmission
+import ebi.ac.uk.extended.mapping.to.toFilesTable
+import ebi.ac.uk.extended.mapping.to.toSimpleSubmission
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.allFileList

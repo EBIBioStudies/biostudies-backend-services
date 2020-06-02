@@ -30,15 +30,16 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":submission:persistence"))
-    implementation(project(":submission:submitter"))
-    implementation(project(":submission:submission-security"))
-    implementation(project(":submission:notifications"))
-    implementation(project(":submission:stats"))
-    implementation(project(":commons:commons-serialization"))
-    implementation(project(":commons:commons-util"))
-    implementation(project(":commons:commons-test"))
-    implementation(project(":commons:commons-http"))
+    api(project(":submission:persistence"))
+    api(project(":submission:submitter"))
+    api(project(":submission:submission-security"))
+    api(project(":submission:notifications"))
+    api(project(":submission:stats"))
+    api(project(":commons:commons-model-extended-serialization"))
+    api(project(":commons:commons-serialization"))
+    api(project(":commons:commons-util"))
+    api(project(":commons:commons-test"))
+    api(project(":commons:commons-http"))
 
     implementation(SpringBootStarterWeb)
     implementation(SpringBootStarterDataJpa)

@@ -1,7 +1,5 @@
 package ac.uk.ebi.biostd.json.deserialization
 
-import ac.uk.ebi.biostd.ext.convertList
-import ac.uk.ebi.biostd.ext.findNode
 import arrow.core.Either
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.core.type.TypeReference
@@ -17,6 +15,8 @@ import ebi.ac.uk.model.LinksTable
 import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.SectionsTable
 import ebi.ac.uk.model.constants.SectionFields
+import uk.ac.ebi.serialization.extensions.convertList
+import uk.ac.ebi.serialization.extensions.findNode
 
 internal object SectionsType : TypeReference<MutableList<Either<Section, SectionsTable>>>()
 internal object LinksType : TypeReference<MutableList<Either<Link, LinksTable>>>()
