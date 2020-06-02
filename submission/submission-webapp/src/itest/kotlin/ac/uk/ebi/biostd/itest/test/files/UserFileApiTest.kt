@@ -56,6 +56,11 @@ internal class UserFileApiTest(
             testUserFilesGroup("test-folder")
         }
 
+        @Test
+        fun `upload|download|delete file and retrieve in user folder with space`() {
+            testUserFilesGroup("test folder")
+        }
+
         private fun testUserFilesGroup(path: String = "") {
             val file = localFolder.createFile("FileList1.txt", "An example content")
             webClient.uploadFiles(listOf(file), relativePath = path)

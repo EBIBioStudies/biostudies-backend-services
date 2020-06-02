@@ -50,6 +50,11 @@ class PathDescriptorResolverTest(
         assertPathDescriptor("$API_PATH/user/folder1/folder2", "folder1/folder2")
     }
 
+    @Test
+    fun `path descriptor for folder with spaces`() {
+        assertPathDescriptor("$API_PATH/user/folder%201/folder%202", "folder 1/folder 2")
+    }
+
     private fun assertPathDescriptor(request: String, expectedPath: String) {
         every { mockHttpServletRequest.requestURL } returns StringBuffer(request)
 
