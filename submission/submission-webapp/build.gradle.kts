@@ -7,6 +7,7 @@ import Dependencies.MySql
 import Dependencies.RxJava2
 import Dependencies.SpringfoxSwagger
 import Dependencies.SpringfoxSwaggerUI
+import SpringBootDependencies.SpringBootAmqp
 import SpringBootDependencies.SpringBootStartedAdminClient
 import SpringBootDependencies.SpringBootStarterActuator
 import SpringBootDependencies.SpringBootStarterConfigProcessor
@@ -42,6 +43,7 @@ dependencies {
     api(project(":commons:commons-http"))
 
     implementation(SpringBootStarterWeb)
+    implementation(SpringBootAmqp)
     implementation(SpringBootStarterDataJpa)
     implementation(SpringBootStarterConfigProcessor)
     implementation(SpringBootStarterSecurity)
@@ -64,6 +66,8 @@ dependencies {
     BaseTestCompileDependencies.forEach { testImplementation(it) }
     BaseTestRuntimeDependencies.forEach { testImplementation(it) }
     testImplementation(SpringBootStarterTest)
+    testImplementation("com.github.fridujo:rabbitmq-mock:1.1.0")
+
     testImplementation(H2)
     testImplementation(KotlinXmlBuilder)
     testImplementation(JsonPathAssert)

@@ -22,9 +22,11 @@ include("submission:submission-security")
 include("submission:persistence")
 include("submission:notifications")
 include("submission:stats")
+include("submission:submission-handlers")
 
 include("scheduler:cluster-client")
 include("scheduler:pmc-processor-task")
 include("scheduler:scheduler")
 include("scheduler:task-properties")
 include("bio-admin")
+

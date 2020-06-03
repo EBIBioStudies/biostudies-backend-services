@@ -18,7 +18,6 @@ import ebi.ac.uk.base.ifTrue
 import ebi.ac.uk.base.orFalse
 import ebi.ac.uk.extended.mapping.from.toExtAttribute
 import ebi.ac.uk.extended.mapping.from.toExtSection
-import ebi.ac.uk.extended.mapping.to.toSimpleSubmission
 import ebi.ac.uk.extended.model.ExtAccessTag
 import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.ExtSubmission
@@ -51,7 +50,7 @@ open class SubmissionSubmitter(
     private val queryService: SubmissionQueryService
 ) {
     @Transactional(isolation = Isolation.READ_UNCOMMITTED)
-    open fun submit(request: SubmissionRequest): Submission {
+    open fun submit(request: SubmissionRequest): ExtSubmission {
         val submitter = request.submitter.asUser()
         val submission = process(
             request.submission,
@@ -60,7 +59,7 @@ open class SubmissionSubmitter(
             request.sources,
             request.method
         )
-        val submitted = context.saveSubmission(SaveRequest(submission, request.mode)).toSimpleSubmission()
+        val submitted = context.saveSubmission(SaveRequest(submission, request.mode))
         submitter.notificationsEnabled.ifTrue { submitEvent.onNext(SuccessfulSubmission(submitter, submission)) }
         return submitted
     }

@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.common.config
 
+import ac.uk.ebi.biostd.events.EventsService
 import ac.uk.ebi.biostd.files.service.UserFilesService
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.persistence.integration.PersistenceContext
@@ -33,13 +34,15 @@ class SubmissionConfig(
         serializationService: SerializationService,
         userPrivilegeService: IUserPrivilegesService,
         queryService: SubmissionQueryService,
-        submissionSubmitter: SubmissionSubmitter
+        submissionSubmitter: SubmissionSubmitter,
+        eventsService: EventsService
     ): SubmissionService = SubmissionService(
         subRepository,
         serializationService,
         userPrivilegeService,
         queryService,
-        submissionSubmitter)
+        submissionSubmitter,
+        eventsService)
 
     @Bean
     fun extSubmissionService(

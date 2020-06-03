@@ -12,6 +12,7 @@ import java.nio.file.Paths
 open class ApplicationProperties {
     lateinit var basepath: String
     lateinit var tempDirPath: String
+    lateinit var instanceBaseUrl: String
 
     val submissionsPath: Path
         get() = Paths.get(basepath).resolve(SUBMISSION_PATH)

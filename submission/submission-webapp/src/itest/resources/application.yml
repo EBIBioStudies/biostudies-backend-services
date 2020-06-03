@@ -11,9 +11,16 @@ spring:
       max-file-size: 10240MB
       max-request-size: 10240MB
 
+  rabbitmq:
+    username: guest
+    password: guest
+    host: localhost
+    port: 5672
+
 app:
   basepath:
   tempDirPath:
+  instanceBaseUrl: http://localhost:8080
   security:
     tokenHash: biostd-test
     environment: TEST
