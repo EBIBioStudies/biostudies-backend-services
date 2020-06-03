@@ -14,7 +14,7 @@ class EventsService(
         val submissionNotification = SubmissionSubmitted(
             accNo = submission.accNo,
             pagetabUrl = "${properties.instanceBaseUrl}/submissions/${submission.accNo}.json",
-            extTabUrl = "${properties.instanceBaseUrl}//submissions/extended/${submission.accNo}"
+            extTabUrl = "${properties.instanceBaseUrl}/submissions/extended/${submission.accNo}"
         )
         rabbitTemplate.convertAndSend("bio.submission.published", submissionNotification)
     }

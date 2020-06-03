@@ -15,6 +15,5 @@ class EventsConfig {
     fun exchange(): TopicExchange = TopicExchange(BIOSTUDIES_EXCHANGE)
 
     @Bean
-    fun notificationService(rabbitTemplate: RabbitTemplate, properties: ApplicationProperties) =
-        EventsService(rabbitTemplate, properties)
+    fun eventsService(template: RabbitTemplate, properties: ApplicationProperties) = EventsService(template, properties)
 }
