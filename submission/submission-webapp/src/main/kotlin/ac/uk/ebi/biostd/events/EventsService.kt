@@ -16,7 +16,7 @@ class EventsService(
             pagetabUrl = "${properties.instanceBaseUrl}/submissions/${submission.accNo}.json",
             extTabUrl = "${properties.instanceBaseUrl}/submissions/extended/${submission.accNo}"
         )
-        rabbitTemplate.convertAndSend("bio.submission.published", submissionNotification)
+        rabbitTemplate.convertAndSend(BIOSTUDIES_EXCHANGE, PUBLISH_KEY, submissionNotification)
     }
 }
 

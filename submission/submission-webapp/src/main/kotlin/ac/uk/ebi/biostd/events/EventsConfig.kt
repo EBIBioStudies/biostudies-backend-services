@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
 const val BIOSTUDIES_EXCHANGE = "biostudies-exchange"
+const val PUBLISH_KEY = "bio.submission.published"
 
 @Configuration
 class EventsConfig {
