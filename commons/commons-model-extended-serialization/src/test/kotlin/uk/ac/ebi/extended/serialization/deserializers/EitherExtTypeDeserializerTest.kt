@@ -18,7 +18,6 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.serialization.extensions.deserialize
-import kotlin.test.assertTrue
 
 @ExtendWith(TemporaryFolderExtension::class)
 class EitherExtTypeDeserializerTest(private val tempFolder: TemporaryFolder) {
@@ -32,7 +31,7 @@ class EitherExtTypeDeserializerTest(private val tempFolder: TemporaryFolder) {
         }.toString()
 
         val link = testInstance.deserialize<Either<ExtLink, ExtLinkTable>>(json)
-        assertTrue(link.isLeft())
+        assertThat(link.isLeft()).isTrue()
         link.ifLeft {
             assertThat(it.url).isEqualTo("http://mylink.org")
         }
@@ -49,7 +48,7 @@ class EitherExtTypeDeserializerTest(private val tempFolder: TemporaryFolder) {
         }.toString()
 
         val link = testInstance.deserialize<Either<ExtLink, ExtLinkTable>>(json)
-        assertTrue(link.isRight())
+        assertThat(link.isRight()).isTrue()
         link.ifRight {
             val links = it.links
             assertThat(links).hasSize(1)
@@ -67,7 +66,7 @@ class EitherExtTypeDeserializerTest(private val tempFolder: TemporaryFolder) {
         }.toString()
 
         val extFile = testInstance.deserialize<Either<ExtFile, ExtFileTable>>(json)
-        assertThat(extFile.isLeft())
+        assertThat(extFile.isLeft()).isTrue()
         extFile.ifLeft {
             assertThat(it.file).isEqualTo(file)
             assertThat(it.fileName).isEqualTo("test-file.txt")
@@ -87,7 +86,7 @@ class EitherExtTypeDeserializerTest(private val tempFolder: TemporaryFolder) {
         }.toString()
 
         val extFilesTable = testInstance.deserialize<Either<ExtFile, ExtFileTable>>(json)
-        assertTrue(extFilesTable.isRight())
+        assertThat(extFilesTable.isRight()).isTrue()
         extFilesTable.ifRight {
             val files = it.files
             assertThat(files).hasSize(1)
@@ -104,7 +103,7 @@ class EitherExtTypeDeserializerTest(private val tempFolder: TemporaryFolder) {
         }.toString()
 
         val extSection = testInstance.deserialize<Either<ExtSection, ExtSectionTable>>(json)
-        assertTrue(extSection.isLeft())
+        assertThat(extSection.isLeft()).isTrue()
         extSection.ifLeft {
             assertThat(it.type).isEqualTo("Study")
         }
@@ -121,7 +120,7 @@ class EitherExtTypeDeserializerTest(private val tempFolder: TemporaryFolder) {
         }.toString()
 
         val extSectionsTable = testInstance.deserialize<Either<ExtSection, ExtSectionTable>>(json)
-        assertThat(extSectionsTable.isRight())
+        assertThat(extSectionsTable.isRight()).isTrue()
         extSectionsTable.ifRight {
             val sections = it.sections
             assertThat(sections).hasSize(1)

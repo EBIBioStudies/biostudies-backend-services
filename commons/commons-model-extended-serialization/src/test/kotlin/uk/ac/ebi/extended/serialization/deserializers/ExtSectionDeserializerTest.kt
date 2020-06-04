@@ -14,8 +14,6 @@ import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.serialization.extensions.deserialize
 import kotlin.test.assertNotNull
-import kotlin.test.assertNull
-import kotlin.test.assertTrue
 
 @ExtendWith(TemporaryFolderExtension::class)
 class ExtSectionDeserializerTest(private val tempFolder: TemporaryFolder) {
@@ -29,8 +27,8 @@ class ExtSectionDeserializerTest(private val tempFolder: TemporaryFolder) {
         }.toString()
 
         val extSection = testInstance.deserialize<ExtSection>(json)
-        assertNull(extSection.accNo)
-        assertNull(extSection.fileList)
+        assertThat(extSection.accNo).isNull()
+        assertThat(extSection.fileList).isNull()
         assertThat(extSection.files).isEmpty()
         assertThat(extSection.links).isEmpty()
         assertThat(extSection.sections).isEmpty()
@@ -114,13 +112,13 @@ class ExtSectionDeserializerTest(private val tempFolder: TemporaryFolder) {
         assertThat(innerSections).hasSize(2)
 
         val innerSection = innerSections.first()
-        assertTrue(innerSection.isLeft())
+        assertThat(innerSection.isLeft()).isTrue()
         innerSection.ifLeft {
             assertThat(it.type).isEqualTo("Exp")
         }
 
         val innerSectionsTable = innerSections.second()
-        assertTrue(innerSectionsTable.isRight())
+        assertThat(innerSectionsTable.isRight()).isTrue()
         innerSectionsTable.ifRight {
             assertThat(it.sections).hasSize(1)
             assertThat(it.sections.first().type).isEqualTo("Data")
@@ -130,14 +128,14 @@ class ExtSectionDeserializerTest(private val tempFolder: TemporaryFolder) {
         assertThat(extFiles).hasSize(2)
 
         val extFile = extFiles.first()
-        assertTrue(extFile.isLeft())
+        assertThat(extFile.isLeft()).isTrue()
         extFile.ifLeft {
             assertThat(it.file).isEqualTo(sectionFile)
             assertThat(it.fileName).isEqualTo("section-file.txt")
         }
 
         val extFilesTable = extFiles.second()
-        assertTrue(extFilesTable.isRight())
+        assertThat(extFilesTable.isRight()).isTrue()
         extFilesTable.ifRight {
             assertThat(it.files).hasSize(1)
             assertThat(it.files.first().file).isEqualTo(sectionFilesTable)
@@ -148,13 +146,13 @@ class ExtSectionDeserializerTest(private val tempFolder: TemporaryFolder) {
         assertThat(extLinks).hasSize(2)
 
         val extLink = extLinks.first()
-        assertTrue(extLink.isLeft())
+        assertThat(extLink.isLeft()).isTrue()
         extLink.ifLeft {
             assertThat(it.url).isEqualTo("http://simple-link.net")
         }
 
         val extLinkTable = extLinks.second()
-        assertTrue(extLinkTable.isRight())
+        assertThat(extLinkTable.isRight()).isTrue()
         extLinkTable.ifRight {
             assertThat(it.links).hasSize(1)
             assertThat(it.links.first().url).isEqualTo("http://table-link.net")

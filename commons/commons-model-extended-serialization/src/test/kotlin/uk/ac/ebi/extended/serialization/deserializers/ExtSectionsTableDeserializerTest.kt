@@ -7,7 +7,6 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.serialization.extensions.deserialize
-import kotlin.test.assertNull
 
 class ExtSectionsTableDeserializerTest {
     private val testInstance = ExtSerializationService.mapper
@@ -26,8 +25,8 @@ class ExtSectionsTableDeserializerTest {
         assertThat(extSectionsTable.sections).hasSize(1)
 
         val extSection = extSectionsTable.sections.first()
-        assertNull(extSection.accNo)
-        assertNull(extSection.fileList)
+        assertThat(extSection.accNo).isNull()
+        assertThat(extSection.fileList).isNull()
         assertThat(extSection.files).isEmpty()
         assertThat(extSection.links).isEmpty()
         assertThat(extSection.sections).isEmpty()
