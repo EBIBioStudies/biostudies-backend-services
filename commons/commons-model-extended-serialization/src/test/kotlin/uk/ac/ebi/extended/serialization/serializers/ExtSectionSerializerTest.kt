@@ -53,7 +53,7 @@ class ExtSectionSerializerTest(private val tempFolder: TemporaryFolder) {
             fileList = ExtFileList("file-list.json", listOf(ExtFile("ref-file.txt", referencedFile))),
             attributes = listOf(ExtAttribute("Title", "Test Section")),
             sections = listOf(
-                Either.left(ExtSection(type ="Exp")),
+                Either.left(ExtSection(type = "Exp")),
                 Either.right(ExtSectionTable(listOf(ExtSection(type = "Data"))))),
             files = listOf(
                 Either.left(ExtFile("section-file.txt", sectionFile)),

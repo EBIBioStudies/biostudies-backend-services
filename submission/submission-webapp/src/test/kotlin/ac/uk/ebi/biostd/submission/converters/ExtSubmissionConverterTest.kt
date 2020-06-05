@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.submission.converters
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.model.Submission
 import io.mockk.clearAllMocks
@@ -8,6 +7,7 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.verify
+import java.io.OutputStream
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
@@ -17,8 +17,6 @@ import org.springframework.http.HttpInputMessage
 import org.springframework.http.HttpOutputMessage
 import org.springframework.http.MediaType.APPLICATION_JSON
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
-import java.io.InputStream
-import java.io.OutputStream
 
 @ExtendWith(MockKExtension::class)
 class ExtSubmissionConverterTest(@MockK private val extSerializationService: ExtSerializationService) {
@@ -74,8 +72,6 @@ class ExtSubmissionConverterTest(@MockK private val extSerializationService: Ext
 
     @Test
     fun read(
-        @MockK mapper: ObjectMapper,
-        @MockK inputStream: InputStream,
         @MockK message: HttpInputMessage,
         @MockK extSubmission: ExtSubmission
     ) {
@@ -86,4 +82,3 @@ class ExtSubmissionConverterTest(@MockK private val extSerializationService: Ext
         assertThat(read).isEqualTo(extSubmission)
     }
 }
-
