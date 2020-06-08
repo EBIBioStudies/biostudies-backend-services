@@ -4,9 +4,11 @@ import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardCopyOption
+import java.nio.file.attribute.PosixFilePermissions
 import kotlin.streams.toList
 
 @Suppress("TooManyFunctions")
+// TODO: merge with #PermissionFileUtils
 object FileUtils {
     fun deleteFolder(file: File) {
         deleteFolder(file.toPath())
@@ -52,13 +54,13 @@ object FileUtils {
 
     fun size(file: File): Long = Files.size(file.toPath())
 
-    private fun copyFile(source: Path, target: Path) {
-        Files.copy(source, createParentDirectories(target), StandardCopyOption.REPLACE_EXISTING)
-    }
-
     private fun copyFolder(source: Path, target: Path) {
         deleteIfExist(target)
         Files.walkFileTree(source, CopyFileVisitor(source, target))
+    }
+
+    private fun copyFile(source: Path, target: Path) {
+        Files.copy(source, createParentDirectories(target), StandardCopyOption.REPLACE_EXISTING)
     }
 
     private fun createFileHardLink(source: Path, target: Path) {
@@ -72,11 +74,12 @@ object FileUtils {
     }
 
     private fun createParentDirectories(path: Path): Path {
+        PosixFilePermissions.fromString("rwxr-x---")
         Files.createDirectories(path.parent)
         return path
     }
 
-    private fun deleteIfExist(path: Path): Path {
+    internal fun deleteIfExist(path: Path): Path {
         deleteFolder(path)
         return path
     }
