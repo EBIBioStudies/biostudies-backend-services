@@ -1,5 +1,6 @@
 package ebi.ac.uk.dsl.json
 
+fun jsonArray() = JsonArray(emptyList())
 fun jsonArray(vararg elements: JsonVal) = JsonArray(elements.toList())
 fun jsonArray(vararg elements: Number) = JsonArray(elements.map { JsonNumber(it) })
 fun jsonArray(vararg elements: String) = JsonArray(elements.map { JsonString(it) })

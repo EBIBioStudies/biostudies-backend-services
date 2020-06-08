@@ -55,6 +55,16 @@ class UserPrivilegesServiceTest(
     }
 
     @Test
+    fun `submit extended as super user`() {
+        assertThat(testInstance.canSubmitExtended("superuser@mail.com")).isTrue()
+    }
+
+    @Test
+    fun `submit extended as regular user`() {
+        assertThat(testInstance.canSubmitExtended("author@mail.com")).isFalse()
+    }
+
+    @Test
     fun `author user with tag resubmits a submission that is in a project`() {
         every { queryService.getAuthor("accNo") } returns "author@mail.com"
 

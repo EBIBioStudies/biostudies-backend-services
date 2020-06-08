@@ -24,6 +24,6 @@ class ExtSubmissionService(
 
     private fun validateUser(user: String) =
         require(userPrivilegesService.canSubmitExtended(user)) {
-            throw SecurityException("The user $user is not allowed to perform this action")
+            throw SecurityException("The user '$user' is not allowed to perform this action")
         }
 }
