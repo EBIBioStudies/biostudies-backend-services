@@ -2,9 +2,11 @@ package ebi.ac.uk.io
 
 import ebi.ac.uk.io.FileUtilsHelper.createFileHardLink
 import ebi.ac.uk.io.FileUtilsHelper.createFolderHardLinks
+import ebi.ac.uk.io.FileUtilsHelper.createFolderIfNotExist
 import ebi.ac.uk.io.FileUtilsHelper.createParentDirectories
 import java.io.File
 import java.nio.file.Files
+import java.nio.file.Files.exists
 import java.nio.file.Path
 import java.nio.file.StandardCopyOption
 import java.nio.file.attribute.FileAttribute
@@ -33,8 +35,9 @@ object FileUtils {
         folder: Path,
         permissions: Set<PosixFilePermission>
     ): Path {
-        Files.createDirectories(folder.parent, asFileAttribute(permissions))
-        if (Files.exists(folder).not()) Files.createDirectory(folder)
+        require(exists(folder).not() || isDirectory(folder.toFile())) { "'$folder' points to a file" }
+        createFolderIfNotExist(folder.parent, permissions)
+        createFolderIfNotExist(folder, permissions)
         return folder
     }
 
@@ -50,7 +53,7 @@ object FileUtils {
     ) {
         deleteFile(folder.toFile())
         Files.createDirectories(folder.parent, asFileAttribute(permissions))
-        Files.createDirectory(folder)
+        Files.createDirectory(folder, asFileAttribute(permissions))
     }
 
     fun createParentFolders(
@@ -63,7 +66,7 @@ object FileUtils {
     fun deleteFile(file: File) {
         when {
             isDirectory(file) -> FileUtilsHelper.deleteFolder(file.toPath())
-            Files.exists(file.toPath()) -> Files.delete(file.toPath())
+            exists(file.toPath()) -> Files.delete(file.toPath())
         }
     }
 
@@ -110,6 +113,10 @@ object FileUtils {
 @Suppress("TooManyFunctions")
 internal object FileUtilsHelper {
 
+    fun createFolderIfNotExist(file: Path, permissions: Set<PosixFilePermission>) {
+        if (exists(file).not()) Files.createDirectories(file, asFileAttribute(permissions))
+    }
+
     fun createFolderHardLinks(source: Path, target: Path, attributes: FileAttribute<*>) {
         deleteFolder(target)
         Files.walkFileTree(source, HardLinkFileVisitor(source, target, attributes))
@@ -140,7 +147,7 @@ internal object FileUtilsHelper {
     }
 
     fun deleteFolder(path: Path) {
-        if (Files.exists(path)) {
+        if (exists(path)) {
             Files.walk(path)
                 .sorted(Comparator.reverseOrder())
                 .forEach { Files.deleteIfExists(it) }
