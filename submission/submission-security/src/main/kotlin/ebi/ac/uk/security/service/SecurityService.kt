@@ -156,8 +156,8 @@ internal class SecurityService(
         userRegister.onNext(UserActivated(dbUser))
 
         val securityUser = profileService.asSecurityUser(dbUser)
-        FileUtils.createFolder(securityUser.magicFolder.path.parent, GROUP_EXECUTE)
-        FileUtils.createFolder(securityUser.magicFolder.path, ALL_GROUP)
+        FileUtils.getOrCreateFolder(securityUser.magicFolder.path.parent, GROUP_EXECUTE)
+        FileUtils.getOrCreateFolder(securityUser.magicFolder.path, ALL_GROUP)
         return securityUser
     }
 

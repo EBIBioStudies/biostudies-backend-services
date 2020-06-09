@@ -13,7 +13,7 @@ import java.nio.file.attribute.PosixFilePermissions
 import java.nio.file.attribute.PosixFilePermissions.asFileAttribute
 import kotlin.streams.toList
 
-private val ONLY_USER = PosixFilePermissions.fromString("rwx------")
+val ONLY_USER: Set<PosixFilePermission> = PosixFilePermissions.fromString("rwx------")
 
 @Suppress("TooManyFunctions")
 object FileUtils {
@@ -21,7 +21,7 @@ object FileUtils {
     fun copyOrReplaceFile(
         source: File,
         target: File,
-        permissions: Set<PosixFilePermission> = ONLY_USER
+        permissions: Set<PosixFilePermission>
     ) {
         when (isDirectory(source)) {
             true -> FileUtilsHelper.copyFolder(source.toPath(), target.toPath(), asFileAttribute(permissions))
@@ -29,17 +29,24 @@ object FileUtils {
         }
     }
 
-    fun createFolder(
+    fun getOrCreateFolder(
         folder: Path,
-        permissions: Set<PosixFilePermission> = ONLY_USER
-    ) {
+        permissions: Set<PosixFilePermission>
+    ): Path {
         Files.createDirectories(folder.parent, asFileAttribute(permissions))
-        Files.createDirectory(folder)
+        if (Files.exists(folder).not()) Files.createDirectory(folder)
+        return folder
+    }
+
+    fun reCreateFolder(file: File, permissions: Set<PosixFilePermission>): File {
+        deleteFile(file)
+        getOrCreateFolder(file.toPath(), permissions)
+        return file
     }
 
     fun createEmptyFolder(
         folder: Path,
-        permissions: Set<PosixFilePermission> = ONLY_USER
+        permissions: Set<PosixFilePermission>
     ) {
         deleteFile(folder.toFile())
         Files.createDirectories(folder.parent, asFileAttribute(permissions))
@@ -48,7 +55,7 @@ object FileUtils {
 
     fun createParentFolders(
         folder: Path,
-        permissions: Set<PosixFilePermission> = ONLY_USER
+        permissions: Set<PosixFilePermission>
     ) {
         Files.createDirectories(folder.parent, asFileAttribute(permissions))
     }
@@ -58,12 +65,6 @@ object FileUtils {
             isDirectory(file) -> FileUtilsHelper.deleteFolder(file.toPath())
             Files.exists(file.toPath()) -> Files.delete(file.toPath())
         }
-    }
-
-    fun reCreateDirectory(file: File): File {
-        deleteFile(file)
-        Files.createDirectory(file.toPath())
-        return file
     }
 
     fun moveFile(
@@ -77,12 +78,12 @@ object FileUtils {
 
     fun createHardLink(
         source: File,
-        target: File,
-        permissions: Set<PosixFilePermission> = ONLY_USER
+        target: File
     ) {
+        val permissions = asFileAttribute(Files.getPosixFilePermissions(source.toPath()))
         when (isDirectory(source)) {
-            true -> createFolderHardLinks(source.toPath(), target.toPath(), asFileAttribute(permissions))
-            false -> createFileHardLink(source.toPath(), target.toPath(), asFileAttribute(permissions))
+            true -> createFolderHardLinks(source.toPath(), target.toPath(), permissions)
+            false -> createFileHardLink(source.toPath(), target.toPath(), permissions)
         }
     }
 
