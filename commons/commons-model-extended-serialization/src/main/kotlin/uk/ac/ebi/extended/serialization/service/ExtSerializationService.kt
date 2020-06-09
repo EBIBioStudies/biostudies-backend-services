@@ -34,6 +34,8 @@ class ExtSerializationService {
     fun <T> serialize(element: T): String =
         mapper.writerWithDefaultPrettyPrinter().writeValueAsString(element)
 
+    fun <T> deserialize(value: String, type: Class<out T>) = mapper.readValue(value, type)
+
     inline fun <reified T> deserialize(value: String) = mapper.readValue<T>(value)
 
     companion object {

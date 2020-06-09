@@ -41,11 +41,6 @@ class SubmissionService(
         return serializationService.serializeSubmission(submission, Tsv)
     }
 
-    fun getExtendedSubmission(accNo: String): ExtSubmission {
-        // TODO validate only superusers can use it
-        return subRepository.getExtByAccNo(accNo)
-    }
-
     fun getSubmissions(user: SecurityUser, filter: SubmissionFilter): List<SimpleSubmission> =
         subRepository.getSubmissionsByUser(user.id, filter)
 

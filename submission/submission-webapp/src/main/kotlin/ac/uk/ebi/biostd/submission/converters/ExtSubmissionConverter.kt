@@ -25,11 +25,11 @@ class ExtSubmissionConverter(
 
     override fun getSupportedMediaTypes(): List<MediaType> = listOf(APPLICATION_JSON)
 
-    override fun write(extSubmission: ExtSubmission, contentType: MediaType?, message: HttpOutputMessage) {
+    override fun write(extSubmission: ExtSubmission, contentType: MediaType, message: HttpOutputMessage) {
         message.headers.contentType = APPLICATION_JSON
         message.body.write(extSerializationService.serialize(extSubmission).toByteArray())
     }
 
     override fun read(clazz: Class<out ExtSubmission>, message: HttpInputMessage): ExtSubmission =
-        extSerializationService.deserialize(message.body.asString())
+        extSerializationService.deserialize(message.body.asString(), ExtSubmission::class.java)
 }

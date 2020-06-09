@@ -1,17 +1,16 @@
-package ac.uk.ebi.biostd.submission.converters
+package ac.uk.ebi.biostd.resolvers
 
+import ac.uk.ebi.biostd.submission.converters.BioUser
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import org.springframework.core.MethodParameter
-import org.springframework.security.core.annotation.AuthenticationPrincipal
-import org.springframework.security.web.method.annotation.AuthenticationPrincipalArgumentResolver
 import org.springframework.web.bind.support.WebDataBinderFactory
 import org.springframework.web.context.request.NativeWebRequest
 import org.springframework.web.method.support.HandlerMethodArgumentResolver
 import org.springframework.web.method.support.ModelAndViewContainer
 
-class BioUserResolver(
-    private val principalResolver: AuthenticationPrincipalArgumentResolver
-) : HandlerMethodArgumentResolver {
+internal class TestBioUserResolver : HandlerMethodArgumentResolver {
+    lateinit var securityUser: SecurityUser
+
     override fun supportsParameter(
         parameter: MethodParameter
     ): Boolean = parameter.getParameterAnnotation(BioUser::class.java) != null
@@ -21,10 +20,5 @@ class BioUserResolver(
         container: ModelAndViewContainer?,
         request: NativeWebRequest,
         factory: WebDataBinderFactory?
-    ): SecurityUser = principalResolver.resolveArgument(parameter, container, request, factory) as SecurityUser
+    ): SecurityUser = securityUser
 }
-
-@Retention(AnnotationRetention.RUNTIME)
-@Target(AnnotationTarget.VALUE_PARAMETER)
-@AuthenticationPrincipal
-annotation class BioUser
