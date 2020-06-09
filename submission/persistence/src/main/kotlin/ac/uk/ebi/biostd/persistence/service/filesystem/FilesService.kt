@@ -52,9 +52,9 @@ class FilesService(
         val xml = serializationService.serializeElement(element, SubFormat.XML)
         val tsv = serializationService.serializeElement(element, SubFormat.TSV)
 
-        FileUtils.copyOrReplace(submissionPath.resolve("$fileName.json").toFile(), json)
-        FileUtils.copyOrReplace(submissionPath.resolve("$fileName.xml").toFile(), xml)
-        FileUtils.copyOrReplace(submissionPath.resolve("$fileName.pagetab.tsv").toFile(), tsv)
+        FileUtils.writeContent(submissionPath.resolve("$fileName.json").toFile(), json)
+        FileUtils.writeContent(submissionPath.resolve("$fileName.xml").toFile(), xml)
+        FileUtils.writeContent(submissionPath.resolve("$fileName.pagetab.tsv").toFile(), tsv)
     }
 
     private fun processFiles(submission: ExtSubmission, submissionPath: Path, process: (ExtFile, File) -> Unit) {

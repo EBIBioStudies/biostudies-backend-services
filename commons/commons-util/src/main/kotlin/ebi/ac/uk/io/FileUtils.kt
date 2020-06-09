@@ -78,7 +78,7 @@ object FileUtils {
         }
     }
 
-    fun copyOrReplace(
+    fun writeContent(
         source: File,
         content: String,
         permissions: Set<PosixFilePermission> = PosixFilePermissions.fromString(READONLY)
@@ -113,7 +113,7 @@ internal object FileUtilsHelper {
 
     fun copyFolder(source: Path, target: Path, attributes: FileAttribute<*>) {
         deleteFolder(target)
-        Files.walkFileTree(source, AttributesCopyFileVisitor(source, target, attributes))
+        Files.walkFileTree(source, CopyFileVisitor(source, target, attributes))
     }
 
     fun copyFile(source: Path, target: Path, attributes: FileAttribute<*>) {
