@@ -3,8 +3,8 @@ package ac.uk.ebi.biostd.files.service
 import ac.uk.ebi.biostd.files.exception.UserGroupNotFound
 import ac.uk.ebi.biostd.files.model.FilesSpec
 import ac.uk.ebi.biostd.files.service.UserFilesService.Companion.FILE_PERMISSION
-import ac.uk.ebi.biostd.files.service.UserFilesService.Companion.transferTo
-import ebi.ac.uk.io.PermissionFileUtils
+import ac.uk.ebi.biostd.files.utils.transferTo
+import ebi.ac.uk.io.FileUtils
 import ebi.ac.uk.io.ext.asFileList
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import org.springframework.web.multipart.MultipartFile
@@ -32,7 +32,7 @@ class GroupFilesService {
 
     fun createFolder(groupName: String, user: SecurityUser, path: String, folderName: String) {
         val groupPath = getGroupPath(groupName, user)
-        PermissionFileUtils.createFolder(groupPath.resolve(path).resolve(folderName), FILE_PERMISSION)
+        FileUtils.createFolder(groupPath.resolve(path).resolve(folderName), FILE_PERMISSION)
     }
 
     fun deleteFile(groupName: String, user: SecurityUser, path: String, fileName: String) {
@@ -41,7 +41,7 @@ class GroupFilesService {
             .resolve(path)
             .resolve(fileName)
             .toFile()
-        file.deleteRecursively()
+        FileUtils.deleteFile(file)
     }
 
     private fun getGroupPath(groupName: String, user: SecurityUser): Path {

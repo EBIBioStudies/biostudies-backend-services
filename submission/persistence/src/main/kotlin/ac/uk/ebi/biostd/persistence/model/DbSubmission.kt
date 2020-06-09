@@ -115,6 +115,9 @@ class DbSubmission(
     var method: SubmissionMethod? = null
 
     @Column
+    var fileName: String? = null
+
+    @Column
     var title: String? = null
 
     @Column

@@ -12,18 +12,20 @@ import ebi.ac.uk.extended.model.allFiles
 import ebi.ac.uk.extended.model.allReferencedFiles
 import ebi.ac.uk.io.FileUtils
 import ebi.ac.uk.io.FileUtils.copyOrReplaceFile
-import ebi.ac.uk.io.FileUtils.deleteFolder
+import ebi.ac.uk.io.FileUtils.deleteFile
 import ebi.ac.uk.io.FileUtils.moveFile
 import ebi.ac.uk.io.FileUtils.reCreateDirectory
 import ebi.ac.uk.paths.FILES_PATH
 import ebi.ac.uk.paths.SubmissionFolderResolver
 import java.io.File
 import java.nio.file.Path
+import java.nio.file.attribute.PosixFilePermissions
 
 class FilesService(
     private val folderResolver: SubmissionFolderResolver,
     private val serializationService: SerializationService
 ) {
+
     fun persistSubmissionFiles(submission: ExtSubmission, mode: FileMode) {
         val submissionPath = folderResolver.getSubmissionFolder(submission.relPath)
         generateOutputFiles(submission, submissionPath)
@@ -45,14 +47,14 @@ class FilesService(
     // TODO Test temporally folder already existing
     // TODO we need to remove also pagetab files as only FILES are clean right now
     // TODO add integration test for file list within subsections
-    private fun <T> generateOutputFiles(element: T, submissionPath: Path, outputFileName: String) {
+    private fun <T> generateOutputFiles(element: T, submissionPath: Path, fileName: String) {
         val json = serializationService.serializeElement(element, SubFormat.JSON_PRETTY)
         val xml = serializationService.serializeElement(element, SubFormat.XML)
         val tsv = serializationService.serializeElement(element, SubFormat.TSV)
 
-        FileUtils.copyOrReplace(submissionPath.resolve("$outputFileName.json").toFile(), json)
-        FileUtils.copyOrReplace(submissionPath.resolve("$outputFileName.xml").toFile(), xml)
-        FileUtils.copyOrReplace(submissionPath.resolve("$outputFileName.pagetab.tsv").toFile(), tsv)
+        FileUtils.copyOrReplace(submissionPath.resolve("$fileName.json").toFile(), json)
+        FileUtils.copyOrReplace(submissionPath.resolve("$fileName.xml").toFile(), xml)
+        FileUtils.copyOrReplace(submissionPath.resolve("$fileName.pagetab.tsv").toFile(), tsv)
     }
 
     private fun processFiles(submission: ExtSubmission, submissionPath: Path, process: (ExtFile, File) -> Unit) {
@@ -63,7 +65,7 @@ class FilesService(
         submission.allReferencedFiles.forEach { process(it, temporally) }
 
         val filesPath = submissionFolder.resolve(FILES_PATH)
-        deleteFolder(filesPath)
+        deleteFile(filesPath)
         moveFile(temporally, filesPath)
     }
 
@@ -78,4 +80,8 @@ class FilesService(
 
     private fun createTempFolder(submissionFolder: File, accNo: String): File =
         reCreateDirectory(submissionFolder.parentFile.resolve("${accNo}_temp"))
+
+    companion object {
+        internal val READ_ONLY_PERMISSION = PosixFilePermissions.fromString("rwxr--r--")
+    }
 }
