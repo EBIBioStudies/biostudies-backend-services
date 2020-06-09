@@ -124,6 +124,9 @@ class DbSubmission(
     @Convert(converter = ProcessingStatusConverter::class)
     var status: ProcessingStatus = PROCESSING
 
+    @Column
+    var fileName: String? = null
+
     @OneToOne(cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
     @JoinColumn(name = "rootSection_id")
     lateinit var rootSection: SectionDb

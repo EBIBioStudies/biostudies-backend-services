@@ -156,6 +156,7 @@ CREATE TABLE Submission (
     accNo          VARCHAR(255) NOT NULL,
     relPath        LONGTEXT     NULL,
     method         LONGTEXT     NULL,
+    fileName       LONGTEXT     NULL,
     released       BIT          NOT NULL,
     rootPath       LONGTEXT     NULL,
     title          LONGTEXT     NULL,

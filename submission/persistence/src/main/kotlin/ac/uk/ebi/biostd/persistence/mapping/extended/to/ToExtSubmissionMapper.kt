@@ -38,7 +38,8 @@ class ToExtSubmissionMapper(private val submissionsPath: Path) {
             attributes = dbSubmission.attributes.map { it.toExtAttribute() },
             accessTags = dbSubmission.accessTags.map { ExtAccessTag(it.name) },
             tags = dbSubmission.tags.map { ExtTag(it.classifier, it.name) },
-            section = dbSubmission.rootSection.toExtSection(getSubmissionSource(dbSubmission))
+            section = dbSubmission.rootSection.toExtSection(getSubmissionSource(dbSubmission)),
+            fileName = dbSubmission.fileName
         )
     }
 

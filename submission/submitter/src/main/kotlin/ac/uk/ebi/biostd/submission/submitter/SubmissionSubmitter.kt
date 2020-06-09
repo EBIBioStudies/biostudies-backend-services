@@ -58,7 +58,8 @@ open class SubmissionSubmitter(
             request.submitter.asUser(),
             request.onBehalfUser?.asUser(),
             request.sources,
-            request.method
+            request.method,
+            request.fileName
         )
         val submitted = context.saveSubmission(SaveRequest(submission, request.mode)).toSimpleSubmission()
         submitter.notificationsEnabled.ifTrue { submitEvent.onNext(SuccessfulSubmission(submitter, submission)) }
@@ -71,10 +72,11 @@ open class SubmissionSubmitter(
         submitter: User,
         onBehalfUser: User?,
         source: FilesSource,
-        method: SubmissionMethod
+        method: SubmissionMethod,
+        fileName: String?
     ): ExtSubmission {
         try {
-            return processSubmission(submission, submitter, onBehalfUser, source, method)
+            return processSubmission(submission, submitter, onBehalfUser, source, method, fileName)
         } catch (exception: RuntimeException) {
             throw InvalidSubmissionException("Submission validation errors", listOf(exception))
         }
@@ -85,7 +87,8 @@ open class SubmissionSubmitter(
         submitter: User,
         onBehalfUser: User?,
         source: FilesSource,
-        method: SubmissionMethod
+        method: SubmissionMethod,
+        fileName: String?
     ):
         ExtSubmission {
         val (parentTags, parentReleaseTime, parentPattern) = parentInfoService.getParentInfo(submission.attachTo)
@@ -118,7 +121,8 @@ open class SubmissionSubmitter(
             tags = submission.tags.map { ExtTag(it.first, it.second) },
             accessTags = tags.map { ExtAccessTag(it) },
             section = submission.section.toExtSection(source),
-            attributes = getAttributes(submission)
+            attributes = getAttributes(submission),
+            fileName = fileName
         )
     }
 

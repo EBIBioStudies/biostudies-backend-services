@@ -49,6 +49,8 @@ class SubmitWebHandler(
         val sub = serializationService.deserializeSubmission(request.submission)
         val source = sources(request.submitter, sub, request.files.plus(request.submission))
         val submission = withAttributes(submission(request.submission, source), request.attrs)
+        var submissionFileName = request.submission.name
+
         userFilesService.uploadFile(request.submitter, DIRECT_UPLOAD_PATH, request.submission)
         return submissionService.submit(SubmissionRequest(
             submission = submission,
@@ -56,6 +58,7 @@ class SubmitWebHandler(
             onBehalfUser = request.onBehalfRequest?.let { getOnBehalfUser(it) },
             sources = source,
             method = FILE,
+            fileName = submissionFileName,
             mode = request.fileMode
         ))
     }

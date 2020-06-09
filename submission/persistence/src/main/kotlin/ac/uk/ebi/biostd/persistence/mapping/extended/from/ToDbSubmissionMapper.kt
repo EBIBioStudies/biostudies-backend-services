@@ -40,6 +40,7 @@ class ToDbSubmissionMapper(
         released = submission.released
         attributes = submission.attributes.mapIndexedTo(sortedSetOf(), ::toDbSubmissionAttribute)
         rootSection = submission.section.toDbSection(this, ROOT_SECTION_ORDER)
+        fileName = submission.fileName
     }
 
     private fun getStatus(status: ExtProcessingStatus): ProcessingStatus =

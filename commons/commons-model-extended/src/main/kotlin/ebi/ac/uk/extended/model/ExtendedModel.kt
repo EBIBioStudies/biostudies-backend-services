@@ -71,5 +71,6 @@ data class ExtSubmission(
     val attributes: List<ExtAttribute> = listOf(),
     val tags: List<ExtTag> = listOf(),
     val accessTags: List<ExtAccessTag> = listOf(),
-    val section: ExtSection
+    val section: ExtSection,
+    val fileName: String?
 )

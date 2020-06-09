@@ -47,6 +47,7 @@ import java.time.ZoneOffset
 class SubmissionSubmitterTest {
     private val accNo = AccNumber("S-TEST", 123)
     private val testTime = OffsetDateTime.of(2017, 10, 10, 0, 0, 0, 0, ZoneOffset.UTC)
+    private val fileName = "test-submission.xlsz"
     private val submission = submission("S-TEST123") {
         title = "Test Submission"
         attachTo = "BioImages"
@@ -86,7 +87,7 @@ class SubmissionSubmitterTest {
     @Test
     fun submit() {
         testInstance.submit(
-            SubmissionRequest(submission, testUser(notificationsEnabled = true), sources, PAGE_TAB, COPY))
+            SubmissionRequest(submission, testUser(notificationsEnabled = true), sources, PAGE_TAB, COPY, fileName))
 
         assertCapturedValues()
         assertExtendedSubmission()
@@ -98,7 +99,7 @@ class SubmissionSubmitterTest {
     @Test
     fun `submit with notifications disabled`() {
         testInstance.submit(
-            SubmissionRequest(submission, testUser(notificationsEnabled = false), sources, PAGE_TAB, COPY))
+            SubmissionRequest(submission, testUser(notificationsEnabled = false), sources, PAGE_TAB, COPY, fileName))
 
         assertCapturedValues()
         assertExtendedSubmission()
@@ -144,6 +145,7 @@ class SubmissionSubmitterTest {
         assertThat(expected.accessTags.first().name).isEqualTo("BioImages")
         assertThat(expected.section.type).isEqualTo("Study")
         assertThat(expected.attributes).isEmpty()
+        assertThat(expected.fileName).isEqualTo(fileName)
     }
 
     private fun verifyProcessServices() = verify(exactly = 1) {

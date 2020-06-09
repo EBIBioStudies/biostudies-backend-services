@@ -15,6 +15,7 @@ import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.dsl.line
 import ebi.ac.uk.dsl.tsv
+import ebi.ac.uk.extended.model.ExtSubmissionMethod
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.File
 import ebi.ac.uk.model.FileList
@@ -106,6 +107,10 @@ internal class MultipartFileSubmissionApiTest(
             assertThat(response).isSuccessful()
             assertSubmissionFiles("S-EXC123", "SomeFile.txt")
             fileList.delete()
+
+            val savedSubmission = submissionRepository.getExtByAccNo("S-EXC123")
+            assertThat(savedSubmission.fileName).isEqualTo("ExcelSubmission.xlsx")
+            assertThat(savedSubmission.method).isEqualTo(ExtSubmissionMethod.FILE)
         }
 
         @Test
