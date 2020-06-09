@@ -13,7 +13,7 @@ import java.nio.file.attribute.PosixFilePermissions
 import java.nio.file.attribute.PosixFilePermissions.asFileAttribute
 import kotlin.streams.toList
 
-private const val READONLY = "rwxrwx---"
+private val ONLY_USER = PosixFilePermissions.fromString("rwx------")
 
 @Suppress("TooManyFunctions")
 object FileUtils {
@@ -21,7 +21,7 @@ object FileUtils {
     fun copyOrReplaceFile(
         source: File,
         target: File,
-        permissions: Set<PosixFilePermission> = PosixFilePermissions.fromString(READONLY)
+        permissions: Set<PosixFilePermission> = ONLY_USER
     ) {
         when (isDirectory(source)) {
             true -> FileUtilsHelper.copyFolder(source.toPath(), target.toPath(), asFileAttribute(permissions))
@@ -31,7 +31,7 @@ object FileUtils {
 
     fun createFolder(
         folder: Path,
-        permissions: Set<PosixFilePermission> = PosixFilePermissions.fromString(READONLY)
+        permissions: Set<PosixFilePermission> = ONLY_USER
     ) {
         deleteFile(folder.toFile())
         Files.createDirectories(folder.parent, asFileAttribute(permissions))
@@ -40,7 +40,7 @@ object FileUtils {
 
     fun createParentFolders(
         folder: Path,
-        permissions: Set<PosixFilePermission> = PosixFilePermissions.fromString(READONLY)
+        permissions: Set<PosixFilePermission> = ONLY_USER
     ) {
         Files.createDirectories(folder.parent, asFileAttribute(permissions))
     }
@@ -61,7 +61,7 @@ object FileUtils {
     fun moveFile(
         source: File,
         target: File,
-        permissions: Set<PosixFilePermission> = PosixFilePermissions.fromString(READONLY)
+        permissions: Set<PosixFilePermission> = ONLY_USER
     ) {
         deleteFile(target)
         Files.move(source.toPath(), createParentDirectories(target.toPath(), asFileAttribute(permissions)))
@@ -70,7 +70,7 @@ object FileUtils {
     fun createHardLink(
         source: File,
         target: File,
-        permissions: Set<PosixFilePermission> = PosixFilePermissions.fromString(READONLY)
+        permissions: Set<PosixFilePermission> = ONLY_USER
     ) {
         when (isDirectory(source)) {
             true -> createFolderHardLinks(source.toPath(), target.toPath(), asFileAttribute(permissions))
@@ -81,7 +81,7 @@ object FileUtils {
     fun writeContent(
         source: File,
         content: String,
-        permissions: Set<PosixFilePermission> = PosixFilePermissions.fromString(READONLY)
+        permissions: Set<PosixFilePermission> = ONLY_USER
     ) {
         Files.write(createParentDirectories(source.toPath(), asFileAttribute(permissions)), content.toByteArray())
     }
