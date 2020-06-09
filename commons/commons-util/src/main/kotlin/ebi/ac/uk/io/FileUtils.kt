@@ -33,6 +33,14 @@ object FileUtils {
         folder: Path,
         permissions: Set<PosixFilePermission> = ONLY_USER
     ) {
+        Files.createDirectories(folder.parent, asFileAttribute(permissions))
+        Files.createDirectory(folder)
+    }
+
+    fun createEmptyFolder(
+        folder: Path,
+        permissions: Set<PosixFilePermission> = ONLY_USER
+    ) {
         deleteFile(folder.toFile())
         Files.createDirectories(folder.parent, asFileAttribute(permissions))
         Files.createDirectory(folder)

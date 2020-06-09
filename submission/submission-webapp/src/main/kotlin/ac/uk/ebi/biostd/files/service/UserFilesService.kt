@@ -37,7 +37,7 @@ class UserFilesService {
     fun createFolder(user: SecurityUser, path: String, folderName: String) {
         val userPath = user.magicFolder.path
         val folder = userPath.resolve(path).resolve(folderName)
-        FileUtils.createFolder(folder, FILE_PERMISSION)
+        FileUtils.createEmptyFolder(folder, FILE_PERMISSION)
     }
 
     fun deleteFile(user: SecurityUser, path: String, fileName: String) {

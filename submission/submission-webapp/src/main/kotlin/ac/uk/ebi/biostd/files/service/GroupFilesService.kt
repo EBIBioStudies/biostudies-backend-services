@@ -32,7 +32,7 @@ class GroupFilesService {
 
     fun createFolder(groupName: String, user: SecurityUser, path: String, folderName: String) {
         val groupPath = getGroupPath(groupName, user)
-        FileUtils.createFolder(groupPath.resolve(path).resolve(folderName), FILE_PERMISSION)
+        FileUtils.createEmptyFolder(groupPath.resolve(path).resolve(folderName), FILE_PERMISSION)
     }
 
     fun deleteFile(groupName: String, user: SecurityUser, path: String, fileName: String) {
