@@ -119,6 +119,37 @@ class SubmissionStatsServiceTest(
         assertThrows<SubmissionNotFoundException> { testInstance.save(SubmissionStat("S-TEST123", 10, VIEWS)) }
     }
 
+    @Test
+    fun `increment existing`() {
+        val statSlot = slot<SubmissionStatDb>()
+        val stat = SubmissionStat("S-TEST123", 5, VIEWS)
+        val statDb = SubmissionStatDb("S-TEST123", 10, VIEWS)
+
+        every { statsRepository.existsByAccNoAndType("S-TEST123", VIEWS) } returns true
+        every { statsRepository.findByAccNoAndType("S-TEST123", VIEWS) } returns statDb
+        every { statsRepository.save(capture(statSlot)) } returns SubmissionStatDb("S-TEST123", 15, VIEWS)
+
+        val incremented = testInstance.incrementAll(listOf(stat))
+        assertThat(incremented).hasSize(1)
+        assertTestStat(incremented.first(), 15)
+        assertThat(statSlot.captured.value).isEqualTo(15)
+    }
+
+    @Test
+    fun `increment non existing`() {
+        val statSlot = slot<SubmissionStatDb>()
+        val stat = SubmissionStat("S-TEST123", 14, VIEWS)
+
+        every { statsRepository.findByAccNoAndType("S-TEST123", VIEWS) } returns null
+        every { statsRepository.existsByAccNoAndType("S-TEST123", VIEWS) } returns false
+        every { statsRepository.save(capture(statSlot)) } returns SubmissionStatDb("S-TEST123", 14, VIEWS)
+
+        val incremented = testInstance.incrementAll(listOf(stat))
+        assertThat(incremented).hasSize(1)
+        assertTestStat(incremented.first(), 14)
+        assertThat(statSlot.captured.value).isEqualTo(14)
+    }
+
     private fun assertTestStat(stat: SubmissionStat, value: Long) {
         assertThat(stat.value).isEqualTo(value)
         assertThat(stat.accNo).isEqualTo("S-TEST123")
