@@ -42,7 +42,7 @@ open class SubmissionStatsService(
     @Transactional
     open fun incrementAll(
         stats: List<SubmissionStat>
-    ): List<SubmissionStat> = stats.map(::increment).map(::save)
+    ): List<SubmissionStat> = saveAll(stats.map(::increment))
 
     private fun insert(stat: SubmissionStat): SubmissionStat {
         val saved = SubmissionStatMapper.toSubmissionStatDb(stat)
