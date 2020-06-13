@@ -97,4 +97,21 @@ class StatsResource(
 
         return submissionStatsService.saveAll(statsList)
     }
+
+    @PostMapping("/{type}/increment", headers = ["$CONTENT_TYPE=$MULTIPART_FORM_DATA"])
+    @ResponseBody
+    @ApiOperation("Increment the value of the stats contained in the given tab separated file.")
+    @ApiImplicitParam(name = "X-SESSION-TOKEN", value = "Authentication token", required = true, paramType = "header")
+    fun increment(
+        @ApiParam(name = "type", value = "The type of stat. It should be one of the following: views")
+        @PathVariable type: String,
+
+        @ApiParam(name = "stats", value = "Tab separated file containing the stats to increment")
+        @RequestParam("stats") stats: MultipartFile
+    ): List<SubmissionStat> {
+        val statsFile = tempFileGenerator.asFile(stats)
+        val statsList = statsFileHandler.readStats(statsFile, SubmissionStatType.valueOf(type.toUpperCase()))
+
+        return submissionStatsService.incrementAll(statsList)
+    }
 }

@@ -1,47 +1,104 @@
 package ebi.ac.uk.io
 
+import ebi.ac.uk.io.FileUtilsHelper.createFileHardLink
+import ebi.ac.uk.io.FileUtilsHelper.createFolderHardLinks
+import ebi.ac.uk.io.FileUtilsHelper.createFolderIfNotExist
+import ebi.ac.uk.io.FileUtilsHelper.createParentDirectories
 import java.io.File
 import java.nio.file.Files
+import java.nio.file.Files.exists
 import java.nio.file.Path
 import java.nio.file.StandardCopyOption
+import java.nio.file.attribute.FileAttribute
+import java.nio.file.attribute.PosixFilePermission
+import java.nio.file.attribute.PosixFilePermissions
+import java.nio.file.attribute.PosixFilePermissions.asFileAttribute
 import kotlin.streams.toList
+
+val ONLY_USER: Set<PosixFilePermission> = PosixFilePermissions.fromString("rwx------")
 
 @Suppress("TooManyFunctions")
 object FileUtils {
-    fun deleteFolder(file: File) {
-        deleteFolder(file.toPath())
+    fun copyOrReplaceFile(
+        source: File,
+        target: File,
+        permissions: Set<PosixFilePermission>
+    ) {
+        when (isDirectory(source)) {
+            true -> FileUtilsHelper.copyFolder(source.toPath(), target.toPath(), asFileAttribute(permissions))
+            false -> FileUtilsHelper.copyFile(source.toPath(), target.toPath(), asFileAttribute(permissions))
+        }
     }
 
-    fun reCreateDirectory(file: File): File {
-        val path = file.toPath()
-        deleteFolder(path)
-        Files.createDirectory(path)
+    fun getOrCreateFolder(
+        folder: Path,
+        permissions: Set<PosixFilePermission>
+    ): Path {
+        require(exists(folder).not() || isDirectory(folder.toFile())) { "'$folder' points to a file" }
+        createFolderIfNotExist(folder.parent, permissions)
+        createFolderIfNotExist(folder, permissions)
+        return folder
+    }
+
+    fun reCreateFolder(file: File, permissions: Set<PosixFilePermission>): File {
+        deleteFile(file)
+        getOrCreateFolder(file.toPath(), permissions)
         return file
     }
 
-    fun copyOrReplaceFile(source: File, target: File) {
-        when (isDirectory(source)) {
-            true -> copyFolder(source.toPath(), target.toPath())
-            false -> copyFile(source.toPath(), target.toPath())
+    fun createEmptyFolder(
+        folder: Path,
+        permissions: Set<PosixFilePermission>
+    ) {
+        deleteFile(folder.toFile())
+        Files.createDirectories(folder, asFileAttribute(permissions))
+    }
+
+    fun createParentFolders(
+        folder: Path,
+        permissions: Set<PosixFilePermission>
+    ) {
+        Files.createDirectories(folder.parent, asFileAttribute(permissions))
+    }
+
+    fun deleteFile(file: File) {
+        when {
+            isDirectory(file) -> FileUtilsHelper.deleteFolder(file.toPath())
+            exists(file.toPath()) -> Files.delete(file.toPath())
         }
     }
 
-    fun createHardLink(source: File, target: File) {
+    fun moveFile(
+        source: File,
+        target: File,
+        permissions: Set<PosixFilePermission> = ONLY_USER
+    ) {
+        deleteFile(target)
+        Files.move(source.toPath(), createParentDirectories(target.toPath(), asFileAttribute(permissions)))
+    }
+
+    fun createHardLink(
+        source: File,
+        target: File
+    ) {
+        val permissions = asFileAttribute(Files.getPosixFilePermissions(source.toPath()))
         when (isDirectory(source)) {
-            true -> createFolderHardLinks(source.toPath(), target.toPath())
-            false -> createFileHardLink(source.toPath(), target.toPath())
+            true -> createFolderHardLinks(source.toPath(), target.toPath(), permissions)
+            false -> createFileHardLink(source.toPath(), target.toPath(), permissions)
         }
     }
 
-    fun moveFile(source: File, target: File) {
-        Files.move(source.toPath(), createParentDirectories(deleteIfExist(target.toPath())))
-    }
-
-    fun copyOrReplace(source: File, content: String) {
-        Files.write(createParentDirectories(source.toPath()), content.toByteArray())
+    fun writeContent(
+        source: File,
+        content: String,
+        permissions: Set<PosixFilePermission> = ONLY_USER
+    ) {
+        Files.write(createParentDirectories(source.toPath(), asFileAttribute(permissions)), content.toByteArray())
     }
 
     fun isDirectory(file: File): Boolean = Files.isDirectory(file.toPath())
+
+    fun size(file: File): Long = Files.size(file.toPath())
 
     fun listFiles(file: File): List<File> {
         return when (isDirectory(file)) {
@@ -49,40 +106,45 @@ object FileUtils {
             else -> emptyList()
         }
     }
+}
 
-    fun size(file: File): Long = Files.size(file.toPath())
-
-    private fun copyFile(source: Path, target: Path) {
-        Files.copy(source, createParentDirectories(target), StandardCopyOption.REPLACE_EXISTING)
+@Suppress("TooManyFunctions")
+internal object FileUtilsHelper {
+    fun createFolderIfNotExist(file: Path, permissions: Set<PosixFilePermission>) {
+        if (exists(file).not()) Files.createDirectories(file, asFileAttribute(permissions))
     }
 
-    private fun copyFolder(source: Path, target: Path) {
-        deleteIfExist(target)
-        Files.walkFileTree(source, CopyFileVisitor(source, target))
+    fun createFolderHardLinks(source: Path, target: Path, attributes: FileAttribute<*>) {
+        deleteFolder(target)
+        Files.walkFileTree(source, HardLinkFileVisitor(source, target, attributes))
     }
 
-    private fun createFileHardLink(source: Path, target: Path) {
-        deleteIfExist(target)
-        Files.createLink(source, createParentDirectories(target))
+    fun createFileHardLink(source: Path, target: Path, attributes: FileAttribute<*>) {
+        deleteFolder(target)
+        Files.createLink(source, createParentDirectories(target, attributes))
     }
 
-    private fun createFolderHardLinks(source: Path, target: Path) {
-        deleteIfExist(target)
-        Files.walkFileTree(source, HardLinkFileVisitor(source, target))
+    fun copyFolder(source: Path, target: Path, attributes: FileAttribute<*>) {
+        deleteFolder(target)
+        Files.walkFileTree(source, CopyFileVisitor(source, target, attributes))
     }
 
-    private fun createParentDirectories(path: Path): Path {
-        Files.createDirectories(path.parent)
+    fun copyFile(source: Path, target: Path, attributes: FileAttribute<*>) {
+        Files.copy(source, createParentDirectories(target, attributes), StandardCopyOption.REPLACE_EXISTING)
+    }
+
+    fun createParentDirectories(path: Path, attributes: FileAttribute<*>): Path {
+        createDirectories(path.parent, attributes)
         return path
     }
 
-    private fun deleteIfExist(path: Path): Path {
-        deleteFolder(path)
+    fun createDirectories(path: Path, attributes: FileAttribute<*>): Path {
+        Files.createDirectories(path, attributes)
         return path
     }
 
-    private fun deleteFolder(path: Path) {
-        if (Files.exists(path)) {
+    fun deleteFolder(path: Path) {
+        if (exists(path)) {
             Files.walk(path)
                 .sorted(Comparator.reverseOrder())
                 .forEach { Files.deleteIfExists(it) }

@@ -12,47 +12,63 @@ import ebi.ac.uk.extended.model.allFiles
 import ebi.ac.uk.extended.model.allReferencedFiles
 import ebi.ac.uk.io.FileUtils
 import ebi.ac.uk.io.FileUtils.copyOrReplaceFile
-import ebi.ac.uk.io.FileUtils.deleteFolder
+import ebi.ac.uk.io.FileUtils.deleteFile
+import ebi.ac.uk.io.FileUtils.getOrCreateFolder
 import ebi.ac.uk.io.FileUtils.moveFile
-import ebi.ac.uk.io.FileUtils.reCreateDirectory
+import ebi.ac.uk.io.FileUtils.reCreateFolder
+import ebi.ac.uk.io.ONLY_USER
 import ebi.ac.uk.paths.FILES_PATH
 import ebi.ac.uk.paths.SubmissionFolderResolver
 import java.io.File
 import java.nio.file.Path
+import java.nio.file.attribute.PosixFilePermission
+import java.nio.file.attribute.PosixFilePermissions
+
+private val READ_ONLY_GROUP: Set<PosixFilePermission> = PosixFilePermissions.fromString("rwxr-x---")
+private val ALL_READ: Set<PosixFilePermission> = PosixFilePermissions.fromString("rwxr-xr-x")
 
 class FilesService(
     private val folderResolver: SubmissionFolderResolver,
     private val serializationService: SerializationService
 ) {
+
     fun persistSubmissionFiles(submission: ExtSubmission, mode: FileMode) {
         val submissionPath = folderResolver.getSubmissionFolder(submission.relPath)
-        generateOutputFiles(submission, submissionPath)
+        generateFiles(submission, submissionPath, permissions(submission.released))
         when (mode) {
             FileMode.MOVE -> processFiles(submission, submissionPath, ::move)
             FileMode.COPY -> processFiles(submission, submissionPath, ::copy)
         }
     }
 
-    private fun generateOutputFiles(submission: ExtSubmission, submissionPath: Path) {
-        val simpleSubmission = submission.toSimpleSubmission()
-
-        generateOutputFiles(simpleSubmission, submissionPath, submission.accNo)
-        submission.allFileList.forEach { generateOutputFiles(it.toFilesTable(), submissionPath, it.fileName) }
+    private fun permissions(released: Boolean): Set<PosixFilePermission> {
+        return if (released) ALL_READ else return READ_ONLY_GROUP
     }
 
-    // TODO add file list content validation to integration tests
-    // TODO add special character folders/files names test
-    // TODO Test temporally folder already existing
-    // TODO we need to remove also pagetab files as only FILES are clean right now
-    // TODO add integration test for file list within subsections
-    private fun <T> generateOutputFiles(element: T, submissionPath: Path, outputFileName: String) {
+    private fun generateFiles(
+        submission: ExtSubmission,
+        submissionPath: Path,
+        permissions: Set<PosixFilePermission>
+    ) {
+        val simpleSubmission = submission.toSimpleSubmission()
+
+        generateFiles(simpleSubmission, submissionPath, submission.accNo, permissions)
+        submission.allFileList.forEach { generateFiles(it.toFilesTable(), submissionPath, it.fileName, permissions) }
+    }
+
+    private fun <T> generateFiles(
+        element: T,
+        submissionPath: Path,
+        fileName: String,
+        permissions: Set<PosixFilePermission>
+    ) {
         val json = serializationService.serializeElement(element, SubFormat.JSON_PRETTY)
         val xml = serializationService.serializeElement(element, SubFormat.XML)
         val tsv = serializationService.serializeElement(element, SubFormat.TSV)
 
-        FileUtils.copyOrReplace(submissionPath.resolve("$outputFileName.json").toFile(), json)
-        FileUtils.copyOrReplace(submissionPath.resolve("$outputFileName.xml").toFile(), xml)
-        FileUtils.copyOrReplace(submissionPath.resolve("$outputFileName.pagetab.tsv").toFile(), tsv)
+        FileUtils.writeContent(submissionPath.resolve("$fileName.json").toFile(), json, permissions)
+        FileUtils.writeContent(submissionPath.resolve("$fileName.xml").toFile(), xml, permissions)
+        FileUtils.writeContent(submissionPath.resolve("$fileName.pagetab.tsv").toFile(), tsv, permissions)
     }
 
     private fun processFiles(submission: ExtSubmission, submissionPath: Path, process: (ExtFile, File) -> Unit) {
@@ -63,19 +79,19 @@ class FilesService(
         submission.allReferencedFiles.forEach { process(it, temporally) }
 
         val filesPath = submissionFolder.resolve(FILES_PATH)
-        deleteFolder(filesPath)
+        deleteFile(filesPath)
         moveFile(temporally, filesPath)
     }
 
-    private fun copy(extFile: ExtFile, file: File) = copyOrReplaceFile(extFile.file, file.resolve(extFile.fileName))
-    private fun move(file: ExtFile, path: File) = moveFile(file.file, path.resolve(file.fileName))
+    private fun copy(extFile: ExtFile, file: File) =
+        copyOrReplaceFile(extFile.file, file.resolve(extFile.fileName), READ_ONLY_GROUP)
 
-    private fun getSubmissionFolder(submissionPath: Path): File {
-        val submissionFolder = submissionPath.toFile()
-        submissionFolder.mkdirs()
-        return submissionFolder
-    }
+    private fun move(file: ExtFile, path: File) =
+        moveFile(file.file, path.resolve(file.fileName), READ_ONLY_GROUP)
+
+    private fun getSubmissionFolder(submissionPath: Path): File =
+        getOrCreateFolder(submissionPath, READ_ONLY_GROUP).toFile()
 
     private fun createTempFolder(submissionFolder: File, accNo: String): File =
-        reCreateDirectory(submissionFolder.parentFile.resolve("${accNo}_temp"))
+        reCreateFolder(submissionFolder.parentFile.resolve("${accNo}_temp"), ONLY_USER)
 }

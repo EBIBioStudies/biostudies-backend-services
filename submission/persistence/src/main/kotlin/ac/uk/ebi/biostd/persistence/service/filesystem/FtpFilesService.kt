@@ -17,6 +17,6 @@ class FtpFilesService(private val folderResolver: SubmissionFolderResolver) {
         folderResolver.getSubmissionFtpFolder(submission).toFile().apply { mkdirs() }
 
     fun cleanFtpFolder(submission: ExtSubmission) {
-        FileUtils.deleteFolder(folderResolver.getSubmissionFtpFolder(submission).toFile())
+        FileUtils.deleteFile(folderResolver.getSubmissionFtpFolder(submission).toFile())
     }
 }

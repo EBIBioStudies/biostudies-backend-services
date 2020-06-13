@@ -39,7 +39,7 @@ class EitherExtTypeDeserializer : JsonDeserializer<Either<*, *>>() {
             is Section -> Either.left(mapper.convertNode<ExtSection>(node))
             is LinksTable -> right(mapper.convertNode<ExtLinkTable>(node))
             is FilesTable -> right(mapper.convertNode<ExtFileTable>(node))
-            is SectionsTable -> Either.right(mapper.convertNode<ExtSectionTable>(node))
+            is SectionsTable -> right(mapper.convertNode<ExtSectionTable>(node))
         }
     }
 }
