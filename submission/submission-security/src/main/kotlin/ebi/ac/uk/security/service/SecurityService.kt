@@ -10,6 +10,7 @@ import ebi.ac.uk.api.security.LoginRequest
 import ebi.ac.uk.api.security.RegisterRequest
 import ebi.ac.uk.api.security.ResetPasswordRequest
 import ebi.ac.uk.api.security.RetryActivationRequest
+import ebi.ac.uk.io.FileUtils
 import ebi.ac.uk.security.events.Events
 import ebi.ac.uk.security.events.Events.userPreRegister
 import ebi.ac.uk.security.events.Events.userRegister
@@ -27,6 +28,10 @@ import ebi.ac.uk.security.integration.model.events.PasswordReset
 import ebi.ac.uk.security.integration.model.events.UserActivated
 import ebi.ac.uk.security.integration.model.events.UserRegister
 import ebi.ac.uk.security.util.SecurityUtil
+import java.nio.file.attribute.PosixFilePermissions
+
+private val GROUP_EXECUTE = PosixFilePermissions.fromString("rwx--x---")
+private val ALL_GROUP = PosixFilePermissions.fromString("rwxrwx---")
 
 @Suppress("TooManyFunctions")
 internal class SecurityService(
@@ -135,16 +140,25 @@ internal class SecurityService(
     }
 
     private fun register(user: DbUser, instanceKey: String, activationPath: String): SecurityUser {
+        val dbUser = registerUser(user, instanceKey, activationPath)
+        return profileService.asSecurityUser(dbUser)
+    }
+
+    private fun registerUser(user: DbUser, instanceKey: String, activationPath: String): DbUser {
         val key = securityUtil.newKey()
         val saved = userRepository.save(user.apply { user.activationKey = key })
         userPreRegister.onNext(UserRegister(saved, securityUtil.getActivationUrl(instanceKey, activationPath, key)))
-        return profileService.asSecurityUser(saved)
+        return saved
     }
 
     private fun activate(request: RegisterRequest): SecurityUser {
-        val user = userRepository.save(asUser(request).activated())
-        userRegister.onNext(UserActivated(user))
-        return profileService.asSecurityUser(user)
+        val dbUser = userRepository.save(asUser(request).activated())
+        userRegister.onNext(UserActivated(dbUser))
+
+        val securityUser = profileService.asSecurityUser(dbUser)
+        FileUtils.getOrCreateFolder(securityUser.magicFolder.path.parent, GROUP_EXECUTE)
+        FileUtils.getOrCreateFolder(securityUser.magicFolder.path, ALL_GROUP)
+        return securityUser
     }
 
     private fun asUser(registerRequest: RegisterRequest): DbUser {
