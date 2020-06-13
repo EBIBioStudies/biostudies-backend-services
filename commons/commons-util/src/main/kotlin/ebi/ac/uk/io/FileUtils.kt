@@ -19,7 +19,6 @@ val ONLY_USER: Set<PosixFilePermission> = PosixFilePermissions.fromString("rwx--
 
 @Suppress("TooManyFunctions")
 object FileUtils {
-
     fun copyOrReplaceFile(
         source: File,
         target: File,
@@ -52,8 +51,7 @@ object FileUtils {
         permissions: Set<PosixFilePermission>
     ) {
         deleteFile(folder.toFile())
-        Files.createDirectories(folder.parent, asFileAttribute(permissions))
-        Files.createDirectory(folder, asFileAttribute(permissions))
+        Files.createDirectories(folder, asFileAttribute(permissions))
     }
 
     fun createParentFolders(
@@ -112,7 +110,6 @@ object FileUtils {
 
 @Suppress("TooManyFunctions")
 internal object FileUtilsHelper {
-
     fun createFolderIfNotExist(file: Path, permissions: Set<PosixFilePermission>) {
         if (exists(file).not()) Files.createDirectories(file, asFileAttribute(permissions))
     }

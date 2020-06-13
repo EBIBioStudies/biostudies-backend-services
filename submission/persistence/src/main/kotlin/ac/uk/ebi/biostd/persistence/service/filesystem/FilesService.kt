@@ -21,9 +21,11 @@ import ebi.ac.uk.paths.FILES_PATH
 import ebi.ac.uk.paths.SubmissionFolderResolver
 import java.io.File
 import java.nio.file.Path
+import java.nio.file.attribute.PosixFilePermission
 import java.nio.file.attribute.PosixFilePermissions
 
-private val READ_ONLY_GROUP = PosixFilePermissions.fromString("rwxr-x---")
+private val READ_ONLY_GROUP: Set<PosixFilePermission> = PosixFilePermissions.fromString("rwxr-x---")
+private val ALL_READ: Set<PosixFilePermission> = PosixFilePermissions.fromString("rwxr-xr-x")
 
 class FilesService(
     private val folderResolver: SubmissionFolderResolver,
@@ -32,28 +34,41 @@ class FilesService(
 
     fun persistSubmissionFiles(submission: ExtSubmission, mode: FileMode) {
         val submissionPath = folderResolver.getSubmissionFolder(submission.relPath)
-        generateOutputFiles(submission, submissionPath)
+        generateFiles(submission, submissionPath, permissions(submission.released))
         when (mode) {
             FileMode.MOVE -> processFiles(submission, submissionPath, ::move)
             FileMode.COPY -> processFiles(submission, submissionPath, ::copy)
         }
     }
 
-    private fun generateOutputFiles(submission: ExtSubmission, submissionPath: Path) {
-        val simpleSubmission = submission.toSimpleSubmission()
-
-        generateOutputFiles(simpleSubmission, submissionPath, submission.accNo)
-        submission.allFileList.forEach { generateOutputFiles(it.toFilesTable(), submissionPath, it.fileName) }
+    private fun permissions(released: Boolean): Set<PosixFilePermission> {
+        return if (released) ALL_READ else return READ_ONLY_GROUP
     }
 
-    private fun <T> generateOutputFiles(element: T, submissionPath: Path, fileName: String) {
+    private fun generateFiles(
+        submission: ExtSubmission,
+        submissionPath: Path,
+        permissions: Set<PosixFilePermission>
+    ) {
+        val simpleSubmission = submission.toSimpleSubmission()
+
+        generateFiles(simpleSubmission, submissionPath, submission.accNo, permissions)
+        submission.allFileList.forEach { generateFiles(it.toFilesTable(), submissionPath, it.fileName, permissions) }
+    }
+
+    private fun <T> generateFiles(
+        element: T,
+        submissionPath: Path,
+        fileName: String,
+        permissions: Set<PosixFilePermission>
+    ) {
         val json = serializationService.serializeElement(element, SubFormat.JSON_PRETTY)
         val xml = serializationService.serializeElement(element, SubFormat.XML)
         val tsv = serializationService.serializeElement(element, SubFormat.TSV)
 
-        FileUtils.writeContent(submissionPath.resolve("$fileName.json").toFile(), json, READ_ONLY_GROUP)
-        FileUtils.writeContent(submissionPath.resolve("$fileName.xml").toFile(), xml, READ_ONLY_GROUP)
-        FileUtils.writeContent(submissionPath.resolve("$fileName.pagetab.tsv").toFile(), tsv, READ_ONLY_GROUP)
+        FileUtils.writeContent(submissionPath.resolve("$fileName.json").toFile(), json, permissions)
+        FileUtils.writeContent(submissionPath.resolve("$fileName.xml").toFile(), xml, permissions)
+        FileUtils.writeContent(submissionPath.resolve("$fileName.pagetab.tsv").toFile(), tsv, permissions)
     }
 
     private fun processFiles(submission: ExtSubmission, submissionPath: Path, process: (ExtFile, File) -> Unit) {
