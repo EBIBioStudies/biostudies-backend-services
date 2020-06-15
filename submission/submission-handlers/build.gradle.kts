@@ -1,4 +1,5 @@
 import Dependencies.KotlinLogging
+import Dependencies.SpringWeb
 import SpringBootDependencies.SpringBootAmqp
 
 plugins {
@@ -10,4 +11,8 @@ plugins {
 dependencies {
     implementation(SpringBootAmqp)
     implementation(KotlinLogging)
+    implementation(SpringWeb)
+
+    api(project(":commons:commons-model-extended"))
+    api(project(":commons:commons-util"))
 }

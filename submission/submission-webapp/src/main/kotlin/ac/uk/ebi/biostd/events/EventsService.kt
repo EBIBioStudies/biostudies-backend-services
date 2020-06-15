@@ -1,9 +1,9 @@
 package ac.uk.ebi.biostd.events
 
 import ac.uk.ebi.biostd.common.property.ApplicationProperties
+import ebi.ac.uk.extended.events.SubmissionSubmitted
 import ebi.ac.uk.extended.model.ExtSubmission
 import org.springframework.amqp.rabbit.core.RabbitTemplate
-import java.io.Serializable
 
 class EventsService(
     private val rabbitTemplate: RabbitTemplate,
@@ -19,5 +19,3 @@ class EventsService(
         rabbitTemplate.convertAndSend(BIOSTUDIES_EXCHANGE, PUBLISH_KEY, submissionNotification)
     }
 }
-
-data class SubmissionSubmitted(val accNo: String, val pagetabUrl: String, val extTabUrl: String) : Serializable

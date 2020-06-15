@@ -3,6 +3,8 @@ package ac.uk.ebi.biostd.persistence.service.filesystem
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat
 import ac.uk.ebi.biostd.persistence.integration.FileMode
+import ac.uk.ebi.biostd.persistence.integration.FileMode.COPY
+import ac.uk.ebi.biostd.persistence.integration.FileMode.MOVE
 import ebi.ac.uk.extended.mapping.to.toFilesTable
 import ebi.ac.uk.extended.mapping.to.toSimpleSubmission
 import ebi.ac.uk.extended.model.ExtFile
@@ -24,8 +26,8 @@ import java.nio.file.Path
 import java.nio.file.attribute.PosixFilePermission
 import java.nio.file.attribute.PosixFilePermissions
 
-private val READ_ONLY_GROUP: Set<PosixFilePermission> = PosixFilePermissions.fromString("rwxr-x---")
-private val ALL_READ: Set<PosixFilePermission> = PosixFilePermissions.fromString("rwxr-xr-x")
+val READ_ONLY_GROUP: Set<PosixFilePermission> = PosixFilePermissions.fromString("rwxr-x---")
+val ALL_READ: Set<PosixFilePermission> = PosixFilePermissions.fromString("rwxr-xr-x")
 
 class FilesService(
     private val folderResolver: SubmissionFolderResolver,
@@ -33,11 +35,13 @@ class FilesService(
 ) {
 
     fun persistSubmissionFiles(submission: ExtSubmission, mode: FileMode) {
+        val permissions = permissions(submission.released)
         val submissionPath = folderResolver.getSubmissionFolder(submission.relPath)
-        generateFiles(submission, submissionPath, permissions(submission.released))
+        generateFiles(submission, submissionPath, permissions)
+
         when (mode) {
-            FileMode.MOVE -> processFiles(submission, submissionPath, ::move)
-            FileMode.COPY -> processFiles(submission, submissionPath, ::copy)
+            MOVE -> processFiles(submission, submissionPath) { file, path -> move(file, path, permissions) }
+            COPY -> processFiles(submission, submissionPath) { extFile, file -> copy(extFile, file, permissions) }
         }
     }
 
@@ -83,11 +87,11 @@ class FilesService(
         moveFile(temporally, filesPath)
     }
 
-    private fun copy(extFile: ExtFile, file: File) =
-        copyOrReplaceFile(extFile.file, file.resolve(extFile.fileName), READ_ONLY_GROUP)
+    private fun copy(extFile: ExtFile, file: File, permissions: Set<PosixFilePermission>) =
+        copyOrReplaceFile(extFile.file, file.resolve(extFile.fileName), permissions)
 
-    private fun move(file: ExtFile, path: File) =
-        moveFile(file.file, path.resolve(file.fileName), READ_ONLY_GROUP)
+    private fun move(file: ExtFile, path: File, permissions: Set<PosixFilePermission>) =
+        moveFile(file.file, path.resolve(file.fileName), permissions)
 
     private fun getSubmissionFolder(submissionPath: Path): File =
         getOrCreateFolder(submissionPath, READ_ONLY_GROUP).toFile()
