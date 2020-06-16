@@ -4,6 +4,10 @@ import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.io.FileUtils
 import ebi.ac.uk.paths.SubmissionFolderResolver
 import java.io.File
+import java.nio.file.attribute.PosixFilePermission
+import java.nio.file.attribute.PosixFilePermissions
+
+private val ALL_READ: Set<PosixFilePermission> = PosixFilePermissions.fromString("rwxr-xr-x")
 
 class FtpFilesService(private val folderResolver: SubmissionFolderResolver) {
 
