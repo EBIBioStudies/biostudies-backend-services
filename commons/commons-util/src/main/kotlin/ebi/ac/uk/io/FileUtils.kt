@@ -49,9 +49,10 @@ object FileUtils {
     fun createEmptyFolder(
         folder: Path,
         permissions: Set<PosixFilePermission>
-    ) {
+    ): File {
         deleteFile(folder.toFile())
         Files.createDirectories(folder, asFileAttribute(permissions))
+        return folder.toFile()
     }
 
     fun createParentFolders(
