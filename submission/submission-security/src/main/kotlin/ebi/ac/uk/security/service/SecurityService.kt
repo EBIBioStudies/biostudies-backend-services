@@ -113,6 +113,8 @@ internal class SecurityService(
     }
 
     override fun resetPassword(request: ResetPasswordRequest) {
+        if (securityProps.checkCaptcha) captchaVerifier.verifyCaptcha(request.captcha)
+
         val email = request.email
         val user = userRepository.findByLoginOrEmailAndActive(email, email, true)
             .orElseThrow { UserNotFoundByEmailException(email) }

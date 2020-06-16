@@ -234,6 +234,12 @@ internal class SecurityServiceTest(
 
     @Nested
     inner class ResetPassword {
+        @BeforeEach
+        fun beforeEach() {
+            every { securityProps.checkCaptcha } returns true
+            every { captchaVerifier.verifyCaptcha(captcha) } returns Unit
+        }
+
         @Test
         fun `reset password when user not found`() {
             every { userRepository.findByLoginOrEmailAndActive(email, email, true) } returns Optional.empty()
