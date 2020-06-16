@@ -8,6 +8,7 @@ val RESERVED_ATTRIBUTES = setOf(
     SubFields.RELEASE_DATE.value,
     SubFields.TITLE.value,
     SubFields.ATTACH_TO.value,
+    SubFields.ON_BEHALF.value,
     SubFields.ROOT_PATH.value)
 
 interface Fields {
@@ -38,6 +39,7 @@ enum class SubFields(override val value: String) : Fields {
     MODIFICATION_TIME("mtime"),
     SECRET("secretKey"),
     ATTACH_TO("AttachTo"),
+    ON_BEHALF("onBehalf"),
     ACC_NO_TEMPLATE("AccNoTemplate");
 
     override fun toString(): String {
