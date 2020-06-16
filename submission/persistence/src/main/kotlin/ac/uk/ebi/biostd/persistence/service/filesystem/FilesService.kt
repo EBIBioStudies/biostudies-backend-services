@@ -45,9 +45,7 @@ class FilesService(
         }
     }
 
-    private fun permissions(released: Boolean): Set<PosixFilePermission> {
-        return if (released) ALL_READ else return READ_ONLY_GROUP
-    }
+    private fun permissions(released: Boolean): Set<PosixFilePermission> = if (released) ALL_READ else READ_ONLY_GROUP
 
     private fun generateFiles(
         submission: ExtSubmission,

@@ -40,10 +40,10 @@ object FileUtils {
         return folder
     }
 
-    fun reCreateFolder(file: File, permissions: Set<PosixFilePermission>): File {
-        deleteFile(file)
-        getOrCreateFolder(file.toPath(), permissions)
-        return file
+    fun reCreateFolder(folder: File, permissions: Set<PosixFilePermission>): File {
+        deleteFile(folder)
+        getOrCreateFolder(folder.toPath(), permissions)
+        return folder
     }
 
     fun createEmptyFolder(
