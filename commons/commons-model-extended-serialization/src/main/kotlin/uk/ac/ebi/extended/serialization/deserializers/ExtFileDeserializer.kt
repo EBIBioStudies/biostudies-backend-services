@@ -26,7 +26,7 @@ class ExtFileDeserializer : JsonDeserializer<ExtFile>() {
         require(file.exists()) { throw FileNotFoundException(filePath) }
 
         return ExtFile(
-            file = Paths.get(filePath).toFile(),
+            file = file,
             fileName = node.getNode<TextNode>(FILE_NAME).textValue(),
             attributes = mapper.convertList(node.findNode(ATTRIBUTES))
         )

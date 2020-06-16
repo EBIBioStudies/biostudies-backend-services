@@ -17,6 +17,7 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.web.client.RestTemplate
 import java.nio.file.Paths
 
+
 const val BIOSTUDIES_EXCHANGE = "biostudies-exchange"
 const val ROUTING_KEY = "bio.submission.published"
 

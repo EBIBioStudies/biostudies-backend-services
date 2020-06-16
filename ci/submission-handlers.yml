@@ -1,0 +1,11 @@
+.deploy-dev-handlers:
+  dependencies:
+    - build-test
+  script: gradle deployHandlers -Penv=dev -PdeployPath=/nfs/biostudies/.adm/apps/handlers/dev
+
+auto-deploy-dev-handlers:
+  extends: .deploy-dev-handlers
+  stage: auto-deploy-dev-handlers
+  only:
+    refs:
+      - dev
