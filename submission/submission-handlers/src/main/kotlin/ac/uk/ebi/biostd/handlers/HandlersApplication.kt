@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.handlers
 
-import ac.uk.ebi.biostd.handlers.listeners.FtpSubmissionReceiver
 import ac.uk.ebi.biostd.handlers.listeners.LogSubmissionReceiver
 import org.springframework.amqp.core.Binding
 import org.springframework.amqp.core.BindingBuilder
@@ -14,15 +13,12 @@ import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.boot.runApplication
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.web.client.RestTemplate
-import java.nio.file.Paths
-
 
 const val BIOSTUDIES_EXCHANGE = "biostudies-exchange"
 const val ROUTING_KEY = "bio.submission.published"
 
 const val LOG_QUEUE = "submission-submitted-log-queue"
-const val FTP_QUEUE = "submission-submitted-ftp-queue"
+const val PARTIALS_QUEUE = "submission-submitted-updates-queue"
 
 @Suppress("SpreadOperator")
 fun main(args: Array<String>) {
@@ -40,7 +36,7 @@ class HandlersApplication {
 
     @Bean
     fun ftpQueue(): Queue {
-        return Queue(FTP_QUEUE, false)
+        return Queue(PARTIALS_QUEUE, false)
     }
 
     @Bean
@@ -73,11 +69,4 @@ class Listeners {
 
     @Bean
     fun logListener() = LogSubmissionReceiver()
-
-    @Bean
-    fun ftpListener(properties: AppProperties) = FtpSubmissionReceiver(
-        Paths.get(properties.submissionFolder),
-        Paths.get(properties.ftpFolder),
-        RestTemplate()
-    )
 }

@@ -1,9 +1,5 @@
 spring:
   rabbitmq:
-    host: biostudy-dev-mq.ebi.ac.uk
-    password: manager
-    username: manager
-
-app:
-  ftp-folder: ""
-  submission-folder: ""
+    host:
+    password:
+    username:
