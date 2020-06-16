@@ -37,7 +37,12 @@ open class SubmissionStatsService(
     }
 
     @Transactional
-    open fun saveAll(stats: List<SubmissionStat>): List<SubmissionStat> = stats.map { save(it) }
+    open fun saveAll(stats: List<SubmissionStat>): List<SubmissionStat> = stats.map(::save)
+
+    @Transactional
+    open fun incrementAll(
+        stats: List<SubmissionStat>
+    ): List<SubmissionStat> = saveAll(stats.map(::increment))
 
     private fun insert(stat: SubmissionStat): SubmissionStat {
         val saved = SubmissionStatMapper.toSubmissionStatDb(stat)
@@ -49,5 +54,12 @@ open class SubmissionStatsService(
         val newStat = SubmissionStatDb(oldStat.accNo, stat.value, oldStat.type).apply { id = oldStat.id }
 
         return SubmissionStatMapper.toSubmissionStat(submissionStatsRepository.save(newStat))
+    }
+
+    private fun increment(stat: SubmissionStat): SubmissionStat {
+        val existing = submissionStatsRepository.findByAccNoAndType(stat.accNo, stat.type)
+        val value = existing?.let { it.value + stat.value } ?: stat.value
+
+        return SubmissionStat(stat.accNo, value, stat.type)
     }
 }
