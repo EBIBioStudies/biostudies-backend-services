@@ -21,7 +21,14 @@ fun Sheet.asTsvList(): List<String> {
     return elements
 }
 
-private fun Row.asString(): String = asIterable().joinToString("\t") { it.valueAsString }
+private fun Row.asString(): String {
+    val cells = mutableListOf<String>()
+    for (idx in 0 until lastCellNum) {
+        cells.add(getCell(idx)?.valueAsString ?: EMPTY)
+    }
+
+    return cells.joinToString("\t")
+}
 
 private val Cell.valueAsString: String
     get() = when (cellType) {
