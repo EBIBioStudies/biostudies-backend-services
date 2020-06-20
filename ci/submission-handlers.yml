@@ -9,3 +9,17 @@ auto-deploy-dev-handlers:
   only:
     refs:
       - dev
+
+deploy-beta-scheduler:
+  stage: auto-deploy-beta-handlers
+  when: manual
+  dependencies:
+    - build-test
+  script: gradle deployHandlers -Penv=beta -PdeployPath=/nfs/biostudies/.adm/apps/handlers/beta
+
+deploy-prod-scheduler:
+  stage: auto-deploy-prod-handlers
+  when: manual
+  dependencies:
+    - build-test
+  script: gradle deployHandlers -Penv=prod -PdeployPath=/nfs/biostudies/.adm/apps/handlers/prod

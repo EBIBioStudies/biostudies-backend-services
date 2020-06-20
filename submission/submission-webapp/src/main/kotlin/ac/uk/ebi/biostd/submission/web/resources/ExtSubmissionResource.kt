@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/submissions/extended")
-@PreAuthorize("isAuthenticated()")
 @Api(tags = ["Extended Submissions"])
 class ExtSubmissionResource(private val extSubmissionService: ExtSubmissionService) {
     @GetMapping("/{accNo}")
@@ -32,6 +31,7 @@ class ExtSubmissionResource(private val extSubmissionService: ExtSubmissionServi
     ): ExtSubmission = extSubmissionService.getExtendedSubmission(user.email, accNo)
 
     @PostMapping
+    @PreAuthorize("isAuthenticated()")
     @ApiOperation("Make a submission using the extended model")
     @ApiImplicitParam(name = "X-SESSION-TOKEN", value = "User authentication token", required = true, type = "header")
     fun submitExtended(

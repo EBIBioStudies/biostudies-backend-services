@@ -22,6 +22,7 @@ import io.reactivex.Observable
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
+import org.springframework.http.HttpMethod.GET
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
@@ -44,6 +45,8 @@ class SecurityConfig(
             .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             .and()
             .authorizeRequests()
+            .antMatchers(GET, "/submissions/extended/*").permitAll()
+            .antMatchers(GET, "/submissions/*").permitAll()
             .antMatchers("/auth/**").permitAll()
             .antMatchers("/v2/**").permitAll()
             .antMatchers("/webjars/**").permitAll()
