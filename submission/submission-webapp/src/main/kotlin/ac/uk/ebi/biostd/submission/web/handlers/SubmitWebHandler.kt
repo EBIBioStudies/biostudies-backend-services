@@ -33,8 +33,9 @@ class SubmitWebHandler(
 ) {
     fun submit(request: ContentSubmitWebRequest): Submission {
         val sub = serializationService.deserializeSubmission(request.submission, request.format)
-        val source = sources(request.submitter, sub, request.files)
+        val source = sources(sub, request.submitter, request.files)
         val submission = withAttributes(submission(request.submission, request.format, source), request.attrs)
+
         return submissionService.submit(SubmissionRequest(
             submission = submission,
             submitter = request.submitter,
@@ -47,9 +48,10 @@ class SubmitWebHandler(
 
     fun submit(request: FileSubmitWebRequest): Submission {
         val sub = serializationService.deserializeSubmission(request.submission)
-        val source = sources(request.submitter, sub, request.files.plus(request.submission))
+        val source = sources(sub, request.submitter, request.files.plus(request.submission))
         val submission = withAttributes(submission(request.submission, source), request.attrs)
         userFilesService.uploadFile(request.submitter, DIRECT_UPLOAD_PATH, request.submission)
+
         return submissionService.submit(SubmissionRequest(
             submission = submission,
             submitter = request.submitter,
@@ -62,7 +64,8 @@ class SubmitWebHandler(
 
     fun refreshSubmission(request: RefreshWebRequest): Submission {
         val submission = submissionService.getSubmission(request.accNo).toSimpleSubmission()
-        val source = sources(request.user, submission, emptyList())
+        val source = sources(submission)
+
         return submissionService.submit(SubmissionRequest(
             submission = submission,
             submitter = request.user,
@@ -75,14 +78,16 @@ class SubmitWebHandler(
     private fun getOnBehalfUser(request: OnBehalfRequest): SecurityUser =
         securityService.getOrRegisterUser(request.asRegisterRequest())
 
-    private fun sources(user: SecurityUser, submission: Submission, files: List<File>): FilesSource {
-        return sourceGenerator.submissionSources(RequestSources(
-            user = user,
-            files = files,
-            rootPath = submission.rootPath,
-            subFolder = subFolder(submission.accNo)
-        ))
-    }
+    private fun sources(
+        submission: Submission,
+        user: SecurityUser? = null,
+        files: List<File> = emptyList()
+    ): FilesSource = sourceGenerator.submissionSources(RequestSources(
+        user = user,
+        files = files,
+        rootPath = submission.rootPath,
+        subFolder = subFolder(submission.accNo)
+    ))
 
     private fun withAttributes(submission: Submission, attrs: Map<String, String>): Submission {
         attrs.forEach { submission[it.key] = it.value }
