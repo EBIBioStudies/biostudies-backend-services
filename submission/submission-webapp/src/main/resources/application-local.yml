@@ -20,6 +20,7 @@ spring:
 app:
   basepath: # Absolute path to the folder to be used as storage
   tempDirPath: # Absolute of the temp folder to store files
+  instanceBaseUrl: http://localhost:8080
   security:
     tokenHash: bio-local
     filesDirPath: # Absolute path to the folder to be used for the user/groups files

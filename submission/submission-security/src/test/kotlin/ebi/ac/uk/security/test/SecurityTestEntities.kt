@@ -41,7 +41,8 @@ internal class SecurityTestEntities {
             get() = ResetPasswordRequest(
                 email = email,
                 instanceKey = instanceKey,
-                path = path)
+                path = path,
+                captcha = captcha)
 
         val retryActivation: RetryActivationRequest
             get() = RetryActivationRequest(

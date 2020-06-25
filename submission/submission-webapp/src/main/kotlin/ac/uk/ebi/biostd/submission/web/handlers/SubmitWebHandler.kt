@@ -43,7 +43,7 @@ class SubmitWebHandler(
             method = PAGE_TAB,
             sources = source,
             mode = request.fileMode
-        ))
+        )).toSimpleSubmission()
     }
 
     fun submit(request: FileSubmitWebRequest): Submission {
@@ -59,7 +59,7 @@ class SubmitWebHandler(
             sources = source,
             method = FILE,
             mode = request.fileMode
-        ))
+        )).toSimpleSubmission()
     }
 
     fun refreshSubmission(request: RefreshWebRequest): Submission {
@@ -72,7 +72,7 @@ class SubmitWebHandler(
             sources = source,
             method = PAGE_TAB,
             mode = FileMode.MOVE
-        ))
+        )).toSimpleSubmission()
     }
 
     private fun getOnBehalfUser(request: OnBehalfRequest): SecurityUser =

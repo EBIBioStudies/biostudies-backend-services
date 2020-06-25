@@ -5,11 +5,13 @@ include:
   - local: '/ci/scheduler.yml'
   - local: '/ci/bio-admin.yml'
   - local: '/ci/bio-commandline.yml'
+  - local: '/ci/submission-handlers.yml'
 
 stages:
   - build-test
   - build-artifact
   - auto-deploy-dev-submitter
+  - auto-deploy-dev-handlers
   - deploy-dev-submitter
   - deploy-beta-submitter
   - deploy-prod-submitter
@@ -21,6 +23,9 @@ stages:
   - deploy-prod-scheduler
   - deploy-bio-admin
   - deploy-bio-commandline
+  - deploy-dev-handlers
+  - deploy-beta-handlers
+  - deploy-prod-handlers
 
 build-test:
   stage: build-test
