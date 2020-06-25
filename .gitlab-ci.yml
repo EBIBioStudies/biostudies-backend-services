@@ -5,6 +5,7 @@ include:
   - local: '/ci/scheduler.yml'
   - local: '/ci/bio-admin.yml'
   - local: '/ci/bio-commandline.yml'
+  - local: '/ci/submission-handlers.yml'
 
 stages:
   - build-test
