@@ -11,6 +11,7 @@ stages:
   - build-test
   - build-artifact
   - auto-deploy-dev-submitter
+  - auto-deploy-dev-handlers
   - deploy-dev-submitter
   - deploy-beta-submitter
   - deploy-prod-submitter
@@ -22,6 +23,9 @@ stages:
   - deploy-prod-scheduler
   - deploy-bio-admin
   - deploy-bio-commandline
+  - deploy-dev-handlers
+  - deploy-beta-handlers
+  - deploy-prod-handlers
 
 build-test:
   stage: build-test
