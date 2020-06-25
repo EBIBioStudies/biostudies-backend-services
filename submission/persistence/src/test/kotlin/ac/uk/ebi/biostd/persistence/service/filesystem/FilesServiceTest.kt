@@ -28,11 +28,10 @@ class FilesServiceTest(
     private val temporaryFolder: TemporaryFolder,
     @MockK private val mockSerializationService: SerializationService
 ) {
-    private val sectionFile = temporaryFolder.createFile("file.txt", "text-1")
+    private val file1 = temporaryFolder.createFile("file.txt", "text-1")
+    private val file2 = temporaryFolder.createFile("file2.txt", "text-3")
     private val sectionFolder = temporaryFolder.createDirectory("fileDirectory")
-    private var sectionFolderFile = sectionFolder.createNewFile("file3.txt", "folder-file-content")
-    private val referencedFile = temporaryFolder.createFile("file2.txt", "text-3")
-    private val extSubmission = extSubmissionWithFileList(listOf(sectionFile, sectionFolder), listOf(referencedFile))
+    private val extSubmission = extSubmissionWithFileList(listOf(file1, file1, sectionFolder), listOf(file2, file1))
 
     private val testInstance =
         FilesService(SubmissionFolderResolver(temporaryFolder.root.toPath()), mockSerializationService)
@@ -40,6 +39,8 @@ class FilesServiceTest(
     @BeforeEach
     fun beforeEach() {
         val simpleSubmission = extSubmission.toSimpleSubmission()
+        sectionFolder.createNewFile("file3.txt", "folder-file-content")
+
         every { mockSerializationService.serializeElement(simpleSubmission, XML) } returns ""
         every { mockSerializationService.serializeElement(simpleSubmission, TSV) } returns ""
         every { mockSerializationService.serializeElement(simpleSubmission, JSON_PRETTY) } returns ""
@@ -63,7 +64,6 @@ class FilesServiceTest(
         testInstance.persistSubmissionFiles(extSubmission, mode)
 
         val relPath = extSubmission.relPath
-
         assertThat(getPath("submission/$relPath/Files/file.txt")).exists()
         assertThat(getPath("submission/$relPath/Files/file2.txt")).exists()
 

@@ -32,6 +32,18 @@ task deploySubmitter {
     finalizedBy "deploy"
 }
 
+task deployHandlers {
+    doFirst {
+        project.ext.artifactPath = "submission/submission-handlers/build/libs"
+        project.ext.artifactName = "submission-handlers-1.0.0.jar"
+        project.ext.appPort = 8392
+        project.ext.debugPort = 8504
+    }
+
+    finalizedBy "deploy"
+}
+
+
 task deployScheduler {
     doFirst {
         project.ext.artifactPath = "scheduler/scheduler/build/libs"

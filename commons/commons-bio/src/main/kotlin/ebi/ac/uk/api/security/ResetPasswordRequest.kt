@@ -1,3 +1,12 @@
 package ebi.ac.uk.api.security
 
-class ResetPasswordRequest(val email: String, val instanceKey: String, val path: String)
+import com.fasterxml.jackson.annotation.JsonProperty
+
+class ResetPasswordRequest(
+    val email: String,
+    val instanceKey: String,
+    val path: String,
+
+    @JsonProperty("recaptcha2-response")
+    val captcha: String? = null
+)

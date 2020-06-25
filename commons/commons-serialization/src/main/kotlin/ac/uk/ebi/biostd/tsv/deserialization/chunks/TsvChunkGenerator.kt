@@ -28,7 +28,7 @@ import java.util.Queue
 
 internal class TsvChunkGenerator(private val parser: CSVFormat = createParser()) {
     fun chunks(pagetab: String): Queue<TsvChunk> {
-        return chunksLines(pagetab).split { it.isEmpty() }.mapTo(Lists.newLinkedList()) { createChunk(it) }
+        return chunkLines(pagetab).split { it.isEmpty() }.mapTo(Lists.newLinkedList()) { createChunk(it) }
     }
 
     private fun createChunk(body: List<TsvChunkLine>): TsvChunk {
@@ -43,6 +43,18 @@ internal class TsvChunkGenerator(private val parser: CSVFormat = createParser())
             type.matches(TABLE_REGEX) -> TABLE_REGEX.findGroup(type, 1)
                 .fold({ RootSectionTableChunk(body) }, { SubSectionTableChunk(body, it) })
             else -> header.findThird().fold({ RootSubSectionChunk(body) }, { SubSectionChunk(body, it) })
+        }
+    }
+
+    private fun chunkLines(pageTab: String): List<TsvChunkLine> {
+        val parsedChunks = parser.parse(StringReader(pageTab))
+
+        return parsedChunks.mapIndexed { idx, csvRecord ->
+            val record = csvRecord.asList()
+            when {
+                record.all(String::isBlank) -> TsvChunkLine(idx, emptyList())
+                else -> TsvChunkLine(idx, record)
+            }
         }
     }
 

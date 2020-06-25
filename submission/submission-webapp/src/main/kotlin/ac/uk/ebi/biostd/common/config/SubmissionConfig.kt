@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.common.config
 
+import ac.uk.ebi.biostd.events.EventsService
 import ac.uk.ebi.biostd.files.service.UserFilesService
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.persistence.integration.PersistenceContext
@@ -10,7 +11,6 @@ import ac.uk.ebi.biostd.submission.domain.helpers.SourceGenerator
 import ac.uk.ebi.biostd.submission.domain.service.ExtSubmissionService
 import ac.uk.ebi.biostd.submission.domain.service.ProjectService
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionService
-import ac.uk.ebi.biostd.submission.submitter.SubmissionPersistenceService
 import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
 import ac.uk.ebi.biostd.submission.web.handlers.SubmissionsWebHandler
 import ac.uk.ebi.biostd.submission.web.handlers.SubmitWebHandler
@@ -33,13 +33,15 @@ class SubmissionConfig(
         serializationService: SerializationService,
         userPrivilegeService: IUserPrivilegesService,
         queryService: SubmissionQueryService,
-        submissionSubmitter: SubmissionSubmitter
+        submissionSubmitter: SubmissionSubmitter,
+        eventsService: EventsService
     ): SubmissionService = SubmissionService(
         subRepository,
         serializationService,
         userPrivilegeService,
         queryService,
-        submissionSubmitter)
+        submissionSubmitter,
+        eventsService)
 
     @Bean
     fun extSubmissionService(
@@ -71,8 +73,4 @@ class SubmissionConfig(
     @Bean
     fun submissionHandler(submissionService: SubmissionService): SubmissionsWebHandler =
         SubmissionsWebHandler(submissionService)
-
-    @Bean
-    fun persistenceService(submissionRepository: SubmissionRepository, persistenceContext: PersistenceContext):
-        SubmissionPersistenceService = SubmissionPersistenceService(submissionRepository, persistenceContext)
 }

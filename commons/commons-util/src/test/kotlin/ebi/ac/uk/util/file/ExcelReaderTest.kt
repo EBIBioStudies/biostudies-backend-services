@@ -39,6 +39,24 @@ class ExcelReaderTest(private val temporaryFolder: TemporaryFolder) {
                     cell("Numeric Attr")
                     cell("123")
                 }
+
+                emptyRow()
+
+                row {
+                    cell("Files")
+                    cell("Attr 1")
+                    cell("Attr 2")
+                }
+                row {
+                    cell("file1.txt")
+                    cell("")
+                    cell("a2")
+                }
+                row {
+                    cell("file2.txt")
+                    cell("b1")
+                    cell("b2")
+                }
             }
         }
 
@@ -50,6 +68,11 @@ class ExcelReaderTest(private val temporaryFolder: TemporaryFolder) {
             line("Study", "SECT-001")
             line("An Attr", "A Value")
             line("Numeric Attr", "123")
+            line()
+
+            line("Files", "Attr 1", "Attr 2")
+            line("file1.txt", "", "a2")
+            line("file2.txt", "b1", "b2")
         }
 
         assertThat(testInstance.readContentAsTsv(testFile)).isEqualTo(expectedTsv.toString())

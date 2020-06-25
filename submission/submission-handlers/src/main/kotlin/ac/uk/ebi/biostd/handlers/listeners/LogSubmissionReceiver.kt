@@ -1,0 +1,16 @@
+package ac.uk.ebi.biostd.handlers.listeners
+
+import ac.uk.ebi.biostd.handlers.LOG_QUEUE
+import ebi.ac.uk.extended.events.SubmissionSubmitted
+import mu.KotlinLogging
+import org.springframework.amqp.rabbit.annotation.RabbitListener
+
+private val logger = KotlinLogging.logger {}
+
+class LogSubmissionReceiver {
+
+    @RabbitListener(queues = [LOG_QUEUE])
+    fun receiveMessage(submission: SubmissionSubmitted) {
+        logger.info { "received message for submission ${submission.accNo}" }
+    }
+}

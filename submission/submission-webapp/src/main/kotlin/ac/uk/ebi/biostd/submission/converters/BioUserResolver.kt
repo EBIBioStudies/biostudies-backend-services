@@ -12,18 +12,16 @@ import org.springframework.web.method.support.ModelAndViewContainer
 class BioUserResolver(
     private val principalResolver: AuthenticationPrincipalArgumentResolver
 ) : HandlerMethodArgumentResolver {
-    override fun supportsParameter(parameter: MethodParameter): Boolean {
-        return parameter.getParameterAnnotation(BioUser::class.java) != null
-    }
+    override fun supportsParameter(
+        parameter: MethodParameter
+    ): Boolean = parameter.getParameterAnnotation(BioUser::class.java) != null
 
     override fun resolveArgument(
         parameter: MethodParameter,
         container: ModelAndViewContainer?,
         request: NativeWebRequest,
         factory: WebDataBinderFactory?
-    ): SecurityUser {
-        return principalResolver.resolveArgument(parameter, container, request, factory) as SecurityUser
-    }
+    ): SecurityUser = principalResolver.resolveArgument(parameter, container, request, factory) as SecurityUser
 }
 
 @Retention(AnnotationRetention.RUNTIME)

@@ -56,7 +56,7 @@ internal class JsonPagetabConverterTest(@MockK private val serializationService:
         every { message.body } returns body
         every { message.headers } returns headers
 
-        assertThat(testInstance.write(submission, null, message))
+        testInstance.write(submission, null, message)
 
         verify { headers.contentType = APPLICATION_JSON }
         verify { body.write(submissionContent.toByteArray()) }

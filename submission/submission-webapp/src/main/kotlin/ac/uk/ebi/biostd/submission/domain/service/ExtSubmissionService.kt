@@ -12,8 +12,7 @@ class ExtSubmissionService(
     private val submissionRepository: SubmissionRepository,
     private val userPrivilegesService: IUserPrivilegesService
 ) {
-    fun getExtendedSubmission(user: String, accNo: String): ExtSubmission {
-        validateUser(user)
+    fun getExtendedSubmission(accNo: String): ExtSubmission {
         return submissionRepository.getExtByAccNo(accNo)
     }
 
@@ -24,6 +23,6 @@ class ExtSubmissionService(
 
     private fun validateUser(user: String) =
         require(userPrivilegesService.canSubmitExtended(user)) {
-            throw SecurityException("The user $user is not allowed to perform this action")
+            throw SecurityException("The user '$user' is not allowed to perform this action")
         }
 }

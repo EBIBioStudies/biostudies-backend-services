@@ -29,7 +29,7 @@ internal class FileUtilsTest(private val temporaryFolder: TemporaryFolder) {
                 val file = temporaryFolder.createFile("one.txt", "one")
                 val another = temporaryFolder.createFile("two.txt", "two")
 
-                FileUtils.copyOrReplaceFile(file, another)
+                FileUtils.copyOrReplaceFile(file, another, ONLY_USER)
 
                 assertThat(temporaryFolder.root.resolve("one.txt")).hasContent("one")
                 assertThat(temporaryFolder.root.resolve("two.txt")).hasContent("one")
@@ -40,7 +40,7 @@ internal class FileUtilsTest(private val temporaryFolder: TemporaryFolder) {
                 val file = temporaryFolder.createFile("one.txt", "one")
                 val target = temporaryFolder.root.resolve("new.txt")
 
-                FileUtils.copyOrReplaceFile(file, target)
+                FileUtils.copyOrReplaceFile(file, target, ONLY_USER)
 
                 assertThat(temporaryFolder.root.resolve("new.txt")).hasContent("one")
             }
@@ -57,7 +57,7 @@ internal class FileUtilsTest(private val temporaryFolder: TemporaryFolder) {
                 val targetDirectory = temporaryFolder.createDirectory("target-directory")
                 targetDirectory.createNewFile("one.txt")
 
-                FileUtils.copyOrReplaceFile(tempDir, targetDirectory)
+                FileUtils.copyOrReplaceFile(tempDir, targetDirectory, ONLY_USER)
 
                 assertThat(targetDirectory).isDirectory()
                 assertThat(targetDirectory.list()).containsExactly("two.txt")
@@ -69,7 +69,7 @@ internal class FileUtilsTest(private val temporaryFolder: TemporaryFolder) {
                 tempDir.createNewFile("two.txt")
                 val target = temporaryFolder.root.resolve("target")
 
-                FileUtils.copyOrReplaceFile(tempDir, target)
+                FileUtils.copyOrReplaceFile(tempDir, target, ONLY_USER)
 
                 assertThat(target).isDirectory()
                 assertThat(target.list()).containsExactly("two.txt")
@@ -82,7 +82,7 @@ internal class FileUtilsTest(private val temporaryFolder: TemporaryFolder) {
                 val subDirFile = subTempDir.createNewFile("subTempFile.txt", "content")
                 val target = temporaryFolder.root.resolve("target")
 
-                FileUtils.copyOrReplaceFile(tempDir, target)
+                FileUtils.copyOrReplaceFile(tempDir, target, ONLY_USER)
 
                 assertThat(target).isDirectory()
                 assertThat(target.resolve(subTempDir.name)).isDirectory()
@@ -155,7 +155,7 @@ internal class FileUtilsTest(private val temporaryFolder: TemporaryFolder) {
         fun deleteFolderWhenFileExist() {
             val file = temporaryFolder.createFile("one.txt", "content.exist")
 
-            FileUtils.deleteFolder(file)
+            FileUtils.deleteFile(file)
             assertThat(file).doesNotExist()
         }
 
@@ -165,7 +165,7 @@ internal class FileUtilsTest(private val temporaryFolder: TemporaryFolder) {
             val file = tempDir.resolve("two.txt")
             file.createNewFile()
 
-            FileUtils.deleteFolder(tempDir)
+            FileUtils.deleteFile(tempDir)
             assertThat(tempDir).doesNotExist()
         }
 
@@ -173,7 +173,7 @@ internal class FileUtilsTest(private val temporaryFolder: TemporaryFolder) {
         fun deleteFolderWhenNotExist() {
             val tempDir = temporaryFolder.createDirectory("dir-example")
 
-            FileUtils.deleteFolder(tempDir.resolve("another-dir"))
+            FileUtils.deleteFile(tempDir.resolve("another-dir"))
         }
     }
 }

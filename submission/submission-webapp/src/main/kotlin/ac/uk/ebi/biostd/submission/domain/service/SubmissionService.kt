@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.submission.domain.service
 
+import ac.uk.ebi.biostd.events.EventsService
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat.JsonFormat.JsonPretty
 import ac.uk.ebi.biostd.integration.SubFormat.TsvFormat.Tsv
@@ -11,7 +12,6 @@ import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
 import ac.uk.ebi.biostd.submission.model.SubmissionRequest
 import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
 import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.model.Submission
 import ebi.ac.uk.paths.FILES_PATH
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import ebi.ac.uk.security.integration.model.api.SecurityUser
@@ -22,9 +22,14 @@ class SubmissionService(
     private val serializationService: SerializationService,
     private val userPrivilegesService: IUserPrivilegesService,
     private val queryService: SubmissionQueryService,
-    private val submissionSubmitter: SubmissionSubmitter
+    private val submissionSubmitter: SubmissionSubmitter,
+    private val eventsService: EventsService
 ) {
-    fun submit(request: SubmissionRequest): Submission = submissionSubmitter.submit(request)
+    fun submit(request: SubmissionRequest): ExtSubmission {
+        val extSubmission = submissionSubmitter.submit(request)
+        eventsService.submissionSubmitted(extSubmission)
+        return extSubmission
+    }
 
     fun getSubmissionAsJson(accNo: String): String {
         val submission = subRepository.getByAccNo(accNo)
@@ -39,11 +44,6 @@ class SubmissionService(
     fun getSubmissionAsTsv(accNo: String): String {
         val submission = subRepository.getByAccNo(accNo)
         return serializationService.serializeSubmission(submission, Tsv)
-    }
-
-    fun getExtendedSubmission(accNo: String): ExtSubmission {
-        // TODO validate only superusers can use it
-        return subRepository.getExtByAccNo(accNo)
     }
 
     fun getSubmissions(user: SecurityUser, filter: SubmissionFilter): List<SimpleSubmission> =
