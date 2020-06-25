@@ -25,6 +25,7 @@ import ebi.ac.uk.dsl.tsv
 import ebi.ac.uk.model.extensions.rootPath
 import ebi.ac.uk.model.extensions.title
 import ebi.ac.uk.security.integration.components.IGroupService
+import ebi.ac.uk.util.collections.ifRight
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
@@ -277,6 +278,41 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
             assertThat(savedSubmission.released).isTrue()
             assertThat(savedSubmission.accessTags).hasSize(1)
             assertThat(savedSubmission.accessTags.first().name).isEqualTo("Public")
+        }
+
+        @Test
+        fun `new submission with empty accNo subsection table`() {
+            val submission = tsv {
+                line("Submission", "S-STBL123")
+                line("Title", "Test Section Table")
+                line()
+
+                line("Study", "SECT-001")
+                line()
+
+                line("Data[SECT-001]", "Title")
+                line("", "Group 1")
+                line()
+            }.toString()
+
+            assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
+
+            val savedSubmission = submissionRepository.getExtByAccNo("S-STBL123")
+            assertThat(savedSubmission.accNo).isEqualTo("S-STBL123")
+            assertThat(savedSubmission.title).isEqualTo("Test Section Table")
+
+            val section = savedSubmission.section
+            assertThat(section.accNo).isEqualTo("SECT-001")
+            assertThat(section.sections).hasSize(1)
+            section.sections.first().ifRight {
+                assertThat(it.sections).hasSize(1)
+
+                val subSection = it.sections.first()
+                assertThat(subSection.accNo).isEmpty()
+                assertThat(subSection.attributes).hasSize(1)
+                assertThat(subSection.attributes.first().name).isEqualTo("Title")
+                assertThat(subSection.attributes.first().value).isEqualTo("Group 1")
+            }
         }
 
         @Test

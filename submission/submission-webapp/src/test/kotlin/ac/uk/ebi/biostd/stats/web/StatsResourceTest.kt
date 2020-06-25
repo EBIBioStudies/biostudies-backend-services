@@ -141,4 +141,40 @@ class StatsResourceTest(
         verify(exactly = 1) { tempFileGenerator.asFile(multipartStatsFile.captured) }
         verify(exactly = 1) { statsFileHandler.readStats(statsFile, type.captured) }
     }
+
+    @Test
+    fun `increment from file`() {
+        val incrementedStats = slot<List<SubmissionStat>>()
+        val type = slot<SubmissionStatType>()
+        val multipartStatsFile = slot<MultipartFile>()
+        val incrementedStat = SubmissionStat("S-TEST123", 20, VIEWS)
+        val statsFile = tempFolder.createFile("increase.tsv")
+        val body = jsonArray(jsonObj {
+            "accNo" to "S-TEST123"
+            "type" to "VIEWS"
+            "value" to 10
+        }).toString()
+        val response = jsonArray(jsonObj {
+            "accNo" to "S-TEST123"
+            "type" to "VIEWS"
+            "value" to 20
+        }).toString()
+
+        every { tempFileGenerator.asFile(capture(multipartStatsFile)) } returns statsFile
+        every { statsFileHandler.readStats(statsFile, capture(type)) } returns listOf(testStat)
+        every { statsService.incrementAll(capture(incrementedStats)) } returns listOf(incrementedStat)
+
+        mvc.multipart("/stats/views/increment") {
+            accept = APPLICATION_JSON
+            file("stats", body.toByteArray())
+        }.andExpect {
+            status { isOk }
+            content { json(response) }
+        }
+
+        assertThat(type.captured).isEqualTo(VIEWS)
+        verify(exactly = 1) { statsService.incrementAll(incrementedStats.captured) }
+        verify(exactly = 1) { tempFileGenerator.asFile(multipartStatsFile.captured) }
+        verify(exactly = 1) { statsFileHandler.readStats(statsFile, type.captured) }
+    }
 }

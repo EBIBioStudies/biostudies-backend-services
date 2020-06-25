@@ -11,7 +11,6 @@ import ebi.ac.uk.security.integration.exception.UserAlreadyRegister
 import ebi.ac.uk.security.integration.exception.UserNotFoundByEmailException
 import ebi.ac.uk.security.integration.exception.UserPendingRegistrationException
 import ebi.ac.uk.security.integration.exception.UserWithActivationKeyNotFoundException
-import ebi.ac.uk.security.integration.model.api.UserInfo
 import ebi.ac.uk.security.integration.model.events.PasswordReset
 import ebi.ac.uk.security.integration.model.events.UserActivated
 import ebi.ac.uk.security.integration.model.events.UserRegister
@@ -26,9 +25,10 @@ import ebi.ac.uk.security.test.SecurityTestEntities.Companion.path
 import ebi.ac.uk.security.test.SecurityTestEntities.Companion.registrationRequest
 import ebi.ac.uk.security.test.SecurityTestEntities.Companion.resetPasswordRequest
 import ebi.ac.uk.security.test.SecurityTestEntities.Companion.retryActivation
-import ebi.ac.uk.security.test.SecurityTestEntities.Companion.securityUser
 import ebi.ac.uk.security.test.SecurityTestEntities.Companion.simpleUser
 import ebi.ac.uk.security.util.SecurityUtil
+import io.github.glytching.junit.extension.folder.TemporaryFolder
+import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
@@ -45,16 +45,21 @@ private const val ACTIVATION_KEY: String = "code"
 private const val SECRET_KEY: String = "secretKey"
 private val PASSWORD_DIGEST: ByteArray = ByteArray(0)
 
-@ExtendWith(MockKExtension::class)
+@ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
 internal class SecurityServiceTest(
+    temporaryFolder: TemporaryFolder,
     @MockK private val userRepository: UserDataRepository,
     @MockK private val securityProps: SecurityProperties,
     @MockK private val securityUtil: SecurityUtil,
-    @MockK private val profileService: ProfileService,
     @MockK private val captchaVerifier: CaptchaVerifier
 ) {
-    private val testInstance: SecurityService =
-        SecurityService(userRepository, securityUtil, securityProps, profileService, captchaVerifier)
+    private val testInstance: SecurityService = SecurityService(
+        userRepository,
+        securityUtil,
+        securityProps,
+        ProfileService(temporaryFolder.root.toPath()),
+        captchaVerifier
+    )
 
     @Nested
     inner class Login {
@@ -80,11 +85,10 @@ internal class SecurityServiceTest(
             every { userRepository.findByLoginOrEmailAndActive(email, email, true) } returns Optional.of(simpleUser)
             every { securityUtil.checkPassword(passwordDiggest, password) } returns true
             every { securityUtil.createToken(simpleUser) } returns userToken
-            every { profileService.getUserProfile(simpleUser, userToken) } returns UserInfo(securityUser, userToken)
 
             val (user, token) = testInstance.login(LoginRequest(email, password))
 
-            assertThat(user).isEqualTo(securityUser)
+            assertThat(user).isNotNull()
             assertThat(token).isEqualTo(userToken)
         }
     }
@@ -96,7 +100,6 @@ internal class SecurityServiceTest(
             every { userRepository.existsByEmail(email) } returns false
             every { userRepository.save(any<DbUser>()) } answers { firstArg() }
             every { securityUtil.getPasswordDigest(password) } returns PASSWORD_DIGEST
-            every { profileService.asSecurityUser(any()) } returns securityUser
             every { securityProps.checkCaptcha } returns true
             every { captchaVerifier.verifyCaptcha(captcha) } returns Unit
         }
@@ -109,7 +112,7 @@ internal class SecurityServiceTest(
             val subscriber = TestObserver<UserActivated>()
             Events.userRegister.subscribe(subscriber)
 
-            testInstance.registerUser(registrationRequest)
+            val user = testInstance.registerUser(registrationRequest)
 
             assertThat(subscriber.values()).hasSize(1)
             assertThat(subscriber.values()).first().satisfies {
@@ -122,6 +125,7 @@ internal class SecurityServiceTest(
                 assertThat(it.user.activationKey).isNull()
                 assertThat(it.user.login).isNull()
             }
+            assertThat(user.magicFolder.path).exists()
         }
 
         @Test
@@ -192,7 +196,6 @@ internal class SecurityServiceTest(
             every { securityUtil.newKey() } returns ACTIVATION_KEY
             every { securityUtil.getActivationUrl(instanceKey, path, ACTIVATION_KEY) } returns activationUrl
             every { userRepository.save(any<DbUser>()) } answers { firstArg() }
-            every { profileService.asSecurityUser(any()) } returns securityUser
 
             val subscriber = TestObserver<UserRegister>()
             Events.userPreRegister.subscribe(subscriber)

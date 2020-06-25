@@ -6,6 +6,7 @@ import ebi.ac.uk.api.security.ResetPasswordRequest
 import ebi.ac.uk.api.security.RetryActivationRequest
 import ebi.ac.uk.security.integration.model.api.MagicFolder
 import ebi.ac.uk.security.integration.model.api.SecurityUser
+import java.nio.file.Path
 import java.nio.file.Paths
 
 internal class SecurityTestEntities {
@@ -19,8 +20,8 @@ internal class SecurityTestEntities {
         const val path = "/activate_url_path"
         const val captcha = "captcha-key"
 
-        val magicFolderPath = Paths.get("/abc/user-folder")
-        val magicFolderRelativePath = Paths.get("user-folder")
+        val magicFolderPath: Path = Paths.get("/abc/user-folder")
+        val magicFolderRelativePath: Path = Paths.get("user-folder")
 
         const val adminId = 70L
 
@@ -61,7 +62,7 @@ internal class SecurityTestEntities {
                 passwordDigest = passwordDiggest)
         }
 
-        val securityUser: SecurityUser by lazy {
+        fun securityUser(path: Path): SecurityUser =
             SecurityUser(
                 id = userId,
                 email = email,
@@ -74,7 +75,6 @@ internal class SecurityTestEntities {
                 superuser = false,
                 notificationsEnabled = false
             )
-        }
 
         val adminUser: DbUser by lazy {
             DbUser(

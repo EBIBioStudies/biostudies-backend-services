@@ -79,7 +79,7 @@ class TsvSingleElementDeserializationTest {
     }
 
     @Test
-    fun `table containing a row with less attributes`() {
+    fun `table containing an empty attribute`() {
         val tsv = tsv {
             line("Links", "Attr1", "Attr2")
             line("AF069307", "Value 1", "Value 2")
@@ -96,6 +96,7 @@ class TsvSingleElementDeserializationTest {
                 }
 
                 link("AF069308") {
+                    attribute("Attr1", "")
                     attribute("Attr2", "Value 2")
                 }
 

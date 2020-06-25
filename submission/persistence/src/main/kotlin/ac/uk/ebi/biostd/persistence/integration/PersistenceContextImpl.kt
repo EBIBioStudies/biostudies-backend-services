@@ -12,7 +12,6 @@ import ac.uk.ebi.biostd.persistence.repositories.UserDataDataRepository
 import ac.uk.ebi.biostd.persistence.service.filesystem.FileSystemService
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.model.User
-import org.springframework.transaction.annotation.Isolation
 import org.springframework.transaction.annotation.Transactional
 
 @Suppress("TooManyFunctions")
@@ -41,7 +40,7 @@ open class PersistenceContextImpl(
         }
     }
 
-    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Transactional
     override fun saveSubmission(saveRequest: SaveRequest): ExtSubmission {
         val (submission, mode) = saveRequest
         return lockExecutor.executeLocking(submission.accNo) { saveSubmission(submission, mode) }

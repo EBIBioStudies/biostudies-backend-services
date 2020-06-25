@@ -31,6 +31,7 @@ logging:
 app:
   basepath: # Absolute path to the folder to be used as storage
   tempDirPath: # Absolute of the temp folder to store files
+  instanceBaseUrl: # Instance base url e.g. http://server.ebi.ac.uk:5541
   security:
     captchaKey: # Captcha validation token
     checkCaptcha: false

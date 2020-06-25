@@ -5,6 +5,7 @@ import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
 import ac.uk.ebi.biostd.itest.entities.SuperUser
+import ac.uk.ebi.biostd.persistence.model.DbFile
 import ac.uk.ebi.biostd.persistence.model.DbSubmission
 import ac.uk.ebi.biostd.persistence.model.DbSubmissionAttribute
 import ac.uk.ebi.biostd.persistence.model.DbTag
@@ -13,6 +14,8 @@ import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.SubmissionDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.TagDataRepository
 import ebi.ac.uk.dsl.attribute
+import ebi.ac.uk.dsl.file
+import ebi.ac.uk.dsl.section
 import ebi.ac.uk.dsl.submission
 import ebi.ac.uk.model.constants.SubFields.PUBLIC_ACCESS_TAG
 import ebi.ac.uk.model.extensions.releaseDate
@@ -35,20 +38,17 @@ import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 
-private const val accNo = "SimpleAcc1"
-private const val subRootPath = "test-RootPath"
-private const val subTitle = "Simple Submission"
-private const val attr = "custom-attribute"
-private const val attrVal = "custom-attribute-value"
-private const val releaseDateString = "2017-07-04"
-private val releaseDate = LocalDate.of(2017, 7, 4).atStartOfDay().atOffset(ZoneOffset.UTC)
-
-private const val newSubTitle = "Simple Submission"
-private const val newAttrVal = "custom-attribute-new-value"
-private val newReleaseDate = LocalDate.now().atStartOfDay().atOffset(ZoneOffset.UTC).plusDays(1)
+private const val ACC_NO = "SimpleAcc1"
+private const val ROOT_PATH = "test-RootPath"
+private const val SUBTITLE = "Simple Submission"
+private const val ATTR_NAME = "custom-attribute"
+private const val ATTR_VALUE = "custom-attribute-value"
+private const val RELEASE_DATE_STRING = "2017-07-04"
+private const val NEW_SUBTITLE = "Simple Submission"
+private const val NEW_ATTR_VALUE = "custom-attribute-new-value"
 
 @ExtendWith(TemporaryFolderExtension::class)
-internal class SubmissionApiTest(tempFolder: TemporaryFolder) : BaseIntegrationTest(tempFolder) {
+internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : BaseIntegrationTest(tempFolder) {
     @Nested
     @Import(PersistenceConfig::class)
     @ExtendWith(SpringExtension::class)
@@ -59,6 +59,9 @@ internal class SubmissionApiTest(tempFolder: TemporaryFolder) : BaseIntegrationT
         @Autowired val sequenceRepository: SequenceDataRepository,
         @Autowired val tagsRefRepository: TagDataRepository
     ) {
+        private val releaseDate = LocalDate.of(2017, 7, 4).atStartOfDay().atOffset(ZoneOffset.UTC)
+        private val newReleaseDate = LocalDate.now().atStartOfDay().atOffset(ZoneOffset.UTC).plusDays(1)
+
         @LocalServerPort
         private var serverPort: Int = 0
 
@@ -74,59 +77,79 @@ internal class SubmissionApiTest(tempFolder: TemporaryFolder) : BaseIntegrationT
 
         @Test
         fun `refresh object when becoming public and changed attributed`() {
-            val submission = submission(accNo) {
-                title = subTitle
-                releaseDate = releaseDateString
-                rootPath = subRootPath
-                attribute(attr, attrVal)
+            val refreshFile = tempFolder.createFile("refresh-file.txt")
+            val submission = submission(ACC_NO) {
+                title = SUBTITLE
+                releaseDate = RELEASE_DATE_STRING
+                rootPath = ROOT_PATH
+                attribute(ATTR_NAME, ATTR_VALUE)
+
+                section("Study") {
+                    file("refresh-file.txt") {
+                        attribute("type", "regular")
+                    }
+
+                    file("refresh-file.txt") {
+                        attribute("type", "duplicated")
+                    }
+                }
             }
 
-            webClient.submitSingle(submission, TSV)
-            val dbSubmission = getSubmissionDb(accNo)
+            webClient.submitSingle(submission, TSV, listOf(refreshFile))
+            val dbSubmission = getSubmissionDb()
             assertSubmission(
-                submission = getSubmissionDb(accNo),
-                title = subTitle,
+                submission = getSubmissionDb(),
+                title = SUBTITLE,
                 releaseTime = releaseDate,
-                rootPath = subRootPath,
                 accessTags = listOf(PUBLIC_ACCESS_TAG.value),
-                attributes = listOf(attr to attrVal))
+                attributes = listOf(ATTR_NAME to ATTR_VALUE))
 
             updateSubmission(dbSubmission)
-            webClient.refreshSubmission(accNo)
+            webClient.refreshSubmission(ACC_NO)
 
-            val stored = getSubmissionDb(accNo)
+            val stored = getSubmissionDb()
             assertSubmission(
                 submission = stored,
-                title = newSubTitle,
+                title = NEW_SUBTITLE,
                 releaseTime = newReleaseDate,
-                rootPath = subRootPath,
                 accessTags = emptyList(),
-                attributes = listOf(attr to newAttrVal))
+                attributes = listOf(ATTR_NAME to NEW_ATTR_VALUE))
         }
 
         private fun assertSubmission(
             submission: DbSubmission,
             title: String,
             releaseTime: OffsetDateTime,
-            rootPath: String,
             accessTags: List<String>,
             attributes: List<Pair<String, String>>
         ) {
             assertThat(submission.title).isEqualTo(title)
             assertThat(submission.releaseTime).isEqualTo(releaseTime)
-            assertThat(submission.rootPath).isEqualTo(rootPath)
+            assertThat(submission.rootPath).isEqualTo(ROOT_PATH)
             assertThat(submission.accessTags.map { it.name }).containsExactlyElementsOf(accessTags)
             assertThat(submission.attributes.map { it.name to it.value }).containsExactlyElementsOf(attributes)
+
+            assertThat(submission.rootSection.type).isEqualTo("Study")
+            assertThat(submission.rootSection.files).hasSize(2)
+
+            assertFile(submission.rootSection.files.first(), "regular")
+            assertFile(submission.rootSection.files.last(), "duplicated")
+        }
+
+        private fun assertFile(file: DbFile, type: String) {
+            assertThat(file.name).isEqualTo("refresh-file.txt")
+            assertThat(file.attributes).hasSize(1)
+            assertThat(file.attributes.first().name).isEqualTo("type")
+            assertThat(file.attributes.first().value).isEqualTo(type)
         }
 
         private fun updateSubmission(submission: DbSubmission) {
             submission.releaseTime = newReleaseDate
-            submission.title = newSubTitle
-            submission.attributes = sortedSetOf(DbSubmissionAttribute(attr, newAttrVal, 1))
+            submission.title = NEW_SUBTITLE
+            submission.attributes = sortedSetOf(DbSubmissionAttribute(ATTR_NAME, NEW_ATTR_VALUE, 1))
             submissionRepository.save(submission)
         }
 
-        private fun getSubmissionDb(accNo: String): DbSubmission =
-            submissionRepository.getByAccNoAndVersionGreaterThan(accNo, 0)!!
+        private fun getSubmissionDb(): DbSubmission = submissionRepository.getByAccNoAndVersionGreaterThan(ACC_NO, 0)!!
     }
 }

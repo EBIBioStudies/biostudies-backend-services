@@ -48,7 +48,7 @@ class SubmitResource(private val submitWebHandler: SubmitWebHandler) {
     @ResponseBody
     @ApiOperation("Make a submission in XML format")
     @ApiImplicitParams(value = [
-        ApiImplicitParam(name = TOKEN_HEADER, value = "User authentication token", required = true),
+        ApiImplicitParam(name = TOKEN_HEADER, value = "User auth token", required = true, paramType = "header"),
         ApiImplicitParam(name = ON_BEHALF_PARAM, value = "Submission owner", required = false),
         ApiImplicitParam(name = REGISTER_PARAM, value = "Register owner if does not exists", required = false),
         ApiImplicitParam(name = USER_NAME_PARAM, value = "Submission owner name. For register mode", required = false)
@@ -85,7 +85,7 @@ class SubmitResource(private val submitWebHandler: SubmitWebHandler) {
     @ResponseBody
     @ApiOperation("Make a submission in TSV format")
     @ApiImplicitParams(value = [
-        ApiImplicitParam(name = TOKEN_HEADER, value = "User authentication token", required = true),
+        ApiImplicitParam(name = TOKEN_HEADER, value = "User auth token", required = true, paramType = "header"),
         ApiImplicitParam(name = ON_BEHALF_PARAM, value = "Submission owner", required = false),
         ApiImplicitParam(name = REGISTER_PARAM, value = "Register owner if does not exists", required = false),
         ApiImplicitParam(name = USER_NAME_PARAM, value = "Submission owner name. For register mode", required = false)
@@ -122,7 +122,7 @@ class SubmitResource(private val submitWebHandler: SubmitWebHandler) {
     @ResponseBody
     @ApiOperation("Make a submission in JSON format")
     @ApiImplicitParams(value = [
-        ApiImplicitParam(name = TOKEN_HEADER, value = "User authentication token", required = true),
+        ApiImplicitParam(name = TOKEN_HEADER, value = "User auth token", required = true, paramType = "header"),
         ApiImplicitParam(name = ON_BEHALF_PARAM, value = "Submission owner", required = false),
         ApiImplicitParam(name = REGISTER_PARAM, value = "Register owner if does not exists", required = false),
         ApiImplicitParam(name = USER_NAME_PARAM, value = "Submission owner name. For register mode", required = false)
@@ -153,13 +153,9 @@ class SubmitResource(private val submitWebHandler: SubmitWebHandler) {
         return submitWebHandler.submit(request)
     }
 
-    @PostMapping("refresh/{accNo}")
+    @PostMapping("/refresh/{accNo}")
     @ApiOperation("Update submission based on system db stored information")
-    @ApiImplicitParam(
-        name = "X-Session-Token",
-        value = "User authentication token",
-        required = true,
-        paramType = "header")
+    @ApiImplicitParam(name = TOKEN_HEADER, value = "User auth token", required = true, paramType = "header")
     fun refreshSubmission(
         @BioUser user: SecurityUser,
 

@@ -5,13 +5,12 @@ import ebi.ac.uk.util.collections.findSecond
 
 class TsvChunkLine(
     val index: Int,
-    val rawLines: List<String>,
-    private val lines: List<String> = rawLines.filter(String::isNotBlank)
-) : List<String> by lines {
+    private val rawLines: List<String>
+) : List<String> by rawLines {
 
     val value: String
         get() {
-            return lines.findSecond().fold({ EMPTY }, { it })
+            return rawLines.findSecond().fold({ EMPTY }, { it })
         }
 
     val rawValues: List<String>
@@ -21,6 +20,6 @@ class TsvChunkLine(
 
     val name: String
         get() {
-            return lines.first()
+            return rawLines.first()
         }
 }
