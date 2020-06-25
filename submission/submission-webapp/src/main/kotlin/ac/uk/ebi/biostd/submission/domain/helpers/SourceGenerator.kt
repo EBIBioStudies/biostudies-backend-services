@@ -15,10 +15,9 @@ class SourceGenerator {
     fun submissionSources(requestSources: RequestSources): FilesSource {
         val (user, files, rootPath, subFolder) = requestSources
         val sources = ImmutableList.builder<FilesSource>().add(ListFilesSource(files))
-
         user?.let {
             sources.add(createPathSource(user.magicFolder.path, rootPath.orEmpty()))
-                .addAll(groupSources(user.groupsFolders))
+            sources.addAll(groupSources(user.groupsFolders))
         }
 
         return when (subFolder) {

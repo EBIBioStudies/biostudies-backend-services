@@ -76,15 +76,15 @@ class FilesService(
         val submissionFolder = getSubmissionFolder(submissionPath)
         val temporally = createTempFolder(submissionFolder, submission.accNo)
         val filesPath = submissionFolder.resolve(FILES_PATH)
-        val allSubmissionFiles = submission.allFiles + submission.allReferencedFiles
+        val allSubmissionFiles = getMovingFiles(submission)
 
-        allSubmissionFiles
-            .distinctBy { it.file }
-            .forEach { process(it, temporally) }
-
+        allSubmissionFiles.forEach { process(it, temporally) }
         deleteFile(filesPath)
         moveFile(temporally, filesPath)
     }
+
+    private fun getMovingFiles(submission: ExtSubmission): List<ExtFile> =
+        (submission.allFiles + submission.allReferencedFiles).distinctBy { it.file }
 
     private fun copy(extFile: ExtFile, file: File, permissions: Set<PosixFilePermission>) =
         copyOrReplaceFile(extFile.file, file.resolve(extFile.fileName), permissions)
