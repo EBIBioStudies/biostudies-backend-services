@@ -1,6 +1,7 @@
 package uk.ac.ebi.stats.service
 
 import ac.uk.ebi.biostd.persistence.exception.SubmissionNotFoundException
+import ac.uk.ebi.biostd.persistence.exception.SubmissionsNotFoundException
 import ac.uk.ebi.biostd.persistence.filter.PaginationFilter
 import ac.uk.ebi.biostd.persistence.integration.SubmissionQueryService
 import io.mockk.clearAllMocks
@@ -75,12 +76,12 @@ class SubmissionStatsServiceTest(
         val stat = SubmissionStat("S-TEST123", 10, VIEWS)
 
         every { statsRepository.save(capture(dbStat)) } returns testStat
-        every { statsRepository.existsByAccNoAndType("S-TEST123", VIEWS) } returns false
+        every { statsRepository.findByAccNoAndType("S-TEST123", VIEWS) } returns null
 
         val newStat = testInstance.save(stat)
         assertTestStat(newStat, value = 10)
         verify(exactly = 1) { statsRepository.save(dbStat.captured) }
-        verify(exactly = 1) { statsRepository.existsByAccNoAndType("S-TEST123", VIEWS) }
+        verify(exactly = 1) { statsRepository.findByAccNoAndType("S-TEST123", VIEWS) }
     }
 
     @Test
@@ -88,66 +89,89 @@ class SubmissionStatsServiceTest(
         val dbStat = slot<SubmissionStatDb>()
         val stat = SubmissionStat("S-TEST123", 30, VIEWS)
 
-        every { statsRepository.existsByAccNoAndType("S-TEST123", VIEWS) } returns true
+        every { statsRepository.findByAccNoAndType("S-TEST123", VIEWS) } returns testStat
         every { statsRepository.save(capture(dbStat)) } returns SubmissionStatDb("S-TEST123", 30, VIEWS)
 
         val updatedStat = testInstance.save(stat)
         assertTestStat(updatedStat, value = 30)
         verify(exactly = 1) { statsRepository.save(dbStat.captured) }
-        verify(exactly = 1) { statsRepository.getByAccNoAndType("S-TEST123", VIEWS) }
-        verify(exactly = 1) { statsRepository.existsByAccNoAndType("S-TEST123", VIEWS) }
+        verify(exactly = 1) { statsRepository.findByAccNoAndType("S-TEST123", VIEWS) }
     }
 
     @Test
     fun `save batch`() {
-        val dbStat = slot<SubmissionStatDb>()
+        val dbStat = slot<List<SubmissionStatDb>>()
         val stat = SubmissionStat("S-TEST123", 10, VIEWS)
 
-        every { statsRepository.save(capture(dbStat)) } returns testStat
-        every { statsRepository.existsByAccNoAndType("S-TEST123", VIEWS) } returns false
+        every { statsRepository.saveAll(capture(dbStat)) } returns listOf(testStat)
+        every { statsRepository.findByAccNoAndType("S-TEST123", VIEWS) } returns null
 
         val newStats = testInstance.saveAll(listOf(stat))
         assertThat(newStats).hasSize(1)
         assertTestStat(newStats.first(), value = 10)
-        verify(exactly = 1) { statsRepository.save(dbStat.captured) }
-        verify(exactly = 1) { statsRepository.existsByAccNoAndType("S-TEST123", VIEWS) }
-    }
-
-    @Test
-    fun `save not existing`() {
-        every { queryService.existByAccNo("S-TEST123") } returns false
-        assertThrows<SubmissionNotFoundException> { testInstance.save(SubmissionStat("S-TEST123", 10, VIEWS)) }
+        verify(exactly = 1) { statsRepository.saveAll(dbStat.captured) }
+        verify(exactly = 1) { statsRepository.findByAccNoAndType("S-TEST123", VIEWS) }
     }
 
     @Test
     fun `increment existing`() {
-        val statSlot = slot<SubmissionStatDb>()
+        val statSlot = slot<List<SubmissionStatDb>>()
         val stat = SubmissionStat("S-TEST123", 5, VIEWS)
         val statDb = SubmissionStatDb("S-TEST123", 10, VIEWS)
 
         every { statsRepository.existsByAccNoAndType("S-TEST123", VIEWS) } returns true
         every { statsRepository.findByAccNoAndType("S-TEST123", VIEWS) } returns statDb
-        every { statsRepository.save(capture(statSlot)) } returns SubmissionStatDb("S-TEST123", 15, VIEWS)
+        every { statsRepository.saveAll(capture(statSlot)) } returns listOf(SubmissionStatDb("S-TEST123", 15, VIEWS))
 
         val incremented = testInstance.incrementAll(listOf(stat))
         assertThat(incremented).hasSize(1)
         assertTestStat(incremented.first(), 15)
-        assertThat(statSlot.captured.value).isEqualTo(15)
+        assertThat(statSlot.captured.first().value).isEqualTo(15)
     }
 
     @Test
     fun `increment non existing`() {
-        val statSlot = slot<SubmissionStatDb>()
+        val statSlot = slot<List<SubmissionStatDb>>()
         val stat = SubmissionStat("S-TEST123", 14, VIEWS)
 
         every { statsRepository.findByAccNoAndType("S-TEST123", VIEWS) } returns null
         every { statsRepository.existsByAccNoAndType("S-TEST123", VIEWS) } returns false
-        every { statsRepository.save(capture(statSlot)) } returns SubmissionStatDb("S-TEST123", 14, VIEWS)
+        every { statsRepository.saveAll(capture(statSlot)) } returns listOf(SubmissionStatDb("S-TEST123", 14, VIEWS))
 
         val incremented = testInstance.incrementAll(listOf(stat))
         assertThat(incremented).hasSize(1)
         assertTestStat(incremented.first(), 14)
-        assertThat(statSlot.captured.value).isEqualTo(14)
+        assertThat(statSlot.captured.first().value).isEqualTo(14)
+    }
+
+    @Test
+    fun `save stat for not existing submission`() {
+        every { queryService.existByAccNo("S-TEST123") } returns false
+        assertThrows<SubmissionNotFoundException> { testInstance.save(SubmissionStat("S-TEST123", 10, VIEWS)) }
+    }
+
+    @Test
+    fun `save batch for non existing submission`() {
+        every { queryService.existByAccNo("S-TEST123") } returns true
+        every { queryService.existByAccNo("S-TEST124") } returns false
+
+        val stats = listOf(SubmissionStat("S-TEST123", 10, VIEWS), SubmissionStat("S-TEST124", 20, VIEWS))
+        val exception = assertThrows<SubmissionsNotFoundException> { testInstance.saveAll(stats) }
+        assertThat(exception.message).isEqualTo("The following submissions were not found: S-TEST124")
+    }
+
+    @Test
+    fun `increment for non existing submission`() {
+        every { queryService.existByAccNo("S-TEST123") } returns true
+        every { queryService.existByAccNo("S-TEST124") } returns false
+        every { queryService.existByAccNo("S-TEST125") } returns false
+
+        val stats = listOf(
+            SubmissionStat("S-TEST123", 10, VIEWS),
+            SubmissionStat("S-TEST124", 20, VIEWS),
+            SubmissionStat("S-TEST125", 30, VIEWS))
+        val exception = assertThrows<SubmissionsNotFoundException> { testInstance.incrementAll(stats) }
+        assertThat(exception.message).isEqualTo("The following submissions were not found: S-TEST124, S-TEST125")
     }
 
     private fun assertTestStat(stat: SubmissionStat, value: Long) {

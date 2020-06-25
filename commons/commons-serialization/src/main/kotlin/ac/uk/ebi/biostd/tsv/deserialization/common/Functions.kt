@@ -8,7 +8,6 @@ import ac.uk.ebi.biostd.validation.MISPLACED_ATTR_NAME
 import ac.uk.ebi.biostd.validation.MISPLACED_ATTR_VAL
 import ac.uk.ebi.biostd.validation.REQUIRED_ATTR_VALUE
 import ac.uk.ebi.biostd.validation.REQUIRED_TABLE_ROWS
-import ebi.ac.uk.base.applyIfNotBlank
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.AttributeDetail
 
@@ -43,7 +42,7 @@ internal fun <T> asTable(chunk: TsvChunk, initializer: (String, MutableList<Attr
         validate(rowAttrsSize <= headerAttrsSize) { throw InvalidElementException(INVALID_TABLE_ROW) }
 
         it.rawValues.forEachIndexed { index, attr ->
-            attr.applyIfNotBlank { parseTableAttribute(chunk.header[index + 1], attr, attrs) }
+            parseTableAttribute(chunk.header[index + 1], attr, attrs)
         }
 
         rows.add(initializer(it.name(), attrs))
