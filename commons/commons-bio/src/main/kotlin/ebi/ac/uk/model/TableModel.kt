@@ -87,7 +87,7 @@ class FilesTable(files: List<File> = emptyList()) : Table<File>(files) {
 
 class SectionsTable(sections: List<Section> = emptyList()) : Table<Section>(sections) {
     override fun toTableRow(t: Section) = object : Row<Section>(t) {
-        override val id = t.accNo!!
+        override val id = t.accNo ?: ""
         override val attributes = t.attributes
     }
 
