@@ -7,3 +7,7 @@ class ProjectAccNoTemplateAlreadyExistsException(
 ) : RuntimeException("There is a project already using the accNo template $pattern")
 
 class ProjectInvalidAccNoPatternException(message: String) : RuntimeException(message)
+
+class ProjectInvalidAccessTagException(
+    project: String
+) : RuntimeException("The project $project doesn't have a valid access tag")
