@@ -11,6 +11,6 @@ class LogSubmissionReceiver {
 
     @RabbitListener(queues = [LOG_QUEUE])
     fun receiveMessage(submission: SubmissionSubmitted) {
-        logger.info { "received message $submission" }
+        logger.info { "received message for submission ${submission.accNo}" }
     }
 }

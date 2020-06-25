@@ -9,7 +9,6 @@ import org.springframework.amqp.rabbit.annotation.EnableRabbit
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter
 import org.springframework.amqp.support.converter.MessageConverter
 import org.springframework.boot.autoconfigure.SpringBootApplication
-import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.boot.runApplication
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -18,7 +17,7 @@ const val BIOSTUDIES_EXCHANGE = "biostudies-exchange"
 const val ROUTING_KEY = "bio.submission.published"
 
 const val LOG_QUEUE = "submission-submitted-log-queue"
-const val PARTIALS_QUEUE = "submission-submitted-updates-queue"
+const val PARTIALS_QUEUE = "submission-submitted-partials-queue"
 
 @Suppress("SpreadOperator")
 fun main(args: Array<String>) {
@@ -35,7 +34,7 @@ class HandlersApplication {
     }
 
     @Bean
-    fun ftpQueue(): Queue {
+    fun partialUpdatesQueue(): Queue {
         return Queue(PARTIALS_QUEUE, false)
     }
 
@@ -50,8 +49,8 @@ class HandlersApplication {
     }
 
     @Bean
-    fun ftpQueueBinding(exchange: TopicExchange): Binding {
-        return BindingBuilder.bind(ftpQueue()).to(exchange).with(ROUTING_KEY)
+    fun partialUpdatesQueueBinding(exchange: TopicExchange): Binding {
+        return BindingBuilder.bind(partialUpdatesQueue()).to(exchange).with(ROUTING_KEY)
     }
 
     @Bean
@@ -62,10 +61,6 @@ class HandlersApplication {
 
 @Configuration
 class Listeners {
-
-    @Bean
-    @ConfigurationProperties("app")
-    fun appProperties() = AppProperties()
 
     @Bean
     fun logListener() = LogSubmissionReceiver()

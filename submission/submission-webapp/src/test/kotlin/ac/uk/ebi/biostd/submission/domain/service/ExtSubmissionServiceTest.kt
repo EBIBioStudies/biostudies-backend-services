@@ -34,7 +34,7 @@ class ExtSubmissionServiceTest(
 
     @Test
     fun `get ext submission`() {
-        val submission = testInstance.getExtendedSubmission("user@mail.com", "S-TEST123")
+        val submission = testInstance.getExtendedSubmission("S-TEST123")
         assertThat(submission).isEqualTo(extSubmission)
     }
 
@@ -47,15 +47,6 @@ class ExtSubmissionServiceTest(
         assertThat(submitted).isEqualTo(extSubmission)
         assertThat(saveRequest.captured.fileMode).isEqualTo(COPY)
         assertThat(saveRequest.captured.submission).isEqualTo(extSubmission)
-    }
-
-    @Test
-    fun `get ext submission regular user`() {
-        val exception = assertThrows<SecurityException> {
-            testInstance.getExtendedSubmission("regular@mail.com", "S-TEST123")
-        }
-
-        assertThat(exception.message).isEqualTo("The user 'regular@mail.com' is not allowed to perform this action")
     }
 
     @Test

@@ -39,7 +39,7 @@ class ExtSubmissionResourceTest(
         val submissionJson = jsonObj { "accNo" to "S-TEST123" }.toString()
         bioUserResolver.securityUser = TestSuperUser.asSecurityUser()
         every { extSerializationService.serialize(extSubmission) } returns submissionJson
-        every { extSubmissionService.getExtendedSubmission("admin_user@ebi.ac.uk", "S-TEST123") } returns extSubmission
+        every { extSubmissionService.getExtendedSubmission("S-TEST123") } returns extSubmission
 
         mvc.get("/submissions/extended/S-TEST123")
             .andExpect {
@@ -48,7 +48,7 @@ class ExtSubmissionResourceTest(
             }
 
         verify { extSerializationService.serialize(extSubmission) }
-        verify { extSubmissionService.getExtendedSubmission("admin_user@ebi.ac.uk", "S-TEST123") }
+        verify { extSubmissionService.getExtendedSubmission("S-TEST123") }
     }
 
     @Test

@@ -12,8 +12,7 @@ class ExtSubmissionService(
     private val submissionRepository: SubmissionRepository,
     private val userPrivilegesService: IUserPrivilegesService
 ) {
-    fun getExtendedSubmission(user: String, accNo: String): ExtSubmission {
-        validateUser(user)
+    fun getExtendedSubmission(accNo: String): ExtSubmission {
         return submissionRepository.getExtByAccNo(accNo)
     }
 

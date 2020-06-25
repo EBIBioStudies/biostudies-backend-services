@@ -24,11 +24,9 @@ class ExtSubmissionResource(private val extSubmissionService: ExtSubmissionServi
     @ApiOperation("Get the extended model for a submission")
     @ApiImplicitParam(name = "X-SESSION-TOKEN", value = "User authentication token", required = true, type = "header")
     fun getExtended(
-        @BioUser user: SecurityUser,
-
         @ApiParam(name = "accNo", value = "The submission accNo")
         @PathVariable accNo: String
-    ): ExtSubmission = extSubmissionService.getExtendedSubmission(user.email, accNo)
+    ): ExtSubmission = extSubmissionService.getExtendedSubmission(accNo)
 
     @PostMapping
     @PreAuthorize("isAuthenticated()")

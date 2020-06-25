@@ -37,3 +37,4 @@ build-test:
       - scheduler/scheduler/build/libs/scheduler-1.0.0.jar
       - scheduler/pmc-processor-task/build/libs/pmc-processor-task-1.0.0.jar
       - submission/submission-webapp/build/libs/submission-webapp-1.0.0.jar
+      - submission/submission-handlers/build/libs/submission-handlers-1.0.0.jar
