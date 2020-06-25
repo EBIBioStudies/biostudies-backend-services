@@ -10,7 +10,6 @@ import ac.uk.ebi.biostd.submission.domain.helpers.SourceGenerator
 import ac.uk.ebi.biostd.submission.domain.service.ExtSubmissionService
 import ac.uk.ebi.biostd.submission.domain.service.ProjectService
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionService
-import ac.uk.ebi.biostd.submission.submitter.SubmissionPersistenceService
 import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
 import ac.uk.ebi.biostd.submission.web.handlers.SubmissionsWebHandler
 import ac.uk.ebi.biostd.submission.web.handlers.SubmitWebHandler
@@ -71,8 +70,4 @@ class SubmissionConfig(
     @Bean
     fun submissionHandler(submissionService: SubmissionService): SubmissionsWebHandler =
         SubmissionsWebHandler(submissionService)
-
-    @Bean
-    fun persistenceService(submissionRepository: SubmissionRepository, persistenceContext: PersistenceContext):
-        SubmissionPersistenceService = SubmissionPersistenceService(submissionRepository, persistenceContext)
 }

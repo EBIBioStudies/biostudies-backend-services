@@ -33,7 +33,6 @@ class FilesService(
     private val folderResolver: SubmissionFolderResolver,
     private val serializationService: SerializationService
 ) {
-
     fun persistSubmissionFiles(submission: ExtSubmission, mode: FileMode) {
         val permissions = permissions(submission.released)
         val submissionPath = folderResolver.getSubmissionFolder(submission.relPath)
@@ -76,14 +75,16 @@ class FilesService(
     private fun processFiles(submission: ExtSubmission, submissionPath: Path, process: (ExtFile, File) -> Unit) {
         val submissionFolder = getSubmissionFolder(submissionPath)
         val temporally = createTempFolder(submissionFolder, submission.accNo)
-
-        submission.allFiles.forEach { process(it, temporally) }
-        submission.allReferencedFiles.forEach { process(it, temporally) }
-
         val filesPath = submissionFolder.resolve(FILES_PATH)
+        val allSubmissionFiles = getMovingFiles(submission)
+
+        allSubmissionFiles.forEach { process(it, temporally) }
         deleteFile(filesPath)
         moveFile(temporally, filesPath)
     }
+
+    private fun getMovingFiles(submission: ExtSubmission): List<ExtFile> =
+        (submission.allFiles + submission.allReferencedFiles).distinctBy { it.file }
 
     private fun copy(extFile: ExtFile, file: File, permissions: Set<PosixFilePermission>) =
         copyOrReplaceFile(extFile.file, file.resolve(extFile.fileName), permissions)
