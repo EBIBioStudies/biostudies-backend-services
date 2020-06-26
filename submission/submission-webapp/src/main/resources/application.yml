@@ -4,6 +4,7 @@ spring:
       client:
         url: http://biostudy-prod.ebi.ac.uk:8590
         enabled: false
+
   datasource:
     url: # Database connection URL
     username:
@@ -16,6 +17,12 @@ spring:
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
       use-new-id-generator-mappings: false
+
+  rabbitmq:
+    host: # RabbitMQ host
+    username: # RabbitMQ user
+    password: # RabbitMQ password
+    port: # RabbitMQ port
 
   servlet:
     multipart:
