@@ -29,6 +29,7 @@ import java.nio.file.attribute.PosixFilePermissions
 private val READ_ONLY_GROUP: Set<PosixFilePermission> = PosixFilePermissions.fromString("rwxr-x---")
 private val ALL_READ: Set<PosixFilePermission> = PosixFilePermissions.fromString("rwxr-xr-x")
 
+@Suppress("TooManyFunctions")
 class FilesService(
     private val folderResolver: SubmissionFolderResolver,
     private val serializationService: SerializationService
@@ -36,28 +37,35 @@ class FilesService(
     fun persistSubmissionFiles(submission: ExtSubmission, mode: FileMode) {
         val permissions = permissions(submission.released)
         val submissionPath = folderResolver.getSubmissionFolder(submission.relPath)
-        generateFiles(submission, submissionPath, permissions)
 
+        generatePageTab(submission, submissionPath, permissions)
+        processSubmissionAttachedFiles(mode, submission, submissionPath, permissions)
+    }
+
+    private fun processSubmissionAttachedFiles(
+        mode: FileMode,
+        submission: ExtSubmission,
+        path: Path,
+        filePermissions: Set<PosixFilePermission>
+    ) {
         when (mode) {
-            MOVE -> processFiles(submission, submissionPath) { file, path -> move(file, path, permissions) }
-            COPY -> processFiles(submission, submissionPath) { extFile, file -> copy(extFile, file, permissions) }
+            MOVE -> processFiles(submission, path, filePermissions, this::move)
+            COPY -> processFiles(submission, path, filePermissions, this::copy)
         }
     }
 
     private fun permissions(released: Boolean): Set<PosixFilePermission> = if (released) ALL_READ else READ_ONLY_GROUP
 
-    private fun generateFiles(
+    private fun generatePageTab(
         submission: ExtSubmission,
         submissionPath: Path,
         permissions: Set<PosixFilePermission>
     ) {
-        val simpleSubmission = submission.toSimpleSubmission()
-
-        generateFiles(simpleSubmission, submissionPath, submission.accNo, permissions)
-        submission.allFileList.forEach { generateFiles(it.toFilesTable(), submissionPath, it.fileName, permissions) }
+        generatePageTab(submission.toSimpleSubmission(), submissionPath, submission.accNo, permissions)
+        submission.allFileList.forEach { generatePageTab(it.toFilesTable(), submissionPath, it.fileName, permissions) }
     }
 
-    private fun <T> generateFiles(
+    private fun <T> generatePageTab(
         element: T,
         submissionPath: Path,
         fileName: String,
@@ -72,15 +80,21 @@ class FilesService(
         FileUtils.writeContent(submissionPath.resolve("$fileName.pagetab.tsv").toFile(), tsv, permissions)
     }
 
-    private fun processFiles(submission: ExtSubmission, submissionPath: Path, process: (ExtFile, File) -> Unit) {
+    private fun processFiles(
+        submission: ExtSubmission,
+        submissionPath: Path,
+        permissions: Set<PosixFilePermission>,
+        processFile: (ExtFile, File, Set<PosixFilePermission>) -> Unit
+    ) {
         val submissionFolder = getSubmissionFolder(submissionPath)
         val temporally = createTempFolder(submissionFolder, submission.accNo)
         val filesPath = submissionFolder.resolve(FILES_PATH)
         val allSubmissionFiles = getMovingFiles(submission)
 
-        allSubmissionFiles.forEach { process(it, temporally) }
+        allSubmissionFiles.forEach { processFile(it, temporally, permissions) }
+
         deleteFile(filesPath)
-        moveFile(temporally, filesPath)
+        moveFile(temporally, filesPath, permissions)
     }
 
     private fun getMovingFiles(submission: ExtSubmission): List<ExtFile> =
