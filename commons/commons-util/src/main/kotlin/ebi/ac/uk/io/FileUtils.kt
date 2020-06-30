@@ -28,6 +28,8 @@ object FileUtils {
             true -> FileUtilsHelper.copyFolder(source.toPath(), target.toPath(), asFileAttribute(permissions))
             false -> FileUtilsHelper.copyFile(source.toPath(), target.toPath(), asFileAttribute(permissions))
         }
+
+        Files.setPosixFilePermissions(target.toPath(), permissions)
     }
 
     fun getOrCreateFolder(
@@ -74,7 +76,9 @@ object FileUtils {
         permissions: Set<PosixFilePermission> = ONLY_USER
     ) {
         deleteFile(target)
+
         Files.move(source.toPath(), createParentDirectories(target.toPath(), asFileAttribute(permissions)))
+        Files.setPosixFilePermissions(target.toPath(), permissions)
     }
 
     fun createHardLink(
@@ -93,7 +97,9 @@ object FileUtils {
         content: String,
         permissions: Set<PosixFilePermission> = ONLY_USER
     ) {
+        val filePath = source.toPath()
         Files.write(createParentDirectories(source.toPath(), asFileAttribute(permissions)), content.toByteArray())
+        Files.setPosixFilePermissions(filePath, permissions)
     }
 
     fun isDirectory(file: File): Boolean = Files.isDirectory(file.toPath())
