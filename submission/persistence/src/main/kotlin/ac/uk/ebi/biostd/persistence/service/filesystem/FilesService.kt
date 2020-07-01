@@ -58,16 +58,18 @@ class FilesService(
 
     private fun generatePageTab(
         submission: ExtSubmission,
-        submissionPath: File,
+        submissionFolder: File,
         permissions: Set<PosixFilePermission>
     ) {
-        generatePageTab(submission.toSimpleSubmission(), submissionPath, submission.accNo, permissions)
-        submission.allFileList.forEach { generatePageTab(it.toFilesTable(), submissionPath, it.fileName, permissions) }
+        generatePageTab(submission.toSimpleSubmission(), submissionFolder, submission.accNo, permissions)
+        submission.allFileList.forEach {
+            generatePageTab(it.toFilesTable(), submissionFolder, it.fileName, permissions)
+        }
     }
 
     private fun <T> generatePageTab(
         element: T,
-        submissionPath: File,
+        submissionFolder: File,
         fileName: String,
         permissions: Set<PosixFilePermission>
     ) {
@@ -75,9 +77,9 @@ class FilesService(
         val xml = serializationService.serializeElement(element, SubFormat.XML)
         val tsv = serializationService.serializeElement(element, SubFormat.TSV)
 
-        FileUtils.writeContent(submissionPath.resolve("$fileName.json"), json, permissions)
-        FileUtils.writeContent(submissionPath.resolve("$fileName.xml"), xml, permissions)
-        FileUtils.writeContent(submissionPath.resolve("$fileName.pagetab.tsv"), tsv, permissions)
+        FileUtils.writeContent(submissionFolder.resolve("$fileName.json"), json, permissions)
+        FileUtils.writeContent(submissionFolder.resolve("$fileName.xml"), xml, permissions)
+        FileUtils.writeContent(submissionFolder.resolve("$fileName.pagetab.tsv"), tsv, permissions)
     }
 
     private fun processFiles(
