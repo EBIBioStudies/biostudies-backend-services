@@ -5,15 +5,15 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.SimpleFileVisitor
 import java.nio.file.attribute.BasicFileAttributes
-import java.nio.file.attribute.FileAttribute
+import java.nio.file.attribute.PosixFilePermission
 
 internal class HardLinkFileVisitor(
     private var sourcePath: Path,
     private val targetPath: Path,
-    private val attributes: FileAttribute<*>
+    private val permissions: Set<PosixFilePermission>
 ) : SimpleFileVisitor<Path>() {
     override fun preVisitDirectory(dir: Path, attrs: BasicFileAttributes): FileVisitResult {
-        FileUtilsHelper.createDirectories(targetPath.resolve(sourcePath.relativize(dir)), attributes)
+        FileUtilsHelper.createDirectories(targetPath.resolve(sourcePath.relativize(dir)), permissions)
         return FileVisitResult.CONTINUE
     }
 

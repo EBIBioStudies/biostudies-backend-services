@@ -8,7 +8,9 @@ import ac.uk.ebi.biostd.persistence.integration.FileMode
 import ac.uk.ebi.biostd.persistence.test.extSubmissionWithFileList
 import ebi.ac.uk.extended.mapping.to.toSimpleSubmission
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.io.ALL_CAN_READ
 import ebi.ac.uk.io.FileUtils
+import ebi.ac.uk.io.READ_ONLY_GROUP
 import ebi.ac.uk.io.ext.createNewFile
 import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.paths.SubmissionFolderResolver

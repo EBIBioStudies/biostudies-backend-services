@@ -4,6 +4,8 @@ import ac.uk.ebi.biostd.persistence.model.DbUser
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ebi.ac.uk.api.security.ChangePasswordRequest
 import ebi.ac.uk.api.security.LoginRequest
+import ebi.ac.uk.io.ALL_GROUP
+import ebi.ac.uk.io.GROUP_EXECUTE
 import ebi.ac.uk.security.events.Events
 import ebi.ac.uk.security.integration.SecurityProperties
 import ebi.ac.uk.security.integration.exception.LoginException
@@ -39,6 +41,9 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.attribute.PosixFilePermission
 import java.util.Optional
 
 private const val ACTIVATION_KEY: String = "code"
@@ -125,7 +130,15 @@ internal class SecurityServiceTest(
                 assertThat(it.user.activationKey).isNull()
                 assertThat(it.user.login).isNull()
             }
-            assertThat(user.magicFolder.path).exists()
+
+            val userFolder = user.magicFolder.path
+            assertFile(userFolder.parent, GROUP_EXECUTE)
+            assertFile(userFolder, ALL_GROUP)
+        }
+
+        private fun assertFile(path: Path, expectedPermission: Set<PosixFilePermission>) {
+            assertThat(path).exists()
+            assertThat(Files.getPosixFilePermissions(path)).containsExactlyInAnyOrderElementsOf(expectedPermission)
         }
 
         @Test
