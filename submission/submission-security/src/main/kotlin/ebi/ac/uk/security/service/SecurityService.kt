@@ -28,9 +28,6 @@ import ebi.ac.uk.security.integration.model.events.PasswordReset
 import ebi.ac.uk.security.integration.model.events.UserActivated
 import ebi.ac.uk.security.integration.model.events.UserRegister
 import ebi.ac.uk.security.util.SecurityUtil
-import java.nio.file.Files
-import java.nio.file.attribute.FileAttribute
-import java.nio.file.attribute.PosixFilePermission
 import java.nio.file.attribute.PosixFilePermissions
 
 internal val GROUP_EXECUTE = PosixFilePermissions.fromString("rwx--x---")
@@ -162,9 +159,7 @@ internal class SecurityService(
 
         val securityUser = profileService.asSecurityUser(dbUser)
         FileUtils.getOrCreateFolder(securityUser.magicFolder.path.parent, GROUP_EXECUTE)
-        // FileUtils.getOrCreateFolder(securityUser.magicFolder.path, ALL_GROUP)
-        val attribtes: FileAttribute<Set<PosixFilePermission>> = PosixFilePermissions.asFileAttribute(ALL_GROUP)
-        Files.createDirectory(securityUser.magicFolder.path, attribtes)
+        FileUtils.getOrCreateFolder(securityUser.magicFolder.path, ALL_GROUP)
         return securityUser
     }
 
