@@ -4,19 +4,24 @@ import ebi.ac.uk.notifications.api.RtClient
 import ebi.ac.uk.notifications.integration.components.SubscriptionService
 import ebi.ac.uk.notifications.persistence.repositories.SubmissionRtRepository
 import ebi.ac.uk.notifications.persistence.service.NotificationPersistenceService
+import ebi.ac.uk.notifications.service.RtNotificationService
 import ebi.ac.uk.notifications.service.RtSubscriptionService
 import ebi.ac.uk.notifications.service.SimpleEmailService
 import ebi.ac.uk.notifications.service.SimpleSubscriptionService
+import org.springframework.core.io.ResourceLoader
 import org.springframework.mail.javamail.JavaMailSenderImpl
 import org.springframework.web.client.RestTemplate
 
 class NotificationConfig(
+    private val resourceLoader: ResourceLoader,
     private val notificationProperties: NotificationProperties,
     private var submissionRtRepository: SubmissionRtRepository
 ) {
     fun subscriptionService(): SubscriptionService = subscriptionService
 
     fun rtSubscriptionService(): SubscriptionService = rtSubscriptionService
+
+    fun rtNotificationService(): RtNotificationService = rtNotificationService
 
     private val restTemplate by lazy { RestTemplate() }
 
@@ -34,5 +39,12 @@ class NotificationConfig(
 
     private val rtSubscriptionService: SubscriptionService by lazy {
         RtSubscriptionService(RtClient(notificationProperties.rt, restTemplate), notificationPersistenceService)
+    }
+
+    private val rtNotificationService: RtNotificationService by lazy {
+        RtNotificationService(
+            RtClient(notificationProperties.rt, restTemplate),
+            resourceLoader,
+            notificationPersistenceService)
     }
 }

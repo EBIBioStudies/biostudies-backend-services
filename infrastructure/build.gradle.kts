@@ -29,16 +29,16 @@ tasks.register("setUpDatabase") {
     finalizedBy("executeScript")
 }
 
-tasks.register<Exec>("executeScript") {
-    workingDir = File(project.ext["workingDir"].toString())
-
-    val args = project.ext["args"].toString()
-    val linuxScript = project.ext["linuxScript"].toString()
-    val windowsScript = project.ext["windowsScript"].toString()
-    val os = System.getProperty("os.name").toLowerCase(ROOT)
-
-    commandLine = when {
-        os.contains("windows") -> mutableListOf("cmd", "/c", windowsScript, args)
-        else -> mutableListOf(linuxScript, args)
-    }
-}
+//tasks.register<Exec>("executeScript") {
+//    workingDir = File(project.ext["workingDir"].toString())
+//
+//    val args = project.ext["args"].toString()
+//    val linuxScript = project.ext["linuxScript"].toString()
+//    val windowsScript = project.ext["windowsScript"].toString()
+//    val os = System.getProperty("os.name").toLowerCase(ROOT)
+//
+//    commandLine = when {
+//        os.contains("windows") -> mutableListOf("cmd", "/c", windowsScript, args)
+//        else -> mutableListOf(linuxScript, args)
+//    }
+//}

@@ -23,7 +23,8 @@ internal class NotificationConfig(
     private val submissionRtRepository: SubmissionRtRepository
 ) {
     @Bean
-    fun emailConfig(): NotificationConfig = NotificationConfig(properties.notifications, submissionRtRepository)
+    fun emailConfig(resourceLoader: ResourceLoader): NotificationConfig =
+        NotificationConfig(resourceLoader, properties.notifications, submissionRtRepository)
 
     @Bean
     fun subscriptionService(

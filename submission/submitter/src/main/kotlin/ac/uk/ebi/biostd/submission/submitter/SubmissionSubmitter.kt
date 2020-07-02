@@ -51,7 +51,6 @@ open class SubmissionSubmitter(
 ) {
     @Transactional(isolation = Isolation.READ_UNCOMMITTED)
     open fun submit(request: SubmissionRequest): ExtSubmission {
-        val submitter = request.submitter.asUser()
         val submission = process(
             request.submission,
             request.submitter.asUser(),
@@ -59,9 +58,8 @@ open class SubmissionSubmitter(
             request.sources,
             request.method
         )
-        val submitted = context.saveSubmission(SaveRequest(submission, request.mode))
-        submitter.notificationsEnabled.ifTrue { submitEvent.onNext(SuccessfulSubmission(submitter, submission)) }
-        return submitted
+
+        return context.saveSubmission(SaveRequest(submission, request.mode))
     }
 
     @Suppress("TooGenericExceptionCaught")

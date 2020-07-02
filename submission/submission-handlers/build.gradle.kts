@@ -1,7 +1,9 @@
 import Dependencies.JacksonKotlin
 import Dependencies.KotlinLogging
+import Dependencies.MySql
 import Dependencies.SpringWeb
 import SpringBootDependencies.SpringBootAmqp
+import SpringBootDependencies.SpringBootStarterDataJpa
 import org.springframework.boot.gradle.tasks.bundling.BootJar
 
 plugins {
@@ -11,13 +13,16 @@ plugins {
 }
 
 dependencies {
-    implementation(SpringBootAmqp)
-    implementation(KotlinLogging)
-    implementation(SpringWeb)
     implementation(JacksonKotlin)
+    implementation(KotlinLogging)
+    implementation(MySql)
+    implementation(SpringBootAmqp)
+    implementation(SpringWeb)
+    implementation(SpringBootStarterDataJpa)
 
     api(project(":commons:commons-model-extended"))
     api(project(":commons:commons-util"))
+    api(project(":submission:notifications"))
 }
 
 tasks.named<BootJar>("bootJar") {

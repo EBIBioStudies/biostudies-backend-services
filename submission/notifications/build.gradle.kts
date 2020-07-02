@@ -1,4 +1,5 @@
 import Dependencies.Arrow
+import Dependencies.CommonsIO
 import Dependencies.HibernateEntityManager
 import Dependencies.JpaEntityGraph
 import Dependencies.KotlinStdLib
@@ -10,10 +11,12 @@ import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
 
 dependencies {
+    api(project(":commons:commons-model-extended"))
     api(project(":commons:commons-util"))
 
     implementation("$SpringBootStarterMail:${Versions.SpringBootVersion}")
     implementation(Arrow)
+    implementation(CommonsIO)
     implementation(HibernateEntityManager)
     implementation(JpaEntityGraph)
     implementation(SpringDataJpa)

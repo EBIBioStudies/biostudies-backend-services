@@ -58,6 +58,8 @@ the [Local Submission WebApp Config File](submission/submission-webapp/src/main/
 folder for fresh instances. Set this folder path in the **basepath** property of the configuration file
 4. Execute the command `gradle bootRun`
 
+>Note: In order for the messages in the rabbit queues to be processed you need to start the Handlers application
+
 #### Make A Submission
 In order to make a submission, you can use the BioStudies CLI. Find more information
 [here](client/bio-commandline/README.md).
