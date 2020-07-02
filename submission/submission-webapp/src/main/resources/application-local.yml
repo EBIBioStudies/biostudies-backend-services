@@ -12,6 +12,12 @@ spring:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
       use-new-id-generator-mappings: false
 
+  rabbitmq:
+    host: localhost
+    username: manager
+    password: manager-local
+    port: 5672
+
   servlet:
     multipart:
       max-file-size: 10240MB
@@ -22,6 +28,8 @@ app:
   tempDirPath: # Absolute of the temp folder to store files
   instanceBaseUrl: http://localhost:8080
   security:
+    captchaKey: # Captcha validation token. Not required for local environment
+    checkCaptcha: false
     tokenHash: bio-local
     filesDirPath: # Absolute path to the folder to be used for the user/groups files
     environment: LOCAL

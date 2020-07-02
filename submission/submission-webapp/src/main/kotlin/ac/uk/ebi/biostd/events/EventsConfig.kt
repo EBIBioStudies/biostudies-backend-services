@@ -17,7 +17,7 @@ class EventsConfig {
     @Bean
     fun rabbitTemplate(connectionFactory: ConnectionFactory): RabbitTemplate {
         val rabbitTemplate = RabbitTemplate(connectionFactory)
-        rabbitTemplate.setMessageConverter(producerJackson2MessageConverter())
+        rabbitTemplate.messageConverter = producerJackson2MessageConverter()
         return rabbitTemplate
     }
 
