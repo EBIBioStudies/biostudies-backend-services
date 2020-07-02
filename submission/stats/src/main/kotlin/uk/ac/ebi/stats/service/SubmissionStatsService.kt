@@ -1,10 +1,8 @@
 package uk.ac.ebi.stats.service
 
 import ac.uk.ebi.biostd.persistence.exception.SubmissionNotFoundException
-import ac.uk.ebi.biostd.persistence.exception.SubmissionsNotFoundException
 import ac.uk.ebi.biostd.persistence.filter.PaginationFilter
 import ac.uk.ebi.biostd.persistence.integration.SubmissionQueryService
-import ebi.ac.uk.util.collections.ifNotEmpty
 import org.springframework.data.domain.PageRequest
 import org.springframework.transaction.annotation.Transactional
 import uk.ac.ebi.stats.exception.StatNotFoundException
@@ -38,8 +36,7 @@ open class SubmissionStatsService(
 
     @Transactional
     open fun saveAll(stats: List<SubmissionStat>): List<SubmissionStat> {
-        validate(stats)
-        val updates = summarize(stats) { it.last() }
+        val updates = summarize(normalize(stats)) { it.last() }
         return statsRepository
             .saveAll(updates.map(::toUpsert))
             .map(::toSubmissionStat)
@@ -47,17 +44,15 @@ open class SubmissionStatsService(
 
     @Transactional
     open fun incrementAll(stats: List<SubmissionStat>): List<SubmissionStat> {
-        validate(stats)
-        val increments = summarize(stats, ::summarizeIncrements)
+        val increments = summarize(normalize(stats), ::summarizeIncrements)
         return statsRepository
             .saveAll(increments.map(::toIncrement))
             .map(::toSubmissionStat)
     }
 
-    private fun validate(stats: List<SubmissionStat>) =
-        stats.filter { submissionQueryService.existByAccNo(it.accNo).not() }
-            .map { it.accNo }
-            .ifNotEmpty { throw SubmissionsNotFoundException(it) }
+    private fun normalize(stats: List<SubmissionStat>) =
+        stats.filter { submissionQueryService.existByAccNo(it.accNo) }
+            .map { SubmissionStat(it.accNo.toUpperCase(), it.value, it.type) }
 
     private fun summarize(
         stats: List<SubmissionStat>,
