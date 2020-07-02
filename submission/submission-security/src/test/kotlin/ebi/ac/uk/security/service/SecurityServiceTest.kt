@@ -4,6 +4,8 @@ import ac.uk.ebi.biostd.persistence.model.DbUser
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ebi.ac.uk.api.security.ChangePasswordRequest
 import ebi.ac.uk.api.security.LoginRequest
+import ebi.ac.uk.io.ALL_GROUP
+import ebi.ac.uk.io.GROUP_EXECUTE
 import ebi.ac.uk.security.events.Events
 import ebi.ac.uk.security.integration.SecurityProperties
 import ebi.ac.uk.security.integration.exception.LoginException

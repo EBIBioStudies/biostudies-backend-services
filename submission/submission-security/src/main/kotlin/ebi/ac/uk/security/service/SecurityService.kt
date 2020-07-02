@@ -10,7 +10,9 @@ import ebi.ac.uk.api.security.LoginRequest
 import ebi.ac.uk.api.security.RegisterRequest
 import ebi.ac.uk.api.security.ResetPasswordRequest
 import ebi.ac.uk.api.security.RetryActivationRequest
+import ebi.ac.uk.io.ALL_GROUP
 import ebi.ac.uk.io.FileUtils
+import ebi.ac.uk.io.GROUP_EXECUTE
 import ebi.ac.uk.security.events.Events
 import ebi.ac.uk.security.events.Events.userPreRegister
 import ebi.ac.uk.security.events.Events.userRegister
@@ -28,10 +30,6 @@ import ebi.ac.uk.security.integration.model.events.PasswordReset
 import ebi.ac.uk.security.integration.model.events.UserActivated
 import ebi.ac.uk.security.integration.model.events.UserRegister
 import ebi.ac.uk.security.util.SecurityUtil
-import java.nio.file.attribute.PosixFilePermissions
-
-internal val GROUP_EXECUTE = PosixFilePermissions.fromString("rwx--x---")
-internal val ALL_GROUP = PosixFilePermissions.fromString("rwxrwx---")
 
 @Suppress("TooManyFunctions")
 internal class SecurityService(
