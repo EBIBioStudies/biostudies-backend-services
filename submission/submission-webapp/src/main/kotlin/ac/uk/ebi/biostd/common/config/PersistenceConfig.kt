@@ -6,7 +6,6 @@ import ac.uk.ebi.biostd.persistence.integration.PersistenceContext
 import ac.uk.ebi.biostd.persistence.integration.PersistenceContextImpl
 import ac.uk.ebi.biostd.persistence.integration.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.integration.SubmissionSqlQueryService
-import ac.uk.ebi.biostd.persistence.mapping.SubmissionDbMapper
 import ac.uk.ebi.biostd.persistence.mapping.extended.from.ToDbSubmissionMapper
 import ac.uk.ebi.biostd.persistence.mapping.extended.to.ToExtSubmissionMapper
 import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
@@ -70,13 +69,10 @@ class PersistenceConfig(
 
     @Bean
     fun submissionRepository(toExtSubmissionMapper: ToExtSubmissionMapper) =
-        SubmissionRepository(submissionDataRepository, submissionDbMapper(), toExtSubmissionMapper)
+        SubmissionRepository(submissionDataRepository, toExtSubmissionMapper())
 
     @Bean
     fun projectRepository() = ProjectRepository(submissionDataRepository)
-
-    @Bean
-    fun submissionDbMapper() = SubmissionDbMapper()
 
     @Bean
     fun ftpFilesService() = FtpFilesService(folderResolver)
