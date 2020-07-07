@@ -37,14 +37,8 @@ internal class JsonSerializer {
     fun <T> serialize(element: T, pretty: Boolean = false): String {
         return if (pretty)
             mapper.writerWithDefaultPrettyPrinter().writeValueAsString(element)
-        else {
-            /*   val filterProvider: FilterProvider = SimpleFilterProvider()
-                   .addFilter("dynamicFilter",
-                       SimpleBeanPropertyFilter.filterOutAllExcept("customTags"))
-
-              */
+        else
             mapper.writeValueAsString(element)
-        }
     }
 
     inline fun <reified T> deserialize(value: String) = mapper.readValue<T>(value)
