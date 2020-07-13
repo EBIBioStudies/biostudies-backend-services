@@ -30,6 +30,9 @@ interface SubmissionDataRepository :
     @EntityGraph(value = FULL_DATA_GRAPH, type = LOAD)
     fun getByAccNoAndVersionGreaterThan(id: String, version: Int = 0): DbSubmission?
 
+    @EntityGraph(value = FULL_DATA_GRAPH, type = LOAD)
+    fun getByAccNo(id: String): DbSubmission?
+
     fun findByAccNoAndVersionGreaterThan(id: String, version: Int = 0): DbSubmission?
 
     @Query("Select max(s.version) from DbSubmission s where s.accNo=?1")
