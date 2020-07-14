@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.handlers.config
 
+import ac.uk.ebi.biostd.handlers.api.BioStudiesWebConsumer
 import ac.uk.ebi.biostd.handlers.listeners.LogSubmissionListener
 import ac.uk.ebi.biostd.handlers.listeners.SubmissionNotificationsListener
 import ebi.ac.uk.notifications.integration.NotificationConfig
@@ -10,6 +11,8 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.io.ResourceLoader
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories
+import org.springframework.web.client.RestTemplate
+import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 
 @Configuration
 class Listeners {
@@ -18,12 +21,22 @@ class Listeners {
 
     @Bean
     fun notificationsListener(
+        webConsumer: BioStudiesWebConsumer,
         rtNotificationService: RtNotificationService
-    ): SubmissionNotificationsListener = SubmissionNotificationsListener(rtNotificationService)
+    ): SubmissionNotificationsListener = SubmissionNotificationsListener(webConsumer, rtNotificationService)
 }
 
 @Configuration
 class Services {
+    @Bean
+    fun bioStudiesWebConsumer(
+        restTemplate: RestTemplate,
+        extSerializationService: ExtSerializationService
+    ): BioStudiesWebConsumer = BioStudiesWebConsumer(restTemplate, extSerializationService)
+
+    @Bean
+    fun extSerializationService(): ExtSerializationService = ExtSerializationService()
+
     @Bean
     fun rtNotificationService(notificationConfig: NotificationConfig) = notificationConfig.rtNotificationService()
 }

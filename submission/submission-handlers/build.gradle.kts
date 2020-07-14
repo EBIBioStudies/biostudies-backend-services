@@ -21,6 +21,7 @@ dependencies {
     implementation(SpringBootStarterDataJpa)
 
     api(project(":commons:commons-model-extended"))
+    api(project(":commons:commons-model-extended-serialization"))
     api(project(":commons:commons-util"))
     api(project(":submission:notifications"))
 }

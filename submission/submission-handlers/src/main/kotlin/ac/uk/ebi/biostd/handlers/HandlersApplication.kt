@@ -20,6 +20,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.io.ResourceLoader
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories
+import org.springframework.web.client.RestTemplate
 
 const val BIOSTUDIES_EXCHANGE = "biostudies-exchange"
 const val SUBMISSIONS_ROUTING_KEY = "bio.submission.published"
@@ -62,4 +63,7 @@ class HandlersApplication {
 
     @Bean
     fun jsonMessageConverter(): MessageConverter = Jackson2JsonMessageConverter()
+
+    @Bean
+    fun restTemplate(): RestTemplate = RestTemplate()
 }

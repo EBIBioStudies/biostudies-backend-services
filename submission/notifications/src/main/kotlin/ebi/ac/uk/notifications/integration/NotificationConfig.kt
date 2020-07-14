@@ -11,6 +11,7 @@ import ebi.ac.uk.notifications.service.SimpleSubscriptionService
 import org.springframework.core.io.ResourceLoader
 import org.springframework.mail.javamail.JavaMailSenderImpl
 import org.springframework.web.client.RestTemplate
+import javax.net.ssl.HttpsURLConnection
 
 class NotificationConfig(
     private val resourceLoader: ResourceLoader,
@@ -23,7 +24,10 @@ class NotificationConfig(
 
     fun rtNotificationService(): RtNotificationService = rtNotificationService
 
-    private val restTemplate by lazy { RestTemplate() }
+    private val restTemplate by lazy {
+        HttpsURLConnection.setDefaultHostnameVerifier { _, _ ->  true }
+        RestTemplate()
+    }
 
     private val emailService by lazy { SimpleEmailService(mailSender) }
 

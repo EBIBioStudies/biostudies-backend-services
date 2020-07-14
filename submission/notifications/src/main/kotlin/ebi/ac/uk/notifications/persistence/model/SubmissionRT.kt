@@ -18,4 +18,6 @@ class SubmissionRT(
     @Id
     @GeneratedValue
     var id: Long = 0L
+
+    constructor() : this("", "")
 }

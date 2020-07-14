@@ -8,26 +8,8 @@ class SubmissionSubmitted(
     @JsonProperty("accNo")
     val accNo: String,
 
-    @JsonProperty("version")
-    val version: Int,
-
-    @JsonProperty("title")
-    val title: String,
-
-    @JsonProperty("ownerEmail")
-    val ownerEmail: String,
-
     @JsonProperty("ownerFullName")
     val ownerFullName: String,
-
-    @JsonProperty("releaseDate")
-    val releaseDate: String,
-
-    @JsonProperty("released")
-    val released: Boolean,
-
-    @JsonProperty("secretKey")
-    val secretKey: String,
 
     @JsonProperty("uiUrl")
     val uiUrl: String,
