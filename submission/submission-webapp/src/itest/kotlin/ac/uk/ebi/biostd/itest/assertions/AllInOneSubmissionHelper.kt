@@ -13,7 +13,7 @@ import org.assertj.core.api.Assertions.assertThat
 import java.nio.file.Paths
 
 internal class AllInOneSubmissionHelper(
-    private val basePath: String,
+    private val submissionPath: String,
     private val submissionRepository: SubmissionRepository
 ) {
     internal fun assertSavedSubmission(accNo: String, method: ExtSubmissionMethod = ExtSubmissionMethod.PAGE_TAB) {
@@ -25,7 +25,7 @@ internal class AllInOneSubmissionHelper(
     }
 
     private fun assertSubmissionFiles(submission: ExtSubmission) {
-        val submissionFolderPath = "$basePath/submission/${submission.relPath}"
+        val submissionFolderPath = "$submissionPath/${submission.relPath}"
         val accNo = submission.accNo
 
         assertAllInOneSubmissionXml(getSubFileContent("$submissionFolderPath/$accNo.xml"), accNo)

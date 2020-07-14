@@ -45,7 +45,7 @@ internal class AllInOneMultipartFileSubmissionTest(
         @BeforeAll
         fun init() {
             webClient = getWebClient(serverPort, SuperUser)
-            allInOneSubmissionHelper = AllInOneSubmissionHelper(basePath, submissionRepository)
+            allInOneSubmissionHelper = AllInOneSubmissionHelper(submissionPath, submissionRepository)
         }
 
         @Test

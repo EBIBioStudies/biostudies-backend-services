@@ -36,7 +36,8 @@ logging:
     name: logs/application_logs.txt
 
 app:
-  basepath: # Absolute path to the folder to be used as storage
+  submissionPath: # Absolute path to the folder to be used as submission storage
+  ftpPath: # Absolute path to the folder to be used ftp hardlinks
   tempDirPath: # Absolute of the temp folder to store files
   instanceBaseUrl: # Instance base url e.g. http://server.ebi.ac.uk:5541
   security:

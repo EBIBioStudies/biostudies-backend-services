@@ -24,8 +24,9 @@ spring:
       max-request-size: 10240MB
 
 app:
-  basepath: # Absolute path to the folder to be used as storage
-  tempDirPath: # Absolute of the temp folder to store files
+  submissionPath:
+  ftpPath:
+  tempDirPath:
   instanceBaseUrl: http://localhost:8080
   security:
     captchaKey: # Captcha validation token. Not required for local environment

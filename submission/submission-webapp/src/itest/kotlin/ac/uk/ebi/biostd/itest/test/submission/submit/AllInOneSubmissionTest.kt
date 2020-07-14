@@ -40,7 +40,7 @@ internal class AllInOneSubmissionTest(private val tempFolder: TemporaryFolder) :
         @BeforeAll
         fun init() {
             webClient = getWebClient(serverPort, SuperUser)
-            allInOneSubmissionHelper = AllInOneSubmissionHelper(basePath, submissionRepository)
+            allInOneSubmissionHelper = AllInOneSubmissionHelper(submissionPath, submissionRepository)
         }
 
         @Test
