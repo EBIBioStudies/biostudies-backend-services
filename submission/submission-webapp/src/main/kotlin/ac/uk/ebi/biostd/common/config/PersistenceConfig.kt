@@ -33,6 +33,7 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import uk.ac.ebi.stats.persistence.repositories.SubmissionStatsRepository
+import java.nio.file.Paths
 
 @Suppress("TooManyFunctions")
 @Configuration
@@ -65,7 +66,7 @@ class PersistenceConfig(
     ) = ToDbSubmissionMapper(tagsRepo, tagsRefRepo, userRepo)
 
     @Bean
-    fun toExtSubmissionMapper() = ToExtSubmissionMapper(applicationProperties.submissionsPath)
+    fun toExtSubmissionMapper() = ToExtSubmissionMapper(Paths.get(applicationProperties.submissionPath))
 
     @Bean
     fun submissionRepository(toExtSubmissionMapper: ToExtSubmissionMapper) =

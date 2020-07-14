@@ -8,8 +8,8 @@ class FileSystemService(
     private val ftpLinksService: FtpFilesService
 ) {
     fun persistSubmissionFiles(submission: ExtSubmission, mode: FileMode) {
-        ftpLinksService.cleanFtpFolder(submission)
+        ftpLinksService.cleanFtpFolder(submission.relPath)
         filesService.persistSubmissionFiles(submission, mode)
-        if (submission.released) ftpLinksService.createFtpFolder(submission)
+        if (submission.released) ftpLinksService.createFtpFolder(submission.relPath)
     }
 }

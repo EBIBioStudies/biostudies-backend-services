@@ -18,7 +18,9 @@ spring:
     port: 5672
 
 app:
-  basepath:
+  submissionPath:
+  ftpPath:
+  magicPath:
   tempDirPath:
   instanceBaseUrl: http://localhost:8080
   security:
