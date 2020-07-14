@@ -5,20 +5,19 @@ import org.apache.poi.ss.usermodel.Cell
 import org.apache.poi.ss.usermodel.CellType.NUMERIC
 import org.apache.poi.ss.usermodel.Row
 import org.apache.poi.ss.usermodel.Sheet
-import java.util.LinkedList
 
 /**
  * Retrieves the sheet representation as a list of tsv separated string List. Note that as stream reader ignored empty
  * rows they are completed with emtpy values.
  */
 fun Sheet.asTsvList(): List<String> {
-    val elements = LinkedList<String>()
+    val elements = mutableListOf<String>()
     for (row in this) {
         while (elements.size < row.rowNum) elements.add(EMPTY)
         elements.add(row.asString())
     }
 
-    return elements
+    return elements.trim()
 }
 
 private fun Row.asString(): String {
@@ -27,7 +26,21 @@ private fun Row.asString(): String {
         cells.add(getCell(idx)?.valueAsString ?: EMPTY)
     }
 
-    return cells.joinToString("\t")
+    return when {
+        cells.all { it == EMPTY } -> EMPTY
+        else -> cells.trim().joinToString("\t")
+    }
+}
+
+private fun MutableList<String>.trim(): MutableList<String> {
+    if (last().isBlank()) {
+        for (idx in indices.reversed()) {
+            if (elementAt(idx).isNotBlank()) break
+            removeAt(idx)
+        }
+    }
+
+    return this
 }
 
 private val Cell.valueAsString: String

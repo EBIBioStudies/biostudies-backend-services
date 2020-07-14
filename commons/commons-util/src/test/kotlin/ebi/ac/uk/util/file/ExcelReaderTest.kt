@@ -30,6 +30,8 @@ class ExcelReaderTest(private val temporaryFolder: TemporaryFolder) {
                 row {
                     cell("Study")
                     cell("SECT-001")
+                    cell("")
+                    cell("")
                 }
                 row {
                     cell("An Attr")
@@ -46,6 +48,7 @@ class ExcelReaderTest(private val temporaryFolder: TemporaryFolder) {
                     cell("Files")
                     cell("Attr 1")
                     cell("Attr 2")
+                    cell("")
                 }
                 row {
                     cell("file1.txt")
@@ -57,6 +60,12 @@ class ExcelReaderTest(private val temporaryFolder: TemporaryFolder) {
                     cell("b1")
                     cell("b2")
                 }
+
+                emptyRow()
+                emptyRow()
+                emptyRow()
+                emptyRow()
+                emptyRow()
             }
         }
 
