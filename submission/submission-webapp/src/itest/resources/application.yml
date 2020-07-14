@@ -20,7 +20,6 @@ spring:
 app:
   submissionPath:
   ftpPath:
-  magicPath:
   tempDirPath:
   instanceBaseUrl: http://localhost:8080
   security:

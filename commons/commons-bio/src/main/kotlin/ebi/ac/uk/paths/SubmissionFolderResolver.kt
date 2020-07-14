@@ -9,11 +9,9 @@ class SubmissionFolderResolver(
     private val ftpFolder: Path
 ) {
 
-    fun getSubmissionFtpFolder(submissionRelPath: String): Path =
-        ftpFolder.resolve(submissionRelPath)
+    fun getSubmissionFtpFolder(submissionRelPath: String): Path = ftpFolder.resolve(submissionRelPath)
 
-    fun getSubmissionFolder(submissionRelPath: String): Path =
-        submissionFolder.resolve(submissionRelPath)
+    fun getSubmissionFolder(submissionRelPath: String): Path = submissionFolder.resolve(submissionRelPath)
 
     fun getSubFilePath(relPath: String, fileName: String): Path =
         submissionFolder.resolve(relPath).resolve(FILES_PATH).resolve(escapeFileName(fileName))

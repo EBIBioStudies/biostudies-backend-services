@@ -10,7 +10,6 @@ open class ApplicationProperties {
     lateinit var tempDirPath: String
     lateinit var submissionPath: String
     lateinit var ftpPath: String
-    lateinit var magicPath: String
     lateinit var instanceBaseUrl: String
 
     @NestedConfigurationProperty
