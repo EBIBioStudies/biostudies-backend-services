@@ -24,10 +24,7 @@ class NotificationConfig(
 
     fun rtNotificationService(): RtNotificationService = rtNotificationService
 
-    private val restTemplate by lazy {
-        HttpsURLConnection.setDefaultHostnameVerifier { _, _ ->  true }
-        RestTemplate()
-    }
+    private val restTemplate by lazy { RestTemplate() }
 
     private val emailService by lazy { SimpleEmailService(mailSender) }
 
