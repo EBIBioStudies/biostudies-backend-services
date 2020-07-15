@@ -57,5 +57,5 @@ class SubmissionService(
 
     fun submissionFolder(accNo: String): java.io.File? = queryService.getExistingFolder(accNo)?.resolve(FILES_PATH)
 
-    fun getSubmission(accNo: String): ExtSubmission = subRepository.getExtByAccNo(accNo)
+    fun getSubmission(accNo: String): ExtSubmission = subRepository.getActiveExtByAccNo(accNo)
 }

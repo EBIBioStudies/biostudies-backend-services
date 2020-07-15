@@ -13,10 +13,9 @@ import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.dsl.line
 import ebi.ac.uk.dsl.tsv
-import ebi.ac.uk.model.Attribute
-import ebi.ac.uk.model.File
-import ebi.ac.uk.model.FileList
-import ebi.ac.uk.model.extensions.fileListName
+import ebi.ac.uk.extended.model.ExtAttribute
+import ebi.ac.uk.extended.model.ExtFile
+import ebi.ac.uk.extended.model.ExtFileList
 import ebi.ac.uk.test.createFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
@@ -161,12 +160,16 @@ internal class FileListSubmissionTest(private val tempFolder: TemporaryFolder) :
 
         private fun assertSubmissionFiles(accNo: String, testFile: String) {
             val fileListName = "FileList"
-            val createdSubmission = submissionRepository.getExtendedByAccNo(accNo)
-            val submissionFolderPath = "$basePath/submission/${createdSubmission.relPath}"
+            val createdSubmission = submissionRepository.getActiveExtByAccNo(accNo)
+            val submissionFolderPath = "$submissionPath/${createdSubmission.relPath}"
 
-            assertThat(createdSubmission.section.fileListName).isEqualTo(fileListName)
-            assertThat(createdSubmission.extendedSection.fileList).isEqualTo(
-                FileList(fileListName, listOf(File(testFile, attributes = listOf(Attribute("GEN", "ABC"))))))
+            assertThat(createdSubmission.section.fileList?.fileName).isEqualTo(fileListName)
+            assertThat(createdSubmission.section.fileList).isEqualTo(
+                ExtFileList(fileListName, listOf(ExtFile(
+                    file = Paths.get("$submissionFolderPath/Files/$testFile").toFile(),
+                    fileName = testFile,
+                    attributes = listOf(ExtAttribute("GEN", "ABC"))
+                ))))
 
             assertThat(Paths.get("$submissionFolderPath/Files/$testFile")).exists()
 

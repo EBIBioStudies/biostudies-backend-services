@@ -159,7 +159,7 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
             }.toString()
 
             val response = webClient.submitSingle(submission, TSV, UserRegistration(username, email))
-            val saved = submissionRepository.getExtByAccNo(response.body.accNo)
+            val saved = submissionRepository.getActiveExtByAccNo(response.body.accNo)
             assertThat(saved.owner).isEqualTo(email)
             assertThat(saved.submitter).isEqualTo(SuperUser.email)
         }
@@ -251,12 +251,12 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
 
             assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
 
-            val original = submissionRepository.getExtendedByAccNo("S-ABC123")
+            val original = submissionRepository.getActiveExtByAccNo("S-ABC123")
             assertThat(original.title).isEqualTo("Simple Submission")
             assertThat(original.version).isEqualTo(1)
 
             assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
-            val resubmitted = submissionRepository.getExtendedByAccNo("S-ABC123")
+            val resubmitted = submissionRepository.getActiveExtByAccNo("S-ABC123")
             assertThat(resubmitted.title).isEqualTo("Simple Submission")
             assertThat(resubmitted.version).isEqualTo(2)
         }
@@ -272,7 +272,7 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
 
             assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
 
-            val savedSubmission = submissionRepository.getExtByAccNo("S-RLSD123")
+            val savedSubmission = submissionRepository.getActiveExtByAccNo("S-RLSD123")
             assertThat(savedSubmission.accNo).isEqualTo("S-RLSD123")
             assertThat(savedSubmission.title).isEqualTo("Test Public Submission")
             assertThat(savedSubmission.released).isTrue()
@@ -297,7 +297,7 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
 
             assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
 
-            val savedSubmission = submissionRepository.getExtByAccNo("S-STBL123")
+            val savedSubmission = submissionRepository.getActiveExtByAccNo("S-STBL123")
             assertThat(savedSubmission.accNo).isEqualTo("S-STBL123")
             assertThat(savedSubmission.title).isEqualTo("Test Section Table")
 

@@ -30,7 +30,7 @@ import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
 
 @ExtendWith(TemporaryFolderExtension::class)
-internal class ProjectSubmitTest(private val tempFolder: TemporaryFolder) : BaseIntegrationTest(tempFolder) {
+internal class ProjectSubmitTest(tempFolder: TemporaryFolder) : BaseIntegrationTest(tempFolder) {
     @Nested
     @Import(PersistenceConfig::class)
     @ExtendWith(SpringExtension::class)
@@ -64,7 +64,7 @@ internal class ProjectSubmitTest(private val tempFolder: TemporaryFolder) : Base
 
             assertThat(webClient.submitSingle(privateProject, SubmissionFormat.TSV)).isSuccessful()
 
-            val submittedProject = submissionRepository.getExtByAccNo("PrivateProject")
+            val submittedProject = submissionRepository.getActiveExtByAccNo("PrivateProject")
             assertThat(submittedProject.accNo).isEqualTo("PrivateProject")
             assertThat(submittedProject.title).isEqualTo("A Private Project")
             assertThat(submittedProject.status).isEqualTo(PROCESSED)
@@ -90,7 +90,7 @@ internal class ProjectSubmitTest(private val tempFolder: TemporaryFolder) : Base
 
             assertThat(webClient.submitSingle(publicProject, SubmissionFormat.TSV)).isSuccessful()
 
-            val submittedProject = submissionRepository.getExtByAccNo("PublicProject")
+            val submittedProject = submissionRepository.getActiveExtByAccNo("PublicProject")
             assertThat(submittedProject.accNo).isEqualTo("PublicProject")
             assertThat(submittedProject.title).isEqualTo("Public Project")
             assertThat(submittedProject.status).isEqualTo(PROCESSED)

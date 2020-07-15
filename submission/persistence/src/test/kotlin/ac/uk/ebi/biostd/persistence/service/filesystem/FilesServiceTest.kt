@@ -40,7 +40,10 @@ class FilesServiceTest(
     private lateinit var extSubmission: ExtSubmission
 
     private val testInstance =
-        FilesService(SubmissionFolderResolver(temporaryFolder.root.toPath()), mockSerializationService)
+        FilesService(SubmissionFolderResolver(
+            Paths.get("${temporaryFolder.root.toPath()}/submission"),
+            Paths.get("${temporaryFolder.root.toPath()}/ftp")
+        ), mockSerializationService)
 
     @BeforeEach
     fun beforeEach() {
