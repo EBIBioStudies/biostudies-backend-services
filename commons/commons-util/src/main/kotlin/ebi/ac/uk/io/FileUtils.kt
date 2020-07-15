@@ -1,5 +1,6 @@
 package ebi.ac.uk.io
 
+import ebi.ac.uk.io.FileUtilsHelper.createDirectories
 import ebi.ac.uk.io.FileUtilsHelper.createFileHardLink
 import ebi.ac.uk.io.FileUtilsHelper.createFolderHardLinks
 import ebi.ac.uk.io.FileUtilsHelper.createFolderIfNotExist
@@ -14,7 +15,6 @@ import java.nio.file.Path
 import java.nio.file.StandardCopyOption
 import java.nio.file.attribute.PosixFilePermission
 import java.nio.file.attribute.PosixFilePermissions
-import java.nio.file.attribute.PosixFilePermissions.asFileAttribute
 import kotlin.streams.toList
 
 val ONLY_USER: Set<PosixFilePermission> = PosixFilePermissions.fromString("rwx------")
@@ -67,14 +67,14 @@ object FileUtils {
         permissions: Set<PosixFilePermission>
     ) {
         deleteFile(folder.toFile())
-        Files.createDirectories(folder, asFileAttribute(permissions))
+        createDirectories(folder, permissions)
     }
 
     fun createParentFolders(
         folder: Path,
         permissions: Set<PosixFilePermission>
     ) {
-        Files.createDirectories(folder.parent, asFileAttribute(permissions))
+        createDirectories(folder.parent, permissions)
     }
 
     fun deleteFile(file: File) {
