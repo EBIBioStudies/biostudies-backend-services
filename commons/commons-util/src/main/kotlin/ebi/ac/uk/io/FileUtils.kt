@@ -4,8 +4,10 @@ import ebi.ac.uk.io.FileUtilsHelper.createFileHardLink
 import ebi.ac.uk.io.FileUtilsHelper.createFolderHardLinks
 import ebi.ac.uk.io.FileUtilsHelper.createFolderIfNotExist
 import ebi.ac.uk.io.FileUtilsHelper.createParentDirectories
+import ebi.ac.uk.io.FileUtilsHelper.createSymLink
 import ebi.ac.uk.io.ext.notExist
 import java.io.File
+import java.io.InputStream
 import java.nio.file.Files
 import java.nio.file.Files.exists
 import java.nio.file.Path
@@ -33,6 +35,15 @@ object FileUtils {
             false -> FileUtilsHelper.copyFile(source.toPath(), target.toPath(), permissions)
         }
 
+        Files.setPosixFilePermissions(target.toPath(), permissions)
+    }
+
+    fun copyOrReplaceFile(
+        source: InputStream,
+        target: File,
+        permissions: Set<PosixFilePermission>
+    ) {
+        FileUtilsHelper.copyFile(source, target.toPath(), permissions)
         Files.setPosixFilePermissions(target.toPath(), permissions)
     }
 
@@ -95,6 +106,10 @@ object FileUtils {
         }
     }
 
+    fun createSymbolicLink(path: Path, symLinkPath: Path, permissions: Set<PosixFilePermission> = ONLY_USER) {
+        createSymLink(path, symLinkPath, permissions)
+    }
+
     fun writeContent(
         source: File,
         content: String,
@@ -133,12 +148,20 @@ internal object FileUtilsHelper {
         Files.createLink(source, createParentDirectories(target, permissions))
     }
 
+    fun createSymLink(link: Path, target: Path, permissions: Set<PosixFilePermission>) {
+        Files.createSymbolicLink(createParentDirectories(link, permissions), target)
+    }
+
     fun copyFolder(source: Path, target: Path, permissions: Set<PosixFilePermission>) {
         deleteFolder(target)
         Files.walkFileTree(source, CopyFileVisitor(source, target, permissions))
     }
 
     fun copyFile(source: Path, target: Path, permissions: Set<PosixFilePermission>) {
+        Files.copy(source, createParentDirectories(target, permissions), StandardCopyOption.REPLACE_EXISTING)
+    }
+
+    fun copyFile(source: InputStream, target: Path, permissions: Set<PosixFilePermission>) {
         Files.copy(source, createParentDirectories(target, permissions), StandardCopyOption.REPLACE_EXISTING)
     }
 

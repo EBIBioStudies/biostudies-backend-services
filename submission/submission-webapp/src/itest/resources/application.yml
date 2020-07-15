@@ -26,6 +26,7 @@ app:
     tokenHash: biostd-test
     environment: TEST
     filesDirPath:
+    magicDirPath:
     requireActivation: false
   notifications:
     smtp:
