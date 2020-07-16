@@ -2,18 +2,18 @@ package ac.uk.ebi.biostd.files.service
 
 import ac.uk.ebi.biostd.files.model.FilesSpec
 import ac.uk.ebi.biostd.files.utils.transferTo
+import ebi.ac.uk.io.ALL_GROUP
 import ebi.ac.uk.io.FileUtils
 import ebi.ac.uk.io.ext.asFileList
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import org.springframework.web.multipart.MultipartFile
 import java.io.File
-import java.nio.file.attribute.PosixFilePermissions
 
 class UserFilesService {
 
     fun uploadFile(user: SecurityUser, path: String, file: File) {
         val folder = user.magicFolder.path.resolve(path)
-        FileUtils.copyOrReplaceFile(file, folder.resolve(file.name).toFile(), FILE_PERMISSION)
+        FileUtils.copyOrReplaceFile(file, folder.resolve(file.name).toFile(), ALL_GROUP)
     }
 
     fun uploadFiles(user: SecurityUser, path: String, files: List<MultipartFile>) {
@@ -37,7 +37,7 @@ class UserFilesService {
     fun createFolder(user: SecurityUser, path: String, folderName: String) {
         val userPath = user.magicFolder.path
         val folder = userPath.resolve(path).resolve(folderName)
-        FileUtils.createEmptyFolder(folder, FILE_PERMISSION)
+        FileUtils.createEmptyFolder(folder, ALL_GROUP)
     }
 
     fun deleteFile(user: SecurityUser, path: String, fileName: String) {
@@ -45,9 +45,5 @@ class UserFilesService {
         val userFile = userPath.resolve(path).resolve(fileName).toFile()
         require(userPath != userFile.toPath()) { "Can not delete user root folder" }
         FileUtils.deleteFile(userFile)
-    }
-
-    companion object {
-        internal val FILE_PERMISSION = PosixFilePermissions.fromString("rwxrw----")
     }
 }

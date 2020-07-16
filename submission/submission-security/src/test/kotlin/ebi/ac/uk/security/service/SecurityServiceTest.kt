@@ -52,7 +52,7 @@ private val PASSWORD_DIGEST: ByteArray = ByteArray(0)
 
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
 internal class SecurityServiceTest(
-    temporaryFolder: TemporaryFolder,
+    val temporaryFolder: TemporaryFolder,
     @MockK private val userRepository: UserDataRepository,
     @MockK private val securityProps: SecurityProperties,
     @MockK private val securityUtil: SecurityUtil,
@@ -111,6 +111,9 @@ internal class SecurityServiceTest(
 
         @Test
         fun `register a user when not activation is not required`() {
+            val magicFolderRoot = temporaryFolder.createDirectory("users")
+
+            every { securityProps.magicDirPath } returns magicFolderRoot.absolutePath
             every { securityProps.requireActivation } returns false
             every { securityUtil.newKey() } returns SECRET_KEY
 
@@ -134,6 +137,12 @@ internal class SecurityServiceTest(
             val userFolder = user.magicFolder.path
             assertFile(userFolder.parent, GROUP_EXECUTE)
             assertFile(userFolder, ALL_GROUP)
+            assertSymbolicLink(magicFolderRoot.resolve("b/$email").toPath(), userFolder)
+        }
+
+        private fun assertSymbolicLink(link: Path, target: Path) {
+            assertThat(link).exists()
+            assertThat(Files.readSymbolicLink(link)).isEqualTo(target)
         }
 
         private fun assertFile(path: Path, expectedPermission: Set<PosixFilePermission>) {
