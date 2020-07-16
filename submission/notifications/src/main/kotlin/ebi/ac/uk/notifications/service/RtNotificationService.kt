@@ -32,7 +32,7 @@ class RtNotificationService(
     }
 
     private fun createTicket(accNo: String, subject: String, owner: String, content: String) {
-        val ticketId = rtClient.createTicket(subject, owner, content)
+        val ticketId = rtClient.createTicket(accNo, subject, owner, content)
         notificationPersistenceService.saveRtNotification(accNo, ticketId)
     }
 

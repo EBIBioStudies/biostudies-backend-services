@@ -10,5 +10,5 @@ class BioStudiesWebConsumer(
     private val extSerializationService: ExtSerializationService
 ) {
     fun getExtSubmission(url: String): ExtSubmission =
-        extSerializationService.deserialize(restTemplate.getForObject(url))
+        extSerializationService.deserialize(restTemplate.getForObject(url), ExtSubmission::class.java)
 }

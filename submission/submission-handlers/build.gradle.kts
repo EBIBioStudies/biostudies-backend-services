@@ -4,6 +4,8 @@ import Dependencies.MySql
 import Dependencies.SpringWeb
 import SpringBootDependencies.SpringBootAmqp
 import SpringBootDependencies.SpringBootStarterDataJpa
+import TestDependencies.BaseTestCompileDependencies
+import TestDependencies.BaseTestRuntimeDependencies
 import org.springframework.boot.gradle.tasks.bundling.BootJar
 
 plugins {
@@ -13,6 +15,11 @@ plugins {
 }
 
 dependencies {
+    api(project(":commons:commons-model-extended"))
+    api(project(":commons:commons-model-extended-serialization"))
+    api(project(":commons:commons-util"))
+    api(project(":submission:notifications"))
+
     implementation(JacksonKotlin)
     implementation(KotlinLogging)
     implementation(MySql)
@@ -20,10 +27,8 @@ dependencies {
     implementation(SpringWeb)
     implementation(SpringBootStarterDataJpa)
 
-    api(project(":commons:commons-model-extended"))
-    api(project(":commons:commons-model-extended-serialization"))
-    api(project(":commons:commons-util"))
-    api(project(":submission:notifications"))
+    BaseTestCompileDependencies.forEach { testImplementation(it) }
+    BaseTestRuntimeDependencies.forEach { testImplementation(it) }
 }
 
 tasks.named<BootJar>("bootJar") {

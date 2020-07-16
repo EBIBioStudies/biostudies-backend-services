@@ -12,6 +12,7 @@ import TestDependencies.BaseTestRuntimeDependencies
 
 dependencies {
     api(project(":commons:commons-model-extended"))
+    api(project(":commons:commons-test"))
     api(project(":commons:commons-util"))
 
     implementation("$SpringBootStarterMail:${Versions.SpringBootVersion}")

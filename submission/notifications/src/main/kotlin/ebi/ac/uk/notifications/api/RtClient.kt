@@ -19,8 +19,8 @@ class RtClient(
 ) {
     private val ticketIdPattern = "(# Ticket )(\\d+)( created.)".toPattern()
 
-    fun createTicket(subject: String, owner: String, content: String): String {
-        val requestContent = ticketContent(subject, owner, content)
+    fun createTicket(accNo: String, subject: String, owner: String, content: String): String {
+        val requestContent = ticketContent(accNo, subject, owner, content)
         val response = performRtRequest("/ticket/new", requestContent)
 
         return getTicketId(response)
@@ -59,10 +59,11 @@ class RtClient(
             .append("Text: ${trimContent(comment)}")
             .toString()
 
-    private fun ticketContent(subject: String, owner: String, content: String) =
+    private fun ticketContent(accNo: String, subject: String, owner: String, content: String) =
         StringBuilder("Queue: ${rtConfig.queue}\n")
             .append("Subject: $subject\n")
             .append("Requestor: $owner\n")
+            .append("CF-Accession: $accNo\n")
             .append("Text: ${trimContent(content)}")
             .toString()
 
