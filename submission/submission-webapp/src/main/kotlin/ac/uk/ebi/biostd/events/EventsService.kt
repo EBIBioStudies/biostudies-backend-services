@@ -14,6 +14,7 @@ class EventsService(
         val submissionNotification = SubmissionSubmitted(
             accNo = submission.accNo,
             ownerFullName = user.fullName,
+            notificationsEnabled = user.notificationsEnabled,
             uiUrl = properties.instanceBaseUrl,
             pagetabUrl = "${properties.instanceBaseUrl}/submissions/${submission.accNo}.json",
             extTabUrl = "${properties.instanceBaseUrl}/submissions/extended/${submission.accNo}")

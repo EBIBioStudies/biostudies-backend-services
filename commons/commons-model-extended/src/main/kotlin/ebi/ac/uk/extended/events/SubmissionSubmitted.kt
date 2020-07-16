@@ -11,6 +11,9 @@ class SubmissionSubmitted(
     @JsonProperty("ownerFullName")
     val ownerFullName: String,
 
+    @JsonProperty("notificationsEnabled")
+    val notificationsEnabled: Boolean,
+
     @JsonProperty("uiUrl")
     val uiUrl: String,
 

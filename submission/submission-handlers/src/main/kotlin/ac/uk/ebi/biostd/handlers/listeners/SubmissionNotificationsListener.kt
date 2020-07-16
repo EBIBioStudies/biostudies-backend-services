@@ -17,8 +17,9 @@ class SubmissionNotificationsListener(
     fun receiveMessage(message: SubmissionSubmitted) {
         logger.info { "notification for ${ message.accNo }" }
 
-        // TODO decide whether or not to notify based on the user notifications flag
-        val submission = webConsumer.getExtSubmission(message.extTabUrl)
-        rtNotificationService.notifySuccessfulSubmission(submission, message.ownerFullName, message.uiUrl)
+        if (message.notificationsEnabled) {
+            val submission = webConsumer.getExtSubmission(message.extTabUrl)
+            rtNotificationService.notifySuccessfulSubmission(submission, message.ownerFullName, message.uiUrl)
+        }
     }
 }
