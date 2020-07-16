@@ -30,6 +30,8 @@ class ExcelReaderTest(private val temporaryFolder: TemporaryFolder) {
                 row {
                     cell("Study")
                     cell("SECT-001")
+                    cell("")
+                    cell("")
                 }
                 row {
                     cell("An Attr")
@@ -46,6 +48,7 @@ class ExcelReaderTest(private val temporaryFolder: TemporaryFolder) {
                     cell("Files")
                     cell("Attr 1")
                     cell("Attr 2")
+                    cell("")
                 }
                 row {
                     cell("file1.txt")
@@ -73,6 +76,51 @@ class ExcelReaderTest(private val temporaryFolder: TemporaryFolder) {
             line("Files", "Attr 1", "Attr 2")
             line("file1.txt", "", "a2")
             line("file2.txt", "b1", "b2")
+        }
+
+        assertThat(testInstance.readContentAsTsv(testFile)).isEqualTo(expectedTsv.toString())
+    }
+
+    @Test
+    fun `file containing empty rows and cells`() {
+        val testFile = excel("${temporaryFolder.root.absolutePath}/ExcelSubmissionWithEmptyCells.xlsx") {
+            sheet("weird sheet") {
+                row {
+                    cell("Submission")
+                }
+                row {
+                    cell("Title")
+                    cell("Excel Submission With Empty Cells")
+                }
+
+                emptyRow()
+
+                row {
+                    cell("Study")
+                    cell("SECT-001")
+                    cell("")
+                    cell("")
+                }
+                row {
+                    cell("An Attr")
+                    cell("A Value")
+                }
+
+                emptyRow()
+                emptyRow()
+                emptyRow()
+                emptyRow()
+                emptyRow()
+            }
+        }
+
+        val expectedTsv = tsv {
+            line("Submission")
+            line("Title", "Excel Submission With Empty Cells")
+            line()
+
+            line("Study", "SECT-001")
+            line("An Attr", "A Value")
         }
 
         assertThat(testInstance.readContentAsTsv(testFile)).isEqualTo(expectedTsv.toString())

@@ -1,18 +1,20 @@
 package ebi.ac.uk.io
 
+import ebi.ac.uk.io.FileUtilsHelper.createDirectories
 import ebi.ac.uk.io.FileUtilsHelper.createFileHardLink
 import ebi.ac.uk.io.FileUtilsHelper.createFolderHardLinks
 import ebi.ac.uk.io.FileUtilsHelper.createFolderIfNotExist
 import ebi.ac.uk.io.FileUtilsHelper.createParentDirectories
+import ebi.ac.uk.io.FileUtilsHelper.createSymLink
 import ebi.ac.uk.io.ext.notExist
 import java.io.File
+import java.io.InputStream
 import java.nio.file.Files
 import java.nio.file.Files.exists
 import java.nio.file.Path
 import java.nio.file.StandardCopyOption
 import java.nio.file.attribute.PosixFilePermission
 import java.nio.file.attribute.PosixFilePermissions
-import java.nio.file.attribute.PosixFilePermissions.asFileAttribute
 import kotlin.streams.toList
 
 val ONLY_USER: Set<PosixFilePermission> = PosixFilePermissions.fromString("rwx------")
@@ -36,6 +38,15 @@ object FileUtils {
         Files.setPosixFilePermissions(target.toPath(), permissions)
     }
 
+    fun copyOrReplaceFile(
+        source: InputStream,
+        target: File,
+        permissions: Set<PosixFilePermission>
+    ) {
+        FileUtilsHelper.copyFile(source, target.toPath(), permissions)
+        Files.setPosixFilePermissions(target.toPath(), permissions)
+    }
+
     fun getOrCreateFolder(
         folder: Path,
         permissions: Set<PosixFilePermission>
@@ -56,14 +67,14 @@ object FileUtils {
         permissions: Set<PosixFilePermission>
     ) {
         deleteFile(folder.toFile())
-        Files.createDirectories(folder, asFileAttribute(permissions))
+        createDirectories(folder, permissions)
     }
 
     fun createParentFolders(
         folder: Path,
         permissions: Set<PosixFilePermission>
     ) {
-        Files.createDirectories(folder.parent, asFileAttribute(permissions))
+        createDirectories(folder.parent, permissions)
     }
 
     fun deleteFile(file: File) {
@@ -93,6 +104,10 @@ object FileUtils {
             true -> createFolderHardLinks(source.toPath(), target.toPath(), permissions)
             false -> createFileHardLink(source.toPath(), target.toPath(), permissions)
         }
+    }
+
+    fun createSymbolicLink(path: Path, symLinkPath: Path, permissions: Set<PosixFilePermission> = ONLY_USER) {
+        createSymLink(path, symLinkPath, permissions)
     }
 
     fun writeContent(
@@ -133,12 +148,20 @@ internal object FileUtilsHelper {
         Files.createLink(source, createParentDirectories(target, permissions))
     }
 
+    fun createSymLink(link: Path, target: Path, permissions: Set<PosixFilePermission>) {
+        Files.createSymbolicLink(createParentDirectories(link, permissions), target)
+    }
+
     fun copyFolder(source: Path, target: Path, permissions: Set<PosixFilePermission>) {
         deleteFolder(target)
         Files.walkFileTree(source, CopyFileVisitor(source, target, permissions))
     }
 
     fun copyFile(source: Path, target: Path, permissions: Set<PosixFilePermission>) {
+        Files.copy(source, createParentDirectories(target, permissions), StandardCopyOption.REPLACE_EXISTING)
+    }
+
+    fun copyFile(source: InputStream, target: Path, permissions: Set<PosixFilePermission>) {
         Files.copy(source, createParentDirectories(target, permissions), StandardCopyOption.REPLACE_EXISTING)
     }
 

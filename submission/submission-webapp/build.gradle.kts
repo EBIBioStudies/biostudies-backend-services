@@ -42,6 +42,8 @@ dependencies {
     api(project(":commons:commons-test"))
     api(project(":commons:commons-http"))
 
+    annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
+
     implementation(SpringBootStarterWeb)
     implementation(SpringBootAmqp)
     implementation(SpringBootStarterDataJpa)

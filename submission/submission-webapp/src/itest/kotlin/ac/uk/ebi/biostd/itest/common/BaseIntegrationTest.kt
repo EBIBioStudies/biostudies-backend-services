@@ -12,7 +12,6 @@ internal open class BaseIntegrationTest(private val tempFolder: TemporaryFolder)
 
     @BeforeAll
     fun init() {
-        val dropbox = tempFolder.createDirectory("dropbox")
         val temp = tempFolder.createDirectory("tmp")
         submissionPath = "${tempFolder.root.absolutePath}/submission"
         ftpPath = "${tempFolder.root.absolutePath}/ftpPath"
@@ -20,7 +19,11 @@ internal open class BaseIntegrationTest(private val tempFolder: TemporaryFolder)
         System.setProperty("app.submissionPath", submissionPath)
         System.setProperty("app.ftpPath", ftpPath)
         System.setProperty("app.tempDirPath", temp.absolutePath)
+
+        val dropbox = tempFolder.createDirectory("dropbox")
+        val magicFolders = tempFolder.createDirectory("magic")
         System.setProperty("app.security.filesDirPath", dropbox.absolutePath)
+        System.setProperty("app.security.magicDirPath", magicFolders.absolutePath)
     }
 
     protected fun getWebClient(serverPort: Int, user: TestUser): BioWebClient {

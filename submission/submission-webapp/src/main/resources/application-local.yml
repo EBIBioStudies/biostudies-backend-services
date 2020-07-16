@@ -33,6 +33,7 @@ app:
     checkCaptcha: false
     tokenHash: bio-local
     filesDirPath: # Absolute path to the folder to be used for the user/groups files
+    magicDirPath: # Absolute path to the folder to be used for the user/groups magic folders links
     environment: LOCAL
     requireActivation: false
   notifications:

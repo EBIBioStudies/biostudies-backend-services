@@ -30,6 +30,8 @@ import ebi.ac.uk.security.integration.model.events.PasswordReset
 import ebi.ac.uk.security.integration.model.events.UserActivated
 import ebi.ac.uk.security.integration.model.events.UserRegister
 import ebi.ac.uk.security.util.SecurityUtil
+import java.nio.file.Path
+import java.nio.file.Paths
 
 @Suppress("TooManyFunctions")
 internal class SecurityService(
@@ -158,7 +160,13 @@ internal class SecurityService(
         val securityUser = profileService.asSecurityUser(dbUser)
         FileUtils.getOrCreateFolder(securityUser.magicFolder.path.parent, GROUP_EXECUTE)
         FileUtils.getOrCreateFolder(securityUser.magicFolder.path, ALL_GROUP)
+        FileUtils.createSymbolicLink(symLinkPath(securityUser.email), securityUser.magicFolder.path, ALL_GROUP)
         return securityUser
+    }
+
+    private fun symLinkPath(userEmail: String): Path {
+        val prefixFolder = userEmail.substring(0, 1).toLowerCase()
+        return Paths.get("${securityProps.magicDirPath}/$prefixFolder/$userEmail")
     }
 
     private fun asUser(registerRequest: RegisterRequest): DbUser {

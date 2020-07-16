@@ -6,7 +6,7 @@ class SecurityProperties {
     lateinit var environment: String
     lateinit var filesDirPath: String
     lateinit var captchaKey: String
-    lateinit var magicFolderPath: String
+    lateinit var magicDirPath: String
 
     var checkCaptcha: Boolean = false
     var requireActivation: Boolean = false
