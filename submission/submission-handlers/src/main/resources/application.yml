@@ -1,5 +1,28 @@
 spring:
-  rabbitmq:
-    host:
-    password:
+  datasource:
+    url: # Database connection URL
     username:
+    password:
+    driver-class-name: com.mysql.jdbc.Driver
+
+  jpa:
+    show-sql: false
+    hibernate:
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+      use-new-id-generator-mappings: false
+
+  rabbitmq:
+    host: # RabbitMQ host
+    username: # RabbitMQ user
+    password: # RabbitMQ password
+
+app:
+  notifications:
+    smtp: smtp.ebi.ac.uk
+    uiUrl: # The BioStudies UI url
+    rt:
+      host: # RT server host
+      queue: # Queue used for RT notifications
+      user: # RT user
+      password: # RT password
