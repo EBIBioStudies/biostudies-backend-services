@@ -42,7 +42,7 @@ class Services {
 }
 
 @Configuration
-class ModuleConfig{
+class ModuleConfig {
     @Bean
     fun notificationConfig(
         resourceLoader: ResourceLoader,

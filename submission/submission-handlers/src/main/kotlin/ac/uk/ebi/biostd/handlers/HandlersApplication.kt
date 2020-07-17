@@ -1,11 +1,5 @@
 package ac.uk.ebi.biostd.handlers
 
-import ac.uk.ebi.biostd.handlers.config.ApplicationProperties
-import ac.uk.ebi.biostd.handlers.listeners.LogSubmissionListener
-import ac.uk.ebi.biostd.handlers.listeners.SubmissionNotificationsListener
-import ebi.ac.uk.notifications.integration.NotificationConfig
-import ebi.ac.uk.notifications.persistence.repositories.SubmissionRtRepository
-import ebi.ac.uk.notifications.service.RtNotificationService
 import org.springframework.amqp.core.Binding
 import org.springframework.amqp.core.BindingBuilder
 import org.springframework.amqp.core.Queue
@@ -14,12 +8,8 @@ import org.springframework.amqp.rabbit.annotation.EnableRabbit
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter
 import org.springframework.amqp.support.converter.MessageConverter
 import org.springframework.boot.autoconfigure.SpringBootApplication
-import org.springframework.boot.autoconfigure.domain.EntityScan
 import org.springframework.boot.runApplication
 import org.springframework.context.annotation.Bean
-import org.springframework.context.annotation.Configuration
-import org.springframework.core.io.ResourceLoader
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories
 import org.springframework.web.client.RestTemplate
 
 const val BIOSTUDIES_EXCHANGE = "biostudies-exchange"
