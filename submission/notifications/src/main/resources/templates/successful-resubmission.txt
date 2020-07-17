@@ -1,6 +1,6 @@
 Dear ${USERNAME},
 
-Your BioStudies submission "${TITLE}" with accession number ${ACC_NO} has been updated. You will be able to see the updated version at ${UI_URL}studies/${ACC_NO} in the next 24 hours. ${RELEASE_MESSAGE}
+Your BioStudies submission "${TITLE}" with accession number ${ACC_NO} has been updated. You will be able to see the updated version at ${UI_URL}/studies/${ACC_NO} in the next 24 hours. ${RELEASE_MESSAGE}
 
 Should you have any further questions, please reply to this message making sure you keep the subject or contact us at ${MAIL_TO}
 
