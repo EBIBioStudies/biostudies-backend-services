@@ -13,7 +13,7 @@ private const val EXPECTED_PATTERN = "([A-Z,-]*)"
 
 class AccNoPatternUtil {
     private val prefix = ACC_PATTERN.format("([A-Z,-]*)").toPattern()
-    private val extractionPattern = "(\\D*)([0-9]+)(\\D*)".toPattern()
+    private val extractionPattern = "^(.*?)(\\d+)\$".toPattern()
 
     fun getPattern(accPattern: String): String =
         getPrefixAccPattern(accPattern).getOrElse { throw InvalidPatternException(accPattern, EXPECTED_PATTERN) }
