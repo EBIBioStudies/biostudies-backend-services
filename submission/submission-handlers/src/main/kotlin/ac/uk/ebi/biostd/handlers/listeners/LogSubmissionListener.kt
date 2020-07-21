@@ -7,8 +7,7 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener
 
 private val logger = KotlinLogging.logger {}
 
-class LogSubmissionReceiver {
-
+class LogSubmissionListener {
     @RabbitListener(queues = [LOG_QUEUE])
     fun receiveMessage(submission: SubmissionSubmitted) {
         logger.info { "received message for submission ${submission.accNo}" }

@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.notifications.templates
+package ebi.ac.uk.notifications.integration.templates
 
 import ebi.ac.uk.base.isNotBlank
 import ebi.ac.uk.notifications.integration.model.NotificationTemplate

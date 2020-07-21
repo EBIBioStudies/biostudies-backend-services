@@ -9,22 +9,18 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
 const val BIOSTUDIES_EXCHANGE = "biostudies-exchange"
-const val PUBLISH_KEY = "bio.submission.published"
+const val SUBMISSIONS_ROUTING_KEY = "bio.submission.published"
 
 @Configuration
 class EventsConfig {
+    @Bean
+    fun rabbitTemplate(connectionFactory: ConnectionFactory): RabbitTemplate =
+        RabbitTemplate(connectionFactory).apply {
+            messageConverter = producerJackson2MessageConverter()
+        }
 
     @Bean
-    fun rabbitTemplate(connectionFactory: ConnectionFactory): RabbitTemplate {
-        val rabbitTemplate = RabbitTemplate(connectionFactory)
-        rabbitTemplate.messageConverter = producerJackson2MessageConverter()
-        return rabbitTemplate
-    }
-
-    @Bean
-    fun producerJackson2MessageConverter(): Jackson2JsonMessageConverter {
-        return Jackson2JsonMessageConverter()
-    }
+    fun producerJackson2MessageConverter(): Jackson2JsonMessageConverter = Jackson2JsonMessageConverter()
 
     @Bean
     fun exchange(): TopicExchange = TopicExchange(BIOSTUDIES_EXCHANGE)

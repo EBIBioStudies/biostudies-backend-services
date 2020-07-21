@@ -27,7 +27,8 @@ class SubmissionService(
 ) {
     fun submit(request: SubmissionRequest): ExtSubmission {
         val extSubmission = submissionSubmitter.submit(request)
-        eventsService.submissionSubmitted(extSubmission)
+        eventsService.submissionSubmitted(extSubmission, request.onBehalfUser ?: request.submitter)
+
         return extSubmission
     }
 
