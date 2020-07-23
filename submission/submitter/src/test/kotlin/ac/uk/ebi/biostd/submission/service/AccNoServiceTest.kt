@@ -37,12 +37,12 @@ class AccNoServiceTest(
     @ParameterizedTest(name = "prefix is {0} and numeric value is {1}")
     @CsvSource(
         "S-DIXA-AN-002, S-DIXA-AN/002/S-DIXA-AN-002",
-        "S-BSST11, S-BSST/11/S-BSST11",
+        "S-BSST11, S-BSST/011/S-BSST11",
         "S-DIXA-011, S-DIXA/011/S-DIXA-011",
-        "1-AAA, 1-AAA",
+        "1-AAA, 1-AAA/000/1-AAA",
         "S-SCDT-EMBOJ-2019-103549, S-SCDT-EMBOJ-2019/549/S-SCDT-EMBOJ-2019-103549",
-        "S-DIXA-AN-002, S-DIXA-AN/002/S-DIXA-AN-002"
-    )
+        "S-DIXA-AN-002, S-DIXA-AN/002/S-DIXA-AN-002",
+        "S-SCDT-EMBOR-2017-44445V1, S-SCDT-EMBOR-2017-44445V/001/S-SCDT-EMBOR-2017-44445V1")
     fun getRelPath(value: String, expected: String) {
         assertThat(testInstance.getRelPath(accNoPatternUtil.toAccNumber(value))).isEqualTo(expected)
     }
