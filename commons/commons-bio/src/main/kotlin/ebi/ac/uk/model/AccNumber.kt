@@ -5,6 +5,6 @@ import ebi.ac.uk.base.EMPTY
 /**
  * Represents an submission accession number which include a pattern an a numeric value.
  */
-data class AccNumber(val prefix: String, val numericValue: Long? = null) {
+data class AccNumber(val prefix: String, val numericValue: String? = null) {
     override fun toString() = "$prefix${numericValue ?: EMPTY}"
 }

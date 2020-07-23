@@ -33,7 +33,7 @@ class AccNoPatternUtil {
             .map(::asAccNumber)
             .getOrElse { AccNumber((accNo)) }
 
-    private fun asAccNumber(it: Matcher) = AccNumber(it.firstGroup(), it.secondGroup().toLong())
+    private fun asAccNumber(it: Matcher) = AccNumber(it.firstGroup(), it.secondGroup())
 
     private fun getPrefixAccPattern(accNo: String) = prefix.match(accNo).map { it.firstGroup() }
 }

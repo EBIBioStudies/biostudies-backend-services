@@ -6,7 +6,6 @@ import ac.uk.ebi.biostd.submission.exceptions.ProvideAccessNumber
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotSubmitToProjectException
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotUpdateSubmit
 import ac.uk.ebi.biostd.submission.util.AccNoPatternUtil
-import ebi.ac.uk.base.lastDigits
 import ebi.ac.uk.model.AccNumber
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 
@@ -44,20 +43,16 @@ class AccNoService(
         }
     }
 
-    private fun calculateAccNo(pattern: String) = AccNumber(pattern, context.getSequenceNextValue(pattern))
+    private fun calculateAccNo(pattern: String) = AccNumber(pattern, context.getSequenceNextValue(pattern).toString())
 
     @Suppress("MagicNumber")
     internal fun getRelPath(accNo: AccNumber): String {
-        val prefix = accNo.prefix
-        val value = accNo.numericValue
+        val prefix = accNo.prefix.removeSuffix("-")
+        val suffix = accNo.numericValue
 
-        return when {
-            value == null ->
-                prefix.removePrefix("/")
-            value < 99 ->
-                "$prefix/${prefix}0-99/$prefix$value".removePrefix("/")
-            else ->
-                "$prefix/${prefix}xxx${value.lastDigits(PATH_DIGITS)}/$prefix$value".removePrefix("/")
+        return when (suffix) {
+            null -> prefix.removePrefix("/")
+            else -> "$prefix/${suffix.takeLast(PATH_DIGITS)}/$accNo".removePrefix("/")
         }
     }
 
