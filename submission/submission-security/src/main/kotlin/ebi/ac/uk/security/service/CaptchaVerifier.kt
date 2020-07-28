@@ -8,7 +8,7 @@ import java.net.URI
 
 internal val VERIFY_URL = URI.create("https://www.google.com/recaptcha/api/siteverify")
 
-internal class CaptchaVerifier(
+class CaptchaVerifier(
     private val restTemplate: RestTemplate,
     private val properties: SecurityProperties
 ) {

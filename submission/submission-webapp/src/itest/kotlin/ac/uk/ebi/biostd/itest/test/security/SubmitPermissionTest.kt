@@ -5,6 +5,7 @@ import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
+import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.DefaultUser
 import ac.uk.ebi.biostd.itest.entities.RegularUser
 import ac.uk.ebi.biostd.itest.entities.SuperUser
@@ -39,6 +40,7 @@ internal class SubmitPermissionTest(tempFolder: TemporaryFolder) : BaseIntegrati
     @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
     @DirtiesContext
     inner class SubmitProjectTest(
+        @Autowired private val securityTestService: SecurityTestService,
         @Autowired private val userDataRepository: UserDataRepository,
         @Autowired private val tagsDataRepository: AccessTagDataRepo,
         @Autowired private val accessPermissionRepository: AccessPermissionRepository
@@ -59,6 +61,9 @@ internal class SubmitPermissionTest(tempFolder: TemporaryFolder) : BaseIntegrati
 
         @BeforeAll
         fun init() {
+            securityTestService.registerUser(SuperUser)
+            securityTestService.registerUser(RegularUser)
+
             superUserWebClient = getWebClient(serverPort, SuperUser)
             regularUserWebClient = getWebClient(serverPort, RegularUser)
         }
@@ -147,7 +152,6 @@ internal class SubmitPermissionTest(tempFolder: TemporaryFolder) : BaseIntegrati
             val accessTag = tagsDataRepository.findByName(project)
             val user = userDataRepository.findByEmailAndActive(user.email, active = true)
             val attachPermission = AccessPermission(accessType = ATTACH, user = user.get(), accessTag = accessTag)
-
             accessPermissionRepository.save(attachPermission)
         }
     }

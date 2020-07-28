@@ -4,6 +4,7 @@ import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
+import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.line
@@ -17,6 +18,7 @@ import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
@@ -30,7 +32,9 @@ internal class SubmissionListApiTest(private val tempFolder: TemporaryFolder) : 
     @ExtendWith(SpringExtension::class)
     @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
     @DirtiesContext
-    inner class SingleSubmissionTest {
+    inner class SingleSubmissionTest(
+        @Autowired val securityTestService: SecurityTestService
+    ) {
         @LocalServerPort
         private var serverPort: Int = 0
 
@@ -38,6 +42,7 @@ internal class SubmissionListApiTest(private val tempFolder: TemporaryFolder) : 
 
         @BeforeAll
         fun init() {
+            securityTestService.registerUser(SuperUser)
             webClient = getWebClient(serverPort, SuperUser)
 
             for (idx in 11..20) {

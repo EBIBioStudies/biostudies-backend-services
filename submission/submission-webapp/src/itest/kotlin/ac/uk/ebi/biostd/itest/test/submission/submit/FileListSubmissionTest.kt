@@ -5,6 +5,7 @@ import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
+import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
 import ebi.ac.uk.asserts.assertThat
@@ -42,7 +43,10 @@ internal class FileListSubmissionTest(private val tempFolder: TemporaryFolder) :
     @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
     @Transactional
     @DirtiesContext
-    inner class MixedFormatFileListSubmissionTest(@Autowired private val submissionRepository: SubmissionRepository) {
+    inner class MixedFormatFileListSubmissionTest(
+        @Autowired private val securityTestService: SecurityTestService,
+        @Autowired private val submissionRepository: SubmissionRepository
+    ) {
         @LocalServerPort
         private var serverPort: Int = 0
 
@@ -50,6 +54,7 @@ internal class FileListSubmissionTest(private val tempFolder: TemporaryFolder) :
 
         @BeforeAll
         fun init() {
+            securityTestService.registerUser(SuperUser)
             webClient = getWebClient(serverPort, SuperUser)
         }
 
