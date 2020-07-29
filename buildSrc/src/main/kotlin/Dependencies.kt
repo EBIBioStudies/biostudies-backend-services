@@ -28,7 +28,6 @@ import Versions.Log4JVersion
 import Versions.LogbackVersion
 import Versions.MySqlVersion
 import Versions.PoiVersion
-import Versions.Retrofit2CoroutineVersion
 import Versions.Retrofit2Version
 import Versions.RxJava2Version
 import Versions.ServletVersion
@@ -57,11 +56,11 @@ object Versions {
     const val SpringVersion = "5.2.1.RELEASE"
     const val SpringAdminVersion = "2.1.6"
 
-    const val KotlinVersion = "1.3.61"
+    const val KotlinVersion = "1.3.72"
     const val KotlinLoggingVersion = "1.6.20"
     const val KotlinArrowVersion = "0.8.2"
-    const val KotlinCoroutineVersion = "1.3.3"
-    const val KMongoCoroutineVersion = "3.11.0"
+    const val KotlinCoroutineVersion = "1.3.8"
+    const val KMongoCoroutineVersion = "3.12.2"
     const val JpaEntityGraphVersion = "2.2.3"
 
     const val CommonsLang3Version = "3.8.1"
@@ -78,8 +77,7 @@ object Versions {
     const val ServletVersion = "4.0.1"
     const val HibernateEMVersion = "5.3.5.Final"
     const val JschVersion = "0.1.55"
-    const val Retrofit2Version = "2.5.0"
-    const val Retrofit2CoroutineVersion = "0.9.2"
+    const val Retrofit2Version = "2.9.0"
     const val JSONOrgVersion = "20090211"
     const val CliKtVersion = "1.7.0"
     const val RxJava2Version = "2.2.8"
@@ -127,7 +125,6 @@ object Dependencies {
     const val JacksonCore = "com.fasterxml.jackson.core:jackson-core:$JacksonVersion"
     const val JacksonXml = "com.fasterxml.jackson.dataformat:jackson-dataformat-xml:$JacksonVersion"
     const val Retrofit2 = "com.squareup.retrofit2:retrofit:$Retrofit2Version"
-    const val RetrofitCoroutine = "com.jakewharton.retrofit:retrofit2-kotlin-coroutines-adapter:$Retrofit2CoroutineVersion"
 
     // Persistence
     const val HibernateEntityManager = "org.hibernate:hibernate-entitymanager:$HibernateEMVersion"

@@ -19,6 +19,7 @@ class PmcLoader(private val pmcLoader: PmcSubmissionLoader) {
      */
     fun loadFolder(folder: File) {
         runBlocking {
+            logger.info { "loading files in ${folder.absolutePath}" }
             folder.listFiles()
                 .asSequence()
                 .filter { it.extension == "gz" }

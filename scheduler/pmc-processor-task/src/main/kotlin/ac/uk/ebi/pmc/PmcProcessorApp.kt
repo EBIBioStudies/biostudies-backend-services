@@ -9,6 +9,7 @@ import arrow.core.Try
 import ebi.ac.uk.commons.http.slack.Alert
 import ebi.ac.uk.commons.http.slack.NotificationsSender
 import ebi.ac.uk.commons.http.slack.Report
+import mu.KotlinLogging
 import org.springframework.beans.factory.getBean
 import org.springframework.boot.CommandLineRunner
 import org.springframework.boot.autoconfigure.SpringBootApplication
@@ -17,22 +18,28 @@ import org.springframework.boot.runApplication
 import org.springframework.context.ApplicationContext
 import org.springframework.context.ApplicationContextAware
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
 import java.io.File
 
 private const val SYSTEM = "PMC_PROCESSOR"
+private val logger = KotlinLogging.logger {}
 
-@SpringBootApplication
-class PmcProcessorApp {
+@Configuration
+class MainConfig {
     @Bean
     @ConfigurationProperties("app.data")
-    fun properties() = PmcImporterProperties()
+    fun properties() =
+        PmcImporterProperties()
 
     @Bean
-    fun taskExecutor(properties: PmcImporterProperties, notificationSender: NotificationsSender) =
-        TaskExecutor(properties, notificationSender)
+    fun pmcTaskExecutor(properties: PmcImporterProperties, notificationSender: NotificationsSender) =
+        PmcTaskExecutor(properties, notificationSender)
 }
 
-class TaskExecutor(
+@SpringBootApplication
+class PmcProcessorApp
+
+class PmcTaskExecutor(
     private val properties: PmcImporterProperties,
     private val notificationSender: NotificationsSender
 ) : CommandLineRunner, ApplicationContextAware {
@@ -49,7 +56,6 @@ class TaskExecutor(
     @Suppress("TooGenericExceptionCaught")
     override fun run(args: Array<String>) {
         val mode = properties.mode
-
         Try {
             when (mode) {
                 PmcMode.LOAD -> context.getBean<PmcLoader>().loadFolder(File(properties.path))
@@ -57,6 +63,7 @@ class TaskExecutor(
                 PmcMode.SUBMIT -> context.getBean<PmcSubmissionSubmitter>().submit()
             }
         }.fold({
+            logger.error(it) { "Error executing pmc task, mode = ${properties.mode} " }
             notificationSender.sent(Alert(SYSTEM, mode.description, "Error executing process", it.message))
         }, {
             notificationSender.sent(Report(SYSTEM, mode.description, "Process was completed successfully"))
