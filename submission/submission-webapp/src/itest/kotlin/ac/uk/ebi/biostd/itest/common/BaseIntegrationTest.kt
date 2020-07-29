@@ -6,7 +6,9 @@ import ac.uk.ebi.biostd.itest.entities.TestUser
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import org.junit.jupiter.api.BeforeAll
 
-internal open class BaseIntegrationTest(private val tempFolder: TemporaryFolder) {
+internal open class BaseIntegrationTest(
+    private val tempFolder: TemporaryFolder
+) {
     protected lateinit var submissionPath: String
     protected lateinit var ftpPath: String
 
@@ -28,7 +30,6 @@ internal open class BaseIntegrationTest(private val tempFolder: TemporaryFolder)
 
     protected fun getWebClient(serverPort: Int, user: TestUser): BioWebClient {
         val securityClient = SecurityWebClient.create("http://localhost:$serverPort")
-        securityClient.registerUser(user.asRegisterRequest())
         return securityClient.getAuthenticatedClient(user.email, user.password)
     }
 

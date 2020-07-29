@@ -34,7 +34,7 @@ import java.nio.file.Path
 import java.nio.file.Paths
 
 @Suppress("TooManyFunctions")
-internal class SecurityService(
+class SecurityService(
     private val userRepository: UserDataRepository,
     private val securityUtil: SecurityUtil,
     private val securityProps: SecurityProperties,
@@ -174,7 +174,6 @@ internal class SecurityService(
             email = registerRequest.email,
             fullName = registerRequest.name,
             secret = securityUtil.newKey(),
-            superuser = registerRequest.superUser,
             notificationsEnabled = registerRequest.notificationsEnabled,
             passwordDigest = securityUtil.getPasswordDigest(registerRequest.password))
     }

@@ -4,6 +4,7 @@ import ac.uk.ebi.biostd.client.exception.WebClientException
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
+import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.dsl.line
@@ -17,6 +18,7 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.skyscreamer.jsonassert.JSONAssert.assertEquals
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.test.annotation.DirtiesContext
@@ -30,7 +32,7 @@ internal class SubmissionDraftApiTest(tempFolder: TemporaryFolder) : BaseIntegra
     @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
     @Transactional
     @DirtiesContext
-    inner class SubmissionDraftTest {
+    inner class SubmissionDraftTest(@Autowired val securityTestService: SecurityTestService) {
         @LocalServerPort
         private var serverPort: Int = 0
 
@@ -43,6 +45,7 @@ internal class SubmissionDraftApiTest(tempFolder: TemporaryFolder) : BaseIntegra
 
         @BeforeAll
         fun init() {
+            securityTestService.registerUser(SuperUser)
             webClient = getWebClient(serverPort, SuperUser)
         }
 
