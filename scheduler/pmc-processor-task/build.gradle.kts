@@ -4,6 +4,7 @@ import Dependencies.CommonsLang3
 import Dependencies.Coroutines
 import Dependencies.KMongoCoroutine
 import Dependencies.KotlinLogging
+import Dependencies.OkHttpLogging
 import Dependencies.Retrofit2
 import Dependencies.SpringWeb
 import SpringBootDependencies.SpringBootStarter
@@ -24,7 +25,6 @@ dependencies {
     implementation(project(":commons:commons-serialization"))
     implementation(project(":scheduler:task-properties"))
     implementation(project(":commons:commons-http"))
-    implementation("com.squareup.okhttp3:logging-interceptor:3.8.0")
 
     implementation(Arrow)
     implementation(CommonsIO)
@@ -33,6 +33,8 @@ dependencies {
     implementation(KMongoCoroutine)
     implementation(KotlinLogging)
     implementation(Retrofit2)
+    implementation(OkHttpLogging)
+
     implementation(SpringBootStarter)
     implementation(SpringWeb)
     implementation(SpringBootStarterConfigProcessor)

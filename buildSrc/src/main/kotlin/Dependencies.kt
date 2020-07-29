@@ -27,6 +27,7 @@ import Versions.KotlinVersion
 import Versions.Log4JVersion
 import Versions.LogbackVersion
 import Versions.MySqlVersion
+import Versions.OkHttpLoggingVersion
 import Versions.PoiVersion
 import Versions.Retrofit2Version
 import Versions.RxJava2Version
@@ -78,6 +79,7 @@ object Versions {
     const val HibernateEMVersion = "5.3.5.Final"
     const val JschVersion = "0.1.55"
     const val Retrofit2Version = "2.9.0"
+    const val OkHttpLoggingVersion = "3.8.0"
     const val JSONOrgVersion = "20090211"
     const val CliKtVersion = "1.7.0"
     const val RxJava2Version = "2.2.8"
@@ -125,6 +127,7 @@ object Dependencies {
     const val JacksonCore = "com.fasterxml.jackson.core:jackson-core:$JacksonVersion"
     const val JacksonXml = "com.fasterxml.jackson.dataformat:jackson-dataformat-xml:$JacksonVersion"
     const val Retrofit2 = "com.squareup.retrofit2:retrofit:$Retrofit2Version"
+    const val OkHttpLogging = "com.squareup.okhttp3:logging-interceptor:$OkHttpLoggingVersion"
 
     // Persistence
     const val HibernateEntityManager = "org.hibernate:hibernate-entitymanager:$HibernateEMVersion"
