@@ -5,7 +5,6 @@ import ac.uk.ebi.biostd.files.web.common.FilesMapper
 import ac.uk.ebi.biostd.files.web.common.UserPath
 import ac.uk.ebi.biostd.submission.converters.BioUser
 import ebi.ac.uk.security.integration.model.api.SecurityUser
-import io.swagger.annotations.Api
 import io.swagger.annotations.ApiImplicitParam
 import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiParam
@@ -21,10 +20,11 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseBody
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.multipart.MultipartFile
+import springfox.documentation.annotations.ApiIgnore
 
 @Controller
 @PreAuthorize("isAuthenticated()")
-@Api(tags = ["User Files"])
+@ApiIgnore
 class UserFilesResource(
     private val filesMapper: FilesMapper,
     private val fileManager: UserFilesService

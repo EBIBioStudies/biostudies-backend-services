@@ -4,6 +4,7 @@ import ac.uk.ebi.biostd.factory.TestSuperUser
 import ac.uk.ebi.biostd.resolvers.TestBioUserResolver
 import ac.uk.ebi.biostd.submission.converters.ExtSubmissionConverter
 import ac.uk.ebi.biostd.submission.domain.service.ExtSubmissionService
+import ac.uk.ebi.biostd.submission.web.resources.internal.extended.ExtSubmissionResource
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.extended.model.ExtSubmission
 import io.mockk.clearAllMocks

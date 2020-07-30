@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.submission.web.resources
+package ac.uk.ebi.biostd.submission.web.resources.internal.extended
 
 import ac.uk.ebi.biostd.submission.converters.BioUser
 import ac.uk.ebi.biostd.submission.domain.service.ExtSubmissionService
@@ -15,10 +15,12 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import springfox.documentation.annotations.ApiIgnore
 
 @RestController
 @RequestMapping("/submissions/extended")
 @Api(tags = ["Extended Submissions"])
+@ApiIgnore
 class ExtSubmissionResource(private val extSubmissionService: ExtSubmissionService) {
     @GetMapping("/{accNo}")
     @ApiOperation("Get the extended model for a submission")

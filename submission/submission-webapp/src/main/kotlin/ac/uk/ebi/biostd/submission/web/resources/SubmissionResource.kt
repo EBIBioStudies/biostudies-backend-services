@@ -18,10 +18,12 @@ import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import springfox.documentation.annotations.ApiIgnore
 
 @RestController
 @RequestMapping("/submissions")
 @PreAuthorize("isAuthenticated()")
+@ApiIgnore
 @Api(tags = ["Submissions"])
 class SubmissionResource(
     private val submissionsWebHandler: SubmissionsWebHandler

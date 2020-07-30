@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseBody
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.multipart.MultipartFile
+import springfox.documentation.annotations.ApiIgnore
 import uk.ac.ebi.stats.model.SubmissionStat
 import uk.ac.ebi.stats.model.SubmissionStatType
 import uk.ac.ebi.stats.service.SubmissionStatsService
@@ -30,6 +31,7 @@ import uk.ac.ebi.stats.service.SubmissionStatsService
 @RequestMapping("/stats")
 @PreAuthorize("isAuthenticated()")
 @Api(tags = ["Submission Stats"])
+@ApiIgnore
 class StatsResource(
     private val statsFileHandler: StatsFileHandler,
     private val tempFileGenerator: TempFileGenerator,
