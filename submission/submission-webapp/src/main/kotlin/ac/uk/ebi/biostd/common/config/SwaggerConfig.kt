@@ -24,7 +24,7 @@ class SwaggerConfig(private val properties: ApplicationProperties) {
     fun api(): Docket =
         Docket(DocumentationType.SWAGGER_2)
             .select()
-            .apis(RequestHandlerSelectors.any())
+            .apis(RequestHandlerSelectors.withClassAnnotation(PublicResource::class.java))
             .paths(paths())
             .build()
             .apiInfo(apiInfo())
@@ -53,3 +53,8 @@ class SwaggerConfig(private val properties: ApplicationProperties) {
             .message("Invalid X-Session-Token")
             .build()
 }
+
+@Target(AnnotationTarget.CLASS)
+@Retention(AnnotationRetention.RUNTIME)
+@MustBeDocumented
+annotation class PublicResource

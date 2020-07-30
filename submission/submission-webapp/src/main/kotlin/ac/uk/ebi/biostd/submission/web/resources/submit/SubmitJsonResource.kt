@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.submission.web.resources.submit
 
+import ac.uk.ebi.biostd.common.config.PublicResource
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.JSON_PRETTY
 import ac.uk.ebi.biostd.persistence.integration.FileMode
 import ac.uk.ebi.biostd.submission.converters.BioUser
@@ -33,7 +34,8 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/submissions")
 @PreAuthorize("isAuthenticated()")
-@Api(tags = ["Submissions"])
+@Api(tags = ["Submit"])
+@PublicResource
 @Suppress("MaxLineLength")
 class SubmitJsonResource(private val submitWebHandler: SubmitWebHandler) {
 

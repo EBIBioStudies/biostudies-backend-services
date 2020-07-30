@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.security.web
 
+import ac.uk.ebi.biostd.common.config.PublicResource
 import ebi.ac.uk.api.security.ChangePasswordRequest
 import ebi.ac.uk.api.security.LoginRequest
 import ebi.ac.uk.api.security.LogoutRequest
@@ -31,6 +32,7 @@ import javax.validation.Valid
 @Validated
 @RequestMapping("/auth", produces = [APPLICATION_JSON])
 @Api(tags = ["Security"])
+@PublicResource
 class SecurityResource(
     private val securityService: ISecurityService,
     private val securityMapper: SecurityMapper

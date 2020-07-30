@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.submission.web.resources
 
+import ac.uk.ebi.biostd.common.config.PublicResource
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionService
 import ebi.ac.uk.model.constants.APPLICATION_JSON
 import ebi.ac.uk.model.constants.TEXT_PLAIN
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/submissions")
 @Api(tags = ["Submissions"])
+@PublicResource
 class SubmissionsResource(
     private val submissionService: SubmissionService
 ) {
