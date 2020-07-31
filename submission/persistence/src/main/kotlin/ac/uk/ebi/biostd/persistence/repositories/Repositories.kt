@@ -10,6 +10,7 @@ import ac.uk.ebi.biostd.persistence.model.DbUserData
 import ac.uk.ebi.biostd.persistence.model.FULL_DATA_GRAPH
 import ac.uk.ebi.biostd.persistence.model.SecurityToken
 import ac.uk.ebi.biostd.persistence.model.Sequence
+import ac.uk.ebi.biostd.persistence.model.USER_DATA_GRAPH
 import ac.uk.ebi.biostd.persistence.model.UserDataId
 import ac.uk.ebi.biostd.persistence.model.UserGroup
 import com.cosium.spring.data.jpa.entity.graph.repository.EntityGraphJpaRepository
@@ -41,9 +42,6 @@ interface SubmissionDataRepository :
     @Query("Update DbSubmission s set s.version = -s.version  where s.accNo=?1 and s.version > 0")
     @Modifying
     fun expireActiveVersions(accNo: String)
-
-    @EntityGraph(value = FULL_DATA_GRAPH, type = LOAD)
-    fun getFirstByAccNoOrderByVersionDesc(accNo: String): DbSubmission
 
     fun existsByAccNo(accNo: String): Boolean
 
@@ -78,6 +76,9 @@ interface UserDataRepository : JpaRepository<DbUser, Long> {
     fun findByActivationKeyAndActive(key: String, active: Boolean): Optional<DbUser>
     fun findByEmailAndActive(email: String, active: Boolean): Optional<DbUser>
     fun findByEmail(email: String): Optional<DbUser>
+
+    @EntityGraph(value = USER_DATA_GRAPH, type = LOAD)
+    fun getById(id: Long): DbUser
 }
 
 interface TokenDataRepository : JpaRepository<SecurityToken, String>

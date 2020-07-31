@@ -37,7 +37,7 @@ class SecurityUtilTest(
     inner class TokenCases {
         @Test
         fun `token can be generated and converted back`() {
-            every { userRepository.getOne(simpleUser.id) } returns simpleUser
+            every { userRepository.getById(simpleUser.id) } returns simpleUser
 
             val token = testInstance.createToken(simpleUser)
             assertThat(testInstance.fromToken(token)).contains(simpleUser)
@@ -69,7 +69,7 @@ class SecurityUtilTest(
         @Test
         fun `check password is set as valid when super user security token is used`() {
             val superUserToken = testInstance.createToken(adminUser)
-            every { userRepository.getOne(SecurityTestEntities.adminId) } returns adminUser
+            every { userRepository.getById(SecurityTestEntities.adminId) } returns adminUser
 
             assertThat(testInstance.checkPassword(ByteArray(1), superUserToken)).isTrue()
         }
@@ -77,7 +77,7 @@ class SecurityUtilTest(
         @Test
         fun `check password is set as invalid when normal user security token is used`() {
             val userToken = testInstance.createToken(simpleUser)
-            every { userRepository.getOne(SecurityTestEntities.userId) } returns simpleUser
+            every { userRepository.getById(SecurityTestEntities.userId) } returns simpleUser
 
             assertThat(testInstance.checkPassword(ByteArray(1), userToken)).isFalse()
         }
@@ -103,7 +103,7 @@ class SecurityUtilTest(
         @Test
         fun `check when exist`() {
             val token = testInstance.createToken(simpleUser)
-            every { userRepository.getOne(simpleUser.id) } returns simpleUser
+            every { userRepository.getById(simpleUser.id) } returns simpleUser
             every { tokenRepository.findById(token) } returns Optional.empty()
 
             assertThat(testInstance.checkToken(token)).contains(simpleUser)

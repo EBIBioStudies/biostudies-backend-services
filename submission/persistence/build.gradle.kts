@@ -3,6 +3,7 @@ import Dependencies.CommonsIO
 import Dependencies.CommonsLang3
 import Dependencies.HibernateEntityManager
 import Dependencies.JpaEntityGraph
+import Dependencies.KotlinLogging
 import Dependencies.KotlinStdLib
 import Dependencies.SpringDataJpa
 import TestDependencies.BaseTestCompileDependencies
@@ -27,6 +28,7 @@ dependencies {
     implementation(HibernateEntityManager)
     implementation(JpaEntityGraph)
     implementation(KotlinStdLib)
+    implementation(KotlinLogging)
     implementation(SpringDataJpa)
 
     BaseTestCompileDependencies.forEach { testImplementation(it) }

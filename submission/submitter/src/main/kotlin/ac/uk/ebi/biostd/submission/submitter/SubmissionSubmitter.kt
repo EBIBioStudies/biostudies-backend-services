@@ -33,10 +33,12 @@ import ebi.ac.uk.model.extensions.releaseDate
 import ebi.ac.uk.model.extensions.rootPath
 import ebi.ac.uk.model.extensions.title
 import ebi.ac.uk.util.date.isBeforeOrEqual
-import org.springframework.transaction.annotation.Isolation
+import mu.KotlinLogging
 import org.springframework.transaction.annotation.Transactional
 import java.time.OffsetDateTime
 import java.util.UUID
+
+private val logger = KotlinLogging.logger {}
 
 open class SubmissionSubmitter(
     private val timesService: TimesService,
@@ -46,8 +48,10 @@ open class SubmissionSubmitter(
     private val context: PersistenceContext,
     private val queryService: SubmissionQueryService
 ) {
-    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Transactional
     open fun submit(request: SubmissionRequest): ExtSubmission {
+        logger.info { "processing request $request" }
+
         val submission = process(
             request.submission,
             request.submitter.asUser(),
@@ -56,6 +60,7 @@ open class SubmissionSubmitter(
             request.method
         )
 
+        logger.info { "Saving submission $submission" }
         return context.saveSubmission(SaveRequest(submission, request.mode))
     }
 
@@ -89,7 +94,6 @@ open class SubmissionSubmitter(
         val accNoString = accNo.toString()
         val projectInfo = getProjectInfo(submitter, submission, accNoString)
         val secretKey = getSecret(accNoString)
-        val nextVersion = context.getNextVersion(accNoString)
         val relPath = accNoService.getRelPath(accNo)
         val tags = getTags(released, parentTags, projectInfo)
         val ownerEmail = onBehalfUser?.email ?: queryService.getOwner(accNoString) ?: submitter.email
@@ -98,7 +102,7 @@ open class SubmissionSubmitter(
             accNo = accNoString,
             owner = ownerEmail,
             submitter = submitter.email,
-            version = nextVersion,
+            version = defaultVersion,
             method = getMethod(method),
             title = submission.title,
             relPath = relPath,
@@ -146,4 +150,9 @@ open class SubmissionSubmitter(
 
     private fun getSecret(accString: String) =
         if (queryService.isNew(accString)) UUID.randomUUID().toString() else queryService.getSecret(accString)
+
+    companion object {
+
+        const val defaultVersion = 1
+    }
 }
