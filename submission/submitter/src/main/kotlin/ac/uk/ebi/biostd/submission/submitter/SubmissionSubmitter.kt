@@ -34,13 +34,12 @@ import ebi.ac.uk.model.extensions.rootPath
 import ebi.ac.uk.model.extensions.title
 import ebi.ac.uk.util.date.isBeforeOrEqual
 import mu.KotlinLogging
-import org.springframework.transaction.annotation.Transactional
 import java.time.OffsetDateTime
 import java.util.UUID
 
 private val logger = KotlinLogging.logger {}
 
-open class SubmissionSubmitter(
+class SubmissionSubmitter(
     private val timesService: TimesService,
     private val accNoService: AccNoService,
     private val parentInfoService: ParentInfoService,
@@ -48,8 +47,7 @@ open class SubmissionSubmitter(
     private val context: PersistenceContext,
     private val queryService: SubmissionQueryService
 ) {
-    @Transactional
-    open fun submit(request: SubmissionRequest): ExtSubmission {
+    fun submit(request: SubmissionRequest): ExtSubmission {
         logger.info { "processing request $request" }
 
         val submission = process(
