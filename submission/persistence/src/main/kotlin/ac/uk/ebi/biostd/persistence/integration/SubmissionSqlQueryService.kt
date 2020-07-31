@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.persistence.integration
 
 import ac.uk.ebi.biostd.persistence.exception.ProjectNotFoundException
 import ac.uk.ebi.biostd.persistence.exception.SubmissionNotFoundException
+import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
 import ac.uk.ebi.biostd.persistence.repositories.SubmissionDataRepository
 import ebi.ac.uk.model.constants.SubFields
 import ebi.ac.uk.paths.SubmissionFolderResolver
@@ -11,6 +12,7 @@ import java.time.OffsetDateTime
 @Suppress("TooManyFunctions")
 class SubmissionSqlQueryService(
     private val subRepository: SubmissionDataRepository,
+    private val accessTagDataRepo: AccessTagDataRepo,
     private val folderResolver: SubmissionFolderResolver
 ) : SubmissionQueryService {
     override fun getParentAccPattern(parentAccNo: String) =
@@ -22,7 +24,8 @@ class SubmissionSqlQueryService(
 
     override fun getSecret(accNo: String): String = getSubmission(accNo).secretKey
 
-    override fun getAccessTags(accNo: String): List<String> = getSubmission(accNo).accessTags.map { it.name }
+    override fun getAccessTags(accNo: String): List<String> =
+        accessTagDataRepo.findBySubmissionsAccNo(accNo).map { it.name }
 
     override fun getReleaseTime(accNo: String): OffsetDateTime? = getSubmission(accNo).releaseTime
 

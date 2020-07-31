@@ -49,6 +49,7 @@ import java.nio.file.Paths
     "uk.ac.ebi.stats.persistence.model"])
 class PersistenceConfig(
     private val submissionDataRepository: SubmissionDataRepository,
+    private val accessTagDataRepo: AccessTagDataRepo,
     private val sequenceRepository: SequenceDataRepository,
     private val tagsDataRepository: AccessTagDataRepo,
     private val template: NamedParameterJdbcTemplate,
@@ -112,5 +113,5 @@ class PersistenceConfig(
 
     @Bean
     fun submissionQueryService(): SubmissionQueryService =
-        SubmissionSqlQueryService(submissionDataRepository, folderResolver)
+        SubmissionSqlQueryService(submissionDataRepository, accessTagDataRepo, folderResolver)
 }
