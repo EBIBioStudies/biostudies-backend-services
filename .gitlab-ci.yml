@@ -1,4 +1,4 @@
-image: gradle:6.0-jdk8
+image: gradle:6.5.1-jdk8
 include:
   - local: '/ci/submitter.yml'
   - local: '/ci/pmc-processor.yml'
