@@ -22,6 +22,7 @@ import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Lock
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
+import org.springframework.data.repository.query.Param
 import java.util.Optional
 import javax.persistence.LockModeType
 import com.cosium.spring.data.jpa.entity.graph.domain.EntityGraph as GraphSpecification
@@ -35,6 +36,15 @@ interface SubmissionDataRepository :
     fun getByAccNo(id: String): DbSubmission?
 
     fun findByAccNoAndVersionGreaterThan(id: String, version: Int = 0): DbSubmission?
+
+    @Query("from DbSubmission s inner join s.owner where s.accNo = :accNo and s.version > 0")
+    fun getBasic(@Param("accNo") accNo: String): DbSubmission
+
+    @Query("from DbSubmission s inner join s.owner inner join s.attributes where s.accNo = :accNo and s.version > 0")
+    fun getBasicWithAttributes(@Param("accNo") accNo: String): DbSubmission
+
+    @Query("from DbSubmission s inner join s.owner where s.accNo = :accNo and s.version > 0")
+    fun findBasic(@Param("accNo") accNo: String): DbSubmission?
 
     @Query("Select max(s.version) from DbSubmission s where s.accNo=?1")
     fun getLastVersion(accNo: String): Int?

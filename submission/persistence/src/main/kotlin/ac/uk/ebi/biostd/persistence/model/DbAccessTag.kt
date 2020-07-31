@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.persistence.model
 import java.util.Objects
 import javax.persistence.Column
 import javax.persistence.Entity
+import javax.persistence.FetchType
 import javax.persistence.GeneratedValue
 import javax.persistence.Id
 import javax.persistence.ManyToMany
@@ -18,7 +19,7 @@ class DbAccessTag(
     @Column
     var name: String,
 
-    @ManyToMany(mappedBy = "accessTags")
+    @ManyToMany(mappedBy = "accessTags", fetch = FetchType.LAZY)
     var submissions: MutableSet<DbSubmission> = sortedSetOf()
 ) {
 

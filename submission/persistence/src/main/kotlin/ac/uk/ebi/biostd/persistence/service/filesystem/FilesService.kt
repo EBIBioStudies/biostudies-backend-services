@@ -115,7 +115,7 @@ class FilesService(
     }
 
     private fun getOrCreateSubmissionFolder(submission: ExtSubmission, permissions: Set<PosixFilePermission>): File {
-        val submissionPath = folderResolver.getSubmissionFolder(submission.relPath)
+        val submissionPath = folderResolver.getSubFolder(submission.relPath)
         FileUtils.createParentFolders(submissionPath, ALL_CAN_READ)
         return getOrCreateFolder(submissionPath, permissions).toFile()
     }

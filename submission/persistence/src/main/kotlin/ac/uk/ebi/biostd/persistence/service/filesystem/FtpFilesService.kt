@@ -11,7 +11,7 @@ private val ALL_READ: Set<PosixFilePermission> = PosixFilePermissions.fromString
 class FtpFilesService(private val folderResolver: SubmissionFolderResolver) {
 
     fun createFtpFolder(relPath: String) {
-        val submissionFolder = folderResolver.getSubmissionFolder(relPath).toFile()
+        val submissionFolder = folderResolver.getSubFolder(relPath).toFile()
         val ftpFolder = getFtpFolder(relPath)
         FileUtils.createHardLink(submissionFolder, ftpFolder)
     }
