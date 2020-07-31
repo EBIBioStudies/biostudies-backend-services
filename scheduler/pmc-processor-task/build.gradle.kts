@@ -4,8 +4,8 @@ import Dependencies.CommonsLang3
 import Dependencies.Coroutines
 import Dependencies.KMongoCoroutine
 import Dependencies.KotlinLogging
+import Dependencies.OkHttpLogging
 import Dependencies.Retrofit2
-import Dependencies.RetrofitCoroutine
 import Dependencies.SpringWeb
 import SpringBootDependencies.SpringBootStarter
 import SpringBootDependencies.SpringBootStarterConfigProcessor
@@ -15,9 +15,9 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.springframework.boot.gradle.tasks.bundling.BootJar
 
 plugins {
-    id("org.jetbrains.kotlin.plugin.spring") version "1.3.41"
+    id("org.jetbrains.kotlin.plugin.spring") version "1.3.72"
     id("io.spring.dependency-management") version "1.0.6.RELEASE"
-    id("org.springframework.boot") version "2.1.1.RELEASE"
+    id("org.springframework.boot") version "2.2.6.RELEASE"
 }
 
 dependencies {
@@ -33,7 +33,8 @@ dependencies {
     implementation(KMongoCoroutine)
     implementation(KotlinLogging)
     implementation(Retrofit2)
-    implementation(RetrofitCoroutine)
+    implementation(OkHttpLogging)
+
     implementation(SpringBootStarter)
     implementation(SpringWeb)
     implementation(SpringBootStarterConfigProcessor)
