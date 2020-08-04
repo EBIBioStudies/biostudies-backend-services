@@ -42,9 +42,6 @@ interface SubmissionDataRepository :
     @Modifying
     fun expireActiveVersions(accNo: String)
 
-    @EntityGraph(value = FULL_DATA_GRAPH, type = LOAD)
-    fun getFirstByAccNoOrderByVersionDesc(accNo: String): DbSubmission
-
     fun existsByAccNo(accNo: String): Boolean
 
     fun findByRootSectionTypeAndAccNoInAndVersionGreaterThan(
@@ -92,7 +89,6 @@ interface AccessPermissionRepository : JpaRepository<AccessPermission, Long> {
 }
 
 interface UserDataDataRepository : JpaRepository<DbUserData, UserDataId> {
-
-    fun deleteByUserEmailAndKeyIgnoreCaseContaining(userEmail: String, dataKey: String): Unit
+    fun deleteByUserEmailAndKeyIgnoreCaseContaining(userEmail: String, dataKey: String)
     fun findByUserId(userId: Long, pageRequest: Pageable): List<DbUserData>
 }

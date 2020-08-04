@@ -50,7 +50,8 @@ typealias Graph = NamedSubgraph
             Node("accessTags"),
             Node("tags"),
             Node(ATTRS),
-            Node("owner")
+            Node("owner"),
+            Node("submitter")
         ],
         subgraphs = [
             Graph(name = "root", attributeNodes = [
@@ -60,30 +61,25 @@ typealias Graph = NamedSubgraph
                 Node(SECTS, subgraph = "l1")]),
             Graph(name = "l1", attributeNodes = [
                 Node(LINKS, subgraph = "attrs"),
-                Node(ATTRS), Node(FILES, subgraph = "attrs"),
+                Node(ATTRS),
+                Node(FILES, subgraph = "attrs"),
                 Node(SECTS, subgraph = "l2")]),
             Graph(name = "l2", attributeNodes = [
                 Node(LINKS, subgraph = "attrs"),
                 Node(ATTRS),
                 Node(FILES, subgraph = "attrs"),
-                Node(SECTS, subgraph = "l3")]),
-            Graph(name = "l3", attributeNodes = [
-                Node(LINKS, subgraph = "attrs"),
-                Node(ATTRS),
-                Node(FILES, subgraph = "attrs")]),
+                Node(SECTS, subgraph = SECTION_GRAPH)]),
             Graph(name = "attrs", attributeNodes = [Node(ATTRS)])
         ]),
     NamedEntityGraph(name = SIMPLE_QUERY_GRAPH, attributeNodes = [Node(value = "rootSection")])
 ])
 @Table(name = "Submission")
 class DbSubmission(
-
     @Column
     var accNo: String = "",
 
     @Column
     var version: Int = 1
-
 ) {
     @Id
     @GeneratedValue
