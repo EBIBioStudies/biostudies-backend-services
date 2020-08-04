@@ -122,7 +122,7 @@ class SubmissionSubmitterTest {
     private fun assertExtendedSubmission() {
         val expected = saveRequest.captured.submission
         assertThat(expected.accNo).isEqualTo("S-TEST123")
-        assertThat(expected.version).isEqualTo(2)
+        assertThat(expected.version).isEqualTo(1)
         assertThat(expected.method).isEqualTo(ExtSubmissionMethod.PAGE_TAB)
         assertThat(expected.title).isEqualTo("Test Submission")
         assertThat(expected.relPath).isEqualTo("/a/rel/path")
@@ -151,8 +151,6 @@ class SubmissionSubmitterTest {
         timesService.getTimes(timesRequest.captured)
 
         projectInfoService.process(projectRequest.captured)
-
-        persistenceContext.getNextVersion("S-TEST123")
         persistenceContext.saveSubmission(saveRequest.captured)
     }
 
@@ -168,7 +166,6 @@ class SubmissionSubmitterTest {
     }
 
     private fun mockPersistenceContext() {
-        every { persistenceContext.getNextVersion("S-TEST123") } returns 2
         every { persistenceContext.saveSubmission(capture(saveRequest)) } returns mockk()
     }
 

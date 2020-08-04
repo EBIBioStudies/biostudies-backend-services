@@ -23,8 +23,11 @@ import ebi.ac.uk.io.ONLY_USER
 import ebi.ac.uk.io.READ_ONLY_GROUP
 import ebi.ac.uk.paths.FILES_PATH
 import ebi.ac.uk.paths.SubmissionFolderResolver
+import mu.KotlinLogging
 import java.io.File
 import java.nio.file.attribute.PosixFilePermission
+
+private val logger = KotlinLogging.logger {}
 
 @Suppress("TooManyFunctions")
 class FilesService(
@@ -59,6 +62,8 @@ class FilesService(
         submissionFolder: File,
         permissions: Set<PosixFilePermission>
     ) {
+        logger.info { "generating submission ${submission.accNo} pagetab files" }
+
         generatePageTab(submission.toSimpleSubmission(), submissionFolder, submission.accNo, permissions)
         submission.allFileList.forEach {
             generatePageTab(it.toFilesTable(), submissionFolder, it.fileName, permissions)
@@ -99,14 +104,18 @@ class FilesService(
     private fun getMovingFiles(submission: ExtSubmission): List<ExtFile> =
         (submission.allFiles + submission.allReferencedFiles).distinctBy { it.file }
 
-    private fun copy(extFile: ExtFile, file: File, permissions: Set<PosixFilePermission>) =
-        copyOrReplaceFile(extFile.file, file.resolve(extFile.fileName), permissions)
+    private fun copy(extFile: ExtFile, folder: File, permissions: Set<PosixFilePermission>) {
+        logger.debug { "copying file $folder into ${folder.absolutePath}" }
+        copyOrReplaceFile(extFile.file, folder.resolve(extFile.fileName), permissions)
+    }
 
-    private fun move(file: ExtFile, path: File, permissions: Set<PosixFilePermission>) =
-        moveFile(file.file, path.resolve(file.fileName), permissions)
+    private fun move(file: ExtFile, folder: File, permissions: Set<PosixFilePermission>) {
+        logger.debug { "moving file $file into ${folder.absolutePath}" }
+        moveFile(file.file, folder.resolve(file.fileName), permissions)
+    }
 
     private fun getOrCreateSubmissionFolder(submission: ExtSubmission, permissions: Set<PosixFilePermission>): File {
-        val submissionPath = folderResolver.getSubmissionFolder(submission.relPath)
+        val submissionPath = folderResolver.getSubFolder(submission.relPath)
         FileUtils.createParentFolders(submissionPath, ALL_CAN_READ)
         return getOrCreateFolder(submissionPath, permissions).toFile()
     }

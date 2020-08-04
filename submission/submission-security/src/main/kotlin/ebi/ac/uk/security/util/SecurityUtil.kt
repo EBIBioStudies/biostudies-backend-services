@@ -107,6 +107,6 @@ class SecurityUtil(
             logger.error("detected invalid signature token: ${it.message}")
         }
 
-        return tokenUser.map { userRepository.getOne(it.id) }
+        return tokenUser.map { userRepository.getById(it.id) }
     }
 }

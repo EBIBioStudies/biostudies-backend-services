@@ -17,8 +17,6 @@ interface PersistenceContext {
 
     fun deleteSubmissionDrafts(userEmail: String, accNo: String)
 
-    fun getNextVersion(accNo: String): Int
-
     fun saveSubmission(saveRequest: SaveRequest): ExtSubmission
 
     fun refreshSubmission(submission: ExtSubmission, submitter: User)

@@ -43,7 +43,9 @@ open class PersistenceContextImpl(
     @Transactional
     override fun saveSubmission(saveRequest: SaveRequest): ExtSubmission {
         val (submission, mode) = saveRequest
-        return lockExecutor.executeLocking(submission.accNo) { saveSubmission(submission, mode) }
+        return lockExecutor.executeLocking(submission.accNo) {
+            saveSubmission(submission.copy(version = getNextVersion(submission.accNo)), mode)
+        }
     }
 
     @Transactional
@@ -68,11 +70,11 @@ open class PersistenceContextImpl(
         userDataRepository.deleteByUserEmailAndKeyIgnoreCaseContaining(userEmail, accNo)
     }
 
-    override fun getNextVersion(accNo: String): Int = (subRepository.getLastVersion(accNo) ?: 0) + 1
-
     override fun saveAccessTag(accessTag: String) {
         accessTagsDataRepository.save(DbAccessTag(name = accessTag))
     }
 
     override fun accessTagExists(accessTag: String) = accessTagsDataRepository.existsByName(accessTag)
+
+    private fun getNextVersion(accNo: String): Int = (subRepository.getLastVersion(accNo) ?: 0) + 1
 }

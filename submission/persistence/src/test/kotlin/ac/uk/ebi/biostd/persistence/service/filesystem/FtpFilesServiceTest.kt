@@ -35,7 +35,7 @@ internal class FtpFilesServiceTest(
     fun beforeEach() {
         temporaryFolder.clean()
 
-        val submissionFolder = folderResolver.getSubmissionFolder(REL_PATH).toFile().apply { mkdirs() }
+        val submissionFolder = folderResolver.getSubFolder(REL_PATH).toFile().apply { mkdirs() }
         expectedDirectory = submissionFolder.createDirectory("my-directory")
         expectedFile1 = expectedDirectory.createNewFile("file.txt", "file-content")
         expectedFile2 = expectedDirectory.createNewFile("file-2.txt", "file-text")
@@ -45,7 +45,7 @@ internal class FtpFilesServiceTest(
     fun createFtpFolder() {
         testInstance.createFtpFolder(REL_PATH)
 
-        assertFolder(folderResolver.getSubmissionFolder(REL_PATH).toFile())
+        assertFolder(folderResolver.getSubFolder(REL_PATH).toFile())
         assertFolder(folderResolver.getSubmissionFtpFolder(REL_PATH).toFile())
     }
 
@@ -54,7 +54,7 @@ internal class FtpFilesServiceTest(
         testInstance.createFtpFolder(REL_PATH)
         testInstance.cleanFtpFolder(REL_PATH)
 
-        assertFolder(folderResolver.getSubmissionFolder(REL_PATH).toFile())
+        assertFolder(folderResolver.getSubFolder(REL_PATH).toFile())
         assertThat(folderResolver.getSubmissionFtpFolder(REL_PATH).toFile()).doesNotExist()
     }
 
