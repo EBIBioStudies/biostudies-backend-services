@@ -38,6 +38,7 @@ import java.time.OffsetDateTime
 import java.util.UUID
 
 private val logger = KotlinLogging.logger {}
+private const val DEFAULT_VERSION = 1
 
 class SubmissionSubmitter(
     private val timesService: TimesService,
@@ -100,7 +101,7 @@ class SubmissionSubmitter(
             accNo = accNoString,
             owner = ownerEmail,
             submitter = submitter.email,
-            version = defaultVersion,
+            version = DEFAULT_VERSION,
             method = getMethod(method),
             title = submission.title,
             relPath = relPath,
@@ -148,9 +149,4 @@ class SubmissionSubmitter(
 
     private fun getSecret(accString: String) =
         if (queryService.isNew(accString)) UUID.randomUUID().toString() else queryService.getSecret(accString)
-
-    companion object {
-
-        const val defaultVersion = 1
-    }
 }

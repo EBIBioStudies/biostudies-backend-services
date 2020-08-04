@@ -5,8 +5,8 @@ import TestVersions.JunitEngineVersion
 import TestVersions.JunitExtensionsVersion
 import TestVersions.JunitVersion
 import TestVersions.MockKVersion
+import TestVersions.RabbitmqMockVersion
 import TestVersions.XmlUnitVersion
-import TestVersions.rabbitmqMockVersion
 import Versions.CliKtVersion
 import Versions.CommonsCsvVersion
 import Versions.CommonsIOVersion
@@ -50,7 +50,7 @@ object TestVersions {
     const val XmlUnitVersion = "2.6.2"
     const val JsonPathAssertVersion = "2.4.0"
     const val JsonAssertVersion = "1.5.0"
-    const val rabbitmqMockVersion = "1.1.0"
+    const val RabbitmqMockVersion = "1.1.0"
 }
 
 object Versions {
@@ -100,7 +100,7 @@ object TestDependencies {
     const val Junit5Console = "org.junit.platform:junit-platform-console:$JunitEngineVersion"
     const val Junit = "org.junit.jupiter:junit-jupiter:$JunitVersion"
     const val JunitExtensions = "io.github.glytching:junit-extensions:$JunitExtensionsVersion"
-    const val rabitMqMock = "com.github.fridujo:rabbitmq-mock:$rabbitmqMockVersion"
+    const val rabitMqMock = "com.github.fridujo:rabbitmq-mock:$RabbitmqMockVersion"
 
     val BaseTestCompileDependencies = arrayOf(Junit, JunitExtensions, AssertJ, MockK, KotlinTestJunit)
     val BaseTestRuntimeDependencies = arrayOf(Junit5Console)

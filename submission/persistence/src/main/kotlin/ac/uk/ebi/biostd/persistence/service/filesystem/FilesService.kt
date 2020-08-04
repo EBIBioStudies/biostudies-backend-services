@@ -105,12 +105,12 @@ class FilesService(
         (submission.allFiles + submission.allReferencedFiles).distinctBy { it.file }
 
     private fun copy(extFile: ExtFile, folder: File, permissions: Set<PosixFilePermission>) {
-        logger.info { "copying file $folder into ${folder.absolutePath}" }
+        logger.debug { "copying file $folder into ${folder.absolutePath}" }
         copyOrReplaceFile(extFile.file, folder.resolve(extFile.fileName), permissions)
     }
 
     private fun move(file: ExtFile, folder: File, permissions: Set<PosixFilePermission>) {
-        logger.info { "moving file $file into ${folder.absolutePath}" }
+        logger.debug { "moving file $file into ${folder.absolutePath}" }
         moveFile(file.file, folder.resolve(file.fileName), permissions)
     }
 
