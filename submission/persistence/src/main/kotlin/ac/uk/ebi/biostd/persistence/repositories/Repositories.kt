@@ -104,7 +104,6 @@ interface AccessPermissionRepository : JpaRepository<AccessPermission, Long> {
 }
 
 interface UserDataDataRepository : JpaRepository<DbUserData, UserDataId> {
-
-    fun deleteByUserEmailAndKeyIgnoreCaseContaining(userEmail: String, dataKey: String): Unit
+    fun deleteByUserEmailAndKeyIgnoreCaseContaining(userEmail: String, dataKey: String)
     fun findByUserId(userId: Long, pageRequest: Pageable): List<DbUserData>
 }
