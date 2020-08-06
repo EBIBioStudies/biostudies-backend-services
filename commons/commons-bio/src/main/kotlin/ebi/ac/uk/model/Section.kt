@@ -5,17 +5,15 @@ import ebi.ac.uk.util.collections.addLeft
 import ebi.ac.uk.util.collections.addRight
 import java.util.Objects
 
-open class Section(
+class Section(
     var type: String = "",
     var accNo: String? = null,
     var fileList: FileList? = null,
     var sections: MutableList<Either<Section, SectionsTable>> = mutableListOf(),
     var files: MutableList<Either<File, FilesTable>> = mutableListOf(),
     var links: MutableList<Either<Link, LinksTable>> = mutableListOf(),
-    override var attributes: List<Attribute> = listOf(),
-
-    // TODO Pivotal ID #168381570: Remove Parent AccNo From Section Model
-    var parentAccNo: String? = null
+    var parentAccNo: String? = null,
+    override var attributes: List<Attribute> = listOf()
 ) : Attributable {
     fun addFile(file: File) = files.addLeft(file)
     fun addLink(link: Link) = links.addLeft(link)
