@@ -17,7 +17,7 @@ internal class SubmissionFolderResolverTest {
     fun getSubmissionFolder() {
         val submissionPath = "part1/part2"
 
-        assertThat(testInstance.getSubmissionFolder(submissionPath).toString())
+        assertThat(testInstance.getSubFolder(submissionPath).toString())
             .isEqualTo("/tmp/nfs/submission/part1/part2")
     }
 

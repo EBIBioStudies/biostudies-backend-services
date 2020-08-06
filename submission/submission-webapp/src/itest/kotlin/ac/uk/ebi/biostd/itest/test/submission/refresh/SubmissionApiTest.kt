@@ -4,6 +4,7 @@ import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
+import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.persistence.model.DbFile
 import ac.uk.ebi.biostd.persistence.model.DbSubmission
@@ -55,6 +56,7 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
     @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
     @DirtiesContext
     inner class SubmissionApiTest(
+        @Autowired val securityTestService: SecurityTestService,
         @Autowired val submissionRepository: SubmissionDataRepository,
         @Autowired val sequenceRepository: SequenceDataRepository,
         @Autowired val tagsRefRepository: TagDataRepository
@@ -69,6 +71,7 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
 
         @BeforeAll
         fun init() {
+            securityTestService.registerUser(SuperUser)
             webClient = getWebClient(serverPort, SuperUser)
 
             sequenceRepository.save(Sequence("S-BSST"))

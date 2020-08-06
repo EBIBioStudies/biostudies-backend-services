@@ -5,6 +5,7 @@ import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
+import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.RegularUser
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.persistence.model.AccessPermission
@@ -40,6 +41,7 @@ internal class DeletePermissionTest(private val tempFolder: TemporaryFolder) : B
     @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
     @DirtiesContext
     inner class DeleteSubmissionTest(
+        @Autowired private val securityTestService: SecurityTestService,
         @Autowired private val userDataRepository: UserDataRepository,
         @Autowired private val submissionRepository: SubmissionRepository,
         @Autowired private val tagsDataRepository: AccessTagDataRepo,
@@ -53,6 +55,9 @@ internal class DeletePermissionTest(private val tempFolder: TemporaryFolder) : B
 
         @BeforeAll
         fun init() {
+            securityTestService.registerUser(SuperUser)
+            securityTestService.registerUser(RegularUser)
+
             superUserWebClient = getWebClient(serverPort, SuperUser)
             regularUserWebClient = getWebClient(serverPort, RegularUser)
         }

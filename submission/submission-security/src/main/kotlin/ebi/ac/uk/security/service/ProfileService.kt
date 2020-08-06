@@ -1,9 +1,11 @@
 package ebi.ac.uk.security.service
 
+import ac.uk.ebi.biostd.persistence.model.AccessPermission
 import ac.uk.ebi.biostd.persistence.model.DbUser
 import ac.uk.ebi.biostd.persistence.model.UserGroup
 import ebi.ac.uk.security.integration.model.api.GroupMagicFolder
 import ebi.ac.uk.security.integration.model.api.MagicFolder
+import ebi.ac.uk.security.integration.model.api.SecurityPermission
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import ebi.ac.uk.security.integration.model.api.UserInfo
 import java.nio.file.Path
@@ -25,10 +27,13 @@ class ProfileService(private val filesDirPath: Path) {
                 superuser = user.superuser,
                 magicFolder = userMagicFolder(secret, id),
                 groupsFolders = groupsMagicFolder(user.groups),
-                permissions = permissions,
+                permissions = getPermissions(permissions),
                 notificationsEnabled = notificationsEnabled)
         }
     }
+
+    private fun getPermissions(permissions: Set<AccessPermission>): Set<SecurityPermission> =
+        permissions.mapTo(mutableSetOf()) { SecurityPermission(it.accessType, it.accessTag.name) }
 
     private fun groupsMagicFolder(groups: Set<UserGroup>): List<GroupMagicFolder> =
         groups.map { GroupMagicFolder(it.name, userMagicFolder(it), it.description) }

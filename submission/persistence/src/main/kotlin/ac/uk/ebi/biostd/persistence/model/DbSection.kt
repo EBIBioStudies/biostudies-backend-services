@@ -14,13 +14,24 @@ import javax.persistence.GeneratedValue
 import javax.persistence.Id
 import javax.persistence.JoinColumn
 import javax.persistence.ManyToOne
+import javax.persistence.NamedEntityGraph
 import javax.persistence.OneToMany
 import javax.persistence.OneToOne
 import javax.persistence.OrderBy
 import javax.persistence.Table
 
+internal const val SECTION_GRAPH = "Section.fullGraph"
+
 @Entity
 @Table(name = "Section")
+@NamedEntityGraph(
+    name = SECTION_GRAPH,
+    attributeNodes = [
+        Node(LINKS, subgraph = "attrs"),
+        Node(ATTRS),
+        Node(FILES, subgraph = "attrs"),
+        Node(SECTS, subgraph = SECTION_GRAPH)
+    ])
 class DbSection(
     @Column
     var accNo: String?,

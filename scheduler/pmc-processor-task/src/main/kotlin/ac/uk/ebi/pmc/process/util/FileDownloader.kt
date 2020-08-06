@@ -16,6 +16,9 @@ import java.io.File
 import java.nio.file.Paths
 import ebi.ac.uk.model.File as SubmissionFile
 
+/**
+ * In charge of download PMC files.
+ */
 class FileDownloader(
     private val properties: PmcImporterProperties,
     private val pmcApi: PmcApi
@@ -36,7 +39,7 @@ class FileDownloader(
         targetFolder.mkdirs()
 
         val targetFile = targetFolder.resolve(file.path)
-        FileUtils.copyInputStreamToFile(pmcApi.downloadFileAsync(pmcId, file.path).await().byteStream(), targetFile)
+        FileUtils.copyInputStreamToFile(pmcApi.downloadFileAsync(pmcId, file.path).byteStream(), targetFile)
         return@withContext targetFile
     }
 
