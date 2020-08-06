@@ -62,8 +62,7 @@ typealias Graph = NamedSubgraph
             Graph(name = "l1", attributeNodes = [
                 Node(LINKS, subgraph = "attrs"),
                 Node(ATTRS),
-                Node(FILES, subgraph = "attrs"),
-                Node(SECTS)]),
+                Node(FILES, subgraph = "attrs")]),
             Graph(name = "attrs", attributeNodes = [Node(ATTRS)])
         ]),
     NamedEntityGraph(name = SIMPLE_QUERY_GRAPH, attributeNodes = [Node(value = "rootSection")])
