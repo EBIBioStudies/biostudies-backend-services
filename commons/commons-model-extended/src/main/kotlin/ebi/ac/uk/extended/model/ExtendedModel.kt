@@ -73,3 +73,11 @@ data class ExtSubmission(
     val accessTags: List<ExtAccessTag> = listOf(),
     val section: ExtSection
 )
+
+data class ExtUser(
+    val id: Long,
+    val email: String,
+    val fullName: String,
+    val login: String?,
+    val notificationsEnabled: Boolean
+)

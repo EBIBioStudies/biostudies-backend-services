@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.handlers.api
 
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.extended.model.ExtUser
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
@@ -31,5 +32,14 @@ class BioStudiesWebConsumerTest(
         assertThat(submission).isEqualTo(extSubmission)
         verify { restTemplate.getForObject<String>(url) }
         verify { extSerializationService.deserialize("the-submission", ExtSubmission::class.java) }
+    }
+
+    @Test
+    fun `get extended user`(@MockK extUser: ExtUser) {
+        val url = "http://biostudy:8788/security/user/extended/5"
+
+        every { restTemplate.getForObject<ExtUser>(url) } returns extUser
+
+        assertThat(testInstance.getExtUser(url)).isEqualTo(extUser)
     }
 }

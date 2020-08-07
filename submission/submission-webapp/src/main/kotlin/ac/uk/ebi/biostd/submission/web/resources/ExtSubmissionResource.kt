@@ -22,7 +22,6 @@ import org.springframework.web.bind.annotation.RestController
 class ExtSubmissionResource(private val extSubmissionService: ExtSubmissionService) {
     @GetMapping("/{accNo}")
     @ApiOperation("Get the extended model for a submission")
-    @ApiImplicitParam(name = "X-SESSION-TOKEN", value = "User authentication token", required = true, type = "header")
     fun getExtended(
         @ApiParam(name = "accNo", value = "The submission accNo")
         @PathVariable accNo: String

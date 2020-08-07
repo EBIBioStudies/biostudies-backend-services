@@ -10,6 +10,7 @@ import ac.uk.ebi.biostd.persistence.service.UserPermissionsService
 import ac.uk.ebi.biostd.security.web.SecurityMapper
 import ac.uk.ebi.biostd.security.web.exception.SecurityAccessDeniedHandler
 import ac.uk.ebi.biostd.security.web.exception.SecurityAuthEntryPoint
+import ac.uk.ebi.biostd.submission.domain.service.ExtUserService
 import com.fasterxml.jackson.databind.ObjectMapper
 import ebi.ac.uk.security.integration.SecurityModuleConfig
 import ebi.ac.uk.security.integration.components.IGroupService
@@ -45,6 +46,7 @@ class SecurityConfig(
             .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             .and()
             .authorizeRequests()
+            .antMatchers(GET, "/security/users/extended/**").permitAll()
             .antMatchers(GET, "/submissions/extended/*").permitAll()
             .antMatchers(GET, "/submissions/*").permitAll()
             .antMatchers("/auth/**").permitAll()
@@ -111,4 +113,7 @@ class SecurityBeansConfig(private val objectMapper: ObjectMapper, properties: Ap
 
     @Bean
     fun preRegister(securityConfig: SecurityModuleConfig): Observable<UserRegister> = securityConfig.userRegister
+
+    @Bean
+    fun extUserService(userDataRepository: UserDataRepository): ExtUserService = ExtUserService(userDataRepository)
 }
