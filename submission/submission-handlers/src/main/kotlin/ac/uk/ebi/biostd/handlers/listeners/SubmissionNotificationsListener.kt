@@ -16,10 +16,11 @@ class SubmissionNotificationsListener(
     @RabbitListener(queues = [NOTIFICATIONS_QUEUE])
     fun receiveMessage(message: SubmissionSubmitted) {
         logger.info { "notification for ${ message.accNo }" }
+        val extUser = webConsumer.getExtUser(message.extUserUrl)
 
-        if (message.notificationsEnabled) {
+        if (extUser.notificationsEnabled) {
             val submission = webConsumer.getExtSubmission(message.extTabUrl)
-            rtNotificationService.notifySuccessfulSubmission(submission, message.ownerFullName, message.uiUrl)
+            rtNotificationService.notifySuccessfulSubmission(submission, extUser.fullName, message.uiUrl)
         }
     }
 }

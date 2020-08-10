@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.handlers.listeners
 import ac.uk.ebi.biostd.handlers.api.BioStudiesWebConsumer
 import ebi.ac.uk.extended.events.SubmissionSubmitted
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.extended.model.ExtUser
 import ebi.ac.uk.notifications.service.RtNotificationService
 import io.mockk.clearAllMocks
 import io.mockk.every
@@ -16,6 +17,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(MockKExtension::class)
 class SubmissionNotificationsListenerTest(
+    @MockK private val submitter: ExtUser,
     @MockK private val submission: ExtSubmission,
     @MockK private val message: SubmissionSubmitted,
     @MockK private val webConsumer: BioStudiesWebConsumer,
@@ -26,6 +28,8 @@ class SubmissionNotificationsListenerTest(
     @BeforeEach
     fun beforeEach() {
         mockMessage()
+        mockSubmitter()
+        every { webConsumer.getExtUser("ext-user-url") } returns submitter
         every { webConsumer.getExtSubmission("ext-tab-url") } returns submission
         every { rtNotificationService.notifySuccessfulSubmission(submission, "Dr Owner", "ui-url") } answers { nothing }
     }
@@ -43,7 +47,7 @@ class SubmissionNotificationsListenerTest(
 
     @Test
     fun `notifications disabled`() {
-        every { message.notificationsEnabled } returns false
+        every { submitter.notificationsEnabled } returns false
 
         testInstance.receiveMessage(message)
 
@@ -54,7 +58,11 @@ class SubmissionNotificationsListenerTest(
     private fun mockMessage() {
         every { message.uiUrl } returns "ui-url"
         every { message.extTabUrl } returns "ext-tab-url"
-        every { message.ownerFullName } returns "Dr Owner"
-        every { message.notificationsEnabled } returns true
+        every { message.extUserUrl } returns "ext-user-url"
+    }
+
+    private fun mockSubmitter() {
+        every { submitter.fullName } returns "Dr Owner"
+        every { submitter.notificationsEnabled } returns true
     }
 }

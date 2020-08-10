@@ -7,12 +7,6 @@ class SubmissionSubmitted(
     @JsonProperty("accNo")
     val accNo: String,
 
-    @JsonProperty("ownerFullName")
-    val ownerFullName: String,
-
-    @JsonProperty("notificationsEnabled")
-    val notificationsEnabled: Boolean,
-
     @JsonProperty("uiUrl")
     val uiUrl: String,
 
@@ -20,5 +14,8 @@ class SubmissionSubmitted(
     val pagetabUrl: String,
 
     @JsonProperty("extTabUrl")
-    val extTabUrl: String
+    val extTabUrl: String,
+
+    @JsonProperty("extUserUrl")
+    val extUserUrl: String
 ) : Serializable
