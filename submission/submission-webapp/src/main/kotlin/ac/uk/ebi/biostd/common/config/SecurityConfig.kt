@@ -10,7 +10,7 @@ import ac.uk.ebi.biostd.persistence.service.UserPermissionsService
 import ac.uk.ebi.biostd.security.web.SecurityMapper
 import ac.uk.ebi.biostd.security.web.exception.SecurityAccessDeniedHandler
 import ac.uk.ebi.biostd.security.web.exception.SecurityAuthEntryPoint
-import ac.uk.ebi.biostd.submission.domain.service.ExtUserService
+import ac.uk.ebi.biostd.security.domain.service.ExtUserService
 import com.fasterxml.jackson.databind.ObjectMapper
 import ebi.ac.uk.security.integration.SecurityModuleConfig
 import ebi.ac.uk.security.integration.components.IGroupService

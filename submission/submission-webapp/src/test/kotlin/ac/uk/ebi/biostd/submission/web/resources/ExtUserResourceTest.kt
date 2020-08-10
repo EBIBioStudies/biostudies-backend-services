@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.submission.web.resources
 
-import ac.uk.ebi.biostd.submission.domain.service.ExtUserService
+import ac.uk.ebi.biostd.security.web.ExtUserResource
+import ac.uk.ebi.biostd.security.domain.service.ExtUserService
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.extended.model.ExtUser
 import io.mockk.every
@@ -22,27 +23,25 @@ class ExtUserResourceTest(@MockK private val extUserService: ExtUserService) {
     @Test
     fun `get ext user`() {
         val expectedJson = jsonObj {
-            "id" to 7
             "login" to "test_user"
             "fullName" to "Test User"
             "email" to "test@ebi.ac.uk"
             "notificationsEnabled" to true
         }.toString()
 
-        every { extUserService.getExtUser(7) } returns testUser()
+        every { extUserService.getExtUser("test@ebi.ac.uk") } returns testUser()
 
-        mvc.get("/security/users/extended/7") {
+        mvc.get("/security/users/extended/test@ebi.ac.uk") {
             accept = APPLICATION_JSON
         }.andExpect {
             status { isOk }
             content { json(expectedJson) }
         }
 
-        verify { extUserService.getExtUser(7) }
+        verify { extUserService.getExtUser("test@ebi.ac.uk") }
     }
 
     private fun testUser() = ExtUser(
-        id = 7,
         login = "test_user",
         fullName = "Test User",
         email = "test@ebi.ac.uk",

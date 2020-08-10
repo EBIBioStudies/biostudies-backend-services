@@ -1,6 +1,6 @@
-package ac.uk.ebi.biostd.submission.web.resources
+package ac.uk.ebi.biostd.security.web
 
-import ac.uk.ebi.biostd.submission.domain.service.ExtUserService
+import ac.uk.ebi.biostd.security.domain.service.ExtUserService
 import ebi.ac.uk.extended.model.ExtUser
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
@@ -14,10 +14,10 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/security/users/extended")
 @Api(tags = ["Extended User"])
 class ExtUserResource(private val extUserService: ExtUserService) {
-    @GetMapping("/{id}")
+    @GetMapping("/{email:.*}")
     @ApiOperation("Get the extended information for a user")
     fun getExtUser(
-        @ApiParam(name = "id", value = "The user id")
-        @PathVariable id: Long
-    ): ExtUser = extUserService.getExtUser(id)
+        @ApiParam(name = "email", value = "The user email")
+        @PathVariable email: String
+    ): ExtUser = extUserService.getExtUser(email)
 }

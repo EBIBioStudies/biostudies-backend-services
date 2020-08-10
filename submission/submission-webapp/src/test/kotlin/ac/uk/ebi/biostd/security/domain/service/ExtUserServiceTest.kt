@@ -1,8 +1,8 @@
-package ac.uk.ebi.biostd.submission.domain.service
+package ac.uk.ebi.biostd.security.domain.service
 
 import ac.uk.ebi.biostd.persistence.model.DbUser
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
-import ebi.ac.uk.security.integration.exception.UserNotFoundByIdException
+import ebi.ac.uk.security.integration.exception.UserNotFoundByEmailException
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
@@ -20,10 +20,9 @@ class ExtUserServiceTest(@MockK private val userDataRepository: UserDataReposito
     @Test
     fun getExtUser() {
         val user = mockUser()
-        every { userDataRepository.findById(5) } returns Optional.of(user)
+        every { userDataRepository.findByEmail("test@ebi.ac.uk") } returns Optional.of(user)
 
-        val extUser = testInstance.getExtUser(5)
-        assertThat(extUser.id).isEqualTo(5)
+        val extUser = testInstance.getExtUser("test@ebi.ac.uk")
         assertThat(extUser.login).isEqualTo("test")
         assertThat(extUser.fullName).isEqualTo("Test User")
         assertThat(extUser.email).isEqualTo("test@ebi.ac.uk")
@@ -32,15 +31,14 @@ class ExtUserServiceTest(@MockK private val userDataRepository: UserDataReposito
 
     @Test
     fun `non existing user`() {
-        every { userDataRepository.findById(5) } returns Optional.empty()
+        every { userDataRepository.findByEmail("test@ebi.ac.uk") } returns Optional.empty()
 
-        val exception = assertThrows<UserNotFoundByIdException> { testInstance.getExtUser(5) }
-        assertThat(exception.message).isEqualTo("Could not find user with the provided id '5'.")
+        val exception = assertThrows<UserNotFoundByEmailException> { testInstance.getExtUser("test@ebi.ac.uk") }
+        assertThat(exception.message).isEqualTo("Could not find user with the provided email 'test@ebi.ac.uk'.")
     }
 
     private fun mockUser(): DbUser {
         val user = mockk<DbUser>()
-        every { user.id } returns 5
         every { user.login } returns "test"
         every { user.fullName } returns "Test User"
         every { user.email } returns "test@ebi.ac.uk"

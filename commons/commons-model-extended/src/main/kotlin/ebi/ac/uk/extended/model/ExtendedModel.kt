@@ -75,7 +75,6 @@ data class ExtSubmission(
 )
 
 data class ExtUser(
-    val id: Long,
     val email: String,
     val fullName: String,
     val login: String?,

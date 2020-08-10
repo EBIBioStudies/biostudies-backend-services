@@ -13,9 +13,6 @@ class ActKeyNotFoundException :
 class UserNotFoundByTokenException :
     SecurityException("Could not find an active session for the provided security token.")
 
-class UserNotFoundByIdException(id: Long) :
-    SecurityException("Could not find user with the provided id '$id'.")
-
 class UserNotFoundByEmailException(email: String) :
     SecurityException("Could not find user with the provided email '$email'.")
 

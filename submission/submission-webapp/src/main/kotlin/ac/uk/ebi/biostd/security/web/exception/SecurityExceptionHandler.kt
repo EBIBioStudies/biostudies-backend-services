@@ -9,7 +9,6 @@ import ebi.ac.uk.security.integration.exception.SecurityException
 import ebi.ac.uk.security.integration.exception.UnauthorizedOperation
 import ebi.ac.uk.security.integration.exception.UserAlreadyRegister
 import ebi.ac.uk.security.integration.exception.UserNotFoundByEmailException
-import ebi.ac.uk.security.integration.exception.UserNotFoundByIdException
 import ebi.ac.uk.security.integration.exception.UserNotFoundByTokenException
 import ebi.ac.uk.security.integration.exception.UserPendingRegistrationException
 import ebi.ac.uk.security.integration.exception.UserWithActivationKeyNotFoundException
@@ -31,7 +30,6 @@ class SecurityExceptionHandler {
             is LoginException,
             is UserNotFoundByTokenException -> unauthorized(SecurityError(exception.message))
             is ActKeyNotFoundException,
-            is UserNotFoundByIdException,
             is UserNotFoundByEmailException,
             is UserPendingRegistrationException,
             is UserWithActivationKeyNotFoundException,

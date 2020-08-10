@@ -16,7 +16,7 @@ class EventsService(
             uiUrl = properties.instanceBaseUrl,
             pagetabUrl = "${properties.instanceBaseUrl}/submissions/${submission.accNo}.json",
             extTabUrl = "${properties.instanceBaseUrl}/submissions/extended/${submission.accNo}",
-            extUserUrl = "${properties.instanceBaseUrl}/security/users/extended/${user.id}")
+            extUserUrl = "${properties.instanceBaseUrl}/security/users/extended/${user.email}")
 
         rabbitTemplate.convertAndSend(BIOSTUDIES_EXCHANGE, SUBMISSIONS_ROUTING_KEY, submissionNotification)
     }

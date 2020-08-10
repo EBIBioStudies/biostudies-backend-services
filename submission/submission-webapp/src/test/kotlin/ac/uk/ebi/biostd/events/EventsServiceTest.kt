@@ -28,7 +28,7 @@ class EventsServiceTest(
     ) {
         val notificationSlot = slot<SubmissionSubmitted>()
 
-        every { user.id } returns 5
+        every { user.email } returns "test@ebi.ac.uk"
         every { submission.accNo } returns "S-BSST0"
         every { properties.instanceBaseUrl } returns "http://biostudies:8788"
         every {
@@ -41,8 +41,8 @@ class EventsServiceTest(
         assertThat(notification.accNo).isEqualTo("S-BSST0")
         assertThat(notification.uiUrl).isEqualTo("http://biostudies:8788")
         assertThat(notification.pagetabUrl).isEqualTo("http://biostudies:8788/submissions/S-BSST0.json")
-        assertThat(notification.extUserUrl).isEqualTo("http://biostudies:8788/security/users/extended/5")
         assertThat(notification.extTabUrl).isEqualTo("http://biostudies:8788/submissions/extended/S-BSST0")
+        assertThat(notification.extUserUrl).isEqualTo("http://biostudies:8788/security/users/extended/test@ebi.ac.uk")
 
         verify { rabbitTemplate.convertAndSend(BIOSTUDIES_EXCHANGE, SUBMISSIONS_ROUTING_KEY, notification) }
     }
