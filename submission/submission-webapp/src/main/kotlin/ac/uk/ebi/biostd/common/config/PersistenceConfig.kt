@@ -12,6 +12,7 @@ import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
 import ac.uk.ebi.biostd.persistence.repositories.JdbcLockExecutor
 import ac.uk.ebi.biostd.persistence.repositories.LockExecutor
+import ac.uk.ebi.biostd.persistence.repositories.SectionDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.SubmissionDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.TagDataRepository
@@ -49,6 +50,7 @@ import java.nio.file.Paths
     "uk.ac.ebi.stats.persistence.model"])
 class PersistenceConfig(
     private val submissionDataRepository: SubmissionDataRepository,
+    private val sectionRepository: SectionDataRepository,
     private val accessTagDataRepo: AccessTagDataRepo,
     private val sequenceRepository: SequenceDataRepository,
     private val tagsDataRepository: AccessTagDataRepo,
@@ -71,7 +73,7 @@ class PersistenceConfig(
 
     @Bean
     fun submissionRepository(toExtSubmissionMapper: ToExtSubmissionMapper) =
-        SubmissionRepository(submissionDataRepository, toExtSubmissionMapper())
+        SubmissionRepository(submissionDataRepository, sectionRepository, toExtSubmissionMapper())
 
     @Bean
     fun projectRepository() = ProjectRepository(submissionDataRepository)

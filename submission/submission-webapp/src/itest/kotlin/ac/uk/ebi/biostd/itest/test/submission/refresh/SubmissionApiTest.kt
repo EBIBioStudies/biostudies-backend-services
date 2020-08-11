@@ -153,6 +153,6 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
             submissionRepository.save(submission)
         }
 
-        private fun getSubmissionDb(): DbSubmission = submissionRepository.getByAccNoAndVersionGreaterThan(ACC_NO, 0)!!
+        private fun getSubmissionDb(): DbSubmission = submissionRepository.readByAccNoAndVersionGreaterThan(ACC_NO, 0)!!
     }
 }

@@ -67,7 +67,7 @@ internal class ProjectSubmitTest(tempFolder: TemporaryFolder) : BaseIntegrationT
 
             assertThat(webClient.submitSingle(privateProject, SubmissionFormat.TSV)).isSuccessful()
 
-            val submittedProject = submissionRepository.getActiveExtByAccNo("PrivateProject")
+            val submittedProject = submissionRepository.getExtByAccNo("PrivateProject")
             assertThat(submittedProject.accNo).isEqualTo("PrivateProject")
             assertThat(submittedProject.title).isEqualTo("A Private Project")
             assertThat(submittedProject.status).isEqualTo(PROCESSED)
@@ -93,7 +93,7 @@ internal class ProjectSubmitTest(tempFolder: TemporaryFolder) : BaseIntegrationT
 
             assertThat(webClient.submitSingle(publicProject, SubmissionFormat.TSV)).isSuccessful()
 
-            val submittedProject = submissionRepository.getActiveExtByAccNo("PublicProject")
+            val submittedProject = submissionRepository.getExtByAccNo("PublicProject")
             assertThat(submittedProject.accNo).isEqualTo("PublicProject")
             assertThat(submittedProject.title).isEqualTo("Public Project")
             assertThat(submittedProject.status).isEqualTo(PROCESSED)

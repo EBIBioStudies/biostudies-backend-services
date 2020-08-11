@@ -3,11 +3,14 @@ package ac.uk.ebi.biostd.persistence.repositories
 import ac.uk.ebi.biostd.persistence.model.AccessPermission
 import ac.uk.ebi.biostd.persistence.model.AccessType
 import ac.uk.ebi.biostd.persistence.model.DbAccessTag
+import ac.uk.ebi.biostd.persistence.model.DbSection
 import ac.uk.ebi.biostd.persistence.model.DbSubmission
 import ac.uk.ebi.biostd.persistence.model.DbTag
 import ac.uk.ebi.biostd.persistence.model.DbUser
 import ac.uk.ebi.biostd.persistence.model.DbUserData
-import ac.uk.ebi.biostd.persistence.model.FULL_DATA_GRAPH
+import ac.uk.ebi.biostd.persistence.model.SECTION_SIMPLE_GRAPH
+import ac.uk.ebi.biostd.persistence.model.SUBMISSION_AND_ROOT_SECTION_FULL_GRAPH
+import ac.uk.ebi.biostd.persistence.model.SUBMISSION_FULL_GRAPH
 import ac.uk.ebi.biostd.persistence.model.SecurityToken
 import ac.uk.ebi.biostd.persistence.model.Sequence
 import ac.uk.ebi.biostd.persistence.model.USER_DATA_GRAPH
@@ -27,13 +30,9 @@ import java.util.Optional
 import javax.persistence.LockModeType
 import com.cosium.spring.data.jpa.entity.graph.domain.EntityGraph as GraphSpecification
 
+@Suppress("TooManyFunctions")
 interface SubmissionDataRepository :
     EntityGraphJpaRepository<DbSubmission, Long>, EntityGraphJpaSpecificationExecutor<DbSubmission> {
-    @EntityGraph(value = FULL_DATA_GRAPH, type = LOAD)
-    fun getByAccNoAndVersionGreaterThan(id: String, version: Int = 0): DbSubmission?
-
-    @EntityGraph(value = FULL_DATA_GRAPH, type = LOAD)
-    fun getByAccNo(id: String): DbSubmission?
 
     fun findByAccNoAndVersionGreaterThan(id: String, version: Int = 0): DbSubmission?
 
@@ -45,6 +44,16 @@ interface SubmissionDataRepository :
 
     @Query("from DbSubmission s inner join s.owner where s.accNo = :accNo and s.version > 0")
     fun findBasic(@Param("accNo") accNo: String): DbSubmission?
+
+    @EntityGraph(value = SUBMISSION_FULL_GRAPH, type = LOAD)
+    fun getByAccNoAndVersionGreaterThan(accNo: String, version: Int = 0): DbSubmission?
+
+    @EntityGraph(value = SUBMISSION_FULL_GRAPH, type = LOAD)
+    fun getByAccNoAndVersion(accNo: String, version: Int): DbSubmission?
+
+    @EntityGraph(value = SUBMISSION_AND_ROOT_SECTION_FULL_GRAPH, type = LOAD)
+    @Deprecated("should use SubmissionRepository#getExtByAccNo")
+    fun readByAccNoAndVersionGreaterThan(accNo: String, version: Int = 0): DbSubmission?
 
     @Query("Select max(s.version) from DbSubmission s where s.accNo=?1")
     fun getLastVersion(accNo: String): Int?
@@ -61,6 +70,14 @@ interface SubmissionDataRepository :
         graph: GraphSpecification,
         version: Int = 0
     ): List<DbSubmission>
+}
+
+interface SectionDataRepository : JpaRepository<DbSection, Long> {
+    @EntityGraph(value = SECTION_SIMPLE_GRAPH, type = LOAD)
+    fun getById(sectionId: Long): DbSection
+
+    @Query("select s.id from DbSection s where s.submission.id = :id and s.id <> :rootSectionId")
+    fun sections(@Param("id") id: Long, @Param("rootSectionId") rootSectionId: Long): List<Long>
 }
 
 interface AccessTagDataRepo : JpaRepository<DbAccessTag, Long> {

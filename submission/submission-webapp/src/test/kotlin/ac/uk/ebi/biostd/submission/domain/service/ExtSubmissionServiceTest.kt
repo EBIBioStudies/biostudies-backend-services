@@ -27,7 +27,7 @@ class ExtSubmissionServiceTest(
 
     @BeforeEach
     fun beforeEach() {
-        every { submissionRepository.getActiveExtByAccNo("S-TEST123") } returns extSubmission
+        every { submissionRepository.getExtByAccNo("S-TEST123") } returns extSubmission
         every { userPrivilegesService.canSubmitExtended("user@mail.com") } returns true
         every { userPrivilegesService.canSubmitExtended("regular@mail.com") } returns false
     }
