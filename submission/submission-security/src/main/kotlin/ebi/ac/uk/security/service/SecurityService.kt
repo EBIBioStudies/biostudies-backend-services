@@ -10,11 +10,12 @@ import ebi.ac.uk.api.security.LoginRequest
 import ebi.ac.uk.api.security.RegisterRequest
 import ebi.ac.uk.api.security.ResetPasswordRequest
 import ebi.ac.uk.api.security.RetryActivationRequest
+import ebi.ac.uk.extended.events.SecurityNotification
+import ebi.ac.uk.extended.events.SecurityNotificationType.ACTIVATION
+import ebi.ac.uk.extended.events.SecurityNotificationType.PASSWORD_RESET
 import ebi.ac.uk.io.ALL_GROUP
 import ebi.ac.uk.io.FileUtils
 import ebi.ac.uk.io.GROUP_EXECUTE
-import ebi.ac.uk.security.events.Events
-import ebi.ac.uk.security.events.Events.userPreRegister
 import ebi.ac.uk.security.events.Events.userRegister
 import ebi.ac.uk.security.integration.SecurityProperties
 import ebi.ac.uk.security.integration.components.ISecurityService
@@ -26,10 +27,9 @@ import ebi.ac.uk.security.integration.exception.UserPendingRegistrationException
 import ebi.ac.uk.security.integration.exception.UserWithActivationKeyNotFoundException
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import ebi.ac.uk.security.integration.model.api.UserInfo
-import ebi.ac.uk.security.integration.model.events.PasswordReset
 import ebi.ac.uk.security.integration.model.events.UserActivated
-import ebi.ac.uk.security.integration.model.events.UserRegister
 import ebi.ac.uk.security.util.SecurityUtil
+import uk.ac.ebi.events.service.EventsPublisherService
 import java.nio.file.Path
 import java.nio.file.Paths
 
@@ -39,7 +39,8 @@ class SecurityService(
     private val securityUtil: SecurityUtil,
     private val securityProps: SecurityProperties,
     private val profileService: ProfileService,
-    private val captchaVerifier: CaptchaVerifier
+    private val captchaVerifier: CaptchaVerifier,
+    private val eventsPublisherService: EventsPublisherService
 ) : ISecurityService {
     override fun login(request: LoginRequest): UserInfo =
         userRepository
@@ -121,12 +122,17 @@ class SecurityService(
         if (securityProps.checkCaptcha) captchaVerifier.verifyCaptcha(request.captcha)
 
         val email = request.email
-        val user = userRepository.findByLoginOrEmailAndActive(email, email, true)
+        val user = userRepository
+            .findByLoginOrEmailAndActive(email, email, true)
             .orElseThrow { UserNotFoundByEmailException(email) }
+
         val key = securityUtil.newKey()
         userRepository.save(user.apply { activationKey = key })
+
         val resetUrl = securityUtil.getActivationUrl(request.instanceKey, request.path, key)
-        Events.passwordReset.onNext(PasswordReset(user, resetUrl))
+        val resetNotification = SecurityNotification(user.email, user.fullName, resetUrl, PASSWORD_RESET)
+
+        eventsPublisherService.securityNotification(resetNotification)
     }
 
     override fun getUserProfile(authToken: String): UserInfo {
@@ -149,7 +155,10 @@ class SecurityService(
     private fun registerUser(user: DbUser, instanceKey: String, activationPath: String): DbUser {
         val key = securityUtil.newKey()
         val saved = userRepository.save(user.apply { user.activationKey = key })
-        userPreRegister.onNext(UserRegister(saved, securityUtil.getActivationUrl(instanceKey, activationPath, key)))
+        val activationUrl = securityUtil.getActivationUrl(instanceKey, activationPath, key)
+        val activationNotification = SecurityNotification(saved.email, saved.fullName, activationUrl, ACTIVATION)
+
+        eventsPublisherService.securityNotification(activationNotification)
         return saved
     }
 

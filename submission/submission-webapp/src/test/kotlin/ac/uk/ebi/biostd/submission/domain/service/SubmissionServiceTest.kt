@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.submission.domain.service
 
-import ac.uk.ebi.biostd.events.EventsService
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.persistence.integration.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
@@ -16,6 +15,7 @@ import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.events.service.EventsPublisherService
 
 @ExtendWith(MockKExtension::class)
 class SubmissionServiceTest(
@@ -24,10 +24,10 @@ class SubmissionServiceTest(
     @MockK private val userPrivilegesService: IUserPrivilegesService,
     @MockK private val queryService: SubmissionQueryService,
     @MockK private val submissionSubmitter: SubmissionSubmitter,
-    @MockK private val eventsService: EventsService
+    @MockK private val eventsPublisherService: EventsPublisherService
 ) {
     private val testInstance = SubmissionService(
-        subRepository, serializationService, userPrivilegesService, queryService, submissionSubmitter, eventsService)
+        subRepository, serializationService, userPrivilegesService, queryService, submissionSubmitter, eventsPublisherService)
 
     @Test
     fun submit(
@@ -35,13 +35,14 @@ class SubmissionServiceTest(
         @MockK extSubmission: ExtSubmission,
         @MockK submissionRequest: SubmissionRequest
     ) {
+        every { submitter.email } returns "test@ebi.ac.uk"
         every { submissionRequest.onBehalfUser } returns null
         every { submissionRequest.submitter } returns submitter
         every { submissionSubmitter.submit(submissionRequest) } returns extSubmission
-        every { eventsService.submissionSubmitted(extSubmission, submitter) } answers { nothing }
+        every { eventsPublisherService.submissionSubmitted(extSubmission, "test@ebi.ac.uk") } answers { nothing }
 
         val submission = testInstance.submit(submissionRequest)
         assertThat(submission).isEqualTo(extSubmission)
-        verify(exactly = 1) { eventsService.submissionSubmitted(extSubmission, submitter) }
+        verify(exactly = 1) { eventsPublisherService.submissionSubmitted(extSubmission, "test@ebi.ac.uk") }
     }
 }

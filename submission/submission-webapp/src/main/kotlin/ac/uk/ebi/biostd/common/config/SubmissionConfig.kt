@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.common.config
 
-import ac.uk.ebi.biostd.events.EventsService
 import ac.uk.ebi.biostd.files.service.UserFilesService
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.persistence.integration.PersistenceContext
@@ -19,6 +18,7 @@ import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
+import uk.ac.ebi.events.service.EventsPublisherService
 
 @Configuration
 @Import(value = [PersistenceConfig::class, SecurityBeansConfig::class])
@@ -34,14 +34,14 @@ class SubmissionConfig(
         userPrivilegeService: IUserPrivilegesService,
         queryService: SubmissionQueryService,
         submissionSubmitter: SubmissionSubmitter,
-        eventsService: EventsService
+        eventsPublisherService: EventsPublisherService
     ): SubmissionService = SubmissionService(
         subRepository,
         serializationService,
         userPrivilegeService,
         queryService,
         submissionSubmitter,
-        eventsService)
+        eventsPublisherService)
 
     @Bean
     fun extSubmissionService(

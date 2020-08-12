@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.submission.domain.service
 
-import ac.uk.ebi.biostd.events.EventsService
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat.JsonFormat.JsonPretty
 import ac.uk.ebi.biostd.integration.SubFormat.TsvFormat.Tsv
@@ -15,6 +14,7 @@ import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.paths.FILES_PATH
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import ebi.ac.uk.security.integration.model.api.SecurityUser
+import uk.ac.ebi.events.service.EventsPublisherService
 
 // TODO: merge with QueryService to provide operations.
 class SubmissionService(
@@ -23,11 +23,12 @@ class SubmissionService(
     private val userPrivilegesService: IUserPrivilegesService,
     private val queryService: SubmissionQueryService,
     private val submissionSubmitter: SubmissionSubmitter,
-    private val eventsService: EventsService
+    private val eventsPublisherService: EventsPublisherService
 ) {
     fun submit(request: SubmissionRequest): ExtSubmission {
         val extSubmission = submissionSubmitter.submit(request)
-        eventsService.submissionSubmitted(extSubmission, request.onBehalfUser ?: request.submitter)
+        val submitter = request.onBehalfUser ?: request.submitter
+        eventsPublisherService.submissionSubmitted(extSubmission, submitter.email)
 
         return extSubmission
     }

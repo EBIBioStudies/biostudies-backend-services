@@ -4,8 +4,7 @@ import ebi.ac.uk.notifications.model.Email
 import org.springframework.mail.javamail.JavaMailSender
 import org.springframework.mail.javamail.MimeMessageHelper
 
-internal class SimpleEmailService(private val javaMailSender: JavaMailSender) {
-
+class SimpleEmailService(private val javaMailSender: JavaMailSender) {
     fun send(email: Email) {
         val mail = javaMailSender.createMimeMessage()
         val helper = MimeMessageHelper(mail, true)

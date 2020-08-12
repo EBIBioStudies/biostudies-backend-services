@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.handlers.listeners
 
-import ac.uk.ebi.biostd.handlers.LOG_QUEUE
+import ac.uk.ebi.biostd.handlers.config.LOG_QUEUE
 import ebi.ac.uk.extended.events.SubmissionSubmitted
 import mu.KotlinLogging
 import org.springframework.amqp.rabbit.annotation.RabbitListener

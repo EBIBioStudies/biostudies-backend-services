@@ -17,9 +17,6 @@ import ebi.ac.uk.security.integration.components.IGroupService
 import ebi.ac.uk.security.integration.components.ISecurityFilter
 import ebi.ac.uk.security.integration.components.ISecurityService
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
-import ebi.ac.uk.security.integration.model.events.PasswordReset
-import ebi.ac.uk.security.integration.model.events.UserRegister
-import io.reactivex.Observable
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
@@ -29,6 +26,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter
+import uk.ac.ebi.events.service.EventsPublisherService
 
 @Configuration
 @EnableWebSecurity
@@ -85,7 +83,8 @@ class SecurityBeansConfig(private val objectMapper: ObjectMapper, properties: Ap
         tokenRepository: TokenDataRepository,
         tagsRepository: AccessTagDataRepo,
         groupRepository: UserGroupDataRepository,
-        userPermissionsService: UserPermissionsService
+        userPermissionsService: UserPermissionsService,
+        eventsPublisherService: EventsPublisherService
     ): SecurityModuleConfig = SecurityModuleConfig(
         userDataRepository,
         tokenRepository,
@@ -93,6 +92,7 @@ class SecurityBeansConfig(private val objectMapper: ObjectMapper, properties: Ap
         groupRepository,
         queryService,
         userPermissionsService,
+        eventsPublisherService,
         securityProps)
 
     @Bean
@@ -107,12 +107,6 @@ class SecurityBeansConfig(private val objectMapper: ObjectMapper, properties: Ap
 
     @Bean
     fun securityFilter(securityConfig: SecurityModuleConfig): ISecurityFilter = securityConfig.securityFilter()
-
-    @Bean
-    fun passwordReset(securityConfig: SecurityModuleConfig): Observable<PasswordReset> = securityConfig.passwordReset
-
-    @Bean
-    fun preRegister(securityConfig: SecurityModuleConfig): Observable<UserRegister> = securityConfig.userRegister
 
     @Bean
     fun extUserService(userDataRepository: UserDataRepository): ExtUserService = ExtUserService(userDataRepository)

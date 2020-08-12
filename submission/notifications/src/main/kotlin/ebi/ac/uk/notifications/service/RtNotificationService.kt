@@ -5,6 +5,7 @@ import ebi.ac.uk.notifications.api.RtClient
 import ebi.ac.uk.notifications.integration.templates.SuccessfulSubmissionModel
 import ebi.ac.uk.notifications.integration.templates.SuccessfulSubmissionTemplate
 import ebi.ac.uk.notifications.persistence.service.NotificationPersistenceService
+import ebi.ac.uk.notifications.util.TemplateLoader
 import ebi.ac.uk.util.date.toStringDate
 import org.apache.commons.io.IOUtils
 import org.springframework.core.io.ResourceLoader
@@ -16,7 +17,7 @@ internal const val SUCCESSFUL_RESUBMISSION_TEMPLATE = "successful-resubmission.t
 
 class RtNotificationService(
     private val rtClient: RtClient,
-    private val resourceLoader: ResourceLoader,
+    private val templateLoader: TemplateLoader,
     private val notificationPersistenceService: NotificationPersistenceService
 ) {
     fun notifySuccessfulSubmission(submission: ExtSubmission, ownerFullName: String, uiUrl: String) {
@@ -42,8 +43,7 @@ class RtNotificationService(
             else -> SUCCESSFUL_RESUBMISSION_TEMPLATE
         }
 
-        val resource = resourceLoader.getResource("classpath:templates/$template")
-        return IOUtils.toString(resource.inputStream, Charset.defaultCharset())
+        return templateLoader.loadTemplate(template)
     }
 
     private fun submissionNotification(submission: ExtSubmission, ownerFullName: String, uiUrl: String) =

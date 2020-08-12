@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.handlers.listeners
 
-import ac.uk.ebi.biostd.handlers.NOTIFICATIONS_QUEUE
+import ac.uk.ebi.biostd.handlers.config.NOTIFICATIONS_QUEUE
 import ac.uk.ebi.biostd.handlers.api.BioStudiesWebConsumer
 import ebi.ac.uk.extended.events.SubmissionSubmitted
 import ebi.ac.uk.notifications.service.RtNotificationService

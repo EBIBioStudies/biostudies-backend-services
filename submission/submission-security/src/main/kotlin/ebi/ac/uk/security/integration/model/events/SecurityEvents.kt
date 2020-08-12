@@ -4,6 +4,5 @@ import ac.uk.ebi.biostd.persistence.model.DbUser
 
 sealed class SecurityEvents
 
-class UserRegister(val user: DbUser, val activationLink: String) : SecurityEvents()
+// TODO check whether this is necessary
 class UserActivated(val user: DbUser) : SecurityEvents()
-class PasswordReset(val user: DbUser, val activationLink: String) : SecurityEvents()
