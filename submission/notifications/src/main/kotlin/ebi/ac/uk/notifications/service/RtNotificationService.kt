@@ -7,9 +7,6 @@ import ebi.ac.uk.notifications.integration.templates.SuccessfulSubmissionTemplat
 import ebi.ac.uk.notifications.persistence.service.NotificationPersistenceService
 import ebi.ac.uk.notifications.util.TemplateLoader
 import ebi.ac.uk.util.date.toStringDate
-import org.apache.commons.io.IOUtils
-import org.springframework.core.io.ResourceLoader
-import java.nio.charset.Charset
 
 internal const val FROM = "biostudies@ebi.ac.uk"
 internal const val SUCCESSFUL_SUBMISSION_TEMPLATE = "successful-submission.txt"

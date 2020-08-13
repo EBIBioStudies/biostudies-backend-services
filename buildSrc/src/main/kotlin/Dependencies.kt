@@ -34,6 +34,7 @@ import Versions.Retrofit2Version
 import Versions.RxJava2Version
 import Versions.ServletVersion
 import Versions.SpringAdminVersion
+import Versions.SpringBootVersion
 import Versions.SpringDataVersion
 import Versions.SpringVersion
 import Versions.SpringfoxSwaggerVersion
@@ -175,7 +176,7 @@ object SpringBootDependencies {
     const val SpringBootStarter = "org.springframework.boot:spring-boot-starter"
     const val SpringBootStarterTest = "org.springframework.boot:spring-boot-starter-test"
     const val SpringBootStarterWeb = "org.springframework.boot:spring-boot-starter-web"
-    const val SpringBootAmqp = "org.springframework.boot:spring-boot-starter-amqp"
+    const val SpringBootAmqp = "org.springframework.boot:spring-boot-starter-amqp:$SpringBootVersion"
     const val SpringBootConfigurationProcessor = "org.springframework.boot:spring-boot-configuration-processor"
     const val SpringBootStarterActuator = "org.springframework.boot:spring-boot-starter-actuator"
     const val SpringBootStarterValidation = "org.springframework.boot:spring-boot-starter-validation"

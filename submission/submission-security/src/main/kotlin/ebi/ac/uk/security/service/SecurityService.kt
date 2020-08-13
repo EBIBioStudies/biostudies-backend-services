@@ -16,7 +16,6 @@ import ebi.ac.uk.extended.events.SecurityNotificationType.PASSWORD_RESET
 import ebi.ac.uk.io.ALL_GROUP
 import ebi.ac.uk.io.FileUtils
 import ebi.ac.uk.io.GROUP_EXECUTE
-import ebi.ac.uk.security.events.Events.userRegister
 import ebi.ac.uk.security.integration.SecurityProperties
 import ebi.ac.uk.security.integration.components.ISecurityService
 import ebi.ac.uk.security.integration.exception.LoginException
@@ -27,7 +26,6 @@ import ebi.ac.uk.security.integration.exception.UserPendingRegistrationException
 import ebi.ac.uk.security.integration.exception.UserWithActivationKeyNotFoundException
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import ebi.ac.uk.security.integration.model.api.UserInfo
-import ebi.ac.uk.security.integration.model.events.UserActivated
 import ebi.ac.uk.security.util.SecurityUtil
 import uk.ac.ebi.events.service.EventsPublisherService
 import java.nio.file.Path
@@ -159,17 +157,18 @@ class SecurityService(
         val activationNotification = SecurityNotification(saved.email, saved.fullName, activationUrl, ACTIVATION)
 
         eventsPublisherService.securityNotification(activationNotification)
+
         return saved
     }
 
     private fun activate(request: RegisterRequest): SecurityUser {
         val dbUser = userRepository.save(asUser(request).activated())
-        userRegister.onNext(UserActivated(dbUser))
-
         val securityUser = profileService.asSecurityUser(dbUser)
+
         FileUtils.getOrCreateFolder(securityUser.magicFolder.path.parent, GROUP_EXECUTE)
         FileUtils.getOrCreateFolder(securityUser.magicFolder.path, ALL_GROUP)
         FileUtils.createSymbolicLink(symLinkPath(securityUser.email), securityUser.magicFolder.path, ALL_GROUP)
+
         return securityUser
     }
 

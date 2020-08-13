@@ -5,7 +5,7 @@ import ebi.ac.uk.notifications.integration.model.NotificationTemplateModel
 
 internal class UserActivationTemplate(
     templateContent: String
-): NotificationTemplate<UserActivationModel>(templateContent)
+) : NotificationTemplate<UserActivationModel>(templateContent)
 
 internal class UserActivationModel(
     private val mailto: String,
