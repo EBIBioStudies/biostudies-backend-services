@@ -35,25 +35,27 @@ class FilesService(
     private val serializationService: SerializationService
 ) {
     fun persistSubmissionFiles(submission: ExtSubmission, mode: FileMode) {
-        logger.info { "Starting processing files of submission {${submission.accNo}}" }
+        logger.info { "Starting processing files of submission ${submission.accNo}" }
         val permissions = permissions(submission.released)
         val submissionFolder = getOrCreateSubmissionFolder(submission, permissions)
 
         generatePageTab(submission, submissionFolder, permissions)
-        processSubmissionAttachedFiles(mode, submission, submissionFolder, permissions)
-        logger.info { "Finishing processing file of submission {${submission.accNo}}" }
+        processAttachedFiles(mode, submission, submissionFolder, permissions)
+        logger.info { "Finishing processing file of submission ${submission.accNo}" }
     }
 
-    private fun processSubmissionAttachedFiles(
+    private fun processAttachedFiles(
         mode: FileMode,
         submission: ExtSubmission,
         submissionFolder: File,
         filePermissions: Set<PosixFilePermission>
     ) {
+        logger.info { "processing submission ${submission.accNo} files in $mode" }
         when (mode) {
             MOVE -> processFiles(submission, submissionFolder, filePermissions, this::move)
             COPY -> processFiles(submission, submissionFolder, filePermissions, this::copy)
         }
+        logger.info { "Finishing processing submission ${submission.accNo} files in $mode" }
     }
 
     private fun permissions(released: Boolean): Set<PosixFilePermission> =
@@ -70,6 +72,8 @@ class FilesService(
         submission.allFileList.forEach {
             generatePageTab(it.toFilesTable(), submissionFolder, it.fileName, permissions)
         }
+
+        logger.info { "pagetab generated successfully for submission ${submission.accNo}" }
     }
 
     private fun <T> generatePageTab(
@@ -107,13 +111,19 @@ class FilesService(
         (submission.allFiles + submission.allReferencedFiles).distinctBy { it.file }
 
     private fun copy(extFile: ExtFile, folder: File, permissions: Set<PosixFilePermission>) {
-        logger.debug { "copying file $folder into ${folder.absolutePath}" }
-        copyOrReplaceFile(extFile.file, folder.resolve(extFile.fileName), permissions)
+        val source = extFile.file
+        val target = folder.resolve(extFile.fileName)
+
+        logger.info { "copying file ${source.absolutePath} into ${target.absolutePath}" }
+        copyOrReplaceFile(source, target, permissions)
     }
 
-    private fun move(file: ExtFile, folder: File, permissions: Set<PosixFilePermission>) {
-        logger.debug { "moving file $file into ${folder.absolutePath}" }
-        moveFile(file.file, folder.resolve(file.fileName), permissions)
+    private fun move(extFile: ExtFile, folder: File, permissions: Set<PosixFilePermission>) {
+        val source = extFile.file
+        val target = folder.resolve(extFile.fileName)
+
+        logger.info { "moving file ${source.absolutePath} into ${target.absolutePath}" }
+        moveFile(source, target, permissions)
     }
 
     private fun getOrCreateSubmissionFolder(submission: ExtSubmission, permissions: Set<PosixFilePermission>): File {
