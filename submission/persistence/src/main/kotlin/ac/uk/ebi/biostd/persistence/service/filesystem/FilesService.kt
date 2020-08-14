@@ -35,11 +35,13 @@ class FilesService(
     private val serializationService: SerializationService
 ) {
     fun persistSubmissionFiles(submission: ExtSubmission, mode: FileMode) {
+        logger.info { "Starting processing files of submission {${submission.accNo}}" }
         val permissions = permissions(submission.released)
         val submissionFolder = getOrCreateSubmissionFolder(submission, permissions)
 
         generatePageTab(submission, submissionFolder, permissions)
         processSubmissionAttachedFiles(mode, submission, submissionFolder, permissions)
+        logger.info { "Finishing processing file of submission {${submission.accNo}}" }
     }
 
     private fun processSubmissionAttachedFiles(
