@@ -21,38 +21,25 @@ import javax.persistence.OneToOne
 import javax.persistence.OrderBy
 import javax.persistence.Table
 
-internal const val SECTION_FULL_GRAPH = "Section.fullGraph"
 internal const val SECTION_SIMPLE_GRAPH = "Section.simpleGraph"
+private const val ATTRIBUTES_GRAPH = "Object.attributesGraph"
 
 @Entity
 @Table(name = "Section")
 @NamedEntityGraphs(value = [
     NamedEntityGraph(
-        name = SECTION_FULL_GRAPH,
-        attributeNodes = [
-            Node(LINKS, subgraph = "attrs"),
-            Node(ATTRS),
-            Node(FILES, subgraph = "attrs"),
-            Node(SECTS, subgraph = SECTION_FULL_GRAPH)
-        ]),
-    NamedEntityGraph(
         name = SECTION_SIMPLE_GRAPH,
         attributeNodes = [
             Node(ATTRS),
             Node(SECTS),
-            Node(LINKS, subgraph = "attrs-sub-graph"),
-            Node(FILES, subgraph = "attrs-sub-graph")],
+            Node(LINKS, subgraph = ATTRIBUTES_GRAPH),
+            Node(FILES, subgraph = ATTRIBUTES_GRAPH)],
         subgraphs = [
-            Graph(
-                name = "attrs-sub-graph",
-                attributeNodes = [
-                    Node(ATTRS)
-                ]
-            )
+            Graph(name = ATTRIBUTES_GRAPH, attributeNodes = [Node(ATTRS)])
         ]
     )
 ])
-open class DbSection(
+class DbSection(
     @Column
     var accNo: String?,
 
