@@ -5,8 +5,6 @@ import javax.persistence.Column
 import javax.persistence.Entity
 import javax.persistence.Id
 import javax.persistence.IdClass
-import javax.persistence.JoinColumn
-import javax.persistence.ManyToOne
 import javax.persistence.Table
 
 @Table(name = "UserData")
@@ -20,12 +18,7 @@ class DbUserData(
     val key: String,
 
     var data: String
-) {
-
-    @ManyToOne
-    @JoinColumn(name = "userId", updatable = false, insertable = false)
-    lateinit var user: DbUser
-}
+)
 
 class UserDataId : Serializable {
     var userId: Long = 0

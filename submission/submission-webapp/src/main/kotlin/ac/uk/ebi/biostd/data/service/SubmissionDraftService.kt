@@ -3,7 +3,6 @@ package ac.uk.ebi.biostd.data.service
 import ac.uk.ebi.biostd.persistence.filter.PaginationFilter
 import ac.uk.ebi.biostd.persistence.model.DbUserData
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionService
-import arrow.core.getOrElse
 import java.time.Instant
 
 class SubmissionDraftService(
@@ -11,7 +10,7 @@ class SubmissionDraftService(
     private val submissionService: SubmissionService
 ) {
     fun getSubmissionDraft(userId: Long, key: String): DbUserData =
-        userDataService.getUserData(userId, key).getOrElse { create(userId, key) }
+        userDataService.getUserData(userId, key) ?: create(userId, key)
 
     fun updateSubmissionDraft(userId: Long, key: String, content: String): DbUserData =
         userDataService.saveUserData(userId, key, content)

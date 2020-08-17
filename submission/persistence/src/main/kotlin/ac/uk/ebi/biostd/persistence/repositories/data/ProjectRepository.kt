@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.persistence.service
+package ac.uk.ebi.biostd.persistence.repositories.data
 
 import ac.uk.ebi.biostd.persistence.common.SubmissionTypes.Project
 import ac.uk.ebi.biostd.persistence.projections.SimpleSubmission
