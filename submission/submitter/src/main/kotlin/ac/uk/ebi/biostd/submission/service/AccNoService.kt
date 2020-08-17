@@ -47,13 +47,9 @@ class AccNoService(
 
     @Suppress("MagicNumber")
     internal fun getRelPath(accNo: AccNumber): String {
-        val prefix = accNo.prefix.removeSuffix("-")
+        val prefix = accNo.prefix
         val suffix = accNo.numericValue.orEmpty().padStart(3, '0')
-
-        return when (suffix) {
-            null -> prefix.removePrefix("/")
-            else -> "$prefix/${suffix.takeLast(PATH_DIGITS)}/$accNo".removePrefix("/")
-        }
+        return "$prefix/${suffix.takeLast(PATH_DIGITS)}/$accNo".removePrefix("/")
     }
 
     private fun getPatternOrDefault(parentPattern: String?) = when (parentPattern) {
