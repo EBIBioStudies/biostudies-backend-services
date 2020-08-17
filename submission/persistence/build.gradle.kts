@@ -10,8 +10,14 @@ import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
 
 plugins {
-    id("org.jetbrains.kotlin.plugin.jpa") version "1.3.10"
-    id("org.jetbrains.kotlin.plugin.allopen") version "1.3.10"
+    id("org.jetbrains.kotlin.plugin.jpa") version "1.3.72"
+    id("org.jetbrains.kotlin.plugin.allopen") version "1.3.72"
+}
+
+allOpen {
+    annotation("javax.persistence.Entity")
+    annotation("javax.persistence.Embeddable")
+    annotation("javax.persistence.MappedSuperclass")
 }
 
 dependencies {

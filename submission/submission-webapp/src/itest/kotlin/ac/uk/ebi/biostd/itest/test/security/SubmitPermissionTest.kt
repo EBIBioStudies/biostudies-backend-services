@@ -148,10 +148,10 @@ internal class SubmitPermissionTest(tempFolder: TemporaryFolder) : BaseIntegrati
             assertThat(regularUserWebClient.submitSingle(submission, SubmissionFormat.TSV)).isSuccessful()
         }
 
-        private fun setAttachPermission(user: TestUser, project: String) {
+        private fun setAttachPermission(testUser: TestUser, project: String) {
             val accessTag = tagsDataRepository.findByName(project)
-            val dbUser = userDataRepository.findByEmailAndActive(user.email, active = true)
-            val attachPermission = AccessPermission(accessType = ATTACH, user = dbUser.get(), accessTag = accessTag)
+            val user = userDataRepository.findByEmailAndActive(testUser.email, active = true)
+            val attachPermission = AccessPermission(accessType = ATTACH, user = user.get(), accessTag = accessTag)
             accessPermissionRepository.save(attachPermission)
         }
     }

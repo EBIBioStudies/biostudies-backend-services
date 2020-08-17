@@ -241,7 +241,7 @@ internal class MultipartFileSubmissionApiTest(
             assertThat(response).isSuccessful()
             submission.delete()
 
-            val savedSubmission = submissionRepository.getByAccNo("S-TEST6")
+            val savedSubmission = submissionRepository.getSimpleByAccNo("S-TEST6")
             assertThat(savedSubmission.attributes).hasSize(3)
             assertThat(savedSubmission["Exp"]).isEqualTo("1")
             assertThat(savedSubmission["Type"]).isEqualTo("Exp")
@@ -259,7 +259,7 @@ internal class MultipartFileSubmissionApiTest(
 
         private fun assertSubmissionFiles(accNo: String, testFile: String) {
             val fileListName = "FileList"
-            val createdSubmission = submissionRepository.getActiveExtByAccNo(accNo)
+            val createdSubmission = submissionRepository.getExtByAccNo(accNo)
             val submissionFolderPath = "$submissionPath/${createdSubmission.relPath}"
 
             assertThat(createdSubmission.section.fileList?.fileName).isEqualTo(fileListName)
