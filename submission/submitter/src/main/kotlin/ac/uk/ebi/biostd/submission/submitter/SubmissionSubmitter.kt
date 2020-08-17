@@ -59,7 +59,7 @@ class SubmissionSubmitter(
             request.method
         )
 
-        logger.info { "Saving submission $submission" }
+        logger.info { "Saving submission ${submission.accNo}" }
         return context.saveSubmission(SaveRequest(submission, request.mode))
     }
 

@@ -13,11 +13,10 @@ class EventsService(
     fun submissionSubmitted(submission: ExtSubmission, user: SecurityUser) {
         val submissionNotification = SubmissionSubmitted(
             accNo = submission.accNo,
-            ownerFullName = user.fullName,
-            notificationsEnabled = user.notificationsEnabled,
             uiUrl = properties.instanceBaseUrl,
             pagetabUrl = "${properties.instanceBaseUrl}/submissions/${submission.accNo}.json",
-            extTabUrl = "${properties.instanceBaseUrl}/submissions/extended/${submission.accNo}")
+            extTabUrl = "${properties.instanceBaseUrl}/submissions/extended/${submission.accNo}",
+            extUserUrl = "${properties.instanceBaseUrl}/security/users/extended/${user.email}")
 
         rabbitTemplate.convertAndSend(BIOSTUDIES_EXCHANGE, SUBMISSIONS_ROUTING_KEY, submissionNotification)
     }
