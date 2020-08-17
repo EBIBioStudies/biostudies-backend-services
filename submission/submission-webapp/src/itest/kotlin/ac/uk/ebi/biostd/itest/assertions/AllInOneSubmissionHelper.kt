@@ -17,7 +17,7 @@ internal class AllInOneSubmissionHelper(
     private val submissionRepository: SubmissionRepository
 ) {
     internal fun assertSavedSubmission(accNo: String, method: ExtSubmissionMethod = ExtSubmissionMethod.PAGE_TAB) {
-        val extendedSubmission = submissionRepository.getActiveExtByAccNo(accNo)
+        val extendedSubmission = submissionRepository.getExtByAccNo(accNo)
         assertThat(extendedSubmission.status).isEqualTo(ExtProcessingStatus.PROCESSED)
         assertThat(extendedSubmission.method).isEqualTo(method)
         assertThat(extendedSubmission.toSimpleSubmission()).isEqualTo(allInOneSubmission(accNo))

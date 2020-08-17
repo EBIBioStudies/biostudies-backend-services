@@ -39,6 +39,8 @@ class JdbcLockExecutor(private val template: NamedParameterJdbcTemplate) : LockE
         logger.info { "acquiring lock $lockName in ${Thread.currentThread()}" }
         val params = mapOf(NAME_PARAM to lockName, TIME_PARAM to timeout)
         val lock = template.queryForObject<Int>(LOCK_QUERY, params, Int::class.java)
-        return ObjectUtils.compare(lock, 1) == 0
+        val acquired = ObjectUtils.compare(lock, 1) == 0
+        logger.info { "acquired lock $lockName in ${Thread.currentThread()}" }
+        return acquired
     }
 }

@@ -33,17 +33,17 @@ class SubmissionService(
     }
 
     fun getSubmissionAsJson(accNo: String): String {
-        val submission = subRepository.getByAccNo(accNo)
+        val submission = subRepository.getSimpleByAccNo(accNo)
         return serializationService.serializeSubmission(submission, JsonPretty)
     }
 
     fun getSubmissionAsXml(accNo: String): String {
-        val submission = subRepository.getByAccNo(accNo)
+        val submission = subRepository.getSimpleByAccNo(accNo)
         return serializationService.serializeSubmission(submission, XmlFormat)
     }
 
     fun getSubmissionAsTsv(accNo: String): String {
-        val submission = subRepository.getByAccNo(accNo)
+        val submission = subRepository.getSimpleByAccNo(accNo)
         return serializationService.serializeSubmission(submission, Tsv)
     }
 
@@ -57,5 +57,5 @@ class SubmissionService(
 
     fun submissionFolder(accNo: String): java.io.File? = queryService.getCurrentFolder(accNo)?.resolve(FILES_PATH)
 
-    fun getSubmission(accNo: String): ExtSubmission = subRepository.getActiveExtByAccNo(accNo)
+    fun getSubmission(accNo: String): ExtSubmission = subRepository.getExtByAccNo(accNo)
 }
