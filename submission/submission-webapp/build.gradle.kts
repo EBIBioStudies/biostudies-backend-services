@@ -8,6 +8,7 @@ import Dependencies.RxJava2
 import Dependencies.SpringfoxSwagger
 import Dependencies.SpringfoxSwaggerUI
 import SpringBootDependencies.SpringBootAmqp
+import SpringBootDependencies.SpringBootConfigurationProcessor
 import SpringBootDependencies.SpringBootStartedAdminClient
 import SpringBootDependencies.SpringBootStarterActuator
 import SpringBootDependencies.SpringBootStarterConfigProcessor
@@ -52,7 +53,7 @@ dependencies {
     api(project(":commons:commons-test"))
     api(project(":commons:commons-http"))
 
-    annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
+    annotationProcessor(SpringBootConfigurationProcessor)
 
     implementation(SpringBootStarterWeb)
     implementation(SpringBootAmqp)

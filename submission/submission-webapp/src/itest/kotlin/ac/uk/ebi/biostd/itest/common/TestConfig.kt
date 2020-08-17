@@ -4,8 +4,11 @@ import ac.uk.ebi.biostd.persistence.repositories.LockExecutor
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ebi.ac.uk.security.integration.components.IGroupService
 import ebi.ac.uk.security.service.SecurityService
+import org.springframework.amqp.core.TopicExchange
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+
+const val BIOSTUDIES_EXCHANGE = "biostudies-exchange"
 
 @Configuration
 class TestConfig {
@@ -16,10 +19,12 @@ class TestConfig {
     }
 
     @Bean
+    fun exchange(): TopicExchange = TopicExchange(BIOSTUDIES_EXCHANGE)
+
+    @Bean
     fun securityTestService(
         userDataRepository: UserDataRepository,
         securityService: SecurityService,
         groupService: IGroupService
-    ) =
-        SecurityTestService(securityService, userDataRepository, groupService)
+    ) = SecurityTestService(securityService, userDataRepository, groupService)
 }

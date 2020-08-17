@@ -1,12 +1,13 @@
-package ac.uk.ebi.biostd.notifications.templates
+package ebi.ac.uk.notifications.integration.templates
 
 import ebi.ac.uk.notifications.integration.model.NotificationTemplate
 import ebi.ac.uk.notifications.integration.model.NotificationTemplateModel
 
-internal class PasswordResetTemplate(templateContent: String) :
-    NotificationTemplate<PasswordResetModel>(templateContent)
+internal class UserActivationTemplate(
+    templateContent: String
+) : NotificationTemplate<UserActivationModel>(templateContent)
 
-internal class PasswordResetModel(
+internal class UserActivationModel(
     private val mailto: String,
     private val activationLink: String,
     private val username: String
