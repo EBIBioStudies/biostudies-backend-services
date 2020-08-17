@@ -1,8 +1,9 @@
 package ebi.ac.uk.model
 
 import java.util.Objects
+import java.util.Objects.equals
 
-open class Submission(
+class Submission(
     var accNo: String = "",
     var section: Section = Section(),
     var tags: MutableList<Pair<String, String>> = mutableListOf(),
@@ -11,10 +12,12 @@ open class Submission(
     override fun equals(other: Any?) = when {
         other !is Submission -> false
         other === this -> true
-        else -> Objects.equals(accNo, other.accNo)
-            .and(Objects.equals(section, other.section))
-            .and(Objects.equals(attributes, other.attributes))
+        else -> equals(accNo, other.accNo)
+            .and(equals(section, other.section))
+            .and(equals(attributes, other.attributes))
     }
 
     override fun hashCode() = Objects.hash(accNo, section, attributes)
+
+    override fun toString() = "Submission(accNo='$accNo',attributes=$attributes)"
 }

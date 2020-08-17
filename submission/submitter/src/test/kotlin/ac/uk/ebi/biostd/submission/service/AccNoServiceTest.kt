@@ -20,26 +20,30 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
 
 private const val SUB_ACC_NO = "AAB12"
+private val ACC_NUM = AccNumber("AAB", "12")
 private const val SUBMITTER = "submiter@email.com"
 private const val PROJECT = "CC123"
 private const val PROJECT_PATTERN = "!{ABC-}"
 
 @ExtendWith(MockKExtension::class)
 class AccNoServiceTest(
-    @MockK private val accNoPatternUtil: AccNoPatternUtil,
     @MockK private val context: PersistenceContext,
     @MockK private val submissionQueryService: SubmissionQueryService,
     @MockK private val privilegesService: IUserPrivilegesService
 ) {
+    private val accNoPatternUtil: AccNoPatternUtil = AccNoPatternUtil()
     private val testInstance = AccNoService(context, submissionQueryService, accNoPatternUtil, privilegesService)
 
     @ParameterizedTest(name = "prefix is {0} and numeric value is {1}")
     @CsvSource(
-        "AA, 88, AA/AA0-99/AA88",
-        "AA, 200, AA/AAxxx200/AA200"
-    )
-    fun getRelPath(prefix: String, value: Long, expected: String) {
-        assertThat(testInstance.getRelPath(AccNumber(prefix, value))).isEqualTo(expected)
+        "S-DIXA-AN-002, S-DIXA-AN-/002/S-DIXA-AN-002",
+        "S-BSST11, S-BSST/011/S-BSST11",
+        "S-DIXA-011, S-DIXA-/011/S-DIXA-011",
+        "1-AAA, 1-AAA/000/1-AAA",
+        "S-SCDT-EMBOJ-2019-103549, S-SCDT-EMBOJ-2019-/549/S-SCDT-EMBOJ-2019-103549",
+        "S-SCDT-EMBOR-2017-44445V1, S-SCDT-EMBOR-2017-44445V/001/S-SCDT-EMBOR-2017-44445V1")
+    fun getRelPath(value: String, expected: String) {
+        assertThat(testInstance.getRelPath(accNoPatternUtil.toAccNumber(value))).isEqualTo(expected)
     }
 
     @Nested
@@ -70,17 +74,13 @@ class AccNoServiceTest(
 
         @Nested
         inner class WhenAccNo {
-            @BeforeEach
-            fun beforeEach() {
-                every { accNoPatternUtil.toAccNumber(SUB_ACC_NO) } returns AccNumber(SUB_ACC_NO)
-            }
 
             @Test
             fun whenNoProject() {
                 every { privilegesService.canProvideAccNo(SUBMITTER) } returns true
 
                 assertThat(testInstance.getAccNo(AccNoServiceRequest(submitter = SUBMITTER, accNo = SUB_ACC_NO)))
-                    .isEqualTo(AccNumber(SUB_ACC_NO))
+                    .isEqualTo(ACC_NUM)
             }
 
             @Test
@@ -90,7 +90,7 @@ class AccNoServiceTest(
 
                 assertThat(testInstance.getAccNo(
                     AccNoServiceRequest(submitter = SUBMITTER, accNo = SUB_ACC_NO, project = PROJECT)))
-                    .isEqualTo(AccNumber(SUB_ACC_NO))
+                    .isEqualTo(ACC_NUM)
             }
         }
 
@@ -99,31 +99,25 @@ class AccNoServiceTest(
             @Test
             fun whenParent() {
                 every { privilegesService.canSubmitToProject(SUBMITTER, PROJECT) } returns true
-
-                val projectSequence = "abc-"
-                every { accNoPatternUtil.getPattern(PROJECT_PATTERN) } returns projectSequence
-                every { context.getSequenceNextValue(projectSequence) } returns 10
+                every { context.getSequenceNextValue("ABC-") } returns 10
 
                 assertThat(testInstance.getAccNo(AccNoServiceRequest(
                     submitter = SUBMITTER,
                     project = PROJECT,
                     projectPattern = PROJECT_PATTERN)))
-                    .isEqualTo(AccNumber("abc-", 10))
+                    .isEqualTo(AccNumber("ABC-", "10"))
             }
 
             @Test
             fun whenNoParent() {
                 every { privilegesService.canProvideAccNo(SUBMITTER) } returns true
                 every { privilegesService.canSubmitToProject(SUBMITTER, PROJECT) } returns true
-
-                val defaultSequence = "default-"
-                every { accNoPatternUtil.getPattern(DEFAULT_PATTERN) } returns defaultSequence
-                every { context.getSequenceNextValue(defaultSequence) } returns 99
+                every { context.getSequenceNextValue("S-BSST") } returns 99
 
                 assertThat(testInstance.getAccNo(AccNoServiceRequest(
                     submitter = SUBMITTER,
                     project = PROJECT)))
-                    .isEqualTo(AccNumber("default-", 99))
+                    .isEqualTo(AccNumber("S-BSST", "99"))
             }
         }
     }

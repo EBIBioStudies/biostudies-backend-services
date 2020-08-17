@@ -42,7 +42,7 @@ import java.time.OffsetDateTime
 import java.time.ZoneOffset
 
 class SubmissionSubmitterTest {
-    private val accNo = AccNumber("S-TEST", 123)
+    private val accNo = AccNumber("S-TEST", "123")
     private val testTime = OffsetDateTime.of(2017, 10, 10, 0, 0, 0, 0, ZoneOffset.UTC)
     private val submission = submission("S-TEST123") {
         title = "Test Submission"
