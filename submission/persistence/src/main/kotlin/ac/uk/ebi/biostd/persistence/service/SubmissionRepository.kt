@@ -29,11 +29,11 @@ open class SubmissionRepository(
     open fun getSimpleByAccNo(accNo: String): Submission = getExtByAccNo(accNo).toSimpleSubmission()
 
     @Transactional(readOnly = true)
-    open fun getExtByAccNo(accNo: String) = submissionMapper.toExtSubmission(submission(accNo))
+    open fun getExtByAccNo(accNo: String) = submissionMapper.toExtSubmission(lodSubmission(accNo))
 
     @Transactional(readOnly = true)
     open fun getExtByAccAndVersion(accNo: String, version: Int) =
-        submissionMapper.toExtSubmission(submission(accNo, version))
+        submissionMapper.toExtSubmission(lodSubmission(accNo, version))
 
     open fun expireSubmission(accNo: String) {
         val submission = submissionRepository.findByAccNoAndVersionGreaterThan(accNo)
@@ -53,10 +53,10 @@ open class SubmissionRepository(
     }
 
     /**
-     * Load submission information strategy used is basically first load submission and then load each section and it
+     * Load submission information strategy used is basically first load submission and then load each section and its
      * subsections recursively starting from the root section.
      */
-    private fun submission(accNo: String, version: Int? = null): DbSubmission {
+    private fun lodSubmission(accNo: String, version: Int? = null): DbSubmission {
         logger.info { "loading submission $accNo" }
 
         val submission = findSubmission(accNo, version)
