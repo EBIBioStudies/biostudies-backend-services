@@ -35,9 +35,7 @@ class SubmissionServiceTest(
         @MockK extSubmission: ExtSubmission,
         @MockK submissionRequest: SubmissionRequest
     ) {
-        every { submitter.email } returns "test@ebi.ac.uk"
-        every { submissionRequest.onBehalfUser } returns null
-        every { submissionRequest.submitter } returns submitter
+        every { extSubmission.submitter } returns "test@ebi.ac.uk"
         every { submissionSubmitter.submit(submissionRequest) } returns extSubmission
         every { eventsPublisherService.submissionSubmitted(extSubmission, "test@ebi.ac.uk") } answers { nothing }
 

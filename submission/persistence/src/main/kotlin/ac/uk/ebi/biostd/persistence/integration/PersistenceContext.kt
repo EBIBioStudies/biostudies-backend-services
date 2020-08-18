@@ -15,7 +15,11 @@ interface PersistenceContext {
 
     fun accessTagExists(accessTag: String): Boolean
 
-    fun saveSubmission(saveRequest: SaveRequest): ExtSubmission
+    fun saveAndProcessSubmissionRequest(saveRequest: SaveRequest): ExtSubmission
+
+    fun saveSubmissionRequest(saveRequest: SaveRequest)
+
+    fun processSubmission(saveRequest: SaveRequest): ExtSubmission
 
     fun refreshSubmission(submission: ExtSubmission, submitter: User)
 }

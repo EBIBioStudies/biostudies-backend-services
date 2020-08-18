@@ -5,6 +5,7 @@ import TestDependencies.BaseTestRuntimeDependencies
 
 dependencies {
     api(project(":commons:commons-model-extended"))
+    api(project(":commons:commons-bio"))
 
     implementation(KotlinStdLib)
     implementation(SpringBootAmqp)

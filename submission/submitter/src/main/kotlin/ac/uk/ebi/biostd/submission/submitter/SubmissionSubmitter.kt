@@ -40,6 +40,7 @@ import java.util.UUID
 private val logger = KotlinLogging.logger {}
 private const val DEFAULT_VERSION = 1
 
+@Suppress("TooManyFunctions")
 class SubmissionSubmitter(
     private val timesService: TimesService,
     private val accNoService: AccNoService,
@@ -60,7 +61,29 @@ class SubmissionSubmitter(
         )
 
         logger.info { "Saving submission ${submission.accNo}" }
-        return context.saveSubmission(SaveRequest(submission, request.mode))
+        return context.saveAndProcessSubmissionRequest(SaveRequest(submission, request.mode))
+    }
+
+    fun processRequest(request: SaveRequest): ExtSubmission {
+        logger.info { "processing request for submission ${request.submission.accNo} " }
+        return context.processSubmission(request)
+    }
+
+    fun submitAsync(submissionRequest: SubmissionRequest): SaveRequest {
+        logger.info { "processing async request $submissionRequest" }
+
+        val submission = process(
+            submissionRequest.submission,
+            submissionRequest.submitter.asUser(),
+            submissionRequest.onBehalfUser?.asUser(),
+            submissionRequest.sources,
+            submissionRequest.method
+        )
+
+        logger.info { "Saving submission request ${submission.accNo}" }
+        val request = SaveRequest(submission, submissionRequest.mode)
+        context.saveSubmissionRequest(request)
+        return request
     }
 
     @Suppress("TooGenericExceptionCaught")

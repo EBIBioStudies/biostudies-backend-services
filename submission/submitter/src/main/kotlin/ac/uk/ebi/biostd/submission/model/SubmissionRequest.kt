@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.submission.model
 
-import ac.uk.ebi.biostd.persistence.integration.FileMode
+import ebi.ac.uk.extended.model.FileMode
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.SubmissionMethod

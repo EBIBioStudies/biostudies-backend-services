@@ -8,6 +8,7 @@ import ac.uk.ebi.biostd.persistence.repositories.LockExecutor
 import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
 import ac.uk.ebi.biostd.persistence.service.SubmissionPersistenceService
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.extended.model.FileMode
 import ebi.ac.uk.model.User
 import org.springframework.transaction.annotation.Transactional
 
@@ -39,15 +40,26 @@ open class PersistenceContextImpl(
      * under db lock to guarantee single submission is saved and process at time.
      */
     @Transactional(readOnly = true)
-    override fun saveSubmission(saveRequest: SaveRequest): ExtSubmission {
-        val (sub, mode, accNo) = saveRequest
+    override fun saveAndProcessSubmissionRequest(saveRequest: SaveRequest): ExtSubmission {
+        saveSubmissionRequest(saveRequest)
+        return processSubmission(saveRequest)
+    }
+
+    @Transactional(readOnly = true)
+    override fun saveSubmissionRequest(saveRequest: SaveRequest) {
+        val (sub, _, accNo) = saveRequest
         lockExecutor.executeLocking(accNo) { submissionService.saveSubmission(toDbMapper.toSubmissionDb(sub)) }
+    }
+
+    @Transactional(readOnly = true)
+    override fun processSubmission(saveRequest: SaveRequest): ExtSubmission {
+        val (sub, mode, accNo) = saveRequest
         return lockExecutor.executeLocking(accNo) { submissionService.processSubmission(sub, mode) }
     }
 
     @Transactional
     override fun refreshSubmission(submission: ExtSubmission, submitter: User) {
-        saveSubmission(SaveRequest(submission.copy(version = submission.version + 1), FileMode.MOVE))
+        saveAndProcessSubmissionRequest(SaveRequest(submission.copy(version = submission.version + 1), FileMode.MOVE))
     }
 
     override fun saveAccessTag(accessTag: String) {

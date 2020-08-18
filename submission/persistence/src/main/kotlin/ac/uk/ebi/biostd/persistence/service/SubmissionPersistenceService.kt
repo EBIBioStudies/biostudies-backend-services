@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.persistence.service
 
-import ac.uk.ebi.biostd.persistence.integration.FileMode
 import ac.uk.ebi.biostd.persistence.mapping.extended.to.ToExtSubmissionMapper
 import ac.uk.ebi.biostd.persistence.model.DbSubmission
 import ac.uk.ebi.biostd.persistence.repositories.SubmissionDataRepository
@@ -8,6 +7,7 @@ import ac.uk.ebi.biostd.persistence.repositories.UserDataDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.data.SubmissionRepository
 import ac.uk.ebi.biostd.persistence.service.filesystem.FileSystemService
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.extended.model.FileMode
 import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSED
 import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSING
 import org.springframework.transaction.annotation.Propagation
@@ -20,7 +20,6 @@ open class SubmissionPersistenceService(
     private val systemService: FileSystemService,
     private val toExtSubmissionMapper: ToExtSubmissionMapper
 ) {
-
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = false)
     open fun processSubmission(submission: ExtSubmission, mode: FileMode): ExtSubmission {
         systemService.persistSubmissionFiles(submission, mode)

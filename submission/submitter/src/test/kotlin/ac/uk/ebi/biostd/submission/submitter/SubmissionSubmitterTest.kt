@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.submission.submitter
 
-import ac.uk.ebi.biostd.persistence.integration.FileMode.COPY
 import ac.uk.ebi.biostd.persistence.integration.PersistenceContext
 import ac.uk.ebi.biostd.persistence.integration.SaveRequest
 import ac.uk.ebi.biostd.persistence.integration.SubmissionQueryService
@@ -21,6 +20,7 @@ import ebi.ac.uk.extended.mapping.to.toSimpleSubmission
 import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod
+import ebi.ac.uk.extended.model.FileMode.COPY
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.model.AccNumber
 import ebi.ac.uk.model.SubmissionMethod.PAGE_TAB
@@ -151,7 +151,7 @@ class SubmissionSubmitterTest {
         timesService.getTimes(timesRequest.captured)
 
         projectInfoService.process(projectRequest.captured)
-        persistenceContext.saveSubmission(saveRequest.captured)
+        persistenceContext.saveAndProcessSubmissionRequest(saveRequest.captured)
     }
 
     private fun mockServices() {
@@ -166,7 +166,7 @@ class SubmissionSubmitterTest {
     }
 
     private fun mockPersistenceContext() {
-        every { persistenceContext.saveSubmission(capture(saveRequest)) } returns mockk()
+        every { persistenceContext.saveAndProcessSubmissionRequest(capture(saveRequest)) } returns mockk()
     }
 
     private fun testUser(notificationsEnabled: Boolean) = SecurityUser(
