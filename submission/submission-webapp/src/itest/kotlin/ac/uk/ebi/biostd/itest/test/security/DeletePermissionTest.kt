@@ -13,7 +13,7 @@ import ac.uk.ebi.biostd.persistence.model.AccessType.DELETE
 import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
-import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
+import ac.uk.ebi.biostd.persistence.repositories.data.SubmissionRepository
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.line
 import ebi.ac.uk.dsl.tsv

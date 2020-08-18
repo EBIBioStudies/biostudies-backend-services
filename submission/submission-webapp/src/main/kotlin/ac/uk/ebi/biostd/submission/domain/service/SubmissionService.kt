@@ -7,7 +7,7 @@ import ac.uk.ebi.biostd.integration.SubFormat.XmlFormat
 import ac.uk.ebi.biostd.persistence.filter.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.integration.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.projections.SimpleSubmission
-import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
+import ac.uk.ebi.biostd.persistence.repositories.data.SubmissionRepository
 import ac.uk.ebi.biostd.submission.model.SubmissionRequest
 import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
 import ebi.ac.uk.extended.model.ExtSubmission

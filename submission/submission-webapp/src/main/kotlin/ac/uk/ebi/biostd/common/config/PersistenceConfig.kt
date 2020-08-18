@@ -18,8 +18,9 @@ import ac.uk.ebi.biostd.persistence.repositories.SubmissionDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.TagDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
-import ac.uk.ebi.biostd.persistence.service.ProjectRepository
-import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
+import ac.uk.ebi.biostd.persistence.repositories.data.ProjectRepository
+import ac.uk.ebi.biostd.persistence.repositories.data.SubmissionRepository
+import ac.uk.ebi.biostd.persistence.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.service.UserPermissionsService
 import ac.uk.ebi.biostd.persistence.service.filesystem.FileSystemService
 import ac.uk.ebi.biostd.persistence.service.filesystem.FilesService
@@ -97,21 +98,28 @@ class PersistenceConfig(
 
     @Bean
     fun persistenceContext(
+        submissionPersistenceService: SubmissionPersistenceService,
         lockExecutor: LockExecutor,
         dbSubmissionMapper: ToDbSubmissionMapper,
         toExtSubmissionMapper: ToExtSubmissionMapper,
         fileSystemService: FileSystemService
     ): PersistenceContext =
         PersistenceContextImpl(
-            submissionDataRepository,
+            submissionPersistenceService,
             sequenceRepository,
             tagsDataRepository,
             lockExecutor,
-            userDataRepository,
-            dbSubmissionMapper,
-            toExtSubmissionMapper,
-            fileSystemService
+            dbSubmissionMapper
         )
+
+    @Bean
+    fun submissionPersistenceService(
+        subRepository: SubmissionRepository,
+        subDataRepository: SubmissionDataRepository,
+        userDataRepository: UserDataDataRepository,
+        systemService: FileSystemService,
+        toExtMapper: ToExtSubmissionMapper
+    ) = SubmissionPersistenceService(subRepository, subDataRepository, userDataRepository, systemService, toExtMapper)
 
     @Bean
     fun submissionQueryService(): SubmissionQueryService =

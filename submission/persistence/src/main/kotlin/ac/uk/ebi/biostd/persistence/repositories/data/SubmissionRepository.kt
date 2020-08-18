@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.persistence.service
+package ac.uk.ebi.biostd.persistence.repositories.data
 
 import ac.uk.ebi.biostd.persistence.exception.SubmissionNotFoundException
 import ac.uk.ebi.biostd.persistence.filter.SubmissionFilter
@@ -25,6 +25,10 @@ open class SubmissionRepository(
     private val sectionRepository: SectionDataRepository,
     private var submissionMapper: ToExtSubmissionMapper
 ) {
+
+    @Transactional(readOnly = true)
+    open fun getDbSubmission(accNo: String, version: Int): DbSubmission = lodSubmission(accNo, version)
+
     @Transactional(readOnly = true)
     open fun getSimpleByAccNo(accNo: String): Submission = getExtByAccNo(accNo).toSimpleSubmission()
 

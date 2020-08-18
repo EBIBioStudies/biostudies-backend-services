@@ -128,13 +128,13 @@ class DbSubmission(
     @JoinColumn(name = "submitter_id")
     lateinit var submitter: DbUser
 
-    @ManyToMany(cascade = [CascadeType.ALL])
+    @ManyToMany
     @JoinTable(name = "Submission_AccessTag",
         joinColumns = [JoinColumn(name = "Submission_Id", referencedColumnName = "id")],
         inverseJoinColumns = [JoinColumn(name = "accessTags_id", referencedColumnName = "id")])
     var accessTags: MutableSet<DbAccessTag> = sortedSetOf()
 
-    @ManyToMany(cascade = [CascadeType.ALL])
+    @ManyToMany
     @JoinTable(name = "Submission_ElementTag",
         joinColumns = [JoinColumn(name = "submission_Id", referencedColumnName = "id")],
         inverseJoinColumns = [JoinColumn(name = "tag_id", referencedColumnName = "id")])

@@ -18,6 +18,7 @@ import ac.uk.ebi.biostd.persistence.model.UserDataId
 import ac.uk.ebi.biostd.persistence.model.UserGroup
 import com.cosium.spring.data.jpa.entity.graph.repository.EntityGraphJpaRepository
 import com.cosium.spring.data.jpa.entity.graph.repository.EntityGraphJpaSpecificationExecutor
+import ebi.ac.uk.model.constants.ProcessingStatus
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.EntityGraph
 import org.springframework.data.jpa.repository.EntityGraph.EntityGraphType.LOAD
@@ -58,9 +59,16 @@ interface SubmissionDataRepository :
     @Query("Select max(s.version) from DbSubmission s where s.accNo=?1")
     fun getLastVersion(accNo: String): Int?
 
-    @Query("Update DbSubmission s set s.version = -s.version  where s.accNo=?1 and s.version > 0")
+    @Query("""
+        Update DbSubmission s Set s.version = -s.version
+        Where s.accNo=?1 And s.version > 0 And status = 'PROCESSED'
+    """)
     @Modifying
     fun expireActiveVersions(accNo: String)
+
+    @Query("Update DbSubmission s set s.status = ?3 Where s.accNo = ?1 and s.version = ?2")
+    @Modifying
+    fun updateStatus(accNo: String, version: Int, status: ProcessingStatus)
 
     fun existsByAccNo(accNo: String): Boolean
 
@@ -121,6 +129,11 @@ interface AccessPermissionRepository : JpaRepository<AccessPermission, Long> {
 }
 
 interface UserDataDataRepository : JpaRepository<DbUserData, UserDataId> {
-    fun deleteByUserEmailAndKeyIgnoreCaseContaining(userEmail: String, dataKey: String)
+
+    fun findByUserIdAndKey(userId: Long, key: String): DbUserData?
     fun findByUserId(userId: Long, pageRequest: Pageable): List<DbUserData>
+
+    @Query("Delete from DbUserData where userId = ?1 and key = ?2")
+    @Modifying
+    fun deleteByUserIdAndKey(userId: Long, key: String)
 }

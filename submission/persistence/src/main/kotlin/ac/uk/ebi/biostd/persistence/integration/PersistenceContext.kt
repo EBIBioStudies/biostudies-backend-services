@@ -15,8 +15,6 @@ interface PersistenceContext {
 
     fun accessTagExists(accessTag: String): Boolean
 
-    fun deleteSubmissionDrafts(userEmail: String, accNo: String)
-
     fun saveSubmission(saveRequest: SaveRequest): ExtSubmission
 
     fun refreshSubmission(submission: ExtSubmission, submitter: User)
