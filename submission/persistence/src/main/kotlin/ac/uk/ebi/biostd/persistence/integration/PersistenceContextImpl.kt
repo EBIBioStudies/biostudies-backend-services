@@ -36,7 +36,7 @@ open class PersistenceContextImpl(
 
     /**
      * Register the submission in the persistence state and latter process it. Note that both operations are executed
-     * under db lock to guarantee single submission is save and process at time.
+     * under db lock to guarantee single submission is saved and process at time.
      */
     @Transactional(readOnly = true)
     override fun saveSubmission(saveRequest: SaveRequest): ExtSubmission {

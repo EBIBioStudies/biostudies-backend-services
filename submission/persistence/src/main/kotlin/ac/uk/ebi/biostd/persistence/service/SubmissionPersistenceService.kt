@@ -24,12 +24,18 @@ open class SubmissionPersistenceService(
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = false)
     open fun processSubmission(submission: ExtSubmission, mode: FileMode): ExtSubmission {
         systemService.persistSubmissionFiles(submission, mode)
+
         val dbSubmission = subRepository.getDbSubmission(submission.accNo, submission.version)
+        return toExtSubmissionMapper.toExtSubmission(processDbSubmission(dbSubmission))
+    }
+
+    private fun processDbSubmission(submission: DbSubmission): DbSubmission {
         subDataRepository.expireActiveVersions(submission.accNo)
-        deleteSubmissionDrafts(dbSubmission.submitter.id, submission.accNo)
-        deleteSubmissionDrafts(dbSubmission.owner.id, submission.accNo)
-        subDataRepository.updateStatus(dbSubmission.accNo, dbSubmission.version, PROCESSED)
-        return toExtSubmissionMapper.toExtSubmission(dbSubmission)
+        deleteSubmissionDrafts(submission.submitter.id, submission.accNo)
+        deleteSubmissionDrafts(submission.owner.id, submission.accNo)
+        subDataRepository.updateStatus(submission.accNo, submission.version, PROCESSED)
+
+        return submission
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = false)

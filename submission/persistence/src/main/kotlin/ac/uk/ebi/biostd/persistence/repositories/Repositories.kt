@@ -59,8 +59,10 @@ interface SubmissionDataRepository :
     @Query("Select max(s.version) from DbSubmission s where s.accNo=?1")
     fun getLastVersion(accNo: String): Int?
 
-    @Query("Update DbSubmission s set s.version = -s.version " +
-        "where s.accNo=?1 and s.version > 0 and status = 'PROCESSED'")
+    @Query("""
+        Update DbSubmission s Set s.version = -s.version
+        Where s.accNo=?1 And s.version > 0 And status = 'PROCESSED'
+    """)
     @Modifying
     fun expireActiveVersions(accNo: String)
 
