@@ -15,6 +15,7 @@ import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import org.springframework.amqp.rabbit.core.RabbitTemplate
 import uk.ac.ebi.events.service.EventsPublisherService
 
 @ExtendWith(MockKExtension::class)
@@ -24,10 +25,18 @@ class SubmissionServiceTest(
     @MockK private val userPrivilegesService: IUserPrivilegesService,
     @MockK private val queryService: SubmissionQueryService,
     @MockK private val submissionSubmitter: SubmissionSubmitter,
-    @MockK private val eventsPublisherService: EventsPublisherService
+    @MockK private val eventsPublisherService: EventsPublisherService,
+    @MockK private val rabbitTemplate: RabbitTemplate
 ) {
     private val testInstance = SubmissionService(
-        subRepository, serializationService, userPrivilegesService, queryService, submissionSubmitter, eventsPublisherService)
+        subRepository,
+        serializationService,
+        userPrivilegesService,
+        queryService,
+        submissionSubmitter,
+        eventsPublisherService,
+        rabbitTemplate
+    )
 
     @Test
     fun submit(

@@ -6,7 +6,7 @@ import java.time.OffsetDateTime
 
 enum class ExtSubmissionMethod { FILE, PAGE_TAB, UNKNOWN }
 
-enum class ExtProcessingStatus { PROCESSED, PROCESSING }
+enum class ExtProcessingStatus { PROCESSED, PROCESSING, REQUESTED }
 
 data class ExtTag(val name: String, val value: String)
 

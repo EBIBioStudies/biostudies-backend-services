@@ -48,7 +48,7 @@ open class PersistenceContextImpl(
     @Transactional(readOnly = true)
     override fun saveSubmissionRequest(saveRequest: SaveRequest) {
         val (sub, _, accNo) = saveRequest
-        lockExecutor.executeLocking(accNo) { submissionService.saveSubmission(toDbMapper.toSubmissionDb(sub)) }
+        lockExecutor.executeLocking(accNo) { submissionService.saveSubmissionRequest(toDbMapper.toSubmissionDb(sub)) }
     }
 
     @Transactional(readOnly = true)

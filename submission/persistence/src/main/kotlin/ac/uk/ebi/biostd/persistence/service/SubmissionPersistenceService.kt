@@ -10,6 +10,7 @@ import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FileMode
 import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSED
 import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSING
+import ebi.ac.uk.model.constants.ProcessingStatus.REQUESTED
 import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
 
@@ -21,7 +22,14 @@ open class SubmissionPersistenceService(
     private val toExtSubmissionMapper: ToExtSubmissionMapper
 ) {
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = false)
+    open fun saveSubmissionRequest(dbSubmission: DbSubmission) {
+        val nextVersion = (subDataRepository.getLastVersion(dbSubmission.accNo) ?: 0) + 1
+        subDataRepository.save(dbSubmission.apply { status = REQUESTED; version = nextVersion })
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = false)
     open fun processSubmission(submission: ExtSubmission, mode: FileMode): ExtSubmission {
+        subDataRepository.updateStatus(submission.accNo, submission.version, PROCESSING)
         systemService.persistSubmissionFiles(submission, mode)
 
         val dbSubmission = subRepository.getDbSubmission(submission.accNo, submission.version)
@@ -33,14 +41,7 @@ open class SubmissionPersistenceService(
         deleteSubmissionDrafts(submission.submitter.id, submission.accNo)
         deleteSubmissionDrafts(submission.owner.id, submission.accNo)
         subDataRepository.updateStatus(submission.accNo, submission.version, PROCESSED)
-
         return submission
-    }
-
-    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = false)
-    open fun saveSubmission(dbSubmission: DbSubmission) {
-        val nextVersion = (subDataRepository.getLastVersion(dbSubmission.accNo) ?: 0) + 1
-        subDataRepository.save(dbSubmission.apply { status = PROCESSING; version = nextVersion })
     }
 
     private fun deleteSubmissionDrafts(userId: Long, accNo: String) =

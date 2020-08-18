@@ -1,10 +1,10 @@
 package ac.uk.ebi.biostd.submission.domain.service
 
+import ac.uk.ebi.biostd.common.config.SUBMISSION_REQUEST_QUEUE
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat.JsonFormat.JsonPretty
 import ac.uk.ebi.biostd.integration.SubFormat.TsvFormat.Tsv
 import ac.uk.ebi.biostd.integration.SubFormat.XmlFormat
-import ac.uk.ebi.biostd.jms.SUBMISSION_REQUEST_QUEUE
 import ac.uk.ebi.biostd.persistence.filter.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.integration.SaveRequest
 import ac.uk.ebi.biostd.persistence.integration.SubmissionQueryService
@@ -19,6 +19,9 @@ import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import mu.KotlinLogging
 import org.springframework.amqp.rabbit.annotation.RabbitListener
+import org.springframework.amqp.rabbit.core.RabbitTemplate
+import uk.ac.ebi.events.config.BIOSTUDIES_EXCHANGE
+import uk.ac.ebi.events.config.SUBMISSIONS_REQUEST_ROUTING_KEY
 import uk.ac.ebi.events.service.EventsPublisherService
 
 private val logger = KotlinLogging.logger {}
@@ -29,21 +32,30 @@ class SubmissionService(
     private val userPrivilegesService: IUserPrivilegesService,
     private val queryService: SubmissionQueryService,
     private val submissionSubmitter: SubmissionSubmitter,
-    private val eventsPublisherService: EventsPublisherService
+    private val eventsPublisherService: EventsPublisherService,
+    private val myRabbitTemplate: RabbitTemplate
 ) {
     fun submit(request: SubmissionRequest): ExtSubmission {
+        logger.info { "received submit request for submission ${request.submission.accNo}" }
         val extSubmission = submissionSubmitter.submit(request)
         eventsPublisherService.submissionSubmitted(extSubmission, extSubmission.submitter)
         return extSubmission
     }
 
     fun submitAsync(request: SubmissionRequest) {
+        logger.info { "received submit async request for submission ${request.submission.accNo}" }
         val (extSubmission, mode) = submissionSubmitter.submitAsync(request)
-        eventsPublisherService.requestSubmitted(extSubmission, mode)
+        myRabbitTemplate.convertAndSend(
+            BIOSTUDIES_EXCHANGE,
+            SUBMISSIONS_REQUEST_ROUTING_KEY,
+            RequestSubmitted(extSubmission, mode)
+        )
     }
 
     @RabbitListener(queues = [SUBMISSION_REQUEST_QUEUE], concurrency = "1-1")
     fun processSubmission(request: RequestSubmitted) {
+        logger.info { "received process message for submission ${request.submission}" }
+
         val extSubmission = submissionSubmitter.processRequest(SaveRequest(request.submission, request.fileMode))
         eventsPublisherService.submissionSubmitted(extSubmission, extSubmission.submitter)
     }
