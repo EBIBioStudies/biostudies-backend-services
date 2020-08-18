@@ -3,7 +3,7 @@ package ac.uk.ebi.biostd.submission.domain.service
 import ac.uk.ebi.biostd.persistence.integration.FileMode.COPY
 import ac.uk.ebi.biostd.persistence.integration.PersistenceContext
 import ac.uk.ebi.biostd.persistence.integration.SaveRequest
-import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
+import ac.uk.ebi.biostd.persistence.repositories.data.SubmissionRepository
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 
@@ -12,9 +12,7 @@ class ExtSubmissionService(
     private val submissionRepository: SubmissionRepository,
     private val userPrivilegesService: IUserPrivilegesService
 ) {
-    fun getExtendedSubmission(accNo: String): ExtSubmission {
-        return submissionRepository.getExtByAccNo(accNo)
-    }
+    fun getExtendedSubmission(accNo: String): ExtSubmission = submissionRepository.getExtByAccNo(accNo)
 
     fun submitExtendedSubmission(user: String, extSubmission: ExtSubmission): ExtSubmission {
         validateUser(user)

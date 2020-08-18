@@ -7,6 +7,7 @@ import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
+import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.RegularUser
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.factory.invalidLinkUrl
@@ -14,7 +15,7 @@ import ac.uk.ebi.biostd.persistence.model.DbTag
 import ac.uk.ebi.biostd.persistence.model.Sequence
 import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.TagDataRepository
-import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
+import ac.uk.ebi.biostd.persistence.repositories.data.SubmissionRepository
 import ebi.ac.uk.api.dto.UserRegistration
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.file
@@ -51,6 +52,7 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
     @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
     @DirtiesContext
     inner class SubmissionApiTest(
+        @Autowired val securityTestService: SecurityTestService,
         @Autowired val submissionRepository: SubmissionRepository,
         @Autowired val sequenceRepository: SequenceDataRepository,
         @Autowired val tagsRefRepository: TagDataRepository,
@@ -63,6 +65,7 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
 
         @BeforeAll
         fun init() {
+            securityTestService.registerUser(SuperUser)
             webClient = getWebClient(serverPort, SuperUser)
 
             sequenceRepository.save(Sequence("S-BSST"))
@@ -76,7 +79,7 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
             }
 
             assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
-            assertThat(submissionRepository.getByAccNo("SimpleAcc1")).isEqualTo(submission("SimpleAcc1") {
+            assertThat(submissionRepository.getSimpleByAccNo("SimpleAcc1")).isEqualTo(submission("SimpleAcc1") {
                 title = "Simple Submission"
             })
         }
@@ -89,7 +92,7 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
             }.toString()
 
             assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
-            assertThat(submissionRepository.getByAccNo("S-BSST0")).isEqualTo(
+            assertThat(submissionRepository.getSimpleByAccNo("S-BSST0")).isEqualTo(
                 submission("S-BSST0") {
                     title = "Empty AccNo"
                 }
@@ -115,7 +118,7 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
             webClient.uploadFiles(listOf(tempFolder.createFile("RootPathFolder/DataFile5.txt")), "RootPathFolder")
 
             assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
-            assertThat(submissionRepository.getByAccNo("S-12364")).isEqualTo(
+            assertThat(submissionRepository.getSimpleByAccNo("S-12364")).isEqualTo(
                 submission("S-12364") {
                     title = "Sample Submission"
                     rootPath = "RootPathFolder"
@@ -141,7 +144,7 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
             assertThat(response).isSuccessful()
 
             val accNo = response.body.accNo
-            assertThat(submissionRepository.getByAccNo(accNo)).isEqualTo(
+            assertThat(submissionRepository.getSimpleByAccNo(accNo)).isEqualTo(
                 submission(accNo) {
                     title = "Submission Title"
                 }
@@ -176,7 +179,7 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
             }.toString()
 
             assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
-            assertThat(submissionRepository.getByAccNo("E-MTAB123")).isEqualTo(
+            assertThat(submissionRepository.getSimpleByAccNo("E-MTAB123")).isEqualTo(
                 submission("E-MTAB123") {
                     title = "Generic Submission"
                     section("Experiment") { }
@@ -196,7 +199,7 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
             }.toString()
 
             assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
-            assertThat(submissionRepository.getByAccNo("S-TEST123")).isEqualTo(
+            assertThat(submissionRepository.getSimpleByAccNo("S-TEST123")).isEqualTo(
                 submission("S-TEST123") {
                     title = "Submission With Tags"
                     section("Study") {
@@ -230,7 +233,7 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
             webClient.uploadGroupFiles(groupName, listOf(tempFolder.createFile("GroupFile2.txt")), "folder")
 
             assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
-            assertThat(submissionRepository.getByAccNo("S-54896")).isEqualTo(
+            assertThat(submissionRepository.getSimpleByAccNo("S-54896")).isEqualTo(
                 submission("S-54896") {
                     title = "Sample Submission"
                     section("Study") {
@@ -251,12 +254,12 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
 
             assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
 
-            val original = submissionRepository.getExtendedByAccNo("S-ABC123")
+            val original = submissionRepository.getExtByAccNo("S-ABC123")
             assertThat(original.title).isEqualTo("Simple Submission")
             assertThat(original.version).isEqualTo(1)
 
             assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
-            val resubmitted = submissionRepository.getExtendedByAccNo("S-ABC123")
+            val resubmitted = submissionRepository.getExtByAccNo("S-ABC123")
             assertThat(resubmitted.title).isEqualTo("Simple Submission")
             assertThat(resubmitted.version).isEqualTo(2)
         }

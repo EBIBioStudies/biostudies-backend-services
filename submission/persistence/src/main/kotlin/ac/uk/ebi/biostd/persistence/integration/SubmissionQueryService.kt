@@ -20,7 +20,7 @@ interface SubmissionQueryService {
 
     fun getAuthor(accNo: String): String
 
-    fun getExistingFolder(accNo: String): File?
+    fun getCurrentFolder(accNo: String): File?
 
     fun getOwner(accNo: String): String?
 }

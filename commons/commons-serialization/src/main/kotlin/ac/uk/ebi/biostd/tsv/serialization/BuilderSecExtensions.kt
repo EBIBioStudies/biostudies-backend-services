@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.tsv.serialization
 
+import ebi.ac.uk.base.isNotBlank
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.File
 import ebi.ac.uk.model.Link
@@ -9,8 +10,13 @@ internal const val FILE_KEY = "File"
 
 internal fun TsvBuilder.addSecDescriptor(type: String, accNo: String?, parentAccNo: String?) {
     append(type)
-    accNo?.let { append("\t$accNo") }
-    parentAccNo?.let { append("\t$parentAccNo") }
+
+    when {
+        accNo.isNotBlank() && parentAccNo.isNotBlank() -> append("\t$accNo\t$parentAccNo")
+        accNo.isNotBlank() && parentAccNo.isNullOrBlank() -> append("\t$accNo")
+        accNo.isNullOrBlank() && parentAccNo.isNotBlank() -> append("\t\t$parentAccNo")
+    }
+
     append("\n")
 }
 

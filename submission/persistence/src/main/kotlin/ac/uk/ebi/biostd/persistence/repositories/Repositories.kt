@@ -3,17 +3,22 @@ package ac.uk.ebi.biostd.persistence.repositories
 import ac.uk.ebi.biostd.persistence.model.AccessPermission
 import ac.uk.ebi.biostd.persistence.model.AccessType
 import ac.uk.ebi.biostd.persistence.model.DbAccessTag
+import ac.uk.ebi.biostd.persistence.model.DbSection
 import ac.uk.ebi.biostd.persistence.model.DbSubmission
 import ac.uk.ebi.biostd.persistence.model.DbTag
 import ac.uk.ebi.biostd.persistence.model.DbUser
 import ac.uk.ebi.biostd.persistence.model.DbUserData
-import ac.uk.ebi.biostd.persistence.model.FULL_DATA_GRAPH
+import ac.uk.ebi.biostd.persistence.model.SECTION_SIMPLE_GRAPH
+import ac.uk.ebi.biostd.persistence.model.SUBMISSION_AND_ROOT_SECTION_FULL_GRAPH
+import ac.uk.ebi.biostd.persistence.model.SUBMISSION_FULL_GRAPH
 import ac.uk.ebi.biostd.persistence.model.SecurityToken
 import ac.uk.ebi.biostd.persistence.model.Sequence
+import ac.uk.ebi.biostd.persistence.model.USER_DATA_GRAPH
 import ac.uk.ebi.biostd.persistence.model.UserDataId
 import ac.uk.ebi.biostd.persistence.model.UserGroup
 import com.cosium.spring.data.jpa.entity.graph.repository.EntityGraphJpaRepository
 import com.cosium.spring.data.jpa.entity.graph.repository.EntityGraphJpaSpecificationExecutor
+import ebi.ac.uk.model.constants.ProcessingStatus
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.EntityGraph
 import org.springframework.data.jpa.repository.EntityGraph.EntityGraphType.LOAD
@@ -21,26 +26,49 @@ import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Lock
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
+import org.springframework.data.repository.query.Param
 import java.util.Optional
 import javax.persistence.LockModeType
 import com.cosium.spring.data.jpa.entity.graph.domain.EntityGraph as GraphSpecification
 
+@Suppress("TooManyFunctions")
 interface SubmissionDataRepository :
     EntityGraphJpaRepository<DbSubmission, Long>, EntityGraphJpaSpecificationExecutor<DbSubmission> {
-    @EntityGraph(value = FULL_DATA_GRAPH, type = LOAD)
-    fun getByAccNoAndVersionGreaterThan(id: String, version: Int = 0): DbSubmission?
 
     fun findByAccNoAndVersionGreaterThan(id: String, version: Int = 0): DbSubmission?
+
+    @Query("from DbSubmission s inner join s.owner where s.accNo = :accNo and s.version > 0")
+    fun getBasic(@Param("accNo") accNo: String): DbSubmission
+
+    @Query("from DbSubmission s inner join s.owner inner join s.attributes where s.accNo = :accNo and s.version > 0")
+    fun getBasicWithAttributes(@Param("accNo") accNo: String): DbSubmission
+
+    @Query("from DbSubmission s inner join s.owner where s.accNo = :accNo and s.version > 0")
+    fun findBasic(@Param("accNo") accNo: String): DbSubmission?
+
+    @EntityGraph(value = SUBMISSION_FULL_GRAPH, type = LOAD)
+    fun getByAccNoAndVersionGreaterThan(accNo: String, version: Int = 0): DbSubmission?
+
+    @EntityGraph(value = SUBMISSION_FULL_GRAPH, type = LOAD)
+    fun getByAccNoAndVersion(accNo: String, version: Int): DbSubmission?
+
+    @EntityGraph(value = SUBMISSION_AND_ROOT_SECTION_FULL_GRAPH, type = LOAD)
+    @Deprecated("should use SubmissionRepository#getExtByAccNo")
+    fun readByAccNoAndVersionGreaterThan(accNo: String, version: Int = 0): DbSubmission?
 
     @Query("Select max(s.version) from DbSubmission s where s.accNo=?1")
     fun getLastVersion(accNo: String): Int?
 
-    @Query("Update DbSubmission s set s.version = -s.version  where s.accNo=?1 and s.version > 0")
+    @Query("""
+        Update DbSubmission s Set s.version = -s.version
+        Where s.accNo=?1 And s.version > 0 And status = 'PROCESSED'
+    """)
     @Modifying
     fun expireActiveVersions(accNo: String)
 
-    @EntityGraph(value = FULL_DATA_GRAPH, type = LOAD)
-    fun getFirstByAccNoOrderByVersionDesc(accNo: String): DbSubmission
+    @Query("Update DbSubmission s set s.status = ?3 Where s.accNo = ?1 and s.version = ?2")
+    @Modifying
+    fun updateStatus(accNo: String, version: Int, status: ProcessingStatus)
 
     fun existsByAccNo(accNo: String): Boolean
 
@@ -52,9 +80,18 @@ interface SubmissionDataRepository :
     ): List<DbSubmission>
 }
 
+interface SectionDataRepository : JpaRepository<DbSection, Long> {
+    @EntityGraph(value = SECTION_SIMPLE_GRAPH, type = LOAD)
+    fun getById(sectionId: Long): DbSection
+
+    @Query("select s.id from DbSection s where s.submission.id = :id and s.id <> :rootSectionId")
+    fun sections(@Param("id") id: Long, @Param("rootSectionId") rootSectionId: Long): List<Long>
+}
+
 interface AccessTagDataRepo : JpaRepository<DbAccessTag, Long> {
     fun findByName(name: String): DbAccessTag
     fun existsByName(name: String): Boolean
+    fun findBySubmissionsAccNo(accNo: String): List<DbAccessTag>
 }
 
 interface TagDataRepository : JpaRepository<DbTag, Long> {
@@ -75,6 +112,9 @@ interface UserDataRepository : JpaRepository<DbUser, Long> {
     fun findByActivationKeyAndActive(key: String, active: Boolean): Optional<DbUser>
     fun findByEmailAndActive(email: String, active: Boolean): Optional<DbUser>
     fun findByEmail(email: String): Optional<DbUser>
+
+    @EntityGraph(value = USER_DATA_GRAPH, type = LOAD)
+    fun getById(id: Long): DbUser
 }
 
 interface TokenDataRepository : JpaRepository<SecurityToken, String>
@@ -90,6 +130,10 @@ interface AccessPermissionRepository : JpaRepository<AccessPermission, Long> {
 
 interface UserDataDataRepository : JpaRepository<DbUserData, UserDataId> {
 
-    fun deleteByUserEmailAndKeyIgnoreCaseContaining(userEmail: String, dataKey: String): Unit
+    fun findByUserIdAndKey(userId: Long, key: String): DbUserData?
     fun findByUserId(userId: Long, pageRequest: Pageable): List<DbUserData>
+
+    @Query("Delete from DbUserData where userId = ?1 and key = ?2")
+    @Modifying
+    fun deleteByUserIdAndKey(userId: Long, key: String)
 }

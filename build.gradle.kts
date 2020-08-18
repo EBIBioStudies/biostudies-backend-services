@@ -1,6 +1,6 @@
 plugins {
     id("io.gitlab.arturbosch.detekt") version "1.3.1"
-    id("org.jetbrains.kotlin.jvm") version "1.3.61"
+    id("org.jetbrains.kotlin.jvm") version "1.3.72"
     id("org.jlleitschuh.gradle.ktlint") version "9.1.1"
     id("org.hidetake.ssh") version "2.10.1"
     id("jacoco")

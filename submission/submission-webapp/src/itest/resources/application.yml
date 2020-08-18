@@ -18,13 +18,15 @@ spring:
     port: 5672
 
 app:
-  basepath:
+  submissionPath:
+  ftpPath:
   tempDirPath:
   instanceBaseUrl: http://localhost:8080
   security:
     tokenHash: biostd-test
     environment: TEST
     filesDirPath:
+    magicDirPath:
     requireActivation: false
   notifications:
     smtp:

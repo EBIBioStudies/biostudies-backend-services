@@ -8,12 +8,14 @@ import Dependencies.RxJava2
 import Dependencies.SpringfoxSwagger
 import Dependencies.SpringfoxSwaggerUI
 import SpringBootDependencies.SpringBootAmqp
+import SpringBootDependencies.SpringBootConfigurationProcessor
 import SpringBootDependencies.SpringBootStartedAdminClient
 import SpringBootDependencies.SpringBootStarterActuator
 import SpringBootDependencies.SpringBootStarterConfigProcessor
 import SpringBootDependencies.SpringBootStarterDataJpa
 import SpringBootDependencies.SpringBootStarterSecurity
 import SpringBootDependencies.SpringBootStarterTest
+import SpringBootDependencies.SpringBootStarterValidation
 import SpringBootDependencies.SpringBootStarterWeb
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
@@ -22,12 +24,21 @@ import TestDependencies.JsonPathAssert
 import TestDependencies.KotlinXmlBuilder
 import TestDependencies.XmlUnitCore
 import TestDependencies.XmlUnitMatchers
+import TestDependencies.rabitMqMock
 import org.springframework.boot.gradle.tasks.bundling.BootJar
 
 plugins {
-    id("org.jetbrains.kotlin.plugin.spring") version "1.3.41"
-    id("io.spring.dependency-management") version "1.0.6.RELEASE"
-    id("org.springframework.boot") version "2.2.6.RELEASE"
+    id("org.jetbrains.kotlin.plugin.spring") version "1.3.72"
+    id("io.spring.dependency-management") version "1.0.9.RELEASE"
+    id("org.springframework.boot") version "2.3.2.RELEASE"
+    id("org.jetbrains.kotlin.plugin.jpa") version "1.3.72"
+    id("org.jetbrains.kotlin.plugin.allopen") version "1.3.72"
+}
+
+allOpen {
+    annotation("javax.persistence.Entity")
+    annotation("javax.persistence.Embeddable")
+    annotation("javax.persistence.MappedSuperclass")
 }
 
 dependencies {
@@ -42,12 +53,15 @@ dependencies {
     api(project(":commons:commons-test"))
     api(project(":commons:commons-http"))
 
+    annotationProcessor(SpringBootConfigurationProcessor)
+
     implementation(SpringBootStarterWeb)
     implementation(SpringBootAmqp)
     implementation(SpringBootStarterDataJpa)
     implementation(SpringBootStarterConfigProcessor)
     implementation(SpringBootStarterSecurity)
     implementation(SpringBootStarterActuator)
+    implementation(SpringBootStarterValidation)
 
     // Registers the application in the Spring Dashboard
     implementation(SpringBootStartedAdminClient)
@@ -66,7 +80,7 @@ dependencies {
     BaseTestCompileDependencies.forEach { testImplementation(it) }
     BaseTestRuntimeDependencies.forEach { testImplementation(it) }
     testImplementation(SpringBootStarterTest)
-    testImplementation("com.github.fridujo:rabbitmq-mock:1.1.0")
+    testImplementation(rabitMqMock)
 
     testImplementation(H2)
     testImplementation(KotlinXmlBuilder)

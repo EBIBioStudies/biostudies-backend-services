@@ -19,25 +19,29 @@ class RtClient(
 ) {
     private val ticketIdPattern = "(# Ticket )(\\d+)( created.)".toPattern()
 
-    fun createTicket(subject: String, owner: String, content: String): String {
-        val url = UriComponentsBuilder
-            .fromUriString("${rtConfig.host}/REST/1.0/ticket/new")
-            .queryParam("user", rtConfig.user)
-            .queryParam("pass", rtConfig.password)
-            .build()
-            .toUriString()
-        val body = LinkedMultiValueMap<String, String>(mapOf("content" to listOf(getContent(subject, owner, content))))
-        val response = restTemplate.postForEntity<String>(url, body).body ?: throw InvalidResponseException()
+    fun createTicket(accNo: String, subject: String, owner: String, content: String): String {
+        val requestContent = ticketContent(accNo, subject, owner, content)
+        val response = performRtRequest("/ticket/new", requestContent)
 
         return getTicketId(response)
     }
 
-    private fun getContent(subject: String, owner: String, content: String) =
-        StringBuilder("Queue: ${rtConfig.queue}\n")
-            .append("Subject: $subject\n")
-            .append("Requestor: $owner\n")
-            .append("Text: ${content.replace("\n", "\n ")}")
-            .toString()
+    fun commentTicket(ticketId: String, comment: String) {
+        val content = ticketComment(ticketId, comment)
+        performRtRequest("/ticket/$ticketId/comment", content)
+    }
+
+    private fun performRtRequest(path: String, content: String): String {
+        val rtUrl = UriComponentsBuilder
+            .fromUriString("${rtConfig.host}/REST/1.0$path")
+            .queryParam("user", rtConfig.user)
+            .queryParam("pass", rtConfig.password)
+            .build()
+            .toUriString()
+        val body = LinkedMultiValueMap<String, String>(mapOf("content" to listOf(content)))
+
+        return restTemplate.postForEntity<String>(rtUrl, body).body ?: throw InvalidResponseException()
+    }
 
     private fun getTicketId(response: String): String {
         val body = response.split("\n\n")
@@ -48,4 +52,20 @@ class RtClient(
             .map { it.secondGroup() }
             .getOrElse { throw InvalidTicketIdException() }
     }
+
+    private fun ticketComment(ticketId: String, comment: String) =
+        StringBuilder("id: $ticketId\n")
+            .append("Action: correspond\n")
+            .append("Text: ${trimContent(comment)}")
+            .toString()
+
+    private fun ticketContent(accNo: String, subject: String, owner: String, content: String) =
+        StringBuilder("Queue: ${rtConfig.queue}\n")
+            .append("Subject: $subject\n")
+            .append("Requestor: $owner\n")
+            .append("CF-Accession: $accNo\n")
+            .append("Text: ${trimContent(content)}")
+            .toString()
+
+    private fun trimContent(content: String) = content.replace("\n", "\n ")
 }

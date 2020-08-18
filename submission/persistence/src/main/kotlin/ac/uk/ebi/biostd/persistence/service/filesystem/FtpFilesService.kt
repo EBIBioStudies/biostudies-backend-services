@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.persistence.service.filesystem
 
-import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.io.FileUtils
 import ebi.ac.uk.paths.SubmissionFolderResolver
 import java.io.File
@@ -11,19 +10,19 @@ private val ALL_READ: Set<PosixFilePermission> = PosixFilePermissions.fromString
 
 class FtpFilesService(private val folderResolver: SubmissionFolderResolver) {
 
-    fun createFtpFolder(submission: ExtSubmission) {
-        val submissionFolder = folderResolver.getSubmissionFolder(submission.relPath).toFile()
-        val ftpFolder = getFtpFolder(submission)
+    fun createFtpFolder(relPath: String) {
+        val submissionFolder = folderResolver.getSubFolder(relPath).toFile()
+        val ftpFolder = getFtpFolder(relPath)
         FileUtils.createHardLink(submissionFolder, ftpFolder)
     }
 
-    private fun getFtpFolder(submission: ExtSubmission): File =
+    private fun getFtpFolder(relPath: String): File =
         FileUtils.getOrCreateFolder(
-            folderResolver.getSubmissionFtpFolder(submission),
+            folderResolver.getSubmissionFtpFolder(relPath),
             ALL_READ
         ).toFile()
 
-    fun cleanFtpFolder(submission: ExtSubmission) {
-        FileUtils.deleteFile(folderResolver.getSubmissionFtpFolder(submission).toFile())
+    fun cleanFtpFolder(relPath: String) {
+        FileUtils.deleteFile(folderResolver.getSubmissionFtpFolder(relPath).toFile())
     }
 }

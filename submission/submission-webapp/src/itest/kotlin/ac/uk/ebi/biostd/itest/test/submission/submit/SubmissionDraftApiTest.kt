@@ -4,6 +4,7 @@ import ac.uk.ebi.biostd.client.exception.WebClientException
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
+import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.dsl.line
@@ -17,6 +18,7 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.skyscreamer.jsonassert.JSONAssert.assertEquals
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.test.annotation.DirtiesContext
@@ -30,32 +32,33 @@ internal class SubmissionDraftApiTest(tempFolder: TemporaryFolder) : BaseIntegra
     @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
     @Transactional
     @DirtiesContext
-    inner class SubmissionDraftTest {
+    inner class SubmissionDraftTest(@Autowired val securityTestService: SecurityTestService) {
         @LocalServerPort
         private var serverPort: Int = 0
 
         private lateinit var webClient: BioWebClient
-
-        val pageTab = jsonObj {
-            "accno" to "ABC-123"
-            "type" to "Study"
-        }.toString()
-
         @BeforeAll
         fun init() {
+            securityTestService.registerUser(SuperUser)
             webClient = getWebClient(serverPort, SuperUser)
         }
 
         @Test
         fun `get draft submission when draft does not exist but submission does`() {
+            val pageTab = jsonObj { "accno" to "ABC-123"; "type" to "Study" }.toString()
+
             webClient.submitSingle(pageTab, SubmissionFormat.JSON)
+
             val draftSubmission = webClient.getSubmissionDraft("ABC-123")
             assertThat(draftSubmission.key).isEqualTo("ABC-123")
         }
 
         @Test
         fun `create and get submission draft`() {
+            val pageTab = jsonObj { "accno" to "ABC-124"; "type" to "Study" }.toString()
+
             val draftSubmission = webClient.createSubmissionDraft(pageTab)
+
             val resultDraft = webClient.getSubmissionDraft(draftSubmission.key)
             assertEquals(resultDraft.content.toString(), pageTab, false)
         }
@@ -63,6 +66,8 @@ internal class SubmissionDraftApiTest(tempFolder: TemporaryFolder) : BaseIntegra
         @Test
         fun `create and update submission draft`() {
             val updatedValue = "{ \"value\": 1 }"
+            val pageTab = jsonObj { "accno" to "ABC-125"; "type" to "Study" }.toString()
+
             val draftSubmission = webClient.createSubmissionDraft(pageTab)
             webClient.updateSubmissionDraft(draftSubmission.key, "{ \"value\": 1 }")
 
@@ -72,10 +77,12 @@ internal class SubmissionDraftApiTest(tempFolder: TemporaryFolder) : BaseIntegra
 
         @Test
         fun `delete submission draft after submission`() {
+            val pageTab = jsonObj { "accno" to "ABC-126"; "type" to "Study" }.toString()
+
             webClient.submitSingle(pageTab, SubmissionFormat.JSON)
-            webClient.getSubmissionDraft("ABC-123")
+            webClient.getSubmissionDraft("ABC-126")
             val updatedDraft = tsv {
-                line("Submission", "ABC-123")
+                line("Submission", "ABC-126")
                 line("Description", "Updated submission")
             }
             webClient.submitSingle(updatedDraft.toString(), SubmissionFormat.TSV)
@@ -85,7 +92,7 @@ internal class SubmissionDraftApiTest(tempFolder: TemporaryFolder) : BaseIntegra
         @Test
         fun `get draft submission when neither draft nor submission exists`() {
             assertThatExceptionOfType(WebClientException::class.java).isThrownBy {
-                webClient.getSubmissionDraft("ABC-124")
+                webClient.getSubmissionDraft("ABC-127")
             }
         }
     }

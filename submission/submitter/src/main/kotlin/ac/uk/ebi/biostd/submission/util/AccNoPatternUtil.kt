@@ -13,7 +13,7 @@ private const val EXPECTED_PATTERN = "([A-Z,-]*)"
 
 class AccNoPatternUtil {
     private val prefix = ACC_PATTERN.format("([A-Z,-]*)").toPattern()
-    private val extractionPattern = "(\\D*)([0-9]+)(\\D*)".toPattern()
+    private val extractionPattern = "^(.*?)(\\d+)\$".toPattern()
 
     fun getPattern(accPattern: String): String =
         getPrefixAccPattern(accPattern).getOrElse { throw InvalidPatternException(accPattern, EXPECTED_PATTERN) }
@@ -33,7 +33,7 @@ class AccNoPatternUtil {
             .map(::asAccNumber)
             .getOrElse { AccNumber((accNo)) }
 
-    private fun asAccNumber(it: Matcher) = AccNumber(it.firstGroup(), it.secondGroup().toLong())
+    private fun asAccNumber(it: Matcher) = AccNumber(it.firstGroup(), it.secondGroup())
 
     private fun getPrefixAccPattern(accNo: String) = prefix.match(accNo).map { it.firstGroup() }
 }

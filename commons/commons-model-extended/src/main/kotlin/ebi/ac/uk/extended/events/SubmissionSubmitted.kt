@@ -1,12 +1,21 @@
 package ebi.ac.uk.extended.events
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import java.io.Serializable
 
 class SubmissionSubmitted(
     @JsonProperty("accNo")
     val accNo: String,
+
+    @JsonProperty("uiUrl")
+    val uiUrl: String,
+
     @JsonProperty("pagetabUrl")
     val pagetabUrl: String,
+
     @JsonProperty("extTabUrl")
-    val extTabUrl: String
-) : java.io.Serializable
+    val extTabUrl: String,
+
+    @JsonProperty("extUserUrl")
+    val extUserUrl: String
+) : Serializable

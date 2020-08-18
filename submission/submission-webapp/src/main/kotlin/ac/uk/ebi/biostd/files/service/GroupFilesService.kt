@@ -2,8 +2,8 @@ package ac.uk.ebi.biostd.files.service
 
 import ac.uk.ebi.biostd.files.exception.UserGroupNotFound
 import ac.uk.ebi.biostd.files.model.FilesSpec
-import ac.uk.ebi.biostd.files.service.UserFilesService.Companion.FILE_PERMISSION
 import ac.uk.ebi.biostd.files.utils.transferTo
+import ebi.ac.uk.io.ALL_GROUP
 import ebi.ac.uk.io.FileUtils
 import ebi.ac.uk.io.ext.asFileList
 import ebi.ac.uk.security.integration.model.api.SecurityUser
@@ -32,7 +32,7 @@ class GroupFilesService {
 
     fun createFolder(groupName: String, user: SecurityUser, path: String, folderName: String) {
         val groupPath = getGroupPath(groupName, user)
-        FileUtils.createEmptyFolder(groupPath.resolve(path).resolve(folderName), FILE_PERMISSION)
+        FileUtils.createEmptyFolder(groupPath.resolve(path).resolve(folderName), ALL_GROUP)
     }
 
     fun deleteFile(groupName: String, user: SecurityUser, path: String, fileName: String) {

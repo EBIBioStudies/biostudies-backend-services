@@ -8,9 +8,10 @@ import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.itest.assertions.AllInOneSubmissionHelper
 import ac.uk.ebi.biostd.itest.assertions.submitAllInOneMultipartSubmission
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
+import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
-import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
-import ebi.ac.uk.model.SubmissionMethod.FILE
+import ac.uk.ebi.biostd.persistence.repositories.data.SubmissionRepository
+import ebi.ac.uk.extended.model.ExtSubmissionMethod
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.junit.jupiter.api.BeforeAll
@@ -35,7 +36,10 @@ internal class AllInOneMultipartFileSubmissionTest(
     @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
     @Transactional
     @DirtiesContext
-    inner class SingleSubmissionTest(@Autowired val submissionRepository: SubmissionRepository) {
+    inner class SingleSubmissionTest(
+        @Autowired var securityTestService: SecurityTestService,
+        @Autowired val submissionRepository: SubmissionRepository
+    ) {
         @LocalServerPort
         private var serverPort: Int = 0
 
@@ -44,26 +48,27 @@ internal class AllInOneMultipartFileSubmissionTest(
 
         @BeforeAll
         fun init() {
+            securityTestService.registerUser(SuperUser)
             webClient = getWebClient(serverPort, SuperUser)
-            allInOneSubmissionHelper = AllInOneSubmissionHelper(basePath, submissionRepository)
+            allInOneSubmissionHelper = AllInOneSubmissionHelper(submissionPath, submissionRepository)
         }
 
         @Test
         fun `submit multipart all in one TSV`() {
             webClient.submitAllInOneMultipartSubmission("S-EPMC124", TSV, tempFolder)
-            allInOneSubmissionHelper.assertSavedSubmission("S-EPMC124", FILE)
+            allInOneSubmissionHelper.assertSavedSubmission("S-EPMC124", ExtSubmissionMethod.FILE)
         }
 
         @Test
         fun `submit multipart all in one JSON`() {
             webClient.submitAllInOneMultipartSubmission("S-EPMC125", JSON, tempFolder)
-            allInOneSubmissionHelper.assertSavedSubmission("S-EPMC125", FILE)
+            allInOneSubmissionHelper.assertSavedSubmission("S-EPMC125", ExtSubmissionMethod.FILE)
         }
 
         @Test
         fun `submit multipart all in one XML`() {
             webClient.submitAllInOneMultipartSubmission("S-EPMC126", XML, tempFolder)
-            allInOneSubmissionHelper.assertSavedSubmission("S-EPMC126", FILE)
+            allInOneSubmissionHelper.assertSavedSubmission("S-EPMC126", ExtSubmissionMethod.FILE)
         }
     }
 }

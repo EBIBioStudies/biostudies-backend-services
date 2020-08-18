@@ -4,8 +4,6 @@ import ac.uk.ebi.biostd.persistence.integration.FileMode.COPY
 import ac.uk.ebi.biostd.persistence.integration.PersistenceContext
 import ac.uk.ebi.biostd.persistence.integration.SaveRequest
 import ac.uk.ebi.biostd.persistence.integration.SubmissionQueryService
-import ac.uk.ebi.biostd.submission.events.SubmissionEvents.successfulSubmission
-import ac.uk.ebi.biostd.submission.events.SuccessfulSubmission
 import ac.uk.ebi.biostd.submission.model.SubmissionRequest
 import ac.uk.ebi.biostd.submission.service.AccNoService
 import ac.uk.ebi.biostd.submission.service.AccNoServiceRequest
@@ -33,7 +31,6 @@ import ebi.ac.uk.security.integration.model.api.SecurityUser
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.mockkObject
 import io.mockk.mockkStatic
 import io.mockk.slot
 import io.mockk.verify
@@ -45,7 +42,7 @@ import java.time.OffsetDateTime
 import java.time.ZoneOffset
 
 class SubmissionSubmitterTest {
-    private val accNo = AccNumber("S-TEST", 123)
+    private val accNo = AccNumber("S-TEST", "123")
     private val testTime = OffsetDateTime.of(2017, 10, 10, 0, 0, 0, 0, ZoneOffset.UTC)
     private val submission = submission("S-TEST123") {
         title = "Test Submission"
@@ -65,7 +62,6 @@ class SubmissionSubmitterTest {
     private val timesRequest = slot<TimesRequest>()
     private val saveRequest = slot<SaveRequest>()
     private val projectRequest = slot<ProjectRequest>()
-    private val notification = slot<SuccessfulSubmission>()
     private val accNoServiceRequest = slot<AccNoServiceRequest>()
 
     private val testInstance = SubmissionSubmitter(
@@ -74,7 +70,6 @@ class SubmissionSubmitterTest {
     @BeforeEach
     fun beforeEach() {
         mockServices()
-        mockNotificationEvents()
         mockPersistenceContext()
         mockkStatic("ebi.ac.uk.extended.mapping.to.ToSubmissionKt")
         every { any<ExtSubmission>().toSimpleSubmission() } returns submission
@@ -92,7 +87,6 @@ class SubmissionSubmitterTest {
         assertExtendedSubmission()
 
         verifyProcessServices()
-        verify(exactly = 1) { successfulSubmission.onNext(notification.captured) }
     }
 
     @Test
@@ -104,7 +98,6 @@ class SubmissionSubmitterTest {
         assertExtendedSubmission()
 
         verifyProcessServices()
-        verify(exactly = 0) { successfulSubmission.onNext(notification.captured) }
     }
 
     private fun assertCapturedValues() {
@@ -129,7 +122,7 @@ class SubmissionSubmitterTest {
     private fun assertExtendedSubmission() {
         val expected = saveRequest.captured.submission
         assertThat(expected.accNo).isEqualTo("S-TEST123")
-        assertThat(expected.version).isEqualTo(2)
+        assertThat(expected.version).isEqualTo(1)
         assertThat(expected.method).isEqualTo(ExtSubmissionMethod.PAGE_TAB)
         assertThat(expected.title).isEqualTo("Test Submission")
         assertThat(expected.relPath).isEqualTo("/a/rel/path")
@@ -158,14 +151,7 @@ class SubmissionSubmitterTest {
         timesService.getTimes(timesRequest.captured)
 
         projectInfoService.process(projectRequest.captured)
-
-        persistenceContext.getNextVersion("S-TEST123")
         persistenceContext.saveSubmission(saveRequest.captured)
-    }
-
-    private fun mockNotificationEvents() {
-        mockkObject(successfulSubmission)
-        every { successfulSubmission.onNext(capture(notification)) } answers { nothing }
     }
 
     private fun mockServices() {
@@ -180,7 +166,6 @@ class SubmissionSubmitterTest {
     }
 
     private fun mockPersistenceContext() {
-        every { persistenceContext.getNextVersion("S-TEST123") } returns 2
         every { persistenceContext.saveSubmission(capture(saveRequest)) } returns mockk()
     }
 

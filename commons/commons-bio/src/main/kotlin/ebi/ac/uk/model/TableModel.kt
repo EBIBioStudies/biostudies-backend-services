@@ -91,6 +91,5 @@ class SectionsTable(sections: List<Section> = emptyList()) : Table<Section>(sect
         override val attributes = t.attributes
     }
 
-    fun asSectionsTable() = SectionsTable(
-        elements.map { if (it is ExtendedSection) it.asSection() else it })
+    fun asSectionsTable() = SectionsTable(elements.map { it })
 }

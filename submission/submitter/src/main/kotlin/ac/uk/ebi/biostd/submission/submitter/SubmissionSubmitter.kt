@@ -3,7 +3,6 @@ package ac.uk.ebi.biostd.submission.submitter
 import ac.uk.ebi.biostd.persistence.integration.PersistenceContext
 import ac.uk.ebi.biostd.persistence.integration.SaveRequest
 import ac.uk.ebi.biostd.persistence.integration.SubmissionQueryService
-import ac.uk.ebi.biostd.submission.events.SuccessfulSubmission
 import ac.uk.ebi.biostd.submission.exceptions.InvalidSubmissionException
 import ac.uk.ebi.biostd.submission.model.SubmissionRequest
 import ac.uk.ebi.biostd.submission.service.AccNoService
@@ -14,7 +13,6 @@ import ac.uk.ebi.biostd.submission.service.ProjectRequest
 import ac.uk.ebi.biostd.submission.service.ProjectResponse
 import ac.uk.ebi.biostd.submission.service.TimesRequest
 import ac.uk.ebi.biostd.submission.service.TimesService
-import ebi.ac.uk.base.ifTrue
 import ebi.ac.uk.base.orFalse
 import ebi.ac.uk.extended.mapping.from.toExtAttribute
 import ebi.ac.uk.extended.mapping.from.toExtSection
@@ -35,13 +33,14 @@ import ebi.ac.uk.model.extensions.releaseDate
 import ebi.ac.uk.model.extensions.rootPath
 import ebi.ac.uk.model.extensions.title
 import ebi.ac.uk.util.date.isBeforeOrEqual
-import org.springframework.transaction.annotation.Isolation
-import org.springframework.transaction.annotation.Transactional
+import mu.KotlinLogging
 import java.time.OffsetDateTime
 import java.util.UUID
-import ac.uk.ebi.biostd.submission.events.SubmissionEvents.successfulSubmission as submitEvent
 
-open class SubmissionSubmitter(
+private val logger = KotlinLogging.logger {}
+private const val DEFAULT_VERSION = 1
+
+class SubmissionSubmitter(
     private val timesService: TimesService,
     private val accNoService: AccNoService,
     private val parentInfoService: ParentInfoService,
@@ -49,9 +48,9 @@ open class SubmissionSubmitter(
     private val context: PersistenceContext,
     private val queryService: SubmissionQueryService
 ) {
-    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
-    open fun submit(request: SubmissionRequest): ExtSubmission {
-        val submitter = request.submitter.asUser()
+    fun submit(request: SubmissionRequest): ExtSubmission {
+        logger.info { "processing request $request" }
+
         val submission = process(
             request.submission,
             request.submitter.asUser(),
@@ -59,9 +58,9 @@ open class SubmissionSubmitter(
             request.sources,
             request.method
         )
-        val submitted = context.saveSubmission(SaveRequest(submission, request.mode))
-        submitter.notificationsEnabled.ifTrue { submitEvent.onNext(SuccessfulSubmission(submitter, submission)) }
-        return submitted
+
+        logger.info { "Saving submission ${submission.accNo}" }
+        return context.saveSubmission(SaveRequest(submission, request.mode))
     }
 
     @Suppress("TooGenericExceptionCaught")
@@ -94,7 +93,6 @@ open class SubmissionSubmitter(
         val accNoString = accNo.toString()
         val projectInfo = getProjectInfo(submitter, submission, accNoString)
         val secretKey = getSecret(accNoString)
-        val nextVersion = context.getNextVersion(accNoString)
         val relPath = accNoService.getRelPath(accNo)
         val tags = getTags(released, parentTags, projectInfo)
         val ownerEmail = onBehalfUser?.email ?: queryService.getOwner(accNoString) ?: submitter.email
@@ -103,7 +101,7 @@ open class SubmissionSubmitter(
             accNo = accNoString,
             owner = ownerEmail,
             submitter = submitter.email,
-            version = nextVersion,
+            version = DEFAULT_VERSION,
             method = getMethod(method),
             title = submission.title,
             relPath = relPath,

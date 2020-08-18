@@ -12,23 +12,33 @@ spring:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
       use-new-id-generator-mappings: false
 
+  rabbitmq:
+    host: localhost
+    username: manager
+    password: manager-local
+    port: 5672
+
   servlet:
     multipart:
       max-file-size: 10240MB
       max-request-size: 10240MB
 
 app:
-  basepath: # Absolute path to the folder to be used as storage
-  tempDirPath: # Absolute of the temp folder to store files
+  submissionPath:
+  ftpPath:
+  tempDirPath:
   instanceBaseUrl: http://localhost:8080
   security:
+    captchaKey: # Captcha validation token. Not required for local environment
+    checkCaptcha: false
     tokenHash: bio-local
     filesDirPath: # Absolute path to the folder to be used for the user/groups files
+    magicDirPath: # Absolute path to the folder to be used for the user/groups magic folders links
     environment: LOCAL
     requireActivation: false
   notifications:
     smtp: smtp.ebi.ac.uk
-    uiUrl: # The BioStudies UI url
+    uiUrl: # The BioStudies UI url. Not required for local environment
     rt:
       host: # RT server host. Not required for local environment
       queue: # Queue used for RT notifications. Not required for local environment

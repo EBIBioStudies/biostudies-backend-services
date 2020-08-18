@@ -18,7 +18,7 @@ fun Sheet.asTsvList(): List<String> {
         elements.add(row.asString())
     }
 
-    return elements
+    return elements.trim()
 }
 
 private fun Row.asString(): String {
@@ -27,7 +27,15 @@ private fun Row.asString(): String {
         cells.add(getCell(idx)?.valueAsString ?: EMPTY)
     }
 
-    return cells.joinToString("\t")
+    return when {
+        cells.all { it == EMPTY } -> EMPTY
+        else -> cells.trim().joinToString("\t")
+    }
+}
+
+private fun MutableList<String>.trim(): List<String> = when {
+    last().isBlank() -> dropLastWhile { it.isBlank() }
+    else -> this
 }
 
 private val Cell.valueAsString: String

@@ -14,7 +14,7 @@ import javax.persistence.Convert
 import javax.persistence.Entity
 import javax.persistence.EnumType
 import javax.persistence.Enumerated
-import javax.persistence.FetchType
+import javax.persistence.FetchType.LAZY
 import javax.persistence.GeneratedValue
 import javax.persistence.Id
 import javax.persistence.JoinColumn
@@ -26,64 +26,53 @@ import javax.persistence.NamedEntityGraph
 import javax.persistence.NamedEntityGraphs
 import javax.persistence.NamedSubgraph
 import javax.persistence.OneToMany
-import javax.persistence.OneToOne
 import javax.persistence.OrderBy
 import javax.persistence.Table
 import ac.uk.ebi.biostd.persistence.model.DbSection as SectionDb
 
-internal const val FULL_DATA_GRAPH = "Submission.fullData"
-internal const val SIMPLE_QUERY_GRAPH = "Submission.simpleGraph"
-
-internal const val ATTRS = "attributes"
-internal const val FILES = "files"
-internal const val LINKS = "links"
-internal const val SECTS = "sections"
-
 typealias Node = NamedAttributeNode
 typealias Graph = NamedSubgraph
 
+internal const val SIMPLE_QUERY_GRAPH = "Submission.simpleGraph"
+internal const val SUBMISSION_FULL_GRAPH = "Submission.simpleFullGraph"
+internal const val SUBMISSION_AND_ROOT_SECTION_FULL_GRAPH = "Submission.fullGraph"
+
+private const val ROOT_SECTION_GRAPH = "Submission.rootSectionGraph"
+private const val ATTRIBUTES_GRAPH = "SubmissionObject.attributesGraph"
+
 @Entity
 @NamedEntityGraphs(value = [
-    NamedEntityGraph(name = FULL_DATA_GRAPH,
-        attributeNodes = [
-            Node(value = "rootSection", subgraph = "root"),
-            Node("accessTags"),
-            Node("tags"),
+    NamedEntityGraph(name = SIMPLE_QUERY_GRAPH, attributeNodes = [Node(value = ROOT_SECTION)]),
+    NamedEntityGraph(name = SUBMISSION_FULL_GRAPH, attributeNodes = [
+        Node(ATTRS),
+        Node(ACC_TAGS),
+        Node(TAGS),
+        Node(OWNER),
+        Node(SUBMITTER)
+    ]),
+    NamedEntityGraph(name = SUBMISSION_AND_ROOT_SECTION_FULL_GRAPH, attributeNodes = [
+        Node(ATTRS),
+        Node(ACC_TAGS),
+        Node(TAGS),
+        Node(OWNER),
+        Node(SUBMITTER),
+        Node(value = ROOT_SECTION, subgraph = ROOT_SECTION_GRAPH)
+    ], subgraphs = [
+        Graph(name = ROOT_SECTION_GRAPH, attributeNodes = [
+            Node(LINKS, subgraph = ATTRIBUTES_GRAPH),
             Node(ATTRS),
-            Node("owner")
-        ],
-        subgraphs = [
-            Graph(name = "root", attributeNodes = [
-                Node(LINKS, subgraph = "attrs"),
-                Node(ATTRS),
-                Node(FILES, subgraph = "attrs"),
-                Node(SECTS, subgraph = "l1")]),
-            Graph(name = "l1", attributeNodes = [
-                Node(LINKS, subgraph = "attrs"),
-                Node(ATTRS), Node(FILES, subgraph = "attrs"),
-                Node(SECTS, subgraph = "l2")]),
-            Graph(name = "l2", attributeNodes = [
-                Node(LINKS, subgraph = "attrs"),
-                Node(ATTRS),
-                Node(FILES, subgraph = "attrs"),
-                Node(SECTS, subgraph = "l3")]),
-            Graph(name = "l3", attributeNodes = [
-                Node(LINKS, subgraph = "attrs"),
-                Node(ATTRS),
-                Node(FILES, subgraph = "attrs")]),
-            Graph(name = "attrs", attributeNodes = [Node(ATTRS)])
-        ]),
-    NamedEntityGraph(name = SIMPLE_QUERY_GRAPH, attributeNodes = [Node(value = "rootSection")])
+            Node(SECTS),
+            Node(FILES, subgraph = ATTRIBUTES_GRAPH)]),
+        Graph(name = ATTRIBUTES_GRAPH, attributeNodes = [Node(ATTRS)])
+    ])
 ])
 @Table(name = "Submission")
 class DbSubmission(
-
     @Column
     var accNo: String = "",
 
     @Column
     var version: Int = 1
-
 ) {
     @Id
     @GeneratedValue
@@ -124,25 +113,28 @@ class DbSubmission(
     @Convert(converter = ProcessingStatusConverter::class)
     var status: ProcessingStatus = PROCESSING
 
-    @OneToOne(cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
+    @ManyToOne(cascade = [CascadeType.ALL], fetch = LAZY)
     @JoinColumn(name = "rootSection_id")
     lateinit var rootSection: SectionDb
 
-    @ManyToOne
+    @Column(name = "rootSection_id", updatable = false, insertable = false)
+    var rootSectionId: Long = -1
+
+    @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "owner_id")
     lateinit var owner: DbUser
 
-    @ManyToOne
+    @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "submitter_id")
     lateinit var submitter: DbUser
 
-    @ManyToMany(cascade = [CascadeType.ALL])
+    @ManyToMany
     @JoinTable(name = "Submission_AccessTag",
         joinColumns = [JoinColumn(name = "Submission_Id", referencedColumnName = "id")],
         inverseJoinColumns = [JoinColumn(name = "accessTags_id", referencedColumnName = "id")])
     var accessTags: MutableSet<DbAccessTag> = sortedSetOf()
 
-    @ManyToMany(cascade = [CascadeType.ALL])
+    @ManyToMany
     @JoinTable(name = "Submission_ElementTag",
         joinColumns = [JoinColumn(name = "submission_Id", referencedColumnName = "id")],
         inverseJoinColumns = [JoinColumn(name = "tag_id", referencedColumnName = "id")])

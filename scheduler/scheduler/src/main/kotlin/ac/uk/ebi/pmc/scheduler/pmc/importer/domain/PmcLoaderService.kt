@@ -74,7 +74,7 @@ private class PmcLoader(
     fun loadFile(filePath: String): Job {
         logger.info { "submitting job to load folder: '$filePath'" }
 
-        val properties = getConfigProperties(filePath, LOAD, appProperties.notificationsUrl)
+        val properties = getConfigProperties(filePath, LOAD)
         val jobTry = clusterOperations.triggerJob(
             JobSpec(
                 FOUR_CORES,
@@ -85,7 +85,7 @@ private class PmcLoader(
 
     fun triggerProcessor(): Job {
         logger.info { "submitting job to process submissions" }
-        val properties = getConfigProperties(importMode = PROCESS, notificationsUrl = appProperties.notificationsUrl)
+        val properties = getConfigProperties(importMode = PROCESS)
         val jobTry = clusterOperations.triggerJob(
             JobSpec(
                 FOUR_CORES,
@@ -96,7 +96,7 @@ private class PmcLoader(
 
     fun triggerSubmitter(): Job {
         logger.info { "submitting job to submit submissions" }
-        val properties = getConfigProperties(importMode = SUBMIT, notificationsUrl = appProperties.notificationsUrl)
+        val properties = getConfigProperties(importMode = SUBMIT)
         val jobTry = clusterOperations.triggerJob(
             JobSpec(
                 EIGHT_CORES,
@@ -105,13 +105,14 @@ private class PmcLoader(
         return jobTry.fold({ throw it }, { it.apply { logger.info { "submitted job $it" } } })
     }
 
-    private fun getConfigProperties(filePath: String? = null, importMode: PmcMode, notificationsUrl: String) =
+    private fun getConfigProperties(filePath: String? = null, importMode: PmcMode) =
         PmcImporterProperties.create(
             mode = importMode,
             path = filePath,
             temp = properties.temp,
             mongodbUri = properties.mongoUri,
-            notificationsUrl = notificationsUrl,
+            notificationsUrl = appProperties.notificationsUrl,
             bioStudiesUser = properties.bioStudiesUser,
-            bioStudiesPassword = properties.bioStudiesPassword)
+            bioStudiesPassword = properties.bioStudiesPassword,
+            bioStudiesUrl = properties.bioStudiesUrl)
 }

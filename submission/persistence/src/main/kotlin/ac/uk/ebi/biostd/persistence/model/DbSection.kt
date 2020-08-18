@@ -14,13 +14,31 @@ import javax.persistence.GeneratedValue
 import javax.persistence.Id
 import javax.persistence.JoinColumn
 import javax.persistence.ManyToOne
+import javax.persistence.NamedEntityGraph
+import javax.persistence.NamedEntityGraphs
 import javax.persistence.OneToMany
 import javax.persistence.OneToOne
 import javax.persistence.OrderBy
 import javax.persistence.Table
 
+internal const val SECTION_SIMPLE_GRAPH = "Section.simpleGraph"
+private const val ATTRIBUTES_GRAPH = "Object.attributesGraph"
+
 @Entity
 @Table(name = "Section")
+@NamedEntityGraphs(value = [
+    NamedEntityGraph(
+        name = SECTION_SIMPLE_GRAPH,
+        attributeNodes = [
+            Node(ATTRS),
+            Node(SECTS),
+            Node(LINKS, subgraph = ATTRIBUTES_GRAPH),
+            Node(FILES, subgraph = ATTRIBUTES_GRAPH)],
+        subgraphs = [
+            Graph(name = ATTRIBUTES_GRAPH, attributeNodes = [Node(ATTRS)])
+        ]
+    )
+])
 class DbSection(
     @Column
     var accNo: String?,
@@ -48,15 +66,15 @@ class DbSection(
     @JoinColumn(name = "fileListId")
     var fileList: ReferencedFileList? = null
 
-    @OneToMany(cascade = [CascadeType.ALL])
+    @OneToMany(cascade = [CascadeType.ALL], fetch = LAZY)
     @JoinColumn(name = "section_id")
     @OrderBy("order ASC")
-    var attributes: SortedSet<DbSectionAttribute> = sortedSetOf()
+    var links: SortedSet<DbLink> = sortedSetOf()
 
     @OneToMany(cascade = [CascadeType.ALL])
     @JoinColumn(name = "section_id")
     @OrderBy("order ASC")
-    var links: SortedSet<DbLink> = sortedSetOf()
+    var attributes: SortedSet<DbSectionAttribute> = sortedSetOf()
 
     @OneToMany(cascade = [CascadeType.ALL])
     @JoinColumn(name = "sectionId")

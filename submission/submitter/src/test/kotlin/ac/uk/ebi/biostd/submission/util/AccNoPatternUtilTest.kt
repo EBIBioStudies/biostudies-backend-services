@@ -46,7 +46,7 @@ class AccNoPatternUtilTest(@MockK private val context: PersistenceContext) {
         val accNo = testInstance.toAccNumber("S-TEST123")
 
         assertThat(accNo.prefix).isEqualTo("S-TEST")
-        assertThat(accNo.numericValue).isEqualTo(123L)
+        assertThat(accNo.numericValue).isEqualTo("123")
     }
 
     @Test
@@ -55,5 +55,13 @@ class AccNoPatternUtilTest(@MockK private val context: PersistenceContext) {
 
         assertThat(accNo.prefix).isEqualTo("ARandomPattern")
         assertThat(accNo.numericValue).isNull()
+    }
+
+    @Test
+    fun `extract accession with several number groups`() {
+        val accNo = testInstance.toAccNumber("S-SCDT-EMBOJ-2019-102930")
+
+        assertThat(accNo.prefix).isEqualTo("S-SCDT-EMBOJ-2019-")
+        assertThat(accNo.numericValue).isEqualTo("102930")
     }
 }

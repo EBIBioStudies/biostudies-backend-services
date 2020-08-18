@@ -45,7 +45,9 @@ class SubmitterConfig {
     class FilesHandlerConfig(private val appProperties: ApplicationProperties) {
         @Bean
         @Lazy
-        fun folderResolver() = SubmissionFolderResolver(Paths.get(appProperties.basepath))
+        fun folderResolver() = SubmissionFolderResolver(
+            submissionFolder = Paths.get(appProperties.submissionPath),
+            ftpFolder = Paths.get(appProperties.ftpPath))
     }
 
     @Configuration

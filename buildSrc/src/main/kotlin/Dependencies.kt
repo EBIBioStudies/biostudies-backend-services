@@ -5,6 +5,7 @@ import TestVersions.JunitEngineVersion
 import TestVersions.JunitExtensionsVersion
 import TestVersions.JunitVersion
 import TestVersions.MockKVersion
+import TestVersions.RabbitmqMockVersion
 import TestVersions.XmlUnitVersion
 import Versions.CliKtVersion
 import Versions.CommonsCsvVersion
@@ -27,12 +28,13 @@ import Versions.KotlinVersion
 import Versions.Log4JVersion
 import Versions.LogbackVersion
 import Versions.MySqlVersion
+import Versions.OkHttpLoggingVersion
 import Versions.PoiVersion
-import Versions.Retrofit2CoroutineVersion
 import Versions.Retrofit2Version
 import Versions.RxJava2Version
 import Versions.ServletVersion
 import Versions.SpringAdminVersion
+import Versions.SpringBootVersion
 import Versions.SpringDataVersion
 import Versions.SpringVersion
 import Versions.SpringfoxSwaggerVersion
@@ -49,6 +51,7 @@ object TestVersions {
     const val XmlUnitVersion = "2.6.2"
     const val JsonPathAssertVersion = "2.4.0"
     const val JsonAssertVersion = "1.5.0"
+    const val RabbitmqMockVersion = "1.1.0"
 }
 
 object Versions {
@@ -57,11 +60,11 @@ object Versions {
     const val SpringVersion = "5.2.1.RELEASE"
     const val SpringAdminVersion = "2.1.6"
 
-    const val KotlinVersion = "1.3.61"
+    const val KotlinVersion = "1.3.72"
     const val KotlinLoggingVersion = "1.6.20"
     const val KotlinArrowVersion = "0.8.2"
-    const val KotlinCoroutineVersion = "1.3.3"
-    const val KMongoCoroutineVersion = "3.11.0"
+    const val KotlinCoroutineVersion = "1.3.8"
+    const val KMongoCoroutineVersion = "3.12.2"
     const val JpaEntityGraphVersion = "2.2.3"
 
     const val CommonsLang3Version = "3.8.1"
@@ -78,8 +81,8 @@ object Versions {
     const val ServletVersion = "4.0.1"
     const val HibernateEMVersion = "5.3.5.Final"
     const val JschVersion = "0.1.55"
-    const val Retrofit2Version = "2.5.0"
-    const val Retrofit2CoroutineVersion = "0.9.2"
+    const val Retrofit2Version = "2.9.0"
+    const val OkHttpLoggingVersion = "3.8.0"
     const val JSONOrgVersion = "20090211"
     const val CliKtVersion = "1.7.0"
     const val RxJava2Version = "2.2.8"
@@ -98,6 +101,7 @@ object TestDependencies {
     const val Junit5Console = "org.junit.platform:junit-platform-console:$JunitEngineVersion"
     const val Junit = "org.junit.jupiter:junit-jupiter:$JunitVersion"
     const val JunitExtensions = "io.github.glytching:junit-extensions:$JunitExtensionsVersion"
+    const val rabitMqMock = "com.github.fridujo:rabbitmq-mock:$RabbitmqMockVersion"
 
     val BaseTestCompileDependencies = arrayOf(Junit, JunitExtensions, AssertJ, MockK, KotlinTestJunit)
     val BaseTestRuntimeDependencies = arrayOf(Junit5Console)
@@ -127,7 +131,7 @@ object Dependencies {
     const val JacksonCore = "com.fasterxml.jackson.core:jackson-core:$JacksonVersion"
     const val JacksonXml = "com.fasterxml.jackson.dataformat:jackson-dataformat-xml:$JacksonVersion"
     const val Retrofit2 = "com.squareup.retrofit2:retrofit:$Retrofit2Version"
-    const val RetrofitCoroutine = "com.jakewharton.retrofit:retrofit2-kotlin-coroutines-adapter:$Retrofit2CoroutineVersion"
+    const val OkHttpLogging = "com.squareup.okhttp3:logging-interceptor:$OkHttpLoggingVersion"
 
     // Persistence
     const val HibernateEntityManager = "org.hibernate:hibernate-entitymanager:$HibernateEMVersion"
@@ -172,8 +176,10 @@ object SpringBootDependencies {
     const val SpringBootStarter = "org.springframework.boot:spring-boot-starter"
     const val SpringBootStarterTest = "org.springframework.boot:spring-boot-starter-test"
     const val SpringBootStarterWeb = "org.springframework.boot:spring-boot-starter-web"
-    const val SpringBootAmqp = "org.springframework.boot:spring-boot-starter-amqp"
+    const val SpringBootAmqp = "org.springframework.boot:spring-boot-starter-amqp:$SpringBootVersion"
+    const val SpringBootConfigurationProcessor = "org.springframework.boot:spring-boot-configuration-processor"
     const val SpringBootStarterActuator = "org.springframework.boot:spring-boot-starter-actuator"
+    const val SpringBootStarterValidation = "org.springframework.boot:spring-boot-starter-validation"
     const val SpringBootStarterDataJpa = "org.springframework.boot:spring-boot-starter-data-jpa"
     const val SpringBootStarterConfigProcessor = "org.springframework.boot:spring-boot-configuration-processor"
     const val SpringBootStarterSecurity = "org.springframework.boot:spring-boot-starter-security"

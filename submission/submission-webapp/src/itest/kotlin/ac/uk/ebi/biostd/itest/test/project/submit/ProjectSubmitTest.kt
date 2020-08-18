@@ -5,10 +5,11 @@ import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
+import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
 import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
-import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
+import ac.uk.ebi.biostd.persistence.repositories.data.SubmissionRepository
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.line
 import ebi.ac.uk.dsl.tsv
@@ -30,13 +31,14 @@ import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
 
 @ExtendWith(TemporaryFolderExtension::class)
-internal class ProjectSubmitTest(private val tempFolder: TemporaryFolder) : BaseIntegrationTest(tempFolder) {
+internal class ProjectSubmitTest(tempFolder: TemporaryFolder) : BaseIntegrationTest(tempFolder) {
     @Nested
     @Import(PersistenceConfig::class)
     @ExtendWith(SpringExtension::class)
     @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
     @DirtiesContext
     inner class ProjectSubmitTest(
+        @Autowired val securityTestService: SecurityTestService,
         @Autowired val tagsDataRepository: AccessTagDataRepo,
         @Autowired val submissionRepository: SubmissionRepository,
         @Autowired val sequenceRepository: SequenceDataRepository
@@ -48,6 +50,7 @@ internal class ProjectSubmitTest(private val tempFolder: TemporaryFolder) : Base
 
         @BeforeAll
         fun init() {
+            securityTestService.registerUser(SuperUser)
             webClient = getWebClient(serverPort, SuperUser)
         }
 
@@ -124,7 +127,7 @@ internal class ProjectSubmitTest(private val tempFolder: TemporaryFolder) : Base
             assertThat(webClient.submitSingle(aProject, SubmissionFormat.TSV)).isSuccessful()
             assertThatExceptionOfType(WebClientException::class.java)
                 .isThrownBy { webClient.submitSingle(anotherProject, SubmissionFormat.TSV) }
-                .withMessageContaining("There is a project already using the accNo template S-APRJ")
+                .withMessageContaining("There is a project already using the accNo template 'S-APRJ'")
         }
     }
 }

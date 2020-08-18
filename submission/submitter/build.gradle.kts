@@ -2,8 +2,10 @@ import Dependencies.Arrow
 import Dependencies.ArrowData
 import Dependencies.ArrowTypeClasses
 import Dependencies.CommonsIO
+import Dependencies.KotlinLogging
 import Dependencies.RxJava2
 import Dependencies.SpringDataJpa
+import SpringBootDependencies.SpringBootAmqp
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
 
@@ -18,7 +20,10 @@ dependencies {
     implementation(ArrowData)
     implementation(CommonsIO)
     implementation(RxJava2)
+    implementation(KotlinLogging)
     implementation(SpringDataJpa)
+
+    testImplementation(SpringBootAmqp)
 
     BaseTestCompileDependencies.forEach { testImplementation(it) }
     BaseTestRuntimeDependencies.forEach { testImplementation(it) }
