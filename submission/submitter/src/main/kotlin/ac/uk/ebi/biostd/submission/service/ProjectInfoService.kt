@@ -18,30 +18,38 @@ class ProjectInfoService(
     private val accNoUtil: AccNoPatternUtil,
     private val privilegesService: IUserPrivilegesService
 ) {
-    @Suppress("ThrowsCount")
     fun process(request: ProjectRequest): ProjectResponse? {
-        if (request.subType != "Project") return null
+        val (submitter, subType, template, accNo) = request
 
-        val submitter = request.submitter
-        val template = request.accNoTemplate
-        val accNo = request.accNo
+        if (subType != "Project") return null
 
+        val isNew = queryService.isNew(accNo)
         require(privilegesService.canSubmitProjects(submitter)) { throw UserCanNotSubmitProjectsException(submitter) }
-        require(template != null) { throw ProjectInvalidAccNoPatternException(ACC_NO_TEMPLATE_REQUIRED) }
-        require(accNoUtil.isPattern(template)) { throw ProjectInvalidAccNoPatternException(ACC_NO_TEMPLATE_INVALID) }
-        require(queryService.isNew(accNo).not() || context.accessTagExists(accNo).not()) {
-            throw ProjectAlreadyExistingException(accNo)
-        }
+        validatePattern(template)
 
-        val accNoPattern = accNoUtil.getPattern(template)
-        require(context.sequenceAccNoPatternExists(accNoPattern).not()) {
-            throw ProjectAccNoTemplateAlreadyExistsException(accNoPattern)
-        }
-
-        context.createAccNoPatternSequence(accNoPattern)
-        context.saveAccessTag(accNo)
+        val accNoPattern = accNoUtil.getPattern(template!!)
+        validateProject(isNew, accNo, accNoPattern)
+        persist(isNew, accNo, accNoPattern)
 
         return ProjectResponse(request.accNo)
+    }
+
+    private fun validateProject(isNew: Boolean, accNo: String, accNoPattern: String) {
+        if (isNew && context.accessTagExists(accNo)) throw ProjectAlreadyExistingException(accNo)
+        if (isNew && context.sequenceAccNoPatternExists(accNoPattern))
+            throw ProjectAccNoTemplateAlreadyExistsException(accNoPattern)
+    }
+
+    private fun validatePattern(template: String?) {
+        require(template != null) { throw ProjectInvalidAccNoPatternException(ACC_NO_TEMPLATE_REQUIRED) }
+        require(accNoUtil.isPattern(template)) { throw ProjectInvalidAccNoPatternException(ACC_NO_TEMPLATE_INVALID) }
+    }
+
+    private fun persist(isNew: Boolean, accNo: String, accNoPattern: String) {
+        if (isNew) {
+            context.saveAccessTag(accNo)
+            context.createAccNoPatternSequence(accNoPattern)
+        }
     }
 }
 
