@@ -69,21 +69,19 @@ class SubmissionSubmitter(
         return context.processSubmission(request)
     }
 
-    fun submitAsync(submissionRequest: SubmissionRequest): SaveRequest {
-        logger.info { "processing async request $submissionRequest" }
+    fun submitAsync(request: SubmissionRequest): SaveRequest {
+        logger.info { "processing async request $request" }
 
         val submission = process(
-            submissionRequest.submission,
-            submissionRequest.submitter.asUser(),
-            submissionRequest.onBehalfUser?.asUser(),
-            submissionRequest.sources,
-            submissionRequest.method
+            request.submission,
+            request.submitter.asUser(),
+            request.onBehalfUser?.asUser(),
+            request.sources,
+            request.method
         )
 
         logger.info { "Saving submission request ${submission.accNo}" }
-        val request = SaveRequest(submission, submissionRequest.mode)
-        context.saveSubmissionRequest(request)
-        return request
+        return SaveRequest(context.saveSubmissionRequest(SaveRequest(submission, request.mode)), request.mode)
     }
 
     @Suppress("TooGenericExceptionCaught")

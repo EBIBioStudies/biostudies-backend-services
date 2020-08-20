@@ -37,6 +37,7 @@ class SubmissionService(
 ) {
     fun submit(request: SubmissionRequest): ExtSubmission {
         logger.info { "received submit request for submission ${request.submission.accNo}" }
+
         val extSubmission = submissionSubmitter.submit(request)
         eventsPublisherService.submissionSubmitted(extSubmission, extSubmission.submitter)
         return extSubmission

@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.persistence.service
 
+import ac.uk.ebi.biostd.persistence.mapping.extended.from.ToDbSubmissionMapper
 import ac.uk.ebi.biostd.persistence.mapping.extended.to.ToExtSubmissionMapper
 import ac.uk.ebi.biostd.persistence.model.DbSubmission
 import ac.uk.ebi.biostd.persistence.repositories.SubmissionDataRepository
@@ -10,7 +11,6 @@ import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FileMode
 import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSED
 import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSING
-import ebi.ac.uk.model.constants.ProcessingStatus.REQUESTED
 import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
 
@@ -19,17 +19,19 @@ open class SubmissionPersistenceService(
     private val subDataRepository: SubmissionDataRepository,
     private val userDataRepository: UserDataDataRepository,
     private val systemService: FileSystemService,
-    private val toExtSubmissionMapper: ToExtSubmissionMapper
+    private val toExtSubmissionMapper: ToExtSubmissionMapper,
+    private val toDbMapper: ToDbSubmissionMapper
 ) {
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = false)
-    open fun saveSubmissionRequest(dbSubmission: DbSubmission) {
-        val nextVersion = (subDataRepository.getLastVersion(dbSubmission.accNo) ?: 0) + 1
-        subDataRepository.save(dbSubmission.apply { status = REQUESTED; version = nextVersion })
+    open fun saveSubmissionRequest(submission: ExtSubmission): ExtSubmission {
+        val newVersion = submission.copy(version = (subDataRepository.getLastVersion(submission.accNo) ?: 0) + 1)
+        subDataRepository.save(toDbMapper.toSubmissionDb(newVersion))
+        return newVersion
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = false)
     open fun processSubmission(submission: ExtSubmission, mode: FileMode): ExtSubmission {
-        subDataRepository.updateStatus(submission.accNo, submission.version, PROCESSING)
+        subDataRepository.updateStatus(PROCESSING, submission.accNo, submission.version)
         systemService.persistSubmissionFiles(submission, mode)
 
         val dbSubmission = subRepository.getDbSubmission(submission.accNo, submission.version)
@@ -40,7 +42,7 @@ open class SubmissionPersistenceService(
         subDataRepository.expireActiveVersions(submission.accNo)
         deleteSubmissionDrafts(submission.submitter.id, submission.accNo)
         deleteSubmissionDrafts(submission.owner.id, submission.accNo)
-        subDataRepository.updateStatus(submission.accNo, submission.version, PROCESSED)
+        subDataRepository.updateStatus(PROCESSED, submission.accNo, submission.version)
         return submission
     }
 

@@ -17,7 +17,7 @@ interface PersistenceContext {
 
     fun saveAndProcessSubmissionRequest(saveRequest: SaveRequest): ExtSubmission
 
-    fun saveSubmissionRequest(saveRequest: SaveRequest)
+    fun saveSubmissionRequest(saveRequest: SaveRequest): ExtSubmission
 
     fun processSubmission(saveRequest: SaveRequest): ExtSubmission
 

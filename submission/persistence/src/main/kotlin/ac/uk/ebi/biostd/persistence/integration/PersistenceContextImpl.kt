@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.persistence.integration
 
-import ac.uk.ebi.biostd.persistence.mapping.extended.from.ToDbSubmissionMapper
 import ac.uk.ebi.biostd.persistence.model.DbAccessTag
 import ac.uk.ebi.biostd.persistence.model.Sequence
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
@@ -17,8 +16,7 @@ open class PersistenceContextImpl(
     private val submissionService: SubmissionPersistenceService,
     private val sequenceRepository: SequenceDataRepository,
     private val accessTagsDataRepository: AccessTagDataRepo,
-    private val lockExecutor: LockExecutor,
-    private val toDbMapper: ToDbSubmissionMapper
+    private val lockExecutor: LockExecutor
 ) : PersistenceContext {
     override fun sequenceAccNoPatternExists(pattern: String): Boolean = sequenceRepository.existsByPrefix(pattern)
 
@@ -46,9 +44,9 @@ open class PersistenceContextImpl(
     }
 
     @Transactional(readOnly = true)
-    override fun saveSubmissionRequest(saveRequest: SaveRequest) {
+    override fun saveSubmissionRequest(saveRequest: SaveRequest): ExtSubmission {
         val (sub, _, accNo) = saveRequest
-        lockExecutor.executeLocking(accNo) { submissionService.saveSubmissionRequest(toDbMapper.toSubmissionDb(sub)) }
+        return lockExecutor.executeLocking(accNo) { submissionService.saveSubmissionRequest(sub) }
     }
 
     @Transactional(readOnly = true)
