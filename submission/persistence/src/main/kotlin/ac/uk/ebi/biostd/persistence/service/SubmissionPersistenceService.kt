@@ -7,6 +7,7 @@ import ac.uk.ebi.biostd.persistence.repositories.SubmissionDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.data.SubmissionRepository
 import ac.uk.ebi.biostd.persistence.service.filesystem.FileSystemService
+import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FileMode
 import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSED
@@ -24,7 +25,9 @@ open class SubmissionPersistenceService(
 ) {
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = false)
     open fun saveSubmissionRequest(submission: ExtSubmission): ExtSubmission {
-        val newVersion = submission.copy(version = (subDataRepository.getLastVersion(submission.accNo) ?: 0) + 1)
+        val newVersion = submission.copy(
+            version = (subDataRepository.getLastVersion(submission.accNo) ?: 0) + 1,
+            status = ExtProcessingStatus.REQUESTED)
         subDataRepository.save(toDbMapper.toSubmissionDb(newVersion))
         return newVersion
     }

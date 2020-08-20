@@ -39,8 +39,8 @@ open class PersistenceContextImpl(
      */
     @Transactional(readOnly = true)
     override fun saveAndProcessSubmissionRequest(saveRequest: SaveRequest): ExtSubmission {
-        saveSubmissionRequest(saveRequest)
-        return processSubmission(saveRequest)
+        val extended = saveSubmissionRequest(saveRequest)
+        return processSubmission(SaveRequest(extended, saveRequest.fileMode))
     }
 
     @Transactional(readOnly = true)

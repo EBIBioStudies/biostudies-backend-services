@@ -105,8 +105,7 @@ class SubmissionSubmitter(
         onBehalfUser: User?,
         source: FilesSource,
         method: SubmissionMethod
-    ):
-        ExtSubmission {
+    ): ExtSubmission {
         val (parentTags, parentReleaseTime, parentPattern) = parentInfoService.getParentInfo(submission.attachTo)
         val (createTime, modTime, releaseTime) = getTimes(submission, parentReleaseTime)
         val released = releaseTime?.isBeforeOrEqual(OffsetDateTime.now()).orFalse()
