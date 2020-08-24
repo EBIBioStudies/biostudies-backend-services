@@ -35,6 +35,8 @@ class ExtFilesTableSerializerTest(private val tempFolder: TemporaryFolder) {
                     "reference" to false
                 })
                 "extType" to "file"
+                "type" to "file"
+                "size" to 0
             })
             "extType" to "filesTable"
         }.toString()
