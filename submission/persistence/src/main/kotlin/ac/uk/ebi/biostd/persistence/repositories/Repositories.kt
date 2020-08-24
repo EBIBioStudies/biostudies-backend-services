@@ -66,9 +66,9 @@ interface SubmissionDataRepository :
     @Modifying
     fun expireActiveVersions(accNo: String)
 
-    @Query("Update DbSubmission s set s.status = ?3 Where s.accNo = ?1 and s.version = ?2")
+    @Query("Update DbSubmission s set s.status = ?1 Where s.accNo = ?2 and s.version = ?3")
     @Modifying
-    fun updateStatus(accNo: String, version: Int, status: ProcessingStatus)
+    fun updateStatus(status: ProcessingStatus, accNo: String, version: Int)
 
     fun existsByAccNo(accNo: String): Boolean
 

@@ -46,6 +46,7 @@ class ToExtSubmissionMapper(private val submissionsPath: Path) {
         when (status) {
             ProcessingStatus.PROCESSED -> ExtProcessingStatus.PROCESSED
             ProcessingStatus.PROCESSING -> ExtProcessingStatus.PROCESSING
+            ProcessingStatus.REQUESTED -> ExtProcessingStatus.REQUESTED
         }
 
     private fun getMethod(method: SubmissionMethod?) =

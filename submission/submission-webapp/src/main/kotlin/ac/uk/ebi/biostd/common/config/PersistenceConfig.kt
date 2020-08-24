@@ -56,7 +56,6 @@ class PersistenceConfig(
     private val sequenceRepository: SequenceDataRepository,
     private val tagsDataRepository: AccessTagDataRepo,
     private val template: NamedParameterJdbcTemplate,
-    private val userDataRepository: UserDataDataRepository,
     private val applicationProperties: ApplicationProperties,
     private val folderResolver: SubmissionFolderResolver,
     private val serializationService: SerializationService,
@@ -108,18 +107,26 @@ class PersistenceConfig(
             submissionPersistenceService,
             sequenceRepository,
             tagsDataRepository,
-            lockExecutor,
-            dbSubmissionMapper
+            lockExecutor
         )
 
     @Bean
+    @Suppress("LongParameterList")
     fun submissionPersistenceService(
         subRepository: SubmissionRepository,
         subDataRepository: SubmissionDataRepository,
         userDataRepository: UserDataDataRepository,
         systemService: FileSystemService,
-        toExtMapper: ToExtSubmissionMapper
-    ) = SubmissionPersistenceService(subRepository, subDataRepository, userDataRepository, systemService, toExtMapper)
+        toExtMapper: ToExtSubmissionMapper,
+        toDbSubmissionMapper: ToDbSubmissionMapper
+    ) = SubmissionPersistenceService(
+        subRepository,
+        subDataRepository,
+        userDataRepository,
+        systemService,
+        toExtMapper,
+        toDbSubmissionMapper
+    )
 
     @Bean
     fun submissionQueryService(): SubmissionQueryService =

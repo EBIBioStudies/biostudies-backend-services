@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.persistence.service.filesystem
 
-import ac.uk.ebi.biostd.persistence.integration.FileMode
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.extended.model.FileMode
 import mu.KotlinLogging
 
 private val logger = KotlinLogging.logger {}

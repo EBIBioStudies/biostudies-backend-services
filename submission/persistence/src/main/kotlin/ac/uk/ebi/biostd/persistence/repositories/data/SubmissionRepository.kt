@@ -61,13 +61,13 @@ open class SubmissionRepository(
      * subsections recursively starting from the root section.
      */
     private fun lodSubmission(accNo: String, version: Int? = null): DbSubmission {
-        logger.info { "loading submission $accNo" }
+        logger.debug { "loading submission $accNo" }
 
         val submission = findSubmission(accNo, version)
         submission ?: throw SubmissionNotFoundException(accNo)
         loadSection(submission.rootSectionId)
 
-        logger.info { "Loaded submission $accNo" }
+        logger.debug { "Loaded submission $accNo" }
         return submission
     }
 

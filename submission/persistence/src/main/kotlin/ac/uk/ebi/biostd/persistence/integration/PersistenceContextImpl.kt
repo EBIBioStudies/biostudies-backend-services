@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.persistence.integration
 
-import ac.uk.ebi.biostd.persistence.mapping.extended.from.ToDbSubmissionMapper
 import ac.uk.ebi.biostd.persistence.model.DbAccessTag
 import ac.uk.ebi.biostd.persistence.model.Sequence
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
@@ -8,6 +7,7 @@ import ac.uk.ebi.biostd.persistence.repositories.LockExecutor
 import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
 import ac.uk.ebi.biostd.persistence.service.SubmissionPersistenceService
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.extended.model.FileMode
 import ebi.ac.uk.model.User
 import org.springframework.transaction.annotation.Transactional
 
@@ -16,8 +16,7 @@ open class PersistenceContextImpl(
     private val submissionService: SubmissionPersistenceService,
     private val sequenceRepository: SequenceDataRepository,
     private val accessTagsDataRepository: AccessTagDataRepo,
-    private val lockExecutor: LockExecutor,
-    private val toDbMapper: ToDbSubmissionMapper
+    private val lockExecutor: LockExecutor
 ) : PersistenceContext {
     override fun sequenceAccNoPatternExists(pattern: String): Boolean = sequenceRepository.existsByPrefix(pattern)
 
@@ -39,15 +38,26 @@ open class PersistenceContextImpl(
      * under db lock to guarantee single submission is saved and process at time.
      */
     @Transactional(readOnly = true)
-    override fun saveSubmission(saveRequest: SaveRequest): ExtSubmission {
+    override fun saveAndProcessSubmissionRequest(saveRequest: SaveRequest): ExtSubmission {
+        val extended = saveSubmissionRequest(saveRequest)
+        return processSubmission(SaveRequest(extended, saveRequest.fileMode))
+    }
+
+    @Transactional(readOnly = true)
+    override fun saveSubmissionRequest(saveRequest: SaveRequest): ExtSubmission {
+        val (sub, _, accNo) = saveRequest
+        return lockExecutor.executeLocking(accNo) { submissionService.saveSubmissionRequest(sub) }
+    }
+
+    @Transactional(readOnly = true)
+    override fun processSubmission(saveRequest: SaveRequest): ExtSubmission {
         val (sub, mode, accNo) = saveRequest
-        lockExecutor.executeLocking(accNo) { submissionService.saveSubmission(toDbMapper.toSubmissionDb(sub)) }
         return lockExecutor.executeLocking(accNo) { submissionService.processSubmission(sub, mode) }
     }
 
     @Transactional
     override fun refreshSubmission(submission: ExtSubmission, submitter: User) {
-        saveSubmission(SaveRequest(submission.copy(version = submission.version + 1), FileMode.MOVE))
+        saveAndProcessSubmissionRequest(SaveRequest(submission.copy(version = submission.version + 1), FileMode.MOVE))
     }
 
     override fun saveAccessTag(accessTag: String) {

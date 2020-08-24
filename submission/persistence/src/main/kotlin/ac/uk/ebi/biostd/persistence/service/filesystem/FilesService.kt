@@ -2,13 +2,13 @@ package ac.uk.ebi.biostd.persistence.service.filesystem
 
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat
-import ac.uk.ebi.biostd.persistence.integration.FileMode
-import ac.uk.ebi.biostd.persistence.integration.FileMode.COPY
-import ac.uk.ebi.biostd.persistence.integration.FileMode.MOVE
 import ebi.ac.uk.extended.mapping.to.toFilesTable
 import ebi.ac.uk.extended.mapping.to.toSimpleSubmission
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.extended.model.FileMode
+import ebi.ac.uk.extended.model.FileMode.COPY
+import ebi.ac.uk.extended.model.FileMode.MOVE
 import ebi.ac.uk.extended.model.allFileList
 import ebi.ac.uk.extended.model.allFiles
 import ebi.ac.uk.extended.model.allReferencedFiles

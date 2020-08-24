@@ -1,6 +1,7 @@
 import Dependencies.Arrow
 import Dependencies.CommonsIO
 import Dependencies.JpaEntityGraph
+import Dependencies.KotlinLogging
 import Dependencies.KotlinReflect
 import Dependencies.KotlinStdLib
 import Dependencies.MySql
@@ -75,6 +76,7 @@ dependencies {
     implementation(RxJava2)
     implementation(SpringfoxSwagger)
     implementation(SpringfoxSwaggerUI)
+    implementation(KotlinLogging)
 
     testImplementation(project(":client:bio-webclient"))
     BaseTestCompileDependencies.forEach { testImplementation(it) }

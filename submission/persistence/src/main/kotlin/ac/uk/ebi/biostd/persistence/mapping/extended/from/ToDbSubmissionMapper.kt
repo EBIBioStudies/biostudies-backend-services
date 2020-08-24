@@ -46,6 +46,7 @@ class ToDbSubmissionMapper(
         when (status) {
             ExtProcessingStatus.PROCESSED -> ProcessingStatus.PROCESSED
             ExtProcessingStatus.PROCESSING -> ProcessingStatus.PROCESSING
+            ExtProcessingStatus.REQUESTED -> ProcessingStatus.REQUESTED
         }
 
     private fun getMethod(method: ExtSubmissionMethod): SubmissionMethod =

@@ -40,6 +40,7 @@ import java.util.UUID
 private val logger = KotlinLogging.logger {}
 private const val DEFAULT_VERSION = 1
 
+@Suppress("TooManyFunctions")
 class SubmissionSubmitter(
     private val timesService: TimesService,
     private val accNoService: AccNoService,
@@ -60,7 +61,27 @@ class SubmissionSubmitter(
         )
 
         logger.info { "Saving submission ${submission.accNo}" }
-        return context.saveSubmission(SaveRequest(submission, request.mode))
+        return context.saveAndProcessSubmissionRequest(SaveRequest(submission, request.mode))
+    }
+
+    fun processRequest(request: SaveRequest): ExtSubmission {
+        logger.info { "processing request for submission ${request.submission.accNo} " }
+        return context.processSubmission(request)
+    }
+
+    fun submitAsync(request: SubmissionRequest): SaveRequest {
+        logger.info { "processing async request $request" }
+
+        val submission = process(
+            request.submission,
+            request.submitter.asUser(),
+            request.onBehalfUser?.asUser(),
+            request.sources,
+            request.method
+        )
+
+        logger.info { "Saving submission request ${submission.accNo}" }
+        return SaveRequest(context.saveSubmissionRequest(SaveRequest(submission, request.mode)), request.mode)
     }
 
     @Suppress("TooGenericExceptionCaught")
@@ -84,8 +105,7 @@ class SubmissionSubmitter(
         onBehalfUser: User?,
         source: FilesSource,
         method: SubmissionMethod
-    ):
-        ExtSubmission {
+    ): ExtSubmission {
         val (parentTags, parentReleaseTime, parentPattern) = parentInfoService.getParentInfo(submission.attachTo)
         val (createTime, modTime, releaseTime) = getTimes(submission, parentReleaseTime)
         val released = releaseTime?.isBeforeOrEqual(OffsetDateTime.now()).orFalse()

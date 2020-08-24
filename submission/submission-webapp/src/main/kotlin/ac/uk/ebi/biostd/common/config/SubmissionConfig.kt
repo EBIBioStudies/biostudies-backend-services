@@ -15,6 +15,7 @@ import ac.uk.ebi.biostd.submission.web.handlers.SubmissionsWebHandler
 import ac.uk.ebi.biostd.submission.web.handlers.SubmitWebHandler
 import ebi.ac.uk.security.integration.components.ISecurityService
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
+import org.springframework.amqp.rabbit.core.RabbitTemplate
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
@@ -34,14 +35,16 @@ class SubmissionConfig(
         userPrivilegeService: IUserPrivilegesService,
         queryService: SubmissionQueryService,
         submissionSubmitter: SubmissionSubmitter,
-        eventsPublisherService: EventsPublisherService
+        eventsPublisherService: EventsPublisherService,
+        myRabbitTemplate: RabbitTemplate
     ): SubmissionService = SubmissionService(
         subRepository,
         serializationService,
         userPrivilegeService,
         queryService,
         submissionSubmitter,
-        eventsPublisherService)
+        eventsPublisherService,
+        myRabbitTemplate)
 
     @Bean
     fun extSubmissionService(
