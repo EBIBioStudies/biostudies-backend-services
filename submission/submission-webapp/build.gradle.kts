@@ -77,7 +77,6 @@ dependencies {
     implementation(SpringfoxSwagger)
     implementation(SpringfoxSwaggerUI)
     implementation(KotlinLogging)
-    implementation(SpringBootAmqp)
 
     testImplementation(project(":client:bio-webclient"))
     BaseTestCompileDependencies.forEach { testImplementation(it) }

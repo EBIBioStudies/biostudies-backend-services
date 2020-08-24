@@ -12,7 +12,7 @@ import ac.uk.ebi.biostd.persistence.projections.SimpleSubmission
 import ac.uk.ebi.biostd.persistence.repositories.data.SubmissionRepository
 import ac.uk.ebi.biostd.submission.model.SubmissionRequest
 import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
-import ebi.ac.uk.extended.events.RequestSubmitted
+import ebi.ac.uk.extended.events.SubmissionRequestMessage
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.paths.FILES_PATH
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
@@ -44,17 +44,17 @@ class SubmissionService(
     }
 
     fun submitAsync(request: SubmissionRequest) {
-        logger.info { "received submit async request for submission ${request.submission.accNo}" }
+        logger.info { "received async submit  request for submission ${request.submission.accNo}" }
         val (extSubmission, mode) = submissionSubmitter.submitAsync(request)
         myRabbitTemplate.convertAndSend(
             BIOSTUDIES_EXCHANGE,
             SUBMISSIONS_REQUEST_ROUTING_KEY,
-            RequestSubmitted(extSubmission, mode)
+            SubmissionRequestMessage(extSubmission, mode)
         )
     }
 
     @RabbitListener(queues = [SUBMISSION_REQUEST_QUEUE], concurrency = "1-1")
-    fun processSubmission(request: RequestSubmitted) {
+    fun processSubmission(request: SubmissionRequestMessage) {
         logger.info { "received process message for submission ${request.submission}" }
 
         val extSubmission = submissionSubmitter.processRequest(SaveRequest(request.submission, request.fileMode))

@@ -1,7 +1,7 @@
 package uk.ac.ebi.events.service
 
-import ebi.ac.uk.extended.events.RequestSubmitted
 import ebi.ac.uk.extended.events.SecurityNotification
+import ebi.ac.uk.extended.events.SubmissionRequestMessage
 import ebi.ac.uk.extended.events.SubmissionSubmitted
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FileMode
@@ -36,7 +36,7 @@ class EventsPublisherService(
         rabbitTemplate.convertAndSend(
             BIOSTUDIES_EXCHANGE,
             SUBMISSIONS_REQUEST_ROUTING_KEY,
-            RequestSubmitted(submission, fileMode)
+            SubmissionRequestMessage(submission, fileMode)
         )
     }
 }
