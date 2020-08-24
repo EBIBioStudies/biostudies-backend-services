@@ -37,13 +37,17 @@ interface SubmissionDataRepository :
 
     fun findByAccNoAndVersionGreaterThan(id: String, version: Int = 0): DbSubmission?
 
-    @Query("from DbSubmission s inner join s.owner where s.accNo = :accNo and s.version > 0")
+    @Query("select s from DbSubmission s inner join s.owner where s.accNo = :accNo and s.version > 0")
     fun getBasic(@Param("accNo") accNo: String): DbSubmission
 
-    @Query("from DbSubmission s inner join s.owner inner join s.attributes where s.accNo = :accNo and s.version > 0")
+    @Query("""
+        select s
+        from DbSubmission s inner join s.owner inner join s.attributes
+        where s.accNo = :accNo and s.version > 0
+    """)
     fun getBasicWithAttributes(@Param("accNo") accNo: String): DbSubmission
 
-    @Query("from DbSubmission s inner join s.owner where s.accNo = :accNo and s.version > 0")
+    @Query("select s from DbSubmission s inner join s.owner where s.accNo = :accNo and s.version > 0")
     fun findBasic(@Param("accNo") accNo: String): DbSubmission?
 
     @EntityGraph(value = SUBMISSION_FULL_GRAPH, type = LOAD)

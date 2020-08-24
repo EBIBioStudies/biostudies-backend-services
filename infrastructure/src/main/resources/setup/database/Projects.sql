@@ -1,7 +1,7 @@
 INSERT INTO Section(tableIndex, type, ord) VALUES(-1, 'Project', 0);
 
-INSERT INTO Submission(CTime, MTime, RTime, accNo, relPath, released, version, owner_id, secretKey, status)
-VALUES(0, 0, 0, 'EuropePMC', 'EuropePMC', 1, 1, 3, 'secret-key', 'PROCESSED');
+INSERT INTO Submission(CTime, MTime, RTime, accNo, relPath, released, version, owner_id, submitter_id, secretKey, status)
+VALUES(0, 0, 0, 'EuropePMC', 'EuropePMC', 1, 1, 3, 3, 'secret-key', 'PROCESSED');
 
 UPDATE Section SET submission_id = 1;
 
