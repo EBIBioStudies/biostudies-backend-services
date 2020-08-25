@@ -25,7 +25,6 @@ open class SubmissionRepository(
     private val sectionRepository: SectionDataRepository,
     private var submissionMapper: ToExtSubmissionMapper
 ) {
-
     @Transactional(readOnly = true)
     open fun getDbSubmission(accNo: String, version: Int): DbSubmission = lodSubmission(accNo, version)
 
@@ -36,7 +35,7 @@ open class SubmissionRepository(
     open fun getExtByAccNo(accNo: String) = submissionMapper.toExtSubmission(lodSubmission(accNo))
 
     @Transactional(readOnly = true)
-    open fun getExtByAccAndVersion(accNo: String, version: Int) =
+    open fun getExtByAccNoAndVersion(accNo: String, version: Int) =
         submissionMapper.toExtSubmission(lodSubmission(accNo, version))
 
     open fun expireSubmission(accNo: String) {

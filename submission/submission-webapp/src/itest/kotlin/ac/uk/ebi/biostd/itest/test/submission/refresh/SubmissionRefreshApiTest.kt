@@ -6,7 +6,6 @@ import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
-import ac.uk.ebi.biostd.persistence.model.DbFile
 import ac.uk.ebi.biostd.persistence.model.DbSubmission
 import ac.uk.ebi.biostd.persistence.model.DbSubmissionAttribute
 import ac.uk.ebi.biostd.persistence.model.DbTag
@@ -14,14 +13,19 @@ import ac.uk.ebi.biostd.persistence.model.Sequence
 import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.SubmissionDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.TagDataRepository
+import ac.uk.ebi.biostd.persistence.repositories.data.SubmissionRepository
+import ac.uk.ebi.biostd.persistence.service.SubmissionPersistenceService
 import ebi.ac.uk.dsl.attribute
 import ebi.ac.uk.dsl.file
 import ebi.ac.uk.dsl.section
 import ebi.ac.uk.dsl.submission
+import ebi.ac.uk.extended.model.ExtFile
+import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.model.constants.SubFields.PUBLIC_ACCESS_TAG
 import ebi.ac.uk.model.extensions.releaseDate
 import ebi.ac.uk.model.extensions.rootPath
 import ebi.ac.uk.model.extensions.title
+import ebi.ac.uk.util.collections.ifLeft
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
@@ -49,15 +53,17 @@ private const val NEW_SUBTITLE = "Simple Submission"
 private const val NEW_ATTR_VALUE = "custom-attribute-new-value"
 
 @ExtendWith(TemporaryFolderExtension::class)
-internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : BaseIntegrationTest(tempFolder) {
+internal class SubmissionRefreshApiTest(private val tempFolder: TemporaryFolder) : BaseIntegrationTest(tempFolder) {
     @Nested
     @Import(PersistenceConfig::class)
     @ExtendWith(SpringExtension::class)
     @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
     @DirtiesContext
-    inner class SubmissionApiTest(
+    inner class SubmissionRefreshApiTest(
         @Autowired val securityTestService: SecurityTestService,
-        @Autowired val submissionRepository: SubmissionDataRepository,
+        @Autowired val submissionRepository: SubmissionRepository,
+        @Autowired val submissionPersistenceService: SubmissionPersistenceService,
+        @Autowired val submissionDataRepository: SubmissionDataRepository,
         @Autowired val sequenceRepository: SequenceDataRepository,
         @Autowired val tagsRefRepository: TagDataRepository
     ) {
@@ -99,48 +105,47 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
             }
 
             webClient.submitSingle(submission, TSV, listOf(refreshFile))
-            val dbSubmission = getSubmissionDb()
-            assertSubmission(
-                submission = getSubmissionDb(),
+            assertExtSubmission(
+                extSubmission = getExtSubmission(),
                 title = SUBTITLE,
                 releaseTime = releaseDate,
                 accessTags = listOf(PUBLIC_ACCESS_TAG.value),
                 attributes = listOf(ATTR_NAME to ATTR_VALUE))
 
-            updateSubmission(dbSubmission)
+            updateSubmission(getSubmissionDb())
             webClient.refreshSubmission(ACC_NO)
 
-            val stored = getSubmissionDb()
-            assertSubmission(
-                submission = stored,
+            val stored = getExtSubmission()
+            assertExtSubmission(
+                extSubmission = stored,
                 title = NEW_SUBTITLE,
                 releaseTime = newReleaseDate,
                 accessTags = emptyList(),
                 attributes = listOf(ATTR_NAME to NEW_ATTR_VALUE))
         }
 
-        private fun assertSubmission(
-            submission: DbSubmission,
+        private fun assertExtSubmission(
+            extSubmission: ExtSubmission,
             title: String,
             releaseTime: OffsetDateTime,
             accessTags: List<String>,
             attributes: List<Pair<String, String>>
         ) {
-            assertThat(submission.title).isEqualTo(title)
-            assertThat(submission.releaseTime).isEqualTo(releaseTime)
-            assertThat(submission.rootPath).isEqualTo(ROOT_PATH)
-            assertThat(submission.accessTags.map { it.name }).containsExactlyElementsOf(accessTags)
-            assertThat(submission.attributes.map { it.name to it.value }).containsExactlyElementsOf(attributes)
+            assertThat(extSubmission.title).isEqualTo(title)
+            assertThat(extSubmission.releaseTime).isEqualTo(releaseTime)
+            assertThat(extSubmission.rootPath).isEqualTo(ROOT_PATH)
+            assertThat(extSubmission.accessTags.map { it.name }).containsExactlyElementsOf(accessTags)
+            assertThat(extSubmission.attributes.map { it.name to it.value }).containsExactlyElementsOf(attributes)
 
-            assertThat(submission.rootSection.type).isEqualTo("Study")
-            assertThat(submission.rootSection.files).hasSize(2)
+            assertThat(extSubmission.section.type).isEqualTo("Study")
+            assertThat(extSubmission.section.files).hasSize(2)
 
-            assertFile(submission.rootSection.files.first(), "regular")
-            assertFile(submission.rootSection.files.last(), "duplicated")
+            extSubmission.section.files.first().ifLeft { assertFile(it, "regular") }
+            extSubmission.section.files.last().ifLeft { assertFile(it, "duplicated") }
         }
 
-        private fun assertFile(file: DbFile, type: String) {
-            assertThat(file.name).isEqualTo("refresh-file.txt")
+        private fun assertFile(file: ExtFile, type: String) {
+            assertThat(file.fileName).isEqualTo("refresh-file.txt")
             assertThat(file.attributes).hasSize(1)
             assertThat(file.attributes.first().name).isEqualTo("type")
             assertThat(file.attributes.first().value).isEqualTo(type)
@@ -150,9 +155,11 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
             submission.releaseTime = newReleaseDate
             submission.title = NEW_SUBTITLE
             submission.attributes = sortedSetOf(DbSubmissionAttribute(ATTR_NAME, NEW_ATTR_VALUE, 1))
-            submissionRepository.save(submission)
+            submissionDataRepository.save(submission)
         }
 
-        private fun getSubmissionDb(): DbSubmission = submissionRepository.readByAccNoAndVersionGreaterThan(ACC_NO, 0)!!
+        private fun getExtSubmission(): ExtSubmission = submissionRepository.getExtByAccNo(ACC_NO)
+
+        private fun getSubmissionDb(): DbSubmission = submissionDataRepository.getBasicWithAttributes(ACC_NO)
     }
 }
