@@ -19,9 +19,11 @@ import kotlin.streams.toList
 
 val ONLY_USER: Set<PosixFilePermission> = PosixFilePermissions.fromString("rwx------")
 val READ_ONLY_GROUP: Set<PosixFilePermission> = PosixFilePermissions.fromString("rwxr-x---")
+val READ_ONLY_GROUP_NO_EXE: Set<PosixFilePermission> = PosixFilePermissions.fromString("rw-r-----")
 val ALL_CAN_READ: Set<PosixFilePermission> = PosixFilePermissions.fromString("rwxr-xr-x")
-val GROUP_EXECUTE = PosixFilePermissions.fromString("rwx--x---")
-val ALL_GROUP = PosixFilePermissions.fromString("rwxrwx---")
+val ALL_CAN_READ_NO_EXE: Set<PosixFilePermission> = PosixFilePermissions.fromString("rw-r--r--")
+val GROUP_EXECUTE: Set<PosixFilePermission> = PosixFilePermissions.fromString("rwx--x---")
+val ALL_GROUP: Set<PosixFilePermission> = PosixFilePermissions.fromString("rwxrwx---")
 
 @Suppress("TooManyFunctions")
 object FileUtils {
