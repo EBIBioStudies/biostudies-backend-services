@@ -4,13 +4,15 @@ import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.JSON_PRETTY
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.TSV
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.XML
+import ac.uk.ebi.biostd.persistence.service.filesystem.SubmissionFilesPermissions.ALL_CAN_READ
+import ac.uk.ebi.biostd.persistence.service.filesystem.SubmissionFilesPermissions.READ_ONLY_GROUP
 import ac.uk.ebi.biostd.persistence.test.extSubmissionWithFileList
 import ebi.ac.uk.extended.mapping.to.toSimpleSubmission
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FileMode
-import ebi.ac.uk.io.ALL_CAN_READ
+import ebi.ac.uk.extended.model.FileMode.COPY
+import ebi.ac.uk.extended.model.FileMode.MOVE
 import ebi.ac.uk.io.FileUtils
-import ebi.ac.uk.io.READ_ONLY_GROUP
 import ebi.ac.uk.io.ext.createNewFile
 import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.paths.SubmissionFolderResolver
@@ -36,7 +38,6 @@ class FilesServiceTest(
     private val temporaryFolder: TemporaryFolder,
     @MockK private val mockSerializationService: SerializationService
 ) {
-
     private lateinit var extSubmission: ExtSubmission
 
     private val testInstance =
@@ -70,20 +71,12 @@ class FilesServiceTest(
     inner class WhenMove {
         @Test
         fun whenReleased() {
-            testPersistSubmissionFiles(
-                extSubmission.copy(released = true),
-                FileMode.MOVE,
-                ALL_CAN_READ
-            )
+            testPersistSubmissionFiles(extSubmission.copy(released = true), MOVE, ALL_CAN_READ)
         }
 
         @Test
         fun whenNotReleased() {
-            testPersistSubmissionFiles(
-                extSubmission.copy(released = false),
-                FileMode.MOVE,
-                READ_ONLY_GROUP
-            )
+            testPersistSubmissionFiles(extSubmission.copy(released = false), MOVE, READ_ONLY_GROUP)
         }
     }
 
@@ -91,53 +84,47 @@ class FilesServiceTest(
     inner class WhenCopy {
         @Test
         fun whenReleased() {
-            testPersistSubmissionFiles(
-                extSubmission.copy(released = true),
-                FileMode.COPY,
-                ALL_CAN_READ
-            )
+            testPersistSubmissionFiles(extSubmission.copy(released = true), COPY, ALL_CAN_READ)
         }
 
         @Test
         fun whenNotReleased() {
-            testPersistSubmissionFiles(
-                extSubmission.copy(released = false),
-                FileMode.COPY,
-                READ_ONLY_GROUP
-            )
+            testPersistSubmissionFiles(extSubmission.copy(released = false), COPY, READ_ONLY_GROUP)
         }
     }
 
     private fun testPersistSubmissionFiles(
         extSubmission: ExtSubmission,
         mode: FileMode,
-        expectedPermissions: Set<PosixFilePermission>
+        expectedPermissions: SubmissionFilesPermissions
     ) {
         testInstance.persistSubmissionFiles(extSubmission, mode)
 
         val relPath = extSubmission.relPath
+        val expectedFilePermissions = expectedPermissions.asFilePermissions()
+        val expectedFolderPermissions = expectedPermissions.asFolderPermissions()
 
         val submissionFolder = getPath("submission/$relPath")
-        assertFile(submissionFolder, expectedPermissions)
-        assertFile(submissionFolder.parent, ALL_CAN_READ)
+        assertFile(submissionFolder, expectedFolderPermissions)
+        assertFile(submissionFolder.parent, ALL_CAN_READ.asFolderPermissions())
 
-        assertFile(getPath("submission/$relPath/Files"), expectedPermissions)
-        assertFile(getPath("submission/$relPath/Files/file.txt"), expectedPermissions)
-        assertFile(getPath("submission/$relPath/Files/file2.txt"), expectedPermissions)
+        assertFile(getPath("submission/$relPath/Files"), expectedFolderPermissions)
+        assertFile(getPath("submission/$relPath/Files/file.txt"), expectedFilePermissions)
+        assertFile(getPath("submission/$relPath/Files/file2.txt"), expectedFilePermissions)
 
         val directoryPath = getPath("submission/$relPath/Files/fileDirectory")
         val directory = directoryPath.toFile()
         assertThat(FileUtils.listFiles(directory).first()).hasContent("folder-file-content")
         assertThat(FileUtils.listFiles(directory).first()).hasName("file3.txt")
-        assertThat(Files.getPosixFilePermissions(directoryPath)).isEqualTo(expectedPermissions)
+        assertThat(Files.getPosixFilePermissions(directoryPath)).isEqualTo(expectedFolderPermissions)
 
-        assertFile(getPath("submission/$relPath/ABC-123.xml"), expectedPermissions)
-        assertFile(getPath("submission/$relPath/ABC-123.json"), expectedPermissions)
-        assertFile(getPath("submission/$relPath/ABC-123.pagetab.tsv"), expectedPermissions)
+        assertFile(getPath("submission/$relPath/ABC-123.xml"), expectedFilePermissions)
+        assertFile(getPath("submission/$relPath/ABC-123.json"), expectedFilePermissions)
+        assertFile(getPath("submission/$relPath/ABC-123.pagetab.tsv"), expectedFilePermissions)
 
-        assertFile(getPath("submission/$relPath/fileList.xml"), expectedPermissions)
-        assertFile(getPath("submission/$relPath/fileList.json"), expectedPermissions)
-        assertFile(getPath("submission/$relPath/fileList.pagetab.tsv"), expectedPermissions)
+        assertFile(getPath("submission/$relPath/fileList.xml"), expectedFilePermissions)
+        assertFile(getPath("submission/$relPath/fileList.json"), expectedFilePermissions)
+        assertFile(getPath("submission/$relPath/fileList.pagetab.tsv"), expectedFilePermissions)
     }
 
     private fun getPath(path: String) = Paths.get("${temporaryFolder.root.absolutePath}/$path")

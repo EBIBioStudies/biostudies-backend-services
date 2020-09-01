@@ -12,40 +12,38 @@ import java.io.InputStream
 import java.nio.file.Files
 import java.nio.file.Files.exists
 import java.nio.file.Path
-import java.nio.file.StandardCopyOption
+import java.nio.file.SimpleFileVisitor
+import java.nio.file.StandardCopyOption.REPLACE_EXISTING
 import java.nio.file.attribute.PosixFilePermission
 import java.nio.file.attribute.PosixFilePermissions
 import kotlin.streams.toList
 
-val ONLY_USER: Set<PosixFilePermission> = PosixFilePermissions.fromString("rwx------")
-val READ_ONLY_GROUP: Set<PosixFilePermission> = PosixFilePermissions.fromString("rwxr-x---")
-val ALL_CAN_READ: Set<PosixFilePermission> = PosixFilePermissions.fromString("rwxr-xr-x")
-val GROUP_EXECUTE = PosixFilePermissions.fromString("rwx--x---")
-val ALL_GROUP = PosixFilePermissions.fromString("rwxrwx---")
+val RW_______: Set<PosixFilePermission> = PosixFilePermissions.fromString("rw-------")
+val RWX______: Set<PosixFilePermission> = PosixFilePermissions.fromString("rwx------")
+val RWX__X___: Set<PosixFilePermission> = PosixFilePermissions.fromString("rwx--x---")
+val RW_RW____: Set<PosixFilePermission> = PosixFilePermissions.fromString("rw-rw----")
+val RWXRWX___: Set<PosixFilePermission> = PosixFilePermissions.fromString("rwxrwx---")
+val RWXR_X___: Set<PosixFilePermission> = PosixFilePermissions.fromString("rwxr-x---")
+val RWXR_XR_X: Set<PosixFilePermission> = PosixFilePermissions.fromString("rwxr-xr-x")
 
 @Suppress("TooManyFunctions")
 object FileUtils {
     fun copyOrReplaceFile(
         source: File,
         target: File,
-        permissions: Set<PosixFilePermission>
-    ) {
-        when (isDirectory(source)) {
-            true -> FileUtilsHelper.copyFolder(source.toPath(), target.toPath(), permissions)
-            false -> FileUtilsHelper.copyFile(source.toPath(), target.toPath(), permissions)
-        }
-
-        Files.setPosixFilePermissions(target.toPath(), permissions)
+        filePermissions: Set<PosixFilePermission>,
+        folderPermissions: Set<PosixFilePermission>
+    ) = when (isDirectory(source)) {
+        true -> FileUtilsHelper.copyFolder(source.toPath(), target.toPath(), filePermissions, folderPermissions)
+        false -> FileUtilsHelper.copyFile(source.toPath(), target.toPath(), filePermissions, folderPermissions)
     }
 
     fun copyOrReplaceFile(
         source: InputStream,
         target: File,
-        permissions: Set<PosixFilePermission>
-    ) {
-        FileUtilsHelper.copyFile(source, target.toPath(), permissions)
-        Files.setPosixFilePermissions(target.toPath(), permissions)
-    }
+        filePermissions: Set<PosixFilePermission>,
+        folderPermissions: Set<PosixFilePermission>
+    ) = FileUtilsHelper.copyFile(source, target.toPath(), filePermissions, folderPermissions)
 
     fun getOrCreateFolder(
         folder: Path,
@@ -62,18 +60,12 @@ object FileUtils {
         return file
     }
 
-    fun createEmptyFolder(
-        folder: Path,
-        permissions: Set<PosixFilePermission>
-    ) {
+    fun createEmptyFolder(folder: Path, permissions: Set<PosixFilePermission>) {
         deleteFile(folder.toFile())
         createDirectories(folder, permissions)
     }
 
-    fun createParentFolders(
-        folder: Path,
-        permissions: Set<PosixFilePermission>
-    ) {
+    fun createParentFolders(folder: Path, permissions: Set<PosixFilePermission>) {
         createDirectories(folder.parent, permissions)
     }
 
@@ -87,12 +79,15 @@ object FileUtils {
     fun moveFile(
         source: File,
         target: File,
-        permissions: Set<PosixFilePermission> = ONLY_USER
+        filePermissions: Set<PosixFilePermission>,
+        folderPermissions: Set<PosixFilePermission>
     ) {
         deleteFile(target)
 
-        Files.move(source.toPath(), createParentDirectories(target.toPath(), permissions))
-        Files.setPosixFilePermissions(target.toPath(), permissions)
+        when (isDirectory(source)) {
+            true -> FileUtilsHelper.moveFolder(source.toPath(), target.toPath(), filePermissions, folderPermissions)
+            false -> FileUtilsHelper.moveFile(source.toPath(), target.toPath(), filePermissions, folderPermissions)
+        }
     }
 
     fun createHardLink(
@@ -106,29 +101,28 @@ object FileUtils {
         }
     }
 
-    fun createSymbolicLink(path: Path, symLinkPath: Path, permissions: Set<PosixFilePermission> = ONLY_USER) {
+    fun createSymbolicLink(path: Path, symLinkPath: Path, permissions: Set<PosixFilePermission> = RWX______) {
         createSymLink(path, symLinkPath, permissions)
     }
 
     fun writeContent(
         source: File,
         content: String,
-        permissions: Set<PosixFilePermission> = ONLY_USER
+        filePermissions: Set<PosixFilePermission> = RW_______,
+        folderPermissions: Set<PosixFilePermission> = RWX______
     ) {
         val filePath = source.toPath()
-        Files.write(createParentDirectories(source.toPath(), permissions), content.toByteArray())
-        Files.setPosixFilePermissions(filePath, permissions)
+        Files.write(createParentDirectories(source.toPath(), folderPermissions), content.toByteArray())
+        Files.setPosixFilePermissions(filePath, filePermissions)
     }
 
     fun isDirectory(file: File): Boolean = Files.isDirectory(file.toPath())
 
     fun size(file: File): Long = Files.size(file.toPath())
 
-    fun listFiles(file: File): List<File> {
-        return when (isDirectory(file)) {
-            true -> Files.list(file.toPath()).map { it.toFile() }.toList()
-            else -> emptyList()
-        }
+    fun listFiles(file: File): List<File> = when (isDirectory(file)) {
+        true -> Files.list(file.toPath()).map { it.toFile() }.toList()
+        else -> emptyList()
     }
 }
 
@@ -152,17 +146,60 @@ internal object FileUtilsHelper {
         Files.createSymbolicLink(createParentDirectories(link, permissions), target)
     }
 
-    fun copyFolder(source: Path, target: Path, permissions: Set<PosixFilePermission>) {
+    fun copyFolder(
+        source: Path,
+        target: Path,
+        filePermissions: Set<PosixFilePermission>,
+        folderPermissions: Set<PosixFilePermission>
+    ) = applyFileVisitor(source, target, CopyFileVisitor(source, target, filePermissions, folderPermissions))
+
+    fun moveFolder(
+        source: Path,
+        target: Path,
+        filePermissions: Set<PosixFilePermission>,
+        folderPermissions: Set<PosixFilePermission>
+    ) {
+        applyFileVisitor(source, target, MoveFileVisitor(source, target, filePermissions, folderPermissions))
+        deleteFolder(source)
+    }
+
+    private fun applyFileVisitor(
+        source: Path,
+        target: Path,
+        fileVisitor: SimpleFileVisitor<Path>
+    ) {
         deleteFolder(target)
-        Files.walkFileTree(source, CopyFileVisitor(source, target, permissions))
+        Files.walkFileTree(source, fileVisitor)
     }
 
-    fun copyFile(source: Path, target: Path, permissions: Set<PosixFilePermission>) {
-        Files.copy(source, createParentDirectories(target, permissions), StandardCopyOption.REPLACE_EXISTING)
+    fun copyFile(
+        source: Path,
+        target: Path,
+        filePermissions: Set<PosixFilePermission>,
+        folderPermissions: Set<PosixFilePermission>
+    ) {
+        Files.copy(source, createParentDirectories(target, folderPermissions), REPLACE_EXISTING)
+        Files.setPosixFilePermissions(target, filePermissions)
     }
 
-    fun copyFile(source: InputStream, target: Path, permissions: Set<PosixFilePermission>) {
-        Files.copy(source, createParentDirectories(target, permissions), StandardCopyOption.REPLACE_EXISTING)
+    fun copyFile(
+        source: InputStream,
+        target: Path,
+        filePermissions: Set<PosixFilePermission>,
+        folderPermissions: Set<PosixFilePermission>
+    ) {
+        Files.copy(source, createParentDirectories(target, folderPermissions), REPLACE_EXISTING)
+        Files.setPosixFilePermissions(target, filePermissions)
+    }
+
+    fun moveFile(
+        source: Path,
+        target: Path,
+        filePermissions: Set<PosixFilePermission>,
+        folderPermissions: Set<PosixFilePermission>
+    ) {
+        Files.move(source, createParentDirectories(target, folderPermissions), REPLACE_EXISTING)
+        Files.setPosixFilePermissions(target, filePermissions)
     }
 
     fun createParentDirectories(path: Path, permissions: Set<PosixFilePermission>): Path {
@@ -172,10 +209,12 @@ internal object FileUtilsHelper {
 
     fun createDirectories(directoryPath: Path, permissions: Set<PosixFilePermission>): Path {
         var parent = directoryPath.root
+
         for (path in parent.relativize(directoryPath)) {
             parent = parent.resolve(path)
             if (parent.notExist()) createDirectory(parent, permissions)
         }
+
         return directoryPath
     }
 
