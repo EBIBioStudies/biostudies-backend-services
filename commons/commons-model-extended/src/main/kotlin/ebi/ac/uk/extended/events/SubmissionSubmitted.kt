@@ -7,9 +7,6 @@ class SubmissionSubmitted(
     @JsonProperty("accNo")
     val accNo: String,
 
-    @JsonProperty("uiUrl")
-    val uiUrl: String,
-
     @JsonProperty("pagetabUrl")
     val pagetabUrl: String,
 
