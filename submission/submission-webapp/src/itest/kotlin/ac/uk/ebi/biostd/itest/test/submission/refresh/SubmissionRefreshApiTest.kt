@@ -14,12 +14,13 @@ import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.SubmissionDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.TagDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.data.SubmissionRepository
-import ac.uk.ebi.biostd.persistence.service.SubmissionPersistenceService
+import arrow.core.Either
 import ebi.ac.uk.dsl.attribute
 import ebi.ac.uk.dsl.file
 import ebi.ac.uk.dsl.section
 import ebi.ac.uk.dsl.submission
 import ebi.ac.uk.extended.model.ExtFile
+import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.model.constants.SubFields.PUBLIC_ACCESS_TAG
 import ebi.ac.uk.model.extensions.releaseDate
@@ -62,7 +63,6 @@ internal class SubmissionRefreshApiTest(private val tempFolder: TemporaryFolder)
     inner class SubmissionRefreshApiTest(
         @Autowired val securityTestService: SecurityTestService,
         @Autowired val submissionRepository: SubmissionRepository,
-        @Autowired val submissionPersistenceService: SubmissionPersistenceService,
         @Autowired val submissionDataRepository: SubmissionDataRepository,
         @Autowired val sequenceRepository: SequenceDataRepository,
         @Autowired val tagsRefRepository: TagDataRepository
@@ -140,15 +140,18 @@ internal class SubmissionRefreshApiTest(private val tempFolder: TemporaryFolder)
             assertThat(extSubmission.section.type).isEqualTo("Study")
             assertThat(extSubmission.section.files).hasSize(2)
 
-            extSubmission.section.files.first().ifLeft { assertFile(it, "regular") }
-            extSubmission.section.files.last().ifLeft { assertFile(it, "duplicated") }
+            assertFile(extSubmission.section.files.first(), "regular")
+            assertFile(extSubmission.section.files.last(), "duplicated")
         }
 
-        private fun assertFile(file: ExtFile, type: String) {
-            assertThat(file.fileName).isEqualTo("refresh-file.txt")
-            assertThat(file.attributes).hasSize(1)
-            assertThat(file.attributes.first().name).isEqualTo("type")
-            assertThat(file.attributes.first().value).isEqualTo(type)
+        private fun assertFile(file: Either<ExtFile, ExtFileTable>, type: String) {
+            assertThat(file.isLeft()).isTrue()
+            file.ifLeft {
+                assertThat(it.fileName).isEqualTo("refresh-file.txt")
+                assertThat(it.attributes).hasSize(1)
+                assertThat(it.attributes.first().name).isEqualTo("type")
+                assertThat(it.attributes.first().value).isEqualTo(type)
+            }
         }
 
         private fun updateSubmission(submission: DbSubmission) {
