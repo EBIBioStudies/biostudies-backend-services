@@ -12,7 +12,6 @@ import java.io.InputStream
 import java.nio.file.Files
 import java.nio.file.Files.exists
 import java.nio.file.Path
-import java.nio.file.SimpleFileVisitor
 import java.nio.file.StandardCopyOption.REPLACE_EXISTING
 import java.nio.file.attribute.PosixFilePermission
 import java.nio.file.attribute.PosixFilePermissions
@@ -24,6 +23,8 @@ val RWX__X___: Set<PosixFilePermission> = PosixFilePermissions.fromString("rwx--
 val RW_RW____: Set<PosixFilePermission> = PosixFilePermissions.fromString("rw-rw----")
 val RWXRWX___: Set<PosixFilePermission> = PosixFilePermissions.fromString("rwxrwx---")
 val RWXR_X___: Set<PosixFilePermission> = PosixFilePermissions.fromString("rwxr-x---")
+val RW_R_____: Set<PosixFilePermission> = PosixFilePermissions.fromString("rw-r-----")
+val RW_R__R__: Set<PosixFilePermission> = PosixFilePermissions.fromString("rw-r--r--")
 val RWXR_XR_X: Set<PosixFilePermission> = PosixFilePermissions.fromString("rwxr-xr-x")
 
 @Suppress("TooManyFunctions")
@@ -151,7 +152,10 @@ internal object FileUtilsHelper {
         target: Path,
         filePermissions: Set<PosixFilePermission>,
         folderPermissions: Set<PosixFilePermission>
-    ) = applyFileVisitor(source, target, CopyFileVisitor(source, target, filePermissions, folderPermissions))
+    ) {
+        deleteFolder(target)
+        Files.walkFileTree(source, CopyFileVisitor(source, target, filePermissions, folderPermissions))
+    }
 
     fun moveFolder(
         source: Path,
@@ -159,17 +163,9 @@ internal object FileUtilsHelper {
         filePermissions: Set<PosixFilePermission>,
         folderPermissions: Set<PosixFilePermission>
     ) {
-        applyFileVisitor(source, target, MoveFileVisitor(source, target, filePermissions, folderPermissions))
-        deleteFolder(source)
-    }
-
-    private fun applyFileVisitor(
-        source: Path,
-        target: Path,
-        fileVisitor: SimpleFileVisitor<Path>
-    ) {
         deleteFolder(target)
-        Files.walkFileTree(source, fileVisitor)
+        Files.walkFileTree(source, MoveFileVisitor(source, target, filePermissions, folderPermissions))
+        deleteFolder(source)
     }
 
     fun copyFile(

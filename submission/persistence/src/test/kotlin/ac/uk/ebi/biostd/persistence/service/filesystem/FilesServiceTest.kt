@@ -4,8 +4,6 @@ import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.JSON_PRETTY
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.TSV
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.XML
-import ac.uk.ebi.biostd.persistence.service.filesystem.SubmissionFilesPermissions.ALL_CAN_READ
-import ac.uk.ebi.biostd.persistence.service.filesystem.SubmissionFilesPermissions.READ_ONLY_GROUP
 import ac.uk.ebi.biostd.persistence.test.extSubmissionWithFileList
 import ebi.ac.uk.extended.mapping.to.toSimpleSubmission
 import ebi.ac.uk.extended.model.ExtSubmission
@@ -13,6 +11,10 @@ import ebi.ac.uk.extended.model.FileMode
 import ebi.ac.uk.extended.model.FileMode.COPY
 import ebi.ac.uk.extended.model.FileMode.MOVE
 import ebi.ac.uk.io.FileUtils
+import ebi.ac.uk.io.RWXR_XR_X
+import ebi.ac.uk.io.RWXR_X___
+import ebi.ac.uk.io.RW_R__R__
+import ebi.ac.uk.io.RW_R_____
 import ebi.ac.uk.io.ext.createNewFile
 import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.paths.SubmissionFolderResolver
@@ -71,12 +73,12 @@ class FilesServiceTest(
     inner class WhenMove {
         @Test
         fun whenReleased() {
-            testPersistSubmissionFiles(extSubmission.copy(released = true), MOVE, ALL_CAN_READ)
+            testPersistSubmissionFiles(extSubmission.copy(released = true), MOVE, RW_R__R__, RWXR_XR_X)
         }
 
         @Test
         fun whenNotReleased() {
-            testPersistSubmissionFiles(extSubmission.copy(released = false), MOVE, READ_ONLY_GROUP)
+            testPersistSubmissionFiles(extSubmission.copy(released = false), MOVE, RW_R_____, RWXR_X___)
         }
     }
 
@@ -84,29 +86,28 @@ class FilesServiceTest(
     inner class WhenCopy {
         @Test
         fun whenReleased() {
-            testPersistSubmissionFiles(extSubmission.copy(released = true), COPY, ALL_CAN_READ)
+            testPersistSubmissionFiles(extSubmission.copy(released = true), COPY, RW_R__R__, RWXR_XR_X)
         }
 
         @Test
         fun whenNotReleased() {
-            testPersistSubmissionFiles(extSubmission.copy(released = false), COPY, READ_ONLY_GROUP)
+            testPersistSubmissionFiles(extSubmission.copy(released = false), COPY, RW_R_____, RWXR_X___)
         }
     }
 
     private fun testPersistSubmissionFiles(
         extSubmission: ExtSubmission,
         mode: FileMode,
-        expectedPermissions: SubmissionFilesPermissions
+        expectedFilePermissions: Set<PosixFilePermission>,
+        expectedFolderPermissions: Set<PosixFilePermission>
     ) {
         testInstance.persistSubmissionFiles(extSubmission, mode)
 
         val relPath = extSubmission.relPath
-        val expectedFilePermissions = expectedPermissions.asFilePermissions()
-        val expectedFolderPermissions = expectedPermissions.asFolderPermissions()
 
         val submissionFolder = getPath("submission/$relPath")
         assertFile(submissionFolder, expectedFolderPermissions)
-        assertFile(submissionFolder.parent, ALL_CAN_READ.asFolderPermissions())
+        assertFile(submissionFolder.parent, RWXR_XR_X)
 
         assertFile(getPath("submission/$relPath/Files"), expectedFolderPermissions)
         assertFile(getPath("submission/$relPath/Files/file.txt"), expectedFilePermissions)
