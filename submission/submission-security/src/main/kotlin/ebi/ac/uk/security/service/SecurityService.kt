@@ -13,9 +13,9 @@ import ebi.ac.uk.api.security.RetryActivationRequest
 import ebi.ac.uk.extended.events.SecurityNotification
 import ebi.ac.uk.extended.events.SecurityNotificationType.ACTIVATION
 import ebi.ac.uk.extended.events.SecurityNotificationType.PASSWORD_RESET
-import ebi.ac.uk.io.ALL_GROUP
+import ebi.ac.uk.io.RWXRWX___
 import ebi.ac.uk.io.FileUtils
-import ebi.ac.uk.io.GROUP_EXECUTE
+import ebi.ac.uk.io.RWX__X___
 import ebi.ac.uk.security.integration.SecurityProperties
 import ebi.ac.uk.security.integration.components.ISecurityService
 import ebi.ac.uk.security.integration.exception.LoginException
@@ -165,9 +165,9 @@ class SecurityService(
         val dbUser = userRepository.save(asUser(request).activated())
         val securityUser = profileService.asSecurityUser(dbUser)
 
-        FileUtils.getOrCreateFolder(securityUser.magicFolder.path.parent, GROUP_EXECUTE)
-        FileUtils.getOrCreateFolder(securityUser.magicFolder.path, ALL_GROUP)
-        FileUtils.createSymbolicLink(symLinkPath(securityUser.email), securityUser.magicFolder.path, ALL_GROUP)
+        FileUtils.getOrCreateFolder(securityUser.magicFolder.path.parent, RWX__X___)
+        FileUtils.getOrCreateFolder(securityUser.magicFolder.path, RWXRWX___)
+        FileUtils.createSymbolicLink(symLinkPath(securityUser.email), securityUser.magicFolder.path, RWXRWX___)
 
         return securityUser
     }

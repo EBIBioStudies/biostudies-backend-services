@@ -7,8 +7,8 @@ import ebi.ac.uk.api.security.LoginRequest
 import ebi.ac.uk.extended.events.SecurityNotification
 import ebi.ac.uk.extended.events.SecurityNotificationType.ACTIVATION
 import ebi.ac.uk.extended.events.SecurityNotificationType.PASSWORD_RESET
-import ebi.ac.uk.io.ALL_GROUP
-import ebi.ac.uk.io.GROUP_EXECUTE
+import ebi.ac.uk.io.RWXRWX___
+import ebi.ac.uk.io.RWX__X___
 import ebi.ac.uk.security.integration.SecurityProperties
 import ebi.ac.uk.security.integration.exception.LoginException
 import ebi.ac.uk.security.integration.exception.UserAlreadyRegister
@@ -134,8 +134,8 @@ internal class SecurityServiceTest(
             assertThat(dbUser.login).isNull()
 
             val userFolder = securityUser.magicFolder.path
-            assertFile(userFolder.parent, GROUP_EXECUTE)
-            assertFile(userFolder, ALL_GROUP)
+            assertFile(userFolder.parent, RWX__X___)
+            assertFile(userFolder, RWXRWX___)
             assertSymbolicLink(magicFolderRoot.resolve("b/$email").toPath(), userFolder)
         }
 
