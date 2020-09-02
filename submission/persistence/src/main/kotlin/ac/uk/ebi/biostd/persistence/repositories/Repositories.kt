@@ -9,7 +9,6 @@ import ac.uk.ebi.biostd.persistence.model.DbTag
 import ac.uk.ebi.biostd.persistence.model.DbUser
 import ac.uk.ebi.biostd.persistence.model.DbUserData
 import ac.uk.ebi.biostd.persistence.model.SECTION_SIMPLE_GRAPH
-import ac.uk.ebi.biostd.persistence.model.SUBMISSION_AND_ROOT_SECTION_FULL_GRAPH
 import ac.uk.ebi.biostd.persistence.model.SUBMISSION_FULL_GRAPH
 import ac.uk.ebi.biostd.persistence.model.SecurityToken
 import ac.uk.ebi.biostd.persistence.model.Sequence
@@ -34,7 +33,6 @@ import com.cosium.spring.data.jpa.entity.graph.domain.EntityGraph as GraphSpecif
 @Suppress("TooManyFunctions")
 interface SubmissionDataRepository :
     EntityGraphJpaRepository<DbSubmission, Long>, EntityGraphJpaSpecificationExecutor<DbSubmission> {
-
     fun findByAccNoAndVersionGreaterThan(id: String, version: Int = 0): DbSubmission?
 
     @Query("select s from DbSubmission s inner join s.owner where s.accNo = :accNo and s.version > 0")
@@ -55,10 +53,6 @@ interface SubmissionDataRepository :
 
     @EntityGraph(value = SUBMISSION_FULL_GRAPH, type = LOAD)
     fun getByAccNoAndVersion(accNo: String, version: Int): DbSubmission?
-
-    @EntityGraph(value = SUBMISSION_AND_ROOT_SECTION_FULL_GRAPH, type = LOAD)
-    @Deprecated("should use SubmissionRepository#getExtByAccNo")
-    fun readByAccNoAndVersionGreaterThan(accNo: String, version: Int = 0): DbSubmission?
 
     @Query("Select max(s.version) from DbSubmission s where s.accNo=?1")
     fun getLastVersion(accNo: String): Int?

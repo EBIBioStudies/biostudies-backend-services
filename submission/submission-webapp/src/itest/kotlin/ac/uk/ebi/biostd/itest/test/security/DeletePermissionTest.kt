@@ -73,7 +73,7 @@ internal class DeletePermissionTest(private val tempFolder: TemporaryFolder) : B
             assertThat(superUserWebClient.submitSingle(submission, SubmissionFormat.TSV)).isSuccessful()
             superUserWebClient.deleteSubmission("SimpleAcc1")
 
-            val deletedSubmission = submissionRepository.getExtByAccAndVersion("SimpleAcc1", -1)
+            val deletedSubmission = submissionRepository.getExtByAccNoAndVersion("SimpleAcc1", -1)
             assertThat(deletedSubmission.version).isEqualTo(-1)
         }
 
@@ -106,7 +106,7 @@ internal class DeletePermissionTest(private val tempFolder: TemporaryFolder) : B
 
             regularUserWebClient.deleteSubmission("SimpleAcc3")
 
-            val deletedSubmission = submissionRepository.getExtByAccAndVersion("SimpleAcc3", -1)
+            val deletedSubmission = submissionRepository.getExtByAccNoAndVersion("SimpleAcc3", -1)
             assertThat(deletedSubmission.version).isEqualTo(-1)
         }
 
