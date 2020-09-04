@@ -69,7 +69,8 @@ class PersistenceConfig(
     ) = ToDbSubmissionMapper(tagsRepo, tagsRefRepo, userRepo)
 
     @Bean
-    fun toExtSubmissionMapper() = ToExtSubmissionMapper(Paths.get(applicationProperties.submissionPath))
+    fun toExtSubmissionMapper() =
+        ToExtSubmissionMapper(Paths.get(applicationProperties.submissionPath))
 
     @Bean
     fun submissionRepository(toExtSubmissionMapper: ToExtSubmissionMapper) =
@@ -124,7 +125,6 @@ class PersistenceConfig(
         subDataRepository,
         userDataRepository,
         systemService,
-        toExtMapper,
         toDbSubmissionMapper
     )
 

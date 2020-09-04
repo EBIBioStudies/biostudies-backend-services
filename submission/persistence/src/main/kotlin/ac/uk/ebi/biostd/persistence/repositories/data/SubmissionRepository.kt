@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.persistence.repositories.data
 import ac.uk.ebi.biostd.persistence.exception.SubmissionNotFoundException
 import ac.uk.ebi.biostd.persistence.filter.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.filter.SubmissionFilterSpecification
+import ac.uk.ebi.biostd.persistence.mapping.extended.to.DbToExtRequest
 import ac.uk.ebi.biostd.persistence.mapping.extended.to.ToExtSubmissionMapper
 import ac.uk.ebi.biostd.persistence.model.DbSubmission
 import ac.uk.ebi.biostd.persistence.projections.SimpleSubmission
@@ -12,6 +13,7 @@ import ac.uk.ebi.biostd.persistence.repositories.SubmissionDataRepository
 import com.cosium.spring.data.jpa.entity.graph.domain.EntityGraphs
 import ebi.ac.uk.extended.mapping.to.toSimpleSubmission
 import ebi.ac.uk.model.Submission
+import ebi.ac.uk.model.constants.SubFields.PUBLIC_ACCESS_TAG
 import mu.KotlinLogging
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
@@ -33,11 +35,11 @@ open class SubmissionRepository(
     open fun getSimpleByAccNo(accNo: String): Submission = getExtByAccNo(accNo).toSimpleSubmission()
 
     @Transactional(readOnly = true)
-    open fun getExtByAccNo(accNo: String) = submissionMapper.toExtSubmission(lodSubmission(accNo))
+    open fun getExtByAccNo(accNo: String) = submissionMapper.toExtSubmission(dbToExtRequest(accNo))
 
     @Transactional(readOnly = true)
     open fun getExtByAccAndVersion(accNo: String, version: Int) =
-        submissionMapper.toExtSubmission(lodSubmission(accNo, version))
+        submissionMapper.toExtSubmission(dbToExtRequest(accNo, version))
 
     open fun expireSubmission(accNo: String) {
         val submission = submissionRepository.findByAccNoAndVersionGreaterThan(accNo)
@@ -54,6 +56,13 @@ open class SubmissionRepository(
             .findAll(filterSpecs.specification, pageable, EntityGraphs.named(SimpleSubmission.SIMPLE_GRAPH))
             .content
             .map { it.asSimpleSubmission() }
+    }
+
+    private fun dbToExtRequest(accNo: String, version: Int? = null): DbToExtRequest {
+        val submission = lodSubmission(accNo, version)
+        return DbToExtRequest(
+            submission,
+            submission.accessTags.filter { it.name != PUBLIC_ACCESS_TAG.value }.map { lodSubmission(it.name) })
     }
 
     /**

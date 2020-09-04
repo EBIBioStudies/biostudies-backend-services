@@ -19,7 +19,12 @@ private const val FILES_DIR = "Files"
 private const val USER_PREFIX = "u"
 
 class ToExtSubmissionMapper(private val submissionsPath: Path) {
-    internal fun toExtSubmission(dbSubmission: DbSubmission): ExtSubmission {
+    internal fun toExtSubmission(dbToExtRequest: DbToExtRequest): ExtSubmission {
+        val (dbSubmission, projects) = dbToExtRequest
+        return toExtSubmission(dbSubmission, projects)
+    }
+
+    private fun toExtSubmission(dbSubmission: DbSubmission, projects: List<DbSubmission> = emptyList()): ExtSubmission {
         return ExtSubmission(
             accNo = dbSubmission.accNo,
             owner = dbSubmission.owner.email,
@@ -38,6 +43,7 @@ class ToExtSubmissionMapper(private val submissionsPath: Path) {
             attributes = dbSubmission.attributes.map { it.toExtAttribute() },
             accessTags = dbSubmission.accessTags.map { ExtAccessTag(it.name) },
             tags = dbSubmission.tags.map { ExtTag(it.classifier, it.name) },
+            projects = projects.map { toExtSubmission(it) },
             section = dbSubmission.rootSection.toExtSection(getSubmissionSource(dbSubmission))
         )
     }

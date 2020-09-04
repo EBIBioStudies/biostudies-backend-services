@@ -1,7 +1,6 @@
 package ac.uk.ebi.biostd.persistence.service
 
 import ac.uk.ebi.biostd.persistence.mapping.extended.from.ToDbSubmissionMapper
-import ac.uk.ebi.biostd.persistence.mapping.extended.to.ToExtSubmissionMapper
 import ac.uk.ebi.biostd.persistence.model.DbSubmission
 import ac.uk.ebi.biostd.persistence.repositories.SubmissionDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataDataRepository
@@ -20,7 +19,6 @@ open class SubmissionPersistenceService(
     private val subDataRepository: SubmissionDataRepository,
     private val userDataRepository: UserDataDataRepository,
     private val systemService: FileSystemService,
-    private val toExtSubmissionMapper: ToExtSubmissionMapper,
     private val toDbMapper: ToDbSubmissionMapper
 ) {
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = false)
@@ -36,12 +34,12 @@ open class SubmissionPersistenceService(
     open fun processSubmission(submission: ExtSubmission, mode: FileMode): ExtSubmission {
         subDataRepository.updateStatus(PROCESSING, submission.accNo, submission.version)
         systemService.persistSubmissionFiles(submission, mode)
-
-        val dbSubmission = subRepository.getDbSubmission(submission.accNo, submission.version)
-        return toExtSubmissionMapper.toExtSubmission(processDbSubmission(dbSubmission))
+        processDbSubmission(submission.accNo, submission.version)
+        return subRepository.getExtByAccAndVersion(submission.accNo, submission.version)
     }
 
-    private fun processDbSubmission(submission: DbSubmission): DbSubmission {
+    private fun processDbSubmission(accNo: String, version: Int): DbSubmission {
+        val submission = subRepository.getDbSubmission(accNo, version)
         subDataRepository.expireActiveVersions(submission.accNo)
         deleteSubmissionDrafts(submission.submitter.id, submission.accNo)
         deleteSubmissionDrafts(submission.owner.id, submission.accNo)
