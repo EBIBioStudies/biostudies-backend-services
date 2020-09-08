@@ -3,12 +3,14 @@ package ac.uk.ebi.biostd.itest.test.submission.submit
 import ac.uk.ebi.biostd.client.exception.WebClientException
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
+import ac.uk.ebi.biostd.data.service.UserDataService
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.dsl.line
 import ebi.ac.uk.dsl.tsv
+import ebi.ac.uk.security.integration.model.api.SecurityUser
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
@@ -32,14 +34,20 @@ internal class SubmissionDraftApiTest(tempFolder: TemporaryFolder) : BaseIntegra
     @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
     @Transactional
     @DirtiesContext
-    inner class SubmissionDraftTest(@Autowired val securityTestService: SecurityTestService) {
+    inner class SubmissionDraftTest(
+        @Autowired val securityTestService: SecurityTestService,
+        @Autowired val dataService: UserDataService
+    ) {
         @LocalServerPort
         private var serverPort: Int = 0
 
+        private lateinit var securityUser: SecurityUser
+
         private lateinit var webClient: BioWebClient
+
         @BeforeAll
         fun init() {
-            securityTestService.registerUser(SuperUser)
+            securityUser = securityTestService.registerUser(SuperUser)
             webClient = getWebClient(serverPort, SuperUser)
         }
 
@@ -94,6 +102,16 @@ internal class SubmissionDraftApiTest(tempFolder: TemporaryFolder) : BaseIntegra
             assertThatExceptionOfType(WebClientException::class.java).isThrownBy {
                 webClient.getSubmissionDraft("ABC-127")
             }
+        }
+
+        @Test
+        fun `delete a draft directly`() {
+            val pageTab = jsonObj { "accno" to "ABC-128"; "type" to "Study" }.toString()
+            webClient.submitSingle(pageTab, SubmissionFormat.JSON)
+
+            webClient.deleteSubmissionDraft("ABC-128")
+
+            assertThat(dataService.getUserData(securityUser.id, "ABC-128")).isNull()
         }
     }
 }
