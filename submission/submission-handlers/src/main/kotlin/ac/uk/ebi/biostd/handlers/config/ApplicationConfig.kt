@@ -24,8 +24,10 @@ class Listeners {
     @Bean
     fun notificationsListener(
         webConsumer: BioStudiesWebConsumer,
+        applicationProperties: ApplicationProperties,
         rtNotificationService: RtNotificationService
-    ): SubmissionNotificationsListener = SubmissionNotificationsListener(webConsumer, rtNotificationService)
+    ): SubmissionNotificationsListener =
+        SubmissionNotificationsListener(webConsumer, rtNotificationService, applicationProperties.notifications)
 
     @Bean
     fun securityNotificationsListener(

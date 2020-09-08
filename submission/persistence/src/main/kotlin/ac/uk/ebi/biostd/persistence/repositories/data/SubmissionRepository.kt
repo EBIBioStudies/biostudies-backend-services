@@ -10,7 +10,7 @@ import ac.uk.ebi.biostd.persistence.projections.SimpleSubmission
 import ac.uk.ebi.biostd.persistence.projections.SimpleSubmission.Companion.asSimpleSubmission
 import ac.uk.ebi.biostd.persistence.repositories.SectionDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.SubmissionDataRepository
-import ac.uk.ebi.biostd.persistence.repositories.SubmissionStatsRepository
+import ac.uk.ebi.biostd.persistence.repositories.SubmissionStatsDataRepository
 import com.cosium.spring.data.jpa.entity.graph.domain.EntityGraphs
 import ebi.ac.uk.extended.mapping.to.toSimpleSubmission
 import ebi.ac.uk.model.Submission
@@ -25,10 +25,9 @@ private val logger = KotlinLogging.logger {}
 open class SubmissionRepository(
     private val submissionRepository: SubmissionDataRepository,
     private val sectionRepository: SectionDataRepository,
-    private val statsRepository: SubmissionStatsRepository,
+    private val statsRepository: SubmissionStatsDataRepository,
     private var submissionMapper: ToExtSubmissionMapper
 ) {
-
     @Transactional(readOnly = true)
     open fun getDbSubmission(accNo: String, version: Int): DbSubmission = lodSubmission(accNo, version)
 
@@ -39,7 +38,7 @@ open class SubmissionRepository(
     open fun getExtByAccNo(accNo: String) = submissionMapper.toExtSubmission(dbToExtRequest(accNo))
 
     @Transactional(readOnly = true)
-    open fun getExtByAccAndVersion(accNo: String, version: Int) =
+    open fun getExtByAccNoAndVersion(accNo: String, version: Int) =
         submissionMapper.toExtSubmission(dbToExtRequest(accNo, version))
 
     open fun expireSubmission(accNo: String) {

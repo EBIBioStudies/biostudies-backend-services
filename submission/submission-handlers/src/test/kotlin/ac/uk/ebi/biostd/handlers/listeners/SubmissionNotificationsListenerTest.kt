@@ -4,6 +4,7 @@ import ac.uk.ebi.biostd.handlers.api.BioStudiesWebConsumer
 import ebi.ac.uk.extended.events.SubmissionSubmitted
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtUser
+import ebi.ac.uk.notifications.integration.NotificationProperties
 import ebi.ac.uk.notifications.service.RtNotificationService
 import io.mockk.clearAllMocks
 import io.mockk.every
@@ -21,14 +22,17 @@ class SubmissionNotificationsListenerTest(
     @MockK private val submission: ExtSubmission,
     @MockK private val message: SubmissionSubmitted,
     @MockK private val webConsumer: BioStudiesWebConsumer,
-    @MockK private val rtNotificationService: RtNotificationService
+    @MockK private val rtNotificationService: RtNotificationService,
+    @MockK private val notificationProperties: NotificationProperties
 ) {
-    private val testInstance = SubmissionNotificationsListener(webConsumer, rtNotificationService)
+    private val testInstance =
+        SubmissionNotificationsListener(webConsumer, rtNotificationService, notificationProperties)
 
     @BeforeEach
     fun beforeEach() {
         mockMessage()
         mockSubmitter()
+        every { notificationProperties.uiUrl } returns "ui-url"
         every { webConsumer.getExtUser("ext-user-url") } returns submitter
         every { webConsumer.getExtSubmission("ext-tab-url") } returns submission
         every { rtNotificationService.notifySuccessfulSubmission(submission, "Dr Owner", "ui-url") } answers { nothing }
@@ -56,7 +60,6 @@ class SubmissionNotificationsListenerTest(
     }
 
     private fun mockMessage() {
-        every { message.uiUrl } returns "ui-url"
         every { message.extTabUrl } returns "ext-tab-url"
         every { message.extUserUrl } returns "ext-user-url"
     }

@@ -7,7 +7,7 @@ import java.nio.file.SimpleFileVisitor
 import java.nio.file.attribute.BasicFileAttributes
 import java.nio.file.attribute.PosixFilePermission
 
-internal class CopyFileVisitor(
+internal class MoveFileVisitor(
     private var sourcePath: Path,
     private val targetPath: Path,
     private val filePermissions: Set<PosixFilePermission>,
@@ -20,7 +20,7 @@ internal class CopyFileVisitor(
 
     override fun visitFile(file: Path, attrs: BasicFileAttributes): FileVisitResult {
         val target = targetPath.resolve(sourcePath.relativize(file))
-        Files.copy(file, target)
+        Files.move(file, target)
         Files.setPosixFilePermissions(target, filePermissions)
 
         return FileVisitResult.CONTINUE

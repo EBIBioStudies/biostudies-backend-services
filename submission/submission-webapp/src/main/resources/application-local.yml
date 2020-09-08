@@ -36,11 +36,3 @@ app:
     magicDirPath: # Absolute path to the folder to be used for the user/groups magic folders links
     environment: LOCAL
     requireActivation: false
-  notifications:
-    smtp: smtp.ebi.ac.uk
-    uiUrl: # The BioStudies UI url. Not required for local environment
-    rt:
-      host: # RT server host. Not required for local environment
-      queue: # Queue used for RT notifications. Not required for local environment
-      user: # RT user. Not required for local environment
-      password: # RT password. Not required for local environment

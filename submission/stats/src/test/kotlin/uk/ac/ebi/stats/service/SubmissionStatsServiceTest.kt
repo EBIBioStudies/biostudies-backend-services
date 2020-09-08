@@ -5,7 +5,7 @@ import ac.uk.ebi.biostd.persistence.filter.PaginationFilter
 import ac.uk.ebi.biostd.persistence.integration.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.model.DbSubmissionStat
 import ac.uk.ebi.biostd.persistence.model.SubmissionStatType.VIEWS
-import ac.uk.ebi.biostd.persistence.repositories.SubmissionStatsRepository
+import ac.uk.ebi.biostd.persistence.repositories.SubmissionStatsDataRepository
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -26,7 +26,7 @@ import uk.ac.ebi.stats.model.SubmissionStat
 @ExtendWith(MockKExtension::class)
 class SubmissionStatsServiceTest(
     @MockK private val queryService: SubmissionQueryService,
-    @MockK private val statsRepository: SubmissionStatsRepository
+    @MockK private val statsRepository: SubmissionStatsDataRepository
 ) {
     private val testStat = DbSubmissionStat("S-TEST123", 10, VIEWS)
     private val testInstance = SubmissionStatsService(queryService, statsRepository)

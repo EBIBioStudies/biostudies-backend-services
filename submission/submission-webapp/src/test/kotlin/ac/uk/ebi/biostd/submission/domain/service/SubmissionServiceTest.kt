@@ -7,7 +7,6 @@ import ac.uk.ebi.biostd.submission.model.SubmissionRequest
 import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
-import ebi.ac.uk.security.integration.model.api.SecurityUser
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
@@ -40,7 +39,6 @@ class SubmissionServiceTest(
 
     @Test
     fun submit(
-        @MockK submitter: SecurityUser,
         @MockK extSubmission: ExtSubmission,
         @MockK submissionRequest: SubmissionRequest
     ) {

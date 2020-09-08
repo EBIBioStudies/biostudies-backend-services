@@ -35,7 +35,7 @@ open class SubmissionPersistenceService(
         subDataRepository.updateStatus(PROCESSING, submission.accNo, submission.version)
         systemService.persistSubmissionFiles(submission, mode)
         processDbSubmission(submission.accNo, submission.version)
-        return subRepository.getExtByAccAndVersion(submission.accNo, submission.version)
+        return subRepository.getExtByAccNoAndVersion(submission.accNo, submission.version)
     }
 
     private fun processDbSubmission(accNo: String, version: Int): DbSubmission {

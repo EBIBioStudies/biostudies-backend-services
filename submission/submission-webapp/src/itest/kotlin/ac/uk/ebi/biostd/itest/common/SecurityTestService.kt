@@ -5,6 +5,7 @@ import ac.uk.ebi.biostd.itest.entities.TestUser
 import ac.uk.ebi.biostd.persistence.model.UserGroup
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ebi.ac.uk.security.integration.components.IGroupService
+import ebi.ac.uk.security.integration.model.api.SecurityUser
 import ebi.ac.uk.security.service.SecurityService
 
 class SecurityTestService(
@@ -13,13 +14,15 @@ class SecurityTestService(
     private val groupService: IGroupService
 ) {
 
-    fun registerUser(testUser: TestUser) {
+    fun registerUser(testUser: TestUser): SecurityUser {
         val user = securityService.registerUser(testUser.asRegisterRequest())
         if (testUser.superUser) {
             val dbUser = userDataRepository.getByEmail(user.email)
             dbUser.superuser = true
             userDataRepository.save(dbUser)
         }
+
+        return user
     }
 
     fun createTestGroup(): UserGroup {
