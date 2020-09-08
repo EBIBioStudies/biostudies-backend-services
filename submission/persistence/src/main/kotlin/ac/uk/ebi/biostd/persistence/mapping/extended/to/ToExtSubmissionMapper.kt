@@ -1,11 +1,11 @@
 package ac.uk.ebi.biostd.persistence.mapping.extended.to
 
 import ac.uk.ebi.biostd.persistence.model.DbSubmission
-import ebi.ac.uk.extended.model.ExtAccessTag
 import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod
 import ebi.ac.uk.extended.model.ExtTag
+import ebi.ac.uk.extended.model.Project
 import ebi.ac.uk.io.sources.ComposedFileSource
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.io.sources.PathFilesSource
@@ -41,9 +41,8 @@ class ToExtSubmissionMapper(private val submissionsPath: Path) {
             modificationTime = dbSubmission.modificationTime,
             creationTime = dbSubmission.creationTime,
             attributes = dbSubmission.attributes.map { it.toExtAttribute() },
-            accessTags = dbSubmission.accessTags.map { ExtAccessTag(it.name) },
+            projects = dbSubmission.accessTags.map { Project(it.name) },
             tags = dbSubmission.tags.map { ExtTag(it.classifier, it.name) },
-            projects = projects.map { toExtSubmission(it) },
             section = dbSubmission.rootSection.toExtSection(getSubmissionSource(dbSubmission))
         )
     }

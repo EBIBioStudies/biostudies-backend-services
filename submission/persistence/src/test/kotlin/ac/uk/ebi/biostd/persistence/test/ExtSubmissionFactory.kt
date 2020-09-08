@@ -29,7 +29,7 @@ fun extSubmissionWithFileList(files: List<File>, referencedFiles: List<File>) =
         creationTime = OffsetDateTime.of(2018, 10, 10, 0, 0, 0, 0, ZoneOffset.UTC),
         attributes = emptyList(),
         tags = emptyList(),
-        accessTags = emptyList(),
+        projects = emptyList(),
         section = extSectionWithFileList(files, referencedFiles))
 
 fun extSectionWithFileList(files: List<File>, referencedFiles: List<File>) =

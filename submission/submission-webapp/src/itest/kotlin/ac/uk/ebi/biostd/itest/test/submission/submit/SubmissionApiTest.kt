@@ -279,8 +279,8 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
             assertThat(savedSubmission.accNo).isEqualTo("S-RLSD123")
             assertThat(savedSubmission.title).isEqualTo("Test Public Submission")
             assertThat(savedSubmission.released).isTrue()
-            assertThat(savedSubmission.accessTags).hasSize(1)
-            assertThat(savedSubmission.accessTags.first().name).isEqualTo("Public")
+            assertThat(savedSubmission.projects).hasSize(1)
+            assertThat(savedSubmission.projects.first().accNo).isEqualTo("Public")
         }
 
         @Test

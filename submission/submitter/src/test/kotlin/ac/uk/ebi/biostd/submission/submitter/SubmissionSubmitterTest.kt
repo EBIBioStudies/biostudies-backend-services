@@ -133,8 +133,8 @@ class SubmissionSubmitterTest {
         assertThat(expected.modificationTime).isEqualTo(testTime)
         assertThat(expected.creationTime).isEqualTo(testTime)
         assertThat(expected.tags).isEmpty()
-        assertThat(expected.accessTags).hasSize(1)
-        assertThat(expected.accessTags.first().name).isEqualTo("BioImages")
+        assertThat(expected.projects).hasSize(1)
+        assertThat(expected.projects.first().accNo).isEqualTo("BioImages")
         assertThat(expected.section.type).isEqualTo("Study")
         assertThat(expected.attributes).isEmpty()
     }

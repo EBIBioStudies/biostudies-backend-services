@@ -28,7 +28,7 @@ private fun ExtSubmission.getSubmissionAttributes(): List<Attribute> {
     title?.let { subAttrs.add(Attribute(SubFields.TITLE, it)) }
     releaseTime?.let { subAttrs.add(Attribute(SubFields.RELEASE_DATE, it.toLocalDate())) }
     rootPath?.let { subAttrs.add(Attribute(SubFields.ROOT_PATH, it)) }
-    accessTags.filter { it.name != PUBLIC_ACCESS_TAG.value }.forEach { subAttrs.add(Attribute(ATTACH_TO, it.name)) }
+    projects.filter { it.accNo != PUBLIC_ACCESS_TAG.value }.forEach { subAttrs.add(Attribute(ATTACH_TO, it.accNo)) }
     return subAttrs.toList()
 }
 

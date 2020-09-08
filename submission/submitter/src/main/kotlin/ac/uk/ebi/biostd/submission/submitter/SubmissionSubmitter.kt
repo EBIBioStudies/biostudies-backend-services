@@ -16,11 +16,11 @@ import ac.uk.ebi.biostd.submission.service.TimesService
 import ebi.ac.uk.base.orFalse
 import ebi.ac.uk.extended.mapping.from.toExtAttribute
 import ebi.ac.uk.extended.mapping.from.toExtSection
-import ebi.ac.uk.extended.model.ExtAccessTag
 import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod
 import ebi.ac.uk.extended.model.ExtTag
+import ebi.ac.uk.extended.model.Project
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.SubmissionMethod
@@ -133,7 +133,7 @@ class SubmissionSubmitter(
             modificationTime = modTime,
             creationTime = createTime,
             tags = submission.tags.map { ExtTag(it.first, it.second) },
-            accessTags = tags.map { ExtAccessTag(it) },
+            projects = tags.map { Project(it) },
             section = submission.section.toExtSection(source),
             attributes = getAttributes(submission)
         )

@@ -5,12 +5,12 @@ import ac.uk.ebi.biostd.persistence.model.DbSubmissionAttribute
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
 import ac.uk.ebi.biostd.persistence.repositories.TagDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
-import ebi.ac.uk.extended.model.ExtAccessTag
 import ebi.ac.uk.extended.model.ExtAttribute
 import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod
 import ebi.ac.uk.extended.model.ExtTag
+import ebi.ac.uk.extended.model.Project
 import ebi.ac.uk.model.SubmissionMethod
 import ebi.ac.uk.model.constants.ProcessingStatus
 
@@ -35,7 +35,7 @@ class ToDbSubmissionMapper(
         releaseTime = submission.releaseTime
         owner = userRepository.getByEmail(submission.owner)
         submitter = userRepository.getByEmail(submission.submitter)
-        accessTags = toAccessTag(submission.accessTags)
+        accessTags = toAccessTag(submission.projects)
         tags = toTags(submission.tags)
         released = submission.released
         attributes = submission.attributes.mapIndexedTo(sortedSetOf(), ::toDbSubmissionAttribute)
@@ -58,8 +58,8 @@ class ToDbSubmissionMapper(
 
     private fun toDbSubmissionAttribute(idx: Int, attr: ExtAttribute) = DbSubmissionAttribute(attr.toDbAttribute(idx))
 
-    private fun toAccessTag(accessTags: List<ExtAccessTag>) =
-        accessTags.mapTo(mutableSetOf()) { tagsRepository.findByName(it.name) }
+    private fun toAccessTag(accessTags: List<Project>) =
+        accessTags.mapTo(mutableSetOf()) { tagsRepository.findByName(it.accNo) }
 
     private fun toTags(tags: List<ExtTag>) =
         tags.mapTo(mutableSetOf()) { tagsRefRepository.findByClassifierAndName(it.name, it.value) }
