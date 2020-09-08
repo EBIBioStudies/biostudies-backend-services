@@ -72,7 +72,7 @@ data class ExtSubmission(
     val attributes: List<ExtAttribute> = listOf(),
     val tags: List<ExtTag> = listOf(),
     val projects: List<Project> = listOf(),
-    val metrics: List<ExtStat> = listOf()
+    val stats: List<ExtStat> = listOf()
 )
 
 data class ExtStat(val name: String, val value: String)

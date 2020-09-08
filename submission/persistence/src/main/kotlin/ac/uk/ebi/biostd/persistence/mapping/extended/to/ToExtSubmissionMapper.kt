@@ -46,7 +46,7 @@ class ToExtSubmissionMapper(private val submissionsPath: Path) {
             attributes = dbSubmission.attributes.map { it.toExtAttribute() },
             projects = dbSubmission.accessTags.map { Project(it.name) },
             tags = dbSubmission.tags.map { ExtTag(it.classifier, it.name) },
-            metrics = stats.map { toExtMetric(it) }
+            stats = stats.map { toExtMetric(it) }
         )
     }
 
