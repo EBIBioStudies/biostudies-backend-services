@@ -68,11 +68,14 @@ data class ExtSubmission(
     val releaseTime: OffsetDateTime?,
     val modificationTime: OffsetDateTime,
     val creationTime: OffsetDateTime,
+    val section: ExtSection,
     val attributes: List<ExtAttribute> = listOf(),
     val tags: List<ExtTag> = listOf(),
     val projects: List<Project> = listOf(),
-    val section: ExtSection
+    val metrics: List<ExtStat> = listOf()
 )
+
+data class ExtStat(val name: String, val value: String)
 
 data class ExtUser(
     val email: String,

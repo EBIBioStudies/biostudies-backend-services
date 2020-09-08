@@ -10,10 +10,10 @@ import ac.uk.ebi.biostd.persistence.projections.SimpleSubmission
 import ac.uk.ebi.biostd.persistence.projections.SimpleSubmission.Companion.asSimpleSubmission
 import ac.uk.ebi.biostd.persistence.repositories.SectionDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.SubmissionDataRepository
+import ac.uk.ebi.biostd.persistence.repositories.SubmissionStatsRepository
 import com.cosium.spring.data.jpa.entity.graph.domain.EntityGraphs
 import ebi.ac.uk.extended.mapping.to.toSimpleSubmission
 import ebi.ac.uk.model.Submission
-import ebi.ac.uk.model.constants.SubFields.PUBLIC_ACCESS_TAG
 import mu.KotlinLogging
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
@@ -25,6 +25,7 @@ private val logger = KotlinLogging.logger {}
 open class SubmissionRepository(
     private val submissionRepository: SubmissionDataRepository,
     private val sectionRepository: SectionDataRepository,
+    private val statsRepository: SubmissionStatsRepository,
     private var submissionMapper: ToExtSubmissionMapper
 ) {
 
@@ -58,12 +59,8 @@ open class SubmissionRepository(
             .map { it.asSimpleSubmission() }
     }
 
-    private fun dbToExtRequest(accNo: String, version: Int? = null): DbToExtRequest {
-        val submission = lodSubmission(accNo, version)
-        return DbToExtRequest(
-            submission,
-            submission.accessTags.filter { it.name != PUBLIC_ACCESS_TAG.value }.map { lodSubmission(it.name) })
-    }
+    private fun dbToExtRequest(accNo: String, version: Int? = null): DbToExtRequest =
+        DbToExtRequest(lodSubmission(accNo, version), statsRepository.findByAccNo(accNo))
 
     /**
      * Load submission information strategy used is basically first load submission and then load each section and its

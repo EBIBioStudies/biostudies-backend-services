@@ -1,7 +1,9 @@
 package ac.uk.ebi.biostd.persistence.mapping.extended.to
 
 import ac.uk.ebi.biostd.persistence.model.DbSubmission
+import ac.uk.ebi.biostd.persistence.model.DbSubmissionStat
 import ebi.ac.uk.extended.model.ExtProcessingStatus
+import ebi.ac.uk.extended.model.ExtStat
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod
 import ebi.ac.uk.extended.model.ExtTag
@@ -20,11 +22,11 @@ private const val USER_PREFIX = "u"
 
 class ToExtSubmissionMapper(private val submissionsPath: Path) {
     internal fun toExtSubmission(dbToExtRequest: DbToExtRequest): ExtSubmission {
-        val (dbSubmission, projects) = dbToExtRequest
-        return toExtSubmission(dbSubmission, projects)
+        val (dbSubmission, stats) = dbToExtRequest
+        return toExtSubmission(dbSubmission, stats)
     }
 
-    private fun toExtSubmission(dbSubmission: DbSubmission, projects: List<DbSubmission> = emptyList()): ExtSubmission {
+    private fun toExtSubmission(dbSubmission: DbSubmission, stats: List<DbSubmissionStat>): ExtSubmission {
         return ExtSubmission(
             accNo = dbSubmission.accNo,
             owner = dbSubmission.owner.email,
@@ -40,12 +42,15 @@ class ToExtSubmissionMapper(private val submissionsPath: Path) {
             releaseTime = dbSubmission.releaseTime,
             modificationTime = dbSubmission.modificationTime,
             creationTime = dbSubmission.creationTime,
+            section = dbSubmission.rootSection.toExtSection(getSubmissionSource(dbSubmission)),
             attributes = dbSubmission.attributes.map { it.toExtAttribute() },
             projects = dbSubmission.accessTags.map { Project(it.name) },
             tags = dbSubmission.tags.map { ExtTag(it.classifier, it.name) },
-            section = dbSubmission.rootSection.toExtSection(getSubmissionSource(dbSubmission))
+            metrics = stats.map { toExtMetric(it) }
         )
     }
+
+    private fun toExtMetric(stat: DbSubmissionStat): ExtStat = ExtStat(stat.type.name, stat.value.toString())
 
     private fun getStatus(status: ProcessingStatus) =
         when (status) {

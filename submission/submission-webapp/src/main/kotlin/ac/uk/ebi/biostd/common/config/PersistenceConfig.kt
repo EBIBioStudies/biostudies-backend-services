@@ -15,6 +15,7 @@ import ac.uk.ebi.biostd.persistence.repositories.LockExecutor
 import ac.uk.ebi.biostd.persistence.repositories.SectionDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.SubmissionDataRepository
+import ac.uk.ebi.biostd.persistence.repositories.SubmissionStatsRepository
 import ac.uk.ebi.biostd.persistence.repositories.TagDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
@@ -34,7 +35,6 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
-import uk.ac.ebi.stats.persistence.repositories.SubmissionStatsRepository
 import java.nio.file.Paths
 
 @Suppress("TooManyFunctions")
@@ -47,11 +47,11 @@ import java.nio.file.Paths
         SubmissionStatsRepository::class])
 @EntityScan(basePackages = [
     "ac.uk.ebi.biostd.persistence.model",
-    "ebi.ac.uk.notifications.persistence.model",
-    "uk.ac.ebi.stats.persistence.model"])
+    "ebi.ac.uk.notifications.persistence.model"])
 class PersistenceConfig(
     private val submissionDataRepository: SubmissionDataRepository,
     private val sectionRepository: SectionDataRepository,
+    private val statsRepository: SubmissionStatsRepository,
     private val accessTagDataRepo: AccessTagDataRepo,
     private val sequenceRepository: SequenceDataRepository,
     private val tagsDataRepository: AccessTagDataRepo,
@@ -74,7 +74,7 @@ class PersistenceConfig(
 
     @Bean
     fun submissionRepository(toExtSubmissionMapper: ToExtSubmissionMapper) =
-        SubmissionRepository(submissionDataRepository, sectionRepository, toExtSubmissionMapper())
+        SubmissionRepository(submissionDataRepository, sectionRepository, statsRepository, toExtSubmissionMapper())
 
     @Bean
     fun projectRepository() = ProjectRepository(submissionDataRepository)

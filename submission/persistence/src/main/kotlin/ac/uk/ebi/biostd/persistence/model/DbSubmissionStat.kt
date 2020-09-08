@@ -1,7 +1,6 @@
-package uk.ac.ebi.stats.persistence.model
+package ac.uk.ebi.biostd.persistence.model
 
-import uk.ac.ebi.stats.model.SubmissionStatType
-import uk.ac.ebi.stats.model.SubmissionStatType.VIEWS
+import ac.uk.ebi.biostd.persistence.model.SubmissionStatType.VIEWS
 import javax.persistence.Column
 import javax.persistence.Entity
 import javax.persistence.EnumType
@@ -12,7 +11,7 @@ import javax.persistence.Table
 
 @Entity
 @Table(name = "SubmissionStat")
-class SubmissionStatDb(
+class DbSubmissionStat(
     @Column
     val accNo: String,
 
