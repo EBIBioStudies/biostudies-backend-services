@@ -9,11 +9,13 @@ import org.springframework.context.annotation.Configuration
 
 const val BIOSTUDIES_EXCHANGE = "biostudies-exchange"
 const val SUBMISSIONS_ROUTING_KEY = "bio.submission.published"
+const val SUBMISSIONS_RELEASE_ROUTING_KEY = "bio.submission.published.notification"
 const val SECURITY_NOTIFICATIONS_ROUTING_KEY = "bio.security.notification"
 
 const val LOG_QUEUE = "submission-submitted-log-queue"
 const val PARTIALS_QUEUE = "submission-submitted-partials-queue"
-const val NOTIFICATIONS_QUEUE = "submission-submitted-notifications-queue"
+const val SUBMIT_NOTIFICATIONS_QUEUE = "submission-submitted-notifications-queue"
+const val RELEASE_NOTIFICATIONS_QUEUE = "submission-released-notifications-queue"
 const val SECURITY_NOTIFICATIONS_QUEUE = "security-notifications-queue"
 
 @Configuration
@@ -25,7 +27,10 @@ class QueuesConfig {
     fun logQueue(): Queue = Queue(LOG_QUEUE, false)
 
     @Bean
-    fun notificationsQueue(): Queue = Queue(NOTIFICATIONS_QUEUE, false)
+    fun notificationsQueue(): Queue = Queue(SUBMIT_NOTIFICATIONS_QUEUE, false)
+
+    @Bean
+    fun releaseNotificationsQueue(): Queue = Queue(RELEASE_NOTIFICATIONS_QUEUE, false)
 
     @Bean
     fun partialUpdatesQueue(): Queue = Queue(PARTIALS_QUEUE, false)
@@ -40,6 +45,10 @@ class QueuesConfig {
     @Bean
     fun notificationsQueueBinding(exchange: TopicExchange): Binding =
         BindingBuilder.bind(notificationsQueue()).to(exchange).with(SUBMISSIONS_ROUTING_KEY)
+
+    @Bean
+    fun releaseNotificationsQueueBinding(exchange: TopicExchange): Binding =
+        BindingBuilder.bind(releaseNotificationsQueue()).to(exchange).with(SUBMISSIONS_RELEASE_ROUTING_KEY)
 
     @Bean
     fun partialUpdatesQueueBinding(exchange: TopicExchange): Binding =

@@ -1,7 +1,7 @@
 package uk.ac.ebi.events.service
 
 import ebi.ac.uk.extended.events.SecurityNotification
-import ebi.ac.uk.extended.events.SubmissionSubmitted
+import ebi.ac.uk.extended.events.SubmissionMessage
 import ebi.ac.uk.extended.model.ExtSubmission
 import io.mockk.clearAllMocks
 import io.mockk.every
@@ -44,7 +44,7 @@ class EventsPublisherServiceTest(
 
     @Test
     fun submissionSubmitted(@MockK submission: ExtSubmission) {
-        val notificationSlot = slot<SubmissionSubmitted>()
+        val notificationSlot = slot<SubmissionMessage>()
 
         every { submission.accNo } returns "S-BSST0"
         every { eventsProperties.instanceBaseUrl } returns "http://biostudies:8788"
