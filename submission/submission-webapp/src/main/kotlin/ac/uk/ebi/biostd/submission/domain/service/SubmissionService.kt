@@ -56,6 +56,7 @@ class SubmissionService(
     @RabbitListener(queues = [SUBMISSION_REQUEST_QUEUE], concurrency = "1-1")
     fun processSubmission(request: SubmissionRequestMessage) {
         logger.info { "received process message for submission ${request.submission}" }
+        Thread.sleep(30_000L)
 
         val extSubmission = submissionSubmitter.processRequest(SaveRequest(request.submission, request.fileMode))
         eventsPublisherService.submissionSubmitted(extSubmission, extSubmission.submitter)
