@@ -31,7 +31,7 @@ class RtNotificationService(
 
     fun notifySubmissionRelease(submission: ExtSubmission, ownerFullName: String, uiUrl: String) {
         val accNo = submission.accNo
-        val subject = "BioStudies Submission Release - $accNo"
+        val subject = "BioStudies Submission - $accNo"
         val notification = releaseNotification(submission, ownerFullName, uiUrl)
         val content =
             SubmissionReleaseTemplate(templateLoader.loadTemplate(SUBMISSION_RELEASE_TEMPLATE)).getContent(notification)

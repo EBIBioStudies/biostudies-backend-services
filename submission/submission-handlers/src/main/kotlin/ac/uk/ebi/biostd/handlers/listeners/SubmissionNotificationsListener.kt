@@ -28,7 +28,7 @@ class SubmissionNotificationsListener(
     }
 
     @RabbitListener(queues = [RELEASE_NOTIFICATIONS_QUEUE])
-    fun receiveReleaseMessage(message: SubmissionMessage) {
+    fun receiveSubmissionReleaseMessage(message: SubmissionMessage) {
         logger.info { "release notification for ${ message.accNo }" }
         val extUser = webConsumer.getExtUser(message.extUserUrl)
 
