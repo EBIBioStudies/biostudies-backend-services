@@ -19,22 +19,22 @@ class SubmissionNotificationsListener(
     @RabbitListener(queues = [SUBMIT_NOTIFICATIONS_QUEUE])
     fun receiveSubmissionMessage(message: SubmissionMessage) {
         logger.info { "notification for ${ message.accNo }" }
-        val extUser = webConsumer.getExtUser(message.extUserUrl)
+        val owner = webConsumer.getExtUser(message.extUserUrl)
 
-        if (extUser.notificationsEnabled) {
+        if (owner.notificationsEnabled) {
             val submission = webConsumer.getExtSubmission(message.extTabUrl)
-            rtNotificationService.notifySuccessfulSubmission(submission, extUser.fullName, notificationProperties.uiUrl)
+            rtNotificationService.notifySuccessfulSubmission(submission, owner.fullName, notificationProperties.uiUrl)
         }
     }
 
     @RabbitListener(queues = [RELEASE_NOTIFICATIONS_QUEUE])
     fun receiveSubmissionReleaseMessage(message: SubmissionMessage) {
         logger.info { "release notification for ${ message.accNo }" }
-        val extUser = webConsumer.getExtUser(message.extUserUrl)
+        val owner = webConsumer.getExtUser(message.extUserUrl)
 
-        if (extUser.notificationsEnabled) {
+        if (owner.notificationsEnabled) {
             val submission = webConsumer.getExtSubmission(message.extTabUrl)
-            rtNotificationService.notifySubmissionRelease(submission, extUser.fullName, notificationProperties.uiUrl)
+            rtNotificationService.notifySubmissionRelease(submission, owner.fullName, notificationProperties.uiUrl)
         }
     }
 }

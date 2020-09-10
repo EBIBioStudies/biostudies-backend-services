@@ -17,18 +17,18 @@ class EventsPublisherService(
     fun securityNotification(notification: SecurityNotification) =
         rabbitTemplate.convertAndSend(BIOSTUDIES_EXCHANGE, SECURITY_NOTIFICATIONS_ROUTING_KEY, notification)
 
-    fun submissionSubmitted(submission: ExtSubmission, ownerEmail: String) =
+    fun submissionSubmitted(submission: ExtSubmission) =
         rabbitTemplate.convertAndSend(
-            BIOSTUDIES_EXCHANGE, SUBMISSIONS_ROUTING_KEY, submissionMessage(submission, ownerEmail))
+            BIOSTUDIES_EXCHANGE, SUBMISSIONS_ROUTING_KEY, submissionMessage(submission))
 
-    fun submissionReleased(submission: ExtSubmission, ownerEmail: String) =
+    fun submissionReleased(submission: ExtSubmission) =
         rabbitTemplate.convertAndSend(
-            BIOSTUDIES_EXCHANGE, SUBMISSIONS_RELEASE_ROUTING_KEY, submissionMessage(submission, ownerEmail))
+            BIOSTUDIES_EXCHANGE, SUBMISSIONS_RELEASE_ROUTING_KEY, submissionMessage(submission))
 
-    private fun submissionMessage(submission: ExtSubmission, ownerEmail: String) =
+    private fun submissionMessage(submission: ExtSubmission) =
         SubmissionMessage(
             accNo = submission.accNo,
             pagetabUrl = "${eventsProperties.instanceBaseUrl}/submissions/${submission.accNo}.json",
             extTabUrl = "${eventsProperties.instanceBaseUrl}/submissions/extended/${submission.accNo}",
-            extUserUrl = "${eventsProperties.instanceBaseUrl}/security/users/extended/$ownerEmail")
+            extUserUrl = "${eventsProperties.instanceBaseUrl}/security/users/extended/${submission.submitter}")
 }

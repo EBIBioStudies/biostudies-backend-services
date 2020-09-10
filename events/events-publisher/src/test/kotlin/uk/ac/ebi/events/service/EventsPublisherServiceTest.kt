@@ -48,12 +48,13 @@ class EventsPublisherServiceTest(
         val notificationSlot = slot<SubmissionMessage>()
 
         every { submission.accNo } returns "S-BSST0"
+        every { submission.submitter } returns "test@ebi.ac.uk"
         every { eventsProperties.instanceBaseUrl } returns "http://biostudies:8788"
         every {
             rabbitTemplate.convertAndSend(BIOSTUDIES_EXCHANGE, SUBMISSIONS_ROUTING_KEY, capture(notificationSlot))
         } answers { nothing }
 
-        testInstance.submissionSubmitted(submission, "test@ebi.ac.uk")
+        testInstance.submissionSubmitted(submission)
 
         val notification = notificationSlot.captured
         assertThat(notification.accNo).isEqualTo("S-BSST0")
@@ -71,13 +72,14 @@ class EventsPublisherServiceTest(
         val notificationSlot = slot<SubmissionMessage>()
 
         every { submission.accNo } returns "S-BSST0"
+        every { submission.submitter } returns "test@ebi.ac.uk"
         every { eventsProperties.instanceBaseUrl } returns "http://biostudies:8788"
         every {
             rabbitTemplate.convertAndSend(
                 BIOSTUDIES_EXCHANGE, SUBMISSIONS_RELEASE_ROUTING_KEY, capture(notificationSlot))
         } answers { nothing }
 
-        testInstance.submissionReleased(submission, "test@ebi.ac.uk")
+        testInstance.submissionReleased(submission)
 
         val notification = notificationSlot.captured
         assertThat(notification.accNo).isEqualTo("S-BSST0")
