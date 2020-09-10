@@ -53,6 +53,7 @@ class SubmissionService(
         )
     }
 
+    @Suppress("MagicNumber")
     @RabbitListener(queues = [SUBMISSION_REQUEST_QUEUE], concurrency = "1-1")
     fun processSubmission(request: SubmissionRequestMessage) {
         logger.info { "received process message for submission ${request.submission}" }
