@@ -14,5 +14,8 @@ class SubmissionSubmitted(
     val extTabUrl: String,
 
     @JsonProperty("extUserUrl")
-    val extUserUrl: String
+    val extUserUrl: String,
+
+    @JsonProperty("eventTime")
+    val eventTime: String
 ) : Serializable
