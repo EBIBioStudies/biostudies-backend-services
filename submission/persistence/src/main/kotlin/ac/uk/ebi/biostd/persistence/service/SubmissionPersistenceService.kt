@@ -14,6 +14,7 @@ import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSED
 import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSING
 import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
+import kotlin.math.absoluteValue
 
 open class SubmissionPersistenceService(
     private val subRepository: SubmissionRepository,
@@ -26,9 +27,10 @@ open class SubmissionPersistenceService(
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = false)
     open fun saveSubmissionRequest(submission: ExtSubmission): ExtSubmission {
         val newVersion = submission.copy(
-            version = (subDataRepository.getLastVersion(submission.accNo) ?: 0) + 1,
+            version = getNextVersion(submission.accNo),
             status = ExtProcessingStatus.REQUESTED)
         subDataRepository.save(toDbMapper.toSubmissionDb(newVersion))
+
         return newVersion
     }
 
@@ -39,6 +41,12 @@ open class SubmissionPersistenceService(
 
         val dbSubmission = subRepository.getDbSubmission(submission.accNo, submission.version)
         return toExtSubmissionMapper.toExtSubmission(processDbSubmission(dbSubmission))
+    }
+
+    private fun getNextVersion(accNo: String): Int {
+        val versions = subDataRepository.getBasicAllVersions(accNo)
+
+        return if (versions.isEmpty()) 1 else versions.first().version.absoluteValue + 1
     }
 
     private fun processDbSubmission(submission: DbSubmission): DbSubmission {

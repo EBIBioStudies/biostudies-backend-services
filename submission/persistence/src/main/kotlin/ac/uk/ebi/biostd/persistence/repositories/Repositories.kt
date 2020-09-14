@@ -38,6 +38,9 @@ interface SubmissionDataRepository :
     @Query("select s from DbSubmission s inner join s.owner where s.accNo = :accNo and s.version > 0")
     fun getBasic(@Param("accNo") accNo: String): DbSubmission
 
+    @Query("select s from DbSubmission s inner join s.owner where s.accNo = :accNo order by s.id desc")
+    fun getBasicAllVersions(@Param("accNo") accNo: String): List<DbSubmission>
+
     @Query("""
         select s
         from DbSubmission s inner join s.owner inner join s.attributes
@@ -53,9 +56,6 @@ interface SubmissionDataRepository :
 
     @EntityGraph(value = SUBMISSION_FULL_GRAPH, type = LOAD)
     fun getByAccNoAndVersion(accNo: String, version: Int): DbSubmission?
-
-    @Query("Select max(s.version) from DbSubmission s where s.accNo=?1")
-    fun getLastVersion(accNo: String): Int?
 
     @Query("""
         Update DbSubmission s Set s.version = -s.version
