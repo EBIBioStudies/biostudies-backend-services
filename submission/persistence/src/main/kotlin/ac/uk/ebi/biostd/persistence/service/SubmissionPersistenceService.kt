@@ -44,9 +44,8 @@ open class SubmissionPersistenceService(
     }
 
     private fun getNextVersion(accNo: String): Int {
-        val versions = subDataRepository.getBasicAllVersions(accNo)
-
-        return if (versions.isEmpty()) 1 else versions.first().version.absoluteValue + 1
+        val lastVersion = subDataRepository.getLastVersion(accNo)?.version ?: 0
+        return lastVersion.absoluteValue + 1
     }
 
     private fun processDbSubmission(submission: DbSubmission): DbSubmission {

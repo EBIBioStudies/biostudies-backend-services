@@ -46,6 +46,7 @@ allprojects {
 
             kotlinOptions {
                 includeRuntime = true
+                freeCompilerArgs += arrayOf("-Xjvm-default=enable")
                 jvmTarget = "1.8"
             }
         }

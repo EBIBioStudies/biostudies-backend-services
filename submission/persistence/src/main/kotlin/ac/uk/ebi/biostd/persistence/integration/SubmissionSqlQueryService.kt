@@ -36,7 +36,7 @@ class SubmissionSqlQueryService(
 
     private fun getSubmission(accNo: String) = subRepository.getBasic(accNo)
 
-    private fun getLatestSubmitted(accNo: String) = subRepository.getBasicAllVersions(accNo).firstOrNull()
+    private fun getLatestSubmitted(accNo: String) = subRepository.getLastVersion(accNo)
 
     private fun find(accNo: String) = subRepository.findBasic(accNo)
 }
