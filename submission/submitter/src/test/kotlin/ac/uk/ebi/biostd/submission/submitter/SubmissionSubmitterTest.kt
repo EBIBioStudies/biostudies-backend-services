@@ -143,7 +143,6 @@ class SubmissionSubmitterTest {
         accNoService.getRelPath(accNo)
         accNoService.getAccNo(accNoServiceRequest.captured)
 
-        queryService.isNew("S-TEST123")
         queryService.getSecret("S-TEST123")
 
         parentInfoService.getParentInfo("BioImages")

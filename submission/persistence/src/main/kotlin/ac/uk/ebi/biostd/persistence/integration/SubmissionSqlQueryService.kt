@@ -1,11 +1,9 @@
 package ac.uk.ebi.biostd.persistence.integration
 
-import ac.uk.ebi.biostd.persistence.model.DbSubmission
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
 import ac.uk.ebi.biostd.persistence.repositories.SubmissionDataRepository
 import ebi.ac.uk.model.constants.SubFields
 import ebi.ac.uk.paths.SubmissionFolderResolver
-import ebi.ac.uk.util.collections.ifNotEmpty
 import java.time.OffsetDateTime
 
 @Suppress("TooManyFunctions")
