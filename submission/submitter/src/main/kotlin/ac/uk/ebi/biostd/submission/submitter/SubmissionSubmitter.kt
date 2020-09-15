@@ -114,7 +114,7 @@ class SubmissionSubmitter(
         val projectInfo = getProjectInfo(submitter, submission, accNoString)
         val secretKey = getSecret(accNoString)
         val relPath = accNoService.getRelPath(accNo)
-        val tags = getTags(released, parentTags, projectInfo)
+        val tags = getTags(parentTags, projectInfo)
         val ownerEmail = onBehalfUser?.email ?: queryService.getOwner(accNoString) ?: submitter.email
 
         return ExtSubmission(
@@ -147,9 +147,8 @@ class SubmissionSubmitter(
         }
     }
 
-    private fun getTags(released: Boolean, parentTags: List<String>, project: ProjectResponse?): List<String> {
-        val tags = parentTags.toMutableList()
-        if (released) tags.add(PUBLIC_ACCESS_TAG.value)
+    private fun getTags(parentTags: List<String>, project: ProjectResponse?): List<String> {
+        val tags = parentTags.filter { it != PUBLIC_ACCESS_TAG.value }.toMutableList()
         if (project != null) tags.add(project.accessTag)
         return tags
     }

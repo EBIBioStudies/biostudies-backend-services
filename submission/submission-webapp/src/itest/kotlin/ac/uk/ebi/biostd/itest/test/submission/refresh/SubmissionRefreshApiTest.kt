@@ -134,7 +134,7 @@ internal class SubmissionRefreshApiTest(private val tempFolder: TemporaryFolder)
             assertThat(extSubmission.title).isEqualTo(title)
             assertThat(extSubmission.releaseTime).isEqualTo(releaseTime)
             assertThat(extSubmission.rootPath).isEqualTo(ROOT_PATH)
-            assertThat(extSubmission.projects.map { it.accNo }).containsExactlyElementsOf(accessTags)
+            assertThat(extSubmission.accessTags.map { it.name }).containsExactlyElementsOf(accessTags)
             assertThat(extSubmission.attributes.map { it.name to it.value }).containsExactlyElementsOf(attributes)
 
             assertThat(extSubmission.section.type).isEqualTo("Study")

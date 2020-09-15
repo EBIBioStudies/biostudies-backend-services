@@ -98,9 +98,11 @@ internal class ProjectSubmitTest(tempFolder: TemporaryFolder) : BaseIntegrationT
             assertThat(submittedProject.title).isEqualTo("Public Project")
             assertThat(submittedProject.status).isEqualTo(PROCESSED)
 
-            assertThat(submittedProject.projects).hasSize(2)
+            assertThat(submittedProject.accessTags).hasSize(2)
+            assertThat(submittedProject.accessTags.first().name).isEqualTo("PublicProject")
+            assertThat(submittedProject.accessTags.second().name).isEqualTo("Public")
+
             assertThat(submittedProject.projects.first().accNo).isEqualTo("PublicProject")
-            assertThat(submittedProject.projects.second().accNo).isEqualTo("Public")
 
             assertThat(tagsDataRepository.existsByName("PublicProject")).isTrue()
             assertThat(sequenceRepository.existsByPrefix("S-PUP")).isTrue()

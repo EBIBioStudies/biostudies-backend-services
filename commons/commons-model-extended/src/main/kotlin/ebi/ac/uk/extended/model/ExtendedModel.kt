@@ -1,6 +1,9 @@
 package ebi.ac.uk.extended.model
 
 import arrow.core.Either
+import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.annotation.JsonProperty.Access.READ_ONLY
+import ebi.ac.uk.extended.delegates.AccessTagDelegate
 import java.io.File
 import java.time.OffsetDateTime
 
@@ -53,6 +56,8 @@ data class ExtSection(
     val links: List<Either<ExtLink, ExtLinkTable>> = listOf()
 )
 
+data class ExtAccessTag(val name: String)
+
 data class ExtSubmission(
     val accNo: String,
     var version: Int,
@@ -73,7 +78,10 @@ data class ExtSubmission(
     val tags: List<ExtTag> = listOf(),
     val projects: List<Project> = listOf(),
     val stats: List<ExtStat> = listOf()
-)
+) {
+    @get:JsonProperty(access = READ_ONLY)
+    val accessTags: List<ExtAccessTag> by AccessTagDelegate()
+}
 
 data class ExtStat(val name: String, val value: String)
 
