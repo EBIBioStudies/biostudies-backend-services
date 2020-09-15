@@ -22,7 +22,7 @@ class SecurityTestService(
             userDataRepository.save(dbUser)
         }
 
-        return user;
+        return user
     }
 
     fun createTestGroup(): UserGroup {

@@ -20,7 +20,7 @@ class SubmissionSqlQueryService(
 
     override fun isNew(accNo: String): Boolean = existByAccNo(accNo).not()
 
-    override fun getSecret(accNo: String): String = getSubmission(accNo).secretKey
+    override fun getSecret(accNo: String): String? = getLatestSubmitted(accNo)?.secretKey
 
     override fun getAccessTags(accNo: String) = accessTagDataRepo.findBySubmissionsAccNo(accNo).map { it.name }
 
@@ -30,13 +30,13 @@ class SubmissionSqlQueryService(
 
     override fun findCreationTime(accNo: String): OffsetDateTime? = find(accNo)?.creationTime
 
-    override fun getAuthor(accNo: String): String = getSubmission(accNo).owner.email
-
     override fun getCurrentFolder(accNo: String) = find(accNo)?.let { folderResolver.getSubFolder(it.relPath).toFile() }
 
-    override fun getOwner(accNo: String): String? = find(accNo)?.owner?.email
+    override fun getOwner(accNo: String): String? = getLatestSubmitted(accNo)?.owner?.email
 
     private fun getSubmission(accNo: String) = subRepository.getBasic(accNo)
+
+    private fun getLatestSubmitted(accNo: String) = subRepository.getLastVersion(accNo)
 
     private fun find(accNo: String) = subRepository.findBasic(accNo)
 }
