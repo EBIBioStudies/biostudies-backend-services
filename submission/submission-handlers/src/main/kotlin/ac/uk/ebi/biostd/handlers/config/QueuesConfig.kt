@@ -18,6 +18,7 @@ const val NOTIFICATIONS_QUEUE = "submission-submitted-notifications-queue"
 const val SECURITY_NOTIFICATIONS_QUEUE = "security-notifications-queue"
 
 @Configuration
+@Suppress("TooManyFunctions")
 class QueuesConfig {
     @Bean
     fun exchange(): TopicExchange = TopicExchange(BIOSTUDIES_EXCHANGE)
