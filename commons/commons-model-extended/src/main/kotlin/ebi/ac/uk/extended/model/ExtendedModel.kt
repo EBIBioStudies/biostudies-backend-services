@@ -79,6 +79,7 @@ data class ExtSubmission(
     val projects: List<Project> = listOf(),
     val stats: List<ExtStat> = listOf()
 ) {
+    // TODO: add custom serializer/deserializer to avoid json annotation in model
     @get:JsonProperty(access = READ_ONLY)
     val accessTags: List<ExtAccessTag> by AccessTagDelegate()
 }
