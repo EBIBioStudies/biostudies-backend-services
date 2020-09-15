@@ -166,6 +166,5 @@ class SubmissionSubmitter(
     private fun getTimes(sub: Submission, parentReleaseTime: OffsetDateTime?) =
         timesService.getTimes(TimesRequest(sub.accNo, sub.releaseDate, parentReleaseTime))
 
-    private fun getSecret(accString: String) =
-        if (queryService.isNew(accString)) UUID.randomUUID().toString() else queryService.getSecret(accString)
+    private fun getSecret(accString: String) = queryService.getSecret(accString) ?: UUID.randomUUID().toString()
 }

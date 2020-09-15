@@ -8,7 +8,7 @@ interface SubmissionQueryService {
 
     fun isNew(accNo: String): Boolean
 
-    fun getSecret(accNo: String): String
+    fun getSecret(accNo: String): String?
 
     fun getAccessTags(accNo: String): List<String>
 
@@ -17,8 +17,6 @@ interface SubmissionQueryService {
     fun existByAccNo(accNo: String): Boolean
 
     fun findCreationTime(accNo: String): OffsetDateTime?
-
-    fun getAuthor(accNo: String): String
 
     fun getCurrentFolder(accNo: String): File?
 
