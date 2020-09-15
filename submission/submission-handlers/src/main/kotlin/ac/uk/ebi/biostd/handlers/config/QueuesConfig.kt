@@ -12,6 +12,7 @@ const val SUBMISSIONS_ROUTING_KEY = "bio.submission.published"
 const val SECURITY_NOTIFICATIONS_ROUTING_KEY = "bio.security.notification"
 
 const val LOG_QUEUE = "submission-submitted-log-queue"
+const val ST_LOG_QUEUE = "submission-submitted-st-queue"
 const val PARTIALS_QUEUE = "submission-submitted-partials-queue"
 const val NOTIFICATIONS_QUEUE = "submission-submitted-notifications-queue"
 const val SECURITY_NOTIFICATIONS_QUEUE = "security-notifications-queue"
@@ -25,6 +26,9 @@ class QueuesConfig {
     fun logQueue(): Queue = Queue(LOG_QUEUE, false)
 
     @Bean
+    fun submissionToolQueue(): Queue = Queue(ST_LOG_QUEUE, false)
+
+    @Bean
     fun notificationsQueue(): Queue = Queue(NOTIFICATIONS_QUEUE, false)
 
     @Bean
@@ -36,6 +40,10 @@ class QueuesConfig {
     @Bean
     fun logQueueBinding(exchange: TopicExchange): Binding =
         BindingBuilder.bind(logQueue()).to(exchange).with(SUBMISSIONS_ROUTING_KEY)
+
+    @Bean
+    fun stQueueBinding(exchange: TopicExchange): Binding =
+        BindingBuilder.bind(submissionToolQueue()).to(exchange).with(SUBMISSIONS_ROUTING_KEY)
 
     @Bean
     fun notificationsQueueBinding(exchange: TopicExchange): Binding =
