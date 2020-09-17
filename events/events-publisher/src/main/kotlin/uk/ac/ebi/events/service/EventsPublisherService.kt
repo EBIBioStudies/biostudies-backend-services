@@ -3,12 +3,14 @@ package uk.ac.ebi.events.service
 import ebi.ac.uk.extended.events.SecurityNotification
 import ebi.ac.uk.extended.events.SubmissionMessage
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.util.date.asIsoTime
 import org.springframework.amqp.rabbit.core.RabbitTemplate
 import uk.ac.ebi.events.config.BIOSTUDIES_EXCHANGE
 import uk.ac.ebi.events.config.EventsProperties
 import uk.ac.ebi.events.config.SECURITY_NOTIFICATIONS_ROUTING_KEY
 import uk.ac.ebi.events.config.SUBMISSIONS_RELEASE_ROUTING_KEY
 import uk.ac.ebi.events.config.SUBMISSIONS_ROUTING_KEY
+import java.time.OffsetDateTime
 
 class EventsPublisherService(
     private val rabbitTemplate: RabbitTemplate,
@@ -30,5 +32,6 @@ class EventsPublisherService(
             accNo = submission.accNo,
             pagetabUrl = "${eventsProperties.instanceBaseUrl}/submissions/${submission.accNo}.json",
             extTabUrl = "${eventsProperties.instanceBaseUrl}/submissions/extended/${submission.accNo}",
-            extUserUrl = "${eventsProperties.instanceBaseUrl}/security/users/extended/${submission.submitter}")
+            extUserUrl = "${eventsProperties.instanceBaseUrl}/security/users/extended/${submission.submitter}",
+            eventTime = OffsetDateTime.now().asIsoTime())
 }
