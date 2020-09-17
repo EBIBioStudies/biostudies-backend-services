@@ -66,7 +66,7 @@ class UserPrivilegesServiceTest(
 
     @Test
     fun `author user with tag resubmits a submission that is in a project`() {
-        every { queryService.getAuthor("accNo") } returns "author@mail.com"
+        every { queryService.getOwner("accNo") } returns "author@mail.com"
 
         assertThat(testInstance.canResubmit("author@mail.com", "accNo")).isTrue()
     }
@@ -78,7 +78,7 @@ class UserPrivilegesServiceTest(
 
     @Test
     fun `author user deletes own submission`() {
-        every { queryService.getAuthor("accNo") } returns "author@mail.com"
+        every { queryService.getOwner("accNo") } returns "author@mail.com"
         assertThat(testInstance.canDelete("author@mail.com", "accNo")).isTrue()
     }
 
@@ -125,6 +125,6 @@ class UserPrivilegesServiceTest(
 
     private fun initSubmissionQueries() {
         every { queryService.getAccessTags("accNo") } returns emptyList()
-        every { queryService.getAuthor("accNo") } returns "nottheauthor@mail.com"
+        every { queryService.getOwner("accNo") } returns "nottheauthor@mail.com"
     }
 }

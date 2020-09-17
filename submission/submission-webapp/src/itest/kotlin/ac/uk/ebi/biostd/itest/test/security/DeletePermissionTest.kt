@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.itest.test.security
 
 import ac.uk.ebi.biostd.client.exception.WebClientException
-import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
+import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
@@ -70,7 +70,7 @@ internal class DeletePermissionTest(private val tempFolder: TemporaryFolder) : B
                 line()
             }.toString()
 
-            assertThat(superUserWebClient.submitSingle(submission, SubmissionFormat.TSV)).isSuccessful()
+            assertThat(superUserWebClient.submitSingle(submission, TSV)).isSuccessful()
             superUserWebClient.deleteSubmission("SimpleAcc1")
 
             val deletedSubmission = submissionRepository.getExtByAccNoAndVersion("SimpleAcc1", -1)
@@ -85,7 +85,7 @@ internal class DeletePermissionTest(private val tempFolder: TemporaryFolder) : B
                 line()
             }.toString()
 
-            assertThat(superUserWebClient.submitSingle(submission, SubmissionFormat.TSV)).isSuccessful()
+            assertThat(superUserWebClient.submitSingle(submission, TSV)).isSuccessful()
 
             assertThatExceptionOfType(WebClientException::class.java).isThrownBy {
                 regularUserWebClient.deleteSubmission("SimpleAcc2")
@@ -102,12 +102,28 @@ internal class DeletePermissionTest(private val tempFolder: TemporaryFolder) : B
             }.toString()
 
             setUpPermissions()
-            assertThat(superUserWebClient.submitSingle(submission, SubmissionFormat.TSV)).isSuccessful()
+            assertThat(superUserWebClient.submitSingle(submission, TSV)).isSuccessful()
 
             regularUserWebClient.deleteSubmission("SimpleAcc3")
 
             val deletedSubmission = submissionRepository.getExtByAccNoAndVersion("SimpleAcc3", -1)
             assertThat(deletedSubmission.version).isEqualTo(-1)
+        }
+
+        @Test
+        fun `resubmit deleted submission`() {
+            val submission = tsv {
+                line("Submission", "SimpleAcc4")
+                line("Title", "Simple Submission")
+                line()
+            }.toString()
+
+            superUserWebClient.submitSingle(submission, TSV)
+            superUserWebClient.deleteSubmission("SimpleAcc4")
+            superUserWebClient.submitSingle(submission, TSV)
+
+            val resubmitted = submissionRepository.getExtByAccNo("SimpleAcc4")
+            assertThat(resubmitted.version).isEqualTo(2)
         }
 
         private fun setUpPermissions() {

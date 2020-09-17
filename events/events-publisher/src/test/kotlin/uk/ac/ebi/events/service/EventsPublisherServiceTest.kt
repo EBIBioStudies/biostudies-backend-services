@@ -1,7 +1,7 @@
 package uk.ac.ebi.events.service
 
 import ebi.ac.uk.extended.events.SecurityNotification
-import ebi.ac.uk.extended.events.SubmissionSubmitted
+import ebi.ac.uk.extended.events.SubmissionMessage
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.util.date.asIsoTime
 import io.mockk.clearAllMocks
@@ -20,6 +20,7 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate
 import uk.ac.ebi.events.config.BIOSTUDIES_EXCHANGE
 import uk.ac.ebi.events.config.EventsProperties
 import uk.ac.ebi.events.config.SECURITY_NOTIFICATIONS_ROUTING_KEY
+import uk.ac.ebi.events.config.SUBMISSIONS_RELEASE_ROUTING_KEY
 import uk.ac.ebi.events.config.SUBMISSIONS_ROUTING_KEY
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
@@ -56,15 +57,16 @@ class EventsPublisherServiceTest(
 
     @Test
     fun submissionSubmitted(@MockK submission: ExtSubmission) {
-        val notificationSlot = slot<SubmissionSubmitted>()
+        val notificationSlot = slot<SubmissionMessage>()
 
         every { submission.accNo } returns "S-BSST0"
+        every { submission.submitter } returns "test@ebi.ac.uk"
         every { eventsProperties.instanceBaseUrl } returns "http://biostudies:8788"
         every {
             rabbitTemplate.convertAndSend(BIOSTUDIES_EXCHANGE, SUBMISSIONS_ROUTING_KEY, capture(notificationSlot))
         } answers { nothing }
 
-        testInstance.submissionSubmitted(submission, "test@ebi.ac.uk")
+        testInstance.submissionSubmitted(submission)
 
         val notification = notificationSlot.captured
         assertThat(notification.accNo).isEqualTo("S-BSST0")
@@ -75,6 +77,31 @@ class EventsPublisherServiceTest(
 
         verify(exactly = 1) {
             rabbitTemplate.convertAndSend(BIOSTUDIES_EXCHANGE, SUBMISSIONS_ROUTING_KEY, notification)
+        }
+    }
+
+    @Test
+    fun submissionReleased(@MockK submission: ExtSubmission) {
+        val notificationSlot = slot<SubmissionMessage>()
+
+        every { submission.accNo } returns "S-BSST0"
+        every { submission.submitter } returns "test@ebi.ac.uk"
+        every { eventsProperties.instanceBaseUrl } returns "http://biostudies:8788"
+        every {
+            rabbitTemplate.convertAndSend(
+                BIOSTUDIES_EXCHANGE, SUBMISSIONS_RELEASE_ROUTING_KEY, capture(notificationSlot))
+        } answers { nothing }
+
+        testInstance.submissionReleased(submission)
+
+        val notification = notificationSlot.captured
+        assertThat(notification.accNo).isEqualTo("S-BSST0")
+        assertThat(notification.pagetabUrl).isEqualTo("http://biostudies:8788/submissions/S-BSST0.json")
+        assertThat(notification.extTabUrl).isEqualTo("http://biostudies:8788/submissions/extended/S-BSST0")
+        assertThat(notification.extUserUrl).isEqualTo("http://biostudies:8788/security/users/extended/test@ebi.ac.uk")
+
+        verify(exactly = 1) {
+            rabbitTemplate.convertAndSend(BIOSTUDIES_EXCHANGE, SUBMISSIONS_RELEASE_ROUTING_KEY, notification)
         }
     }
 }

@@ -3,7 +3,7 @@ package ebi.ac.uk.extended.events
 import com.fasterxml.jackson.annotation.JsonProperty
 import java.io.Serializable
 
-class SubmissionSubmitted(
+class SubmissionMessage(
     @JsonProperty("accNo")
     val accNo: String,
 
