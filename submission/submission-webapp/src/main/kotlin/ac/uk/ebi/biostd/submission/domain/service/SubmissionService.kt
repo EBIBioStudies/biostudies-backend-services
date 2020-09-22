@@ -39,7 +39,8 @@ class SubmissionService(
         logger.info { "received submit request for submission ${request.submission.accNo}" }
 
         val extSubmission = submissionSubmitter.submit(request)
-        eventsPublisherService.submissionSubmitted(extSubmission, extSubmission.submitter)
+        eventsPublisherService.submissionSubmitted(extSubmission)
+
         return extSubmission
     }
 
@@ -60,7 +61,7 @@ class SubmissionService(
         Thread.sleep(30_000L)
 
         val extSubmission = submissionSubmitter.processRequest(SaveRequest(request.submission, request.fileMode))
-        eventsPublisherService.submissionSubmitted(extSubmission, extSubmission.submitter)
+        eventsPublisherService.submissionSubmitted(extSubmission)
     }
 
     fun getSubmissionAsJson(accNo: String): String {

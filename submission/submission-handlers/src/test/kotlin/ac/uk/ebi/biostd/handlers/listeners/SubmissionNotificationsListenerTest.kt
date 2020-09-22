@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.handlers.listeners
 
 import ac.uk.ebi.biostd.handlers.api.BioStudiesWebConsumer
-import ebi.ac.uk.extended.events.SubmissionSubmitted
+import ebi.ac.uk.extended.events.SubmissionMessage
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtUser
 import ebi.ac.uk.notifications.integration.NotificationProperties
@@ -20,7 +20,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 class SubmissionNotificationsListenerTest(
     @MockK private val submitter: ExtUser,
     @MockK private val submission: ExtSubmission,
-    @MockK private val message: SubmissionSubmitted,
+    @MockK private val message: SubmissionMessage,
     @MockK private val webConsumer: BioStudiesWebConsumer,
     @MockK private val rtNotificationService: RtNotificationService,
     @MockK private val notificationProperties: NotificationProperties
@@ -35,6 +35,7 @@ class SubmissionNotificationsListenerTest(
         every { notificationProperties.uiUrl } returns "ui-url"
         every { webConsumer.getExtUser("ext-user-url") } returns submitter
         every { webConsumer.getExtSubmission("ext-tab-url") } returns submission
+        every { rtNotificationService.notifySubmissionRelease(submission, "Dr Owner", "ui-url") } answers { nothing }
         every { rtNotificationService.notifySuccessfulSubmission(submission, "Dr Owner", "ui-url") } answers { nothing }
     }
 
@@ -42,21 +43,39 @@ class SubmissionNotificationsListenerTest(
     fun afterEach() = clearAllMocks()
 
     @Test
-    fun `receive message`() {
-        testInstance.receiveMessage(message)
+    fun `receive submission message`() {
+        testInstance.receiveSubmissionMessage(message)
 
         verify(exactly = 1) { webConsumer.getExtSubmission("ext-tab-url") }
         verify(exactly = 1) { rtNotificationService.notifySuccessfulSubmission(submission, "Dr Owner", "ui-url") }
     }
 
     @Test
-    fun `notifications disabled`() {
+    fun `receive submission message notifications disabled`() {
         every { submitter.notificationsEnabled } returns false
 
-        testInstance.receiveMessage(message)
+        testInstance.receiveSubmissionMessage(message)
 
         verify(exactly = 0) { webConsumer.getExtSubmission("ext-tab-url") }
         verify(exactly = 0) { rtNotificationService.notifySuccessfulSubmission(submission, "Dr Owner", "ui-url") }
+    }
+
+    @Test
+    fun `receive submission release message`() {
+        testInstance.receiveSubmissionReleaseMessage(message)
+
+        verify(exactly = 1) { webConsumer.getExtSubmission("ext-tab-url") }
+        verify(exactly = 1) { rtNotificationService.notifySubmissionRelease(submission, "Dr Owner", "ui-url") }
+    }
+
+    @Test
+    fun `receive submission release message notifications disabled`() {
+        every { submitter.notificationsEnabled } returns false
+
+        testInstance.receiveSubmissionReleaseMessage(message)
+
+        verify(exactly = 0) { webConsumer.getExtSubmission("ext-tab-url") }
+        verify(exactly = 0) { rtNotificationService.notifySubmissionRelease(submission, "Dr Owner", "ui-url") }
     }
 
     private fun mockMessage() {

@@ -44,10 +44,10 @@ class SubmissionServiceTest(
     ) {
         every { extSubmission.submitter } returns "test@ebi.ac.uk"
         every { submissionSubmitter.submit(submissionRequest) } returns extSubmission
-        every { eventsPublisherService.submissionSubmitted(extSubmission, "test@ebi.ac.uk") } answers { nothing }
+        every { eventsPublisherService.submissionSubmitted(extSubmission) } answers { nothing }
 
         val submission = testInstance.submit(submissionRequest)
         assertThat(submission).isEqualTo(extSubmission)
-        verify(exactly = 1) { eventsPublisherService.submissionSubmitted(extSubmission, "test@ebi.ac.uk") }
+        verify(exactly = 1) { eventsPublisherService.submissionSubmitted(extSubmission) }
     }
 }
