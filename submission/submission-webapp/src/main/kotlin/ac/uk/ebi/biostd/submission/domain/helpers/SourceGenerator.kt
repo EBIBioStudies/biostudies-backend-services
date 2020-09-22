@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.submission.domain.helpers
 
+import ac.uk.ebi.biostd.persistence.mapping.extended.to.USER_PREFIX
 import ac.uk.ebi.biostd.submission.model.GroupSource
 import com.google.common.collect.ImmutableList
 import ebi.ac.uk.io.sources.ComposedFileSource
@@ -22,9 +23,12 @@ class SourceGenerator {
 
         return when (subFolder) {
             null -> ComposedFileSource(sources.build())
-            else -> ComposedFileSource(sources.add(PathFilesSource(subFolder.toPath())).build())
+            else -> ComposedFileSource(sources.addAll(submissionsPaths(subFolder)).build())
         }
     }
+
+    private fun submissionsPaths(subFolder: File) =
+        listOf(PathFilesSource(subFolder.toPath()), PathFilesSource(subFolder.resolve(USER_PREFIX).toPath()))
 
     private fun createPathSource(folder: Path, rootPath: String?) = PathFilesSource(folder.resolve(rootPath.orEmpty()))
 
