@@ -17,8 +17,8 @@ import java.nio.file.Path
 
 private const val FILES_DIR = "Files"
 
-// Added for background compatibility of old submitter applications
-public const val USER_PREFIX = "u"
+// Added for backward compatibility of old submitter applications
+const val USER_PREFIX = "u"
 
 class ToExtSubmissionMapper(private val submissionsPath: Path) {
     internal fun toExtSubmission(dbToExtRequest: DbToExtRequest): ExtSubmission {
