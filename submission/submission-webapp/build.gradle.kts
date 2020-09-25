@@ -43,6 +43,7 @@ allOpen {
 }
 
 dependencies {
+    api(project(":client:fire-webclient"))
     api(project(":submission:persistence"))
     api(project(":submission:submitter"))
     api(project(":submission:submission-security"))
