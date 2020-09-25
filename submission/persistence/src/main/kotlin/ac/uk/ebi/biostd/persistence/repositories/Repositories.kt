@@ -5,6 +5,7 @@ import ac.uk.ebi.biostd.persistence.model.AccessType
 import ac.uk.ebi.biostd.persistence.model.DbAccessTag
 import ac.uk.ebi.biostd.persistence.model.DbSection
 import ac.uk.ebi.biostd.persistence.model.DbSubmission
+import ac.uk.ebi.biostd.persistence.model.DbSubmissionStat
 import ac.uk.ebi.biostd.persistence.model.DbTag
 import ac.uk.ebi.biostd.persistence.model.DbUser
 import ac.uk.ebi.biostd.persistence.model.DbUserData
@@ -12,12 +13,14 @@ import ac.uk.ebi.biostd.persistence.model.SECTION_SIMPLE_GRAPH
 import ac.uk.ebi.biostd.persistence.model.SUBMISSION_FULL_GRAPH
 import ac.uk.ebi.biostd.persistence.model.SecurityToken
 import ac.uk.ebi.biostd.persistence.model.Sequence
+import ac.uk.ebi.biostd.persistence.model.SubmissionStatType
 import ac.uk.ebi.biostd.persistence.model.USER_DATA_GRAPH
 import ac.uk.ebi.biostd.persistence.model.UserDataId
 import ac.uk.ebi.biostd.persistence.model.UserGroup
 import com.cosium.spring.data.jpa.entity.graph.repository.EntityGraphJpaRepository
 import com.cosium.spring.data.jpa.entity.graph.repository.EntityGraphJpaSpecificationExecutor
 import ebi.ac.uk.model.constants.ProcessingStatus
+import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.EntityGraph
@@ -26,6 +29,7 @@ import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Lock
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
+import org.springframework.data.repository.PagingAndSortingRepository
 import org.springframework.data.repository.query.Param
 import java.util.Optional
 import javax.persistence.LockModeType
@@ -138,4 +142,12 @@ interface UserDataDataRepository : JpaRepository<DbUserData, UserDataId> {
     @Query("Delete from DbUserData where userId = ?1 and key = ?2")
     @Modifying
     fun deleteByUserIdAndKey(userId: Long, key: String)
+}
+
+interface SubmissionStatsDataRepository : PagingAndSortingRepository<DbSubmissionStat, Long> {
+    fun findByAccNo(accNo: String): List<DbSubmissionStat>
+    fun existsByAccNoAndType(accNo: String, type: SubmissionStatType): Boolean
+    fun findAllByType(type: SubmissionStatType, pageable: Pageable): Page<DbSubmissionStat>
+    fun findByAccNoAndType(accNo: String, type: SubmissionStatType): DbSubmissionStat?
+    fun getByAccNoAndType(accNo: String, type: SubmissionStatType): DbSubmissionStat
 }

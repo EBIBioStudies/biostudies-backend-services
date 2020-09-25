@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.stats.web
 
 import ac.uk.ebi.biostd.persistence.filter.PaginationFilter
+import ac.uk.ebi.biostd.persistence.model.SubmissionStatType
 import ac.uk.ebi.biostd.stats.web.handlers.StatsFileHandler
 import ac.uk.ebi.biostd.submission.domain.service.TempFileGenerator
 import ebi.ac.uk.model.constants.MULTIPART_FORM_DATA
@@ -23,7 +24,6 @@ import org.springframework.web.bind.annotation.ResponseBody
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.multipart.MultipartFile
 import uk.ac.ebi.stats.model.SubmissionStat
-import uk.ac.ebi.stats.model.SubmissionStatType
 import uk.ac.ebi.stats.service.SubmissionStatsService
 
 @RestController

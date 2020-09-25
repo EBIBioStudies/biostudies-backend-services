@@ -1,6 +1,8 @@
 package ac.uk.ebi.biostd.stats.web
 
 import ac.uk.ebi.biostd.persistence.filter.PaginationFilter
+import ac.uk.ebi.biostd.persistence.model.SubmissionStatType
+import ac.uk.ebi.biostd.persistence.model.SubmissionStatType.VIEWS
 import ac.uk.ebi.biostd.stats.web.handlers.StatsFileHandler
 import ac.uk.ebi.biostd.submission.domain.service.TempFileGenerator
 import ebi.ac.uk.dsl.json.jsonArray
@@ -24,8 +26,6 @@ import org.springframework.test.web.servlet.post
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import org.springframework.web.multipart.MultipartFile
 import uk.ac.ebi.stats.model.SubmissionStat
-import uk.ac.ebi.stats.model.SubmissionStatType
-import uk.ac.ebi.stats.model.SubmissionStatType.VIEWS
 import uk.ac.ebi.stats.service.SubmissionStatsService
 
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)

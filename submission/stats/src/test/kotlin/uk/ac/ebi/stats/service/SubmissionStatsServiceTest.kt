@@ -3,6 +3,9 @@ package uk.ac.ebi.stats.service
 import ac.uk.ebi.biostd.persistence.exception.SubmissionNotFoundException
 import ac.uk.ebi.biostd.persistence.filter.PaginationFilter
 import ac.uk.ebi.biostd.persistence.integration.SubmissionQueryService
+import ac.uk.ebi.biostd.persistence.model.DbSubmissionStat
+import ac.uk.ebi.biostd.persistence.model.SubmissionStatType.VIEWS
+import ac.uk.ebi.biostd.persistence.repositories.SubmissionStatsDataRepository
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -19,16 +22,13 @@ import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import uk.ac.ebi.stats.exception.StatNotFoundException
 import uk.ac.ebi.stats.model.SubmissionStat
-import uk.ac.ebi.stats.model.SubmissionStatType.VIEWS
-import uk.ac.ebi.stats.persistence.model.SubmissionStatDb
-import uk.ac.ebi.stats.persistence.repositories.SubmissionStatsRepository
 
 @ExtendWith(MockKExtension::class)
 class SubmissionStatsServiceTest(
     @MockK private val queryService: SubmissionQueryService,
-    @MockK private val statsRepository: SubmissionStatsRepository
+    @MockK private val statsRepository: SubmissionStatsDataRepository
 ) {
-    private val testStat = SubmissionStatDb("S-TEST123", 10, VIEWS)
+    private val testStat = DbSubmissionStat("S-TEST123", 10, VIEWS)
     private val testInstance = SubmissionStatsService(queryService, statsRepository)
 
     @BeforeEach
@@ -71,7 +71,7 @@ class SubmissionStatsServiceTest(
 
     @Test
     fun `save new`() {
-        val dbStat = slot<SubmissionStatDb>()
+        val dbStat = slot<DbSubmissionStat>()
         val stat = SubmissionStat("S-TEST123", 10, VIEWS)
 
         every { statsRepository.save(capture(dbStat)) } returns testStat
@@ -85,11 +85,11 @@ class SubmissionStatsServiceTest(
 
     @Test
     fun `save existing`() {
-        val dbStat = slot<SubmissionStatDb>()
+        val dbStat = slot<DbSubmissionStat>()
         val stat = SubmissionStat("S-TEST123", 30, VIEWS)
 
         every { statsRepository.findByAccNoAndType("S-TEST123", VIEWS) } returns testStat
-        every { statsRepository.save(capture(dbStat)) } returns SubmissionStatDb("S-TEST123", 30, VIEWS)
+        every { statsRepository.save(capture(dbStat)) } returns DbSubmissionStat("S-TEST123", 30, VIEWS)
 
         val updatedStat = testInstance.save(stat)
         assertTestStat(updatedStat, "S-TEST123", 30)
@@ -99,7 +99,7 @@ class SubmissionStatsServiceTest(
 
     @Test
     fun `save batch`() {
-        val dbStat = slot<List<SubmissionStatDb>>()
+        val dbStat = slot<List<DbSubmissionStat>>()
         val stat = SubmissionStat("S-TEST123", 10, VIEWS)
 
         every { statsRepository.saveAll(capture(dbStat)) } returns listOf(testStat)
@@ -114,13 +114,13 @@ class SubmissionStatsServiceTest(
 
     @Test
     fun `increment existing`() {
-        val statSlot = slot<List<SubmissionStatDb>>()
+        val statSlot = slot<List<DbSubmissionStat>>()
         val stat = SubmissionStat("S-TEST123", 5, VIEWS)
-        val statDb = SubmissionStatDb("S-TEST123", 10, VIEWS)
+        val statDb = DbSubmissionStat("S-TEST123", 10, VIEWS)
 
         every { statsRepository.existsByAccNoAndType("S-TEST123", VIEWS) } returns true
         every { statsRepository.findByAccNoAndType("S-TEST123", VIEWS) } returns statDb
-        every { statsRepository.saveAll(capture(statSlot)) } returns listOf(SubmissionStatDb("S-TEST123", 15, VIEWS))
+        every { statsRepository.saveAll(capture(statSlot)) } returns listOf(DbSubmissionStat("S-TEST123", 15, VIEWS))
 
         val incremented = testInstance.incrementAll(listOf(stat))
         assertThat(incremented).hasSize(1)
@@ -130,12 +130,12 @@ class SubmissionStatsServiceTest(
 
     @Test
     fun `increment non existing`() {
-        val statSlot = slot<List<SubmissionStatDb>>()
+        val statSlot = slot<List<DbSubmissionStat>>()
         val stat = SubmissionStat("S-TEST123", 14, VIEWS)
 
         every { statsRepository.findByAccNoAndType("S-TEST123", VIEWS) } returns null
         every { statsRepository.existsByAccNoAndType("S-TEST123", VIEWS) } returns false
-        every { statsRepository.saveAll(capture(statSlot)) } returns listOf(SubmissionStatDb("S-TEST123", 14, VIEWS))
+        every { statsRepository.saveAll(capture(statSlot)) } returns listOf(DbSubmissionStat("S-TEST123", 14, VIEWS))
 
         val incremented = testInstance.incrementAll(listOf(stat))
         assertThat(incremented).hasSize(1)
@@ -151,13 +151,13 @@ class SubmissionStatsServiceTest(
 
     @Test
     fun `save batch for non existing submission`() {
-        val statSlot = slot<List<SubmissionStatDb>>()
+        val statSlot = slot<List<DbSubmissionStat>>()
         val stats = listOf(SubmissionStat("S-TEST123", 10, VIEWS), SubmissionStat("S-TEST124", 20, VIEWS))
 
         every { queryService.existByAccNo("S-TEST123") } returns true
         every { queryService.existByAccNo("S-TEST124") } returns false
         every { statsRepository.findByAccNoAndType("S-TEST123", VIEWS) } returns null
-        every { statsRepository.saveAll(capture(statSlot)) } returns listOf(SubmissionStatDb("S-TEST123", 10, VIEWS))
+        every { statsRepository.saveAll(capture(statSlot)) } returns listOf(DbSubmissionStat("S-TEST123", 10, VIEWS))
 
         val saved = testInstance.saveAll(stats)
         assertThat(saved).hasSize(1)
@@ -167,8 +167,8 @@ class SubmissionStatsServiceTest(
 
     @Test
     fun `increment for non existing submission`() {
-        val statSlot = slot<List<SubmissionStatDb>>()
-        val existingStatDb = SubmissionStatDb("S-TEST123", 5, VIEWS)
+        val statSlot = slot<List<DbSubmissionStat>>()
+        val existingStatDb = DbSubmissionStat("S-TEST123", 5, VIEWS)
         val stats = listOf(
             SubmissionStat("S-TEST123", 10, VIEWS),
             SubmissionStat("S-TEST124", 20, VIEWS),
@@ -178,7 +178,7 @@ class SubmissionStatsServiceTest(
         every { queryService.existByAccNo("S-TEST124") } returns false
         every { queryService.existByAccNo("S-TEST125") } returns false
         every { statsRepository.findByAccNoAndType("S-TEST123", VIEWS) } returns existingStatDb
-        every { statsRepository.saveAll(capture(statSlot)) } returns listOf(SubmissionStatDb("S-TEST123", 15, VIEWS))
+        every { statsRepository.saveAll(capture(statSlot)) } returns listOf(DbSubmissionStat("S-TEST123", 15, VIEWS))
 
         val incremented = testInstance.incrementAll(stats)
         assertThat(incremented).hasSize(1)
@@ -188,8 +188,8 @@ class SubmissionStatsServiceTest(
 
     @Test
     fun `increment case insensitive`() {
-        val statSlot = slot<List<SubmissionStatDb>>()
-        val existingStatDb = SubmissionStatDb("DIXA", 5, VIEWS)
+        val statSlot = slot<List<DbSubmissionStat>>()
+        val existingStatDb = DbSubmissionStat("DIXA", 5, VIEWS)
         val stats = listOf(
             SubmissionStat("diXa", 10, VIEWS),
             SubmissionStat("dixa", 20, VIEWS),
@@ -199,7 +199,7 @@ class SubmissionStatsServiceTest(
         every { queryService.existByAccNo("dixa") } returns true
         every { queryService.existByAccNo("DIXA") } returns true
         every { statsRepository.findByAccNoAndType("DIXA", VIEWS) } returns existingStatDb
-        every { statsRepository.saveAll(capture(statSlot)) } returns listOf(SubmissionStatDb("DIXA", 65, VIEWS))
+        every { statsRepository.saveAll(capture(statSlot)) } returns listOf(DbSubmissionStat("DIXA", 65, VIEWS))
 
         val incremented = testInstance.incrementAll(stats)
         assertThat(incremented).hasSize(1)

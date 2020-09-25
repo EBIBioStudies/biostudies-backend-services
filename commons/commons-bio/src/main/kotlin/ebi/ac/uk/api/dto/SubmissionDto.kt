@@ -10,5 +10,6 @@ data class SubmissionDto(
     val ctime: OffsetDateTime,
     val mtime: OffsetDateTime,
     val rtime: OffsetDateTime?,
-    val method: SubmissionMethod?
+    val method: SubmissionMethod?,
+    val status: String
 )

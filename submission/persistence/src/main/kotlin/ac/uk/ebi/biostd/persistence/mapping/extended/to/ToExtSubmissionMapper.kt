@@ -1,11 +1,13 @@
 package ac.uk.ebi.biostd.persistence.mapping.extended.to
 
 import ac.uk.ebi.biostd.persistence.model.DbSubmission
-import ebi.ac.uk.extended.model.ExtAccessTag
+import ac.uk.ebi.biostd.persistence.model.DbSubmissionStat
 import ebi.ac.uk.extended.model.ExtProcessingStatus
+import ebi.ac.uk.extended.model.ExtStat
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod
 import ebi.ac.uk.extended.model.ExtTag
+import ebi.ac.uk.extended.model.Project
 import ebi.ac.uk.io.sources.ComposedFileSource
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.io.sources.PathFilesSource
@@ -15,11 +17,16 @@ import java.nio.file.Path
 
 private const val FILES_DIR = "Files"
 
-// Added for background compatibility of old submitter applications
-public const val USER_PREFIX = "u"
+// Added for backward compatibility of old submitter applications
+const val USER_PREFIX = "u"
 
 class ToExtSubmissionMapper(private val submissionsPath: Path) {
-    internal fun toExtSubmission(dbSubmission: DbSubmission): ExtSubmission {
+    internal fun toExtSubmission(dbToExtRequest: DbToExtRequest): ExtSubmission {
+        val (dbSubmission, stats) = dbToExtRequest
+        return toExtSubmission(dbSubmission, stats)
+    }
+
+    private fun toExtSubmission(dbSubmission: DbSubmission, stats: List<DbSubmissionStat>): ExtSubmission {
         return ExtSubmission(
             accNo = dbSubmission.accNo,
             owner = dbSubmission.owner.email,
@@ -35,12 +42,15 @@ class ToExtSubmissionMapper(private val submissionsPath: Path) {
             releaseTime = dbSubmission.releaseTime,
             modificationTime = dbSubmission.modificationTime,
             creationTime = dbSubmission.creationTime,
+            section = dbSubmission.rootSection.toExtSection(getSubmissionSource(dbSubmission)),
             attributes = dbSubmission.attributes.map { it.toExtAttribute() },
-            accessTags = dbSubmission.accessTags.map { ExtAccessTag(it.name) },
+            projects = dbSubmission.accessTags.map { Project(it.name) },
             tags = dbSubmission.tags.map { ExtTag(it.classifier, it.name) },
-            section = dbSubmission.rootSection.toExtSection(getSubmissionSource(dbSubmission))
+            stats = stats.map { toExtMetric(it) }
         )
     }
+
+    private fun toExtMetric(stat: DbSubmissionStat): ExtStat = ExtStat(stat.type.name, stat.value.toString())
 
     private fun getStatus(status: ProcessingStatus) =
         when (status) {

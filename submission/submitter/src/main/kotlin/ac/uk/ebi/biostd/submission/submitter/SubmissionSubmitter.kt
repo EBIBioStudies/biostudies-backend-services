@@ -16,11 +16,11 @@ import ac.uk.ebi.biostd.submission.service.TimesService
 import ebi.ac.uk.base.orFalse
 import ebi.ac.uk.extended.mapping.from.toExtAttribute
 import ebi.ac.uk.extended.mapping.from.toExtSection
-import ebi.ac.uk.extended.model.ExtAccessTag
 import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod
 import ebi.ac.uk.extended.model.ExtTag
+import ebi.ac.uk.extended.model.Project
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.SubmissionMethod
@@ -114,7 +114,7 @@ class SubmissionSubmitter(
         val projectInfo = getProjectInfo(submitter, submission, accNoString)
         val secretKey = getSecret(accNoString)
         val relPath = accNoService.getRelPath(accNo)
-        val tags = getTags(released, parentTags, projectInfo)
+        val tags = getTags(parentTags, projectInfo)
         val ownerEmail = onBehalfUser?.email ?: queryService.getOwner(accNoString) ?: submitter.email
 
         return ExtSubmission(
@@ -133,7 +133,7 @@ class SubmissionSubmitter(
             modificationTime = modTime,
             creationTime = createTime,
             tags = submission.tags.map { ExtTag(it.first, it.second) },
-            accessTags = tags.map { ExtAccessTag(it) },
+            projects = tags.map { Project(it) },
             section = submission.section.toExtSection(source),
             attributes = getAttributes(submission)
         )
@@ -147,9 +147,8 @@ class SubmissionSubmitter(
         }
     }
 
-    private fun getTags(released: Boolean, parentTags: List<String>, project: ProjectResponse?): List<String> {
-        val tags = parentTags.toMutableList()
-        if (released) tags.add(PUBLIC_ACCESS_TAG.value)
+    private fun getTags(parentTags: List<String>, project: ProjectResponse?): List<String> {
+        val tags = parentTags.filter { it != PUBLIC_ACCESS_TAG.value }.toMutableList()
         if (project != null) tags.add(project.accessTag)
         return tags
     }

@@ -3,12 +3,14 @@ package ac.uk.ebi.biostd.persistence.repositories.data
 import ac.uk.ebi.biostd.persistence.exception.SubmissionNotFoundException
 import ac.uk.ebi.biostd.persistence.filter.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.filter.SubmissionFilterSpecification
+import ac.uk.ebi.biostd.persistence.mapping.extended.to.DbToExtRequest
 import ac.uk.ebi.biostd.persistence.mapping.extended.to.ToExtSubmissionMapper
 import ac.uk.ebi.biostd.persistence.model.DbSubmission
 import ac.uk.ebi.biostd.persistence.projections.SimpleSubmission
 import ac.uk.ebi.biostd.persistence.projections.SimpleSubmission.Companion.asSimpleSubmission
 import ac.uk.ebi.biostd.persistence.repositories.SectionDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.SubmissionDataRepository
+import ac.uk.ebi.biostd.persistence.repositories.SubmissionStatsDataRepository
 import com.cosium.spring.data.jpa.entity.graph.domain.EntityGraphs
 import ebi.ac.uk.extended.mapping.to.toSimpleSubmission
 import ebi.ac.uk.model.Submission
@@ -23,6 +25,7 @@ private val logger = KotlinLogging.logger {}
 open class SubmissionRepository(
     private val submissionRepository: SubmissionDataRepository,
     private val sectionRepository: SectionDataRepository,
+    private val statsRepository: SubmissionStatsDataRepository,
     private var submissionMapper: ToExtSubmissionMapper
 ) {
     @Transactional(readOnly = true)
@@ -32,11 +35,11 @@ open class SubmissionRepository(
     open fun getSimpleByAccNo(accNo: String): Submission = getExtByAccNo(accNo).toSimpleSubmission()
 
     @Transactional(readOnly = true)
-    open fun getExtByAccNo(accNo: String) = submissionMapper.toExtSubmission(lodSubmission(accNo))
+    open fun getExtByAccNo(accNo: String) = submissionMapper.toExtSubmission(dbToExtRequest(accNo))
 
     @Transactional(readOnly = true)
     open fun getExtByAccNoAndVersion(accNo: String, version: Int) =
-        submissionMapper.toExtSubmission(lodSubmission(accNo, version))
+        submissionMapper.toExtSubmission(dbToExtRequest(accNo, version))
 
     open fun expireSubmission(accNo: String) {
         val submission = submissionRepository.findByAccNoAndVersionGreaterThan(accNo)
@@ -54,6 +57,9 @@ open class SubmissionRepository(
             .content
             .map { it.asSimpleSubmission() }
     }
+
+    private fun dbToExtRequest(accNo: String, version: Int? = null): DbToExtRequest =
+        DbToExtRequest(lodSubmission(accNo, version), statsRepository.findByAccNo(accNo))
 
     /**
      * Load submission information strategy used is basically first load submission and then load each section and its

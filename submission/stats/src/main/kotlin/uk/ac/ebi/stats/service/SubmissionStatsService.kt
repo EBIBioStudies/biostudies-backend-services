@@ -3,20 +3,20 @@ package uk.ac.ebi.stats.service
 import ac.uk.ebi.biostd.persistence.exception.SubmissionNotFoundException
 import ac.uk.ebi.biostd.persistence.filter.PaginationFilter
 import ac.uk.ebi.biostd.persistence.integration.SubmissionQueryService
+import ac.uk.ebi.biostd.persistence.model.DbSubmissionStat
+import ac.uk.ebi.biostd.persistence.model.SubmissionStatType
+import ac.uk.ebi.biostd.persistence.repositories.SubmissionStatsDataRepository
 import org.springframework.data.domain.PageRequest
 import org.springframework.transaction.annotation.Transactional
 import uk.ac.ebi.stats.exception.StatNotFoundException
 import uk.ac.ebi.stats.mapping.SubmissionStatMapper.toSubmissionStat
 import uk.ac.ebi.stats.mapping.SubmissionStatMapper.toSubmissionStatDb
 import uk.ac.ebi.stats.model.SubmissionStat
-import uk.ac.ebi.stats.model.SubmissionStatType
-import uk.ac.ebi.stats.persistence.model.SubmissionStatDb
-import uk.ac.ebi.stats.persistence.repositories.SubmissionStatsRepository
 
 @SuppressWarnings("TooManyFunctions")
 open class SubmissionStatsService(
     private val submissionQueryService: SubmissionQueryService,
-    private val statsRepository: SubmissionStatsRepository
+    private val statsRepository: SubmissionStatsDataRepository
 ) {
     open fun findByType(submissionStatType: SubmissionStatType, filter: PaginationFilter): List<SubmissionStat> =
         statsRepository
@@ -76,9 +76,9 @@ open class SubmissionStatsService(
     private fun toUpdate(
         stat: SubmissionStat,
         updatedValue: (currentValue: Long, newValue: Long) -> Long
-    ): SubmissionStatDb = when (val statDb = statsRepository.findByAccNoAndType(stat.accNo, stat.type)) {
+    ): DbSubmissionStat = when (val statDb = statsRepository.findByAccNoAndType(stat.accNo, stat.type)) {
         null -> toSubmissionStatDb(stat)
-        else -> SubmissionStatDb(
+        else -> DbSubmissionStat(
             statDb.accNo, updatedValue(statDb.value, stat.value), statDb.type).apply { id = statDb.id }
     }
 }

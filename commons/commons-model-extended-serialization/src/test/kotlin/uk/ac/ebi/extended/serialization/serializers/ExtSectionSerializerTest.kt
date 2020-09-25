@@ -72,6 +72,8 @@ class ExtSectionSerializerTest(private val tempFolder: TemporaryFolder) {
                     "file" to referencedFile.absolutePath
                     "attributes" to jsonArray()
                     "extType" to "file"
+                    "type" to "file"
+                    "size" to 0
                 })
             }
             "attributes" to jsonArray(jsonObj {
@@ -103,17 +105,22 @@ class ExtSectionSerializerTest(private val tempFolder: TemporaryFolder) {
                 "extType" to "sectionsTable"
             })
 
-            "files" to jsonArray(jsonObj {
-                "fileName" to "section-file.txt"
-                "file" to sectionFile.absolutePath
-                "attributes" to jsonArray()
-                "extType" to "file"
-            }, jsonObj {
+            "files" to jsonArray(
+                jsonObj {
+                    "fileName" to "section-file.txt"
+                    "file" to sectionFile.absolutePath
+                    "attributes" to jsonArray()
+                    "extType" to "file"
+                    "type" to "file"
+                    "size" to 0
+                }, jsonObj {
                 "files" to jsonArray(jsonObj {
                     "fileName" to "section-file-table.txt"
                     "file" to sectionFilesTable.absolutePath
                     "attributes" to jsonArray()
                     "extType" to "file"
+                    "type" to "file"
+                    "size" to 0
                 })
                 "extType" to "filesTable"
             })

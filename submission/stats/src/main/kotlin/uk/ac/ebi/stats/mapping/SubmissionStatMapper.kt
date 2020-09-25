@@ -1,12 +1,12 @@
 package uk.ac.ebi.stats.mapping
 
+import ac.uk.ebi.biostd.persistence.model.DbSubmissionStat
 import uk.ac.ebi.stats.model.SubmissionStat
-import uk.ac.ebi.stats.persistence.model.SubmissionStatDb
 
 object SubmissionStatMapper {
-    fun toSubmissionStat(submissionStatDb: SubmissionStatDb): SubmissionStat =
-        SubmissionStat(submissionStatDb.accNo, submissionStatDb.value, submissionStatDb.type)
+    fun toSubmissionStat(dbSubmissionStat: DbSubmissionStat): SubmissionStat =
+        SubmissionStat(dbSubmissionStat.accNo, dbSubmissionStat.value, dbSubmissionStat.type)
 
-    fun toSubmissionStatDb(submissionStat: SubmissionStat): SubmissionStatDb =
-        SubmissionStatDb(accNo = submissionStat.accNo, value = submissionStat.value, type = submissionStat.type)
+    fun toSubmissionStatDb(submissionStat: SubmissionStat): DbSubmissionStat =
+        DbSubmissionStat(accNo = submissionStat.accNo, value = submissionStat.value, type = submissionStat.type)
 }

@@ -1,12 +1,12 @@
 package uk.ac.ebi.extended.serialization.service
 
-import ebi.ac.uk.extended.model.ExtAccessTag
 import ebi.ac.uk.extended.model.ExtAttribute
 import ebi.ac.uk.extended.model.ExtProcessingStatus.PROCESSED
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod.PAGE_TAB
 import ebi.ac.uk.extended.model.ExtTag
+import ebi.ac.uk.extended.model.Project
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.time.OffsetDateTime
@@ -35,7 +35,7 @@ class ExtSerializationServiceTest {
             creationTime = time,
             attributes = listOf(ExtAttribute("AttachTo", "BioImages")),
             tags = listOf(ExtTag("component", "web")),
-            accessTags = listOf(ExtAccessTag("BioImages")),
+            projects = listOf(Project("BioImages")),
             section = ExtSection(type = "Study")
         )
 

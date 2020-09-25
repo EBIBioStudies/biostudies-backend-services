@@ -1,4 +1,4 @@
-package uk.ac.ebi.stats.model
+package ac.uk.ebi.biostd.persistence.model
 
 enum class SubmissionStatType {
     VIEWS
