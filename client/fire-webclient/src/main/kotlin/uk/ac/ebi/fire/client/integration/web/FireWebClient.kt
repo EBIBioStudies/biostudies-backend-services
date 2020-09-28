@@ -8,7 +8,7 @@ import uk.ac.ebi.fire.client.exception.FireWebClientErrorHandler
 
 class FireWebClient private constructor(
     private val fireClient: FireClient
-): FireOperations by fireClient {
+) : FireOperations by fireClient {
     companion object {
         fun create(
             tmpDirPath: String,

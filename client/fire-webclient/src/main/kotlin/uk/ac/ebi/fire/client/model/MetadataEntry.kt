@@ -6,5 +6,3 @@ data class MetadataEntry(
 ) {
     override fun toString(): String = "\"${key}\": \"${value}\""
 }
-
-fun List<MetadataEntry>.asRequestParameter(): String = "{ ${joinToString(",") { it.toString() }} }"
