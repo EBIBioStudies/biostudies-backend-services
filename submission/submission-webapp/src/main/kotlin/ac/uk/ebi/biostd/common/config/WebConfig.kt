@@ -4,7 +4,7 @@ import ac.uk.ebi.biostd.files.web.common.GroupPathDescriptorResolver
 import ac.uk.ebi.biostd.files.web.common.UserPathDescriptorResolver
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.submission.converters.BioUserResolver
-import ac.uk.ebi.biostd.submission.converters.ExtListSubmissionConverter
+import ac.uk.ebi.biostd.submission.converters.ExtPageSubmissionConverter
 import ac.uk.ebi.biostd.submission.converters.ExtSubmissionConverter
 import ac.uk.ebi.biostd.submission.converters.JsonPagetabConverter
 import ac.uk.ebi.biostd.submission.converters.OnBehalfUserRequestResolver
@@ -36,7 +36,7 @@ internal class WebConfig(
     override fun extendMessageConverters(converters: MutableList<HttpMessageConverter<*>>) {
         converters.add(0, JsonPagetabConverter(serializationService))
         converters.add(1, ExtSubmissionConverter(extSerializationService))
-        converters.add(2, ExtListSubmissionConverter(extSerializationService))
+        converters.add(2, ExtPageSubmissionConverter(extSerializationService))
     }
 
     override fun addArgumentResolvers(argumentResolvers: MutableList<HandlerMethodArgumentResolver>) {

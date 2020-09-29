@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.submission.converters
 
-import ac.uk.ebi.biostd.submission.web.model.ExtPage
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.io.ext.asString
 import org.springframework.http.HttpInputMessage
@@ -33,26 +32,4 @@ class ExtSubmissionConverter(
 
     override fun read(clazz: Class<out ExtSubmission>, message: HttpInputMessage): ExtSubmission =
         extSerializationService.deserialize(message.body.asString(), ExtSubmission::class.java)
-}
-
-class ExtListSubmissionConverter(
-    private val extSerializationService: ExtSerializationService
-) : HttpMessageConverter<ExtPage> {
-    override fun canRead(clazz: Class<*>, mediaType: MediaType): Boolean = false
-
-    override fun canWrite(
-        clazz: Class<*>,
-        mediaType: MediaType?
-    ): Boolean = ExtPage::class.isSuperclassOf(clazz.kotlin)
-
-    override fun getSupportedMediaTypes(): List<MediaType> = listOf(APPLICATION_JSON)
-
-    override fun write(extSubmission: ExtPage, contentType: MediaType, message: HttpOutputMessage) {
-        message.headers.contentType = APPLICATION_JSON
-        message.body.write(extSerializationService.serialize(extSubmission).toByteArray())
-    }
-
-    override fun read(clazz: Class<out ExtPage>, inputMessage: HttpInputMessage): ExtPage {
-        TODO("Not yet implemented")
-    }
 }
