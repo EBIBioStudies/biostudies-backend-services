@@ -17,6 +17,7 @@ import ac.uk.ebi.biostd.persistence.model.SubmissionStatType
 import ac.uk.ebi.biostd.persistence.model.USER_DATA_GRAPH
 import ac.uk.ebi.biostd.persistence.model.UserDataId
 import ac.uk.ebi.biostd.persistence.model.UserGroup
+import ac.uk.ebi.biostd.persistence.projections.SubmissionId
 import com.cosium.spring.data.jpa.entity.graph.repository.EntityGraphJpaRepository
 import com.cosium.spring.data.jpa.entity.graph.repository.EntityGraphJpaSpecificationExecutor
 import ebi.ac.uk.model.constants.ProcessingStatus
@@ -84,6 +85,9 @@ interface SubmissionDataRepository :
         graph: GraphSpecification,
         version: Int = 0
     ): List<DbSubmission>
+
+    @Query("select s.accNo as accNo, s.version as version from DbSubmission s where s.version > 0 ")
+    fun getIds(pageRequest: PageRequest): Page<SubmissionId>
 }
 
 interface SectionDataRepository : JpaRepository<DbSection, Long> {

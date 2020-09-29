@@ -13,10 +13,13 @@ import ac.uk.ebi.biostd.persistence.repositories.SubmissionDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.SubmissionStatsDataRepository
 import com.cosium.spring.data.jpa.entity.graph.domain.EntityGraphs
 import ebi.ac.uk.extended.mapping.to.toSimpleSubmission
+import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.model.Submission
 import mu.KotlinLogging
+import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
+import org.springframework.data.domain.Sort.Order
 import org.springframework.transaction.annotation.Transactional
 
 private val logger = KotlinLogging.logger {}
@@ -47,6 +50,13 @@ open class SubmissionRepository(
             submission.version = -submission.version
             submissionRepository.save(submission)
         }
+    }
+
+    @Transactional(readOnly = true)
+    open fun getExtendedSubmissions(page: Int, size: Int): Page<ExtSubmission> {
+        return submissionRepository
+            .getIds(PageRequest.of(page, size, Sort.by(Order.asc("id"))))
+            .map { getExtByAccNoAndVersion(it.accNo, it.version) }
     }
 
     open fun getSubmissionsByUser(userId: Long, filter: SubmissionFilter): List<SimpleSubmission> {
