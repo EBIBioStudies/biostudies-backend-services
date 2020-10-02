@@ -9,22 +9,14 @@ import java.net.URI
 class ExtendedPageMapper(private val instanceBase: URI) {
 
     fun asExtPage(page: Page<ExtSubmission>): ExtPage =
-            ExtPage(page.content, page.totalPages, getNextPage(page), getPreviousPage(page))
+        ExtPage(page.content, page.totalPages, getNextPage(page), getPreviousPage(page))
 
-    private fun getPreviousPage(page: Page<ExtSubmission>): String? {
-        return when (page.hasPrevious()) {
-            true -> instanceBase.resolve(asQueryParams(page.previousPageable())).toString()
-            false -> null
-        }
-    }
+    private fun getPreviousPage(page: Page<ExtSubmission>): String? =
+        if (page.hasPrevious()) instanceBase.resolve(asQueryParams(page.previousPageable())).toString() else null
 
-    private fun getNextPage(page: Page<ExtSubmission>): String? {
-        return when (page.hasNext()) {
-            true -> instanceBase.resolve(asQueryParams(page.nextPageable())).toString()
-            false -> null
-        }
-    }
+    private fun getNextPage(page: Page<ExtSubmission>): String? =
+        if (page.hasNext()) instanceBase.resolve(asQueryParams(page.nextPageable())).toString() else null
 
     private fun asQueryParams(nextPageable: Pageable): String =
-        "$instanceBase/submissions/extended?page=${nextPageable.pageNumber}&${nextPageable.pageSize}"
+        "$instanceBase/submissions/extended?page=${nextPageable.pageNumber}&size=${nextPageable.pageSize}"
 }

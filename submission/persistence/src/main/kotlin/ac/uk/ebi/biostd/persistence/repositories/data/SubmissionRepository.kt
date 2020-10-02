@@ -23,6 +23,7 @@ import org.springframework.data.domain.Sort.Order
 import org.springframework.transaction.annotation.Transactional
 
 private val logger = KotlinLogging.logger {}
+private val defaultOrder = Order.asc("id")
 
 @Suppress("TooManyFunctions")
 open class SubmissionRepository(
@@ -53,11 +54,10 @@ open class SubmissionRepository(
     }
 
     @Transactional(readOnly = true)
-    open fun getExtendedSubmissions(page: Int, size: Int): Page<ExtSubmission> {
-        return submissionRepository
-            .getIds(PageRequest.of(page, size, Sort.by(Order.asc("id"))))
+    open fun getExtendedSubmissions(page: Int, size: Int): Page<ExtSubmission> =
+        submissionRepository
+            .getIds(PageRequest.of(page, size, Sort.by(defaultOrder)))
             .map { getExtByAccNoAndVersion(it.accNo, it.version) }
-    }
 
     open fun getSubmissionsByUser(userId: Long, filter: SubmissionFilter): List<SimpleSubmission> {
         val filterSpecs = SubmissionFilterSpecification(userId, filter)
