@@ -56,6 +56,22 @@ internal class SubmissionListApiTest(private val tempFolder: TemporaryFolder) : 
         }
 
         @Test
+        fun `get submission when processing`() {
+            val newVersion = getSimpleSubmission(18)
+            webClient.submitAsync(newVersion, SubmissionFormat.TSV)
+
+            val submissionList = webClient.getSubmissions(mapOf("accNo" to "SimpleAcc18"))
+
+            assertThat(submissionList).hasOnlyOneElementSatisfying {
+                assertThat(it.accno).isEqualTo("SimpleAcc18")
+                assertThat(it.version).isEqualTo(2)
+                assertThat(it.method).isEqualTo(SubmissionMethod.PAGE_TAB)
+                assertThat(it.title).isEqualTo("Simple Submission 18 - keyword18")
+                assertThat(it.status).isEqualTo("REQUESTED")
+            }
+        }
+
+        @Test
         fun `get submission list`() {
             val submissionList = webClient.getSubmissions()
 
@@ -74,6 +90,7 @@ internal class SubmissionListApiTest(private val tempFolder: TemporaryFolder) : 
                 assertThat(it.version).isEqualTo(1)
                 assertThat(it.method).isEqualTo(SubmissionMethod.PAGE_TAB)
                 assertThat(it.title).isEqualTo("Simple Submission 17 - keyword17")
+                assertThat(it.status).isEqualTo("PROCESSED")
             }
         }
 
@@ -88,6 +105,7 @@ internal class SubmissionListApiTest(private val tempFolder: TemporaryFolder) : 
                 assertThat(it.version).isEqualTo(1)
                 assertThat(it.method).isEqualTo(SubmissionMethod.FILE)
                 assertThat(it.title).isEqualTo("Simple Submission 27 - keyword27")
+                assertThat(it.status).isEqualTo("PROCESSED")
             }
         }
 
@@ -143,6 +161,7 @@ internal class SubmissionListApiTest(private val tempFolder: TemporaryFolder) : 
                 assertThat(it.version).isEqualTo(1)
                 assertThat(it.method).isEqualTo(SubmissionMethod.PAGE_TAB)
                 assertThat(it.title).isEqualTo("Submission With Section Title")
+                assertThat(it.status).isEqualTo("PROCESSED")
             }
         }
 
@@ -169,6 +188,7 @@ internal class SubmissionListApiTest(private val tempFolder: TemporaryFolder) : 
                 assertThat(it.version).isEqualTo(1)
                 assertThat(it.method).isEqualTo(SubmissionMethod.PAGE_TAB)
                 assertThat(it.title).isEqualTo("Submission Title")
+                assertThat(it.status).isEqualTo("PROCESSED")
             }
         }
 

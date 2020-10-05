@@ -3,6 +3,15 @@ package ac.uk.ebi.biostd.persistence.model
 import ac.uk.ebi.biostd.persistence.converters.EpochDateConverter
 import ac.uk.ebi.biostd.persistence.converters.NullableEpochDateConverter
 import ac.uk.ebi.biostd.persistence.converters.ProcessingStatusConverter
+import ac.uk.ebi.biostd.persistence.model.constants.ACC_TAGS
+import ac.uk.ebi.biostd.persistence.model.constants.ATTRS
+import ac.uk.ebi.biostd.persistence.model.constants.FILES
+import ac.uk.ebi.biostd.persistence.model.constants.LINKS
+import ac.uk.ebi.biostd.persistence.model.constants.SECTS
+import ac.uk.ebi.biostd.persistence.model.constants.SUBMITTER
+import ac.uk.ebi.biostd.persistence.model.constants.SUB_OWNER
+import ac.uk.ebi.biostd.persistence.model.constants.SUB_ROOT_SECTION
+import ac.uk.ebi.biostd.persistence.model.constants.TAGS
 import ebi.ac.uk.model.SubmissionMethod
 import ebi.ac.uk.model.constants.ProcessingStatus
 import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSING
@@ -42,21 +51,21 @@ private const val ATTRIBUTES_GRAPH = "SubmissionObject.attributesGraph"
 
 @Entity
 @NamedEntityGraphs(value = [
-    NamedEntityGraph(name = SIMPLE_QUERY_GRAPH, attributeNodes = [Node(value = ROOT_SECTION)]),
+    NamedEntityGraph(name = SIMPLE_QUERY_GRAPH, attributeNodes = [Node(value = SUB_ROOT_SECTION)]),
     NamedEntityGraph(name = SUBMISSION_FULL_GRAPH, attributeNodes = [
         Node(ATTRS),
         Node(ACC_TAGS),
         Node(TAGS),
-        Node(OWNER),
+        Node(SUB_OWNER),
         Node(SUBMITTER)
     ]),
     NamedEntityGraph(name = SUBMISSION_AND_ROOT_SECTION_FULL_GRAPH, attributeNodes = [
         Node(ATTRS),
         Node(ACC_TAGS),
         Node(TAGS),
-        Node(OWNER),
+        Node(SUB_OWNER),
         Node(SUBMITTER),
-        Node(value = ROOT_SECTION, subgraph = ROOT_SECTION_GRAPH)
+        Node(value = SUB_ROOT_SECTION, subgraph = ROOT_SECTION_GRAPH)
     ], subgraphs = [
         Graph(name = ROOT_SECTION_GRAPH, attributeNodes = [
             Node(LINKS, subgraph = ATTRIBUTES_GRAPH),

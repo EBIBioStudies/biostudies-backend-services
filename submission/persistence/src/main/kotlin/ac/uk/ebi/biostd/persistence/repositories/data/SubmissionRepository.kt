@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.persistence.filter.SubmissionFilterSpecification
 import ac.uk.ebi.biostd.persistence.mapping.extended.to.DbToExtRequest
 import ac.uk.ebi.biostd.persistence.mapping.extended.to.ToExtSubmissionMapper
 import ac.uk.ebi.biostd.persistence.model.DbSubmission
+import ac.uk.ebi.biostd.persistence.model.constants.SUB_RELEASE_TIME
 import ac.uk.ebi.biostd.persistence.projections.SimpleSubmission
 import ac.uk.ebi.biostd.persistence.projections.SimpleSubmission.Companion.asSimpleSubmission
 import ac.uk.ebi.biostd.persistence.repositories.SectionDataRepository
@@ -51,7 +52,7 @@ open class SubmissionRepository(
 
     open fun getSubmissionsByUser(userId: Long, filter: SubmissionFilter): List<SimpleSubmission> {
         val filterSpecs = SubmissionFilterSpecification(userId, filter)
-        val pageable = PageRequest.of(filter.pageNumber, filter.limit, Sort.by("releaseTime").descending())
+        val pageable = PageRequest.of(filter.pageNumber, filter.limit, Sort.by(SUB_RELEASE_TIME).descending())
         return submissionRepository
             .findAll(filterSpecs.specification, pageable, EntityGraphs.named(SimpleSubmission.SIMPLE_GRAPH))
             .content
