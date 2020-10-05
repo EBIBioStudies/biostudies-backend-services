@@ -54,9 +54,9 @@ open class SubmissionRepository(
     }
 
     @Transactional(readOnly = true)
-    open fun getExtendedSubmissions(page: Int, size: Int): Page<ExtSubmission> =
+    open fun getExtendedSubmissions(offset: Int, limit: Int): Page<ExtSubmission> =
         submissionRepository
-            .getIds(PageRequest.of(page, size, Sort.by(defaultOrder)))
+            .getIds(PageRequest.of(offset / limit, limit, Sort.by(defaultOrder)))
             .map { getExtByAccNoAndVersion(it.accNo, it.version) }
 
     open fun getSubmissionsByUser(userId: Long, filter: SubmissionFilter): List<SimpleSubmission> {

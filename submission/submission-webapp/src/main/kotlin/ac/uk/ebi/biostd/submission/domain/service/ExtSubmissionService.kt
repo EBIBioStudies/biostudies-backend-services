@@ -22,7 +22,7 @@ class ExtSubmissionService(
     }
 
     fun getExtendedSubmissions(request: ExtPageRequest): Page<ExtSubmission> =
-        submissionRepository.getExtendedSubmissions(request.page, request.size)
+        submissionRepository.getExtendedSubmissions(request.offset, request.limit)
 
     private fun validateUser(user: String) =
         require(userPrivilegesService.canSubmitExtended(user)) {

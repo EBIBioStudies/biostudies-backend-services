@@ -4,7 +4,9 @@ import ebi.ac.uk.extended.model.ExtSubmission
 
 data class ExtPage(
     val content: List<ExtSubmission>,
-    val totalRecords: Int,
-    val nextPage: String?,
-    val previousPage: String?
+    val totalElements: Long,
+    val limit: Int,
+    val offset: Long,
+    val next: String?,
+    val previous: String?
 )
