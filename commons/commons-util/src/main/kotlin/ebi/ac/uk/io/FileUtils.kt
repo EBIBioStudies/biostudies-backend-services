@@ -7,6 +7,7 @@ import ebi.ac.uk.io.FileUtilsHelper.createFolderIfNotExist
 import ebi.ac.uk.io.FileUtilsHelper.createParentDirectories
 import ebi.ac.uk.io.FileUtilsHelper.createSymLink
 import ebi.ac.uk.io.ext.notExist
+import org.apache.commons.codec.digest.DigestUtils
 import java.io.File
 import java.io.InputStream
 import java.nio.file.Files
@@ -120,6 +121,8 @@ object FileUtils {
     fun isDirectory(file: File): Boolean = Files.isDirectory(file.toPath())
 
     fun size(file: File): Long = Files.size(file.toPath())
+
+    fun md5(file: File): String = DigestUtils.md5Hex(file.readBytes()).toUpperCase()
 
     fun listFiles(file: File): List<File> = when (isDirectory(file)) {
         true -> Files.list(file.toPath()).map { it.toFile() }.toList()
