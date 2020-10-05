@@ -17,4 +17,13 @@ open class ApplicationProperties {
 
     @NestedConfigurationProperty
     var notifications: NotificationProperties = NotificationProperties()
+
+    @NestedConfigurationProperty
+    var fire: FireProperties = FireProperties()
+}
+
+class FireProperties {
+    lateinit var host: String
+    lateinit var username: String
+    lateinit var password: String
 }

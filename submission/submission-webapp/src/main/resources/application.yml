@@ -40,6 +40,10 @@ app:
   ftpPath: # Absolute path to the folder to be used ftp hardlinks
   tempDirPath: # Absolute of the temp folder to store files
   instanceBaseUrl: # Instance base url e.g. http://server.ebi.ac.uk:5541
+  fire:
+    host: # FIRE host
+    username: # FIRE user
+    password: # FIRE password
   security:
     captchaKey: # Captcha validation token
     checkCaptcha: false

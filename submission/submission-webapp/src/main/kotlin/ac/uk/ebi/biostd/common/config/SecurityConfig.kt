@@ -53,6 +53,7 @@ class SecurityConfig(
             .antMatchers("/swagger**").permitAll()
             .antMatchers("/swagger-resources/**").permitAll()
             .antMatchers("/actuator/**").permitAll()
+            .antMatchers("/fire/**").permitAll()
             .anyRequest().fullyAuthenticated()
             .and()
             .exceptionHandling().accessDeniedHandler(accessDeniedHandler)
