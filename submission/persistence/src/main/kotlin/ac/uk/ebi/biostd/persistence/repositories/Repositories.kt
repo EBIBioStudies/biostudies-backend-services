@@ -87,7 +87,7 @@ interface SubmissionDataRepository :
     ): List<DbSubmission>
 
     @Query("select s.accNo as accNo, s.version as version from DbSubmission s where s.version > 0 ")
-    fun getIds(pageRequest: PageRequest): Page<SubmissionId>
+    fun getIds(pageRequest: Pageable): Page<SubmissionId>
 }
 
 interface SectionDataRepository : JpaRepository<DbSection, Long> {

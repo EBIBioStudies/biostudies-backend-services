@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.persistence.filter.SubmissionFilterSpecification
 import ac.uk.ebi.biostd.persistence.mapping.extended.to.DbToExtRequest
 import ac.uk.ebi.biostd.persistence.mapping.extended.to.ToExtSubmissionMapper
 import ac.uk.ebi.biostd.persistence.model.DbSubmission
+import ac.uk.ebi.biostd.persistence.pagination.OffsetPageRequest
 import ac.uk.ebi.biostd.persistence.projections.SimpleSubmission
 import ac.uk.ebi.biostd.persistence.projections.SimpleSubmission.Companion.asSimpleSubmission
 import ac.uk.ebi.biostd.persistence.repositories.SectionDataRepository
@@ -54,9 +55,9 @@ open class SubmissionRepository(
     }
 
     @Transactional(readOnly = true)
-    open fun getExtendedSubmissions(offset: Int, limit: Int): Page<ExtSubmission> =
+    open fun getExtendedSubmissions(offset: Long, limit: Int): Page<ExtSubmission> =
         submissionRepository
-            .getIds(PageRequest.of(offset / limit, limit, Sort.by(defaultOrder)))
+            .getIds(OffsetPageRequest(offset, limit, Sort.by(defaultOrder)))
             .map { getExtByAccNoAndVersion(it.accNo, it.version) }
 
     open fun getSubmissionsByUser(userId: Long, filter: SubmissionFilter): List<SimpleSubmission> {

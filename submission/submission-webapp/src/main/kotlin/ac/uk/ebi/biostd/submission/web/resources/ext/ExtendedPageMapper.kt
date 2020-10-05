@@ -25,5 +25,5 @@ class ExtendedPageMapper(private val instanceBase: URI) {
         if (page.hasNext()) instanceBase.resolve(asQueryParams(page.nextPageable())).toString() else null
 
     private fun asQueryParams(nextPageable: Pageable): String =
-        "$instanceBase/submissions/extended?offset=${nextPageable.offset}&size=${nextPageable.pageSize}"
+        "$instanceBase/submissions/extended?offset=${nextPageable.offset}&limit=${nextPageable.pageSize}"
 }
