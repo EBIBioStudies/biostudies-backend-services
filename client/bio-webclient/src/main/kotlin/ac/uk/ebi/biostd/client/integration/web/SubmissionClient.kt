@@ -67,7 +67,8 @@ interface SubmissionOperations {
     fun submitAsync(
         submission: String,
         format: SubmissionFormat = JSON,
-        register: RegisterConfig = NonRegistration): Unit
+        register: RegisterConfig = NonRegistration
+    ): Unit
 
     fun refreshSubmission(accNo: String): SubmissionResponse
 

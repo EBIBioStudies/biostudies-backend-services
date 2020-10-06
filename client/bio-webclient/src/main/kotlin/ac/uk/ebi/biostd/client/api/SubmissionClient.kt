@@ -25,6 +25,7 @@ import org.springframework.web.util.UriComponentsBuilder
 
 private const val SUBMISSIONS_URL = "/submissions"
 
+@Suppress("TooManyFunctions")
 internal class SubmissionClient(
     private val template: RestTemplate,
     private val serializationService: SerializationService
@@ -61,7 +62,7 @@ internal class SubmissionClient(
             .let { ClientResponse(it.body!!, it.statusCodeValue) }
     }
 
-    private fun submitAsyncSingle(request: HttpEntity<String>, register: RegisterConfig): Unit {
+    private fun submitAsyncSingle(request: HttpEntity<String>, register: RegisterConfig) {
         template.postForEntity<Void>(buildUrl(register).plus("/async"), request)
     }
 

@@ -20,4 +20,3 @@ internal const val SUB_TITLE = "title"
 internal const val SUB_ROOT_SECTION = "rootSection"
 internal const val SUBMITTER = "submitter"
 internal const val ACC_TAGS = "accessTags"
-

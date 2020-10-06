@@ -15,7 +15,6 @@ import ebi.ac.uk.base.applyIfNotBlank
 import org.springframework.data.jpa.domain.Specification
 import java.time.OffsetDateTime
 
-
 class SubmissionFilterSpecification(userId: Long, filter: SubmissionFilter) {
     val specification: Specification<DbSubmission>
 
