@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.persistence.filter.SubmissionFilterSpecification
 import ac.uk.ebi.biostd.persistence.mapping.extended.to.DbToExtRequest
 import ac.uk.ebi.biostd.persistence.mapping.extended.to.ToExtSubmissionMapper
 import ac.uk.ebi.biostd.persistence.model.DbSubmission
+import ac.uk.ebi.biostd.persistence.pagination.OffsetPageRequest
 import ac.uk.ebi.biostd.persistence.model.constants.SUB_RELEASE_TIME
 import ac.uk.ebi.biostd.persistence.projections.SimpleSubmission
 import ac.uk.ebi.biostd.persistence.projections.SimpleSubmission.Companion.asSimpleSubmission
@@ -14,13 +15,17 @@ import ac.uk.ebi.biostd.persistence.repositories.SubmissionDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.SubmissionStatsDataRepository
 import com.cosium.spring.data.jpa.entity.graph.domain.EntityGraphs
 import ebi.ac.uk.extended.mapping.to.toSimpleSubmission
+import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.model.Submission
 import mu.KotlinLogging
+import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
+import org.springframework.data.domain.Sort.Order
 import org.springframework.transaction.annotation.Transactional
 
 private val logger = KotlinLogging.logger {}
+private val defaultOrder = Order.asc("id")
 
 @Suppress("TooManyFunctions")
 open class SubmissionRepository(
@@ -49,6 +54,12 @@ open class SubmissionRepository(
             submissionRepository.save(submission)
         }
     }
+
+    @Transactional(readOnly = true)
+    open fun getExtendedSubmissions(offset: Long, limit: Int): Page<ExtSubmission> =
+        submissionRepository
+            .getIds(OffsetPageRequest(offset, limit, Sort.by(defaultOrder)))
+            .map { getExtByAccNoAndVersion(it.accNo, it.version) }
 
     open fun getSubmissionsByUser(userId: Long, filter: SubmissionFilter): List<SimpleSubmission> {
         val filterSpecs = SubmissionFilterSpecification(userId, filter)
