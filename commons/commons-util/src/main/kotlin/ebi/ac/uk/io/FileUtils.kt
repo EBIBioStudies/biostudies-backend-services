@@ -122,7 +122,7 @@ object FileUtils {
 
     fun size(file: File): Long = Files.size(file.toPath())
 
-    fun md5(file: File): String = DigestUtils.md5Hex(file.readBytes()).toUpperCase()
+    fun md5(file: File): String = if (file.isFile) DigestUtils.md5Hex(file.readBytes()).toUpperCase() else ""
 
     fun listFiles(file: File): List<File> = when (isDirectory(file)) {
         true -> Files.list(file.toPath()).map { it.toFile() }.toList()

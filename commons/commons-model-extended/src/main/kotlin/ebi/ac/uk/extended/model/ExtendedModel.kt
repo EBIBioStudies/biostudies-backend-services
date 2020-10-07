@@ -4,6 +4,8 @@ import arrow.core.Either
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.annotation.JsonProperty.Access.READ_ONLY
 import ebi.ac.uk.extended.delegates.AccessTagDelegate
+import ebi.ac.uk.io.ext.md5
+import ebi.ac.uk.io.ext.size
 import java.io.File
 import java.time.OffsetDateTime
 
@@ -25,8 +27,16 @@ data class ExtLink(
 data class ExtFile(
     val fileName: String,
     val file: File,
+    val size: Long,
+    val md5: String,
     val attributes: List<ExtAttribute> = listOf()
-)
+) {
+    constructor(
+        fileName: String,
+        file: File,
+        attributes: List<ExtAttribute> = listOf()
+    ) : this(fileName, file, file.size(), file.md5(), attributes)
+}
 
 data class ExtFileList(val fileName: String, val files: List<ExtFile>)
 

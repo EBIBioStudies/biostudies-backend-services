@@ -226,4 +226,42 @@ internal class FileUtilsTest(private val temporaryFolder: TemporaryFolder) {
             FileUtils.deleteFile(tempDir.resolve("another-dir"))
         }
     }
+
+    @Nested
+    inner class Utilities {
+        @Test
+        fun `is directory`() {
+            val file = temporaryFolder.createFile("test.txt")
+            val folder = temporaryFolder.createDirectory("test-folder")
+
+            assertThat(FileUtils.isDirectory(file)).isFalse()
+            assertThat(FileUtils.isDirectory(folder)).isTrue()
+        }
+
+        @Test
+        fun size() {
+            val file = temporaryFolder.createFile("size-test.txt", "a test text")
+            assertThat(FileUtils.size(file)).isEqualTo(11L)
+        }
+
+        @Test
+        fun md5() {
+            val folder = temporaryFolder.createDirectory("md5-test")
+            val file = temporaryFolder.createFile("md5-test.txt", "a file for md5 test")
+
+            assertThat(FileUtils.md5(folder)).isEmpty()
+            assertThat(FileUtils.md5(file)).isEqualTo("FC5D029EE5D34A268F8FA016E949073B")
+        }
+
+        @Test
+        fun `list files`() {
+            val folder = temporaryFolder.createDirectory("listing-test")
+            val file1 = temporaryFolder.createFile("listing-test/listing-file1.txt")
+            val file2 = temporaryFolder.createFile("listing-test/listing-file2.txt")
+            val innerFolder = temporaryFolder.createDirectory("listing-test/inner-folder")
+
+            assertThat(FileUtils.listFiles(file1)).isEmpty()
+            assertThat(FileUtils.listFiles(folder)).containsExactly(innerFolder, file1, file2)
+        }
+    }
 }
