@@ -2,6 +2,10 @@ package ac.uk.ebi.biostd.persistence.model
 
 import ac.uk.ebi.biostd.persistence.common.NO_TABLE_INDEX
 import ac.uk.ebi.biostd.persistence.converters.NullableIntConverter
+import ac.uk.ebi.biostd.persistence.model.constants.ATTRS
+import ac.uk.ebi.biostd.persistence.model.constants.FILES
+import ac.uk.ebi.biostd.persistence.model.constants.LINKS
+import ac.uk.ebi.biostd.persistence.model.constants.SECTS
 import java.util.Objects.equals
 import java.util.Objects.hash
 import java.util.SortedSet
