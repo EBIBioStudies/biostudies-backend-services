@@ -1,5 +1,7 @@
 package ac.uk.ebi.biostd.persistence.service.filesystem
 
+import ebi.ac.uk.io.RWXR_XR_X
+import ebi.ac.uk.io.RW_R__R__
 import ebi.ac.uk.io.ext.asFileList
 import ebi.ac.uk.io.ext.createDirectory
 import ebi.ac.uk.io.ext.createNewFile
@@ -14,14 +16,12 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import java.io.File
+import java.nio.file.Files
 
 private const val REL_PATH = "My/Path/To/Submission"
 
 @ExtendWith(TemporaryFolderExtension::class, MockKExtension::class)
-internal class FtpFilesServiceTest(
-    private val temporaryFolder: TemporaryFolder
-) {
-
+internal class FtpFilesServiceTest(private val temporaryFolder: TemporaryFolder) {
     private lateinit var expectedDirectory: File
     private lateinit var expectedFile1: File
     private lateinit var expectedFile2: File
@@ -62,6 +62,7 @@ internal class FtpFilesServiceTest(
         val directory = ftpFolder.asFileList().first()
         assertThat(directory).hasName(expectedDirectory.name)
         assertThat(directory).isDirectory()
+        assertThat(Files.getPosixFilePermissions(directory.toPath())).isEqualTo(RWXR_XR_X)
 
         val files = directory.asFileList().sortedBy { it.name }
         assertFile(files.first(), expectedFile2.name, expectedFile2.readText())
@@ -71,5 +72,6 @@ internal class FtpFilesServiceTest(
     private fun assertFile(file: File, name: String, content: String) {
         assertThat(file).hasName(name)
         assertThat(file).hasContent(content)
+        assertThat(Files.getPosixFilePermissions(file.toPath())).isEqualTo(RW_R__R__)
     }
 }
