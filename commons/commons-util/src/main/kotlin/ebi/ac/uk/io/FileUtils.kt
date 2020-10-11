@@ -93,16 +93,17 @@ object FileUtils {
 
     fun createHardLink(
         source: File,
-        target: File
+        target: File,
+        filePermissions: Set<PosixFilePermission>,
+        folderPermissions: Set<PosixFilePermission>
     ) {
-        val permissions = Files.getPosixFilePermissions(source.toPath())
         when (isDirectory(source)) {
-            true -> createFolderHardLinks(source.toPath(), target.toPath(), permissions)
-            false -> createFileHardLink(source.toPath(), target.toPath(), permissions)
+            true -> createFolderHardLinks(source.toPath(), target.toPath(), filePermissions, folderPermissions)
+            false -> createFileHardLink(source.toPath(), target.toPath(), filePermissions, folderPermissions)
         }
     }
 
-    fun createSymbolicLink(path: Path, symLinkPath: Path, permissions: Set<PosixFilePermission> = RWX______) {
+    fun createSymbolicLink(path: Path, symLinkPath: Path, permissions: Set<PosixFilePermission>) {
         createSymLink(path, symLinkPath, permissions)
     }
 
@@ -133,14 +134,25 @@ internal object FileUtilsHelper {
         if (exists(file).not()) createDirectories(file, permissions)
     }
 
-    fun createFolderHardLinks(source: Path, target: Path, permissions: Set<PosixFilePermission>) {
+    fun createFolderHardLinks(
+        source: Path,
+        target: Path,
+        filePermissions: Set<PosixFilePermission>,
+        folderPermissions: Set<PosixFilePermission>
+    ) {
         deleteFolder(target)
-        Files.walkFileTree(source, HardLinkFileVisitor(source, target, permissions))
+        Files.walkFileTree(source, HardLinkFileVisitor(source, target, filePermissions, folderPermissions))
     }
 
-    fun createFileHardLink(source: Path, target: Path, permissions: Set<PosixFilePermission>) {
+    fun createFileHardLink(
+        source: Path,
+        target: Path,
+        filePermissions: Set<PosixFilePermission>,
+        folderPermissions: Set<PosixFilePermission>
+    ) {
         deleteFolder(target)
-        Files.createLink(source, createParentDirectories(target, permissions))
+        Files.createLink(source, createParentDirectories(target, folderPermissions))
+        Files.setPosixFilePermissions(target, filePermissions)
     }
 
     fun createSymLink(link: Path, target: Path, permissions: Set<PosixFilePermission>) {

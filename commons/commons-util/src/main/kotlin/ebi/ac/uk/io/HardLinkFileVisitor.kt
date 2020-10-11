@@ -10,15 +10,20 @@ import java.nio.file.attribute.PosixFilePermission
 internal class HardLinkFileVisitor(
     private var sourcePath: Path,
     private val targetPath: Path,
-    private val permissions: Set<PosixFilePermission>
+    private val filePermissions: Set<PosixFilePermission>,
+    private val folderPermissions: Set<PosixFilePermission>
 ) : SimpleFileVisitor<Path>() {
     override fun preVisitDirectory(dir: Path, attrs: BasicFileAttributes): FileVisitResult {
-        FileUtilsHelper.createDirectories(targetPath.resolve(sourcePath.relativize(dir)), permissions)
+        FileUtilsHelper.createDirectories(targetPath.resolve(sourcePath.relativize(dir)), folderPermissions)
         return FileVisitResult.CONTINUE
     }
 
     override fun visitFile(file: Path, attrs: BasicFileAttributes): FileVisitResult {
-        Files.createLink(targetPath.resolve(sourcePath.relativize(file)), file)
+        val target = targetPath.resolve(sourcePath.relativize(file))
+
+        Files.createLink(target, file)
+        Files.setPosixFilePermissions(target, filePermissions)
+
         return FileVisitResult.CONTINUE
     }
 }
