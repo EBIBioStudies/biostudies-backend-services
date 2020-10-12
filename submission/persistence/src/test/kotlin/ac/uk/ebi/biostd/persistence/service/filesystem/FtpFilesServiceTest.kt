@@ -1,9 +1,9 @@
 package ac.uk.ebi.biostd.persistence.service.filesystem
 
+import ebi.ac.uk.io.FileUtils
 import ebi.ac.uk.io.RWXR_XR_X
 import ebi.ac.uk.io.RW_R__R__
 import ebi.ac.uk.io.ext.asFileList
-import ebi.ac.uk.io.ext.createDirectory
 import ebi.ac.uk.io.ext.createNewFile
 import ebi.ac.uk.paths.SubmissionFolderResolver
 import ebi.ac.uk.test.clean
@@ -35,10 +35,20 @@ internal class FtpFilesServiceTest(private val temporaryFolder: TemporaryFolder)
     fun beforeEach() {
         temporaryFolder.clean()
 
-        val submissionFolder = folderResolver.getSubFolder(REL_PATH).toFile().apply { mkdirs() }
-        expectedDirectory = submissionFolder.createDirectory("my-directory")
+        val submissionFolder = submissionFolder()
+        expectedDirectory = createFolder(submissionFolder.resolve("my-directory"))
         expectedFile1 = expectedDirectory.createNewFile("file.txt", "file-content")
         expectedFile2 = expectedDirectory.createNewFile("file-2.txt", "file-text")
+    }
+
+    private fun submissionFolder(): File {
+        val submissionFolder = folderResolver.getSubFolder(REL_PATH).toFile()
+        return createFolder(submissionFolder)
+    }
+
+    private fun createFolder(file: File): File {
+        FileUtils.createEmptyFolder(file.toPath(), RWXR_XR_X)
+        return file
     }
 
     @Test
@@ -62,7 +72,7 @@ internal class FtpFilesServiceTest(private val temporaryFolder: TemporaryFolder)
         val directory = ftpFolder.asFileList().first()
         assertThat(directory).hasName(expectedDirectory.name)
         assertThat(directory).isDirectory()
-        assertThat(Files.getPosixFilePermissions(directory.toPath())).isEqualTo(RWXR_XR_X)
+        assertThat(Files.getPosixFilePermissions(directory.toPath())).hasSameElementsAs(RWXR_XR_X)
 
         val files = directory.asFileList().sortedBy { it.name }
         assertFile(files.first(), expectedFile2.name, expectedFile2.readText())
@@ -72,6 +82,6 @@ internal class FtpFilesServiceTest(private val temporaryFolder: TemporaryFolder)
     private fun assertFile(file: File, name: String, content: String) {
         assertThat(file).hasName(name)
         assertThat(file).hasContent(content)
-        assertThat(Files.getPosixFilePermissions(file.toPath())).isEqualTo(RW_R__R__)
+        assertThat(Files.getPosixFilePermissions(file.toPath())).hasSameElementsAs(RW_R__R__)
     }
 }

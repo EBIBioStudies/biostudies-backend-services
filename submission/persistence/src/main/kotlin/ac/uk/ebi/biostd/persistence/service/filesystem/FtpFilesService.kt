@@ -10,7 +10,6 @@ class FtpFilesService(private val folderResolver: SubmissionFolderResolver) {
     fun createFtpFolder(relPath: String) {
         val submissionFolder = folderResolver.getSubFolder(relPath).toFile()
         val ftpFolder = getFtpFolder(relPath)
-
         FileUtils.createHardLink(submissionFolder, ftpFolder, RW_R__R__, RWXR_XR_X)
     }
 
