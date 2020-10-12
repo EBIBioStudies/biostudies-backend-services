@@ -73,7 +73,9 @@ class ToExtSubmissionMapper(private val submissionsPath: Path) {
     }
 
     private fun submissionSources(filesPath: Path, rootPath: String) = listOf(
-        PathFilesSource(filesPath.resolve(rootPath)),
-        PathFilesSource(filesPath.resolve(USER_PREFIX).resolve(rootPath))
+        // PathFilesSource(filesPath.resolve(rootPath)),
+        // PathFilesSource(filesPath.resolve(USER_PREFIX).resolve(rootPath))
+        PathFilesSource(filesPath),
+        PathFilesSource(filesPath.resolve(USER_PREFIX))
     )
 }

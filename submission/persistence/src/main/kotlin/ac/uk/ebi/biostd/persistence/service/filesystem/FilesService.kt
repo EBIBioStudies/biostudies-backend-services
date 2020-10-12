@@ -108,7 +108,8 @@ class FilesService(
         processFile: (ExtFile, File, Set<PosixFilePermission>, Set<PosixFilePermission>) -> Unit
     ) {
         val temporary = createTempFolder(submissionFolder, submission.accNo)
-        val filesPath = submissionFolder.resolve(FILES_PATH).resolve(submission.rootPath.orEmpty())
+        // val filesPath = submissionFolder.resolve(FILES_PATH).resolve(submission.rootPath.orEmpty())
+        val filesPath = submissionFolder.resolve(FILES_PATH)
         val allSubmissionFiles = getMovingFiles(submission)
 
         allSubmissionFiles.forEach { processFile(it, temporary, filePermissions, folderPermissions) }

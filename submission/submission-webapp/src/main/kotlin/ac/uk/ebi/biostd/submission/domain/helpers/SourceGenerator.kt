@@ -12,6 +12,7 @@ import java.io.File
 import java.nio.file.Path
 
 class SourceGenerator {
+
     fun submissionSources(requestSources: RequestSources): FilesSource {
         val (user, files, rootPath, subFolder) = requestSources
         return ComposedFileSource(submissionSources(user, files, rootPath.orEmpty(), subFolder))
