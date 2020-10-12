@@ -24,6 +24,8 @@ import ebi.ac.uk.io.RWXR_X___
 import ebi.ac.uk.io.RWX______
 import ebi.ac.uk.io.RW_R__R__
 import ebi.ac.uk.io.RW_R_____
+import ebi.ac.uk.io.ext.md5
+import ebi.ac.uk.io.ext.notExist
 import ebi.ac.uk.paths.FILES_PATH
 import ebi.ac.uk.paths.SubmissionFolderResolver
 import mu.KotlinLogging
@@ -105,13 +107,13 @@ class FilesService(
         submissionFolder: File,
         filePermissions: Set<PosixFilePermission>,
         folderPermissions: Set<PosixFilePermission>,
-        processFile: (ExtFile, File, Set<PosixFilePermission>, Set<PosixFilePermission>) -> Unit
+        processFile: (ExtFile, File, File, Set<PosixFilePermission>, Set<PosixFilePermission>) -> Unit
     ) {
         val temporary = createTempFolder(submissionFolder, submission.accNo)
         val filesPath = submissionFolder.resolve(FILES_PATH)
         val allSubmissionFiles = getMovingFiles(submission)
 
-        allSubmissionFiles.forEach { processFile(it, temporary, filePermissions, folderPermissions) }
+        allSubmissionFiles.forEach { processFile(it, temporary, filesPath, filePermissions, folderPermissions) }
 
         deleteFile(filesPath)
         moveFile(temporary, filesPath, filePermissions, folderPermissions)
@@ -122,25 +124,32 @@ class FilesService(
 
     private fun copy(
         extFile: ExtFile,
-        folder: File,
+        tempFolder: File,
+        submissionFilesFolder: File,
         filePermissions: Set<PosixFilePermission>,
         folderPermissions: Set<PosixFilePermission>
     ) {
         val source = extFile.file
-        val target = folder.resolve(extFile.fileName)
+        val target = tempFolder.resolve(extFile.fileName)
+        val current = submissionFilesFolder.resolve(extFile.fileName)
 
-        logger.info { "copying file ${source.absolutePath} into ${target.absolutePath}" }
-        copyOrReplaceFile(source, target, filePermissions, folderPermissions)
+        if (current.notExist() || source.md5() != current.md5()) {
+            logger.info { "copying file ${source.absolutePath} into ${target.absolutePath}" }
+            copyOrReplaceFile(source, target, filePermissions, folderPermissions)
+        } else {
+            moveFile(current, target, filePermissions, folderPermissions)
+        }
     }
 
     private fun move(
         extFile: ExtFile,
-        folder: File,
+        tempFolder: File,
+        submissionFilesFolder: File,
         filePermissions: Set<PosixFilePermission>,
         folderPermissions: Set<PosixFilePermission>
     ) {
         val source = extFile.file
-        val target = folder.resolve(extFile.fileName)
+        val target = tempFolder.resolve(extFile.fileName)
 
         logger.info { "moving file ${source.absolutePath} into ${target.absolutePath}" }
         moveFile(source, target, filePermissions, folderPermissions)

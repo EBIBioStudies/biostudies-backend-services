@@ -26,8 +26,8 @@ class ToExtSubmissionMapper(private val submissionsPath: Path) {
         return toExtSubmission(dbSubmission, stats)
     }
 
-    private fun toExtSubmission(dbSubmission: DbSubmission, stats: List<DbSubmissionStat>): ExtSubmission {
-        return ExtSubmission(
+    private fun toExtSubmission(dbSubmission: DbSubmission, stats: List<DbSubmissionStat>): ExtSubmission =
+        ExtSubmission(
             accNo = dbSubmission.accNo,
             owner = dbSubmission.owner.email,
             submitter = dbSubmission.submitter.email,
@@ -46,26 +46,22 @@ class ToExtSubmissionMapper(private val submissionsPath: Path) {
             attributes = dbSubmission.attributes.map { it.toExtAttribute() },
             projects = dbSubmission.accessTags.map { Project(it.name) },
             tags = dbSubmission.tags.map { ExtTag(it.classifier, it.name) },
-            stats = stats.map { toExtMetric(it) }
-        )
-    }
+            stats = stats.map { toExtMetric(it) })
 
     private fun toExtMetric(stat: DbSubmissionStat): ExtStat = ExtStat(stat.type.name, stat.value.toString())
 
-    private fun getStatus(status: ProcessingStatus) =
-        when (status) {
-            ProcessingStatus.PROCESSED -> ExtProcessingStatus.PROCESSED
-            ProcessingStatus.PROCESSING -> ExtProcessingStatus.PROCESSING
-            ProcessingStatus.REQUESTED -> ExtProcessingStatus.REQUESTED
-        }
+    private fun getStatus(status: ProcessingStatus) = when (status) {
+        ProcessingStatus.PROCESSED -> ExtProcessingStatus.PROCESSED
+        ProcessingStatus.PROCESSING -> ExtProcessingStatus.PROCESSING
+        ProcessingStatus.REQUESTED -> ExtProcessingStatus.REQUESTED
+    }
 
-    private fun getMethod(method: SubmissionMethod?) =
-        when (method) {
-            SubmissionMethod.FILE -> ExtSubmissionMethod.FILE
-            SubmissionMethod.PAGE_TAB -> ExtSubmissionMethod.PAGE_TAB
-            SubmissionMethod.UNKNOWN -> ExtSubmissionMethod.UNKNOWN
-            null -> ExtSubmissionMethod.UNKNOWN
-        }
+    private fun getMethod(method: SubmissionMethod?) = when (method) {
+        SubmissionMethod.FILE -> ExtSubmissionMethod.FILE
+        SubmissionMethod.PAGE_TAB -> ExtSubmissionMethod.PAGE_TAB
+        SubmissionMethod.UNKNOWN -> ExtSubmissionMethod.UNKNOWN
+        null -> ExtSubmissionMethod.UNKNOWN
+    }
 
     private fun getSubmissionSource(dbSubmission: DbSubmission): FilesSource {
         val filesPath = submissionsPath.resolve(dbSubmission.relPath).resolve(FILES_DIR)
