@@ -10,6 +10,8 @@ fun File.asFileList(): List<File> = FileUtils.listFiles(this)
 
 fun File.size() = FileUtils.size(this)
 
+fun File.md5() = FileUtils.md5(this)
+
 fun File.createDirectory(name: String): File = Files.createDirectory(toPath().resolve(name)).toFile()
 
 fun File.createNewFile(name: String): File = resolve(name).apply { createNewFile() }

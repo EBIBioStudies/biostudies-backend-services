@@ -4,6 +4,8 @@ import ac.uk.ebi.biostd.persistence.model.DbFile
 import ac.uk.ebi.biostd.persistence.model.DbReferencedFile
 import ac.uk.ebi.biostd.persistence.model.ReferencedFileList
 import ebi.ac.uk.extended.model.ExtFile
+import ebi.ac.uk.io.ext.md5
+import ebi.ac.uk.io.ext.size
 import org.assertj.core.api.Assertions.assertThat
 import java.io.File as SystemFile
 
@@ -18,8 +20,10 @@ internal const val FILE_LIST_NAME = "fileList"
 internal val refFileListDb get() = ReferencedFileList("fileList", sortedSetOf(refRileDb))
 
 internal fun assertExtFile(extFile: ExtFile, systemFile: SystemFile, fileName: String) {
-    assertThat(extFile.fileName).isEqualTo(fileName)
     assertThat(extFile.file).isEqualTo(systemFile)
+    assertThat(extFile.fileName).isEqualTo(fileName)
+    assertThat(extFile.md5).isEqualTo(systemFile.md5())
+    assertThat(extFile.size).isEqualTo(systemFile.size())
 
     assertThat(extFile.attributes).hasSize(1)
     assertExtAttribute(extFile.attributes.first())

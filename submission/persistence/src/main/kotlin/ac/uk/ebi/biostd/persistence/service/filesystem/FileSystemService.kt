@@ -14,6 +14,7 @@ class FileSystemService(
         logger.info { "processing submission ${submission.accNo} files in mode $mode" }
         ftpLinksService.cleanFtpFolder(submission.relPath)
         filesService.persistSubmissionFiles(submission, mode)
+
         if (submission.released) ftpLinksService.createFtpFolder(submission.relPath)
     }
 }

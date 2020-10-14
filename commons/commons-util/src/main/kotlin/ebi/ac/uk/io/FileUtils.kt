@@ -7,6 +7,7 @@ import ebi.ac.uk.io.FileUtilsHelper.createFolderIfNotExist
 import ebi.ac.uk.io.FileUtilsHelper.createParentDirectories
 import ebi.ac.uk.io.FileUtilsHelper.createSymLink
 import ebi.ac.uk.io.ext.notExist
+import org.apache.commons.codec.digest.DigestUtils
 import java.io.File
 import java.io.InputStream
 import java.nio.file.Files
@@ -93,16 +94,17 @@ object FileUtils {
 
     fun createHardLink(
         source: File,
-        target: File
+        target: File,
+        filePermissions: Set<PosixFilePermission>,
+        folderPermissions: Set<PosixFilePermission>
     ) {
-        val permissions = Files.getPosixFilePermissions(source.toPath())
         when (isDirectory(source)) {
-            true -> createFolderHardLinks(source.toPath(), target.toPath(), permissions)
-            false -> createFileHardLink(source.toPath(), target.toPath(), permissions)
+            true -> createFolderHardLinks(source.toPath(), target.toPath(), filePermissions, folderPermissions)
+            false -> createFileHardLink(source.toPath(), target.toPath(), filePermissions, folderPermissions)
         }
     }
 
-    fun createSymbolicLink(path: Path, symLinkPath: Path, permissions: Set<PosixFilePermission> = RWX______) {
+    fun createSymbolicLink(path: Path, symLinkPath: Path, permissions: Set<PosixFilePermission>) {
         createSymLink(path, symLinkPath, permissions)
     }
 
@@ -121,6 +123,8 @@ object FileUtils {
 
     fun size(file: File): Long = Files.size(file.toPath())
 
+    fun md5(file: File): String = if (file.isFile) DigestUtils.md5Hex(file.readBytes()).toUpperCase() else ""
+
     fun listFiles(file: File): List<File> = when (isDirectory(file)) {
         true -> Files.list(file.toPath()).map { it.toFile() }.toList()
         else -> emptyList()
@@ -133,14 +137,25 @@ internal object FileUtilsHelper {
         if (exists(file).not()) createDirectories(file, permissions)
     }
 
-    fun createFolderHardLinks(source: Path, target: Path, permissions: Set<PosixFilePermission>) {
+    fun createFolderHardLinks(
+        source: Path,
+        target: Path,
+        filePermissions: Set<PosixFilePermission>,
+        folderPermissions: Set<PosixFilePermission>
+    ) {
         deleteFolder(target)
-        Files.walkFileTree(source, HardLinkFileVisitor(source, target, permissions))
+        Files.walkFileTree(source, HardLinkFileVisitor(source, target, filePermissions, folderPermissions))
     }
 
-    fun createFileHardLink(source: Path, target: Path, permissions: Set<PosixFilePermission>) {
+    fun createFileHardLink(
+        source: Path,
+        target: Path,
+        filePermissions: Set<PosixFilePermission>,
+        folderPermissions: Set<PosixFilePermission>
+    ) {
         deleteFolder(target)
-        Files.createLink(source, createParentDirectories(target, permissions))
+        Files.createLink(source, createParentDirectories(target, folderPermissions))
+        Files.setPosixFilePermissions(target, filePermissions)
     }
 
     fun createSymLink(link: Path, target: Path, permissions: Set<PosixFilePermission>) {
