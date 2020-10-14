@@ -1,3 +1,8 @@
 package ac.uk.ebi.biostd.submission.web.model
 
-class ExtPageRequest(val offset: Long, val limit: Int)
+class ExtPageRequest(
+    val fromRTime: String? = null,
+    val toRTime: String? = null,
+    val offset: Long,
+    val limit: Int
+)

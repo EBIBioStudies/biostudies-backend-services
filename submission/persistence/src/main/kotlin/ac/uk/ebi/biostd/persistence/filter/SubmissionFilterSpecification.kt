@@ -15,11 +15,12 @@ import ebi.ac.uk.base.applyIfNotBlank
 import org.springframework.data.jpa.domain.Specification
 import java.time.OffsetDateTime
 
-class SubmissionFilterSpecification(userId: Long, filter: SubmissionFilter) {
+class SubmissionFilterSpecification(filter: SubmissionFilter, userId: Long? = null) {
     val specification: Specification<DbSubmission>
 
     init {
-        var specs = where(withUser(userId) and withActiveVersion() and isLastVersion())
+        var specs = where(withActiveVersion() and isLastVersion())
+        userId?.let { specs = specs and withUser(it) }
         filter.accNo?.let { specs = specs and (withAccession(it)) }
         filter.keywords?.applyIfNotBlank { specs = specs and (withTitleLike(it)) }
         filter.rTimeTo?.let { specs = specs and (withTo(OffsetDateTime.parse(it))) }
