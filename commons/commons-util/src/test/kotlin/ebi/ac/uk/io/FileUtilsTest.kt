@@ -261,7 +261,7 @@ internal class FileUtilsTest(private val temporaryFolder: TemporaryFolder) {
             val innerFolder = temporaryFolder.createDirectory("listing-test/inner-folder")
 
             assertThat(FileUtils.listFiles(file1)).isEmpty()
-            assertThat(FileUtils.listFiles(folder)).containsExactly(innerFolder, file1, file2)
+            assertThat(FileUtils.listFiles(folder)).contains(innerFolder, file1, file2)
         }
     }
 }
