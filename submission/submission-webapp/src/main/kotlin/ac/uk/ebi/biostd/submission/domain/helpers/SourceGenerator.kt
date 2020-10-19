@@ -32,14 +32,14 @@ class SourceGenerator {
         }
 
         if (subFolder != null) {
-            sources.addAll(submissionsPaths(subFolder, rootPath))
+            sources.addAll(submissionsPaths(subFolder))
         }
         return sources
     }
 
-    private fun submissionsPaths(subFolder: File, rootPath: String) = listOf(
-        PathFilesSource(subFolder.resolve(rootPath).toPath()),
-        PathFilesSource(subFolder.resolve(USER_PREFIX).resolve(rootPath).toPath())
+    private fun submissionsPaths(subFolder: File) = listOf(
+        PathFilesSource(subFolder.toPath()),
+        PathFilesSource(subFolder.resolve(USER_PREFIX).toPath())
     )
 
     private fun createPathSource(folder: Path, rootPath: String) = PathFilesSource(folder.resolve(rootPath))

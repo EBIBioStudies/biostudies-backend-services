@@ -128,6 +128,32 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
         }
 
         @Test
+        fun `re submit a submission with rootPath`() {
+            val rootPath = "The-RootPath"
+            val dataFile = "DataFile7.txt"
+
+            val submission = tsv {
+                line("Submission", "S-356789")
+                line("Title", "Sample Submission")
+                line("RootPath", rootPath)
+                line()
+
+                line("Study")
+                line()
+
+                line("File", "DataFile7.txt")
+                line()
+            }.toString()
+
+            webClient.uploadFiles(listOf(tempFolder.createFile("DataFile7.txt")), rootPath)
+            assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
+
+            webClient.deleteFile(dataFile, rootPath)
+
+            assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
+        }
+
+        @Test
         fun `submission with on behalf another user`() {
             createUser(RegularUser, serverPort)
 
