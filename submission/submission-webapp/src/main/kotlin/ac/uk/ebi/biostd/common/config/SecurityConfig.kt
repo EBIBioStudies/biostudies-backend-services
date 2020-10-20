@@ -7,10 +7,10 @@ import ac.uk.ebi.biostd.persistence.repositories.TokenDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserGroupDataRepository
 import ac.uk.ebi.biostd.persistence.service.UserPermissionsService
+import ac.uk.ebi.biostd.security.domain.service.ExtUserService
 import ac.uk.ebi.biostd.security.web.SecurityMapper
 import ac.uk.ebi.biostd.security.web.exception.SecurityAccessDeniedHandler
 import ac.uk.ebi.biostd.security.web.exception.SecurityAuthEntryPoint
-import ac.uk.ebi.biostd.security.domain.service.ExtUserService
 import com.fasterxml.jackson.databind.ObjectMapper
 import ebi.ac.uk.security.integration.SecurityModuleConfig
 import ebi.ac.uk.security.integration.components.IGroupService
@@ -47,7 +47,6 @@ class SecurityConfig(
             .antMatchers(GET, "/security/users/extended/**").permitAll()
             .antMatchers(GET, "/submissions/extended/*").permitAll()
             .antMatchers(GET, "/submissions/*").permitAll()
-            .antMatchers("/submissions/ftp/*").permitAll()
             .antMatchers("/auth/**").permitAll()
             .antMatchers("/v2/**").permitAll()
             .antMatchers("/webjars/**").permitAll()
