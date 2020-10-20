@@ -65,6 +65,11 @@ class ToExtSubmissionMapper(private val submissionsPath: Path) {
 
     private fun getSubmissionSource(dbSubmission: DbSubmission): FilesSource {
         val filesPath = submissionsPath.resolve(dbSubmission.relPath).resolve(FILES_DIR)
-        return ComposedFileSource(listOf(PathFilesSource(filesPath), PathFilesSource(filesPath.resolve(USER_PREFIX))))
+        return ComposedFileSource(submissionSources(filesPath))
     }
+
+    private fun submissionSources(filesPath: Path) = listOf(
+        PathFilesSource(filesPath),
+        PathFilesSource(filesPath.resolve(USER_PREFIX))
+    )
 }
