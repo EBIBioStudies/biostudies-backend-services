@@ -1,0 +1,15 @@
+spring:
+  rabbitmq:
+    host: # RabbitMQ Host
+    username: # RabbitMQ User
+    password: # RabbitMQ Password
+    port: # RabbitMQ Port
+
+app:
+  bioStudiesUrl: # BioStudies backend URL
+  bioStudiesUser: # BioStudies manager user
+  bioStudiesPassword: # BioStudies manager password
+  notification-times:
+    first-warning: 60
+    second-warning: 30
+    third-warning: 7

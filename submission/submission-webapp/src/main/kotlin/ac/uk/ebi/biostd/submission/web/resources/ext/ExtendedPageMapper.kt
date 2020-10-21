@@ -27,7 +27,7 @@ class ExtendedPageMapper(private val instanceBase: URI) {
     private fun asUrl(next: Pageable, request: ExtPageRequest): String {
         val url = StringBuilder("$instanceBase/submissions/extended?offset=${next.offset}&limit=${next.pageSize}")
         request.fromRTime?.let { url.append("&fromRTime=$it") }
-        request.toRTime?.let { url.append("&fromRTime=$it") }
+        request.toRTime?.let { url.append("&toRTime=$it") }
 
         return url.toString()
     }

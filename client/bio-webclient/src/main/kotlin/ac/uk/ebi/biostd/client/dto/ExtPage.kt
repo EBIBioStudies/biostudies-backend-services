@@ -3,7 +3,7 @@ package ac.uk.ebi.biostd.client.dto
 import ebi.ac.uk.extended.model.ExtSubmission
 
 data class ExtPage(
-    val content: List<ExtSubmission>,
+    val content: List<ExtSubmission> = listOf(),
     val totalElements: Long,
     val next: String?,
     val previous: String?

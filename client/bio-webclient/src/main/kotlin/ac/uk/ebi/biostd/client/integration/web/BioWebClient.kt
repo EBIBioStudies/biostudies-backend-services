@@ -8,6 +8,7 @@ import ac.uk.ebi.biostd.integration.SerializationConfig
 import org.springframework.http.converter.StringHttpMessageConverter
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.util.DefaultUriBuilderFactory
+import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import java.nio.charset.StandardCharsets
 
 class BioWebClient private constructor(
@@ -15,10 +16,19 @@ class BioWebClient private constructor(
 ) : SubmissionClient by submissionClient {
     companion object {
         fun create(baseUrl: String, token: String): BioWebClient = BioWebClient(
-            SubmissionClientImpl(SerializationConfig.serializationService(), createRestTemplate(baseUrl, token)))
+            SubmissionClientImpl(
+                createRestTemplate(baseUrl, token),
+                SerializationConfig.serializationService(),
+                ExtSerializationService()))
 
-        fun create(baseUrl: String, token: String, onBehalf: String): BioWebClient = BioWebClient(SubmissionClientImpl(
-            SerializationConfig.serializationService(), createRestTemplate(baseUrl, token, onBehalf)))
+        fun create(
+            baseUrl: String,
+            token: String,
+            onBehalf: String
+        ): BioWebClient = BioWebClient(SubmissionClientImpl(
+            createRestTemplate(baseUrl, token, onBehalf),
+            SerializationConfig.serializationService(),
+            ExtSerializationService()))
 
         private fun createRestTemplate(baseUrl: String, token: String) = RestTemplate().apply {
             uriTemplateHandler = DefaultUriBuilderFactory(baseUrl)

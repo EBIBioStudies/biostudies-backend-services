@@ -55,10 +55,10 @@ class SubmissionFilterSpecification(filter: SubmissionFilter, userId: Long? = nu
         Specification { root, _, cb -> cb.equal(root.get<DbUser>(SUB_OWNER).get<Long>(SUB_OWNER_ID), userId) }
 
     private fun withFrom(from: OffsetDateTime): Specification<DbSubmission> =
-        Specification { root, _, cb -> cb.greaterThan(root.get(SUB_RELEASE_TIME), from.toEpochSecond()) }
+        Specification { root, _, cb -> cb.greaterThanOrEqualTo(root.get(SUB_RELEASE_TIME), from.toEpochSecond()) }
 
     private fun withTo(to: OffsetDateTime): Specification<DbSubmission> =
-        Specification { root, _, cb -> cb.lessThan(root.get(SUB_RELEASE_TIME), to.toEpochSecond()) }
+        Specification { root, _, cb -> cb.lessThanOrEqualTo(root.get(SUB_RELEASE_TIME), to.toEpochSecond()) }
 }
 
 private fun <T> where(spec: Specification<T>): Specification<T> {

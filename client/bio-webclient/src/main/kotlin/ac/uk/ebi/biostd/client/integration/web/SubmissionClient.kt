@@ -18,6 +18,7 @@ import ebi.ac.uk.model.Project
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.SubmissionDraft
 import java.io.File
+import java.time.OffsetDateTime
 
 interface SubmissionClient :
     SubmissionOperations,
@@ -25,7 +26,8 @@ interface SubmissionClient :
     GroupFilesOperations,
     MultipartSubmissionOperations,
     GeneralOperations,
-    DraftSubmissionOperations
+    DraftSubmissionOperations,
+    ExtSubmissionOperations
 
 typealias SubmissionResponse = ClientResponse<Submission>
 
@@ -112,11 +114,16 @@ interface DraftSubmissionOperations {
 }
 
 interface ExtSubmissionOperations {
-    fun getSubmissions(limit: Int = 15, offset: Int = 0, fromRTime: String? = null, toRTime: String? = null): ExtPage
+    fun getExtSubmissions(
+        limit: Int = 15,
+        offset: Int = 0,
+        fromRTime: OffsetDateTime? = null,
+        toRTime: OffsetDateTime? = null
+    ): ExtPage
 
-    fun getSubmissionsPage(pageUrl: String): ExtPage
+    fun getExtSubmissionsPage(pageUrl: String): ExtPage
 
-    fun getByAccNo(accNo: String): ExtSubmission
+    fun getExtByAccNo(accNo: String): ExtSubmission
 
-    fun submit(extSubmission: ExtSubmission): ExtSubmission
+    fun submitExt(extSubmission: ExtSubmission): ExtSubmission
 }
