@@ -1,4 +1,4 @@
-package ac.uk.ebi.pmc.scheduler.common.properties
+package uk.ac.ebi.scheduler.common.properties
 
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.stereotype.Component

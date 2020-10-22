@@ -1,4 +1,4 @@
-package ac.uk.ebi.pmc.scheduler
+package uk.ac.ebi.scheduler
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication

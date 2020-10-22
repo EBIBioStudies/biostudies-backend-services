@@ -1,6 +1,6 @@
-package ac.uk.ebi.pmc.scheduler.pmc.importer.scheduling
+package uk.ac.ebi.scheduler.scheduling
 
-import ac.uk.ebi.pmc.scheduler.pmc.importer.domain.PmcLoaderService
+import uk.ac.ebi.scheduler.pmc.importer.domain.PmcLoaderService
 import org.springframework.scheduling.annotation.Scheduled
 
 internal class DailyScheduler(

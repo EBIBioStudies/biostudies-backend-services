@@ -1,11 +1,11 @@
-package ac.uk.ebi.pmc.scheduler.common.config
+package uk.ac.ebi.scheduler.common.config
 
 import ac.uk.ebi.cluster.client.lsf.ClusterOperations
-import ac.uk.ebi.pmc.scheduler.common.properties.AppProperties
-import ac.uk.ebi.pmc.scheduler.common.properties.SshProperties
-import ac.uk.ebi.pmc.scheduler.pmc.importer.api.PmcProcessorProp
-import ac.uk.ebi.pmc.scheduler.pmc.importer.domain.PmcLoaderService
-import ac.uk.ebi.pmc.scheduler.pmc.importer.scheduling.DailyScheduler
+import uk.ac.ebi.scheduler.common.properties.AppProperties
+import uk.ac.ebi.scheduler.common.properties.SshProperties
+import uk.ac.ebi.scheduler.pmc.importer.api.PmcProcessorProp
+import uk.ac.ebi.scheduler.pmc.importer.domain.PmcLoaderService
+import uk.ac.ebi.scheduler.scheduling.DailyScheduler
 import ebi.ac.uk.commons.http.slack.NotificationsSender
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration

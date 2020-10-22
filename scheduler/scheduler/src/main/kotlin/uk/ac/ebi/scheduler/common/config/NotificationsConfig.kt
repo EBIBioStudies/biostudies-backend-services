@@ -1,6 +1,6 @@
-package ac.uk.ebi.pmc.scheduler.common.config
+package uk.ac.ebi.scheduler.common.config
 
-import ac.uk.ebi.pmc.scheduler.common.properties.AppProperties
+import uk.ac.ebi.scheduler.common.properties.AppProperties
 import ebi.ac.uk.commons.http.JacksonFactory
 import ebi.ac.uk.commons.http.slack.NotificationsSender
 import org.springframework.context.annotation.Bean

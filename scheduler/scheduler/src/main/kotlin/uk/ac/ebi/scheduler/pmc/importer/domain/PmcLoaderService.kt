@@ -1,13 +1,13 @@
-package ac.uk.ebi.pmc.scheduler.pmc.importer.domain
+package uk.ac.ebi.scheduler.pmc.importer.domain
 
 import ac.uk.ebi.cluster.client.lsf.ClusterOperations
 import ac.uk.ebi.cluster.client.model.Job
 import ac.uk.ebi.cluster.client.model.JobSpec
 import ac.uk.ebi.cluster.client.model.MemorySpec
 import ac.uk.ebi.cluster.client.model.logsPath
-import ac.uk.ebi.pmc.scheduler.common.SYSTEM_NAME
-import ac.uk.ebi.pmc.scheduler.common.properties.AppProperties
-import ac.uk.ebi.pmc.scheduler.pmc.importer.api.PmcProcessorProp
+import uk.ac.ebi.scheduler.common.SYSTEM_NAME
+import uk.ac.ebi.scheduler.common.properties.AppProperties
+import uk.ac.ebi.scheduler.pmc.importer.api.PmcProcessorProp
 import ac.uk.ebi.scheduler.properties.PmcImporterProperties
 import ac.uk.ebi.scheduler.properties.PmcMode
 import ac.uk.ebi.scheduler.properties.PmcMode.LOAD

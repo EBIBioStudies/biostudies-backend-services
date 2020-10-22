@@ -11,6 +11,23 @@ pmc:
     temp:
     mongoUri:
 
+releaser:
+  bioStudies:
+    url: # BioStudies backend URL
+    user: # BioStudies manager user
+    password: # BioStudies manager password
+
+  rabbitmq:
+    host: # RabbitMQ Host
+    user: # RabbitMQ User
+    password: # RabbitMQ Password
+    port: # RabbitMQ Port
+
+  notification-times:
+    first-warning: # Number of days before hand for the first warning to the users about upcoming release
+    second-warning: # Number of days before hand for the second warning to the users about upcoming release
+    third-warning: # Number of days before hand for the third warning to the users about upcoming release
+
 spring:
   application:
     name: Scheduler Prod

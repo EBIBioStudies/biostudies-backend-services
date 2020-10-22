@@ -10,6 +10,6 @@ app:
   bioStudiesUser: # BioStudies manager user
   bioStudiesPassword: # BioStudies manager password
   notification-times:
-    first-warning: 60
-    second-warning: 30
-    third-warning: 7
+    first-warning: # Number of days before hand for the first warning to the users about upcoming release
+    second-warning: # Number of days before hand for the second warning to the users about upcoming release
+    third-warning: # Number of days before hand for the third warning to the users about upcoming release

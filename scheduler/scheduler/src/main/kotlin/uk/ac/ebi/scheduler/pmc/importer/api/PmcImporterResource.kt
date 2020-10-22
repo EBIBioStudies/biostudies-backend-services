@@ -1,8 +1,8 @@
-package ac.uk.ebi.pmc.scheduler.pmc.importer.api
+package uk.ac.ebi.scheduler.pmc.importer.api
 
 import ac.uk.ebi.cluster.client.model.Job
-import ac.uk.ebi.pmc.scheduler.pmc.importer.DEFAULT_FOLDER
-import ac.uk.ebi.pmc.scheduler.pmc.importer.domain.PmcLoaderService
+import uk.ac.ebi.scheduler.pmc.importer.DEFAULT_FOLDER
+import uk.ac.ebi.scheduler.pmc.importer.domain.PmcLoaderService
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.ResponseBody
