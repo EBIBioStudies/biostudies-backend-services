@@ -6,9 +6,11 @@ spring:
     port: # RabbitMQ Port
 
 app:
-  bioStudiesUrl: # BioStudies backend URL
-  bioStudiesUser: # BioStudies manager user
-  bioStudiesPassword: # BioStudies manager password
+  bioStudies:
+    url: # BioStudies backend URL
+    user: # BioStudies manager user
+    password: # BioStudies manager password
+
   notification-times:
     first-warning: # Number of days before hand for the first warning to the users about upcoming release
     second-warning: # Number of days before hand for the second warning to the users about upcoming release

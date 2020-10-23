@@ -29,13 +29,13 @@ class ApplicationConfig {
     @Bean
     fun bioWebClient(applicationProperties: ApplicationProperties): BioWebClient =
         SecurityWebClient
-            .create(applicationProperties.bioStudiesUrl)
-            .getAuthenticatedClient(applicationProperties.bioStudiesUser, applicationProperties.bioStudiesPassword)
+            .create(applicationProperties.bioStudies.url)
+            .getAuthenticatedClient(applicationProperties.bioStudies.user, applicationProperties.bioStudies.password)
 
     @Bean
     fun eventsProperties(
         applicationProperties: ApplicationProperties
-    ): EventsProperties = EventsProperties(instanceBaseUrl = applicationProperties.bioStudiesUrl)
+    ): EventsProperties = EventsProperties(instanceBaseUrl = applicationProperties.bioStudies.url)
 
     @Bean
     fun eventsPublisherConfig(

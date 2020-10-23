@@ -7,12 +7,17 @@ import org.springframework.stereotype.Component
 @ConfigurationProperties(prefix = "app")
 @Component
 class ApplicationProperties {
-    lateinit var bioStudiesUrl: String
-    lateinit var bioStudiesUser: String
-    lateinit var bioStudiesPassword: String
+    @NestedConfigurationProperty
+    var bioStudies: BioStudies = BioStudies()
 
     @NestedConfigurationProperty
-    var notificationTimes = NotificationTimes()
+    var notificationTimes: NotificationTimes = NotificationTimes()
+}
+
+class BioStudies {
+    lateinit var url: String
+    lateinit var user: String
+    lateinit var password: String
 }
 
 class NotificationTimes {
