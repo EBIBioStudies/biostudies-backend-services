@@ -1,10 +1,7 @@
 package ebi.ac.uk.util.date
 
-import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.time.OffsetDateTime.parse
-import java.time.ZoneOffset
-import java.time.ZoneOffset.UTC
 import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
 import java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME
 

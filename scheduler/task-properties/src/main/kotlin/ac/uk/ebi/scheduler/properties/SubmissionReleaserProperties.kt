@@ -34,6 +34,7 @@ class SubmissionReleaserProperties : BaseAppProperty {
     var thirdWarning: Long = -1
 
     companion object {
+        @Suppress("LongParameterList")
         fun create(
             rabbitMqHost: String,
             rabbitMqUser: String,

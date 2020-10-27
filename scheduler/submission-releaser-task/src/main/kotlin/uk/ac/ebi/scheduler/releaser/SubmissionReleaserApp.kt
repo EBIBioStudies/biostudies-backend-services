@@ -19,7 +19,7 @@ fun main(args: Array<String>) {
 
 class SubmissionReleaserExecutor(
     private val submissionReleaserService: SubmissionReleaserService
-): CommandLineRunner, ApplicationContextAware {
+) : CommandLineRunner, ApplicationContextAware {
     private lateinit var context: ApplicationContext
 
     override fun run(vararg args: String?) {
@@ -30,5 +30,4 @@ class SubmissionReleaserExecutor(
     override fun setApplicationContext(applicationContext: ApplicationContext) {
         this.context = applicationContext
     }
-
 }

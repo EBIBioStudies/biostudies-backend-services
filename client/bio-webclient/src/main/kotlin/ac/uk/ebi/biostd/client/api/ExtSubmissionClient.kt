@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.client.getForEntity
 import org.springframework.web.client.postForEntity
+import org.springframework.web.util.UriComponentsBuilder
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import java.time.OffsetDateTime
 
@@ -44,13 +45,13 @@ class ExtSubmissionClient(
             .postForEntity<String>(EXT_SUBMISSIONS_URL, HttpEntity(extSerializationService.serialize(extSubmission)))
             .deserialized()
 
-    private fun asUrl(limit: Int, offset: Int, fromRTime: OffsetDateTime?, toRTime: OffsetDateTime?): String {
-        val url = StringBuilder("$EXT_SUBMISSIONS_URL?offset=$offset&limit=$limit")
-        fromRTime?.let { url.append("&fromRTime=${it.toStringInstant()}") }
-        toRTime?.let { url.append("&toRTime=${it.toStringInstant()}") }
-
-        return url.toString()
-    }
+    private fun asUrl(limit: Int, offset: Int, fromRTime: OffsetDateTime?, toRTime: OffsetDateTime?): String =
+        UriComponentsBuilder.fromUriString(EXT_SUBMISSIONS_URL).apply {
+            queryParam("offset", offset)
+            queryParam("limit", limit)
+            fromRTime?.let { queryParam("fromRTime=${it.toStringInstant()}") }
+            toRTime?.let { queryParam("toRTime=${it.toStringInstant()}") }
+        }.build().toString()
 
     private inline fun <reified T> ResponseEntity<String>.deserialized(): T =
         map { body -> extSerializationService.deserialize<T>(body) }.body!!

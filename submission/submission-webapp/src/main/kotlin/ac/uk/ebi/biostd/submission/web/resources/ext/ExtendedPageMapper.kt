@@ -5,6 +5,7 @@ import ac.uk.ebi.biostd.submission.web.model.ExtPageRequest
 import ebi.ac.uk.extended.model.ExtSubmission
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
+import org.springframework.web.util.UriComponentsBuilder
 import java.net.URI
 
 class ExtendedPageMapper(private val instanceBase: URI) {
@@ -25,10 +26,10 @@ class ExtendedPageMapper(private val instanceBase: URI) {
         if (page.hasNext()) instanceBase.resolve(asUrl(page.nextPageable(), request)).toString() else null
 
     private fun asUrl(next: Pageable, request: ExtPageRequest): String =
-        StringBuilder("$instanceBase/submissions/extended").apply {
-            append("?offset=${next.offset}")
-            append("&limit=${next.pageSize}")
-            request.fromRTime?.let { append("&fromRTime=$it") }
-            request.toRTime?.let { append("&toRTime=$it") }
-        }.toString()
+        UriComponentsBuilder.fromUriString("$instanceBase/submissions/extended").apply {
+            queryParam("offset", next.offset)
+            queryParam("limit", next.pageSize)
+            request.fromRTime?.let { queryParam("fromRTime", it) }
+            request.toRTime?.let { queryParam("toRTime", it) }
+        }.build().toString()
 }

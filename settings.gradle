@@ -30,7 +30,7 @@ include("submission:submission-handlers")
 
 include("scheduler:cluster-client")
 include("scheduler:pmc-processor-task")
-include("scheduler:releaser")
+include("scheduler:submission-releaser-task")
 include("scheduler:scheduler")
 include("scheduler:task-properties")
 include("bio-admin")

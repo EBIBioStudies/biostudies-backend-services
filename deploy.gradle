@@ -84,6 +84,15 @@ task updatePmcArtifact {
     finalizedBy "deployArtifact"
 }
 
+task updateReleaserArtifact {
+    doFirst {
+        project.ext.artifactPath = "scheduler/submission-releaser-task/build/libs"
+        project.ext.artifactName = "ubmission-releaser-task-1.0.0.jar"
+    }
+
+    finalizedBy "deployArtifact"
+}
+
 task deployArtifact {
     doLast {
         ssh.run {

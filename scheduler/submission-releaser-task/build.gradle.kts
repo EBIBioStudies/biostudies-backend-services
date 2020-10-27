@@ -3,6 +3,7 @@ import Dependencies.SpringWeb
 import SpringBootDependencies.SpringBootAmqp
 import SpringBootDependencies.SpringBootStarter
 import SpringBootDependencies.SpringBootStarterConfigProcessor
+import org.springframework.boot.gradle.tasks.bundling.BootJar
 
 plugins {
     id("org.jetbrains.kotlin.plugin.spring") version "1.3.72"
@@ -21,4 +22,9 @@ dependencies {
     implementation(SpringBootStarter)
     implementation(SpringWeb)
     implementation(SpringBootStarterConfigProcessor)
+}
+
+tasks.named<BootJar>("bootJar") {
+    archiveBaseName.set("submission-releaser-task")
+    archiveVersion.set("1.0.0")
 }

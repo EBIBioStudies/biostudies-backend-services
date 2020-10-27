@@ -15,8 +15,8 @@ private val logger = KotlinLogging.logger {}
 
 class SubmissionReleaserService(
     private val appProperties: AppProperties,
-    private val clusterOperations: ClusterOperations,
-    private val properties: SchedulerReleaserProps
+    private val properties: SchedulerReleaserProps,
+    private val clusterOperations: ClusterOperations
 ) {
     fun triggerSubmissionReleaser(): Job {
         logger.info { "triggering submission releaser job" }

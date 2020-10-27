@@ -10,6 +10,8 @@ import ebi.ac.uk.commons.http.slack.NotificationsSender
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.scheduling.annotation.EnableScheduling
+import uk.ac.ebi.scheduler.releaser.api.SubmissionReleaserProperties
+import uk.ac.ebi.scheduler.releaser.domain.SubmissionReleaserService
 
 @Configuration
 @EnableScheduling
@@ -26,9 +28,18 @@ internal class SchedulerConfig {
         properties: PmcProcessorProp,
         appProperties: AppProperties,
         notificationsSender: NotificationsSender
-    ) =
-        PmcLoaderService(clusterOperations, properties, appProperties, notificationsSender)
+    ): PmcLoaderService = PmcLoaderService(clusterOperations, properties, appProperties, notificationsSender)
 
     @Bean
-    fun scheduler(loaderService: PmcLoaderService) = DailyScheduler(loaderService)
+    fun submissionReleaserService(
+        appProperties: AppProperties,
+        clusterOperations: ClusterOperations,
+        releaserProperties: SubmissionReleaserProperties
+    ): SubmissionReleaserService = SubmissionReleaserService(appProperties, releaserProperties, clusterOperations)
+
+    @Bean
+    fun scheduler(
+        loaderService: PmcLoaderService,
+        releaserService: SubmissionReleaserService
+    ): DailyScheduler = DailyScheduler(loaderService, releaserService)
 }

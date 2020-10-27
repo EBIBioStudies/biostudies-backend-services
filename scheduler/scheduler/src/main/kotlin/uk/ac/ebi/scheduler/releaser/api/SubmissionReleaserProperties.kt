@@ -17,7 +17,7 @@ class SubmissionReleaserProperties {
     var notificationTimes: NotificationTimes = NotificationTimes()
 }
 
-class BioStudies() {
+class BioStudies {
     lateinit var url: String
     lateinit var user: String
     lateinit var password: String
