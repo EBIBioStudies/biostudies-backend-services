@@ -39,7 +39,7 @@ internal class PmcLoaderService private constructor(
         notificationsSender.sent(Report(
             SYSTEM_NAME,
             LOADER_SUBSYSTEM,
-            "Triggered PMC loaded $file, cluster job: $job, logs will be available at ${job.logsPath}"))
+            "Triggered PMC loader $file, cluster job: $job, logs will be available at ${job.logsPath}"))
         return job
     }
 

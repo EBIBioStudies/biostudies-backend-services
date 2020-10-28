@@ -34,8 +34,10 @@ internal class SchedulerConfig {
     fun submissionReleaserTrigger(
         appProperties: AppProperties,
         clusterOperations: ClusterOperations,
+        notificationsSender: NotificationsSender,
         releaserProperties: SubmissionReleaserProperties
-    ): SubmissionReleaserTrigger = SubmissionReleaserTrigger(appProperties, releaserProperties, clusterOperations)
+    ): SubmissionReleaserTrigger =
+        SubmissionReleaserTrigger(appProperties, releaserProperties, clusterOperations, notificationsSender)
 
     @Bean
     fun scheduler(
