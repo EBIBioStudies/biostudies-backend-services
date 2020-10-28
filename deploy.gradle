@@ -87,7 +87,7 @@ task updatePmcArtifact {
 task updateReleaserArtifact {
     doFirst {
         project.ext.artifactPath = "scheduler/submission-releaser-task/build/libs"
-        project.ext.artifactName = "ubmission-releaser-task-1.0.0.jar"
+        project.ext.artifactName = "submission-releaser-task-1.0.0.jar"
     }
 
     finalizedBy "deployArtifact"
