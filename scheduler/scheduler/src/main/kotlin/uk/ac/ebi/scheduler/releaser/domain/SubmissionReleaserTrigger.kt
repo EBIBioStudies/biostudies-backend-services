@@ -13,7 +13,7 @@ private const val RELEASER_CORES = 4
 
 private val logger = KotlinLogging.logger {}
 
-class SubmissionReleaserService(
+class SubmissionReleaserTrigger(
     private val appProperties: AppProperties,
     private val properties: SchedulerReleaserProps,
     private val clusterOperations: ClusterOperations

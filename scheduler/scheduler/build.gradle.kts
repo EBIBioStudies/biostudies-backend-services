@@ -26,7 +26,6 @@ repositories {
 dependencies {
     api(project(":commons:commons-http"))
     api(project(":scheduler:cluster-client"))
-    api(project(":scheduler:submission-releaser-task"))
     api(project(":scheduler:task-properties"))
 
     implementation(Arrow)

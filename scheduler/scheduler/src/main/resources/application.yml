@@ -1,5 +1,6 @@
 app:
   apps-folder: # Folder where app jar can be located
+  notificationsUrl: # Slack notifications URL
 
   ssh:
     user: # ssh user

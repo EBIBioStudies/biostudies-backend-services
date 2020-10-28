@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.scheduling.annotation.EnableScheduling
 import uk.ac.ebi.scheduler.releaser.api.SubmissionReleaserProperties
-import uk.ac.ebi.scheduler.releaser.domain.SubmissionReleaserService
+import uk.ac.ebi.scheduler.releaser.domain.SubmissionReleaserTrigger
 
 @Configuration
 @EnableScheduling
@@ -31,15 +31,15 @@ internal class SchedulerConfig {
     ): PmcLoaderService = PmcLoaderService(clusterOperations, properties, appProperties, notificationsSender)
 
     @Bean
-    fun submissionReleaserService(
+    fun submissionReleaserTrigger(
         appProperties: AppProperties,
         clusterOperations: ClusterOperations,
         releaserProperties: SubmissionReleaserProperties
-    ): SubmissionReleaserService = SubmissionReleaserService(appProperties, releaserProperties, clusterOperations)
+    ): SubmissionReleaserTrigger = SubmissionReleaserTrigger(appProperties, releaserProperties, clusterOperations)
 
     @Bean
     fun scheduler(
         loaderService: PmcLoaderService,
-        releaserService: SubmissionReleaserService
-    ): DailyScheduler = DailyScheduler(loaderService, releaserService)
+        releaserTrigger: SubmissionReleaserTrigger
+    ): DailyScheduler = DailyScheduler(loaderService, releaserTrigger)
 }

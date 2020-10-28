@@ -2,11 +2,11 @@ package uk.ac.ebi.scheduler.scheduling
 
 import uk.ac.ebi.scheduler.pmc.importer.domain.PmcLoaderService
 import org.springframework.scheduling.annotation.Scheduled
-import uk.ac.ebi.scheduler.releaser.domain.SubmissionReleaserService
+import uk.ac.ebi.scheduler.releaser.domain.SubmissionReleaserTrigger
 
 internal class DailyScheduler(
     private val pmcLoaderService: PmcLoaderService,
-    private val submissionReleaserService: SubmissionReleaserService
+    private val submissionReleaserTrigger: SubmissionReleaserTrigger
 ) {
     @Scheduled(cron = "0 0 6 * * *")
     fun dailyLoad() {
@@ -25,6 +25,6 @@ internal class DailyScheduler(
 
     @Scheduled(cron = "0 0 9 * * *")
     fun dailyRelease() {
-        submissionReleaserService.triggerSubmissionReleaser()
+        submissionReleaserTrigger.triggerSubmissionReleaser()
     }
 }
