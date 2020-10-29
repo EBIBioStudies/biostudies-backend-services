@@ -28,7 +28,7 @@ class SubmissionReleaserTrigger(
         logger.info { "triggering submission releaser job" }
 
         val job = submissionReleaserJob()
-        notificationsSender.sent(Report(
+        notificationsSender.send(Report(
             SYSTEM_NAME,
             RELEASER_SUBSYSTEM,
             "Triggered $RELEASER_SUBSYSTEM in the cluster job $job. Logs available at ${job.logsPath}"

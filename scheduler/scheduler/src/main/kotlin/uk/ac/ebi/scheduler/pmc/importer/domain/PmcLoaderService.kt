@@ -36,7 +36,7 @@ internal class PmcLoaderService private constructor(
 
     fun loadFile(file: String): Job {
         val job = pmcLoaderService.loadFile(file)
-        notificationsSender.sent(Report(
+        notificationsSender.send(Report(
             SYSTEM_NAME,
             LOADER_SUBSYSTEM,
             "Triggered PMC loader $file, cluster job: $job, logs will be available at ${job.logsPath}"))
@@ -45,7 +45,7 @@ internal class PmcLoaderService private constructor(
 
     fun triggerProcessor(): Job {
         val job = pmcLoaderService.triggerProcessor()
-        notificationsSender.sent(Report(
+        notificationsSender.send(Report(
             SYSTEM_NAME,
             PROCESSOR_SUBSYSTEM,
             "Triggered PMC processor, cluster job: $job, logs will be available at ${job.logsPath}"))
@@ -54,7 +54,7 @@ internal class PmcLoaderService private constructor(
 
     fun triggerSubmitter(): Job {
         val job = pmcLoaderService.triggerSubmitter()
-        notificationsSender.sent(Report(
+        notificationsSender.send(Report(
             SYSTEM_NAME,
             SUBMITTER_SUBSYSTEM,
             "Triggered PMC submitter, cluster job: $job, logs will be available at ${job.logsPath}"))
