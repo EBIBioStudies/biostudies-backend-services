@@ -1,3 +1,4 @@
+import Dependencies.KotlinLogging
 import Dependencies.KotlinStdLib
 import Dependencies.SpringWeb
 import SpringBootDependencies.SpringBootAmqp
@@ -17,6 +18,7 @@ dependencies {
     api(project(":events:events-publisher"))
     api(project(":submission:notifications"))
 
+    implementation(KotlinLogging)
     implementation(KotlinStdLib)
     implementation(SpringBootAmqp)
     implementation(SpringBootStarter)

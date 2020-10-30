@@ -5,10 +5,13 @@ import ebi.ac.uk.base.isNotBlank
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.util.date.asOffsetAtEndOfDay
 import ebi.ac.uk.util.date.asOffsetAtStartOfDay
+import mu.KotlinLogging
 import uk.ac.ebi.events.service.EventsPublisherService
 import uk.ac.ebi.scheduler.releaser.config.NotificationTimes
 import java.time.LocalDate
 import java.time.OffsetDateTime
+
+private val logger = KotlinLogging.logger {}
 
 class SubmissionReleaserService(
     private val bioWebClient: BioWebClient,
@@ -28,7 +31,10 @@ class SubmissionReleaserService(
             today.asOffsetAtStartOfDay(),
             today.asOffsetAtEndOfDay()
         ) {
-            if (it.released.not()) bioWebClient.submitExt(it.copy(released = true))
+            if (it.released.not()) {
+                logger.info { "Releasing submission ${it.accNo}" }
+//                bioWebClient.submitExt(it.copy(released = true))
+            }
         }
     }
 
@@ -37,7 +43,8 @@ class SubmissionReleaserService(
             date.asOffsetAtStartOfDay(),
             date.asOffsetAtEndOfDay()
         ) {
-            eventsPublisherService.submissionReleased(it)
+            logger.info { "Notifying submission release for ${it.accNo}" }
+//            eventsPublisherService.submissionReleased(it)
         }
     }
 
