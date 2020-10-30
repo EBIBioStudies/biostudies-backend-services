@@ -3,6 +3,7 @@ package uk.ac.ebi.scheduler.releaser.service
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ebi.ac.uk.base.isNotBlank
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.extended.model.isProject
 import ebi.ac.uk.util.date.asOffsetAtEndOfDay
 import ebi.ac.uk.util.date.asOffsetAtStartOfDay
 import mu.KotlinLogging
@@ -31,7 +32,7 @@ class SubmissionReleaserService(
             today.asOffsetAtStartOfDay(),
             today.asOffsetAtEndOfDay()
         ) {
-            if (it.released.not()) {
+            if (it.isProject.not().and(it.released.not())) {
                 logger.info { "Releasing submission ${it.accNo}" }
 //                bioWebClient.submitExt(it.copy(released = true))
             }
