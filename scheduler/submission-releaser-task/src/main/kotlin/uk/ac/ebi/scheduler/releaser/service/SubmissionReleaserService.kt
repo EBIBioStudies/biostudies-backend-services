@@ -34,7 +34,7 @@ class SubmissionReleaserService(
         ) {
             if (it.isProject.not().and(it.released.not())) {
                 logger.info { "Releasing submission ${it.accNo}" }
-//                bioWebClient.submitExt(it.copy(released = true))
+                bioWebClient.submitExt(it.copy(released = true))
             }
         }
     }
@@ -45,7 +45,7 @@ class SubmissionReleaserService(
             date.asOffsetAtEndOfDay()
         ) {
             logger.info { "Notifying submission release for ${it.accNo}" }
-//            eventsPublisherService.submissionReleased(it)
+            eventsPublisherService.submissionReleased(it)
         }
     }
 

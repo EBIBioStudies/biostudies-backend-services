@@ -15,4 +15,4 @@ val ExtSubmission.allFileList
     get(): List<ExtFileList> = allSections.mapNotNull { it.fileList }
 
 val ExtSubmission.isProject
-    get():Boolean = section.type == PROJECT_TYPE
+    get(): Boolean = section.type == PROJECT_TYPE
