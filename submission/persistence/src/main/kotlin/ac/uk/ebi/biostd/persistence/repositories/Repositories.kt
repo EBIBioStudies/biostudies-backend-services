@@ -124,6 +124,9 @@ interface UserDataRepository : JpaRepository<DbUser, Long> {
     fun findByEmail(email: String): Optional<DbUser>
 
     @EntityGraph(value = USER_DATA_GRAPH, type = LOAD)
+    fun readByEmail(userEmail: String): DbUser
+
+    @EntityGraph(value = USER_DATA_GRAPH, type = LOAD)
     fun getById(id: Long): DbUser
 }
 
