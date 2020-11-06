@@ -68,7 +68,7 @@ class SubmissionReleaserTrigger(
             properties.bioStudies.url,
             properties.bioStudies.user,
             properties.bioStudies.password,
-            properties.notificationTimes.firstWarning,
-            properties.notificationTimes.secondWarning,
-            properties.notificationTimes.thirdWarning)
+            properties.notificationTimes.firstWarningDays,
+            properties.notificationTimes.secondWarningDays,
+            properties.notificationTimes.thirdWarningDays)
 }

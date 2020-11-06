@@ -31,7 +31,7 @@ class Rabbitmq {
 }
 
 class NotificationTimes {
-    var firstWarning: Long = -1
-    var secondWarning: Long = -1
-    var thirdWarning: Long = -1
+    var firstWarningDays: Long = -1
+    var secondWarningDays: Long = -1
+    var thirdWarningDays: Long = -1
 }
