@@ -21,6 +21,12 @@ class SubmissionReleaserService(
 ) {
     fun notifySubmissionReleases() {
         val today = LocalDate.now()
+        logger.info {
+            "first: ${notificationTimes.firstWarningDays} at ${today.plusDays(notificationTimes.firstWarningDays)}" }
+        logger.info {
+            "second: ${notificationTimes.secondWarningDays} at ${today.plusDays(notificationTimes.secondWarningDays)}" }
+        logger.info {
+            "third: ${notificationTimes.thirdWarningDays} at ${today.plusDays(notificationTimes.thirdWarningDays)}" }
         notifyRelease(today.plusDays(notificationTimes.firstWarningDays))
         notifyRelease(today.plusDays(notificationTimes.secondWarningDays))
         notifyRelease(today.plusDays(notificationTimes.thirdWarningDays))
@@ -28,6 +34,7 @@ class SubmissionReleaserService(
 
     fun releaseDailySubmissions() {
         val today = LocalDate.now()
+        logger.info { "releasing from ${ today.asOffsetAtStartOfDay() } to ${ today.asOffsetAtEndOfDay() }" }
         val query = ExtPageQuery(fromRTime = today.asOffsetAtStartOfDay(), toRTime = today.asOffsetAtEndOfDay())
         bioWebClient.getExtSubmissionsAsSequence(query).forEach(::releaseSubmission)
     }
@@ -40,6 +47,7 @@ class SubmissionReleaserService(
     }
 
     private fun notifyRelease(date: LocalDate) {
+        logger.info { "notifying from ${ date.asOffsetAtStartOfDay() } to ${ date.asOffsetAtEndOfDay() }" }
         val query = ExtPageQuery(fromRTime = date.asOffsetAtStartOfDay(), toRTime = date.asOffsetAtEndOfDay())
         bioWebClient.getExtSubmissionsAsSequence(query).forEach(::notify)
     }
