@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.client.integration.web
 
 import ac.uk.ebi.biostd.client.dto.ExtPage
+import ac.uk.ebi.biostd.client.dto.ExtPageQuery
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.JSON
 import ebi.ac.uk.api.ClientResponse
@@ -18,7 +19,6 @@ import ebi.ac.uk.model.Project
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.SubmissionDraft
 import java.io.File
-import java.time.OffsetDateTime
 
 interface SubmissionClient :
     SubmissionOperations,
@@ -114,12 +114,7 @@ interface DraftSubmissionOperations {
 }
 
 interface ExtSubmissionOperations {
-    fun getExtSubmissions(
-        limit: Int = 15,
-        offset: Int = 0,
-        fromRTime: OffsetDateTime? = null,
-        toRTime: OffsetDateTime? = null
-    ): ExtPage
+    fun getExtSubmissions(extPageQuery: ExtPageQuery): ExtPage
 
     fun getExtSubmissionsPage(pageUrl: String): ExtPage
 

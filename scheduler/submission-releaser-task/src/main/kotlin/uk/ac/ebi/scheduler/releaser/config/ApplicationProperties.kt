@@ -1,5 +1,6 @@
 package uk.ac.ebi.scheduler.releaser.config
 
+import ac.uk.ebi.scheduler.properties.ReleaserMode
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.boot.context.properties.NestedConfigurationProperty
 import org.springframework.stereotype.Component
@@ -7,6 +8,8 @@ import org.springframework.stereotype.Component
 @ConfigurationProperties(prefix = "app")
 @Component
 class ApplicationProperties {
+    lateinit var mode: ReleaserMode
+
     @NestedConfigurationProperty
     var bioStudies: BioStudies = BioStudies()
 
@@ -21,7 +24,7 @@ class BioStudies {
 }
 
 class NotificationTimes {
-    var firstWarning: Long = -1
-    var secondWarning: Long = -1
-    var thirdWarning: Long = -1
+    var firstWarningDays: Long = -1
+    var secondWarningDays: Long = -1
+    var thirdWarningDays: Long = -1
 }

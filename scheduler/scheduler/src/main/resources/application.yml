@@ -25,9 +25,9 @@ releaser:
     port: # RabbitMQ Port
 
   notification-times:
-    first-warning: # Number of days before hand for the first warning to the users about upcoming release
-    second-warning: # Number of days before hand for the second warning to the users about upcoming release
-    third-warning: # Number of days before hand for the third warning to the users about upcoming release
+    first-warning-days: # Number of days before hand for the first warning to the users about upcoming release
+    second-warning-days: # Number of days before hand for the second warning to the users about upcoming release
+    third-warning-days: # Number of days before hand for the third warning to the users about upcoming release
 
 spring:
   application:

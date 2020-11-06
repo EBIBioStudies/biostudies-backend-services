@@ -5,6 +5,9 @@ import ac.uk.ebi.cluster.client.model.Job
 import ac.uk.ebi.cluster.client.model.JobSpec
 import ac.uk.ebi.cluster.client.model.MemorySpec
 import ac.uk.ebi.cluster.client.model.logsPath
+import ac.uk.ebi.scheduler.properties.ReleaserMode
+import ac.uk.ebi.scheduler.properties.ReleaserMode.NOTIFY
+import ac.uk.ebi.scheduler.properties.ReleaserMode.RELEASE
 import ac.uk.ebi.scheduler.properties.SubmissionReleaserProperties
 import ebi.ac.uk.commons.http.slack.NotificationsSender
 import ebi.ac.uk.commons.http.slack.Report
@@ -26,19 +29,26 @@ class SubmissionReleaserTrigger(
 ) {
     fun triggerSubmissionReleaser(): Job {
         logger.info { "triggering submission releaser job" }
+        return triggerJob(mode = RELEASE)
+    }
 
-        val job = submissionReleaserJob()
+    fun triggerSubmissionReleaseNotifier(): Job {
+        logger.info { "triggering submission release notifier job" }
+        return triggerJob(mode = NOTIFY)
+    }
+
+    private fun triggerJob(mode: ReleaserMode): Job {
+        val job = submissionReleaserJob(mode)
         notificationsSender.send(Report(
             SYSTEM_NAME,
             RELEASER_SUBSYSTEM,
-            "Triggered $RELEASER_SUBSYSTEM in the cluster job $job. Logs available at ${job.logsPath}"
-        ))
+            "Triggered $RELEASER_SUBSYSTEM in mode $mode in the cluster job $job. Logs available at ${job.logsPath}"))
 
         return job
     }
 
-    private fun submissionReleaserJob(): Job {
-        val releaserProperties = getConfigProperties(properties)
+    private fun submissionReleaserJob(mode: ReleaserMode): Job {
+        val releaserProperties = getConfigProperties(mode, properties)
         val jobTry = clusterOperations.triggerJob(
             JobSpec(
                 RELEASER_CORES,
@@ -48,8 +58,9 @@ class SubmissionReleaserTrigger(
         return jobTry.fold({ throw it }, { it.apply { logger.info { "submitted job $it" } } })
     }
 
-    private fun getConfigProperties(properties: SchedulerReleaserProps) =
+    private fun getConfigProperties(mode: ReleaserMode, properties: SchedulerReleaserProps) =
         SubmissionReleaserProperties.create(
+            mode,
             properties.rabbitmq.host,
             properties.rabbitmq.user,
             properties.rabbitmq.password,

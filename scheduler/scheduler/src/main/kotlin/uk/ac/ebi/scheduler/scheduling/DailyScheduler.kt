@@ -9,22 +9,27 @@ internal class DailyScheduler(
     private val submissionReleaserTrigger: SubmissionReleaserTrigger
 ) {
     @Scheduled(cron = "0 0 6 * * *")
-    fun dailyLoad() {
+    fun loadPmc() {
         pmcLoaderService.loadFile("/nfs/production3/ma/home/biostudy/EPMC-export/daily")
     }
 
     @Scheduled(cron = "0 0 7 * * *")
-    fun dailyProcess() {
+    fun processPmc() {
         pmcLoaderService.triggerProcessor()
     }
 
     @Scheduled(cron = "0 0 8 * * *")
-    fun dailySubmission() {
+    fun submitPmc() {
         pmcLoaderService.triggerSubmitter()
     }
 
     @Scheduled(cron = "0 0 9 * * *")
-    fun dailyRelease() {
+    fun releaseSubmissions() {
         submissionReleaserTrigger.triggerSubmissionReleaser()
+    }
+
+    @Scheduled(cron = "0 0 10 * * *")
+    fun notifySubmissionRelease() {
+        submissionReleaserTrigger.triggerSubmissionReleaseNotifier()
     }
 }

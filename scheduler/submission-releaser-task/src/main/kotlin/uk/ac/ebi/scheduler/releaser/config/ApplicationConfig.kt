@@ -23,8 +23,9 @@ class ApplicationConfig {
 
     @Bean
     fun submissionReleaserExecutor(
+        applicationProperties: ApplicationProperties,
         submissionReleaserService: SubmissionReleaserService
-    ): SubmissionReleaserExecutor = SubmissionReleaserExecutor(submissionReleaserService)
+    ): SubmissionReleaserExecutor = SubmissionReleaserExecutor(applicationProperties, submissionReleaserService)
 
     @Bean
     fun bioWebClient(applicationProperties: ApplicationProperties): BioWebClient =

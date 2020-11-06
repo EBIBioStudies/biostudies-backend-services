@@ -1,7 +1,8 @@
 package uk.ac.ebi.scheduler.releaser.service
 
+import ac.uk.ebi.biostd.client.dto.ExtPageQuery
+import ac.uk.ebi.biostd.client.extensions.getExtSubmissionsAsSequence
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
-import ebi.ac.uk.base.isNotBlank
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.isProject
 import ebi.ac.uk.util.date.asOffsetAtEndOfDay
@@ -10,7 +11,6 @@ import mu.KotlinLogging
 import uk.ac.ebi.events.service.EventsPublisherService
 import uk.ac.ebi.scheduler.releaser.config.NotificationTimes
 import java.time.LocalDate
-import java.time.OffsetDateTime
 
 private val logger = KotlinLogging.logger {}
 
@@ -21,41 +21,31 @@ class SubmissionReleaserService(
 ) {
     fun notifySubmissionReleases() {
         val today = LocalDate.now()
-        notifyRelease(today.plusDays(notificationTimes.firstWarning))
-        notifyRelease(today.plusDays(notificationTimes.secondWarning))
-        notifyRelease(today.plusDays(notificationTimes.thirdWarning))
+        notifyRelease(today.plusDays(notificationTimes.firstWarningDays))
+        notifyRelease(today.plusDays(notificationTimes.secondWarningDays))
+        notifyRelease(today.plusDays(notificationTimes.thirdWarningDays))
     }
 
     fun releaseDailySubmissions() {
         val today = LocalDate.now()
-        processExtPages(
-            today.asOffsetAtStartOfDay(),
-            today.asOffsetAtEndOfDay()
-        ) {
-            if (it.isProject.not().and(it.released.not())) {
-                logger.info { "Releasing submission ${it.accNo}" }
-                bioWebClient.submitExt(it.copy(released = true))
-            }
+        val query = ExtPageQuery(fromRTime = today.asOffsetAtStartOfDay(), toRTime = today.asOffsetAtEndOfDay())
+        bioWebClient.getExtSubmissionsAsSequence(query).forEach(::releaseSubmission)
+    }
+
+    private fun releaseSubmission(extSubmission: ExtSubmission) {
+        if (extSubmission.isProject.not().and(extSubmission.released.not())) {
+            logger.info { "Releasing submission ${extSubmission.accNo}" }
+            bioWebClient.submitExt(extSubmission.copy(released = true))
         }
     }
 
     private fun notifyRelease(date: LocalDate) {
-        processExtPages(
-            date.asOffsetAtStartOfDay(),
-            date.asOffsetAtEndOfDay()
-        ) {
-            logger.info { "Notifying submission release for ${it.accNo}" }
-            eventsPublisherService.submissionReleased(it)
-        }
+        val query = ExtPageQuery(fromRTime = date.asOffsetAtStartOfDay(), toRTime = date.asOffsetAtEndOfDay())
+        bioWebClient.getExtSubmissionsAsSequence(query).forEach(::notify)
     }
 
-    private fun processExtPages(from: OffsetDateTime, to: OffsetDateTime, processingFunction: (ExtSubmission) -> Unit) {
-        var currentPage = bioWebClient.getExtSubmissions(fromRTime = from, toRTime = to)
-        currentPage.content.forEach(processingFunction)
-
-        while (currentPage.next.isNotBlank()) {
-            currentPage = bioWebClient.getExtSubmissionsPage(currentPage.next!!)
-            currentPage.content.forEach(processingFunction)
-        }
+    private fun notify(extSubmission: ExtSubmission) {
+        logger.info { "Notifying submission release for ${extSubmission.accNo}" }
+        eventsPublisherService.submissionReleased(extSubmission)
     }
 }

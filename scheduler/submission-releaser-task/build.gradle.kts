@@ -16,6 +16,7 @@ dependencies {
     api(project(":client:bio-webclient"))
     api(project(":commons:commons-model-extended"))
     api(project(":events:events-publisher"))
+    api(project(":scheduler:task-properties"))
     api(project(":submission:notifications"))
 
     implementation(KotlinLogging)

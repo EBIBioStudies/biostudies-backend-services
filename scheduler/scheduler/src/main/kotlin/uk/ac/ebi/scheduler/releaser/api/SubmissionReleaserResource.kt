@@ -8,7 +8,11 @@ import uk.ac.ebi.scheduler.releaser.domain.SubmissionReleaserTrigger
 
 @RestController
 internal class SubmissionReleaserResource(private val submissionReleaserTrigger: SubmissionReleaserTrigger) {
-    @PostMapping("/api/releaser")
+    @PostMapping("/api/releaser/release")
     @ResponseBody
     fun releaseSubmissions(): Job = submissionReleaserTrigger.triggerSubmissionReleaser()
+
+    @PostMapping("/api/releaser/notify")
+    @ResponseBody
+    fun notifySubmissionsRelease(): Job = submissionReleaserTrigger.triggerSubmissionReleaseNotifier()
 }
