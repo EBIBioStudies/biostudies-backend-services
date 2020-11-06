@@ -10,7 +10,8 @@ import ebi.ac.uk.util.date.asOffsetAtStartOfDay
 import mu.KotlinLogging
 import uk.ac.ebi.events.service.EventsPublisherService
 import uk.ac.ebi.scheduler.releaser.config.NotificationTimes
-import java.time.LocalDate
+import java.time.Instant
+import java.time.temporal.ChronoUnit.DAYS
 
 private val logger = KotlinLogging.logger {}
 
@@ -20,20 +21,14 @@ class SubmissionReleaserService(
     private val eventsPublisherService: EventsPublisherService
 ) {
     fun notifySubmissionReleases() {
-        val today = LocalDate.now()
-        logger.info {
-            "first: ${notificationTimes.firstWarningDays} at ${today.plusDays(notificationTimes.firstWarningDays)}" }
-        logger.info {
-            "second: ${notificationTimes.secondWarningDays} at ${today.plusDays(notificationTimes.secondWarningDays)}" }
-        logger.info {
-            "third: ${notificationTimes.thirdWarningDays} at ${today.plusDays(notificationTimes.thirdWarningDays)}" }
-        notifyRelease(today.plusDays(notificationTimes.firstWarningDays))
-        notifyRelease(today.plusDays(notificationTimes.secondWarningDays))
-        notifyRelease(today.plusDays(notificationTimes.thirdWarningDays))
+        val today = Instant.now()
+        notifyRelease(today.plus(notificationTimes.firstWarningDays, DAYS))
+        notifyRelease(today.plus(notificationTimes.secondWarningDays, DAYS))
+        notifyRelease(today.plus(notificationTimes.thirdWarningDays, DAYS))
     }
 
     fun releaseDailySubmissions() {
-        val today = LocalDate.now()
+        val today = Instant.now()
         logger.info { "releasing from ${ today.asOffsetAtStartOfDay() } to ${ today.asOffsetAtEndOfDay() }" }
         val query = ExtPageQuery(fromRTime = today.asOffsetAtStartOfDay(), toRTime = today.asOffsetAtEndOfDay())
         bioWebClient.getExtSubmissionsAsSequence(query).forEach(::releaseSubmission)
@@ -46,7 +41,7 @@ class SubmissionReleaserService(
         }
     }
 
-    private fun notifyRelease(date: LocalDate) {
+    private fun notifyRelease(date: Instant) {
         logger.info { "notifying from ${ date.asOffsetAtStartOfDay() } to ${ date.asOffsetAtEndOfDay() }" }
         val query = ExtPageQuery(fromRTime = date.asOffsetAtStartOfDay(), toRTime = date.asOffsetAtEndOfDay())
         bioWebClient.getExtSubmissionsAsSequence(query).forEach(::notify)

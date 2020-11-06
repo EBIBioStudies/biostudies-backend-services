@@ -21,7 +21,7 @@ class SubmissionReleaserPropertiesTest {
             thirdWarningDays = 7)
 
         assertThat(properties.asJavaCommand("/apps-folder")).isEqualTo("""
-            java -jar /apps-folder/submission-releaser-task-1.0.0.jar \
+            java -Dsun.jnu.encoding=UTF-8 -jar /apps-folder/submission-releaser-task-1.0.0.jar \
             --spring.rabbitmq.host=localhost \
             --spring.rabbitmq.username=manager \
             --spring.rabbitmq.password=manager-local \

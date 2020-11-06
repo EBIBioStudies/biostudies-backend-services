@@ -1,5 +1,4 @@
 import Dependencies.JSONOrg
-import Dependencies.KotlinLogging
 import Dependencies.KotlinStdLib
 import Dependencies.SpringWeb
 
@@ -13,5 +12,4 @@ dependencies {
     implementation(JSONOrg)
     implementation(KotlinStdLib)
     implementation(SpringWeb)
-    implementation(KotlinLogging)
 }

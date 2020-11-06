@@ -7,7 +7,7 @@ private const val APP_NAME = "submission-releaser-task-1.0.0.jar"
 class SubmissionReleaserProperties : BaseAppProperty {
     override fun asJavaCommand(location: String): String =
         StringBuilder().apply {
-            append("java -jar $location/$APP_NAME \\\n")
+            append("java -Dsun.jnu.encoding=UTF-8 -jar $location/$APP_NAME \\\n")
             append("--spring.rabbitmq.host=$rabbitMqHost \\\n")
             append("--spring.rabbitmq.username=$rabbitMqUser \\\n")
             append("--spring.rabbitmq.password=$rabbitMqPassword \\\n")
