@@ -7,6 +7,7 @@ import ac.uk.ebi.biostd.client.integration.web.ExtSubmissionOperations
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.util.date.toStringInstant
 import ebi.ac.uk.util.web.optionalQueryParam
+import mu.KotlinLogging
 import org.springframework.http.HttpEntity
 import org.springframework.http.ResponseEntity
 import org.springframework.web.client.RestTemplate
@@ -16,6 +17,8 @@ import org.springframework.web.util.UriComponentsBuilder
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 
 const val EXT_SUBMISSIONS_URL = "/submissions/extended"
+
+private val logger = KotlinLogging.logger {}
 
 class ExtSubmissionClient(
     private val restTemplate: RestTemplate,
@@ -50,6 +53,8 @@ class ExtSubmissionClient(
             .build()
             .toUriString()
 
-    private inline fun <reified T> ResponseEntity<String>.deserialized(): T =
-        map { body -> extSerializationService.deserialize<T>(body) }.body!!
+    private inline fun <reified T> ResponseEntity<String>.deserialized(): T {
+        logger.info { "the body $body" }
+        return map { body -> extSerializationService.deserialize<T>(body) }.body!!
+    }
 }
