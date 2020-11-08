@@ -1,6 +1,6 @@
 package ebi.ac.uk.security.integration.components
 
-import ac.uk.ebi.biostd.persistence.model.AccessType
+import ac.uk.ebi.biostd.persistence.common.model.AccessType
 
 interface IUserPrivilegesService {
     fun canProvideAccNo(email: String): Boolean

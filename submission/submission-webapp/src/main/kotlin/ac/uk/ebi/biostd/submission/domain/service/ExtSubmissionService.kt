@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.submission.domain.service
 
-import ac.uk.ebi.biostd.persistence.integration.PersistenceContext
-import ac.uk.ebi.biostd.persistence.integration.SaveRequest
+import ac.uk.ebi.biostd.persistence.common.request.SaveSubmissionRequest
+import ac.uk.ebi.biostd.persistence.common.service.PersistenceService
 import ac.uk.ebi.biostd.persistence.repositories.data.SubmissionRepository
 import ac.uk.ebi.biostd.submission.web.model.ExtPageRequest
 import ebi.ac.uk.extended.model.ExtSubmission
@@ -10,7 +10,7 @@ import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import org.springframework.data.domain.Page
 
 class ExtSubmissionService(
-    private val persistenceContext: PersistenceContext,
+    private val persistenceService: PersistenceService,
     private val submissionRepository: SubmissionRepository,
     private val userPrivilegesService: IUserPrivilegesService
 ) {
@@ -18,7 +18,7 @@ class ExtSubmissionService(
 
     fun submitExtendedSubmission(user: String, extSubmission: ExtSubmission): ExtSubmission {
         validateUser(user)
-        return persistenceContext.saveAndProcessSubmissionRequest(SaveRequest(extSubmission, COPY))
+        return persistenceService.saveAndProcessSubmissionRequest(SaveSubmissionRequest(extSubmission, COPY))
     }
 
     fun getExtendedSubmissions(request: ExtPageRequest): Page<ExtSubmission> =

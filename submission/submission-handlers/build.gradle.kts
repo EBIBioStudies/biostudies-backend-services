@@ -19,6 +19,7 @@ dependencies {
     api(project(":commons:commons-model-extended-serialization"))
     api(project(":commons:commons-util"))
     api(project(":submission:notifications"))
+    api(project(":submission:submission-config"))
 
     implementation(JacksonKotlin)
     implementation(KotlinLogging)

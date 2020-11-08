@@ -1,8 +1,8 @@
 package ac.uk.ebi.biostd.submission.submitter
 
-import ac.uk.ebi.biostd.persistence.integration.PersistenceContext
-import ac.uk.ebi.biostd.persistence.integration.SaveRequest
-import ac.uk.ebi.biostd.persistence.integration.SubmissionQueryService
+import ac.uk.ebi.biostd.persistence.common.request.SaveSubmissionRequest
+import ac.uk.ebi.biostd.persistence.common.service.PersistenceService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.submission.exceptions.InvalidSubmissionException
 import ac.uk.ebi.biostd.submission.model.SubmissionRequest
 import ac.uk.ebi.biostd.submission.service.AccNoService
@@ -46,7 +46,7 @@ class SubmissionSubmitter(
     private val accNoService: AccNoService,
     private val parentInfoService: ParentInfoService,
     private val projectInfoService: ProjectInfoService,
-    private val context: PersistenceContext,
+    private val service: PersistenceService,
     private val queryService: SubmissionQueryService
 ) {
     fun submit(request: SubmissionRequest): ExtSubmission {
@@ -61,15 +61,15 @@ class SubmissionSubmitter(
         )
 
         logger.info { "Saving submission ${submission.accNo}" }
-        return context.saveAndProcessSubmissionRequest(SaveRequest(submission, request.mode))
+        return service.saveAndProcessSubmissionRequest(SaveSubmissionRequest(submission, request.mode))
     }
 
-    fun processRequest(request: SaveRequest): ExtSubmission {
+    fun processRequest(request: SaveSubmissionRequest): ExtSubmission {
         logger.info { "processing request for submission ${request.submission.accNo} " }
-        return context.processSubmission(request)
+        return service.processSubmission(request)
     }
 
-    fun submitAsync(request: SubmissionRequest): SaveRequest {
+    fun submitAsync(request: SubmissionRequest): SaveSubmissionRequest {
         logger.info { "processing async request $request" }
 
         val submission = process(
@@ -81,7 +81,8 @@ class SubmissionSubmitter(
         )
 
         logger.info { "Saving submission request ${submission.accNo}" }
-        return SaveRequest(context.saveSubmissionRequest(SaveRequest(submission, request.mode)), request.mode)
+        val saveRequest = SaveSubmissionRequest(submission, request.mode)
+        return SaveSubmissionRequest(service.saveSubmissionRequest(saveRequest), request.mode)
     }
 
     @Suppress("TooGenericExceptionCaught")

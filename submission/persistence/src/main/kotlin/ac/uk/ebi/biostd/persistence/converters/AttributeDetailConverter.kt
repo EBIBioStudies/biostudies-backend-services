@@ -7,7 +7,7 @@ import javax.persistence.AttributeConverter
 const val ATTR_SEP = ";"
 const val ATTR_REL = "="
 
-class AttributeDetailConverter : AttributeConverter<MutableList<AttributeDetail>, String> {
+internal class AttributeDetailConverter : AttributeConverter<MutableList<AttributeDetail>, String> {
     override fun convertToDatabaseColumn(attributes: MutableList<AttributeDetail>) =
         attributes.joinToString(separator = ATTR_SEP) { "${it.name}=${it.value}" }
 

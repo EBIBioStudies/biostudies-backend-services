@@ -5,9 +5,9 @@ import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat.JsonFormat.JsonPretty
 import ac.uk.ebi.biostd.integration.SubFormat.TsvFormat.Tsv
 import ac.uk.ebi.biostd.integration.SubFormat.XmlFormat
+import ac.uk.ebi.biostd.persistence.common.request.SaveSubmissionRequest
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.filter.SubmissionFilter
-import ac.uk.ebi.biostd.persistence.integration.SaveRequest
-import ac.uk.ebi.biostd.persistence.integration.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.projections.SimpleSubmission
 import ac.uk.ebi.biostd.persistence.repositories.data.SubmissionRepository
 import ac.uk.ebi.biostd.submission.model.SubmissionRequest
@@ -58,8 +58,8 @@ class SubmissionService(
     @RabbitListener(queues = [SUBMISSION_REQUEST_QUEUE], concurrency = "1-1")
     fun processSubmission(request: SubmissionRequestMessage) {
         logger.info { "received process message for submission ${request.submission}" }
-        val extSubmission = submissionSubmitter.processRequest(SaveRequest(request.submission, request.fileMode))
-        eventsPublisherService.submissionSubmitted(extSubmission)
+        val submission = submissionSubmitter.processRequest(SaveSubmissionRequest(request.submission, request.fileMode))
+        eventsPublisherService.submissionSubmitted(submission)
     }
 
     fun getSubmissionAsJson(accNo: String): String {

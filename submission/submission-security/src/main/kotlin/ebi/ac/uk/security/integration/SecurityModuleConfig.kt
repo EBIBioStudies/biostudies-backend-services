@@ -1,11 +1,12 @@
 package ebi.ac.uk.security.integration
 
-import ac.uk.ebi.biostd.persistence.integration.SubmissionQueryService
+import ac.uk.ebi.biostd.common.properties.SecurityProperties
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
 import ac.uk.ebi.biostd.persistence.repositories.TokenDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserGroupDataRepository
-import ac.uk.ebi.biostd.persistence.service.UserPermissionsService
+import ac.uk.ebi.biostd.persistence.service.UserSqlPermissionsService
 import ebi.ac.uk.commons.http.JacksonFactory
 import ebi.ac.uk.security.integration.components.IGroupService
 import ebi.ac.uk.security.integration.components.ISecurityFilter
@@ -29,7 +30,7 @@ class SecurityModuleConfig(
     private val tagsDataRepository: AccessTagDataRepo,
     private val groupRepository: UserGroupDataRepository,
     private val queryService: SubmissionQueryService,
-    private val userPermissionsService: UserPermissionsService,
+    private val userPermissionsService: UserSqlPermissionsService,
     private val eventsPublisherService: EventsPublisherService,
     private var props: SecurityProperties
 ) {

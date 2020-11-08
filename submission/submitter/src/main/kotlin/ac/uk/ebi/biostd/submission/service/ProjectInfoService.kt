@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.submission.service
 
-import ac.uk.ebi.biostd.persistence.integration.PersistenceContext
-import ac.uk.ebi.biostd.persistence.integration.SubmissionQueryService
+import ac.uk.ebi.biostd.persistence.common.service.PersistenceService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.submission.exceptions.ProjectAccNoTemplateAlreadyExistsException
 import ac.uk.ebi.biostd.submission.exceptions.ProjectAlreadyExistingException
 import ac.uk.ebi.biostd.submission.exceptions.ProjectInvalidAccNoPatternException
@@ -13,7 +13,7 @@ internal const val ACC_NO_TEMPLATE_REQUIRED = "The AccNoTemplate property is req
 internal const val ACC_NO_TEMPLATE_INVALID = "The given AccNoTemplate is invalid. Expected pattern is !{TEMPLATE}"
 
 class ProjectInfoService(
-    private val context: PersistenceContext,
+    private val service: PersistenceService,
     private val queryService: SubmissionQueryService,
     private val accNoUtil: AccNoPatternUtil,
     private val privilegesService: IUserPrivilegesService
@@ -35,8 +35,8 @@ class ProjectInfoService(
     }
 
     private fun validateProject(isNew: Boolean, accNo: String, accNoPattern: String) {
-        if (isNew && context.accessTagExists(accNo)) throw ProjectAlreadyExistingException(accNo)
-        if (isNew && context.sequenceAccNoPatternExists(accNoPattern))
+        if (isNew && service.accessTagExists(accNo)) throw ProjectAlreadyExistingException(accNo)
+        if (isNew && service.sequenceAccNoPatternExists(accNoPattern))
             throw ProjectAccNoTemplateAlreadyExistsException(accNoPattern)
     }
 
@@ -47,8 +47,8 @@ class ProjectInfoService(
 
     private fun persist(isNew: Boolean, accNo: String, accNoPattern: String) {
         if (isNew) {
-            context.saveAccessTag(accNo)
-            context.createAccNoPatternSequence(accNoPattern)
+            service.saveAccessTag(accNo)
+            service.createAccNoPatternSequence(accNoPattern)
         }
     }
 }

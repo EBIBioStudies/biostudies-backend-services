@@ -1,10 +1,10 @@
 package ac.uk.ebi.biostd.common.config
 
-import ac.uk.ebi.biostd.common.property.ApplicationProperties
+import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.files.service.UserFilesService
 import ac.uk.ebi.biostd.integration.SerializationService
-import ac.uk.ebi.biostd.persistence.integration.PersistenceContext
-import ac.uk.ebi.biostd.persistence.integration.SubmissionQueryService
+import ac.uk.ebi.biostd.persistence.common.service.PersistenceService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.repositories.data.ProjectRepository
 import ac.uk.ebi.biostd.persistence.repositories.data.SubmissionRepository
 import ac.uk.ebi.biostd.submission.domain.helpers.SourceGenerator
@@ -51,10 +51,10 @@ class SubmissionConfig(
 
     @Bean
     fun extSubmissionService(
-        persistenceContext: PersistenceContext,
+        persistenceService: PersistenceService,
         subRepository: SubmissionRepository,
         userPrivilegeService: IUserPrivilegesService
-    ): ExtSubmissionService = ExtSubmissionService(persistenceContext, subRepository, userPrivilegeService)
+    ): ExtSubmissionService = ExtSubmissionService(persistenceService, subRepository, userPrivilegeService)
 
     @Bean
     fun projectService(

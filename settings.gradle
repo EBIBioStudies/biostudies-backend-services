@@ -21,15 +21,20 @@ include("events:events-publisher")
 include("infrastructure")
 
 include("submission:submitter")
+include(':submission:submission-config')
 include("submission:submission-webapp")
 include("submission:submission-security")
-include("submission:persistence")
 include("submission:notifications")
 include("submission:stats")
 include("submission:submission-handlers")
+include("submission:persistence-common")
+include("submission:persistence")
 
 include("scheduler:cluster-client")
 include("scheduler:pmc-processor-task")
 include("scheduler:scheduler")
 include("scheduler:task-properties")
 include("bio-admin")
+include 'submission:submission-config'
+
+

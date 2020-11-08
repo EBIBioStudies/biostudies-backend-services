@@ -1,8 +1,8 @@
 package ac.uk.ebi.biostd.submission.submitter
 
-import ac.uk.ebi.biostd.persistence.integration.PersistenceContext
-import ac.uk.ebi.biostd.persistence.integration.SaveRequest
-import ac.uk.ebi.biostd.persistence.integration.SubmissionQueryService
+import ac.uk.ebi.biostd.persistence.common.request.SaveSubmissionRequest
+import ac.uk.ebi.biostd.persistence.common.service.PersistenceService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.submission.model.SubmissionRequest
 import ac.uk.ebi.biostd.submission.service.AccNoService
 import ac.uk.ebi.biostd.submission.service.AccNoServiceRequest
@@ -57,10 +57,10 @@ class SubmissionSubmitterTest {
     private val parentInfoService = mockk<ParentInfoService>()
     private val queryService = mockk<SubmissionQueryService>()
     private val projectInfoService = mockk<ProjectInfoService>()
-    private val persistenceContext = mockk<PersistenceContext>()
+    private val persistenceContext = mockk<PersistenceService>()
 
     private val timesRequest = slot<TimesRequest>()
-    private val saveRequest = slot<SaveRequest>()
+    private val saveRequest = slot<SaveSubmissionRequest>()
     private val projectRequest = slot<ProjectRequest>()
     private val accNoServiceRequest = slot<AccNoServiceRequest>()
 
