@@ -17,11 +17,10 @@ include("client:bio-commandline")
 include("client:fire-webclient")
 
 include("events:events-publisher")
-
+include("bio-admin")
 include("infrastructure")
 
 include("submission:submitter")
-include(':submission:submission-config')
 include("submission:submission-webapp")
 include("submission:submission-security")
 include("submission:notifications")
@@ -29,12 +28,10 @@ include("submission:stats")
 include("submission:submission-handlers")
 include("submission:persistence-common")
 include("submission:persistence")
+include("submission:submission-config")
 
 include("scheduler:cluster-client")
 include("scheduler:pmc-processor-task")
 include("scheduler:scheduler")
 include("scheduler:task-properties")
-include("bio-admin")
-include 'submission:submission-config'
-
 
