@@ -1,10 +1,11 @@
 package ac.uk.ebi.biostd.itest.test.security
 
 import ac.uk.ebi.biostd.client.exception.WebClientException
-import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
+import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
+import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.RegularUser
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.persistence.model.AccessPermission
@@ -12,7 +13,7 @@ import ac.uk.ebi.biostd.persistence.model.AccessType.DELETE
 import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
-import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
+import ac.uk.ebi.biostd.persistence.repositories.data.SubmissionRepository
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.line
 import ebi.ac.uk.dsl.tsv
@@ -40,6 +41,7 @@ internal class DeletePermissionTest(private val tempFolder: TemporaryFolder) : B
     @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
     @DirtiesContext
     inner class DeleteSubmissionTest(
+        @Autowired private val securityTestService: SecurityTestService,
         @Autowired private val userDataRepository: UserDataRepository,
         @Autowired private val submissionRepository: SubmissionRepository,
         @Autowired private val tagsDataRepository: AccessTagDataRepo,
@@ -53,6 +55,9 @@ internal class DeletePermissionTest(private val tempFolder: TemporaryFolder) : B
 
         @BeforeAll
         fun init() {
+            securityTestService.registerUser(SuperUser)
+            securityTestService.registerUser(RegularUser)
+
             superUserWebClient = getWebClient(serverPort, SuperUser)
             regularUserWebClient = getWebClient(serverPort, RegularUser)
         }
@@ -65,10 +70,10 @@ internal class DeletePermissionTest(private val tempFolder: TemporaryFolder) : B
                 line()
             }.toString()
 
-            assertThat(superUserWebClient.submitSingle(submission, SubmissionFormat.TSV)).isSuccessful()
+            assertThat(superUserWebClient.submitSingle(submission, TSV)).isSuccessful()
             superUserWebClient.deleteSubmission("SimpleAcc1")
 
-            val deletedSubmission = submissionRepository.getExtByAccNo("SimpleAcc1")
+            val deletedSubmission = submissionRepository.getExtByAccNoAndVersion("SimpleAcc1", -1)
             assertThat(deletedSubmission.version).isEqualTo(-1)
         }
 
@@ -80,7 +85,7 @@ internal class DeletePermissionTest(private val tempFolder: TemporaryFolder) : B
                 line()
             }.toString()
 
-            assertThat(superUserWebClient.submitSingle(submission, SubmissionFormat.TSV)).isSuccessful()
+            assertThat(superUserWebClient.submitSingle(submission, TSV)).isSuccessful()
 
             assertThatExceptionOfType(WebClientException::class.java).isThrownBy {
                 regularUserWebClient.deleteSubmission("SimpleAcc2")
@@ -97,12 +102,28 @@ internal class DeletePermissionTest(private val tempFolder: TemporaryFolder) : B
             }.toString()
 
             setUpPermissions()
-            assertThat(superUserWebClient.submitSingle(submission, SubmissionFormat.TSV)).isSuccessful()
+            assertThat(superUserWebClient.submitSingle(submission, TSV)).isSuccessful()
 
             regularUserWebClient.deleteSubmission("SimpleAcc3")
 
-            val deletedSubmission = submissionRepository.getExtByAccNo("SimpleAcc3")
+            val deletedSubmission = submissionRepository.getExtByAccNoAndVersion("SimpleAcc3", -1)
             assertThat(deletedSubmission.version).isEqualTo(-1)
+        }
+
+        @Test
+        fun `resubmit deleted submission`() {
+            val submission = tsv {
+                line("Submission", "SimpleAcc4")
+                line("Title", "Simple Submission")
+                line()
+            }.toString()
+
+            superUserWebClient.submitSingle(submission, TSV)
+            superUserWebClient.deleteSubmission("SimpleAcc4")
+            superUserWebClient.submitSingle(submission, TSV)
+
+            val resubmitted = submissionRepository.getExtByAccNo("SimpleAcc4")
+            assertThat(resubmitted.version).isEqualTo(2)
         }
 
         private fun setUpPermissions() {

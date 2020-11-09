@@ -9,9 +9,9 @@ import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ac.uk.ebi.biostd.persistence.test.OWNER
 import ac.uk.ebi.biostd.persistence.test.SUBMITTER
 import ac.uk.ebi.biostd.persistence.test.assertSubmission
-import ac.uk.ebi.biostd.persistence.test.extAccessTag
 import ac.uk.ebi.biostd.persistence.test.extSubmission
 import ac.uk.ebi.biostd.persistence.test.extTag
+import ac.uk.ebi.biostd.persistence.test.project
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
@@ -33,7 +33,7 @@ internal class ToDbSubmissionMapperTest(
         @MockK user: DbUser,
         @MockK submitter: DbUser
     ) {
-        every { accessTagsRepository.findByName(extAccessTag.name) } returns accessTag
+        every { accessTagsRepository.findByName(project.accNo) } returns accessTag
         every { tagsRepository.findByClassifierAndName(extTag.name, extTag.value) } returns tag
         every { userRepository.getByEmail(OWNER) } returns user
         every { userRepository.getByEmail(SUBMITTER) } returns submitter

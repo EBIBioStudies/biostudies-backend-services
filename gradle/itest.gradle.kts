@@ -2,8 +2,8 @@ val sourceSets = the<SourceSetContainer>()
 
 sourceSets {
     create("itest") {
-        java.srcDir(file("src/integTest/java"))
-        resources.srcDir(file("src/integTest/resources"))
+        java.srcDir(file("src/itest/java"))
+        resources.srcDir(file("src/itest/resources"))
         compileClasspath += sourceSets["main"].output + configurations["testRuntimeClasspath"]
         runtimeClasspath += output + sourceSets["main"].output + compileClasspath
     }

@@ -62,5 +62,14 @@ class SubmissionResource(
     ): Unit = submissionsWebHandler.deleteSubmission(accNo, user)
 
     private fun SimpleSubmission.asDto() =
-        SubmissionDto(accNo, title.orEmpty(), version, creationTime, modificationTime, releaseTime, method)
+        SubmissionDto(
+            accNo,
+            title.orEmpty(),
+            version,
+            creationTime,
+            modificationTime,
+            releaseTime,
+            method,
+            status.value
+        )
 }

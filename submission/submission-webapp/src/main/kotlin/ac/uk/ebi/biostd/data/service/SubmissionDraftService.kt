@@ -3,25 +3,31 @@ package ac.uk.ebi.biostd.data.service
 import ac.uk.ebi.biostd.persistence.filter.PaginationFilter
 import ac.uk.ebi.biostd.persistence.model.DbUserData
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionService
-import arrow.core.getOrElse
+import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
 
-class SubmissionDraftService(
+open class SubmissionDraftService(
     private val userDataService: UserDataService,
     private val submissionService: SubmissionService
 ) {
-    fun getSubmissionDraft(userId: Long, key: String): DbUserData =
-        userDataService.getUserData(userId, key).getOrElse { create(userId, key) }
 
-    fun updateSubmissionDraft(userId: Long, key: String, content: String): DbUserData =
+    @Transactional(readOnly = true)
+    open fun getSubmissionDraft(userId: Long, key: String): DbUserData =
+        userDataService.getUserData(userId, key) ?: create(userId, key)
+
+    @Transactional
+    open fun updateSubmissionDraft(userId: Long, key: String, content: String): DbUserData =
         userDataService.saveUserData(userId, key, content)
 
-    fun deleteSubmissionDraft(userId: Long, key: String) = userDataService.delete(userId, key)
+    @Transactional
+    open fun deleteSubmissionDraft(userId: Long, key: String) = userDataService.delete(userId, key)
 
-    fun getSubmissionsDraft(userId: Long, filter: PaginationFilter = PaginationFilter()): List<DbUserData> =
+    @Transactional(readOnly = true)
+    open fun getSubmissionsDraft(userId: Long, filter: PaginationFilter = PaginationFilter()): List<DbUserData> =
         userDataService.findAll(userId, filter)
 
-    fun createSubmissionDraft(userId: Long, content: String): DbUserData {
+    @Transactional
+    open fun createSubmissionDraft(userId: Long, content: String): DbUserData {
         return userDataService.saveUserData(userId, "TMP_${Instant.now().toEpochMilli()}", content)
     }
 

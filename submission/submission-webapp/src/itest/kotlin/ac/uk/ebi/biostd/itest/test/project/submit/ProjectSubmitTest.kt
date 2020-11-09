@@ -5,10 +5,11 @@ import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
+import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
 import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
-import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
+import ac.uk.ebi.biostd.persistence.repositories.data.SubmissionRepository
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.line
 import ebi.ac.uk.dsl.tsv
@@ -37,6 +38,7 @@ internal class ProjectSubmitTest(tempFolder: TemporaryFolder) : BaseIntegrationT
     @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
     @DirtiesContext
     inner class ProjectSubmitTest(
+        @Autowired val securityTestService: SecurityTestService,
         @Autowired val tagsDataRepository: AccessTagDataRepo,
         @Autowired val submissionRepository: SubmissionRepository,
         @Autowired val sequenceRepository: SequenceDataRepository
@@ -48,6 +50,7 @@ internal class ProjectSubmitTest(tempFolder: TemporaryFolder) : BaseIntegrationT
 
         @BeforeAll
         fun init() {
+            securityTestService.registerUser(SuperUser)
             webClient = getWebClient(serverPort, SuperUser)
         }
 
@@ -64,13 +67,13 @@ internal class ProjectSubmitTest(tempFolder: TemporaryFolder) : BaseIntegrationT
 
             assertThat(webClient.submitSingle(privateProject, SubmissionFormat.TSV)).isSuccessful()
 
-            val submittedProject = submissionRepository.getActiveExtByAccNo("PrivateProject")
+            val submittedProject = submissionRepository.getExtByAccNo("PrivateProject")
             assertThat(submittedProject.accNo).isEqualTo("PrivateProject")
             assertThat(submittedProject.title).isEqualTo("A Private Project")
             assertThat(submittedProject.status).isEqualTo(PROCESSED)
 
-            assertThat(submittedProject.accessTags).hasSize(1)
-            assertThat(submittedProject.accessTags.first().name).isEqualTo("PrivateProject")
+            assertThat(submittedProject.projects).hasSize(1)
+            assertThat(submittedProject.projects.first().accNo).isEqualTo("PrivateProject")
 
             assertThat(tagsDataRepository.existsByName("PrivateProject")).isTrue()
             assertThat(sequenceRepository.existsByPrefix("S-PRP")).isTrue()
@@ -90,7 +93,7 @@ internal class ProjectSubmitTest(tempFolder: TemporaryFolder) : BaseIntegrationT
 
             assertThat(webClient.submitSingle(publicProject, SubmissionFormat.TSV)).isSuccessful()
 
-            val submittedProject = submissionRepository.getActiveExtByAccNo("PublicProject")
+            val submittedProject = submissionRepository.getExtByAccNo("PublicProject")
             assertThat(submittedProject.accNo).isEqualTo("PublicProject")
             assertThat(submittedProject.title).isEqualTo("Public Project")
             assertThat(submittedProject.status).isEqualTo(PROCESSED)
@@ -98,6 +101,8 @@ internal class ProjectSubmitTest(tempFolder: TemporaryFolder) : BaseIntegrationT
             assertThat(submittedProject.accessTags).hasSize(2)
             assertThat(submittedProject.accessTags.first().name).isEqualTo("PublicProject")
             assertThat(submittedProject.accessTags.second().name).isEqualTo("Public")
+
+            assertThat(submittedProject.projects.first().accNo).isEqualTo("PublicProject")
 
             assertThat(tagsDataRepository.existsByName("PublicProject")).isTrue()
             assertThat(sequenceRepository.existsByPrefix("S-PUP")).isTrue()
@@ -124,7 +129,7 @@ internal class ProjectSubmitTest(tempFolder: TemporaryFolder) : BaseIntegrationT
             assertThat(webClient.submitSingle(aProject, SubmissionFormat.TSV)).isSuccessful()
             assertThatExceptionOfType(WebClientException::class.java)
                 .isThrownBy { webClient.submitSingle(anotherProject, SubmissionFormat.TSV) }
-                .withMessageContaining("There is a project already using the accNo template S-APRJ")
+                .withMessageContaining("There is a project already using the accNo template 'S-APRJ'")
         }
     }
 }

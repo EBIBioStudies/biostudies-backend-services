@@ -4,8 +4,9 @@ import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
+import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
-import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
+import ac.uk.ebi.biostd.persistence.repositories.data.SubmissionRepository
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.line
 import ebi.ac.uk.dsl.submission
@@ -36,7 +37,10 @@ internal class SubmissionToProjectsTest(private val tempFolder: TemporaryFolder)
     @ExtendWith(SpringExtension::class)
     @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
     @DirtiesContext
-    inner class SubmitToProjectTest(@Autowired val submissionRepository: SubmissionRepository) {
+    inner class SubmitToProjectTest(
+        @Autowired val submissionRepository: SubmissionRepository,
+        @Autowired val securityTestService: SecurityTestService
+    ) {
         @LocalServerPort
         private var serverPort: Int = 0
 
@@ -44,6 +48,8 @@ internal class SubmissionToProjectsTest(private val tempFolder: TemporaryFolder)
 
         @BeforeAll
         fun init() {
+            securityTestService.registerUser(SuperUser)
+
             webClient = getWebClient(serverPort, SuperUser)
             setUpProjects()
         }
@@ -61,7 +67,7 @@ internal class SubmissionToProjectsTest(private val tempFolder: TemporaryFolder)
                 title = "AccNo Generation Test"
                 attachTo = "Test-Project"
             }
-            assertThat(submissionRepository.getByAccNo("S-TEST0")).isEqualTo(expected)
+            assertThat(submissionRepository.getSimpleByAccNo("S-TEST0")).isEqualTo(expected)
         }
 
         @Test
@@ -77,7 +83,7 @@ internal class SubmissionToProjectsTest(private val tempFolder: TemporaryFolder)
             assertThat(webClient.submitSingle(
                 submissionFile, emptyList(), singletonMap("AttachTo", "Public-Project"))).isSuccessful()
 
-            assertThat(submissionRepository.getByAccNo("S-TEST1")).isEqualTo(
+            assertThat(submissionRepository.getSimpleByAccNo("S-TEST1")).isEqualTo(
                 submission("S-TEST1") {
                     title = "Overridden Project"
                     attachTo = "Public-Project"
@@ -94,7 +100,7 @@ internal class SubmissionToProjectsTest(private val tempFolder: TemporaryFolder)
             }.toString()
 
             assertThat(webClient.submitSingle(submission, SubmissionFormat.TSV)).isSuccessful()
-            assertThat(submissionRepository.getByAccNo("S-PRP0")).isEqualTo(
+            assertThat(submissionRepository.getSimpleByAccNo("S-PRP0")).isEqualTo(
                 submission("S-PRP0") {
                     title = "No Release Date To Private Project"
                     attachTo = "Private-Project"
@@ -112,7 +118,7 @@ internal class SubmissionToProjectsTest(private val tempFolder: TemporaryFolder)
             }.toString()
 
             assertThat(webClient.submitSingle(submission, SubmissionFormat.TSV)).isSuccessful()
-            assertThat(submissionRepository.getByAccNo("S-PRP1")).isEqualTo(
+            assertThat(submissionRepository.getSimpleByAccNo("S-PRP1")).isEqualTo(
                 submission("S-PRP1") {
                     title = "Public Submission To Private Project"
                     releaseDate = "2015-12-24"
@@ -131,7 +137,7 @@ internal class SubmissionToProjectsTest(private val tempFolder: TemporaryFolder)
             }.toString()
 
             assertThat(webClient.submitSingle(submission, SubmissionFormat.TSV)).isSuccessful()
-            assertThat(submissionRepository.getByAccNo("S-PUP0")).isEqualTo(
+            assertThat(submissionRepository.getSimpleByAccNo("S-PUP0")).isEqualTo(
                 submission("S-PUP0") {
                     title = "Private submission into public project"
                     releaseDate = "2050-12-24"
@@ -149,7 +155,7 @@ internal class SubmissionToProjectsTest(private val tempFolder: TemporaryFolder)
             }.toString()
 
             assertThat(webClient.submitSingle(submission, SubmissionFormat.TSV)).isSuccessful()
-            assertThat(submissionRepository.getByAccNo("S-PUP1")).isEqualTo(
+            assertThat(submissionRepository.getSimpleByAccNo("S-PUP1")).isEqualTo(
                 submission("S-PUP1") {
                     title = "No Release Date To Public Project"
                     attachTo = "Public-Project"

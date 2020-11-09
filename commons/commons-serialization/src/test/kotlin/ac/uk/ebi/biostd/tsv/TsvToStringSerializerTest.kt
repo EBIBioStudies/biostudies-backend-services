@@ -77,6 +77,7 @@ class TsvToStringSerializerTest {
         val section = section("Study") {
             accNo = "SECT-001"
             attribute("Project", "Test Project")
+
             section("Data") {
                 accNo = "DT-1"
                 attribute("Type", "data")
@@ -90,6 +91,53 @@ class TsvToStringSerializerTest {
 
             line("Data", "DT-1", "SECT-001")
             line("Type", "data")
+            line()
+        }.toString()
+
+        assertThat(testInstance.serialize(section)).isEqualToIgnoringNewLines(expectedTsv)
+    }
+
+    @Test
+    fun `serialize subsection without accession and parent accession`() {
+        val section = section("Study") {
+            accNo = "SECT-001"
+            attribute("Project", "Test Project")
+
+            section("Author") {
+                attribute("Name", "The Author")
+            }
+        }
+
+        val expectedTsv = tsv {
+            line("Study", "SECT-001")
+            line("Project", "Test Project")
+            line()
+
+            line("Author", "", "SECT-001")
+            line("Name", "The Author")
+            line()
+        }.toString()
+
+        assertThat(testInstance.serialize(section)).isEqualToIgnoringNewLines(expectedTsv)
+    }
+
+    @Test
+    fun `serialize subsection with accession and no parent accession`() {
+        val section = section("Study") {
+            attribute("Project", "Test Project")
+
+            section("Author") {
+                attribute("Name", "The Author")
+            }
+        }
+
+        val expectedTsv = tsv {
+            line("Study")
+            line("Project", "Test Project")
+            line()
+
+            line("Author")
+            line("Name", "The Author")
             line()
         }.toString()
 

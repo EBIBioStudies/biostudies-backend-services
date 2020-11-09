@@ -3,7 +3,6 @@ package ac.uk.ebi.biostd.submission.web.resources
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.JSON
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.TSV
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.XML
-import ac.uk.ebi.biostd.persistence.integration.FileMode
 import ac.uk.ebi.biostd.submission.converters.BioUser
 import ac.uk.ebi.biostd.submission.domain.service.TempFileGenerator
 import ac.uk.ebi.biostd.submission.web.handlers.SubmitWebHandler
@@ -14,6 +13,7 @@ import ebi.ac.uk.api.ON_BEHALF_PARAM
 import ebi.ac.uk.api.REGISTER_PARAM
 import ebi.ac.uk.api.TOKEN_HEADER
 import ebi.ac.uk.api.USER_NAME_PARAM
+import ebi.ac.uk.extended.model.FileMode
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.constants.ATTRIBUTES
 import ebi.ac.uk.model.constants.FILES

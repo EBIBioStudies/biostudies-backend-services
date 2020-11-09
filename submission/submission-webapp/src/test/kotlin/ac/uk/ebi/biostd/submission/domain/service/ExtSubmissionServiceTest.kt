@@ -1,10 +1,10 @@
 package ac.uk.ebi.biostd.submission.domain.service
 
-import ac.uk.ebi.biostd.persistence.integration.FileMode.COPY
 import ac.uk.ebi.biostd.persistence.integration.PersistenceContext
 import ac.uk.ebi.biostd.persistence.integration.SaveRequest
-import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
+import ac.uk.ebi.biostd.persistence.repositories.data.SubmissionRepository
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.extended.model.FileMode.COPY
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -27,7 +27,7 @@ class ExtSubmissionServiceTest(
 
     @BeforeEach
     fun beforeEach() {
-        every { submissionRepository.getActiveExtByAccNo("S-TEST123") } returns extSubmission
+        every { submissionRepository.getExtByAccNo("S-TEST123") } returns extSubmission
         every { userPrivilegesService.canSubmitExtended("user@mail.com") } returns true
         every { userPrivilegesService.canSubmitExtended("regular@mail.com") } returns false
     }
@@ -41,7 +41,7 @@ class ExtSubmissionServiceTest(
     @Test
     fun `submit extended`() {
         val saveRequest = slot<SaveRequest>()
-        every { persistenceContext.saveSubmission(capture(saveRequest)) } returns extSubmission
+        every { persistenceContext.saveAndProcessSubmissionRequest(capture(saveRequest)) } returns extSubmission
 
         val submitted = testInstance.submitExtendedSubmission("user@mail.com", extSubmission)
         assertThat(submitted).isEqualTo(extSubmission)

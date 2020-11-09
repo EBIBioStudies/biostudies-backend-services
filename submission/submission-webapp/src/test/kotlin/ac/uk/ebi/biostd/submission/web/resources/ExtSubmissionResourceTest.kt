@@ -4,6 +4,8 @@ import ac.uk.ebi.biostd.factory.TestSuperUser
 import ac.uk.ebi.biostd.resolvers.TestBioUserResolver
 import ac.uk.ebi.biostd.submission.converters.ExtSubmissionConverter
 import ac.uk.ebi.biostd.submission.domain.service.ExtSubmissionService
+import ac.uk.ebi.biostd.submission.web.resources.ext.ExtSubmissionResource
+import ac.uk.ebi.biostd.submission.web.resources.ext.ExtendedPageMapper
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.extended.model.ExtSubmission
 import io.mockk.clearAllMocks
@@ -22,11 +24,12 @@ import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 @ExtendWith(MockKExtension::class)
 class ExtSubmissionResourceTest(
     @MockK private val extSubmissionService: ExtSubmissionService,
+    @MockK private val extPageMapper: ExtendedPageMapper,
     @MockK private val extSerializationService: ExtSerializationService
 ) {
     private val bioUserResolver = TestBioUserResolver()
     private val mvc = MockMvcBuilders
-        .standaloneSetup(ExtSubmissionResource(extSubmissionService))
+        .standaloneSetup(ExtSubmissionResource(extSubmissionService, extPageMapper))
         .setMessageConverters(ExtSubmissionConverter(extSerializationService))
         .setCustomArgumentResolvers(bioUserResolver)
         .build()

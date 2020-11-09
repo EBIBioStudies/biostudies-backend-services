@@ -3,7 +3,7 @@ package ac.uk.ebi.biostd.submission.submitter
 import ac.uk.ebi.biostd.persistence.integration.PersistenceContext
 import ac.uk.ebi.biostd.persistence.integration.SaveRequest
 import ac.uk.ebi.biostd.persistence.integration.SubmissionQueryService
-import ac.uk.ebi.biostd.submission.events.SuccessfulSubmission
+import ac.uk.ebi.biostd.submission.exceptions.ConcurrentProcessingSubmissionException
 import ac.uk.ebi.biostd.submission.exceptions.InvalidSubmissionException
 import ac.uk.ebi.biostd.submission.model.SubmissionRequest
 import ac.uk.ebi.biostd.submission.service.AccNoService
@@ -14,15 +14,14 @@ import ac.uk.ebi.biostd.submission.service.ProjectRequest
 import ac.uk.ebi.biostd.submission.service.ProjectResponse
 import ac.uk.ebi.biostd.submission.service.TimesRequest
 import ac.uk.ebi.biostd.submission.service.TimesService
-import ebi.ac.uk.base.ifTrue
 import ebi.ac.uk.base.orFalse
 import ebi.ac.uk.extended.mapping.from.toExtAttribute
 import ebi.ac.uk.extended.mapping.from.toExtSection
-import ebi.ac.uk.extended.model.ExtAccessTag
 import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod
 import ebi.ac.uk.extended.model.ExtTag
+import ebi.ac.uk.extended.model.Project
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.SubmissionMethod
@@ -35,13 +34,15 @@ import ebi.ac.uk.model.extensions.releaseDate
 import ebi.ac.uk.model.extensions.rootPath
 import ebi.ac.uk.model.extensions.title
 import ebi.ac.uk.util.date.isBeforeOrEqual
-import org.springframework.transaction.annotation.Isolation
-import org.springframework.transaction.annotation.Transactional
+import mu.KotlinLogging
 import java.time.OffsetDateTime
 import java.util.UUID
-import ac.uk.ebi.biostd.submission.events.SubmissionEvents.successfulSubmission as submitEvent
 
-open class SubmissionSubmitter(
+private val logger = KotlinLogging.logger {}
+private const val DEFAULT_VERSION = 1
+
+@Suppress("TooManyFunctions")
+class SubmissionSubmitter(
     private val timesService: TimesService,
     private val accNoService: AccNoService,
     private val parentInfoService: ParentInfoService,
@@ -49,19 +50,41 @@ open class SubmissionSubmitter(
     private val context: PersistenceContext,
     private val queryService: SubmissionQueryService
 ) {
-    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
-    open fun submit(request: SubmissionRequest): ExtSubmission {
-        val submitter = request.submitter.asUser()
+    fun submit(request: SubmissionRequest): ExtSubmission {
+        val accNo = request.submission.accNo
+        logger.info { "processing request $request" }
+        require(queryService.isProcessing(accNo).not()) { throw ConcurrentProcessingSubmissionException(accNo) }
+
         val submission = process(
             request.submission,
             request.submitter.asUser(),
             request.onBehalfUser?.asUser(),
             request.sources,
-            request.method
-        )
-        val submitted = context.saveSubmission(SaveRequest(submission, request.mode))
-        submitter.notificationsEnabled.ifTrue { submitEvent.onNext(SuccessfulSubmission(submitter, submission)) }
-        return submitted
+            request.method)
+
+        logger.info { "Saving submission $accNo" }
+        return context.saveAndProcessSubmissionRequest(SaveRequest(submission, request.mode))
+    }
+
+    fun processRequest(request: SaveRequest): ExtSubmission {
+        logger.info { "processing request for submission ${request.submission.accNo} " }
+        return context.processSubmission(request)
+    }
+
+    fun submitAsync(request: SubmissionRequest): SaveRequest {
+        val accNo = request.submission.accNo
+        logger.info { "processing async request $request" }
+        require(queryService.isProcessing(accNo).not()) { throw ConcurrentProcessingSubmissionException(accNo) }
+
+        val submission = process(
+            request.submission,
+            request.submitter.asUser(),
+            request.onBehalfUser?.asUser(),
+            request.sources,
+            request.method)
+
+        logger.info { "Saving submission request $accNo" }
+        return SaveRequest(context.saveSubmissionRequest(SaveRequest(submission, request.mode)), request.mode)
     }
 
     @Suppress("TooGenericExceptionCaught")
@@ -85,8 +108,7 @@ open class SubmissionSubmitter(
         onBehalfUser: User?,
         source: FilesSource,
         method: SubmissionMethod
-    ):
-        ExtSubmission {
+    ): ExtSubmission {
         val (parentTags, parentReleaseTime, parentPattern) = parentInfoService.getParentInfo(submission.attachTo)
         val (createTime, modTime, releaseTime) = getTimes(submission, parentReleaseTime)
         val released = releaseTime?.isBeforeOrEqual(OffsetDateTime.now()).orFalse()
@@ -94,16 +116,15 @@ open class SubmissionSubmitter(
         val accNoString = accNo.toString()
         val projectInfo = getProjectInfo(submitter, submission, accNoString)
         val secretKey = getSecret(accNoString)
-        val nextVersion = context.getNextVersion(accNoString)
         val relPath = accNoService.getRelPath(accNo)
-        val tags = getTags(released, parentTags, projectInfo)
+        val tags = getTags(parentTags, projectInfo)
         val ownerEmail = onBehalfUser?.email ?: queryService.getOwner(accNoString) ?: submitter.email
 
         return ExtSubmission(
             accNo = accNoString,
             owner = ownerEmail,
             submitter = submitter.email,
-            version = nextVersion,
+            version = DEFAULT_VERSION,
             method = getMethod(method),
             title = submission.title,
             relPath = relPath,
@@ -115,7 +136,7 @@ open class SubmissionSubmitter(
             modificationTime = modTime,
             creationTime = createTime,
             tags = submission.tags.map { ExtTag(it.first, it.second) },
-            accessTags = tags.map { ExtAccessTag(it) },
+            projects = tags.map { Project(it) },
             section = submission.section.toExtSection(source),
             attributes = getAttributes(submission)
         )
@@ -129,9 +150,8 @@ open class SubmissionSubmitter(
         }
     }
 
-    private fun getTags(released: Boolean, parentTags: List<String>, project: ProjectResponse?): List<String> {
-        val tags = parentTags.toMutableList()
-        if (released) tags.add(PUBLIC_ACCESS_TAG.value)
+    private fun getTags(parentTags: List<String>, project: ProjectResponse?): List<String> {
+        val tags = parentTags.filter { it != PUBLIC_ACCESS_TAG.value }.toMutableList()
         if (project != null) tags.add(project.accessTag)
         return tags
     }
@@ -149,6 +169,5 @@ open class SubmissionSubmitter(
     private fun getTimes(sub: Submission, parentReleaseTime: OffsetDateTime?) =
         timesService.getTimes(TimesRequest(sub.accNo, sub.releaseDate, parentReleaseTime))
 
-    private fun getSecret(accString: String) =
-        if (queryService.isNew(accString)) UUID.randomUUID().toString() else queryService.getSecret(accString)
+    private fun getSecret(accString: String) = queryService.getSecret(accString) ?: UUID.randomUUID().toString()
 }

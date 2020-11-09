@@ -7,8 +7,9 @@ import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.XML
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
+import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
-import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
+import ac.uk.ebi.biostd.persistence.repositories.data.SubmissionRepository
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.excel.excel
 import ebi.ac.uk.dsl.json.jsonArray
@@ -47,7 +48,10 @@ internal class MultipartFileSubmissionApiTest(
     @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
     @Transactional
     @DirtiesContext
-    inner class SingleSubmissionTest(@Autowired private val submissionRepository: SubmissionRepository) {
+    inner class SingleSubmissionTest(
+        @Autowired private val submissionRepository: SubmissionRepository,
+        @Autowired private val securityTestService: SecurityTestService
+    ) {
         @LocalServerPort
         private var serverPort: Int = 0
 
@@ -55,6 +59,7 @@ internal class MultipartFileSubmissionApiTest(
 
         @BeforeAll
         fun init() {
+            securityTestService.registerUser(SuperUser)
             webClient = getWebClient(serverPort, SuperUser)
         }
 
@@ -236,7 +241,7 @@ internal class MultipartFileSubmissionApiTest(
             assertThat(response).isSuccessful()
             submission.delete()
 
-            val savedSubmission = submissionRepository.getByAccNo("S-TEST6")
+            val savedSubmission = submissionRepository.getSimpleByAccNo("S-TEST6")
             assertThat(savedSubmission.attributes).hasSize(3)
             assertThat(savedSubmission["Exp"]).isEqualTo("1")
             assertThat(savedSubmission["Type"]).isEqualTo("Exp")
@@ -254,7 +259,7 @@ internal class MultipartFileSubmissionApiTest(
 
         private fun assertSubmissionFiles(accNo: String, testFile: String) {
             val fileListName = "FileList"
-            val createdSubmission = submissionRepository.getActiveExtByAccNo(accNo)
+            val createdSubmission = submissionRepository.getExtByAccNo(accNo)
             val submissionFolderPath = "$submissionPath/${createdSubmission.relPath}"
 
             assertThat(createdSubmission.section.fileList?.fileName).isEqualTo(fileListName)

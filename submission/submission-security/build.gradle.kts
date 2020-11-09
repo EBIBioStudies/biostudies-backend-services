@@ -9,6 +9,7 @@ import Dependencies.ServletApi
 import Dependencies.SpringDataJpa
 import Dependencies.SpringSecurityCore
 import Dependencies.SpringWeb
+import SpringBootDependencies.SpringBootAmqp
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
 
@@ -17,6 +18,7 @@ dependencies {
     api(project(":commons:commons-http"))
     api(project(":commons:commons-bio"))
     api(project(":commons:commons-http"))
+    api(project(":events:events-publisher"))
     api(project(":submission:persistence"))
 
     implementation(Arrow)
@@ -33,6 +35,8 @@ dependencies {
     testApi(project(":commons:commons-test"))
 
     testImplementation(Logback)
+    testImplementation(SpringBootAmqp)
+
     BaseTestCompileDependencies.forEach { testImplementation(it) }
     BaseTestRuntimeDependencies.forEach { testImplementation(it) }
 }

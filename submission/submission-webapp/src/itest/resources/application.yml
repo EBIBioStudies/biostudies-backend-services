@@ -22,6 +22,10 @@ app:
   ftpPath:
   tempDirPath:
   instanceBaseUrl: http://localhost:8080
+  fire:
+    host:
+    username:
+    password:
   security:
     tokenHash: biostd-test
     environment: TEST

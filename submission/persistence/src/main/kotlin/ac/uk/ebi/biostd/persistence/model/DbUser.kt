@@ -14,6 +14,8 @@ import javax.persistence.JoinColumn
 import javax.persistence.JoinTable
 import javax.persistence.Lob
 import javax.persistence.ManyToMany
+import javax.persistence.NamedEntityGraph
+import javax.persistence.NamedEntityGraphs
 import javax.persistence.OneToMany
 import javax.persistence.Table
 import javax.xml.bind.annotation.XmlAccessType
@@ -21,6 +23,14 @@ import javax.xml.bind.annotation.XmlAccessorType
 import javax.xml.bind.annotation.XmlElement
 import javax.xml.bind.annotation.XmlRootElement
 
+internal const val USER_DATA_GRAPH = "DbUser.fullData"
+
+@NamedEntityGraphs(value = [
+    NamedEntityGraph(name = USER_DATA_GRAPH,
+        attributeNodes = [
+            Node("groups"),
+            Node("permissions")
+        ])])
 @Entity
 @Table(name = "User")
 class DbUser(
@@ -43,7 +53,7 @@ class DbUser(
     @Lob
     var passwordDigest: ByteArray,
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "UserGroup_User",
         joinColumns = [JoinColumn(name = "users_id")],
         inverseJoinColumns = [JoinColumn(name = "groups_id")])

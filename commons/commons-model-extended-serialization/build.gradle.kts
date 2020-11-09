@@ -14,6 +14,7 @@ dependencies {
     implementation(JacksonXml)
     implementation(KotlinStdLib)
 
+    testApi(project(":commons:commons-test"))
     BaseTestCompileDependencies.forEach { testImplementation(it) }
     BaseTestRuntimeDependencies.forEach { testImplementation(it) }
 }

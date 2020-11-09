@@ -4,6 +4,7 @@ import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.extended.model.ExtAttribute
 import ebi.ac.uk.extended.model.ExtFile
+import ebi.ac.uk.test.createFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
@@ -18,7 +19,7 @@ class ExtFileSerializerTest(private val tempFolder: TemporaryFolder) {
 
     @Test
     fun serialize() {
-        val file = tempFolder.createFile("test-file.txt")
+        val file = tempFolder.createFile("test-file.txt", "content")
         val extFile = ExtFile(
             file = file,
             fileName = "test-file.txt",
@@ -33,6 +34,8 @@ class ExtFileSerializerTest(private val tempFolder: TemporaryFolder) {
                 "reference" to false
             })
             "extType" to "file"
+            "type" to "file"
+            "size" to 7
         }.toString()
 
         assertThat(testInstance.serialize(extFile)).isEqualToIgnoringWhitespace(expectedJson)

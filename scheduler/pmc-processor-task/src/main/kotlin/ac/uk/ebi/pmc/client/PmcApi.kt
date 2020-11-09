@@ -1,12 +1,12 @@
 package ac.uk.ebi.pmc.client
 
-import kotlinx.coroutines.Deferred
 import okhttp3.ResponseBody
 import retrofit2.http.GET
 import retrofit2.http.Path
+import retrofit2.http.Query
 
 interface PmcApi {
 
-    @GET("/articles/PMC{studyId}/bin/{file}")
-    fun downloadFileAsync(@Path("studyId") studyId: String, @Path("file") fileName: String): Deferred<ResponseBody>
+    @GET("/files/getFile/PMC{studyId}")
+    suspend fun downloadFileAsync(@Path("studyId") studyId: String, @Query("filename") fileName: String): ResponseBody
 }

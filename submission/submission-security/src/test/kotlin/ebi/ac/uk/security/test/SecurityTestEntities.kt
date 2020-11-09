@@ -62,7 +62,7 @@ internal class SecurityTestEntities {
                 passwordDigest = passwordDiggest)
         }
 
-        fun securityUser(path: Path): SecurityUser =
+        fun securityUser(): SecurityUser =
             SecurityUser(
                 id = userId,
                 email = email,

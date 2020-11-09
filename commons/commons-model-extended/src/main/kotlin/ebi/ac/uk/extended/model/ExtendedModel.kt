@@ -1,16 +1,21 @@
 package ebi.ac.uk.extended.model
 
 import arrow.core.Either
+import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.annotation.JsonProperty.Access.READ_ONLY
+import ebi.ac.uk.extended.delegates.AccessTagDelegate
+import ebi.ac.uk.io.ext.md5
+import ebi.ac.uk.io.ext.size
 import java.io.File
 import java.time.OffsetDateTime
 
 enum class ExtSubmissionMethod { FILE, PAGE_TAB, UNKNOWN }
 
-enum class ExtProcessingStatus { PROCESSED, PROCESSING }
+enum class ExtProcessingStatus { PROCESSED, PROCESSING, REQUESTED }
 
 data class ExtTag(val name: String, val value: String)
 
-data class ExtAccessTag(val name: String)
+data class Project(val accNo: String)
 
 data class ExtAttributeDetail(val name: String, val value: String)
 
@@ -22,8 +27,16 @@ data class ExtLink(
 data class ExtFile(
     val fileName: String,
     val file: File,
+    val size: Long,
+    val md5: String,
     val attributes: List<ExtAttribute> = listOf()
-)
+) {
+    constructor(
+        fileName: String,
+        file: File,
+        attributes: List<ExtAttribute> = listOf()
+    ) : this(fileName, file, file.size(), file.md5(), attributes)
+}
 
 data class ExtFileList(val fileName: String, val files: List<ExtFile>)
 
@@ -53,6 +66,8 @@ data class ExtSection(
     val links: List<Either<ExtLink, ExtLinkTable>> = listOf()
 )
 
+data class ExtAccessTag(val name: String)
+
 data class ExtSubmission(
     val accNo: String,
     var version: Int,
@@ -68,8 +83,22 @@ data class ExtSubmission(
     val releaseTime: OffsetDateTime?,
     val modificationTime: OffsetDateTime,
     val creationTime: OffsetDateTime,
+    val section: ExtSection,
     val attributes: List<ExtAttribute> = listOf(),
     val tags: List<ExtTag> = listOf(),
-    val accessTags: List<ExtAccessTag> = listOf(),
-    val section: ExtSection
+    val projects: List<Project> = listOf(),
+    val stats: List<ExtStat> = listOf()
+) {
+    // TODO: add custom serializer/deserializer to avoid json annotation in model
+    @get:JsonProperty(access = READ_ONLY)
+    val accessTags: List<ExtAccessTag> by AccessTagDelegate()
+}
+
+data class ExtStat(val name: String, val value: String)
+
+data class ExtUser(
+    val email: String,
+    val fullName: String,
+    val login: String?,
+    val notificationsEnabled: Boolean
 )

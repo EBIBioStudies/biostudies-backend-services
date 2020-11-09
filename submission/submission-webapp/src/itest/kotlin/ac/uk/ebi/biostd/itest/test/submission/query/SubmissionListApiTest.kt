@@ -4,6 +4,7 @@ import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
+import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.line
@@ -17,6 +18,7 @@ import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
@@ -30,7 +32,9 @@ internal class SubmissionListApiTest(private val tempFolder: TemporaryFolder) : 
     @ExtendWith(SpringExtension::class)
     @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
     @DirtiesContext
-    inner class SingleSubmissionTest {
+    inner class SingleSubmissionTest(
+        @Autowired val securityTestService: SecurityTestService
+    ) {
         @LocalServerPort
         private var serverPort: Int = 0
 
@@ -38,6 +42,7 @@ internal class SubmissionListApiTest(private val tempFolder: TemporaryFolder) : 
 
         @BeforeAll
         fun init() {
+            securityTestService.registerUser(SuperUser)
             webClient = getWebClient(serverPort, SuperUser)
 
             for (idx in 11..20) {
@@ -47,6 +52,22 @@ internal class SubmissionListApiTest(private val tempFolder: TemporaryFolder) : 
             for (idx in 21..30) {
                 val submission = tempFolder.createFile("submission$idx.tsv", getSimpleSubmission(idx))
                 assertThat(webClient.submitSingle(submission, emptyList())).isSuccessful()
+            }
+        }
+
+        @Test
+        fun `get submission when processing`() {
+            val newVersion = getSimpleSubmission(18)
+            webClient.submitAsync(newVersion, SubmissionFormat.TSV)
+
+            val submissionList = webClient.getSubmissions(mapOf("accNo" to "SimpleAcc18"))
+
+            assertThat(submissionList).hasOnlyOneElementSatisfying {
+                assertThat(it.accno).isEqualTo("SimpleAcc18")
+                assertThat(it.version).isEqualTo(2)
+                assertThat(it.method).isEqualTo(SubmissionMethod.PAGE_TAB)
+                assertThat(it.title).isEqualTo("Simple Submission 18 - keyword18")
+                assertThat(it.status).isEqualTo("REQUESTED")
             }
         }
 
@@ -69,6 +90,7 @@ internal class SubmissionListApiTest(private val tempFolder: TemporaryFolder) : 
                 assertThat(it.version).isEqualTo(1)
                 assertThat(it.method).isEqualTo(SubmissionMethod.PAGE_TAB)
                 assertThat(it.title).isEqualTo("Simple Submission 17 - keyword17")
+                assertThat(it.status).isEqualTo("PROCESSED")
             }
         }
 
@@ -83,6 +105,7 @@ internal class SubmissionListApiTest(private val tempFolder: TemporaryFolder) : 
                 assertThat(it.version).isEqualTo(1)
                 assertThat(it.method).isEqualTo(SubmissionMethod.FILE)
                 assertThat(it.title).isEqualTo("Simple Submission 27 - keyword27")
+                assertThat(it.status).isEqualTo("PROCESSED")
             }
         }
 
@@ -138,6 +161,7 @@ internal class SubmissionListApiTest(private val tempFolder: TemporaryFolder) : 
                 assertThat(it.version).isEqualTo(1)
                 assertThat(it.method).isEqualTo(SubmissionMethod.PAGE_TAB)
                 assertThat(it.title).isEqualTo("Submission With Section Title")
+                assertThat(it.status).isEqualTo("PROCESSED")
             }
         }
 
@@ -164,6 +188,7 @@ internal class SubmissionListApiTest(private val tempFolder: TemporaryFolder) : 
                 assertThat(it.version).isEqualTo(1)
                 assertThat(it.method).isEqualTo(SubmissionMethod.PAGE_TAB)
                 assertThat(it.title).isEqualTo("Submission Title")
+                assertThat(it.status).isEqualTo("PROCESSED")
             }
         }
 

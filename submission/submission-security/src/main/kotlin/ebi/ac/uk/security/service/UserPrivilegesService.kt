@@ -38,12 +38,12 @@ internal class UserPrivilegesService(
 
     override fun canResubmit(submitter: String, accNo: String) =
         isSuperUser(submitter)
-            .or(isAuthor(submissionQueryService.getAuthor(accNo), submitter))
+            .or(isAuthor(submissionQueryService.getOwner(accNo), submitter))
             .or(hasPermissions(submitter, submissionQueryService.getAccessTags(accNo), UPDATE))
 
     override fun canDelete(submitter: String, accNo: String) =
         isSuperUser(submitter)
-            .or(isAuthor(submissionQueryService.getAuthor(accNo), submitter))
+            .or(isAuthor(submissionQueryService.getOwner(accNo), submitter))
             .or(hasPermissions(submitter, submissionQueryService.getAccessTags(accNo), AccessType.DELETE))
 
     private fun hasPermissions(user: String, accessTags: List<String>, accessType: AccessType): Boolean {
@@ -54,7 +54,7 @@ internal class UserPrivilegesService(
 
     private fun isSuperUser(email: String) = getUser(email).superuser
 
-    private fun isAuthor(author: String, email: String) = author == email
+    private fun isAuthor(author: String?, email: String) = author == email
 
     private fun getUser(email: String) =
         userRepository.findByEmail(email).orElseThrow { UserNotFoundByEmailException(email) }

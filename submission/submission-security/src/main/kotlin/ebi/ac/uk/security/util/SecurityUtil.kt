@@ -31,7 +31,7 @@ private val logger = KotlinLogging.logger {}
  * Provides general purposes security utils methods.
  */
 @Suppress("TooManyFunctions")
-internal class SecurityUtil(
+class SecurityUtil(
     private val jwtParser: JwtParser,
     private val objectMapper: ObjectMapper,
     private val tokenRepository: TokenDataRepository,
@@ -107,6 +107,6 @@ internal class SecurityUtil(
             logger.error("detected invalid signature token: ${it.message}")
         }
 
-        return tokenUser.map { userRepository.getOne(it.id) }
+        return tokenUser.map { userRepository.getById(it.id) }
     }
 }

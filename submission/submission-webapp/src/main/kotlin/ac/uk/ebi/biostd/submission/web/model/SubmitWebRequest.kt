@@ -1,9 +1,9 @@
 package ac.uk.ebi.biostd.submission.web.model
 
 import ac.uk.ebi.biostd.integration.SubFormat
-import ac.uk.ebi.biostd.persistence.integration.FileMode
 import ebi.ac.uk.api.security.GetOrRegisterUserRequest
 import ebi.ac.uk.base.orFalse
+import ebi.ac.uk.extended.model.FileMode
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import java.io.File
 

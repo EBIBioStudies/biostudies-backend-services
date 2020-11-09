@@ -7,13 +7,10 @@ import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserGroupDataRepository
 import ac.uk.ebi.biostd.persistence.service.UserPermissionsService
 import ebi.ac.uk.commons.http.JacksonFactory
-import ebi.ac.uk.security.events.Events
 import ebi.ac.uk.security.integration.components.IGroupService
 import ebi.ac.uk.security.integration.components.ISecurityFilter
 import ebi.ac.uk.security.integration.components.ISecurityService
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
-import ebi.ac.uk.security.integration.model.events.PasswordReset
-import ebi.ac.uk.security.integration.model.events.UserRegister
 import ebi.ac.uk.security.service.CaptchaVerifier
 import ebi.ac.uk.security.service.GroupService
 import ebi.ac.uk.security.service.ProfileService
@@ -22,8 +19,8 @@ import ebi.ac.uk.security.service.UserPrivilegesService
 import ebi.ac.uk.security.util.SecurityUtil
 import ebi.ac.uk.security.web.SecurityFilter
 import io.jsonwebtoken.Jwts
-import io.reactivex.Observable
 import org.springframework.web.client.RestTemplate
+import uk.ac.ebi.events.service.EventsPublisherService
 import java.nio.file.Paths
 
 class SecurityModuleConfig(
@@ -33,6 +30,7 @@ class SecurityModuleConfig(
     private val groupRepository: UserGroupDataRepository,
     private val queryService: SubmissionQueryService,
     private val userPermissionsService: UserPermissionsService,
+    private val eventsPublisherService: EventsPublisherService,
     private var props: SecurityProperties
 ) {
     fun securityService(): ISecurityService = securityService
@@ -40,13 +38,11 @@ class SecurityModuleConfig(
     fun securityFilter(): ISecurityFilter = securityFilter
     fun userPrivilegesService(): IUserPrivilegesService = userPrivilegesService
 
-    val passwordReset: Observable<PasswordReset> = Events.passwordReset
-    val userRegister: Observable<UserRegister> = Events.userPreRegister
-
     private val groupService by lazy { GroupService(groupRepository, userRepo) }
     private val securityService by lazy {
-        SecurityService(userRepo, securityUtil, props, profileService, captchaVerifier)
+        SecurityService(userRepo, securityUtil, props, profileService, captchaVerifier, eventsPublisherService)
     }
+
     private val securityFilter by lazy { SecurityFilter(props.environment, securityService) }
     private val userPrivilegesService by lazy {
         UserPrivilegesService(userRepo, tagsDataRepository, queryService, userPermissionsService)

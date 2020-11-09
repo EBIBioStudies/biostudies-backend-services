@@ -1,10 +1,10 @@
 package ac.uk.ebi.biostd.security.web
 
-import ac.uk.ebi.biostd.persistence.model.AccessPermission
 import ac.uk.ebi.biostd.persistence.model.AccessType
 import ebi.ac.uk.api.security.ProfileAuxInfo
 import ebi.ac.uk.api.security.RegisterResponse
 import ebi.ac.uk.api.security.UserProfile
+import ebi.ac.uk.security.integration.model.api.SecurityPermission
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import ebi.ac.uk.security.integration.model.api.UserInfo
 import java.util.ArrayList
@@ -35,6 +35,6 @@ class SecurityMapper {
         return accessTags
     }
 
-    private fun getPermissions(permissions: Set<AccessPermission>) =
-        permissions.filter { it.accessType == AccessType.READ }.map { it.accessTag.name }
+    private fun getPermissions(permissions: Set<SecurityPermission>) =
+        permissions.filter { it.accessType == AccessType.READ }.map { it.accessTag }
 }

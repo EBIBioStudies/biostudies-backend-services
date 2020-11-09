@@ -7,6 +7,7 @@ import ac.uk.ebi.biostd.persistence.repositories.TokenDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserGroupDataRepository
 import ac.uk.ebi.biostd.persistence.service.UserPermissionsService
+import ac.uk.ebi.biostd.security.domain.service.ExtUserService
 import ac.uk.ebi.biostd.security.web.SecurityMapper
 import ac.uk.ebi.biostd.security.web.exception.SecurityAccessDeniedHandler
 import ac.uk.ebi.biostd.security.web.exception.SecurityAuthEntryPoint
@@ -16,9 +17,6 @@ import ebi.ac.uk.security.integration.components.IGroupService
 import ebi.ac.uk.security.integration.components.ISecurityFilter
 import ebi.ac.uk.security.integration.components.ISecurityService
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
-import ebi.ac.uk.security.integration.model.events.PasswordReset
-import ebi.ac.uk.security.integration.model.events.UserRegister
-import io.reactivex.Observable
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
@@ -28,6 +26,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter
+import uk.ac.ebi.events.service.EventsPublisherService
 
 @Configuration
 @EnableWebSecurity
@@ -45,6 +44,7 @@ class SecurityConfig(
             .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             .and()
             .authorizeRequests()
+            .antMatchers(GET, "/security/users/extended/**").permitAll()
             .antMatchers(GET, "/submissions/extended/*").permitAll()
             .antMatchers(GET, "/submissions/*").permitAll()
             .antMatchers("/auth/**").permitAll()
@@ -53,6 +53,7 @@ class SecurityConfig(
             .antMatchers("/swagger**").permitAll()
             .antMatchers("/swagger-resources/**").permitAll()
             .antMatchers("/actuator/**").permitAll()
+            .antMatchers("/fire/**").permitAll()
             .anyRequest().fullyAuthenticated()
             .and()
             .exceptionHandling().accessDeniedHandler(accessDeniedHandler)
@@ -83,7 +84,8 @@ class SecurityBeansConfig(private val objectMapper: ObjectMapper, properties: Ap
         tokenRepository: TokenDataRepository,
         tagsRepository: AccessTagDataRepo,
         groupRepository: UserGroupDataRepository,
-        userPermissionsService: UserPermissionsService
+        userPermissionsService: UserPermissionsService,
+        eventsPublisherService: EventsPublisherService
     ): SecurityModuleConfig = SecurityModuleConfig(
         userDataRepository,
         tokenRepository,
@@ -91,6 +93,7 @@ class SecurityBeansConfig(private val objectMapper: ObjectMapper, properties: Ap
         groupRepository,
         queryService,
         userPermissionsService,
+        eventsPublisherService,
         securityProps)
 
     @Bean
@@ -107,8 +110,5 @@ class SecurityBeansConfig(private val objectMapper: ObjectMapper, properties: Ap
     fun securityFilter(securityConfig: SecurityModuleConfig): ISecurityFilter = securityConfig.securityFilter()
 
     @Bean
-    fun passwordReset(securityConfig: SecurityModuleConfig): Observable<PasswordReset> = securityConfig.passwordReset
-
-    @Bean
-    fun preRegister(securityConfig: SecurityModuleConfig): Observable<UserRegister> = securityConfig.userRegister
+    fun extUserService(userDataRepository: UserDataRepository): ExtUserService = ExtUserService(userDataRepository)
 }

@@ -1,6 +1,6 @@
 package ebi.ac.uk.notifications.model
 
-internal class Email(
+class Email(
     val from: String,
     val to: String,
     val subject: String,

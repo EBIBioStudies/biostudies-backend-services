@@ -12,4 +12,10 @@ object ExtSerializationFields {
     const val SECTIONS = "sections"
     const val TYPE = "type"
     const val URL = "url"
+
+    // Ext Files Fields
+    const val FILE_TYPE = "type"
+    const val FILE_SIZE = "size"
+    const val FILE_FILE_TYPE = "file"
+    const val FILE_DIR_TYPE = "directory"
 }

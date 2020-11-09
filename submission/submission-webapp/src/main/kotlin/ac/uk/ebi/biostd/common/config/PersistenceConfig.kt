@@ -12,13 +12,16 @@ import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
 import ac.uk.ebi.biostd.persistence.repositories.JdbcLockExecutor
 import ac.uk.ebi.biostd.persistence.repositories.LockExecutor
+import ac.uk.ebi.biostd.persistence.repositories.SectionDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.SubmissionDataRepository
+import ac.uk.ebi.biostd.persistence.repositories.SubmissionStatsDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.TagDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
-import ac.uk.ebi.biostd.persistence.service.ProjectRepository
-import ac.uk.ebi.biostd.persistence.service.SubmissionRepository
+import ac.uk.ebi.biostd.persistence.repositories.data.ProjectRepository
+import ac.uk.ebi.biostd.persistence.repositories.data.SubmissionRepository
+import ac.uk.ebi.biostd.persistence.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.service.UserPermissionsService
 import ac.uk.ebi.biostd.persistence.service.filesystem.FileSystemService
 import ac.uk.ebi.biostd.persistence.service.filesystem.FilesService
@@ -32,7 +35,6 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
-import uk.ac.ebi.stats.persistence.repositories.SubmissionStatsRepository
 import java.nio.file.Paths
 
 @Suppress("TooManyFunctions")
@@ -42,17 +44,18 @@ import java.nio.file.Paths
     basePackageClasses = [
         SubmissionDataRepository::class,
         SubmissionRtRepository::class,
-        SubmissionStatsRepository::class])
+        SubmissionStatsDataRepository::class])
 @EntityScan(basePackages = [
     "ac.uk.ebi.biostd.persistence.model",
-    "ebi.ac.uk.notifications.persistence.model",
-    "uk.ac.ebi.stats.persistence.model"])
+    "ebi.ac.uk.notifications.persistence.model"])
 class PersistenceConfig(
     private val submissionDataRepository: SubmissionDataRepository,
+    private val sectionRepository: SectionDataRepository,
+    private val statsRepository: SubmissionStatsDataRepository,
+    private val accessTagDataRepo: AccessTagDataRepo,
     private val sequenceRepository: SequenceDataRepository,
     private val tagsDataRepository: AccessTagDataRepo,
     private val template: NamedParameterJdbcTemplate,
-    private val userDataRepository: UserDataDataRepository,
     private val applicationProperties: ApplicationProperties,
     private val folderResolver: SubmissionFolderResolver,
     private val serializationService: SerializationService,
@@ -66,11 +69,12 @@ class PersistenceConfig(
     ) = ToDbSubmissionMapper(tagsRepo, tagsRefRepo, userRepo)
 
     @Bean
-    fun toExtSubmissionMapper() = ToExtSubmissionMapper(Paths.get(applicationProperties.submissionPath))
+    fun toExtSubmissionMapper() =
+        ToExtSubmissionMapper(Paths.get(applicationProperties.submissionPath))
 
     @Bean
     fun submissionRepository(toExtSubmissionMapper: ToExtSubmissionMapper) =
-        SubmissionRepository(submissionDataRepository, toExtSubmissionMapper())
+        SubmissionRepository(submissionDataRepository, sectionRepository, statsRepository, toExtSubmissionMapper())
 
     @Bean
     fun projectRepository() = ProjectRepository(submissionDataRepository)
@@ -94,23 +98,37 @@ class PersistenceConfig(
 
     @Bean
     fun persistenceContext(
+        submissionPersistenceService: SubmissionPersistenceService,
         lockExecutor: LockExecutor,
         dbSubmissionMapper: ToDbSubmissionMapper,
         toExtSubmissionMapper: ToExtSubmissionMapper,
         fileSystemService: FileSystemService
     ): PersistenceContext =
         PersistenceContextImpl(
-            submissionDataRepository,
+            submissionPersistenceService,
             sequenceRepository,
             tagsDataRepository,
-            lockExecutor,
-            userDataRepository,
-            dbSubmissionMapper,
-            toExtSubmissionMapper,
-            fileSystemService
+            lockExecutor
         )
 
     @Bean
+    @Suppress("LongParameterList")
+    fun submissionPersistenceService(
+        subRepository: SubmissionRepository,
+        subDataRepository: SubmissionDataRepository,
+        userDataRepository: UserDataDataRepository,
+        systemService: FileSystemService,
+        toExtMapper: ToExtSubmissionMapper,
+        toDbSubmissionMapper: ToDbSubmissionMapper
+    ) = SubmissionPersistenceService(
+        subRepository,
+        subDataRepository,
+        userDataRepository,
+        systemService,
+        toDbSubmissionMapper
+    )
+
+    @Bean
     fun submissionQueryService(): SubmissionQueryService =
-        SubmissionSqlQueryService(submissionDataRepository, folderResolver)
+        SubmissionSqlQueryService(submissionDataRepository, accessTagDataRepo, folderResolver)
 }

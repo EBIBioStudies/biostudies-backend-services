@@ -25,6 +25,7 @@ import org.springframework.web.util.UriComponentsBuilder
 
 private const val SUBMISSIONS_URL = "/submissions"
 
+@Suppress("TooManyFunctions")
 internal class SubmissionClient(
     private val template: RestTemplate,
     private val serializationService: SerializationService
@@ -35,6 +36,10 @@ internal class SubmissionClient(
 
     override fun submitSingle(submission: String, format: SubmissionFormat, register: RegisterConfig):
         SubmissionResponse = submitSingle(HttpEntity(submission, createHeaders(format)), register)
+
+    override fun submitAsync(submission: String, format: SubmissionFormat, register: RegisterConfig) {
+        submitAsyncSingle(HttpEntity(submission, createHeaders(format)), register)
+    }
 
     override fun refreshSubmission(accNo: String): SubmissionResponse {
         return template.postForEntity<String>("$SUBMISSIONS_URL/refresh/$accNo")
@@ -55,6 +60,10 @@ internal class SubmissionClient(
             .postForEntity<String>(buildUrl(register), request)
             .map { body -> serializationService.deserializeSubmission(body, SubFormat.JSON) }
             .let { ClientResponse(it.body!!, it.statusCodeValue) }
+    }
+
+    private fun submitAsyncSingle(request: HttpEntity<String>, register: RegisterConfig) {
+        template.postForEntity<Void>(buildUrl(register).plus("/async"), request)
     }
 
     private fun asString(submission: Submission, format: SubmissionFormat) =

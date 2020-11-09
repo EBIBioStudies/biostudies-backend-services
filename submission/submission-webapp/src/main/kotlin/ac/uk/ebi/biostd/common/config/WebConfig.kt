@@ -1,9 +1,11 @@
 package ac.uk.ebi.biostd.common.config
 
+import ac.uk.ebi.biostd.common.property.ApplicationProperties
 import ac.uk.ebi.biostd.files.web.common.GroupPathDescriptorResolver
 import ac.uk.ebi.biostd.files.web.common.UserPathDescriptorResolver
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.submission.converters.BioUserResolver
+import ac.uk.ebi.biostd.submission.converters.ExtPageSubmissionConverter
 import ac.uk.ebi.biostd.submission.converters.ExtSubmissionConverter
 import ac.uk.ebi.biostd.submission.converters.JsonPagetabConverter
 import ac.uk.ebi.biostd.submission.converters.OnBehalfUserRequestResolver
@@ -16,6 +18,7 @@ import org.springframework.web.method.support.HandlerMethodArgumentResolver
 import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
+import uk.ac.ebi.fire.client.integration.web.FireWebClient
 
 @Configuration
 internal class WebConfig(
@@ -28,6 +31,11 @@ internal class WebConfig(
     @Bean
     fun principalResolver() = AuthenticationPrincipalArgumentResolver()
 
+    @Bean
+    fun fireWebClient(properties: ApplicationProperties): FireWebClient =
+        FireWebClient.create(
+            properties.tempDirPath, properties.fire.host, properties.fire.username, properties.fire.password)
+
     override fun configureContentNegotiation(configurer: ContentNegotiationConfigurer) {
         configurer.defaultContentType(MediaType.APPLICATION_JSON)
     }
@@ -35,6 +43,7 @@ internal class WebConfig(
     override fun extendMessageConverters(converters: MutableList<HttpMessageConverter<*>>) {
         converters.add(0, JsonPagetabConverter(serializationService))
         converters.add(1, ExtSubmissionConverter(extSerializationService))
+        converters.add(2, ExtPageSubmissionConverter(extSerializationService))
     }
 
     override fun addArgumentResolvers(argumentResolvers: MutableList<HandlerMethodArgumentResolver>) {

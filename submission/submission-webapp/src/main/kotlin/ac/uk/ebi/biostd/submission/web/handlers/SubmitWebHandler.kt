@@ -3,7 +3,6 @@ package ac.uk.ebi.biostd.submission.web.handlers
 import ac.uk.ebi.biostd.files.service.UserFilesService
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat
-import ac.uk.ebi.biostd.persistence.integration.FileMode
 import ac.uk.ebi.biostd.submission.domain.helpers.RequestSources
 import ac.uk.ebi.biostd.submission.domain.helpers.SourceGenerator
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionService
@@ -13,6 +12,7 @@ import ac.uk.ebi.biostd.submission.web.model.FileSubmitWebRequest
 import ac.uk.ebi.biostd.submission.web.model.OnBehalfRequest
 import ac.uk.ebi.biostd.submission.web.model.RefreshWebRequest
 import ebi.ac.uk.extended.mapping.to.toSimpleSubmission
+import ebi.ac.uk.extended.model.FileMode
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.SubmissionMethod.FILE
@@ -24,6 +24,7 @@ import java.io.File
 
 private const val DIRECT_UPLOAD_PATH = "direct-uploads"
 
+@Suppress("TooManyFunctions")
 class SubmitWebHandler(
     private val submissionService: SubmissionService,
     private val sourceGenerator: SourceGenerator,
@@ -31,41 +32,58 @@ class SubmitWebHandler(
     private val userFilesService: UserFilesService,
     private val securityService: ISecurityService
 ) {
-    fun submit(request: ContentSubmitWebRequest): Submission {
-        val sub = serializationService.deserializeSubmission(request.submission, request.format)
-        val source = sources(sub, request.submitter, request.files)
-        val submission = withAttributes(submission(request.submission, request.format, source), request.attrs)
+    fun submit(request: ContentSubmitWebRequest): Submission =
+        submissionService.submit(buildRequest(request)).toSimpleSubmission()
 
-        return submissionService.submit(SubmissionRequest(
+    fun submit(request: FileSubmitWebRequest): Submission =
+        submissionService.submit(buildRequest(request)).toSimpleSubmission()
+
+    fun submitAsync(request: ContentSubmitWebRequest) = submissionService.submitAsync(buildRequest(request))
+
+    fun submitAsync(request: FileSubmitWebRequest): Unit = submissionService.submitAsync(buildRequest(request))
+
+    private fun buildRequest(request: ContentSubmitWebRequest): SubmissionRequest {
+        val sub = serializationService.deserializeSubmission(request.submission, request.format)
+        val source = sourceGenerator.submissionSources(RequestSources(
+            user = request.submitter,
+            files = request.files,
+            rootPath = sub.rootPath,
+            subFolder = subFolder(sub.accNo)
+        ))
+        val submission = withAttributes(submission(request.submission, request.format, source), request.attrs)
+        return SubmissionRequest(
             submission = submission,
             submitter = request.submitter,
             onBehalfUser = request.onBehalfRequest?.let { getOnBehalfUser(it) },
             method = PAGE_TAB,
             sources = source,
             mode = request.fileMode
-        )).toSimpleSubmission()
+        )
     }
 
-    fun submit(request: FileSubmitWebRequest): Submission {
+    private fun buildRequest(request: FileSubmitWebRequest): SubmissionRequest {
         val sub = serializationService.deserializeSubmission(request.submission)
-        val source = sources(sub, request.submitter, request.files.plus(request.submission))
+        val source = sourceGenerator.submissionSources(RequestSources(
+            user = request.submitter,
+            files = request.files.plus(request.submission),
+            rootPath = sub.rootPath,
+            subFolder = subFolder(sub.accNo)
+        ))
         val submission = withAttributes(submission(request.submission, source), request.attrs)
         userFilesService.uploadFile(request.submitter, DIRECT_UPLOAD_PATH, request.submission)
-
-        return submissionService.submit(SubmissionRequest(
+        return SubmissionRequest(
             submission = submission,
             submitter = request.submitter,
             onBehalfUser = request.onBehalfRequest?.let { getOnBehalfUser(it) },
             sources = source,
             method = FILE,
             mode = request.fileMode
-        )).toSimpleSubmission()
+        )
     }
 
     fun refreshSubmission(request: RefreshWebRequest): Submission {
         val submission = submissionService.getSubmission(request.accNo).toSimpleSubmission()
-        val source = sources(submission)
-
+        val source = sourceGenerator.submissionSources(RequestSources(subFolder = subFolder(submission.accNo)))
         return submissionService.submit(SubmissionRequest(
             submission = submission,
             submitter = request.user,
@@ -77,17 +95,6 @@ class SubmitWebHandler(
 
     private fun getOnBehalfUser(request: OnBehalfRequest): SecurityUser =
         securityService.getOrRegisterUser(request.asRegisterRequest())
-
-    private fun sources(
-        submission: Submission,
-        user: SecurityUser? = null,
-        files: List<File> = emptyList()
-    ): FilesSource = sourceGenerator.submissionSources(RequestSources(
-        user = user,
-        files = files,
-        rootPath = submission.rootPath,
-        subFolder = subFolder(submission.accNo)
-    ))
 
     private fun withAttributes(submission: Submission, attrs: Map<String, String>): Submission {
         attrs.forEach { submission[it.key] = it.value }

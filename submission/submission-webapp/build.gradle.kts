@@ -1,6 +1,7 @@
 import Dependencies.Arrow
 import Dependencies.CommonsIO
 import Dependencies.JpaEntityGraph
+import Dependencies.KotlinLogging
 import Dependencies.KotlinReflect
 import Dependencies.KotlinStdLib
 import Dependencies.MySql
@@ -8,12 +9,14 @@ import Dependencies.RxJava2
 import Dependencies.SpringfoxSwagger
 import Dependencies.SpringfoxSwaggerUI
 import SpringBootDependencies.SpringBootAmqp
+import SpringBootDependencies.SpringBootConfigurationProcessor
 import SpringBootDependencies.SpringBootStartedAdminClient
 import SpringBootDependencies.SpringBootStarterActuator
 import SpringBootDependencies.SpringBootStarterConfigProcessor
 import SpringBootDependencies.SpringBootStarterDataJpa
 import SpringBootDependencies.SpringBootStarterSecurity
 import SpringBootDependencies.SpringBootStarterTest
+import SpringBootDependencies.SpringBootStarterValidation
 import SpringBootDependencies.SpringBootStarterWeb
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
@@ -22,15 +25,25 @@ import TestDependencies.JsonPathAssert
 import TestDependencies.KotlinXmlBuilder
 import TestDependencies.XmlUnitCore
 import TestDependencies.XmlUnitMatchers
+import TestDependencies.rabitMqMock
 import org.springframework.boot.gradle.tasks.bundling.BootJar
 
 plugins {
-    id("org.jetbrains.kotlin.plugin.spring") version "1.3.41"
-    id("io.spring.dependency-management") version "1.0.6.RELEASE"
-    id("org.springframework.boot") version "2.2.6.RELEASE"
+    id("org.jetbrains.kotlin.plugin.spring") version "1.3.72"
+    id("io.spring.dependency-management") version "1.0.9.RELEASE"
+    id("org.springframework.boot") version "2.3.2.RELEASE"
+    id("org.jetbrains.kotlin.plugin.jpa") version "1.3.72"
+    id("org.jetbrains.kotlin.plugin.allopen") version "1.3.72"
+}
+
+allOpen {
+    annotation("javax.persistence.Entity")
+    annotation("javax.persistence.Embeddable")
+    annotation("javax.persistence.MappedSuperclass")
 }
 
 dependencies {
+    api(project(":client:fire-webclient"))
     api(project(":submission:persistence"))
     api(project(":submission:submitter"))
     api(project(":submission:submission-security"))
@@ -42,7 +55,7 @@ dependencies {
     api(project(":commons:commons-test"))
     api(project(":commons:commons-http"))
 
-    annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
+    annotationProcessor(SpringBootConfigurationProcessor)
 
     implementation(SpringBootStarterWeb)
     implementation(SpringBootAmqp)
@@ -50,6 +63,7 @@ dependencies {
     implementation(SpringBootStarterConfigProcessor)
     implementation(SpringBootStarterSecurity)
     implementation(SpringBootStarterActuator)
+    implementation(SpringBootStarterValidation)
 
     // Registers the application in the Spring Dashboard
     implementation(SpringBootStartedAdminClient)
@@ -63,12 +77,13 @@ dependencies {
     implementation(RxJava2)
     implementation(SpringfoxSwagger)
     implementation(SpringfoxSwaggerUI)
+    implementation(KotlinLogging)
 
     testImplementation(project(":client:bio-webclient"))
     BaseTestCompileDependencies.forEach { testImplementation(it) }
     BaseTestRuntimeDependencies.forEach { testImplementation(it) }
     testImplementation(SpringBootStarterTest)
-    testImplementation("com.github.fridujo:rabbitmq-mock:1.1.0")
+    testImplementation(rabitMqMock)
 
     testImplementation(H2)
     testImplementation(KotlinXmlBuilder)

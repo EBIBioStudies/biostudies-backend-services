@@ -4,18 +4,17 @@ import ac.uk.ebi.biostd.persistence.model.DbUser
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ebi.ac.uk.api.security.ChangePasswordRequest
 import ebi.ac.uk.api.security.LoginRequest
-import ebi.ac.uk.io.ALL_GROUP
-import ebi.ac.uk.io.GROUP_EXECUTE
-import ebi.ac.uk.security.events.Events
+import ebi.ac.uk.extended.events.SecurityNotification
+import ebi.ac.uk.extended.events.SecurityNotificationType.ACTIVATION
+import ebi.ac.uk.extended.events.SecurityNotificationType.PASSWORD_RESET
+import ebi.ac.uk.io.RWXRWX___
+import ebi.ac.uk.io.RWX__X___
 import ebi.ac.uk.security.integration.SecurityProperties
 import ebi.ac.uk.security.integration.exception.LoginException
 import ebi.ac.uk.security.integration.exception.UserAlreadyRegister
 import ebi.ac.uk.security.integration.exception.UserNotFoundByEmailException
 import ebi.ac.uk.security.integration.exception.UserPendingRegistrationException
 import ebi.ac.uk.security.integration.exception.UserWithActivationKeyNotFoundException
-import ebi.ac.uk.security.integration.model.events.PasswordReset
-import ebi.ac.uk.security.integration.model.events.UserActivated
-import ebi.ac.uk.security.integration.model.events.UserRegister
 import ebi.ac.uk.security.test.SecurityTestEntities
 import ebi.ac.uk.security.test.SecurityTestEntities.Companion.captcha
 import ebi.ac.uk.security.test.SecurityTestEntities.Companion.email
@@ -34,17 +33,19 @@ import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
-import io.reactivex.observers.TestObserver
+import io.mockk.slot
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.events.service.EventsPublisherService
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.attribute.PosixFilePermission
 import java.util.Optional
+import kotlin.test.assertNotNull
 
 private const val ACTIVATION_KEY: String = "code"
 private const val SECRET_KEY: String = "secretKey"
@@ -56,14 +57,16 @@ internal class SecurityServiceTest(
     @MockK private val userRepository: UserDataRepository,
     @MockK private val securityProps: SecurityProperties,
     @MockK private val securityUtil: SecurityUtil,
-    @MockK private val captchaVerifier: CaptchaVerifier
+    @MockK private val captchaVerifier: CaptchaVerifier,
+    @MockK private val eventsPublisherService: EventsPublisherService
 ) {
     private val testInstance: SecurityService = SecurityService(
         userRepository,
         securityUtil,
         securityProps,
         ProfileService(temporaryFolder.root.toPath()),
-        captchaVerifier
+        captchaVerifier,
+        eventsPublisherService
     )
 
     @Nested
@@ -93,7 +96,7 @@ internal class SecurityServiceTest(
 
             val (user, token) = testInstance.login(LoginRequest(email, password))
 
-            assertThat(user).isNotNull()
+            assertNotNull(user)
             assertThat(token).isEqualTo(userToken)
         }
     }
@@ -110,33 +113,29 @@ internal class SecurityServiceTest(
         }
 
         @Test
-        fun `register a user when not activation is not required`() {
+        fun `register a user when activation is not required`() {
+            val savedUserSlot = slot<DbUser>()
             val magicFolderRoot = temporaryFolder.createDirectory("users")
 
+            every { userRepository.save(capture(savedUserSlot)) } answers { savedUserSlot.captured }
             every { securityProps.magicDirPath } returns magicFolderRoot.absolutePath
             every { securityProps.requireActivation } returns false
             every { securityUtil.newKey() } returns SECRET_KEY
 
-            val subscriber = TestObserver<UserActivated>()
-            Events.userRegister.subscribe(subscriber)
+            val securityUser = testInstance.registerUser(registrationRequest)
+            val dbUser = savedUserSlot.captured
+            assertThat(dbUser.active).isTrue()
+            assertThat(dbUser.fullName).isEqualTo(name)
+            assertThat(dbUser.email).isEqualTo(email)
+            assertThat(dbUser.passwordDigest).isEqualTo(PASSWORD_DIGEST)
 
-            val user = testInstance.registerUser(registrationRequest)
+            assertThat(dbUser.superuser).isFalse()
+            assertThat(dbUser.activationKey).isNull()
+            assertThat(dbUser.login).isNull()
 
-            assertThat(subscriber.values()).hasSize(1)
-            assertThat(subscriber.values()).first().satisfies {
-                assertThat(it.user.active).isTrue()
-                assertThat(it.user.fullName).isEqualTo(name)
-                assertThat(it.user.email).isEqualTo(email)
-                assertThat(it.user.passwordDigest).isEqualTo(PASSWORD_DIGEST)
-
-                assertThat(it.user.superuser).isFalse()
-                assertThat(it.user.activationKey).isNull()
-                assertThat(it.user.login).isNull()
-            }
-
-            val userFolder = user.magicFolder.path
-            assertFile(userFolder.parent, GROUP_EXECUTE)
-            assertFile(userFolder, ALL_GROUP)
+            val userFolder = securityUser.magicFolder.path
+            assertFile(userFolder.parent, RWX__X___)
+            assertFile(userFolder, RWXRWX___)
             assertSymbolicLink(magicFolderRoot.resolve("b/$email").toPath(), userFolder)
         }
 
@@ -152,21 +151,27 @@ internal class SecurityServiceTest(
 
         @Test
         fun `register a user when activation is required`() {
+            val savedUserSlot = slot<DbUser>()
+            val activationSlot = slot<SecurityNotification>()
             val activationUrl = "http://dummy-backend.com/active/1234"
+
             every { securityProps.requireActivation } returns true
             every { securityUtil.newKey() } returns SECRET_KEY andThen ACTIVATION_KEY
             every { securityUtil.getActivationUrl(instanceKey, path, ACTIVATION_KEY) } returns activationUrl
-
-            val subscriber = TestObserver<UserRegister>()
-            Events.userPreRegister.subscribe(subscriber)
+            every { eventsPublisherService.securityNotification(capture(activationSlot)) } answers { nothing }
+            every { userRepository.save(capture(savedUserSlot)) } answers { savedUserSlot.captured }
 
             testInstance.registerUser(SecurityTestEntities.preRegisterRequest)
 
-            assertThat(subscriber.values()).hasSize(1)
-            assertThat(subscriber.values()).first().satisfies {
-                assertThat(it.user.active).isFalse()
-                assertThat(it.user.activationKey).isEqualTo(ACTIVATION_KEY)
-            }
+            val user = savedUserSlot.captured
+            assertThat(user.active).isFalse()
+            assertThat(user.activationKey).isEqualTo(ACTIVATION_KEY)
+
+            val notification = activationSlot.captured
+            assertThat(notification.email).isEqualTo(user.email)
+            assertThat(notification.username).isEqualTo(user.fullName)
+            assertThat(notification.activationLink).isEqualTo(activationUrl)
+            assertThat(notification.type).isEqualTo(ACTIVATION)
         }
 
         @Test
@@ -211,24 +216,22 @@ internal class SecurityServiceTest(
 
         @Test
         fun `retry pre registration`() {
-            val activationUrl = "http://dummy-backend.com/active/1234"
+            val savedUserSlot = slot<DbUser>()
+            val activationSlot = slot<SecurityNotification>()
             val user = simpleUser.apply { active = false }
+            val activationUrl = "http://dummy-backend.com/active/1234"
 
             every { userRepository.findByEmailAndActive(email, false) } returns Optional.of(user)
             every { securityUtil.newKey() } returns ACTIVATION_KEY
             every { securityUtil.getActivationUrl(instanceKey, path, ACTIVATION_KEY) } returns activationUrl
-            every { userRepository.save(any<DbUser>()) } answers { firstArg() }
-
-            val subscriber = TestObserver<UserRegister>()
-            Events.userPreRegister.subscribe(subscriber)
+            every { userRepository.save(capture(savedUserSlot)) } answers { savedUserSlot.captured }
+            every { eventsPublisherService.securityNotification(capture(activationSlot)) } answers { nothing }
 
             testInstance.retryRegistration(retryActivation)
 
-            assertThat(subscriber.values()).hasSize(1)
-            assertThat(subscriber.values()).first().satisfies {
-                assertThat(it.user.active).isFalse()
-                assertThat(it.user.activationKey).isEqualTo(ACTIVATION_KEY)
-            }
+            val dbUser = savedUserSlot.captured
+            assertThat(dbUser.active).isFalse()
+            assertThat(dbUser.activationKey).isEqualTo(ACTIVATION_KEY)
         }
     }
 
@@ -274,23 +277,22 @@ internal class SecurityServiceTest(
 
         @Test
         fun resetPassword() {
+            val resetSlot = slot<SecurityNotification>()
             val activationUrl = "http://dummy-backend.com/active/1234"
 
             every { userRepository.findByLoginOrEmailAndActive(email, email, true) } returns Optional.of(simpleUser)
             every { securityUtil.newKey() } returns ACTIVATION_KEY
             every { userRepository.save(any<DbUser>()) } answers { firstArg() }
             every { securityUtil.getActivationUrl(instanceKey, path, ACTIVATION_KEY) } returns activationUrl
-
-            val subscriber = TestObserver<PasswordReset>()
-            Events.passwordReset.subscribe(subscriber)
+            every { eventsPublisherService.securityNotification(capture(resetSlot)) } answers { nothing }
 
             testInstance.resetPassword(resetPasswordRequest)
 
-            assertThat(subscriber.values()).hasSize(1)
-            assertThat(subscriber.values()).first().satisfies {
-                assertThat(it.user).isEqualTo(simpleUser)
-                assertThat(it.activationLink).isEqualTo(activationUrl)
-            }
+            val notification = resetSlot.captured
+            assertThat(notification.email).isEqualTo(simpleUser.email)
+            assertThat(notification.username).isEqualTo(simpleUser.fullName)
+            assertThat(notification.activationLink).isEqualTo(activationUrl)
+            assertThat(notification.type).isEqualTo(PASSWORD_RESET)
         }
     }
 }
