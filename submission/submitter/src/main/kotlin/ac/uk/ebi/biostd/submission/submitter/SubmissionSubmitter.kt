@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.submission.submitter
 import ac.uk.ebi.biostd.persistence.integration.PersistenceContext
 import ac.uk.ebi.biostd.persistence.integration.SaveRequest
 import ac.uk.ebi.biostd.persistence.integration.SubmissionQueryService
+import ac.uk.ebi.biostd.submission.exceptions.ConcurrentProcessingSubmissionException
 import ac.uk.ebi.biostd.submission.exceptions.InvalidSubmissionException
 import ac.uk.ebi.biostd.submission.model.SubmissionRequest
 import ac.uk.ebi.biostd.submission.service.AccNoService
@@ -50,17 +51,18 @@ class SubmissionSubmitter(
     private val queryService: SubmissionQueryService
 ) {
     fun submit(request: SubmissionRequest): ExtSubmission {
+        val accNo = request.submission.accNo
         logger.info { "processing request $request" }
+        require(queryService.isProcessing(accNo).not()) { throw ConcurrentProcessingSubmissionException(accNo) }
 
         val submission = process(
             request.submission,
             request.submitter.asUser(),
             request.onBehalfUser?.asUser(),
             request.sources,
-            request.method
-        )
+            request.method)
 
-        logger.info { "Saving submission ${submission.accNo}" }
+        logger.info { "Saving submission $accNo" }
         return context.saveAndProcessSubmissionRequest(SaveRequest(submission, request.mode))
     }
 
@@ -70,17 +72,18 @@ class SubmissionSubmitter(
     }
 
     fun submitAsync(request: SubmissionRequest): SaveRequest {
+        val accNo = request.submission.accNo
         logger.info { "processing async request $request" }
+        require(queryService.isProcessing(accNo).not()) { throw ConcurrentProcessingSubmissionException(accNo) }
 
         val submission = process(
             request.submission,
             request.submitter.asUser(),
             request.onBehalfUser?.asUser(),
             request.sources,
-            request.method
-        )
+            request.method)
 
-        logger.info { "Saving submission request ${submission.accNo}" }
+        logger.info { "Saving submission request $accNo" }
         return SaveRequest(context.saveSubmissionRequest(SaveRequest(submission, request.mode)), request.mode)
     }
 

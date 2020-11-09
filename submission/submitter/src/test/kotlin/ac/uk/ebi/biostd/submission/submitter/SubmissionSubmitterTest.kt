@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.submission.submitter
 import ac.uk.ebi.biostd.persistence.integration.PersistenceContext
 import ac.uk.ebi.biostd.persistence.integration.SaveRequest
 import ac.uk.ebi.biostd.persistence.integration.SubmissionQueryService
+import ac.uk.ebi.biostd.submission.exceptions.ConcurrentProcessingSubmissionException
 import ac.uk.ebi.biostd.submission.model.SubmissionRequest
 import ac.uk.ebi.biostd.submission.service.AccNoService
 import ac.uk.ebi.biostd.submission.service.AccNoServiceRequest
@@ -30,6 +31,8 @@ import ebi.ac.uk.model.extensions.title
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import io.mockk.clearAllMocks
 import io.mockk.every
+import io.mockk.impl.annotations.MockK
+import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.slot
@@ -38,9 +41,12 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
+import org.junit.jupiter.api.extension.ExtendWith
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 
+@ExtendWith(MockKExtension::class)
 class SubmissionSubmitterTest {
     private val accNo = AccNumber("S-TEST", "123")
     private val testTime = OffsetDateTime.of(2017, 10, 10, 0, 0, 0, 0, ZoneOffset.UTC)
@@ -87,6 +93,7 @@ class SubmissionSubmitterTest {
         assertExtendedSubmission()
 
         verifyProcessServices()
+        verifyPersistenceContextSync()
     }
 
     @Test
@@ -98,6 +105,60 @@ class SubmissionSubmitterTest {
         assertExtendedSubmission()
 
         verifyProcessServices()
+        verifyPersistenceContextSync()
+    }
+
+    @Test
+    fun `submit sync concurrent processing submission`() {
+        every { queryService.isProcessing("S-TEST123") } returns true
+
+        val exception = assertThrows<ConcurrentProcessingSubmissionException> {
+            testInstance.submit(
+                SubmissionRequest(submission, testUser(notificationsEnabled = false), sources, PAGE_TAB, COPY))
+        }
+
+        assertThat(exception.message).isEqualTo(
+            "Submission request can't be accepted. Another version for 'S-TEST123' is currently being processed.")
+    }
+
+    @Test
+    fun `process request`(@MockK extSubmission: ExtSubmission) {
+        val saveRequest = SaveRequest(extSubmission, COPY)
+        every { extSubmission.accNo } returns "S-TEST123"
+        every { persistenceContext.processSubmission(saveRequest) } returns extSubmission
+
+        testInstance.processRequest(saveRequest)
+
+        verify(exactly = 1) { persistenceContext.processSubmission(saveRequest) }
+    }
+
+    @Test
+    fun `submit async`(@MockK extSubmission: ExtSubmission) {
+        val saveRequestSlot = slot<SaveRequest>()
+        every { extSubmission.accNo } returns "S-TEST123"
+        every { persistenceContext.saveSubmissionRequest(capture(saveRequestSlot)) } returns extSubmission
+
+        testInstance.submitAsync(
+            SubmissionRequest(submission, testUser(notificationsEnabled = false), sources, PAGE_TAB, COPY))
+
+        assertCapturedValues()
+        assertExtendedSubmission()
+
+        verifyProcessServices()
+        verify(exactly = 1) { persistenceContext.saveSubmissionRequest(saveRequestSlot.captured) }
+    }
+
+    @Test
+    fun `submit async concurrent processing submission`() {
+        every { queryService.isProcessing("S-TEST123") } returns true
+
+        val exception = assertThrows<ConcurrentProcessingSubmissionException> {
+            testInstance.submitAsync(
+                SubmissionRequest(submission, testUser(notificationsEnabled = false), sources, PAGE_TAB, COPY))
+        }
+
+        assertThat(exception.message).isEqualTo(
+            "Submission request can't be accepted. Another version for 'S-TEST123' is currently being processed.")
     }
 
     private fun assertCapturedValues() {
@@ -150,6 +211,9 @@ class SubmissionSubmitterTest {
         timesService.getTimes(timesRequest.captured)
 
         projectInfoService.process(projectRequest.captured)
+    }
+
+    private fun verifyPersistenceContextSync() = verify(exactly = 1) {
         persistenceContext.saveAndProcessSubmissionRequest(saveRequest.captured)
     }
 
@@ -158,6 +222,7 @@ class SubmissionSubmitterTest {
         every { accNoService.getAccNo(capture(accNoServiceRequest)) } returns accNo
         every { queryService.getOwner("S-TEST123") } returns null
         every { queryService.isNew("S-TEST123") } returns false
+        every { queryService.isProcessing("S-TEST123") } returns false
         every { queryService.getSecret("S-TEST123") } returns "a-secret-key"
         every { timesService.getTimes(capture(timesRequest)) } returns Times(testTime, testTime, null)
         every { projectInfoService.process(capture(projectRequest)) } returns ProjectResponse("BioImages")

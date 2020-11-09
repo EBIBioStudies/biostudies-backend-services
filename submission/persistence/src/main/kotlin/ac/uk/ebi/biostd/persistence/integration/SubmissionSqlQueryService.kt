@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.persistence.integration
 
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
 import ac.uk.ebi.biostd.persistence.repositories.SubmissionDataRepository
+import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSING
 import ebi.ac.uk.model.constants.SubFields
 import ebi.ac.uk.paths.SubmissionFolderResolver
 import java.time.OffsetDateTime
@@ -33,6 +34,8 @@ class SubmissionSqlQueryService(
     override fun getCurrentFolder(accNo: String) = find(accNo)?.let { folderResolver.getSubFolder(it.relPath).toFile() }
 
     override fun getOwner(accNo: String): String? = getLatestSubmitted(accNo)?.owner?.email
+
+    override fun isProcessing(accNo: String): Boolean = subRepository.findBasic(accNo)?.status == PROCESSING
 
     private fun getSubmission(accNo: String) = subRepository.getBasic(accNo)
 
