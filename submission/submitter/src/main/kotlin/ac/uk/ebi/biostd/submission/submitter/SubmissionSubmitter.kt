@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.submission.submitter
 import ac.uk.ebi.biostd.persistence.common.request.SaveSubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.service.PersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
+import ac.uk.ebi.biostd.submission.exceptions.ConcurrentProcessingSubmissionException
 import ac.uk.ebi.biostd.submission.exceptions.InvalidSubmissionException
 import ac.uk.ebi.biostd.submission.model.SubmissionRequest
 import ac.uk.ebi.biostd.submission.service.AccNoService
@@ -50,15 +51,16 @@ class SubmissionSubmitter(
     private val queryService: SubmissionQueryService
 ) {
     fun submit(request: SubmissionRequest): ExtSubmission {
+        val accNo = request.submission.accNo
         logger.info { "processing request $request" }
+        require(queryService.isProcessing(accNo).not()) { throw ConcurrentProcessingSubmissionException(accNo) }
 
         val submission = process(
             request.submission,
             request.submitter.asUser(),
             request.onBehalfUser?.asUser(),
             request.sources,
-            request.method
-        )
+            request.method)
 
         logger.info { "Saving submission ${submission.accNo}" }
         return service.saveAndProcessSubmissionRequest(SaveSubmissionRequest(submission, request.mode))
@@ -71,18 +73,22 @@ class SubmissionSubmitter(
 
     fun submitAsync(request: SubmissionRequest): SaveSubmissionRequest {
         logger.info { "processing async request $request" }
+        requireNotProcessing(request.submission.accNo)
 
         val submission = process(
             request.submission,
             request.submitter.asUser(),
             request.onBehalfUser?.asUser(),
             request.sources,
-            request.method
-        )
+            request.method)
 
         logger.info { "Saving submission request ${submission.accNo}" }
         val saveRequest = SaveSubmissionRequest(submission, request.mode)
         return SaveSubmissionRequest(service.saveSubmissionRequest(saveRequest), request.mode)
+    }
+
+    private fun requireNotProcessing(accNo: String) {
+        require(queryService.isProcessing(accNo).not()) { throw ConcurrentProcessingSubmissionException(accNo) }
     }
 
     @Suppress("TooGenericExceptionCaught")

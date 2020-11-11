@@ -13,4 +13,5 @@ interface SubmissionQueryService {
     fun findCreationTime(accNo: String): OffsetDateTime?
     fun getCurrentFolder(accNo: String): File?
     fun getOwner(accNo: String): String?
+    fun isProcessing(accNo: String): Boolean
 }
