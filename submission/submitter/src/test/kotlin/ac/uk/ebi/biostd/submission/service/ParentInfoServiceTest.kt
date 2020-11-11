@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.submission.service
 
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.exception.ProjectNotFoundException
-import ac.uk.ebi.biostd.persistence.integration.SubmissionQueryService
 import ac.uk.ebi.biostd.submission.exceptions.ProjectInvalidAccessTagException
 import ebi.ac.uk.model.constants.SubFields.PUBLIC_ACCESS_TAG
 import io.mockk.every

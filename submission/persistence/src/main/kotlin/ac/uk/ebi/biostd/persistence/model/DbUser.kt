@@ -78,7 +78,7 @@ class DbUser(
     var auxInfo: AuxInfo = AuxInfo()
 
     @OneToMany(mappedBy = "user", cascade = [PERSIST, MERGE])
-    val permissions: Set<AccessPermission> = emptySet()
+    val permissions: Set<DbAccessPermission> = emptySet()
 }
 
 @XmlRootElement(name = "aux")

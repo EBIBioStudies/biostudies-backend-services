@@ -1,10 +1,10 @@
 package ebi.ac.uk.security.service
 
-import ac.uk.ebi.biostd.persistence.integration.SubmissionQueryService
-import ac.uk.ebi.biostd.persistence.model.AccessType
+import ac.uk.ebi.biostd.persistence.common.model.AccessType
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
-import ac.uk.ebi.biostd.persistence.service.UserPermissionsService
+import ac.uk.ebi.biostd.persistence.service.UserSqlPermissionsService
 import ebi.ac.uk.security.integration.exception.UserNotFoundByEmailException
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -27,7 +27,7 @@ class UserPrivilegesServiceTest(
     @MockK private val userRepository: UserDataRepository,
     @MockK private val queryService: SubmissionQueryService,
     @MockK private val tagsDataRepository: AccessTagDataRepo,
-    @MockK private val userPermissionsService: UserPermissionsService
+    @MockK private val userPermissionsService: UserSqlPermissionsService
 ) {
     private val testInstance =
         UserPrivilegesService(userRepository, tagsDataRepository, queryService, userPermissionsService)

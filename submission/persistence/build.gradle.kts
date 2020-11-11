@@ -5,6 +5,7 @@ import Dependencies.HibernateEntityManager
 import Dependencies.JpaEntityGraph
 import Dependencies.KotlinLogging
 import Dependencies.KotlinStdLib
+import Dependencies.SpringAutoConfigure
 import Dependencies.SpringDataJpa
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
@@ -27,7 +28,11 @@ dependencies {
     api(project(":commons:commons-model-extended"))
     api(project(":commons:commons-model-extended-mapping"))
     api(project(":commons:commons-test"))
+    api(project(":submission:persistence-common"))
+    api(project(":submission:submission-config"))
 
+    implementation(SpringAutoConfigure)
+    implementation(SpringDataJpa)
     implementation(Arrow)
     implementation(CommonsLang3)
     implementation(CommonsIO)
@@ -35,7 +40,6 @@ dependencies {
     implementation(JpaEntityGraph)
     implementation(KotlinStdLib)
     implementation(KotlinLogging)
-    implementation(SpringDataJpa)
 
     BaseTestCompileDependencies.forEach { testImplementation(it) }
     BaseTestRuntimeDependencies.forEach { testImplementation(it) }

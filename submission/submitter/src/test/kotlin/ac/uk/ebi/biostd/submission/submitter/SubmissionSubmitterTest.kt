@@ -1,8 +1,8 @@
 package ac.uk.ebi.biostd.submission.submitter
 
-import ac.uk.ebi.biostd.persistence.integration.PersistenceContext
-import ac.uk.ebi.biostd.persistence.integration.SaveRequest
-import ac.uk.ebi.biostd.persistence.integration.SubmissionQueryService
+import ac.uk.ebi.biostd.persistence.common.request.SaveSubmissionRequest
+import ac.uk.ebi.biostd.persistence.common.service.PersistenceService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.submission.exceptions.ConcurrentProcessingSubmissionException
 import ac.uk.ebi.biostd.submission.model.SubmissionRequest
 import ac.uk.ebi.biostd.submission.service.AccNoService
@@ -63,10 +63,10 @@ class SubmissionSubmitterTest {
     private val parentInfoService = mockk<ParentInfoService>()
     private val queryService = mockk<SubmissionQueryService>()
     private val projectInfoService = mockk<ProjectInfoService>()
-    private val persistenceContext = mockk<PersistenceContext>()
+    private val persistenceContext = mockk<PersistenceService>()
 
     private val timesRequest = slot<TimesRequest>()
-    private val saveRequest = slot<SaveRequest>()
+    private val saveRequest = slot<SaveSubmissionRequest>()
     private val projectRequest = slot<ProjectRequest>()
     private val accNoServiceRequest = slot<AccNoServiceRequest>()
 
@@ -123,7 +123,7 @@ class SubmissionSubmitterTest {
 
     @Test
     fun `process request`(@MockK extSubmission: ExtSubmission) {
-        val saveRequest = SaveRequest(extSubmission, COPY)
+        val saveRequest = SaveSubmissionRequest(extSubmission, COPY)
         every { extSubmission.accNo } returns "S-TEST123"
         every { persistenceContext.processSubmission(saveRequest) } returns extSubmission
 
@@ -134,7 +134,7 @@ class SubmissionSubmitterTest {
 
     @Test
     fun `submit async`(@MockK extSubmission: ExtSubmission) {
-        val saveRequestSlot = slot<SaveRequest>()
+        val saveRequestSlot = slot<SaveSubmissionRequest>()
         every { extSubmission.accNo } returns "S-TEST123"
         every { persistenceContext.saveSubmissionRequest(capture(saveRequestSlot)) } returns extSubmission
 

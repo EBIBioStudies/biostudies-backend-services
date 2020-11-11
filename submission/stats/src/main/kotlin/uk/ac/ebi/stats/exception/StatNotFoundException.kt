@@ -1,6 +1,6 @@
 package uk.ac.ebi.stats.exception
 
-import ac.uk.ebi.biostd.persistence.model.SubmissionStatType
+import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType
 
 class StatNotFoundException(
     accNo: String,

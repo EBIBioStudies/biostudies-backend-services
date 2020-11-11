@@ -1,6 +1,6 @@
 package ebi.ac.uk.security.service
 
-import ebi.ac.uk.security.integration.SecurityProperties
+import ac.uk.ebi.biostd.common.properties.SecurityProperties
 import ebi.ac.uk.security.integration.exception.InvalidCaptchaException
 import io.mockk.every
 import io.mockk.impl.annotations.MockK

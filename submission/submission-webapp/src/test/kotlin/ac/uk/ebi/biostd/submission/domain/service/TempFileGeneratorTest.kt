@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.submission.domain.service
 
-import ac.uk.ebi.biostd.common.property.ApplicationProperties
+import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.every

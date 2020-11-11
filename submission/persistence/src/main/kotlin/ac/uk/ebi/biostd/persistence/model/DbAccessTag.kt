@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.persistence.model
 
+import ac.uk.ebi.biostd.persistence.common.model.AccessTag
 import java.util.Objects
 import javax.persistence.Column
 import javax.persistence.Entity
@@ -17,11 +18,11 @@ class DbAccessTag(
     var id: Long = 0L,
 
     @Column
-    var name: String,
+    override var name: String,
 
     @ManyToMany(mappedBy = "accessTags", fetch = FetchType.LAZY)
     var submissions: MutableSet<DbSubmission> = sortedSetOf()
-) {
+) : AccessTag {
 
     override fun equals(other: Any?): Boolean {
         if (other !is DbAccessTag) return false

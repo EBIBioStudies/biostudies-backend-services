@@ -1,10 +1,12 @@
 package ac.uk.ebi.biostd.persistence.repositories
 
-import ac.uk.ebi.biostd.persistence.model.AccessPermission
-import ac.uk.ebi.biostd.persistence.model.AccessType
+import ac.uk.ebi.biostd.persistence.common.model.AccessType
+import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType
+import ac.uk.ebi.biostd.persistence.model.DbAccessPermission
 import ac.uk.ebi.biostd.persistence.model.DbAccessTag
 import ac.uk.ebi.biostd.persistence.model.DbSection
 import ac.uk.ebi.biostd.persistence.model.DbSubmission
+import ac.uk.ebi.biostd.persistence.model.DbSubmissionRT
 import ac.uk.ebi.biostd.persistence.model.DbSubmissionStat
 import ac.uk.ebi.biostd.persistence.model.DbTag
 import ac.uk.ebi.biostd.persistence.model.DbUser
@@ -13,7 +15,6 @@ import ac.uk.ebi.biostd.persistence.model.SECTION_SIMPLE_GRAPH
 import ac.uk.ebi.biostd.persistence.model.SUBMISSION_FULL_GRAPH
 import ac.uk.ebi.biostd.persistence.model.SecurityToken
 import ac.uk.ebi.biostd.persistence.model.Sequence
-import ac.uk.ebi.biostd.persistence.model.SubmissionStatType
 import ac.uk.ebi.biostd.persistence.model.USER_DATA_GRAPH
 import ac.uk.ebi.biostd.persistence.model.UserDataId
 import ac.uk.ebi.biostd.persistence.model.UserGroup
@@ -136,13 +137,12 @@ interface UserGroupDataRepository : JpaRepository<UserGroup, Long> {
     fun getByName(groupName: String): UserGroup
 }
 
-interface AccessPermissionRepository : JpaRepository<AccessPermission, Long> {
-    fun findAllByUserEmailAndAccessType(email: String, accessType: AccessType): List<AccessPermission>
+interface AccessPermissionRepository : JpaRepository<DbAccessPermission, Long> {
+    fun findAllByUserEmailAndAccessType(email: String, accessType: AccessType): List<DbAccessPermission>
     fun existsByUserEmailAndAccessTypeAndAccessTagName(user: String, type: AccessType, accessTag: String): Boolean
 }
 
 interface UserDataDataRepository : JpaRepository<DbUserData, UserDataId> {
-
     fun findByUserIdAndKey(userId: Long, key: String): DbUserData?
     fun findByUserId(userId: Long, pageRequest: Pageable): List<DbUserData>
 
@@ -157,4 +157,8 @@ interface SubmissionStatsDataRepository : PagingAndSortingRepository<DbSubmissio
     fun findAllByType(type: SubmissionStatType, pageable: Pageable): Page<DbSubmissionStat>
     fun findByAccNoAndType(accNo: String, type: SubmissionStatType): DbSubmissionStat?
     fun getByAccNoAndType(accNo: String, type: SubmissionStatType): DbSubmissionStat
+}
+
+interface SubmissionRtRepository : JpaRepository<DbSubmissionRT, Long> {
+    fun findByAccNo(accNo: String): DbSubmissionRT?
 }

@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.stats.web.handlers
 
-import ac.uk.ebi.biostd.persistence.model.SubmissionStatType.VIEWS
+import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType.VIEWS
 import ac.uk.ebi.biostd.stats.web.exceptions.InvalidStatException
 import ebi.ac.uk.dsl.line
 import ebi.ac.uk.dsl.tsv

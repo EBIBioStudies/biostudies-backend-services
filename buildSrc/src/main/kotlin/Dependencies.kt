@@ -121,6 +121,7 @@ object TestDependencies {
 
 object Dependencies {
     const val SpringWeb = "org.springframework:spring-web:$SpringVersion"
+    const val SpringAutoConfigure = "org.springframework.boot:spring-boot-autoconfigure:$SpringBootVersion"
     const val SpringSecurityCore = "org.springframework.security:spring-security-core:$SpringVersion"
     const val SpringDataJpa = "org.springframework.data:spring-data-jpa:$SpringDataVersion"
 

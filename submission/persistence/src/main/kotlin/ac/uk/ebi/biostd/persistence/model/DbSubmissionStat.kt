@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.persistence.model
 
-import ac.uk.ebi.biostd.persistence.model.SubmissionStatType.VIEWS
+import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType
+import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType.VIEWS
 import javax.persistence.Column
 import javax.persistence.Entity
 import javax.persistence.EnumType

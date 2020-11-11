@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.submission.web.resources
 
-import ac.uk.ebi.biostd.persistence.model.AccessType
+import ac.uk.ebi.biostd.persistence.common.model.AccessType
 import ac.uk.ebi.biostd.submission.converters.BioUser
 import ac.uk.ebi.biostd.submission.domain.service.ProjectService
 import ebi.ac.uk.model.Project

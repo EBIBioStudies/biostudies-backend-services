@@ -8,8 +8,8 @@ import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.RegularUser
 import ac.uk.ebi.biostd.itest.entities.SuperUser
-import ac.uk.ebi.biostd.persistence.model.AccessPermission
-import ac.uk.ebi.biostd.persistence.model.AccessType.DELETE
+import ac.uk.ebi.biostd.persistence.common.model.AccessType.DELETE
+import ac.uk.ebi.biostd.persistence.model.DbAccessPermission
 import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
@@ -140,7 +140,7 @@ internal class DeletePermissionTest(private val tempFolder: TemporaryFolder) : B
 
             val accessTag = tagsDataRepository.findByName("AProject")
             val user = userDataRepository.findByEmailAndActive(RegularUser.email, active = true)
-            val accessPermission = AccessPermission(accessType = DELETE, user = user.get(), accessTag = accessTag)
+            val accessPermission = DbAccessPermission(accessType = DELETE, user = user.get(), accessTag = accessTag)
             accessPermissionRepository.save(accessPermission)
         }
     }

@@ -7,7 +7,7 @@ import javax.persistence.AttributeConverter
 import javax.xml.bind.JAXBContext
 import javax.xml.bind.Marshaller
 
-class AuxInfoConverter : AttributeConverter<AuxInfo, String> {
+internal class AuxInfoConverter : AttributeConverter<AuxInfo, String> {
     private val jaxbContext: JAXBContext = JAXBContext.newInstance(AuxInfo::class.java)
 
     override fun convertToDatabaseColumn(auxInfo: AuxInfo): String {

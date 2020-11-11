@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.submission.domain.service
 
-import ac.uk.ebi.biostd.persistence.model.AccessType
+import ac.uk.ebi.biostd.persistence.common.model.AccessType
 import ac.uk.ebi.biostd.persistence.repositories.data.ProjectRepository
 import ebi.ac.uk.model.Project
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService

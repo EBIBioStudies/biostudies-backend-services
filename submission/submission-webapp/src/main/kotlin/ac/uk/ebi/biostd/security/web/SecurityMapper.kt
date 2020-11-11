@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.security.web
 
-import ac.uk.ebi.biostd.persistence.model.AccessType
+import ac.uk.ebi.biostd.persistence.common.model.AccessType
 import ebi.ac.uk.api.security.ProfileAuxInfo
 import ebi.ac.uk.api.security.RegisterResponse
 import ebi.ac.uk.api.security.UserProfile
