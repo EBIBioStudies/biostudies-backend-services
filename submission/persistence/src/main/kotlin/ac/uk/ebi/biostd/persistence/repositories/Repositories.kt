@@ -143,7 +143,6 @@ interface AccessPermissionRepository : JpaRepository<DbAccessPermission, Long> {
 }
 
 interface UserDataDataRepository : JpaRepository<DbUserData, UserDataId> {
-
     fun findByUserIdAndKey(userId: Long, key: String): DbUserData?
     fun findByUserId(userId: Long, pageRequest: Pageable): List<DbUserData>
 

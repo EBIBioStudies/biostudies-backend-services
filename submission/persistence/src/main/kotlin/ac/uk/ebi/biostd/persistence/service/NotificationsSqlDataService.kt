@@ -8,9 +8,8 @@ import ac.uk.ebi.biostd.persistence.repositories.SubmissionRtRepository
 internal class NotificationsSqlDataService(
     private val submissionRtRepository: SubmissionRtRepository
 ) : NotificationsDataService {
-    override fun saveRtNotification(accNo: String, ticketId: String): SubmissionRT {
-        return submissionRtRepository.save(DbSubmissionRT(accNo, ticketId))
-    }
+    override fun saveRtNotification(accNo: String, ticketId: String): SubmissionRT =
+        submissionRtRepository.save(DbSubmissionRT(accNo, ticketId))
 
     override fun findTicketId(accNo: String): String? = submissionRtRepository.findByAccNo(accNo)?.ticketId
 }

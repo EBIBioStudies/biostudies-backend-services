@@ -5,8 +5,6 @@ enum class AccessType {
 }
 
 interface AccessPermission {
-
     val accessType: AccessType
-
     val accessTag: AccessTag
 }
