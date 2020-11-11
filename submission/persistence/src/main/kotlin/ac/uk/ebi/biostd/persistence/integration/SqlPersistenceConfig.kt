@@ -49,7 +49,6 @@ open class SqlPersistenceConfig(
     private val folderResolver: SubmissionFolderResolver,
     private val applicationProperties: ApplicationProperties
 ) {
-
     @Bean
     @ConditionalOnMissingBean(LockExecutor::class)
     open fun lockExecutor(): LockExecutor = JdbcLockExecutor(template)
@@ -76,12 +75,14 @@ open class SqlPersistenceConfig(
         lockExecutor: LockExecutor,
         dbSubmissionMapper: ToDbSubmissionMapper,
         toExtSubmissionMapper: ToExtSubmissionMapper,
+        submissionQueryService: SubmissionQueryService,
         fileSystemService: FileSystemService
     ): PersistenceService =
         SqlPersistenceService(
             submissionPersistenceService,
             sequenceRepository,
             tagsDataRepository,
+            submissionQueryService,
             lockExecutor
         )
 
