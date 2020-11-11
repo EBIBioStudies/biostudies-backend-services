@@ -29,6 +29,8 @@ data class ExtFile(
     val file: File,
     val attributes: List<ExtAttribute> = listOf()
 ) {
+    // TODO This solution is very hacky and should be temporary. The real solution should be getting the MD5 from the
+    // TODO persistence if it exists or generate it in the web layer if it doesn't
     private var _md5: String = ""
 
     val md5: String
