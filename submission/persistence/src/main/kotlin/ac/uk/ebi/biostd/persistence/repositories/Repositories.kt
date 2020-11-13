@@ -117,7 +117,7 @@ interface TagDataRepository : JpaRepository<DbTag, Long> {
 
 interface SequenceDataRepository : JpaRepository<Sequence, Long> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    fun getByPrefix(prefix: String): Sequence
+    fun findByPrefix(prefix: String): Sequence?
 
     fun existsByPrefix(prefix: String): Boolean
 }

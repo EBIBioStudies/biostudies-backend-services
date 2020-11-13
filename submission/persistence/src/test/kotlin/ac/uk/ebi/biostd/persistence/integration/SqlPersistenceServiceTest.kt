@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.persistence.integration
 
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
+import ac.uk.ebi.biostd.persistence.exception.SequenceNotFoundException
 import ac.uk.ebi.biostd.persistence.model.Sequence
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
 import ac.uk.ebi.biostd.persistence.repositories.MockLockExecutor
@@ -14,6 +15,7 @@ import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(MockKExtension::class)
@@ -54,8 +56,17 @@ internal class SqlPersistenceServiceTest(
         verify(exactly = 1) { sequenceRepository.save(sequence) }
     }
 
+    @Test
+    fun `sequence not found`() {
+        every { sequenceRepository.findByPrefix("S-BIAD") } returns null
+
+        val exception = assertThrows<SequenceNotFoundException> { testInstance.getSequenceNextValue("S-BIAD") }
+
+        assertThat(exception.message).isEqualTo("A sequence for the pattern 'S-BIAD' could not be found")
+    }
+
     private fun mockSequenceRepository(sequence: Sequence) {
-        every { sequenceRepository.getByPrefix("S-BSST") } returns sequence
+        every { sequenceRepository.findByPrefix("S-BSST") } returns sequence
         every { sequenceRepository.save(sequence) } returns sequence
     }
 }
