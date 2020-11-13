@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.submission.web.resources
 
+import ac.uk.ebi.biostd.persistence.common.model.SimpleSubmission
 import ac.uk.ebi.biostd.persistence.filter.SubmissionFilter
-import ac.uk.ebi.biostd.persistence.projections.SimpleSubmission
 import ac.uk.ebi.biostd.submission.converters.BioUser
 import ac.uk.ebi.biostd.submission.web.handlers.SubmissionsWebHandler
 import ebi.ac.uk.api.dto.SubmissionDto
