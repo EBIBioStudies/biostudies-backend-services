@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.persistence.integration
+package ac.uk.ebi.biostd.persistence.integration.services
 
 import ac.uk.ebi.biostd.persistence.common.request.SaveSubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.service.PersistenceService
@@ -7,7 +7,6 @@ import ac.uk.ebi.biostd.persistence.model.Sequence
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
 import ac.uk.ebi.biostd.persistence.repositories.LockExecutor
 import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
-import ac.uk.ebi.biostd.persistence.service.SubmissionSqlPersistenceService
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FileMode
 import org.springframework.transaction.annotation.Transactional

@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: # Database connection URL
-    username:
-    password:
+    url: jdbc:mysql://mysql-fg-biostudy-dev.ebi.ac.uk:4639/biostd_dev
+    username: biostd_dev
+    password: biostd_dev
     driver-class-name: com.mysql.jdbc.Driver
 
   jpa:
@@ -13,16 +13,17 @@ spring:
       use-new-id-generator-mappings: false
 
   rabbitmq:
-    host: # RabbitMQ host
-    username: # RabbitMQ user
-    password: # RabbitMQ password
+    host: biostudy-dev-mq.ebi.ac.uk
+    port: 5673
+    username: manager
+    password: manager-dev
 
 app:
   notifications:
     smtp: smtp.ebi.ac.uk
-    uiUrl: # The BioStudies UI url
+    uiUrl: http://ribs.ebi.ac.uk:8080/biostudies
     rt:
-      host: # RT server host
-      queue: # Queue used for RT notifications
-      user: # RT user
-      password: # RT password
+      host: https://testdesk.ebi.ac.uk
+      queue: biostudies-testdesk
+      user: biostudies-api
+      password: biostudiestestpassword!2

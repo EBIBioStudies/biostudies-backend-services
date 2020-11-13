@@ -1,18 +1,19 @@
 package ac.uk.ebi.biostd.persistence.repositories.data
 
+import ac.uk.ebi.biostd.persistence.common.model.SimpleSubmission
 import ac.uk.ebi.biostd.persistence.exception.SubmissionNotFoundException
 import ac.uk.ebi.biostd.persistence.filter.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.filter.SubmissionFilterSpecification
 import ac.uk.ebi.biostd.persistence.mapping.extended.to.DbToExtRequest
 import ac.uk.ebi.biostd.persistence.mapping.extended.to.ToExtSubmissionMapper
 import ac.uk.ebi.biostd.persistence.model.DbSubmission
-import ac.uk.ebi.biostd.persistence.pagination.OffsetPageRequest
 import ac.uk.ebi.biostd.persistence.model.constants.SUB_RELEASE_TIME
-import ac.uk.ebi.biostd.persistence.projections.SimpleSubmission
-import ac.uk.ebi.biostd.persistence.projections.SimpleSubmission.Companion.asSimpleSubmission
+import ac.uk.ebi.biostd.persistence.pagination.OffsetPageRequest
 import ac.uk.ebi.biostd.persistence.repositories.SectionDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.SubmissionDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.SubmissionStatsDataRepository
+import ac.uk.ebi.biostd.persistence.repositories.data.ProjectSqlDataService.Companion.SIMPLE_GRAPH
+import ac.uk.ebi.biostd.persistence.repositories.data.ProjectSqlDataService.Companion.asSimpleSubmission
 import com.cosium.spring.data.jpa.entity.graph.domain.EntityGraphs
 import ebi.ac.uk.extended.mapping.to.toSimpleSubmission
 import ebi.ac.uk.extended.model.ExtSubmission
@@ -65,7 +66,7 @@ open class SubmissionRepository(
         val filterSpecs = SubmissionFilterSpecification(userId, filter)
         val pageable = PageRequest.of(filter.pageNumber, filter.limit, Sort.by(SUB_RELEASE_TIME).descending())
         return submissionRepository
-            .findAll(filterSpecs.specification, pageable, EntityGraphs.named(SimpleSubmission.SIMPLE_GRAPH))
+            .findAll(filterSpecs.specification, pageable, EntityGraphs.named(SIMPLE_GRAPH))
             .content
             .map { it.asSimpleSubmission() }
     }

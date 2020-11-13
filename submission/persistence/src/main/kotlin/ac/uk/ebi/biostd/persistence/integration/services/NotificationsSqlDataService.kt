@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.persistence.service
+package ac.uk.ebi.biostd.persistence.integration.services
 
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRT
 import ac.uk.ebi.biostd.persistence.common.service.NotificationsDataService

@@ -4,8 +4,8 @@ import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.files.service.UserFilesService
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.persistence.common.service.PersistenceService
+import ac.uk.ebi.biostd.persistence.common.service.ProjectDataService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
-import ac.uk.ebi.biostd.persistence.repositories.data.ProjectRepository
 import ac.uk.ebi.biostd.persistence.repositories.data.SubmissionRepository
 import ac.uk.ebi.biostd.submission.domain.helpers.SourceGenerator
 import ac.uk.ebi.biostd.submission.domain.service.ExtSubmissionService
@@ -58,9 +58,9 @@ class SubmissionConfig(
 
     @Bean
     fun projectService(
-        projectRepository: ProjectRepository,
+        projectSqlDataService: ProjectDataService,
         userPrivilegeService: IUserPrivilegesService
-    ): ProjectService = ProjectService(projectRepository, userPrivilegeService)
+    ): ProjectService = ProjectService(projectSqlDataService, userPrivilegeService)
 
     @Bean
     fun submitHandler(
