@@ -75,18 +75,16 @@ open class SqlPersistenceConfig(
     internal open fun persistenceService(
         submissionPersistenceService: SubmissionSqlPersistenceService,
         lockExecutor: LockExecutor,
-        dbSubmissionMapper: ToDbSubmissionMapper,
-        toExtSubmissionMapper: ToExtSubmissionMapper,
         fileSystemService: FileSystemService,
         sequenceRepository: SequenceDataRepository,
-        tagsDataRepository: AccessTagDataRepo
-    ): PersistenceService =
-        SqlPersistenceService(
-            submissionPersistenceService,
-            sequenceRepository,
-            tagsDataRepository,
-            lockExecutor
-        )
+        tagsDataRepository: AccessTagDataRepo,
+        submissionQueryService: SubmissionQueryService
+    ): PersistenceService = SqlPersistenceService(
+        submissionPersistenceService,
+        sequenceRepository,
+        tagsDataRepository,
+        submissionQueryService,
+        lockExecutor)
 
     @Bean
     internal open fun submissionPersistenceService(
@@ -96,13 +94,12 @@ open class SqlPersistenceConfig(
         systemService: FileSystemService,
         toExtMapper: ToExtSubmissionMapper,
         toDbSubmissionMapper: ToDbSubmissionMapper
-    ) = SubmissionSqlPersistenceService(
+    ): SubmissionSqlPersistenceService = SubmissionSqlPersistenceService(
         subRepository,
         subDataRepository,
         userDataRepository,
         systemService,
-        toDbSubmissionMapper
-    )
+        toDbSubmissionMapper)
 
     @Bean
     internal open fun toDbSubmissionMapper(

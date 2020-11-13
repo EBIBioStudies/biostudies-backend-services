@@ -2,6 +2,8 @@ package ac.uk.ebi.biostd.persistence.integration.services
 
 import ac.uk.ebi.biostd.persistence.common.request.SaveSubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.service.PersistenceService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
+import ac.uk.ebi.biostd.persistence.exception.SequenceNotFoundException
 import ac.uk.ebi.biostd.persistence.model.DbAccessTag
 import ac.uk.ebi.biostd.persistence.model.Sequence
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
@@ -16,6 +18,7 @@ internal open class SqlPersistenceService(
     private val submissionService: SubmissionSqlPersistenceService,
     private val sequenceRepository: SequenceDataRepository,
     private val accessTagsDataRepository: AccessTagDataRepo,
+    private val submissionQueryService: SubmissionQueryService,
     private val lockExecutor: LockExecutor
 ) : PersistenceService {
     override fun sequenceAccNoPatternExists(pattern: String): Boolean = sequenceRepository.existsByPrefix(pattern)
@@ -25,12 +28,13 @@ internal open class SqlPersistenceService(
     }
 
     @Transactional
-    override fun getSequenceNextValue(pattern: String): Long {
-        return lockExecutor.executeLocking(pattern) {
-            val sequence = sequenceRepository.getByPrefix(pattern)
-            sequence.counter.count = sequence.counter.count + 1
-            sequenceRepository.save(sequence).counter.count
-        }
+    override fun getSequenceNextValue(pattern: String): Long = lockExecutor.executeLocking(pattern) {
+        val sequence = sequenceRepository.findByPrefix(pattern) ?: throw SequenceNotFoundException(pattern)
+        var next = sequence.counter.count + 1
+        while (submissionQueryService.existByAccNo("${sequence.prefix}$next")) next++
+
+        sequence.counter.count = next
+        sequenceRepository.save(sequence).counter.count
     }
 
     /**
