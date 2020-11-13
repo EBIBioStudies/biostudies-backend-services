@@ -5,10 +5,10 @@ import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat.JsonFormat.JsonPretty
 import ac.uk.ebi.biostd.integration.SubFormat.TsvFormat.Tsv
 import ac.uk.ebi.biostd.integration.SubFormat.XmlFormat
+import ac.uk.ebi.biostd.persistence.common.model.SimpleSubmission
 import ac.uk.ebi.biostd.persistence.common.request.SaveSubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.filter.SubmissionFilter
-import ac.uk.ebi.biostd.persistence.projections.SimpleSubmission
 import ac.uk.ebi.biostd.persistence.repositories.data.SubmissionRepository
 import ac.uk.ebi.biostd.submission.exceptions.ConcurrentProcessingSubmissionException
 import ac.uk.ebi.biostd.submission.model.SubmissionRequest

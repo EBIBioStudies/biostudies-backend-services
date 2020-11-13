@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.persistence.integration
+package ac.uk.ebi.biostd.persistence.integration.services
 
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
@@ -8,7 +8,7 @@ import ebi.ac.uk.paths.SubmissionFolderResolver
 import java.time.OffsetDateTime
 
 @Suppress("TooManyFunctions")
-class SubmissionSqlQueryService(
+internal class SubmissionSqlQueryService(
     private val subRepository: SubmissionDataRepository,
     private val accessTagDataRepo: AccessTagDataRepo,
     private val folderResolver: SubmissionFolderResolver

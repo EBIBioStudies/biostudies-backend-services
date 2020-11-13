@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.persistence.integration
+package ac.uk.ebi.biostd.persistence.integration.services
 
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.exception.SequenceNotFoundException
@@ -6,7 +6,6 @@ import ac.uk.ebi.biostd.persistence.model.Sequence
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
 import ac.uk.ebi.biostd.persistence.repositories.MockLockExecutor
 import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
-import ac.uk.ebi.biostd.persistence.service.SubmissionSqlPersistenceService
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.impl.annotations.MockK

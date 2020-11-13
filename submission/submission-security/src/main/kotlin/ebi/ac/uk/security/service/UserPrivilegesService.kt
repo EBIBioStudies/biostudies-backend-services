@@ -5,9 +5,9 @@ import ac.uk.ebi.biostd.persistence.common.model.AccessType.ATTACH
 import ac.uk.ebi.biostd.persistence.common.model.AccessType.DELETE
 import ac.uk.ebi.biostd.persistence.common.model.AccessType.UPDATE
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
+import ac.uk.ebi.biostd.persistence.common.service.UserPermissionsService
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
-import ac.uk.ebi.biostd.persistence.service.UserSqlPermissionsService
 import ebi.ac.uk.model.constants.SubFields.PUBLIC_ACCESS_TAG
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import ebi.ac.uk.security.integration.exception.UserNotFoundByEmailException
@@ -17,7 +17,7 @@ internal class UserPrivilegesService(
     private val userRepository: UserDataRepository,
     private val tagsDataRepository: AccessTagDataRepo,
     private val submissionQueryService: SubmissionQueryService,
-    private val userPermissionsService: UserSqlPermissionsService
+    private val userPermissionsService: UserPermissionsService
 ) : IUserPrivilegesService {
     override fun canProvideAccNo(email: String) = isSuperUser(email)
 

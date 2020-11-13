@@ -16,7 +16,7 @@ import ebi.ac.uk.model.constants.ProcessingStatus
 
 private const val ROOT_SECTION_ORDER = 0
 
-class ToDbSubmissionMapper(
+internal class ToDbSubmissionMapper(
     private val tagsRepository: AccessTagDataRepo,
     private val tagsRefRepository: TagDataRepository,
     private var userRepository: UserDataRepository
