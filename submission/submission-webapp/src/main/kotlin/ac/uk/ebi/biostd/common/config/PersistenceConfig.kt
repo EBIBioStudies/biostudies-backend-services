@@ -1,7 +1,6 @@
 package ac.uk.ebi.biostd.common.config
 
 import ac.uk.ebi.biostd.integration.SerializationService
-import ac.uk.ebi.biostd.persistence.integration.config.SqlPersistenceConfig
 import ac.uk.ebi.biostd.persistence.service.filesystem.FileSystemService
 import ac.uk.ebi.biostd.persistence.service.filesystem.FilesService
 import ac.uk.ebi.biostd.persistence.service.filesystem.FtpFilesService
@@ -12,7 +11,7 @@ import org.springframework.context.annotation.Import
 
 @Suppress("TooManyFunctions")
 @Configuration
-@Import(SqlPersistenceConfig::class)
+@Import(ac.uk.ebi.biostd.persistence.integration.config.SqlPersistenceConfig::class)
 class PersistenceConfig(
     private val folderResolver: SubmissionFolderResolver,
     private val serializationService: SerializationService
