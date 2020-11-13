@@ -5,13 +5,22 @@ import java.time.OffsetDateTime
 
 interface SubmissionQueryService {
     fun getParentAccPattern(accNo: String): String?
+
     fun isNew(accNo: String): Boolean
+
     fun getSecret(accNo: String): String?
+
     fun getAccessTags(accNo: String): List<String>
+
     fun getReleaseTime(accNo: String): OffsetDateTime?
+
     fun existByAccNo(accNo: String): Boolean
+
     fun findCreationTime(accNo: String): OffsetDateTime?
+
     fun getCurrentFolder(accNo: String): File?
+
     fun getOwner(accNo: String): String?
+
     fun isProcessing(accNo: String): Boolean
 }

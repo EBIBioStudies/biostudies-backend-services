@@ -89,6 +89,12 @@ interface SubmissionDataRepository :
 
     @Query("select s.accNo as accNo, s.version as version from DbSubmission s where s.version > 0 ")
     fun getIds(pageRequest: Pageable): Page<SubmissionId>
+
+    @Query("""
+        select count(s.id) from DbSubmission s
+        where s.accNo = :accNo and s.version > 0 and s.status <> 'PROCESSED'
+    """)
+    fun getProcessingCount(accNo: String): Int
 }
 
 interface SectionDataRepository : JpaRepository<DbSection, Long> {
