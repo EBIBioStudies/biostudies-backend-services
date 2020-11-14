@@ -30,7 +30,7 @@ include("submission:submission-config")
 
 include("submission:persistence-common-api")
 include('submission:persistence-common')
-include("submission:persistence")
+include("submission:persistence-sql")
 
 include("scheduler:cluster-client")
 include("scheduler:pmc-processor-task")
