@@ -6,6 +6,8 @@ import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FileMode
 import org.springframework.data.domain.Page
+import java.io.File
+import java.time.OffsetDateTime
 
 interface SubmissionRequestService {
     fun saveAndProcessSubmissionRequest(saveRequest: SaveSubmissionRequest): ExtSubmission
@@ -26,4 +28,17 @@ interface SubmissionQueryService {
     fun expireSubmission(accNo: String)
     fun getExtendedSubmissions(offset: Long, limit: Int): Page<ExtSubmission>
     fun getSubmissionsByUser(userId: Long, filter: SubmissionFilter): List<SimpleSubmission>
+}
+
+interface SubmissionMetaQueryService {
+    fun getParentAccPattern(accNo: String): String?
+    fun isNew(accNo: String): Boolean
+    fun getSecret(accNo: String): String?
+    fun getAccessTags(accNo: String): List<String>
+    fun getReleaseTime(accNo: String): OffsetDateTime?
+    fun existByAccNo(accNo: String): Boolean
+    fun findCreationTime(accNo: String): OffsetDateTime?
+    fun getCurrentFolder(accNo: String): File?
+    fun getOwner(accNo: String): String?
+    fun isProcessing(accNo: String): Boolean
 }

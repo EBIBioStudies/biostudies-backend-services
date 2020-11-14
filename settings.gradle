@@ -26,7 +26,7 @@ include("submission:submission-security")
 include("submission:notifications")
 include("submission:stats")
 include("submission:submission-handlers")
-include("submission:persistence-common")
+include("submission:persistence-common-api")
 include("submission:persistence")
 include("submission:submission-config")
 

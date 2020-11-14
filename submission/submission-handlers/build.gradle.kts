@@ -20,7 +20,7 @@ dependencies {
     api(project(":commons:commons-util"))
     api(project(":submission:notifications"))
     api(project(":submission:submission-config"))
-    api(project(":submission:persistence-common"))
+    api(project(":submission:persistence-common-api"))
     api(project(":submission:persistence"))
 
     implementation(JacksonKotlin)

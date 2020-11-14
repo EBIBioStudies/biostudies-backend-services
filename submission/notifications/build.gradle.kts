@@ -13,7 +13,7 @@ import TestDependencies.BaseTestRuntimeDependencies
 dependencies {
     api(project(":commons:commons-model-extended"))
     api(project(":submission:submission-config"))
-    api(project(":submission:persistence-common"))
+    api(project(":submission:persistence-common-api"))
     api(project(":submission:persistence"))
 
     api(project(":commons:commons-test"))
