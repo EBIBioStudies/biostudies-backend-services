@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.submission.service
 
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.persistence.exception.ProjectNotFoundException
 import ac.uk.ebi.biostd.submission.exceptions.ProjectInvalidAccessTagException
 import ebi.ac.uk.model.constants.SubFields.PUBLIC_ACCESS_TAG
@@ -15,7 +15,7 @@ import java.time.OffsetDateTime
 import java.time.ZoneOffset
 
 @ExtendWith(MockKExtension::class)
-class ParentInfoServiceTest(@MockK private val queryService: SubmissionQueryService) {
+class ParentInfoServiceTest(@MockK private val queryService: SubmissionMetaQueryService) {
     private val testInstance = ParentInfoService(queryService)
 
     @Test

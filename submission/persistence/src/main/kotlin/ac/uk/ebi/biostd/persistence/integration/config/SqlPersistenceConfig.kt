@@ -1,9 +1,8 @@
 package ac.uk.ebi.biostd.persistence.integration.config
 
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
-import ac.uk.ebi.biostd.persistence.common.service.PersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.ProjectDataService
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.persistence.common.service.UserPermissionsService
 import ac.uk.ebi.biostd.persistence.integration.services.SqlPersistenceService
 import ac.uk.ebi.biostd.persistence.integration.services.SubmissionSqlPersistenceService
@@ -68,7 +67,7 @@ open class SqlPersistenceConfig(
     internal open fun submissionQueryService(
         submissionDataRepository: SubmissionDataRepository,
         accessTagDataRepo: AccessTagDataRepo
-    ): SubmissionQueryService =
+    ): SubmissionMetaQueryService =
         SubmissionSqlQueryService(submissionDataRepository, accessTagDataRepo, folderResolver)
 
     @Bean
@@ -80,7 +79,7 @@ open class SqlPersistenceConfig(
         fileSystemService: FileSystemService,
         sequenceRepository: SequenceDataRepository,
         tagsDataRepository: AccessTagDataRepo
-    ): PersistenceService =
+    ): SqlPersistenceService =
         SqlPersistenceService(
             submissionPersistenceService,
             sequenceRepository,

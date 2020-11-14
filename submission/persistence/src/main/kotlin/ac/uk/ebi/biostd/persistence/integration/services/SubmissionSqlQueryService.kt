@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.persistence.integration.services
 
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
 import ac.uk.ebi.biostd.persistence.repositories.SubmissionDataRepository
 import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSED
@@ -13,7 +13,7 @@ internal class SubmissionSqlQueryService(
     private val subRepository: SubmissionDataRepository,
     private val accessTagDataRepo: AccessTagDataRepo,
     private val folderResolver: SubmissionFolderResolver
-) : SubmissionQueryService {
+) : SubmissionMetaQueryService {
     override fun getParentAccPattern(accNo: String): String? {
         return subRepository.getBasicWithAttributes(accNo)
             .attributes.firstOrNull { it.name == SubFields.ACC_NO_TEMPLATE.value }

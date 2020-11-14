@@ -1,8 +1,9 @@
 package ac.uk.ebi.biostd.persistence.repositories.data
 
 import ac.uk.ebi.biostd.persistence.common.model.SimpleSubmission
+import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.exception.SubmissionNotFoundException
-import ac.uk.ebi.biostd.persistence.filter.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.filter.SubmissionFilterSpecification
 import ac.uk.ebi.biostd.persistence.mapping.extended.to.DbToExtRequest
 import ac.uk.ebi.biostd.persistence.mapping.extended.to.ToExtSubmissionMapper
@@ -15,9 +16,7 @@ import ac.uk.ebi.biostd.persistence.repositories.SubmissionStatsDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.data.ProjectSqlDataService.Companion.SIMPLE_GRAPH
 import ac.uk.ebi.biostd.persistence.repositories.data.ProjectSqlDataService.Companion.asSimpleSubmission
 import com.cosium.spring.data.jpa.entity.graph.domain.EntityGraphs
-import ebi.ac.uk.extended.mapping.to.toSimpleSubmission
 import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.model.Submission
 import mu.KotlinLogging
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
@@ -29,26 +28,21 @@ private val logger = KotlinLogging.logger {}
 private val defaultOrder = Order.asc("id")
 
 @Suppress("TooManyFunctions")
-open class SubmissionRepository(
+internal open class SubmissionRepository(
     private val submissionRepository: SubmissionDataRepository,
     private val sectionRepository: SectionDataRepository,
     private val statsRepository: SubmissionStatsDataRepository,
     private var submissionMapper: ToExtSubmissionMapper
-) {
-    @Transactional(readOnly = true)
-    open fun getDbSubmission(accNo: String, version: Int): DbSubmission = lodSubmission(accNo, version)
+) : SubmissionQueryService {
 
     @Transactional(readOnly = true)
-    open fun getSimpleByAccNo(accNo: String): Submission = getExtByAccNo(accNo).toSimpleSubmission()
+    override fun getExtByAccNo(accNo: String) = submissionMapper.toExtSubmission(loadSubmissionAndStatus(accNo))
 
     @Transactional(readOnly = true)
-    open fun getExtByAccNo(accNo: String) = submissionMapper.toExtSubmission(dbToExtRequest(accNo))
+    override fun getExtByAccNoAndVersion(accNo: String, version: Int) =
+        submissionMapper.toExtSubmission(loadSubmissionAndStatus(accNo, version))
 
-    @Transactional(readOnly = true)
-    open fun getExtByAccNoAndVersion(accNo: String, version: Int) =
-        submissionMapper.toExtSubmission(dbToExtRequest(accNo, version))
-
-    open fun expireSubmission(accNo: String) {
+    override fun expireSubmission(accNo: String) {
         val submission = submissionRepository.findByAccNoAndVersionGreaterThan(accNo)
         if (submission != null) {
             submission.version = -submission.version
@@ -57,12 +51,12 @@ open class SubmissionRepository(
     }
 
     @Transactional(readOnly = true)
-    open fun getExtendedSubmissions(offset: Long, limit: Int): Page<ExtSubmission> =
+    override fun getExtendedSubmissions(offset: Long, limit: Int): Page<ExtSubmission> =
         submissionRepository
             .getIds(OffsetPageRequest(offset, limit, Sort.by(defaultOrder)))
             .map { getExtByAccNoAndVersion(it.accNo, it.version) }
 
-    open fun getSubmissionsByUser(userId: Long, filter: SubmissionFilter): List<SimpleSubmission> {
+    override fun getSubmissionsByUser(userId: Long, filter: SubmissionFilter): List<SimpleSubmission> {
         val filterSpecs = SubmissionFilterSpecification(userId, filter)
         val pageable = PageRequest.of(filter.pageNumber, filter.limit, Sort.by(SUB_RELEASE_TIME).descending())
         return submissionRepository
@@ -71,7 +65,7 @@ open class SubmissionRepository(
             .map { it.asSimpleSubmission() }
     }
 
-    private fun dbToExtRequest(accNo: String, version: Int? = null): DbToExtRequest =
+    private fun loadSubmissionAndStatus(accNo: String, version: Int? = null): DbToExtRequest =
         DbToExtRequest(lodSubmission(accNo, version), statsRepository.findByAccNo(accNo))
 
     /**

@@ -149,6 +149,9 @@ interface UserDataDataRepository : JpaRepository<DbUserData, UserDataId> {
     @Query("Delete from DbUserData where userId = ?1 and key = ?2")
     @Modifying
     fun deleteByUserIdAndKey(userId: Long, key: String)
+
+    @Modifying
+    fun deleteByUserEmailAndKey(email: String, key: String)
 }
 
 interface SubmissionStatsDataRepository : PagingAndSortingRepository<DbSubmissionStat, Long> {

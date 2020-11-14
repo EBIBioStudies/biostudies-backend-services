@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.submission.service
 
 import ac.uk.ebi.biostd.persistence.common.service.PersistenceService
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.submission.exceptions.ProvideAccessNumber
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotSubmitToProjectException
 import ac.uk.ebi.biostd.submission.util.AccNoPatternUtil
@@ -28,7 +28,7 @@ private const val PROJECT_PATTERN = "!{ABC-}"
 @ExtendWith(MockKExtension::class)
 class AccNoServiceTest(
     @MockK private val service: PersistenceService,
-    @MockK private val submissionQueryService: SubmissionQueryService,
+    @MockK private val submissionQueryService: SubmissionMetaQueryService,
     @MockK private val privilegesService: IUserPrivilegesService
 ) {
     private val accNoPatternUtil: AccNoPatternUtil = AccNoPatternUtil()

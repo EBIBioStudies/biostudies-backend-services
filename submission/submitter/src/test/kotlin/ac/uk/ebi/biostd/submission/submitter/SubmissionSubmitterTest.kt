@@ -1,8 +1,8 @@
 package ac.uk.ebi.biostd.submission.submitter
 
 import ac.uk.ebi.biostd.persistence.common.request.SaveSubmissionRequest
-import ac.uk.ebi.biostd.persistence.common.service.PersistenceService
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestService
 import ac.uk.ebi.biostd.submission.exceptions.ConcurrentProcessingSubmissionException
 import ac.uk.ebi.biostd.submission.model.SubmissionRequest
 import ac.uk.ebi.biostd.submission.service.AccNoService
@@ -61,9 +61,9 @@ class SubmissionSubmitterTest {
     private val timesService = mockk<TimesService>()
     private val accNoService = mockk<AccNoService>()
     private val parentInfoService = mockk<ParentInfoService>()
-    private val queryService = mockk<SubmissionQueryService>()
+    private val queryService = mockk<SubmissionMetaQueryService>()
     private val projectInfoService = mockk<ProjectInfoService>()
-    private val persistenceContext = mockk<PersistenceService>()
+    private val submissionRequestService = mockk<SubmissionRequestService>()
 
     private val timesRequest = slot<TimesRequest>()
     private val saveRequest = slot<SaveSubmissionRequest>()
@@ -71,7 +71,7 @@ class SubmissionSubmitterTest {
     private val accNoServiceRequest = slot<AccNoServiceRequest>()
 
     private val testInstance = SubmissionSubmitter(
-        timesService, accNoService, parentInfoService, projectInfoService, persistenceContext, queryService)
+        timesService, accNoService, parentInfoService, projectInfoService, submissionRequestService, queryService)
 
     @BeforeEach
     fun beforeEach() {
@@ -125,18 +125,18 @@ class SubmissionSubmitterTest {
     fun `process request`(@MockK extSubmission: ExtSubmission) {
         val saveRequest = SaveSubmissionRequest(extSubmission, COPY)
         every { extSubmission.accNo } returns "S-TEST123"
-        every { persistenceContext.processSubmission(saveRequest) } returns extSubmission
+        every { submissionRequestService.processSubmission(saveRequest) } returns extSubmission
 
         testInstance.processRequest(saveRequest)
 
-        verify(exactly = 1) { persistenceContext.processSubmission(saveRequest) }
+        verify(exactly = 1) { submissionRequestService.processSubmission(saveRequest) }
     }
 
     @Test
     fun `submit async`(@MockK extSubmission: ExtSubmission) {
         val saveRequestSlot = slot<SaveSubmissionRequest>()
         every { extSubmission.accNo } returns "S-TEST123"
-        every { persistenceContext.saveSubmissionRequest(capture(saveRequestSlot)) } returns extSubmission
+        every { submissionRequestService.saveSubmissionRequest(capture(saveRequestSlot)) } returns extSubmission
 
         testInstance.submitAsync(
             SubmissionRequest(submission, testUser(notificationsEnabled = false), sources, PAGE_TAB, COPY))
@@ -145,7 +145,7 @@ class SubmissionSubmitterTest {
         assertExtendedSubmission()
 
         verifyProcessServices()
-        verify(exactly = 1) { persistenceContext.saveSubmissionRequest(saveRequestSlot.captured) }
+        verify(exactly = 1) { submissionRequestService.saveSubmissionRequest(saveRequestSlot.captured) }
     }
 
     @Test
@@ -214,7 +214,7 @@ class SubmissionSubmitterTest {
     }
 
     private fun verifyPersistenceContextSync() = verify(exactly = 1) {
-        persistenceContext.saveAndProcessSubmissionRequest(saveRequest.captured)
+        submissionRequestService.saveAndProcessSubmissionRequest(saveRequest.captured)
     }
 
     private fun mockServices() {
@@ -230,7 +230,7 @@ class SubmissionSubmitterTest {
     }
 
     private fun mockPersistenceContext() {
-        every { persistenceContext.saveAndProcessSubmissionRequest(capture(saveRequest)) } returns mockk()
+        every { submissionRequestService.saveAndProcessSubmissionRequest(capture(saveRequest)) } returns mockk()
     }
 
     private fun testUser(notificationsEnabled: Boolean) = SecurityUser(

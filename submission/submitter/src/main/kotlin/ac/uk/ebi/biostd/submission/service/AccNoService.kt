@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.submission.service
 
 import ac.uk.ebi.biostd.persistence.common.service.PersistenceService
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.submission.exceptions.ProvideAccessNumber
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotSubmitToProjectException
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotUpdateSubmit
@@ -14,7 +14,7 @@ const val PATH_DIGITS = 3
 
 class AccNoService(
     private val service: PersistenceService,
-    private val queryService: SubmissionQueryService,
+    private val queryService: SubmissionMetaQueryService,
     private val patternUtil: AccNoPatternUtil,
     private val privilegesService: IUserPrivilegesService
 ) {

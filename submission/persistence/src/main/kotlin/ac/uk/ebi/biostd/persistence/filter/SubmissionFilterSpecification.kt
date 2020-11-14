@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.persistence.filter
 
+import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.model.DbSection
 import ac.uk.ebi.biostd.persistence.model.DbSubmission
 import ac.uk.ebi.biostd.persistence.model.DbUser

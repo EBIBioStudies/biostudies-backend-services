@@ -1,12 +1,12 @@
 package ac.uk.ebi.biostd.submission.service
 
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.persistence.exception.ProjectNotFoundException
 import ac.uk.ebi.biostd.submission.exceptions.ProjectInvalidAccessTagException
 import ebi.ac.uk.model.constants.SubFields
 import java.time.OffsetDateTime
 
-class ParentInfoService(private val queryService: SubmissionQueryService) {
+class ParentInfoService(private val queryService: SubmissionMetaQueryService) {
     fun getParentInfo(parentAccNo: String?): ParentInfo = when (parentAccNo) {
         null -> ParentInfo(emptyList(), null, null)
         else -> parentInfo(parentAccNo)

@@ -3,7 +3,7 @@ package ac.uk.ebi.biostd.persistence.common.service
 import java.io.File
 import java.time.OffsetDateTime
 
-interface SubmissionQueryService {
+interface SubmissionMetaQueryService {
     fun getParentAccPattern(accNo: String): String?
     fun isNew(accNo: String): Boolean
     fun getSecret(accNo: String): String?

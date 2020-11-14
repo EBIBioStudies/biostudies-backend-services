@@ -1,7 +1,7 @@
 package ebi.ac.uk.security.service
 
 import ac.uk.ebi.biostd.persistence.common.model.AccessType
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.persistence.common.service.UserPermissionsService
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
@@ -25,7 +25,7 @@ class UserPrivilegesServiceTest(
     @MockK private val otherAuthor: UserDB,
     @MockK private val superuser: UserDB,
     @MockK private val userRepository: UserDataRepository,
-    @MockK private val queryService: SubmissionQueryService,
+    @MockK private val queryService: SubmissionMetaQueryService,
     @MockK private val tagsDataRepository: AccessTagDataRepo,
     @MockK private val userPermissionsService: UserPermissionsService
 ) {

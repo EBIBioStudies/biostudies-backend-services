@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.common.config
 
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
-import ac.uk.ebi.biostd.persistence.filter.PaginationFilter
+import ac.uk.ebi.biostd.persistence.common.request.PaginationFilter
 import ac.uk.ebi.biostd.submission.converters.BioUser
 import com.google.common.base.Predicates.or
 import org.springframework.context.annotation.Bean

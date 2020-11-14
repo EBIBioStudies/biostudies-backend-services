@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.persistence.filter
+package ac.uk.ebi.biostd.persistence.common.request
 
 class SubmissionFilter(
     val accNo: String? = null,
