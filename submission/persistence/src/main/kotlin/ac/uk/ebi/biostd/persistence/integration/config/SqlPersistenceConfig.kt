@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.persistence.integration.config
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.persistence.common.service.ProjectDataService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.common.service.UserPermissionsService
 import ac.uk.ebi.biostd.persistence.integration.services.SqlPersistenceService
 import ac.uk.ebi.biostd.persistence.integration.services.SubmissionSqlPersistenceService
@@ -77,6 +78,7 @@ open class SqlPersistenceConfig(
         dbSubmissionMapper: ToDbSubmissionMapper,
         toExtSubmissionMapper: ToExtSubmissionMapper,
         fileSystemService: FileSystemService,
+        submissionQueryService: SubmissionQueryService,
         sequenceRepository: SequenceDataRepository,
         tagsDataRepository: AccessTagDataRepo
     ): SqlPersistenceService =
@@ -84,6 +86,7 @@ open class SqlPersistenceConfig(
             submissionPersistenceService,
             sequenceRepository,
             tagsDataRepository,
+            submissionQueryService,
             lockExecutor
         )
 
@@ -95,13 +98,12 @@ open class SqlPersistenceConfig(
         systemService: FileSystemService,
         toExtMapper: ToExtSubmissionMapper,
         toDbSubmissionMapper: ToDbSubmissionMapper
-    ) = SubmissionSqlPersistenceService(
+    ): SubmissionSqlPersistenceService = SubmissionSqlPersistenceService(
         subRepository,
         subDataRepository,
         userDataRepository,
         systemService,
-        toDbSubmissionMapper
-    )
+        toDbSubmissionMapper)
 
     @Bean
     internal open fun toDbSubmissionMapper(

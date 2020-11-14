@@ -20,6 +20,7 @@ interface SubmissionPersistenceService {
 }
 
 interface SubmissionQueryService {
+    fun existByAccNo(accNo: String): Boolean
     fun getExtByAccNo(accNo: String): ExtSubmission
     fun getExtByAccNoAndVersion(accNo: String, version: Int): ExtSubmission
     fun expireSubmission(accNo: String)

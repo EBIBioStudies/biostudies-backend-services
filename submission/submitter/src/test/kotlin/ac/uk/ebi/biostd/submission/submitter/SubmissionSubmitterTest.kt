@@ -41,7 +41,6 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
@@ -109,19 +108,6 @@ class SubmissionSubmitterTest {
     }
 
     @Test
-    fun `submit sync concurrent processing submission`() {
-        every { queryService.isProcessing("S-TEST123") } returns true
-
-        val exception = assertThrows<ConcurrentProcessingSubmissionException> {
-            testInstance.submit(
-                SubmissionRequest(submission, testUser(notificationsEnabled = false), sources, PAGE_TAB, COPY))
-        }
-
-        assertThat(exception.message).isEqualTo(
-            "Submission request can't be accepted. Another version for 'S-TEST123' is currently being processed.")
-    }
-
-    @Test
     fun `process request`(@MockK extSubmission: ExtSubmission) {
         val saveRequest = SaveSubmissionRequest(extSubmission, COPY)
         every { extSubmission.accNo } returns "S-TEST123"
@@ -146,19 +132,6 @@ class SubmissionSubmitterTest {
 
         verifyProcessServices()
         verify(exactly = 1) { submissionRequestService.saveSubmissionRequest(saveRequestSlot.captured) }
-    }
-
-    @Test
-    fun `submit async concurrent processing submission`() {
-        every { queryService.isProcessing("S-TEST123") } returns true
-
-        val exception = assertThrows<ConcurrentProcessingSubmissionException> {
-            testInstance.submitAsync(
-                SubmissionRequest(submission, testUser(notificationsEnabled = false), sources, PAGE_TAB, COPY))
-        }
-
-        assertThat(exception.message).isEqualTo(
-            "Submission request can't be accepted. Another version for 'S-TEST123' is currently being processed.")
     }
 
     private fun assertCapturedValues() {

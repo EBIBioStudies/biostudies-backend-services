@@ -51,9 +51,7 @@ class SubmissionSubmitter(
     private val queryService: SubmissionMetaQueryService
 ) {
     fun submit(request: SubmissionRequest): ExtSubmission {
-        val accNo = request.submission.accNo
         logger.info { "processing request $request" }
-        require(queryService.isProcessing(accNo).not()) { throw ConcurrentProcessingSubmissionException(accNo) }
 
         val submission = process(
             request.submission,
@@ -73,7 +71,6 @@ class SubmissionSubmitter(
 
     fun submitAsync(request: SubmissionRequest): SaveSubmissionRequest {
         logger.info { "processing async request $request" }
-        requireNotProcessing(request.submission.accNo)
 
         val submission = process(
             request.submission,
@@ -85,10 +82,6 @@ class SubmissionSubmitter(
         logger.info { "Saving submission request ${submission.accNo}" }
         val saveRequest = SaveSubmissionRequest(submission, request.mode)
         return SaveSubmissionRequest(submissionRequestService.saveSubmissionRequest(saveRequest), request.mode)
-    }
-
-    private fun requireNotProcessing(accNo: String) {
-        require(queryService.isProcessing(accNo).not()) { throw ConcurrentProcessingSubmissionException(accNo) }
     }
 
     @Suppress("TooGenericExceptionCaught")

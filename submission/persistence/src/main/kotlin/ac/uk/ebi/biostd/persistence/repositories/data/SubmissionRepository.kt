@@ -34,6 +34,8 @@ internal open class SubmissionRepository(
     private val statsRepository: SubmissionStatsDataRepository,
     private var submissionMapper: ToExtSubmissionMapper
 ) : SubmissionQueryService {
+    @Transactional(readOnly = true)
+    override fun existByAccNo(accNo: String): Boolean = submissionRepository.existsByAccNo(accNo)
 
     @Transactional(readOnly = true)
     override fun getExtByAccNo(accNo: String) = submissionMapper.toExtSubmission(loadSubmissionAndStatus(accNo))
