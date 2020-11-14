@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.persistence.service.filesystem
+package ac.uk.ebi.biostd.persistence.common.filesystem
 
 import ebi.ac.uk.io.FileUtils
 import ebi.ac.uk.io.RWXR_XR_X

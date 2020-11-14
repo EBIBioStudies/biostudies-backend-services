@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.persistence.test
+package ac.uk.ebi.biostd.persistence.common.filesystem
 
 import arrow.core.Either.Companion.left
 import ebi.ac.uk.extended.model.ExtFile

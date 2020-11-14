@@ -1,9 +1,9 @@
 package ac.uk.ebi.biostd.common.config
 
 import ac.uk.ebi.biostd.integration.SerializationService
-import ac.uk.ebi.biostd.persistence.service.filesystem.FileSystemService
-import ac.uk.ebi.biostd.persistence.service.filesystem.FilesService
-import ac.uk.ebi.biostd.persistence.service.filesystem.FtpFilesService
+import ac.uk.ebi.biostd.persistence.common.filesystem.FileSystemService
+import ac.uk.ebi.biostd.persistence.common.filesystem.FilesService
+import ac.uk.ebi.biostd.persistence.common.filesystem.FtpFilesService
 import ebi.ac.uk.paths.SubmissionFolderResolver
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration

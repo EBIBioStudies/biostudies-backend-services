@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.persistence.service.filesystem
+package ac.uk.ebi.biostd.persistence.common.filesystem
 
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FileMode

@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.persistence.service.filesystem
+package ac.uk.ebi.biostd.persistence.common.filesystem
 
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat
