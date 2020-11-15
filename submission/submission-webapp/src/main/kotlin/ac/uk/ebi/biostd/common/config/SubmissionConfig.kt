@@ -3,10 +3,10 @@ package ac.uk.ebi.biostd.common.config
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.files.service.UserFilesService
 import ac.uk.ebi.biostd.integration.SerializationService
-import ac.uk.ebi.biostd.persistence.common.service.PersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.ProjectDataService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
-import ac.uk.ebi.biostd.persistence.repositories.data.SubmissionRepository
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestService
 import ac.uk.ebi.biostd.submission.domain.helpers.SourceGenerator
 import ac.uk.ebi.biostd.submission.domain.service.ExtSubmissionService
 import ac.uk.ebi.biostd.submission.domain.service.ProjectService
@@ -33,10 +33,10 @@ class SubmissionConfig(
     @Bean
     @Suppress("LongParameterList")
     fun submissionService(
-        subRepository: SubmissionRepository,
+        subRepository: SubmissionQueryService,
         serializationService: SerializationService,
         userPrivilegeService: IUserPrivilegesService,
-        queryService: SubmissionQueryService,
+        queryService: SubmissionMetaQueryService,
         submissionSubmitter: SubmissionSubmitter,
         eventsPublisherService: EventsPublisherService,
         myRabbitTemplate: RabbitTemplate
@@ -51,10 +51,10 @@ class SubmissionConfig(
 
     @Bean
     fun extSubmissionService(
-        persistenceService: PersistenceService,
-        subRepository: SubmissionRepository,
+        submissionRequestService: SubmissionRequestService,
+        subRepository: SubmissionQueryService,
         userPrivilegeService: IUserPrivilegesService
-    ): ExtSubmissionService = ExtSubmissionService(persistenceService, subRepository, userPrivilegeService)
+    ): ExtSubmissionService = ExtSubmissionService(submissionRequestService, subRepository, userPrivilegeService)
 
     @Bean
     fun projectService(

@@ -7,10 +7,11 @@ import ac.uk.ebi.biostd.integration.SubFormat.TsvFormat.Tsv
 import ac.uk.ebi.biostd.integration.SubFormat.XmlFormat
 import ac.uk.ebi.biostd.persistence.common.model.SimpleSubmission
 import ac.uk.ebi.biostd.persistence.common.request.SaveSubmissionRequest
+import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
-import ac.uk.ebi.biostd.persistence.filter.SubmissionFilter
-import ac.uk.ebi.biostd.persistence.repositories.data.SubmissionRepository
 import ac.uk.ebi.biostd.submission.exceptions.ConcurrentProcessingSubmissionException
+import ac.uk.ebi.biostd.submission.ext.getSimpleByAccNo
 import ac.uk.ebi.biostd.submission.model.SubmissionRequest
 import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
 import ebi.ac.uk.extended.events.SubmissionRequestMessage
@@ -29,10 +30,10 @@ private val logger = KotlinLogging.logger {}
 
 @Suppress("TooManyFunctions")
 class SubmissionService(
-    private val subRepository: SubmissionRepository,
+    private val subRepository: SubmissionQueryService,
     private val serializationService: SerializationService,
     private val userPrivilegesService: IUserPrivilegesService,
-    private val queryService: SubmissionQueryService,
+    private val queryService: SubmissionMetaQueryService,
     private val submissionSubmitter: SubmissionSubmitter,
     private val eventsPublisherService: EventsPublisherService,
     private val myRabbitTemplate: RabbitTemplate

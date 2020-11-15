@@ -1,7 +1,7 @@
 package ebi.ac.uk.security.integration
 
 import ac.uk.ebi.biostd.common.properties.SecurityProperties
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.persistence.common.service.UserPermissionsService
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
 import ac.uk.ebi.biostd.persistence.repositories.TokenDataRepository
@@ -29,7 +29,7 @@ class SecurityModuleConfig(
     private val tokenRepo: TokenDataRepository,
     private val tagsDataRepository: AccessTagDataRepo,
     private val groupRepository: UserGroupDataRepository,
-    private val queryService: SubmissionQueryService,
+    private val queryService: SubmissionMetaQueryService,
     private val userPermissionsService: UserPermissionsService,
     private val eventsPublisherService: EventsPublisherService,
     private var props: SecurityProperties

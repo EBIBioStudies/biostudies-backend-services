@@ -5,7 +5,8 @@ import ac.uk.ebi.biostd.common.config.SubmitterConfig.ServiceConfig
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.integration.SerializationConfig
 import ac.uk.ebi.biostd.persistence.common.service.PersistenceService
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestService
 import ac.uk.ebi.biostd.submission.service.AccNoService
 import ac.uk.ebi.biostd.submission.service.ParentInfoService
 import ac.uk.ebi.biostd.submission.service.ProjectInfoService
@@ -31,14 +32,14 @@ class SubmitterConfig {
         accNoService: AccNoService,
         parentInfoService: ParentInfoService,
         projectInfoService: ProjectInfoService,
-        persistenceService: PersistenceService,
-        submissionQueryService: SubmissionQueryService
+        requestService: SubmissionRequestService,
+        submissionQueryService: SubmissionMetaQueryService
     ) = SubmissionSubmitter(
         timesService,
         accNoService,
         parentInfoService,
         projectInfoService,
-        persistenceService,
+        requestService,
         submissionQueryService)
 
     @Configuration
@@ -63,7 +64,7 @@ class SubmitterConfig {
     @Suppress("MagicNumber")
     class ServiceConfig(
         private val service: PersistenceService,
-        private val queryService: SubmissionQueryService,
+        private val queryService: SubmissionMetaQueryService,
         private val userPrivilegesService: IUserPrivilegesService
     ) {
         @Bean

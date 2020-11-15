@@ -1,8 +1,8 @@
 package ac.uk.ebi.biostd.submission.submitter
 
 import ac.uk.ebi.biostd.persistence.common.request.SaveSubmissionRequest
-import ac.uk.ebi.biostd.persistence.common.service.PersistenceService
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestService
 import ac.uk.ebi.biostd.submission.exceptions.InvalidSubmissionException
 import ac.uk.ebi.biostd.submission.model.SubmissionRequest
 import ac.uk.ebi.biostd.submission.service.AccNoService
@@ -46,8 +46,8 @@ class SubmissionSubmitter(
     private val accNoService: AccNoService,
     private val parentInfoService: ParentInfoService,
     private val projectInfoService: ProjectInfoService,
-    private val service: PersistenceService,
-    private val queryService: SubmissionQueryService
+    private val submissionRequestService: SubmissionRequestService,
+    private val queryService: SubmissionMetaQueryService
 ) {
     fun submit(request: SubmissionRequest): ExtSubmission {
         logger.info { "processing request $request" }
@@ -60,12 +60,12 @@ class SubmissionSubmitter(
             request.method)
 
         logger.info { "Saving submission ${submission.accNo}" }
-        return service.saveAndProcessSubmissionRequest(SaveSubmissionRequest(submission, request.mode))
+        return submissionRequestService.saveAndProcessSubmissionRequest(SaveSubmissionRequest(submission, request.mode))
     }
 
     fun processRequest(request: SaveSubmissionRequest): ExtSubmission {
         logger.info { "processing request for submission ${request.submission.accNo} " }
-        return service.processSubmission(request)
+        return submissionRequestService.processSubmission(request)
     }
 
     fun submitAsync(request: SubmissionRequest): SaveSubmissionRequest {
@@ -80,8 +80,7 @@ class SubmissionSubmitter(
 
         logger.info { "Saving submission request ${submission.accNo}" }
         val saveRequest = SaveSubmissionRequest(submission, request.mode)
-
-        return SaveSubmissionRequest(service.saveSubmissionRequest(saveRequest), request.mode)
+        return SaveSubmissionRequest(submissionRequestService.saveSubmissionRequest(saveRequest), request.mode)
     }
 
     @Suppress("TooGenericExceptionCaught")

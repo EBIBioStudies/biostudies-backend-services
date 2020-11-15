@@ -1,8 +1,8 @@
 package ac.uk.ebi.biostd.submission.domain.service
 
 import ac.uk.ebi.biostd.persistence.common.request.SaveSubmissionRequest
-import ac.uk.ebi.biostd.persistence.common.service.PersistenceService
-import ac.uk.ebi.biostd.persistence.repositories.data.SubmissionRepository
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestService
 import ac.uk.ebi.biostd.submission.web.model.ExtPageRequest
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FileMode.COPY
@@ -10,8 +10,8 @@ import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import org.springframework.data.domain.Page
 
 class ExtSubmissionService(
-    private val persistenceService: PersistenceService,
-    private val submissionRepository: SubmissionRepository,
+    private val persistenceService: SubmissionRequestService,
+    private val submissionRepository: SubmissionQueryService,
     private val userPrivilegesService: IUserPrivilegesService
 ) {
     fun getExtendedSubmission(accNo: String): ExtSubmission = submissionRepository.getExtByAccNo(accNo)

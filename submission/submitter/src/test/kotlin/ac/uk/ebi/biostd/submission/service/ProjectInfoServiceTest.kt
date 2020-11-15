@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.submission.service
 
 import ac.uk.ebi.biostd.persistence.common.service.PersistenceService
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.submission.exceptions.ProjectAccNoTemplateAlreadyExistsException
 import ac.uk.ebi.biostd.submission.exceptions.ProjectAlreadyExistingException
 import ac.uk.ebi.biostd.submission.exceptions.ProjectInvalidAccNoPatternException
@@ -25,7 +25,7 @@ import kotlin.test.assertNull
 @ExtendWith(MockKExtension::class)
 class ProjectInfoServiceTest(
     @MockK private val service: PersistenceService,
-    @MockK private val queryService: SubmissionQueryService,
+    @MockK private val queryService: SubmissionMetaQueryService,
     @MockK private val accNoUtil: AccNoPatternUtil,
     @MockK private val privilegesService: IUserPrivilegesService
 ) {

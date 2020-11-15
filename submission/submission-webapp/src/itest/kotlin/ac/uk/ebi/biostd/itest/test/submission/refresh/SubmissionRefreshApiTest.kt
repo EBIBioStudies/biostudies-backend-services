@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.model.DbSubmission
 import ac.uk.ebi.biostd.persistence.model.DbSubmissionAttribute
 import ac.uk.ebi.biostd.persistence.model.DbTag
@@ -13,7 +14,6 @@ import ac.uk.ebi.biostd.persistence.model.Sequence
 import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.SubmissionDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.TagDataRepository
-import ac.uk.ebi.biostd.persistence.repositories.data.SubmissionRepository
 import arrow.core.Either
 import ebi.ac.uk.dsl.attribute
 import ebi.ac.uk.dsl.file
@@ -62,13 +62,13 @@ internal class SubmissionRefreshApiTest(private val tempFolder: TemporaryFolder)
     @DirtiesContext
     inner class SubmissionRefreshApiTest(
         @Autowired val securityTestService: SecurityTestService,
-        @Autowired val submissionRepository: SubmissionRepository,
+        @Autowired val submissionRepository: SubmissionQueryService,
         @Autowired val submissionDataRepository: SubmissionDataRepository,
         @Autowired val sequenceRepository: SequenceDataRepository,
         @Autowired val tagsRefRepository: TagDataRepository
     ) {
         private val releaseDate = LocalDate.of(2017, 7, 4).atStartOfDay().atOffset(ZoneOffset.UTC)
-        private val newReleaseDate = LocalDate.now().atStartOfDay().atOffset(ZoneOffset.UTC).plusDays(1)
+        private val newReleaseDate = LocalDate.now(ZoneOffset.UTC).atStartOfDay().atOffset(ZoneOffset.UTC).plusDays(1)
 
         @LocalServerPort
         private var serverPort: Int = 0

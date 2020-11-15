@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.submission.service
 
 import ac.uk.ebi.biostd.persistence.common.service.PersistenceService
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.submission.exceptions.ProjectAccNoTemplateAlreadyExistsException
 import ac.uk.ebi.biostd.submission.exceptions.ProjectAlreadyExistingException
 import ac.uk.ebi.biostd.submission.exceptions.ProjectInvalidAccNoPatternException
@@ -14,7 +14,7 @@ internal const val ACC_NO_TEMPLATE_INVALID = "The given AccNoTemplate is invalid
 
 class ProjectInfoService(
     private val service: PersistenceService,
-    private val queryService: SubmissionQueryService,
+    private val queryService: SubmissionMetaQueryService,
     private val accNoUtil: AccNoPatternUtil,
     private val privilegesService: IUserPrivilegesService
 ) {
