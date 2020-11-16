@@ -44,7 +44,14 @@ class SubmitWebHandler(
 
     private fun buildRequest(request: ContentSubmitWebRequest): SubmissionRequest {
         val sub = serializationService.deserializeSubmission(request.submission, request.format)
-        val source = sources(sub, request.submitter, request.files)
+        submissionService.requireNotProcessing(sub.accNo)
+
+        val source = sourceGenerator.submissionSources(RequestSources(
+            user = request.submitter,
+            files = request.files,
+            rootPath = sub.rootPath,
+            subFolder = subFolder(sub.accNo)
+        ))
         val submission = withAttributes(submission(request.submission, request.format, source), request.attrs)
         return SubmissionRequest(
             submission = submission,
@@ -58,7 +65,14 @@ class SubmitWebHandler(
 
     private fun buildRequest(request: FileSubmitWebRequest): SubmissionRequest {
         val sub = serializationService.deserializeSubmission(request.submission)
-        val source = sources(sub, request.submitter, request.files.plus(request.submission))
+        submissionService.requireNotProcessing(sub.accNo)
+
+        val source = sourceGenerator.submissionSources(RequestSources(
+            user = request.submitter,
+            files = request.files.plus(request.submission),
+            rootPath = sub.rootPath,
+            subFolder = subFolder(sub.accNo)
+        ))
         val submission = withAttributes(submission(request.submission, source), request.attrs)
         userFilesService.uploadFile(request.submitter, DIRECT_UPLOAD_PATH, request.submission)
         return SubmissionRequest(
@@ -73,8 +87,9 @@ class SubmitWebHandler(
 
     fun refreshSubmission(request: RefreshWebRequest): Submission {
         val submission = submissionService.getSubmission(request.accNo).toSimpleSubmission()
-        val source = sources(submission)
+        submissionService.requireNotProcessing(submission.accNo)
 
+        val source = sourceGenerator.submissionSources(RequestSources(subFolder = subFolder(submission.accNo)))
         return submissionService.submit(SubmissionRequest(
             submission = submission,
             submitter = request.user,
@@ -86,17 +101,6 @@ class SubmitWebHandler(
 
     private fun getOnBehalfUser(request: OnBehalfRequest): SecurityUser =
         securityService.getOrRegisterUser(request.asRegisterRequest())
-
-    private fun sources(
-        submission: Submission,
-        user: SecurityUser? = null,
-        files: List<File> = emptyList()
-    ): FilesSource = sourceGenerator.submissionSources(RequestSources(
-        user = user,
-        files = files,
-        rootPath = submission.rootPath,
-        subFolder = subFolder(submission.accNo)
-    ))
 
     private fun withAttributes(submission: Submission, attrs: Map<String, String>): Submission {
         attrs.forEach { submission[it.key] = it.value }

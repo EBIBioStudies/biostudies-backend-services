@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.stats.web
 
-import ac.uk.ebi.biostd.persistence.filter.PaginationFilter
-import ac.uk.ebi.biostd.persistence.model.SubmissionStatType
+import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType
+import ac.uk.ebi.biostd.persistence.common.request.PaginationFilter
 import ac.uk.ebi.biostd.stats.web.handlers.StatsFileHandler
 import ac.uk.ebi.biostd.submission.domain.service.TempFileGenerator
 import ebi.ac.uk.model.constants.MULTIPART_FORM_DATA

@@ -7,9 +7,9 @@ import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
 import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
-import ac.uk.ebi.biostd.persistence.repositories.data.SubmissionRepository
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.line
 import ebi.ac.uk.dsl.tsv
@@ -40,7 +40,7 @@ internal class ProjectSubmitTest(tempFolder: TemporaryFolder) : BaseIntegrationT
     inner class ProjectSubmitTest(
         @Autowired val securityTestService: SecurityTestService,
         @Autowired val tagsDataRepository: AccessTagDataRepo,
-        @Autowired val submissionRepository: SubmissionRepository,
+        @Autowired val submissionRepository: SubmissionQueryService,
         @Autowired val sequenceRepository: SequenceDataRepository
     ) {
         @LocalServerPort

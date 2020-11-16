@@ -6,12 +6,12 @@ import ebi.ac.uk.test.clean
 import ebi.ac.uk.test.createFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
-import java.nio.file.Files.getPosixFilePermissions
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import java.nio.file.Files.getPosixFilePermissions
 
 @ExtendWith(TemporaryFolderExtension::class)
 internal class FileUtilsTest(private val temporaryFolder: TemporaryFolder) {
@@ -261,7 +261,7 @@ internal class FileUtilsTest(private val temporaryFolder: TemporaryFolder) {
             val innerFolder = temporaryFolder.createDirectory("listing-test/inner-folder")
 
             assertThat(FileUtils.listFiles(file1)).isEmpty()
-            assertThat(FileUtils.listFiles(folder)).contains(innerFolder, file1, file2)
+            assertThat(FileUtils.listFiles(folder)).containsExactlyInAnyOrder(innerFolder, file1, file2)
         }
     }
 }

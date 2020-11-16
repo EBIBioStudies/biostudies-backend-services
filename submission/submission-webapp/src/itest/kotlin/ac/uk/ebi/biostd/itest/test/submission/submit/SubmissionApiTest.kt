@@ -11,11 +11,12 @@ import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.RegularUser
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.factory.invalidLinkUrl
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.model.DbTag
 import ac.uk.ebi.biostd.persistence.model.Sequence
 import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.TagDataRepository
-import ac.uk.ebi.biostd.persistence.repositories.data.SubmissionRepository
+import ac.uk.ebi.biostd.submission.ext.getSimpleByAccNo
 import ebi.ac.uk.api.dto.UserRegistration
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.file
@@ -53,7 +54,7 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
     @DirtiesContext
     inner class SubmissionApiTest(
         @Autowired val securityTestService: SecurityTestService,
-        @Autowired val submissionRepository: SubmissionRepository,
+        @Autowired val submissionRepository: SubmissionQueryService,
         @Autowired val sequenceRepository: SequenceDataRepository,
         @Autowired val tagsRefRepository: TagDataRepository,
         @Autowired val groupService: IGroupService
@@ -125,6 +126,32 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
                     section("Study") { file("DataFile5.txt") }
                 }
             )
+        }
+
+        @Test
+        fun `re submit a submission with rootPath`() {
+            val rootPath = "The-RootPath"
+            val dataFile = "DataFile7.txt"
+
+            val submission = tsv {
+                line("Submission", "S-356789")
+                line("Title", "Sample Submission")
+                line("RootPath", rootPath)
+                line()
+
+                line("Study")
+                line()
+
+                line("File", "DataFile7.txt")
+                line()
+            }.toString()
+
+            webClient.uploadFiles(listOf(tempFolder.createFile("DataFile7.txt")), rootPath)
+            assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
+
+            webClient.deleteFile(dataFile, rootPath)
+
+            assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
         }
 
         @Test

@@ -4,7 +4,7 @@ import ac.uk.ebi.biostd.itest.factory.allInOneSubmission
 import ac.uk.ebi.biostd.itest.factory.assertAllInOneSubmissionJson
 import ac.uk.ebi.biostd.itest.factory.assertAllInOneSubmissionTsv
 import ac.uk.ebi.biostd.itest.factory.assertAllInOneSubmissionXml
-import ac.uk.ebi.biostd.persistence.repositories.data.SubmissionRepository
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ebi.ac.uk.extended.mapping.to.toSimpleSubmission
 import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.ExtSubmission
@@ -14,7 +14,7 @@ import java.nio.file.Paths
 
 internal class AllInOneSubmissionHelper(
     private val submissionPath: String,
-    private val submissionRepository: SubmissionRepository
+    private val submissionRepository: SubmissionQueryService
 ) {
     internal fun assertSavedSubmission(accNo: String, method: ExtSubmissionMethod = ExtSubmissionMethod.PAGE_TAB) {
         val extendedSubmission = submissionRepository.getExtByAccNo(accNo)

@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.submission.service
 
-import ac.uk.ebi.biostd.persistence.integration.SubmissionQueryService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.submission.exceptions.InvalidDateFormatException
 import java.time.Instant
 import java.time.LocalDate
@@ -11,7 +11,7 @@ import java.time.ZoneOffset
 /**
  * Calculates the submission release date based on current state of the submission in the system. Calculation rules.
  */
-class TimesService(private val queryService: SubmissionQueryService) {
+class TimesService(private val queryService: SubmissionMetaQueryService) {
     internal fun getTimes(request: TimesRequest): Times {
         val now = OffsetDateTime.now()
         val creationTime = queryService.findCreationTime(request.accNo) ?: now

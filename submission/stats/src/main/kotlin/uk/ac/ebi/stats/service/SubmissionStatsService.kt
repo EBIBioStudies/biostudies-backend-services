@@ -1,10 +1,10 @@
 package uk.ac.ebi.stats.service
 
+import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType
+import ac.uk.ebi.biostd.persistence.common.request.PaginationFilter
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.persistence.exception.SubmissionNotFoundException
-import ac.uk.ebi.biostd.persistence.filter.PaginationFilter
-import ac.uk.ebi.biostd.persistence.integration.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.model.DbSubmissionStat
-import ac.uk.ebi.biostd.persistence.model.SubmissionStatType
 import ac.uk.ebi.biostd.persistence.repositories.SubmissionStatsDataRepository
 import org.springframework.data.domain.PageRequest
 import org.springframework.transaction.annotation.Transactional
@@ -15,7 +15,7 @@ import uk.ac.ebi.stats.model.SubmissionStat
 
 @SuppressWarnings("TooManyFunctions")
 open class SubmissionStatsService(
-    private val submissionQueryService: SubmissionQueryService,
+    private val submissionQueryService: SubmissionMetaQueryService,
     private val statsRepository: SubmissionStatsDataRepository
 ) {
     open fun findByType(submissionStatType: SubmissionStatType, filter: PaginationFilter): List<SubmissionStat> =

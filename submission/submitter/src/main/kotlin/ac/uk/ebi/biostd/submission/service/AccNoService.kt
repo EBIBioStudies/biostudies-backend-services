@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.submission.service
 
-import ac.uk.ebi.biostd.persistence.integration.PersistenceContext
-import ac.uk.ebi.biostd.persistence.integration.SubmissionQueryService
+import ac.uk.ebi.biostd.persistence.common.service.PersistenceService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.submission.exceptions.ProvideAccessNumber
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotSubmitToProjectException
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotUpdateSubmit
@@ -13,8 +13,8 @@ const val DEFAULT_PATTERN = "!{S-BSST}"
 const val PATH_DIGITS = 3
 
 class AccNoService(
-    private val context: PersistenceContext,
-    private val queryService: SubmissionQueryService,
+    private val service: PersistenceService,
+    private val queryService: SubmissionMetaQueryService,
     private val patternUtil: AccNoPatternUtil,
     private val privilegesService: IUserPrivilegesService
 ) {
@@ -43,7 +43,7 @@ class AccNoService(
         }
     }
 
-    private fun calculateAccNo(pattern: String) = AccNumber(pattern, context.getSequenceNextValue(pattern).toString())
+    private fun calculateAccNo(pattern: String) = AccNumber(pattern, service.getSequenceNextValue(pattern).toString())
 
     @Suppress("MagicNumber")
     internal fun getRelPath(accNo: AccNumber): String {

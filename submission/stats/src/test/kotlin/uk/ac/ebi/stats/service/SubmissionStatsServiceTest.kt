@@ -1,10 +1,10 @@
 package uk.ac.ebi.stats.service
 
+import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType.VIEWS
+import ac.uk.ebi.biostd.persistence.common.request.PaginationFilter
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.persistence.exception.SubmissionNotFoundException
-import ac.uk.ebi.biostd.persistence.filter.PaginationFilter
-import ac.uk.ebi.biostd.persistence.integration.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.model.DbSubmissionStat
-import ac.uk.ebi.biostd.persistence.model.SubmissionStatType.VIEWS
 import ac.uk.ebi.biostd.persistence.repositories.SubmissionStatsDataRepository
 import io.mockk.clearAllMocks
 import io.mockk.every
@@ -25,7 +25,7 @@ import uk.ac.ebi.stats.model.SubmissionStat
 
 @ExtendWith(MockKExtension::class)
 class SubmissionStatsServiceTest(
-    @MockK private val queryService: SubmissionQueryService,
+    @MockK private val queryService: SubmissionMetaQueryService,
     @MockK private val statsRepository: SubmissionStatsDataRepository
 ) {
     private val testStat = DbSubmissionStat("S-TEST123", 10, VIEWS)

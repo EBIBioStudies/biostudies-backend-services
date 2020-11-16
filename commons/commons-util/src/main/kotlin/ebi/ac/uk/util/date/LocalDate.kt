@@ -1,10 +1,8 @@
 package ebi.ac.uk.util.date
 
 import java.time.Instant
-import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.time.ZoneOffset.UTC
-import java.time.temporal.ChronoUnit
 import java.time.temporal.ChronoUnit.DAYS
 
 fun Instant.asOffsetAtStartOfDay(): OffsetDateTime = atOffset(UTC).toLocalDate().atStartOfDay().atOffset(UTC)

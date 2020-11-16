@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.submission.service
 
-import ac.uk.ebi.biostd.persistence.integration.PersistenceContext
-import ac.uk.ebi.biostd.persistence.integration.SubmissionQueryService
+import ac.uk.ebi.biostd.persistence.common.service.PersistenceService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.submission.exceptions.ProvideAccessNumber
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotSubmitToProjectException
 import ac.uk.ebi.biostd.submission.util.AccNoPatternUtil
@@ -27,12 +27,12 @@ private const val PROJECT_PATTERN = "!{ABC-}"
 
 @ExtendWith(MockKExtension::class)
 class AccNoServiceTest(
-    @MockK private val context: PersistenceContext,
-    @MockK private val submissionQueryService: SubmissionQueryService,
+    @MockK private val service: PersistenceService,
+    @MockK private val submissionQueryService: SubmissionMetaQueryService,
     @MockK private val privilegesService: IUserPrivilegesService
 ) {
     private val accNoPatternUtil: AccNoPatternUtil = AccNoPatternUtil()
-    private val testInstance = AccNoService(context, submissionQueryService, accNoPatternUtil, privilegesService)
+    private val testInstance = AccNoService(service, submissionQueryService, accNoPatternUtil, privilegesService)
 
     @ParameterizedTest(name = "prefix is {0} and numeric value is {1}")
     @CsvSource(
@@ -99,7 +99,7 @@ class AccNoServiceTest(
             @Test
             fun whenParent() {
                 every { privilegesService.canSubmitToProject(SUBMITTER, PROJECT) } returns true
-                every { context.getSequenceNextValue("ABC-") } returns 10
+                every { service.getSequenceNextValue("ABC-") } returns 10
 
                 assertThat(testInstance.getAccNo(AccNoServiceRequest(
                     submitter = SUBMITTER,
@@ -112,7 +112,7 @@ class AccNoServiceTest(
             fun whenNoParent() {
                 every { privilegesService.canProvideAccNo(SUBMITTER) } returns true
                 every { privilegesService.canSubmitToProject(SUBMITTER, PROJECT) } returns true
-                every { context.getSequenceNextValue("S-BSST") } returns 99
+                every { service.getSequenceNextValue("S-BSST") } returns 99
 
                 assertThat(testInstance.getAccNo(AccNoServiceRequest(
                     submitter = SUBMITTER,

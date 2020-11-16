@@ -1,8 +1,8 @@
 package ac.uk.ebi.biostd.submission.domain.service
 
-import ac.uk.ebi.biostd.persistence.integration.PersistenceContext
-import ac.uk.ebi.biostd.persistence.integration.SaveRequest
-import ac.uk.ebi.biostd.persistence.repositories.data.SubmissionRepository
+import ac.uk.ebi.biostd.persistence.common.request.SaveSubmissionRequest
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestService
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FileMode.COPY
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
@@ -19,11 +19,11 @@ import org.junit.jupiter.api.extension.ExtendWith
 @ExtendWith(MockKExtension::class)
 class ExtSubmissionServiceTest(
     @MockK private val extSubmission: ExtSubmission,
-    @MockK private val persistenceContext: PersistenceContext,
-    @MockK private val submissionRepository: SubmissionRepository,
+    @MockK private val requestService: SubmissionRequestService,
+    @MockK private val submissionRepository: SubmissionQueryService,
     @MockK private val userPrivilegesService: IUserPrivilegesService
 ) {
-    private val testInstance = ExtSubmissionService(persistenceContext, submissionRepository, userPrivilegesService)
+    private val testInstance = ExtSubmissionService(requestService, submissionRepository, userPrivilegesService)
 
     @BeforeEach
     fun beforeEach() {
@@ -40,8 +40,8 @@ class ExtSubmissionServiceTest(
 
     @Test
     fun `submit extended`() {
-        val saveRequest = slot<SaveRequest>()
-        every { persistenceContext.saveAndProcessSubmissionRequest(capture(saveRequest)) } returns extSubmission
+        val saveRequest = slot<SaveSubmissionRequest>()
+        every { requestService.saveAndProcessSubmissionRequest(capture(saveRequest)) } returns extSubmission
 
         val submitted = testInstance.submitExtendedSubmission("user@mail.com", extSubmission)
         assertThat(submitted).isEqualTo(extSubmission)

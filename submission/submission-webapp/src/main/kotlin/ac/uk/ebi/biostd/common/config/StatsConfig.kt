@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.common.config
 
-import ac.uk.ebi.biostd.persistence.integration.SubmissionQueryService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.persistence.repositories.SubmissionStatsDataRepository
 import ac.uk.ebi.biostd.stats.web.handlers.StatsFileHandler
 import org.springframework.context.annotation.Bean
@@ -9,7 +9,7 @@ import uk.ac.ebi.stats.service.SubmissionStatsService
 
 @Configuration
 class StatsConfig(
-    private val submissionQueryService: SubmissionQueryService,
+    private val submissionQueryService: SubmissionMetaQueryService,
     private val submissionStatsRepository: SubmissionStatsDataRepository
 ) {
     @Bean

@@ -1,10 +1,10 @@
 package ac.uk.ebi.biostd.handlers.listeners
 
-import ac.uk.ebi.biostd.handlers.config.SUBMIT_NOTIFICATIONS_QUEUE
+import ac.uk.ebi.biostd.common.properties.NotificationProperties
 import ac.uk.ebi.biostd.handlers.api.BioStudiesWebConsumer
 import ac.uk.ebi.biostd.handlers.config.RELEASE_NOTIFICATIONS_QUEUE
+import ac.uk.ebi.biostd.handlers.config.SUBMIT_NOTIFICATIONS_QUEUE
 import ebi.ac.uk.extended.events.SubmissionMessage
-import ebi.ac.uk.notifications.integration.NotificationProperties
 import ebi.ac.uk.notifications.service.RtNotificationService
 import mu.KotlinLogging
 import org.springframework.amqp.rabbit.annotation.RabbitListener

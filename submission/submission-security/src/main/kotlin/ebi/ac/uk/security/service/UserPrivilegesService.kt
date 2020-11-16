@@ -1,12 +1,13 @@
 package ebi.ac.uk.security.service
 
-import ac.uk.ebi.biostd.persistence.integration.SubmissionQueryService
-import ac.uk.ebi.biostd.persistence.model.AccessType
-import ac.uk.ebi.biostd.persistence.model.AccessType.ATTACH
-import ac.uk.ebi.biostd.persistence.model.AccessType.UPDATE
+import ac.uk.ebi.biostd.persistence.common.model.AccessType
+import ac.uk.ebi.biostd.persistence.common.model.AccessType.ATTACH
+import ac.uk.ebi.biostd.persistence.common.model.AccessType.DELETE
+import ac.uk.ebi.biostd.persistence.common.model.AccessType.UPDATE
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
+import ac.uk.ebi.biostd.persistence.common.service.UserPermissionsService
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
-import ac.uk.ebi.biostd.persistence.service.UserPermissionsService
 import ebi.ac.uk.model.constants.SubFields.PUBLIC_ACCESS_TAG
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import ebi.ac.uk.security.integration.exception.UserNotFoundByEmailException
@@ -15,7 +16,7 @@ import ebi.ac.uk.security.integration.exception.UserNotFoundByEmailException
 internal class UserPrivilegesService(
     private val userRepository: UserDataRepository,
     private val tagsDataRepository: AccessTagDataRepo,
-    private val submissionQueryService: SubmissionQueryService,
+    private val submissionQueryService: SubmissionMetaQueryService,
     private val userPermissionsService: UserPermissionsService
 ) : IUserPrivilegesService {
     override fun canProvideAccNo(email: String) = isSuperUser(email)
@@ -44,7 +45,7 @@ internal class UserPrivilegesService(
     override fun canDelete(submitter: String, accNo: String) =
         isSuperUser(submitter)
             .or(isAuthor(submissionQueryService.getOwner(accNo), submitter))
-            .or(hasPermissions(submitter, submissionQueryService.getAccessTags(accNo), AccessType.DELETE))
+            .or(hasPermissions(submitter, submissionQueryService.getAccessTags(accNo), DELETE))
 
     private fun hasPermissions(user: String, accessTags: List<String>, accessType: AccessType): Boolean {
         val tags = accessTags.filter { it != PUBLIC_ACCESS_TAG.value }

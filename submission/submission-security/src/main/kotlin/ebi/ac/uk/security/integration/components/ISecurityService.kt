@@ -11,26 +11,15 @@ import ebi.ac.uk.security.integration.model.api.UserInfo
 
 @Suppress("TooManyFunctions")
 interface ISecurityService {
-
     fun registerUser(request: RegisterRequest): SecurityUser
-
     fun getUser(email: String): SecurityUser
-
     fun login(request: LoginRequest): UserInfo
-
     fun logout(authToken: String)
-
     fun activate(activationKey: String)
-
     fun retryRegistration(request: RetryActivationRequest)
-
     fun changePassword(request: ChangePasswordRequest)
-
     fun resetPassword(request: ResetPasswordRequest)
-
     fun getUserProfile(authToken: String): UserInfo
-
     fun getOrCreateInactive(email: String, username: String): SecurityUser
-
     fun getOrRegisterUser(request: GetOrRegisterUserRequest): SecurityUser
 }
