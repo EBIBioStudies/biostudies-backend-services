@@ -51,5 +51,5 @@ class ExtSubmissionClient(
             .toUriString()
 
     private inline fun <reified T> ResponseEntity<String>.deserialized(): T =
-        map { body -> extSerializationService.deserialize<T>(body) }.body!!
+        map { body -> extSerializationService.deserialize(body, T::class.java) }.body!!
 }

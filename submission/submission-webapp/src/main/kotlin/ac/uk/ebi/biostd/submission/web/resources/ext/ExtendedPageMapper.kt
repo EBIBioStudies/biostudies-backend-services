@@ -17,8 +17,7 @@ class ExtendedPageMapper(private val instanceBase: URI) {
             offset = page.pageable.offset,
             limit = page.pageable.pageSize,
             next = getNext(page, request),
-            previous = getPrevious(page, request)
-        )
+            previous = getPrevious(page, request))
 
     private fun getPrevious(page: Page<ExtSubmission>, request: ExtPageRequest): String? =
         if (page.hasPrevious()) instanceBase.resolve(asUrl(page.previousPageable(), request)).toString() else null
@@ -26,10 +25,10 @@ class ExtendedPageMapper(private val instanceBase: URI) {
     private fun getNext(page: Page<ExtSubmission>, request: ExtPageRequest): String? =
         if (page.hasNext()) instanceBase.resolve(asUrl(page.nextPageable(), request)).toString() else null
 
-    private fun asUrl(next: Pageable, request: ExtPageRequest): String =
+    private fun asUrl(pageable: Pageable, request: ExtPageRequest): String =
         UriComponentsBuilder.fromUriString("$instanceBase/submissions/extended")
-            .queryParam("offset", next.offset)
-            .queryParam("limit", next.pageSize)
+            .queryParam("offset", pageable.offset)
+            .queryParam("limit", pageable.pageSize)
             .optionalQueryParam("fromRTime", request.fromRTime)
             .optionalQueryParam("toRTime", request.toRTime)
             .build()

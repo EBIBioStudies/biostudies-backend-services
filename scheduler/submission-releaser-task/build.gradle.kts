@@ -4,6 +4,8 @@ import Dependencies.SpringWeb
 import SpringBootDependencies.SpringBootAmqp
 import SpringBootDependencies.SpringBootStarter
 import SpringBootDependencies.SpringBootStarterConfigProcessor
+import TestDependencies.BaseTestCompileDependencies
+import TestDependencies.BaseTestRuntimeDependencies
 import org.springframework.boot.gradle.tasks.bundling.BootJar
 
 plugins {
@@ -25,6 +27,9 @@ dependencies {
     implementation(SpringBootStarter)
     implementation(SpringWeb)
     implementation(SpringBootStarterConfigProcessor)
+
+    BaseTestCompileDependencies.forEach { testImplementation(it) }
+    BaseTestRuntimeDependencies.forEach { testImplementation(it) }
 }
 
 tasks.named<BootJar>("bootJar") {

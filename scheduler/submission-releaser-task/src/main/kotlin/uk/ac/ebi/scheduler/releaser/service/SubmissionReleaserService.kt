@@ -29,9 +29,13 @@ class SubmissionReleaserService(
 
     fun releaseDailySubmissions() {
         val today = Instant.now()
-        logger.info { "releasing from ${ today.asOffsetAtStartOfDay() } to ${ today.asOffsetAtEndOfDay() }" }
-        val query = ExtPageQuery(fromRTime = today.asOffsetAtStartOfDay(), toRTime = today.asOffsetAtEndOfDay())
-        bioWebClient.getExtSubmissionsAsSequence(query).forEach(::releaseSubmission)
+        val from = today.asOffsetAtStartOfDay()
+        val to = today.asOffsetAtEndOfDay()
+
+        logger.info { "Releasing submissions from $from to $to" }
+        bioWebClient
+            .getExtSubmissionsAsSequence(ExtPageQuery(fromRTime = from, toRTime = to))
+            .forEach(::releaseSubmission)
     }
 
     private fun releaseSubmission(extSubmission: ExtSubmission) {
@@ -42,9 +46,13 @@ class SubmissionReleaserService(
     }
 
     private fun notifyRelease(date: Instant) {
-        logger.info { "notifying from ${ date.asOffsetAtStartOfDay() } to ${ date.asOffsetAtEndOfDay() }" }
-        val query = ExtPageQuery(fromRTime = date.asOffsetAtStartOfDay(), toRTime = date.asOffsetAtEndOfDay())
-        bioWebClient.getExtSubmissionsAsSequence(query).forEach(::notify)
+        val from = date.asOffsetAtStartOfDay()
+        val to = date.asOffsetAtEndOfDay()
+
+        logger.info { "Notifying submissions releases from $from to $to" }
+        bioWebClient
+            .getExtSubmissionsAsSequence(ExtPageQuery(fromRTime = from, toRTime = to))
+            .forEach(::notify)
     }
 
     private fun notify(extSubmission: ExtSubmission) {

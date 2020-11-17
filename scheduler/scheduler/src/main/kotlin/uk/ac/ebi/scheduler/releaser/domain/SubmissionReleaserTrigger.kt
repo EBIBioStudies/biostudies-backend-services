@@ -3,7 +3,7 @@ package uk.ac.ebi.scheduler.releaser.domain
 import ac.uk.ebi.cluster.client.lsf.ClusterOperations
 import ac.uk.ebi.cluster.client.model.Job
 import ac.uk.ebi.cluster.client.model.JobSpec
-import ac.uk.ebi.cluster.client.model.MemorySpec
+import ac.uk.ebi.cluster.client.model.MemorySpec.Companion.EIGHT_GB
 import ac.uk.ebi.cluster.client.model.logsPath
 import ac.uk.ebi.scheduler.properties.ReleaserMode
 import ac.uk.ebi.scheduler.properties.ReleaserMode.NOTIFY
@@ -16,8 +16,8 @@ import uk.ac.ebi.scheduler.common.SYSTEM_NAME
 import uk.ac.ebi.scheduler.common.properties.AppProperties
 import uk.ac.ebi.scheduler.releaser.api.SubmissionReleaserProperties as SchedulerReleaserProps
 
-private const val RELEASER_CORES = 4
-private const val RELEASER_SUBSYSTEM = "Submission Releaser"
+internal const val RELEASER_CORES = 4
+internal const val RELEASER_SUBSYSTEM = "Submission Releaser"
 
 private val logger = KotlinLogging.logger {}
 
@@ -51,9 +51,9 @@ class SubmissionReleaserTrigger(
         val releaserProperties = getConfigProperties(mode, properties)
         val jobTry = clusterOperations.triggerJob(
             JobSpec(
-                RELEASER_CORES,
-                MemorySpec.EIGHT_GB,
-                releaserProperties.asJavaCommand(appProperties.appsFolder)))
+                cores = RELEASER_CORES,
+                ram = EIGHT_GB,
+                command = releaserProperties.asJavaCommand(appProperties.appsFolder)))
 
         return jobTry.fold({ throw it }, { it.apply { logger.info { "submitted job $it" } } })
     }

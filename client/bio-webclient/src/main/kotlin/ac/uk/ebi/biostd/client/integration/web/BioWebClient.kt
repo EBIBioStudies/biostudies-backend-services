@@ -11,7 +11,7 @@ import org.springframework.web.util.DefaultUriBuilderFactory
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import java.nio.charset.StandardCharsets
 
-class BioWebClient private constructor(
+class BioWebClient internal constructor(
     private val submissionClient: SubmissionClient
 ) : SubmissionClient by submissionClient {
     companion object {

@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.submission.web.resources
+package ac.uk.ebi.biostd.submission.web.resources.ext
 
 import ac.uk.ebi.biostd.security.web.ExtUserResource
 import ac.uk.ebi.biostd.security.domain.service.ExtUserService

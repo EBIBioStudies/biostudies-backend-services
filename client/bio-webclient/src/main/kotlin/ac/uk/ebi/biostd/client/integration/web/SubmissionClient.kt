@@ -95,10 +95,7 @@ interface DraftSubmissionOperations {
 
 interface ExtSubmissionOperations {
     fun getExtSubmissions(extPageQuery: ExtPageQuery): ExtPage
-
     fun getExtSubmissionsPage(pageUrl: String): ExtPage
-
     fun getExtByAccNo(accNo: String): ExtSubmission
-
     fun submitExt(extSubmission: ExtSubmission): ExtSubmission
 }

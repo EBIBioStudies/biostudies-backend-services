@@ -37,4 +37,3 @@ include("scheduler:pmc-processor-task")
 include("scheduler:submission-releaser-task")
 include("scheduler:scheduler")
 include("scheduler:task-properties")
-
