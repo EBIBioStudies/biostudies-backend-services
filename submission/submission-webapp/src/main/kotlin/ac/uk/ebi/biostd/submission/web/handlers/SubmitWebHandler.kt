@@ -44,6 +44,8 @@ class SubmitWebHandler(
 
     private fun buildRequest(request: ContentSubmitWebRequest): SubmissionRequest {
         val sub = serializationService.deserializeSubmission(request.submission, request.format)
+        submissionService.requireNotProcessing(sub.accNo)
+
         val source = sourceGenerator.submissionSources(RequestSources(
             user = request.submitter,
             files = request.files,
@@ -63,6 +65,8 @@ class SubmitWebHandler(
 
     private fun buildRequest(request: FileSubmitWebRequest): SubmissionRequest {
         val sub = serializationService.deserializeSubmission(request.submission)
+        submissionService.requireNotProcessing(sub.accNo)
+
         val source = sourceGenerator.submissionSources(RequestSources(
             user = request.submitter,
             files = request.files.plus(request.submission),
@@ -83,6 +87,8 @@ class SubmitWebHandler(
 
     fun refreshSubmission(request: RefreshWebRequest): Submission {
         val submission = submissionService.getSubmission(request.accNo).toSimpleSubmission()
+        submissionService.requireNotProcessing(submission.accNo)
+
         val source = sourceGenerator.submissionSources(RequestSources(subFolder = subFolder(submission.accNo)))
         return submissionService.submit(SubmissionRequest(
             submission = submission,
