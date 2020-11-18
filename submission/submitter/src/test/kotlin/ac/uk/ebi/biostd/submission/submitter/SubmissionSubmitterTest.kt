@@ -3,7 +3,6 @@ package ac.uk.ebi.biostd.submission.submitter
 import ac.uk.ebi.biostd.persistence.integration.PersistenceContext
 import ac.uk.ebi.biostd.persistence.integration.SaveRequest
 import ac.uk.ebi.biostd.persistence.integration.SubmissionQueryService
-import ac.uk.ebi.biostd.submission.exceptions.ConcurrentProcessingSubmissionException
 import ac.uk.ebi.biostd.submission.model.SubmissionRequest
 import ac.uk.ebi.biostd.submission.service.AccNoService
 import ac.uk.ebi.biostd.submission.service.AccNoServiceRequest
@@ -41,7 +40,6 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
@@ -109,19 +107,6 @@ class SubmissionSubmitterTest {
     }
 
     @Test
-    fun `submit sync concurrent processing submission`() {
-        every { queryService.isProcessing("S-TEST123") } returns true
-
-        val exception = assertThrows<ConcurrentProcessingSubmissionException> {
-            testInstance.submit(
-                SubmissionRequest(submission, testUser(notificationsEnabled = false), sources, PAGE_TAB, COPY))
-        }
-
-        assertThat(exception.message).isEqualTo(
-            "Submission request can't be accepted. Another version for 'S-TEST123' is currently being processed.")
-    }
-
-    @Test
     fun `process request`(@MockK extSubmission: ExtSubmission) {
         val saveRequest = SaveRequest(extSubmission, COPY)
         every { extSubmission.accNo } returns "S-TEST123"
@@ -146,19 +131,6 @@ class SubmissionSubmitterTest {
 
         verifyProcessServices()
         verify(exactly = 1) { persistenceContext.saveSubmissionRequest(saveRequestSlot.captured) }
-    }
-
-    @Test
-    fun `submit async concurrent processing submission`() {
-        every { queryService.isProcessing("S-TEST123") } returns true
-
-        val exception = assertThrows<ConcurrentProcessingSubmissionException> {
-            testInstance.submitAsync(
-                SubmissionRequest(submission, testUser(notificationsEnabled = false), sources, PAGE_TAB, COPY))
-        }
-
-        assertThat(exception.message).isEqualTo(
-            "Submission request can't be accepted. Another version for 'S-TEST123' is currently being processed.")
     }
 
     private fun assertCapturedValues() {

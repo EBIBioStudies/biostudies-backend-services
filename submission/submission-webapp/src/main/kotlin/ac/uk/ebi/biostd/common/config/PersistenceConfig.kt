@@ -97,19 +97,21 @@ class PersistenceConfig(
     fun lockExecutor(): LockExecutor = JdbcLockExecutor(template)
 
     @Bean
+    @Suppress("LongParameterList")
     fun persistenceContext(
         submissionPersistenceService: SubmissionPersistenceService,
         lockExecutor: LockExecutor,
         dbSubmissionMapper: ToDbSubmissionMapper,
         toExtSubmissionMapper: ToExtSubmissionMapper,
-        fileSystemService: FileSystemService
+        fileSystemService: FileSystemService,
+        submissionQueryService: SubmissionQueryService
     ): PersistenceContext =
         PersistenceContextImpl(
             submissionPersistenceService,
             sequenceRepository,
             tagsDataRepository,
-            lockExecutor
-        )
+            submissionQueryService,
+            lockExecutor)
 
     @Bean
     @Suppress("LongParameterList")

@@ -2,7 +2,6 @@ package ac.uk.ebi.biostd.persistence.integration
 
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
 import ac.uk.ebi.biostd.persistence.repositories.SubmissionDataRepository
-import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSED
 import ebi.ac.uk.model.constants.SubFields
 import ebi.ac.uk.paths.SubmissionFolderResolver
 import java.time.OffsetDateTime
@@ -35,10 +34,7 @@ class SubmissionSqlQueryService(
 
     override fun getOwner(accNo: String): String? = getLatestSubmitted(accNo)?.owner?.email
 
-    override fun isProcessing(accNo: String): Boolean {
-        val submission = subRepository.findBasic(accNo)
-        return submission != null && submission.status != PROCESSED
-    }
+    override fun isProcessing(accNo: String): Boolean = subRepository.getProcessingCount(accNo) > 0
 
     private fun getSubmission(accNo: String) = subRepository.getBasic(accNo)
 
