@@ -31,6 +31,7 @@ class ExtendedPageMapper(private val instanceBase: URI) {
             .queryParam("limit", pageable.pageSize)
             .optionalQueryParam("fromRTime", request.fromRTime)
             .optionalQueryParam("toRTime", request.toRTime)
+            .optionalQueryParam("released", request.released)
             .build()
             .toUriString()
 }

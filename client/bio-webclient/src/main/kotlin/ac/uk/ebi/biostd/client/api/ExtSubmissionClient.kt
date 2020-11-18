@@ -47,6 +47,7 @@ class ExtSubmissionClient(
             .queryParam("limit", extPageQuery.limit)
             .optionalQueryParam("fromRTime", extPageQuery.fromRTime?.toStringInstant())
             .optionalQueryParam("toRTime", extPageQuery.toRTime?.toStringInstant())
+            .optionalQueryParam("released", extPageQuery.released)
             .build()
             .toUriString()
 

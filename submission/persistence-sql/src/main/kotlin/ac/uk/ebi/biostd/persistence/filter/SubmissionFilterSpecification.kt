@@ -8,6 +8,7 @@ import ac.uk.ebi.biostd.persistence.model.constants.SECTION_TYPE
 import ac.uk.ebi.biostd.persistence.model.constants.SUB_ACC_NO
 import ac.uk.ebi.biostd.persistence.model.constants.SUB_OWNER
 import ac.uk.ebi.biostd.persistence.model.constants.SUB_OWNER_ID
+import ac.uk.ebi.biostd.persistence.model.constants.SUB_RELEASED_FLAG
 import ac.uk.ebi.biostd.persistence.model.constants.SUB_RELEASE_TIME
 import ac.uk.ebi.biostd.persistence.model.constants.SUB_ROOT_SECTION
 import ac.uk.ebi.biostd.persistence.model.constants.SUB_TITLE
@@ -26,6 +27,7 @@ class SubmissionFilterSpecification(filter: SubmissionFilter, userId: Long? = nu
         filter.keywords?.applyIfNotBlank { specs = specs and (withTitleLike(it)) }
         filter.rTimeTo?.let { specs = specs and (withTo(OffsetDateTime.parse(it))) }
         filter.rTimeFrom?.let { specs = specs and (withFrom(OffsetDateTime.parse(it))) }
+        filter.released?.let { specs = specs and (withReleasedFlag(it)) }
         filter.type?.let { specs = specs and (withType(it)) }
         specification = specs
     }
@@ -56,16 +58,21 @@ class SubmissionFilterSpecification(filter: SubmissionFilter, userId: Long? = nu
         Specification { root, _, cb -> cb.equal(root.get<DbUser>(SUB_OWNER).get<Long>(SUB_OWNER_ID), userId) }
 
     private fun withFrom(from: OffsetDateTime): Specification<DbSubmission> =
-        Specification { root, _, cb -> cb.greaterThanOrEqualTo(root.get(SUB_RELEASE_TIME), from.toEpochSecond()) }
+        Specification { root, _, cb -> cb.and(
+            cb.greaterThanOrEqualTo(root.get<Long>(SUB_RELEASE_TIME), 0L),
+            cb.greaterThanOrEqualTo(root.get(SUB_RELEASE_TIME), from.toEpochSecond()))
+        }
 
     private fun withTo(to: OffsetDateTime): Specification<DbSubmission> =
-        Specification { root, _, cb -> cb.lessThanOrEqualTo(root.get(SUB_RELEASE_TIME), to.toEpochSecond()) }
+        Specification { root, _, cb -> cb.and(
+            cb.greaterThanOrEqualTo(root.get<Long>(SUB_RELEASE_TIME), 0L),
+            cb.lessThanOrEqualTo(root.get(SUB_RELEASE_TIME), to.toEpochSecond()))
+        }
+
+    private fun withReleasedFlag(released: Boolean): Specification<DbSubmission> =
+        Specification { root, _, cb -> cb.equal(root.get<Boolean>(SUB_RELEASED_FLAG), released) }
 }
 
-private fun <T> where(spec: Specification<T>): Specification<T> {
-    return Specification.where(spec)!!
-}
+private fun <T> where(spec: Specification<T>): Specification<T> = Specification.where(spec)!!
 
-private infix fun <T> Specification<T>.and(other: Specification<T>): Specification<T> {
-    return this.and(other)!!
-}
+private infix fun <T> Specification<T>.and(other: Specification<T>): Specification<T> = this.and(other)!!

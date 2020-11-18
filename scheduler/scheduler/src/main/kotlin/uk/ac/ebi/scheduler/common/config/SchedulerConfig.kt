@@ -17,7 +17,9 @@ import uk.ac.ebi.scheduler.releaser.domain.SubmissionReleaserTrigger
 @EnableScheduling
 internal class SchedulerConfig {
     @Bean
-    fun clusterOperations(sshProperties: SshProperties) = ClusterOperations.create(
+    fun clusterOperations(
+        sshProperties: SshProperties
+    ) = ClusterOperations.create(
         sshProperties.user,
         sshProperties.password,
         sshProperties.server)
@@ -41,7 +43,8 @@ internal class SchedulerConfig {
 
     @Bean
     fun scheduler(
+        appProperties: AppProperties,
         loaderService: PmcLoaderService,
         releaserTrigger: SubmissionReleaserTrigger
-    ): DailyScheduler = DailyScheduler(loaderService, releaserTrigger)
+    ): DailyScheduler = DailyScheduler(appProperties.dailyScheduling, loaderService, releaserTrigger)
 }

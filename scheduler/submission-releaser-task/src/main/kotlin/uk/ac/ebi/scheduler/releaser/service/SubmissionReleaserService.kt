@@ -28,18 +28,16 @@ class SubmissionReleaserService(
     }
 
     fun releaseDailySubmissions() {
-        val today = Instant.now()
-        val from = today.asOffsetAtStartOfDay()
-        val to = today.asOffsetAtEndOfDay()
+        val to = Instant.now().asOffsetAtEndOfDay()
+        logger.info { "Releasing submissions up to $to" }
 
-        logger.info { "Releasing submissions from $from to $to" }
         bioWebClient
-            .getExtSubmissionsAsSequence(ExtPageQuery(fromRTime = from, toRTime = to))
+            .getExtSubmissionsAsSequence(ExtPageQuery(toRTime = to, released = false))
             .forEach(::releaseSubmission)
     }
 
     private fun releaseSubmission(extSubmission: ExtSubmission) {
-        if (extSubmission.isProject.not().and(extSubmission.released.not())) {
+        if (extSubmission.isProject.not()) {
             logger.info { "Releasing submission ${extSubmission.accNo}" }
             bioWebClient.submitExt(extSubmission.copy(released = true))
         }
@@ -51,7 +49,7 @@ class SubmissionReleaserService(
 
         logger.info { "Notifying submissions releases from $from to $to" }
         bioWebClient
-            .getExtSubmissionsAsSequence(ExtPageQuery(fromRTime = from, toRTime = to))
+            .getExtSubmissionsAsSequence(ExtPageQuery(fromRTime = from, toRTime = to, released = false))
             .forEach(::notify)
     }
 

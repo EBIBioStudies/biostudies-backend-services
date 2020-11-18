@@ -2,6 +2,10 @@ app:
   apps-folder: # Folder where app jar can be located
   notificationsUrl: # Slack notifications URL
 
+  daily-scheduling:
+    pmc: # Indicate whether or not the PMC related tasks should be daily triggered
+    releaer: # Indicate whether or not the Submission Releaser related tasks should be daily triggered
+
   ssh:
     user: # ssh user
     password: # ssh user password
@@ -9,8 +13,8 @@ app:
 
 pmc:
   import:
-    temp:
-    mongoUri:
+    temp: # Temporary folder to place PMC imported files
+    mongoUri: # URI to mongo database used by the PMC import process
 
 releaser:
   bioStudies:

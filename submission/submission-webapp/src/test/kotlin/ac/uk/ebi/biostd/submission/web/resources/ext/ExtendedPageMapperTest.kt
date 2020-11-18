@@ -28,22 +28,24 @@ class ExtendedPageMapperTest {
     fun `as basic ext page`(
         @MockK currentPageable: Pageable,
         @MockK extSubmission: ExtSubmission,
-        @MockK currentPage: Page<ExtSubmission>
+        @MockK currentPage: Page<ExtSubmission>,
+        @MockK nextPageable: Pageable
     ) {
-        val request = ExtPageRequest(offset = 1, limit = 1)
+        val request = ExtPageRequest(offset = 1, limit = 1, released = true)
 
-        every { currentPage.hasNext() } returns false
+        every { currentPage.hasNext() } returns true
         every { currentPage.hasPrevious() } returns false
+        mockNextPage(currentPage, nextPageable)
         mockCurrentPage(currentPage, currentPageable, extSubmission)
 
         val page = testInstance.asExtPage(currentPage, request)
         assertBasicPageAttributes(page, extSubmission)
-        assertThat(page.next).isNull()
+        assertThat(page.next).isEqualTo("$BASE/submissions/extended?offset=2&limit=1&released=true")
         assertThat(page.previous).isNull()
     }
 
     @Test
-    fun `as ext page`(
+    fun `as filtering ext page`(
         @MockK extSubmission: ExtSubmission,
         @MockK currentPage: Page<ExtSubmission>,
         @MockK currentPageable: Pageable,

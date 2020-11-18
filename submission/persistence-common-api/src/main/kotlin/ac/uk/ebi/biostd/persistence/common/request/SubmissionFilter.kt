@@ -7,6 +7,7 @@ class SubmissionFilter(
     val rTimeFrom: String? = null,
     val rTimeTo: String? = null,
     val keywords: String? = null,
+    val released: Boolean? = null,
     limit: Int = 15,
     offset: Int = 0
 ) : PaginationFilter(limit, offset)

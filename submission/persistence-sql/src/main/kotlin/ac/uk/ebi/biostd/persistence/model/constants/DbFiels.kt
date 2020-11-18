@@ -13,6 +13,7 @@ internal const val SECTION_TYPE = "type"
 // Submission fields
 internal const val SUB_VERSION = "version"
 internal const val SUB_RELEASE_TIME = "releaseTime"
+internal const val SUB_RELEASED_FLAG = "released"
 internal const val SUB_ACC_NO = "accNo"
 internal const val SUB_OWNER = "owner"
 internal const val SUB_OWNER_ID = "id"

@@ -46,9 +46,9 @@ class SubmissionReleaserServiceTest(
         @MockK secondWarningSubmission: ExtSubmission,
         @MockK thirdWarningSubmission: ExtSubmission
     ) {
-        val firstWarningQuery = createExtPageQuery(month = 11, day = 20)
-        val secondWarningQuery = createExtPageQuery(month = 10, day = 21)
-        val thirdWarningQuery = createExtPageQuery(month = 9, day = 28)
+        val firstWarningQuery = createNotifyExtPageQuery(month = 11, day = 20)
+        val secondWarningQuery = createNotifyExtPageQuery(month = 10, day = 21)
+        val thirdWarningQuery = createNotifyExtPageQuery(month = 9, day = 28)
 
         mockExtSubmissionsQuery(firstWarningQuery, firstWarningSubmission)
         mockExtSubmissionsQuery(secondWarningQuery, secondWarningSubmission)
@@ -68,7 +68,7 @@ class SubmissionReleaserServiceTest(
 
     @Test
     fun `release daily submissions`(@MockK releaseSubmission: ExtSubmission) {
-        val releaseQuery = createExtPageQuery(month = 9, day = 21)
+        val releaseQuery = createReleaseExtPageQuery()
 
         mockExtSubmissionsQuery(releaseQuery, releaseSubmission)
         every { releaseSubmission.isProject } returns false
@@ -82,34 +82,24 @@ class SubmissionReleaserServiceTest(
     }
 
     @Test
-    fun `release submission already released`(@MockK releaseSubmission: ExtSubmission) {
-        val releaseQuery = createExtPageQuery(month = 9, day = 21)
-
-        mockExtSubmissionsQuery(releaseQuery, releaseSubmission)
-        every { releaseSubmission.isProject } returns false
-        every { releaseSubmission.released } returns true
-
-        testInstance.releaseDailySubmissions()
-        verify(exactly = 0) { bioWebClient.submitExt(releaseSubmission) }
-        verify(exactly = 1) { bioWebClient.getExtSubmissionsAsSequence(releaseQuery) }
-    }
-
-    @Test
     fun `release with project`(@MockK project: ExtSubmission) {
-        val releaseQuery = createExtPageQuery(month = 9, day = 21)
+        val releaseQuery = createReleaseExtPageQuery()
 
-        mockExtSubmissionsQuery(releaseQuery, project)
         every { project.isProject } returns true
-        every { project.released } returns false
+        mockExtSubmissionsQuery(releaseQuery, project)
 
         testInstance.releaseDailySubmissions()
         verify(exactly = 0) { bioWebClient.submitExt(project) }
         verify(exactly = 1) { bioWebClient.getExtSubmissionsAsSequence(releaseQuery) }
     }
 
-    private fun createExtPageQuery(month: Int, day: Int) = ExtPageQuery(
+    private fun createNotifyExtPageQuery(month: Int, day: Int) = ExtPageQuery(
+        released = false,
         fromRTime = OffsetDateTime.of(2020, month, day, 0, 0, 0, 0, UTC),
         toRTime = OffsetDateTime.of(2020, month, day, 23, 59, 59, 0, UTC))
+
+    private fun createReleaseExtPageQuery() =
+        ExtPageQuery(toRTime = OffsetDateTime.of(2020, 9, 21, 23, 59, 59, 0, UTC), released = false)
 
     private fun mockExtSubmissionsQuery(query: ExtPageQuery, response: ExtSubmission) =
         every { bioWebClient.getExtSubmissionsAsSequence(eq(query)) } returns sequenceOf(response)

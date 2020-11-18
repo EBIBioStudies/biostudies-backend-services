@@ -34,7 +34,7 @@ class ExtSubmissionClientTest(
     fun `get ext submissions`(@MockK extPage: ExtPage) {
         val expectedUrl = "$EXT_SUBMISSIONS_URL?offset=1&limit=2"
         val response: ResponseEntity<String> = ResponseEntity("ExtPage", OK)
-        val query = ExtPageQuery(limit = 2, offset = 1, fromRTime = null, toRTime = null)
+        val query = ExtPageQuery(limit = 2, offset = 1)
 
         every { restTemplate.getForEntity(expectedUrl, String::class.java) } returns response
         every { extSerializationService.deserialize("ExtPage", ExtPage::class.java) } returns extPage
@@ -45,13 +45,14 @@ class ExtSubmissionClientTest(
     }
 
     @Test
-    fun `get ext submissions filtering by release date`(@MockK extPage: ExtPage) {
+    fun `ext submissions filtering`(@MockK extPage: ExtPage) {
         val from = OffsetDateTime.of(2019, 9, 21, 15, 0, 0, 0, UTC)
         val to = OffsetDateTime.of(2020, 9, 21, 15, 0, 0, 0, UTC)
         val response: ResponseEntity<String> = ResponseEntity("ExtPage", OK)
-        val query = ExtPageQuery(limit = 2, offset = 1, fromRTime = from, toRTime = to)
-        val expectedUrl =
-            "$EXT_SUBMISSIONS_URL?offset=1&limit=2&fromRTime=2019-09-21T15:00:00Z&toRTime=2020-09-21T15:00:00Z"
+        val query = ExtPageQuery(limit = 2, offset = 1, fromRTime = from, toRTime = to, released = true)
+        val stringFrom = "2019-09-21T15:00:00Z"
+        val stringTo = "2020-09-21T15:00:00Z"
+        val expectedUrl = "$EXT_SUBMISSIONS_URL?offset=1&limit=2&fromRTime=$stringFrom&toRTime=$stringTo&released=true"
 
         every { restTemplate.getForEntity(expectedUrl, String::class.java) } returns response
         every { extSerializationService.deserialize("ExtPage", ExtPage::class.java) } returns extPage
