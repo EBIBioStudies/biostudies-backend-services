@@ -53,14 +53,19 @@ internal open class SubmissionRepository(
     }
 
     @Transactional(readOnly = true)
-    override fun getExtendedSubmissions(offset: Long, limit: Int): Page<ExtSubmission> =
-        submissionRepository
-            .getIds(OffsetPageRequest(offset, limit, Sort.by(defaultOrder)))
+    override fun getExtendedSubmissions(filter: SubmissionFilter, offset: Long, limit: Int): Page<ExtSubmission> {
+        val filterSpecs = SubmissionFilterSpecification(filter)
+        val pageable = OffsetPageRequest(offset, limit, Sort.by(defaultOrder))
+
+        return submissionRepository
+            .findAll(filterSpecs.specification, pageable, EntityGraphs.named(SIMPLE_GRAPH))
             .map { getExtByAccNoAndVersion(it.accNo, it.version) }
+    }
 
     override fun getSubmissionsByUser(userId: Long, filter: SubmissionFilter): List<SimpleSubmission> {
-        val filterSpecs = SubmissionFilterSpecification(userId, filter)
+        val filterSpecs = SubmissionFilterSpecification(filter, userId)
         val pageable = PageRequest.of(filter.pageNumber, filter.limit, Sort.by(SUB_RELEASE_TIME).descending())
+
         return submissionRepository
             .findAll(filterSpecs.specification, pageable, EntityGraphs.named(SIMPLE_GRAPH))
             .content

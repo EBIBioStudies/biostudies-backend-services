@@ -1,5 +1,7 @@
 package ac.uk.ebi.biostd.client.integration.web
 
+import ac.uk.ebi.biostd.client.dto.ExtPage
+import ac.uk.ebi.biostd.client.dto.ExtPageQuery
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.JSON
 import ebi.ac.uk.api.ClientResponse
@@ -11,6 +13,7 @@ import ebi.ac.uk.api.security.LoginRequest
 import ebi.ac.uk.api.security.RegisterRequest
 import ebi.ac.uk.api.security.UserProfile
 import ebi.ac.uk.base.EMPTY
+import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.model.Group
 import ebi.ac.uk.model.Project
 import ebi.ac.uk.model.Submission
@@ -23,7 +26,8 @@ interface SubmissionClient :
     GroupFilesOperations,
     MultipartSubmissionOperations,
     GeneralOperations,
-    DraftSubmissionOperations
+    DraftSubmissionOperations,
+    ExtSubmissionOperations
 
 typealias SubmissionResponse = ClientResponse<Submission>
 
@@ -56,11 +60,7 @@ interface SubmissionOperations {
         register: RegisterConfig = NonRegistration
     ): SubmissionResponse
 
-    fun submitAsync(
-        submission: String,
-        format: SubmissionFormat = JSON,
-        register: RegisterConfig = NonRegistration
-    ): Unit
+    fun submitAsync(submission: String, format: SubmissionFormat = JSON, register: RegisterConfig = NonRegistration)
 
     fun refreshSubmission(accNo: String): SubmissionResponse
     fun deleteSubmission(accNo: String)
@@ -91,4 +91,11 @@ interface DraftSubmissionOperations {
     fun deleteSubmissionDraft(accNo: String)
     fun updateSubmissionDraft(accNo: String, content: String)
     fun createSubmissionDraft(content: String): SubmissionDraft
+}
+
+interface ExtSubmissionOperations {
+    fun getExtSubmissions(extPageQuery: ExtPageQuery): ExtPage
+    fun getExtSubmissionsPage(pageUrl: String): ExtPage
+    fun getExtByAccNo(accNo: String): ExtSubmission
+    fun submitExt(extSubmission: ExtSubmission): ExtSubmission
 }

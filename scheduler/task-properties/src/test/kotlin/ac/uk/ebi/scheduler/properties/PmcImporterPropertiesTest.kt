@@ -26,15 +26,15 @@ class PmcImporterPropertiesTest {
 
         assertThat(properties.asJavaCommand("/apps-folder"))
             .isEqualTo("""
-            java -jar /apps-folder/pmc-processor-task-1.0.0.jar \
-            --app.data.mode=LOAD \
-            --app.data.temp=/tempDir \
-            --app.data.mongodbUri=mongodbUri \
-            --app.data.notificationsUrl=http://slack-here \
-            --app.data.path=/loadPath \
-            --app.data.bioStudiesUrl=http://an_url.com \
-            --app.data.bioStudiesUser=user \
-            --app.data.bioStudiesPassword=password
+                java -jar /apps-folder/pmc-processor-task-1.0.0.jar \
+                --app.data.mode=LOAD \
+                --app.data.temp=/tempDir \
+                --app.data.mongodbUri=mongodbUri \
+                --app.data.notificationsUrl=http://slack-here \
+                --app.data.path=/loadPath \
+                --app.data.bioStudiesUrl=http://an_url.com \
+                --app.data.bioStudiesUser=user \
+                --app.data.bioStudiesPassword=password
             """.trimIndent())
     }
 

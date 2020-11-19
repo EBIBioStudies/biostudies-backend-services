@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.submission.domain.service
 
 import ac.uk.ebi.biostd.persistence.common.request.SaveSubmissionRequest
+import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestService
 import ac.uk.ebi.biostd.submission.web.model.ExtPageRequest
@@ -21,11 +22,13 @@ class ExtSubmissionService(
         return persistenceService.saveAndProcessSubmissionRequest(SaveSubmissionRequest(extSubmission, COPY))
     }
 
-    fun getExtendedSubmissions(request: ExtPageRequest): Page<ExtSubmission> =
-        submissionRepository.getExtendedSubmissions(request.offset, request.limit)
+    fun getExtendedSubmissions(request: ExtPageRequest): Page<ExtSubmission> {
+        val filter = SubmissionFilter(
+            rTimeFrom = request.fromRTime, rTimeTo = request.toRTime, released = request.released)
+        return submissionRepository.getExtendedSubmissions(filter, request.offset, request.limit)
+    }
 
-    private fun validateUser(user: String) =
-        require(userPrivilegesService.canSubmitExtended(user)) {
-            throw SecurityException("The user '$user' is not allowed to perform this action")
-        }
+    private fun validateUser(user: String) = require(userPrivilegesService.canSubmitExtended(user)) {
+        throw SecurityException("The user '$user' is not allowed to perform this action")
+    }
 }

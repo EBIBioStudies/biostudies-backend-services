@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.persistence.mapping.extended.to
 
+import ac.uk.ebi.biostd.persistence.exception.ExtSubmissionMappingException
 import ac.uk.ebi.biostd.persistence.model.DbSubmission
 import ac.uk.ebi.biostd.persistence.model.DbSubmissionStat
 import ebi.ac.uk.extended.model.ExtProcessingStatus
@@ -27,26 +28,30 @@ class ToExtSubmissionMapper(private val submissionsPath: Path) {
     }
 
     private fun toExtSubmission(dbSubmission: DbSubmission, stats: List<DbSubmissionStat>): ExtSubmission =
-        ExtSubmission(
-            accNo = dbSubmission.accNo,
-            owner = dbSubmission.owner.email,
-            submitter = dbSubmission.submitter.email,
-            title = dbSubmission.title,
-            version = dbSubmission.version,
-            method = getMethod(dbSubmission.method),
-            status = getStatus(dbSubmission.status),
-            relPath = dbSubmission.relPath,
-            rootPath = dbSubmission.rootPath,
-            released = dbSubmission.released,
-            secretKey = dbSubmission.secretKey,
-            releaseTime = dbSubmission.releaseTime,
-            modificationTime = dbSubmission.modificationTime,
-            creationTime = dbSubmission.creationTime,
-            section = dbSubmission.rootSection.toExtSection(getSubmissionSource(dbSubmission)),
-            attributes = dbSubmission.attributes.map { it.toExtAttribute() },
-            projects = dbSubmission.accessTags.map { Project(it.name) },
-            tags = dbSubmission.tags.map { ExtTag(it.classifier, it.name) },
-            stats = stats.map { toExtMetric(it) })
+        runCatching {
+            ExtSubmission(
+                accNo = dbSubmission.accNo,
+                owner = dbSubmission.owner.email,
+                submitter = dbSubmission.submitter.email,
+                title = dbSubmission.title,
+                version = dbSubmission.version,
+                method = getMethod(dbSubmission.method),
+                status = getStatus(dbSubmission.status),
+                relPath = dbSubmission.relPath,
+                rootPath = dbSubmission.rootPath,
+                released = dbSubmission.released,
+                secretKey = dbSubmission.secretKey,
+                releaseTime = dbSubmission.releaseTime,
+                modificationTime = dbSubmission.modificationTime,
+                creationTime = dbSubmission.creationTime,
+                section = dbSubmission.rootSection.toExtSection(getSubmissionSource(dbSubmission)),
+                attributes = dbSubmission.attributes.map { it.toExtAttribute() },
+                projects = dbSubmission.accessTags.map { Project(it.name) },
+                tags = dbSubmission.tags.map { ExtTag(it.classifier, it.name) },
+                stats = stats.map { toExtMetric(it) })
+        }.onFailure {
+            throw ExtSubmissionMappingException(dbSubmission.accNo, it.message ?: it.localizedMessage)
+        }.getOrThrow()
 
     private fun toExtMetric(stat: DbSubmissionStat): ExtStat = ExtStat(stat.type.name, stat.value.toString())
 
