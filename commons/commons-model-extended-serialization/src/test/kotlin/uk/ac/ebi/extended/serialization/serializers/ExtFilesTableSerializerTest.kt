@@ -28,6 +28,7 @@ class ExtFilesTableSerializerTest(private val tempFolder: TemporaryFolder) {
         val expectedJson = jsonObj {
             "files" to jsonArray(jsonObj {
                 "fileName" to "test-file.txt"
+                "path" to "test-file.txt"
                 "file" to file.absolutePath
                 "attributes" to jsonArray(jsonObj {
                     "name" to "Type"
