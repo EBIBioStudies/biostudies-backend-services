@@ -27,6 +27,7 @@ dependencies {
     api(project(":commons:commons-serialization"))
     api(project(":commons:commons-model-extended"))
     api(project(":commons:commons-model-extended-mapping"))
+    api(project(":commons:commons-model-extended-serialization"))
     api(project(":commons:commons-test"))
     api(project(":submission:submission-config"))
 
