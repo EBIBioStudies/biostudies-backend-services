@@ -11,6 +11,7 @@ import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_DIR_TYPE
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_FILE_TYPE
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_NAME
+import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_PATH
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_SIZE
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_TYPE
 import uk.ac.ebi.extended.serialization.constants.ExtType
@@ -19,7 +20,8 @@ import java.io.File
 class ExtFileSerializer : JsonSerializer<ExtFile>() {
     override fun serialize(file: ExtFile, gen: JsonGenerator, serializers: SerializerProvider) {
         gen.writeStartObject()
-        gen.writeStringField(FILE_NAME, file.fileName)
+        gen.writeStringField(FILE_NAME, file.file.name)
+        gen.writeStringField(FILE_PATH, file.fileName)
         gen.writeObjectField(FILE, file.file.absolutePath)
         gen.writeObjectField(ATTRIBUTES, file.attributes)
         gen.writeStringField(EXT_TYPE, ExtType.File.type)
