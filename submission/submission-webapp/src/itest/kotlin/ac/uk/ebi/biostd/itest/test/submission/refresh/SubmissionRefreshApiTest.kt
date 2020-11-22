@@ -109,7 +109,7 @@ internal class SubmissionRefreshApiTest(private val tempFolder: TemporaryFolder)
                 extSubmission = getExtSubmission(),
                 title = SUBTITLE,
                 releaseTime = releaseDate,
-                accessTags = listOf(PUBLIC_ACCESS_TAG.value),
+                accessTags = listOf(PUBLIC_ACCESS_TAG.value, "biostudies-mgmt@ebi.ac.uk"),
                 attributes = listOf(ATTR_NAME to ATTR_VALUE))
 
             updateSubmission(getSubmissionDb())
@@ -120,7 +120,7 @@ internal class SubmissionRefreshApiTest(private val tempFolder: TemporaryFolder)
                 extSubmission = stored,
                 title = NEW_SUBTITLE,
                 releaseTime = newReleaseDate,
-                accessTags = emptyList(),
+                accessTags = listOf("biostudies-mgmt@ebi.ac.uk"),
                 attributes = listOf(ATTR_NAME to NEW_ATTR_VALUE))
         }
 
@@ -134,7 +134,7 @@ internal class SubmissionRefreshApiTest(private val tempFolder: TemporaryFolder)
             assertThat(extSubmission.title).isEqualTo(title)
             assertThat(extSubmission.releaseTime).isEqualTo(releaseTime)
             assertThat(extSubmission.rootPath).isEqualTo(ROOT_PATH)
-            assertThat(extSubmission.accessTags.map { it.name }).containsExactlyElementsOf(accessTags)
+            assertThat(extSubmission.accessTags.map { it.name }).containsExactlyInAnyOrderElementsOf(accessTags)
             assertThat(extSubmission.attributes.map { it.name to it.value }).containsExactlyElementsOf(attributes)
 
             assertThat(extSubmission.section.type).isEqualTo("Study")
