@@ -5,7 +5,7 @@ import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat.JsonFormat.JsonPretty
 import ac.uk.ebi.biostd.integration.SubFormat.TsvFormat.Tsv
 import ac.uk.ebi.biostd.integration.SubFormat.XmlFormat
-import ac.uk.ebi.biostd.persistence.common.model.SimpleSubmission
+import ac.uk.ebi.biostd.persistence.common.model.BasicSubmission
 import ac.uk.ebi.biostd.persistence.common.request.SaveSubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
@@ -77,7 +77,7 @@ class SubmissionService(
         return serializationService.serializeSubmission(submission, Tsv)
     }
 
-    fun getSubmissions(user: SecurityUser, filter: SubmissionFilter): List<SimpleSubmission> =
+    fun getSubmissions(user: SecurityUser, filter: SubmissionFilter): List<BasicSubmission> =
         subRepository.getSubmissionsByUser(user.id, filter)
 
     fun deleteSubmission(accNo: String, user: SecurityUser) {
@@ -87,5 +87,5 @@ class SubmissionService(
 
     fun getSubmission(accNo: String): ExtSubmission = subRepository.getExtByAccNo(accNo)
 
-    fun findPreviousVersion(accNo: String): SimpleSubmission? = queryService.findLatestBasicByAccNo(accNo)
+    fun findPreviousVersion(accNo: String): BasicSubmission? = queryService.findLatestBasicByAccNo(accNo)
 }

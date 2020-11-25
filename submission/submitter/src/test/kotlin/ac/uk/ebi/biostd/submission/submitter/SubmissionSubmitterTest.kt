@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.submission.submitter
 
-import ac.uk.ebi.biostd.persistence.common.model.SimpleSubmission
+import ac.uk.ebi.biostd.persistence.common.model.BasicSubmission
 import ac.uk.ebi.biostd.persistence.common.request.SaveSubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestService
@@ -63,7 +63,7 @@ class SubmissionSubmitterTest {
     private val queryService = mockk<SubmissionMetaQueryService>()
     private val projectInfoService = mockk<ProjectInfoService>()
     private val submissionRequestService = mockk<SubmissionRequestService>()
-    private val basicSubmission = mockk<SimpleSubmission>()
+    private val basicSubmission = mockk<BasicSubmission>()
 
     private val timesRequest = slot<TimesRequest>()
     private val saveRequest = slot<SaveSubmissionRequest>()

@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.persistence.repositories.data
 
-import ac.uk.ebi.biostd.persistence.common.model.SimpleSubmission
+import ac.uk.ebi.biostd.persistence.common.model.BasicSubmission
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.exception.SubmissionNotFoundException
@@ -14,7 +14,7 @@ import ac.uk.ebi.biostd.persistence.repositories.SectionDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.SubmissionDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.SubmissionStatsDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.data.ProjectSqlDataService.Companion.SIMPLE_GRAPH
-import ac.uk.ebi.biostd.persistence.repositories.data.ProjectSqlDataService.Companion.asSimpleSubmission
+import ac.uk.ebi.biostd.persistence.repositories.data.ProjectSqlDataService.Companion.asBasicSubmission
 import com.cosium.spring.data.jpa.entity.graph.domain.EntityGraphs
 import ebi.ac.uk.extended.model.ExtSubmission
 import mu.KotlinLogging
@@ -62,14 +62,14 @@ internal open class SubmissionRepository(
             .map { getExtByAccNoAndVersion(it.accNo, it.version) }
     }
 
-    override fun getSubmissionsByUser(userId: Long, filter: SubmissionFilter): List<SimpleSubmission> {
+    override fun getSubmissionsByUser(userId: Long, filter: SubmissionFilter): List<BasicSubmission> {
         val filterSpecs = SubmissionFilterSpecification(filter, userId)
         val pageable = PageRequest.of(filter.pageNumber, filter.limit, Sort.by(SUB_RELEASE_TIME).descending())
 
         return submissionRepository
             .findAll(filterSpecs.specification, pageable, EntityGraphs.named(SIMPLE_GRAPH))
             .content
-            .map { it.asSimpleSubmission() }
+            .map { it.asBasicSubmission() }
     }
 
     private fun loadSubmissionAndStatus(accNo: String, version: Int? = null): DbToExtRequest =

@@ -3,7 +3,7 @@ package ac.uk.ebi.biostd.submission.web.handlers
 import ac.uk.ebi.biostd.files.service.UserFilesService
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat
-import ac.uk.ebi.biostd.persistence.common.model.SimpleSubmission
+import ac.uk.ebi.biostd.persistence.common.model.BasicSubmission
 import ac.uk.ebi.biostd.submission.domain.helpers.RequestSources
 import ac.uk.ebi.biostd.submission.domain.helpers.SourceGenerator
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionService
@@ -122,13 +122,13 @@ class SubmitWebHandler(
     private fun submission(subFile: File, source: FilesSource) =
         serializationService.deserializeSubmission(subFile, source)
 
-    private fun subFolder(submission: SimpleSubmission?): File? =
+    private fun subFolder(submission: BasicSubmission?): File? =
         submission?.let { folderResolver.getSubFolder(submission.relPath).toFile().resolve(FILES_PATH) }
 
-    private fun requireNotProcessing(simpleSubmission: SimpleSubmission?) =
-        simpleSubmission?.let {
+    private fun requireNotProcessing(basicSubmission: BasicSubmission?) =
+        basicSubmission?.let {
             if (it.isActive) require(it.status == PROCESSED) {
-                throw ConcurrentProcessingSubmissionException(simpleSubmission.accNo)
+                throw ConcurrentProcessingSubmissionException(basicSubmission.accNo)
             }
         }
 }

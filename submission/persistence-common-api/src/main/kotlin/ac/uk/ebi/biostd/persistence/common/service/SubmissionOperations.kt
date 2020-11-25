@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.persistence.common.service
 
 import ac.uk.ebi.biostd.persistence.common.model.BasicProject
-import ac.uk.ebi.biostd.persistence.common.model.SimpleSubmission
+import ac.uk.ebi.biostd.persistence.common.model.BasicSubmission
 import ac.uk.ebi.biostd.persistence.common.request.SaveSubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
 import ebi.ac.uk.extended.model.ExtSubmission
@@ -35,13 +35,13 @@ interface SubmissionQueryService {
 
     fun getExtendedSubmissions(filter: SubmissionFilter, offset: Long, limit: Int): Page<ExtSubmission>
 
-    fun getSubmissionsByUser(userId: Long, filter: SubmissionFilter): List<SimpleSubmission>
+    fun getSubmissionsByUser(userId: Long, filter: SubmissionFilter): List<BasicSubmission>
 }
 
 interface SubmissionMetaQueryService {
     fun getBasicProject(accNo: String): BasicProject
 
-    fun findLatestBasicByAccNo(accNo: String): SimpleSubmission?
+    fun findLatestBasicByAccNo(accNo: String): BasicSubmission?
 
     fun getAccessTags(accNo: String): List<String>
 

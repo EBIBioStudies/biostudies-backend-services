@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.persistence.common.service
 
-import ac.uk.ebi.biostd.persistence.common.model.SimpleSubmission
+import ac.uk.ebi.biostd.persistence.common.model.BasicSubmission
 
 interface ProjectDataService {
-    fun findProjectsByAccessTags(tags: List<String>): List<SimpleSubmission>
+    fun findProjectsByAccessTags(tags: List<String>): List<BasicSubmission>
 }
