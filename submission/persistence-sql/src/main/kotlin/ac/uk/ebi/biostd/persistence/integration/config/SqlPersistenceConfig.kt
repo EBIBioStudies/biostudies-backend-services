@@ -25,7 +25,6 @@ import ac.uk.ebi.biostd.persistence.repositories.UserDataDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.data.ProjectSqlDataService
 import ac.uk.ebi.biostd.persistence.repositories.data.SubmissionRepository
-import ebi.ac.uk.paths.SubmissionFolderResolver
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -36,10 +35,7 @@ import java.nio.file.Paths
 @Suppress("LongParameterList")
 @Configuration
 @Import(JpaRepositoryConfig::class)
-open class SqlPersistenceConfig(
-    private val folderResolver: SubmissionFolderResolver,
-    private val applicationProperties: ApplicationProperties
-) {
+open class SqlPersistenceConfig(private val applicationProperties: ApplicationProperties) {
     @Bean
     @ConditionalOnMissingBean(LockExecutor::class)
     internal open fun lockExecutor(
@@ -47,8 +43,8 @@ open class SqlPersistenceConfig(
     ): LockExecutor = JdbcLockExecutor(namedParameterJdbcTemplate)
 
     @Bean
-    internal open fun toExtSubmissionMapper():
-        ToExtSubmissionMapper = ToExtSubmissionMapper(Paths.get(applicationProperties.submissionPath))
+    internal open fun toExtSubmissionMapper(): ToExtSubmissionMapper =
+        ToExtSubmissionMapper(Paths.get(applicationProperties.submissionPath))
 
     @Bean
     internal open fun submissionRepository(
@@ -56,20 +52,17 @@ open class SqlPersistenceConfig(
         submissionDataRepository: SubmissionDataRepository,
         sectionRepository: SectionDataRepository,
         statsRepository: SubmissionStatsDataRepository
-    ) =
-        SubmissionRepository(
-            submissionDataRepository,
-            sectionRepository,
-            statsRepository,
-            toExtSubmissionMapper()
-        )
+    ) = SubmissionRepository(
+        submissionDataRepository,
+        sectionRepository,
+        statsRepository,
+        toExtSubmissionMapper())
 
     @Bean
     internal open fun submissionQueryService(
         submissionDataRepository: SubmissionDataRepository,
         accessTagDataRepo: AccessTagDataRepo
-    ): SubmissionMetaQueryService =
-        SubmissionSqlQueryService(submissionDataRepository, accessTagDataRepo, folderResolver)
+    ): SubmissionMetaQueryService = SubmissionSqlQueryService(submissionDataRepository, accessTagDataRepo)
 
     @Bean
     internal open fun persistenceService(
@@ -87,8 +80,7 @@ open class SqlPersistenceConfig(
             sequenceRepository,
             tagsDataRepository,
             submissionQueryService,
-            lockExecutor
-        )
+            lockExecutor)
 
     @Bean
     internal open fun submissionPersistenceService(

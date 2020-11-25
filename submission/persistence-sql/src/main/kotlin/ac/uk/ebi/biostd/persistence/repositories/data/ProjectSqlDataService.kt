@@ -9,8 +9,9 @@ import ac.uk.ebi.biostd.persistence.model.ext.title
 import ac.uk.ebi.biostd.persistence.repositories.SubmissionDataRepository
 import com.cosium.spring.data.jpa.entity.graph.domain.EntityGraphs.named
 
-internal class ProjectSqlDataService(private val submissionRepository: SubmissionDataRepository) : ProjectDataService {
-
+internal class ProjectSqlDataService(
+    private val submissionRepository: SubmissionDataRepository
+) : ProjectDataService {
     override fun findProjectsByAccessTags(tags: List<String>): List<SimpleSubmission> =
         if (tags.isEmpty()) emptyList() else getProjectsByAccessTags(tags)
 
@@ -35,6 +36,7 @@ internal class ProjectSqlDataService(private val submissionRepository: Submissio
                 modificationTime = modificationTime,
                 releaseTime = releaseTime,
                 status = status,
-                method = method)
+                method = method,
+                owner = owner.email)
     }
 }

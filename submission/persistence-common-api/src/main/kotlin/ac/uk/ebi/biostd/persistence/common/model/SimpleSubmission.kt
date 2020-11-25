@@ -18,5 +18,8 @@ data class SimpleSubmission(
     val modificationTime: OffsetDateTime,
     val creationTime: OffsetDateTime,
     val method: SubmissionMethod?,
-    var status: ProcessingStatus
-)
+    var status: ProcessingStatus,
+    val owner: String
+) {
+    val isActive = version > 0
+}

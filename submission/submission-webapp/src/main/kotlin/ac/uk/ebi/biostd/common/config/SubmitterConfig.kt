@@ -71,15 +71,15 @@ class SubmitterConfig {
         fun accNoPatternUtil() = AccNoPatternUtil()
 
         @Bean
-        fun accNoService() = AccNoService(service, queryService, accNoPatternUtil(), userPrivilegesService)
+        fun accNoService() = AccNoService(service, accNoPatternUtil(), userPrivilegesService)
 
         @Bean
         fun parentInfoService() = ParentInfoService(queryService)
 
         @Bean
-        fun projectInfoService() = ProjectInfoService(service, queryService, accNoPatternUtil(), userPrivilegesService)
+        fun projectInfoService() = ProjectInfoService(service, accNoPatternUtil(), userPrivilegesService)
 
         @Bean
-        fun timesService() = TimesService(queryService)
+        fun timesService() = TimesService()
     }
 }

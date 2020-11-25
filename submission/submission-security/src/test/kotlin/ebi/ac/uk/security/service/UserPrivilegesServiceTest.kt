@@ -1,6 +1,7 @@
 package ebi.ac.uk.security.service
 
 import ac.uk.ebi.biostd.persistence.common.model.AccessType
+import ac.uk.ebi.biostd.persistence.common.model.SimpleSubmission
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.persistence.common.service.UserPermissionsService
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
@@ -24,6 +25,7 @@ class UserPrivilegesServiceTest(
     @MockK private val author: UserDB,
     @MockK private val otherAuthor: UserDB,
     @MockK private val superuser: UserDB,
+    @MockK private val simpleSubmission: SimpleSubmission,
     @MockK private val userRepository: UserDataRepository,
     @MockK private val queryService: SubmissionMetaQueryService,
     @MockK private val tagsDataRepository: AccessTagDataRepo,
@@ -65,8 +67,11 @@ class UserPrivilegesServiceTest(
     }
 
     @Test
-    fun `author user with tag resubmits a submission that is in a project`() {
-        every { queryService.getOwner("accNo") } returns "author@mail.com"
+    fun `author user with tag resubmits a submission that is in a project`(
+        @MockK simpleSubmission: SimpleSubmission
+    ) {
+        every { simpleSubmission.owner } returns "author@mail.com"
+        every { queryService.findLatestBasicByAccNo("accNo") } returns simpleSubmission
 
         assertThat(testInstance.canResubmit("author@mail.com", "accNo")).isTrue()
     }
@@ -77,8 +82,10 @@ class UserPrivilegesServiceTest(
     }
 
     @Test
-    fun `author user deletes own submission`() {
-        every { queryService.getOwner("accNo") } returns "author@mail.com"
+    fun `author user deletes own submission`(@MockK simpleSubmission: SimpleSubmission) {
+        every { simpleSubmission.owner } returns "author@mail.com"
+        every { queryService.findLatestBasicByAccNo("accNo") } returns simpleSubmission
+
         assertThat(testInstance.canDelete("author@mail.com", "accNo")).isTrue()
     }
 
@@ -124,7 +131,8 @@ class UserPrivilegesServiceTest(
     }
 
     private fun initSubmissionQueries() {
+        every { simpleSubmission.owner } returns "nottheauthor@mail.com"
         every { queryService.getAccessTags("accNo") } returns emptyList()
-        every { queryService.getOwner("accNo") } returns "nottheauthor@mail.com"
+        every { queryService.findLatestBasicByAccNo("accNo") } returns simpleSubmission
     }
 }

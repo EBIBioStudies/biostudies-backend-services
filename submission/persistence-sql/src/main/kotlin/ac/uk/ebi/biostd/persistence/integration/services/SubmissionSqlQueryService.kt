@@ -1,45 +1,35 @@
 package ac.uk.ebi.biostd.persistence.integration.services
 
+import ac.uk.ebi.biostd.persistence.common.model.BasicProject
+import ac.uk.ebi.biostd.persistence.common.model.SimpleSubmission
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
+import ac.uk.ebi.biostd.persistence.exception.ProjectNotFoundException
+import ac.uk.ebi.biostd.persistence.exception.ProjectWithoutPatternException
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
 import ac.uk.ebi.biostd.persistence.repositories.SubmissionDataRepository
+import ac.uk.ebi.biostd.persistence.repositories.data.ProjectSqlDataService.Companion.asSimpleSubmission
 import ebi.ac.uk.model.constants.SubFields
-import ebi.ac.uk.paths.SubmissionFolderResolver
-import java.time.OffsetDateTime
 
 @Suppress("TooManyFunctions")
 internal class SubmissionSqlQueryService(
     private val subRepository: SubmissionDataRepository,
-    private val accessTagDataRepo: AccessTagDataRepo,
-    private val folderResolver: SubmissionFolderResolver
+    private val accessTagDataRepo: AccessTagDataRepo
 ) : SubmissionMetaQueryService {
-    override fun getParentAccPattern(accNo: String): String? {
-        return subRepository.getBasicWithAttributes(accNo)
-            .attributes.firstOrNull { it.name == SubFields.ACC_NO_TEMPLATE.value }
-            ?.value
+    override fun getBasicProject(accNo: String): BasicProject {
+        val projectDb = subRepository.findBasicWithAttributes(accNo)
+        require(projectDb != null) { throw ProjectNotFoundException(accNo) }
+
+        val projectPattern =
+            projectDb.attributes.firstOrNull { it.name == SubFields.ACC_NO_TEMPLATE.value }
+            ?.value ?: throw ProjectWithoutPatternException(accNo)
+
+        return BasicProject(projectDb.accNo, projectPattern, projectDb.releaseTime)
     }
 
-    override fun isNew(accNo: String): Boolean = existByAccNo(accNo).not()
-
-    override fun getSecret(accNo: String): String? = getLatestSubmitted(accNo)?.secretKey
+    override fun findLatestBasicByAccNo(accNo: String): SimpleSubmission? =
+        subRepository.getLastVersion(accNo)?.asSimpleSubmission()
 
     override fun getAccessTags(accNo: String) = accessTagDataRepo.findBySubmissionsAccNo(accNo).map { it.name }
 
-    override fun getReleaseTime(accNo: String): OffsetDateTime? = getSubmission(accNo).releaseTime
-
     override fun existByAccNo(accNo: String): Boolean = subRepository.existsByAccNo(accNo)
-
-    override fun findCreationTime(accNo: String): OffsetDateTime? = find(accNo)?.creationTime
-
-    override fun getCurrentFolder(accNo: String) = find(accNo)?.let { folderResolver.getSubFolder(it.relPath).toFile() }
-
-    override fun getOwner(accNo: String): String? = getLatestSubmitted(accNo)?.owner?.email
-
-    override fun isProcessing(accNo: String): Boolean = subRepository.getProcessingCount(accNo) > 0
-
-    private fun getSubmission(accNo: String) = subRepository.getBasic(accNo)
-
-    private fun getLatestSubmitted(accNo: String) = subRepository.getLastVersion(accNo)
-
-    private fun find(accNo: String) = subRepository.findBasic(accNo)
 }
