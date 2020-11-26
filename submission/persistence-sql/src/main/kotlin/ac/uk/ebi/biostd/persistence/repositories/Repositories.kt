@@ -7,6 +7,7 @@ import ac.uk.ebi.biostd.persistence.model.DbAccessTag
 import ac.uk.ebi.biostd.persistence.model.DbSection
 import ac.uk.ebi.biostd.persistence.model.DbSubmission
 import ac.uk.ebi.biostd.persistence.model.DbSubmissionRT
+import ac.uk.ebi.biostd.persistence.model.DbSubmissionRequest
 import ac.uk.ebi.biostd.persistence.model.DbSubmissionStat
 import ac.uk.ebi.biostd.persistence.model.DbTag
 import ac.uk.ebi.biostd.persistence.model.DbUser
@@ -95,6 +96,10 @@ interface SubmissionDataRepository :
         where s.accNo = :accNo and s.version > 0 and s.status <> 'PROCESSED'
     """)
     fun getProcessingCount(accNo: String): Int
+}
+
+interface SubmissionRequestDataRepository : JpaRepository<DbSubmissionRequest, Long> {
+    fun getByAccNoAndVersion(accNo: String, version: Int): DbSubmissionRequest
 }
 
 interface SectionDataRepository : JpaRepository<DbSection, Long> {
