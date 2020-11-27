@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.submission.submitter
 
+import ac.uk.ebi.biostd.persistence.common.model.BasicSubmission
 import ac.uk.ebi.biostd.persistence.common.request.SaveSubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestService
@@ -62,6 +63,7 @@ class SubmissionSubmitterTest {
     private val queryService = mockk<SubmissionMetaQueryService>()
     private val projectInfoService = mockk<ProjectInfoService>()
     private val submissionRequestService = mockk<SubmissionRequestService>()
+    private val basicSubmission = mockk<BasicSubmission>()
 
     private val timesRequest = slot<TimesRequest>()
     private val saveRequest = slot<SaveSubmissionRequest>()
@@ -74,6 +76,7 @@ class SubmissionSubmitterTest {
     @BeforeEach
     fun beforeEach() {
         mockServices()
+        mockBasicSubmission()
         mockPersistenceContext()
         mockkStatic("ebi.ac.uk.extended.mapping.to.ToSubmissionKt")
         every { any<ExtSubmission>().toSimpleSubmission() } returns submission
@@ -176,7 +179,7 @@ class SubmissionSubmitterTest {
         accNoService.getRelPath(accNo)
         accNoService.getAccNo(accNoServiceRequest.captured)
 
-        queryService.getSecret("S-TEST123")
+        queryService.findLatestBasicByAccNo("S-TEST123")
 
         parentInfoService.getParentInfo("BioImages")
 
@@ -189,13 +192,16 @@ class SubmissionSubmitterTest {
         submissionRequestService.saveAndProcessSubmissionRequest(saveRequest.captured)
     }
 
+    private fun mockBasicSubmission() {
+        every { basicSubmission.creationTime } returns testTime
+        every { basicSubmission.secretKey } returns "a-secret-key"
+        every { basicSubmission.owner } returns "the-owner@mail.com"
+    }
+
     private fun mockServices() {
         every { accNoService.getRelPath(accNo) } returns "/a/rel/path"
         every { accNoService.getAccNo(capture(accNoServiceRequest)) } returns accNo
-        every { queryService.getOwner("S-TEST123") } returns null
-        every { queryService.isNew("S-TEST123") } returns false
-        every { queryService.isProcessing("S-TEST123") } returns false
-        every { queryService.getSecret("S-TEST123") } returns "a-secret-key"
+        every { queryService.findLatestBasicByAccNo("S-TEST123") } returns basicSubmission
         every { timesService.getTimes(capture(timesRequest)) } returns Times(testTime, testTime, null)
         every { projectInfoService.process(capture(projectRequest)) } returns ProjectResponse("BioImages")
         every { parentInfoService.getParentInfo("BioImages") } returns ParentInfo(emptyList(), null, "S-BIAD")

@@ -22,6 +22,7 @@ import ebi.ac.uk.extended.model.ExtSubmissionMethod
 import ebi.ac.uk.extended.model.ExtTag
 import ebi.ac.uk.extended.model.Project
 import ebi.ac.uk.io.sources.FilesSource
+import ebi.ac.uk.model.AccNumber
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.SubmissionMethod
 import ebi.ac.uk.model.User
@@ -105,16 +106,18 @@ class SubmissionSubmitter(
         source: FilesSource,
         method: SubmissionMethod
     ): ExtSubmission {
+        val previousVersion = queryService.findLatestBasicByAccNo(submission.accNo)
+        val isNew = previousVersion == null
         val (parentTags, parentReleaseTime, parentPattern) = parentInfoService.getParentInfo(submission.attachTo)
-        val (createTime, modTime, releaseTime) = getTimes(submission, parentReleaseTime)
+        val (createTime, modTime, releaseTime) = getTimes(submission, previousVersion?.creationTime, parentReleaseTime)
         val released = releaseTime?.isBeforeOrEqual(OffsetDateTime.now()).orFalse()
-        val accNo = getAccNumber(submission, submitter, parentPattern)
+        val accNo = getAccNumber(submission, isNew, submitter, parentPattern)
         val accNoString = accNo.toString()
-        val projectInfo = getProjectInfo(submitter, submission, accNoString)
-        val secretKey = getSecret(accNoString)
+        val projectInfo = getProjectInfo(submitter, submission, accNoString, isNew)
+        val secretKey = previousVersion?.secretKey ?: UUID.randomUUID().toString()
         val relPath = accNoService.getRelPath(accNo)
         val tags = getTags(parentTags, projectInfo)
-        val ownerEmail = onBehalfUser?.email ?: queryService.getOwner(accNoString) ?: submitter.email
+        val ownerEmail = onBehalfUser?.email ?: previousVersion?.owner ?: submitter.email
 
         return ExtSubmission(
             accNo = accNoString,
@@ -152,18 +155,22 @@ class SubmissionSubmitter(
         return tags
     }
 
-    private fun getProjectInfo(user: User, submission: Submission, accNo: String) =
-        projectInfoService.process(ProjectRequest(user.email, submission.section.type, submission.accNoTemplate, accNo))
+    private fun getProjectInfo(user: User, submission: Submission, accNo: String, isNew: Boolean): ProjectResponse? {
+        val request = ProjectRequest(user.email, submission.section.type, submission.accNoTemplate, accNo, isNew)
+        return projectInfoService.process(request)
+    }
 
     private fun getAttributes(submission: Submission) = submission.attributes
         .filterNot { RESERVED_ATTRIBUTES.contains(it.name) }
         .map { it.toExtAttribute() }
 
-    private fun getAccNumber(sub: Submission, user: User, parentPattern: String?) =
-        accNoService.getAccNo(AccNoServiceRequest(user.email, sub.accNo.ifBlank { null }, sub.attachTo, parentPattern))
+    private fun getAccNumber(sub: Submission, isNew: Boolean, user: User, parentPattern: String?): AccNumber {
+        val accNo = sub.accNo.ifBlank { null }
+        val request = AccNoServiceRequest(user.email, accNo, isNew, sub.attachTo, parentPattern)
 
-    private fun getTimes(sub: Submission, parentReleaseTime: OffsetDateTime?) =
-        timesService.getTimes(TimesRequest(sub.accNo, sub.releaseDate, parentReleaseTime))
+        return accNoService.getAccNo(request)
+    }
 
-    private fun getSecret(accString: String) = queryService.getSecret(accString) ?: UUID.randomUUID().toString()
+    private fun getTimes(sub: Submission, creationTime: OffsetDateTime?, parentReleaseTime: OffsetDateTime?) =
+        timesService.getTimes(TimesRequest(sub.accNo, sub.releaseDate, creationTime, parentReleaseTime))
 }

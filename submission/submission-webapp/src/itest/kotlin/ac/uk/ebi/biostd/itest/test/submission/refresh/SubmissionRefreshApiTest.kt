@@ -163,6 +163,6 @@ internal class SubmissionRefreshApiTest(private val tempFolder: TemporaryFolder)
 
         private fun getExtSubmission(): ExtSubmission = submissionRepository.getExtByAccNo(ACC_NO)
 
-        private fun getSubmissionDb(): DbSubmission = submissionDataRepository.getBasicWithAttributes(ACC_NO)
+        private fun getSubmissionDb(): DbSubmission = submissionDataRepository.findBasicWithAttributes(ACC_NO)!!
     }
 }

@@ -5,9 +5,9 @@ import ebi.ac.uk.model.constants.ProcessingStatus
 import java.time.OffsetDateTime
 
 /**
- * Submission simple projection. Contains only submission attributes (no related entities).
+ * Submission basic projection. Contains only submission attributes (no related entities).
  */
-data class SimpleSubmission(
+data class BasicSubmission(
     val accNo: String,
     val relPath: String,
     val released: Boolean,
@@ -18,5 +18,8 @@ data class SimpleSubmission(
     val modificationTime: OffsetDateTime,
     val creationTime: OffsetDateTime,
     val method: SubmissionMethod?,
-    var status: ProcessingStatus
-)
+    var status: ProcessingStatus,
+    val owner: String
+) {
+    val isActive = version > 0
+}

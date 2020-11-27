@@ -10,7 +10,7 @@ import ebi.ac.uk.security.integration.model.api.UserInfo
 import java.util.ArrayList
 
 class SecurityMapper {
-    
+
     fun toUserProfile(userInfo: UserInfo): UserProfile = userInfo.let { (user, token) ->
         UserProfile(
             sessid = token,

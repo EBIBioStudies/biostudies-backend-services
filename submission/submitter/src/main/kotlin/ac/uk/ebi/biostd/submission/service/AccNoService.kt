@@ -1,7 +1,6 @@
 package ac.uk.ebi.biostd.submission.service
 
 import ac.uk.ebi.biostd.persistence.common.service.PersistenceService
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.submission.exceptions.ProvideAccessNumber
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotSubmitToProjectException
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotUpdateSubmit
@@ -14,16 +13,15 @@ const val PATH_DIGITS = 3
 
 class AccNoService(
     private val service: PersistenceService,
-    private val queryService: SubmissionMetaQueryService,
     private val patternUtil: AccNoPatternUtil,
     private val privilegesService: IUserPrivilegesService
 ) {
     @Suppress("ThrowsCount")
     fun getAccNo(request: AccNoServiceRequest): AccNumber {
-        val (submitter, accNo, project, projectPattern) = request
+        val (submitter, accNo, isNew, project, projectPattern) = request
 
         when {
-            accNo == null || queryService.isNew(accNo) -> {
+            accNo == null || isNew -> {
                 if (accNo != null && privilegesService.canProvideAccNo(submitter).not())
                     throw ProvideAccessNumber(submitter)
                 if (project != null && privilegesService.canSubmitToProject(submitter, project).not())
@@ -61,6 +59,7 @@ class AccNoService(
 data class AccNoServiceRequest(
     val submitter: String,
     val accNo: String? = null,
+    val isNew: Boolean = true,
     val project: String? = null,
     val projectPattern: String? = null
 )

@@ -1,7 +1,6 @@
 package ac.uk.ebi.biostd.submission.service
 
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
-import ac.uk.ebi.biostd.persistence.exception.ProjectNotFoundException
 import ac.uk.ebi.biostd.submission.exceptions.ProjectInvalidAccessTagException
 import ebi.ac.uk.model.constants.SubFields
 import java.time.OffsetDateTime
@@ -13,15 +12,15 @@ class ParentInfoService(private val queryService: SubmissionMetaQueryService) {
     }
 
     private fun parentInfo(parentAccNo: String): ParentInfo {
-        require(queryService.existByAccNo(parentAccNo)) { throw ProjectNotFoundException(parentAccNo) }
+        val project = queryService.getBasicProject(parentAccNo)
+        return ParentInfo(accessTags(parentAccNo), project.releaseTime, project.accNoPattern)
+    }
 
+    private fun accessTags(parentAccNo: String): List<String> {
         val accessTags = queryService.getAccessTags(parentAccNo).filterNot { it == SubFields.PUBLIC_ACCESS_TAG.value }
         require(accessTags.contains(parentAccNo)) { throw ProjectInvalidAccessTagException(parentAccNo) }
 
-        return ParentInfo(
-            accessTags,
-            queryService.getReleaseTime(parentAccNo),
-            queryService.getParentAccPattern(parentAccNo))
+        return accessTags
     }
 }
 
