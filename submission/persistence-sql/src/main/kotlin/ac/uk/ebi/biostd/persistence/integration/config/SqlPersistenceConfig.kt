@@ -19,6 +19,7 @@ import ac.uk.ebi.biostd.persistence.repositories.LockExecutor
 import ac.uk.ebi.biostd.persistence.repositories.SectionDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.SubmissionDataRepository
+import ac.uk.ebi.biostd.persistence.repositories.SubmissionRequestDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.SubmissionStatsDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.TagDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataDataRepository
@@ -30,6 +31,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
+import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import java.nio.file.Paths
 
 @Suppress("LongParameterList")
@@ -51,12 +53,16 @@ open class SqlPersistenceConfig(private val applicationProperties: ApplicationPr
         toExtSubmissionMapper: ToExtSubmissionMapper,
         submissionDataRepository: SubmissionDataRepository,
         sectionRepository: SectionDataRepository,
-        statsRepository: SubmissionStatsDataRepository
+        statsRepository: SubmissionStatsDataRepository,
+        extSerializationService: ExtSerializationService,
+        requestDataRepository: SubmissionRequestDataRepository
     ) = SubmissionRepository(
-        submissionDataRepository,
-        sectionRepository,
-        statsRepository,
-        toExtSubmissionMapper())
+            submissionDataRepository,
+            sectionRepository,
+            statsRepository,
+            requestDataRepository,
+            extSerializationService,
+            toExtSubmissionMapper())
 
     @Bean
     internal open fun submissionQueryService(
@@ -85,14 +91,18 @@ open class SqlPersistenceConfig(private val applicationProperties: ApplicationPr
     @Bean
     internal open fun submissionPersistenceService(
         subRepository: SubmissionRepository,
+        serializationService: ExtSerializationService,
         subDataRepository: SubmissionDataRepository,
+        requestDataRepository: SubmissionRequestDataRepository,
         userDataRepository: UserDataDataRepository,
         systemService: FileSystemService,
         toExtMapper: ToExtSubmissionMapper,
         toDbSubmissionMapper: ToDbSubmissionMapper
     ): SubmissionSqlPersistenceService = SubmissionSqlPersistenceService(
         subRepository,
+        serializationService,
         subDataRepository,
+        requestDataRepository,
         userDataRepository,
         systemService,
         toDbSubmissionMapper)

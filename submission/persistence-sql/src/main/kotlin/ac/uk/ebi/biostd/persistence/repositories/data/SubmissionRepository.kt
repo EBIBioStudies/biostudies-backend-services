@@ -12,6 +12,7 @@ import ac.uk.ebi.biostd.persistence.model.constants.SUB_RELEASE_TIME
 import ac.uk.ebi.biostd.persistence.pagination.OffsetPageRequest
 import ac.uk.ebi.biostd.persistence.repositories.SectionDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.SubmissionDataRepository
+import ac.uk.ebi.biostd.persistence.repositories.SubmissionRequestDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.SubmissionStatsDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.data.ProjectSqlDataService.Companion.SIMPLE_GRAPH
 import ac.uk.ebi.biostd.persistence.repositories.data.ProjectSqlDataService.Companion.asBasicSubmission
@@ -23,6 +24,7 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.data.domain.Sort.Order
 import org.springframework.transaction.annotation.Transactional
+import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 
 private val logger = KotlinLogging.logger {}
 private val defaultOrder = Order.asc("id")
@@ -32,6 +34,8 @@ internal open class SubmissionRepository(
     private val submissionRepository: SubmissionDataRepository,
     private val sectionRepository: SectionDataRepository,
     private val statsRepository: SubmissionStatsDataRepository,
+    private val requestRepository: SubmissionRequestDataRepository,
+    private val extSerializationService: ExtSerializationService,
     private var submissionMapper: ToExtSubmissionMapper
 ) : SubmissionQueryService {
     @Transactional(readOnly = true)
@@ -70,6 +74,11 @@ internal open class SubmissionRepository(
             .findAll(filterSpecs.specification, pageable, EntityGraphs.named(SIMPLE_GRAPH))
             .content
             .map { it.asBasicSubmission() }
+    }
+
+    override fun getRequest(accNo: String, version: Int): ExtSubmission {
+        val request = requestRepository.getByAccNoAndVersion(accNo, version)
+        return extSerializationService.deserialize(request.request)
     }
 
     private fun loadSubmissionAndStatus(accNo: String, version: Int? = null): DbToExtRequest =

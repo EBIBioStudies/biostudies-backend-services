@@ -7,6 +7,7 @@ import ac.uk.ebi.biostd.persistence.model.DbAccessTag
 import ac.uk.ebi.biostd.persistence.model.DbSection
 import ac.uk.ebi.biostd.persistence.model.DbSubmission
 import ac.uk.ebi.biostd.persistence.model.DbSubmissionRT
+import ac.uk.ebi.biostd.persistence.model.DbSubmissionRequest
 import ac.uk.ebi.biostd.persistence.model.DbSubmissionStat
 import ac.uk.ebi.biostd.persistence.model.DbTag
 import ac.uk.ebi.biostd.persistence.model.DbUser
@@ -83,6 +84,10 @@ interface SubmissionDataRepository :
 
     @Query("select s.accNo as accNo, s.version as version from DbSubmission s where s.version > 0 ")
     fun getIds(pageRequest: Pageable): Page<SubmissionId>
+}
+
+interface SubmissionRequestDataRepository : JpaRepository<DbSubmissionRequest, Long> {
+    fun getByAccNoAndVersion(accNo: String, version: Int): DbSubmissionRequest
 }
 
 interface SectionDataRepository : JpaRepository<DbSection, Long> {

@@ -26,8 +26,9 @@ import uk.ac.ebi.events.service.EventsPublisherService
 
 private val logger = KotlinLogging.logger {}
 
+@Suppress("TooManyFunctions")
 class SubmissionService(
-    private val subRepository: SubmissionQueryService,
+    private val submissionQueryService: SubmissionQueryService,
     private val serializationService: SerializationService,
     private val userPrivilegesService: IUserPrivilegesService,
     private val queryService: SubmissionMetaQueryService,
@@ -50,42 +51,46 @@ class SubmissionService(
         myRabbitTemplate.convertAndSend(
             BIOSTUDIES_EXCHANGE,
             SUBMISSIONS_REQUEST_ROUTING_KEY,
-            SubmissionRequestMessage(extSubmission, mode)
+            SubmissionRequestMessage(extSubmission.accNo, extSubmission.version, mode)
         )
     }
 
     @RabbitListener(queues = [SUBMISSION_REQUEST_QUEUE], concurrency = "1-1")
     fun processSubmission(request: SubmissionRequestMessage) {
-        logger.info { "received process message for submission ${request.submission}" }
-
-        val submission = submissionSubmitter.processRequest(SaveSubmissionRequest(request.submission, request.fileMode))
-        eventsPublisherService.submissionSubmitted(submission)
+        logger.info { "received process message for submission ${request.accNo} , version: ${request.version}" }
+        val submission = getRequest(request.accNo, request.version)
+        val processed = submissionSubmitter.processRequest(SaveSubmissionRequest(submission, request.fileMode))
+        eventsPublisherService.submissionSubmitted(processed)
     }
 
     fun getSubmissionAsJson(accNo: String): String {
-        val submission = subRepository.getSimpleByAccNo(accNo)
+        val submission = submissionQueryService.getSimpleByAccNo(accNo)
         return serializationService.serializeSubmission(submission, JsonPretty)
     }
 
     fun getSubmissionAsXml(accNo: String): String {
-        val submission = subRepository.getSimpleByAccNo(accNo)
+        val submission = submissionQueryService.getSimpleByAccNo(accNo)
         return serializationService.serializeSubmission(submission, XmlFormat)
     }
 
     fun getSubmissionAsTsv(accNo: String): String {
-        val submission = subRepository.getSimpleByAccNo(accNo)
+        val submission = submissionQueryService.getSimpleByAccNo(accNo)
         return serializationService.serializeSubmission(submission, Tsv)
     }
 
-    fun getSubmissions(user: SecurityUser, filter: SubmissionFilter): List<BasicSubmission> =
-        subRepository.getSubmissionsByUser(user.id, filter)
+    fun getSubmissions(
+        user: SecurityUser,
+        filter: SubmissionFilter
+    ): List<BasicSubmission> = submissionQueryService.getSubmissionsByUser(user.id, filter)
 
     fun deleteSubmission(accNo: String, user: SecurityUser) {
         require(userPrivilegesService.canDelete(user.email, accNo))
-        subRepository.expireSubmission(accNo)
+        submissionQueryService.expireSubmission(accNo)
     }
 
-    fun getSubmission(accNo: String): ExtSubmission = subRepository.getExtByAccNo(accNo)
+    fun getSubmission(accNo: String): ExtSubmission = submissionQueryService.getExtByAccNo(accNo)
 
     fun findPreviousVersion(accNo: String): BasicSubmission? = queryService.findLatestBasicByAccNo(accNo)
+
+    private fun getRequest(accNo: String, version: Int) = submissionQueryService.getRequest(accNo, version)
 }

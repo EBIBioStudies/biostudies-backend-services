@@ -36,6 +36,8 @@ interface SubmissionQueryService {
     fun getExtendedSubmissions(filter: SubmissionFilter, offset: Long, limit: Int): Page<ExtSubmission>
 
     fun getSubmissionsByUser(userId: Long, filter: SubmissionFilter): List<BasicSubmission>
+
+    fun getRequest(accNo: String, version: Int): ExtSubmission
 }
 
 interface SubmissionMetaQueryService {
