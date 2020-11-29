@@ -17,7 +17,7 @@ class AccNoService(
     private val privilegesService: IUserPrivilegesService
 ) {
     @Suppress("ThrowsCount")
-    fun getAccNo(request: AccNoServiceRequest): AccNumber {
+    fun calculateAccNo(request: AccNoServiceRequest): AccNumber {
         val (submitter, accNo, isNew, project, projectPattern) = request
         checkCanProvideAcc(accNo, submitter)
         checkCanSubmitToProject(project, submitter)
@@ -27,7 +27,7 @@ class AccNoService(
             return patternUtil.toAccNumber(accNo)
         }
 
-        return accNo?.let { patternUtil.toAccNumber(it) } ?: accNo(getPattern(projectPattern))
+        return accNo?.let { patternUtil.toAccNumber(it) } ?: calculateAccNo(getPattern(projectPattern))
     }
 
     private fun checkCanSubmitToProject(project: String?, submitter: String) {
@@ -43,7 +43,7 @@ class AccNoService(
         if (accNo != null && privilegesService.canProvideAccNo(submitter).not()) throw ProvideAccessNumber(submitter)
     }
 
-    private fun accNo(pattern: String) = AccNumber(pattern, service.getSequenceNextValue(pattern).toString())
+    private fun calculateAccNo(pattern: String) = AccNumber(pattern, service.getSequenceNextValue(pattern).toString())
 
     @Suppress("MagicNumber")
     internal fun getRelPath(accNo: AccNumber): String {

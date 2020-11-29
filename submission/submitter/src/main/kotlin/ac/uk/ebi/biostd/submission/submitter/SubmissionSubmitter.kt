@@ -168,7 +168,7 @@ class SubmissionSubmitter(
         val accNo = sub.accNo.ifBlank { null }
         val request = AccNoServiceRequest(user.email, accNo, isNew, sub.attachTo, parentPattern)
 
-        return accNoService.getAccNo(request)
+        return accNoService.calculateAccNo(request)
     }
 
     private fun getTimes(sub: Submission, creationTime: OffsetDateTime?, parentReleaseTime: OffsetDateTime?) =

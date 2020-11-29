@@ -177,7 +177,7 @@ class SubmissionSubmitterTest {
 
     private fun verifyProcessServices() = verify(exactly = 1) {
         accNoService.getRelPath(accNo)
-        accNoService.getAccNo(accNoServiceRequest.captured)
+        accNoService.calculateAccNo(accNoServiceRequest.captured)
 
         queryService.findLatestBasicByAccNo("S-TEST123")
 
@@ -200,7 +200,7 @@ class SubmissionSubmitterTest {
 
     private fun mockServices() {
         every { accNoService.getRelPath(accNo) } returns "/a/rel/path"
-        every { accNoService.getAccNo(capture(accNoServiceRequest)) } returns accNo
+        every { accNoService.calculateAccNo(capture(accNoServiceRequest)) } returns accNo
         every { queryService.findLatestBasicByAccNo("S-TEST123") } returns basicSubmission
         every { timesService.getTimes(capture(timesRequest)) } returns Times(testTime, testTime, null)
         every { projectInfoService.process(capture(projectRequest)) } returns ProjectResponse("BioImages")

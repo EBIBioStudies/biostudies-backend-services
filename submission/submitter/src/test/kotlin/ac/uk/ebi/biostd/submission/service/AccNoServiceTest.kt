@@ -50,7 +50,7 @@ class AccNoServiceTest(
             every { privilegesService.canProvideAccNo(SUBMITTER) } returns false
 
             assertThrows<ProvideAccessNumber> {
-                testInstance.getAccNo(AccNoServiceRequest(SUBMITTER, ACC_NO))
+                testInstance.calculateAccNo(AccNoServiceRequest(SUBMITTER, ACC_NO))
             }
         }
 
@@ -59,7 +59,7 @@ class AccNoServiceTest(
             every { privilegesService.canSubmitToProject(SUBMITTER, PROJECT) } returns false
 
             assertThrows<UserCanNotSubmitToProjectException> {
-                testInstance.getAccNo(AccNoServiceRequest(submitter = SUBMITTER, project = PROJECT))
+                testInstance.calculateAccNo(AccNoServiceRequest(submitter = SUBMITTER, project = PROJECT))
             }
         }
 
@@ -69,7 +69,7 @@ class AccNoServiceTest(
             fun whenNoProject() {
                 every { privilegesService.canProvideAccNo(SUBMITTER) } returns true
 
-                assertThat(testInstance.getAccNo(AccNoServiceRequest(submitter = SUBMITTER, accNo = ACC_NO)))
+                assertThat(testInstance.calculateAccNo(AccNoServiceRequest(submitter = SUBMITTER, accNo = ACC_NO)))
                     .isEqualTo(ACC_NUM)
             }
 
@@ -78,7 +78,7 @@ class AccNoServiceTest(
                 every { privilegesService.canProvideAccNo(SUBMITTER) } returns true
                 every { privilegesService.canSubmitToProject(SUBMITTER, PROJECT) } returns true
 
-                assertThat(testInstance.getAccNo(
+                assertThat(testInstance.calculateAccNo(
                     AccNoServiceRequest(submitter = SUBMITTER, accNo = ACC_NO, project = PROJECT)))
                     .isEqualTo(ACC_NUM)
             }
@@ -91,7 +91,7 @@ class AccNoServiceTest(
                 every { privilegesService.canSubmitToProject(SUBMITTER, PROJECT) } returns true
                 every { service.getSequenceNextValue("ABC-") } returns 10
 
-                assertThat(testInstance.getAccNo(AccNoServiceRequest(
+                assertThat(testInstance.calculateAccNo(AccNoServiceRequest(
                     submitter = SUBMITTER,
                     project = PROJECT,
                     projectPattern = PROJECT_PATTERN)))
@@ -104,7 +104,7 @@ class AccNoServiceTest(
                 every { privilegesService.canSubmitToProject(SUBMITTER, PROJECT) } returns true
                 every { service.getSequenceNextValue("S-BSST") } returns 99
 
-                assertThat(testInstance.getAccNo(AccNoServiceRequest(
+                assertThat(testInstance.calculateAccNo(AccNoServiceRequest(
                     submitter = SUBMITTER,
                     project = PROJECT)))
                     .isEqualTo(AccNumber("S-BSST", "99"))
@@ -119,7 +119,7 @@ class AccNoServiceTest(
             every { privilegesService.canSubmitToProject(SUBMITTER, PROJECT) } returns false
 
             val request = AccNoServiceRequest(submitter = SUBMITTER, accNo = ACC_NO, project = PROJECT, isNew = false)
-            val error = assertThrows<UserCanNotSubmitToProjectException> { testInstance.getAccNo(request) }
+            val error = assertThrows<UserCanNotSubmitToProjectException> { testInstance.calculateAccNo(request) }
 
             assertThat(error.message).isEqualTo("The user submiter@email.com is not allowed to submit to CC123 project")
         }
@@ -129,7 +129,7 @@ class AccNoServiceTest(
             every { privilegesService.canSubmitToProject(SUBMITTER, PROJECT) } returns false
 
             val request = AccNoServiceRequest(submitter = SUBMITTER, accNo = ACC_NO, project = PROJECT, isNew = false)
-            val error = assertThrows<UserCanNotSubmitToProjectException> { testInstance.getAccNo(request) }
+            val error = assertThrows<UserCanNotSubmitToProjectException> { testInstance.calculateAccNo(request) }
 
             assertThat(error.message).isEqualTo("The user submiter@email.com is not allowed to submit to CC123 project")
         }
