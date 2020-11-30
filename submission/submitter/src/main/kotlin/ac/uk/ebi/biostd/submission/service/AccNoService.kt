@@ -17,28 +17,30 @@ class AccNoService(
     private val privilegesService: IUserPrivilegesService
 ) {
     @Suppress("ThrowsCount")
-    fun getAccNo(request: AccNoServiceRequest): AccNumber {
+    fun calculateAccNo(request: AccNoServiceRequest): AccNumber {
         val (submitter, accNo, isNew, project, projectPattern) = request
+        checkCanProvideAcc(accNo, submitter)
+        checkCanSubmitToProject(project, submitter)
 
-        when {
-            accNo == null || isNew -> {
-                if (accNo != null && privilegesService.canProvideAccNo(submitter).not())
-                    throw ProvideAccessNumber(submitter)
-                if (project != null && privilegesService.canSubmitToProject(submitter, project).not())
-                    throw UserCanNotSubmitToProjectException(submitter, project)
-
-                return accNo?.let { patternUtil.toAccNumber(it) } ?: calculateAccNo(getPatternOrDefault(projectPattern))
-            }
-            else -> {
-                if (project != null && privilegesService.canSubmitToProject(submitter, project).not())
-                    throw UserCanNotSubmitToProjectException(submitter, project)
-
-                if (privilegesService.canResubmit(submitter, accNo).not())
-                    throw UserCanNotUpdateSubmit(accNo, submitter)
-
-                return patternUtil.toAccNumber(accNo)
-            }
+        if (accNo != null && isNew.not()) {
+            checkCanReSubmit(accNo, submitter)
+            return patternUtil.toAccNumber(accNo)
         }
+
+        return accNo?.let { patternUtil.toAccNumber(it) } ?: calculateAccNo(getPattern(projectPattern))
+    }
+
+    private fun checkCanSubmitToProject(project: String?, submitter: String) {
+        if (project != null && privilegesService.canSubmitToProject(submitter, project).not())
+            throw UserCanNotSubmitToProjectException(submitter, project)
+    }
+
+    private fun checkCanReSubmit(accNo: String, submitter: String) {
+        if (privilegesService.canResubmit(submitter, accNo).not()) throw UserCanNotUpdateSubmit(accNo, submitter)
+    }
+
+    private fun checkCanProvideAcc(accNo: String?, submitter: String) {
+        if (accNo != null && privilegesService.canProvideAccNo(submitter).not()) throw ProvideAccessNumber(submitter)
     }
 
     private fun calculateAccNo(pattern: String) = AccNumber(pattern, service.getSequenceNextValue(pattern).toString())
@@ -50,7 +52,7 @@ class AccNoService(
         return "$prefix/${suffix.takeLast(PATH_DIGITS)}/$accNo".removePrefix("/")
     }
 
-    private fun getPatternOrDefault(parentPattern: String?) = when (parentPattern) {
+    private fun getPattern(parentPattern: String?) = when (parentPattern) {
         null -> patternUtil.getPattern(DEFAULT_PATTERN)
         else -> patternUtil.getPattern(parentPattern)
     }
