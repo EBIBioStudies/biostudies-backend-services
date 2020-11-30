@@ -2,6 +2,7 @@ import Dependencies.Arrow
 import Dependencies.CommonsIO
 import Dependencies.CommonsLang3
 import Dependencies.HibernateEntityManager
+import Dependencies.JacksonKotlin
 import Dependencies.JpaEntityGraph
 import Dependencies.KotlinLogging
 import Dependencies.KotlinStdLib
@@ -40,6 +41,7 @@ dependencies {
     implementation(CommonsLang3)
     implementation(CommonsIO)
     implementation(HibernateEntityManager)
+    implementation(JacksonKotlin)
     implementation(JpaEntityGraph)
     implementation(KotlinStdLib)
     implementation(KotlinLogging)

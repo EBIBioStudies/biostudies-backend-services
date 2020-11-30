@@ -1,9 +1,10 @@
-package uk.ac.ebi.stats.service
+package ac.uk.ebi.biostd.persistence.service
 
+import ac.uk.ebi.biostd.persistence.common.model.SubmissionStat
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType.VIEWS
 import ac.uk.ebi.biostd.persistence.common.request.PaginationFilter
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
-import ac.uk.ebi.biostd.persistence.exception.SubmissionNotFoundException
+import ac.uk.ebi.biostd.persistence.exception.StatNotFoundException
 import ac.uk.ebi.biostd.persistence.model.DbSubmissionStat
 import ac.uk.ebi.biostd.persistence.repositories.SubmissionStatsDataRepository
 import io.mockk.clearAllMocks
@@ -20,16 +21,14 @@ import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
-import uk.ac.ebi.stats.exception.StatNotFoundException
-import uk.ac.ebi.stats.model.SubmissionStat
 
 @ExtendWith(MockKExtension::class)
-class SubmissionStatsServiceTest(
+class StatsSqlDataServiceTest(
     @MockK private val queryService: SubmissionMetaQueryService,
     @MockK private val statsRepository: SubmissionStatsDataRepository
 ) {
     private val testStat = DbSubmissionStat("S-TEST123", 10, VIEWS)
-    private val testInstance = SubmissionStatsService(queryService, statsRepository)
+    private val testInstance = StatsSqlDataService(queryService, statsRepository)
 
     @BeforeEach
     fun beforeEach() {
@@ -70,37 +69,9 @@ class SubmissionStatsServiceTest(
     }
 
     @Test
-    fun `save new`() {
-        val dbStat = slot<DbSubmissionStat>()
-        val stat = SubmissionStat("S-TEST123", 10, VIEWS)
-
-        every { statsRepository.save(capture(dbStat)) } returns testStat
-        every { statsRepository.findByAccNoAndType("S-TEST123", VIEWS) } returns null
-
-        val newStat = testInstance.save(stat)
-        assertTestStat(newStat, "S-TEST123", 10)
-        verify(exactly = 1) { statsRepository.save(dbStat.captured) }
-        verify(exactly = 1) { statsRepository.findByAccNoAndType("S-TEST123", VIEWS) }
-    }
-
-    @Test
-    fun `save existing`() {
-        val dbStat = slot<DbSubmissionStat>()
-        val stat = SubmissionStat("S-TEST123", 30, VIEWS)
-
-        every { statsRepository.findByAccNoAndType("S-TEST123", VIEWS) } returns testStat
-        every { statsRepository.save(capture(dbStat)) } returns DbSubmissionStat("S-TEST123", 30, VIEWS)
-
-        val updatedStat = testInstance.save(stat)
-        assertTestStat(updatedStat, "S-TEST123", 30)
-        verify(exactly = 1) { statsRepository.save(dbStat.captured) }
-        verify(exactly = 1) { statsRepository.findByAccNoAndType("S-TEST123", VIEWS) }
-    }
-
-    @Test
     fun `save batch`() {
         val dbStat = slot<List<DbSubmissionStat>>()
-        val stat = SubmissionStat("S-TEST123", 10, VIEWS)
+        val stat = DbSubmissionStat("S-TEST123", 10, VIEWS)
 
         every { statsRepository.saveAll(capture(dbStat)) } returns listOf(testStat)
         every { statsRepository.findByAccNoAndType("S-TEST123", VIEWS) } returns null
@@ -115,7 +86,7 @@ class SubmissionStatsServiceTest(
     @Test
     fun `increment existing`() {
         val statSlot = slot<List<DbSubmissionStat>>()
-        val stat = SubmissionStat("S-TEST123", 5, VIEWS)
+        val stat = DbSubmissionStat("S-TEST123", 5, VIEWS)
         val statDb = DbSubmissionStat("S-TEST123", 10, VIEWS)
 
         every { statsRepository.existsByAccNoAndType("S-TEST123", VIEWS) } returns true
@@ -131,7 +102,7 @@ class SubmissionStatsServiceTest(
     @Test
     fun `increment non existing`() {
         val statSlot = slot<List<DbSubmissionStat>>()
-        val stat = SubmissionStat("S-TEST123", 14, VIEWS)
+        val stat = DbSubmissionStat("S-TEST123", 14, VIEWS)
 
         every { statsRepository.findByAccNoAndType("S-TEST123", VIEWS) } returns null
         every { statsRepository.existsByAccNoAndType("S-TEST123", VIEWS) } returns false
@@ -144,15 +115,9 @@ class SubmissionStatsServiceTest(
     }
 
     @Test
-    fun `save stat for not existing submission`() {
-        every { queryService.existByAccNo("S-TEST123") } returns false
-        assertThrows<SubmissionNotFoundException> { testInstance.save(SubmissionStat("S-TEST123", 10, VIEWS)) }
-    }
-
-    @Test
     fun `save batch for non existing submission`() {
         val statSlot = slot<List<DbSubmissionStat>>()
-        val stats = listOf(SubmissionStat("S-TEST123", 10, VIEWS), SubmissionStat("S-TEST124", 20, VIEWS))
+        val stats = listOf(DbSubmissionStat("S-TEST123", 10, VIEWS), DbSubmissionStat("S-TEST124", 20, VIEWS))
 
         every { queryService.existByAccNo("S-TEST123") } returns true
         every { queryService.existByAccNo("S-TEST124") } returns false
@@ -170,9 +135,9 @@ class SubmissionStatsServiceTest(
         val statSlot = slot<List<DbSubmissionStat>>()
         val existingStatDb = DbSubmissionStat("S-TEST123", 5, VIEWS)
         val stats = listOf(
-            SubmissionStat("S-TEST123", 10, VIEWS),
-            SubmissionStat("S-TEST124", 20, VIEWS),
-            SubmissionStat("S-TEST125", 30, VIEWS))
+            DbSubmissionStat("S-TEST123", 10, VIEWS),
+            DbSubmissionStat("S-TEST124", 20, VIEWS),
+            DbSubmissionStat("S-TEST125", 30, VIEWS))
 
         every { queryService.existByAccNo("S-TEST123") } returns true
         every { queryService.existByAccNo("S-TEST124") } returns false
@@ -191,9 +156,9 @@ class SubmissionStatsServiceTest(
         val statSlot = slot<List<DbSubmissionStat>>()
         val existingStatDb = DbSubmissionStat("DIXA", 5, VIEWS)
         val stats = listOf(
-            SubmissionStat("diXa", 10, VIEWS),
-            SubmissionStat("dixa", 20, VIEWS),
-            SubmissionStat("DIXA", 30, VIEWS))
+            DbSubmissionStat("diXa", 10, VIEWS),
+            DbSubmissionStat("dixa", 20, VIEWS),
+            DbSubmissionStat("DIXA", 30, VIEWS))
 
         every { queryService.existByAccNo("diXa") } returns true
         every { queryService.existByAccNo("dixa") } returns true
