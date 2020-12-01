@@ -1,57 +1,44 @@
 spring:
+  application:
+    name: Submitter-Dev
+
   boot:
     admin:
       client:
-        url: http://biostudy-prod.ebi.ac.uk:8590
         enabled: false
 
   datasource:
-    url: # Database connection URL
-    username:
-    password:
+    url: jdbc:mysql://mysql-fg-biostudy-dev.ebi.ac.uk:4639/biostd_dev?useUnicode=true&characterEncoding=utf-8
+    username: biostd_dev
+    password: biostd_dev
     driver-class-name: com.mysql.jdbc.Driver
+    hikari:
+      maximum-pool-size: 15
 
   jpa:
     show-sql: false
-    hibernate:
-      naming:
-        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
-      use-new-id-generator-mappings: false
 
   rabbitmq:
-    host: # RabbitMQ host
-    username: # RabbitMQ user
-    password: # RabbitMQ password
-    port: # RabbitMQ port
-
-  servlet:
-    multipart:
-      max-file-size: 20GB
-      max-request-size: 20GB
-      location: ${app.tempDirPath}
-
-logging:
-  file:
-    max-history: 7
-    name: logs/application_logs.txt
+    host: biostudy-dev-mq.ebi.ac.uk
+    username: manager
+    password: manager-dev
+    port: 5673
 
 app:
-  submissionPath: # Absolute path to the folder to be used as submission storage
-  ftpPath: # Absolute path to the folder to be used ftp hardlinks
-  tempDirPath: # Absolute of the temp folder to store files
-  instanceBaseUrl: # Instance base url e.g. http://server.ebi.ac.uk:5541
+  basepath: /ebi/teams/biostudies/backend/development
+  submissionPath: /ebi/teams/biostudies/backend/development/submission
+  ftpPath: /ebi/teams/biostudies/backend/development/submission/ftp
+  tempDirPath: /ebi/teams/biostudies/backend/development/temp
+  instanceBaseUrl: http://biostudy-bia.ebi.ac.uk:8788
   fire:
     host: # FIRE host
     username: # FIRE user
     password: # FIRE password
   security:
-    captchaKey: # Captcha validation token
-    checkCaptcha: false
-    tokenHash: # Token used for hash authentication
-    filesDirPath: # Absolute path to the folder to be used for the user/groups files
-    magicDirPath: #  Absolute path to create user magic folder for dropbox simple access
-    environment: # Current application execution environment
-    requireActivation: # Indicates whether or not, new user need activation before being used
-  notifications:
-    smtp: smtp.ebi.ac.uk
-    uiUrl: # The BioStudies UI url
+    environment: DEV
+    tokenHash: D3V-3NV1R0NM3NT
+    filesDirPath: /ebi/teams/biostudies/backend/development/dropbox
+    magicDirPath: /ebi/teams/biostudies/backend/development/usergroup/Users
+    requireActivation: false
+    checkCaptcha: true
+    captchaKey: 6Lc8JN0UAAAAADghgTRRo8D0jQUUDGr4va9VynWC
