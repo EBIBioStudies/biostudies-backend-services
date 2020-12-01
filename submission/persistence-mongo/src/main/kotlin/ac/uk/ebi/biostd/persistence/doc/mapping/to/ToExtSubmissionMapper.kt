@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionMethod
 import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod
+import ebi.ac.uk.extended.model.ExtTag
 import ebi.ac.uk.extended.model.Project
 import ebi.ac.uk.io.sources.ComposedFileSource
 import ebi.ac.uk.io.sources.FilesSource
@@ -13,30 +14,31 @@ import ebi.ac.uk.io.sources.PathFilesSource
 import java.nio.file.Path
 import java.time.ZoneOffset
 
-internal class ToExtSubmissionMapper(private val submissionsPath: Path) {
+private const val FILES_DIR = "Files"
+private const val USER_PREFIX = "u"
 
-    internal fun toExtSubmission(submission: DocSubmission): ExtSubmission {
-        return ExtSubmission(
-            accNo = submission.accNo,
-            owner = submission.owner,
-            submitter = submission.submitter,
-            title = submission.title,
-            version = submission.version,
-            method = getMethod(submission.method),
-            status = getStatus(submission.status),
-            relPath = submission.relPath,
-            rootPath = submission.rootPath,
-            released = submission.released,
-            secretKey = submission.secretKey,
-            releaseTime = submission.releaseTime?.atOffset(ZoneOffset.UTC),
-            modificationTime = submission.modificationTime.atOffset(ZoneOffset.UTC),
-            creationTime = submission.creationTime.atOffset(ZoneOffset.UTC),
-            section = submission.section.toExtSection(getSubmissionSource(submission)),
-            //   attributes = submission.attributes.map { it.toExtAttribute() },
-            projects = submission.projects.map { Project(it.accNo) },
-            //    tags = submission.tags.map { ExtTag(it.classifier, it.name) },
-            stats = emptyList())
-    }
+internal class ToExtSubmissionMapper(private val submissionsPath: Path) {
+    internal fun toExtSubmission(submission: DocSubmission): ExtSubmission = ExtSubmission(
+        accNo = submission.accNo,
+        owner = submission.owner,
+        submitter = submission.submitter,
+        title = submission.title,
+        version = submission.version,
+        method = getMethod(submission.method),
+        status = getStatus(submission.status),
+        relPath = submission.relPath,
+        rootPath = submission.rootPath,
+        released = submission.released,
+        secretKey = submission.secretKey,
+        releaseTime = submission.releaseTime?.atOffset(ZoneOffset.UTC),
+        modificationTime = submission.modificationTime.atOffset(ZoneOffset.UTC),
+        creationTime = submission.creationTime.atOffset(ZoneOffset.UTC),
+        section = submission.section.toExtSection(getSubmissionSource(submission)),
+        attributes = submission.attributes.map { it.toExtAttribute() },
+        projects = submission.projects.map { Project(it.accNo) },
+        tags = submission.tags.map { ExtTag(it.name, it.value) },
+        stats = submission.stats.map { it.toExtStat() }
+    )
 
     private fun getStatus(status: DocProcessingStatus) = when (status) {
         DocProcessingStatus.PROCESSED -> ExtProcessingStatus.PROCESSED
@@ -59,9 +61,4 @@ internal class ToExtSubmissionMapper(private val submissionsPath: Path) {
         PathFilesSource(filesPath),
         PathFilesSource(filesPath.resolve(USER_PREFIX))
     )
-
-    companion object {
-        private const val FILES_DIR = "Files"
-        private const val USER_PREFIX = "u"
-    }
 }

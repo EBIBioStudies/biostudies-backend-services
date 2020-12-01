@@ -63,4 +63,4 @@ data class DocSection(
     val links: List<Either<DocLink, DocLinkTable>> = listOf()
 )
 
-data class DocStat(val name: String, val value: String)
+data class DocStat(val name: String, val value: Long)
