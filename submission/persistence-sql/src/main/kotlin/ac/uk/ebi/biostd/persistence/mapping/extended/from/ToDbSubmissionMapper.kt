@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.persistence.mapping.extended.from
 
+import ac.uk.ebi.biostd.persistence.exception.UserNotFoundException
 import ac.uk.ebi.biostd.persistence.model.DbSubmission
 import ac.uk.ebi.biostd.persistence.model.DbSubmissionAttribute
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
@@ -33,8 +34,8 @@ internal class ToDbSubmissionMapper(
         creationTime = submission.creationTime
         modificationTime = submission.modificationTime
         releaseTime = submission.releaseTime
-        owner = userRepository.getByEmail(submission.owner)
-        submitter = userRepository.getByEmail(submission.submitter)
+        owner = getUser(submission.owner)
+        submitter = getUser(submission.submitter)
         accessTags = toAccessTag(submission.projects)
         tags = toTags(submission.tags)
         released = submission.released
@@ -63,4 +64,6 @@ internal class ToDbSubmissionMapper(
 
     private fun toTags(tags: List<ExtTag>) =
         tags.mapTo(mutableSetOf()) { tagsRefRepository.findByClassifierAndName(it.name, it.value) }
+
+    private fun getUser(email: String) = userRepository.findByEmail(email).orElseThrow { UserNotFoundException(email) }
 }

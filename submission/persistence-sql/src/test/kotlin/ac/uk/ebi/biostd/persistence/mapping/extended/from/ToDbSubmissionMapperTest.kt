@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.persistence.mapping.extended.from
 
+import ac.uk.ebi.biostd.persistence.exception.UserNotFoundException
 import ac.uk.ebi.biostd.persistence.model.DbAccessTag
 import ac.uk.ebi.biostd.persistence.model.DbTag
 import ac.uk.ebi.biostd.persistence.model.DbUser
@@ -15,8 +16,11 @@ import ac.uk.ebi.biostd.persistence.test.project
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
+import java.util.Optional
 
 @ExtendWith(MockKExtension::class)
 internal class ToDbSubmissionMapperTest(
@@ -27,7 +31,7 @@ internal class ToDbSubmissionMapperTest(
     private val testInstance = ToDbSubmissionMapper(accessTagsRepository, tagsRepository, userRepository)
 
     @Test
-    fun toSubmissionDb(
+    fun `to db submission`(
         @MockK accessTag: DbAccessTag,
         @MockK tag: DbTag,
         @MockK user: DbUser,
@@ -35,11 +39,35 @@ internal class ToDbSubmissionMapperTest(
     ) {
         every { accessTagsRepository.findByName(project.accNo) } returns accessTag
         every { tagsRepository.findByClassifierAndName(extTag.name, extTag.value) } returns tag
-        every { userRepository.getByEmail(OWNER) } returns user
-        every { userRepository.getByEmail(SUBMITTER) } returns submitter
+        every { userRepository.findByEmail(OWNER) } returns Optional.of(user)
+        every { userRepository.findByEmail(SUBMITTER) } returns Optional.of(submitter)
 
         val dbSubmission = testInstance.toSubmissionDb(extSubmission)
 
         assertSubmission(dbSubmission, listOf(accessTag), listOf(tag), user, submitter)
+    }
+
+    @Test
+    fun `non existing owner`(
+        @MockK user: DbUser,
+        @MockK submitter: DbUser
+    ) {
+        every { userRepository.findByEmail(OWNER) } returns Optional.empty()
+        every { userRepository.findByEmail(SUBMITTER) } returns Optional.of(submitter)
+
+        val exception = assertThrows<UserNotFoundException> { testInstance.toSubmissionDb(extSubmission) }
+        assertThat(exception.message).isEqualTo("The user with email '$OWNER' could not be found")
+    }
+
+    @Test
+    fun `non existing submitter`(
+        @MockK user: DbUser,
+        @MockK submitter: DbUser
+    ) {
+        every { userRepository.findByEmail(OWNER) } returns Optional.of(user)
+        every { userRepository.findByEmail(SUBMITTER) } returns Optional.empty()
+
+        val exception = assertThrows<UserNotFoundException> { testInstance.toSubmissionDb(extSubmission) }
+        assertThat(exception.message).isEqualTo("The user with email '$SUBMITTER' could not be found")
     }
 }
