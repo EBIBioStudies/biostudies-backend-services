@@ -1,7 +1,9 @@
 package ac.uk.ebi.biostd.persistence.model
 
+import ac.uk.ebi.biostd.persistence.common.model.SubmissionStat
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType.VIEWS
+import com.fasterxml.jackson.annotation.JsonIgnore
 import javax.persistence.Column
 import javax.persistence.Entity
 import javax.persistence.EnumType
@@ -14,17 +16,18 @@ import javax.persistence.Table
 @Table(name = "SubmissionStat")
 class DbSubmissionStat(
     @Column
-    val accNo: String,
+    override val accNo: String,
 
     @Column
-    val value: Long,
+    override val value: Long,
 
     @Column
     @Enumerated(EnumType.STRING)
-    val type: SubmissionStatType
-) {
+    override val type: SubmissionStatType
+) : SubmissionStat {
     @Id
     @GeneratedValue
+    @JsonIgnore
     var id: Long = 0L
 
     constructor() : this("", -1, VIEWS)

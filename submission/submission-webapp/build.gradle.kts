@@ -48,7 +48,6 @@ dependencies {
     api(project(":submission:submitter"))
     api(project(":submission:submission-security"))
     api(project(":submission:notifications"))
-    api(project(":submission:stats"))
     api(project(":commons:commons-model-extended-serialization"))
     api(project(":commons:commons-serialization"))
     api(project(":commons:commons-util"))
