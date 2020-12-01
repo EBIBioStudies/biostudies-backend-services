@@ -8,7 +8,7 @@ auto-deploy-dev-handlers:
   stage: auto-deploy-dev-handlers
   only:
     refs:
-      - dev
+      - master
 
 deploy-dev-handlers:
   stage: deploy-dev-handlers

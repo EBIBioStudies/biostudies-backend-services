@@ -1,7 +1,6 @@
 package ac.uk.ebi.biostd.persistence.integration.services
 
 import ac.uk.ebi.biostd.persistence.common.filesystem.FileSystemService
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.mapping.extended.from.ToDbSubmissionMapper
 import ac.uk.ebi.biostd.persistence.model.DbSubmissionRequest
@@ -26,9 +25,9 @@ internal open class SubmissionSqlPersistenceService(
     private val userDataRepository: UserDataDataRepository,
     private val systemService: FileSystemService,
     private val toDbMapper: ToDbSubmissionMapper
-) : SubmissionPersistenceService {
+) {
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = false)
-    override fun saveSubmissionRequest(submission: ExtSubmission): ExtSubmission {
+    open fun saveSubmissionRequest(submission: ExtSubmission): ExtSubmission {
         val newVersion = submission.copy(
             version = getNextVersion(submission.accNo),
             status = ExtProcessingStatus.REQUESTED)
@@ -38,7 +37,7 @@ internal open class SubmissionSqlPersistenceService(
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = false)
-    override fun processSubmission(submission: ExtSubmission, mode: FileMode): ExtSubmission {
+    open fun processSubmission(submission: ExtSubmission, mode: FileMode): ExtSubmission {
         subDataRepository.updateStatus(PROCESSING, submission.accNo, submission.version)
         systemService.persistSubmissionFiles(submission, mode)
         processDbSubmission(subRepository.getExtByAccNoAndVersion(submission.accNo, submission.version))

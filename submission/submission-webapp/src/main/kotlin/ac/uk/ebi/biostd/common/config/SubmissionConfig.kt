@@ -15,6 +15,7 @@ import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
 import ac.uk.ebi.biostd.submission.web.handlers.SubmissionsWebHandler
 import ac.uk.ebi.biostd.submission.web.handlers.SubmitWebHandler
 import ac.uk.ebi.biostd.submission.web.resources.ext.ExtendedPageMapper
+import ebi.ac.uk.paths.SubmissionFolderResolver
 import ebi.ac.uk.security.integration.components.ISecurityService
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import org.springframework.amqp.rabbit.core.RabbitTemplate
@@ -28,6 +29,7 @@ import java.net.URI
 @Import(value = [PersistenceConfig::class, SecurityBeansConfig::class])
 class SubmissionConfig(
     private val sourceGenerator: SourceGenerator,
+    private val folderResolver: SubmissionFolderResolver,
     private val serializationService: SerializationService
 ) {
     @Bean
@@ -73,8 +75,8 @@ class SubmissionConfig(
             sourceGenerator,
             serializationService,
             userFilesService,
-            securityService
-        )
+            securityService,
+            folderResolver)
 
     @Bean
     fun submissionHandler(submissionService: SubmissionService): SubmissionsWebHandler =

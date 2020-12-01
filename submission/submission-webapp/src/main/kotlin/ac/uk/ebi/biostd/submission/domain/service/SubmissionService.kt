@@ -5,18 +5,16 @@ import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat.JsonFormat.JsonPretty
 import ac.uk.ebi.biostd.integration.SubFormat.TsvFormat.Tsv
 import ac.uk.ebi.biostd.integration.SubFormat.XmlFormat
-import ac.uk.ebi.biostd.persistence.common.model.SimpleSubmission
+import ac.uk.ebi.biostd.persistence.common.model.BasicSubmission
 import ac.uk.ebi.biostd.persistence.common.request.SaveSubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
-import ac.uk.ebi.biostd.submission.exceptions.ConcurrentProcessingSubmissionException
 import ac.uk.ebi.biostd.submission.ext.getSimpleByAccNo
 import ac.uk.ebi.biostd.submission.model.SubmissionRequest
 import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
 import ebi.ac.uk.extended.events.SubmissionRequestMessage
 import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.paths.FILES_PATH
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import mu.KotlinLogging
@@ -80,7 +78,7 @@ class SubmissionService(
         return serializationService.serializeSubmission(submission, Tsv)
     }
 
-    fun getSubmissions(user: SecurityUser, filter: SubmissionFilter): List<SimpleSubmission> =
+    fun getSubmissions(user: SecurityUser, filter: SubmissionFilter): List<BasicSubmission> =
         submissionQueryService.getSubmissionsByUser(user.id, filter)
 
     fun deleteSubmission(accNo: String, user: SecurityUser) {
@@ -88,12 +86,9 @@ class SubmissionService(
         submissionQueryService.expireSubmission(accNo)
     }
 
-    fun submissionFolder(accNo: String): java.io.File? = queryService.getCurrentFolder(accNo)?.resolve(FILES_PATH)
-
     fun getSubmission(accNo: String): ExtSubmission = submissionQueryService.getExtByAccNo(accNo)
 
-    fun requireNotProcessing(accNo: String) =
-        require(queryService.isProcessing(accNo).not()) { throw ConcurrentProcessingSubmissionException(accNo) }
-
     private fun getRequest(accNo: String, version: Int) = submissionQueryService.getRequest(accNo, version)
+
+    fun findPreviousVersion(accNo: String): BasicSubmission? = queryService.findLatestBasicByAccNo(accNo)
 }

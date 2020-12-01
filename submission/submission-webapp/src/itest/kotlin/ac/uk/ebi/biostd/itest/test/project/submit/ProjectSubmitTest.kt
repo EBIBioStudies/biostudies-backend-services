@@ -14,7 +14,6 @@ import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.line
 import ebi.ac.uk.dsl.tsv
 import ebi.ac.uk.extended.model.ExtProcessingStatus.PROCESSED
-import ebi.ac.uk.util.collections.second
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
@@ -98,12 +97,9 @@ internal class ProjectSubmitTest(tempFolder: TemporaryFolder) : BaseIntegrationT
             assertThat(submittedProject.title).isEqualTo("Public Project")
             assertThat(submittedProject.status).isEqualTo(PROCESSED)
 
-            assertThat(submittedProject.accessTags).hasSize(2)
-            assertThat(submittedProject.accessTags.first().name).isEqualTo("PublicProject")
-            assertThat(submittedProject.accessTags.second().name).isEqualTo("Public")
-
-            assertThat(submittedProject.projects.first().accNo).isEqualTo("PublicProject")
-
+            assertThat(submittedProject.accessTags).hasSize(3)
+            assertThat(submittedProject.accessTags.map { it.name })
+                .containsExactlyInAnyOrder("PublicProject", "Public", "biostudies-mgmt@ebi.ac.uk")
             assertThat(tagsDataRepository.existsByName("PublicProject")).isTrue()
             assertThat(sequenceRepository.existsByPrefix("S-PUP")).isTrue()
         }

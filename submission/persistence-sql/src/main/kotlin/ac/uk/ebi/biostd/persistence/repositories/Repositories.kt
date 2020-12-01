@@ -43,9 +43,6 @@ interface SubmissionDataRepository :
     EntityGraphJpaRepository<DbSubmission, Long>, EntityGraphJpaSpecificationExecutor<DbSubmission> {
     fun findByAccNoAndVersionGreaterThan(id: String, version: Int = 0): DbSubmission?
 
-    @Query("select s from DbSubmission s inner join s.owner where s.accNo = :accNo and s.version > 0")
-    fun getBasic(@Param("accNo") accNo: String): DbSubmission
-
     @Query("select s from DbSubmission s inner join s.owner where s.accNo = :accNo order by s.id desc")
     fun getBasicAllVersions(@Param("accNo") accNo: String, pageable: Pageable): List<DbSubmission>
 
@@ -57,10 +54,7 @@ interface SubmissionDataRepository :
         from DbSubmission s inner join s.owner inner join s.attributes
         where s.accNo = :accNo and s.version > 0
     """)
-    fun getBasicWithAttributes(@Param("accNo") accNo: String): DbSubmission
-
-    @Query("select s from DbSubmission s inner join s.owner where s.accNo = :accNo and s.version > 0")
-    fun findBasic(@Param("accNo") accNo: String): DbSubmission?
+    fun findBasicWithAttributes(@Param("accNo") accNo: String): DbSubmission?
 
     @EntityGraph(value = SUBMISSION_FULL_GRAPH, type = LOAD)
     fun getByAccNoAndVersionGreaterThan(accNo: String, version: Int = 0): DbSubmission?
@@ -90,12 +84,6 @@ interface SubmissionDataRepository :
 
     @Query("select s.accNo as accNo, s.version as version from DbSubmission s where s.version > 0 ")
     fun getIds(pageRequest: Pageable): Page<SubmissionId>
-
-    @Query("""
-        select count(s.id) from DbSubmission s
-        where s.accNo = :accNo and s.version > 0 and s.status <> 'PROCESSED'
-    """)
-    fun getProcessingCount(accNo: String): Int
 }
 
 interface SubmissionRequestDataRepository : JpaRepository<DbSubmissionRequest, Long> {

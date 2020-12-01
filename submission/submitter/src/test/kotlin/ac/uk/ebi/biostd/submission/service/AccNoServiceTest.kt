@@ -1,7 +1,6 @@
 package ac.uk.ebi.biostd.submission.service
 
 import ac.uk.ebi.biostd.persistence.common.service.PersistenceService
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.submission.exceptions.ProvideAccessNumber
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotSubmitToProjectException
 import ac.uk.ebi.biostd.submission.util.AccNoPatternUtil
@@ -11,7 +10,6 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -19,7 +17,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
 
-private const val SUB_ACC_NO = "AAB12"
+private const val ACC_NO = "AAB12"
 private val ACC_NUM = AccNumber("AAB", "12")
 private const val SUBMITTER = "submiter@email.com"
 private const val PROJECT = "CC123"
@@ -28,11 +26,10 @@ private const val PROJECT_PATTERN = "!{ABC-}"
 @ExtendWith(MockKExtension::class)
 class AccNoServiceTest(
     @MockK private val service: PersistenceService,
-    @MockK private val submissionQueryService: SubmissionMetaQueryService,
     @MockK private val privilegesService: IUserPrivilegesService
 ) {
     private val accNoPatternUtil: AccNoPatternUtil = AccNoPatternUtil()
-    private val testInstance = AccNoService(service, submissionQueryService, accNoPatternUtil, privilegesService)
+    private val testInstance = AccNoService(service, accNoPatternUtil, privilegesService)
 
     @ParameterizedTest(name = "prefix is {0} and numeric value is {1}")
     @CsvSource(
@@ -48,18 +45,12 @@ class AccNoServiceTest(
 
     @Nested
     inner class WhenIsNew {
-
-        @BeforeEach
-        fun beforeEach() {
-            every { submissionQueryService.isNew(SUB_ACC_NO) } returns true
-        }
-
         @Test
         fun whenUserCanNoProvideAccession() {
             every { privilegesService.canProvideAccNo(SUBMITTER) } returns false
 
             assertThrows<ProvideAccessNumber> {
-                testInstance.getAccNo(AccNoServiceRequest(SUBMITTER, SUB_ACC_NO))
+                testInstance.calculateAccNo(AccNoServiceRequest(SUBMITTER, ACC_NO))
             }
         }
 
@@ -68,18 +59,17 @@ class AccNoServiceTest(
             every { privilegesService.canSubmitToProject(SUBMITTER, PROJECT) } returns false
 
             assertThrows<UserCanNotSubmitToProjectException> {
-                testInstance.getAccNo(AccNoServiceRequest(submitter = SUBMITTER, project = PROJECT))
+                testInstance.calculateAccNo(AccNoServiceRequest(submitter = SUBMITTER, project = PROJECT))
             }
         }
 
         @Nested
         inner class WhenAccNo {
-
             @Test
             fun whenNoProject() {
                 every { privilegesService.canProvideAccNo(SUBMITTER) } returns true
 
-                assertThat(testInstance.getAccNo(AccNoServiceRequest(submitter = SUBMITTER, accNo = SUB_ACC_NO)))
+                assertThat(testInstance.calculateAccNo(AccNoServiceRequest(submitter = SUBMITTER, accNo = ACC_NO)))
                     .isEqualTo(ACC_NUM)
             }
 
@@ -88,8 +78,8 @@ class AccNoServiceTest(
                 every { privilegesService.canProvideAccNo(SUBMITTER) } returns true
                 every { privilegesService.canSubmitToProject(SUBMITTER, PROJECT) } returns true
 
-                assertThat(testInstance.getAccNo(
-                    AccNoServiceRequest(submitter = SUBMITTER, accNo = SUB_ACC_NO, project = PROJECT)))
+                assertThat(testInstance.calculateAccNo(
+                    AccNoServiceRequest(submitter = SUBMITTER, accNo = ACC_NO, project = PROJECT)))
                     .isEqualTo(ACC_NUM)
             }
         }
@@ -101,7 +91,7 @@ class AccNoServiceTest(
                 every { privilegesService.canSubmitToProject(SUBMITTER, PROJECT) } returns true
                 every { service.getSequenceNextValue("ABC-") } returns 10
 
-                assertThat(testInstance.getAccNo(AccNoServiceRequest(
+                assertThat(testInstance.calculateAccNo(AccNoServiceRequest(
                     submitter = SUBMITTER,
                     project = PROJECT,
                     projectPattern = PROJECT_PATTERN)))
@@ -114,7 +104,7 @@ class AccNoServiceTest(
                 every { privilegesService.canSubmitToProject(SUBMITTER, PROJECT) } returns true
                 every { service.getSequenceNextValue("S-BSST") } returns 99
 
-                assertThat(testInstance.getAccNo(AccNoServiceRequest(
+                assertThat(testInstance.calculateAccNo(AccNoServiceRequest(
                     submitter = SUBMITTER,
                     project = PROJECT)))
                     .isEqualTo(AccNumber("S-BSST", "99"))
@@ -124,19 +114,13 @@ class AccNoServiceTest(
 
     @Nested
     inner class WhenIsNotNew {
-
-        @BeforeEach
-        fun beforeEach() {
-            every { submissionQueryService.isNew(SUB_ACC_NO) } returns false
-        }
-
         @Test
         fun whenUserCanNotSubmitToProject() {
             every { privilegesService.canSubmitToProject(SUBMITTER, PROJECT) } returns false
 
-            val error = assertThrows<UserCanNotSubmitToProjectException> {
-                testInstance.getAccNo(AccNoServiceRequest(submitter = SUBMITTER, accNo = SUB_ACC_NO, project = PROJECT))
-            }
+            val request = AccNoServiceRequest(submitter = SUBMITTER, accNo = ACC_NO, project = PROJECT, isNew = false)
+            val error = assertThrows<UserCanNotSubmitToProjectException> { testInstance.calculateAccNo(request) }
+
             assertThat(error.message).isEqualTo("The user submiter@email.com is not allowed to submit to CC123 project")
         }
 
@@ -144,9 +128,9 @@ class AccNoServiceTest(
         fun whenUserCanNotReSubmit() {
             every { privilegesService.canSubmitToProject(SUBMITTER, PROJECT) } returns false
 
-            val error = assertThrows<UserCanNotSubmitToProjectException> {
-                testInstance.getAccNo(AccNoServiceRequest(submitter = SUBMITTER, accNo = SUB_ACC_NO, project = PROJECT))
-            }
+            val request = AccNoServiceRequest(submitter = SUBMITTER, accNo = ACC_NO, project = PROJECT, isNew = false)
+            val error = assertThrows<UserCanNotSubmitToProjectException> { testInstance.calculateAccNo(request) }
+
             assertThat(error.message).isEqualTo("The user submiter@email.com is not allowed to submit to CC123 project")
         }
     }

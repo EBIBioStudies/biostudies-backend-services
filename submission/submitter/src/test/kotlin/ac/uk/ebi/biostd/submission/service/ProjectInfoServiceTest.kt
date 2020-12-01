@@ -1,7 +1,6 @@
 package ac.uk.ebi.biostd.submission.service
 
 import ac.uk.ebi.biostd.persistence.common.service.PersistenceService
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.submission.exceptions.ProjectAccNoTemplateAlreadyExistsException
 import ac.uk.ebi.biostd.submission.exceptions.ProjectAlreadyExistingException
 import ac.uk.ebi.biostd.submission.exceptions.ProjectInvalidAccNoPatternException
@@ -25,11 +24,10 @@ import kotlin.test.assertNull
 @ExtendWith(MockKExtension::class)
 class ProjectInfoServiceTest(
     @MockK private val service: PersistenceService,
-    @MockK private val queryService: SubmissionMetaQueryService,
     @MockK private val accNoUtil: AccNoPatternUtil,
     @MockK private val privilegesService: IUserPrivilegesService
 ) {
-    private val testInstance = ProjectInfoService(service, queryService, accNoUtil, privilegesService)
+    private val testInstance = ProjectInfoService(service, accNoUtil, privilegesService)
 
     @AfterEach
     fun afterEach() = clearAllMocks()
@@ -38,7 +36,6 @@ class ProjectInfoServiceTest(
     fun beforeEach() {
         initContext()
         initAccNoUtil()
-        every { queryService.isNew("TheProject") } returns true
         every { privilegesService.canSubmitProjects("user@test.org") } returns true
     }
 
