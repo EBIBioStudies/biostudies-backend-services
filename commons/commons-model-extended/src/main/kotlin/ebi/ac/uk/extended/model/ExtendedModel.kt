@@ -4,6 +4,8 @@ import arrow.core.Either
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.annotation.JsonProperty.Access.READ_ONLY
 import ebi.ac.uk.extended.delegates.AccessTagDelegate
+import ebi.ac.uk.io.ext.md5
+import ebi.ac.uk.io.ext.size
 import java.io.File
 import java.time.OffsetDateTime
 
@@ -26,7 +28,20 @@ data class ExtFile(
     val fileName: String,
     val file: File,
     val attributes: List<ExtAttribute> = listOf()
-)
+) {
+    // TODO This solution is very hacky and should be temporary. The real solution should be getting the MD5 from the
+    // TODO persistence if it exists or generate it in the web layer if it doesn't
+    private var _md5: String = ""
+
+    val md5: String
+        get(): String {
+            if (_md5.isBlank()) _md5 = file.md5()
+            return _md5
+        }
+
+    val size: Long
+        get() = file.size()
+}
 
 data class ExtFileList(val fileName: String, val files: List<ExtFile>)
 

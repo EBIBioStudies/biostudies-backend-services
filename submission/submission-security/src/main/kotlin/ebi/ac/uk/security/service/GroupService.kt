@@ -20,7 +20,7 @@ internal class GroupService(
     // TODO: add not existing group not existing user handling
     override fun addUserInGroup(groupName: String, userEmail: String) {
         val group = groupRepository.getByName(groupName)
-        val user = userRepository.getByEmail(userEmail)
+        val user = userRepository.readByEmail(userEmail)
         userRepository.save(user.addGroup(group))
     }
 }

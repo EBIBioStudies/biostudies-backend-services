@@ -6,6 +6,7 @@ import Dependencies.KotlinReflect
 import Dependencies.KotlinStdLib
 import Dependencies.Poi
 import Dependencies.PoiOxml
+import Dependencies.SpringWeb
 import Dependencies.XlsxStreamer
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
@@ -22,6 +23,7 @@ dependencies {
     implementation(Poi)
     implementation(PoiOxml)
     implementation(CommonsLang3)
+    implementation(SpringWeb)
 
     testApi(project(":commons:commons-test"))
     BaseTestCompileDependencies.forEach { testImplementation(it) }

@@ -1,7 +1,6 @@
 package ac.uk.ebi.biostd.submission.service
 
-import ac.uk.ebi.biostd.persistence.integration.PersistenceContext
-import ac.uk.ebi.biostd.persistence.integration.SubmissionQueryService
+import ac.uk.ebi.biostd.persistence.common.service.PersistenceService
 import ac.uk.ebi.biostd.submission.exceptions.ProjectAccNoTemplateAlreadyExistsException
 import ac.uk.ebi.biostd.submission.exceptions.ProjectAlreadyExistingException
 import ac.uk.ebi.biostd.submission.exceptions.ProjectInvalidAccNoPatternException
@@ -24,12 +23,11 @@ import kotlin.test.assertNull
 
 @ExtendWith(MockKExtension::class)
 class ProjectInfoServiceTest(
-    @MockK private val context: PersistenceContext,
-    @MockK private val queryService: SubmissionQueryService,
+    @MockK private val service: PersistenceService,
     @MockK private val accNoUtil: AccNoPatternUtil,
     @MockK private val privilegesService: IUserPrivilegesService
 ) {
-    private val testInstance = ProjectInfoService(context, queryService, accNoUtil, privilegesService)
+    private val testInstance = ProjectInfoService(service, accNoUtil, privilegesService)
 
     @AfterEach
     fun afterEach() = clearAllMocks()
@@ -38,7 +36,6 @@ class ProjectInfoServiceTest(
     fun beforeEach() {
         initContext()
         initAccNoUtil()
-        every { queryService.isNew("TheProject") } returns true
         every { privilegesService.canSubmitProjects("user@test.org") } returns true
     }
 
@@ -49,8 +46,8 @@ class ProjectInfoServiceTest(
 
         assertNotNull(response)
         assertThat(response.accessTag).isEqualTo("TheProject")
-        verify(exactly = 1) { context.saveAccessTag("TheProject") }
-        verify(exactly = 1) { context.createAccNoPatternSequence("S-PRJ") }
+        verify(exactly = 1) { service.saveAccessTag("TheProject") }
+        verify(exactly = 1) { service.createAccNoPatternSequence("S-PRJ") }
     }
 
     @Test
@@ -89,7 +86,7 @@ class ProjectInfoServiceTest(
 
     @Test
     fun `already existing project`() {
-        every { context.accessTagExists("TheProject") } returns true
+        every { service.accessTagExists("TheProject") } returns true
 
         val request = ProjectRequest("user@test.org", "Project", "!{S-PRJ}", "TheProject")
         val exception = assertThrows<ProjectAlreadyExistingException> { testInstance.process(request) }
@@ -99,7 +96,7 @@ class ProjectInfoServiceTest(
 
     @Test
     fun `pattern accNo already in use`() {
-        every { context.sequenceAccNoPatternExists("S-PRJ") } returns true
+        every { service.sequenceAccNoPatternExists("S-PRJ") } returns true
 
         val request = ProjectRequest("user@test.org", "Project", "!{S-PRJ}", "TheProject")
         val exception = assertThrows<ProjectAccNoTemplateAlreadyExistsException> { testInstance.process(request) }
@@ -108,10 +105,10 @@ class ProjectInfoServiceTest(
     }
 
     private fun initContext() {
-        every { context.saveAccessTag("TheProject") } answers { nothing }
-        every { context.accessTagExists("TheProject") } returns false
-        every { context.sequenceAccNoPatternExists("S-PRJ") } returns false
-        every { context.createAccNoPatternSequence("S-PRJ") } answers { nothing }
+        every { service.saveAccessTag("TheProject") } answers { nothing }
+        every { service.accessTagExists("TheProject") } returns false
+        every { service.sequenceAccNoPatternExists("S-PRJ") } returns false
+        every { service.createAccNoPatternSequence("S-PRJ") } answers { nothing }
     }
 
     private fun initAccNoUtil() {

@@ -1,8 +1,8 @@
 package ac.uk.ebi.biostd.submission.domain.service
 
 import ac.uk.ebi.biostd.integration.SerializationService
-import ac.uk.ebi.biostd.persistence.integration.SubmissionQueryService
-import ac.uk.ebi.biostd.persistence.repositories.data.SubmissionRepository
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.submission.model.SubmissionRequest
 import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
 import ebi.ac.uk.extended.model.ExtSubmission
@@ -19,10 +19,10 @@ import uk.ac.ebi.events.service.EventsPublisherService
 
 @ExtendWith(MockKExtension::class)
 class SubmissionServiceTest(
-    @MockK private val subRepository: SubmissionRepository,
+    @MockK private val subRepository: SubmissionQueryService,
     @MockK private val serializationService: SerializationService,
     @MockK private val userPrivilegesService: IUserPrivilegesService,
-    @MockK private val queryService: SubmissionQueryService,
+    @MockK private val queryService: SubmissionMetaQueryService,
     @MockK private val submissionSubmitter: SubmissionSubmitter,
     @MockK private val eventsPublisherService: EventsPublisherService,
     @MockK private val rabbitTemplate: RabbitTemplate
@@ -34,8 +34,7 @@ class SubmissionServiceTest(
         queryService,
         submissionSubmitter,
         eventsPublisherService,
-        rabbitTemplate
-    )
+        rabbitTemplate)
 
     @Test
     fun submit(

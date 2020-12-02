@@ -317,3 +317,15 @@ CREATE TABLE SecurityToken
     invalidation_date DATETIME NOT NULL
 );
 CREATE UNIQUE INDEX SecurityToken_id_uindex ON SecurityToken (id);
+
+CREATE TABLE SubmissionRequest
+(
+    id int auto_increment,
+    accNo nvarchar(200) not null,
+    version int not null,
+    request longtext not null,
+    constraint SubmissionRequest_pk primary key (id)
+);
+
+CREATE index SubmissionRequest_accNo_version_index on SubmissionRequest (accNo, version);
+

@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.common.config
 
-import ac.uk.ebi.biostd.common.property.ApplicationProperties
+import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import org.springframework.amqp.rabbit.connection.ConnectionFactory
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration

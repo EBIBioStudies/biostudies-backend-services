@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.submission.service
 
-import ac.uk.ebi.biostd.persistence.exception.ProjectNotFoundException
-import ac.uk.ebi.biostd.persistence.integration.SubmissionQueryService
+import ac.uk.ebi.biostd.persistence.common.model.BasicProject
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.submission.exceptions.ProjectInvalidAccessTagException
 import ebi.ac.uk.model.constants.SubFields.PUBLIC_ACCESS_TAG
 import io.mockk.every
@@ -15,7 +15,9 @@ import java.time.OffsetDateTime
 import java.time.ZoneOffset
 
 @ExtendWith(MockKExtension::class)
-class ParentInfoServiceTest(@MockK private val queryService: SubmissionQueryService) {
+class ParentInfoServiceTest(
+    @MockK private val queryService: SubmissionMetaQueryService
+) {
     private val testInstance = ParentInfoService(queryService)
 
     @Test
@@ -31,10 +33,9 @@ class ParentInfoServiceTest(@MockK private val queryService: SubmissionQueryServ
         val parentTemplate = "!{S-BIAD}"
         val parentAccNo = "BioImages-EMPIAR"
         val testTime = OffsetDateTime.of(2018, 10, 10, 0, 0, 0, 0, ZoneOffset.UTC)
+        val basicProject = BasicProject("BioImages-EMPIAR", "!{S-BIAD}", testTime)
 
-        every { queryService.existByAccNo(parentAccNo) } returns true
-        every { queryService.getReleaseTime(parentAccNo) } returns testTime
-        every { queryService.getParentAccPattern(parentAccNo) } returns parentTemplate
+        every { queryService.getBasicProject(parentAccNo) } returns basicProject
         every { queryService.getAccessTags(parentAccNo) } returns listOf(PUBLIC_ACCESS_TAG.value, parentAccNo)
 
         val parentInfo = testInstance.getParentInfo(parentAccNo)
@@ -47,17 +48,11 @@ class ParentInfoServiceTest(@MockK private val queryService: SubmissionQueryServ
     @Test
     fun `project without access tag`() {
         val parentAccNo = "BioImages-EMPIAR"
-        every { queryService.existByAccNo(parentAccNo) } returns true
+        val basicProject = BasicProject(parentAccNo, "!{S-BIAD}", null)
+
+        every { queryService.getBasicProject(parentAccNo) } returns basicProject
         every { queryService.getAccessTags(parentAccNo) } returns listOf("Empiar")
 
         assertThrows<ProjectInvalidAccessTagException> { testInstance.getParentInfo(parentAccNo) }
-    }
-
-    @Test
-    fun `project not existing`() {
-        val parentAccNo = "BioImages-EMPIAR"
-        every { queryService.existByAccNo(parentAccNo) } returns false
-
-        assertThrows<ProjectNotFoundException> { testInstance.getParentInfo(parentAccNo) }
     }
 }

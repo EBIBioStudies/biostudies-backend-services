@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.stats.web.handlers
 
-import ac.uk.ebi.biostd.persistence.model.SubmissionStatType.VIEWS
+import ac.uk.ebi.biostd.persistence.common.model.SubmissionStat
+import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType.VIEWS
 import ac.uk.ebi.biostd.stats.web.exceptions.InvalidStatException
 import ebi.ac.uk.dsl.line
 import ebi.ac.uk.dsl.tsv
@@ -12,10 +13,11 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
-import uk.ac.ebi.stats.model.SubmissionStat
 
 @ExtendWith(TemporaryFolderExtension::class)
-class StatsFileHandlerTest(private val tempFolder: TemporaryFolder) {
+class StatsFileHandlerTest(
+    private val tempFolder: TemporaryFolder
+) {
     private val testInstance = StatsFileHandler()
 
     @Test
