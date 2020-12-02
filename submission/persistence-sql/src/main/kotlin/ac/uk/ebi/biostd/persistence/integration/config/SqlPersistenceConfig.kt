@@ -2,11 +2,14 @@ package ac.uk.ebi.biostd.persistence.integration.config
 
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.persistence.common.filesystem.FileSystemService
+import ac.uk.ebi.biostd.persistence.common.service.PersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.ProjectDataService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestService
 import ac.uk.ebi.biostd.persistence.common.service.UserPermissionsService
 import ac.uk.ebi.biostd.persistence.integration.services.SqlPersistenceService
+import ac.uk.ebi.biostd.persistence.integration.services.SqlSubmissionRequestService
 import ac.uk.ebi.biostd.persistence.integration.services.SubmissionSqlPersistenceService
 import ac.uk.ebi.biostd.persistence.integration.services.SubmissionSqlQueryService
 import ac.uk.ebi.biostd.persistence.integration.services.UserSqlPermissionsService
@@ -57,12 +60,12 @@ open class SqlPersistenceConfig(private val applicationProperties: ApplicationPr
         extSerializationService: ExtSerializationService,
         requestDataRepository: SubmissionRequestDataRepository
     ) = SubmissionRepository(
-            submissionDataRepository,
-            sectionRepository,
-            statsRepository,
-            requestDataRepository,
-            extSerializationService,
-            toExtSubmissionMapper())
+        submissionDataRepository,
+        sectionRepository,
+        statsRepository,
+        requestDataRepository,
+        extSerializationService,
+        toExtSubmissionMapper())
 
     @Bean
     internal open fun submissionQueryService(
@@ -71,22 +74,26 @@ open class SqlPersistenceConfig(private val applicationProperties: ApplicationPr
     ): SubmissionMetaQueryService = SubmissionSqlQueryService(submissionDataRepository, accessTagDataRepo)
 
     @Bean
-    internal open fun persistenceService(
-        submissionPersistenceService: SubmissionSqlPersistenceService,
-        lockExecutor: LockExecutor,
-        dbSubmissionMapper: ToDbSubmissionMapper,
-        toExtSubmissionMapper: ToExtSubmissionMapper,
-        fileSystemService: FileSystemService,
-        submissionQueryService: SubmissionQueryService,
+    internal open fun sqlPersistenceService(
         sequenceRepository: SequenceDataRepository,
-        tagsDataRepository: AccessTagDataRepo
-    ): SqlPersistenceService =
-        SqlPersistenceService(
-            submissionPersistenceService,
+        accessTagsDataRepository: AccessTagDataRepo,
+        lockExecutor: LockExecutor,
+        submissionQueryService: SubmissionQueryService
+    ): PersistenceService {
+        return SqlPersistenceService(
             sequenceRepository,
-            tagsDataRepository,
-            submissionQueryService,
-            lockExecutor)
+            accessTagsDataRepository,
+            lockExecutor,
+            submissionQueryService
+        )
+    }
+
+    @Bean
+    internal open fun sqlSubmissionRequest(
+        submissionPersistenceService: SubmissionSqlPersistenceService,
+        lockExecutor: LockExecutor
+    ): SubmissionRequestService =
+        SqlSubmissionRequestService(submissionPersistenceService, lockExecutor)
 
     @Bean
     internal open fun submissionPersistenceService(

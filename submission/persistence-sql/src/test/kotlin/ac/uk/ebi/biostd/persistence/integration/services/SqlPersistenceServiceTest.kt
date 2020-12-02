@@ -19,14 +19,17 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(MockKExtension::class)
 internal class SqlPersistenceServiceTest(
-    @MockK private val submissionService: SubmissionSqlPersistenceService,
     @MockK private val sequenceRepository: SequenceDataRepository,
     @MockK private val accessTagsDataRepository: AccessTagDataRepo,
     @MockK private val submissionQueryService: SubmissionQueryService
 ) {
     private val lockExecutor = MockLockExecutor()
     private val testInstance = SqlPersistenceService(
-        submissionService, sequenceRepository, accessTagsDataRepository, submissionQueryService, lockExecutor)
+        sequenceRepository,
+        accessTagsDataRepository,
+        lockExecutor,
+        submissionQueryService
+    )
 
     @AfterEach
     fun afterEach() = clearAllMocks()
