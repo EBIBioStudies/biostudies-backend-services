@@ -15,6 +15,7 @@ class AppProperties {
 }
 
 class DailyScheduling {
-    var pmc: Boolean = true
+    var pmc: Boolean = false
+    var notifier: Boolean = false
     var releaser: Boolean = true
 }
