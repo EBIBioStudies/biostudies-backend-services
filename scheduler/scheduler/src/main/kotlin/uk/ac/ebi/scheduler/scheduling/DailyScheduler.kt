@@ -33,6 +33,6 @@ internal class DailyScheduler(
 
     @Scheduled(cron = "0 0 10 * * *")
     fun notifySubmissionRelease() {
-        dailyScheduling.releaser.ifTrue { submissionReleaserTrigger.triggerSubmissionReleaseNotifier() }
+        dailyScheduling.notifier.ifTrue { submissionReleaserTrigger.triggerSubmissionReleaseNotifier() }
     }
 }

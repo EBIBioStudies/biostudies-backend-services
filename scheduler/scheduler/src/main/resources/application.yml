@@ -3,8 +3,9 @@ app:
   notificationsUrl: # Slack notifications URL
 
   daily-scheduling:
-    pmc: # Indicate whether or not the PMC related tasks should be daily triggered
-    releaer: # Indicate whether or not the Submission Releaser related tasks should be daily triggered
+    pmc: # Indicates whether or not the PMC related tasks should be daily triggered
+    notifier: # Indicates whether or not the Submission Release Notifier should be daily triggered
+    releaser: # Indicates whether or not the Submission Releaser should be daily triggered
 
   ssh:
     user: # ssh user
