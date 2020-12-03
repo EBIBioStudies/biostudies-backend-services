@@ -7,15 +7,13 @@ import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FileMode
 import org.springframework.transaction.annotation.Transactional
 
-@Suppress("TooManyFunctions")
 internal open class SqlSubmissionRequestService(
     private val submissionService: SubmissionSqlPersistenceService,
     private val lockExecutor: LockExecutor
 ) : SubmissionRequestService {
-
     /**
-     * Register the submission in the persistence state and latter process it. Note that both operations are executed
-     * under db lock to guarantee single submission is saved and process at time.
+     * Register the submission in the persistence state and later process it. Note that both operations are executed
+     * under db lock in order to guarantee that a single submission is saved and processed at the same time.
      */
     @Transactional(readOnly = true)
     override fun saveAndProcessSubmissionRequest(saveRequest: SaveSubmissionRequest): ExtSubmission {

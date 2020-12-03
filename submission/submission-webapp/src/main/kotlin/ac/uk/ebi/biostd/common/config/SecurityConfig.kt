@@ -47,6 +47,7 @@ class SecurityConfig(
             .antMatchers(GET, "/security/users/extended/**").permitAll()
             .antMatchers(GET, "/submissions/extended/*").permitAll()
             .antMatchers(GET, "/submissions/*").permitAll()
+            .antMatchers("/submissions/ftp/*").permitAll()
             .antMatchers("/auth/**").permitAll()
             .antMatchers("/v2/**").permitAll()
             .antMatchers("/webjars/**").permitAll()
