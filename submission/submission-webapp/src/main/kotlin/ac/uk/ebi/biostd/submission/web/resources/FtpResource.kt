@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 /**
- * This resource is just temporary to generate the FTP links
+ * Help to generate ftp folder for a specific submission path.
  */
 @RestController
 @RequestMapping("submissions/ftp")
