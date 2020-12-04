@@ -1,15 +1,18 @@
 package ac.uk.ebi.biostd.submission.service
 
 import ac.uk.ebi.biostd.persistence.common.service.PersistenceService
-import ac.uk.ebi.biostd.submission.exceptions.ProvideAccessNumber
+import ac.uk.ebi.biostd.submission.exceptions.UserCanNotProvideAccessNumber
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotSubmitToProjectException
+import ac.uk.ebi.biostd.submission.exceptions.UserCanNotUpdateSubmit
 import ac.uk.ebi.biostd.submission.util.AccNoPatternUtil
 import ebi.ac.uk.model.AccNumber
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
+import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -31,6 +34,9 @@ class AccNoServiceTest(
     private val accNoPatternUtil: AccNoPatternUtil = AccNoPatternUtil()
     private val testInstance = AccNoService(service, accNoPatternUtil, privilegesService)
 
+    @AfterEach
+    fun afterEach() = clearAllMocks()
+
     @ParameterizedTest(name = "prefix is {0} and numeric value is {1}")
     @CsvSource(
         "S-DIXA-AN-002, S-DIXA-AN-/002/S-DIXA-AN-002",
@@ -49,7 +55,7 @@ class AccNoServiceTest(
         fun whenUserCanNoProvideAccession() {
             every { privilegesService.canProvideAccNo(SUBMITTER) } returns false
 
-            assertThrows<ProvideAccessNumber> {
+            assertThrows<UserCanNotProvideAccessNumber> {
                 testInstance.calculateAccNo(AccNoServiceRequest(SUBMITTER, ACC_NO))
             }
         }
@@ -116,6 +122,7 @@ class AccNoServiceTest(
     inner class WhenIsNotNew {
         @Test
         fun whenUserCanNotSubmitToProject() {
+            every { privilegesService.canProvideAccNo(SUBMITTER) } returns true
             every { privilegesService.canSubmitToProject(SUBMITTER, PROJECT) } returns false
 
             val request = AccNoServiceRequest(submitter = SUBMITTER, accNo = ACC_NO, project = PROJECT, isNew = false)
@@ -126,12 +133,46 @@ class AccNoServiceTest(
 
         @Test
         fun whenUserCanNotReSubmit() {
+            every { privilegesService.canProvideAccNo(SUBMITTER) } returns true
             every { privilegesService.canSubmitToProject(SUBMITTER, PROJECT) } returns false
 
             val request = AccNoServiceRequest(submitter = SUBMITTER, accNo = ACC_NO, project = PROJECT, isNew = false)
             val error = assertThrows<UserCanNotSubmitToProjectException> { testInstance.calculateAccNo(request) }
 
             assertThat(error.message).isEqualTo("The user submiter@email.com is not allowed to submit to CC123 project")
+        }
+
+        @Test
+        fun `superuser resubmit`() {
+            every { privilegesService.canProvideAccNo(SUBMITTER) } returns true
+            every { privilegesService.canResubmit(SUBMITTER, ACC_NO) } returns true
+            every { privilegesService.canSubmitToProject(SUBMITTER, PROJECT) } returns true
+
+            val request = AccNoServiceRequest(submitter = SUBMITTER, accNo = ACC_NO, project = PROJECT, isNew = false)
+            assertThat(testInstance.calculateAccNo(request)).isEqualTo(AccNumber("AAB", "12"))
+        }
+
+        @Test
+        fun `owner regular user resubmit`() {
+            every { privilegesService.canProvideAccNo(SUBMITTER) } returns false
+            every { privilegesService.canResubmit(SUBMITTER, ACC_NO) } returns true
+            every { privilegesService.canSubmitToProject(SUBMITTER, PROJECT) } returns true
+
+            val request = AccNoServiceRequest(submitter = SUBMITTER, accNo = ACC_NO, project = PROJECT, isNew = false)
+            assertThat(testInstance.calculateAccNo(request)).isEqualTo(AccNumber("AAB", "12"))
+        }
+
+        @Test
+        fun `non owner regular user resubmit`() {
+            every { privilegesService.canProvideAccNo(SUBMITTER) } returns false
+            every { privilegesService.canResubmit(SUBMITTER, ACC_NO) } returns false
+            every { privilegesService.canSubmitToProject(SUBMITTER, PROJECT) } returns true
+
+            val request = AccNoServiceRequest(submitter = SUBMITTER, accNo = ACC_NO, project = PROJECT, isNew = false)
+            val error = assertThrows<UserCanNotUpdateSubmit> { testInstance.calculateAccNo(request) }
+
+            assertThat(error.message).isEqualTo(
+                "The user {submiter@email.com} is not allowed to update the submission AAB12")
         }
     }
 }
