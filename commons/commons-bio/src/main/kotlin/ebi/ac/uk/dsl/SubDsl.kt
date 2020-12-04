@@ -22,7 +22,7 @@ fun Attributable.attribute(
 ) = addAttribute(Attribute(name = name, value = value, valueAttrs = valueAttrs, reference = ref, nameAttrs = nameAttrs))
 
 fun Submission.section(type: String, block: Section.() -> Unit) = apply { section = Section(type).apply(block) }
-fun submission(accNo: String, block: Submission.() -> Unit): Submission = Submission(accNo).apply(block)
+fun submission(accNo: String = "", block: Submission.() -> Unit): Submission = Submission(accNo).apply(block)
 fun section(type: String, block: Section.() -> Unit): Section = Section(type).apply(block)
 fun sectionsTable(block: SectionsTable.() -> Unit) = SectionsTable().apply(block)
 
