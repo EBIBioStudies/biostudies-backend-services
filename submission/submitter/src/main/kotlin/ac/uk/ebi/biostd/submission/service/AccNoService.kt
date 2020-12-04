@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.submission.service
 
 import ac.uk.ebi.biostd.persistence.common.service.PersistenceService
-import ac.uk.ebi.biostd.submission.exceptions.ProvideAccessNumber
+import ac.uk.ebi.biostd.submission.exceptions.UserCanNotProvideAccessNumber
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotSubmitToProjectException
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotUpdateSubmit
 import ac.uk.ebi.biostd.submission.util.AccNoPatternUtil
@@ -19,8 +19,8 @@ class AccNoService(
     @Suppress("ThrowsCount")
     fun calculateAccNo(request: AccNoServiceRequest): AccNumber {
         val (submitter, accNo, isNew, project, projectPattern) = request
-        checkCanProvideAcc(accNo, submitter)
         checkCanSubmitToProject(project, submitter)
+        checkCanProvideAcc(accNo, isNew, submitter)
 
         if (accNo != null && isNew.not()) {
             checkCanReSubmit(accNo, submitter)
@@ -39,8 +39,9 @@ class AccNoService(
         if (privilegesService.canResubmit(submitter, accNo).not()) throw UserCanNotUpdateSubmit(accNo, submitter)
     }
 
-    private fun checkCanProvideAcc(accNo: String?, submitter: String) {
-        if (accNo != null && privilegesService.canProvideAccNo(submitter).not()) throw ProvideAccessNumber(submitter)
+    private fun checkCanProvideAcc(accNo: String?, isNew: Boolean, submitter: String) {
+        if (isNew && accNo != null && privilegesService.canProvideAccNo(submitter).not())
+            throw UserCanNotProvideAccessNumber(submitter)
     }
 
     private fun calculateAccNo(pattern: String) = AccNumber(pattern, service.getSequenceNextValue(pattern).toString())
