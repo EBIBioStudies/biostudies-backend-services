@@ -5,14 +5,14 @@ package ac.uk.ebi.biostd.submission.exceptions
  */
 sealed class InvalidPermissionsException(message: String) : RuntimeException(message)
 
-class ProvideAccessNumber(
+class UserCanNotProvideAccessNumber(
     user: String
-) : InvalidPermissionsException("{$user} is not allowed to provide accession number directly")
+) : InvalidPermissionsException("The user {$user} is not allowed to provide accession number directly")
 
 class UserCanNotUpdateSubmit(
     accNo: String,
     user: String
-) : InvalidPermissionsException("{$user} is not allowed to update submission $accNo")
+) : InvalidPermissionsException("The user {$user} is not allowed to update the submission $accNo")
 
 class UserCanNotSubmitProjectsException(
     user: String
