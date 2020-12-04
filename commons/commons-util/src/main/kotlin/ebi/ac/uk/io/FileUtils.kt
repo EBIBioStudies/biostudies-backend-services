@@ -125,10 +125,8 @@ object FileUtils {
 
     fun md5(file: File): String = if (file.isFile) DigestUtils.md5Hex(file.readBytes()).toUpperCase() else ""
 
-    fun listFiles(file: File): List<File> = when (isDirectory(file)) {
-        true -> Files.list(file.toPath()).map { it.toFile() }.toList()
-        else -> emptyList()
-    }
+    fun listFiles(file: File): List<File> =
+        if (isDirectory(file)) Files.list(file.toPath()).map { it.toFile() }.toList() else emptyList()
 }
 
 @Suppress("TooManyFunctions")

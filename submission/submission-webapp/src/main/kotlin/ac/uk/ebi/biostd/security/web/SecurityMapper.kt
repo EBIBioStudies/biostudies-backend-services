@@ -1,17 +1,15 @@
 package ac.uk.ebi.biostd.security.web
 
-import ac.uk.ebi.biostd.persistence.model.AccessType
+import ac.uk.ebi.biostd.persistence.common.model.AccessType
 import ebi.ac.uk.api.security.ProfileAuxInfo
-import ebi.ac.uk.api.security.RegisterResponse
 import ebi.ac.uk.api.security.UserProfile
+import ebi.ac.uk.model.constants.SubFields.PUBLIC_ACCESS_TAG
 import ebi.ac.uk.security.integration.model.api.SecurityPermission
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import ebi.ac.uk.security.integration.model.api.UserInfo
 import java.util.ArrayList
 
 class SecurityMapper {
-
-    fun toSignUpResponse(user: SecurityUser) = RegisterResponse(user.login)
 
     fun toUserProfile(userInfo: UserInfo): UserProfile = userInfo.let { (user, token) ->
         UserProfile(
@@ -28,9 +26,8 @@ class SecurityMapper {
 
     private fun getAllow(user: SecurityUser): List<String> {
         val accessTags = ArrayList<String>()
-        accessTags.add("~" + user.email)
-        accessTags.add("#" + user.id)
-        accessTags.add("Public")
+        accessTags.add(user.email)
+        accessTags.add(PUBLIC_ACCESS_TAG.value)
         accessTags.addAll(getPermissions(user.permissions))
         return accessTags
     }

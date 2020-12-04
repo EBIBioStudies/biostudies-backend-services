@@ -4,16 +4,13 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import java.time.OffsetDateTime
-import java.time.ZoneId
-import java.time.ZoneOffset
+import java.time.ZoneOffset.UTC
 
 internal class OffsetDateTimeTest {
-
     @Test
     fun asIsoTime() {
-        val date = createInstant(2018, 1, 3, 4, 55, 22)
-        val offsetDateTime = OffsetDateTime.ofInstant(date, ZoneId.of("UTC"))
-        assertThat(offsetDateTime.asIsoTime()).isEqualTo("2018-02-03T04:55:22Z")
+        val offsetDateTime = OffsetDateTime.of(2018, 1, 3, 4, 55, 22, 0, UTC)
+        assertThat(offsetDateTime.asIsoTime()).isEqualTo("2018-01-03T04:55:22Z")
     }
 
     @Test
@@ -30,8 +27,14 @@ internal class OffsetDateTimeTest {
 
     @Test
     fun toStringDate() {
-        val time = OffsetDateTime.of(2018, 9, 21, 2, 3, 45, 0, ZoneOffset.UTC)
+        val time = OffsetDateTime.of(2018, 9, 21, 2, 3, 45, 0, UTC)
         assertThat(time.toStringDate()).isEqualTo("2018-09-21")
+    }
+
+    @Test
+    fun toStringInstant() {
+        val time = OffsetDateTime.of(2019, 9, 21, 15, 3, 45, 0, UTC)
+        assertThat(time.toStringInstant()).isEqualTo("2019-09-21T15:03:45Z")
     }
 
     @Nested

@@ -22,11 +22,12 @@ class ExtFileSerializerTest(private val tempFolder: TemporaryFolder) {
         val file = tempFolder.createFile("test-file.txt", "content")
         val extFile = ExtFile(
             file = file,
-            fileName = "test-file.txt",
+            fileName = "test/path/test-file.txt",
             attributes = listOf(ExtAttribute("Type", "Data", false))
         )
         val expectedJson = jsonObj {
             "fileName" to "test-file.txt"
+            "path" to "test/path/test-file.txt"
             "file" to file.absolutePath
             "attributes" to jsonArray(jsonObj {
                 "name" to "Type"

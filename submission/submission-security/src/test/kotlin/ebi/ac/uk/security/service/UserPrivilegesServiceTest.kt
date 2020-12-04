@@ -1,10 +1,11 @@
 package ebi.ac.uk.security.service
 
-import ac.uk.ebi.biostd.persistence.integration.SubmissionQueryService
-import ac.uk.ebi.biostd.persistence.model.AccessType
+import ac.uk.ebi.biostd.persistence.common.model.AccessType
+import ac.uk.ebi.biostd.persistence.common.model.BasicSubmission
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
+import ac.uk.ebi.biostd.persistence.common.service.UserPermissionsService
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
-import ac.uk.ebi.biostd.persistence.service.UserPermissionsService
 import ebi.ac.uk.security.integration.exception.UserNotFoundByEmailException
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -24,8 +25,9 @@ class UserPrivilegesServiceTest(
     @MockK private val author: UserDB,
     @MockK private val otherAuthor: UserDB,
     @MockK private val superuser: UserDB,
+    @MockK private val basicSubmission: BasicSubmission,
     @MockK private val userRepository: UserDataRepository,
-    @MockK private val queryService: SubmissionQueryService,
+    @MockK private val queryService: SubmissionMetaQueryService,
     @MockK private val tagsDataRepository: AccessTagDataRepo,
     @MockK private val userPermissionsService: UserPermissionsService
 ) {
@@ -65,8 +67,11 @@ class UserPrivilegesServiceTest(
     }
 
     @Test
-    fun `author user with tag resubmits a submission that is in a project`() {
-        every { queryService.getOwner("accNo") } returns "author@mail.com"
+    fun `author user with tag resubmits a submission that is in a project`(
+        @MockK basicSubmission: BasicSubmission
+    ) {
+        every { basicSubmission.owner } returns "author@mail.com"
+        every { queryService.findLatestBasicByAccNo("accNo") } returns basicSubmission
 
         assertThat(testInstance.canResubmit("author@mail.com", "accNo")).isTrue()
     }
@@ -77,8 +82,10 @@ class UserPrivilegesServiceTest(
     }
 
     @Test
-    fun `author user deletes own submission`() {
-        every { queryService.getOwner("accNo") } returns "author@mail.com"
+    fun `author user deletes own submission`(@MockK basicSubmission: BasicSubmission) {
+        every { basicSubmission.owner } returns "author@mail.com"
+        every { queryService.findLatestBasicByAccNo("accNo") } returns basicSubmission
+
         assertThat(testInstance.canDelete("author@mail.com", "accNo")).isTrue()
     }
 
@@ -124,7 +131,8 @@ class UserPrivilegesServiceTest(
     }
 
     private fun initSubmissionQueries() {
+        every { basicSubmission.owner } returns "nottheauthor@mail.com"
         every { queryService.getAccessTags("accNo") } returns emptyList()
-        every { queryService.getOwner("accNo") } returns "nottheauthor@mail.com"
+        every { queryService.findLatestBasicByAccNo("accNo") } returns basicSubmission
     }
 }

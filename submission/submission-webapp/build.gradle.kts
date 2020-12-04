@@ -44,11 +44,10 @@ allOpen {
 
 dependencies {
     api(project(":client:fire-webclient"))
-    api(project(":submission:persistence"))
+    api(project(":submission:persistence-sql"))
     api(project(":submission:submitter"))
     api(project(":submission:submission-security"))
     api(project(":submission:notifications"))
-    api(project(":submission:stats"))
     api(project(":commons:commons-model-extended-serialization"))
     api(project(":commons:commons-serialization"))
     api(project(":commons:commons-util"))

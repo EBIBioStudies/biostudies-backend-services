@@ -1,8 +1,9 @@
 package ac.uk.ebi.biostd.submission.submitter
 
-import ac.uk.ebi.biostd.persistence.integration.PersistenceContext
-import ac.uk.ebi.biostd.persistence.integration.SaveRequest
-import ac.uk.ebi.biostd.persistence.integration.SubmissionQueryService
+import ac.uk.ebi.biostd.persistence.common.model.BasicSubmission
+import ac.uk.ebi.biostd.persistence.common.request.SaveSubmissionRequest
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestService
 import ac.uk.ebi.biostd.submission.model.SubmissionRequest
 import ac.uk.ebi.biostd.submission.service.AccNoService
 import ac.uk.ebi.biostd.submission.service.AccNoServiceRequest
@@ -59,21 +60,23 @@ class SubmissionSubmitterTest {
     private val timesService = mockk<TimesService>()
     private val accNoService = mockk<AccNoService>()
     private val parentInfoService = mockk<ParentInfoService>()
-    private val queryService = mockk<SubmissionQueryService>()
+    private val queryService = mockk<SubmissionMetaQueryService>()
     private val projectInfoService = mockk<ProjectInfoService>()
-    private val persistenceContext = mockk<PersistenceContext>()
+    private val submissionRequestService = mockk<SubmissionRequestService>()
+    private val basicSubmission = mockk<BasicSubmission>()
 
     private val timesRequest = slot<TimesRequest>()
-    private val saveRequest = slot<SaveRequest>()
+    private val saveRequest = slot<SaveSubmissionRequest>()
     private val projectRequest = slot<ProjectRequest>()
     private val accNoServiceRequest = slot<AccNoServiceRequest>()
 
     private val testInstance = SubmissionSubmitter(
-        timesService, accNoService, parentInfoService, projectInfoService, persistenceContext, queryService)
+        timesService, accNoService, parentInfoService, projectInfoService, submissionRequestService, queryService)
 
     @BeforeEach
     fun beforeEach() {
         mockServices()
+        mockBasicSubmission()
         mockPersistenceContext()
         mockkStatic("ebi.ac.uk.extended.mapping.to.ToSubmissionKt")
         every { any<ExtSubmission>().toSimpleSubmission() } returns submission
@@ -108,20 +111,20 @@ class SubmissionSubmitterTest {
 
     @Test
     fun `process request`(@MockK extSubmission: ExtSubmission) {
-        val saveRequest = SaveRequest(extSubmission, COPY)
+        val saveRequest = SaveSubmissionRequest(extSubmission, COPY)
         every { extSubmission.accNo } returns "S-TEST123"
-        every { persistenceContext.processSubmission(saveRequest) } returns extSubmission
+        every { submissionRequestService.processSubmission(saveRequest) } returns extSubmission
 
         testInstance.processRequest(saveRequest)
 
-        verify(exactly = 1) { persistenceContext.processSubmission(saveRequest) }
+        verify(exactly = 1) { submissionRequestService.processSubmission(saveRequest) }
     }
 
     @Test
     fun `submit async`(@MockK extSubmission: ExtSubmission) {
-        val saveRequestSlot = slot<SaveRequest>()
+        val saveRequestSlot = slot<SaveSubmissionRequest>()
         every { extSubmission.accNo } returns "S-TEST123"
-        every { persistenceContext.saveSubmissionRequest(capture(saveRequestSlot)) } returns extSubmission
+        every { submissionRequestService.saveSubmissionRequest(capture(saveRequestSlot)) } returns extSubmission
 
         testInstance.submitAsync(
             SubmissionRequest(submission, testUser(notificationsEnabled = false), sources, PAGE_TAB, COPY))
@@ -130,7 +133,7 @@ class SubmissionSubmitterTest {
         assertExtendedSubmission()
 
         verifyProcessServices()
-        verify(exactly = 1) { persistenceContext.saveSubmissionRequest(saveRequestSlot.captured) }
+        verify(exactly = 1) { submissionRequestService.saveSubmissionRequest(saveRequestSlot.captured) }
     }
 
     private fun assertCapturedValues() {
@@ -174,9 +177,9 @@ class SubmissionSubmitterTest {
 
     private fun verifyProcessServices() = verify(exactly = 1) {
         accNoService.getRelPath(accNo)
-        accNoService.getAccNo(accNoServiceRequest.captured)
+        accNoService.calculateAccNo(accNoServiceRequest.captured)
 
-        queryService.getSecret("S-TEST123")
+        queryService.findLatestBasicByAccNo("S-TEST123")
 
         parentInfoService.getParentInfo("BioImages")
 
@@ -186,23 +189,26 @@ class SubmissionSubmitterTest {
     }
 
     private fun verifyPersistenceContextSync() = verify(exactly = 1) {
-        persistenceContext.saveAndProcessSubmissionRequest(saveRequest.captured)
+        submissionRequestService.saveAndProcessSubmissionRequest(saveRequest.captured)
+    }
+
+    private fun mockBasicSubmission() {
+        every { basicSubmission.creationTime } returns testTime
+        every { basicSubmission.secretKey } returns "a-secret-key"
+        every { basicSubmission.owner } returns "the-owner@mail.com"
     }
 
     private fun mockServices() {
         every { accNoService.getRelPath(accNo) } returns "/a/rel/path"
-        every { accNoService.getAccNo(capture(accNoServiceRequest)) } returns accNo
-        every { queryService.getOwner("S-TEST123") } returns null
-        every { queryService.isNew("S-TEST123") } returns false
-        every { queryService.isProcessing("S-TEST123") } returns false
-        every { queryService.getSecret("S-TEST123") } returns "a-secret-key"
+        every { accNoService.calculateAccNo(capture(accNoServiceRequest)) } returns accNo
+        every { queryService.findLatestBasicByAccNo("S-TEST123") } returns basicSubmission
         every { timesService.getTimes(capture(timesRequest)) } returns Times(testTime, testTime, null)
         every { projectInfoService.process(capture(projectRequest)) } returns ProjectResponse("BioImages")
         every { parentInfoService.getParentInfo("BioImages") } returns ParentInfo(emptyList(), null, "S-BIAD")
     }
 
     private fun mockPersistenceContext() {
-        every { persistenceContext.saveAndProcessSubmissionRequest(capture(saveRequest)) } returns mockk()
+        every { submissionRequestService.saveAndProcessSubmissionRequest(capture(saveRequest)) } returns mockk()
     }
 
     private fun testUser(notificationsEnabled: Boolean) = SecurityUser(
