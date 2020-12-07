@@ -1,7 +1,6 @@
 package ac.uk.ebi.biostd.submission.service
 
-import ac.uk.ebi.biostd.persistence.integration.PersistenceContext
-import ac.uk.ebi.biostd.persistence.integration.SubmissionQueryService
+import ac.uk.ebi.biostd.persistence.common.service.PersistenceService
 import ac.uk.ebi.biostd.submission.exceptions.ProjectAccNoTemplateAlreadyExistsException
 import ac.uk.ebi.biostd.submission.exceptions.ProjectAlreadyExistingException
 import ac.uk.ebi.biostd.submission.exceptions.ProjectInvalidAccNoPatternException
@@ -13,17 +12,15 @@ internal const val ACC_NO_TEMPLATE_REQUIRED = "The AccNoTemplate property is req
 internal const val ACC_NO_TEMPLATE_INVALID = "The given AccNoTemplate is invalid. Expected pattern is !{TEMPLATE}"
 
 class ProjectInfoService(
-    private val context: PersistenceContext,
-    private val queryService: SubmissionQueryService,
+    private val service: PersistenceService,
     private val accNoUtil: AccNoPatternUtil,
     private val privilegesService: IUserPrivilegesService
 ) {
     fun process(request: ProjectRequest): ProjectResponse? {
-        val (submitter, subType, template, accNo) = request
+        val (submitter, subType, template, accNo, isNew) = request
 
         if (subType != "Project") return null
 
-        val isNew = queryService.isNew(accNo)
         require(privilegesService.canSubmitProjects(submitter)) { throw UserCanNotSubmitProjectsException(submitter) }
         validatePattern(template)
 
@@ -35,8 +32,8 @@ class ProjectInfoService(
     }
 
     private fun validateProject(isNew: Boolean, accNo: String, accNoPattern: String) {
-        if (isNew && context.accessTagExists(accNo)) throw ProjectAlreadyExistingException(accNo)
-        if (isNew && context.sequenceAccNoPatternExists(accNoPattern))
+        if (isNew && service.accessTagExists(accNo)) throw ProjectAlreadyExistingException(accNo)
+        if (isNew && service.sequenceAccNoPatternExists(accNoPattern))
             throw ProjectAccNoTemplateAlreadyExistsException(accNoPattern)
     }
 
@@ -47,11 +44,18 @@ class ProjectInfoService(
 
     private fun persist(isNew: Boolean, accNo: String, accNoPattern: String) {
         if (isNew) {
-            context.saveAccessTag(accNo)
-            context.createAccNoPatternSequence(accNoPattern)
+            service.saveAccessTag(accNo)
+            service.createAccNoPatternSequence(accNoPattern)
         }
     }
 }
 
-data class ProjectRequest(val submitter: String, val subType: String, val accNoTemplate: String?, val accNo: String)
+data class ProjectRequest(
+    val submitter: String,
+    val subType: String,
+    val accNoTemplate: String?,
+    val accNo: String,
+    val isNew: Boolean = true
+)
+
 data class ProjectResponse(val accessTag: String)

@@ -1,12 +1,12 @@
 package ac.uk.ebi.biostd.common.config
 
-import ac.uk.ebi.biostd.common.property.ApplicationProperties
+import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.files.service.UserFilesService
 import ac.uk.ebi.biostd.integration.SerializationService
-import ac.uk.ebi.biostd.persistence.integration.PersistenceContext
-import ac.uk.ebi.biostd.persistence.integration.SubmissionQueryService
-import ac.uk.ebi.biostd.persistence.repositories.data.ProjectRepository
-import ac.uk.ebi.biostd.persistence.repositories.data.SubmissionRepository
+import ac.uk.ebi.biostd.persistence.common.service.ProjectDataService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestService
 import ac.uk.ebi.biostd.submission.domain.helpers.SourceGenerator
 import ac.uk.ebi.biostd.submission.domain.service.ExtSubmissionService
 import ac.uk.ebi.biostd.submission.domain.service.ProjectService
@@ -15,6 +15,7 @@ import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
 import ac.uk.ebi.biostd.submission.web.handlers.SubmissionsWebHandler
 import ac.uk.ebi.biostd.submission.web.handlers.SubmitWebHandler
 import ac.uk.ebi.biostd.submission.web.resources.ext.ExtendedPageMapper
+import ebi.ac.uk.paths.SubmissionFolderResolver
 import ebi.ac.uk.security.integration.components.ISecurityService
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import org.springframework.amqp.rabbit.core.RabbitTemplate
@@ -28,15 +29,16 @@ import java.net.URI
 @Import(value = [PersistenceConfig::class, SecurityBeansConfig::class])
 class SubmissionConfig(
     private val sourceGenerator: SourceGenerator,
+    private val folderResolver: SubmissionFolderResolver,
     private val serializationService: SerializationService
 ) {
     @Bean
     @Suppress("LongParameterList")
     fun submissionService(
-        subRepository: SubmissionRepository,
+        subRepository: SubmissionQueryService,
         serializationService: SerializationService,
         userPrivilegeService: IUserPrivilegesService,
-        queryService: SubmissionQueryService,
+        queryService: SubmissionMetaQueryService,
         submissionSubmitter: SubmissionSubmitter,
         eventsPublisherService: EventsPublisherService,
         myRabbitTemplate: RabbitTemplate
@@ -51,16 +53,16 @@ class SubmissionConfig(
 
     @Bean
     fun extSubmissionService(
-        persistenceContext: PersistenceContext,
-        subRepository: SubmissionRepository,
+        submissionRequestService: SubmissionRequestService,
+        subRepository: SubmissionQueryService,
         userPrivilegeService: IUserPrivilegesService
-    ): ExtSubmissionService = ExtSubmissionService(persistenceContext, subRepository, userPrivilegeService)
+    ): ExtSubmissionService = ExtSubmissionService(submissionRequestService, subRepository, userPrivilegeService)
 
     @Bean
     fun projectService(
-        projectRepository: ProjectRepository,
+        projectSqlDataService: ProjectDataService,
         userPrivilegeService: IUserPrivilegesService
-    ): ProjectService = ProjectService(projectRepository, userPrivilegeService)
+    ): ProjectService = ProjectService(projectSqlDataService, userPrivilegeService)
 
     @Bean
     fun submitHandler(
@@ -73,8 +75,8 @@ class SubmissionConfig(
             sourceGenerator,
             serializationService,
             userFilesService,
-            securityService
-        )
+            securityService,
+            folderResolver)
 
     @Bean
     fun submissionHandler(submissionService: SubmissionService): SubmissionsWebHandler =

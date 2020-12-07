@@ -19,7 +19,7 @@ dependencies {
     api(project(":commons:commons-bio"))
     api(project(":commons:commons-http"))
     api(project(":events:events-publisher"))
-    api(project(":submission:persistence"))
+    api(project(":submission:persistence-sql"))
 
     implementation(Arrow)
     implementation(HibernateEntityManager)

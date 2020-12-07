@@ -1,12 +1,12 @@
 package ac.uk.ebi.biostd.common.config
 
-import ac.uk.ebi.biostd.common.property.ApplicationProperties
-import ac.uk.ebi.biostd.persistence.integration.SubmissionQueryService
+import ac.uk.ebi.biostd.common.properties.ApplicationProperties
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
+import ac.uk.ebi.biostd.persistence.common.service.UserPermissionsService
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
 import ac.uk.ebi.biostd.persistence.repositories.TokenDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserGroupDataRepository
-import ac.uk.ebi.biostd.persistence.service.UserPermissionsService
 import ac.uk.ebi.biostd.security.domain.service.ExtUserService
 import ac.uk.ebi.biostd.security.web.SecurityMapper
 import ac.uk.ebi.biostd.security.web.exception.SecurityAccessDeniedHandler
@@ -47,6 +47,7 @@ class SecurityConfig(
             .antMatchers(GET, "/security/users/extended/**").permitAll()
             .antMatchers(GET, "/submissions/extended/*").permitAll()
             .antMatchers(GET, "/submissions/*").permitAll()
+            .antMatchers("/submissions/ftp/*").permitAll()
             .antMatchers("/auth/**").permitAll()
             .antMatchers("/v2/**").permitAll()
             .antMatchers("/webjars/**").permitAll()
@@ -80,7 +81,7 @@ class SecurityBeansConfig(private val objectMapper: ObjectMapper, properties: Ap
     @SuppressWarnings("LongParameterList")
     fun securityModuleConfig(
         userDataRepository: UserDataRepository,
-        queryService: SubmissionQueryService,
+        queryService: SubmissionMetaQueryService,
         tokenRepository: TokenDataRepository,
         tagsRepository: AccessTagDataRepo,
         groupRepository: UserGroupDataRepository,

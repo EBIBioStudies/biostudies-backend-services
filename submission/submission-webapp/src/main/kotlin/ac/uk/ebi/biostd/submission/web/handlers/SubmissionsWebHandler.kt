@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.submission.web.handlers
 
-import ac.uk.ebi.biostd.persistence.filter.SubmissionFilter
+import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionService
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 

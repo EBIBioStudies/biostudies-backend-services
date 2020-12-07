@@ -10,8 +10,8 @@ import ac.uk.ebi.biostd.itest.entities.DefaultUser
 import ac.uk.ebi.biostd.itest.entities.RegularUser
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.entities.TestUser
-import ac.uk.ebi.biostd.persistence.model.AccessPermission
-import ac.uk.ebi.biostd.persistence.model.AccessType.ATTACH
+import ac.uk.ebi.biostd.persistence.common.model.AccessType.ATTACH
+import ac.uk.ebi.biostd.persistence.model.DbAccessPermission
 import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
@@ -151,7 +151,7 @@ internal class SubmitPermissionTest(tempFolder: TemporaryFolder) : BaseIntegrati
         private fun setAttachPermission(testUser: TestUser, project: String) {
             val accessTag = tagsDataRepository.findByName(project)
             val user = userDataRepository.findByEmailAndActive(testUser.email, active = true)
-            val attachPermission = AccessPermission(accessType = ATTACH, user = user.get(), accessTag = accessTag)
+            val attachPermission = DbAccessPermission(accessType = ATTACH, user = user.get(), accessTag = accessTag)
             accessPermissionRepository.save(attachPermission)
         }
     }

@@ -1,9 +1,7 @@
 package ac.uk.ebi.biostd.submission.service
 
-import ac.uk.ebi.biostd.persistence.integration.SubmissionQueryService
 import ac.uk.ebi.biostd.submission.exceptions.InvalidDateFormatException
 import io.mockk.every
-import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockkStatic
 import org.assertj.core.api.Assertions.assertThat
@@ -18,8 +16,8 @@ import java.time.ZoneOffset
 private const val ACC_NO = "ABC456"
 
 @ExtendWith(MockKExtension::class)
-class TimesServiceTest(@MockK private val queryService: SubmissionQueryService) {
-    private val testInstance = TimesService(queryService)
+class TimesServiceTest {
+    private val testInstance = TimesService()
     private val testTime = OffsetDateTime.of(2018, 10, 10, 0, 0, 0, 0, ZoneOffset.UTC)
     private val mockNow = OffsetDateTime.of(2018, 12, 31, 0, 0, 0, 0, ZoneOffset.UTC)
 
@@ -27,7 +25,6 @@ class TimesServiceTest(@MockK private val queryService: SubmissionQueryService) 
     fun beforeEach() {
         mockkStatic(OffsetDateTime::class)
         every { OffsetDateTime.now() } returns mockNow
-        every { queryService.findCreationTime(ACC_NO) } returns null
     }
 
     @Nested
@@ -43,9 +40,7 @@ class TimesServiceTest(@MockK private val queryService: SubmissionQueryService) 
     inner class CreationTime {
         @Test
         fun `when exists`() {
-            every { queryService.findCreationTime(ACC_NO) } returns testTime
-
-            val times = testInstance.getTimes(TimesRequest(ACC_NO))
+            val times = testInstance.getTimes(TimesRequest(accNo = ACC_NO, creationTime = testTime))
             assertThat(times.createTime).isEqualTo(testTime)
         }
 

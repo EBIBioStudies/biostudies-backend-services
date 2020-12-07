@@ -1,6 +1,6 @@
 package ebi.ac.uk.security.service
 
-import ac.uk.ebi.biostd.persistence.model.AccessPermission
+import ac.uk.ebi.biostd.persistence.model.DbAccessPermission
 import ac.uk.ebi.biostd.persistence.model.DbUser
 import ac.uk.ebi.biostd.persistence.model.UserGroup
 import ebi.ac.uk.security.integration.model.api.GroupMagicFolder
@@ -32,7 +32,7 @@ class ProfileService(private val filesDirPath: Path) {
         }
     }
 
-    private fun getPermissions(permissions: Set<AccessPermission>): Set<SecurityPermission> =
+    private fun getPermissions(permissions: Set<DbAccessPermission>): Set<SecurityPermission> =
         permissions.mapTo(mutableSetOf()) { SecurityPermission(it.accessType, it.accessTag.name) }
 
     private fun groupsMagicFolder(groups: Set<UserGroup>): List<GroupMagicFolder> =

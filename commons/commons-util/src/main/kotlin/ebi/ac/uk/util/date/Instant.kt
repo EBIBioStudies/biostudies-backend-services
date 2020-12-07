@@ -1,15 +1,11 @@
 package ebi.ac.uk.util.date
 
 import java.time.Instant
-import java.util.Calendar
-import java.util.TimeZone
+import java.time.OffsetDateTime
+import java.time.ZoneOffset.UTC
+import java.time.temporal.ChronoUnit.DAYS
 
-@Suppress("LongParameterList")
-fun createInstant(year: Int, month: Int, day: Int, hours: Int, minutes: Int, seconds: Int): Instant {
-    return Calendar.Builder()
-        .setDate(year, month, day)
-        .setTimeOfDay(hours, minutes, seconds)
-        .setTimeZone(TimeZone.getTimeZone("UTC"))
-        .build()
-        .toInstant()
-}
+fun Instant.asOffsetAtStartOfDay(): OffsetDateTime = atOffset(UTC).toLocalDate().atStartOfDay().atOffset(UTC)
+
+fun Instant.asOffsetAtEndOfDay(): OffsetDateTime =
+    plus(1, DAYS).atOffset(UTC).toLocalDate().atStartOfDay().minusSeconds(1).atOffset(UTC)
