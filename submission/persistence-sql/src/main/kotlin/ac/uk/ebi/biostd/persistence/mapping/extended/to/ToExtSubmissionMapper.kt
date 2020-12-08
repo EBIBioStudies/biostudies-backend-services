@@ -21,7 +21,10 @@ private const val FILES_DIR = "Files"
 // Added for backward compatibility of old submitter applications
 const val USER_PREFIX = "u"
 
-class ToExtSubmissionMapper(private val submissionsPath: Path) {
+class ToExtSubmissionMapper(
+    private val submissionsPath: Path,
+    private val filesDirPath: Path
+) {
     internal fun toExtSubmission(dbToExtRequest: DbToExtRequest): ExtSubmission {
         val (dbSubmission, stats) = dbToExtRequest
         return toExtSubmission(dbSubmission, stats)
@@ -70,11 +73,16 @@ class ToExtSubmissionMapper(private val submissionsPath: Path) {
 
     private fun getSubmissionSource(dbSubmission: DbSubmission): FilesSource {
         val filesPath = submissionsPath.resolve(dbSubmission.relPath).resolve(FILES_DIR)
-        return ComposedFileSource(submissionSources(filesPath))
+        val userFiles = userMagicFolder(dbSubmission.owner.secret, dbSubmission.owner.id)
+
+        return ComposedFileSource(listOf(
+            PathFilesSource(filesPath),
+            PathFilesSource(filesPath.resolve(USER_PREFIX)),
+            PathFilesSource(userFiles)))
     }
 
-    private fun submissionSources(filesPath: Path) = listOf(
-        PathFilesSource(filesPath),
-        PathFilesSource(filesPath.resolve(USER_PREFIX))
-    )
+    private fun userMagicFolder(secret: String, id: Long): Path {
+        val relativePath = "${secret.take(2)}/${secret.drop(2)}-a$id"
+        return filesDirPath.resolve(relativePath)
+    }
 }

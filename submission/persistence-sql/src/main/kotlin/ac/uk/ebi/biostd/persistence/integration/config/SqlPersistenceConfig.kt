@@ -49,7 +49,9 @@ open class SqlPersistenceConfig(private val applicationProperties: ApplicationPr
 
     @Bean
     internal open fun toExtSubmissionMapper(): ToExtSubmissionMapper =
-        ToExtSubmissionMapper(Paths.get(applicationProperties.submissionPath))
+        ToExtSubmissionMapper(
+            Paths.get(applicationProperties.submissionPath),
+            Paths.get(applicationProperties.security.filesDirPath))
 
     @Bean
     internal open fun submissionRepository(
