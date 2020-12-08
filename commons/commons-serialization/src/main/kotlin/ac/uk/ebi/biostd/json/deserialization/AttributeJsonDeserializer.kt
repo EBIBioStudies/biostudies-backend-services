@@ -5,6 +5,7 @@ import ac.uk.ebi.biostd.common.NAME_ATTRIBUTES
 import ac.uk.ebi.biostd.common.REFERENCE
 import ac.uk.ebi.biostd.common.VALUE
 import ac.uk.ebi.biostd.common.VAL_ATTRIBUTES
+import ac.uk.ebi.biostd.json.exception.NoAttributeValueException
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.JsonNode
@@ -20,10 +21,13 @@ internal class AttributeJsonDeserializer : StdDeserializer<Attribute>(Attribute:
     override fun deserialize(jp: JsonParser, ctxt: DeserializationContext): Attribute {
         val mapper = jp.codec as ObjectMapper
         val node: JsonNode = mapper.readTree(jp)
+        val name = node.getNode<TextNode>(NAME).textValue()
+        val value = node.getNode<TextNode>(VALUE).textValue()
+        require(value.isNotBlank()) { throw NoAttributeValueException(name) }
 
         return Attribute(
-            name = node.getNode<TextNode>(NAME).textValue(),
-            value = node.getNode<TextNode>(VALUE).textValue(),
+            name = name,
+            value = value,
             reference = node.get(REFERENCE)?.asBoolean().orFalse(),
             valueAttrs = mapper.convertList(node.get(VAL_ATTRIBUTES)),
             nameAttrs = mapper.convertList(node.get(NAME_ATTRIBUTES)))

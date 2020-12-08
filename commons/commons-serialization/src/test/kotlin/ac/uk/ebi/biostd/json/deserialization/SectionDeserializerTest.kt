@@ -19,9 +19,10 @@ class SectionDeserializerTest {
             "accno" to jsonArray(1, 2, 3)
         }.toString()
 
+        val node = "{\"accno\":[1,2,3]}"
         val exception = assertThrows<IllegalArgumentException> { testInstance.deserialize<Section>(invalidJson) }
         assertThat(exception.message).isEqualTo(
-            "Expecting node: '{\"accno\":[1,2,3]}', property: 'accno' to be of type 'TextNode' but 'ArrayNode' find instead")
+            "Expecting node: '$node', property: 'accno' to be of type 'TextNode' but 'ArrayNode' was found instead")
     }
 
     @Test
