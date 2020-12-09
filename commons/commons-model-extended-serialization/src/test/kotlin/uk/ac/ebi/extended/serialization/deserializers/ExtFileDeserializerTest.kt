@@ -23,6 +23,7 @@ class ExtFileDeserializerTest(private val tempFolder: TemporaryFolder) {
         val json = jsonObj {
             "file" to file.absolutePath
             "fileName" to "test-file.txt"
+            "path" to "test-file.txt"
             "attributes" to jsonArray(jsonObj {
                 "name" to "Type"
                 "value" to "Data"
@@ -33,6 +34,28 @@ class ExtFileDeserializerTest(private val tempFolder: TemporaryFolder) {
         val extFile = testInstance.deserialize<ExtFile>(json)
         assertThat(extFile.file).isEqualTo(file)
         assertThat(extFile.fileName).isEqualTo("test-file.txt")
+        assertThat(extFile.attributes).hasSize(1)
+        assertThat(extFile.attributes.first().name).isEqualTo("Type")
+        assertThat(extFile.attributes.first().value).isEqualTo("Data")
+    }
+
+    @Test
+    fun `deserialize with inner path`() {
+        val file = tempFolder.createFile("test-file.txt")
+        val json = jsonObj {
+            "file" to file.absolutePath
+            "fileName" to "test-file.txt"
+            "path" to "a/b/test-file.txt"
+            "attributes" to jsonArray(jsonObj {
+                "name" to "Type"
+                "value" to "Data"
+            })
+            "extType" to "file"
+        }.toString()
+
+        val extFile = testInstance.deserialize<ExtFile>(json)
+        assertThat(extFile.file).isEqualTo(file)
+        assertThat(extFile.fileName).isEqualTo("a/b/test-file.txt")
         assertThat(extFile.attributes).hasSize(1)
         assertThat(extFile.attributes.first().name).isEqualTo("Type")
         assertThat(extFile.attributes.first().value).isEqualTo("Data")
