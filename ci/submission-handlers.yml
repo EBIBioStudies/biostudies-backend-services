@@ -17,6 +17,13 @@ deploy-dev-handlers:
     - build-test
   script: gradle deployHandlers -Penv=dev -PdeployPath=/nfs/biostudies/.adm/apps/handlers/dev
 
+deploy-dev-handlers:
+  stage: deploy-dev-handlers
+  when: manual
+  dependencies:
+    - build-test
+  script: gradle deployHandlers -Penv=dev -PdeployPath=/nfs/biostudies/.adm/apps/handlers/dev
+
 deploy-beta-handlers:
   stage: deploy-beta-handlers
   when: manual
