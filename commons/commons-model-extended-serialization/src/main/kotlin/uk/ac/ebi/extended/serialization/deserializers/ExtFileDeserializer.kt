@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.node.TextNode
 import ebi.ac.uk.extended.model.ExtFile
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.ATTRIBUTES
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE
-import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_NAME
+import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_PATH
 import uk.ac.ebi.serialization.extensions.convertList
 import uk.ac.ebi.serialization.extensions.findNode
 import uk.ac.ebi.serialization.extensions.getNode
@@ -27,8 +27,7 @@ class ExtFileDeserializer : JsonDeserializer<ExtFile>() {
 
         return ExtFile(
             file = file,
-            fileName = node.getNode<TextNode>(FILE_NAME).textValue(),
-            attributes = mapper.convertList(node.findNode(ATTRIBUTES))
-        )
+            fileName = node.getNode<TextNode>(FILE_PATH).textValue(),
+            attributes = mapper.convertList(node.findNode(ATTRIBUTES)))
     }
 }
