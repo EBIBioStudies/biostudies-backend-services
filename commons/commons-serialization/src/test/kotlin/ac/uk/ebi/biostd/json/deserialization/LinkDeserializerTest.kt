@@ -26,9 +26,10 @@ class LinkDeserializerTest {
             "url" to jsonArray(1, 2, 3)
         }.toString()
 
+        val node = "{\"url\":[1,2,3]}"
         val exception = assertThrows<IllegalArgumentException> { testInstance.deserialize<Link>(invalidJson) }
         assertThat(exception.message).isEqualTo(
-            "Expecting node: '{\"url\":[1,2,3]}', property: 'url' to be of type 'TextNode' but 'ArrayNode' find instead")
+            "Expecting node: '$node', property: 'url' to be of type 'TextNode' but 'ArrayNode' was found instead")
     }
 
     @Test
