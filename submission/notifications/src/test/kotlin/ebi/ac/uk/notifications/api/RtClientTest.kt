@@ -1,8 +1,8 @@
 package ebi.ac.uk.notifications.api
 
+import ac.uk.ebi.biostd.common.properties.RtConfig
 import ebi.ac.uk.notifications.exception.InvalidResponseException
 import ebi.ac.uk.notifications.exception.InvalidTicketIdException
-import ebi.ac.uk.notifications.integration.RtConfig
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk

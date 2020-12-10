@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.submission.util
 
-import ac.uk.ebi.biostd.persistence.integration.PersistenceContext
+import ac.uk.ebi.biostd.persistence.common.service.PersistenceService
 import ac.uk.ebi.biostd.submission.exceptions.InvalidPatternException
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -12,12 +12,12 @@ import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(MockKExtension::class)
-class AccNoPatternUtilTest(@MockK private val context: PersistenceContext) {
+class AccNoPatternUtilTest(@MockK private val service: PersistenceService) {
     private val testInstance = AccNoPatternUtil()
 
     @BeforeEach
     fun init() {
-        every { context.getSequenceNextValue(any()) } returns 10
+        every { service.getSequenceNextValue(any()) } returns 10
     }
 
     @Test

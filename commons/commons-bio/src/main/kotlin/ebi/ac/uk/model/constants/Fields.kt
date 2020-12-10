@@ -12,7 +12,6 @@ val RESERVED_ATTRIBUTES = setOf(
     SubFields.ROOT_PATH.value)
 
 interface Fields {
-
     val value: String?
 }
 

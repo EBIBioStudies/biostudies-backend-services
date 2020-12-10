@@ -8,7 +8,14 @@ auto-deploy-dev-handlers:
   stage: auto-deploy-dev-handlers
   only:
     refs:
-      - dev
+      - master
+
+deploy-dev-handlers:
+  stage: deploy-dev-handlers
+  when: manual
+  dependencies:
+    - build-test
+  script: gradle deployHandlers -Penv=dev -PdeployPath=/nfs/biostudies/.adm/apps/handlers/dev
 
 deploy-dev-handlers:
   stage: deploy-dev-handlers

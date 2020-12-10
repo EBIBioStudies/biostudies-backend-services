@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.data.service
 
-import ac.uk.ebi.biostd.persistence.filter.PaginationFilter
+import ac.uk.ebi.biostd.persistence.common.request.PaginationFilter
 import ac.uk.ebi.biostd.persistence.model.DbUserData
 import ac.uk.ebi.biostd.persistence.repositories.UserDataDataRepository
 import org.springframework.data.domain.PageRequest

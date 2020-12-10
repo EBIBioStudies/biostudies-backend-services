@@ -7,7 +7,7 @@ import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
-import ac.uk.ebi.biostd.persistence.repositories.data.SubmissionRepository
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.excel.excel
 import ebi.ac.uk.dsl.json.jsonArray
@@ -45,7 +45,7 @@ internal class FileListSubmissionTest(private val tempFolder: TemporaryFolder) :
     @DirtiesContext
     inner class MixedFormatFileListSubmissionTest(
         @Autowired private val securityTestService: SecurityTestService,
-        @Autowired private val submissionRepository: SubmissionRepository
+        @Autowired private val submissionRepository: SubmissionQueryService
     ) {
         @LocalServerPort
         private var serverPort: Int = 0

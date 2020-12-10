@@ -1,8 +1,8 @@
 package ac.uk.ebi.biostd.submission.submitter
 
-import ac.uk.ebi.biostd.persistence.integration.PersistenceContext
-import ac.uk.ebi.biostd.persistence.integration.SaveRequest
-import ac.uk.ebi.biostd.persistence.integration.SubmissionQueryService
+import ac.uk.ebi.biostd.persistence.common.request.SaveSubmissionRequest
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestService
 import ac.uk.ebi.biostd.submission.exceptions.InvalidSubmissionException
 import ac.uk.ebi.biostd.submission.model.SubmissionRequest
 import ac.uk.ebi.biostd.submission.service.AccNoService
@@ -22,6 +22,7 @@ import ebi.ac.uk.extended.model.ExtSubmissionMethod
 import ebi.ac.uk.extended.model.ExtTag
 import ebi.ac.uk.extended.model.Project
 import ebi.ac.uk.io.sources.FilesSource
+import ebi.ac.uk.model.AccNumber
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.SubmissionMethod
 import ebi.ac.uk.model.User
@@ -46,8 +47,8 @@ class SubmissionSubmitter(
     private val accNoService: AccNoService,
     private val parentInfoService: ParentInfoService,
     private val projectInfoService: ProjectInfoService,
-    private val context: PersistenceContext,
-    private val queryService: SubmissionQueryService
+    private val submissionRequestService: SubmissionRequestService,
+    private val queryService: SubmissionMetaQueryService
 ) {
     fun submit(request: SubmissionRequest): ExtSubmission {
         logger.info { "processing request $request" }
@@ -60,15 +61,15 @@ class SubmissionSubmitter(
             request.method)
 
         logger.info { "Saving submission ${submission.accNo}" }
-        return context.saveAndProcessSubmissionRequest(SaveRequest(submission, request.mode))
+        return submissionRequestService.saveAndProcessSubmissionRequest(SaveSubmissionRequest(submission, request.mode))
     }
 
-    fun processRequest(request: SaveRequest): ExtSubmission {
+    fun processRequest(request: SaveSubmissionRequest): ExtSubmission {
         logger.info { "processing request for submission ${request.submission.accNo} " }
-        return context.processSubmission(request)
+        return submissionRequestService.processSubmission(request)
     }
 
-    fun submitAsync(request: SubmissionRequest): SaveRequest {
+    fun submitAsync(request: SubmissionRequest): SaveSubmissionRequest {
         logger.info { "processing async request $request" }
 
         val submission = process(
@@ -79,7 +80,8 @@ class SubmissionSubmitter(
             request.method)
 
         logger.info { "Saving submission request ${submission.accNo}" }
-        return SaveRequest(context.saveSubmissionRequest(SaveRequest(submission, request.mode)), request.mode)
+        val saveRequest = SaveSubmissionRequest(submission, request.mode)
+        return SaveSubmissionRequest(submissionRequestService.saveSubmissionRequest(saveRequest), request.mode)
     }
 
     @Suppress("TooGenericExceptionCaught")
@@ -104,16 +106,18 @@ class SubmissionSubmitter(
         source: FilesSource,
         method: SubmissionMethod
     ): ExtSubmission {
+        val previousVersion = queryService.findLatestBasicByAccNo(submission.accNo)
+        val isNew = previousVersion == null
         val (parentTags, parentReleaseTime, parentPattern) = parentInfoService.getParentInfo(submission.attachTo)
-        val (createTime, modTime, releaseTime) = getTimes(submission, parentReleaseTime)
+        val (createTime, modTime, releaseTime) = getTimes(submission, previousVersion?.creationTime, parentReleaseTime)
         val released = releaseTime?.isBeforeOrEqual(OffsetDateTime.now()).orFalse()
-        val accNo = getAccNumber(submission, submitter, parentPattern)
+        val accNo = getAccNumber(submission, isNew, submitter, parentPattern)
         val accNoString = accNo.toString()
-        val projectInfo = getProjectInfo(submitter, submission, accNoString)
-        val secretKey = getSecret(accNoString)
+        val projectInfo = getProjectInfo(submitter, submission, accNoString, isNew)
+        val secretKey = previousVersion?.secretKey ?: UUID.randomUUID().toString()
         val relPath = accNoService.getRelPath(accNo)
         val tags = getTags(parentTags, projectInfo)
-        val ownerEmail = onBehalfUser?.email ?: queryService.getOwner(accNoString) ?: submitter.email
+        val ownerEmail = onBehalfUser?.email ?: previousVersion?.owner ?: submitter.email
 
         return ExtSubmission(
             accNo = accNoString,
@@ -151,18 +155,22 @@ class SubmissionSubmitter(
         return tags
     }
 
-    private fun getProjectInfo(user: User, submission: Submission, accNo: String) =
-        projectInfoService.process(ProjectRequest(user.email, submission.section.type, submission.accNoTemplate, accNo))
+    private fun getProjectInfo(user: User, submission: Submission, accNo: String, isNew: Boolean): ProjectResponse? {
+        val request = ProjectRequest(user.email, submission.section.type, submission.accNoTemplate, accNo, isNew)
+        return projectInfoService.process(request)
+    }
 
     private fun getAttributes(submission: Submission) = submission.attributes
         .filterNot { RESERVED_ATTRIBUTES.contains(it.name) }
         .map { it.toExtAttribute() }
 
-    private fun getAccNumber(sub: Submission, user: User, parentPattern: String?) =
-        accNoService.getAccNo(AccNoServiceRequest(user.email, sub.accNo.ifBlank { null }, sub.attachTo, parentPattern))
+    private fun getAccNumber(sub: Submission, isNew: Boolean, user: User, parentPattern: String?): AccNumber {
+        val accNo = sub.accNo.ifBlank { null }
+        val request = AccNoServiceRequest(user.email, accNo, isNew, sub.attachTo, parentPattern)
 
-    private fun getTimes(sub: Submission, parentReleaseTime: OffsetDateTime?) =
-        timesService.getTimes(TimesRequest(sub.accNo, sub.releaseDate, parentReleaseTime))
+        return accNoService.calculateAccNo(request)
+    }
 
-    private fun getSecret(accString: String) = queryService.getSecret(accString) ?: UUID.randomUUID().toString()
+    private fun getTimes(sub: Submission, creationTime: OffsetDateTime?, parentReleaseTime: OffsetDateTime?) =
+        timesService.getTimes(TimesRequest(sub.accNo, sub.releaseDate, creationTime, parentReleaseTime))
 }
