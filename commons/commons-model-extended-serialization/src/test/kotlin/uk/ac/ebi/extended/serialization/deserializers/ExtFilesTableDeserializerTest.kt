@@ -22,6 +22,7 @@ class ExtFilesTableDeserializerTest(private val tempFolder: TemporaryFolder) {
             "files" to jsonArray(jsonObj {
                 "file" to file.absolutePath
                 "fileName" to "test-file.txt"
+                "path" to "test-file.txt"
                 "attributes" to jsonArray(jsonObj {
                     "name" to "Type"
                     "value" to "Data"

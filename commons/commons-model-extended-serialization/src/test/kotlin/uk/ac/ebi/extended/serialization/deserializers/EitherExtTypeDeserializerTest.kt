@@ -62,6 +62,7 @@ class EitherExtTypeDeserializerTest(private val tempFolder: TemporaryFolder) {
         val json = jsonObj {
             "file" to file.absolutePath
             "fileName" to "test-file.txt"
+            "path" to "test-file.txt"
             "extType" to "file"
         }.toString()
 
@@ -80,6 +81,7 @@ class EitherExtTypeDeserializerTest(private val tempFolder: TemporaryFolder) {
             "files" to jsonArray(jsonObj {
                 "file" to file.absolutePath
                 "fileName" to "test-file-table.txt"
+                "path" to "test-file-table.txt"
                 "extType" to "file"
             })
             "extType" to "filesTable"
