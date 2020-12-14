@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.json
 
+import ac.uk.ebi.biostd.json.deserialization.AttributeDetailJsonDeserializer
 import ac.uk.ebi.biostd.json.deserialization.AttributeJsonDeserializer
 import ac.uk.ebi.biostd.json.deserialization.FileJsonDeserializer
 import ac.uk.ebi.biostd.json.deserialization.FilesTableJsonDeserializer
@@ -22,6 +23,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import ebi.ac.uk.model.Attribute
+import ebi.ac.uk.model.AttributeDetail
 import ebi.ac.uk.model.File
 import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.model.Link
@@ -63,6 +65,7 @@ internal class JsonSerializer {
                 addDeserializer(Link::class.java, LinkJsonDeserializer())
                 addDeserializer(File::class.java, FileJsonDeserializer())
                 addDeserializer(Attribute::class.java, AttributeJsonDeserializer())
+                addDeserializer(AttributeDetail::class.java, AttributeDetailJsonDeserializer())
                 addDeserializer(Either::class.java, EitherDeserializer())
                 addDeserializer(LinksTable::class.java, LinksTableJsonDeserializer())
                 addDeserializer(SectionsTable::class.java, SectionsTableJsonDeserializer())

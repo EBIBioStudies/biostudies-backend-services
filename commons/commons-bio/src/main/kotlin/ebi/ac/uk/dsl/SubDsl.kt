@@ -4,7 +4,7 @@ package ebi.ac.uk.dsl
 
 import ebi.ac.uk.model.Attributable
 import ebi.ac.uk.model.Attribute
-import ebi.ac.uk.model.Attributes
+import ebi.ac.uk.model.AttributeDetail
 import ebi.ac.uk.model.File
 import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.model.Link
@@ -17,8 +17,8 @@ fun Attributable.attribute(
     name: String,
     value: String,
     ref: Boolean = false,
-    valueAttrs: Attributes = mutableListOf(),
-    nameAttrs: Attributes = mutableListOf()
+    valueAttrs: MutableList<AttributeDetail> = mutableListOf(),
+    nameAttrs: MutableList<AttributeDetail> = mutableListOf()
 ) = addAttribute(Attribute(name = name, value = value, valueAttrs = valueAttrs, reference = ref, nameAttrs = nameAttrs))
 
 fun Submission.section(type: String, block: Section.() -> Unit) = apply { section = Section(type).apply(block) }
