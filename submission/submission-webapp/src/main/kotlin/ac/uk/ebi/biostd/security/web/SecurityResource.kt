@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.security.web
 
 import ebi.ac.uk.api.security.ChangePasswordRequest
+import ebi.ac.uk.api.security.CheckUserRequest
 import ebi.ac.uk.api.security.LoginRequest
 import ebi.ac.uk.api.security.LogoutRequest
 import ebi.ac.uk.api.security.RegisterRequest
@@ -43,6 +44,15 @@ class SecurityResource(
         @Valid @RequestBody register: RegisterRequest
     ) {
         securityService.registerUser(register)
+    }
+
+    @PostMapping(value = ["/check-user"])
+    @ApiOperation("Check user registration")
+    fun checkUser(
+        @ApiParam(name = "User Info", value = "Information for the new user")
+        @Valid @RequestBody register: CheckUserRequest
+    ) {
+        securityService.checkUserRegistration(register)
     }
 
     @PostMapping(value = ["/signin", "/login"])
