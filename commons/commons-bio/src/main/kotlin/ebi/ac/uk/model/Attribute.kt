@@ -3,16 +3,13 @@ package ebi.ac.uk.model
 import ebi.ac.uk.base.EMPTY
 import java.util.Objects
 
-typealias Attributes = MutableList<AttributeDetail>
-
 data class Attribute(
     var name: String,
     var value: String,
     var reference: Boolean = false,
-    var nameAttrs: Attributes = mutableListOf(),
-    var valueAttrs: Attributes = mutableListOf()
+    var nameAttrs: MutableList<AttributeDetail> = mutableListOf(),
+    var valueAttrs: MutableList<AttributeDetail> = mutableListOf()
 ) {
-
     constructor(name: Any, value: Any) : this(name.toString(), value.toString())
 
     companion object {
