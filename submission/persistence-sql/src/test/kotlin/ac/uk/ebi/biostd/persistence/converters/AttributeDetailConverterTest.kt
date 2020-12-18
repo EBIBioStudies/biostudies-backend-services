@@ -18,7 +18,7 @@ class AttributeDetailConverterTest {
 
     @Test
     fun convertToEntityAttribute() {
-        val convertedAttributes = testInstance.convertToEntityAttribute("attr1=Attribute 1;attr2=Attribute 2")
+        val convertedAttributes = testInstance.convertToEntityAttribute("attr1=Attribute 1;attr3=;attr2=Attribute 2")
 
         assertThat(convertedAttributes).hasSize(2)
         assertThat(convertedAttributes.first()).isEqualTo(AttributeDetail("attr1", "Attribute 1"))
