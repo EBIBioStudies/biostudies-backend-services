@@ -35,4 +35,17 @@ class SectionExtTest {
         val section = DbSection("SECT-001", "Study")
         assertThat(section.title).isNull()
     }
+
+    @Test
+    fun `valid attributes`() {
+        val section = DbSection("SECT-001", "Study").apply {
+            attributes.add(DbSectionAttribute(DbAttribute("Invalid", "", 0)))
+            attributes.add(DbSectionAttribute(DbAttribute("Valid", "Value", 1)))
+        }
+
+        val validAttributes = section.validAttributes
+        assertThat(validAttributes).hasSize(1)
+        assertThat(validAttributes.first().name).isEqualTo("Valid")
+        assertThat(validAttributes.first().value).isEqualTo("Value")
+    }
 }

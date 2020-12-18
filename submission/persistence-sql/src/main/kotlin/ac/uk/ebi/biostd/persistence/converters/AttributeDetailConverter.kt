@@ -16,5 +16,6 @@ internal class AttributeDetailConverter : AttributeConverter<MutableList<Attribu
             .split(ATTR_SEP)
             .dropWhile { it.isEmpty() }
             .map { it.split(ATTR_REL) }
+            .filterNot { it.second().isBlank() }
             .mapTo(mutableListOf()) { AttributeDetail(it.first(), it.second()) }
 }
