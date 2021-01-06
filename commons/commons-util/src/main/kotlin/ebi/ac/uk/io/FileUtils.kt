@@ -127,6 +127,10 @@ object FileUtils {
 
     fun listFiles(file: File): List<File> =
         if (isDirectory(file)) Files.list(file.toPath()).map { it.toFile() }.toList() else emptyList()
+
+    fun setFolderPermissions(path: Path, permissions: Set<PosixFilePermission>) {
+        Files.setPosixFilePermissions(path, permissions)
+    }
 }
 
 @Suppress("TooManyFunctions")

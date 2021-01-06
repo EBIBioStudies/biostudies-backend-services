@@ -22,4 +22,5 @@ interface ISecurityService {
     fun getUserProfile(authToken: String): UserInfo
     fun getOrCreateInactive(email: String, username: String): SecurityUser
     fun getOrRegisterUser(request: GetOrRegisterUserRequest): SecurityUser
+    fun refreshUser(email: String): SecurityUser
 }

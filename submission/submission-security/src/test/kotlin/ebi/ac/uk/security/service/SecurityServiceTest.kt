@@ -197,6 +197,7 @@ internal class SecurityServiceTest(
             val user = simpleUser
             every { userRepository.findByActivationKeyAndActive(ACTIVATION_KEY, false) } returns Optional.of(user)
             every { userRepository.save(any<DbUser>()) } answers { firstArg() }
+            every { securityProps.magicDirPath } returns temporaryFolder.createDirectory("users").absolutePath
 
             testInstance.activate(ACTIVATION_KEY)
 
