@@ -78,7 +78,7 @@ class SecurityService(
 
     override fun refreshUser(email: String): SecurityUser {
         val user = userRepository.findByEmailAndActive(email, true)
-            .map(profileService::asSecurityUser)
+            .map { activate(it) }
             .orElseThrow { UserNotFoundByEmailException(email) }
 
         FileUtils.setFolderPermissions(user.magicFolder.path.parent, RWX__X___)
