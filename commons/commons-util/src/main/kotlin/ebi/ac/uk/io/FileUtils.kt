@@ -237,7 +237,7 @@ internal object FileUtilsHelper {
     }
 
     fun deleteFolder(path: Path) {
-        if (exists(path)) {
+        if (Files.exists(path)) {
             Files.walk(path)
                 .sorted(Comparator.reverseOrder())
                 .forEach { Files.deleteIfExists(it) }
