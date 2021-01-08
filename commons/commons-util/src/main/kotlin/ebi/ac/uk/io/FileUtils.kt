@@ -11,7 +11,6 @@ import org.apache.commons.codec.digest.DigestUtils
 import java.io.File
 import java.io.InputStream
 import java.nio.file.Files
-import java.nio.file.Files.exists
 import java.nio.file.Path
 import java.nio.file.StandardCopyOption.REPLACE_EXISTING
 import java.nio.file.attribute.PosixFilePermission
@@ -51,7 +50,7 @@ object FileUtils {
         folder: Path,
         permissions: Set<PosixFilePermission>
     ): Path {
-        require(exists(folder).not() || isDirectory(folder.toFile())) { "'$folder' points to a file" }
+        require(Files.exists(folder).not() || isDirectory(folder.toFile())) { "'$folder' points to a file" }
         createFolderIfNotExist(folder, permissions)
         return folder
     }
@@ -136,7 +135,7 @@ object FileUtils {
 @Suppress("TooManyFunctions")
 internal object FileUtilsHelper {
     fun createFolderIfNotExist(file: Path, permissions: Set<PosixFilePermission>) {
-        if (exists(file).not()) createDirectories(file, permissions)
+        if (Files.exists(file).not()) createDirectories(file, permissions)
     }
 
     fun createFolderHardLinks(
@@ -161,6 +160,7 @@ internal object FileUtilsHelper {
     }
 
     fun createSymLink(link: Path, target: Path, permissions: Set<PosixFilePermission>) {
+        if (Files.exists(link)) Files.delete(link)
         Files.createSymbolicLink(createParentDirectories(link, permissions), target)
     }
 
