@@ -1,57 +1,70 @@
 spring:
+  application:
+    name: Submitter-Dev
+
   boot:
     admin:
       client:
-        url: http://biostudy-prod.ebi.ac.uk:8590
         enabled: false
 
   datasource:
-    url: # Database connection URL
-    username:
-    password:
+    url: jdbc:mysql://localhost:3306/BioStudies?useSSL=false
+    username: mysql
+    password: mysql123
     driver-class-name: com.mysql.jdbc.Driver
-
+    hikari:
+      maximum-pool-size: 15
   jpa:
     show-sql: false
     hibernate:
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
       use-new-id-generator-mappings: false
+    database-platform: org.hibernate.dialect.MySQLDialect
 
   rabbitmq:
-    host: # RabbitMQ host
-    username: # RabbitMQ user
-    password: # RabbitMQ password
-    port: # RabbitMQ port
+    host: localhost
+    username: guest
+    password: guest
+    port: 5672
 
-  servlet:
-    multipart:
-      max-file-size: 20GB
-      max-request-size: 20GB
-      location: ${app.tempDirPath}
+rabbitmq:
+  host: localhost
+  username: guest
+  password: guest
+  port: 5672
+
+servlet:
+  multipart:
+    max-file-size: 20GB
+    max-request-size: 20GB
+    location: ${app.tempDirPath}
 
 logging:
   file:
     max-history: 7
-    name: logs/application_logs.txt
+    name: /home/jcrada/Systems/Bio-Local/logs/application_logs.txt
 
 app:
-  submissionPath: # Absolute path to the folder to be used as submission storage
-  ftpPath: # Absolute path to the folder to be used ftp hardlinks
-  tempDirPath: # Absolute of the temp folder to store files
-  instanceBaseUrl: # Instance base url e.g. http://server.ebi.ac.uk:5541
+  submissionPath: /home/jcrada/Systems/Bio-Local/submissions
+  ftpPath: /home/jcrada/Systems/Bio-Local/ftp
+  tempDirPath: /home/jcrada/Systems/Bio-Local/temp
+  instanceBaseUrl: http://localhost:8080
+  security:
+    environment: DEV
+    captchaKey: # Captcha validation token
+    checkCaptcha: false
+    tokenHash: 123-4-567
+    filesDirPath: /home/jcrada/Systems/Bio-Local/files
+    magicDirPath: /home/jcrada/Systems/Bio-Local/links
+    requireActivation: false
   fire:
     host: # FIRE host
     username: # FIRE user
     password: # FIRE password
-  security:
-    captchaKey: # Captcha validation token
-    checkCaptcha: false
-    tokenHash: # Token used for hash authentication
-    filesDirPath: # Absolute path to the folder to be used for the user/groups files
-    magicDirPath: #  Absolute path to create user magic folder for dropbox simple access
-    environment: # Current application execution environment
-    requireActivation: # Indicates whether or not, new user need activation before being used
   notifications:
     smtp: smtp.ebi.ac.uk
     uiUrl: # The BioStudies UI url
+  persistence:
+    enabledMongo: true
+    connection: "mongodb://mongo:mongo@localhost:27017"

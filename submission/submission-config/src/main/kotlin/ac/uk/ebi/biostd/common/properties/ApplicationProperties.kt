@@ -18,10 +18,17 @@ open class ApplicationProperties {
 
     @NestedConfigurationProperty
     var fire: FireProperties = FireProperties()
+
+    @NestedConfigurationProperty
+    var mongo: MongoModuleProperties = MongoModuleProperties()
 }
 
 class FireProperties {
     lateinit var host: String
     lateinit var username: String
     lateinit var password: String
+}
+
+class MongoModuleProperties {
+    lateinit var connection: String
 }
