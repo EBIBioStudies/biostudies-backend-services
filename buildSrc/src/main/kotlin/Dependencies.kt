@@ -70,7 +70,7 @@ object Versions {
     const val CommonsLang3Version = "3.8.1"
     const val CommonsIOVersion = "2.6"
     const val CommonsCsvVersion = "1.7"
-    const val MySqlVersion = "8.0.21"
+    const val MySqlVersion = "6.0.6"
     const val XmlBuilderVersion = "1.4.2"
     const val WoodstoxVersion = "5.1.0"
     const val JacksonVersion = "2.9.8"
