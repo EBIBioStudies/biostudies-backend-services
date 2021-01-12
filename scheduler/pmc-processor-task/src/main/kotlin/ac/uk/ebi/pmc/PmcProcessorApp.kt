@@ -64,9 +64,9 @@ class PmcTaskExecutor(
             }
         }.fold({
             logger.error(it) { "Error executing pmc task, mode = ${properties.mode} " }
-            notificationSender.sent(Alert(SYSTEM, mode.description, "Error executing process", it.message))
+            notificationSender.send(Alert(SYSTEM, mode.description, "Error executing process", it.message))
         }, {
-            notificationSender.sent(Report(SYSTEM, mode.description, "Process was completed successfully"))
+            notificationSender.send(Report(SYSTEM, mode.description, "Process was completed successfully"))
         })
     }
 }

@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.common.config
 
-import ac.uk.ebi.biostd.common.property.ApplicationProperties
+import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.files.web.common.GroupPathDescriptorResolver
 import ac.uk.ebi.biostd.files.web.common.UserPathDescriptorResolver
 import ac.uk.ebi.biostd.integration.SerializationService
@@ -34,7 +34,10 @@ internal class WebConfig(
     @Bean
     fun fireWebClient(properties: ApplicationProperties): FireWebClient =
         FireWebClient.create(
-            properties.tempDirPath, properties.fire.host, properties.fire.username, properties.fire.password)
+            properties.tempDirPath,
+            properties.fire.host,
+            properties.fire.username,
+            properties.fire.password)
 
     override fun configureContentNegotiation(configurer: ContentNegotiationConfigurer) {
         configurer.defaultContentType(MediaType.APPLICATION_JSON)

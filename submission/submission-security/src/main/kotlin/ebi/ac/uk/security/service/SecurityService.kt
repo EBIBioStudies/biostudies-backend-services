@@ -1,5 +1,6 @@
 package ebi.ac.uk.security.service
 
+import ac.uk.ebi.biostd.common.properties.SecurityProperties
 import ac.uk.ebi.biostd.persistence.model.DbUser
 import ac.uk.ebi.biostd.persistence.model.ext.activated
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
@@ -13,10 +14,9 @@ import ebi.ac.uk.api.security.RetryActivationRequest
 import ebi.ac.uk.extended.events.SecurityNotification
 import ebi.ac.uk.extended.events.SecurityNotificationType.ACTIVATION
 import ebi.ac.uk.extended.events.SecurityNotificationType.PASSWORD_RESET
-import ebi.ac.uk.io.RWXRWX___
 import ebi.ac.uk.io.FileUtils
+import ebi.ac.uk.io.RWXRWX___
 import ebi.ac.uk.io.RWX__X___
-import ebi.ac.uk.security.integration.SecurityProperties
 import ebi.ac.uk.security.integration.components.ISecurityService
 import ebi.ac.uk.security.integration.exception.LoginException
 import ebi.ac.uk.security.integration.exception.UserAlreadyRegister

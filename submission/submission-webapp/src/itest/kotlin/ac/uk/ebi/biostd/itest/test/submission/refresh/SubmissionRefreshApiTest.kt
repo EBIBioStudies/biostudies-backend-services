@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.model.DbSubmission
 import ac.uk.ebi.biostd.persistence.model.DbSubmissionAttribute
 import ac.uk.ebi.biostd.persistence.model.DbTag
@@ -13,7 +14,6 @@ import ac.uk.ebi.biostd.persistence.model.Sequence
 import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.SubmissionDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.TagDataRepository
-import ac.uk.ebi.biostd.persistence.repositories.data.SubmissionRepository
 import arrow.core.Either
 import ebi.ac.uk.dsl.attribute
 import ebi.ac.uk.dsl.file
@@ -62,13 +62,13 @@ internal class SubmissionRefreshApiTest(private val tempFolder: TemporaryFolder)
     @DirtiesContext
     inner class SubmissionRefreshApiTest(
         @Autowired val securityTestService: SecurityTestService,
-        @Autowired val submissionRepository: SubmissionRepository,
+        @Autowired val submissionRepository: SubmissionQueryService,
         @Autowired val submissionDataRepository: SubmissionDataRepository,
         @Autowired val sequenceRepository: SequenceDataRepository,
         @Autowired val tagsRefRepository: TagDataRepository
     ) {
         private val releaseDate = LocalDate.of(2017, 7, 4).atStartOfDay().atOffset(ZoneOffset.UTC)
-        private val newReleaseDate = LocalDate.now().atStartOfDay().atOffset(ZoneOffset.UTC).plusDays(1)
+        private val newReleaseDate = LocalDate.now(ZoneOffset.UTC).atStartOfDay().atOffset(ZoneOffset.UTC).plusDays(1)
 
         @LocalServerPort
         private var serverPort: Int = 0
@@ -109,7 +109,7 @@ internal class SubmissionRefreshApiTest(private val tempFolder: TemporaryFolder)
                 extSubmission = getExtSubmission(),
                 title = SUBTITLE,
                 releaseTime = releaseDate,
-                accessTags = listOf(PUBLIC_ACCESS_TAG.value),
+                accessTags = listOf(PUBLIC_ACCESS_TAG.value, "biostudies-mgmt@ebi.ac.uk"),
                 attributes = listOf(ATTR_NAME to ATTR_VALUE))
 
             updateSubmission(getSubmissionDb())
@@ -120,7 +120,7 @@ internal class SubmissionRefreshApiTest(private val tempFolder: TemporaryFolder)
                 extSubmission = stored,
                 title = NEW_SUBTITLE,
                 releaseTime = newReleaseDate,
-                accessTags = emptyList(),
+                accessTags = listOf("biostudies-mgmt@ebi.ac.uk"),
                 attributes = listOf(ATTR_NAME to NEW_ATTR_VALUE))
         }
 
@@ -134,7 +134,7 @@ internal class SubmissionRefreshApiTest(private val tempFolder: TemporaryFolder)
             assertThat(extSubmission.title).isEqualTo(title)
             assertThat(extSubmission.releaseTime).isEqualTo(releaseTime)
             assertThat(extSubmission.rootPath).isEqualTo(ROOT_PATH)
-            assertThat(extSubmission.accessTags.map { it.name }).containsExactlyElementsOf(accessTags)
+            assertThat(extSubmission.accessTags.map { it.name }).containsExactlyInAnyOrderElementsOf(accessTags)
             assertThat(extSubmission.attributes.map { it.name to it.value }).containsExactlyElementsOf(attributes)
 
             assertThat(extSubmission.section.type).isEqualTo("Study")
@@ -163,6 +163,6 @@ internal class SubmissionRefreshApiTest(private val tempFolder: TemporaryFolder)
 
         private fun getExtSubmission(): ExtSubmission = submissionRepository.getExtByAccNo(ACC_NO)
 
-        private fun getSubmissionDb(): DbSubmission = submissionDataRepository.getBasicWithAttributes(ACC_NO)
+        private fun getSubmissionDb(): DbSubmission = submissionDataRepository.findBasicWithAttributes(ACC_NO)!!
     }
 }

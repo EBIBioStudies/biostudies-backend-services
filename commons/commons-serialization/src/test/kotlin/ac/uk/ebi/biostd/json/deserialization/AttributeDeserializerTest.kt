@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.json.deserialization
 
 import ac.uk.ebi.biostd.json.JsonSerializer
+import ac.uk.ebi.biostd.json.exception.NoAttributeValueException
 import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.model.Attribute
@@ -14,10 +15,20 @@ class AttributeDeserializerTest {
     private val testInstance = JsonSerializer.mapper
 
     @Test
-    fun `deserialize no value`() {
+    fun `deserialize empty`() {
         val exception = assertThrows<IllegalStateException> { testInstance.deserialize<Attribute>("{}") }
 
         assertThat(exception.message).isEqualTo("Expecting to find property with 'name' in node '{}'")
+    }
+
+    @Test
+    fun `deserialize no value`() {
+        val exception = assertThrows<NoAttributeValueException> { testInstance.deserialize<Attribute>("""{
+            |"name": "attr name",
+            |"value": ""
+            |}""".trimMargin()) }
+
+        assertThat(exception.message).isEqualTo("The value for the attribute 'attr name' can't be empty")
     }
 
     @Test
@@ -26,9 +37,11 @@ class AttributeDeserializerTest {
             "name" to jsonArray(1, 2, 3)
         }.toString()
 
+        val node = "{\"name\":[1,2,3]}"
         val exception = assertThrows<IllegalArgumentException> { testInstance.deserialize<Attribute>(invalidJson) }
+
         assertThat(exception.message).isEqualTo(
-            "Expecting node: '{\"name\":[1,2,3]}', property: 'name' to be of type 'TextNode' but 'ArrayNode' find instead")
+            "Expecting node: '$node', property: 'name' to be of type 'TextNode' but 'ArrayNode' was found instead")
     }
 
     @Test
@@ -70,5 +83,63 @@ class AttributeDeserializerTest {
         }.toString()
 
         assertThat(testInstance.deserialize<Attribute>(attributeJson)).isEqualTo(attr)
+    }
+
+    @Test
+    fun `deserialize attribute with empty value qualifier value`() {
+        val valDetails = AttributeDetail("t1", "v1")
+        val nameDetails = AttributeDetail("t2", "v2")
+
+        val attr = Attribute(
+            name = "attr name",
+            value = "attr value",
+            reference = true,
+            nameAttrs = mutableListOf(nameDetails),
+            valueAttrs = mutableListOf(valDetails))
+
+        val attributeJson = jsonObj {
+            "name" to attr.name
+            "value" to attr.value
+            "reference" to attr.reference
+            "valqual" to jsonArray({
+                "name" to valDetails.name
+                "value" to ""
+            })
+            "nmqual" to jsonArray({
+                "name" to nameDetails.name
+                "value" to nameDetails.value
+            })
+        }.toString()
+
+        assertThrows<IllegalArgumentException> { testInstance.deserialize<Attribute>(attributeJson) }
+    }
+
+    @Test
+    fun `deserialize attribute with empty name qualifier value`() {
+        val valDetails = AttributeDetail("t1", "v1")
+        val nameDetails = AttributeDetail("t2", "v2")
+
+        val attr = Attribute(
+            name = "attr name",
+            value = "attr value",
+            reference = true,
+            nameAttrs = mutableListOf(nameDetails),
+            valueAttrs = mutableListOf(valDetails))
+
+        val attributeJson = jsonObj {
+            "name" to attr.name
+            "value" to attr.value
+            "reference" to attr.reference
+            "valqual" to jsonArray({
+                "name" to valDetails.name
+                "value" to valDetails.value
+            })
+            "nmqual" to jsonArray({
+                "name" to nameDetails.name
+                "value" to ""
+            })
+        }.toString()
+
+        assertThrows<IllegalArgumentException> { testInstance.deserialize<Attribute>(attributeJson) }
     }
 }

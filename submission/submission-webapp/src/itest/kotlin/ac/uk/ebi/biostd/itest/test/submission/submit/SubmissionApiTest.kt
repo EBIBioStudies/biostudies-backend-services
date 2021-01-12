@@ -11,11 +11,12 @@ import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.RegularUser
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.factory.invalidLinkUrl
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.model.DbTag
 import ac.uk.ebi.biostd.persistence.model.Sequence
 import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.TagDataRepository
-import ac.uk.ebi.biostd.persistence.repositories.data.SubmissionRepository
+import ac.uk.ebi.biostd.submission.ext.getSimpleByAccNo
 import ebi.ac.uk.api.dto.UserRegistration
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.file
@@ -53,7 +54,7 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
     @DirtiesContext
     inner class SubmissionApiTest(
         @Autowired val securityTestService: SecurityTestService,
-        @Autowired val submissionRepository: SubmissionRepository,
+        @Autowired val submissionRepository: SubmissionQueryService,
         @Autowired val sequenceRepository: SequenceDataRepository,
         @Autowired val tagsRefRepository: TagDataRepository,
         @Autowired val groupService: IGroupService
@@ -305,8 +306,8 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
             assertThat(savedSubmission.accNo).isEqualTo("S-RLSD123")
             assertThat(savedSubmission.title).isEqualTo("Test Public Submission")
             assertThat(savedSubmission.released).isTrue()
-            assertThat(savedSubmission.accessTags).hasSize(1)
-            assertThat(savedSubmission.accessTags.first().name).isEqualTo("Public")
+            assertThat(savedSubmission.accessTags.map { it.name })
+                .containsExactlyInAnyOrder("Public", "biostudies-mgmt@ebi.ac.uk")
         }
 
         @Test

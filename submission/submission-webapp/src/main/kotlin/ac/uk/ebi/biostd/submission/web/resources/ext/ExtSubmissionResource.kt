@@ -46,5 +46,5 @@ class ExtSubmissionResource(
 
     @GetMapping
     fun submissions(@ModelAttribute request: ExtPageRequest): ExtPage =
-        extPageMapper.asExtPage(extSubmissionService.getExtendedSubmissions(request))
+        extPageMapper.asExtPage(extSubmissionService.getExtendedSubmissions(request), request)
 }

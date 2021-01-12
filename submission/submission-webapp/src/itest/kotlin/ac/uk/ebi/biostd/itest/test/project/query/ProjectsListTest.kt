@@ -7,8 +7,8 @@ import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.DefaultUser
 import ac.uk.ebi.biostd.itest.entities.RegularUser
 import ac.uk.ebi.biostd.itest.entities.SuperUser
-import ac.uk.ebi.biostd.persistence.model.AccessPermission
-import ac.uk.ebi.biostd.persistence.model.AccessType
+import ac.uk.ebi.biostd.persistence.common.model.AccessType
+import ac.uk.ebi.biostd.persistence.model.DbAccessPermission
 import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
@@ -95,7 +95,7 @@ internal class ProjectsListTest(tempFolder: TemporaryFolder) : BaseIntegrationTe
             assertThat(superUserWebClient.submitSingle(sampleProject, SubmissionFormat.TSV)).isSuccessful()
             assertThat(superUserWebClient.submitSingle(defaultProject, SubmissionFormat.TSV)).isSuccessful()
 
-            accessPermissionRepository.save(AccessPermission(
+            accessPermissionRepository.save(DbAccessPermission(
                 user = userDataRepository.findByEmailAndActive(DefaultUser.email, true).get(),
                 accessTag = tagsDataRepository.findByName("DefaultProject"),
                 accessType = AccessType.ATTACH))

@@ -1,13 +1,13 @@
 package ac.uk.ebi.biostd.submission.web.resources
 
-import ac.uk.ebi.biostd.persistence.service.filesystem.FtpFilesService
+import ac.uk.ebi.biostd.persistence.common.filesystem.FtpFilesService
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 /**
- *  Help to generate ftp folder for an spicifc submission path.
+ * Help to generate ftp folder for a specific submission path.
  */
 @RestController
 @RequestMapping("submissions/ftp")

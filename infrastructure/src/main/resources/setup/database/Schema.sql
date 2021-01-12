@@ -17,7 +17,7 @@ CREATE TABLE FileAttribute (
     name                 LONGTEXT NULL,
     nameQualifierString  LONGTEXT NULL,
     reference            BIT      NOT NULL,
-    value                LONGTEXT NULL,
+    value                LONGTEXT NOT NULL,
     valueQualifierString LONGTEXT NULL,
     file_id              BIGINT   NULL,
     ord                  INT      NULL
@@ -46,7 +46,7 @@ CREATE TABLE ReferencedFileAttribute (
     name                 LONGTEXT NULL,
     nameQualifierString  LONGTEXT NULL,
     reference            BIT      NOT NULL,
-    value                LONGTEXT NULL,
+    value                LONGTEXT NOT NULL,
     valueQualifierString LONGTEXT NULL,
     referenced_file_id   BIGINT   NULL,
     ord                  INT      NULL
@@ -102,7 +102,7 @@ CREATE TABLE LinkAttribute (
     name                 LONGTEXT NULL,
     nameQualifierString  LONGTEXT NULL,
     reference            BIT      NOT NULL,
-    value                LONGTEXT NULL,
+    value                LONGTEXT NOT NULL,
     valueQualifierString LONGTEXT NULL,
     link_id              BIGINT   NULL,
     ord                  INT      NULL,
@@ -139,7 +139,7 @@ CREATE TABLE SectionAttribute (
     name                 LONGTEXT NULL,
     nameQualifierString  LONGTEXT NULL,
     reference            BIT      NOT NULL,
-    value                LONGTEXT NULL,
+    value                LONGTEXT NOT NULL,
     valueQualifierString LONGTEXT NULL,
     section_id           BIGINT   NULL,
     ord                  INT      NULL,
@@ -184,7 +184,7 @@ CREATE TABLE SubmissionAttribute (
     name                 LONGTEXT NULL,
     nameQualifierString  LONGTEXT NULL,
     reference            BIT      NOT NULL,
-    value                LONGTEXT NULL,
+    value                LONGTEXT NOT NULL,
     valueQualifierString LONGTEXT NULL,
     submission_id        BIGINT   NULL,
     ord                  INT      NULL,
@@ -317,3 +317,14 @@ CREATE TABLE SecurityToken
     invalidation_date DATETIME NOT NULL
 );
 CREATE UNIQUE INDEX SecurityToken_id_uindex ON SecurityToken (id);
+
+CREATE TABLE SubmissionRequest
+(
+    id int auto_increment,
+    accNo nvarchar(200) not null,
+    version int not null,
+    request longtext not null,
+    constraint SubmissionRequest_pk primary key (id)
+);
+
+CREATE index SubmissionRequest_accNo_version_index on SubmissionRequest (accNo, version);

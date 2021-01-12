@@ -1,5 +1,11 @@
 app:
   apps-folder: # Folder where app jar can be located
+  notificationsUrl: # Slack notifications URL
+
+  daily-scheduling:
+    pmc: # Indicates whether or not the PMC related tasks should be daily triggered
+    notifier: # Indicates whether or not the Submission Release Notifier should be daily triggered
+    releaser: # Indicates whether or not the Submission Releaser should be daily triggered
 
   ssh:
     user: # ssh user
@@ -8,8 +14,25 @@ app:
 
 pmc:
   import:
-    temp:
-    mongoUri:
+    temp: # Temporary folder to place PMC imported files
+    mongoUri: # URI to mongo database used by the PMC import process
+
+releaser:
+  bioStudies:
+    url: # BioStudies backend URL
+    user: # BioStudies manager user
+    password: # BioStudies manager password
+
+  rabbitmq:
+    host: # RabbitMQ Host
+    user: # RabbitMQ User
+    password: # RabbitMQ Password
+    port: # RabbitMQ Port
+
+  notification-times:
+    first-warning-days: # Number of days before hand for the first warning to the users about upcoming release
+    second-warning-days: # Number of days before hand for the second warning to the users about upcoming release
+    third-warning-days: # Number of days before hand for the third warning to the users about upcoming release
 
 spring:
   application:

@@ -26,9 +26,10 @@ class FileDeserializerTest {
             "path" to jsonArray(1, 2, 3)
         }.toString()
 
+        val node = "{\"path\":[1,2,3]}"
         val exception = assertThrows<IllegalArgumentException> { testInstance.deserialize<File>(invalidJson) }
         assertThat(exception.message).isEqualTo(
-            "Expecting node: '{\"path\":[1,2,3]}', property: 'path' to be of type 'TextNode' but 'ArrayNode' find instead")
+            "Expecting node: '$node', property: 'path' to be of type 'TextNode' but 'ArrayNode' was found instead")
     }
 
     @Test

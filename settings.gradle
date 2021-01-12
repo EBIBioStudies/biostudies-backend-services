@@ -13,23 +13,27 @@ include("commons:commons-model-extended-mapping")
 include("commons:commons-model-extended-serialization")
 
 include("client:bio-webclient")
+include("client:bio-webclient-demo")
 include("client:bio-commandline")
 include("client:fire-webclient")
 
 include("events:events-publisher")
-
+include("bio-admin")
 include("infrastructure")
 
 include("submission:submitter")
 include("submission:submission-webapp")
 include("submission:submission-security")
-include("submission:persistence")
 include("submission:notifications")
-include("submission:stats")
 include("submission:submission-handlers")
+include("submission:submission-config")
+
+include("submission:persistence-common-api")
+include('submission:persistence-common')
+include("submission:persistence-sql")
 
 include("scheduler:cluster-client")
 include("scheduler:pmc-processor-task")
+include("scheduler:submission-releaser-task")
 include("scheduler:scheduler")
 include("scheduler:task-properties")
-include("bio-admin")
