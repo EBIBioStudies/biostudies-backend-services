@@ -79,7 +79,7 @@ class SecurityService(
     }
 
     override fun checkUserRegistration(register: CheckUserRequest): SecurityUser {
-        return getOrCreateInactive(register.userEmail, register.userEmail)
+        return getOrCreateInactive(register.userEmail, register.userName)
     }
 
     private fun createUserInactive(email: String, username: String): DbUser {

@@ -46,8 +46,10 @@ class SecurityResource(
         securityService.registerUser(register)
     }
 
-    @PostMapping(value = ["/check-user"])
-    @ApiOperation("Check user registration")
+    @PostMapping(value = ["/check-registration"])
+    @ApiOperation("Checks if a user with the given email is registered in the system. " +
+        "In case it's not, a new user will be created using such email and the given user name. " +
+        "The new user will be inactive and should be activated via activation link.")
     fun checkUser(
         @ApiParam(name = "User Info", value = "Information for the new user")
         @Valid @RequestBody register: CheckUserRequest
