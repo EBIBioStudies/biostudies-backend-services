@@ -56,5 +56,5 @@ app:
     smtp: smtp.ebi.ac.uk
     uiUrl: # The BioStudies UI url
   persistence:
-    enabledMongo: true
-    connection: "mongodb://mongo:mongo@localhost:27017"
+    enabledMongo: false
+    connection: # Mongo database connection string
