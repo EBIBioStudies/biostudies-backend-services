@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.persistence.mapping.extended.to
 import ac.uk.ebi.biostd.persistence.exception.ExtSubmissionMappingException
 import ac.uk.ebi.biostd.persistence.model.DbSubmission
 import ac.uk.ebi.biostd.persistence.model.DbSubmissionStat
+import ac.uk.ebi.biostd.persistence.model.ext.validAttributes
 import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.ExtStat
 import ebi.ac.uk.extended.model.ExtSubmission
@@ -45,7 +46,7 @@ class ToExtSubmissionMapper(private val submissionsPath: Path) {
                 modificationTime = dbSubmission.modificationTime,
                 creationTime = dbSubmission.creationTime,
                 section = dbSubmission.rootSection.toExtSection(getSubmissionSource(dbSubmission)),
-                attributes = dbSubmission.attributes.map { it.toExtAttribute() },
+                attributes = dbSubmission.validAttributes.map { it.toExtAttribute() },
                 projects = dbSubmission.accessTags.map { Project(it.name) },
                 tags = dbSubmission.tags.map { ExtTag(it.classifier, it.name) },
                 stats = stats.map { toExtMetric(it) })

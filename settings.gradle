@@ -13,6 +13,7 @@ include("commons:commons-model-extended-mapping")
 include("commons:commons-model-extended-serialization")
 
 include("client:bio-webclient")
+include("client:bio-webclient-demo")
 include("client:bio-commandline")
 include("client:fire-webclient")
 
