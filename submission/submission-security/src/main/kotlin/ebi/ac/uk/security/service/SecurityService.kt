@@ -2,7 +2,6 @@ package ebi.ac.uk.security.service
 
 import ac.uk.ebi.biostd.common.properties.SecurityProperties
 import ac.uk.ebi.biostd.persistence.model.DbUser
-import ac.uk.ebi.biostd.persistence.model.ext.activated
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import arrow.core.getOrElse
 import ebi.ac.uk.api.security.ChangePasswordRequest
@@ -57,7 +56,7 @@ class SecurityService(
         return when {
             userRepository.existsByEmail(request.email) -> throw UserAlreadyRegister(request.email)
             securityProps.requireActivation -> register(request)
-            else -> activate(request)
+            else -> activate(asUser(request))
         }
     }
 
@@ -75,6 +74,16 @@ class SecurityService(
                 getOrCreateInactive(request.userEmail, userName)
             }
         }
+    }
+
+    override fun refreshUser(email: String): SecurityUser {
+        val user = userRepository.findByEmailAndActive(email, true)
+            .map { activate(it) }
+            .orElseThrow { UserNotFoundByEmailException(email) }
+
+        FileUtils.setFolderPermissions(user.magicFolder.path.parent, RWX__X___)
+        FileUtils.setFolderPermissions(user.magicFolder.path, RWXRWX___)
+        return user
     }
 
     private fun createUserInactive(email: String, username: String): DbUser {
@@ -95,11 +104,9 @@ class SecurityService(
     }
 
     override fun activate(activationKey: String) {
-        val user = userRepository.findByActivationKeyAndActive(activationKey, false)
-            .orElseThrow { UserWithActivationKeyNotFoundException() }
-        user.activationKey = null
-        user.active = true
-        userRepository.save(user)
+        userRepository.findByActivationKeyAndActive(activationKey, false)
+            .map(this::activate)
+            .orElseThrow(::UserWithActivationKeyNotFoundException)
     }
 
     override fun retryRegistration(request: RetryActivationRequest) {
@@ -154,21 +161,18 @@ class SecurityService(
         val key = securityUtil.newKey()
         val saved = userRepository.save(user.apply { user.activationKey = key })
         val activationUrl = securityUtil.getActivationUrl(instanceKey, activationPath, key)
-        val activationNotification = SecurityNotification(saved.email, saved.fullName, activationUrl, ACTIVATION)
-
-        eventsPublisherService.securityNotification(activationNotification)
-
+        val notification = SecurityNotification(saved.email, saved.fullName, activationUrl, ACTIVATION)
+        eventsPublisherService.securityNotification(notification)
         return saved
     }
 
-    private fun activate(request: RegisterRequest): SecurityUser {
-        val dbUser = userRepository.save(asUser(request).activated())
+    private fun activate(toActivate: DbUser): SecurityUser {
+        val dbUser = userRepository.save(toActivate.apply { activationKey = null; active = true })
         val securityUser = profileService.asSecurityUser(dbUser)
 
         FileUtils.getOrCreateFolder(securityUser.magicFolder.path.parent, RWX__X___)
         FileUtils.getOrCreateFolder(securityUser.magicFolder.path, RWXRWX___)
         FileUtils.createSymbolicLink(symLinkPath(securityUser.email), securityUser.magicFolder.path, RWXRWX___)
-
         return securityUser
     }
 
