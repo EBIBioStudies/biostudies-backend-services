@@ -12,6 +12,7 @@ import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.Table
 import ebi.ac.uk.model.constants.TableFields.FILES_TABLE
 import ebi.ac.uk.model.constants.TableFields.LINKS_TABLE
+import ebi.ac.uk.model.extensions.fileListName
 
 class TsvToStringSerializer {
     fun <T> serialize(element: T): String {
@@ -42,6 +43,7 @@ class TsvToStringSerializer {
     private fun serializeSection(builder: TsvBuilder, section: Section, parentAccNo: String? = null) {
         builder.addSeparator()
         builder.addSecDescriptor(section.type, section.accNo, parentAccNo)
+        addFileListExt(section)
         section.attributes.forEach(builder::addAttr)
 
         section.links.forEach {
@@ -54,6 +56,9 @@ class TsvToStringSerializer {
                 { addTable(builder, it, getHeader(it, section.accNo)) })
         }
     }
+
+    private fun addFileListExt(section: Section) =
+        section.fileList?.let { section.fileListName = "${it.name}.pagetab.tsv" }
 
     private fun getHeader(table: SectionsTable, parentAccNo: String? = null) =
         "${table.elements.first().type}[${if (parentAccNo.isNotBlank()) "$parentAccNo" else ""}]"

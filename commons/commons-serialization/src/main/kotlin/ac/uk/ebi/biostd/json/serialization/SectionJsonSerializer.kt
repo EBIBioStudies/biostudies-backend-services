@@ -8,9 +8,11 @@ import com.fasterxml.jackson.databind.SerializerProvider
 import com.fasterxml.jackson.databind.ser.std.StdSerializer
 import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.constants.SectionFields
+import ebi.ac.uk.model.extensions.fileListName
 
 internal class SectionJsonSerializer : StdSerializer<Section>(Section::class.java) {
     override fun serialize(section: Section, gen: JsonGenerator, provider: SerializerProvider) {
+        addFileListExt(section)
         gen.writeObj {
             writeJsonString(SectionFields.ACC_NO, section.accNo)
             writeJsonString(SectionFields.TYPE, section.type)
@@ -20,4 +22,7 @@ internal class SectionJsonSerializer : StdSerializer<Section>(Section::class.jav
             writeJsonArray(SectionFields.SUBSECTIONS, section.sections)
         }
     }
+
+    private fun addFileListExt(section: Section) =
+        section.fileList?.let { section.fileListName = "${it.name}.json" }
 }
