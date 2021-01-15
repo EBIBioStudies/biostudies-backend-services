@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.persistence.common.model
 
 enum class AccessType {
-    READ, SUBMIT, ATTACH, UPDATE, DELETE
+    READ, ATTACH, UPDATE, DELETE
 }
 
 interface AccessPermission {

@@ -24,4 +24,5 @@ interface ISecurityService {
     fun getOrCreateInactive(email: String, username: String): SecurityUser
     fun getOrRegisterUser(request: GetOrRegisterUserRequest): SecurityUser
     fun checkUserRegistration(register: CheckUserRequest): SecurityUser
+    fun refreshUser(email: String): SecurityUser
 }
