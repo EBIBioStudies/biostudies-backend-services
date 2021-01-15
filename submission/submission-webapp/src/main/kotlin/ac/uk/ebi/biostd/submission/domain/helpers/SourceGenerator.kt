@@ -26,16 +26,16 @@ class SourceGenerator {
     ): List<FilesSource> {
         val sources = mutableListOf<FilesSource>(ListFilesSource(files))
 
-       user?.let {
-           sources.add(createPathSource(user.magicFolder.path, rootPath))
-           sources.addAll(groupSources(user.groupsFolders))
-       }
+        user?.let {
+            sources.add(createPathSource(user.magicFolder.path, rootPath))
+            sources.addAll(groupSources(user.groupsFolders))
+        }
 
-       subFolder?.let {
-           sources.addAll(submissionsPaths(subFolder))
-       }
+        subFolder?.let {
+            sources.addAll(submissionsPaths(subFolder))
+        }
 
-       return sources
+        return sources
     }
 
     private fun submissionsPaths(subFolder: File) = listOf(
