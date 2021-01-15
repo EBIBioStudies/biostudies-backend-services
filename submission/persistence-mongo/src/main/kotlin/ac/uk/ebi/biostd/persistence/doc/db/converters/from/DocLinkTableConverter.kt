@@ -9,6 +9,6 @@ import org.springframework.stereotype.Component
 @Component
 class DocLinkTableConverter(private val docLinkConverter: DocLinkConverter) : Converter<Document, DocLinkTable> {
     override fun convert(source: Document): DocLinkTable = DocLinkTable(
-        links = source.getDocList(LINK_TABLE_DOC_LINKS).map { docLinkConverter.convert(it) }
+        source.getDocList(LINK_TABLE_DOC_LINKS).map { docLinkConverter.convert(it) }
     )
 }

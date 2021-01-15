@@ -6,12 +6,12 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocFileList
 import ac.uk.ebi.biostd.persistence.doc.model.DocFileTable
 import ac.uk.ebi.biostd.persistence.doc.model.DocLink
 import ac.uk.ebi.biostd.persistence.doc.model.DocLinkTable
+import ac.uk.ebi.biostd.persistence.doc.model.DocProject
 import ac.uk.ebi.biostd.persistence.doc.model.DocSection
 import ac.uk.ebi.biostd.persistence.doc.model.DocSectionTable
+import ac.uk.ebi.biostd.persistence.doc.model.DocStat
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocTag
-import ac.uk.ebi.biostd.persistence.doc.model.DocProject
-import ac.uk.ebi.biostd.persistence.doc.model.DocStat
 
 object DocAttributeFields {
     val DOC_ATTRIBUTE_CLASS: String = DocAttribute::class.java.canonicalName
@@ -53,8 +53,8 @@ object DocLinkTableFields {
 }
 
 object DocSectionFields {
-    val DOC_SECTION_CLASS: String = DocSection::class.java.canonicalName
-    val DOC_SECTION_TABLE_CLASS: String = DocSectionTable::class.java.canonicalName
+    val DOC_SEC_CLASS: String = DocSection::class.java.canonicalName
+    val DOC_SEC_TABLE_CLASS: String = DocSectionTable::class.java.canonicalName
 
     const val CLASS_FIELD = "_class"
     const val SEC_ACC_NO = "accNo"

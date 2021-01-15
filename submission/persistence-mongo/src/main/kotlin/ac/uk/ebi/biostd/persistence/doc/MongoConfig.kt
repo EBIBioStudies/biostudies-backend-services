@@ -20,22 +20,24 @@ import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionMongoRepositor
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.context.properties.EnableConfigurationProperties
+import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.data.mongodb.config.AbstractMongoClientConfiguration
-import org.springframework.data.mongodb.core.convert.MongoCustomConversions.MongoConverterConfigurationAdapter
+import org.springframework.core.convert.converter.Converter
+import org.springframework.data.mongodb.core.convert.MongoCustomConversions
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories
 
 @Configuration
 @EnableMongoRepositories(basePackageClasses = [SubmissionMongoRepository::class, DocSubmission::class])
 @ConditionalOnProperty(prefix = "app.persistence", name = ["enabledMongo"])
 @EnableConfigurationProperties
-class MongoConfig : AbstractMongoClientConfiguration() {
+class MongoConfig {
 
-    override fun getDatabaseName(): String = "test"
-
-    override fun configureConverters(adapter: MongoConverterConfigurationAdapter) {
-        adapter.registerConverter(submissionConverter())
-        adapter.registerConverter(docSubmissionConverter())
+    @Bean
+    fun customConversions(): MongoCustomConversions {
+        val converters = mutableListOf<Converter<*, *>>()
+        converters.add(docSubmissionConverter())
+        converters.add(submissionConverter())
+        return MongoCustomConversions(converters)
     }
 
     private fun docSubmissionConverter(): DocSubmissionConverter {

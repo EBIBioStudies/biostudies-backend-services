@@ -1,15 +1,15 @@
 package ac.uk.ebi.biostd.persistence.doc.db.converters.to
 
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.DOC_SEC_CLASS
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.DOC_SEC_TABLE_CLASS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_ATTRIBUTES
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_FILE_LIST
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_FILES
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_FILE_LIST
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_LINKS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_SECTIONS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_TABLE_SECTIONS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_TYPE
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.DOC_SECTION_CLASS
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.DOC_SECTION_TABLE_CLASS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.to.CommonsConverter.classField
 import ac.uk.ebi.biostd.persistence.doc.model.DocFile
 import ac.uk.ebi.biostd.persistence.doc.model.DocFileTable
@@ -41,7 +41,7 @@ class SectionConverter(
 
     private fun basicSection(section: DocSection): Document {
         val sectionDoc = Document()
-        sectionDoc[classField] = DOC_SECTION_CLASS
+        sectionDoc[classField] = DOC_SEC_CLASS
         sectionDoc[SEC_ACC_NO] = section.accNo
         sectionDoc[SEC_TYPE] = section.type
         sectionDoc[SEC_ATTRIBUTES] = section.attributes.map { attributeConverter.convert(it) }
@@ -50,7 +50,7 @@ class SectionConverter(
 
     private fun sectionsTable(docSectionTable: DocSectionTable): Document {
         val sectionTableDocument = Document()
-        sectionTableDocument[classField] = DOC_SECTION_TABLE_CLASS
+        sectionTableDocument[classField] = DOC_SEC_TABLE_CLASS
         sectionTableDocument[SEC_TABLE_SECTIONS] = docSectionTable.sections.map { basicSection(it) }
         return sectionTableDocument
     }
