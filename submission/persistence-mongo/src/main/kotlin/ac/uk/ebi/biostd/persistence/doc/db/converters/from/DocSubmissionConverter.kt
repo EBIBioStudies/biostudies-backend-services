@@ -1,5 +1,30 @@
 package ac.uk.ebi.biostd.persistence.doc.db.converters.from
 
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.PROJECT_DOC_ACC_NO
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.STAT_DOC_NAME
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.STAT_DOC_VALUE
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ACC_NO
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ATTRIBUTES
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_CREATION_TIME
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ID
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_METHOD
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_MODIFICATION_TIME
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_OWNER
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_PROJECTS
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_REL_PATH
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_RELEASE_TIME
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_RELEASED
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ROOT_PATH
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_SECRET_KEY
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_SECTION
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_STATS
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_STATUS
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_SUBMITTER
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_TAGS
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_TITLE
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_VERSION
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.TAG_DOC_NAME
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.TAG_DOC_VALUE
 import ac.uk.ebi.biostd.persistence.doc.model.DocProcessingStatus
 import ac.uk.ebi.biostd.persistence.doc.model.DocProject
 import ac.uk.ebi.biostd.persistence.doc.model.DocStat
@@ -9,71 +34,40 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocTag
 import org.bson.Document
 import org.springframework.core.convert.converter.Converter
 import org.springframework.stereotype.Component
-import java.time.Instant
 
 @Component
 class DocSubmissionConverter(
     private val docSectionConverter: DocSectionConverter,
     private val docAttributeConverter: DocAttributeConverter
 ) : Converter<Document, DocSubmission> {
-    override fun convert(source: Document): DocSubmission {
-        return DocSubmission(
-            id = source.getString(subId),
-            accNo = source.getString(subAccNo),
-            version = source.getInteger(subVersion),
-            owner = source.getString(subOwner),
-            submitter = source.getString(subSubmitter),
-            title = source.getString(subTitle),
-            method = DocSubmissionMethod.fromString(source.getString(subMethod)),
-            relPath = source.getString(subRelPath),
-            rootPath = source.getString(subRootPath),
-            released = source.getBoolean(subReleased),
-            secretKey = source.getString(subSecretKey),
-            status = DocProcessingStatus.fromString(source.getString(subStatus)),
-            releaseTime = source.getDate(subReleaseTime).toInstant(),
-            modificationTime = source.getDate(subModificationTime).toInstant(),
-            creationTime = source.getDate(subCreationTime).toInstant(),
-            section = docSectionConverter.convert(source.getDoc(subSection)),
-            attributes = source.getDocList(subAttributes).map { docAttributeConverter.convert(it) },
-            tags = source.getDocList(subTags).map { toDocTag(it) },
-            projects = source.getDocList(subProjects).map { toDocProject(it) },
-            stats = source.getDocList(subStats).map { toDocStat(it) }
-        )
-    }
+    override fun convert(source: Document): DocSubmission = DocSubmission(
+        id = source.getString(SUB_ID),
+        accNo = source.getString(SUB_ACC_NO),
+        version = source.getInteger(SUB_VERSION),
+        owner = source.getString(SUB_OWNER),
+        submitter = source.getString(SUB_SUBMITTER),
+        title = source.getString(SUB_TITLE),
+        method = DocSubmissionMethod.fromString(source.getString(SUB_METHOD)),
+        relPath = source.getString(SUB_REL_PATH),
+        rootPath = source.getString(SUB_ROOT_PATH),
+        released = source.getBoolean(SUB_RELEASED),
+        secretKey = source.getString(SUB_SECRET_KEY),
+        status = DocProcessingStatus.fromString(source.getString(SUB_STATUS)),
+        releaseTime = source.getDate(SUB_RELEASE_TIME).toInstant(),
+        modificationTime = source.getDate(SUB_MODIFICATION_TIME).toInstant(),
+        creationTime = source.getDate(SUB_CREATION_TIME).toInstant(),
+        section = docSectionConverter.convert(source.getDoc(SUB_SECTION)),
+        attributes = source.getDocList(SUB_ATTRIBUTES).map { docAttributeConverter.convert(it) },
+        tags = source.getDocList(SUB_TAGS).map { toDocTag(it) },
+        projects = source.getDocList(SUB_PROJECTS).map { toDocProject(it) },
+        stats = source.getDocList(SUB_STATS).map { toDocStat(it) }
+    )
 
-    private fun toDocTag(doc: Document): DocTag =
-        DocTag(name = doc.getString(tagDocName), value = doc.getString(tagDocValue))
+private fun toDocTag(doc: Document): DocTag =
+    DocTag(name = doc.getString(TAG_DOC_NAME), value = doc.getString(TAG_DOC_VALUE))
 
-    private fun toDocStat(doc: Document): DocStat =
-        DocStat(name = doc.getString(statDocName), value = doc.getLong(statDocValue))
+private fun toDocStat(doc: Document): DocStat =
+    DocStat(name = doc.getString(STAT_DOC_NAME), value = doc.getLong(STAT_DOC_VALUE))
 
-    private fun toDocProject(doc: Document): DocProject = DocProject(accNo = doc.getString(projectDocAccNo))
-
-    companion object {
-        const val subId = "id"
-        const val subAccNo = "accNo"
-        const val subVersion = "version"
-        const val subOwner = "owner"
-        const val subSubmitter = "submitter"
-        const val subTitle = "title"
-        const val subMethod = "method"
-        const val subRelPath = "relPath"
-        const val subRootPath = "rootPath"
-        const val subReleased = "released"
-        const val subSecretKey = "secretKey"
-        const val subStatus = "status"
-        const val subReleaseTime = "releaseTime"
-        const val subModificationTime = "modificationTime"
-        const val subCreationTime = "creationTime"
-        const val subSection = "section"
-        const val subAttributes = "attributes"
-        const val subTags = "tags"
-        const val subProjects = "projects"
-        const val tagDocName = "name"
-        const val tagDocValue = "value"
-        const val projectDocAccNo = "accNo"
-        const val statDocName = "name"
-        const val statDocValue = "value"
-        const val subStats = "stats"
-    }
+private fun toDocProject(doc: Document): DocProject = DocProject(accNo = doc.getString(PROJECT_DOC_ACC_NO))
 }

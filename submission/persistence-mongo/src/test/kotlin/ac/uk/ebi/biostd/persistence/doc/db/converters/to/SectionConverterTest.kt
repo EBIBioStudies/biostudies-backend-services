@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.persistence.doc.db.converters.to
 
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields
 import ac.uk.ebi.biostd.persistence.doc.model.DocAttribute
 import ac.uk.ebi.biostd.persistence.doc.model.DocFile
 import ac.uk.ebi.biostd.persistence.doc.model.DocFileList
@@ -81,14 +82,14 @@ internal class SectionConverterTest(
         val result = testInstance.convert(docSection)
 
         assertMainSection(result)
-        assertFiles(result[SectionConverter.secFiles] as List<Document>)
-        assertLinks(result[SectionConverter.secLinks] as List<Document>)
+        assertFiles(result[DocSectionFields.SEC_FILES] as List<Document>)
+        assertLinks(result[DocSectionFields.SEC_LINKS] as List<Document>)
 
-        val sections = result[SectionConverter.secSections] as List<Document>
+        val sections = result[DocSectionFields.SEC_SECTIONS] as List<Document>
         assertSubSection(sections.first())
 
         val sectionTable = sections.second()
-        val sectionsOfSecTable = sectionTable[SectionConverter.secSections] as List<Document>
+        val sectionsOfSecTable = sectionTable[DocSectionFields.SEC_SECTIONS] as List<Document>
         assertTableSection(sectionsOfSecTable.first())
     }
 
@@ -107,26 +108,26 @@ internal class SectionConverterTest(
     }
 
     private fun assertTableSection(uniqueSection: Document) {
-        assertThat(uniqueSection[SectionConverter.secAccNo]).isEqualTo(docSectionAccNo3)
-        assertThat(uniqueSection[SectionConverter.secType]).isEqualTo(docSectionType3)
-        assertThat(uniqueSection[SectionConverter.secAttributes]).isEqualTo(listOf(attributeDocument3))
+        assertThat(uniqueSection[DocSectionFields.SEC_ACC_NO]).isEqualTo(docSectionAccNo3)
+        assertThat(uniqueSection[DocSectionFields.SEC_TYPE]).isEqualTo(docSectionType3)
+        assertThat(uniqueSection[DocSectionFields.SEC_ATTRIBUTES]).isEqualTo(listOf(attributeDocument3))
     }
 
     private fun assertMainSection(result: Document) {
-        assertThat(result[SectionConverter.secAccNo]).isEqualTo(docSectionAccNo1)
-        assertThat(result[SectionConverter.secType]).isEqualTo(docSectionType1)
-        assertThat(result[SectionConverter.secFileList]).isEqualTo(fileListDocument1)
-        assertThat(result[SectionConverter.secAttributes]).isEqualTo(listOf(attributeDocument1))
+        assertThat(result[DocSectionFields.SEC_ACC_NO]).isEqualTo(docSectionAccNo1)
+        assertThat(result[DocSectionFields.SEC_TYPE]).isEqualTo(docSectionType1)
+        assertThat(result[DocSectionFields.SEC_FILE_LIST]).isEqualTo(fileListDocument1)
+        assertThat(result[DocSectionFields.SEC_ATTRIBUTES]).isEqualTo(listOf(attributeDocument1))
     }
 
     private fun assertSubSection(section: Document) {
-        assertThat(section[SectionConverter.secAccNo]).isEqualTo(docSectionAccNo2)
-        assertThat(section[SectionConverter.secType]).isEqualTo(docSectionType2)
-        assertThat(section[SectionConverter.secFileList]).isEqualTo(fileListDocument2)
-        assertThat(section[SectionConverter.secAttributes]).isEqualTo(listOf(attributeDocument2))
-        assertThat(section[SectionConverter.secSections]).isEqualTo(listOf<Document>())
-        assertThat(section[SectionConverter.secFiles]).isEqualTo(listOf<Document>())
-        assertThat(section[SectionConverter.secLinks]).isEqualTo(listOf<Document>())
+        assertThat(section[DocSectionFields.SEC_ACC_NO]).isEqualTo(docSectionAccNo2)
+        assertThat(section[DocSectionFields.SEC_TYPE]).isEqualTo(docSectionType2)
+        assertThat(section[DocSectionFields.SEC_FILE_LIST]).isEqualTo(fileListDocument2)
+        assertThat(section[DocSectionFields.SEC_ATTRIBUTES]).isEqualTo(listOf(attributeDocument2))
+        assertThat(section[DocSectionFields.SEC_SECTIONS]).isEqualTo(listOf<Document>())
+        assertThat(section[DocSectionFields.SEC_FILES]).isEqualTo(listOf<Document>())
+        assertThat(section[DocSectionFields.SEC_LINKS]).isEqualTo(listOf<Document>())
     }
 
     private fun createDocSection(): DocSection {

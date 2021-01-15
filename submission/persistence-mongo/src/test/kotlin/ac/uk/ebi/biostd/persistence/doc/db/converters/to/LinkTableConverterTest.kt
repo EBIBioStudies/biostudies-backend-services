@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.persistence.doc.db.converters.to
 
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocLinkTableFields
 import ac.uk.ebi.biostd.persistence.doc.model.DocLink
 import ac.uk.ebi.biostd.persistence.doc.model.DocLinkTable
 import io.mockk.every
@@ -27,6 +28,6 @@ internal class LinkTableConverterTest(
 
         val result = testInstance.convert(docLinkTable)
 
-        assertThat(result[LinkTableConverter.linkTableDocLinks]).isEqualTo(listOf(document))
+        assertThat(result[DocLinkTableFields.LINK_TABLE_DOC_LINKS]).isEqualTo(listOf(document))
     }
 }

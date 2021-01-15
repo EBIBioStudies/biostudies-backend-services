@@ -18,8 +18,6 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.to.SectionConverter
 import ac.uk.ebi.biostd.persistence.doc.db.converters.to.SubmissionConverter
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionMongoRepository
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
-import com.mongodb.client.MongoClient
-import com.mongodb.client.MongoClients
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Configuration
@@ -34,8 +32,6 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
 class MongoConfig : AbstractMongoClientConfiguration() {
 
     override fun getDatabaseName(): String = "test"
-
-    override fun mongoClient(): MongoClient = MongoClients.create("mongodb://localhost:27017")
 
     override fun configureConverters(adapter: MongoConverterConfigurationAdapter) {
         adapter.registerConverter(submissionConverter())

@@ -1,25 +1,30 @@
 package ac.uk.ebi.biostd.persistence.doc.db.converters.from
 
-import ac.uk.ebi.biostd.persistence.doc.db.converters.to.SubmissionConverter
-import ac.uk.ebi.biostd.persistence.doc.model.*
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields
+import ac.uk.ebi.biostd.persistence.doc.model.DocAttribute
+import ac.uk.ebi.biostd.persistence.doc.model.DocSection
+import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
+import ac.uk.ebi.biostd.persistence.doc.model.docSubmissionClass
+import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionMethod
+import ac.uk.ebi.biostd.persistence.doc.model.DocProcessingStatus
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import org.assertj.core.api.Assertions.assertThat
 import org.bson.Document
 import org.junit.jupiter.api.Test
-
 import org.junit.jupiter.api.extension.ExtendWith
-import java.util.*
+import java.util.Date
 
 @ExtendWith(MockKExtension::class)
-internal class DocSubmissionConverterTest(@MockK val docAttributeConverter: DocAttributeConverter,
-                                          @MockK val AttributeDocument: Document,
-                                          @MockK val docAttribute: DocAttribute,
+internal class DocSubmissionConverterTest(
+    @MockK val docAttributeConverter: DocAttributeConverter,
+    @MockK val AttributeDocument: Document,
+    @MockK val docAttribute: DocAttribute,
 
-                                          @MockK val docSectionConverter: DocSectionConverter,
-                                          @MockK val sectionDocument: Document,
-                                          @MockK val docSection: DocSection
+    @MockK val docSectionConverter: DocSectionConverter,
+    @MockK val sectionDocument: Document,
+    @MockK val docSection: DocSection
 ) {
     private val testInstance = DocSubmissionConverter(docSectionConverter, docAttributeConverter)
 
@@ -34,7 +39,7 @@ internal class DocSubmissionConverterTest(@MockK val docAttributeConverter: DocA
     }
 
     private fun assertThatAll(result: DocSubmission) {
-        assertThat(result).isInstanceOf(docSubClazz)
+        assertThat(result).isInstanceOf(DocSubmission::class.java)
         assertThat(result.id).isEqualTo(subId)
         assertThat(result.accNo).isEqualTo(subAccNo)
         assertThat(result.version).isEqualTo(subVersion)
@@ -61,52 +66,51 @@ internal class DocSubmissionConverterTest(@MockK val docAttributeConverter: DocA
 
     private fun createSubmissionDocument(): Document {
         val subDocument = Document()
-        subDocument[SubmissionConverter.subClass] = docSubmissionClass
-        subDocument[DocSubmissionConverter.subId] = subId
-        subDocument[DocSubmissionConverter.subAccNo] = subAccNo
-        subDocument[DocSubmissionConverter.subVersion] = subVersion
-        subDocument[DocSubmissionConverter.subOwner] = subOwner
-        subDocument[DocSubmissionConverter.subSubmitter] = subSubmitter
-        subDocument[DocSubmissionConverter.subTitle] = subTitle
-        subDocument[DocSubmissionConverter.subMethod] = subMethod
-        subDocument[DocSubmissionConverter.subRelPath] = subRelPath
-        subDocument[DocSubmissionConverter.subRootPath] = subRootPath
-        subDocument[DocSubmissionConverter.subReleased] = subReleased
-        subDocument[DocSubmissionConverter.subSecretKey] = subSecretKey
-        subDocument[DocSubmissionConverter.subStatus] = subStatus
-        subDocument[DocSubmissionConverter.subReleaseTime] = subReleaseTime
-        subDocument[DocSubmissionConverter.subModificationTime] = subModificationTime
-        subDocument[DocSubmissionConverter.subCreationTime] = subCreationTime
-        subDocument[DocSubmissionConverter.subSection] = sectionDocument
-        subDocument[DocSubmissionConverter.subAttributes] = listOf(AttributeDocument)
-        subDocument[DocSubmissionConverter.subTags] = listOf(createTagDocument())
-        subDocument[DocSubmissionConverter.subProjects] = listOf(createProjectDocument())
-        subDocument[DocSubmissionConverter.subStats] = listOf(createStatDocument())
+        subDocument[DocSubmissionFields.CLASS_FIELD] = docSubmissionClass
+        subDocument[DocSubmissionFields.SUB_ID] = subId
+        subDocument[DocSubmissionFields.SUB_ACC_NO] = subAccNo
+        subDocument[DocSubmissionFields.SUB_VERSION] = subVersion
+        subDocument[DocSubmissionFields.SUB_OWNER] = subOwner
+        subDocument[DocSubmissionFields.SUB_SUBMITTER] = subSubmitter
+        subDocument[DocSubmissionFields.SUB_TITLE] = subTitle
+        subDocument[DocSubmissionFields.SUB_METHOD] = subMethod
+        subDocument[DocSubmissionFields.SUB_REL_PATH] = subRelPath
+        subDocument[DocSubmissionFields.SUB_ROOT_PATH] = subRootPath
+        subDocument[DocSubmissionFields.SUB_RELEASED] = subReleased
+        subDocument[DocSubmissionFields.SUB_SECRET_KEY] = subSecretKey
+        subDocument[DocSubmissionFields.SUB_STATUS] = subStatus
+        subDocument[DocSubmissionFields.SUB_RELEASE_TIME] = subReleaseTime
+        subDocument[DocSubmissionFields.SUB_MODIFICATION_TIME] = subModificationTime
+        subDocument[DocSubmissionFields.SUB_CREATION_TIME] = subCreationTime
+        subDocument[DocSubmissionFields.SUB_SECTION] = sectionDocument
+        subDocument[DocSubmissionFields.SUB_ATTRIBUTES] = listOf(AttributeDocument)
+        subDocument[DocSubmissionFields.SUB_TAGS] = listOf(createTagDocument())
+        subDocument[DocSubmissionFields.SUB_PROJECTS] = listOf(createProjectDocument())
+        subDocument[DocSubmissionFields.SUB_STATS] = listOf(createStatDocument())
         return subDocument
     }
 
     private fun createTagDocument(): Document {
         val tagDoc = Document()
-        tagDoc[SubmissionConverter.tagDocName] = tagDocName
-        tagDoc[SubmissionConverter.tagDocValue] = tagDocValue
+        tagDoc[DocSubmissionFields.TAG_DOC_NAME] = tagDocName
+        tagDoc[DocSubmissionFields.TAG_DOC_VALUE] = tagDocValue
         return tagDoc
     }
 
     private fun createProjectDocument(): Document {
         val projectDoc = Document()
-        projectDoc[SubmissionConverter.projectDocAccNo] = projectDocAccNo
+        projectDoc[DocSubmissionFields.PROJECT_DOC_ACC_NO] = projectDocAccNo
         return projectDoc
     }
 
     private fun createStatDocument(): Document {
         val statDoc = Document()
-        statDoc[SubmissionConverter.statDocName] = statDocName
-        statDoc[SubmissionConverter.statDocValue] = statDocValue
+        statDoc[DocSubmissionFields.STAT_DOC_NAME] = statDocName
+        statDoc[DocSubmissionFields.STAT_DOC_VALUE] = statDocValue
         return statDoc
     }
 
     companion object {
-        val docSubClazz = DocSubmission::class.java
         const val subId = "id"
         const val subAccNo = "accNo"
         const val projectDocAccNo = "accNo"

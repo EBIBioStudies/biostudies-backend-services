@@ -1,12 +1,26 @@
 import Dependencies.Arrow
 import Dependencies.CommonsIO
 import Dependencies.CommonsLang3
+import Dependencies.JSONOrg
 import Dependencies.KotlinLogging
 import Dependencies.KotlinStdLib
+import Projects.CommonsBio
+import Projects.CommonsModelExtended
+import Projects.CommonsModelExtendedMapping
+import Projects.CommonsModelExtendedSerialization
+import Projects.CommonsSerialization
+import Projects.CommonsTest
+import Projects.CommonsUtil
+import Projects.SubmissionConfig
+import Projects.SubmissionPersistenceCommon
+import Projects.SubmissionPersistenceCommonApi
 import SpringBootDependencies.SpringBootStarterMongo
 import SpringBootDependencies.SpringBootStarterTest
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
+import TestDependencies.TestContainer
+import TestDependencies.TestContainerJUnit
+import TestDependencies.TestContainerMongoDb
 import org.springframework.boot.gradle.tasks.bundling.BootJar
 
 plugins {
@@ -17,17 +31,17 @@ plugins {
 }
 
 dependencies {
-    api(project(":commons:commons-util"))
-    api(project(":commons:commons-bio"))
-    api(project(":commons:commons-serialization"))
-    api(project(":commons:commons-model-extended"))
-    api(project(":commons:commons-model-extended-mapping"))
-    api(project(":submission:submission-config"))
-    api(project(":commons:commons-model-extended-serialization"))
-    api(project(":commons:commons-test"))
-    api(project(":submission:submission-config"))
-    api(project(":submission:persistence-common-api"))
-    api(project(":submission:persistence-common"))
+    api(project(CommonsUtil))
+    api(project(CommonsBio))
+    api(project(CommonsSerialization))
+    api(project(CommonsModelExtended))
+    api(project(CommonsModelExtendedMapping))
+    api(project(SubmissionConfig))
+    api(project(CommonsModelExtendedSerialization))
+    api(project(CommonsTest))
+    api(project(SubmissionConfig))
+    api(project(SubmissionPersistenceCommonApi))
+    api(project(SubmissionPersistenceCommon))
 
     implementation(SpringBootStarterMongo)
     implementation(Arrow)
@@ -35,14 +49,14 @@ dependencies {
     implementation(CommonsIO)
     implementation(KotlinStdLib)
     implementation(KotlinLogging)
-    implementation("org.json:json:20201115")
+    implementation(JSONOrg)
 
     BaseTestCompileDependencies.forEach { testImplementation(it) }
     BaseTestRuntimeDependencies.forEach { testImplementation(it) }
     testImplementation(SpringBootStarterTest)
-    testImplementation("org.testcontainers:mongodb:1.15.0")
-    testImplementation("org.testcontainers:testcontainers:1.15.0")
-    testImplementation("org.testcontainers:junit-jupiter:1.15.0")
+    testImplementation(TestContainerMongoDb)
+    testImplementation(TestContainer)
+    testImplementation(TestContainerJUnit)
     testImplementation(SpringBootStarterTest)
 }
 

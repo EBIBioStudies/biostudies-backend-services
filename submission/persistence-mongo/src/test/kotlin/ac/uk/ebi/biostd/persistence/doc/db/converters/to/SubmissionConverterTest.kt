@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.persistence.doc.db.converters.to
 
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields
 import ac.uk.ebi.biostd.persistence.doc.model.DocAttribute
 import ac.uk.ebi.biostd.persistence.doc.model.DocProcessingStatus
 import ac.uk.ebi.biostd.persistence.doc.model.DocProject
@@ -37,37 +38,37 @@ internal class SubmissionConverterTest(
 
         val result = testInstance.convert(docSubmission)
 
-        assertThat(result[SubmissionConverter.subId]).isEqualTo(submissionId)
-        assertThat(result[SubmissionConverter.subAccNo]).isEqualTo(submissionAccNo)
-        assertThat(result[SubmissionConverter.subVersion]).isEqualTo(submissionVersion)
-        assertThat(result[SubmissionConverter.subOwner]).isEqualTo(submissionOwner)
-        assertThat(result[SubmissionConverter.subSubmitter]).isEqualTo(submissionSubmitter)
-        assertThat(result[SubmissionConverter.subTitle]).isEqualTo(submissionTitle)
-        assertThat(result[SubmissionConverter.subMethod]).isEqualTo(submissionMethod.value)
-        assertThat(result[SubmissionConverter.subRelPath]).isEqualTo(submissionRelPath)
-        assertThat(result[SubmissionConverter.subRootPath]).isEqualTo(submissionRootPath)
-        assertThat(result[SubmissionConverter.subReleased]).isEqualTo(submissionReleased)
-        assertThat(result[SubmissionConverter.subSecretKey]).isEqualTo(submissionSecretKey)
-        assertThat(result[SubmissionConverter.subStatus]).isEqualTo(docSubmissionStatus.value)
-        assertThat(result[SubmissionConverter.subReleaseTime]).isEqualTo(submissionReleaseTime)
-        assertThat(result[SubmissionConverter.subModificationTime]).isEqualTo(submissionModificationTime)
-        assertThat(result[SubmissionConverter.subCreationTime]).isEqualTo(submissionCreationTime)
-        assertThat(result[SubmissionConverter.subSection]).isEqualTo(sectionDocument)
-        assertThat(result[SubmissionConverter.subAttributes]).isEqualTo(listOf(attributeDocument))
+        assertThat(result[DocSubmissionFields.SUB_ID]).isEqualTo(submissionId)
+        assertThat(result[DocSubmissionFields.SUB_ACC_NO]).isEqualTo(submissionAccNo)
+        assertThat(result[DocSubmissionFields.SUB_VERSION]).isEqualTo(submissionVersion)
+        assertThat(result[DocSubmissionFields.SUB_OWNER]).isEqualTo(submissionOwner)
+        assertThat(result[DocSubmissionFields.SUB_SUBMITTER]).isEqualTo(submissionSubmitter)
+        assertThat(result[DocSubmissionFields.SUB_TITLE]).isEqualTo(submissionTitle)
+        assertThat(result[DocSubmissionFields.SUB_METHOD]).isEqualTo(DocSubmissionMethod.PAGE_TAB.value)
+        assertThat(result[DocSubmissionFields.SUB_REL_PATH]).isEqualTo(submissionRelPath)
+        assertThat(result[DocSubmissionFields.SUB_ROOT_PATH]).isEqualTo(submissionRootPath)
+        assertThat(result[DocSubmissionFields.SUB_RELEASED]).isEqualTo(submissionReleased)
+        assertThat(result[DocSubmissionFields.SUB_SECRET_KEY]).isEqualTo(submissionSecretKey)
+        assertThat(result[DocSubmissionFields.SUB_STATUS]).isEqualTo(DocProcessingStatus.PROCESSED.value)
+        assertThat(result[DocSubmissionFields.SUB_RELEASE_TIME]).isEqualTo(submissionReleaseTime)
+        assertThat(result[DocSubmissionFields.SUB_MODIFICATION_TIME]).isEqualTo(submissionModificationTime)
+        assertThat(result[DocSubmissionFields.SUB_CREATION_TIME]).isEqualTo(submissionCreationTime)
+        assertThat(result[DocSubmissionFields.SUB_SECTION]).isEqualTo(sectionDocument)
+        assertThat(result[DocSubmissionFields.SUB_ATTRIBUTES]).isEqualTo(listOf(attributeDocument))
 
-        val tags = result[SubmissionConverter.subTags] as List<Document>
+        val tags = result[DocSubmissionFields.SUB_TAGS] as List<Document>
         val tag = tags.first()
-        assertThat(tag[SubmissionConverter.tagDocName]).isEqualTo(docTagName)
-        assertThat(tag[SubmissionConverter.tagDocValue]).isEqualTo(docTagValue)
+        assertThat(tag[DocSubmissionFields.TAG_DOC_NAME]).isEqualTo(docTagName)
+        assertThat(tag[DocSubmissionFields.TAG_DOC_VALUE]).isEqualTo(docTagValue)
 
-        val projects = result[SubmissionConverter.subProjects] as List<Document>
+        val projects = result[DocSubmissionFields.SUB_PROJECTS] as List<Document>
         val project = projects.first()
-        assertThat(project[SubmissionConverter.projectDocAccNo]).isEqualTo(docProjectAccNo)
+        assertThat(project[DocSubmissionFields.PROJECT_DOC_ACC_NO]).isEqualTo(docProjectAccNo)
 
-        val stats = result[SubmissionConverter.subStats] as List<Document>
+        val stats = result[DocSubmissionFields.SUB_STATS] as List<Document>
         val stat = stats.first()
-        assertThat(stat[SubmissionConverter.statDocName]).isEqualTo(docStatName)
-        assertThat(stat[SubmissionConverter.statDocValue]).isEqualTo(docStatValue)
+        assertThat(stat[DocSubmissionFields.STAT_DOC_NAME]).isEqualTo(docStatName)
+        assertThat(stat[DocSubmissionFields.STAT_DOC_VALUE]).isEqualTo(docStatValue)
     }
 
     private fun createDocSubmission(docSection: DocSection, docAttribute: DocAttribute): DocSubmission {
@@ -78,12 +79,12 @@ internal class SubmissionConverterTest(
             owner = submissionOwner,
             submitter = submissionSubmitter,
             title = submissionTitle,
-            method = submissionMethod,
+            method = DocSubmissionMethod.PAGE_TAB,
             relPath = submissionRelPath,
             rootPath = submissionRootPath,
             released = submissionReleased,
             secretKey = submissionSecretKey,
-            status = docSubmissionStatus,
+            status = DocProcessingStatus.PROCESSED,
             releaseTime = submissionReleaseTime,
             modificationTime = submissionModificationTime,
             creationTime = submissionCreationTime,
@@ -101,7 +102,6 @@ internal class SubmissionConverterTest(
         const val submissionOwner = "owner@mail.org"
         const val submissionSubmitter = "submitter@mail.org"
         const val submissionTitle = "TestSubmission"
-        val submissionMethod = DocSubmissionMethod.PAGE_TAB
         const val submissionRelPath = "/a/rel/path"
         const val submissionRootPath = "/a/root/path"
         const val submissionReleased = false
@@ -109,7 +109,6 @@ internal class SubmissionConverterTest(
         val submissionReleaseTime: Instant = Instant.ofEpochSecond(1)
         val submissionModificationTime: Instant = Instant.ofEpochSecond(2)
         val submissionCreationTime: Instant = Instant.ofEpochSecond(3)
-        val docSubmissionStatus = DocProcessingStatus.PROCESSED
 
         private const val docTagName = "component"
         private const val docTagValue = "web"

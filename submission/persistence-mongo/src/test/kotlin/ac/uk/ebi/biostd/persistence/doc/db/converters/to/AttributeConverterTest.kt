@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.persistence.doc.db.converters.to
 
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocAttributeFields
 import ac.uk.ebi.biostd.persistence.doc.model.DocAttribute
 import ac.uk.ebi.biostd.persistence.doc.model.DocAttributeDetail
 import org.assertj.core.api.Assertions.assertThat
@@ -16,19 +17,19 @@ internal class AttributeConverterTest {
 
         val result = testInstance.convert(docAttribute)
 
-        assertThat(result[AttributeConverter.attributeDocName]).isEqualTo(docAttributeName)
-        assertThat(result[AttributeConverter.attributeDocValue]).isEqualTo(docAttributeValue)
-        assertThat(result[AttributeConverter.attributeDocReference]).isEqualTo(true)
+        assertThat(result[DocAttributeFields.ATTRIBUTE_DOC_NAME]).isEqualTo(docAttributeName)
+        assertThat(result[DocAttributeFields.ATTRIBUTE_DOC_VALUE]).isEqualTo(docAttributeValue)
+        assertThat(result[DocAttributeFields.ATTRIBUTE_DOC_REFERENCE]).isEqualTo(true)
 
-        val nameAttributes = result[AttributeConverter.attributeDocNameAttrs] as List<Document>
+        val nameAttributes = result[DocAttributeFields.ATTRIBUTE_DOC_NAME_ATTRS] as List<Document>
         val nameAttribute = nameAttributes.first()
-        assertThat(nameAttribute[AttributeConverter.attributeDetailName]).isEqualTo(docNameAttributeName)
-        assertThat(nameAttribute[AttributeConverter.attributeDetailValue]).isEqualTo(docNameAttributeValue)
+        assertThat(nameAttribute[DocAttributeFields.ATTRIBUTE_DETAIL_NAME]).isEqualTo(docNameAttributeName)
+        assertThat(nameAttribute[DocAttributeFields.ATTRIBUTE_DETAIL_VALUE]).isEqualTo(docNameAttributeValue)
 
-        val valueAttributes = result[AttributeConverter.attributeDocValueAttrs] as List<Document>
+        val valueAttributes = result[DocAttributeFields.ATTRIBUTE_DOC_VALUE_ATTRS] as List<Document>
         val valueAttribute = valueAttributes.first()
-        assertThat(valueAttribute[AttributeConverter.attributeDetailName]).isEqualTo(docValueAttributeName)
-        assertThat(valueAttribute[AttributeConverter.attributeDetailValue]).isEqualTo(docValueAttributeValue)
+        assertThat(valueAttribute[DocAttributeFields.ATTRIBUTE_DETAIL_NAME]).isEqualTo(docValueAttributeName)
+        assertThat(valueAttribute[DocAttributeFields.ATTRIBUTE_DETAIL_VALUE]).isEqualTo(docValueAttributeValue)
     }
 
     private fun createDocAttribute(): DocAttribute {

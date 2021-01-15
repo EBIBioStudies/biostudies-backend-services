@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.persistence.doc.db.converters.to
 
-import ac.uk.ebi.biostd.persistence.doc.db.converters.to.FileConverter.Companion.fileDocFilePath
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields
 import ac.uk.ebi.biostd.persistence.doc.model.DocAttribute
 import ac.uk.ebi.biostd.persistence.doc.model.DocFile
 import io.mockk.every
@@ -24,11 +24,11 @@ internal class FileConverterTest(
     fun converter() {
         every { attributeConverter.convert(docAttribute) } returns document
 
-        val result = testInstance.convert(DocFile(fileDocFilePath, listOf(docAttribute), FileConverter.fileDocMd5))
+        val result = testInstance.convert(DocFile(DocFileFields.FILE_DOC_FILE_PATH, listOf(docAttribute), DocFileFields.FILE_DOC_MD5))
 
-        assertThat(result[fileDocFilePath]).isEqualTo(docFileFilePath)
-        assertThat(result[LinkConverter.linkDocAttributes]).isEqualTo(listOf(document))
-        assertThat(result[FileConverter.fileDocMd5]).isEqualTo(docFileMd5)
+        assertThat(result[DocFileFields.FILE_DOC_FILE_PATH]).isEqualTo(docFileFilePath)
+        assertThat(result[DocFileFields.FILE_DOC_ATTRIBUTES]).isEqualTo(listOf(document))
+        assertThat(result[DocFileFields.FILE_DOC_MD5]).isEqualTo(docFileMd5)
     }
 
     private companion object {

@@ -1,5 +1,34 @@
 package ac.uk.ebi.biostd.persistence.doc.db.converters.to
 
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.DOC_SUBMISSION_CLASS
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.DOC_PROJECT_CLASS
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.DOC_STAT_CLASS
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.DOC_TAG_CLASS
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.PROJECT_DOC_ACC_NO
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.STAT_DOC_NAME
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.STAT_DOC_VALUE
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ACC_NO
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ATTRIBUTES
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_CREATION_TIME
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ID
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_METHOD
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_MODIFICATION_TIME
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_OWNER
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_PROJECTS
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_REL_PATH
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_RELEASE_TIME
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_RELEASED
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ROOT_PATH
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_SECRET_KEY
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_SECTION
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_STATS
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_STATUS
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_SUBMITTER
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_TAGS
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_TITLE
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_VERSION
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.TAG_DOC_NAME
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.TAG_DOC_VALUE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.to.CommonsConverter.classField
 import ac.uk.ebi.biostd.persistence.doc.model.DocProject
 import ac.uk.ebi.biostd.persistence.doc.model.DocStat
@@ -15,81 +44,48 @@ class SubmissionConverter(
 
     override fun convert(submission: DocSubmission): Document {
         val submissionDoc = Document()
-        submissionDoc[classField] = clazz
-        submissionDoc[subId] = submission.id
-        submissionDoc[subAccNo] = submission.accNo
-        submissionDoc[subVersion] = submission.version
-        submissionDoc[subOwner] = submission.owner
-        submissionDoc[subSubmitter] = submission.submitter
-        submissionDoc[subTitle] = submission.title
-        submissionDoc[subMethod] = submission.method.value
-        submissionDoc[subRelPath] = submission.relPath
-        submissionDoc[subRootPath] = submission.rootPath
-        submissionDoc[subReleased] = submission.released
-        submissionDoc[subSecretKey] = submission.secretKey
-        submissionDoc[subStatus] = submission.status.value
-        submissionDoc[subReleaseTime] = submission.releaseTime
-        submissionDoc[subModificationTime] = submission.modificationTime
-        submissionDoc[subCreationTime] = submission.creationTime
-        submissionDoc[subSection] = sectionConverter.convert(submission.section)
-        submissionDoc[subAttributes] = submission.attributes.map { attributeConverter.convert(it) }
-        submissionDoc[subTags] = submission.tags.map { tagToDocument(it) }
-        submissionDoc[subProjects] = submission.projects.map { projectToDocument(it) }
-        submissionDoc[subStats] = submission.stats.map { statToDocument(it) }
+        submissionDoc[classField] = DOC_SUBMISSION_CLASS
+        submissionDoc[SUB_ID] = submission.id
+        submissionDoc[SUB_ACC_NO] = submission.accNo
+        submissionDoc[SUB_VERSION] = submission.version
+        submissionDoc[SUB_OWNER] = submission.owner
+        submissionDoc[SUB_SUBMITTER] = submission.submitter
+        submissionDoc[SUB_TITLE] = submission.title
+        submissionDoc[SUB_METHOD] = submission.method.value
+        submissionDoc[SUB_REL_PATH] = submission.relPath
+        submissionDoc[SUB_ROOT_PATH] = submission.rootPath
+        submissionDoc[SUB_RELEASED] = submission.released
+        submissionDoc[SUB_SECRET_KEY] = submission.secretKey
+        submissionDoc[SUB_STATUS] = submission.status.value
+        submissionDoc[SUB_RELEASE_TIME] = submission.releaseTime
+        submissionDoc[SUB_MODIFICATION_TIME] = submission.modificationTime
+        submissionDoc[SUB_CREATION_TIME] = submission.creationTime
+        submissionDoc[SUB_SECTION] = sectionConverter.convert(submission.section)
+        submissionDoc[SUB_ATTRIBUTES] = submission.attributes.map { attributeConverter.convert(it) }
+        submissionDoc[SUB_TAGS] = submission.tags.map { tagToDocument(it) }
+        submissionDoc[SUB_PROJECTS] = submission.projects.map { projectToDocument(it) }
+        submissionDoc[SUB_STATS] = submission.stats.map { statToDocument(it) }
         return submissionDoc
-    }
-
-    companion object {
-        val clazz: String = DocSubmission::class.java.canonicalName
-        val docTagClassName: String = DocSubmission::class.java.canonicalName
-        val docProjectClassName: String = DocSubmission::class.java.canonicalName
-        val docStatClassName: String = DocSubmission::class.java.canonicalName
-        const val subId = "id"
-        const val subClass = "_class"
-        const val subAccNo = "accNo"
-        const val subVersion = "version"
-        const val subOwner = "owner"
-        const val subSubmitter = "submitter"
-        const val subTitle = "title"
-        const val subMethod = "method"
-        const val subRelPath = "relPath"
-        const val subRootPath = "rootPath"
-        const val subReleased = "released"
-        const val subSecretKey = "secretKey"
-        const val subStatus = "status"
-        const val subReleaseTime = "releaseTime"
-        const val subModificationTime = "modificationTime"
-        const val subCreationTime = "creationTime"
-        const val subSection = "section"
-        const val subAttributes = "attributes"
-        const val subTags = "tags"
-        const val subProjects = "projects"
-        const val tagDocName = "name"
-        const val tagDocValue = "value"
-        const val projectDocAccNo = "accNo"
-        const val statDocName = "name"
-        const val statDocValue = "value"
-        const val subStats = "stats"
     }
 
     private fun tagToDocument(docTag: DocTag): Document {
         val tagDoc = Document()
-        tagDoc[classField] = docTagClassName
-        tagDoc[tagDocName] = docTag.name
-        tagDoc[tagDocValue] = docTag.value
+        tagDoc[classField] = DOC_TAG_CLASS
+        tagDoc[TAG_DOC_NAME] = docTag.name
+        tagDoc[TAG_DOC_VALUE] = docTag.value
         return tagDoc
     }
     private fun projectToDocument(docProject: DocProject): Document {
         val projectDoc = Document()
-        projectDoc[classField] = docProjectClassName
-        projectDoc[projectDocAccNo] = docProject.accNo
+        projectDoc[classField] = DOC_PROJECT_CLASS
+        projectDoc[PROJECT_DOC_ACC_NO] = docProject.accNo
         return projectDoc
     }
     private fun statToDocument(docStat: DocStat): Document {
         val statDoc = Document()
-        statDoc[classField] = docStatClassName
-        statDoc[statDocName] = docStat.name
-        statDoc[statDocValue] = docStat.value
+        statDoc[classField] = DOC_STAT_CLASS
+        statDoc[STAT_DOC_NAME] = docStat.name
+        statDoc[STAT_DOC_VALUE] = docStat.value
         return statDoc
     }
 }

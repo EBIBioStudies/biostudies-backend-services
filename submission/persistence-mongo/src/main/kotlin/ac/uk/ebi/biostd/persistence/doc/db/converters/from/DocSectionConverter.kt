@@ -1,5 +1,20 @@
 package ac.uk.ebi.biostd.persistence.doc.db.converters.from
 
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.DOC_FILE_CLASS
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileTableFields.DOC_FILE_TABLE_CLASS
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocLinkFields.DOC_LINK_CLASS
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocLinkTableFields.DOC_LINK_TABLE_CLASS
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.DOC_SECTION_CLASS
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.DOC_SECTION_TABLE_CLASS
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.CLASS_FIELD
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_ACC_NO
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_ATTRIBUTES
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_FILE_LIST
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_FILES
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_LINKS
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_SECTIONS
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_TABLE_SECTIONS
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_TYPE
 import ac.uk.ebi.biostd.persistence.doc.model.DocFile
 import ac.uk.ebi.biostd.persistence.doc.model.DocFileTable
 import ac.uk.ebi.biostd.persistence.doc.model.DocLink
@@ -20,69 +35,52 @@ class DocSectionConverter(
     private val docFileTableConverter: DocFileTableConverter,
     private val docFileListConverter: DocFileListConverter
 ) : Converter<Document, DocSection> {
-    override fun convert(source: Document): DocSection {
-        return DocSection(
-            accNo = source.getString(secAccNo),
-            type = source.getString(secType),
-            fileList = source.findDoc(secFileList)?.let { docFileListConverter.convert(it) },
-            attributes = source.getDocList(secAttributes).map { docAttributeConverter.convert(it) },
-            sections = source.getDocList(secSections).map { toEitherSections(it) },
-            files = source.getDocList(secFiles).map { toEitherFiles(it) },
-            links = source.getDocList(secLinks).map { toEitherLinks(it) }
-        )
-    }
+    override fun convert(source: Document): DocSection = DocSection(
+        accNo = source.getString(SEC_ACC_NO),
+        type = source.getString(SEC_TYPE),
+        fileList = source.findDoc(SEC_FILE_LIST)?.let { docFileListConverter.convert(it) },
+        attributes = source.getDocList(SEC_ATTRIBUTES).map { docAttributeConverter.convert(it) },
+        sections = source.getDocList(SEC_SECTIONS).map { toEitherSections(it) },
+        files = source.getDocList(SEC_FILES).map { toEitherFiles(it) },
+        links = source.getDocList(SEC_LINKS).map { toEitherLinks(it) }
+    )
 
     private fun toEitherLinks(doc: Document): Either<DocLink, DocLinkTable> {
-        return when (val clazz = doc.getString(classField)) {
-            classDocLink -> Either.left(docLinkConverter.convert(doc))
-            classDocLinkTable -> Either.right(docLinkTableConverter.convert(doc))
-            else -> throw IllegalStateException("Expecting $clazz to be one of [$classDocLink , $classDocLinkTable]")
+        return when (val clazz = doc.getString(CLASS_FIELD)) {
+            DOC_LINK_CLASS -> Either.left(docLinkConverter.convert(doc))
+            DOC_LINK_TABLE_CLASS -> Either.right(docLinkTableConverter.convert(doc))
+            else ->
+                throw IllegalStateException("Expecting $clazz to be one of [$DOC_LINK_CLASS , $DOC_LINK_TABLE_CLASS]")
         }
     }
 
     private fun toEitherFiles(doc: Document): Either<DocFile, DocFileTable> {
-        return when (val clazz = doc.getString(classField)) {
-            classDocFile -> Either.left(docFileConverter.convert(doc))
-            classDocFileTable -> Either.right(docFileTableConverter.convert(doc))
-            else -> throw IllegalStateException("Expecting $clazz to be one of [$classDocFile , $classDocFileTable]")
+        return when (val clazz = doc.getString(CLASS_FIELD)) {
+            DOC_FILE_CLASS -> Either.left(docFileConverter.convert(doc))
+            DOC_FILE_TABLE_CLASS -> Either.right(docFileTableConverter.convert(doc))
+            else ->
+                throw IllegalStateException("Expecting $clazz to be one of [$DOC_FILE_CLASS , $DOC_FILE_TABLE_CLASS]")
         }
     }
 
     private fun toEitherSections(doc: Document): Either<DocSection, DocSectionTable> {
-        return when (val clazz = doc.getString(classField)) {
-            classDocSect -> Either.left(convert(doc))
-            classDocSectTable -> Either.right(toSectionTable(doc))
-            else -> throw IllegalStateException("Expecting $clazz to be one of [$classDocSect , $classDocSectTable]")
+        return when (val clazz = doc.getString(CLASS_FIELD)) {
+            DOC_SECTION_CLASS -> Either.left(convert(doc))
+            DOC_SECTION_TABLE_CLASS -> Either.right(toSectionTable(doc))
+            else -> throw IllegalStateException(
+                "Expecting $clazz to be one of [$DOC_SECTION_CLASS , $DOC_SECTION_TABLE_CLASS]"
+            )
         }
     }
 
     private fun toSectionTable(document: Document): DocSectionTable =
-        DocSectionTable(sections = document.getDocList(secTableSections).map { basicConvert(it) })
+        DocSectionTable(sections = document.getDocList(SEC_TABLE_SECTIONS).map { basicConvert(it) })
 
     private fun basicConvert(doc: Document): DocSection {
         return DocSection(
-            accNo = doc.getString(secAccNo),
-            type = doc.getString(secType),
-            attributes = doc.getDocList(secAttributes).map { docAttributeConverter.convert(it) }
+            accNo = doc.getString(SEC_ACC_NO),
+            type = doc.getString(SEC_TYPE),
+            attributes = doc.getDocList(SEC_ATTRIBUTES).map { docAttributeConverter.convert(it) }
         )
-    }
-
-    companion object {
-        val classDocLink: String = DocLink::class.java.canonicalName
-        val classDocLinkTable: String = DocLinkTable::class.java.canonicalName
-        val classDocFile: String = DocFile::class.java.canonicalName
-        val classDocFileTable: String = DocFileTable::class.java.canonicalName
-        val classDocSect: String = DocSection::class.java.canonicalName
-        val classDocSectTable: String = DocSectionTable::class.java.canonicalName
-
-        const val classField = "_class"
-        const val secAccNo = "accNo"
-        const val secType = "type"
-        const val secFileList = "fileList"
-        const val secSections = "sections"
-        const val secFiles = "files"
-        const val secLinks = "links"
-        const val secAttributes = "attributes"
-        const val secTableSections = "sections"
     }
 }

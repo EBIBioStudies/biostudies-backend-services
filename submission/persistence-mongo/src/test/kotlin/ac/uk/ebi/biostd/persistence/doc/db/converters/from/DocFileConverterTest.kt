@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.persistence.doc.db.converters.from
 
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields
 import ac.uk.ebi.biostd.persistence.doc.db.converters.to.CommonsConverter
 import ac.uk.ebi.biostd.persistence.doc.model.DocAttribute
 import ac.uk.ebi.biostd.persistence.doc.model.DocFile
@@ -26,7 +27,7 @@ internal class DocFileConverterTest(
 
         val result = testInstance.convert(createFileDoc())
 
-        assertThat(result).isInstanceOf(docFileClazz)
+        assertThat(result).isInstanceOf(DocFile::class.java)
         assertThat(result.filePath).isEqualTo(filePath)
         assertThat(result.attributes).isEqualTo(listOf(docAttribute))
         assertThat(result.md5).isEqualTo(md5)
@@ -35,14 +36,13 @@ internal class DocFileConverterTest(
     private fun createFileDoc(): Document {
         val file = Document()
         file[CommonsConverter.classField] = docFileClass
-        file[DocFileConverter.docFileFilePath] = filePath
-        file[DocFileConverter.docFileAttributes] = listOf(documentAttr)
-        file[DocFileConverter.docFileMd5] = md5
+        file[DocFileFields.FILE_DOC_FILE_PATH] = filePath
+        file[DocFileFields.FILE_DOC_ATTRIBUTES] = listOf(documentAttr)
+        file[DocFileFields.FILE_DOC_MD5] = md5
         return file
     }
 
     companion object {
-        val docFileClazz = DocFile::class.java
         const val filePath = "filePath"
         const val attributes = "attributes"
         const val md5 = "md5"

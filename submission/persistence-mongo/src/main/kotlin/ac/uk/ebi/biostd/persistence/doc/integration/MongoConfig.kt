@@ -23,23 +23,19 @@ import java.nio.file.Paths
 
 @Configuration
 @Import(MongoConfig::class)
-@ConditionalOnProperty(prefix = "app.persistence", name = ["enabledMongo"])
+@ConditionalOnProperty(prefix = "app.persistence", name = ["mongoEnabled"])
 class MongoConfig {
 
     @Bean
     internal fun submissionDocDataRepository(
         submissionRepository: SubmissionMongoRepository,
         mongoTemplate: MongoTemplate
-    ): SubmissionDocDataRepository {
-        return SubmissionDocDataRepository(submissionRepository, mongoTemplate)
-    }
+    ): SubmissionDocDataRepository = SubmissionDocDataRepository(submissionRepository, mongoTemplate)
 
     @Bean
     internal fun submissionRequestDocDataRepository(
         submissionRequestRepository: SubmissionRequestRepository
-    ): SubmissionRequestDocDataRepository {
-        return SubmissionRequestDocDataRepository(submissionRequestRepository)
-    }
+    ): SubmissionRequestDocDataRepository = SubmissionRequestDocDataRepository(submissionRequestRepository)
 
     @Bean
     internal fun submissionRequestService(
@@ -57,20 +53,15 @@ class MongoConfig {
     }
 
     @Bean
-    internal fun toExtSubmissionMapper(applicationProperties: ApplicationProperties): ToExtSubmissionMapper {
-        return ToExtSubmissionMapper(Paths.get(applicationProperties.submissionPath))
-    }
+    internal fun toExtSubmissionMapper(applicationProperties: ApplicationProperties): ToExtSubmissionMapper =
+        ToExtSubmissionMapper(Paths.get(applicationProperties.submissionPath))
 
     @Bean
     internal fun submissionQueryService(
         submissionDocDataRepository: SubmissionDocDataRepository,
         toExtSubmissionMapper: ToExtSubmissionMapper
-    ): SubmissionQueryService {
-        return SubmissionMongoQueryService(submissionDocDataRepository, toExtSubmissionMapper)
-    }
+    ): SubmissionQueryService = SubmissionMongoQueryService(submissionDocDataRepository, toExtSubmissionMapper)
 
     @Bean
-    internal fun submissionMetaQueryService(): SubmissionMongoMetaQueryService {
-        return SubmissionMongoMetaQueryService()
-    }
+    internal fun submissionMetaQueryService(): SubmissionMongoMetaQueryService = SubmissionMongoMetaQueryService()
 }

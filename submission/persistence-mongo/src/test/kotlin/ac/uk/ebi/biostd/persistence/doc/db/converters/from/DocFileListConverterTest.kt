@@ -1,11 +1,9 @@
 package ac.uk.ebi.biostd.persistence.doc.db.converters.from
 
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileListFields
 import ac.uk.ebi.biostd.persistence.doc.db.converters.to.CommonsConverter
-import ac.uk.ebi.biostd.persistence.doc.db.converters.to.FileListConverter
-import ac.uk.ebi.biostd.persistence.doc.model.DocAttribute
 import ac.uk.ebi.biostd.persistence.doc.model.DocFile
 import ac.uk.ebi.biostd.persistence.doc.model.DocFileList
-import ac.uk.ebi.biostd.persistence.doc.model.docFileListClass
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
@@ -27,21 +25,20 @@ internal class DocFileListConverterTest(
         every { docFileConverter.convert(documentFile) } returns docFile
 
         val result = testInstance.convert(createFileListDoc())
-        assertThat(result).isInstanceOf(docFileListClazz)
+        assertThat(result).isInstanceOf(DocFileList::class.java)
         assertThat(result.fileName).isEqualTo(fileName)
         assertThat(result.files).isEqualTo(listOf(docFile))
     }
 
     private fun createFileListDoc(): Document {
         val fileList = Document()
-        fileList[CommonsConverter.classField] = docFileListClass
-        fileList[DocFileListConverter.docFileListFileName] = fileName
-        fileList[DocFileListConverter.docFileListFiles] = listOf(documentFile)
+        fileList[CommonsConverter.classField] = DocFileListFields.DOC_FILE_LIST_CLASS
+        fileList[DocFileListFields.FILE_LIST_DOC_FILE_LIST] = fileName
+        fileList[DocFileListFields.FILE_LIST_DOC_FILES] = listOf(documentFile)
         return fileList
     }
 
     companion object {
-        val docFileListClazz = DocFileList::class.java
         const val fileName = "fileName"
     }
 }

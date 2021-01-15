@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.persistence.doc.db.converters.to
 
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileListFields
 import ac.uk.ebi.biostd.persistence.doc.model.DocFile
 import ac.uk.ebi.biostd.persistence.doc.model.DocFileList
 import io.mockk.every
@@ -16,7 +17,6 @@ internal class FileListConverterTest(
     @MockK val document: Document,
     @MockK val docFile: DocFile
 ) {
-
     private val testInstance = FileListConverter(fileConverter)
     @Test
     fun converter() {
@@ -27,8 +27,8 @@ internal class FileListConverterTest(
 
         val result = testInstance.convert(docFileList)
 
-        assertThat(result[FileListConverter.fileListDocFileName]).isEqualTo(docFileListFileName)
-        assertThat(result[FileListConverter.fileListDocFiles]).isEqualTo(listOf(document))
+        assertThat(result[DocFileListFields.FILE_LIST_DOC_FILE_LIST]).isEqualTo(docFileListFileName)
+        assertThat(result[DocFileListFields.FILE_LIST_DOC_FILES]).isEqualTo(listOf(document))
     }
 
     private companion object {

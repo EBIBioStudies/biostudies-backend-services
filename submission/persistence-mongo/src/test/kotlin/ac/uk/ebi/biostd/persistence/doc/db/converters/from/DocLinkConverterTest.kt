@@ -1,11 +1,9 @@
 package ac.uk.ebi.biostd.persistence.doc.db.converters.from
 
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocLinkFields
 import ac.uk.ebi.biostd.persistence.doc.db.converters.to.CommonsConverter
-import ac.uk.ebi.biostd.persistence.doc.db.converters.to.LinkConverter
 import ac.uk.ebi.biostd.persistence.doc.model.DocAttribute
-import ac.uk.ebi.biostd.persistence.doc.model.DocFile
 import ac.uk.ebi.biostd.persistence.doc.model.DocLink
-import ac.uk.ebi.biostd.persistence.doc.model.docLinkClass
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
@@ -28,22 +26,19 @@ internal class DocLinkConverterTest(
 
         val result = testInstance.convert(createDocLinkDocument())
 
-        assertThat(result).isInstanceOf(docLinkClazz)
+        assertThat(result).isInstanceOf(DocLink::class.java)
         assertThat(result.url).isEqualTo(url)
         assertThat(result.attributes).isEqualTo(listOf(docAttribute))
-
     }
 
     private fun createDocLinkDocument(): Document {
         val linkDoc = Document()
-        linkDoc[CommonsConverter.classField] = docLinkClass
-        linkDoc[DocLinkConverter.docLinkUrl] = url
-        linkDoc[DocLinkConverter.docLinkAttributes] = listOf(documentAttr)
+        linkDoc[CommonsConverter.classField] = DocLinkFields.DOC_LINK_CLASS
+        linkDoc[DocLinkFields.LINK_DOC_URL] = url
+        linkDoc[DocLinkFields.LINK_DOC_ATTRIBUTES] = listOf(documentAttr)
         return linkDoc
     }
     companion object {
-        val docLinkClazz = DocLink::class.java
         const val url = "url"
     }
 }
-

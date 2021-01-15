@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.persistence.doc.db.converters.to
 
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocLinkFields
 import ac.uk.ebi.biostd.persistence.doc.model.DocAttribute
 import ac.uk.ebi.biostd.persistence.doc.model.DocLink
 import io.mockk.every
@@ -27,8 +28,8 @@ internal class LinkConverterTest(
 
         val result = testInstance.convert(docLink)
 
-        assertThat(result[LinkConverter.linkDocUrl]).isEqualTo(docLinkUrl)
-        assertThat(result[LinkConverter.linkDocAttributes]).isEqualTo(listOf(document))
+        assertThat(result[DocLinkFields.LINK_DOC_URL]).isEqualTo(docLinkUrl)
+        assertThat(result[DocLinkFields.LINK_DOC_ATTRIBUTES]).isEqualTo(listOf(document))
     }
 
     private companion object {

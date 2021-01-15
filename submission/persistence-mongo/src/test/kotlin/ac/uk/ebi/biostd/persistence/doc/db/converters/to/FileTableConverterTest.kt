@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.persistence.doc.db.converters.to
 
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileTableFields
 import ac.uk.ebi.biostd.persistence.doc.model.DocFile
 import ac.uk.ebi.biostd.persistence.doc.model.DocFileTable
 import io.mockk.every
@@ -27,6 +28,6 @@ internal class FileTableConverterTest(
 
         val result = testInstance.convert(docFileTable)
 
-        assertThat(result[FileTableConverter.fileTableDocFiles]).isEqualTo(listOf(document))
+        assertThat(result[DocFileTableFields.FILE_TABLE_DOC_FILES]).isEqualTo(listOf(document))
     }
 }
