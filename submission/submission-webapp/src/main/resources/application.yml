@@ -55,3 +55,6 @@ app:
   notifications:
     smtp: smtp.ebi.ac.uk
     uiUrl: # The BioStudies UI url
+  persistence:
+    enabledMongo: false
+    connection: # Mongo database connection string

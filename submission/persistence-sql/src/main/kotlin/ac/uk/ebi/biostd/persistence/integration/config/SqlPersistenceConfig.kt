@@ -30,6 +30,7 @@ import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.data.ProjectSqlDataService
 import ac.uk.ebi.biostd.persistence.repositories.data.SubmissionRepository
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
@@ -52,6 +53,7 @@ open class SqlPersistenceConfig(private val applicationProperties: ApplicationPr
         ToExtSubmissionMapper(Paths.get(applicationProperties.submissionPath))
 
     @Bean
+    @ConditionalOnProperty(prefix = "app.persistence", name = ["enabledMongo"], havingValue = "false")
     internal open fun submissionRepository(
         toExtSubmissionMapper: ToExtSubmissionMapper,
         submissionDataRepository: SubmissionDataRepository,
@@ -68,6 +70,7 @@ open class SqlPersistenceConfig(private val applicationProperties: ApplicationPr
         toExtSubmissionMapper())
 
     @Bean
+    @ConditionalOnProperty(prefix = "app.persistence", name = ["enabledMongo"], havingValue = "false")
     internal open fun submissionQueryService(
         submissionDataRepository: SubmissionDataRepository,
         accessTagDataRepo: AccessTagDataRepo
@@ -89,6 +92,7 @@ open class SqlPersistenceConfig(private val applicationProperties: ApplicationPr
     }
 
     @Bean
+    @ConditionalOnProperty(prefix = "app.persistence", name = ["enabledMongo"], havingValue = "false")
     internal open fun sqlSubmissionRequest(
         submissionPersistenceService: SubmissionSqlPersistenceService,
         lockExecutor: LockExecutor
@@ -96,6 +100,7 @@ open class SqlPersistenceConfig(private val applicationProperties: ApplicationPr
         SqlSubmissionRequestService(submissionPersistenceService, lockExecutor)
 
     @Bean
+    @ConditionalOnProperty(prefix = "app.persistence", name = ["enabledMongo"], havingValue = "false")
     internal open fun submissionPersistenceService(
         subRepository: SubmissionRepository,
         serializationService: ExtSerializationService,
