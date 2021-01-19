@@ -29,14 +29,17 @@ data class ExtFile(
     val file: File,
     val attributes: List<ExtAttribute> = listOf()
 ) {
-    // TODO This solution is very hacky and should be temporary. The real solution should be getting the MD5 from the
-    // TODO persistence if it exists or generate it in the web layer if it doesn't
+    // TODO Once SQL is removed, this field should be removed and md5 should be set as a constructor property
     private var _md5: String = ""
 
-    val md5: String
+    var md5: String
         get(): String {
             if (_md5.isBlank()) _md5 = file.md5()
             return _md5
+        }
+
+        set(value) {
+            _md5 = value
         }
 
     val size: Long
@@ -99,6 +102,7 @@ data class ExtSubmission(
     val accessTags: List<ExtAccessTag> by AccessTagDelegate()
 }
 
+// TODO change value type to long
 data class ExtStat(val name: String, val value: String)
 
 data class ExtUser(

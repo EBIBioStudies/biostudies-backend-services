@@ -9,6 +9,7 @@ import ebi.ac.uk.api.UserFile
 import ebi.ac.uk.api.dto.NonRegistration
 import ebi.ac.uk.api.dto.RegisterConfig
 import ebi.ac.uk.api.dto.SubmissionDto
+import ebi.ac.uk.api.security.CheckUserRequest
 import ebi.ac.uk.api.security.LoginRequest
 import ebi.ac.uk.api.security.RegisterRequest
 import ebi.ac.uk.api.security.UserProfile
@@ -78,6 +79,7 @@ interface SecurityOperations {
     fun getAuthenticatedClient(user: String, password: String, onBehalf: String): BioWebClient
     fun login(loginRequest: LoginRequest): UserProfile
     fun registerUser(registerRequest: RegisterRequest)
+    fun checkUser(checkUserRequest: CheckUserRequest)
 }
 
 interface GeneralOperations {

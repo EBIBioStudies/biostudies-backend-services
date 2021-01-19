@@ -29,8 +29,9 @@ include("submission:submission-handlers")
 include("submission:submission-config")
 
 include("submission:persistence-common-api")
-include('submission:persistence-common')
+include("submission:persistence-common")
 include("submission:persistence-sql")
+include("submission:persistence-mongo")
 
 include("scheduler:cluster-client")
 include("scheduler:pmc-processor-task")

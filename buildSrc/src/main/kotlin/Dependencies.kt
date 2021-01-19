@@ -6,6 +6,7 @@ import TestVersions.JunitExtensionsVersion
 import TestVersions.JunitVersion
 import TestVersions.MockKVersion
 import TestVersions.RabbitmqMockVersion
+import TestVersions.TestContainerVersion
 import TestVersions.XmlUnitVersion
 import Versions.CliKtVersion
 import Versions.CommonsCsvVersion
@@ -52,6 +53,7 @@ object TestVersions {
     const val JsonPathAssertVersion = "2.4.0"
     const val JsonAssertVersion = "1.5.0"
     const val RabbitmqMockVersion = "1.1.0"
+    const val TestContainerVersion = "1.15.0"
 }
 
 object Versions {
@@ -83,7 +85,7 @@ object Versions {
     const val JschVersion = "0.1.55"
     const val Retrofit2Version = "2.9.0"
     const val OkHttpLoggingVersion = "3.8.0"
-    const val JSONOrgVersion = "20090211"
+    const val JSONOrgVersion = "20201115"
     const val CliKtVersion = "1.7.0"
     const val RxJava2Version = "2.2.8"
     const val PoiVersion = "4.1.0"
@@ -117,6 +119,11 @@ object TestDependencies {
 
     const val JsonPathAssert = "com.jayway.jsonpath:json-path-assert:$JsonPathAssertVersion"
     const val JsonAssert = "org.skyscreamer:jsonassert:$JsonAssertVersion"
+
+    // Test Containers
+    const val TestContainerMongoDb = "org.testcontainers:mongodb:$TestContainerVersion"
+    const val TestContainer = "org.testcontainers:testcontainers:$TestContainerVersion"
+    const val TestContainerJUnit = "org.testcontainers:junit-jupiter:$TestContainerVersion"
 }
 
 object Dependencies {
@@ -177,6 +184,7 @@ object SpringBootDependencies {
     const val SpringBootStarter = "org.springframework.boot:spring-boot-starter"
     const val SpringBootStarterTest = "org.springframework.boot:spring-boot-starter-test"
     const val SpringBootStarterWeb = "org.springframework.boot:spring-boot-starter-web"
+    const val SpringBootStarterMongo = "org.springframework.boot:spring-boot-starter-data-mongodb"
     const val SpringBootAmqp = "org.springframework.boot:spring-boot-starter-amqp:$SpringBootVersion"
     const val SpringBootConfigurationProcessor = "org.springframework.boot:spring-boot-configuration-processor"
     const val SpringBootStarterActuator = "org.springframework.boot:spring-boot-starter-actuator"
@@ -188,4 +196,17 @@ object SpringBootDependencies {
     const val SpringBootStartedJetty = "org.springframework.boot:spring-boot-starter-jetty"
     const val SpringBootStartedAdminClient = "de.codecentric:spring-boot-admin-starter-client:$SpringAdminVersion"
     const val SpringBootStartedAdmin = "de.codecentric:spring-boot-admin-starter-server:$SpringAdminVersion"
+}
+
+object Projects {
+    const val CommonsUtil = ":commons:commons-util"
+    const val CommonsBio = ":commons:commons-bio"
+    const val CommonsSerialization = ":commons:commons-serialization"
+    const val CommonsModelExtended = ":commons:commons-model-extended"
+    const val CommonsModelExtendedMapping = ":commons:commons-model-extended-mapping"
+    const val CommonsModelExtendedSerialization = ":commons:commons-model-extended-serialization"
+    const val CommonsTest = ":commons:commons-test"
+    const val SubmissionConfig = ":submission:submission-config"
+    const val SubmissionPersistenceCommonApi = ":submission:persistence-common-api"
+    const val SubmissionPersistenceCommon = ":submission:persistence-common"
 }

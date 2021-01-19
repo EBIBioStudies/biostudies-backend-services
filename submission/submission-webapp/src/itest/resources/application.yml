@@ -34,3 +34,5 @@ app:
     requireActivation: false
   notifications:
     smtp:
+  persistence:
+    enabledMongo: false
