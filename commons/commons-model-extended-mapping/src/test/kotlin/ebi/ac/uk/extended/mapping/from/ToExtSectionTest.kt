@@ -18,6 +18,7 @@ import ebi.ac.uk.model.Link
 import ebi.ac.uk.model.LinksTable
 import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.SectionsTable
+import ebi.ac.uk.model.constants.SectionFields
 import ebi.ac.uk.util.collections.second
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -39,6 +40,7 @@ class ToExtSectionTest(
     @MockK val sectionTable: SectionsTable,
     @MockK val extFileList: ExtFileList,
     @MockK val extAttribute: ExtAttribute,
+    @MockK val fileListAttribute: ExtAttribute,
     @MockK val extFile: ExtFile,
     @MockK val extFileTable: ExtFileTable,
     @MockK val extLink: ExtLink,
@@ -66,6 +68,8 @@ class ToExtSectionTest(
             TO_EXT_TABLE_EXTENSIONS,
             TO_EXT_SECTION_EXTENSIONS) {
 
+            every { attribute.name } returns "attr1"
+            every { fileListAttribute.name } returns SectionFields.FILE_LIST.value
             every { attribute.toExtAttribute() } returns extAttribute
             every { file.toExtFile(fileSource) } returns extFile
             every { fileList.toExtFileList(fileSource) } returns extFileList
