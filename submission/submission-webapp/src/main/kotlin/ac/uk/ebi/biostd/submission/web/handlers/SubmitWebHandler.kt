@@ -21,7 +21,6 @@ import ebi.ac.uk.model.SubmissionMethod.FILE
 import ebi.ac.uk.model.SubmissionMethod.PAGE_TAB
 import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSED
 import ebi.ac.uk.model.extensions.rootPath
-import ebi.ac.uk.paths.FILES_PATH
 import ebi.ac.uk.paths.SubmissionFolderResolver
 import ebi.ac.uk.security.integration.components.ISecurityService
 import ebi.ac.uk.security.integration.model.api.SecurityUser
@@ -123,7 +122,7 @@ class SubmitWebHandler(
         serializationService.deserializeSubmission(subFile, source)
 
     private fun subFolder(submission: BasicSubmission?): File? =
-        submission?.let { folderResolver.getSubFolder(submission.relPath).toFile().resolve(FILES_PATH) }
+        submission?.let { folderResolver.getSubFolder(submission.relPath).toFile() }
 
     private fun requireNotProcessing(basicSubmission: BasicSubmission?) =
         basicSubmission?.let {

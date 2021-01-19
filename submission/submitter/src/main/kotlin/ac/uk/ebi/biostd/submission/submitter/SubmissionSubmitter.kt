@@ -26,7 +26,7 @@ import ebi.ac.uk.model.AccNumber
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.SubmissionMethod
 import ebi.ac.uk.model.User
-import ebi.ac.uk.model.constants.RESERVED_ATTRIBUTES
+import ebi.ac.uk.model.constants.SUBMISSION_RESERVED_ATTRIBUTES
 import ebi.ac.uk.model.constants.SubFields.PUBLIC_ACCESS_TAG
 import ebi.ac.uk.model.extensions.accNoTemplate
 import ebi.ac.uk.model.extensions.attachTo
@@ -161,7 +161,7 @@ class SubmissionSubmitter(
     }
 
     private fun getAttributes(submission: Submission) = submission.attributes
-        .filterNot { RESERVED_ATTRIBUTES.contains(it.name) }
+        .filterNot { SUBMISSION_RESERVED_ATTRIBUTES.contains(it.name) }
         .map { it.toExtAttribute() }
 
     private fun getAccNumber(sub: Submission, isNew: Boolean, user: User, parentPattern: String?): AccNumber {
