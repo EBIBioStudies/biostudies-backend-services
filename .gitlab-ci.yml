@@ -1,6 +1,6 @@
 image: gradle:6.5.1-jdk8
 services:
-  - docker:dind
+  - docker:mydind
 variables:
   DOCKER_HOST: "tcp://docker:2375"
   DOCKER_DRIVER: overlay2
