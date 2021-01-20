@@ -22,7 +22,6 @@ import ebi.ac.uk.dsl.submission
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.model.constants.SubFields.PUBLIC_ACCESS_TAG
 import ebi.ac.uk.model.extensions.releaseDate
 import ebi.ac.uk.model.extensions.rootPath
 import ebi.ac.uk.model.extensions.title
@@ -109,7 +108,6 @@ internal class SubmissionRefreshApiTest(private val tempFolder: TemporaryFolder)
                 extSubmission = getExtSubmission(),
                 title = SUBTITLE,
                 releaseTime = releaseDate,
-                accessTags = listOf(PUBLIC_ACCESS_TAG.value, "biostudies-mgmt@ebi.ac.uk"),
                 attributes = listOf(ATTR_NAME to ATTR_VALUE))
 
             updateSubmission(getSubmissionDb())
@@ -120,7 +118,6 @@ internal class SubmissionRefreshApiTest(private val tempFolder: TemporaryFolder)
                 extSubmission = stored,
                 title = NEW_SUBTITLE,
                 releaseTime = newReleaseDate,
-                accessTags = listOf("biostudies-mgmt@ebi.ac.uk"),
                 attributes = listOf(ATTR_NAME to NEW_ATTR_VALUE))
         }
 
@@ -128,13 +125,11 @@ internal class SubmissionRefreshApiTest(private val tempFolder: TemporaryFolder)
             extSubmission: ExtSubmission,
             title: String,
             releaseTime: OffsetDateTime,
-            accessTags: List<String>,
             attributes: List<Pair<String, String>>
         ) {
             assertThat(extSubmission.title).isEqualTo(title)
             assertThat(extSubmission.releaseTime).isEqualTo(releaseTime)
             assertThat(extSubmission.rootPath).isEqualTo(ROOT_PATH)
-            assertThat(extSubmission.accessTags.map { it.name }).containsExactlyInAnyOrderElementsOf(accessTags)
             assertThat(extSubmission.attributes.map { it.name to it.value }).containsExactlyElementsOf(attributes)
 
             assertThat(extSubmission.section.type).isEqualTo("Study")

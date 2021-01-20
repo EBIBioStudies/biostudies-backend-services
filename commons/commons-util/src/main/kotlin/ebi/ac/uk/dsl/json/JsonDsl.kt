@@ -55,6 +55,10 @@ class JsonObject(private val elements: MutableMap<String, JsonVal> = mutableMapO
     infix fun String.to(value: JsonObject.() -> Unit) {
         elements[this] = JsonObject().apply(value)
     }
+
+    infix fun String.to(value: Enum<*>) {
+        elements[this] = JsonString(value.name)
+    }
 }
 
 val jsonNull get() = JsonNull
