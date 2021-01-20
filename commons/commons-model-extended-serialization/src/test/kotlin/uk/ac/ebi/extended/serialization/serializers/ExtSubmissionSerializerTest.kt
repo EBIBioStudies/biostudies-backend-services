@@ -32,16 +32,16 @@ class ExtSubmissionSerializerTest {
 
     @Test
     fun `serialize basic section when not released`() {
-        val extendedSubmission = testSubmission(false)
-        val expectedJson = expectedJsonSubmission(false).toString()
+        val extendedSubmission = createTestSubmission(released = false)
+        val expectedJson = expectedJsonSubmission(released = false).toString()
 
         assertThat(testInstance.serialize(extendedSubmission)).isEqualToIgnoringWhitespace(expectedJson)
     }
 
     @Test
     fun `serialize basic section when released`() {
-        val extendedSubmission = testSubmission(true)
-        val expectedJson = expectedJsonSubmission(true).toString()
+        val extendedSubmission = createTestSubmission(released = true)
+        val expectedJson = expectedJsonSubmission(released = true).toString()
 
         assertThat(testInstance.serialize(extendedSubmission)).isEqualToIgnoringWhitespace(expectedJson)
     }
@@ -104,7 +104,7 @@ class ExtSubmissionSerializerTest {
             }
         }
 
-        private fun testSubmission(released: Boolean): ExtSubmission {
+        private fun createTestSubmission(released: Boolean): ExtSubmission {
             val releaseTime = OffsetDateTime.of(2019, 9, 21, 10, 30, 34, 15, ZoneOffset.UTC)
             val modificationTime = OffsetDateTime.of(2020, 9, 21, 10, 30, 34, 15, ZoneOffset.UTC)
             val creationTime = OffsetDateTime.of(2018, 9, 21, 10, 30, 34, 15, ZoneOffset.UTC)
