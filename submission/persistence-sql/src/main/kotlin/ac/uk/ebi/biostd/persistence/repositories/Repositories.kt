@@ -66,7 +66,7 @@ interface SubmissionDataRepository :
         Where s.accNo=?1 And s.version > 0 And status = 'PROCESSED'
     """)
     @Modifying
-    fun expireActiveProcesedVersions(accNo: String)
+    fun expireActiveProcessedVersions(accNo: String)
 
     @Query("Update DbSubmission s set s.status = ?1 Where s.accNo = ?2 and s.version = ?3")
     @Modifying

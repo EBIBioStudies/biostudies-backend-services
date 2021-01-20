@@ -53,7 +53,7 @@ internal open class SubmissionSqlPersistenceService(
     }
 
     private fun processDbSubmission(submission: ExtSubmission): ExtSubmission {
-        subDataRepository.expireActiveProcesedVersions(submission.accNo)
+        subDataRepository.expireActiveProcessedVersions(submission.accNo)
         deleteSubmissionDrafts(submission.submitter, submission.accNo)
         deleteSubmissionDrafts(submission.owner, submission.accNo)
         subDataRepository.updateStatus(PROCESSED, submission.accNo, submission.version)
