@@ -42,5 +42,5 @@ build-test:
   artifacts:
     when: always
     reports:
-      junit: submission/persistence-mongo/build/reports/test-results/test/**/TEST-*.xml
+      junit: submission/persistence-mongo/build/test-results/test/TEST-*.xml
 
