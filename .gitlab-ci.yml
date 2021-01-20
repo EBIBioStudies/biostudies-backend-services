@@ -1,4 +1,9 @@
 image: gradle:6.5.1-jdk8
+services:
+  - docker:dind
+variables:
+  DOCKER_HOST: "tcp://docker:2375"
+  DOCKER_DRIVER: overlay2
 include:
   - local: '/ci/submitter.yml'
   - local: '/ci/pmc-processor.yml'
