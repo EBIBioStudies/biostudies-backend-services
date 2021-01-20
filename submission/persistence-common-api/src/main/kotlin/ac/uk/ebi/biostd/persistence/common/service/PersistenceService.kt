@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.persistence.common.service
 
-@Suppress("TooManyFunctions")
 interface PersistenceService {
     fun sequenceAccNoPatternExists(pattern: String): Boolean
     fun createAccNoPatternSequence(pattern: String)

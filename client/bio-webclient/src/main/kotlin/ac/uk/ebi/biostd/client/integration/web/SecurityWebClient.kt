@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.client.integration.web
 
 import ac.uk.ebi.biostd.client.exception.SecurityWebClientErrorHandler
 import ac.uk.ebi.biostd.client.interceptor.ServerValidationInterceptor
+import ebi.ac.uk.api.security.CheckUserRequest
 import ebi.ac.uk.api.security.LoginRequest
 import ebi.ac.uk.api.security.RegisterRequest
 import ebi.ac.uk.api.security.UserProfile
@@ -24,6 +25,10 @@ class SecurityWebClient private constructor(
 
     override fun registerUser(registerRequest: RegisterRequest) {
         restTemplate.postForLocation("/auth/register", registerRequest)
+    }
+
+    override fun checkUser(checkUserRequest: CheckUserRequest) {
+        restTemplate.postForLocation("/auth/check-user", checkUserRequest)
     }
 
     companion object {

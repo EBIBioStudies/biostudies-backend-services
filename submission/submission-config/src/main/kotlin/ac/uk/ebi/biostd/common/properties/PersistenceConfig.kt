@@ -1,0 +1,8 @@
+package ac.uk.ebi.biostd.common.properties
+
+import org.springframework.boot.context.properties.ConfigurationProperties
+
+@ConfigurationProperties(prefix = "app.persistence")
+class PersistenceConfig {
+    private var enabledMongo: Boolean = false
+}

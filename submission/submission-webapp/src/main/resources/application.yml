@@ -52,6 +52,6 @@ app:
     magicDirPath: #  Absolute path to create user magic folder for dropbox simple access
     environment: # Current application execution environment
     requireActivation: # Indicates whether or not, new user need activation before being used
-  notifications:
-    smtp: smtp.ebi.ac.uk
-    uiUrl: # The BioStudies UI url
+  persistence:
+    enabledMongo: false
+    connection: # Mongo database connection string

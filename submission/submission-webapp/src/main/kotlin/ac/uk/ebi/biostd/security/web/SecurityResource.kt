@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.security.web
 
 import ebi.ac.uk.api.security.ChangePasswordRequest
+import ebi.ac.uk.api.security.CheckUserRequest
 import ebi.ac.uk.api.security.LoginRequest
 import ebi.ac.uk.api.security.LogoutRequest
 import ebi.ac.uk.api.security.RegisterRequest
@@ -43,6 +44,19 @@ class SecurityResource(
         @Valid @RequestBody register: RegisterRequest
     ) {
         securityService.registerUser(register)
+    }
+
+    @PostMapping(value = ["/check-registration"])
+    @ApiOperation("""
+       Checks if a user with the given email is registered in the system. 
+       In case it's not, a new user will be created using such email and the given user name.
+       The new user will be inactive and should be activated via activation link.
+    """")
+    fun checkUser(
+        @ApiParam(name = "User Info", value = "Information for the new user")
+        @Valid @RequestBody register: CheckUserRequest
+    ) {
+        securityService.checkUserRegistration(register)
     }
 
     @PostMapping(value = ["/signin", "/login"])
