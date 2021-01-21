@@ -53,11 +53,12 @@ dependencies {
 
     BaseTestCompileDependencies.forEach { testImplementation(it) }
     BaseTestRuntimeDependencies.forEach { testImplementation(it) }
-    testImplementation(SpringBootStarterTest)
+    testImplementation(SpringBootStarterTest) {
+        exclude("junit", module = "junit")
+    }
     testImplementation(TestContainerMongoDb)
     testImplementation(TestContainer)
     testImplementation(TestContainerJUnit)
-    testImplementation(SpringBootStarterTest)
 }
 
 tasks.named<BootJar>("bootJar") {
@@ -66,4 +67,8 @@ tasks.named<BootJar>("bootJar") {
 
 tasks.named<Jar>("jar") {
     enabled = true
+}
+
+tasks.named<Test>("test") {
+    useJUnitPlatform()
 }

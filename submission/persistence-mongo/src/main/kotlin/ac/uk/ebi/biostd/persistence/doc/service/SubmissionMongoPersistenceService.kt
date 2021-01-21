@@ -52,7 +52,7 @@ class SubmissionMongoPersistenceService(
     private fun processDbSubmission(submission: ExtSubmission): ExtSubmission {
         subDataRepository.expireActiveProcessedVersions(submission.accNo)
         subDataRepository.deleteSubmissionDrafts(submission.submitter, submission.accNo)
-        subDataRepository.deleteSubmissionDrafts(submission.submitter, submission.accNo)
+        subDataRepository.deleteSubmissionDrafts(submission.owner, submission.accNo)
         subDataRepository.updateStatus(PROCESSED, submission.accNo, submission.version)
         return submission
     }

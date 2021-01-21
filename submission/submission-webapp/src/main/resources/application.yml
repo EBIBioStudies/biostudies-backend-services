@@ -1,4 +1,9 @@
 spring:
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.mongo.MongoRepositoriesAutoConfiguration
   boot:
     admin:
       client:
@@ -53,5 +58,6 @@ app:
     environment: # Current application execution environment
     requireActivation: # Indicates whether or not, new user need activation before being used
   persistence:
-    enabledMongo: false
+    enableMongo: false
     connection: # Mongo database connection string
+
