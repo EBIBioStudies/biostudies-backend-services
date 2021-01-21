@@ -3,7 +3,7 @@ spring:
     exclude:
       - org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration
       - org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfiguration
-
+      - org.springframework.boot.autoconfigure.data.mongo.MongoRepositoriesAutoConfiguration
   boot:
     admin:
       client:

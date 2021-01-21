@@ -14,7 +14,7 @@ import org.springframework.data.mongodb.core.MongoTemplate
 
 @Configuration
 @Import(MongoDbConfig::class)
-@ConditionalOnProperty(prefix = "app.persistence", name = ["enabledMongo"])
+@ConditionalOnProperty(prefix = "app.persistence", name = ["enabledMongo"], havingValue = "true")
 class MongoDbReposConfig {
 
     @Bean
