@@ -35,4 +35,4 @@ app:
   notifications:
     smtp:
   persistence:
-    enabledMongo: false
+    enableMongo: false

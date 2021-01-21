@@ -86,7 +86,7 @@ internal class SubmissionDocDataRepositoryTest {
         fun propertySource(register: DynamicPropertyRegistry) {
             register.add("spring.data.mongodb.uri") { mongoContainer.getReplicaSetUrl("testDb") }
             register.add("spring.data.mongodb.database") { "testDb" }
-            register.add("app.persistence.enabledMongo") { "true" }
+            register.add("app.persistence.enableMongo") { "true" }
         }
     }
 

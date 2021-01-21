@@ -4,5 +4,5 @@ import org.springframework.boot.context.properties.ConfigurationProperties
 
 @ConfigurationProperties(prefix = "app.persistence")
 class PersistenceConfig {
-    private var enabledMongo: Boolean = false
+    private var enableMongo: Boolean = false
 }

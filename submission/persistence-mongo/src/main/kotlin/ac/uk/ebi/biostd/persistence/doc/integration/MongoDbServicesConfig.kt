@@ -18,7 +18,7 @@ import java.nio.file.Paths
 
 @Configuration
 @Import(MongoDbReposConfig::class)
-@ConditionalOnProperty(prefix = "app.persistence", name = ["enabledMongo"], havingValue = "true")
+@ConditionalOnProperty(prefix = "app.persistence", name = ["enableMongo"], havingValue = "true")
 class MongoDbServicesConfig {
 
     @Bean

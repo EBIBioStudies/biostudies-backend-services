@@ -31,7 +31,7 @@ import org.springframework.data.mongodb.core.convert.MongoCustomConversions
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories
 
 @Configuration
-@ConditionalOnProperty(prefix = "app.persistence", name = ["enabledMongo"], havingValue = "true")
+@ConditionalOnProperty(prefix = "app.persistence", name = ["enableMongo"], havingValue = "true")
 @EnableMongoRepositories(basePackageClasses = [
     SubmissionMongoRepository::class,
     DocSubmission::class
