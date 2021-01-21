@@ -1,4 +1,9 @@
 spring:
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfiguration
+
   boot:
     admin:
       client:
@@ -55,3 +60,4 @@ app:
   persistence:
     enabledMongo: false
     connection: # Mongo database connection string
+
