@@ -63,7 +63,13 @@ internal open class SubmissionRepository(
 
         return submissionRepository
             .findAll(filterSpecs.specification, pageable, EntityGraphs.named(SIMPLE_GRAPH))
-            .map { getExtByAccNoAndVersion(it.accNo, it.version) }
+            .map {
+                runCatching {
+                    getExtByAccNoAndVersion(it.accNo, it.version)
+                }.onFailure {
+                    logger.error { "Error retrieving submission: ${it.message ?: it.localizedMessage}" }
+                }.getOrNull()
+            }
     }
 
     override fun getSubmissionsByUser(userId: Long, filter: SubmissionFilter): List<BasicSubmission> {
