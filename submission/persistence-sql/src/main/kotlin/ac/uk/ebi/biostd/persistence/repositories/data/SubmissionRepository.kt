@@ -20,6 +20,7 @@ import com.cosium.spring.data.jpa.entity.graph.domain.EntityGraphs
 import ebi.ac.uk.extended.model.ExtSubmission
 import mu.KotlinLogging
 import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.data.domain.Sort.Order
@@ -61,7 +62,7 @@ internal open class SubmissionRepository(
         val filterSpecs = SubmissionFilterSpecification(filter)
         val pageable = OffsetPageRequest(offset, limit, Sort.by(defaultOrder))
 
-        return submissionRepository
+        val page = submissionRepository
             .findAll(filterSpecs.specification, pageable, EntityGraphs.named(SIMPLE_GRAPH))
             .map {
                 runCatching {
@@ -70,6 +71,9 @@ internal open class SubmissionRepository(
                     logger.error { "Error retrieving submission: ${it.message ?: it.localizedMessage}" }
                 }.getOrNull()
             }
+        val submissions = page.content.filterNotNull()
+
+        return PageImpl(submissions, page.pageable, submissions.size.toLong())
     }
 
     override fun getSubmissionsByUser(userId: Long, filter: SubmissionFilter): List<BasicSubmission> {

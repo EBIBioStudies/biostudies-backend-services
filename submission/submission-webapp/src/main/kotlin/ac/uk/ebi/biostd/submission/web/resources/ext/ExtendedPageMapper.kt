@@ -12,7 +12,7 @@ import java.net.URI
 class ExtendedPageMapper(private val instanceBase: URI) {
     fun asExtPage(page: Page<ExtSubmission>, request: ExtPageRequest): ExtPage =
         ExtPage(
-            content = page.content.filterNotNull(),
+            content = page.content,
             totalElements = page.totalElements,
             offset = page.pageable.offset,
             limit = page.pageable.pageSize,
