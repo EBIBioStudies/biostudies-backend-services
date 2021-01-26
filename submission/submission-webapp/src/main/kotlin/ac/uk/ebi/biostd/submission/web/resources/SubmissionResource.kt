@@ -26,7 +26,6 @@ import org.springframework.web.bind.annotation.RestController
 class SubmissionResource(
     private val submissionsWebHandler: SubmissionsWebHandler
 ) {
-
     @GetMapping
     @ApiOperation("Get the basic data for the submissions that matches the given filter")
     @ApiImplicitParams(value = [

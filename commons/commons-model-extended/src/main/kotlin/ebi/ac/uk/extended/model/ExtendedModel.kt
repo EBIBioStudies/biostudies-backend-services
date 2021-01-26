@@ -1,9 +1,6 @@
 package ebi.ac.uk.extended.model
 
 import arrow.core.Either
-import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.annotation.JsonProperty.Access.READ_ONLY
-import ebi.ac.uk.extended.delegates.AccessTagDelegate
 import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size
 import java.io.File
@@ -96,11 +93,7 @@ data class ExtSubmission(
     val tags: List<ExtTag> = listOf(),
     val projects: List<Project> = listOf(),
     val stats: List<ExtStat> = listOf()
-) {
-    // TODO: add custom serializer/deserializer to avoid json annotation in model
-    @get:JsonProperty(access = READ_ONLY)
-    val accessTags: List<ExtAccessTag> by AccessTagDelegate()
-}
+)
 
 // TODO change value type to long
 data class ExtStat(val name: String, val value: String)

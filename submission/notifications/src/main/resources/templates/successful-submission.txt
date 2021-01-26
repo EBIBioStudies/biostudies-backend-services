@@ -1,6 +1,6 @@
 Dear ${USERNAME},
 
-Thank you for submitting your data to BioStudies. Your submission "${TITLE}" has been assigned BioStudies accession number ${ACC_NO}.
+Thank you for submitting your data to BioStudies. Your submission "${TITLE}" has been assigned the BioStudies accession number ${ACC_NO}.
 
 You will be able to see it at ${UI_URL}/studies/${ACC_NO} in the next 24 hours. ${RELEASE_MESSAGE}
 

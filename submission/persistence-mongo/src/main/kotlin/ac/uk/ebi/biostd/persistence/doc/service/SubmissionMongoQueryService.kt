@@ -29,9 +29,11 @@ internal class SubmissionMongoQueryService(
         submissionRepo.saveAll(actives)
     }
 
-    override fun getExtendedSubmissions(filter: SubmissionFilter, offset: Long, limit: Int): Page<ExtSubmission> {
-        TODO("Not yet implemented")
-    }
+    override fun getExtendedSubmissions(
+        filter: SubmissionFilter,
+        offset: Long,
+        limit: Int
+    ): Page<Result<ExtSubmission>> = TODO("Not yet implemented")
 
     override fun getSubmissionsByUser(userId: Long, filter: SubmissionFilter): List<BasicSubmission> {
         TODO("Not yet implemented")
