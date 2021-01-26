@@ -8,19 +8,24 @@ import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.testcontainers.containers.MySQLContainer
 
+private const val CHARACTER_SET = "utf8mb4"
+private const val COLLATION = "utf8mb4_unicode_ci"
+private const val MYSQL_IMAGE = "mysql:5.7.33"
+
 internal open class BaseIntegrationTest(
     private val tempFolder: TemporaryFolder
 ) {
-    private val mysqlContainer = SpecifiedMySQLContainer("mysql:5.6.36")
+    private val mysqlContainer = SpecifiedMySQLContainer(MYSQL_IMAGE)
+        .withCommand("mysqld --character-set-server=$CHARACTER_SET --collation-server=$COLLATION")
 
-    protected val submissionPath
+    val submissionPath
         get() = "${tempFolder.root.absolutePath}/submission"
 
     @BeforeAll
     fun beforeAll() {
         mysqlContainer.start()
 
-        System.setProperty("app.submissionPath", "${tempFolder.root.absolutePath}/submission")
+        System.setProperty("app.submissionPath", submissionPath)
         System.setProperty("app.ftpPath", "${tempFolder.root.absolutePath}/ftpPath")
         System.setProperty("app.tempDirPath", tempFolder.createDirectory("tmp").absolutePath)
         System.setProperty("app.security.filesDirPath", tempFolder.createDirectory("dropbox").absolutePath)
