@@ -1,10 +1,11 @@
 package ac.uk.ebi.biostd.data.web
 
-import ac.uk.ebi.biostd.data.service.SubmissionDraftService
+import ac.uk.ebi.biostd.data.service.SubmissionSqlDraftService
 import ac.uk.ebi.biostd.persistence.common.request.PaginationFilter
 import ac.uk.ebi.biostd.submission.converters.BioUser
 import com.fasterxml.jackson.annotation.JsonRawValue
 import com.fasterxml.jackson.annotation.JsonValue
+import ebi.ac.uk.model.SubmissionDraft
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiImplicitParam
@@ -28,47 +29,51 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping(value = ["submissions/drafts"], produces = [APPLICATION_JSON_VALUE])
 @PreAuthorize("isAuthenticated()")
 @Api(tags = ["Submission Drafts"])
-internal class SubmissionDraftResource(private val subDraftService: SubmissionDraftService) {
+internal class SubmissionDraftResource(private val subDraftService: SubmissionSqlDraftService) {
     @GetMapping
     @ResponseBody
     @ApiOperation("Get the submission drafts that matches the given filter")
-    @ApiImplicitParams(value = [
-        ApiImplicitParam(name = "X-Session-Token", value = "User authentication token", required = true),
-        ApiImplicitParam(
-            name = "limit",
-            value = "Optional query parameter used to set the maximum amount of drafts in the response"),
-        ApiImplicitParam(
-            name = "offset",
-            value = "Optional query parameter used to indicate from which submission should the response start")
-    ])
+    @ApiImplicitParams(
+        value = [
+            ApiImplicitParam(name = "X-Session-Token", value = "User authentication token", required = true),
+            ApiImplicitParam(
+                name = "limit",
+                value = "Optional query parameter used to set the maximum amount of drafts in the response"
+            ),
+            ApiImplicitParam(
+                name = "offset",
+                value = "Optional query parameter used to indicate from which submission should the response start"
+            )
+        ]
+    )
     fun getDraftSubmissions(
         @BioUser user: SecurityUser,
         @ModelAttribute filter: PaginationFilter
-    ): List<SubmissionDraft> =
-        subDraftService.getSubmissionsDraft(user.id, filter).map { SubmissionDraft(it.key, it.data) }
+    ): List<ResponseSubmissionDraft> = subDraftService.getSubmissionsDraft(user.id, filter).map { it.asResponseDraft() }
 
     @GetMapping("/{key}")
     @ResponseBody
     @ApiOperation("Get the submission drafts that matches the given key and filter")
-    @ApiImplicitParams(value = [
-        ApiImplicitParam(name = "X-Session-Token", value = "User authentication token", required = true),
-        ApiImplicitParam(
-            name = "limit",
-            value = "Optional query parameter used to set the maximum amount of drafts in the response"),
-        ApiImplicitParam(
-            name = "offset",
-            value = "Optional query parameter used to indicate from which submission should the response start")
-    ])
+    @ApiImplicitParams(
+        value = [
+            ApiImplicitParam(name = "X-Session-Token", value = "User authentication token", required = true),
+            ApiImplicitParam(
+                name = "limit",
+                value = "Optional query parameter used to set the maximum amount of drafts in the response"
+            ),
+            ApiImplicitParam(
+                name = "offset",
+                value = "Optional query parameter used to indicate from which submission should the response start"
+            )
+        ]
+    )
     fun getDraftSubmission(
         @BioUser user: SecurityUser,
         @ModelAttribute filter: PaginationFilter,
 
         @ApiParam(name = "Key", value = "The submission draft key")
         @PathVariable key: String
-    ): SubmissionDraft {
-        val draft = subDraftService.getSubmissionDraft(user.id, key)
-        return SubmissionDraft(draft.key, draft.data)
-    }
+    ): ResponseSubmissionDraft = subDraftService.getSubmissionDraft(user.id, key).asResponseDraft()
 
     @GetMapping("/{key}/content")
     @ResponseBody
@@ -79,7 +84,8 @@ internal class SubmissionDraftResource(private val subDraftService: SubmissionDr
 
         @ApiParam(name = "Key", value = "The submission draft key")
         @PathVariable key: String
-    ): SubmissionDraftContent = SubmissionDraftContent(subDraftService.getSubmissionDraft(user.id, key).data)
+    ): ResponseSubmissionDraftContent =
+        ResponseSubmissionDraftContent(subDraftService.getSubmissionDraft(user.id, key).content)
 
     @DeleteMapping("/{key}")
     @ApiOperation("Delete the submission draft with the given key")
@@ -103,9 +109,7 @@ internal class SubmissionDraftResource(private val subDraftService: SubmissionDr
 
         @ApiParam(name = "Key", value = "The submission draft key")
         @PathVariable key: String
-    ) {
-        subDraftService.updateSubmissionDraft(user.id, key, content)
-    }
+    ): ResponseSubmissionDraft = subDraftService.updateSubmissionDraft(user.id, key, content).asResponseDraft()
 
     @PostMapping
     @ResponseBody
@@ -116,11 +120,10 @@ internal class SubmissionDraftResource(private val subDraftService: SubmissionDr
 
         @ApiParam(name = "Content", value = "The content for the submission draft")
         @RequestBody content: String
-    ): SubmissionDraft {
-        val draft = subDraftService.createSubmissionDraft(user.id, content)
-        return SubmissionDraft(draft.key, draft.data)
-    }
+    ): ResponseSubmissionDraft = subDraftService.createSubmissionDraft(user.id, content).asResponseDraft()
 }
 
-internal class SubmissionDraft(val key: String, @JsonRawValue val content: String)
-internal class SubmissionDraftContent(@JsonRawValue @JsonValue val value: String)
+internal class ResponseSubmissionDraft(val key: String, @JsonRawValue val content: String)
+internal class ResponseSubmissionDraftContent(@JsonRawValue @JsonValue val value: String)
+
+internal fun SubmissionDraft.asResponseDraft() = ResponseSubmissionDraft(key, content)
