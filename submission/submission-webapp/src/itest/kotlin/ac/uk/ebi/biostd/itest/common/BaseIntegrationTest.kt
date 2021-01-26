@@ -4,28 +4,35 @@ import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
 import ac.uk.ebi.biostd.itest.entities.TestUser
 import io.github.glytching.junit.extension.folder.TemporaryFolder
+import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
+import org.testcontainers.containers.MySQLContainer
 
 internal open class BaseIntegrationTest(
     private val tempFolder: TemporaryFolder
 ) {
-    protected lateinit var submissionPath: String
-    protected lateinit var ftpPath: String
+    private val mysqlContainer = SpecifiedMySQLContainer("mysql:5.6.36")
+
+    protected val submissionPath
+        get() = "${tempFolder.root.absolutePath}/submission"
 
     @BeforeAll
-    fun init() {
-        val temp = tempFolder.createDirectory("tmp")
-        submissionPath = "${tempFolder.root.absolutePath}/submission"
-        ftpPath = "${tempFolder.root.absolutePath}/ftpPath"
+    fun beforeAll() {
+        mysqlContainer.start()
 
-        System.setProperty("app.submissionPath", submissionPath)
-        System.setProperty("app.ftpPath", ftpPath)
-        System.setProperty("app.tempDirPath", temp.absolutePath)
+        System.setProperty("app.submissionPath", "${tempFolder.root.absolutePath}/submission")
+        System.setProperty("app.ftpPath", "${tempFolder.root.absolutePath}/ftpPath")
+        System.setProperty("app.tempDirPath", tempFolder.createDirectory("tmp").absolutePath)
+        System.setProperty("app.security.filesDirPath", tempFolder.createDirectory("dropbox").absolutePath)
+        System.setProperty("app.security.magicDirPath", tempFolder.createDirectory("magic").absolutePath)
+        System.setProperty("spring.datasource.url", mysqlContainer.jdbcUrl)
+        System.setProperty("spring.datasource.username", mysqlContainer.username)
+        System.setProperty("spring.datasource.password", mysqlContainer.password)
+    }
 
-        val dropbox = tempFolder.createDirectory("dropbox")
-        val magicFolders = tempFolder.createDirectory("magic")
-        System.setProperty("app.security.filesDirPath", dropbox.absolutePath)
-        System.setProperty("app.security.magicDirPath", magicFolders.absolutePath)
+    @AfterAll
+    fun afterAll() {
+        mysqlContainer.stop()
     }
 
     protected fun getWebClient(serverPort: Int, user: TestUser): BioWebClient {
@@ -37,3 +44,5 @@ internal open class BaseIntegrationTest(
         SecurityWebClient.create("http://localhost:$serverPort").registerUser(testUser.asRegisterRequest())
     }
 }
+
+internal class SpecifiedMySQLContainer(image: String) : MySQLContainer<SpecifiedMySQLContainer>(image)

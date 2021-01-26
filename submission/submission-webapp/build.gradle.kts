@@ -20,9 +20,11 @@ import SpringBootDependencies.SpringBootStarterValidation
 import SpringBootDependencies.SpringBootStarterWeb
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
-import TestDependencies.H2
 import TestDependencies.JsonPathAssert
 import TestDependencies.KotlinXmlBuilder
+import TestDependencies.TestContainer
+import TestDependencies.TestContainerJUnit
+import TestDependencies.TestContainerMysql
 import TestDependencies.XmlUnitCore
 import TestDependencies.XmlUnitMatchers
 import TestDependencies.rabitMqMock
@@ -85,11 +87,14 @@ dependencies {
     testImplementation(SpringBootStarterTest)
     testImplementation(rabitMqMock)
 
-    testImplementation(H2)
     testImplementation(KotlinXmlBuilder)
     testImplementation(JsonPathAssert)
     testImplementation(XmlUnitCore)
     testImplementation(XmlUnitMatchers)
+
+    testImplementation(TestContainerMysql)
+    testImplementation(TestContainer)
+    testImplementation(TestContainerJUnit)
 }
 
 apply(from = "$rootDir/gradle/itest.gradle.kts")
