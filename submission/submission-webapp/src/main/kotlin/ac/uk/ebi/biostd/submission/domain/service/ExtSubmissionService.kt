@@ -8,7 +8,11 @@ import ac.uk.ebi.biostd.submission.web.model.ExtPageRequest
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FileMode.COPY
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
+import mu.KotlinLogging
 import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageImpl
+
+private val logger = KotlinLogging.logger {}
 
 class ExtSubmissionService(
     private val persistenceService: SubmissionRequestService,
@@ -25,7 +29,14 @@ class ExtSubmissionService(
     fun getExtendedSubmissions(request: ExtPageRequest): Page<ExtSubmission> {
         val filter = SubmissionFilter(
             rTimeFrom = request.fromRTime, rTimeTo = request.toRTime, released = request.released)
-        return submissionRepository.getExtendedSubmissions(filter, request.offset, request.limit)
+
+        val page = submissionRepository
+            .getExtendedSubmissions(filter, request.offset, request.limit)
+            .onEach { it.onFailure { logger.error { it.message ?: it.localizedMessage } } }
+            .map { it.getOrNull() }
+        val submissions = page.content.filterNotNull()
+
+        return PageImpl(submissions, page.pageable, submissions.size.toLong())
     }
 
     private fun validateUser(user: String) = require(userPrivilegesService.canSubmitExtended(user)) {
