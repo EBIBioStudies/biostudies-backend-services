@@ -20,7 +20,6 @@ import com.cosium.spring.data.jpa.entity.graph.domain.EntityGraphs
 import ebi.ac.uk.extended.model.ExtSubmission
 import mu.KotlinLogging
 import org.springframework.data.domain.Page
-import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.data.domain.Sort.Order
@@ -58,22 +57,17 @@ internal open class SubmissionRepository(
     }
 
     @Transactional(readOnly = true)
-    override fun getExtendedSubmissions(filter: SubmissionFilter, offset: Long, limit: Int): Page<ExtSubmission> {
+    override fun getExtendedSubmissions(
+        filter: SubmissionFilter,
+        offset: Long,
+        limit: Int
+    ): Page<Result<ExtSubmission>> {
         val filterSpecs = SubmissionFilterSpecification(filter)
         val pageable = OffsetPageRequest(offset, limit, Sort.by(defaultOrder))
 
-        val page = submissionRepository
+        return submissionRepository
             .findAll(filterSpecs.specification, pageable, EntityGraphs.named(SIMPLE_GRAPH))
-            .map {
-                runCatching {
-                    getExtByAccNoAndVersion(it.accNo, it.version)
-                }.onFailure {
-                    logger.error { "Error retrieving submission: ${it.message ?: it.localizedMessage}" }
-                }.getOrNull()
-            }
-        val submissions = page.content.filterNotNull()
-
-        return PageImpl(submissions, page.pageable, submissions.size.toLong())
+            .map { runCatching { getExtByAccNoAndVersion(it.accNo, it.version) } }
     }
 
     override fun getSubmissionsByUser(userId: Long, filter: SubmissionFilter): List<BasicSubmission> {
