@@ -25,6 +25,7 @@ import org.springframework.data.domain.Sort
 import org.springframework.data.domain.Sort.Order
 import org.springframework.transaction.annotation.Transactional
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
+import java.time.OffsetDateTime
 
 private val logger = KotlinLogging.logger {}
 private val defaultOrder = Order.asc("id")
@@ -52,6 +53,7 @@ internal open class SubmissionRepository(
         val submission = submissionRepository.findByAccNoAndVersionGreaterThan(accNo)
         if (submission != null) {
             submission.version = -submission.version
+            submission.modificationTime = OffsetDateTime.now()
             submissionRepository.save(submission)
         }
     }

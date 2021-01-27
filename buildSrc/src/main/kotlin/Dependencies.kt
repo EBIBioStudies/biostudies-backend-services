@@ -121,6 +121,7 @@ object TestDependencies {
     const val JsonAssert = "org.skyscreamer:jsonassert:$JsonAssertVersion"
 
     // Test Containers
+    const val TestContainerMysql = "org.testcontainers:mysql:$TestContainerVersion"
     const val TestContainerMongoDb = "org.testcontainers:mongodb:$TestContainerVersion"
     const val TestContainer = "org.testcontainers:testcontainers:$TestContainerVersion"
     const val TestContainerJUnit = "org.testcontainers:junit-jupiter:$TestContainerVersion"
