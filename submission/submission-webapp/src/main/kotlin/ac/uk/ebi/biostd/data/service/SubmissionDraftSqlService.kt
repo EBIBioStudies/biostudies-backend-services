@@ -8,7 +8,7 @@ import ebi.ac.uk.model.SubmissionDraft
 import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
 
-open class SubmissionSqlDraftService(
+open class SubmissionDraftSqlService(
     private val userDataService: UserDataService,
     private val submissionService: SubmissionService
 ) : SubmissionDraftService {

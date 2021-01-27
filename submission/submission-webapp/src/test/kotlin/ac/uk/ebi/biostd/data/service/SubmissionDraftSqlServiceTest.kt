@@ -21,17 +21,17 @@ private const val DRAFT_CONTENT = "data"
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ExtendWith(MockKExtension::class)
-class SubmissionDraftServiceTest(
+class SubmissionDraftSqlServiceTest(
     @MockK private val userDataService: UserDataService,
     @MockK private val submissionService: SubmissionService
 ) {
-    val testInstance = SubmissionSqlDraftService(userDataService, submissionService)
+    val testInstance = SubmissionDraftSqlService(userDataService, submissionService)
 
     private val dbUserData = DbUserData(USER_ID, DRAFT_KEY, DRAFT_CONTENT)
     private val someFilter: PaginationFilter = PaginationFilter()
 
     @Test
-    fun `get submission when exists`() {
+    fun `get draft when submission exists`() {
         every { userDataService.getUserData(USER_ID, DRAFT_KEY) } returns dbUserData
 
         val result = testInstance.getSubmissionDraft(USER_ID, DRAFT_KEY)
@@ -41,7 +41,7 @@ class SubmissionDraftServiceTest(
     }
 
     @Test
-    fun `get submission when does not exists`() {
+    fun `get draft when submission does not exists`() {
         val draftJson = "{sub as JSON}"
         every { userDataService.getUserData(USER_ID, DRAFT_KEY) } returns null
         every { submissionService.getSubmissionAsJson(DRAFT_KEY) } returns draftJson

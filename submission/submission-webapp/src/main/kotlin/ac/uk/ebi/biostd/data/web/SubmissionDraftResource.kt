@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.data.web
 
-import ac.uk.ebi.biostd.data.service.SubmissionSqlDraftService
+import ac.uk.ebi.biostd.data.service.SubmissionDraftSqlService
 import ac.uk.ebi.biostd.persistence.common.request.PaginationFilter
 import ac.uk.ebi.biostd.submission.converters.BioUser
 import com.fasterxml.jackson.annotation.JsonRawValue
@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping(value = ["submissions/drafts"], produces = [APPLICATION_JSON_VALUE])
 @PreAuthorize("isAuthenticated()")
 @Api(tags = ["Submission Drafts"])
-internal class SubmissionDraftResource(private val subDraftService: SubmissionSqlDraftService) {
+internal class SubmissionDraftResource(private val subDraftSqlService: SubmissionDraftSqlService) {
     @GetMapping
     @ResponseBody
     @ApiOperation("Get the submission drafts that matches the given filter")
@@ -49,7 +49,8 @@ internal class SubmissionDraftResource(private val subDraftService: SubmissionSq
     fun getDraftSubmissions(
         @BioUser user: SecurityUser,
         @ModelAttribute filter: PaginationFilter
-    ): List<ResponseSubmissionDraft> = subDraftService.getSubmissionsDraft(user.id, filter).map { it.asResponseDraft() }
+    ): List<ResponseSubmissionDraft> =
+        subDraftSqlService.getSubmissionsDraft(user.id, filter).map { it.asResponseDraft() }
 
     @GetMapping("/{key}")
     @ResponseBody
@@ -73,7 +74,7 @@ internal class SubmissionDraftResource(private val subDraftService: SubmissionSq
 
         @ApiParam(name = "Key", value = "The submission draft key")
         @PathVariable key: String
-    ): ResponseSubmissionDraft = subDraftService.getSubmissionDraft(user.id, key).asResponseDraft()
+    ): ResponseSubmissionDraft = subDraftSqlService.getSubmissionDraft(user.id, key).asResponseDraft()
 
     @GetMapping("/{key}/content")
     @ResponseBody
@@ -85,7 +86,7 @@ internal class SubmissionDraftResource(private val subDraftService: SubmissionSq
         @ApiParam(name = "Key", value = "The submission draft key")
         @PathVariable key: String
     ): ResponseSubmissionDraftContent =
-        ResponseSubmissionDraftContent(subDraftService.getSubmissionDraft(user.id, key).content)
+        ResponseSubmissionDraftContent(subDraftSqlService.getSubmissionDraft(user.id, key).content)
 
     @DeleteMapping("/{key}")
     @ApiOperation("Delete the submission draft with the given key")
@@ -95,7 +96,7 @@ internal class SubmissionDraftResource(private val subDraftService: SubmissionSq
 
         @ApiParam(name = "Key", value = "The submission draft key")
         @PathVariable key: String
-    ): Unit = subDraftService.deleteSubmissionDraft(user.id, key)
+    ): Unit = subDraftSqlService.deleteSubmissionDraft(user.id, key)
 
     @PutMapping("/{key}")
     @ResponseBody
@@ -109,7 +110,7 @@ internal class SubmissionDraftResource(private val subDraftService: SubmissionSq
 
         @ApiParam(name = "Key", value = "The submission draft key")
         @PathVariable key: String
-    ): ResponseSubmissionDraft = subDraftService.updateSubmissionDraft(user.id, key, content).asResponseDraft()
+    ): ResponseSubmissionDraft = subDraftSqlService.updateSubmissionDraft(user.id, key, content).asResponseDraft()
 
     @PostMapping
     @ResponseBody
@@ -120,7 +121,7 @@ internal class SubmissionDraftResource(private val subDraftService: SubmissionSq
 
         @ApiParam(name = "Content", value = "The content for the submission draft")
         @RequestBody content: String
-    ): ResponseSubmissionDraft = subDraftService.createSubmissionDraft(user.id, content).asResponseDraft()
+    ): ResponseSubmissionDraft = subDraftSqlService.createSubmissionDraft(user.id, content).asResponseDraft()
 }
 
 internal class ResponseSubmissionDraft(val key: String, @JsonRawValue val content: String)
