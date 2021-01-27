@@ -29,7 +29,6 @@ import ac.uk.ebi.biostd.persistence.repositories.UserDataDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.data.ProjectSqlDataService
 import ac.uk.ebi.biostd.persistence.repositories.data.SubmissionRepository
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -43,7 +42,6 @@ import java.nio.file.Paths
 @Import(JpaRepositoryConfig::class)
 open class SqlPersistenceConfig(private val applicationProperties: ApplicationProperties) {
     @Bean
-    @ConditionalOnMissingBean(LockExecutor::class)
     internal open fun lockExecutor(
         namedParameterJdbcTemplate: NamedParameterJdbcTemplate
     ): LockExecutor = JdbcLockExecutor(namedParameterJdbcTemplate)
