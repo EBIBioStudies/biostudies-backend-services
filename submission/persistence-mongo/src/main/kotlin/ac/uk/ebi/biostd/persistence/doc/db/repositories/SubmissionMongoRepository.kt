@@ -7,6 +7,8 @@ import org.springframework.data.mongodb.repository.Query
 
 interface SubmissionMongoRepository : MongoRepository<DocSubmission, String> {
 
+    fun findByAccNo(accNo: String): DocSubmission?
+
     fun existsByAccNo(accNo: String): Boolean
 
     fun getByAccNo(accNo: String): DocSubmission
@@ -14,6 +16,10 @@ interface SubmissionMongoRepository : MongoRepository<DocSubmission, String> {
     fun getByAccNoAndVersion(accNo: String, version: Int): DocSubmission
 
     fun getByAccNoAndVersionGreaterThan(accNo: String, version: Int): List<DocSubmission>
+
+    fun findFirstByAccNoOrderByVersionDesc(accNo: String): DocSubmission?
+
+    fun getFirstByAccNo(accNo: String): DocSubmission
 
     @Query(value = "{ 'groupId' :  ?0 }", fields = "{ '_id': 0, 'user.\$id':1 }")
     fun findAllUserIdByGroupId(accNo: String): List<String?>?

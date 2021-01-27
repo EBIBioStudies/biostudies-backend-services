@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.itest.common
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
 import ac.uk.ebi.biostd.itest.entities.TestUser
+import ebi.ac.uk.db.MYSQL_VERSION
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
@@ -10,12 +11,11 @@ import org.testcontainers.containers.MySQLContainer
 
 private const val CHARACTER_SET = "utf8mb4"
 private const val COLLATION = "utf8mb4_unicode_ci"
-private const val MYSQL_IMAGE = "mysql:5.7.33"
 
 internal open class BaseIntegrationTest(
     private val tempFolder: TemporaryFolder
 ) {
-    private val mysqlContainer = SpecifiedMySQLContainer(MYSQL_IMAGE)
+    private val mysqlContainer = SpecifiedMySQLContainer(MYSQL_VERSION)
         .withCommand("mysqld --character-set-server=$CHARACTER_SET --collation-server=$COLLATION")
 
     val submissionPath

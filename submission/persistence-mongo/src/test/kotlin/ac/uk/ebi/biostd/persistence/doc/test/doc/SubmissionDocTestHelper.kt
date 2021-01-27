@@ -1,0 +1,68 @@
+package ac.uk.ebi.biostd.persistence.doc.test.doc
+
+import ac.uk.ebi.biostd.persistence.doc.model.DocAttribute
+import ac.uk.ebi.biostd.persistence.doc.model.DocAttributeDetail
+import ac.uk.ebi.biostd.persistence.doc.model.DocProcessingStatus.PROCESSED
+import ac.uk.ebi.biostd.persistence.doc.model.DocProject
+import ac.uk.ebi.biostd.persistence.doc.model.DocSection
+import ac.uk.ebi.biostd.persistence.doc.model.DocStat
+import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
+import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionMethod.PAGE_TAB
+import ac.uk.ebi.biostd.persistence.doc.model.DocTag
+import java.time.Instant
+import java.time.temporal.ChronoUnit
+
+internal const val ATTR_NAME = "Test Attribute"
+internal const val ATTR_VALUE = "Test Value"
+internal const val NAME_ATTR_NAME = "Test Name Attribute"
+internal const val NAME_ATTR_VALUE = "Test Name Value"
+internal const val VALUE_ATTR_NAME = "Test Value Attribute"
+internal const val VALUE_ATTR_VALUE = "Test Value Value"
+
+val testDocAttribute: DocAttribute = DocAttribute(
+    name = ATTR_NAME,
+    value = ATTR_VALUE,
+    nameAttrs = listOf(DocAttributeDetail(NAME_ATTR_NAME, NAME_ATTR_VALUE)),
+    valueAttrs = listOf(DocAttributeDetail(VALUE_ATTR_NAME, VALUE_ATTR_VALUE)))
+
+internal const val SUB_ACC_NO = "S-TEST123"
+internal const val SUB_VERSION = 1
+internal const val OWNER = "owner@mail.org"
+internal const val SUBMITTER = "submitter@mail.org"
+internal const val SUB_TITLE = "Test Submission"
+internal const val ROOT_PATH = "/a/root/path"
+internal const val SECRET_KEY = "a-secret-key"
+internal const val TAG_NAME = "component"
+internal const val TAG_VALUE = "web"
+internal const val PROJECT_ACC_NO = "BioImages"
+internal const val STAT_TYPE = "VIEWS"
+internal const val STAT_VALUE = 123L
+internal const val REL_PATH = "S-TEST/123/S-TEST123"
+internal val CREATION_TIME = Instant.now()
+internal val MODIFICATION_TIME = CREATION_TIME.plus(1, ChronoUnit.HOURS)
+internal val RELEASE_TIME = CREATION_TIME.plus(1, ChronoUnit.DAYS)
+
+internal val testDocSection = DocSection(type = "Study")
+
+internal val testDocSubmission = DocSubmission(
+    id = null,
+    accNo = SUB_ACC_NO,
+    version = SUB_VERSION,
+    owner = OWNER,
+    submitter = SUBMITTER,
+    title = SUB_TITLE,
+    method = PAGE_TAB,
+    relPath = REL_PATH,
+    rootPath = ROOT_PATH,
+    released = false,
+    secretKey = SECRET_KEY,
+    status = PROCESSED,
+    releaseTime = RELEASE_TIME,
+    modificationTime = MODIFICATION_TIME,
+    creationTime = CREATION_TIME,
+    attributes = listOf(testDocAttribute),
+    tags = listOf(DocTag(TAG_NAME, TAG_VALUE)),
+    stats = listOf(DocStat(STAT_TYPE, STAT_VALUE)),
+    projects = listOf(DocProject(PROJECT_ACC_NO)),
+    section = testDocSection
+)
