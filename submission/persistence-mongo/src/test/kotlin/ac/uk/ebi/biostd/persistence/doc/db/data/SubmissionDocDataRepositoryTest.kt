@@ -38,21 +38,39 @@ internal class SubmissionDocDataRepositoryTest {
     inner class UpdateStatus {
         @Test
         fun `successful status update`() {
-            submissionMongoRepository.save(testDocSubmission("accNo1", 1, PROCESSING))
+            submissionMongoRepository.save(testDocSubmission("accNo10", 1, PROCESSING))
 
-            testInstance.updateStatus(PROCESSED, "accNo1", 1)
+            testInstance.updateStatus(PROCESSED, "accNo10", 1)
 
-            assertThat(submissionMongoRepository.getByAccNo("accNo1").status).isEqualTo(PROCESSED)
+            assertThat(submissionMongoRepository.getByAccNo("accNo10").status).isEqualTo(PROCESSED)
         }
 
         @Test
         fun `status should not be updated when version does not match`() {
-            submissionMongoRepository.save(testDocSubmission("accNo2", 1, PROCESSING))
+            submissionMongoRepository.save(testDocSubmission("accNo20", 1, PROCESSING))
 
-            testInstance.updateStatus(PROCESSED, "accNo2", 3)
+            testInstance.updateStatus(PROCESSED, "accNo20", 3)
 
-            assertThat(submissionMongoRepository.getByAccNo("accNo2").status).isEqualTo(PROCESSING)
+            assertThat(submissionMongoRepository.getByAccNo("accNo20").status).isEqualTo(PROCESSING)
         }
+    }
+
+    @Test
+    fun `successful status update`() {
+        submissionMongoRepository.save(testDocSubmission("accNo1", 1, PROCESSING))
+
+        testInstance.updateStatus(PROCESSED, "accNo1", 1)
+
+        assertThat(submissionMongoRepository.getByAccNo("accNo1").status).isEqualTo(PROCESSED)
+    }
+
+    @Test
+    fun `status update when version does not match so do not update`() {
+        submissionMongoRepository.save(testDocSubmission("accNo2", 1, PROCESSING))
+
+        testInstance.updateStatus(PROCESSED, "accNo2", 3)
+
+        assertThat(submissionMongoRepository.getByAccNo("accNo2").status).isEqualTo(PROCESSING)
     }
 
     @Test

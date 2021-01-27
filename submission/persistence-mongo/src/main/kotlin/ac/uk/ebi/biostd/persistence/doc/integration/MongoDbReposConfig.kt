@@ -29,5 +29,7 @@ class MongoDbReposConfig {
     ): SubmissionRequestDocDataRepository = SubmissionRequestDocDataRepository(submissionRequestRepository)
 
     @Bean
-    internal fun submissionMetaQueryService(): SubmissionMongoMetaQueryService = SubmissionMongoMetaQueryService()
+    internal fun submissionMongoMetaQueryService(
+        submissionDocDataRepository: SubmissionDocDataRepository
+    ): SubmissionMongoMetaQueryService = SubmissionMongoMetaQueryService(submissionDocDataRepository)
 }
