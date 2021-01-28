@@ -9,6 +9,7 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocStat
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionMethod.PAGE_TAB
 import ac.uk.ebi.biostd.persistence.doc.model.DocTag
+import org.bson.types.ObjectId
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
@@ -44,8 +45,10 @@ internal val RELEASE_TIME = CREATION_TIME.plus(1, ChronoUnit.DAYS)
 
 internal val testDocSection = DocSection(type = "Study")
 
+internal val testDocProject = DocProject(PROJECT_ACC_NO)
+
 internal val testDocSubmission = DocSubmission(
-    id = null,
+    id = ObjectId().toString(),
     accNo = SUB_ACC_NO,
     version = SUB_VERSION,
     owner = OWNER,
@@ -63,6 +66,6 @@ internal val testDocSubmission = DocSubmission(
     attributes = listOf(testDocAttribute),
     tags = listOf(DocTag(TAG_NAME, TAG_VALUE)),
     stats = listOf(DocStat(STAT_TYPE, STAT_VALUE)),
-    projects = listOf(DocProject(PROJECT_ACC_NO)),
+    projects = listOf(testDocProject),
     section = testDocSection
 )

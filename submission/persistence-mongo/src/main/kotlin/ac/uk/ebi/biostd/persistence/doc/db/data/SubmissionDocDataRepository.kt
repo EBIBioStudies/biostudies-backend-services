@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_VERSION
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionMongoRepository
 import ac.uk.ebi.biostd.persistence.doc.model.DocProcessingStatus
+import ac.uk.ebi.biostd.persistence.doc.model.DocProject
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import org.springframework.data.domain.Sort
 import org.springframework.data.mongodb.core.MongoTemplate
@@ -22,8 +23,7 @@ class SubmissionDocDataRepository(
     private val mongoTemplate: MongoTemplate
 ) : SubmissionMongoRepository by submissionRepository {
     fun updateStatus(status: DocProcessingStatus, accNo: String, version: Int) {
-        val query = Query(
-            where(SUB_ACC_NO).`is`(accNo).andOperator(where(SUB_VERSION).`is`(version)))
+        val query = Query(where(SUB_ACC_NO).`is`(accNo).andOperator(where(SUB_VERSION).`is`(version)))
         val update = update(SUB_STATUS, status)
         mongoTemplate.updateFirst(query, update, DocSubmission::class.java)
     }
@@ -52,6 +52,8 @@ class SubmissionDocDataRepository(
     fun deleteSubmissionDrafts(submitter: String, accNo: String) {
         TODO()
     }
+
+    fun getProjects(accNo: String): List<DocProject> = submissionRepository.getSubmissionProjects(accNo).projects
 }
 
 data class Result(

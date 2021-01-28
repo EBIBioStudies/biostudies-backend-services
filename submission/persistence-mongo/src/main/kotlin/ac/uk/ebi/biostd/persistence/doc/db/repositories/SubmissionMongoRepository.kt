@@ -19,10 +19,8 @@ interface SubmissionMongoRepository : MongoRepository<DocSubmission, String> {
 
     fun findFirstByAccNoOrderByVersionDesc(accNo: String): DocSubmission?
 
-    fun getFirstByAccNo(accNo: String): DocSubmission
-
-    @Query(value = "{ 'groupId' :  ?0 }", fields = "{ '_id': 0, 'user.\$id':1 }")
-    fun findAllUserIdByGroupId(accNo: String): List<String?>?
+    @Query(value = "{ 'accNo' : ?0 }", fields = "{ 'projects.accNo':1 }")
+    fun getSubmissionProjects(accNo: String): SubmissionProjects
 }
 
 interface SubmissionRequestRepository : MongoRepository<SubmissionRequest, String>
