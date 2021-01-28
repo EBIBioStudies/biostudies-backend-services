@@ -28,9 +28,8 @@ class SubmissionMongoMetaQueryService(
     override fun findLatestBasicByAccNo(accNo: String): BasicSubmission? =
         submissionDocDataRepository.findFirstByAccNoOrderByVersionDesc(accNo)?.asBasicSubmission()
 
-    override fun getAccessTags(accNo: String): List<String> {
-        return emptyList()
-    }
+    override fun getAccessTags(accNo: String): List<String> =
+        submissionDocDataRepository.getProjects(accNo).map { it.accNo }
 
     override fun existByAccNo(accNo: String): Boolean = submissionDocDataRepository.existsByAccNo(accNo)
 }
