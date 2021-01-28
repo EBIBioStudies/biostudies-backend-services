@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.persistence.doc.db.data
 import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbReposConfig
 import ac.uk.ebi.biostd.persistence.doc.model.DocProcessingStatus.PROCESSED
 import ac.uk.ebi.biostd.persistence.doc.model.DocProcessingStatus.PROCESSING
+import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocProject
 import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocSubmission
 import ebi.ac.uk.db.MONGO_VERSION
 import org.assertj.core.api.Assertions.assertThat
@@ -76,12 +77,12 @@ internal class SubmissionDocDataRepositoryTest {
     }
 
     @Test
-    fun getAccessTags() {
+    fun getProjects() {
         testInstance.save(testDocSubmission)
 
         val projects = testInstance.getProjects(testDocSubmission.accNo)
 
-        assertThat(projects).hasSize(1)
+        assertThat(projects).containsExactly(testDocProject)
     }
 
     companion object {
