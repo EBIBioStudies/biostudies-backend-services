@@ -62,7 +62,7 @@ class SubmissionDraftDocDataRepositoryTest(
 
     @Test
     fun createSubmissionDraft() {
-        val result = testInstance.createSubmissionDraft(USER_ID, DRAFT_KEY, DRAFT_CONTENT)
+        val result = testInstance.createDraft(USER_ID, DRAFT_KEY, DRAFT_CONTENT)
 
         assertThat(testInstance.getById(result.id)).isEqualTo(result)
     }

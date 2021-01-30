@@ -16,15 +16,15 @@ class SubmissionDraftDocDataRepository(
     private val mongoTemplate: MongoTemplate
 ) : SubmissionDraftRepository by submissionDraftRepository {
 
-    fun saveSubmissionDraft(userId: Long, key: String, content: String): DocSubmissionDraft =
+    fun saveDraft(userId: String, key: String, content: String): DocSubmissionDraft =
         mongoTemplate.replaceOrCreate(
             Query(where(USER_ID).`is`(userId).andOperator(where(KEY).`is`(key))),
             DocSubmissionDraft(userId, key, content)
         )
 
-    fun createSubmissionDraft(userId: Long, key: String, content: String): DocSubmissionDraft =
+    fun createDraft(userId: String, key: String, content: String): DocSubmissionDraft =
         submissionDraftRepository.save(DocSubmissionDraft(userId, key, content))
 
-    fun findAllByUserId(userId: Long, filter: PaginationFilter = PaginationFilter()): List<DocSubmissionDraft> =
+    fun findAllByUserId(userId: String, filter: PaginationFilter = PaginationFilter()): List<DocSubmissionDraft> =
         submissionDraftRepository.findAllByUserId(userId, PageRequest.of(filter.pageNumber, filter.limit))
 }

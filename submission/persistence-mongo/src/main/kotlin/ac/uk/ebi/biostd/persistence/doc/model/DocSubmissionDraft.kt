@@ -8,11 +8,11 @@ import org.springframework.data.mongodb.core.mapping.Document
 data class DocSubmissionDraft(
     @Id
     val id: String,
-    val userId: Long,
+    val userId: String,
     val key: String,
     val content: String
 ) {
-    constructor(userId: Long, key: String, content: String) : this(ObjectId().toString(), userId, key, content)
+    constructor(userId: String, key: String, content: String) : this(ObjectId().toString(), userId, key, content)
 
     companion object {
         const val USER_ID = "userId"

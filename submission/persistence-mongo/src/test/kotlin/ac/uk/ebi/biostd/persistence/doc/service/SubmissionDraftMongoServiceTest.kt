@@ -8,13 +8,13 @@ import ac.uk.ebi.biostd.persistence.doc.test.doc.DRAFT_KEY
 import ac.uk.ebi.biostd.persistence.doc.test.doc.USER_ID
 import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocDraft
 import ebi.ac.uk.extended.model.ExtSubmission
-import io.mockk.mockk
 import io.mockk.every
+import io.mockk.impl.annotations.MockK
+import io.mockk.junit5.MockKExtension
+import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.unmockkStatic
 import io.mockk.verify
-import io.mockk.impl.annotations.MockK
-import io.mockk.junit5.MockKExtension
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
@@ -60,13 +60,13 @@ internal class SubmissionDraftMongoServiceTest(
 
     @Test
     fun `update submission draft`() {
-        every { draftDocDataRepository.saveSubmissionDraft(USER_ID, DRAFT_KEY, DRAFT_CONTENT) } returns testDocDraft
+        every { draftDocDataRepository.saveDraft(USER_ID, DRAFT_KEY, DRAFT_CONTENT) } returns testDocDraft
 
         val result = testInstance.updateSubmissionDraft(USER_ID, DRAFT_KEY, DRAFT_CONTENT)
 
         assertThat(result.key).isEqualTo(DRAFT_KEY)
         assertThat(result.content).isEqualTo(DRAFT_CONTENT)
-        verify(exactly = 1) { draftDocDataRepository.saveSubmissionDraft(USER_ID, DRAFT_KEY, DRAFT_CONTENT) }
+        verify(exactly = 1) { draftDocDataRepository.saveDraft(USER_ID, DRAFT_KEY, DRAFT_CONTENT) }
     }
 
     @Test
@@ -96,7 +96,7 @@ internal class SubmissionDraftMongoServiceTest(
         val draftCreationTime = 2L
         every { Instant.now().toEpochMilli() } returns draftCreationTime
         every {
-            draftDocDataRepository.createSubmissionDraft(
+            draftDocDataRepository.createDraft(
                 USER_ID,
                 "TMP_$draftCreationTime",
                 DRAFT_CONTENT

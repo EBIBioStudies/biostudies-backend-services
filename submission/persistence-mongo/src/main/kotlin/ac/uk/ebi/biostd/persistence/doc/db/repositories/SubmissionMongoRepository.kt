@@ -29,11 +29,11 @@ interface SubmissionRequestRepository : MongoRepository<SubmissionRequest, Strin
 
 interface SubmissionDraftRepository : MongoRepository<DocSubmissionDraft, String> {
 
-    fun findByUserIdAndKey(userId: Long, key: String): DocSubmissionDraft?
+    fun findByUserIdAndKey(userId: String, key: String): DocSubmissionDraft?
 
-    fun deleteByUserIdAndKey(userId: Long, key: String): Unit
+    fun deleteByUserIdAndKey(userId: String, key: String): Unit
 
-    fun findAllByUserId(userId: Long, pageRequest: Pageable): List<DocSubmissionDraft>
+    fun findAllByUserId(userId: String, pageRequest: Pageable): List<DocSubmissionDraft>
 
     fun getById(id: String): DocSubmissionDraft
 }

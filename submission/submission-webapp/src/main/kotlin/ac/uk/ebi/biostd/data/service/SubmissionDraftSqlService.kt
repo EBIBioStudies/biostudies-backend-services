@@ -14,32 +14,32 @@ open class SubmissionDraftSqlService(
 ) : SubmissionDraftService {
 
     @Transactional(readOnly = true)
-    override fun getSubmissionDraft(userId: Long, key: String): SubmissionDraft {
-        val dbUser = userDataService.getUserData(userId, key) ?: create(userId, key)
+    override fun getSubmissionDraft(userEmail: String, key: String): SubmissionDraft {
+        val dbUser = userDataService.getUserData(userEmail, key) ?: create(userEmail, key)
         return SubmissionDraft(dbUser.key, dbUser.data)
     }
 
     @Transactional
-    override fun updateSubmissionDraft(userId: Long, key: String, content: String): SubmissionDraft {
-        val dbUser = userDataService.saveUserData(userId, key, content)
+    override fun updateSubmissionDraft(userEmail: String, key: String, content: String): SubmissionDraft {
+        val dbUser = userDataService.saveUserData(userEmail, key, content)
         return SubmissionDraft(dbUser.key, dbUser.data)
     }
 
     @Transactional
-    override fun deleteSubmissionDraft(userId: Long, key: String): Unit = userDataService.delete(userId, key)
+    override fun deleteSubmissionDraft(userEmail: String, key: String): Unit = userDataService.delete(userEmail, key)
 
     @Transactional(readOnly = true)
-    override fun getSubmissionsDraft(userId: Long, filter: PaginationFilter): List<SubmissionDraft> =
-        userDataService.findAll(userId, filter).map { SubmissionDraft(it.key, it.data) }
+    override fun getSubmissionsDraft(userEmail: String, filter: PaginationFilter): List<SubmissionDraft> =
+        userDataService.findAll(userEmail, filter).map { SubmissionDraft(it.key, it.data) }
 
     @Transactional
-    override fun createSubmissionDraft(userId: Long, content: String): SubmissionDraft {
-        val dbUser = userDataService.saveUserData(userId, "TMP_${Instant.now().toEpochMilli()}", content)
+    override fun createSubmissionDraft(userEmail: String, content: String): SubmissionDraft {
+        val dbUser = userDataService.saveUserData(userEmail, "TMP_${Instant.now().toEpochMilli()}", content)
         return SubmissionDraft(dbUser.key, dbUser.data)
     }
 
-    private fun create(userId: Long, key: String): DbUserData {
+    private fun create(user: String, key: String): DbUserData {
         val submission = submissionService.getSubmissionAsJson(key)
-        return userDataService.saveUserData(userId, key, submission)
+        return userDataService.saveUserData(user, key, submission)
     }
 }

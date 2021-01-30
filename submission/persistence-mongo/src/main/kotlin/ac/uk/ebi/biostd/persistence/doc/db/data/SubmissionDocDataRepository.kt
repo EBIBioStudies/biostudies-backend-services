@@ -49,10 +49,6 @@ class SubmissionDocDataRepository(
             DocSubmission::class.java)
     }
 
-    fun deleteSubmissionDrafts(submitter: String, accNo: String) {
-        TODO()
-    }
-
     fun getProjects(accNo: String): List<DocProject> = submissionRepository.getSubmissionProjects(accNo).projects
 }
 

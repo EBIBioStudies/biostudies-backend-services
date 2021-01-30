@@ -4,6 +4,7 @@ import ac.uk.ebi.biostd.persistence.common.filesystem.FileSystemService
 import ac.uk.ebi.biostd.persistence.common.request.SaveSubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestService
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
+import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDraftDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.mapping.from.toDocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocProcessingStatus.PROCESSED
@@ -11,12 +12,14 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocProcessingStatus.PROCESSING
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequest
 import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.extended.model.FileMode.MOVE
 import org.json.JSONObject
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 
 class SubmissionMongoPersistenceService(
     private val subDataRepository: SubmissionDocDataRepository,
     private val submissionRequestDocDataRepository: SubmissionRequestDocDataRepository,
+    private val draftDocDataRepository: SubmissionDraftDocDataRepository,
     private val systemService: FileSystemService,
     private val serializationService: ExtSerializationService
 ) : SubmissionRequestService {
@@ -51,13 +54,13 @@ class SubmissionMongoPersistenceService(
 
     private fun processDbSubmission(submission: ExtSubmission): ExtSubmission {
         subDataRepository.expireActiveProcessedVersions(submission.accNo)
-        subDataRepository.deleteSubmissionDrafts(submission.submitter, submission.accNo)
-        subDataRepository.deleteSubmissionDrafts(submission.owner, submission.accNo)
+        draftDocDataRepository.deleteByUserIdAndKey(submission.submitter, submission.accNo)
+        draftDocDataRepository.deleteByUserIdAndKey(submission.owner, submission.accNo)
         subDataRepository.updateStatus(PROCESSED, submission.accNo, submission.version)
         return submission
     }
 
     override fun refreshSubmission(submission: ExtSubmission) {
-        TODO("Not yet implemented")
+        saveAndProcessSubmissionRequest(SaveSubmissionRequest(submission.copy(version = submission.version + 1), MOVE))
     }
 }
