@@ -19,7 +19,7 @@ interface SubmissionMongoRepository : MongoRepository<DocSubmission, String> {
 
     fun findFirstByAccNoOrderByVersionDesc(accNo: String): DocSubmission?
 
-    @Query(value = "{ 'accNo' : ?0 }", fields = "{ 'projects.accNo':1 }")
+    @Query(value = "{ 'accNo' : ?0, 'version' : { \$gt: 0} }", fields = "{ 'projects.accNo':1 }")
     fun getSubmissionProjects(accNo: String): SubmissionProjects
 }
 
