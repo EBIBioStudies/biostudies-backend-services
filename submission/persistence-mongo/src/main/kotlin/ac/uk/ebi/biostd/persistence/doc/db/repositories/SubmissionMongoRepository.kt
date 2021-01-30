@@ -13,11 +13,9 @@ interface SubmissionMongoRepository : MongoRepository<DocSubmission, String> {
 
     fun existsByAccNo(accNo: String): Boolean
 
-    fun getByAccNo(accNo: String): DocSubmission
-
     fun getByAccNoAndVersion(accNo: String, version: Int): DocSubmission
 
-    fun getByAccNoAndVersionGreaterThan(accNo: String, version: Int): List<DocSubmission>
+    fun getByAccNoAndVersionGreaterThan(accNo: String, version: Int): DocSubmission
 
     fun findFirstByAccNoOrderByVersionDesc(accNo: String): DocSubmission?
 

@@ -15,6 +15,9 @@ import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FileMode.MOVE
 import org.json.JSONObject
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
+import kotlin.math.absoluteValue
+
+private const val INITIAL_VERSION = 1
 
 class SubmissionMongoPersistenceService(
     private val subDataRepository: SubmissionDocDataRepository,
@@ -32,11 +35,16 @@ class SubmissionMongoPersistenceService(
     override fun saveSubmissionRequest(saveRequest: SaveSubmissionRequest): ExtSubmission {
         val submission = saveRequest.submission
         val newVersion = submission.copy(
-            version = subDataRepository.getCurrentVersion(submission.accNo) ?: 0,
+            version = getNextVersion(submission.accNo),
             status = ExtProcessingStatus.REQUESTED)
         subDataRepository.save(newVersion.toDocSubmission())
         submissionRequestDocDataRepository.saveRequest(asRequest(newVersion))
         return newVersion
+    }
+
+    private fun getNextVersion(accNo: String): Int {
+        val lastVersion = subDataRepository.getCurrentVersion(accNo) ?: 0
+        return lastVersion.absoluteValue + 1
     }
 
     private fun asRequest(submission: ExtSubmission) = SubmissionRequest(

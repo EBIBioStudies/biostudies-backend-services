@@ -50,6 +50,7 @@ class SubmissionDocDataRepository(
     }
 
     fun getProjects(accNo: String): List<DocProject> = submissionRepository.getSubmissionProjects(accNo).projects
+    fun getByAccNo(accNo: String): DocSubmission = submissionRepository.getByAccNoAndVersionGreaterThan(accNo, 0)
 }
 
 data class Result(

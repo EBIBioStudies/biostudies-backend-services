@@ -15,7 +15,7 @@ internal class SubmissionMongoQueryService(
     override fun existByAccNo(accNo: String): Boolean = submissionRepo.existsByAccNo(accNo)
 
     override fun getExtByAccNo(accNo: String): ExtSubmission {
-        val document = submissionRepo.getByAccNo(accNo)
+        val document = submissionRepo.getByAccNoAndVersionGreaterThan(accNo, 0)
         return toExtSubmissionMapper.toExtSubmission(document)
     }
 
@@ -25,8 +25,8 @@ internal class SubmissionMongoQueryService(
     }
 
     override fun expireSubmission(accNo: String) {
-        val actives = submissionRepo.getByAccNoAndVersionGreaterThan(accNo, 0).map { it.copy(version = -it.version) }
-        submissionRepo.saveAll(actives)
+        val newVersion = submissionRepo.getByAccNoAndVersionGreaterThan(accNo, 0)
+        submissionRepo.save(newVersion.copy(version = -newVersion.version))
     }
 
     override fun getExtendedSubmissions(
