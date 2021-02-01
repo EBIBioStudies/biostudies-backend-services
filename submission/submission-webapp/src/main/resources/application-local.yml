@@ -5,6 +5,11 @@ spring:
     password: admin
     driver-class-name: com.mysql.jdbc.Driver
 
+  data:
+    mongodb:
+      database: biostudies-dev
+      uri: mongodb://root:admin@localhost:27017
+
   jpa:
     show-sql: false
     hibernate:
@@ -36,3 +41,6 @@ app:
     magicDirPath: # Absolute path to the folder to be used for the user/groups magic folders links
     environment: LOCAL
     requireActivation: false
+  persistence:
+    enableMongo: false
+    connection: mongodb://root:admin@localhost:27017

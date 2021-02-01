@@ -10,8 +10,13 @@ spring:
         url: http://biostudy-prod.ebi.ac.uk:8590
         enabled: false
 
+  data:
+    mongodb:
+      database: #Mongo Database Name
+      uri: # Mongo Database connection URL
+
   datasource:
-    url: # Database connection URL
+    url: # MySQL Database connection URL
     username:
     password:
     driver-class-name: com.mysql.jdbc.Driver

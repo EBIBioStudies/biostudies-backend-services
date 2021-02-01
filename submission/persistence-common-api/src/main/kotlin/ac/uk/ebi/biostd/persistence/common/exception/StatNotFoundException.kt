@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.persistence.exception
+package ac.uk.ebi.biostd.persistence.common.exception
 
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType
 
