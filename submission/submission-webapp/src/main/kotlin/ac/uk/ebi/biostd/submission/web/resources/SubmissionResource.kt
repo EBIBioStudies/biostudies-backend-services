@@ -1,10 +1,10 @@
 package ac.uk.ebi.biostd.submission.web.resources
 
 import ac.uk.ebi.biostd.persistence.common.model.BasicSubmission
-import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilterRequest
-import ac.uk.ebi.biostd.persistence.common.request.asFilter
 import ac.uk.ebi.biostd.submission.converters.BioUser
 import ac.uk.ebi.biostd.submission.web.handlers.SubmissionsWebHandler
+import ac.uk.ebi.biostd.submission.web.model.SubmissionFilterRequest
+import ac.uk.ebi.biostd.submission.web.model.asFilter
 import ebi.ac.uk.api.dto.SubmissionDto
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import io.swagger.annotations.Api

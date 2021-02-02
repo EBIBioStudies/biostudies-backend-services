@@ -36,7 +36,7 @@ internal class SubmissionDraftMongoServiceTest(
     )
 
     @Test
-    fun `get submission when exists`() {
+    fun `get draft when submission exists`() {
         every { draftDocDataRepository.findByUserIdAndKey(USER_ID, DRAFT_KEY) } returns testDocDraft
 
         val result = testInstance.getSubmissionDraft(USER_ID, DRAFT_KEY)
@@ -46,7 +46,7 @@ internal class SubmissionDraftMongoServiceTest(
     }
 
     @Test
-    fun `get submission when does not exists`() {
+    fun `get draft when submission does not exists`() {
         val extSubmission: ExtSubmission = mockk()
         every { draftDocDataRepository.findByUserIdAndKey(USER_ID, DRAFT_KEY) } returns null
         every { submissionQueryService.getExtByAccNo(DRAFT_KEY) } returns extSubmission
@@ -79,7 +79,7 @@ internal class SubmissionDraftMongoServiceTest(
     }
 
     @Test
-    fun `get submissions in list`() {
+    fun `get draft list`() {
         val someFilter = PaginationFilter()
         every { draftDocDataRepository.findAllByUserId(USER_ID, someFilter) } returns listOf(testDocDraft)
 
@@ -91,7 +91,7 @@ internal class SubmissionDraftMongoServiceTest(
     }
 
     @Test
-    fun `create submission draft`() {
+    fun `create draft`() {
         mockkStatic(Instant::class)
         val draftCreationTime = 2L
         every { Instant.now().toEpochMilli() } returns draftCreationTime
