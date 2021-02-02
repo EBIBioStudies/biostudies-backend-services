@@ -39,8 +39,8 @@ internal open class BaseIntegrationTest(
         System.setProperty("spring.datasource.url", mysqlContainer.jdbcUrl)
         System.setProperty("spring.datasource.username", mysqlContainer.username)
         System.setProperty("spring.datasource.password", mysqlContainer.password)
-        System.setProperty("spring.data.mongodb.uri", mongoContainer.getReplicaSetUrl("testDb"))
-        System.setProperty("spring.data.mongodb.database", "testDb")
+        System.setProperty("spring.data.mongodb.uri", mongoContainer.getReplicaSetUrl("biostudies-test"))
+        System.setProperty("spring.data.mongodb.database", "biostudies-test")
         System.setProperty("app.persistence.enableMongo", "true")
     }
 

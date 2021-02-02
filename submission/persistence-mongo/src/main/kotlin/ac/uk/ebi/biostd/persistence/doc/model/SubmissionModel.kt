@@ -5,7 +5,6 @@ import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.mapping.Document
 import java.time.Instant
 
-val docAttributeClass: String = DocAttribute::class.java.canonicalName
 val docAttributeDetailClass: String = DocAttributeDetail::class.java.canonicalName
 val docFileClass: String = DocFile::class.java.canonicalName
 val docFileListClass: String = DocFileList::class.java.canonicalName

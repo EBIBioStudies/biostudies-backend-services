@@ -28,7 +28,6 @@ interface SubmissionRequestRepository : MongoRepository<SubmissionRequest, Strin
 }
 
 interface SubmissionDraftRepository : MongoRepository<DocSubmissionDraft, String> {
-
     fun findByUserIdAndKey(userId: String, key: String): DocSubmissionDraft?
 
     fun deleteByUserIdAndKey(userId: String, key: String): Unit
