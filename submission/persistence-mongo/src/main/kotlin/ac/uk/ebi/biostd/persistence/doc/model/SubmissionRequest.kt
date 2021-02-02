@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.persistence.doc.model
 
-import org.json.JSONObject
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.mapping.Document
 
@@ -10,5 +9,5 @@ data class SubmissionRequest(
     val id: String? = null,
     val accNo: String,
     val version: Int,
-    val request: JSONObject
+    val submission: DocSubmission
 )

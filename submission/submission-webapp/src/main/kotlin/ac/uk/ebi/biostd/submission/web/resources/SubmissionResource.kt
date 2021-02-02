@@ -1,7 +1,8 @@
 package ac.uk.ebi.biostd.submission.web.resources
 
 import ac.uk.ebi.biostd.persistence.common.model.BasicSubmission
-import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
+import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilterRequest
+import ac.uk.ebi.biostd.persistence.common.request.asFilter
 import ac.uk.ebi.biostd.submission.converters.BioUser
 import ac.uk.ebi.biostd.submission.web.handlers.SubmissionsWebHandler
 import ebi.ac.uk.api.dto.SubmissionDto
@@ -43,8 +44,8 @@ class SubmissionResource(
     ])
     fun getSubmissions(
         @BioUser user: SecurityUser,
-        @ModelAttribute filter: SubmissionFilter
-    ): List<SubmissionDto> = submissionsWebHandler.getSubmissions(user, filter).map { it.asDto() }
+        @ModelAttribute request: SubmissionFilterRequest
+    ): List<SubmissionDto> = submissionsWebHandler.getSubmissions(user, request.asFilter()).map { it.asDto() }
 
     @DeleteMapping("/{accNo}")
     @ApiOperation("Delete the submission with the given accession number")

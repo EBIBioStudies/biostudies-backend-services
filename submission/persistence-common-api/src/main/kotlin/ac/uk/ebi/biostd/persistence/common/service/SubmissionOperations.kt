@@ -26,9 +26,9 @@ interface SubmissionQueryService {
 
     fun expireSubmission(accNo: String)
 
-    fun getExtendedSubmissions(filter: SubmissionFilter, offset: Long, limit: Int): Page<Result<ExtSubmission>>
+    fun getExtendedSubmissions(filter: SubmissionFilter): Page<Result<ExtSubmission>>
 
-    fun getSubmissionsByUser(userId: Long, filter: SubmissionFilter): List<BasicSubmission>
+    fun getSubmissionsByUser(email: String, filter: SubmissionFilter): List<BasicSubmission>
 
     fun getRequest(accNo: String, version: Int): ExtSubmission
 }

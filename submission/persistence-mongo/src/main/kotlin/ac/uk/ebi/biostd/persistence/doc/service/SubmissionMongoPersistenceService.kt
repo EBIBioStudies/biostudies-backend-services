@@ -13,18 +13,13 @@ import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequest
 import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FileMode.MOVE
-import org.json.JSONObject
-import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import kotlin.math.absoluteValue
 
-private const val INITIAL_VERSION = 1
-
-class SubmissionMongoPersistenceService(
+internal class SubmissionMongoPersistenceService(
     private val subDataRepository: SubmissionDocDataRepository,
     private val submissionRequestDocDataRepository: SubmissionRequestDocDataRepository,
     private val draftDocDataRepository: SubmissionDraftDocDataRepository,
-    private val systemService: FileSystemService,
-    private val serializationService: ExtSerializationService
+    private val systemService: FileSystemService
 ) : SubmissionRequestService {
 
     override fun saveAndProcessSubmissionRequest(saveRequest: SaveSubmissionRequest): ExtSubmission {
@@ -50,7 +45,7 @@ class SubmissionMongoPersistenceService(
     private fun asRequest(submission: ExtSubmission) = SubmissionRequest(
         accNo = submission.accNo,
         version = submission.version,
-        request = JSONObject(serializationService.serialize(submission)))
+        submission = submission.toDocSubmission())
 
     override fun processSubmission(saveRequest: SaveSubmissionRequest): ExtSubmission {
         val (submission, fileMode, accNo) = saveRequest

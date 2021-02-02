@@ -1,9 +1,11 @@
 package ac.uk.ebi.biostd.persistence.doc.db.data
 
+import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbReposConfig
 import ac.uk.ebi.biostd.persistence.doc.model.DocProcessingStatus.PROCESSED
 import ac.uk.ebi.biostd.persistence.doc.model.DocProcessingStatus.PROCESSING
 import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocProject
+import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocSection
 import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocSubmission
 import ebi.ac.uk.db.MONGO_VERSION
 import org.assertj.core.api.Assertions.assertThat
@@ -20,6 +22,9 @@ import org.testcontainers.containers.MongoDBContainer
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.utility.DockerImageName
+import java.time.Instant.ofEpochSecond
+import java.time.OffsetDateTime
+import java.time.ZoneOffset
 
 @ExtendWith(SpringExtension::class)
 @Testcontainers
@@ -64,6 +69,22 @@ internal class SubmissionDocDataRepositoryTest {
     }
 
     @Test
+    fun getLatestVersions() {
+        testInstance.save(testDocSubmission.copy(accNo = "accNo3", version = -1, status = PROCESSED))
+        testInstance.save(testDocSubmission.copy(accNo = "accNo3", version = 2, status = PROCESSED))
+
+        testInstance.save(testDocSubmission.copy(accNo = "accNo4", version = -1, status = PROCESSED))
+        testInstance.save(testDocSubmission.copy(accNo = "accNo4", version = 2, status = PROCESSED))
+
+        testInstance.save(testDocSubmission.copy(accNo = "accNo5", version = -1, status = PROCESSED))
+        testInstance.save(testDocSubmission.copy(accNo = "accNo5", version = 2, status = PROCESSED))
+
+        val result = testInstance.getLatestVersions(listOf("accNo3", "accNo5"), 0, 2)
+
+        assertThat(result).hasSize(2)
+    }
+
+    @Test
     fun expireActiveProcessedVersions() {
         testInstance.save(testDocSubmission.copy(accNo = "accNo4", version = -1, status = PROCESSED))
         testInstance.save(testDocSubmission.copy(accNo = "accNo4", version = 2, status = PROCESSED))
@@ -76,6 +97,80 @@ internal class SubmissionDocDataRepositoryTest {
         assertThat(testInstance.getByAccNoAndVersion("accNo4", 3)).isNotNull
     }
 
+    @Nested
+    inner class GetSubmissions {
+        @Test
+        fun `by email`() {
+            testInstance.save(testDocSubmission.copy(id = "1", accNo = "accNo1", owner = "anotherEmail"))
+            val doc2 = testInstance.save(testDocSubmission.copy(id = "2", accNo = "accNo2", owner = "ownerEmail"))
+
+            val result = testInstance.getSubmissions(SubmissionFilter(), "ownerEmail")
+
+            assertThat(result).containsOnly(doc2)
+        }
+
+        @Test
+        fun `by type`() {
+            testInstance.save(testDocSubmission.copy(id = "1", accNo = "accNo1"))
+            val doc2 = testInstance.save(
+                testDocSubmission.copy(
+                    id = "2",
+                    accNo = "accNo2",
+                    section = testDocSection.copy(type = "work")
+                )
+            )
+
+            val result = testInstance.getSubmissions(SubmissionFilter(type = "work"))
+
+            assertThat(result).containsOnly(doc2)
+        }
+
+        @Test
+        fun `by AccNo`() {
+            testInstance.save(testDocSubmission.copy(id = "1", accNo = "accNo1"))
+            val doc2 = testInstance.save(testDocSubmission.copy(id = "2", accNo = "accNo2"))
+
+            val result = testInstance.getSubmissions(SubmissionFilter(accNo = "accNo2"))
+
+            assertThat(result).containsOnly(doc2)
+        }
+
+        @Test
+        fun `by release time`() {
+            testInstance.save(testDocSubmission.copy(id = "1", accNo = "accNo1", releaseTime = ofEpochSecond(5)))
+            val doc2 = testInstance.save(testDocSubmission.copy(id = "2", accNo = "accNo2", releaseTime = ofEpochSecond(15)))
+
+            val result = testInstance.getSubmissions(
+                SubmissionFilter(
+                    rTimeFrom = OffsetDateTime.ofInstant(ofEpochSecond(10), ZoneOffset.UTC),
+                    rTimeTo = OffsetDateTime.ofInstant(ofEpochSecond(20), ZoneOffset.UTC)
+                )
+            )
+
+            assertThat(result).containsOnly(doc2)
+        }
+
+        @Test
+        fun `by keywords`() {
+            testInstance.save(testDocSubmission.copy(id = "1", accNo = "accNo1", title = "another"))
+            val doc2 = testInstance.save(testDocSubmission.copy(id = "2", accNo = "accNo2", title = "title"))
+
+            val result = testInstance.getSubmissions(SubmissionFilter(keywords = "title"), null)
+
+            assertThat(result).containsOnly(doc2)
+        }
+
+        @Test
+        fun `by released`() {
+            testInstance.save(testDocSubmission.copy(id = "1", accNo = "accNo1", released = true))
+            val doc2 = testInstance.save(testDocSubmission.copy(id = "2", accNo = "accNo2", released = false))
+
+            val result = testInstance.getSubmissions(SubmissionFilter(released = false), null)
+
+            assertThat(result).containsOnly(doc2)
+        }
+    }
+
     @Test
     fun getProjects() {
         testInstance.save(testDocSubmission)
@@ -86,7 +181,6 @@ internal class SubmissionDocDataRepositoryTest {
     }
 
     companion object {
-
         @Container
         val mongoContainer: MongoDBContainer = MongoDBContainer(DockerImageName.parse(MONGO_VERSION))
 

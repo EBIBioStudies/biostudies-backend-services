@@ -65,7 +65,7 @@ class ExtSubmissionServiceTest(
         val results = mutableListOf(result1, result2)
         val page = PageImpl(results, pageable, 2L)
 
-        every { submissionRepository.getExtendedSubmissions(capture(filter), 1, 2) } returns page
+        every { submissionRepository.getExtendedSubmissions(capture(filter)) } returns page
 
         val result = testInstance.getExtendedSubmissions(request)
         assertThat(result.content).hasSize(1)
@@ -77,7 +77,7 @@ class ExtSubmissionServiceTest(
         assertThat(submissionFilter.released).isTrue()
         assertThat(submissionFilter.rTimeTo).isEqualTo("2020-09-21T15:00:00Z")
         assertThat(submissionFilter.rTimeFrom).isEqualTo("2019-09-21T15:00:00Z")
-        verify(exactly = 1) { submissionRepository.getExtendedSubmissions(submissionFilter, 1, 2) }
+        verify(exactly = 1) { submissionRepository.getExtendedSubmissions(submissionFilter) }
     }
 
     @Test

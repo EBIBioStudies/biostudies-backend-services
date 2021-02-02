@@ -23,7 +23,9 @@ interface SubmissionMongoRepository : MongoRepository<DocSubmission, String> {
     fun getSubmissionProjects(accNo: String): SubmissionProjects
 }
 
-interface SubmissionRequestRepository : MongoRepository<SubmissionRequest, String>
+interface SubmissionRequestRepository : MongoRepository<SubmissionRequest, String> {
+    fun getByAccNoAndVersion(accNo: String, version: Int): SubmissionRequest
+}
 
 interface SubmissionDraftRepository : MongoRepository<DocSubmissionDraft, String> {
 
