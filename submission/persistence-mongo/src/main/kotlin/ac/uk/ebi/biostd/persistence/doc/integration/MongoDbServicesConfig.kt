@@ -1,11 +1,13 @@
 package ac.uk.ebi.biostd.persistence.doc.integration
 
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
+import ac.uk.ebi.biostd.persistence.common.service.ProjectDataService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDraftDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
+import ac.uk.ebi.biostd.persistence.doc.service.ProjectMongoDataService
 import ac.uk.ebi.biostd.persistence.doc.service.SubmissionDraftMongoService
 import ac.uk.ebi.biostd.persistence.doc.service.SubmissionMongoMetaQueryService
 import ac.uk.ebi.biostd.persistence.doc.service.SubmissionMongoQueryService
@@ -31,6 +33,10 @@ class MongoDbServicesConfig {
         submissionRequestDocDataRepository,
         toExtSubmissionMapper
     )
+
+    @Bean
+    internal fun projectDataService(submissionDocDataRepository: SubmissionDocDataRepository):
+        ProjectDataService = ProjectMongoDataService(submissionDocDataRepository)
 
     @Bean
     internal fun toExtSubmissionMapper(applicationProperties: ApplicationProperties): ToExtSubmissionMapper =

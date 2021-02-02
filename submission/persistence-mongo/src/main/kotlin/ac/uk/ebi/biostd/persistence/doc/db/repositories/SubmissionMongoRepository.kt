@@ -21,6 +21,8 @@ interface SubmissionMongoRepository : MongoRepository<DocSubmission, String> {
 
     @Query(value = "{ 'accNo' : ?0, 'version' : { \$gt: 0} }", fields = "{ 'projects.accNo':1 }")
     fun getSubmissionProjects(accNo: String): SubmissionProjects
+
+    fun getByAccNoInAndVersionGreaterThan(accNo: List<String>, version: Int): List<DocSubmission>
 }
 
 interface SubmissionRequestRepository : MongoRepository<SubmissionRequest, String> {
