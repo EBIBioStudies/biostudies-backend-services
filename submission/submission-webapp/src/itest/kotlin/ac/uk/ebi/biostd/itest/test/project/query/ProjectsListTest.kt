@@ -1,13 +1,13 @@
 package ac.uk.ebi.biostd.itest.test.project.query
 
-import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
+import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.DefaultUser
 import ac.uk.ebi.biostd.itest.entities.RegularUser
 import ac.uk.ebi.biostd.itest.entities.SuperUser
-import ac.uk.ebi.biostd.persistence.common.model.AccessType
+import ac.uk.ebi.biostd.persistence.common.model.AccessType.ATTACH
 import ac.uk.ebi.biostd.persistence.model.DbAccessPermission
 import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
@@ -92,13 +92,13 @@ internal class ProjectsListTest(tempFolder: TemporaryFolder) : BaseIntegrationTe
                 line("Project")
             }.toString()
 
-            assertThat(superUserWebClient.submitSingle(sampleProject, SubmissionFormat.TSV)).isSuccessful()
-            assertThat(superUserWebClient.submitSingle(defaultProject, SubmissionFormat.TSV)).isSuccessful()
+            assertThat(superUserWebClient.submitSingle(sampleProject, TSV)).isSuccessful()
+            assertThat(superUserWebClient.submitSingle(defaultProject, TSV)).isSuccessful()
 
             accessPermissionRepository.save(DbAccessPermission(
                 user = userDataRepository.findByEmailAndActive(DefaultUser.email, true).get(),
                 accessTag = tagsDataRepository.findByName("DefaultProject"),
-                accessType = AccessType.ATTACH))
+                accessType = ATTACH))
         }
     }
 }

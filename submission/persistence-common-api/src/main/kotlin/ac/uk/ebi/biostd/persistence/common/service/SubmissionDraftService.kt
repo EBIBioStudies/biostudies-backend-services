@@ -5,13 +5,13 @@ import ebi.ac.uk.model.SubmissionDraft
 
 interface SubmissionDraftService {
 
-    fun getSubmissionDraft(userId: Long, key: String): SubmissionDraft
+    fun getSubmissionDraft(userEmail: String, key: String): SubmissionDraft
 
-    fun updateSubmissionDraft(userId: Long, key: String, content: String): SubmissionDraft
+    fun updateSubmissionDraft(userEmail: String, key: String, content: String): SubmissionDraft
 
-    fun deleteSubmissionDraft(userId: Long, key: String)
+    fun deleteSubmissionDraft(userEmail: String, key: String)
 
-    fun getSubmissionsDraft(userId: Long, filter: PaginationFilter = PaginationFilter()): List<SubmissionDraft>
+    fun getSubmissionsDraft(userEmail: String, filter: PaginationFilter = PaginationFilter()): List<SubmissionDraft>
 
-    fun createSubmissionDraft(userId: Long, content: String): SubmissionDraft
+    fun createSubmissionDraft(userEmail: String, content: String): SubmissionDraft
 }

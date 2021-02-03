@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.itest.test.project.submit
 
 import ac.uk.ebi.biostd.client.exception.WebClientException
-import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
+import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
@@ -65,8 +65,9 @@ internal class ProjectSubmitTest(tempFolder: TemporaryFolder) : BaseIntegrationT
                 line("Project")
             }.toString()
 
-            assertThat(webClient.submitSingle(privateProject, SubmissionFormat.TSV)).isSuccessful()
+            assertThat(webClient.submitSingle(privateProject, TSV)).isSuccessful()
 
+            // TODO use ext endpoint instead of repository
             val submittedProject = submissionRepository.getExtByAccNo("PrivateProject")
             assertThat(submittedProject.accNo).isEqualTo("PrivateProject")
             assertThat(submittedProject.title).isEqualTo("A Private Project")
@@ -91,7 +92,7 @@ internal class ProjectSubmitTest(tempFolder: TemporaryFolder) : BaseIntegrationT
                 line("Project")
             }.toString()
 
-            assertThat(webClient.submitSingle(publicProject, SubmissionFormat.TSV)).isSuccessful()
+            assertThat(webClient.submitSingle(publicProject, TSV)).isSuccessful()
 
             val submittedProject = submissionRepository.getExtByAccNo("PublicProject")
             assertThat(submittedProject.accNo).isEqualTo("PublicProject")
@@ -120,9 +121,9 @@ internal class ProjectSubmitTest(tempFolder: TemporaryFolder) : BaseIntegrationT
                 line("Project")
             }.toString()
 
-            assertThat(webClient.submitSingle(aProject, SubmissionFormat.TSV)).isSuccessful()
+            assertThat(webClient.submitSingle(aProject, TSV)).isSuccessful()
             assertThatExceptionOfType(WebClientException::class.java)
-                .isThrownBy { webClient.submitSingle(anotherProject, SubmissionFormat.TSV) }
+                .isThrownBy { webClient.submitSingle(anotherProject, TSV) }
                 .withMessageContaining("There is a project already using the accNo template 'S-APRJ'")
         }
     }

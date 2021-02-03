@@ -1,7 +1,9 @@
 package ac.uk.ebi.biostd.persistence.doc.db.repositories
 
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
+import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequest
+import org.springframework.data.domain.Pageable
 import org.springframework.data.mongodb.repository.MongoRepository
 import org.springframework.data.mongodb.repository.Query
 
@@ -11,16 +13,28 @@ interface SubmissionMongoRepository : MongoRepository<DocSubmission, String> {
 
     fun existsByAccNo(accNo: String): Boolean
 
-    fun getByAccNo(accNo: String): DocSubmission
-
     fun getByAccNoAndVersion(accNo: String, version: Int): DocSubmission
 
-    fun getByAccNoAndVersionGreaterThan(accNo: String, version: Int): List<DocSubmission>
+    fun getByAccNoAndVersionGreaterThan(accNo: String, version: Int): DocSubmission
 
     fun findFirstByAccNoOrderByVersionDesc(accNo: String): DocSubmission?
 
-    @Query(value = "{ 'accNo' : ?0 }", fields = "{ 'projects.accNo':1 }")
+    @Query(value = "{ 'accNo' : ?0, 'version' : { \$gt: 0} }", fields = "{ 'projects.accNo':1 }")
     fun getSubmissionProjects(accNo: String): SubmissionProjects
+
+    fun getByAccNoInAndVersionGreaterThan(accNo: List<String>, version: Int): List<DocSubmission>
 }
 
-interface SubmissionRequestRepository : MongoRepository<SubmissionRequest, String>
+interface SubmissionRequestRepository : MongoRepository<SubmissionRequest, String> {
+    fun getByAccNoAndVersion(accNo: String, version: Int): SubmissionRequest
+}
+
+interface SubmissionDraftRepository : MongoRepository<DocSubmissionDraft, String> {
+    fun findByUserIdAndKey(userId: String, key: String): DocSubmissionDraft?
+
+    fun deleteByUserIdAndKey(userId: String, key: String): Unit
+
+    fun findAllByUserId(userId: String, pageRequest: Pageable): List<DocSubmissionDraft>
+
+    fun getById(id: String): DocSubmissionDraft
+}

@@ -3,11 +3,14 @@ package ac.uk.ebi.biostd.itest.common
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
 import ac.uk.ebi.biostd.itest.entities.TestUser
+import ebi.ac.uk.db.MONGO_VERSION
 import ebi.ac.uk.db.MYSQL_VERSION
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
+import org.testcontainers.containers.MongoDBContainer
 import org.testcontainers.containers.MySQLContainer
+import org.testcontainers.utility.DockerImageName
 
 private const val CHARACTER_SET = "utf8mb4"
 private const val COLLATION = "utf8mb4_unicode_ci"
@@ -18,12 +21,15 @@ internal open class BaseIntegrationTest(
     private val mysqlContainer = SpecifiedMySQLContainer(MYSQL_VERSION)
         .withCommand("mysqld --character-set-server=$CHARACTER_SET --collation-server=$COLLATION")
 
+    private val mongoContainer: MongoDBContainer = MongoDBContainer(DockerImageName.parse(MONGO_VERSION))
+
     val submissionPath
         get() = "${tempFolder.root.absolutePath}/submission"
 
     @BeforeAll
     fun beforeAll() {
         mysqlContainer.start()
+        mongoContainer.start()
 
         System.setProperty("app.submissionPath", submissionPath)
         System.setProperty("app.ftpPath", "${tempFolder.root.absolutePath}/ftpPath")
@@ -33,11 +39,15 @@ internal open class BaseIntegrationTest(
         System.setProperty("spring.datasource.url", mysqlContainer.jdbcUrl)
         System.setProperty("spring.datasource.username", mysqlContainer.username)
         System.setProperty("spring.datasource.password", mysqlContainer.password)
+        System.setProperty("spring.data.mongodb.uri", mongoContainer.getReplicaSetUrl("biostudies-test"))
+        System.setProperty("spring.data.mongodb.database", "biostudies-test")
+        System.setProperty("app.persistence.enableMongo", "true")
     }
 
     @AfterAll
     fun afterAll() {
         mysqlContainer.stop()
+        mongoContainer.stop()
     }
 
     protected fun getWebClient(serverPort: Int, user: TestUser): BioWebClient {

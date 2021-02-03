@@ -1,6 +1,7 @@
 import Dependencies.Arrow
 import Dependencies.CommonsIO
 import Dependencies.CommonsLang3
+import Dependencies.Guava
 import Dependencies.JSONOrg
 import Dependencies.KotlinLogging
 import Dependencies.KotlinStdLib
@@ -45,6 +46,7 @@ dependencies {
 
     implementation(SpringBootStarterMongo)
     implementation(Arrow)
+    implementation(Guava)
     implementation(CommonsLang3)
     implementation(CommonsIO)
     implementation(KotlinStdLib)

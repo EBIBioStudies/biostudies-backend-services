@@ -24,6 +24,7 @@ import TestDependencies.JsonPathAssert
 import TestDependencies.KotlinXmlBuilder
 import TestDependencies.TestContainer
 import TestDependencies.TestContainerJUnit
+import TestDependencies.TestContainerMongoDb
 import TestDependencies.TestContainerMysql
 import TestDependencies.XmlUnitCore
 import TestDependencies.XmlUnitMatchers
@@ -93,6 +94,7 @@ dependencies {
     testImplementation(XmlUnitMatchers)
 
     testImplementation(TestContainerMysql)
+    testImplementation(TestContainerMongoDb)
     testImplementation(TestContainer)
     testImplementation(TestContainerJUnit)
 }

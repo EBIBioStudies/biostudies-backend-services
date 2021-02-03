@@ -10,7 +10,7 @@ fun DocSubmission.asBasicSubmission(): BasicSubmission {
         accNo = accNo,
         version = version,
         secretKey = secretKey,
-        title = title,
+        title = title ?: section.title,
         relPath = relPath,
         released = released,
         creationTime = creationTime.atOffset(ZoneOffset.UTC),

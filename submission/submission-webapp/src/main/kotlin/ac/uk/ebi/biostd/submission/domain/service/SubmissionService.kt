@@ -81,7 +81,7 @@ class SubmissionService(
     fun getSubmissions(
         user: SecurityUser,
         filter: SubmissionFilter
-    ): List<BasicSubmission> = submissionQueryService.getSubmissionsByUser(user.id, filter)
+    ): List<BasicSubmission> = submissionQueryService.getSubmissionsByUser(user.email, filter)
 
     fun deleteSubmission(accNo: String, user: SecurityUser) {
         require(userPrivilegesService.canDelete(user.email, accNo))

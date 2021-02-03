@@ -1,13 +1,15 @@
 package ac.uk.ebi.biostd.persistence.doc.integration
 
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
-import ac.uk.ebi.biostd.persistence.common.filesystem.FileSystemService
+import ac.uk.ebi.biostd.persistence.common.service.ProjectDataService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestService
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
+import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDraftDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
-import ac.uk.ebi.biostd.persistence.doc.service.SubmissionMongoPersistenceService
+import ac.uk.ebi.biostd.persistence.doc.service.ProjectMongoDataService
+import ac.uk.ebi.biostd.persistence.doc.service.SubmissionDraftMongoService
+import ac.uk.ebi.biostd.persistence.doc.service.SubmissionMongoMetaQueryService
 import ac.uk.ebi.biostd.persistence.doc.service.SubmissionMongoQueryService
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
@@ -22,27 +24,37 @@ import java.nio.file.Paths
 class MongoDbServicesConfig {
 
     @Bean
-    internal fun submissionRequestService(
+    internal fun submissionQueryService(
         submissionDocDataRepository: SubmissionDocDataRepository,
         submissionRequestDocDataRepository: SubmissionRequestDocDataRepository,
-        systemService: FileSystemService,
-        serializationService: ExtSerializationService
-    ): SubmissionRequestService {
-        return SubmissionMongoPersistenceService(
-            submissionDocDataRepository,
-            submissionRequestDocDataRepository,
-            systemService,
-            serializationService
-        )
-    }
+        toExtSubmissionMapper: ToExtSubmissionMapper
+    ): SubmissionQueryService = SubmissionMongoQueryService(
+        submissionDocDataRepository,
+        submissionRequestDocDataRepository,
+        toExtSubmissionMapper
+    )
+
+    @Bean
+    internal fun projectDataService(submissionDocDataRepository: SubmissionDocDataRepository):
+        ProjectDataService = ProjectMongoDataService(submissionDocDataRepository)
 
     @Bean
     internal fun toExtSubmissionMapper(applicationProperties: ApplicationProperties): ToExtSubmissionMapper =
         ToExtSubmissionMapper(Paths.get(applicationProperties.submissionPath))
 
     @Bean
-    internal fun submissionQueryService(
-        submissionDocDataRepository: SubmissionDocDataRepository,
-        toExtSubmissionMapper: ToExtSubmissionMapper
-    ): SubmissionQueryService = SubmissionMongoQueryService(submissionDocDataRepository, toExtSubmissionMapper)
+    internal fun submissionDraftMongoService(
+        submissionDraftDocDataRepository: SubmissionDraftDocDataRepository,
+        submissionQueryService: SubmissionQueryService,
+        extSerializationService: ExtSerializationService
+    ): SubmissionDraftMongoService = SubmissionDraftMongoService(
+        submissionDraftDocDataRepository,
+        submissionQueryService,
+        extSerializationService
+    )
+
+    @Bean
+    internal fun submissionMongoMetaQueryService(
+        submissionDocDataRepository: SubmissionDocDataRepository
+    ): SubmissionMongoMetaQueryService = SubmissionMongoMetaQueryService(submissionDocDataRepository)
 }

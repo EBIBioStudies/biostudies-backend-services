@@ -11,6 +11,7 @@ import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import mu.KotlinLogging
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
+import java.time.OffsetDateTime
 
 private val logger = KotlinLogging.logger {}
 
@@ -28,10 +29,15 @@ class ExtSubmissionService(
 
     fun getExtendedSubmissions(request: ExtPageRequest): Page<ExtSubmission> {
         val filter = SubmissionFilter(
-            rTimeFrom = request.fromRTime, rTimeTo = request.toRTime, released = request.released)
+            rTimeFrom = OffsetDateTime.parse(request.fromRTime),
+            rTimeTo = OffsetDateTime.parse(request.toRTime),
+            released = request.released,
+            limit = request.limit,
+            offset = request.offset
+        )
 
         val page = submissionRepository
-            .getExtendedSubmissions(filter, request.offset, request.limit)
+            .getExtendedSubmissions(filter)
             .onEach { it.onFailure { logger.error { it.message ?: it.localizedMessage } } }
             .map { it.getOrNull() }
         val submissions = page.content.filterNotNull()
