@@ -51,6 +51,6 @@ build-test:
       - submission/submission-webapp/build/libs/submission-webapp-1.0.0.jar
       - submission/submission-handlers/build/libs/submission-handlers-1.0.0.jar
 
-mysql-itests:
-  stage: mysql-itests
+mysql-itest:
+  stage: mysql-itest
   script: gradle clean :submission:submission-webapp:itest -Pitest.mode:mysql --rerun-tasks
