@@ -28,20 +28,12 @@ internal open class BaseIntegrationTest(
 
     @BeforeAll
     fun beforeAll() {
-        mysqlContainer.start()
-        mongoContainer.start()
+        if (System.getProperty("itest.mode") == "mongo") {
+            setUpMongo()
+        }
 
-        System.setProperty("app.submissionPath", submissionPath)
-        System.setProperty("app.ftpPath", "${tempFolder.root.absolutePath}/ftpPath")
-        System.setProperty("app.tempDirPath", tempFolder.createDirectory("tmp").absolutePath)
-        System.setProperty("app.security.filesDirPath", tempFolder.createDirectory("dropbox").absolutePath)
-        System.setProperty("app.security.magicDirPath", tempFolder.createDirectory("magic").absolutePath)
-        System.setProperty("spring.datasource.url", mysqlContainer.jdbcUrl)
-        System.setProperty("spring.datasource.username", mysqlContainer.username)
-        System.setProperty("spring.datasource.password", mysqlContainer.password)
-        System.setProperty("spring.data.mongodb.uri", mongoContainer.getReplicaSetUrl("biostudies-test"))
-        System.setProperty("spring.data.mongodb.database", "biostudies-test")
-        System.setProperty("app.persistence.enableMongo", "true")
+        setUpMySql()
+        setUpApplicationProperties()
     }
 
     @AfterAll
@@ -57,6 +49,28 @@ internal open class BaseIntegrationTest(
 
     protected fun createUser(testUser: TestUser, serverPort: Int) {
         SecurityWebClient.create("http://localhost:$serverPort").registerUser(testUser.asRegisterRequest())
+    }
+
+    private fun setUpMongo() {
+        mongoContainer.start()
+        System.setProperty("spring.data.mongodb.uri", mongoContainer.getReplicaSetUrl("biostudies-test"))
+        System.setProperty("spring.data.mongodb.database", "biostudies-test")
+        System.setProperty("app.persistence.enableMongo", "true")
+    }
+
+    private fun setUpMySql() {
+        mysqlContainer.start()
+        System.setProperty("spring.datasource.url", mysqlContainer.jdbcUrl)
+        System.setProperty("spring.datasource.username", mysqlContainer.username)
+        System.setProperty("spring.datasource.password", mysqlContainer.password)
+    }
+
+    private fun setUpApplicationProperties() {
+        System.setProperty("app.submissionPath", submissionPath)
+        System.setProperty("app.ftpPath", "${tempFolder.root.absolutePath}/ftpPath")
+        System.setProperty("app.tempDirPath", tempFolder.createDirectory("tmp").absolutePath)
+        System.setProperty("app.security.filesDirPath", tempFolder.createDirectory("dropbox").absolutePath)
+        System.setProperty("app.security.magicDirPath", tempFolder.createDirectory("magic").absolutePath)
     }
 }
 

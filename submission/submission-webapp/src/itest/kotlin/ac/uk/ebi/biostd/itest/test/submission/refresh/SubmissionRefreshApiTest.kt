@@ -34,7 +34,7 @@ import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.condition.DisabledIfSystemProperty
+import org.junit.jupiter.api.condition.EnabledIfSystemProperty
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -50,9 +50,7 @@ import java.time.LocalDate
 import java.time.ZoneOffset.UTC
 
 @ExtendWith(TemporaryFolderExtension::class)
-internal class SubmissionRefreshApiTest(
-    private val tempFolder: TemporaryFolder
-) : BaseIntegrationTest(tempFolder) {
+internal class SubmissionRefreshApiTest(private val tempFolder: TemporaryFolder) : BaseIntegrationTest(tempFolder) {
     @Nested
     @Import(PersistenceConfig::class)
     @ExtendWith(SpringExtension::class)
@@ -81,7 +79,7 @@ internal class SubmissionRefreshApiTest(
         }
 
         @Nested
-        @DisabledIfSystemProperty(named = "app.persistence.enableMongo", matches = "false")
+        @EnabledIfSystemProperty(named = "itest.mode", matches = "mongo")
         inner class SubmissionRefreshMongoApiTest {
             @Test
             fun `refresh mongo submission release date and attributes`() {
@@ -101,7 +99,7 @@ internal class SubmissionRefreshApiTest(
         }
 
         @Nested
-        @DisabledIfSystemProperty(named = "app.persistence.enableMongo", matches = "true")
+        @EnabledIfSystemProperty(named = "itest.mode", matches = "mysql")
         inner class SubmissionRefreshSqlApiTest {
             @Test
             fun `refresh sql submission release date and attributes`() {
