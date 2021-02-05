@@ -9,7 +9,13 @@ sourceSets {
     }
 }
 
+val copySqlSchema = tasks.create<Copy>("copySqlSchema") {
+    from("$rootDir/infrastructure/src/main/resources/setup/database/Schema.sql")
+    into("$buildDir/resources/itest")
+}
+
 val itest = tasks.create<Test>("itest") {
+    dependsOn(copySqlSchema)
     testClassesDirs = sourceSets["itest"].output.classesDirs
     classpath = sourceSets["itest"].runtimeClasspath
 

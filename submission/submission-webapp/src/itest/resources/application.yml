@@ -1,11 +1,11 @@
 spring:
   datasource:
   jpa:
-    show-sql: true
+    show-sql: false
     hibernate:
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
-    generate-ddl: on
+      use-new-id-generator-mappings: false
 
   servlet:
     multipart:

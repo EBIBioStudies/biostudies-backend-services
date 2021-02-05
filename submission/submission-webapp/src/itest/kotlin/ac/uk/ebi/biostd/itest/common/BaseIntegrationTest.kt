@@ -15,13 +15,11 @@ import org.testcontainers.utility.DockerImageName
 private const val CHARACTER_SET = "utf8mb4"
 private const val COLLATION = "utf8mb4_unicode_ci"
 
-internal open class BaseIntegrationTest(
-    private val tempFolder: TemporaryFolder
-) {
-    private val mysqlContainer = SpecifiedMySQLContainer(MYSQL_VERSION)
-        .withCommand("mysqld --character-set-server=$CHARACTER_SET --collation-server=$COLLATION")
-
+internal open class BaseIntegrationTest(private val tempFolder: TemporaryFolder) {
     private val mongoContainer: MongoDBContainer = MongoDBContainer(DockerImageName.parse(MONGO_VERSION))
+    private val mysqlContainer = SpecificMySQLContainer(MYSQL_VERSION)
+        .withCommand("mysqld --character-set-server=$CHARACTER_SET --collation-server=$COLLATION")
+        .withInitScript("Schema.sql")
 
     val submissionPath
         get() = "${tempFolder.root.absolutePath}/submission"
@@ -74,4 +72,4 @@ internal open class BaseIntegrationTest(
     }
 }
 
-internal class SpecifiedMySQLContainer(image: String) : MySQLContainer<SpecifiedMySQLContainer>(image)
+internal class SpecificMySQLContainer(image: String) : MySQLContainer<SpecificMySQLContainer>(image)
