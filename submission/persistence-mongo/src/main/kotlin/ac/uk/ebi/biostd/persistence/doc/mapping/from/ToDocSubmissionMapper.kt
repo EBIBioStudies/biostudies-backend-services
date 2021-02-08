@@ -13,10 +13,11 @@ import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSectionTable
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod
+import org.bson.types.ObjectId
 
 @Suppress("TooManyFunctions")
 fun ExtSubmission.toDocSubmission() = DocSubmission(
-    id = null,
+    id = ObjectId().toString(),
     accNo = accNo,
     title = title,
     status = getStatus(status),

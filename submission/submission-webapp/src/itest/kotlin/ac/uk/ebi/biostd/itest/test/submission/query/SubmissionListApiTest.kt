@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.itest.test.submission.query
 
-import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
+import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
@@ -46,7 +46,7 @@ internal class SubmissionListApiTest(private val tempFolder: TemporaryFolder) : 
             webClient = getWebClient(serverPort, SuperUser)
 
             for (idx in 11..20) {
-                assertThat(webClient.submitSingle(getSimpleSubmission(idx), SubmissionFormat.TSV)).isSuccessful()
+                assertThat(webClient.submitSingle(getSimpleSubmission(idx), TSV)).isSuccessful()
             }
 
             for (idx in 21..30) {
@@ -58,7 +58,7 @@ internal class SubmissionListApiTest(private val tempFolder: TemporaryFolder) : 
         @Test
         fun `get submission when processing`() {
             val newVersion = getSimpleSubmission(18)
-            webClient.submitAsync(newVersion, SubmissionFormat.TSV)
+            webClient.submitAsync(newVersion, TSV)
 
             val submissionList = webClient.getSubmissions(mapOf("accNo" to "SimpleAcc18"))
 
@@ -150,7 +150,7 @@ internal class SubmissionListApiTest(private val tempFolder: TemporaryFolder) : 
                 line()
             }.toString()
 
-            assertThat(webClient.submitSingle(submission, SubmissionFormat.TSV)).isSuccessful()
+            assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
 
             val submissionList = webClient.getSubmissions(mapOf(
                 "accNo" to "SECT-123"
@@ -177,7 +177,7 @@ internal class SubmissionListApiTest(private val tempFolder: TemporaryFolder) : 
                 line()
             }.toString()
 
-            assertThat(webClient.submitSingle(submission, SubmissionFormat.TSV)).isSuccessful()
+            assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
 
             val submissionList = webClient.getSubmissions(mapOf(
                 "accNo" to "SECT-124"

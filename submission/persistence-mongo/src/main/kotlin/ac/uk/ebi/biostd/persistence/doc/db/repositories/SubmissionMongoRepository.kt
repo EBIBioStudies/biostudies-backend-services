@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.persistence.doc.db.repositories
 
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
+import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequest
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
@@ -19,12 +20,14 @@ interface SubmissionMongoRepository : MongoRepository<DocSubmission, String> {
 
     fun getByAccNoAndVersion(accNo: String, version: Int): DocSubmission
 
-    fun getByAccNoAndVersionGreaterThan(accNo: String, version: Int): List<DocSubmission>
+    fun getByAccNoAndVersionGreaterThan(accNo: String, version: Int): DocSubmission
 
     fun findFirstByAccNoOrderByVersionDesc(accNo: String): DocSubmission?
 
-    @Query(value = "{ 'accNo' : ?0 }", fields = "{ 'projects.accNo':1 }")
+    @Query(value = "{ 'accNo' : ?0, 'version' : { \$gt: 0} }", fields = "{ 'projects.accNo':1 }")
     fun getSubmissionProjects(accNo: String): SubmissionProjects
+
+    fun getByAccNoInAndVersionGreaterThan(accNo: List<String>, version: Int): List<DocSubmission>
 
     @Query("{ 'accNo': '?0', 'stats.name': { \$eq: '?1' } }")
     fun findByAccNoAndStatType(accNo: String, statType: SubmissionStatType): DocSubmission?
@@ -33,4 +36,16 @@ interface SubmissionMongoRepository : MongoRepository<DocSubmission, String> {
     fun findAllByStatType(statType: SubmissionStatType, pageable: Pageable): Page<DocSubmission>
 }
 
-interface SubmissionRequestRepository : MongoRepository<SubmissionRequest, String>
+interface SubmissionRequestRepository : MongoRepository<SubmissionRequest, String> {
+    fun getByAccNoAndVersion(accNo: String, version: Int): SubmissionRequest
+}
+
+interface SubmissionDraftRepository : MongoRepository<DocSubmissionDraft, String> {
+    fun findByUserIdAndKey(userId: String, key: String): DocSubmissionDraft?
+
+    fun deleteByUserIdAndKey(userId: String, key: String): Unit
+
+    fun findAllByUserId(userId: String, pageRequest: Pageable): List<DocSubmissionDraft>
+
+    fun getById(id: String): DocSubmissionDraft
+}

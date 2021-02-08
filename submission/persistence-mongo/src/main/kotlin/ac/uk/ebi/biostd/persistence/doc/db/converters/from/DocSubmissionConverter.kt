@@ -11,9 +11,9 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_MODIFICATION_TIME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_OWNER
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_PROJECTS
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_REL_PATH
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_RELEASE_TIME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_RELEASED
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_RELEASE_TIME
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_REL_PATH
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ROOT_PATH
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_SECRET_KEY
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_SECTION
@@ -53,7 +53,7 @@ class DocSubmissionConverter(
         released = source.getBoolean(SUB_RELEASED),
         secretKey = source.getString(SUB_SECRET_KEY),
         status = DocProcessingStatus.fromString(source.getString(SUB_STATUS)),
-        releaseTime = source.getDate(SUB_RELEASE_TIME).toInstant(),
+        releaseTime = source.getDate(SUB_RELEASE_TIME)?.toInstant(),
         modificationTime = source.getDate(SUB_MODIFICATION_TIME).toInstant(),
         creationTime = source.getDate(SUB_CREATION_TIME).toInstant(),
         section = docSectionConverter.convert(source.getDoc(SUB_SECTION)),

@@ -17,8 +17,7 @@ internal class ProjectSqlDataService(
 
     private fun getProjectsByAccessTags(tags: List<String>): List<BasicSubmission> =
         submissionRepository
-            .findByRootSectionTypeAndAccNoInAndVersionGreaterThan(
-                Project.value, tags, named(SIMPLE_GRAPH))
+            .findByRootSectionTypeAndAccNoInAndVersionGreaterThan(Project.value, tags, named(SIMPLE_GRAPH))
             .map { it.asBasicSubmission() }
 
     companion object {

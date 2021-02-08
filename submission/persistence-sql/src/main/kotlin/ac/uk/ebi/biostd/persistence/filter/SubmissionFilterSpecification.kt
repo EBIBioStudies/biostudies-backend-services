@@ -7,7 +7,7 @@ import ac.uk.ebi.biostd.persistence.model.DbUser
 import ac.uk.ebi.biostd.persistence.model.constants.SECTION_TYPE
 import ac.uk.ebi.biostd.persistence.model.constants.SUB_ACC_NO
 import ac.uk.ebi.biostd.persistence.model.constants.SUB_OWNER
-import ac.uk.ebi.biostd.persistence.model.constants.SUB_OWNER_ID
+import ac.uk.ebi.biostd.persistence.model.constants.SUB_OWNER_EMAIL
 import ac.uk.ebi.biostd.persistence.model.constants.SUB_RELEASED_FLAG
 import ac.uk.ebi.biostd.persistence.model.constants.SUB_RELEASE_TIME
 import ac.uk.ebi.biostd.persistence.model.constants.SUB_ROOT_SECTION
@@ -17,16 +17,16 @@ import ebi.ac.uk.base.applyIfNotBlank
 import org.springframework.data.jpa.domain.Specification
 import java.time.OffsetDateTime
 
-class SubmissionFilterSpecification(filter: SubmissionFilter, userId: Long? = null) {
+class SubmissionFilterSpecification(filter: SubmissionFilter, email: String? = null) {
     val specification: Specification<DbSubmission>
 
     init {
         var specs = where(withActiveVersion() and isLastVersion())
-        userId?.let { specs = specs and withUser(it) }
+        email?.let { specs = specs and (withUser(it)) }
         filter.accNo?.let { specs = specs and (withAccession(it)) }
         filter.keywords?.applyIfNotBlank { specs = specs and (withTitleLike(it)) }
-        filter.rTimeTo?.let { specs = specs and (withTo(OffsetDateTime.parse(it))) }
-        filter.rTimeFrom?.let { specs = specs and (withFrom(OffsetDateTime.parse(it))) }
+        filter.rTimeTo?.let { specs = specs and (withTo(it)) }
+        filter.rTimeFrom?.let { specs = specs and (withFrom(it)) }
         filter.released?.let { specs = specs and (withReleasedFlag(it)) }
         filter.type?.let { specs = specs and (withType(it)) }
         specification = specs
@@ -54,19 +54,21 @@ class SubmissionFilterSpecification(filter: SubmissionFilter, userId: Long? = nu
     private fun withTitleLike(title: String): Specification<DbSubmission> =
         Specification { root, _, cb -> cb.like(cb.lower(root.get(SUB_TITLE)), "%${title.toLowerCase()}%") }
 
-    private fun withUser(userId: Long): Specification<DbSubmission> =
-        Specification { root, _, cb -> cb.equal(root.get<DbUser>(SUB_OWNER).get<Long>(SUB_OWNER_ID), userId) }
+    private fun withUser(email: String): Specification<DbSubmission> =
+        Specification { root, _, cb -> cb.equal(root.get<DbUser>(SUB_OWNER).get<Long>(SUB_OWNER_EMAIL), email) }
 
     private fun withFrom(from: OffsetDateTime): Specification<DbSubmission> =
-        Specification { root, _, cb -> cb.and(
-            cb.greaterThanOrEqualTo(root.get<Long>(SUB_RELEASE_TIME), 0L),
-            cb.greaterThanOrEqualTo(root.get(SUB_RELEASE_TIME), from.toEpochSecond()))
+        Specification { root, _, cb ->
+            cb.and(
+                cb.greaterThanOrEqualTo(root.get<Long>(SUB_RELEASE_TIME), 0L),
+                cb.greaterThanOrEqualTo(root.get(SUB_RELEASE_TIME), from.toEpochSecond()))
         }
 
     private fun withTo(to: OffsetDateTime): Specification<DbSubmission> =
-        Specification { root, _, cb -> cb.and(
-            cb.greaterThanOrEqualTo(root.get<Long>(SUB_RELEASE_TIME), 0L),
-            cb.lessThanOrEqualTo(root.get(SUB_RELEASE_TIME), to.toEpochSecond()))
+        Specification { root, _, cb ->
+            cb.and(
+                cb.greaterThanOrEqualTo(root.get<Long>(SUB_RELEASE_TIME), 0L),
+                cb.lessThanOrEqualTo(root.get(SUB_RELEASE_TIME), to.toEpochSecond()))
         }
 
     private fun withReleasedFlag(released: Boolean): Specification<DbSubmission> =

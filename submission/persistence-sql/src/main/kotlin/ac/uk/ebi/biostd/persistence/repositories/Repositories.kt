@@ -138,8 +138,8 @@ interface AccessPermissionRepository : JpaRepository<DbAccessPermission, Long> {
 }
 
 interface UserDataDataRepository : JpaRepository<DbUserData, UserDataId> {
-    fun findByUserIdAndKey(userId: Long, key: String): DbUserData?
-    fun findByUserId(userId: Long, pageRequest: Pageable): List<DbUserData>
+    fun findByUserEmailAndKey(userEmail: String, key: String): DbUserData?
+    fun findByUserEmail(userEmail: String, pageRequest: Pageable): List<DbUserData>
 
     @Query("Delete from DbUserData where userId = ?1 and key = ?2")
     @Modifying

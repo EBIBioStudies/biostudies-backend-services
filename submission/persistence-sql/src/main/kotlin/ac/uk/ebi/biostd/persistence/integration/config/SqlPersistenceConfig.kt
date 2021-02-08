@@ -133,6 +133,7 @@ open class SqlPersistenceConfig(private val applicationProperties: ApplicationPr
     ) = ToDbSubmissionMapper(tagsRepo, tagsRefRepo, userRepo)
 
     @Bean
+    @ConditionalOnProperty(prefix = "app.persistence", name = ["enableMongo"], havingValue = "false")
     internal open fun projectDataService(
         submissionRepository: SubmissionDataRepository
     ): ProjectDataService = ProjectSqlDataService(submissionRepository)

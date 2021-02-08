@@ -111,7 +111,7 @@ internal class SubmissionDraftApiTest(tempFolder: TemporaryFolder) : BaseIntegra
 
             webClient.deleteSubmissionDraft("ABC-128")
 
-            assertThat(dataService.getUserData(securityUser.id, "ABC-128")).isNull()
+            assertThat(dataService.getUserData(securityUser.email, "ABC-128")).isNull()
         }
     }
 }
