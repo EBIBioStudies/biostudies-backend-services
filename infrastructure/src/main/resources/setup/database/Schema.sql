@@ -269,7 +269,6 @@ CREATE TABLE UserGroup (
     id          BIGINT AUTO_INCREMENT PRIMARY KEY,
     description VARCHAR(255) NULL,
     name        VARCHAR(255) NULL,
-    project     BIT          NOT NULL,
     owner_id    BIGINT       NULL,
     secret      VARCHAR(255) NULL,
     CONSTRAINT UserGroup_name_IDX UNIQUE (name),
