@@ -13,21 +13,21 @@ interface SubmissionMongoRepository : MongoRepository<DocSubmission, String> {
     @Query("{ 'accNo': '?0', 'version': { \$gte: 0 } }")
     fun findByAccNo(accNo: String): DocSubmission?
 
-    fun existsByAccNo(accNo: String): Boolean
-
     @Query("{ 'accNo': '?0', 'version': { \$gte: 0 } }")
     fun getByAccNo(accNo: String): DocSubmission
+
+    fun existsByAccNo(accNo: String): Boolean
 
     fun getByAccNoAndVersion(accNo: String, version: Int): DocSubmission
 
     fun getByAccNoAndVersionGreaterThan(accNo: String, version: Int): DocSubmission
 
+    fun getByAccNoInAndVersionGreaterThan(accNo: List<String>, version: Int): List<DocSubmission>
+
     fun findFirstByAccNoOrderByVersionDesc(accNo: String): DocSubmission?
 
     @Query(value = "{ 'accNo' : ?0, 'version' : { \$gt: 0} }", fields = "{ 'projects.accNo':1 }")
     fun getSubmissionProjects(accNo: String): SubmissionProjects
-
-    fun getByAccNoInAndVersionGreaterThan(accNo: List<String>, version: Int): List<DocSubmission>
 
     @Query("{ 'accNo': '?0', 'stats.name': { \$eq: '?1' } }")
     fun findByAccNoAndStatType(accNo: String, statType: SubmissionStatType): DocSubmission?
@@ -43,7 +43,7 @@ interface SubmissionRequestRepository : MongoRepository<SubmissionRequest, Strin
 interface SubmissionDraftRepository : MongoRepository<DocSubmissionDraft, String> {
     fun findByUserIdAndKey(userId: String, key: String): DocSubmissionDraft?
 
-    fun deleteByUserIdAndKey(userId: String, key: String): Unit
+    fun deleteByUserIdAndKey(userId: String, key: String)
 
     fun findAllByUserId(userId: String, pageRequest: Pageable): List<DocSubmissionDraft>
 

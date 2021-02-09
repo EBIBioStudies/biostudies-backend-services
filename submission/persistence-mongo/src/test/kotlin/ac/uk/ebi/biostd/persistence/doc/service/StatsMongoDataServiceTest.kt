@@ -4,7 +4,7 @@ import ac.uk.ebi.biostd.persistence.common.exception.StatNotFoundException
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStat
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType.VIEWS
 import ac.uk.ebi.biostd.persistence.common.request.PaginationFilter
-import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
+import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionStatsDataRepository
 import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbReposConfig
 import ac.uk.ebi.biostd.persistence.doc.model.DocStat
 import ac.uk.ebi.biostd.persistence.doc.model.SingleSubmissionStat
@@ -33,20 +33,20 @@ import org.testcontainers.utility.DockerImageName
 @Testcontainers
 @SpringBootTest(classes = [MongoDbReposConfig::class])
 class StatsMongoDataServiceTest(
-    @Autowired private val submissionMongoRepository: SubmissionDocDataRepository
+    @Autowired private val submissionStatsDataRepository: SubmissionStatsDataRepository
 ) {
-    private val testInstance = StatsMongoDataService(submissionMongoRepository)
+    private val testInstance = StatsMongoDataService(submissionStatsDataRepository)
 
     @AfterEach
-    fun afterEach() = submissionMongoRepository.deleteAll()
+    fun afterEach() = submissionStatsDataRepository.deleteAll()
 
     @Test
     fun `find all by type`() {
         val submission1 = testDocSubmission.copy(accNo = "S-TEST1", stats = listOf(DocStat(VIEWS.name, 1L)))
         val submission2 = testDocSubmission.copy(accNo = "S-TEST2", stats = listOf(DocStat(VIEWS.name, 2L)))
 
-        submissionMongoRepository.save(submission1)
-        submissionMongoRepository.save(submission2)
+        submissionStatsDataRepository.save(submission1)
+        submissionStatsDataRepository.save(submission2)
 
         val page1 = testInstance.findByType(VIEWS, PaginationFilter(limit = 1, offset = 0))
         assertThat(page1).hasSize(1)
@@ -59,7 +59,7 @@ class StatsMongoDataServiceTest(
 
     @Test
     fun `find by accNo and type`() {
-        submissionMongoRepository.save(testDocSubmission)
+        submissionStatsDataRepository.save(testDocSubmission)
         assertStat(testInstance.findByAccNoAndType(SUB_ACC_NO, VIEWS), SUB_ACC_NO, STAT_VALUE)
     }
 
@@ -78,8 +78,8 @@ class StatsMongoDataServiceTest(
             SingleSubmissionStat("S-TEST1", 3L, VIEWS),
             SingleSubmissionStat("S-TEST3", 4L, VIEWS))
 
-        submissionMongoRepository.save(testDocSubmission.copy(accNo = "S-TEST1", stats = listOf()))
-        submissionMongoRepository.save(testDocSubmission.copy(accNo = "S-TEST2", stats = listOf()))
+        submissionStatsDataRepository.save(testDocSubmission.copy(accNo = "S-TEST1", stats = listOf()))
+        submissionStatsDataRepository.save(testDocSubmission.copy(accNo = "S-TEST2", stats = listOf()))
 
         val result = testInstance.saveAll(stats)
         assertThat(result).hasSize(2)
@@ -95,8 +95,8 @@ class StatsMongoDataServiceTest(
             SingleSubmissionStat("S-TEST1", 3L, VIEWS),
             SingleSubmissionStat("S-TEST3", 4L, VIEWS))
 
-        submissionMongoRepository.save(testDocSubmission.copy(accNo = "S-TEST1", stats = listOf()))
-        submissionMongoRepository.save(
+        submissionStatsDataRepository.save(testDocSubmission.copy(accNo = "S-TEST1", stats = listOf()))
+        submissionStatsDataRepository.save(
             testDocSubmission.copy(accNo = "S-TEST2", stats = listOf(DocStat(VIEWS.name, 3L))))
 
         val result = testInstance.incrementAll(stats)

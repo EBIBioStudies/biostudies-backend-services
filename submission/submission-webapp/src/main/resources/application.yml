@@ -64,5 +64,3 @@ app:
     requireActivation: # Indicates whether or not, new user need activation before being used
   persistence:
     enableMongo: false
-    connection: # Mongo database connection string
-

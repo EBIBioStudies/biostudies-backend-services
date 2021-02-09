@@ -4,6 +4,7 @@ import ac.uk.ebi.biostd.persistence.doc.MongoDbConfig
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDraftDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
+import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionStatsDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionDraftRepository
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionMongoRepository
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionRequestRepository
@@ -19,12 +20,15 @@ import org.springframework.data.mongodb.core.MongoTemplate
 class MongoDbReposConfig {
     @Bean
     internal fun submissionDocDataRepository(
-        submissionMongoRepository: SubmissionMongoRepository,
-        mongoTemplate: MongoTemplate
-    ): SubmissionDocDataRepository = SubmissionDocDataRepository(
-        submissionMongoRepository,
-        mongoTemplate
-    )
+        mongoTemplate: MongoTemplate,
+        submissionMongoRepository: SubmissionMongoRepository
+    ): SubmissionDocDataRepository = SubmissionDocDataRepository(submissionMongoRepository, mongoTemplate)
+
+    @Bean
+    internal fun submissionStatsDataRepository(
+        mongoTemplate: MongoTemplate,
+        submissionMongoRepository: SubmissionMongoRepository
+    ): SubmissionStatsDataRepository = SubmissionStatsDataRepository(mongoTemplate, submissionMongoRepository)
 
     @Bean
     internal fun submissionRequestDocDataRepository(
@@ -33,7 +37,7 @@ class MongoDbReposConfig {
 
     @Bean
     internal fun submissionDraftDocDataRepository(
-        submissionDraftRepository: SubmissionDraftRepository,
-        mongoTemplate: MongoTemplate
+        mongoTemplate: MongoTemplate,
+        submissionDraftRepository: SubmissionDraftRepository
     ): SubmissionDraftDocDataRepository = SubmissionDraftDocDataRepository(submissionDraftRepository, mongoTemplate)
 }

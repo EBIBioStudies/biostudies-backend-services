@@ -7,6 +7,7 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDraftDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
+import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionStatsDataRepository
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
 import ac.uk.ebi.biostd.persistence.doc.service.StatsMongoDataService
 import ac.uk.ebi.biostd.persistence.doc.service.ProjectMongoDataService
@@ -61,6 +62,6 @@ class MongoDbServicesConfig {
 
     @Bean
     internal fun statsDataService(
-        submissionDocDataRepository: SubmissionDocDataRepository
-    ): StatsDataService = StatsMongoDataService(submissionDocDataRepository)
+        submissionStatsDataRepository: SubmissionStatsDataRepository
+    ): StatsDataService = StatsMongoDataService(submissionStatsDataRepository)
 }

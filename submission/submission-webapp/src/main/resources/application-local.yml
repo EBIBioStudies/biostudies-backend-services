@@ -43,4 +43,3 @@ app:
     requireActivation: false
   persistence:
     enableMongo: false
-    connection: mongodb://root:admin@localhost:27017
