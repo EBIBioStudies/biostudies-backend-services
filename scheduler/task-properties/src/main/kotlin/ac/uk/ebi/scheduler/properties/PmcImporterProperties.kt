@@ -12,6 +12,7 @@ class PmcImporterProperties : BaseAppProperty {
             append("--app.data.mode=$mode \\\n")
             append("--app.data.temp=$temp \\\n")
             append("--app.data.mongodbUri=$mongodbUri \\\n")
+            append("--app.data.mongodbDatabase=$mongodbDatabase \\\n")
             append("--app.data.notificationsUrl=$notificationsUrl \\\n")
 
             path?.let { append("--app.data.path=$it \\\n") }
@@ -23,6 +24,7 @@ class PmcImporterProperties : BaseAppProperty {
     lateinit var mode: PmcMode
     lateinit var temp: String
     lateinit var mongodbUri: String
+    lateinit var mongodbDatabase: String
     lateinit var notificationsUrl: String
 
     var path: String? = null
@@ -39,6 +41,7 @@ class PmcImporterProperties : BaseAppProperty {
             path: String?,
             temp: String,
             mongodbUri: String,
+            mongodbDatabase: String,
             notificationsUrl: String,
             bioStudiesUrl: String? = null,
             bioStudiesUser: String? = null,
@@ -48,6 +51,7 @@ class PmcImporterProperties : BaseAppProperty {
             this.path = path
             this.temp = temp
             this.mongodbUri = mongodbUri
+            this.mongodbDatabase = mongodbDatabase
             this.notificationsUrl = notificationsUrl
             this.bioStudiesUrl = bioStudiesUrl
             this.bioStudiesUser = bioStudiesUser
