@@ -4,6 +4,7 @@ import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.persistence.common.filesystem.FileSystemService
 import ac.uk.ebi.biostd.persistence.common.service.PersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.ProjectDataService
+import ac.uk.ebi.biostd.persistence.common.service.StatsDataService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestService
@@ -29,6 +30,7 @@ import ac.uk.ebi.biostd.persistence.repositories.UserDataDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.data.ProjectSqlDataService
 import ac.uk.ebi.biostd.persistence.repositories.data.SubmissionRepository
+import ac.uk.ebi.biostd.persistence.service.StatsSqlDataService
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -37,9 +39,9 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import java.nio.file.Paths
 
-@Suppress("LongParameterList")
 @Configuration
 @Import(JpaRepositoryConfig::class)
+@Suppress("TooManyFunctions", "LongParameterList")
 open class SqlPersistenceConfig(private val applicationProperties: ApplicationProperties) {
     @Bean
     internal open fun lockExecutor(
@@ -80,14 +82,12 @@ open class SqlPersistenceConfig(private val applicationProperties: ApplicationPr
         accessTagsDataRepository: AccessTagDataRepo,
         lockExecutor: LockExecutor,
         submissionQueryService: SubmissionQueryService
-    ): PersistenceService {
-        return SqlPersistenceService(
+    ): PersistenceService =
+        SqlPersistenceService(
             sequenceRepository,
             accessTagsDataRepository,
             lockExecutor,
-            submissionQueryService
-        )
-    }
+            submissionQueryService)
 
     @Bean
     @ConditionalOnProperty(prefix = "app.persistence", name = ["enableMongo"], havingValue = "false")
@@ -108,14 +108,22 @@ open class SqlPersistenceConfig(private val applicationProperties: ApplicationPr
         systemService: FileSystemService,
         toExtMapper: ToExtSubmissionMapper,
         toDbSubmissionMapper: ToDbSubmissionMapper
-    ): SubmissionSqlPersistenceService = SubmissionSqlPersistenceService(
-        subRepository,
-        serializationService,
-        subDataRepository,
-        requestDataRepository,
-        userDataRepository,
-        systemService,
-        toDbSubmissionMapper)
+    ): SubmissionSqlPersistenceService =
+        SubmissionSqlPersistenceService(
+            subRepository,
+            serializationService,
+            subDataRepository,
+            requestDataRepository,
+            userDataRepository,
+            systemService,
+            toDbSubmissionMapper)
+
+    @Bean
+    @ConditionalOnProperty(prefix = "app.persistence", name = ["enableMongo"], havingValue = "false")
+    internal open fun submissionStatsService(
+        submissionMetaQueryService: SubmissionMetaQueryService,
+        submissionStatsDataRepository: SubmissionStatsDataRepository
+    ): StatsDataService = StatsSqlDataService(submissionMetaQueryService, submissionStatsDataRepository)
 
     @Bean
     internal open fun toDbSubmissionMapper(

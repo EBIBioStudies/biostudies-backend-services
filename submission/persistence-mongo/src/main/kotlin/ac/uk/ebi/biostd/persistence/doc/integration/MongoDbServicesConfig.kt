@@ -1,12 +1,15 @@
 package ac.uk.ebi.biostd.persistence.doc.integration
 
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
+import ac.uk.ebi.biostd.persistence.common.service.StatsDataService
 import ac.uk.ebi.biostd.persistence.common.service.ProjectDataService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDraftDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
+import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionStatsDataRepository
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
+import ac.uk.ebi.biostd.persistence.doc.service.StatsMongoDataService
 import ac.uk.ebi.biostd.persistence.doc.service.ProjectMongoDataService
 import ac.uk.ebi.biostd.persistence.doc.service.SubmissionDraftMongoService
 import ac.uk.ebi.biostd.persistence.doc.service.SubmissionMongoMetaQueryService
@@ -22,7 +25,6 @@ import java.nio.file.Paths
 @Import(MongoDbReposConfig::class)
 @ConditionalOnProperty(prefix = "app.persistence", name = ["enableMongo"], havingValue = "true")
 class MongoDbServicesConfig {
-
     @Bean
     internal fun submissionQueryService(
         submissionDocDataRepository: SubmissionDocDataRepository,
@@ -31,16 +33,17 @@ class MongoDbServicesConfig {
     ): SubmissionQueryService = SubmissionMongoQueryService(
         submissionDocDataRepository,
         submissionRequestDocDataRepository,
-        toExtSubmissionMapper
-    )
+        toExtSubmissionMapper)
 
     @Bean
-    internal fun projectDataService(submissionDocDataRepository: SubmissionDocDataRepository):
-        ProjectDataService = ProjectMongoDataService(submissionDocDataRepository)
+    internal fun projectDataService(
+        submissionDocDataRepository: SubmissionDocDataRepository
+    ): ProjectDataService = ProjectMongoDataService(submissionDocDataRepository)
 
     @Bean
-    internal fun toExtSubmissionMapper(applicationProperties: ApplicationProperties): ToExtSubmissionMapper =
-        ToExtSubmissionMapper(Paths.get(applicationProperties.submissionPath))
+    internal fun toExtSubmissionMapper(
+        applicationProperties: ApplicationProperties
+    ): ToExtSubmissionMapper = ToExtSubmissionMapper(Paths.get(applicationProperties.submissionPath))
 
     @Bean
     internal fun submissionDraftMongoService(
@@ -50,11 +53,15 @@ class MongoDbServicesConfig {
     ): SubmissionDraftMongoService = SubmissionDraftMongoService(
         submissionDraftDocDataRepository,
         submissionQueryService,
-        extSerializationService
-    )
+        extSerializationService)
 
     @Bean
     internal fun submissionMongoMetaQueryService(
         submissionDocDataRepository: SubmissionDocDataRepository
     ): SubmissionMongoMetaQueryService = SubmissionMongoMetaQueryService(submissionDocDataRepository)
+
+    @Bean
+    internal fun statsDataService(
+        submissionStatsDataRepository: SubmissionStatsDataRepository
+    ): StatsDataService = StatsMongoDataService(submissionStatsDataRepository)
 }

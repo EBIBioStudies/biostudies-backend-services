@@ -6,7 +6,6 @@ import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequest
 class SubmissionRequestDocDataRepository(
     private val submissionRequestRepository: SubmissionRequestRepository
 ) : SubmissionRequestRepository by submissionRequestRepository {
-
     fun saveRequest(submissionRequest: SubmissionRequest) {
         submissionRequestRepository.save(submissionRequest)
     }

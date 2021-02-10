@@ -10,7 +10,7 @@ sourceSets {
 }
 
 val copySqlSchema = tasks.create<Copy>("copySqlSchema") {
-    from("$rootDir/infrastructure/src/main/resources/setup/database/Schema.sql")
+    from("$rootDir/infrastructure/src/main/resources/setup/mysql/Schema.sql")
     into("$buildDir/resources/itest")
 }
 

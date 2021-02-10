@@ -44,8 +44,7 @@ class SubmissionDocDataRepository(
 ) : SubmissionMongoRepository by submissionRepository {
     fun updateStatus(status: DocProcessingStatus, accNo: String, version: Int) {
         val query = Query(where(SUB_ACC_NO).`is`(accNo).andOperator(where(SUB_VERSION).`is`(version)))
-        val update = update(SUB_STATUS, status)
-        mongoTemplate.updateFirst(query, update, DocSubmission::class.java)
+        mongoTemplate.updateFirst(query, update(SUB_STATUS, status), DocSubmission::class.java)
     }
 
     fun getCurrentVersion(accNo: String): Int? {
@@ -85,7 +84,6 @@ class SubmissionDocDataRepository(
     }
 
     fun getProjects(accNo: String): List<DocProject> = submissionRepository.getSubmissionProjects(accNo).projects
-    fun getByAccNo(accNo: String): DocSubmission = submissionRepository.getByAccNoAndVersionGreaterThan(accNo, 0)
 
     fun getSubmissions(filter: SubmissionFilter, email: String? = null): List<DocSubmission> {
         val aggregation = newAggregation(
