@@ -76,7 +76,13 @@ data class DocProject(val accNo: String)
 data class DocAttributeDetail(val name: String, val value: String)
 data class DocLink(val url: String, val attributes: List<DocAttribute> = listOf())
 
-data class DocFile(val filePath: String, val attributes: List<DocAttribute> = listOf(), val md5: String)
+data class DocFile(
+    val relPath: String,
+    val fullPath: String,
+    val attributes: List<DocAttribute> = listOf(),
+    val md5: String
+)
+
 data class DocFileList(val fileName: String, val files: List<DocFile>)
 data class DocSectionTable(val sections: List<DocSection>)
 data class DocLinkTable(val links: List<DocLink>)

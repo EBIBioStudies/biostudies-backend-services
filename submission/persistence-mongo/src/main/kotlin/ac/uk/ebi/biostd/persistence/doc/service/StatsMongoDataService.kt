@@ -26,7 +26,6 @@ class StatsMongoDataService(
             ?: throw StatNotFoundException(accNo, submissionStatType)
 
     // TODO support saving stats for expired versions Pivotal ID # 176802128
-    // TODO quitar la conexion de mongo del application.yml en la parte de persistencia
     override fun saveAll(stats: List<SubmissionStat>): List<SubmissionStat> =
         stats.filterValid()
             .mapValues { it.value.last() }

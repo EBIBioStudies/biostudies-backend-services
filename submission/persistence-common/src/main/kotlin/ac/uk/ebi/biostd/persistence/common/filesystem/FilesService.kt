@@ -1,17 +1,22 @@
 package ac.uk.ebi.biostd.persistence.common.filesystem
 
 import ac.uk.ebi.biostd.integration.SerializationService
-import ac.uk.ebi.biostd.integration.SubFormat
+import ac.uk.ebi.biostd.integration.SubFormat.Companion.JSON_PRETTY
+import ac.uk.ebi.biostd.integration.SubFormat.Companion.TSV
+import ac.uk.ebi.biostd.integration.SubFormat.Companion.XML
+import arrow.core.Either
 import ebi.ac.uk.extended.mapping.to.toFilesTable
 import ebi.ac.uk.extended.mapping.to.toSimpleSubmission
 import ebi.ac.uk.extended.model.ExtFile
+import ebi.ac.uk.extended.model.ExtFileList
+import ebi.ac.uk.extended.model.ExtFileTable
+import ebi.ac.uk.extended.model.ExtSection
+import ebi.ac.uk.extended.model.ExtSectionTable
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FileMode
 import ebi.ac.uk.extended.model.FileMode.COPY
 import ebi.ac.uk.extended.model.FileMode.MOVE
 import ebi.ac.uk.extended.model.allFileList
-import ebi.ac.uk.extended.model.allFiles
-import ebi.ac.uk.extended.model.allReferencedFiles
 import ebi.ac.uk.io.FileUtils
 import ebi.ac.uk.io.FileUtils.copyOrReplaceFile
 import ebi.ac.uk.io.FileUtils.deleteFile
@@ -39,30 +44,37 @@ class FilesService(
     private val folderResolver: SubmissionFolderResolver,
     private val serializationService: SerializationService
 ) {
-    fun persistSubmissionFiles(submission: ExtSubmission, mode: FileMode) {
+    fun persistSubmissionFiles(submission: ExtSubmission, mode: FileMode): ExtSubmission {
         logger.info { "Starting processing files of submission ${submission.accNo}" }
         val filePermissions = filePermissions(submission.released)
         val folderPermissions = folderPermissions(submission.released)
         val submissionFolder = getOrCreateSubmissionFolder(submission, folderPermissions)
 
         generatePageTab(submission, submissionFolder, filePermissions, folderPermissions)
-        processAttachedFiles(mode, submission, submissionFolder, filePermissions, folderPermissions)
+        val processed = processAttachedFiles(mode, submission, submissionFolder, filePermissions, folderPermissions)
         logger.info { "Finishing processing file of submission ${submission.accNo}" }
+
+        return processed
     }
 
     private fun processAttachedFiles(
         mode: FileMode,
         submission: ExtSubmission,
-        submissionFolder: File,
+        subFolder: File,
         filePermissions: Set<PosixFilePermission>,
         folderPermissions: Set<PosixFilePermission>
-    ) {
+    ): ExtSubmission {
         logger.info { "processing submission ${submission.accNo} files in $mode" }
-        when (mode) {
-            MOVE -> processFiles(submission, submissionFolder, filePermissions, folderPermissions, this::move)
-            COPY -> processFiles(submission, submissionFolder, filePermissions, folderPermissions, this::copy)
+
+        val tempFolder = createTempFolder(subFolder, submission.accNo)
+        val processFunction = when (mode) {
+            MOVE -> this::move
+            COPY -> this::copy
         }
+        val request = FileProcessRequest(subFolder, tempFolder, filePermissions, folderPermissions, processFunction)
+
         logger.info { "Finishing processing submission ${submission.accNo} files in $mode" }
+        return processFiles(submission, request)
     }
 
     private fun filePermissions(released: Boolean) = if (released) RW_R__R__ else RW_R_____
@@ -93,9 +105,9 @@ class FilesService(
         filePermissions: Set<PosixFilePermission>,
         folderPermissions: Set<PosixFilePermission>
     ) {
-        val json = serializationService.serializeElement(element, SubFormat.JSON_PRETTY)
-        val xml = serializationService.serializeElement(element, SubFormat.XML)
-        val tsv = serializationService.serializeElement(element, SubFormat.TSV)
+        val json = serializationService.serializeElement(element, JSON_PRETTY)
+        val xml = serializationService.serializeElement(element, XML)
+        val tsv = serializationService.serializeElement(element, TSV)
 
         writeContent(submissionFolder.resolve("$fileName.json"), json, filePermissions, folderPermissions)
         writeContent(submissionFolder.resolve("$fileName.xml"), xml, filePermissions, folderPermissions)
@@ -104,23 +116,57 @@ class FilesService(
 
     private fun processFiles(
         submission: ExtSubmission,
-        submissionFolder: File,
-        filePermissions: Set<PosixFilePermission>,
-        folderPermissions: Set<PosixFilePermission>,
-        processFile: (ExtFile, File, File, Set<PosixFilePermission>, Set<PosixFilePermission>) -> Unit
-    ) {
-        val temporary = createTempFolder(submissionFolder, submission.accNo)
-        val filesPath = submissionFolder.resolve(FILES_PATH)
-        val allSubmissionFiles = getMovingFiles(submission)
+        processRequest: FileProcessRequest
+    ): ExtSubmission {
+        val (subFolder, tempFolder, filePermissions, folderPermissions) = processRequest
+        val subFilesPath = subFolder.resolve(FILES_PATH)
+        val processedSubmission = submission.copy(section = processSectionFiles(submission.section, processRequest))
 
-        allSubmissionFiles.forEach { processFile(it, temporary, filesPath, filePermissions, folderPermissions) }
+        deleteFile(subFilesPath)
+        moveFile(tempFolder, subFilesPath, filePermissions, folderPermissions)
 
-        deleteFile(filesPath)
-        moveFile(temporary, filesPath, filePermissions, folderPermissions)
+        return processedSubmission
     }
 
-    private fun getMovingFiles(submission: ExtSubmission): List<ExtFile> =
-        (submission.allFiles + submission.allReferencedFiles).distinctBy { it.file }
+    private fun processSectionFiles(
+        section: ExtSection,
+        processRequest: FileProcessRequest
+    ): ExtSection = section.copy(
+        files = processExtFiles(section.files, processRequest),
+        fileList = processExtFileList(section.fileList, processRequest),
+        sections = processExtSections(section.sections, processRequest)
+    )
+
+    private fun processExtFile(
+        extFile: ExtFile,
+        processRequest: FileProcessRequest
+    ): ExtFile {
+        val (subFolder, tempFolder, filePermissions, folderPermissions, processFunction) = processRequest
+        processFunction(extFile, tempFolder, subFolder, filePermissions, folderPermissions)
+
+        return extFile.copy(file = subFolder.resolve(extFile.fileName))
+    }
+
+    private fun processExtFiles(
+        extFiles: List<Either<ExtFile, ExtFileTable>>,
+        processRequest: FileProcessRequest
+    ) = extFiles.map { file -> file.bimap(
+        { processExtFile(it, processRequest) },
+        { it.copy(files = it.files.map { refFile -> processExtFile(refFile, processRequest) }) })
+    }
+
+    private fun processExtFileList(
+        fileList: ExtFileList?,
+        processRequest: FileProcessRequest
+    ) = fileList?.copy(files = fileList.files.map { processExtFile(it, processRequest) })
+
+    private fun processExtSections(
+        extSections: List<Either<ExtSection, ExtSectionTable>>,
+        processRequest: FileProcessRequest
+    ) = extSections.map { subSection -> subSection.bimap(
+        { processSectionFiles(it, processRequest) },
+        { it.copy(sections = it.sections.map { subSect -> processSectionFiles(subSect, processRequest) }) })
+    }
 
     private fun copy(
         extFile: ExtFile,
@@ -152,7 +198,10 @@ class FilesService(
         val target = tempFolder.resolve(extFile.fileName)
 
         logger.info { "moving file ${source.absolutePath} into ${target.absolutePath}" }
-        moveFile(source, target, filePermissions, folderPermissions)
+
+        if (target.exists().not()) {
+            moveFile(source, target, filePermissions, folderPermissions)
+        }
     }
 
     private fun getOrCreateSubmissionFolder(submission: ExtSubmission, permissions: Set<PosixFilePermission>): File {

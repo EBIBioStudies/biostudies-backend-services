@@ -7,19 +7,14 @@ import arrow.core.Either
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileList
 import ebi.ac.uk.extended.model.ExtFileTable
-import ebi.ac.uk.io.sources.FilesSource
+import java.nio.file.Paths
 
-internal fun DocFile.toExtFile(filesSource: FilesSource): ExtFile =
-    ExtFile(filePath, filesSource.getFile(filePath), attributes.map { it.toExtAttribute() }).also { it.md5 = md5 }
+internal fun DocFile.toExtFile(): ExtFile =
+    ExtFile(relPath, Paths.get(fullPath).toFile(), attributes.map { it.toExtAttribute() }).also { it.md5 = md5 }
 
-internal fun DocFileTable.toExtFileTable(
-    filesSource: FilesSource
-): ExtFileTable = ExtFileTable(files.map { it.toExtFile(filesSource) })
+internal fun DocFileTable.toExtFileTable(): ExtFileTable = ExtFileTable(files.map { it.toExtFile() })
 
-internal fun Either<DocFile, DocFileTable>.toExtFiles(
-    filesSource: FilesSource
-): Either<ExtFile, ExtFileTable> = bimap({ it.toExtFile(filesSource) }) { it.toExtFileTable(filesSource) }
+internal fun Either<DocFile, DocFileTable>.toExtFiles(): Either<ExtFile, ExtFileTable> =
+    bimap({ it.toExtFile() }) { it.toExtFileTable() }
 
-internal fun DocFileList.toExtFileList(
-    filesSource: FilesSource
-) = ExtFileList(fileName, files.map { it.toExtFile(filesSource) })
+internal fun DocFileList.toExtFileList() = ExtFileList(fileName, files.map { it.toExtFile() })

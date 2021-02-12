@@ -15,9 +15,9 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(MockKExtension::class)
 internal class DocFileConverterTest(
-    @MockK val docAttributeConverter: DocAttributeConverter,
     @MockK val documentAttr: Document,
-    @MockK val docAttribute: DocAttribute
+    @MockK val docAttribute: DocAttribute,
+    @MockK val docAttributeConverter: DocAttributeConverter
 ) {
     private val testInstance = DocFileConverter(docAttributeConverter)
 
@@ -28,23 +28,21 @@ internal class DocFileConverterTest(
         val result = testInstance.convert(createFileDoc())
 
         assertThat(result).isInstanceOf(DocFile::class.java)
-        assertThat(result.filePath).isEqualTo(filePath)
+        assertThat(result.relPath).isEqualTo("relPath")
+        assertThat(result.fullPath).isEqualTo("fullPath")
         assertThat(result.attributes).isEqualTo(listOf(docAttribute))
-        assertThat(result.md5).isEqualTo(md5)
+        assertThat(result.md5).isEqualTo("md5")
     }
 
     private fun createFileDoc(): Document {
         val file = Document()
-        file[CommonsConverter.classField] = docFileClass
-        file[DocFileFields.FILE_DOC_FILE_PATH] = filePath
-        file[DocFileFields.FILE_DOC_ATTRIBUTES] = listOf(documentAttr)
-        file[DocFileFields.FILE_DOC_MD5] = md5
-        return file
-    }
 
-    companion object {
-        const val filePath = "filePath"
-        const val attributes = "attributes"
-        const val md5 = "md5"
+        file[CommonsConverter.classField] = docFileClass
+        file[DocFileFields.FILE_DOC_REL_PATH] = "relPath"
+        file[DocFileFields.FILE_DOC_FULL_PATH] = "fullPath"
+        file[DocFileFields.FILE_DOC_ATTRIBUTES] = listOf(documentAttr)
+        file[DocFileFields.FILE_DOC_MD5] = "md5"
+
+        return file
     }
 }

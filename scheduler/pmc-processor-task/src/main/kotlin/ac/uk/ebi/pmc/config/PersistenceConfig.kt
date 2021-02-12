@@ -15,8 +15,8 @@ import org.springframework.context.annotation.Configuration
 
 private const val ERRORS_COL = "pmc_errors"
 private const val SUBMISSION_COL = "pmc_submissions"
-private const val SUB_FILES_COl = "pmc_submissions_files"
-private const val INPUT_FILES_COl = "pmc_input_files"
+private const val SUB_FILES_COL = "pmc_submissions_files"
+private const val INPUT_FILES_COL = "pmc_input_files"
 
 @Configuration
 class PersistenceConfig(val properties: PmcImporterProperties) {
@@ -40,9 +40,9 @@ class PersistenceConfig(val properties: PmcImporterProperties) {
 
     @Bean
     fun submissionFileRepository(client: MongoClient) =
-        SubFileRepository(client.getCollection(properties.mongodbDatabase, SUB_FILES_COl))
+        SubFileRepository(client.getCollection(properties.mongodbDatabase, SUB_FILES_COL))
 
     @Bean
     fun inputFileRepository(client: MongoClient) =
-        InputFileRepository(client.getCollection(properties.mongodbDatabase, INPUT_FILES_COl))
+        InputFileRepository(client.getCollection(properties.mongodbDatabase, INPUT_FILES_COL))
 }

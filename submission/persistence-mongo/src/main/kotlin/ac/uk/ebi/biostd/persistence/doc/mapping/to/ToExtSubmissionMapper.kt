@@ -8,8 +8,6 @@ import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod
 import ebi.ac.uk.extended.model.ExtTag
 import ebi.ac.uk.extended.model.Project
-import ebi.ac.uk.io.sources.ComposedFileSource
-import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.io.sources.PathFilesSource
 import java.nio.file.Path
 import java.time.ZoneOffset.UTC
@@ -17,7 +15,7 @@ import java.time.ZoneOffset.UTC
 internal const val FILES_DIR = "Files"
 private const val USER_PREFIX = "u"
 
-internal class ToExtSubmissionMapper(private val submissionsPath: Path) {
+internal class ToExtSubmissionMapper {
     internal fun toExtSubmission(submission: DocSubmission): ExtSubmission = ExtSubmission(
         accNo = submission.accNo,
         owner = submission.owner,
@@ -33,7 +31,7 @@ internal class ToExtSubmissionMapper(private val submissionsPath: Path) {
         releaseTime = submission.releaseTime?.atOffset(UTC),
         modificationTime = submission.modificationTime.atOffset(UTC),
         creationTime = submission.creationTime.atOffset(UTC),
-        section = submission.section.toExtSection(getSubmissionSource(submission)),
+        section = submission.section.toExtSection(),
         attributes = submission.attributes.map { it.toExtAttribute() },
         projects = submission.projects.map { Project(it.accNo) },
         tags = submission.tags.map { ExtTag(it.name, it.value) },
@@ -50,11 +48,6 @@ internal class ToExtSubmissionMapper(private val submissionsPath: Path) {
         DocSubmissionMethod.FILE -> ExtSubmissionMethod.FILE
         DocSubmissionMethod.PAGE_TAB -> ExtSubmissionMethod.PAGE_TAB
         DocSubmissionMethod.UNKNOWN -> ExtSubmissionMethod.UNKNOWN
-    }
-
-    private fun getSubmissionSource(dbSubmission: DocSubmission): FilesSource {
-        val filesPath = submissionsPath.resolve(dbSubmission.relPath).resolve(FILES_DIR)
-        return ComposedFileSource(submissionSources(filesPath))
     }
 
     private fun submissionSources(filesPath: Path) = listOf(
