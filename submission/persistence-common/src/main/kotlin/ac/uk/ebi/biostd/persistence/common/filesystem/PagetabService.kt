@@ -25,7 +25,7 @@ data class PagetabRequest(
 class PagetabService(
     private val serializationService: SerializationService
 ) {
-    fun pageTab(request: PagetabRequest) {
+    fun generatePagetab(request: PagetabRequest) {
         val (submission, submissionFolder, filePermissions, folderPermissions) = request
         pageTab(
             submission = submission.toSimpleSubmission(),
@@ -37,7 +37,7 @@ class PagetabService(
         )
     }
 
-    fun pageTab(
+    private fun pageTab(
         submission: Submission,
         accNo: String,
         fileList: List<ExtFileList>,
