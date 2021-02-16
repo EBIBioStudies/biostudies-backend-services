@@ -32,8 +32,8 @@ class FilesService(
         val folderPermissions = folderPermissions(submission.released)
         val submissionFolder = getOrCreateSubmissionFolder(submission, folderPermissions)
 
-        pageTabService.generatePageTab(PageTabRequest(submission, submissionFolder, filePermissions, folderPermissions))
         val processed = processAttachedFiles(mode, submission, submissionFolder, filePermissions, folderPermissions)
+        pageTabService.generatePageTab(PageTabRequest(processed, submissionFolder, filePermissions, folderPermissions))
         logger.info { "Finishing processing files of submission ${submission.accNo}" }
 
         return processed
@@ -50,12 +50,17 @@ class FilesService(
 
         val subFilesPath = subFolder.resolve(FILES_PATH)
         val tempFolder = createTempFolder(subFolder, submission.accNo)
-        val processingConfig = FileProcessingConfig(subFolder, tempFolder, filePermissions, folderPermissions)
+
+        if (subFilesPath.exists()) {
+            moveFile(subFilesPath, tempFolder, filePermissions, folderPermissions)
+            reCreateFolder(subFolder, folderPermissions)
+        }
+
+        val processingConfig = FileProcessingConfig(subFilesPath, tempFolder, filePermissions, folderPermissions)
         val processed = fileProcessingService.processFiles(FileProcessingRequest(mode, submission, processingConfig))
 
         logger.info { "Finishing processing submission ${submission.accNo} files in $mode" }
-        deleteFile(subFilesPath)
-        moveFile(tempFolder, subFilesPath, filePermissions, folderPermissions)
+        deleteFile(tempFolder)
 
         return processed
     }
