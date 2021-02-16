@@ -74,14 +74,18 @@ private fun FileProcessingConfig.copy(extFile: ExtFile): ExtFile {
     val target = subFolder.resolve(extFile.fileName)
     val current = currentFilesFolder.resolve(extFile.fileName)
 
-    if (current.notExist() || source.md5() != current.md5()) {
-        logger.info { "copying file ${source.absolutePath} into ${target.absolutePath}" }
-        copyOrReplaceFile(source, target, filePermissions, folderPermissions)
+    logger.info { "copying file ${source.absolutePath} into ${target.absolutePath}" }
 
-        return extFile.copy(file = target)
+    when {
+        current.exists() && source.md5() == current.md5() ->
+            moveFile(current, target, filePermissions, folderPermissions)
+
+        current.exists() && source.md5() != current.md5() ->
+            copyOrReplaceFile(current, target, filePermissions, folderPermissions)
+
+        else -> copyOrReplaceFile(source, target, filePermissions, folderPermissions)
     }
 
-    moveFile(current, target, filePermissions, folderPermissions)
     return extFile.copy(file = target)
 }
 
