@@ -35,7 +35,7 @@ internal const val REL_PATH = "S-TEST/123/S-TEST123"
 object SubmissionTestHelper {
     private val time = Instant.now()
 
-    fun docSubmission(file: File) = DocSubmission(
+    val docSubmission = DocSubmission(
         id = null,
         accNo = SUB_ACC_NO,
         version = SUB_VERSION,
@@ -55,7 +55,7 @@ object SubmissionTestHelper {
         tags = listOf(DocTag(TAG_NAME, TAG_VALUE)),
         stats = listOf(DocStat(STAT_TYPE, STAT_VALUE)),
         projects = listOf(DocProject(PROJECT_ACC_NO)),
-        section = docSection(file)
+        section = docSection
     )
 
     fun assertExtSubmission(extSubmission: ExtSubmission, testFile: File) {

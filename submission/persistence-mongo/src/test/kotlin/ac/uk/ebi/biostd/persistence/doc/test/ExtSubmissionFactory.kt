@@ -11,7 +11,7 @@ import ebi.ac.uk.extended.model.Project
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 
-fun extSubmission(released: Boolean): ExtSubmission {
+fun extSubmission(): ExtSubmission {
     val releaseTime = OffsetDateTime.of(2019, 9, 21, 10, 30, 34, 15, ZoneOffset.UTC)
     val modificationTime = OffsetDateTime.of(2020, 9, 21, 10, 30, 34, 15, ZoneOffset.UTC)
     val creationTime = OffsetDateTime.of(2018, 9, 21, 10, 30, 34, 15, ZoneOffset.UTC)
@@ -25,7 +25,7 @@ fun extSubmission(released: Boolean): ExtSubmission {
         method = PAGE_TAB,
         relPath = "/a/rel/path",
         rootPath = "/a/root/path",
-        released = released,
+        released = true,
         secretKey = "a-secret-key",
         status = PROCESSED,
         releaseTime = releaseTime,

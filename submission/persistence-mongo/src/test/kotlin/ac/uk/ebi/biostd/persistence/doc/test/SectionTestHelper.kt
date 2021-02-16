@@ -33,13 +33,13 @@ internal object SectionTestHelper {
         attributes = listOf(fullDocAttribute)
     )
 
-    fun docSection(file: File) = DocSection(
+    val docSection = DocSection(
         accNo = SECT_ACC_NO,
         type = SECT_TYPE,
-        fileList = docFileList(file),
+        fileList = docFileList,
         attributes = listOf(basicDocAttribute),
         sections = listOf(left(docSubSection), right(DocSectionTable(listOf(docSubSection)))),
-        files = listOf(left(docFile(file))),
+        files = listOf(left(docFile)),
         links = listOf(left(docLink))
     )
 

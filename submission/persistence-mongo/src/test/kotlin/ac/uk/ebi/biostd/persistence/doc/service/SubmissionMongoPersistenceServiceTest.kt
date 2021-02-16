@@ -31,10 +31,10 @@ class SubmissionMongoPersistenceServiceTest(
     @MockK private val draftRepository: SubmissionDraftDocDataRepository,
     @MockK private val submissionRequestRepository: SubmissionRequestDocDataRepository
 ) {
+    private val submission = extSubmission()
     private val docSubmission = slot<DocSubmission>()
     private val persistedSubmissionSlot = slot<ExtSubmission>()
     private val submissionRequestSlot = slot<SubmissionRequest>()
-    private val submission = extSubmission(released = true)
     private val testInstance =
         SubmissionMongoPersistenceService(dataRepository, submissionRequestRepository, draftRepository, systemService)
 

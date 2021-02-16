@@ -10,13 +10,13 @@ import org.assertj.core.api.Assertions.assertThat
 import java.io.File
 
 internal const val TEST_REL_PATH = "file.txt"
+internal const val TEST_FULL_PATH = "/a/full/path/file.txt"
 internal const val TEST_FILE_LIST = "file-list.tsv"
 private const val TEST_MD5 = "a-test-md5"
 
 internal object FileTestHelper {
-    fun docFile(file: File): DocFile = DocFile(TEST_REL_PATH, file.absolutePath, listOf(basicDocAttribute), TEST_MD5)
-
-    fun docFileList(file: File) = DocFileList(TEST_FILE_LIST, listOf(docFile(file)))
+    val docFile = DocFile(TEST_REL_PATH, TEST_FULL_PATH, listOf(basicDocAttribute), TEST_MD5)
+    val docFileList = DocFileList(TEST_FILE_LIST, listOf(docFile))
 
     fun assertExtFile(extFile: ExtFile, file: File) {
         assertThat(extFile.fileName).isEqualTo(TEST_REL_PATH)

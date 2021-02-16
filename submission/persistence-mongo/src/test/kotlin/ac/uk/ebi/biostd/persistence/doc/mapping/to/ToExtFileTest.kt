@@ -20,17 +20,17 @@ import org.junit.jupiter.api.extension.ExtendWith
 @ExtendWith(TemporaryFolderExtension::class)
 class ToExtFileTest(temporaryFolder: TemporaryFolder) {
     private val testFile = temporaryFolder.createFile(TEST_REL_PATH)
-    private val docFile = docFile(testFile)
+    private val testDocFile = docFile.copy(fullPath = testFile.absolutePath)
 
     @Test
     fun `to ext file`() {
-        val extFile = docFile.toExtFile()
+        val extFile = testDocFile.toExtFile()
         assertExtFile(extFile, testFile)
     }
 
     @Test
     fun `to ext file table`() {
-        val docFilesTable = DocFileTable(listOf(docFile))
+        val docFilesTable = DocFileTable(listOf(testDocFile))
         val extFilesTable = docFilesTable.toExtFileTable()
 
         assertThat(extFilesTable.files).hasSize(1)
@@ -39,8 +39,8 @@ class ToExtFileTest(temporaryFolder: TemporaryFolder) {
 
     @Test
     fun `to ext files`() {
-        val docFilesTable = DocFileTable(listOf(docFile))
-        val docFiles = listOf(left(docFile), right(docFilesTable))
+        val docFilesTable = DocFileTable(listOf(testDocFile))
+        val docFiles = listOf(left(testDocFile), right(docFilesTable))
         val extFiles = docFiles.map { it.toExtFiles() }
 
         assertThat(extFiles).hasSize(2)
@@ -53,7 +53,7 @@ class ToExtFileTest(temporaryFolder: TemporaryFolder) {
 
     @Test
     fun `to ext file list`() {
-        val extFileList = docFileList(testFile).toExtFileList()
+        val extFileList = docFileList.copy(files = listOf(testDocFile)).toExtFileList()
         assertExtFileList(extFileList, testFile)
     }
 }
