@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.persistence.doc.integration
 
-import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.persistence.common.service.StatsDataService
 import ac.uk.ebi.biostd.persistence.common.service.ProjectDataService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
@@ -19,7 +18,6 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
-import java.nio.file.Paths
 
 @Configuration
 @Import(MongoDbReposConfig::class)
@@ -41,9 +39,7 @@ class MongoDbServicesConfig {
     ): ProjectDataService = ProjectMongoDataService(submissionDocDataRepository)
 
     @Bean
-    internal fun toExtSubmissionMapper(
-        applicationProperties: ApplicationProperties
-    ): ToExtSubmissionMapper = ToExtSubmissionMapper(Paths.get(applicationProperties.submissionPath))
+    internal fun toExtSubmissionMapper(): ToExtSubmissionMapper = ToExtSubmissionMapper()
 
     @Bean
     internal fun submissionDraftMongoService(

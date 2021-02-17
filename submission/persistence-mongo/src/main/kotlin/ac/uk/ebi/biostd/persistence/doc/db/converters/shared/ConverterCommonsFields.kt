@@ -26,7 +26,8 @@ object DocAttributeFields {
 
 object DocFileFields {
     val DOC_FILE_CLASS: String = DocFile::class.java.canonicalName
-    const val FILE_DOC_FILE_PATH = "filePath"
+    const val FILE_DOC_REL_PATH = "relPath"
+    const val FILE_DOC_FULL_PATH = "fullPath"
     const val FILE_DOC_ATTRIBUTES = "attributes"
     const val FILE_DOC_MD5 = "md5"
 }

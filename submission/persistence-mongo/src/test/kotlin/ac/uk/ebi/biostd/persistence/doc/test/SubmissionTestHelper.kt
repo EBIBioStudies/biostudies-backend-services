@@ -34,6 +34,7 @@ internal const val REL_PATH = "S-TEST/123/S-TEST123"
 
 object SubmissionTestHelper {
     private val time = Instant.now()
+
     val docSubmission = DocSubmission(
         id = null,
         accNo = SUB_ACC_NO,
