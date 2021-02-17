@@ -85,6 +85,7 @@ interface SecurityOperations {
 interface GeneralOperations {
     fun getGroups(): List<Group>
     fun getProjects(): List<Project>
+    fun generateFtpLink(relPath: String)
 }
 
 interface DraftSubmissionOperations {

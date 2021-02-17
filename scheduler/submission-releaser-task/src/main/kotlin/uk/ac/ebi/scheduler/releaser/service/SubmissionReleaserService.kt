@@ -36,6 +36,12 @@ class SubmissionReleaserService(
             .forEach(::releaseSubmission)
     }
 
+    fun generateFtpLinks() {
+        bioWebClient
+            .getExtSubmissionsAsSequence(ExtPageQuery(released = true))
+            .forEach(::generateFtpLink)
+    }
+
     private fun releaseSubmission(extSubmission: ExtSubmission) {
         if (extSubmission.isProject.not()) {
             logger.info { "Releasing submission ${extSubmission.accNo}" }
@@ -56,5 +62,12 @@ class SubmissionReleaserService(
     private fun notify(extSubmission: ExtSubmission) {
         logger.info { "Notifying submission release for ${extSubmission.accNo}" }
         eventsPublisherService.submissionReleased(extSubmission)
+    }
+
+    private fun generateFtpLink(submission: ExtSubmission) {
+        if (submission.isProject.not()) {
+            logger.info { "Generating FTP link for submission ${submission.accNo}" }
+            bioWebClient.generateFtpLink(submission.relPath)
+        }
     }
 }

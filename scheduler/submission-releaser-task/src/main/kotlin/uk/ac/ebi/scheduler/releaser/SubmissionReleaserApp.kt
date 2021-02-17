@@ -1,5 +1,6 @@
 package uk.ac.ebi.scheduler.releaser
 
+import ac.uk.ebi.scheduler.properties.ReleaserMode.GENERATE_FTP_LINKS
 import ac.uk.ebi.scheduler.properties.ReleaserMode.NOTIFY
 import ac.uk.ebi.scheduler.properties.ReleaserMode.RELEASE
 import org.springframework.boot.CommandLineRunner
@@ -30,6 +31,7 @@ class SubmissionReleaserExecutor(
         when (applicationProperties.mode) {
             NOTIFY -> submissionReleaserService.notifySubmissionReleases()
             RELEASE -> submissionReleaserService.releaseDailySubmissions()
+            GENERATE_FTP_LINKS -> submissionReleaserService.generateFtpLinks()
         }
     }
 

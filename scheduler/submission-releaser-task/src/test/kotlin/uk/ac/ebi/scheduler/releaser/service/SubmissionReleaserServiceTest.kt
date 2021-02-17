@@ -93,6 +93,38 @@ class SubmissionReleaserServiceTest(
         verify(exactly = 1) { bioWebClient.getExtSubmissionsAsSequence(releaseQuery) }
     }
 
+    @Test
+    fun `generate ftp links`(@MockK publicSubmission: ExtSubmission) {
+        val relPath = "S-BSST/012/S-BSST112"
+        val query = ExtPageQuery(released = true)
+
+        mockExtSubmissionsQuery(query, publicSubmission)
+        every { publicSubmission.isProject } returns false
+        every { publicSubmission.relPath } returns relPath
+        every { publicSubmission.accNo } returns "S-BSST112"
+        every { bioWebClient.generateFtpLink(relPath) } answers { nothing }
+
+        testInstance.generateFtpLinks()
+        verify(exactly = 1) {
+            bioWebClient.generateFtpLink(relPath)
+            bioWebClient.getExtSubmissionsAsSequence(query)
+        }
+    }
+
+    @Test
+    fun `generate ftp links for projects`(@MockK publicSubmission: ExtSubmission) {
+        val relPath = "S-BSST/012/S-BSST112"
+        val query = ExtPageQuery(released = true)
+
+        mockExtSubmissionsQuery(query, publicSubmission)
+        every { publicSubmission.isProject } returns true
+        every { publicSubmission.relPath } returns relPath
+
+        testInstance.generateFtpLinks()
+        verify(exactly = 0) { bioWebClient.generateFtpLink(relPath) }
+        verify(exactly = 1) { bioWebClient.getExtSubmissionsAsSequence(query) }
+    }
+
     private fun createNotifyExtPageQuery(month: Int, day: Int) = ExtPageQuery(
         released = false,
         fromRTime = OffsetDateTime.of(2020, month, day, 0, 0, 0, 0, UTC),

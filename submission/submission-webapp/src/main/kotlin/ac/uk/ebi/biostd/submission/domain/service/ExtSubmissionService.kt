@@ -29,12 +29,11 @@ class ExtSubmissionService(
 
     fun getExtendedSubmissions(request: ExtPageRequest): Page<ExtSubmission> {
         val filter = SubmissionFilter(
-            rTimeFrom = OffsetDateTime.parse(request.fromRTime),
-            rTimeTo = OffsetDateTime.parse(request.toRTime),
+            rTimeFrom = request.fromRTime?.let { OffsetDateTime.parse(request.fromRTime) },
+            rTimeTo = request.toRTime?.let { OffsetDateTime.parse(request.toRTime) },
             released = request.released,
             limit = request.limit,
-            offset = request.offset
-        )
+            offset = request.offset)
 
         val page = submissionRepository
             .getExtendedSubmissions(filter)
