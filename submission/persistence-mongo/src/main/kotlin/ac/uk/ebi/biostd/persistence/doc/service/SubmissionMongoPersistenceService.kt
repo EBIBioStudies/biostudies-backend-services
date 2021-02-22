@@ -9,16 +9,19 @@ import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataReposito
 import ac.uk.ebi.biostd.persistence.doc.mapping.from.toDocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocProcessingStatus.PROCESSED
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequest
+import com.mongodb.BasicDBObject
 import ebi.ac.uk.extended.model.ExtProcessingStatus.PROCESSING
 import ebi.ac.uk.extended.model.ExtProcessingStatus.REQUESTED
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FileMode.MOVE
+import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import kotlin.math.absoluteValue
 
 internal class SubmissionMongoPersistenceService(
     private val subDataRepository: SubmissionDocDataRepository,
     private val submissionRequestDocDataRepository: SubmissionRequestDocDataRepository,
     private val draftDocDataRepository: SubmissionDraftDocDataRepository,
+    private val serializationService: ExtSerializationService,
     private val systemService: FileSystemService
 ) : SubmissionRequestService {
     override fun saveAndProcessSubmissionRequest(saveRequest: SaveSubmissionRequest): ExtSubmission {
@@ -29,9 +32,7 @@ internal class SubmissionMongoPersistenceService(
     override fun saveSubmissionRequest(saveRequest: SaveSubmissionRequest): ExtSubmission {
         val submission = saveRequest.submission
         val newVersion = submission.copy(version = getNextVersion(submission.accNo), status = REQUESTED)
-
         submissionRequestDocDataRepository.saveRequest(asRequest(newVersion))
-
         return newVersion
     }
 
@@ -43,7 +44,7 @@ internal class SubmissionMongoPersistenceService(
     private fun asRequest(submission: ExtSubmission) = SubmissionRequest(
         accNo = submission.accNo,
         version = submission.version,
-        submission = submission.toDocSubmission()
+        submission = BasicDBObject.parse(serializationService.serialize(submission))
     )
 
     override fun processSubmission(saveRequest: SaveSubmissionRequest): ExtSubmission {

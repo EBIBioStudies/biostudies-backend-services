@@ -10,6 +10,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
+import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 
 @Configuration
 @Import(MongoDbServicesConfig::class)
@@ -19,6 +20,7 @@ class ExternalConfig {
     @Bean
     internal fun submissionRequestService(
         submissionDocDataRepository: SubmissionDocDataRepository,
+        serializationService: ExtSerializationService,
         submissionRequestDocDataRepository: SubmissionRequestDocDataRepository,
         submissionDraftDocDataRepository: SubmissionDraftDocDataRepository,
         systemService: FileSystemService
@@ -27,6 +29,7 @@ class ExternalConfig {
             submissionDocDataRepository,
             submissionRequestDocDataRepository,
             submissionDraftDocDataRepository,
+            serializationService,
             systemService
         )
     }
