@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.persistence.doc.model
 
+import com.mongodb.DBObject
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.mapping.Document
 
@@ -9,5 +10,5 @@ data class SubmissionRequest(
     val id: String? = null,
     val accNo: String,
     val version: Int,
-    val submission: DocSubmission
+    val submission: DBObject
 )
