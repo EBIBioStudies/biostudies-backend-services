@@ -9,10 +9,6 @@ import ac.uk.ebi.biostd.submission.web.handlers.SubmitWebHandler
 import ac.uk.ebi.biostd.submission.web.model.ContentSubmitWebRequest
 import ac.uk.ebi.biostd.submission.web.model.FileSubmitWebRequest
 import ac.uk.ebi.biostd.submission.web.model.OnBehalfRequest
-import ebi.ac.uk.api.ON_BEHALF_PARAM
-import ebi.ac.uk.api.REGISTER_PARAM
-import ebi.ac.uk.api.TOKEN_HEADER
-import ebi.ac.uk.api.USER_NAME_PARAM
 import ebi.ac.uk.extended.model.FileMode
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.constants.ATTRIBUTES
@@ -24,11 +20,6 @@ import ebi.ac.uk.model.constants.SUBMISSION_TYPE
 import ebi.ac.uk.model.constants.TEXT_PLAIN
 import ebi.ac.uk.model.constants.TEXT_XML
 import ebi.ac.uk.security.integration.model.api.SecurityUser
-import io.swagger.annotations.Api
-import io.swagger.annotations.ApiImplicitParam
-import io.swagger.annotations.ApiImplicitParams
-import io.swagger.annotations.ApiOperation
-import io.swagger.annotations.ApiParam
 import org.springframework.http.HttpHeaders.CONTENT_TYPE
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.security.access.prepost.PreAuthorize
@@ -42,7 +33,6 @@ import org.springframework.web.multipart.MultipartFile
 @RestController
 @RequestMapping("/submissions")
 @PreAuthorize("isAuthenticated()")
-@Api(tags = ["Submissions"])
 @Suppress("LongParameterList")
 class MultipartSubmitResource(
     private val submitWebHandler: SubmitWebHandler,
@@ -52,28 +42,12 @@ class MultipartSubmitResource(
         headers = ["$CONTENT_TYPE=$MULTIPART_FORM_DATA", "$SUBMISSION_TYPE=$APPLICATION_JSON_VALUE"],
         produces = [APPLICATION_JSON_VALUE])
     @ResponseBody
-    @ApiOperation("Make a submission using a JSON file. The given files will override the ones in the user folder")
-    @ApiImplicitParams(value = [
-        ApiImplicitParam(name = TOKEN_HEADER, value = "User authentication token", required = true),
-        ApiImplicitParam(name = ON_BEHALF_PARAM, value = "Submission owner", required = false),
-        ApiImplicitParam(name = REGISTER_PARAM, value = "Register owner if does not exists", required = false),
-        ApiImplicitParam(name = USER_NAME_PARAM, value = "Submission owner name. For register mode", required = false)
-    ])
     fun submitMultipartJson(
         @BioUser user: SecurityUser,
-
         onBehalfRequest: OnBehalfRequest?,
-
-        @ApiParam(name = "submission", value = "File containing the submission page tab in JSON format")
         @RequestParam(SUBMISSION) content: String,
-
-        @ApiParam(name = "fileMode", value = "File mode either copy/move")
         @RequestParam(FILE_MODE, defaultValue = "COPY") mode: FileMode,
-
-        @ApiParam(name = "Files", value = "List of files to be used in the submission")
         @RequestParam(FILES, required = false) files: Array<MultipartFile>?,
-
-        @ApiParam(name = "Attributes", value = "List of attributes to be added to the submission")
         @RequestParam(ATTRIBUTES, required = false) attributes: Map<String, String>?
     ): Submission {
         val tempFiles = tempFileGenerator.asFiles(files.orEmpty())
@@ -84,8 +58,8 @@ class MultipartSubmitResource(
             format = JSON,
             fileMode = mode,
             attrs = attributes.orEmpty(),
-            files = tempFiles
-        )
+            files = tempFiles)
+
         return submitWebHandler.submit(contentWebRequest)
     }
 
@@ -93,28 +67,12 @@ class MultipartSubmitResource(
         headers = ["$CONTENT_TYPE=$MULTIPART_FORM_DATA", "$SUBMISSION_TYPE=$TEXT_XML"],
         produces = [APPLICATION_JSON_VALUE])
     @ResponseBody
-    @ApiOperation("Make a submission using a XML file. The given files will override the ones in the user folder")
-    @ApiImplicitParams(value = [
-        ApiImplicitParam(name = TOKEN_HEADER, value = "User authentication token", required = true),
-        ApiImplicitParam(name = ON_BEHALF_PARAM, value = "Submission owner", required = false),
-        ApiImplicitParam(name = REGISTER_PARAM, value = "Register owner if does not exists", required = false),
-        ApiImplicitParam(name = USER_NAME_PARAM, value = "Submission owner name. For register mode", required = false)
-    ])
     fun submitMultipartXml(
         @BioUser user: SecurityUser,
-
         onBehalfRequest: OnBehalfRequest?,
-
-        @ApiParam(name = "Submission", value = "File containing the submission page tab in XML format")
         @RequestParam(SUBMISSION) content: String,
-
-        @ApiParam(name = "fileMode", value = "File mode either copy/move")
         @RequestParam(FILE_MODE, defaultValue = "COPY") mode: FileMode,
-
-        @ApiParam(name = "Attributes", value = "List of attributes to be added to the submission")
         @RequestParam(ATTRIBUTES, required = false) attributes: Map<String, String>?,
-
-        @ApiParam(name = "Files", value = "List of files to be used in the submission")
         @RequestParam(FILES, required = false) files: Array<MultipartFile>?
     ): Submission {
         val tempFiles = tempFileGenerator.asFiles(files.orEmpty())
@@ -125,8 +83,8 @@ class MultipartSubmitResource(
             format = XML,
             fileMode = mode,
             attrs = attributes.orEmpty(),
-            files = tempFiles
-        )
+            files = tempFiles)
+
         return submitWebHandler.submit(contentWebRequest)
     }
 
@@ -134,28 +92,12 @@ class MultipartSubmitResource(
         headers = ["$CONTENT_TYPE=$MULTIPART_FORM_DATA", "$SUBMISSION_TYPE=$TEXT_PLAIN"],
         produces = [APPLICATION_JSON_VALUE])
     @ResponseBody
-    @ApiOperation("Make a submission using a TSV file. The given files will override the ones in the user folder")
-    @ApiImplicitParams(value = [
-        ApiImplicitParam(name = TOKEN_HEADER, value = "User authentication token", required = true),
-        ApiImplicitParam(name = ON_BEHALF_PARAM, value = "Submission owner", required = false),
-        ApiImplicitParam(name = REGISTER_PARAM, value = "Register owner if does not exists", required = false),
-        ApiImplicitParam(name = USER_NAME_PARAM, value = "Submission owner name. For register mode", required = false)
-    ])
     fun submitMultipartTsv(
         @BioUser user: SecurityUser,
-
         onBehalfRequest: OnBehalfRequest?,
-
-        @ApiParam(name = "Submission", value = "File containing the submission page tab in TSV format")
         @RequestParam(SUBMISSION) content: String,
-
-        @ApiParam(name = "fileMode", value = "File mode either copy/move")
         @RequestParam(FILE_MODE, defaultValue = "COPY") mode: FileMode,
-
-        @ApiParam(name = "Attributes", value = "List of attributes to be added to the submission")
         @RequestParam(ATTRIBUTES, required = false) attributes: Map<String, String>?,
-
-        @ApiParam(name = "Files", value = "List of files to be used in the submission")
         @RequestParam(FILES, required = false) files: Array<MultipartFile>?
     ): Submission {
         val tempFiles = tempFileGenerator.asFiles(files.orEmpty())
@@ -166,8 +108,8 @@ class MultipartSubmitResource(
             format = TSV,
             fileMode = mode,
             attrs = attributes.orEmpty(),
-            files = tempFiles
-        )
+            files = tempFiles)
+
         return submitWebHandler.submit(contentWebRequest)
     }
 
@@ -176,30 +118,12 @@ class MultipartSubmitResource(
         headers = ["$CONTENT_TYPE=$MULTIPART_FORM_DATA"],
         produces = [APPLICATION_JSON_VALUE])
     @ResponseBody
-    @ApiOperation("Make a submission using a file. The given files will override the ones in the user folder")
-    @ApiImplicitParams(value = [
-        ApiImplicitParam(name = TOKEN_HEADER, value = "User authentication token", required = true),
-        ApiImplicitParam(name = ON_BEHALF_PARAM, value = "Submission owner", required = false),
-        ApiImplicitParam(name = REGISTER_PARAM, value = "Register owner if does not exists", required = false),
-        ApiImplicitParam(name = USER_NAME_PARAM, value = "Submission owner name. For register mode", required = false)
-    ])
     fun submitFile(
         @BioUser user: SecurityUser,
-
         onBehalfRequest: OnBehalfRequest?,
-
-        @ApiParam(
-            name = "Submission",
-            value = "File containing the submission page tab. The format will be detected based on the file extension")
         @RequestParam(SUBMISSION) file: MultipartFile,
-
-        @ApiParam(name = "Files", value = "List of files to be used in the submission")
         @RequestParam(FILES) files: Array<MultipartFile>,
-
-        @ApiParam(name = "fileMode", value = "File mode either copy/move")
         @RequestParam(FILE_MODE, defaultValue = "COPY") mode: FileMode,
-
-        @ApiParam(name = "Attributes", value = "List of attributes to be added to the submission")
         @RequestParam attributes: Map<String, String> = emptyMap()
     ): Submission {
         val tempFiles = tempFileGenerator.asFiles(files)
@@ -211,8 +135,8 @@ class MultipartSubmitResource(
             format = TSV,
             fileMode = mode,
             attrs = attributes,
-            files = tempFiles
-        )
+            files = tempFiles)
+
         return submitWebHandler.submit(contentWebRequest)
     }
 }
