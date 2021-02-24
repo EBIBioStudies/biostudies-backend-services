@@ -3,7 +3,7 @@ package ac.uk.ebi.biostd.submission.web.resources
 import ac.uk.ebi.biostd.persistence.common.model.AccessType
 import ac.uk.ebi.biostd.submission.converters.BioUser
 import ac.uk.ebi.biostd.submission.domain.service.ProjectService
-import ebi.ac.uk.model.Project
+import ebi.ac.uk.model.Collection
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiImplicitParam
@@ -25,5 +25,5 @@ class ProjectResource(private val projectService: ProjectService) {
     @ApiImplicitParam(name = "X-Session-Token", value = "User authentication token", required = true)
     fun getUserProjects(
         @BioUser user: SecurityUser
-    ): List<Project> = projectService.getAllowedProjects(user, AccessType.ATTACH)
+    ): List<Collection> = projectService.getAllowedProjects(user, AccessType.ATTACH)
 }

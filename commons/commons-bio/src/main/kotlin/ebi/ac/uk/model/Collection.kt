@@ -1,6 +1,6 @@
 package ebi.ac.uk.model
 
-data class Project(
+data class Collection(
     val accno: String,
     val title: String? = null
 )

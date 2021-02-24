@@ -35,7 +35,7 @@ internal class ProjectsListTest(tempFolder: TemporaryFolder) : BaseIntegrationTe
     @ExtendWith(SpringExtension::class)
     @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
     @DirtiesContext
-    inner class ProjectListTest(
+    inner class ExtCollectionListTest(
         @Autowired val userDataRepository: UserDataRepository,
         @Autowired val tagsDataRepository: AccessTagDataRepo,
         @Autowired val accessPermissionRepository: AccessPermissionRepository,

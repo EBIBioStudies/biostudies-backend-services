@@ -15,8 +15,8 @@ import ebi.ac.uk.api.security.RegisterRequest
 import ebi.ac.uk.api.security.UserProfile
 import ebi.ac.uk.base.EMPTY
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.model.Collection
 import ebi.ac.uk.model.Group
-import ebi.ac.uk.model.Project
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.WebSubmissionDraft
 import java.io.File
@@ -84,7 +84,7 @@ interface SecurityOperations {
 
 interface GeneralOperations {
     fun getGroups(): List<Group>
-    fun getProjects(): List<Project>
+    fun getProjects(): List<Collection>
 }
 
 interface DraftSubmissionOperations {

@@ -1,9 +1,9 @@
 package ac.uk.ebi.biostd.submission.service
 
 import ac.uk.ebi.biostd.persistence.common.service.PersistenceService
-import ac.uk.ebi.biostd.submission.exceptions.ProjectAccNoTemplateAlreadyExistsException
-import ac.uk.ebi.biostd.submission.exceptions.ProjectAlreadyExistingException
-import ac.uk.ebi.biostd.submission.exceptions.ProjectInvalidAccNoPatternException
+import ac.uk.ebi.biostd.submission.exceptions.CollectionAccNoTemplateAlreadyExistsException
+import ac.uk.ebi.biostd.submission.exceptions.CollectionAlreadyExistingException
+import ac.uk.ebi.biostd.submission.exceptions.CollectionInvalidAccNoPatternException
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotSubmitProjectsException
 import ac.uk.ebi.biostd.submission.util.AccNoPatternUtil
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
@@ -32,14 +32,14 @@ class ProjectInfoService(
     }
 
     private fun validateProject(isNew: Boolean, accNo: String, accNoPattern: String) {
-        if (isNew && service.accessTagExists(accNo)) throw ProjectAlreadyExistingException(accNo)
+        if (isNew && service.accessTagExists(accNo)) throw CollectionAlreadyExistingException(accNo)
         if (isNew && service.sequenceAccNoPatternExists(accNoPattern))
-            throw ProjectAccNoTemplateAlreadyExistsException(accNoPattern)
+            throw CollectionAccNoTemplateAlreadyExistsException(accNoPattern)
     }
 
     private fun validatePattern(template: String?) {
-        require(template != null) { throw ProjectInvalidAccNoPatternException(ACC_NO_TEMPLATE_REQUIRED) }
-        require(accNoUtil.isPattern(template)) { throw ProjectInvalidAccNoPatternException(ACC_NO_TEMPLATE_INVALID) }
+        require(template != null) { throw CollectionInvalidAccNoPatternException(ACC_NO_TEMPLATE_REQUIRED) }
+        require(accNoUtil.isPattern(template)) { throw CollectionInvalidAccNoPatternException(ACC_NO_TEMPLATE_INVALID) }
     }
 
     private fun persist(isNew: Boolean, accNo: String, accNoPattern: String) {

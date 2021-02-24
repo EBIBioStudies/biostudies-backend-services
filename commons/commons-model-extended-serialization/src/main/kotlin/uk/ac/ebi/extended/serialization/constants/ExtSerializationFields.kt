@@ -36,7 +36,7 @@ object ExtSerializationFields {
     const val CREATION_TIME = "creationTime"
     const val SECTION = "section"
     const val TAGS = "tags"
-    const val PROJECTS = "projects"
+    const val COLLECTIONS = "collections"
     const val STATS = "stats"
     const val ACCESS_TAGS = "accessTags"
 }

@@ -2,11 +2,11 @@ package ac.uk.ebi.biostd.persistence.doc.db.converters.from
 
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields
 import ac.uk.ebi.biostd.persistence.doc.model.DocAttribute
+import ac.uk.ebi.biostd.persistence.doc.model.DocProcessingStatus
 import ac.uk.ebi.biostd.persistence.doc.model.DocSection
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
-import ac.uk.ebi.biostd.persistence.doc.model.docSubmissionClass
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionMethod
-import ac.uk.ebi.biostd.persistence.doc.model.DocProcessingStatus
+import ac.uk.ebi.biostd.persistence.doc.model.docSubmissionClass
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
@@ -59,7 +59,7 @@ internal class DocSubmissionConverterTest(
         assertThat(result.attributes).isEqualTo(listOf(docAttribute))
         assertThat(result.tags[0].name).isEqualTo(tagDocName)
         assertThat(result.tags[0].value).isEqualTo(tagDocValue)
-        assertThat(result.projects[0].accNo).isEqualTo(projectDocAccNo)
+        assertThat(result.collections[0].accNo).isEqualTo(projectDocAccNo)
         assertThat(result.stats[0].name).isEqualTo(statDocName)
         assertThat(result.stats[0].value).isEqualTo(statDocValue)
     }

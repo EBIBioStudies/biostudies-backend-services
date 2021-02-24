@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.persistence.doc.service
 
-import ac.uk.ebi.biostd.persistence.common.model.BasicProject
+import ac.uk.ebi.biostd.persistence.common.model.BasicCollection
 import ac.uk.ebi.biostd.persistence.common.model.BasicSubmission
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
@@ -15,14 +15,14 @@ class SubmissionMongoMetaQueryService(
     private val submissionDocDataRepository: SubmissionDocDataRepository
 ) : SubmissionMetaQueryService {
 
-    override fun getBasicProject(accNo: String): BasicProject {
+    override fun getBasicProject(accNo: String): BasicCollection {
         val projectDb: DocSubmission? = submissionDocDataRepository.findByAccNo(accNo)
         require(projectDb != null) { throw ProjectNotFoundException(accNo) }
 
         val projectPattern = projectDb.attributes.firstOrNull { it.name == ACC_NO_TEMPLATE.value }?.value
             ?: throw ProjectWithoutPatternException(accNo)
 
-        return BasicProject(projectDb.accNo, projectPattern, projectDb.releaseTime?.atOffset(ZoneOffset.UTC))
+        return BasicCollection(projectDb.accNo, projectPattern, projectDb.releaseTime?.atOffset(ZoneOffset.UTC))
     }
 
     override fun findLatestBasicByAccNo(accNo: String): BasicSubmission? =

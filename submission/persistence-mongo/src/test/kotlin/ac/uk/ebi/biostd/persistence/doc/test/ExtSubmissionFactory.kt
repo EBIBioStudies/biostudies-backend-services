@@ -1,13 +1,13 @@
 package ac.uk.ebi.biostd.persistence.doc.test
 
 import ebi.ac.uk.extended.model.ExtAttribute
+import ebi.ac.uk.extended.model.ExtCollection
 import ebi.ac.uk.extended.model.ExtProcessingStatus.PROCESSED
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtStat
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod.PAGE_TAB
 import ebi.ac.uk.extended.model.ExtTag
-import ebi.ac.uk.extended.model.Project
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 
@@ -33,7 +33,7 @@ fun extSubmission(): ExtSubmission {
         creationTime = creationTime,
         attributes = listOf(ExtAttribute("AttachTo", "BioImages")),
         tags = listOf(ExtTag("component", "web")),
-        projects = listOf(Project("BioImages")),
+        collections = listOf(ExtCollection("BioImages")),
         section = ExtSection(type = "Study"),
         stats = listOf(ExtStat("component", "web"))
     )

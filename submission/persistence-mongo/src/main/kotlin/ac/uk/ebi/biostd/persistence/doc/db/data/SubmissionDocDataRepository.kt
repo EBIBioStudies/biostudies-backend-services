@@ -13,8 +13,8 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_TITLE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_VERSION
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionMongoRepository
+import ac.uk.ebi.biostd.persistence.doc.model.DocCollection
 import ac.uk.ebi.biostd.persistence.doc.model.DocProcessingStatus
-import ac.uk.ebi.biostd.persistence.doc.model.DocProject
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import com.google.common.collect.ImmutableList
 import org.springframework.data.domain.Page
@@ -83,7 +83,7 @@ class SubmissionDocDataRepository(
         )
     }
 
-    fun getProjects(accNo: String): List<DocProject> = submissionRepository.getSubmissionProjects(accNo).projects
+    fun getProjects(accNo: String): List<DocCollection> = submissionRepository.getSubmissionProjects(accNo).collections
 
     fun getSubmissions(filter: SubmissionFilter, email: String? = null): List<DocSubmission> {
         val aggregation = newAggregation(

@@ -2,8 +2,8 @@ package ac.uk.ebi.biostd.persistence.doc.test.doc
 
 import ac.uk.ebi.biostd.persistence.doc.model.DocAttribute
 import ac.uk.ebi.biostd.persistence.doc.model.DocAttributeDetail
+import ac.uk.ebi.biostd.persistence.doc.model.DocCollection
 import ac.uk.ebi.biostd.persistence.doc.model.DocProcessingStatus.PROCESSED
-import ac.uk.ebi.biostd.persistence.doc.model.DocProject
 import ac.uk.ebi.biostd.persistence.doc.model.DocSection
 import ac.uk.ebi.biostd.persistence.doc.model.DocStat
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
@@ -45,7 +45,7 @@ internal val RELEASE_TIME = CREATION_TIME.plus(1, ChronoUnit.DAYS)
 
 internal val testDocSection = DocSection(type = "Study")
 
-internal val testDocProject = DocProject(PROJECT_ACC_NO)
+internal val testDocProject = DocCollection(PROJECT_ACC_NO)
 
 internal val testDocSubmission = DocSubmission(
     id = ObjectId().toString(),
@@ -66,6 +66,6 @@ internal val testDocSubmission = DocSubmission(
     attributes = listOf(testDocAttribute),
     tags = listOf(DocTag(TAG_NAME, TAG_VALUE)),
     stats = listOf(DocStat(STAT_TYPE, STAT_VALUE)),
-    projects = listOf(testDocProject),
+    collections = listOf(testDocProject),
     section = testDocSection
 )

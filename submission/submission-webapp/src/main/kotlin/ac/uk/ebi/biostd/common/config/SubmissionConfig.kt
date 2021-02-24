@@ -3,7 +3,7 @@ package ac.uk.ebi.biostd.common.config
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.files.service.UserFilesService
 import ac.uk.ebi.biostd.integration.SerializationService
-import ac.uk.ebi.biostd.persistence.common.service.ProjectDataService
+import ac.uk.ebi.biostd.persistence.common.service.CollectionDataService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestService
@@ -60,9 +60,9 @@ class SubmissionConfig(
 
     @Bean
     fun projectService(
-        projectSqlDataService: ProjectDataService,
+        collectionSqlDataService: CollectionDataService,
         userPrivilegeService: IUserPrivilegesService
-    ): ProjectService = ProjectService(projectSqlDataService, userPrivilegeService)
+    ): ProjectService = ProjectService(collectionSqlDataService, userPrivilegeService)
 
     @Bean
     fun submitHandler(

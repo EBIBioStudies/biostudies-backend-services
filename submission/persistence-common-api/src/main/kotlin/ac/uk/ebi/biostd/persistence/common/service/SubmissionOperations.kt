@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.persistence.common.service
 
-import ac.uk.ebi.biostd.persistence.common.model.BasicProject
+import ac.uk.ebi.biostd.persistence.common.model.BasicCollection
 import ac.uk.ebi.biostd.persistence.common.model.BasicSubmission
 import ac.uk.ebi.biostd.persistence.common.request.SaveSubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
@@ -34,7 +34,7 @@ interface SubmissionQueryService {
 }
 
 interface SubmissionMetaQueryService {
-    fun getBasicProject(accNo: String): BasicProject
+    fun getBasicProject(accNo: String): BasicCollection
 
     fun findLatestBasicByAccNo(accNo: String): BasicSubmission?
 
