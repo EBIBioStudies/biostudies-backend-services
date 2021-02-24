@@ -9,6 +9,7 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocLink
 import ac.uk.ebi.biostd.persistence.doc.model.DocLinkTable
 import ac.uk.ebi.biostd.persistence.doc.model.DocSection
 import ac.uk.ebi.biostd.persistence.doc.model.DocSectionTable
+import ac.uk.ebi.biostd.persistence.doc.model.DocTableSection
 import arrow.core.Either
 import ebi.ac.uk.util.collections.second
 import io.mockk.every
@@ -146,14 +147,10 @@ internal class SectionConverterTest(
                     listOf(),
                     listOf()
                 )),
-                Either.right(DocSectionTable(listOf(DocSection(
+                Either.right(DocSectionTable(listOf(DocTableSection(
                     docSectionAccNo3,
                     docSectionType3,
-                    docFileList3,
-                    listOf(docAttribute3),
-                    listOf(),
-                    listOf(),
-                    listOf()
+                    listOf(docAttribute3)
                 ))))
             ),
             files = listOf(Either.left(docFile1), Either.right(docFileTable1)),
