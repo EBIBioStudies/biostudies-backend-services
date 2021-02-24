@@ -61,9 +61,9 @@ class DocSectionConverter(
     }
 
     private fun toSectionTable(document: Document): DocSectionTable =
-        DocSectionTable(sections = document.getDocList(SEC_TABLE_SECTIONS).map { toDocSection(it) })
+        DocSectionTable(sections = document.getDocList(SEC_TABLE_SECTIONS).map { toDocTableSection(it) })
 
-    private fun toDocSection(doc: Document) =
+    private fun toDocTableSection(doc: Document) =
         DocTableSection(
             accNo = doc.getString(SEC_ACC_NO),
             type = doc.getString(SEC_TYPE),
