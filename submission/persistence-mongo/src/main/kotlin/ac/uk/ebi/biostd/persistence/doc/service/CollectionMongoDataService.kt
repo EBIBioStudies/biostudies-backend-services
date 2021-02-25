@@ -9,7 +9,7 @@ class CollectionMongoDataService(
     private val submissionDocDataRepository: SubmissionDocDataRepository
 ) : CollectionDataService {
 
-    override fun findProjectsByAccessTags(tags: List<String>): List<BasicSubmission> {
+    override fun findCollectionsByAccessTags(tags: List<String>): List<BasicSubmission> {
         return submissionDocDataRepository
             .getByAccNoInAndVersionGreaterThan(tags, 0)
             .map { it.asBasicSubmission() }

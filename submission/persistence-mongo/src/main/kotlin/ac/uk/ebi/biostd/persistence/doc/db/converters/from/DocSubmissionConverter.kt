@@ -59,7 +59,7 @@ class DocSubmissionConverter(
         section = docSectionConverter.convert(source.getDoc(SUB_SECTION)),
         attributes = source.getDocList(SUB_ATTRIBUTES).map { docAttributeConverter.convert(it) },
         tags = source.getDocList(SUB_TAGS).map { toDocTag(it) },
-        collections = source.getDocList(SUB_PROJECTS).map { toDocProject(it) },
+        collections = source.getDocList(SUB_PROJECTS).map { toDocCollection(it) },
         stats = source.getDocList(SUB_STATS).map { toDocStat(it) }
     )
 
@@ -69,5 +69,5 @@ private fun toDocTag(doc: Document): DocTag =
 private fun toDocStat(doc: Document): DocStat =
     DocStat(name = doc.getString(STAT_DOC_NAME), value = doc.getLong(STAT_DOC_VALUE))
 
-    private fun toDocProject(doc: Document): DocCollection = DocCollection(accNo = doc.getString(PROJECT_DOC_ACC_NO))
+    private fun toDocCollection(doc: Document): DocCollection = DocCollection(accNo = doc.getString(PROJECT_DOC_ACC_NO))
 }

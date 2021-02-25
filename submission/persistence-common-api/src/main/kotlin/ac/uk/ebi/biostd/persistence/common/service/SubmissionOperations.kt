@@ -34,7 +34,7 @@ interface SubmissionQueryService {
 }
 
 interface SubmissionMetaQueryService {
-    fun getBasicProject(accNo: String): BasicCollection
+    fun getBasicCollection(accNo: String): BasicCollection
 
     fun findLatestBasicByAccNo(accNo: String): BasicSubmission?
 

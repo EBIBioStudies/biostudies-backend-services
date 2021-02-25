@@ -11,7 +11,7 @@ import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 internal const val ACC_NO_TEMPLATE_REQUIRED = "The AccNoTemplate property is required for projects"
 internal const val ACC_NO_TEMPLATE_INVALID = "The given AccNoTemplate is invalid. Expected pattern is !{TEMPLATE}"
 
-class ProjectInfoService(
+class CollectionInfoService(
     private val service: PersistenceService,
     private val accNoUtil: AccNoPatternUtil,
     private val privilegesService: IUserPrivilegesService

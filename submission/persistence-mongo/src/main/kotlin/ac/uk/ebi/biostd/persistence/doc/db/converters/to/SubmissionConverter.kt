@@ -63,7 +63,7 @@ class SubmissionConverter(
         submissionDoc[SUB_SECTION] = sectionConverter.convert(submission.section)
         submissionDoc[SUB_ATTRIBUTES] = submission.attributes.map { attributeConverter.convert(it) }
         submissionDoc[SUB_TAGS] = submission.tags.map { tagToDocument(it) }
-        submissionDoc[SUB_PROJECTS] = submission.collections.map { projectToDocument(it) }
+        submissionDoc[SUB_PROJECTS] = submission.collections.map { collectionToDocument(it) }
         submissionDoc[SUB_STATS] = submission.stats.map { statToDocument(it) }
         return submissionDoc
     }
@@ -76,7 +76,7 @@ class SubmissionConverter(
         return tagDoc
     }
 
-    private fun projectToDocument(docCollection: DocCollection): Document {
+    private fun collectionToDocument(docCollection: DocCollection): Document {
         val projectDoc = Document()
         projectDoc[classField] = DOC_PROJECT_CLASS
         projectDoc[PROJECT_DOC_ACC_NO] = docCollection.accNo

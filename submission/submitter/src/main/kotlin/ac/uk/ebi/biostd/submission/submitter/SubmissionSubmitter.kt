@@ -7,8 +7,8 @@ import ac.uk.ebi.biostd.submission.exceptions.InvalidSubmissionException
 import ac.uk.ebi.biostd.submission.model.SubmissionRequest
 import ac.uk.ebi.biostd.submission.service.AccNoService
 import ac.uk.ebi.biostd.submission.service.AccNoServiceRequest
+import ac.uk.ebi.biostd.submission.service.CollectionInfoService
 import ac.uk.ebi.biostd.submission.service.ParentInfoService
-import ac.uk.ebi.biostd.submission.service.ProjectInfoService
 import ac.uk.ebi.biostd.submission.service.ProjectRequest
 import ac.uk.ebi.biostd.submission.service.ProjectResponse
 import ac.uk.ebi.biostd.submission.service.TimesRequest
@@ -46,7 +46,7 @@ class SubmissionSubmitter(
     private val timesService: TimesService,
     private val accNoService: AccNoService,
     private val parentInfoService: ParentInfoService,
-    private val projectInfoService: ProjectInfoService,
+    private val collectionInfoService: CollectionInfoService,
     private val submissionRequestService: SubmissionRequestService,
     private val queryService: SubmissionMetaQueryService
 ) {
@@ -157,7 +157,7 @@ class SubmissionSubmitter(
 
     private fun getProjectInfo(user: User, submission: Submission, accNo: String, isNew: Boolean): ProjectResponse? {
         val request = ProjectRequest(user.email, submission.section.type, submission.accNoTemplate, accNo, isNew)
-        return projectInfoService.process(request)
+        return collectionInfoService.process(request)
     }
 
     private fun getAttributes(submission: Submission) = submission.attributes

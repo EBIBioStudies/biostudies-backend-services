@@ -35,7 +35,7 @@ class ParentInfoServiceTest(
         val testTime = OffsetDateTime.of(2018, 10, 10, 0, 0, 0, 0, ZoneOffset.UTC)
         val basicProject = BasicCollection("BioImages-EMPIAR", "!{S-BIAD}", testTime)
 
-        every { queryService.getBasicProject(parentAccNo) } returns basicProject
+        every { queryService.getBasicCollection(parentAccNo) } returns basicProject
         every { queryService.getAccessTags(parentAccNo) } returns listOf(PUBLIC_ACCESS_TAG.value, parentAccNo)
 
         val parentInfo = testInstance.getParentInfo(parentAccNo)
@@ -50,7 +50,7 @@ class ParentInfoServiceTest(
         val parentAccNo = "BioImages-EMPIAR"
         val basicProject = BasicCollection(parentAccNo, "!{S-BIAD}", null)
 
-        every { queryService.getBasicProject(parentAccNo) } returns basicProject
+        every { queryService.getBasicCollection(parentAccNo) } returns basicProject
         every { queryService.getAccessTags(parentAccNo) } returns listOf("Empiar")
 
         assertThrows<CollectionInvalidAccessTagException> { testInstance.getParentInfo(parentAccNo) }

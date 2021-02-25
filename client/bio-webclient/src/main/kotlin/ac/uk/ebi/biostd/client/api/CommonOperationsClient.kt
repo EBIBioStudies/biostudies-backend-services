@@ -12,5 +12,5 @@ private const val PROJECTS_URL = "/projects"
 class CommonOperationsClient(private val template: RestTemplate) : GeneralOperations {
     override fun getGroups(): List<Group> = template.getForObject<Array<Group>>(GROUP_URL).toList()
 
-    override fun getProjects(): List<Collection> = template.getForObject<Array<Collection>>(PROJECTS_URL).toList()
+    override fun getCollections(): List<Collection> = template.getForObject<Array<Collection>>(PROJECTS_URL).toList()
 }

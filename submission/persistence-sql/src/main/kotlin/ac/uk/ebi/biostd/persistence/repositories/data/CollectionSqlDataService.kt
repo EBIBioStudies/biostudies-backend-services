@@ -12,10 +12,10 @@ import com.cosium.spring.data.jpa.entity.graph.domain.EntityGraphs.named
 internal class CollectionSqlDataService(
     private val submissionRepository: SubmissionDataRepository
 ) : CollectionDataService {
-    override fun findProjectsByAccessTags(tags: List<String>): List<BasicSubmission> =
-        if (tags.isEmpty()) emptyList() else getProjectsByAccessTags(tags)
+    override fun findCollectionsByAccessTags(tags: List<String>): List<BasicSubmission> =
+        if (tags.isEmpty()) emptyList() else getCollectionsByAccessTags(tags)
 
-    private fun getProjectsByAccessTags(tags: List<String>): List<BasicSubmission> =
+    private fun getCollectionsByAccessTags(tags: List<String>): List<BasicSubmission> =
         submissionRepository
             .findByRootSectionTypeAndAccNoInAndVersionGreaterThan(Project.value, tags, named(SIMPLE_GRAPH))
             .map { it.asBasicSubmission() }

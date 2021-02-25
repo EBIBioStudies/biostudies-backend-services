@@ -1,13 +1,14 @@
 package ac.uk.ebi.biostd.submission.exceptions
 
-class CollectionAlreadyExistingException(project: String) : RuntimeException("The project '$project' already exists")
+class CollectionInvalidAccNoPatternException(message: String) : RuntimeException(message)
+
+class CollectionAlreadyExistingException(collection: String
+) : RuntimeException("The collection '$collection' already exists")
 
 class CollectionAccNoTemplateAlreadyExistsException(
     pattern: String
-) : RuntimeException("There is a project already using the accNo template '$pattern'")
-
-class CollectionInvalidAccNoPatternException(message: String) : RuntimeException(message)
+) : RuntimeException("There is a collection already using the accNo template '$pattern'")
 
 class CollectionInvalidAccessTagException(
     project: String
-) : RuntimeException("The project $project doesn't have a valid access tag")
+) : RuntimeException("The collection $project doesn't have a valid access tag")

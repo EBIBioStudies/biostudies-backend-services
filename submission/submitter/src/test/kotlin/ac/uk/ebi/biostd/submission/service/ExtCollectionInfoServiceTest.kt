@@ -27,7 +27,7 @@ class ExtCollectionInfoServiceTest(
     @MockK private val accNoUtil: AccNoPatternUtil,
     @MockK private val privilegesService: IUserPrivilegesService
 ) {
-    private val testInstance = ProjectInfoService(service, accNoUtil, privilegesService)
+    private val testInstance = CollectionInfoService(service, accNoUtil, privilegesService)
 
     @AfterEach
     fun afterEach() = clearAllMocks()

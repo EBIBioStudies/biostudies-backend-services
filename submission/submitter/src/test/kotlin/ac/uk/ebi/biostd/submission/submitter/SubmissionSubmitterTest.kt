@@ -7,9 +7,9 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestService
 import ac.uk.ebi.biostd.submission.model.SubmissionRequest
 import ac.uk.ebi.biostd.submission.service.AccNoService
 import ac.uk.ebi.biostd.submission.service.AccNoServiceRequest
+import ac.uk.ebi.biostd.submission.service.CollectionInfoService
 import ac.uk.ebi.biostd.submission.service.ParentInfo
 import ac.uk.ebi.biostd.submission.service.ParentInfoService
-import ac.uk.ebi.biostd.submission.service.ProjectInfoService
 import ac.uk.ebi.biostd.submission.service.ProjectRequest
 import ac.uk.ebi.biostd.submission.service.ProjectResponse
 import ac.uk.ebi.biostd.submission.service.Times
@@ -61,7 +61,7 @@ class SubmissionSubmitterTest {
     private val accNoService = mockk<AccNoService>()
     private val parentInfoService = mockk<ParentInfoService>()
     private val queryService = mockk<SubmissionMetaQueryService>()
-    private val projectInfoService = mockk<ProjectInfoService>()
+    private val projectInfoService = mockk<CollectionInfoService>()
     private val submissionRequestService = mockk<SubmissionRequestService>()
     private val basicSubmission = mockk<BasicSubmission>()
 

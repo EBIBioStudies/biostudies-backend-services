@@ -8,8 +8,8 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestService
 import ac.uk.ebi.biostd.submission.domain.helpers.SourceGenerator
+import ac.uk.ebi.biostd.submission.domain.service.CollectionService
 import ac.uk.ebi.biostd.submission.domain.service.ExtSubmissionService
-import ac.uk.ebi.biostd.submission.domain.service.ProjectService
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionService
 import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
 import ac.uk.ebi.biostd.submission.web.handlers.SubmissionsWebHandler
@@ -62,7 +62,7 @@ class SubmissionConfig(
     fun projectService(
         collectionSqlDataService: CollectionDataService,
         userPrivilegeService: IUserPrivilegesService
-    ): ProjectService = ProjectService(collectionSqlDataService, userPrivilegeService)
+    ): CollectionService = CollectionService(collectionSqlDataService, userPrivilegeService)
 
     @Bean
     fun submitHandler(

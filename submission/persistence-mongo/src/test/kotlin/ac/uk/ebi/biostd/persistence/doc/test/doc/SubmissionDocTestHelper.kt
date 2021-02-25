@@ -45,7 +45,7 @@ internal val RELEASE_TIME = CREATION_TIME.plus(1, ChronoUnit.DAYS)
 
 internal val testDocSection = DocSection(type = "Study")
 
-internal val testDocProject = DocCollection(PROJECT_ACC_NO)
+internal val testDocCollection = DocCollection(PROJECT_ACC_NO)
 
 internal val testDocSubmission = DocSubmission(
     id = ObjectId().toString(),
@@ -66,6 +66,6 @@ internal val testDocSubmission = DocSubmission(
     attributes = listOf(testDocAttribute),
     tags = listOf(DocTag(TAG_NAME, TAG_VALUE)),
     stats = listOf(DocStat(STAT_TYPE, STAT_VALUE)),
-    collections = listOf(testDocProject),
+    collections = listOf(testDocCollection),
     section = testDocSection
 )

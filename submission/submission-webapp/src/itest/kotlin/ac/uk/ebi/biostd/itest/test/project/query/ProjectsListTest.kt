@@ -60,7 +60,7 @@ internal class ProjectsListTest(tempFolder: TemporaryFolder) : BaseIntegrationTe
 
         @Test
         fun `list projects for super user`() {
-            val projects = superUserWebClient.getProjects()
+            val projects = superUserWebClient.getCollections()
 
             assertThat(projects).hasSize(2)
             assertThat(projects.first().accno).isEqualTo("SampleProject")
@@ -69,7 +69,7 @@ internal class ProjectsListTest(tempFolder: TemporaryFolder) : BaseIntegrationTe
 
         @Test
         fun `list projects for regular user`() {
-            val projects = regularUserWebClient.getProjects()
+            val projects = regularUserWebClient.getCollections()
 
             assertThat(projects).hasSize(1)
             assertThat(projects.first().accno).isEqualTo("DefaultProject")

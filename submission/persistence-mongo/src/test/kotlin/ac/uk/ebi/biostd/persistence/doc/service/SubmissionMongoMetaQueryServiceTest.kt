@@ -44,7 +44,7 @@ internal class SubmissionMongoMetaQueryServiceTest(
             attributes = listOf(DocAttribute(SubFields.ACC_NO_TEMPLATE.value, "template"))
         ))
 
-        val result = testInstance.getBasicProject("accNo1")
+        val result = testInstance.getBasicCollection("accNo1")
 
         assertThat(result.accNo).isEqualTo("accNo1")
     }

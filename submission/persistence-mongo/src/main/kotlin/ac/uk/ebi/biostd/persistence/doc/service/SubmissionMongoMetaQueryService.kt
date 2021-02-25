@@ -6,8 +6,8 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.asBasicSubmission
-import ac.uk.ebi.biostd.persistence.exception.ProjectNotFoundException
-import ac.uk.ebi.biostd.persistence.exception.ProjectWithoutPatternException
+import ac.uk.ebi.biostd.persistence.exception.CollectionNotFoundException
+import ac.uk.ebi.biostd.persistence.exception.CollectionWithoutPatternException
 import ebi.ac.uk.model.constants.SubFields.ACC_NO_TEMPLATE
 import java.time.ZoneOffset
 
@@ -15,12 +15,12 @@ class SubmissionMongoMetaQueryService(
     private val submissionDocDataRepository: SubmissionDocDataRepository
 ) : SubmissionMetaQueryService {
 
-    override fun getBasicProject(accNo: String): BasicCollection {
+    override fun getBasicCollection(accNo: String): BasicCollection {
         val projectDb: DocSubmission? = submissionDocDataRepository.findByAccNo(accNo)
-        require(projectDb != null) { throw ProjectNotFoundException(accNo) }
+        require(projectDb != null) { throw CollectionNotFoundException(accNo) }
 
         val projectPattern = projectDb.attributes.firstOrNull { it.name == ACC_NO_TEMPLATE.value }?.value
-            ?: throw ProjectWithoutPatternException(accNo)
+            ?: throw CollectionWithoutPatternException(accNo)
 
         return BasicCollection(projectDb.accNo, projectPattern, projectDb.releaseTime?.atOffset(ZoneOffset.UTC))
     }
@@ -29,7 +29,7 @@ class SubmissionMongoMetaQueryService(
         submissionDocDataRepository.findFirstByAccNoOrderByVersionDesc(accNo)?.asBasicSubmission()
 
     override fun getAccessTags(accNo: String): List<String> =
-        submissionDocDataRepository.getProjects(accNo).map { it.accNo }
+        submissionDocDataRepository.getCollections(accNo).map { it.accNo }
 
     override fun existByAccNo(accNo: String): Boolean = submissionDocDataRepository.existsByAccNo(accNo)
 }

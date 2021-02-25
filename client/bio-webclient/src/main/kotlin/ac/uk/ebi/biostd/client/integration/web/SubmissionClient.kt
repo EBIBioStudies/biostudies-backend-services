@@ -84,7 +84,7 @@ interface SecurityOperations {
 
 interface GeneralOperations {
     fun getGroups(): List<Group>
-    fun getProjects(): List<Collection>
+    fun getCollections(): List<Collection>
 }
 
 interface DraftSubmissionOperations {

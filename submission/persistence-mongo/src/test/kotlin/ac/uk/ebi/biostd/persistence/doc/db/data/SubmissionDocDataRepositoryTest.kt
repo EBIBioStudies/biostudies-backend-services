@@ -4,7 +4,7 @@ import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbReposConfig
 import ac.uk.ebi.biostd.persistence.doc.model.DocProcessingStatus.PROCESSED
 import ac.uk.ebi.biostd.persistence.doc.model.DocProcessingStatus.PROCESSING
-import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocProject
+import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocCollection
 import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocSection
 import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocSubmission
 import ebi.ac.uk.db.MONGO_VERSION
@@ -175,9 +175,9 @@ internal class SubmissionDocDataRepositoryTest {
     fun getProjects() {
         testInstance.save(testDocSubmission)
 
-        val projects = testInstance.getProjects(testDocSubmission.accNo)
+        val projects = testInstance.getCollections(testDocSubmission.accNo)
 
-        assertThat(projects).containsExactly(testDocProject)
+        assertThat(projects).containsExactly(testDocCollection)
     }
 
     companion object {

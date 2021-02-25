@@ -2,7 +2,7 @@ package ac.uk.ebi.biostd.submission.web.resources
 
 import ac.uk.ebi.biostd.persistence.common.model.AccessType
 import ac.uk.ebi.biostd.submission.converters.BioUser
-import ac.uk.ebi.biostd.submission.domain.service.ProjectService
+import ac.uk.ebi.biostd.submission.domain.service.CollectionService
 import ebi.ac.uk.model.Collection
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import io.swagger.annotations.Api
@@ -15,15 +15,15 @@ import org.springframework.web.bind.annotation.ResponseBody
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-@RequestMapping("/projects")
+@RequestMapping(value = ["/projects", "/collections"])
 @PreAuthorize("isAuthenticated()")
 @Api(tags = ["Projects"])
-class ProjectResource(private val projectService: ProjectService) {
+class ProjectResource(private val collectionService: CollectionService) {
     @GetMapping
     @ResponseBody
     @ApiOperation("Get the list of available projects for the current user")
     @ApiImplicitParam(name = "X-Session-Token", value = "User authentication token", required = true)
-    fun getUserProjects(
+    fun getUserCollections(
         @BioUser user: SecurityUser
-    ): List<Collection> = projectService.getAllowedProjects(user, AccessType.ATTACH)
+    ): List<Collection> = collectionService.getAllowedProjects(user, AccessType.ATTACH)
 }

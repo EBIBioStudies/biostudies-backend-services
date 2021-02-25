@@ -12,7 +12,7 @@ class ParentInfoService(private val queryService: SubmissionMetaQueryService) {
     }
 
     private fun parentInfo(parentAccNo: String): ParentInfo {
-        val project = queryService.getBasicProject(parentAccNo)
+        val project = queryService.getBasicCollection(parentAccNo)
         return ParentInfo(accessTags(parentAccNo), project.releaseTime, project.accNoPattern)
     }
 
