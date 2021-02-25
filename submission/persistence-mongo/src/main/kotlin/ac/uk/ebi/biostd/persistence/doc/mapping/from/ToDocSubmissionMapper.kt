@@ -4,6 +4,7 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocProcessingStatus
 import ac.uk.ebi.biostd.persistence.doc.model.DocProject
 import ac.uk.ebi.biostd.persistence.doc.model.DocSection
 import ac.uk.ebi.biostd.persistence.doc.model.DocSectionTable
+import ac.uk.ebi.biostd.persistence.doc.model.DocSectionTableRow
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionMethod
 import ac.uk.ebi.biostd.persistence.doc.model.DocTag
@@ -47,11 +48,16 @@ private fun ExtSection.toDocSection(): DocSection = DocSection(
     sections = sections.map { it.toDocSections() }
 )
 
-// Section Mapping
+private fun ExtSection.toDocTableSection(): DocSectionTableRow = DocSectionTableRow(
+    accNo = accNo,
+    type = type,
+    attributes = attributes.map { it.toDocAttribute() }
+)
+
 private fun Either<ExtSection, ExtSectionTable>.toDocSections() =
     bimap(ExtSection::toDocSection, ExtSectionTable::toDocSectionTable)
 
-private fun ExtSectionTable.toDocSectionTable() = DocSectionTable(sections.map { it.toDocSection() })
+private fun ExtSectionTable.toDocSectionTable() = DocSectionTable(sections.map { it.toDocTableSection() })
 
 private fun getStatus(status: ExtProcessingStatus) =
     when (status) {

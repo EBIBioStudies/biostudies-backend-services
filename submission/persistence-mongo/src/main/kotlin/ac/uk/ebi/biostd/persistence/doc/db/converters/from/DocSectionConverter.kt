@@ -17,6 +17,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_TYPE
 import ac.uk.ebi.biostd.persistence.doc.model.DocSection
 import ac.uk.ebi.biostd.persistence.doc.model.DocSectionTable
+import ac.uk.ebi.biostd.persistence.doc.model.DocSectionTableRow
 import arrow.core.Either
 import org.bson.Document
 import org.springframework.core.convert.converter.Converter
@@ -60,10 +61,10 @@ class DocSectionConverter(
     }
 
     private fun toSectionTable(document: Document): DocSectionTable =
-        DocSectionTable(sections = document.getDocList(SEC_TABLE_SECTIONS).map { basicConvert(it) })
+        DocSectionTable(sections = document.getDocList(SEC_TABLE_SECTIONS).map { toDocSectionTableRow(it) })
 
-    private fun basicConvert(doc: Document) =
-        DocSection(
+    private fun toDocSectionTableRow(doc: Document) =
+        DocSectionTableRow(
             accNo = doc.getString(SEC_ACC_NO),
             type = doc.getString(SEC_TYPE),
             attributes = doc.getDocList(SEC_ATTRIBUTES).map { docAttributeConverter.convert(it) }

@@ -9,6 +9,7 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocLinkTable
 import ac.uk.ebi.biostd.persistence.doc.model.DocProject
 import ac.uk.ebi.biostd.persistence.doc.model.DocSection
 import ac.uk.ebi.biostd.persistence.doc.model.DocSectionTable
+import ac.uk.ebi.biostd.persistence.doc.model.DocSectionTableRow
 import ac.uk.ebi.biostd.persistence.doc.model.DocStat
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocTag
@@ -54,6 +55,7 @@ object DocLinkTableFields {
 }
 
 object DocSectionFields {
+    val DOC_TABLE_SEC_CLASS: String = DocSectionTableRow::class.java.canonicalName
     val DOC_SEC_CLASS: String = DocSection::class.java.canonicalName
     val DOC_SEC_TABLE_CLASS: String = DocSectionTable::class.java.canonicalName
 
