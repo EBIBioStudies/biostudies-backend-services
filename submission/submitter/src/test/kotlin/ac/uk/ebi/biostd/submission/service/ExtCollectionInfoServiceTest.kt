@@ -1,9 +1,9 @@
 package ac.uk.ebi.biostd.submission.service
 
 import ac.uk.ebi.biostd.persistence.common.service.PersistenceService
-import ac.uk.ebi.biostd.submission.exceptions.ProjectAccNoTemplateAlreadyExistsException
-import ac.uk.ebi.biostd.submission.exceptions.ProjectAlreadyExistingException
-import ac.uk.ebi.biostd.submission.exceptions.ProjectInvalidAccNoPatternException
+import ac.uk.ebi.biostd.submission.exceptions.CollectionAccNoTemplateAlreadyExistsException
+import ac.uk.ebi.biostd.submission.exceptions.CollectionAlreadyExistingException
+import ac.uk.ebi.biostd.submission.exceptions.CollectionInvalidAccNoPatternException
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotSubmitProjectsException
 import ac.uk.ebi.biostd.submission.util.AccNoPatternUtil
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
@@ -22,12 +22,12 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
 @ExtendWith(MockKExtension::class)
-class ProjectInfoServiceTest(
+class ExtCollectionInfoServiceTest(
     @MockK private val service: PersistenceService,
     @MockK private val accNoUtil: AccNoPatternUtil,
     @MockK private val privilegesService: IUserPrivilegesService
 ) {
-    private val testInstance = ProjectInfoService(service, accNoUtil, privilegesService)
+    private val testInstance = CollectionInfoService(service, accNoUtil, privilegesService)
 
     @AfterEach
     fun afterEach() = clearAllMocks()
@@ -41,7 +41,7 @@ class ProjectInfoServiceTest(
 
     @Test
     fun process() {
-        val request = ProjectRequest("user@test.org", "Project", "!{S-PRJ}", "TheProject")
+        val request = CollectionRequest("user@test.org", "Project", "!{S-PRJ}", "TheProject")
         val response = testInstance.process(request)
 
         assertNotNull(response)
@@ -51,25 +51,25 @@ class ProjectInfoServiceTest(
     }
 
     @Test
-    fun `non project`() {
-        val request = ProjectRequest("user@test.org", "Study", "!{S-PRJ}", "TheProject")
+    fun `non collection`() {
+        val request = CollectionRequest("user@test.org", "Study", "!{S-PRJ}", "TheProject")
         assertNull(testInstance.process(request))
     }
 
     @Test
-    fun `user cant submit projects`() {
+    fun `user cant submit collections`() {
         every { privilegesService.canSubmitProjects("user@test.org") } returns false
 
-        val request = ProjectRequest("user@test.org", "Project", "!{S-PRJ}", "TheProject")
+        val request = CollectionRequest("user@test.org", "Project", "!{S-PRJ}", "TheProject")
         val exception = assertThrows<UserCanNotSubmitProjectsException> { testInstance.process(request) }
 
-        assertThat(exception.message).isEqualTo("The user user@test.org is not allowed to submit projects")
+        assertThat(exception.message).isEqualTo("The user user@test.org is not allowed to submit collections")
     }
 
     @Test
     fun `no template`() {
-        val request = ProjectRequest("user@test.org", "Project", null, "TheProject")
-        val exception = assertThrows<ProjectInvalidAccNoPatternException> { testInstance.process(request) }
+        val request = CollectionRequest("user@test.org", "Project", null, "TheProject")
+        val exception = assertThrows<CollectionInvalidAccNoPatternException> { testInstance.process(request) }
 
         assertThat(exception.message).isEqualTo(ACC_NO_TEMPLATE_REQUIRED)
     }
@@ -79,29 +79,29 @@ class ProjectInfoServiceTest(
         every { accNoUtil.getPattern("Invalid") } returns ""
         every { accNoUtil.isPattern("Invalid") } returns false
 
-        val request = ProjectRequest("user@test.org", "Project", "Invalid", "TheProject")
-        val exception = assertThrows<ProjectInvalidAccNoPatternException> { testInstance.process(request) }
+        val request = CollectionRequest("user@test.org", "Project", "Invalid", "TheProject")
+        val exception = assertThrows<CollectionInvalidAccNoPatternException> { testInstance.process(request) }
         assertThat(exception.message).isEqualTo(ACC_NO_TEMPLATE_INVALID)
     }
 
     @Test
-    fun `already existing project`() {
+    fun `already existing collection`() {
         every { service.accessTagExists("TheProject") } returns true
 
-        val request = ProjectRequest("user@test.org", "Project", "!{S-PRJ}", "TheProject")
-        val exception = assertThrows<ProjectAlreadyExistingException> { testInstance.process(request) }
+        val request = CollectionRequest("user@test.org", "Project", "!{S-PRJ}", "TheProject")
+        val exception = assertThrows<CollectionAlreadyExistingException> { testInstance.process(request) }
 
-        assertThat(exception.message).isEqualTo("The project 'TheProject' already exists")
+        assertThat(exception.message).isEqualTo("The collection 'TheProject' already exists")
     }
 
     @Test
     fun `pattern accNo already in use`() {
         every { service.sequenceAccNoPatternExists("S-PRJ") } returns true
 
-        val request = ProjectRequest("user@test.org", "Project", "!{S-PRJ}", "TheProject")
-        val exception = assertThrows<ProjectAccNoTemplateAlreadyExistsException> { testInstance.process(request) }
+        val request = CollectionRequest("user@test.org", "Project", "!{S-PRJ}", "TheProject")
+        val exception = assertThrows<CollectionAccNoTemplateAlreadyExistsException> { testInstance.process(request) }
 
-        assertThat(exception.message).isEqualTo("There is a project already using the accNo template 'S-PRJ'")
+        assertThat(exception.message).isEqualTo("There is a collection already using the accNo template 'S-PRJ'")
     }
 
     private fun initContext() {

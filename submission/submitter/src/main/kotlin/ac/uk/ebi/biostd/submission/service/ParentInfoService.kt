@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.submission.service
 
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
-import ac.uk.ebi.biostd.submission.exceptions.ProjectInvalidAccessTagException
+import ac.uk.ebi.biostd.submission.exceptions.CollectionInvalidAccessTagException
 import ebi.ac.uk.model.constants.SubFields
 import java.time.OffsetDateTime
 
@@ -12,13 +12,13 @@ class ParentInfoService(private val queryService: SubmissionMetaQueryService) {
     }
 
     private fun parentInfo(parentAccNo: String): ParentInfo {
-        val project = queryService.getBasicProject(parentAccNo)
+        val project = queryService.getBasicCollection(parentAccNo)
         return ParentInfo(accessTags(parentAccNo), project.releaseTime, project.accNoPattern)
     }
 
     private fun accessTags(parentAccNo: String): List<String> {
         val accessTags = queryService.getAccessTags(parentAccNo).filterNot { it == SubFields.PUBLIC_ACCESS_TAG.value }
-        require(accessTags.contains(parentAccNo)) { throw ProjectInvalidAccessTagException(parentAccNo) }
+        require(accessTags.contains(parentAccNo)) { throw CollectionInvalidAccessTagException(parentAccNo) }
 
         return accessTags
     }

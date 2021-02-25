@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.persistence.doc.mapping.from
 
+import ac.uk.ebi.biostd.persistence.doc.model.DocCollection
 import ac.uk.ebi.biostd.persistence.doc.model.DocProcessingStatus
-import ac.uk.ebi.biostd.persistence.doc.model.DocProject
 import ac.uk.ebi.biostd.persistence.doc.model.DocSection
 import ac.uk.ebi.biostd.persistence.doc.model.DocSectionTable
 import ac.uk.ebi.biostd.persistence.doc.model.DocSectionTableRow
@@ -33,7 +33,7 @@ fun ExtSubmission.toDocSubmission() = DocSubmission(
     releaseTime = releaseTime?.toInstant(),
     owner = owner,
     submitter = submitter,
-    projects = projects.map { DocProject(it.accNo) },
+    collections = collections.map { DocCollection(it.accNo) },
     tags = tags.map { DocTag(it.name, it.value) },
     attributes = attributes.map { it.toDocAttribute() },
     section = section.toDocSection())

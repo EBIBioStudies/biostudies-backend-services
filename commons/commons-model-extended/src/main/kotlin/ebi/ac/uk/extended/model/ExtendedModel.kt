@@ -12,7 +12,7 @@ enum class ExtProcessingStatus { PROCESSED, PROCESSING, REQUESTED }
 
 data class ExtTag(val name: String, val value: String)
 
-data class Project(val accNo: String)
+data class ExtCollection(val accNo: String)
 
 data class ExtAttributeDetail(val name: String, val value: String)
 
@@ -91,7 +91,7 @@ data class ExtSubmission(
     val section: ExtSection,
     val attributes: List<ExtAttribute> = listOf(),
     val tags: List<ExtTag> = listOf(),
-    val projects: List<Project> = listOf(),
+    val collections: List<ExtCollection> = listOf(),
     val stats: List<ExtStat> = listOf()
 )
 
