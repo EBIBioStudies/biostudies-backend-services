@@ -84,7 +84,7 @@ data class DocFile(
 )
 
 data class DocFileList(val fileName: String, val files: List<DocFile>)
-data class DocSectionTable(val sections: List<DocTableSection>)
+data class DocSectionTable(val sections: List<DocSectionTableRow>)
 data class DocLinkTable(val links: List<DocLink>)
 
 data class DocFileTable(val files: List<DocFile>)
@@ -107,7 +107,7 @@ data class DocSection(
     val links: List<Either<DocLink, DocLinkTable>> = listOf()
 )
 
-data class DocTableSection(
+data class DocSectionTableRow(
     val accNo: String? = null,
     val type: String,
     val attributes: List<DocAttribute> = listOf()

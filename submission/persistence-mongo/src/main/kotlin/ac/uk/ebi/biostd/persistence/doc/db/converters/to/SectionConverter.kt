@@ -18,7 +18,7 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocLink
 import ac.uk.ebi.biostd.persistence.doc.model.DocLinkTable
 import ac.uk.ebi.biostd.persistence.doc.model.DocSection
 import ac.uk.ebi.biostd.persistence.doc.model.DocSectionTable
-import ac.uk.ebi.biostd.persistence.doc.model.DocTableSection
+import ac.uk.ebi.biostd.persistence.doc.model.DocSectionTableRow
 import arrow.core.Either
 import org.bson.Document
 import org.springframework.core.convert.converter.Converter
@@ -45,7 +45,7 @@ class SectionConverter(
         return sectionDoc
     }
 
-    private fun tableSection(section: DocTableSection): Document {
+    private fun tableSection(section: DocSectionTableRow): Document {
         val sectionDoc = Document()
         sectionDoc[classField] = DOC_TABLE_SEC_CLASS
         sectionDoc[SEC_ACC_NO] = section.accNo

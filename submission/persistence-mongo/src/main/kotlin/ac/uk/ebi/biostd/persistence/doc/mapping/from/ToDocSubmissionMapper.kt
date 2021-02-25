@@ -4,9 +4,9 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocProcessingStatus
 import ac.uk.ebi.biostd.persistence.doc.model.DocProject
 import ac.uk.ebi.biostd.persistence.doc.model.DocSection
 import ac.uk.ebi.biostd.persistence.doc.model.DocSectionTable
+import ac.uk.ebi.biostd.persistence.doc.model.DocSectionTableRow
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionMethod
-import ac.uk.ebi.biostd.persistence.doc.model.DocTableSection
 import ac.uk.ebi.biostd.persistence.doc.model.DocTag
 import arrow.core.Either
 import ebi.ac.uk.extended.model.ExtProcessingStatus
@@ -48,7 +48,7 @@ private fun ExtSection.toDocSection(): DocSection = DocSection(
     sections = sections.map { it.toDocSections() }
 )
 
-private fun ExtSection.toDocTableSection(): DocTableSection = DocTableSection(
+private fun ExtSection.toDocTableSection(): DocSectionTableRow = DocSectionTableRow(
     accNo = accNo,
     type = type,
     attributes = attributes.map { it.toDocAttribute() }

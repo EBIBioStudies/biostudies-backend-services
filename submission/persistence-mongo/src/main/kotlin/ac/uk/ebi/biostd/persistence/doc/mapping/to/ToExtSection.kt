@@ -2,7 +2,7 @@ package ac.uk.ebi.biostd.persistence.doc.mapping.to
 
 import ac.uk.ebi.biostd.persistence.doc.model.DocSection
 import ac.uk.ebi.biostd.persistence.doc.model.DocSectionTable
-import ac.uk.ebi.biostd.persistence.doc.model.DocTableSection
+import ac.uk.ebi.biostd.persistence.doc.model.DocSectionTableRow
 import arrow.core.Either
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSectionTable
@@ -17,7 +17,7 @@ internal fun DocSection.toExtSection(): ExtSection = ExtSection(
     links = links.map { it.toExtLinks() }
 )
 
-internal fun DocTableSection.toExtSection(): ExtSection = ExtSection(
+internal fun DocSectionTableRow.toExtSection(): ExtSection = ExtSection(
     accNo = accNo,
     type = type,
     attributes = attributes.map { it.toExtAttribute() }
