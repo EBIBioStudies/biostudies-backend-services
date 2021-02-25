@@ -124,7 +124,7 @@ internal class ExtCollectionSubmitTest(tempFolder: TemporaryFolder) : BaseIntegr
             assertThat(webClient.submitSingle(aProject, TSV)).isSuccessful()
             assertThatExceptionOfType(WebClientException::class.java)
                 .isThrownBy { webClient.submitSingle(anotherProject, TSV) }
-                .withMessageContaining("There is a project already using the accNo template 'S-APRJ'")
+                .withMessageContaining("There is a collection already using the accNo template 'S-APRJ'")
         }
     }
 }
