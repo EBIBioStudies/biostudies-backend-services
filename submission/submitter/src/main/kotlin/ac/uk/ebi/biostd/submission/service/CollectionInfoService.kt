@@ -16,7 +16,7 @@ class CollectionInfoService(
     private val accNoUtil: AccNoPatternUtil,
     private val privilegesService: IUserPrivilegesService
 ) {
-    fun process(request: ProjectRequest): ProjectResponse? {
+    fun process(request: CollectionRequest): CollectionResponse? {
         val (submitter, subType, template, accNo, isNew) = request
 
         if (subType != "Project") return null
@@ -28,7 +28,7 @@ class CollectionInfoService(
         validateProject(isNew, accNo, accNoPattern)
         persist(isNew, accNo, accNoPattern)
 
-        return ProjectResponse(request.accNo)
+        return CollectionResponse(request.accNo)
     }
 
     private fun validateProject(isNew: Boolean, accNo: String, accNoPattern: String) {
@@ -50,7 +50,7 @@ class CollectionInfoService(
     }
 }
 
-data class ProjectRequest(
+data class CollectionRequest(
     val submitter: String,
     val subType: String,
     val accNoTemplate: String?,
@@ -58,4 +58,4 @@ data class ProjectRequest(
     val isNew: Boolean = true
 )
 
-data class ProjectResponse(val accessTag: String)
+data class CollectionResponse(val accessTag: String)

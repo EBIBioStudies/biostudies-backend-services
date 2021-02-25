@@ -2,7 +2,8 @@ package ac.uk.ebi.biostd.submission.exceptions
 
 class CollectionInvalidAccNoPatternException(message: String) : RuntimeException(message)
 
-class CollectionAlreadyExistingException(collection: String
+class CollectionAlreadyExistingException(
+    collection: String
 ) : RuntimeException("The collection '$collection' already exists")
 
 class CollectionAccNoTemplateAlreadyExistsException(
