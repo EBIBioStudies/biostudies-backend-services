@@ -10,5 +10,5 @@ class CollectionAccNoTemplateAlreadyExistsException(
 ) : RuntimeException("There is a collection already using the accNo template '$pattern'")
 
 class CollectionInvalidAccessTagException(
-    project: String
-) : RuntimeException("The collection $project doesn't have a valid access tag")
+    collection: String
+) : RuntimeException("The collection $collection doesn't have a valid access tag")
