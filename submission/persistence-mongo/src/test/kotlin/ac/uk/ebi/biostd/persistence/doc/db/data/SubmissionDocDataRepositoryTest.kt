@@ -30,7 +30,6 @@ import java.time.ZoneOffset
 @Testcontainers
 @SpringBootTest(classes = [MongoDbReposConfig::class])
 internal class SubmissionDocDataRepositoryTest {
-
     @Autowired
     lateinit var testInstance: SubmissionDocDataRepository
 
@@ -44,7 +43,6 @@ internal class SubmissionDocDataRepositoryTest {
         @Test
         fun `successful status update`() {
             testInstance.save(testDocSubmission.copy(accNo = "accNo10", version = 1, status = PROCESSING))
-
             testInstance.updateStatus(PROCESSED, "accNo10", 1)
 
             assertThat(testInstance.getByAccNo(accNo = "accNo10").status).isEqualTo(PROCESSED)
@@ -53,48 +51,36 @@ internal class SubmissionDocDataRepositoryTest {
         @Test
         fun `status should not be updated when version does not match`() {
             testInstance.save(testDocSubmission.copy(accNo = "accNo20", version = 1, status = PROCESSING))
-
             testInstance.updateStatus(PROCESSED, "accNo20", 3)
 
             assertThat(testInstance.getByAccNo(accNo = "accNo20").status).isEqualTo(PROCESSING)
         }
     }
 
-    @Test
-    fun getCurrentVersion() {
-        testInstance.save(testDocSubmission.copy(accNo = "accNo3", version = -1, status = PROCESSED))
-        testInstance.save(testDocSubmission.copy(accNo = "accNo3", version = 2, status = PROCESSED))
+    @Nested
+    inner class ExpireSubmissions {
+        @Test
+        fun `expire active processed versions`() {
+            testInstance.save(testDocSubmission.copy(accNo = "S-BSST4", version = -1, status = PROCESSED))
+            testInstance.save(testDocSubmission.copy(accNo = "S-BSST4", version = 2, status = PROCESSED))
+            testInstance.save(testDocSubmission.copy(accNo = "S-BSST4", version = 3, status = PROCESSING))
 
-        assertThat(testInstance.getCurrentVersion("accNo3")).isEqualTo(2)
-    }
+            testInstance.expireActiveProcessedVersions("S-BSST4")
 
-    @Test
-    fun getLatestVersions() {
-        testInstance.save(testDocSubmission.copy(accNo = "accNo3", version = -1, status = PROCESSED))
-        testInstance.save(testDocSubmission.copy(accNo = "accNo3", version = 2, status = PROCESSED))
+            assertThat(testInstance.getByAccNoAndVersion("S-BSST4", version = -1)).isNotNull
+            assertThat(testInstance.getByAccNoAndVersion("S-BSST4", version = -2)).isNotNull
+            assertThat(testInstance.getByAccNoAndVersion("S-BSST4", 3)).isNotNull
+        }
 
-        testInstance.save(testDocSubmission.copy(accNo = "accNo4", version = -1, status = PROCESSED))
-        testInstance.save(testDocSubmission.copy(accNo = "accNo4", version = 2, status = PROCESSED))
+        @Test
+        fun `expire specific version`() {
+            testInstance.save(testDocSubmission.copy(accNo = "S-BSST1", version = 1, status = PROCESSED))
 
-        testInstance.save(testDocSubmission.copy(accNo = "accNo5", version = -1, status = PROCESSED))
-        testInstance.save(testDocSubmission.copy(accNo = "accNo5", version = 2, status = PROCESSED))
+            testInstance.expireVersion(accNo = "S-BSST1", version = 1)
 
-        val result = testInstance.getLatestVersions(listOf("accNo3", "accNo5"), 0, 2)
-
-        assertThat(result).hasSize(2)
-    }
-
-    @Test
-    fun expireActiveProcessedVersions() {
-        testInstance.save(testDocSubmission.copy(accNo = "accNo4", version = -1, status = PROCESSED))
-        testInstance.save(testDocSubmission.copy(accNo = "accNo4", version = 2, status = PROCESSED))
-        testInstance.save(testDocSubmission.copy(accNo = "accNo4", version = 3, status = PROCESSING))
-
-        testInstance.expireActiveProcessedVersions("accNo4")
-
-        assertThat(testInstance.getByAccNoAndVersion("accNo4", version = -1)).isNotNull
-        assertThat(testInstance.getByAccNoAndVersion("accNo4", version = -2)).isNotNull
-        assertThat(testInstance.getByAccNoAndVersion("accNo4", 3)).isNotNull
+            assertThat(testInstance.findByAccNo("S-BSST1")).isNull()
+            assertThat(testInstance.getByAccNoAndVersion("S-BSST1", version = -1)).isNotNull
+        }
     }
 
     @Nested
@@ -168,6 +154,30 @@ internal class SubmissionDocDataRepositoryTest {
             val result = testInstance.getSubmissions(SubmissionFilter(released = false), null)
 
             assertThat(result).containsOnly(doc2)
+        }
+
+        @Test
+        fun `by current version`() {
+            testInstance.save(testDocSubmission.copy(accNo = "S-BSST3", version = -1, status = PROCESSED))
+            testInstance.save(testDocSubmission.copy(accNo = "S-BSST3", version = 2, status = PROCESSED))
+
+            assertThat(testInstance.getCurrentVersion("S-BSST3")).isEqualTo(2)
+        }
+
+        @Test
+        fun `by latest version`() {
+            testInstance.save(testDocSubmission.copy(accNo = "S-BSST3", version = -1, status = PROCESSED))
+            testInstance.save(testDocSubmission.copy(accNo = "S-BSST3", version = 2, status = PROCESSED))
+
+            testInstance.save(testDocSubmission.copy(accNo = "S-BSST4", version = -1, status = PROCESSED))
+            testInstance.save(testDocSubmission.copy(accNo = "S-BSST4", version = 2, status = PROCESSED))
+
+            testInstance.save(testDocSubmission.copy(accNo = "S-BSST5", version = -1, status = PROCESSED))
+            testInstance.save(testDocSubmission.copy(accNo = "S-BSST5", version = 2, status = PROCESSED))
+
+            val result = testInstance.getLatestVersions(listOf("S-BSST3", "S-BSST5"), 0, 2)
+
+            assertThat(result).hasSize(2)
         }
     }
 
