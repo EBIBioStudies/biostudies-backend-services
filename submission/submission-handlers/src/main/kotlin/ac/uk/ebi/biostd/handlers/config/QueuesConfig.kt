@@ -19,6 +19,8 @@ const val SUBMIT_NOTIFICATIONS_QUEUE = "submission-submitted-notifications-queue
 const val RELEASE_NOTIFICATIONS_QUEUE = "submission-released-notifications-queue"
 const val SECURITY_NOTIFICATIONS_QUEUE = "security-notifications-queue"
 
+private const val DURABLES_QUEUES = true
+
 @Configuration
 @Suppress("TooManyFunctions")
 class QueuesConfig {
@@ -26,22 +28,22 @@ class QueuesConfig {
     fun exchange(): TopicExchange = TopicExchange(BIOSTUDIES_EXCHANGE)
 
     @Bean
-    fun logQueue(): Queue = Queue(LOG_QUEUE, false)
+    fun logQueue(): Queue = Queue(LOG_QUEUE, DURABLES_QUEUES)
 
     @Bean
-    fun submissionToolQueue(): Queue = Queue(ST_LOG_QUEUE, false)
+    fun submissionToolQueue(): Queue = Queue(ST_LOG_QUEUE, DURABLES_QUEUES)
 
     @Bean
-    fun notificationsQueue(): Queue = Queue(SUBMIT_NOTIFICATIONS_QUEUE, false)
+    fun notificationsQueue(): Queue = Queue(SUBMIT_NOTIFICATIONS_QUEUE, DURABLES_QUEUES)
 
     @Bean
-    fun releaseNotificationsQueue(): Queue = Queue(RELEASE_NOTIFICATIONS_QUEUE, false)
+    fun releaseNotificationsQueue(): Queue = Queue(RELEASE_NOTIFICATIONS_QUEUE, DURABLES_QUEUES)
 
     @Bean
-    fun partialUpdatesQueue(): Queue = Queue(PARTIALS_QUEUE, false)
+    fun partialUpdatesQueue(): Queue = Queue(PARTIALS_QUEUE, DURABLES_QUEUES)
 
     @Bean
-    fun securityNotificationsQueue(): Queue = Queue(SECURITY_NOTIFICATIONS_QUEUE, false)
+    fun securityNotificationsQueue(): Queue = Queue(SECURITY_NOTIFICATIONS_QUEUE, DURABLES_QUEUES)
 
     @Bean
     fun logQueueBinding(exchange: TopicExchange): Binding =

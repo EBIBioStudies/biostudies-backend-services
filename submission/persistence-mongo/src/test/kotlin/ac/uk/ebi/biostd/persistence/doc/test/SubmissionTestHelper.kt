@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.persistence.doc.test
 
+import ac.uk.ebi.biostd.persistence.doc.model.DocCollection
 import ac.uk.ebi.biostd.persistence.doc.model.DocProcessingStatus.PROCESSED
-import ac.uk.ebi.biostd.persistence.doc.model.DocProject
 import ac.uk.ebi.biostd.persistence.doc.model.DocStat
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionMethod.PAGE_TAB
@@ -54,7 +54,7 @@ object SubmissionTestHelper {
         attributes = listOf(fullDocAttribute),
         tags = listOf(DocTag(TAG_NAME, TAG_VALUE)),
         stats = listOf(DocStat(STAT_TYPE, STAT_VALUE)),
-        projects = listOf(DocProject(PROJECT_ACC_NO)),
+        collections = listOf(DocCollection(PROJECT_ACC_NO)),
         section = docSection
     )
 
@@ -102,7 +102,7 @@ object SubmissionTestHelper {
     }
 
     private fun assertProject(extSubmission: ExtSubmission) {
-        assertThat(extSubmission.projects).hasSize(1)
-        assertThat(extSubmission.projects.first().accNo).isEqualTo(PROJECT_ACC_NO)
+        assertThat(extSubmission.collections).hasSize(1)
+        assertThat(extSubmission.collections.first().accNo).isEqualTo(PROJECT_ACC_NO)
     }
 }

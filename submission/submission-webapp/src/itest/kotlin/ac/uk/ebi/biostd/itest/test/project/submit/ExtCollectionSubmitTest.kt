@@ -13,8 +13,8 @@ import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.line
 import ebi.ac.uk.dsl.tsv
+import ebi.ac.uk.extended.model.ExtCollection
 import ebi.ac.uk.extended.model.ExtProcessingStatus.PROCESSED
-import ebi.ac.uk.extended.model.Project
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
@@ -31,13 +31,13 @@ import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
 
 @ExtendWith(TemporaryFolderExtension::class)
-internal class ProjectSubmitTest(tempFolder: TemporaryFolder) : BaseIntegrationTest(tempFolder) {
+internal class ExtCollectionSubmitTest(tempFolder: TemporaryFolder) : BaseIntegrationTest(tempFolder) {
     @Nested
     @Import(PersistenceConfig::class)
     @ExtendWith(SpringExtension::class)
     @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
     @DirtiesContext
-    inner class ProjectSubmitTest(
+    inner class ExtCollectionSubmitTest(
         @Autowired val securityTestService: SecurityTestService,
         @Autowired val tagsDataRepository: AccessTagDataRepo,
         @Autowired val submissionRepository: SubmissionQueryService,
@@ -73,8 +73,8 @@ internal class ProjectSubmitTest(tempFolder: TemporaryFolder) : BaseIntegrationT
             assertThat(submittedProject.title).isEqualTo("A Private Project")
             assertThat(submittedProject.status).isEqualTo(PROCESSED)
 
-            assertThat(submittedProject.projects).hasSize(1)
-            assertThat(submittedProject.projects.first().accNo).isEqualTo("PrivateProject")
+            assertThat(submittedProject.collections).hasSize(1)
+            assertThat(submittedProject.collections.first().accNo).isEqualTo("PrivateProject")
 
             assertThat(tagsDataRepository.existsByName("PrivateProject")).isTrue()
             assertThat(sequenceRepository.existsByPrefix("S-PRP")).isTrue()
@@ -98,7 +98,7 @@ internal class ProjectSubmitTest(tempFolder: TemporaryFolder) : BaseIntegrationT
             assertThat(submittedProject.accNo).isEqualTo("PublicProject")
             assertThat(submittedProject.title).isEqualTo("Public Project")
             assertThat(submittedProject.status).isEqualTo(PROCESSED)
-            assertThat(submittedProject.projects).containsExactly(Project("PublicProject"))
+            assertThat(submittedProject.collections).containsExactly(ExtCollection("PublicProject"))
             assertThat(tagsDataRepository.existsByName("PublicProject")).isTrue()
             assertThat(sequenceRepository.existsByPrefix("S-PUP")).isTrue()
         }
@@ -124,7 +124,7 @@ internal class ProjectSubmitTest(tempFolder: TemporaryFolder) : BaseIntegrationT
             assertThat(webClient.submitSingle(aProject, TSV)).isSuccessful()
             assertThatExceptionOfType(WebClientException::class.java)
                 .isThrownBy { webClient.submitSingle(anotherProject, TSV) }
-                .withMessageContaining("There is a project already using the accNo template 'S-APRJ'")
+                .withMessageContaining("There is a collection already using the accNo template 'S-APRJ'")
         }
     }
 }

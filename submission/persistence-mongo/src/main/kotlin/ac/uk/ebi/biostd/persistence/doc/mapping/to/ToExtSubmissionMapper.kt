@@ -3,11 +3,11 @@ package ac.uk.ebi.biostd.persistence.doc.mapping.to
 import ac.uk.ebi.biostd.persistence.doc.model.DocProcessingStatus
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionMethod
+import ebi.ac.uk.extended.model.ExtCollection
 import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod
 import ebi.ac.uk.extended.model.ExtTag
-import ebi.ac.uk.extended.model.Project
 import ebi.ac.uk.io.sources.PathFilesSource
 import java.nio.file.Path
 import java.time.ZoneOffset.UTC
@@ -33,7 +33,7 @@ internal class ToExtSubmissionMapper {
         creationTime = submission.creationTime.atOffset(UTC),
         section = submission.section.toExtSection(),
         attributes = submission.attributes.map { it.toExtAttribute() },
-        projects = submission.projects.map { Project(it.accNo) },
+        collections = submission.collections.map { ExtCollection(it.accNo) },
         tags = submission.tags.map { ExtTag(it.name, it.value) },
         stats = submission.stats.map { it.toExtStat() }
     )

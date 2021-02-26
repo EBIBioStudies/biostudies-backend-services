@@ -7,20 +7,20 @@ import ac.uk.ebi.biostd.submission.exceptions.InvalidSubmissionException
 import ac.uk.ebi.biostd.submission.model.SubmissionRequest
 import ac.uk.ebi.biostd.submission.service.AccNoService
 import ac.uk.ebi.biostd.submission.service.AccNoServiceRequest
+import ac.uk.ebi.biostd.submission.service.CollectionInfoService
+import ac.uk.ebi.biostd.submission.service.CollectionRequest
+import ac.uk.ebi.biostd.submission.service.CollectionResponse
 import ac.uk.ebi.biostd.submission.service.ParentInfoService
-import ac.uk.ebi.biostd.submission.service.ProjectInfoService
-import ac.uk.ebi.biostd.submission.service.ProjectRequest
-import ac.uk.ebi.biostd.submission.service.ProjectResponse
 import ac.uk.ebi.biostd.submission.service.TimesRequest
 import ac.uk.ebi.biostd.submission.service.TimesService
 import ebi.ac.uk.base.orFalse
 import ebi.ac.uk.extended.mapping.from.toExtAttribute
 import ebi.ac.uk.extended.mapping.from.toExtSection
+import ebi.ac.uk.extended.model.ExtCollection
 import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod
 import ebi.ac.uk.extended.model.ExtTag
-import ebi.ac.uk.extended.model.Project
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.model.AccNumber
 import ebi.ac.uk.model.Submission
@@ -46,7 +46,7 @@ class SubmissionSubmitter(
     private val timesService: TimesService,
     private val accNoService: AccNoService,
     private val parentInfoService: ParentInfoService,
-    private val projectInfoService: ProjectInfoService,
+    private val collectionInfoService: CollectionInfoService,
     private val submissionRequestService: SubmissionRequestService,
     private val queryService: SubmissionMetaQueryService
 ) {
@@ -135,7 +135,7 @@ class SubmissionSubmitter(
             modificationTime = modTime,
             creationTime = createTime,
             tags = submission.tags.map { ExtTag(it.first, it.second) },
-            projects = tags.map { Project(it) },
+            collections = tags.map { ExtCollection(it) },
             section = submission.section.toExtSection(source),
             attributes = getAttributes(submission)
         )
@@ -149,15 +149,15 @@ class SubmissionSubmitter(
         }
     }
 
-    private fun getTags(parentTags: List<String>, project: ProjectResponse?): List<String> {
+    private fun getTags(parentTags: List<String>, collection: CollectionResponse?): List<String> {
         val tags = parentTags.filter { it != PUBLIC_ACCESS_TAG.value }.toMutableList()
-        if (project != null) tags.add(project.accessTag)
+        if (collection != null) tags.add(collection.accessTag)
         return tags
     }
 
-    private fun getProjectInfo(user: User, submission: Submission, accNo: String, isNew: Boolean): ProjectResponse? {
-        val request = ProjectRequest(user.email, submission.section.type, submission.accNoTemplate, accNo, isNew)
-        return projectInfoService.process(request)
+    private fun getProjectInfo(user: User, submission: Submission, accNo: String, isNew: Boolean): CollectionResponse? {
+        val request = CollectionRequest(user.email, submission.section.type, submission.accNoTemplate, accNo, isNew)
+        return collectionInfoService.process(request)
     }
 
     private fun getAttributes(submission: Submission) = submission.attributes

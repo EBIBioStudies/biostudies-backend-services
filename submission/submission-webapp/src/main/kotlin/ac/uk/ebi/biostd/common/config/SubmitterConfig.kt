@@ -8,8 +8,8 @@ import ac.uk.ebi.biostd.persistence.common.service.PersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestService
 import ac.uk.ebi.biostd.submission.service.AccNoService
+import ac.uk.ebi.biostd.submission.service.CollectionInfoService
 import ac.uk.ebi.biostd.submission.service.ParentInfoService
-import ac.uk.ebi.biostd.submission.service.ProjectInfoService
 import ac.uk.ebi.biostd.submission.service.TimesService
 import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
 import ac.uk.ebi.biostd.submission.util.AccNoPatternUtil
@@ -31,14 +31,14 @@ class SubmitterConfig {
         timesService: TimesService,
         accNoService: AccNoService,
         parentInfoService: ParentInfoService,
-        projectInfoService: ProjectInfoService,
+        collectionInfoService: CollectionInfoService,
         requestService: SubmissionRequestService,
         submissionQueryService: SubmissionMetaQueryService
     ) = SubmissionSubmitter(
         timesService,
         accNoService,
         parentInfoService,
-        projectInfoService,
+        collectionInfoService,
         requestService,
         submissionQueryService)
 
@@ -77,7 +77,7 @@ class SubmitterConfig {
         fun parentInfoService() = ParentInfoService(queryService)
 
         @Bean
-        fun projectInfoService() = ProjectInfoService(service, accNoPatternUtil(), userPrivilegesService)
+        fun projectInfoService() = CollectionInfoService(service, accNoPatternUtil(), userPrivilegesService)
 
         @Bean
         fun timesService() = TimesService()

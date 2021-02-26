@@ -4,7 +4,7 @@ import ac.uk.ebi.biostd.client.dto.ExtPageQuery
 import ac.uk.ebi.biostd.client.extensions.getExtSubmissionsAsSequence
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.extended.model.isProject
+import ebi.ac.uk.extended.model.isCollection
 import ebi.ac.uk.util.date.asOffsetAtEndOfDay
 import ebi.ac.uk.util.date.asOffsetAtStartOfDay
 import mu.KotlinLogging
@@ -37,7 +37,7 @@ class SubmissionReleaserService(
     }
 
     private fun releaseSubmission(extSubmission: ExtSubmission) {
-        if (extSubmission.isProject.not()) {
+        if (extSubmission.isCollection.not()) {
             logger.info { "Releasing submission ${extSubmission.accNo}" }
             bioWebClient.submitExt(extSubmission.copy(released = true))
         }

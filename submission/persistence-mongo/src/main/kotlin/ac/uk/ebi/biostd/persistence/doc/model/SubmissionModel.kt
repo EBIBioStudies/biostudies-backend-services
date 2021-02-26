@@ -37,7 +37,7 @@ data class DocSubmission(
     val section: DocSection,
     val attributes: List<DocAttribute> = listOf(),
     val tags: List<DocTag> = listOf(),
-    val projects: List<DocProject> = listOf(),
+    val collections: List<DocCollection> = listOf(),
     val stats: List<DocStat> = listOf()
 )
 
@@ -72,7 +72,7 @@ enum class DocProcessingStatus(val value: String) {
 }
 
 data class DocTag(val name: String, val value: String)
-data class DocProject(val accNo: String)
+data class DocCollection(val accNo: String)
 data class DocAttributeDetail(val name: String, val value: String)
 data class DocLink(val url: String, val attributes: List<DocAttribute> = listOf())
 
@@ -84,7 +84,7 @@ data class DocFile(
 )
 
 data class DocFileList(val fileName: String, val files: List<DocFile>)
-data class DocSectionTable(val sections: List<DocSection>)
+data class DocSectionTable(val sections: List<DocSectionTableRow>)
 data class DocLinkTable(val links: List<DocLink>)
 
 data class DocFileTable(val files: List<DocFile>)
@@ -105,6 +105,12 @@ data class DocSection(
     val sections: List<Either<DocSection, DocSectionTable>> = listOf(),
     val files: List<Either<DocFile, DocFileTable>> = listOf(),
     val links: List<Either<DocLink, DocLinkTable>> = listOf()
+)
+
+data class DocSectionTableRow(
+    val accNo: String? = null,
+    val type: String,
+    val attributes: List<DocAttribute> = listOf()
 )
 
 data class DocStat(val name: String, val value: Long)
