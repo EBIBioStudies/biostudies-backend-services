@@ -14,8 +14,9 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping(value = ["/projects", "/collections"])
 @PreAuthorize("isAuthenticated()")
-class ProjectResource(private val collectionService: CollectionService) {
+class CollectionResource(private val collectionService: CollectionService) {
     @GetMapping
     @ResponseBody
-    fun getUserProjects(@BioUser user: SecurityUser): List<Collection> = collectionService.getAllowedProjects(user, ATTACH)
+    fun getUserProjects(@BioUser user: SecurityUser): List<Collection> =
+        collectionService.getAllowedProjects(user, ATTACH)
 }
