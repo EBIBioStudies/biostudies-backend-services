@@ -7,6 +7,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
 import ac.uk.ebi.biostd.persistence.doc.model.asBasicSubmission
+import ac.uk.ebi.biostd.persistence.exception.SubmissionNotFoundException
 import ebi.ac.uk.extended.model.ExtSubmission
 import org.springframework.data.domain.Page
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
@@ -30,8 +31,10 @@ internal class SubmissionMongoQueryService(
     }
 
     override fun expireSubmission(accNo: String) {
-        val newVersion = submissionRepo.getByAccNoAndVersionGreaterThan(accNo, 0)
-        submissionRepo.save(newVersion.copy(version = -newVersion.version))
+        val submission = submissionRepo.findByAccNo(accNo)
+
+        requireNotNull(submission) { throw SubmissionNotFoundException(accNo) }
+        submissionRepo.expireVersion(accNo, submission.version)
     }
 
     override fun getExtendedSubmissions(filter: SubmissionFilter): Page<Result<ExtSubmission>> {
