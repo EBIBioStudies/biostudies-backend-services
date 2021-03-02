@@ -14,6 +14,7 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import org.assertj.core.api.Assertions.assertThat
 import org.bson.Document
+import org.bson.types.ObjectId
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import java.time.Instant
@@ -96,7 +97,7 @@ internal class SubmissionConverterTest(
     }
 
     private companion object {
-        const val submissionId = "id"
+        val submissionId = ObjectId(1, 1)
         const val submissionAccNo = "S-TEST1"
         const val submissionVersion = 1
         const val submissionOwner = "owner@mail.org"

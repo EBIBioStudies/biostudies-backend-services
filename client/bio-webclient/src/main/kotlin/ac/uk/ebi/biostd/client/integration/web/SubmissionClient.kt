@@ -75,8 +75,7 @@ interface MultipartSubmissionOperations {
 }
 
 interface SecurityOperations {
-    fun getAuthenticatedClient(user: String, password: String): BioWebClient
-    fun getAuthenticatedClient(user: String, password: String, onBehalf: String): BioWebClient
+    fun getAuthenticatedClient(user: String, password: String, onBehalf: String? = null): BioWebClient
     fun login(loginRequest: LoginRequest): UserProfile
     fun registerUser(registerRequest: RegisterRequest)
     fun checkUser(checkUserRequest: CheckUserRequest)

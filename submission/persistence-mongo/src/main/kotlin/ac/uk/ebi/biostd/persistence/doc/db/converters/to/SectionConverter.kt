@@ -21,7 +21,6 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocSectionTable
 import ac.uk.ebi.biostd.persistence.doc.model.DocSectionTableRow
 import arrow.core.Either
 import org.bson.Document
-import org.springframework.core.convert.converter.Converter
 
 class SectionConverter(
     private val attributeConverter: AttributeConverter,
@@ -30,9 +29,8 @@ class SectionConverter(
     private val fileConverter: FileConverter,
     private val fileTableConverter: FileTableConverter,
     private val fileListConverter: FileListConverter
-) : Converter<DocSection, Document> {
-
-    override fun convert(section: DocSection): Document {
+) {
+    fun convert(section: DocSection): Document {
         val sectionDoc = Document()
         sectionDoc[classField] = DOC_SEC_CLASS
         sectionDoc[SEC_ACC_NO] = section.accNo

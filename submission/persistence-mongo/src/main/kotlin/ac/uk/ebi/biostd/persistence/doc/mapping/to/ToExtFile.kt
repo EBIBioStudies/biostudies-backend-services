@@ -17,4 +17,7 @@ internal fun DocFileTable.toExtFileTable(): ExtFileTable = ExtFileTable(files.ma
 internal fun Either<DocFile, DocFileTable>.toExtFiles(): Either<ExtFile, ExtFileTable> =
     bimap({ it.toExtFile() }) { it.toExtFileTable() }
 
-internal fun DocFileList.toExtFileList() = ExtFileList(fileName, files.map { it.toExtFile() })
+/**
+ * returns empty list because we won't pass it to the client in this API
+ */
+internal fun DocFileList.toExtFileList() = ExtFileList(fileName, emptyList())

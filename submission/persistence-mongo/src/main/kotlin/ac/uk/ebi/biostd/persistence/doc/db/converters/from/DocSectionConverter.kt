@@ -21,9 +21,7 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocSectionTableRow
 import arrow.core.Either
 import org.bson.Document
 import org.springframework.core.convert.converter.Converter
-import org.springframework.stereotype.Component
 
-@Component
 class DocSectionConverter(
     private val docAttributeConverter: DocAttributeConverter,
     private val docLinkConverter: DocLinkConverter,
