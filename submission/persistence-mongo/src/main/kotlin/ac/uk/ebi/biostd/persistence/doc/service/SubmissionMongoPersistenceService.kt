@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestService
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDraftDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
+import ac.uk.ebi.biostd.persistence.doc.db.repositories.FileListDocFileRepository
 import ac.uk.ebi.biostd.persistence.doc.mapping.from.toDocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocProcessingStatus.PROCESSED
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequest
@@ -22,7 +23,8 @@ internal class SubmissionMongoPersistenceService(
     private val submissionRequestDocDataRepository: SubmissionRequestDocDataRepository,
     private val draftDocDataRepository: SubmissionDraftDocDataRepository,
     private val serializationService: ExtSerializationService,
-    private val systemService: FileSystemService
+    private val systemService: FileSystemService,
+    private val fileListDocFileRepository: FileListDocFileRepository
 ) : SubmissionRequestService {
     override fun saveAndProcessSubmissionRequest(saveRequest: SaveSubmissionRequest): ExtSubmission {
         val extended = saveSubmissionRequest(saveRequest)
@@ -51,7 +53,10 @@ internal class SubmissionMongoPersistenceService(
         val (submission, fileMode) = saveRequest
         val processingSubmission = systemService.persistSubmissionFiles(submission, fileMode)
 
-        subDataRepository.save(processingSubmission.copy(status = PROCESSING).toDocSubmission())
+        val (docSubmission, files) = processingSubmission.copy(status = PROCESSING).toDocSubmission()
+        subDataRepository.save(docSubmission)
+        fileListDocFileRepository.saveAll(files)
+
         processDbSubmission(processingSubmission)
 
         return submission

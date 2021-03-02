@@ -12,6 +12,7 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import org.assertj.core.api.Assertions.assertThat
 import org.bson.Document
+import org.bson.types.ObjectId
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import java.util.Date
@@ -111,7 +112,7 @@ internal class DocSubmissionConverterTest(
     }
 
     companion object {
-        const val subId = "id"
+        val subId = ObjectId(1, 1)
         const val subAccNo = "accNo"
         const val projectDocAccNo = "accNo"
         const val subVersion = 1

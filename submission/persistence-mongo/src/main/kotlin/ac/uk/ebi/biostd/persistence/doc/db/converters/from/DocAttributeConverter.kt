@@ -11,9 +11,7 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocAttribute
 import ac.uk.ebi.biostd.persistence.doc.model.DocAttributeDetail
 import org.bson.Document
 import org.springframework.core.convert.converter.Converter
-import org.springframework.stereotype.Component
 
-@Component
 class DocAttributeConverter : Converter<Document, DocAttribute> {
     override fun convert(source: Document): DocAttribute = DocAttribute(
         name = source.getString(ATTRIBUTE_DOC_NAME),

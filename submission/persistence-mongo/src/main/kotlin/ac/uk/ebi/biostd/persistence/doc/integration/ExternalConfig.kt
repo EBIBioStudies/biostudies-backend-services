@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.persistence.doc.integration
 
 import ac.uk.ebi.biostd.persistence.common.filesystem.FileSystemService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestService
+import ac.uk.ebi.biostd.persistence.doc.db.data.FileListDocFileDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDraftDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
@@ -18,19 +19,22 @@ import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 class ExternalConfig {
 
     @Bean
+    @Suppress("LongParameterList")
     internal fun submissionRequestService(
         submissionDocDataRepository: SubmissionDocDataRepository,
         serializationService: ExtSerializationService,
         submissionRequestDocDataRepository: SubmissionRequestDocDataRepository,
         submissionDraftDocDataRepository: SubmissionDraftDocDataRepository,
-        systemService: FileSystemService
+        systemService: FileSystemService,
+        fileListDocFileRepository: FileListDocFileDocDataRepository
     ): SubmissionRequestService {
         return SubmissionMongoPersistenceService(
             submissionDocDataRepository,
             submissionRequestDocDataRepository,
             submissionDraftDocDataRepository,
             serializationService,
-            systemService
+            systemService,
+            fileListDocFileRepository
         )
     }
 }

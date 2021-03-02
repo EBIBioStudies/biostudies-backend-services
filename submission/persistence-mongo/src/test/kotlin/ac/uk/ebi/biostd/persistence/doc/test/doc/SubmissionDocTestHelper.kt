@@ -48,7 +48,7 @@ internal val testDocSection = DocSection(type = "Study")
 internal val testDocCollection = DocCollection(PROJECT_ACC_NO)
 
 internal val testDocSubmission = DocSubmission(
-    id = ObjectId().toString(),
+    id = ObjectId(),
     accNo = SUB_ACC_NO,
     version = SUB_VERSION,
     owner = OWNER,

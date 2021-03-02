@@ -33,15 +33,13 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionMethod
 import ac.uk.ebi.biostd.persistence.doc.model.DocTag
 import org.bson.Document
 import org.springframework.core.convert.converter.Converter
-import org.springframework.stereotype.Component
 
-@Component
 class DocSubmissionConverter(
     private val docSectionConverter: DocSectionConverter,
     private val docAttributeConverter: DocAttributeConverter
 ) : Converter<Document, DocSubmission> {
     override fun convert(source: Document): DocSubmission = DocSubmission(
-        id = source.getString(SUB_ID),
+        id = source.getObjectId(SUB_ID),
         accNo = source.getString(SUB_ACC_NO),
         version = source.getInteger(SUB_VERSION),
         owner = source.getString(SUB_OWNER),

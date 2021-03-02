@@ -5,6 +5,7 @@ import ac.uk.ebi.biostd.persistence.doc.test.FileTestHelper.assertExtFile
 import ac.uk.ebi.biostd.persistence.doc.test.FileTestHelper.assertExtFileList
 import ac.uk.ebi.biostd.persistence.doc.test.FileTestHelper.docFile
 import ac.uk.ebi.biostd.persistence.doc.test.FileTestHelper.docFileList
+import ac.uk.ebi.biostd.persistence.doc.test.FileTestHelper.docFileRef
 import ac.uk.ebi.biostd.persistence.doc.test.TEST_REL_PATH
 import arrow.core.Either.Companion.left
 import arrow.core.Either.Companion.right
@@ -53,7 +54,7 @@ class ToExtFileTest(temporaryFolder: TemporaryFolder) {
 
     @Test
     fun `to ext file list`() {
-        val extFileList = docFileList.copy(files = listOf(testDocFile)).toExtFileList()
-        assertExtFileList(extFileList, testFile)
+        val extFileList = docFileList.copy(files = listOf(docFileRef))
+        assertExtFileList(extFileList.toExtFileList(), testFile)
     }
 }

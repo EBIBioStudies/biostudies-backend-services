@@ -14,6 +14,7 @@ import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod
 import org.assertj.core.api.Assertions.assertThat
+import org.bson.types.ObjectId
 import java.io.File
 import java.time.Instant
 import java.time.ZoneOffset.UTC
@@ -24,7 +25,7 @@ private const val OWNER = "owner@mail.org"
 private const val SUBMITTER = "submitter@mail.org"
 private const val SUB_TITLE = "Test Submission"
 private const val ROOT_PATH = "/a/root/path"
-private const val SECRET_KEY = "a-secret-key"
+internal const val SECRET_KEY = "a-secret-key"
 private const val TAG_NAME = "component"
 private const val TAG_VALUE = "web"
 private const val PROJECT_ACC_NO = "BioImages"
@@ -36,7 +37,7 @@ object SubmissionTestHelper {
     private val time = Instant.now()
 
     val docSubmission = DocSubmission(
-        id = null,
+        id = ObjectId(),
         accNo = SUB_ACC_NO,
         version = SUB_VERSION,
         owner = OWNER,
