@@ -12,7 +12,6 @@ open class SubmissionDraftSqlService(
     private val userDataService: UserDataService,
     private val submissionService: SubmissionService
 ) : SubmissionDraftService {
-
     @Transactional(readOnly = true)
     override fun getSubmissionDraft(userEmail: String, key: String): SubmissionDraft {
         val dbUser = userDataService.getUserData(userEmail, key) ?: create(userEmail, key)
@@ -26,7 +25,7 @@ open class SubmissionDraftSqlService(
     }
 
     @Transactional
-    override fun deleteSubmissionDraft(userEmail: String, key: String): Unit = userDataService.delete(userEmail, key)
+    override fun deleteSubmissionDraft(userEmail: String, key: String) = userDataService.delete(userEmail, key)
 
     @Transactional(readOnly = true)
     override fun getSubmissionsDraft(userEmail: String, filter: PaginationFilter): List<SubmissionDraft> =

@@ -141,12 +141,11 @@ interface UserDataDataRepository : JpaRepository<DbUserData, UserDataId> {
     fun findByUserEmailAndKey(userEmail: String, key: String): DbUserData?
     fun findByUserEmail(userEmail: String, pageRequest: Pageable): List<DbUserData>
 
-    @Query("Delete from DbUserData where userId = ?1 and key = ?2")
-    @Modifying
-    fun deleteByUserIdAndKey(userId: Long, key: String)
-
     @Modifying
     fun deleteByUserEmailAndKey(email: String, key: String)
+
+    @Modifying
+    fun deleteByUserEmailAndDataContaining(email: String, content: String)
 }
 
 interface SubmissionStatsDataRepository : PagingAndSortingRepository<DbSubmissionStat, Long> {

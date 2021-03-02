@@ -88,11 +88,13 @@ internal class SubmissionDraftApiTest(tempFolder: TemporaryFolder) : BaseIntegra
             val pageTab = jsonObj { "accno" to "ABC-126"; "type" to "Study" }.toString()
 
             webClient.submitSingle(pageTab, SubmissionFormat.JSON)
+            webClient.createSubmissionDraft(pageTab)
             webClient.getSubmissionDraft("ABC-126")
             val updatedDraft = tsv {
                 line("Submission", "ABC-126")
                 line("Description", "Updated submission")
             }
+
             webClient.submitSingle(updatedDraft.toString(), SubmissionFormat.TSV)
             assertThat(webClient.getAllSubmissionDrafts()).isEmpty()
         }

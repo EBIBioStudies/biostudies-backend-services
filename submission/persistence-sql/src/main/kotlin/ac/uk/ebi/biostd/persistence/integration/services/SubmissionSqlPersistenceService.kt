@@ -33,6 +33,7 @@ internal open class SubmissionSqlPersistenceService(
             status = ExtProcessingStatus.REQUESTED)
         subDataRepository.save(toDbMapper.toSubmissionDb(newVersion))
         requestDataRepository.save(asRequest(newVersion))
+
         return newVersion
     }
 
@@ -41,6 +42,7 @@ internal open class SubmissionSqlPersistenceService(
         subDataRepository.updateStatus(PROCESSING, submission.accNo, submission.version)
         systemService.persistSubmissionFiles(submission, mode)
         processDbSubmission(subRepository.getExtByAccNoAndVersion(submission.accNo, submission.version))
+
         return subRepository.getExtByAccNoAndVersion(submission.accNo, submission.version)
     }
 
@@ -57,10 +59,12 @@ internal open class SubmissionSqlPersistenceService(
         deleteSubmissionDrafts(submission.submitter, submission.accNo)
         deleteSubmissionDrafts(submission.owner, submission.accNo)
         subDataRepository.updateStatus(PROCESSED, submission.accNo, submission.version)
+
         return submission
     }
 
     private fun deleteSubmissionDrafts(email: String, accNo: String) {
         userDataRepository.deleteByUserEmailAndKey(email, accNo)
+        userDataRepository.deleteByUserEmailAndDataContaining(email, "\"accno\": \"$accNo\"")
     }
 }
