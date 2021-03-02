@@ -51,8 +51,6 @@ class SecurityConfig(
             .antMatchers("/auth/**").permitAll()
             .antMatchers("/v2/**").permitAll()
             .antMatchers("/webjars/**").permitAll()
-            .antMatchers("/swagger**").permitAll()
-            .antMatchers("/swagger-resources/**").permitAll()
             .antMatchers("/actuator/**").permitAll()
             .antMatchers("/fire/**").permitAll()
             .anyRequest().fullyAuthenticated()
