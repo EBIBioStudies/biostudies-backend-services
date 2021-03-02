@@ -18,6 +18,7 @@ internal fun Either<DocFile, DocFileTable>.toExtFiles(): Either<ExtFile, ExtFile
     bimap({ it.toExtFile() }) { it.toExtFileTable() }
 
 /**
- * returns empty list because we won't pass it to the client in this API
+ * Maps a DocFileList to corresponding Ext type. Note that empty list is used as files as list files are not loaded as
+ * part of the submission.
  */
 internal fun DocFileList.toExtFileList() = ExtFileList(fileName, emptyList())

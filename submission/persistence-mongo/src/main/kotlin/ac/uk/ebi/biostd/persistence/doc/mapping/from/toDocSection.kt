@@ -4,6 +4,7 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocFileList
 import ac.uk.ebi.biostd.persistence.doc.model.DocSection
 import ac.uk.ebi.biostd.persistence.doc.model.DocSectionTable
 import ac.uk.ebi.biostd.persistence.doc.model.DocSectionTableRow
+import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
 import arrow.core.Either
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSectionTable
@@ -12,17 +13,26 @@ import ebi.ac.uk.util.collections.component1
 import ebi.ac.uk.util.collections.component2
 import org.bson.types.ObjectId
 
-internal fun ExtSection.toDocSection(submissionId: ObjectId): DocSectionDescriptor {
-    val sections: List<Either<DocSectionDescriptor, DocSectionTable>> = sections.map { it.toDocSections(submissionId) }
+typealias EitherList <A, B> = List<Either<A, B>>
+
+internal fun ExtSection.toDocSection(submissionId: ObjectId): DocSectionData {
+    val sections = sections.map { it.toDocSections(submissionId) }
     val (sectionFileList, sectionFiles) = fileList?.toDocFileList(submissionId)
-    val docSection = toDocSection(sectionFileList, sections.map { either -> either.mapLeft { it.section } })
-    return DocSectionDescriptor(docSection, sectionFiles.orEmpty() + sections.mapLeft { it.fileListFiles }.flatten())
+    return DocSectionData(
+        section = toDocSection(sectionFileList, sections.subSections()),
+        fileListFiles = sectionFiles.orEmpty() + sections.subSectionsFiles())
 }
+
+private fun EitherList<DocSectionData, DocSectionTable>.subSections(): EitherList<DocSection, DocSectionTable> =
+    map { either -> either.mapLeft { it.section } }
+
+private fun EitherList<DocSectionData, DocSectionTable>.subSectionsFiles(): List<FileListDocFile> =
+    mapLeft { it.fileListFiles }.flatten()
 
 private fun ExtSection.toDocSection(
     fileList: DocFileList?,
     sections: List<Either<DocSection, DocSectionTable>>
-): DocSection = DocSection(
+) = DocSection(
     accNo = accNo,
     type = type,
     fileList = fileList,
@@ -32,15 +42,8 @@ private fun ExtSection.toDocSection(
     sections = sections
 )
 
-private fun ExtSection.toDocTableSection(): DocSectionTableRow = DocSectionTableRow(
-    accNo = accNo,
-    type = type,
-    attributes = attributes.map { it.toDocAttribute() }
-)
-private fun Either<ExtSection, ExtSectionTable>.toDocSections(
-    submissionId: ObjectId
-): Either<DocSectionDescriptor, DocSectionTable> =
-    bimap({ it.toDocSection(submissionId) }, ExtSectionTable::toDocSectionTable)
+private fun ExtSection.toDocTableSection() = DocSectionTableRow(accNo, type, attributes.map { it.toDocAttribute() })
+private fun ExtSectionTable.toDocSectionTable() = DocSectionTable(sections.map { it.toDocTableSection() })
 
-private fun ExtSectionTable.toDocSectionTable() =
-    DocSectionTable(sections.map { it.toDocTableSection() })
+private fun Either<ExtSection, ExtSectionTable>.toDocSections(submissionId: ObjectId) =
+    bimap({ it.toDocSection(submissionId) }, ExtSectionTable::toDocSectionTable)

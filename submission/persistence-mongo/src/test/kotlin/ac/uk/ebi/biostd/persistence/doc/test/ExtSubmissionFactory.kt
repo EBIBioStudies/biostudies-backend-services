@@ -2,8 +2,8 @@ package ac.uk.ebi.biostd.persistence.doc.test
 
 import arrow.core.Either
 import ebi.ac.uk.extended.model.ExtAttribute
-import ebi.ac.uk.extended.model.ExtCollection
 import ebi.ac.uk.extended.model.ExtAttributeDetail
+import ebi.ac.uk.extended.model.ExtCollection
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileList
 import ebi.ac.uk.extended.model.ExtFileTable
@@ -109,6 +109,7 @@ const val RELEASED = true
 val METHOD = PAGE_TAB
 val STATUS = PROCESSED
 const val ROOT_PATH1 = "/a/root/path"
+
 val fullExtSubmission = ExtSubmission(
     accNo = ACC_NO,
     version = VERSION,

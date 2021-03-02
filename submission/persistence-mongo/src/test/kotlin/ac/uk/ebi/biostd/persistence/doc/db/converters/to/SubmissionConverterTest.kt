@@ -97,7 +97,7 @@ internal class SubmissionConverterTest(
     }
 
     private companion object {
-        val submissionId = ObjectId(1, 1)
+        val submissionId = ObjectId()
         const val submissionAccNo = "S-TEST1"
         const val submissionVersion = 1
         const val submissionOwner = "owner@mail.org"
