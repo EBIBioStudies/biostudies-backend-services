@@ -12,24 +12,22 @@ import ebi.ac.uk.model.constants.SubFields.ACC_NO_TEMPLATE
 import java.time.ZoneOffset
 
 class SubmissionMongoMetaQueryService(
-    private val submissionDocDataRepository: SubmissionDocDataRepository
+    private val submissionRepository: SubmissionDocDataRepository
 ) : SubmissionMetaQueryService {
 
     override fun getBasicCollection(accNo: String): BasicCollection {
-        val projectDb: DocSubmission? = submissionDocDataRepository.findByAccNo(accNo)
-        require(projectDb != null) { throw CollectionNotFoundException(accNo) }
-
-        val projectPattern = projectDb.attributes.firstOrNull { it.name == ACC_NO_TEMPLATE.value }?.value
-            ?: throw CollectionWithoutPatternException(accNo)
-
-        return BasicCollection(projectDb.accNo, projectPattern, projectDb.releaseTime?.atOffset(ZoneOffset.UTC))
+        val collection = submissionRepository.findByAccNo(accNo) ?: throw CollectionNotFoundException(accNo)
+        val collectionPattern = collection.accTemplate() ?: throw CollectionWithoutPatternException(accNo)
+        return BasicCollection(collection.accNo, collectionPattern, collection.releaseTime?.atOffset(ZoneOffset.UTC))
     }
 
     override fun findLatestBasicByAccNo(accNo: String): BasicSubmission? =
-        submissionDocDataRepository.findFirstByAccNoOrderByVersionDesc(accNo)?.asBasicSubmission()
+        submissionRepository.findFirstByAccNoOrderByVersionDesc(accNo)?.asBasicSubmission()
 
     override fun getAccessTags(accNo: String): List<String> =
-        submissionDocDataRepository.getCollections(accNo).map { it.accNo }
+        submissionRepository.getCollections(accNo).map { it.accNo }
 
-    override fun existByAccNo(accNo: String): Boolean = submissionDocDataRepository.existsByAccNo(accNo)
+    override fun existByAccNo(accNo: String): Boolean = submissionRepository.existsByAccNo(accNo)
+
+    private fun DocSubmission.accTemplate() = attributes.firstOrNull { it.name == ACC_NO_TEMPLATE.value }?.value
 }
