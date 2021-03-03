@@ -14,66 +14,66 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionMethod
 import ac.uk.ebi.biostd.persistence.doc.model.DocTag
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ACC_NO1
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ATTRIBUTE_NAME
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ATTRIBUTE_NAME1
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ATTRIBUTE_NAME2
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ATTRIBUTE_NAME3
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ATTRIBUTE_NAME4
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ATTRIBUTE_NAME_ATTRS
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ATTRIBUTE_NAME_ATTRS1
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ATTRIBUTE_NAME_ATTRS2
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ATTRIBUTE_NAME_ATTRS3
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ATTRIBUTE_NAME_ATTRS4
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ATTRIBUTE_REFERENCE
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ATTRIBUTE_REFERENCE1
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ATTRIBUTE_REFERENCE2
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ATTRIBUTE_REFERENCE3
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ATTRIBUTE_REFERENCE4
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ATTRIBUTE_VALUE
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ATTRIBUTE_VALUE1
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ATTRIBUTE_VALUE2
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ATTRIBUTE_VALUE3
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ATTRIBUTE_VALUE4
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ATTRIBUTE_VALUE_ATTRS
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ATTRIBUTE_VALUE_ATTRS1
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ATTRIBUTE_VALUE_ATTRS2
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ATTRIBUTE_VALUE_ATTRS3
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ATTRIBUTE_VALUE_ATTRS4
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.COLLECTION_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.CREATION_TIME
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.EXT_FILE_LIST_FILENAME1
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.EXT_FILE_LIST_FILENAME2
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.EXT_STAT_NAME
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.EXT_STAT_VALUE
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.EXT_TAG_NAME
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.EXT_TAG_VALUE
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.MODIFICATION_TIME
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.OWNER1
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.RELEASED
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.RELEASE_TIME
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.REL_PATH1
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_FILE_LIST_FILE
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_FILE_LIST_FILE_NAME
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_PATH1
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_SECTION_LINK_URL
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_SECTION_TABLE_LINK_URL
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_SEC_ACC_NO
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_SEC_ATTRIBUTE_NAME
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_SEC_ATTRIBUTE_REFERENCE
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_SEC_ATTRIBUTE_VALUE
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_SEC_ATTR_NAME_ATTRS
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_SEC_ATTR_VALUE_ATTRS
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_SEC_EXT_FILE_LIST_FILENAME
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_SEC_FILE
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_SEC_FILE_NAME
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_SEC_LINK_ATTRIBUTE_NAME
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_SEC_LINK_ATTRIBUTE_REFERENCE
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_SEC_LINK_ATTRIBUTE_VALUE
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_SEC_LINK_ATTRIBUTE_VALUE_ATTRS
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_SEC_LINK_ATTR_NAME_ATTRS
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_SEC_TABLE_FILE
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_SEC_TABLE_FILE_NAME
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SECRET_KEY1
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SEC_ACC_NO1
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SEC_ACC_NO2
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SEC_ACC_NO3
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SEC_TYPE1
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SEC_TYPE2
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SEC_TYPE3
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUBMITTER1
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_SEC_TABLE_LINK_ATTRIBUTE_NAME
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_SEC_TABLE_LINK_ATTRIBUTE_REFERENCE
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_SEC_TABLE_LINK_ATTRIBUTE_VALUE
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_SEC_TABLE_LINK_ATTR_NAME_ATTRS
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_SEC_TABLE_LINK_ATTR_VALUE_ATTRS
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_SEC_TYPE
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUBMISSION_ACC_NO
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUBMISSION_ATTRIBUTE_NAME
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUBMISSION_ATTRIBUTE_REFERENCE
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUBMISSION_ATTRIBUTE_VALUE
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUBMISSION_ATTR_NAME_ATTRS
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUBMISSION_ATTR_VALUE_ATTRS
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUBMISSION_OWNER
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUBMISSION_RELEASED
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUBMISSION_REL_PATH
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUBMISSION_ROOT_PATH
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUBMISSION_SECRET_KEY
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUBMISSION_SUBMITTER
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUBMISSION_TITLE
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUBMISSION_VERSION
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUB_FILE_LIST_FILE
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUB_FILE_LIST_FILE_NAME
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.TITLE
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.VERSION
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUB_SEC_ACC_NO
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUB_SEC_EXT_FILE_LIST_FILENAME
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUB_SEC_TABLE_ACC_NO3
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUB_SEC_TABLE_ATTR_NAME
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUB_SEC_TABLE_ATTR_NAME_ATTRS
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUB_SEC_TABLE_ATTR_REFERENCE
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUB_SEC_TABLE_ATTR_VALUE
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUB_SEC_TABLE_ATTR_VALUE_ATTRS
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUB_SEC_TABLE_TYPE
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUB_SEC_TYPE
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.fullExtSubmission
 import arrow.core.Either
 import ebi.ac.uk.asserts.assertThat
@@ -132,16 +132,16 @@ class ToDocSubmissionTest {
     }
 
     private fun assertSimpleDocProperties(docSubmission: DocSubmission) {
-        assertThat(docSubmission.accNo).isEqualTo(ACC_NO1)
-        assertThat(docSubmission.version).isEqualTo(VERSION)
-        assertThat(docSubmission.owner).isEqualTo(OWNER1)
-        assertThat(docSubmission.submitter).isEqualTo(SUBMITTER1)
-        assertThat(docSubmission.title).isEqualTo(TITLE)
+        assertThat(docSubmission.accNo).isEqualTo(SUBMISSION_ACC_NO)
+        assertThat(docSubmission.version).isEqualTo(SUBMISSION_VERSION)
+        assertThat(docSubmission.owner).isEqualTo(SUBMISSION_OWNER)
+        assertThat(docSubmission.submitter).isEqualTo(SUBMISSION_SUBMITTER)
+        assertThat(docSubmission.title).isEqualTo(SUBMISSION_TITLE)
         assertThat(docSubmission.method).isEqualTo(DocSubmissionMethod.PAGE_TAB)
-        assertThat(docSubmission.relPath).isEqualTo(REL_PATH1)
-        assertThat(docSubmission.rootPath).isEqualTo(ROOT_PATH1)
-        assertThat(docSubmission.released).isEqualTo(RELEASED)
-        assertThat(docSubmission.secretKey).isEqualTo(SECRET_KEY1)
+        assertThat(docSubmission.relPath).isEqualTo(SUBMISSION_REL_PATH)
+        assertThat(docSubmission.rootPath).isEqualTo(SUBMISSION_ROOT_PATH)
+        assertThat(docSubmission.released).isEqualTo(SUBMISSION_RELEASED)
+        assertThat(docSubmission.secretKey).isEqualTo(SUBMISSION_SECRET_KEY)
         assertThat(docSubmission.status).isEqualTo(DocProcessingStatus.PROCESSED)
         assertThat(docSubmission.releaseTime).isEqualTo(RELEASE_TIME.toInstant())
         assertThat(docSubmission.modificationTime).isEqualTo(MODIFICATION_TIME.toInstant())
@@ -149,9 +149,9 @@ class ToDocSubmissionTest {
     }
 
     private fun assertRootSection(docSection: DocSection) {
-        assertThat(docSection.accNo).isEqualTo(SEC_ACC_NO1)
-        assertThat(docSection.type).isEqualTo(SEC_TYPE1)
-        assertThat(docSection.fileList?.fileName).isEqualTo(EXT_FILE_LIST_FILENAME1)
+        assertThat(docSection.accNo).isEqualTo(ROOT_SEC_ACC_NO)
+        assertThat(docSection.type).isEqualTo(ROOT_SEC_TYPE)
+        assertThat(docSection.fileList?.fileName).isEqualTo(ROOT_SEC_EXT_FILE_LIST_FILENAME)
 
         assertRootSectionAttribute(docSection.attributes.first())
         assertInnerSections(docSection.sections)
@@ -160,43 +160,43 @@ class ToDocSubmissionTest {
     }
 
     private fun assertRootSectionAttribute(docAttribute: DocAttribute) {
-        assertThat(docAttribute.name).isEqualTo(ATTRIBUTE_NAME1)
-        assertThat(docAttribute.value).isEqualTo(ATTRIBUTE_VALUE1)
-        assertThat(docAttribute.reference).isEqualTo(ATTRIBUTE_REFERENCE1)
-        assertThat(docAttribute.nameAttrs).isEqualTo(ATTRIBUTE_NAME_ATTRS1)
-        assertThat(docAttribute.valueAttrs).isEqualTo(ATTRIBUTE_VALUE_ATTRS1)
+        assertThat(docAttribute.name).isEqualTo(ROOT_SEC_ATTRIBUTE_NAME)
+        assertThat(docAttribute.value).isEqualTo(ROOT_SEC_ATTRIBUTE_VALUE)
+        assertThat(docAttribute.reference).isEqualTo(ROOT_SEC_ATTRIBUTE_REFERENCE)
+        assertThat(docAttribute.nameAttrs).isEqualTo(ROOT_SEC_ATTR_NAME_ATTRS)
+        assertThat(docAttribute.valueAttrs).isEqualTo(ROOT_SEC_ATTR_VALUE_ATTRS)
     }
 
     private fun assertSubSectionTableAttribute(docAttribute: DocAttribute) {
-        assertThat(docAttribute.name).isEqualTo(ATTRIBUTE_NAME2)
-        assertThat(docAttribute.value).isEqualTo(ATTRIBUTE_VALUE2)
-        assertThat(docAttribute.reference).isEqualTo(ATTRIBUTE_REFERENCE2)
-        assertThat(docAttribute.nameAttrs).isEqualTo(ATTRIBUTE_NAME_ATTRS2)
-        assertThat(docAttribute.valueAttrs).isEqualTo(ATTRIBUTE_VALUE_ATTRS2)
+        assertThat(docAttribute.name).isEqualTo(SUB_SEC_TABLE_ATTR_NAME)
+        assertThat(docAttribute.value).isEqualTo(SUB_SEC_TABLE_ATTR_VALUE)
+        assertThat(docAttribute.reference).isEqualTo(SUB_SEC_TABLE_ATTR_REFERENCE)
+        assertThat(docAttribute.nameAttrs).isEqualTo(SUB_SEC_TABLE_ATTR_NAME_ATTRS)
+        assertThat(docAttribute.valueAttrs).isEqualTo(SUB_SEC_TABLE_ATTR_VALUE_ATTRS)
     }
 
     private fun assertRootSectionLinkAttribute(docAttribute: DocAttribute) {
-        assertThat(docAttribute.name).isEqualTo(ATTRIBUTE_NAME3)
-        assertThat(docAttribute.value).isEqualTo(ATTRIBUTE_VALUE3)
-        assertThat(docAttribute.reference).isEqualTo(ATTRIBUTE_REFERENCE3)
-        assertThat(docAttribute.nameAttrs).isEqualTo(ATTRIBUTE_NAME_ATTRS3)
-        assertThat(docAttribute.valueAttrs).isEqualTo(ATTRIBUTE_VALUE_ATTRS3)
+        assertThat(docAttribute.name).isEqualTo(ROOT_SEC_LINK_ATTRIBUTE_NAME)
+        assertThat(docAttribute.value).isEqualTo(ROOT_SEC_LINK_ATTRIBUTE_VALUE)
+        assertThat(docAttribute.reference).isEqualTo(ROOT_SEC_LINK_ATTRIBUTE_REFERENCE)
+        assertThat(docAttribute.nameAttrs).isEqualTo(ROOT_SEC_LINK_ATTR_NAME_ATTRS)
+        assertThat(docAttribute.valueAttrs).isEqualTo(ROOT_SEC_LINK_ATTRIBUTE_VALUE_ATTRS)
     }
 
     private fun assertRootSectionTableLinkAttribute(docAttribute: DocAttribute) {
-        assertThat(docAttribute.name).isEqualTo(ATTRIBUTE_NAME4)
-        assertThat(docAttribute.value).isEqualTo(ATTRIBUTE_VALUE4)
-        assertThat(docAttribute.reference).isEqualTo(ATTRIBUTE_REFERENCE4)
-        assertThat(docAttribute.nameAttrs).isEqualTo(ATTRIBUTE_NAME_ATTRS4)
-        assertThat(docAttribute.valueAttrs).isEqualTo(ATTRIBUTE_VALUE_ATTRS4)
+        assertThat(docAttribute.name).isEqualTo(ROOT_SEC_TABLE_LINK_ATTRIBUTE_NAME)
+        assertThat(docAttribute.value).isEqualTo(ROOT_SEC_TABLE_LINK_ATTRIBUTE_VALUE)
+        assertThat(docAttribute.reference).isEqualTo(ROOT_SEC_TABLE_LINK_ATTRIBUTE_REFERENCE)
+        assertThat(docAttribute.nameAttrs).isEqualTo(ROOT_SEC_TABLE_LINK_ATTR_NAME_ATTRS)
+        assertThat(docAttribute.valueAttrs).isEqualTo(ROOT_SEC_TABLE_LINK_ATTR_VALUE_ATTRS)
     }
 
     private fun assertSubmissionAttribute(docAttribute: DocAttribute) {
-        assertThat(docAttribute.name).isEqualTo(ATTRIBUTE_NAME)
-        assertThat(docAttribute.value).isEqualTo(ATTRIBUTE_VALUE)
-        assertThat(docAttribute.reference).isEqualTo(ATTRIBUTE_REFERENCE)
-        assertThat(docAttribute.nameAttrs).isEqualTo(ATTRIBUTE_NAME_ATTRS)
-        assertThat(docAttribute.valueAttrs).isEqualTo(ATTRIBUTE_VALUE_ATTRS)
+        assertThat(docAttribute.name).isEqualTo(SUBMISSION_ATTRIBUTE_NAME)
+        assertThat(docAttribute.value).isEqualTo(SUBMISSION_ATTRIBUTE_VALUE)
+        assertThat(docAttribute.reference).isEqualTo(SUBMISSION_ATTRIBUTE_REFERENCE)
+        assertThat(docAttribute.nameAttrs).isEqualTo(SUBMISSION_ATTR_NAME_ATTRS)
+        assertThat(docAttribute.valueAttrs).isEqualTo(SUBMISSION_ATTR_VALUE_ATTRS)
     }
 
     private fun assertCollection(docCollection: DocCollection) =
@@ -216,14 +216,14 @@ class ToDocSubmissionTest {
         assertThat(docSections).hasSize(2)
 
         assertThat(docSections.first()).hasLeftValueSatisfying {
-            assertThat(it.accNo).isEqualTo(SEC_ACC_NO2)
-            assertThat(it.type).isEqualTo(SEC_TYPE2)
-            assertThat(it.fileList?.fileName).isEqualTo(EXT_FILE_LIST_FILENAME2)
+            assertThat(it.accNo).isEqualTo(SUB_SEC_ACC_NO)
+            assertThat(it.type).isEqualTo(SUB_SEC_TYPE)
+            assertThat(it.fileList?.fileName).isEqualTo(SUB_SEC_EXT_FILE_LIST_FILENAME)
         }
 
         assertThat(docSections.second()).hasRightValueSatisfying {
-            assertThat(it.sections.first().accNo).isEqualTo(SEC_ACC_NO3)
-            assertThat(it.sections.first().type).isEqualTo(SEC_TYPE3)
+            assertThat(it.sections.first().accNo).isEqualTo(SUB_SEC_TABLE_ACC_NO3)
+            assertThat(it.sections.first().type).isEqualTo(SUB_SEC_TABLE_TYPE)
             assertSubSectionTableAttribute(it.sections.first().attributes.first())
         }
     }
@@ -245,8 +245,8 @@ class ToDocSubmissionTest {
             assertThat(it.fullPath).isEqualTo(ROOT_SEC_FILE.absolutePath)
         }
         assertThat(docFiles.second()).hasRightValueSatisfying {
-            assertThat(it.files.first().relPath).isEqualTo(ROOT_SEC_TABLE_FILE)
-            assertThat(it.files.first().fullPath).isEqualTo(ROOT_SEC_TABLE_FILE_NAME.absolutePath)
+            assertThat(it.files.first().relPath).isEqualTo(ROOT_SEC_TABLE_FILE_NAME)
+            assertThat(it.files.first().fullPath).isEqualTo(ROOT_SEC_TABLE_FILE.absolutePath)
         }
     }
 }

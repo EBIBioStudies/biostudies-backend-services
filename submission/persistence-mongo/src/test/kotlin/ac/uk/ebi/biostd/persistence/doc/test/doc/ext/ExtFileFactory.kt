@@ -15,6 +15,6 @@ const val ROOT_SEC_FILE_NAME = "fileName3"
 val ROOT_SEC_FILE = File("somePath4")
 val rootSectionFile = ExtFile(fileName = ROOT_SEC_FILE_NAME, file = ROOT_SEC_FILE)
 
-const val ROOT_SEC_TABLE_FILE = "fileName4"
-val ROOT_SEC_TABLE_FILE_NAME = File("somePath3")
-val rootSectionTableFile = ExtFile(fileName = ROOT_SEC_TABLE_FILE, file = ROOT_SEC_TABLE_FILE_NAME)
+const val ROOT_SEC_TABLE_FILE_NAME = "fileName4"
+val ROOT_SEC_TABLE_FILE = File("somePath3")
+val rootSectionTableFile = ExtFile(fileName = ROOT_SEC_TABLE_FILE_NAME, file = ROOT_SEC_TABLE_FILE)

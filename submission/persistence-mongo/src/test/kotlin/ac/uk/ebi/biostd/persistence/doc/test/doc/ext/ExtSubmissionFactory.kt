@@ -9,17 +9,17 @@ import ebi.ac.uk.extended.model.ExtTag
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 
-const val ACC_NO1 = "S-TEST1"
-const val VERSION = 1
-const val OWNER1 = "owner@mail.org"
-const val SUBMITTER1 = "submitter@mail.org"
-const val TITLE = "TestSubmission"
-val METHOD = PAGE_TAB
-const val REL_PATH1 = "/a/rel/path"
-const val ROOT_PATH1 = "/a/root/path"
-const val RELEASED = true
-const val SECRET_KEY1 = "a-secret-key"
-val STATUS = PROCESSED
+const val SUBMISSION_ACC_NO = "S-TEST1"
+const val SUBMISSION_VERSION = 1
+const val SUBMISSION_OWNER = "owner@mail.org"
+const val SUBMISSION_SUBMITTER = "submitter@mail.org"
+const val SUBMISSION_TITLE = "TestSubmission"
+val SUBMISSION_METHOD = PAGE_TAB
+const val SUBMISSION_REL_PATH = "/a/rel/path"
+const val SUBMISSION_ROOT_PATH = "/a/root/path"
+const val SUBMISSION_RELEASED = true
+const val SUBMISSION_SECRET_KEY = "a-secret-key"
+val SUBMISSION_STATUS = PROCESSED
 val RELEASE_TIME: OffsetDateTime = OffsetDateTime.of(2019, 9, 21, 10, 30, 34, 15, ZoneOffset.UTC)
 val MODIFICATION_TIME: OffsetDateTime = OffsetDateTime.of(2020, 9, 21, 10, 30, 34, 15, ZoneOffset.UTC)
 val CREATION_TIME: OffsetDateTime = OffsetDateTime.of(2018, 9, 21, 10, 30, 34, 15, ZoneOffset.UTC)
@@ -36,23 +36,23 @@ const val EXT_STAT_VALUE = "1"
 val extStat = ExtStat(EXT_STAT_NAME, EXT_STAT_VALUE)
 
 val fullExtSubmission = ExtSubmission(
-    accNo = ACC_NO1,
-    version = VERSION,
-    owner = OWNER1,
-    submitter = SUBMITTER1,
-    title = TITLE,
-    method = METHOD,
-    relPath = REL_PATH1,
-    rootPath = ROOT_PATH1,
-    released = RELEASED,
-    secretKey = SECRET_KEY1,
-    status = STATUS,
+    accNo = SUBMISSION_ACC_NO,
+    version = SUBMISSION_VERSION,
+    owner = SUBMISSION_OWNER,
+    submitter = SUBMISSION_SUBMITTER,
+    title = SUBMISSION_TITLE,
+    method = SUBMISSION_METHOD,
+    relPath = SUBMISSION_REL_PATH,
+    rootPath = SUBMISSION_ROOT_PATH,
+    released = SUBMISSION_RELEASED,
+    secretKey = SUBMISSION_SECRET_KEY,
+    status = SUBMISSION_STATUS,
     releaseTime = RELEASE_TIME,
     modificationTime = MODIFICATION_TIME,
     creationTime = CREATION_TIME,
     attributes = listOf(submissionAttribute),
     tags = listOf(extTag),
     collections = listOf(extCollection),
-    section = mainSection,
+    section = rootSection,
     stats = listOf(extStat)
 )
