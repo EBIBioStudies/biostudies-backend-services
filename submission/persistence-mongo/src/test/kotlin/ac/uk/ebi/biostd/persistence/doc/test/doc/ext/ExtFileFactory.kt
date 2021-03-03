@@ -3,17 +3,18 @@ package ac.uk.ebi.biostd.persistence.doc.test.doc.ext
 import ebi.ac.uk.extended.model.ExtFile
 import java.io.File
 
-const val EXT_FILE_FILENAME1 = "fileName1"
-const val EXT_FILE_FILENAME2 = "fileName2"
-const val EXT_FILE_FILENAME3 = "fileName3"
-const val EXT_FILE_FILENAME4 = "fileName4"
+const val ROOT_FILE_LIST_FILE_NAME = "fileName1"
+val ROOT_FILE_LIST_FILE = File("somePath1")
+val rootSectionFileListFile = ExtFile(fileName = ROOT_FILE_LIST_FILE_NAME, file = ROOT_FILE_LIST_FILE)
 
-val EXT_FILE_FILE1 = File("somePath1")
-val extFileMainSectionFileList = ExtFile(fileName = EXT_FILE_FILENAME1, file = EXT_FILE_FILE1)
-val EXT_FILE_FILE2 = File("somePath2")
-val extFileSubsectionFileList = ExtFile(fileName = EXT_FILE_FILENAME2, file = EXT_FILE_FILE2)
+const val SUB_FILE_LIST_FILE_NAME = "fileName2"
+val SUB_FILE_LIST_FILE = File("somePath2")
+val subSectionFileListFile = ExtFile(fileName = SUB_FILE_LIST_FILE_NAME, file = SUB_FILE_LIST_FILE)
 
-val EXT_FILE_FILE4 = File("somePath3")
-val EXT_FILE_FILE3 = File("somePath4")
-val extFile4 = ExtFile(fileName = EXT_FILE_FILENAME4, file = EXT_FILE_FILE4)
-val extFile3 = ExtFile(fileName = EXT_FILE_FILENAME3, file = EXT_FILE_FILE3)
+const val ROOT_SEC_FILE_NAME = "fileName3"
+val ROOT_SEC_FILE = File("somePath4")
+val rootSectionFile = ExtFile(fileName = ROOT_SEC_FILE_NAME, file = ROOT_SEC_FILE)
+
+const val ROOT_SEC_TABLE_FILE = "fileName4"
+val ROOT_SEC_TABLE_FILE_NAME = File("somePath3")
+val rootSectionTableFile = ExtFile(fileName = ROOT_SEC_TABLE_FILE, file = ROOT_SEC_TABLE_FILE_NAME)

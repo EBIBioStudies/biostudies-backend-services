@@ -23,7 +23,7 @@ val subSection = ExtSection(
     type = SEC_TYPE2,
     fileList = ExtFileList(
         fileName = EXT_FILE_LIST_FILENAME2,
-        files = listOf(extFileSubsectionFileList)
+        files = listOf(subSectionFileListFile)
     )
 )
 
@@ -31,18 +31,18 @@ val subSectionTable = ExtSection(
     accNo = SEC_ACC_NO3,
     type = SEC_TYPE3,
     fileList = null,
-    attributes = listOf(extAttribute2)
+    attributes = listOf(subSectionTableAttribute)
 )
 
-const val EXT_LINK_URL1 = "url1"
-val extLink1 = ExtLink(
-    url = EXT_LINK_URL1,
-    attributes = listOf(extAttribute3)
+const val ROOT_SECTION_LINK_URL = "url1"
+val rootSectionLink = ExtLink(
+    url = ROOT_SECTION_LINK_URL,
+    attributes = listOf(rootSectionLinkAttribute)
 )
-const val EXT_LINK_URL2 = "url2"
-val extLink2 = ExtLink(
-    url = EXT_LINK_URL2,
-    attributes = listOf(extAttribute4)
+const val ROOT_SECTION_TABLE_LINK_URL = "url2"
+val rootSectionTableLink = ExtLink(
+    url = ROOT_SECTION_TABLE_LINK_URL,
+    attributes = listOf(rootSectionTableLinkAttribute)
 )
 
 val mainSection = ExtSection(
@@ -50,19 +50,19 @@ val mainSection = ExtSection(
     type = SEC_TYPE1,
     fileList = ExtFileList(
         fileName = EXT_FILE_LIST_FILENAME1,
-        files = listOf(extFileMainSectionFileList)
+        files = listOf(rootSectionFileListFile)
     ),
-    attributes = listOf(extAttribute1),
+    attributes = listOf(rootSectionAttribute),
     sections = listOf(
         Either.left(subSection),
         Either.right(ExtSectionTable(sections = listOf(subSectionTable)))
     ),
     files = listOf(
-        Either.left(extFile3),
-        Either.right(ExtFileTable(files = listOf(extFile4)))
+        Either.left(rootSectionFile),
+        Either.right(ExtFileTable(files = listOf(rootSectionTableFile)))
     ),
     links = listOf(
-        Either.left(extLink1),
-        Either.right(ExtLinkTable(links = listOf(extLink2)))
+        Either.left(rootSectionLink),
+        Either.right(ExtLinkTable(links = listOf(rootSectionTableLink)))
     )
 )
