@@ -15,8 +15,8 @@ val submissionAttribute = ExtAttribute(
     nameAttrs = ATTRIBUTE_NAME_ATTRS,
     valueAttrs = ATTRIBUTE_VALUE_ATTRS
 )
-const val ATTRIBUTE_NAME1 = "name"
-const val ATTRIBUTE_VALUE1 = "value"
+const val ATTRIBUTE_NAME1 = "name1"
+const val ATTRIBUTE_VALUE1 = "value1"
 const val ATTRIBUTE_REFERENCE1 = false
 val ATTRIBUTE_NAME_ATTRS1 = listOf<ExtAttributeDetail>()
 val ATTRIBUTE_VALUE_ATTRS1 = listOf<ExtAttributeDetail>()
@@ -27,8 +27,8 @@ val rootSectionAttribute = ExtAttribute(
     nameAttrs = ATTRIBUTE_NAME_ATTRS1,
     valueAttrs = ATTRIBUTE_VALUE_ATTRS1
 )
-const val ATTRIBUTE_NAME2 = "name"
-const val ATTRIBUTE_VALUE2 = "value"
+const val ATTRIBUTE_NAME2 = "name2"
+const val ATTRIBUTE_VALUE2 = "value2"
 const val ATTRIBUTE_REFERENCE2 = false
 val ATTRIBUTE_NAME_ATTRS2 = listOf<ExtAttributeDetail>()
 val ATTRIBUTE_VALUE_ATTRS2 = listOf<ExtAttributeDetail>()
@@ -39,8 +39,8 @@ val subSectionTableAttribute = ExtAttribute(
     nameAttrs = ATTRIBUTE_NAME_ATTRS2,
     valueAttrs = ATTRIBUTE_VALUE_ATTRS2
 )
-const val ATTRIBUTE_NAME3 = "name"
-const val ATTRIBUTE_VALUE3 = "value"
+const val ATTRIBUTE_NAME3 = "name3"
+const val ATTRIBUTE_VALUE3 = "value3"
 const val ATTRIBUTE_REFERENCE3 = false
 val ATTRIBUTE_NAME_ATTRS3 = listOf<ExtAttributeDetail>()
 val ATTRIBUTE_VALUE_ATTRS3 = listOf<ExtAttributeDetail>()
@@ -51,8 +51,8 @@ val rootSectionLinkAttribute = ExtAttribute(
     nameAttrs = ATTRIBUTE_NAME_ATTRS3,
     valueAttrs = ATTRIBUTE_VALUE_ATTRS3
 )
-const val ATTRIBUTE_NAME4 = "name"
-const val ATTRIBUTE_VALUE4 = "value"
+const val ATTRIBUTE_NAME4 = "name4"
+const val ATTRIBUTE_VALUE4 = "value4"
 const val ATTRIBUTE_REFERENCE4 = false
 val ATTRIBUTE_NAME_ATTRS4 = listOf<ExtAttributeDetail>()
 val ATTRIBUTE_VALUE_ATTRS4 = listOf<ExtAttributeDetail>()

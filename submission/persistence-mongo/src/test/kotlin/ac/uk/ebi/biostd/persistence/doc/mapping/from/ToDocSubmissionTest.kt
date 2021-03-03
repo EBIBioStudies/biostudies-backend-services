@@ -15,22 +15,27 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionMethod
 import ac.uk.ebi.biostd.persistence.doc.model.DocTag
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ACC_NO1
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ATTRIBUTE_NAME
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ATTRIBUTE_NAME1
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ATTRIBUTE_NAME2
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ATTRIBUTE_NAME3
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ATTRIBUTE_NAME4
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ATTRIBUTE_NAME_ATTRS
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ATTRIBUTE_NAME_ATTRS1
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ATTRIBUTE_NAME_ATTRS2
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ATTRIBUTE_NAME_ATTRS3
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ATTRIBUTE_NAME_ATTRS4
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ATTRIBUTE_REFERENCE
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ATTRIBUTE_REFERENCE1
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ATTRIBUTE_REFERENCE2
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ATTRIBUTE_REFERENCE3
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ATTRIBUTE_REFERENCE4
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ATTRIBUTE_VALUE
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ATTRIBUTE_VALUE1
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ATTRIBUTE_VALUE2
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ATTRIBUTE_VALUE3
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ATTRIBUTE_VALUE4
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ATTRIBUTE_VALUE_ATTRS
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ATTRIBUTE_VALUE_ATTRS1
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ATTRIBUTE_VALUE_ATTRS2
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ATTRIBUTE_VALUE_ATTRS3
@@ -100,7 +105,7 @@ class ToDocSubmissionTest {
         assertRootSection(docSubmission.section)
 
         assertThat(docSubmission.attributes).hasSize(1)
-        assertAttribute(docSubmission.attributes.first())
+        assertSubmissionAttribute(docSubmission.attributes.first())
 
         assertThat(docSubmission.tags).hasSize(1)
         assertTag(docSubmission.tags.first())
@@ -148,13 +153,13 @@ class ToDocSubmissionTest {
         assertThat(docSection.type).isEqualTo(SEC_TYPE1)
         assertThat(docSection.fileList?.fileName).isEqualTo(EXT_FILE_LIST_FILENAME1)
 
-        assertAttribute1(docSection.attributes.first())
+        assertRootSectionAttribute(docSection.attributes.first())
         assertInnerSections(docSection.sections)
         assertFiles(docSection.files)
         assertLinks(docSection.links)
     }
 
-    private fun assertAttribute1(docAttribute: DocAttribute) {
+    private fun assertRootSectionAttribute(docAttribute: DocAttribute) {
         assertThat(docAttribute.name).isEqualTo(ATTRIBUTE_NAME1)
         assertThat(docAttribute.value).isEqualTo(ATTRIBUTE_VALUE1)
         assertThat(docAttribute.reference).isEqualTo(ATTRIBUTE_REFERENCE1)
@@ -162,7 +167,7 @@ class ToDocSubmissionTest {
         assertThat(docAttribute.valueAttrs).isEqualTo(ATTRIBUTE_VALUE_ATTRS1)
     }
 
-    private fun assertAttribute2(docAttribute: DocAttribute) {
+    private fun assertSubSectionTableAttribute(docAttribute: DocAttribute) {
         assertThat(docAttribute.name).isEqualTo(ATTRIBUTE_NAME2)
         assertThat(docAttribute.value).isEqualTo(ATTRIBUTE_VALUE2)
         assertThat(docAttribute.reference).isEqualTo(ATTRIBUTE_REFERENCE2)
@@ -170,7 +175,7 @@ class ToDocSubmissionTest {
         assertThat(docAttribute.valueAttrs).isEqualTo(ATTRIBUTE_VALUE_ATTRS2)
     }
 
-    private fun assertAttribute3(docAttribute: DocAttribute) {
+    private fun assertRootSectionLinkAttribute(docAttribute: DocAttribute) {
         assertThat(docAttribute.name).isEqualTo(ATTRIBUTE_NAME3)
         assertThat(docAttribute.value).isEqualTo(ATTRIBUTE_VALUE3)
         assertThat(docAttribute.reference).isEqualTo(ATTRIBUTE_REFERENCE3)
@@ -178,7 +183,7 @@ class ToDocSubmissionTest {
         assertThat(docAttribute.valueAttrs).isEqualTo(ATTRIBUTE_VALUE_ATTRS3)
     }
 
-    private fun assertAttribute4(docAttribute: DocAttribute) {
+    private fun assertRootSectionTableLinkAttribute(docAttribute: DocAttribute) {
         assertThat(docAttribute.name).isEqualTo(ATTRIBUTE_NAME4)
         assertThat(docAttribute.value).isEqualTo(ATTRIBUTE_VALUE4)
         assertThat(docAttribute.reference).isEqualTo(ATTRIBUTE_REFERENCE4)
@@ -186,12 +191,12 @@ class ToDocSubmissionTest {
         assertThat(docAttribute.valueAttrs).isEqualTo(ATTRIBUTE_VALUE_ATTRS4)
     }
 
-    private fun assertAttribute(docAttribute: DocAttribute) {
-        assertThat(docAttribute.name).isEqualTo(ATTRIBUTE_NAME1)
-        assertThat(docAttribute.value).isEqualTo(ATTRIBUTE_VALUE1)
-        assertThat(docAttribute.reference).isEqualTo(ATTRIBUTE_REFERENCE1)
-        assertThat(docAttribute.nameAttrs).isEqualTo(ATTRIBUTE_NAME_ATTRS1)
-        assertThat(docAttribute.valueAttrs).isEqualTo(ATTRIBUTE_VALUE_ATTRS1)
+    private fun assertSubmissionAttribute(docAttribute: DocAttribute) {
+        assertThat(docAttribute.name).isEqualTo(ATTRIBUTE_NAME)
+        assertThat(docAttribute.value).isEqualTo(ATTRIBUTE_VALUE)
+        assertThat(docAttribute.reference).isEqualTo(ATTRIBUTE_REFERENCE)
+        assertThat(docAttribute.nameAttrs).isEqualTo(ATTRIBUTE_NAME_ATTRS)
+        assertThat(docAttribute.valueAttrs).isEqualTo(ATTRIBUTE_VALUE_ATTRS)
     }
 
     private fun assertCollection(docCollection: DocCollection) =
@@ -219,18 +224,18 @@ class ToDocSubmissionTest {
         assertThat(docSections.second()).hasRightValueSatisfying {
             assertThat(it.sections.first().accNo).isEqualTo(SEC_ACC_NO3)
             assertThat(it.sections.first().type).isEqualTo(SEC_TYPE3)
-            assertAttribute2(it.sections.first().attributes.first())
+            assertSubSectionTableAttribute(it.sections.first().attributes.first())
         }
     }
 
     private fun assertLinks(docLinks: List<Either<DocLink, DocLinkTable>>) {
         assertThat(docLinks.first()).hasLeftValueSatisfying {
             assertThat(it.url).isEqualTo(ROOT_SECTION_LINK_URL)
-            assertAttribute3(it.attributes.first())
+            assertRootSectionLinkAttribute(it.attributes.first())
         }
         assertThat(docLinks.first()).hasRightValueSatisfying {
             assertThat(it.links.first().url).isEqualTo(ROOT_SECTION_TABLE_LINK_URL)
-            assertAttribute4(it.links.first().attributes.first())
+            assertRootSectionTableLinkAttribute(it.links.first().attributes.first())
         }
     }
 
