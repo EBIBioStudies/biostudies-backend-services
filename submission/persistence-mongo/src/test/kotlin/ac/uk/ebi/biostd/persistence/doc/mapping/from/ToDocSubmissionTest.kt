@@ -9,44 +9,69 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocLinkTable
 import ac.uk.ebi.biostd.persistence.doc.model.DocProcessingStatus
 import ac.uk.ebi.biostd.persistence.doc.model.DocSection
 import ac.uk.ebi.biostd.persistence.doc.model.DocSectionTable
+import ac.uk.ebi.biostd.persistence.doc.model.DocStat
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionMethod
 import ac.uk.ebi.biostd.persistence.doc.model.DocTag
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
-import ac.uk.ebi.biostd.persistence.doc.test.ACC_NO
-import ac.uk.ebi.biostd.persistence.doc.test.ATTRIBUTE_NAME1
-import ac.uk.ebi.biostd.persistence.doc.test.ATTRIBUTE_NAME_ATTRS
-import ac.uk.ebi.biostd.persistence.doc.test.ATTRIBUTE_REFERENCE
-import ac.uk.ebi.biostd.persistence.doc.test.ATTRIBUTE_VALUE
-import ac.uk.ebi.biostd.persistence.doc.test.ATTRIBUTE_VALUE_ATTRS
-import ac.uk.ebi.biostd.persistence.doc.test.COLLECTION_ACC_NO
-import ac.uk.ebi.biostd.persistence.doc.test.CREATION_TIME
-import ac.uk.ebi.biostd.persistence.doc.test.EXT_FILE_FILE
-import ac.uk.ebi.biostd.persistence.doc.test.EXT_FILE_FILENAME
-import ac.uk.ebi.biostd.persistence.doc.test.EXT_FILE_LIST_FILENAME1
-import ac.uk.ebi.biostd.persistence.doc.test.EXT_FILE_LIST_FILENAME2
-import ac.uk.ebi.biostd.persistence.doc.test.EXT_LINK_URL
-import ac.uk.ebi.biostd.persistence.doc.test.EXT_TAG_NAME
-import ac.uk.ebi.biostd.persistence.doc.test.EXT_TAG_VALUE
-import ac.uk.ebi.biostd.persistence.doc.test.METHOD
-import ac.uk.ebi.biostd.persistence.doc.test.MODIFICATION_TIME
-import ac.uk.ebi.biostd.persistence.doc.test.OWNER1
-import ac.uk.ebi.biostd.persistence.doc.test.RELEASED
-import ac.uk.ebi.biostd.persistence.doc.test.RELEASE_TIME
-import ac.uk.ebi.biostd.persistence.doc.test.REL_PATH1
-import ac.uk.ebi.biostd.persistence.doc.test.ROOT_PATH1
-import ac.uk.ebi.biostd.persistence.doc.test.SECRET_KEY
-import ac.uk.ebi.biostd.persistence.doc.test.SEC_ACC_NO
-import ac.uk.ebi.biostd.persistence.doc.test.SEC_TYPE
-import ac.uk.ebi.biostd.persistence.doc.test.STATUS
-import ac.uk.ebi.biostd.persistence.doc.test.SUBMITTER1
-import ac.uk.ebi.biostd.persistence.doc.test.TITLE
-import ac.uk.ebi.biostd.persistence.doc.test.VERSION
-import ac.uk.ebi.biostd.persistence.doc.test.fullExtSubmission
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ACC_NO1
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ATTRIBUTE_NAME1
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ATTRIBUTE_NAME2
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ATTRIBUTE_NAME3
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ATTRIBUTE_NAME4
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ATTRIBUTE_NAME_ATTRS1
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ATTRIBUTE_NAME_ATTRS2
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ATTRIBUTE_NAME_ATTRS3
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ATTRIBUTE_NAME_ATTRS4
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ATTRIBUTE_REFERENCE1
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ATTRIBUTE_REFERENCE2
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ATTRIBUTE_REFERENCE3
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ATTRIBUTE_REFERENCE4
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ATTRIBUTE_VALUE1
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ATTRIBUTE_VALUE2
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ATTRIBUTE_VALUE3
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ATTRIBUTE_VALUE4
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ATTRIBUTE_VALUE_ATTRS1
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ATTRIBUTE_VALUE_ATTRS2
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ATTRIBUTE_VALUE_ATTRS3
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ATTRIBUTE_VALUE_ATTRS4
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.COLLECTION_ACC_NO
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.CREATION_TIME
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.EXT_FILE_FILE1
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.EXT_FILE_FILE2
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.EXT_FILE_FILE3
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.EXT_FILE_FILE4
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.EXT_FILE_FILENAME1
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.EXT_FILE_FILENAME2
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.EXT_FILE_FILENAME3
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.EXT_FILE_FILENAME4
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.EXT_FILE_LIST_FILENAME1
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.EXT_FILE_LIST_FILENAME2
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.EXT_LINK_URL1
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.EXT_LINK_URL2
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.EXT_STAT_NAME
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.EXT_STAT_VALUE
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.EXT_TAG_NAME
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.EXT_TAG_VALUE
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.MODIFICATION_TIME
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.OWNER1
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.RELEASED
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.RELEASE_TIME
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.REL_PATH1
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_PATH1
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SECRET_KEY1
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SEC_ACC_NO1
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SEC_ACC_NO2
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SEC_ACC_NO3
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SEC_TYPE1
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SEC_TYPE2
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SEC_TYPE3
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUBMITTER1
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.TITLE
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.VERSION
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.fullExtSubmission
 import arrow.core.Either
 import ebi.ac.uk.asserts.assertThat
-import ebi.ac.uk.extended.model.ExtProcessingStatus
-import ebi.ac.uk.extended.model.ExtSubmissionMethod
 import ebi.ac.uk.util.collections.second
 import org.assertj.core.api.Assertions.assertThat
 import org.bson.types.ObjectId
@@ -60,9 +85,11 @@ class ToDocSubmissionTest {
 
         assertDocSubmission(docSubmission)
         assertListFiles(listFiles, docSubmission.id)
-    }
 
-    private fun assertListFiles(listFiles: List<FileListDocFile>, docSubmission: ObjectId) {
+        assertThat(listFiles.first().id).isEqualTo(docSubmission.section.fileList?.files?.first()?.fileId)
+        assertThat(docSubmission.section.sections.first()).hasLeftValueSatisfying {
+            assertThat(listFiles.second().id).isEqualTo(it.fileList?.files?.first()?.fileId)
+        }
     }
 
     private fun assertDocSubmission(docSubmission: DocSubmission) {
@@ -77,116 +104,141 @@ class ToDocSubmissionTest {
 
         assertThat(docSubmission.collections).hasSize(1)
         assertCollection(docSubmission.collections.first())
+
+        assertThat(docSubmission.stats).hasSize(1)
+        assertStat(docSubmission.stats.first())
     }
 
-    private fun assertListFiles(listFiles: List<FileListDocFile>, docSubmission: DocSubmission) {
+    private fun assertListFiles(listFiles: List<FileListDocFile>, docSubmissionId: ObjectId) {
         assertThat(listFiles).hasSize(2)
 
         val listFile = listFiles[0]
-        assertThat(listFile.id).isEqualTo(docSubmission.section.fileList?.files?.first()?.fileId)
-        assertThat(listFile.submissionId).isEqualTo(docSubmission.id)
-        assertThat(listFile.fileName).isEqualTo(EXT_FILE_FILENAME)
-        assertThat(listFile.fullPath).isEqualTo(EXT_FILE_FILE.absolutePath)
+        assertThat(listFile.submissionId).isEqualTo(docSubmissionId)
+        assertThat(listFile.fileName).isEqualTo(EXT_FILE_FILENAME1)
+        assertThat(listFile.fullPath).isEqualTo(EXT_FILE_FILE1.absolutePath)
 
-        assertThat(docSubmission.section.sections.first()).hasLeftValueSatisfying {
-            val sublistFile = listFiles[1]
-            assertThat(sublistFile.id).isEqualTo(it.fileList?.files?.first()?.fileId)
-            assertThat(sublistFile.submissionId).isEqualTo(docSubmission.id)
-            assertThat(sublistFile.fileName).isEqualTo(EXT_FILE_FILENAME)
-            assertThat(sublistFile.fullPath).isEqualTo(EXT_FILE_FILE.absolutePath)
-        }
+        val sublistFile = listFiles[1]
+        assertThat(sublistFile.submissionId).isEqualTo(docSubmissionId)
+        assertThat(sublistFile.fileName).isEqualTo(EXT_FILE_FILENAME2)
+        assertThat(sublistFile.fullPath).isEqualTo(EXT_FILE_FILE2.absolutePath)
     }
 
     private fun assertSimpleDocProperties(docSubmission: DocSubmission) {
-        assertThat(docSubmission.accNo).isEqualTo(ACC_NO)
+        assertThat(docSubmission.accNo).isEqualTo(ACC_NO1)
         assertThat(docSubmission.version).isEqualTo(VERSION)
         assertThat(docSubmission.owner).isEqualTo(OWNER1)
         assertThat(docSubmission.submitter).isEqualTo(SUBMITTER1)
         assertThat(docSubmission.title).isEqualTo(TITLE)
-        assertThat(docSubmission.method).isEqualTo(getMethod(METHOD))
+        assertThat(docSubmission.method).isEqualTo(DocSubmissionMethod.PAGE_TAB)
         assertThat(docSubmission.relPath).isEqualTo(REL_PATH1)
         assertThat(docSubmission.rootPath).isEqualTo(ROOT_PATH1)
         assertThat(docSubmission.released).isEqualTo(RELEASED)
-        assertThat(docSubmission.secretKey).isEqualTo(SECRET_KEY)
-        assertThat(docSubmission.status).isEqualTo(getStatus(STATUS))
+        assertThat(docSubmission.secretKey).isEqualTo(SECRET_KEY1)
+        assertThat(docSubmission.status).isEqualTo(DocProcessingStatus.PROCESSED)
         assertThat(docSubmission.releaseTime).isEqualTo(RELEASE_TIME.toInstant())
         assertThat(docSubmission.modificationTime).isEqualTo(MODIFICATION_TIME.toInstant())
         assertThat(docSubmission.creationTime).isEqualTo(CREATION_TIME.toInstant())
     }
 
     private fun assertSection(docSection: DocSection) {
-        assertThat(docSection.accNo).isEqualTo(SEC_ACC_NO)
-        assertThat(docSection.type).isEqualTo(SEC_TYPE)
+        assertThat(docSection.accNo).isEqualTo(SEC_ACC_NO1)
+        assertThat(docSection.type).isEqualTo(SEC_TYPE1)
         assertThat(docSection.fileList?.fileName).isEqualTo(EXT_FILE_LIST_FILENAME1)
 
-        assertAttribute(docSection.attributes.first())
+        assertAttribute1(docSection.attributes.first())
         assertInnerSections(docSection.sections)
         assertFiles(docSection.files)
         assertLinks(docSection.links)
     }
 
-    private fun assertAttribute(docAttribute: DocAttribute) {
+    private fun assertAttribute1(docAttribute: DocAttribute) {
         assertThat(docAttribute.name).isEqualTo(ATTRIBUTE_NAME1)
-        assertThat(docAttribute.value).isEqualTo(ATTRIBUTE_VALUE)
-        assertThat(docAttribute.reference).isEqualTo(ATTRIBUTE_REFERENCE)
-        assertThat(docAttribute.nameAttrs).isEqualTo(ATTRIBUTE_NAME_ATTRS)
-        assertThat(docAttribute.valueAttrs).isEqualTo(ATTRIBUTE_VALUE_ATTRS)
+        assertThat(docAttribute.value).isEqualTo(ATTRIBUTE_VALUE1)
+        assertThat(docAttribute.reference).isEqualTo(ATTRIBUTE_REFERENCE1)
+        assertThat(docAttribute.nameAttrs).isEqualTo(ATTRIBUTE_NAME_ATTRS1)
+        assertThat(docAttribute.valueAttrs).isEqualTo(ATTRIBUTE_VALUE_ATTRS1)
     }
 
-    private fun assertCollection(docCollection: DocCollection) {
-        assertThat(docCollection.accNo).isEqualTo(COLLECTION_ACC_NO)
+    private fun assertAttribute2(docAttribute: DocAttribute) {
+        assertThat(docAttribute.name).isEqualTo(ATTRIBUTE_NAME2)
+        assertThat(docAttribute.value).isEqualTo(ATTRIBUTE_VALUE2)
+        assertThat(docAttribute.reference).isEqualTo(ATTRIBUTE_REFERENCE2)
+        assertThat(docAttribute.nameAttrs).isEqualTo(ATTRIBUTE_NAME_ATTRS2)
+        assertThat(docAttribute.valueAttrs).isEqualTo(ATTRIBUTE_VALUE_ATTRS2)
     }
+
+    private fun assertAttribute3(docAttribute: DocAttribute) {
+        assertThat(docAttribute.name).isEqualTo(ATTRIBUTE_NAME3)
+        assertThat(docAttribute.value).isEqualTo(ATTRIBUTE_VALUE3)
+        assertThat(docAttribute.reference).isEqualTo(ATTRIBUTE_REFERENCE3)
+        assertThat(docAttribute.nameAttrs).isEqualTo(ATTRIBUTE_NAME_ATTRS3)
+        assertThat(docAttribute.valueAttrs).isEqualTo(ATTRIBUTE_VALUE_ATTRS3)
+    }
+
+    private fun assertAttribute4(docAttribute: DocAttribute) {
+        assertThat(docAttribute.name).isEqualTo(ATTRIBUTE_NAME4)
+        assertThat(docAttribute.value).isEqualTo(ATTRIBUTE_VALUE4)
+        assertThat(docAttribute.reference).isEqualTo(ATTRIBUTE_REFERENCE4)
+        assertThat(docAttribute.nameAttrs).isEqualTo(ATTRIBUTE_NAME_ATTRS4)
+        assertThat(docAttribute.valueAttrs).isEqualTo(ATTRIBUTE_VALUE_ATTRS4)
+    }
+
+    private fun assertAttribute(docAttribute: DocAttribute) {
+        assertThat(docAttribute.name).isEqualTo(ATTRIBUTE_NAME1)
+        assertThat(docAttribute.value).isEqualTo(ATTRIBUTE_VALUE1)
+        assertThat(docAttribute.reference).isEqualTo(ATTRIBUTE_REFERENCE1)
+        assertThat(docAttribute.nameAttrs).isEqualTo(ATTRIBUTE_NAME_ATTRS1)
+        assertThat(docAttribute.valueAttrs).isEqualTo(ATTRIBUTE_VALUE_ATTRS1)
+    }
+
+    private fun assertCollection(docCollection: DocCollection) =
+        assertThat(docCollection.accNo).isEqualTo(COLLECTION_ACC_NO)
 
     private fun assertTag(docTag: DocTag) {
         assertThat(docTag.name).isEqualTo(EXT_TAG_NAME)
         assertThat(docTag.value).isEqualTo(EXT_TAG_VALUE)
     }
 
+    private fun assertStat(docStat: DocStat) {
+        assertThat(docStat.name).isEqualTo(EXT_STAT_NAME)
+        assertThat(docStat.value).isEqualTo(EXT_STAT_VALUE.toLong())
+    }
+
     private fun assertInnerSections(docSections: List<Either<DocSection, DocSectionTable>>) {
         assertThat(docSections).hasSize(2)
 
         assertThat(docSections.first()).hasLeftValueSatisfying {
-            assertThat(it.type).isEqualTo(SEC_TYPE)
+            assertThat(it.accNo).isEqualTo(SEC_ACC_NO2)
+            assertThat(it.type).isEqualTo(SEC_TYPE2)
             assertThat(it.fileList?.fileName).isEqualTo(EXT_FILE_LIST_FILENAME2)
         }
 
         assertThat(docSections.second()).hasRightValueSatisfying {
-            assertThat(it.sections.first().type).isEqualTo(SEC_TYPE)
+            assertThat(it.sections.first().accNo).isEqualTo(SEC_ACC_NO3)
+            assertThat(it.sections.first().type).isEqualTo(SEC_TYPE3)
+            assertAttribute2(it.sections.first().attributes.first())
         }
     }
 
     private fun assertLinks(docLinks: List<Either<DocLink, DocLinkTable>>) {
-        val docLink = docLinks[0] as Either.Left<DocLink>
-        assertThat(docLink.a.url).isEqualTo(EXT_LINK_URL)
-
-        val docLinkTable = docLinks[1] as Either.Right<DocLinkTable>
-        assertThat(docLinkTable.b.links[0].url).isEqualTo(EXT_LINK_URL)
+        assertThat(docLinks.first()).hasLeftValueSatisfying {
+            assertThat(it.url).isEqualTo(EXT_LINK_URL1)
+            assertAttribute3(it.attributes.first())
+        }
+        assertThat(docLinks.first()).hasRightValueSatisfying {
+            assertThat(it.links.first().url).isEqualTo(EXT_LINK_URL2)
+            assertAttribute4(it.links.first().attributes.first())
+        }
     }
 
     private fun assertFiles(docFiles: List<Either<DocFile, DocFileTable>>) {
-        val docFile = docFiles[0] as Either.Left<DocFile>
-        assertFile(docFile.a)
-
-        val docFileTable = docFiles[1] as Either.Right<DocFileTable>
-        assertFile(docFileTable.b.files[0])
-    }
-
-    private fun assertFile(docFile: DocFile) {
-        assertThat(docFile.relPath).isEqualTo(EXT_FILE_FILENAME)
-        assertThat(docFile.fullPath).isEqualTo(EXT_FILE_FILE.absolutePath)
-    }
-
-    private fun getMethod(method: ExtSubmissionMethod) =
-        when (method) {
-            ExtSubmissionMethod.FILE -> DocSubmissionMethod.FILE
-            ExtSubmissionMethod.PAGE_TAB -> DocSubmissionMethod.PAGE_TAB
-            ExtSubmissionMethod.UNKNOWN -> DocSubmissionMethod.UNKNOWN
+        assertThat(docFiles.first()).hasLeftValueSatisfying {
+            assertThat(it.relPath).isEqualTo(EXT_FILE_FILENAME3)
+            assertThat(it.fullPath).isEqualTo(EXT_FILE_FILE3.absolutePath)
         }
-
-    private fun getStatus(status: ExtProcessingStatus) =
-        when (status) {
-            ExtProcessingStatus.PROCESSED -> DocProcessingStatus.PROCESSED
-            ExtProcessingStatus.PROCESSING -> DocProcessingStatus.PROCESSING
-            ExtProcessingStatus.REQUESTED -> DocProcessingStatus.REQUESTED
+        assertThat(docFiles.second()).hasRightValueSatisfying {
+            assertThat(it.files.first().relPath).isEqualTo(EXT_FILE_FILENAME4)
+            assertThat(it.files.first().fullPath).isEqualTo(EXT_FILE_FILE4.absolutePath)
         }
+    }
 }
