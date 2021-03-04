@@ -45,8 +45,6 @@ interface SubmissionDraftRepository : MongoRepository<DocSubmissionDraft, String
 
     fun deleteByUserIdAndKey(userId: String, key: String)
 
-    fun deleteByUserIdAndContentContaining(userId: String, content: String)
-
     fun findAllByUserId(userId: String, pageRequest: Pageable): List<DocSubmissionDraft>
 
     fun getById(id: String): DocSubmissionDraft

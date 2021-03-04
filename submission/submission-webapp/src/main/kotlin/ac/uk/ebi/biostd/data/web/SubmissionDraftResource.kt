@@ -1,11 +1,18 @@
 package ac.uk.ebi.biostd.data.web
 
+import ac.uk.ebi.biostd.integration.SubFormat.Companion.JSON_PRETTY
 import ac.uk.ebi.biostd.persistence.common.request.PaginationFilter
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionDraftService
 import ac.uk.ebi.biostd.submission.converters.BioUser
+import ac.uk.ebi.biostd.submission.web.handlers.SubmitWebHandler
+import ac.uk.ebi.biostd.submission.web.model.ContentSubmitWebRequest
+import ac.uk.ebi.biostd.submission.web.model.OnBehalfRequest
 import com.fasterxml.jackson.annotation.JsonRawValue
 import com.fasterxml.jackson.annotation.JsonValue
+import ebi.ac.uk.extended.model.FileMode
 import ebi.ac.uk.model.SubmissionDraft
+import ebi.ac.uk.model.constants.ATTRIBUTES
+import ebi.ac.uk.model.constants.FILE_MODE
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiImplicitParam
@@ -22,6 +29,7 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseBody
 import org.springframework.web.bind.annotation.RestController
 
@@ -29,7 +37,10 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping(value = ["submissions/drafts"], produces = [APPLICATION_JSON_VALUE])
 @PreAuthorize("isAuthenticated()")
 @Api(tags = ["Submission Drafts"])
-internal class SubmissionDraftResource(private val draftService: SubmissionDraftService) {
+internal class SubmissionDraftResource(
+    private val submitWebHandler: SubmitWebHandler,
+    private val draftService: SubmissionDraftService
+) {
     @GetMapping
     @ResponseBody
     @ApiOperation("Get the submission drafts that matches the given filter")
@@ -95,7 +106,7 @@ internal class SubmissionDraftResource(private val draftService: SubmissionDraft
 
         @ApiParam(name = "Key", value = "The submission draft key")
         @PathVariable key: String
-    ): Unit = draftService.deleteSubmissionDraft(user.email, key)
+    ) = draftService.deleteSubmissionDraft(user.email, key)
 
     @PutMapping("/{key}")
     @ResponseBody
@@ -121,6 +132,28 @@ internal class SubmissionDraftResource(private val draftService: SubmissionDraft
         @ApiParam(name = "Content", value = "The content for the submission draft")
         @RequestBody content: String
     ): ResponseSubmissionDraft = draftService.createSubmissionDraft(user.email, content).asResponseDraft()
+
+    @PostMapping("/{key}/submit")
+    fun submitDraft(
+        @PathVariable key: String,
+        @BioUser user: SecurityUser,
+        onBehalfRequest: OnBehalfRequest?,
+        @RequestParam(FILE_MODE, defaultValue = "COPY") mode: FileMode,
+        @RequestParam(ATTRIBUTES, required = false) attributes: Map<String, String>?
+    ) {
+        val submission = draftService.getSubmissionDraft(user.email, key).content
+        val request = ContentSubmitWebRequest(
+            submission = submission,
+            draftKey = key,
+            onBehalfRequest = onBehalfRequest,
+            user = user,
+            format = JSON_PRETTY,
+            fileMode = mode,
+            attrs = attributes.orEmpty(),
+            files = emptyList())
+
+        submitWebHandler.submitAsync(request)
+    }
 }
 
 internal class ResponseSubmissionDraft(val key: String, @JsonRawValue val content: String)

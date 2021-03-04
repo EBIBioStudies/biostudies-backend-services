@@ -26,7 +26,7 @@ internal class SubmissionMongoPersistenceService(
 ) : SubmissionRequestService {
     override fun saveAndProcessSubmissionRequest(saveRequest: SaveSubmissionRequest): ExtSubmission {
         val extended = saveSubmissionRequest(saveRequest)
-        return processSubmission(SaveSubmissionRequest(extended, saveRequest.fileMode))
+        return processSubmission(SaveSubmissionRequest(extended, saveRequest.fileMode, saveRequest.draftKey))
     }
 
     override fun saveSubmissionRequest(saveRequest: SaveSubmissionRequest): ExtSubmission {
@@ -48,19 +48,19 @@ internal class SubmissionMongoPersistenceService(
     )
 
     override fun processSubmission(saveRequest: SaveSubmissionRequest): ExtSubmission {
-        val (submission, fileMode) = saveRequest
+        val (submission, fileMode, draftKey) = saveRequest
         val processingSubmission = systemService.persistSubmissionFiles(submission, fileMode)
 
         subDataRepository.save(processingSubmission.copy(status = PROCESSING).toDocSubmission())
-        processDbSubmission(processingSubmission)
+        processDbSubmission(processingSubmission, draftKey)
 
         return submission
     }
 
-    private fun processDbSubmission(submission: ExtSubmission): ExtSubmission {
+    private fun processDbSubmission(submission: ExtSubmission, draftKey: String?): ExtSubmission {
         subDataRepository.expireActiveProcessedVersions(submission.accNo)
-        deleteSubmissionDrafts(submission.submitter, submission.accNo)
-        deleteSubmissionDrafts(submission.owner, submission.accNo)
+        deleteSubmissionDrafts(submission.submitter, submission.accNo, draftKey)
+        deleteSubmissionDrafts(submission.owner, submission.accNo, draftKey)
         subDataRepository.updateStatus(PROCESSED, submission.accNo, submission.version)
 
         return submission
@@ -70,8 +70,8 @@ internal class SubmissionMongoPersistenceService(
         saveAndProcessSubmissionRequest(SaveSubmissionRequest(submission, MOVE))
     }
 
-    private fun deleteSubmissionDrafts(email: String, accNo: String) {
+    private fun deleteSubmissionDrafts(email: String, accNo: String, draftKey: String?) {
         draftDocDataRepository.deleteByUserIdAndKey(email, accNo)
-        draftDocDataRepository.deleteByUserIdAndContentContaining(email, "\"accno\": \"$accNo\"")
+        draftKey?.let { draftDocDataRepository.deleteByUserIdAndKey(email, draftKey) }
     }
 }

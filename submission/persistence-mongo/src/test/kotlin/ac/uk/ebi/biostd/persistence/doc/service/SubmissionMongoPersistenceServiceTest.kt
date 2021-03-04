@@ -33,6 +33,7 @@ class SubmissionMongoPersistenceServiceTest(
     @MockK private val submissionRequestRepository: SubmissionRequestDocDataRepository,
     @MockK private val serializationService: ExtSerializationService
 ) {
+    private val draftKey = "TMP_123456"
     private val submission = extSubmission()
     private val docSubmission = slot<DocSubmission>()
     private val submissionSlot = slot<ExtSubmission>()
@@ -59,11 +60,27 @@ class SubmissionMongoPersistenceServiceTest(
 
     @Test
     fun `save and process submission request`() {
+        testInstance.saveAndProcessSubmissionRequest(SaveSubmissionRequest(submission, MOVE, draftKey))
+
+        assertSubmissionRequest()
+        assertPersistedSubmission()
+        verifyDraftRemovalByAccNo()
+        verifyDraftRemovalByDraftKey()
+        verifySubmissionProcessing()
+    }
+
+    @Test
+    fun `save and process submission request without draft key`() {
         testInstance.saveAndProcessSubmissionRequest(SaveSubmissionRequest(submission, MOVE))
 
         assertSubmissionRequest()
         assertPersistedSubmission()
+        verifyDraftRemovalByAccNo()
         verifySubmissionProcessing()
+        verify(exactly = 0) {
+            draftRepository.deleteByUserIdAndKey(submission.owner, draftKey)
+            draftRepository.deleteByUserIdAndKey(submission.submitter, draftKey)
+        }
     }
 
     @Test
@@ -72,6 +89,7 @@ class SubmissionMongoPersistenceServiceTest(
 
         assertSubmissionRequest()
         assertPersistedSubmission()
+        verifyDraftRemovalByAccNo()
         verifySubmissionProcessing()
     }
 
@@ -89,12 +107,18 @@ class SubmissionMongoPersistenceServiceTest(
         verify(exactly = 1) { submissionRequestRepository.saveRequest(submissionRequest) }
     }
 
-    private fun verifySubmissionProcessing() = verify(exactly = 1) {
-        dataRepository.expireActiveProcessedVersions(submission.accNo)
+    private fun verifyDraftRemovalByAccNo() = verify(exactly = 1) {
         draftRepository.deleteByUserIdAndKey(submission.owner, submission.accNo)
         draftRepository.deleteByUserIdAndKey(submission.submitter, submission.accNo)
-        draftRepository.deleteByUserIdAndContentContaining(submission.owner, "\"accno\": \"${submission.accNo}\"")
-        draftRepository.deleteByUserIdAndContentContaining(submission.submitter, "\"accno\": \"${submission.accNo}\"")
+    }
+
+    private fun verifyDraftRemovalByDraftKey() = verify(exactly = 1) {
+        draftRepository.deleteByUserIdAndKey(submission.owner, draftKey)
+        draftRepository.deleteByUserIdAndKey(submission.submitter, draftKey)
+    }
+
+    private fun verifySubmissionProcessing() = verify(exactly = 1) {
+        dataRepository.expireActiveProcessedVersions(submission.accNo)
         dataRepository.updateStatus(PROCESSED, submission.accNo, submission.version)
     }
 
@@ -109,13 +133,9 @@ class SubmissionMongoPersistenceServiceTest(
         val owner = submission.owner
         val submitter = submission.submitter
 
+        every { draftRepository.deleteByUserIdAndKey(owner, draftKey) } answers { nothing }
+        every { draftRepository.deleteByUserIdAndKey(submitter, draftKey) } answers { nothing }
         every { draftRepository.deleteByUserIdAndKey(owner, submission.accNo) } answers { nothing }
         every { draftRepository.deleteByUserIdAndKey(submitter, submission.accNo) } answers { nothing }
-        every {
-            draftRepository.deleteByUserIdAndContentContaining(owner, "\"accno\": \"${submission.accNo}\"")
-        } answers { nothing }
-        every {
-            draftRepository.deleteByUserIdAndContentContaining(submitter, "\"accno\": \"${submission.accNo}\"")
-        } answers { nothing }
     }
 }

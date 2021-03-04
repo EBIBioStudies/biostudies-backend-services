@@ -143,9 +143,6 @@ interface UserDataDataRepository : JpaRepository<DbUserData, UserDataId> {
 
     @Modifying
     fun deleteByUserEmailAndKey(email: String, key: String)
-
-    @Modifying
-    fun deleteByUserEmailAndDataContaining(email: String, content: String)
 }
 
 interface SubmissionStatsDataRepository : PagingAndSortingRepository<DbSubmissionStat, Long> {

@@ -38,10 +38,10 @@ internal open class SubmissionSqlPersistenceService(
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = false)
-    open fun processSubmission(submission: ExtSubmission, mode: FileMode): ExtSubmission {
+    open fun processSubmission(submission: ExtSubmission, mode: FileMode, draftKey: String?): ExtSubmission {
         subDataRepository.updateStatus(PROCESSING, submission.accNo, submission.version)
         systemService.persistSubmissionFiles(submission, mode)
-        processDbSubmission(subRepository.getExtByAccNoAndVersion(submission.accNo, submission.version))
+        processDbSubmission(subRepository.getExtByAccNoAndVersion(submission.accNo, submission.version), draftKey)
 
         return subRepository.getExtByAccNoAndVersion(submission.accNo, submission.version)
     }
@@ -54,17 +54,17 @@ internal open class SubmissionSqlPersistenceService(
         return lastVersion.absoluteValue + 1
     }
 
-    private fun processDbSubmission(submission: ExtSubmission): ExtSubmission {
+    private fun processDbSubmission(submission: ExtSubmission, draftKey: String?): ExtSubmission {
         subDataRepository.expireActiveProcessedVersions(submission.accNo)
-        deleteSubmissionDrafts(submission.submitter, submission.accNo)
-        deleteSubmissionDrafts(submission.owner, submission.accNo)
+        deleteSubmissionDrafts(submission.submitter, submission.accNo, draftKey)
+        deleteSubmissionDrafts(submission.owner, submission.accNo, draftKey)
         subDataRepository.updateStatus(PROCESSED, submission.accNo, submission.version)
 
         return submission
     }
 
-    private fun deleteSubmissionDrafts(email: String, accNo: String) {
+    private fun deleteSubmissionDrafts(email: String, accNo: String, draftKey: String?) {
         userDataRepository.deleteByUserEmailAndKey(email, accNo)
-        userDataRepository.deleteByUserEmailAndDataContaining(email, "\"accno\": \"$accNo\"")
+        draftKey?.let { userDataRepository.deleteByUserEmailAndKey(email, draftKey) }
     }
 }

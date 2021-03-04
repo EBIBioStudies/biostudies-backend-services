@@ -52,7 +52,6 @@ class SubmissionSubmitter(
 ) {
     fun submit(request: SubmissionRequest): ExtSubmission {
         logger.info { "processing request $request" }
-
         val submission = process(
             request.submission,
             request.submitter.asUser(),
@@ -61,7 +60,9 @@ class SubmissionSubmitter(
             request.method)
 
         logger.info { "Saving submission ${submission.accNo}" }
-        return submissionRequestService.saveAndProcessSubmissionRequest(SaveSubmissionRequest(submission, request.mode))
+        val saveRequest = SaveSubmissionRequest(submission, request.mode, request.draftKey)
+
+        return submissionRequestService.saveAndProcessSubmissionRequest(saveRequest)
     }
 
     fun processRequest(request: SaveSubmissionRequest): ExtSubmission {
@@ -80,8 +81,10 @@ class SubmissionSubmitter(
             request.method)
 
         logger.info { "Saving submission request ${submission.accNo}" }
-        val saveRequest = SaveSubmissionRequest(submission, request.mode)
-        return SaveSubmissionRequest(submissionRequestService.saveSubmissionRequest(saveRequest), request.mode)
+        val saveRequest = SaveSubmissionRequest(submission, request.mode, request.draftKey)
+        val persistedRequest = submissionRequestService.saveSubmissionRequest(saveRequest)
+
+        return SaveSubmissionRequest(persistedRequest, request.mode, request.draftKey)
     }
 
     @Suppress("TooGenericExceptionCaught")
