@@ -8,9 +8,9 @@ import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
 import arrow.core.Either
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSectionTable
-import ebi.ac.uk.util.arrow.mapLeft
 import ebi.ac.uk.util.collections.component1
 import ebi.ac.uk.util.collections.component2
+import ebi.ac.uk.util.collections.mapLeft
 import org.bson.types.ObjectId
 
 typealias EitherList <A, B> = List<Either<A, B>>
@@ -31,7 +31,7 @@ private fun EitherList<DocSectionData, DocSectionTable>.subSectionsFiles(): List
 
 private fun ExtSection.toDocSection(
     fileList: DocFileList?,
-    sections: List<Either<DocSection, DocSectionTable>>
+    sections: EitherList<DocSection, DocSectionTable>
 ) = DocSection(
     accNo = accNo,
     type = type,
