@@ -93,7 +93,7 @@ data class DocFileRef(
     val fileId: ObjectId
 )
 
-@Document(collection = "submissions-files")
+@Document(collection = "file-list-files")
 data class FileListDocFile(
     @Id
     val id: ObjectId,

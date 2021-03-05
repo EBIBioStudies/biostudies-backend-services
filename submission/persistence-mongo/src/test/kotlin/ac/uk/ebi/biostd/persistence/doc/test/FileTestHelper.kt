@@ -32,6 +32,5 @@ internal object FileTestHelper {
     fun assertExtFileList(extFileList: ExtFileList, file: File) {
         assertThat(extFileList.fileName).isEqualTo(TEST_FILE_LIST)
         assertThat(extFileList.files).hasSize(0)
-        // assertExtFile(extFileList.files.first(), file)
     }
 }
