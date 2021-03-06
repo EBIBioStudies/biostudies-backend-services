@@ -6,8 +6,11 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestService
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDraftDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
+import ac.uk.ebi.biostd.persistence.doc.db.repositories.FileListDocFileRepository
 import ac.uk.ebi.biostd.persistence.doc.mapping.from.toDocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocProcessingStatus.PROCESSED
+import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
+import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequest
 import com.mongodb.BasicDBObject
 import ebi.ac.uk.extended.model.ExtProcessingStatus.PROCESSING
@@ -22,7 +25,8 @@ internal class SubmissionMongoPersistenceService(
     private val submissionRequestDocDataRepository: SubmissionRequestDocDataRepository,
     private val draftDocDataRepository: SubmissionDraftDocDataRepository,
     private val serializationService: ExtSerializationService,
-    private val systemService: FileSystemService
+    private val systemService: FileSystemService,
+    private val fileListDocFileRepository: FileListDocFileRepository
 ) : SubmissionRequestService {
     override fun saveAndProcessSubmissionRequest(saveRequest: SaveSubmissionRequest): ExtSubmission {
         val extended = saveSubmissionRequest(saveRequest)
@@ -50,20 +54,22 @@ internal class SubmissionMongoPersistenceService(
     override fun processSubmission(saveRequest: SaveSubmissionRequest): ExtSubmission {
         val (submission, fileMode) = saveRequest
         val processingSubmission = systemService.persistSubmissionFiles(submission, fileMode)
-
-        subDataRepository.save(processingSubmission.copy(status = PROCESSING).toDocSubmission())
-        processDbSubmission(processingSubmission)
-
+        val (docSubmission, files) = processingSubmission.copy(status = PROCESSING).toDocSubmission()
+        saveSubmission(docSubmission, files)
         return submission
     }
 
-    private fun processDbSubmission(submission: ExtSubmission): ExtSubmission {
+    private fun saveSubmission(docSubmission: DocSubmission, files: List<FileListDocFile>) {
+        subDataRepository.save(docSubmission)
+        fileListDocFileRepository.saveAll(files)
+        updateCurrentRecords(docSubmission)
+        subDataRepository.updateStatus(PROCESSED, docSubmission.accNo, docSubmission.version)
+    }
+
+    private fun updateCurrentRecords(submission: DocSubmission) {
         subDataRepository.expireActiveProcessedVersions(submission.accNo)
         draftDocDataRepository.deleteByUserIdAndKey(submission.submitter, submission.accNo)
         draftDocDataRepository.deleteByUserIdAndKey(submission.owner, submission.accNo)
-        subDataRepository.updateStatus(PROCESSED, submission.accNo, submission.version)
-
-        return submission
     }
 
     override fun refreshSubmission(submission: ExtSubmission) {

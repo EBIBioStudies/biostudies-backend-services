@@ -5,10 +5,12 @@ import ac.uk.ebi.biostd.persistence.common.request.SaveSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDraftDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
+import ac.uk.ebi.biostd.persistence.doc.db.repositories.FileListDocFileRepository
 import ac.uk.ebi.biostd.persistence.doc.model.DocProcessingStatus.PROCESSED
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
+import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequest
-import ac.uk.ebi.biostd.persistence.doc.test.extSubmission
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.fullExtSubmission
 import ebi.ac.uk.extended.model.ExtProcessingStatus.REQUESTED
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FileMode.MOVE
@@ -31,19 +33,23 @@ class SubmissionMongoPersistenceServiceTest(
     @MockK private val dataRepository: SubmissionDocDataRepository,
     @MockK private val draftRepository: SubmissionDraftDocDataRepository,
     @MockK private val submissionRequestRepository: SubmissionRequestDocDataRepository,
-    @MockK private val serializationService: ExtSerializationService
+    @MockK private val serializationService: ExtSerializationService,
+    @MockK private val fileListDocFileRepository: FileListDocFileRepository
 ) {
-    private val submission = extSubmission()
+    private val submission = fullExtSubmission
     private val docSubmission = slot<DocSubmission>()
     private val submissionSlot = slot<ExtSubmission>()
     private val submissionRequestSlot = slot<SubmissionRequest>()
+    private val filesList = slot<List<FileListDocFile>>()
 
     private val testInstance = SubmissionMongoPersistenceService(
         dataRepository,
         submissionRequestRepository,
         draftRepository,
         serializationService,
-        systemService)
+        systemService,
+        fileListDocFileRepository
+    )
 
     @AfterEach
     fun afterEach() = clearAllMocks()
@@ -55,6 +61,7 @@ class SubmissionMongoPersistenceServiceTest(
         every { serializationService.serialize(capture(submissionSlot)) } returns "{}"
         every { systemService.persistSubmissionFiles(capture(submissionSlot), MOVE) } returns submission
         every { submissionRequestRepository.saveRequest(capture(submissionRequestSlot)) } answers { nothing }
+        every { fileListDocFileRepository.saveAll(capture(filesList)) } answers { nothing }
     }
 
     @Test

@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.persistence.doc.model
 
 import arrow.core.Either
+import org.bson.types.ObjectId
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.mapping.Document
 import java.time.Instant
@@ -19,7 +20,7 @@ val docSubmissionMethodClass: String = DocSubmissionMethod::class.java.canonical
 @Document(collection = "submissions")
 data class DocSubmission(
     @Id
-    val id: String?,
+    val id: ObjectId,
     val accNo: String,
     var version: Int,
     val owner: String,
@@ -83,7 +84,26 @@ data class DocFile(
     val md5: String
 )
 
-data class DocFileList(val fileName: String, val files: List<DocFile>)
+data class DocFileList(
+    val fileName: String,
+    val files: List<DocFileRef>
+)
+
+data class DocFileRef(
+    val fileId: ObjectId
+)
+
+@Document(collection = "file-list-files")
+data class FileListDocFile(
+    @Id
+    val id: ObjectId,
+    val submissionId: ObjectId,
+    val fileName: String,
+    val fullPath: String,
+    val attributes: List<DocAttribute> = listOf(),
+    val md5: String
+)
+
 data class DocSectionTable(val sections: List<DocSectionTableRow>)
 data class DocLinkTable(val links: List<DocLink>)
 

@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.persistence.doc.mapping.to
 
 import ac.uk.ebi.biostd.persistence.doc.test.FileTestHelper.docFile
 import ac.uk.ebi.biostd.persistence.doc.test.FileTestHelper.docFileList
+import ac.uk.ebi.biostd.persistence.doc.test.FileTestHelper.docFileRef
 import ac.uk.ebi.biostd.persistence.doc.test.SectionTestHelper.assertExtSection
 import ac.uk.ebi.biostd.persistence.doc.test.SectionTestHelper.docSection
 import ac.uk.ebi.biostd.persistence.doc.test.TEST_REL_PATH
@@ -17,7 +18,7 @@ class ToExtSectionTest(temporaryFolder: TemporaryFolder) {
     private val testDocFile = docFile.copy(fullPath = testFile.absolutePath)
     private val testDocSection = docSection.copy(
         files = listOf(left(testDocFile)),
-        fileList = docFileList.copy(files = listOf(testDocFile))
+        fileList = docFileList.copy(files = listOf(docFileRef))
     )
 
     @Test

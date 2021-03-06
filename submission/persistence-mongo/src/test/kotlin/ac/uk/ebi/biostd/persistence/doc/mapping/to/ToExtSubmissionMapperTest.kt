@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.persistence.doc.mapping.to
 
+import ac.uk.ebi.biostd.persistence.doc.model.DocFileRef
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.test.FileTestHelper.docFile
 import ac.uk.ebi.biostd.persistence.doc.test.FileTestHelper.docFileList
@@ -12,6 +13,7 @@ import ebi.ac.uk.io.ext.createDirectory
 import ebi.ac.uk.io.ext.createNewFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
+import org.bson.types.ObjectId
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -36,7 +38,7 @@ class ToExtSubmissionMapperTest(temporaryFolder: TemporaryFolder) {
 
         return docSubmission.copy(section = docSection.copy(
             files = listOf(left(testDocFile)),
-            fileList = docFileList.copy(files = listOf(testDocFile))
+            fileList = docFileList.copy(files = listOf(DocFileRef(ObjectId())))
         ))
     }
 }

@@ -53,7 +53,6 @@ class ToExtFileTest(temporaryFolder: TemporaryFolder) {
 
     @Test
     fun `to ext file list`() {
-        val extFileList = docFileList.copy(files = listOf(testDocFile)).toExtFileList()
-        assertExtFileList(extFileList, testFile)
+        assertExtFileList(docFileList.toExtFileList(), testFile)
     }
 }
