@@ -142,6 +142,9 @@ interface UserDataDataRepository : JpaRepository<DbUserData, UserDataId> {
     fun findByUserEmail(userEmail: String, pageRequest: Pageable): List<DbUserData>
 
     @Modifying
+    fun deleteByKey(key: String)
+
+    @Modifying
     fun deleteByUserEmailAndKey(email: String, key: String)
 }
 

@@ -59,8 +59,7 @@ internal class SubmissionMongoPersistenceService(
 
     private fun processDbSubmission(submission: ExtSubmission, draftKey: String?): ExtSubmission {
         subDataRepository.expireActiveProcessedVersions(submission.accNo)
-        deleteSubmissionDrafts(submission.submitter, submission.accNo, draftKey)
-        deleteSubmissionDrafts(submission.owner, submission.accNo, draftKey)
+        deleteSubmissionDrafts(submission, draftKey)
         subDataRepository.updateStatus(PROCESSED, submission.accNo, submission.version)
 
         return submission
@@ -70,8 +69,9 @@ internal class SubmissionMongoPersistenceService(
         saveAndProcessSubmissionRequest(SaveSubmissionRequest(submission, MOVE))
     }
 
-    private fun deleteSubmissionDrafts(email: String, accNo: String, draftKey: String?) {
-        draftDocDataRepository.deleteByUserIdAndKey(email, accNo)
-        draftKey?.let { draftDocDataRepository.deleteByUserIdAndKey(email, draftKey) }
+    private fun deleteSubmissionDrafts(submission: ExtSubmission, draftKey: String?) {
+        draftKey?.let { draftDocDataRepository.deleteByKey(draftKey) }
+        draftDocDataRepository.deleteByUserIdAndKey(submission.owner, submission.accNo)
+        draftDocDataRepository.deleteByUserIdAndKey(submission.submitter, submission.accNo)
     }
 }

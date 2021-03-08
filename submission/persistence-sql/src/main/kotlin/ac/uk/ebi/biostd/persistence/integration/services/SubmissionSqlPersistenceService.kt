@@ -56,15 +56,15 @@ internal open class SubmissionSqlPersistenceService(
 
     private fun processDbSubmission(submission: ExtSubmission, draftKey: String?): ExtSubmission {
         subDataRepository.expireActiveProcessedVersions(submission.accNo)
-        deleteSubmissionDrafts(submission.submitter, submission.accNo, draftKey)
-        deleteSubmissionDrafts(submission.owner, submission.accNo, draftKey)
+        deleteSubmissionDrafts(submission, draftKey)
         subDataRepository.updateStatus(PROCESSED, submission.accNo, submission.version)
 
         return submission
     }
 
-    private fun deleteSubmissionDrafts(email: String, accNo: String, draftKey: String?) {
-        userDataRepository.deleteByUserEmailAndKey(email, accNo)
-        draftKey?.let { userDataRepository.deleteByUserEmailAndKey(email, draftKey) }
+    private fun deleteSubmissionDrafts(submission: ExtSubmission, draftKey: String?) {
+        draftKey?.let { userDataRepository.deleteByKey(draftKey) }
+        userDataRepository.deleteByUserEmailAndKey(submission.owner, submission.accNo)
+        userDataRepository.deleteByUserEmailAndKey(submission.submitter, submission.accNo)
     }
 }

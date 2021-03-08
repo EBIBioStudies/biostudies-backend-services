@@ -19,7 +19,6 @@ import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import org.skyscreamer.jsonassert.JSONAssert.assertEquals
 import org.springframework.beans.factory.annotation.Autowired

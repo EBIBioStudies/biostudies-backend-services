@@ -78,8 +78,7 @@ class SubmissionMongoPersistenceServiceTest(
         verifyDraftRemovalByAccNo()
         verifySubmissionProcessing()
         verify(exactly = 0) {
-            draftRepository.deleteByUserIdAndKey(submission.owner, draftKey)
-            draftRepository.deleteByUserIdAndKey(submission.submitter, draftKey)
+            draftRepository.deleteByKey(draftKey)
         }
     }
 
@@ -113,8 +112,7 @@ class SubmissionMongoPersistenceServiceTest(
     }
 
     private fun verifyDraftRemovalByDraftKey() = verify(exactly = 1) {
-        draftRepository.deleteByUserIdAndKey(submission.owner, draftKey)
-        draftRepository.deleteByUserIdAndKey(submission.submitter, draftKey)
+        draftRepository.deleteByKey(draftKey)
     }
 
     private fun verifySubmissionProcessing() = verify(exactly = 1) {
@@ -133,8 +131,7 @@ class SubmissionMongoPersistenceServiceTest(
         val owner = submission.owner
         val submitter = submission.submitter
 
-        every { draftRepository.deleteByUserIdAndKey(owner, draftKey) } answers { nothing }
-        every { draftRepository.deleteByUserIdAndKey(submitter, draftKey) } answers { nothing }
+        every { draftRepository.deleteByKey(draftKey) } answers { nothing }
         every { draftRepository.deleteByUserIdAndKey(owner, submission.accNo) } answers { nothing }
         every { draftRepository.deleteByUserIdAndKey(submitter, submission.accNo) } answers { nothing }
     }
