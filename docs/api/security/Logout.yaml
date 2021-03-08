@@ -1,0 +1,22 @@
+post:
+  summary: Logout
+  description: Expires the given authorization token.
+
+  tags:
+    - Security
+
+  requestBody:
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            sessid:
+              description: Authorization token to expire
+              example: <user token>
+              required: true
+              type: string
+
+  responses:
+    200:
+      description: OK

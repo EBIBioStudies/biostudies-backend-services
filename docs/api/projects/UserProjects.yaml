@@ -1,0 +1,31 @@
+get:
+  summary: User Projects
+  description: Retrieves the list of the projects that are available for the user.
+
+  tags:
+    - Projects
+
+  parameters:
+    - in: header
+      name: X-SESSION-TOKEN
+      description: User authentication token
+      required: true
+
+  responses:
+    200:
+      description: OK
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              type: object
+              properties:
+                accno:
+                  type: string
+                  example: "BioImages"
+                title:
+                  type: string
+                  example: "BioImages Archive"
+    401:
+      description: Caused by an invalid X-SESSION-TOKEN

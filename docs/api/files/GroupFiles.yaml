@@ -1,0 +1,130 @@
+get:
+  summary: List Group Files
+  description: Lists the files for the given group in the given path.
+
+  tags:
+    - Group Files
+
+  parameters:
+    - in: header
+      name: X-SESSION-TOKEN
+      description: User authentication token
+      required: true
+    - in: path
+      name: groupName
+      description: The name of the group to list the files.
+      required: true
+    - in: path
+      name: path
+      description: The path in which files will be listed. If empty, the root group directory will be listed.
+      required: false
+
+  responses:
+    200:
+      description: OK
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: "file1.txt"
+                path:
+                  type: string
+                  example: "folder/file1.txt"
+                size:
+                  type: number
+                  example: 34
+                type:
+                  type: string
+                  example: "FILE"
+    401:
+      description: Caused by an invalid X-SESSION-TOKEN
+
+post:
+  summary: Upload Group File
+  description: Upload a file to the group directory in the given path.
+
+  tags:
+    - Group Files
+
+  parameters:
+    - in: header
+      name: X-SESSION-TOKEN
+      description: User authentication token
+      required: true
+    - in: path
+      name: groupName
+      description: The name of the group to upload the files.
+      required: true
+    - in: path
+      name: path
+      description: The path where the file will be uploaded inside the group folder.
+      required: false
+
+  requestBody:
+    required: true
+    content:
+      multipart/form-data:
+        schema:
+          type: object
+          properties:
+            files:
+              type: array
+              items:
+                description: Files to be uploaded
+                example: file1.txt
+                required: true
+                type: string
+                format: binary
+
+  responses:
+    200:
+      description: OK
+    401:
+      description: Caused by an invalid X-SESSION-TOKEN
+
+delete:
+  summary: Delete Group File
+  description: Delete the given file contained in the given path and with the given name.
+
+  tags:
+    - Group Files
+
+  parameters:
+    - in: header
+      name: X-SESSION-TOKEN
+      description: User authentication token
+      required: true
+    - in: path
+      name: groupName
+      description: The name of the group which holds the file to be deleted.
+      required: true
+    - in: path
+      name: path
+      description: The path of the directory that contains the file to be deleted.
+      required: true
+
+  requestBody:
+    required: true
+    content:
+      application/x-www-form-urlencoded:
+        schema:
+          type: object
+          properties:
+            fileName:
+              description: Name of the file to be deleted
+              example: file1.txt
+              required: true
+              type: string
+
+  responses:
+    200:
+      description: OK
+    400:
+      description: The path is required
+    401:
+      description: Caused by an invalid X-SESSION-TOKEN
