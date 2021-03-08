@@ -87,8 +87,8 @@ internal class SubmissionDocDataRepositoryTest {
     inner class GetSubmissions {
         @Test
         fun `by email`() {
-            testInstance.save(testDocSubmission.copy(id = "1", accNo = "accNo1", owner = "anotherEmail"))
-            val doc2 = testInstance.save(testDocSubmission.copy(id = "2", accNo = "accNo2", owner = "ownerEmail"))
+            testInstance.save(testDocSubmission.copy(accNo = "accNo1", owner = "anotherEmail"))
+            val doc2 = testInstance.save(testDocSubmission.copy(accNo = "accNo2", owner = "ownerEmail"))
 
             val result = testInstance.getSubmissions(SubmissionFilter(), "ownerEmail")
 
@@ -97,14 +97,8 @@ internal class SubmissionDocDataRepositoryTest {
 
         @Test
         fun `by type`() {
-            testInstance.save(testDocSubmission.copy(id = "1", accNo = "accNo1"))
-            val doc2 = testInstance.save(
-                testDocSubmission.copy(
-                    id = "2",
-                    accNo = "accNo2",
-                    section = testDocSection.copy(type = "work")
-                )
-            )
+            testInstance.save(testDocSubmission.copy(accNo = "accNo1"))
+            val doc2 = testInstance.save(testDocSubmission.copy(accNo = "accNo2", section = testDocSection.copy(type = "work")))
 
             val result = testInstance.getSubmissions(SubmissionFilter(type = "work"))
 
@@ -113,8 +107,8 @@ internal class SubmissionDocDataRepositoryTest {
 
         @Test
         fun `by AccNo`() {
-            testInstance.save(testDocSubmission.copy(id = "1", accNo = "accNo1"))
-            val doc2 = testInstance.save(testDocSubmission.copy(id = "2", accNo = "accNo2"))
+            testInstance.save(testDocSubmission.copy(accNo = "accNo1"))
+            val doc2 = testInstance.save(testDocSubmission.copy(accNo = "accNo2"))
 
             val result = testInstance.getSubmissions(SubmissionFilter(accNo = "accNo2"))
 
@@ -123,8 +117,8 @@ internal class SubmissionDocDataRepositoryTest {
 
         @Test
         fun `by release time`() {
-            testInstance.save(testDocSubmission.copy(id = "1", accNo = "accNo1", releaseTime = ofEpochSecond(5)))
-            val doc2 = testInstance.save(testDocSubmission.copy(id = "2", accNo = "accNo2", releaseTime = ofEpochSecond(15)))
+            testInstance.save(testDocSubmission.copy(accNo = "accNo1", releaseTime = ofEpochSecond(5)))
+            val doc2 = testInstance.save(testDocSubmission.copy(accNo = "accNo2", releaseTime = ofEpochSecond(15)))
 
             val result = testInstance.getSubmissions(
                 SubmissionFilter(
@@ -138,8 +132,8 @@ internal class SubmissionDocDataRepositoryTest {
 
         @Test
         fun `by keywords`() {
-            testInstance.save(testDocSubmission.copy(id = "1", accNo = "accNo1", title = "another"))
-            val doc2 = testInstance.save(testDocSubmission.copy(id = "2", accNo = "accNo2", title = "title"))
+            testInstance.save(testDocSubmission.copy(accNo = "accNo1", title = "another"))
+            val doc2 = testInstance.save(testDocSubmission.copy(accNo = "accNo2", title = "title"))
 
             val result = testInstance.getSubmissions(SubmissionFilter(keywords = "title"), null)
 
@@ -148,8 +142,8 @@ internal class SubmissionDocDataRepositoryTest {
 
         @Test
         fun `by released`() {
-            testInstance.save(testDocSubmission.copy(id = "1", accNo = "accNo1", released = true))
-            val doc2 = testInstance.save(testDocSubmission.copy(id = "2", accNo = "accNo2", released = false))
+            testInstance.save(testDocSubmission.copy(accNo = "accNo1", released = true))
+            val doc2 = testInstance.save(testDocSubmission.copy(accNo = "accNo2", released = false))
 
             val result = testInstance.getSubmissions(SubmissionFilter(released = false), null)
 

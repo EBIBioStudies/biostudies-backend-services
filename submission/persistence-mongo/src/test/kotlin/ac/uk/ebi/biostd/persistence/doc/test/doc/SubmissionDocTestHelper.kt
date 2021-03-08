@@ -47,25 +47,26 @@ internal val testDocSection = DocSection(type = "Study")
 
 internal val testDocCollection = DocCollection(PROJECT_ACC_NO)
 
-internal val testDocSubmission = DocSubmission(
-    id = ObjectId().toString(),
-    accNo = SUB_ACC_NO,
-    version = SUB_VERSION,
-    owner = OWNER,
-    submitter = SUBMITTER,
-    title = SUB_TITLE,
-    method = PAGE_TAB,
-    relPath = REL_PATH,
-    rootPath = ROOT_PATH,
-    released = false,
-    secretKey = SECRET_KEY,
-    status = PROCESSED,
-    releaseTime = RELEASE_TIME,
-    modificationTime = MODIFICATION_TIME,
-    creationTime = CREATION_TIME,
-    attributes = listOf(testDocAttribute),
-    tags = listOf(DocTag(TAG_NAME, TAG_VALUE)),
-    stats = listOf(DocStat(STAT_TYPE, STAT_VALUE)),
-    collections = listOf(testDocCollection),
-    section = testDocSection
-)
+internal val testDocSubmission: DocSubmission
+    get() = DocSubmission(
+        id = ObjectId(),
+        accNo = SUB_ACC_NO,
+        version = SUB_VERSION,
+        owner = OWNER,
+        submitter = SUBMITTER,
+        title = SUB_TITLE,
+        method = PAGE_TAB,
+        relPath = REL_PATH,
+        rootPath = ROOT_PATH,
+        released = false,
+        secretKey = SECRET_KEY,
+        status = PROCESSED,
+        releaseTime = RELEASE_TIME,
+        modificationTime = MODIFICATION_TIME,
+        creationTime = CREATION_TIME,
+        attributes = listOf(testDocAttribute),
+        tags = listOf(DocTag(TAG_NAME, TAG_VALUE)),
+        stats = listOf(DocStat(STAT_TYPE, STAT_VALUE)),
+        collections = listOf(testDocCollection),
+        section = testDocSection
+    )

@@ -4,6 +4,7 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocAttribute
 import ac.uk.ebi.biostd.persistence.doc.model.DocCollection
 import ac.uk.ebi.biostd.persistence.doc.model.DocFile
 import ac.uk.ebi.biostd.persistence.doc.model.DocFileList
+import ac.uk.ebi.biostd.persistence.doc.model.DocFileRef
 import ac.uk.ebi.biostd.persistence.doc.model.DocFileTable
 import ac.uk.ebi.biostd.persistence.doc.model.DocLink
 import ac.uk.ebi.biostd.persistence.doc.model.DocLinkTable
@@ -13,6 +14,7 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocSectionTableRow
 import ac.uk.ebi.biostd.persistence.doc.model.DocStat
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocTag
+import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
 
 object DocAttributeFields {
     val DOC_ATTRIBUTE_CLASS: String = DocAttribute::class.java.canonicalName
@@ -35,8 +37,23 @@ object DocFileFields {
 
 object DocFileListFields {
     val DOC_FILE_LIST_CLASS: String = DocFileList::class.java.canonicalName
-    const val FILE_LIST_DOC_FILE_LIST = "fileName"
+    const val FILE_LIST_DOC_FILE_FILENAME = "fileName"
     const val FILE_LIST_DOC_FILES = "files"
+}
+
+object DocFileRefFields {
+    val DOC_FILE_REF_CLASS: String = DocFileRef::class.java.canonicalName
+    const val FILE_REF_DOC_FILE_ID = "fileId"
+}
+
+object FileListDocFileFields {
+    val FILE_LIST_DOC_FILE_CLASS: String = FileListDocFile::class.java.canonicalName
+    const val FILE_LIST_DOC_FILE_SUBMISSION_ID = "submissionId"
+    const val FILE_LIST_DOC_FILE_FILENAME = "fileName"
+    const val FILE_LIST_DOC_FILE_REL_PATH = "relPath"
+    const val FILE_LIST_DOC_FILE_FULL_PATH = "fullPath"
+    const val FILE_LIST_DOC_FILE_ATTRIBUTES = "attributes"
+    const val FILE_LIST_DOC_FILE_MD5 = "md5"
 }
 
 object DocFileTableFields {
@@ -49,6 +66,7 @@ object DocLinkFields {
     const val LINK_DOC_URL = "url"
     const val LINK_DOC_ATTRIBUTES = "attributes"
 }
+
 object DocLinkTableFields {
     val DOC_LINK_TABLE_CLASS: String = DocLinkTable::class.java.canonicalName
     const val LINK_TABLE_DOC_LINKS = "links"

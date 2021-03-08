@@ -53,4 +53,4 @@ build-test:
 
 mysql-itest:
   stage: mysql-itest
-  script: gradle clean :submission:submission-webapp:itest -Pitest.mode:mysql --rerun-tasks
+  script: gradle clean :submission:submission-webapp:itest -Pitest.mode=mysql --rerun-tasks

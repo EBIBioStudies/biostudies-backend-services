@@ -3,13 +3,15 @@ package ac.uk.ebi.biostd.persistence.doc.db.repositories
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft
+import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequest
+import org.bson.types.ObjectId
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.mongodb.repository.MongoRepository
 import org.springframework.data.mongodb.repository.Query
 
-interface SubmissionMongoRepository : MongoRepository<DocSubmission, String> {
+interface SubmissionMongoRepository : MongoRepository<DocSubmission, ObjectId> {
     @Query("{ 'accNo': '?0', 'version': { \$gte: 0 } }")
     fun findByAccNo(accNo: String): DocSubmission?
 
@@ -51,3 +53,5 @@ interface SubmissionDraftRepository : MongoRepository<DocSubmissionDraft, String
 
     fun deleteByUserIdAndKey(userId: String, key: String)
 }
+
+interface FileListDocFileRepository : MongoRepository<FileListDocFile, ObjectId>
