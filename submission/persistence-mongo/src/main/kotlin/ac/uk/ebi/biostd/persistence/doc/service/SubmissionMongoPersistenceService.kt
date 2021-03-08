@@ -30,7 +30,7 @@ internal class SubmissionMongoPersistenceService(
 ) : SubmissionRequestService {
     override fun saveAndProcessSubmissionRequest(saveRequest: SaveSubmissionRequest): ExtSubmission {
         val extended = saveSubmissionRequest(saveRequest)
-        return processSubmission(SaveSubmissionRequest(extended, saveRequest.fileMode))
+        return processSubmission(SaveSubmissionRequest(extended, saveRequest.fileMode, saveRequest.draftKey))
     }
 
     override fun saveSubmissionRequest(saveRequest: SaveSubmissionRequest): ExtSubmission {
@@ -52,27 +52,33 @@ internal class SubmissionMongoPersistenceService(
     )
 
     override fun processSubmission(saveRequest: SaveSubmissionRequest): ExtSubmission {
-        val (submission, fileMode) = saveRequest
+        val (submission, fileMode, draftKey) = saveRequest
         val processingSubmission = systemService.persistSubmissionFiles(submission, fileMode)
         val (docSubmission, files) = processingSubmission.copy(status = PROCESSING).toDocSubmission()
-        saveSubmission(docSubmission, files)
+        saveSubmission(docSubmission, files, draftKey)
+
         return submission
     }
 
-    private fun saveSubmission(docSubmission: DocSubmission, files: List<FileListDocFile>) {
+    private fun saveSubmission(docSubmission: DocSubmission, files: List<FileListDocFile>, draftKey: String?) {
         subDataRepository.save(docSubmission)
         fileListDocFileRepository.saveAll(files)
-        updateCurrentRecords(docSubmission)
+        updateCurrentRecords(docSubmission, draftKey)
         subDataRepository.updateStatus(PROCESSED, docSubmission.accNo, docSubmission.version)
     }
 
-    private fun updateCurrentRecords(submission: DocSubmission) {
+    private fun updateCurrentRecords(submission: DocSubmission, draftKey: String?) {
         subDataRepository.expireActiveProcessedVersions(submission.accNo)
-        draftDocDataRepository.deleteByUserIdAndKey(submission.submitter, submission.accNo)
-        draftDocDataRepository.deleteByUserIdAndKey(submission.owner, submission.accNo)
+        deleteSubmissionDrafts(submission, draftKey)
     }
 
     override fun refreshSubmission(submission: ExtSubmission) {
         saveAndProcessSubmissionRequest(SaveSubmissionRequest(submission, MOVE))
+    }
+
+    private fun deleteSubmissionDrafts(submission: DocSubmission, draftKey: String?) {
+        draftKey?.let { draftDocDataRepository.deleteByKey(draftKey) }
+        draftDocDataRepository.deleteByUserIdAndKey(submission.owner, submission.accNo)
+        draftDocDataRepository.deleteByUserIdAndKey(submission.submitter, submission.accNo)
     }
 }

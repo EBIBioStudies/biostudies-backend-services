@@ -33,14 +33,16 @@ internal open class SubmissionSqlPersistenceService(
             status = ExtProcessingStatus.REQUESTED)
         subDataRepository.save(toDbMapper.toSubmissionDb(newVersion))
         requestDataRepository.save(asRequest(newVersion))
+
         return newVersion
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = false)
-    open fun processSubmission(submission: ExtSubmission, mode: FileMode): ExtSubmission {
+    open fun processSubmission(submission: ExtSubmission, mode: FileMode, draftKey: String?): ExtSubmission {
         subDataRepository.updateStatus(PROCESSING, submission.accNo, submission.version)
         systemService.persistSubmissionFiles(submission, mode)
-        processDbSubmission(subRepository.getExtByAccNoAndVersion(submission.accNo, submission.version))
+        processDbSubmission(subRepository.getExtByAccNoAndVersion(submission.accNo, submission.version), draftKey)
+
         return subRepository.getExtByAccNoAndVersion(submission.accNo, submission.version)
     }
 
@@ -52,15 +54,17 @@ internal open class SubmissionSqlPersistenceService(
         return lastVersion.absoluteValue + 1
     }
 
-    private fun processDbSubmission(submission: ExtSubmission): ExtSubmission {
+    private fun processDbSubmission(submission: ExtSubmission, draftKey: String?): ExtSubmission {
         subDataRepository.expireActiveProcessedVersions(submission.accNo)
-        deleteSubmissionDrafts(submission.submitter, submission.accNo)
-        deleteSubmissionDrafts(submission.owner, submission.accNo)
+        deleteSubmissionDrafts(submission, draftKey)
         subDataRepository.updateStatus(PROCESSED, submission.accNo, submission.version)
+
         return submission
     }
 
-    private fun deleteSubmissionDrafts(email: String, accNo: String) {
-        userDataRepository.deleteByUserEmailAndKey(email, accNo)
+    private fun deleteSubmissionDrafts(submission: ExtSubmission, draftKey: String?) {
+        draftKey?.let { userDataRepository.deleteByKey(draftKey) }
+        userDataRepository.deleteByUserEmailAndKey(submission.owner, submission.accNo)
+        userDataRepository.deleteByUserEmailAndKey(submission.submitter, submission.accNo)
     }
 }

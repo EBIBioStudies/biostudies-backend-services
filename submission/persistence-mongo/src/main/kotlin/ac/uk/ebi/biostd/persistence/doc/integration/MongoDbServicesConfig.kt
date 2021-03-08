@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.persistence.doc.integration
 
 import ac.uk.ebi.biostd.persistence.common.service.CollectionDataService
 import ac.uk.ebi.biostd.persistence.common.service.StatsDataService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionDraftService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDraftDocDataRepository
@@ -48,7 +49,7 @@ class MongoDbServicesConfig {
         submissionDraftDocDataRepository: SubmissionDraftDocDataRepository,
         submissionQueryService: SubmissionQueryService,
         extSerializationService: ExtSerializationService
-    ): SubmissionDraftMongoService = SubmissionDraftMongoService(
+    ): SubmissionDraftService = SubmissionDraftMongoService(
         submissionDraftDocDataRepository,
         submissionQueryService,
         extSerializationService)

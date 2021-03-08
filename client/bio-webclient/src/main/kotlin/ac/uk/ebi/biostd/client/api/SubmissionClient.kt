@@ -37,6 +37,10 @@ internal class SubmissionClient(
     override fun submitSingle(submission: String, format: SubmissionFormat, register: RegisterConfig):
         SubmissionResponse = submitSingle(HttpEntity(submission, createHeaders(format)), register)
 
+    override fun submitSingleFromDraft(draftKey: String) {
+        template.postForEntity<Void>("$SUBMISSIONS_URL/drafts/$draftKey/submit")
+    }
+
     override fun submitAsync(submission: String, format: SubmissionFormat, register: RegisterConfig) {
         submitAsyncSingle(HttpEntity(submission, createHeaders(format)), register)
     }

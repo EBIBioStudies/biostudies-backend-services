@@ -12,5 +12,6 @@ data class SubmissionRequest(
     val sources: FilesSource,
     val method: SubmissionMethod,
     val mode: FileMode,
-    val onBehalfUser: SecurityUser? = null
+    val onBehalfUser: SecurityUser? = null,
+    val draftKey: String? = null
 )

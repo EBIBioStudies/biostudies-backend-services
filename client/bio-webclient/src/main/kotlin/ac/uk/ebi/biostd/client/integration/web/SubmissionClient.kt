@@ -61,6 +61,8 @@ interface SubmissionOperations {
         register: RegisterConfig = NonRegistration
     ): SubmissionResponse
 
+    fun submitSingleFromDraft(draftKey: String)
+
     fun submitAsync(submission: String, format: SubmissionFormat = JSON, register: RegisterConfig = NonRegistration)
 
     fun refreshSubmission(accNo: String): SubmissionResponse

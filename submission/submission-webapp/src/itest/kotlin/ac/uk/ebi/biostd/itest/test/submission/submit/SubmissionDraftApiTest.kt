@@ -1,7 +1,8 @@
 package ac.uk.ebi.biostd.itest.test.submission.submit
 
 import ac.uk.ebi.biostd.client.exception.WebClientException
-import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
+import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.JSON
+import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.data.service.UserDataService
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
@@ -22,6 +23,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.skyscreamer.jsonassert.JSONAssert.assertEquals
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT
 import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
@@ -31,7 +33,7 @@ import org.springframework.transaction.annotation.Transactional
 internal class SubmissionDraftApiTest(tempFolder: TemporaryFolder) : BaseIntegrationTest(tempFolder) {
     @Nested
     @ExtendWith(SpringExtension::class)
-    @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+    @SpringBootTest(webEnvironment = RANDOM_PORT)
     @Transactional
     @DirtiesContext
     inner class SubmissionDraftTest(
@@ -40,9 +42,7 @@ internal class SubmissionDraftApiTest(tempFolder: TemporaryFolder) : BaseIntegra
     ) {
         @LocalServerPort
         private var serverPort: Int = 0
-
         private lateinit var securityUser: SecurityUser
-
         private lateinit var webClient: BioWebClient
 
         @BeforeAll
@@ -55,7 +55,7 @@ internal class SubmissionDraftApiTest(tempFolder: TemporaryFolder) : BaseIntegra
         fun `get draft submission when draft does not exist but submission does`() {
             val pageTab = jsonObj { "accno" to "ABC-123"; "type" to "Study" }.toString()
 
-            webClient.submitSingle(pageTab, SubmissionFormat.JSON)
+            webClient.submitSingle(pageTab, JSON)
 
             val draftSubmission = webClient.getSubmissionDraft("ABC-123")
             assertThat(draftSubmission.key).isEqualTo("ABC-123")
@@ -87,13 +87,14 @@ internal class SubmissionDraftApiTest(tempFolder: TemporaryFolder) : BaseIntegra
         fun `delete submission draft after submission`() {
             val pageTab = jsonObj { "accno" to "ABC-126"; "type" to "Study" }.toString()
 
-            webClient.submitSingle(pageTab, SubmissionFormat.JSON)
+            webClient.submitSingle(pageTab, JSON)
             webClient.getSubmissionDraft("ABC-126")
             val updatedDraft = tsv {
                 line("Submission", "ABC-126")
-                line("Description", "Updated submission")
+                line("Description", "Updated Submission")
             }
-            webClient.submitSingle(updatedDraft.toString(), SubmissionFormat.TSV)
+
+            webClient.submitSingle(updatedDraft.toString(), TSV)
             assertThat(webClient.getAllSubmissionDrafts()).isEmpty()
         }
 
@@ -107,11 +108,36 @@ internal class SubmissionDraftApiTest(tempFolder: TemporaryFolder) : BaseIntegra
         @Test
         fun `delete a draft directly`() {
             val pageTab = jsonObj { "accno" to "ABC-128"; "type" to "Study" }.toString()
-            webClient.submitSingle(pageTab, SubmissionFormat.JSON)
+            webClient.submitSingle(pageTab, JSON)
 
             webClient.deleteSubmissionDraft("ABC-128")
 
             assertThat(dataService.getUserData(securityUser.email, "ABC-128")).isNull()
+        }
+
+        @Test
+        fun `submit from draft`() {
+            val pageTab = jsonObj {
+                "accno" to "ABC-129"
+                "type" to "Study"
+            }.toString()
+
+            webClient.submitSingle(pageTab, JSON)
+            webClient.getSubmissionDraft("ABC-129")
+
+            val updatedDraft = jsonObj {
+                "accno" to "ABC-129"
+                "ReleaseDate" to "2021-09-21"
+                "type" to "Study"
+            }.toString()
+            val draftResponse = webClient.createSubmissionDraft(updatedDraft)
+
+            webClient.submitSingleFromDraft(draftResponse.key)
+
+            // TODO this approach must be improved once the testing for async submissions are in place
+            Thread.sleep(10000)
+            assertThat(dataService.getUserData(securityUser.email, "ABC-129")).isNull()
+            assertThat(dataService.getUserData(securityUser.email, draftResponse.key)).isNull()
         }
     }
 }
