@@ -11,8 +11,8 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withContext
-import org.apache.commons.io.FileUtils
 import java.io.File
+import java.io.InputStream
 import java.nio.file.Paths
 import ebi.ac.uk.model.File as SubmissionFile
 
@@ -39,8 +39,12 @@ class FileDownloader(
         targetFolder.mkdirs()
 
         val targetFile = targetFolder.resolve(file.path)
-        FileUtils.copyInputStreamToFile(pmcApi.downloadFileAsync(pmcId, file.path).byteStream(), targetFile)
+        pmcApi.downloadFileStream(pmcId, file.path).byteStream().copyToFile(targetFile)
         return@withContext targetFile
+    }
+
+    private fun InputStream.copyToFile(destinationFile: File) {
+        use { input -> destinationFile.outputStream().use { output -> input.copyTo(output) } }
     }
 
     private fun getPmcId(accNo: String) = accNo.removePrefix("S-EPMC")
