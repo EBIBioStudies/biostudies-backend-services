@@ -1,0 +1,88 @@
+post:
+  summary: Async Direct Submission
+  description: |
+    Perform a submission to BioStudies using the page tab inside the given file. Please be have in mind the following:
+    * The given page tab should match the format in the file i.e. if the file is submission.json, it should contain JSON format.
+    * Regardless of the chosen format to submit, the page tab document in the response will always be returned in JSON format
+    * Any referenced file should be either placed in the user folder or attached to the request using the Files parameter. Please have in mind that the amount of files that can be directly attached to the request is limited, if the submission has too many files, please place them in the user directory.
+    * If no accession number is provided, a new submission will be created and the corresponding accession number will be generated
+    * If an accession number is provided, the submission will be treated as a resubmission which will perform an update
+
+  tags:
+    - Async Submissions
+
+  parameters:
+  - in: header
+    name: X-SESSION-TOKEN
+    description: User authentication token
+    required: true
+    type: string
+
+  - in: query
+    name: onBehalf
+    description:
+      In case the submission is performed on behalf of another user, the submission owner's email should be placed in
+      this parameter.
+    required: false
+    type: string
+  - in: query
+    name: sse
+    description:
+      In case the submission is performed on behalf of another user, this parameter indicates whether a new user should
+      be registered in case the given owner doesn't exist.
+    required: false
+    type: string
+  - in: query
+    name: name
+    description: Name that will be used to create the new user in case the "sse" parameter is set to true.
+    required: false
+    type: string
+
+    requestBody:
+      required: true
+      content:
+        application/x-www-form-urlencoded:
+          schema:
+            type: object
+            properties:
+              fileMode:
+                description: |
+                  Indicates whether the files in the submission should be copied or moved from the user folder.
+                  The files will be copied by default. Accepted values:
+                  * COPY
+                  * MOVE
+                required: false
+                type: string
+              attributes:
+                description:
+                  List of attributes that allow overriding any value at the submission level in the submitted page tab. The
+                  values should be passed in the key=value format i.e. title=new title
+                required: false
+                type: string
+        multipart/form-data:
+          schema:
+            type: object
+            properties:
+              submission:
+                description: File containing the submission page tab in the chosen format
+                example: submission.tsv
+                required: true
+                type: string
+                format: binary
+              files:
+                type: array
+                items:
+                  description: Files to be attached to the submission
+                  example: file1.txt
+                  required: false
+                  type: string
+                  format: binary
+
+    responses:
+      200:
+        description: OK
+        content:
+          application/json:
+            $ref: '../model/BasicSubmission.yaml'
+      401:
+        description: Caused by an invalid X-SESSION-TOKEN

@@ -1,2 +1,4 @@
 get:
   $ref: '../search/SearchSubmissions.yaml'
+post:
+  $ref: 'Submit.yaml'

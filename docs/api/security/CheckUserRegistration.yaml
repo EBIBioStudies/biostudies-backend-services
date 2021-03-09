@@ -1,0 +1,29 @@
+post:
+  summary: Check Registration
+  description: |
+    Checks if a user with the given email is registered in the system. In case it's not, a new user will be created
+    using the given email and user name. The new user will be inactive and should be activated via activation link.
+
+  tags:
+    - Security
+
+  requestBody:
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            email:
+              description: The email to be validated.
+              example: "user@test.org"
+              required: true
+              type: string
+            userName:
+              description: Name that will be used to create the user in case it doesn't exist.
+              example: "Test User"
+              required: true
+              type: string
+
+  responses:
+    200:
+      description: OK

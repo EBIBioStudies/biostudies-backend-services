@@ -1,0 +1,26 @@
+get:
+  summary: Get Submission Draft Content
+  description: Get the content of the submission draft with the specified key.
+
+  tags:
+    - Submission Drafts
+
+  parameters:
+    - in: header
+      name: X-SESSION-TOKEN
+      description: User authentication token
+      required: true
+      type: string
+
+    - in: path
+      name: key
+      description: Submission key
+      required: true
+      type: number
+
+  responses:
+    200:
+      description: OK
+      content: "{ 'type': 'Submission', 'section': { 'type': 'Study' } }"
+    401:
+      description: Caused by an invalid X-SESSION-TOKEN

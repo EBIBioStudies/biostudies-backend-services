@@ -1,0 +1,95 @@
+get:
+  summary: Get Submission Drafts
+  description: Get the submission draft with the specified key.
+
+  tags:
+    - Submission Drafts
+
+  parameters:
+    - in: header
+      name: X-SESSION-TOKEN
+      description: User authentication token
+      required: true
+      type: string
+
+    - in: path
+      name: key
+      description: Submission key
+      required: true
+      type: number
+
+  responses:
+    200:
+      description: OK
+      content:
+        application/json:
+          $ref: '../model/BasicDraft.yaml'
+    401:
+      description: Caused by an invalid X-SESSION-TOKEN
+
+put:
+  summary: Update Submission Draft
+  description: Update the submission draft with the specified key.
+
+  tags:
+    - Submission Drafts
+
+  parameters:
+    - in: header
+      name: X-SESSION-TOKEN
+      description: User authentication token
+      required: true
+      type: string
+
+    - in: path
+        name: key
+        description: Submission key
+        required: true
+        type: number
+
+  requestBody:
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            content:
+              description: Draft content
+              example: "{ 'type': 'Submission', 'section': { 'type': 'Study' } }"
+              required: true
+              type: string
+
+  responses:
+    200:
+      description: OK
+      content:
+        application/json:
+          $ref: '../model/BasicDraft.yaml'
+    401:
+      description: Caused by an invalid X-SESSION-TOKEN
+
+delete:
+  summary: Delete Submission Draft
+  description: Delete the submission draft with the specified key.
+
+  tags:
+    - Submission Drafts
+
+  parameters:
+    - in: header
+      name: X-SESSION-TOKEN
+      description: User authentication token
+      required: true
+      type: string
+
+    - in: path
+        name: key
+        description: Submission key
+        required: true
+        type: number
+
+  responses:
+    200:
+      description: OK
+    401:
+      description: Caused by an invalid X-SESSION-TOKEN

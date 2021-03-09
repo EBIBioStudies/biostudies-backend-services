@@ -10,12 +10,14 @@ servers:
     description: BETA
 
 tags:
+  - name: Security
+  - name: Projects
   - name: Groups
   - name: Group Files
-  - name: Projects
-  - name: Search Submissions
-  - name: Security
   - name: User Files
+  - name: Search Submissions
+  - name: Submissions
+  - name: Async Submissions
 
 paths:
   /auth/login:
@@ -47,6 +49,16 @@ paths:
 
   /submissions:
     $ref: 'submissions/operations/SubmissionOperations.yaml'
+  /submissions/direct:
+    $ref: 'submissions/operations/DirectSubmit.yaml'
+
+  /submissions/async:
+    $ref: 'submissions/operations/AsyncSubmit.yaml'
+  /submissions/direct/async:
+    $ref: 'submissions/operations/AsyncDirectSubmit.yaml'
+
+  /submissions/{accNo}:
+    $ref: 'submissions/operations/DeleteSubmission.yaml'
   /submissions/{accNo}.json:
     $ref: 'submissions/search/JsonSubmission.yaml'
   /submissions/{accNo}.tsv:

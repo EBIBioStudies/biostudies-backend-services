@@ -1,0 +1,68 @@
+get:
+  summary: Search Submission Drafts
+  description: Search for submissions drafts that belong to the user and match the given parameters.
+
+  tags:
+    - Submission Drafts
+
+  parameters:
+    - in: header
+      name: X-SESSION-TOKEN
+      description: User authentication token
+      required: true
+      type: string
+
+    - in: query
+      name: offset
+      description: Page number
+      required: true
+      type: number
+    - in: query
+      name: limit
+      description: Limit of the search result
+      required: true
+      type: number
+
+  responses:
+    200:
+      description: OK
+      content:
+        application/json:
+          $ref: '../model/BasicDraft.yaml'
+    401:
+      description: Caused by an invalid X-SESSION-TOKEN
+
+post:
+  summary: Create Submission Draft
+  description: Create a submission draft
+
+  tags:
+    - Submission Drafts
+
+  parameters:
+    - in: header
+      name: X-SESSION-TOKEN
+      description: User authentication token
+      required: true
+      type: string
+
+  requestBody:
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            content:
+              description: Draft content
+              example: "{ 'type': 'Submission', 'section': { 'type': 'Study' } }"
+              required: true
+              type: string
+
+  responses:
+    200:
+      description: OK
+      content:
+        application/json:
+          $ref: '../model/BasicDraft.yaml'
+    401:
+      description: Caused by an invalid X-SESSION-TOKEN

@@ -38,13 +38,13 @@ parameters:
   - in: query
     name: rTimeFrom
     description: Search for submissions which release time is past the given date. The date should be in ISO format.
-    example: 2019-09-24T09:41:44.000Z
+    example: "2019-09-24T09:41:44.000Z"
     required: false
     type: string
   - in: query
     name: rTimeTo
     description: Search for submissions which release time is before the given date. The date should be in ISO format.
-    example: 2019-09-24T09:41:44.000Z
+    example: "2019-09-24T09:41:44.000Z"
     required: false
     type: string
   - in: query
