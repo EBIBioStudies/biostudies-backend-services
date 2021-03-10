@@ -37,6 +37,6 @@ class SubmissionDraftMongoService(
 
     private fun create(userEmail: String, key: String): DocSubmissionDraft {
         val submission = submissionQueryService.getExtByAccNo(key)
-        return DocSubmissionDraft(userEmail, key, extSerializationService.serialize(submission))
+        return draftDocDataRepository.saveDraft(userEmail, key, extSerializationService.serialize(submission))
     }
 }

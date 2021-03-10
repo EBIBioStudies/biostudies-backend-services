@@ -8,14 +8,15 @@ import ac.uk.ebi.biostd.persistence.doc.test.doc.DRAFT_KEY
 import ac.uk.ebi.biostd.persistence.doc.test.doc.USER_ID
 import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocDraft
 import ebi.ac.uk.extended.model.ExtSubmission
+import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
-import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.unmockkStatic
 import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.extension.ExtendWith
@@ -35,27 +36,34 @@ internal class SubmissionDraftMongoServiceTest(
         extSerializationService
     )
 
+    @AfterEach
+    fun afterEach() = clearAllMocks()
+
     @Test
-    fun `get draft when submission exists`() {
+    fun `get draft when exists`() {
         every { draftDocDataRepository.findByUserIdAndKey(USER_ID, DRAFT_KEY) } returns testDocDraft
 
         val result = testInstance.getSubmissionDraft(USER_ID, DRAFT_KEY)
 
         assertThat(result.key).isEqualTo(DRAFT_KEY)
         assertThat(result.content).isEqualTo(DRAFT_CONTENT)
+        verify(exactly = 0) { draftDocDataRepository.saveDraft(USER_ID, DRAFT_KEY, DRAFT_CONTENT) }
     }
 
     @Test
-    fun `get draft when submission does not exists`() {
-        val extSubmission: ExtSubmission = mockk()
-        every { draftDocDataRepository.findByUserIdAndKey(USER_ID, DRAFT_KEY) } returns null
+    fun `get draft when doesn't exist`(
+        @MockK extSubmission: ExtSubmission
+    ) {
         every { submissionQueryService.getExtByAccNo(DRAFT_KEY) } returns extSubmission
         every { extSerializationService.serialize(extSubmission) } returns DRAFT_CONTENT
+        every { draftDocDataRepository.findByUserIdAndKey(USER_ID, DRAFT_KEY) } returns null
+        every { draftDocDataRepository.saveDraft(USER_ID, DRAFT_KEY, DRAFT_CONTENT) } returns testDocDraft
 
         val result = testInstance.getSubmissionDraft(USER_ID, DRAFT_KEY)
 
         assertThat(result.key).isEqualTo(DRAFT_KEY)
         assertThat(result.content).isEqualTo(DRAFT_CONTENT)
+        verify(exactly = 1) { draftDocDataRepository.saveDraft(USER_ID, DRAFT_KEY, DRAFT_CONTENT) }
     }
 
     @Test
