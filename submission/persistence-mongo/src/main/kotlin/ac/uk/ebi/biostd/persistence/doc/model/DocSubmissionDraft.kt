@@ -17,5 +17,6 @@ data class DocSubmissionDraft(
     companion object {
         const val USER_ID = "userId"
         const val KEY = "key"
+        const val CONTENT = "content"
     }
 }

@@ -20,6 +20,7 @@ import org.testcontainers.containers.MongoDBContainer
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.utility.DockerImageName
+import kotlin.test.assertNotNull
 
 @ExtendWith(SpringExtension::class)
 @Testcontainers
@@ -27,7 +28,6 @@ import org.testcontainers.utility.DockerImageName
 class SubmissionDraftDocDataRepositoryTest(
     @Autowired val testInstance: SubmissionDraftDocDataRepository
 ) {
-
     @BeforeEach
     fun beforeEach() {
         testInstance.deleteAll()
@@ -44,9 +44,21 @@ class SubmissionDraftDocDataRepositoryTest(
 
     @Test
     fun saveSubmissionDraft() {
-        testInstance.save(testDocDraft)
+        testInstance.saveDraft("user@test.org", "TMP_123", "{ type: 'submission' }")
+        val saved = testInstance.findByUserIdAndKey("user@test.org", "TMP_123")
 
-        assertThat(testInstance.getById(testDocDraft.id)).isEqualTo(testDocDraft)
+        assertNotNull(saved)
+        assertThat(saved.content).isEqualTo("{ type: 'submission' }")
+    }
+
+    @Test
+    fun updateSubmissionDraft() {
+        testInstance.saveDraft("user@test.org", "TMP_124", "{ type: 'submission' }")
+        testInstance.updateDraftContent("user@test.org", "TMP_124", "{ type: 'study' }")
+        val updated = testInstance.findByUserIdAndKey("user@test.org", "TMP_124")
+
+        assertNotNull(updated)
+        assertThat(updated.content).isEqualTo("{ type: 'study' }")
     }
 
     @Test

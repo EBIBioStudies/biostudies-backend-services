@@ -14,15 +14,14 @@ class SubmissionDraftMongoService(
     private val submissionQueryService: SubmissionQueryService,
     private val extSerializationService: ExtSerializationService
 ) : SubmissionDraftService {
-
     override fun getSubmissionDraft(userEmail: String, key: String): SubmissionDraft {
         val draft = draftDocDataRepository.findByUserIdAndKey(userEmail, key) ?: create(userEmail, key)
         return SubmissionDraft(draft.key, draft.content)
     }
 
     override fun updateSubmissionDraft(userEmail: String, key: String, content: String): SubmissionDraft {
-        val draft = draftDocDataRepository.saveDraft(userEmail, key, content)
-        return SubmissionDraft(draft.key, draft.content)
+        draftDocDataRepository.updateDraftContent(userEmail, key, content)
+        return SubmissionDraft(key, content)
     }
 
     override fun deleteSubmissionDraft(userEmail: String, key: String) =
