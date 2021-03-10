@@ -1,5 +1,5 @@
 get:
-  summary: Get Submission Drafts
+  summary: Get Submission Draft
   description: Get the submission draft with the specified key.
 
   tags:
@@ -16,7 +16,7 @@ get:
       name: key
       description: Submission key
       required: true
-      type: number
+      type: string
 
   responses:
     200:
@@ -42,10 +42,10 @@ put:
       type: string
 
     - in: path
-        name: key
-        description: Submission key
-        required: true
-        type: number
+      name: key
+      description: Submission key
+      required: true
+      type: number
 
   requestBody:
     content:
@@ -83,10 +83,10 @@ delete:
       type: string
 
     - in: path
-        name: key
-        description: Submission key
-        required: true
-        type: number
+      name: key
+      description: Submission key
+      required: true
+      type: number
 
   responses:
     200:

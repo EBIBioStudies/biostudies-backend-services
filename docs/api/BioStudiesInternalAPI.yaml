@@ -1,6 +1,6 @@
 openapi: 3.0.0
 info:
-  title: BioStudies API
+  title: BioStudies Internal API
   description:
     In order to facilitate some of the tasks that we need to perform such as refreshing a submission or generating FTP
     links, we've created some endpoints that are intended only for internal usage.
@@ -18,6 +18,7 @@ tags:
   - name: Extended Submissions
   - name: Refresh
   - name: Submission Drafts
+  - name: Submission Stats
   - name: FTP
   - name: Submission Releaser
   - name: PMC Importer
@@ -41,3 +42,35 @@ paths:
   /submissions/extended/{accNo}:
     $ref: 'submissions/extended/GetExtSubmission.yaml'
 
+  /submissions/drafts:
+    $ref: 'drafts/operations/DraftOperations.yaml'
+  /submissions/drafts/{key}:
+    $ref: 'drafts/operations/DraftOperationsByKey.yaml'
+  /submissions/drafts/{key}/content:
+    $ref: 'drafts/operations/GetDraftContent.yaml'
+  /submissions/drafts/{key}/submit:
+    $ref: 'drafts/operations/SubmitDraft.yaml'
+
+  /submissions/ftp/generate:
+    $ref: 'ftp/GenerateFtpLinks.yaml'
+
+  /stats/{type}:
+    $ref: 'stats/operations/StatsOperationsByKey.yaml'
+  /stats/{type}/{accNo}:
+    $ref: 'stats/operations/GetSubmissionStatsByType.yaml'
+  /stats/{type}/increment:
+    $ref: 'stats/operations/IncrementStats.yaml'
+
+  /api/releaser/release:
+    $ref: 'scheduler/releaser/SubmissionReleaser.yaml'
+  /api/releaser/notify:
+    $ref: 'scheduler/releaser/SubmissionNotifier.yaml'
+  /api/releaser/ftp/generate:
+    $ref: 'scheduler/releaser/FtpLinkGenerator.yaml'
+
+  /api/pmc/load/folder:
+    $ref: 'scheduler/pmc/LoadFiles.yaml'
+  /api/pmc/process:
+    $ref: 'scheduler/pmc/ProcessSubmissions.yaml'
+  /api/pmc/submit:
+    $ref: 'scheduler/pmc/Submit.yaml'

@@ -88,8 +88,5 @@ post:
   responses:
     200:
       description: OK
-      content:
-        application/json:
-          $ref: '../model/BasicSubmission.yaml'
     401:
       description: Caused by an invalid X-SESSION-TOKEN

@@ -1,0 +1,13 @@
+200:
+  description: OK
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          id:
+            type: number
+            example: 8445049
+          queue:
+            type: string
+            example: "research-rh74"

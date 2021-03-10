@@ -1,0 +1,85 @@
+get:
+  summary: Get Stats By Type
+  description: Get the stats with the given type.
+
+  tags:
+    - Submission Stats
+
+  parameters:
+    - in: header
+      name: X-SESSION-TOKEN
+      description: User authentication token
+      required: true
+      type: string
+
+    - in: path
+      name: type
+      description: "Stats type. Accepted values: VIEWS"
+      required: true
+      type: string
+
+    - in: query
+      name: offset
+      description: Page number
+      required: true
+      type: number
+    - in: query
+      name: limit
+      description: Limit of the search result
+      required: true
+      type: number
+  responses:
+    200:
+      description: OK
+      content:
+        application/json:
+          $ref: '../model/Stat.yaml'
+    401:
+      description: Caused by an invalid X-SESSION-TOKEN
+
+post:
+  summary: Register Submission Stats
+  description: |
+    Register the stats contained inside the given file. Please have in mind:
+    * The file should be in TSV format following the convention <accNo>\t<value>
+    * All entries for nonexisting submissions will be ignored
+    * Only the latest entry will be registered, all the previous will be ignored
+    * Any entry for an already existing stat will be overriden
+
+  tags:
+    - Submission Stats
+
+  parameters:
+    - in: header
+      name: X-SESSION-TOKEN
+      description: User authentication token
+      required: true
+      type: string
+
+    - in: path
+      name: type
+      description: "Stats type. Accepted values: VIEWS"
+      required: true
+      type: string
+
+  requestBody:
+    content:
+      multipart/form-data:
+        schema:
+          type: object
+          properties:
+            stats:
+              description: A TSV file containing the submission stats.
+              example: stats.tsv
+              required: true
+              type: string
+              format: binary
+
+  responses:
+    200:
+      description: OK
+      content:
+        application/json:
+          $ref: '../model/Stat.yaml'
+    401:
+      description: Caused by an invalid X-SESSION-TOKEN

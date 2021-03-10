@@ -38,51 +38,48 @@ post:
     required: false
     type: string
 
-    requestBody:
-      required: true
-      content:
-        application/x-www-form-urlencoded:
-          schema:
-            type: object
-            properties:
-              fileMode:
-                description: |
-                  Indicates whether the files in the submission should be copied or moved from the user folder.
-                  The files will be copied by default. Accepted values:
-                  * COPY
-                  * MOVE
+  requestBody:
+    required: true
+    content:
+      application/x-www-form-urlencoded:
+        schema:
+          type: object
+          properties:
+            fileMode:
+              description: |
+                Indicates whether the files in the submission should be copied or moved from the user folder.
+                The files will be copied by default. Accepted values:
+                * COPY
+                * MOVE
+              required: false
+              type: string
+            attributes:
+              description:
+                List of attributes that allow overriding any value at the submission level in the submitted page tab. The
+                values should be passed in the key=value format i.e. title=new title
+              required: false
+              type: string
+      multipart/form-data:
+        schema:
+          type: object
+          properties:
+            submission:
+              description: File containing the submission page tab in the chosen format
+              example: submission.tsv
+              required: true
+              type: string
+              format: binary
+            files:
+              type: array
+              items:
+                description: Files to be attached to the submission
+                example: file1.txt
                 required: false
-                type: string
-              attributes:
-                description:
-                  List of attributes that allow overriding any value at the submission level in the submitted page tab. The
-                  values should be passed in the key=value format i.e. title=new title
-                required: false
-                type: string
-        multipart/form-data:
-          schema:
-            type: object
-            properties:
-              submission:
-                description: File containing the submission page tab in the chosen format
-                example: submission.tsv
-                required: true
                 type: string
                 format: binary
-              files:
-                type: array
-                items:
-                  description: Files to be attached to the submission
-                  example: file1.txt
-                  required: false
-                  type: string
-                  format: binary
 
-    responses:
-      200:
-        description: OK
-        content:
-          application/json:
-            $ref: '../model/BasicSubmission.yaml'
-      401:
-        description: Caused by an invalid X-SESSION-TOKEN
+  responses:
+    200:
+      description: OK
+    401:
+      description: Caused by an invalid X-SESSION-TOKEN

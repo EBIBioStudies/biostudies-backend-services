@@ -10,6 +10,7 @@ parameters:
     description: User authentication token
     required: true
     type: string
+
   - in: query
     name: offset
     description: Page number
