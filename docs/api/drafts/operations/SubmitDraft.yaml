@@ -1,0 +1,55 @@
+post:
+  summary: Submission From Draft
+  description:
+    Create a submission based on the content of the draft with the given key. The draft will be deleted after the
+    submission operation is completed.
+
+  tags:
+    - Submission Drafts
+
+  parameters:
+    - in: header
+      name: X-SESSION-TOKEN
+      description: User authentication token
+      required: true
+      type: string
+
+    - in: path
+      name: key
+      description: Submission key
+      required: true
+      type: number
+
+    - in: query
+      name: onBehalf
+      description: In case the submission is performed on behalf of another user.
+      required: false
+      type: string
+
+  requestBody:
+    required: true
+    content:
+      application/x-www-form-urlencoded:
+        schema:
+          type: object
+          properties:
+            fileMode:
+              description: |
+                Indicates whether the files in the submission should be copied or moved from the user folder.
+                The files will be copied by default. Accepted values:
+                * COPY
+                * MOVE
+              required: false
+              type: string
+            attributes:
+              description:
+                List of attributes that allow overriding any value at the submission level in the submitted page tab. The
+                values should be passed in the key=value format i.e. title=new title
+              required: false
+              type: string
+
+  responses:
+    200:
+      description: OK
+    401:
+      description: Caused by an invalid X-SESSION-TOKEN

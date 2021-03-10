@@ -1,0 +1,13 @@
+post:
+  summary: Process PMC Submissions
+  description: |
+    Trigger the job to process the input files from E-PMC. This is:
+    * Parse the files to identify the submissions
+    * Split them into separated submissions
+    * Retrieve any referenced file from E-PMC API in order to be used during submission
+
+  tags:
+    - PMC Importer
+
+  responses:
+    $ref: '../model/SchedulerJobResponse.yaml'
