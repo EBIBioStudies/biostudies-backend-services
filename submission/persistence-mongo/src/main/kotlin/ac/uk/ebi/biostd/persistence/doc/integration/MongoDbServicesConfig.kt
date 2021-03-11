@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.persistence.doc.integration
 
+import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.persistence.common.service.CollectionDataService
 import ac.uk.ebi.biostd.persistence.common.service.StatsDataService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionDraftService
@@ -34,7 +35,8 @@ class MongoDbServicesConfig {
         submissionDocDataRepository,
         submissionRequestDocDataRepository,
         serializationService,
-        toExtSubmissionMapper)
+        toExtSubmissionMapper
+    )
 
     @Bean
     internal fun projectDataService(
@@ -48,11 +50,12 @@ class MongoDbServicesConfig {
     internal fun submissionDraftMongoService(
         submissionDraftDocDataRepository: SubmissionDraftDocDataRepository,
         submissionQueryService: SubmissionQueryService,
-        extSerializationService: ExtSerializationService
+        serializationService: SerializationService
     ): SubmissionDraftService = SubmissionDraftMongoService(
         submissionDraftDocDataRepository,
         submissionQueryService,
-        extSerializationService)
+        serializationService
+    )
 
     @Bean
     internal fun submissionMongoMetaQueryService(
