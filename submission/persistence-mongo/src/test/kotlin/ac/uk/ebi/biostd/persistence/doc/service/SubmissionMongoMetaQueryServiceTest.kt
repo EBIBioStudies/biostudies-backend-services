@@ -1,6 +1,8 @@
 package ac.uk.ebi.biostd.persistence.doc.service
 
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
+import ac.uk.ebi.biostd.integration.SerializationConfig
+import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionMongoRepository
 import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbServicesConfig
 import ac.uk.ebi.biostd.persistence.doc.model.DocAttribute
@@ -87,7 +89,10 @@ internal class SubmissionMongoMetaQueryServiceTest(
         }
 
         @Bean
-        fun extSerializationService() = ExtSerializationService()
+        fun extSerializationService(): ExtSerializationService = ExtSerializationService()
+
+        @Bean
+        fun serializationService(): SerializationService = SerializationConfig.serializationService()
     }
 
     companion object {
