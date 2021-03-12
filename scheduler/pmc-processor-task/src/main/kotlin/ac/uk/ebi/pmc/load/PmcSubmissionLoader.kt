@@ -43,7 +43,7 @@ class PmcSubmissionLoader(
         (1..WORKERS).map { launchProcessor(receiveChannel) }.joinAll()
 
         inputFilesDocService.reportProcessed(file)
-        moveFile(file, processedFolder)
+        moveFile(file, processedFolder.resolve(file.originalFile.name))
     }
 
     private fun moveFile(file: FileSpec, processed: File) {
