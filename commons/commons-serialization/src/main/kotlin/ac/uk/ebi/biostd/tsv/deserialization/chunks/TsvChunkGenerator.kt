@@ -27,9 +27,8 @@ import java.io.StringReader
 import java.util.Queue
 
 internal class TsvChunkGenerator(private val parser: CSVFormat = createParser()) {
-    fun chunks(pageTab: String): Queue<TsvChunk> {
-        return chunkLines(pageTab).split { it.isEmpty() }.mapTo(Lists.newLinkedList()) { createChunk(it) }
-    }
+    fun chunks(pageTab: String): Queue<TsvChunk> =
+        chunkLines(pageTab).split { it.isEmpty() }.mapTo(Lists.newLinkedList()) { createChunk(it) }
 
     private fun createChunk(body: List<TsvChunkLine>): TsvChunk {
         val header = body.first()
@@ -64,6 +63,7 @@ internal class TsvChunkGenerator(private val parser: CSVFormat = createParser())
         private fun createParser(): CSVFormat {
             return CSVFormat.DEFAULT
                 .withDelimiter(TAB)
+                .withQuote(null)
                 .withIgnoreSurroundingSpaces()
                 .withIgnoreEmptyLines(false)
                 .withCommentMarker(TSV_COMMENT)
