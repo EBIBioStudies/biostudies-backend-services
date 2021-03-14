@@ -54,8 +54,10 @@ internal class TsvChunkGenerator(private val parser: CsvParser = createParser())
         return parsedChunks.mapIndexed(this::asTsvChunkLine)
     }
 
-    private fun asTsvChunkLine(idx: Int, values: Array<String?>) : TsvChunkLine =
-        if (values.all { it.isNullOrBlank() }) TsvChunkLine(idx) else TsvChunkLine(idx, values.filterNotNull())
+    private fun asTsvChunkLine(idx: Int, values: Array<String?>): TsvChunkLine =
+        if (values.all { it.isNullOrBlank() }) TsvChunkLine(idx) else TsvChunkLine(idx, asList(values))
+
+    private fun asList(values: Array<String?>) = values.map { it.orEmpty() }.toList()
 
     companion object {
         private fun createParser(): CsvParser {
@@ -64,7 +66,6 @@ internal class TsvChunkGenerator(private val parser: CsvParser = createParser())
             settings.format.delimiter = TAB
             settings.format.comment = TSV_COMMENT
             settings.skipEmptyLines = false
-            settings.emptyValue = EMPTY
             return CsvParser(settings)
         }
     }

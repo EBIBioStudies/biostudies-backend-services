@@ -42,12 +42,6 @@ fun basicSubmissionWithComments() = tsv {
     line("# Yet another comment. It should be ignored")
 }
 
-fun submissionWithInvalidAttribute() = tsv {
-    line("Submission", "S-EPMC124")
-    line("Title", "")
-    line()
-}
-
 fun submissionWithInvalidNameAttributeDetail() = tsv {
     line("Submission", "S-EPMC124")
     line("(Seq Type)", "RNA")

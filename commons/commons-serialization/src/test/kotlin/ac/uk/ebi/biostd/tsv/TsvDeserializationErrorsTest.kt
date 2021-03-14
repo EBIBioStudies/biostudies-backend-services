@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.tsv
 
-import ac.uk.ebi.biostd.test.submissionWithInvalidAttribute
 import ac.uk.ebi.biostd.test.submissionWithInvalidInnerSubsection
 import ac.uk.ebi.biostd.test.submissionWithInvalidNameAttributeDetail
 import ac.uk.ebi.biostd.test.submissionWithInvalidValueAttributeDetail
@@ -11,7 +10,6 @@ import ac.uk.ebi.biostd.validation.InvalidChunkSizeException
 import ac.uk.ebi.biostd.validation.InvalidElementException
 import ac.uk.ebi.biostd.validation.MISPLACED_ATTR_NAME
 import ac.uk.ebi.biostd.validation.MISPLACED_ATTR_VAL
-import ac.uk.ebi.biostd.validation.REQUIRED_ATTR_VALUE
 import ac.uk.ebi.biostd.validation.REQUIRED_TABLE_ROWS
 import ac.uk.ebi.biostd.validation.SerializationException
 import ebi.ac.uk.dsl.Tsv
@@ -75,10 +73,6 @@ class TsvDeserializationErrorsTest {
 
         assertThrows<InvalidChunkSizeException> { deserializer.deserializeElement<Link>(tsv) }
     }
-
-    @Test
-    fun `invalid attribute`() =
-        testInvalidElement(submissionWithInvalidAttribute(), REQUIRED_ATTR_VALUE)
 
     @Test
     fun `invalid name attribute detail`(): Unit =
