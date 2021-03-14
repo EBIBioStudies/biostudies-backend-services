@@ -1,4 +1,4 @@
-package uk.ac.ebi.biostd.client.cli
+package uk.ac.ebi.biostd.client.cli.commands
 
 import io.mockk.every
 import io.mockk.junit5.MockKExtension
@@ -6,7 +6,6 @@ import io.mockk.mockk
 import io.mockk.verify
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import uk.ac.ebi.biostd.client.cli.commands.DeleteCommand
 import uk.ac.ebi.biostd.client.cli.services.SubmissionDeleteRequest
 import uk.ac.ebi.biostd.client.cli.services.SubmissionService
 

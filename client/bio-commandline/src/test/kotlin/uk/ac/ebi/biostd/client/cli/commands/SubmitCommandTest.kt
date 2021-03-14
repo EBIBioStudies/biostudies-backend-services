@@ -1,4 +1,4 @@
-package uk.ac.ebi.biostd.client.cli
+package uk.ac.ebi.biostd.client.cli.commands
 
 import com.github.ajalt.clikt.core.IncorrectOptionValueCount
 import com.github.ajalt.clikt.core.MissingParameter
