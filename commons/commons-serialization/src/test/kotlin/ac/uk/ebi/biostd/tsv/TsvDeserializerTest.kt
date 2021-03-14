@@ -65,7 +65,7 @@ class TsvDeserializerTest {
         val result = deserializer.deserialize(submissionWithQuoteValue().toString())
 
         assertThat(result).isEqualTo(submission("S-EPMC123") {
-            attribute("Title", "\"Submission\" title")
+            attribute("Title", "The \"Submission\" title")
         })
     }
 

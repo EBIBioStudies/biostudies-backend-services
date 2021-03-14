@@ -21,7 +21,7 @@ fun submissionWithEmptyAttribute() = tsv {
 
 fun submissionWithQuoteValue() = tsv {
     line("Submission", "S-EPMC123")
-    line("Title", "\"Submission\" title")
+    line("Title", "The \"Submission\" title")
     line()
 }
 

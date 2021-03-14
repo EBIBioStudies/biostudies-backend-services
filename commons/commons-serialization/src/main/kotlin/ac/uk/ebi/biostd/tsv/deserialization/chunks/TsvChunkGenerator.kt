@@ -13,6 +13,9 @@ import ac.uk.ebi.biostd.tsv.deserialization.model.SubSectionTableChunk
 import ac.uk.ebi.biostd.tsv.deserialization.model.TsvChunk
 import ac.uk.ebi.biostd.tsv.deserialization.model.TsvChunkLine
 import com.google.common.collect.Lists
+import com.univocity.parsers.csv.CsvParser
+import com.univocity.parsers.csv.CsvParserSettings
+import ebi.ac.uk.base.EMPTY
 import ebi.ac.uk.base.like
 import ebi.ac.uk.model.constants.FileFields
 import ebi.ac.uk.model.constants.LinkFields
@@ -21,14 +24,15 @@ import ebi.ac.uk.model.constants.TABLE_REGEX
 import ebi.ac.uk.util.collections.findThird
 import ebi.ac.uk.util.collections.split
 import ebi.ac.uk.util.regex.findGroup
-import org.apache.commons.csv.CSVFormat
-import org.apache.commons.csv.CSVRecord
 import java.io.StringReader
 import java.util.Queue
 
-internal class TsvChunkGenerator(private val parser: CSVFormat = createParser()) {
-    fun chunks(pageTab: String): Queue<TsvChunk> =
-        chunkLines(pageTab).split { it.isEmpty() }.mapTo(Lists.newLinkedList()) { createChunk(it) }
+internal class TsvChunkGenerator(private val parser: CsvParser = createParser()) {
+    fun chunks(pageTab: String): Queue<TsvChunk> {
+        return chunkLines(pageTab)
+            .split { it.isEmpty() }
+            .mapTo(Lists.newLinkedList()) { createChunk(it) }
+    }
 
     private fun createChunk(body: List<TsvChunkLine>): TsvChunk {
         val header = body.first()
@@ -46,27 +50,22 @@ internal class TsvChunkGenerator(private val parser: CSVFormat = createParser())
     }
 
     private fun chunkLines(pageTab: String): List<TsvChunkLine> {
-        val parsedChunks = parser.parse(StringReader(pageTab))
-
-        return parsedChunks.mapIndexed { idx, csvRecord ->
-            val record = csvRecord.asList()
-            when {
-                record.all(String::isBlank) -> TsvChunkLine(idx, emptyList())
-                else -> TsvChunkLine(idx, record)
-            }
-        }
+        val parsedChunks = parser.parseAll(StringReader(pageTab))
+        return parsedChunks.mapIndexed(this::asTsvChunkLine)
     }
 
-    private fun CSVRecord.asList(): List<String> = map { it }
+    private fun asTsvChunkLine(idx: Int, values: Array<String?>) : TsvChunkLine =
+        if (values.all { it.isNullOrBlank() }) TsvChunkLine(idx) else TsvChunkLine(idx, values.filterNotNull())
 
     companion object {
-        private fun createParser(): CSVFormat {
-            return CSVFormat.DEFAULT
-                .withDelimiter(TAB)
-                .withQuote(null)
-                .withIgnoreSurroundingSpaces()
-                .withIgnoreEmptyLines(false)
-                .withCommentMarker(TSV_COMMENT)
+        private fun createParser(): CsvParser {
+            val settings = CsvParserSettings()
+            settings.format.setLineSeparator("\n")
+            settings.format.delimiter = TAB
+            settings.format.comment = TSV_COMMENT
+            settings.skipEmptyLines = false
+            settings.emptyValue = EMPTY
+            return CsvParser(settings)
         }
     }
 }
