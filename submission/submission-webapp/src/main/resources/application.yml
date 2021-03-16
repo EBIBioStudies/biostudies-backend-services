@@ -64,3 +64,5 @@ app:
     requireActivation: # Indicates whether or not, new user need activation before being used
   persistence:
     enableMongo: false
+  validator:
+    euToxRiskValidationApi: # EU-ToxRisk validation API

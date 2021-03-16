@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.submission.submitter
 import ac.uk.ebi.biostd.persistence.common.request.SaveSubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestService
+import ac.uk.ebi.biostd.persistence.exception.CollectionValidationException
 import ac.uk.ebi.biostd.submission.exceptions.InvalidSubmissionException
 import ac.uk.ebi.biostd.submission.model.SubmissionRequest
 import ac.uk.ebi.biostd.submission.service.AccNoService
@@ -13,6 +14,7 @@ import ac.uk.ebi.biostd.submission.service.CollectionResponse
 import ac.uk.ebi.biostd.submission.service.ParentInfoService
 import ac.uk.ebi.biostd.submission.service.TimesRequest
 import ac.uk.ebi.biostd.submission.service.TimesService
+import ac.uk.ebi.biostd.submission.validator.collection.CollectionValidator
 import ebi.ac.uk.base.orFalse
 import ebi.ac.uk.extended.mapping.from.toExtAttribute
 import ebi.ac.uk.extended.mapping.from.toExtSection
@@ -33,8 +35,10 @@ import ebi.ac.uk.model.extensions.attachTo
 import ebi.ac.uk.model.extensions.releaseDate
 import ebi.ac.uk.model.extensions.rootPath
 import ebi.ac.uk.model.extensions.title
+import ebi.ac.uk.util.collections.ifNotEmpty
 import ebi.ac.uk.util.date.isBeforeOrEqual
 import mu.KotlinLogging
+import org.springframework.beans.factory.BeanFactory
 import java.time.OffsetDateTime
 import java.util.UUID
 
@@ -111,15 +115,15 @@ class SubmissionSubmitter(
     ): ExtSubmission {
         val previousVersion = queryService.findLatestBasicByAccNo(submission.accNo)
         val isNew = previousVersion == null
-        val (parentTags, parentReleaseTime, parentPattern) = parentInfoService.getParentInfo(submission.attachTo)
+        val (parentTags, parentReleaseTime, parentPattern) = parentInfoService.getParentInfo(submission, source)
         val (createTime, modTime, releaseTime) = getTimes(submission, previousVersion?.creationTime, parentReleaseTime)
         val released = releaseTime?.isBeforeOrEqual(OffsetDateTime.now()).orFalse()
         val accNo = getAccNumber(submission, isNew, submitter, parentPattern)
         val accNoString = accNo.toString()
-        val projectInfo = getProjectInfo(submitter, submission, accNoString, isNew)
+        val collectionInfo = getCollectionInfo(submitter, submission, accNoString, isNew)
         val secretKey = previousVersion?.secretKey ?: UUID.randomUUID().toString()
         val relPath = accNoService.getRelPath(accNo)
-        val tags = getTags(parentTags, projectInfo)
+        val tags = getTags(parentTags, collectionInfo)
         val ownerEmail = onBehalfUser?.email ?: previousVersion?.owner ?: submitter.email
 
         return ExtSubmission(
@@ -158,8 +162,8 @@ class SubmissionSubmitter(
         return tags
     }
 
-    private fun getProjectInfo(user: User, submission: Submission, accNo: String, isNew: Boolean): CollectionResponse? {
-        val request = CollectionRequest(user.email, submission.section.type, submission.accNoTemplate, accNo, isNew)
+    private fun getCollectionInfo(user: User, sub: Submission, accNo: String, isNew: Boolean): CollectionResponse? {
+        val request = CollectionRequest(user.email, sub.section.type, sub.accNoTemplate, accNo, isNew)
         return collectionInfoService.process(request)
     }
 

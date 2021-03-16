@@ -8,21 +8,22 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.asBasicSubmission
 import ac.uk.ebi.biostd.persistence.exception.CollectionNotFoundException
 import ac.uk.ebi.biostd.persistence.exception.CollectionWithoutPatternException
+import ebi.ac.uk.model.constants.SubFields
 import ebi.ac.uk.model.constants.SubFields.ACC_NO_TEMPLATE
-import java.time.ZoneOffset
+import ebi.ac.uk.model.constants.SubFields.COLLECTION_VALIDATOR
+import java.time.ZoneOffset.UTC
 
 class SubmissionMongoMetaQueryService(
     private val submissionDocDataRepository: SubmissionDocDataRepository
 ) : SubmissionMetaQueryService {
-
     override fun getBasicCollection(accNo: String): BasicCollection {
-        val projectDb: DocSubmission? = submissionDocDataRepository.findByAccNo(accNo)
-        require(projectDb != null) { throw CollectionNotFoundException(accNo) }
+        val collection: DocSubmission? = submissionDocDataRepository.findByAccNo(accNo)
+        require(collection != null) { throw CollectionNotFoundException(accNo) }
 
-        val projectPattern = projectDb.attributes.firstOrNull { it.name == ACC_NO_TEMPLATE.value }?.value
-            ?: throw CollectionWithoutPatternException(accNo)
+        val validator = collection.attrValue(COLLECTION_VALIDATOR)
+        val collectionPattern = collection.attrValue(ACC_NO_TEMPLATE) ?: throw CollectionWithoutPatternException(accNo)
 
-        return BasicCollection(projectDb.accNo, projectPattern, projectDb.releaseTime?.atOffset(ZoneOffset.UTC))
+        return BasicCollection(collection.accNo, collectionPattern, validator, collection.releaseTime?.atOffset(UTC))
     }
 
     override fun findLatestBasicByAccNo(accNo: String): BasicSubmission? =
@@ -32,4 +33,6 @@ class SubmissionMongoMetaQueryService(
         submissionDocDataRepository.getCollections(accNo).map { it.accNo }
 
     override fun existByAccNo(accNo: String): Boolean = submissionDocDataRepository.existsByAccNo(accNo)
+
+    private fun DocSubmission.attrValue(name: SubFields) = attributes.firstOrNull { it.name == name.value }?.value
 }

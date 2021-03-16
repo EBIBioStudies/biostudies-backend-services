@@ -42,7 +42,8 @@ enum class SubFields(override val value: String) : Fields {
     SECRET("secretKey"),
     ATTACH_TO("AttachTo"),
     ON_BEHALF("onBehalf"),
-    ACC_NO_TEMPLATE("AccNoTemplate");
+    ACC_NO_TEMPLATE("AccNoTemplate"),
+    COLLECTION_VALIDATOR("CollectionValidator");
 
     override fun toString(): String {
         return value
