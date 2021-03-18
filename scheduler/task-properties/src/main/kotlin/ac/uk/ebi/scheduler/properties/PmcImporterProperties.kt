@@ -6,6 +6,17 @@ private const val APP_NAME = "pmc-processor-task-1.0.0.jar"
 
 class PmcImporterProperties : BaseAppProperty {
 
+    lateinit var mode: PmcMode
+    lateinit var temp: String
+    lateinit var mongodbUri: String
+    lateinit var mongodbDatabase: String
+    lateinit var notificationsUrl: String
+
+    var path: String? = null
+    var bioStudiesUrl: String? = null
+    var bioStudiesUser: String? = null
+    var bioStudiesPassword: String? = null
+
     override fun asJavaCommand(location: String) =
         StringBuilder().apply {
             append("java -jar $location/$APP_NAME \\\n")
@@ -20,17 +31,6 @@ class PmcImporterProperties : BaseAppProperty {
             bioStudiesUser?.let { append("--app.data.bioStudiesUser=$it \\\n") }
             bioStudiesPassword?.let { append("--app.data.bioStudiesPassword=$it \\\n") }
         }.removeSuffix(" \\\n").toString()
-
-    lateinit var mode: PmcMode
-    lateinit var temp: String
-    lateinit var mongodbUri: String
-    lateinit var mongodbDatabase: String
-    lateinit var notificationsUrl: String
-
-    var path: String? = null
-    var bioStudiesUrl: String? = null
-    var bioStudiesUser: String? = null
-    var bioStudiesPassword: String? = null
 
     companion object {
 
