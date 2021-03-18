@@ -12,6 +12,9 @@ class BioStudiesCommandLine : CliktCommand() {
     }
 }
 
-fun main(args: Array<String>) = BioStudiesCommandLine()
-    .subcommands(SubmitCommand(SubmissionService()), DeleteCommand(SubmissionService()))
-    .main(args)
+fun main(args: Array<String>) {
+    val submissionService = SubmissionService()
+    BioStudiesCommandLine()
+        .subcommands(SubmitCommand(submissionService), DeleteCommand(submissionService))
+        .main(args)
+}
