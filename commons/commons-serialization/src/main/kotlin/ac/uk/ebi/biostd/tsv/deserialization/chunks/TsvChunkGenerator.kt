@@ -15,7 +15,6 @@ import ac.uk.ebi.biostd.tsv.deserialization.model.TsvChunkLine
 import com.google.common.collect.Lists
 import com.univocity.parsers.csv.CsvParser
 import com.univocity.parsers.csv.CsvParserSettings
-import ebi.ac.uk.base.EMPTY
 import ebi.ac.uk.base.like
 import ebi.ac.uk.model.constants.FileFields
 import ebi.ac.uk.model.constants.LinkFields
@@ -60,13 +59,18 @@ internal class TsvChunkGenerator(private val parser: CsvParser = createParser())
     private fun asList(values: Array<String?>) = values.map { it.orEmpty() }.toList()
 
     companion object {
-        private fun createParser(): CsvParser {
-            val settings = CsvParserSettings()
-            settings.format.setLineSeparator("\n")
-            settings.format.delimiter = TAB
-            settings.format.comment = TSV_COMMENT
-            settings.skipEmptyLines = false
-            return CsvParser(settings)
+        private fun createParser() = CsvParser(createParseSettings())
+
+        /**
+         * Create CSV parser function which allow to quote special characters or multiline values as "the \n value" but
+         * at the same time allows using them explicitly like in 'the "final" version'.
+         *
+         */
+        private fun createParseSettings() = CsvParserSettings().apply {
+            format.setLineSeparator("\n")
+            format.delimiter = TAB
+            format.comment = TSV_COMMENT
+            skipEmptyLines = false
         }
     }
 }

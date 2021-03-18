@@ -1,7 +1,6 @@
 package ac.uk.ebi.biostd.json.deserialization
 
 import ac.uk.ebi.biostd.json.JsonSerializer
-import ac.uk.ebi.biostd.json.exception.NoAttributeValueException
 import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.model.Attribute
@@ -11,7 +10,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import uk.ac.ebi.serialization.extensions.deserialize
 
-class AttributeDeserializerTest {
+class AttributeJsonDeserializerTest {
     private val testInstance = JsonSerializer.mapper
 
     @Test
@@ -22,13 +21,24 @@ class AttributeDeserializerTest {
     }
 
     @Test
-    fun `deserialize no value`() {
-        val exception = assertThrows<NoAttributeValueException> { testInstance.deserialize<Attribute>("""{
+    fun `deserialize empty value`() {
+        val attribute = testInstance.deserialize<Attribute>("""{
             |"name": "attr name",
             |"value": ""
-            |}""".trimMargin()) }
+            |}""".trimMargin())
 
-        assertThat(exception.message).isEqualTo("The value for the attribute 'attr name' can't be empty")
+        assertThat(attribute.name).isEqualTo("attr name")
+        assertThat(attribute.value).isEmpty()
+    }
+
+    @Test
+    fun `deserialize no value`() {
+        val attribute = testInstance.deserialize<Attribute>("""{
+            |"name": "attr name"
+            |}""".trimMargin())
+
+        assertThat(attribute.name).isEqualTo("attr name")
+        assertThat(attribute.value).isEmpty()
     }
 
     @Test
