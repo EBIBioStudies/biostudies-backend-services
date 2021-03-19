@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.submission.submitter
 
+import ac.uk.ebi.biostd.json.exception.NoAttributeValueException
 import ac.uk.ebi.biostd.persistence.common.request.SaveSubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestService
@@ -16,6 +17,7 @@ import ac.uk.ebi.biostd.submission.service.TimesService
 import ebi.ac.uk.base.orFalse
 import ebi.ac.uk.extended.mapping.from.toExtAttribute
 import ebi.ac.uk.extended.mapping.from.toExtSection
+import ebi.ac.uk.extended.model.ExtAttribute
 import ebi.ac.uk.extended.model.ExtCollection
 import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.ExtSubmission
@@ -163,14 +165,16 @@ class SubmissionSubmitter(
         return collectionInfoService.process(request)
     }
 
-    private fun getAttributes(submission: Submission) = submission.attributes
-        .filterNot { SUBMISSION_RESERVED_ATTRIBUTES.contains(it.name) }
-        .map { it.toExtAttribute() }
+    private fun getAttributes(submission: Submission): List<ExtAttribute> {
+        return submission.attributes
+            .onEach { require(it.value.isNotEmpty()) { throw NoAttributeValueException(it.value) } }
+            .filterNot { SUBMISSION_RESERVED_ATTRIBUTES.contains(it.name) }
+            .map { it.toExtAttribute() }
+    }
 
     private fun getAccNumber(sub: Submission, isNew: Boolean, user: User, parentPattern: String?): AccNumber {
         val accNo = sub.accNo.ifBlank { null }
         val request = AccNoServiceRequest(user.email, accNo, isNew, sub.attachTo, parentPattern)
-
         return accNoService.calculateAccNo(request)
     }
 

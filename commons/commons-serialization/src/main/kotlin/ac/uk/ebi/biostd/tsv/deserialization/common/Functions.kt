@@ -6,7 +6,6 @@ import ac.uk.ebi.biostd.validation.INVALID_TABLE_ROW
 import ac.uk.ebi.biostd.validation.InvalidElementException
 import ac.uk.ebi.biostd.validation.MISPLACED_ATTR_NAME
 import ac.uk.ebi.biostd.validation.MISPLACED_ATTR_VAL
-import ac.uk.ebi.biostd.validation.REQUIRED_ATTR_VALUE
 import ac.uk.ebi.biostd.validation.REQUIRED_TABLE_ROWS
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.AttributeDetail
@@ -20,7 +19,6 @@ internal inline fun validate(value: Boolean, lazyMessage: () -> String) {
 internal fun toAttributes(chunkLines: List<TsvChunkLine>): MutableList<Attribute> {
     val attributes: MutableList<Attribute> = mutableListOf()
     chunkLines.forEach { line ->
-        line.value.ifBlank { throw InvalidElementException(REQUIRED_ATTR_VALUE) }
         when {
             line.isNameDetail() -> addNameAttributeDetail(line.name(), line.value, attributes)
             line.isValueDetail() -> addValueAttributeDetail(line.name(), line.value, attributes)
