@@ -1,0 +1,39 @@
+get:
+  summary: Create Group Folder
+  description: Create a folder inside the group's directory.
+
+  tags:
+    - Group Files
+
+  parameters:
+    - in: header
+      name: X-SESSION-TOKEN
+      description: User authentication token
+      required: true
+    - in: path
+      name: groupName
+      description: The name of the group to create the folder.
+      required: true
+    - in: path
+      name: path
+      description: Path of the new folder.
+      required: false
+
+  requestBody:
+    required: true
+    content:
+      application/x-www-form-urlencoded:
+        schema:
+          type: object
+          properties:
+            fileName:
+              description: Name of the new folder
+              example: folder1
+              required: true
+              type: string
+
+  responses:
+    200:
+      description: OK
+    401:
+      description: Caused by an invalid X-SESSION-TOKEN

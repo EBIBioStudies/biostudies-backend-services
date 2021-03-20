@@ -1,0 +1,97 @@
+summary: Search Submissions
+description: Search for submissions that belong to the user and match the given parameters.
+
+tags:
+  - Search Submissions
+
+parameters:
+  - in: header
+    name: X-SESSION-TOKEN
+    description: User authentication token
+    required: true
+    type: string
+
+  - in: query
+    name: offset
+    description: Page number
+    required: true
+    type: number
+  - in: query
+    name: limit
+    description: Limit of the search result
+    required: true
+    type: number
+  - in: query
+    name: accNo
+    description: Search for submissions with the given accession number.
+    required: false
+    type: string
+  - in: query
+    name: version
+    description: Search for submissions with the given version.
+    required: false
+    type: string
+  - in: query
+    name: type
+    description: Search for submissions with the given type. It should be either FILE or PAGE_TAB.
+    required: false
+    type: string
+  - in: query
+    name: rTimeFrom
+    description: Search for submissions which release time is past the given date. The date should be in ISO format.
+    example: "2019-09-24T09:41:44.000Z"
+    required: false
+    type: string
+  - in: query
+    name: rTimeTo
+    description: Search for submissions which release time is before the given date. The date should be in ISO format.
+    example: "2019-09-24T09:41:44.000Z"
+    required: false
+    type: string
+  - in: query
+    name: keywords
+    description: Search for submissions which title contains the given keyword.
+    required: false
+    type: string
+  - in: query
+    name: released
+    description: Search for submissions based on their visibility.  True for public submissions, false for private.
+    required: false
+    type: boolean
+
+responses:
+  200:
+    description: OK
+    content:
+      application/json:
+        schema:
+          type: array
+          items:
+            type: object
+            properties:
+              accno:
+                type: string
+                example: "S-BSST123"
+              title:
+                type: string
+                example: "Resubmission For Files"
+              version:
+                type: number
+                example: 2
+              ctime:
+                type: string
+                example: "2021-02-16T11:04:43.173Z"
+              mtime:
+                type: string
+                example: "2021-02-16T11:04:43.173Z"
+              rtime:
+                type: string
+                example: "2021-02-16T11:04:43.173Z"
+              method:
+                type: string
+                example: "FILE"
+              status:
+                type: string
+                example: "PROCESSED"
+  401:
+    description: Caused by an invalid X-SESSION-TOKEN

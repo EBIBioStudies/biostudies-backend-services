@@ -15,4 +15,8 @@ internal class SubmissionReleaserResource(private val submissionReleaserTrigger:
     @PostMapping("/api/releaser/notify")
     @ResponseBody
     fun notifySubmissionsRelease(): Job = submissionReleaserTrigger.triggerSubmissionReleaseNotifier()
+
+    @PostMapping("/api/releaser/ftp/generate")
+    @ResponseBody
+    fun generateFtpLinks(): Job = submissionReleaserTrigger.triggerFtpLinksGenerator()
 }

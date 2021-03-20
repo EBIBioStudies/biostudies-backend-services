@@ -4,6 +4,7 @@ import ac.uk.ebi.biostd.persistence.common.request.SaveSubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestService
+import ac.uk.ebi.biostd.persistence.exception.ExtSubmissionMappingException
 import ac.uk.ebi.biostd.submission.web.model.ExtPageRequest
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FileMode.COPY
@@ -20,7 +21,8 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
-import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageImpl
+import org.springframework.data.domain.Pageable
 
 @ExtendWith(MockKExtension::class)
 class ExtSubmissionServiceTest(
@@ -48,7 +50,7 @@ class ExtSubmissionServiceTest(
     }
 
     @Test
-    fun `filtering extended submissions`(@MockK page: Page<ExtSubmission>) {
+    fun `filtering extended submissions`(@MockK extSubmission: ExtSubmission) {
         val filter = slot<SubmissionFilter>()
         val request = ExtPageRequest(
             fromRTime = "2019-09-21T15:00:00Z",
@@ -57,14 +59,25 @@ class ExtSubmissionServiceTest(
             offset = 1,
             limit = 2)
 
-        every { submissionRepository.getExtendedSubmissions(capture(filter), 1, 2) } returns page
-        testInstance.getExtendedSubmissions(request)
+        val pageable = Pageable.unpaged()
+        val result1 = Result.success(extSubmission)
+        val result2 = Result.failure<ExtSubmission>(ExtSubmissionMappingException("S-TEST123", "error"))
+        val results = mutableListOf(result1, result2)
+        val page = PageImpl(results, pageable, 2L)
+
+        every { submissionRepository.getExtendedSubmissions(capture(filter)) } returns page
+
+        val result = testInstance.getExtendedSubmissions(request)
+        assertThat(result.content).hasSize(1)
+        assertThat(result.content.first()).isEqualTo(extSubmission)
+        assertThat(result.pageable).isEqualTo(pageable)
+        assertThat(result.totalElements).isEqualTo(1L)
 
         val submissionFilter = filter.captured
         assertThat(submissionFilter.released).isTrue()
         assertThat(submissionFilter.rTimeTo).isEqualTo("2020-09-21T15:00:00Z")
         assertThat(submissionFilter.rTimeFrom).isEqualTo("2019-09-21T15:00:00Z")
-        verify(exactly = 1) { submissionRepository.getExtendedSubmissions(submissionFilter, 1, 2) }
+        verify(exactly = 1) { submissionRepository.getExtendedSubmissions(submissionFilter) }
     }
 
     @Test

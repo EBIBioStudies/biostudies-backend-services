@@ -1,0 +1,28 @@
+get:
+  summary: Get Extended Submission
+  description: Get the extended submission model for the submission with the given accession number.
+
+  tags:
+    - Extended Submissions
+
+  parameters:
+    - in: header
+      name: X-SESSION-TOKEN
+      description: User authentication token
+      required: true
+      type: string
+    - in: path
+      name: accNo
+      description: Submission Accession Number
+      required: true
+      type: string
+
+  responses:
+    200:
+      description: OK
+      content:
+        application/json:
+          schema:
+            $ref: '../model/ExtSubmission.yaml'
+    401:
+      description: Caused by an invalid X-SESSION-TOKEN

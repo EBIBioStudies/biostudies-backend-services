@@ -4,6 +4,7 @@ import ac.uk.ebi.biostd.test.basicSubmission
 import ac.uk.ebi.biostd.test.basicSubmissionWithComments
 import ac.uk.ebi.biostd.test.basicSubmissionWithMultiline
 import ac.uk.ebi.biostd.test.submissionWithDetailedAttributes
+import ac.uk.ebi.biostd.test.submissionWithEmptyAttribute
 import ac.uk.ebi.biostd.test.submissionWithFiles
 import ac.uk.ebi.biostd.test.submissionWithFilesTable
 import ac.uk.ebi.biostd.test.submissionWithGenericRootSection
@@ -12,6 +13,7 @@ import ac.uk.ebi.biostd.test.submissionWithInnerSubsectionsTable
 import ac.uk.ebi.biostd.test.submissionWithLinks
 import ac.uk.ebi.biostd.test.submissionWithLinksTable
 import ac.uk.ebi.biostd.test.submissionWithMultipleLineBreaks
+import ac.uk.ebi.biostd.test.submissionWithQuoteValue
 import ac.uk.ebi.biostd.test.submissionWithRootSection
 import ac.uk.ebi.biostd.test.submissionWithSectionsTable
 import ac.uk.ebi.biostd.test.submissionWithSubsection
@@ -44,6 +46,26 @@ class TsvDeserializerTest {
             attribute("Title", "Basic Submission")
             attribute("DataSource", "EuropePMC")
             attribute("AttachTo", "EuropePMC")
+        })
+    }
+
+    @Test
+    fun `submission with empty attribute`() {
+        val result = deserializer.deserialize(submissionWithEmptyAttribute().toString())
+
+        assertThat(result).isEqualTo(submission("S-EPMC123") {
+            attribute("Title", "Basic Submission")
+            attribute("DataSource", "EuropePMC")
+            attribute("Abstract", "")
+        })
+    }
+
+    @Test
+    fun `submission with quoted value`() {
+        val result = deserializer.deserialize(submissionWithQuoteValue().toString())
+
+        assertThat(result).isEqualTo(submission("S-EPMC123") {
+            attribute("Title", "The \"Submission\" title")
         })
     }
 

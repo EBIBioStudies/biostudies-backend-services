@@ -7,11 +7,11 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestService
 import ac.uk.ebi.biostd.submission.model.SubmissionRequest
 import ac.uk.ebi.biostd.submission.service.AccNoService
 import ac.uk.ebi.biostd.submission.service.AccNoServiceRequest
+import ac.uk.ebi.biostd.submission.service.CollectionInfoService
+import ac.uk.ebi.biostd.submission.service.CollectionRequest
+import ac.uk.ebi.biostd.submission.service.CollectionResponse
 import ac.uk.ebi.biostd.submission.service.ParentInfo
 import ac.uk.ebi.biostd.submission.service.ParentInfoService
-import ac.uk.ebi.biostd.submission.service.ProjectInfoService
-import ac.uk.ebi.biostd.submission.service.ProjectRequest
-import ac.uk.ebi.biostd.submission.service.ProjectResponse
 import ac.uk.ebi.biostd.submission.service.Times
 import ac.uk.ebi.biostd.submission.service.TimesRequest
 import ac.uk.ebi.biostd.submission.service.TimesService
@@ -61,17 +61,18 @@ class SubmissionSubmitterTest {
     private val accNoService = mockk<AccNoService>()
     private val parentInfoService = mockk<ParentInfoService>()
     private val queryService = mockk<SubmissionMetaQueryService>()
-    private val projectInfoService = mockk<ProjectInfoService>()
+    private val collectionInfoService = mockk<CollectionInfoService>()
     private val submissionRequestService = mockk<SubmissionRequestService>()
     private val basicSubmission = mockk<BasicSubmission>()
 
     private val timesRequest = slot<TimesRequest>()
     private val saveRequest = slot<SaveSubmissionRequest>()
-    private val projectRequest = slot<ProjectRequest>()
+    private val projectRequest = slot<CollectionRequest>()
     private val accNoServiceRequest = slot<AccNoServiceRequest>()
+    private val processedSubmission = slot<ExtSubmission>()
 
     private val testInstance = SubmissionSubmitter(
-        timesService, accNoService, parentInfoService, projectInfoService, submissionRequestService, queryService)
+        timesService, accNoService, parentInfoService, collectionInfoService, submissionRequestService, queryService)
 
     @BeforeEach
     fun beforeEach() {
@@ -169,8 +170,8 @@ class SubmissionSubmitterTest {
         assertThat(expected.modificationTime).isEqualTo(testTime)
         assertThat(expected.creationTime).isEqualTo(testTime)
         assertThat(expected.tags).isEmpty()
-        assertThat(expected.projects).hasSize(1)
-        assertThat(expected.projects.first().accNo).isEqualTo("BioImages")
+        assertThat(expected.collections).hasSize(1)
+        assertThat(expected.collections.first().accNo).isEqualTo("BioImages")
         assertThat(expected.section.type).isEqualTo("Study")
         assertThat(expected.attributes).isEmpty()
     }
@@ -182,10 +183,11 @@ class SubmissionSubmitterTest {
         queryService.findLatestBasicByAccNo("S-TEST123")
 
         parentInfoService.getParentInfo("BioImages")
+        parentInfoService.executeCollectionValidators(processedSubmission.captured)
 
         timesService.getTimes(timesRequest.captured)
 
-        projectInfoService.process(projectRequest.captured)
+        collectionInfoService.process(projectRequest.captured)
     }
 
     private fun verifyPersistenceContextSync() = verify(exactly = 1) {
@@ -203,8 +205,9 @@ class SubmissionSubmitterTest {
         every { accNoService.calculateAccNo(capture(accNoServiceRequest)) } returns accNo
         every { queryService.findLatestBasicByAccNo("S-TEST123") } returns basicSubmission
         every { timesService.getTimes(capture(timesRequest)) } returns Times(testTime, testTime, null)
-        every { projectInfoService.process(capture(projectRequest)) } returns ProjectResponse("BioImages")
+        every { collectionInfoService.process(capture(projectRequest)) } returns CollectionResponse("BioImages")
         every { parentInfoService.getParentInfo("BioImages") } returns ParentInfo(emptyList(), null, "S-BIAD")
+        every { parentInfoService.executeCollectionValidators(capture(processedSubmission)) } answers { nothing }
     }
 
     private fun mockPersistenceContext() {

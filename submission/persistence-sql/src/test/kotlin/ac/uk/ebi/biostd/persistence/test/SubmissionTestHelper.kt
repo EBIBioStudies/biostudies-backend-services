@@ -4,11 +4,11 @@ import ac.uk.ebi.biostd.persistence.model.DbAccessTag
 import ac.uk.ebi.biostd.persistence.model.DbSubmission
 import ac.uk.ebi.biostd.persistence.model.DbTag
 import ac.uk.ebi.biostd.persistence.model.DbUser
+import ebi.ac.uk.extended.model.ExtCollection
 import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod
 import ebi.ac.uk.extended.model.ExtTag
-import ebi.ac.uk.extended.model.Project
 import ebi.ac.uk.model.constants.ProcessingStatus
 import org.assertj.core.api.Assertions.assertThat
 import java.time.OffsetDateTime
@@ -45,15 +45,15 @@ internal val extSubmission
         releaseTime = releaseTime,
         creationTime = creationTime,
         tags = listOf(extTag),
-        projects = listOf(project),
+        collections = listOf(extCollection),
         section = extSection
     )
 
 internal val extTag: ExtTag
     get() = ExtTag("name", "value")
 
-internal val project: Project
-    get() = Project("access-tag")
+internal val extCollection: ExtCollection
+    get() = ExtCollection("access-tag")
 
 internal fun assertSubmission(
     submission: DbSubmission,

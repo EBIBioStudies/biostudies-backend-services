@@ -1,6 +1,7 @@
 package ebi.ac.uk.security.web
 
 import arrow.core.Option
+import ebi.ac.uk.base.isNotBlank
 import ebi.ac.uk.base.toOption
 import ebi.ac.uk.security.integration.components.ISecurityFilter
 import ebi.ac.uk.security.integration.model.api.SecurityUser
@@ -38,7 +39,7 @@ internal class SecurityFilter(
         val cookie = WebUtils.getCookie(httpRequest, "$COOKIE_NAME-$environment")
 
         return when {
-            header.isNullOrBlank().not() -> header.toOption()
+            header.isNotBlank() -> header.toOption()
             cookie != null && cookie.value.isNotBlank() -> cookie.value.toOption()
             else -> httpRequest.getParameter(COOKIE_NAME).toOption()
         }

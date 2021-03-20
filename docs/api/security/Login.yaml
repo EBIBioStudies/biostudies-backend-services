@@ -1,0 +1,86 @@
+post:
+  summary: Login
+  description: Retrieves the user authentication token.
+
+  tags:
+    - Security
+
+  requestBody:
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            login:
+              description: User login or email
+              example: "user@test.org"
+              required: true
+              type: string
+            password:
+              description: User password
+              example: 123456
+              required: true
+              type: string
+
+  responses:
+    200:
+      description: OK
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              sessid:
+                type: string
+                example: "<auth-token>"
+              email:
+                type: string
+                example: "user@test.org"
+              username:
+                type: string
+                example: "user"
+              secret:
+                type: string
+                example: "the-user-secret"
+              fullname:
+                type: string
+                example: "Test User"
+              superuser:
+                type: boolean
+                example: true
+              allow:
+                type: array
+                items:
+                  type: string
+                  example: "Public"
+              deny:
+                type: array
+                default: []
+              aux:
+                type: object
+                properties:
+                  orcid:
+                    type: string
+                    example: "<user orcid>"
+    400:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              status:
+                type: string
+                example: "FAIL"
+              log:
+                type: object
+                properties:
+                  level:
+                    type: string
+                    example: "ERROR"
+                  message:
+                    type: string
+                    example: "Invalid email address or password."
+                  subnodes:
+                    type: array
+                    default: []

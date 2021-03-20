@@ -67,5 +67,5 @@ class SubmissionReleaserProperties : BaseAppProperty {
 }
 
 enum class ReleaserMode {
-    NOTIFY, RELEASE
+    NOTIFY, RELEASE, GENERATE_FTP_LINKS
 }

@@ -5,9 +5,6 @@ import ac.uk.ebi.cluster.client.model.Job
 import ac.uk.ebi.cluster.client.model.JobSpec
 import ac.uk.ebi.cluster.client.model.MemorySpec
 import ac.uk.ebi.cluster.client.model.logsPath
-import uk.ac.ebi.scheduler.common.SYSTEM_NAME
-import uk.ac.ebi.scheduler.common.properties.AppProperties
-import uk.ac.ebi.scheduler.pmc.importer.api.PmcProcessorProp
 import ac.uk.ebi.scheduler.properties.PmcImporterProperties
 import ac.uk.ebi.scheduler.properties.PmcMode
 import ac.uk.ebi.scheduler.properties.PmcMode.LOAD
@@ -16,6 +13,9 @@ import ac.uk.ebi.scheduler.properties.PmcMode.SUBMIT
 import ebi.ac.uk.commons.http.slack.NotificationsSender
 import ebi.ac.uk.commons.http.slack.Report
 import mu.KotlinLogging
+import uk.ac.ebi.scheduler.common.SYSTEM_NAME
+import uk.ac.ebi.scheduler.common.properties.AppProperties
+import uk.ac.ebi.scheduler.pmc.importer.api.PmcProcessorProp
 
 private val logger = KotlinLogging.logger {}
 
@@ -111,6 +111,7 @@ private class PmcLoader(
             path = filePath,
             temp = properties.temp,
             mongodbUri = properties.mongoUri,
+            mongodbDatabase = properties.mongoDatabase,
             notificationsUrl = appProperties.notificationsUrl,
             bioStudiesUser = properties.bioStudiesUser,
             bioStudiesPassword = properties.bioStudiesPassword,

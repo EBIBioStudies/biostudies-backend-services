@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.client.integration.web
 
 import ac.uk.ebi.biostd.client.exception.SecurityWebClientErrorHandler
 import ac.uk.ebi.biostd.client.interceptor.ServerValidationInterceptor
+import ebi.ac.uk.api.security.CheckUserRequest
 import ebi.ac.uk.api.security.LoginRequest
 import ebi.ac.uk.api.security.RegisterRequest
 import ebi.ac.uk.api.security.UserProfile
@@ -13,17 +14,22 @@ class SecurityWebClient private constructor(
     private val baseUrl: String,
     private val restTemplate: RestTemplate
 ) : SecurityOperations {
-    override fun getAuthenticatedClient(user: String, password: String): BioWebClient =
-        BioWebClient.create(baseUrl, login(LoginRequest(user, password)).sessid)
 
-    override fun getAuthenticatedClient(user: String, password: String, onBehalf: String): BioWebClient =
-        BioWebClient.create(baseUrl, login(LoginRequest(user, password)).sessid, onBehalf)
+    override fun getAuthenticatedClient(user: String, password: String, onBehalf: String?): BioWebClient =
+        when (onBehalf) {
+            null -> BioWebClient.create(baseUrl, login(LoginRequest(user, password)).sessid)
+            else -> BioWebClient.create(baseUrl, login(LoginRequest(user, password)).sessid, onBehalf)
+        }
 
     override fun login(loginRequest: LoginRequest): UserProfile =
         restTemplate.postForObject("/auth/login", loginRequest)!!
 
     override fun registerUser(registerRequest: RegisterRequest) {
         restTemplate.postForLocation("/auth/register", registerRequest)
+    }
+
+    override fun checkUser(checkUserRequest: CheckUserRequest) {
+        restTemplate.postForLocation("/auth/check-user", checkUserRequest)
     }
 
     companion object {

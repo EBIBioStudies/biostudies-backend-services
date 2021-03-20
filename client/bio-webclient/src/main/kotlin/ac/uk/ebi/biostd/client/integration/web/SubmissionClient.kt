@@ -9,15 +9,16 @@ import ebi.ac.uk.api.UserFile
 import ebi.ac.uk.api.dto.NonRegistration
 import ebi.ac.uk.api.dto.RegisterConfig
 import ebi.ac.uk.api.dto.SubmissionDto
+import ebi.ac.uk.api.security.CheckUserRequest
 import ebi.ac.uk.api.security.LoginRequest
 import ebi.ac.uk.api.security.RegisterRequest
 import ebi.ac.uk.api.security.UserProfile
 import ebi.ac.uk.base.EMPTY
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.model.Collection
 import ebi.ac.uk.model.Group
-import ebi.ac.uk.model.Project
 import ebi.ac.uk.model.Submission
-import ebi.ac.uk.model.SubmissionDraft
+import ebi.ac.uk.model.WebSubmissionDraft
 import java.io.File
 
 interface SubmissionClient :
@@ -60,6 +61,8 @@ interface SubmissionOperations {
         register: RegisterConfig = NonRegistration
     ): SubmissionResponse
 
+    fun submitSingleFromDraft(draftKey: String)
+
     fun submitAsync(submission: String, format: SubmissionFormat = JSON, register: RegisterConfig = NonRegistration)
 
     fun refreshSubmission(accNo: String): SubmissionResponse
@@ -74,23 +77,24 @@ interface MultipartSubmissionOperations {
 }
 
 interface SecurityOperations {
-    fun getAuthenticatedClient(user: String, password: String): BioWebClient
-    fun getAuthenticatedClient(user: String, password: String, onBehalf: String): BioWebClient
+    fun getAuthenticatedClient(user: String, password: String, onBehalf: String? = null): BioWebClient
     fun login(loginRequest: LoginRequest): UserProfile
     fun registerUser(registerRequest: RegisterRequest)
+    fun checkUser(checkUserRequest: CheckUserRequest)
 }
 
 interface GeneralOperations {
     fun getGroups(): List<Group>
-    fun getProjects(): List<Project>
+    fun getCollections(): List<Collection>
+    fun generateFtpLink(relPath: String)
 }
 
 interface DraftSubmissionOperations {
-    fun getAllSubmissionDrafts(limit: Int = 15, offset: Int = 0): List<SubmissionDraft>
-    fun getSubmissionDraft(accNo: String): SubmissionDraft
+    fun getAllSubmissionDrafts(limit: Int = 15, offset: Int = 0): List<WebSubmissionDraft>
+    fun getSubmissionDraft(accNo: String): WebSubmissionDraft
     fun deleteSubmissionDraft(accNo: String)
     fun updateSubmissionDraft(accNo: String, content: String)
-    fun createSubmissionDraft(content: String): SubmissionDraft
+    fun createSubmissionDraft(content: String): WebSubmissionDraft
 }
 
 interface ExtSubmissionOperations {

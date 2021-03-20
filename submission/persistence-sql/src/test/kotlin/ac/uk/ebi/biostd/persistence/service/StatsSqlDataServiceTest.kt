@@ -1,10 +1,10 @@
 package ac.uk.ebi.biostd.persistence.service
 
+import ac.uk.ebi.biostd.persistence.common.exception.StatNotFoundException
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStat
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType.VIEWS
 import ac.uk.ebi.biostd.persistence.common.request.PaginationFilter
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
-import ac.uk.ebi.biostd.persistence.exception.StatNotFoundException
 import ac.uk.ebi.biostd.persistence.model.DbSubmissionStat
 import ac.uk.ebi.biostd.persistence.repositories.SubmissionStatsDataRepository
 import io.mockk.clearAllMocks

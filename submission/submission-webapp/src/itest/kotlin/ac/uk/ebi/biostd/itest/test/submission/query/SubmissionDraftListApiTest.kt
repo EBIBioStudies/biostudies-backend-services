@@ -5,7 +5,7 @@ import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ebi.ac.uk.dsl.json.jsonObj
-import ebi.ac.uk.model.SubmissionDraft
+import ebi.ac.uk.model.WebSubmissionDraft
 import ebi.ac.uk.util.collections.second
 import ebi.ac.uk.util.collections.third
 import io.github.glytching.junit.extension.folder.TemporaryFolder
@@ -36,7 +36,7 @@ internal class SubmissionDraftListApiTest(tempFolder: TemporaryFolder) : BaseInt
         private var serverPort: Int = 0
 
         private lateinit var webClient: BioWebClient
-        private lateinit var testDrafts: List<SubmissionDraft>
+        private lateinit var testDrafts: List<WebSubmissionDraft>
 
         @BeforeAll
         fun init() {
@@ -72,8 +72,8 @@ internal class SubmissionDraftListApiTest(tempFolder: TemporaryFolder) : BaseInt
             assertDraft(testDrafts.third().key, "ABC-2", page2.first())
         }
 
-        private fun createDrafts(): List<SubmissionDraft> {
-            val drafts = mutableListOf<SubmissionDraft>()
+        private fun createDrafts(): List<WebSubmissionDraft> {
+            val drafts = mutableListOf<WebSubmissionDraft>()
 
             for (idx in 0..2) {
                 val pageTab = jsonObj {
@@ -87,7 +87,7 @@ internal class SubmissionDraftListApiTest(tempFolder: TemporaryFolder) : BaseInt
             return drafts.toList()
         }
 
-        private fun assertDraft(key: String, accNo: String, draft: SubmissionDraft) {
+        private fun assertDraft(key: String, accNo: String, draft: WebSubmissionDraft) {
             assertThat(draft.key).isEqualTo(key)
             assertThat(draft.content.toString().contains(accNo)).isTrue()
         }

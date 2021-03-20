@@ -6,9 +6,9 @@ import TestVersions.JunitExtensionsVersion
 import TestVersions.JunitVersion
 import TestVersions.MockKVersion
 import TestVersions.RabbitmqMockVersion
+import TestVersions.TestContainerVersion
 import TestVersions.XmlUnitVersion
 import Versions.CliKtVersion
-import Versions.CommonsCsvVersion
 import Versions.CommonsIOVersion
 import Versions.CommonsLang3Version
 import Versions.GuavaVersion
@@ -38,6 +38,7 @@ import Versions.SpringBootVersion
 import Versions.SpringDataVersion
 import Versions.SpringVersion
 import Versions.SpringfoxSwaggerVersion
+import Versions.UnivocityParsersVersion
 import Versions.WoodstoxVersion
 import Versions.XlsxStreamerVersion
 import Versions.XmlBuilderVersion
@@ -52,6 +53,7 @@ object TestVersions {
     const val JsonPathAssertVersion = "2.4.0"
     const val JsonAssertVersion = "1.5.0"
     const val RabbitmqMockVersion = "1.1.0"
+    const val TestContainerVersion = "1.15.0"
 }
 
 object Versions {
@@ -69,7 +71,6 @@ object Versions {
 
     const val CommonsLang3Version = "3.8.1"
     const val CommonsIOVersion = "2.6"
-    const val CommonsCsvVersion = "1.7"
     const val MySqlVersion = "6.0.6"
     const val XmlBuilderVersion = "1.4.2"
     const val WoodstoxVersion = "5.1.0"
@@ -83,7 +84,7 @@ object Versions {
     const val JschVersion = "0.1.55"
     const val Retrofit2Version = "2.9.0"
     const val OkHttpLoggingVersion = "3.8.0"
-    const val JSONOrgVersion = "20090211"
+    const val JSONOrgVersion = "20201115"
     const val CliKtVersion = "1.7.0"
     const val RxJava2Version = "2.2.8"
     const val PoiVersion = "4.1.0"
@@ -91,6 +92,7 @@ object Versions {
     const val SpringfoxSwaggerVersion = "2.9.2"
     const val Log4JVersion = "1.7.29"
     const val JavaValidationApiVersion = "2.0.1.Final"
+    const val UnivocityParsersVersion = "2.9.1"
 }
 
 object TestDependencies {
@@ -117,6 +119,12 @@ object TestDependencies {
 
     const val JsonPathAssert = "com.jayway.jsonpath:json-path-assert:$JsonPathAssertVersion"
     const val JsonAssert = "org.skyscreamer:jsonassert:$JsonAssertVersion"
+
+    // Test Containers
+    const val TestContainerMysql = "org.testcontainers:mysql:$TestContainerVersion"
+    const val TestContainerMongoDb = "org.testcontainers:mongodb:$TestContainerVersion"
+    const val TestContainer = "org.testcontainers:testcontainers:$TestContainerVersion"
+    const val TestContainerJUnit = "org.testcontainers:junit-jupiter:$TestContainerVersion"
 }
 
 object Dependencies {
@@ -153,6 +161,7 @@ object Dependencies {
     const val SpringfoxSwaggerUI = "io.springfox:springfox-swagger-ui:$SpringfoxSwaggerVersion"
     const val Log4J = "org.slf4j:slf4j-simple:$Log4JVersion"
     const val JavaValidationApi = "javax.validation:validation-api:$JavaValidationApiVersion"
+    const val univocityParsers = "com.univocity:univocity-parsers:$UnivocityParsersVersion"
 
     // Kotlin specific
     const val KotlinStdLib = "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$KotlinVersion"
@@ -166,7 +175,6 @@ object Dependencies {
     const val ArrowData = "io.arrow-kt:arrow-data:$KotlinArrowVersion"
 
     // Apache
-    const val CommonsCsv = "org.apache.commons:commons-csv:$CommonsCsvVersion"
     const val CommonsLang3 = "org.apache.commons:commons-lang3:$CommonsLang3Version"
     const val CommonsIO = "commons-io:commons-io:$CommonsIOVersion"
     const val Poi = "org.apache.poi:poi:$PoiVersion"
@@ -177,6 +185,7 @@ object SpringBootDependencies {
     const val SpringBootStarter = "org.springframework.boot:spring-boot-starter"
     const val SpringBootStarterTest = "org.springframework.boot:spring-boot-starter-test"
     const val SpringBootStarterWeb = "org.springframework.boot:spring-boot-starter-web"
+    const val SpringBootStarterMongo = "org.springframework.boot:spring-boot-starter-data-mongodb"
     const val SpringBootAmqp = "org.springframework.boot:spring-boot-starter-amqp:$SpringBootVersion"
     const val SpringBootConfigurationProcessor = "org.springframework.boot:spring-boot-configuration-processor"
     const val SpringBootStarterActuator = "org.springframework.boot:spring-boot-starter-actuator"
@@ -188,4 +197,17 @@ object SpringBootDependencies {
     const val SpringBootStartedJetty = "org.springframework.boot:spring-boot-starter-jetty"
     const val SpringBootStartedAdminClient = "de.codecentric:spring-boot-admin-starter-client:$SpringAdminVersion"
     const val SpringBootStartedAdmin = "de.codecentric:spring-boot-admin-starter-server:$SpringAdminVersion"
+}
+
+object Projects {
+    const val CommonsUtil = ":commons:commons-util"
+    const val CommonsBio = ":commons:commons-bio"
+    const val CommonsSerialization = ":commons:commons-serialization"
+    const val CommonsModelExtended = ":commons:commons-model-extended"
+    const val CommonsModelExtendedMapping = ":commons:commons-model-extended-mapping"
+    const val CommonsModelExtendedSerialization = ":commons:commons-model-extended-serialization"
+    const val CommonsTest = ":commons:commons-test"
+    const val SubmissionConfig = ":submission:submission-config"
+    const val SubmissionPersistenceCommonApi = ":submission:persistence-common-api"
+    const val SubmissionPersistenceCommon = ":submission:persistence-common"
 }

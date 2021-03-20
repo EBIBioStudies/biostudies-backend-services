@@ -16,7 +16,7 @@ class UserCanNotUpdateSubmit(
 
 class UserCanNotSubmitProjectsException(
     user: String
-) : InvalidPermissionsException("The user $user is not allowed to submit projects")
+) : InvalidPermissionsException("The user $user is not allowed to submit collections")
 
 class UserCanNotSubmitToProjectException(
     user: String,

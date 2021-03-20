@@ -1,0 +1,9 @@
+post:
+  summary: Load PMC Input Files
+  description: Trigger the process to take the files provided by E-PMC in order to import the submissions.
+
+  tags:
+    - PMC Importer
+
+  responses:
+    $ref: '../model/SchedulerJobResponse.yaml'
