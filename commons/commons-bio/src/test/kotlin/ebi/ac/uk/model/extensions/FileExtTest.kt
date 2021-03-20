@@ -16,4 +16,10 @@ class FileExtTest {
         assertThat(file.attributes).hasSize(1)
         assertThat(file.attributes.first()).isEqualTo(Attribute(FileFields.TYPE, "Text"))
     }
+
+    @Test
+    fun extension() {
+        val file = File("/a/path/to/File1.txt")
+        assertThat(file.extension).isEqualTo("txt")
+    }
 }

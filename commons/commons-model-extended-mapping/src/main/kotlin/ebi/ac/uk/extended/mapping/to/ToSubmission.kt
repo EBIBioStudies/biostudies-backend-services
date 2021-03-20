@@ -3,7 +3,6 @@ package ebi.ac.uk.extended.mapping.to
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.Submission
-import ebi.ac.uk.model.constants.SubFields
 import ebi.ac.uk.model.constants.SubFields.ATTACH_TO
 import ebi.ac.uk.model.constants.SubFields.COLLECTION_VALIDATOR
 import ebi.ac.uk.model.constants.SubFields.PUBLIC_ACCESS_TAG

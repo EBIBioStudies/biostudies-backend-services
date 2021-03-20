@@ -1,14 +1,12 @@
 package ac.uk.ebi.biostd.submission.service
 
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
-import ac.uk.ebi.biostd.persistence.exception.CollectionValidationException
 import ac.uk.ebi.biostd.submission.exceptions.CollectionInvalidAccessTagException
 import ac.uk.ebi.biostd.submission.validator.collection.CollectionValidator
-import ebi.ac.uk.io.sources.FilesSource
-import ebi.ac.uk.model.Submission
+import ebi.ac.uk.base.ifFalse
+import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.extended.model.isCollection
 import ebi.ac.uk.model.constants.SubFields.PUBLIC_ACCESS_TAG
-import ebi.ac.uk.model.extensions.attachTo
-import ebi.ac.uk.util.collections.ifNotEmpty
 import org.springframework.beans.factory.BeanFactory
 import java.time.OffsetDateTime
 
@@ -16,17 +14,15 @@ class ParentInfoService(
     private val beanFactory: BeanFactory,
     private val queryService: SubmissionMetaQueryService
 ) {
-    fun getParentInfo(submission: Submission, source: FilesSource): ParentInfo = when (submission.attachTo) {
+    fun getParentInfo(parentAccNo: String?): ParentInfo = when (parentAccNo) {
         null -> ParentInfo(emptyList(), null, null)
-        else -> parentInfo(submission, source)
+        else -> parentInfo(parentAccNo)
     }
 
-    private fun parentInfo(submission: Submission, source: FilesSource): ParentInfo {
-        val parentAccNo = submission.attachTo!!
-        val (_, accNoPattern, validator, releaseTime) = queryService.getBasicCollection(parentAccNo)
-        validator?.let { validateSubmission(submission, source, it) }
+    private fun parentInfo(parentAccNo: String): ParentInfo {
+        val parentInfo = collectionInfo(parentAccNo)
 
-        return ParentInfo(accessTags(parentAccNo), releaseTime, accNoPattern)
+        return ParentInfo(accessTags(parentAccNo), parentInfo.releaseTime, parentInfo.accNoPattern)
     }
 
     private fun accessTags(parentAccNo: String): List<String> {
@@ -36,10 +32,19 @@ class ParentInfoService(
         return accessTags
     }
 
-    private fun validateSubmission(submission: Submission, source: FilesSource, validator: String) =
+    fun executeCollectionValidators(submission: ExtSubmission) = submission.isCollection.ifFalse {
+        submission
+            .collections
+            .mapNotNull { collectionInfo(it.accNo).validator }
+            .forEach { validate(it, submission) }
+    }
+
+    private fun collectionInfo(accNo: String) = queryService.getBasicCollection(accNo)
+
+    private fun validate(validator: String, submission: ExtSubmission) =
         beanFactory
             .getBean(validator, CollectionValidator::class.java)
-            .validate(submission, source)
+            .validate(submission)
 }
 
 data class ParentInfo(val accessTags: List<String>, val releaseTime: OffsetDateTime?, val parentTemplate: String?)

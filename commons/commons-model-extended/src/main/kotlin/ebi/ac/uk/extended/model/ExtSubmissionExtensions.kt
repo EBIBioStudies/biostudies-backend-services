@@ -8,5 +8,8 @@ val ExtSubmission.allSections
 val ExtSubmission.allFileList
     get(): List<ExtFileList> = allSections.mapNotNull { it.fileList }
 
+val ExtSubmission.allFiles
+    get(): List<ExtFile> = allSections.flatMap { it.allFiles }
+
 val ExtSubmission.isCollection
     get(): Boolean = section.type == PROJECT_TYPE

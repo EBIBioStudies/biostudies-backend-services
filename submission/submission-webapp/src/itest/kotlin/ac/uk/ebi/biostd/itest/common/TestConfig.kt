@@ -15,4 +15,10 @@ class TestConfig {
         securityService: SecurityService,
         groupService: IGroupService
     ) = SecurityTestService(securityService, userDataRepository, groupService)
+
+    @Bean(name = ["TestCollectionValidator"])
+    fun testCollectionValidator(): TestCollectionValidator = TestCollectionValidator()
+
+    @Bean(name = ["FailCollectionValidator"])
+    fun failCollectionValidator(): FailCollectionValidator = FailCollectionValidator()
 }

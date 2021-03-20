@@ -8,11 +8,16 @@ import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbServicesConfig
 import ac.uk.ebi.biostd.persistence.doc.model.DocAttribute
 import ac.uk.ebi.biostd.persistence.doc.model.DocProcessingStatus.PROCESSED
 import ac.uk.ebi.biostd.persistence.doc.service.SubmissionMongoMetaQueryServiceTest.TestConfig
+import ac.uk.ebi.biostd.persistence.doc.test.doc.RELEASE_TIME
 import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocSubmission
+import ac.uk.ebi.biostd.persistence.exception.CollectionNotFoundException
+import ac.uk.ebi.biostd.persistence.exception.CollectionWithoutPatternException
 import ebi.ac.uk.db.MONGO_VERSION
-import ebi.ac.uk.model.constants.SubFields
+import ebi.ac.uk.model.constants.SubFields.ACC_NO_TEMPLATE
+import ebi.ac.uk.model.constants.SubFields.COLLECTION_VALIDATOR
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -28,6 +33,7 @@ import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.utility.DockerImageName
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import java.nio.file.Files
+import java.time.ZoneOffset.UTC
 
 @ExtendWith(SpringExtension::class)
 @Testcontainers
@@ -36,19 +42,41 @@ internal class SubmissionMongoMetaQueryServiceTest(
     @Autowired val submissionMongoRepository: SubmissionMongoRepository,
     @Autowired val testInstance: SubmissionMongoMetaQueryService
 ) {
-
     @Test
-    fun getBasicProject() {
+    fun getBasicCollection() {
         submissionMongoRepository.save(testDocSubmission.copy(
-            accNo = "accNo1",
+            accNo = "EuToxRisk",
             version = 1,
             status = PROCESSED,
-            attributes = listOf(DocAttribute(SubFields.ACC_NO_TEMPLATE.value, "template"))
+            attributes = listOf(
+                DocAttribute(ACC_NO_TEMPLATE.value, "!{S-TOX}"),
+                DocAttribute(COLLECTION_VALIDATOR.value, "EuToxRiskValidator"))
         ))
 
-        val result = testInstance.getBasicCollection("accNo1")
+        val (accNo, accNoPattern, validator, releaseTime) = testInstance.getBasicCollection("EuToxRisk")
+        assertThat(accNo).isEqualTo("EuToxRisk")
+        assertThat(accNoPattern).isEqualTo("!{S-TOX}")
+        assertThat(validator).isEqualTo("EuToxRiskValidator")
+        assertThat(releaseTime).isEqualTo(RELEASE_TIME.atOffset(UTC))
+    }
 
-        assertThat(result.accNo).isEqualTo("accNo1")
+    @Test
+    fun `non existing collection`() {
+        val error = assertThrows<CollectionNotFoundException> { testInstance.getBasicCollection("NonExisting") }
+        assertThat(error.message).isEqualTo("The collection 'NonExisting' was not found")
+    }
+
+    @Test
+    fun `collection without pattern`() {
+        submissionMongoRepository.save(testDocSubmission.copy(
+            accNo = "PatternLess",
+            version = 1,
+            status = PROCESSED,
+            attributes = listOf(DocAttribute(COLLECTION_VALIDATOR.value, "PatternLessValidator"))
+        ))
+
+        val error = assertThrows<CollectionWithoutPatternException> { testInstance.getBasicCollection("PatternLess") }
+        assertThat(error.message).isEqualTo("The collection 'PatternLess' does not have a valid accession pattern")
     }
 
     @Test
@@ -80,7 +108,6 @@ internal class SubmissionMongoMetaQueryServiceTest(
     @Configuration
     @Import(MongoDbServicesConfig::class)
     class TestConfig {
-
         @Bean
         fun applicationProperties(): ApplicationProperties {
             val properties = ApplicationProperties()
