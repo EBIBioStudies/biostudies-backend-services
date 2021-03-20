@@ -14,11 +14,12 @@ class SecurityWebClient private constructor(
     private val baseUrl: String,
     private val restTemplate: RestTemplate
 ) : SecurityOperations {
-    override fun getAuthenticatedClient(user: String, password: String): BioWebClient =
-        BioWebClient.create(baseUrl, login(LoginRequest(user, password)).sessid)
 
-    override fun getAuthenticatedClient(user: String, password: String, onBehalf: String): BioWebClient =
-        BioWebClient.create(baseUrl, login(LoginRequest(user, password)).sessid, onBehalf)
+    override fun getAuthenticatedClient(user: String, password: String, onBehalf: String?): BioWebClient =
+        when (onBehalf) {
+            null -> BioWebClient.create(baseUrl, login(LoginRequest(user, password)).sessid)
+            else -> BioWebClient.create(baseUrl, login(LoginRequest(user, password)).sessid, onBehalf)
+        }
 
     override fun login(loginRequest: LoginRequest): UserProfile =
         restTemplate.postForObject("/auth/login", loginRequest)!!

@@ -14,25 +14,23 @@ import ebi.ac.uk.model.constants.SubFields.COLLECTION_VALIDATOR
 import java.time.ZoneOffset.UTC
 
 class SubmissionMongoMetaQueryService(
-    private val submissionDocDataRepository: SubmissionDocDataRepository
+    private val submissionRepository: SubmissionDocDataRepository
 ) : SubmissionMetaQueryService {
     override fun getBasicCollection(accNo: String): BasicCollection {
-        val collection: DocSubmission? = submissionDocDataRepository.findByAccNo(accNo)
-        require(collection != null) { throw CollectionNotFoundException(accNo) }
-
-        val validator = collection.attrValue(COLLECTION_VALIDATOR)
+        val collection = submissionRepository.findByAccNo(accNo) ?: throw CollectionNotFoundException(accNo)
         val collectionPattern = collection.attrValue(ACC_NO_TEMPLATE) ?: throw CollectionWithoutPatternException(accNo)
+        val validator = collection.attrValue(COLLECTION_VALIDATOR)
 
         return BasicCollection(collection.accNo, collectionPattern, validator, collection.releaseTime?.atOffset(UTC))
     }
 
     override fun findLatestBasicByAccNo(accNo: String): BasicSubmission? =
-        submissionDocDataRepository.findFirstByAccNoOrderByVersionDesc(accNo)?.asBasicSubmission()
+        submissionRepository.findFirstByAccNoOrderByVersionDesc(accNo)?.asBasicSubmission()
 
     override fun getAccessTags(accNo: String): List<String> =
-        submissionDocDataRepository.getCollections(accNo).map { it.accNo }
+        submissionRepository.getCollections(accNo).map { it.accNo }
 
-    override fun existByAccNo(accNo: String): Boolean = submissionDocDataRepository.existsByAccNo(accNo)
+    override fun existByAccNo(accNo: String): Boolean = submissionRepository.existsByAccNo(accNo)
 
     private fun DocSubmission.attrValue(name: SubFields) = attributes.firstOrNull { it.name == name.value }?.value
 }

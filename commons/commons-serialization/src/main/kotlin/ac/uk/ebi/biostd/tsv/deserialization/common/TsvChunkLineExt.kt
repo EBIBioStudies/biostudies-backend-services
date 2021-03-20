@@ -9,5 +9,4 @@ internal fun TsvChunkLine.name() =
     if ((isReference() || isNameDetail() || isValueDetail()).not()) name else name.substring(1, name.lastIndex)
 
 internal fun isNameDetail(attributeName: String) = attributeName.matches("\\(.+\\)".toRegex())
-
 internal fun isValueDetail(attributeName: String) = attributeName.matches("\\[.+\\]".toRegex())

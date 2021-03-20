@@ -13,6 +13,8 @@ import ac.uk.ebi.biostd.tsv.deserialization.model.SubSectionTableChunk
 import ac.uk.ebi.biostd.tsv.deserialization.model.TsvChunk
 import ac.uk.ebi.biostd.tsv.deserialization.model.TsvChunkLine
 import com.google.common.collect.Lists
+import com.univocity.parsers.csv.CsvParser
+import com.univocity.parsers.csv.CsvParserSettings
 import ebi.ac.uk.base.like
 import ebi.ac.uk.model.constants.FileFields
 import ebi.ac.uk.model.constants.LinkFields
@@ -21,14 +23,14 @@ import ebi.ac.uk.model.constants.TABLE_REGEX
 import ebi.ac.uk.util.collections.findThird
 import ebi.ac.uk.util.collections.split
 import ebi.ac.uk.util.regex.findGroup
-import org.apache.commons.csv.CSVFormat
-import org.apache.commons.csv.CSVRecord
 import java.io.StringReader
 import java.util.Queue
 
-internal class TsvChunkGenerator(private val parser: CSVFormat = createParser()) {
+internal class TsvChunkGenerator(private val parser: CsvParser = createParser()) {
     fun chunks(pageTab: String): Queue<TsvChunk> {
-        return chunkLines(pageTab).split { it.isEmpty() }.mapTo(Lists.newLinkedList()) { createChunk(it) }
+        return chunkLines(pageTab)
+            .split { it.isEmpty() }
+            .mapTo(Lists.newLinkedList()) { createChunk(it) }
     }
 
     private fun createChunk(body: List<TsvChunkLine>): TsvChunk {
@@ -47,26 +49,28 @@ internal class TsvChunkGenerator(private val parser: CSVFormat = createParser())
     }
 
     private fun chunkLines(pageTab: String): List<TsvChunkLine> {
-        val parsedChunks = parser.parse(StringReader(pageTab))
-
-        return parsedChunks.mapIndexed { idx, csvRecord ->
-            val record = csvRecord.asList()
-            when {
-                record.all(String::isBlank) -> TsvChunkLine(idx, emptyList())
-                else -> TsvChunkLine(idx, record)
-            }
-        }
+        val parsedChunks = parser.parseAll(StringReader(pageTab))
+        return parsedChunks.mapIndexed(this::asTsvChunkLine)
     }
 
-    private fun CSVRecord.asList(): List<String> = map { it }
+    private fun asTsvChunkLine(idx: Int, values: Array<String?>): TsvChunkLine =
+        if (values.all { it.isNullOrBlank() }) TsvChunkLine(idx) else TsvChunkLine(idx, asList(values))
+
+    private fun asList(values: Array<String?>) = values.map { it.orEmpty() }.toList()
 
     companion object {
-        private fun createParser(): CSVFormat {
-            return CSVFormat.DEFAULT
-                .withDelimiter(TAB)
-                .withIgnoreSurroundingSpaces()
-                .withIgnoreEmptyLines(false)
-                .withCommentMarker(TSV_COMMENT)
+        private fun createParser() = CsvParser(createParseSettings())
+
+        /**
+         * Create CSV parser function which allow to quote special characters or multiline values as "the \n value" but
+         * at the same time allows using them explicitly like in 'the "final" version'.
+         *
+         */
+        private fun createParseSettings() = CsvParserSettings().apply {
+            format.setLineSeparator("\n")
+            format.delimiter = TAB
+            format.comment = TSV_COMMENT
+            skipEmptyLines = false
         }
     }
 }
