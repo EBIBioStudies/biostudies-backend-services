@@ -13,7 +13,6 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
-import uk.ac.ebi.biostd.client.cli.commands.SubmitCommand
 import uk.ac.ebi.biostd.client.cli.services.SubmissionRequest
 import uk.ac.ebi.biostd.client.cli.services.SubmissionService
 

@@ -5,6 +5,7 @@ import ac.uk.ebi.cluster.client.model.Job
 import ac.uk.ebi.cluster.client.model.JobSpec
 import ac.uk.ebi.cluster.client.model.MemorySpec.Companion.EIGHT_GB
 import ac.uk.ebi.scheduler.properties.ReleaserMode
+import ac.uk.ebi.scheduler.properties.ReleaserMode.GENERATE_FTP_LINKS
 import ac.uk.ebi.scheduler.properties.ReleaserMode.NOTIFY
 import ac.uk.ebi.scheduler.properties.ReleaserMode.RELEASE
 import arrow.core.Try
@@ -63,6 +64,14 @@ class SubmissionReleaserTriggerTest(
 
         verifyClusterOperations()
         verifyJobSpecs(jobSpecs.captured, mode = NOTIFY)
+    }
+
+    @Test
+    fun triggerFtpLinksGenerator() {
+        trigger.triggerFtpLinksGenerator()
+
+        verifyClusterOperations()
+        verifyJobSpecs(jobSpecs.captured, mode = GENERATE_FTP_LINKS)
     }
 
     private fun verifyClusterOperations() {
