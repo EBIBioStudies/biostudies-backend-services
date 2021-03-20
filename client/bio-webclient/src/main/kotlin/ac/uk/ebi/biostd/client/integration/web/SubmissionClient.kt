@@ -15,8 +15,8 @@ import ebi.ac.uk.api.security.RegisterRequest
 import ebi.ac.uk.api.security.UserProfile
 import ebi.ac.uk.base.EMPTY
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.model.Collection
 import ebi.ac.uk.model.Group
-import ebi.ac.uk.model.Project
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.WebSubmissionDraft
 import java.io.File
@@ -61,6 +61,8 @@ interface SubmissionOperations {
         register: RegisterConfig = NonRegistration
     ): SubmissionResponse
 
+    fun submitSingleFromDraft(draftKey: String)
+
     fun submitAsync(submission: String, format: SubmissionFormat = JSON, register: RegisterConfig = NonRegistration)
 
     fun refreshSubmission(accNo: String): SubmissionResponse
@@ -75,8 +77,7 @@ interface MultipartSubmissionOperations {
 }
 
 interface SecurityOperations {
-    fun getAuthenticatedClient(user: String, password: String): BioWebClient
-    fun getAuthenticatedClient(user: String, password: String, onBehalf: String): BioWebClient
+    fun getAuthenticatedClient(user: String, password: String, onBehalf: String? = null): BioWebClient
     fun login(loginRequest: LoginRequest): UserProfile
     fun registerUser(registerRequest: RegisterRequest)
     fun checkUser(checkUserRequest: CheckUserRequest)
@@ -84,7 +85,7 @@ interface SecurityOperations {
 
 interface GeneralOperations {
     fun getGroups(): List<Group>
-    fun getProjects(): List<Project>
+    fun getCollections(): List<Collection>
     fun generateFtpLink(relPath: String)
 }
 

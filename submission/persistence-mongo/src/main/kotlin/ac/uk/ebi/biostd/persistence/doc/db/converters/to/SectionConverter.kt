@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.persistence.doc.db.converters.to
 
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.DOC_SEC_CLASS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.DOC_SEC_TABLE_CLASS
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.DOC_TABLE_SEC_CLASS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_ATTRIBUTES
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_FILES
@@ -17,9 +18,9 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocLink
 import ac.uk.ebi.biostd.persistence.doc.model.DocLinkTable
 import ac.uk.ebi.biostd.persistence.doc.model.DocSection
 import ac.uk.ebi.biostd.persistence.doc.model.DocSectionTable
+import ac.uk.ebi.biostd.persistence.doc.model.DocSectionTableRow
 import arrow.core.Either
 import org.bson.Document
-import org.springframework.core.convert.converter.Converter
 
 class SectionConverter(
     private val attributeConverter: AttributeConverter,
@@ -28,10 +29,13 @@ class SectionConverter(
     private val fileConverter: FileConverter,
     private val fileTableConverter: FileTableConverter,
     private val fileListConverter: FileListConverter
-) : Converter<DocSection, Document> {
-
-    override fun convert(section: DocSection): Document {
-        val sectionDoc = basicSection(section)
+) {
+    fun convert(section: DocSection): Document {
+        val sectionDoc = Document()
+        sectionDoc[classField] = DOC_SEC_CLASS
+        sectionDoc[SEC_ACC_NO] = section.accNo
+        sectionDoc[SEC_TYPE] = section.type
+        sectionDoc[SEC_ATTRIBUTES] = section.attributes.map { attributeConverter.convert(it) }
         sectionDoc[SEC_FILE_LIST] = section.fileList?.let { fileListConverter.convert(it) }
         sectionDoc[SEC_SECTIONS] = getSections(section.sections)
         sectionDoc[SEC_FILES] = getFiles(section.files)
@@ -39,9 +43,9 @@ class SectionConverter(
         return sectionDoc
     }
 
-    private fun basicSection(section: DocSection): Document {
+    private fun tableSection(section: DocSectionTableRow): Document {
         val sectionDoc = Document()
-        sectionDoc[classField] = DOC_SEC_CLASS
+        sectionDoc[classField] = DOC_TABLE_SEC_CLASS
         sectionDoc[SEC_ACC_NO] = section.accNo
         sectionDoc[SEC_TYPE] = section.type
         sectionDoc[SEC_ATTRIBUTES] = section.attributes.map { attributeConverter.convert(it) }
@@ -51,7 +55,7 @@ class SectionConverter(
     private fun sectionsTable(docSectionTable: DocSectionTable): Document {
         val sectionTableDocument = Document()
         sectionTableDocument[classField] = DOC_SEC_TABLE_CLASS
-        sectionTableDocument[SEC_TABLE_SECTIONS] = docSectionTable.sections.map { basicSection(it) }
+        sectionTableDocument[SEC_TABLE_SECTIONS] = docSectionTable.sections.map { tableSection(it) }
         return sectionTableDocument
     }
 

@@ -1,0 +1,10 @@
+post:
+  summary: Trigger Submission Notifier
+  description:
+    Trigger the process to notify the submissions that will be released soon according to the configured times.
+
+  tags:
+    - Submission Releaser
+
+  responses:
+    $ref: '../model/SchedulerJobResponse.yaml'

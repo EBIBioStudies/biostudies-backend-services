@@ -1,15 +1,21 @@
 package ac.uk.ebi.biostd.persistence.doc.service
 
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
+import ac.uk.ebi.biostd.integration.SerializationConfig
+import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionMongoRepository
 import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbServicesConfig
 import ac.uk.ebi.biostd.persistence.doc.model.DocAttribute
 import ac.uk.ebi.biostd.persistence.doc.model.DocProcessingStatus.PROCESSED
 import ac.uk.ebi.biostd.persistence.doc.service.SubmissionMongoMetaQueryServiceTest.TestConfig
 import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocSubmission
+import ac.uk.ebi.biostd.persistence.exception.CollectionNotFoundException
+import ac.uk.ebi.biostd.persistence.exception.CollectionWithoutPatternException
 import ebi.ac.uk.db.MONGO_VERSION
 import ebi.ac.uk.model.constants.SubFields
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatExceptionOfType
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
@@ -35,18 +41,37 @@ internal class SubmissionMongoMetaQueryServiceTest(
     @Autowired val testInstance: SubmissionMongoMetaQueryService
 ) {
 
-    @Test
-    fun getBasicProject() {
-        submissionMongoRepository.save(testDocSubmission.copy(
-            accNo = "accNo1",
-            version = 1,
-            status = PROCESSED,
-            attributes = listOf(DocAttribute(SubFields.ACC_NO_TEMPLATE.value, "template"))
-        ))
+    @Nested
+    inner class GetBasicCollection {
+        @Test
+        fun getBasicProject() {
+            submissionMongoRepository.save(testDocSubmission.copy(
+                accNo = "accNo1",
+                version = 1,
+                status = PROCESSED,
+                attributes = listOf(DocAttribute(SubFields.ACC_NO_TEMPLATE.value, "template"))
+            ))
 
-        val result = testInstance.getBasicProject("accNo1")
+            val result = testInstance.getBasicCollection("accNo1")
 
-        assertThat(result.accNo).isEqualTo("accNo1")
+            assertThat(result.accNo).isEqualTo("accNo1")
+        }
+
+        @Test
+        fun `get basic project when exist without project pattern`() {
+            submissionMongoRepository.save(testDocSubmission.copy(accNo = "accNo1A", version = 1, status = PROCESSED))
+
+            assertThatExceptionOfType(CollectionWithoutPatternException::class.java)
+                .isThrownBy { testInstance.getBasicCollection("accNo1A") }
+                .withMessage("The project 'accNo1A' does not have a valid accession pattern")
+        }
+
+        @Test
+        fun `get basic project when does not exist`() {
+            assertThatExceptionOfType(CollectionNotFoundException::class.java)
+                .isThrownBy { testInstance.getBasicCollection("accNo1B") }
+                .withMessage("The project 'accNo1B' was not found")
+        }
     }
 
     @Test
@@ -87,7 +112,10 @@ internal class SubmissionMongoMetaQueryServiceTest(
         }
 
         @Bean
-        fun extSerializationService() = ExtSerializationService()
+        fun extSerializationService(): ExtSerializationService = ExtSerializationService()
+
+        @Bean
+        fun serializationService(): SerializationService = SerializationConfig.serializationService()
     }
 
     companion object {

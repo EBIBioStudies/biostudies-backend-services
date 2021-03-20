@@ -2,8 +2,8 @@ package ac.uk.ebi.biostd.persistence.integration.config
 
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.persistence.common.filesystem.FileSystemService
+import ac.uk.ebi.biostd.persistence.common.service.CollectionDataService
 import ac.uk.ebi.biostd.persistence.common.service.PersistenceService
-import ac.uk.ebi.biostd.persistence.common.service.ProjectDataService
 import ac.uk.ebi.biostd.persistence.common.service.StatsDataService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
@@ -28,7 +28,7 @@ import ac.uk.ebi.biostd.persistence.repositories.SubmissionStatsDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.TagDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
-import ac.uk.ebi.biostd.persistence.repositories.data.ProjectSqlDataService
+import ac.uk.ebi.biostd.persistence.repositories.data.CollectionSqlDataService
 import ac.uk.ebi.biostd.persistence.repositories.data.SubmissionRepository
 import ac.uk.ebi.biostd.persistence.service.StatsSqlDataService
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
@@ -136,7 +136,7 @@ open class SqlPersistenceConfig(private val applicationProperties: ApplicationPr
     @ConditionalOnProperty(prefix = "app.persistence", name = ["enableMongo"], havingValue = "false")
     internal open fun projectDataService(
         submissionRepository: SubmissionDataRepository
-    ): ProjectDataService = ProjectSqlDataService(submissionRepository)
+    ): CollectionDataService = CollectionSqlDataService(submissionRepository)
 
     @Bean
     internal open fun userPermissionsService(

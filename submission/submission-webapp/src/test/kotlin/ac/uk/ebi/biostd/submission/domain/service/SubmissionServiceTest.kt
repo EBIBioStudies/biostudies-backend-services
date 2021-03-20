@@ -1,20 +1,26 @@
 package ac.uk.ebi.biostd.submission.domain.service
 
 import ac.uk.ebi.biostd.integration.SerializationService
+import ac.uk.ebi.biostd.persistence.common.request.SaveSubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.submission.model.SubmissionRequest
 import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
+import ebi.ac.uk.extended.events.SubmissionRequestMessage
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.extended.model.FileMode.COPY
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
+import io.mockk.slot
 import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.amqp.rabbit.core.RabbitTemplate
+import uk.ac.ebi.events.config.BIOSTUDIES_EXCHANGE
+import uk.ac.ebi.events.config.SUBMISSIONS_REQUEST_ROUTING_KEY
 import uk.ac.ebi.events.service.EventsPublisherService
 
 @ExtendWith(MockKExtension::class)
@@ -34,7 +40,8 @@ class SubmissionServiceTest(
         queryService,
         submissionSubmitter,
         eventsPublisherService,
-        rabbitTemplate)
+        rabbitTemplate
+    )
 
     @Test
     fun submit(
@@ -48,5 +55,41 @@ class SubmissionServiceTest(
         val submission = testInstance.submit(submissionRequest)
         assertThat(submission).isEqualTo(extSubmission)
         verify(exactly = 1) { eventsPublisherService.submissionSubmitted(extSubmission) }
+    }
+
+    @Test
+    fun submitAsync(
+        @MockK extSubmission: ExtSubmission,
+        @MockK submissionRequest: SubmissionRequest
+    ) {
+        val requestMessageSlot = slot<SubmissionRequestMessage>()
+        val saveSubmissionRequest = SaveSubmissionRequest(extSubmission, COPY, "TMP_123456")
+
+        every { extSubmission.version } returns 1
+        every { extSubmission.accNo } returns "S-BSST1"
+        every { extSubmission.submitter } returns "test@ebi.ac.uk"
+        every { submissionSubmitter.submitAsync(submissionRequest) } returns saveSubmissionRequest
+        every {
+            rabbitTemplate.convertAndSend(
+                BIOSTUDIES_EXCHANGE,
+                SUBMISSIONS_REQUEST_ROUTING_KEY,
+                capture(requestMessageSlot))
+        } answers { nothing }
+
+        testInstance.submitAsync(submissionRequest)
+        val requestMessage = requestMessageSlot.captured
+
+        assertAsyncRequestMessage(requestMessage)
+        verify(exactly = 1) {
+            submissionSubmitter.submitAsync(submissionRequest)
+            rabbitTemplate.convertAndSend(BIOSTUDIES_EXCHANGE, SUBMISSIONS_REQUEST_ROUTING_KEY, requestMessage)
+        }
+    }
+
+    private fun assertAsyncRequestMessage(requestMessage: SubmissionRequestMessage) {
+        assertThat(requestMessage.accNo).isEqualTo("S-BSST1")
+        assertThat(requestMessage.version).isEqualTo(1)
+        assertThat(requestMessage.fileMode).isEqualTo(COPY)
+        assertThat(requestMessage.draftKey).isEqualTo("TMP_123456")
     }
 }

@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.persistence.doc.test
 
 import ac.uk.ebi.biostd.persistence.doc.model.DocSection
 import ac.uk.ebi.biostd.persistence.doc.model.DocSectionTable
+import ac.uk.ebi.biostd.persistence.doc.model.DocSectionTableRow
 import ac.uk.ebi.biostd.persistence.doc.test.AttributeTestHelper.assertBasicExtAttribute
 import ac.uk.ebi.biostd.persistence.doc.test.AttributeTestHelper.assertFullExtAttribute
 import ac.uk.ebi.biostd.persistence.doc.test.AttributeTestHelper.basicDocAttribute
@@ -33,12 +34,18 @@ internal object SectionTestHelper {
         attributes = listOf(fullDocAttribute)
     )
 
+    private val docTableSection = DocSectionTableRow(
+        accNo = SUB_SECT_ACC_NO,
+        type = SUB_SECT_TYPE,
+        attributes = listOf(fullDocAttribute)
+    )
+
     val docSection = DocSection(
         accNo = SECT_ACC_NO,
         type = SECT_TYPE,
         fileList = docFileList,
         attributes = listOf(basicDocAttribute),
-        sections = listOf(left(docSubSection), right(DocSectionTable(listOf(docSubSection)))),
+        sections = listOf(left(docSubSection), right(DocSectionTable(listOf(docTableSection)))),
         files = listOf(left(docFile)),
         links = listOf(left(docLink))
     )

@@ -45,7 +45,7 @@ class SubmitWebHandler(
 
     fun submitAsync(request: ContentSubmitWebRequest) = submissionService.submitAsync(buildRequest(request))
 
-    fun submitAsync(request: FileSubmitWebRequest): Unit = submissionService.submitAsync(buildRequest(request))
+    fun submitAsync(request: FileSubmitWebRequest) = submissionService.submitAsync(buildRequest(request))
 
     private fun buildRequest(request: ContentSubmitWebRequest): SubmissionRequest {
         val sub = serializationService.deserializeSubmission(request.submission, request.format)
@@ -59,13 +59,15 @@ class SubmitWebHandler(
             subFolder = subFolder(previousVersion)
         ))
         val submission = withAttributes(submission(request.submission, request.format, source), request.attrs)
+
         return SubmissionRequest(
             submission = submission,
             submitter = request.submitter,
             onBehalfUser = request.onBehalfRequest?.let { getOnBehalfUser(it) },
             method = PAGE_TAB,
             sources = source,
-            mode = request.fileMode
+            mode = request.fileMode,
+            draftKey = request.draftKey
         )
     }
 

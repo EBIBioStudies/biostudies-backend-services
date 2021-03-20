@@ -37,6 +37,22 @@ class AttributeXmlDeserializerTest {
     }
 
     @Test
+    fun `deserialize with empty attribute`() {
+        val xmlAttribute = createXmlDocument(
+            xml("attribute") {
+                "name" { -"attr1" }
+            }.toString())
+
+        assertThat(testInstance.deserialize(xmlAttribute)).isEqualTo(
+            Attribute(
+                name = "attr1",
+                value = "",
+                reference = false,
+                nameAttrs = mutableListOf(),
+                valueAttrs = mutableListOf()))
+    }
+
+    @Test
     fun `deserialize reference attribute`() {
         val xmlAttribute = createXmlDocument(
             xml("attribute") {

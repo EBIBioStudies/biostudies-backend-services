@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.persistence.doc.integration
 
 import ac.uk.ebi.biostd.persistence.common.filesystem.FileSystemService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestService
+import ac.uk.ebi.biostd.persistence.doc.db.data.FileListDocFileDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDraftDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
@@ -10,6 +11,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
+import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 
 @Configuration
 @Import(MongoDbServicesConfig::class)
@@ -17,17 +19,22 @@ import org.springframework.context.annotation.Import
 class ExternalConfig {
 
     @Bean
+    @Suppress("LongParameterList")
     internal fun submissionRequestService(
         submissionDocDataRepository: SubmissionDocDataRepository,
+        serializationService: ExtSerializationService,
         submissionRequestDocDataRepository: SubmissionRequestDocDataRepository,
         submissionDraftDocDataRepository: SubmissionDraftDocDataRepository,
-        systemService: FileSystemService
+        systemService: FileSystemService,
+        fileListDocFileRepository: FileListDocFileDocDataRepository
     ): SubmissionRequestService {
         return SubmissionMongoPersistenceService(
             submissionDocDataRepository,
             submissionRequestDocDataRepository,
             submissionDraftDocDataRepository,
-            systemService
+            serializationService,
+            systemService,
+            fileListDocFileRepository
         )
     }
 }

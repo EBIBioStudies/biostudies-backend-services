@@ -2,8 +2,8 @@ package ac.uk.ebi.biostd.persistence.doc.db.converters.to
 
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields
 import ac.uk.ebi.biostd.persistence.doc.model.DocAttribute
+import ac.uk.ebi.biostd.persistence.doc.model.DocCollection
 import ac.uk.ebi.biostd.persistence.doc.model.DocProcessingStatus
-import ac.uk.ebi.biostd.persistence.doc.model.DocProject
 import ac.uk.ebi.biostd.persistence.doc.model.DocSection
 import ac.uk.ebi.biostd.persistence.doc.model.DocStat
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
@@ -14,6 +14,7 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import org.assertj.core.api.Assertions.assertThat
 import org.bson.Document
+import org.bson.types.ObjectId
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import java.time.Instant
@@ -91,12 +92,12 @@ internal class SubmissionConverterTest(
             section = docSection,
             attributes = listOf(docAttribute),
             tags = submissionTags,
-            projects = submissionProjects,
+            collections = submissionProjects,
             stats = submissionStats)
     }
 
     private companion object {
-        const val submissionId = "id"
+        val submissionId = ObjectId()
         const val submissionAccNo = "S-TEST1"
         const val submissionVersion = 1
         const val submissionOwner = "owner@mail.org"
@@ -115,7 +116,7 @@ internal class SubmissionConverterTest(
         val submissionTags = listOf(DocTag(docTagName, docTagValue))
 
         private const val docProjectAccNo = "BioImages"
-        val submissionProjects = listOf(DocProject(docProjectAccNo))
+        val submissionProjects = listOf(DocCollection(docProjectAccNo))
 
         private const val docStatName = "component"
         private const val docStatValue: Long = 1

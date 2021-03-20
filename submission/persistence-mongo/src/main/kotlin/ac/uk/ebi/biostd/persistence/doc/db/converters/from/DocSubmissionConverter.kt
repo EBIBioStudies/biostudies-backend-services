@@ -25,23 +25,21 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_VERSION
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.TAG_DOC_NAME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.TAG_DOC_VALUE
+import ac.uk.ebi.biostd.persistence.doc.model.DocCollection
 import ac.uk.ebi.biostd.persistence.doc.model.DocProcessingStatus
-import ac.uk.ebi.biostd.persistence.doc.model.DocProject
 import ac.uk.ebi.biostd.persistence.doc.model.DocStat
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionMethod
 import ac.uk.ebi.biostd.persistence.doc.model.DocTag
 import org.bson.Document
 import org.springframework.core.convert.converter.Converter
-import org.springframework.stereotype.Component
 
-@Component
 class DocSubmissionConverter(
     private val docSectionConverter: DocSectionConverter,
     private val docAttributeConverter: DocAttributeConverter
 ) : Converter<Document, DocSubmission> {
     override fun convert(source: Document): DocSubmission = DocSubmission(
-        id = source.getString(SUB_ID),
+        id = source.getObjectId(SUB_ID),
         accNo = source.getString(SUB_ACC_NO),
         version = source.getInteger(SUB_VERSION),
         owner = source.getString(SUB_OWNER),
@@ -59,7 +57,7 @@ class DocSubmissionConverter(
         section = docSectionConverter.convert(source.getDoc(SUB_SECTION)),
         attributes = source.getDocList(SUB_ATTRIBUTES).map { docAttributeConverter.convert(it) },
         tags = source.getDocList(SUB_TAGS).map { toDocTag(it) },
-        projects = source.getDocList(SUB_PROJECTS).map { toDocProject(it) },
+        collections = source.getDocList(SUB_PROJECTS).map { toDocCollection(it) },
         stats = source.getDocList(SUB_STATS).map { toDocStat(it) }
     )
 
@@ -69,5 +67,5 @@ private fun toDocTag(doc: Document): DocTag =
 private fun toDocStat(doc: Document): DocStat =
     DocStat(name = doc.getString(STAT_DOC_NAME), value = doc.getLong(STAT_DOC_VALUE))
 
-private fun toDocProject(doc: Document): DocProject = DocProject(accNo = doc.getString(PROJECT_DOC_ACC_NO))
+    private fun toDocCollection(doc: Document): DocCollection = DocCollection(accNo = doc.getString(PROJECT_DOC_ACC_NO))
 }

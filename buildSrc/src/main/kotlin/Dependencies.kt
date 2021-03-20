@@ -9,7 +9,6 @@ import TestVersions.RabbitmqMockVersion
 import TestVersions.TestContainerVersion
 import TestVersions.XmlUnitVersion
 import Versions.CliKtVersion
-import Versions.CommonsCsvVersion
 import Versions.CommonsIOVersion
 import Versions.CommonsLang3Version
 import Versions.GuavaVersion
@@ -39,6 +38,7 @@ import Versions.SpringBootVersion
 import Versions.SpringDataVersion
 import Versions.SpringVersion
 import Versions.SpringfoxSwaggerVersion
+import Versions.UnivocityParsersVersion
 import Versions.WoodstoxVersion
 import Versions.XlsxStreamerVersion
 import Versions.XmlBuilderVersion
@@ -71,7 +71,6 @@ object Versions {
 
     const val CommonsLang3Version = "3.8.1"
     const val CommonsIOVersion = "2.6"
-    const val CommonsCsvVersion = "1.7"
     const val MySqlVersion = "6.0.6"
     const val XmlBuilderVersion = "1.4.2"
     const val WoodstoxVersion = "5.1.0"
@@ -93,6 +92,7 @@ object Versions {
     const val SpringfoxSwaggerVersion = "2.9.2"
     const val Log4JVersion = "1.7.29"
     const val JavaValidationApiVersion = "2.0.1.Final"
+    const val UnivocityParsersVersion = "2.9.1"
 }
 
 object TestDependencies {
@@ -161,6 +161,7 @@ object Dependencies {
     const val SpringfoxSwaggerUI = "io.springfox:springfox-swagger-ui:$SpringfoxSwaggerVersion"
     const val Log4J = "org.slf4j:slf4j-simple:$Log4JVersion"
     const val JavaValidationApi = "javax.validation:validation-api:$JavaValidationApiVersion"
+    const val univocityParsers = "com.univocity:univocity-parsers:$UnivocityParsersVersion"
 
     // Kotlin specific
     const val KotlinStdLib = "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$KotlinVersion"
@@ -174,7 +175,6 @@ object Dependencies {
     const val ArrowData = "io.arrow-kt:arrow-data:$KotlinArrowVersion"
 
     // Apache
-    const val CommonsCsv = "org.apache.commons:commons-csv:$CommonsCsvVersion"
     const val CommonsLang3 = "org.apache.commons:commons-lang3:$CommonsLang3Version"
     const val CommonsIO = "commons-io:commons-io:$CommonsIOVersion"
     const val Poi = "org.apache.poi:poi:$PoiVersion"

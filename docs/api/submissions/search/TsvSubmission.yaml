@@ -1,0 +1,36 @@
+get:
+  summary: TSV Submission
+  description: Get the page tab document in TSV format for the submission with the given accession number.
+
+  tags:
+    - Search Submissions
+
+  parameters:
+    - in: header
+      name: X-SESSION-TOKEN
+      description: User authentication token
+      required: true
+      type: string
+    - in: path
+      name: accNo
+      description: Accession number to get the page tab document.
+      required: true
+      type: string
+
+  responses:
+    200:
+      description: OK
+      content:
+        text/plain:
+          schema:
+            type: string
+            example: |
+              Submission	S-BSST112
+              Title	Resubmission For Files
+              ReleaseDate	2021-01-15
+
+              Study
+
+              File	test.txt
+    401:
+      description: Caused by an invalid X-SESSION-TOKEN

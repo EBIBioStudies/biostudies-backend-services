@@ -2,8 +2,8 @@ package ac.uk.ebi.biostd.persistence.doc.test.doc
 
 import ac.uk.ebi.biostd.persistence.doc.model.DocAttribute
 import ac.uk.ebi.biostd.persistence.doc.model.DocAttributeDetail
+import ac.uk.ebi.biostd.persistence.doc.model.DocCollection
 import ac.uk.ebi.biostd.persistence.doc.model.DocProcessingStatus.PROCESSED
-import ac.uk.ebi.biostd.persistence.doc.model.DocProject
 import ac.uk.ebi.biostd.persistence.doc.model.DocSection
 import ac.uk.ebi.biostd.persistence.doc.model.DocStat
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
@@ -45,27 +45,28 @@ internal val RELEASE_TIME = CREATION_TIME.plus(1, ChronoUnit.DAYS)
 
 internal val testDocSection = DocSection(type = "Study")
 
-internal val testDocProject = DocProject(PROJECT_ACC_NO)
+internal val testDocCollection = DocCollection(PROJECT_ACC_NO)
 
-internal val testDocSubmission = DocSubmission(
-    id = ObjectId().toString(),
-    accNo = SUB_ACC_NO,
-    version = SUB_VERSION,
-    owner = OWNER,
-    submitter = SUBMITTER,
-    title = SUB_TITLE,
-    method = PAGE_TAB,
-    relPath = REL_PATH,
-    rootPath = ROOT_PATH,
-    released = false,
-    secretKey = SECRET_KEY,
-    status = PROCESSED,
-    releaseTime = RELEASE_TIME,
-    modificationTime = MODIFICATION_TIME,
-    creationTime = CREATION_TIME,
-    attributes = listOf(testDocAttribute),
-    tags = listOf(DocTag(TAG_NAME, TAG_VALUE)),
-    stats = listOf(DocStat(STAT_TYPE, STAT_VALUE)),
-    projects = listOf(testDocProject),
-    section = testDocSection
-)
+internal val testDocSubmission: DocSubmission
+    get() = DocSubmission(
+        id = ObjectId(),
+        accNo = SUB_ACC_NO,
+        version = SUB_VERSION,
+        owner = OWNER,
+        submitter = SUBMITTER,
+        title = SUB_TITLE,
+        method = PAGE_TAB,
+        relPath = REL_PATH,
+        rootPath = ROOT_PATH,
+        released = false,
+        secretKey = SECRET_KEY,
+        status = PROCESSED,
+        releaseTime = RELEASE_TIME,
+        modificationTime = MODIFICATION_TIME,
+        creationTime = CREATION_TIME,
+        attributes = listOf(testDocAttribute),
+        tags = listOf(DocTag(TAG_NAME, TAG_VALUE)),
+        stats = listOf(DocStat(STAT_TYPE, STAT_VALUE)),
+        collections = listOf(testDocCollection),
+        section = testDocSection
+    )

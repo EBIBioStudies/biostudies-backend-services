@@ -7,12 +7,15 @@ import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
 import ac.uk.ebi.biostd.persistence.doc.model.asBasicSubmission
+import ac.uk.ebi.biostd.persistence.exception.SubmissionNotFoundException
 import ebi.ac.uk.extended.model.ExtSubmission
 import org.springframework.data.domain.Page
+import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 
 internal class SubmissionMongoQueryService(
     private val submissionRepo: SubmissionDocDataRepository,
     private val requestRepository: SubmissionRequestDocDataRepository,
+    private val serializationService: ExtSerializationService,
     private val toExtSubmissionMapper: ToExtSubmissionMapper
 ) : SubmissionQueryService {
     override fun existByAccNo(accNo: String): Boolean = submissionRepo.existsByAccNo(accNo)
@@ -28,8 +31,10 @@ internal class SubmissionMongoQueryService(
     }
 
     override fun expireSubmission(accNo: String) {
-        val newVersion = submissionRepo.getByAccNoAndVersionGreaterThan(accNo, 0)
-        submissionRepo.save(newVersion.copy(version = -newVersion.version))
+        val submission = submissionRepo.findByAccNo(accNo)
+
+        requireNotNull(submission) { throw SubmissionNotFoundException(accNo) }
+        submissionRepo.expireVersion(accNo, submission.version)
     }
 
     override fun getExtendedSubmissions(filter: SubmissionFilter): Page<Result<ExtSubmission>> {
@@ -42,7 +47,7 @@ internal class SubmissionMongoQueryService(
     }
 
     override fun getRequest(accNo: String, version: Int): ExtSubmission {
-        val submission = requestRepository.getByAccNoAndVersion(accNo, version).submission
-        return toExtSubmissionMapper.toExtSubmission(submission)
+        val submission = requestRepository.getByAccNoAndVersion(accNo, version)
+        return serializationService.deserialize(submission.submission.toString())
     }
 }

@@ -2,11 +2,13 @@ package ac.uk.ebi.biostd.persistence.doc.test
 
 import ac.uk.ebi.biostd.persistence.doc.model.DocFile
 import ac.uk.ebi.biostd.persistence.doc.model.DocFileList
+import ac.uk.ebi.biostd.persistence.doc.model.DocFileRef
 import ac.uk.ebi.biostd.persistence.doc.test.AttributeTestHelper.assertBasicExtAttribute
 import ac.uk.ebi.biostd.persistence.doc.test.AttributeTestHelper.basicDocAttribute
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileList
 import org.assertj.core.api.Assertions.assertThat
+import org.bson.types.ObjectId
 import java.io.File
 
 internal const val TEST_REL_PATH = "file.txt"
@@ -16,7 +18,8 @@ private const val TEST_MD5 = "a-test-md5"
 
 internal object FileTestHelper {
     val docFile = DocFile(TEST_REL_PATH, TEST_FULL_PATH, listOf(basicDocAttribute), TEST_MD5)
-    val docFileList = DocFileList(TEST_FILE_LIST, listOf(docFile))
+    val docFileRef = DocFileRef(ObjectId(10, 10))
+    val docFileList = DocFileList(TEST_FILE_LIST, listOf(docFileRef))
 
     fun assertExtFile(extFile: ExtFile, file: File) {
         assertThat(extFile.fileName).isEqualTo(TEST_REL_PATH)
@@ -28,7 +31,6 @@ internal object FileTestHelper {
 
     fun assertExtFileList(extFileList: ExtFileList, file: File) {
         assertThat(extFileList.fileName).isEqualTo(TEST_FILE_LIST)
-        assertThat(extFileList.files).hasSize(1)
-        assertExtFile(extFileList.files.first(), file)
+        assertThat(extFileList.files).hasSize(0)
     }
 }

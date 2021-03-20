@@ -1,0 +1,31 @@
+post:
+  summary: Generate FTP Link
+  description: Generates the FTP link for the submission in the given relative path.
+
+  tags:
+    - FTP
+
+  parameters:
+    - in: header
+      name: X-SESSION-TOKEN
+      description: User authentication token
+      required: true
+      type: string
+
+  requestBody:
+    content:
+      multipart/form-data:
+        schema:
+          type: object
+          properties:
+            relPath:
+              description: Relative path of the submission to generate the FTP links.
+              example: "S-BSST/123/S-BSST123"
+              required: true
+              type: string
+
+  responses:
+    200:
+      description: OK
+    401:
+      description: Caused by an invalid X-SESSION-TOKEN

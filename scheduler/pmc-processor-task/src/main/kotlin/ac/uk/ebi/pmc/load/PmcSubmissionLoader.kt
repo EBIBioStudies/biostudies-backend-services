@@ -18,6 +18,7 @@ import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import mu.KotlinLogging
+import java.io.File
 
 private val sanitizeRegex = "(\n)(\t)*|(\t)+(\n)".toRegex()
 private const val WORKERS = 30
@@ -31,18 +32,23 @@ class PmcSubmissionLoader(
 ) {
 
     /**
-     * Process the given plain file and load submissions into database. Previously loaded submission are deprecated
+     * Process the given plain file and load submissions into database. Previously loaded submission are register
      * when new version is found and any issue processing the file is registered in the errors collection.
      *
      * @param file submissions load file data including content and name.
      */
-    suspend fun processFile(file: FileSpec) = withContext(Dispatchers.Default) {
-        if (inputFilesDocService.isProcessed(file).not()) {
-            logger.info { "precessing file ${file.name}" }
-            val receiveChannel = launchProducer(file)
-            (1..WORKERS).map { launchProcessor(receiveChannel) }.joinAll()
-            inputFilesDocService.reportProcessed(file)
-        }
+    suspend fun processFile(file: FileSpec, processedFolder: File) = withContext(Dispatchers.Default) {
+        logger.info { "precessing file ${file.name}" }
+        val receiveChannel = launchProducer(file)
+        (1..WORKERS).map { launchProcessor(receiveChannel) }.joinAll()
+
+        inputFilesDocService.reportProcessed(file)
+        moveFile(file, processedFolder.resolve(file.originalFile.name))
+    }
+
+    private fun moveFile(file: FileSpec, processed: File) {
+        file.originalFile.copyTo(processed, overwrite = true)
+        file.originalFile.delete()
     }
 
     private fun CoroutineScope.launchProducer(file: FileSpec) = produce {

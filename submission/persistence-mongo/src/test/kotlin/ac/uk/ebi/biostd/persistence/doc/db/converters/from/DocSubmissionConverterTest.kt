@@ -2,16 +2,17 @@ package ac.uk.ebi.biostd.persistence.doc.db.converters.from
 
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields
 import ac.uk.ebi.biostd.persistence.doc.model.DocAttribute
+import ac.uk.ebi.biostd.persistence.doc.model.DocProcessingStatus
 import ac.uk.ebi.biostd.persistence.doc.model.DocSection
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
-import ac.uk.ebi.biostd.persistence.doc.model.docSubmissionClass
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionMethod
-import ac.uk.ebi.biostd.persistence.doc.model.DocProcessingStatus
+import ac.uk.ebi.biostd.persistence.doc.model.docSubmissionClass
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import org.assertj.core.api.Assertions.assertThat
 import org.bson.Document
+import org.bson.types.ObjectId
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import java.util.Date
@@ -59,7 +60,7 @@ internal class DocSubmissionConverterTest(
         assertThat(result.attributes).isEqualTo(listOf(docAttribute))
         assertThat(result.tags[0].name).isEqualTo(tagDocName)
         assertThat(result.tags[0].value).isEqualTo(tagDocValue)
-        assertThat(result.projects[0].accNo).isEqualTo(projectDocAccNo)
+        assertThat(result.collections[0].accNo).isEqualTo(projectDocAccNo)
         assertThat(result.stats[0].name).isEqualTo(statDocName)
         assertThat(result.stats[0].value).isEqualTo(statDocValue)
     }
@@ -111,7 +112,7 @@ internal class DocSubmissionConverterTest(
     }
 
     companion object {
-        const val subId = "id"
+        val subId = ObjectId(1, 1)
         const val subAccNo = "accNo"
         const val projectDocAccNo = "accNo"
         const val subVersion = 1

@@ -1,15 +1,17 @@
 package ac.uk.ebi.biostd.persistence.doc.integration
 
+import ac.uk.ebi.biostd.integration.SerializationService
+import ac.uk.ebi.biostd.persistence.common.service.CollectionDataService
 import ac.uk.ebi.biostd.persistence.common.service.StatsDataService
-import ac.uk.ebi.biostd.persistence.common.service.ProjectDataService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionDraftService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDraftDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionStatsDataRepository
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
+import ac.uk.ebi.biostd.persistence.doc.service.CollectionMongoDataService
 import ac.uk.ebi.biostd.persistence.doc.service.StatsMongoDataService
-import ac.uk.ebi.biostd.persistence.doc.service.ProjectMongoDataService
 import ac.uk.ebi.biostd.persistence.doc.service.SubmissionDraftMongoService
 import ac.uk.ebi.biostd.persistence.doc.service.SubmissionMongoMetaQueryService
 import ac.uk.ebi.biostd.persistence.doc.service.SubmissionMongoQueryService
@@ -27,16 +29,19 @@ class MongoDbServicesConfig {
     internal fun submissionQueryService(
         submissionDocDataRepository: SubmissionDocDataRepository,
         submissionRequestDocDataRepository: SubmissionRequestDocDataRepository,
+        serializationService: ExtSerializationService,
         toExtSubmissionMapper: ToExtSubmissionMapper
     ): SubmissionQueryService = SubmissionMongoQueryService(
         submissionDocDataRepository,
         submissionRequestDocDataRepository,
-        toExtSubmissionMapper)
+        serializationService,
+        toExtSubmissionMapper
+    )
 
     @Bean
     internal fun projectDataService(
         submissionDocDataRepository: SubmissionDocDataRepository
-    ): ProjectDataService = ProjectMongoDataService(submissionDocDataRepository)
+    ): CollectionDataService = CollectionMongoDataService(submissionDocDataRepository)
 
     @Bean
     internal fun toExtSubmissionMapper(): ToExtSubmissionMapper = ToExtSubmissionMapper()
@@ -45,11 +50,12 @@ class MongoDbServicesConfig {
     internal fun submissionDraftMongoService(
         submissionDraftDocDataRepository: SubmissionDraftDocDataRepository,
         submissionQueryService: SubmissionQueryService,
-        extSerializationService: ExtSerializationService
-    ): SubmissionDraftMongoService = SubmissionDraftMongoService(
+        serializationService: SerializationService
+    ): SubmissionDraftService = SubmissionDraftMongoService(
         submissionDraftDocDataRepository,
         submissionQueryService,
-        extSerializationService)
+        serializationService
+    )
 
     @Bean
     internal fun submissionMongoMetaQueryService(

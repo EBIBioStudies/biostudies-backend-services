@@ -15,7 +15,6 @@ class FileSystemService(
         ftpLinksService.cleanFtpFolder(submission.relPath)
         val processedSubmission = filesService.persistSubmissionFiles(submission, mode)
         if (submission.released) ftpLinksService.createFtpFolder(submission.relPath)
-
         return processedSubmission
     }
 }

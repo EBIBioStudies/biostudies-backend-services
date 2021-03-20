@@ -1,8 +1,8 @@
 package ac.uk.ebi.biostd.submission.service
 
-import ac.uk.ebi.biostd.persistence.common.model.BasicProject
+import ac.uk.ebi.biostd.persistence.common.model.BasicCollection
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
-import ac.uk.ebi.biostd.submission.exceptions.ProjectInvalidAccessTagException
+import ac.uk.ebi.biostd.submission.exceptions.CollectionInvalidAccessTagException
 import ebi.ac.uk.model.constants.SubFields.PUBLIC_ACCESS_TAG
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -33,9 +33,9 @@ class ParentInfoServiceTest(
         val parentTemplate = "!{S-BIAD}"
         val parentAccNo = "BioImages-EMPIAR"
         val testTime = OffsetDateTime.of(2018, 10, 10, 0, 0, 0, 0, ZoneOffset.UTC)
-        val basicProject = BasicProject("BioImages-EMPIAR", "!{S-BIAD}", testTime)
+        val basicProject = BasicCollection("BioImages-EMPIAR", "!{S-BIAD}", testTime)
 
-        every { queryService.getBasicProject(parentAccNo) } returns basicProject
+        every { queryService.getBasicCollection(parentAccNo) } returns basicProject
         every { queryService.getAccessTags(parentAccNo) } returns listOf(PUBLIC_ACCESS_TAG.value, parentAccNo)
 
         val parentInfo = testInstance.getParentInfo(parentAccNo)
@@ -48,11 +48,11 @@ class ParentInfoServiceTest(
     @Test
     fun `project without access tag`() {
         val parentAccNo = "BioImages-EMPIAR"
-        val basicProject = BasicProject(parentAccNo, "!{S-BIAD}", null)
+        val basicProject = BasicCollection(parentAccNo, "!{S-BIAD}", null)
 
-        every { queryService.getBasicProject(parentAccNo) } returns basicProject
+        every { queryService.getBasicCollection(parentAccNo) } returns basicProject
         every { queryService.getAccessTags(parentAccNo) } returns listOf("Empiar")
 
-        assertThrows<ProjectInvalidAccessTagException> { testInstance.getParentInfo(parentAccNo) }
+        assertThrows<CollectionInvalidAccessTagException> { testInstance.getParentInfo(parentAccNo) }
     }
 }

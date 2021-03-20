@@ -5,9 +5,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocLinkFields.LINK_
 import ac.uk.ebi.biostd.persistence.doc.model.DocLink
 import org.bson.Document
 import org.springframework.core.convert.converter.Converter
-import org.springframework.stereotype.Component
 
-@Component
 class DocLinkConverter(private val docAttributeConverter: DocAttributeConverter) : Converter<Document, DocLink> {
     override fun convert(source: Document): DocLink = DocLink(
         url = source.getString(LINK_DOC_URL),

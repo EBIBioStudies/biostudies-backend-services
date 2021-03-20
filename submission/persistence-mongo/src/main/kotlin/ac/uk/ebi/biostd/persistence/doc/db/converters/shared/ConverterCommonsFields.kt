@@ -1,17 +1,20 @@
 package ac.uk.ebi.biostd.persistence.doc.db.converters.shared
 
 import ac.uk.ebi.biostd.persistence.doc.model.DocAttribute
+import ac.uk.ebi.biostd.persistence.doc.model.DocCollection
 import ac.uk.ebi.biostd.persistence.doc.model.DocFile
 import ac.uk.ebi.biostd.persistence.doc.model.DocFileList
+import ac.uk.ebi.biostd.persistence.doc.model.DocFileRef
 import ac.uk.ebi.biostd.persistence.doc.model.DocFileTable
 import ac.uk.ebi.biostd.persistence.doc.model.DocLink
 import ac.uk.ebi.biostd.persistence.doc.model.DocLinkTable
-import ac.uk.ebi.biostd.persistence.doc.model.DocProject
 import ac.uk.ebi.biostd.persistence.doc.model.DocSection
 import ac.uk.ebi.biostd.persistence.doc.model.DocSectionTable
+import ac.uk.ebi.biostd.persistence.doc.model.DocSectionTableRow
 import ac.uk.ebi.biostd.persistence.doc.model.DocStat
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocTag
+import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
 
 object DocAttributeFields {
     val DOC_ATTRIBUTE_CLASS: String = DocAttribute::class.java.canonicalName
@@ -34,8 +37,23 @@ object DocFileFields {
 
 object DocFileListFields {
     val DOC_FILE_LIST_CLASS: String = DocFileList::class.java.canonicalName
-    const val FILE_LIST_DOC_FILE_LIST = "fileName"
+    const val FILE_LIST_DOC_FILE_FILENAME = "fileName"
     const val FILE_LIST_DOC_FILES = "files"
+}
+
+object DocFileRefFields {
+    val DOC_FILE_REF_CLASS: String = DocFileRef::class.java.canonicalName
+    const val FILE_REF_DOC_FILE_ID = "fileId"
+}
+
+object FileListDocFileFields {
+    val FILE_LIST_DOC_FILE_CLASS: String = FileListDocFile::class.java.canonicalName
+    const val FILE_LIST_DOC_FILE_SUBMISSION_ID = "submissionId"
+    const val FILE_LIST_DOC_FILE_FILENAME = "fileName"
+    const val FILE_LIST_DOC_FILE_REL_PATH = "relPath"
+    const val FILE_LIST_DOC_FILE_FULL_PATH = "fullPath"
+    const val FILE_LIST_DOC_FILE_ATTRIBUTES = "attributes"
+    const val FILE_LIST_DOC_FILE_MD5 = "md5"
 }
 
 object DocFileTableFields {
@@ -48,12 +66,14 @@ object DocLinkFields {
     const val LINK_DOC_URL = "url"
     const val LINK_DOC_ATTRIBUTES = "attributes"
 }
+
 object DocLinkTableFields {
     val DOC_LINK_TABLE_CLASS: String = DocLinkTable::class.java.canonicalName
     const val LINK_TABLE_DOC_LINKS = "links"
 }
 
 object DocSectionFields {
+    val DOC_TABLE_SEC_CLASS: String = DocSectionTableRow::class.java.canonicalName
     val DOC_SEC_CLASS: String = DocSection::class.java.canonicalName
     val DOC_SEC_TABLE_CLASS: String = DocSectionTable::class.java.canonicalName
 
@@ -71,7 +91,7 @@ object DocSectionFields {
 object DocSubmissionFields {
     val DOC_SUBMISSION_CLASS: String = DocSubmission::class.java.canonicalName
     val DOC_TAG_CLASS: String = DocTag::class.java.canonicalName
-    val DOC_PROJECT_CLASS: String = DocProject::class.java.canonicalName
+    val DOC_PROJECT_CLASS: String = DocCollection::class.java.canonicalName
     val DOC_STAT_CLASS: String = DocStat::class.java.canonicalName
 
     const val CLASS_FIELD = "_class"
@@ -93,7 +113,7 @@ object DocSubmissionFields {
     const val SUB_SECTION = "section"
     const val SUB_ATTRIBUTES = "attributes"
     const val SUB_TAGS = "tags"
-    const val SUB_PROJECTS = "projects"
+    const val SUB_PROJECTS = "collections"
     const val TAG_DOC_NAME = "name"
     const val TAG_DOC_VALUE = "value"
     const val PROJECT_DOC_ACC_NO = "accNo"

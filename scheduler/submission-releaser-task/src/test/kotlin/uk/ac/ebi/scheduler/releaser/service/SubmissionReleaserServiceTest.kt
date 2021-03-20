@@ -4,7 +4,7 @@ import ac.uk.ebi.biostd.client.dto.ExtPageQuery
 import ac.uk.ebi.biostd.client.extensions.getExtSubmissionsAsSequence
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.extended.model.isProject
+import ebi.ac.uk.extended.model.isCollection
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -71,7 +71,7 @@ class SubmissionReleaserServiceTest(
         val releaseQuery = createReleaseExtPageQuery()
 
         mockExtSubmissionsQuery(releaseQuery, releaseSubmission)
-        every { releaseSubmission.isProject } returns false
+        every { releaseSubmission.isCollection } returns false
         every { releaseSubmission.released } returns false
         every { releaseSubmission.copy(released = true) } returns releaseSubmission
         every { bioWebClient.submitExt(releaseSubmission) } returns releaseSubmission
@@ -85,7 +85,7 @@ class SubmissionReleaserServiceTest(
     fun `release with project`(@MockK project: ExtSubmission) {
         val releaseQuery = createReleaseExtPageQuery()
 
-        every { project.isProject } returns true
+        every { project.isCollection } returns true
         mockExtSubmissionsQuery(releaseQuery, project)
 
         testInstance.releaseDailySubmissions()
@@ -99,7 +99,7 @@ class SubmissionReleaserServiceTest(
         val query = ExtPageQuery(released = true)
 
         mockExtSubmissionsQuery(query, publicSubmission)
-        every { publicSubmission.isProject } returns false
+        every { publicSubmission.isCollection } returns false
         every { publicSubmission.relPath } returns relPath
         every { publicSubmission.accNo } returns "S-BSST112"
         every { bioWebClient.generateFtpLink(relPath) } answers { nothing }
@@ -117,7 +117,7 @@ class SubmissionReleaserServiceTest(
         val query = ExtPageQuery(released = true)
 
         mockExtSubmissionsQuery(query, publicSubmission)
-        every { publicSubmission.isProject } returns true
+        every { publicSubmission.isCollection } returns true
         every { publicSubmission.relPath } returns relPath
 
         testInstance.generateFtpLinks()

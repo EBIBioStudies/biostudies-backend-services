@@ -13,8 +13,8 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_TITLE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_VERSION
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionMongoRepository
+import ac.uk.ebi.biostd.persistence.doc.model.DocCollection
 import ac.uk.ebi.biostd.persistence.doc.model.DocProcessingStatus
-import ac.uk.ebi.biostd.persistence.doc.model.DocProject
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import com.google.common.collect.ImmutableList
 import org.springframework.data.domain.Page
@@ -74,8 +74,8 @@ class SubmissionDocDataRepository(
     fun expireActiveProcessedVersions(accNo: String) {
         val criteria = where(SUB_ACC_NO).`is`(accNo).andOperator(
             where(SUB_VERSION).gt(0),
-            where(SUB_STATUS).`is`(DocProcessingStatus.PROCESSED)
-        )
+            where(SUB_STATUS).`is`(DocProcessingStatus.PROCESSED))
+
         mongoTemplate.updateMulti(
             Query(criteria),
             ExtendedUpdate().multiply(SUB_VERSION, -1),
@@ -83,7 +83,19 @@ class SubmissionDocDataRepository(
         )
     }
 
-    fun getProjects(accNo: String): List<DocProject> = submissionRepository.getSubmissionProjects(accNo).projects
+    fun expireVersion(accNo: String, version: Int) {
+        val criteria = where(SUB_ACC_NO).`is`(accNo).andOperator(
+            where(SUB_VERSION).`is`(version))
+
+        mongoTemplate.updateMulti(
+            Query(criteria),
+            ExtendedUpdate().multiply(SUB_VERSION, -1),
+            DocSubmission::class.java
+        )
+    }
+
+    fun getCollections(accNo: String): List<DocCollection> =
+        submissionRepository.getSubmissionCollections(accNo).collections
 
     fun getSubmissions(filter: SubmissionFilter, email: String? = null): List<DocSubmission> {
         val aggregation = newAggregation(

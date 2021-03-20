@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.persistence.doc.test
 
+import ac.uk.ebi.biostd.persistence.doc.model.DocCollection
 import ac.uk.ebi.biostd.persistence.doc.model.DocProcessingStatus.PROCESSED
-import ac.uk.ebi.biostd.persistence.doc.model.DocProject
 import ac.uk.ebi.biostd.persistence.doc.model.DocStat
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionMethod.PAGE_TAB
@@ -14,6 +14,7 @@ import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod
 import org.assertj.core.api.Assertions.assertThat
+import org.bson.types.ObjectId
 import java.io.File
 import java.time.Instant
 import java.time.ZoneOffset.UTC
@@ -24,7 +25,7 @@ private const val OWNER = "owner@mail.org"
 private const val SUBMITTER = "submitter@mail.org"
 private const val SUB_TITLE = "Test Submission"
 private const val ROOT_PATH = "/a/root/path"
-private const val SECRET_KEY = "a-secret-key"
+internal const val SECRET_KEY = "a-secret-key"
 private const val TAG_NAME = "component"
 private const val TAG_VALUE = "web"
 private const val PROJECT_ACC_NO = "BioImages"
@@ -36,7 +37,7 @@ object SubmissionTestHelper {
     private val time = Instant.now()
 
     val docSubmission = DocSubmission(
-        id = null,
+        id = ObjectId(),
         accNo = SUB_ACC_NO,
         version = SUB_VERSION,
         owner = OWNER,
@@ -54,7 +55,7 @@ object SubmissionTestHelper {
         attributes = listOf(fullDocAttribute),
         tags = listOf(DocTag(TAG_NAME, TAG_VALUE)),
         stats = listOf(DocStat(STAT_TYPE, STAT_VALUE)),
-        projects = listOf(DocProject(PROJECT_ACC_NO)),
+        collections = listOf(DocCollection(PROJECT_ACC_NO)),
         section = docSection
     )
 
@@ -102,7 +103,7 @@ object SubmissionTestHelper {
     }
 
     private fun assertProject(extSubmission: ExtSubmission) {
-        assertThat(extSubmission.projects).hasSize(1)
-        assertThat(extSubmission.projects.first().accNo).isEqualTo(PROJECT_ACC_NO)
+        assertThat(extSubmission.collections).hasSize(1)
+        assertThat(extSubmission.collections.first().accNo).isEqualTo(PROJECT_ACC_NO)
     }
 }

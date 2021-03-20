@@ -1,0 +1,53 @@
+post:
+  summary: Register User
+  description: Create a new BioStudies user.
+
+  tags:
+    - Security
+
+  requestBody:
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            name:
+              description: User name
+              example: "Test User"
+              required: true
+              type: string
+            email:
+              description: User email
+              example: "user@test.org"
+              required: true
+              type: string
+            password:
+              description: Password for the new account
+              example: "123456"
+              required: true
+              type: string
+            notificationsEnabled:
+              description:
+                Whether or not the new user will receive notifications from BioStudies. Notifications are disabled by
+                default.
+              required: true
+              type: boolean
+            instanceKey:
+              description: Instance key that should process the password reset
+              example: "the-instance-key"
+              required: false
+              type: string
+              userPath:
+                description: The user path
+                example: "/user/path"
+                required: false
+                type: string
+              captcha:
+                description: Re-Captcha validation string. Not required.
+                example: "recaptcha-response"
+                required: false
+                type: string
+
+  responses:
+    201:
+      description: User created

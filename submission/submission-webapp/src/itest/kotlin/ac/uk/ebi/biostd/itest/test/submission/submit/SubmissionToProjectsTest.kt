@@ -38,7 +38,7 @@ internal class SubmissionToProjectsTest(private val tempFolder: TemporaryFolder)
     @ExtendWith(SpringExtension::class)
     @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
     @DirtiesContext
-    inner class SubmitToProjectTest(
+    inner class SubmitToExtCollectionTest(
         @Autowired val submissionRepository: SubmissionQueryService,
         @Autowired val securityTestService: SecurityTestService
     ) {

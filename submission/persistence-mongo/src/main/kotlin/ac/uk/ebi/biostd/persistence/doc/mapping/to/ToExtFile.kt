@@ -17,4 +17,8 @@ internal fun DocFileTable.toExtFileTable(): ExtFileTable = ExtFileTable(files.ma
 internal fun Either<DocFile, DocFileTable>.toExtFiles(): Either<ExtFile, ExtFileTable> =
     bimap({ it.toExtFile() }) { it.toExtFileTable() }
 
-internal fun DocFileList.toExtFileList() = ExtFileList(fileName, files.map { it.toExtFile() })
+/**
+ * Maps a DocFileList to corresponding Ext type. Note that empty list is used as files as list files are not loaded as
+ * part of the submission.
+ */
+internal fun DocFileList.toExtFileList() = ExtFileList(fileName, emptyList())
