@@ -13,11 +13,16 @@ import org.litote.kmongo.async.KMongo
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
+private const val ERRORS_COL = "pmc_errors"
+private const val SUBMISSION_COL = "pmc_submissions"
+private const val SUB_FILES_COL = "pmc_submissions_files"
+private const val INPUT_FILES_COL = "pmc_input_files"
+
 @Configuration
-class PersistenceConfig {
+class PersistenceConfig(val properties: PmcImporterProperties) {
 
     @Bean
-    fun mongoClient(properties: PmcImporterProperties): MongoClient {
+    fun mongoClient(): MongoClient {
         return KMongo.createClient(
             MongoClientSettings
                 .builder()
@@ -26,17 +31,18 @@ class PersistenceConfig {
     }
 
     @Bean
-    fun errorsRepository(client: MongoClient) = ErrorsRepository(client.getCollection("eubioimag", "errors"))
+    fun errorsRepository(client: MongoClient) =
+        ErrorsRepository(client.getCollection(properties.mongodbDatabase, ERRORS_COL))
 
     @Bean
     fun submissionRepository(client: MongoClient) =
-        SubmissionRepository(client.getCollection("eubioimag", "submissions"))
+        SubmissionRepository(client.getCollection(properties.mongodbDatabase, SUBMISSION_COL))
 
     @Bean
     fun submissionFileRepository(client: MongoClient) =
-        SubFileRepository(client.getCollection("eubioimag", "submissions_files"))
+        SubFileRepository(client.getCollection(properties.mongodbDatabase, SUB_FILES_COL))
 
     @Bean
     fun inputFileRepository(client: MongoClient) =
-        InputFileRepository(client.getCollection("eubioimag", "input_files"))
+        InputFileRepository(client.getCollection(properties.mongodbDatabase, INPUT_FILES_COL))
 }

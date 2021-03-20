@@ -1,0 +1,9 @@
+schema:
+  type: object
+  properties:
+    key:
+      type: string
+      example: "TMP_123456"
+    content:
+      type: string
+      example: "{ 'type': 'Submission', 'section': { 'type': 'Study' } }"

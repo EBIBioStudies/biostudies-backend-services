@@ -8,3 +8,6 @@ var File.type: String
     set(value) {
         this[FileFields.TYPE] = value
     }
+
+val File.extension: String
+    get() = path.substringAfterLast(".")

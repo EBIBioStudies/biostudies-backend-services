@@ -1,0 +1,70 @@
+post:
+  summary: Refresh User
+  description: Updates the user with the given email based on its current state in the database.
+
+  tags:
+    - Refresh
+
+  requestBody:
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            email:
+              description: User email
+              example: "user@test.org"
+              required: true
+              type: string
+
+  responses:
+    200:
+      description: User refreshed
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              id:
+                type: number
+                example: 5
+              email:
+                type: string
+                example: "user@test.org"
+              fullName:
+                type: string
+                example: "Test User"
+              login:
+                type: string
+                example: "test_user"
+              secret:
+                type: string
+                example: "the-secret-key"
+              superuser:
+                type: boolean
+                example: false
+              magicFolder:
+                type: object
+                properties:
+                  relativePath:
+                    type: string
+                    example: "file:///rel/path"
+                  path:
+                    type: string
+                    example: "file:///path/to/the/user/folder"
+              groupsFolders:
+                type: array
+                default: []
+              permissions:
+                type: array
+                items:
+                  properties:
+                    accessType:
+                      type: string
+                      example: "ATTACH"
+                    accessTag:
+                      type: string
+                      example: "ArrayExpress"
+              notificationsEnabled:
+                type: boolean
+                example: true

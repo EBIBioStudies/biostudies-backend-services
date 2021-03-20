@@ -28,7 +28,7 @@ internal class UserPrivilegesService(
     override fun canSubmitToProject(submitter: String, project: String): Boolean =
         isSuperUser(submitter).or(hasPermissions(submitter, listOf(project), ATTACH))
 
-    override fun allowedProjects(email: String, accessType: AccessType): List<String> = when {
+    override fun allowedCollections(email: String, accessType: AccessType): List<String> = when {
         isSuperUser(email) -> tagsDataRepository.findAll().map { it.name }
         else ->
             userPermissionsService

@@ -1,0 +1,9 @@
+post:
+  summary: Trigger Submission Releaser
+  description: Trigger the process to release the submissions of the day.
+
+  tags:
+    - Submission Releaser
+
+  responses:
+    $ref: '../model/SchedulerJobResponse.yaml'

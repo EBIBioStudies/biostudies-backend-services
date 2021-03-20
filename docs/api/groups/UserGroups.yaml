@@ -1,0 +1,31 @@
+get:
+  summary: User Groups
+  description: Retrieves the list of the projects that are associated for the user.
+
+  tags:
+    - Groups
+
+  parameters:
+    - in: header
+      name: X-SESSION-TOKEN
+      description: User authentication token
+      required: true
+
+  responses:
+    200:
+      description: OK
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: "ArrayExpress"
+                description:
+                  type: string
+                  example: "ArrayExpress group"
+    401:
+      description: Caused by an invalid X-SESSION-TOKEN

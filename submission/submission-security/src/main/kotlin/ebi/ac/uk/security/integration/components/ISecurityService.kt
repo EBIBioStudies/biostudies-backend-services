@@ -1,6 +1,7 @@
 package ebi.ac.uk.security.integration.components
 
 import ebi.ac.uk.api.security.ChangePasswordRequest
+import ebi.ac.uk.api.security.CheckUserRequest
 import ebi.ac.uk.api.security.GetOrRegisterUserRequest
 import ebi.ac.uk.api.security.LoginRequest
 import ebi.ac.uk.api.security.RegisterRequest
@@ -22,4 +23,6 @@ interface ISecurityService {
     fun getUserProfile(authToken: String): UserInfo
     fun getOrCreateInactive(email: String, username: String): SecurityUser
     fun getOrRegisterUser(request: GetOrRegisterUserRequest): SecurityUser
+    fun checkUserRegistration(register: CheckUserRequest): SecurityUser
+    fun refreshUser(email: String): SecurityUser
 }

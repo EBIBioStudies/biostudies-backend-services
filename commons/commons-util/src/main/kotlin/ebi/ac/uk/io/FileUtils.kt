@@ -127,6 +127,10 @@ object FileUtils {
 
     fun listFiles(file: File): List<File> =
         if (isDirectory(file)) Files.list(file.toPath()).map { it.toFile() }.toList() else emptyList()
+
+    fun setFolderPermissions(path: Path, permissions: Set<PosixFilePermission>) {
+        Files.setPosixFilePermissions(path, permissions)
+    }
 }
 
 @Suppress("TooManyFunctions")
@@ -157,6 +161,7 @@ internal object FileUtilsHelper {
     }
 
     fun createSymLink(link: Path, target: Path, permissions: Set<PosixFilePermission>) {
+        if (exists(link)) Files.delete(link)
         Files.createSymbolicLink(createParentDirectories(link, permissions), target)
     }
 

@@ -7,6 +7,7 @@ import TestDependencies.JunitExtensions
 
 dependencies {
     api(project(":commons:commons-bio"))
+    api(project(":commons:commons-model-extended"))
 
     implementation(Arrow)
     implementation(AssertJ)

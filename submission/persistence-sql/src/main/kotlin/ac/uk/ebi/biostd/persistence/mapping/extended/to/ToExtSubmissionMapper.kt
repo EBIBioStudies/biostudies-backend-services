@@ -4,12 +4,12 @@ import ac.uk.ebi.biostd.persistence.exception.ExtSubmissionMappingException
 import ac.uk.ebi.biostd.persistence.model.DbSubmission
 import ac.uk.ebi.biostd.persistence.model.DbSubmissionStat
 import ac.uk.ebi.biostd.persistence.model.ext.validAttributes
+import ebi.ac.uk.extended.model.ExtCollection
 import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.ExtStat
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod
 import ebi.ac.uk.extended.model.ExtTag
-import ebi.ac.uk.extended.model.Project
 import ebi.ac.uk.io.sources.ComposedFileSource
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.io.sources.PathFilesSource
@@ -47,7 +47,7 @@ class ToExtSubmissionMapper(private val submissionsPath: Path) {
                 creationTime = dbSubmission.creationTime,
                 section = dbSubmission.rootSection.toExtSection(getSubmissionSource(dbSubmission)),
                 attributes = dbSubmission.validAttributes.map { it.toExtAttribute() },
-                projects = dbSubmission.accessTags.map { Project(it.name) },
+                collections = dbSubmission.accessTags.map { ExtCollection(it.name) },
                 tags = dbSubmission.tags.map { ExtTag(it.classifier, it.name) },
                 stats = stats.map { toExtMetric(it) })
         }.onFailure {

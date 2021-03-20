@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test
 const val path = "/loadPath"
 const val tempDir = "/tempDir"
 const val mongodbUri = "mongodbUri"
+const val mongodbDatabase = "a-database"
 const val bioStudiesUrl = "http://an_url.com"
 const val bioStudiesUser = "user"
 const val bioStudiesPassword = "password"
@@ -19,6 +20,7 @@ class PmcImporterPropertiesTest {
             path = path,
             temp = tempDir,
             mongodbUri = mongodbUri,
+            mongodbDatabase = mongodbDatabase,
             bioStudiesUrl = bioStudiesUrl,
             bioStudiesUser = bioStudiesUser,
             bioStudiesPassword = bioStudiesPassword,
@@ -30,6 +32,7 @@ class PmcImporterPropertiesTest {
                 --app.data.mode=LOAD \
                 --app.data.temp=/tempDir \
                 --app.data.mongodbUri=mongodbUri \
+                --app.data.mongodbDatabase=a-database \
                 --app.data.notificationsUrl=http://slack-here \
                 --app.data.path=/loadPath \
                 --app.data.bioStudiesUrl=http://an_url.com \
@@ -45,6 +48,7 @@ class PmcImporterPropertiesTest {
             path = null,
             temp = tempDir,
             mongodbUri = mongodbUri,
+            mongodbDatabase = mongodbDatabase,
             bioStudiesUrl = null,
             bioStudiesUser = null,
             bioStudiesPassword = null,
@@ -55,6 +59,7 @@ class PmcImporterPropertiesTest {
             --app.data.mode=LOAD \
             --app.data.temp=/tempDir \
             --app.data.mongodbUri=mongodbUri \
+            --app.data.mongodbDatabase=a-database \
             --app.data.notificationsUrl=http://slack-here
             """.trimIndent())
     }

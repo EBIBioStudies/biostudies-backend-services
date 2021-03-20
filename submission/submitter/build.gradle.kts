@@ -5,6 +5,7 @@ import Dependencies.CommonsIO
 import Dependencies.KotlinLogging
 import Dependencies.RxJava2
 import Dependencies.SpringDataJpa
+import Dependencies.SpringWeb
 import SpringBootDependencies.SpringBootAmqp
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
@@ -22,6 +23,7 @@ dependencies {
     implementation(RxJava2)
     implementation(KotlinLogging)
     implementation(SpringDataJpa)
+    implementation(SpringWeb)
 
     testImplementation(SpringBootAmqp)
 

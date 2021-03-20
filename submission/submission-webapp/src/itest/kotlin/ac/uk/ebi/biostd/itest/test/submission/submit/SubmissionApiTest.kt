@@ -306,8 +306,6 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
             assertThat(savedSubmission.accNo).isEqualTo("S-RLSD123")
             assertThat(savedSubmission.title).isEqualTo("Test Public Submission")
             assertThat(savedSubmission.released).isTrue()
-            assertThat(savedSubmission.accessTags.map { it.name })
-                .containsExactlyInAnyOrder("Public", "biostudies-mgmt@ebi.ac.uk")
         }
 
         @Test

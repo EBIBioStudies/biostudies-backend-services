@@ -1,0 +1,9 @@
+post:
+  summary: Submit PMC Submissions
+  description: Perform the submission of all the previously processed E-PMC submissions.
+
+  tags:
+    - PMC Importer
+
+  responses:
+    $ref: '../model/SchedulerJobResponse.yaml'
