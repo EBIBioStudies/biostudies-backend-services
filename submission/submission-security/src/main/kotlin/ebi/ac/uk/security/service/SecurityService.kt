@@ -5,6 +5,7 @@ import ac.uk.ebi.biostd.persistence.model.DbUser
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import arrow.core.getOrElse
 import ebi.ac.uk.api.security.ChangePasswordRequest
+import ebi.ac.uk.api.security.CheckUserRequest
 import ebi.ac.uk.api.security.GetOrRegisterUserRequest
 import ebi.ac.uk.api.security.LoginRequest
 import ebi.ac.uk.api.security.RegisterRequest
@@ -74,6 +75,10 @@ class SecurityService(
                 getOrCreateInactive(request.userEmail, userName)
             }
         }
+    }
+
+    override fun checkUserRegistration(register: CheckUserRequest): SecurityUser {
+        return getOrCreateInactive(register.userEmail, register.userName)
     }
 
     override fun refreshUser(email: String): SecurityUser {

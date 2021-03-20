@@ -1,4 +1,11 @@
 image: gradle:6.5.1-jdk8
+services:
+  - docker:dind
+variables:
+  DOCKER_HOST: "tcp://docker:2375"
+  DOCKER_DRIVER: overlay2
+  DOCKER_TLS_CERTDIR: ""
+
 include:
   - local: '/ci/submitter.yml'
   - local: '/ci/pmc-processor.yml'
@@ -10,7 +17,7 @@ include:
 
 stages:
   - build-test
-  - build-artifact
+  - mysql-itest
   - auto-deploy-dev-submitter
   - auto-deploy-dev-handlers
   - deploy-dev-submitter
@@ -43,3 +50,7 @@ build-test:
       - scheduler/submission-releaser-task/build/libs/submission-releaser-task-1.0.0.jar
       - submission/submission-webapp/build/libs/submission-webapp-1.0.0.jar
       - submission/submission-handlers/build/libs/submission-handlers-1.0.0.jar
+
+mysql-itest:
+  stage: mysql-itest
+  script: gradle clean :submission:submission-webapp:itest -Pitest.mode=mysql --rerun-tasks

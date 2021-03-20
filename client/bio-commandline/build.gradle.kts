@@ -30,7 +30,7 @@ dependencies {
 
 tasks {
     shadowJar {
-        archiveBaseName.set("PTSubmit")
+        archiveBaseName.set("BioStudiesCLI")
         archiveVersion.set("2.0")
         archiveClassifier.set("")
 

@@ -1,0 +1,32 @@
+post:
+  summary: Retry User Activation
+  description: Send the activation E-Mail to a user to either activate the account or reset the password.
+
+  tags:
+    - Security
+
+  requestBody:
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            email:
+              description: User email
+              example: "user@test.org"
+              required: true
+              type: string
+            instanceKey:
+              description: Instance key to generate the activation link.
+              example: "the-instance-key"
+              required: false
+              type: string
+            path:
+              description: The user folder path
+              example: "/user/path"
+              required: true
+              type: string
+
+  responses:
+    201:
+      description: User created

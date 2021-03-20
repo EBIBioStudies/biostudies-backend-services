@@ -6,6 +6,7 @@ import ac.uk.ebi.cluster.client.model.JobSpec
 import ac.uk.ebi.cluster.client.model.MemorySpec.Companion.EIGHT_GB
 import ac.uk.ebi.cluster.client.model.logsPath
 import ac.uk.ebi.scheduler.properties.ReleaserMode
+import ac.uk.ebi.scheduler.properties.ReleaserMode.GENERATE_FTP_LINKS
 import ac.uk.ebi.scheduler.properties.ReleaserMode.NOTIFY
 import ac.uk.ebi.scheduler.properties.ReleaserMode.RELEASE
 import ac.uk.ebi.scheduler.properties.SubmissionReleaserProperties
@@ -35,6 +36,11 @@ class SubmissionReleaserTrigger(
     fun triggerSubmissionReleaseNotifier(): Job {
         logger.info { "triggering submission release notifier job" }
         return triggerJob(mode = NOTIFY)
+    }
+
+    fun triggerFtpLinksGenerator(): Job {
+        logger.info { "triggering ftp links generator job" }
+        return triggerJob(mode = GENERATE_FTP_LINKS)
     }
 
     private fun triggerJob(mode: ReleaserMode): Job {

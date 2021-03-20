@@ -9,9 +9,19 @@ sourceSets {
     }
 }
 
+val copySqlSchema = tasks.create<Copy>("copySqlSchema") {
+    from("$rootDir/infrastructure/src/main/resources/setup/mysql/Schema.sql")
+    into("$buildDir/resources/itest")
+}
+
 val itest = tasks.create<Test>("itest") {
+    dependsOn(copySqlSchema)
     testClassesDirs = sourceSets["itest"].output.classesDirs
     classpath = sourceSets["itest"].runtimeClasspath
+
+    val testingMode = project.property("itest.mode")
+    println("##### Running integration tests in $testingMode mode #######")
+    systemProperty("testing.mode", testingMode)
 
     useJUnitPlatform()
     extensions.configure(JacocoTaskExtension::class) {

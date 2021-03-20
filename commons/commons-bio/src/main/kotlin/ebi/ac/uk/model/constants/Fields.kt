@@ -4,12 +4,15 @@ private const val ACC_NO_FIELD = "accno"
 private const val SECTION_FIELD = "section"
 private const val ATTRIBUTES_FIELD = "attributes"
 
-val RESERVED_ATTRIBUTES = setOf(
+val SUBMISSION_RESERVED_ATTRIBUTES = setOf(
     SubFields.RELEASE_DATE.value,
     SubFields.TITLE.value,
     SubFields.ATTACH_TO.value,
     SubFields.ON_BEHALF.value,
-    SubFields.ROOT_PATH.value)
+    SubFields.ROOT_PATH.value
+)
+
+val SECTION_RESERVED_ATTRIBUTES = setOf(SectionFields.FILE_LIST.value)
 
 interface Fields {
     val value: String?
@@ -39,7 +42,8 @@ enum class SubFields(override val value: String) : Fields {
     SECRET("secretKey"),
     ATTACH_TO("AttachTo"),
     ON_BEHALF("onBehalf"),
-    ACC_NO_TEMPLATE("AccNoTemplate");
+    ACC_NO_TEMPLATE("AccNoTemplate"),
+    COLLECTION_VALIDATOR("CollectionValidator");
 
     override fun toString(): String {
         return value

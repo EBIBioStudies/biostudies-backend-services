@@ -1,0 +1,12 @@
+schema:
+  type: object
+  properties:
+    accNo:
+      type: string
+      example: "S-BSST1"
+    type:
+      type: string
+      example: "VIEWS"
+    value:
+      type: number
+      example: 498

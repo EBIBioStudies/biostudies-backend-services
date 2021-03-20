@@ -1,0 +1,67 @@
+openapi: 3.0.0
+info:
+  title: BioStudies API
+  description: Description of the endpoints that can be used to interact programatically with the BioStudies database
+  version: 1.0.0
+servers:
+  - url: 'http://biostudy-prod.ebi.ac.uk:8788'
+    description: PROD
+  - url: 'http://biostudy-dev.ebi.ac.uk:8788'
+    description: BETA
+
+tags:
+  - name: Security
+  - name: Projects
+  - name: Groups
+  - name: Group Files
+  - name: User Files
+  - name: Search Submissions
+  - name: Submissions
+  - name: Async Submissions
+
+paths:
+  /auth/login:
+    $ref: 'security/Login.yaml'
+  /auth/logout:
+    $ref: 'security/Logout.yaml'
+  /auth/profile:
+    $ref: 'security/UserInfo.yaml'
+  /auth/password/change:
+    $ref: 'security/ChangePassword.yaml'
+  /auth/password/reset:
+    $ref: 'security/ResetPassword.yaml'
+
+  /projects:
+    $ref: 'projects/UserProjects.yaml'
+
+  /groups:
+    $ref: 'groups/UserGroups.yaml'
+
+  /files/groups/{groupName}/{path}:
+    $ref: 'files/GroupFiles.yaml'
+  /folder/groups/{groupName}/{path}:
+    $ref: 'files/GroupFolder.yaml'
+
+  /files/user/{path}:
+    $ref: 'files/UserFiles.yaml'
+  /folder/user/{path}:
+    $ref: 'files/UserFolder.yaml'
+
+  /submissions:
+    $ref: 'submissions/operations/SubmissionOperations.yaml'
+  /submissions/direct:
+    $ref: 'submissions/operations/DirectSubmit.yaml'
+
+  /submissions/async:
+    $ref: 'submissions/operations/AsyncSubmit.yaml'
+  /submissions/direct/async:
+    $ref: 'submissions/operations/AsyncDirectSubmit.yaml'
+
+  /submissions/{accNo}:
+    $ref: 'submissions/operations/DeleteSubmission.yaml'
+  /submissions/{accNo}.json:
+    $ref: 'submissions/search/JsonSubmission.yaml'
+  /submissions/{accNo}.tsv:
+    $ref: 'submissions/search/TsvSubmission.yaml'
+  /submissions/{accNo}.xml:
+    $ref: 'submissions/search/XmlSubmission.yaml'

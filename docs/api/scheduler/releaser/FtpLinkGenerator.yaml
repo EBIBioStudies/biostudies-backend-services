@@ -1,0 +1,9 @@
+post:
+  summary: Trigger FTP Link Generator
+  description: Trigger the process to generate the FTP links for all the released submissions in the environment.
+
+  tags:
+    - Submission Releaser
+
+  responses:
+    $ref: '../model/SchedulerJobResponse.yaml'

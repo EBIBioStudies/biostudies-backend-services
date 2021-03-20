@@ -39,7 +39,7 @@ internal class SubmitPermissionTest(tempFolder: TemporaryFolder) : BaseIntegrati
     @ExtendWith(SpringExtension::class)
     @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
     @DirtiesContext
-    inner class SubmitProjectTest(
+    inner class SubmitExtCollectionTest(
         @Autowired private val securityTestService: SecurityTestService,
         @Autowired private val userDataRepository: UserDataRepository,
         @Autowired private val tagsDataRepository: AccessTagDataRepo,

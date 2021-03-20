@@ -1,0 +1,45 @@
+post:
+  summary: Increment Submission Stats
+  description: |
+    Increments the stats contained inside the given file. Please have in mind:
+    - The file should be in TSV format following the convention <accNo>\t<value>
+    - All entries for nonexisting submissions will be ignored
+    - All the entries for the same submission will be summarized and the final value will be added to the current value for that submission or registered as a new stat if it doesn't exist
+
+  tags:
+    - Submission Stats
+
+  parameters:
+    - in: header
+      name: X-SESSION-TOKEN
+      description: User authentication token
+      required: true
+      type: string
+
+    - in: path
+      name: type
+      description: "Stats type. Accepted values: VIEWS"
+      required: true
+      type: string
+
+  requestBody:
+    content:
+      multipart/form-data:
+        schema:
+          type: object
+          properties:
+            stats:
+              description: A TSV file containing the submission stats increments.
+              example: stats.tsv
+              required: true
+              type: string
+              format: binary
+
+  responses:
+    200:
+      description: OK
+      content:
+        application/json:
+          $ref: '../model/Stat.yaml'
+    401:
+      description: Caused by an invalid X-SESSION-TOKEN

@@ -1,0 +1,15 @@
+schema:
+  type: object
+  properties:
+    type:
+      type: string
+      example: "Submission"
+    accno:
+      type: string
+      example: "S-BIAD1"
+    section:
+      type: object
+      properties:
+        type:
+          type: string
+          example: Study

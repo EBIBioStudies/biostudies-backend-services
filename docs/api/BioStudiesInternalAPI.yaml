@@ -1,0 +1,76 @@
+openapi: 3.0.0
+info:
+  title: BioStudies Internal API
+  description:
+    In order to facilitate some of the tasks that we need to perform such as refreshing a submission or generating FTP
+    links, we've created some endpoints that are intended only for internal usage.
+  version: 1.0.0
+servers:
+  - url: 'http://biostudy-prod.ebi.ac.uk:8788'
+    description: PROD
+  - url: 'http://biostudy-dev.ebi.ac.uk:8788'
+    description: BETA
+  - url: 'http://biostudy-bia.ebi.ac.uk:8788'
+    description: DEV
+
+tags:
+  - name: Security
+  - name: Extended Submissions
+  - name: Refresh
+  - name: Submission Drafts
+  - name: Submission Stats
+  - name: FTP
+  - name: Submission Releaser
+  - name: PMC Importer
+
+paths:
+  /auth/register:
+    $ref: 'security/RegisterUser.yaml'
+  /auth/activate/{activationKey}:
+    $ref: 'security/ActivateUser.yaml'
+  /auth/check-registration:
+    $ref: 'security/CheckUserRegistration.yaml'
+  /auth/retryact:
+    $ref: 'security/RetryUserActivation.yaml'
+  /auth/refresh-user:
+    $ref: 'security/RefreshUser.yaml'
+
+  /submissions/refresh/{accNo}:
+    $ref: 'submissions/operations/RefreshSubmission.yaml'
+  /submissions/extended:
+    $ref: 'submissions/extended/ExtSubmissionOperations.yaml'
+  /submissions/extended/{accNo}:
+    $ref: 'submissions/extended/GetExtSubmission.yaml'
+
+  /submissions/drafts:
+    $ref: 'drafts/operations/DraftOperations.yaml'
+  /submissions/drafts/{key}:
+    $ref: 'drafts/operations/DraftOperationsByKey.yaml'
+  /submissions/drafts/{key}/content:
+    $ref: 'drafts/operations/GetDraftContent.yaml'
+  /submissions/drafts/{key}/submit:
+    $ref: 'drafts/operations/SubmitDraft.yaml'
+
+  /submissions/ftp/generate:
+    $ref: 'ftp/GenerateFtpLinks.yaml'
+
+  /stats/{type}:
+    $ref: 'stats/operations/StatsOperationsByKey.yaml'
+  /stats/{type}/{accNo}:
+    $ref: 'stats/operations/GetSubmissionStatsByType.yaml'
+  /stats/{type}/increment:
+    $ref: 'stats/operations/IncrementStats.yaml'
+
+  /api/releaser/release:
+    $ref: 'scheduler/releaser/SubmissionReleaser.yaml'
+  /api/releaser/notify:
+    $ref: 'scheduler/releaser/SubmissionNotifier.yaml'
+  /api/releaser/ftp/generate:
+    $ref: 'scheduler/releaser/FtpLinkGenerator.yaml'
+
+  /api/pmc/load/folder:
+    $ref: 'scheduler/pmc/LoadFiles.yaml'
+  /api/pmc/process:
+    $ref: 'scheduler/pmc/ProcessSubmissions.yaml'
+  /api/pmc/submit:
+    $ref: 'scheduler/pmc/Submit.yaml'
