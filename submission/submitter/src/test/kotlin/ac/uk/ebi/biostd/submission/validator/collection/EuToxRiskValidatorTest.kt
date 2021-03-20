@@ -8,7 +8,6 @@ import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.test.basicExtSubmission
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
-import io.mockk.CapturingSlot
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -24,10 +23,11 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.core.io.FileSystemResource
 import org.springframework.http.HttpEntity
 import org.springframework.web.client.RestTemplate
+import org.springframework.web.client.postForObject
 
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
 class EuToxRiskValidatorTest(
-    private val temporaryFolder: TemporaryFolder,
+    temporaryFolder: TemporaryFolder,
     @MockK private val restTemplate: RestTemplate,
     @MockK private val validationProperties: ValidatorProperties
 ) {
@@ -46,11 +46,15 @@ class EuToxRiskValidatorTest(
 
     @Test
     fun validate() {
-        val requestSlot = setUpRestTemplate(EuToxRiskValidatorResponse(listOf()))
+        val requestSlot = slot<HttpEntity<FileSystemResource>>()
         val submission = basicExtSubmission.copy(section = ExtSection(
             type = "Study",
             files = listOf(left(ExtFile("test.xlsx", excelFile)))
         ))
+
+        every {
+            restTemplate.postForObject<EuToxRiskValidatorResponse>(testUrl, capture(requestSlot))
+        } returns EuToxRiskValidatorResponse(listOf())
 
         testInstance.validate(submission)
 
@@ -61,11 +65,15 @@ class EuToxRiskValidatorTest(
 
     @Test
     fun `validate with errors`() {
+        val requestSlot = slot<HttpEntity<FileSystemResource>>()
         val submission = basicExtSubmission.copy(section = ExtSection(
             type = "Study",
             files = listOf(left(ExtFile("test.xlsx", excelFile)))
         ))
-        val requestSlot = setUpRestTemplate(EuToxRiskValidatorResponse(listOf(EuToxRiskValidatorMessage("an error"))))
+
+        every {
+            restTemplate.postForObject<EuToxRiskValidatorResponse>(testUrl, capture(requestSlot))
+        } returns EuToxRiskValidatorResponse(listOf(EuToxRiskValidatorMessage("an error")))
 
         val error = assertThrows<CollectionValidationException> { testInstance.validate(submission) }
         assertThat(error.message).isEqualTo(
@@ -85,15 +93,5 @@ class EuToxRiskValidatorTest(
         val error = assertThrows<CollectionValidationException> { testInstance.validate(submission) }
         assertThat(error.message).isEqualTo(
             "The submission doesn't comply with the collection requirements. Errors: [$EXCEL_FILE_REQUIRED]")
-    }
-
-    private fun setUpRestTemplate(response: EuToxRiskValidatorResponse): CapturingSlot<HttpEntity<FileSystemResource>> {
-        val requestSlot = slot<HttpEntity<FileSystemResource>>()
-
-        every {
-            restTemplate.postForObject(testUrl, capture(requestSlot), EuToxRiskValidatorResponse::class.java)
-        } returns response
-
-        return requestSlot
     }
 }

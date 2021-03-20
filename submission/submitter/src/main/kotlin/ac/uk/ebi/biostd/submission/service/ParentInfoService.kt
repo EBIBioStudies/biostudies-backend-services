@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.submission.service
 
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
+import ac.uk.ebi.biostd.persistence.exception.CollectionValidationException
 import ac.uk.ebi.biostd.submission.exceptions.CollectionInvalidAccessTagException
 import ac.uk.ebi.biostd.submission.validator.collection.CollectionValidator
 import ebi.ac.uk.base.ifFalse
@@ -41,10 +42,10 @@ class ParentInfoService(
 
     private fun collectionInfo(accNo: String) = queryService.getBasicCollection(accNo)
 
-    private fun validate(validator: String, submission: ExtSubmission) =
-        beanFactory
-            .getBean(validator, CollectionValidator::class.java)
-            .validate(submission)
+    @Throws(CollectionValidationException::class)
+    private fun validate(validator: String, submission: ExtSubmission) = loadValidator(validator).validate(submission)
+
+    private fun loadValidator(name: String) = beanFactory.getBean(name, CollectionValidator::class.java)
 }
 
 data class ParentInfo(val accessTags: List<String>, val releaseTime: OffsetDateTime?, val parentTemplate: String?)

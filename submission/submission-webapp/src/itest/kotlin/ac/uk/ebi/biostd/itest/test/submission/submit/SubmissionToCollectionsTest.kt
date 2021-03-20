@@ -42,9 +42,9 @@ internal class SubmissionToCollectionsTest(private val tempFolder: TemporaryFold
     @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
     @DirtiesContext
     inner class SubmitToExtCollectionTest(
-        @Autowired val testCollectionValidator: TestCollectionValidator,
-        @Autowired val securityTestService: SecurityTestService,
-        @Autowired val submissionRepository: SubmissionQueryService
+        @Autowired private val securityTestService: SecurityTestService,
+        @Autowired private val submissionRepository: SubmissionQueryService,
+        @Autowired private val testCollectionValidator: TestCollectionValidator
     ) {
         @LocalServerPort
         private var serverPort: Int = 0

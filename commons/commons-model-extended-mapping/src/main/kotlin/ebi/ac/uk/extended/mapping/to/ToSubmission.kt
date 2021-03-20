@@ -21,11 +21,7 @@ fun ExtSubmission.toSimpleSubmission(): Submission = Submission(
 )
 
 private fun ExtSubmission.getSubmissionAttributes(): List<Attribute> {
-    val subAttrs =
-        attributes
-            .filterNot { it.name == COLLECTION_VALIDATOR.value }
-            .map { it.toAttribute() }.toMutableSet()
-
+    val subAttrs = pageTabAttributes
     title?.let { subAttrs.add(Attribute(TITLE, it)) }
     releaseTime?.let { subAttrs.add(Attribute(RELEASE_DATE, it.toLocalDate())) }
     rootPath?.let { subAttrs.add(Attribute(ROOT_PATH, it)) }
@@ -33,3 +29,9 @@ private fun ExtSubmission.getSubmissionAttributes(): List<Attribute> {
 
     return subAttrs.toList()
 }
+
+private val ExtSubmission.pageTabAttributes: MutableSet<Attribute>
+    get() = attributes
+        .filterNot { it.name == COLLECTION_VALIDATOR.value }
+        .map { it.toAttribute() }
+        .toMutableSet()
