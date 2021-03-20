@@ -98,7 +98,10 @@ class SubmissionSubmitter(
         method: SubmissionMethod
     ): ExtSubmission {
         try {
-            return processSubmission(submission, submitter, onBehalfUser, source, method)
+            val extSubmission = processSubmission(submission, submitter, onBehalfUser, source, method)
+            parentInfoService.executeCollectionValidators(extSubmission)
+
+            return extSubmission
         } catch (exception: RuntimeException) {
             throw InvalidSubmissionException("Submission validation errors", listOf(exception))
         }
@@ -118,10 +121,10 @@ class SubmissionSubmitter(
         val released = releaseTime?.isBeforeOrEqual(OffsetDateTime.now()).orFalse()
         val accNo = getAccNumber(submission, isNew, submitter, parentPattern)
         val accNoString = accNo.toString()
-        val projectInfo = getProjectInfo(submitter, submission, accNoString, isNew)
+        val collectionInfo = getCollectionInfo(submitter, submission, accNoString, isNew)
         val secretKey = previousVersion?.secretKey ?: UUID.randomUUID().toString()
         val relPath = accNoService.getRelPath(accNo)
-        val tags = getTags(parentTags, projectInfo)
+        val tags = getTags(parentTags, collectionInfo)
         val ownerEmail = onBehalfUser?.email ?: previousVersion?.owner ?: submitter.email
 
         return ExtSubmission(
@@ -160,8 +163,8 @@ class SubmissionSubmitter(
         return tags
     }
 
-    private fun getProjectInfo(user: User, submission: Submission, accNo: String, isNew: Boolean): CollectionResponse? {
-        val request = CollectionRequest(user.email, submission.section.type, submission.accNoTemplate, accNo, isNew)
+    private fun getCollectionInfo(user: User, sub: Submission, accNo: String, isNew: Boolean): CollectionResponse? {
+        val request = CollectionRequest(user.email, sub.section.type, sub.accNoTemplate, accNo, isNew)
         return collectionInfoService.process(request)
     }
 

@@ -21,6 +21,9 @@ open class ApplicationProperties {
 
     @NestedConfigurationProperty
     var mongo: MongoModuleProperties = MongoModuleProperties()
+
+    @NestedConfigurationProperty
+    var validator: ValidatorProperties = ValidatorProperties()
 }
 
 class FireProperties {
@@ -31,4 +34,8 @@ class FireProperties {
 
 class MongoModuleProperties {
     lateinit var connection: String
+}
+
+class ValidatorProperties {
+    lateinit var euToxRiskValidationApi: String
 }

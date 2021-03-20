@@ -61,7 +61,7 @@ class SubmissionSubmitterTest {
     private val accNoService = mockk<AccNoService>()
     private val parentInfoService = mockk<ParentInfoService>()
     private val queryService = mockk<SubmissionMetaQueryService>()
-    private val projectInfoService = mockk<CollectionInfoService>()
+    private val collectionInfoService = mockk<CollectionInfoService>()
     private val submissionRequestService = mockk<SubmissionRequestService>()
     private val basicSubmission = mockk<BasicSubmission>()
 
@@ -69,9 +69,10 @@ class SubmissionSubmitterTest {
     private val saveRequest = slot<SaveSubmissionRequest>()
     private val projectRequest = slot<CollectionRequest>()
     private val accNoServiceRequest = slot<AccNoServiceRequest>()
+    private val processedSubmission = slot<ExtSubmission>()
 
     private val testInstance = SubmissionSubmitter(
-        timesService, accNoService, parentInfoService, projectInfoService, submissionRequestService, queryService)
+        timesService, accNoService, parentInfoService, collectionInfoService, submissionRequestService, queryService)
 
     @BeforeEach
     fun beforeEach() {
@@ -182,10 +183,11 @@ class SubmissionSubmitterTest {
         queryService.findLatestBasicByAccNo("S-TEST123")
 
         parentInfoService.getParentInfo("BioImages")
+        parentInfoService.executeCollectionValidators(processedSubmission.captured)
 
         timesService.getTimes(timesRequest.captured)
 
-        projectInfoService.process(projectRequest.captured)
+        collectionInfoService.process(projectRequest.captured)
     }
 
     private fun verifyPersistenceContextSync() = verify(exactly = 1) {
@@ -203,8 +205,9 @@ class SubmissionSubmitterTest {
         every { accNoService.calculateAccNo(capture(accNoServiceRequest)) } returns accNo
         every { queryService.findLatestBasicByAccNo("S-TEST123") } returns basicSubmission
         every { timesService.getTimes(capture(timesRequest)) } returns Times(testTime, testTime, null)
-        every { projectInfoService.process(capture(projectRequest)) } returns CollectionResponse("BioImages")
+        every { collectionInfoService.process(capture(projectRequest)) } returns CollectionResponse("BioImages")
         every { parentInfoService.getParentInfo("BioImages") } returns ParentInfo(emptyList(), null, "S-BIAD")
+        every { parentInfoService.executeCollectionValidators(capture(processedSubmission)) } answers { nothing }
     }
 
     private fun mockPersistenceContext() {
