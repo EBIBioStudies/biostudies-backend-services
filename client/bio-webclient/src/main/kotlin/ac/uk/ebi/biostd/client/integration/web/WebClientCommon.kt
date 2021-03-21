@@ -5,7 +5,10 @@ import ac.uk.ebi.biostd.client.interceptor.HttpHeaderInterceptor
 import ac.uk.ebi.biostd.client.interceptor.ServerValidationInterceptor
 import ebi.ac.uk.model.constants.APPLICATION_JSON
 import ebi.ac.uk.util.collections.replace
+import org.springframework.http.HttpEntity
+import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpHeaders.ACCEPT
+import org.springframework.http.MediaType
 import org.springframework.http.client.ClientHttpRequestInterceptor
 import org.springframework.http.converter.HttpMessageConverter
 import org.springframework.http.converter.StringHttpMessageConverter
@@ -21,6 +24,13 @@ internal fun template(baseUrl: String): RestTemplate {
         interceptors = interceptors()
         uriTemplateHandler = DefaultUriBuilderFactory(baseUrl)
     }
+}
+
+internal fun <T> jsonHttpEntityOf(value: T): HttpEntity<T> {
+    val headers = HttpHeaders()
+    headers.contentType = MediaType.APPLICATION_JSON
+    headers.accept = listOf(MediaType.APPLICATION_JSON)
+    return HttpEntity(value, headers)
 }
 
 /**
@@ -41,3 +51,4 @@ private fun getConverters(converters: List<HttpMessageConverter<*>>): List<HttpM
  */
 private fun interceptors(): List<ClientHttpRequestInterceptor> =
     listOf(ServerValidationInterceptor(), HttpHeaderInterceptor(ACCEPT, APPLICATION_JSON))
+

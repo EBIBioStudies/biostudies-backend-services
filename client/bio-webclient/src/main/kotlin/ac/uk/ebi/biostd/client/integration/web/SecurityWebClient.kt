@@ -4,9 +4,6 @@ import ebi.ac.uk.api.security.CheckUserRequest
 import ebi.ac.uk.api.security.LoginRequest
 import ebi.ac.uk.api.security.RegisterRequest
 import ebi.ac.uk.api.security.UserProfile
-import org.springframework.http.HttpEntity
-import org.springframework.http.HttpHeaders
-import org.springframework.http.MediaType
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.client.postForObject
 
@@ -22,23 +19,15 @@ class SecurityWebClient private constructor(
         }
 
     override fun login(loginRequest: LoginRequest): UserProfile =
-        restTemplate.postForObject("/auth/login", createHttpEntity(loginRequest))
+        restTemplate.postForObject("/auth/login", jsonHttpEntityOf(loginRequest))
 
     override fun registerUser(registerRequest: RegisterRequest) {
-        restTemplate.postForLocation("/auth/register", createHttpEntity(registerRequest))
+        restTemplate.postForLocation("/auth/register", jsonHttpEntityOf(registerRequest))
     }
 
     override fun checkUser(checkUserRequest: CheckUserRequest) {
-        restTemplate.postForLocation("/auth/check-user", createHttpEntity(checkUserRequest))
+        restTemplate.postForLocation("/auth/check-user", jsonHttpEntityOf(checkUserRequest))
     }
-
-    private fun <T> createHttpEntity(body: T): HttpEntity<T> {
-        val headers = HttpHeaders()
-        headers.contentType = MediaType.APPLICATION_JSON
-        headers.accept = listOf(MediaType.APPLICATION_JSON)
-        return HttpEntity(body, headers)
-    }
-
     companion object {
         fun create(baseUrl: String) = SecurityWebClient(baseUrl, template(baseUrl))
     }
