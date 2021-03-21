@@ -21,7 +21,6 @@ import ebi.ac.uk.model.SubmissionMethod.FILE
 import ebi.ac.uk.model.SubmissionMethod.PAGE_TAB
 import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSED
 import ebi.ac.uk.model.extensions.rootPath
-import ebi.ac.uk.paths.FILES_PATH
 import ebi.ac.uk.paths.SubmissionFolderResolver
 import ebi.ac.uk.security.integration.components.ISecurityService
 import ebi.ac.uk.security.integration.model.api.SecurityUser
@@ -46,7 +45,7 @@ class SubmitWebHandler(
 
     fun submitAsync(request: ContentSubmitWebRequest) = submissionService.submitAsync(buildRequest(request))
 
-    fun submitAsync(request: FileSubmitWebRequest): Unit = submissionService.submitAsync(buildRequest(request))
+    fun submitAsync(request: FileSubmitWebRequest) = submissionService.submitAsync(buildRequest(request))
 
     private fun buildRequest(request: ContentSubmitWebRequest): SubmissionRequest {
         val sub = serializationService.deserializeSubmission(request.submission, request.format)
@@ -60,13 +59,15 @@ class SubmitWebHandler(
             subFolder = subFolder(previousVersion)
         ))
         val submission = withAttributes(submission(request.submission, request.format, source), request.attrs)
+
         return SubmissionRequest(
             submission = submission,
             submitter = request.submitter,
             onBehalfUser = request.onBehalfRequest?.let { getOnBehalfUser(it) },
             method = PAGE_TAB,
             sources = source,
-            mode = request.fileMode
+            mode = request.fileMode,
+            draftKey = request.draftKey
         )
     }
 
@@ -123,7 +124,7 @@ class SubmitWebHandler(
         serializationService.deserializeSubmission(subFile, source)
 
     private fun subFolder(submission: BasicSubmission?): File? =
-        submission?.let { folderResolver.getSubFolder(submission.relPath).toFile().resolve(FILES_PATH) }
+        submission?.let { folderResolver.getSubFolder(submission.relPath).toFile() }
 
     private fun requireNotProcessing(basicSubmission: BasicSubmission?) =
         basicSubmission?.let {

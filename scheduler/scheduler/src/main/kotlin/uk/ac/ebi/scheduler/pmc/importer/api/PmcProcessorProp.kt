@@ -9,6 +9,7 @@ class PmcProcessorProp {
 
     lateinit var temp: String
     lateinit var mongoUri: String
+    lateinit var mongoDatabase: String
     var bioStudiesUrl: String? = null
     var bioStudiesUser: String? = null
     var bioStudiesPassword: String? = null

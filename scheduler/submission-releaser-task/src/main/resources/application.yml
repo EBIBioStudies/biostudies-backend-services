@@ -6,7 +6,7 @@ spring:
     port: # RabbitMQ Port
 
 app:
-  mode: # Releaser mode: RELEASE, NOTIFY
+  mode: # Releaser mode: RELEASE, NOTIFY, GENERATE_FTP_LINKS
   bioStudies:
     url: # BioStudies backend URL
     user: # BioStudies manager user

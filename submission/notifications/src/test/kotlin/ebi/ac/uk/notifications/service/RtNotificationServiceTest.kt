@@ -3,12 +3,12 @@ package ebi.ac.uk.notifications.service
 import ac.uk.ebi.biostd.persistence.common.service.NotificationsDataService
 import ac.uk.ebi.biostd.persistence.model.DbSubmissionRT
 import ebi.ac.uk.extended.model.ExtAttribute
+import ebi.ac.uk.extended.model.ExtCollection
 import ebi.ac.uk.extended.model.ExtProcessingStatus.PROCESSED
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod.PAGE_TAB
 import ebi.ac.uk.extended.model.ExtTag
-import ebi.ac.uk.extended.model.Project
 import ebi.ac.uk.notifications.api.RtClient
 import ebi.ac.uk.notifications.util.TemplateLoader
 import io.mockk.clearAllMocks
@@ -120,7 +120,7 @@ class RtNotificationServiceTest(
             creationTime = time,
             attributes = listOf(ExtAttribute("AttachTo", "BioImages")),
             tags = listOf(ExtTag("component", "web")),
-            projects = listOf(Project("BioImages")),
+            collections = listOf(ExtCollection("BioImages")),
             section = ExtSection(type = "Study")
         )
     }

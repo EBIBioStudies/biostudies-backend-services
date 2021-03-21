@@ -36,24 +36,23 @@ import java.nio.file.attribute.PosixFilePermission
 
 @ExtendWith(TemporaryFolderExtension::class, MockKExtension::class)
 class FilesServiceTest(
-    private val temporaryFolder: TemporaryFolder,
+    private val tempFolder: TemporaryFolder,
     @MockK private val mockSerializationService: SerializationService
 ) {
     private lateinit var extSubmission: ExtSubmission
 
-    private val testInstance =
-        FilesService(SubmissionFolderResolver(
-            Paths.get("${temporaryFolder.root.toPath()}/submission"),
-            Paths.get("${temporaryFolder.root.toPath()}/ftp")
-        ), mockSerializationService)
+    private val rootPath = tempFolder.root.toPath()
+    private val pageTabService = PageTabService(mockSerializationService)
+    private val folderResolver = SubmissionFolderResolver(Paths.get("$rootPath/submission"), Paths.get("$rootPath/ftp"))
+    private val testInstance = FilesService(pageTabService, FileProcessingService(), folderResolver)
 
     @BeforeEach
     fun beforeEach() {
-        temporaryFolder.clean()
+        tempFolder.clean()
 
-        val file1 = temporaryFolder.createFile("file.txt", "text-1")
-        val file2 = temporaryFolder.createFile("file2.txt", "text-3")
-        val sectionFolder = temporaryFolder.createDirectory("fileDirectory")
+        val file1 = tempFolder.createFile("file.txt", "text-1")
+        val file2 = tempFolder.createFile("file2.txt", "text-3")
+        val sectionFolder = tempFolder.createDirectory("fileDirectory")
         extSubmission = extSubmissionWithFileList(listOf(file1, file1, sectionFolder), listOf(file2, file1))
 
         val simpleSubmission = extSubmission.toSimpleSubmission()
@@ -127,7 +126,7 @@ class FilesServiceTest(
         assertFile(getPath("submission/$relPath/fileList.pagetab.tsv"), expectedFilePermissions)
     }
 
-    private fun getPath(path: String) = Paths.get("${temporaryFolder.root.absolutePath}/$path")
+    private fun getPath(path: String) = Paths.get("${tempFolder.root.absolutePath}/$path")
 
     private fun assertFile(path: Path, expectedPermissions: Set<PosixFilePermission>) {
         assertThat(path).exists()

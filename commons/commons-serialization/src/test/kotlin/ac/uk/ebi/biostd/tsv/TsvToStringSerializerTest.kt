@@ -10,6 +10,7 @@ import ebi.ac.uk.dsl.tsv
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.AttributeDetail
 import ebi.ac.uk.model.File
+import ebi.ac.uk.model.FileList
 import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.model.Link
 import ebi.ac.uk.model.LinksTable
@@ -39,12 +40,14 @@ class TsvToStringSerializerTest {
     @Test
     fun `serialize section`() {
         val section = section("Study") {
+            fileList = FileList("file-list")
             attribute("Project", "Test Project")
         }
 
         val expectedTsv = tsv {
             line("Study")
             line("Project", "Test Project")
+            line("File List", "file-list.pagetab.tsv")
             line()
         }.toString()
 

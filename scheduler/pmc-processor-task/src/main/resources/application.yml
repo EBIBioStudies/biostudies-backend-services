@@ -4,6 +4,7 @@ app:
     path: # Interpreted according to specified mode. Path of the file, folder to load.
     temp: # directory to store submission downloaded files
     mongodb-uri: # Mongo database connection string
+    mongodb-database: # Mongo database
     bio-studies-url: # URL pointing to the BioStudies instance where the data will be submitted
     bio-studies-user: # User under whom the submissions will be made
     bio-studies-password: # Password for the specified user

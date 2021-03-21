@@ -14,6 +14,7 @@ import ebi.ac.uk.extended.model.ExtLink
 import ebi.ac.uk.extended.model.ExtLinkTable
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSectionTable
+import ebi.ac.uk.extended.model.ExtSubmission
 import uk.ac.ebi.extended.serialization.deserializers.EitherExtTypeDeserializer
 import uk.ac.ebi.extended.serialization.deserializers.ExtFileDeserializer
 import uk.ac.ebi.extended.serialization.deserializers.ExtFilesTableDeserializer
@@ -27,6 +28,7 @@ import uk.ac.ebi.extended.serialization.serializers.ExtLinkSerializer
 import uk.ac.ebi.extended.serialization.serializers.ExtLinksTableSerializer
 import uk.ac.ebi.extended.serialization.serializers.ExtSectionSerializer
 import uk.ac.ebi.extended.serialization.serializers.ExtSectionsTableSerializer
+import uk.ac.ebi.extended.serialization.serializers.ExtSubmissionSerializer
 import uk.ac.ebi.extended.serialization.serializers.OffsetDateTimeSerializer
 import uk.ac.ebi.serialization.serializers.EitherSerializer
 import java.time.OffsetDateTime
@@ -58,6 +60,7 @@ class ExtSerializationService {
                 addSerializer(ExtLink::class.java, ExtLinkSerializer())
                 addSerializer(ExtLinkTable::class.java, ExtLinksTableSerializer())
                 addSerializer(ExtSection::class.java, ExtSectionSerializer())
+                addSerializer(ExtSubmission::class.java, ExtSubmissionSerializer())
                 addSerializer(ExtSectionTable::class.java, ExtSectionsTableSerializer())
                 addSerializer(OffsetDateTime::class.java, OffsetDateTimeSerializer())
             }

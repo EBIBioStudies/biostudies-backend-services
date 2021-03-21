@@ -1,0 +1,82 @@
+type: object
+properties:
+  accNo:
+    type: string
+    example: "S-BSST1"
+  version:
+    type: number
+    example: 1
+  submitter:
+    type: string
+    example: "user@test.org"
+  title:
+    type: string
+    example: "Test Submission"
+  method:
+    type: string
+    example: "FILE"
+  released:
+    type: boolean
+    example: true
+  secretKey:
+    type: string
+    example: "secret-key"
+  status:
+    type: string
+    example: "PROCESSED"
+  releaseTime:
+    type: string
+    example: "1970-01-01T00:00:00Z"
+  modificationTime:
+    type: string
+    example: "1970-01-01T00:00:00Z"
+  creationTime:
+    type: string
+    example: "1970-01-01T00:00:00Z"
+  section:
+    type: object
+    properties:
+      type:
+        type: string
+        example: "Study"
+      attributes:
+        type: array
+        items:
+          properties:
+            name:
+              type: string
+              example: "Type"
+            value:
+              type: string
+              example: "Experiment"
+            reference:
+              type: boolean
+              example: false
+      files:
+        type: array
+        default: []
+      links:
+        type: array
+        default: []
+    extType:
+      type: string
+      example: "section"
+  attributes:
+    type: array
+    default: [ ]
+  tags:
+    type: array
+    default: [ ]
+  projects:
+    type: array
+    default: [ ]
+  stats:
+    type: array
+    default: [ ]
+  accessTags:
+    type: array
+    items:
+      properties:
+        name:
+          type: string
+          example: "Public"

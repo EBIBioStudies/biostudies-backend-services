@@ -19,8 +19,10 @@ class GeneralExceptionHandler {
     @ResponseBody
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(RuntimeException::class)
-    fun handleRuntime(exception: RuntimeException): ValidationTree =
-        ValidationTree(FAIL, ValidationNode(ERROR, exception.message ?: exception.javaClass.name))
+    fun handleRuntime(exception: RuntimeException): ValidationTree {
+        exception.printStackTrace()
+        return ValidationTree(FAIL, ValidationNode(ERROR, exception.message ?: exception.javaClass.name))
+    }
 
     @ResponseBody
     @ResponseStatus(HttpStatus.BAD_REQUEST)

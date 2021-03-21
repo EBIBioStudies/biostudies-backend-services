@@ -1,0 +1,17 @@
+post:
+  summary: Activate User
+  description: Activates a newly created user.
+
+  tags:
+    - Security
+
+  parameter:
+    - in: path
+      name: activationKey
+      description: User activation key
+      type: string
+      required: true
+
+  responses:
+    200:
+      description: OK

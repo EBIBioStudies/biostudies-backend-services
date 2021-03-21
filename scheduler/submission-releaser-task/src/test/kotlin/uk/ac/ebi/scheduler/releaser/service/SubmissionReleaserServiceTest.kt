@@ -4,7 +4,7 @@ import ac.uk.ebi.biostd.client.dto.ExtPageQuery
 import ac.uk.ebi.biostd.client.extensions.getExtSubmissionsAsSequence
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.extended.model.isProject
+import ebi.ac.uk.extended.model.isCollection
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -71,7 +71,7 @@ class SubmissionReleaserServiceTest(
         val releaseQuery = createReleaseExtPageQuery()
 
         mockExtSubmissionsQuery(releaseQuery, releaseSubmission)
-        every { releaseSubmission.isProject } returns false
+        every { releaseSubmission.isCollection } returns false
         every { releaseSubmission.released } returns false
         every { releaseSubmission.copy(released = true) } returns releaseSubmission
         every { bioWebClient.submitExt(releaseSubmission) } returns releaseSubmission
@@ -85,12 +85,44 @@ class SubmissionReleaserServiceTest(
     fun `release with project`(@MockK project: ExtSubmission) {
         val releaseQuery = createReleaseExtPageQuery()
 
-        every { project.isProject } returns true
+        every { project.isCollection } returns true
         mockExtSubmissionsQuery(releaseQuery, project)
 
         testInstance.releaseDailySubmissions()
         verify(exactly = 0) { bioWebClient.submitExt(project) }
         verify(exactly = 1) { bioWebClient.getExtSubmissionsAsSequence(releaseQuery) }
+    }
+
+    @Test
+    fun `generate ftp links`(@MockK publicSubmission: ExtSubmission) {
+        val relPath = "S-BSST/012/S-BSST112"
+        val query = ExtPageQuery(released = true)
+
+        mockExtSubmissionsQuery(query, publicSubmission)
+        every { publicSubmission.isCollection } returns false
+        every { publicSubmission.relPath } returns relPath
+        every { publicSubmission.accNo } returns "S-BSST112"
+        every { bioWebClient.generateFtpLink(relPath) } answers { nothing }
+
+        testInstance.generateFtpLinks()
+        verify(exactly = 1) {
+            bioWebClient.generateFtpLink(relPath)
+            bioWebClient.getExtSubmissionsAsSequence(query)
+        }
+    }
+
+    @Test
+    fun `generate ftp links for projects`(@MockK publicSubmission: ExtSubmission) {
+        val relPath = "S-BSST/012/S-BSST112"
+        val query = ExtPageQuery(released = true)
+
+        mockExtSubmissionsQuery(query, publicSubmission)
+        every { publicSubmission.isCollection } returns true
+        every { publicSubmission.relPath } returns relPath
+
+        testInstance.generateFtpLinks()
+        verify(exactly = 0) { bioWebClient.generateFtpLink(relPath) }
+        verify(exactly = 1) { bioWebClient.getExtSubmissionsAsSequence(query) }
     }
 
     private fun createNotifyExtPageQuery(month: Int, day: Int) = ExtPageQuery(

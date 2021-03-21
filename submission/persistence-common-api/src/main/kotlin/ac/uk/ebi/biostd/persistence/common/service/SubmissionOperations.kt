@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.persistence.common.service
 
-import ac.uk.ebi.biostd.persistence.common.model.BasicProject
+import ac.uk.ebi.biostd.persistence.common.model.BasicCollection
 import ac.uk.ebi.biostd.persistence.common.model.BasicSubmission
 import ac.uk.ebi.biostd.persistence.common.request.SaveSubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
@@ -26,15 +26,15 @@ interface SubmissionQueryService {
 
     fun expireSubmission(accNo: String)
 
-    fun getExtendedSubmissions(filter: SubmissionFilter, offset: Long, limit: Int): Page<ExtSubmission>
+    fun getExtendedSubmissions(filter: SubmissionFilter): Page<Result<ExtSubmission>>
 
-    fun getSubmissionsByUser(userId: Long, filter: SubmissionFilter): List<BasicSubmission>
+    fun getSubmissionsByUser(email: String, filter: SubmissionFilter): List<BasicSubmission>
 
     fun getRequest(accNo: String, version: Int): ExtSubmission
 }
 
 interface SubmissionMetaQueryService {
-    fun getBasicProject(accNo: String): BasicProject
+    fun getBasicCollection(accNo: String): BasicCollection
 
     fun findLatestBasicByAccNo(accNo: String): BasicSubmission?
 

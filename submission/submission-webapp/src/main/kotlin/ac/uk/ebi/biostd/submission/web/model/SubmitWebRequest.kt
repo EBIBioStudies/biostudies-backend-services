@@ -28,6 +28,7 @@ sealed class SubmitWebRequest(
 
 class ContentSubmitWebRequest(
     val submission: String,
+    val draftKey: String? = null,
     onBehalfRequest: OnBehalfRequest?,
     user: SecurityUser,
     format: SubFormat,

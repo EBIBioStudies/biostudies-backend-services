@@ -14,8 +14,8 @@ import ac.uk.ebi.biostd.persistence.repositories.SectionDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.SubmissionDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.SubmissionRequestDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.SubmissionStatsDataRepository
-import ac.uk.ebi.biostd.persistence.repositories.data.ProjectSqlDataService.Companion.SIMPLE_GRAPH
-import ac.uk.ebi.biostd.persistence.repositories.data.ProjectSqlDataService.Companion.asBasicSubmission
+import ac.uk.ebi.biostd.persistence.repositories.data.CollectionSqlDataService.Companion.SIMPLE_GRAPH
+import ac.uk.ebi.biostd.persistence.repositories.data.CollectionSqlDataService.Companion.asBasicSubmission
 import com.cosium.spring.data.jpa.entity.graph.domain.EntityGraphs
 import ebi.ac.uk.extended.model.ExtSubmission
 import mu.KotlinLogging
@@ -25,6 +25,7 @@ import org.springframework.data.domain.Sort
 import org.springframework.data.domain.Sort.Order
 import org.springframework.transaction.annotation.Transactional
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
+import java.time.OffsetDateTime
 
 private val logger = KotlinLogging.logger {}
 private val defaultOrder = Order.asc("id")
@@ -52,22 +53,23 @@ internal open class SubmissionRepository(
         val submission = submissionRepository.findByAccNoAndVersionGreaterThan(accNo)
         if (submission != null) {
             submission.version = -submission.version
+            submission.modificationTime = OffsetDateTime.now()
             submissionRepository.save(submission)
         }
     }
 
     @Transactional(readOnly = true)
-    override fun getExtendedSubmissions(filter: SubmissionFilter, offset: Long, limit: Int): Page<ExtSubmission> {
+    override fun getExtendedSubmissions(filter: SubmissionFilter): Page<Result<ExtSubmission>> {
         val filterSpecs = SubmissionFilterSpecification(filter)
-        val pageable = OffsetPageRequest(offset, limit, Sort.by(defaultOrder))
+        val pageable = OffsetPageRequest(filter.offset, filter.limit, Sort.by(defaultOrder))
 
         return submissionRepository
             .findAll(filterSpecs.specification, pageable, EntityGraphs.named(SIMPLE_GRAPH))
-            .map { getExtByAccNoAndVersion(it.accNo, it.version) }
+            .map { runCatching { getExtByAccNoAndVersion(it.accNo, it.version) } }
     }
 
-    override fun getSubmissionsByUser(userId: Long, filter: SubmissionFilter): List<BasicSubmission> {
-        val filterSpecs = SubmissionFilterSpecification(filter, userId)
+    override fun getSubmissionsByUser(email: String, filter: SubmissionFilter): List<BasicSubmission> {
+        val filterSpecs = SubmissionFilterSpecification(filter, email)
         val pageable = PageRequest.of(filter.pageNumber, filter.limit, Sort.by(SUB_RELEASE_TIME).descending())
 
         return submissionRepository
