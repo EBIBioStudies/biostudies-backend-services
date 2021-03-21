@@ -9,8 +9,11 @@ import Dependencies.Retrofit2
 import Dependencies.SpringWeb
 import SpringBootDependencies.SpringBootStarter
 import SpringBootDependencies.SpringBootStarterConfigProcessor
+import SpringBootDependencies.SpringBootStarterTest
+import TestDependencies.AssertJ
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
+import TestDependencies.TestContainerMongoDb
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.springframework.boot.gradle.tasks.bundling.BootJar
 
@@ -38,6 +41,12 @@ dependencies {
     implementation(SpringBootStarter)
     implementation(SpringWeb)
     implementation(SpringBootStarterConfigProcessor)
+
+    testImplementation(TestContainerMongoDb)
+    testImplementation(SpringBootStarterTest)
+    testImplementation(AssertJ)
+    testImplementation("com.github.tomakehurst:wiremock-jre8:2.27.2")
+    testApi(project(":commons:commons-test"))
 
     BaseTestCompileDependencies.forEach { testImplementation(it) }
     BaseTestRuntimeDependencies.forEach { testImplementation(it) }

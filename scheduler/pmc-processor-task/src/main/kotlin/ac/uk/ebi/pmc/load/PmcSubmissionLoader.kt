@@ -45,7 +45,6 @@ class PmcSubmissionLoader(
         inputFilesDocService.reportProcessed(file)
         moveFile(file, processedFolder.resolve(file.originalFile.name))
     }
-
     private fun moveFile(file: FileSpec, processed: File) {
         file.originalFile.copyTo(processed, overwrite = true)
         file.originalFile.delete()
@@ -70,8 +69,10 @@ class PmcSubmissionLoader(
             { errorDocService.saveError(file.name, body, PmcMode.LOAD, it) },
             { submissionService.saveLoadedVersion(it, file.name, file.modified, positionInFile) })
 
-    private fun deserialize(pagetab: String) =
-        Pair(pagetab, Try { serializationService.deserializeSubmission(pagetab, SubFormat.TSV) })
+    private fun deserialize(pagetab: String): Pair<String, Try<Submission>> {
+        val submissionBody = pagetab.replace("\"", "\\\"")
+        return Pair(pagetab, Try { serializationService.deserializeSubmission(submissionBody, SubFormat.TSV) })
+    }
 
     private fun sanitize(fileText: String) = fileText.replace(sanitizeRegex, "\n")
 }

@@ -113,6 +113,7 @@ private class PmcLoader(
             mongodbUri = properties.mongoUri,
             mongodbDatabase = properties.mongoDatabase,
             notificationsUrl = appProperties.notificationsUrl,
+            pmcBaseUrl = "http://www.ft-loading.europepmc.org",
             bioStudiesUser = properties.bioStudiesUser,
             bioStudiesPassword = properties.bioStudiesPassword,
             bioStudiesUrl = properties.bioStudiesUrl)

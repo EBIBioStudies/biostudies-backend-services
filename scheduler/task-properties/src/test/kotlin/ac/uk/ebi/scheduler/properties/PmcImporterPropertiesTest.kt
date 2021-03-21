@@ -11,6 +11,7 @@ const val bioStudiesUrl = "http://an_url.com"
 const val bioStudiesUser = "user"
 const val bioStudiesPassword = "password"
 const val notificationUrl = "http://slack-here"
+const val baseUrl = "http://pmc"
 
 class PmcImporterPropertiesTest {
     @Test
@@ -24,6 +25,7 @@ class PmcImporterPropertiesTest {
             bioStudiesUrl = bioStudiesUrl,
             bioStudiesUser = bioStudiesUser,
             bioStudiesPassword = bioStudiesPassword,
+            pmcBaseUrl = baseUrl,
             notificationsUrl = notificationUrl)
 
         assertThat(properties.asJavaCommand("/apps-folder"))
@@ -34,6 +36,7 @@ class PmcImporterPropertiesTest {
                 --app.data.mongodbUri=mongodbUri \
                 --app.data.mongodbDatabase=a-database \
                 --app.data.notificationsUrl=http://slack-here \
+                --app.data.pmcBaseUrl=http://pmc \
                 --app.data.path=/loadPath \
                 --app.data.bioStudiesUrl=http://an_url.com \
                 --app.data.bioStudiesUser=user \
@@ -52,6 +55,7 @@ class PmcImporterPropertiesTest {
             bioStudiesUrl = null,
             bioStudiesUser = null,
             bioStudiesPassword = null,
+            pmcBaseUrl = baseUrl,
             notificationsUrl = notificationUrl)
         assertThat(properties.asJavaCommand("/apps-folder"))
             .isEqualTo("""
@@ -60,7 +64,8 @@ class PmcImporterPropertiesTest {
             --app.data.temp=/tempDir \
             --app.data.mongodbUri=mongodbUri \
             --app.data.mongodbDatabase=a-database \
-            --app.data.notificationsUrl=http://slack-here
+            --app.data.notificationsUrl=http://slack-here \
+            --app.data.pmcBaseUrl=http://pmc
             """.trimIndent())
     }
 }

@@ -11,6 +11,7 @@ class PmcImporterProperties : BaseAppProperty {
     lateinit var mongodbUri: String
     lateinit var mongodbDatabase: String
     lateinit var notificationsUrl: String
+    lateinit var pmcBaseUrl: String
 
     var path: String? = null
     var bioStudiesUrl: String? = null
@@ -25,6 +26,7 @@ class PmcImporterProperties : BaseAppProperty {
             append("--app.data.mongodbUri=$mongodbUri \\\n")
             append("--app.data.mongodbDatabase=$mongodbDatabase \\\n")
             append("--app.data.notificationsUrl=$notificationsUrl \\\n")
+            append("--app.data.pmcBaseUrl=$pmcBaseUrl \\\n")
 
             path?.let { append("--app.data.path=$it \\\n") }
             bioStudiesUrl?.let { append("--app.data.bioStudiesUrl=$it \\\n") }
@@ -43,6 +45,7 @@ class PmcImporterProperties : BaseAppProperty {
             mongodbUri: String,
             mongodbDatabase: String,
             notificationsUrl: String,
+            pmcBaseUrl: String,
             bioStudiesUrl: String? = null,
             bioStudiesUser: String? = null,
             bioStudiesPassword: String? = null
@@ -56,6 +59,7 @@ class PmcImporterProperties : BaseAppProperty {
             this.bioStudiesUrl = bioStudiesUrl
             this.bioStudiesUser = bioStudiesUser
             this.bioStudiesPassword = bioStudiesPassword
+            this.pmcBaseUrl = pmcBaseUrl
         }
     }
 }

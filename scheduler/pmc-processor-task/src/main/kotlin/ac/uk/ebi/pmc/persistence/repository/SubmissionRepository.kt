@@ -15,6 +15,9 @@ import com.mongodb.client.model.ReturnDocument
 import com.mongodb.client.model.Updates.combine
 import com.mongodb.client.model.Updates.set
 import org.litote.kmongo.SetTo
+import org.litote.kmongo.coroutine.drop
+import org.litote.kmongo.coroutine.insertOne
+import org.litote.kmongo.coroutine.toList
 import org.litote.kmongo.coroutine.updateMany
 import org.litote.kmongo.coroutine.updateOne
 import java.time.Instant
@@ -25,28 +28,46 @@ class SubmissionRepository(private val submissions: MongoCollection<SubmissionDo
         val latest = getLatest(submission)
         submissions.updateMany(
             expireSubmissions(latest.accno, latest.sourceTime, latest.posInFile),
-            SetTo(SubmissionDoc::status, SubmissionStatus.DISCARDED))
+            SetTo(SubmissionDoc::status, SubmissionStatus.DISCARDED)
+        )
     }
+
+    suspend fun insert(submission: SubmissionDoc) {
+        submissions.insertOne(submission)
+    }
+
+    suspend fun findAll() = submissions.find().toList()
 
     private suspend fun getLatest(submission: SubmissionDoc) =
         submissions.findOneAndUpdate(
             latest(submission.accno, submission.sourceTime, submission.posInFile),
             submission.asInsertOrExpire(),
-            FindOneAndUpdateOptions().upsert(true).returnDocument(ReturnDocument.AFTER))!!
+            FindOneAndUpdateOptions().upsert(true).returnDocument(ReturnDocument.AFTER)
+        )!!
 
     suspend fun update(submissionDoc: SubmissionDoc) = submissions.updateOne(submissionDoc)
 
     suspend fun findAndUpdate(status: SubmissionStatus, newStatus: SubmissionStatus) = submissions.findOneAndUpdate(
         eq(SubmissionDoc.status, status.name),
-        combine(set(SubmissionDoc.status, newStatus.name), set(SubmissionDoc.updated, Instant.now())))
+        combine(set(SubmissionDoc.status, newStatus.name), set(SubmissionDoc.updated, Instant.now())),
+        FindOneAndUpdateOptions().returnDocument(ReturnDocument.AFTER)
+    )
 
     private fun latest(accNo: String, sourceTime: Instant, posInFile: Int) =
-        and(eq(SubmissionDoc.accNo, accNo), or(
-            gte(SubmissionDoc.sourceTime, sourceTime),
-            and(eq(SubmissionDoc.sourceTime, sourceTime), gt(SubmissionDoc.posInFile, posInFile))))
+        and(
+            eq(SubmissionDoc.accNo, accNo), or(
+                gte(SubmissionDoc.sourceTime, sourceTime),
+                and(eq(SubmissionDoc.sourceTime, sourceTime), gt(SubmissionDoc.posInFile, posInFile))
+            )
+        )
 
     private fun expireSubmissions(accNo: String, sourceTime: Instant, posInFile: Int) =
-        and(eq(SubmissionDoc.accNo, accNo), or(
-            lt(SubmissionDoc.sourceTime, sourceTime),
-            and(eq(SubmissionDoc.sourceTime, sourceTime), lt(SubmissionDoc.posInFile, posInFile))))
+        and(
+            eq(SubmissionDoc.accNo, accNo), or(
+                lt(SubmissionDoc.sourceTime, sourceTime),
+                and(eq(SubmissionDoc.sourceTime, sourceTime), lt(SubmissionDoc.posInFile, posInFile))
+            )
+        )
+
+    suspend fun deleteAll() = submissions.drop()
 }

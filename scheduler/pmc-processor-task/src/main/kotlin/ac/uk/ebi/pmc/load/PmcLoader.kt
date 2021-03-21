@@ -41,8 +41,7 @@ class PmcLoader(private val pmcLoader: PmcSubmissionLoader) {
     }
 
     private fun getFileData(file: File): FileSpec {
-        val zipFile = GZIPInputStream(FileInputStream(file))
-        val entryContent = IOUtils.toString(zipFile, Charsets.UTF_8)
+        val entryContent = GZIPInputStream(FileInputStream(file)).use { IOUtils.toString(it, Charsets.UTF_8) }
         return FileSpec(file.absolutePath, entryContent, milisToInstant(file.lastModified()), file)
     }
 
