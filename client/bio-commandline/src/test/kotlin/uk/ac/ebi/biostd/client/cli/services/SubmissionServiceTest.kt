@@ -1,26 +1,26 @@
 package uk.ac.ebi.biostd.client.cli.services
 
-import ac.uk.ebi.biostd.client.exception.SecurityWebClientException
 import ac.uk.ebi.biostd.client.exception.WebClientException
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
 import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient.Companion.create
 import com.github.ajalt.clikt.core.PrintMessage
 import ebi.ac.uk.model.Submission
-import io.mockk.mockkObject
 import io.mockk.every
+import io.mockk.junit5.MockKExtension
+import io.mockk.mockk
+import io.mockk.mockkObject
 import io.mockk.unmockkObject
 import io.mockk.verify
-import io.mockk.mockk
-import io.mockk.junit5.MockKExtension
-import org.junit.jupiter.api.Test
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatExceptionOfType
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import uk.ac.ebi.biostd.client.cli.formatErrorMessage
 
 @ExtendWith(MockKExtension::class)
 internal class SubmissionServiceTest {
+
+    private val testInstance = SubmissionService()
 
     @Test
     fun `submit successful`() {
@@ -43,7 +43,8 @@ internal class SubmissionServiceTest {
         every { webClientException.message } returns null
 
         assertThatExceptionOfType(PrintMessage::class.java)
-            .isThrownBy { testInstance.submit(requestSubmit) }.withMessage(webClientException.javaClass.canonicalName)
+            .isThrownBy { testInstance.submit(requestSubmit) }
+            .withMessage("WebClientException: ")
         unmockkObject(SecurityWebClient)
     }
 
@@ -56,7 +57,8 @@ internal class SubmissionServiceTest {
         every { webClientException.message } returns message
 
         assertThatExceptionOfType(PrintMessage::class.java)
-            .isThrownBy { testInstance.submit(requestSubmit) }.withMessage(formatErrorMessage(message))
+            .isThrownBy { testInstance.submit(requestSubmit) }
+            .withMessage("WebClientException: $message")
         unmockkObject(SecurityWebClient)
     }
 
@@ -65,11 +67,12 @@ internal class SubmissionServiceTest {
         mockkObject(SecurityWebClient)
         every {
             create(requestSubmit.server).getAuthenticatedClient(requestSubmit.user, requestSubmit.password)
-        } throws securityException
-        every { securityException.message } returns null
+        } throws webClientException
+        every { webClientException.message } returns null
 
         assertThatExceptionOfType(PrintMessage::class.java)
-            .isThrownBy { testInstance.submit(requestSubmit) }.withMessage(securityException.javaClass.canonicalName)
+            .isThrownBy { testInstance.submit(requestSubmit) }
+            .withMessage("WebClientException: ")
         unmockkObject(SecurityWebClient)
     }
 
@@ -78,11 +81,12 @@ internal class SubmissionServiceTest {
         mockkObject(SecurityWebClient)
         every {
             create(requestSubmit.server).getAuthenticatedClient(requestSubmit.user, requestSubmit.password)
-        } throws securityException
-        every { securityException.message } returns message
+        } throws webClientException
+        every { webClientException.message } returns message
 
         assertThatExceptionOfType(PrintMessage::class.java)
-            .isThrownBy { testInstance.submit(requestSubmit) }.withMessage(message)
+            .isThrownBy { testInstance.submit(requestSubmit) }
+            .withMessage("WebClientException: $message")
         unmockkObject(SecurityWebClient)
     }
 
@@ -109,7 +113,8 @@ internal class SubmissionServiceTest {
         every { webClientException.message } returns null
 
         assertThatExceptionOfType(PrintMessage::class.java)
-            .isThrownBy { testInstance.delete(requestDelete) }.withMessage(webClientException.javaClass.canonicalName)
+            .isThrownBy { testInstance.delete(requestDelete) }
+            .withMessage("WebClientException: ")
         unmockkObject(SecurityWebClient)
     }
 
@@ -122,7 +127,8 @@ internal class SubmissionServiceTest {
         every { webClientException.message } returns message
 
         assertThatExceptionOfType(PrintMessage::class.java)
-            .isThrownBy { testInstance.delete(requestDelete) }.withMessage(formatErrorMessage(message))
+            .isThrownBy { testInstance.delete(requestDelete) }
+            .withMessage("WebClientException: $message")
         unmockkObject(SecurityWebClient)
     }
 
@@ -131,11 +137,12 @@ internal class SubmissionServiceTest {
         mockkObject(SecurityWebClient)
         every {
             create(requestDelete.server).getAuthenticatedClient(requestDelete.user, requestDelete.password)
-        } throws securityException
-        every { securityException.message } returns null
+        } throws webClientException
+        every { webClientException.message } returns null
 
         assertThatExceptionOfType(PrintMessage::class.java)
-            .isThrownBy { testInstance.delete(requestDelete) }.withMessage(securityException.javaClass.canonicalName)
+            .isThrownBy { testInstance.delete(requestDelete) }
+            .withMessage("WebClientException: ")
         unmockkObject(SecurityWebClient)
     }
 
@@ -143,20 +150,18 @@ internal class SubmissionServiceTest {
     fun `delete throw other exception with not null message`() {
         mockkObject(SecurityWebClient)
         every {
-            create(requestDelete.server)
-                .getAuthenticatedClient(requestDelete.user, requestDelete.password)
-        } throws securityException
-        every { securityException.message } returns message
+            create(requestDelete.server).getAuthenticatedClient(requestDelete.user, requestDelete.password)
+        } throws webClientException
+        every { webClientException.message } returns message
 
         assertThatExceptionOfType(PrintMessage::class.java)
-            .isThrownBy { testInstance.delete(requestDelete) }.withMessage(message)
+            .isThrownBy { testInstance.delete(requestDelete) }
+            .withMessage("WebClientException: $message")
         unmockkObject(SecurityWebClient)
     }
 
     private companion object {
-        val testInstance = SubmissionService()
         val webClientException: WebClientException = mockk()
-        val securityException: SecurityWebClientException = mockk()
         val submission: Submission = mockk()
         val bioWebClient: BioWebClient = mockk()
 
@@ -177,12 +182,6 @@ internal class SubmissionServiceTest {
             accNo = "accNo"
         )
 
-        const val message = "<note>\n" +
-            "  <date>2015-09-01</date>\n" +
-            "  <hour>08:30</hour>\n" +
-            "  <to>Tove</to>\n" +
-            "  <from>Jani</from>\n" +
-            "  <body>Don't forget me this weekend!</body>\n" +
-            "</note>"
+        const val message = "error message"
     }
 }

@@ -1,14 +1,14 @@
 package ac.uk.ebi.biostd.client.integration.web
 
-import ac.uk.ebi.biostd.client.exception.SecurityWebClientErrorHandler
-import ac.uk.ebi.biostd.client.interceptor.ServerValidationInterceptor
 import ebi.ac.uk.api.security.CheckUserRequest
 import ebi.ac.uk.api.security.LoginRequest
 import ebi.ac.uk.api.security.RegisterRequest
 import ebi.ac.uk.api.security.UserProfile
+import org.springframework.http.HttpEntity
+import org.springframework.http.HttpHeaders
+import org.springframework.http.MediaType
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.client.postForObject
-import org.springframework.web.util.DefaultUriBuilderFactory
 
 class SecurityWebClient private constructor(
     private val baseUrl: String,
@@ -22,23 +22,24 @@ class SecurityWebClient private constructor(
         }
 
     override fun login(loginRequest: LoginRequest): UserProfile =
-        restTemplate.postForObject("/auth/login", loginRequest)!!
+        restTemplate.postForObject("/auth/login", createHttpEntity(loginRequest))
 
     override fun registerUser(registerRequest: RegisterRequest) {
-        restTemplate.postForLocation("/auth/register", registerRequest)
+        restTemplate.postForLocation("/auth/register", createHttpEntity(registerRequest))
     }
 
     override fun checkUser(checkUserRequest: CheckUserRequest) {
-        restTemplate.postForLocation("/auth/check-user", checkUserRequest)
+        restTemplate.postForLocation("/auth/check-user", createHttpEntity(checkUserRequest))
+    }
+
+    private fun <T> createHttpEntity(body: T): HttpEntity<T> {
+        val headers = HttpHeaders()
+        headers.contentType = MediaType.APPLICATION_JSON
+        headers.accept = listOf(MediaType.APPLICATION_JSON)
+        return HttpEntity(body, headers)
     }
 
     companion object {
-        fun create(baseUrl: String) = SecurityWebClient(
-            baseUrl,
-            RestTemplate().apply {
-                errorHandler = SecurityWebClientErrorHandler()
-                interceptors.add(ServerValidationInterceptor())
-                uriTemplateHandler = DefaultUriBuilderFactory(baseUrl)
-            })
+        fun create(baseUrl: String) = SecurityWebClient(baseUrl, template(baseUrl))
     }
 }
