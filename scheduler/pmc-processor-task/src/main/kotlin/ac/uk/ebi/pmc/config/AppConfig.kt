@@ -33,3 +33,4 @@ class AppConfig {
         serializationService: SerializationService
     ) = SubmissionDocService(submissionRepository, submissionFileRepository, serializationService)
 }
+

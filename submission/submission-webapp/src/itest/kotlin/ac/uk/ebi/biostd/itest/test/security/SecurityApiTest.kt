@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.itest.test.security
 
-import ac.uk.ebi.biostd.client.exception.SecurityWebClientException
+import ac.uk.ebi.biostd.client.exception.WebClientException
 import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
 import ac.uk.ebi.biostd.itest.entities.SuperUser
@@ -37,7 +37,7 @@ internal class SecurityApiTest(tempFolder: TemporaryFolder) : BaseIntegrationTes
         @Test
         fun `register with invalid email`() {
             val request = RegisterRequest("Test", "not-a-mail", "123", captcha = "captcha")
-            assertThatExceptionOfType(SecurityWebClientException::class.java).isThrownBy {
+            assertThatExceptionOfType(WebClientException::class.java).isThrownBy {
                 webClient.registerUser(request)
             }
         }
