@@ -9,7 +9,6 @@ import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
 import org.springframework.http.MediaType
-import org.springframework.http.client.ClientHttpResponse
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.web.client.RequestCallback
 import org.springframework.web.client.ResponseExtractor
@@ -17,8 +16,6 @@ import org.springframework.web.client.RestTemplate
 import org.springframework.web.client.getForObject
 import org.springframework.web.client.postForObject
 import java.io.File
-import java.nio.file.Files
-import java.nio.file.StandardCopyOption
 
 private const val GROUP_FILES_URL = "/files/groups"
 private const val GROUP_FOLDER_URL = "/folder/groups"
@@ -54,10 +51,4 @@ internal class GroupFilesClient(private val template: RestTemplate) : GroupFiles
 
     private fun groupFolderUrl(groupName: String, relativePath: String) =
         "$GROUP_FOLDER_URL/$groupName${normalize(relativePath)}"
-
-    private fun saveFile(response: ClientHttpResponse, group: String, fileName: String): File {
-        val targetPath = Files.createTempFile("biostudies-$group-$fileName", ".tmp")
-        Files.copy(response.body, targetPath, StandardCopyOption.REPLACE_EXISTING)
-        return targetPath.toFile()
-    }
 }

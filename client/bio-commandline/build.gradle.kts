@@ -1,4 +1,5 @@
 import Dependencies.CliKt
+import Dependencies.CommonsLang3
 import Dependencies.Log4J
 import Dependencies.SpringWeb
 import TestDependencies.AssertJ
@@ -19,6 +20,7 @@ dependencies {
     implementation(CliKt)
     implementation(Log4J)
     implementation(SpringWeb)
+    implementation(CommonsLang3)
 
     testImplementation(Junit)
     testImplementation(JunitExtensions)

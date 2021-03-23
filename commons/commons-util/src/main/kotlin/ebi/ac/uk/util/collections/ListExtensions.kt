@@ -5,6 +5,20 @@ import java.util.LinkedList
 private const val NO_FOUND = -1
 
 /**
+ * Replace the given element by the element matching predicate.
+ */
+fun <T> List<T>.replace(predicate: (T) -> Boolean, element: T): List<T> {
+    val index = indexOf(predicate)
+    if (index != null) {
+        val list = toMutableList()
+        list[index] = element
+        return list
+    }
+
+    return this
+}
+
+/**
  * Return the index of first element which predicate evaluation is true. Null if element is not found.
  */
 inline fun <T> List<T>.indexOf(predicate: (T) -> Boolean): Int? {
