@@ -51,4 +51,3 @@ private fun getConverters(converters: List<HttpMessageConverter<*>>): List<HttpM
  */
 private fun interceptors(): List<ClientHttpRequestInterceptor> =
     listOf(ServerValidationInterceptor(), HttpHeaderInterceptor(ACCEPT, APPLICATION_JSON))
-

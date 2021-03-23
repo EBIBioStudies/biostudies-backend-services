@@ -68,4 +68,3 @@ class AppConfig {
     @Bean
     fun submissionInitializer(serializationService: SerializationService) = SubmissionInitializer(serializationService)
 }
-
