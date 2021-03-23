@@ -16,10 +16,10 @@ import com.github.tomakehurst.wiremock.client.WireMock.aResponse
 import com.github.tomakehurst.wiremock.client.WireMock.get
 import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration
-import com.google.common.io.Resources.getResource
 import ebi.ac.uk.db.MONGO_VERSION
 import ebi.ac.uk.dsl.json.toJsonQuote
 import ebi.ac.uk.model.constants.APPLICATION_JSON
+import ebi.ac.uk.test.createFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import kotlinx.coroutines.runBlocking
@@ -52,6 +52,9 @@ internal class PmcSubmissionProcessorTest(private val tempFolder: TemporaryFolde
     private val wireMockNotificationServer = WireMockServer(WireMockConfiguration().dynamicPort())
     private val wireMockFilesServer = WireMockServer(WireMockConfiguration().dynamicPort())
 
+    private val submissionFile1 = tempFolder.createFile(FILE1_NAME, FILE1_CONTENT)
+    private val submissionFile2 = tempFolder.createFile(FILE2_NAME, FILE2_CONTENT)
+
     @BeforeAll
     fun beforeAll() {
         setUpMongo()
@@ -78,7 +81,7 @@ internal class PmcSubmissionProcessorTest(private val tempFolder: TemporaryFolde
             get(urlEqualTo(URL_FILE1_FILES_SERVER)).willReturn(
                 aResponse().withStatus(HTTP_OK)
                     .withHeader(CONTENT_TYPE, APPLICATION_JSON)
-                    .withBody(File(getResource(FILE1_NAME).file).readBytes())
+                    .withBody(submissionFile1.readBytes())
             )
         )
 
@@ -86,7 +89,7 @@ internal class PmcSubmissionProcessorTest(private val tempFolder: TemporaryFolde
             get(urlEqualTo(URL_FILE2_FILES_SERVER)).willReturn(
                 aResponse().withStatus(HTTP_OK)
                     .withHeader(CONTENT_TYPE, APPLICATION_JSON)
-                    .withBody(File(getResource(FILE2_NAME).file).readBytes())
+                    .withBody(submissionFile2.readBytes())
             )
         )
 

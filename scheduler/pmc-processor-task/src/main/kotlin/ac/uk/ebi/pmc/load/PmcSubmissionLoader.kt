@@ -7,6 +7,7 @@ import ac.uk.ebi.pmc.persistence.InputFilesDocService
 import ac.uk.ebi.pmc.persistence.SubmissionDocService
 import ac.uk.ebi.scheduler.properties.PmcMode
 import arrow.core.Try
+import ebi.ac.uk.base.scape
 import ebi.ac.uk.base.splitIgnoringEmpty
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.constants.SUB_SEPARATOR
@@ -21,6 +22,7 @@ import mu.KotlinLogging
 import java.io.File
 
 private val sanitizeRegex = "(\n)(\t)*|(\t)+(\n)".toRegex()
+private const val DOUBLE_QUOTE = "\""
 private const val WORKERS = 30
 private val logger = KotlinLogging.logger {}
 
@@ -69,10 +71,11 @@ class PmcSubmissionLoader(
             { errorDocService.saveError(file.name, body, PmcMode.LOAD, it) },
             { submissionService.saveLoadedVersion(it, file.name, file.modified, positionInFile) })
 
-    private fun deserialize(pagetab: String): Pair<String, Try<Submission>> {
-        val submissionBody = pagetab.replace("\"", "\\\"")
-        return Pair(pagetab, Try { serializationService.deserializeSubmission(submissionBody, SubFormat.TSV) })
-    }
+    private fun deserialize(originalPagetab: String): Pair<String, Try<Submission>> =
+        Pair(
+            originalPagetab,
+            Try { serializationService.deserializeSubmission(originalPagetab.scape(DOUBLE_QUOTE), SubFormat.TSV) }
+        )
 
     private fun sanitize(fileText: String) = fileText.replace(sanitizeRegex, "\n")
 }

@@ -23,6 +23,7 @@ import ebi.ac.uk.model.constants.APPLICATION_JSON
 import ebi.ac.uk.model.constants.MULTIPART_FORM_DATA
 import ebi.ac.uk.model.constants.SUBMISSION_TYPE
 import ebi.ac.uk.model.constants.TEXT_PLAIN
+import ebi.ac.uk.test.createFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import kotlinx.coroutines.runBlocking
@@ -172,10 +173,7 @@ internal class PmcSubmissionSubmitterTest(private val tempFolder: TemporaryFolde
         @Test
         fun `when success submit`() {
             runBlocking {
-                val resourceFile = resourceLoader.getResource("classpath:$FILE1_NAME").file
-                val targetFile = tempFolder.root.resolve(FILE1_NAME)
-                resourceFile.copyTo(targetFile)
-
+                val targetFile = tempFolder.createFile(FILE1_NAME, FILE1_CONTENT)
                 val fileObjectId = fileRepository.saveFile(targetFile, processedSubmission.accno)
                 submissionRepository.insertOrExpire(processedSubmission.copy(files = listOf(fileObjectId)))
 
