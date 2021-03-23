@@ -7,6 +7,7 @@ import TestVersions.JunitVersion
 import TestVersions.MockKVersion
 import TestVersions.RabbitmqMockVersion
 import TestVersions.TestContainerVersion
+import TestVersions.WiremockVersion
 import TestVersions.XmlUnitVersion
 import Versions.CliKtVersion
 import Versions.CommonsCsvVersion
@@ -52,6 +53,7 @@ object TestVersions {
     const val XmlUnitVersion = "2.6.2"
     const val JsonPathAssertVersion = "2.4.0"
     const val JsonAssertVersion = "1.5.0"
+    const val WiremockVersion = "2.27.2"
     const val RabbitmqMockVersion = "1.1.0"
     const val TestContainerVersion = "1.15.0"
 }
@@ -117,8 +119,10 @@ object TestDependencies {
 
     const val H2 = "com.h2database:h2:$H2Version"
 
+    // Json/Http
     const val JsonPathAssert = "com.jayway.jsonpath:json-path-assert:$JsonPathAssertVersion"
     const val JsonAssert = "org.skyscreamer:jsonassert:$JsonAssertVersion"
+    const val Wiremock = "com.github.tomakehurst:wiremock-jre8:$WiremockVersion"
 
     // Test Containers
     const val TestContainerMysql = "org.testcontainers:mysql:$TestContainerVersion"

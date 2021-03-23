@@ -137,7 +137,7 @@ internal class PmcSubmissionProcessorTest(private val tempFolder: TemporaryFolde
         @Test
         fun `when success`() {
             runBlocking {
-                submissionRepository.insertOrExpire(submissionDoc1)
+                submissionRepository.insertOrExpire(docSubmission)
 
                 pmcTaskExecutor.run()
 
@@ -153,7 +153,7 @@ internal class PmcSubmissionProcessorTest(private val tempFolder: TemporaryFolde
         @Test
         fun `when error`() {
             runBlocking {
-                submissionRepository.insertOrExpire(submissionDoc2)
+                submissionRepository.insertOrExpire(invalidFileSubmission)
 
                 pmcTaskExecutor.run()
 
@@ -186,7 +186,7 @@ internal class PmcSubmissionProcessorTest(private val tempFolder: TemporaryFolde
             assertThat(savedError.accNo).isEqualTo(ERROR_ACCNO)
             assertThat(savedError.sourceFile).isEqualTo(ERROR_SOURCE_FILE)
             assertThat(savedError.mode).isEqualTo(PmcMode.PROCESS)
-            assertThat(savedError.submissionText).isEqualTo(submissionDoc2.body)
+            assertThat(savedError.submissionText).isEqualTo(invalidFileSubmission.body)
         }
     }
 }

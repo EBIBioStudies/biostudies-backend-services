@@ -54,19 +54,15 @@ class SubmissionRepository(private val submissions: MongoCollection<SubmissionDo
     )
 
     private fun latest(accNo: String, sourceTime: Instant, posInFile: Int) =
-        and(
-            eq(SubmissionDoc.accNo, accNo), or(
-                gte(SubmissionDoc.sourceTime, sourceTime),
-                and(eq(SubmissionDoc.sourceTime, sourceTime), gt(SubmissionDoc.posInFile, posInFile))
-            )
+        and(eq(SubmissionDoc.accNo, accNo), or(
+            gte(SubmissionDoc.sourceTime, sourceTime), and(
+            eq(SubmissionDoc.sourceTime, sourceTime), gt(SubmissionDoc.posInFile, posInFile)))
         )
 
     private fun expireSubmissions(accNo: String, sourceTime: Instant, posInFile: Int) =
-        and(
-            eq(SubmissionDoc.accNo, accNo), or(
-                lt(SubmissionDoc.sourceTime, sourceTime),
-                and(eq(SubmissionDoc.sourceTime, sourceTime), lt(SubmissionDoc.posInFile, posInFile))
-            )
+        and(eq(SubmissionDoc.accNo, accNo), or(
+            lt(SubmissionDoc.sourceTime, sourceTime), and(
+            eq(SubmissionDoc.sourceTime, sourceTime), lt(SubmissionDoc.posInFile, posInFile)))
         )
 
     suspend fun deleteAll() = submissions.drop()

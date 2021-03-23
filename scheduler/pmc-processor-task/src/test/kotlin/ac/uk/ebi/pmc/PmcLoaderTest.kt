@@ -142,7 +142,7 @@ internal class PmcLoaderTest(private val tempFolder: TemporaryFolder) {
             assertThat(savedError.sourceFile).isEqualTo(gzipFilePath)
             assertThat(savedError.mode).isEqualTo(LOAD)
             assertThat(savedError.submissionText).isEqualTo(SUB_ERROR_TEXT)
-            assertThat(savedError.uploaded).isNotEqualTo(submissionDoc3.updated)
+            assertThat(savedError.uploaded).isNotEqualTo(processedSubmission.updated)
         }
 
         private fun assertSubmission(submission: SubmissionDoc) {

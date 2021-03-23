@@ -14,6 +14,7 @@ import TestDependencies.AssertJ
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
 import TestDependencies.TestContainerMongoDb
+import TestDependencies.Wiremock
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.springframework.boot.gradle.tasks.bundling.BootJar
 
@@ -24,6 +25,7 @@ plugins {
 }
 
 dependencies {
+    testApi(project(":commons:commons-test"))
     implementation(project(":client:bio-webclient"))
     implementation(project(":commons:commons-serialization"))
     implementation(project(":scheduler:task-properties"))
@@ -45,8 +47,7 @@ dependencies {
     testImplementation(TestContainerMongoDb)
     testImplementation(SpringBootStarterTest)
     testImplementation(AssertJ)
-    testImplementation("com.github.tomakehurst:wiremock-jre8:2.27.2")
-    testApi(project(":commons:commons-test"))
+    testImplementation(Wiremock)
 
     BaseTestCompileDependencies.forEach { testImplementation(it) }
     BaseTestRuntimeDependencies.forEach { testImplementation(it) }

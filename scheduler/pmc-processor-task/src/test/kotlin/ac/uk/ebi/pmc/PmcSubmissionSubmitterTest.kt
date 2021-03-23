@@ -101,7 +101,7 @@ internal class PmcSubmissionSubmitterTest(private val tempFolder: TemporaryFolde
                         .withName("submission")
                         .withHeader(CONTENT_TYPE, equalTo("$TEXT_PLAIN;charset=UTF-8"))
                         .withHeader(CONTENT_LENGTH, equalTo("225"))
-                        .withBody(equalToJson(submissionDoc3.body))
+                        .withBody(equalToJson(processedSubmission.body))
                 )
                 .withMultipartRequestBody(
                     aMultipart()
@@ -113,7 +113,7 @@ internal class PmcSubmissionSubmitterTest(private val tempFolder: TemporaryFolde
                     aResponse()
                         .withStatus(HTTP_OK)
                         .withHeader(CONTENT_TYPE, APPLICATION_JSON)
-                        .withBody(body3.toString())
+                        .withBody(prcoessedSubmissionBody.toString())
                 )
         )
         wireMockWebServer.start()
@@ -176,8 +176,8 @@ internal class PmcSubmissionSubmitterTest(private val tempFolder: TemporaryFolde
                 val targetFile = tempFolder.root.resolve(FILE1_NAME)
                 resourceFile.copyTo(targetFile)
 
-                val fileObjectId = fileRepository.saveFile(targetFile, submissionDoc3.accno)
-                submissionRepository.insertOrExpire(submissionDoc3.copy(files = listOf(fileObjectId)))
+                val fileObjectId = fileRepository.saveFile(targetFile, processedSubmission.accno)
+                submissionRepository.insertOrExpire(processedSubmission.copy(files = listOf(fileObjectId)))
 
                 pmcTaskExecutor.run()
 
@@ -196,7 +196,7 @@ internal class PmcSubmissionSubmitterTest(private val tempFolder: TemporaryFolde
         @Test
         fun `when error submit`() {
             runBlocking {
-                submissionRepository.insertOrExpire(submissionDoc3)
+                submissionRepository.insertOrExpire(processedSubmission)
 
                 pmcTaskExecutor.run()
 
