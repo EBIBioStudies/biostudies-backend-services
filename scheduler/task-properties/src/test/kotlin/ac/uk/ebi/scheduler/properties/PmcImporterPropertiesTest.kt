@@ -18,7 +18,7 @@ class PmcImporterPropertiesTest {
     fun asJavaCommand() {
         val properties = PmcImporterProperties.create(
             mode = PmcMode.LOAD,
-            path = path,
+            loadFolder = path,
             temp = tempDir,
             mongodbUri = mongodbUri,
             mongodbDatabase = mongodbDatabase,
@@ -48,7 +48,7 @@ class PmcImporterPropertiesTest {
     fun `asJavaCommand when not optional parameter`() {
         val properties = PmcImporterProperties.create(
             mode = PmcMode.LOAD,
-            path = null,
+            loadFolder = null,
             temp = tempDir,
             mongodbUri = mongodbUri,
             mongodbDatabase = mongodbDatabase,

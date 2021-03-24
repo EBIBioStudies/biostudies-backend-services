@@ -37,7 +37,7 @@ class PmcTaskExecutor(
         val mode = properties.mode
         Try {
             when (mode) {
-                PmcMode.LOAD -> context.getBean<PmcLoader>().loadFolder(File(properties.path))
+                PmcMode.LOAD -> context.getBean<PmcLoader>().loadFolder(File(properties.loadFolder))
                 PmcMode.PROCESS -> context.getBean<PmcSubmissionProcessor>().processSubmissions()
                 PmcMode.SUBMIT -> context.getBean<PmcSubmissionSubmitter>().submit()
             }

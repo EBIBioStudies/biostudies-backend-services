@@ -66,7 +66,7 @@ internal class PmcLoaderTest(private val tempFolder: TemporaryFolder) {
     private fun setUpMongo() {
         mongoContainer.start()
         System.setProperty("app.data.mode", "LOAD")
-        System.setProperty("app.data.path", tempFolder.root.path)
+        System.setProperty("app.data.loadFolder", tempFolder.root.path)
         System.setProperty("app.data.mongodbUri", mongoContainer.getReplicaSetUrl("pmc-loader-test"))
         System.setProperty("app.data.mongodbDatabase", "pmc-loader-test")
     }
