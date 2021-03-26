@@ -41,7 +41,7 @@ class ExtSubmissionService(
             .map { it.getOrNull() }
         val submissions = page.content.filterNotNull()
 
-        return PageImpl(submissions, page.pageable, submissions.size.toLong())
+        return PageImpl(submissions, page.pageable, page.totalElements)
     }
 
     private fun validateUser(user: String) = require(userPrivilegesService.canSubmitExtended(user)) {

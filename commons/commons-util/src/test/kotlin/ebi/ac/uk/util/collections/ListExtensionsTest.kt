@@ -6,6 +6,15 @@ import org.junit.jupiter.api.Test
 internal class ListExtensionsTest {
 
     @Test
+    fun replace() {
+        val list = listOf(1, 2, 3)
+
+        val result = list.replace({ it == 1 }, 2)
+
+        assertThat(result).isEqualTo(listOf(2, 2, 3))
+    }
+
+    @Test
     fun split() {
         val result = listOf("a", "b", "", "c", "d").split { it.isBlank() }
         assertThat(result).hasSize(2)
