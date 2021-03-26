@@ -40,7 +40,7 @@ stages:
 
 build-test:
   stage: build-test
-  script: gradle clean build test buildArtifacts
+  script: gradle clean build test buildArtifacts --info
   artifacts:
     paths:
       - bio-admin/build/libs/bio-admin-1.0.0.jar
@@ -53,4 +53,4 @@ build-test:
 
 mysql-itest:
   stage: mysql-itest
-  script: gradle clean :submission:submission-webapp:itest -Pitest.mode=mysql --rerun-tasks
+  script: gradle clean :submission:submission-webapp:itest -Pitest.mode=mysql --rerun-tasks --info

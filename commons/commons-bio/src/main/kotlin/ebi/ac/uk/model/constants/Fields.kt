@@ -28,6 +28,7 @@ enum class OtherFields(override val value: String) : Fields {
 
 enum class SubFields(override val value: String) : Fields {
     SUBMISSION("submission"),
+    TYPE("type"),
     ACC_NO(ACC_NO_FIELD),
     ATTRIBUTES(ATTRIBUTES_FIELD),
     SECTION(SECTION_FIELD),

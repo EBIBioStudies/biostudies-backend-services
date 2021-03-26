@@ -81,10 +81,11 @@ class TsvSingleElementDeserializationTest {
     @Test
     fun `table containing an empty attribute`() {
         val tsv = tsv {
-            line("Links", "Attr1", "Attr2")
-            line("AF069307", "Value 1", "Value 2")
-            line("AF069308", "", "Value 2")
-            line("AF069309", "Value 1")
+            line("Links", "Attr1", "Attr2", "Attr3")
+            line("AF069307", "Value 1", "Value 2", "Value 3")
+            line("AF069308", "", "Value 2", "Value 3")
+            line("AF069309", "Value 1", "", "Value 3")
+            line("AF069310", "Value 1", "Value 2")
             line()
         }.toString()
 
@@ -93,15 +94,22 @@ class TsvSingleElementDeserializationTest {
                 link("AF069307") {
                     attribute("Attr1", "Value 1")
                     attribute("Attr2", "Value 2")
+                    attribute("Attr3", "Value 3")
                 }
 
                 link("AF069308") {
-                    attribute("Attr1", "")
                     attribute("Attr2", "Value 2")
+                    attribute("Attr3", "Value 3")
                 }
 
                 link("AF069309") {
                     attribute("Attr1", "Value 1")
+                    attribute("Attr3", "Value 3")
+                }
+
+                link("AF069310") {
+                    attribute("Attr1", "Value 1")
+                    attribute("Attr2", "Value 2")
                 }
             })
     }
