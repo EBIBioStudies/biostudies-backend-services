@@ -37,6 +37,7 @@ internal class SubmissionJsonSerializerTest {
                 jsonObj { "reference" to false; "name" to "attr-name"; "value" to "attr-value" },
                 jsonObj { "reference" to false; "name" to "releaseDate"; "value" to "2018-12-31" }
             )
+            "type" to "submission"
         }
         assertEquals("invalid submission json", json, expected.toString(), LENIENT)
     }

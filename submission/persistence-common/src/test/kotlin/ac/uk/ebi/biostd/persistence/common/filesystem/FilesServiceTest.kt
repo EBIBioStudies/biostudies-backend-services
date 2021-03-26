@@ -121,9 +121,9 @@ class FilesServiceTest(
         assertFile(getPath("submission/$relPath/ABC-123.json"), expectedFilePermissions)
         assertFile(getPath("submission/$relPath/ABC-123.pagetab.tsv"), expectedFilePermissions)
 
-        assertFile(getPath("submission/$relPath/fileList.xml"), expectedFilePermissions)
-        assertFile(getPath("submission/$relPath/fileList.json"), expectedFilePermissions)
-        assertFile(getPath("submission/$relPath/fileList.pagetab.tsv"), expectedFilePermissions)
+        assertFile(getPath("submission/$relPath/Files/fileList.xml"), expectedFilePermissions)
+        assertFile(getPath("submission/$relPath/Files/fileList.json"), expectedFilePermissions)
+        assertFile(getPath("submission/$relPath/Files/fileList.pagetab.tsv"), expectedFilePermissions)
     }
 
     private fun getPath(path: String) = Paths.get("${tempFolder.root.absolutePath}/$path")
