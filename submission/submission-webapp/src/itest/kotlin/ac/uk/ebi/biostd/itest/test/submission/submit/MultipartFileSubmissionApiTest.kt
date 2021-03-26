@@ -275,10 +275,9 @@ internal class MultipartFileSubmissionApiTest(
                 ))
 
             assertThat(Paths.get("$submissionFolderPath/Files/$testFile")).exists()
-
-            assertThat(Paths.get("$submissionFolderPath/$fileListName.xml")).exists()
-            assertThat(Paths.get("$submissionFolderPath/$fileListName.json")).exists()
-            assertThat(Paths.get("$submissionFolderPath/$fileListName.pagetab.tsv")).exists()
+            assertThat(Paths.get("$submissionFolderPath/Files/$fileListName.xml")).exists()
+            assertThat(Paths.get("$submissionFolderPath/Files/$fileListName.json")).exists()
+            assertThat(Paths.get("$submissionFolderPath/Files/$fileListName.pagetab.tsv")).exists()
         }
     }
 }

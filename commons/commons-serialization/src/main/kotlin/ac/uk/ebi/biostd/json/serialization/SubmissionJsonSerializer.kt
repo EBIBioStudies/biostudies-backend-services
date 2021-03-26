@@ -8,6 +8,7 @@ import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.databind.SerializerProvider
 import com.fasterxml.jackson.databind.ser.std.StdSerializer
 import ebi.ac.uk.model.Submission
+import ebi.ac.uk.model.constants.SUBMISSION
 import ebi.ac.uk.model.constants.SubFields
 
 internal class SubmissionJsonSerializer : StdSerializer<Submission>(Submission::class.java) {
@@ -16,6 +17,7 @@ internal class SubmissionJsonSerializer : StdSerializer<Submission>(Submission::
             writeJsonString(SubFields.ACC_NO, subm.accNo)
             writeJsonArray(SubFields.ATTRIBUTES, subm.attributes)
             writeJsonObject(SubFields.SECTION, subm.section)
+            writeJsonString(SubFields.TYPE, SubFields.SUBMISSION.value)
         }
     }
 }

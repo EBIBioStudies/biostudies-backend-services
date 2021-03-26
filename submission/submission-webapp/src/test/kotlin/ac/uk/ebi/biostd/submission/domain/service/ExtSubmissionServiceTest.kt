@@ -71,7 +71,7 @@ class ExtSubmissionServiceTest(
         assertThat(result.content).hasSize(1)
         assertThat(result.content.first()).isEqualTo(extSubmission)
         assertThat(result.pageable).isEqualTo(pageable)
-        assertThat(result.totalElements).isEqualTo(1L)
+        assertThat(result.totalElements).isEqualTo(2L)
 
         val submissionFilter = filter.captured
         assertThat(submissionFilter.released).isTrue()
