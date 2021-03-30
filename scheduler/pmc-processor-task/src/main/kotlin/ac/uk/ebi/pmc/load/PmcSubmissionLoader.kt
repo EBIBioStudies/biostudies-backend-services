@@ -7,7 +7,6 @@ import ac.uk.ebi.pmc.persistence.InputFilesDocService
 import ac.uk.ebi.pmc.persistence.SubmissionDocService
 import ac.uk.ebi.scheduler.properties.PmcMode
 import arrow.core.Try
-import ebi.ac.uk.base.scape
 import ebi.ac.uk.base.splitIgnoringEmpty
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.constants.SUB_SEPARATOR
@@ -74,7 +73,7 @@ class PmcSubmissionLoader(
     private fun deserialize(originalPagetab: String): Pair<String, Try<Submission>> =
         Pair(
             originalPagetab,
-            Try { serializationService.deserializeSubmission(originalPagetab.scape(DOUBLE_QUOTE), SubFormat.TSV) }
+            Try { serializationService.deserializeSubmission(originalPagetab, SubFormat.TSV) }
         )
 
     private fun sanitize(fileText: String) = fileText.replace(sanitizeRegex, "\n")

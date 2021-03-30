@@ -65,7 +65,6 @@ internal class TsvChunkGenerator(private val parser: CSVFormat = createParser())
             return CSVFormat.DEFAULT
                 .withDelimiter(TAB)
                 .withQuote('"')
-                .withEscape('\\')
                 .withIgnoreSurroundingSpaces()
                 .withIgnoreEmptyLines(false)
                 .withCommentMarker(TSV_COMMENT)
