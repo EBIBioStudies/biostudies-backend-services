@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import ebi.ac.uk.security.integration.SecurityModuleConfig
 import ebi.ac.uk.security.integration.components.IGroupService
 import ebi.ac.uk.security.integration.components.ISecurityFilter
+import ebi.ac.uk.security.integration.components.ISecurityQueryService
 import ebi.ac.uk.security.integration.components.ISecurityService
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import org.springframework.context.annotation.Bean
@@ -97,6 +98,11 @@ class SecurityBeansConfig(private val objectMapper: ObjectMapper, properties: Ap
 
     @Bean
     fun securityService(securityConfig: SecurityModuleConfig): ISecurityService = securityConfig.securityService()
+
+    @Bean
+    fun securityQueryService(
+        securityConfig: SecurityModuleConfig
+    ): ISecurityQueryService = securityConfig.securityQueryService()
 
     @Bean
     fun groupService(securityConfig: SecurityModuleConfig): IGroupService = securityConfig.groupService()
