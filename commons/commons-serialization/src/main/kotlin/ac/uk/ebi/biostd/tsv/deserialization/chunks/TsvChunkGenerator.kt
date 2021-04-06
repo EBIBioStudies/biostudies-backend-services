@@ -14,6 +14,7 @@ import ac.uk.ebi.biostd.tsv.deserialization.model.TsvChunk
 import ac.uk.ebi.biostd.tsv.deserialization.model.TsvChunkLine
 import com.google.common.collect.Lists
 import ebi.ac.uk.base.like
+import ebi.ac.uk.base.scape
 import ebi.ac.uk.model.constants.FileFields
 import ebi.ac.uk.model.constants.LinkFields
 import ebi.ac.uk.model.constants.SectionFields
@@ -28,39 +29,51 @@ import java.util.Queue
 
 internal class TsvChunkGenerator(private val parser: CSVFormat = createParser()) {
     fun chunks(pageTab: String): Queue<TsvChunk> {
-        return chunkLines(pageTab).split { it.isEmpty() }.mapTo(Lists.newLinkedList()) { createChunk(it) }
+        return chunkLines(pageTab)
+            .split { it.isEmpty() }
+            .mapTo(Lists.newLinkedList()) { createChunk(it) }
     }
 
-    private fun createChunk(body: List<TsvChunkLine>): TsvChunk {
-        val header = body.first()
+    private fun createChunk(lines: List<TsvChunkLine>): TsvChunk {
+        val header = lines.first()
         val type = header.first()
 
         return when {
-            type like LinkFields.LINK -> LinkChunk(body)
-            type like FileFields.FILE -> FileChunk(body)
-            type like SectionFields.LINKS -> LinksTableChunk(body)
-            type like SectionFields.FILES -> FileTableChunk(body)
+            type like LinkFields.LINK -> LinkChunk(lines)
+            type like FileFields.FILE -> FileChunk(lines)
+            type like SectionFields.LINKS -> LinksTableChunk(lines)
+            type like SectionFields.FILES -> FileTableChunk(lines)
             type.matches(TABLE_REGEX) -> TABLE_REGEX.findGroup(type, 1)
-                .fold({ RootSectionTableChunk(body) }, { SubSectionTableChunk(body, it) })
-            else -> header.findThird().fold({ RootSubSectionChunk(body) }, { SubSectionChunk(body, it) })
+                .fold({ RootSectionTableChunk(lines) }, { SubSectionTableChunk(lines, it) })
+            else -> header.findThird().fold({ RootSubSectionChunk(lines) }, { SubSectionChunk(lines, it) })
         }
     }
 
     private fun chunkLines(pageTab: String): List<TsvChunkLine> {
-        val parsedChunks = parser.parse(StringReader(pageTab))
+        val parsedChunks = parser.parse(StringReader(escapeQuotes(pageTab)))
 
         return parsedChunks.mapIndexed { idx, csvRecord ->
             val record = csvRecord.asList()
             when {
                 record.all(String::isBlank) -> TsvChunkLine(idx, emptyList())
-                else -> TsvChunkLine(idx, record)
+                else -> TsvChunkLine(idx, record.map { it.replace(ESCAPED_QUOTE, SIMPLE_QUOTE) })
             }
         }
+    }
+
+    private fun escapeQuotes(pageTab: String): String {
+        return SIMPLE_QUOTE_REGEX.findAll(pageTab)
+            .fold(pageTab, { result, match -> result.replace(match.value, match.value.scape(QUOTE)) })
     }
 
     private fun CSVRecord.asList(): List<String> = map { it }
 
     companion object {
+        private val SIMPLE_QUOTE_REGEX = "(\")([^\n|\t]*)(\")".toRegex()
+        private const val QUOTE = "\""
+        private const val ESCAPED_QUOTE = "\\\""
+        private const val SIMPLE_QUOTE = "\""
+
         private fun createParser(): CSVFormat {
             return CSVFormat.DEFAULT
                 .withDelimiter(TAB)

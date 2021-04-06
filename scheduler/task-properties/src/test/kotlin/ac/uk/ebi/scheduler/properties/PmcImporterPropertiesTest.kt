@@ -37,7 +37,7 @@ class PmcImporterPropertiesTest {
                 --app.data.mongodbDatabase=a-database \
                 --app.data.notificationsUrl=http://slack-here \
                 --app.data.pmcBaseUrl=http://pmc \
-                --app.data.path=/loadPath \
+                --app.data.loadFolder=/loadPath \
                 --app.data.bioStudiesUrl=http://an_url.com \
                 --app.data.bioStudiesUser=user \
                 --app.data.bioStudiesPassword=password
