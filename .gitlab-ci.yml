@@ -40,11 +40,11 @@ stages:
 
 build-test:
   stage: build-test
-  script: gradle clean build test buildArtifacts
+  script: gradle clean build test buildArtifacts --info
   artifacts:
     paths:
       - bio-admin/build/libs/bio-admin-1.0.0.jar
-      - client/bio-commandline/build/libs/PTSubmit-2.0.jar
+      - client/bio-commandline/build/libs/BioStudiesCLI-2.0.jar
       - scheduler/scheduler/build/libs/scheduler-1.0.0.jar
       - scheduler/pmc-processor-task/build/libs/pmc-processor-task-1.0.0.jar
       - scheduler/submission-releaser-task/build/libs/submission-releaser-task-1.0.0.jar
@@ -53,4 +53,4 @@ build-test:
 
 mysql-itest:
   stage: mysql-itest
-  script: gradle clean :submission:submission-webapp:itest -Pitest.mode=mysql --rerun-tasks
+  script: gradle clean :submission:submission-webapp:itest -Pitest.mode=mysql --rerun-tasks --info

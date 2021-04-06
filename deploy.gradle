@@ -69,7 +69,7 @@ task deployBioAdmin {
 task deployBioCommandLine {
     doFirst {
         project.ext.artifactPath = "client/bio-commandline/build/libs"
-        project.ext.artifactName = "PTSubmit-2.0.jar"
+        project.ext.artifactName = "BioStudiesCLI-2.0.jar"
     }
 
     finalizedBy "deployArtifact"

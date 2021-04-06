@@ -10,7 +10,7 @@ Spring boot administration module.
 It contains the definitions of the CI/CD GitLab jobs as well as the required scripts.
 
 * **Client**:
-Contains the web client used to interact with the submitter and the code for the BioStudies CLI (PTSubmit)
+Contains the web client used to interact with the submitter and the code for the BioStudies CLI
 
 * **Commons**:
 Contains common functionality used in all modules like the model definition, serialization, utils, etc. 
