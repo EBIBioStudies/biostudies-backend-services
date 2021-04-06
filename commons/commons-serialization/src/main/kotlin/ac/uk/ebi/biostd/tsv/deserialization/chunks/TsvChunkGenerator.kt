@@ -13,9 +13,8 @@ import ac.uk.ebi.biostd.tsv.deserialization.model.SubSectionTableChunk
 import ac.uk.ebi.biostd.tsv.deserialization.model.TsvChunk
 import ac.uk.ebi.biostd.tsv.deserialization.model.TsvChunkLine
 import com.google.common.collect.Lists
-import com.univocity.parsers.csv.CsvParser
-import com.univocity.parsers.csv.CsvParserSettings
 import ebi.ac.uk.base.like
+import ebi.ac.uk.base.scape
 import ebi.ac.uk.model.constants.FileFields
 import ebi.ac.uk.model.constants.LinkFields
 import ebi.ac.uk.model.constants.SectionFields
@@ -23,54 +22,65 @@ import ebi.ac.uk.model.constants.TABLE_REGEX
 import ebi.ac.uk.util.collections.findThird
 import ebi.ac.uk.util.collections.split
 import ebi.ac.uk.util.regex.findGroup
+import org.apache.commons.csv.CSVFormat
+import org.apache.commons.csv.CSVRecord
 import java.io.StringReader
 import java.util.Queue
 
-internal class TsvChunkGenerator(private val parser: CsvParser = createParser()) {
+internal class TsvChunkGenerator(private val parser: CSVFormat = createParser()) {
     fun chunks(pageTab: String): Queue<TsvChunk> {
         return chunkLines(pageTab)
             .split { it.isEmpty() }
             .mapTo(Lists.newLinkedList()) { createChunk(it) }
     }
 
-    private fun createChunk(body: List<TsvChunkLine>): TsvChunk {
-        val header = body.first()
+    private fun createChunk(lines: List<TsvChunkLine>): TsvChunk {
+        val header = lines.first()
         val type = header.first()
 
         return when {
-            type like LinkFields.LINK -> LinkChunk(body)
-            type like FileFields.FILE -> FileChunk(body)
-            type like SectionFields.LINKS -> LinksTableChunk(body)
-            type like SectionFields.FILES -> FileTableChunk(body)
+            type like LinkFields.LINK -> LinkChunk(lines)
+            type like FileFields.FILE -> FileChunk(lines)
+            type like SectionFields.LINKS -> LinksTableChunk(lines)
+            type like SectionFields.FILES -> FileTableChunk(lines)
             type.matches(TABLE_REGEX) -> TABLE_REGEX.findGroup(type, 1)
-                .fold({ RootSectionTableChunk(body) }, { SubSectionTableChunk(body, it) })
-            else -> header.findThird().fold({ RootSubSectionChunk(body) }, { SubSectionChunk(body, it) })
+                .fold({ RootSectionTableChunk(lines) }, { SubSectionTableChunk(lines, it) })
+            else -> header.findThird().fold({ RootSubSectionChunk(lines) }, { SubSectionChunk(lines, it) })
         }
     }
 
     private fun chunkLines(pageTab: String): List<TsvChunkLine> {
-        val parsedChunks = parser.parseAll(StringReader(pageTab))
-        return parsedChunks.mapIndexed(this::asTsvChunkLine)
+        val parsedChunks = parser.parse(StringReader(escapeQuotes(pageTab)))
+
+        return parsedChunks.mapIndexed { idx, csvRecord ->
+            val record = csvRecord.asList()
+            when {
+                record.all(String::isBlank) -> TsvChunkLine(idx, emptyList())
+                else -> TsvChunkLine(idx, record.map { it.replace(ESCAPED_QUOTE, SIMPLE_QUOTE) })
+            }
+        }
     }
 
-    private fun asTsvChunkLine(idx: Int, values: Array<String?>): TsvChunkLine =
-        if (values.all { it.isNullOrBlank() }) TsvChunkLine(idx) else TsvChunkLine(idx, asList(values))
+    private fun escapeQuotes(pageTab: String): String {
+        return SIMPLE_QUOTE_REGEX.findAll(pageTab)
+            .fold(pageTab, { result, match -> result.replace(match.value, match.value.scape(QUOTE)) })
+    }
 
-    private fun asList(values: Array<String?>) = values.map { it.orEmpty() }.toList()
+    private fun CSVRecord.asList(): List<String> = map { it }
 
     companion object {
-        private fun createParser() = CsvParser(createParseSettings())
+        private val SIMPLE_QUOTE_REGEX = "(\")([^\n|\t]*)(\")".toRegex()
+        private const val QUOTE = "\""
+        private const val ESCAPED_QUOTE = "\\\""
+        private const val SIMPLE_QUOTE = "\""
 
-        /**
-         * Create CSV parser function which allow to quote special characters or multiline values as "the \n value" but
-         * at the same time allows using them explicitly like in 'the "final" version'.
-         *
-         */
-        private fun createParseSettings() = CsvParserSettings().apply {
-            format.setLineSeparator("\n")
-            format.delimiter = TAB
-            format.comment = TSV_COMMENT
-            skipEmptyLines = false
+        private fun createParser(): CSVFormat {
+            return CSVFormat.DEFAULT
+                .withDelimiter(TAB)
+                .withQuote('"')
+                .withIgnoreSurroundingSpaces()
+                .withIgnoreEmptyLines(false)
+                .withCommentMarker(TSV_COMMENT)
         }
     }
 }
