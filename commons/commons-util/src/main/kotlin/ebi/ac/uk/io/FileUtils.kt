@@ -7,17 +7,22 @@ import ebi.ac.uk.io.FileUtilsHelper.createFolderIfNotExist
 import ebi.ac.uk.io.FileUtilsHelper.createParentDirectories
 import ebi.ac.uk.io.FileUtilsHelper.createSymLink
 import ebi.ac.uk.io.ext.notExist
-import org.apache.commons.codec.digest.DigestUtils
 import java.io.File
 import java.io.InputStream
+import java.math.BigInteger
 import java.nio.file.Files
 import java.nio.file.Files.exists
 import java.nio.file.Path
 import java.nio.file.StandardCopyOption.REPLACE_EXISTING
 import java.nio.file.attribute.PosixFilePermission
 import java.nio.file.attribute.PosixFilePermissions
+import java.security.MessageDigest
 import kotlin.streams.toList
 
+internal const val CHECKSUM_SIGNUM = 1
+internal const val BUFFER_SIZE = 12288
+internal const val MD5_ALGORITHM = "MD5"
+internal const val HEXADECIMAL_BASE = 16
 val RW_______: Set<PosixFilePermission> = PosixFilePermissions.fromString("rw-------")
 val RWX______: Set<PosixFilePermission> = PosixFilePermissions.fromString("rwx------")
 val RWX__X___: Set<PosixFilePermission> = PosixFilePermissions.fromString("rwx--x---")
@@ -123,13 +128,26 @@ object FileUtils {
 
     fun size(file: File): Long = Files.size(file.toPath())
 
-    fun md5(file: File): String = if (file.isFile) DigestUtils.md5Hex(file.readBytes()).toUpperCase() else ""
+    fun md5(file: File): String = if (file.isFile) calculateMd5(file).toUpperCase() else ""
 
     fun listFiles(file: File): List<File> =
         if (isDirectory(file)) Files.list(file.toPath()).map { it.toFile() }.toList() else emptyList()
 
     fun setFolderPermissions(path: Path, permissions: Set<PosixFilePermission>) {
         Files.setPosixFilePermissions(path, permissions)
+    }
+
+    private fun calculateMd5(file: File): String = file.inputStream().use { inputStream ->
+        var read: Int
+        val buffer = ByteArray(BUFFER_SIZE)
+        val digest = MessageDigest.getInstance(MD5_ALGORITHM)
+
+        while (inputStream.read(buffer).also { read = it } > 0) {
+            digest.update(buffer, 0, read)
+        }
+
+        val md5sum = BigInteger(CHECKSUM_SIGNUM, digest.digest()).toString(HEXADECIMAL_BASE)
+        return String.format("%32s", md5sum).replace(" ", "0")
     }
 }
 
