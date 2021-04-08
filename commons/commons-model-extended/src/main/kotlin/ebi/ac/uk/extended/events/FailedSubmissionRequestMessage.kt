@@ -3,7 +3,7 @@ package ebi.ac.uk.extended.events
 import com.fasterxml.jackson.annotation.JsonProperty
 import ebi.ac.uk.extended.model.FileMode
 
-data class SubmissionRequestMessage(
+class FailedSubmissionRequestMessage(
     @JsonProperty("accNo")
     val accNo: String,
 
@@ -14,5 +14,8 @@ data class SubmissionRequestMessage(
     val fileMode: FileMode,
 
     @JsonProperty("draftKey")
-    val draftKey: String?
+    val draftKey: String?,
+
+    @JsonProperty("errorMessage")
+    val errorMessage: String?
 )

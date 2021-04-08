@@ -13,6 +13,7 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.submission.ext.getSimpleByAccNo
 import ac.uk.ebi.biostd.submission.model.SubmissionRequest
 import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
+import ebi.ac.uk.extended.events.FailedSubmissionRequestMessage
 import ebi.ac.uk.extended.events.SubmissionRequestMessage
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
@@ -59,11 +60,19 @@ class SubmissionService(
     fun processSubmission(request: SubmissionRequestMessage) {
         logger.info { "received process message for submission ${request.accNo} , version: ${request.version}" }
 
-        val submission = getRequest(request.accNo, request.version)
-        val saveRequest = SaveSubmissionRequest(submission, request.fileMode, request.draftKey)
-        val processed = submissionSubmitter.processRequest(saveRequest)
+        runCatching {
+            val submission = getRequest(request.accNo, request.version)
+            val saveRequest = SaveSubmissionRequest(submission, request.fileMode, request.draftKey)
+            val processed = submissionSubmitter.processRequest(saveRequest)
 
-        eventsPublisherService.submissionSubmitted(processed)
+            eventsPublisherService.submissionSubmitted(processed)
+        }.onFailure {
+            val (accNo, version, fileMode, draftKey) = request
+            val message = FailedSubmissionRequestMessage(accNo, version, fileMode, draftKey, it.message)
+
+            logger.error { "Problem processing submission request '$accNo': ${it.message}" }
+            eventsPublisherService.submissionFailed(message)
+        }
     }
 
     fun getSubmissionAsJson(accNo: String): String =
