@@ -6,7 +6,6 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
-import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.asBasicSubmission
 import ac.uk.ebi.biostd.persistence.exception.SubmissionNotFoundException
 import ebi.ac.uk.extended.model.ExtSubmission
@@ -50,10 +49,6 @@ internal class SubmissionMongoQueryService(
         return serializationService.deserialize(submission.submission.toString())
     }
 
-    private fun loadSubmission(accNo: String): DocSubmission {
-        val submission = submissionRepo.findByAccNo(accNo)
-
-        requireNotNull(submission) { throw SubmissionNotFoundException(accNo) }
-        return submission
-    }
+    private fun loadSubmission(accNo: String) =
+        submissionRepo.findByAccNo(accNo) ?: throw SubmissionNotFoundException(accNo)
 }
