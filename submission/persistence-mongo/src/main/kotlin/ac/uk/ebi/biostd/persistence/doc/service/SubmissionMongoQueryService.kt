@@ -21,8 +21,8 @@ internal class SubmissionMongoQueryService(
     override fun existByAccNo(accNo: String): Boolean = submissionRepo.existsByAccNo(accNo)
 
     override fun getExtByAccNo(accNo: String): ExtSubmission {
-        val document = submissionRepo.getByAccNoAndVersionGreaterThan(accNo, 0)
-        return toExtSubmissionMapper.toExtSubmission(document)
+        val submission = loadSubmission(accNo)
+        return toExtSubmissionMapper.toExtSubmission(submission)
     }
 
     override fun getExtByAccNoAndVersion(accNo: String, version: Int): ExtSubmission {
@@ -31,9 +31,7 @@ internal class SubmissionMongoQueryService(
     }
 
     override fun expireSubmission(accNo: String) {
-        val submission = submissionRepo.findByAccNo(accNo)
-
-        requireNotNull(submission) { throw SubmissionNotFoundException(accNo) }
+        val submission = loadSubmission(accNo)
         submissionRepo.expireVersion(accNo, submission.version)
     }
 
@@ -50,4 +48,7 @@ internal class SubmissionMongoQueryService(
         val submission = requestRepository.getByAccNoAndVersion(accNo, version)
         return serializationService.deserialize(submission.submission.toString())
     }
+
+    private fun loadSubmission(accNo: String) =
+        submissionRepo.findByAccNo(accNo) ?: throw SubmissionNotFoundException(accNo)
 }
