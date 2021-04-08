@@ -3,7 +3,6 @@ package uk.ac.ebi.events.service
 import ebi.ac.uk.extended.events.FailedSubmissionRequestMessage
 import ebi.ac.uk.extended.events.SecurityNotification
 import ebi.ac.uk.extended.events.SubmissionMessage
-import ebi.ac.uk.extended.events.SubmissionRequestMessage
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.util.date.asIsoTime
 import org.springframework.amqp.rabbit.core.RabbitTemplate

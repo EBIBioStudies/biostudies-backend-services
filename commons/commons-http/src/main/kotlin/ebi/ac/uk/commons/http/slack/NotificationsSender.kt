@@ -2,7 +2,6 @@ package ebi.ac.uk.commons.http.slack
 
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
-import org.springframework.http.MediaType
 import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.client.postForEntity

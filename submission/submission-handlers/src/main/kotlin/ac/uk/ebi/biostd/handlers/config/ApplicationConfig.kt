@@ -6,7 +6,6 @@ import ac.uk.ebi.biostd.handlers.listeners.SecurityNotificationListener
 import ac.uk.ebi.biostd.handlers.listeners.SubmissionNotificationsListener
 import ac.uk.ebi.biostd.persistence.common.service.NotificationsDataService
 import ac.uk.ebi.biostd.persistence.integration.config.NotificationPersistenceConfig
-import ebi.ac.uk.commons.http.JacksonFactory
 import ebi.ac.uk.commons.http.slack.NotificationsSender
 import ebi.ac.uk.notifications.integration.NotificationConfig
 import ebi.ac.uk.notifications.service.RtNotificationService

@@ -2,14 +2,19 @@ package ac.uk.ebi.biostd.handlers.listeners
 
 import ac.uk.ebi.biostd.common.properties.NotificationProperties
 import ac.uk.ebi.biostd.handlers.api.BioStudiesWebConsumer
+import ebi.ac.uk.commons.http.slack.NotificationsSender
+import ebi.ac.uk.commons.http.slack.SystemNotification
+import ebi.ac.uk.extended.events.FailedSubmissionRequestMessage
 import ebi.ac.uk.extended.events.SubmissionMessage
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtUser
+import ebi.ac.uk.extended.model.FileMode.COPY
 import ebi.ac.uk.notifications.service.RtNotificationService
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
+import io.mockk.slot
 import io.mockk.verify
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -22,11 +27,12 @@ class SubmissionNotificationsListenerTest(
     @MockK private val submission: ExtSubmission,
     @MockK private val message: SubmissionMessage,
     @MockK private val webConsumer: BioStudiesWebConsumer,
+    @MockK private val notificationsSender: NotificationsSender,
     @MockK private val rtNotificationService: RtNotificationService,
     @MockK private val notificationProperties: NotificationProperties
 ) {
     private val testInstance =
-        SubmissionNotificationsListener(webConsumer, rtNotificationService, notificationProperties)
+        SubmissionNotificationsListener(webConsumer, notificationsSender, rtNotificationService, notificationProperties)
 
     @BeforeEach
     fun beforeEach() {
@@ -76,6 +82,18 @@ class SubmissionNotificationsListenerTest(
 
         verify(exactly = 0) { webConsumer.getExtSubmission("ext-tab-url") }
         verify(exactly = 0) { rtNotificationService.notifySubmissionRelease(submission, "Dr Owner", "ui-url") }
+    }
+
+    @Test
+    fun `notify failed submission`() {
+        val notificationSlot = slot<SystemNotification>()
+        val message = FailedSubmissionRequestMessage("S-BSST1", 1, COPY, "TMP_123", "error message")
+
+        every { notificationsSender.send(capture(notificationSlot)) } answers { nothing }
+
+        testInstance.receiveFailedSubmissionMessage(message)
+
+        verify(exactly = 1) { notificationsSender.send(notificationSlot.captured) }
     }
 
     private fun mockMessage() {

@@ -14,8 +14,8 @@ import mu.KotlinLogging
 import org.springframework.amqp.rabbit.annotation.RabbitListener
 
 private val logger = KotlinLogging.logger {}
-internal val SYSTEM_NAME = "Submitter"
-internal val HANDLERS_SUBSYSTEM = "Submission Handlers"
+private const val SYSTEM_NAME = "Submitter"
+private const val HANDLERS_SUBSYSTEM = "Submission Handlers"
 
 class SubmissionNotificationsListener(
     private val webConsumer: BioStudiesWebConsumer,
@@ -51,7 +51,7 @@ class SubmissionNotificationsListener(
             Alert(
                 SYSTEM_NAME,
                 HANDLERS_SUBSYSTEM,
-                "Problem processing the submission '${msg.accNo}' with version ${msg.version} in mode '${msg.fileMode}'",
+                "Problem processing submission '${msg.accNo}' with version ${msg.version} in mode '${msg.fileMode}'",
                 msg.errorMessage
             )
         )
