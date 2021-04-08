@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
+import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.asBasicSubmission
 import ac.uk.ebi.biostd.persistence.exception.SubmissionNotFoundException
 import ebi.ac.uk.extended.model.ExtSubmission
@@ -21,8 +22,8 @@ internal class SubmissionMongoQueryService(
     override fun existByAccNo(accNo: String): Boolean = submissionRepo.existsByAccNo(accNo)
 
     override fun getExtByAccNo(accNo: String): ExtSubmission {
-        val document = submissionRepo.getByAccNoAndVersionGreaterThan(accNo, 0)
-        return toExtSubmissionMapper.toExtSubmission(document)
+        val submission = loadSubmission(accNo)
+        return toExtSubmissionMapper.toExtSubmission(submission)
     }
 
     override fun getExtByAccNoAndVersion(accNo: String, version: Int): ExtSubmission {
@@ -31,9 +32,7 @@ internal class SubmissionMongoQueryService(
     }
 
     override fun expireSubmission(accNo: String) {
-        val submission = submissionRepo.findByAccNo(accNo)
-
-        requireNotNull(submission) { throw SubmissionNotFoundException(accNo) }
+        val submission = loadSubmission(accNo)
         submissionRepo.expireVersion(accNo, submission.version)
     }
 
@@ -49,5 +48,12 @@ internal class SubmissionMongoQueryService(
     override fun getRequest(accNo: String, version: Int): ExtSubmission {
         val submission = requestRepository.getByAccNoAndVersion(accNo, version)
         return serializationService.deserialize(submission.submission.toString())
+    }
+
+    private fun loadSubmission(accNo: String): DocSubmission {
+        val submission = submissionRepo.findByAccNo(accNo)
+
+        requireNotNull(submission) { throw SubmissionNotFoundException(accNo) }
+        return submission
     }
 }
