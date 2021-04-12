@@ -9,7 +9,6 @@ import ebi.ac.uk.io.FileUtilsHelper.createSymLink
 import ebi.ac.uk.io.ext.notExist
 import java.io.File
 import java.io.InputStream
-import java.math.BigInteger
 import java.nio.file.Files
 import java.nio.file.Files.exists
 import java.nio.file.Path
@@ -128,7 +127,7 @@ object FileUtils {
 
     fun size(file: File): Long = Files.size(file.toPath())
 
-    fun md5(file: File): String = if (file.isFile) calculateMd5(file).toUpperCase() else ""
+    fun md5(file: File): String = if (file.isFile) calculateMd5(file) else ""
 
     fun listFiles(file: File): List<File> =
         if (isDirectory(file)) Files.list(file.toPath()).map { it.toFile() }.toList() else emptyList()
@@ -137,17 +136,11 @@ object FileUtils {
         Files.setPosixFilePermissions(path, permissions)
     }
 
-    private fun calculateMd5(file: File): String = file.inputStream().use { inputStream ->
-        var read: Int
-        val buffer = ByteArray(BUFFER_SIZE)
+    private fun calculateMd5(file: File): String {
         val digest = MessageDigest.getInstance(MD5_ALGORITHM)
+        file.inputStream().buffered(BUFFER_SIZE).use { it.iterator().forEach(digest::update) }
 
-        while (inputStream.read(buffer).also { read = it } > 0) {
-            digest.update(buffer, 0, read)
-        }
-
-        val md5sum = BigInteger(CHECKSUM_SIGNUM, digest.digest()).toString(HEXADECIMAL_BASE)
-        return String.format("%32s", md5sum).replace(" ", "0")
+        return digest.digest().joinToString("") { "%02x".format(it) }.toUpperCase()
     }
 }
 
