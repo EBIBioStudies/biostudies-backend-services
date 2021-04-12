@@ -9,6 +9,7 @@ const val BIOSTUDIES_EXCHANGE = "biostudies-exchange"
 const val SUBMISSIONS_ROUTING_KEY = "bio.submission.published"
 const val SUBMISSIONS_RELEASE_ROUTING_KEY = "bio.submission.published.notification"
 const val SUBMISSIONS_REQUEST_ROUTING_KEY = "bio.submission.requested"
+const val SUBMISSIONS_FAILED_REQUEST_ROUTING_KEY = "bio.submission.failed"
 const val SECURITY_NOTIFICATIONS_ROUTING_KEY = "bio.security.notification"
 
 class EventsPublisherConfig(
