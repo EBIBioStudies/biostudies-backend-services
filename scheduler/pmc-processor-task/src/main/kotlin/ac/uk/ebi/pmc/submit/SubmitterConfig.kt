@@ -12,6 +12,7 @@ import org.springframework.context.annotation.Lazy
 @Configuration
 @Lazy
 class SubmitterConfig {
+
     @Bean
     fun bioWebClient(properties: PmcImporterProperties) =
         SecurityWebClient
@@ -28,5 +29,5 @@ class SubmitterConfig {
     ) = PmcSubmitter(bioWebClient, errorsDocService, submissionDocService)
 
     @Bean
-    fun pmSubmissionSubmitter(pmcSubmitter: PmcSubmitter) = PmcSubmissionSubmitter(pmcSubmitter)
+    fun pmcSubmissionSubmitter(pmcSubmitter: PmcSubmitter) = PmcSubmissionSubmitter(pmcSubmitter)
 }

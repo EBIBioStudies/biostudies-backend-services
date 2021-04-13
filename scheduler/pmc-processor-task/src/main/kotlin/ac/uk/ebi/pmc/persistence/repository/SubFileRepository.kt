@@ -5,6 +5,7 @@ import ac.uk.ebi.pmc.persistence.ext.getOne
 import com.mongodb.async.client.MongoCollection
 import com.mongodb.client.model.Filters
 import org.bson.types.ObjectId
+import org.litote.kmongo.coroutine.drop
 import org.litote.kmongo.coroutine.insertOne
 import org.litote.kmongo.coroutine.toList
 import java.io.File
@@ -17,4 +18,8 @@ class SubFileRepository(private val collection: MongoCollection<FileDoc>) {
         collection.insertOne(FileDoc(file.name, file.absolutePath, accNo))
         return collection.getOne(Filters.eq("path", file.absolutePath)).id
     }
+
+    suspend fun findAll() = collection.find().toList()
+
+    suspend fun deleteAll() = collection.drop()
 }

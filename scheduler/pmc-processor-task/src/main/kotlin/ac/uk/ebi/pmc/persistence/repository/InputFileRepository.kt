@@ -7,10 +7,13 @@ import com.mongodb.async.client.MongoCollection
 import com.mongodb.client.model.Filters
 import org.litote.kmongo.coroutine.findOne
 import org.litote.kmongo.coroutine.insertOne
+import org.litote.kmongo.coroutine.toList
 
 class InputFileRepository(private val collection: MongoCollection<InputFileDoc>) {
 
     suspend fun save(fileDoc: FileSpec) = collection.insertOne(InputFileDoc(fileDoc.name))
 
     suspend fun find(file: FileSpec) = collection.findOne(Filters.eq(InputFileDoc.name, file.name)).toOption()
+
+    suspend fun findAll() = collection.find().toList()
 }

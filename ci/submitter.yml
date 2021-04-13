@@ -20,11 +20,11 @@ deploy-beta-submitter:
   when: manual
   dependencies:
     - build-test
-  script: gradle deploySubmitter -Penv=beta -PdeployPath=/nfs/biostudies/.adm/apps/submitter/beta -PjvmParams=-Xmx2g
+  script: gradle deploySubmitter -Penv=beta -PdeployPath=/nfs/biostudies/.adm/apps/submitter/beta -PjvmParams=-Xmx12g
 
 deploy-prod-submitter:
   stage: deploy-prod-submitter
   when: manual
   dependencies:
     - build-test
-  script: gradle deploySubmitter -Penv=prod -PdeployPath=/nfs/biostudies/.adm/apps/submitter/prod -PjvmParams=-Xmx2g
+  script: gradle deploySubmitter -Penv=prod -PdeployPath=/nfs/biostudies/.adm/apps/submitter/prod -PjvmParams=-Xmx16g

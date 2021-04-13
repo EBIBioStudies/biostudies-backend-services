@@ -17,6 +17,7 @@ plugins {
 dependencies {
     api(project(":commons:commons-model-extended"))
     api(project(":commons:commons-model-extended-serialization"))
+    api(project(":commons:commons-http"))
     api(project(":commons:commons-util"))
     api(project(":submission:notifications"))
     api(project(":submission:submission-config"))

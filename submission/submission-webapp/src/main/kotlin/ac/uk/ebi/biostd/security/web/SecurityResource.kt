@@ -9,6 +9,7 @@ import ebi.ac.uk.api.security.ResetPasswordRequest
 import ebi.ac.uk.api.security.RetryActivationRequest
 import ebi.ac.uk.api.security.UserProfile
 import ebi.ac.uk.model.constants.APPLICATION_JSON
+import ebi.ac.uk.security.integration.components.ISecurityQueryService
 import ebi.ac.uk.security.integration.components.ISecurityService
 import org.springframework.http.HttpStatus
 import org.springframework.security.access.prepost.PreAuthorize
@@ -28,8 +29,9 @@ import javax.validation.Valid
 @Validated
 @RequestMapping("/auth", produces = [APPLICATION_JSON])
 class SecurityResource(
+    private val securityMapper: SecurityMapper,
     private val securityService: ISecurityService,
-    private val securityMapper: SecurityMapper
+    private val securityQueryService: ISecurityQueryService
 ) {
     @PostMapping(value = ["/signup", "/register"])
     @ResponseStatus(value = HttpStatus.CREATED)
@@ -39,7 +41,7 @@ class SecurityResource(
 
     @PostMapping(value = ["/check-registration"])
     fun checkUser(@Valid @RequestBody register: CheckUserRequest) {
-        securityService.checkUserRegistration(register)
+        securityQueryService.getOrCreateInactive(register.userEmail, register.userName)
     }
 
     @PostMapping(value = ["/signin", "/login"])
@@ -71,5 +73,5 @@ class SecurityResource(
     @PreAuthorize("isAuthenticated()")
     @ResponseBody
     fun userProfile(authentication: Authentication): UserProfile =
-        securityMapper.toUserProfile(securityService.getUserProfile(authentication.credentials as String))
+        securityMapper.toUserProfile(securityQueryService.getUserProfile(authentication.credentials as String))
 }

@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.submission.web.exception
 
+import ac.uk.ebi.biostd.persistence.exception.SubmissionNotFoundException
 import ebi.ac.uk.errors.ValidationNode
 import ebi.ac.uk.errors.ValidationNodeStatus.ERROR
 import ebi.ac.uk.errors.ValidationTree
@@ -34,5 +35,13 @@ class GeneralExceptionHandler {
             .map { ValidationNode(ERROR, it.defaultMessage ?: it.objectName) }
 
         return ValidationTree(FAIL, ValidationNode(ERROR, "Form Validation Errors", errors))
+    }
+
+    @ResponseBody
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ExceptionHandler(value = [SubmissionNotFoundException::class])
+    fun handleSubmissionNotFound(exception: SubmissionNotFoundException): ValidationTree {
+        exception.printStackTrace()
+        return ValidationTree(FAIL, ValidationNode(ERROR, exception.message ?: exception.javaClass.name))
     }
 }

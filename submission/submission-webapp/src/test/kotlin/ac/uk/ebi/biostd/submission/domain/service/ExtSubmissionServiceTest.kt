@@ -4,11 +4,16 @@ import ac.uk.ebi.biostd.persistence.common.request.SaveSubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestService
+import ac.uk.ebi.biostd.persistence.exception.CollectionNotFoundException
 import ac.uk.ebi.biostd.persistence.exception.ExtSubmissionMappingException
+import ac.uk.ebi.biostd.persistence.exception.UserNotFoundException
 import ac.uk.ebi.biostd.submission.web.model.ExtPageRequest
+import ebi.ac.uk.extended.model.ExtCollection
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FileMode.COPY
+import ebi.ac.uk.security.integration.components.ISecurityQueryService
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
+import ebi.ac.uk.test.basicExtSubmission
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -26,18 +31,22 @@ import org.springframework.data.domain.Pageable
 
 @ExtendWith(MockKExtension::class)
 class ExtSubmissionServiceTest(
-    @MockK private val extSubmission: ExtSubmission,
     @MockK private val requestService: SubmissionRequestService,
     @MockK private val submissionRepository: SubmissionQueryService,
-    @MockK private val userPrivilegesService: IUserPrivilegesService
+    @MockK private val userPrivilegesService: IUserPrivilegesService,
+    @MockK private val securityQueryService: ISecurityQueryService
 ) {
-    private val testInstance = ExtSubmissionService(requestService, submissionRepository, userPrivilegesService)
+    private val extSubmission = basicExtSubmission.copy(collections = listOf(ExtCollection("ArrayExpress")))
+    private val testInstance =
+        ExtSubmissionService(requestService, submissionRepository, userPrivilegesService, securityQueryService)
 
     @AfterEach
     fun afterEach() = clearAllMocks()
 
     @BeforeEach
     fun beforeEach() {
+        every { submissionRepository.existByAccNo("ArrayExpress") } returns true
+        every { securityQueryService.existsByEmail("owner@email.org") } returns true
         every { submissionRepository.getExtByAccNo("S-TEST123") } returns extSubmission
         every { userPrivilegesService.canSubmitExtended("user@mail.com") } returns true
         every { userPrivilegesService.canSubmitExtended("regular@mail.com") } returns false
@@ -85,10 +94,14 @@ class ExtSubmissionServiceTest(
         val saveRequest = slot<SaveSubmissionRequest>()
         every { requestService.saveAndProcessSubmissionRequest(capture(saveRequest)) } returns extSubmission
 
-        val submitted = testInstance.submitExtendedSubmission("user@mail.com", extSubmission)
-        assertThat(submitted).isEqualTo(extSubmission)
+        testInstance.submitExtendedSubmission("user@mail.com", extSubmission)
+
         assertThat(saveRequest.captured.fileMode).isEqualTo(COPY)
-        assertThat(saveRequest.captured.submission).isEqualTo(extSubmission)
+        assertThat(saveRequest.captured.submission).isEqualTo(extSubmission.copy(submitter = "user@mail.com"))
+        verify(exactly = 1) {
+            submissionRepository.existByAccNo("ArrayExpress")
+            securityQueryService.existsByEmail("owner@email.org")
+        }
     }
 
     @Test
@@ -98,5 +111,27 @@ class ExtSubmissionServiceTest(
         }
 
         assertThat(exception.message).isEqualTo("The user 'regular@mail.com' is not allowed to perform this action")
+    }
+
+    @Test
+    fun `submit extended with non existing owner`() {
+        every { securityQueryService.existsByEmail("owner@email.org") } returns false
+
+        val exception = assertThrows<UserNotFoundException> {
+            testInstance.submitExtendedSubmission("user@mail.com", extSubmission)
+        }
+
+        assertThat(exception.message).isEqualTo("The user with email 'owner@email.org' could not be found")
+    }
+
+    @Test
+    fun `submit extended with non existing collection`() {
+        every { submissionRepository.existByAccNo("ArrayExpress") } returns false
+
+        val exception = assertThrows<CollectionNotFoundException> {
+            testInstance.submitExtendedSubmission("user@mail.com", extSubmission)
+        }
+
+        assertThat(exception.message).isEqualTo("The collection 'ArrayExpress' was not found")
     }
 }
