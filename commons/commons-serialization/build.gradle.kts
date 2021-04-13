@@ -1,8 +1,8 @@
 import Dependencies.Arrow
+import Dependencies.CommonsCsv
 import Dependencies.Guava
 import Dependencies.JacksonKotlin
 import Dependencies.JacksonXml
-import Dependencies.univocityParsers
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
 import TestDependencies.JsonAssert

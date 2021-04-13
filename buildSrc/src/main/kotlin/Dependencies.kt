@@ -10,6 +10,7 @@ import TestVersions.TestContainerVersion
 import TestVersions.WiremockVersion
 import TestVersions.XmlUnitVersion
 import Versions.CliKtVersion
+import Versions.CommonsCsvVersion
 import Versions.CommonsIOVersion
 import Versions.CommonsLang3Version
 import Versions.GuavaVersion
