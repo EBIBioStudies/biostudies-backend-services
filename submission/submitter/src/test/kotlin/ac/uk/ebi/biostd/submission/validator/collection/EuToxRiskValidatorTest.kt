@@ -68,7 +68,10 @@ class EuToxRiskValidatorTest(
     @Test
     fun validateWhenNotApplicable() {
         val submission = basicExtSubmission.copy(
-            attributes = listOf(ExtAttribute(name = SKIP_VALIDATION_ATTR, value = "UPF12_MITOTOX_1"))
+            section = ExtSection(
+                type = "Study",
+                attributes = listOf(ExtAttribute(name = SKIP_VALIDATION_ATTR, value = "UPF12_MITOTOX_1"))
+            )
         )
 
         testInstance.validate(submission)

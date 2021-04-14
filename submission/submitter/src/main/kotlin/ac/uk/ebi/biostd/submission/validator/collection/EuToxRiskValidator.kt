@@ -20,7 +20,7 @@ class EuToxRiskValidator(
     private val validationProperties: ValidatorProperties
 ) : CollectionValidator {
     override fun validate(submission: ExtSubmission) {
-        if (submission.attributes.none { it.name == SKIP_VALIDATION_ATTR })
+        if (submission.section.attributes.none { it.name == SKIP_VALIDATION_ATTR })
             validateSubmission(validationProperties.euToxRiskValidationApi, submission)
     }
 
