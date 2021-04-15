@@ -13,8 +13,6 @@ import ac.uk.ebi.biostd.tsv.deserialization.model.SubSectionTableChunk
 import ac.uk.ebi.biostd.tsv.deserialization.model.TsvChunk
 import ac.uk.ebi.biostd.tsv.deserialization.model.TsvChunkLine
 import com.google.common.collect.Lists
-import com.univocity.parsers.csv.CsvParser
-import com.univocity.parsers.csv.CsvParserSettings
 import ebi.ac.uk.base.like
 import ebi.ac.uk.base.scape
 import ebi.ac.uk.model.constants.FileFields
@@ -24,10 +22,12 @@ import ebi.ac.uk.model.constants.TABLE_REGEX
 import ebi.ac.uk.util.collections.findThird
 import ebi.ac.uk.util.collections.split
 import ebi.ac.uk.util.regex.findGroup
+import org.apache.commons.csv.CSVFormat
+import org.apache.commons.csv.CSVRecord
 import java.io.StringReader
 import java.util.Queue
 
-internal class TsvChunkGenerator(private val parser: CsvParser = createParser()) {
+internal class TsvChunkGenerator(private val parser: CSVFormat = createParser()) {
     fun chunks(pageTab: String): Queue<TsvChunk> {
         return chunkLines(pageTab)
             .split { it.isEmpty() }
