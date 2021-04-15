@@ -21,7 +21,7 @@ import mu.KotlinLogging
 import java.io.File
 
 private val sanitizeRegex = "(\n)(\t)*|(\t)+(\n)".toRegex()
-private val extractGenRegex = """(?![\t])gen(?=[\t|\n])""".toRegex()
+private val extractGenRegex = """(?<=[\t])gen(?=[\t|\n])""".toRegex()
 
 private const val WORKERS = 30
 private val logger = KotlinLogging.logger {}
