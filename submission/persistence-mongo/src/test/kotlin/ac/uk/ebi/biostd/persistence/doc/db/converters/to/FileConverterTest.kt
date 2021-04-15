@@ -13,6 +13,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.bson.Document
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields
 
 @ExtendWith(MockKExtension::class)
 
@@ -26,13 +27,15 @@ internal class FileConverterTest(
     @Test
     fun converter() {
         every { attributeConverter.convert(docAttribute) } returns document
+        val docFile = DocFile(FILE_DOC_REL_PATH, FILE_DOC_FULL_PATH, listOf(docAttribute), FILE_DOC_MD5, "file", 10)
 
-        val result = testInstance.convert(
-            DocFile(FILE_DOC_REL_PATH, FILE_DOC_FULL_PATH, listOf(docAttribute), FILE_DOC_MD5))
+        val result = testInstance.convert(docFile)
 
         assertThat(result[FILE_DOC_MD5]).isEqualTo("md5")
         assertThat(result[FILE_DOC_REL_PATH]).isEqualTo("relPath")
         assertThat(result[FILE_DOC_FULL_PATH]).isEqualTo("fullPath")
         assertThat(result[DocFileFields.FILE_DOC_ATTRIBUTES]).isEqualTo(listOf(document))
+        assertThat(result[DocFileFields.FILE_TYPE]).isEqualTo("file")
+        assertThat(result[ExtSerializationFields.FILE_SIZE]).isEqualTo(10)
     }
 }

@@ -33,6 +33,8 @@ object DocFileFields {
     const val FILE_DOC_FULL_PATH = "fullPath"
     const val FILE_DOC_ATTRIBUTES = "attributes"
     const val FILE_DOC_MD5 = "md5"
+    const val FILE_TYPE = "type"
+    const val FILE_SIZE = "size"
 }
 
 object DocFileListFields {

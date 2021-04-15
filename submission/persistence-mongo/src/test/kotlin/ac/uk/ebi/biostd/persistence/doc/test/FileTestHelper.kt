@@ -15,9 +15,11 @@ internal const val TEST_REL_PATH = "file.txt"
 internal const val TEST_FULL_PATH = "/a/full/path/file.txt"
 internal const val TEST_FILE_LIST = "file-list.tsv"
 private const val TEST_MD5 = "a-test-md5"
+private const val FILE_TYPE = "file"
+private const val SIZE = 30L
 
 internal object FileTestHelper {
-    val docFile = DocFile(TEST_REL_PATH, TEST_FULL_PATH, listOf(basicDocAttribute), TEST_MD5)
+    val docFile = DocFile(TEST_REL_PATH, TEST_FULL_PATH, listOf(basicDocAttribute), TEST_MD5, FILE_TYPE, SIZE)
     val docFileRef = DocFileRef(ObjectId(10, 10))
     val docFileList = DocFileList(TEST_FILE_LIST, listOf(docFileRef))
 

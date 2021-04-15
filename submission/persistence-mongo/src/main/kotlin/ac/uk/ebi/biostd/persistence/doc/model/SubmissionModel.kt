@@ -81,7 +81,9 @@ data class DocFile(
     val relPath: String,
     val fullPath: String,
     val attributes: List<DocAttribute> = listOf(),
-    val md5: String
+    val md5: String,
+    val fileType: String,
+    val fileSize: Long
 )
 
 data class DocFileList(

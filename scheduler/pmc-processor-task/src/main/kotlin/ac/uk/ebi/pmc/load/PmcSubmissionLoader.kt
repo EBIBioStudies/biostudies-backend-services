@@ -21,6 +21,7 @@ import mu.KotlinLogging
 import java.io.File
 
 private val sanitizeRegex = "(\n)(\t)*|(\t)+(\n)".toRegex()
+private val extractGenRegex = """(?![\t])gen(?=[\t|\n])""".toRegex()
 
 private const val WORKERS = 30
 private val logger = KotlinLogging.logger {}
@@ -73,8 +74,13 @@ class PmcSubmissionLoader(
     private fun deserialize(originalPagetab: String): Pair<String, Try<Submission>> =
         Pair(
             originalPagetab,
-            Try { serializationService.deserializeSubmission(originalPagetab, SubFormat.TSV) }
+            Try { transformSubmission(originalPagetab) }
         )
+
+    private fun transformSubmission(originalPagetab: String): Submission {
+        val newPageTab = originalPagetab.replace(extractGenRegex, "ENA")
+        return serializationService.deserializeSubmission(newPageTab, SubFormat.TSV)
+    }
 
     private fun sanitize(fileText: String) = fileText.replace(sanitizeRegex, "\n")
 }
