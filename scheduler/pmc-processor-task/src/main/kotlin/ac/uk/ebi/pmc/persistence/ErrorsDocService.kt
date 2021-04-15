@@ -37,6 +37,7 @@ class ErrorsDocService(
         PmcMode.SUBMIT -> "submitting"
     }
     suspend fun saveError(sourceFile: String, submissionBody: String, process: PmcMode, throwable: Throwable) {
+        logger.info { "Reporting error for submission in file $sourceFile" }
         errorsRepository.save(SubmissionErrorDoc(sourceFile, submissionBody, getStackTrace(throwable), process))
     }
 }

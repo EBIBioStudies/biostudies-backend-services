@@ -36,6 +36,7 @@ data class SubmissionDoc(
         Updates.setOnInsert(Fields.sourceFile, sourceFile),
         Updates.setOnInsert(Fields.posInFile, posInFile),
         Updates.setOnInsert(Fields.sourceTime, sourceTime),
+        Updates.setOnInsert(Fields.files, files),
         Updates.setOnInsert(Fields.status, status),
         Updates.setOnInsert(Fields.updated, updated)
     )

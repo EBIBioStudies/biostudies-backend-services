@@ -10,11 +10,13 @@ import ac.uk.ebi.biostd.persistence.repositories.UserGroupDataRepository
 import ebi.ac.uk.commons.http.JacksonFactory
 import ebi.ac.uk.security.integration.components.IGroupService
 import ebi.ac.uk.security.integration.components.ISecurityFilter
+import ebi.ac.uk.security.integration.components.ISecurityQueryService
 import ebi.ac.uk.security.integration.components.ISecurityService
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import ebi.ac.uk.security.service.CaptchaVerifier
 import ebi.ac.uk.security.service.GroupService
 import ebi.ac.uk.security.service.ProfileService
+import ebi.ac.uk.security.service.SecurityQueryService
 import ebi.ac.uk.security.service.SecurityService
 import ebi.ac.uk.security.service.UserPrivilegesService
 import ebi.ac.uk.security.util.SecurityUtil
@@ -35,16 +37,18 @@ class SecurityModuleConfig(
     private var props: SecurityProperties
 ) {
     fun securityService(): ISecurityService = securityService
+    fun securityQueryService(): ISecurityQueryService = securityQueryService
     fun groupService(): IGroupService = groupService
     fun securityFilter(): ISecurityFilter = securityFilter
     fun userPrivilegesService(): IUserPrivilegesService = userPrivilegesService
 
     private val groupService by lazy { GroupService(groupRepository, userRepo) }
+    private val securityQueryService by lazy { SecurityQueryService(securityUtil, profileService, userRepo) }
     private val securityService by lazy {
         SecurityService(userRepo, securityUtil, props, profileService, captchaVerifier, eventsPublisherService)
     }
 
-    private val securityFilter by lazy { SecurityFilter(props.environment, securityService) }
+    private val securityFilter by lazy { SecurityFilter(props.environment, securityQueryService) }
     private val userPrivilegesService by lazy {
         UserPrivilegesService(userRepo, tagsDataRepository, queryService, userPermissionsService)
     }

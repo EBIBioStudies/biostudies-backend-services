@@ -4,7 +4,7 @@ import org.bson.types.ObjectId
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.mapping.Document
 
-@Document("submission-drafts")
+@Document("submission_drafts")
 data class DocSubmissionDraft(
     @Id
     val id: String,

@@ -11,8 +11,9 @@ class PmcImporterProperties : BaseAppProperty {
     lateinit var mongodbUri: String
     lateinit var mongodbDatabase: String
     lateinit var notificationsUrl: String
+    lateinit var pmcBaseUrl: String
 
-    var path: String? = null
+    var loadFolder: String? = null
     var bioStudiesUrl: String? = null
     var bioStudiesUser: String? = null
     var bioStudiesPassword: String? = null
@@ -25,8 +26,9 @@ class PmcImporterProperties : BaseAppProperty {
             append("--app.data.mongodbUri=$mongodbUri \\\n")
             append("--app.data.mongodbDatabase=$mongodbDatabase \\\n")
             append("--app.data.notificationsUrl=$notificationsUrl \\\n")
+            append("--app.data.pmcBaseUrl=$pmcBaseUrl \\\n")
 
-            path?.let { append("--app.data.path=$it \\\n") }
+            loadFolder?.let { append("--app.data.loadFolder=$it \\\n") }
             bioStudiesUrl?.let { append("--app.data.bioStudiesUrl=$it \\\n") }
             bioStudiesUser?.let { append("--app.data.bioStudiesUser=$it \\\n") }
             bioStudiesPassword?.let { append("--app.data.bioStudiesPassword=$it \\\n") }
@@ -38,17 +40,18 @@ class PmcImporterProperties : BaseAppProperty {
         @Suppress("LongParameterList")
         fun create(
             mode: PmcMode,
-            path: String?,
+            loadFolder: String?,
             temp: String,
             mongodbUri: String,
             mongodbDatabase: String,
             notificationsUrl: String,
+            pmcBaseUrl: String,
             bioStudiesUrl: String? = null,
             bioStudiesUser: String? = null,
             bioStudiesPassword: String? = null
         ) = PmcImporterProperties().apply {
             this.mode = mode
-            this.path = path
+            this.loadFolder = loadFolder
             this.temp = temp
             this.mongodbUri = mongodbUri
             this.mongodbDatabase = mongodbDatabase
@@ -56,6 +59,7 @@ class PmcImporterProperties : BaseAppProperty {
             this.bioStudiesUrl = bioStudiesUrl
             this.bioStudiesUser = bioStudiesUser
             this.bioStudiesPassword = bioStudiesPassword
+            this.pmcBaseUrl = pmcBaseUrl
         }
     }
 }

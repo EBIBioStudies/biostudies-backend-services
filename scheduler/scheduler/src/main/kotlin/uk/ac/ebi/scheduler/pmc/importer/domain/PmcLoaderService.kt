@@ -34,7 +34,7 @@ internal class PmcLoaderService private constructor(
         notificationsSender: NotificationsSender
     ) : this(PmcLoader(clusterOperations, properties, appProperties), notificationsSender)
 
-    fun loadFile(file: String): Job {
+    fun loadFile(file: String?): Job {
         val job = pmcLoaderService.loadFile(file)
         notificationsSender.send(Report(
             SYSTEM_NAME,
@@ -71,10 +71,11 @@ private class PmcLoader(
     private val appProperties: AppProperties
 ) {
 
-    fun loadFile(filePath: String): Job {
-        logger.info { "submitting job to load folder: '$filePath'" }
+    fun loadFile(loadFolder: String?): Job {
+        val folder = loadFolder ?: properties.loadFolder
+        logger.info { "submitting job to load folder: '$folder'" }
 
-        val properties = getConfigProperties(filePath, LOAD)
+        val properties = getConfigProperties(folder, LOAD)
         val jobTry = clusterOperations.triggerJob(
             JobSpec(
                 FOUR_CORES,
@@ -105,14 +106,15 @@ private class PmcLoader(
         return jobTry.fold({ throw it }, { it.apply { logger.info { "submitted job $it" } } })
     }
 
-    private fun getConfigProperties(filePath: String? = null, importMode: PmcMode) =
+    private fun getConfigProperties(loadFolder: String? = null, importMode: PmcMode) =
         PmcImporterProperties.create(
             mode = importMode,
-            path = filePath,
+            loadFolder = loadFolder,
             temp = properties.temp,
             mongodbUri = properties.mongoUri,
             mongodbDatabase = properties.mongoDatabase,
             notificationsUrl = appProperties.notificationsUrl,
+            pmcBaseUrl = "http://www.ft-loading.europepmc.org",
             bioStudiesUser = properties.bioStudiesUser,
             bioStudiesPassword = properties.bioStudiesPassword,
             bioStudiesUrl = properties.bioStudiesUrl)

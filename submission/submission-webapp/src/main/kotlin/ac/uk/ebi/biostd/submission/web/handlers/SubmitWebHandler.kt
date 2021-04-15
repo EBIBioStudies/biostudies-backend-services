@@ -13,6 +13,7 @@ import ac.uk.ebi.biostd.submission.web.model.ContentSubmitWebRequest
 import ac.uk.ebi.biostd.submission.web.model.FileSubmitWebRequest
 import ac.uk.ebi.biostd.submission.web.model.OnBehalfRequest
 import ac.uk.ebi.biostd.submission.web.model.RefreshWebRequest
+import ebi.ac.uk.api.security.GetOrRegisterUserRequest
 import ebi.ac.uk.extended.mapping.to.toSimpleSubmission
 import ebi.ac.uk.extended.model.FileMode
 import ebi.ac.uk.io.sources.FilesSource
@@ -22,7 +23,7 @@ import ebi.ac.uk.model.SubmissionMethod.PAGE_TAB
 import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSED
 import ebi.ac.uk.model.extensions.rootPath
 import ebi.ac.uk.paths.SubmissionFolderResolver
-import ebi.ac.uk.security.integration.components.ISecurityService
+import ebi.ac.uk.security.integration.components.ISecurityQueryService
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import java.io.File
 
@@ -34,7 +35,7 @@ class SubmitWebHandler(
     private val sourceGenerator: SourceGenerator,
     private val serializationService: SerializationService,
     private val userFilesService: UserFilesService,
-    private val securityService: ISecurityService,
+    private val securityQueryService: ISecurityQueryService,
     private val folderResolver: SubmissionFolderResolver
 ) {
     fun submit(request: ContentSubmitWebRequest): Submission =
@@ -109,8 +110,15 @@ class SubmitWebHandler(
         )).toSimpleSubmission()
     }
 
-    private fun getOnBehalfUser(request: OnBehalfRequest): SecurityUser =
-        securityService.getOrRegisterUser(request.asRegisterRequest())
+    private fun getOnBehalfUser(onBehalfRequest: OnBehalfRequest): SecurityUser {
+        val request = onBehalfRequest.asRegisterRequest()
+        return if (request.register) registerInactive(request) else securityQueryService.getUser(request.userEmail)
+    }
+
+    private fun registerInactive(registerRequest: GetOrRegisterUserRequest): SecurityUser {
+        requireNotNull(registerRequest.userName) { "A valid user name must be provided for registration" }
+        return securityQueryService.getOrCreateInactive(registerRequest.userEmail, registerRequest.userName!!)
+    }
 
     private fun withAttributes(submission: Submission, attrs: Map<String, String>): Submission {
         attrs.forEach { submission[it.key] = it.value }

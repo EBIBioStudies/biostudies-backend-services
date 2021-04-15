@@ -28,6 +28,13 @@ class StringExtTest {
         assertThat(count).hasValue(1)
     }
 
+    @Test
+    fun scape() {
+        val original = """hey "friend" """
+
+        assertThat(original.scape("\"")).isEqualTo("""hey \"friend\" """)
+    }
+
     @Nested
     inner class RemoveFirstOccurrence {
         @Test

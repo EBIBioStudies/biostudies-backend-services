@@ -4,13 +4,13 @@ import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.file
-import uk.ac.ebi.biostd.client.cli.ATTACHED_HELP
-import uk.ac.ebi.biostd.client.cli.INPUT_HELP
-import uk.ac.ebi.biostd.client.cli.ON_BEHALF_HELP
-import uk.ac.ebi.biostd.client.cli.PASSWORD_HELP
-import uk.ac.ebi.biostd.client.cli.SERVER_HELP
-import uk.ac.ebi.biostd.client.cli.USER_HELP
-import uk.ac.ebi.biostd.client.cli.services.SubmissionRequest
+import uk.ac.ebi.biostd.client.cli.common.CommonParameters.ATTACHED_HELP
+import uk.ac.ebi.biostd.client.cli.common.CommonParameters.INPUT_HELP
+import uk.ac.ebi.biostd.client.cli.common.CommonParameters.ON_BEHALF_HELP
+import uk.ac.ebi.biostd.client.cli.common.CommonParameters.PASSWORD_HELP
+import uk.ac.ebi.biostd.client.cli.common.CommonParameters.SERVER_HELP
+import uk.ac.ebi.biostd.client.cli.common.CommonParameters.USER_HELP
+import uk.ac.ebi.biostd.client.cli.dto.SubmissionRequest
 import uk.ac.ebi.biostd.client.cli.services.SubmissionService
 import java.io.File
 

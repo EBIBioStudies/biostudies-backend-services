@@ -16,7 +16,7 @@ import ac.uk.ebi.biostd.submission.web.handlers.SubmissionsWebHandler
 import ac.uk.ebi.biostd.submission.web.handlers.SubmitWebHandler
 import ac.uk.ebi.biostd.submission.web.resources.ext.ExtendedPageMapper
 import ebi.ac.uk.paths.SubmissionFolderResolver
-import ebi.ac.uk.security.integration.components.ISecurityService
+import ebi.ac.uk.security.integration.components.ISecurityQueryService
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import org.springframework.amqp.rabbit.core.RabbitTemplate
 import org.springframework.context.annotation.Bean
@@ -55,8 +55,10 @@ class SubmissionConfig(
     fun extSubmissionService(
         submissionRequestService: SubmissionRequestService,
         subRepository: SubmissionQueryService,
-        userPrivilegeService: IUserPrivilegesService
-    ): ExtSubmissionService = ExtSubmissionService(submissionRequestService, subRepository, userPrivilegeService)
+        userPrivilegeService: IUserPrivilegesService,
+        securityQueryService: ISecurityQueryService
+    ): ExtSubmissionService =
+        ExtSubmissionService(submissionRequestService, subRepository, userPrivilegeService, securityQueryService)
 
     @Bean
     fun projectService(
@@ -68,14 +70,14 @@ class SubmissionConfig(
     fun submitHandler(
         submissionService: SubmissionService,
         userFilesService: UserFilesService,
-        securityService: ISecurityService
+        securityQueryService: ISecurityQueryService
     ): SubmitWebHandler =
         SubmitWebHandler(
             submissionService,
             sourceGenerator,
             serializationService,
             userFilesService,
-            securityService,
+            securityQueryService,
             folderResolver)
 
     @Bean

@@ -16,6 +16,7 @@ pmc:
   import:
     temp: # Temporary folder to place PMC imported files
     mongoUri: # URI to mongo database used by the PMC import process
+    loadFolder: # Folder to load .gz pmc files from
 
 releaser:
   bioStudies:
