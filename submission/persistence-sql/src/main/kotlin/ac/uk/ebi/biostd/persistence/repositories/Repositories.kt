@@ -115,6 +115,7 @@ interface UserDataRepository : JpaRepository<DbUser, Long> {
     fun findByLoginOrEmailAndActive(login: String, email: String, active: Boolean): Optional<DbUser>
     fun getByEmail(userEmail: String): DbUser
     fun existsByEmail(email: String): Boolean
+    fun existsByEmailAndActive(email: String, active: Boolean): Boolean
     fun findByActivationKeyAndActive(key: String, active: Boolean): Optional<DbUser>
     fun findByEmailAndActive(email: String, active: Boolean): Optional<DbUser>
     fun findByEmail(email: String): Optional<DbUser>

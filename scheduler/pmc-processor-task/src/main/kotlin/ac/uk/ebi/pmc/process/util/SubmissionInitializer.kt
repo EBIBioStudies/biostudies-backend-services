@@ -21,11 +21,11 @@ class SubmissionInitializer(private val serializationService: SerializationServi
     fun getSubmission(body: String): Pair<Submission, String> {
         val submission = serializationService.deserializeSubmission(body, SubFormat.JSON)
         submission.releaseDate = getReleaseDate(submission)
+        submission.attributes = submission.attributes.filter { it.value.isNotBlank() }
         return Pair(submission, asString(submission))
     }
 
-    private fun asString(submission: Submission) =
-        serializationService.serializeSubmission(submission, SubFormat.JSON)
+    private fun asString(submission: Submission) = serializationService.serializeSubmission(submission, SubFormat.JSON)
 
     private fun getReleaseDate(submission: Submission): String {
         val releaseDate: String = submission.getSectionByType(PUBLICATION_SECTION)[PUBLICATION_DATE_ATTRIBUTE]

@@ -9,8 +9,12 @@ import Dependencies.Retrofit2
 import Dependencies.SpringWeb
 import SpringBootDependencies.SpringBootStarter
 import SpringBootDependencies.SpringBootStarterConfigProcessor
+import SpringBootDependencies.SpringBootStarterTest
+import TestDependencies.AssertJ
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
+import TestDependencies.TestContainerMongoDb
+import TestDependencies.Wiremock
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.springframework.boot.gradle.tasks.bundling.BootJar
 
@@ -21,6 +25,7 @@ plugins {
 }
 
 dependencies {
+    testApi(project(":commons:commons-test"))
     implementation(project(":client:bio-webclient"))
     implementation(project(":commons:commons-serialization"))
     implementation(project(":scheduler:task-properties"))
@@ -38,6 +43,11 @@ dependencies {
     implementation(SpringBootStarter)
     implementation(SpringWeb)
     implementation(SpringBootStarterConfigProcessor)
+
+    testImplementation(TestContainerMongoDb)
+    testImplementation(SpringBootStarterTest)
+    testImplementation(AssertJ)
+    testImplementation(Wiremock)
 
     BaseTestCompileDependencies.forEach { testImplementation(it) }
     BaseTestRuntimeDependencies.forEach { testImplementation(it) }

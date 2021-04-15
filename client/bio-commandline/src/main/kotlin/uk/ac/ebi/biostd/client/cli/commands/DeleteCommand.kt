@@ -3,12 +3,12 @@ package uk.ac.ebi.biostd.client.cli.commands
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
-import uk.ac.ebi.biostd.client.cli.ACC_NO_HELP
-import uk.ac.ebi.biostd.client.cli.ON_BEHALF_HELP
-import uk.ac.ebi.biostd.client.cli.PASSWORD_HELP
-import uk.ac.ebi.biostd.client.cli.SERVER_HELP
-import uk.ac.ebi.biostd.client.cli.USER_HELP
-import uk.ac.ebi.biostd.client.cli.services.SubmissionDeleteRequest
+import uk.ac.ebi.biostd.client.cli.common.CommonParameters.ACC_NO_HELP
+import uk.ac.ebi.biostd.client.cli.common.CommonParameters.ON_BEHALF_HELP
+import uk.ac.ebi.biostd.client.cli.common.CommonParameters.PASSWORD_HELP
+import uk.ac.ebi.biostd.client.cli.common.CommonParameters.SERVER_HELP
+import uk.ac.ebi.biostd.client.cli.common.CommonParameters.USER_HELP
+import uk.ac.ebi.biostd.client.cli.dto.DeletionRequest
 import uk.ac.ebi.biostd.client.cli.services.SubmissionService
 
 class DeleteCommand(private val submissionService: SubmissionService) : CliktCommand(name = "delete") {
@@ -20,7 +20,7 @@ class DeleteCommand(private val submissionService: SubmissionService) : CliktCom
 
     @Suppress("TooGenericExceptionCaught")
     override fun run() {
-        val request = SubmissionDeleteRequest(
+        val request = DeletionRequest(
             server = server,
             user = user,
             password = password,

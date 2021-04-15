@@ -1,6 +1,7 @@
 package ac.uk.ebi.pmc.config
 
 import ac.uk.ebi.pmc.client.PmcApi
+import ac.uk.ebi.scheduler.properties.PmcImporterProperties
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import okhttp3.logging.HttpLoggingInterceptor.Level.BASIC
@@ -13,9 +14,9 @@ import java.util.concurrent.TimeUnit
 class WebConfig {
 
     @Bean
-    fun pmcApi(): PmcApi {
+    fun pmcApi(properties: PmcImporterProperties): PmcApi {
         return Retrofit.Builder()
-            .baseUrl("http://www.ft-loading.europepmc.org")
+            .baseUrl(properties.pmcBaseUrl)
             .client(httpClient())
             .build()
             .create(PmcApi::class.java)

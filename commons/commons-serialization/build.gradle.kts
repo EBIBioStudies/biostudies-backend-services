@@ -22,7 +22,7 @@ dependencies {
     implementation(JacksonKotlin)
     implementation(JacksonXml)
     implementation(Woodstox)
-    implementation(univocityParsers)
+    implementation(CommonsCsv)
 
     BaseTestCompileDependencies.forEach { testImplementation(it) }
     BaseTestRuntimeDependencies.forEach { testImplementation(it) }
