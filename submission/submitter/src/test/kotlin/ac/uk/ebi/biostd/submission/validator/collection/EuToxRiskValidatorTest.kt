@@ -3,11 +3,13 @@ package ac.uk.ebi.biostd.submission.validator.collection
 import ac.uk.ebi.biostd.common.properties.ValidatorProperties
 import ac.uk.ebi.biostd.persistence.exception.CollectionValidationException
 import arrow.core.Either.Companion.left
+import ebi.ac.uk.extended.model.ExtAttribute
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.test.basicExtSubmission
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
+import io.mockk.called
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -64,12 +66,28 @@ class EuToxRiskValidatorTest(
     }
 
     @Test
+    fun validateWhenNotApplicable() {
+        val submission = basicExtSubmission.copy(
+            section = ExtSection(
+                type = "Study",
+                attributes = listOf(ExtAttribute(name = SKIP_VALIDATION_ATTR, value = "UPF12_MITOTOX_1"))
+            )
+        )
+
+        testInstance.validate(submission)
+
+        verify { restTemplate wasNot called }
+    }
+
+    @Test
     fun `validate with errors`() {
         val requestSlot = slot<HttpEntity<FileSystemResource>>()
-        val submission = basicExtSubmission.copy(section = ExtSection(
-            type = "Study",
-            files = listOf(left(ExtFile("test.xlsx", excelFile)))
-        ))
+        val submission = basicExtSubmission.copy(
+            section = ExtSection(
+                type = "Study",
+                files = listOf(left(ExtFile("test.xlsx", excelFile)))
+            )
+        )
 
         every {
             restTemplate.postForObject<EuToxRiskValidatorResponse>(testUrl, capture(requestSlot))
@@ -77,7 +95,8 @@ class EuToxRiskValidatorTest(
 
         val error = assertThrows<CollectionValidationException> { testInstance.validate(submission) }
         assertThat(error.message).isEqualTo(
-            "The submission doesn't comply with the collection requirements. Errors: [an error]")
+            "The submission doesn't comply with the collection requirements. Errors: [an error]"
+        )
         verify(exactly = 1) {
             restTemplate.postForObject(testUrl, requestSlot.captured, EuToxRiskValidatorResponse::class.java)
         }
