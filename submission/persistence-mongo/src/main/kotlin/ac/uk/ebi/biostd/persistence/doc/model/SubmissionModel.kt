@@ -95,7 +95,7 @@ data class DocFileRef(
     val fileId: ObjectId
 )
 
-@Document(collection = "file-list-files")
+@Document(collection = "file_list_files")
 data class FileListDocFile(
     @Id
     val id: ObjectId,
