@@ -27,7 +27,7 @@ internal class FileConverterTest(
     @Test
     fun converter() {
         every { attributeConverter.convert(docAttribute) } returns document
-        val docFile = DocFile(FILE_DOC_REL_PATH, FILE_DOC_FULL_PATH, listOf(docAttribute), FILE_DOC_MD5, "file", 10)
+        val docFile = DocFile(FILE_DOC_REL_PATH, FILE_DOC_FULL_PATH, listOf(docAttribute), FILE_DOC_MD5, "file", 10L)
 
         val result = testInstance.convert(docFile)
 
@@ -36,6 +36,6 @@ internal class FileConverterTest(
         assertThat(result[FILE_DOC_FULL_PATH]).isEqualTo("fullPath")
         assertThat(result[DocFileFields.FILE_DOC_ATTRIBUTES]).isEqualTo(listOf(document))
         assertThat(result[DocFileFields.FILE_TYPE]).isEqualTo("file")
-        assertThat(result[ExtSerializationFields.FILE_SIZE]).isEqualTo(10)
+        assertThat(result[ExtSerializationFields.FILE_SIZE]).isEqualTo(10L)
     }
 }

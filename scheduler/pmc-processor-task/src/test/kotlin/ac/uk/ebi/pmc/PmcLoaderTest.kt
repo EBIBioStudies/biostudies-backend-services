@@ -42,6 +42,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.testcontainers.containers.MongoDBContainer
 import org.testcontainers.utility.DockerImageName
 import java.net.HttpURLConnection.HTTP_OK
+import ebi.ac.uk.asserts.assertThat
+import ebi.ac.uk.util.collections.second
 
 @TestInstance(Lifecycle.PER_CLASS)
 @ContextConfiguration
@@ -155,6 +157,14 @@ internal class PmcLoaderTest(private val tempFolder: TemporaryFolder) {
             val deserializedSubmission = serializationService.deserializeSubmission(submission.body, SubFormat.JSON)
             assertThat(deserializedSubmission.accNo).isEqualTo(ACC_NO)
             assertThat(deserializedSubmission.section.type).isEqualTo("Study")
+            assertThat(deserializedSubmission.section.links.first()).hasLeftValueSatisfying {
+                assertThat(it.url).isEqualTo("Types")
+                assertThat(it.attributes).hasSize(2)
+                assertThat(it.attributes.first().name).isEqualTo("AM905938")
+                assertThat(it.attributes.first().value).isEqualTo("ENA")
+                assertThat(it.attributes.second().name).isEqualTo("P12004")
+                assertThat(it.attributes.second().value).isEqualTo("uniprot")
+            }
             assertThat(deserializedSubmission.attributes).isEqualTo(listOf(SUB_ATTRIBUTE))
         }
     }

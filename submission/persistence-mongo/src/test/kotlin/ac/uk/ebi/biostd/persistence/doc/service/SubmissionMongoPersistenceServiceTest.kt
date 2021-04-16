@@ -10,10 +10,22 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocProcessingStatus.PROCESSED
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequest
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.rootSectionFile
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.rootSectionFileListFile
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.rootSectionTableFile
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.subSectionFileListFile
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.subSection
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.subSectionTable
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.rootSection
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.fullExtSubmission
+import arrow.core.Either
+import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.ExtProcessingStatus.REQUESTED
+import ebi.ac.uk.extended.model.ExtSectionTable
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FileMode.MOVE
+import io.github.glytching.junit.extension.folder.TemporaryFolder
+import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -26,18 +38,38 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
+import ebi.ac.uk.test.createFile
 
-@ExtendWith(MockKExtension::class)
+@ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
 class SubmissionMongoPersistenceServiceTest(
     @MockK private val systemService: FileSystemService,
     @MockK private val dataRepository: SubmissionDocDataRepository,
     @MockK private val draftRepository: SubmissionDraftDocDataRepository,
     @MockK private val submissionRequestRepository: SubmissionRequestDocDataRepository,
     @MockK private val serializationService: ExtSerializationService,
-    @MockK private val fileListDocFileRepository: FileListDocFileRepository
+    @MockK private val fileListDocFileRepository: FileListDocFileRepository,
+    private val tempFolder: TemporaryFolder
 ) {
     private val draftKey = "TMP_123456"
-    private val submission = fullExtSubmission
+
+    private val newRootSectionFileListFile = rootSectionFileListFile.copy(file = tempFolder.createFile("tempFile1.txt", "content1"))
+    private val newSubSectionFileListFile = subSectionFileListFile.copy(file = tempFolder.createFile("tempFile2.txt", "content2"))
+    private val newRootSectionFile = rootSectionFile.copy(file = tempFolder.createFile("tempFile3.txt", "content3"))
+    private val newRootSectionTableFile = rootSectionTableFile.copy(file = tempFolder.createFile("tempFile4.txt", "content4"))
+
+    private val newSubSection = subSection.copy(fileList = subSection.fileList!!.copy(files = listOf(newSubSectionFileListFile)))
+    private val newRootSection = rootSection.copy(
+        fileList = rootSection.fileList!!.copy(files = listOf(newRootSectionFileListFile)),
+        sections = listOf(
+            Either.left(newSubSection),
+            Either.right(ExtSectionTable(sections = listOf(subSectionTable)))
+        ),
+        files = listOf(
+            Either.left(newRootSectionFile),
+            Either.right(ExtFileTable(files = listOf(newRootSectionTableFile)))
+        )
+    )
+    private val submission = fullExtSubmission.copy(section = newRootSection)
     private val docSubmission = slot<DocSubmission>()
     private val submissionSlot = slot<ExtSubmission>()
     private val submissionRequestSlot = slot<SubmissionRequest>()
