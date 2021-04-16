@@ -24,7 +24,16 @@ tasks.register("setUpTestDatabase") {
 tasks.register("setUpDatabase") {
     project.ext["linuxScript"] = "./SetUpDatabase.sh"
     project.ext["windowsScript"] = "SetUpDatabase.cmd"
-    project.ext["workingDir"] = "./src/main/resources/setup/database"
+    project.ext["workingDir"] = "./src/main/resources/setup/mysql"
+
+    finalizedBy("executeScript")
+}
+
+tasks.register("setUpMongoDatabase") {
+    project.ext["args"] = ""
+    project.ext["linuxScript"] = "./SetUpMongoDatabase.sh"
+    project.ext["windowsScript"] = ""
+    project.ext["workingDir"] = "./src/main/resources/setup/mongo"
 
     finalizedBy("executeScript")
 }
