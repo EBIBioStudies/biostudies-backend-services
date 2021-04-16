@@ -1,8 +1,8 @@
 import Dependencies.Arrow
+import Dependencies.CommonsCsv
 import Dependencies.Guava
 import Dependencies.JacksonKotlin
 import Dependencies.JacksonXml
-import Dependencies.univocityParsers
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
 import TestDependencies.JsonAssert
@@ -22,7 +22,7 @@ dependencies {
     implementation(JacksonKotlin)
     implementation(JacksonXml)
     implementation(Woodstox)
-    implementation(univocityParsers)
+    implementation(CommonsCsv)
 
     BaseTestCompileDependencies.forEach { testImplementation(it) }
     BaseTestRuntimeDependencies.forEach { testImplementation(it) }

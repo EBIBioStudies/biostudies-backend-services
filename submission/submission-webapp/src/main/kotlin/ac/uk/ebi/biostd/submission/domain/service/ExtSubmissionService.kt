@@ -4,9 +4,12 @@ import ac.uk.ebi.biostd.persistence.common.request.SaveSubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestService
+import ac.uk.ebi.biostd.persistence.exception.CollectionNotFoundException
+import ac.uk.ebi.biostd.persistence.exception.UserNotFoundException
 import ac.uk.ebi.biostd.submission.web.model.ExtPageRequest
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FileMode.COPY
+import ebi.ac.uk.security.integration.components.ISecurityQueryService
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import mu.KotlinLogging
 import org.springframework.data.domain.Page
@@ -16,15 +19,19 @@ import java.time.OffsetDateTime
 private val logger = KotlinLogging.logger {}
 
 class ExtSubmissionService(
-    private val persistenceService: SubmissionRequestService,
+    private val requestService: SubmissionRequestService,
     private val submissionRepository: SubmissionQueryService,
-    private val userPrivilegesService: IUserPrivilegesService
+    private val userPrivilegesService: IUserPrivilegesService,
+    private val securityQueryService: ISecurityQueryService
 ) {
     fun getExtendedSubmission(accNo: String): ExtSubmission = submissionRepository.getExtByAccNo(accNo)
 
     fun submitExtendedSubmission(user: String, extSubmission: ExtSubmission): ExtSubmission {
-        validateUser(user)
-        return persistenceService.saveAndProcessSubmissionRequest(SaveSubmissionRequest(extSubmission, COPY))
+        validateSubmitter(user)
+        validateSubmission(extSubmission)
+        val submission = extSubmission.copy(submitter = user)
+
+        return requestService.saveAndProcessSubmissionRequest(SaveSubmissionRequest(submission, COPY))
     }
 
     fun getExtendedSubmissions(request: ExtPageRequest): Page<ExtSubmission> {
@@ -44,7 +51,20 @@ class ExtSubmissionService(
         return PageImpl(submissions, page.pageable, page.totalElements)
     }
 
-    private fun validateUser(user: String) = require(userPrivilegesService.canSubmitExtended(user)) {
+    private fun validateSubmission(submission: ExtSubmission) {
+        validateOwner(submission.owner)
+        submission.collections.forEach { validateCollection(it.accNo) }
+    }
+
+    private fun validateSubmitter(user: String) = require(userPrivilegesService.canSubmitExtended(user)) {
         throw SecurityException("The user '$user' is not allowed to perform this action")
+    }
+
+    private fun validateOwner(email: String) = require(securityQueryService.existsByEmail(email)) {
+        throw UserNotFoundException(email)
+    }
+
+    private fun validateCollection(accNo: String) = require(submissionRepository.existByAccNo(accNo)) {
+        throw CollectionNotFoundException(accNo)
     }
 }

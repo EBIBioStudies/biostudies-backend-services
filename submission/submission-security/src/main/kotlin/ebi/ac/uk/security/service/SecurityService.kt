@@ -3,10 +3,7 @@ package ebi.ac.uk.security.service
 import ac.uk.ebi.biostd.common.properties.SecurityProperties
 import ac.uk.ebi.biostd.persistence.model.DbUser
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
-import arrow.core.getOrElse
 import ebi.ac.uk.api.security.ChangePasswordRequest
-import ebi.ac.uk.api.security.CheckUserRequest
-import ebi.ac.uk.api.security.GetOrRegisterUserRequest
 import ebi.ac.uk.api.security.LoginRequest
 import ebi.ac.uk.api.security.RegisterRequest
 import ebi.ac.uk.api.security.ResetPasswordRequest
@@ -21,7 +18,6 @@ import ebi.ac.uk.security.integration.components.ISecurityService
 import ebi.ac.uk.security.integration.exception.LoginException
 import ebi.ac.uk.security.integration.exception.UserAlreadyRegister
 import ebi.ac.uk.security.integration.exception.UserNotFoundByEmailException
-import ebi.ac.uk.security.integration.exception.UserNotFoundByTokenException
 import ebi.ac.uk.security.integration.exception.UserPendingRegistrationException
 import ebi.ac.uk.security.integration.exception.UserWithActivationKeyNotFoundException
 import ebi.ac.uk.security.integration.model.api.SecurityUser
@@ -61,26 +57,6 @@ class SecurityService(
         }
     }
 
-    override fun getOrCreateInactive(email: String, username: String): SecurityUser {
-        return userRepository.findByEmail(email)
-            .orElseGet { createUserInactive(email, username) }
-            .let { profileService.asSecurityUser(it) }
-    }
-
-    override fun getOrRegisterUser(request: GetOrRegisterUserRequest): SecurityUser {
-        return when (request.register) {
-            false -> userRepository.getByEmail(request.userEmail).let { profileService.asSecurityUser(it) }
-            true -> {
-                val userName = requireNotNull(request.userName) { " username need to be provided for registering" }
-                getOrCreateInactive(request.userEmail, userName)
-            }
-        }
-    }
-
-    override fun checkUserRegistration(register: CheckUserRequest): SecurityUser {
-        return getOrCreateInactive(register.userEmail, register.userName)
-    }
-
     override fun refreshUser(email: String): SecurityUser {
         val user = userRepository.findByEmailAndActive(email, true)
             .map { activate(it) }
@@ -89,23 +65,6 @@ class SecurityService(
         FileUtils.setFolderPermissions(user.magicFolder.path.parent, RWX__X___)
         FileUtils.setFolderPermissions(user.magicFolder.path, RWXRWX___)
         return user
-    }
-
-    private fun createUserInactive(email: String, username: String): DbUser {
-        val user = DbUser(
-            email = email,
-            fullName = username,
-            secret = securityUtil.newKey(),
-            passwordDigest = ByteArray(0))
-        user.active = false
-        user.notificationsEnabled = false
-        return userRepository.save(user)
-    }
-
-    override fun getUser(email: String): SecurityUser {
-        return userRepository.findByEmailAndActive(email, true)
-            .map { profileService.asSecurityUser(it) }
-            .orElseThrow { throw UserAlreadyRegister(email) }
     }
 
     override fun activate(activationKey: String) {
@@ -145,12 +104,6 @@ class SecurityService(
         eventsPublisherService.securityNotification(resetNotification)
     }
 
-    override fun getUserProfile(authToken: String): UserInfo {
-        return securityUtil.checkToken(authToken)
-            .getOrElse { throw UserNotFoundByTokenException() }
-            .let { profileService.getUserProfile(it, authToken) }
-    }
-
     private fun register(request: RegisterRequest): SecurityUser {
         val instanceKey = checkNotNull(request.instanceKey) { "Instance key can not be null when activation" }
         val activationPath = checkNotNull(request.path) { "Activation path can not be null" }
@@ -186,12 +139,11 @@ class SecurityService(
         return Paths.get("${securityProps.magicDirPath}/$prefixFolder/$userEmail")
     }
 
-    private fun asUser(registerRequest: RegisterRequest): DbUser {
-        return DbUser(
-            email = registerRequest.email,
-            fullName = registerRequest.name,
-            secret = securityUtil.newKey(),
-            notificationsEnabled = registerRequest.notificationsEnabled,
-            passwordDigest = securityUtil.getPasswordDigest(registerRequest.password))
-    }
+    private fun asUser(registerRequest: RegisterRequest) = DbUser(
+        email = registerRequest.email,
+        fullName = registerRequest.name,
+        secret = securityUtil.newKey(),
+        notificationsEnabled = registerRequest.notificationsEnabled,
+        passwordDigest = securityUtil.getPasswordDigest(registerRequest.password)
+    )
 }

@@ -53,3 +53,9 @@ fun String.remove(regex: Regex) = replace(regex, "")
  * Removes the first regex expression matching the string.
  */
 fun String.removeFirstOccurrence(regex: Regex) = replaceFirst(regex, "")
+
+/**
+ * Escape the given @see toScape string by using provided scape literal @see scapeLiteral or backslash if non is
+ * provided.
+ */
+fun String.scape(toScape: String, scapeLiteral: String = "\\"): String = replace(toScape, "$scapeLiteral$toScape")

@@ -21,6 +21,7 @@ import mu.KotlinLogging
 import java.io.File
 
 private val sanitizeRegex = "(\n)(\t)*|(\t)+(\n)".toRegex()
+
 private const val WORKERS = 30
 private val logger = KotlinLogging.logger {}
 
@@ -45,7 +46,6 @@ class PmcSubmissionLoader(
         inputFilesDocService.reportProcessed(file)
         moveFile(file, processedFolder.resolve(file.originalFile.name))
     }
-
     private fun moveFile(file: FileSpec, processed: File) {
         file.originalFile.copyTo(processed, overwrite = true)
         file.originalFile.delete()
@@ -70,8 +70,11 @@ class PmcSubmissionLoader(
             { errorDocService.saveError(file.name, body, PmcMode.LOAD, it) },
             { submissionService.saveLoadedVersion(it, file.name, file.modified, positionInFile) })
 
-    private fun deserialize(pagetab: String) =
-        Pair(pagetab, Try { serializationService.deserializeSubmission(pagetab, SubFormat.TSV) })
+    private fun deserialize(originalPagetab: String): Pair<String, Try<Submission>> =
+        Pair(
+            originalPagetab,
+            Try { serializationService.deserializeSubmission(originalPagetab, SubFormat.TSV) }
+        )
 
     private fun sanitize(fileText: String) = fileText.replace(sanitizeRegex, "\n")
 }

@@ -51,6 +51,12 @@ internal class SubmissionMongoQueryServiceTest(
         assertThat(exception.message).isEqualTo("The submission 'S-BSST2' was not found")
     }
 
+    @Test
+    fun `get non existing submission`() {
+        val exception = assertThrows<SubmissionNotFoundException> { testInstance.getExtByAccNo("S-BSST3") }
+        assertThat(exception.message).isEqualTo("The submission 'S-BSST3' was not found")
+    }
+
     companion object {
         @Container
         val mongoContainer: MongoDBContainer = MongoDBContainer(DockerImageName.parse(MONGO_VERSION))

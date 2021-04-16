@@ -6,26 +6,23 @@ import ebi.ac.uk.model.Submission
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.every
+import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
-import io.mockk.mockk
 import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
-import uk.ac.ebi.biostd.client.cli.services.SubmissionRequest
+import uk.ac.ebi.biostd.client.cli.dto.SubmissionRequest
 import uk.ac.ebi.biostd.client.cli.services.SubmissionService
 
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
-internal class SubmitCommandTest(private val temporaryFolder: TemporaryFolder) {
-    private val submissionService: SubmissionService = mockk()
-    private var testInstance = SubmitCommand(submissionService)
-
+internal class SubmitCommandTest(
+    private val temporaryFolder: TemporaryFolder,
+    @MockK private val submissionService: SubmissionService
+) {
     private lateinit var rootFolder: String
-
-    private val server = "server"
-    private val user = "user"
-    private val password = "password"
+    private var testInstance = SubmitCommand(submissionService)
 
     @Test
     fun `submit successful`() {
@@ -37,9 +34,9 @@ internal class SubmitCommandTest(private val temporaryFolder: TemporaryFolder) {
         val attachedFile2 = temporaryFolder.createFile("attachedFile2.tsv")
 
         val request = SubmissionRequest(
-            server = server,
-            user = user,
-            password = password,
+            server = "server",
+            user = "user",
+            password = "password",
             onBehalf = null,
             file = submission,
             attached = listOf(attachedFile1, attachedFile2)
@@ -48,9 +45,9 @@ internal class SubmitCommandTest(private val temporaryFolder: TemporaryFolder) {
 
         testInstance.parse(
             listOf(
-                "-s", server,
-                "-u", user,
-                "-p", password,
+                "-s", "server",
+                "-u", "user",
+                "-p", "password",
                 "-i", "$rootFolder/Submission.tsv",
                 "-a", "$rootFolder/attachedFile1.tsv,$rootFolder/attachedFile2.tsv"
             )
