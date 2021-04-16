@@ -1,7 +1,5 @@
 package ac.uk.ebi.pmc.load
 
-import ac.uk.ebi.biostd.integration.SerializationService
-import ac.uk.ebi.biostd.integration.SubFormat
 import ac.uk.ebi.pmc.persistence.ErrorsDocService
 import ac.uk.ebi.pmc.persistence.InputFilesDocService
 import ac.uk.ebi.pmc.persistence.SubmissionDocService
@@ -21,13 +19,11 @@ import mu.KotlinLogging
 import java.io.File
 
 private val sanitizeRegex = "(\n)(\t)*|(\t)+(\n)".toRegex()
-private val extractGenRegex = """(?<=[\t])gen(?=[\t|\n])""".toRegex()
-
 private const val WORKERS = 30
 private val logger = KotlinLogging.logger {}
 
 class PmcSubmissionLoader(
-    private val serializationService: SerializationService,
+    private val pmcSubmissionTabProcessor: PmcSubmissionTabProcessor,
     private val errorDocService: ErrorsDocService,
     private val inputFilesDocService: InputFilesDocService,
     private val submissionService: SubmissionDocService
@@ -74,13 +70,8 @@ class PmcSubmissionLoader(
     private fun deserialize(originalPagetab: String): Pair<String, Try<Submission>> =
         Pair(
             originalPagetab,
-            Try { transformSubmission(originalPagetab) }
+            Try { pmcSubmissionTabProcessor.transformSubmission(originalPagetab) }
         )
-
-    private fun transformSubmission(originalPagetab: String): Submission {
-        val newPageTab = originalPagetab.replace(extractGenRegex, "ENA")
-        return serializationService.deserializeSubmission(newPageTab, SubFormat.TSV)
-    }
 
     private fun sanitize(fileText: String) = fileText.replace(sanitizeRegex, "\n")
 }

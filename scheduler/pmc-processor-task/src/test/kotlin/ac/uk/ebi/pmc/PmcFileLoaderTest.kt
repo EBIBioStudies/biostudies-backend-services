@@ -16,10 +16,12 @@ import com.github.tomakehurst.wiremock.client.WireMock.aResponse
 import com.github.tomakehurst.wiremock.client.WireMock.post
 import com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration
+import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.db.MONGO_VERSION
 import ebi.ac.uk.dsl.json.toJsonQuote
 import ebi.ac.uk.io.ext.gZipTo
 import ebi.ac.uk.model.constants.APPLICATION_JSON
+import ebi.ac.uk.util.collections.second
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import kotlinx.coroutines.runBlocking
@@ -42,13 +44,11 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.testcontainers.containers.MongoDBContainer
 import org.testcontainers.utility.DockerImageName
 import java.net.HttpURLConnection.HTTP_OK
-import ebi.ac.uk.asserts.assertThat
-import ebi.ac.uk.util.collections.second
 
 @TestInstance(Lifecycle.PER_CLASS)
 @ContextConfiguration
 @ExtendWith(TemporaryFolderExtension::class)
-internal class PmcLoaderTest(private val tempFolder: TemporaryFolder) {
+internal class PmcFileLoaderTest(private val tempFolder: TemporaryFolder) {
 
     private val mongoContainer: MongoDBContainer = MongoDBContainer(DockerImageName.parse(MONGO_VERSION))
     private val wireMockServer = WireMockServer(WireMockConfiguration().dynamicPort())
