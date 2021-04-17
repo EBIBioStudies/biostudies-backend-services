@@ -20,6 +20,7 @@ import ebi.ac.uk.util.collections.ifLeft
 import ebi.ac.uk.util.collections.ifRight
 import ebi.ac.uk.util.collections.second
 import org.assertj.core.api.Assertions.assertThat
+import org.bson.types.ObjectId
 import java.io.File
 
 private const val SECT_ACC_NO = "SECT-001"
@@ -29,6 +30,7 @@ private const val SUB_SECT_TYPE = "Study"
 
 internal object SectionTestHelper {
     private val docSubSection = DocSection(
+        id = ObjectId(),
         accNo = SUB_SECT_ACC_NO,
         type = SUB_SECT_TYPE,
         attributes = listOf(fullDocAttribute)
@@ -41,6 +43,7 @@ internal object SectionTestHelper {
     )
 
     val docSection = DocSection(
+        id = ObjectId(),
         accNo = SECT_ACC_NO,
         type = SECT_TYPE,
         fileList = docFileList,

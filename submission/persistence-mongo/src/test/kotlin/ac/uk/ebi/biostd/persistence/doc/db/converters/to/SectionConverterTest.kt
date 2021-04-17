@@ -17,6 +17,7 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import org.assertj.core.api.Assertions.assertThat
 import org.bson.Document
+import org.bson.types.ObjectId
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -60,7 +61,8 @@ internal class SectionConverterTest(
         linkTableConverter,
         fileConverter,
         fileTableConverter,
-        fileListConverter)
+        fileListConverter
+    )
 
     @Test
     fun convert() {
@@ -115,6 +117,7 @@ internal class SectionConverterTest(
     }
 
     private fun assertMainSection(result: Document) {
+        assertThat(result[DocSectionFields.SEC_ID]).isEqualTo(sectionId)
         assertThat(result[DocSectionFields.SEC_ACC_NO]).isEqualTo(docSectionAccNo1)
         assertThat(result[DocSectionFields.SEC_TYPE]).isEqualTo(docSectionType1)
         assertThat(result[DocSectionFields.SEC_FILE_LIST]).isEqualTo(fileListDocument1)
@@ -133,25 +136,35 @@ internal class SectionConverterTest(
 
     private fun createDocSection(): DocSection {
         return DocSection(
+            id = sectionId,
             accNo = docSectionAccNo1,
             type = docSectionType1,
             fileList = docFileList1,
             attributes = listOf(docAttribute1),
             sections = listOf(
-                Either.left(DocSection(
-                    docSectionAccNo2,
-                    docSectionType2,
-                    docFileList2,
-                    listOf(docAttribute2),
-                    listOf(),
-                    listOf(),
-                    listOf()
-                )),
-                Either.right(DocSectionTable(listOf(DocSectionTableRow(
-                    docSectionAccNo3,
-                    docSectionType3,
-                    listOf(docAttribute3)
-                ))))
+                Either.left(
+                    DocSection(
+                        ObjectId(),
+                        docSectionAccNo2,
+                        docSectionType2,
+                        docFileList2,
+                        listOf(docAttribute2),
+                        listOf(),
+                        listOf(),
+                        listOf()
+                    )
+                ),
+                Either.right(
+                    DocSectionTable(
+                        listOf(
+                            DocSectionTableRow(
+                                docSectionAccNo3,
+                                docSectionType3,
+                                listOf(docAttribute3)
+                            )
+                        )
+                    )
+                )
             ),
             files = listOf(Either.left(docFile1), Either.right(docFileTable1)),
             links = listOf(Either.left(docLink1), Either.right(docLinkTable1))
@@ -159,6 +172,7 @@ internal class SectionConverterTest(
     }
 
     private companion object {
+        val sectionId = ObjectId()
         const val docSectionAccNo1 = "AccNo1"
         const val docSectionAccNo2 = "AccNo2"
         const val docSectionAccNo3 = "AccNo3"

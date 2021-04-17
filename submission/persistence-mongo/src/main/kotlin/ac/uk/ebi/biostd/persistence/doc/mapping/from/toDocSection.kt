@@ -33,6 +33,7 @@ private fun ExtSection.toDocSection(
     fileList: DocFileList?,
     sections: EitherList<DocSection, DocSectionTable>
 ) = DocSection(
+    id = ObjectId(),
     accNo = accNo,
     type = type,
     fileList = fileList,

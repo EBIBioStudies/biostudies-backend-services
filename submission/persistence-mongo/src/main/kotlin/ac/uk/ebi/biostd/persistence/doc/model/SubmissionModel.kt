@@ -120,6 +120,7 @@ data class DocAttribute(
 )
 
 data class DocSection(
+    val id: ObjectId,
     val accNo: String? = null,
     val type: String,
     val fileList: DocFileList? = null,
