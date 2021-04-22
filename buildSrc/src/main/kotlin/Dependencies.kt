@@ -1,4 +1,5 @@
 import TestVersions.AssertJVersion
+import TestVersions.AwaitilityVersion
 import TestVersions.JsonAssertVersion
 import TestVersions.JsonPathAssertVersion
 import TestVersions.JunitEngineVersion
@@ -56,6 +57,7 @@ object TestVersions {
     const val WiremockVersion = "2.27.2"
     const val RabbitmqMockVersion = "1.1.0"
     const val TestContainerVersion = "1.15.0"
+    const val AwaitilityVersion = "4.0.3"
 }
 
 object Versions {
@@ -101,6 +103,7 @@ object TestDependencies {
     const val AssertJ = "org.assertj:assertj-core:$AssertJVersion"
     const val MockK = "io.mockk:mockk:$MockKVersion"
     const val KotlinTestJunit = "org.jetbrains.kotlin:kotlin-test-junit:$KotlinVersion"
+    const val Awaitility = "org.awaitility:awaitility:$AwaitilityVersion"
 
     const val Junit5Console = "org.junit.platform:junit-platform-console:$JunitEngineVersion"
     const val Junit = "org.junit.jupiter:junit-jupiter:$JunitVersion"
@@ -129,6 +132,7 @@ object TestDependencies {
     const val TestContainerMongoDb = "org.testcontainers:mongodb:$TestContainerVersion"
     const val TestContainer = "org.testcontainers:testcontainers:$TestContainerVersion"
     const val TestContainerJUnit = "org.testcontainers:junit-jupiter:$TestContainerVersion"
+    const val TestContainerRabbitMQ =  "org.testcontainers:rabbitmq:1.15.2"
 }
 
 object Dependencies {

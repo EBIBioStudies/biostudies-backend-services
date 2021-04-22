@@ -5,17 +5,16 @@ import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
 import ac.uk.ebi.biostd.itest.entities.TestUser
 import ebi.ac.uk.db.MONGO_VERSION
 import ebi.ac.uk.db.MYSQL_VERSION
+import ebi.ac.uk.db.RABBITMQ_VERSION
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.testcontainers.containers.MongoDBContainer
-import org.testcontainers.containers.MySQLContainer
+import org.testcontainers.containers.RabbitMQContainer
 import org.testcontainers.utility.DockerImageName
 
-internal const val CHARACTER_SET = "utf8mb4"
-internal const val COLLATION = "utf8mb4_unicode_ci"
-
-internal open class BaseIntegrationTest(private val tempFolder: TemporaryFolder) {
+internal open class BaseAsyncIntegrationTest(private val tempFolder: TemporaryFolder) {
+    private val myRabbitMQContainer = RabbitMQContainer(DockerImageName.parse(RABBITMQ_VERSION))
     private val mongoContainer: MongoDBContainer = MongoDBContainer(DockerImageName.parse(MONGO_VERSION))
     private val mysqlContainer = SpecificMySQLContainer(MYSQL_VERSION)
         .withCommand("mysqld --character-set-server=$CHARACTER_SET --collation-server=$COLLATION")
@@ -30,23 +29,28 @@ internal open class BaseIntegrationTest(private val tempFolder: TemporaryFolder)
             setUpMongo()
         }
 
+        setUpRabbitMQ()
         setUpMySql()
         setUpApplicationProperties()
     }
 
     @AfterAll
     fun afterAll() {
-        mysqlContainer.stop()
+        myRabbitMQContainer.stop()
         mongoContainer.stop()
+        mysqlContainer.stop()
     }
-
     protected fun getWebClient(serverPort: Int, user: TestUser): BioWebClient {
         val securityClient = SecurityWebClient.create("http://localhost:$serverPort")
         return securityClient.getAuthenticatedClient(user.email, user.password)
     }
 
-    protected fun createUser(testUser: TestUser, serverPort: Int) {
-        SecurityWebClient.create("http://localhost:$serverPort").registerUser(testUser.asRegisterRequest())
+    private fun setUpRabbitMQ() {
+        myRabbitMQContainer.start()
+        System.setProperty("spring.rabbitmq.host", myRabbitMQContainer.host)
+        System.setProperty("spring.rabbitmq.username", myRabbitMQContainer.adminUsername)
+        System.setProperty("spring.rabbitmq.password", myRabbitMQContainer.adminPassword)
+        System.setProperty("spring.rabbitmq.port", "5672")
     }
 
     private fun setUpMongo() {
@@ -71,5 +75,3 @@ internal open class BaseIntegrationTest(private val tempFolder: TemporaryFolder)
         System.setProperty("app.security.magicDirPath", tempFolder.createDirectory("magic").absolutePath)
     }
 }
-
-internal class SpecificMySQLContainer(image: String) : MySQLContainer<SpecificMySQLContainer>(image)
