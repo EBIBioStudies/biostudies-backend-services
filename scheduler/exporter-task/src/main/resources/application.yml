@@ -1,0 +1,8 @@
+app:
+  fileName: # Name of the export file
+  outputPath: # Path where the export file should be placed
+
+  bioStudies:
+    url: # BioStudies backend URL
+    user: # BioStudies manager user
+    password: # BioStudies manager password
