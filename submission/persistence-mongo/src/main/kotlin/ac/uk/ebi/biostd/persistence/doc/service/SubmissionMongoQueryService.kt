@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
+import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.asBasicSubmission
 import ac.uk.ebi.biostd.persistence.exception.SubmissionNotFoundException
 import ebi.ac.uk.extended.model.ExtSubmission
@@ -41,9 +42,13 @@ internal class SubmissionMongoQueryService(
     }
 
     override fun getSubmissionsByUser(email: String, filter: SubmissionFilter): List<BasicSubmission> {
-        val y = requestRepository.getRequest(filter, email)
-        return submissionRepo.getSubmissions(filter, email).map { it.asBasicSubmission() }
+        val requests = requestRepository.getRequest(filter, email).map { it.asBasicSubmission() }
+        return requests + submissionRepo.getSubmissions(remainderFilter(filter, requests), email)
+            .map { it.asBasicSubmission() }
     }
+
+    private fun remainderFilter(filter: SubmissionFilter, requests: List<BasicSubmission>) =
+        filter.copy(limit = filter.limit - requests.size)
 
     override fun getRequest(accNo: String, version: Int): ExtSubmission {
         val submission = requestRepository.getByAccNoAndVersion(accNo, version)
@@ -52,4 +57,7 @@ internal class SubmissionMongoQueryService(
 
     private fun loadSubmission(accNo: String) =
         submissionRepo.findByAccNo(accNo) ?: throw SubmissionNotFoundException(accNo)
+
+    private fun SubmissionRequest.asBasicSubmission() =
+        serializationService.deserialize<ExtSubmission>(this.submission.toString()).asBasicSubmission()
 }

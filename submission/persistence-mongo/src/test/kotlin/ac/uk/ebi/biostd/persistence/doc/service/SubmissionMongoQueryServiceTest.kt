@@ -7,37 +7,17 @@ import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbReposConfig
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
 import ac.uk.ebi.biostd.persistence.doc.model.DocProcessingStatus.PROCESSED
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequest
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.CREATION_TIME
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.MODIFICATION_TIME
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.RELEASE_TIME
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_SEC_ACC_NO
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_SEC_TYPE
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUBMISSION_ACC_NO
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUBMISSION_METHOD
+import ac.uk.ebi.biostd.persistence.doc.model.asBasicSubmission
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.fullExtSubmission
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.rootSection
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUBMISSION_OWNER
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUBMISSION_RELEASED
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUBMISSION_REL_PATH
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUBMISSION_ROOT_PATH
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUBMISSION_SECRET_KEY
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUBMISSION_STATUS
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUBMISSION_SUBMITTER
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUBMISSION_TITLE
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUBMISSION_VERSION
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.extCollection
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.extStat
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.extTag
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.rootSectionAttribute
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.rootSectionLink
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.rootSectionTableLink
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.submissionAttribute
 import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocSubmission
 import ac.uk.ebi.biostd.persistence.exception.SubmissionNotFoundException
-import arrow.core.Either
 import com.mongodb.BasicDBObject
 import ebi.ac.uk.db.MONGO_VERSION
-import ebi.ac.uk.extended.model.ExtLinkTable
-import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.util.collections.second
+import ebi.ac.uk.util.collections.third
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import org.assertj.core.api.Assertions.assertThat
@@ -60,7 +40,6 @@ import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 @SpringBootTest(classes = [MongoDbReposConfig::class])
 internal class SubmissionMongoQueryServiceTest(
     @MockK private val toExtSubmissionMapper: ToExtSubmissionMapper,
-    //@Autowired private val serializationService: ExtSerializationService,
     @Autowired private val submissionRepo: SubmissionDocDataRepository,
     @Autowired private val requestRepository: SubmissionRequestDocDataRepository
 ) {
@@ -77,40 +56,30 @@ internal class SubmissionMongoQueryServiceTest(
 
     @Test
     fun getSubmissionsByUser() {
-        val rootSection2 = ExtSection(
-            accNo = ROOT_SEC_ACC_NO,
-            type = ROOT_SEC_TYPE,
-            attributes = listOf(rootSectionAttribute),
-            links = listOf(
-                Either.left(rootSectionLink),
-                Either.right(ExtLinkTable(links = listOf(rootSectionTableLink)))
-            )
-        )
-        val fullExtSubmission2 = ExtSubmission(
-            accNo = SUBMISSION_ACC_NO,
-            version = SUBMISSION_VERSION,
-            owner = SUBMISSION_OWNER,
-            submitter = SUBMISSION_SUBMITTER,
-            title = SUBMISSION_TITLE,
-            method = SUBMISSION_METHOD,
-            relPath = SUBMISSION_REL_PATH,
-            rootPath = SUBMISSION_ROOT_PATH,
-            released = SUBMISSION_RELEASED,
-            secretKey = SUBMISSION_SECRET_KEY,
-            status = SUBMISSION_STATUS,
-            releaseTime = RELEASE_TIME,
-            modificationTime = MODIFICATION_TIME,
-            creationTime = CREATION_TIME,
-            attributes = listOf(submissionAttribute),
-            tags = listOf(extTag),
-            collections = listOf(extCollection),
-            section = rootSection2,
-            stats = listOf(extStat)
+        val sectionWithoutFiles = rootSection.copy(fileList = null, files = listOf(), sections = listOf())
+        val request1 = fullExtSubmission.copy(accNo = "accNo1", title = "title", section = sectionWithoutFiles)
+        val request2 = fullExtSubmission.copy(accNo = "accNo2", title = "title", section = sectionWithoutFiles)
+        val request3 = fullExtSubmission.copy(accNo = "accNo3", title = "wrongT1tl3", section = sectionWithoutFiles)
+        val submission1 = testDocSubmission.copy(accNo = "accNo1", title = "title", status = PROCESSED)
+        val submission2 = testDocSubmission.copy(accNo = "accNo2", title = "title", status = PROCESSED)
+        val submission3 = testDocSubmission.copy(accNo = "accNo3", title = "wrongT1tl3", status = PROCESSED)
+
+        requestRepository.saveRequest(asRequest(request1))
+        requestRepository.saveRequest(asRequest(request2))
+        requestRepository.saveRequest(asRequest(request3))
+        submissionRepo.save(submission1)
+        submissionRepo.save(submission2)
+        submissionRepo.save(submission3)
+
+        val result = testInstance.getSubmissionsByUser(
+            SUBMISSION_OWNER,
+            SubmissionFilter(keywords = "title", limit = 3)
         )
 
-        requestRepository.saveRequest(asRequest(fullExtSubmission2.copy(accNo = "accNo2")))
-
-        val result = testInstance.getSubmissionsByUser(SUBMISSION_OWNER, SubmissionFilter(accNo = "accNo2"))
+        assertThat(result).hasSize(3)
+        assertThat(result.first()).isEqualTo(request1.asBasicSubmission())
+        assertThat(result.second()).isEqualTo(request2.asBasicSubmission())
+        assertThat(result.third()).isEqualTo(submission1.asBasicSubmission())
     }
 
     private fun asRequest(submission: ExtSubmission) = SubmissionRequest(
