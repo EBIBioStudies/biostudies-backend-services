@@ -47,9 +47,6 @@ internal class SubmissionMongoQueryService(
             .map { it.asBasicSubmission() }
     }
 
-    private fun remainderFilter(filter: SubmissionFilter, requests: List<BasicSubmission>) =
-        filter.copy(limit = filter.limit - requests.size)
-
     override fun getRequest(accNo: String, version: Int): ExtSubmission {
         val submission = requestRepository.getByAccNoAndVersion(accNo, version)
         return serializationService.deserialize(submission.submission.toString())
@@ -60,4 +57,7 @@ internal class SubmissionMongoQueryService(
 
     private fun SubmissionRequest.asBasicSubmission() =
         serializationService.deserialize<ExtSubmission>(this.submission.toString()).asBasicSubmission()
+
+    private fun remainderFilter(filter: SubmissionFilter, requests: List<BasicSubmission>) =
+        filter.copy(limit = filter.limit - requests.size)
 }

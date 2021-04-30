@@ -3,7 +3,6 @@ package ac.uk.ebi.biostd.persistence.doc.service
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.integration.SerializationConfig
 import ac.uk.ebi.biostd.integration.SerializationService
-import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionMongoRepository
 import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbServicesConfig
 import ac.uk.ebi.biostd.persistence.doc.model.DocAttribute
@@ -41,8 +40,6 @@ import java.time.ZoneOffset.UTC
 @SpringBootTest(classes = [TestConfig::class])
 internal class SubmissionMongoMetaQueryServiceTest(
     @Autowired val submissionMongoRepository: SubmissionMongoRepository,
-    @Autowired private val serializationService: ExtSerializationService,
-    @Autowired val requestDocDataRepository: SubmissionRequestDocDataRepository,
     @Autowired val testInstance: SubmissionMongoMetaQueryService
 ) {
     @Test
