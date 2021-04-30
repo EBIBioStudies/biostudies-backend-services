@@ -33,7 +33,6 @@ internal open class SubmissionSqlPersistenceService(
             status = ExtProcessingStatus.REQUESTED)
         subDataRepository.save(toDbMapper.toSubmissionDb(newVersion))
         requestDataRepository.save(asRequest(newVersion))
-
         return newVersion
     }
 
@@ -41,8 +40,13 @@ internal open class SubmissionSqlPersistenceService(
     open fun processSubmission(submission: ExtSubmission, mode: FileMode, draftKey: String?): ExtSubmission {
         subDataRepository.updateStatus(PROCESSING, submission.accNo, submission.version)
         systemService.persistSubmissionFiles(submission, mode)
-        processDbSubmission(subRepository.getExtByAccNoAndVersion(submission.accNo, submission.version), draftKey)
+        processDbSubmission(updateStored(submission), draftKey)
+        return subRepository.getExtByAccNoAndVersion(submission.accNo, submission.version)
+    }
 
+    private fun updateStored(submission: ExtSubmission): ExtSubmission {
+        val currentRecord = subDataRepository.getByAccNoAndVersion(submission.accNo, submission.version)
+        subDataRepository.save(toDbMapper.toSubmissionDb(submission, currentRecord!!))
         return subRepository.getExtByAccNoAndVersion(submission.accNo, submission.version)
     }
 
@@ -58,7 +62,6 @@ internal open class SubmissionSqlPersistenceService(
         subDataRepository.expireActiveProcessedVersions(submission.accNo)
         deleteSubmissionDrafts(submission, draftKey)
         subDataRepository.updateStatus(PROCESSED, submission.accNo, submission.version)
-
         return submission
     }
 

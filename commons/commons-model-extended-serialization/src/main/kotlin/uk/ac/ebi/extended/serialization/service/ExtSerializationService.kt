@@ -9,6 +9,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import ebi.ac.uk.extended.model.ExtFile
+import ebi.ac.uk.extended.model.ExtFileList
 import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.ExtLink
 import ebi.ac.uk.extended.model.ExtLinkTable
@@ -17,6 +18,7 @@ import ebi.ac.uk.extended.model.ExtSectionTable
 import ebi.ac.uk.extended.model.ExtSubmission
 import uk.ac.ebi.extended.serialization.deserializers.EitherExtTypeDeserializer
 import uk.ac.ebi.extended.serialization.deserializers.ExtFileDeserializer
+import uk.ac.ebi.extended.serialization.deserializers.ExtFileListDeserializer
 import uk.ac.ebi.extended.serialization.deserializers.ExtFilesTableDeserializer
 import uk.ac.ebi.extended.serialization.deserializers.ExtLinkDeserializer
 import uk.ac.ebi.extended.serialization.deserializers.ExtLinksTableDeserializer
@@ -49,6 +51,7 @@ class ExtSerializationService {
             val module = SimpleModule().apply {
                 addDeserializer(Either::class.java, EitherExtTypeDeserializer())
                 addDeserializer(ExtFile::class.java, ExtFileDeserializer())
+                addDeserializer(ExtFileList::class.java, ExtFileListDeserializer())
                 addDeserializer(ExtFileTable::class.java, ExtFilesTableDeserializer())
                 addDeserializer(ExtLink::class.java, ExtLinkDeserializer())
                 addDeserializer(ExtLinkTable::class.java, ExtLinksTableDeserializer())
