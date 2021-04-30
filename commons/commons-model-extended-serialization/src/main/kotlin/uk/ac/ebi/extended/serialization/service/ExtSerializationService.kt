@@ -20,6 +20,7 @@ import uk.ac.ebi.extended.serialization.deserializers.ExtFileDeserializer
 import uk.ac.ebi.extended.serialization.deserializers.ExtFilesTableDeserializer
 import uk.ac.ebi.extended.serialization.deserializers.ExtLinkDeserializer
 import uk.ac.ebi.extended.serialization.deserializers.ExtLinksTableDeserializer
+import uk.ac.ebi.extended.serialization.deserializers.ExtSectionDeserializer
 import uk.ac.ebi.extended.serialization.deserializers.ExtSectionsTableDeserializer
 import uk.ac.ebi.extended.serialization.deserializers.OffsetDateTimeDeserializer
 import uk.ac.ebi.extended.serialization.serializers.ExtFileSerializer
@@ -51,6 +52,7 @@ class ExtSerializationService {
                 addDeserializer(ExtFileTable::class.java, ExtFilesTableDeserializer())
                 addDeserializer(ExtLink::class.java, ExtLinkDeserializer())
                 addDeserializer(ExtLinkTable::class.java, ExtLinksTableDeserializer())
+                addDeserializer(ExtSection::class.java, ExtSectionDeserializer())
                 addDeserializer(ExtSectionTable::class.java, ExtSectionsTableDeserializer())
                 addDeserializer(OffsetDateTime::class.java, OffsetDateTimeDeserializer())
 
