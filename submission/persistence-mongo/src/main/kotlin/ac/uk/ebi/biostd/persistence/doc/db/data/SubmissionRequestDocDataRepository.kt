@@ -33,8 +33,8 @@ class SubmissionRequestDocDataRepository(
         val criteria = where("submission.$SUB_OWNER").`is`(email)
         filter.accNo?.let { criteria.andOperator(where("submission.$SUB_ACC_NO").`is`(it)) }
         filter.type?.let { criteria.andOperator(where("submission.$SUB_SECTION.$SEC_TYPE").`is`(it)) }
-        filter.rTimeFrom?.let { criteria.andOperator(where("submission.$SUB_RELEASE_TIME").gte(it.toInstant())) }
-        filter.rTimeTo?.let { criteria.andOperator(where("submission.$SUB_RELEASE_TIME").lte(it.toInstant())) }
+        filter.rTimeFrom?.let { criteria.andOperator(where("submission.$SUB_RELEASE_TIME").gte(it.toString())) }
+        filter.rTimeTo?.let { criteria.andOperator(where("submission.$SUB_RELEASE_TIME").lte(it.toString())) }
         filter.keywords?.let { criteria.andOperator(where("submission.$SUB_TITLE").regex("(?i).*$it.*")) }
         filter.released?.let { criteria.andOperator(where("submission.$SUB_RELEASED").`is`(it)) }
         return criteria
