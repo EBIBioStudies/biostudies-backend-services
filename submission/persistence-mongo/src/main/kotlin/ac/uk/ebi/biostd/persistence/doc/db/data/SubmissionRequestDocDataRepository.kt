@@ -28,5 +28,4 @@ class SubmissionRequestDocDataRepository(
         filter.accNo?.let { criteria.andOperator(where("submission.${DocSubmissionFields.SUB_ACC_NO}").`is`(it)) }
         return criteria
     }
-
 }

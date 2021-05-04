@@ -1,5 +1,9 @@
 package uk.ac.ebi.biostd.client.cli.common
 
+import java.io.File
+
+const val FILES_SEPARATOR = ','
+
 internal object CommonParameters {
     const val SERVER_HELP = "BioStudies host url"
     const val ATTACHED_HELP = "Comma separated list of paths to the files referenced in the submission"
@@ -19,3 +23,6 @@ internal object MigrationParameters {
     const val TARGET_USER = "BioStudies user in the target environment"
     const val TARGET_PASSWORD = "Password for the BioStudies user in the target environment"
 }
+
+fun getFiles(file: File): List<File> =
+    if (file.isDirectory) file.walk().filter { it.isFile }.toList() else listOf(file)

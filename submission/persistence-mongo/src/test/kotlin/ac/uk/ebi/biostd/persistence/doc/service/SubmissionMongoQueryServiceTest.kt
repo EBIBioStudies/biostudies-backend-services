@@ -60,7 +60,7 @@ import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 @SpringBootTest(classes = [MongoDbReposConfig::class])
 internal class SubmissionMongoQueryServiceTest(
     @MockK private val toExtSubmissionMapper: ToExtSubmissionMapper,
-    //@Autowired private val serializationService: ExtSerializationService,
+    // @Autowired private val serializationService: ExtSerializationService,
     @Autowired private val submissionRepo: SubmissionDocDataRepository,
     @Autowired private val requestRepository: SubmissionRequestDocDataRepository
 ) {
