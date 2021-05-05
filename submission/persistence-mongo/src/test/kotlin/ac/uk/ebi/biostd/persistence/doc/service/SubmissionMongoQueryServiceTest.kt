@@ -93,19 +93,12 @@ internal class SubmissionMongoQueryServiceTest(
 
         @Test
         fun `filtered by title`() {
-            val request1 = fullExtSubmission.copy(title = "title", section = section)
-            val request2 = fullExtSubmission.copy(title = "title", section = section)
-            val request3 = fullExtSubmission.copy(title = "wrongT1tl3", section = section)
-            val submission1 = testDocSubmission.copy(accNo = "accNo1", title = "title", status = PROCESSED)
-            val submission2 = testDocSubmission.copy(accNo = "accNo2", title = "title", status = PROCESSED)
-            val submission3 = testDocSubmission.copy(title = "wrongT1tl3", status = PROCESSED)
-
-            requestRepository.saveRequest(asRequest(request1))
-            requestRepository.saveRequest(asRequest(request2))
-            requestRepository.saveRequest(asRequest(request3))
-            submissionRepo.save(submission1)
-            submissionRepo.save(submission2)
-            submissionRepo.save(submission3)
+            val request1 = saveAsRequest(fullExtSubmission.copy(title = "title", section = section))
+            val request2 = saveAsRequest(fullExtSubmission.copy(title = "title", section = section))
+            saveAsRequest(fullExtSubmission.copy(title = "wrongT1tl3", section = section))
+            val sub1 = submissionRepo.save(testDocSubmission.copy(accNo = "accN1", title = "title", status = PROCESSED))
+            submissionRepo.save(testDocSubmission.copy(accNo = "accNo2", title = "title", status = PROCESSED))
+            submissionRepo.save(testDocSubmission.copy(title = "wrongT1tl3", status = PROCESSED))
 
             val result = testInstance.getSubmissionsByUser(
                 SUBMISSION_OWNER,
@@ -115,29 +108,24 @@ internal class SubmissionMongoQueryServiceTest(
             assertThat(result).hasSize(3)
             assertThat(result.first()).isEqualTo(request1.asBasicSubmission())
             assertThat(result.second()).isEqualTo(request2.asBasicSubmission())
-            assertThat(result.third()).isEqualTo(submission1.asBasicSubmission())
+            assertThat(result.third()).isEqualTo(sub1.asBasicSubmission())
         }
 
         @Test
         fun `filtered by type`() {
-            val sectionType1 = section.copy(type = "type1")
-            val sectionType2 = section.copy(type = "type2")
-            val docSectionType1 = testDocSection.copy(type = "type1")
-            val docSectionType2 = testDocSection.copy(type = "type2")
+            val section1 = section.copy(type = "type1")
+            val section2 = section.copy(type = "type2")
+            val docSection1 = testDocSection.copy(type = "type1")
+            val docSection2 = testDocSection.copy(type = "type2")
 
-            val request1 = fullExtSubmission.copy(accNo = "accNo1", section = sectionType1)
-            val request2 = fullExtSubmission.copy(accNo = "accNo2", section = sectionType1)
-            val request3 = fullExtSubmission.copy(accNo = "accNo3", section = sectionType2)
-            val submission1 = testDocSubmission.copy(accNo = "accNo1", status = PROCESSED, section = docSectionType1)
-            val submission2 = testDocSubmission.copy(accNo = "accNo2", status = PROCESSED, section = docSectionType1)
-            val submission3 = testDocSubmission.copy(accNo = "accNo3", status = PROCESSED, section = docSectionType2)
-
-            requestRepository.saveRequest(asRequest(request1))
-            requestRepository.saveRequest(asRequest(request2))
-            requestRepository.saveRequest(asRequest(request3))
-            submissionRepo.save(submission1)
-            submissionRepo.save(submission2)
-            submissionRepo.save(submission3)
+            val request1 = saveAsRequest(fullExtSubmission.copy(accNo = "accNo1", section = section1))
+            val request2 = saveAsRequest(fullExtSubmission.copy(accNo = "accNo2", section = section1))
+            saveAsRequest(fullExtSubmission.copy(accNo = "accNo3", section = section2))
+            val sub1 = submissionRepo.save(
+                testDocSubmission.copy(accNo = "accNo1", status = PROCESSED, section = docSection1)
+            )
+            submissionRepo.save(testDocSubmission.copy(accNo = "accNo2", status = PROCESSED, section = docSection1))
+            submissionRepo.save(testDocSubmission.copy(accNo = "accNo3", status = PROCESSED, section = docSection2))
 
             val result = testInstance.getSubmissionsByUser(
                 SUBMISSION_OWNER,
@@ -147,29 +135,29 @@ internal class SubmissionMongoQueryServiceTest(
             assertThat(result).hasSize(3)
             assertThat(result.first()).isEqualTo(request1.asBasicSubmission())
             assertThat(result.second()).isEqualTo(request2.asBasicSubmission())
-            assertThat(result.third()).isEqualTo(submission1.asBasicSubmission())
+            assertThat(result.third()).isEqualTo(sub1.asBasicSubmission())
         }
 
         @Test
         fun `filtered by from release time`() {
             val matchDate = OffsetDateTime.of(2010, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC)
             val unmatchedDate = OffsetDateTime.of(2000, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC)
-            val request1 = fullExtSubmission.copy(accNo = "accNo1", releaseTime = matchDate, section = section)
-            val request2 = fullExtSubmission.copy(accNo = "accNo2", releaseTime = matchDate, section = section)
-            val request3 = fullExtSubmission.copy(accNo = "accNo3", releaseTime = unmatchedDate, section = section)
-            val submission1 =
+            val request1 =
+                saveAsRequest(fullExtSubmission.copy(accNo = "accNo1", releaseTime = matchDate, section = section))
+            val request2 =
+                saveAsRequest(fullExtSubmission.copy(accNo = "accNo2", releaseTime = matchDate, section = section))
+            saveAsRequest(fullExtSubmission.copy(accNo = "accNo3", releaseTime = unmatchedDate, section = section))
+            val sub1 = submissionRepo.save(
                 testDocSubmission.copy(accNo = "accNo1", releaseTime = matchDate.toInstant(), status = PROCESSED)
-            val submission2 =
-                testDocSubmission.copy(accNo = "accNo2", releaseTime = matchDate.toInstant(), status = PROCESSED)
-            val submission3 =
-                testDocSubmission.copy(accNo = "accNo3", releaseTime = unmatchedDate.toInstant(), status = PROCESSED)
+            )
 
-            requestRepository.saveRequest(asRequest(request1))
-            requestRepository.saveRequest(asRequest(request2))
-            requestRepository.saveRequest(asRequest(request3))
-            submissionRepo.save(submission1)
-            submissionRepo.save(submission2)
-            submissionRepo.save(submission3)
+            submissionRepo.save(
+                testDocSubmission.copy(accNo = "accNo2", releaseTime = matchDate.toInstant(), status = PROCESSED)
+            )
+
+            submissionRepo.save(
+                testDocSubmission.copy(accNo = "accNo3", releaseTime = unmatchedDate.toInstant(), status = PROCESSED)
+            )
 
             val result = testInstance.getSubmissionsByUser(
                 SUBMISSION_OWNER,
@@ -179,29 +167,25 @@ internal class SubmissionMongoQueryServiceTest(
             assertThat(result).hasSize(3)
             assertThat(result.first()).isEqualTo(request1.asBasicSubmission())
             assertThat(result.second()).isEqualTo(request2.asBasicSubmission())
-            assertThat(result.third()).isEqualTo(submission1.asBasicSubmission())
+            assertThat(result.third()).isEqualTo(sub1.asBasicSubmission())
         }
 
         @Test
         fun `filtered by to release time`() {
             val matchDate = OffsetDateTime.of(2000, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC)
             val unmatchedDate = OffsetDateTime.of(2010, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC)
-            val request1 = fullExtSubmission.copy(accNo = "accNo1", releaseTime = matchDate, section = section)
-            val request2 = fullExtSubmission.copy(accNo = "accNo2", releaseTime = matchDate, section = section)
-            val request3 = fullExtSubmission.copy(accNo = "accNo3", releaseTime = unmatchedDate, section = section)
-            val submission1 =
-                testDocSubmission.copy(accNo = "accNo1", releaseTime = matchDate.toInstant(), status = PROCESSED)
-            val submission2 =
-                testDocSubmission.copy(accNo = "accNo2", releaseTime = matchDate.toInstant(), status = PROCESSED)
-            val submission3 =
-                testDocSubmission.copy(accNo = "accNo3", releaseTime = unmatchedDate.toInstant(), status = PROCESSED)
 
-            requestRepository.saveRequest(asRequest(request1))
-            requestRepository.saveRequest(asRequest(request2))
-            requestRepository.saveRequest(asRequest(request3))
-            submissionRepo.save(submission1)
-            submissionRepo.save(submission2)
-            submissionRepo.save(submission3)
+            val request1 =
+                saveAsRequest(fullExtSubmission.copy(accNo = "accNo1", releaseTime = matchDate, section = section))
+            val request2 =
+                saveAsRequest(fullExtSubmission.copy(accNo = "accNo2", releaseTime = matchDate, section = section))
+            saveAsRequest(fullExtSubmission.copy(accNo = "accNo3", releaseTime = unmatchedDate, section = section))
+            val sub1 = submissionRepo.save(
+                testDocSubmission.copy(accNo = "accNo1", releaseTime = matchDate.toInstant(), status = PROCESSED))
+            submissionRepo.save(
+                testDocSubmission.copy(accNo = "accNo2", releaseTime = matchDate.toInstant(), status = PROCESSED))
+            submissionRepo.save(
+                testDocSubmission.copy(accNo = "accNo3", releaseTime = unmatchedDate.toInstant(), status = PROCESSED))
 
             val result = testInstance.getSubmissionsByUser(
                 SUBMISSION_OWNER,
@@ -211,24 +195,18 @@ internal class SubmissionMongoQueryServiceTest(
             assertThat(result).hasSize(3)
             assertThat(result.first()).isEqualTo(request1.asBasicSubmission())
             assertThat(result.second()).isEqualTo(request2.asBasicSubmission())
-            assertThat(result.third()).isEqualTo(submission1.asBasicSubmission())
+            assertThat(result.third()).isEqualTo(sub1.asBasicSubmission())
         }
 
         @Test
         fun `filtered by released`() {
-            val request1 = fullExtSubmission.copy(accNo = "accNo1", released = true, section = section)
-            val request2 = fullExtSubmission.copy(accNo = "accNo2", released = true, section = section)
-            val request3 = fullExtSubmission.copy(accNo = "accNo3", released = false, section = section)
-            val submission1 = testDocSubmission.copy(accNo = "accNo1", released = true, status = PROCESSED)
-            val submission2 = testDocSubmission.copy(accNo = "accNo2", released = true, status = PROCESSED)
-            val submission3 = testDocSubmission.copy(accNo = "accNo3", released = false, status = PROCESSED)
-
-            requestRepository.saveRequest(asRequest(request1))
-            requestRepository.saveRequest(asRequest(request2))
-            requestRepository.saveRequest(asRequest(request3))
-            submissionRepo.save(submission1)
-            submissionRepo.save(submission2)
-            submissionRepo.save(submission3)
+            val request1 = saveAsRequest(fullExtSubmission.copy(accNo = "accNo1", released = true, section = section))
+            val request2 = saveAsRequest(fullExtSubmission.copy(accNo = "accNo2", released = true, section = section))
+            saveAsRequest(fullExtSubmission.copy(accNo = "accNo3", released = false, section = section))
+            val sub1 =
+                submissionRepo.save(testDocSubmission.copy(accNo = "accNo1", released = true, status = PROCESSED))
+            submissionRepo.save(testDocSubmission.copy(accNo = "accNo2", released = true, status = PROCESSED))
+            submissionRepo.save(testDocSubmission.copy(accNo = "accNo3", released = false, status = PROCESSED))
 
             val result = testInstance.getSubmissionsByUser(
                 SUBMISSION_OWNER,
@@ -238,7 +216,24 @@ internal class SubmissionMongoQueryServiceTest(
             assertThat(result).hasSize(3)
             assertThat(result.first()).isEqualTo(request1.asBasicSubmission())
             assertThat(result.second()).isEqualTo(request2.asBasicSubmission())
-            assertThat(result.third()).isEqualTo(submission1.asBasicSubmission())
+            assertThat(result.third()).isEqualTo(sub1.asBasicSubmission())
+        }
+
+        @Test
+        fun `get greatest version submission`() {
+            val sub1 = submissionRepo.save(testDocSubmission.copy(accNo = "accNo1", version = 3, status = PROCESSED))
+            submissionRepo.save(testDocSubmission.copy(accNo = "accNo1", version = -2, status = PROCESSED))
+            submissionRepo.save(testDocSubmission.copy(accNo = "accNo1", version = -1, status = PROCESSED))
+            submissionRepo.save(testDocSubmission.copy(accNo = "accNo1", version = 1, status = PROCESSED))
+            submissionRepo.save(testDocSubmission.copy(accNo = "accNo1", version = 2, status = PROCESSED))
+
+            val result = testInstance.getSubmissionsByUser(
+                SUBMISSION_OWNER,
+                SubmissionFilter(accNo = "accNo1", limit = 3)
+            )
+
+            assertThat(result).hasSize(1)
+            assertThat(result.first()).isEqualTo(sub1.asBasicSubmission())
         }
 
         private fun saveAsRequest(extSubmission: ExtSubmission): ExtSubmission {
