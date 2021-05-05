@@ -41,7 +41,6 @@ internal class SubmissionMongoQueryService(
     }
 
     override fun getSubmissionsByUser(email: String, filter: SubmissionFilter): List<BasicSubmission> {
-        val y = requestRepository.getRequest(filter, email)
         return submissionRepo.getSubmissions(filter, email).map { it.asBasicSubmission() }
     }
 

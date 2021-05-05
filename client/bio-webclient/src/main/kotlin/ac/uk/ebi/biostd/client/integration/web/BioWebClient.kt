@@ -6,7 +6,7 @@ import ac.uk.ebi.biostd.client.interceptor.TokenInterceptor
 import ac.uk.ebi.biostd.integration.SerializationConfig
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 
-class BioWebClient(
+class BioWebClient internal constructor(
     private val submissionClient: SubmissionClient
 ) : SubmissionClient by submissionClient {
     companion object {
@@ -14,9 +14,7 @@ class BioWebClient(
             SubmissionClientImpl(
                 createRestTemplate(baseUrl, token),
                 SerializationConfig.serializationService(),
-                ExtSerializationService()
-            )
-        )
+                ExtSerializationService()))
 
         fun create(
             baseUrl: String,
@@ -26,9 +24,7 @@ class BioWebClient(
             SubmissionClientImpl(
                 createRestTemplate(baseUrl, token, onBehalf),
                 SerializationConfig.serializationService(),
-                ExtSerializationService()
-            )
-        )
+                ExtSerializationService()))
 
         private fun createRestTemplate(baseUrl: String, token: String) = template(baseUrl).apply {
             interceptors.add(TokenInterceptor(token))

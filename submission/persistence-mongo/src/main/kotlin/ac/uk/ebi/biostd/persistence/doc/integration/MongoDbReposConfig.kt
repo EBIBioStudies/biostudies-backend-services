@@ -34,10 +34,8 @@ class MongoDbReposConfig {
 
     @Bean
     internal fun submissionRequestDocDataRepository(
-        mongoTemplate: MongoTemplate,
         submissionRequestRepository: SubmissionRequestRepository
-    ): SubmissionRequestDocDataRepository =
-        SubmissionRequestDocDataRepository(submissionRequestRepository, mongoTemplate)
+    ): SubmissionRequestDocDataRepository = SubmissionRequestDocDataRepository(submissionRequestRepository)
 
     @Bean
     internal fun submissionDraftDocDataRepository(
