@@ -18,7 +18,6 @@ import SpringBootDependencies.SpringBootStarterSecurity
 import SpringBootDependencies.SpringBootStarterTest
 import SpringBootDependencies.SpringBootStarterValidation
 import SpringBootDependencies.SpringBootStarterWeb
-import TestDependencies.Awaitility
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
 import TestDependencies.JsonPathAssert
@@ -100,7 +99,6 @@ dependencies {
     testImplementation(TestContainer)
     testImplementation(TestContainerJUnit)
     testImplementation(TestContainerRabbitMQ)
-    testImplementation(Awaitility)
 }
 
 apply(from = "$rootDir/gradle/itest.gradle.kts")

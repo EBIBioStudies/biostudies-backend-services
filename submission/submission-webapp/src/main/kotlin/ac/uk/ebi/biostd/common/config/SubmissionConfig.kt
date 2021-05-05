@@ -41,7 +41,7 @@ class SubmissionConfig(
         queryService: SubmissionMetaQueryService,
         submissionSubmitter: SubmissionSubmitter,
         eventsPublisherService: EventsPublisherService,
-        myRabbitTemplate: RabbitTemplate
+        rabbitTemplate: RabbitTemplate
     ): SubmissionService = SubmissionService(
         subRepository,
         serializationService,
@@ -49,7 +49,8 @@ class SubmissionConfig(
         queryService,
         submissionSubmitter,
         eventsPublisherService,
-        myRabbitTemplate)
+        rabbitTemplate
+    )
 
     @Bean
     fun extSubmissionService(

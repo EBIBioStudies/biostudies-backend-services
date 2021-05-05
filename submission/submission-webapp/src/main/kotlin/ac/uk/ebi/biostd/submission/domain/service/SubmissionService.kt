@@ -35,7 +35,7 @@ class SubmissionService(
     private val queryService: SubmissionMetaQueryService,
     private val submissionSubmitter: SubmissionSubmitter,
     private val eventsPublisherService: EventsPublisherService,
-    private val myRabbitTemplate: RabbitTemplate
+    private val rabbitTemplate: RabbitTemplate
 ) {
     fun submit(request: SubmissionRequest): ExtSubmission {
         logger.info { "received submit request for submission ${request.submission.accNo}" }
@@ -49,7 +49,7 @@ class SubmissionService(
     fun submitAsync(request: SubmissionRequest) {
         logger.info { "received async submit  request for submission ${request.submission.accNo}" }
         val (extSubmission, mode, draftKey) = submissionSubmitter.submitAsync(request)
-        myRabbitTemplate.convertAndSend(
+        rabbitTemplate.convertAndSend(
             BIOSTUDIES_EXCHANGE,
             SUBMISSIONS_REQUEST_ROUTING_KEY,
             SubmissionRequestMessage(extSubmission.accNo, extSubmission.version, mode, draftKey)

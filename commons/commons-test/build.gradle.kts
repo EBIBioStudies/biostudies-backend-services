@@ -3,6 +3,7 @@ import Dependencies.CommonsIO
 import Dependencies.KotlinStdLib
 import Dependencies.SpringWeb
 import TestDependencies.AssertJ
+import TestDependencies.Awaitility
 import TestDependencies.JunitExtensions
 
 dependencies {
@@ -15,4 +16,5 @@ dependencies {
     implementation(JunitExtensions)
     implementation(KotlinStdLib)
     implementation(SpringWeb)
+    implementation(Awaitility)
 }

@@ -29,7 +29,7 @@ class JmsConfig {
         BindingBuilder.bind(requestQueue()).to(exchange).with(SUBMISSIONS_REQUEST_ROUTING_KEY)
 
     @Bean
-    fun myRabbitTemplate(connectionFactory: ConnectionFactory): RabbitTemplate {
+    fun rabbitTemplate(connectionFactory: ConnectionFactory): RabbitTemplate {
         val rabbitTemplate = RabbitTemplate(connectionFactory)
         rabbitTemplate.setMessageConverter(messageConverter())
         return rabbitTemplate
