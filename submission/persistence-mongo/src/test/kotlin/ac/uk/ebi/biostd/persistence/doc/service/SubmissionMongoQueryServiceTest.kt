@@ -93,22 +93,18 @@ internal class SubmissionMongoQueryServiceTest(
 
         @Test
         fun `filtered by title`() {
-            val request1 = saveAsRequest(fullExtSubmission.copy(title = "title", section = section))
-            val request2 = saveAsRequest(fullExtSubmission.copy(title = "title", section = section))
-            saveAsRequest(fullExtSubmission.copy(title = "wrongT1tl3", section = section))
-            val sub1 = submissionRepo.save(testDocSubmission.copy(accNo = "accN1", title = "title", status = PROCESSED))
-            submissionRepo.save(testDocSubmission.copy(accNo = "accNo2", title = "title", status = PROCESSED))
-            submissionRepo.save(testDocSubmission.copy(title = "wrongT1tl3", status = PROCESSED))
+            saveAsRequest(fullExtSubmission.copy(accNo = "acc1", title = "title", section = section))
+            saveAsRequest(fullExtSubmission.copy(accNo = "acc2", title = "wrongT1tl3", section = section))
+            submissionRepo.save(testDocSubmission.copy(accNo = "acc3", title = "title", status = PROCESSED))
 
             val result = testInstance.getSubmissionsByUser(
                 SUBMISSION_OWNER,
-                SubmissionFilter(keywords = "title", limit = 3)
+                SubmissionFilter(keywords = "title", limit = 2)
             )
 
-            assertThat(result).hasSize(3)
-            assertThat(result.first()).isEqualTo(request1.asBasicSubmission())
-            assertThat(result.second()).isEqualTo(request2.asBasicSubmission())
-            assertThat(result.third()).isEqualTo(sub1.asBasicSubmission())
+            assertThat(result).hasSize(2)
+            assertThat(result.first().accNo).isEqualTo("acc1")
+            assertThat(result.second().accNo).isEqualTo("acc3")
         }
 
         @Test
