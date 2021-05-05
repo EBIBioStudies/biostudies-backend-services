@@ -26,7 +26,7 @@ import org.springframework.web.util.UriComponentsBuilder
 private const val SUBMISSIONS_URL = "/submissions"
 
 @Suppress("TooManyFunctions")
-internal open class SubmissionClient(
+internal class SubmissionClient(
     private val template: RestTemplate,
     private val serializationService: SerializationService
 ) : SubmissionOperations {
