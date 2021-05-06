@@ -6,9 +6,14 @@ import ac.uk.ebi.biostd.common.config.JmsConfig
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
+import ac.uk.ebi.biostd.submission.ext.getSimpleByAccNo
 import ebi.ac.uk.await.untilNotNull
 import ebi.ac.uk.dsl.line
+import ebi.ac.uk.dsl.submission
 import ebi.ac.uk.dsl.tsv
+import ebi.ac.uk.model.extensions.releaseDate
+import ebi.ac.uk.model.extensions.title
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
@@ -42,6 +47,7 @@ internal class SubmitAsyncApiTest(tempFolder: TemporaryFolder) : BaseIntegration
         @Autowired private val securityTestService: SecurityTestService,
         @Autowired private val rabbitTemplate: RabbitTemplate,
         @Autowired private val rabbitAdmin: RabbitAdmin,
+        @Autowired private val submissionRepository: SubmissionQueryService,
         @Autowired private val jmsConfig: JmsConfig
     ) {
         @LocalServerPort
@@ -58,7 +64,7 @@ internal class SubmitAsyncApiTest(tempFolder: TemporaryFolder) : BaseIntegration
         }
 
         @Test
-        fun test() {
+        fun submissionsNotification() {
             val submissionTSV = tsv {
                 line("Submission", "S-TEST22")
                 line("Title", "Test title")
@@ -77,7 +83,11 @@ internal class SubmitAsyncApiTest(tempFolder: TemporaryFolder) : BaseIntegration
             val result = restTemplate.getForObject(pageTabUrlTSV, String::class.java)
 
             assertThat(result).isNotNull()
-            assertThat(result.trim()).isEqualTo(submissionTSV.trim())
+            assertThat(result).isEqualToIgnoringWhitespace(submissionTSV)
+            assertThat(submissionRepository.getSimpleByAccNo("S-TEST22")).isEqualTo(submission("S-TEST22") {
+                title = "Test title"
+                releaseDate = "2000-01-31"
+            })
         }
 
         private fun createQueue(queueName: String, exchangeName: String, routingKey: String) {

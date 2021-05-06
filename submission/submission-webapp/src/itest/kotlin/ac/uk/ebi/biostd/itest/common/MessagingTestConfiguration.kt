@@ -8,7 +8,5 @@ import org.springframework.context.annotation.Configuration
 @Configuration
 internal class MessagingTestConfiguration {
     @Bean
-    fun rabbitAdmin(rabbitTemplate: RabbitTemplate): RabbitAdmin {
-        return RabbitAdmin(rabbitTemplate)
-    }
+    fun rabbitAdmin(rabbitTemplate: RabbitTemplate): RabbitAdmin = RabbitAdmin(rabbitTemplate)
 }
