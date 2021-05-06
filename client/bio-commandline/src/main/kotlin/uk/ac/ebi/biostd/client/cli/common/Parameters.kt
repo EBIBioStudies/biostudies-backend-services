@@ -1,7 +1,5 @@
 package uk.ac.ebi.biostd.client.cli.common
 
-import java.io.File
-
 const val FILES_SEPARATOR = ','
 
 internal object CommonParameters {
@@ -23,6 +21,3 @@ internal object MigrationParameters {
     const val TARGET_USER = "BioStudies user in the target environment"
     const val TARGET_PASSWORD = "Password for the BioStudies user in the target environment"
 }
-
-fun getFiles(file: File): List<File> =
-    if (file.isDirectory) file.walk().filter { it.isFile }.toList() else listOf(file)
