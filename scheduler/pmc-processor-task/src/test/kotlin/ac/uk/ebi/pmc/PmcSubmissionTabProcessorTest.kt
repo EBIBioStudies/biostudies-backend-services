@@ -46,7 +46,7 @@ import java.net.HttpURLConnection.HTTP_OK
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ContextConfiguration(classes = [PersistenceConfig::class])
 @ExtendWith(TemporaryFolderExtension::class)
-internal class PmcSubmissionProcessorTest(private val tempFolder: TemporaryFolder) {
+internal class PmcSubmissionTabProcessorTest(private val tempFolder: TemporaryFolder) {
 
     private val mongoContainer: MongoDBContainer = MongoDBContainer(DockerImageName.parse(MONGO_VERSION))
     private val wireMockNotificationServer = WireMockServer(WireMockConfiguration().dynamicPort())

@@ -17,9 +17,13 @@ class LoaderConfig {
         inputFilesDocService: InputFilesDocService,
         errorsDocService: ErrorsDocService,
         submissionDocService: SubmissionDocService,
-        serializationService: SerializationService
-    ) = PmcSubmissionLoader(serializationService, errorsDocService, inputFilesDocService, submissionDocService)
+        pmcSubmissionTabProcessor: PmcSubmissionTabProcessor
+    ) = PmcSubmissionLoader(pmcSubmissionTabProcessor, errorsDocService, inputFilesDocService, submissionDocService)
 
     @Bean
-    fun pmcLoader(pmcSubmissionLoader: PmcSubmissionLoader) = PmcLoader(pmcSubmissionLoader)
+    fun pmcLoader(pmcSubmissionLoader: PmcSubmissionLoader) = PmcFileLoader(pmcSubmissionLoader)
+
+    @Bean
+    fun pmcSubmissionTabProcessor(serializationService: SerializationService) =
+        PmcSubmissionTabProcessor(serializationService)
 }

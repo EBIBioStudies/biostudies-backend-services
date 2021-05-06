@@ -33,6 +33,8 @@ object DocFileFields {
     const val FILE_DOC_FULL_PATH = "fullPath"
     const val FILE_DOC_ATTRIBUTES = "attributes"
     const val FILE_DOC_MD5 = "md5"
+    const val FILE_TYPE = "type"
+    const val FILE_SIZE = "size"
 }
 
 object DocFileListFields {
@@ -78,6 +80,7 @@ object DocSectionFields {
     val DOC_SEC_TABLE_CLASS: String = DocSectionTable::class.java.canonicalName
 
     const val CLASS_FIELD = "_class"
+    const val SEC_ID = "id"
     const val SEC_ACC_NO = "accNo"
     const val SEC_TYPE = "type"
     const val SEC_FILE_LIST = "fileList"

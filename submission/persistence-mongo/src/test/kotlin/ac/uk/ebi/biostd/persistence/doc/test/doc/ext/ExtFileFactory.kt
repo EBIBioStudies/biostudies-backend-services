@@ -12,9 +12,9 @@ val SUB_FILE_LIST_FILE = File("somePath2")
 val subSectionFileListFile = ExtFile(fileName = SUB_FILE_LIST_FILE_NAME, file = SUB_FILE_LIST_FILE)
 
 const val ROOT_SEC_FILE_NAME = "fileName3"
-val ROOT_SEC_FILE = File("somePath4")
+val ROOT_SEC_FILE = File("somePath3")
 val rootSectionFile = ExtFile(fileName = ROOT_SEC_FILE_NAME, file = ROOT_SEC_FILE)
 
 const val ROOT_SEC_TABLE_FILE_NAME = "fileName4"
-val ROOT_SEC_TABLE_FILE = File("somePath3")
+val ROOT_SEC_TABLE_FILE = File("somePath4")
 val rootSectionTableFile = ExtFile(fileName = ROOT_SEC_TABLE_FILE_NAME, file = ROOT_SEC_TABLE_FILE)

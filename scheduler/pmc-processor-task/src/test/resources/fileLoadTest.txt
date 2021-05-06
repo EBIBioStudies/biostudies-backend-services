@@ -4,7 +4,9 @@ Title	Submission title
 Study		
 Title	Submission title	
 		
-		
+Link	Types
+AM905938	gen
+P12004	uniprot
 
 Submission	S-456ERROR	Public
 
