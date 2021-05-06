@@ -47,8 +47,10 @@ internal class SubmissionMongoQueryServiceTest(
     @Autowired private val submissionRepo: SubmissionDocDataRepository,
     @Autowired private val requestRepository: SubmissionRequestDocDataRepository
 ) {
+    private val serializationService: ExtSerializationService = ExtSerializationService()
+
     private val testInstance =
-        SubmissionMongoQueryService(submissionRepo, requestRepository, ExtSerializationService(), toExtSubmissionMapper)
+        SubmissionMongoQueryService(submissionRepo, requestRepository, serializationService, toExtSubmissionMapper)
 
     @Test
     fun `expire submission`() {
@@ -207,7 +209,7 @@ internal class SubmissionMongoQueryServiceTest(
         private fun asRequest(submission: ExtSubmission) = SubmissionRequest(
             accNo = submission.accNo,
             version = submission.version,
-            submission = BasicDBObject.parse(ExtSerializationService().serialize(submission))
+            submission = BasicDBObject.parse(serializationService.serialize(submission))
         )
     }
 
