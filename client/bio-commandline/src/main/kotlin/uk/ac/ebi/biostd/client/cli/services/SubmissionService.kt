@@ -11,15 +11,20 @@ import uk.ac.ebi.biostd.client.cli.dto.SubmissionRequest
 class SubmissionService {
     fun submit(request: SubmissionRequest): Submission = performRequest { submitRequest(request) }
 
+    fun submitAsync(request: SubmissionRequest) = performRequest { submitAsyncRequest(request) }
+
     fun delete(request: DeletionRequest) = performRequest { deleteRequest(request) }
 
     fun migrate(request: MigrationRequest) = performRequest { migrateRequest(request) }
 
-    private fun deleteRequest(request: DeletionRequest) =
-        bioWebClient(request.server, request.user, request.password).deleteSubmission(request.accNo)
-
     private fun submitRequest(request: SubmissionRequest): Submission =
         bioWebClient(request.server, request.user, request.password).submitSingle(request.file, request.attached).body
+
+    private fun submitAsyncRequest(request: SubmissionRequest) =
+        bioWebClient(request.server, request.user, request.password).asyncSubmitSingle(request.file, request.attached)
+
+    private fun deleteRequest(request: DeletionRequest) =
+        bioWebClient(request.server, request.user, request.password).deleteSubmission(request.accNo)
 
     private fun migrateRequest(request: MigrationRequest) {
         val sourceClient = bioWebClient(request.source, request.sourceUser, request.sourcePassword)

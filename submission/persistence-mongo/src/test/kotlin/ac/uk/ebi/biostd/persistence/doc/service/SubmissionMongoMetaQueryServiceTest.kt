@@ -39,8 +39,8 @@ import java.time.ZoneOffset.UTC
 @Testcontainers
 @SpringBootTest(classes = [TestConfig::class])
 internal class SubmissionMongoMetaQueryServiceTest(
-    @Autowired val submissionMongoRepository: SubmissionMongoRepository,
-    @Autowired val testInstance: SubmissionMongoMetaQueryService
+    @Autowired private val submissionMongoRepository: SubmissionMongoRepository,
+    @Autowired private val testInstance: SubmissionMongoMetaQueryService
 ) {
     @Test
     fun getBasicCollection() {
