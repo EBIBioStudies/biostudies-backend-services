@@ -23,7 +23,7 @@ internal class ToDbSubmissionMapper(
     private var userRepository: UserDataRepository
 ) {
 
-    fun toSubmissionDb(submission: ExtSubmission) = toSubmissionDb(submission, DbSubmission())
+    fun mergetSubmissionDb(submission: ExtSubmission) = toSubmissionDb(submission, DbSubmission())
 
     fun toSubmissionDb(submission: ExtSubmission, dbSubmission: DbSubmission): DbSubmission {
         return dbSubmission.apply {

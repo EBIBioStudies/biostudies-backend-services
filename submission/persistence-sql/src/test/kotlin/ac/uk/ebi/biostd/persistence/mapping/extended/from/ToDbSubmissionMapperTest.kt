@@ -42,7 +42,7 @@ internal class ToDbSubmissionMapperTest(
         every { userRepository.findByEmail(OWNER) } returns Optional.of(user)
         every { userRepository.findByEmail(SUBMITTER) } returns Optional.of(submitter)
 
-        val dbSubmission = testInstance.toSubmissionDb(extSubmission)
+        val dbSubmission = testInstance.mergetSubmissionDb(extSubmission)
 
         assertSubmission(dbSubmission, listOf(accessTag), listOf(tag), user, submitter)
     }
@@ -55,7 +55,7 @@ internal class ToDbSubmissionMapperTest(
         every { userRepository.findByEmail(OWNER) } returns Optional.empty()
         every { userRepository.findByEmail(SUBMITTER) } returns Optional.of(submitter)
 
-        val exception = assertThrows<UserNotFoundException> { testInstance.toSubmissionDb(extSubmission) }
+        val exception = assertThrows<UserNotFoundException> { testInstance.mergetSubmissionDb(extSubmission) }
         assertThat(exception.message).isEqualTo("The user with email '$OWNER' could not be found")
     }
 
@@ -67,7 +67,7 @@ internal class ToDbSubmissionMapperTest(
         every { userRepository.findByEmail(OWNER) } returns Optional.of(user)
         every { userRepository.findByEmail(SUBMITTER) } returns Optional.empty()
 
-        val exception = assertThrows<UserNotFoundException> { testInstance.toSubmissionDb(extSubmission) }
+        val exception = assertThrows<UserNotFoundException> { testInstance.mergetSubmissionDb(extSubmission) }
         assertThat(exception.message).isEqualTo("The user with email '$SUBMITTER' could not be found")
     }
 }

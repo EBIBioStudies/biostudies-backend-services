@@ -31,7 +31,7 @@ internal open class SubmissionSqlPersistenceService(
         val newVersion = submission.copy(
             version = getNextVersion(submission.accNo),
             status = ExtProcessingStatus.REQUESTED)
-        subDataRepository.save(toDbMapper.toSubmissionDb(newVersion))
+        subDataRepository.save(toDbMapper.mergetSubmissionDb(newVersion))
         requestDataRepository.save(asRequest(newVersion))
         return newVersion
     }
