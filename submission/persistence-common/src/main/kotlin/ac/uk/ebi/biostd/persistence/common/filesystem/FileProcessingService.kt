@@ -69,7 +69,7 @@ data class FileProcessingConfig(
     val folderPermissions: Set<PosixFilePermission>
 )
 
-private fun FileProcessingConfig.copy(extFile: ExtFile): ExtFile {
+internal fun FileProcessingConfig.copy(extFile: ExtFile): ExtFile {
     val source = extFile.file
     val target = subFolder.resolve(extFile.fileName)
     val current = currentFilesFolder.resolve(extFile.fileName)
@@ -89,8 +89,9 @@ private fun FileProcessingConfig.copy(extFile: ExtFile): ExtFile {
     return extFile.copy(file = target)
 }
 
-private fun FileProcessingConfig.move(extFile: ExtFile): ExtFile {
-    val source = extFile.file
+internal fun FileProcessingConfig.move(extFile: ExtFile): ExtFile {
+    val current = currentFilesFolder.resolve(extFile.fileName)
+    val source = if (current.exists()) current else extFile.file
     val target = subFolder.resolve(extFile.fileName)
 
     if (target.notExist()) {
