@@ -21,17 +21,23 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.to.SubmissionConverter
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionMongoRepository
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
+import com.github.cloudyrock.mongock.driver.mongodb.springdata.v3.SpringDataMongo3Driver
+import com.github.cloudyrock.spring.v5.MongockSpring5
 import com.mongodb.client.MongoClient
 import com.mongodb.client.MongoClients
+import io.changock.runner.spring.v5.SpringApplicationRunner
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.context.properties.EnableConfigurationProperties
+import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.convert.converter.Converter
 import org.springframework.data.mongodb.config.AbstractMongoClientConfiguration
+import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.data.mongodb.core.convert.MongoCustomConversions
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories
+
 
 @Configuration
 @ConditionalOnProperty(prefix = "app.persistence", name = ["enableMongo"], havingValue = "true")
@@ -41,12 +47,25 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
     FileListDocFile::class
 ])
 @EnableConfigurationProperties
+//@EnableMongock
 class MongoDbConfig(
     @Value("\${spring.data.mongodb.database}") val mongoDatabase: String,
     @Value("\${spring.data.mongodb.uri}") val mongoUri: String
 ) : AbstractMongoClientConfiguration() {
 
     override fun getDatabaseName(): String = mongoDatabase
+
+    @Bean
+    fun mongockApplicationRunner(
+        springContext: ApplicationContext,
+        mongoTemplate: MongoTemplate
+    ): SpringApplicationRunner {
+        return MongockSpring5.builder()
+            .setDriver(SpringDataMongo3Driver.withDefaultLock(mongoTemplate))
+            .addChangeLogsScanPackage("ac.uk.ebi.biostd.persistence.doc.migrations")
+            .setSpringContext(springContext)
+            .buildApplicationRunner()
+    }
 
     @Bean
     override fun mongoClient(): MongoClient {
