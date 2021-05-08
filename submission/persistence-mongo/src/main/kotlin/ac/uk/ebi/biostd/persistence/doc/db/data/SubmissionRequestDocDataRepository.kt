@@ -10,10 +10,13 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_TITLE
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionRequestRepository
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequest
+import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus
+import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus.REQUESTED
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Criteria.where
 import org.springframework.data.mongodb.core.query.Query
+import org.springframework.data.mongodb.core.query.Update.update
 
 class SubmissionRequestDocDataRepository(
     private val submissionRequestRepository: SubmissionRequestRepository,
@@ -25,7 +28,7 @@ class SubmissionRequestDocDataRepository(
 
     fun getRequest(filter: SubmissionFilter, email: String? = null): List<SubmissionRequest> {
         val query = Query().limit(filter.limit).skip(filter.offset)
-        query.addCriteria(createQuery(filter, email))
+        query.addCriteria(createQuery(filter, email)).addCriteria(where("status").`is`(REQUESTED))
         return mongoTemplate.find(query, SubmissionRequest::class.java)
     }
 
@@ -38,5 +41,10 @@ class SubmissionRequestDocDataRepository(
         filter.keywords?.let { criteria.andOperator(where("submission.$SUB_TITLE").regex("(?i).*$it.*")) }
         filter.released?.let { criteria.andOperator(where("submission.$SUB_RELEASED").`is`(it)) }
         return criteria
+    }
+
+    fun updateStatus(status: SubmissionRequestStatus, accNo: String) {
+        val query = Query(where(SUB_ACC_NO).`is`(accNo))
+        mongoTemplate.updateFirst(query, update("status", status), SubmissionRequest::class.java)
     }
 }

@@ -10,6 +10,7 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocProcessingStatus.PROCESSED
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequest
+import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.rootSectionFile
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.rootSectionFileListFile
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.rootSectionTableFile
@@ -74,6 +75,8 @@ class SubmissionMongoPersistenceServiceTest(
     private val submissionSlot = slot<ExtSubmission>()
     private val submissionRequestSlot = slot<SubmissionRequest>()
     private val filesList = slot<List<FileListDocFile>>()
+    private val requestStatusSlot = slot<SubmissionRequestStatus>()
+    private val accNoSlot = slot<String>()
 
     private val testInstance = SubmissionMongoPersistenceService(
         dataRepository,
@@ -95,6 +98,7 @@ class SubmissionMongoPersistenceServiceTest(
         every { systemService.persistSubmissionFiles(capture(submissionSlot), MOVE) } returns submission
         every { submissionRequestRepository.saveRequest(capture(submissionRequestSlot)) } answers { nothing }
         every { fileListDocFileRepository.saveAll(capture(filesList)) } answers { nothing }
+        every { submissionRequestRepository.updateStatus(capture(requestStatusSlot), capture(accNoSlot)) } answers { nothing }
     }
 
     @Test
