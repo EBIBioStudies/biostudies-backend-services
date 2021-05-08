@@ -1,5 +1,7 @@
 package uk.ac.ebi.biostd.client.cli.common
 
+const val FILES_SEPARATOR = ','
+
 internal object CommonParameters {
     const val SERVER_HELP = "BioStudies host url"
     const val ATTACHED_HELP = "Comma separated list of paths to the files referenced in the submission"

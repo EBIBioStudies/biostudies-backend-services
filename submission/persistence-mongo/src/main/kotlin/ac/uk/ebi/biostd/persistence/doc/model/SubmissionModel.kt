@@ -81,7 +81,9 @@ data class DocFile(
     val relPath: String,
     val fullPath: String,
     val attributes: List<DocAttribute> = listOf(),
-    val md5: String
+    val md5: String,
+    val fileType: String,
+    val fileSize: Long
 )
 
 data class DocFileList(
@@ -93,7 +95,7 @@ data class DocFileRef(
     val fileId: ObjectId
 )
 
-@Document(collection = "file-list-files")
+@Document(collection = "file_list_files")
 data class FileListDocFile(
     @Id
     val id: ObjectId,
@@ -118,6 +120,7 @@ data class DocAttribute(
 )
 
 data class DocSection(
+    val id: ObjectId,
     val accNo: String? = null,
     val type: String,
     val fileList: DocFileList? = null,

@@ -40,21 +40,20 @@ private fun DocSubmissionMethod.toSubmissionMethod(): SubmissionMethod =
         DocSubmissionMethod.UNKNOWN -> SubmissionMethod.UNKNOWN
     }
 
-fun ExtSubmission.asBasicSubmission(): BasicSubmission {
-    return BasicSubmission(
-        accNo = this.accNo,
-        version = version,
-        secretKey = secretKey,
-        title = title ?: section.title,
-        relPath = relPath,
-        released = released,
-        creationTime = creationTime,
-        modificationTime = modificationTime,
-        releaseTime = releaseTime,
-        status = status.toProcessingStatus(),
-        method = method.toSubmissionMethod(),
-        owner = owner)
-}
+fun ExtSubmission.asBasicSubmission(): BasicSubmission = BasicSubmission(
+    accNo = this.accNo,
+    version = version,
+    secretKey = secretKey,
+    title = title ?: section.title,
+    relPath = relPath,
+    released = released,
+    creationTime = creationTime,
+    modificationTime = modificationTime,
+    releaseTime = releaseTime,
+    status = status.toProcessingStatus(),
+    method = method.toSubmissionMethod(),
+    owner = owner
+)
 
 val ExtSection.title: String?
     get() = attributes.find { it.name == SectionFields.TITLE.value }?.value
@@ -65,6 +64,7 @@ private fun ExtProcessingStatus.toProcessingStatus(): ProcessingStatus =
         ExtProcessingStatus.PROCESSING -> ProcessingStatus.PROCESSING
         ExtProcessingStatus.REQUESTED -> ProcessingStatus.REQUESTED
     }
+
 private fun ExtSubmissionMethod.toSubmissionMethod(): SubmissionMethod =
     when (this) {
         ExtSubmissionMethod.FILE -> SubmissionMethod.FILE
