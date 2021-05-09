@@ -19,6 +19,7 @@ import org.springframework.data.mongodb.core.query.Criteria.where
 import org.springframework.data.mongodb.core.query.Query
 import org.springframework.data.mongodb.core.query.Update.update
 
+@Suppress("SpreadOperator")
 class SubmissionRequestDocDataRepository(
     private val submissionRequestRepository: SubmissionRequestRepository,
     private val mongoTemplate: MongoTemplate

@@ -189,7 +189,7 @@ internal class SubmissionMongoQueryServiceTest(
         }
 
         @Test
-        fun `request when all`(){
+        fun `request when all`() {
             saveAsRequest(fullExtSubmission.copy(
                 accNo = "accNo1",
                 version = 1,
