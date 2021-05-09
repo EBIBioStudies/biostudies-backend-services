@@ -189,6 +189,39 @@ internal class SubmissionMongoQueryServiceTest(
         }
 
         @Test
+        fun `request when all`(){
+            saveAsRequest(fullExtSubmission.copy(
+                accNo = "accNo1",
+                version = 1,
+                title = "title",
+                section = section.copy(type = "type1"),
+                released = false,
+                releaseTime = OffsetDateTime.of(2020, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC)
+            ), REQUESTED)
+
+            val result = testInstance.getSubmissionsByUser(
+                SUBMISSION_OWNER,
+                SubmissionFilter(
+                    accNo = "accNo1",
+                    version = 1,
+                    type = "type1",
+                    rTimeFrom = OffsetDateTime.of(2019, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC),
+                    rTimeTo = OffsetDateTime.of(2021, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC),
+                    keywords = "title",
+                    released = false
+                )
+            )
+
+            assertThat(result).hasSize(1)
+            assertThat(result.first().accNo).isEqualTo("accNo1")
+            assertThat(result.first().version).isEqualTo(1)
+            assertThat(result.first().title).isEqualTo("title")
+            assertThat(result.first().releaseTime).isEqualTo(OffsetDateTime.of(2020, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC))
+            assertThat(result.first().released).isEqualTo(false)
+            assertThat(result.first().accNo).isEqualTo("accNo1")
+        }
+
+        @Test
         fun `get greatest version submission`() {
             val sub1 = submissionRepo.save(testDocSubmission.copy(accNo = "accNo1", version = 3, status = PROCESSED))
             submissionRepo.save(testDocSubmission.copy(accNo = "accNo1", version = -2, status = PROCESSED))

@@ -8,6 +8,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_RELEASE_TIME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_SECTION
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_TITLE
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_VERSION
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionRequestRepository
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus
@@ -28,23 +29,27 @@ class SubmissionRequestDocDataRepository(
 
     fun getRequest(filter: SubmissionFilter, email: String? = null): List<SubmissionRequest> {
         val query = Query().limit(filter.limit).skip(filter.offset)
-        query.addCriteria(createQuery(filter, email)).addCriteria(where("status").`is`(REQUESTED))
+        query.addCriteria(createQuery(filter, email))
         return mongoTemplate.find(query, SubmissionRequest::class.java)
     }
 
-    private fun createQuery(filter: SubmissionFilter, email: String? = null): Criteria {
-        val criteria = where("submission.$SUB_OWNER").`is`(email)
-        filter.accNo?.let { criteria.andOperator(where("submission.$SUB_ACC_NO").`is`(it)) }
-        filter.type?.let { criteria.andOperator(where("submission.$SUB_SECTION.$SEC_TYPE").`is`(it)) }
-        filter.rTimeFrom?.let { criteria.andOperator(where("submission.$SUB_RELEASE_TIME").gte(it.toString())) }
-        filter.rTimeTo?.let { criteria.andOperator(where("submission.$SUB_RELEASE_TIME").lte(it.toString())) }
-        filter.keywords?.let { criteria.andOperator(where("submission.$SUB_TITLE").regex("(?i).*$it.*")) }
-        filter.released?.let { criteria.andOperator(where("submission.$SUB_RELEASED").`is`(it)) }
-        return criteria
+    private fun createQuery(filter: SubmissionFilter, email: String? = null): Criteria =
+        where("submission.$SUB_OWNER").`is`(email).andOperator(*criteriaArray(filter))
+
+    fun updateStatus(status: SubmissionRequestStatus, accNo: String, version: Int) {
+        val query = Query(where(SUB_ACC_NO).`is`(accNo).andOperator(where(SUB_VERSION).`is`(version)))
+        mongoTemplate.updateFirst(query, update("status", status), SubmissionRequest::class.java)
     }
 
-    fun updateStatus(status: SubmissionRequestStatus, accNo: String) {
-        val query = Query(where(SUB_ACC_NO).`is`(accNo))
-        mongoTemplate.updateFirst(query, update("status", status), SubmissionRequest::class.java)
+    private fun criteriaArray(filter: SubmissionFilter): Array<Criteria> {
+        val array = mutableListOf<Criteria>()
+        array.add(where("status").`is`(REQUESTED))
+        filter.accNo?.let { array.add(where("submission.$SUB_ACC_NO").`is`(it)) }
+        filter.type?.let { array.add(where("submission.$SUB_SECTION.$SEC_TYPE").`is`(it)) }
+        filter.rTimeFrom?.let { array.add(where("submission.$SUB_RELEASE_TIME").gte(it.toString())) }
+        filter.rTimeTo?.let { array.add(where("submission.$SUB_RELEASE_TIME").lte(it.toString())) }
+        filter.keywords?.let { array.add(where("submission.$SUB_TITLE").regex("(?i).*$it.*")) }
+        filter.released?.let { array.add(where("submission.$SUB_RELEASED").`is`(it)) }
+        return array.toTypedArray()
     }
 }

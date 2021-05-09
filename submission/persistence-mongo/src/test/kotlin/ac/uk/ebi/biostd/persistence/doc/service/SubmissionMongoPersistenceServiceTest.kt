@@ -40,6 +40,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import ebi.ac.uk.test.createFile
+import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus.PROCESSED as PROCESSED1
 
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
 class SubmissionMongoPersistenceServiceTest(
@@ -53,12 +54,16 @@ class SubmissionMongoPersistenceServiceTest(
 ) {
     private val draftKey = "TMP_123456"
 
-    private val newRootSectionFileListFile = rootSectionFileListFile.copy(file = tempFolder.createFile("tempFile1.txt", "content1"))
-    private val newSubSectionFileListFile = subSectionFileListFile.copy(file = tempFolder.createFile("tempFile2.txt", "content2"))
+    private val newRootSectionFileListFile =
+        rootSectionFileListFile.copy(file = tempFolder.createFile("tempFile1.txt", "content1"))
+    private val newSubSectionFileListFile =
+        subSectionFileListFile.copy(file = tempFolder.createFile("tempFile2.txt", "content2"))
     private val newRootSectionFile = rootSectionFile.copy(file = tempFolder.createFile("tempFile3.txt", "content3"))
-    private val newRootSectionTableFile = rootSectionTableFile.copy(file = tempFolder.createFile("tempFile4.txt", "content4"))
+    private val newRootSectionTableFile =
+        rootSectionTableFile.copy(file = tempFolder.createFile("tempFile4.txt", "content4"))
 
-    private val newSubSection = subSection.copy(fileList = subSection.fileList!!.copy(files = listOf(newSubSectionFileListFile)))
+    private val newSubSection =
+        subSection.copy(fileList = subSection.fileList!!.copy(files = listOf(newSubSectionFileListFile)))
     private val newRootSection = rootSection.copy(
         fileList = rootSection.fileList!!.copy(files = listOf(newRootSectionFileListFile)),
         sections = listOf(
@@ -77,6 +82,7 @@ class SubmissionMongoPersistenceServiceTest(
     private val filesList = slot<List<FileListDocFile>>()
     private val requestStatusSlot = slot<SubmissionRequestStatus>()
     private val accNoSlot = slot<String>()
+    private val versionSlot = slot<Int>()
 
     private val testInstance = SubmissionMongoPersistenceService(
         dataRepository,
@@ -98,14 +104,21 @@ class SubmissionMongoPersistenceServiceTest(
         every { systemService.persistSubmissionFiles(capture(submissionSlot), MOVE) } returns submission
         every { submissionRequestRepository.saveRequest(capture(submissionRequestSlot)) } answers { nothing }
         every { fileListDocFileRepository.saveAll(capture(filesList)) } answers { nothing }
-        every { submissionRequestRepository.updateStatus(capture(requestStatusSlot), capture(accNoSlot)) } answers { nothing }
+        every {
+            submissionRequestRepository.updateStatus(
+                capture(requestStatusSlot),
+                capture(accNoSlot),
+                capture(versionSlot)
+            )
+        } answers { nothing }
     }
 
     @Test
     fun `save and process submission request`() {
         testInstance.saveAndProcessSubmissionRequest(SaveSubmissionRequest(submission, MOVE, draftKey))
 
-        assertSubmissionRequest()
+        assertSaveSubmissionRequest()
+        assertUpdateSubmissionRequest()
         assertPersistedSubmission()
         verifyDraftRemovalByAccNo()
         verifyDraftRemovalByDraftKey()
@@ -116,7 +129,8 @@ class SubmissionMongoPersistenceServiceTest(
     fun `save and process submission request without draft key`() {
         testInstance.saveAndProcessSubmissionRequest(SaveSubmissionRequest(submission, MOVE))
 
-        assertSubmissionRequest()
+        assertSaveSubmissionRequest()
+        assertUpdateSubmissionRequest()
         assertPersistedSubmission()
         verifyDraftRemovalByAccNo()
         verifySubmissionProcessing()
@@ -129,7 +143,8 @@ class SubmissionMongoPersistenceServiceTest(
     fun `refresh submission`() {
         testInstance.refreshSubmission(submission)
 
-        assertSubmissionRequest()
+        assertSaveSubmissionRequest()
+        assertUpdateSubmissionRequest()
         assertPersistedSubmission()
         verifyDraftRemovalByAccNo()
         verifySubmissionProcessing()
@@ -142,11 +157,21 @@ class SubmissionMongoPersistenceServiceTest(
         verify(exactly = 1) { systemService.persistSubmissionFiles(persistedSubmission, MOVE) }
     }
 
-    private fun assertSubmissionRequest() {
+    private fun assertSaveSubmissionRequest() {
         val submissionRequest = submissionRequestSlot.captured
         assertThat(submissionRequest.accNo).isEqualTo(submission.accNo)
         assertThat(submissionRequest.version).isEqualTo(2)
         verify(exactly = 1) { submissionRequestRepository.saveRequest(submissionRequest) }
+    }
+
+    private fun assertUpdateSubmissionRequest() {
+        val newStatus = requestStatusSlot.captured
+        assertThat(newStatus).isEqualTo(PROCESSED1)
+        val accNo = accNoSlot.captured
+        assertThat(accNo).isEqualTo(submissionSlot.captured.accNo)
+        val version = versionSlot.captured
+        assertThat(version).isEqualTo(submissionSlot.captured.version)
+        verify(exactly = 1) { submissionRequestRepository.updateStatus(newStatus, accNo, version) }
     }
 
     private fun verifyDraftRemovalByAccNo() = verify(exactly = 1) {

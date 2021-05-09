@@ -20,6 +20,7 @@ import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FileMode.MOVE
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import kotlin.math.absoluteValue
+import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus.PROCESSED as PROCESSED1
 
 internal class SubmissionMongoPersistenceService(
     private val subDataRepository: SubmissionDocDataRepository,
@@ -58,7 +59,7 @@ internal class SubmissionMongoPersistenceService(
         val processingSubmission = systemService.persistSubmissionFiles(submission, fileMode)
         val (docSubmission, files) = processingSubmission.copy(status = PROCESSING).toDocSubmission()
         saveSubmission(docSubmission, files, draftKey)
-        submissionRequestDocDataRepository.updateStatus(SubmissionRequestStatus.PROCESSED, submission.accNo)
+        submissionRequestDocDataRepository.updateStatus(PROCESSED1, submission.accNo, submission.version)
 
         return submission
     }
