@@ -189,7 +189,7 @@ internal class SubmissionMongoQueryServiceTest(
         }
 
         @Test
-        fun `request when all`() {
+        fun `when all`() {
             saveAsRequest(fullExtSubmission.copy(
                 accNo = "accNo1",
                 version = 1,
@@ -198,6 +198,15 @@ internal class SubmissionMongoQueryServiceTest(
                 released = false,
                 releaseTime = OffsetDateTime.of(2020, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC)
             ), REQUESTED)
+            submissionRepo.save(testDocSubmission.copy(
+                accNo = "accNo1",
+                version = 1,
+                title = "title",
+                section = testDocSection.copy(type = "type1") ,
+                released = false,
+                releaseTime = OffsetDateTime.of(2020, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC).toInstant(),
+                status = PROCESSED
+            ))
 
             val result = testInstance.getSubmissionsByUser(
                 SUBMISSION_OWNER,
@@ -212,13 +221,17 @@ internal class SubmissionMongoQueryServiceTest(
                 )
             )
 
-            assertThat(result).hasSize(1)
+            assertThat(result).hasSize(2)
             assertThat(result.first().accNo).isEqualTo("accNo1")
             assertThat(result.first().version).isEqualTo(1)
             assertThat(result.first().title).isEqualTo("title")
             assertThat(result.first().releaseTime).isEqualTo(OffsetDateTime.of(2020, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC))
             assertThat(result.first().released).isEqualTo(false)
-            assertThat(result.first().accNo).isEqualTo("accNo1")
+            assertThat(result.second().accNo).isEqualTo("accNo1")
+            assertThat(result.second().version).isEqualTo(1)
+            assertThat(result.second().title).isEqualTo("title")
+            assertThat(result.second().releaseTime).isEqualTo(OffsetDateTime.of(2020, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC))
+            assertThat(result.second().released).isEqualTo(false)
         }
 
         @Test
