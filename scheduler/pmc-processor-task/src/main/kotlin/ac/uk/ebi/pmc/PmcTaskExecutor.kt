@@ -1,6 +1,6 @@
 package ac.uk.ebi.pmc
 
-import ac.uk.ebi.pmc.load.PmcLoader
+import ac.uk.ebi.pmc.load.PmcFileLoader
 import ac.uk.ebi.pmc.process.PmcSubmissionProcessor
 import ac.uk.ebi.pmc.submit.PmcSubmissionSubmitter
 import ac.uk.ebi.scheduler.properties.PmcImporterProperties
@@ -37,7 +37,7 @@ class PmcTaskExecutor(
         val mode = properties.mode
         Try {
             when (mode) {
-                PmcMode.LOAD -> context.getBean<PmcLoader>().loadFolder(File(properties.loadFolder))
+                PmcMode.LOAD -> context.getBean<PmcFileLoader>().loadFolder(File(properties.loadFolder))
                 PmcMode.PROCESS -> context.getBean<PmcSubmissionProcessor>().processSubmissions()
                 PmcMode.SUBMIT -> context.getBean<PmcSubmissionSubmitter>().submit()
             }
