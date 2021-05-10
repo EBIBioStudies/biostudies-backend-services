@@ -11,36 +11,27 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.rootSectionFile
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.rootSectionFileListFile
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.rootSectionTableFile
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.subSectionFileListFile
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.subSection
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.subSectionTable
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.rootSection
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.fullExtSubmission
-import arrow.core.Either
-import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.ExtProcessingStatus.REQUESTED
-import ebi.ac.uk.extended.model.ExtSectionTable
+import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FileMode.MOVE
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
-import io.mockk.clearAllMocks
-import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
-import io.mockk.slot
-import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
-import ebi.ac.uk.test.createFile
-import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus.PROCESSED as PROCESSED1
+import io.mockk.mockk
+import io.mockk.slot
+import io.mockk.every
+import io.mockk.clearAllMocks
+import io.mockk.verify
+import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus.PROCESSED as REQUEST_PROCCESSED
 
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
 class SubmissionMongoPersistenceServiceTest(
@@ -54,28 +45,8 @@ class SubmissionMongoPersistenceServiceTest(
 ) {
     private val draftKey = "TMP_123456"
 
-    private val newRootSectionFileListFile =
-        rootSectionFileListFile.copy(file = tempFolder.createFile("tempFile1.txt", "content1"))
-    private val newSubSectionFileListFile =
-        subSectionFileListFile.copy(file = tempFolder.createFile("tempFile2.txt", "content2"))
-    private val newRootSectionFile = rootSectionFile.copy(file = tempFolder.createFile("tempFile3.txt", "content3"))
-    private val newRootSectionTableFile =
-        rootSectionTableFile.copy(file = tempFolder.createFile("tempFile4.txt", "content4"))
-
-    private val newSubSection =
-        subSection.copy(fileList = subSection.fileList!!.copy(files = listOf(newSubSectionFileListFile)))
-    private val newRootSection = rootSection.copy(
-        fileList = rootSection.fileList!!.copy(files = listOf(newRootSectionFileListFile)),
-        sections = listOf(
-            Either.left(newSubSection),
-            Either.right(ExtSectionTable(sections = listOf(subSectionTable)))
-        ),
-        files = listOf(
-            Either.left(newRootSectionFile),
-            Either.right(ExtFileTable(files = listOf(newRootSectionTableFile)))
-        )
-    )
-    private val submission = fullExtSubmission.copy(section = newRootSection)
+    private val section = mockk<ExtSection>()
+    private val submission = fullExtSubmission.copy(section = section)
     private val docSubmission = slot<DocSubmission>()
     private val submissionSlot = slot<ExtSubmission>()
     private val submissionRequestSlot = slot<SubmissionRequest>()
@@ -106,11 +77,16 @@ class SubmissionMongoPersistenceServiceTest(
         every { fileListDocFileRepository.saveAll(capture(filesList)) } answers { nothing }
         every {
             submissionRequestRepository.updateStatus(
-                capture(requestStatusSlot),
-                capture(accNoSlot),
-                capture(versionSlot)
+                capture(requestStatusSlot), capture(accNoSlot), capture(versionSlot)
             )
         } answers { nothing }
+        every { section.sections } answers { listOf() }
+        every { section.fileList } answers { nothing }
+        every { section.accNo } answers { nothing }
+        every { section.type } answers { "someAnswer" }
+        every { section.attributes } answers { listOf() }
+        every { section.files } answers { listOf() }
+        every { section.links } answers { listOf() }
     }
 
     @Test
@@ -166,10 +142,10 @@ class SubmissionMongoPersistenceServiceTest(
 
     private fun assertUpdateSubmissionRequest() {
         val newStatus = requestStatusSlot.captured
-        assertThat(newStatus).isEqualTo(PROCESSED1)
         val accNo = accNoSlot.captured
-        assertThat(accNo).isEqualTo(submissionSlot.captured.accNo)
         val version = versionSlot.captured
+        assertThat(newStatus).isEqualTo(REQUEST_PROCCESSED)
+        assertThat(accNo).isEqualTo(submissionSlot.captured.accNo)
         assertThat(version).isEqualTo(submissionSlot.captured.version)
         verify(exactly = 1) { submissionRequestRepository.updateStatus(newStatus, accNo, version) }
     }

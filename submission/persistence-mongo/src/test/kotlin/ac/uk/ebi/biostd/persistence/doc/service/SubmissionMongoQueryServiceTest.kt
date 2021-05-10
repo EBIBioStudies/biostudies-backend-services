@@ -202,7 +202,7 @@ internal class SubmissionMongoQueryServiceTest(
                 accNo = "accNo1",
                 version = 1,
                 title = "title",
-                section = testDocSection.copy(type = "type1") ,
+                section = testDocSection.copy(type = "type1"),
                 released = false,
                 releaseTime = OffsetDateTime.of(2020, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC).toInstant(),
                 status = PROCESSED
