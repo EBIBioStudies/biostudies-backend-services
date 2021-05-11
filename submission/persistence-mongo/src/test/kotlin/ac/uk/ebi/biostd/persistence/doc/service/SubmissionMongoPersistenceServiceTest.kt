@@ -17,7 +17,12 @@ import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.fullExtSubmission as submis
 import ebi.ac.uk.extended.model.ExtProcessingStatus.REQUESTED
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FileMode.MOVE
-import io.mockk.*
+import io.mockk.slot
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
+import io.mockk.clearAllMocks
+import io.mockk.mockkStatic
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import org.assertj.core.api.Assertions.assertThat
