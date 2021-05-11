@@ -22,25 +22,30 @@ internal class ToDbSubmissionMapper(
     private val tagsRefRepository: TagDataRepository,
     private var userRepository: UserDataRepository
 ) {
-    fun toSubmissionDb(submission: ExtSubmission) = DbSubmission().apply {
-        accNo = submission.accNo
-        title = submission.title
-        status = getStatus(submission.status)
-        method = getMethod(submission.method)
-        version = submission.version
-        relPath = submission.relPath
-        rootPath = submission.rootPath
-        secretKey = submission.secretKey
-        creationTime = submission.creationTime
-        modificationTime = submission.modificationTime
-        releaseTime = submission.releaseTime
-        owner = getUser(submission.owner)
-        submitter = getUser(submission.submitter)
-        accessTags = toAccessTag(submission.collections)
-        tags = toTags(submission.tags)
-        released = submission.released
-        attributes = submission.attributes.mapIndexedTo(sortedSetOf(), ::toDbSubmissionAttribute)
-        rootSection = submission.section.toDbSection(this, ROOT_SECTION_ORDER)
+
+    fun mergetSubmissionDb(submission: ExtSubmission) = toSubmissionDb(submission, DbSubmission())
+
+    fun toSubmissionDb(submission: ExtSubmission, dbSubmission: DbSubmission): DbSubmission {
+        return dbSubmission.apply {
+            accNo = submission.accNo
+            title = submission.title
+            status = getStatus(submission.status)
+            method = getMethod(submission.method)
+            version = submission.version
+            relPath = submission.relPath
+            rootPath = submission.rootPath
+            secretKey = submission.secretKey
+            creationTime = submission.creationTime
+            modificationTime = submission.modificationTime
+            releaseTime = submission.releaseTime
+            owner = getUser(submission.owner)
+            submitter = getUser(submission.submitter)
+            accessTags = toAccessTag(submission.collections)
+            tags = toTags(submission.tags)
+            released = submission.released
+            attributes = submission.attributes.mapIndexedTo(sortedSetOf(), ::toDbSubmissionAttribute)
+            rootSection = submission.section.toDbSection(this, ROOT_SECTION_ORDER)
+        }
     }
 
     private fun getStatus(status: ExtProcessingStatus): ProcessingStatus =

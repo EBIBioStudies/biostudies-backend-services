@@ -1,6 +1,7 @@
 import Dependencies.Arrow
 import Dependencies.JacksonKotlin
 import Dependencies.JacksonXml
+import Dependencies.KotlinLogging
 import Dependencies.KotlinStdLib
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
@@ -13,6 +14,7 @@ dependencies {
     implementation(JacksonKotlin)
     implementation(JacksonXml)
     implementation(KotlinStdLib)
+    implementation(KotlinLogging)
 
     testApi(project(":commons:commons-test"))
     BaseTestCompileDependencies.forEach { testImplementation(it) }
