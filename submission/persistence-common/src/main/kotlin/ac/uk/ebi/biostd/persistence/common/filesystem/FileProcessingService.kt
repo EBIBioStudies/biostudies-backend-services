@@ -65,7 +65,7 @@ data class FileProcessingConfig(
     val subFolder: File,
     val tempFolder: File,
     val filePermissions: Set<PosixFilePermission>,
-    val folderPermissions: Set<PosixFilePermission>
+    val dirPermissions: Set<PosixFilePermission>
 )
 
 internal fun FileProcessingConfig.copy(extFile: ExtFile): ExtFile {
@@ -76,13 +76,8 @@ internal fun FileProcessingConfig.copy(extFile: ExtFile): ExtFile {
     logger.info { "copying file ${source.absolutePath} into ${target.absolutePath}" }
 
     when {
-        current.exists() && source.md5() == current.md5() ->
-            moveFile(current, target, filePermissions, folderPermissions)
-
-        current.exists() && source.md5() != current.md5() ->
-            copyOrReplaceFile(current, target, filePermissions, folderPermissions)
-
-        else -> copyOrReplaceFile(source, target, filePermissions, folderPermissions)
+        current.exists() && source.md5() == current.md5() -> moveFile(current, target, filePermissions, dirPermissions)
+        else -> copyOrReplaceFile(source, target, filePermissions, dirPermissions)
     }
 
     return extFile.copy(file = target)
@@ -94,7 +89,7 @@ internal fun FileProcessingConfig.move(extFile: ExtFile): ExtFile {
 
     if (target.notExist()) {
         logger.info { "moving file ${source.absolutePath} into ${target.absolutePath}" }
-        moveFile(source, target, filePermissions, folderPermissions)
+        moveFile(source, target, filePermissions, dirPermissions)
     }
 
     return extFile.copy(file = target)
