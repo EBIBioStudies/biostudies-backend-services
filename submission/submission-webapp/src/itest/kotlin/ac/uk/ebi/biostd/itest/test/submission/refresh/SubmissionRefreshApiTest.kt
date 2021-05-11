@@ -103,7 +103,7 @@ internal class SubmissionRefreshApiTest(private val tempFolder: TemporaryFolder)
         @EnabledIfSystemProperty(named = "itest.mode", matches = "mysql")
         inner class SubmissionRefreshSqlApiTest {
             @Test
-            fun `refresh sql submission release date and attribute`() {
+            fun `refresh sql submission release date and attributes`() {
                 updateSqlSubmission()
                 webClient.refreshSubmission(ACC_NO)
                 assertRefreshedSubmission()
