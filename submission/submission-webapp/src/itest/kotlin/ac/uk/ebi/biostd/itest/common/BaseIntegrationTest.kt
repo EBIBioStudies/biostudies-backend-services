@@ -58,7 +58,7 @@ internal open class BaseIntegrationTest(private val tempFolder: TemporaryFolder)
         System.setProperty("spring.rabbitmq.host", myRabbitMQContainer.host)
         System.setProperty("spring.rabbitmq.username", myRabbitMQContainer.adminUsername)
         System.setProperty("spring.rabbitmq.password", myRabbitMQContainer.adminPassword)
-        System.setProperty("spring.rabbitmq.port", "5672")
+        System.setProperty("spring.rabbitmq.port", myRabbitMQContainer.getMappedPort(5672).toString())
     }
 
     private fun setUpMongo() {
