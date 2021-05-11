@@ -23,7 +23,6 @@ class FileProcessingService {
     fun processFiles(processRequest: FileProcessingRequest): ExtSubmission {
         val (mode, submission, config) = processRequest
         val processFunc: (file: ExtFile) -> ExtFile = if (mode == COPY) config::copy else config::move
-
         return submission.copy(section = processSection(submission.section, processFunc))
     }
 
@@ -64,7 +63,7 @@ data class FileProcessingRequest(
 
 data class FileProcessingConfig(
     val subFolder: File,
-    val currentFilesFolder: File,
+    val tempFolder: File,
     val filePermissions: Set<PosixFilePermission>,
     val folderPermissions: Set<PosixFilePermission>
 )
@@ -72,7 +71,7 @@ data class FileProcessingConfig(
 internal fun FileProcessingConfig.copy(extFile: ExtFile): ExtFile {
     val source = extFile.file
     val target = subFolder.resolve(extFile.fileName)
-    val current = currentFilesFolder.resolve(extFile.fileName)
+    val current = tempFolder.resolve(extFile.fileName)
 
     logger.info { "copying file ${source.absolutePath} into ${target.absolutePath}" }
 
@@ -90,8 +89,7 @@ internal fun FileProcessingConfig.copy(extFile: ExtFile): ExtFile {
 }
 
 internal fun FileProcessingConfig.move(extFile: ExtFile): ExtFile {
-    val current = currentFilesFolder.resolve(extFile.fileName)
-    val source = if (current.exists()) current else extFile.file
+    val source = if (extFile.file.startsWith(subFolder)) tempFolder.resolve(extFile.fileName) else extFile.file
     val target = subFolder.resolve(extFile.fileName)
 
     if (target.notExist()) {

@@ -97,7 +97,7 @@ class FileProcessingConfigTest(private val tempFolder: TemporaryFolder) {
             val config = FileProcessingConfig(subFolder, currentFolder, RW_R__R__, RWXR_XR_X)
             val result = config.move(extFile)
 
-            assertThat(subFolder.resolve("test.txt").exists()).isTrue()
+            assertThat(subFolder.resolve("test.txt")).exists()
             assertThat(result.file.path).isEqualTo("${tempFolder.root}/S-BSST1/Files/test.txt")
         }
     }
