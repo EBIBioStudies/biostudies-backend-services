@@ -19,7 +19,6 @@ import org.springframework.data.mongodb.core.query.Criteria.where
 import org.springframework.data.mongodb.core.query.Query
 import org.springframework.data.mongodb.core.query.Update.update
 
-@Suppress("SpreadOperator")
 class SubmissionRequestDocDataRepository(
     private val submissionRequestRepository: SubmissionRequestRepository,
     private val mongoTemplate: MongoTemplate
@@ -34,6 +33,7 @@ class SubmissionRequestDocDataRepository(
         return mongoTemplate.find(query, SubmissionRequest::class.java)
     }
 
+    @Suppress("SpreadOperator")
     private fun createQuery(filter: SubmissionFilter, email: String? = null): Criteria =
         where("submission.$SUB_OWNER").`is`(email).andOperator(*criteriaArray(filter))
 
