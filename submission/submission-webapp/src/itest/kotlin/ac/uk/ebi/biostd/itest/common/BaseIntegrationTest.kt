@@ -18,7 +18,7 @@ internal const val CHARACTER_SET = "utf8mb4"
 internal const val COLLATION = "utf8mb4_unicode_ci"
 
 internal open class BaseIntegrationTest(private val tempFolder: TemporaryFolder) {
-    private val myRabbitMQContainer = RabbitMQContainer(DockerImageName.parse(RABBITMQ_VERSION))
+    private val rabbitMQContainer = RabbitMQContainer(DockerImageName.parse(RABBITMQ_VERSION))
     private val mongoContainer: MongoDBContainer = MongoDBContainer(DockerImageName.parse(MONGO_VERSION))
     private val mysqlContainer = SpecificMySQLContainer(MYSQL_VERSION)
         .withCommand("mysqld --character-set-server=$CHARACTER_SET --collation-server=$COLLATION")
@@ -42,6 +42,7 @@ internal open class BaseIntegrationTest(private val tempFolder: TemporaryFolder)
     fun afterAll() {
         mysqlContainer.stop()
         mongoContainer.stop()
+        rabbitMQContainer.stop();
     }
 
     protected fun getWebClient(serverPort: Int, user: TestUser): BioWebClient {
@@ -54,11 +55,11 @@ internal open class BaseIntegrationTest(private val tempFolder: TemporaryFolder)
     }
 
     private fun setUpRabbitMQ() {
-        myRabbitMQContainer.start()
-        System.setProperty("spring.rabbitmq.host", myRabbitMQContainer.host)
-        System.setProperty("spring.rabbitmq.username", myRabbitMQContainer.adminUsername)
-        System.setProperty("spring.rabbitmq.password", myRabbitMQContainer.adminPassword)
-        System.setProperty("spring.rabbitmq.port", myRabbitMQContainer.getMappedPort(5672).toString())
+        rabbitMQContainer.start()
+        System.setProperty("spring.rabbitmq.host", rabbitMQContainer.host)
+        System.setProperty("spring.rabbitmq.username", rabbitMQContainer.adminUsername)
+        System.setProperty("spring.rabbitmq.password", rabbitMQContainer.adminPassword)
+        System.setProperty("spring.rabbitmq.port", rabbitMQContainer.getMappedPort(5672).toString())
     }
 
     private fun setUpMongo() {
