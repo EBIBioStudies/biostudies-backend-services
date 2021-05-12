@@ -69,7 +69,7 @@ data class FileProcessingConfig(
 )
 
 internal fun FileProcessingConfig.copy(extFile: ExtFile): ExtFile {
-    val source = extFile.file
+    val source = if (extFile.file.startsWith(subFolder)) tempFolder.resolve(extFile.fileName) else extFile.file
     val target = subFolder.resolve(extFile.fileName)
     val current = tempFolder.resolve(extFile.fileName)
 
