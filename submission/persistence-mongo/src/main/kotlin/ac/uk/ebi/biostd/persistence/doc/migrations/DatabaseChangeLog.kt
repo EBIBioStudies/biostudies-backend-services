@@ -12,14 +12,13 @@ import com.github.cloudyrock.mongock.ChangeLog
 import com.github.cloudyrock.mongock.ChangeSet
 import com.github.cloudyrock.mongock.driver.mongodb.springdata.v3.decorator.impl.MongockTemplate
 import org.springframework.data.domain.Sort.Direction.ASC
-import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.data.mongodb.core.index.Index
 
 @ChangeLog
 class DatabaseChangeLog {
 
     @ChangeSet(order = "001", id = "Create Schema", author = "System")
-    fun createSchema(template: MongockTemplate){
+    fun createSchema(template: MongockTemplate) {
         template.createCollection(DocSubmission::class.java)
         template.createCollection(SubmissionRequest::class.java)
 

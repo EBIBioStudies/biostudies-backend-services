@@ -38,7 +38,6 @@ import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.data.mongodb.core.convert.MongoCustomConversions
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories
 
-
 @Configuration
 @ConditionalOnProperty(prefix = "app.persistence", name = ["enableMongo"], havingValue = "true")
 @EnableMongoRepositories(basePackageClasses = [
@@ -47,7 +46,6 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
     FileListDocFile::class
 ])
 @EnableConfigurationProperties
-//@EnableMongock
 class MongoDbConfig(
     @Value("\${spring.data.mongodb.database}") val mongoDatabase: String,
     @Value("\${spring.data.mongodb.uri}") val mongoUri: String
@@ -56,13 +54,15 @@ class MongoDbConfig(
     override fun getDatabaseName(): String = mongoDatabase
 
     @Bean
+    @ConditionalOnProperty(prefix = "app.mongo", name = ["execute-migrations"], havingValue = "true")
     fun mongockApplicationRunner(
         springContext: ApplicationContext,
-        mongoTemplate: MongoTemplate
+        mongoTemplate: MongoTemplate,
+        @Value("\${app.mongo.migration-package}") migrationPath: String
     ): SpringApplicationRunner {
         return MongockSpring5.builder()
             .setDriver(SpringDataMongo3Driver.withDefaultLock(mongoTemplate))
-            .addChangeLogsScanPackage("ac.uk.ebi.biostd.persistence.doc.migrations")
+            .addChangeLogsScanPackage(migrationPath)
             .setSpringContext(springContext)
             .buildApplicationRunner()
     }

@@ -64,7 +64,8 @@ app:
     requireActivation: # Indicates whether or not, new user need activation before being used
   persistence:
     enableMongo: false
+  mongo:
+    execute-migrations: true
+    migration-package: ac.uk.ebi.biostd.persistence.doc.migrations
   validator:
     euToxRiskValidationApi: # EU-ToxRisk validation API
-mongock:
-  change-logs-scan-package: ac.uk.ebi.biostd.persistence.doc.migrations
