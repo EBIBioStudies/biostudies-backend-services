@@ -7,6 +7,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_RELEASE_TIME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_SECTION
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_TITLE
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_VERSION
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequest
 import com.github.cloudyrock.mongock.ChangeLog
@@ -24,8 +25,8 @@ class DatabaseChangeLog {
         template.ensureExists(SubmissionRequest::class.java)
 
         template.indexOps(DocSubmission::class.java).apply {
-            ensureIndex(Index().on("accNo", ASC))
-            ensureIndex(Index().on("accNo", ASC).on("version", ASC))
+            ensureIndex(Index().on(SUB_ACC_NO, ASC))
+            ensureIndex(Index().on(SUB_ACC_NO, ASC).on(SUB_VERSION, ASC))
             ensureIndex(Index().on("$SUB_SECTION.$SEC_TYPE", ASC))
             ensureIndex(Index().on(SUB_RELEASE_TIME, ASC))
             ensureIndex(Index().on(SUB_TITLE, ASC))
@@ -33,8 +34,8 @@ class DatabaseChangeLog {
         }
 
         template.indexOps(SubmissionRequest::class.java).apply {
-            ensureIndex(Index().on("accNo", ASC))
-            ensureIndex(Index().on("accNo", ASC).on("version", ASC))
+            ensureIndex(Index().on(SUB_ACC_NO, ASC))
+            ensureIndex(Index().on(SUB_ACC_NO, ASC).on(SUB_VERSION, ASC))
             ensureIndex(Index().on("submission.$SUB_SECTION.$SEC_TYPE", ASC))
             ensureIndex(Index().on("submission.$SUB_ACC_NO", ASC))
             ensureIndex(Index().on("submission.$SUB_RELEASE_TIME", ASC))

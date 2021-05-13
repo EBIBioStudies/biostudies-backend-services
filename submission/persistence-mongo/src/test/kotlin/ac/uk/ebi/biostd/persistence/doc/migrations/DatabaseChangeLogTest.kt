@@ -10,6 +10,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_RELEASE_TIME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_SECTION
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_TITLE
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_VERSION
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocSubmission
@@ -24,8 +25,12 @@ import org.springframework.boot.DefaultApplicationArguments
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.ApplicationContext
 import org.springframework.data.domain.Sort.Direction.ASC
+import org.springframework.data.mongodb.core.collectionExists
+import org.springframework.data.mongodb.core.getCollectionName
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.data.mongodb.core.createCollection
+import org.springframework.data.mongodb.core.dropCollection
+import org.springframework.data.mongodb.core.findAll
 import org.springframework.data.mongodb.core.index.Index
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
@@ -44,25 +49,22 @@ internal class DatabaseChangeLogTest(
 ) {
     @BeforeEach
     fun init() {
-        mongoTemplate.dropCollection(DocSubmission::class.java)
-        mongoTemplate.dropCollection(SubmissionRequest::class.java)
+        mongoTemplate.dropCollection<DocSubmission>()
+        mongoTemplate.dropCollection<SubmissionRequest>()
         mongoTemplate.dropCollection(CHANGE_LOG_COLLECTION)
         mongoTemplate.dropCollection(CHANGE_LOG_LOCK)
     }
 
     @Test
-    fun `create schema migration 001 happy case`() {
+    fun `create schema migration 001 when collections exists`() {
         runMigrations()
 
-        val submissionCollection = mongoTemplate.getCollectionName(DocSubmission::class.java)
-        val requestCollection = mongoTemplate.getCollectionName(SubmissionRequest::class.java)
-
-        assertSubmissionCollection(submissionCollection)
-        assertRequestCollection(requestCollection)
+        assertSubmissionCollection()
+        assertRequestCollection()
     }
 
     @Test
-    fun `create schema migration 001 when already exists`() {
+    fun `create schema migration 001 when collections does not exists`() {
         mongoTemplate.createCollection<DocSubmission>()
         mongoTemplate.createCollection<SubmissionRequest>()
 
@@ -71,44 +73,43 @@ internal class DatabaseChangeLogTest(
         mongoTemplate.insert(request.copy(accNo = "accNo1"))
         mongoTemplate.insert(request.copy(accNo = "accNo2"))
 
-        val submissions = mongoTemplate.findAll(DocSubmission::class.java)
-        val requests = mongoTemplate.findAll(SubmissionRequest::class.java)
+        val submissions = mongoTemplate.findAll<DocSubmission>()
+        val requests = mongoTemplate.findAll<SubmissionRequest>()
 
         runMigrations()
 
-        val submissionCollection = mongoTemplate.getCollectionName(DocSubmission::class.java)
-        val requestCollection = mongoTemplate.getCollectionName(SubmissionRequest::class.java)
-
-        assertThat(mongoTemplate.findAll(DocSubmission::class.java)).isEqualTo(submissions)
-        assertThat(mongoTemplate.findAll(SubmissionRequest::class.java)).isEqualTo(requests)
-        assertSubmissionCollection(submissionCollection)
-        assertRequestCollection(requestCollection)
+        assertThat(mongoTemplate.findAll<DocSubmission>()).isEqualTo(submissions)
+        assertThat(mongoTemplate.findAll<SubmissionRequest>()).isEqualTo(requests)
+        assertSubmissionCollection()
+        assertRequestCollection()
     }
 
-    private fun assertSubmissionCollection(submissionCollection: String) {
+    private fun assertSubmissionCollection() {
+        val submissionCollection = mongoTemplate.getCollectionName<DocSubmission>()
         val submissionIndexes = mongoTemplate.getCollection(submissionCollection).listIndexes().map { it["key"] }
 
-        assertThat(mongoTemplate.collectionExists(submissionCollection)).isTrue()
+        assertThat(mongoTemplate.collectionExists<DocSubmission>()).isTrue()
         assertThat(mongoTemplate.getCollection(submissionCollection).listIndexes()).hasSize(7)
 
         assertThat(submissionIndexes).contains(Index().on("_id", ASC).indexKeys)
-        assertThat(submissionIndexes).contains(Index().on("accNo", ASC).indexKeys)
-        assertThat(submissionIndexes).contains(Index().on("accNo", ASC).on("version", ASC).indexKeys)
+        assertThat(submissionIndexes).contains(Index().on(SUB_ACC_NO, ASC).indexKeys)
+        assertThat(submissionIndexes).contains(Index().on(SUB_ACC_NO, ASC).on(SUB_VERSION, ASC).indexKeys)
         assertThat(submissionIndexes).contains(Index().on("$SUB_SECTION.$SEC_TYPE", ASC).indexKeys)
         assertThat(submissionIndexes).contains(Index().on(SUB_RELEASE_TIME, ASC).indexKeys)
         assertThat(submissionIndexes).contains(Index().on(SUB_TITLE, ASC).indexKeys)
         assertThat(submissionIndexes).contains(Index().on(SUB_RELEASED, ASC).indexKeys)
     }
 
-    private fun assertRequestCollection(requestCollection: String) {
+    private fun assertRequestCollection() {
+        val requestCollection = mongoTemplate.getCollectionName<SubmissionRequest>()
         val requestIndexes = mongoTemplate.getCollection(requestCollection).listIndexes().map { it["key"] }
 
-        assertThat(mongoTemplate.collectionExists(requestCollection)).isTrue()
+        assertThat(mongoTemplate.collectionExists<SubmissionRequest>()).isTrue()
         assertThat(mongoTemplate.getCollection(requestCollection).listIndexes()).hasSize(8)
 
         assertThat(requestIndexes).contains(Index().on("_id", ASC).indexKeys)
-        assertThat(requestIndexes).contains(Index().on("accNo", ASC).indexKeys)
-        assertThat(requestIndexes).contains(Index().on("accNo", ASC).on("version", ASC).indexKeys)
+        assertThat(requestIndexes).contains(Index().on(SUB_ACC_NO, ASC).indexKeys)
+        assertThat(requestIndexes).contains(Index().on(SUB_ACC_NO, ASC).on(SUB_VERSION, ASC).indexKeys)
         assertThat(requestIndexes).contains(Index().on("submission.$SUB_SECTION.$SEC_TYPE", ASC).indexKeys)
         assertThat(requestIndexes).contains(Index().on("submission.$SUB_ACC_NO", ASC).indexKeys)
         assertThat(requestIndexes).contains(Index().on("submission.$SUB_RELEASE_TIME", ASC).indexKeys)

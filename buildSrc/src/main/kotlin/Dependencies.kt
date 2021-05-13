@@ -29,6 +29,7 @@ import Versions.KotlinLoggingVersion
 import Versions.KotlinVersion
 import Versions.Log4JVersion
 import Versions.LogbackVersion
+import Versions.MongockVersion
 import Versions.MySqlVersion
 import Versions.OkHttpLoggingVersion
 import Versions.PoiVersion
@@ -70,6 +71,7 @@ object Versions {
     const val KotlinCoroutineVersion = "1.3.8"
     const val KMongoCoroutineVersion = "3.12.2"
     const val JpaEntityGraphVersion = "2.2.3"
+    const val MongockVersion = "4.3.8"
 
     const val CommonsLang3Version = "3.8.1"
     const val CommonsIOVersion = "2.6"
@@ -151,6 +153,9 @@ object Dependencies {
     const val MySql = "mysql:mysql-connector-java:$MySqlVersion"
     const val KMongoCoroutine = "org.litote.kmongo:kmongo-coroutine:$KMongoCoroutineVersion"
     const val JpaEntityGraph = "com.cosium.spring.data:spring-data-jpa-entity-graph:$JpaEntityGraphVersion"
+    const val MongockBom = "com.github.cloudyrock.mongock:mongock-bom:$MongockVersion"
+    const val MongockSpringV5 = "com.github.cloudyrock.mongock:mongock-spring-v5:$MongockVersion"
+    const val MongockSpringDataV3 = "com.github.cloudyrock.mongock:mongodb-springdata-v3-driver:$MongockVersion"
 
     // Misc
     const val ServletApi = "javax.servlet:javax.servlet-api:$ServletVersion"
