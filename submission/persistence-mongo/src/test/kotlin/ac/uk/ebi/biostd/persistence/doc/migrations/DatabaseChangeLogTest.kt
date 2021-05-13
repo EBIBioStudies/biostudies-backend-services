@@ -1,6 +1,9 @@
 package ac.uk.ebi.biostd.persistence.doc.migrations
 
+import ac.uk.ebi.biostd.persistence.doc.CHANGE_LOG_COLLECTION
+import ac.uk.ebi.biostd.persistence.doc.CHANGE_LOG_LOCK
 import ac.uk.ebi.biostd.persistence.doc.MongoDbConfig
+import ac.uk.ebi.biostd.persistence.doc.MongoDbConfig.Companion.createMongockConfig
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_TYPE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_RELEASED
@@ -10,14 +13,11 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocSubmission
-import com.github.cloudyrock.mongock.driver.mongodb.springdata.v3.SpringDataMongo3Driver
-import com.github.cloudyrock.spring.v5.MongockSpring5
 import com.mongodb.BasicDBObject
-import com.mongodb.DBObject
 import ebi.ac.uk.db.MONGO_VERSION
-import org.junit.jupiter.api.Test
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.DefaultApplicationArguments
@@ -25,7 +25,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.ApplicationContext
 import org.springframework.data.domain.Sort.Direction.ASC
 import org.springframework.data.mongodb.core.MongoTemplate
-import org.springframework.data.mongodb.core.dropCollection
+import org.springframework.data.mongodb.core.createCollection
 import org.springframework.data.mongodb.core.index.Index
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
@@ -39,15 +39,15 @@ import org.testcontainers.utility.DockerImageName
 @SpringBootTest(classes = [MongoDbConfig::class])
 @Testcontainers
 internal class DatabaseChangeLogTest(
-        @Autowired val springContext: ApplicationContext,
-        @Autowired val mongoTemplate: MongoTemplate
+    @Autowired private val springContext: ApplicationContext,
+    @Autowired private val mongoTemplate: MongoTemplate
 ) {
     @BeforeEach
     fun init() {
         mongoTemplate.dropCollection(DocSubmission::class.java)
         mongoTemplate.dropCollection(SubmissionRequest::class.java)
-        mongoTemplate.dropCollection("mongockLock")
-        mongoTemplate.dropCollection("mongockChangeLog")
+        mongoTemplate.dropCollection(CHANGE_LOG_COLLECTION)
+        mongoTemplate.dropCollection(CHANGE_LOG_LOCK)
     }
 
     @Test
@@ -63,24 +63,24 @@ internal class DatabaseChangeLogTest(
 
     @Test
     fun `create schema migration 001 when already exists`() {
-        mongoTemplate.createCollection(DocSubmission::class.java)
-        mongoTemplate.createCollection(SubmissionRequest::class.java)
+        mongoTemplate.createCollection<DocSubmission>()
+        mongoTemplate.createCollection<SubmissionRequest>()
 
         mongoTemplate.insert(testDocSubmission.copy(accNo = "accNo1"))
         mongoTemplate.insert(testDocSubmission.copy(accNo = "accNo2"))
         mongoTemplate.insert(request.copy(accNo = "accNo1"))
         mongoTemplate.insert(request.copy(accNo = "accNo2"))
 
-        val numberOfSubmissions = mongoTemplate.findAll(DocSubmission::class.java).size
-        val numberOfRequests = mongoTemplate.findAll(SubmissionRequest::class.java).size
+        val submissions = mongoTemplate.findAll(DocSubmission::class.java)
+        val requests = mongoTemplate.findAll(SubmissionRequest::class.java)
 
         runMigrations()
 
         val submissionCollection = mongoTemplate.getCollectionName(DocSubmission::class.java)
         val requestCollection = mongoTemplate.getCollectionName(SubmissionRequest::class.java)
 
-        assertThat(mongoTemplate.findAll(DocSubmission::class.java).size).isEqualTo(numberOfSubmissions)
-        assertThat(mongoTemplate.findAll(SubmissionRequest::class.java).size).isEqualTo(numberOfRequests)
+        assertThat(mongoTemplate.findAll(DocSubmission::class.java)).isEqualTo(submissions)
+        assertThat(mongoTemplate.findAll(SubmissionRequest::class.java)).isEqualTo(requests)
         assertSubmissionCollection(submissionCollection)
         assertRequestCollection(requestCollection)
     }
@@ -117,12 +117,11 @@ internal class DatabaseChangeLogTest(
     }
 
     private fun runMigrations() {
-        MongockSpring5.builder()
-                .setDriver(SpringDataMongo3Driver.withDefaultLock(mongoTemplate))
-                .addChangeLogsScanPackage("ac.uk.ebi.biostd.persistence.doc.migrations")
-                .setSpringContext(springContext)
-                .buildApplicationRunner().run(DefaultApplicationArguments())
+        val runner = createMongockConfig(mongoTemplate, springContext, "ac.uk.ebi.biostd.persistence.doc.migrations")
+        runner.run(DefaultApplicationArguments())
     }
+
+    private val request = SubmissionRequest(accNo = "accNo", version = 1, submission = BasicDBObject.parse("{}"))
 
     companion object {
         @Container
@@ -137,6 +136,5 @@ internal class DatabaseChangeLogTest(
             register.add("app.mongo.execute-migrations") { "false" }
             register.add("app.mongo.migration-package") { "ac.uk.ebi.biostd.persistence.doc.migrations" }
         }
-        private val request = SubmissionRequest(accNo = "accNo", version = 1, submission = BasicDBObject.parse("{}"))
     }
 }

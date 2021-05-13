@@ -45,9 +45,9 @@ dependencies {
     api(project(SubmissionPersistenceCommon))
 
     implementation(SpringBootStarterMongo)
-    implementation("com.github.cloudyrock.mongock:mongock-bom:4.1.19")
-    implementation("com.github.cloudyrock.mongock:mongock-spring-v5:4.1.19")
-    implementation("com.github.cloudyrock.mongock:mongodb-springdata-v3-driver:4.1.19")
+    implementation("com.github.cloudyrock.mongock:mongock-bom:4.3.8")
+    implementation("com.github.cloudyrock.mongock:mongock-spring-v5:4.3.8")
+    implementation("com.github.cloudyrock.mongock:mongodb-springdata-v3-driver:4.3.8")
     implementation(Arrow)
     implementation(Guava)
     implementation(CommonsLang3)
