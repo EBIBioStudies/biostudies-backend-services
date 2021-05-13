@@ -18,7 +18,9 @@ import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocSubmission
 import ac.uk.ebi.biostd.persistence.exception.SubmissionNotFoundException
 import com.mongodb.BasicDBObject
 import ebi.ac.uk.db.MONGO_VERSION
+import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.model.constants.ProcessingStatus
 import ebi.ac.uk.util.collections.second
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
@@ -40,6 +42,7 @@ import org.testcontainers.utility.DockerImageName
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
+import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus.PROCESSED as REQUEST_PROCESSED
 
 @ExtendWith(MockKExtension::class, SpringExtension::class)
 @Testcontainers
@@ -194,6 +197,7 @@ internal class SubmissionMongoQueryServiceTest(
                 accNo = "accNo1",
                 version = 1,
                 title = "title",
+                status = ExtProcessingStatus.REQUESTED,
                 section = section.copy(type = "type1"),
                 released = false,
                 releaseTime = OffsetDateTime.of(2020, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC)
@@ -222,16 +226,21 @@ internal class SubmissionMongoQueryServiceTest(
             )
 
             assertThat(result).hasSize(2)
-            assertThat(result.first().accNo).isEqualTo("accNo1")
-            assertThat(result.first().version).isEqualTo(1)
-            assertThat(result.first().title).isEqualTo("title")
-            assertThat(result.first().releaseTime).isEqualTo(OffsetDateTime.of(2020, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC))
-            assertThat(result.first().released).isEqualTo(false)
-            assertThat(result.second().accNo).isEqualTo("accNo1")
-            assertThat(result.second().version).isEqualTo(1)
-            assertThat(result.second().title).isEqualTo("title")
-            assertThat(result.second().releaseTime).isEqualTo(OffsetDateTime.of(2020, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC))
-            assertThat(result.second().released).isEqualTo(false)
+            val request = result.first()
+            assertThat(request.accNo).isEqualTo("accNo1")
+            assertThat(request.version).isEqualTo(1)
+            assertThat(request.title).isEqualTo("title")
+            assertThat(request.releaseTime).isEqualTo(OffsetDateTime.of(2020, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC))
+            assertThat(request.released).isEqualTo(false)
+            assertThat(request.status).isEqualTo(ProcessingStatus.REQUESTED)
+
+            val submission = result.second()
+            assertThat(submission.accNo).isEqualTo("accNo1")
+            assertThat(submission.version).isEqualTo(1)
+            assertThat(submission.title).isEqualTo("title")
+            assertThat(submission.releaseTime).isEqualTo(OffsetDateTime.of(2020, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC))
+            assertThat(submission.released).isEqualTo(false)
+            assertThat(submission.status).isEqualTo(ProcessingStatus.PROCESSED)
         }
 
         @Test
@@ -252,8 +261,11 @@ internal class SubmissionMongoQueryServiceTest(
         @Test
         fun `get only requests with status REQUESTED`() {
             saveAsRequest(fullExtSubmission.copy(accNo = "accNo1", title = "one", section = section), REQUESTED)
-            saveAsRequest(fullExtSubmission.copy(accNo = "accNo1", title = "two", section = section), SubmissionRequestStatus.PROCESSED)
-            saveAsRequest(fullExtSubmission.copy(accNo = "accNo1", title = "three", section = section), SubmissionRequestStatus.PROCESSED)
+            saveAsRequest(fullExtSubmission.copy(accNo = "accNo1", title = "two", section = section), REQUEST_PROCESSED)
+            saveAsRequest(
+                fullExtSubmission.copy(accNo = "accNo1", title = "three", section = section),
+                REQUEST_PROCESSED
+            )
 
             val result = testInstance.getSubmissionsByUser(
                 SUBMISSION_OWNER,
