@@ -29,6 +29,7 @@ import ac.uk.ebi.biostd.persistence.model.Sequence
 import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.SubmissionDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.TagDataRepository
+import ebi.ac.uk.test.createFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.junit.jupiter.api.BeforeAll
@@ -128,7 +129,7 @@ internal class SubmissionRefreshApiTest(private val tempFolder: TemporaryFolder)
         }
 
         private fun setUpTestSubmission() {
-            val refreshFile = tempFolder.createFile(TEST_FILE_NAME)
+            val refreshFile = tempFolder.createFile(TEST_FILE_NAME, "file content")
             webClient.submitSingle(testSubmission, TSV, listOf(refreshFile))
 
             assertExtSubmission(
