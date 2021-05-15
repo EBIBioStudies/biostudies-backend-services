@@ -59,6 +59,7 @@ internal class MigrateCommandTest(
 
         val request = requestSlot.captured
         assertRequest(request)
+        assertThat(request.targetOwner).isEqualTo("Juan")
         verify(exactly = 1) { submissionService.migrate(request) }
     }
 
@@ -70,6 +71,5 @@ internal class MigrateCommandTest(
         assertThat(request.target).isEqualTo("http://biostudy-bia.ebi.ac.uk")
         assertThat(request.targetUser).isEqualTo("admin_user@ebi.ac.uk")
         assertThat(request.targetPassword).isEqualTo("78910")
-        assertThat(request.targetOwner).isEqualTo("Juan")
     }
 }

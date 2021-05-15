@@ -39,12 +39,14 @@ internal class SubmissionService {
     private fun migratedSubmissions(submission: ExtSubmission, targetOwner: String?) =
         if (targetOwner == null) submission else submission.copy(owner = targetOwner)
 
-    private inline fun <T> performRequest(request: () -> T) =
-        runCatching { request() }
-            .getOrElse { throw PrintMessage(ExceptionUtils.getMessage(it)) }
+    companion object {
+        private inline fun <T> performRequest(request: () -> T) =
+            runCatching { request() }
+                .getOrElse { throw PrintMessage(ExceptionUtils.getMessage(it)) }
 
-    private fun bioWebClient(server: String, user: String, password: String) =
-        SecurityWebClient
-            .create(server)
-            .getAuthenticatedClient(user, password)
+        private fun bioWebClient(server: String, user: String, password: String) =
+            SecurityWebClient
+                .create(server)
+                .getAuthenticatedClient(user, password)
+    }
 }

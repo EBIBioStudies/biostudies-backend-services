@@ -13,6 +13,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_VERSION
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequest
+import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus.REQUESTED
 import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocSubmission
 import com.mongodb.BasicDBObject
 import ebi.ac.uk.db.MONGO_VERSION
@@ -25,12 +26,12 @@ import org.springframework.boot.DefaultApplicationArguments
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.ApplicationContext
 import org.springframework.data.domain.Sort.Direction.ASC
-import org.springframework.data.mongodb.core.collectionExists
-import org.springframework.data.mongodb.core.getCollectionName
 import org.springframework.data.mongodb.core.MongoTemplate
+import org.springframework.data.mongodb.core.collectionExists
 import org.springframework.data.mongodb.core.createCollection
 import org.springframework.data.mongodb.core.dropCollection
 import org.springframework.data.mongodb.core.findAll
+import org.springframework.data.mongodb.core.getCollectionName
 import org.springframework.data.mongodb.core.index.Index
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
@@ -122,7 +123,8 @@ internal class DatabaseChangeLogTest(
         runner.run(DefaultApplicationArguments())
     }
 
-    private val request = SubmissionRequest(accNo = "accNo", version = 1, submission = BasicDBObject.parse("{}"))
+    private val request =
+        SubmissionRequest(accNo = "accNo", version = 1, status = REQUESTED, submission = BasicDBObject.parse("{}"))
 
     companion object {
         @Container
