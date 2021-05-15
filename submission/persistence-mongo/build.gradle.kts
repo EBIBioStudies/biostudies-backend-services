@@ -5,6 +5,9 @@ import Dependencies.Guava
 import Dependencies.JSONOrg
 import Dependencies.KotlinLogging
 import Dependencies.KotlinStdLib
+import Dependencies.MongockBom
+import Dependencies.MongockSpringDataV3
+import Dependencies.MongockSpringV5
 import Projects.CommonsBio
 import Projects.CommonsModelExtended
 import Projects.CommonsModelExtendedMapping
@@ -45,6 +48,9 @@ dependencies {
     api(project(SubmissionPersistenceCommon))
 
     implementation(SpringBootStarterMongo)
+    implementation(MongockBom)
+    implementation(MongockSpringV5)
+    implementation(MongockSpringDataV3)
     implementation(Arrow)
     implementation(Guava)
     implementation(CommonsLang3)
