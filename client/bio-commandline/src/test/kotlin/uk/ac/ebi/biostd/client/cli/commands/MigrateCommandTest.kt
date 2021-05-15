@@ -12,25 +12,50 @@ import uk.ac.ebi.biostd.client.cli.dto.MigrationRequest
 import uk.ac.ebi.biostd.client.cli.services.SubmissionService
 
 @ExtendWith(MockKExtension::class)
-class MigrateCommandTest(
+internal class MigrateCommandTest(
     @MockK private val submissionService: SubmissionService
 ) {
     private val testInstance = MigrateCommand(submissionService)
 
     @Test
-    fun run() {
+    fun whenNoTargetOwner() {
         val requestSlot = slot<MigrationRequest>()
         every { submissionService.migrate(capture(requestSlot)) } answers { nothing }
 
-        testInstance.parse(listOf(
-            "-ac", "S-BSST1",
-            "-s", "http://biostudy-prod.ebi.ac.uk",
-            "-su", "admin_user@ebi.ac.uk",
-            "-sp", "123456",
-            "-t", "http://biostudy-bia.ebi.ac.uk",
-            "-tu", "admin_user@ebi.ac.uk",
-            "-tp", "78910"
-        ))
+        testInstance.parse(
+            listOf(
+                "-ac", "S-BSST1",
+                "-s", "http://biostudy-prod.ebi.ac.uk",
+                "-su", "admin_user@ebi.ac.uk",
+                "-sp", "123456",
+                "-t", "http://biostudy-bia.ebi.ac.uk",
+                "-tu", "admin_user@ebi.ac.uk",
+                "-tp", "78910"
+            )
+        )
+
+        val request = requestSlot.captured
+        assertRequest(request)
+        verify(exactly = 1) { submissionService.migrate(request) }
+    }
+
+    @Test
+    fun whenTargetOwner() {
+        val requestSlot = slot<MigrationRequest>()
+        every { submissionService.migrate(capture(requestSlot)) } answers { nothing }
+
+        testInstance.parse(
+            listOf(
+                "-ac", "S-BSST1",
+                "-s", "http://biostudy-prod.ebi.ac.uk",
+                "-su", "admin_user@ebi.ac.uk",
+                "-sp", "123456",
+                "-t", "http://biostudy-bia.ebi.ac.uk",
+                "-tu", "admin_user@ebi.ac.uk",
+                "-tp", "78910",
+                "-to", "Juan"
+            )
+        )
 
         val request = requestSlot.captured
         assertRequest(request)
@@ -45,5 +70,6 @@ class MigrateCommandTest(
         assertThat(request.target).isEqualTo("http://biostudy-bia.ebi.ac.uk")
         assertThat(request.targetUser).isEqualTo("admin_user@ebi.ac.uk")
         assertThat(request.targetPassword).isEqualTo("78910")
+        assertThat(request.targetOwner).isEqualTo("Juan")
     }
 }

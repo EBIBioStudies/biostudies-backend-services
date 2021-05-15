@@ -13,7 +13,10 @@ import uk.ac.ebi.biostd.client.cli.common.MigrationParameters.TARGET_USER
 import uk.ac.ebi.biostd.client.cli.dto.MigrationRequest
 import uk.ac.ebi.biostd.client.cli.services.SubmissionService
 
-class MigrateCommand(private val submissionService: SubmissionService) : CliktCommand(name = "migrate") {
+/**
+ * Helps to migrate a submission from one environment into another.
+ */
+internal class MigrateCommand(private val submissionService: SubmissionService) : CliktCommand(name = "migrate") {
     private val accNo by option("-ac", "--accNo", help = ACC_NO).required()
     private val source by option("-s", "--source", help = SOURCE).required()
     private val sourceUser by option("-su", "--sourceUser", help = SOURCE_USER).required()
@@ -21,11 +24,23 @@ class MigrateCommand(private val submissionService: SubmissionService) : CliktCo
     private val target by option("-t", "--target", help = TARGET).required()
     private val targetUser by option("-tu", "--targetUser", help = TARGET_USER).required()
     private val targetPassword by option("-tp", "--targetPassword", help = TARGET_PASSWORD).required()
+    private val targetOwner by option("-to", "--targetOwner", help = TARGET_PASSWORD)
 
     override fun run() {
-        val request = MigrationRequest(accNo, source, sourceUser, sourcePassword, target, targetUser, targetPassword)
-        submissionService.migrate(request)
-
+        submissionService.migrate(migrationRequest())
         echo("SUCCESS: Submission with AccNo '$accNo' was migrated from $source to $target")
+    }
+
+    private fun migrationRequest(): MigrationRequest {
+        return MigrationRequest(
+            accNo,
+            source,
+            sourceUser,
+            sourcePassword,
+            target,
+            targetUser,
+            targetPassword,
+            targetOwner
+        )
     }
 }
