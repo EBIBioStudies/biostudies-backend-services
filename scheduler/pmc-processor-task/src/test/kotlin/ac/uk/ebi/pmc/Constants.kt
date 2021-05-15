@@ -82,7 +82,7 @@ val prcoessedSubmissionBody = jsonObj {
 }
 
 internal val docSubmission = SubmissionDoc(
-    accno = "S-123SUCCESS",
+    accNo = "S-123SUCCESS",
     body = submissionBody.toString(),
     status = LOADED,
     sourceFile = "sourceFile1",
@@ -93,7 +93,7 @@ internal val docSubmission = SubmissionDoc(
 )
 
 internal val invalidFileSubmission = SubmissionDoc(
-    accno = "S-EPMC8901234",
+    accNo = "S-EPMC8901234",
     body = invalidFileSubmissionBody.toString(),
     status = LOADED,
     sourceFile = "sourceFile2",
@@ -104,7 +104,7 @@ internal val invalidFileSubmission = SubmissionDoc(
 )
 
 internal val processedSubmission = SubmissionDoc(
-    accno = "S-EPMC1234567",
+    accNo = "S-EPMC1234567",
     body = prcoessedSubmissionBody.toString(),
     status = PROCESSED,
     sourceFile = "sourceFile1",

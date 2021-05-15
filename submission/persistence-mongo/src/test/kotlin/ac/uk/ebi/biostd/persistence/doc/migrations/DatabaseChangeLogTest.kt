@@ -13,6 +13,8 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_VERSION
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequest
+import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus
+import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus.REQUESTED
 import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocSubmission
 import com.mongodb.BasicDBObject
 import ebi.ac.uk.db.MONGO_VERSION
@@ -86,7 +88,7 @@ internal class DatabaseChangeLogTest(
 
     private fun assertSubmissionCollection() {
         val submissionCollection = mongoTemplate.getCollectionName<DocSubmission>()
-        val submissionIndexes = mongoTemplate.getCollection(submissionCollection).listIndexes().map { it["key"] }
+        val submissionIndexes = mongoTemplate.getCollection(submissionCollection).listIndexes().map { it["key"]!! }
 
         assertThat(mongoTemplate.collectionExists<DocSubmission>()).isTrue()
         assertThat(mongoTemplate.getCollection(submissionCollection).listIndexes()).hasSize(7)
@@ -102,7 +104,7 @@ internal class DatabaseChangeLogTest(
 
     private fun assertRequestCollection() {
         val requestCollection = mongoTemplate.getCollectionName<SubmissionRequest>()
-        val requestIndexes = mongoTemplate.getCollection(requestCollection).listIndexes().map { it["key"] }
+        val requestIndexes = mongoTemplate.getCollection(requestCollection).listIndexes().map { it["key"]!! }
 
         assertThat(mongoTemplate.collectionExists<SubmissionRequest>()).isTrue()
         assertThat(mongoTemplate.getCollection(requestCollection).listIndexes()).hasSize(8)
@@ -122,7 +124,7 @@ internal class DatabaseChangeLogTest(
         runner.run(DefaultApplicationArguments())
     }
 
-    private val request = SubmissionRequest(accNo = "accNo", version = 1, submission = BasicDBObject.parse("{}"))
+    private val request = SubmissionRequest(accNo = "accNo", version = 1, status = REQUESTED,submission = BasicDBObject.parse("{}"))
 
     companion object {
         @Container

@@ -7,7 +7,7 @@ import java.time.Instant
 
 @Suppress("VariableNaming")
 data class SubmissionDoc(
-    val accno: String,
+    val accNo: String,
     var body: String,
     var status: SubmissionStatus,
     val sourceFile: String,
@@ -31,7 +31,7 @@ data class SubmissionDoc(
     }
 
     fun asInsertOrExpire(): Bson = Updates.combine(
-        Updates.setOnInsert(Fields.accNo, accno),
+        Updates.setOnInsert(Fields.accNo, accNo),
         Updates.setOnInsert(Fields.body, body),
         Updates.setOnInsert(Fields.sourceFile, sourceFile),
         Updates.setOnInsert(Fields.posInFile, posInFile),
@@ -42,7 +42,7 @@ data class SubmissionDoc(
     )
 
     companion object Fields {
-        const val accNo = "accno"
+        const val accNo = "accNo"
         const val body = "body"
         const val status = "status"
         const val sourceFile = "sourceFile"

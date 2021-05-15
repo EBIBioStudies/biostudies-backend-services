@@ -28,7 +28,7 @@ class SubmissionRepository(private val submissions: MongoCollection<SubmissionDo
     suspend fun insertOrExpire(submission: SubmissionDoc) {
         val latest = getLatest(submission)
         submissions.updateMany(
-            expireSubmissions(latest.accno, latest.sourceTime, latest.posInFile),
+            expireSubmissions(latest.accNo, latest.sourceTime, latest.posInFile),
             setValue(SubmissionDoc::status, SubmissionStatus.DISCARDED)
         ).awaitSingle()
     }
@@ -37,7 +37,7 @@ class SubmissionRepository(private val submissions: MongoCollection<SubmissionDo
 
     private suspend fun getLatest(submission: SubmissionDoc): SubmissionDoc =
         submissions.findOneAndUpdate(
-            latest(submission.accno, submission.sourceTime, submission.posInFile),
+            latest(submission.accNo, submission.sourceTime, submission.posInFile),
             submission.asInsertOrExpire(),
             FindOneAndUpdateOptions().upsert(true).returnDocument(ReturnDocument.AFTER)
         ).awaitFirst()

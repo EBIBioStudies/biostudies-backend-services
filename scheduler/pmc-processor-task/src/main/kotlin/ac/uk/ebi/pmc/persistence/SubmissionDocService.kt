@@ -54,13 +54,13 @@ class SubmissionDocService(
         submission.files = saveFiles(files, submission)
         submissionRepository.update(submission.withStatus(PROCESSED))
         logger.info {
-            "finish processing submission with accNo = '${submission.accno}' from file ${submission.sourceFile}"
+            "finish processing submission with accNo = '${submission.accNo}' from file ${submission.sourceFile}"
         }
     }
 
     private suspend fun saveFiles(files: List<File>, submission: SubmissionDoc): List<ObjectId> = coroutineScope {
         return@coroutineScope files
-            .map { async { fileRepository.saveFile(it, submission.accno) } }
+            .map { async { fileRepository.saveFile(it, submission.accNo) } }
             .awaitAll()
     }
 
