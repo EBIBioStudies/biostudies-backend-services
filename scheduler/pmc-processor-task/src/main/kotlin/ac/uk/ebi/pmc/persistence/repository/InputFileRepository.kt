@@ -2,18 +2,14 @@ package ac.uk.ebi.pmc.persistence.repository
 
 import ac.uk.ebi.pmc.load.FileSpec
 import ac.uk.ebi.pmc.persistence.docs.InputFileDoc
-import arrow.core.toOption
-import com.mongodb.async.client.MongoCollection
-import com.mongodb.client.model.Filters
-import org.litote.kmongo.coroutine.findOne
-import org.litote.kmongo.coroutine.insertOne
+import com.mongodb.reactivestreams.client.MongoCollection
+import com.mongodb.reactivestreams.client.Success
+import kotlinx.coroutines.reactive.awaitFirst
 import org.litote.kmongo.coroutine.toList
 
 class InputFileRepository(private val collection: MongoCollection<InputFileDoc>) {
 
-    suspend fun save(fileDoc: FileSpec) = collection.insertOne(InputFileDoc(fileDoc.name))
+    suspend fun save(fileDoc: FileSpec): Success = collection.insertOne(InputFileDoc(fileDoc.name)).awaitFirst()
 
-    suspend fun find(file: FileSpec) = collection.findOne(Filters.eq(InputFileDoc.name, file.name)).toOption()
-
-    suspend fun findAll() = collection.find().toList()
+    suspend fun findAll(): List<InputFileDoc> = collection.find().toList()
 }

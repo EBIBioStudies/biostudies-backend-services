@@ -12,8 +12,8 @@ import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
 
 plugins {
-    id("org.jetbrains.kotlin.plugin.jpa") version "1.3.72"
-    id("org.jetbrains.kotlin.plugin.allopen") version "1.3.72"
+    id("org.jetbrains.kotlin.plugin.jpa") version "1.4.32"
+    id("org.jetbrains.kotlin.plugin.allopen") version "1.4.32"
 }
 
 allOpen {

@@ -8,8 +8,8 @@ import ac.uk.ebi.pmc.persistence.repository.SubmissionRepository
 import ac.uk.ebi.scheduler.properties.PmcImporterProperties
 import com.mongodb.ConnectionString
 import com.mongodb.MongoClientSettings
-import com.mongodb.async.client.MongoClient
-import org.litote.kmongo.async.KMongo
+import com.mongodb.reactivestreams.client.MongoClient
+import org.litote.kmongo.reactivestreams.KMongo
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 

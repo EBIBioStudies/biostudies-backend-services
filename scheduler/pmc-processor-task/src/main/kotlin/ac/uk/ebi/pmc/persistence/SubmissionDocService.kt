@@ -27,7 +27,6 @@ class SubmissionDocService(
     private val fileRepository: SubFileRepository,
     private val serializationService: SerializationService
 ) {
-
     suspend fun findReadyToProcess() =
         SuspendSequence { submissionRepository.findAndUpdate(LOADED, PROCESSING) }
 

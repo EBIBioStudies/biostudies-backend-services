@@ -1,7 +1,7 @@
 import Dependencies.Arrow
 import Dependencies.CommonsIO
 import Dependencies.CommonsLang3
-import Dependencies.Coroutines
+import Dependencies.KMongoAsync
 import Dependencies.KMongoCoroutine
 import Dependencies.KotlinLogging
 import Dependencies.OkHttpLogging
@@ -19,7 +19,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.springframework.boot.gradle.tasks.bundling.BootJar
 
 plugins {
-    id("org.jetbrains.kotlin.plugin.spring") version "1.3.72"
+    id("org.jetbrains.kotlin.plugin.spring") version "1.4.32"
     id("io.spring.dependency-management") version "1.0.6.RELEASE"
     id("org.springframework.boot") version "2.2.6.RELEASE"
 }
@@ -34,8 +34,8 @@ dependencies {
     implementation(Arrow)
     implementation(CommonsIO)
     implementation(CommonsLang3)
-    implementation(Coroutines)
     implementation(KMongoCoroutine)
+    implementation(KMongoAsync)
     implementation(KotlinLogging)
     implementation(Retrofit2)
     implementation(OkHttpLogging)
