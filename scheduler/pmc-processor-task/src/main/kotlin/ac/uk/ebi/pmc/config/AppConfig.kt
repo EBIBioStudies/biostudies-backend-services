@@ -32,7 +32,8 @@ import org.springframework.context.annotation.Import
         WebConfig::class,
         LoaderConfig::class,
         ProcessorConfig::class,
-        SubmitterConfig::class]
+        SubmitterConfig::class
+    ]
 )
 @EnableConfigurationProperties
 class AppConfig {

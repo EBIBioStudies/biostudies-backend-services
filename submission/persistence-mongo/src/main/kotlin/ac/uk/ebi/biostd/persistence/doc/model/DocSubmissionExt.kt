@@ -23,7 +23,8 @@ fun DocSubmission.asBasicSubmission(): BasicSubmission {
         releaseTime = releaseTime?.atOffset(ZoneOffset.UTC),
         status = status.toProcessingStatus(),
         method = method.toSubmissionMethod(),
-        owner = owner)
+        owner = owner
+    )
 }
 
 private fun DocProcessingStatus.toProcessingStatus(): ProcessingStatus =

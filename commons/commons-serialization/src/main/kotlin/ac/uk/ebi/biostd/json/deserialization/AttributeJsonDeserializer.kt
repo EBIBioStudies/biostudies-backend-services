@@ -29,6 +29,7 @@ internal class AttributeJsonDeserializer : StdDeserializer<Attribute>(Attribute:
             value = value,
             reference = node.get(REFERENCE)?.asBoolean().orFalse(),
             valueAttrs = mapper.convertList(node.get(VAL_ATTRIBUTES)),
-            nameAttrs = mapper.convertList(node.get(NAME_ATTRIBUTES)))
+            nameAttrs = mapper.convertList(node.get(NAME_ATTRIBUTES))
+        )
     }
 }

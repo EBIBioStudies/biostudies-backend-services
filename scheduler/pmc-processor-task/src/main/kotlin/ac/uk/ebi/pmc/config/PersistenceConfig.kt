@@ -27,7 +27,8 @@ class PersistenceConfig(val properties: PmcImporterProperties) {
             MongoClientSettings
                 .builder()
                 .applyConnectionString(ConnectionString(properties.mongodbUri))
-                .build())
+                .build()
+        )
     }
 
     @Bean

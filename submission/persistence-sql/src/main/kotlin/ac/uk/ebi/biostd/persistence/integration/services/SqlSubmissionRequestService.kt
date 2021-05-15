@@ -36,6 +36,7 @@ internal open class SqlSubmissionRequestService(
     @Transactional
     override fun refreshSubmission(submission: ExtSubmission) {
         saveAndProcessSubmissionRequest(
-            SaveSubmissionRequest(submission.copy(version = submission.version + 1), FileMode.MOVE))
+            SaveSubmissionRequest(submission.copy(version = submission.version + 1), FileMode.MOVE)
+        )
     }
 }

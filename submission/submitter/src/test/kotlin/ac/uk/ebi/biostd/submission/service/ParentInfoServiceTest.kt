@@ -79,7 +79,8 @@ class ParentInfoServiceTest(
     ) {
         val submission = basicExtSubmission.copy(
             section = ExtSection(type = "Project"),
-            collections = listOf(ExtCollection("ArrayExpress")))
+            collections = listOf(ExtCollection("ArrayExpress"))
+        )
 
         testInstance.executeCollectionValidators(submission)
 

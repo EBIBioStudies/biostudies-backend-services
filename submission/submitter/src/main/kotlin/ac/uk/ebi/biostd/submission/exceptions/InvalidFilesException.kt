@@ -10,5 +10,6 @@ class InvalidFilesException(private val invalidFiles: List<File>) : RuntimeExcep
     override val message: String
         get() = invalidFiles.joinToString(
             prefix = (if (invalidFiles.size == 1) "File" else "Files").plus(" not uploaded: "),
-            separator = ", ") { it.path }
+            separator = ", "
+        ) { it.path }
 }

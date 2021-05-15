@@ -56,7 +56,8 @@ internal class FireClient(
         }
         val formData = listOf(
             FIRE_FILE_PARAM to FileSystemResource(file),
-            FIRE_META_PARAM to metadata.toList().asRequestParameter())
+            FIRE_META_PARAM to metadata.toList().asRequestParameter()
+        )
         val body = LinkedMultiValueMap(formData.groupBy({ it.first }, { it.second }))
 
         return template.postForObject(FIRE_OBJECTS_URL, HttpEntity(body, headers))

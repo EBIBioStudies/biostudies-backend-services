@@ -25,7 +25,8 @@ class AttributeXmlDeserializerTest {
                     "name" { -"valDetail" }
                     "value" { -"val detail 1" }
                 }
-            }.toString())
+            }.toString()
+        )
 
         assertThat(testInstance.deserialize(xmlAttribute)).isEqualTo(
             Attribute(
@@ -33,7 +34,9 @@ class AttributeXmlDeserializerTest {
                 value = "value1",
                 reference = false,
                 nameAttrs = mutableListOf(AttributeDetail("nameDetail", "name detail 1")),
-                valueAttrs = mutableListOf(AttributeDetail("valDetail", "val detail 1"))))
+                valueAttrs = mutableListOf(AttributeDetail("valDetail", "val detail 1"))
+            )
+        )
     }
 
     @Test
@@ -41,7 +44,8 @@ class AttributeXmlDeserializerTest {
         val xmlAttribute = createXmlDocument(
             xml("attribute") {
                 "name" { -"attr1" }
-            }.toString())
+            }.toString()
+        )
 
         assertThat(testInstance.deserialize(xmlAttribute)).isEqualTo(
             Attribute(
@@ -49,7 +53,9 @@ class AttributeXmlDeserializerTest {
                 value = "",
                 reference = false,
                 nameAttrs = mutableListOf(),
-                valueAttrs = mutableListOf()))
+                valueAttrs = mutableListOf()
+            )
+        )
     }
 
     @Test
@@ -59,7 +65,8 @@ class AttributeXmlDeserializerTest {
                 attribute("reference", true)
                 "name" { -"Organization" }
                 "value" { -"Org1" }
-            }.toString())
+            }.toString()
+        )
 
         assertThat(testInstance.deserialize(xmlAttribute)).isEqualTo(Attribute("Organization", "Org1", true))
     }

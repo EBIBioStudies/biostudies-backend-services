@@ -57,9 +57,9 @@ class DbReferencedFile(
 
     constructor(name: String, order: Int, size: Long, attributes: SortedSet<DbReferencedFileAttribute>) :
         this(name, order) {
-        this.size = size
-        this.attributes = attributes
-    }
+            this.size = size
+            this.attributes = attributes
+        }
 
     override fun compareTo(other: DbReferencedFile) = this.order.compareTo(other.order)
 }

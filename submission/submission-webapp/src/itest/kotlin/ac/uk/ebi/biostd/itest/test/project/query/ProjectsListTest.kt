@@ -95,10 +95,13 @@ internal class ProjectsListTest(tempFolder: TemporaryFolder) : BaseIntegrationTe
             assertThat(superUserWebClient.submitSingle(sampleProject, TSV)).isSuccessful()
             assertThat(superUserWebClient.submitSingle(defaultProject, TSV)).isSuccessful()
 
-            accessPermissionRepository.save(DbAccessPermission(
-                user = userDataRepository.findByEmailAndActive(DefaultUser.email, true).get(),
-                accessTag = tagsDataRepository.findByName("DefaultProject"),
-                accessType = ATTACH))
+            accessPermissionRepository.save(
+                DbAccessPermission(
+                    user = userDataRepository.findByEmailAndActive(DefaultUser.email, true).get(),
+                    accessTag = tagsDataRepository.findByName("DefaultProject"),
+                    accessType = ATTACH
+                )
+            )
         }
     }
 }

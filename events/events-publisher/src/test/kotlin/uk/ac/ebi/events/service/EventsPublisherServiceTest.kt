@@ -91,7 +91,8 @@ class EventsPublisherServiceTest(
         every { eventsProperties.instanceBaseUrl } returns "http://biostudies:8788"
         every {
             rabbitTemplate.convertAndSend(
-                BIOSTUDIES_EXCHANGE, SUBMISSIONS_RELEASE_ROUTING_KEY, capture(notificationSlot))
+                BIOSTUDIES_EXCHANGE, SUBMISSIONS_RELEASE_ROUTING_KEY, capture(notificationSlot)
+            )
         } answers { nothing }
 
         testInstance.submissionReleased(submission)

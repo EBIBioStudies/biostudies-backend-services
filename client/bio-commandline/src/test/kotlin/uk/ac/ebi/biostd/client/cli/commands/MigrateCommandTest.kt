@@ -22,15 +22,17 @@ class MigrateCommandTest(
         val requestSlot = slot<MigrationRequest>()
         every { submissionService.migrate(capture(requestSlot)) } answers { nothing }
 
-        testInstance.parse(listOf(
-            "-ac", "S-BSST1",
-            "-s", "http://biostudy-prod.ebi.ac.uk",
-            "-su", "admin_user@ebi.ac.uk",
-            "-sp", "123456",
-            "-t", "http://biostudy-bia.ebi.ac.uk",
-            "-tu", "admin_user@ebi.ac.uk",
-            "-tp", "78910"
-        ))
+        testInstance.parse(
+            listOf(
+                "-ac", "S-BSST1",
+                "-s", "http://biostudy-prod.ebi.ac.uk",
+                "-su", "admin_user@ebi.ac.uk",
+                "-sp", "123456",
+                "-t", "http://biostudy-bia.ebi.ac.uk",
+                "-tu", "admin_user@ebi.ac.uk",
+                "-tp", "78910"
+            )
+        )
 
         val request = requestSlot.captured
         assertRequest(request)

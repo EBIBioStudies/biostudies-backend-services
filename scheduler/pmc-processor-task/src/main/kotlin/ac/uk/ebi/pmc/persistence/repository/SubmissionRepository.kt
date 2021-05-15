@@ -14,7 +14,6 @@ import com.mongodb.client.model.Updates.combine
 import com.mongodb.client.model.Updates.set
 import com.mongodb.client.result.UpdateResult
 import com.mongodb.reactivestreams.client.MongoCollection
-import com.mongodb.reactivestreams.client.Success
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactive.awaitFirst
@@ -70,5 +69,7 @@ class SubmissionRepository(private val submissions: MongoCollection<SubmissionDo
             )
         )
 
-    suspend fun deleteAll(): Success = submissions.drop().awaitSingle()
+    suspend fun deleteAll() {
+        submissions.drop().awaitFirstOrNull()
+    }
 }

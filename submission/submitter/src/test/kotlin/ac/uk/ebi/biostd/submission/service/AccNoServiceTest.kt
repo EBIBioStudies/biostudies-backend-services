@@ -44,7 +44,8 @@ class AccNoServiceTest(
         "S-DIXA-011, S-DIXA-/011/S-DIXA-011",
         "1-AAA, 1-AAA/000/1-AAA",
         "S-SCDT-EMBOJ-2019-103549, S-SCDT-EMBOJ-2019-/549/S-SCDT-EMBOJ-2019-103549",
-        "S-SCDT-EMBOR-2017-44445V1, S-SCDT-EMBOR-2017-44445V/001/S-SCDT-EMBOR-2017-44445V1")
+        "S-SCDT-EMBOR-2017-44445V1, S-SCDT-EMBOR-2017-44445V/001/S-SCDT-EMBOR-2017-44445V1"
+    )
     fun getRelPath(value: String, expected: String) {
         assertThat(testInstance.getRelPath(accNoPatternUtil.toAccNumber(value))).isEqualTo(expected)
     }
@@ -84,8 +85,11 @@ class AccNoServiceTest(
                 every { privilegesService.canProvideAccNo(SUBMITTER) } returns true
                 every { privilegesService.canSubmitToProject(SUBMITTER, PROJECT) } returns true
 
-                assertThat(testInstance.calculateAccNo(
-                    AccNoServiceRequest(submitter = SUBMITTER, accNo = ACC_NO, project = PROJECT)))
+                assertThat(
+                    testInstance.calculateAccNo(
+                        AccNoServiceRequest(submitter = SUBMITTER, accNo = ACC_NO, project = PROJECT)
+                    )
+                )
                     .isEqualTo(ACC_NUM)
             }
         }
@@ -97,10 +101,15 @@ class AccNoServiceTest(
                 every { privilegesService.canSubmitToProject(SUBMITTER, PROJECT) } returns true
                 every { service.getSequenceNextValue("ABC-") } returns 10
 
-                assertThat(testInstance.calculateAccNo(AccNoServiceRequest(
-                    submitter = SUBMITTER,
-                    project = PROJECT,
-                    projectPattern = PROJECT_PATTERN)))
+                assertThat(
+                    testInstance.calculateAccNo(
+                        AccNoServiceRequest(
+                            submitter = SUBMITTER,
+                            project = PROJECT,
+                            projectPattern = PROJECT_PATTERN
+                        )
+                    )
+                )
                     .isEqualTo(AccNumber("ABC-", "10"))
             }
 
@@ -110,9 +119,14 @@ class AccNoServiceTest(
                 every { privilegesService.canSubmitToProject(SUBMITTER, PROJECT) } returns true
                 every { service.getSequenceNextValue("S-BSST") } returns 99
 
-                assertThat(testInstance.calculateAccNo(AccNoServiceRequest(
-                    submitter = SUBMITTER,
-                    project = PROJECT)))
+                assertThat(
+                    testInstance.calculateAccNo(
+                        AccNoServiceRequest(
+                            submitter = SUBMITTER,
+                            project = PROJECT
+                        )
+                    )
+                )
                     .isEqualTo(AccNumber("S-BSST", "99"))
             }
         }
@@ -172,7 +186,8 @@ class AccNoServiceTest(
             val error = assertThrows<UserCanNotUpdateSubmit> { testInstance.calculateAccNo(request) }
 
             assertThat(error.message).isEqualTo(
-                "The user {submiter@email.com} is not allowed to update the submission AAB12")
+                "The user {submiter@email.com} is not allowed to update the submission AAB12"
+            )
         }
     }
 }

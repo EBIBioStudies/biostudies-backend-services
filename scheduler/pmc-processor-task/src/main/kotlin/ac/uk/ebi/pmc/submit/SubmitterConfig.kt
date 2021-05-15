@@ -19,7 +19,8 @@ class SubmitterConfig {
             .create(requireNotNull(properties.bioStudiesUrl) { "biostudies system url is required" })
             .getAuthenticatedClient(
                 requireNotNull(properties.bioStudiesUser) { "biostudies user name need to be configured" },
-                requireNotNull(properties.bioStudiesPassword) { "biostudies user password name need to be configured" })
+                requireNotNull(properties.bioStudiesPassword) { "biostudies user password name need to be configured" }
+            )
 
     @Bean
     fun pmcSubmitter(

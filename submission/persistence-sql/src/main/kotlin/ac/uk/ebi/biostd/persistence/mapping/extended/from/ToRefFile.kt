@@ -11,6 +11,7 @@ internal fun ExtFile.toRefFile(order: Int) =
         fileName,
         order,
         file.size(),
-        attributes.mapIndexedTo(sortedSetOf(), ::asRefFileAttribute))
+        attributes.mapIndexedTo(sortedSetOf(), ::asRefFileAttribute)
+    )
 
 private fun asRefFileAttribute(index: Int, attr: ExtAttribute) = DbReferencedFileAttribute(attr.toDbAttribute(index))

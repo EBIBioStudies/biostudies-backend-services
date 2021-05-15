@@ -136,7 +136,8 @@ internal class SubmissionRefreshApiTest(private val tempFolder: TemporaryFolder)
                 extSubmission = submissionRepository.getExtByAccNo(ACC_NO),
                 title = SUBTITLE,
                 releaseTime = releaseDate,
-                attributes = listOf(ATTR_NAME to ATTR_VALUE))
+                attributes = listOf(ATTR_NAME to ATTR_VALUE)
+            )
         }
 
         private fun assertRefreshedSubmission() =
@@ -144,6 +145,7 @@ internal class SubmissionRefreshApiTest(private val tempFolder: TemporaryFolder)
                 extSubmission = submissionRepository.getExtByAccNo(ACC_NO),
                 title = NEW_SUBTITLE,
                 releaseTime = newReleaseDate,
-                attributes = listOf(ATTR_NAME to NEW_ATTR_VALUE))
+                attributes = listOf(ATTR_NAME to NEW_ATTR_VALUE)
+            )
     }
 }

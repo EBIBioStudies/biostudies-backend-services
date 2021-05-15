@@ -14,6 +14,7 @@ internal fun ExtFile.toDbFile(order: Int, tableIndex: Int = NO_TABLE_INDEX) =
         FileUtils.size(file),
         attributes.mapIndexedTo(sortedSetOf(), ::toDbFileAttribute),
         FileUtils.isDirectory(file),
-        tableIndex)
+        tableIndex
+    )
 
 private fun toDbFileAttribute(index: Int, attr: ExtAttribute) = DbFileAttribute(attr.toDbAttribute(index))

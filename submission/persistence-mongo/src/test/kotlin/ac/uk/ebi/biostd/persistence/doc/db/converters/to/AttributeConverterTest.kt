@@ -38,7 +38,8 @@ internal class AttributeConverterTest {
             value = docAttributeValue,
             reference = true,
             nameAttrs = docAttributeNameAttrs,
-            valueAttrs = docAttributeValueAttrs)
+            valueAttrs = docAttributeValueAttrs
+        )
     }
 
     private companion object {

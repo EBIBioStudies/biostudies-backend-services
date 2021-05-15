@@ -100,7 +100,8 @@ internal class SubmitPermissionTest(tempFolder: TemporaryFolder) : BaseIntegrati
             assertThatExceptionOfType(WebClientException::class.java)
                 .isThrownBy { regularUserWebClient.submitSingle(submission, SubmissionFormat.TSV) }
                 .withMessageContaining(
-                    "The user biostudies-dev@ebi.ac.uk is not allowed to submit to TestProject project")
+                    "The user biostudies-dev@ebi.ac.uk is not allowed to submit to TestProject project"
+                )
         }
 
         @Test

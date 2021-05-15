@@ -49,7 +49,8 @@ class SubmissionConfig(
         queryService,
         submissionSubmitter,
         eventsPublisherService,
-        myRabbitTemplate)
+        myRabbitTemplate
+    )
 
     @Bean
     fun extSubmissionService(
@@ -78,7 +79,8 @@ class SubmissionConfig(
             serializationService,
             userFilesService,
             securityQueryService,
-            folderResolver)
+            folderResolver
+        )
 
     @Bean
     fun submissionHandler(submissionService: SubmissionService): SubmissionsWebHandler =

@@ -93,9 +93,9 @@ open class DbAttribute(
         valueAttrs: List<AttributeDetail>
     ) :
         this(name, value, order, reference) {
-        nameQualifier = nameAttrs.toMutableList()
-        valueQualifier = valueAttrs.toMutableList()
-    }
+            nameQualifier = nameAttrs.toMutableList()
+            valueQualifier = valueAttrs.toMutableList()
+        }
 
     @Id
     @GeneratedValue

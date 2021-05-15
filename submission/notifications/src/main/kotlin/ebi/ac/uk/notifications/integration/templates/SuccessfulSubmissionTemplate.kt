@@ -8,6 +8,7 @@ internal class SuccessfulSubmissionTemplate(
     templateContent: String
 ) : NotificationTemplate<SuccessfulSubmissionModel>(templateContent)
 
+@Suppress("LongParameterList")
 internal class SuccessfulSubmissionModel(
     private val mailto: String,
     private val uiUrl: String,

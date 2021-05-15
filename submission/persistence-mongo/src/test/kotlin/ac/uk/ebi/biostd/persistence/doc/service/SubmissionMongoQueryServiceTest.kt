@@ -193,24 +193,29 @@ internal class SubmissionMongoQueryServiceTest(
 
         @Test
         fun `when all`() {
-            saveAsRequest(fullExtSubmission.copy(
-                accNo = "accNo1",
-                version = 1,
-                title = "title",
-                status = ExtProcessingStatus.REQUESTED,
-                section = section.copy(type = "type1"),
-                released = false,
-                releaseTime = OffsetDateTime.of(2020, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC)
-            ), REQUESTED)
-            submissionRepo.save(testDocSubmission.copy(
-                accNo = "accNo1",
-                version = 1,
-                title = "title",
-                section = testDocSection.copy(type = "type1"),
-                released = false,
-                releaseTime = OffsetDateTime.of(2020, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC).toInstant(),
-                status = PROCESSED
-            ))
+            saveAsRequest(
+                fullExtSubmission.copy(
+                    accNo = "accNo1",
+                    version = 1,
+                    title = "title",
+                    status = ExtProcessingStatus.REQUESTED,
+                    section = section.copy(type = "type1"),
+                    released = false,
+                    releaseTime = OffsetDateTime.of(2020, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC)
+                ),
+                REQUESTED
+            )
+            submissionRepo.save(
+                testDocSubmission.copy(
+                    accNo = "accNo1",
+                    version = 1,
+                    title = "title",
+                    section = testDocSection.copy(type = "type1"),
+                    released = false,
+                    releaseTime = OffsetDateTime.of(2020, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC).toInstant(),
+                    status = PROCESSED
+                )
+            )
 
             val result = testInstance.getSubmissionsByUser(
                 SUBMISSION_OWNER,

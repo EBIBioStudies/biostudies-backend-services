@@ -93,7 +93,8 @@ internal class SubmissionConverterTest(
             attributes = listOf(docAttribute),
             tags = submissionTags,
             collections = submissionProjects,
-            stats = submissionStats)
+            stats = submissionStats
+        )
     }
 
     private companion object {

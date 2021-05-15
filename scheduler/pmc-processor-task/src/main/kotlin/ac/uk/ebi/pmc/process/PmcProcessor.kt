@@ -44,13 +44,15 @@ class PmcProcessor(
         Try { submissionInitializer.getSubmission(submissionDoc.body) }
             .fold(
                 { errorDocService.saveError(submissionDoc, PmcMode.PROCESS, it) },
-                { downloadFiles(it, submissionDoc) })
+                { downloadFiles(it, submissionDoc) }
+            )
     }
 
     private suspend fun downloadFiles(submissionPair: Pair<Submission, String>, submissionDoc: SubmissionDoc) {
         val (submission, body) = submissionPair
         fileDownloader.downloadFiles(submission).fold(
             { errorDocService.saveError(submissionDoc, PmcMode.PROCESS, it) },
-            { submissionDocService.saveProcessedSubmission(submissionDoc.withBody(body), it) })
+            { submissionDocService.saveProcessedSubmission(submissionDoc.withBody(body), it) }
+        )
     }
 }

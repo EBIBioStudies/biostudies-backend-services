@@ -36,9 +36,11 @@ class ToExtSubmissionMapperTest(temporaryFolder: TemporaryFolder) {
     private fun testSubmission(): DocSubmission {
         val testDocFile = docFile.copy(fullPath = sectionFile.absolutePath)
 
-        return docSubmission.copy(section = docSection.copy(
-            files = listOf(left(testDocFile)),
-            fileList = docFileList.copy(files = listOf(DocFileRef(ObjectId())))
-        ))
+        return docSubmission.copy(
+            section = docSection.copy(
+                files = listOf(left(testDocFile)),
+                fileList = docFileList.copy(files = listOf(DocFileRef(ObjectId())))
+            )
+        )
     }
 }
