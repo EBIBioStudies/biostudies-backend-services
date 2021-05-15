@@ -4,7 +4,7 @@ import ac.uk.ebi.pmc.persistence.docs.FileDoc
 import ac.uk.ebi.pmc.persistence.ext.getOne
 import com.mongodb.client.model.Filters
 import com.mongodb.reactivestreams.client.MongoCollection
-import com.mongodb.reactivestreams.client.Success
+import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactive.awaitSingle
 import org.bson.types.ObjectId
 import org.litote.kmongo.coroutine.toList
@@ -21,5 +21,7 @@ class SubFileRepository(private val collection: MongoCollection<FileDoc>) {
 
     suspend fun findAll(): List<FileDoc> = collection.find().toList()
 
-    suspend fun deleteAll(): Success = collection.drop().awaitSingle()
+    suspend fun deleteAll() {
+        collection.drop().awaitFirstOrNull()
+    }
 }

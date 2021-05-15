@@ -4,11 +4,15 @@ import Dependencies.CommonsLang3
 import Dependencies.KMongoAsync
 import Dependencies.KMongoCoroutine
 import Dependencies.KotlinLogging
+import Dependencies.MongockBom
+import Dependencies.MongockSpringDataV3
+import Dependencies.MongockSpringV5
 import Dependencies.OkHttpLogging
 import Dependencies.Retrofit2
 import Dependencies.SpringWeb
 import SpringBootDependencies.SpringBootStarter
 import SpringBootDependencies.SpringBootStarterConfigProcessor
+import SpringBootDependencies.SpringBootStarterMongo
 import SpringBootDependencies.SpringBootStarterTest
 import TestDependencies.AssertJ
 import TestDependencies.BaseTestCompileDependencies
@@ -40,7 +44,12 @@ dependencies {
     implementation(Retrofit2)
     implementation(OkHttpLogging)
 
+    implementation(MongockBom)
+    implementation(MongockSpringV5)
+    implementation(MongockSpringDataV3)
+
     implementation(SpringBootStarter)
+    implementation(SpringBootStarterMongo)
     implementation(SpringWeb)
     implementation(SpringBootStarterConfigProcessor)
 
