@@ -27,7 +27,7 @@ allprojects {
 
     tasks {
         detekt {
-            failFast = true
+            allRules = true
             autoCorrect = true
             buildUponDefaultConfig = true
             config = files("$rootDir/detekt-config.yml")
