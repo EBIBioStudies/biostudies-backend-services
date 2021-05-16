@@ -1,5 +1,7 @@
 import Dependencies.JacksonKotlin
 import Dependencies.KotlinLogging
+import Dependencies.KotlinReflect
+import Dependencies.KotlinStdLib
 import Dependencies.MySql
 import Dependencies.SpringWeb
 import SpringBootDependencies.SpringBootAmqp
@@ -24,6 +26,8 @@ dependencies {
     api(project(":submission:persistence-common-api"))
     api(project(":submission:persistence-sql"))
 
+    implementation(KotlinStdLib)
+    implementation(KotlinReflect)
     implementation(JacksonKotlin)
     implementation(KotlinLogging)
     implementation(MySql)

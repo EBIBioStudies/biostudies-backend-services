@@ -5,6 +5,7 @@ import Dependencies.HibernateEntityManager
 import Dependencies.JacksonKotlin
 import Dependencies.JpaEntityGraph
 import Dependencies.KotlinLogging
+import Dependencies.KotlinReflect
 import Dependencies.KotlinStdLib
 import Dependencies.SpringAutoConfigure
 import Dependencies.SpringDataJpa
@@ -44,6 +45,7 @@ dependencies {
     implementation(JacksonKotlin)
     implementation(JpaEntityGraph)
     implementation(KotlinStdLib)
+    implementation(KotlinReflect)
     implementation(KotlinLogging)
 
     BaseTestCompileDependencies.forEach { testImplementation(it) }
