@@ -42,7 +42,7 @@ internal open class BaseIntegrationTest(private val tempFolder: TemporaryFolder)
     fun afterAll() {
         mysqlContainer.stop()
         mongoContainer.stop()
-        rabbitMQContainer.stop();
+        rabbitMQContainer.stop()
     }
 
     protected fun getWebClient(serverPort: Int, user: TestUser): BioWebClient {
