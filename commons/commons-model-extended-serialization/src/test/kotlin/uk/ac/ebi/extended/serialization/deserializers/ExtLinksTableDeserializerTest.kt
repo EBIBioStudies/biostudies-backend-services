@@ -14,14 +14,18 @@ class ExtLinksTableDeserializerTest {
     @Test
     fun deserialize() {
         val json = jsonObj {
-            "links" to jsonArray(jsonObj {
-                "url" to "http://mylink.org"
-                "attributes" to jsonArray(jsonObj {
-                    "name" to "Type"
-                    "value" to "Resource"
-                })
-                "extType" to "link"
-            })
+            "links" to jsonArray(
+                jsonObj {
+                    "url" to "http://mylink.org"
+                    "attributes" to jsonArray(
+                        jsonObj {
+                            "name" to "Type"
+                            "value" to "Resource"
+                        }
+                    )
+                    "extType" to "link"
+                }
+            )
             "extType" to "linksTable"
         }.toString()
 

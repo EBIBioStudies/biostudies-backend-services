@@ -13,5 +13,6 @@ internal fun DbSection.toExtSection(filesSource: FilesSource): ExtSection {
         attributes = validAttributes.map { it.toExtAttribute() },
         sections = sections.toExtSections(filesSource),
         files = files.toExtFiles(filesSource),
-        links = links.toExtLinks())
+        links = links.toExtLinks()
+    )
 }

@@ -28,7 +28,8 @@ internal class FtpFilesServiceTest(private val temporaryFolder: TemporaryFolder)
 
     private val folderResolver = SubmissionFolderResolver(
         temporaryFolder.root.toPath().resolve("submission"),
-        temporaryFolder.root.toPath().resolve("ftp"))
+        temporaryFolder.root.toPath().resolve("ftp")
+    )
     private val testInstance = FtpFilesService(folderResolver)
 
     @BeforeEach

@@ -2,6 +2,7 @@ import Dependencies.Arrow
 import Dependencies.HibernateEntityManager
 import Dependencies.Jwt
 import Dependencies.KotlinLogging
+import Dependencies.KotlinReflect
 import Dependencies.KotlinStdLib
 import Dependencies.Logback
 import Dependencies.RxJava2
@@ -26,6 +27,7 @@ dependencies {
     implementation(Jwt)
     implementation(KotlinLogging)
     implementation(KotlinStdLib)
+    implementation(KotlinReflect)
     implementation(RxJava2)
     implementation(SpringWeb)
     implementation(SpringSecurityCore)

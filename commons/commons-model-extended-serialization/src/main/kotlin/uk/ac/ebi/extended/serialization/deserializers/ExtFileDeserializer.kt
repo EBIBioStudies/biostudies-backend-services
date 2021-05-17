@@ -28,6 +28,7 @@ class ExtFileDeserializer : JsonDeserializer<ExtFile>() {
         return ExtFile(
             file = file,
             fileName = node.getNode<TextNode>(FILE_PATH).textValue(),
-            attributes = mapper.convertList(node.findNode(ATTRIBUTES)))
+            attributes = mapper.convertList(node.findNode(ATTRIBUTES))
+        )
     }
 }

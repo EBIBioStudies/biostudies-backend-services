@@ -49,7 +49,6 @@ internal class ToDbSubmissionMapperTest(
 
     @Test
     fun `non existing owner`(
-        @MockK user: DbUser,
         @MockK submitter: DbUser
     ) {
         every { userRepository.findByEmail(OWNER) } returns Optional.empty()
@@ -61,8 +60,7 @@ internal class ToDbSubmissionMapperTest(
 
     @Test
     fun `non existing submitter`(
-        @MockK user: DbUser,
-        @MockK submitter: DbUser
+        @MockK user: DbUser
     ) {
         every { userRepository.findByEmail(OWNER) } returns Optional.of(user)
         every { userRepository.findByEmail(SUBMITTER) } returns Optional.empty()

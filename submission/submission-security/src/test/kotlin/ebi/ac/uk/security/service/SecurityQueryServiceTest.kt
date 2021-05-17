@@ -60,9 +60,7 @@ class SecurityQueryServiceTest(
     }
 
     @Test
-    fun `get non existing user`(
-        @MockK dbUser: DbUser
-    ) {
+    fun `get non existing user`() {
         every { userRepository.findByEmailAndActive("user@test.org", true) } returns Optional.empty()
 
         val err = assertThrows<UserAlreadyRegister> { testInstance.getUser("user@test.org") }
@@ -81,9 +79,7 @@ class SecurityQueryServiceTest(
     }
 
     @Test
-    fun `get non existing user profile`(
-        @MockK dbUser: DbUser
-    ) {
+    fun `get non existing user profile`() {
         every { securityUtil.checkToken("the-token") } returns Option.empty()
 
         val err = assertThrows<UserNotFoundByTokenException> { testInstance.getUserProfile("the-token") }

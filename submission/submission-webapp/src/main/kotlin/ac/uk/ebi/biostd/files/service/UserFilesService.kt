@@ -18,7 +18,8 @@ class UserFilesService {
             source = file,
             target = folder.resolve(file.name).toFile(),
             filePermissions = RW_RW____,
-            folderPermissions = RWXRWX___)
+            folderPermissions = RWXRWX___
+        )
     }
 
     fun uploadFiles(user: SecurityUser, path: String, files: List<MultipartFile>) {

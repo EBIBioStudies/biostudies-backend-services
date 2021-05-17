@@ -85,14 +85,14 @@ internal class SectionConverterTest(
         val result = testInstance.convert(docSection)
 
         assertMainSection(result)
-        assertFiles(result[DocSectionFields.SEC_FILES] as List<Document>)
-        assertLinks(result[DocSectionFields.SEC_LINKS] as List<Document>)
+        assertFiles(result.getAs(DocSectionFields.SEC_FILES))
+        assertLinks(result.getAs(DocSectionFields.SEC_LINKS))
 
-        val sections = result[DocSectionFields.SEC_SECTIONS] as List<Document>
+        val sections = result.getAs<List<Document>>(DocSectionFields.SEC_SECTIONS)
         assertSubSection(sections.first())
 
         val sectionTable = sections.second()
-        val sectionsOfSecTable = sectionTable[DocSectionFields.SEC_SECTIONS] as List<Document>
+        val sectionsOfSecTable = sectionTable.getAs<List<Document>>(DocSectionFields.SEC_SECTIONS)
         assertTableSection(sectionsOfSecTable.first())
     }
 

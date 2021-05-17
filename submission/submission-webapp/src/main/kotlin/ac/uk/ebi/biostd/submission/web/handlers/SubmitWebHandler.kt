@@ -53,12 +53,14 @@ class SubmitWebHandler(
         val previousVersion = submissionService.findPreviousVersion(sub.accNo)
         requireNotProcessing(previousVersion)
 
-        val source = sourceGenerator.submissionSources(RequestSources(
-            user = request.submitter,
-            files = request.files,
-            rootPath = sub.rootPath,
-            subFolder = subFolder(previousVersion)
-        ))
+        val source = sourceGenerator.submissionSources(
+            RequestSources(
+                user = request.submitter,
+                files = request.files,
+                rootPath = sub.rootPath,
+                subFolder = subFolder(previousVersion)
+            )
+        )
         val submission = withAttributes(submission(request.submission, request.format, source), request.attrs)
 
         return SubmissionRequest(
@@ -77,12 +79,14 @@ class SubmitWebHandler(
         val previousVersion = submissionService.findPreviousVersion(sub.accNo)
         requireNotProcessing(previousVersion)
 
-        val source = sourceGenerator.submissionSources(RequestSources(
-            user = request.submitter,
-            files = request.files.plus(request.submission),
-            rootPath = sub.rootPath,
-            subFolder = subFolder(previousVersion)
-        ))
+        val source = sourceGenerator.submissionSources(
+            RequestSources(
+                user = request.submitter,
+                files = request.files.plus(request.submission),
+                rootPath = sub.rootPath,
+                subFolder = subFolder(previousVersion)
+            )
+        )
         val submission = withAttributes(submission(request.submission, source), request.attrs)
         userFilesService.uploadFile(request.submitter, DIRECT_UPLOAD_PATH, request.submission)
         return SubmissionRequest(
@@ -101,13 +105,15 @@ class SubmitWebHandler(
         requireNotProcessing(previousVersion)
 
         val source = sourceGenerator.submissionSources(RequestSources(subFolder = subFolder(previousVersion)))
-        return submissionService.submit(SubmissionRequest(
-            submission = submission,
-            submitter = request.user,
-            sources = source,
-            method = PAGE_TAB,
-            mode = FileMode.MOVE
-        )).toSimpleSubmission()
+        return submissionService.submit(
+            SubmissionRequest(
+                submission = submission,
+                submitter = request.user,
+                sources = source,
+                method = PAGE_TAB,
+                mode = FileMode.MOVE
+            )
+        ).toSimpleSubmission()
     }
 
     private fun getOnBehalfUser(onBehalfRequest: OnBehalfRequest): SecurityUser {

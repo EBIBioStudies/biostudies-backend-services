@@ -59,7 +59,8 @@ class SubmissionSubmitter(
             request.submitter.asUser(),
             request.onBehalfUser?.asUser(),
             request.sources,
-            request.method)
+            request.method
+        )
 
         logger.info { "Saving submission ${submission.accNo}" }
         val saveRequest = SaveSubmissionRequest(submission, request.mode, request.draftKey)
@@ -80,7 +81,8 @@ class SubmissionSubmitter(
             request.submitter.asUser(),
             request.onBehalfUser?.asUser(),
             request.sources,
-            request.method)
+            request.method
+        )
 
         logger.info { "Saving submission request ${submission.accNo}" }
         val saveRequest = SaveSubmissionRequest(submission, request.mode, request.draftKey)

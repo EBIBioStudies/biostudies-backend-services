@@ -12,7 +12,8 @@ val attribute
         value = "Sect Attr 1",
         reference = false,
         nameAttrs = mutableListOf(AttributeDetail("NameAttr", "Name Attr 1")),
-        valueAttrs = mutableListOf(AttributeDetail("ValueAttr", "Value Attr 1")))
+        valueAttrs = mutableListOf(AttributeDetail("ValueAttr", "Value Attr 1"))
+    )
 
 fun assertAttribute(extAttribute: ExtAttribute, attribute: Attribute) {
     assertThat(extAttribute.name).isEqualTo(attribute.name)

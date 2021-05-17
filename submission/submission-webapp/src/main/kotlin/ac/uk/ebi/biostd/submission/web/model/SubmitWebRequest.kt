@@ -17,6 +17,7 @@ class OnBehalfRequest(
     }
 }
 
+@Suppress("LongParameterList")
 sealed class SubmitWebRequest(
     val submitter: SecurityUser,
     val onBehalfRequest: OnBehalfRequest?,
@@ -26,6 +27,7 @@ sealed class SubmitWebRequest(
     val attrs: Map<String, String>
 )
 
+@Suppress("LongParameterList")
 class ContentSubmitWebRequest(
     val submission: String,
     val draftKey: String? = null,
@@ -37,6 +39,7 @@ class ContentSubmitWebRequest(
     files: List<File> = emptyList()
 ) : SubmitWebRequest(user, onBehalfRequest, format, fileMode, files, attrs)
 
+@Suppress("LongParameterList")
 class FileSubmitWebRequest(
     val submission: File,
     onBehalfRequest: OnBehalfRequest?,

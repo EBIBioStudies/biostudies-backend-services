@@ -1,7 +1,7 @@
 plugins {
-    id("io.gitlab.arturbosch.detekt") version "1.3.1"
-    id("org.jetbrains.kotlin.jvm") version "1.3.72"
-    id("org.jlleitschuh.gradle.ktlint") version "9.1.1"
+    id("io.gitlab.arturbosch.detekt") version "1.16.0"
+    id("org.jetbrains.kotlin.jvm") version "1.4.32"
+    id("org.jlleitschuh.gradle.ktlint") version "10.0.0"
     id("org.hidetake.ssh") version "2.10.1"
     id("jacoco")
 }
@@ -9,7 +9,7 @@ plugins {
 apply(from = "deploy.gradle")
 
 dependencies {
-    detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.3.1")
+    detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.16.0")
 }
 
 allprojects {
@@ -27,7 +27,7 @@ allprojects {
 
     tasks {
         detekt {
-            failFast = true
+            allRules = true
             autoCorrect = true
             buildUponDefaultConfig = true
             config = files("$rootDir/detekt-config.yml")
@@ -46,7 +46,7 @@ allprojects {
 
             kotlinOptions {
                 includeRuntime = true
-                freeCompilerArgs += arrayOf("-Xjvm-default=enable")
+                freeCompilerArgs = freeCompilerArgs + arrayOf("-Xjvm-default=enable")
                 jvmTarget = "1.8"
             }
         }
@@ -70,5 +70,6 @@ tasks.register("buildArtifacts") {
         "scheduler:scheduler:bootJar",
         "scheduler:pmc-processor-task:bootJar",
         "scheduler:submission-releaser-task:bootJar",
-        "submission:submission-webapp:bootJar")
+        "submission:submission-webapp:bootJar"
+    )
 }

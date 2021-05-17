@@ -30,19 +30,22 @@ private const val ATTRIBUTES_GRAPH = "Object.attributesGraph"
 
 @Entity
 @Table(name = "Section")
-@NamedEntityGraphs(value = [
-    NamedEntityGraph(
-        name = SECTION_SIMPLE_GRAPH,
-        attributeNodes = [
-            Node(ATTRS),
-            Node(SECTS),
-            Node(LINKS, subgraph = ATTRIBUTES_GRAPH),
-            Node(FILES, subgraph = ATTRIBUTES_GRAPH)],
-        subgraphs = [
-            Graph(name = ATTRIBUTES_GRAPH, attributeNodes = [Node(ATTRS)])
-        ]
-    )
-])
+@NamedEntityGraphs(
+    value = [
+        NamedEntityGraph(
+            name = SECTION_SIMPLE_GRAPH,
+            attributeNodes = [
+                Node(ATTRS),
+                Node(SECTS),
+                Node(LINKS, subgraph = ATTRIBUTES_GRAPH),
+                Node(FILES, subgraph = ATTRIBUTES_GRAPH)
+            ],
+            subgraphs = [
+                Graph(name = ATTRIBUTES_GRAPH, attributeNodes = [Node(ATTRS)])
+            ]
+        )
+    ]
+)
 class DbSection(
     @Column
     var accNo: String?,
