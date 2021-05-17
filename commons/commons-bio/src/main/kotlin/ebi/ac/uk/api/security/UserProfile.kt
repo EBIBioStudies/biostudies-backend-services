@@ -1,5 +1,6 @@
 package ebi.ac.uk.api.security
 
+@Suppress("LongParameterList")
 class UserProfile(
     val sessid: String,
     val email: String,

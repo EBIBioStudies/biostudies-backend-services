@@ -72,7 +72,8 @@ class SubmissionSubmitterTest {
     private val processedSubmission = slot<ExtSubmission>()
 
     private val testInstance = SubmissionSubmitter(
-        timesService, accNoService, parentInfoService, collectionInfoService, submissionRequestService, queryService)
+        timesService, accNoService, parentInfoService, collectionInfoService, submissionRequestService, queryService
+    )
 
     @BeforeEach
     fun beforeEach() {
@@ -89,7 +90,8 @@ class SubmissionSubmitterTest {
     @Test
     fun submit() {
         testInstance.submit(
-            SubmissionRequest(submission, testUser(notificationsEnabled = true), sources, PAGE_TAB, COPY))
+            SubmissionRequest(submission, testUser(notificationsEnabled = true), sources, PAGE_TAB, COPY)
+        )
 
         assertCapturedValues()
         assertExtendedSubmission()
@@ -101,7 +103,8 @@ class SubmissionSubmitterTest {
     @Test
     fun `submit with notifications disabled`() {
         testInstance.submit(
-            SubmissionRequest(submission, testUser(notificationsEnabled = false), sources, PAGE_TAB, COPY))
+            SubmissionRequest(submission, testUser(notificationsEnabled = false), sources, PAGE_TAB, COPY)
+        )
 
         assertCapturedValues()
         assertExtendedSubmission()
@@ -128,7 +131,8 @@ class SubmissionSubmitterTest {
         every { submissionRequestService.saveSubmissionRequest(capture(saveRequestSlot)) } returns extSubmission
 
         testInstance.submitAsync(
-            SubmissionRequest(submission, testUser(notificationsEnabled = false), sources, PAGE_TAB, COPY))
+            SubmissionRequest(submission, testUser(notificationsEnabled = false), sources, PAGE_TAB, COPY)
+        )
 
         assertCapturedValues()
         assertExtendedSubmission()
@@ -224,5 +228,6 @@ class SubmissionSubmitterTest {
         magicFolder = mockk(),
         groupsFolders = listOf(mockk()),
         permissions = emptySet(),
-        notificationsEnabled = notificationsEnabled)
+        notificationsEnabled = notificationsEnabled
+    )
 }

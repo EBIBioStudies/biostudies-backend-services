@@ -46,7 +46,6 @@ internal class SubmissionDraftResource(
     @ResponseBody
     fun getDraftSubmission(
         @BioUser user: SecurityUser,
-        @ModelAttribute filter: PaginationFilter,
         @PathVariable key: String
     ): ResponseSubmissionDraft = draftService.getSubmissionDraft(user.email, key).asResponseDraft()
 
@@ -96,7 +95,8 @@ internal class SubmissionDraftResource(
             format = JSON_PRETTY,
             fileMode = mode,
             attrs = attributes.orEmpty(),
-            files = emptyList())
+            files = emptyList()
+        )
 
         submitWebHandler.submitAsync(request)
     }

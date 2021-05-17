@@ -76,7 +76,8 @@ class StatsMongoDataServiceTest(
             SingleSubmissionStat("S-TEST1", 1L, VIEWS),
             SingleSubmissionStat("S-TEST2", 2L, VIEWS),
             SingleSubmissionStat("S-TEST1", 3L, VIEWS),
-            SingleSubmissionStat("S-TEST3", 4L, VIEWS))
+            SingleSubmissionStat("S-TEST3", 4L, VIEWS)
+        )
 
         submissionStatsDataRepository.save(testDocSubmission.copy(accNo = "S-TEST1", stats = listOf()))
         submissionStatsDataRepository.save(testDocSubmission.copy(accNo = "S-TEST2", stats = listOf()))
@@ -93,11 +94,13 @@ class StatsMongoDataServiceTest(
             SingleSubmissionStat("S-TEST1", 1L, VIEWS),
             SingleSubmissionStat("S-TEST2", 2L, VIEWS),
             SingleSubmissionStat("S-TEST1", 3L, VIEWS),
-            SingleSubmissionStat("S-TEST3", 4L, VIEWS))
+            SingleSubmissionStat("S-TEST3", 4L, VIEWS)
+        )
 
         submissionStatsDataRepository.save(testDocSubmission.copy(accNo = "S-TEST1", stats = listOf()))
         submissionStatsDataRepository.save(
-            testDocSubmission.copy(accNo = "S-TEST2", stats = listOf(DocStat(VIEWS.name, 3L))))
+            testDocSubmission.copy(accNo = "S-TEST2", stats = listOf(DocStat(VIEWS.name, 3L)))
+        )
 
         val result = testInstance.incrementAll(stats)
         assertThat(result).hasSize(2)

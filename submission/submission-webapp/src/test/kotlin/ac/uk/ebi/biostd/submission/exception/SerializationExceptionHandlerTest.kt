@@ -31,7 +31,8 @@ class SerializationExceptionHandlerTest {
 
         assertThat(validation.log.subnodes).hasSize(1)
         assertValidationNode(
-            validation.log.subnodes.first(), ERROR, "Error processing block starting in Lines [1-2], An exception")
+            validation.log.subnodes.first(), ERROR, "Error processing block starting in Lines [1-2], An exception"
+        )
     }
 
     private fun assertValidationNode(node: ValidationNode, expectedLevel: ValidationNodeStatus, expectedMessage: String) {

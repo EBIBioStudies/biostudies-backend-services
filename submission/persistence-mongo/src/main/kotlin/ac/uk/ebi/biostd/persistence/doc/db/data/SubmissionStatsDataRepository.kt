@@ -38,12 +38,16 @@ class SubmissionStatsDataRepository(
     }
 
     private fun findStatsQuery(accNo: String, version: Int, name: String) =
-        Query(where(DocSubmissionFields.SUB_ACC_NO).`is`(accNo).andOperator(
-            where(DocSubmissionFields.SUB_VERSION).`is`(version),
-            where("$SUB_STATS.$STAT_DOC_NAME").`is`(name)))
+        Query(
+            where(DocSubmissionFields.SUB_ACC_NO).`is`(accNo).andOperator(
+                where(DocSubmissionFields.SUB_VERSION).`is`(version),
+                where("$SUB_STATS.$STAT_DOC_NAME").`is`(name)
+            )
+        )
 
     private fun BulkOperations.incrementStat(accNo: String, version: Int, stat: SubmissionStat) =
         updateOne(
             findStatsQuery(accNo, version, stat.type.name),
-            Update().inc("$SUB_STATS.$.$STAT_DOC_VALUE", stat.value))
+            Update().inc("$SUB_STATS.$.$STAT_DOC_VALUE", stat.value)
+        )
 }

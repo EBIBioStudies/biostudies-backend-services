@@ -2,6 +2,7 @@ import Dependencies.Arrow
 import Dependencies.CommonsIO
 import Dependencies.HibernateEntityManager
 import Dependencies.JpaEntityGraph
+import Dependencies.KotlinReflect
 import Dependencies.KotlinStdLib
 import Dependencies.RxJava2
 import Dependencies.SpringDataJpa
@@ -27,6 +28,7 @@ dependencies {
     implementation(SpringDataJpa)
     implementation(SpringWeb)
     implementation(KotlinStdLib)
+    implementation(KotlinReflect)
     implementation(RxJava2)
 
     BaseTestCompileDependencies.forEach { testImplementation(it) }

@@ -128,7 +128,8 @@ class SubmissionReleaserServiceTest(
     private fun createNotifyExtPageQuery(month: Int, day: Int) = ExtPageQuery(
         released = false,
         fromRTime = OffsetDateTime.of(2020, month, day, 0, 0, 0, 0, UTC),
-        toRTime = OffsetDateTime.of(2020, month, day, 23, 59, 59, 0, UTC))
+        toRTime = OffsetDateTime.of(2020, month, day, 23, 59, 59, 0, UTC)
+    )
 
     private fun createReleaseExtPageQuery() =
         ExtPageQuery(toRTime = OffsetDateTime.of(2020, 9, 21, 23, 59, 59, 0, UTC), released = false)

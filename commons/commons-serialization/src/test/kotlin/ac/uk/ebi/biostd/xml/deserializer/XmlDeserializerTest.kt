@@ -116,4 +116,5 @@ class XmlDeserializerTest {
         }.toString()
 
         assertThrows<UnexpectedXmlPageTabElementException> { testInstance.deserialize(xml, FilesTable::class.java) }
-    } }
+    }
+}

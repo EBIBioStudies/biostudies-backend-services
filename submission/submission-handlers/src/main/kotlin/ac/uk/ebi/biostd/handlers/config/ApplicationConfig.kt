@@ -33,7 +33,8 @@ class Listeners {
         webConsumer,
         notificationsSender,
         rtNotificationService,
-        applicationProperties.notifications)
+        applicationProperties.notifications
+    )
 
     @Bean
     fun securityNotificationsListener(

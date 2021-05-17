@@ -38,9 +38,9 @@ class DbLink(
 
     constructor(url: String, order: Int, attributes: SortedSet<DbLinkAttribute>, tableIndex: Int = NO_TABLE_INDEX) :
         this(url, order) {
-        this.attributes = attributes
-        this.tableIndex = tableIndex
-    }
+            this.attributes = attributes
+            this.tableIndex = tableIndex
+        }
 
     override fun compareTo(other: DbLink) = this.order.compareTo(other.order)
 

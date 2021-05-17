@@ -83,10 +83,14 @@ internal class SubmissionToCollectionsTest(private val tempFolder: TemporaryFold
                     line("Submission", "S-TEST1")
                     line("AttachTo", "Test-Project")
                     line("Title", "Overridden Project")
-                }.toString())
+                }.toString()
+            )
 
-            assertThat(webClient.submitSingle(
-                submissionFile, emptyList(), singletonMap("AttachTo", "Public-Project"))).isSuccessful()
+            assertThat(
+                webClient.submitSingle(
+                    submissionFile, emptyList(), singletonMap("AttachTo", "Public-Project")
+                )
+            ).isSuccessful()
 
             assertThat(submissionRepository.getSimpleByAccNo("S-TEST1")).isEqualTo(
                 submission("S-TEST1") {

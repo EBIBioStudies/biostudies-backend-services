@@ -23,10 +23,10 @@ internal class SecurityFilter(
     private val securityQueryService: ISecurityQueryService
 ) : GenericFilterBean(), ISecurityFilter {
     override fun doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain) {
-            getSecurityKey(request as HttpServletRequest)
-                .map { securityQueryService.getUserProfile(it) }
-                .map { (user, token) -> setSecurityUser(user, token) }
-            chain.doFilter(request, response)
+        getSecurityKey(request as HttpServletRequest)
+            .map { securityQueryService.getUserProfile(it) }
+            .map { (user, token) -> setSecurityUser(user, token) }
+        chain.doFilter(request, response)
     }
 
     private fun setSecurityUser(user: SecurityUser, token: String) {

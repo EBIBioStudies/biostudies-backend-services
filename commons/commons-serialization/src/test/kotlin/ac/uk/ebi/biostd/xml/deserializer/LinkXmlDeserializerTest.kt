@@ -22,10 +22,12 @@ class LinkXmlDeserializerTest {
                         "value" { -"attr 1 value" }
                     }
                 }
-            }.toString())
+            }.toString()
+        )
 
         assertThat(testInstance.deserialize(xmlLink)).isEqualTo(
-            Link("http://arandomurl.org", mutableListOf(Attribute("attr1", "attr 1 value"))))
+            Link("http://arandomurl.org", mutableListOf(Attribute("attr1", "attr 1 value")))
+        )
     }
 
     @Test
@@ -33,7 +35,8 @@ class LinkXmlDeserializerTest {
         val xmlLink = createXmlDocument(
             xml("link") {
                 "url" { -"http://arandomurl.org" }
-            }.toString())
+            }.toString()
+        )
 
         assertThat(testInstance.deserialize(xmlLink)).isEqualTo(Link("http://arandomurl.org"))
     }
