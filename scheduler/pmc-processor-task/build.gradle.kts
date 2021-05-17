@@ -17,6 +17,8 @@ import SpringBootDependencies.SpringBootStarterTest
 import TestDependencies.AssertJ
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
+import TestDependencies.Junit
+import TestDependencies.TestContainerJUnit
 import TestDependencies.TestContainerMongoDb
 import TestDependencies.Wiremock
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
@@ -57,6 +59,7 @@ dependencies {
     testImplementation(SpringBootStarterTest)
     testImplementation(AssertJ)
     testImplementation(Wiremock)
+    testImplementation(TestContainerJUnit)
 
     BaseTestCompileDependencies.forEach { testImplementation(it) }
     BaseTestRuntimeDependencies.forEach { testImplementation(it) }

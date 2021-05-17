@@ -27,6 +27,7 @@ import org.springframework.context.annotation.Import
 @Configuration
 @Import(
     value = [
+        PropConfig::class,
         PersistenceConfig::class,
         NotificationsConfig::class,
         WebConfig::class,
@@ -36,10 +37,6 @@ import org.springframework.context.annotation.Import
 )
 @EnableConfigurationProperties
 class AppConfig {
-    @Bean
-    @ConfigurationProperties("app.data")
-    fun properties() =
-        PmcImporterProperties()
 
     @Bean
     fun pmcTaskExecutor(properties: PmcImporterProperties, notificationSender: NotificationsSender) =

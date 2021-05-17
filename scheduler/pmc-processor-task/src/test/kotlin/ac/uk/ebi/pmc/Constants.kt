@@ -1,8 +1,12 @@
 package ac.uk.ebi.pmc
 
+import ac.uk.ebi.pmc.persistence.docs.FileDoc
+import ac.uk.ebi.pmc.persistence.docs.InputFileDoc
 import ac.uk.ebi.pmc.persistence.docs.SubmissionDoc
+import ac.uk.ebi.pmc.persistence.docs.SubmissionErrorDoc
 import ac.uk.ebi.pmc.persistence.docs.SubmissionStatus.LOADED
 import ac.uk.ebi.pmc.persistence.docs.SubmissionStatus.PROCESSED
+import ac.uk.ebi.scheduler.properties.PmcMode
 import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.model.Attribute
@@ -113,3 +117,7 @@ internal val processedSubmission = SubmissionDoc(
     files = listOf(),
     updated = Instant.parse("2021-03-14T08:41:45.090Z")
 )
+
+internal val submissionErrorDoc = SubmissionErrorDoc(submission = docSubmission, error = "error", mode = PmcMode.LOAD)
+internal val submissionFileDoc = FileDoc(name = "name", path = "path", accNo = "accNo")
+internal val inputFileDoc = InputFileDoc(name = "name", loaded = Instant.ofEpochSecond(1000))

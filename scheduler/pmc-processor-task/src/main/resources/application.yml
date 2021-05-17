@@ -10,4 +10,5 @@ app:
     bio-studies-password: # Password for the specified user
     notificationsUrl: # URL notifications sender
     pmcBaseUrl: "http://www.ft-loading.europepmc.org"
+    execute-migrations: true
 

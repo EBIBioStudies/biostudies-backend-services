@@ -46,26 +46,26 @@ class SubmissionRepository(private val submissions: MongoCollection<SubmissionDo
 
     suspend fun findAndUpdate(status: SubmissionStatus, newStatus: SubmissionStatus): SubmissionDoc? =
         submissions.findOneAndUpdate(
-            eq(SubmissionDoc.status, status.name),
-            combine(set(SubmissionDoc.status, newStatus.name), set(SubmissionDoc.updated, Instant.now())),
+            eq(SubmissionDoc.SUB_STATUS, status.name),
+            combine(set(SubmissionDoc.SUB_STATUS, newStatus.name), set(SubmissionDoc.SUB_UPDATED, Instant.now())),
             FindOneAndUpdateOptions().returnDocument(ReturnDocument.AFTER)
         ).awaitFirstOrNull()
 
     private fun latest(accNo: String, sourceTime: Instant, posInFile: Int) =
         and(
-            eq(SubmissionDoc.accNo, accNo),
+            eq(SubmissionDoc.SUB_ACC_NO, accNo),
             or(
-                gte(SubmissionDoc.sourceTime, sourceTime),
-                and(eq(SubmissionDoc.sourceTime, sourceTime), gt(SubmissionDoc.posInFile, posInFile))
+                gte(SubmissionDoc.SUB_SOURCE_TIME, sourceTime),
+                and(eq(SubmissionDoc.SUB_SOURCE_TIME, sourceTime), gt(SubmissionDoc.SUB_POS_IN_FILE, posInFile))
             )
         )
 
     private fun expireSubmissions(accNo: String, sourceTime: Instant, posInFile: Int) =
         and(
-            eq(SubmissionDoc.accNo, accNo),
+            eq(SubmissionDoc.SUB_ACC_NO, accNo),
             or(
-                lt(SubmissionDoc.sourceTime, sourceTime),
-                and(eq(SubmissionDoc.sourceTime, sourceTime), lt(SubmissionDoc.posInFile, posInFile))
+                lt(SubmissionDoc.SUB_SOURCE_TIME, sourceTime),
+                and(eq(SubmissionDoc.SUB_SOURCE_TIME, sourceTime), lt(SubmissionDoc.SUB_POS_IN_FILE, posInFile))
             )
         )
 

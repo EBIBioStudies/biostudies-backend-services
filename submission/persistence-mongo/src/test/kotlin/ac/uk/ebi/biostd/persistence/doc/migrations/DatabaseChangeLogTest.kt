@@ -13,7 +13,6 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_VERSION
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequest
-import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus.REQUESTED
 import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocSubmission
 import com.mongodb.BasicDBObject
@@ -58,7 +57,7 @@ internal class DatabaseChangeLogTest(
     }
 
     @Test
-    fun `create schema migration 001 when collections exists`() {
+    fun `create schema migration 001 when collections does not exists`() {
         runMigrations()
 
         assertSubmissionCollection()
@@ -66,7 +65,7 @@ internal class DatabaseChangeLogTest(
     }
 
     @Test
-    fun `create schema migration 001 when collections does not exists`() {
+    fun `create schema migration 001 when collections exists`() {
         mongoTemplate.createCollection<DocSubmission>()
         mongoTemplate.createCollection<SubmissionRequest>()
 
