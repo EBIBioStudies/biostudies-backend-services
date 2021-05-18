@@ -37,7 +37,8 @@ internal class WebConfig(
             properties.tempDirPath,
             properties.fire.host,
             properties.fire.username,
-            properties.fire.password)
+            properties.fire.password
+        )
 
     override fun configureContentNegotiation(configurer: ContentNegotiationConfigurer) {
         configurer.defaultContentType(MediaType.APPLICATION_JSON)

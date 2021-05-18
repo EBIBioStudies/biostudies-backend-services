@@ -3,6 +3,8 @@ import Dependencies.CommonsCsv
 import Dependencies.Guava
 import Dependencies.JacksonKotlin
 import Dependencies.JacksonXml
+import Dependencies.KotlinReflect
+import Dependencies.KotlinStdLib
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
 import TestDependencies.JsonAssert
@@ -17,6 +19,8 @@ dependencies {
     api(project(":commons:commons-test"))
     api(project(":commons:commons-util"))
 
+    implementation(KotlinReflect)
+    implementation(KotlinStdLib)
     implementation(Arrow)
     implementation(Guava)
     implementation(JacksonKotlin)

@@ -17,7 +17,8 @@ class ExtendedPageMapper(private val instanceBase: URI) {
             offset = page.pageable.offset,
             limit = page.pageable.pageSize,
             next = getNext(page, request),
-            previous = getPrevious(page, request))
+            previous = getPrevious(page, request)
+        )
 
     private fun getPrevious(page: Page<ExtSubmission>, request: ExtPageRequest): String? =
         if (page.hasPrevious()) instanceBase.resolve(asUrl(page.previousPageable(), request)).toString() else null

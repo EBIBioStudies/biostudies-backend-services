@@ -28,26 +28,28 @@ fun main(args: Array<String>) {
     val submissionFile = Files.createTempFile(directory, "sub-file-", ".tmp").toFile()
 
     client.uploadFiles(listOf(submissionFile))
-    val response = client.submitSingle(submission {
-        title = "my-submission example"
-        attribute("Attribute", "Attr Value 1")
-        attribute("Another-Attribute", "Another-Attribute Value")
-        section("study") {
-            attributes = listOf(Attribute("attribute-1", "attributeValue"))
-            link("AF069309") {
-                attribute("type", "gen")
-            }
+    val response = client.submitSingle(
+        submission {
+            title = "my-submission example"
+            attribute("Attribute", "Attr Value 1")
+            attribute("Another-Attribute", "Another-Attribute Value")
+            section("study") {
+                attributes = listOf(Attribute("attribute-1", "attributeValue"))
+                link("AF069309") {
+                    attribute("type", "gen")
+                }
 
-            file(submissionFile.name) {
-                size = 0
-                attribute("Description", "Data File 1")
-            }
+                file(submissionFile.name) {
+                    size = 0
+                    attribute("Description", "Data File 1")
+                }
 
-            section("Author") {
-                attribute("Name", "Mr Doctor")
+                section("Author") {
+                    attribute("Name", "Mr Doctor")
+                }
             }
         }
-    })
+    )
 
     logger.info { "successfully created submission ${response.body.accNo}" }
 }

@@ -18,9 +18,11 @@ class SubmissionReleaserPropertiesTest {
             bioStudiesPassword = "123456",
             firstWarningDays = 60,
             secondWarningDays = 30,
-            thirdWarningDays = 7)
+            thirdWarningDays = 7
+        )
 
-        assertThat(properties.asJavaCommand("/apps-folder")).isEqualTo("""
+        assertThat(properties.asJavaCommand("/apps-folder")).isEqualTo(
+            """
             java -Dsun.jnu.encoding=UTF-8 -jar /apps-folder/submission-releaser-task-1.0.0.jar \
             --spring.rabbitmq.host=localhost \
             --spring.rabbitmq.username=manager \
@@ -33,6 +35,7 @@ class SubmissionReleaserPropertiesTest {
             --app.notification-times.first-warning-days=60 \
             --app.notification-times.second-warning-days=30 \
             --app.notification-times.third-warning-days=7
-        """.trimIndent())
+            """.trimIndent()
+        )
     }
 }

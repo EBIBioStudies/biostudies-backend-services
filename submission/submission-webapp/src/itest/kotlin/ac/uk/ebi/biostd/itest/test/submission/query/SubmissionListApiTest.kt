@@ -81,9 +81,11 @@ internal class SubmissionListApiTest(private val tempFolder: TemporaryFolder) : 
 
         @Test
         fun `get submission list by accession`() {
-            val submissionList = webClient.getSubmissions(mapOf(
-                "accNo" to "SimpleAcc17"
-            ))
+            val submissionList = webClient.getSubmissions(
+                mapOf(
+                    "accNo" to "SimpleAcc17"
+                )
+            )
 
             assertThat(submissionList).hasOnlyOneElementSatisfying {
                 assertThat(it.accno).isEqualTo("SimpleAcc17")
@@ -96,9 +98,11 @@ internal class SubmissionListApiTest(private val tempFolder: TemporaryFolder) : 
 
         @Test
         fun `get direct submission list by accession`() {
-            val submissionList = webClient.getSubmissions(mapOf(
-                "accNo" to "SimpleAcc27"
-            ))
+            val submissionList = webClient.getSubmissions(
+                mapOf(
+                    "accNo" to "SimpleAcc27"
+                )
+            )
 
             assertThat(submissionList).hasOnlyOneElementSatisfying {
                 assertThat(it.accno).isEqualTo("SimpleAcc27")
@@ -111,9 +115,11 @@ internal class SubmissionListApiTest(private val tempFolder: TemporaryFolder) : 
 
         @Test
         fun `get submission list by keywords`() {
-            val submissionList = webClient.getSubmissions(mapOf(
-                "keywords" to "keyword20"
-            ))
+            val submissionList = webClient.getSubmissions(
+                mapOf(
+                    "keywords" to "keyword20"
+                )
+            )
 
             assertThat(submissionList).hasOnlyOneElementSatisfying {
                 assertThat(it.title).contains("keyword20")
@@ -122,19 +128,23 @@ internal class SubmissionListApiTest(private val tempFolder: TemporaryFolder) : 
 
         @Test
         fun `get submission list by release date`() {
-            val submissionList = webClient.getSubmissions(mapOf(
-                "rTimeFrom" to "2019-09-24T09:41:44.000Z",
-                "rTimeTo" to "2019-09-28T09:41:44.000Z"
-            ))
+            val submissionList = webClient.getSubmissions(
+                mapOf(
+                    "rTimeFrom" to "2019-09-24T09:41:44.000Z",
+                    "rTimeTo" to "2019-09-28T09:41:44.000Z"
+                )
+            )
 
             assertThat(submissionList).hasSize(4)
         }
 
         @Test
         fun `get submission list pagination`() {
-            val submissionList = webClient.getSubmissions(mapOf(
-                "offset" to 15
-            ))
+            val submissionList = webClient.getSubmissions(
+                mapOf(
+                    "offset" to 15
+                )
+            )
 
             assertThat(submissionList).hasSize(5)
         }
@@ -152,9 +162,11 @@ internal class SubmissionListApiTest(private val tempFolder: TemporaryFolder) : 
 
             assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
 
-            val submissionList = webClient.getSubmissions(mapOf(
-                "accNo" to "SECT-123"
-            ))
+            val submissionList = webClient.getSubmissions(
+                mapOf(
+                    "accNo" to "SECT-123"
+                )
+            )
 
             assertThat(submissionList).hasOnlyOneElementSatisfying {
                 assertThat(it.accno).isEqualTo("SECT-123")
@@ -179,9 +191,11 @@ internal class SubmissionListApiTest(private val tempFolder: TemporaryFolder) : 
 
             assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
 
-            val submissionList = webClient.getSubmissions(mapOf(
-                "accNo" to "SECT-124"
-            ))
+            val submissionList = webClient.getSubmissions(
+                mapOf(
+                    "accNo" to "SECT-124"
+                )
+            )
 
             assertThat(submissionList).hasOnlyOneElementSatisfying {
                 assertThat(it.accno).isEqualTo("SECT-124")

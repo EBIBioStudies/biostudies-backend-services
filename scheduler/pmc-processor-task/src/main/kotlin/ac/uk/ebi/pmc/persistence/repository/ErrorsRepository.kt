@@ -12,7 +12,5 @@ class ErrorsRepository(private val collection: MongoCollection<SubmissionErrorDo
 
     suspend fun findAll() = collection.find().toList()
 
-    suspend fun deleteAll() {
-        collection.drop().awaitFirstOrNull()
-    }
+    suspend fun deleteAll() = collection.drop().awaitFirstOrNull()
 }

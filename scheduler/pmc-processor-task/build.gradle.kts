@@ -17,7 +17,6 @@ import SpringBootDependencies.SpringBootStarterTest
 import TestDependencies.AssertJ
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
-import TestDependencies.Junit
 import TestDependencies.TestContainerJUnit
 import TestDependencies.TestContainerMongoDb
 import TestDependencies.Wiremock

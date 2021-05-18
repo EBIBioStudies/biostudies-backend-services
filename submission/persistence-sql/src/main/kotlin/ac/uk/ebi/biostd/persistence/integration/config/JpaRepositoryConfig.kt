@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories
 
 @EnableJpaRepositories(
     repositoryFactoryBeanClass = EntityGraphJpaRepositoryFactoryBean::class,
-    basePackageClasses = [SubmissionDataRepository::class])
+    basePackageClasses = [SubmissionDataRepository::class]
+)
 @EntityScan(basePackageClasses = [DbSubmission::class])
 internal class JpaRepositoryConfig

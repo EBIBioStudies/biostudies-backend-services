@@ -75,32 +75,42 @@ class ExtSubmissionSerializerTest {
                 "section" to jsonObj {
                     "type" to "Study"
                 }
-                "attributes" to jsonArray(jsonObj {
-                    "name" to "AttachTo"
-                    "value" to "BioImages"
-                    "reference" to false
-                    "nameAttrs" to jsonArray()
-                    "valueAttrs" to jsonArray()
-                })
-                "tags" to jsonArray(jsonObj {
-                    "name" to "component"
-                    "value" to "web"
-                })
-                "collections" to jsonArray(jsonObj {
-                    "accNo" to "BioImages"
-                })
-                "stats" to jsonArray(jsonObj {
-                    "name" to "component"
-                    "value" to "web"
-                })
+                "attributes" to jsonArray(
+                    jsonObj {
+                        "name" to "AttachTo"
+                        "value" to "BioImages"
+                        "reference" to false
+                        "nameAttrs" to jsonArray()
+                        "valueAttrs" to jsonArray()
+                    }
+                )
+                "tags" to jsonArray(
+                    jsonObj {
+                        "name" to "component"
+                        "value" to "web"
+                    }
+                )
+                "collections" to jsonArray(
+                    jsonObj {
+                        "accNo" to "BioImages"
+                    }
+                )
+                "stats" to jsonArray(
+                    jsonObj {
+                        "name" to "component"
+                        "value" to "web"
+                    }
+                )
                 "accessTags" to
                     if (released) jsonArray(
                         jsonObj { "name" to "BioImages" },
                         jsonObj { "name" to "owner@mail.org" },
-                        jsonObj { "name" to "Public" })
+                        jsonObj { "name" to "Public" }
+                    )
                     else jsonArray(
                         jsonObj { "name" to "BioImages" },
-                        jsonObj { "name" to "owner@mail.org" })
+                        jsonObj { "name" to "owner@mail.org" }
+                    )
             }
         }
 

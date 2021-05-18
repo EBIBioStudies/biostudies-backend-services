@@ -11,12 +11,11 @@ import com.github.cloudyrock.spring.v5.MongockSpring5
 import com.github.cloudyrock.spring.v5.MongockSpring5.MongockApplicationRunner
 import com.mongodb.ConnectionString
 import com.mongodb.MongoClientSettings
-import com.mongodb.client.MongoClients
 import com.mongodb.reactivestreams.client.MongoClient
 import org.litote.kmongo.reactivestreams.KMongo
+import com.mongodb.client.MongoClients
 import org.springframework.boot.ApplicationRunner
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
-import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -26,10 +25,10 @@ import org.springframework.data.mongodb.core.MongoTemplate
 const val CHANGE_LOG_COLLECTION = "pmc_mongockChangeLog"
 const val CHANGE_LOG_LOCK = "pmc_mongockLock"
 
- const val ERRORS_COL = "pmc_errors"
- const val SUBMISSION_COL = "pmc_submissions"
- const val SUB_FILES_COL = "pmc_submissions_files"
- const val INPUT_FILES_COL = "pmc_input_files"
+const val ERRORS_COL = "pmc_errors"
+const val SUBMISSION_COL = "pmc_submissions"
+const val SUB_FILES_COL = "pmc_submissions_files"
+const val INPUT_FILES_COL = "pmc_input_files"
 
 @Configuration
 class PersistenceConfig(val properties: PmcImporterProperties) : AbstractMongoClientConfiguration() {

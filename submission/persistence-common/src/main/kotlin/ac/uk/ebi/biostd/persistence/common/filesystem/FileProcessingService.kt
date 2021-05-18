@@ -45,14 +45,16 @@ class FileProcessingService {
         processFile: (file: ExtFile) -> ExtFile
     ) = either.bimap(
         { extFile -> processFile(extFile) },
-        { extTable -> extTable.copy(files = extTable.files.map { processFile(it) }) })
+        { extTable -> extTable.copy(files = extTable.files.map { processFile(it) }) }
+    )
 
     private fun processSections(
         subSection: Either<ExtSection, ExtSectionTable>,
         processFile: (file: ExtFile) -> ExtFile
     ) = subSection.bimap(
         { processSection(it, processFile) },
-        { it.copy(sections = it.sections.map { subSect -> processSection(subSect, processFile) }) })
+        { it.copy(sections = it.sections.map { subSect -> processSection(subSect, processFile) }) }
+    )
 }
 
 data class FileProcessingRequest(

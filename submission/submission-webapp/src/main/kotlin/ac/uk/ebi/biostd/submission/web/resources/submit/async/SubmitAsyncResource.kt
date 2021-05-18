@@ -31,7 +31,8 @@ import org.springframework.web.bind.annotation.RestController
 class SubmitAsyncResource(private val submitWebHandler: SubmitWebHandler) {
     @PostMapping(
         headers = ["$SUBMISSION_TYPE=$TEXT_XML"],
-        produces = [APPLICATION_JSON_VALUE])
+        produces = [APPLICATION_JSON_VALUE]
+    )
     fun submitXml(
         @BioUser user: SecurityUser,
         onBehalfRequest: OnBehalfRequest?,
@@ -53,7 +54,8 @@ class SubmitAsyncResource(private val submitWebHandler: SubmitWebHandler) {
 
     @PostMapping(
         headers = ["$SUBMISSION_TYPE=$TEXT_PLAIN"],
-        produces = [APPLICATION_JSON_VALUE])
+        produces = [APPLICATION_JSON_VALUE]
+    )
     @ResponseBody
     fun submitTsv(
         @BioUser user: SecurityUser,
@@ -76,7 +78,8 @@ class SubmitAsyncResource(private val submitWebHandler: SubmitWebHandler) {
 
     @PostMapping(
         headers = ["$SUBMISSION_TYPE=$APPLICATION_JSON"],
-        produces = [APPLICATION_JSON_VALUE])
+        produces = [APPLICATION_JSON_VALUE]
+    )
     fun submitJson(
         @BioUser user: SecurityUser,
         onBehalfRequest: OnBehalfRequest?,

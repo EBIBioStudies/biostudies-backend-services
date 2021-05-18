@@ -15,20 +15,28 @@ class ExtLinksTableSerializerTest {
 
     @Test
     fun serialize() {
-        val extLinksTable = ExtLinkTable(listOf(ExtLink(
-            url = "http://mylink.org",
-            attributes = listOf(ExtAttribute("Type", "Resource", false))
-        )))
+        val extLinksTable = ExtLinkTable(
+            listOf(
+                ExtLink(
+                    url = "http://mylink.org",
+                    attributes = listOf(ExtAttribute("Type", "Resource", false))
+                )
+            )
+        )
         val expectedJson = jsonObj {
-            "links" to jsonArray(jsonObj {
-                "url" to "http://mylink.org"
-                "attributes" to jsonArray(jsonObj {
-                    "name" to "Type"
-                    "value" to "Resource"
-                    "reference" to false
-                })
-                "extType" to "link"
-            })
+            "links" to jsonArray(
+                jsonObj {
+                    "url" to "http://mylink.org"
+                    "attributes" to jsonArray(
+                        jsonObj {
+                            "name" to "Type"
+                            "value" to "Resource"
+                            "reference" to false
+                        }
+                    )
+                    "extType" to "link"
+                }
+            )
             "extType" to "linksTable"
         }.toString()
 

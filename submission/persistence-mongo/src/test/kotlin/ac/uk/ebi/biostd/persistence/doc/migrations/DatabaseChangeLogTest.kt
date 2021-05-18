@@ -123,7 +123,12 @@ internal class DatabaseChangeLogTest(
         runner.run(DefaultApplicationArguments())
     }
 
-    private val request = SubmissionRequest(accNo = "accNo", version = 1, status = REQUESTED,submission = BasicDBObject.parse("{}"))
+    private val request = SubmissionRequest(
+        accNo = "accNo",
+        version = 1,
+        status = REQUESTED,
+        submission = BasicDBObject.parse("{}")
+    )
 
     companion object {
         @Container

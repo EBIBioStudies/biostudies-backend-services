@@ -82,9 +82,11 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
             }
 
             assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
-            assertThat(submissionRepository.getSimpleByAccNo("SimpleAcc1")).isEqualTo(submission("SimpleAcc1") {
-                title = "Simple Submission"
-            })
+            assertThat(submissionRepository.getSimpleByAccNo("SimpleAcc1")).isEqualTo(
+                submission("SimpleAcc1") {
+                    title = "Simple Submission"
+                }
+            )
         }
 
         @Test

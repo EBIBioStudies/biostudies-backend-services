@@ -1,39 +1,34 @@
 package ac.uk.ebi.pmc.migrations
 
-import ac.uk.ebi.pmc.config.*
 import ac.uk.ebi.pmc.config.PersistenceConfig.Companion.createMongockConfig
-import ac.uk.ebi.pmc.docSubmission
-import ac.uk.ebi.pmc.inputFileDoc
-import ac.uk.ebi.pmc.persistence.docs.FileDoc
+import ac.uk.ebi.pmc.config.PropConfig
+import ac.uk.ebi.pmc.config.PersistenceConfig
+import ac.uk.ebi.pmc.config.ERRORS_COL
+import ac.uk.ebi.pmc.config.SUBMISSION_COL
+import ac.uk.ebi.pmc.config.SUB_FILES_COL
+import ac.uk.ebi.pmc.config.INPUT_FILES_COL
 import ac.uk.ebi.pmc.persistence.docs.FileDoc.Fields.FILE_DOC_ACC_NO
 import ac.uk.ebi.pmc.persistence.docs.FileDoc.Fields.FILE_DOC_PATH
-import ac.uk.ebi.pmc.persistence.docs.InputFileDoc
-import ac.uk.ebi.pmc.persistence.docs.SubmissionDoc
 import ac.uk.ebi.pmc.persistence.docs.SubmissionDoc.Fields.SUB_ACC_NO
 import ac.uk.ebi.pmc.persistence.docs.SubmissionDoc.Fields.SUB_POS_IN_FILE
 import ac.uk.ebi.pmc.persistence.docs.SubmissionDoc.Fields.SUB_SOURCE_FILE
 import ac.uk.ebi.pmc.persistence.docs.SubmissionDoc.Fields.SUB_SOURCE_TIME
 import ac.uk.ebi.pmc.persistence.docs.SubmissionDoc.Fields.SUB_STATUS
-import ac.uk.ebi.pmc.persistence.docs.SubmissionErrorDoc
 import ac.uk.ebi.pmc.persistence.docs.SubmissionErrorDoc.Fields.ERROR_ACCNO
 import ac.uk.ebi.pmc.persistence.docs.SubmissionErrorDoc.Fields.ERROR_MODE
 import ac.uk.ebi.pmc.persistence.docs.SubmissionErrorDoc.Fields.ERROR_SOURCE_FILE
 import ac.uk.ebi.pmc.persistence.docs.SubmissionErrorDoc.Fields.ERROR_UPLOADED
-import ac.uk.ebi.pmc.submissionErrorDoc
-import ac.uk.ebi.pmc.submissionFileDoc
-import com.mongodb.MongoNamespace
 import ebi.ac.uk.db.MONGO_VERSION
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.*
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.litote.kmongo.newId
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.DefaultApplicationArguments
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.ApplicationContext
 import org.springframework.data.domain.Sort.Direction.ASC
 import org.springframework.data.mongodb.core.MongoTemplate
-import org.springframework.data.mongodb.core.findAll
 import org.springframework.data.mongodb.core.index.Index
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
@@ -42,7 +37,6 @@ import org.testcontainers.containers.MongoDBContainer
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.utility.DockerImageName
-import kotlin.reflect.KClass
 
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(classes = [PropConfig::class, PersistenceConfig::class])

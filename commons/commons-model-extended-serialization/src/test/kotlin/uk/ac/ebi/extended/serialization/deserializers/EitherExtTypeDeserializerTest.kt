@@ -40,10 +40,12 @@ class EitherExtTypeDeserializerTest(private val tempFolder: TemporaryFolder) {
     @Test
     fun `links table`() {
         val json = jsonObj {
-            "links" to jsonArray(jsonObj {
-                "url" to "http://mylink.org"
-                "extType" to "link"
-            })
+            "links" to jsonArray(
+                jsonObj {
+                    "url" to "http://mylink.org"
+                    "extType" to "link"
+                }
+            )
             "extType" to "linksTable"
         }.toString()
 
@@ -78,12 +80,14 @@ class EitherExtTypeDeserializerTest(private val tempFolder: TemporaryFolder) {
     fun `files table`() {
         val file = tempFolder.createFile("test-file-table.txt")
         val json = jsonObj {
-            "files" to jsonArray(jsonObj {
-                "file" to file.absolutePath
-                "fileName" to "test-file-table.txt"
-                "path" to "test-file-table.txt"
-                "extType" to "file"
-            })
+            "files" to jsonArray(
+                jsonObj {
+                    "file" to file.absolutePath
+                    "fileName" to "test-file-table.txt"
+                    "path" to "test-file-table.txt"
+                    "extType" to "file"
+                }
+            )
             "extType" to "filesTable"
         }.toString()
 
@@ -114,10 +118,12 @@ class EitherExtTypeDeserializerTest(private val tempFolder: TemporaryFolder) {
     @Test
     fun `sections table`() {
         val json = jsonObj {
-            "sections" to jsonArray(jsonObj {
-                "type" to "Study"
-                "extType" to "section"
-            })
+            "sections" to jsonArray(
+                jsonObj {
+                    "type" to "Study"
+                    "extType" to "section"
+                }
+            )
             "extType" to "sectionsTable"
         }.toString()
 

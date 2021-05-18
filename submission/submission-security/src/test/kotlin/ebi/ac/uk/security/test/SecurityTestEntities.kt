@@ -35,20 +35,23 @@ internal class SecurityTestEntities {
                 password = password,
                 instanceKey = instanceKey,
                 captcha = captcha,
-                path = path)
+                path = path
+            )
 
         val resetPasswordRequest: ResetPasswordRequest
             get() = ResetPasswordRequest(
                 email = email,
                 instanceKey = instanceKey,
                 path = path,
-                captcha = captcha)
+                captcha = captcha
+            )
 
         val retryActivation: RetryActivationRequest
             get() = RetryActivationRequest(
                 email = email,
                 instanceKey = instanceKey,
-                path = path)
+                path = path
+            )
 
         const val secret = "secret"
         val passwordDiggest = ByteArray(0)
@@ -59,7 +62,8 @@ internal class SecurityTestEntities {
                 email = email,
                 fullName = name,
                 secret = secret,
-                passwordDigest = passwordDiggest)
+                passwordDigest = passwordDiggest
+            )
         }
 
         fun securityUser(): SecurityUser =
@@ -83,7 +87,8 @@ internal class SecurityTestEntities {
                 fullName = name,
                 secret = secret,
                 passwordDigest = passwordDiggest,
-                superuser = true)
+                superuser = true
+            )
         }
     }
 }

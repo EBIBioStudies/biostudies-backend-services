@@ -21,12 +21,12 @@ internal class AttributeConverterTest {
         assertThat(result[DocAttributeFields.ATTRIBUTE_DOC_VALUE]).isEqualTo(docAttributeValue)
         assertThat(result[DocAttributeFields.ATTRIBUTE_DOC_REFERENCE]).isEqualTo(true)
 
-        val nameAttributes = result[DocAttributeFields.ATTRIBUTE_DOC_NAME_ATTRS] as List<Document>
+        val nameAttributes = result.getAs<List<Document>>(DocAttributeFields.ATTRIBUTE_DOC_NAME_ATTRS)
         val nameAttribute = nameAttributes.first()
         assertThat(nameAttribute[DocAttributeFields.ATTRIBUTE_DETAIL_NAME]).isEqualTo(docNameAttributeName)
         assertThat(nameAttribute[DocAttributeFields.ATTRIBUTE_DETAIL_VALUE]).isEqualTo(docNameAttributeValue)
 
-        val valueAttributes = result[DocAttributeFields.ATTRIBUTE_DOC_VALUE_ATTRS] as List<Document>
+        val valueAttributes = result.getAs<List<Document>>(DocAttributeFields.ATTRIBUTE_DOC_VALUE_ATTRS)
         val valueAttribute = valueAttributes.first()
         assertThat(valueAttribute[DocAttributeFields.ATTRIBUTE_DETAIL_NAME]).isEqualTo(docValueAttributeName)
         assertThat(valueAttribute[DocAttributeFields.ATTRIBUTE_DETAIL_VALUE]).isEqualTo(docValueAttributeValue)
@@ -38,7 +38,8 @@ internal class AttributeConverterTest {
             value = docAttributeValue,
             reference = true,
             nameAttrs = docAttributeNameAttrs,
-            valueAttrs = docAttributeValueAttrs)
+            valueAttrs = docAttributeValueAttrs
+        )
     }
 
     private companion object {

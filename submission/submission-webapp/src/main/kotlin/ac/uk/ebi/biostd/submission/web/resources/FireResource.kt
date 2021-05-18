@@ -43,7 +43,8 @@ class FireResource(
         @RequestParam("md5") md5: String,
         @RequestParam("accNo") accNo: String
     ): FireFile = fireWebClient.save(
-        tempFileGenerator.asFile(multipartFile), path, md5, MetadataEntry("submissionAccNo", accNo))
+        tempFileGenerator.asFile(multipartFile), path, md5, MetadataEntry("submissionAccNo", accNo)
+    )
 
     @PutMapping
     fun move(

@@ -14,8 +14,8 @@ data class SubmissionErrorDoc(
 
     constructor(submission: SubmissionDoc, error: String, mode: PmcMode) :
         this(submission.sourceFile, submission.body, error, mode) {
-        this.accNo = submission.accNo
-    }
+            this.accNo = submission.accNo
+        }
     companion object Fields {
         const val ERROR_SOURCE_FILE = "sourceFile"
         const val ERROR_SUB_TEXT = "submissionText"

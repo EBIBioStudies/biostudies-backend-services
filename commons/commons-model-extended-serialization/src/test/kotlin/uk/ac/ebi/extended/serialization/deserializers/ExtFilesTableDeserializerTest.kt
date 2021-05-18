@@ -19,16 +19,20 @@ class ExtFilesTableDeserializerTest(private val tempFolder: TemporaryFolder) {
     fun deserialize() {
         val file = tempFolder.createFile("test-file.txt")
         val json = jsonObj {
-            "files" to jsonArray(jsonObj {
-                "file" to file.absolutePath
-                "fileName" to "test-file.txt"
-                "path" to "test-file.txt"
-                "attributes" to jsonArray(jsonObj {
-                    "name" to "Type"
-                    "value" to "Data"
-                })
-                "extType" to "file"
-            })
+            "files" to jsonArray(
+                jsonObj {
+                    "file" to file.absolutePath
+                    "fileName" to "test-file.txt"
+                    "path" to "test-file.txt"
+                    "attributes" to jsonArray(
+                        jsonObj {
+                            "name" to "Type"
+                            "value" to "Data"
+                        }
+                    )
+                    "extType" to "file"
+                }
+            )
             "extType" to "filesTable"
         }.toString()
 

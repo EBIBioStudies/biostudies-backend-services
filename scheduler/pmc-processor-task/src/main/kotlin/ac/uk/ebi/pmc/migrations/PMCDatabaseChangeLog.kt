@@ -1,17 +1,16 @@
 package ac.uk.ebi.pmc.migrations
 
-import ac.uk.ebi.pmc.config.*
-import ac.uk.ebi.pmc.persistence.docs.FileDoc
+import ac.uk.ebi.pmc.config.ERRORS_COL
+import ac.uk.ebi.pmc.config.INPUT_FILES_COL
+import ac.uk.ebi.pmc.config.SUBMISSION_COL
+import ac.uk.ebi.pmc.config.SUB_FILES_COL
 import ac.uk.ebi.pmc.persistence.docs.FileDoc.Fields.FILE_DOC_ACC_NO
 import ac.uk.ebi.pmc.persistence.docs.FileDoc.Fields.FILE_DOC_PATH
-import ac.uk.ebi.pmc.persistence.docs.InputFileDoc
-import ac.uk.ebi.pmc.persistence.docs.SubmissionDoc
 import ac.uk.ebi.pmc.persistence.docs.SubmissionDoc.Fields.SUB_ACC_NO
 import ac.uk.ebi.pmc.persistence.docs.SubmissionDoc.Fields.SUB_POS_IN_FILE
 import ac.uk.ebi.pmc.persistence.docs.SubmissionDoc.Fields.SUB_SOURCE_FILE
 import ac.uk.ebi.pmc.persistence.docs.SubmissionDoc.Fields.SUB_SOURCE_TIME
 import ac.uk.ebi.pmc.persistence.docs.SubmissionDoc.Fields.SUB_STATUS
-import ac.uk.ebi.pmc.persistence.docs.SubmissionErrorDoc
 import ac.uk.ebi.pmc.persistence.docs.SubmissionErrorDoc.Fields.ERROR_ACCNO
 import ac.uk.ebi.pmc.persistence.docs.SubmissionErrorDoc.Fields.ERROR_MODE
 import ac.uk.ebi.pmc.persistence.docs.SubmissionErrorDoc.Fields.ERROR_SOURCE_FILE

@@ -1,13 +1,9 @@
 package ac.uk.ebi.pmc.migrations
 
-import ac.uk.ebi.pmc.persistence.docs.SubmissionDoc
 import com.github.cloudyrock.mongock.driver.mongodb.springdata.v3.decorator.impl.MongockTemplate
-import com.mongodb.MongoNamespace
-import com.mongodb.client.MongoCollection
 import io.mockk.every
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
-import org.bson.Document
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.data.mongodb.core.createCollection

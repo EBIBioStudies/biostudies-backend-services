@@ -30,10 +30,12 @@ fun extSubmissionWithFileList(files: List<File>, referencedFiles: List<File>) =
         attributes = emptyList(),
         tags = emptyList(),
         collections = emptyList(),
-        section = extSectionWithFileList(files, referencedFiles))
+        section = extSectionWithFileList(files, referencedFiles)
+    )
 
 fun extSectionWithFileList(files: List<File>, referencedFiles: List<File>) =
     ExtSection(
         type = "Study",
         files = files.map { left(ExtFile(it.name, it, emptyList())) },
-        fileList = ExtFileList("fileList", referencedFiles.map { ExtFile(it.name, it, emptyList()) }))
+        fileList = ExtFileList("fileList", referencedFiles.map { ExtFile(it.name, it, emptyList()) })
+    )

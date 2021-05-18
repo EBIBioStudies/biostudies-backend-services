@@ -41,11 +41,14 @@ class PmcTaskExecutor(
                 PmcMode.PROCESS -> context.getBean<PmcSubmissionProcessor>().processSubmissions()
                 PmcMode.SUBMIT -> context.getBean<PmcSubmissionSubmitter>().submit()
             }
-        }.fold({
-            logger.error(it) { "Error executing pmc task, mode = ${properties.mode} " }
-            notificationSender.send(Alert(SYSTEM, mode.description, "Error executing process", it.message))
-        }, {
-            notificationSender.send(Report(SYSTEM, mode.description, "Process was completed successfully"))
-        })
+        }.fold(
+            {
+                logger.error(it) { "Error executing pmc task, mode = ${properties.mode} " }
+                notificationSender.send(Alert(SYSTEM, mode.description, "Error executing process", it.message))
+            },
+            {
+                notificationSender.send(Report(SYSTEM, mode.description, "Process was completed successfully"))
+            }
+        )
     }
 }

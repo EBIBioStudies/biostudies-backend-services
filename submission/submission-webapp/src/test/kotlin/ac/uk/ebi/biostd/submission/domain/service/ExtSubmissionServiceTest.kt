@@ -66,7 +66,8 @@ class ExtSubmissionServiceTest(
             toRTime = "2020-09-21T15:00:00Z",
             released = true,
             offset = 1,
-            limit = 2)
+            limit = 2
+        )
 
         val pageable = Pageable.unpaged()
         val result1 = Result.success(extSubmission)

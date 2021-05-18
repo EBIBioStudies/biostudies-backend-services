@@ -47,7 +47,6 @@ class MongoDbReposConfig {
 
     @Bean
     internal fun fileListDocFileDocDataRepository(
-        mongoTemplate: MongoTemplate,
         fileListDocFileRepository: FileListDocFileRepository
-    ): FileListDocFileDocDataRepository = FileListDocFileDocDataRepository(fileListDocFileRepository, mongoTemplate)
+    ): FileListDocFileDocDataRepository = FileListDocFileDocDataRepository(fileListDocFileRepository)
 }
