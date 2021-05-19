@@ -15,6 +15,7 @@ import com.github.cloudyrock.mongock.ChangeSet
 import com.github.cloudyrock.mongock.driver.mongodb.springdata.v3.decorator.impl.MongockTemplate
 import org.springframework.data.domain.Sort.Direction.ASC
 import org.springframework.data.mongodb.core.index.Index
+import org.springframework.data.mongodb.core.index.TextIndexDefinition.builder as TextIndex
 
 @ChangeLog
 class DatabaseChangeLog {
@@ -29,7 +30,7 @@ class DatabaseChangeLog {
             ensureIndex(Index().on(SUB_ACC_NO, ASC).on(SUB_VERSION, ASC))
             ensureIndex(Index().on("$SUB_SECTION.$SEC_TYPE", ASC))
             ensureIndex(Index().on(SUB_RELEASE_TIME, ASC))
-            ensureIndex(Index().on(SUB_TITLE, ASC))
+            ensureIndex(TextIndex().onField(SUB_TITLE).build())
             ensureIndex(Index().on(SUB_RELEASED, ASC))
         }
 
@@ -39,7 +40,7 @@ class DatabaseChangeLog {
             ensureIndex(Index().on("submission.$SUB_SECTION.$SEC_TYPE", ASC))
             ensureIndex(Index().on("submission.$SUB_ACC_NO", ASC))
             ensureIndex(Index().on("submission.$SUB_RELEASE_TIME", ASC))
-            ensureIndex(Index().on("submission.$SUB_TITLE", ASC))
+            ensureIndex(TextIndex().onField("submission.$SUB_TITLE").build())
             ensureIndex(Index().on("submission.$SUB_RELEASED", ASC))
         }
     }
