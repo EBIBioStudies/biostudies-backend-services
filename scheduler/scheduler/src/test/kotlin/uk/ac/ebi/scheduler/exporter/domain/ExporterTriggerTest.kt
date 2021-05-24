@@ -3,7 +3,7 @@ package uk.ac.ebi.scheduler.exporter.domain
 import ac.uk.ebi.cluster.client.lsf.ClusterOperations
 import ac.uk.ebi.cluster.client.model.Job
 import ac.uk.ebi.cluster.client.model.JobSpec
-import ac.uk.ebi.cluster.client.model.MemorySpec.Companion.EIGHT_GB
+import ac.uk.ebi.cluster.client.model.MemorySpec.Companion.TWENTYFOUR_GB
 import arrow.core.Try
 import ebi.ac.uk.commons.http.slack.NotificationsSender
 import ebi.ac.uk.commons.http.slack.Report
@@ -58,10 +58,10 @@ class ExporterTriggerTest(
     }
 
     private fun verifyJobSpecs(specs: JobSpec) {
-        assertThat(specs.ram).isEqualTo(EIGHT_GB)
+        assertThat(specs.ram).isEqualTo(TWENTYFOUR_GB)
         assertThat(specs.cores).isEqualTo(RELEASER_CORES)
         assertThat(specs.command).isEqualTo("""
-            java -Dsun.jnu.encoding=UTF-8 -jar /apps-folder/exporter-task-1.0.0.jar \
+            java -Dsun.jnu.encoding=UTF-8 -Xmx6g -jar /apps-folder/exporter-task-1.0.0.jar \
             --app.fileName=publicOnlyStudies \
             --app.outputPath=/an/output/path \
             --app.bioStudies.url=http://localhost:8080 \

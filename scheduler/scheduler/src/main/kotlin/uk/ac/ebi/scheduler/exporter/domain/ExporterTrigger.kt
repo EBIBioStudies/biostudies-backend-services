@@ -3,7 +3,7 @@ package uk.ac.ebi.scheduler.exporter.domain
 import ac.uk.ebi.cluster.client.lsf.ClusterOperations
 import ac.uk.ebi.cluster.client.model.Job
 import ac.uk.ebi.cluster.client.model.JobSpec
-import ac.uk.ebi.cluster.client.model.MemorySpec.Companion.EIGHT_GB
+import ac.uk.ebi.cluster.client.model.MemorySpec.Companion.TWENTYFOUR_GB
 import ac.uk.ebi.cluster.client.model.logsPath
 import ac.uk.ebi.scheduler.properties.ExporterProperties
 import ebi.ac.uk.commons.http.slack.NotificationsSender
@@ -41,7 +41,7 @@ class ExporterTrigger(
         val jobTry = clusterOperations.triggerJob(
             JobSpec(
                 cores = EXPORTER_CORES,
-                ram = EIGHT_GB,
+                ram = TWENTYFOUR_GB,
                 command = exporterProperties.asJavaCommand(appProperties.appsFolder)))
 
         return jobTry.fold({ throw it }, { it.apply { logger.info { "submitted job $it" } } })

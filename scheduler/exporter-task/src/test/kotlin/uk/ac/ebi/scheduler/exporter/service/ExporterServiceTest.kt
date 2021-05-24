@@ -61,7 +61,7 @@ class ExporterServiceTest(
     private fun mockBioWebClient() {
         mockkStatic("ac.uk.ebi.biostd.client.extensions.BioWebClientExtKt")
         every {
-            bioWebClient.getExtSubmissionsAsSequence(eq(ExtPageQuery(released = true)))
+            bioWebClient.getExtSubmissionsAsSequence(eq(ExtPageQuery(released = true, limit = 1)))
         } returns sequenceOf(basicExtSubmission)
     }
 

@@ -42,7 +42,7 @@ class ExporterService(
 
     private fun writeSubmissions() {
         bioWebClient
-            .getExtSubmissionsAsSequence(ExtPageQuery(released = true))
+            .getExtSubmissionsAsSequence(ExtPageQuery(released = true, limit = 1))
             .forEach(::writeSubmission)
     }
 

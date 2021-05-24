@@ -14,7 +14,7 @@ class ExporterPropertiesTest {
             bioStudiesPassword = "123456")
 
         assertThat(properties.asJavaCommand("/apps-folder")).isEqualTo("""
-            java -Dsun.jnu.encoding=UTF-8 -jar /apps-folder/exporter-task-1.0.0.jar \
+            java -Dsun.jnu.encoding=UTF-8 -Xmx6g -jar /apps-folder/exporter-task-1.0.0.jar \
             --app.fileName=publicOnlyStudies \
             --app.outputPath=/an/output/path \
             --app.bioStudies.url=http://localhost:8080 \
