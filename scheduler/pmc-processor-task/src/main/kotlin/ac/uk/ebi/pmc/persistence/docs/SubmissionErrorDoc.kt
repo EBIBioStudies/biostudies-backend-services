@@ -14,6 +14,6 @@ data class SubmissionErrorDoc(
 
     constructor(submission: SubmissionDoc, error: String, mode: PmcMode) :
         this(submission.sourceFile, submission.body, error, mode) {
-        this.accNo = submission.accno
-    }
+            this.accNo = submission.accno
+        }
 }

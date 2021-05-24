@@ -27,7 +27,7 @@ import uk.ac.ebi.events.service.EventsPublisherService
 
 private val logger = KotlinLogging.logger {}
 
-@Suppress("TooManyFunctions")
+@Suppress("TooManyFunctions", "LongParameterList")
 class SubmissionService(
     private val submissionQueryService: SubmissionQueryService,
     private val serializationService: SerializationService,

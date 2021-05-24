@@ -55,7 +55,7 @@ internal class SubmissionMongoQueryService(
         submissionRepo.findByAccNo(accNo) ?: throw SubmissionNotFoundException(accNo)
 
     private fun SubmissionRequest.asBasicSubmission() =
-        serializationService.deserialize<ExtSubmission>(this.submission.toString()).asBasicSubmission()
+        serializationService.deserialize<ExtSubmission>(submission.toString()).asBasicSubmission()
 
     private fun getSubmissions(limit: Int, email: String, filter: SubmissionFilter): List<BasicSubmission> =
         when (limit) {

@@ -25,14 +25,20 @@ import javax.xml.bind.annotation.XmlRootElement
 
 internal const val USER_DATA_GRAPH = "DbUser.fullData"
 
-@NamedEntityGraphs(value = [
-    NamedEntityGraph(name = USER_DATA_GRAPH,
-        attributeNodes = [
-            Node("groups"),
-            Node("permissions")
-        ])])
+@NamedEntityGraphs(
+    value = [
+        NamedEntityGraph(
+            name = USER_DATA_GRAPH,
+            attributeNodes = [
+                Node("groups"),
+                Node("permissions")
+            ]
+        )
+    ]
+)
 @Entity
 @Table(name = "User")
+@Suppress("LongParameterList")
 class DbUser(
     @Id
     @GeneratedValue
@@ -54,9 +60,11 @@ class DbUser(
     var passwordDigest: ByteArray,
 
     @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "UserGroup_User",
+    @JoinTable(
+        name = "UserGroup_User",
         joinColumns = [JoinColumn(name = "users_id")],
-        inverseJoinColumns = [JoinColumn(name = "groups_id")])
+        inverseJoinColumns = [JoinColumn(name = "groups_id")]
+    )
     val groups: MutableSet<UserGroup> = mutableSetOf(),
 
     @Column

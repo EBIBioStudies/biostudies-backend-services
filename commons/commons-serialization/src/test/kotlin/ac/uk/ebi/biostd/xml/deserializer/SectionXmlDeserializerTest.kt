@@ -16,7 +16,8 @@ class SectionXmlDeserializerTest {
             xml("section") {
                 attribute("accno", "SECT-123")
                 attribute("type", "Study")
-            }.toString())
+            }.toString()
+        )
 
         assertThat(testInstance.deserialize(xmlSection)).isEqualTo(Section("Study", "SECT-123"))
     }
@@ -27,7 +28,8 @@ class SectionXmlDeserializerTest {
             xml("section") {
                 attribute("accno", "CMP-123")
                 attribute("type", "Compound")
-            }.toString())
+            }.toString()
+        )
 
         assertThat(testInstance.deserialize(xmlSection)).isEqualTo(Section("Compound", "CMP-123"))
     }

@@ -44,7 +44,8 @@ class SubmitterConfig {
         parentInfoService,
         collectionInfoService,
         requestService,
-        submissionQueryService)
+        submissionQueryService
+    )
 
     @Configuration
     class FilesHandlerConfig(private val appProperties: ApplicationProperties) {
@@ -52,7 +53,8 @@ class SubmitterConfig {
         @Lazy
         fun folderResolver() = SubmissionFolderResolver(
             submissionFolder = Paths.get(appProperties.submissionPath),
-            ftpFolder = Paths.get(appProperties.ftpPath))
+            ftpFolder = Paths.get(appProperties.ftpPath)
+        )
     }
 
     @Configuration

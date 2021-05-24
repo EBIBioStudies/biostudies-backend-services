@@ -24,10 +24,12 @@ class ExtFileDeserializerTest(private val tempFolder: TemporaryFolder) {
             "file" to file.absolutePath
             "fileName" to "test-file.txt"
             "path" to "test-file.txt"
-            "attributes" to jsonArray(jsonObj {
-                "name" to "Type"
-                "value" to "Data"
-            })
+            "attributes" to jsonArray(
+                jsonObj {
+                    "name" to "Type"
+                    "value" to "Data"
+                }
+            )
             "extType" to "file"
         }.toString()
 
@@ -46,10 +48,12 @@ class ExtFileDeserializerTest(private val tempFolder: TemporaryFolder) {
             "file" to file.absolutePath
             "fileName" to "test-file.txt"
             "path" to "a/b/test-file.txt"
-            "attributes" to jsonArray(jsonObj {
-                "name" to "Type"
-                "value" to "Data"
-            })
+            "attributes" to jsonArray(
+                jsonObj {
+                    "name" to "Type"
+                    "value" to "Data"
+                }
+            )
             "extType" to "file"
         }.toString()
 

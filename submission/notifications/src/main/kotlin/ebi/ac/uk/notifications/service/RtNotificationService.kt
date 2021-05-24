@@ -66,7 +66,8 @@ class RtNotificationService(
             ownerFullName,
             submission.accNo,
             submission.title ?: "",
-            submission.releaseTime?.toStringDate() ?: "")
+            submission.releaseTime?.toStringDate() ?: ""
+        )
 
     private fun submissionNotification(submission: ExtSubmission, ownerFullName: String, uiUrl: String) =
         SuccessfulSubmissionModel(
@@ -77,5 +78,6 @@ class RtNotificationService(
             submission.secretKey,
             submission.released,
             submission.title ?: "",
-            submission.releaseTime?.toStringDate() ?: "")
+            submission.releaseTime?.toStringDate() ?: ""
+        )
 }

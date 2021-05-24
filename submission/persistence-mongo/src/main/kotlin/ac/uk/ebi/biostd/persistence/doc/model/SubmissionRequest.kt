@@ -10,5 +10,8 @@ data class SubmissionRequest(
     val id: String? = null,
     val accNo: String,
     val version: Int,
+    val status: SubmissionRequestStatus,
     val submission: DBObject
 )
+
+enum class SubmissionRequestStatus { REQUESTED, PROCESSED }

@@ -35,7 +35,7 @@ class SubmissionService {
 
     private inline fun <T> performRequest(request: () -> T) =
         runCatching { request() }
-        .getOrElse { throw PrintMessage(ExceptionUtils.getMessage(it)) }
+            .getOrElse { throw PrintMessage(ExceptionUtils.getMessage(it)) }
 
     private fun bioWebClient(server: String, user: String, password: String) =
         SecurityWebClient

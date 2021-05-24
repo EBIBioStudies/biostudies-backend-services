@@ -27,6 +27,7 @@ import ebi.ac.uk.dsl.tsv
 import ebi.ac.uk.model.extensions.rootPath
 import ebi.ac.uk.model.extensions.title
 import ebi.ac.uk.security.integration.components.IGroupService
+import ebi.ac.uk.test.createFile
 import ebi.ac.uk.util.collections.ifRight
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
@@ -43,6 +44,7 @@ import org.springframework.context.annotation.Import
 import org.springframework.http.HttpStatus
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
+import java.io.File
 import kotlin.test.assertFailsWith
 
 @ExtendWith(TemporaryFolderExtension::class)
@@ -80,9 +82,11 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
             }
 
             assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
-            assertThat(submissionRepository.getSimpleByAccNo("SimpleAcc1")).isEqualTo(submission("SimpleAcc1") {
-                title = "Simple Submission"
-            })
+            assertThat(submissionRepository.getSimpleByAccNo("SimpleAcc1")).isEqualTo(
+                submission("SimpleAcc1") {
+                    title = "Simple Submission"
+                }
+            )
         }
 
         @Test
@@ -138,10 +142,8 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
                 line("Title", "Sample Submission")
                 line("RootPath", rootPath)
                 line()
-
                 line("Study")
                 line()
-
                 line("File", "DataFile7.txt")
                 line()
             }.toString()
@@ -277,18 +279,30 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
                 line("Submission", "S-ABC123")
                 line("Title", "Simple Submission")
                 line()
+                line("Study")
+                line()
+                line("File", "DataFile9.txt")
+                line()
             }.toString()
 
+            val originalFile = tempFolder.createFile("DataFile9.txt", "original, content")
+            webClient.uploadFiles(listOf(originalFile))
             assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
 
             val original = submissionRepository.getExtByAccNo("S-ABC123")
             assertThat(original.title).isEqualTo("Simple Submission")
             assertThat(original.version).isEqualTo(1)
+            assertThat(File("$submissionPath/${original.relPath}/Files/DataFile9.txt")).hasSameContentAs(originalFile)
+
+            originalFile.delete()
+            val newFile = tempFolder.createFile("DataFile9.txt", "new content")
+            webClient.uploadFiles(listOf(newFile))
 
             assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
             val resubmitted = submissionRepository.getExtByAccNo("S-ABC123")
             assertThat(resubmitted.title).isEqualTo("Simple Submission")
             assertThat(resubmitted.version).isEqualTo(2)
+            assertThat(File("$submissionPath/${resubmitted.relPath}/Files/DataFile9.txt")).hasSameContentAs(newFile)
         }
 
         @Test

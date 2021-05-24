@@ -26,7 +26,8 @@ class SubmissionXmlDeserializerTest {
                     attribute("accno", "SECT-123")
                     attribute("type", "Study")
                 }
-            }.toString())
+            }.toString()
+        )
 
         val submission = testInstance.deserialize(xmlSubmission)
         assertThat(submission.accNo).isEqualTo("ABC123")

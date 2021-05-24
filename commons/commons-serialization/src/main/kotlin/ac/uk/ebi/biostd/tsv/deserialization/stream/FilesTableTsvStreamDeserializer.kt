@@ -19,7 +19,8 @@ internal class FilesTableTsvStreamDeserializer(pageTabHeader: List<String>) {
 
         if (attributeValues.size != attributeNames.size) {
             throw InvalidElementException(
-                "Error at row # ${fields.index}. The row must have the same attributes as the header")
+                "Error at row # ${fields.index}. The row must have the same attributes as the header"
+            )
         }
 
         return attributeNames.mapIndexed { index, name -> Attribute(name, attributeValues[index]) }

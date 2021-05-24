@@ -1,4 +1,5 @@
 import Dependencies.JSONOrg
+import Dependencies.KotlinReflect
 import Dependencies.KotlinStdLib
 import Dependencies.SpringWeb
 import TestDependencies.BaseTestCompileDependencies
@@ -11,6 +12,8 @@ dependencies {
     api(project(":commons:commons-serialization"))
     api(project(":commons:commons-model-extended-serialization"))
 
+    implementation(KotlinReflect)
+    implementation(KotlinStdLib)
     implementation(JSONOrg)
     implementation(KotlinStdLib)
     implementation(SpringWeb)

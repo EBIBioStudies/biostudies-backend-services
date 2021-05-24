@@ -8,12 +8,9 @@ import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod
 import ebi.ac.uk.extended.model.ExtTag
-import ebi.ac.uk.io.sources.PathFilesSource
-import java.nio.file.Path
 import java.time.ZoneOffset.UTC
 
 internal const val FILES_DIR = "Files"
-private const val USER_PREFIX = "u"
 
 internal class ToExtSubmissionMapper {
     internal fun toExtSubmission(submission: DocSubmission): ExtSubmission = ExtSubmission(
@@ -49,9 +46,4 @@ internal class ToExtSubmissionMapper {
         DocSubmissionMethod.PAGE_TAB -> ExtSubmissionMethod.PAGE_TAB
         DocSubmissionMethod.UNKNOWN -> ExtSubmissionMethod.UNKNOWN
     }
-
-    private fun submissionSources(filesPath: Path) = listOf(
-        PathFilesSource(filesPath),
-        PathFilesSource(filesPath.resolve(USER_PREFIX))
-    )
 }

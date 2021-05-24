@@ -27,7 +27,6 @@ class SubmissionDocService(
     private val fileRepository: SubFileRepository,
     private val serializationService: SerializationService
 ) {
-
     suspend fun findReadyToProcess() =
         SuspendSequence { submissionRepository.findAndUpdate(LOADED, PROCESSING) }
 
@@ -40,13 +39,16 @@ class SubmissionDocService(
         submissionRepository.update(submission.withStatus(status))
 
     suspend fun saveLoadedVersion(submission: Submission, sourceFile: String, sourceTime: Instant, posInFile: Int) {
-        submissionRepository.insertOrExpire(SubmissionDoc(
-            submission.accNo,
-            asJson(submission),
-            LOADED,
-            sourceFile,
-            posInFile,
-            sourceTime))
+        submissionRepository.insertOrExpire(
+            SubmissionDoc(
+                submission.accNo,
+                asJson(submission),
+                LOADED,
+                sourceFile,
+                posInFile,
+                sourceTime
+            )
+        )
 
         logger.info { "loaded version of submission with accNo = '${submission.accNo}' from file $sourceFile" }
     }

@@ -3,6 +3,7 @@ package ebi.ac.uk.api.security
 import com.fasterxml.jackson.annotation.JsonProperty
 import javax.validation.constraints.Email
 
+@Suppress("LongParameterList")
 class RegisterRequest(
     val name: String,
 

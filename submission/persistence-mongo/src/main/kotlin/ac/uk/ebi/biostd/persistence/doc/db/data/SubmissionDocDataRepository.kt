@@ -75,7 +75,8 @@ class SubmissionDocDataRepository(
     fun expireActiveProcessedVersions(accNo: String) {
         val criteria = where(SUB_ACC_NO).`is`(accNo).andOperator(
             where(SUB_VERSION).gt(0),
-            where(SUB_STATUS).`is`(DocProcessingStatus.PROCESSED))
+            where(SUB_STATUS).`is`(DocProcessingStatus.PROCESSED)
+        )
 
         mongoTemplate.updateMulti(
             Query(criteria),
@@ -86,7 +87,8 @@ class SubmissionDocDataRepository(
 
     fun expireVersion(accNo: String, version: Int) {
         val criteria = where(SUB_ACC_NO).`is`(accNo).andOperator(
-            where(SUB_VERSION).`is`(version))
+            where(SUB_VERSION).`is`(version)
+        )
 
         mongoTemplate.updateMulti(
             Query(criteria),

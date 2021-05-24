@@ -65,7 +65,8 @@ class PmcSubmissionLoader(
     private suspend fun loadSubmission(result: Try<Submission>, body: String, file: FileSpec, positionInFile: Int) =
         result.fold(
             { errorDocService.saveError(file.name, body, PmcMode.LOAD, it) },
-            { submissionService.saveLoadedVersion(it, file.name, file.modified, positionInFile) })
+            { submissionService.saveLoadedVersion(it, file.name, file.modified, positionInFile) }
+        )
 
     private fun deserialize(originalPagetab: String): Pair<String, Try<Submission>> =
         Pair(

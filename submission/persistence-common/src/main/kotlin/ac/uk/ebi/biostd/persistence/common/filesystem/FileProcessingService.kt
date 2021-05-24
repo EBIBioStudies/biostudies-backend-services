@@ -23,7 +23,6 @@ class FileProcessingService {
     fun processFiles(processRequest: FileProcessingRequest): ExtSubmission {
         val (mode, submission, config) = processRequest
         val processFunc: (file: ExtFile) -> ExtFile = if (mode == COPY) config::copy else config::move
-
         return submission.copy(section = processSection(submission.section, processFunc))
     }
 
@@ -46,14 +45,16 @@ class FileProcessingService {
         processFile: (file: ExtFile) -> ExtFile
     ) = either.bimap(
         { extFile -> processFile(extFile) },
-        { extTable -> extTable.copy(files = extTable.files.map { processFile(it) }) })
+        { extTable -> extTable.copy(files = extTable.files.map { processFile(it) }) }
+    )
 
     private fun processSections(
         subSection: Either<ExtSection, ExtSectionTable>,
         processFile: (file: ExtFile) -> ExtFile
     ) = subSection.bimap(
         { processSection(it, processFile) },
-        { it.copy(sections = it.sections.map { subSect -> processSection(subSect, processFile) }) })
+        { it.copy(sections = it.sections.map { subSect -> processSection(subSect, processFile) }) }
+    )
 }
 
 data class FileProcessingRequest(
@@ -64,38 +65,33 @@ data class FileProcessingRequest(
 
 data class FileProcessingConfig(
     val subFolder: File,
-    val currentFilesFolder: File,
+    val tempFolder: File,
     val filePermissions: Set<PosixFilePermission>,
-    val folderPermissions: Set<PosixFilePermission>
+    val dirPermissions: Set<PosixFilePermission>
 )
 
-private fun FileProcessingConfig.copy(extFile: ExtFile): ExtFile {
-    val source = extFile.file
+internal fun FileProcessingConfig.copy(extFile: ExtFile): ExtFile {
+    val source = if (extFile.file.startsWith(subFolder)) tempFolder.resolve(extFile.fileName) else extFile.file
     val target = subFolder.resolve(extFile.fileName)
-    val current = currentFilesFolder.resolve(extFile.fileName)
+    val current = tempFolder.resolve(extFile.fileName)
 
     logger.info { "copying file ${source.absolutePath} into ${target.absolutePath}" }
 
     when {
-        current.exists() && source.md5() == current.md5() ->
-            moveFile(current, target, filePermissions, folderPermissions)
-
-        current.exists() && source.md5() != current.md5() ->
-            copyOrReplaceFile(current, target, filePermissions, folderPermissions)
-
-        else -> copyOrReplaceFile(source, target, filePermissions, folderPermissions)
+        current.exists() && source.md5() == current.md5() -> moveFile(current, target, filePermissions, dirPermissions)
+        else -> copyOrReplaceFile(source, target, filePermissions, dirPermissions)
     }
 
     return extFile.copy(file = target)
 }
 
-private fun FileProcessingConfig.move(extFile: ExtFile): ExtFile {
-    val source = extFile.file
+internal fun FileProcessingConfig.move(extFile: ExtFile): ExtFile {
+    val source = if (extFile.file.startsWith(subFolder)) tempFolder.resolve(extFile.fileName) else extFile.file
     val target = subFolder.resolve(extFile.fileName)
 
     if (target.notExist()) {
         logger.info { "moving file ${source.absolutePath} into ${target.absolutePath}" }
-        moveFile(source, target, filePermissions, folderPermissions)
+        moveFile(source, target, filePermissions, dirPermissions)
     }
 
     return extFile.copy(file = target)

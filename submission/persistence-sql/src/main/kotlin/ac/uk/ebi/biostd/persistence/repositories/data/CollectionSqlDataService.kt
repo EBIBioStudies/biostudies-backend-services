@@ -36,6 +36,7 @@ internal class CollectionSqlDataService(
                 releaseTime = releaseTime,
                 status = status,
                 method = method,
-                owner = owner.email)
+                owner = owner.email
+            )
     }
 }

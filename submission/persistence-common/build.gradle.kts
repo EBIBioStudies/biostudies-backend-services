@@ -1,5 +1,6 @@
 import Dependencies.Arrow
 import Dependencies.KotlinLogging
+import Dependencies.KotlinReflect
 import Dependencies.KotlinStdLib
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
@@ -13,6 +14,7 @@ dependencies {
 
     implementation(Arrow)
     implementation(KotlinStdLib)
+    implementation(KotlinReflect)
     implementation(KotlinLogging)
 
     BaseTestCompileDependencies.forEach { testImplementation(it) }

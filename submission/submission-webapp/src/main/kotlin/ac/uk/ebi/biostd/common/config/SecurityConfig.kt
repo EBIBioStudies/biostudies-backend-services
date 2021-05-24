@@ -94,7 +94,8 @@ class SecurityBeansConfig(private val objectMapper: ObjectMapper, properties: Ap
         queryService,
         userPermissionsService,
         eventsPublisherService,
-        securityProps)
+        securityProps
+    )
 
     @Bean
     fun securityService(securityConfig: SecurityModuleConfig): ISecurityService = securityConfig.securityService()

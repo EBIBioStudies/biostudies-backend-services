@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.submission.web.model
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
 import java.time.OffsetDateTime
 
+@Suppress("LongParameterList")
 class SubmissionFilterRequest(
     val accNo: String? = null,
     val version: Long? = null,

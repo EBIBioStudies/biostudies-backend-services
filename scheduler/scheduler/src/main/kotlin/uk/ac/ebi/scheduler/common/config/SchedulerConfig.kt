@@ -24,7 +24,8 @@ internal class SchedulerConfig {
     ) = ClusterOperations.create(
         sshProperties.user,
         sshProperties.password,
-        sshProperties.server)
+        sshProperties.server
+    )
 
     @Bean
     fun loaderService(

@@ -13,7 +13,9 @@ class DocSectionExtTest {
             type = "Study",
             attributes = listOf(
                 DocAttribute("Author", "Me"),
-                DocAttribute(SectionFields.TITLE.value, "Test Title")))
+                DocAttribute(SectionFields.TITLE.value, "Test Title")
+            )
+        )
 
         assertThat(section.title).isEqualTo("Test Title")
     }
@@ -23,7 +25,8 @@ class DocSectionExtTest {
         val section = DocSection(
             id = secId,
             type = "Study",
-            attributes = listOf(DocAttribute("Author", "Me")))
+            attributes = listOf(DocAttribute("Author", "Me"))
+        )
 
         assertThat(section.title).isNull()
     }

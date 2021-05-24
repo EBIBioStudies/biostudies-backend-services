@@ -23,7 +23,8 @@ class ValidationExceptionHandler {
         val node = ValidationNode(
             ERROR,
             exception.message ?: exception.javaClass.name,
-            exception.causes.map { ValidationNode(ERROR, it.message ?: it.javaClass.name) })
+            exception.causes.map { ValidationNode(ERROR, it.message ?: it.javaClass.name) }
+        )
 
         return ValidationTree(FAIL, node)
     }

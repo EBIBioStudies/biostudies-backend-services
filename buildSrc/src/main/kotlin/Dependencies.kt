@@ -29,6 +29,7 @@ import Versions.KotlinLoggingVersion
 import Versions.KotlinVersion
 import Versions.Log4JVersion
 import Versions.LogbackVersion
+import Versions.MongockVersion
 import Versions.MySqlVersion
 import Versions.OkHttpLoggingVersion
 import Versions.PoiVersion
@@ -64,12 +65,13 @@ object Versions {
     const val SpringVersion = "5.2.1.RELEASE"
     const val SpringAdminVersion = "2.1.6"
 
-    const val KotlinVersion = "1.3.72"
+    const val KotlinVersion = "1.4.32"
     const val KotlinLoggingVersion = "1.6.20"
     const val KotlinArrowVersion = "0.8.2"
-    const val KotlinCoroutineVersion = "1.3.8"
-    const val KMongoCoroutineVersion = "3.12.2"
+    const val KotlinCoroutineVersion = "1.4.3"
+    const val KMongoCoroutineVersion = "4.1.3"
     const val JpaEntityGraphVersion = "2.2.3"
+    const val MongockVersion = "4.3.8"
 
     const val CommonsLang3Version = "3.8.1"
     const val CommonsIOVersion = "2.6"
@@ -150,7 +152,11 @@ object Dependencies {
     const val HibernateEntityManager = "org.hibernate:hibernate-entitymanager:$HibernateEMVersion"
     const val MySql = "mysql:mysql-connector-java:$MySqlVersion"
     const val KMongoCoroutine = "org.litote.kmongo:kmongo-coroutine:$KMongoCoroutineVersion"
+    const val KMongoAsync = "org.litote.kmongo:kmongo-async:$KMongoCoroutineVersion"
     const val JpaEntityGraph = "com.cosium.spring.data:spring-data-jpa-entity-graph:$JpaEntityGraphVersion"
+    const val MongockBom = "com.github.cloudyrock.mongock:mongock-bom:$MongockVersion"
+    const val MongockSpringV5 = "com.github.cloudyrock.mongock:mongock-spring-v5:$MongockVersion"
+    const val MongockSpringDataV3 = "com.github.cloudyrock.mongock:mongodb-springdata-v3-driver:$MongockVersion"
 
     // Misc
     const val ServletApi = "javax.servlet:javax.servlet-api:$ServletVersion"

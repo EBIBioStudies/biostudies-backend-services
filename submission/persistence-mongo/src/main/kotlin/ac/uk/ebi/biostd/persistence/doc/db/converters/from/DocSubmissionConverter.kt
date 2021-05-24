@@ -61,11 +61,11 @@ class DocSubmissionConverter(
         stats = source.getDocList(SUB_STATS).map { toDocStat(it) }
     )
 
-private fun toDocTag(doc: Document): DocTag =
-    DocTag(name = doc.getString(TAG_DOC_NAME), value = doc.getString(TAG_DOC_VALUE))
+    private fun toDocTag(doc: Document): DocTag =
+        DocTag(name = doc.getString(TAG_DOC_NAME), value = doc.getString(TAG_DOC_VALUE))
 
-private fun toDocStat(doc: Document): DocStat =
-    DocStat(name = doc.getString(STAT_DOC_NAME), value = doc.getLong(STAT_DOC_VALUE))
+    private fun toDocStat(doc: Document): DocStat =
+        DocStat(name = doc.getString(STAT_DOC_NAME), value = doc.getLong(STAT_DOC_VALUE))
 
     private fun toDocCollection(doc: Document): DocCollection = DocCollection(accNo = doc.getString(PROJECT_DOC_ACC_NO))
 }
