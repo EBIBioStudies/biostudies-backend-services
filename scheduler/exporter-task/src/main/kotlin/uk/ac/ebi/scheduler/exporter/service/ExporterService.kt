@@ -50,7 +50,8 @@ class ExporterService(
         if (extSubmission.isCollection.not()) {
             logger.info { "Exporting public submission '${extSubmission.accNo}'" }
             jsonWriter.writeRawValue(
-                serializationService.serializeSubmission(extSubmission.toSimpleSubmission(), JSON_PRETTY))
+                serializationService.serializeSubmission(extSubmission.toSimpleSubmission(), JSON_PRETTY)
+            )
         }
     }
 

@@ -29,9 +29,11 @@ class ExporterTrigger(
         val job = exporterJob()
         notificationsSender.send(
             Report(
-            SYSTEM_NAME,
-            EXPORTER_SUBSYSTEM,
-            "Triggered $EXPORTER_SUBSYSTEM in the cluster job $job. Logs available at ${job.logsPath}"))
+                SYSTEM_NAME,
+                EXPORTER_SUBSYSTEM,
+                "Triggered $EXPORTER_SUBSYSTEM in the cluster job $job. Logs available at ${job.logsPath}"
+            )
+        )
 
         return job
     }
@@ -42,7 +44,9 @@ class ExporterTrigger(
             JobSpec(
                 cores = EXPORTER_CORES,
                 ram = TWENTYFOUR_GB,
-                command = exporterProperties.asJavaCommand(appProperties.appsFolder)))
+                command = exporterProperties.asJavaCommand(appProperties.appsFolder)
+            )
+        )
 
         return jobTry.fold({ throw it }, { it.apply { logger.info { "submitted job $it" } } })
     }

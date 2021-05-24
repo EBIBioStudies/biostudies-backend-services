@@ -48,9 +48,11 @@ class ExporterServiceTest(
 
         val output = Paths.get("${tempFolder.root.path}/publicOnlyStudies.json").toFile()
         val expectedJson = jsonObj {
-            "submissions" to jsonArray(jsonObj {
-                "accNo" to "S-TEST123"
-            })
+            "submissions" to jsonArray(
+                jsonObj {
+                    "accNo" to "S-TEST123"
+                }
+            )
         }
 
         assertThat(output.exists()).isTrue()

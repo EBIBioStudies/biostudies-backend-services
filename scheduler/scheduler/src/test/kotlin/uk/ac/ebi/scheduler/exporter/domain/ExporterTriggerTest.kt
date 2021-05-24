@@ -60,14 +60,16 @@ class ExporterTriggerTest(
     private fun verifyJobSpecs(specs: JobSpec) {
         assertThat(specs.ram).isEqualTo(TWENTYFOUR_GB)
         assertThat(specs.cores).isEqualTo(RELEASER_CORES)
-        assertThat(specs.command).isEqualTo("""
+        assertThat(specs.command).isEqualTo(
+            """
             java -Dsun.jnu.encoding=UTF-8 -Xmx6g -jar /apps-folder/exporter-task-1.0.0.jar \
             --app.fileName=publicOnlyStudies \
             --app.outputPath=/an/output/path \
             --app.bioStudies.url=http://localhost:8080 \
             --app.bioStudies.user=admin_user@ebi.ac.uk \
             --app.bioStudies.password=123456
-        """.trimIndent())
+            """.trimIndent()
+        )
     }
 
     private fun mockClusterOperations() {
