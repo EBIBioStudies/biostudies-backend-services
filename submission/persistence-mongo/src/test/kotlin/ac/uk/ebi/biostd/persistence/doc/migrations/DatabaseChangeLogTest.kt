@@ -9,7 +9,6 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_RELEASED
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_RELEASE_TIME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_SECTION
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_TITLE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_VERSION
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequest
@@ -57,7 +56,7 @@ internal class DatabaseChangeLogTest(
     }
 
     @Test
-    fun `create schema migration 001 when collections exists`() {
+    fun `create schema migration 001 when collections does not exists`() {
         runMigrations()
 
         assertSubmissionCollection()
@@ -65,7 +64,7 @@ internal class DatabaseChangeLogTest(
     }
 
     @Test
-    fun `create schema migration 001 when collections does not exists`() {
+    fun `create schema migration 001 when collections exists`() {
         mongoTemplate.createCollection<DocSubmission>()
         mongoTemplate.createCollection<SubmissionRequest>()
 
@@ -87,26 +86,25 @@ internal class DatabaseChangeLogTest(
 
     private fun assertSubmissionCollection() {
         val submissionCollection = mongoTemplate.getCollectionName<DocSubmission>()
-        val submissionIndexes = mongoTemplate.getCollection(submissionCollection).listIndexes().map { it["key"] }
+        val submissionIndexes = mongoTemplate.getCollection(submissionCollection).listIndexes().map { it["key"]!! }
 
         assertThat(mongoTemplate.collectionExists<DocSubmission>()).isTrue()
-        assertThat(mongoTemplate.getCollection(submissionCollection).listIndexes()).hasSize(7)
+        assertThat(mongoTemplate.getCollection(submissionCollection).listIndexes()).hasSize(9)
 
         assertThat(submissionIndexes).contains(Index().on("_id", ASC).indexKeys)
         assertThat(submissionIndexes).contains(Index().on(SUB_ACC_NO, ASC).indexKeys)
         assertThat(submissionIndexes).contains(Index().on(SUB_ACC_NO, ASC).on(SUB_VERSION, ASC).indexKeys)
         assertThat(submissionIndexes).contains(Index().on("$SUB_SECTION.$SEC_TYPE", ASC).indexKeys)
         assertThat(submissionIndexes).contains(Index().on(SUB_RELEASE_TIME, ASC).indexKeys)
-        assertThat(submissionIndexes).contains(Index().on(SUB_TITLE, ASC).indexKeys)
         assertThat(submissionIndexes).contains(Index().on(SUB_RELEASED, ASC).indexKeys)
     }
 
     private fun assertRequestCollection() {
         val requestCollection = mongoTemplate.getCollectionName<SubmissionRequest>()
-        val requestIndexes = mongoTemplate.getCollection(requestCollection).listIndexes().map { it["key"] }
+        val requestIndexes = mongoTemplate.getCollection(requestCollection).listIndexes().map { it["key"]!! }
 
         assertThat(mongoTemplate.collectionExists<SubmissionRequest>()).isTrue()
-        assertThat(mongoTemplate.getCollection(requestCollection).listIndexes()).hasSize(8)
+        assertThat(mongoTemplate.getCollection(requestCollection).listIndexes()).hasSize(10)
 
         assertThat(requestIndexes).contains(Index().on("_id", ASC).indexKeys)
         assertThat(requestIndexes).contains(Index().on(SUB_ACC_NO, ASC).indexKeys)
@@ -114,7 +112,6 @@ internal class DatabaseChangeLogTest(
         assertThat(requestIndexes).contains(Index().on("submission.$SUB_SECTION.$SEC_TYPE", ASC).indexKeys)
         assertThat(requestIndexes).contains(Index().on("submission.$SUB_ACC_NO", ASC).indexKeys)
         assertThat(requestIndexes).contains(Index().on("submission.$SUB_RELEASE_TIME", ASC).indexKeys)
-        assertThat(requestIndexes).contains(Index().on("submission.$SUB_TITLE", ASC).indexKeys)
         assertThat(requestIndexes).contains(Index().on("submission.$SUB_RELEASED", ASC).indexKeys)
     }
 

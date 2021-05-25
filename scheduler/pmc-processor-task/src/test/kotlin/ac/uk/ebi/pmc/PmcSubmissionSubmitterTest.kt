@@ -172,7 +172,7 @@ internal class PmcSubmissionSubmitterTest(private val tempFolder: TemporaryFolde
         fun `when success submit`() {
             runBlocking {
                 val targetFile = tempFolder.createFile(FILE1_NAME, FILE1_CONTENT)
-                val fileObjectId = fileRepository.saveFile(targetFile, processedSubmission.accno)
+                val fileObjectId = fileRepository.saveFile(targetFile, processedSubmission.accNo)
                 submissionRepository.insertOrExpire(processedSubmission.copy(files = listOf(fileObjectId)))
 
                 pmcTaskExecutor.run()
