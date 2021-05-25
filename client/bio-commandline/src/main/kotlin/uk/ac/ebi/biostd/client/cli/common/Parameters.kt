@@ -20,4 +20,5 @@ internal object MigrationParameters {
     const val SOURCE_PASSWORD = "Password for the BioStudies user in the source environment"
     const val TARGET_USER = "BioStudies user in the target environment"
     const val TARGET_PASSWORD = "Password for the BioStudies user in the target environment"
+    const val TARGET_OWNER = "New owner for the submission in the target environment"
 }

@@ -8,7 +8,7 @@ import uk.ac.ebi.biostd.client.cli.commands.SubmitAsyncCommand
 import uk.ac.ebi.biostd.client.cli.commands.SubmitCommand
 import uk.ac.ebi.biostd.client.cli.services.SubmissionService
 
-class BioStudiesCommandLine : CliktCommand() {
+internal class BioStudiesCommandLine : CliktCommand() {
     override fun run() {
         echo("BioStudies CLI")
     }
