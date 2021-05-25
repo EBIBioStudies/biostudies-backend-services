@@ -25,14 +25,6 @@ class FireResource(
     private val fireWebClient: FireWebClient,
     private val tempFileGenerator: TempFileGenerator
 ) {
-    @GetMapping
-    fun findByPath(@RequestParam("path") path: String): FireFile? = fireWebClient.findByPath(path)
-
-    @GetMapping("{accNo}")
-    fun findByAccNo(
-        @PathVariable accNo: String
-    ): List<FireFile> = fireWebClient.findByMetadata(MetadataEntry("submissionAccNo", accNo))
-
     @GetMapping("/download")
     fun downloadByPath(@RequestParam("path") path: String): File = fireWebClient.downloadByPath(path)
 
@@ -42,22 +34,16 @@ class FireResource(
         @RequestParam("path") path: String,
         @RequestParam("md5") md5: String,
         @RequestParam("accNo") accNo: String
-    ): FireFile = fireWebClient.save(
-        tempFileGenerator.asFile(multipartFile), path, md5, MetadataEntry("submissionAccNo", accNo)
-    )
+    ): FireFile {
+        val persisted = fireWebClient.save(tempFileGenerator.asFile(multipartFile), md5)
+        fireWebClient.setPath(persisted.fireOid, path)
 
-    @PutMapping
-    fun move(
-        @RequestParam("source") source: String,
-        @RequestParam("target") target: String
-    ) = fireWebClient.move(source, target)
+        return persisted
+    }
 
     @PutMapping("/{fireOid}/publish")
     fun publish(@PathVariable fireOid: String) = fireWebClient.publish(fireOid)
 
     @PutMapping("/{fireOid}/unpublish")
     fun unpublish(@PathVariable fireOid: String) = fireWebClient.unpublish(fireOid)
-
-    @DeleteMapping("/{fireOid}")
-    fun delete(@PathVariable fireOid: String) = fireWebClient.delete(fireOid)
 }
