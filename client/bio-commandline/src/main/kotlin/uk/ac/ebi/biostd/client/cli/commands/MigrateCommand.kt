@@ -31,16 +31,14 @@ internal class MigrateCommand(private val submissionService: SubmissionService) 
         echo("SUCCESS: Submission with AccNo '$accNo' was migrated from $source to $target")
     }
 
-    private fun migrationRequest(): MigrationRequest {
-        return MigrationRequest(
-            accNo,
-            source,
-            sourceUser,
-            sourcePassword,
-            target,
-            targetUser,
-            targetPassword,
-            targetOwner
-        )
-    }
+    private fun migrationRequest() = MigrationRequest(
+        accNo,
+        source,
+        sourceUser,
+        sourcePassword,
+        target,
+        targetUser,
+        targetPassword,
+        targetOwner
+    )
 }
