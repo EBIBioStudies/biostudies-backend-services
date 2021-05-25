@@ -1,8 +1,12 @@
 package ac.uk.ebi.pmc
 
+import ac.uk.ebi.pmc.persistence.docs.FileDoc
+import ac.uk.ebi.pmc.persistence.docs.InputFileDoc
 import ac.uk.ebi.pmc.persistence.docs.SubmissionDoc
+import ac.uk.ebi.pmc.persistence.docs.SubmissionErrorDoc
 import ac.uk.ebi.pmc.persistence.docs.SubmissionStatus.LOADED
 import ac.uk.ebi.pmc.persistence.docs.SubmissionStatus.PROCESSED
+import ac.uk.ebi.scheduler.properties.PmcMode
 import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.model.Attribute
@@ -82,7 +86,7 @@ val prcoessedSubmissionBody = jsonObj {
 }
 
 internal val docSubmission = SubmissionDoc(
-    accno = "S-123SUCCESS",
+    accNo = "S-123SUCCESS",
     body = submissionBody.toString(),
     status = LOADED,
     sourceFile = "sourceFile1",
@@ -93,7 +97,7 @@ internal val docSubmission = SubmissionDoc(
 )
 
 internal val invalidFileSubmission = SubmissionDoc(
-    accno = "S-EPMC8901234",
+    accNo = "S-EPMC8901234",
     body = invalidFileSubmissionBody.toString(),
     status = LOADED,
     sourceFile = "sourceFile2",
@@ -104,7 +108,7 @@ internal val invalidFileSubmission = SubmissionDoc(
 )
 
 internal val processedSubmission = SubmissionDoc(
-    accno = "S-EPMC1234567",
+    accNo = "S-EPMC1234567",
     body = prcoessedSubmissionBody.toString(),
     status = PROCESSED,
     sourceFile = "sourceFile1",
@@ -113,3 +117,7 @@ internal val processedSubmission = SubmissionDoc(
     files = listOf(),
     updated = Instant.parse("2021-03-14T08:41:45.090Z")
 )
+
+internal val submissionErrorDoc = SubmissionErrorDoc(submission = docSubmission, error = "error", mode = PmcMode.LOAD)
+internal val submissionFileDoc = FileDoc(name = "name", path = "path", accNo = "accNo")
+internal val inputFileDoc = InputFileDoc(name = "name", loaded = Instant.ofEpochSecond(1000))
