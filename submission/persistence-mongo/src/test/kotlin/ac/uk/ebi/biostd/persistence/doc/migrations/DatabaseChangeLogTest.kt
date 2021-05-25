@@ -5,10 +5,14 @@ import ac.uk.ebi.biostd.persistence.doc.CHANGE_LOG_LOCK
 import ac.uk.ebi.biostd.persistence.doc.MongoDbConfig
 import ac.uk.ebi.biostd.persistence.doc.MongoDbConfig.Companion.createMongockConfig
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_TYPE
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ACC_NO
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_OWNER
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_RELEASED
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_RELEASE_TIME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_SECTION
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_SUBMITTER
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_TITLE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_VERSION
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequest
@@ -32,6 +36,7 @@ import org.springframework.data.mongodb.core.dropCollection
 import org.springframework.data.mongodb.core.findAll
 import org.springframework.data.mongodb.core.getCollectionName
 import org.springframework.data.mongodb.core.index.Index
+import org.springframework.data.mongodb.core.index.TextIndexDefinition.builder as TextIndex
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
 import org.springframework.test.context.junit.jupiter.SpringExtension
@@ -94,8 +99,11 @@ internal class DatabaseChangeLogTest(
         assertThat(submissionIndexes).contains(Index().on("_id", ASC).indexKeys)
         assertThat(submissionIndexes).contains(Index().on(SUB_ACC_NO, ASC).indexKeys)
         assertThat(submissionIndexes).contains(Index().on(SUB_ACC_NO, ASC).on(SUB_VERSION, ASC).indexKeys)
+        assertThat(submissionIndexes).contains(Index().on(SUB_OWNER, ASC).indexKeys)
+        assertThat(submissionIndexes).contains(Index().on(SUB_SUBMITTER, ASC).indexKeys)
         assertThat(submissionIndexes).contains(Index().on("$SUB_SECTION.$SEC_TYPE", ASC).indexKeys)
         assertThat(submissionIndexes).contains(Index().on(SUB_RELEASE_TIME, ASC).indexKeys)
+        assertThat(TextIndex().onField(SUB_TITLE).build().indexKeys)
         assertThat(submissionIndexes).contains(Index().on(SUB_RELEASED, ASC).indexKeys)
     }
 
@@ -111,7 +119,10 @@ internal class DatabaseChangeLogTest(
         assertThat(requestIndexes).contains(Index().on(SUB_ACC_NO, ASC).on(SUB_VERSION, ASC).indexKeys)
         assertThat(requestIndexes).contains(Index().on("submission.$SUB_SECTION.$SEC_TYPE", ASC).indexKeys)
         assertThat(requestIndexes).contains(Index().on("submission.$SUB_ACC_NO", ASC).indexKeys)
+        assertThat(requestIndexes).contains(Index().on("submission.$SUB_OWNER", ASC).indexKeys)
+        assertThat(requestIndexes).contains(Index().on("submission.$SUB_SUBMITTER", ASC).indexKeys)
         assertThat(requestIndexes).contains(Index().on("submission.$SUB_RELEASE_TIME", ASC).indexKeys)
+        assertThat(TextIndex().onField("submission.$SUB_TITLE").build().indexKeys)
         assertThat(requestIndexes).contains(Index().on("submission.$SUB_RELEASED", ASC).indexKeys)
     }
 
