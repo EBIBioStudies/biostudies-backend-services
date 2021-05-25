@@ -89,7 +89,7 @@ internal class DatabaseChangeLogTest(
         val submissionIndexes = mongoTemplate.getCollection(submissionCollection).listIndexes().map { it["key"]!! }
 
         assertThat(mongoTemplate.collectionExists<DocSubmission>()).isTrue()
-        assertThat(mongoTemplate.getCollection(submissionCollection).listIndexes()).hasSize(7)
+        assertThat(mongoTemplate.getCollection(submissionCollection).listIndexes()).hasSize(9)
 
         assertThat(submissionIndexes).contains(Index().on("_id", ASC).indexKeys)
         assertThat(submissionIndexes).contains(Index().on(SUB_ACC_NO, ASC).indexKeys)
@@ -104,7 +104,7 @@ internal class DatabaseChangeLogTest(
         val requestIndexes = mongoTemplate.getCollection(requestCollection).listIndexes().map { it["key"]!! }
 
         assertThat(mongoTemplate.collectionExists<SubmissionRequest>()).isTrue()
-        assertThat(mongoTemplate.getCollection(requestCollection).listIndexes()).hasSize(8)
+        assertThat(mongoTemplate.getCollection(requestCollection).listIndexes()).hasSize(10)
 
         assertThat(requestIndexes).contains(Index().on("_id", ASC).indexKeys)
         assertThat(requestIndexes).contains(Index().on(SUB_ACC_NO, ASC).indexKeys)

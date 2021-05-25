@@ -11,9 +11,9 @@ import com.github.cloudyrock.spring.v5.MongockSpring5
 import com.github.cloudyrock.spring.v5.MongockSpring5.MongockApplicationRunner
 import com.mongodb.ConnectionString
 import com.mongodb.MongoClientSettings
+import com.mongodb.client.MongoClients
 import com.mongodb.reactivestreams.client.MongoClient
 import org.litote.kmongo.reactivestreams.KMongo
-import com.mongodb.client.MongoClients
 import org.springframework.boot.ApplicationRunner
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.ApplicationContext
@@ -80,13 +80,12 @@ class PersistenceConfig(val properties: PmcImporterProperties) : AbstractMongoCl
             mongoTemplate: MongoTemplate,
             springContext: ApplicationContext,
             migrationPackage: String
-        ): MongockApplicationRunner {
-            return MongockSpring5.builder()
+        ): MongockApplicationRunner =
+            MongockSpring5.builder()
                 .setDriver(createDriver(mongoTemplate))
                 .addChangeLogsScanPackage(migrationPackage)
                 .setSpringContext(springContext)
                 .buildApplicationRunner()
-        }
 
         private fun createDriver(mongoTemplate: MongoTemplate): SpringDataMongoV3Driver {
             val driver = SpringDataMongoV3Driver.withDefaultLock(mongoTemplate)
