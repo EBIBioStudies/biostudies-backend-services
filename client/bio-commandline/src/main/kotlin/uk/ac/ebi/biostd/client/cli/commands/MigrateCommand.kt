@@ -8,6 +8,7 @@ import uk.ac.ebi.biostd.client.cli.common.MigrationParameters.SOURCE
 import uk.ac.ebi.biostd.client.cli.common.MigrationParameters.SOURCE_PASSWORD
 import uk.ac.ebi.biostd.client.cli.common.MigrationParameters.SOURCE_USER
 import uk.ac.ebi.biostd.client.cli.common.MigrationParameters.TARGET
+import uk.ac.ebi.biostd.client.cli.common.MigrationParameters.TARGET_OWNER
 import uk.ac.ebi.biostd.client.cli.common.MigrationParameters.TARGET_PASSWORD
 import uk.ac.ebi.biostd.client.cli.common.MigrationParameters.TARGET_USER
 import uk.ac.ebi.biostd.client.cli.dto.MigrationRequest
@@ -24,7 +25,7 @@ internal class MigrateCommand(private val submissionService: SubmissionService) 
     private val target by option("-t", "--target", help = TARGET).required()
     private val targetUser by option("-tu", "--targetUser", help = TARGET_USER).required()
     private val targetPassword by option("-tp", "--targetPassword", help = TARGET_PASSWORD).required()
-    private val targetOwner by option("-to", "--targetOwner", help = TARGET_PASSWORD)
+    private val targetOwner by option("-to", "--targetOwner", help = TARGET_OWNER)
 
     override fun run() {
         submissionService.migrate(migrationRequest())
