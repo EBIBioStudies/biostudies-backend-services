@@ -22,28 +22,35 @@ class FileListJsonStreamDeserializerTest(temporaryFolder: TemporaryFolder) {
 
     @BeforeEach
     fun beforeEach() {
-        val jsonFileList = jsonArray(jsonObj {
-            "path" to "file1.txt"
-            "size" to 123
-            "attributes" to jsonArray(
-                jsonObj {
-                    "name" to "Attr1"
-                    "value" to "A"
-                }, jsonObj {
-                    "name" to "Attr2"
-                    "value" to "B"
-                })
-            }, jsonObj {
-            "path" to "file2.txt"
-            "attributes" to jsonArray(
-                jsonObj {
-                    "name" to "Attr1"
-                    "value" to "C"
-                }, jsonObj {
-                    "name" to "Attr2"
-                    "value" to "D"
-                })
-            })
+        val jsonFileList = jsonArray(
+            jsonObj {
+                "path" to "file1.txt"
+                "size" to 123
+                "attributes" to jsonArray(
+                    jsonObj {
+                        "name" to "Attr1"
+                        "value" to "A"
+                    },
+                    jsonObj {
+                        "name" to "Attr2"
+                        "value" to "B"
+                    }
+                )
+            },
+            jsonObj {
+                "path" to "file2.txt"
+                "attributes" to jsonArray(
+                    jsonObj {
+                        "name" to "Attr1"
+                        "value" to "C"
+                    },
+                    jsonObj {
+                        "name" to "Attr2"
+                        "value" to "D"
+                    }
+                )
+            }
+        )
 
         jsonFile.writeText(jsonFileList.toString())
     }
@@ -56,8 +63,10 @@ class FileListJsonStreamDeserializerTest(temporaryFolder: TemporaryFolder) {
         assertThat(fileList.referencedFiles).hasSize(2)
 
         assertThat(fileList.referencedFiles.first()).isEqualTo(
-            File("file1.txt", attributes = listOf(Attribute("Attr1", "A"), Attribute("Attr2", "B"))))
+            File("file1.txt", attributes = listOf(Attribute("Attr1", "A"), Attribute("Attr2", "B")))
+        )
         assertThat(fileList.referencedFiles.second()).isEqualTo(
-            File("file2.txt", attributes = listOf(Attribute("Attr1", "C"), Attribute("Attr2", "D"))))
+            File("file2.txt", attributes = listOf(Attribute("Attr1", "C"), Attribute("Attr2", "D")))
+        )
     }
 }

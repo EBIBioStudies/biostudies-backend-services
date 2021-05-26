@@ -6,6 +6,7 @@ app:
     pmc: # Indicates whether or not the PMC related tasks should be daily triggered
     notifier: # Indicates whether or not the Submission Release Notifier should be daily triggered
     releaser: # Indicates whether or not the Submission Releaser should be daily triggered
+    exporter: # Indicates whether or not the Exporter should be daily triggered
 
   ssh:
     user: # ssh user
@@ -17,6 +18,15 @@ pmc:
     temp: # Temporary folder to place PMC imported files
     mongoUri: # URI to mongo database used by the PMC import process
     loadFolder: # Folder to load .gz pmc files from
+
+exporter:
+  fileName: # Name of the export file
+  outputPath: # Path where the export file should be placed
+
+  bioStudies:
+    url: # BioStudies backend URL
+    user: # BioStudies manager user
+    password: # BioStudies manager password
 
 releaser:
   bioStudies:

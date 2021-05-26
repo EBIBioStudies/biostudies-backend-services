@@ -28,7 +28,8 @@ class ProfileService(private val filesDirPath: Path) {
                 magicFolder = userMagicFolder(secret, id),
                 groupsFolders = groupsMagicFolder(user.groups),
                 permissions = getPermissions(permissions),
-                notificationsEnabled = notificationsEnabled)
+                notificationsEnabled = notificationsEnabled
+            )
         }
     }
 

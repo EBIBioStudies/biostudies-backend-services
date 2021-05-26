@@ -42,323 +42,360 @@ class TsvDeserializerTest {
     fun `basic submission`() {
         val result = deserializer.deserialize(basicSubmission().toString())
 
-        assertThat(result).isEqualTo(submission("S-EPMC123") {
-            attribute("Title", "Basic Submission")
-            attribute("DataSource", "EuropePMC")
-            attribute("AttachTo", "EuropePMC")
-        })
+        assertThat(result).isEqualTo(
+            submission("S-EPMC123") {
+                attribute("Title", "Basic Submission")
+                attribute("DataSource", "EuropePMC")
+                attribute("AttachTo", "EuropePMC")
+            }
+        )
     }
 
     @Test
     fun `submission with empty attribute`() {
         val result = deserializer.deserialize(submissionWithEmptyAttribute().toString())
 
-        assertThat(result).isEqualTo(submission("S-EPMC123") {
-            attribute("Title", "Basic Submission")
-            attribute("DataSource", "EuropePMC")
-            attribute("Abstract", "")
-        })
+        assertThat(result).isEqualTo(
+            submission("S-EPMC123") {
+                attribute("Title", "Basic Submission")
+                attribute("DataSource", "EuropePMC")
+                attribute("Abstract", "")
+            }
+        )
     }
 
     @Test
     fun `submission with quoted value`() {
         val result = deserializer.deserialize(submissionWithQuoteValue().toString())
 
-        assertThat(result).isEqualTo(submission("S-EPMC123") {
-            attribute("Title", "The \"Submission\": title.")
-            attribute("Abstract", "\"The Submission\": this is description.")
-            attribute("Sub-Title", "\"The Submission (quoted)\": this is description.")
-        })
+        assertThat(result).isEqualTo(
+            submission("S-EPMC123") {
+                attribute("Title", "The \"Submission\": title.")
+                attribute("Abstract", "\"The Submission\": this is description.")
+                attribute("Sub-Title", "\"The Submission (quoted)\": this is description.")
+            }
+        )
     }
 
     @Test
     fun `basic submission with comments`() {
         val result = deserializer.deserialize(basicSubmissionWithComments().toString())
 
-        assertThat(result).isEqualTo(submission("S-EPMC123") {
-            attribute("Title", "Basic Submission")
-            attribute("DataSource", "EuropePMC")
-            attribute("AttachTo", "EuropePMC")
-        })
+        assertThat(result).isEqualTo(
+            submission("S-EPMC123") {
+                attribute("Title", "Basic Submission")
+                attribute("DataSource", "EuropePMC")
+                attribute("AttachTo", "EuropePMC")
+            }
+        )
     }
 
     @Test
     fun `submission with multiline attribute value`() {
         val result = deserializer.deserialize(basicSubmissionWithMultiline().toString())
 
-        assertThat(result).isEqualTo(submission("S-EPMC123") {
-            attribute("Title", "This is a really long title \n with a break line")
-        })
+        assertThat(result).isEqualTo(
+            submission("S-EPMC123") {
+                attribute("Title", "This is a really long title \n with a break line")
+            }
+        )
     }
 
     @Test
     fun `detailed attributes`() {
         val result = deserializer.deserialize(submissionWithDetailedAttributes().toString())
 
-        assertThat(result).isEqualTo(submission("S-EPMC124") {
-            attribute("Title", "Submission With Detailed Attributes")
+        assertThat(result).isEqualTo(
+            submission("S-EPMC124") {
+                attribute("Title", "Submission With Detailed Attributes")
 
-            attribute(
-                "Submission Type",
-                "RNA-seq of non coding RNA",
-                false,
-                mutableListOf(AttributeDetail("Ontology", "EFO")),
-                mutableListOf(AttributeDetail("Seq Type", "RNA")))
+                attribute(
+                    "Submission Type",
+                    "RNA-seq of non coding RNA",
+                    false,
+                    mutableListOf(AttributeDetail("Ontology", "EFO")),
+                    mutableListOf(AttributeDetail("Seq Type", "RNA"))
+                )
 
-            attribute("affiliation", "EuropePMC", true)
-        })
+                attribute("affiliation", "EuropePMC", true)
+            }
+        )
     }
 
     @Test
     fun `submission with root section`() {
         val result = deserializer.deserialize(submissionWithRootSection().toString())
 
-        assertThat(result).isEqualTo(submission("S-EPMC125") {
-            attribute("Title", "Test Submission")
+        assertThat(result).isEqualTo(
+            submission("S-EPMC125") {
+                attribute("Title", "Test Submission")
 
-            section("Study") {
-                attribute("Title", "Test Root Section")
-                attribute("Abstract", "Test abstract")
+                section("Study") {
+                    attribute("Title", "Test Root Section")
+                    attribute("Abstract", "Test abstract")
+                }
             }
-        })
+        )
     }
 
     @Test
     fun `submission with generic root section`() {
         val result = deserializer.deserialize(submissionWithGenericRootSection().toString())
 
-        assertThat(result).isEqualTo(submission("S-EPMC125") {
-            attribute("Title", "Test Submission")
-            section("Compound") {
-                attribute("Title", "Generic Root Section")
+        assertThat(result).isEqualTo(
+            submission("S-EPMC125") {
+                attribute("Title", "Test Submission")
+                section("Compound") {
+                    attribute("Title", "Generic Root Section")
+                }
             }
-        })
+        )
     }
 
     @Test
     fun `submission with multiple line breaks`() {
         val result = deserializer.deserialize(submissionWithMultipleLineBreaks().toString())
 
-        assertThat(result).isEqualTo(submission("S-EPMC125") {
-            attribute("Title", "Test Submission")
+        assertThat(result).isEqualTo(
+            submission("S-EPMC125") {
+                attribute("Title", "Test Submission")
 
-            section("Study") {
-                attribute("Title", "Test Root Section")
-                attribute("Abstract", "Test abstract")
+                section("Study") {
+                    attribute("Title", "Test Root Section")
+                    attribute("Abstract", "Test abstract")
+                }
             }
-        })
+        )
     }
 
     @Test
     fun `submission with sections table`() {
         val result = deserializer.deserialize(submissionWithSectionsTable().toString())
 
-        assertThat(result).isEqualTo(submission("S-EPMC125") {
-            attribute("Title", "Test Submission")
+        assertThat(result).isEqualTo(
+            submission("S-EPMC125") {
+                attribute("Title", "Test Submission")
 
-            section("Study") {
-                attribute("Title", "Test Root Section")
-                attribute("Abstract", "Test abstract")
+                section("Study") {
+                    attribute("Title", "Test Root Section")
+                    attribute("Abstract", "Test abstract")
 
-                sectionsTable {
-                    section("Data") {
-                        accNo = "DT-1"
-                        attribute("Title", "Data 1")
-                        attribute("Desc", "Group 1")
-                    }
+                    sectionsTable {
+                        section("Data") {
+                            accNo = "DT-1"
+                            attribute("Title", "Data 1")
+                            attribute("Desc", "Group 1")
+                        }
 
-                    section("Data") {
-                        accNo = "DT-2"
-                        attribute("Title", "Data 2")
-                        attribute("Desc", "Group 2")
+                        section("Data") {
+                            accNo = "DT-2"
+                            attribute("Title", "Data 2")
+                            attribute("Desc", "Group 2")
+                        }
                     }
                 }
             }
-        })
+        )
     }
 
     @Test
     fun subsection() {
         val result = deserializer.deserialize(submissionWithSubsection().toString())
 
-        assertThat(result).isEqualTo(submission("S-EPMC125") {
-            attribute("Title", "Test Submission")
+        assertThat(result).isEqualTo(
+            submission("S-EPMC125") {
+                attribute("Title", "Test Submission")
 
-            section("Study") {
-                attribute("Title", "Test Root Section")
-                attribute("Abstract", "Test abstract")
+                section("Study") {
+                    attribute("Title", "Test Root Section")
+                    attribute("Abstract", "Test abstract")
 
-                section("Funding") {
-                    accNo = "F-001"
-                    attribute("Agency", "National Support Program of China")
-                    attribute("Grant Id", "No. 2015BAD27B01")
+                    section("Funding") {
+                        accNo = "F-001"
+                        attribute("Agency", "National Support Program of China")
+                        attribute("Grant Id", "No. 2015BAD27B01")
+                    }
                 }
             }
-        })
+        )
     }
 
     @Test
     fun `inner subsections`() {
         val result = deserializer.deserialize(submissionWithInnerSubsections().toString())
 
-        assertThat(result).isEqualTo(submission("S-EPMC125") {
-            attribute("Title", "Test Submission")
+        assertThat(result).isEqualTo(
+            submission("S-EPMC125") {
+                attribute("Title", "Test Submission")
 
-            section("Study") {
-                attribute("Title", "Test Root Section")
-                attribute("Abstract", "Test abstract")
+                section("Study") {
+                    attribute("Title", "Test Root Section")
+                    attribute("Abstract", "Test abstract")
 
-                section("Funding") {
-                    accNo = "F-001"
-                    attribute("Agency", "National Support Program of China")
-                    attribute("Grant Id", "No. 2015BAD27B01")
+                    section("Funding") {
+                        accNo = "F-001"
+                        attribute("Agency", "National Support Program of China")
+                        attribute("Grant Id", "No. 2015BAD27B01")
 
-                    section("Expense") {
-                        accNo = "E-001"
-                        attribute("Description", "Travel")
+                        section("Expense") {
+                            accNo = "E-001"
+                            attribute("Description", "Travel")
+                        }
+                    }
+
+                    section("Funding") {
+                        accNo = "F-002"
+                        attribute("Agency", "National Support Program of Japan")
+                        attribute("Grant Id", "No. 2015BAD27A03")
                     }
                 }
-
-                section("Funding") {
-                    accNo = "F-002"
-                    attribute("Agency", "National Support Program of Japan")
-                    attribute("Grant Id", "No. 2015BAD27A03")
-                }
             }
-        })
+        )
     }
 
     @Test
     fun `inner subsections table`() {
         val result = deserializer.deserialize(submissionWithInnerSubsectionsTable().toString())
 
-        assertThat(result).isEqualTo(submission("S-EPMC125") {
-            attribute("Title", "Test Submission")
-
-            section("Study") {
-                attribute("Title", "Test Root Section")
-                attribute("Abstract", "Test abstract")
-
-                section("Funding") {
-                    accNo = "F-001"
-                    attribute("Agency", "National Support Program of China")
-                    attribute("Grant Id", "No. 2015BAD27B01")
-                }
+        assertThat(result).isEqualTo(
+            submission("S-EPMC125") {
+                attribute("Title", "Test Submission")
 
                 section("Study") {
-                    accNo = "S-001"
-                    attribute("Type", "Imaging")
+                    attribute("Title", "Test Root Section")
+                    attribute("Abstract", "Test abstract")
 
-                    sectionsTable {
-                        section("Sample") {
-                            accNo = "SMP-1"
-                            parentAccNo = "S-001"
-                            attribute("Title", "Sample1")
-                            attribute("Desc", "Measure 1")
-                        }
+                    section("Funding") {
+                        accNo = "F-001"
+                        attribute("Agency", "National Support Program of China")
+                        attribute("Grant Id", "No. 2015BAD27B01")
+                    }
 
-                        section("Sample") {
-                            accNo = "SMP-2"
-                            parentAccNo = "S-001"
-                            attribute("Title", "Sample2")
-                            attribute("Desc", "Measure 2")
+                    section("Study") {
+                        accNo = "S-001"
+                        attribute("Type", "Imaging")
+
+                        sectionsTable {
+                            section("Sample") {
+                                accNo = "SMP-1"
+                                parentAccNo = "S-001"
+                                attribute("Title", "Sample1")
+                                attribute("Desc", "Measure 1")
+                            }
+
+                            section("Sample") {
+                                accNo = "SMP-2"
+                                parentAccNo = "S-001"
+                                attribute("Title", "Sample2")
+                                attribute("Desc", "Measure 2")
+                            }
                         }
                     }
                 }
             }
-        })
+        )
     }
 
     @Test
     fun links() {
         val result = deserializer.deserialize(submissionWithLinks().toString())
 
-        assertThat(result).isEqualTo(submission("S-EPMC125") {
-            attribute("Title", "Test Submission")
+        assertThat(result).isEqualTo(
+            submission("S-EPMC125") {
+                attribute("Title", "Test Submission")
 
-            section("Study") {
-                attribute("Title", "Test Root Section")
-                attribute("Abstract", "Test abstract")
+                section("Study") {
+                    attribute("Title", "Test Root Section")
+                    attribute("Abstract", "Test abstract")
 
-                link("http://arandomsite.org")
-                link("http://completelyunrelatedsite.org")
+                    link("http://arandomsite.org")
+                    link("http://completelyunrelatedsite.org")
+                }
             }
-        })
+        )
     }
 
     @Test
     fun `links table with attribute details`() {
         val result = deserializer.deserialize(submissionWithLinksTable().toString())
 
-        assertThat(result).isEqualTo(submission("S-EPMC125") {
-            attribute("Title", "Test Submission")
+        assertThat(result).isEqualTo(
+            submission("S-EPMC125") {
+                attribute("Title", "Test Submission")
 
-            section("Study") {
-                attribute("Title", "Test Root Section")
-                attribute("Abstract", "Test abstract")
+                section("Study") {
+                    attribute("Title", "Test Root Section")
+                    attribute("Abstract", "Test abstract")
 
-                linksTable {
-                    link("AF069309") {
-                        attribute(
-                            name = "Type",
-                            value = "gen",
-                            valueAttrs = mutableListOf(AttributeDetail("Ontology", "EFO")),
-                            nameAttrs = mutableListOf(AttributeDetail("TermId", "EFO_0002768")))
-                    }
+                    linksTable {
+                        link("AF069309") {
+                            attribute(
+                                name = "Type",
+                                value = "gen",
+                                valueAttrs = mutableListOf(AttributeDetail("Ontology", "EFO")),
+                                nameAttrs = mutableListOf(AttributeDetail("TermId", "EFO_0002768"))
+                            )
+                        }
 
-                    link("AF069123") {
-                        attribute(
-                            name = "Type",
-                            value = "gen",
-                            valueAttrs = mutableListOf(AttributeDetail("Ontology", "EFO")),
-                            nameAttrs = mutableListOf(AttributeDetail("TermId", "EFO_0002769")))
+                        link("AF069123") {
+                            attribute(
+                                name = "Type",
+                                value = "gen",
+                                valueAttrs = mutableListOf(AttributeDetail("Ontology", "EFO")),
+                                nameAttrs = mutableListOf(AttributeDetail("TermId", "EFO_0002769"))
+                            )
+                        }
                     }
                 }
             }
-        })
+        )
     }
 
     @Test
     fun files() {
         val result = deserializer.deserialize(submissionWithFiles().toString())
 
-        assertThat(result).isEqualTo(submission("S-EPMC125") {
-            attribute("Title", "Test Submission")
+        assertThat(result).isEqualTo(
+            submission("S-EPMC125") {
+                attribute("Title", "Test Submission")
 
-            section("Study") {
-                attribute("Title", "Test Root Section")
-                attribute("Abstract", "Test abstract")
+                section("Study") {
+                    attribute("Title", "Test Root Section")
+                    attribute("Abstract", "Test abstract")
 
-                file("12870_2017_1225_MOESM10_ESM.docx")
-                file("12870_2017_1225_MOESM1_ESM.docx")
+                    file("12870_2017_1225_MOESM10_ESM.docx")
+                    file("12870_2017_1225_MOESM1_ESM.docx")
+                }
             }
-        })
+        )
     }
 
     @Test
     fun `files table`() {
         val result = deserializer.deserialize(submissionWithFilesTable().toString())
 
-        assertThat(result).isEqualTo(submission("S-EPMC125") {
-            attribute("Title", "Test Submission")
+        assertThat(result).isEqualTo(
+            submission("S-EPMC125") {
+                attribute("Title", "Test Submission")
 
-            section("Study") {
-                attribute("Title", "Test Root Section")
-                attribute("Abstract", "Test abstract")
+                section("Study") {
+                    attribute("Title", "Test Root Section")
+                    attribute("Abstract", "Test abstract")
 
-                filesTable {
-                    file("Abstract.pdf") {
-                        attribute("Description", "An abstract file")
-                        attribute("Usage", "Testing")
-                    }
+                    filesTable {
+                        file("Abstract.pdf") {
+                            attribute("Description", "An abstract file")
+                            attribute("Usage", "Testing")
+                        }
 
-                    file("SuperImportantFile1.docx") {
-                        attribute("Description", "A super important file")
-                        attribute("Usage", "Important stuff")
+                        file("SuperImportantFile1.docx") {
+                            attribute("Description", "A super important file")
+                            attribute("Usage", "Important stuff")
+                        }
                     }
                 }
             }
-        })
+        )
     }
 
     @Test

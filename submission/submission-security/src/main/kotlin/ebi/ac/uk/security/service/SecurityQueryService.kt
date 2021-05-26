@@ -37,7 +37,8 @@ class SecurityQueryService(
             email = email,
             fullName = username,
             secret = securityUtil.newKey(),
-            passwordDigest = ByteArray(0))
+            passwordDigest = ByteArray(0)
+        )
         user.active = false
         user.notificationsEnabled = false
 

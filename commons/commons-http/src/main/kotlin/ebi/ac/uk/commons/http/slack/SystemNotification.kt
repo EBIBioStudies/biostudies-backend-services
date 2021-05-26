@@ -14,20 +14,27 @@ sealed class SystemNotification(
         return when (this) {
             is Report -> Notification(
                 text = "Report [${InetAddress.getLocalHost().hostName}]",
-                attachments = listOf(Attachment(
-                    fallback = NOTIFICATION_DESCRIPTION,
-                    color = Color.BLUE.toHex(),
-                    pretext = "$system[$subSystem] Notification",
-                    text = message)))
+                attachments = listOf(
+                    Attachment(
+                        fallback = NOTIFICATION_DESCRIPTION,
+                        color = Color.BLUE.toHex(),
+                        pretext = "$system[$subSystem] Notification",
+                        text = message
+                    )
+                )
+            )
             is Alert -> Notification(
                 text = "Error Report [${InetAddress.getLocalHost().hostName}]",
-                attachments = listOf(Attachment(
-                    fallback = NOTIFICATION_DESCRIPTION,
-                    color = Color.RED.toHex(),
-                    pretext = "$system[$subSystem]",
-                    text = message,
-                    fields = listOf(Field("Exception Error", errorMessage.orEmpty()))
-                )))
+                attachments = listOf(
+                    Attachment(
+                        fallback = NOTIFICATION_DESCRIPTION,
+                        color = Color.RED.toHex(),
+                        pretext = "$system[$subSystem]",
+                        text = message,
+                        fields = listOf(Field("Exception Error", errorMessage.orEmpty()))
+                    )
+                )
+            )
         }
     }
 }

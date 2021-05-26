@@ -77,11 +77,12 @@ internal class SubmissionClient(
         val builder = UriComponentsBuilder.fromUriString(SUBMISSIONS_URL)
         return when (config) {
             NonRegistration -> builder.toUriString()
-            is UserRegistration -> builder
-                .queryParam(REGISTER_PARAM, true)
-                .queryParam(USER_NAME_PARAM, config.name)
-                .queryParam(ON_BEHALF_PARAM, config.email)
-                .toUriString()
+            is UserRegistration ->
+                builder
+                    .queryParam(REGISTER_PARAM, true)
+                    .queryParam(USER_NAME_PARAM, config.name)
+                    .queryParam(ON_BEHALF_PARAM, config.email)
+                    .toUriString()
         }
     }
 

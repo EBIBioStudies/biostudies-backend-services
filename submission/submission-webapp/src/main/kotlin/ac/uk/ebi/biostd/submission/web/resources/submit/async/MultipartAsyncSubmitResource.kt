@@ -38,7 +38,8 @@ class MultipartAsyncSubmitResource(
 ) {
     @PostMapping(
         headers = ["$CONTENT_TYPE=$MULTIPART_FORM_DATA", "$SUBMISSION_TYPE=$APPLICATION_JSON_VALUE"],
-        produces = [APPLICATION_JSON_VALUE])
+        produces = [APPLICATION_JSON_VALUE]
+    )
     fun submitMultipartJson(
         @BioUser user: SecurityUser,
         onBehalfRequest: OnBehalfRequest?,
@@ -62,7 +63,8 @@ class MultipartAsyncSubmitResource(
 
     @PostMapping(
         headers = ["$CONTENT_TYPE=$MULTIPART_FORM_DATA", "$SUBMISSION_TYPE=$TEXT_XML"],
-        produces = [APPLICATION_JSON_VALUE])
+        produces = [APPLICATION_JSON_VALUE]
+    )
     fun submitMultipartXml(
         @BioUser user: SecurityUser,
         onBehalfRequest: OnBehalfRequest?,
@@ -86,7 +88,8 @@ class MultipartAsyncSubmitResource(
 
     @PostMapping(
         headers = ["$CONTENT_TYPE=$MULTIPART_FORM_DATA", "$SUBMISSION_TYPE=$TEXT_PLAIN"],
-        produces = [APPLICATION_JSON_VALUE])
+        produces = [APPLICATION_JSON_VALUE]
+    )
     fun submitMultipartTsv(
         @BioUser user: SecurityUser,
         onBehalfRequest: OnBehalfRequest?,
@@ -111,7 +114,8 @@ class MultipartAsyncSubmitResource(
     @PostMapping(
         value = ["/direct"],
         headers = ["$CONTENT_TYPE=$MULTIPART_FORM_DATA"],
-        produces = [APPLICATION_JSON_VALUE])
+        produces = [APPLICATION_JSON_VALUE]
+    )
     fun submitFile(
         @BioUser user: SecurityUser,
         onBehalfRequest: OnBehalfRequest?,

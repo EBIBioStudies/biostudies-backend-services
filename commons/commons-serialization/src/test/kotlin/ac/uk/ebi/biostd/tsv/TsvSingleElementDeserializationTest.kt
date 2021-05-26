@@ -29,7 +29,8 @@ class TsvSingleElementDeserializationTest {
         assertThat(deserializer.deserializeElement<File>(tsv)).isEqualTo(
             file("File1.txt") {
                 attribute("Attr", "Value")
-            })
+            }
+        )
     }
 
     @Test
@@ -45,7 +46,8 @@ class TsvSingleElementDeserializationTest {
                 file("File1.txt") {
                     attribute("Attr", "Value")
                 }
-            })
+            }
+        )
     }
 
     @Test
@@ -59,7 +61,8 @@ class TsvSingleElementDeserializationTest {
         assertThat(deserializer.deserializeElement<Link>(tsv)).isEqualTo(
             link("http://alink.org") {
                 attribute("Attr", "Value")
-            })
+            }
+        )
     }
 
     @Test
@@ -75,7 +78,8 @@ class TsvSingleElementDeserializationTest {
                 link("http://alink.org") {
                     attribute("Attr", "Value")
                 }
-            })
+            }
+        )
     }
 
     @Test
@@ -111,6 +115,7 @@ class TsvSingleElementDeserializationTest {
                     attribute("Attr1", "Value 1")
                     attribute("Attr2", "Value 2")
                 }
-            })
+            }
+        )
     }
 }

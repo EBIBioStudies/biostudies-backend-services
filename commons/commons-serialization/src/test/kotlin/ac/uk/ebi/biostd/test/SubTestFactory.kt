@@ -30,14 +30,16 @@ fun createVenousBloodMonocyte() = submission("S-IHECRE00000919.1") {
             name = "Tissue type",
             value = "venous blood",
             nameAttrs = mutableListOf(AttributeDetail("Tissue", "Blood")),
-            valueAttrs = mutableListOf(AttributeDetail("Ontology", "UBERON")))
+            valueAttrs = mutableListOf(AttributeDetail("Ontology", "UBERON"))
+        )
         attribute(name = "Donor ID", value = "McGill0139")
         attribute(name = "Biomaterial Type", value = "primary cells")
         attribute(name = "Cell Type", value = "Monocyte", valueAttrs = mutableListOf(AttributeDetail("Ontology", "CL")))
         attribute(
             name = "Disease",
             value = "Systemic Lupus Erythematosus",
-            valueAttrs = mutableListOf(AttributeDetail("Ontology", "EFO")))
+            valueAttrs = mutableListOf(AttributeDetail("Ontology", "EFO"))
+        )
         attribute(name = "Experiment type", value = "Single donor")
 
         link("IHECRE00000919.1") {

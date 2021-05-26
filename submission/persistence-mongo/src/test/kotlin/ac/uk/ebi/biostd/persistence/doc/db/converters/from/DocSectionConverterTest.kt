@@ -1,6 +1,14 @@
 package ac.uk.ebi.biostd.persistence.doc.db.converters.from
 
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_ACC_NO
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_ATTRIBUTES
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_FILES
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_FILE_LIST
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_ID
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_LINKS
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_SECTIONS
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_TYPE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.to.CommonsConverter.classField
 import ac.uk.ebi.biostd.persistence.doc.model.DocAttribute
 import ac.uk.ebi.biostd.persistence.doc.model.DocFileList
@@ -22,6 +30,7 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import org.assertj.core.api.Assertions.assertThat
 import org.bson.Document
+import org.bson.types.ObjectId
 import org.junit.jupiter.api.Test
 
 import org.junit.jupiter.api.extension.ExtendWith
@@ -98,6 +107,7 @@ internal class DocSectionConverterTest(
     }
 
     private fun assertThatBasics(result: DocSection) {
+        assertThat(result.id).isEqualTo(secId)
         assertThat(result.accNo).isEqualTo(AccNo1)
         assertThat(result.type).isEqualTo(Type1)
         assertThat(result.attributes).isEqualTo(listOf(docAttribute1))
@@ -134,34 +144,36 @@ internal class DocSectionConverterTest(
     private fun createDocSectionDocument(): Document {
         val sectionDoc = Document()
         sectionDoc[classField] = docSectionClass
-        sectionDoc[DocSectionFields.SEC_ACC_NO] = AccNo1
-        sectionDoc[DocSectionFields.SEC_TYPE] = Type1
-        sectionDoc[DocSectionFields.SEC_FILE_LIST] = fileListDocument1
-        sectionDoc[DocSectionFields.SEC_ATTRIBUTES] = listOf(attributeDocument1)
-        sectionDoc[DocSectionFields.SEC_SECTIONS] = listOf(
+        sectionDoc[SEC_ID] = secId
+        sectionDoc[SEC_ACC_NO] = AccNo1
+        sectionDoc[SEC_TYPE] = Type1
+        sectionDoc[SEC_FILE_LIST] = fileListDocument1
+        sectionDoc[SEC_ATTRIBUTES] = listOf(attributeDocument1)
+        sectionDoc[SEC_SECTIONS] = listOf(
             createInternalDocSection(AccNo2, Type2, attributeDocument2, fileListDocument2),
             createDocSectionTable(AccNo3, Type3, attributeDocument3)
         )
-        sectionDoc[DocSectionFields.SEC_FILES] = listOf(fileDocument1, fileTableDocument1)
-        sectionDoc[DocSectionFields.SEC_LINKS] = listOf(linkDocument1, linkTableDocument1)
+        sectionDoc[SEC_FILES] = listOf(fileDocument1, fileTableDocument1)
+        sectionDoc[SEC_LINKS] = listOf(linkDocument1, linkTableDocument1)
         return sectionDoc
     }
 
     private fun basicDocSection(accNo: String, type: String, attributeDocument: Document): Document {
         val sectionDoc = Document()
         sectionDoc[classField] = docSectionClass
-        sectionDoc[DocSectionFields.SEC_ACC_NO] = accNo
-        sectionDoc[DocSectionFields.SEC_TYPE] = type
-        sectionDoc[DocSectionFields.SEC_ATTRIBUTES] = listOf(attributeDocument)
+        sectionDoc[SEC_ID] = secId
+        sectionDoc[SEC_ACC_NO] = accNo
+        sectionDoc[SEC_TYPE] = type
+        sectionDoc[SEC_ATTRIBUTES] = listOf(attributeDocument)
         return sectionDoc
     }
 
     private fun createInternalDocSection(accNo: String, type: String, attributeDocument: Document, fileListDocument: Document): Document {
         val sectionDoc = basicDocSection(accNo, type, attributeDocument)
-        sectionDoc[DocSectionFields.SEC_FILE_LIST] = fileListDocument
-        sectionDoc[DocSectionFields.SEC_SECTIONS] = listOf<Document>()
-        sectionDoc[DocSectionFields.SEC_FILES] = listOf<Document>()
-        sectionDoc[DocSectionFields.SEC_LINKS] = listOf<Document>()
+        sectionDoc[SEC_FILE_LIST] = fileListDocument
+        sectionDoc[SEC_SECTIONS] = listOf<Document>()
+        sectionDoc[SEC_FILES] = listOf<Document>()
+        sectionDoc[SEC_LINKS] = listOf<Document>()
         return sectionDoc
     }
 
@@ -173,6 +185,7 @@ internal class DocSectionConverterTest(
     }
 
     private companion object {
+        val secId = ObjectId()
         const val AccNo1 = "accNo1"
         const val AccNo2 = "accNo2"
         const val AccNo3 = "accNo3"

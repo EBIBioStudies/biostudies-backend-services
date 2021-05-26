@@ -62,7 +62,8 @@ class ToSectionTest(
             TO_LIBRARY_FILE_EXTENSIONS,
             TO_LINK_EXTENSIONS,
             TO_TABLE_EXTENSIONS,
-            TO_SECTION_EXTENSIONS) {
+            TO_SECTION_EXTENSIONS
+        ) {
 
             every { extAttribute.toAttribute() } returns attribute
             every { extFile.toFile() } returns file

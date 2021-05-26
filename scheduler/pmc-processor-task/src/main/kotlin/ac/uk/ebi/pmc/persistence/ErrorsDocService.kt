@@ -23,7 +23,7 @@ class ErrorsDocService(
     }
 
     private fun asText(submission: SubmissionDoc) =
-        "submission accNo ='${submission.accno}', file '${submission.sourceFile}'"
+        "submission accNo ='${submission.accNo}', file '${submission.sourceFile}'"
 
     private fun getError(pmcMode: PmcMode) = when (pmcMode) {
         PmcMode.LOAD -> SubmissionStatus.ERROR_LOAD

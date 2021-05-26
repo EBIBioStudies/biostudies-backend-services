@@ -28,14 +28,17 @@ class NotificationConfig(
 
     private val securityNotificationService by lazy { SecurityNotificationService(templateLoader, emailService) }
 
-    private val mailSender by lazy { JavaMailSenderImpl().apply {
-        javaMailProperties = notificationProperties.asProperties() }
+    private val mailSender by lazy {
+        JavaMailSenderImpl().apply {
+            javaMailProperties = notificationProperties.asProperties()
+        }
     }
 
     private val rtNotificationService: RtNotificationService by lazy {
         RtNotificationService(
             RtClient(notificationProperties.rt, restTemplate),
             templateLoader,
-            notificationDataService)
+            notificationDataService
+        )
     }
 }

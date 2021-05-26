@@ -11,7 +11,7 @@ import uk.ac.ebi.biostd.client.cli.common.CommonParameters.USER_HELP
 import uk.ac.ebi.biostd.client.cli.dto.DeletionRequest
 import uk.ac.ebi.biostd.client.cli.services.SubmissionService
 
-class DeleteCommand(private val submissionService: SubmissionService) : CliktCommand(name = "delete") {
+internal class DeleteCommand(private val submissionService: SubmissionService) : CliktCommand(name = "delete") {
     private val server by option("-s", "--server", help = SERVER_HELP).required()
     private val user by option("-u", "--user", help = USER_HELP).required()
     private val password by option("-p", "--password", help = PASSWORD_HELP).required()

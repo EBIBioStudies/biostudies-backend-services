@@ -17,35 +17,42 @@ import org.hamcrest.MatcherAssert.assertThat
 
 fun allInOneSubmissionJson(accNo: String) = jsonObj {
     "accno" to accNo
-    "attributes" to jsonArray({
-        "name" to "Title"
-        "value" to "venous blood, ∆Monocyte"
-    }, {
-        "name" to "ReleaseDate"
-        "value" to "2021-02-12"
-    })
+    "attributes" to jsonArray(
+        {
+            "name" to "Title"
+            "value" to "venous blood, ∆Monocyte"
+        },
+        {
+            "name" to "ReleaseDate"
+            "value" to "2021-02-12"
+        }
+    )
     "section" to {
         "accno" to "SECT-001"
         "type" to "Study"
-        "attributes" to jsonArray({
-            "name" to "Project"
-            "value" to "CEEHRC (McGill)"
-        }, {
-            "name" to "Organization"
-            "value" to "Org1"
-            "reference" to true
-        }, {
-            "name" to "Tissue type"
-            "value" to "venous blood"
-            "valqual" to jsonArray({
-                "name" to "Ontology"
-                "value" to "UBERON"
-            })
-            "nmqual" to jsonArray({
-                "name" to "Tissue"
-                "value" to "Blood"
-            })
-        })
+        "attributes" to jsonArray(
+            {
+                "name" to "Project"
+                "value" to "CEEHRC (McGill)"
+            },
+            {
+                "name" to "Organization"
+                "value" to "Org1"
+                "reference" to true
+            },
+            {
+                "name" to "Tissue type"
+                "value" to "venous blood"
+                "valqual" to jsonArray({
+                    "name" to "Ontology"
+                    "value" to "UBERON"
+                })
+                "nmqual" to jsonArray({
+                    "name" to "Tissue"
+                    "value" to "Blood"
+                })
+            }
+        )
         "links" to jsonArray({
             "url" to "AF069309"
             "attributes" to jsonArray({
@@ -61,73 +68,99 @@ fun allInOneSubmissionJson(accNo: String) = jsonObj {
                     "value" to "Data File 1"
                 })
             },
+            jsonArray(
+                {
+                    "path" to "DataFile2.txt"
+                    "attributes" to jsonArray(
+                        {
+                            "name" to "Description"
+                            "value" to "Data File 2"
+                        },
+                        {
+                            "name" to "Type"
+                            "value" to "Data"
+                        }
+                    )
+                },
+                {
+                    "path" to "Folder1/DataFile3.txt"
+                    "attributes" to jsonArray(
+                        {
+                            "name" to "Description"
+                            "value" to "Data File 3"
+                        },
+                        {
+                            "name" to "Type"
+                            "value" to "Data"
+                        }
+                    )
+                },
+                {
+                    "path" to "Folder1/Folder2/DataFile4.txt"
+                    "attributes" to jsonArray(
+                        {
+                            "name" to "Description"
+                            "value" to "Data File 4"
+                        },
+                        {
+                            "name" to "Type"
+                            "value" to "Data"
+                        }
+                    )
+                }
+            )
+        )
+        "subsections" to jsonArray(
+            jsonObj {
+                "accno" to "SUBSECT-001"
+                "type" to "Stranded Total RNA-Seq"
+                "links" to jsonArray(
+                    jsonArray({
+                        "url" to "EGAD00001001282"
+                        "attributes" to jsonArray(
+                            {
+                                "name" to "Type"
+                                "value" to "EGA"
+                            },
+                            {
+                                "name" to "Assay type"
+                                "value" to "RNA-Seq"
+                                "valqual" to jsonArray({
+                                    "name" to "Ontology"
+                                    "value" to "EFO"
+                                })
+                                "nmqual" to jsonArray({
+                                    "name" to "TermId"
+                                    "value" to "EFO_0002768"
+                                })
+                            }
+                        )
+                    })
+                )
+            },
             jsonArray({
-                "path" to "DataFile2.txt"
-                "attributes" to jsonArray({
-                    "name" to "Description"
-                    "value" to "Data File 2"
-                }, {
-                    "name" to "Type"
-                    "value" to "Data"
-                })
-            }, {
-                "path" to "Folder1/DataFile3.txt"
-                "attributes" to jsonArray({
-                    "name" to "Description"
-                    "value" to "Data File 3"
-                }, {
-                    "name" to "Type"
-                    "value" to "Data"
-                })
-            }, {
-                "path" to "Folder1/Folder2/DataFile4.txt"
-                "attributes" to jsonArray({
-                    "name" to "Description"
-                    "value" to "Data File 4"
-                }, {
-                    "name" to "Type"
-                    "value" to "Data"
-                })
-            }))
-        "subsections" to jsonArray(jsonObj {
-            "accno" to "SUBSECT-001"
-            "type" to "Stranded Total RNA-Seq"
-            "links" to jsonArray(jsonArray({
-                "url" to "EGAD00001001282"
-                "attributes" to jsonArray({
-                    "name" to "Type"
-                    "value" to "EGA"
-                }, {
-                    "name" to "Assay type"
-                    "value" to "RNA-Seq"
-                    "valqual" to jsonArray({
-                        "name" to "Ontology"
-                        "value" to "EFO"
-                    })
-                    "nmqual" to jsonArray({
-                        "name" to "TermId"
-                        "value" to "EFO_0002768"
-                    })
-                })
-            }))
-        }, jsonArray({
-            "accno" to "DT-1"
-            "type" to "Data"
-            "attributes" to jsonArray({
-                "name" to "Title"
-                "value" to "Group 1 Transcription Data"
-            }, {
-                "name" to "Description"
-                "value" to "The data for zygotic transcription in mammals group 1"
+                "accno" to "DT-1"
+                "type" to "Data"
+                "attributes" to jsonArray(
+                    {
+                        "name" to "Title"
+                        "value" to "Group 1 Transcription Data"
+                    },
+                    {
+                        "name" to "Description"
+                        "value" to "The data for zygotic transcription in mammals group 1"
+                    }
+                )
             })
-        }))
+        )
     }
 }
 
 fun assertAllInOneSubmissionJson(json: String, accNo: String) {
     assertThat(json, isJson(withJsonPath("$.accno", equalTo(accNo))))
     assertJsonAttributes(
-        json, "$", listOf(Attribute("Title", "venous blood, ∆Monocyte"), Attribute("ReleaseDate", "2021-02-12")))
+        json, "$", listOf(Attribute("Title", "venous blood, ∆Monocyte"), Attribute("ReleaseDate", "2021-02-12"))
+    )
 
     val section = allInOneRootSection()
     assertJsonSection(json, "$.section", section)

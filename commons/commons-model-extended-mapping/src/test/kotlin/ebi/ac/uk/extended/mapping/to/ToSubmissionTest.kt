@@ -21,7 +21,9 @@ class ToSubmissionTest {
         releaseTime = OffsetDateTime.of(2019, 9, 21, 0, 0, 0, 0, UTC),
         attributes = listOf(
             ExtAttribute("Type", "Experiment"),
-            ExtAttribute("CollectionValidator", "BioImagesValidator")))
+            ExtAttribute("CollectionValidator", "BioImagesValidator")
+        )
+    )
 
     @Test
     fun toSimpleSubmission() {

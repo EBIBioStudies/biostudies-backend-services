@@ -19,6 +19,7 @@ internal class LinkJsonDeserializer : StdDeserializer<Link>(Link::class.java) {
 
         return Link(
             url = node.getNode<TextNode>(LinkFields.URL.value).textValue(),
-            attributes = mapper.convertList(node.findNode(LinkFields.ATTRIBUTES.value)))
+            attributes = mapper.convertList(node.findNode(LinkFields.ATTRIBUTES.value))
+        )
     }
 }

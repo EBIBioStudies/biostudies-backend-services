@@ -34,7 +34,8 @@ class SubmissionRepositoryTest(
         statsRepository,
         requestRepository,
         extSerializationService,
-        submissionMapper)
+        submissionMapper
+    )
 
     private val someDate = OffsetDateTime.of(2018, 1, 1, 12, 0, 22, 1, ZoneOffset.UTC)
     private val someDate1 = OffsetDateTime.of(2019, 1, 1, 12, 0, 22, 1, ZoneOffset.UTC)

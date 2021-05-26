@@ -5,6 +5,9 @@ import Dependencies.Guava
 import Dependencies.JSONOrg
 import Dependencies.KotlinLogging
 import Dependencies.KotlinStdLib
+import Dependencies.MongockBom
+import Dependencies.MongockSpringDataV3
+import Dependencies.MongockSpringV5
 import Projects.CommonsBio
 import Projects.CommonsModelExtended
 import Projects.CommonsModelExtendedMapping
@@ -25,10 +28,10 @@ import TestDependencies.TestContainerMongoDb
 import org.springframework.boot.gradle.tasks.bundling.BootJar
 
 plugins {
-    id("org.jetbrains.kotlin.plugin.spring") version "1.3.72"
+    id("org.jetbrains.kotlin.plugin.spring") version "1.4.32"
     id("io.spring.dependency-management") version "1.0.9.RELEASE"
     id("org.springframework.boot") version "2.3.2.RELEASE"
-    id("org.jetbrains.kotlin.plugin.allopen") version "1.3.72"
+    id("org.jetbrains.kotlin.plugin.allopen") version "1.4.32"
 }
 
 dependencies {
@@ -45,6 +48,9 @@ dependencies {
     api(project(SubmissionPersistenceCommon))
 
     implementation(SpringBootStarterMongo)
+    implementation(MongockBom)
+    implementation(MongockSpringV5)
+    implementation(MongockSpringDataV3)
     implementation(Arrow)
     implementation(Guava)
     implementation(CommonsLang3)
