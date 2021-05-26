@@ -39,19 +39,22 @@ import java.time.ZoneOffset.UTC
 @Testcontainers
 @SpringBootTest(classes = [TestConfig::class])
 internal class SubmissionMongoMetaQueryServiceTest(
-    @Autowired val submissionMongoRepository: SubmissionMongoRepository,
-    @Autowired val testInstance: SubmissionMongoMetaQueryService
+    @Autowired private val submissionMongoRepository: SubmissionMongoRepository,
+    @Autowired private val testInstance: SubmissionMongoMetaQueryService
 ) {
     @Test
     fun getBasicCollection() {
-        submissionMongoRepository.save(testDocSubmission.copy(
-            accNo = "EuToxRisk",
-            version = 1,
-            status = PROCESSED,
-            attributes = listOf(
-                DocAttribute(ACC_NO_TEMPLATE.value, "!{S-TOX}"),
-                DocAttribute(COLLECTION_VALIDATOR.value, "EuToxRiskValidator"))
-        ))
+        submissionMongoRepository.save(
+            testDocSubmission.copy(
+                accNo = "EuToxRisk",
+                version = 1,
+                status = PROCESSED,
+                attributes = listOf(
+                    DocAttribute(ACC_NO_TEMPLATE.value, "!{S-TOX}"),
+                    DocAttribute(COLLECTION_VALIDATOR.value, "EuToxRiskValidator")
+                )
+            )
+        )
 
         val (accNo, accNoPattern, validator, releaseTime) = testInstance.getBasicCollection("EuToxRisk")
         assertThat(accNo).isEqualTo("EuToxRisk")
@@ -68,12 +71,14 @@ internal class SubmissionMongoMetaQueryServiceTest(
 
     @Test
     fun `collection without pattern`() {
-        submissionMongoRepository.save(testDocSubmission.copy(
-            accNo = "PatternLess",
-            version = 1,
-            status = PROCESSED,
-            attributes = listOf(DocAttribute(COLLECTION_VALIDATOR.value, "PatternLessValidator"))
-        ))
+        submissionMongoRepository.save(
+            testDocSubmission.copy(
+                accNo = "PatternLess",
+                version = 1,
+                status = PROCESSED,
+                attributes = listOf(DocAttribute(COLLECTION_VALIDATOR.value, "PatternLessValidator"))
+            )
+        )
 
         val error = assertThrows<CollectionWithoutPatternException> { testInstance.getBasicCollection("PatternLess") }
         assertThat(error.message).isEqualTo("The collection 'PatternLess' does not have a valid accession pattern")

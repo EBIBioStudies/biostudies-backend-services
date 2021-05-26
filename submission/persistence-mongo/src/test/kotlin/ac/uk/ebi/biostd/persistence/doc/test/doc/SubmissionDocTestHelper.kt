@@ -24,7 +24,8 @@ val testDocAttribute: DocAttribute = DocAttribute(
     name = ATTR_NAME,
     value = ATTR_VALUE,
     nameAttrs = listOf(DocAttributeDetail(NAME_ATTR_NAME, NAME_ATTR_VALUE)),
-    valueAttrs = listOf(DocAttributeDetail(VALUE_ATTR_NAME, VALUE_ATTR_VALUE)))
+    valueAttrs = listOf(DocAttributeDetail(VALUE_ATTR_NAME, VALUE_ATTR_VALUE))
+)
 
 internal const val SUB_ACC_NO = "S-TEST123"
 internal const val SUB_VERSION = 1
@@ -43,7 +44,7 @@ internal val CREATION_TIME = Instant.now()
 internal val MODIFICATION_TIME = CREATION_TIME.plus(1, ChronoUnit.HOURS)
 internal val RELEASE_TIME = CREATION_TIME.plus(1, ChronoUnit.DAYS)
 
-internal val testDocSection = DocSection(type = "Study")
+internal val testDocSection = DocSection(id = ObjectId(), type = "Study")
 
 internal val testDocCollection = DocCollection(PROJECT_ACC_NO)
 

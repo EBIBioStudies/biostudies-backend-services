@@ -37,7 +37,8 @@ class ExtSubmissionResourceTest(
         .standaloneSetup(ExtSubmissionResource(extSubmissionService, extPageMapper))
         .setMessageConverters(
             ExtSubmissionConverter(extSerializationService),
-            ExtPageSubmissionConverter(extSerializationService))
+            ExtPageSubmissionConverter(extSerializationService)
+        )
         .setCustomArgumentResolvers(bioUserResolver)
         .build()
 

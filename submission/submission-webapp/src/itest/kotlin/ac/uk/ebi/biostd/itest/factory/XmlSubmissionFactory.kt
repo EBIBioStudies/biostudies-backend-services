@@ -169,7 +169,8 @@ fun assertAllInOneSubmissionXml(xml: String, accNo: String) {
     assertXmlAttributes(
         xml,
         "//submission",
-        listOf(Attribute("Title", "venous blood, ∆Monocyte"), Attribute("ReleaseDate", "2021-02-12")))
+        listOf(Attribute("Title", "venous blood, ∆Monocyte"), Attribute("ReleaseDate", "2021-02-12"))
+    )
 
     assertXmlSection(xml, "//submission/section", allInOneRootSection())
     assertThat(xml, hasXPath("//submission/section/attributes/attribute[2]/@reference", equalTo("true")))
@@ -195,7 +196,8 @@ private fun assertXmlSection(xml: String, xPath: String, section: Section) {
 
 private fun assertXmlSectionsTable(xml: String, xPath: String, sectionsTable: SectionsTable) =
     sectionsTable.elements.forEachIndexed {
-        idx, section -> assertXmlSection(xml, "$xPath/section[${idx + 1}]", section)
+        idx, section ->
+        assertXmlSection(xml, "$xPath/section[${idx + 1}]", section)
     }
 
 private fun assertXmlLink(xml: String, xPath: String, link: Link) {

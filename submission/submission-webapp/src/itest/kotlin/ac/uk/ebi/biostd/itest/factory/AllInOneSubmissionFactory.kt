@@ -25,7 +25,8 @@ fun allInOneSubmission(accNo: String) = submission(accNo) {
             value = "venous blood",
             ref = false,
             nameAttrs = mutableListOf(AttributeDetail("Tissue", "Blood")),
-            valueAttrs = mutableListOf(AttributeDetail("Ontology", "UBERON")))
+            valueAttrs = mutableListOf(AttributeDetail("Ontology", "UBERON"))
+        )
 
         link("AF069309") {
             attribute("type", "gen")
@@ -65,7 +66,8 @@ fun allInOneSubmission(accNo: String) = submission(accNo) {
                         value = "RNA-Seq",
                         ref = false,
                         nameAttrs = mutableListOf(AttributeDetail("TermId", "EFO_0002768")),
-                        valueAttrs = mutableListOf(AttributeDetail("Ontology", "EFO")))
+                        valueAttrs = mutableListOf(AttributeDetail("Ontology", "EFO"))
+                    )
                 }
             }
         }

@@ -68,7 +68,7 @@ class SecurityUtil(
             else -> {
                 when {
                     isLocalEnvironment(instanceKey) -> return getUrl(instanceKey, path, userKey)
-                    else -> throw IllegalArgumentException(String.format("invalid instance key '%s'", instanceKey))
+                    else -> throw IllegalArgumentException("invalid instance key '$instanceKey'")
                 }
             }
         }

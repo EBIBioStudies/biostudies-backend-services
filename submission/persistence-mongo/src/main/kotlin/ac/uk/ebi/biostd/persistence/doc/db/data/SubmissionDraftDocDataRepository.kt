@@ -27,7 +27,8 @@ class SubmissionDraftDocDataRepository(
         mongoTemplate.updateFirst(
             Query(where(USER_ID).`is`(userId).andOperator(where(KEY).`is`(key))),
             update(CONTENT, content),
-            DocSubmissionDraft::class.java)
+            DocSubmissionDraft::class.java
+        )
     }
 
     fun createDraft(userId: String, key: String, content: String): DocSubmissionDraft =

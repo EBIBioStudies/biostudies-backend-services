@@ -46,54 +46,73 @@ class ExtSectionDeserializerTest(private val tempFolder: TemporaryFolder) {
             "fileList" to jsonObj {
                 "fileName" to "file-list.json"
                 "path" to "file-list.json"
-                "files" to jsonArray(jsonObj {
-                    "fileName" to "ref-file.txt"
-                    "path" to "ref-file.txt"
-                    "file" to referencedFile.absolutePath
-                    "extType" to "file"
-                })
+                "files" to jsonArray(
+                    jsonObj {
+                        "fileName" to "ref-file.txt"
+                        "path" to "ref-file.txt"
+                        "file" to referencedFile.absolutePath
+                        "extType" to "file"
+                    }
+                )
             }
-            "attributes" to jsonArray(jsonObj {
-                "name" to "Title"
-                "value" to "Test Section"
-            })
+            "attributes" to jsonArray(
+                jsonObj {
+                    "name" to "Title"
+                    "value" to "Test Section"
+                }
+            )
 
-            "sections" to jsonArray(jsonObj {
-                "type" to "Exp"
-                "extType" to "section"
-            }, jsonObj {
-                "sections" to jsonArray(jsonObj {
-                    "type" to "Data"
+            "sections" to jsonArray(
+                jsonObj {
+                    "type" to "Exp"
                     "extType" to "section"
-                })
-                "extType" to "sectionsTable"
-            })
+                },
+                jsonObj {
+                    "sections" to jsonArray(
+                        jsonObj {
+                            "type" to "Data"
+                            "extType" to "section"
+                        }
+                    )
+                    "extType" to "sectionsTable"
+                }
+            )
 
-            "files" to jsonArray(jsonObj {
-                "fileName" to "section-file-inner-folders.txt"
-                "path" to "a/b/section-file-inner-folders.txt"
-                "file" to sectionFile.absolutePath
-                "extType" to "file"
-            }, jsonObj {
-                "files" to jsonArray(jsonObj {
-                    "fileName" to "section-file-table.txt"
-                    "path" to "section-file-table.txt"
-                    "file" to sectionFilesTable.absolutePath
+            "files" to jsonArray(
+                jsonObj {
+                    "fileName" to "section-file-inner-folders.txt"
+                    "path" to "a/b/section-file-inner-folders.txt"
+                    "file" to sectionFile.absolutePath
                     "extType" to "file"
-                })
-                "extType" to "filesTable"
-            })
+                },
+                jsonObj {
+                    "files" to jsonArray(
+                        jsonObj {
+                            "fileName" to "section-file-table.txt"
+                            "path" to "section-file-table.txt"
+                            "file" to sectionFilesTable.absolutePath
+                            "extType" to "file"
+                        }
+                    )
+                    "extType" to "filesTable"
+                }
+            )
 
-            "links" to jsonArray(jsonObj {
-                "url" to "http://simple-link.net"
-                "extType" to "link"
-            }, jsonObj {
-                "links" to jsonArray(jsonObj {
-                    "url" to "http://table-link.net"
+            "links" to jsonArray(
+                jsonObj {
+                    "url" to "http://simple-link.net"
                     "extType" to "link"
-                })
-                "extType" to "linksTable"
-            })
+                },
+                jsonObj {
+                    "links" to jsonArray(
+                        jsonObj {
+                            "url" to "http://table-link.net"
+                            "extType" to "link"
+                        }
+                    )
+                    "extType" to "linksTable"
+                }
+            )
 
             "extType" to "section"
         }.toString()

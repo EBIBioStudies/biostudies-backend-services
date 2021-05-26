@@ -16,10 +16,12 @@ import com.github.tomakehurst.wiremock.client.WireMock.aResponse
 import com.github.tomakehurst.wiremock.client.WireMock.post
 import com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration
+import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.db.MONGO_VERSION
 import ebi.ac.uk.dsl.json.toJsonQuote
 import ebi.ac.uk.io.ext.gZipTo
 import ebi.ac.uk.model.constants.APPLICATION_JSON
+import ebi.ac.uk.util.collections.second
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import kotlinx.coroutines.runBlocking
@@ -46,7 +48,7 @@ import java.net.HttpURLConnection.HTTP_OK
 @TestInstance(Lifecycle.PER_CLASS)
 @ContextConfiguration
 @ExtendWith(TemporaryFolderExtension::class)
-internal class PmcLoaderTest(private val tempFolder: TemporaryFolder) {
+internal class PmcFileLoaderTest(private val tempFolder: TemporaryFolder) {
 
     private val mongoContainer: MongoDBContainer = MongoDBContainer(DockerImageName.parse(MONGO_VERSION))
     private val wireMockServer = WireMockServer(WireMockConfiguration().dynamicPort())
@@ -146,7 +148,7 @@ internal class PmcLoaderTest(private val tempFolder: TemporaryFolder) {
         }
 
         private fun assertSubmission(submission: SubmissionDoc) {
-            assertThat(submission.accno).isEqualTo(ACC_NO)
+            assertThat(submission.accNo).isEqualTo(ACC_NO)
             assertThat(submission.status).isEqualTo(LOADED)
             assertThat(submission.sourceFile).isEqualTo(gzipFilePath)
             assertThat(submission.posInFile).isEqualTo(0)
@@ -155,6 +157,14 @@ internal class PmcLoaderTest(private val tempFolder: TemporaryFolder) {
             val deserializedSubmission = serializationService.deserializeSubmission(submission.body, SubFormat.JSON)
             assertThat(deserializedSubmission.accNo).isEqualTo(ACC_NO)
             assertThat(deserializedSubmission.section.type).isEqualTo("Study")
+            assertThat(deserializedSubmission.section.links.first()).hasLeftValueSatisfying {
+                assertThat(it.url).isEqualTo("Types")
+                assertThat(it.attributes).hasSize(2)
+                assertThat(it.attributes.first().name).isEqualTo("AM905938")
+                assertThat(it.attributes.first().value).isEqualTo("ENA")
+                assertThat(it.attributes.second().name).isEqualTo("P12004")
+                assertThat(it.attributes.second().value).isEqualTo("uniprot")
+            }
             assertThat(deserializedSubmission.attributes).isEqualTo(listOf(SUB_ATTRIBUTE))
         }
     }

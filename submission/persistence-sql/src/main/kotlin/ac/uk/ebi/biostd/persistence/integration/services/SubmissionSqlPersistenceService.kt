@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import kotlin.math.absoluteValue
 
+@Suppress("LongParameterList")
 internal open class SubmissionSqlPersistenceService(
     private val subRepository: SubmissionQueryService,
     private val serializationService: ExtSerializationService,
@@ -30,7 +31,8 @@ internal open class SubmissionSqlPersistenceService(
     open fun saveSubmissionRequest(submission: ExtSubmission): ExtSubmission {
         val newVersion = submission.copy(
             version = getNextVersion(submission.accNo),
-            status = ExtProcessingStatus.REQUESTED)
+            status = ExtProcessingStatus.REQUESTED
+        )
         subDataRepository.save(toDbMapper.toSubmissionDb(newVersion))
         requestDataRepository.save(asRequest(newVersion))
 

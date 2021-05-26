@@ -5,6 +5,7 @@ import ebi.ac.uk.util.collections.addLeft
 import ebi.ac.uk.util.collections.addRight
 import java.util.Objects
 
+@Suppress("LongParameterList")
 class Section(
     var type: String = "",
     var accNo: String? = null,

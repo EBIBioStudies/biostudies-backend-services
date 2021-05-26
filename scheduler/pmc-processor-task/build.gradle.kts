@@ -1,27 +1,32 @@
 import Dependencies.Arrow
 import Dependencies.CommonsIO
 import Dependencies.CommonsLang3
-import Dependencies.Coroutines
+import Dependencies.KMongoAsync
 import Dependencies.KMongoCoroutine
 import Dependencies.KotlinLogging
+import Dependencies.MongockBom
+import Dependencies.MongockSpringDataV3
+import Dependencies.MongockSpringV5
 import Dependencies.OkHttpLogging
 import Dependencies.Retrofit2
 import Dependencies.SpringWeb
 import SpringBootDependencies.SpringBootStarter
 import SpringBootDependencies.SpringBootStarterConfigProcessor
+import SpringBootDependencies.SpringBootStarterMongo
 import SpringBootDependencies.SpringBootStarterTest
 import TestDependencies.AssertJ
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
+import TestDependencies.TestContainerJUnit
 import TestDependencies.TestContainerMongoDb
 import TestDependencies.Wiremock
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.springframework.boot.gradle.tasks.bundling.BootJar
 
 plugins {
-    id("org.jetbrains.kotlin.plugin.spring") version "1.3.72"
-    id("io.spring.dependency-management") version "1.0.6.RELEASE"
-    id("org.springframework.boot") version "2.2.6.RELEASE"
+    id("org.jetbrains.kotlin.plugin.spring") version "1.4.32"
+    id("io.spring.dependency-management") version "1.0.9.RELEASE"
+    id("org.springframework.boot") version "2.3.2.RELEASE"
 }
 
 dependencies {
@@ -34,13 +39,18 @@ dependencies {
     implementation(Arrow)
     implementation(CommonsIO)
     implementation(CommonsLang3)
-    implementation(Coroutines)
     implementation(KMongoCoroutine)
+    implementation(KMongoAsync)
     implementation(KotlinLogging)
     implementation(Retrofit2)
     implementation(OkHttpLogging)
 
+    implementation(MongockBom)
+    implementation(MongockSpringV5)
+    implementation(MongockSpringDataV3)
+
     implementation(SpringBootStarter)
+    implementation(SpringBootStarterMongo)
     implementation(SpringWeb)
     implementation(SpringBootStarterConfigProcessor)
 
@@ -48,6 +58,7 @@ dependencies {
     testImplementation(SpringBootStarterTest)
     testImplementation(AssertJ)
     testImplementation(Wiremock)
+    testImplementation(TestContainerJUnit)
 
     BaseTestCompileDependencies.forEach { testImplementation(it) }
     BaseTestRuntimeDependencies.forEach { testImplementation(it) }

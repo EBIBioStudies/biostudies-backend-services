@@ -50,31 +50,44 @@ private const val ROOT_SECTION_GRAPH = "Submission.rootSectionGraph"
 private const val ATTRIBUTES_GRAPH = "SubmissionObject.attributesGraph"
 
 @Entity
-@NamedEntityGraphs(value = [
-    NamedEntityGraph(name = SIMPLE_QUERY_GRAPH, attributeNodes = [Node(value = SUB_ROOT_SECTION)]),
-    NamedEntityGraph(name = SUBMISSION_FULL_GRAPH, attributeNodes = [
-        Node(ATTRS),
-        Node(ACC_TAGS),
-        Node(TAGS),
-        Node(SUB_OWNER),
-        Node(SUBMITTER)
-    ]),
-    NamedEntityGraph(name = SUBMISSION_AND_ROOT_SECTION_FULL_GRAPH, attributeNodes = [
-        Node(ATTRS),
-        Node(ACC_TAGS),
-        Node(TAGS),
-        Node(SUB_OWNER),
-        Node(SUBMITTER),
-        Node(value = SUB_ROOT_SECTION, subgraph = ROOT_SECTION_GRAPH)
-    ], subgraphs = [
-        Graph(name = ROOT_SECTION_GRAPH, attributeNodes = [
-            Node(LINKS, subgraph = ATTRIBUTES_GRAPH),
-            Node(ATTRS),
-            Node(SECTS),
-            Node(FILES, subgraph = ATTRIBUTES_GRAPH)]),
-        Graph(name = ATTRIBUTES_GRAPH, attributeNodes = [Node(ATTRS)])
-    ])
-])
+@NamedEntityGraphs(
+    value = [
+        NamedEntityGraph(name = SIMPLE_QUERY_GRAPH, attributeNodes = [Node(value = SUB_ROOT_SECTION)]),
+        NamedEntityGraph(
+            name = SUBMISSION_FULL_GRAPH,
+            attributeNodes = [
+                Node(ATTRS),
+                Node(ACC_TAGS),
+                Node(TAGS),
+                Node(SUB_OWNER),
+                Node(SUBMITTER)
+            ]
+        ),
+        NamedEntityGraph(
+            name = SUBMISSION_AND_ROOT_SECTION_FULL_GRAPH,
+            attributeNodes = [
+                Node(ATTRS),
+                Node(ACC_TAGS),
+                Node(TAGS),
+                Node(SUB_OWNER),
+                Node(SUBMITTER),
+                Node(value = SUB_ROOT_SECTION, subgraph = ROOT_SECTION_GRAPH)
+            ],
+            subgraphs = [
+                Graph(
+                    name = ROOT_SECTION_GRAPH,
+                    attributeNodes = [
+                        Node(LINKS, subgraph = ATTRIBUTES_GRAPH),
+                        Node(ATTRS),
+                        Node(SECTS),
+                        Node(FILES, subgraph = ATTRIBUTES_GRAPH)
+                    ]
+                ),
+                Graph(name = ATTRIBUTES_GRAPH, attributeNodes = [Node(ATTRS)])
+            ]
+        )
+    ]
+)
 @Table(name = "Submission")
 class DbSubmission(
     @Column
@@ -138,15 +151,19 @@ class DbSubmission(
     lateinit var submitter: DbUser
 
     @ManyToMany
-    @JoinTable(name = "Submission_AccessTag",
+    @JoinTable(
+        name = "Submission_AccessTag",
         joinColumns = [JoinColumn(name = "Submission_Id", referencedColumnName = "id")],
-        inverseJoinColumns = [JoinColumn(name = "accessTags_id", referencedColumnName = "id")])
+        inverseJoinColumns = [JoinColumn(name = "accessTags_id", referencedColumnName = "id")]
+    )
     var accessTags: MutableSet<DbAccessTag> = sortedSetOf()
 
     @ManyToMany
-    @JoinTable(name = "Submission_ElementTag",
+    @JoinTable(
+        name = "Submission_ElementTag",
         joinColumns = [JoinColumn(name = "submission_Id", referencedColumnName = "id")],
-        inverseJoinColumns = [JoinColumn(name = "tag_id", referencedColumnName = "id")])
+        inverseJoinColumns = [JoinColumn(name = "tag_id", referencedColumnName = "id")]
+    )
     var tags: MutableSet<DbTag> = sortedSetOf()
 
     @OneToMany(cascade = [CascadeType.ALL])

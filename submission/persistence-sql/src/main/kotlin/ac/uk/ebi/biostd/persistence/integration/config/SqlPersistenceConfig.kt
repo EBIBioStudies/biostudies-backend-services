@@ -67,7 +67,8 @@ open class SqlPersistenceConfig(private val applicationProperties: ApplicationPr
         statsRepository,
         requestDataRepository,
         extSerializationService,
-        toExtSubmissionMapper())
+        toExtSubmissionMapper()
+    )
 
     @Bean
     @ConditionalOnProperty(prefix = "app.persistence", name = ["enableMongo"], havingValue = "false")
@@ -87,7 +88,8 @@ open class SqlPersistenceConfig(private val applicationProperties: ApplicationPr
             sequenceRepository,
             accessTagsDataRepository,
             lockExecutor,
-            submissionQueryService)
+            submissionQueryService
+        )
 
     @Bean
     @ConditionalOnProperty(prefix = "app.persistence", name = ["enableMongo"], havingValue = "false")
@@ -116,7 +118,8 @@ open class SqlPersistenceConfig(private val applicationProperties: ApplicationPr
             requestDataRepository,
             userDataRepository,
             systemService,
-            toDbSubmissionMapper)
+            toDbSubmissionMapper
+        )
 
     @Bean
     @ConditionalOnProperty(prefix = "app.persistence", name = ["enableMongo"], havingValue = "false")

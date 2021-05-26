@@ -14,16 +14,21 @@ class BioWebClient internal constructor(
             SubmissionClientImpl(
                 createRestTemplate(baseUrl, token),
                 SerializationConfig.serializationService(),
-                ExtSerializationService()))
+                ExtSerializationService()
+            )
+        )
 
         fun create(
             baseUrl: String,
             token: String,
             onBehalf: String
-        ): BioWebClient = BioWebClient(SubmissionClientImpl(
-            createRestTemplate(baseUrl, token, onBehalf),
-            SerializationConfig.serializationService(),
-            ExtSerializationService()))
+        ): BioWebClient = BioWebClient(
+            SubmissionClientImpl(
+                createRestTemplate(baseUrl, token, onBehalf),
+                SerializationConfig.serializationService(),
+                ExtSerializationService()
+            )
+        )
 
         private fun createRestTemplate(baseUrl: String, token: String) = template(baseUrl).apply {
             interceptors.add(TokenInterceptor(token))

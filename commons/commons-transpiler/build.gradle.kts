@@ -1,4 +1,6 @@
 import Dependencies.CliKt
+import Dependencies.KotlinReflect
+import Dependencies.KotlinStdLib
 import TestDependencies.AssertJ
 import TestDependencies.Junit
 import TestDependencies.Junit5Console
@@ -15,6 +17,8 @@ dependencies {
     api(project(":commons:commons-serialization"))
 
     implementation(CliKt)
+    implementation(KotlinReflect)
+    implementation(KotlinStdLib)
 
     testImplementation(Junit)
     testImplementation(JunitExtensions)
