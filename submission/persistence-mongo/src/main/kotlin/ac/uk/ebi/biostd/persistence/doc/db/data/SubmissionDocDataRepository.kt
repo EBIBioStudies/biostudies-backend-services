@@ -2,6 +2,9 @@ package ac.uk.ebi.biostd.persistence.doc.db.data
 
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.doc.commons.ExtendedUpdate
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocAttributeFields.ATTRIBUTE_DOC_NAME
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocAttributeFields.ATTRIBUTE_DOC_VALUE
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_ATTRIBUTES
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_TYPE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ID
@@ -141,9 +144,16 @@ class SubmissionDocDataRepository(
                 filter.type?.let { add(where("$SUB_SECTION.$SEC_TYPE").`is`(it)) }
                 filter.rTimeFrom?.let { add(where(SUB_RELEASE_TIME).gte(it.toInstant())) }
                 filter.rTimeTo?.let { add(where(SUB_RELEASE_TIME).lte(it.toInstant())) }
-                filter.keywords?.let { add(where(SUB_TITLE).regex("(?i).*$it.*")) }
+                filter.keywords?.let { add(keywordsCriteria(it)) }
                 filter.released?.let { add(where(SUB_RELEASED).`is`(it)) }
             }.build().toTypedArray()
+
+        private fun keywordsCriteria(keywords: String) = Criteria().orOperator(
+            where(SUB_TITLE).regex("(?i).*$keywords.*"),
+            where("$SUB_SECTION.$SEC_ATTRIBUTES").elemMatch(
+                where(ATTRIBUTE_DOC_NAME).`is`("Title").and(ATTRIBUTE_DOC_VALUE).regex("(?i).*$keywords.*")
+            )
+        )
     }
 }
 
