@@ -64,3 +64,5 @@ java -jar build/libs/BioStudiesCLI-2.0.jar migrate \
 * **t:** BioStudies environment to migrate the submission to.
 * **tu:** BioStudies user in the target environment. (Only superusers can perform this operation)
 * **tp:** Password for the BioStudies user in the target environment.
+* **to:** New owner for the submission in the target environment. This is an optional parameter. If it isn't provided,
+  the current submission owner should exist in the target environment.

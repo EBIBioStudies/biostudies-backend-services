@@ -67,5 +67,6 @@ internal class MultiPartSubmissionClient(
         LinkedMultiValueMap(
             files.map { FILES to FileSystemResource(it) }
                 .plus(SUBMISSION to submission)
-                .groupBy({ it.first }, { it.second }))
+                .groupBy({ it.first }, { it.second })
+        )
 }

@@ -79,7 +79,8 @@ class SubmissionServiceTest(
             rabbitTemplate.convertAndSend(
                 BIOSTUDIES_EXCHANGE,
                 SUBMISSIONS_REQUEST_ROUTING_KEY,
-                capture(requestMessageSlot))
+                capture(requestMessageSlot)
+            )
         } answers { nothing }
 
         testInstance.submitAsync(submissionRequest)

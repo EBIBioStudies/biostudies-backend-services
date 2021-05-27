@@ -26,6 +26,7 @@ import org.springframework.web.client.RestTemplate
 import uk.ac.ebi.events.service.EventsPublisherService
 import java.nio.file.Paths
 
+@Suppress("LongParameterList")
 class SecurityModuleConfig(
     private val userRepo: UserDataRepository,
     private val tokenRepo: TokenDataRepository,

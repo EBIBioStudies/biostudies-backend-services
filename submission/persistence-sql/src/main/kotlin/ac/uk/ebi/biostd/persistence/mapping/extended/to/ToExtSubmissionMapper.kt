@@ -49,7 +49,8 @@ class ToExtSubmissionMapper(private val submissionsPath: Path) {
                 attributes = dbSubmission.validAttributes.map { it.toExtAttribute() },
                 collections = dbSubmission.accessTags.map { ExtCollection(it.name) },
                 tags = dbSubmission.tags.map { ExtTag(it.classifier, it.name) },
-                stats = stats.map { toExtMetric(it) })
+                stats = stats.map { toExtMetric(it) }
+            )
         }.onFailure {
             throw ExtSubmissionMappingException(dbSubmission.accNo, it.message ?: it.localizedMessage)
         }.getOrThrow()

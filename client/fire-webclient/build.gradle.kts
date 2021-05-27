@@ -1,4 +1,5 @@
 import Dependencies.JSONOrg
+import Dependencies.KotlinReflect
 import Dependencies.KotlinStdLib
 import Dependencies.SpringWeb
 import TestDependencies.BaseTestCompileDependencies
@@ -8,6 +9,7 @@ dependencies {
     api(project(":commons:commons-util"))
 
     implementation(JSONOrg)
+    implementation(KotlinReflect)
     implementation(KotlinStdLib)
     implementation(SpringWeb)
 

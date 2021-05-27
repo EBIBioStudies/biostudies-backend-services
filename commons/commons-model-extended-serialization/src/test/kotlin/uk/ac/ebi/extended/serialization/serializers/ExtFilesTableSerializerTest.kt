@@ -20,25 +20,31 @@ class ExtFilesTableSerializerTest(private val tempFolder: TemporaryFolder) {
     @Test
     fun serialize() {
         val file = tempFolder.createFile("test-file.txt")
-        val extFilesTable = ExtFileTable(ExtFile(
-            file = file,
-            fileName = "test/path/test-file.txt",
-            attributes = listOf(ExtAttribute("Type", "Data", false))
-        ))
+        val extFilesTable = ExtFileTable(
+            ExtFile(
+                file = file,
+                fileName = "test/path/test-file.txt",
+                attributes = listOf(ExtAttribute("Type", "Data", false))
+            )
+        )
         val expectedJson = jsonObj {
-            "files" to jsonArray(jsonObj {
-                "fileName" to "test-file.txt"
-                "path" to "test/path/test-file.txt"
-                "file" to file.absolutePath
-                "attributes" to jsonArray(jsonObj {
-                    "name" to "Type"
-                    "value" to "Data"
-                    "reference" to false
-                })
-                "extType" to "file"
-                "type" to "file"
-                "size" to 0
-            })
+            "files" to jsonArray(
+                jsonObj {
+                    "fileName" to "test-file.txt"
+                    "path" to "test/path/test-file.txt"
+                    "file" to file.absolutePath
+                    "attributes" to jsonArray(
+                        jsonObj {
+                            "name" to "Type"
+                            "value" to "Data"
+                            "reference" to false
+                        }
+                    )
+                    "extType" to "file"
+                    "type" to "file"
+                    "size" to 0
+                }
+            )
             "extType" to "filesTable"
         }.toString()
 

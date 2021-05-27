@@ -19,5 +19,6 @@ interface TestSecurityUser {
         magicFolder = mockk(),
         groupsFolders = listOf(mockk()),
         permissions = emptySet(),
-        notificationsEnabled = notificationsEnabled)
+        notificationsEnabled = notificationsEnabled
+    )
 }

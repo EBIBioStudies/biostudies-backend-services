@@ -40,7 +40,8 @@ class ExtSubmissionService(
             rTimeTo = request.toRTime?.let { OffsetDateTime.parse(request.toRTime) },
             released = request.released,
             limit = request.limit,
-            offset = request.offset)
+            offset = request.offset
+        )
 
         val page = submissionRepository
             .getExtendedSubmissions(filter)

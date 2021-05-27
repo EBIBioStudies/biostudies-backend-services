@@ -20,11 +20,13 @@ class ExtLinkSerializerTest {
         )
         val expectedJson = jsonObj {
             "url" to "http://mylink.org"
-            "attributes" to jsonArray(jsonObj {
-                "name" to "Type"
-                "value" to "Resource"
-                "reference" to false
-            })
+            "attributes" to jsonArray(
+                jsonObj {
+                    "name" to "Type"
+                    "value" to "Resource"
+                    "reference" to false
+                }
+            )
             "extType" to "link"
         }.toString()
 

@@ -7,7 +7,7 @@ import java.time.Instant
 
 @Suppress("VariableNaming")
 data class SubmissionDoc(
-    val accno: String,
+    val accNo: String,
     var body: String,
     var status: SubmissionStatus,
     val sourceFile: String,
@@ -31,25 +31,25 @@ data class SubmissionDoc(
     }
 
     fun asInsertOrExpire(): Bson = Updates.combine(
-        Updates.setOnInsert(Fields.accNo, accno),
-        Updates.setOnInsert(Fields.body, body),
-        Updates.setOnInsert(Fields.sourceFile, sourceFile),
-        Updates.setOnInsert(Fields.posInFile, posInFile),
-        Updates.setOnInsert(Fields.sourceTime, sourceTime),
-        Updates.setOnInsert(Fields.files, files),
-        Updates.setOnInsert(Fields.status, status),
-        Updates.setOnInsert(Fields.updated, updated)
+        Updates.setOnInsert(SUB_ACC_NO, accNo),
+        Updates.setOnInsert(SUB_BODY, body),
+        Updates.setOnInsert(SUB_SOURCE_FILE, sourceFile),
+        Updates.setOnInsert(SUB_POS_IN_FILE, posInFile),
+        Updates.setOnInsert(SUB_SOURCE_TIME, sourceTime),
+        Updates.setOnInsert(SUB_FILES, files),
+        Updates.setOnInsert(SUB_STATUS, status),
+        Updates.setOnInsert(SUB_UPDATED, updated)
     )
 
     companion object Fields {
-        const val accNo = "accno"
-        const val body = "body"
-        const val status = "status"
-        const val sourceFile = "sourceFile"
-        const val posInFile = "posInFile"
-        const val sourceTime = "sourceTime"
-        const val updated = "updated"
-        const val files = "files"
+        const val SUB_ACC_NO = "accNo"
+        const val SUB_BODY = "body"
+        const val SUB_STATUS = "status"
+        const val SUB_SOURCE_FILE = "sourceFile"
+        const val SUB_POS_IN_FILE = "posInFile"
+        const val SUB_SOURCE_TIME = "sourceTime"
+        const val SUB_UPDATED = "updated"
+        const val SUB_FILES = "files"
     }
 }
 

@@ -21,25 +21,36 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.to.SubmissionConverter
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionMongoRepository
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
+import com.github.cloudyrock.mongock.driver.mongodb.springdata.v3.SpringDataMongoV3Driver
+import com.github.cloudyrock.spring.v5.MongockSpring5
+import com.github.cloudyrock.spring.v5.MongockSpring5.MongockApplicationRunner
 import com.mongodb.client.MongoClient
 import com.mongodb.client.MongoClients
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.boot.ApplicationRunner
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.context.properties.EnableConfigurationProperties
+import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.convert.converter.Converter
 import org.springframework.data.mongodb.config.AbstractMongoClientConfiguration
+import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.data.mongodb.core.convert.MongoCustomConversions
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories
 
+const val CHANGE_LOG_COLLECTION = "submitter_mongockChangeLog"
+const val CHANGE_LOG_LOCK = "submitter_mongockLock"
+
 @Configuration
 @ConditionalOnProperty(prefix = "app.persistence", name = ["enableMongo"], havingValue = "true")
-@EnableMongoRepositories(basePackageClasses = [
-    SubmissionMongoRepository::class,
-    DocSubmission::class,
-    FileListDocFile::class
-])
+@EnableMongoRepositories(
+    basePackageClasses = [
+        SubmissionMongoRepository::class,
+        DocSubmission::class,
+        FileListDocFile::class
+    ]
+)
 @EnableConfigurationProperties
 class MongoDbConfig(
     @Value("\${spring.data.mongodb.database}") val mongoDatabase: String,
@@ -47,6 +58,16 @@ class MongoDbConfig(
 ) : AbstractMongoClientConfiguration() {
 
     override fun getDatabaseName(): String = mongoDatabase
+
+    @Bean
+    @ConditionalOnProperty(prefix = "app.mongo", name = ["execute-migrations"], havingValue = "true")
+    fun mongockApplicationRunner(
+        springContext: ApplicationContext,
+        mongoTemplate: MongoTemplate,
+        @Value("\${app.mongo.migration-package}") migrationPackage: String
+    ): ApplicationRunner {
+        return createMongockConfig(mongoTemplate, springContext, migrationPackage)
+    }
 
     @Bean
     override fun mongoClient(): MongoClient {
@@ -97,5 +118,26 @@ class MongoDbConfig(
             fileListConverter
         )
         return SubmissionConverter(sectionConverter, attributeConverter)
+    }
+
+    companion object {
+        fun createMongockConfig(
+            mongoTemplate: MongoTemplate,
+            springContext: ApplicationContext,
+            migrationPackage: String
+        ): MongockApplicationRunner {
+            return MongockSpring5.builder()
+                .setDriver(createDriver(mongoTemplate))
+                .addChangeLogsScanPackage(migrationPackage)
+                .setSpringContext(springContext)
+                .buildApplicationRunner()
+        }
+
+        private fun createDriver(mongoTemplate: MongoTemplate): SpringDataMongoV3Driver? {
+            val driver = SpringDataMongoV3Driver.withDefaultLock(mongoTemplate)
+            driver.lockRepositoryName = CHANGE_LOG_LOCK
+            driver.changeLogRepositoryName = CHANGE_LOG_COLLECTION
+            return driver
+        }
     }
 }

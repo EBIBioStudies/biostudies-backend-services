@@ -22,7 +22,6 @@ import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.EXT_TAG_NAME
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.EXT_TAG_VALUE
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.MODIFICATION_TIME
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.RELEASE_TIME
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_FILE_LIST_FILE
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_FILE_LIST_FILE_NAME
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_SECTION_LINK_URL
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_SECTION_TABLE_LINK_URL
@@ -33,14 +32,12 @@ import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_SEC_ATTRIBUTE_VALUE
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_SEC_ATTR_NAME_ATTRS
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_SEC_ATTR_VALUE_ATTRS
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_SEC_EXT_FILE_LIST_FILENAME
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_SEC_FILE
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_SEC_FILE_NAME
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_SEC_LINK_ATTRIBUTE_NAME
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_SEC_LINK_ATTRIBUTE_REFERENCE
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_SEC_LINK_ATTRIBUTE_VALUE
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_SEC_LINK_ATTRIBUTE_VALUE_ATTRS
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_SEC_LINK_ATTR_NAME_ATTRS
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_SEC_TABLE_FILE
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_SEC_TABLE_FILE_NAME
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_SEC_TABLE_LINK_ATTRIBUTE_NAME
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_SEC_TABLE_LINK_ATTRIBUTE_REFERENCE
@@ -62,7 +59,6 @@ import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUBMISSION_SECRET_KEY
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUBMISSION_SUBMITTER
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUBMISSION_TITLE
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUBMISSION_VERSION
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUB_FILE_LIST_FILE
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUB_FILE_LIST_FILE_NAME
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUB_SEC_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUB_SEC_EXT_FILE_LIST_FILENAME
@@ -75,18 +71,50 @@ import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUB_SEC_TABLE_ATTR_VALUE_AT
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUB_SEC_TABLE_TYPE
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUB_SEC_TYPE
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.fullExtSubmission
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.rootSectionFileListFile
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.subSectionFileListFile
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.rootSectionFile
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.rootSectionTableFile
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.subSection
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.rootSection
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.subSectionTable
 import arrow.core.Either
 import ebi.ac.uk.asserts.assertThat
+import ebi.ac.uk.extended.model.ExtFileTable
+import ebi.ac.uk.extended.model.ExtSectionTable
+import ebi.ac.uk.test.createFile
 import ebi.ac.uk.util.collections.second
+import io.github.glytching.junit.extension.folder.TemporaryFolder
+import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
 import org.bson.types.ObjectId
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 
-class ToDocSubmissionTest {
+@ExtendWith(TemporaryFolderExtension::class)
+class ToDocSubmissionTest(private val tempFolder: TemporaryFolder) {
+    private val newRootSectionFileListFile = rootSectionFileListFile.copy(file = tempFolder.createFile("tempFile1.txt", "content1"))
+    private val newSubSectionFileListFile = subSectionFileListFile.copy(file = tempFolder.createFile("tempFile2.txt", "content2"))
+    private val newRootSectionFile = rootSectionFile.copy(file = tempFolder.createFile("tempFile3.txt", "content3"))
+    private val newRootSectionTableFile = rootSectionTableFile.copy(file = tempFolder.createFile("tempFile4.txt", "content4"))
+
+    private val newSubSection = subSection.copy(fileList = subSection.fileList!!.copy(files = listOf(newSubSectionFileListFile)))
+    private val newRootSection = rootSection.copy(
+        fileList = rootSection.fileList!!.copy(files = listOf(newRootSectionFileListFile)),
+        sections = listOf(
+            Either.left(newSubSection),
+            Either.right(ExtSectionTable(sections = listOf(subSectionTable)))
+        ),
+        files = listOf(
+            Either.left(newRootSectionFile),
+            Either.right(ExtFileTable(files = listOf(newRootSectionTableFile)))
+        )
+    )
+    private val submission = fullExtSubmission.copy(section = newRootSection)
 
     @Test
     fun `to Doc Submission with a file inside the section and another file inside the inner section`() {
-        val (docSubmission, listFiles) = fullExtSubmission.toDocSubmission()
+        val (docSubmission, listFiles) = submission.toDocSubmission()
 
         assertDocSubmission(docSubmission)
         assertListFiles(listFiles, docSubmission.id)
@@ -123,12 +151,12 @@ class ToDocSubmissionTest {
         val listFile = listFiles[0]
         assertThat(listFile.submissionId).isEqualTo(docSubmissionId)
         assertThat(listFile.fileName).isEqualTo(ROOT_FILE_LIST_FILE_NAME)
-        assertThat(listFile.fullPath).isEqualTo(ROOT_FILE_LIST_FILE.absolutePath)
+        assertThat(listFile.fullPath).isEqualTo(newRootSectionFileListFile.file.path)
 
         val sublistFile = listFiles[1]
         assertThat(sublistFile.submissionId).isEqualTo(docSubmissionId)
         assertThat(sublistFile.fileName).isEqualTo(SUB_FILE_LIST_FILE_NAME)
-        assertThat(sublistFile.fullPath).isEqualTo(SUB_FILE_LIST_FILE.absolutePath)
+        assertThat(sublistFile.fullPath).isEqualTo(newSubSectionFileListFile.file.path)
     }
 
     private fun assertSimpleDocProperties(docSubmission: DocSubmission) {
@@ -242,11 +270,11 @@ class ToDocSubmissionTest {
     private fun assertFiles(docFiles: List<Either<DocFile, DocFileTable>>) {
         assertThat(docFiles.first()).hasLeftValueSatisfying {
             assertThat(it.relPath).isEqualTo(ROOT_SEC_FILE_NAME)
-            assertThat(it.fullPath).isEqualTo(ROOT_SEC_FILE.absolutePath)
+            assertThat(it.fullPath).isEqualTo(newRootSectionFile.file.path)
         }
         assertThat(docFiles.second()).hasRightValueSatisfying {
             assertThat(it.files.first().relPath).isEqualTo(ROOT_SEC_TABLE_FILE_NAME)
-            assertThat(it.files.first().fullPath).isEqualTo(ROOT_SEC_TABLE_FILE.absolutePath)
+            assertThat(it.files.first().fullPath).isEqualTo(newRootSectionTableFile.file.path)
         }
     }
 }

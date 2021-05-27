@@ -22,10 +22,12 @@ class FileXmlDeserializerTest {
                         "value" { -"attr 1 value" }
                     }
                 }
-            }.toString())
+            }.toString()
+        )
 
         assertThat(testInstance.deserialize(xmlFile)).isEqualTo(
-            File("file1.txt", attributes = mutableListOf(Attribute("attr1", "attr 1 value"))))
+            File("file1.txt", attributes = mutableListOf(Attribute("attr1", "attr 1 value")))
+        )
     }
 
     @Test
@@ -33,7 +35,8 @@ class FileXmlDeserializerTest {
         val xmlFile = createXmlDocument(
             xml("file") {
                 "path" { -"file1.txt" }
-            }.toString())
+            }.toString()
+        )
 
         assertThat(testInstance.deserialize(xmlFile)).isEqualTo(File("file1.txt"))
     }

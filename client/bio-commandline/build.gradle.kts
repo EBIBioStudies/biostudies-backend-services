@@ -1,5 +1,7 @@
 import Dependencies.CliKt
 import Dependencies.CommonsLang3
+import Dependencies.KotlinReflect
+import Dependencies.KotlinStdLib
 import Dependencies.Log4J
 import Dependencies.SpringWeb
 import TestDependencies.AssertJ
@@ -21,6 +23,8 @@ dependencies {
     implementation(Log4J)
     implementation(SpringWeb)
     implementation(CommonsLang3)
+    implementation(KotlinReflect)
+    implementation(KotlinStdLib)
 
     testImplementation(Junit)
     testImplementation(JunitExtensions)

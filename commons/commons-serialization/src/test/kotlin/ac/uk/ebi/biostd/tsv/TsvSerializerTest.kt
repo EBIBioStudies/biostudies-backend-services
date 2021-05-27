@@ -26,11 +26,13 @@ internal class TsvSerializerTest {
 
         assertThat(submissions).hasSize(2)
         submissions.forEach {
-            assertThat(it).isEqualTo(submission("S-EPMC123") {
-                attribute("Title", "Basic Submission")
-                attribute("DataSource", "EuropePMC")
-                attribute("AttachTo", "EuropePMC")
-            })
+            assertThat(it).isEqualTo(
+                submission("S-EPMC123") {
+                    attribute("Title", "Basic Submission")
+                    attribute("DataSource", "EuropePMC")
+                    attribute("AttachTo", "EuropePMC")
+                }
+            )
         }
     }
 }

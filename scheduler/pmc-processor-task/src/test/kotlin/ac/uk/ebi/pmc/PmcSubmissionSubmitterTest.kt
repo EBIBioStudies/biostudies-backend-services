@@ -37,7 +37,6 @@ import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.core.io.ResourceLoader
 import org.springframework.http.HttpHeaders.ACCEPT
 import org.springframework.http.HttpHeaders.CONTENT_LENGTH
 import org.springframework.http.HttpHeaders.CONTENT_TYPE
@@ -158,8 +157,7 @@ internal class PmcSubmissionSubmitterTest(private val tempFolder: TemporaryFolde
         @Autowired val errorsRepository: ErrorsRepository,
         @Autowired val submissionRepository: SubmissionRepository,
         @Autowired val fileRepository: SubFileRepository,
-        @Autowired val pmcTaskExecutor: PmcTaskExecutor,
-        @Autowired val resourceLoader: ResourceLoader
+        @Autowired val pmcTaskExecutor: PmcTaskExecutor
     ) {
         @BeforeEach
         fun cleanRepositories() {
@@ -174,7 +172,7 @@ internal class PmcSubmissionSubmitterTest(private val tempFolder: TemporaryFolde
         fun `when success submit`() {
             runBlocking {
                 val targetFile = tempFolder.createFile(FILE1_NAME, FILE1_CONTENT)
-                val fileObjectId = fileRepository.saveFile(targetFile, processedSubmission.accno)
+                val fileObjectId = fileRepository.saveFile(targetFile, processedSubmission.accNo)
                 submissionRepository.insertOrExpire(processedSubmission.copy(files = listOf(fileObjectId)))
 
                 pmcTaskExecutor.run()

@@ -46,11 +46,13 @@ class StatsResourceTest(
     fun `find by type`() {
         val type = slot<SubmissionStatType>()
         val filter = slot<PaginationFilter>()
-        val expectedResponse = jsonArray(jsonObj {
-            "accNo" to "S-TEST123"
-            "type" to "VIEWS"
-            "value" to 10
-        })
+        val expectedResponse = jsonArray(
+            jsonObj {
+                "accNo" to "S-TEST123"
+                "type" to "VIEWS"
+                "value" to 10
+            }
+        )
 
         every { statsService.findByType(capture(type), capture(filter)) } returns listOf(testStat)
 
@@ -95,11 +97,13 @@ class StatsResourceTest(
         val type = slot<SubmissionStatType>()
         val multipartStatsFile = slot<MultipartFile>()
         val statsFile = tempFolder.createFile("stats.tsv")
-        val body = jsonArray(jsonObj {
-            "accNo" to "S-TEST123"
-            "type" to "VIEWS"
-            "value" to 10
-        }).toString()
+        val body = jsonArray(
+            jsonObj {
+                "accNo" to "S-TEST123"
+                "type" to "VIEWS"
+                "value" to 10
+            }
+        ).toString()
 
         every { statsService.saveAll(capture(savedStats)) } returns listOf(testStat)
         every { tempFileGenerator.asFile(capture(multipartStatsFile)) } returns statsFile
@@ -126,16 +130,20 @@ class StatsResourceTest(
         val multipartStatsFile = slot<MultipartFile>()
         val incrementedStat = DbSubmissionStat("S-TEST123", 20, VIEWS)
         val statsFile = tempFolder.createFile("increase.tsv")
-        val body = jsonArray(jsonObj {
-            "accNo" to "S-TEST123"
-            "type" to "VIEWS"
-            "value" to 10
-        }).toString()
-        val response = jsonArray(jsonObj {
-            "accNo" to "S-TEST123"
-            "type" to "VIEWS"
-            "value" to 20
-        }).toString()
+        val body = jsonArray(
+            jsonObj {
+                "accNo" to "S-TEST123"
+                "type" to "VIEWS"
+                "value" to 10
+            }
+        ).toString()
+        val response = jsonArray(
+            jsonObj {
+                "accNo" to "S-TEST123"
+                "type" to "VIEWS"
+                "value" to 20
+            }
+        ).toString()
 
         every { tempFileGenerator.asFile(capture(multipartStatsFile)) } returns statsFile
         every { statsFileHandler.readStats(statsFile, capture(type)) } returns listOf(testStat)

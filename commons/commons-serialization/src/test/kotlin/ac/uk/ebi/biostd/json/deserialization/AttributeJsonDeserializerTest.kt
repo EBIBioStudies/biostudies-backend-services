@@ -22,10 +22,12 @@ class AttributeJsonDeserializerTest {
 
     @Test
     fun `deserialize empty value`() {
-        val attribute = testInstance.deserialize<Attribute>("""{
+        val attribute = testInstance.deserialize<Attribute>(
+            """{
             |"name": "attr name",
             |"value": ""
-            |}""".trimMargin())
+            |}""".trimMargin()
+        )
 
         assertThat(attribute.name).isEqualTo("attr name")
         assertThat(attribute.value).isEmpty()
@@ -33,9 +35,11 @@ class AttributeJsonDeserializerTest {
 
     @Test
     fun `deserialize no value`() {
-        val attribute = testInstance.deserialize<Attribute>("""{
+        val attribute = testInstance.deserialize<Attribute>(
+            """{
             |"name": "attr name"
-            |}""".trimMargin())
+            |}""".trimMargin()
+        )
 
         assertThat(attribute.name).isEqualTo("attr name")
         assertThat(attribute.value).isEmpty()
@@ -51,17 +55,20 @@ class AttributeJsonDeserializerTest {
         val exception = assertThrows<IllegalArgumentException> { testInstance.deserialize<Attribute>(invalidJson) }
 
         assertThat(exception.message).isEqualTo(
-            "Expecting node: '$node', property: 'name' to be of type 'TextNode' but 'ArrayNode' was found instead")
+            "Expecting node: '$node', property: 'name' to be of type 'TextNode' but 'ArrayNode' was found instead"
+        )
     }
 
     @Test
     fun `deserialize attribute with name and value`() {
         val attr = Attribute(name = "attr name", value = "attr value", reference = false)
 
-        val result = testInstance.deserialize<Attribute>("""{
+        val result = testInstance.deserialize<Attribute>(
+            """{
             |"name": "${attr.name}",
             |"value": "${attr.value}"
-            |}""".trimMargin())
+            |}""".trimMargin()
+        )
 
         assertThat(result).isEqualTo(attr)
     }
@@ -76,7 +83,8 @@ class AttributeJsonDeserializerTest {
             value = "attr value",
             reference = true,
             nameAttrs = mutableListOf(nameDetails),
-            valueAttrs = mutableListOf(valDetails))
+            valueAttrs = mutableListOf(valDetails)
+        )
 
         val attributeJson = jsonObj {
             "name" to attr.name
@@ -105,7 +113,8 @@ class AttributeJsonDeserializerTest {
             value = "attr value",
             reference = true,
             nameAttrs = mutableListOf(nameDetails),
-            valueAttrs = mutableListOf(valDetails))
+            valueAttrs = mutableListOf(valDetails)
+        )
 
         val attributeJson = jsonObj {
             "name" to attr.name
@@ -134,7 +143,8 @@ class AttributeJsonDeserializerTest {
             value = "attr value",
             reference = true,
             nameAttrs = mutableListOf(nameDetails),
-            valueAttrs = mutableListOf(valDetails))
+            valueAttrs = mutableListOf(valDetails)
+        )
 
         val attributeJson = jsonObj {
             "name" to attr.name

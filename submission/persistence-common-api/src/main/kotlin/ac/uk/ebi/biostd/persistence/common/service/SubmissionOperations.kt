@@ -28,6 +28,13 @@ interface SubmissionQueryService {
 
     fun getExtendedSubmissions(filter: SubmissionFilter): Page<Result<ExtSubmission>>
 
+    /**
+     * Return the list of submissions that belongs to a user. Both processed and processing or requesting ones are
+     * retrieved.
+     *
+     * @param email the submission owner email
+     * @param filter the submission filter
+     **/
     fun getSubmissionsByUser(email: String, filter: SubmissionFilter): List<BasicSubmission>
 
     fun getRequest(accNo: String, version: Int): ExtSubmission

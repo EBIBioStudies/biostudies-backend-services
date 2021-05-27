@@ -1,5 +1,7 @@
 package uk.ac.ebi.biostd.client.cli.common
 
+const val FILES_SEPARATOR = ','
+
 internal object CommonParameters {
     const val SERVER_HELP = "BioStudies host url"
     const val ATTACHED_HELP = "Comma separated list of paths to the files referenced in the submission"
@@ -18,4 +20,5 @@ internal object MigrationParameters {
     const val SOURCE_PASSWORD = "Password for the BioStudies user in the source environment"
     const val TARGET_USER = "BioStudies user in the target environment"
     const val TARGET_PASSWORD = "Password for the BioStudies user in the target environment"
+    const val TARGET_OWNER = "New owner for the submission in the target environment"
 }
