@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.submission.validator.collection
 import ac.uk.ebi.biostd.common.properties.ValidatorProperties
 import ac.uk.ebi.biostd.persistence.exception.CollectionValidationException
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.extended.model.allFiles
 import ebi.ac.uk.util.collections.ifNotEmpty
 import org.springframework.core.io.FileSystemResource
@@ -35,7 +36,7 @@ class EuToxRiskValidator(
     private fun jsonHeaders() = HttpHeaders().apply { contentType = APPLICATION_JSON }
 
     fun body(submission: ExtSubmission): FileSystemResource {
-        val subFile = submission.allFiles.find { it.file.extension == "xlsx" }
+        val subFile = submission.allFiles.find { (it as NfsFile).file.extension == "xlsx" } as NfsFile
         requireNotNull(subFile) { throw CollectionValidationException(listOf(EXCEL_FILE_REQUIRED)) }
         return FileSystemResource(subFile.file)
     }

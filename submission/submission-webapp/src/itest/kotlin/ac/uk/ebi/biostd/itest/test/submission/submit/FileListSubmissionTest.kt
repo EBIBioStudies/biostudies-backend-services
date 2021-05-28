@@ -17,6 +17,7 @@ import ebi.ac.uk.dsl.tsv
 import ebi.ac.uk.extended.model.ExtAttribute
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileList
+import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.test.createFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
@@ -185,7 +186,7 @@ internal class FileListSubmissionTest(private val tempFolder: TemporaryFolder) :
                 ExtFileList(
                     fileListName,
                     listOf(
-                        ExtFile(
+                        NfsFile(
                             file = Paths.get("$submissionFolderPath/Files/$testFile").toFile(),
                             fileName = testFile,
                             attributes = listOf(ExtAttribute("GEN", "ABC"))

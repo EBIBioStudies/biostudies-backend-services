@@ -9,6 +9,7 @@ import ebi.ac.uk.extended.model.ExtSectionTable
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FileMode
 import ebi.ac.uk.extended.model.FileMode.COPY
+import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.io.FileUtils.copyOrReplaceFile
 import ebi.ac.uk.io.FileUtils.moveFile
 import ebi.ac.uk.io.ext.md5
@@ -71,6 +72,8 @@ data class FileProcessingConfig(
 )
 
 internal fun FileProcessingConfig.copy(extFile: ExtFile): ExtFile {
+    // TODO add proper handling
+    val extFile = extFile as NfsFile
     val source = if (extFile.file.startsWith(subFolder)) tempFolder.resolve(extFile.fileName) else extFile.file
     val target = subFolder.resolve(extFile.fileName)
     val current = tempFolder.resolve(extFile.fileName)
@@ -86,6 +89,8 @@ internal fun FileProcessingConfig.copy(extFile: ExtFile): ExtFile {
 }
 
 internal fun FileProcessingConfig.move(extFile: ExtFile): ExtFile {
+    // TODO add proper handling
+    val extFile = extFile as NfsFile
     val source = if (extFile.file.startsWith(subFolder)) tempFolder.resolve(extFile.fileName) else extFile.file
     val target = subFolder.resolve(extFile.fileName)
 

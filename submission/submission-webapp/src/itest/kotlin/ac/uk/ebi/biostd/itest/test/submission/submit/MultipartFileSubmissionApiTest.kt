@@ -20,6 +20,7 @@ import ebi.ac.uk.dsl.tsv
 import ebi.ac.uk.extended.model.ExtAttribute
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileList
+import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.test.createFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
@@ -39,6 +40,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.transaction.annotation.Transactional
 import java.nio.file.Paths
 
+
+// TODO Fix all integration tests
 @ExtendWith(TemporaryFolderExtension::class)
 internal class MultipartFileSubmissionApiTest(
     private val tempFolder: TemporaryFolder
@@ -275,7 +278,7 @@ internal class MultipartFileSubmissionApiTest(
                 ExtFileList(
                     fileListName,
                     listOf(
-                        ExtFile(
+                        NfsFile(
                             fileName = testFile,
                             file = Paths.get("$submissionFolderPath/Files/$testFile").toFile(),
                             attributes = listOf(ExtAttribute("GEN", "ABC"))
