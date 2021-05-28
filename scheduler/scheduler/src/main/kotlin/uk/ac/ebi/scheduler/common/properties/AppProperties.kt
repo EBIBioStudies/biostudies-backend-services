@@ -18,4 +18,5 @@ class DailyScheduling {
     var pmc: Boolean = false
     var notifier: Boolean = false
     var releaser: Boolean = true
+    var exporter: Boolean = true
 }

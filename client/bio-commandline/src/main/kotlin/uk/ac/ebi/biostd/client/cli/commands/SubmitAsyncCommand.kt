@@ -11,7 +11,8 @@ import uk.ac.ebi.biostd.client.cli.dto.SubmissionRequest
 import uk.ac.ebi.biostd.client.cli.services.SubmissionService
 import java.io.File
 
-class SubmitAsyncCommand(private val submissionService: SubmissionService) : CliktCommand(name = "submitAsync") {
+internal class SubmitAsyncCommand(private val submissionService: SubmissionService) :
+    CliktCommand(name = "submitAsync") {
     private val server by option("-s", "--server", help = CommonParameters.SERVER_HELP).required()
     private val user by option("-u", "--user", help = CommonParameters.USER_HELP).required()
     private val password by option("-p", "--password", help = CommonParameters.PASSWORD_HELP).required()

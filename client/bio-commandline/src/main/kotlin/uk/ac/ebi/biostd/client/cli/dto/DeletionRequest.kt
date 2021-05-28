@@ -1,6 +1,6 @@
 package uk.ac.ebi.biostd.client.cli.dto
 
-data class DeletionRequest(
+internal data class DeletionRequest(
     val server: String,
     val user: String,
     val password: String,

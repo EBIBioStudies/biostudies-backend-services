@@ -18,6 +18,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.biostd.client.cli.dto.DeletionRequest
@@ -56,35 +57,59 @@ internal class SubmissionServiceTest {
         verify(exactly = 1) { bioWebClient.deleteSubmission(requestDelete.accNo) }
     }
 
-    @Test
-    fun `migrate successful`(
-        @MockK sourceClient: BioWebClient,
-        @MockK targetClient: BioWebClient,
-        @MockK extSubmission: ExtSubmission
-    ) {
-        val request = MigrationRequest(
+    @Nested
+    @ExtendWith(MockKExtension::class)
+    inner class Migrate {
+
+        @MockK
+        private lateinit var sourceClient: BioWebClient
+
+        @MockK
+        private lateinit var targetClient: BioWebClient
+
+        @MockK
+        private lateinit var extSubmission: ExtSubmission
+
+        private val rqt = MigrationRequest(
             accNo = "S-BSST1",
             source = "http://biostudy-prod",
             sourceUser = "admin_user@ebi.ac.uk",
             sourcePassword = "123456",
             target = "http://biostudy-prod",
             targetUser = "admin_user@ebi.ac.uk",
-            targetPassword = "78910"
+            targetPassword = "78910",
+            targetOwner = null
         )
 
-        mockkObject(SecurityWebClient)
-        every { sourceClient.getExtByAccNo("S-BSST1") } returns extSubmission
-        every { targetClient.submitExt(extSubmission) } returns extSubmission
-        every {
-            create(request.source).getAuthenticatedClient(request.sourceUser, request.sourcePassword)
-        } returns sourceClient
-        every {
-            create(request.target).getAuthenticatedClient(request.targetUser, request.targetPassword)
-        } returns targetClient
+        @BeforeEach
+        fun beforeEach() {
+            mockkObject(SecurityWebClient)
+            every { create(rqt.source).getAuthenticatedClient(rqt.sourceUser, rqt.sourcePassword) } returns sourceClient
+            every { create(rqt.target).getAuthenticatedClient(rqt.targetUser, rqt.targetPassword) } returns targetClient
+        }
 
-        testInstance.migrate(request)
-        verify(exactly = 1) { sourceClient.getExtByAccNo("S-BSST1") }
-        verify(exactly = 1) { targetClient.submitExt(extSubmission) }
+        @Test
+        fun `migrate when no target Owner`() {
+            every { sourceClient.getExtByAccNo("S-BSST1") } returns extSubmission
+            every { targetClient.submitExt(extSubmission) } returns extSubmission
+
+            testInstance.migrate(rqt)
+
+            verify(exactly = 1) { sourceClient.getExtByAccNo("S-BSST1") }
+            verify(exactly = 1) { targetClient.submitExt(extSubmission) }
+        }
+
+        @Test
+        fun `migrate when target Owner`() {
+            val newOwner = "owner"
+            every { sourceClient.getExtByAccNo("S-BSST1") } returns extSubmission
+            every { targetClient.submitExt(extSubmission.copy(owner = newOwner)) } returns extSubmission
+
+            testInstance.migrate(rqt.copy(targetOwner = newOwner))
+
+            verify(exactly = 1) { sourceClient.getExtByAccNo("S-BSST1") }
+            verify(exactly = 1) { targetClient.submitExt(extSubmission.copy(owner = newOwner)) }
+        }
     }
 
     @Test
