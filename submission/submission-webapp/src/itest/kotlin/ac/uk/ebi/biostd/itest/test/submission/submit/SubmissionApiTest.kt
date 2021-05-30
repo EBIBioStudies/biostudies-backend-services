@@ -378,5 +378,34 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
             }
             assertThat(exception.message!!.contains("Submission contains invalid files invalid file.txt"))
         }
+
+        @Test
+        fun `delete subsmissions`() {
+            webClient.getSubmissions().forEach { webClient.deleteSubmission(it.accno) }
+
+            val submission1 = tsv {
+                line("Submission", "S-TEST1")
+                line("Title", "Test Section Table")
+            }.toString()
+            val submission2 = tsv {
+                line("Submission", "S-TEST2")
+                line("Title", "Test Section Table")
+            }.toString()
+            val submission3 = tsv {
+                line("Submission", "S-TEST3")
+                line("Title", "Test Section Table")
+            }.toString()
+
+            for (submission in listOf(submission1, submission2, submission3)) webClient.submitSingle(submission, TSV)
+
+            assertThat(webClient.getSubmissions()).hasSize(3)
+
+            webClient.deleteSubmissions(listOf("S-TEST1", "S-TEST3"))
+
+            val remainedSubmissions = webClient.getSubmissions()
+
+            assertThat(remainedSubmissions).hasSize(1)
+            assertThat(remainedSubmissions.first().accno).isEqualTo("S-TEST2")
+        }
     }
 }
