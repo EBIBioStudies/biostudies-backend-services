@@ -58,6 +58,10 @@ internal open class SubmissionRepository(
         }
     }
 
+    override fun expireSubmissions(submissions: List<String>) {
+        submissions.forEach { expireSubmission(it) }
+    }
+
     @Transactional(readOnly = true)
     override fun getExtendedSubmissions(filter: SubmissionFilter): Page<Result<ExtSubmission>> {
         val filterSpecs = SubmissionFilterSpecification(filter)

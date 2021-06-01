@@ -13,6 +13,7 @@ import ebi.ac.uk.extended.model.ExtSubmission
 import org.springframework.data.domain.Page
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 
+@Suppress("TooManyFunctions")
 internal class SubmissionMongoQueryService(
     private val submissionRepo: SubmissionDocDataRepository,
     private val requestRepository: SubmissionRequestDocDataRepository,
@@ -34,6 +35,11 @@ internal class SubmissionMongoQueryService(
     override fun expireSubmission(accNo: String) {
         val submission = loadSubmission(accNo)
         submissionRepo.expireVersion(accNo, submission.version)
+    }
+
+    override fun expireSubmissions(submissions: List<String>) {
+        val loadVersion = submissions.map { loadSubmission(it).version }
+        submissionRepo.expireVersion(submissions, loadVersion)
     }
 
     override fun getExtendedSubmissions(filter: SubmissionFilter): Page<Result<ExtSubmission>> {

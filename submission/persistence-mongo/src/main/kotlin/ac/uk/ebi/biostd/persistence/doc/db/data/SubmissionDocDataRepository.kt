@@ -34,6 +34,7 @@ import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Criteria.where
 import org.springframework.data.mongodb.core.query.Query
 import org.springframework.data.mongodb.core.query.Update.update
+import org.springframework.data.mongodb.core.query.UpdateDefinition
 
 private const val SUB_ALIAS = "submission"
 
@@ -96,6 +97,18 @@ class SubmissionDocDataRepository(
         )
     }
 
+    fun expireVersion(accNo: List<String>, versionList: List<Int>) {
+        val queryList = accNo.mapIndexed { index, accNo ->
+            Query(where(SUB_ACC_NO).`is`(accNo).andOperator(where(SUB_VERSION).`is`(versionList[index])))
+        }
+
+        mongoTemplate.updateMulti(
+            queryList,
+            ExtendedUpdate().multiply(SUB_VERSION, -1),
+            DocSubmission::class.java
+        )
+    }
+
     fun getCollections(accNo: String): List<DocCollection> =
         submissionRepository.getSubmissionCollections(accNo).collections
 
@@ -144,6 +157,12 @@ class SubmissionDocDataRepository(
                 filter.keywords?.let { add(where(SUB_TITLE).regex("(?i).*$it.*")) }
                 filter.released?.let { add(where(SUB_RELEASED).`is`(it)) }
             }.build().toTypedArray()
+
+        private fun MongoTemplate.updateMulti(
+            queryList: List<Query>,
+            updateDefinition: UpdateDefinition,
+            clazz: Class<*>
+        ) = queryList.forEach { updateMulti(it, updateDefinition, clazz) }
     }
 }
 
