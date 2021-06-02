@@ -50,11 +50,11 @@ class MongoDbServicesConfig {
     internal fun submissionDraftMongoService(
         submissionDraftDocDataRepository: SubmissionDraftDocDataRepository,
         submissionQueryService: SubmissionQueryService,
-        serializationService: SerializationService
+        extSerializationService: ExtSerializationService
     ): SubmissionDraftService = SubmissionDraftMongoService(
         submissionDraftDocDataRepository,
         submissionQueryService,
-        serializationService
+        extSerializationService
     )
 
     @Bean
