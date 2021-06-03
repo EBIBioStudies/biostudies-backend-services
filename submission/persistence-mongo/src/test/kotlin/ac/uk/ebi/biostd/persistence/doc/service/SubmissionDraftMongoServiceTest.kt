@@ -24,6 +24,7 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import java.time.Instant
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -31,12 +32,12 @@ import java.time.Instant
 internal class SubmissionDraftMongoServiceTest(
     @MockK private val draftDocDataRepository: SubmissionDraftDocDataRepository,
     @MockK private val submissionQueryService: SubmissionQueryService,
-    @MockK private val serializationService: SerializationService
+    @MockK private val extSerializationService: ExtSerializationService
 ) {
     private val testInstance = SubmissionDraftMongoService(
         draftDocDataRepository,
         submissionQueryService,
-        serializationService
+        extSerializationService
     )
 
     @AfterEach
@@ -60,7 +61,7 @@ internal class SubmissionDraftMongoServiceTest(
         every { draftDocDataRepository.findByUserIdAndKey(USER_ID, DRAFT_KEY) } returns null
         every { draftDocDataRepository.saveDraft(USER_ID, DRAFT_KEY, DRAFT_CONTENT) } returns testDocDraft
         every {
-            serializationService.serializeSubmission(extSubmission.toSimpleSubmission(), JsonPretty)
+            extSerializationService.serialize(extSubmission.toSimpleSubmission())
         } returns DRAFT_CONTENT
 
         val result = testInstance.getSubmissionDraft(USER_ID, DRAFT_KEY)
