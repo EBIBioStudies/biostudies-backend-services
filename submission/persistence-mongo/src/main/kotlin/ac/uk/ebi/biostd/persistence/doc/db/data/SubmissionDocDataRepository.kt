@@ -34,7 +34,6 @@ import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Criteria.where
 import org.springframework.data.mongodb.core.query.Query
 import org.springframework.data.mongodb.core.query.Update.update
-import org.springframework.data.mongodb.core.query.UpdateDefinition
 
 private const val SUB_ALIAS = "submission"
 
@@ -86,24 +85,16 @@ class SubmissionDocDataRepository(
     }
 
     fun expireVersion(accNo: String, version: Int) {
-        val criteria = where(SUB_ACC_NO).`is`(accNo).andOperator(
-            where(SUB_VERSION).`is`(version)
-        )
-
         mongoTemplate.updateMulti(
-            Query(criteria),
+            Query(where(SUB_ACC_NO).`is`(accNo).andOperator(where(SUB_VERSION).`is`(version))),
             ExtendedUpdate().multiply(SUB_VERSION, -1),
             DocSubmission::class.java
         )
     }
 
-    fun expireVersion(accNo: List<String>, versionList: List<Int>) {
-        val queryList = accNo.mapIndexed { index, accNo ->
-            Query(where(SUB_ACC_NO).`is`(accNo).andOperator(where(SUB_VERSION).`is`(versionList[index])))
-        }
-
+    fun expireVersions(submissions: List<String>) {
         mongoTemplate.updateMulti(
-            queryList,
+            Query(where(SUB_ACC_NO).`in`(submissions).andOperator(where(SUB_VERSION).gt(0))),
             ExtendedUpdate().multiply(SUB_VERSION, -1),
             DocSubmission::class.java
         )
@@ -125,10 +116,10 @@ class SubmissionDocDataRepository(
             DocSubmission::class.java,
             *createCountAggregation(filter).toTypedArray()
         )
-        return PageImpl<DocSubmission>(
+        return PageImpl(
             getSubmissions(filter),
             PageRequest.of(filter.pageNumber, filter.limit),
-            mongoTemplate.aggregate(aggregation, CountResult::class.java).uniqueMappedResult.submissions
+            mongoTemplate.aggregate(aggregation, CountResult::class.java).uniqueMappedResult!!.submissions
         )
     }
 
@@ -157,12 +148,6 @@ class SubmissionDocDataRepository(
                 filter.keywords?.let { add(where(SUB_TITLE).regex("(?i).*$it.*")) }
                 filter.released?.let { add(where(SUB_RELEASED).`is`(it)) }
             }.build().toTypedArray()
-
-        private fun MongoTemplate.updateMulti(
-            queryList: List<Query>,
-            updateDefinition: UpdateDefinition,
-            clazz: Class<*>
-        ) = queryList.forEach { updateMulti(it, updateDefinition, clazz) }
     }
 }
 

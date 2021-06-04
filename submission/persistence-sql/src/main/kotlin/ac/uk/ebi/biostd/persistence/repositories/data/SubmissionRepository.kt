@@ -58,8 +58,9 @@ internal open class SubmissionRepository(
         }
     }
 
-    override fun expireSubmissions(submissions: List<String>) {
-        submissions.forEach { expireSubmission(it) }
+    @Transactional
+    override fun expireSubmissions(accNumbers: List<String>) {
+        submissionRepository.deleteSubmission(accNumbers)
     }
 
     @Transactional(readOnly = true)

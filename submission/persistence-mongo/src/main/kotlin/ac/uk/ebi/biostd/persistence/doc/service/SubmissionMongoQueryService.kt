@@ -37,9 +37,8 @@ internal class SubmissionMongoQueryService(
         submissionRepo.expireVersion(accNo, submission.version)
     }
 
-    override fun expireSubmissions(submissions: List<String>) {
-        val loadVersion = submissions.map { loadSubmission(it).version }
-        submissionRepo.expireVersion(submissions, loadVersion)
+    override fun expireSubmissions(accNumbers: List<String>) {
+        submissionRepo.expireVersions(accNumbers)
     }
 
     override fun getExtendedSubmissions(filter: SubmissionFilter): Page<Result<ExtSubmission>> {

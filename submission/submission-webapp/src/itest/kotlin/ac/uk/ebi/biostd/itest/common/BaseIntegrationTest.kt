@@ -26,7 +26,7 @@ internal open class BaseIntegrationTest(private val tempFolder: TemporaryFolder)
 
     @BeforeAll
     fun beforeAll() {
-        if (System.getProperty("itest.mode") == "mongo") {
+        if (System.getProperty("testing.mode") == "mongo") {
             setUpMongo()
         }
 

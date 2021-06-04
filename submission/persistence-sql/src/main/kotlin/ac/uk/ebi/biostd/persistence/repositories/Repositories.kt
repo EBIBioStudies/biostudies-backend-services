@@ -40,7 +40,12 @@ import com.cosium.spring.data.jpa.entity.graph.domain.EntityGraph as GraphSpecif
 @Suppress("TooManyFunctions")
 interface SubmissionDataRepository :
     EntityGraphJpaRepository<DbSubmission, Long>, EntityGraphJpaSpecificationExecutor<DbSubmission> {
+
     fun findByAccNoAndVersionGreaterThan(id: String, version: Int = 0): DbSubmission?
+
+    @Modifying
+    @Query("update DbSubmission s set s.version = -s.version where accNo in :accNumbers")
+    fun deleteSubmission(accNumbers: List<String>)
 
     @Query("select s from DbSubmission s inner join s.owner where s.accNo = :accNo order by s.id desc")
     fun getBasicAllVersions(@Param("accNo") accNo: String, pageable: Pageable): List<DbSubmission>

@@ -396,14 +396,14 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
                 line("Title", "Test Section Table")
             }.toString()
 
-            for (submission in listOf(submission1, submission2, submission3)) webClient.submitSingle(submission, TSV)
-
+            webClient.submitSingle(submission1, TSV)
+            webClient.submitSingle(submission2, TSV)
+            webClient.submitSingle(submission3, TSV)
             assertThat(webClient.getSubmissions()).hasSize(3)
 
             webClient.deleteSubmissions(listOf("S-TEST1", "S-TEST3"))
 
             val remainedSubmissions = webClient.getSubmissions()
-
             assertThat(remainedSubmissions).hasSize(1)
             assertThat(remainedSubmissions.first().accno).isEqualTo("S-TEST2")
         }

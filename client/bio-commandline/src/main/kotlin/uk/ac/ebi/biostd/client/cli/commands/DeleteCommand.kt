@@ -31,6 +31,6 @@ internal class DeleteCommand(private val submissionService: SubmissionService) :
         )
 
         submissionService.delete(request)
-        echo("SUCCESS: Submission with AccNo ${request.accNoList.joinToString(",")} was deleted")
+        echo("SUCCESS: Submission with AccNo ${request.accNoList.joinToString()} was deleted")
     }
 }
