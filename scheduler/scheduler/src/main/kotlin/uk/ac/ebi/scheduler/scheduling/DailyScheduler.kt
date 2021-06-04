@@ -4,10 +4,12 @@ import ebi.ac.uk.base.ifTrue
 import uk.ac.ebi.scheduler.pmc.importer.domain.PmcLoaderService
 import org.springframework.scheduling.annotation.Scheduled
 import uk.ac.ebi.scheduler.common.properties.DailyScheduling
+import uk.ac.ebi.scheduler.exporter.domain.ExporterTrigger
 import uk.ac.ebi.scheduler.releaser.domain.SubmissionReleaserTrigger
 
 internal class DailyScheduler(
     private val dailyScheduling: DailyScheduling,
+    private val exporterTrigger: ExporterTrigger,
     private val pmcLoaderService: PmcLoaderService,
     private val submissionReleaserTrigger: SubmissionReleaserTrigger
 ) {
@@ -34,5 +36,10 @@ internal class DailyScheduler(
     @Scheduled(cron = "0 0 10 * * *")
     fun notifySubmissionRelease() {
         dailyScheduling.notifier.ifTrue { submissionReleaserTrigger.triggerSubmissionReleaseNotifier() }
+    }
+
+    @Scheduled(cron = "0 0 20 * * *")
+    fun exportPublicSubmissions() {
+        dailyScheduling.exporter.ifTrue { exporterTrigger.triggerPublicExport() }
     }
 }

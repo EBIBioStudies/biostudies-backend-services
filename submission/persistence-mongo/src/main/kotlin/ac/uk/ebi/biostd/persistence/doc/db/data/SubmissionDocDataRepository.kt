@@ -31,6 +31,7 @@ import org.springframework.data.mongodb.core.aggregation.Aggregation.newAggregat
 import org.springframework.data.mongodb.core.aggregation.Aggregation.replaceRoot
 import org.springframework.data.mongodb.core.aggregation.Aggregation.skip
 import org.springframework.data.mongodb.core.aggregation.Aggregation.sort
+import org.springframework.data.mongodb.core.aggregation.AggregationOptions
 import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Criteria.where
 import org.springframework.data.mongodb.core.query.Query
@@ -109,7 +110,8 @@ class SubmissionDocDataRepository(
         val aggregation = newAggregation(
             DocSubmission::class.java,
             *createSubmissionAggregation(filter, email).toTypedArray()
-        )
+        ).withOptions(aggregationOptions())
+
         return mongoTemplate.aggregate(aggregation, DocSubmission::class.java).mappedResults
     }
 
@@ -117,8 +119,9 @@ class SubmissionDocDataRepository(
         val aggregation = newAggregation(
             DocSubmission::class.java,
             *createCountAggregation(filter).toTypedArray()
-        )
-        return PageImpl(
+        ).withOptions(aggregationOptions())
+
+        return PageImpl<DocSubmission>(
             getSubmissions(filter),
             PageRequest.of(filter.pageNumber, filter.limit),
             mongoTemplate.aggregate(aggregation, CountResult::class.java).uniqueMappedResult!!.submissions
@@ -131,6 +134,8 @@ class SubmissionDocDataRepository(
 
         private fun createSubmissionAggregation(filter: SubmissionFilter, email: String? = null) =
             createAggregation(filter, email).plus(skip(filter.offset)).plus(limit(filter.limit.toLong()))
+
+        private fun aggregationOptions() = AggregationOptions.builder().allowDiskUse(true).build()
 
         private fun createAggregation(filter: SubmissionFilter, email: String? = null) =
             listOf(

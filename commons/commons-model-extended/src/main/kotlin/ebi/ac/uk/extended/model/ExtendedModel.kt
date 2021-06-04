@@ -43,7 +43,7 @@ data class ExtFile(
         get() = file.size()
 }
 
-data class ExtFileList(val fileName: String, val files: List<ExtFile>)
+data class ExtFileList(val fileName: String, val files: List<ExtFile> = listOf())
 
 data class ExtSectionTable(val sections: List<ExtSection>)
 
