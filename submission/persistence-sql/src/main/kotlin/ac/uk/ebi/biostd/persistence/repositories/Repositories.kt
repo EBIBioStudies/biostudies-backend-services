@@ -33,6 +33,7 @@ import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.PagingAndSortingRepository
 import org.springframework.data.repository.query.Param
+import java.time.OffsetDateTime
 import java.util.Optional
 import javax.persistence.LockModeType
 import com.cosium.spring.data.jpa.entity.graph.domain.EntityGraph as GraphSpecification
@@ -44,8 +45,8 @@ interface SubmissionDataRepository :
     fun findByAccNoAndVersionGreaterThan(id: String, version: Int = 0): DbSubmission?
 
     @Modifying
-    @Query("update DbSubmission s set s.version = -s.version where accNo in :accNumbers")
-    fun deleteSubmission(accNumbers: List<String>)
+    @Query("update DbSubmission s set s.version = -s.version, s.modificationTime = :now where accNo in :accNumbers")
+    fun deleteSubmission(@Param("accNumbers") accNumbers: List<String>, @Param("now") now: OffsetDateTime)
 
     @Query("select s from DbSubmission s inner join s.owner where s.accNo = :accNo order by s.id desc")
     fun getBasicAllVersions(@Param("accNo") accNo: String, pageable: Pageable): List<DbSubmission>

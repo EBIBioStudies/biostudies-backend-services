@@ -24,9 +24,9 @@ interface SubmissionQueryService {
 
     fun getExtByAccNoAndVersion(accNo: String, version: Int): ExtSubmission
 
-    fun expireSubmission(accNo: String)
-
     fun expireSubmissions(accNumbers: List<String>)
+
+    fun expireSubmission(accNo: String) = expireSubmissions(listOf(accNo))
 
     fun getExtendedSubmissions(filter: SubmissionFilter): Page<Result<ExtSubmission>>
 
