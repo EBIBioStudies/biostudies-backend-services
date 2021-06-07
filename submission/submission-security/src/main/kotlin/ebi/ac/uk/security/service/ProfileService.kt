@@ -37,9 +37,9 @@ class ProfileService(private val filesDirPath: Path) {
         permissions.mapTo(mutableSetOf()) { SecurityPermission(it.accessType, it.accessTag.name) }
 
     private fun groupsMagicFolder(groups: Set<UserGroup>): List<GroupMagicFolder> =
-        groups.map { GroupMagicFolder(it.name, userMagicFolder(it), it.description) }
+        groups.map { GroupMagicFolder(it.name, groupMagicFolder(it), it.description) }
 
-    private fun userMagicFolder(it: UserGroup) = Paths.get("$filesDirPath/${magicPath(it.secret, it.id, "b")}")
+    private fun groupMagicFolder(it: UserGroup) = Paths.get("$filesDirPath/${magicPath(it.secret, it.id, "b")}")
 
     private fun userMagicFolder(secret: String, id: Long): MagicFolder {
         val relativePath = magicPath(secret, id, "a")

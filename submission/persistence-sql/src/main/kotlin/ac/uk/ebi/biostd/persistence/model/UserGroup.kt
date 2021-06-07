@@ -11,7 +11,8 @@ import javax.persistence.Table
 class UserGroup(
     var name: String,
     var description: String? = null,
-    var secret: String
+    var secret: String,
+    var project: Boolean = true
 ) {
 
     @Id
