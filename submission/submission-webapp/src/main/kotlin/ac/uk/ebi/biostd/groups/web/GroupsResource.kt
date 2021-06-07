@@ -21,15 +21,16 @@ class GroupsResource(private val groupService: IGroupService) {
         @BioUser user: SecurityUser
     ): List<Group> = user.groupsFolders.map { Group(it.groupName, it.description) }
 
-    @PostMapping("/group/{groupName}")
+    @PostMapping("/group")
     @ResponseBody
     fun createGroup(
         @BioUser user: SecurityUser,
-        @PathVariable groupName: String,
+        @RequestParam groupName: String,
         @RequestParam description: String
     ): UserGroup = groupService.createGroup(groupName, description)
 
     @PostMapping("/group/{groupName}")
+    @ResponseBody
     fun addUserInGroup(
         @BioUser user: SecurityUser,
         @PathVariable groupName: String,
