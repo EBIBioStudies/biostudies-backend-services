@@ -1,13 +1,10 @@
 package ac.uk.ebi.biostd.persistence.doc.service
 
-import ac.uk.ebi.biostd.integration.SerializationService
-import ac.uk.ebi.biostd.integration.SubFormat.JsonFormat.JsonPretty
 import ac.uk.ebi.biostd.persistence.common.request.PaginationFilter
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionDraftService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDraftDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft
-import ebi.ac.uk.extended.mapping.to.toSimpleSubmission
 import ebi.ac.uk.model.SubmissionDraft
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import java.time.Instant
@@ -17,7 +14,7 @@ class SubmissionDraftMongoService(
     private val submissionQueryService: SubmissionQueryService,
     private val extSerializationService: ExtSerializationService
 ) : SubmissionDraftService {
-        override fun getSubmissionDraft(userEmail: String, key: String): SubmissionDraft {
+    override fun getSubmissionDraft(userEmail: String, key: String): SubmissionDraft {
         val draft = draftDocDataRepository.findByUserIdAndKey(userEmail, key) ?: create(userEmail, key)
         return SubmissionDraft(draft.key, draft.content)
     }
