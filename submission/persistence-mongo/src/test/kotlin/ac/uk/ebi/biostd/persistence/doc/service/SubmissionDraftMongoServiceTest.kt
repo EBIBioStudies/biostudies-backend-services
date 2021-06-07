@@ -1,7 +1,5 @@
 package ac.uk.ebi.biostd.persistence.doc.service
 
-import ac.uk.ebi.biostd.integration.SerializationService
-import ac.uk.ebi.biostd.integration.SubFormat.JsonFormat.JsonPretty
 import ac.uk.ebi.biostd.persistence.common.request.PaginationFilter
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDraftDocDataRepository
@@ -61,7 +59,7 @@ internal class SubmissionDraftMongoServiceTest(
         every { draftDocDataRepository.findByUserIdAndKey(USER_ID, DRAFT_KEY) } returns null
         every { draftDocDataRepository.saveDraft(USER_ID, DRAFT_KEY, DRAFT_CONTENT) } returns testDocDraft
         every {
-            extSerializationService.serialize(extSubmission.toSimpleSubmission())
+            extSerializationService.serialize(extSubmission)
         } returns DRAFT_CONTENT
 
         val result = testInstance.getSubmissionDraft(USER_ID, DRAFT_KEY)
