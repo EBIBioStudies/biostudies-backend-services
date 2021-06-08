@@ -20,5 +20,6 @@ class SecurityNotification(
 
 enum class SecurityNotificationType {
     ACTIVATION,
+    ACTIVATION_BY_EMAIL,
     PASSWORD_RESET
 }
