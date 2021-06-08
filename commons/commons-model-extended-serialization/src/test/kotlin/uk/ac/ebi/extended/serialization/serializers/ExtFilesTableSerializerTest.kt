@@ -3,7 +3,6 @@ package uk.ac.ebi.extended.serialization.serializers
 import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.extended.model.ExtAttribute
-import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.NfsFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder

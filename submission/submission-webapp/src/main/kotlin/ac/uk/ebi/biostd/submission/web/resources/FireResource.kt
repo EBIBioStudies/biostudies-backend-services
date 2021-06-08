@@ -1,7 +1,6 @@
 package ac.uk.ebi.biostd.submission.web.resources
 
 import ac.uk.ebi.biostd.submission.domain.service.TempFileGenerator
-import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -12,7 +11,6 @@ import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.multipart.MultipartFile
 import uk.ac.ebi.fire.client.integration.web.FireWebClient
 import uk.ac.ebi.fire.client.model.FireFile
-import uk.ac.ebi.fire.client.model.MetadataEntry
 import java.io.File
 
 /**
@@ -20,6 +18,7 @@ import java.io.File
  * resource should be removed.
  */
 @RestController
+@Suppress("UnusedPrivateMember")
 @RequestMapping("/fire/files")
 class FireResource(
     private val fireWebClient: FireWebClient,
@@ -37,7 +36,6 @@ class FireResource(
     ): FireFile {
         val persisted = fireWebClient.save(tempFileGenerator.asFile(multipartFile), md5)
         fireWebClient.setPath(persisted.fireOid, path)
-
         return persisted
     }
 

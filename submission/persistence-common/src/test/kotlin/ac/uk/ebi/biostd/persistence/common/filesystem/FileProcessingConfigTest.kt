@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.persistence.common.filesystem
 
-import ebi.ac.uk.extended.model.ExtFile
+import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.io.RWXR_XR_X
 import ebi.ac.uk.io.RW_R__R__
 import ebi.ac.uk.io.ext.createDirectory
@@ -53,7 +53,7 @@ class FileProcessingConfigTest(private val tempFolder: TemporaryFolder) {
         }
 
         private fun testCopy(subFile: File, subFolder: File, currentFolder: File) {
-            val extFile = ExtFile("test.txt", subFile)
+            val extFile = NfsFile("test.txt", subFile)
             val config = FileProcessingConfig(subFolder, currentFolder, RW_R__R__, RWXR_XR_X)
             val result = config.copy(extFile)
 
@@ -93,7 +93,7 @@ class FileProcessingConfigTest(private val tempFolder: TemporaryFolder) {
         }
 
         private fun testMove(testFile: File, subFolder: File, currentFolder: File) {
-            val extFile = ExtFile("test.txt", testFile)
+            val extFile = NfsFile("test.txt", testFile)
             val config = FileProcessingConfig(subFolder, currentFolder, RW_R__R__, RWXR_XR_X)
             val result = config.move(extFile)
 

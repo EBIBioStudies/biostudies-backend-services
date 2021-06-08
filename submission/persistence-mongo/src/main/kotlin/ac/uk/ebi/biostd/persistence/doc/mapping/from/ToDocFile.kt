@@ -24,7 +24,7 @@ internal fun ExtFileList.toDocFileList(submissionId: ObjectId): Pair<DocFileList
     return Pair(DocFileList(fileName, listRef), listFiles)
 }
 
-private fun toFileDocListFile(submissionId: ObjectId, extFile: ExtFile) = when(extFile) {
+private fun toFileDocListFile(submissionId: ObjectId, extFile: ExtFile) = when (extFile) {
     is FireFile -> TODO()
     is NfsFile -> FileListDocFile(
         id = ObjectId(),
@@ -39,7 +39,7 @@ private fun toFileDocListFile(submissionId: ObjectId, extFile: ExtFile) = when(e
 
 private fun ExtFileTable.toDocFileTable() = DocFileTable(files.map { it.toDocFile() })
 private fun fileType(file: File): String = if (file.isDirectory) "directory" else "file"
-private fun ExtFile.toDocFile(): DocFile = when(this) {
+private fun ExtFile.toDocFile(): DocFile = when (this) {
     is FireFile -> TODO()
     is NfsFile -> DocFile(
         fileName,

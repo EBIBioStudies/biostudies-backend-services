@@ -9,7 +9,7 @@ import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.io.FileUtils
 
-internal fun ExtFile.toDbFile(order: Int, tableIndex: Int = NO_TABLE_INDEX) = when(this) {
+internal fun ExtFile.toDbFile(order: Int, tableIndex: Int = NO_TABLE_INDEX) = when (this) {
     is FireFile -> TODO()
     is NfsFile -> DbFile(
         fileName,

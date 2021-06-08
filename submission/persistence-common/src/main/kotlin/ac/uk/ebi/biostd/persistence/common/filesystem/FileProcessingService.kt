@@ -9,6 +9,7 @@ import ebi.ac.uk.extended.model.ExtSectionTable
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FileMode
 import ebi.ac.uk.extended.model.FileMode.COPY
+import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.io.FileUtils.copyOrReplaceFile
 import ebi.ac.uk.io.FileUtils.moveFile
@@ -23,8 +24,11 @@ private val logger = KotlinLogging.logger {}
 class FileProcessingService {
     fun processFiles(processRequest: FileProcessingRequest): ExtSubmission {
         val (mode, submission, config) = processRequest
-        val processFunc: (file: ExtFile) -> ExtFile = if (mode == COPY) config::copy else config::move
-        return submission.copy(section = processSection(submission.section, processFunc))
+        fun processFile(file: ExtFile): ExtFile = when (file) {
+            is FireFile -> TODO()
+            is NfsFile -> if (mode == COPY) config.copy(file) else config.move(file)
+        }
+        return submission.copy(section = processSection(submission.section, ::processFile))
     }
 
     private fun processSection(
@@ -71,9 +75,7 @@ data class FileProcessingConfig(
     val dirPermissions: Set<PosixFilePermission>
 )
 
-internal fun FileProcessingConfig.copy(extFile: ExtFile): ExtFile {
-    // TODO add proper handling
-    val extFile = extFile as NfsFile
+internal fun FileProcessingConfig.copy(extFile: NfsFile): NfsFile {
     val source = if (extFile.file.startsWith(subFolder)) tempFolder.resolve(extFile.fileName) else extFile.file
     val target = subFolder.resolve(extFile.fileName)
     val current = tempFolder.resolve(extFile.fileName)
@@ -88,9 +90,7 @@ internal fun FileProcessingConfig.copy(extFile: ExtFile): ExtFile {
     return extFile.copy(file = target)
 }
 
-internal fun FileProcessingConfig.move(extFile: ExtFile): ExtFile {
-    // TODO add proper handling
-    val extFile = extFile as NfsFile
+internal fun FileProcessingConfig.move(extFile: NfsFile): NfsFile {
     val source = if (extFile.file.startsWith(subFolder)) tempFolder.resolve(extFile.fileName) else extFile.file
     val target = subFolder.resolve(extFile.fileName)
 

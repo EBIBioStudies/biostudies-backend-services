@@ -8,7 +8,7 @@ import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.io.ext.size
 
-internal fun ExtFile.toRefFile(order: Int) = when(this) {
+internal fun ExtFile.toRefFile(order: Int) = when (this) {
     is FireFile -> TODO()
     is NfsFile -> DbReferencedFile(
         fileName,
