@@ -5,7 +5,6 @@ import ac.uk.ebi.biostd.persistence.doc.CHANGE_LOG_LOCK
 import ac.uk.ebi.biostd.persistence.doc.MongoDbConfig
 import ac.uk.ebi.biostd.persistence.doc.MongoDbConfig.Companion.createMongockConfig
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_TYPE
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_OWNER
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_RELEASED
@@ -21,6 +20,7 @@ import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocSubmission
 import com.mongodb.BasicDBObject
 import ebi.ac.uk.db.MONGO_VERSION
 import org.assertj.core.api.Assertions.assertThat
+import org.bson.Document
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -36,7 +36,6 @@ import org.springframework.data.mongodb.core.dropCollection
 import org.springframework.data.mongodb.core.findAll
 import org.springframework.data.mongodb.core.getCollectionName
 import org.springframework.data.mongodb.core.index.Index
-import org.springframework.data.mongodb.core.index.TextIndexDefinition.builder as TextIndex
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
 import org.springframework.test.context.junit.jupiter.SpringExtension
@@ -91,10 +90,12 @@ internal class DatabaseChangeLogTest(
 
     private fun assertSubmissionCollection() {
         val submissionCollection = mongoTemplate.getCollectionName<DocSubmission>()
-        val submissionIndexes = mongoTemplate.getCollection(submissionCollection).listIndexes().map { it["key"]!! }
+        val listIndexes = mongoTemplate.getCollection(submissionCollection).listIndexes()
+        val submissionIndexes = listIndexes.mapNotNull { it["key"] }
+        val submissionTextIndexes = listIndexes.mapNotNull { it["weights"] }
 
         assertThat(mongoTemplate.collectionExists<DocSubmission>()).isTrue()
-        assertThat(mongoTemplate.getCollection(submissionCollection).listIndexes()).hasSize(9)
+        assertThat(listIndexes).hasSize(9)
 
         assertThat(submissionIndexes).contains(Index().on("_id", ASC).indexKeys)
         assertThat(submissionIndexes).contains(Index().on(SUB_ACC_NO, ASC).indexKeys)
@@ -103,16 +104,19 @@ internal class DatabaseChangeLogTest(
         assertThat(submissionIndexes).contains(Index().on(SUB_SUBMITTER, ASC).indexKeys)
         assertThat(submissionIndexes).contains(Index().on("$SUB_SECTION.$SEC_TYPE", ASC).indexKeys)
         assertThat(submissionIndexes).contains(Index().on(SUB_RELEASE_TIME, ASC).indexKeys)
-        assertThat(TextIndex().onField(SUB_TITLE).build().indexKeys)
+        assertThat(submissionIndexes).contains(Document(mapOf("_fts" to "text", "_ftsx" to 1)))
+        assertThat(submissionTextIndexes).contains(Index().on(SUB_TITLE, ASC).indexKeys)
         assertThat(submissionIndexes).contains(Index().on(SUB_RELEASED, ASC).indexKeys)
     }
 
     private fun assertRequestCollection() {
         val requestCollection = mongoTemplate.getCollectionName<SubmissionRequest>()
-        val requestIndexes = mongoTemplate.getCollection(requestCollection).listIndexes().map { it["key"]!! }
+        val listIndexes = mongoTemplate.getCollection(requestCollection).listIndexes()
+        val requestIndexes = listIndexes.mapNotNull { it["key"] }
+        val requestTextIndexes = listIndexes.mapNotNull { it["weights"] }
 
         assertThat(mongoTemplate.collectionExists<SubmissionRequest>()).isTrue()
-        assertThat(mongoTemplate.getCollection(requestCollection).listIndexes()).hasSize(10)
+        assertThat(listIndexes).hasSize(10)
 
         assertThat(requestIndexes).contains(Index().on("_id", ASC).indexKeys)
         assertThat(requestIndexes).contains(Index().on(SUB_ACC_NO, ASC).indexKeys)
@@ -122,7 +126,8 @@ internal class DatabaseChangeLogTest(
         assertThat(requestIndexes).contains(Index().on("submission.$SUB_OWNER", ASC).indexKeys)
         assertThat(requestIndexes).contains(Index().on("submission.$SUB_SUBMITTER", ASC).indexKeys)
         assertThat(requestIndexes).contains(Index().on("submission.$SUB_RELEASE_TIME", ASC).indexKeys)
-        assertThat(TextIndex().onField("submission.$SUB_TITLE").build().indexKeys)
+        assertThat(requestIndexes).contains(Document(mapOf("_fts" to "text", "_ftsx" to 1)))
+        assertThat(requestTextIndexes).contains(Index().on("submission.$SUB_TITLE", ASC).indexKeys)
         assertThat(requestIndexes).contains(Index().on("submission.$SUB_RELEASED", ASC).indexKeys)
     }
 
