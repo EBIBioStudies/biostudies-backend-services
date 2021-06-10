@@ -166,9 +166,9 @@ class ExtSectionDeserializerTest(private val tempFolder: TemporaryFolder) {
         extFilesTable.ifRight {
             assertThat(it.files).hasSize(1)
 
-            val nfsFile = it.files.first() as NfsFile
-            assertThat(nfsFile.file).isEqualTo(sectionFilesTable)
-            assertThat(nfsFile.fileName).isEqualTo("section-file-table.txt")
+            val filesTableFile = it.files.first() as NfsFile
+            assertThat(filesTableFile.file).isEqualTo(sectionFilesTable)
+            assertThat(filesTableFile.fileName).isEqualTo("section-file-table.txt")
         }
 
         val extLinks = extSection.links

@@ -58,7 +58,7 @@ internal object SectionTestHelper {
         assertThat(extSection.type).isEqualTo(SECT_TYPE)
         assertExtSectionAttributes(extSection)
         assertExtSubsections(extSection)
-        assertExtFileList(extSection.fileList!!, file)
+        assertExtFileList(extSection.fileList!!)
         assertExtSectionFiles(extSection, file)
         assertExtSectionLinks(extSection)
     }

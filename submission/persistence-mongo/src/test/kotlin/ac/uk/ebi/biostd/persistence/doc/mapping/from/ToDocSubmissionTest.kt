@@ -92,13 +92,17 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(TemporaryFolderExtension::class)
-class ToDocSubmissionTest(private val tempFolder: TemporaryFolder) {
-    private val newRootSectionFileListFile = rootSectionFileListFile.copy(file = tempFolder.createFile("tempFile1.txt", "content1"))
-    private val newSubSectionFileListFile = subSectionFileListFile.copy(file = tempFolder.createFile("tempFile2.txt", "content2"))
+class ToDocSubmissionTest(tempFolder: TemporaryFolder) {
+    private val newRootSectionFileListFile =
+        rootSectionFileListFile.copy(file = tempFolder.createFile("tempFile1.txt", "content1"))
+    private val newSubSectionFileListFile =
+        subSectionFileListFile.copy(file = tempFolder.createFile("tempFile2.txt", "content2"))
     private val newRootSectionFile = rootSectionFile.copy(file = tempFolder.createFile("tempFile3.txt", "content3"))
-    private val newRootSectionTableFile = rootSectionTableFile.copy(file = tempFolder.createFile("tempFile4.txt", "content4"))
+    private val newRootSectionTableFile =
+        rootSectionTableFile.copy(file = tempFolder.createFile("tempFile4.txt", "content4"))
 
-    private val newSubSection = subSection.copy(fileList = subSection.fileList!!.copy(files = listOf(newSubSectionFileListFile)))
+    private val newSubSection =
+        subSection.copy(fileList = subSection.fileList!!.copy(files = listOf(newSubSectionFileListFile)))
     private val newRootSection = rootSection.copy(
         fileList = rootSection.fileList!!.copy(files = listOf(newRootSectionFileListFile)),
         sections = listOf(

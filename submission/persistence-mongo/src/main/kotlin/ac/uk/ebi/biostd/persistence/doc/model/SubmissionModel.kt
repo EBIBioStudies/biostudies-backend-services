@@ -78,6 +78,7 @@ data class DocAttributeDetail(val name: String, val value: String)
 data class DocLink(val url: String, val attributes: List<DocAttribute> = listOf())
 
 // TODO fullPath should be changed to "location" since it's more generic
+// TODO fileSystem is not being persisted in the database
 data class DocFile(
     val relPath: String,
     val fullPath: String,
@@ -98,6 +99,7 @@ data class DocFileRef(
 )
 
 // TODO fullPath should be changed to "location" since it's more generic
+// TODO fileSystem is not being persisted in the database
 @Document(collection = "file_list_files")
 data class FileListDocFile(
     @Id

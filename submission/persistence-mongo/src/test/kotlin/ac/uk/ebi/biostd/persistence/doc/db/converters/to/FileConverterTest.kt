@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_DOC_REL_PATH
 import ac.uk.ebi.biostd.persistence.doc.model.DocAttribute
 import ac.uk.ebi.biostd.persistence.doc.model.DocFile
+import ac.uk.ebi.biostd.persistence.doc.model.FileSystem.NFS
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
@@ -27,9 +28,8 @@ internal class FileConverterTest(
     @Test
     fun converter() {
         every { attributeConverter.convert(docAttribute) } returns document
-        val docFile = DocFile(FILE_DOC_REL_PATH, FILE_DOC_FULL_PATH, listOf(docAttribute), FILE_DOC_MD5, "file", 10L)
-
-        val result = testInstance.convert(docFile)
+        val file = DocFile(FILE_DOC_REL_PATH, FILE_DOC_FULL_PATH, listOf(docAttribute), FILE_DOC_MD5, "file", 10L, NFS)
+        val result = testInstance.convert(file)
 
         assertThat(result[FILE_DOC_MD5]).isEqualTo("md5")
         assertThat(result[FILE_DOC_REL_PATH]).isEqualTo("relPath")

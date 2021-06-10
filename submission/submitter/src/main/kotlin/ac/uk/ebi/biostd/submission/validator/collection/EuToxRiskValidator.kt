@@ -36,8 +36,12 @@ class EuToxRiskValidator(
     private fun jsonHeaders() = HttpHeaders().apply { contentType = APPLICATION_JSON }
 
     fun body(submission: ExtSubmission): FileSystemResource {
-        val subFile = submission.allFiles.find { (it as NfsFile).file.extension == "xlsx" } as NfsFile
-        requireNotNull(subFile) { throw CollectionValidationException(listOf(EXCEL_FILE_REQUIRED)) }
+        val subFile = submission
+            .allFiles
+            .filterIsInstance<NfsFile>()
+            .find { it.file.extension == "xlsx" }
+            ?: throw CollectionValidationException(listOf(EXCEL_FILE_REQUIRED))
+
         return FileSystemResource(subFile.file)
     }
 }
