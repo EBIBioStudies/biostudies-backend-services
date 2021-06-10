@@ -6,7 +6,6 @@ import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ebi.ac.uk.api.security.RegisterRequest
-import ebi.ac.uk.security.integration.components.IGroupService
 import ebi.ac.uk.test.clean
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
@@ -16,7 +15,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
@@ -33,7 +31,7 @@ internal class UserGroupsApiTest(private val tempFolder: TemporaryFolder) : Base
     @ExtendWith(SpringExtension::class)
     @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
     @DirtiesContext
-    inner class GroupsApi(@Autowired val groupService: IGroupService) {
+    inner class GroupsApi {
         @LocalServerPort
         private var serverPort: Int = 0
 
@@ -43,8 +41,8 @@ internal class UserGroupsApiTest(private val tempFolder: TemporaryFolder) : Base
         fun init() {
             val securityClient = SecurityWebClient.create("http://localhost:$serverPort")
             securityClient.registerUser(RegisterRequest(SuperUser.username, SuperUser.email, SuperUser.password))
-            groupService.addUserInGroup(groupService.createGroup(GROUP_NAME, GROUP_DESC).name, SuperUser.email)
             webClient = securityClient.getAuthenticatedClient(SuperUser.email, SuperUser.password)
+            webClient.addUserInGroup(webClient.createGroup(GROUP_NAME, GROUP_DESC).name, SuperUser.email)
         }
 
         @BeforeEach

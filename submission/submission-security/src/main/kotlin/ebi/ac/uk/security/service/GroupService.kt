@@ -7,8 +7,6 @@ import ac.uk.ebi.biostd.persistence.repositories.UserGroupDataRepository
 import ebi.ac.uk.io.FileUtils
 import ebi.ac.uk.io.RWXR_XR_X
 import ebi.ac.uk.security.integration.components.IGroupService
-import org.springframework.stereotype.Component
-import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.UUID
 
