@@ -98,7 +98,7 @@ class SubmissionDocDataRepository(
     }
 
     fun getCollections(accNo: String): List<DocCollection> =
-        submissionRepository.getSubmissionCollections(accNo).collections
+        submissionRepository.findSubmissionCollections(accNo)?.collections ?: emptyList()
 
     fun getSubmissions(filter: SubmissionFilter, email: String? = null): List<DocSubmission> {
         val aggregation = newAggregation(

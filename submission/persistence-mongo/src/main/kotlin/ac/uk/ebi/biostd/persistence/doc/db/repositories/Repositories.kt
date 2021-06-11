@@ -29,7 +29,7 @@ interface SubmissionMongoRepository : MongoRepository<DocSubmission, ObjectId> {
     fun findFirstByAccNoOrderByVersionDesc(accNo: String): DocSubmission?
 
     @Query(value = "{ 'accNo' : ?0, 'version' : { \$gt: 0} }", fields = "{ 'collections.accNo':1 }")
-    fun getSubmissionCollections(accNo: String): SubmissionProjects
+    fun findSubmissionCollections(accNo: String): SubmissionProjects?
 
     @Query("{ 'accNo': '?0', 'stats.name': { \$eq: '?1' } }")
     fun findByAccNoAndStatType(accNo: String, statType: SubmissionStatType): DocSubmission?
