@@ -21,7 +21,7 @@ val itest = tasks.create<Test>("itest") {
 
     val testingMode = project.property("itest.mode")
     println("##### Running integration tests in $testingMode mode #######")
-    systemProperty("itest.mode", testingMode)
+    systemProperty("testing.mode", testingMode)
 
     useJUnitPlatform()
     extensions.configure(JacocoTaskExtension::class) {
