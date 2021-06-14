@@ -17,8 +17,6 @@ import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.dsl.line
 import ebi.ac.uk.dsl.tsv
-import ebi.ac.uk.extended.model.ExtAttribute
-import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileList
 import ebi.ac.uk.test.createFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
@@ -271,18 +269,7 @@ internal class MultipartFileSubmissionApiTest(
             val submissionFolderPath = "$submissionPath/${createdSubmission.relPath}"
 
             assertThat(createdSubmission.section.fileList?.fileName).isEqualTo(fileListName)
-            assertThat(createdSubmission.section.fileList).isEqualTo(
-                ExtFileList(
-                    fileListName,
-                    listOf(
-                        ExtFile(
-                            fileName = testFile,
-                            file = Paths.get("$submissionFolderPath/Files/$testFile").toFile(),
-                            attributes = listOf(ExtAttribute("GEN", "ABC"))
-                        )
-                    )
-                )
-            )
+            assertThat(createdSubmission.section.fileList).isEqualTo(ExtFileList(fileListName, emptyList()))
 
             assertThat(Paths.get("$submissionFolderPath/Files/$testFile")).exists()
             assertThat(Paths.get("$submissionFolderPath/Files/$fileListName.xml")).exists()

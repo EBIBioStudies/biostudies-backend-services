@@ -1,6 +1,6 @@
 post:
-  summary: Retry User Activation
-  description: Send the activation E-Mail to a user to either activate the account or reset the password.
+  summary: Activate User By Email
+  description: Activates a newly created user and triggers the process to setup a new password.
 
   tags:
     - Security
@@ -17,16 +17,16 @@ post:
               required: true
               type: string
             instanceKey:
-              description: Instance key to generate the activation link.
+              description: Instance key that should process the password reset
               example: "the-instance-key"
-              required: false
+              required: true
               type: string
             path:
               description: The path to redirect the user in the UI
-              example: "/users/register"
+              example: "/users/password_setup"
               required: true
               type: string
 
   responses:
-    201:
-      description: User created
+    200:
+      description: OK
