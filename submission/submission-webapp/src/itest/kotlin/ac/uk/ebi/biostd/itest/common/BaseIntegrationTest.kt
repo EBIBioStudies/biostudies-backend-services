@@ -10,16 +10,22 @@ import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.testcontainers.containers.MongoDBContainer
 import org.testcontainers.containers.MySQLContainer
+import org.testcontainers.containers.startupcheck.MinimumDurationRunningStartupCheckStrategy
 import org.testcontainers.utility.DockerImageName
+import java.time.Duration
 
+private const val MINIMUM_RUNNING_TIME = 5L
 private const val CHARACTER_SET = "utf8mb4"
 private const val COLLATION = "utf8mb4_unicode_ci"
 
 internal open class BaseIntegrationTest(private val tempFolder: TemporaryFolder) {
     private val mongoContainer: MongoDBContainer = MongoDBContainer(DockerImageName.parse(MONGO_VERSION))
+        .withStartupCheckStrategy(MinimumDurationRunningStartupCheckStrategy(Duration.ofSeconds(MINIMUM_RUNNING_TIME)))
+
     private val mysqlContainer = SpecificMySQLContainer(MYSQL_VERSION)
         .withCommand("mysqld --character-set-server=$CHARACTER_SET --collation-server=$COLLATION")
         .withInitScript("Schema.sql")
+        .withStartupCheckStrategy(MinimumDurationRunningStartupCheckStrategy(Duration.ofSeconds(MINIMUM_RUNNING_TIME)))
 
     val submissionPath
         get() = "${tempFolder.root.absolutePath}/submission"
