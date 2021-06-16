@@ -2,11 +2,9 @@ package ac.uk.ebi.biostd.security.domain.service
 
 import ac.uk.ebi.biostd.persistence.common.model.AccessType
 import ac.uk.ebi.biostd.persistence.model.DbAccessPermission
-import ac.uk.ebi.biostd.persistence.model.DbAccessTag
 import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
-import org.springframework.dao.EmptyResultDataAccessException
 
 class PermissionService(
     private val permissionRepository: AccessPermissionRepository,
@@ -15,16 +13,11 @@ class PermissionService(
 ) {
     fun givePermissionToUser(accessType: String, email: String, accessTagName: String) {
         val user = userDataRepository.getByEmail(email)
-        val accessTag = try {
-            accessTagDataRepository.findByName(accessTagName)
-        } catch (exception: EmptyResultDataAccessException) {
-            print(exception)
-            accessTagDataRepository.save(DbAccessTag(name = accessTagName))
-        }
+        val accessTag = accessTagDataRepository.findByName(accessTagName)
 
         permissionRepository.save(
             DbAccessPermission(
-                accessType = AccessType.valueOf(accessType),
+                accessType = AccessType.valueOf(accessType.toUpperCase()),
                 user = user,
                 accessTag = accessTag
             )

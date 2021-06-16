@@ -5,11 +5,17 @@ import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
+import ac.uk.ebi.biostd.persistence.model.DbAccessTag
 import ac.uk.ebi.biostd.persistence.model.DbUser
+import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
+import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -30,6 +36,8 @@ internal class PermissionApiTest(tempFolder: TemporaryFolder) : BaseIntegrationT
     @DirtiesContext
     inner class GivePermissionToUser(
         @Autowired private val userDataRepository: UserDataRepository,
+        @Autowired private val accessTagRepository: AccessTagDataRepo,
+        @Autowired private val accessPermissionRepository: AccessPermissionRepository,
         @Autowired private val securityTestService: SecurityTestService
 
     ) {
@@ -47,18 +55,29 @@ internal class PermissionApiTest(tempFolder: TemporaryFolder) : BaseIntegrationT
         @Test
         fun `give permission to a user`() {
             userDataRepository.save(dbUser)
-            webClient.givePermissionToUser("test@email.com", "accessTagName", "READ")
+            accessTagRepository.save(dbAccessTag)
+
+            assertThat(accessPermissionRepository.findAll()).hasSize(0)
+
+            webClient.givePermissionToUser(dbUser.email, dbAccessTag.name, "READ")
+
+            val permissions = accessPermissionRepository.findAll()
+
+            assertThat(permissions).hasSize(1)
+            assertThat(permissions.first().user.email).isEqualTo(dbUser.email)
+            assertThat(permissions.first().accessTag.name).isEqualTo(dbAccessTag.name)
         }
     }
 
     private companion object {
         val dbUser = DbUser(
-            id = 1L,
+            id = 1,
             email = "test@email.com",
             fullName = "fullName",
             secret = "secret",
-            keyTime = 2L,
+            keyTime = 2,
             passwordDigest = ByteArray(1)
         )
+        val dbAccessTag = DbAccessTag(id = 2, name = "accessTagName")
     }
 }

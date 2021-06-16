@@ -1,13 +1,18 @@
 package ac.uk.ebi.biostd.security.domain.service
 
+import ac.uk.ebi.biostd.persistence.common.model.AccessType.READ
+import ac.uk.ebi.biostd.persistence.model.DbAccessPermission
 import ac.uk.ebi.biostd.persistence.model.DbAccessTag
 import ac.uk.ebi.biostd.persistence.model.DbUser
 import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
+import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
+import io.mockk.slot
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -20,14 +25,15 @@ class PermissionServiceTest(
     private val testInstance = PermissionService(permissionRepository, userDataRepository, accessTagDataRepository)
 
     @Test
-    fun `give permission when accessTag already exist`() {
-//        every { userDataRepository.getByEmail(email) } returns dbUser
-//        every { accessTagDataRepository.findByName(accessTagName) } returns dbAccessTag
-//        every { permissionRepository.save(
-//            DbAccessPermission(accessType = READ, user = dbUser, accessTag = dbAccessTag)
-//        ) } returns mockk()
-//
+    fun `give permission to a user`() {
+        every { userDataRepository.getByEmail(email) } returns dbUser
+        every { accessTagDataRepository.findByName(accessTagName) } returns dbAccessTag
+        every { permissionRepository.save(capture(dbAccessPermissionSlot)) } returns mockk()
+
         testInstance.givePermissionToUser(accessType, email, accessTagName)
+
+        assertThat(dbAccessPermissionSlot.captured.user).isEqualTo(dbUser)
+        assertThat(dbAccessPermissionSlot.captured.accessTag).isEqualTo(dbAccessTag)
     }
 
     companion object {
@@ -36,5 +42,6 @@ class PermissionServiceTest(
         const val accessType = "READ"
         val dbUser = mockk<DbUser>()
         val dbAccessTag = mockk<DbAccessTag>()
+        private val dbAccessPermissionSlot = slot<DbAccessPermission>()
     }
 }
