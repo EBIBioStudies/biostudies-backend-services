@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.security.domain.service
 
-import ac.uk.ebi.biostd.persistence.common.model.AccessType.READ
 import ac.uk.ebi.biostd.persistence.model.DbAccessPermission
 import ac.uk.ebi.biostd.persistence.model.DbAccessTag
 import ac.uk.ebi.biostd.persistence.model.DbUser
