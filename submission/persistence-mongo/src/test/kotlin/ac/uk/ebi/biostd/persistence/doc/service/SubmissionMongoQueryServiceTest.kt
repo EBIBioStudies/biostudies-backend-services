@@ -19,6 +19,7 @@ import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocSection as docSection
 import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocSubmission as docSubmission
 import ac.uk.ebi.biostd.persistence.exception.SubmissionNotFoundException
 import com.mongodb.BasicDBObject
+import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
 import ebi.ac.uk.db.MONGO_VERSION
 import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.ExtSubmission
@@ -38,10 +39,12 @@ import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.testcontainers.containers.MongoDBContainer
+import org.testcontainers.containers.startupcheck.MinimumDurationRunningStartupCheckStrategy
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.utility.DockerImageName
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
+import java.time.Duration.ofSeconds
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus.PROCESSED as REQUEST_PROCESSED
@@ -164,11 +167,15 @@ internal class SubmissionMongoQueryServiceTest(
             val mismatchDate = OffsetDateTime.of(2000, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC)
 
             saveAsRequest(
-                extSubmission.copy(accNo = "accNo1", releaseTime = matchDate, section = section),
+                fullExtSubmission.copy(
+                    accNo = "accNo1", releaseTime = matchDate, section = section
+                ),
                 REQUESTED
             )
             saveAsRequest(
-                extSubmission.copy(accNo = "accNo2", releaseTime = mismatchDate, section = section),
+                fullExtSubmission.copy(
+                    accNo = "accNo2", releaseTime = mismatchDate, section = section
+                ),
                 REQUESTED
             )
             submissionRepo.save(
@@ -191,11 +198,15 @@ internal class SubmissionMongoQueryServiceTest(
             val mismatchDate = OffsetDateTime.of(2010, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC)
 
             saveAsRequest(
-                extSubmission.copy(accNo = "accNo1", releaseTime = matchDate, section = section),
+                fullExtSubmission.copy(
+                    accNo = "accNo1", releaseTime = matchDate, section = section
+                ),
                 REQUESTED
             )
             saveAsRequest(
-                extSubmission.copy(accNo = "accNo2", releaseTime = mismatchDate, section = section),
+                fullExtSubmission.copy(
+                    accNo = "accNo2", releaseTime = mismatchDate, section = section
+                ),
                 REQUESTED
             )
             submissionRepo.save(
@@ -346,6 +357,7 @@ internal class SubmissionMongoQueryServiceTest(
     companion object {
         @Container
         val mongoContainer: MongoDBContainer = MongoDBContainer(DockerImageName.parse(MONGO_VERSION))
+            .withStartupCheckStrategy(MinimumDurationRunningStartupCheckStrategy(ofSeconds(MINIMUM_RUNNING_TIME)))
 
         @JvmStatic
         @DynamicPropertySource
