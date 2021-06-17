@@ -51,7 +51,7 @@ internal open class SubmissionRepository(
 
     @Transactional
     override fun expireSubmissions(accNumbers: List<String>) {
-        submissionRepository.deleteSubmission(accNumbers, OffsetDateTime.now())
+        submissionRepository.deleteSubmissions(accNumbers, OffsetDateTime.now())
     }
 
     @Transactional(readOnly = true)

@@ -60,12 +60,25 @@ internal class SubmissionMongoQueryServiceTest(
     private val testInstance =
         SubmissionMongoQueryService(submissionRepo, requestRepository, serializationService, toExtSubmissionMapper)
 
-    @Test
-    fun `expire submission`() {
-        submissionRepo.save(testDocSubmission.copy(accNo = "S-BSST1", version = 1, status = PROCESSED))
-        testInstance.expireSubmission("S-BSST1")
+    @Nested
+    inner class ExpireSubmissions {
+        @Test
+        fun `expire submission`() {
+            submissionRepo.save(testDocSubmission.copy(accNo = "S-BSST1", version = 1, status = PROCESSED))
+            testInstance.expireSubmission("S-BSST1")
 
-        assertThat(submissionRepo.findByAccNo("S-BSST1")).isNull()
+            assertThat(submissionRepo.findByAccNo("S-BSST1")).isNull()
+        }
+
+        @Test
+        fun `expire submissions`() {
+            submissionRepo.save(testDocSubmission.copy(accNo = "S-BSST1", version = 1, status = PROCESSED))
+            submissionRepo.save(testDocSubmission.copy(accNo = "S-BSST101", version = 1, status = PROCESSED))
+            testInstance.expireSubmissions(listOf("S-BSST1", "S-BSST101"))
+
+            assertThat(submissionRepo.findByAccNo("S-BSST1")).isNull()
+            assertThat(submissionRepo.findByAccNo("S-BSST101")).isNull()
+        }
     }
 
     @Nested

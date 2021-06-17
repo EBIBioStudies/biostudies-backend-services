@@ -90,7 +90,7 @@ class SubmissionDocDataRepository(
     fun expireVersion(accNo: String, version: Int) {
         mongoTemplate.updateMulti(
             Query(where(SUB_ACC_NO).`is`(accNo).andOperator(where(SUB_VERSION).`is`(version))),
-            ExtendedUpdate().multiply(SUB_VERSION, -1),
+            ExtendedUpdate().multiply(SUB_VERSION, -1).set(SUB_MODIFICATION_TIME, Instant.now()),
             DocSubmission::class.java
         )
     }
