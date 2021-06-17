@@ -53,6 +53,6 @@ class ToExtFileTest(temporaryFolder: TemporaryFolder) {
 
     @Test
     fun `to ext file list`() {
-        assertExtFileList(docFileList.toExtFileList(), testFile)
+        assertExtFileList(docFileList.toExtFileList())
     }
 }
