@@ -12,6 +12,7 @@ import ac.uk.ebi.biostd.persistence.doc.test.doc.RELEASE_TIME
 import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocSubmission
 import ac.uk.ebi.biostd.persistence.exception.CollectionNotFoundException
 import ac.uk.ebi.biostd.persistence.exception.CollectionWithoutPatternException
+import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
 import ebi.ac.uk.db.MONGO_VERSION
 import ebi.ac.uk.model.constants.SubFields.ACC_NO_TEMPLATE
 import ebi.ac.uk.model.constants.SubFields.COLLECTION_VALIDATOR
@@ -28,11 +29,13 @@ import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.testcontainers.containers.MongoDBContainer
+import org.testcontainers.containers.startupcheck.MinimumDurationRunningStartupCheckStrategy
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.utility.DockerImageName
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import java.nio.file.Files
+import java.time.Duration.ofSeconds
 import java.time.ZoneOffset.UTC
 
 @ExtendWith(SpringExtension::class)
@@ -130,6 +133,7 @@ internal class SubmissionMongoMetaQueryServiceTest(
     companion object {
         @Container
         val mongoContainer: MongoDBContainer = MongoDBContainer(DockerImageName.parse(MONGO_VERSION))
+            .withStartupCheckStrategy(MinimumDurationRunningStartupCheckStrategy(ofSeconds(MINIMUM_RUNNING_TIME)))
 
         @JvmStatic
         @DynamicPropertySource
