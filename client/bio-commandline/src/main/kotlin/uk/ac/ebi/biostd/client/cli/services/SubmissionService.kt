@@ -7,11 +7,13 @@ import ebi.ac.uk.model.Submission
 import org.apache.commons.lang3.exception.ExceptionUtils
 import uk.ac.ebi.biostd.client.cli.dto.DeletionRequest
 import uk.ac.ebi.biostd.client.cli.dto.MigrationRequest
+import uk.ac.ebi.biostd.client.cli.dto.PermissionRequest
 import uk.ac.ebi.biostd.client.cli.dto.SubmissionRequest
 
 /**
  * In charge of perform submission command line operations.
  */
+@Suppress("TooManyFunctions")
 internal class SubmissionService {
     fun submit(request: SubmissionRequest): Submission = performRequest { submitRequest(request) }
 
@@ -20,6 +22,8 @@ internal class SubmissionService {
     fun delete(request: DeletionRequest) = performRequest { deleteRequest(request) }
 
     fun migrate(request: MigrationRequest) = performRequest { migrateRequest(request) }
+
+    fun grantPermission(request: PermissionRequest) = performRequest { permission(request) }
 
     private fun submitRequest(request: SubmissionRequest): Submission =
         bioWebClient(request.server, request.user, request.password).submitSingle(request.file, request.attached).body
@@ -38,6 +42,13 @@ internal class SubmissionService {
 
     private fun migratedSubmissions(submission: ExtSubmission, targetOwner: String?) =
         if (targetOwner == null) submission else submission.copy(owner = targetOwner)
+
+    private fun permission(request: PermissionRequest) =
+        bioWebClient(request.server, request.user, request.password).givePermissionToUser(
+            request.targetUser,
+            request.accessTagName,
+            request.accessType
+        )
 
     companion object {
         private inline fun <T> performRequest(request: () -> T) =
