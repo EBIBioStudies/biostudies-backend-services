@@ -53,6 +53,9 @@ internal class SubmissionClient(
 
     override fun deleteSubmission(accNo: String) = template.delete("$SUBMISSIONS_URL/$accNo")
 
+    override fun deleteSubmissions(submissions: List<String>) =
+        template.delete("$SUBMISSIONS_URL?submissions=${submissions.joinToString(",")}")
+
     override fun getSubmissions(filter: Map<String, Any>): List<SubmissionDto> {
         val builder = UriComponentsBuilder.fromUriString(SUBMISSIONS_URL)
         filter.entries.forEach { builder.queryParam(it.key, it.value) }

@@ -1,5 +1,6 @@
 package ebi.ac.uk.security.integration.components
 
+import ebi.ac.uk.api.security.ActivateByEmailRequest
 import ebi.ac.uk.api.security.ChangePasswordRequest
 import ebi.ac.uk.api.security.LoginRequest
 import ebi.ac.uk.api.security.RegisterRequest
@@ -16,6 +17,8 @@ interface ISecurityService {
     fun logout(authToken: String)
 
     fun activate(activationKey: String)
+
+    fun activateByEmail(request: ActivateByEmailRequest)
 
     fun retryRegistration(request: RetryActivationRequest)
 

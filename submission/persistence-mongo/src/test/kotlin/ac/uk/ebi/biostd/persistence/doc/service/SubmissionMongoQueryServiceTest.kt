@@ -17,6 +17,7 @@ import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocSection
 import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocSubmission
 import ac.uk.ebi.biostd.persistence.exception.SubmissionNotFoundException
 import com.mongodb.BasicDBObject
+import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
 import ebi.ac.uk.db.MONGO_VERSION
 import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.ExtSubmission
@@ -36,10 +37,12 @@ import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.testcontainers.containers.MongoDBContainer
+import org.testcontainers.containers.startupcheck.MinimumDurationRunningStartupCheckStrategy
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.utility.DockerImageName
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
+import java.time.Duration.ofSeconds
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus.PROCESSED as REQUEST_PROCESSED
@@ -57,12 +60,25 @@ internal class SubmissionMongoQueryServiceTest(
     private val testInstance =
         SubmissionMongoQueryService(submissionRepo, requestRepository, serializationService, toExtSubmissionMapper)
 
-    @Test
-    fun `expire submission`() {
-        submissionRepo.save(testDocSubmission.copy(accNo = "S-BSST1", version = 1, status = PROCESSED))
-        testInstance.expireSubmission("S-BSST1")
+    @Nested
+    inner class ExpireSubmissions {
+        @Test
+        fun `expire submission`() {
+            submissionRepo.save(testDocSubmission.copy(accNo = "S-BSST1", version = 1, status = PROCESSED))
+            testInstance.expireSubmission("S-BSST1")
 
-        assertThat(submissionRepo.findByAccNo("S-BSST1")).isNull()
+            assertThat(submissionRepo.findByAccNo("S-BSST1")).isNull()
+        }
+
+        @Test
+        fun `expire submissions`() {
+            submissionRepo.save(testDocSubmission.copy(accNo = "S-BSST1", version = 1, status = PROCESSED))
+            submissionRepo.save(testDocSubmission.copy(accNo = "S-BSST101", version = 1, status = PROCESSED))
+            testInstance.expireSubmissions(listOf("S-BSST1", "S-BSST101"))
+
+            assertThat(submissionRepo.findByAccNo("S-BSST1")).isNull()
+            assertThat(submissionRepo.findByAccNo("S-BSST101")).isNull()
+        }
     }
 
     @Nested
@@ -138,8 +154,18 @@ internal class SubmissionMongoQueryServiceTest(
             val matchDate = OffsetDateTime.of(2010, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC)
             val mismatchDate = OffsetDateTime.of(2000, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC)
 
-            saveAsRequest(fullExtSubmission.copy(accNo = "accNo1", releaseTime = matchDate, section = section), REQUESTED)
-            saveAsRequest(fullExtSubmission.copy(accNo = "accNo2", releaseTime = mismatchDate, section = section), REQUESTED)
+            saveAsRequest(
+                fullExtSubmission.copy(
+                    accNo = "accNo1", releaseTime = matchDate, section = section
+                ),
+                REQUESTED
+            )
+            saveAsRequest(
+                fullExtSubmission.copy(
+                    accNo = "accNo2", releaseTime = mismatchDate, section = section
+                ),
+                REQUESTED
+            )
             submissionRepo.save(
                 testDocSubmission.copy(accNo = "accNo3", releaseTime = matchDate.toInstant(), status = PROCESSED)
             )
@@ -159,8 +185,18 @@ internal class SubmissionMongoQueryServiceTest(
             val matchDate = OffsetDateTime.of(2000, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC)
             val mismatchDate = OffsetDateTime.of(2010, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC)
 
-            saveAsRequest(fullExtSubmission.copy(accNo = "accNo1", releaseTime = matchDate, section = section), REQUESTED)
-            saveAsRequest(fullExtSubmission.copy(accNo = "accNo2", releaseTime = mismatchDate, section = section), REQUESTED)
+            saveAsRequest(
+                fullExtSubmission.copy(
+                    accNo = "accNo1", releaseTime = matchDate, section = section
+                ),
+                REQUESTED
+            )
+            saveAsRequest(
+                fullExtSubmission.copy(
+                    accNo = "accNo2", releaseTime = mismatchDate, section = section
+                ),
+                REQUESTED
+            )
             submissionRepo.save(
                 testDocSubmission.copy(accNo = "accNo3", releaseTime = matchDate.toInstant(), status = PROCESSED)
             )
@@ -295,12 +331,6 @@ internal class SubmissionMongoQueryServiceTest(
     }
 
     @Test
-    fun `expire non existing`() {
-        val exception = assertThrows<SubmissionNotFoundException> { testInstance.expireSubmission("S-BSST2") }
-        assertThat(exception.message).isEqualTo("The submission 'S-BSST2' was not found")
-    }
-
-    @Test
     fun `get non existing submission`() {
         val exception = assertThrows<SubmissionNotFoundException> { testInstance.getExtByAccNo("S-BSST3") }
         assertThat(exception.message).isEqualTo("The submission 'S-BSST3' was not found")
@@ -309,6 +339,7 @@ internal class SubmissionMongoQueryServiceTest(
     companion object {
         @Container
         val mongoContainer: MongoDBContainer = MongoDBContainer(DockerImageName.parse(MONGO_VERSION))
+            .withStartupCheckStrategy(MinimumDurationRunningStartupCheckStrategy(ofSeconds(MINIMUM_RUNNING_TIME)))
 
         @JvmStatic
         @DynamicPropertySource
