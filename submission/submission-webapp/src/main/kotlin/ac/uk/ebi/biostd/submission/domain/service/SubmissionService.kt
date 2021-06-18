@@ -95,6 +95,11 @@ class SubmissionService(
         submissionQueryService.expireSubmission(accNo)
     }
 
+    fun deleteSubmissions(submissions: List<String>, user: SecurityUser) {
+        submissions.forEach { require(userPrivilegesService.canDelete(user.email, it)) }
+        submissionQueryService.expireSubmissions(submissions)
+    }
+
     fun getSubmission(accNo: String): ExtSubmission = submissionQueryService.getExtByAccNo(accNo)
 
     fun findPreviousVersion(accNo: String): BasicSubmission? = queryService.findLatestBasicByAccNo(accNo)

@@ -49,13 +49,9 @@ internal open class SubmissionRepository(
     override fun getExtByAccNoAndVersion(accNo: String, version: Int) =
         submissionMapper.toExtSubmission(loadSubmissionAndStatus(accNo, version))
 
-    override fun expireSubmission(accNo: String) {
-        val submission = submissionRepository.findByAccNoAndVersionGreaterThan(accNo)
-        if (submission != null) {
-            submission.version = -submission.version
-            submission.modificationTime = OffsetDateTime.now()
-            submissionRepository.save(submission)
-        }
+    @Transactional
+    override fun expireSubmissions(accNumbers: List<String>) {
+        submissionRepository.deleteSubmissions(accNumbers, OffsetDateTime.now())
     }
 
     @Transactional(readOnly = true)
