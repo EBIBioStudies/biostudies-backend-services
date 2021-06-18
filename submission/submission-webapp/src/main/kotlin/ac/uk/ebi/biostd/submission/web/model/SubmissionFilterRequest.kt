@@ -16,16 +16,17 @@ class SubmissionFilterRequest(
     val offset: Long = 0
 )
 
-fun SubmissionFilterRequest.asFilter(): SubmissionFilter {
-    return SubmissionFilter(
+fun SubmissionFilterRequest.asFilter(): SubmissionFilter =
+    SubmissionFilter(
         accNo = accNo,
         version = version,
         type = type,
         rTimeFrom = rTimeFrom?.let { OffsetDateTime.parse(it) },
         rTimeTo = rTimeTo?.let { OffsetDateTime.parse(it) },
-        keywords = keywords,
+        keywords = keywords?.unescapeKeywords(),
         released = released,
         limit = limit,
         offset = offset
     )
-}
+
+private fun String.unescapeKeywords() = replace("%20", " ")

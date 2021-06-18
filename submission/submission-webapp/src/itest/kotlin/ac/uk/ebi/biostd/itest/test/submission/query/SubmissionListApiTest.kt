@@ -16,6 +16,7 @@ import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -165,7 +166,7 @@ internal class SubmissionListApiTest(private val tempFolder: TemporaryFolder) : 
 
             val submissionList = webClient.getSubmissions(
                 mapOf(
-                    "accNo" to "SECT-123"
+                    "keywords" to "Submission With Section Title"
                 )
             )
 
@@ -192,13 +193,8 @@ internal class SubmissionListApiTest(private val tempFolder: TemporaryFolder) : 
 
             assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
 
-            val submissionList = webClient.getSubmissions(
-                mapOf(
-                    "accNo" to "SECT-124"
-                )
-            )
-
-            assertThat(submissionList).hasOnlyOneElementSatisfying {
+            val submissionTitleList = webClient.getSubmissions(mapOf("keywords" to "Submission Title"))
+            assertThat(submissionTitleList).hasOnlyOneElementSatisfying {
                 assertThat(it.accno).isEqualTo("SECT-124")
                 assertThat(it.version).isEqualTo(1)
                 assertThat(it.method).isEqualTo(PAGE_TAB)

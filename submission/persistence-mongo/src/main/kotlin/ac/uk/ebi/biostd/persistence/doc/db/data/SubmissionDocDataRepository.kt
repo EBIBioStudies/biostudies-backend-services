@@ -118,10 +118,10 @@ class SubmissionDocDataRepository(
             *createCountAggregation(filter).toTypedArray()
         ).withOptions(aggregationOptions())
 
-        return PageImpl<DocSubmission>(
+        return PageImpl(
             getSubmissions(filter),
             PageRequest.of(filter.pageNumber, filter.limit),
-            mongoTemplate.aggregate(aggregation, CountResult::class.java).uniqueMappedResult.submissions
+            mongoTemplate.aggregate(aggregation, CountResult::class.java).uniqueMappedResult?.submissions ?: 0
         )
     }
 

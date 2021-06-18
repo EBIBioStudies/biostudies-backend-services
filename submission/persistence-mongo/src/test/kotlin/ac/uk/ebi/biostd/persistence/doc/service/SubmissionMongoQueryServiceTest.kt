@@ -167,15 +167,11 @@ internal class SubmissionMongoQueryServiceTest(
             val mismatchDate = OffsetDateTime.of(2000, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC)
 
             saveAsRequest(
-                fullExtSubmission.copy(
-                    accNo = "accNo1", releaseTime = matchDate, section = section
-                ),
+                extSubmission.copy(accNo = "accNo1", releaseTime = matchDate, section = section),
                 REQUESTED
             )
             saveAsRequest(
-                fullExtSubmission.copy(
-                    accNo = "accNo2", releaseTime = mismatchDate, section = section
-                ),
+                extSubmission.copy(accNo = "accNo2", releaseTime = mismatchDate, section = section),
                 REQUESTED
             )
             submissionRepo.save(
@@ -198,15 +194,11 @@ internal class SubmissionMongoQueryServiceTest(
             val mismatchDate = OffsetDateTime.of(2010, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC)
 
             saveAsRequest(
-                fullExtSubmission.copy(
-                    accNo = "accNo1", releaseTime = matchDate, section = section
-                ),
+                extSubmission.copy(accNo = "accNo1", releaseTime = matchDate, section = section),
                 REQUESTED
             )
             saveAsRequest(
-                fullExtSubmission.copy(
-                    accNo = "accNo2", releaseTime = mismatchDate, section = section
-                ),
+                extSubmission.copy(accNo = "accNo2", releaseTime = mismatchDate, section = section),
                 REQUESTED
             )
             submissionRepo.save(

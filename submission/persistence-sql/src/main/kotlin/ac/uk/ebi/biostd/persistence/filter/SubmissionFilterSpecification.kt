@@ -51,6 +51,7 @@ class SubmissionFilterSpecification(filter: SubmissionFilter, email: String? = n
     private fun withType(type: String): Specification<DbSubmission> =
         Specification { root, _, cb -> cb.equal(root.get<DbSection>(SUB_ROOT_SECTION).get<String>(SECTION_TYPE), type) }
 
+    // TODO adjust the specification to include the section title
     private fun withTitleLike(title: String): Specification<DbSubmission> =
         Specification { root, _, cb -> cb.like(cb.lower(root.get(SUB_TITLE)), "%${title.toLowerCase()}%") }
 
