@@ -37,6 +37,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.transaction.annotation.Transactional
 import java.nio.file.Paths
 
+// TODO Fix all integration tests
 @ExtendWith(TemporaryFolderExtension::class)
 internal class MultipartFileSubmissionApiTest(
     private val tempFolder: TemporaryFolder
