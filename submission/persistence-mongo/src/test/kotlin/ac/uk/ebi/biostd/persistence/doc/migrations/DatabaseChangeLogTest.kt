@@ -20,7 +20,6 @@ import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocSubmission
 import com.mongodb.BasicDBObject
 import ebi.ac.uk.db.MONGO_VERSION
 import org.assertj.core.api.Assertions.assertThat
-import org.bson.Document
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -89,46 +88,44 @@ internal class DatabaseChangeLogTest(
     }
 
     private fun assertSubmissionCollection() {
-        val submissionCollection = mongoTemplate.getCollectionName<DocSubmission>()
-        val listIndexes = mongoTemplate.getCollection(submissionCollection).listIndexes()
-        val submissionIndexes = listIndexes.mapNotNull { it["key"] }
-        val submissionTextIndexes = listIndexes.mapNotNull { it["weights"] }
+        val collectionName = mongoTemplate.getCollectionName<DocSubmission>()
+        val listIndexes = mongoTemplate.getCollection(collectionName).listIndexes()
+        val keyIndexes = listIndexes.mapNotNull { it["key"] }
+        val weightsTextIndex = listIndexes.mapNotNull { it["weights"] }
 
-        assertThat(mongoTemplate.collectionExists<DocSubmission>()).isTrue()
+        assertThat(mongoTemplate.collectionExists<DocSubmission>()).isTrue
         assertThat(listIndexes).hasSize(9)
 
-        assertThat(submissionIndexes).contains(Index().on("_id", ASC).indexKeys)
-        assertThat(submissionIndexes).contains(Index().on(SUB_ACC_NO, ASC).indexKeys)
-        assertThat(submissionIndexes).contains(Index().on(SUB_ACC_NO, ASC).on(SUB_VERSION, ASC).indexKeys)
-        assertThat(submissionIndexes).contains(Index().on(SUB_OWNER, ASC).indexKeys)
-        assertThat(submissionIndexes).contains(Index().on(SUB_SUBMITTER, ASC).indexKeys)
-        assertThat(submissionIndexes).contains(Index().on("$SUB_SECTION.$SEC_TYPE", ASC).indexKeys)
-        assertThat(submissionIndexes).contains(Index().on(SUB_RELEASE_TIME, ASC).indexKeys)
-        assertThat(submissionIndexes).contains(Document(mapOf("_fts" to "text", "_ftsx" to 1)))
-        assertThat(submissionTextIndexes).contains(Index().on(SUB_TITLE, ASC).indexKeys)
-        assertThat(submissionIndexes).contains(Index().on(SUB_RELEASED, ASC).indexKeys)
+        assertThat(keyIndexes).contains(Index().on("_id", ASC).indexKeys)
+        assertThat(keyIndexes).contains(Index().on(SUB_ACC_NO, ASC).indexKeys)
+        assertThat(keyIndexes).contains(Index().on(SUB_ACC_NO, ASC).on(SUB_VERSION, ASC).indexKeys)
+        assertThat(keyIndexes).contains(Index().on(SUB_OWNER, ASC).indexKeys)
+        assertThat(keyIndexes).contains(Index().on(SUB_SUBMITTER, ASC).indexKeys)
+        assertThat(keyIndexes).contains(Index().on("$SUB_SECTION.$SEC_TYPE", ASC).indexKeys)
+        assertThat(keyIndexes).contains(Index().on(SUB_RELEASE_TIME, ASC).indexKeys)
+        assertThat(weightsTextIndex).contains(Index().on(SUB_TITLE, ASC).indexKeys)
+        assertThat(keyIndexes).contains(Index().on(SUB_RELEASED, ASC).indexKeys)
     }
 
     private fun assertRequestCollection() {
-        val requestCollection = mongoTemplate.getCollectionName<SubmissionRequest>()
-        val listIndexes = mongoTemplate.getCollection(requestCollection).listIndexes()
-        val requestIndexes = listIndexes.mapNotNull { it["key"] }
-        val requestTextIndexes = listIndexes.mapNotNull { it["weights"] }
+        val collectionName = mongoTemplate.getCollectionName<SubmissionRequest>()
+        val listIndexes = mongoTemplate.getCollection(collectionName).listIndexes()
+        val keysIndexes = listIndexes.mapNotNull { it["key"] }
+        val weightsTextIndex = listIndexes.mapNotNull { it["weights"] }
 
-        assertThat(mongoTemplate.collectionExists<SubmissionRequest>()).isTrue()
+        assertThat(mongoTemplate.collectionExists<SubmissionRequest>()).isTrue
         assertThat(listIndexes).hasSize(10)
 
-        assertThat(requestIndexes).contains(Index().on("_id", ASC).indexKeys)
-        assertThat(requestIndexes).contains(Index().on(SUB_ACC_NO, ASC).indexKeys)
-        assertThat(requestIndexes).contains(Index().on(SUB_ACC_NO, ASC).on(SUB_VERSION, ASC).indexKeys)
-        assertThat(requestIndexes).contains(Index().on("submission.$SUB_SECTION.$SEC_TYPE", ASC).indexKeys)
-        assertThat(requestIndexes).contains(Index().on("submission.$SUB_ACC_NO", ASC).indexKeys)
-        assertThat(requestIndexes).contains(Index().on("submission.$SUB_OWNER", ASC).indexKeys)
-        assertThat(requestIndexes).contains(Index().on("submission.$SUB_SUBMITTER", ASC).indexKeys)
-        assertThat(requestIndexes).contains(Index().on("submission.$SUB_RELEASE_TIME", ASC).indexKeys)
-        assertThat(requestIndexes).contains(Document(mapOf("_fts" to "text", "_ftsx" to 1)))
-        assertThat(requestTextIndexes).contains(Index().on("submission.$SUB_TITLE", ASC).indexKeys)
-        assertThat(requestIndexes).contains(Index().on("submission.$SUB_RELEASED", ASC).indexKeys)
+        assertThat(keysIndexes).contains(Index().on("_id", ASC).indexKeys)
+        assertThat(keysIndexes).contains(Index().on(SUB_ACC_NO, ASC).indexKeys)
+        assertThat(keysIndexes).contains(Index().on(SUB_ACC_NO, ASC).on(SUB_VERSION, ASC).indexKeys)
+        assertThat(keysIndexes).contains(Index().on("submission.$SUB_SECTION.$SEC_TYPE", ASC).indexKeys)
+        assertThat(keysIndexes).contains(Index().on("submission.$SUB_ACC_NO", ASC).indexKeys)
+        assertThat(keysIndexes).contains(Index().on("submission.$SUB_OWNER", ASC).indexKeys)
+        assertThat(keysIndexes).contains(Index().on("submission.$SUB_SUBMITTER", ASC).indexKeys)
+        assertThat(keysIndexes).contains(Index().on("submission.$SUB_RELEASE_TIME", ASC).indexKeys)
+        assertThat(weightsTextIndex).contains(Index().on("submission.$SUB_TITLE", ASC).indexKeys)
+        assertThat(keysIndexes).contains(Index().on("submission.$SUB_RELEASED", ASC).indexKeys)
     }
 
     private fun runMigrations() {
