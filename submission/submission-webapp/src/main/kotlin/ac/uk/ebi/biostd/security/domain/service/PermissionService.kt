@@ -12,15 +12,24 @@ class PermissionService(
     private val accessTagDataRepository: AccessTagDataRepo
 ) {
     fun givePermissionToUser(accessType: String, email: String, accessTagName: String) {
-        val user = userDataRepository.getByEmail(email)
-        val accessTag = accessTagDataRepository.findByName(accessTagName)
+        val user = requireNotNull(userDataRepository.getByEmail(email))
+        { throw RuntimeException(" there is not a user with that email") }
+        val accessTag = requireNotNull(accessTagDataRepository.findByName(accessTagName))
+        { throw RuntimeException(" there is not a collection with that access tag name") }
 
-        permissionRepository.save(
-            DbAccessPermission(
-                accessType = AccessType.valueOf(accessType.toUpperCase()),
-                user = user,
-                accessTag = accessTag
+        if (permissionExists(accessType, email, accessTagName).not()) {
+            permissionRepository.save(
+                DbAccessPermission(accessType = toAccessType(accessType), user = user, accessTag = accessTag)
             )
-        )
+        }
     }
+
+    private fun permissionExists(accessType: String, email: String, accessTagName: String): Boolean =
+        permissionRepository.existsByUserEmailAndAccessTypeAndAccessTagName(
+            email,
+            toAccessType(accessType),
+            accessTagName
+        )
+
+    private fun toAccessType(accessType: String): AccessType = AccessType.valueOf(accessType.toUpperCase())
 }

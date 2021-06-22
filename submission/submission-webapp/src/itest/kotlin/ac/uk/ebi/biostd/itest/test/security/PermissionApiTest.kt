@@ -1,9 +1,11 @@
 package ac.uk.ebi.biostd.itest.test.security
 
+import ac.uk.ebi.biostd.client.exception.WebClientException
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
+import ac.uk.ebi.biostd.itest.entities.RegularUser
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.persistence.model.DbAccessTag
 import ac.uk.ebi.biostd.persistence.model.DbUser
@@ -13,6 +15,7 @@ import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -42,28 +45,41 @@ internal class PermissionApiTest(tempFolder: TemporaryFolder) : BaseIntegrationT
         @LocalServerPort
         private var serverPort: Int = 0
 
-        private lateinit var webClient: BioWebClient
+        private lateinit var superWebClient: BioWebClient
+        private lateinit var regularWebClient: BioWebClient
 
         @BeforeAll
         fun init() {
             securityTestService.registerUser(SuperUser)
-            webClient = getWebClient(serverPort, SuperUser)
+            securityTestService.registerUser(RegularUser)
+
+            superWebClient = getWebClient(serverPort, SuperUser)
+            regularWebClient = getWebClient(serverPort, RegularUser)
+
+            userDataRepository.save(dbUser)
+            accessTagRepository.save(dbAccessTag)
         }
 
         @Test
-        fun `give permission to a user`() {
-            userDataRepository.save(dbUser)
-            accessTagRepository.save(dbAccessTag)
+        fun `give permission to a user by superUser`() {
+            accessPermissionRepository.deleteAll()
 
-            assertThat(accessPermissionRepository.findAll()).hasSize(0)
-
-            webClient.givePermissionToUser(dbUser.email, dbAccessTag.name, "READ")
+            superWebClient.givePermissionToUser(dbUser.email, dbAccessTag.name, "READ")
 
             val permissions = accessPermissionRepository.findAll()
 
             assertThat(permissions).hasSize(1)
             assertThat(permissions.first().user.email).isEqualTo(dbUser.email)
             assertThat(permissions.first().accessTag.name).isEqualTo(dbAccessTag.name)
+        }
+
+        @Test
+        fun `give permission to a user by regularUser`() {
+            accessPermissionRepository.deleteAll()
+
+            assertThatExceptionOfType(WebClientException::class.java).isThrownBy {
+                regularWebClient.givePermissionToUser(dbUser.email, dbAccessTag.name, "READ")
+            }
         }
     }
 

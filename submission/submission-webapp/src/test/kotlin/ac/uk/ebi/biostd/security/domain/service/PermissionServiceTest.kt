@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.security.domain.service
 
+import ac.uk.ebi.biostd.persistence.common.model.AccessType.READ
 import ac.uk.ebi.biostd.persistence.model.DbAccessPermission
 import ac.uk.ebi.biostd.persistence.model.DbAccessTag
 import ac.uk.ebi.biostd.persistence.model.DbUser
@@ -27,12 +28,26 @@ class PermissionServiceTest(
     fun `give permission to a user`() {
         every { userDataRepository.getByEmail(email) } returns dbUser
         every { accessTagDataRepository.findByName(accessTagName) } returns dbAccessTag
+        every {
+            permissionRepository.existsByUserEmailAndAccessTypeAndAccessTagName(email, READ, accessTagName)
+        } returns false
         every { permissionRepository.save(capture(dbAccessPermissionSlot)) } returns mockk()
 
         testInstance.givePermissionToUser(accessType, email, accessTagName)
 
         assertThat(dbAccessPermissionSlot.captured.user).isEqualTo(dbUser)
         assertThat(dbAccessPermissionSlot.captured.accessTag).isEqualTo(dbAccessTag)
+    }
+
+    @Test
+    fun `give permission to a user when already exists`() {
+        every { userDataRepository.getByEmail(email) } returns dbUser
+        every { accessTagDataRepository.findByName(accessTagName) } returns dbAccessTag
+        every {
+            permissionRepository.existsByUserEmailAndAccessTypeAndAccessTagName(email, READ, accessTagName)
+        } returns true
+
+        testInstance.givePermissionToUser(accessType, email, accessTagName)
     }
 
     companion object {
