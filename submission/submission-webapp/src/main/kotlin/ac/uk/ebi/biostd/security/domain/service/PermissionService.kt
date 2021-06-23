@@ -12,10 +12,8 @@ class PermissionService(
     private val accessTagDataRepository: AccessTagDataRepo
 ) {
     fun givePermissionToUser(accessType: String, email: String, accessTagName: String) {
-        val user = requireNotNull(userDataRepository.getByEmail(email))
-        { throw RuntimeException(" there is not a user with that email") }
-        val accessTag = requireNotNull(accessTagDataRepository.findByName(accessTagName))
-        { throw RuntimeException(" there is not a collection with that access tag name") }
+        val user = userDataRepository.getByEmail(email)
+        val accessTag = accessTagDataRepository.findByName(accessTagName)
 
         if (permissionExists(accessType, email, accessTagName).not()) {
             permissionRepository.save(

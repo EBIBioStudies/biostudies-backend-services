@@ -85,7 +85,6 @@ internal class PermissionApiTest(tempFolder: TemporaryFolder) : BaseIntegrationT
 
     private companion object {
         val dbUser = DbUser(
-            id = 1,
             email = "test@email.com",
             fullName = "fullName",
             secret = "secret",

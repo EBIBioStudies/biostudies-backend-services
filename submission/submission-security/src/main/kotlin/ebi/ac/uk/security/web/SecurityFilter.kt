@@ -8,6 +8,7 @@ import ebi.ac.uk.security.integration.components.ISecurityQueryService
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.GrantedAuthority
+import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.filter.GenericFilterBean
 import org.springframework.web.util.WebUtils
@@ -36,7 +37,7 @@ internal class SecurityFilter(
     }
 
     private fun authorities(user: SecurityUser): List<GrantedAuthority> {
-        return if (user.superuser) listOf(GrantedAuthority { "ADMIN" }) else emptyList()
+        return if (user.superuser) listOf(SimpleGrantedAuthority("ADMIN")) else emptyList()
     }
 
     private fun getSecurityKey(httpRequest: HttpServletRequest): Option<String> {
