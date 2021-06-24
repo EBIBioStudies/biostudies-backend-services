@@ -4,6 +4,9 @@ import ac.uk.ebi.biostd.persistence.model.UserGroup
 import ac.uk.ebi.biostd.submission.converters.BioUser
 import ebi.ac.uk.api.dto.UserGroupDto
 import ebi.ac.uk.model.Group
+import ebi.ac.uk.security.exception.GroupsGroupDescriptionMustNotBeNullException
+import ebi.ac.uk.security.exception.GroupsGroupNameMustNotBeNullException
+import ebi.ac.uk.security.exception.GroupsUserNameMustNotBeNullException
 import ebi.ac.uk.security.integration.components.IGroupService
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import org.springframework.security.access.prepost.PreAuthorize
@@ -13,10 +16,8 @@ import org.springframework.web.bind.annotation.ResponseBody
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.PutMapping
-import org.springframework.web.bind.annotation.PathVariable
 
 @Controller
-@PreAuthorize("isAuthenticated()")
 class GroupsResource(private val groupService: IGroupService) {
     @GetMapping("/groups")
     @ResponseBody
@@ -26,24 +27,27 @@ class GroupsResource(private val groupService: IGroupService) {
 
     @PostMapping("/groups")
     @ResponseBody
+    @PreAuthorize("hasAuthority('ADMIN')")
     fun createGroup(
         @RequestBody request: GroupRequest
     ): UserGroupDto {
-        requireNotNull(request.groupName) { "group name must not be null" }
-        requireNotNull(request.description) { "description must not be null" }
+        requireNotNull(request.groupName) { throw GroupsGroupNameMustNotBeNullException() }
+        requireNotNull(request.description) { throw GroupsGroupDescriptionMustNotBeNullException() }
         return groupService.createGroup(request.groupName, request.description).toUserGroupDto()
     }
 
-    @PutMapping("/groups/{groupName}")
+    @PutMapping("/groups")
     @ResponseBody
+    @PreAuthorize("hasAuthority('ADMIN')")
     fun addUserInGroup(
-        @PathVariable groupName: String,
         @RequestBody request: GroupRequest
     ) {
-        requireNotNull(request.userName) { "user name must not be null" }
-        return groupService.addUserInGroup(groupName, request.userName)
+        requireNotNull(request.groupName) { throw GroupsGroupNameMustNotBeNullException() }
+        requireNotNull(request.userName) { throw GroupsUserNameMustNotBeNullException() }
+        return groupService.addUserInGroup(request.groupName, request.userName)
     }
-    private fun UserGroup.toUserGroupDto() = UserGroupDto(id, name, description)
+
+    private fun UserGroup.toUserGroupDto() = UserGroupDto(name, description)
 }
 
 data class GroupRequest(

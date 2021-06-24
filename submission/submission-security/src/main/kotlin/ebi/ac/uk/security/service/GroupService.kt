@@ -1,5 +1,7 @@
 package ebi.ac.uk.security.service
 
+import ebi.ac.uk.security.exception.GroupsGroupDoesNotExistsException
+import ebi.ac.uk.security.exception.GroupsUserDoesNotExistsException
 import ac.uk.ebi.biostd.persistence.model.UserGroup
 import ac.uk.ebi.biostd.persistence.model.ext.addGroup
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
@@ -22,11 +24,14 @@ class GroupService(
         return savedGroup
     }
 
-    // TODO: add not existing group not existing user handling
     override fun addUserInGroup(groupName: String, userEmail: String) {
-        val group = groupRepository.getByName(groupName)
-        val user = userRepository.readByEmail(userEmail)
-        userRepository.save(user.addGroup(group))
+        val group = requireNotNull(groupRepository.findByName(groupName)) {
+            throw GroupsGroupDoesNotExistsException(groupName)
+        }
+        val user = userRepository.findByEmail(userEmail)
+
+        user.ifPresent { userRepository.save(it.addGroup(group)) }
+        user.orElseThrow { throw GroupsUserDoesNotExistsException(userEmail) }
     }
 
     private fun groupMagicFolder(it: UserGroup) = Paths.get("$filesDirPath/${magicPath(it.secret, it.id, "b")}")

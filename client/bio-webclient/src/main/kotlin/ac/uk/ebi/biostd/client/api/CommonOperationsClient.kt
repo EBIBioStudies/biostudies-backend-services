@@ -24,13 +24,13 @@ class CommonOperationsClient(private val template: RestTemplate) : GeneralOperat
         template.postForEntity<String>("$FTP_URL/generate", body)
     }
 
-    override fun createGroup(groupName: String, description: String): UserGroupDto {
-        val body = linkedMapOf("groupName" to groupName, "description" to description)
+    override fun createGroup(groupName: String, groupDescription: String): UserGroupDto {
+        val body = linkedMapOf("groupName" to groupName, "description" to groupDescription)
         return template.postForObject(GROUP_URL, body)
     }
 
     override fun addUserInGroup(groupName: String, userName: String) {
-        val body = linkedMapOf("userName" to userName)
-        template.put("$GROUP_URL/$groupName", body)
+        val body = linkedMapOf("groupName" to groupName, "userName" to userName)
+        template.put(GROUP_URL, body)
     }
 }

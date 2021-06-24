@@ -135,6 +135,7 @@ interface TokenDataRepository : JpaRepository<SecurityToken, String>
 
 interface UserGroupDataRepository : JpaRepository<UserGroup, Long> {
     fun getByName(groupName: String): UserGroup
+    fun findByName(groupName: String): UserGroup?
 }
 
 interface AccessPermissionRepository : JpaRepository<DbAccessPermission, Long> {

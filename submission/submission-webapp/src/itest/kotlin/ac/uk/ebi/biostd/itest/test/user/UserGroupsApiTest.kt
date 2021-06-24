@@ -1,20 +1,23 @@
 package ac.uk.ebi.biostd.itest.test.user
 
+import ac.uk.ebi.biostd.client.exception.WebClientException
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
-import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
+import ac.uk.ebi.biostd.itest.common.SecurityTestService
+import ac.uk.ebi.biostd.itest.entities.RegularUser
 import ac.uk.ebi.biostd.itest.entities.SuperUser
-import ebi.ac.uk.api.security.RegisterRequest
 import ebi.ac.uk.test.clean
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
@@ -31,18 +34,23 @@ internal class UserGroupsApiTest(private val tempFolder: TemporaryFolder) : Base
     @ExtendWith(SpringExtension::class)
     @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
     @DirtiesContext
-    inner class GroupsApi {
+    inner class GroupsApi(
+        @Autowired private val securityTestService: SecurityTestService
+    ) {
         @LocalServerPort
         private var serverPort: Int = 0
 
-        private lateinit var webClient: BioWebClient
+        private lateinit var superWebClient: BioWebClient
+        private lateinit var regularWebClient: BioWebClient
 
         @BeforeAll
         fun init() {
-            val securityClient = SecurityWebClient.create("http://localhost:$serverPort")
-            securityClient.registerUser(RegisterRequest(SuperUser.username, SuperUser.email, SuperUser.password))
-            webClient = securityClient.getAuthenticatedClient(SuperUser.email, SuperUser.password)
-            webClient.addUserInGroup(webClient.createGroup(GROUP_NAME, GROUP_DESC).name, SuperUser.email)
+            securityTestService.registerUser(SuperUser)
+            securityTestService.registerUser(RegularUser)
+            superWebClient = getWebClient(serverPort, SuperUser)
+            regularWebClient = getWebClient(serverPort, RegularUser)
+
+            superWebClient.addUserInGroup(superWebClient.createGroup(GROUP_NAME, GROUP_DESC).name, SuperUser.email)
         }
 
         @BeforeEach
@@ -52,7 +60,7 @@ internal class UserGroupsApiTest(private val tempFolder: TemporaryFolder) : Base
 
         @Test
         fun `get user groups`() {
-            val groups = webClient.getGroups()
+            val groups = superWebClient.getGroups()
 
             assertThat(groups).hasSize(1)
             assertThat(groups.first()).satisfies {
@@ -60,5 +68,31 @@ internal class UserGroupsApiTest(private val tempFolder: TemporaryFolder) : Base
                 assertThat(it.name).isEqualTo(GROUP_NAME)
             }
         }
+
+        @Test
+        fun `trying to add a user to unexisting group`() {
+            assertThatExceptionOfType(WebClientException::class.java)
+                .isThrownBy { superWebClient.addUserInGroup(nonExistentGroupName, SuperUser.email) }
+                .withMessageContaining("The group $nonExistentGroupName does not exists")
+        }
+
+        @Test
+        fun `trying to add a user that does not exist`() {
+            assertThatExceptionOfType(WebClientException::class.java)
+                .isThrownBy { superWebClient.addUserInGroup(GROUP_NAME, nonExistentUser) }
+                .withMessageContaining("The user $nonExistentUser does not exists")
+        }
+
+        @Test
+        fun `trying to add a user by regularUser`() {
+            assertThatExceptionOfType(WebClientException::class.java)
+                .isThrownBy { regularWebClient.addUserInGroup(GROUP_NAME, nonExistentUser) }
+                .withMessageContaining("Access is denied")
+        }
+    }
+
+    companion object {
+        const val nonExistentGroupName = "fakeGroup"
+        const val nonExistentUser = "fakeEmail"
     }
 }
