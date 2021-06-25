@@ -5,6 +5,8 @@ import ac.uk.ebi.biostd.persistence.model.DbAccessPermission
 import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
+import ac.uk.ebi.biostd.security.domain.exception.PermissionsAccessTagDoesNotExistsException
+import ac.uk.ebi.biostd.security.domain.exception.PermissionsUserDoesNotExistsException
 
 class PermissionService(
     private val permissionRepository: AccessPermissionRepository,
@@ -12,12 +14,15 @@ class PermissionService(
     private val accessTagDataRepository: AccessTagDataRepo
 ) {
     fun givePermissionToUser(accessType: String, email: String, accessTagName: String) {
-        val user = userDataRepository.getByEmail(email)
-        val accessTag = accessTagDataRepository.findByName(accessTagName)
+        val user = userDataRepository.findByEmail(email)
+        user.orElseThrow { throw PermissionsUserDoesNotExistsException(email) }
+        val accessTag = requireNotNull(accessTagDataRepository.findByName(accessTagName)) {
+            throw PermissionsAccessTagDoesNotExistsException(accessTagName)
+        }
 
         if (permissionExists(accessType, email, accessTagName).not()) {
             permissionRepository.save(
-                DbAccessPermission(accessType = toAccessType(accessType), user = user, accessTag = accessTag)
+                DbAccessPermission(accessType = toAccessType(accessType), user = user.get(), accessTag = accessTag)
             )
         }
     }

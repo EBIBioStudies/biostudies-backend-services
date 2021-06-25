@@ -74,12 +74,27 @@ internal class PermissionApiTest(tempFolder: TemporaryFolder) : BaseIntegrationT
         }
 
         @Test
-        fun `give permission to a user by regularUser`() {
-            accessPermissionRepository.deleteAll()
+        fun `trying to give permission to a user by regularUser`() {
 
             assertThatExceptionOfType(WebClientException::class.java).isThrownBy {
                 regularWebClient.givePermissionToUser(dbUser.email, dbAccessTag.name, "READ")
             }
+        }
+
+        @Test
+        fun `trying to give permission to non-existent user`() {
+
+            assertThatExceptionOfType(WebClientException::class.java).isThrownBy {
+                superWebClient.givePermissionToUser(fakeUser, dbAccessTag.name, "READ")
+            }.withMessageContaining("The user $fakeUser does not exist")
+        }
+
+        @Test
+        fun `trying to give permission to a user but non-existent accessTag`() {
+
+            assertThatExceptionOfType(WebClientException::class.java).isThrownBy {
+                superWebClient.givePermissionToUser(dbUser.email, fakeAccessTag, "READ")
+            }.withMessageContaining("The accessTag $fakeAccessTag does not exist")
         }
     }
 
@@ -92,5 +107,7 @@ internal class PermissionApiTest(tempFolder: TemporaryFolder) : BaseIntegrationT
             passwordDigest = ByteArray(1)
         )
         val dbAccessTag = DbAccessTag(id = 2, name = "accessTagName")
+        val fakeUser = "fakeUser"
+        val fakeAccessTag = "fakeAccessTag"
     }
 }

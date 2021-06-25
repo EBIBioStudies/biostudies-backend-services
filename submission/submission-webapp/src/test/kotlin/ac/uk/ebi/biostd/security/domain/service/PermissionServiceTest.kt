@@ -15,6 +15,7 @@ import io.mockk.slot
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import java.util.Optional
 
 @ExtendWith(MockKExtension::class)
 class PermissionServiceTest(
@@ -26,7 +27,7 @@ class PermissionServiceTest(
 
     @Test
     fun `give permission to a user`() {
-        every { userDataRepository.getByEmail(email) } returns dbUser
+        every { userDataRepository.findByEmail(email) } returns Optional.of(dbUser)
         every { accessTagDataRepository.findByName(accessTagName) } returns dbAccessTag
         every {
             permissionRepository.existsByUserEmailAndAccessTypeAndAccessTagName(email, READ, accessTagName)
@@ -41,7 +42,7 @@ class PermissionServiceTest(
 
     @Test
     fun `give permission to a user when already exists`() {
-        every { userDataRepository.getByEmail(email) } returns dbUser
+        every { userDataRepository.findByEmail(email) } returns Optional.of(dbUser)
         every { accessTagDataRepository.findByName(accessTagName) } returns dbAccessTag
         every {
             permissionRepository.existsByUserEmailAndAccessTypeAndAccessTagName(email, READ, accessTagName)
