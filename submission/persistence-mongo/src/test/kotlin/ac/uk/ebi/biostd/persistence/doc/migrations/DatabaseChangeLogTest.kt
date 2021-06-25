@@ -41,6 +41,7 @@ import org.testcontainers.containers.MongoDBContainer
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.utility.DockerImageName
+import java.util.AbstractMap.SimpleEntry
 
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(classes = [MongoDbConfig::class])
@@ -87,40 +88,43 @@ internal class DatabaseChangeLogTest(
     }
 
     private fun assertSubmissionCollection() {
-        val listIndexes = mongoTemplate.getCollectionByType<DocSubmission>().listIndexes()
+        val listIndexes = mongoTemplate.getCollectionByType<DocSubmission>().listIndexes().toList()
 
         assertThat(mongoTemplate.collectionExists<DocSubmission>()).isTrue
         assertThat(listIndexes).hasSize(9)
 
-        assertThat(listIndexes.toList()[0]).containsEntry("key", Document("_id", 1))
-        assertThat(listIndexes.toList()[1]).containsEntry("key", Document(SUB_ACC_NO, 1))
-        assertThat(listIndexes.toList()[2]).containsEntry("key", Document(SUB_ACC_NO, 1).append(SUB_VERSION, 1))
-        assertThat(listIndexes.toList()[3]).containsEntry("key", Document(SUB_OWNER, 1))
-        assertThat(listIndexes.toList()[4]).containsEntry("key", Document(SUB_SUBMITTER, 1))
-        assertThat(listIndexes.toList()[5]).containsEntry("key", Document("$SUB_SECTION.$SEC_TYPE", 1))
-        assertThat(listIndexes.toList()[6]).containsEntry("key", Document(SUB_RELEASE_TIME, 1))
-        assertThat(listIndexes.toList()[7]).containsEntry("textIndexVersion", 3)
-        assertThat(listIndexes.toList()[7]).containsEntry("weights", Document(SUB_TITLE, 1))
-        assertThat(listIndexes.toList()[8]).containsEntry("key", Document(SUB_RELEASED, 1))
+        assertThat(listIndexes[0]).containsEntry("key", Document("_id", 1))
+        assertThat(listIndexes[1]).containsEntry("key", Document(SUB_ACC_NO, 1))
+        assertThat(listIndexes[2]).containsEntry("key", Document(SUB_ACC_NO, 1).append(SUB_VERSION, 1))
+        assertThat(listIndexes[3]).containsEntry("key", Document(SUB_OWNER, 1))
+        assertThat(listIndexes[4]).containsEntry("key", Document(SUB_SUBMITTER, 1))
+        assertThat(listIndexes[5]).containsEntry("key", Document("$SUB_SECTION.$SEC_TYPE", 1))
+        assertThat(listIndexes[6]).containsEntry("key", Document(SUB_RELEASE_TIME, 1))
+        assertThat(listIndexes[7]).contains(
+            SimpleEntry("textIndexVersion", 3), SimpleEntry("weights", Document(SUB_TITLE, 1))
+        )
+        assertThat(listIndexes[7]).containsEntry("weights", Document(SUB_TITLE, 1))
+        assertThat(listIndexes[8]).containsEntry("key", Document(SUB_RELEASED, 1))
     }
 
     private fun assertRequestCollection() {
-        val listIndexes = mongoTemplate.getCollectionByType<SubmissionRequest>().listIndexes()
+        val listIndexes = mongoTemplate.getCollectionByType<SubmissionRequest>().listIndexes().toList()
 
         assertThat(mongoTemplate.collectionExists<SubmissionRequest>()).isTrue
         assertThat(listIndexes).hasSize(10)
 
-        assertThat(listIndexes.toList()[0]).containsEntry("key", Document("_id", 1))
-        assertThat(listIndexes.toList()[1]).containsEntry("key", Document(SUB_ACC_NO, 1))
-        assertThat(listIndexes.toList()[2]).containsEntry("key", Document(SUB_ACC_NO, 1).append(SUB_VERSION, 1))
-        assertThat(listIndexes.toList()[3]).containsEntry("key", Document("submission.$SUB_SECTION.$SEC_TYPE", 1))
-        assertThat(listIndexes.toList()[4]).containsEntry("key", Document("submission.$SUB_ACC_NO", 1))
-        assertThat(listIndexes.toList()[5]).containsEntry("key", Document("submission.$SUB_OWNER", 1))
-        assertThat(listIndexes.toList()[6]).containsEntry("key", Document("submission.$SUB_SUBMITTER", 1))
-        assertThat(listIndexes.toList()[7]).containsEntry("key", Document("submission.$SUB_RELEASE_TIME", 1))
-        assertThat(listIndexes.toList()[8]).containsEntry("textIndexVersion", 3)
-        assertThat(listIndexes.toList()[8]).containsEntry("weights", Document("submission.$SUB_TITLE", 1))
-        assertThat(listIndexes.toList()[9]).containsEntry("key", Document("submission.$SUB_RELEASED", 1))
+        assertThat(listIndexes[0]).containsEntry("key", Document("_id", 1))
+        assertThat(listIndexes[1]).containsEntry("key", Document(SUB_ACC_NO, 1))
+        assertThat(listIndexes[2]).containsEntry("key", Document(SUB_ACC_NO, 1).append(SUB_VERSION, 1))
+        assertThat(listIndexes[3]).containsEntry("key", Document("submission.$SUB_SECTION.$SEC_TYPE", 1))
+        assertThat(listIndexes[4]).containsEntry("key", Document("submission.$SUB_ACC_NO", 1))
+        assertThat(listIndexes[5]).containsEntry("key", Document("submission.$SUB_OWNER", 1))
+        assertThat(listIndexes[6]).containsEntry("key", Document("submission.$SUB_SUBMITTER", 1))
+        assertThat(listIndexes[7]).containsEntry("key", Document("submission.$SUB_RELEASE_TIME", 1))
+        assertThat(listIndexes[8]).contains(
+            SimpleEntry("textIndexVersion", 3), SimpleEntry("weights", Document("submission.$SUB_TITLE", 1))
+        )
+        assertThat(listIndexes[9]).containsEntry("key", Document("submission.$SUB_RELEASED", 1))
     }
 
     private fun runMigrations() {
