@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.PutMapping
 
 @Controller
+@PreAuthorize("isAuthenticated()")
 class GroupsResource(private val groupService: IGroupService) {
     @GetMapping("/groups")
     @ResponseBody
