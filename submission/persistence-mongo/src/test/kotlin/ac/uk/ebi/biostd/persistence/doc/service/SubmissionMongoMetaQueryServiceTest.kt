@@ -10,8 +10,8 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocProcessingStatus.PROCESSED
 import ac.uk.ebi.biostd.persistence.doc.service.SubmissionMongoMetaQueryServiceTest.TestConfig
 import ac.uk.ebi.biostd.persistence.doc.test.doc.RELEASE_TIME
 import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocSubmission
-import ac.uk.ebi.biostd.persistence.exception.CollectionNotFoundException
-import ac.uk.ebi.biostd.persistence.exception.CollectionWithoutPatternException
+import ac.uk.ebi.biostd.persistence.common.exception.CollectionNotFoundException
+import ac.uk.ebi.biostd.persistence.common.exception.CollectionWithoutPatternException
 import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
 import ebi.ac.uk.db.MONGO_VERSION
 import ebi.ac.uk.model.constants.SubFields.ACC_NO_TEMPLATE
