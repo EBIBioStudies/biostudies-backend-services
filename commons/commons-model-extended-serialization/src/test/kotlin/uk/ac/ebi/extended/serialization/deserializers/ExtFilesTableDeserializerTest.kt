@@ -3,6 +3,7 @@ package uk.ac.ebi.extended.serialization.deserializers
 import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.extended.model.ExtFileTable
+import ebi.ac.uk.extended.model.NfsFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
@@ -30,7 +31,7 @@ class ExtFilesTableDeserializerTest(private val tempFolder: TemporaryFolder) {
                             "value" to "Data"
                         }
                     )
-                    "extType" to "file"
+                    "extType" to "nfsFile"
                 }
             )
             "extType" to "filesTable"
@@ -39,7 +40,7 @@ class ExtFilesTableDeserializerTest(private val tempFolder: TemporaryFolder) {
         val extFilesTable = testInstance.deserialize<ExtFileTable>(json)
         assertThat(extFilesTable.files).hasSize(1)
 
-        val extFile = extFilesTable.files.first()
+        val extFile = extFilesTable.files.first() as NfsFile
         assertThat(extFile.file).isEqualTo(file)
         assertThat(extFile.fileName).isEqualTo("test-file.txt")
         assertThat(extFile.attributes).hasSize(1)

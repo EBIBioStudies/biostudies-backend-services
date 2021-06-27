@@ -77,13 +77,16 @@ data class DocCollection(val accNo: String)
 data class DocAttributeDetail(val name: String, val value: String)
 data class DocLink(val url: String, val attributes: List<DocAttribute> = listOf())
 
+// TODO fullPath should be changed to "location" since it's more generic
+// TODO fileSystem is not being persisted in the database
 data class DocFile(
     val relPath: String,
     val fullPath: String,
     val attributes: List<DocAttribute> = listOf(),
     val md5: String,
     val fileType: String,
-    val fileSize: Long
+    val fileSize: Long,
+    val fileSystem: FileSystem
 )
 
 data class DocFileList(
@@ -95,6 +98,8 @@ data class DocFileRef(
     val fileId: ObjectId
 )
 
+// TODO fullPath should be changed to "location" since it's more generic
+// TODO fileSystem is not being persisted in the database
 @Document(collection = "file_list_files")
 data class FileListDocFile(
     @Id
@@ -103,8 +108,13 @@ data class FileListDocFile(
     val fileName: String,
     val fullPath: String,
     val attributes: List<DocAttribute> = listOf(),
-    val md5: String
+    val md5: String,
+    val fileSystem: FileSystem
 )
+
+enum class FileSystem {
+    NFS, FIRE
+}
 
 data class DocSectionTable(val sections: List<DocSectionTableRow>)
 data class DocLinkTable(val links: List<DocLink>)

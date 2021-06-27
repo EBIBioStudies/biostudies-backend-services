@@ -1,0 +1,27 @@
+delete:
+  summary: Delete submissions
+  description: Deletes the submissions with the accession numbers in the given list.
+
+  tags:
+    - Submissions
+
+  parameters:
+    - in: header
+      name: X-SESSION-TOKEN
+      description: User authentication token
+      required: true
+      type: String
+
+    - in: query
+        name: submissions
+        description: Comma separated list with accession numbers of the submissions to be deleted.
+        required: true
+        type: string
+
+  responses:
+    200:
+      description: OK
+    401:
+      description: Caused by an invalid X-SESSION-TOKEN
+    500:
+      description: The user doesn't have privileges to delete the submissions

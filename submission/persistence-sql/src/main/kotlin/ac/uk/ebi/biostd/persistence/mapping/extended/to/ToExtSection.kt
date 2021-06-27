@@ -9,7 +9,7 @@ internal fun DbSection.toExtSection(filesSource: FilesSource): ExtSection {
     return ExtSection(
         accNo = accNo,
         type = type,
-        fileList = fileList?.toExtFileList(filesSource),
+        fileList = fileList?.toExtFileList(),
         attributes = validAttributes.map { it.toExtAttribute() },
         sections = sections.toExtSections(filesSource),
         files = files.toExtFiles(filesSource),

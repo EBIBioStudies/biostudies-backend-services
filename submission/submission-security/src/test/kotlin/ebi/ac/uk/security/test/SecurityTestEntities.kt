@@ -1,6 +1,7 @@
 package ebi.ac.uk.security.test
 
 import ac.uk.ebi.biostd.persistence.model.DbUser
+import ebi.ac.uk.api.security.ActivateByEmailRequest
 import ebi.ac.uk.api.security.RegisterRequest
 import ebi.ac.uk.api.security.ResetPasswordRequest
 import ebi.ac.uk.api.security.RetryActivationRequest
@@ -44,6 +45,13 @@ internal class SecurityTestEntities {
                 instanceKey = instanceKey,
                 path = path,
                 captcha = captcha
+            )
+
+        val activateByEmailRequest: ActivateByEmailRequest
+            get() = ActivateByEmailRequest(
+                email = email,
+                instanceKey = instanceKey,
+                path = path
             )
 
         val retryActivation: RetryActivationRequest
