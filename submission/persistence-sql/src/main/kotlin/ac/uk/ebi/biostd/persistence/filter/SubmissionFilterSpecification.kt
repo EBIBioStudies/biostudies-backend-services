@@ -2,8 +2,11 @@ package ac.uk.ebi.biostd.persistence.filter
 
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.model.DbSection
+import ac.uk.ebi.biostd.persistence.model.DbSectionAttribute
 import ac.uk.ebi.biostd.persistence.model.DbSubmission
 import ac.uk.ebi.biostd.persistence.model.DbUser
+import ac.uk.ebi.biostd.persistence.model.constants.NAME
+import ac.uk.ebi.biostd.persistence.model.constants.SECTION
 import ac.uk.ebi.biostd.persistence.model.constants.SECTION_TYPE
 import ac.uk.ebi.biostd.persistence.model.constants.SUB_ACC_NO
 import ac.uk.ebi.biostd.persistence.model.constants.SUB_OWNER
@@ -13,9 +16,13 @@ import ac.uk.ebi.biostd.persistence.model.constants.SUB_RELEASE_TIME
 import ac.uk.ebi.biostd.persistence.model.constants.SUB_ROOT_SECTION
 import ac.uk.ebi.biostd.persistence.model.constants.SUB_TITLE
 import ac.uk.ebi.biostd.persistence.model.constants.SUB_VERSION
+import ac.uk.ebi.biostd.persistence.model.constants.VALUE
 import ebi.ac.uk.base.applyIfNotBlank
 import org.springframework.data.jpa.domain.Specification
 import java.time.OffsetDateTime
+import javax.persistence.criteria.CriteriaBuilder
+import javax.persistence.criteria.CriteriaQuery
+import javax.persistence.criteria.Root
 
 class SubmissionFilterSpecification(filter: SubmissionFilter, email: String? = null) {
     val specification: Specification<DbSubmission>
@@ -24,7 +31,9 @@ class SubmissionFilterSpecification(filter: SubmissionFilter, email: String? = n
         var specs = where(withActiveVersion() and isLastVersion())
         email?.let { specs = specs and (withUser(it)) }
         filter.accNo?.let { specs = specs and (withAccession(it)) }
-        filter.keywords?.applyIfNotBlank { specs = specs and (withTitleLike(it)) }
+        filter.keywords?.applyIfNotBlank {
+            specs = specs and (withSubmissionTitleLike(it) or withRootSectionTitleLike(it))
+        }
         filter.rTimeTo?.let { specs = specs and (withTo(it)) }
         filter.rTimeFrom?.let { specs = specs and (withFrom(it)) }
         filter.released?.let { specs = specs and (withReleasedFlag(it)) }
@@ -51,8 +60,23 @@ class SubmissionFilterSpecification(filter: SubmissionFilter, email: String? = n
     private fun withType(type: String): Specification<DbSubmission> =
         Specification { root, _, cb -> cb.equal(root.get<DbSection>(SUB_ROOT_SECTION).get<String>(SECTION_TYPE), type) }
 
-    private fun withTitleLike(title: String): Specification<DbSubmission> =
+    private fun withSubmissionTitleLike(title: String): Specification<DbSubmission> =
         Specification { root, _, cb -> cb.like(cb.lower(root.get(SUB_TITLE)), "%${title.toLowerCase()}%") }
+
+    private fun withRootSectionTitleLike(title: String): Specification<DbSubmission> {
+        return Specification { root: Root<DbSubmission>, cq: CriteriaQuery<*>, cb: CriteriaBuilder ->
+            val subQuery = cq.subquery(DbSectionAttribute::class.java)
+            val attr = subQuery.from(DbSectionAttribute::class.java)
+            subQuery
+                .select(attr)
+                .where(
+                    cb.equal(attr.get<DbSection>(SECTION), root.get<DbSection>(SUB_ROOT_SECTION)),
+                    cb.equal(attr.get<String>(NAME), "Title"),
+                    cb.like(attr.get(VALUE), "%${title.toLowerCase()}%")
+                )
+            cb.exists(subQuery)
+        }
+    }
 
     private fun withUser(email: String): Specification<DbSubmission> =
         Specification { root, _, cb -> cb.equal(root.get<DbUser>(SUB_OWNER).get<Long>(SUB_OWNER_EMAIL), email) }
@@ -80,3 +104,4 @@ class SubmissionFilterSpecification(filter: SubmissionFilter, email: String? = n
 private fun <T> where(spec: Specification<T>): Specification<T> = Specification.where(spec)!!
 
 private infix fun <T> Specification<T>.and(other: Specification<T>): Specification<T> = this.and(other)!!
+private infix fun <T> Specification<T>.or(other: Specification<T>): Specification<T> = this.or(other)!!
