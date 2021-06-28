@@ -17,6 +17,7 @@ import com.github.tomakehurst.wiremock.client.WireMock.post
 import com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration
 import ebi.ac.uk.asserts.assertThat
+import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
 import ebi.ac.uk.db.MONGO_VERSION
 import ebi.ac.uk.dsl.json.toJsonQuote
 import ebi.ac.uk.io.ext.gZipTo
@@ -42,8 +43,10 @@ import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.testcontainers.containers.MongoDBContainer
+import org.testcontainers.containers.startupcheck.MinimumDurationRunningStartupCheckStrategy
 import org.testcontainers.utility.DockerImageName
 import java.net.HttpURLConnection.HTTP_OK
+import java.time.Duration.ofSeconds
 
 @TestInstance(Lifecycle.PER_CLASS)
 @ContextConfiguration
@@ -51,6 +54,7 @@ import java.net.HttpURLConnection.HTTP_OK
 internal class PmcFileLoaderTest(private val tempFolder: TemporaryFolder) {
 
     private val mongoContainer: MongoDBContainer = MongoDBContainer(DockerImageName.parse(MONGO_VERSION))
+        .withStartupCheckStrategy(MinimumDurationRunningStartupCheckStrategy(ofSeconds(MINIMUM_RUNNING_TIME)))
     private val wireMockServer = WireMockServer(WireMockConfiguration().dynamicPort())
 
     @BeforeAll

@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.persistence.mapping.extended.to
 
-import ac.uk.ebi.biostd.persistence.mapping.extended.to.test.assertExtFile
 import ac.uk.ebi.biostd.persistence.mapping.extended.to.test.refRileDb
 import ac.uk.ebi.biostd.persistence.model.DbReferencedFile
 import ac.uk.ebi.biostd.persistence.model.ReferencedFileList
@@ -29,10 +28,8 @@ internal class ToExtFileListTest(
         every { fileSource.getFile(fileList.name) } returns systemFile
         every { fileSource.getFile(file.name) } returns anotherSystemFile
 
-        val extFileList = fileList.toExtFileList(fileSource)
+        val extFileList = fileList.toExtFileList()
         assertThat(extFileList.fileName).isEqualTo(fileList.name)
-
-        assertThat(extFileList.files).hasSize(1)
-        assertExtFile(extFileList.files.first(), anotherSystemFile, file.name)
+        assertThat(extFileList.files).isEmpty()
     }
 }

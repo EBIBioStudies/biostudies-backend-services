@@ -32,7 +32,7 @@ internal class SubmissionService {
         bioWebClient(request.server, request.user, request.password).asyncSubmitSingle(request.file, request.attached)
 
     private fun deleteRequest(request: DeletionRequest) =
-        bioWebClient(request.server, request.user, request.password).deleteSubmission(request.accNo)
+        bioWebClient(request.server, request.user, request.password).deleteSubmissions(request.accNoList)
 
     private fun migrateRequest(request: MigrationRequest) {
         val sourceClient = bioWebClient(request.source, request.sourceUser, request.sourcePassword)

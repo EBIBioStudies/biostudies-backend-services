@@ -69,6 +69,7 @@ interface SubmissionOperations {
 
     fun refreshSubmission(accNo: String): SubmissionResponse
     fun deleteSubmission(accNo: String)
+    fun deleteSubmissions(submissions: List<String>)
     fun getSubmissions(filter: Map<String, Any> = mapOf()): List<SubmissionDto>
 }
 

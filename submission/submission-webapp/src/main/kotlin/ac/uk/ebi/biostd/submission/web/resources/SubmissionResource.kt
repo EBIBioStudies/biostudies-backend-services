@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.RequestParam
 
 @RestController
 @RequestMapping("/submissions")
@@ -32,6 +33,12 @@ class SubmissionResource(
         @BioUser user: SecurityUser,
         @PathVariable accNo: String
     ): Unit = submissionsWebHandler.deleteSubmission(accNo, user)
+
+    @DeleteMapping
+    fun deleteSubmissions(
+        @BioUser user: SecurityUser,
+        @RequestParam submissions: List<String>
+    ): Unit = submissionsWebHandler.deleteSubmissions(submissions, user)
 
     private fun BasicSubmission.asDto() =
         SubmissionDto(
