@@ -10,6 +10,6 @@ import org.springframework.data.mongodb.core.query.Query
 fun <T> MongoTemplate.replaceOrCreate(query: Query, replacement: T): T =
     findAndReplace(query, replacement, FindAndReplaceOptions().upsert().returnNew())!!
 
-inline fun <reified T : Any> MongoTemplate.getCollectionByType(): MongoCollection<Document> {
-    return getCollection(getCollectionName<T>())
-}
+inline fun <reified T : Any> MongoTemplate.getCollection(): MongoCollection<Document> =
+    getCollection(getCollectionName<T>())
+

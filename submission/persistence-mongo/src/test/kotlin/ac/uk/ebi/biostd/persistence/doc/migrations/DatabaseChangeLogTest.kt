@@ -4,7 +4,7 @@ import ac.uk.ebi.biostd.persistence.doc.CHANGE_LOG_COLLECTION
 import ac.uk.ebi.biostd.persistence.doc.CHANGE_LOG_LOCK
 import ac.uk.ebi.biostd.persistence.doc.MongoDbConfig
 import ac.uk.ebi.biostd.persistence.doc.MongoDbConfig.Companion.createMongockConfig
-import ac.uk.ebi.biostd.persistence.doc.commons.getCollectionByType
+import ac.uk.ebi.biostd.persistence.doc.commons.getCollection
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_TYPE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_OWNER
@@ -91,7 +91,7 @@ internal class DatabaseChangeLogTest(
     }
 
     private fun assertSubmissionCollection() {
-        val listIndexes = mongoTemplate.getCollectionByType<DocSubmission>().listIndexes().toList()
+        val listIndexes = mongoTemplate.getCollection<DocSubmission>().listIndexes().toList()
 
         assertThat(mongoTemplate.collectionExists<DocSubmission>()).isTrue
         assertThat(listIndexes).hasSize(9)
@@ -111,7 +111,7 @@ internal class DatabaseChangeLogTest(
     }
 
     private fun assertRequestCollection() {
-        val listIndexes = mongoTemplate.getCollectionByType<SubmissionRequest>().listIndexes().toList()
+        val listIndexes = mongoTemplate.getCollection<SubmissionRequest>().listIndexes().toList()
 
         assertThat(mongoTemplate.collectionExists<SubmissionRequest>()).isTrue
         assertThat(listIndexes).hasSize(10)
