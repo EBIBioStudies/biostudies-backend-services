@@ -22,8 +22,8 @@ post:
               required: false
               type: string
             path:
-              description: The user folder path
-              example: "/user/path"
+              description: The path to redirect the user in the UI
+              example: "/users/register"
               required: true
               type: string
 

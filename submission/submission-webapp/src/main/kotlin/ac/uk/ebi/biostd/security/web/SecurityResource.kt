@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.security.web
 
+import ebi.ac.uk.api.security.ActivateByEmailRequest
 import ebi.ac.uk.api.security.ChangePasswordRequest
 import ebi.ac.uk.api.security.CheckUserRequest
 import ebi.ac.uk.api.security.LoginRequest
@@ -11,6 +12,7 @@ import ebi.ac.uk.api.security.UserProfile
 import ebi.ac.uk.model.constants.APPLICATION_JSON
 import ebi.ac.uk.security.integration.components.ISecurityQueryService
 import ebi.ac.uk.security.integration.components.ISecurityService
+import ebi.ac.uk.security.integration.model.api.SecurityUser
 import org.springframework.http.HttpStatus
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.Authentication
@@ -40,9 +42,9 @@ class SecurityResource(
     }
 
     @PostMapping(value = ["/check-registration"])
-    fun checkUser(@Valid @RequestBody register: CheckUserRequest) {
+    @ResponseBody
+    fun checkUser(@Valid @RequestBody register: CheckUserRequest): SecurityUser =
         securityQueryService.getOrCreateInactive(register.userEmail, register.userName)
-    }
 
     @PostMapping(value = ["/signin", "/login"])
     @ResponseBody
@@ -53,9 +55,13 @@ class SecurityResource(
     @ResponseBody
     fun logout(@RequestBody logoutRequest: LogoutRequest) = securityService.logout(logoutRequest.sessid)
 
+    @PostMapping(value = ["/activate"])
+    @ResponseBody
+    fun activate(@RequestBody request: ActivateByEmailRequest): Unit = securityService.activateByEmail(request)
+
     @PostMapping(value = ["/activate/{activationKey}"])
     @ResponseBody
-    fun activate(@PathVariable activationKey: String): Unit = securityService.activate(activationKey)
+    fun activateByActivationKey(@PathVariable activationKey: String): Unit = securityService.activate(activationKey)
 
     @PostMapping(value = ["/retryact"])
     @ResponseBody

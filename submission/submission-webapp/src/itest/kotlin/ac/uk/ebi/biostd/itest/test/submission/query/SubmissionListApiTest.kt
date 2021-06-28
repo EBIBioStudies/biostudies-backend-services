@@ -10,11 +10,13 @@ import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.line
 import ebi.ac.uk.dsl.tsv
 import ebi.ac.uk.model.SubmissionMethod
+import ebi.ac.uk.model.SubmissionMethod.PAGE_TAB
 import ebi.ac.uk.test.createFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -62,10 +64,10 @@ internal class SubmissionListApiTest(private val tempFolder: TemporaryFolder) : 
 
             val submissionList = webClient.getSubmissions(mapOf("accNo" to "SimpleAcc18"))
 
-            assertThat(submissionList).hasOnlyOneElementSatisfying {
+            assertThat(submissionList).anySatisfy {
                 assertThat(it.accno).isEqualTo("SimpleAcc18")
                 assertThat(it.version).isEqualTo(2)
-                assertThat(it.method).isEqualTo(SubmissionMethod.PAGE_TAB)
+                assertThat(it.method).isEqualTo(PAGE_TAB)
                 assertThat(it.title).isEqualTo("Simple Submission 18 - keyword18")
                 assertThat(it.status).isEqualTo("REQUESTED")
             }
@@ -90,7 +92,7 @@ internal class SubmissionListApiTest(private val tempFolder: TemporaryFolder) : 
             assertThat(submissionList).hasOnlyOneElementSatisfying {
                 assertThat(it.accno).isEqualTo("SimpleAcc17")
                 assertThat(it.version).isEqualTo(1)
-                assertThat(it.method).isEqualTo(SubmissionMethod.PAGE_TAB)
+                assertThat(it.method).isEqualTo(PAGE_TAB)
                 assertThat(it.title).isEqualTo("Simple Submission 17 - keyword17")
                 assertThat(it.status).isEqualTo("PROCESSED")
             }
@@ -165,15 +167,15 @@ internal class SubmissionListApiTest(private val tempFolder: TemporaryFolder) : 
 
             val submissionList = webClient.getSubmissions(
                 mapOf(
-                    "keywords" to "subTitle"
+                    "keywords" to "Submission With Section Title"
                 )
             )
 
             assertThat(submissionList).hasOnlyOneElementSatisfying {
                 assertThat(it.accno).isEqualTo("SECT-123")
                 assertThat(it.version).isEqualTo(1)
-                assertThat(it.method).isEqualTo(SubmissionMethod.PAGE_TAB)
-                assertThat(it.title).isEqualTo("Submission subTitle")
+                assertThat(it.method).isEqualTo(PAGE_TAB)
+                assertThat(it.title).isEqualTo("Submission With Section Title")
                 assertThat(it.status).isEqualTo("PROCESSED")
             }
         }
@@ -191,17 +193,12 @@ internal class SubmissionListApiTest(private val tempFolder: TemporaryFolder) : 
 
             assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
 
-            val submissionList = webClient.getSubmissions(
-                mapOf(
-                    "keywords" to "secTitle"
-                )
-            )
-
-            assertThat(submissionList).hasOnlyOneElementSatisfying {
+            val submissionTitleList = webClient.getSubmissions(mapOf("keywords" to "Submission Title"))
+            assertThat(submissionTitleList).hasOnlyOneElementSatisfying {
                 assertThat(it.accno).isEqualTo("SECT-124")
                 assertThat(it.version).isEqualTo(1)
-                assertThat(it.method).isEqualTo(SubmissionMethod.PAGE_TAB)
-                assertThat(it.title).isEqualTo("Submission With Section secTitle")
+                assertThat(it.method).isEqualTo(PAGE_TAB)
+                assertThat(it.title).isEqualTo("Submission Title")
                 assertThat(it.status).isEqualTo("PROCESSED")
             }
         }

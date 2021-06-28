@@ -7,6 +7,7 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocProcessingStatus.PROCESSING
 import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocCollection
 import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocSection
 import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocSubmission
+import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
 import ebi.ac.uk.db.MONGO_VERSION
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
@@ -19,9 +20,11 @@ import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.testcontainers.containers.MongoDBContainer
+import org.testcontainers.containers.startupcheck.MinimumDurationRunningStartupCheckStrategy
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.utility.DockerImageName
+import java.time.Duration.ofSeconds
 import java.time.Instant.ofEpochSecond
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
@@ -98,7 +101,9 @@ internal class SubmissionDocDataRepositoryTest {
         @Test
         fun `by type`() {
             testInstance.save(testDocSubmission.copy(accNo = "accNo1"))
-            val doc2 = testInstance.save(testDocSubmission.copy(accNo = "accNo2", section = testDocSection.copy(type = "work")))
+            val doc2 = testInstance.save(
+                testDocSubmission.copy(accNo = "accNo2", section = testDocSection.copy(type = "work"))
+            )
 
             val result = testInstance.getSubmissions(SubmissionFilter(type = "work"))
 
@@ -187,6 +192,7 @@ internal class SubmissionDocDataRepositoryTest {
     companion object {
         @Container
         val mongoContainer: MongoDBContainer = MongoDBContainer(DockerImageName.parse(MONGO_VERSION))
+            .withStartupCheckStrategy(MinimumDurationRunningStartupCheckStrategy(ofSeconds(MINIMUM_RUNNING_TIME)))
 
         @JvmStatic
         @DynamicPropertySource

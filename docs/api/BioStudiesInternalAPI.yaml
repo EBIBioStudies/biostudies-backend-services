@@ -26,6 +26,8 @@ tags:
 paths:
   /auth/register:
     $ref: 'security/RegisterUser.yaml'
+  /auth/activate:
+    $ref: 'security/ActivateUserByEmail.yaml'
   /auth/activate/{activationKey}:
     $ref: 'security/ActivateUser.yaml'
   /auth/check-registration:
