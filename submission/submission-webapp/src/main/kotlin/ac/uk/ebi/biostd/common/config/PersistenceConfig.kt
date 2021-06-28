@@ -6,7 +6,6 @@ import ac.uk.ebi.biostd.persistence.filesystem.api.FtpService
 import ac.uk.ebi.biostd.persistence.filesystem.nfs.NfsFilesService
 import ac.uk.ebi.biostd.persistence.filesystem.nfs.NfsFtpService
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabService
-import ac.uk.ebi.biostd.persistence.filesystem.service.FileProcessingService
 import ac.uk.ebi.biostd.persistence.filesystem.service.FileSystemService
 import ac.uk.ebi.biostd.persistence.integration.config.SqlPersistenceConfig
 import ebi.ac.uk.paths.SubmissionFolderResolver
@@ -24,16 +23,12 @@ class PersistenceConfig(
     fun ftpFilesService(): FtpService = NfsFtpService(folderResolver)
 
     @Bean
-    fun fileProcessingService(): FileProcessingService = FileProcessingService()
-
-    @Bean
     fun pageTabService(): PageTabService = PageTabService(serializationService)
 
     @Bean
-    fun filePersistenceService(
-        pageTabService: PageTabService,
-        fileProcessingService: FileProcessingService
-    ): FilesService = NfsFilesService(pageTabService, fileProcessingService, folderResolver)
+    fun nfsFilePersistenceService(
+        pageTabService: PageTabService
+    ): FilesService = NfsFilesService(pageTabService, folderResolver)
 
     @Bean
     fun fileSystemService(

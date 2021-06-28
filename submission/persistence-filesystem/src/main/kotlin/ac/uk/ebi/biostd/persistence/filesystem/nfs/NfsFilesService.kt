@@ -3,11 +3,13 @@ package ac.uk.ebi.biostd.persistence.filesystem.nfs
 import ac.uk.ebi.biostd.persistence.filesystem.api.FilesService
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabService
 import ac.uk.ebi.biostd.persistence.filesystem.request.FileProcessingConfig
-import ac.uk.ebi.biostd.persistence.filesystem.request.FileProcessingRequest
 import ac.uk.ebi.biostd.persistence.filesystem.request.PageTabRequest
-import ac.uk.ebi.biostd.persistence.filesystem.service.FileProcessingService
+import ac.uk.ebi.biostd.persistence.filesystem.service.FileProcessingService.processFiles
+import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FileMode
+import ebi.ac.uk.extended.model.FileMode.COPY
+import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.io.FileUtils
 import ebi.ac.uk.io.FileUtils.deleteFile
 import ebi.ac.uk.io.FileUtils.getOrCreateFolder
@@ -28,7 +30,6 @@ private val logger = KotlinLogging.logger {}
 
 class NfsFilesService(
     private val pageTabService: PageTabService,
-    private val fileProcessingService: FileProcessingService,
     private val folderResolver: SubmissionFolderResolver
 ) : FilesService {
     override fun persistSubmissionFiles(submission: ExtSubmission, mode: FileMode): ExtSubmission {
@@ -62,8 +63,14 @@ class NfsFilesService(
             reCreateFolder(subFolder, folderPermissions)
         }
 
-        val processingConfig = FileProcessingConfig(subFilesPath, tempFolder, filePermissions, folderPermissions)
-        val processed = fileProcessingService.processFiles(FileProcessingRequest(mode, submission, processingConfig))
+        val config = FileProcessingConfig(subFilesPath, tempFolder, filePermissions, folderPermissions)
+
+        fun processNfsFile(file: ExtFile): ExtFile {
+            val nfsFile = file as NfsFile
+            return if (mode == COPY) config.nfsCopy(nfsFile) else config.nfsMove(nfsFile)
+        }
+
+        val processed = processFiles(submission, ::processNfsFile)
 
         logger.info { "Finishing processing submission ${submission.accNo} files in $mode" }
         deleteFile(tempFolder)

@@ -7,7 +7,6 @@ import ac.uk.ebi.biostd.integration.SubFormat.Companion.XML
 import ac.uk.ebi.biostd.persistence.filesystem.extSubmissionWithFileList
 import ac.uk.ebi.biostd.persistence.filesystem.nfs.NfsFilesService
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabService
-import ac.uk.ebi.biostd.persistence.filesystem.service.FileProcessingService
 import ebi.ac.uk.extended.mapping.to.toSimpleSubmission
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FileMode
@@ -48,7 +47,7 @@ class NfsFilesServiceTest(
     private val rootPath = tempFolder.root.toPath()
     private val pageTabService = PageTabService(mockSerializationService)
     private val folderResolver = SubmissionFolderResolver(Paths.get("$rootPath/submission"), Paths.get("$rootPath/ftp"))
-    private val testInstance = NfsFilesService(pageTabService, FileProcessingService(), folderResolver)
+    private val testInstance = NfsFilesService(pageTabService, folderResolver)
 
     @BeforeEach
     fun beforeEach() {
