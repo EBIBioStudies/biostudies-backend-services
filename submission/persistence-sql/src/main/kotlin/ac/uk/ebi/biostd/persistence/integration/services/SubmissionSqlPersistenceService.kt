@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.persistence.integration.services
 
-import ac.uk.ebi.biostd.persistence.common.filesystem.FileSystemService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
+import ac.uk.ebi.biostd.persistence.filesystem.service.FileSystemService
 import ac.uk.ebi.biostd.persistence.mapping.extended.from.ToDbSubmissionMapper
 import ac.uk.ebi.biostd.persistence.model.DbSubmissionRequest
 import ac.uk.ebi.biostd.persistence.repositories.SubmissionDataRepository

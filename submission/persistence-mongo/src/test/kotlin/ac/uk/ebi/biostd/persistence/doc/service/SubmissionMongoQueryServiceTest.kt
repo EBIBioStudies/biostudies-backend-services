@@ -15,7 +15,7 @@ import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.fullExtSubmission
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.rootSection
 import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocSection
 import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocSubmission
-import ac.uk.ebi.biostd.persistence.exception.SubmissionNotFoundException
+import ac.uk.ebi.biostd.persistence.common.exception.SubmissionNotFoundException
 import com.mongodb.BasicDBObject
 import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
 import ebi.ac.uk.db.MONGO_VERSION
