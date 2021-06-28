@@ -1,12 +1,12 @@
 package ac.uk.ebi.biostd.persistence.common.filesystem
 
 import arrow.core.Either.Companion.left
-import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileList
 import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod
+import ebi.ac.uk.extended.model.NfsFile
 import java.io.File
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
@@ -36,6 +36,6 @@ fun extSubmissionWithFileList(files: List<File>, referencedFiles: List<File>) =
 fun extSectionWithFileList(files: List<File>, referencedFiles: List<File>) =
     ExtSection(
         type = "Study",
-        files = files.map { left(ExtFile(it.name, it, emptyList())) },
-        fileList = ExtFileList("fileList", referencedFiles.map { ExtFile(it.name, it, emptyList()) })
+        files = files.map { left(NfsFile(it.name, it, emptyList())) },
+        fileList = ExtFileList("fileList", referencedFiles.map { NfsFile(it.name, it, emptyList()) })
     )

@@ -50,11 +50,11 @@ internal class SubmissionServiceTest {
         every {
             create(requestDelete.server).getAuthenticatedClient(requestDelete.user, requestDelete.password)
         } returns bioWebClient
-        every { bioWebClient.deleteSubmission(requestDelete.accNo) } returns Unit
+        every { bioWebClient.deleteSubmissions(requestDelete.accNoList) } returns Unit
 
         testInstance.delete(requestDelete)
 
-        verify(exactly = 1) { bioWebClient.deleteSubmission(requestDelete.accNo) }
+        verify(exactly = 1) { bioWebClient.deleteSubmissions(requestDelete.accNoList) }
     }
 
     @Nested
@@ -179,7 +179,7 @@ internal class SubmissionServiceTest {
             user = "user",
             password = "password",
             onBehalf = "onBehalf",
-            accNo = "accNo"
+            accNoList = listOf("accNo")
         )
 
         const val message = "error message"

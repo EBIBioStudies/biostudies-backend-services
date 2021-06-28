@@ -10,6 +10,8 @@ import ebi.ac.uk.commons.http.slack.NotificationsSender
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.scheduling.annotation.EnableScheduling
+import uk.ac.ebi.scheduler.exporter.api.ExporterProperties
+import uk.ac.ebi.scheduler.exporter.domain.ExporterTrigger
 import uk.ac.ebi.scheduler.releaser.api.SubmissionReleaserProperties
 import uk.ac.ebi.scheduler.releaser.domain.SubmissionReleaserTrigger
 
@@ -43,9 +45,18 @@ internal class SchedulerConfig {
         SubmissionReleaserTrigger(appProperties, releaserProperties, clusterOperations, notificationsSender)
 
     @Bean
+    fun exporterTrigger(
+        appProperties: AppProperties,
+        clusterOperations: ClusterOperations,
+        exporterProperties: ExporterProperties,
+        notificationsSender: NotificationsSender
+    ): ExporterTrigger = ExporterTrigger(appProperties, exporterProperties, clusterOperations, notificationsSender)
+
+    @Bean
     fun scheduler(
         appProperties: AppProperties,
         loaderService: PmcLoaderService,
+        exporterTrigger: ExporterTrigger,
         releaserTrigger: SubmissionReleaserTrigger
-    ): DailyScheduler = DailyScheduler(appProperties.dailyScheduling, loaderService, releaserTrigger)
+    ): DailyScheduler = DailyScheduler(appProperties.dailyScheduling, exporterTrigger, loaderService, releaserTrigger)
 }
