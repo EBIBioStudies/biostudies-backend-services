@@ -52,7 +52,6 @@ internal object FileTestHelper {
     }
 
     private fun assertNfsFile(nfsFile: NfsFile, file: File) {
-        assertThat(nfsFile).isInstanceOf(NfsFile::class.java)
         assertThat(nfsFile.fileName).isEqualTo(TEST_REL_PATH)
         assertThat(nfsFile.md5).isEqualTo(TEST_MD5)
         assertThat(nfsFile.file).isEqualTo(file)
@@ -61,7 +60,6 @@ internal object FileTestHelper {
     }
 
     private fun assertFireFile(fireFile: FireFile) {
-        assertThat(fireFile).isInstanceOf(FireFile::class.java)
         assertThat(fireFile.fileName).isEqualTo(TEST_REL_PATH)
         assertThat(fireFile.fireId).isEqualTo(TEST_FIRE_FILE_ID)
         assertThat(fireFile.md5).isEqualTo(TEST_MD5)

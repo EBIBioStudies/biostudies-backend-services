@@ -19,8 +19,7 @@ class ToExtSectionTest(temporaryFolder: TemporaryFolder) {
     private val testNfsDocFile = nfsDocFile.copy(fullPath = testFile.absolutePath)
     private val testFireDocFile = fireDocFile.copy(fullPath = testFile.absolutePath)
     private val testDocSection = docSection.copy(
-//        TODO add testFireDocFile
-        files = listOf(left(testNfsDocFile)),
+        files = listOf(left(testNfsDocFile), left(testFireDocFile)),
         fileList = docFileList.copy(files = listOf(docFileRef))
     )
 

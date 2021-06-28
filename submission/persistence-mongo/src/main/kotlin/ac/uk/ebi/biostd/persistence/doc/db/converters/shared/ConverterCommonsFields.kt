@@ -28,7 +28,7 @@ object DocAttributeFields {
     const val ATTRIBUTE_DETAIL_VALUE = "value"
 }
 
-object DocFileFields {
+object NfsDocFileFields {
     val NFS_DOC_FILE_CLASS: String = NfsDocFile::class.java.canonicalName
     const val FILE_DOC_REL_PATH = "relPath"
     const val FILE_DOC_FULL_PATH = "fullPath"

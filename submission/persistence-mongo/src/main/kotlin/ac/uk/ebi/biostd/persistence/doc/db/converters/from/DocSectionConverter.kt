@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.persistence.doc.db.converters.from
 
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.NFS_DOC_FILE_CLASS
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.NFS_DOC_FILE_CLASS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileTableFields.DOC_FILE_TABLE_CLASS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocLinkFields.DOC_LINK_CLASS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocLinkTableFields.DOC_LINK_TABLE_CLASS

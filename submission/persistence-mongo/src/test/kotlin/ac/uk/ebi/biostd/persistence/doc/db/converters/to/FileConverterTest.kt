@@ -1,9 +1,9 @@
 package ac.uk.ebi.biostd.persistence.doc.db.converters.to
 
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_DOC_FULL_PATH
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_DOC_MD5
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_DOC_REL_PATH
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.FILE_DOC_FULL_PATH
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.FILE_DOC_MD5
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.FILE_DOC_REL_PATH
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.FIRE_FILE_DOC_ATTRIBUTES
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.FIRE_FILE_DOC_FILE_SYSTEM
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.FIRE_FILE_DOC_FULL_PATH
@@ -44,8 +44,8 @@ internal class FileConverterTest(
         assertThat(result[FILE_DOC_MD5]).isEqualTo("md5")
         assertThat(result[FILE_DOC_REL_PATH]).isEqualTo("relPath")
         assertThat(result[FILE_DOC_FULL_PATH]).isEqualTo("fullPath")
-        assertThat(result[DocFileFields.FILE_DOC_ATTRIBUTES]).isEqualTo(listOf(document))
-        assertThat(result[DocFileFields.FILE_TYPE]).isEqualTo("file")
+        assertThat(result[NfsDocFileFields.FILE_DOC_ATTRIBUTES]).isEqualTo(listOf(document))
+        assertThat(result[NfsDocFileFields.FILE_TYPE]).isEqualTo("file")
         assertThat(result[ExtSerializationFields.FILE_SIZE]).isEqualTo(10L)
     }
 

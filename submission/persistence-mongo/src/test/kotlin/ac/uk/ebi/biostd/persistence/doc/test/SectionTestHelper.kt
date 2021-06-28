@@ -85,8 +85,9 @@ internal object SectionTestHelper {
     }
 
     private fun assertExtSectionFiles(extSection: ExtSection, file: File) {
-        assertThat(extSection.files).hasSize(1)
+        assertThat(extSection.files).hasSize(2)
         extSection.files.first().ifLeft { assertExtFile(it, file) }
+        extSection.files.second().ifLeft { assertExtFile(it, file) }
     }
 
     private fun assertExtSectionLinks(extSection: ExtSection) {
