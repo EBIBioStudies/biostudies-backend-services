@@ -166,7 +166,7 @@ internal class SubmissionListApiTest(private val tempFolder: TemporaryFolder) : 
 
             val submissionList = webClient.getSubmissions(
                 mapOf(
-                    "keywords" to "Submission With Section Title"
+                    "keywords" to "subTitle"
                 )
             )
 
@@ -174,7 +174,7 @@ internal class SubmissionListApiTest(private val tempFolder: TemporaryFolder) : 
                 assertThat(it.accno).isEqualTo("SECT-123")
                 assertThat(it.version).isEqualTo(1)
                 assertThat(it.method).isEqualTo(PAGE_TAB)
-                assertThat(it.title).isEqualTo("Submission With Section Title")
+                assertThat(it.title).isEqualTo("Submission subTitle")
                 assertThat(it.status).isEqualTo("PROCESSED")
             }
         }
@@ -186,18 +186,18 @@ internal class SubmissionListApiTest(private val tempFolder: TemporaryFolder) : 
                 line()
 
                 line("Study")
-                line("Title", "Submission With Section secTitle")
+                line("Title", "Section secTitle")
                 line()
             }.toString()
 
             assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
 
-            val submissionTitleList = webClient.getSubmissions(mapOf("keywords" to "Submission Title"))
+            val submissionTitleList = webClient.getSubmissions(mapOf("keywords" to "secTitle"))
             assertThat(submissionTitleList).hasOnlyOneElementSatisfying {
                 assertThat(it.accno).isEqualTo("SECT-124")
                 assertThat(it.version).isEqualTo(1)
                 assertThat(it.method).isEqualTo(PAGE_TAB)
-                assertThat(it.title).isEqualTo("Submission Title")
+                assertThat(it.title).isEqualTo("Section secTitle")
                 assertThat(it.status).isEqualTo("PROCESSED")
             }
         }
