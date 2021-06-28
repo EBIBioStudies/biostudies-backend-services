@@ -12,11 +12,7 @@ import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus.REQUESTED
 import ac.uk.ebi.biostd.persistence.doc.model.asBasicSubmission
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUBMISSION_OWNER
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.fullExtSubmission as extSubmission
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.rootSection
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.rootSectionAttribute as attribute
-import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocSection as docSection
-import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocSubmission as docSubmission
 import ac.uk.ebi.biostd.persistence.exception.SubmissionNotFoundException
 import com.mongodb.BasicDBObject
 import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
@@ -48,6 +44,10 @@ import java.time.Duration.ofSeconds
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus.PROCESSED as REQUEST_PROCESSED
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.fullExtSubmission as extSubmission
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.rootSectionAttribute as attribute
+import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocSection as docSection
+import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocSubmission as docSubmission
 
 @ExtendWith(MockKExtension::class, SpringExtension::class)
 @Testcontainers
@@ -66,7 +66,7 @@ internal class SubmissionMongoQueryServiceTest(
     inner class ExpireSubmissions {
         @Test
         fun `expire submission`() {
-            submissionRepo.save(testDocSubmission.copy(accNo = "S-BSST1", version = 1, status = PROCESSED))
+            submissionRepo.save(docSubmission.copy(accNo = "S-BSST1", version = 1, status = PROCESSED))
             testInstance.expireSubmission("S-BSST1")
 
             assertThat(submissionRepo.findByAccNo("S-BSST1")).isNull()
@@ -74,8 +74,8 @@ internal class SubmissionMongoQueryServiceTest(
 
         @Test
         fun `expire submissions`() {
-            submissionRepo.save(testDocSubmission.copy(accNo = "S-BSST1", version = 1, status = PROCESSED))
-            submissionRepo.save(testDocSubmission.copy(accNo = "S-BSST101", version = 1, status = PROCESSED))
+            submissionRepo.save(docSubmission.copy(accNo = "S-BSST1", version = 1, status = PROCESSED))
+            submissionRepo.save(docSubmission.copy(accNo = "S-BSST101", version = 1, status = PROCESSED))
             testInstance.expireSubmissions(listOf("S-BSST1", "S-BSST101"))
 
             assertThat(submissionRepo.findByAccNo("S-BSST1")).isNull()

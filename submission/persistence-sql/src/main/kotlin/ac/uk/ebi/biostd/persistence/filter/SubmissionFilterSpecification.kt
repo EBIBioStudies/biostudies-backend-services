@@ -31,9 +31,7 @@ class SubmissionFilterSpecification(filter: SubmissionFilter, email: String? = n
         var specs = where(withActiveVersion() and isLastVersion())
         email?.let { specs = specs and (withUser(it)) }
         filter.accNo?.let { specs = specs and (withAccession(it)) }
-        filter.keywords?.applyIfNotBlank {
-            specs = specs and (withSubmissionTitleLike(it) or withRootSectionTitleLike(it))
-        }
+        filter.keywords?.applyIfNotBlank { specs = specs and (submissionTitleLike(it) or sectionTitleLike(it)) }
         filter.rTimeTo?.let { specs = specs and (withTo(it)) }
         filter.rTimeFrom?.let { specs = specs and (withFrom(it)) }
         filter.released?.let { specs = specs and (withReleasedFlag(it)) }
@@ -60,10 +58,10 @@ class SubmissionFilterSpecification(filter: SubmissionFilter, email: String? = n
     private fun withType(type: String): Specification<DbSubmission> =
         Specification { root, _, cb -> cb.equal(root.get<DbSection>(SUB_ROOT_SECTION).get<String>(SECTION_TYPE), type) }
 
-    private fun withSubmissionTitleLike(title: String): Specification<DbSubmission> =
+    private fun submissionTitleLike(title: String): Specification<DbSubmission> =
         Specification { root, _, cb -> cb.like(cb.lower(root.get(SUB_TITLE)), "%${title.toLowerCase()}%") }
 
-    private fun withRootSectionTitleLike(title: String): Specification<DbSubmission> {
+    private fun sectionTitleLike(title: String): Specification<DbSubmission> {
         return Specification { root: Root<DbSubmission>, cq: CriteriaQuery<*>, cb: CriteriaBuilder ->
             val subQuery = cq.subquery(DbSectionAttribute::class.java)
             val attr = subQuery.from(DbSectionAttribute::class.java)
