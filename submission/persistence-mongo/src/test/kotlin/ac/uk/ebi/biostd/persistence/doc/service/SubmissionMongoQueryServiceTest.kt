@@ -62,12 +62,25 @@ internal class SubmissionMongoQueryServiceTest(
     private val testInstance =
         SubmissionMongoQueryService(submissionRepo, requestRepository, serializationService, toExtSubmissionMapper)
 
-    @Test
-    fun `expire submission`() {
-        submissionRepo.save(docSubmission.copy(accNo = "S-BSST1", version = 1, status = PROCESSED))
-        testInstance.expireSubmission("S-BSST1")
+    @Nested
+    inner class ExpireSubmissions {
+        @Test
+        fun `expire submission`() {
+            submissionRepo.save(testDocSubmission.copy(accNo = "S-BSST1", version = 1, status = PROCESSED))
+            testInstance.expireSubmission("S-BSST1")
 
-        assertThat(submissionRepo.findByAccNo("S-BSST1")).isNull()
+            assertThat(submissionRepo.findByAccNo("S-BSST1")).isNull()
+        }
+
+        @Test
+        fun `expire submissions`() {
+            submissionRepo.save(testDocSubmission.copy(accNo = "S-BSST1", version = 1, status = PROCESSED))
+            submissionRepo.save(testDocSubmission.copy(accNo = "S-BSST101", version = 1, status = PROCESSED))
+            testInstance.expireSubmissions(listOf("S-BSST1", "S-BSST101"))
+
+            assertThat(submissionRepo.findByAccNo("S-BSST1")).isNull()
+            assertThat(submissionRepo.findByAccNo("S-BSST101")).isNull()
+        }
     }
 
     @Nested
@@ -332,12 +345,6 @@ internal class SubmissionMongoQueryServiceTest(
             status = status,
             submission = BasicDBObject.parse(serializationService.serialize(submission))
         )
-    }
-
-    @Test
-    fun `expire non existing`() {
-        val exception = assertThrows<SubmissionNotFoundException> { testInstance.expireSubmission("S-BSST2") }
-        assertThat(exception.message).isEqualTo("The submission 'S-BSST2' was not found")
     }
 
     @Test

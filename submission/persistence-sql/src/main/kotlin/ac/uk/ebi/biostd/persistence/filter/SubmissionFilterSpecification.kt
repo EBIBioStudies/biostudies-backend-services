@@ -84,7 +84,7 @@ class SubmissionFilterSpecification(filter: SubmissionFilter, email: String? = n
     private fun withFrom(from: OffsetDateTime): Specification<DbSubmission> =
         Specification { root, _, cb ->
             cb.and(
-                cb.greaterThanOrEqualTo(root.get<Long>(SUB_RELEASE_TIME), 0L),
+                cb.greaterThanOrEqualTo(root.get(SUB_RELEASE_TIME), 0L),
                 cb.greaterThanOrEqualTo(root.get(SUB_RELEASE_TIME), from.toEpochSecond())
             )
         }
@@ -92,7 +92,7 @@ class SubmissionFilterSpecification(filter: SubmissionFilter, email: String? = n
     private fun withTo(to: OffsetDateTime): Specification<DbSubmission> =
         Specification { root, _, cb ->
             cb.and(
-                cb.greaterThanOrEqualTo(root.get<Long>(SUB_RELEASE_TIME), 0L),
+                cb.greaterThanOrEqualTo(root.get(SUB_RELEASE_TIME), 0L),
                 cb.lessThanOrEqualTo(root.get(SUB_RELEASE_TIME), to.toEpochSecond())
             )
         }

@@ -5,5 +5,5 @@ internal data class DeletionRequest(
     val user: String,
     val password: String,
     val onBehalf: String?,
-    val accNo: String
+    val accNoList: List<String>
 )

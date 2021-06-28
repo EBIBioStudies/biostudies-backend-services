@@ -21,11 +21,21 @@ data class ExtLink(
     val attributes: List<ExtAttribute> = listOf()
 )
 
-data class ExtFile(
+sealed class ExtFile
+
+data class FireFile(
+    val fileName: String,
+    val fireId: String,
+    val md5: String,
+    val size: Long,
+    val attributes: List<ExtAttribute>
+) : ExtFile()
+
+data class NfsFile(
     val fileName: String,
     val file: File,
     val attributes: List<ExtAttribute> = listOf()
-) {
+) : ExtFile() {
     // TODO Once SQL is removed, this field should be removed and md5 should be set as a constructor property
     private var _md5: String = ""
 

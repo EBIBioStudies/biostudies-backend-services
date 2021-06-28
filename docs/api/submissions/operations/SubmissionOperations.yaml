@@ -2,3 +2,5 @@ get:
   $ref: '../search/SearchSubmissions.yaml'
 post:
   $ref: 'Submit.yaml'
+delete:
+  $ref: 'DeleteSubmissions.yaml'

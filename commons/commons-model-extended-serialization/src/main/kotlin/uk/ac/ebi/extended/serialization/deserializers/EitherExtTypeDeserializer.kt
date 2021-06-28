@@ -18,10 +18,11 @@ import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSectionTable
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.EXT_TYPE
 import uk.ac.ebi.extended.serialization.constants.ExtType
-import uk.ac.ebi.extended.serialization.constants.ExtType.File
 import uk.ac.ebi.extended.serialization.constants.ExtType.FilesTable
+import uk.ac.ebi.extended.serialization.constants.ExtType.FireFile
 import uk.ac.ebi.extended.serialization.constants.ExtType.Link
 import uk.ac.ebi.extended.serialization.constants.ExtType.LinksTable
+import uk.ac.ebi.extended.serialization.constants.ExtType.NfsFile
 import uk.ac.ebi.extended.serialization.constants.ExtType.Section
 import uk.ac.ebi.extended.serialization.constants.ExtType.SectionsTable
 import uk.ac.ebi.serialization.extensions.convertNode
@@ -33,9 +34,13 @@ class EitherExtTypeDeserializer : JsonDeserializer<Either<*, *>>() {
         val node = mapper.readTree<JsonNode>(jsonParser)
         val extType = node.getNode<TextNode>(EXT_TYPE).textValue()
 
+        // TODO here is where a general system property would come in handy since we could base the deserializing
+        // TODO decision in that parameter instead of requiring to be explicitly in the model, that way, it would keep
+        // TODO transparent for whoever is consuming the extended model
         return when (ExtType.valueOf(extType)) {
             is Link -> Either.left(mapper.convertNode<ExtLink>(node))
-            is File -> Either.left(mapper.convertNode<ExtFile>(node))
+            is NfsFile -> Either.left(mapper.convertNode<ExtFile>(node))
+            is FireFile -> TODO()
             is Section -> Either.left(mapper.convertNode<ExtSection>(node))
             is LinksTable -> right(mapper.convertNode<ExtLinkTable>(node))
             is FilesTable -> right(mapper.convertNode<ExtFileTable>(node))
