@@ -23,10 +23,8 @@ fun SubmissionFilterRequest.asFilter(): SubmissionFilter =
         type = type,
         rTimeFrom = rTimeFrom?.let { OffsetDateTime.parse(it) },
         rTimeTo = rTimeTo?.let { OffsetDateTime.parse(it) },
-        keywords = keywords?.unescapeKeywords(),
+        keywords = keywords,
         released = released,
         limit = limit,
         offset = offset
     )
-
-private fun String.unescapeKeywords() = replace("%20", " ")

@@ -203,14 +203,14 @@ internal class SubmissionListApiTest(private val tempFolder: TemporaryFolder) : 
         }
 
         @Test
-        fun `submission with both titles`() {
+        fun `submission with spaces`() {
             val submission = tsv {
                 line("Submission", "SECT-125")
-                line("Title", "Submission bothTitle")
+                line("Title", "the Submission title")
                 line()
 
                 line("Study")
-                line("Title", "Section bothTitle")
+                line("Title", "the Submission title")
                 line()
             }.toString()
 
@@ -218,15 +218,15 @@ internal class SubmissionListApiTest(private val tempFolder: TemporaryFolder) : 
 
             val submissionList = webClient.getSubmissions(
                 mapOf(
-                    "keywords" to "bothTitle"
+                    "keywords" to "n title"
                 )
             )
 
             assertThat(submissionList).hasOnlyOneElementSatisfying {
                 assertThat(it.accno).isEqualTo("SECT-125")
                 assertThat(it.version).isEqualTo(1)
-                assertThat(it.method).isEqualTo(SubmissionMethod.PAGE_TAB)
-                assertThat(it.title).isEqualTo("Submission bothTitle")
+                assertThat(it.method).isEqualTo(PAGE_TAB)
+                assertThat(it.title).isEqualTo("the Submission title")
                 assertThat(it.status).isEqualTo("PROCESSED")
             }
         }
