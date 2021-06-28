@@ -64,7 +64,8 @@ internal class NfsFtpServiceTest(
     @Test
     fun `create ftp folder`() {
         testInstance.createFtpFolder(REL_PATH)
-        assertSubmissionFtpFolder()
+
+        assertFolder(folderResolver.getSubmissionFtpFolder(REL_PATH).toFile())
     }
 
     @Test
@@ -72,7 +73,8 @@ internal class NfsFtpServiceTest(
         every { extSubmission.released } returns true
 
         testInstance.processSubmissionFiles(extSubmission)
-        assertSubmissionFtpFolder()
+
+        assertFolder(folderResolver.getSubmissionFtpFolder(REL_PATH).toFile())
     }
 
     @Test
@@ -81,13 +83,7 @@ internal class NfsFtpServiceTest(
 
         testInstance.processSubmissionFiles(extSubmission)
 
-        assertFolder(folderResolver.getSubFolder(REL_PATH).toFile())
         assertThat(folderResolver.getSubmissionFtpFolder(REL_PATH).toFile()).doesNotExist()
-    }
-
-    private fun assertSubmissionFtpFolder() {
-        assertFolder(folderResolver.getSubFolder(REL_PATH).toFile())
-        assertFolder(folderResolver.getSubmissionFtpFolder(REL_PATH).toFile())
     }
 
     private fun assertFolder(ftpFolder: File) {
