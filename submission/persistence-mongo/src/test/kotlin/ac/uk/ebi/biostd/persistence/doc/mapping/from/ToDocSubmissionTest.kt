@@ -14,6 +14,7 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionMethod
 import ac.uk.ebi.biostd.persistence.doc.model.DocTag
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
+import ac.uk.ebi.biostd.persistence.doc.model.NfsDocFile
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.COLLECTION_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.CREATION_TIME
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.EXT_STAT_NAME
@@ -272,13 +273,20 @@ class ToDocSubmissionTest(tempFolder: TemporaryFolder) {
     }
 
     private fun assertFiles(docFiles: List<Either<DocFile, DocFileTable>>) {
-        assertThat(docFiles.first()).hasLeftValueSatisfying {
-            assertThat(it.relPath).isEqualTo(ROOT_SEC_FILE_NAME)
-            assertThat(it.fullPath).isEqualTo(newRootSectionFile.file.path)
+        val docFile = docFiles.first()
+        assertThat(docFile).hasLeftValueSatisfying {
+            require(docFile is Either.Left)
+            require(docFile.a is NfsDocFile)
+            assertThat((docFile.a as NfsDocFile).relPath).isEqualTo(ROOT_SEC_FILE_NAME)
+            assertThat((docFile.a as NfsDocFile).fullPath).isEqualTo(newRootSectionFile.file.path)
         }
-        assertThat(docFiles.second()).hasRightValueSatisfying {
-            assertThat(it.files.first().relPath).isEqualTo(ROOT_SEC_TABLE_FILE_NAME)
-            assertThat(it.files.first().fullPath).isEqualTo(newRootSectionTableFile.file.path)
+
+        val docFileTable = docFiles.second()
+        assertThat(docFileTable).hasRightValueSatisfying {
+            val innerNfsDocFile = it.files.first()
+            require(innerNfsDocFile is NfsDocFile)
+            assertThat(innerNfsDocFile.relPath).isEqualTo(ROOT_SEC_TABLE_FILE_NAME)
+            assertThat(innerNfsDocFile.fullPath).isEqualTo(newRootSectionTableFile.file.path)
         }
     }
 }

@@ -8,6 +8,8 @@ import java.time.Instant
 
 val docAttributeDetailClass: String = DocAttributeDetail::class.java.canonicalName
 val docFileClass: String = DocFile::class.java.canonicalName
+val nfsDocFileClass: String = NfsDocFile::class.java.canonicalName
+val fireDocFileClass: String = FireDocFile::class.java.canonicalName
 val docFileListClass: String = DocFileList::class.java.canonicalName
 val docFileTableClass: String = DocFileTable::class.java.canonicalName
 val docLinkClass: String = DocLink::class.java.canonicalName
@@ -77,9 +79,11 @@ data class DocCollection(val accNo: String)
 data class DocAttributeDetail(val name: String, val value: String)
 data class DocLink(val url: String, val attributes: List<DocAttribute> = listOf())
 
+sealed class DocFile
+
 // TODO fullPath should be changed to "location" since it's more generic
 // TODO fileSystem is not being persisted in the database
-data class DocFile(
+data class NfsDocFile(
     val relPath: String,
     val fullPath: String,
     val attributes: List<DocAttribute> = listOf(),
@@ -87,7 +91,17 @@ data class DocFile(
     val fileType: String,
     val fileSize: Long,
     val fileSystem: FileSystem
-)
+) : DocFile()
+
+data class FireDocFile(
+    val relPath: String,
+    val fullPath: String,
+    val fireId: String,
+    val attributes: List<DocAttribute>,
+    val md5: String,
+    val fileSize: Long,
+    val fileSystem: FileSystem
+) : DocFile()
 
 data class DocFileList(
     val fileName: String,

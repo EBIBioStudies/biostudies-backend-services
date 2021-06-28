@@ -2,7 +2,6 @@ package ac.uk.ebi.biostd.persistence.doc.db.converters.shared
 
 import ac.uk.ebi.biostd.persistence.doc.model.DocAttribute
 import ac.uk.ebi.biostd.persistence.doc.model.DocCollection
-import ac.uk.ebi.biostd.persistence.doc.model.DocFile
 import ac.uk.ebi.biostd.persistence.doc.model.DocFileList
 import ac.uk.ebi.biostd.persistence.doc.model.DocFileRef
 import ac.uk.ebi.biostd.persistence.doc.model.DocFileTable
@@ -15,6 +14,8 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocStat
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocTag
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
+import ac.uk.ebi.biostd.persistence.doc.model.FireDocFile
+import ac.uk.ebi.biostd.persistence.doc.model.NfsDocFile
 
 object DocAttributeFields {
     val DOC_ATTRIBUTE_CLASS: String = DocAttribute::class.java.canonicalName
@@ -28,13 +29,24 @@ object DocAttributeFields {
 }
 
 object DocFileFields {
-    val DOC_FILE_CLASS: String = DocFile::class.java.canonicalName
+    val NFS_DOC_FILE_CLASS: String = NfsDocFile::class.java.canonicalName
     const val FILE_DOC_REL_PATH = "relPath"
     const val FILE_DOC_FULL_PATH = "fullPath"
     const val FILE_DOC_ATTRIBUTES = "attributes"
     const val FILE_DOC_MD5 = "md5"
     const val FILE_TYPE = "type"
     const val FILE_SIZE = "size"
+}
+
+object FireDocFileFields {
+    val FIRE_DOC_FILE_CLASS: String = FireDocFile::class.java.canonicalName
+    const val FIRE_FILE_DOC_REL_PATH = "relPath"
+    const val FIRE_FILE_DOC_FULL_PATH = "fullPath"
+    const val FIRE_FILE_DOC_ID = "fireId"
+    const val FIRE_FILE_DOC_ATTRIBUTES = "attributes"
+    const val FIRE_FILE_DOC_MD5 = "md5"
+    const val FIRE_FILE_SIZE = "fileSize"
+    const val FIRE_FILE_DOC_FILE_SYSTEM = "fileSystem"
 }
 
 object DocFileListFields {

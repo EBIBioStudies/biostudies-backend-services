@@ -1,9 +1,11 @@
 package ac.uk.ebi.biostd.persistence.doc.test
 
-import ac.uk.ebi.biostd.persistence.doc.model.DocFile
 import ac.uk.ebi.biostd.persistence.doc.model.DocFileList
 import ac.uk.ebi.biostd.persistence.doc.model.DocFileRef
+import ac.uk.ebi.biostd.persistence.doc.model.FileSystem.FIRE
 import ac.uk.ebi.biostd.persistence.doc.model.FileSystem.NFS
+import ac.uk.ebi.biostd.persistence.doc.model.FireDocFile
+import ac.uk.ebi.biostd.persistence.doc.model.NfsDocFile
 import ac.uk.ebi.biostd.persistence.doc.test.AttributeTestHelper.assertBasicExtAttribute
 import ac.uk.ebi.biostd.persistence.doc.test.AttributeTestHelper.basicDocAttribute
 import ebi.ac.uk.extended.model.ExtFile
@@ -18,16 +20,29 @@ internal const val TEST_REL_PATH = "file.txt"
 internal const val TEST_FULL_PATH = "/a/full/path/file.txt"
 internal const val TEST_FILE_LIST = "file-list.tsv"
 private const val TEST_MD5 = "a-test-md5"
+private const val TEST_FIRE_FILE_ID = "fireFileId"
+private const val TEST_FIRE_FILE_SIZE = 10L
 private const val FILE_TYPE = "file"
 private const val SIZE = 30L
 
 internal object FileTestHelper {
-    val docFile = DocFile(TEST_REL_PATH, TEST_FULL_PATH, listOf(basicDocAttribute), TEST_MD5, FILE_TYPE, SIZE, NFS)
+    val nfsDocFile =
+        NfsDocFile(TEST_REL_PATH, TEST_FULL_PATH, listOf(basicDocAttribute), TEST_MD5, FILE_TYPE, SIZE, NFS)
+    val fireDocFile =
+        FireDocFile(
+            relPath = TEST_REL_PATH,
+            fullPath = TEST_FULL_PATH,
+            fireId = TEST_FIRE_FILE_ID,
+            attributes = listOf(basicDocAttribute),
+            md5 = TEST_MD5,
+            fileSize = TEST_FIRE_FILE_SIZE,
+            fileSystem = FIRE
+        )
     val docFileRef = DocFileRef(ObjectId(10, 10))
     val docFileList = DocFileList(TEST_FILE_LIST, listOf(docFileRef))
 
     fun assertExtFile(extFile: ExtFile, file: File) = when (extFile) {
-        is FireFile -> TODO()
+        is FireFile -> assertFireFile(extFile)
         is NfsFile -> assertNfsFile(extFile, file)
     }
 
@@ -37,10 +52,21 @@ internal object FileTestHelper {
     }
 
     private fun assertNfsFile(nfsFile: NfsFile, file: File) {
+        assertThat(nfsFile).isInstanceOf(NfsFile::class.java)
         assertThat(nfsFile.fileName).isEqualTo(TEST_REL_PATH)
         assertThat(nfsFile.md5).isEqualTo(TEST_MD5)
         assertThat(nfsFile.file).isEqualTo(file)
         assertThat(nfsFile.attributes).hasSize(1)
         assertBasicExtAttribute(nfsFile.attributes.first())
+    }
+
+    private fun assertFireFile(fireFile: FireFile) {
+        assertThat(fireFile).isInstanceOf(FireFile::class.java)
+        assertThat(fireFile.fileName).isEqualTo(TEST_REL_PATH)
+        assertThat(fireFile.fireId).isEqualTo(TEST_FIRE_FILE_ID)
+        assertThat(fireFile.md5).isEqualTo(TEST_MD5)
+        assertThat(fireFile.size).isEqualTo(TEST_FIRE_FILE_SIZE)
+        assertThat(fireFile.attributes).hasSize(1)
+        assertBasicExtAttribute(fireFile.attributes.first())
     }
 }

@@ -348,12 +348,6 @@ internal class SubmissionMongoQueryServiceTest(
     }
 
     @Test
-    fun `expire non existing`() {
-        val exception = assertThrows<SubmissionNotFoundException> { testInstance.expireSubmission("S-BSST2") }
-        assertThat(exception.message).isEqualTo("The submission 'S-BSST2' was not found")
-    }
-
-    @Test
     fun `get non existing submission`() {
         val exception = assertThrows<SubmissionNotFoundException> { testInstance.getExtByAccNo("S-BSST3") }
         assertThat(exception.message).isEqualTo("The submission 'S-BSST3' was not found")
