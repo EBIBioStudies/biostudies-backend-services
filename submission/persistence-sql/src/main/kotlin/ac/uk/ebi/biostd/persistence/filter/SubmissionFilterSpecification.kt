@@ -71,7 +71,7 @@ class SubmissionFilterSpecification(filter: SubmissionFilter, email: String? = n
                 .select(attr)
                 .where(
                     cb.equal(attr.get<DbSection>(SECTION), root.get<DbSection>(SUB_ROOT_SECTION)),
-                    cb.equal(attr.get<String>(NAME), "Title"),
+                    cb.like(attr.get(NAME), SUB_TITLE),
                     cb.like(attr.get(VALUE), "%${title.toLowerCase()}%")
                 )
             cb.exists(subQuery)
