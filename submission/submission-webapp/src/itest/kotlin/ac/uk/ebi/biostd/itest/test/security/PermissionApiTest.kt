@@ -15,10 +15,11 @@ import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
-import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -56,14 +57,16 @@ internal class PermissionApiTest(tempFolder: TemporaryFolder) : BaseIntegrationT
             superWebClient = getWebClient(serverPort, SuperUser)
             regularWebClient = getWebClient(serverPort, RegularUser)
 
-            userDataRepository.save(dbUser)
             accessTagRepository.save(dbAccessTag)
+        }
+
+        @BeforeEach
+        fun beforeEach() {
+            userDataRepository.save(dbUser)
         }
 
         @Test
         fun `give permission to a user by superUser`() {
-            accessPermissionRepository.deleteAll()
-
             superWebClient.givePermissionToUser(dbUser.email, dbAccessTag.name, "READ")
 
             val permissions = accessPermissionRepository.findAll()
@@ -75,26 +78,23 @@ internal class PermissionApiTest(tempFolder: TemporaryFolder) : BaseIntegrationT
 
         @Test
         fun `trying to give permission to a user by regularUser`() {
-
-            assertThatExceptionOfType(WebClientException::class.java).isThrownBy {
+            assertThrows<WebClientException> {
                 regularWebClient.givePermissionToUser(dbUser.email, dbAccessTag.name, "READ")
             }
         }
 
         @Test
         fun `trying to give permission to non-existent user`() {
-
-            assertThatExceptionOfType(WebClientException::class.java).isThrownBy {
+            assertThrows<WebClientException>("The user $fakeUser does not exist") {
                 superWebClient.givePermissionToUser(fakeUser, dbAccessTag.name, "READ")
-            }.withMessageContaining("The user $fakeUser does not exist")
+            }
         }
 
         @Test
         fun `trying to give permission to a user but non-existent accessTag`() {
-
-            assertThatExceptionOfType(WebClientException::class.java).isThrownBy {
+            assertThrows<WebClientException>("The accessTag $fakeAccessTag does not exist") {
                 superWebClient.givePermissionToUser(dbUser.email, fakeAccessTag, "READ")
-            }.withMessageContaining("The accessTag $fakeAccessTag does not exist")
+            }
         }
     }
 

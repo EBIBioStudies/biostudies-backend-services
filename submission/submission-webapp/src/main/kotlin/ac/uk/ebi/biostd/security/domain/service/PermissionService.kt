@@ -10,29 +10,24 @@ import ac.uk.ebi.biostd.security.domain.exception.PermissionsUserDoesNotExistsEx
 
 class PermissionService(
     private val permissionRepository: AccessPermissionRepository,
-    private val userDataRepository: UserDataRepository,
-    private val accessTagDataRepository: AccessTagDataRepo
+    private val userRepository: UserDataRepository,
+    private val tagRepository: AccessTagDataRepo
 ) {
-    fun givePermissionToUser(accessType: String, email: String, accessTagName: String) {
-        val user = userDataRepository.findByEmail(email)
-        user.orElseThrow { throw PermissionsUserDoesNotExistsException(email) }
-        val accessTag = requireNotNull(accessTagDataRepository.findByName(accessTagName)) {
-            throw PermissionsAccessTagDoesNotExistsException(accessTagName)
-        }
+    fun givePermissionToUser(accessType: AccessType, email: String, tag: String) {
+        val user = userRepository.findByEmail(email).orElseThrow { throw PermissionsUserDoesNotExistsException(email) }
+        val accessTag = tagRepository.findByName(tag) ?: throw PermissionsAccessTagDoesNotExistsException(tag)
 
-        if (permissionExists(accessType, email, accessTagName).not()) {
+        if (permissionExists(accessType, email, tag).not()) {
             permissionRepository.save(
-                DbAccessPermission(accessType = toAccessType(accessType), user = user.get(), accessTag = accessTag)
+                DbAccessPermission(accessType = accessType, user = user, accessTag = accessTag)
             )
         }
     }
 
-    private fun permissionExists(accessType: String, email: String, accessTagName: String): Boolean =
+    private fun permissionExists(accessType: AccessType, email: String, accessTagName: String): Boolean =
         permissionRepository.existsByUserEmailAndAccessTypeAndAccessTagName(
             email,
-            toAccessType(accessType),
+            accessType,
             accessTagName
         )
-
-    private fun toAccessType(accessType: String): AccessType = AccessType.valueOf(accessType.toUpperCase())
 }

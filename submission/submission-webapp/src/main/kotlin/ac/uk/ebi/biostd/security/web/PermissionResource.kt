@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.security.web
 
+import ac.uk.ebi.biostd.persistence.common.model.AccessType
 import ac.uk.ebi.biostd.security.domain.service.PermissionService
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.PutMapping
@@ -17,6 +18,6 @@ class PermissionResource(private val permissionsService: PermissionService) {
 
 data class PermissionRequest(
     val userEmail: String,
-    val accessType: String,
+    val accessType: AccessType,
     val accessTagName: String
 )

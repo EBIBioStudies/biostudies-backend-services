@@ -11,9 +11,9 @@ import uk.ac.ebi.biostd.client.cli.common.GrantPermissionParameters.ACCESS_TAG_N
 import uk.ac.ebi.biostd.client.cli.common.GrantPermissionParameters.ACCESS_TYPE
 import uk.ac.ebi.biostd.client.cli.common.GrantPermissionParameters.TARGET_USER
 import uk.ac.ebi.biostd.client.cli.dto.PermissionRequest
-import uk.ac.ebi.biostd.client.cli.services.SubmissionService
+import uk.ac.ebi.biostd.client.cli.services.SecurityService
 
-internal class GrantPermissionCommand(private val submissionService: SubmissionService) :
+internal class GrantPermissionCommand(private val securityService: SecurityService) :
     CliktCommand(name = "permission") {
 
     private val server by option("-s", "--server", help = SERVER_HELP).required()
@@ -27,8 +27,8 @@ internal class GrantPermissionCommand(private val submissionService: SubmissionS
     override fun run() {
         val request = permissionRequest()
 
-        submissionService.grantPermission(request)
-        echo("SUCCESS: The user $targetUser has permission to $accessType in the collection $accessTagName")
+        securityService.grantPermission(request)
+        echo("The user $targetUser has been granted permission to $accessType in the collection $accessTagName")
     }
 
     private fun permissionRequest() = PermissionRequest(
