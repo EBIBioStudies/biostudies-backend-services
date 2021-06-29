@@ -29,7 +29,7 @@ include("submission:submission-handlers")
 include("submission:submission-config")
 
 include("submission:persistence-common-api")
-include("submission:persistence-common")
+include("submission:persistence-filesystem")
 include("submission:persistence-sql")
 include("submission:persistence-mongo")
 

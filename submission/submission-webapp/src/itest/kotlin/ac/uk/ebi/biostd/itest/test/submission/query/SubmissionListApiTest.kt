@@ -16,6 +16,7 @@ import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -25,6 +26,7 @@ import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
+import java.net.URLEncoder.encode
 
 @ExtendWith(TemporaryFolderExtension::class)
 internal class SubmissionListApiTest(private val tempFolder: TemporaryFolder) : BaseIntegrationTest(tempFolder) {
@@ -57,6 +59,7 @@ internal class SubmissionListApiTest(private val tempFolder: TemporaryFolder) : 
         }
 
         @Test
+        @Disabled("If submission is processed fast enough test wil fail. Needs re desing.")
         fun `get submission when processing`() {
             val newVersion = getSimpleSubmission(18)
             webClient.submitAsync(newVersion, TSV)
@@ -151,13 +154,14 @@ internal class SubmissionListApiTest(private val tempFolder: TemporaryFolder) : 
         }
 
         @Test
-        fun `submission with section title`() {
+        fun `get submissions with submission title`() {
             val submission = tsv {
                 line("Submission", "SECT-123")
+                line("Title", "Submission subTitle")
                 line()
 
                 line("Study")
-                line("Title", "Submission With Section Title")
+                line("Title", "Submission With Section")
                 line()
             }.toString()
 
@@ -165,7 +169,7 @@ internal class SubmissionListApiTest(private val tempFolder: TemporaryFolder) : 
 
             val submissionList = webClient.getSubmissions(
                 mapOf(
-                    "accNo" to "SECT-123"
+                    "keywords" to "subTitle"
                 )
             )
 
@@ -173,20 +177,43 @@ internal class SubmissionListApiTest(private val tempFolder: TemporaryFolder) : 
                 assertThat(it.accno).isEqualTo("SECT-123")
                 assertThat(it.version).isEqualTo(1)
                 assertThat(it.method).isEqualTo(PAGE_TAB)
-                assertThat(it.title).isEqualTo("Submission With Section Title")
+                assertThat(it.title).isEqualTo("Submission subTitle")
                 assertThat(it.status).isEqualTo("PROCESSED")
             }
         }
 
         @Test
-        fun `submission with both titles`() {
+        fun `get submissions with section title`() {
             val submission = tsv {
                 line("Submission", "SECT-124")
-                line("Title", "Submission Title")
                 line()
 
                 line("Study")
-                line("Title", "Section Title")
+                line("Title", "Section secTitle")
+                line()
+            }.toString()
+
+            assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
+
+            val submissionTitleList = webClient.getSubmissions(mapOf("keywords" to "secTitle"))
+            assertThat(submissionTitleList).hasOnlyOneElementSatisfying {
+                assertThat(it.accno).isEqualTo("SECT-124")
+                assertThat(it.version).isEqualTo(1)
+                assertThat(it.method).isEqualTo(PAGE_TAB)
+                assertThat(it.title).isEqualTo("Section secTitle")
+                assertThat(it.status).isEqualTo("PROCESSED")
+            }
+        }
+
+        @Test
+        fun `submission with spaces`() {
+            val submission = tsv {
+                line("Submission", "SECT-125")
+                line("Title", "the Submission title")
+                line()
+
+                line("Study")
+                line("Title", "the Submission title")
                 line()
             }.toString()
 
@@ -194,15 +221,15 @@ internal class SubmissionListApiTest(private val tempFolder: TemporaryFolder) : 
 
             val submissionList = webClient.getSubmissions(
                 mapOf(
-                    "accNo" to "SECT-124"
+                    "keywords" to encode("n title", "UTF-8")
                 )
             )
 
             assertThat(submissionList).hasOnlyOneElementSatisfying {
-                assertThat(it.accno).isEqualTo("SECT-124")
+                assertThat(it.accno).isEqualTo("SECT-125")
                 assertThat(it.version).isEqualTo(1)
                 assertThat(it.method).isEqualTo(PAGE_TAB)
-                assertThat(it.title).isEqualTo("Submission Title")
+                assertThat(it.title).isEqualTo("the Submission title")
                 assertThat(it.status).isEqualTo("PROCESSED")
             }
         }

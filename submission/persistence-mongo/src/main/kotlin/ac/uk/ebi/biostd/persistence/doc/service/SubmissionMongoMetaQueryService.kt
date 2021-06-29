@@ -6,8 +6,8 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.asBasicSubmission
-import ac.uk.ebi.biostd.persistence.exception.CollectionNotFoundException
-import ac.uk.ebi.biostd.persistence.exception.CollectionWithoutPatternException
+import ac.uk.ebi.biostd.persistence.common.exception.CollectionNotFoundException
+import ac.uk.ebi.biostd.persistence.common.exception.CollectionWithoutPatternException
 import ebi.ac.uk.model.constants.SubFields
 import ebi.ac.uk.model.constants.SubFields.ACC_NO_TEMPLATE
 import ebi.ac.uk.model.constants.SubFields.COLLECTION_VALIDATOR

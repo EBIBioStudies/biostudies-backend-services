@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.submission.validator.collection
 
 import ac.uk.ebi.biostd.common.properties.ValidatorProperties
-import ac.uk.ebi.biostd.persistence.exception.CollectionValidationException
+import ac.uk.ebi.biostd.persistence.common.exception.CollectionValidationException
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.extended.model.allFiles

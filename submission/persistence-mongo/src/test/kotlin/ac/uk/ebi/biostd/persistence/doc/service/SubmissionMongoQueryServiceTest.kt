@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.persistence.doc.service
 
+import ac.uk.ebi.biostd.persistence.common.exception.SubmissionNotFoundException
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
@@ -17,7 +18,6 @@ import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.rootSection
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.rootSectionAttribute as attribute
 import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocSection as docSection
 import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocSubmission as docSubmission
-import ac.uk.ebi.biostd.persistence.exception.SubmissionNotFoundException
 import com.mongodb.BasicDBObject
 import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
 import ebi.ac.uk.db.MONGO_VERSION
