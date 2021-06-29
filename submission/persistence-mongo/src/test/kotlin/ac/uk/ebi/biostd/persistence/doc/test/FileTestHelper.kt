@@ -27,11 +27,10 @@ private const val SIZE = 30L
 
 internal object FileTestHelper {
     val nfsDocFile =
-        NfsDocFile(TEST_REL_PATH, TEST_FULL_PATH, listOf(basicDocAttribute), TEST_MD5, FILE_TYPE, SIZE, NFS)
+        NfsDocFile(TEST_REL_PATH, TEST_FULL_PATH, FILE_TYPE, listOf(basicDocAttribute), TEST_MD5, SIZE, NFS)
     val fireDocFile =
         FireDocFile(
             relPath = TEST_REL_PATH,
-            fullPath = TEST_FULL_PATH,
             fireId = TEST_FIRE_FILE_ID,
             attributes = listOf(basicDocAttribute),
             md5 = TEST_MD5,

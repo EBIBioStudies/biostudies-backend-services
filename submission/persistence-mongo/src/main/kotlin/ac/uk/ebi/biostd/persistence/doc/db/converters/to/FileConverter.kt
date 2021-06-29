@@ -9,7 +9,6 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.NF
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.FIRE_DOC_FILE_CLASS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.FIRE_FILE_DOC_ATTRIBUTES
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.FIRE_FILE_DOC_FILE_SYSTEM
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.FIRE_FILE_DOC_FULL_PATH
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.FIRE_FILE_DOC_ID
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.FIRE_FILE_DOC_MD5
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.FIRE_FILE_DOC_REL_PATH
@@ -29,7 +28,6 @@ class FileConverter(private val attributeConverter: AttributeConverter) : Conver
             is FireDocFile -> {
                 file[classField] = FIRE_DOC_FILE_CLASS
                 file[FIRE_FILE_DOC_REL_PATH] = docFile.relPath
-                file[FIRE_FILE_DOC_FULL_PATH] = docFile.fullPath
                 file[FIRE_FILE_DOC_ID] = docFile.fireId
                 file[FIRE_FILE_DOC_ATTRIBUTES] = docFile.attributes.map { attributeConverter.convert(it) }
                 file[FIRE_FILE_DOC_MD5] = docFile.md5

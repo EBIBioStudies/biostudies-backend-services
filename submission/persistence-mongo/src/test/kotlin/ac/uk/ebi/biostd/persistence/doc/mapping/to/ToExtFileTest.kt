@@ -23,7 +23,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 class ToExtFileTest(temporaryFolder: TemporaryFolder) {
     private val testFile = temporaryFolder.createFile(TEST_REL_PATH)
     private val testNfsDocFile = nfsDocFile.copy(fullPath = testFile.absolutePath)
-    private val testFireDocFile = fireDocFile.copy(fullPath = testFile.absolutePath)
+    private val testFireDocFile = fireDocFile
 
     @Test
     fun `nfsDocFile to ext file`() {

@@ -6,7 +6,6 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.FI
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.FILE_DOC_REL_PATH
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.FIRE_FILE_DOC_ATTRIBUTES
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.FIRE_FILE_DOC_FILE_SYSTEM
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.FIRE_FILE_DOC_FULL_PATH
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.FIRE_FILE_DOC_ID
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.FIRE_FILE_DOC_MD5
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.FIRE_FILE_DOC_REL_PATH
@@ -38,7 +37,15 @@ internal class FileConverterTest(
     fun `converter from nfsDocFile`() {
         every { attributeConverter.convert(docAttribute) } returns document
         val file =
-            NfsDocFile(FILE_DOC_REL_PATH, FILE_DOC_FULL_PATH, listOf(docAttribute), FILE_DOC_MD5, "file", 10L, NFS)
+            NfsDocFile(
+                relPath = FILE_DOC_REL_PATH,
+                fullPath = FILE_DOC_FULL_PATH,
+                fileType = "file",
+                attributes = listOf(docAttribute),
+                md5 = FILE_DOC_MD5,
+                fileSize = 10L,
+                fileSystem = NFS
+            )
         val result = testInstance.convert(file)
 
         assertThat(result[FILE_DOC_MD5]).isEqualTo("md5")
@@ -54,7 +61,6 @@ internal class FileConverterTest(
         every { attributeConverter.convert(docAttribute) } returns document
         val file = FireDocFile(
             relPath = FIRE_FILE_DOC_REL_PATH,
-            fullPath = FIRE_FILE_DOC_FULL_PATH,
             fireId = FIRE_FILE_DOC_ID,
             attributes = listOf(docAttribute),
             md5 = FILE_DOC_MD5,
@@ -65,7 +71,6 @@ internal class FileConverterTest(
         val result = testInstance.convert(file)
 
         assertThat(result[FIRE_FILE_DOC_REL_PATH]).isEqualTo("relPath")
-        assertThat(result[FIRE_FILE_DOC_FULL_PATH]).isEqualTo("fullPath")
         assertThat(result[FIRE_FILE_DOC_ID]).isEqualTo("fireId")
         assertThat(result[FIRE_FILE_DOC_ATTRIBUTES]).isEqualTo(listOf(document))
         assertThat(result[FIRE_FILE_DOC_MD5]).isEqualTo("md5")

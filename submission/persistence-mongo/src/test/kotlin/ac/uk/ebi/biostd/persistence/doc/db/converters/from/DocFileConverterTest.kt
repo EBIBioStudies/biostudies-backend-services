@@ -58,7 +58,6 @@ internal class DocFileConverterTest(
 
         require(result is FireDocFile)
         assertThat(result.relPath).isEqualTo("relPath")
-        assertThat(result.fullPath).isEqualTo("fullPath")
         assertThat(result.fireId).isEqualTo("fireId")
         assertThat(result.attributes).isEqualTo(listOf(docAttribute))
         assertThat(result.md5).isEqualTo("md5")

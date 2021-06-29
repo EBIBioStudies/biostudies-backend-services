@@ -79,29 +79,33 @@ data class DocCollection(val accNo: String)
 data class DocAttributeDetail(val name: String, val value: String)
 data class DocLink(val url: String, val attributes: List<DocAttribute> = listOf())
 
-sealed class DocFile
+sealed class DocFile(
+    open val attributes: List<DocAttribute>,
+    open val md5: String,
+    open val fileSize: Long,
+    open val fileSystem: FileSystem
+)
 
 // TODO fullPath should be changed to "location" since it's more generic
 // TODO fileSystem is not being persisted in the database
 data class NfsDocFile(
     val relPath: String,
     val fullPath: String,
-    val attributes: List<DocAttribute> = listOf(),
-    val md5: String,
     val fileType: String,
-    val fileSize: Long,
-    val fileSystem: FileSystem
-) : DocFile()
+    override var attributes: List<DocAttribute>,
+    override val md5: String,
+    override val fileSize: Long,
+    override val fileSystem: FileSystem
+) : DocFile(attributes, md5, fileSize, fileSystem)
 
 data class FireDocFile(
     val relPath: String,
-    val fullPath: String,
     val fireId: String,
-    val attributes: List<DocAttribute>,
-    val md5: String,
-    val fileSize: Long,
-    val fileSystem: FileSystem
-) : DocFile()
+    override val attributes: List<DocAttribute>,
+    override val md5: String,
+    override val fileSize: Long,
+    override val fileSystem: FileSystem
+) : DocFile(attributes, md5, fileSize, fileSystem)
 
 data class DocFileList(
     val fileName: String,

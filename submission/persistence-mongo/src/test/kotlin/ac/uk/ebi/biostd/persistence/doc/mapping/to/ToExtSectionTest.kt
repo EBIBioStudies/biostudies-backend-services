@@ -17,7 +17,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 class ToExtSectionTest(temporaryFolder: TemporaryFolder) {
     private val testFile = temporaryFolder.createFile(TEST_REL_PATH)
     private val testNfsDocFile = nfsDocFile.copy(fullPath = testFile.absolutePath)
-    private val testFireDocFile = fireDocFile.copy(fullPath = testFile.absolutePath)
+    private val testFireDocFile = fireDocFile
     private val testDocSection = docSection.copy(
         files = listOf(left(testNfsDocFile), left(testFireDocFile)),
         fileList = docFileList.copy(files = listOf(docFileRef))

@@ -2,7 +2,6 @@ package ac.uk.ebi.biostd.persistence.doc.mapping.to
 
 import ac.uk.ebi.biostd.persistence.doc.model.DocFileRef
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
-import ac.uk.ebi.biostd.persistence.doc.test.FileTestHelper
 import ac.uk.ebi.biostd.persistence.doc.test.FileTestHelper.docFileList
 import ac.uk.ebi.biostd.persistence.doc.test.FileTestHelper.fireDocFile
 import ac.uk.ebi.biostd.persistence.doc.test.FileTestHelper.nfsDocFile
@@ -38,7 +37,7 @@ class ToExtSubmissionMapperTest(temporaryFolder: TemporaryFolder) {
     //    TODO use testFireDocFile
     private fun testSubmission(): DocSubmission {
         val testNfsDocFile = nfsDocFile.copy(fullPath = sectionFile.absolutePath)
-        val testFireDocFile = fireDocFile.copy(fullPath = sectionFile.absolutePath)
+        val testFireDocFile = fireDocFile
 
         return docSubmission.copy(
             section = docSection.copy(
