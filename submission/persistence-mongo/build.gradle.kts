@@ -16,7 +16,7 @@ import Projects.CommonsSerialization
 import Projects.CommonsTest
 import Projects.CommonsUtil
 import Projects.SubmissionConfig
-import Projects.SubmissionPersistenceCommon
+import Projects.SubmissionPersistenceFilesystem
 import Projects.SubmissionPersistenceCommonApi
 import SpringBootDependencies.SpringBootStarterMongo
 import SpringBootDependencies.SpringBootStarterTest
@@ -35,32 +35,32 @@ plugins {
 }
 
 dependencies {
-    api(project(CommonsUtil))
     api(project(CommonsBio))
-    api(project(CommonsSerialization))
     api(project(CommonsModelExtended))
     api(project(CommonsModelExtendedMapping))
-    api(project(SubmissionConfig))
     api(project(CommonsModelExtendedSerialization))
+    api(project(CommonsSerialization))
     api(project(CommonsTest))
+    api(project(CommonsUtil))
     api(project(SubmissionConfig))
+    api(project(SubmissionPersistenceFilesystem))
     api(project(SubmissionPersistenceCommonApi))
-    api(project(SubmissionPersistenceCommon))
 
-    implementation(SpringBootStarterMongo)
-    implementation(MongockBom)
-    implementation(MongockSpringV5)
-    implementation(MongockSpringDataV3)
     implementation(Arrow)
-    implementation(Guava)
-    implementation(CommonsLang3)
     implementation(CommonsIO)
-    implementation(KotlinStdLib)
-    implementation(KotlinLogging)
+    implementation(CommonsLang3)
+    implementation(Guava)
     implementation(JSONOrg)
+    implementation(KotlinLogging)
+    implementation(KotlinStdLib)
+    implementation(MongockBom)
+    implementation(MongockSpringDataV3)
+    implementation(MongockSpringV5)
+    implementation(SpringBootStarterMongo)
 
     BaseTestCompileDependencies.forEach { testImplementation(it) }
     BaseTestRuntimeDependencies.forEach { testImplementation(it) }
+
     testImplementation(SpringBootStarterTest) {
         exclude("junit", module = "junit")
     }

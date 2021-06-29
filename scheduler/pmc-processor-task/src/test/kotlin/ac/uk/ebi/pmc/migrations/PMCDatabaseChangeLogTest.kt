@@ -1,12 +1,12 @@
 package ac.uk.ebi.pmc.migrations
 
+import ac.uk.ebi.pmc.config.ERRORS_COL
+import ac.uk.ebi.pmc.config.INPUT_FILES_COL
+import ac.uk.ebi.pmc.config.PersistenceConfig
 import ac.uk.ebi.pmc.config.PersistenceConfig.Companion.createMongockConfig
 import ac.uk.ebi.pmc.config.PropConfig
-import ac.uk.ebi.pmc.config.PersistenceConfig
-import ac.uk.ebi.pmc.config.ERRORS_COL
 import ac.uk.ebi.pmc.config.SUBMISSION_COL
 import ac.uk.ebi.pmc.config.SUB_FILES_COL
-import ac.uk.ebi.pmc.config.INPUT_FILES_COL
 import ac.uk.ebi.pmc.persistence.docs.FileDoc.Fields.FILE_DOC_ACC_NO
 import ac.uk.ebi.pmc.persistence.docs.FileDoc.Fields.FILE_DOC_PATH
 import ac.uk.ebi.pmc.persistence.docs.SubmissionDoc.Fields.SUB_ACC_NO

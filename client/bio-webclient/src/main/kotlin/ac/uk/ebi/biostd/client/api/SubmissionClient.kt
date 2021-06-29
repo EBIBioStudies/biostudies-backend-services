@@ -22,6 +22,7 @@ import org.springframework.web.client.RestTemplate
 import org.springframework.web.client.getForObject
 import org.springframework.web.client.postForEntity
 import org.springframework.web.util.UriComponentsBuilder
+import java.net.URLEncoder
 
 private const val SUBMISSIONS_URL = "/submissions"
 
@@ -60,6 +61,13 @@ internal class SubmissionClient(
         val builder = UriComponentsBuilder.fromUriString(SUBMISSIONS_URL)
         filter.entries.forEach { builder.queryParam(it.key, it.value) }
         return template.getForObject<Array<SubmissionDto>>(builder.toUriString()).toList()
+    }
+
+    private fun encode(value: Any): Any {
+        return when (value) {
+            is String -> URLEncoder.encode(value, "UTF-8")
+            else -> value
+        }
     }
 
     private fun submitSingle(request: HttpEntity<String>, register: RegisterConfig): SubmissionResponse {

@@ -16,8 +16,8 @@ class SubmissionFilterRequest(
     val offset: Long = 0
 )
 
-fun SubmissionFilterRequest.asFilter(): SubmissionFilter {
-    return SubmissionFilter(
+fun SubmissionFilterRequest.asFilter(): SubmissionFilter =
+    SubmissionFilter(
         accNo = accNo,
         version = version,
         type = type,
@@ -28,4 +28,3 @@ fun SubmissionFilterRequest.asFilter(): SubmissionFilter {
         limit = limit,
         offset = offset
     )
-}
