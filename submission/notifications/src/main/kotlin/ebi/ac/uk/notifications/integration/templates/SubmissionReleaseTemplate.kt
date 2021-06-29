@@ -21,5 +21,6 @@ internal class SubmissionReleaseModel(
         "TITLE" to title,
         "MAIL_TO" to mailto,
         "UI_URL" to uiUrl,
-        "RELEASE_DATE" to releaseDate)
+        "RELEASE_DATE" to releaseDate
+    )
 }

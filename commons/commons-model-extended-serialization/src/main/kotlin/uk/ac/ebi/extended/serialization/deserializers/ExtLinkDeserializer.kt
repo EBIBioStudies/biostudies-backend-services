@@ -20,6 +20,7 @@ class ExtLinkDeserializer : JsonDeserializer<ExtLink>() {
 
         return ExtLink(
             url = node.getNode<TextNode>(URL).textValue(),
-            attributes = mapper.convertList(node.findNode(ATTRIBUTES)))
+            attributes = mapper.convertList(node.findNode(ATTRIBUTES))
+        )
     }
 }

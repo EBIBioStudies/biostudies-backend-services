@@ -70,6 +70,7 @@ open class StatsSqlDataService(
     ): DbSubmissionStat = when (val statDb = statsRepository.findByAccNoAndType(stat.accNo, stat.type)) {
         null -> DbSubmissionStat(stat.accNo, stat.value, stat.type)
         else -> DbSubmissionStat(
-            statDb.accNo, updatedValue(statDb.value, stat.value), statDb.type).apply { id = statDb.id }
+            statDb.accNo, updatedValue(statDb.value, stat.value), statDb.type
+        ).apply { id = statDb.id }
     }
 }

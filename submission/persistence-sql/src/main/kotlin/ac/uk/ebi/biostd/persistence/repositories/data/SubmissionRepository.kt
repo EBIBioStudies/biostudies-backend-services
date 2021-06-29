@@ -3,7 +3,7 @@ package ac.uk.ebi.biostd.persistence.repositories.data
 import ac.uk.ebi.biostd.persistence.common.model.BasicSubmission
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
-import ac.uk.ebi.biostd.persistence.exception.SubmissionNotFoundException
+import ac.uk.ebi.biostd.persistence.common.exception.SubmissionNotFoundException
 import ac.uk.ebi.biostd.persistence.filter.SubmissionFilterSpecification
 import ac.uk.ebi.biostd.persistence.mapping.extended.to.DbToExtRequest
 import ac.uk.ebi.biostd.persistence.mapping.extended.to.ToExtSubmissionMapper
@@ -49,13 +49,9 @@ internal open class SubmissionRepository(
     override fun getExtByAccNoAndVersion(accNo: String, version: Int) =
         submissionMapper.toExtSubmission(loadSubmissionAndStatus(accNo, version))
 
-    override fun expireSubmission(accNo: String) {
-        val submission = submissionRepository.findByAccNoAndVersionGreaterThan(accNo)
-        if (submission != null) {
-            submission.version = -submission.version
-            submission.modificationTime = OffsetDateTime.now()
-            submissionRepository.save(submission)
-        }
+    @Transactional
+    override fun expireSubmissions(accNumbers: List<String>) {
+        submissionRepository.deleteSubmissions(accNumbers, OffsetDateTime.now())
     }
 
     @Transactional(readOnly = true)

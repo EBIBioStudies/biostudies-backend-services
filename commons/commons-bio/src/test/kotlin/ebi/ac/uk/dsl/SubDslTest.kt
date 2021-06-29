@@ -26,7 +26,8 @@ class SubDslTest {
         assertThat(submission.attributes).hasSize(1)
         assertThat(submission.attributes.first()).isEqualTo(Attribute("AttrName", "Attr Value 1"))
         assertThat(submission.section).isEqualTo(
-            Section("Study", attributes = listOf(Attribute("SectAttr", "Sect Attr 1"))))
+            Section("Study", attributes = listOf(Attribute("SectAttr", "Sect Attr 1")))
+        )
     }
 
     @Test
@@ -37,17 +38,24 @@ class SubDslTest {
                 name = "SectAttr",
                 value = "Sect Attr 1",
                 nameAttrs = mutableListOf(AttributeDetail("NameAttr", "Name Attr 1")),
-                valueAttrs = mutableListOf(AttributeDetail("ValueAttr", "Value Attr 1")))
+                valueAttrs = mutableListOf(AttributeDetail("ValueAttr", "Value Attr 1"))
+            )
         }
 
-        assertThat(section).isEqualTo(Section(
-            type = "Study",
-            accNo = "SECT-001",
-            attributes = listOf(Attribute(
-                name = "SectAttr",
-                value = "Sect Attr 1",
-                nameAttrs = mutableListOf(AttributeDetail("NameAttr", "Name Attr 1")),
-                valueAttrs = mutableListOf(AttributeDetail("ValueAttr", "Value Attr 1"))))))
+        assertThat(section).isEqualTo(
+            Section(
+                type = "Study",
+                accNo = "SECT-001",
+                attributes = listOf(
+                    Attribute(
+                        name = "SectAttr",
+                        value = "Sect Attr 1",
+                        nameAttrs = mutableListOf(AttributeDetail("NameAttr", "Name Attr 1")),
+                        valueAttrs = mutableListOf(AttributeDetail("ValueAttr", "Value Attr 1"))
+                    )
+                )
+            )
+        )
     }
 
     @Test
@@ -59,10 +67,13 @@ class SubDslTest {
             }
         }
 
-        assertThat(section).isEqualTo(Section(
-            "Study",
-            "SECT-001",
-            sections = mutableListOf(Either.Right(SectionsTable(listOf(Section("Data", "DT-1")))))))
+        assertThat(section).isEqualTo(
+            Section(
+                "Study",
+                "SECT-001",
+                sections = mutableListOf(Either.Right(SectionsTable(listOf(Section("Data", "DT-1")))))
+            )
+        )
     }
 
     @Test
@@ -74,7 +85,8 @@ class SubDslTest {
         val expectedSection = Section(
             "Study",
             "SECT-001",
-            sections = mutableListOf(Either.Left(Section("Data", "DT-1", parentAccNo = "SECT-001"))))
+            sections = mutableListOf(Either.Left(Section("Data", "DT-1", parentAccNo = "SECT-001")))
+        )
 
         assertThat(section).isEqualTo(expectedSection)
     }
@@ -93,8 +105,11 @@ class SubDslTest {
             }
         }
 
-        assertThat(section).isEqualTo(Section(
-            "Study", files = mutableListOf(Either.Right(FilesTable(listOf(File("File1.txt")))))))
+        assertThat(section).isEqualTo(
+            Section(
+                "Study", files = mutableListOf(Either.Right(FilesTable(listOf(File("File1.txt")))))
+            )
+        )
     }
 
     @Test
@@ -111,8 +126,11 @@ class SubDslTest {
             }
         }
 
-        assertThat(section).isEqualTo(Section(
-            "Study", links = mutableListOf(Either.Right(LinksTable(listOf(Link("http://importantsite.net")))))))
+        assertThat(section).isEqualTo(
+            Section(
+                "Study", links = mutableListOf(Either.Right(LinksTable(listOf(Link("http://importantsite.net")))))
+            )
+        )
     }
 
     @Test

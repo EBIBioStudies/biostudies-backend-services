@@ -79,7 +79,8 @@ class SubmissionConfig(
             serializationService,
             userFilesService,
             securityQueryService,
-            folderResolver)
+            folderResolver
+        )
 
     @Bean
     fun submissionHandler(submissionService: SubmissionService): SubmissionsWebHandler =

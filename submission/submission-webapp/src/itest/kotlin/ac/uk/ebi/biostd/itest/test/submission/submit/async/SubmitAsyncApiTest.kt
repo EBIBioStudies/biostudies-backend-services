@@ -84,10 +84,12 @@ internal class SubmitAsyncApiTest(tempFolder: TemporaryFolder) : BaseIntegration
 
             assertThat(result).isNotNull()
             assertThat(result).isEqualToIgnoringWhitespace(submissionTSV)
-            assertThat(submissionRepository.getSimpleByAccNo("S-TEST22")).isEqualTo(submission("S-TEST22") {
-                title = "Test title"
-                releaseDate = "2000-01-31"
-            })
+            assertThat(submissionRepository.getSimpleByAccNo("S-TEST22")).isEqualTo(
+                submission("S-TEST22") {
+                    title = "Test title"
+                    releaseDate = "2000-01-31"
+                }
+            )
         }
 
         private fun createQueue(queueName: String, exchangeName: String, routingKey: String) {

@@ -36,28 +36,37 @@ internal class PmcLoaderService private constructor(
 
     fun loadFile(file: String?): Job {
         val job = pmcLoaderService.loadFile(file)
-        notificationsSender.send(Report(
-            SYSTEM_NAME,
-            LOADER_SUBSYSTEM,
-            "Triggered PMC loader $file, cluster job: $job, logs will be available at ${job.logsPath}"))
+        notificationsSender.send(
+            Report(
+                SYSTEM_NAME,
+                LOADER_SUBSYSTEM,
+                "Triggered PMC loader $file, cluster job: $job, logs will be available at ${job.logsPath}"
+            )
+        )
         return job
     }
 
     fun triggerProcessor(): Job {
         val job = pmcLoaderService.triggerProcessor()
-        notificationsSender.send(Report(
-            SYSTEM_NAME,
-            PROCESSOR_SUBSYSTEM,
-            "Triggered PMC processor, cluster job: $job, logs will be available at ${job.logsPath}"))
+        notificationsSender.send(
+            Report(
+                SYSTEM_NAME,
+                PROCESSOR_SUBSYSTEM,
+                "Triggered PMC processor, cluster job: $job, logs will be available at ${job.logsPath}"
+            )
+        )
         return job
     }
 
     fun triggerSubmitter(): Job {
         val job = pmcLoaderService.triggerSubmitter()
-        notificationsSender.send(Report(
-            SYSTEM_NAME,
-            SUBMITTER_SUBSYSTEM,
-            "Triggered PMC submitter, cluster job: $job, logs will be available at ${job.logsPath}"))
+        notificationsSender.send(
+            Report(
+                SYSTEM_NAME,
+                SUBMITTER_SUBSYSTEM,
+                "Triggered PMC submitter, cluster job: $job, logs will be available at ${job.logsPath}"
+            )
+        )
         return job
     }
 }
@@ -80,7 +89,9 @@ private class PmcLoader(
             JobSpec(
                 FOUR_CORES,
                 MemorySpec.EIGHT_GB,
-                properties.asJavaCommand(appProperties.appsFolder)))
+                properties.asJavaCommand(appProperties.appsFolder)
+            )
+        )
         return jobTry.fold({ throw it }, { it.apply { logger.info { "submitted job $it" } } })
     }
 
@@ -91,7 +102,9 @@ private class PmcLoader(
             JobSpec(
                 FOUR_CORES,
                 MemorySpec.EIGHT_GB,
-                properties.asJavaCommand(appProperties.appsFolder)))
+                properties.asJavaCommand(appProperties.appsFolder)
+            )
+        )
         return jobTry.fold({ throw it }, { it.apply { logger.info { "submitted job $it" } } })
     }
 
@@ -102,7 +115,9 @@ private class PmcLoader(
             JobSpec(
                 EIGHT_CORES,
                 MemorySpec.TWENTYFOUR_GB,
-                properties.asJavaCommand(appProperties.appsFolder)))
+                properties.asJavaCommand(appProperties.appsFolder)
+            )
+        )
         return jobTry.fold({ throw it }, { it.apply { logger.info { "submitted job $it" } } })
     }
 
@@ -117,5 +132,6 @@ private class PmcLoader(
             pmcBaseUrl = "http://www.ft-loading.europepmc.org",
             bioStudiesUser = properties.bioStudiesUser,
             bioStudiesPassword = properties.bioStudiesPassword,
-            bioStudiesUrl = properties.bioStudiesUrl)
+            bioStudiesUrl = properties.bioStudiesUrl
+        )
 }

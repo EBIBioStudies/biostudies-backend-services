@@ -1,5 +1,6 @@
 import Dependencies.Arrow
 import Dependencies.CommonsIO
+import Dependencies.KotlinReflect
 import Dependencies.KotlinStdLib
 import Dependencies.SpringWeb
 import TestDependencies.AssertJ
@@ -15,6 +16,7 @@ dependencies {
     implementation(CommonsIO)
     implementation(JunitExtensions)
     implementation(KotlinStdLib)
+    implementation(KotlinReflect)
     implementation(SpringWeb)
     implementation(Awaitility)
 }

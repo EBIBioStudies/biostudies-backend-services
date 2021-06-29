@@ -40,7 +40,8 @@ class MultipartSubmitResource(
 ) {
     @PostMapping(
         headers = ["$CONTENT_TYPE=$MULTIPART_FORM_DATA", "$SUBMISSION_TYPE=$APPLICATION_JSON_VALUE"],
-        produces = [APPLICATION_JSON_VALUE])
+        produces = [APPLICATION_JSON_VALUE]
+    )
     @ResponseBody
     fun submitMultipartJson(
         @BioUser user: SecurityUser,
@@ -58,14 +59,16 @@ class MultipartSubmitResource(
             format = JSON,
             fileMode = mode,
             attrs = attributes.orEmpty(),
-            files = tempFiles)
+            files = tempFiles
+        )
 
         return submitWebHandler.submit(contentWebRequest)
     }
 
     @PostMapping(
         headers = ["$CONTENT_TYPE=$MULTIPART_FORM_DATA", "$SUBMISSION_TYPE=$TEXT_XML"],
-        produces = [APPLICATION_JSON_VALUE])
+        produces = [APPLICATION_JSON_VALUE]
+    )
     @ResponseBody
     fun submitMultipartXml(
         @BioUser user: SecurityUser,
@@ -83,14 +86,16 @@ class MultipartSubmitResource(
             format = XML,
             fileMode = mode,
             attrs = attributes.orEmpty(),
-            files = tempFiles)
+            files = tempFiles
+        )
 
         return submitWebHandler.submit(contentWebRequest)
     }
 
     @PostMapping(
         headers = ["$CONTENT_TYPE=$MULTIPART_FORM_DATA", "$SUBMISSION_TYPE=$TEXT_PLAIN"],
-        produces = [APPLICATION_JSON_VALUE])
+        produces = [APPLICATION_JSON_VALUE]
+    )
     @ResponseBody
     fun submitMultipartTsv(
         @BioUser user: SecurityUser,
@@ -108,7 +113,8 @@ class MultipartSubmitResource(
             format = TSV,
             fileMode = mode,
             attrs = attributes.orEmpty(),
-            files = tempFiles)
+            files = tempFiles
+        )
 
         return submitWebHandler.submit(contentWebRequest)
     }
@@ -116,7 +122,8 @@ class MultipartSubmitResource(
     @PostMapping(
         value = ["/direct"],
         headers = ["$CONTENT_TYPE=$MULTIPART_FORM_DATA"],
-        produces = [APPLICATION_JSON_VALUE])
+        produces = [APPLICATION_JSON_VALUE]
+    )
     @ResponseBody
     fun submitFile(
         @BioUser user: SecurityUser,
@@ -135,7 +142,8 @@ class MultipartSubmitResource(
             format = TSV,
             fileMode = mode,
             attrs = attributes,
-            files = tempFiles)
+            files = tempFiles
+        )
 
         return submitWebHandler.submit(contentWebRequest)
     }

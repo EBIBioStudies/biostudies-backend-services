@@ -45,10 +45,13 @@ class SubmissionReleaserTrigger(
 
     private fun triggerJob(mode: ReleaserMode): Job {
         val job = submissionReleaserJob(mode)
-        notificationsSender.send(Report(
-            SYSTEM_NAME,
-            RELEASER_SUBSYSTEM,
-            "Triggered $RELEASER_SUBSYSTEM in mode $mode in the cluster job $job. Logs available at ${job.logsPath}"))
+        notificationsSender.send(
+            Report(
+                SYSTEM_NAME,
+                RELEASER_SUBSYSTEM,
+                "Triggered $RELEASER_SUBSYSTEM in mode $mode in the cluster job $job. Logs available at ${job.logsPath}"
+            )
+        )
 
         return job
     }
@@ -59,7 +62,9 @@ class SubmissionReleaserTrigger(
             JobSpec(
                 cores = RELEASER_CORES,
                 ram = EIGHT_GB,
-                command = releaserProperties.asJavaCommand(appProperties.appsFolder)))
+                command = releaserProperties.asJavaCommand(appProperties.appsFolder)
+            )
+        )
 
         return jobTry.fold({ throw it }, { it.apply { logger.info { "submitted job $it" } } })
     }
@@ -76,5 +81,6 @@ class SubmissionReleaserTrigger(
             properties.bioStudies.password,
             properties.notificationTimes.firstWarningDays,
             properties.notificationTimes.secondWarningDays,
-            properties.notificationTimes.thirdWarningDays)
+            properties.notificationTimes.thirdWarningDays
+        )
 }

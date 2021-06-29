@@ -5,6 +5,7 @@ import ac.uk.ebi.biostd.persistence.doc.commons.ExtendedUpdate
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_TYPE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ID
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_MODIFICATION_TIME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_OWNER
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_RELEASED
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_RELEASE_TIME
@@ -30,10 +31,12 @@ import org.springframework.data.mongodb.core.aggregation.Aggregation.newAggregat
 import org.springframework.data.mongodb.core.aggregation.Aggregation.replaceRoot
 import org.springframework.data.mongodb.core.aggregation.Aggregation.skip
 import org.springframework.data.mongodb.core.aggregation.Aggregation.sort
+import org.springframework.data.mongodb.core.aggregation.AggregationOptions
 import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Criteria.where
 import org.springframework.data.mongodb.core.query.Query
 import org.springframework.data.mongodb.core.query.Update.update
+import java.time.Instant
 
 private const val SUB_ALIAS = "submission"
 
@@ -74,7 +77,8 @@ class SubmissionDocDataRepository(
     fun expireActiveProcessedVersions(accNo: String) {
         val criteria = where(SUB_ACC_NO).`is`(accNo).andOperator(
             where(SUB_VERSION).gt(0),
-            where(SUB_STATUS).`is`(DocProcessingStatus.PROCESSED))
+            where(SUB_STATUS).`is`(DocProcessingStatus.PROCESSED)
+        )
 
         mongoTemplate.updateMulti(
             Query(criteria),
@@ -84,35 +88,43 @@ class SubmissionDocDataRepository(
     }
 
     fun expireVersion(accNo: String, version: Int) {
-        val criteria = where(SUB_ACC_NO).`is`(accNo).andOperator(
-            where(SUB_VERSION).`is`(version))
-
         mongoTemplate.updateMulti(
-            Query(criteria),
-            ExtendedUpdate().multiply(SUB_VERSION, -1),
+            Query(where(SUB_ACC_NO).`is`(accNo).andOperator(where(SUB_VERSION).`is`(version))),
+            ExtendedUpdate().multiply(SUB_VERSION, -1).set(SUB_MODIFICATION_TIME, Instant.now()),
+            DocSubmission::class.java
+        )
+    }
+
+    fun expireVersions(submissions: List<String>) {
+        mongoTemplate.updateMulti(
+            Query(where(SUB_ACC_NO).`in`(submissions).andOperator(where(SUB_VERSION).gt(0))),
+            ExtendedUpdate().multiply(SUB_VERSION, -1).set(SUB_MODIFICATION_TIME, Instant.now()),
             DocSubmission::class.java
         )
     }
 
     fun getCollections(accNo: String): List<DocCollection> =
-        submissionRepository.getSubmissionCollections(accNo).collections
+        submissionRepository.findSubmissionCollections(accNo)?.collections ?: emptyList()
 
     fun getSubmissions(filter: SubmissionFilter, email: String? = null): List<DocSubmission> {
         val aggregation = newAggregation(
             DocSubmission::class.java,
             *createSubmissionAggregation(filter, email).toTypedArray()
-        )
+        ).withOptions(aggregationOptions())
+
         return mongoTemplate.aggregate(aggregation, DocSubmission::class.java).mappedResults
     }
 
     fun getSubmissionsPage(filter: SubmissionFilter): Page<DocSubmission> {
         val aggregation = newAggregation(
             DocSubmission::class.java,
-            *createCountAggregation(filter).toTypedArray())
+            *createCountAggregation(filter).toTypedArray()
+        ).withOptions(aggregationOptions())
+
         return PageImpl<DocSubmission>(
             getSubmissions(filter),
             PageRequest.of(filter.pageNumber, filter.limit),
-            mongoTemplate.aggregate(aggregation, CountResult::class.java).uniqueMappedResult.submissions
+            mongoTemplate.aggregate(aggregation, CountResult::class.java).uniqueMappedResult!!.submissions
         )
     }
 
@@ -122,6 +134,8 @@ class SubmissionDocDataRepository(
 
         private fun createSubmissionAggregation(filter: SubmissionFilter, email: String? = null) =
             createAggregation(filter, email).plus(skip(filter.offset)).plus(limit(filter.limit.toLong()))
+
+        private fun aggregationOptions() = AggregationOptions.builder().allowDiskUse(true).build()
 
         private fun createAggregation(filter: SubmissionFilter, email: String? = null) =
             listOf(

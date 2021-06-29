@@ -18,7 +18,6 @@ import ac.uk.ebi.pmc.process.util.SubmissionInitializer
 import ac.uk.ebi.pmc.submit.SubmitterConfig
 import ac.uk.ebi.scheduler.properties.PmcImporterProperties
 import ebi.ac.uk.commons.http.slack.NotificationsSender
-import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -27,19 +26,17 @@ import org.springframework.context.annotation.Import
 @Configuration
 @Import(
     value = [
+        PropConfig::class,
         PersistenceConfig::class,
         NotificationsConfig::class,
         WebConfig::class,
         LoaderConfig::class,
         ProcessorConfig::class,
-        SubmitterConfig::class]
+        SubmitterConfig::class
+    ]
 )
 @EnableConfigurationProperties
 class AppConfig {
-    @Bean
-    @ConfigurationProperties("app.data")
-    fun properties() =
-        PmcImporterProperties()
 
     @Bean
     fun pmcTaskExecutor(properties: PmcImporterProperties, notificationSender: NotificationsSender) =

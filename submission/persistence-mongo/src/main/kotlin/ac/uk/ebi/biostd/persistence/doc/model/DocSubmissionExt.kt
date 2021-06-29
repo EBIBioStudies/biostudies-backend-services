@@ -1,8 +1,13 @@
 package ac.uk.ebi.biostd.persistence.doc.model
 
 import ac.uk.ebi.biostd.persistence.common.model.BasicSubmission
+import ebi.ac.uk.extended.model.ExtProcessingStatus
+import ebi.ac.uk.extended.model.ExtSection
+import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.extended.model.ExtSubmissionMethod
 import ebi.ac.uk.model.SubmissionMethod
 import ebi.ac.uk.model.constants.ProcessingStatus
+import ebi.ac.uk.model.constants.SectionFields
 import java.time.ZoneOffset
 
 fun DocSubmission.asBasicSubmission(): BasicSubmission {
@@ -18,7 +23,8 @@ fun DocSubmission.asBasicSubmission(): BasicSubmission {
         releaseTime = releaseTime?.atOffset(ZoneOffset.UTC),
         status = status.toProcessingStatus(),
         method = method.toSubmissionMethod(),
-        owner = owner)
+        owner = owner
+    )
 }
 
 private fun DocProcessingStatus.toProcessingStatus(): ProcessingStatus =
@@ -33,4 +39,36 @@ private fun DocSubmissionMethod.toSubmissionMethod(): SubmissionMethod =
         DocSubmissionMethod.FILE -> SubmissionMethod.FILE
         DocSubmissionMethod.PAGE_TAB -> SubmissionMethod.PAGE_TAB
         DocSubmissionMethod.UNKNOWN -> SubmissionMethod.UNKNOWN
+    }
+
+fun ExtSubmission.asBasicSubmission(): BasicSubmission = BasicSubmission(
+    accNo = this.accNo,
+    version = version,
+    secretKey = secretKey,
+    title = title ?: section.title,
+    relPath = relPath,
+    released = released,
+    creationTime = creationTime,
+    modificationTime = modificationTime,
+    releaseTime = releaseTime,
+    status = status.toProcessingStatus(),
+    method = method.toSubmissionMethod(),
+    owner = owner
+)
+
+val ExtSection.title: String?
+    get() = attributes.find { it.name == SectionFields.TITLE.value }?.value
+
+private fun ExtProcessingStatus.toProcessingStatus(): ProcessingStatus =
+    when (this) {
+        ExtProcessingStatus.PROCESSED -> ProcessingStatus.PROCESSED
+        ExtProcessingStatus.PROCESSING -> ProcessingStatus.PROCESSING
+        ExtProcessingStatus.REQUESTED -> ProcessingStatus.REQUESTED
+    }
+
+private fun ExtSubmissionMethod.toSubmissionMethod(): SubmissionMethod =
+    when (this) {
+        ExtSubmissionMethod.FILE -> SubmissionMethod.FILE
+        ExtSubmissionMethod.PAGE_TAB -> SubmissionMethod.PAGE_TAB
+        ExtSubmissionMethod.UNKNOWN -> SubmissionMethod.UNKNOWN
     }

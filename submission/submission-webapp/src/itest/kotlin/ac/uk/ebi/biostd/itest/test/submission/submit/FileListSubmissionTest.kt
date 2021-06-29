@@ -14,8 +14,6 @@ import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.dsl.line
 import ebi.ac.uk.dsl.tsv
-import ebi.ac.uk.extended.model.ExtAttribute
-import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileList
 import ebi.ac.uk.test.createFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
@@ -69,13 +67,16 @@ internal class FileListSubmissionTest(private val tempFolder: TemporaryFolder) :
                 "section" to {
                     "accno" to "SECT-001"
                     "type" to "Study"
-                    "attributes" to jsonArray({
-                        "name" to "Title"
-                        "value" to "Root Section"
-                    }, {
-                        "name" to "File List"
-                        "value" to "FileList.tsv"
-                    })
+                    "attributes" to jsonArray(
+                        {
+                            "name" to "Title"
+                            "value" to "Root Section"
+                        },
+                        {
+                            "name" to "File List"
+                            "value" to "FileList.tsv"
+                        }
+                    )
                 }
             }.toString()
 
@@ -84,10 +85,12 @@ internal class FileListSubmissionTest(private val tempFolder: TemporaryFolder) :
                 tsv {
                     line("Files", "GEN")
                     line("File4.txt", "ABC")
-                }.toString())
+                }.toString()
+            )
 
             val response = webClient.submitSingle(
-                submission, SubmissionFormat.JSON, listOf(fileList, tempFolder.createFile("File4.txt")))
+                submission, SubmissionFormat.JSON, listOf(fileList, tempFolder.createFile("File4.txt"))
+            )
 
             assertThat(response).isSuccessful()
             assertSubmissionFiles("S-TEST4", "File4.txt")
@@ -105,13 +108,16 @@ internal class FileListSubmissionTest(private val tempFolder: TemporaryFolder) :
                 "section" to {
                     "accno" to "SECT-001"
                     "type" to "Study"
-                    "attributes" to jsonArray({
-                        "name" to "Title"
-                        "value" to "Root Section"
-                    }, {
-                        "name" to "File List"
-                        "value" to "FileList.xlsx"
-                    })
+                    "attributes" to jsonArray(
+                        {
+                            "name" to "Title"
+                            "value" to "Root Section"
+                        },
+                        {
+                            "name" to "File List"
+                            "value" to "FileList.xlsx"
+                        }
+                    )
                 }
             }.toString()
 
@@ -129,7 +135,8 @@ internal class FileListSubmissionTest(private val tempFolder: TemporaryFolder) :
             }
 
             val response = webClient.submitSingle(
-                submission, SubmissionFormat.JSON, listOf(fileList, tempFolder.createFile("File5.txt")))
+                submission, SubmissionFormat.JSON, listOf(fileList, tempFolder.createFile("File5.txt"))
+            )
 
             assertThat(response).isSuccessful()
             assertSubmissionFiles("S-TEST5", "File5.txt")
@@ -148,13 +155,16 @@ internal class FileListSubmissionTest(private val tempFolder: TemporaryFolder) :
                 "section" to {
                     "accno" to "SECT-001"
                     "type" to "Study"
-                    "attributes" to jsonArray({
-                        "name" to "Title"
-                        "value" to "Root Section"
-                    }, {
-                        "name" to "File List"
-                        "value" to "FileList.txt"
-                    })
+                    "attributes" to jsonArray(
+                        {
+                            "name" to "Title"
+                            "value" to "Root Section"
+                        },
+                        {
+                            "name" to "File List"
+                            "value" to "FileList.txt"
+                        }
+                    )
                 }
             }.toString()
 
@@ -169,12 +179,7 @@ internal class FileListSubmissionTest(private val tempFolder: TemporaryFolder) :
             val submissionFolderPath = "$submissionPath/${createdSubmission.relPath}"
 
             assertThat(createdSubmission.section.fileList?.fileName).isEqualTo(fileListName)
-            assertThat(createdSubmission.section.fileList).isEqualTo(
-                ExtFileList(fileListName, listOf(ExtFile(
-                    file = Paths.get("$submissionFolderPath/Files/$testFile").toFile(),
-                    fileName = testFile,
-                    attributes = listOf(ExtAttribute("GEN", "ABC"))
-                ))))
+            assertThat(createdSubmission.section.fileList).isEqualTo(ExtFileList(fileListName, emptyList()))
 
             assertThat(Paths.get("$submissionFolderPath/Files/$testFile")).exists()
             assertThat(Paths.get("$submissionFolderPath/Files/$fileListName.xml")).exists()

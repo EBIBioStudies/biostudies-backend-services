@@ -53,6 +53,9 @@ internal class SubmissionClient(
 
     override fun deleteSubmission(accNo: String) = template.delete("$SUBMISSIONS_URL/$accNo")
 
+    override fun deleteSubmissions(submissions: List<String>) =
+        template.delete("$SUBMISSIONS_URL?submissions=${submissions.joinToString(",")}")
+
     override fun getSubmissions(filter: Map<String, Any>): List<SubmissionDto> {
         val builder = UriComponentsBuilder.fromUriString(SUBMISSIONS_URL)
         filter.entries.forEach { builder.queryParam(it.key, it.value) }
@@ -77,11 +80,12 @@ internal class SubmissionClient(
         val builder = UriComponentsBuilder.fromUriString(SUBMISSIONS_URL)
         return when (config) {
             NonRegistration -> builder.toUriString()
-            is UserRegistration -> builder
-                .queryParam(REGISTER_PARAM, true)
-                .queryParam(USER_NAME_PARAM, config.name)
-                .queryParam(ON_BEHALF_PARAM, config.email)
-                .toUriString()
+            is UserRegistration ->
+                builder
+                    .queryParam(REGISTER_PARAM, true)
+                    .queryParam(USER_NAME_PARAM, config.name)
+                    .queryParam(ON_BEHALF_PARAM, config.email)
+                    .toUriString()
         }
     }
 

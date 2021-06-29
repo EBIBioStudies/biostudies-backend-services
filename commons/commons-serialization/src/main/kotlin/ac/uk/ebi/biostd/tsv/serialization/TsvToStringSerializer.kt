@@ -47,13 +47,19 @@ class TsvToStringSerializer {
         sectionAttributes(section).forEach(builder::addAttr)
 
         section.links.forEach {
-            either -> either.fold({ addLink(builder, it) }, { addTable(builder, it, LINKS_TABLE.toString()) }) }
+            either ->
+            either.fold({ addLink(builder, it) }, { addTable(builder, it, LINKS_TABLE.toString()) })
+        }
         section.files.forEach {
-            either -> either.fold({ addFile(builder, it) }, { addTable(builder, it, FILES_TABLE.toString()) }) }
+            either ->
+            either.fold({ addFile(builder, it) }, { addTable(builder, it, FILES_TABLE.toString()) })
+        }
         section.sections.forEach {
-            either -> either.fold(
+            either ->
+            either.fold(
                 { serializeSection(builder, it, section.accNo) },
-                { addTable(builder, it, getHeader(it, section.accNo)) })
+                { addTable(builder, it, getHeader(it, section.accNo)) }
+            )
         }
     }
 
@@ -81,8 +87,11 @@ class TsvToStringSerializer {
         val headers = listOf(Header(mainHeader)) + table.headers
 
         builder.addSeparator()
-        builder.addTableRow(headers.flatMap { header ->
-            listOf(header.name) + header.termNames.map { "($it)" } + header.termValues.map { "[$it]" } })
+        builder.addTableRow(
+            headers.flatMap { header ->
+                listOf(header.name) + header.termNames.map { "($it)" } + header.termValues.map { "[$it]" }
+            }
+        )
 
         table.rows.forEach { builder.addTableRow(it) }
     }

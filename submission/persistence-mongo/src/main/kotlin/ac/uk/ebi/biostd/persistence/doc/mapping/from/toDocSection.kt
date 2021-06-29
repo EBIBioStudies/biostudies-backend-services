@@ -20,7 +20,8 @@ internal fun ExtSection.toDocSection(submissionId: ObjectId): DocSectionData {
     val (sectionFileList, sectionFiles) = fileList?.toDocFileList(submissionId)
     return DocSectionData(
         section = toDocSection(sectionFileList, sections.subSections()),
-        fileListFiles = sectionFiles.orEmpty() + sections.subSectionsFiles())
+        fileListFiles = sectionFiles.orEmpty() + sections.subSectionsFiles()
+    )
 }
 
 private fun EitherList<DocSectionData, DocSectionTable>.subSections(): EitherList<DocSection, DocSectionTable> =
@@ -33,6 +34,7 @@ private fun ExtSection.toDocSection(
     fileList: DocFileList?,
     sections: EitherList<DocSection, DocSectionTable>
 ) = DocSection(
+    id = ObjectId(),
     accNo = accNo,
     type = type,
     fileList = fileList,

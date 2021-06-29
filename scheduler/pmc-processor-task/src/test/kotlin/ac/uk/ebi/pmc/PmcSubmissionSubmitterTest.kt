@@ -15,6 +15,7 @@ import com.github.tomakehurst.wiremock.client.WireMock.equalToJson
 import com.github.tomakehurst.wiremock.client.WireMock.post
 import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration
+import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
 import ebi.ac.uk.db.MONGO_VERSION
 import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
@@ -37,7 +38,6 @@ import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.core.io.ResourceLoader
 import org.springframework.http.HttpHeaders.ACCEPT
 import org.springframework.http.HttpHeaders.CONTENT_LENGTH
 import org.springframework.http.HttpHeaders.CONTENT_TYPE
@@ -45,8 +45,10 @@ import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.testcontainers.containers.MongoDBContainer
+import org.testcontainers.containers.startupcheck.MinimumDurationRunningStartupCheckStrategy
 import org.testcontainers.utility.DockerImageName
 import java.net.HttpURLConnection.HTTP_OK
+import java.time.Duration.ofSeconds
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ContextConfiguration
@@ -54,6 +56,7 @@ import java.net.HttpURLConnection.HTTP_OK
 internal class PmcSubmissionSubmitterTest(private val tempFolder: TemporaryFolder) {
 
     private val mongoContainer: MongoDBContainer = MongoDBContainer(DockerImageName.parse(MONGO_VERSION))
+        .withStartupCheckStrategy(MinimumDurationRunningStartupCheckStrategy(ofSeconds(MINIMUM_RUNNING_TIME)))
     private val wireMockNotificationServer = WireMockServer(WireMockConfiguration().dynamicPort())
     private val wireMockWebServer = WireMockServer(WireMockConfiguration().dynamicPort())
 
@@ -158,8 +161,7 @@ internal class PmcSubmissionSubmitterTest(private val tempFolder: TemporaryFolde
         @Autowired val errorsRepository: ErrorsRepository,
         @Autowired val submissionRepository: SubmissionRepository,
         @Autowired val fileRepository: SubFileRepository,
-        @Autowired val pmcTaskExecutor: PmcTaskExecutor,
-        @Autowired val resourceLoader: ResourceLoader
+        @Autowired val pmcTaskExecutor: PmcTaskExecutor
     ) {
         @BeforeEach
         fun cleanRepositories() {
@@ -174,7 +176,7 @@ internal class PmcSubmissionSubmitterTest(private val tempFolder: TemporaryFolde
         fun `when success submit`() {
             runBlocking {
                 val targetFile = tempFolder.createFile(FILE1_NAME, FILE1_CONTENT)
-                val fileObjectId = fileRepository.saveFile(targetFile, processedSubmission.accno)
+                val fileObjectId = fileRepository.saveFile(targetFile, processedSubmission.accNo)
                 submissionRepository.insertOrExpire(processedSubmission.copy(files = listOf(fileObjectId)))
 
                 pmcTaskExecutor.run()

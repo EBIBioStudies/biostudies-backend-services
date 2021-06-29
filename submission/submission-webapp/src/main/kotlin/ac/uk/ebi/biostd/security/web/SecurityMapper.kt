@@ -21,7 +21,8 @@ class SecurityMapper {
             deny = emptyList(),
             allow = getAllow(user),
             secret = user.magicFolder.relativePath.toString(),
-            aux = ProfileAuxInfo(""))
+            aux = ProfileAuxInfo("")
+        )
     }
 
     private fun getAllow(user: SecurityUser): List<String> {

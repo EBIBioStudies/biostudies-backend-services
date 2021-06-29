@@ -6,8 +6,11 @@ import ac.uk.ebi.biostd.files.web.common.UserPath
 import ac.uk.ebi.biostd.submission.converters.BioUser
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import org.springframework.core.io.FileSystemResource
+import org.springframework.http.ContentDisposition
+import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
+import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -37,7 +40,22 @@ class UserFilesResource(
         @BioUser user: SecurityUser,
         @RequestParam(name = "fileName") fileName: String,
         pathDescriptor: UserPath
-    ): FileSystemResource = FileSystemResource(fileManager.getFile(user, pathDescriptor.path, fileName))
+    ): ResponseEntity<FileSystemResource> {
+        val fileSystemResource = FileSystemResource(
+            fileManager.getFile(user, pathDescriptor.path, fileName)
+        )
+        val contentDisposition = ContentDisposition
+            .builder("inline")
+            .filename(fileSystemResource.filename)
+            .build()
+        val headers = HttpHeaders().apply { setContentDisposition(contentDisposition) }
+
+        return ResponseEntity
+            .ok()
+            .headers(headers)
+            .contentLength(fileSystemResource.contentLength())
+            .body(fileSystemResource)
+    }
 
     @PostMapping("/files/user/**")
     @ResponseStatus(value = HttpStatus.OK)

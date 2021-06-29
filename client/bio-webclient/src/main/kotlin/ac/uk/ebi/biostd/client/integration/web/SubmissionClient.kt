@@ -26,6 +26,7 @@ interface SubmissionClient :
     FilesOperations,
     GroupFilesOperations,
     MultipartSubmissionOperations,
+    MultipartAsyncSubmissionOperations,
     GeneralOperations,
     DraftSubmissionOperations,
     ExtSubmissionOperations
@@ -67,6 +68,7 @@ interface SubmissionOperations {
 
     fun refreshSubmission(accNo: String): SubmissionResponse
     fun deleteSubmission(accNo: String)
+    fun deleteSubmissions(submissions: List<String>)
     fun getSubmissions(filter: Map<String, Any> = mapOf()): List<SubmissionDto>
 }
 
@@ -74,6 +76,12 @@ interface MultipartSubmissionOperations {
     fun submitSingle(submission: String, format: SubmissionFormat, files: List<File>): SubmissionResponse
     fun submitSingle(submission: Submission, format: SubmissionFormat, files: List<File>): SubmissionResponse
     fun submitSingle(submission: File, files: List<File>, attrs: Map<String, String> = emptyMap()): SubmissionResponse
+}
+
+interface MultipartAsyncSubmissionOperations {
+    fun asyncSubmitSingle(submission: String, format: SubmissionFormat, files: List<File>)
+    fun asyncSubmitSingle(submission: Submission, format: SubmissionFormat, files: List<File>)
+    fun asyncSubmitSingle(submission: File, files: List<File>, attrs: Map<String, String> = emptyMap())
 }
 
 interface SecurityOperations {

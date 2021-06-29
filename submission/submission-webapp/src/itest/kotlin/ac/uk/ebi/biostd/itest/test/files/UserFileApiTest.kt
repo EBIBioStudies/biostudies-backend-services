@@ -52,17 +52,17 @@ internal class UserFileApiTest(
         }
 
         @Test
-        fun `upload|download|delete file and retrieve in user root folder`() {
+        fun `upload download delete file and retrieve in user root folder`() {
             testUserFilesGroup()
         }
 
         @Test
-        fun `upload|download|delete file and retrieve in user folder`() {
+        fun `upload download delete file and retrieve in user folder`() {
             testUserFilesGroup("test-folder")
         }
 
         @Test
-        fun `upload|download|delete file and retrieve in user folder with space`() {
+        fun `upload download delete file and retrieve in user folder with space`() {
             testUserFilesGroup("test folder")
         }
 

@@ -34,7 +34,8 @@ import org.springframework.web.bind.annotation.RestController
 class SubmitResource(private val submitWebHandler: SubmitWebHandler) {
     @PostMapping(
         headers = ["$SUBMISSION_TYPE=$TEXT_XML"],
-        produces = [APPLICATION_JSON_VALUE])
+        produces = [APPLICATION_JSON_VALUE]
+    )
     @ResponseBody
     fun submitXml(
         @BioUser user: SecurityUser,
@@ -50,14 +51,16 @@ class SubmitResource(private val submitWebHandler: SubmitWebHandler) {
             format = XML,
             fileMode = mode,
             attrs = attributes.orEmpty(),
-            files = emptyList())
+            files = emptyList()
+        )
 
         return submitWebHandler.submit(request)
     }
 
     @PostMapping(
         headers = ["$SUBMISSION_TYPE=$TEXT_PLAIN"],
-        produces = [APPLICATION_JSON_VALUE])
+        produces = [APPLICATION_JSON_VALUE]
+    )
     @ResponseBody
     fun submitTsv(
         @BioUser user: SecurityUser,
@@ -73,14 +76,16 @@ class SubmitResource(private val submitWebHandler: SubmitWebHandler) {
             format = TSV,
             fileMode = mode,
             attrs = attributes.orEmpty(),
-            files = emptyList())
+            files = emptyList()
+        )
 
         return submitWebHandler.submit(request)
     }
 
     @PostMapping(
         headers = ["$SUBMISSION_TYPE=$APPLICATION_JSON"],
-        produces = [APPLICATION_JSON_VALUE])
+        produces = [APPLICATION_JSON_VALUE]
+    )
     @ResponseBody
     fun submitJson(
         @BioUser user: SecurityUser,
@@ -96,7 +101,8 @@ class SubmitResource(private val submitWebHandler: SubmitWebHandler) {
             format = JSON_PRETTY,
             fileMode = mode,
             attrs = attributes.orEmpty(),
-            files = emptyList())
+            files = emptyList()
+        )
 
         return submitWebHandler.submit(request)
     }

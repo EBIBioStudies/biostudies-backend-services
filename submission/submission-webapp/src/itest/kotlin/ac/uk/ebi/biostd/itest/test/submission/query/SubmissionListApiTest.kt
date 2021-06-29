@@ -10,6 +10,7 @@ import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.line
 import ebi.ac.uk.dsl.tsv
 import ebi.ac.uk.model.SubmissionMethod
+import ebi.ac.uk.model.SubmissionMethod.PAGE_TAB
 import ebi.ac.uk.test.createFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
@@ -62,10 +63,10 @@ internal class SubmissionListApiTest(private val tempFolder: TemporaryFolder) : 
 
             val submissionList = webClient.getSubmissions(mapOf("accNo" to "SimpleAcc18"))
 
-            assertThat(submissionList).hasOnlyOneElementSatisfying {
+            assertThat(submissionList).anySatisfy {
                 assertThat(it.accno).isEqualTo("SimpleAcc18")
                 assertThat(it.version).isEqualTo(2)
-                assertThat(it.method).isEqualTo(SubmissionMethod.PAGE_TAB)
+                assertThat(it.method).isEqualTo(PAGE_TAB)
                 assertThat(it.title).isEqualTo("Simple Submission 18 - keyword18")
                 assertThat(it.status).isEqualTo("REQUESTED")
             }
@@ -81,14 +82,16 @@ internal class SubmissionListApiTest(private val tempFolder: TemporaryFolder) : 
 
         @Test
         fun `get submission list by accession`() {
-            val submissionList = webClient.getSubmissions(mapOf(
-                "accNo" to "SimpleAcc17"
-            ))
+            val submissionList = webClient.getSubmissions(
+                mapOf(
+                    "accNo" to "SimpleAcc17"
+                )
+            )
 
             assertThat(submissionList).hasOnlyOneElementSatisfying {
                 assertThat(it.accno).isEqualTo("SimpleAcc17")
                 assertThat(it.version).isEqualTo(1)
-                assertThat(it.method).isEqualTo(SubmissionMethod.PAGE_TAB)
+                assertThat(it.method).isEqualTo(PAGE_TAB)
                 assertThat(it.title).isEqualTo("Simple Submission 17 - keyword17")
                 assertThat(it.status).isEqualTo("PROCESSED")
             }
@@ -96,9 +99,11 @@ internal class SubmissionListApiTest(private val tempFolder: TemporaryFolder) : 
 
         @Test
         fun `get direct submission list by accession`() {
-            val submissionList = webClient.getSubmissions(mapOf(
-                "accNo" to "SimpleAcc27"
-            ))
+            val submissionList = webClient.getSubmissions(
+                mapOf(
+                    "accNo" to "SimpleAcc27"
+                )
+            )
 
             assertThat(submissionList).hasOnlyOneElementSatisfying {
                 assertThat(it.accno).isEqualTo("SimpleAcc27")
@@ -111,9 +116,11 @@ internal class SubmissionListApiTest(private val tempFolder: TemporaryFolder) : 
 
         @Test
         fun `get submission list by keywords`() {
-            val submissionList = webClient.getSubmissions(mapOf(
-                "keywords" to "keyword20"
-            ))
+            val submissionList = webClient.getSubmissions(
+                mapOf(
+                    "keywords" to "keyword20"
+                )
+            )
 
             assertThat(submissionList).hasOnlyOneElementSatisfying {
                 assertThat(it.title).contains("keyword20")
@@ -122,19 +129,23 @@ internal class SubmissionListApiTest(private val tempFolder: TemporaryFolder) : 
 
         @Test
         fun `get submission list by release date`() {
-            val submissionList = webClient.getSubmissions(mapOf(
-                "rTimeFrom" to "2019-09-24T09:41:44.000Z",
-                "rTimeTo" to "2019-09-28T09:41:44.000Z"
-            ))
+            val submissionList = webClient.getSubmissions(
+                mapOf(
+                    "rTimeFrom" to "2019-09-24T09:41:44.000Z",
+                    "rTimeTo" to "2019-09-28T09:41:44.000Z"
+                )
+            )
 
             assertThat(submissionList).hasSize(4)
         }
 
         @Test
         fun `get submission list pagination`() {
-            val submissionList = webClient.getSubmissions(mapOf(
-                "offset" to 15
-            ))
+            val submissionList = webClient.getSubmissions(
+                mapOf(
+                    "offset" to 15
+                )
+            )
 
             assertThat(submissionList).hasSize(5)
         }
@@ -152,14 +163,16 @@ internal class SubmissionListApiTest(private val tempFolder: TemporaryFolder) : 
 
             assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
 
-            val submissionList = webClient.getSubmissions(mapOf(
-                "accNo" to "SECT-123"
-            ))
+            val submissionList = webClient.getSubmissions(
+                mapOf(
+                    "accNo" to "SECT-123"
+                )
+            )
 
             assertThat(submissionList).hasOnlyOneElementSatisfying {
                 assertThat(it.accno).isEqualTo("SECT-123")
                 assertThat(it.version).isEqualTo(1)
-                assertThat(it.method).isEqualTo(SubmissionMethod.PAGE_TAB)
+                assertThat(it.method).isEqualTo(PAGE_TAB)
                 assertThat(it.title).isEqualTo("Submission With Section Title")
                 assertThat(it.status).isEqualTo("PROCESSED")
             }
@@ -179,14 +192,16 @@ internal class SubmissionListApiTest(private val tempFolder: TemporaryFolder) : 
 
             assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
 
-            val submissionList = webClient.getSubmissions(mapOf(
-                "accNo" to "SECT-124"
-            ))
+            val submissionList = webClient.getSubmissions(
+                mapOf(
+                    "accNo" to "SECT-124"
+                )
+            )
 
             assertThat(submissionList).hasOnlyOneElementSatisfying {
                 assertThat(it.accno).isEqualTo("SECT-124")
                 assertThat(it.version).isEqualTo(1)
-                assertThat(it.method).isEqualTo(SubmissionMethod.PAGE_TAB)
+                assertThat(it.method).isEqualTo(PAGE_TAB)
                 assertThat(it.title).isEqualTo("Submission Title")
                 assertThat(it.status).isEqualTo("PROCESSED")
             }

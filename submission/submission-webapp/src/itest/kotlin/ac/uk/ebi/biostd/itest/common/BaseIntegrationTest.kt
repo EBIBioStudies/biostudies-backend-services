@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.itest.common
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
 import ac.uk.ebi.biostd.itest.entities.TestUser
+import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
 import ebi.ac.uk.db.MONGO_VERSION
 import ebi.ac.uk.db.MYSQL_VERSION
 import ebi.ac.uk.db.RABBITMQ_VERSION
@@ -11,8 +12,10 @@ import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.testcontainers.containers.MongoDBContainer
 import org.testcontainers.containers.MySQLContainer
+import org.testcontainers.containers.startupcheck.MinimumDurationRunningStartupCheckStrategy
 import org.testcontainers.containers.RabbitMQContainer
 import org.testcontainers.utility.DockerImageName
+import java.time.Duration.ofSeconds
 
 internal const val CHARACTER_SET = "utf8mb4"
 internal const val COLLATION = "utf8mb4_unicode_ci"
@@ -20,9 +23,12 @@ internal const val COLLATION = "utf8mb4_unicode_ci"
 internal open class BaseIntegrationTest(private val tempFolder: TemporaryFolder) {
     private val rabbitMQContainer = RabbitMQContainer(DockerImageName.parse(RABBITMQ_VERSION))
     private val mongoContainer: MongoDBContainer = MongoDBContainer(DockerImageName.parse(MONGO_VERSION))
+        .withStartupCheckStrategy(MinimumDurationRunningStartupCheckStrategy(ofSeconds(MINIMUM_RUNNING_TIME)))
+
     private val mysqlContainer = SpecificMySQLContainer(MYSQL_VERSION)
         .withCommand("mysqld --character-set-server=$CHARACTER_SET --collation-server=$COLLATION")
         .withInitScript("Schema.sql")
+        .withStartupCheckStrategy(MinimumDurationRunningStartupCheckStrategy(ofSeconds(MINIMUM_RUNNING_TIME)))
 
     val submissionPath
         get() = "${tempFolder.root.absolutePath}/submission"

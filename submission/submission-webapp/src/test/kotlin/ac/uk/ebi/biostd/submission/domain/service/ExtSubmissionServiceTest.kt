@@ -4,13 +4,15 @@ import ac.uk.ebi.biostd.persistence.common.request.SaveSubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestService
-import ac.uk.ebi.biostd.persistence.exception.CollectionNotFoundException
+import ac.uk.ebi.biostd.persistence.common.exception.CollectionNotFoundException
 import ac.uk.ebi.biostd.persistence.exception.ExtSubmissionMappingException
 import ac.uk.ebi.biostd.persistence.exception.UserNotFoundException
 import ac.uk.ebi.biostd.submission.web.model.ExtPageRequest
 import ebi.ac.uk.extended.model.ExtCollection
+import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FileMode.COPY
+import ebi.ac.uk.extended.model.PROJECT_TYPE
 import ebi.ac.uk.security.integration.components.ISecurityQueryService
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import ebi.ac.uk.test.basicExtSubmission
@@ -66,7 +68,8 @@ class ExtSubmissionServiceTest(
             toRTime = "2020-09-21T15:00:00Z",
             released = true,
             offset = 1,
-            limit = 2)
+            limit = 2
+        )
 
         val pageable = Pageable.unpaged()
         val result1 = Result.success(extSubmission)
@@ -133,5 +136,22 @@ class ExtSubmissionServiceTest(
         }
 
         assertThat(exception.message).isEqualTo("The collection 'ArrayExpress' was not found")
+    }
+
+    @Test
+    fun `submit extended collection`() {
+        val saveRequest = slot<SaveSubmissionRequest>()
+        val collection = extSubmission.copy(section = ExtSection(type = PROJECT_TYPE))
+
+        every { submissionRepository.existByAccNo("ArrayExpress") } returns false
+        every { requestService.saveAndProcessSubmissionRequest(capture(saveRequest)) } returns collection
+
+        testInstance.submitExtendedSubmission("user@mail.com", collection)
+
+        assertThat(saveRequest.captured.fileMode).isEqualTo(COPY)
+        assertThat(saveRequest.captured.submission).isEqualTo(collection.copy(submitter = "user@mail.com"))
+
+        verify(exactly = 0) { submissionRepository.existByAccNo("ArrayExpress") }
+        verify(exactly = 1) { securityQueryService.existsByEmail("owner@email.org") }
     }
 }

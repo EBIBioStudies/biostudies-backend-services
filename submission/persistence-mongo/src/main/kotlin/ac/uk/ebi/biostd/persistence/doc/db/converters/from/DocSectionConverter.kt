@@ -11,6 +11,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_ATTRIBUTES
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_FILES
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_FILE_LIST
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_ID
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_LINKS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_SECTIONS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_TABLE_SECTIONS
@@ -31,6 +32,7 @@ class DocSectionConverter(
     private val docFileListConverter: DocFileListConverter
 ) : Converter<Document, DocSection> {
     override fun convert(source: Document): DocSection = DocSection(
+        id = source.getObjectId(SEC_ID),
         accNo = source.getString(SEC_ACC_NO),
         type = source.getString(SEC_TYPE),
         fileList = source.findDoc(SEC_FILE_LIST)?.let { docFileListConverter.convert(it) },

@@ -33,14 +33,20 @@ import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.PagingAndSortingRepository
 import org.springframework.data.repository.query.Param
+import org.springframework.transaction.annotation.Transactional
+import java.time.OffsetDateTime
 import java.util.Optional
 import javax.persistence.LockModeType
 import com.cosium.spring.data.jpa.entity.graph.domain.EntityGraph as GraphSpecification
 
 @Suppress("TooManyFunctions")
+@Transactional
 interface SubmissionDataRepository :
     EntityGraphJpaRepository<DbSubmission, Long>, EntityGraphJpaSpecificationExecutor<DbSubmission> {
-    fun findByAccNoAndVersionGreaterThan(id: String, version: Int = 0): DbSubmission?
+
+    @Modifying
+    @Query("update DbSubmission s set s.version = -s.version, s.modificationTime = :now where accNo in :accNumbers")
+    fun deleteSubmissions(@Param("accNumbers") accNumbers: List<String>, @Param("now") now: OffsetDateTime)
 
     @Query("select s from DbSubmission s inner join s.owner where s.accNo = :accNo order by s.id desc")
     fun getBasicAllVersions(@Param("accNo") accNo: String, pageable: Pageable): List<DbSubmission>
@@ -48,11 +54,13 @@ interface SubmissionDataRepository :
     @JvmDefault
     fun getLastVersion(accNo: String): DbSubmission? = getBasicAllVersions(accNo, PageRequest.of(0, 1)).firstOrNull()
 
-    @Query("""
+    @Query(
+        """
         select s
         from DbSubmission s inner join s.owner inner join s.attributes
         where s.accNo = :accNo and s.version > 0
-    """)
+    """
+    )
     fun findBasicWithAttributes(@Param("accNo") accNo: String): DbSubmission?
 
     @EntityGraph(value = SUBMISSION_FULL_GRAPH, type = LOAD)
@@ -61,10 +69,12 @@ interface SubmissionDataRepository :
     @EntityGraph(value = SUBMISSION_FULL_GRAPH, type = LOAD)
     fun getByAccNoAndVersion(accNo: String, version: Int): DbSubmission?
 
-    @Query("""
+    @Query(
+        """
         Update DbSubmission s Set s.version = -s.version
         Where s.accNo=?1 And s.version > 0 And status = 'PROCESSED'
-    """)
+    """
+    )
     @Modifying
     fun expireActiveProcessedVersions(accNo: String)
 

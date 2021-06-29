@@ -1,5 +1,6 @@
 package ebi.ac.uk.extended.mapping.from
 
+import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.io.sources.PathFilesSource
 import ebi.ac.uk.model.File
 import io.github.glytching.junit.extension.folder.TemporaryFolder
@@ -17,7 +18,7 @@ internal class ToExtFileTest(private val tempFolder: TemporaryFolder) {
 
     @Test
     fun toExtFile() {
-        val extFile = file.toExtFile(PathFilesSource(tempFolder.root.toPath()))
+        val extFile = file.toExtFile(PathFilesSource(tempFolder.root.toPath())) as NfsFile
 
         assertThat(extFile.fileName).isEqualTo(file.path)
         assertThat(extFile.file).isEqualTo(systemFile)

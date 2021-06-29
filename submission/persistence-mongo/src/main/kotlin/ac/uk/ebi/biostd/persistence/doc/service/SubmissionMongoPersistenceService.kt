@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.persistence.doc.service
 
-import ac.uk.ebi.biostd.persistence.common.filesystem.FileSystemService
 import ac.uk.ebi.biostd.persistence.common.request.SaveSubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestService
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
@@ -12,6 +11,8 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocProcessingStatus.PROCESSED
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequest
+import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus
+import ac.uk.ebi.biostd.persistence.filesystem.service.FileSystemService
 import com.mongodb.BasicDBObject
 import ebi.ac.uk.extended.model.ExtProcessingStatus.PROCESSING
 import ebi.ac.uk.extended.model.ExtProcessingStatus.REQUESTED
@@ -19,6 +20,7 @@ import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FileMode.MOVE
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import kotlin.math.absoluteValue
+import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus.PROCESSED as REQUEST_PROCESSED
 
 internal class SubmissionMongoPersistenceService(
     private val subDataRepository: SubmissionDocDataRepository,
@@ -48,6 +50,7 @@ internal class SubmissionMongoPersistenceService(
     private fun asRequest(submission: ExtSubmission) = SubmissionRequest(
         accNo = submission.accNo,
         version = submission.version,
+        status = SubmissionRequestStatus.REQUESTED,
         submission = BasicDBObject.parse(serializationService.serialize(submission))
     )
 
@@ -56,6 +59,7 @@ internal class SubmissionMongoPersistenceService(
         val processingSubmission = systemService.persistSubmissionFiles(submission, fileMode)
         val (docSubmission, files) = processingSubmission.copy(status = PROCESSING).toDocSubmission()
         saveSubmission(docSubmission, files, draftKey)
+        submissionRequestDocDataRepository.updateStatus(REQUEST_PROCESSED, submission.accNo, submission.version)
 
         return submission
     }
