@@ -23,6 +23,15 @@ class SecurityNotificationService(
         simpleEmailService.send(email)
     }
 
+    fun sendActivationByEmailNotification(notification: SecurityNotification) {
+        val templateContent = templateLoader.loadTemplate("activation-by-email.html")
+        val userActivationModel = UserActivationModel(FROM, notification.activationLink, notification.username)
+        val content = UserActivationTemplate(templateContent).getContent(userActivationModel)
+        val email = Email(EMAIL_FROM, notification.email, "BioStudies Account Password Setup", content)
+
+        simpleEmailService.send(email)
+    }
+
     fun sendPasswordResetNotification(notification: SecurityNotification) {
         val templateContent = templateLoader.loadTemplate("reset-password.html")
         val passwordResetModel = PasswordResetModel(FROM, notification.activationLink, notification.username)

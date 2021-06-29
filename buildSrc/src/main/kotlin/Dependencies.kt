@@ -76,7 +76,7 @@ object Versions {
     const val CommonsLang3Version = "3.8.1"
     const val CommonsIOVersion = "2.6"
     const val CommonsCsvVersion = "1.8"
-    const val MySqlVersion = "6.0.6"
+    const val MySqlVersion = "8.0.25"
     const val XmlBuilderVersion = "1.4.2"
     const val WoodstoxVersion = "5.1.0"
     const val JacksonVersion = "2.9.8"
@@ -219,5 +219,5 @@ object Projects {
     const val CommonsTest = ":commons:commons-test"
     const val SubmissionConfig = ":submission:submission-config"
     const val SubmissionPersistenceCommonApi = ":submission:persistence-common-api"
-    const val SubmissionPersistenceCommon = ":submission:persistence-common"
+    const val SubmissionPersistenceFilesystem = ":submission:persistence-filesystem"
 }

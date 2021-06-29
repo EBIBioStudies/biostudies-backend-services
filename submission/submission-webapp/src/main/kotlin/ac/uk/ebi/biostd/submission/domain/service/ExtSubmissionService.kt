@@ -4,11 +4,12 @@ import ac.uk.ebi.biostd.persistence.common.request.SaveSubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestService
-import ac.uk.ebi.biostd.persistence.exception.CollectionNotFoundException
+import ac.uk.ebi.biostd.persistence.common.exception.CollectionNotFoundException
 import ac.uk.ebi.biostd.persistence.exception.UserNotFoundException
 import ac.uk.ebi.biostd.submission.web.model.ExtPageRequest
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FileMode.COPY
+import ebi.ac.uk.extended.model.isCollection
 import ebi.ac.uk.security.integration.components.ISecurityQueryService
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import mu.KotlinLogging
@@ -54,7 +55,10 @@ class ExtSubmissionService(
 
     private fun validateSubmission(submission: ExtSubmission) {
         validateOwner(submission.owner)
-        submission.collections.forEach { validateCollection(it.accNo) }
+
+        if (submission.isCollection.not()) {
+            submission.collections.forEach { validateCollection(it.accNo) }
+        }
     }
 
     private fun validateSubmitter(user: String) = require(userPrivilegesService.canSubmitExtended(user)) {

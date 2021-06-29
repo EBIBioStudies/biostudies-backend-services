@@ -33,14 +33,20 @@ import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.PagingAndSortingRepository
 import org.springframework.data.repository.query.Param
+import org.springframework.transaction.annotation.Transactional
+import java.time.OffsetDateTime
 import java.util.Optional
 import javax.persistence.LockModeType
 import com.cosium.spring.data.jpa.entity.graph.domain.EntityGraph as GraphSpecification
 
 @Suppress("TooManyFunctions")
+@Transactional
 interface SubmissionDataRepository :
     EntityGraphJpaRepository<DbSubmission, Long>, EntityGraphJpaSpecificationExecutor<DbSubmission> {
-    fun findByAccNoAndVersionGreaterThan(id: String, version: Int = 0): DbSubmission?
+
+    @Modifying
+    @Query("update DbSubmission s set s.version = -s.version, s.modificationTime = :now where accNo in :accNumbers")
+    fun deleteSubmissions(@Param("accNumbers") accNumbers: List<String>, @Param("now") now: OffsetDateTime)
 
     @Query("select s from DbSubmission s inner join s.owner where s.accNo = :accNo order by s.id desc")
     fun getBasicAllVersions(@Param("accNo") accNo: String, pageable: Pageable): List<DbSubmission>
@@ -99,7 +105,8 @@ interface SectionDataRepository : JpaRepository<DbSection, Long> {
 }
 
 interface AccessTagDataRepo : JpaRepository<DbAccessTag, Long> {
-    fun findByName(name: String): DbAccessTag
+    fun getByName(name: String): DbAccessTag
+    fun findByName(name: String): DbAccessTag?
     fun existsByName(name: String): Boolean
     fun findBySubmissionsAccNo(accNo: String): List<DbAccessTag>
 }

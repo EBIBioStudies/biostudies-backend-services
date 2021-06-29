@@ -3,8 +3,8 @@ package ac.uk.ebi.biostd.persistence.integration.services
 import ac.uk.ebi.biostd.persistence.common.model.BasicCollection
 import ac.uk.ebi.biostd.persistence.common.model.BasicSubmission
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
-import ac.uk.ebi.biostd.persistence.exception.CollectionNotFoundException
-import ac.uk.ebi.biostd.persistence.exception.CollectionWithoutPatternException
+import ac.uk.ebi.biostd.persistence.common.exception.CollectionNotFoundException
+import ac.uk.ebi.biostd.persistence.common.exception.CollectionWithoutPatternException
 import ac.uk.ebi.biostd.persistence.model.DbSubmission
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
 import ac.uk.ebi.biostd.persistence.repositories.SubmissionDataRepository

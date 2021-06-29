@@ -150,7 +150,7 @@ internal class SubmitPermissionTest(tempFolder: TemporaryFolder) : BaseIntegrati
         }
 
         private fun setAttachPermission(testUser: TestUser, project: String) {
-            val accessTag = tagsDataRepository.findByName(project)
+            val accessTag = tagsDataRepository.getByName(project)
             val user = userDataRepository.findByEmailAndActive(testUser.email, active = true)
             val attachPermission = DbAccessPermission(accessType = ATTACH, user = user.get(), accessTag = accessTag)
             accessPermissionRepository.save(attachPermission)

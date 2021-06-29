@@ -56,12 +56,12 @@ internal class GroupFilesApiTest(private val tempFolder: TemporaryFolder) : Base
         }
 
         @Test
-        fun `upload|download|delete file and retrieve in user root folder`() {
+        fun `upload download delete file and retrieve in user root folder`() {
             testUserFilesGroup()
         }
 
         @Test
-        fun `upload|download|delete file and retrieve in user folder`() {
+        fun `upload download delete file and retrieve in user folder`() {
             testUserFilesGroup("test-folder")
         }
 
