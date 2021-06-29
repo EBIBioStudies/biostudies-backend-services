@@ -12,4 +12,3 @@ fun <T> MongoTemplate.replaceOrCreate(query: Query, replacement: T): T =
 
 inline fun <reified T : Any> MongoTemplate.getCollection(): MongoCollection<Document> =
     getCollection(getCollectionName<T>())
-

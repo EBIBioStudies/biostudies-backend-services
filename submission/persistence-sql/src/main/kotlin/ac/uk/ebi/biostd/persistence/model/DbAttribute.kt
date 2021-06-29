@@ -7,6 +7,8 @@ import javax.persistence.Convert
 import javax.persistence.Entity
 import javax.persistence.GeneratedValue
 import javax.persistence.Id
+import javax.persistence.JoinColumn
+import javax.persistence.ManyToOne
 import javax.persistence.MappedSuperclass
 import javax.persistence.Table
 
@@ -18,6 +20,10 @@ class DbSectionAttribute(attribute: DbAttribute) :
         this.nameQualifier = attribute.nameQualifier
         this.valueQualifier = attribute.valueQualifier
     }
+
+    @ManyToOne
+    @JoinColumn(name = "section_id")
+    lateinit var section: DbSection
 }
 
 @Entity

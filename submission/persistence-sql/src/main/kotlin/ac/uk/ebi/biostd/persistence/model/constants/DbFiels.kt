@@ -4,11 +4,16 @@ internal const val ATTRS = "attributes"
 internal const val FILES = "files"
 internal const val LINKS = "links"
 internal const val SECTS = "sections"
+internal const val SECTION = "section"
+internal const val NAME = "name"
+internal const val VALUE = "value"
 
 internal const val TAGS = "tags"
 
 // Section fields
 internal const val SECTION_TYPE = "type"
+internal const val SECTION_TITLE = "title"
+internal const val SECTION_ATTRIBUTES = "attributes"
 
 // Submission fields
 internal const val SUB_VERSION = "version"
