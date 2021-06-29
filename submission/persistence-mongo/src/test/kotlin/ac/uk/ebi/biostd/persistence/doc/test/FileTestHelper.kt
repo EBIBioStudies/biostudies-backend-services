@@ -30,7 +30,7 @@ internal object FileTestHelper {
         NfsDocFile(TEST_REL_PATH, TEST_FULL_PATH, FILE_TYPE, listOf(basicDocAttribute), TEST_MD5, SIZE, NFS)
     val fireDocFile =
         FireDocFile(
-            relPath = TEST_REL_PATH,
+            fileName = TEST_REL_PATH,
             fireId = TEST_FIRE_FILE_ID,
             attributes = listOf(basicDocAttribute),
             md5 = TEST_MD5,

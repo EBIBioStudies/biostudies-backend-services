@@ -1,15 +1,14 @@
 package ac.uk.ebi.biostd.persistence.doc.db.converters.to
 
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.FILE_DOC_FULL_PATH
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.FILE_DOC_MD5
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.FILE_DOC_REL_PATH
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.FIRE_FILE_DOC_ATTRIBUTES
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.FIRE_FILE_DOC_FILE_SYSTEM
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.NFS_FILE_DOC_FULL_PATH
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_DOC_MD5
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.NFS_FILE_DOC_REL_PATH
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_DOC_ATTRIBUTES
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_DOC_FILE_SYSTEM
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_DOC_SIZE
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.FIRE_FILE_DOC_FILE_NAME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.FIRE_FILE_DOC_ID
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.FIRE_FILE_DOC_MD5
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.FIRE_FILE_DOC_REL_PATH
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.FIRE_FILE_SIZE
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.NFS_FILE_TYPE
 import ac.uk.ebi.biostd.persistence.doc.model.DocAttribute
 import ac.uk.ebi.biostd.persistence.doc.model.FileSystem.FIRE
 import ac.uk.ebi.biostd.persistence.doc.model.FileSystem.NFS
@@ -22,7 +21,6 @@ import org.assertj.core.api.Assertions.assertThat
 import org.bson.Document
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields
 
 @ExtendWith(MockKExtension::class)
 
@@ -38,8 +36,8 @@ internal class FileConverterTest(
         every { attributeConverter.convert(docAttribute) } returns document
         val file =
             NfsDocFile(
-                relPath = FILE_DOC_REL_PATH,
-                fullPath = FILE_DOC_FULL_PATH,
+                relPath = NFS_FILE_DOC_REL_PATH,
+                fullPath = NFS_FILE_DOC_FULL_PATH,
                 fileType = "file",
                 attributes = listOf(docAttribute),
                 md5 = FILE_DOC_MD5,
@@ -49,18 +47,18 @@ internal class FileConverterTest(
         val result = testInstance.convert(file)
 
         assertThat(result[FILE_DOC_MD5]).isEqualTo("md5")
-        assertThat(result[FILE_DOC_REL_PATH]).isEqualTo("relPath")
-        assertThat(result[FILE_DOC_FULL_PATH]).isEqualTo("fullPath")
-        assertThat(result[NfsDocFileFields.FILE_DOC_ATTRIBUTES]).isEqualTo(listOf(document))
-        assertThat(result[NfsDocFileFields.FILE_TYPE]).isEqualTo("file")
-        assertThat(result[ExtSerializationFields.FILE_SIZE]).isEqualTo(10L)
+        assertThat(result[NFS_FILE_DOC_REL_PATH]).isEqualTo("relPath")
+        assertThat(result[NFS_FILE_DOC_FULL_PATH]).isEqualTo("fullPath")
+        assertThat(result[FILE_DOC_ATTRIBUTES]).isEqualTo(listOf(document))
+        assertThat(result[NFS_FILE_TYPE]).isEqualTo("file")
+        assertThat(result[FILE_DOC_SIZE]).isEqualTo(10L)
     }
 
     @Test
     fun `converter from FireDocFile`() {
         every { attributeConverter.convert(docAttribute) } returns document
         val file = FireDocFile(
-            relPath = FIRE_FILE_DOC_REL_PATH,
+            fileName = FIRE_FILE_DOC_FILE_NAME,
             fireId = FIRE_FILE_DOC_ID,
             attributes = listOf(docAttribute),
             md5 = FILE_DOC_MD5,
@@ -70,11 +68,11 @@ internal class FileConverterTest(
 
         val result = testInstance.convert(file)
 
-        assertThat(result[FIRE_FILE_DOC_REL_PATH]).isEqualTo("relPath")
+        assertThat(result[FIRE_FILE_DOC_FILE_NAME]).isEqualTo("fileName")
         assertThat(result[FIRE_FILE_DOC_ID]).isEqualTo("fireId")
-        assertThat(result[FIRE_FILE_DOC_ATTRIBUTES]).isEqualTo(listOf(document))
-        assertThat(result[FIRE_FILE_DOC_MD5]).isEqualTo("md5")
-        assertThat(result[FIRE_FILE_SIZE]).isEqualTo(10L)
-        assertThat(result[FIRE_FILE_DOC_FILE_SYSTEM]).isEqualTo(FIRE.name)
+        assertThat(result[FILE_DOC_ATTRIBUTES]).isEqualTo(listOf(document))
+        assertThat(result[FILE_DOC_MD5]).isEqualTo("md5")
+        assertThat(result[FILE_DOC_SIZE]).isEqualTo(10L)
+        assertThat(result[FILE_DOC_FILE_SYSTEM]).isEqualTo(FIRE.name)
     }
 }

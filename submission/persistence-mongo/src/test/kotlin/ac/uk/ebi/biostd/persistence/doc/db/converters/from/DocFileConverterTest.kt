@@ -1,17 +1,13 @@
 package ac.uk.ebi.biostd.persistence.doc.db.converters.from
 
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.FILE_DOC_ATTRIBUTES
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.FILE_DOC_FULL_PATH
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.FILE_DOC_MD5
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.FILE_DOC_REL_PATH
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.FILE_SIZE
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.FILE_TYPE
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.FIRE_FILE_DOC_ATTRIBUTES
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.FIRE_FILE_DOC_FULL_PATH
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_DOC_ATTRIBUTES
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.NFS_FILE_DOC_FULL_PATH
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_DOC_MD5
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.NFS_FILE_DOC_REL_PATH
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_DOC_SIZE
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.FIRE_FILE_DOC_FILE_NAME
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.NFS_FILE_TYPE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.FIRE_FILE_DOC_ID
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.FIRE_FILE_DOC_MD5
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.FIRE_FILE_DOC_REL_PATH
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.FIRE_FILE_SIZE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.to.CommonsConverter
 import ac.uk.ebi.biostd.persistence.doc.model.DocAttribute
 import ac.uk.ebi.biostd.persistence.doc.model.FileSystem.FIRE
@@ -57,7 +53,7 @@ internal class DocFileConverterTest(
         val result = testInstance.convert(createFireFileDoc())
 
         require(result is FireDocFile)
-        assertThat(result.relPath).isEqualTo("relPath")
+        assertThat(result.fileName).isEqualTo("fileName")
         assertThat(result.fireId).isEqualTo("fireId")
         assertThat(result.attributes).isEqualTo(listOf(docAttribute))
         assertThat(result.md5).isEqualTo("md5")
@@ -69,12 +65,12 @@ internal class DocFileConverterTest(
         val file = Document()
 
         file[CommonsConverter.classField] = nfsDocFileClass
-        file[FILE_DOC_REL_PATH] = "relPath"
-        file[FILE_DOC_FULL_PATH] = "fullPath"
+        file[NFS_FILE_DOC_REL_PATH] = "relPath"
+        file[NFS_FILE_DOC_FULL_PATH] = "fullPath"
+        file[NFS_FILE_TYPE] = "file"
         file[FILE_DOC_ATTRIBUTES] = listOf(documentAttr)
         file[FILE_DOC_MD5] = "md5"
-        file[FILE_TYPE] = "file"
-        file[FILE_SIZE] = 10L
+        file[FILE_DOC_SIZE] = 10L
 
         return file
     }
@@ -83,12 +79,11 @@ internal class DocFileConverterTest(
         val file = Document()
 
         file[CommonsConverter.classField] = fireDocFileClass
-        file[FIRE_FILE_DOC_REL_PATH] = "relPath"
-        file[FIRE_FILE_DOC_FULL_PATH] = "fullPath"
+        file[FIRE_FILE_DOC_FILE_NAME] = "fileName"
         file[FIRE_FILE_DOC_ID] = "fireId"
-        file[FIRE_FILE_DOC_ATTRIBUTES] = listOf(documentAttr)
-        file[FIRE_FILE_DOC_MD5] = "md5"
-        file[FIRE_FILE_SIZE] = 10L
+        file[FILE_DOC_ATTRIBUTES] = listOf(documentAttr)
+        file[FILE_DOC_MD5] = "md5"
+        file[FILE_DOC_SIZE] = 10L
 
         return file
     }

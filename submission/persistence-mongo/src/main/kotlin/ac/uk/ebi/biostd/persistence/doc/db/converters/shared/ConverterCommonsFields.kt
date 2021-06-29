@@ -28,25 +28,24 @@ object DocAttributeFields {
     const val ATTRIBUTE_DETAIL_VALUE = "value"
 }
 
-object NfsDocFileFields {
-    val NFS_DOC_FILE_CLASS: String = NfsDocFile::class.java.canonicalName
-    const val FILE_DOC_REL_PATH = "relPath"
-    const val FILE_DOC_FULL_PATH = "fullPath"
+object DocFileFields {
     const val FILE_DOC_ATTRIBUTES = "attributes"
     const val FILE_DOC_MD5 = "md5"
-    const val FILE_TYPE = "type"
-    const val FILE_SIZE = "size"
+    const val FILE_DOC_SIZE = "fileSize"
+    const val FILE_DOC_FILE_SYSTEM = "fileSystem"
+}
+
+object NfsDocFileFields {
+    val NFS_DOC_FILE_CLASS: String = NfsDocFile::class.java.canonicalName
+    const val NFS_FILE_DOC_REL_PATH = "relPath"
+    const val NFS_FILE_DOC_FULL_PATH = "fullPath"
+    const val NFS_FILE_TYPE = "type"
 }
 
 object FireDocFileFields {
     val FIRE_DOC_FILE_CLASS: String = FireDocFile::class.java.canonicalName
-    const val FIRE_FILE_DOC_REL_PATH = "relPath"
-    const val FIRE_FILE_DOC_FULL_PATH = "fullPath"
+    const val FIRE_FILE_DOC_FILE_NAME = "fileName"
     const val FIRE_FILE_DOC_ID = "fireId"
-    const val FIRE_FILE_DOC_ATTRIBUTES = "attributes"
-    const val FIRE_FILE_DOC_MD5 = "md5"
-    const val FIRE_FILE_SIZE = "fileSize"
-    const val FIRE_FILE_DOC_FILE_SYSTEM = "fileSystem"
 }
 
 object DocFileListFields {

@@ -28,15 +28,7 @@ internal fun ExtFileList.toDocFileList(submissionId: ObjectId): Pair<DocFileList
 }
 
 private fun toFileDocListFile(submissionId: ObjectId, extFile: ExtFile) = when (extFile) {
-    is FireFile -> FileListDocFile(
-        id = ObjectId(),
-        submissionId = submissionId,
-        fileName = extFile.fileName,
-        fullPath = "fullPath",
-        attributes = extFile.attributes.map { it.toDocAttribute() },
-        md5 = extFile.md5,
-        fileSystem = FIRE
-    )
+    is FireFile -> throw FireFileToFileListDocFileNotSupportedException()
     is NfsFile -> FileListDocFile(
         id = ObjectId(),
         submissionId = submissionId,
@@ -52,7 +44,7 @@ private fun ExtFileTable.toDocFileTable() = DocFileTable(files.map { it.toDocFil
 private fun fileType(file: File): String = if (file.isDirectory) "directory" else "file"
 private fun ExtFile.toDocFile(): DocFile = when (this) {
     is FireFile -> FireDocFile(
-        relPath = fileName,
+        fileName = fileName,
         fireId = fireId,
         attributes = attributes.map { it.toDocAttribute() },
         md5 = md5,
@@ -60,12 +52,14 @@ private fun ExtFile.toDocFile(): DocFile = when (this) {
         fileSystem = FIRE
     )
     is NfsFile -> NfsDocFile(
-        fileName,
-        file.absolutePath,
-        fileType(file),
-        attributes.map { it.toDocAttribute() },
-        md5,
-        file.size(),
-        NFS
+        relPath = fileName,
+        fullPath = file.absolutePath,
+        fileType = fileType(file),
+        attributes = attributes.map { it.toDocAttribute() },
+        md5 = md5,
+        fileSize = file.size(),
+        fileSystem = NFS
     )
 }
+
+class FireFileToFileListDocFileNotSupportedException : UnsupportedOperationException()
