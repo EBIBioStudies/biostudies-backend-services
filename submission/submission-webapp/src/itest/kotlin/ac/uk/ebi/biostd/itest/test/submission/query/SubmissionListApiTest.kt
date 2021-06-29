@@ -26,6 +26,7 @@ import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
+import java.net.URLEncoder.encode
 
 @ExtendWith(TemporaryFolderExtension::class)
 internal class SubmissionListApiTest(private val tempFolder: TemporaryFolder) : BaseIntegrationTest(tempFolder) {
@@ -220,7 +221,7 @@ internal class SubmissionListApiTest(private val tempFolder: TemporaryFolder) : 
 
             val submissionList = webClient.getSubmissions(
                 mapOf(
-                    "keywords" to "n title"
+                    "keywords" to encode("n title", "UTF-8")
                 )
             )
 

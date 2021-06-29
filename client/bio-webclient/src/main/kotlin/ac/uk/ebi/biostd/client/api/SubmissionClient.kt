@@ -59,7 +59,7 @@ internal class SubmissionClient(
 
     override fun getSubmissions(filter: Map<String, Any>): List<SubmissionDto> {
         val builder = UriComponentsBuilder.fromUriString(SUBMISSIONS_URL)
-        filter.entries.forEach { builder.queryParam(it.key, encode(it.value)) }
+        filter.entries.forEach { builder.queryParam(it.key, it.value) }
         return template.getForObject<Array<SubmissionDto>>(builder.toUriString()).toList()
     }
 
