@@ -29,7 +29,8 @@ interface SubmissionClient :
     MultipartAsyncSubmissionOperations,
     GeneralOperations,
     DraftSubmissionOperations,
-    ExtSubmissionOperations
+    ExtSubmissionOperations,
+    PermissionOperations
 
 typealias SubmissionResponse = ClientResponse<Submission>
 
@@ -110,4 +111,8 @@ interface ExtSubmissionOperations {
     fun getExtSubmissionsPage(pageUrl: String): ExtPage
     fun getExtByAccNo(accNo: String): ExtSubmission
     fun submitExt(extSubmission: ExtSubmission): ExtSubmission
+}
+
+interface PermissionOperations {
+    fun givePermissionToUser(user: String, accessTagName: String, accessType: String)
 }

@@ -9,6 +9,7 @@ import ac.uk.ebi.biostd.client.integration.web.MultipartAsyncSubmissionOperation
 import ac.uk.ebi.biostd.client.integration.web.GeneralOperations
 import ac.uk.ebi.biostd.client.integration.web.DraftSubmissionOperations
 import ac.uk.ebi.biostd.client.integration.web.ExtSubmissionOperations
+import ac.uk.ebi.biostd.client.integration.web.PermissionOperations
 import ac.uk.ebi.biostd.integration.SerializationService
 import org.springframework.web.client.RestTemplate
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
@@ -25,4 +26,5 @@ internal class SubmissionClientImpl(
     MultipartAsyncSubmissionOperations by MultiPartAsyncSubmissionClient(template, serializationService),
     GeneralOperations by CommonOperationsClient(template),
     DraftSubmissionOperations by SubmissionDraftClient(template),
-    ExtSubmissionOperations by ExtSubmissionClient(template, extSerializationService)
+    ExtSubmissionOperations by ExtSubmissionClient(template, extSerializationService),
+    PermissionOperations by PermissionOperationsClient(template)
