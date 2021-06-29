@@ -4,6 +4,7 @@ import Dependencies.KotlinReflect
 import Dependencies.KotlinStdLib
 import Dependencies.SpringWeb
 import TestDependencies.AssertJ
+import TestDependencies.Awaitility
 import TestDependencies.JunitExtensions
 
 dependencies {
@@ -17,4 +18,5 @@ dependencies {
     implementation(KotlinStdLib)
     implementation(KotlinReflect)
     implementation(SpringWeb)
+    implementation(Awaitility)
 }

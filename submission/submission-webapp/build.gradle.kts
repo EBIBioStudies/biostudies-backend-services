@@ -26,6 +26,7 @@ import TestDependencies.TestContainer
 import TestDependencies.TestContainerJUnit
 import TestDependencies.TestContainerMongoDb
 import TestDependencies.TestContainerMysql
+import TestDependencies.TestContainerRabbitMQ
 import TestDependencies.XmlUnitCore
 import TestDependencies.XmlUnitMatchers
 import TestDependencies.rabitMqMock
@@ -97,6 +98,7 @@ dependencies {
     testImplementation(TestContainerMongoDb)
     testImplementation(TestContainer)
     testImplementation(TestContainerJUnit)
+    testImplementation(TestContainerRabbitMQ)
 }
 
 apply(from = "$rootDir/gradle/itest.gradle.kts")

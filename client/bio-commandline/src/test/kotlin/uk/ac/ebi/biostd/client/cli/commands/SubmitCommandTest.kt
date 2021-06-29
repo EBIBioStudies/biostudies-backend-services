@@ -24,6 +24,10 @@ internal class SubmitCommandTest(
     private lateinit var rootFolder: String
     private var testInstance = SubmitCommand(submissionService)
 
+    private val server = "server"
+    private val user = "user"
+    private val password = "password"
+
     @Test
     fun `submit successful`() {
         rootFolder = temporaryFolder.root.absolutePath
@@ -34,9 +38,9 @@ internal class SubmitCommandTest(
         val attachedFile2 = temporaryFolder.createFile("attachedFile2.tsv")
 
         val request = SubmissionRequest(
-            server = "server",
-            user = "user",
-            password = "password",
+            server = server,
+            user = user,
+            password = password,
             onBehalf = null,
             file = submission,
             attached = listOf(attachedFile1, attachedFile2)
@@ -45,9 +49,9 @@ internal class SubmitCommandTest(
 
         testInstance.parse(
             listOf(
-                "-s", "server",
-                "-u", "user",
-                "-p", "password",
+                "-s", server,
+                "-u", user,
+                "-p", password,
                 "-i", "$rootFolder/Submission.tsv",
                 "-a", "$rootFolder/attachedFile1.tsv,$rootFolder/attachedFile2.tsv"
             )

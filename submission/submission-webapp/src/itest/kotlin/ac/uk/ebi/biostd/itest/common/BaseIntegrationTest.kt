@@ -6,19 +6,22 @@ import ac.uk.ebi.biostd.itest.entities.TestUser
 import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
 import ebi.ac.uk.db.MONGO_VERSION
 import ebi.ac.uk.db.MYSQL_VERSION
+import ebi.ac.uk.db.RABBITMQ_VERSION
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.testcontainers.containers.MongoDBContainer
 import org.testcontainers.containers.MySQLContainer
 import org.testcontainers.containers.startupcheck.MinimumDurationRunningStartupCheckStrategy
+import org.testcontainers.containers.RabbitMQContainer
 import org.testcontainers.utility.DockerImageName
 import java.time.Duration.ofSeconds
 
-private const val CHARACTER_SET = "utf8mb4"
-private const val COLLATION = "utf8mb4_unicode_ci"
+internal const val CHARACTER_SET = "utf8mb4"
+internal const val COLLATION = "utf8mb4_unicode_ci"
 
 internal open class BaseIntegrationTest(private val tempFolder: TemporaryFolder) {
+    private val rabbitMQContainer = RabbitMQContainer(DockerImageName.parse(RABBITMQ_VERSION))
     private val mongoContainer: MongoDBContainer = MongoDBContainer(DockerImageName.parse(MONGO_VERSION))
         .withStartupCheckStrategy(MinimumDurationRunningStartupCheckStrategy(ofSeconds(MINIMUM_RUNNING_TIME)))
 
@@ -36,6 +39,7 @@ internal open class BaseIntegrationTest(private val tempFolder: TemporaryFolder)
             setUpMongo()
         }
 
+        setUpRabbitMQ()
         setUpMySql()
         setUpApplicationProperties()
     }
@@ -44,6 +48,7 @@ internal open class BaseIntegrationTest(private val tempFolder: TemporaryFolder)
     fun afterAll() {
         mysqlContainer.stop()
         mongoContainer.stop()
+        rabbitMQContainer.stop()
     }
 
     protected fun getWebClient(serverPort: Int, user: TestUser): BioWebClient {
@@ -53,6 +58,14 @@ internal open class BaseIntegrationTest(private val tempFolder: TemporaryFolder)
 
     protected fun createUser(testUser: TestUser, serverPort: Int) {
         SecurityWebClient.create("http://localhost:$serverPort").registerUser(testUser.asRegisterRequest())
+    }
+
+    private fun setUpRabbitMQ() {
+        rabbitMQContainer.start()
+        System.setProperty("spring.rabbitmq.host", rabbitMQContainer.host)
+        System.setProperty("spring.rabbitmq.username", rabbitMQContainer.adminUsername)
+        System.setProperty("spring.rabbitmq.password", rabbitMQContainer.adminPassword)
+        System.setProperty("spring.rabbitmq.port", rabbitMQContainer.getMappedPort(5672).toString())
     }
 
     private fun setUpMongo() {
