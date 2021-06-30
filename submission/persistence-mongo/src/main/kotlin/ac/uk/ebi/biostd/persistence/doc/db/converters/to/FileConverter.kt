@@ -8,7 +8,6 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.NF
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.NFS_DOC_FILE_CLASS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.FIRE_DOC_FILE_CLASS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.FIRE_FILE_DOC_FILE_NAME
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_DOC_FILE_SYSTEM
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_DOC_SIZE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.FIRE_FILE_DOC_ID
 import ac.uk.ebi.biostd.persistence.doc.db.converters.to.CommonsConverter.classField
@@ -25,7 +24,6 @@ class FileConverter(private val attributeConverter: AttributeConverter) : Conver
         file[FILE_DOC_ATTRIBUTES] = docFile.attributes.map { attributeConverter.convert(it) }
         file[FILE_DOC_MD5] = docFile.md5
         file[FILE_DOC_SIZE] = docFile.fileSize
-        file[FILE_DOC_FILE_SYSTEM] = docFile.fileSystem.name
 
         when (docFile) {
             is FireDocFile -> {

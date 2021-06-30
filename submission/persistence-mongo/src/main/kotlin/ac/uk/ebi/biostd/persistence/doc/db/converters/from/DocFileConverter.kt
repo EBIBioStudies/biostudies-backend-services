@@ -33,15 +33,15 @@ class DocFileConverter(private val docAttributeConverter: DocAttributeConverter)
             NFS_DOC_FILE_CLASS -> NfsDocFile(
                 relPath = source.getString(NFS_FILE_DOC_REL_PATH),
                 fullPath = source.getString(NFS_FILE_DOC_FULL_PATH),
+                fileType = source.getString(NFS_FILE_TYPE),
                 attributes = source.getDocList(FILE_DOC_ATTRIBUTES).map { docAttributeConverter.convert(it) },
                 md5 = source.getString(FILE_DOC_MD5),
-                fileType = source.getString(NFS_FILE_TYPE),
                 fileSize = source.getLong(FILE_DOC_SIZE),
                 fileSystem = NFS
             )
-            else -> throw InvalidClassNameDocFile(source.getString(classField))
+            else -> throw InvalidClassNameDocFileException(source.getString(classField))
         }
     }
 }
 
-class InvalidClassNameDocFile(className: String) : RuntimeException("could not be found $className class")
+class InvalidClassNameDocFileException(className: String) : RuntimeException("could not be found $className class")
