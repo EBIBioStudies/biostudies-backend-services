@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.itest.common
 
-import ac.uk.ebi.biostd.persistence.exception.CollectionValidationException
+import ac.uk.ebi.biostd.persistence.common.exception.CollectionValidationException
 import ac.uk.ebi.biostd.submission.validator.collection.CollectionValidator
 import ebi.ac.uk.extended.model.ExtSubmission
 

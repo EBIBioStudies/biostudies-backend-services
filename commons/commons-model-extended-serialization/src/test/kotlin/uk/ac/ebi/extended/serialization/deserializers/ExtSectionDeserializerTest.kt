@@ -3,6 +3,7 @@ package uk.ac.ebi.extended.serialization.deserializers
 import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.extended.model.ExtSection
+import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.util.collections.ifLeft
 import ebi.ac.uk.util.collections.ifRight
 import ebi.ac.uk.util.collections.second
@@ -51,7 +52,7 @@ class ExtSectionDeserializerTest(private val tempFolder: TemporaryFolder) {
                         "fileName" to "ref-file.txt"
                         "path" to "ref-file.txt"
                         "file" to referencedFile.absolutePath
-                        "extType" to "file"
+                        "extType" to "nfsFile"
                     }
                 )
             }
@@ -83,7 +84,7 @@ class ExtSectionDeserializerTest(private val tempFolder: TemporaryFolder) {
                     "fileName" to "section-file-inner-folders.txt"
                     "path" to "a/b/section-file-inner-folders.txt"
                     "file" to sectionFile.absolutePath
-                    "extType" to "file"
+                    "extType" to "nfsFile"
                 },
                 jsonObj {
                     "files" to jsonArray(
@@ -91,7 +92,7 @@ class ExtSectionDeserializerTest(private val tempFolder: TemporaryFolder) {
                             "fileName" to "section-file-table.txt"
                             "path" to "section-file-table.txt"
                             "file" to sectionFilesTable.absolutePath
-                            "extType" to "file"
+                            "extType" to "nfsFile"
                         }
                     )
                     "extType" to "filesTable"
@@ -128,8 +129,10 @@ class ExtSectionDeserializerTest(private val tempFolder: TemporaryFolder) {
         assertNotNull(extFileList)
         assertThat(extFileList.fileName).isEqualTo("file-list.json")
         assertThat(extFileList.files).hasSize(1)
-        assertThat(extFileList.files.first().file).isEqualTo(referencedFile)
-        assertThat(extFileList.files.first().fileName).isEqualTo("ref-file.txt")
+
+        val nfsFile = extFileList.files.first() as NfsFile
+        assertThat(nfsFile.file).isEqualTo(referencedFile)
+        assertThat(nfsFile.fileName).isEqualTo("ref-file.txt")
 
         val innerSections = extSection.sections
         assertThat(innerSections).hasSize(2)
@@ -153,6 +156,7 @@ class ExtSectionDeserializerTest(private val tempFolder: TemporaryFolder) {
         val extFile = extFiles.first()
         assertThat(extFile.isLeft()).isTrue()
         extFile.ifLeft {
+            it as NfsFile
             assertThat(it.file).isEqualTo(sectionFile)
             assertThat(it.fileName).isEqualTo("a/b/section-file-inner-folders.txt")
         }
@@ -161,8 +165,10 @@ class ExtSectionDeserializerTest(private val tempFolder: TemporaryFolder) {
         assertThat(extFilesTable.isRight()).isTrue()
         extFilesTable.ifRight {
             assertThat(it.files).hasSize(1)
-            assertThat(it.files.first().file).isEqualTo(sectionFilesTable)
-            assertThat(it.files.first().fileName).isEqualTo("section-file-table.txt")
+
+            val filesTableFile = it.files.first() as NfsFile
+            assertThat(filesTableFile.file).isEqualTo(sectionFilesTable)
+            assertThat(filesTableFile.fileName).isEqualTo("section-file-table.txt")
         }
 
         val extLinks = extSection.links

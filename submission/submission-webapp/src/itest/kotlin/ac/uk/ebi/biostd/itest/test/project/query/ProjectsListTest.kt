@@ -98,7 +98,7 @@ internal class ProjectsListTest(tempFolder: TemporaryFolder) : BaseIntegrationTe
             accessPermissionRepository.save(
                 DbAccessPermission(
                     user = userDataRepository.findByEmailAndActive(DefaultUser.email, true).get(),
-                    accessTag = tagsDataRepository.findByName("DefaultProject"),
+                    accessTag = tagsDataRepository.getByName("DefaultProject"),
                     accessType = ATTACH
                 )
             )

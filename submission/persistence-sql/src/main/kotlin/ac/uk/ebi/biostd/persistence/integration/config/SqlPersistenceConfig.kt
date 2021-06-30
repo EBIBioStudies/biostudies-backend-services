@@ -1,7 +1,6 @@
 package ac.uk.ebi.biostd.persistence.integration.config
 
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
-import ac.uk.ebi.biostd.persistence.common.filesystem.FileSystemService
 import ac.uk.ebi.biostd.persistence.common.service.CollectionDataService
 import ac.uk.ebi.biostd.persistence.common.service.PersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.StatsDataService
@@ -9,6 +8,7 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestService
 import ac.uk.ebi.biostd.persistence.common.service.UserPermissionsService
+import ac.uk.ebi.biostd.persistence.filesystem.service.FileSystemService
 import ac.uk.ebi.biostd.persistence.integration.services.SqlPersistenceService
 import ac.uk.ebi.biostd.persistence.integration.services.SqlSubmissionRequestService
 import ac.uk.ebi.biostd.persistence.integration.services.SubmissionSqlPersistenceService
