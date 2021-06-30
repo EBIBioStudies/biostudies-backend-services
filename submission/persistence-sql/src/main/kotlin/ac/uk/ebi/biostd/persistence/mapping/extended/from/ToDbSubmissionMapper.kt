@@ -60,7 +60,7 @@ internal class ToDbSubmissionMapper(
     private fun toDbSubmissionAttribute(idx: Int, attr: ExtAttribute) = DbSubmissionAttribute(attr.toDbAttribute(idx))
 
     private fun toAccessTag(accessTags: List<ExtCollection>) =
-        accessTags.mapTo(mutableSetOf()) { tagsRepository.findByName(it.accNo) }
+        accessTags.mapTo(mutableSetOf()) { tagsRepository.getByName(it.accNo) }
 
     private fun toTags(tags: List<ExtTag>) =
         tags.mapTo(mutableSetOf()) { tagsRefRepository.findByClassifierAndName(it.name, it.value) }

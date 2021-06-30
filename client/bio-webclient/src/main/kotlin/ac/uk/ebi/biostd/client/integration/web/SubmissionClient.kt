@@ -29,7 +29,8 @@ interface SubmissionClient :
     MultipartAsyncSubmissionOperations,
     GeneralOperations,
     DraftSubmissionOperations,
-    ExtSubmissionOperations
+    ExtSubmissionOperations,
+    PermissionOperations
 
 typealias SubmissionResponse = ClientResponse<Submission>
 
@@ -68,6 +69,7 @@ interface SubmissionOperations {
 
     fun refreshSubmission(accNo: String): SubmissionResponse
     fun deleteSubmission(accNo: String)
+    fun deleteSubmissions(submissions: List<String>)
     fun getSubmissions(filter: Map<String, Any> = mapOf()): List<SubmissionDto>
 }
 
@@ -109,4 +111,8 @@ interface ExtSubmissionOperations {
     fun getExtSubmissionsPage(pageUrl: String): ExtPage
     fun getExtByAccNo(accNo: String): ExtSubmission
     fun submitExt(extSubmission: ExtSubmission): ExtSubmission
+}
+
+interface PermissionOperations {
+    fun givePermissionToUser(user: String, accessTagName: String, accessType: String)
 }

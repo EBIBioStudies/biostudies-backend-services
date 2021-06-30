@@ -10,7 +10,7 @@ import ac.uk.ebi.biostd.submission.web.model.OnBehalfRequest
 import com.fasterxml.jackson.annotation.JsonRawValue
 import com.fasterxml.jackson.annotation.JsonValue
 import ebi.ac.uk.extended.model.FileMode
-import ebi.ac.uk.model.SubmissionDraft
+import ac.uk.ebi.biostd.persistence.common.model.SubmissionDraft
 import ebi.ac.uk.model.constants.ATTRIBUTES
 import ebi.ac.uk.model.constants.FILE_MODE
 import ebi.ac.uk.security.integration.model.api.SecurityUser

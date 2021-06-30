@@ -37,7 +37,7 @@ internal class ToDbSubmissionMapperTest(
         @MockK user: DbUser,
         @MockK submitter: DbUser
     ) {
-        every { accessTagsRepository.findByName(extCollection.accNo) } returns accessTag
+        every { accessTagsRepository.getByName(extCollection.accNo) } returns accessTag
         every { tagsRepository.findByClassifierAndName(extTag.name, extTag.value) } returns tag
         every { userRepository.findByEmail(OWNER) } returns Optional.of(user)
         every { userRepository.findByEmail(SUBMITTER) } returns Optional.of(submitter)

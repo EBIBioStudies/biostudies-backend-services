@@ -222,5 +222,5 @@ object Projects {
     const val CommonsTest = ":commons:commons-test"
     const val SubmissionConfig = ":submission:submission-config"
     const val SubmissionPersistenceCommonApi = ":submission:persistence-common-api"
-    const val SubmissionPersistenceCommon = ":submission:persistence-common"
+    const val SubmissionPersistenceFilesystem = ":submission:persistence-filesystem"
 }

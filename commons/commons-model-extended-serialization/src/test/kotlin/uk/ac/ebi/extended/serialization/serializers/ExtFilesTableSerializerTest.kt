@@ -3,8 +3,8 @@ package uk.ac.ebi.extended.serialization.serializers
 import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.extended.model.ExtAttribute
-import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileTable
+import ebi.ac.uk.extended.model.NfsFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
@@ -21,7 +21,7 @@ class ExtFilesTableSerializerTest(private val tempFolder: TemporaryFolder) {
     fun serialize() {
         val file = tempFolder.createFile("test-file.txt")
         val extFilesTable = ExtFileTable(
-            ExtFile(
+            NfsFile(
                 file = file,
                 fileName = "test/path/test-file.txt",
                 attributes = listOf(ExtAttribute("Type", "Data", false))
@@ -40,7 +40,7 @@ class ExtFilesTableSerializerTest(private val tempFolder: TemporaryFolder) {
                             "reference" to false
                         }
                     )
-                    "extType" to "file"
+                    "extType" to "nfsFile"
                     "type" to "file"
                     "size" to 0
                 }

@@ -72,9 +72,7 @@ internal class DeletePermissionTest(private val tempFolder: TemporaryFolder) : B
 
             assertThat(superUserWebClient.submitSingle(submission, TSV)).isSuccessful()
             superUserWebClient.deleteSubmission("SimpleAcc1")
-
-            val deletedSubmission = submissionRepository.getExtByAccNoAndVersion("SimpleAcc1", -1)
-            assertThat(deletedSubmission.version).isEqualTo(-1)
+            assertDeletedSubmission("SimpleAcc1")
         }
 
         @Test
@@ -105,9 +103,7 @@ internal class DeletePermissionTest(private val tempFolder: TemporaryFolder) : B
             assertThat(superUserWebClient.submitSingle(submission, TSV)).isSuccessful()
 
             regularUserWebClient.deleteSubmission("SimpleAcc3")
-
-            val deletedSubmission = submissionRepository.getExtByAccNoAndVersion("SimpleAcc3", -1)
-            assertThat(deletedSubmission.version).isEqualTo(-1)
+            assertDeletedSubmission("SimpleAcc3")
         }
 
         @Test
@@ -126,6 +122,38 @@ internal class DeletePermissionTest(private val tempFolder: TemporaryFolder) : B
             assertThat(resubmitted.version).isEqualTo(2)
         }
 
+        @Test
+        fun `delete subsmissions`() {
+            val submission1 = tsv {
+                line("Submission", "S-TEST1")
+                line("Title", "Test Section Table")
+            }.toString()
+            val submission2 = tsv {
+                line("Submission", "S-TEST2")
+                line("Title", "Test Section Table")
+            }.toString()
+            val submission3 = tsv {
+                line("Submission", "S-TEST3")
+                line("Title", "Test Section Table")
+            }.toString()
+
+            assertThat(superUserWebClient.submitSingle(submission1, TSV)).isSuccessful()
+            assertThat(superUserWebClient.submitSingle(submission2, TSV)).isSuccessful()
+            assertThat(superUserWebClient.submitSingle(submission3, TSV)).isSuccessful()
+
+            superUserWebClient.deleteSubmissions(listOf("S-TEST1", "S-TEST3"))
+            Thread.sleep(5000)
+
+            assertDeletedSubmission("S-TEST1")
+            assertDeletedSubmission("S-TEST3")
+            assertThat(submissionRepository.getExtByAccNo("S-TEST2")).isNotNull
+        }
+
+        private fun assertDeletedSubmission(accNo: String) {
+            val deletedSubmission = submissionRepository.getExtByAccNoAndVersion(accNo, -1)
+            assertThat(deletedSubmission.version).isEqualTo(-1)
+        }
+
         private fun setUpPermissions() {
             val project = tsv {
                 line("Submission", "AProject")
@@ -138,7 +166,7 @@ internal class DeletePermissionTest(private val tempFolder: TemporaryFolder) : B
 
             assertThat(superUserWebClient.submitSingle(projectFile, emptyList())).isSuccessful()
 
-            val accessTag = tagsDataRepository.findByName("AProject")
+            val accessTag = tagsDataRepository.getByName("AProject")
             val user = userDataRepository.findByEmailAndActive(RegularUser.email, active = true)
             val accessPermission = DbAccessPermission(accessType = DELETE, user = user.get(), accessTag = accessTag)
             accessPermissionRepository.save(accessPermission)

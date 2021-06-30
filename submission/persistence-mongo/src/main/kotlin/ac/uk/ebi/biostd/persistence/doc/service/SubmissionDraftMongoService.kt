@@ -8,7 +8,7 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDraftDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft
 import ebi.ac.uk.extended.mapping.to.toSimpleSubmission
-import ebi.ac.uk.model.SubmissionDraft
+import ac.uk.ebi.biostd.persistence.common.model.SubmissionDraft
 import java.time.Instant
 
 class SubmissionDraftMongoService(

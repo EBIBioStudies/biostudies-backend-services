@@ -7,6 +7,7 @@ import ebi.ac.uk.api.security.ChangePasswordRequest
 import ebi.ac.uk.api.security.LoginRequest
 import ebi.ac.uk.extended.events.SecurityNotification
 import ebi.ac.uk.extended.events.SecurityNotificationType.ACTIVATION
+import ebi.ac.uk.extended.events.SecurityNotificationType.ACTIVATION_BY_EMAIL
 import ebi.ac.uk.extended.events.SecurityNotificationType.PASSWORD_RESET
 import ebi.ac.uk.io.RWXRWX___
 import ebi.ac.uk.io.RWX__X___
@@ -16,6 +17,7 @@ import ebi.ac.uk.security.integration.exception.UserNotFoundByEmailException
 import ebi.ac.uk.security.integration.exception.UserPendingRegistrationException
 import ebi.ac.uk.security.integration.exception.UserWithActivationKeyNotFoundException
 import ebi.ac.uk.security.test.SecurityTestEntities
+import ebi.ac.uk.security.test.SecurityTestEntities.Companion.activateByEmailRequest
 import ebi.ac.uk.security.test.SecurityTestEntities.Companion.captcha
 import ebi.ac.uk.security.test.SecurityTestEntities.Companion.email
 import ebi.ac.uk.security.test.SecurityTestEntities.Companion.instanceKey
@@ -153,7 +155,7 @@ internal class SecurityServiceTest(
         fun `register a user when activation is required`() {
             val savedUserSlot = slot<DbUser>()
             val activationSlot = slot<SecurityNotification>()
-            val activationUrl = "http://dummy-backend.com/active/1234"
+            val activationUrl = "https://dummy-backend.com/active/1234"
 
             every { securityProps.requireActivation } returns true
             every { securityUtil.newKey() } returns SECRET_KEY andThen ACTIVATION_KEY
@@ -220,7 +222,7 @@ internal class SecurityServiceTest(
             val savedUserSlot = slot<DbUser>()
             val activationSlot = slot<SecurityNotification>()
             val user = simpleUser.apply { active = false }
-            val activationUrl = "http://dummy-backend.com/active/1234"
+            val activationUrl = "https://dummy-backend.com/active/1234"
 
             every { userRepository.findByEmailAndActive(email, false) } returns Optional.of(user)
             every { securityUtil.newKey() } returns ACTIVATION_KEY
@@ -249,15 +251,15 @@ internal class SecurityServiceTest(
 
         @Test
         fun `change password`() {
-            val passwordDiggest = ByteArray(0)
+            val passwordDigest = ByteArray(0)
             every { userRepository.findByActivationKeyAndActive(ACTIVATION_KEY, true) } returns Optional.of(simpleUser)
-            every { securityUtil.getPasswordDigest(password) } returns passwordDiggest
+            every { securityUtil.getPasswordDigest(password) } returns passwordDigest
             every { userRepository.save(any<DbUser>()) } answers { firstArg() }
 
-            testInstance.changePassword(ChangePasswordRequest(ACTIVATION_KEY, "new password"))
-
+            val updated = testInstance.changePassword(ChangePasswordRequest(ACTIVATION_KEY, "new password"))
+            assertThat(updated.email).isEqualTo(simpleUser.email)
             assertThat(simpleUser.activationKey).isNull()
-            assertThat(simpleUser.passwordDigest).isEqualTo(passwordDiggest)
+            assertThat(simpleUser.passwordDigest).isEqualTo(passwordDigest)
         }
     }
 
@@ -279,7 +281,7 @@ internal class SecurityServiceTest(
         @Test
         fun resetPassword() {
             val resetSlot = slot<SecurityNotification>()
-            val activationUrl = "http://dummy-backend.com/active/1234"
+            val activationUrl = "https://dummy-backend.com/active/1234"
 
             every { userRepository.findByLoginOrEmailAndActive(email, email, true) } returns Optional.of(simpleUser)
             every { securityUtil.newKey() } returns ACTIVATION_KEY
@@ -294,6 +296,43 @@ internal class SecurityServiceTest(
             assertThat(notification.username).isEqualTo(simpleUser.fullName)
             assertThat(notification.activationLink).isEqualTo(activationUrl)
             assertThat(notification.type).isEqualTo(PASSWORD_RESET)
+        }
+    }
+
+    @Nested
+    inner class ActivateByEmail {
+        @Test
+        fun `activate by email when user not found`() {
+            every { userRepository.findByEmailAndActive(email, false) } returns Optional.empty()
+
+            assertThrows<UserNotFoundByEmailException> { testInstance.activateByEmail(activateByEmailRequest) }
+        }
+
+        @Test
+        fun `activate by email`() {
+            val userSlot = slot<DbUser>()
+            val activateByEmailSlot = slot<SecurityNotification>()
+            val activationUrl = "https://dummy-backend.com/active/1234"
+
+            every { userRepository.findByEmailAndActive(email, false) } returns Optional.of(simpleUser)
+            every { userRepository.findByLoginOrEmailAndActive(email, email, true) } returns Optional.of(simpleUser)
+            every { securityUtil.newKey() } returns ACTIVATION_KEY
+            every { userRepository.save(capture(userSlot)) } answers { firstArg() }
+            every { securityUtil.getActivationUrl(instanceKey, path, ACTIVATION_KEY) } returns activationUrl
+            every { eventsPublisherService.securityNotification(capture(activateByEmailSlot)) } answers { nothing }
+            every { securityProps.magicDirPath } returns temporaryFolder.createDirectory("users").absolutePath
+
+            testInstance.activateByEmail(activateByEmailRequest)
+
+            val notification = activateByEmailSlot.captured
+            assertThat(notification.email).isEqualTo(simpleUser.email)
+            assertThat(notification.username).isEqualTo(simpleUser.fullName)
+            assertThat(notification.activationLink).isEqualTo(activationUrl)
+            assertThat(notification.type).isEqualTo(ACTIVATION_BY_EMAIL)
+
+            val activatedUser = userSlot.captured
+            assertThat(activatedUser.active).isTrue
+            assertThat(activatedUser.activationKey).isEqualTo(ACTIVATION_KEY)
         }
     }
 }

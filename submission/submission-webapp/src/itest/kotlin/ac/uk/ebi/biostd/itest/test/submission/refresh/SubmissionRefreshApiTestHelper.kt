@@ -8,6 +8,7 @@ import ebi.ac.uk.dsl.submission
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.model.extensions.releaseDate
 import ebi.ac.uk.model.extensions.rootPath
 import ebi.ac.uk.model.extensions.title
@@ -65,6 +66,7 @@ object SubmissionRefreshApiTestHelper {
     private fun assertFile(file: Either<ExtFile, ExtFileTable>, type: String) {
         assertThat(file.isLeft()).isTrue()
         file.ifLeft {
+            it as NfsFile
             assertThat(it.fileName).isEqualTo(TEST_FILE_NAME)
             assertThat(it.attributes).hasSize(1)
             assertThat(it.attributes.first().name).isEqualTo("type")

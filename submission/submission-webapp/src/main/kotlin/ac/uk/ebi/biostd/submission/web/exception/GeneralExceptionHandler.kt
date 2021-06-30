@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.submission.web.exception
 
-import ac.uk.ebi.biostd.persistence.exception.SubmissionNotFoundException
+import ac.uk.ebi.biostd.persistence.common.exception.SubmissionNotFoundException
 import ebi.ac.uk.errors.ValidationNode
 import ebi.ac.uk.errors.ValidationNodeStatus.ERROR
 import ebi.ac.uk.errors.ValidationTree

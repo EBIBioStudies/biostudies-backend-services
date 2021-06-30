@@ -4,19 +4,25 @@ import ac.uk.ebi.biostd.persistence.doc.CHANGE_LOG_COLLECTION
 import ac.uk.ebi.biostd.persistence.doc.CHANGE_LOG_LOCK
 import ac.uk.ebi.biostd.persistence.doc.MongoDbConfig
 import ac.uk.ebi.biostd.persistence.doc.MongoDbConfig.Companion.createMongockConfig
+import ac.uk.ebi.biostd.persistence.doc.commons.getCollection
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_TYPE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ACC_NO
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_OWNER
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_RELEASED
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_RELEASE_TIME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_SECTION
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_SUBMITTER
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_TITLE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_VERSION
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus.REQUESTED
 import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocSubmission
 import com.mongodb.BasicDBObject
+import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
 import ebi.ac.uk.db.MONGO_VERSION
 import org.assertj.core.api.Assertions.assertThat
+import org.bson.Document
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -24,21 +30,21 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.DefaultApplicationArguments
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.ApplicationContext
-import org.springframework.data.domain.Sort.Direction.ASC
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.data.mongodb.core.collectionExists
 import org.springframework.data.mongodb.core.createCollection
 import org.springframework.data.mongodb.core.dropCollection
 import org.springframework.data.mongodb.core.findAll
-import org.springframework.data.mongodb.core.getCollectionName
-import org.springframework.data.mongodb.core.index.Index
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.testcontainers.containers.MongoDBContainer
+import org.testcontainers.containers.startupcheck.MinimumDurationRunningStartupCheckStrategy
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.utility.DockerImageName
+import java.time.Duration.ofSeconds
+import java.util.AbstractMap.SimpleEntry
 
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(classes = [MongoDbConfig::class])
@@ -85,34 +91,43 @@ internal class DatabaseChangeLogTest(
     }
 
     private fun assertSubmissionCollection() {
-        val submissionCollection = mongoTemplate.getCollectionName<DocSubmission>()
-        val submissionIndexes = mongoTemplate.getCollection(submissionCollection).listIndexes().map { it["key"]!! }
+        val listIndexes = mongoTemplate.getCollection<DocSubmission>().listIndexes().toList()
 
-        assertThat(mongoTemplate.collectionExists<DocSubmission>()).isTrue()
-        assertThat(mongoTemplate.getCollection(submissionCollection).listIndexes()).hasSize(9)
+        assertThat(mongoTemplate.collectionExists<DocSubmission>()).isTrue
+        assertThat(listIndexes).hasSize(9)
 
-        assertThat(submissionIndexes).contains(Index().on("_id", ASC).indexKeys)
-        assertThat(submissionIndexes).contains(Index().on(SUB_ACC_NO, ASC).indexKeys)
-        assertThat(submissionIndexes).contains(Index().on(SUB_ACC_NO, ASC).on(SUB_VERSION, ASC).indexKeys)
-        assertThat(submissionIndexes).contains(Index().on("$SUB_SECTION.$SEC_TYPE", ASC).indexKeys)
-        assertThat(submissionIndexes).contains(Index().on(SUB_RELEASE_TIME, ASC).indexKeys)
-        assertThat(submissionIndexes).contains(Index().on(SUB_RELEASED, ASC).indexKeys)
+        assertThat(listIndexes[0]).containsEntry("key", Document("_id", 1))
+        assertThat(listIndexes[1]).containsEntry("key", Document(SUB_ACC_NO, 1))
+        assertThat(listIndexes[2]).containsEntry("key", Document(SUB_ACC_NO, 1).append(SUB_VERSION, 1))
+        assertThat(listIndexes[3]).containsEntry("key", Document(SUB_OWNER, 1))
+        assertThat(listIndexes[4]).containsEntry("key", Document(SUB_SUBMITTER, 1))
+        assertThat(listIndexes[5]).containsEntry("key", Document("$SUB_SECTION.$SEC_TYPE", 1))
+        assertThat(listIndexes[6]).containsEntry("key", Document(SUB_RELEASE_TIME, 1))
+        assertThat(listIndexes[7]).contains(
+            SimpleEntry("textIndexVersion", 3), SimpleEntry("weights", Document(SUB_TITLE, 1))
+        )
+        assertThat(listIndexes[7]).containsEntry("weights", Document(SUB_TITLE, 1))
+        assertThat(listIndexes[8]).containsEntry("key", Document(SUB_RELEASED, 1))
     }
 
     private fun assertRequestCollection() {
-        val requestCollection = mongoTemplate.getCollectionName<SubmissionRequest>()
-        val requestIndexes = mongoTemplate.getCollection(requestCollection).listIndexes().map { it["key"]!! }
+        val listIndexes = mongoTemplate.getCollection<SubmissionRequest>().listIndexes().toList()
 
-        assertThat(mongoTemplate.collectionExists<SubmissionRequest>()).isTrue()
-        assertThat(mongoTemplate.getCollection(requestCollection).listIndexes()).hasSize(10)
+        assertThat(mongoTemplate.collectionExists<SubmissionRequest>()).isTrue
+        assertThat(listIndexes).hasSize(10)
 
-        assertThat(requestIndexes).contains(Index().on("_id", ASC).indexKeys)
-        assertThat(requestIndexes).contains(Index().on(SUB_ACC_NO, ASC).indexKeys)
-        assertThat(requestIndexes).contains(Index().on(SUB_ACC_NO, ASC).on(SUB_VERSION, ASC).indexKeys)
-        assertThat(requestIndexes).contains(Index().on("submission.$SUB_SECTION.$SEC_TYPE", ASC).indexKeys)
-        assertThat(requestIndexes).contains(Index().on("submission.$SUB_ACC_NO", ASC).indexKeys)
-        assertThat(requestIndexes).contains(Index().on("submission.$SUB_RELEASE_TIME", ASC).indexKeys)
-        assertThat(requestIndexes).contains(Index().on("submission.$SUB_RELEASED", ASC).indexKeys)
+        assertThat(listIndexes[0]).containsEntry("key", Document("_id", 1))
+        assertThat(listIndexes[1]).containsEntry("key", Document(SUB_ACC_NO, 1))
+        assertThat(listIndexes[2]).containsEntry("key", Document(SUB_ACC_NO, 1).append(SUB_VERSION, 1))
+        assertThat(listIndexes[3]).containsEntry("key", Document("submission.$SUB_SECTION.$SEC_TYPE", 1))
+        assertThat(listIndexes[4]).containsEntry("key", Document("submission.$SUB_ACC_NO", 1))
+        assertThat(listIndexes[5]).containsEntry("key", Document("submission.$SUB_OWNER", 1))
+        assertThat(listIndexes[6]).containsEntry("key", Document("submission.$SUB_SUBMITTER", 1))
+        assertThat(listIndexes[7]).containsEntry("key", Document("submission.$SUB_RELEASE_TIME", 1))
+        assertThat(listIndexes[8]).contains(
+            SimpleEntry("textIndexVersion", 3), SimpleEntry("weights", Document("submission.$SUB_TITLE", 1))
+        )
+        assertThat(listIndexes[9]).containsEntry("key", Document("submission.$SUB_RELEASED", 1))
     }
 
     private fun runMigrations() {
@@ -130,6 +145,7 @@ internal class DatabaseChangeLogTest(
     companion object {
         @Container
         val mongoContainer: MongoDBContainer = MongoDBContainer(DockerImageName.parse(MONGO_VERSION))
+            .withStartupCheckStrategy(MinimumDurationRunningStartupCheckStrategy(ofSeconds(MINIMUM_RUNNING_TIME)))
 
         @JvmStatic
         @DynamicPropertySource
