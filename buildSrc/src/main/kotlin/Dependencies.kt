@@ -41,6 +41,7 @@ import Versions.SpringBootVersion
 import Versions.SpringDataVersion
 import Versions.SpringVersion
 import Versions.SpringfoxSwaggerVersion
+import Versions.UnivocityParsersVersion
 import Versions.WoodstoxVersion
 import Versions.XlsxStreamerVersion
 import Versions.XmlBuilderVersion
@@ -97,6 +98,7 @@ object Versions {
     const val SpringfoxSwaggerVersion = "2.9.2"
     const val Log4JVersion = "1.7.29"
     const val JavaValidationApiVersion = "2.0.1.Final"
+    const val UnivocityParsersVersion = "2.9.1"
 }
 
 object TestDependencies {
@@ -171,6 +173,7 @@ object Dependencies {
     const val SpringfoxSwaggerUI = "io.springfox:springfox-swagger-ui:$SpringfoxSwaggerVersion"
     const val Log4J = "org.slf4j:slf4j-simple:$Log4JVersion"
     const val JavaValidationApi = "javax.validation:validation-api:$JavaValidationApiVersion"
+    const val univocityParsers = "com.univocity:univocity-parsers:$UnivocityParsersVersion"
 
     // Kotlin specific
     const val KotlinStdLib = "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$KotlinVersion"
