@@ -24,7 +24,6 @@ import Versions.JschVersion
 import Versions.JwtVersion
 import Versions.KMongoCoroutineVersion
 import Versions.KotlinArrowVersion
-import Versions.KotlinCoroutineVersion
 import Versions.KotlinLoggingVersion
 import Versions.KotlinVersion
 import Versions.Log4JVersion
@@ -41,7 +40,6 @@ import Versions.SpringBootVersion
 import Versions.SpringDataVersion
 import Versions.SpringVersion
 import Versions.SpringfoxSwaggerVersion
-import Versions.UnivocityParsersVersion
 import Versions.WoodstoxVersion
 import Versions.XlsxStreamerVersion
 import Versions.XmlBuilderVersion
@@ -69,7 +67,6 @@ object Versions {
     const val KotlinVersion = "1.4.32"
     const val KotlinLoggingVersion = "1.6.20"
     const val KotlinArrowVersion = "0.8.2"
-    const val KotlinCoroutineVersion = "1.4.3"
     const val KMongoCoroutineVersion = "4.1.3"
     const val JpaEntityGraphVersion = "2.2.3"
     const val MongockVersion = "4.3.8"
@@ -98,7 +95,6 @@ object Versions {
     const val SpringfoxSwaggerVersion = "2.9.2"
     const val Log4JVersion = "1.7.29"
     const val JavaValidationApiVersion = "2.0.1.Final"
-    const val UnivocityParsersVersion = "2.9.1"
 }
 
 object TestDependencies {
@@ -173,13 +169,11 @@ object Dependencies {
     const val SpringfoxSwaggerUI = "io.springfox:springfox-swagger-ui:$SpringfoxSwaggerVersion"
     const val Log4J = "org.slf4j:slf4j-simple:$Log4JVersion"
     const val JavaValidationApi = "javax.validation:validation-api:$JavaValidationApiVersion"
-    const val univocityParsers = "com.univocity:univocity-parsers:$UnivocityParsersVersion"
 
     // Kotlin specific
     const val KotlinStdLib = "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$KotlinVersion"
     const val KotlinReflect = "org.jetbrains.kotlin:kotlin-reflect:$KotlinVersion"
     const val KotlinLogging = "io.github.microutils:kotlin-logging:$KotlinLoggingVersion"
-    const val Coroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core:$KotlinCoroutineVersion"
 
     // Arrow
     const val Arrow = "io.arrow-kt:arrow-core:$KotlinArrowVersion"

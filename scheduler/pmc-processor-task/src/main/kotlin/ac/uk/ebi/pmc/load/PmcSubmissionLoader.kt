@@ -29,7 +29,6 @@ class PmcSubmissionLoader(
     private val inputFilesDocService: InputFilesDocService,
     private val submissionService: SubmissionDocService
 ) {
-
     /**
      * Process the given plain file and load submissions into database. Previously loaded submission are register
      * when new version is found and any issue processing the file is registered in the errors collection.
