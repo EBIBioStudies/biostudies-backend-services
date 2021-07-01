@@ -14,10 +14,12 @@ class ExtSectionsTableDeserializerTest {
     @Test
     fun deserialize() {
         val json = jsonObj {
-            "sections" to jsonArray(jsonObj {
-                "type" to "Study"
-                "extType" to "section"
-            })
+            "sections" to jsonArray(
+                jsonObj {
+                    "type" to "Study"
+                    "extType" to "section"
+                }
+            )
             "extType" to "sectionsTable"
         }.toString()
 

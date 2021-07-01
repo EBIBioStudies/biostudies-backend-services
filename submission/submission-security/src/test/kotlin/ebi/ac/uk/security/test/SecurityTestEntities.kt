@@ -1,6 +1,7 @@
 package ebi.ac.uk.security.test
 
 import ac.uk.ebi.biostd.persistence.model.DbUser
+import ebi.ac.uk.api.security.ActivateByEmailRequest
 import ebi.ac.uk.api.security.RegisterRequest
 import ebi.ac.uk.api.security.ResetPasswordRequest
 import ebi.ac.uk.api.security.RetryActivationRequest
@@ -35,20 +36,30 @@ internal class SecurityTestEntities {
                 password = password,
                 instanceKey = instanceKey,
                 captcha = captcha,
-                path = path)
+                path = path
+            )
 
         val resetPasswordRequest: ResetPasswordRequest
             get() = ResetPasswordRequest(
                 email = email,
                 instanceKey = instanceKey,
                 path = path,
-                captcha = captcha)
+                captcha = captcha
+            )
+
+        val activateByEmailRequest: ActivateByEmailRequest
+            get() = ActivateByEmailRequest(
+                email = email,
+                instanceKey = instanceKey,
+                path = path
+            )
 
         val retryActivation: RetryActivationRequest
             get() = RetryActivationRequest(
                 email = email,
                 instanceKey = instanceKey,
-                path = path)
+                path = path
+            )
 
         const val secret = "secret"
         val passwordDiggest = ByteArray(0)
@@ -59,7 +70,8 @@ internal class SecurityTestEntities {
                 email = email,
                 fullName = name,
                 secret = secret,
-                passwordDigest = passwordDiggest)
+                passwordDigest = passwordDiggest
+            )
         }
 
         fun securityUser(): SecurityUser =
@@ -83,7 +95,8 @@ internal class SecurityTestEntities {
                 fullName = name,
                 secret = secret,
                 passwordDigest = passwordDiggest,
-                superuser = true)
+                superuser = true
+            )
         }
     }
 }

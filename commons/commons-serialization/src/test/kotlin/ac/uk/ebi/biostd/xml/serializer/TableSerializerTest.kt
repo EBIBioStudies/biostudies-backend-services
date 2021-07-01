@@ -29,14 +29,16 @@ import org.xmlunit.assertj.XmlAssert.assertThat
 
 class TableSerializerTest {
 
-    private val xmlMapper = XmlMapper(JacksonXmlModule().apply {
-        addSerializer(File::class.java, FileSerializer())
-        addSerializer(Link::class.java, LinkSerializer())
-        addSerializer(Table::class.java, TableSerializer())
-        addSerializer(Either::class.java, EitherSerializer())
-        addSerializer(Section::class.java, SectionSerializer())
-        addSerializer(Attribute::class.java, AttributeSerializer())
-    })
+    private val xmlMapper = XmlMapper(
+        JacksonXmlModule().apply {
+            addSerializer(File::class.java, FileSerializer())
+            addSerializer(Link::class.java, LinkSerializer())
+            addSerializer(Table::class.java, TableSerializer())
+            addSerializer(Either::class.java, EitherSerializer())
+            addSerializer(Section::class.java, SectionSerializer())
+            addSerializer(Attribute::class.java, AttributeSerializer())
+        }
+    )
 
     @Test
     fun `Serialize when table is a links table`() {
@@ -89,7 +91,8 @@ class TableSerializerTest {
                         name = "Attr",
                         value = "The Value",
                         nameAttrs = mutableListOf(AttributeDetail("NameAttr", "A")),
-                        valueAttrs = mutableListOf(AttributeDetail("ValAttr", "B")))
+                        valueAttrs = mutableListOf(AttributeDetail("ValAttr", "B"))
+                    )
                 }
             }
         }

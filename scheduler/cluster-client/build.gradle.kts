@@ -1,6 +1,7 @@
 import Dependencies.Arrow
 import Dependencies.CommonsIO
 import Dependencies.Jsch
+import Dependencies.KotlinReflect
 import Dependencies.KotlinStdLib
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
@@ -11,6 +12,7 @@ dependencies {
     implementation(Arrow)
     implementation(CommonsIO)
     implementation(Jsch)
+    implementation(KotlinReflect)
     implementation(KotlinStdLib)
 
     BaseTestCompileDependencies.forEach { testImplementation(it) }

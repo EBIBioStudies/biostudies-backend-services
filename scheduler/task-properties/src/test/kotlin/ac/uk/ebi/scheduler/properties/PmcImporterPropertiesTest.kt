@@ -26,10 +26,12 @@ class PmcImporterPropertiesTest {
             bioStudiesUser = bioStudiesUser,
             bioStudiesPassword = bioStudiesPassword,
             pmcBaseUrl = baseUrl,
-            notificationsUrl = notificationUrl)
+            notificationsUrl = notificationUrl
+        )
 
         assertThat(properties.asJavaCommand("/apps-folder"))
-            .isEqualTo("""
+            .isEqualTo(
+                """
                 java -jar /apps-folder/pmc-processor-task-1.0.0.jar \
                 --app.data.mode=LOAD \
                 --app.data.temp=/tempDir \
@@ -41,7 +43,8 @@ class PmcImporterPropertiesTest {
                 --app.data.bioStudiesUrl=http://an_url.com \
                 --app.data.bioStudiesUser=user \
                 --app.data.bioStudiesPassword=password
-            """.trimIndent())
+                """.trimIndent()
+            )
     }
 
     @Test
@@ -56,9 +59,11 @@ class PmcImporterPropertiesTest {
             bioStudiesUser = null,
             bioStudiesPassword = null,
             pmcBaseUrl = baseUrl,
-            notificationsUrl = notificationUrl)
+            notificationsUrl = notificationUrl
+        )
         assertThat(properties.asJavaCommand("/apps-folder"))
-            .isEqualTo("""
+            .isEqualTo(
+                """
             java -jar /apps-folder/pmc-processor-task-1.0.0.jar \
             --app.data.mode=LOAD \
             --app.data.temp=/tempDir \
@@ -66,6 +71,7 @@ class PmcImporterPropertiesTest {
             --app.data.mongodbDatabase=a-database \
             --app.data.notificationsUrl=http://slack-here \
             --app.data.pmcBaseUrl=http://pmc
-            """.trimIndent())
+                """.trimIndent()
+            )
     }
 }

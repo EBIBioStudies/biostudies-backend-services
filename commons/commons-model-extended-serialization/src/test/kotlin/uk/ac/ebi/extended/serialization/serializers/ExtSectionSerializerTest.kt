@@ -6,13 +6,13 @@ import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonNull
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.extended.model.ExtAttribute
-import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileList
 import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.ExtLink
 import ebi.ac.uk.extended.model.ExtLinkTable
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSectionTable
+import ebi.ac.uk.extended.model.NfsFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
@@ -50,61 +50,73 @@ class ExtSectionSerializerTest(private val tempFolder: TemporaryFolder) {
         val allInOneSection = ExtSection(
             accNo = "SECT-001",
             type = "Study",
-            fileList = ExtFileList("file-list.json", listOf(ExtFile("ref-file.txt", referencedFile))),
+            fileList = ExtFileList("file-list.json", listOf(NfsFile("ref-file.txt", referencedFile))),
             attributes = listOf(ExtAttribute("Title", "Test Section")),
             sections = listOf(
                 Either.left(ExtSection(type = "Exp")),
-                Either.right(ExtSectionTable(listOf(ExtSection(type = "Data"))))),
+                Either.right(ExtSectionTable(listOf(ExtSection(type = "Data"))))
+            ),
             files = listOf(
-                Either.left(ExtFile("section-file.txt", sectionFile)),
-                Either.right(ExtFileTable(listOf(ExtFile("section-file-table.txt", sectionFilesTable))))),
+                Either.left(NfsFile("section-file.txt", sectionFile)),
+                Either.right(ExtFileTable(listOf(NfsFile("section-file-table.txt", sectionFilesTable))))
+            ),
             links = listOf(
                 Either.left(ExtLink(url = "http://mylink.org")),
-                Either.right(ExtLinkTable(listOf(ExtLink(url = "http://mytable.org")))))
+                Either.right(ExtLinkTable(listOf(ExtLink(url = "http://mytable.org"))))
+            )
         )
         val expectedJson = jsonObj {
             "accNo" to "SECT-001"
             "type" to "Study"
             "fileList" to jsonObj {
                 "fileName" to "file-list.json"
-                "files" to jsonArray(jsonObj {
-                    "fileName" to "ref-file.txt"
-                    "path" to "ref-file.txt"
-                    "file" to referencedFile.absolutePath
-                    "attributes" to jsonArray()
-                    "extType" to "file"
-                    "type" to "file"
-                    "size" to 0
-                })
+                "files" to jsonArray(
+                    jsonObj {
+                        "fileName" to "ref-file.txt"
+                        "path" to "ref-file.txt"
+                        "file" to referencedFile.absolutePath
+                        "attributes" to jsonArray()
+                        "extType" to "nfsFile"
+                        "type" to "file"
+                        "size" to 0
+                    }
+                )
             }
-            "attributes" to jsonArray(jsonObj {
-                "name" to "Title"
-                "value" to "Test Section"
-                "reference" to false
-            })
+            "attributes" to jsonArray(
+                jsonObj {
+                    "name" to "Title"
+                    "value" to "Test Section"
+                    "reference" to false
+                }
+            )
 
-            "sections" to jsonArray(jsonObj {
-                "accNo" to jsonNull
-                "type" to "Exp"
-                "fileList" to jsonNull
-                "attributes" to jsonArray()
-                "sections" to jsonArray()
-                "files" to jsonArray()
-                "links" to jsonArray()
-                "extType" to "section"
-            }, jsonObj {
-                "sections" to jsonArray(jsonObj {
+            "sections" to jsonArray(
+                jsonObj {
                     "accNo" to jsonNull
-                    "type" to "Data"
+                    "type" to "Exp"
                     "fileList" to jsonNull
                     "attributes" to jsonArray()
                     "sections" to jsonArray()
                     "files" to jsonArray()
                     "links" to jsonArray()
                     "extType" to "section"
-                })
-                "extType" to "sectionsTable"
-            })
+                },
+                jsonObj {
+                    "sections" to jsonArray(
+                        jsonObj {
+                            "accNo" to jsonNull
+                            "type" to "Data"
+                            "fileList" to jsonNull
+                            "attributes" to jsonArray()
+                            "sections" to jsonArray()
+                            "files" to jsonArray()
+                            "links" to jsonArray()
+                            "extType" to "section"
+                        }
+                    )
+                    "extType" to "sectionsTable"
+                }
+            )
 
             "files" to jsonArray(
                 jsonObj {
@@ -112,34 +124,43 @@ class ExtSectionSerializerTest(private val tempFolder: TemporaryFolder) {
                     "path" to "section-file.txt"
                     "file" to sectionFile.absolutePath
                     "attributes" to jsonArray()
-                    "extType" to "file"
+                    "extType" to "nfsFile"
                     "type" to "file"
                     "size" to 0
-                }, jsonObj {
-                "files" to jsonArray(jsonObj {
-                    "fileName" to "section-file-table.txt"
-                    "path" to "section-file-table.txt"
-                    "file" to sectionFilesTable.absolutePath
-                    "attributes" to jsonArray()
-                    "extType" to "file"
-                    "type" to "file"
-                    "size" to 0
-                })
-                "extType" to "filesTable"
-            })
+                },
+                jsonObj {
+                    "files" to jsonArray(
+                        jsonObj {
+                            "fileName" to "section-file-table.txt"
+                            "path" to "section-file-table.txt"
+                            "file" to sectionFilesTable.absolutePath
+                            "attributes" to jsonArray()
+                            "extType" to "nfsFile"
+                            "type" to "file"
+                            "size" to 0
+                        }
+                    )
+                    "extType" to "filesTable"
+                }
+            )
 
-            "links" to jsonArray(jsonObj {
-                "url" to "http://mylink.org"
-                "attributes" to jsonArray()
-                "extType" to "link"
-            }, jsonObj {
-                "links" to jsonArray(jsonObj {
-                    "url" to "http://mytable.org"
+            "links" to jsonArray(
+                jsonObj {
+                    "url" to "http://mylink.org"
                     "attributes" to jsonArray()
                     "extType" to "link"
-                })
-                "extType" to "linksTable"
-            })
+                },
+                jsonObj {
+                    "links" to jsonArray(
+                        jsonObj {
+                            "url" to "http://mytable.org"
+                            "attributes" to jsonArray()
+                            "extType" to "link"
+                        }
+                    )
+                    "extType" to "linksTable"
+                }
+            )
 
             "extType" to "section"
         }.toString()

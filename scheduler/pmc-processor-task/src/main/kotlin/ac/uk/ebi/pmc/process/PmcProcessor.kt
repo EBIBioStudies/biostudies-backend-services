@@ -6,6 +6,7 @@ import ac.uk.ebi.pmc.persistence.docs.SubmissionDoc
 import ac.uk.ebi.pmc.process.util.FileDownloader
 import ac.uk.ebi.pmc.process.util.SubmissionInitializer
 import ac.uk.ebi.scheduler.properties.PmcMode
+import arrow.core.Try
 import ebi.ac.uk.model.Submission
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -39,14 +40,19 @@ class PmcProcessor(
         close()
     }
 
-    private suspend fun processSubmission(submissionDoc: SubmissionDoc): Submission {
-        val (submission, body) = submissionInitializer.getSubmission(submissionDoc.body)
+    private suspend fun processSubmission(submissionDoc: SubmissionDoc) {
+        Try { submissionInitializer.getSubmission(submissionDoc.body) }
+            .fold(
+                { errorDocService.saveError(submissionDoc, PmcMode.PROCESS, it) },
+                { downloadFiles(it, submissionDoc) }
+            )
+    }
 
+    private suspend fun downloadFiles(submissionPair: Pair<Submission, String>, submissionDoc: SubmissionDoc) {
+        val (submission, body) = submissionPair
         fileDownloader.downloadFiles(submission).fold(
             { errorDocService.saveError(submissionDoc, PmcMode.PROCESS, it) },
-            { submissionDocService.saveProcessedSubmission(submissionDoc.withBody(body), it) })
-
-        logger.info { "Finishing processing of submission with accNo = '${submission.accNo}'" }
-        return submission
+            { submissionDocService.saveProcessedSubmission(submissionDoc.withBody(body), it) }
+        )
     }
 }

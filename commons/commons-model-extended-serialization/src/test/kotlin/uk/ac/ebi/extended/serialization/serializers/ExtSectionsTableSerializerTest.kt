@@ -17,16 +17,18 @@ class ExtSectionsTableSerializerTest {
     fun serialize() {
         val extSectionsTable = ExtSectionTable(listOf(ExtSection(type = "Study")))
         val expectedJson = jsonObj {
-            "sections" to jsonArray(jsonObj {
-                "accNo" to JsonNull
-                "type" to "Study"
-                "fileList" to JsonNull
-                "attributes" to jsonArray()
-                "sections" to jsonArray()
-                "files" to jsonArray()
-                "links" to jsonArray()
-                "extType" to "section"
-            })
+            "sections" to jsonArray(
+                jsonObj {
+                    "accNo" to JsonNull
+                    "type" to "Study"
+                    "fileList" to JsonNull
+                    "attributes" to jsonArray()
+                    "sections" to jsonArray()
+                    "files" to jsonArray()
+                    "links" to jsonArray()
+                    "extType" to "section"
+                }
+            )
             "extType" to "sectionsTable"
         }.toString()
 

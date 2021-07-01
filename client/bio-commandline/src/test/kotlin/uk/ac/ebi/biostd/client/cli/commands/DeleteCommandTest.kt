@@ -19,7 +19,7 @@ internal class DeleteCommandTest(
     fun run() {
         every { submissionService.delete(subDelete) } returns Unit
 
-        testInstance.parse(listOf("-s", server, "-u", user, "-p", password, "-ac", accNo))
+        testInstance.parse(listOf("-s", server, "-u", user, "-p", password, accNo1, accNo2))
 
         verify(exactly = 1) { submissionService.delete(subDelete) }
     }
@@ -28,13 +28,14 @@ internal class DeleteCommandTest(
         const val server = "server"
         const val user = "user"
         const val password = "password"
-        const val accNo = "accNo"
+        const val accNo1 = "accNo1"
+        const val accNo2 = "accNo2"
         val subDelete = DeletionRequest(
             server = server,
             user = user,
             password = password,
             onBehalf = null,
-            accNo = accNo
+            accNoList = listOf(accNo1, accNo2)
         )
     }
 }

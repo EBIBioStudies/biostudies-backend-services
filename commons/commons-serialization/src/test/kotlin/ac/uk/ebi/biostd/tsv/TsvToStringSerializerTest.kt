@@ -61,7 +61,8 @@ class TsvToStringSerializerTest {
                 name = "Tissue Type",
                 value = "venous blood",
                 nameAttrs = mutableListOf(AttributeDetail("Tissue", "Blood")),
-                valueAttrs = mutableListOf(AttributeDetail("Ontology", "UBERON")))
+                valueAttrs = mutableListOf(AttributeDetail("Ontology", "UBERON"))
+            )
         }
 
         val expectedTsv = tsv {
@@ -206,13 +207,21 @@ class TsvToStringSerializerTest {
 
     @Test
     fun `serialize files table with detailed attributes`() {
-        val filesTable = FilesTable(listOf(
-            File("File1.txt", attributes = listOf(
-                Attribute(
-                    name = "Type",
-                    value = "Text",
-                    nameAttrs = mutableListOf(AttributeDetail("Name Attr", "a")),
-                    valueAttrs = mutableListOf(AttributeDetail("Val Attr", "b")))))))
+        val filesTable = FilesTable(
+            listOf(
+                File(
+                    "File1.txt",
+                    attributes = listOf(
+                        Attribute(
+                            name = "Type",
+                            value = "Text",
+                            nameAttrs = mutableListOf(AttributeDetail("Name Attr", "a")),
+                            valueAttrs = mutableListOf(AttributeDetail("Val Attr", "b"))
+                        )
+                    )
+                )
+            )
+        )
 
         val expectedTsv = tsv {
             line("Files", "Type", "(Name Attr)", "[Val Attr]")

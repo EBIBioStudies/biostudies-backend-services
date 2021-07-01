@@ -39,8 +39,8 @@ class StatsMongoDataService(
 
     private fun List<SubmissionStat>.filterValid() =
         groupBy { it.accNo.toUpperCase() }
-        .mapKeys { statsDataRepository.findByAccNo(it.key.toUpperCase()) }
-        .filterKeys { it != null }
+            .mapKeys { statsDataRepository.findByAccNo(it.key.toUpperCase()) }
+            .filterKeys { it != null }
 
     private fun updateSubmissionStat(sub: DocSubmission, update: SubmissionStat): SubmissionStat {
         statsDataRepository.updateStat(sub.accNo, sub.version, update)

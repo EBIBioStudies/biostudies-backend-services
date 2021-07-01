@@ -27,11 +27,13 @@ class SectionJsonSerializerTest {
         val expected = jsonObj {
             "type" to "Study"
             "accno" to "SECT-001"
-            "attributes" to jsonArray(jsonObj {
-                "name" to "File List"
-                "value" to "file-list.json"
-                "reference" to false
-            })
+            "attributes" to jsonArray(
+                jsonObj {
+                    "name" to "File List"
+                    "value" to "file-list.json"
+                    "reference" to false
+                }
+            )
         }
 
         assertEquals("invalid submission json", json, expected.toString(), LENIENT)

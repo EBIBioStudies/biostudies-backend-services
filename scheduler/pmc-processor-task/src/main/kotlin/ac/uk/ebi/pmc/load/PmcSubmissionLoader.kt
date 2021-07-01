@@ -1,7 +1,5 @@
 package ac.uk.ebi.pmc.load
 
-import ac.uk.ebi.biostd.integration.SerializationService
-import ac.uk.ebi.biostd.integration.SubFormat
 import ac.uk.ebi.pmc.persistence.ErrorsDocService
 import ac.uk.ebi.pmc.persistence.InputFilesDocService
 import ac.uk.ebi.pmc.persistence.SubmissionDocService
@@ -26,12 +24,11 @@ private const val WORKERS = 30
 private val logger = KotlinLogging.logger {}
 
 class PmcSubmissionLoader(
-    private val serializationService: SerializationService,
+    private val pmcSubmissionTabProcessor: PmcSubmissionTabProcessor,
     private val errorDocService: ErrorsDocService,
     private val inputFilesDocService: InputFilesDocService,
     private val submissionService: SubmissionDocService
 ) {
-
     /**
      * Process the given plain file and load submissions into database. Previously loaded submission are register
      * when new version is found and any issue processing the file is registered in the errors collection.
@@ -68,12 +65,13 @@ class PmcSubmissionLoader(
     private suspend fun loadSubmission(result: Try<Submission>, body: String, file: FileSpec, positionInFile: Int) =
         result.fold(
             { errorDocService.saveError(file.name, body, PmcMode.LOAD, it) },
-            { submissionService.saveLoadedVersion(it, file.name, file.modified, positionInFile) })
+            { submissionService.saveLoadedVersion(it, file.name, file.modified, positionInFile) }
+        )
 
     private fun deserialize(originalPagetab: String): Pair<String, Try<Submission>> =
         Pair(
             originalPagetab,
-            Try { serializationService.deserializeSubmission(originalPagetab, SubFormat.TSV) }
+            Try { pmcSubmissionTabProcessor.transformSubmission(originalPagetab) }
         )
 
     private fun sanitize(fileText: String) = fileText.replace(sanitizeRegex, "\n")

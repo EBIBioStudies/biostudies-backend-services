@@ -13,5 +13,6 @@ internal fun transferTo(basePath: Path, file: MultipartFile) {
         source = file.inputStream,
         target = expectedFilePath.toFile(),
         filePermissions = RW_RW____,
-        folderPermissions = RWXRWX___)
+        folderPermissions = RWXRWX___
+    )
 }

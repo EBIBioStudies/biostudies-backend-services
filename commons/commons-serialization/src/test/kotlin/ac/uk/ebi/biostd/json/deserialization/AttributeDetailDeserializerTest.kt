@@ -13,10 +13,12 @@ class AttributeDetailDeserializerTest {
 
     @Test
     fun `deserialize attribute detail`() {
-        val result = testInstance.deserialize<AttributeDetail>("""{
+        val result = testInstance.deserialize<AttributeDetail>(
+            """{
             |"name": "attr name",
             |"value": "attr value"
-            |}""".trimMargin())
+            |}""".trimMargin()
+        )
 
         assertThat(result.name).isEqualTo("attr name")
         assertThat(result.value).isEqualTo("attr value")
@@ -30,21 +32,29 @@ class AttributeDetailDeserializerTest {
 
     @Test
     fun `deserialize with no value property`() {
-        val exception = assertThrows<IllegalStateException> { testInstance.deserialize<AttributeDetail>("""{
+        val exception = assertThrows<IllegalStateException> {
+            testInstance.deserialize<AttributeDetail>(
+                """{
             |"name": "attr name"
-            |}""".trimMargin())
+            |}""".trimMargin()
+            )
         }
 
         assertThat(exception.message).isEqualTo(
-            "Expecting to find property with 'value' in node '{\"name\":\"attr name\"}'")
+            "Expecting to find property with 'value' in node '{\"name\":\"attr name\"}'"
+        )
     }
 
     @Test
     fun `deserialize no value`() {
-        val exception = assertThrows<NoAttributeValueException> { testInstance.deserialize<AttributeDetail>("""{
+        val exception = assertThrows<NoAttributeValueException> {
+            testInstance.deserialize<AttributeDetail>(
+                """{
             |"name": "attr name",
             |"value": ""
-            |}""".trimMargin()) }
+            |}""".trimMargin()
+            )
+        }
 
         assertThat(exception.message).isEqualTo("The value for the attribute 'attr name' can't be empty")
     }

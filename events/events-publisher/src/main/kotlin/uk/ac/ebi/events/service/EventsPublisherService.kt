@@ -23,11 +23,13 @@ class EventsPublisherService(
 
     fun submissionSubmitted(submission: ExtSubmission) =
         rabbitTemplate.convertAndSend(
-            BIOSTUDIES_EXCHANGE, SUBMISSIONS_ROUTING_KEY, submissionMessage(submission))
+            BIOSTUDIES_EXCHANGE, SUBMISSIONS_ROUTING_KEY, submissionMessage(submission)
+        )
 
     fun submissionReleased(submission: ExtSubmission) =
         rabbitTemplate.convertAndSend(
-            BIOSTUDIES_EXCHANGE, SUBMISSIONS_RELEASE_ROUTING_KEY, submissionMessage(submission))
+            BIOSTUDIES_EXCHANGE, SUBMISSIONS_RELEASE_ROUTING_KEY, submissionMessage(submission)
+        )
 
     fun submissionFailed(request: FailedSubmissionRequestMessage) =
         rabbitTemplate.convertAndSend(BIOSTUDIES_EXCHANGE, SUBMISSIONS_FAILED_REQUEST_ROUTING_KEY, request)
@@ -38,5 +40,6 @@ class EventsPublisherService(
             pagetabUrl = "${eventsProperties.instanceBaseUrl}/submissions/${submission.accNo}.json",
             extTabUrl = "${eventsProperties.instanceBaseUrl}/submissions/extended/${submission.accNo}",
             extUserUrl = "${eventsProperties.instanceBaseUrl}/security/users/extended/${submission.submitter}",
-            eventTime = OffsetDateTime.now().asIsoTime())
+            eventTime = OffsetDateTime.now().asIsoTime()
+        )
 }

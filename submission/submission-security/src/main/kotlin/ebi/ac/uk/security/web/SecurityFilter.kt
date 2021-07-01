@@ -7,6 +7,8 @@ import ebi.ac.uk.security.integration.components.ISecurityFilter
 import ebi.ac.uk.security.integration.components.ISecurityQueryService
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.security.core.GrantedAuthority
+import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.filter.GenericFilterBean
 import org.springframework.web.util.WebUtils
@@ -23,15 +25,19 @@ internal class SecurityFilter(
     private val securityQueryService: ISecurityQueryService
 ) : GenericFilterBean(), ISecurityFilter {
     override fun doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain) {
-            getSecurityKey(request as HttpServletRequest)
-                .map { securityQueryService.getUserProfile(it) }
-                .map { (user, token) -> setSecurityUser(user, token) }
-            chain.doFilter(request, response)
+        getSecurityKey(request as HttpServletRequest)
+            .map { securityQueryService.getUserProfile(it) }
+            .map { (user, token) -> setSecurityUser(user, token) }
+        chain.doFilter(request, response)
     }
 
     private fun setSecurityUser(user: SecurityUser, token: String) {
         SecurityContextHolder.getContext().authentication =
-            UsernamePasswordAuthenticationToken(user, token, emptyList())
+            UsernamePasswordAuthenticationToken(user, token, authorities(user))
+    }
+
+    private fun authorities(user: SecurityUser): List<GrantedAuthority> {
+        return if (user.superuser) listOf(SimpleGrantedAuthority("ADMIN")) else emptyList()
     }
 
     private fun getSecurityKey(httpRequest: HttpServletRequest): Option<String> {

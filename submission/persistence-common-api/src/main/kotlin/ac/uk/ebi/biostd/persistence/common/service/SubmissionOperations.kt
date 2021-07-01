@@ -24,10 +24,19 @@ interface SubmissionQueryService {
 
     fun getExtByAccNoAndVersion(accNo: String, version: Int): ExtSubmission
 
-    fun expireSubmission(accNo: String)
+    fun expireSubmissions(accNumbers: List<String>)
+
+    fun expireSubmission(accNo: String) = expireSubmissions(listOf(accNo))
 
     fun getExtendedSubmissions(filter: SubmissionFilter): Page<Result<ExtSubmission>>
 
+    /**
+     * Return the list of submissions that belongs to a user. Both processed and processing or requesting ones are
+     * retrieved.
+     *
+     * @param email the submission owner email
+     * @param filter the submission filter
+     **/
     fun getSubmissionsByUser(email: String, filter: SubmissionFilter): List<BasicSubmission>
 
     fun getRequest(accNo: String, version: Int): ExtSubmission

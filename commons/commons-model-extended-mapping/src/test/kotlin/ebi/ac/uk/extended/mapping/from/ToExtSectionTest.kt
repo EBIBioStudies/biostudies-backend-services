@@ -66,7 +66,8 @@ class ToExtSectionTest(
             TO_EXT_LIBRARY_FILE_EXTENSIONS,
             TO_EXT_LINK_EXTENSIONS,
             TO_EXT_TABLE_EXTENSIONS,
-            TO_EXT_SECTION_EXTENSIONS) {
+            TO_EXT_SECTION_EXTENSIONS
+        ) {
 
             every { attribute.name } returns "attr1"
             every { fileListAttribute.name } returns SectionFields.FILE_LIST.value

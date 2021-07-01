@@ -7,13 +7,16 @@ import ebi.ac.uk.security.integration.exception.UserNotFoundByEmailException
 
 class ExtUserService(private val userDataRepository: UserDataRepository) {
     fun getExtUser(email: String): ExtUser =
-        toExtUser(userDataRepository
-            .findByEmail(email)
-            .orElseThrow { UserNotFoundByEmailException(email) })
+        toExtUser(
+            userDataRepository
+                .findByEmail(email)
+                .orElseThrow { UserNotFoundByEmailException(email) }
+        )
 
     private fun toExtUser(user: DbUser) = ExtUser(
         email = user.email,
         fullName = user.fullName,
         login = user.login,
-        notificationsEnabled = user.notificationsEnabled)
+        notificationsEnabled = user.notificationsEnabled
+    )
 }

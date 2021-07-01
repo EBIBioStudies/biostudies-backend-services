@@ -10,7 +10,7 @@ import ac.uk.ebi.biostd.submission.web.model.OnBehalfRequest
 import com.fasterxml.jackson.annotation.JsonRawValue
 import com.fasterxml.jackson.annotation.JsonValue
 import ebi.ac.uk.extended.model.FileMode
-import ebi.ac.uk.model.SubmissionDraft
+import ac.uk.ebi.biostd.persistence.common.model.SubmissionDraft
 import ebi.ac.uk.model.constants.ATTRIBUTES
 import ebi.ac.uk.model.constants.FILE_MODE
 import ebi.ac.uk.security.integration.model.api.SecurityUser
@@ -46,7 +46,6 @@ internal class SubmissionDraftResource(
     @ResponseBody
     fun getDraftSubmission(
         @BioUser user: SecurityUser,
-        @ModelAttribute filter: PaginationFilter,
         @PathVariable key: String
     ): ResponseSubmissionDraft = draftService.getSubmissionDraft(user.email, key).asResponseDraft()
 
@@ -96,7 +95,8 @@ internal class SubmissionDraftResource(
             format = JSON_PRETTY,
             fileMode = mode,
             attrs = attributes.orEmpty(),
-            files = emptyList())
+            files = emptyList()
+        )
 
         submitWebHandler.submitAsync(request)
     }

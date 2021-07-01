@@ -1,16 +1,16 @@
 package ac.uk.ebi.pmc.persistence.repository
 
 import ac.uk.ebi.pmc.persistence.docs.SubmissionErrorDoc
-import com.mongodb.async.client.MongoCollection
-import org.litote.kmongo.coroutine.drop
-import org.litote.kmongo.coroutine.insertOne
+import com.mongodb.reactivestreams.client.MongoCollection
+import kotlinx.coroutines.reactive.awaitFirstOrNull
+import kotlinx.coroutines.reactive.awaitSingle
 import org.litote.kmongo.coroutine.toList
 
 class ErrorsRepository(private val collection: MongoCollection<SubmissionErrorDoc>) {
 
-    suspend fun save(errorDoc: SubmissionErrorDoc) = collection.insertOne(errorDoc)
+    suspend fun save(errorDoc: SubmissionErrorDoc) = collection.insertOne(errorDoc).awaitSingle()
 
     suspend fun findAll() = collection.find().toList()
 
-    suspend fun deleteAll() = collection.drop()
+    suspend fun deleteAll() = collection.drop().awaitFirstOrNull()
 }

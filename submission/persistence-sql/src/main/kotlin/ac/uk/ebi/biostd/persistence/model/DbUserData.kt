@@ -12,6 +12,7 @@ import javax.persistence.Table
 @Table(name = "UserData")
 @Entity
 @IdClass(UserDataId::class)
+@Suppress("SerialVersionUIDInSerializableClass")
 class DbUserData(
     @Id
     val userId: Long,
@@ -27,6 +28,7 @@ class DbUserData(
     lateinit var user: DbUser
 }
 
+@Suppress("SerialVersionUIDInSerializableClass")
 class UserDataId : Serializable {
     var userId: Long = 0
 

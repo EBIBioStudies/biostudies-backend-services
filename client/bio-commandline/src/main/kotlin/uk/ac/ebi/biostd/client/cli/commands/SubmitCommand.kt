@@ -10,13 +10,13 @@ import uk.ac.ebi.biostd.client.cli.common.CommonParameters.ON_BEHALF_HELP
 import uk.ac.ebi.biostd.client.cli.common.CommonParameters.PASSWORD_HELP
 import uk.ac.ebi.biostd.client.cli.common.CommonParameters.SERVER_HELP
 import uk.ac.ebi.biostd.client.cli.common.CommonParameters.USER_HELP
+import uk.ac.ebi.biostd.client.cli.common.FILES_SEPARATOR
+import uk.ac.ebi.biostd.client.cli.common.getFiles
 import uk.ac.ebi.biostd.client.cli.dto.SubmissionRequest
 import uk.ac.ebi.biostd.client.cli.services.SubmissionService
 import java.io.File
 
-private const val FILES_SEPARATOR = ','
-
-class SubmitCommand(private val submissionService: SubmissionService) : CliktCommand(name = "submit") {
+internal class SubmitCommand(private val submissionService: SubmissionService) : CliktCommand(name = "submit") {
     private val server by option("-s", "--server", help = SERVER_HELP).required()
     private val user by option("-u", "--user", help = USER_HELP).required()
     private val password by option("-p", "--password", help = PASSWORD_HELP).required()
@@ -37,7 +37,4 @@ class SubmitCommand(private val submissionService: SubmissionService) : CliktCom
         val response = submissionService.submit(request)
         echo("SUCCESS: Submission with AccNo ${response.accNo} was submitted")
     }
-
-    private fun getFiles(file: File): List<File> =
-        if (file.isDirectory) file.walk().filter { it.isFile }.toList() else listOf(file)
 }

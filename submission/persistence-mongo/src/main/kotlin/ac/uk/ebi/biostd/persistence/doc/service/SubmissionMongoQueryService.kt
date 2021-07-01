@@ -6,8 +6,9 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
+import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.asBasicSubmission
-import ac.uk.ebi.biostd.persistence.exception.SubmissionNotFoundException
+import ac.uk.ebi.biostd.persistence.common.exception.SubmissionNotFoundException
 import ebi.ac.uk.extended.model.ExtSubmission
 import org.springframework.data.domain.Page
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
@@ -30,9 +31,8 @@ internal class SubmissionMongoQueryService(
         return toExtSubmissionMapper.toExtSubmission(document)
     }
 
-    override fun expireSubmission(accNo: String) {
-        val submission = loadSubmission(accNo)
-        submissionRepo.expireVersion(accNo, submission.version)
+    override fun expireSubmissions(accNumbers: List<String>) {
+        submissionRepo.expireVersions(accNumbers)
     }
 
     override fun getExtendedSubmissions(filter: SubmissionFilter): Page<Result<ExtSubmission>> {
@@ -41,7 +41,8 @@ internal class SubmissionMongoQueryService(
     }
 
     override fun getSubmissionsByUser(email: String, filter: SubmissionFilter): List<BasicSubmission> {
-        return submissionRepo.getSubmissions(filter, email).map { it.asBasicSubmission() }
+        val requests = requestRepository.getRequest(filter, email).map { it.asBasicSubmission() }
+        return requests + getSubmissions(filter.limit - requests.size, email, filter)
     }
 
     override fun getRequest(accNo: String, version: Int): ExtSubmission {
@@ -51,4 +52,13 @@ internal class SubmissionMongoQueryService(
 
     private fun loadSubmission(accNo: String) =
         submissionRepo.findByAccNo(accNo) ?: throw SubmissionNotFoundException(accNo)
+
+    private fun SubmissionRequest.asBasicSubmission() =
+        serializationService.deserialize<ExtSubmission>(submission.toString()).asBasicSubmission()
+
+    private fun getSubmissions(limit: Int, email: String, filter: SubmissionFilter): List<BasicSubmission> =
+        when (limit) {
+            0 -> emptyList()
+            else -> submissionRepo.getSubmissions(filter.copy(limit = limit), email).map { it.asBasicSubmission() }
+        }
 }

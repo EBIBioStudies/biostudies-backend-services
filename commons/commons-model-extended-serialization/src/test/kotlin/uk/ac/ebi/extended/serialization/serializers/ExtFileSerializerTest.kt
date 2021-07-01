@@ -3,7 +3,7 @@ package uk.ac.ebi.extended.serialization.serializers
 import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.extended.model.ExtAttribute
-import ebi.ac.uk.extended.model.ExtFile
+import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.test.createFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
@@ -20,7 +20,7 @@ class ExtFileSerializerTest(private val tempFolder: TemporaryFolder) {
     @Test
     fun serialize() {
         val file = tempFolder.createFile("test-file.txt", "content")
-        val extFile = ExtFile(
+        val extFile = NfsFile(
             file = file,
             fileName = "test/path/test-file.txt",
             attributes = listOf(ExtAttribute("Type", "Data", false))
@@ -29,12 +29,14 @@ class ExtFileSerializerTest(private val tempFolder: TemporaryFolder) {
             "fileName" to "test-file.txt"
             "path" to "test/path/test-file.txt"
             "file" to file.absolutePath
-            "attributes" to jsonArray(jsonObj {
-                "name" to "Type"
-                "value" to "Data"
-                "reference" to false
-            })
-            "extType" to "file"
+            "attributes" to jsonArray(
+                jsonObj {
+                    "name" to "Type"
+                    "value" to "Data"
+                    "reference" to false
+                }
+            )
+            "extType" to "nfsFile"
             "type" to "file"
             "size" to 7
         }.toString()

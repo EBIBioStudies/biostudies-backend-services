@@ -1,0 +1,32 @@
+post:
+  summary: Activate User By Email
+  description: Activates a newly created user and triggers the process to setup a new password.
+
+  tags:
+    - Security
+
+  requestBody:
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            email:
+              description: User email
+              example: "user@test.org"
+              required: true
+              type: string
+            instanceKey:
+              description: Instance key that should process the password reset
+              example: "the-instance-key"
+              required: true
+              type: string
+            path:
+              description: The path to redirect the user in the UI
+              example: "/users/password_setup"
+              required: true
+              type: string
+
+  responses:
+    200:
+      description: OK

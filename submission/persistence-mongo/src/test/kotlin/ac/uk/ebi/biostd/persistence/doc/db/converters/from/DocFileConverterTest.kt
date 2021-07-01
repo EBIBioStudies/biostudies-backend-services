@@ -32,6 +32,8 @@ internal class DocFileConverterTest(
         assertThat(result.fullPath).isEqualTo("fullPath")
         assertThat(result.attributes).isEqualTo(listOf(docAttribute))
         assertThat(result.md5).isEqualTo("md5")
+        assertThat(result.fileType).isEqualTo("file")
+        assertThat(result.fileSize).isEqualTo(10L)
     }
 
     private fun createFileDoc(): Document {
@@ -42,6 +44,8 @@ internal class DocFileConverterTest(
         file[DocFileFields.FILE_DOC_FULL_PATH] = "fullPath"
         file[DocFileFields.FILE_DOC_ATTRIBUTES] = listOf(documentAttr)
         file[DocFileFields.FILE_DOC_MD5] = "md5"
+        file[DocFileFields.FILE_TYPE] = "file"
+        file[DocFileFields.FILE_SIZE] = 10L
 
         return file
     }
