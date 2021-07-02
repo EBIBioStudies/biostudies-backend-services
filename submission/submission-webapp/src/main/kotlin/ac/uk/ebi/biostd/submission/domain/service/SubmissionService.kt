@@ -10,6 +10,7 @@ import ac.uk.ebi.biostd.persistence.common.request.SaveSubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
+import ac.uk.ebi.biostd.submission.exceptions.UserCanNotDelete
 import ac.uk.ebi.biostd.submission.ext.getSimpleByAccNo
 import ac.uk.ebi.biostd.submission.model.SubmissionRequest
 import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
@@ -27,7 +28,7 @@ import uk.ac.ebi.events.service.EventsPublisherService
 
 private val logger = KotlinLogging.logger {}
 
-@Suppress("TooManyFunctions")
+@Suppress("TooManyFunctions", "LongParameterList")
 class SubmissionService(
     private val submissionQueryService: SubmissionQueryService,
     private val serializationService: SerializationService,
@@ -90,8 +91,13 @@ class SubmissionService(
     ): List<BasicSubmission> = submissionQueryService.getSubmissionsByUser(user.email, filter)
 
     fun deleteSubmission(accNo: String, user: SecurityUser) {
-        require(userPrivilegesService.canDelete(user.email, accNo))
+        require(userPrivilegesService.canDelete(user.email, accNo)) { throw UserCanNotDelete(accNo, user.email) }
         submissionQueryService.expireSubmission(accNo)
+    }
+
+    fun deleteSubmissions(submissions: List<String>, user: SecurityUser) {
+        submissions.forEach { require(userPrivilegesService.canDelete(user.email, it)) }
+        submissionQueryService.expireSubmissions(submissions)
     }
 
     fun getSubmission(accNo: String): ExtSubmission = submissionQueryService.getExtByAccNo(accNo)

@@ -40,8 +40,10 @@ class FileListTsvStreamDeserializerTest(temporaryFolder: TemporaryFolder) {
         assertThat(fileList.referencedFiles).hasSize(2)
 
         assertThat(fileList.referencedFiles.first()).isEqualTo(
-            File("file1.txt", attributes = listOf(Attribute("Attr1", "A"), Attribute("Attr2", "B"))))
+            File("file1.txt", attributes = listOf(Attribute("Attr1", "A"), Attribute("Attr2", "B")))
+        )
         assertThat(fileList.referencedFiles.second()).isEqualTo(
-            File("file2.txt", attributes = listOf(Attribute("Attr1", "C"), Attribute("Attr2", "D"))))
+            File("file2.txt", attributes = listOf(Attribute("Attr1", "C"), Attribute("Attr2", "D")))
+        )
     }
 }

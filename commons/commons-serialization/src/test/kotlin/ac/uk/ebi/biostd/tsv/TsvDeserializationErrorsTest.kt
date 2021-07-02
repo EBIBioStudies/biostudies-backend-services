@@ -88,7 +88,8 @@ class TsvDeserializationErrorsTest {
 
     @Test
     fun `table with more attributes than expected`(): Unit = testInvalidElement(
-        submissionWithTableWithMoreAttributes(), "A row table can't have more attributes than the table header")
+        submissionWithTableWithMoreAttributes(), "A row table can't have more attributes than the table header"
+    )
 
     private fun testInvalidElement(submissionTsv: Tsv, expectedMessage: String) {
         val exception = assertThrows<SerializationException> { deserializer.deserialize(submissionTsv.toString()) }

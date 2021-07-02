@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.persistence.doc.test.doc.DRAFT_CONTENT
 import ac.uk.ebi.biostd.persistence.doc.test.doc.DRAFT_KEY
 import ac.uk.ebi.biostd.persistence.doc.test.doc.USER_ID
 import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocDraft
+import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
 import ebi.ac.uk.db.MONGO_VERSION
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
@@ -17,9 +18,11 @@ import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.testcontainers.containers.MongoDBContainer
+import org.testcontainers.containers.startupcheck.MinimumDurationRunningStartupCheckStrategy
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.utility.DockerImageName
+import java.time.Duration.ofSeconds
 import kotlin.test.assertNotNull
 
 @ExtendWith(SpringExtension::class)
@@ -96,6 +99,7 @@ class SubmissionDraftDocDataRepositoryTest(
     companion object {
         @Container
         val mongoContainer: MongoDBContainer = MongoDBContainer(DockerImageName.parse(MONGO_VERSION))
+            .withStartupCheckStrategy(MinimumDurationRunningStartupCheckStrategy(ofSeconds(MINIMUM_RUNNING_TIME)))
 
         @JvmStatic
         @DynamicPropertySource

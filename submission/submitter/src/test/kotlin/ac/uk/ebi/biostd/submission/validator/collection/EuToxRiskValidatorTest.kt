@@ -1,11 +1,11 @@
 package ac.uk.ebi.biostd.submission.validator.collection
 
 import ac.uk.ebi.biostd.common.properties.ValidatorProperties
-import ac.uk.ebi.biostd.persistence.exception.CollectionValidationException
+import ac.uk.ebi.biostd.persistence.common.exception.CollectionValidationException
 import arrow.core.Either.Companion.left
 import ebi.ac.uk.extended.model.ExtAttribute
-import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSection
+import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.test.basicExtSubmission
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
@@ -49,10 +49,12 @@ class EuToxRiskValidatorTest(
     @Test
     fun validate() {
         val requestSlot = slot<HttpEntity<FileSystemResource>>()
-        val submission = basicExtSubmission.copy(section = ExtSection(
-            type = "Study",
-            files = listOf(left(ExtFile("test.xlsx", excelFile)))
-        ))
+        val submission = basicExtSubmission.copy(
+            section = ExtSection(
+                type = "Study",
+                files = listOf(left(NfsFile("test.xlsx", excelFile)))
+            )
+        )
 
         every {
             restTemplate.postForObject<EuToxRiskValidatorResponse>(testUrl, capture(requestSlot))
@@ -85,7 +87,7 @@ class EuToxRiskValidatorTest(
         val submission = basicExtSubmission.copy(
             section = ExtSection(
                 type = "Study",
-                files = listOf(left(ExtFile("test.xlsx", excelFile)))
+                files = listOf(left(NfsFile("test.xlsx", excelFile)))
             )
         )
 
@@ -104,13 +106,16 @@ class EuToxRiskValidatorTest(
 
     @Test
     fun `submission without excel file`() {
-        val submission = basicExtSubmission.copy(section = ExtSection(
-            type = "Study",
-            files = listOf(left(ExtFile("test.txt", textFile)))
-        ))
+        val submission = basicExtSubmission.copy(
+            section = ExtSection(
+                type = "Study",
+                files = listOf(left(NfsFile("test.txt", textFile)))
+            )
+        )
 
         val error = assertThrows<CollectionValidationException> { testInstance.validate(submission) }
         assertThat(error.message).isEqualTo(
-            "The submission doesn't comply with the collection requirements. Errors: [$EXCEL_FILE_REQUIRED]")
+            "The submission doesn't comply with the collection requirements. Errors: [$EXCEL_FILE_REQUIRED]"
+        )
     }
 }

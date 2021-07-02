@@ -1,3 +1,4 @@
+import Dependencies.KotlinReflect
 import Dependencies.KotlinStdLib
 import SpringBootDependencies.SpringBootAmqp
 import TestDependencies.BaseTestCompileDependencies
@@ -7,6 +8,7 @@ dependencies {
     api(project(":commons:commons-model-extended"))
     api(project(":commons:commons-bio"))
 
+    implementation(KotlinReflect)
     implementation(KotlinStdLib)
     implementation(SpringBootAmqp)
 

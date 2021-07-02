@@ -19,7 +19,8 @@ internal object AttributeTestHelper {
         name = ATTR_NAME,
         value = ATTR_VALUE,
         nameAttrs = listOf(DocAttributeDetail(NAME_ATTR_NAME, NAME_ATTR_VALUE)),
-        valueAttrs = listOf(DocAttributeDetail(VALUE_ATTR_NAME, VALUE_ATTR_VALUE)))
+        valueAttrs = listOf(DocAttributeDetail(VALUE_ATTR_NAME, VALUE_ATTR_VALUE))
+    )
 
     fun assertBasicExtAttribute(extAttribute: ExtAttribute) {
         assertThat(extAttribute.name).isEqualTo(ATTR_NAME)

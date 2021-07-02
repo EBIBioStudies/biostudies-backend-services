@@ -1,7 +1,7 @@
 package ebi.ac.uk.extended.mapping.to
 
 import ebi.ac.uk.extended.model.ExtAttribute
-import ebi.ac.uk.extended.model.ExtFile
+import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.test.createFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
@@ -21,7 +21,7 @@ internal class ToFileTest(
     tempFolder: TemporaryFolder
 ) {
     private var systemFile = tempFolder.createFile("my-file", "test content")
-    private val extFile = ExtFile("fileName", systemFile, listOf(extAttribute))
+    private val extFile = NfsFile("fileName", systemFile, listOf(extAttribute))
 
     @Test
     fun toExtFile() {

@@ -10,11 +10,13 @@ import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.line
 import ebi.ac.uk.dsl.tsv
 import ebi.ac.uk.model.SubmissionMethod
+import ebi.ac.uk.model.SubmissionMethod.PAGE_TAB
 import ebi.ac.uk.test.createFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -24,6 +26,7 @@ import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
+import java.net.URLEncoder.encode
 
 @ExtendWith(TemporaryFolderExtension::class)
 internal class SubmissionListApiTest(private val tempFolder: TemporaryFolder) : BaseIntegrationTest(tempFolder) {
@@ -56,16 +59,17 @@ internal class SubmissionListApiTest(private val tempFolder: TemporaryFolder) : 
         }
 
         @Test
+        @Disabled("If submission is processed fast enough test wil fail. Needs re desing.")
         fun `get submission when processing`() {
             val newVersion = getSimpleSubmission(18)
             webClient.submitAsync(newVersion, TSV)
 
             val submissionList = webClient.getSubmissions(mapOf("accNo" to "SimpleAcc18"))
 
-            assertThat(submissionList).hasOnlyOneElementSatisfying {
+            assertThat(submissionList).anySatisfy {
                 assertThat(it.accno).isEqualTo("SimpleAcc18")
                 assertThat(it.version).isEqualTo(2)
-                assertThat(it.method).isEqualTo(SubmissionMethod.PAGE_TAB)
+                assertThat(it.method).isEqualTo(PAGE_TAB)
                 assertThat(it.title).isEqualTo("Simple Submission 18 - keyword18")
                 assertThat(it.status).isEqualTo("REQUESTED")
             }
@@ -81,14 +85,16 @@ internal class SubmissionListApiTest(private val tempFolder: TemporaryFolder) : 
 
         @Test
         fun `get submission list by accession`() {
-            val submissionList = webClient.getSubmissions(mapOf(
-                "accNo" to "SimpleAcc17"
-            ))
+            val submissionList = webClient.getSubmissions(
+                mapOf(
+                    "accNo" to "SimpleAcc17"
+                )
+            )
 
             assertThat(submissionList).hasOnlyOneElementSatisfying {
                 assertThat(it.accno).isEqualTo("SimpleAcc17")
                 assertThat(it.version).isEqualTo(1)
-                assertThat(it.method).isEqualTo(SubmissionMethod.PAGE_TAB)
+                assertThat(it.method).isEqualTo(PAGE_TAB)
                 assertThat(it.title).isEqualTo("Simple Submission 17 - keyword17")
                 assertThat(it.status).isEqualTo("PROCESSED")
             }
@@ -96,9 +102,11 @@ internal class SubmissionListApiTest(private val tempFolder: TemporaryFolder) : 
 
         @Test
         fun `get direct submission list by accession`() {
-            val submissionList = webClient.getSubmissions(mapOf(
-                "accNo" to "SimpleAcc27"
-            ))
+            val submissionList = webClient.getSubmissions(
+                mapOf(
+                    "accNo" to "SimpleAcc27"
+                )
+            )
 
             assertThat(submissionList).hasOnlyOneElementSatisfying {
                 assertThat(it.accno).isEqualTo("SimpleAcc27")
@@ -111,9 +119,11 @@ internal class SubmissionListApiTest(private val tempFolder: TemporaryFolder) : 
 
         @Test
         fun `get submission list by keywords`() {
-            val submissionList = webClient.getSubmissions(mapOf(
-                "keywords" to "keyword20"
-            ))
+            val submissionList = webClient.getSubmissions(
+                mapOf(
+                    "keywords" to "keyword20"
+                )
+            )
 
             assertThat(submissionList).hasOnlyOneElementSatisfying {
                 assertThat(it.title).contains("keyword20")
@@ -122,72 +132,104 @@ internal class SubmissionListApiTest(private val tempFolder: TemporaryFolder) : 
 
         @Test
         fun `get submission list by release date`() {
-            val submissionList = webClient.getSubmissions(mapOf(
-                "rTimeFrom" to "2019-09-24T09:41:44.000Z",
-                "rTimeTo" to "2019-09-28T09:41:44.000Z"
-            ))
+            val submissionList = webClient.getSubmissions(
+                mapOf(
+                    "rTimeFrom" to "2019-09-24T09:41:44.000Z",
+                    "rTimeTo" to "2019-09-28T09:41:44.000Z"
+                )
+            )
 
             assertThat(submissionList).hasSize(4)
         }
 
         @Test
         fun `get submission list pagination`() {
-            val submissionList = webClient.getSubmissions(mapOf(
-                "offset" to 15
-            ))
+            val submissionList = webClient.getSubmissions(
+                mapOf(
+                    "offset" to 15
+                )
+            )
 
             assertThat(submissionList).hasSize(5)
         }
 
         @Test
-        fun `submission with section title`() {
+        fun `get submissions with submission title`() {
             val submission = tsv {
                 line("Submission", "SECT-123")
+                line("Title", "Submission subTitle")
                 line()
 
                 line("Study")
-                line("Title", "Submission With Section Title")
+                line("Title", "Submission With Section")
                 line()
             }.toString()
 
             assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
 
-            val submissionList = webClient.getSubmissions(mapOf(
-                "accNo" to "SECT-123"
-            ))
+            val submissionList = webClient.getSubmissions(
+                mapOf(
+                    "keywords" to "subTitle"
+                )
+            )
 
             assertThat(submissionList).hasOnlyOneElementSatisfying {
                 assertThat(it.accno).isEqualTo("SECT-123")
                 assertThat(it.version).isEqualTo(1)
-                assertThat(it.method).isEqualTo(SubmissionMethod.PAGE_TAB)
-                assertThat(it.title).isEqualTo("Submission With Section Title")
+                assertThat(it.method).isEqualTo(PAGE_TAB)
+                assertThat(it.title).isEqualTo("Submission subTitle")
                 assertThat(it.status).isEqualTo("PROCESSED")
             }
         }
 
         @Test
-        fun `submission with both titles`() {
+        fun `get submissions with section title`() {
             val submission = tsv {
                 line("Submission", "SECT-124")
-                line("Title", "Submission Title")
                 line()
 
                 line("Study")
-                line("Title", "Section Title")
+                line("Title", "Section secTitle")
                 line()
             }.toString()
 
             assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
 
-            val submissionList = webClient.getSubmissions(mapOf(
-                "accNo" to "SECT-124"
-            ))
-
-            assertThat(submissionList).hasOnlyOneElementSatisfying {
+            val submissionTitleList = webClient.getSubmissions(mapOf("keywords" to "secTitle"))
+            assertThat(submissionTitleList).hasOnlyOneElementSatisfying {
                 assertThat(it.accno).isEqualTo("SECT-124")
                 assertThat(it.version).isEqualTo(1)
-                assertThat(it.method).isEqualTo(SubmissionMethod.PAGE_TAB)
-                assertThat(it.title).isEqualTo("Submission Title")
+                assertThat(it.method).isEqualTo(PAGE_TAB)
+                assertThat(it.title).isEqualTo("Section secTitle")
+                assertThat(it.status).isEqualTo("PROCESSED")
+            }
+        }
+
+        @Test
+        fun `submission with spaces`() {
+            val submission = tsv {
+                line("Submission", "SECT-125")
+                line("Title", "the Submission title")
+                line()
+
+                line("Study")
+                line("Title", "the Submission title")
+                line()
+            }.toString()
+
+            assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
+
+            val submissionList = webClient.getSubmissions(
+                mapOf(
+                    "keywords" to encode("n title", "UTF-8")
+                )
+            )
+
+            assertThat(submissionList).hasOnlyOneElementSatisfying {
+                assertThat(it.accno).isEqualTo("SECT-125")
+                assertThat(it.version).isEqualTo(1)
+                assertThat(it.method).isEqualTo(PAGE_TAB)
+                assertThat(it.title).isEqualTo("the Submission title")
                 assertThat(it.status).isEqualTo("PROCESSED")
             }
         }

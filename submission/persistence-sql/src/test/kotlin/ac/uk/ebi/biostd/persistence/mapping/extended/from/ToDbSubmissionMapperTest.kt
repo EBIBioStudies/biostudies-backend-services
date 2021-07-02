@@ -37,37 +37,35 @@ internal class ToDbSubmissionMapperTest(
         @MockK user: DbUser,
         @MockK submitter: DbUser
     ) {
-        every { accessTagsRepository.findByName(extCollection.accNo) } returns accessTag
+        every { accessTagsRepository.getByName(extCollection.accNo) } returns accessTag
         every { tagsRepository.findByClassifierAndName(extTag.name, extTag.value) } returns tag
         every { userRepository.findByEmail(OWNER) } returns Optional.of(user)
         every { userRepository.findByEmail(SUBMITTER) } returns Optional.of(submitter)
 
-        val dbSubmission = testInstance.mergetSubmissionDb(extSubmission)
+        val dbSubmission = testInstance.toSubmissionDb(extSubmission)
 
         assertSubmission(dbSubmission, listOf(accessTag), listOf(tag), user, submitter)
     }
 
     @Test
     fun `non existing owner`(
-        @MockK user: DbUser,
         @MockK submitter: DbUser
     ) {
         every { userRepository.findByEmail(OWNER) } returns Optional.empty()
         every { userRepository.findByEmail(SUBMITTER) } returns Optional.of(submitter)
 
-        val exception = assertThrows<UserNotFoundException> { testInstance.mergetSubmissionDb(extSubmission) }
+        val exception = assertThrows<UserNotFoundException> { testInstance.toSubmissionDb(extSubmission) }
         assertThat(exception.message).isEqualTo("The user with email '$OWNER' could not be found")
     }
 
     @Test
     fun `non existing submitter`(
-        @MockK user: DbUser,
-        @MockK submitter: DbUser
+        @MockK user: DbUser
     ) {
         every { userRepository.findByEmail(OWNER) } returns Optional.of(user)
         every { userRepository.findByEmail(SUBMITTER) } returns Optional.empty()
 
-        val exception = assertThrows<UserNotFoundException> { testInstance.mergetSubmissionDb(extSubmission) }
+        val exception = assertThrows<UserNotFoundException> { testInstance.toSubmissionDb(extSubmission) }
         assertThat(exception.message).isEqualTo("The user with email '$SUBMITTER' could not be found")
     }
 }

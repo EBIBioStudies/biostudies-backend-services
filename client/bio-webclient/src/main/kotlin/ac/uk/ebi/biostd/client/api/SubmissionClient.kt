@@ -22,6 +22,7 @@ import org.springframework.web.client.RestTemplate
 import org.springframework.web.client.getForObject
 import org.springframework.web.client.postForEntity
 import org.springframework.web.util.UriComponentsBuilder
+import java.net.URLEncoder
 
 private const val SUBMISSIONS_URL = "/submissions"
 
@@ -53,10 +54,20 @@ internal class SubmissionClient(
 
     override fun deleteSubmission(accNo: String) = template.delete("$SUBMISSIONS_URL/$accNo")
 
+    override fun deleteSubmissions(submissions: List<String>) =
+        template.delete("$SUBMISSIONS_URL?submissions=${submissions.joinToString(",")}")
+
     override fun getSubmissions(filter: Map<String, Any>): List<SubmissionDto> {
         val builder = UriComponentsBuilder.fromUriString(SUBMISSIONS_URL)
         filter.entries.forEach { builder.queryParam(it.key, it.value) }
         return template.getForObject<Array<SubmissionDto>>(builder.toUriString()).toList()
+    }
+
+    private fun encode(value: Any): Any {
+        return when (value) {
+            is String -> URLEncoder.encode(value, "UTF-8")
+            else -> value
+        }
     }
 
     private fun submitSingle(request: HttpEntity<String>, register: RegisterConfig): SubmissionResponse {
@@ -77,11 +88,12 @@ internal class SubmissionClient(
         val builder = UriComponentsBuilder.fromUriString(SUBMISSIONS_URL)
         return when (config) {
             NonRegistration -> builder.toUriString()
-            is UserRegistration -> builder
-                .queryParam(REGISTER_PARAM, true)
-                .queryParam(USER_NAME_PARAM, config.name)
-                .queryParam(ON_BEHALF_PARAM, config.email)
-                .toUriString()
+            is UserRegistration ->
+                builder
+                    .queryParam(REGISTER_PARAM, true)
+                    .queryParam(USER_NAME_PARAM, config.name)
+                    .queryParam(ON_BEHALF_PARAM, config.email)
+                    .toUriString()
         }
     }
 

@@ -1,5 +1,6 @@
 import Dependencies.Arrow
 import Dependencies.Guava
+import Dependencies.KotlinReflect
 import Dependencies.KotlinStdLib
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
@@ -10,6 +11,7 @@ dependencies {
 
     implementation(Arrow)
     implementation(Guava)
+    implementation(KotlinReflect)
     implementation(KotlinStdLib)
 
     testApi(project(":commons:commons-test"))

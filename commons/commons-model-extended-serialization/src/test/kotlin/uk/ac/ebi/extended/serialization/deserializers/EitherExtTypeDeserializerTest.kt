@@ -9,6 +9,7 @@ import ebi.ac.uk.extended.model.ExtLink
 import ebi.ac.uk.extended.model.ExtLinkTable
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSectionTable
+import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.util.collections.ifLeft
 import ebi.ac.uk.util.collections.ifRight
 import io.github.glytching.junit.extension.folder.TemporaryFolder
@@ -40,10 +41,12 @@ class EitherExtTypeDeserializerTest(private val tempFolder: TemporaryFolder) {
     @Test
     fun `links table`() {
         val json = jsonObj {
-            "links" to jsonArray(jsonObj {
-                "url" to "http://mylink.org"
-                "extType" to "link"
-            })
+            "links" to jsonArray(
+                jsonObj {
+                    "url" to "http://mylink.org"
+                    "extType" to "link"
+                }
+            )
             "extType" to "linksTable"
         }.toString()
 
@@ -63,12 +66,13 @@ class EitherExtTypeDeserializerTest(private val tempFolder: TemporaryFolder) {
             "file" to file.absolutePath
             "fileName" to "test-file.txt"
             "path" to "test-file.txt"
-            "extType" to "file"
+            "extType" to "nfsFile"
         }.toString()
 
         val extFile = testInstance.deserialize<Either<ExtFile, ExtFileTable>>(json)
         assertThat(extFile.isLeft()).isTrue()
         extFile.ifLeft {
+            it as NfsFile
             assertThat(it.file).isEqualTo(file)
             assertThat(it.fileName).isEqualTo("test-file.txt")
         }
@@ -78,12 +82,14 @@ class EitherExtTypeDeserializerTest(private val tempFolder: TemporaryFolder) {
     fun `files table`() {
         val file = tempFolder.createFile("test-file-table.txt")
         val json = jsonObj {
-            "files" to jsonArray(jsonObj {
-                "file" to file.absolutePath
-                "fileName" to "test-file-table.txt"
-                "path" to "test-file-table.txt"
-                "extType" to "file"
-            })
+            "files" to jsonArray(
+                jsonObj {
+                    "file" to file.absolutePath
+                    "fileName" to "test-file-table.txt"
+                    "path" to "test-file-table.txt"
+                    "extType" to "nfsFile"
+                }
+            )
             "extType" to "filesTable"
         }.toString()
 
@@ -92,8 +98,10 @@ class EitherExtTypeDeserializerTest(private val tempFolder: TemporaryFolder) {
         extFilesTable.ifRight {
             val files = it.files
             assertThat(files).hasSize(1)
-            assertThat(files.first().file).isEqualTo(file)
-            assertThat(files.first().fileName).isEqualTo("test-file-table.txt")
+
+            val nfsFile = files.first() as NfsFile
+            assertThat(nfsFile.file).isEqualTo(file)
+            assertThat(nfsFile.fileName).isEqualTo("test-file-table.txt")
         }
     }
 
@@ -114,10 +122,12 @@ class EitherExtTypeDeserializerTest(private val tempFolder: TemporaryFolder) {
     @Test
     fun `sections table`() {
         val json = jsonObj {
-            "sections" to jsonArray(jsonObj {
-                "type" to "Study"
-                "extType" to "section"
-            })
+            "sections" to jsonArray(
+                jsonObj {
+                    "type" to "Study"
+                    "extType" to "section"
+                }
+            )
             "extType" to "sectionsTable"
         }.toString()
 

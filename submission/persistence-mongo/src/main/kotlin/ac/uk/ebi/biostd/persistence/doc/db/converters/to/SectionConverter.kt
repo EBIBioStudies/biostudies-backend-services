@@ -7,6 +7,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_ATTRIBUTES
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_FILES
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_FILE_LIST
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_ID
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_LINKS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_SECTIONS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_TABLE_SECTIONS
@@ -33,6 +34,7 @@ class SectionConverter(
     fun convert(section: DocSection): Document {
         val sectionDoc = Document()
         sectionDoc[classField] = DOC_SEC_CLASS
+        sectionDoc[SEC_ID] = section.id
         sectionDoc[SEC_ACC_NO] = section.accNo
         sectionDoc[SEC_TYPE] = section.type
         sectionDoc[SEC_ATTRIBUTES] = section.attributes.map { attributeConverter.convert(it) }

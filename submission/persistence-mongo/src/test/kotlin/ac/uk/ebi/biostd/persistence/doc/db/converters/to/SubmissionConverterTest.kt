@@ -57,16 +57,16 @@ internal class SubmissionConverterTest(
         assertThat(result[DocSubmissionFields.SUB_SECTION]).isEqualTo(sectionDocument)
         assertThat(result[DocSubmissionFields.SUB_ATTRIBUTES]).isEqualTo(listOf(attributeDocument))
 
-        val tags = result[DocSubmissionFields.SUB_TAGS] as List<Document>
+        val tags = result.getAs<List<Document>>(DocSubmissionFields.SUB_TAGS)
         val tag = tags.first()
         assertThat(tag[DocSubmissionFields.TAG_DOC_NAME]).isEqualTo(docTagName)
         assertThat(tag[DocSubmissionFields.TAG_DOC_VALUE]).isEqualTo(docTagValue)
 
-        val projects = result[DocSubmissionFields.SUB_PROJECTS] as List<Document>
+        val projects = result.getAs<List<Document>>(DocSubmissionFields.SUB_PROJECTS)
         val project = projects.first()
         assertThat(project[DocSubmissionFields.PROJECT_DOC_ACC_NO]).isEqualTo(docProjectAccNo)
 
-        val stats = result[DocSubmissionFields.SUB_STATS] as List<Document>
+        val stats = result.getAs<List<Document>>(DocSubmissionFields.SUB_STATS)
         val stat = stats.first()
         assertThat(stat[DocSubmissionFields.STAT_DOC_NAME]).isEqualTo(docStatName)
         assertThat(stat[DocSubmissionFields.STAT_DOC_VALUE]).isEqualTo(docStatValue)
@@ -93,7 +93,8 @@ internal class SubmissionConverterTest(
             attributes = listOf(docAttribute),
             tags = submissionTags,
             collections = submissionProjects,
-            stats = submissionStats)
+            stats = submissionStats
+        )
     }
 
     private companion object {

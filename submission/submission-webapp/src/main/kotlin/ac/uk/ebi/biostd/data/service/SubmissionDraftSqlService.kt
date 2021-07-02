@@ -4,7 +4,7 @@ import ac.uk.ebi.biostd.persistence.common.request.PaginationFilter
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionDraftService
 import ac.uk.ebi.biostd.persistence.model.DbUserData
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionService
-import ebi.ac.uk.model.SubmissionDraft
+import ac.uk.ebi.biostd.persistence.common.model.SubmissionDraft
 import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
 

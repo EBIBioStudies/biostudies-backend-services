@@ -3,11 +3,13 @@ package ac.uk.ebi.biostd.common.config
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.persistence.common.service.UserPermissionsService
+import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
 import ac.uk.ebi.biostd.persistence.repositories.TokenDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserGroupDataRepository
 import ac.uk.ebi.biostd.security.domain.service.ExtUserService
+import ac.uk.ebi.biostd.security.domain.service.PermissionService
 import ac.uk.ebi.biostd.security.web.SecurityMapper
 import ac.uk.ebi.biostd.security.web.exception.SecurityAccessDeniedHandler
 import ac.uk.ebi.biostd.security.web.exception.SecurityAuthEntryPoint
@@ -94,7 +96,8 @@ class SecurityBeansConfig(private val objectMapper: ObjectMapper, properties: Ap
         queryService,
         userPermissionsService,
         eventsPublisherService,
-        securityProps)
+        securityProps
+    )
 
     @Bean
     fun securityService(securityConfig: SecurityModuleConfig): ISecurityService = securityConfig.securityService()
@@ -116,4 +119,11 @@ class SecurityBeansConfig(private val objectMapper: ObjectMapper, properties: Ap
 
     @Bean
     fun extUserService(userDataRepository: UserDataRepository): ExtUserService = ExtUserService(userDataRepository)
+
+    @Bean
+    fun permissionService(
+        permissionRepository: AccessPermissionRepository,
+        userDataRepository: UserDataRepository,
+        accessTagDataRepository: AccessTagDataRepo
+    ) = PermissionService(permissionRepository, userDataRepository, accessTagDataRepository)
 }

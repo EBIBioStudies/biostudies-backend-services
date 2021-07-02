@@ -37,7 +37,8 @@ internal class ChunkProcessor {
     fun getRootSection(tsvChunk: TsvChunk) = Section(
         accNo = tsvChunk.findId(),
         type = tsvChunk.getTypeOrElse(InvalidElementException(REQUIRED_ROOT_SECTION)),
-        attributes = toAttributes(tsvChunk.lines))
+        attributes = toAttributes(tsvChunk.lines)
+    )
 
     inline fun <reified T> processIsolatedChunk(chunk: TsvChunk) = when (chunk) {
         is LinkChunk -> chunk.asLink() as T

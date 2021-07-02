@@ -3,6 +3,8 @@ import Dependencies.ArrowData
 import Dependencies.ArrowTypeClasses
 import Dependencies.CommonsIO
 import Dependencies.KotlinLogging
+import Dependencies.KotlinReflect
+import Dependencies.KotlinStdLib
 import Dependencies.RxJava2
 import Dependencies.SpringDataJpa
 import Dependencies.SpringWeb
@@ -21,7 +23,11 @@ dependencies {
     implementation(ArrowData)
     implementation(CommonsIO)
     implementation(RxJava2)
+
+    implementation(KotlinReflect)
+    implementation(KotlinStdLib)
     implementation(KotlinLogging)
+
     implementation(SpringDataJpa)
     implementation(SpringWeb)
 

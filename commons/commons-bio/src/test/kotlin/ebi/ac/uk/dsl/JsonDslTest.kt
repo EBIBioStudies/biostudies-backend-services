@@ -38,7 +38,8 @@ class JsonDslTest {
             }
 
             assertThat(obj.toString()).isEqualTo(
-                "{\"string\": \"string value\", \"boolean\": true, \"number\": 50, \"null prop\": null}")
+                "{\"string\": \"string value\", \"boolean\": true, \"number\": 50, \"null prop\": null}"
+            )
         }
 
         @Test
@@ -99,9 +100,11 @@ class JsonDslTest {
             val obj = jsonArray(
                 jsonObj {
                     "age" to 1
-                }, jsonObj {
-                "age" to 2
-            })
+                },
+                jsonObj {
+                    "age" to 2
+                }
+            )
 
             assertThat(obj.toString()).isEqualTo("[{\"age\": 1}, {\"age\": 2}]")
         }

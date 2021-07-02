@@ -22,3 +22,8 @@ class UserCanNotSubmitToProjectException(
     user: String,
     project: String
 ) : InvalidPermissionsException("The user $user is not allowed to submit to $project project")
+
+class UserCanNotDelete(
+    accNo: String,
+    user: String
+) : InvalidPermissionsException("The user {$user} is not allowed to delete the submission $accNo")

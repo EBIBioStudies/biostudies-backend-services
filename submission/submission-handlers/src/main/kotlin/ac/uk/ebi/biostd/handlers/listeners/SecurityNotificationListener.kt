@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.handlers.listeners
 import ac.uk.ebi.biostd.handlers.config.SECURITY_NOTIFICATIONS_QUEUE
 import ebi.ac.uk.extended.events.SecurityNotification
 import ebi.ac.uk.extended.events.SecurityNotificationType.ACTIVATION
+import ebi.ac.uk.extended.events.SecurityNotificationType.ACTIVATION_BY_EMAIL
 import ebi.ac.uk.extended.events.SecurityNotificationType.PASSWORD_RESET
 import ebi.ac.uk.notifications.service.SecurityNotificationService
 import mu.KotlinLogging
@@ -17,6 +18,7 @@ class SecurityNotificationListener(private val securityNotificationService: Secu
 
         when (notification.type) {
             ACTIVATION -> securityNotificationService.sendActivationNotification(notification)
+            ACTIVATION_BY_EMAIL -> securityNotificationService.sendActivationByEmailNotification(notification)
             PASSWORD_RESET -> securityNotificationService.sendPasswordResetNotification(notification)
         }
     }

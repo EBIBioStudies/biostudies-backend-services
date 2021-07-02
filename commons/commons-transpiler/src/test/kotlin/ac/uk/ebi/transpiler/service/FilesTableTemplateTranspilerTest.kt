@@ -31,7 +31,8 @@ class FilesTableTemplateTranspilerTest(
     private val testFilesTableTemplate = FilesTableTemplate()
     private val testBaseColumns = listOf("Plate", "Replicate", "Well")
     private val testInstance = FilesTableTemplateTranspiler(
-        mockTemplateProcessor, mockTemplateValidator, mockTemplateMapper, mockSerializationService)
+        mockTemplateProcessor, mockTemplateValidator, mockTemplateMapper, mockSerializationService
+    )
 
     @BeforeEach
     fun setUp() {

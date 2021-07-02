@@ -34,6 +34,7 @@ internal class SectionJsonDeserializer : StdDeserializer<Section>(Section::class
             attributes = mapper.convertList(node.findNode(SectionFields.ATTRIBUTES.value)),
             links = mapper.convertList(node.findNode(SectionFields.LINKS.value), LinksType),
             files = mapper.convertList(node.findNode(SectionFields.FILES.value), FileType),
-            sections = mapper.convertList(node.findNode(SectionFields.SUBSECTIONS.value), SectionsType))
+            sections = mapper.convertList(node.findNode(SectionFields.SUBSECTIONS.value), SectionsType)
+        )
     }
 }

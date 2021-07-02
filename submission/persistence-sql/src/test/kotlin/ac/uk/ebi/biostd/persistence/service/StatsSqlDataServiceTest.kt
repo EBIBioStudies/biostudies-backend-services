@@ -65,7 +65,8 @@ class StatsSqlDataServiceTest(
 
         val error = assertThrows<StatNotFoundException> { testInstance.findByAccNoAndType("S-TEST1234", VIEWS) }
         assertThat(error.message).isEqualTo(
-            "There is no submission stat registered with AccNo S-TEST1234 and type VIEWS")
+            "There is no submission stat registered with AccNo S-TEST1234 and type VIEWS"
+        )
     }
 
     @Test
@@ -137,7 +138,8 @@ class StatsSqlDataServiceTest(
         val stats = listOf(
             DbSubmissionStat("S-TEST123", 10, VIEWS),
             DbSubmissionStat("S-TEST124", 20, VIEWS),
-            DbSubmissionStat("S-TEST125", 30, VIEWS))
+            DbSubmissionStat("S-TEST125", 30, VIEWS)
+        )
 
         every { queryService.existByAccNo("S-TEST123") } returns true
         every { queryService.existByAccNo("S-TEST124") } returns false
@@ -158,7 +160,8 @@ class StatsSqlDataServiceTest(
         val stats = listOf(
             DbSubmissionStat("diXa", 10, VIEWS),
             DbSubmissionStat("dixa", 20, VIEWS),
-            DbSubmissionStat("DIXA", 30, VIEWS))
+            DbSubmissionStat("DIXA", 30, VIEWS)
+        )
 
         every { queryService.existByAccNo("diXa") } returns true
         every { queryService.existByAccNo("dixa") } returns true

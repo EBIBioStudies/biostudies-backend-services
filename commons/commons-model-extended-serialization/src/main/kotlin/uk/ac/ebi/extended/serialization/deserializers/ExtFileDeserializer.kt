@@ -7,32 +7,38 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.TextNode
 import ebi.ac.uk.extended.model.ExtFile
-import mu.KotlinLogging
+import ebi.ac.uk.extended.model.NfsFile
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.ATTRIBUTES
+import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.EXT_TYPE
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_PATH
+import uk.ac.ebi.extended.serialization.constants.ExtType
+import uk.ac.ebi.extended.serialization.exception.InvalidExtTypeException
 import uk.ac.ebi.serialization.extensions.convertList
 import uk.ac.ebi.serialization.extensions.findNode
 import uk.ac.ebi.serialization.extensions.getNode
 import java.io.FileNotFoundException
 import java.nio.file.Paths
 
-private val logger = KotlinLogging.logger {}
-
 class ExtFileDeserializer : JsonDeserializer<ExtFile>() {
     override fun deserialize(jsonParser: JsonParser, ctxt: DeserializationContext): ExtFile {
         val mapper = jsonParser.codec as ObjectMapper
         val node = mapper.readTree<JsonNode>(jsonParser)
+
+        return when (val type = ExtType.valueOf(node.getNode<TextNode>(EXT_TYPE).textValue())) {
+            is ExtType.NfsFile -> nfsFile(node, mapper)
+            is ExtType.FireFile -> TODO()
+            else -> throw InvalidExtTypeException(type.type)
+        }
+    }
+
+    private fun nfsFile(node: JsonNode, mapper: ObjectMapper): NfsFile {
         val filePath = node.getNode<TextNode>(FILE).textValue()
         val file = Paths.get(filePath).toFile()
+        require(file.exists()) { throw FileNotFoundException(filePath) }
 
-        require(file.exists()) {
-            logger.info { "Could not find file with path `$filePath`" }
-            throw FileNotFoundException(filePath)
-        }
-
-        return ExtFile(
-            file = Paths.get(filePath).toFile(),
+        return NfsFile(
+            file = file,
             fileName = node.getNode<TextNode>(FILE_PATH).textValue(),
             attributes = mapper.convertList(node.findNode(ATTRIBUTES))
         )
