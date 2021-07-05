@@ -23,16 +23,15 @@ class PersistenceConfig(
     fun ftpFilesService(): FtpService = NfsFtpService(folderResolver)
 
     @Bean
-    fun pageTabService(): PageTabService = PageTabService(serializationService)
+    fun pageTabService(): PageTabService = PageTabService(folderResolver, serializationService)
 
     @Bean
-    fun nfsFilePersistenceService(
-        pageTabService: PageTabService
-    ): FilesService = NfsFilesService(pageTabService, folderResolver)
+    fun nfsFilePersistenceService(): FilesService = NfsFilesService(folderResolver)
 
     @Bean
     fun fileSystemService(
+        ftpService: FtpService,
         filesService: FilesService,
-        ftpService: FtpService
-    ): FileSystemService = FileSystemService(ftpService, filesService)
+        pageTabService: PageTabService
+    ): FileSystemService = FileSystemService(ftpService, filesService, pageTabService)
 }
