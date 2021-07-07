@@ -1,6 +1,7 @@
 package ebi.ac.uk.security.service
 
 import ac.uk.ebi.biostd.persistence.common.model.AccessType
+import ac.uk.ebi.biostd.persistence.common.model.AccessType.ADMIN
 import ac.uk.ebi.biostd.persistence.common.model.AccessType.ATTACH
 import ac.uk.ebi.biostd.persistence.common.model.AccessType.DELETE
 import ac.uk.ebi.biostd.persistence.common.model.AccessType.UPDATE
@@ -26,7 +27,9 @@ internal class UserPrivilegesService(
     override fun canSubmitExtended(submitter: String): Boolean = isSuperUser(submitter)
 
     override fun canSubmitToProject(submitter: String, project: String): Boolean =
-        isSuperUser(submitter).or(hasPermissions(submitter, listOf(project), ATTACH))
+        isSuperUser(submitter)
+            .or(hasPermissions(submitter, listOf(project), ATTACH))
+            .or(isAdmin(submitter, listOf(project), ATTACH))
 
     override fun allowedCollections(email: String, accessType: AccessType): List<String> = when {
         isSuperUser(email) -> tagsDataRepository.findAll().map { it.name }
@@ -37,20 +40,37 @@ internal class UserPrivilegesService(
                 .distinct()
     }
 
-    override fun canResubmit(submitter: String, accNo: String) =
-        isSuperUser(submitter)
-            .or(isAuthor(getOwner(accNo), submitter))
-            .or(hasPermissions(submitter, submissionQueryService.getAccessTags(accNo), UPDATE))
+    override fun canResubmit(submitter: String, accNo: String): Boolean {
+        val accessTags = submissionQueryService.getAccessTags(accNo)
 
-    override fun canDelete(submitter: String, accNo: String) =
-        isSuperUser(submitter)
+        return isSuperUser(submitter)
             .or(isAuthor(getOwner(accNo), submitter))
-            .or(hasPermissions(submitter, submissionQueryService.getAccessTags(accNo), DELETE))
+            .or(hasPermissions(submitter, accessTags, UPDATE))
+            .or(isAdmin(submitter, accessTags, UPDATE))
+    }
+
+    override fun canDelete(submitter: String, accNo: String): Boolean {
+        val accessTags = submissionQueryService.getAccessTags(accNo)
+
+        return isSuperUser(submitter)
+            .or(isAuthor(getOwner(accNo), submitter))
+            .or(hasPermissions(submitter, accessTags, DELETE))
+            .or(isAdmin(submitter, accessTags, DELETE))
+    }
 
     private fun hasPermissions(user: String, accessTags: List<String>, accessType: AccessType): Boolean {
         val tags = accessTags.filter { it != PUBLIC_ACCESS_TAG.value }
 
         return tags.isNotEmpty() && tags.all { userPermissionsService.hasPermission(user, it, accessType) }
+    }
+
+    private fun isAdmin(user: String, accessTags: List<String>, accessType: AccessType): Boolean {
+        val tags = accessTags.filter { it != PUBLIC_ACCESS_TAG.value }
+
+        return tags.isNotEmpty() && tags.all {
+            userPermissionsService.hasPermission(user, it, ADMIN) or
+                userPermissionsService.hasPermission(user, it, accessType)
+        }
     }
 
     private fun isSuperUser(email: String) = getUser(email).superuser
