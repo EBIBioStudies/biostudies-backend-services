@@ -37,6 +37,10 @@ internal class FireClient(
         return template.postForObject(FIRE_OBJECTS_URL, HttpEntity(body, headers))
     }
 
+    override fun findByPath(path: String): FireFile? {
+        TODO("Not yet implemented")
+    }
+
     override fun setPath(fireOid: String, path: String) {
         val headers = HttpHeaders().apply { set(FIRE_PATH_HEADER, path) }
         return template.put("$FIRE_OBJECTS_URL/$fireOid/firePath", HttpEntity(null, headers))
@@ -48,6 +52,10 @@ internal class FireClient(
         Files.write(tmpFile.toPath(), fileContent)
 
         return tmpFile
+    }
+
+    override fun delete(fireOid: String) {
+        TODO("Not yet implemented")
     }
 
     override fun publish(fireOid: String) {

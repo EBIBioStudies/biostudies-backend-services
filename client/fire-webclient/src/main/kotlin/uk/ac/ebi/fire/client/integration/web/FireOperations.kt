@@ -8,7 +8,11 @@ interface FireOperations {
 
     fun setPath(fireOid: String, path: String)
 
+    fun findByPath(path: String): FireFile?
+
     fun downloadByPath(path: String): File
+
+    fun delete(fireOid: String)
 
     fun publish(fireOid: String)
 
