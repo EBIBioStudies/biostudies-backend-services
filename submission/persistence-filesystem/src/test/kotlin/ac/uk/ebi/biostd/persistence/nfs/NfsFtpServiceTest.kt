@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.persistence.nfs
 
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.filesystem.nfs.NfsFtpService
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.io.FileUtils
@@ -27,7 +28,8 @@ private const val REL_PATH = "My/Path/To/Submission"
 @ExtendWith(TemporaryFolderExtension::class, MockKExtension::class)
 internal class NfsFtpServiceTest(
     private val temporaryFolder: TemporaryFolder,
-    @MockK private val extSubmission: ExtSubmission
+    @MockK private val extSubmission: ExtSubmission,
+    @MockK private val submissionQueryService: SubmissionQueryService
 ) {
     private lateinit var expectedDirectory: File
     private lateinit var expectedFile1: File
@@ -37,7 +39,7 @@ internal class NfsFtpServiceTest(
         temporaryFolder.root.toPath().resolve("submission"),
         temporaryFolder.root.toPath().resolve("ftp")
     )
-    private val testInstance = NfsFtpService(folderResolver)
+    private val testInstance = NfsFtpService(folderResolver, submissionQueryService)
 
     @BeforeEach
     fun beforeEach() {
@@ -63,7 +65,9 @@ internal class NfsFtpServiceTest(
 
     @Test
     fun `create ftp folder`() {
-        testInstance.createFtpFolder(REL_PATH)
+        every { submissionQueryService.getExtByAccNo("S-BSST0") } returns extSubmission
+
+        testInstance.generateFtpLinks("S-BSST0")
 
         assertFolder(folderResolver.getSubmissionFtpFolder(REL_PATH).toFile())
     }

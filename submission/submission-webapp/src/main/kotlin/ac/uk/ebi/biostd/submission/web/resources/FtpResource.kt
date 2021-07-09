@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("submissions/ftp")
 class FtpResource(private val ftpService: FtpService) {
     @PostMapping("/generate")
-    fun generateFtpLinks(@RequestParam("relPath", required = true) relPath: String) {
-        ftpService.createFtpFolder(relPath)
+    fun generateFtpLinks(@RequestParam("accNo", required = true) accNo: String) {
+        ftpService.generateFtpLinks(accNo)
     }
 }

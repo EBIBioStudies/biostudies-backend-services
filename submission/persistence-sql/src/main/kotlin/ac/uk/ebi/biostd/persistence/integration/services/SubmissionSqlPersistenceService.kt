@@ -1,6 +1,8 @@
 package ac.uk.ebi.biostd.persistence.integration.services
 
+import ac.uk.ebi.biostd.persistence.common.request.SaveSubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
+import ac.uk.ebi.biostd.persistence.filesystem.request.FilePersistenceRequest
 import ac.uk.ebi.biostd.persistence.filesystem.service.FileSystemService
 import ac.uk.ebi.biostd.persistence.mapping.extended.from.ToDbSubmissionMapper
 import ac.uk.ebi.biostd.persistence.model.DbSubmissionRequest
@@ -9,7 +11,6 @@ import ac.uk.ebi.biostd.persistence.repositories.SubmissionRequestDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataDataRepository
 import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.extended.model.FileMode
 import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSED
 import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSING
 import org.springframework.transaction.annotation.Propagation
@@ -40,9 +41,14 @@ internal open class SubmissionSqlPersistenceService(
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = false)
-    open fun processSubmission(submission: ExtSubmission, mode: FileMode, draftKey: String?): ExtSubmission {
+    open fun processSubmission(saveRequest: SaveSubmissionRequest): ExtSubmission {
+        val (submission, fileMode, draftKey) = saveRequest
         subDataRepository.updateStatus(PROCESSING, submission.accNo, submission.version)
-        systemService.persistSubmissionFiles(submission, mode)
+
+        // TODO validate whether we need to populate the previous files map this for MySql
+        val filePersistenceRequest = FilePersistenceRequest(submission, fileMode)
+        systemService.persistSubmissionFiles(filePersistenceRequest)
+
         processDbSubmission(subRepository.getExtByAccNoAndVersion(submission.accNo, submission.version), draftKey)
 
         return subRepository.getExtByAccNoAndVersion(submission.accNo, submission.version)

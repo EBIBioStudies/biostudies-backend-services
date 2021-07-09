@@ -214,6 +214,7 @@ object Projects {
     const val CommonsModelExtendedMapping = ":commons:commons-model-extended-mapping"
     const val CommonsModelExtendedSerialization = ":commons:commons-model-extended-serialization"
     const val CommonsTest = ":commons:commons-test"
+    const val FireWebClient = ":client:fire-webclient"
     const val SubmissionConfig = ":submission:submission-config"
     const val SubmissionPersistenceCommonApi = ":submission:persistence-common-api"
     const val SubmissionPersistenceFilesystem = ":submission:persistence-filesystem"
