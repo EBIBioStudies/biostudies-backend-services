@@ -2,7 +2,7 @@ package ac.uk.ebi.biostd.persistence.nfs
 
 import ac.uk.ebi.biostd.persistence.filesystem.nfs.nfsCopy
 import ac.uk.ebi.biostd.persistence.filesystem.nfs.nfsMove
-import ac.uk.ebi.biostd.persistence.filesystem.request.FileProcessingConfig
+import ac.uk.ebi.biostd.persistence.filesystem.nfs.NfsFileProcessingConfig
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.io.RWXR_XR_X
 import ebi.ac.uk.io.RW_R__R__
@@ -19,7 +19,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import java.io.File
 
 @ExtendWith(TemporaryFolderExtension::class)
-class FileProcessingConfigTest(private val tempFolder: TemporaryFolder) {
+class NfsFileProcessingConfigTest(private val tempFolder: TemporaryFolder) {
     @AfterEach
     fun afterEach() = tempFolder.clean()
 
@@ -57,7 +57,7 @@ class FileProcessingConfigTest(private val tempFolder: TemporaryFolder) {
 
         private fun testCopy(subFile: File, subFolder: File, currentFolder: File) {
             val extFile = NfsFile("test.txt", subFile)
-            val config = FileProcessingConfig(subFolder, currentFolder, RW_R__R__, RWXR_XR_X)
+            val config = NfsFileProcessingConfig(subFolder, currentFolder, RW_R__R__, RWXR_XR_X)
             val result = config.nfsCopy(extFile)
 
             assertThat(subFolder.resolve("test.txt").exists()).isTrue()
@@ -97,7 +97,7 @@ class FileProcessingConfigTest(private val tempFolder: TemporaryFolder) {
 
         private fun testMove(testFile: File, subFolder: File, currentFolder: File) {
             val extFile = NfsFile("test.txt", testFile)
-            val config = FileProcessingConfig(subFolder, currentFolder, RW_R__R__, RWXR_XR_X)
+            val config = NfsFileProcessingConfig(subFolder, currentFolder, RW_R__R__, RWXR_XR_X)
             val result = config.nfsMove(extFile)
 
             assertThat(subFolder.resolve("test.txt")).exists()

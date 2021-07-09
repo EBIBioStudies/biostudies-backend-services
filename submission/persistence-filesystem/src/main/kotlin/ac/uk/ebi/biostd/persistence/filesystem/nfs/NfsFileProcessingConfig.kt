@@ -1,15 +1,23 @@
 package ac.uk.ebi.biostd.persistence.filesystem.nfs
 
-import ac.uk.ebi.biostd.persistence.filesystem.request.FileProcessingConfig
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.io.FileUtils
 import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.notExist
 import mu.KotlinLogging
+import java.io.File
+import java.nio.file.attribute.PosixFilePermission
 
 private val logger = KotlinLogging.logger {}
 
-fun FileProcessingConfig.nfsCopy(extFile: NfsFile): NfsFile {
+data class NfsFileProcessingConfig(
+    val subFolder: File,
+    val tempFolder: File,
+    val filePermissions: Set<PosixFilePermission>,
+    val dirPermissions: Set<PosixFilePermission>
+)
+
+fun NfsFileProcessingConfig.nfsCopy(extFile: NfsFile): NfsFile {
     val source = if (extFile.file.startsWith(subFolder)) tempFolder.resolve(extFile.fileName) else extFile.file
     val target = subFolder.resolve(extFile.fileName)
     val current = tempFolder.resolve(extFile.fileName)
@@ -29,7 +37,7 @@ fun FileProcessingConfig.nfsCopy(extFile: NfsFile): NfsFile {
     return extFile.copy(file = target)
 }
 
-fun FileProcessingConfig.nfsMove(extFile: NfsFile): NfsFile {
+fun NfsFileProcessingConfig.nfsMove(extFile: NfsFile): NfsFile {
     val source = if (extFile.file.startsWith(subFolder)) tempFolder.resolve(extFile.fileName) else extFile.file
     val target = subFolder.resolve(extFile.fileName)
 

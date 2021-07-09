@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.persistence.service
 import ac.uk.ebi.biostd.persistence.filesystem.api.FilesService
 import ac.uk.ebi.biostd.persistence.filesystem.api.FtpService
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabService
+import ac.uk.ebi.biostd.persistence.filesystem.request.FilePersistenceRequest
 import ac.uk.ebi.biostd.persistence.filesystem.service.FileSystemService
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FileMode.MOVE
@@ -36,11 +37,13 @@ class FileSystemServiceTest(
 
     @Test
     fun `persist submission`() {
-        testInstance.persistSubmissionFiles(submission, MOVE)
+        val request = FilePersistenceRequest(submission, MOVE)
+        testInstance.persistSubmissionFiles(request)
 
         verify(exactly = 1) {
-            filesService.persistSubmissionFiles(submission, MOVE)
+            filesService.persistSubmissionFiles(request)
             ftpService.processSubmissionFiles(submission)
+            pageTabService.generatePageTab(submission)
         }
     }
 
@@ -49,7 +52,8 @@ class FileSystemServiceTest(
     }
 
     private fun setUpServices() {
-        every { filesService.persistSubmissionFiles(submission, MOVE) } returns submission
+        every { filesService.persistSubmissionFiles(FilePersistenceRequest(submission, MOVE)) } returns submission
         every { ftpService.processSubmissionFiles(submission) } answers { nothing }
+        every { pageTabService.generatePageTab(submission) } answers { nothing }
     }
 }
