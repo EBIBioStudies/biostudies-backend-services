@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.persistence.doc.service
 
-import ac.uk.ebi.biostd.persistence.common.filesystem.FileSystemService
 import ac.uk.ebi.biostd.persistence.common.request.SaveSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDraftDocDataRepository
@@ -12,6 +11,7 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus
+import ac.uk.ebi.biostd.persistence.filesystem.service.FileSystemService
 import ebi.ac.uk.extended.model.ExtProcessingStatus.PROCESSING
 import ebi.ac.uk.extended.model.ExtProcessingStatus.REQUESTED
 import ebi.ac.uk.extended.model.ExtSubmission

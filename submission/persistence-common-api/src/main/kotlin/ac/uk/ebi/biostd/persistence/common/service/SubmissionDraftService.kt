@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.persistence.common.service
 
 import ac.uk.ebi.biostd.persistence.common.request.PaginationFilter
-import ebi.ac.uk.model.SubmissionDraft
+import ac.uk.ebi.biostd.persistence.common.model.SubmissionDraft
 
 interface SubmissionDraftService {
 

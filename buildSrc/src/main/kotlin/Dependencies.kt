@@ -24,7 +24,6 @@ import Versions.JschVersion
 import Versions.JwtVersion
 import Versions.KMongoCoroutineVersion
 import Versions.KotlinArrowVersion
-import Versions.KotlinCoroutineVersion
 import Versions.KotlinLoggingVersion
 import Versions.KotlinVersion
 import Versions.Log4JVersion
@@ -68,7 +67,6 @@ object Versions {
     const val KotlinVersion = "1.4.32"
     const val KotlinLoggingVersion = "1.6.20"
     const val KotlinArrowVersion = "0.8.2"
-    const val KotlinCoroutineVersion = "1.4.3"
     const val KMongoCoroutineVersion = "4.1.3"
     const val JpaEntityGraphVersion = "2.2.3"
     const val MongockVersion = "4.3.8"
@@ -176,7 +174,6 @@ object Dependencies {
     const val KotlinStdLib = "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$KotlinVersion"
     const val KotlinReflect = "org.jetbrains.kotlin:kotlin-reflect:$KotlinVersion"
     const val KotlinLogging = "io.github.microutils:kotlin-logging:$KotlinLoggingVersion"
-    const val Coroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core:$KotlinCoroutineVersion"
 
     // Arrow
     const val Arrow = "io.arrow-kt:arrow-core:$KotlinArrowVersion"
@@ -219,5 +216,5 @@ object Projects {
     const val CommonsTest = ":commons:commons-test"
     const val SubmissionConfig = ":submission:submission-config"
     const val SubmissionPersistenceCommonApi = ":submission:persistence-common-api"
-    const val SubmissionPersistenceCommon = ":submission:persistence-common"
+    const val SubmissionPersistenceFilesystem = ":submission:persistence-filesystem"
 }

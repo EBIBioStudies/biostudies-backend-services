@@ -1,12 +1,12 @@
 package ac.uk.ebi.pmc.migrations
 
+import ac.uk.ebi.pmc.config.ERRORS_COL
+import ac.uk.ebi.pmc.config.INPUT_FILES_COL
+import ac.uk.ebi.pmc.config.PersistenceConfig
 import ac.uk.ebi.pmc.config.PersistenceConfig.Companion.createMongockConfig
 import ac.uk.ebi.pmc.config.PropConfig
-import ac.uk.ebi.pmc.config.PersistenceConfig
-import ac.uk.ebi.pmc.config.ERRORS_COL
 import ac.uk.ebi.pmc.config.SUBMISSION_COL
 import ac.uk.ebi.pmc.config.SUB_FILES_COL
-import ac.uk.ebi.pmc.config.INPUT_FILES_COL
 import ac.uk.ebi.pmc.persistence.docs.FileDoc.Fields.FILE_DOC_ACC_NO
 import ac.uk.ebi.pmc.persistence.docs.FileDoc.Fields.FILE_DOC_PATH
 import ac.uk.ebi.pmc.persistence.docs.SubmissionDoc.Fields.SUB_ACC_NO
@@ -18,6 +18,7 @@ import ac.uk.ebi.pmc.persistence.docs.SubmissionErrorDoc.Fields.ERROR_ACCNO
 import ac.uk.ebi.pmc.persistence.docs.SubmissionErrorDoc.Fields.ERROR_MODE
 import ac.uk.ebi.pmc.persistence.docs.SubmissionErrorDoc.Fields.ERROR_SOURCE_FILE
 import ac.uk.ebi.pmc.persistence.docs.SubmissionErrorDoc.Fields.ERROR_UPLOADED
+import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
 import ebi.ac.uk.db.MONGO_VERSION
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
@@ -34,9 +35,11 @@ import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.testcontainers.containers.MongoDBContainer
+import org.testcontainers.containers.startupcheck.MinimumDurationRunningStartupCheckStrategy
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.utility.DockerImageName
+import java.time.Duration.ofSeconds
 
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(classes = [PropConfig::class, PersistenceConfig::class])
@@ -140,6 +143,7 @@ internal class PMCDatabaseChangeLogTest(
 
         @Container
         val mongoContainer: MongoDBContainer = MongoDBContainer(DockerImageName.parse(MONGO_VERSION))
+            .withStartupCheckStrategy(MinimumDurationRunningStartupCheckStrategy(ofSeconds(MINIMUM_RUNNING_TIME)))
 
         @JvmStatic
         @DynamicPropertySource
