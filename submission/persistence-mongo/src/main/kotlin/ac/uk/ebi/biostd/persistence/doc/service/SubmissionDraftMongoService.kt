@@ -1,20 +1,18 @@
 package ac.uk.ebi.biostd.persistence.doc.service
 
-import ac.uk.ebi.biostd.integration.SerializationService
-import ac.uk.ebi.biostd.integration.SubFormat.JsonFormat.JsonPretty
 import ac.uk.ebi.biostd.persistence.common.request.PaginationFilter
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionDraftService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDraftDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft
-import ebi.ac.uk.extended.mapping.to.toSimpleSubmission
+import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionDraft
 import java.time.Instant
 
 class SubmissionDraftMongoService(
     private val draftDocDataRepository: SubmissionDraftDocDataRepository,
     private val submissionQueryService: SubmissionQueryService,
-    private val serializationService: SerializationService
+    private val extSerializationService: ExtSerializationService
 ) : SubmissionDraftService {
     override fun getSubmissionDraft(userEmail: String, key: String): SubmissionDraft {
         val draft = draftDocDataRepository.findByUserIdAndKey(userEmail, key) ?: create(userEmail, key)
@@ -38,8 +36,8 @@ class SubmissionDraftMongoService(
     }
 
     private fun create(userEmail: String, key: String): DocSubmissionDraft {
-        val submission = submissionQueryService.getExtByAccNo(key).toSimpleSubmission()
-        val content = serializationService.serializeSubmission(submission, JsonPretty)
+        val submission = submissionQueryService.getExtByAccNo(key)
+        val content = extSerializationService.serialize(submission)
         return draftDocDataRepository.saveDraft(userEmail, key, content)
     }
 }

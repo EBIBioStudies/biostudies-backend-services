@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.persistence.doc.integration
 
-import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.persistence.common.service.CollectionDataService
 import ac.uk.ebi.biostd.persistence.common.service.StatsDataService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionDraftService
@@ -50,11 +49,11 @@ class MongoDbServicesConfig {
     internal fun submissionDraftMongoService(
         submissionDraftDocDataRepository: SubmissionDraftDocDataRepository,
         submissionQueryService: SubmissionQueryService,
-        serializationService: SerializationService
+        extSerializationService: ExtSerializationService
     ): SubmissionDraftService = SubmissionDraftMongoService(
         submissionDraftDocDataRepository,
         submissionQueryService,
-        serializationService
+        extSerializationService
     )
 
     @Bean

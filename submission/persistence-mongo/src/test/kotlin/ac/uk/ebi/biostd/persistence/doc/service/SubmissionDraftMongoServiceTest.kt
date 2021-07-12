@@ -1,7 +1,5 @@
 package ac.uk.ebi.biostd.persistence.doc.service
 
-import ac.uk.ebi.biostd.integration.SerializationService
-import ac.uk.ebi.biostd.integration.SubFormat.JsonFormat.JsonPretty
 import ac.uk.ebi.biostd.persistence.common.request.PaginationFilter
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDraftDocDataRepository
@@ -24,6 +22,7 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import java.time.Instant
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -31,12 +30,12 @@ import java.time.Instant
 internal class SubmissionDraftMongoServiceTest(
     @MockK private val draftDocDataRepository: SubmissionDraftDocDataRepository,
     @MockK private val submissionQueryService: SubmissionQueryService,
-    @MockK private val serializationService: SerializationService
+    @MockK private val extSerializationService: ExtSerializationService
 ) {
     private val testInstance = SubmissionDraftMongoService(
         draftDocDataRepository,
         submissionQueryService,
-        serializationService
+        extSerializationService
     )
 
     @AfterEach
@@ -60,7 +59,7 @@ internal class SubmissionDraftMongoServiceTest(
         every { draftDocDataRepository.findByUserIdAndKey(USER_ID, DRAFT_KEY) } returns null
         every { draftDocDataRepository.saveDraft(USER_ID, DRAFT_KEY, DRAFT_CONTENT) } returns testDocDraft
         every {
-            serializationService.serializeSubmission(extSubmission.toSimpleSubmission(), JsonPretty)
+            extSerializationService.serialize(extSubmission)
         } returns DRAFT_CONTENT
 
         val result = testInstance.getSubmissionDraft(USER_ID, DRAFT_KEY)
