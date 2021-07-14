@@ -19,6 +19,7 @@ import mu.KotlinLogging
 import java.io.File
 
 private val sanitizeRegex = "(\n)(\t)*|(\t)+(\n)".toRegex()
+
 private const val WORKERS = 30
 private val logger = KotlinLogging.logger {}
 
@@ -28,7 +29,6 @@ class PmcSubmissionLoader(
     private val inputFilesDocService: InputFilesDocService,
     private val submissionService: SubmissionDocService
 ) {
-
     /**
      * Process the given plain file and load submissions into database. Previously loaded submission are register
      * when new version is found and any issue processing the file is registered in the errors collection.

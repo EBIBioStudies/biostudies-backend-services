@@ -155,7 +155,7 @@ internal class SecurityServiceTest(
         fun `register a user when activation is required`() {
             val savedUserSlot = slot<DbUser>()
             val activationSlot = slot<SecurityNotification>()
-            val activationUrl = "http://dummy-backend.com/active/1234"
+            val activationUrl = "https://dummy-backend.com/active/1234"
 
             every { securityProps.requireActivation } returns true
             every { securityUtil.newKey() } returns SECRET_KEY andThen ACTIVATION_KEY
@@ -222,7 +222,7 @@ internal class SecurityServiceTest(
             val savedUserSlot = slot<DbUser>()
             val activationSlot = slot<SecurityNotification>()
             val user = simpleUser.apply { active = false }
-            val activationUrl = "http://dummy-backend.com/active/1234"
+            val activationUrl = "https://dummy-backend.com/active/1234"
 
             every { userRepository.findByEmailAndActive(email, false) } returns Optional.of(user)
             every { securityUtil.newKey() } returns ACTIVATION_KEY
@@ -251,15 +251,15 @@ internal class SecurityServiceTest(
 
         @Test
         fun `change password`() {
-            val passwordDiggest = ByteArray(0)
+            val passwordDigest = ByteArray(0)
             every { userRepository.findByActivationKeyAndActive(ACTIVATION_KEY, true) } returns Optional.of(simpleUser)
-            every { securityUtil.getPasswordDigest(password) } returns passwordDiggest
+            every { securityUtil.getPasswordDigest(password) } returns passwordDigest
             every { userRepository.save(any<DbUser>()) } answers { firstArg() }
 
-            testInstance.changePassword(ChangePasswordRequest(ACTIVATION_KEY, "new password"))
-
+            val updated = testInstance.changePassword(ChangePasswordRequest(ACTIVATION_KEY, "new password"))
+            assertThat(updated.email).isEqualTo(simpleUser.email)
             assertThat(simpleUser.activationKey).isNull()
-            assertThat(simpleUser.passwordDigest).isEqualTo(passwordDiggest)
+            assertThat(simpleUser.passwordDigest).isEqualTo(passwordDigest)
         }
     }
 
@@ -281,7 +281,7 @@ internal class SecurityServiceTest(
         @Test
         fun resetPassword() {
             val resetSlot = slot<SecurityNotification>()
-            val activationUrl = "http://dummy-backend.com/active/1234"
+            val activationUrl = "https://dummy-backend.com/active/1234"
 
             every { userRepository.findByLoginOrEmailAndActive(email, email, true) } returns Optional.of(simpleUser)
             every { securityUtil.newKey() } returns ACTIVATION_KEY
@@ -312,7 +312,7 @@ internal class SecurityServiceTest(
         fun `activate by email`() {
             val userSlot = slot<DbUser>()
             val activateByEmailSlot = slot<SecurityNotification>()
-            val activationUrl = "http://dummy-backend.com/active/1234"
+            val activationUrl = "https://dummy-backend.com/active/1234"
 
             every { userRepository.findByEmailAndActive(email, false) } returns Optional.of(simpleUser)
             every { userRepository.findByLoginOrEmailAndActive(email, email, true) } returns Optional.of(simpleUser)

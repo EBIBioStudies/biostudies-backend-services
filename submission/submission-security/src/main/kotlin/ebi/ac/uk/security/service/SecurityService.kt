@@ -17,6 +17,7 @@ import ebi.ac.uk.extended.events.SecurityNotificationType.PASSWORD_RESET
 import ebi.ac.uk.io.FileUtils
 import ebi.ac.uk.io.RWXRWX___
 import ebi.ac.uk.io.RWX__X___
+import ebi.ac.uk.model.User
 import ebi.ac.uk.security.integration.components.ISecurityService
 import ebi.ac.uk.security.integration.exception.LoginException
 import ebi.ac.uk.security.integration.exception.UserAlreadyRegister
@@ -92,12 +93,16 @@ class SecurityService(
         register(user, request.instanceKey, request.path)
     }
 
-    override fun changePassword(request: ChangePasswordRequest) {
-        val user = userRepository.findByActivationKeyAndActive(request.activationKey, true)
+    override fun changePassword(request: ChangePasswordRequest): User {
+        val user = userRepository
+            .findByActivationKeyAndActive(request.activationKey, true)
             .orElseThrow { UserWithActivationKeyNotFoundException() }
+
         user.activationKey = null
         user.passwordDigest = securityUtil.getPasswordDigest(request.password)
-        userRepository.save(user)
+
+        val updatedPassword = userRepository.save(user)
+        return profileService.asSecurityUser(updatedPassword).asUser()
     }
 
     override fun resetPassword(request: ResetPasswordRequest) {

@@ -22,3 +22,9 @@ internal object MigrationParameters {
     const val TARGET_PASSWORD = "Password for the BioStudies user in the target environment"
     const val TARGET_OWNER = "New owner for the submission in the target environment"
 }
+
+internal object GrantPermissionParameters {
+    const val TARGET_USER = "BioStudies user to grant permission"
+    const val ACCESS_TYPE = "Access Type to grant to the target user"
+    const val ACCESS_TAG_NAME = "Tag name of a collection"
+}

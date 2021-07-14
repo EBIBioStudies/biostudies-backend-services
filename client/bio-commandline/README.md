@@ -66,3 +66,24 @@ java -jar build/libs/BioStudiesCLI-2.0.jar migrate \
 * **tp:** Password for the BioStudies user in the target environment.
 * **to:** New owner for the submission in the target environment. This is an optional parameter. If it isn't provided,
   the current submission owner should exist in the target environment.
+  
+### Grant Permission
+Grant permissions for a user in the given collection
+
+```
+java -jar BioStudiesCLI-2.0.jar permission \
+-s <server> \
+-u <user> \
+-p <password> \
+-at <access type> \
+-tu <target user> \
+-atn <access tag name>
+```
+
+### Arguments
+* **s:** BioStudies instance URL.
+* **u:** BioStudies user with privileges to delete the submission.
+* **p:** The user password.
+* **at:** Access type to be granted to the user. Valid values are: *ATTACH, UPDATE, READ, DELETE*
+* **tu:** User to whom the access permission will be provided
+* **atn:** Name of the collection's access tag
