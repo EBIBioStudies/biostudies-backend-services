@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.persistence.integration.services
 
 import ac.uk.ebi.biostd.persistence.common.model.AccessType
+import ac.uk.ebi.biostd.persistence.common.model.AccessType.ADMIN
 import ac.uk.ebi.biostd.persistence.common.service.UserPermissionsService
 import ac.uk.ebi.biostd.persistence.model.DbAccessPermission
 import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
@@ -15,6 +16,13 @@ internal class UserSqlPermissionsService(
             permissionRepo.findAllByUserEmailAndAccessType(DEFAULT_USER, accessType)
 
     override fun hasPermission(user: String, accessTag: String, accessType: AccessType): Boolean =
+        hasPermissionSingleAccessType(user, accessTag, accessType)
+            .or(hasPermissionSingleAccessType(user, accessTag, ADMIN))
+
+    override fun hasPermissions(user: String, accessTags: List<String>, accessType: AccessType): Boolean =
+        accessTags.all { hasPermission(user, it, accessType) }
+
+    private fun hasPermissionSingleAccessType(user: String, accessTag: String, accessType: AccessType): Boolean =
         permissionRepo.existsByUserEmailAndAccessTypeAndAccessTagName(user, accessType, accessTag)
             .or(permissionRepo.existsByUserEmailAndAccessTypeAndAccessTagName(DEFAULT_USER, accessType, accessTag))
 }

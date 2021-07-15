@@ -1,6 +1,5 @@
 package ebi.ac.uk.security.service
 
-import ac.uk.ebi.biostd.persistence.common.model.AccessType.ADMIN
 import ac.uk.ebi.biostd.persistence.common.model.AccessType.ATTACH
 import ac.uk.ebi.biostd.persistence.common.model.AccessType.DELETE
 import ac.uk.ebi.biostd.persistence.common.model.AccessType.UPDATE
@@ -81,10 +80,9 @@ class UserPrivilegesServiceTest(
     @Test
     fun `admin user with tag resubmits a submission that is in a project`() {
         every { queryService.getAccessTags("accNo") } returns listOf("tagName1", "tagName2")
-        every { userPermissionsService.hasPermission("admin@mail.com", "tagName1", UPDATE) } returns false
-        every { userPermissionsService.hasPermission("admin@mail.com", "tagName2", UPDATE) } returns true
-        every { userPermissionsService.hasPermission("admin@mail.com", "tagName1", ADMIN) } returns true
-        every { userPermissionsService.hasPermission("admin@mail.com", "tagName2", ADMIN) } returns false
+        every {
+            userPermissionsService.hasPermissions("admin@mail.com", listOf("tagName1", "tagName2"), UPDATE)
+        } returns true
 
         assertThat(testInstance.canResubmit("admin@mail.com", "accNo")).isTrue()
     }
@@ -110,8 +108,13 @@ class UserPrivilegesServiceTest(
     @Test
     fun `other author user deletes submission with tag`() {
         every { queryService.getAccessTags("accNo") } returns listOf("A-Project")
-        every { userPermissionsService.hasPermission("otherAuthor@mail.com", "A-Project", DELETE) } returns true
-        every { userPermissionsService.hasPermission("otherAuthor@mail.com", "A-Project", ADMIN) } returns false
+        every {
+            userPermissionsService.hasPermissions(
+                "otherAuthor@mail.com",
+                listOf("A-Project"),
+                DELETE
+            )
+        } returns true
 
         assertThat(testInstance.canDelete("otherAuthor@mail.com", "accNo")).isTrue()
     }
@@ -124,18 +127,16 @@ class UserPrivilegesServiceTest(
     @Test
     fun `admin deletes submission with tags`() {
         every { queryService.getAccessTags("accNo") } returns listOf("tagName1", "tagName2")
-        every { userPermissionsService.hasPermission("admin@mail.com", "tagName1", DELETE) } returns false
-        every { userPermissionsService.hasPermission("admin@mail.com", "tagName2", DELETE) } returns true
-        every { userPermissionsService.hasPermission("admin@mail.com", "tagName1", ADMIN) } returns true
-        every { userPermissionsService.hasPermission("admin@mail.com", "tagName2", ADMIN) } returns false
+        every {
+            userPermissionsService.hasPermissions("admin@mail.com", listOf("tagName1", "tagName2"), DELETE)
+        } returns true
 
         assertThat(testInstance.canDelete("admin@mail.com", "accNo")).isTrue()
     }
 
     @Test
     fun `admin attach submission to project`() {
-        every { userPermissionsService.hasPermission("admin@mail.com", "projectName", ATTACH) } returns false
-        every { userPermissionsService.hasPermission("admin@mail.com", "projectName", ADMIN) } returns true
+        every { userPermissionsService.hasPermissions("admin@mail.com", listOf("projectName"), ATTACH) } returns true
 
         assertThat(testInstance.canSubmitToProject("admin@mail.com", "projectName")).isTrue()
     }

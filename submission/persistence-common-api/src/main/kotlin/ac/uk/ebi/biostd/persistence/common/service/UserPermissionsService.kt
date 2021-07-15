@@ -6,4 +6,5 @@ import ac.uk.ebi.biostd.persistence.common.model.AccessType
 interface UserPermissionsService {
     fun allowedTags(user: String, accessType: AccessType): List<AccessPermission>
     fun hasPermission(user: String, accessTag: String, accessType: AccessType): Boolean
+    fun hasPermissions(user: String, accessTags: List<String>, accessType: AccessType): Boolean
 }
