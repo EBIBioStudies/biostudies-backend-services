@@ -16,12 +16,14 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.fire.client.integration.web.FireWebClient
+import uk.ac.ebi.fire.client.model.FireFile as ClientFireFile
 
 @ExtendWith(MockKExtension::class)
 class FireFtpServiceTest(
     @MockK private val fireWebClient: FireWebClient,
     @MockK private val submissionQueryService: SubmissionQueryService
 ) {
+    private val clientFireFile = ClientFireFile(1, "abc1", "md5", 1, "2021-09-21")
     private val fireFile = FireFile("folder/test.txt", "abc1", "md5", 1, listOf())
     private val section = ExtSection(type = "Study", files = listOf(Either.left(fireFile)))
     private val testInstance = FireFtpService(fireWebClient, submissionQueryService)
@@ -32,6 +34,10 @@ class FireFtpServiceTest(
     @BeforeEach
     fun beforeEach() {
         every { fireWebClient.publish("abc1") } answers { nothing }
+        every { fireWebClient.unpublish("abc1") } answers { nothing }
+        every { fireWebClient.unsetPath("abc1") } answers { nothing }
+        every { fireWebClient.findAllInPath(basicExtSubmission.relPath) } returns listOf(clientFireFile)
+        every { fireWebClient.setPath("abc1", "${basicExtSubmission.relPath}/folder/test.txt") } answers { nothing }
     }
 
     @Test
@@ -39,7 +45,8 @@ class FireFtpServiceTest(
         val submission = basicExtSubmission.copy(released = true, section = section)
         testInstance.processSubmissionFiles(submission)
 
-        verify(exactly = 1) { fireWebClient.publish("abc1") }
+        verifyCleanFtpFolder()
+        verifyFtpPublish()
     }
 
     @Test
@@ -47,7 +54,11 @@ class FireFtpServiceTest(
         val submission = basicExtSubmission.copy(released = false, section = section)
         testInstance.processSubmissionFiles(submission)
 
-        verify(exactly = 0) { fireWebClient.publish("abc1") }
+        verifyCleanFtpFolder()
+        verify(exactly = 0) {
+            fireWebClient.publish("abc1")
+            fireWebClient.setPath("abc1", "${submission.relPath}/folder/test.txt")
+        }
     }
 
     @Test
@@ -58,6 +69,17 @@ class FireFtpServiceTest(
 
         testInstance.generateFtpLinks(submission.accNo)
 
-        verify(exactly = 1) { fireWebClient.publish("abc1") }
+        verifyCleanFtpFolder()
+        verifyFtpPublish()
+    }
+
+    private fun verifyCleanFtpFolder() = verify(exactly = 1) {
+        fireWebClient.unpublish("abc1")
+        fireWebClient.unsetPath("abc1")
+    }
+
+    private fun verifyFtpPublish() = verify(exactly = 1) {
+        fireWebClient.publish("abc1")
+        fireWebClient.setPath("abc1", "${basicExtSubmission.relPath}/folder/test.txt")
     }
 }

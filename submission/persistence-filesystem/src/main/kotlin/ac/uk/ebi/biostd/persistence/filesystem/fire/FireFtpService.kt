@@ -12,16 +12,35 @@ class FireFtpService(
     private val submissionQueryService: SubmissionQueryService
 ) : FtpService {
     override fun processSubmissionFiles(submission: ExtSubmission) {
+        cleanFtpFolder(submission.relPath)
         if (submission.released) publishFiles(submission)
     }
 
     override fun generateFtpLinks(accNo: String) {
-        publishFiles(submissionQueryService.getExtByAccNo(accNo))
+        val submission = submissionQueryService.getExtByAccNo(accNo)
+        cleanFtpFolder(submission.relPath)
+        publishFiles(submission)
     }
 
     private fun publishFiles(submission: ExtSubmission) =
         submission
             .allFiles
             .map { it as FireFile }
-            .forEach { fireWebClient.publish(it.fireId) }
+            .forEach { publishFile(it, submission.relPath) }
+
+    private fun publishFile(file: FireFile, relPath: String) {
+        fireWebClient.setPath(file.fireId, "$relPath/${file.fileName}")
+        fireWebClient.publish(file.fireId)
+    }
+
+    private fun cleanFtpFolder(relPath: String) {
+        fireWebClient
+            .findAllInPath(relPath)
+            .forEach { unpublishFile(it.fireOid) }
+    }
+
+    private fun unpublishFile(fireId: String) {
+        fireWebClient.unpublish(fireId)
+        fireWebClient.unsetPath(fireId)
+    }
 }
