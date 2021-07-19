@@ -9,13 +9,20 @@ import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.asBasicSubmission
 import ac.uk.ebi.biostd.persistence.common.exception.SubmissionNotFoundException
+import ac.uk.ebi.biostd.persistence.doc.db.repositories.FileListDocFileRepository
+import ac.uk.ebi.biostd.persistence.doc.mapping.to.toExtFile
+import ac.uk.ebi.biostd.persistence.doc.model.DocFileList
+import ac.uk.ebi.biostd.persistence.doc.model.DocSection
+import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.util.collections.mapLeft
 import org.springframework.data.domain.Page
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 
 internal class SubmissionMongoQueryService(
     private val submissionRepo: SubmissionDocDataRepository,
     private val requestRepository: SubmissionRequestDocDataRepository,
+    private val fileListDocFileRepository: FileListDocFileRepository,
     private val serializationService: ExtSerializationService,
     private val toExtSubmissionMapper: ToExtSubmissionMapper
 ) : SubmissionQueryService {
@@ -48,6 +55,26 @@ internal class SubmissionMongoQueryService(
     override fun getRequest(accNo: String, version: Int): ExtSubmission {
         val submission = requestRepository.getByAccNoAndVersion(accNo, version)
         return serializationService.deserialize(submission.submission.toString())
+    }
+
+    override fun getReferencedFiles(accNo: String, fileListName: String): List<ExtFile> {
+        val submission = loadSubmission(accNo)
+        val fileList = findFileList(submission.section, fileListName)
+        val referencedFiles = fileList?.files ?: emptyList()
+
+        return referencedFiles
+            .map { fileListDocFileRepository.getById(it.fileId) }
+            .map { it.toExtFile() }
+    }
+
+    private fun findFileList(section: DocSection, fileListName: String): DocFileList? {
+        if (section.fileList != null && section.fileList.fileName == fileListName) {
+            return section.fileList
+        }
+
+        section.sections.mapLeft { findFileList(it, fileListName) }
+
+        return null
     }
 
     private fun loadSubmission(accNo: String) =

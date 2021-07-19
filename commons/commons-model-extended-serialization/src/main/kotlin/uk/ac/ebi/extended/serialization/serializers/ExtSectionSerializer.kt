@@ -15,6 +15,10 @@ import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.SECTION
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.TYPE
 import uk.ac.ebi.extended.serialization.constants.ExtType
 
+// TODO serialize file list url
+// TODO create client operations for reading the files
+// TODO create ext section deserializer and deserialize the file list using the endpoint
+
 class ExtSectionSerializer : JsonSerializer<ExtSection>() {
     override fun serialize(section: ExtSection, gen: JsonGenerator, serializers: SerializerProvider) {
         gen.writeStartObject()

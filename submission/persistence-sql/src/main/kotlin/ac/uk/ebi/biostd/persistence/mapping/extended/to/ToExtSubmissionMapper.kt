@@ -3,8 +3,10 @@ package ac.uk.ebi.biostd.persistence.mapping.extended.to
 import ac.uk.ebi.biostd.persistence.exception.ExtSubmissionMappingException
 import ac.uk.ebi.biostd.persistence.model.DbSubmission
 import ac.uk.ebi.biostd.persistence.model.DbSubmissionStat
+import ac.uk.ebi.biostd.persistence.model.ReferencedFileList
 import ac.uk.ebi.biostd.persistence.model.ext.validAttributes
 import ebi.ac.uk.extended.model.ExtCollection
+import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.ExtStat
 import ebi.ac.uk.extended.model.ExtSubmission
@@ -27,6 +29,11 @@ class ToExtSubmissionMapper(private val submissionsPath: Path) {
         val (dbSubmission, stats) = dbToExtRequest
         return toExtSubmission(dbSubmission, stats)
     }
+
+    internal fun toExtFileList(
+        dbSubmission: DbSubmission,
+        dbFileList: ReferencedFileList
+    ): List<ExtFile> = dbFileList.files.map { it.toExtFile(getSubmissionSource(dbSubmission)) }
 
     private fun toExtSubmission(dbSubmission: DbSubmission, stats: List<DbSubmissionStat>): ExtSubmission =
         runCatching {
