@@ -213,6 +213,7 @@ object Projects {
     const val CommonsModelExtended = ":commons:commons-model-extended"
     const val CommonsModelExtendedMapping = ":commons:commons-model-extended-mapping"
     const val CommonsModelExtendedSerialization = ":commons:commons-model-extended-serialization"
+    const val CommonsSerializationUtil = ":commons:commons-serialization-util"
     const val CommonsTest = ":commons:commons-test"
     const val SubmissionConfig = ":submission:submission-config"
     const val SubmissionPersistenceCommonApi = ":submission:persistence-common-api"

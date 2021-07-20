@@ -9,14 +9,17 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import ebi.ac.uk.extended.model.ExtFile
+import ebi.ac.uk.extended.model.ExtFileList
 import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.ExtLink
 import ebi.ac.uk.extended.model.ExtLinkTable
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSectionTable
 import ebi.ac.uk.extended.model.ExtSubmission
+import org.springframework.web.client.RestTemplate
 import uk.ac.ebi.extended.serialization.deserializers.EitherExtTypeDeserializer
 import uk.ac.ebi.extended.serialization.deserializers.ExtFileDeserializer
+import uk.ac.ebi.extended.serialization.deserializers.ExtFileListDeserializer
 import uk.ac.ebi.extended.serialization.deserializers.ExtFilesTableDeserializer
 import uk.ac.ebi.extended.serialization.deserializers.ExtLinkDeserializer
 import uk.ac.ebi.extended.serialization.deserializers.ExtLinksTableDeserializer
@@ -34,15 +37,16 @@ import uk.ac.ebi.serialization.serializers.EitherSerializer
 import java.time.OffsetDateTime
 
 class ExtSerializationService {
-    fun <T> serialize(element: T): String =
-        mapper.writerWithDefaultPrettyPrinter().writeValueAsString(element)
+    fun <T> serialize(element: T): String = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(element)
 
-    fun <T> deserialize(value: String, type: Class<out T>) = mapper.readValue(value, type)
+    fun <T> deserialize(value: String, type: Class<out T>): T = mapper.readValue(value, type)
 
-    inline fun <reified T> deserialize(value: String) = mapper.readValue<T>(value)
+    inline fun <reified T> deserialize(value: String): T = mapper.readValue(value)
 
     companion object {
         val mapper = createMapper()
+        val restTemplate = RestTemplate()
+        lateinit var instanceUrl: String
 
         private fun createMapper(): ObjectMapper {
             val module = SimpleModule().apply {
@@ -50,6 +54,7 @@ class ExtSerializationService {
                 addDeserializer(ExtFile::class.java, ExtFileDeserializer())
                 addDeserializer(ExtFileTable::class.java, ExtFilesTableDeserializer())
                 addDeserializer(ExtLink::class.java, ExtLinkDeserializer())
+                addDeserializer(ExtFileList::class.java, ExtFileListDeserializer())
                 addDeserializer(ExtLinkTable::class.java, ExtLinksTableDeserializer())
                 addDeserializer(ExtSectionTable::class.java, ExtSectionsTableDeserializer())
                 addDeserializer(OffsetDateTime::class.java, OffsetDateTimeDeserializer())

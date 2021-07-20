@@ -58,12 +58,15 @@ class SubmitterConfig {
     }
 
     @Configuration
-    class SerializationConfiguration {
+    class SerializationConfiguration(private val appProperties: ApplicationProperties) {
         @Bean
         fun serializationService() = SerializationConfig.serializationService()
 
         @Bean
-        fun extSerializationService(): ExtSerializationService = ExtSerializationService()
+        fun extSerializationService(): ExtSerializationService {
+            ExtSerializationService.instanceUrl = appProperties.instanceBaseUrl
+            return ExtSerializationService()
+        }
     }
 
     @Configuration
