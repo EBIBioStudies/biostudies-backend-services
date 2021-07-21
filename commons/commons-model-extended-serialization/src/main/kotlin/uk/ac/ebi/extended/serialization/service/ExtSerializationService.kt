@@ -43,6 +43,7 @@ class ExtSerializationService {
 
     inline fun <reified T> deserialize(value: String): T = mapper.readValue(value)
 
+    // TODO verify the submission migration
     companion object {
         val mapper = createMapper()
         val restTemplate = RestTemplate()

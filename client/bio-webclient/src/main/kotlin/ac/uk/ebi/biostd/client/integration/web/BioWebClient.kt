@@ -4,6 +4,7 @@ import ac.uk.ebi.biostd.client.api.SubmissionClientImpl
 import ac.uk.ebi.biostd.client.interceptor.OnBehalfInterceptor
 import ac.uk.ebi.biostd.client.interceptor.TokenInterceptor
 import ac.uk.ebi.biostd.integration.SerializationConfig
+import uk.ac.ebi.extended.serialization.integration.ExtSerializationConfig
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 
 class BioWebClient internal constructor(
@@ -14,7 +15,7 @@ class BioWebClient internal constructor(
             SubmissionClientImpl(
                 createRestTemplate(baseUrl, token),
                 SerializationConfig.serializationService(),
-                ExtSerializationService()
+                ExtSerializationConfig.extSerializationService(baseUrl)
             )
         )
 
@@ -26,7 +27,7 @@ class BioWebClient internal constructor(
             SubmissionClientImpl(
                 createRestTemplate(baseUrl, token, onBehalf),
                 SerializationConfig.serializationService(),
-                ExtSerializationService()
+                ExtSerializationConfig.extSerializationService(baseUrl)
             )
         )
 

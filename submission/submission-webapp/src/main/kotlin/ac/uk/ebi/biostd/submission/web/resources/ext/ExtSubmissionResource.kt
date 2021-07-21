@@ -4,7 +4,7 @@ import ac.uk.ebi.biostd.submission.converters.BioUser
 import ac.uk.ebi.biostd.submission.domain.service.ExtSubmissionService
 import ac.uk.ebi.biostd.submission.web.model.ExtPage
 import ac.uk.ebi.biostd.submission.web.model.ExtPageRequest
-import ebi.ac.uk.extended.model.ExtFile
+import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import org.springframework.security.access.prepost.PreAuthorize
@@ -29,7 +29,7 @@ class ExtSubmissionResource(
     fun getReferencedFiles(
         @PathVariable accNo: String,
         @PathVariable fileListName: String
-    ): List<ExtFile> = extSubmissionService.getReferencedFiles(accNo, fileListName)
+    ): ExtFileTable = extSubmissionService.getReferencedFiles(accNo, fileListName)
 
     @PostMapping
     @PreAuthorize("isAuthenticated()")

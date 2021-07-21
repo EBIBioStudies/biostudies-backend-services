@@ -8,6 +8,7 @@ import ac.uk.ebi.biostd.persistence.common.exception.CollectionNotFoundException
 import ac.uk.ebi.biostd.persistence.exception.UserNotFoundException
 import ac.uk.ebi.biostd.submission.web.model.ExtPageRequest
 import ebi.ac.uk.extended.model.ExtFile
+import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FileMode.COPY
 import ebi.ac.uk.extended.model.isCollection
@@ -31,7 +32,7 @@ class ExtSubmissionService(
     fun getReferencedFiles(
         accNo: String,
         fileListName: String
-    ): List<ExtFile> = submissionRepository.getReferencedFiles(accNo, fileListName)
+    ): ExtFileTable = ExtFileTable(submissionRepository.getReferencedFiles(accNo, fileListName))
 
     fun submitExtendedSubmission(user: String, extSubmission: ExtSubmission): ExtSubmission {
         validateSubmitter(user)

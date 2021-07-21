@@ -2,8 +2,6 @@ package uk.ac.ebi.extended.serialization.deserializers
 
 import arrow.core.Either
 import arrow.core.Either.Companion.right
-import arrow.core.left
-import arrow.core.right
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.JsonDeserializer

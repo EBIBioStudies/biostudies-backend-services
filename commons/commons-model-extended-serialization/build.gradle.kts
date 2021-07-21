@@ -4,7 +4,6 @@ import Dependencies.JacksonXml
 import Dependencies.KotlinReflect
 import Dependencies.KotlinStdLib
 import Dependencies.SpringWeb
-import Projects.BioWebClient
 import Projects.CommonsModelExtended
 import Projects.CommonsSerializationUtil
 import Projects.CommonsTest

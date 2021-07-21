@@ -15,6 +15,7 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 import org.springframework.core.io.ResourceLoader
 import org.springframework.web.client.RestTemplate
+import uk.ac.ebi.extended.serialization.integration.ExtSerializationConfig
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 
 @Configuration
@@ -60,10 +61,7 @@ class Services {
     @Bean
     fun extSerializationService(
         applicationProperties: ApplicationProperties
-    ): ExtSerializationService {
-        ExtSerializationService.instanceUrl = applicationProperties.baseInstanceUrl
-        return ExtSerializationService()
-    }
+    ): ExtSerializationService = ExtSerializationConfig.extSerializationService(applicationProperties.baseInstanceUrl)
 
     @Bean
     fun rtNotificationService(notificationConfig: NotificationConfig) = notificationConfig.rtNotificationService()

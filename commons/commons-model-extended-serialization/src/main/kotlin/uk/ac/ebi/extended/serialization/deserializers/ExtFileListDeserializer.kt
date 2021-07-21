@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.TextNode
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileList
+import ebi.ac.uk.extended.model.ExtFileTable
 import org.springframework.web.client.getForObject
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILES
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_NAME
@@ -20,15 +21,14 @@ class ExtFileListDeserializer : JsonDeserializer<ExtFileList>() {
         val mapper = jsonParser.codec as ObjectMapper
         val node: JsonNode = mapper.readTree(jsonParser)
 
-        // TODO fix deserialization issue
         return ExtFileList(
             fileName = node.getNode<TextNode>(FILE_NAME).textValue(),
             files = loadFiles(node.getNode<TextNode>(FILES).textValue())
         )
     }
 
-    private fun loadFiles(url: String): List<ExtFile> =
-        restTemplate
-            .getForObject<String>(url)
-            .map { mapper.readValue(it.toString(), ExtFile::class.java) }
+    private fun loadFiles(url: String): List<ExtFile> {
+        val referencedFiles = restTemplate.getForObject<String>(url)
+        return mapper.readValue(referencedFiles, ExtFileTable::class.java).files
+    }
 }
