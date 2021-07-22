@@ -111,6 +111,7 @@ interface ExtSubmissionOperations {
     fun getExtSubmissionsPage(pageUrl: String): ExtPage
     fun getExtByAccNo(accNo: String): ExtSubmission
     fun submitExt(extSubmission: ExtSubmission): ExtSubmission
+    fun submitExtDirect(extSubmission: String): ExtSubmission
 }
 
 interface PermissionOperations {

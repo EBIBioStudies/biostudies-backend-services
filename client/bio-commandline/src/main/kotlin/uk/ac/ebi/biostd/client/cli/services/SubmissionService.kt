@@ -5,6 +5,7 @@ import ebi.ac.uk.model.Submission
 import uk.ac.ebi.biostd.client.cli.dto.DeletionRequest
 import uk.ac.ebi.biostd.client.cli.dto.MigrationRequest
 import uk.ac.ebi.biostd.client.cli.dto.SubmissionRequest
+import uk.ac.ebi.extended.serialization.integration.ExtSerializationConfig.extSerializationService
 
 /**
  * In charge of perform submission command line operations.
@@ -31,7 +32,9 @@ internal class SubmissionService {
     private fun migrateRequest(request: MigrationRequest) {
         val sourceClient = bioWebClient(request.source, request.sourceUser, request.sourcePassword)
         val targetClient = bioWebClient(request.target, request.targetUser, request.targetPassword)
-        targetClient.submitExt(migratedSubmissions(sourceClient.getExtByAccNo(request.accNo), request.targetOwner))
+        val extSerializer = extSerializationService(request.source)
+        val migrated = migratedSubmissions(sourceClient.getExtByAccNo(request.accNo), request.targetOwner)
+        targetClient.submitExtDirect(extSerializer.serialize(migrated))
     }
 
     private fun migratedSubmissions(submission: ExtSubmission, targetOwner: String?) =

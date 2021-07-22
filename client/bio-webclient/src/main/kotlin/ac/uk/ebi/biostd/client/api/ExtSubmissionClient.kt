@@ -41,6 +41,11 @@ class ExtSubmissionClient(
             .postForEntity<String>(EXT_SUBMISSIONS_URL, HttpEntity(extSerializationService.serialize(extSubmission)))
             .deserialized()
 
+    override fun submitExtDirect(extSubmission: String): ExtSubmission =
+        restTemplate
+            .postForEntity<String>(EXT_SUBMISSIONS_URL, HttpEntity(extSubmission))
+            .deserialized()
+
     private fun asUrl(extPageQuery: ExtPageQuery): String =
         UriComponentsBuilder.fromUriString(EXT_SUBMISSIONS_URL)
             .queryParam("offset", extPageQuery.offset)

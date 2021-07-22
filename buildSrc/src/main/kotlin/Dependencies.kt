@@ -207,6 +207,7 @@ object SpringBootDependencies {
 }
 
 object Projects {
+    const val BioWebClient = ":client:bio-webclient"
     const val CommonsUtil = ":commons:commons-util"
     const val CommonsBio = ":commons:commons-bio"
     const val CommonsSerialization = ":commons:commons-serialization"
