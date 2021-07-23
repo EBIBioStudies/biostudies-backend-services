@@ -2,7 +2,9 @@ package ac.uk.ebi.biostd.persistence.doc.migrations
 
 import ac.uk.ebi.biostd.persistence.doc.commons.ensureExists
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_TYPE
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ACC_NO
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ATTRIBUTES
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_OWNER
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_RELEASED
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_RELEASE_TIME
@@ -21,7 +23,6 @@ import org.springframework.data.mongodb.core.index.TextIndexDefinition.builder a
 
 @ChangeLog
 class DatabaseChangeLog {
-
     @ChangeSet(order = "001", id = "Create Schema", author = "System")
     fun createSchema(template: MongockTemplate) {
         template.ensureExists(DocSubmission::class.java)
@@ -34,20 +35,32 @@ class DatabaseChangeLog {
             ensureIndex(Index().on(SUB_SUBMITTER, ASC))
             ensureIndex(Index().on("$SUB_SECTION.$SEC_TYPE", ASC))
             ensureIndex(Index().on(SUB_RELEASE_TIME, ASC))
-            ensureIndex(TextIndex().onField(SUB_TITLE).build())
+            ensureIndex(submissionTitleIndex())
             ensureIndex(Index().on(SUB_RELEASED, ASC))
         }
 
         template.indexOps(SubmissionRequest::class.java).apply {
             ensureIndex(Index().on(SUB_ACC_NO, ASC))
             ensureIndex(Index().on(SUB_ACC_NO, ASC).on(SUB_VERSION, ASC))
-            ensureIndex(Index().on("submission.$SUB_SECTION.$SEC_TYPE", ASC))
-            ensureIndex(Index().on("submission.$SUB_ACC_NO", ASC))
-            ensureIndex(Index().on("submission.$SUB_OWNER", ASC))
-            ensureIndex(Index().on("submission.$SUB_SUBMITTER", ASC))
-            ensureIndex(Index().on("submission.$SUB_RELEASE_TIME", ASC))
-            ensureIndex(TextIndex().onField("submission.$SUB_TITLE").build())
-            ensureIndex(Index().on("submission.$SUB_RELEASED", ASC))
+            ensureIndex(Index().on("$SUB.$SUB_SECTION.$SEC_TYPE", ASC))
+            ensureIndex(Index().on("$SUB.$SUB_ACC_NO", ASC))
+            ensureIndex(Index().on("$SUB.$SUB_OWNER", ASC))
+            ensureIndex(Index().on("$SUB.$SUB_SUBMITTER", ASC))
+            ensureIndex(Index().on("$SUB.$SUB_RELEASE_TIME", ASC))
+            ensureIndex(submissionRequestTitleIndex())
+            ensureIndex(Index().on("$SUB.$SUB_RELEASED", ASC))
         }
     }
+
+    private fun submissionTitleIndex() =
+        TextIndex()
+            .onField(SUB_TITLE)
+            .onField("$SUB_SECTION.$SUB_ATTRIBUTES.value")
+            .build()
+
+    private fun submissionRequestTitleIndex() =
+        TextIndex()
+            .onField("$SUB.$SUB_TITLE")
+            .onField("$SUB.$SUB_SECTION.$SUB_ATTRIBUTES.value")
+            .build()
 }

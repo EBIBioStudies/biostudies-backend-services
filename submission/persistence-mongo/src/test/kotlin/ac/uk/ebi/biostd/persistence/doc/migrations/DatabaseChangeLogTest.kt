@@ -6,7 +6,9 @@ import ac.uk.ebi.biostd.persistence.doc.MongoDbConfig
 import ac.uk.ebi.biostd.persistence.doc.MongoDbConfig.Companion.createMongockConfig
 import ac.uk.ebi.biostd.persistence.doc.commons.getCollection
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_TYPE
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ACC_NO
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ATTRIBUTES
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_OWNER
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_RELEASED
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_RELEASE_TIME
@@ -104,9 +106,9 @@ internal class DatabaseChangeLogTest(
         assertThat(listIndexes[5]).containsEntry("key", Document("$SUB_SECTION.$SEC_TYPE", 1))
         assertThat(listIndexes[6]).containsEntry("key", Document(SUB_RELEASE_TIME, 1))
         assertThat(listIndexes[7]).contains(
-            SimpleEntry("textIndexVersion", 3), SimpleEntry("weights", Document(SUB_TITLE, 1))
+            SimpleEntry("textIndexVersion", 3),
+            SimpleEntry("weights", Document("$SUB_SECTION.$SUB_ATTRIBUTES.value", 1).append(SUB_TITLE, 1))
         )
-        assertThat(listIndexes[7]).containsEntry("weights", Document(SUB_TITLE, 1))
         assertThat(listIndexes[8]).containsEntry("key", Document(SUB_RELEASED, 1))
     }
 
@@ -125,7 +127,8 @@ internal class DatabaseChangeLogTest(
         assertThat(listIndexes[6]).containsEntry("key", Document("submission.$SUB_SUBMITTER", 1))
         assertThat(listIndexes[7]).containsEntry("key", Document("submission.$SUB_RELEASE_TIME", 1))
         assertThat(listIndexes[8]).contains(
-            SimpleEntry("textIndexVersion", 3), SimpleEntry("weights", Document("submission.$SUB_TITLE", 1))
+            SimpleEntry("textIndexVersion", 3),
+            SimpleEntry("weights", Document("$SUB.$SUB_SECTION.$SUB_ATTRIBUTES.value", 1).append("$SUB.$SUB_TITLE", 1))
         )
         assertThat(listIndexes[9]).containsEntry("key", Document("submission.$SUB_RELEASED", 1))
     }
