@@ -47,7 +47,7 @@ class JsonDslTest {
 
             assertThat(obj.toString()).isEqualTo(
                 "{\"string\": \"string value\", \"boolean1\": true, \"boolean2\": false, " +
-                        "\"number\": 50, \"null prop\": null, \"enum\": \"TEST\", \"curlyBrackets\": {}}"
+                    "\"number\": 50, \"null prop\": null, \"enum\": \"TEST\", \"curlyBrackets\": {}}"
             )
         }
 
