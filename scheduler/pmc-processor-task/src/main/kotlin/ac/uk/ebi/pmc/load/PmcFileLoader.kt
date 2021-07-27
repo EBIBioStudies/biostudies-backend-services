@@ -1,5 +1,6 @@
 package ac.uk.ebi.pmc.load
 
+import arrow.core.Either
 import ebi.ac.uk.functions.milisToInstant
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
@@ -20,7 +21,11 @@ class PmcFileLoader(private val pmcLoader: PmcSubmissionLoader) {
      */
     fun loadFolder(folder: File) {
         runBlocking {
-            processFiles(toProcess = folder, processed = folder.createSubFolder("processed"))
+            processFiles(
+                toProcess = folder,
+                processed = folder.createSubFolder("processed"),
+                failed = folder.createSubFolder("failed")
+            )
         }
     }
 
@@ -30,19 +35,30 @@ class PmcFileLoader(private val pmcLoader: PmcSubmissionLoader) {
         return folder
     }
 
-    private suspend fun processFiles(toProcess: File, processed: File) {
+    private suspend fun processFiles(toProcess: File, processed: File, failed: File) {
         logger.info { "loading files in ${toProcess.absolutePath}" }
         toProcess.listFiles(GzFilter)
             .orEmpty()
             .asSequence()
-            .onEach { logger.info { "checking file '${it.absolutePath}'" } }
+            .onEach { file -> logger.info { "checking file '${file.absolutePath}'" } }
             .map(::getFileData)
-            .forEach { pmcLoader.processFile(it, processed) }
+            .forEach {
+                it.fold(
+                    { fileSpec -> pmcLoader.processFile(fileSpec, processed) },
+                    { file -> pmcLoader.processCorruptedFile(file, failed) }
+                )
+            }
     }
 
-    private fun getFileData(file: File): FileSpec {
-        val entryContent = GZIPInputStream(FileInputStream(file)).use { IOUtils.toString(it, Charsets.UTF_8) }
-        return FileSpec(file.absolutePath, entryContent, milisToInstant(file.lastModified()), file)
+    private fun getFileData(file: File): Either<FileSpec, File> {
+        var entryContent: String? = null
+        runCatching {
+            entryContent = GZIPInputStream(FileInputStream(file)).use { IOUtils.toString(it, Charsets.UTF_8) }
+        }
+
+        return if (entryContent != null) {
+            Either.left(FileSpec(file.absolutePath, entryContent!!, milisToInstant(file.lastModified()), file))
+        } else Either.right(file)
     }
 
     object GzFilter : FilenameFilter {

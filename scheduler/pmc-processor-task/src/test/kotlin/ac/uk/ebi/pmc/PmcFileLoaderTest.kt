@@ -4,6 +4,8 @@ import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat
 import ac.uk.ebi.pmc.config.AppConfig
 import ac.uk.ebi.pmc.persistence.docs.InputFileDoc
+import ac.uk.ebi.pmc.persistence.docs.InputFileStatus.FAILED
+import ac.uk.ebi.pmc.persistence.docs.InputFileStatus.PROCESSED
 import ac.uk.ebi.pmc.persistence.docs.SubmissionDoc
 import ac.uk.ebi.pmc.persistence.docs.SubmissionErrorDoc
 import ac.uk.ebi.pmc.persistence.docs.SubmissionStatus.LOADED
@@ -28,8 +30,8 @@ import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
@@ -93,6 +95,7 @@ internal class PmcFileLoaderTest(private val tempFolder: TemporaryFolder) {
     companion object {
         private const val PMC_EXPORT_FILE = "fileLoadTest.txt"
         private const val PMC_EXPORT_FILE_GZIP = "$PMC_EXPORT_FILE.gz"
+        private const val PMC_EXPORT_CORRUPTED_FILE_GZIP = "corruptedGZip$PMC_EXPORT_FILE.gz"
     }
 
     @Nested
@@ -110,15 +113,21 @@ internal class PmcFileLoaderTest(private val tempFolder: TemporaryFolder) {
     ) {
         private val gzipFilePath = tempFolder.root.resolve(PMC_EXPORT_FILE_GZIP).path
 
-        @BeforeEach
-        fun beforeEach() {
-            val pmcSubmissionsFile = resourceLoader.getResource("classpath:$PMC_EXPORT_FILE").file
-            pmcSubmissionsFile.gZipTo(tempFolder.root.resolve(PMC_EXPORT_FILE_GZIP))
+        @AfterEach
+        fun afterEach() {
+            runBlocking {
+                errorsRepository.deleteAll()
+                submissionRepository.deleteAll()
+                inputFileRepository.deleteAll()
+            }
         }
 
         @Test
-        fun pmcLoad() {
+        fun `pmcLoad when gZip file is not corrupted`() {
             runBlocking {
+                val pmcSubmissionsFile = resourceLoader.getResource("classpath:$PMC_EXPORT_FILE").file
+                pmcSubmissionsFile.gZipTo(tempFolder.root.resolve(PMC_EXPORT_FILE_GZIP))
+
                 pmcTaskExecutor.run()
 
                 val errors = errorsRepository.findAll()
@@ -138,9 +147,33 @@ internal class PmcFileLoaderTest(private val tempFolder: TemporaryFolder) {
             }
         }
 
+        @Test
+        fun `pmcLoad when gZip file is corrupted`() {
+            runBlocking {
+                val corruptedFile = resourceLoader.getResource("classpath:$PMC_EXPORT_CORRUPTED_FILE_GZIP").file
+                corruptedFile.copyTo(tempFolder.root.resolve(PMC_EXPORT_CORRUPTED_FILE_GZIP))
+
+                pmcTaskExecutor.run()
+
+                assertThat(errorsRepository.findAll()).hasSize(0)
+                assertThat(submissionRepository.findAll()).hasSize(0)
+
+                val docFiles = inputFileRepository.findAll()
+                assertThat(docFiles).hasSize(1)
+                val docFile = docFiles.first()
+                assertThat(docFile.name).isEqualTo(PMC_EXPORT_CORRUPTED_FILE_GZIP)
+                assertThat(docFile.loaded).isNotNull
+                assertThat(docFile.status).isEqualTo(FAILED)
+
+                assertThat(tempFolder.root.resolve(PMC_EXPORT_CORRUPTED_FILE_GZIP)).doesNotExist()
+                assertThat(tempFolder.root.resolve("failed/$PMC_EXPORT_CORRUPTED_FILE_GZIP")).exists()
+            }
+        }
+
         private fun assertThatDocFile(docFile: InputFileDoc) {
             assertThat(docFile.name).isEqualTo(gzipFilePath)
-            assertThat(docFile.loaded).isNotNull()
+            assertThat(docFile.loaded).isNotNull
+            assertThat(docFile.status).isEqualTo(PROCESSED)
         }
 
         private fun assertError(savedError: SubmissionErrorDoc) {
