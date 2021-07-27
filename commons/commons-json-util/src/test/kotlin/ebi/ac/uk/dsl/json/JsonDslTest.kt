@@ -1,13 +1,9 @@
-package ebi.ac.uk.dsl
+package ebi.ac.uk.dsl.json
 
-import ebi.ac.uk.dsl.json.JsonNull
-import ebi.ac.uk.dsl.json.jsonArray
-import ebi.ac.uk.dsl.json.jsonNull
-import ebi.ac.uk.dsl.json.jsonObj
-import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.assertj.core.api.Assertions.assertThat
 
 class JsonDslTest {
 
