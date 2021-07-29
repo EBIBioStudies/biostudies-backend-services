@@ -23,6 +23,7 @@ import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocSubmission
 import com.mongodb.BasicDBObject
 import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
 import ebi.ac.uk.db.MONGO_VERSION
+import ebi.ac.uk.model.constants.SectionFields.TITLE
 import org.assertj.core.api.Assertions.assertThat
 import org.bson.Document
 import org.junit.jupiter.api.BeforeEach
@@ -105,11 +106,13 @@ internal class DatabaseChangeLogTest(
         assertThat(listIndexes[4]).containsEntry("key", Document(SUB_SUBMITTER, 1))
         assertThat(listIndexes[5]).containsEntry("key", Document("$SUB_SECTION.$SEC_TYPE", 1))
         assertThat(listIndexes[6]).containsEntry("key", Document(SUB_RELEASE_TIME, 1))
-        assertThat(listIndexes[7]).contains(
+        assertThat(listIndexes[7]).containsEntry("key", Document(SUB_RELEASED, 1))
+        assertThat(listIndexes[8]).contains(
             SimpleEntry("textIndexVersion", 3),
+            SimpleEntry("name", TITLE_INDEX_NAME),
+            SimpleEntry("partialFilterExpression", Document("$SUB_SECTION.$SUB_ATTRIBUTES.name", TITLE.value)),
             SimpleEntry("weights", Document("$SUB_SECTION.$SUB_ATTRIBUTES.value", 1).append(SUB_TITLE, 1))
         )
-        assertThat(listIndexes[8]).containsEntry("key", Document(SUB_RELEASED, 1))
     }
 
     private fun assertRequestCollection() {
@@ -126,11 +129,13 @@ internal class DatabaseChangeLogTest(
         assertThat(listIndexes[5]).containsEntry("key", Document("submission.$SUB_OWNER", 1))
         assertThat(listIndexes[6]).containsEntry("key", Document("submission.$SUB_SUBMITTER", 1))
         assertThat(listIndexes[7]).containsEntry("key", Document("submission.$SUB_RELEASE_TIME", 1))
-        assertThat(listIndexes[8]).contains(
+        assertThat(listIndexes[8]).containsEntry("key", Document("submission.$SUB_RELEASED", 1))
+        assertThat(listIndexes[9]).contains(
             SimpleEntry("textIndexVersion", 3),
+            SimpleEntry("name", TITLE_INDEX_NAME),
+            SimpleEntry("partialFilterExpression", Document("$SUB.$SUB_SECTION.$SUB_ATTRIBUTES.name", TITLE.value)),
             SimpleEntry("weights", Document("$SUB.$SUB_SECTION.$SUB_ATTRIBUTES.value", 1).append("$SUB.$SUB_TITLE", 1))
         )
-        assertThat(listIndexes[9]).containsEntry("key", Document("submission.$SUB_RELEASED", 1))
     }
 
     private fun runMigrations() {
