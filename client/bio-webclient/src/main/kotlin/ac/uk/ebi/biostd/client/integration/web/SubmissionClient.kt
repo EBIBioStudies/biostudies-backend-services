@@ -14,6 +14,7 @@ import ebi.ac.uk.api.security.LoginRequest
 import ebi.ac.uk.api.security.RegisterRequest
 import ebi.ac.uk.api.security.UserProfile
 import ebi.ac.uk.base.EMPTY
+import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.model.Collection
 import ebi.ac.uk.model.Group
@@ -110,8 +111,8 @@ interface ExtSubmissionOperations {
     fun getExtSubmissions(extPageQuery: ExtPageQuery): ExtPage
     fun getExtSubmissionsPage(pageUrl: String): ExtPage
     fun getExtByAccNo(accNo: String): ExtSubmission
-    fun submitExt(extSubmission: ExtSubmission): ExtSubmission
-    fun submitExtDirect(extSubmission: String): ExtSubmission
+    fun getReferencedFiles(filesUrl: String): ExtFileTable
+    fun submitExt(extSubmission: ExtSubmission, fileLists: List<File> = emptyList()): ExtSubmission
 }
 
 interface PermissionOperations {

@@ -16,7 +16,6 @@ import ebi.ac.uk.extended.model.ExtLinkTable
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSectionTable
 import ebi.ac.uk.extended.model.ExtSubmission
-import org.springframework.web.client.RestTemplate
 import uk.ac.ebi.extended.serialization.deserializers.EitherExtTypeDeserializer
 import uk.ac.ebi.extended.serialization.deserializers.ExtFileDeserializer
 import uk.ac.ebi.extended.serialization.deserializers.ExtFileListDeserializer
@@ -43,10 +42,8 @@ class ExtSerializationService {
 
     inline fun <reified T> deserialize(value: String): T = mapper.readValue(value)
 
-    // TODO verify the submission migration
     companion object {
         val mapper = createMapper()
-        val restTemplate = RestTemplate()
         lateinit var instanceUrl: String
 
         private fun createMapper(): ObjectMapper {

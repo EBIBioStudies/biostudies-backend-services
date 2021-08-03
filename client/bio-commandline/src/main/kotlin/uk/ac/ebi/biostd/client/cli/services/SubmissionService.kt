@@ -1,11 +1,16 @@
 package uk.ac.ebi.biostd.client.cli.services
 
+import ac.uk.ebi.biostd.client.integration.web.BioWebClient
+import ebi.ac.uk.extended.model.ExtFileList
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.extended.model.allFileList
 import ebi.ac.uk.model.Submission
 import uk.ac.ebi.biostd.client.cli.dto.DeletionRequest
 import uk.ac.ebi.biostd.client.cli.dto.MigrationRequest
 import uk.ac.ebi.biostd.client.cli.dto.SubmissionRequest
 import uk.ac.ebi.extended.serialization.integration.ExtSerializationConfig.extSerializationService
+import uk.ac.ebi.extended.serialization.service.ExtSerializationService
+import java.io.File
 
 /**
  * In charge of perform submission command line operations.
@@ -33,8 +38,19 @@ internal class SubmissionService {
         val sourceClient = bioWebClient(request.source, request.sourceUser, request.sourcePassword)
         val targetClient = bioWebClient(request.target, request.targetUser, request.targetPassword)
         val extSerializer = extSerializationService(request.source)
-        val migrated = migratedSubmissions(sourceClient.getExtByAccNo(request.accNo), request.targetOwner)
-        targetClient.submitExtDirect(extSerializer.serialize(migrated))
+        val source = sourceClient.getExtByAccNo(request.accNo)
+        val migrated = migratedSubmissions(source, request.targetOwner)
+        val fileLists = source.allFileList.map { asTempFile(it, sourceClient, extSerializer) }
+        targetClient.submitExt(migrated, fileLists)
+    }
+
+    private fun asTempFile(fileList: ExtFileList, client: BioWebClient, extSerializer: ExtSerializationService): File {
+        val files = client.getReferencedFiles(fileList.filesUrl!!)
+        // TODO using default UNIX temp folder. Should this be configurable?
+        val file = File("/tmp", fileList.fileName)
+        file.writeText(extSerializer.serialize(files))
+
+        return file
     }
 
     private fun migratedSubmissions(submission: ExtSubmission, targetOwner: String?) =

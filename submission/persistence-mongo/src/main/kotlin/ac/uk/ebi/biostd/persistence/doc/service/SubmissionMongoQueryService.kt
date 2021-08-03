@@ -13,6 +13,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.repositories.FileListDocFileRepositor
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.toExtFile
 import ac.uk.ebi.biostd.persistence.doc.model.DocFileList
 import ac.uk.ebi.biostd.persistence.doc.model.DocSection
+import ac.uk.ebi.biostd.persistence.doc.model.allDocSections
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.util.collections.mapLeft
@@ -59,22 +60,13 @@ internal class SubmissionMongoQueryService(
 
     override fun getReferencedFiles(accNo: String, fileListName: String): List<ExtFile> {
         val submission = loadSubmission(accNo)
-        val fileList = findFileList(submission.section, fileListName)
-        val referencedFiles = fileList?.files ?: emptyList()
+        val files = submission.allDocSections
+            .mapNotNull { it.fileList }
+            .first { it.fileName == fileListName }
+            .let { fileList -> fileListDocFileRepository.findAllById(fileList.files.map { it.fileId }) }
+            ?: throw RuntimeException("The file list could not be processed")
 
-        return referencedFiles
-            .map { fileListDocFileRepository.getById(it.fileId) }
-            .map { it.toExtFile() }
-    }
-
-    private fun findFileList(section: DocSection, fileListName: String): DocFileList? {
-        if (section.fileList != null && section.fileList.fileName == fileListName) {
-            return section.fileList
-        }
-
-        section.sections.mapLeft { findFileList(it, fileListName) }
-
-        return null
+        return files.map { it.toExtFile() }
     }
 
     private fun loadSubmission(accNo: String) =

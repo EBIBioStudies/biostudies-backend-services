@@ -11,6 +11,7 @@ import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.ACC_NO
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.ATTRIBUTES
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.EXT_TYPE
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILES
+import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILES_URL
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_LIST
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_NAME
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.LINKS
@@ -38,7 +39,7 @@ class ExtSectionSerializer : JsonSerializer<ExtSection>() {
     private fun writeFileList(fileList: ExtFileList, gen: JsonGenerator) {
         gen.writeObjectFieldStart(FILE_LIST)
         gen.writeStringField(FILE_NAME, fileList.fileName)
-        gen.writeStringField(FILES, "$instanceUrl/$FILE_LIST_URL/$parentAccNo/fileList/${fileList.fileName}/files")
+        gen.writeStringField(FILES_URL, "$instanceUrl/$FILE_LIST_URL/$parentAccNo/fileList/${fileList.fileName}/files")
         gen.writeEndObject()
     }
 

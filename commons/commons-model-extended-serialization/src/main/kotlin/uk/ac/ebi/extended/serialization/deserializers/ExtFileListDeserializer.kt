@@ -6,14 +6,9 @@ import com.fasterxml.jackson.databind.JsonDeserializer
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.TextNode
-import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileList
-import ebi.ac.uk.extended.model.ExtFileTable
-import org.springframework.web.client.getForObject
-import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILES
+import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILES_URL
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_NAME
-import uk.ac.ebi.extended.serialization.service.ExtSerializationService.Companion.mapper
-import uk.ac.ebi.extended.serialization.service.ExtSerializationService.Companion.restTemplate
 import uk.ac.ebi.serialization.extensions.getNode
 
 class ExtFileListDeserializer : JsonDeserializer<ExtFileList>() {
@@ -23,12 +18,7 @@ class ExtFileListDeserializer : JsonDeserializer<ExtFileList>() {
 
         return ExtFileList(
             fileName = node.getNode<TextNode>(FILE_NAME).textValue(),
-            files = loadFiles(node.getNode<TextNode>(FILES).textValue())
+            filesUrl = node.getNode<TextNode>(FILES_URL).textValue()
         )
-    }
-
-    private fun loadFiles(url: String): List<ExtFile> {
-        val referencedFiles = restTemplate.getForObject<String>(url)
-        return mapper.readValue(referencedFiles, ExtFileTable::class.java).files
     }
 }

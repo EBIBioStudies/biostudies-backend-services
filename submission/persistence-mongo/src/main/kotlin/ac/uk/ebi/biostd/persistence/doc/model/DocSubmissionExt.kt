@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.persistence.doc.model
 
 import ac.uk.ebi.biostd.persistence.common.model.BasicSubmission
+import com.google.common.collect.ImmutableList
 import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSubmission
@@ -26,6 +27,16 @@ fun DocSubmission.asBasicSubmission(): BasicSubmission {
         owner = owner
     )
 }
+
+val DocSubmission.allDocSections: List<DocSection>
+    get() = ImmutableList.builder<DocSection>()
+        .add(section)
+        .addAll(section.allSections)
+        .build()
+        .filterNotNull()
+
+val DocSection.allSections: List<DocSection>
+    get() = sections.flatMap { either -> either.fold({ it.allSections }, { emptyList() }) }
 
 private fun DocProcessingStatus.toProcessingStatus(): ProcessingStatus =
     when (this) {

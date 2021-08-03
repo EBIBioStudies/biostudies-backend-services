@@ -7,8 +7,8 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestService
 import ac.uk.ebi.biostd.persistence.common.exception.CollectionNotFoundException
 import ac.uk.ebi.biostd.persistence.exception.UserNotFoundException
 import ac.uk.ebi.biostd.submission.web.model.ExtPageRequest
-import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileTable
+import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FileMode.COPY
 import ebi.ac.uk.extended.model.isCollection
@@ -17,6 +17,8 @@ import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import mu.KotlinLogging
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
+import uk.ac.ebi.extended.serialization.service.ExtSerializationService
+import java.io.File
 import java.time.OffsetDateTime
 
 private val logger = KotlinLogging.logger {}
@@ -25,7 +27,8 @@ class ExtSubmissionService(
     private val requestService: SubmissionRequestService,
     private val submissionRepository: SubmissionQueryService,
     private val userPrivilegesService: IUserPrivilegesService,
-    private val securityQueryService: ISecurityQueryService
+    private val securityQueryService: ISecurityQueryService,
+    private val extSerializationService: ExtSerializationService
 ) {
     fun getExtendedSubmission(accNo: String): ExtSubmission = submissionRepository.getExtByAccNo(accNo)
 
@@ -34,10 +37,17 @@ class ExtSubmissionService(
         fileListName: String
     ): ExtFileTable = ExtFileTable(submissionRepository.getReferencedFiles(accNo, fileListName))
 
-    fun submitExtendedSubmission(user: String, extSubmission: ExtSubmission): ExtSubmission {
+    fun submitExtendedSubmission(
+        user: String,
+        extSubmission: ExtSubmission,
+        fileListFiles: List<File>
+    ): ExtSubmission {
         validateSubmitter(user)
         validateSubmission(extSubmission)
-        val submission = extSubmission.copy(submitter = user)
+        val submission = extSubmission.copy(
+            submitter = user,
+            section = processFileListFiles(extSubmission.section, fileListsMap(fileListFiles))
+        )
 
         return requestService.saveAndProcessSubmissionRequest(SaveSubmissionRequest(submission, COPY))
     }
@@ -58,6 +68,23 @@ class ExtSubmissionService(
         val submissions = page.content.filterNotNull()
 
         return PageImpl(submissions, page.pageable, page.totalElements)
+    }
+
+    private fun processFileListFiles(
+        section: ExtSection,
+        fileListFiles: Map<String, File>
+    ): ExtSection = section.copy(
+        fileList = section.fileList?.let { it.copy(files = deserializeReferencedFiles(fileListFiles[it.fileName]!!)) }
+    )
+
+    private fun deserializeReferencedFiles(fileList: File) =
+        extSerializationService.deserialize<ExtFileTable>(fileList.readText()).files
+
+    private fun fileListsMap(fileLists: List<File>): Map<String, File> {
+        val filesMap = HashMap<String, File>()
+        fileLists.forEach { filesMap[it.nameWithoutExtension] = it }
+
+        return filesMap
     }
 
     private fun validateSubmission(submission: ExtSubmission) {
