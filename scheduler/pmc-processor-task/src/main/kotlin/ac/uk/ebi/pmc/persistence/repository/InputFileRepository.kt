@@ -14,10 +14,10 @@ import java.io.File
 class InputFileRepository(private val collection: MongoCollection<InputFileDoc>) {
 
     suspend fun saveProcessed(fileDoc: FileSpec): InsertOneResult =
-        collection.insertOne(InputFileDoc(name = fileDoc.name, status = PROCESSED)).awaitFirst()
+        collection.insertOne(InputFileDoc(name = fileDoc.name, status = PROCESSED, error = null)).awaitFirst()
 
-    suspend fun saveFailed(file: File): InsertOneResult =
-        collection.insertOne(InputFileDoc(name = file.name, status = FAILED)).awaitFirst()
+    suspend fun saveFailed(file: File, error: String): InsertOneResult =
+        collection.insertOne(InputFileDoc(name = file.name, status = FAILED, error = error)).awaitFirst()
 
     suspend fun findAll(): List<InputFileDoc> = collection.find().toList()
 

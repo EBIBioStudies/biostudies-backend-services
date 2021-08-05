@@ -123,7 +123,7 @@ internal class PmcFileLoaderTest(private val tempFolder: TemporaryFolder) {
         }
 
         @Test
-        fun `pmcLoad when gZip file is not corrupted`() {
+        fun `pmc load when no errors`() {
             runBlocking {
                 val pmcSubmissionsFile = resourceLoader.getResource("classpath:$PMC_EXPORT_FILE").file
                 pmcSubmissionsFile.gZipTo(tempFolder.root.resolve(PMC_EXPORT_FILE_GZIP))
@@ -148,7 +148,7 @@ internal class PmcFileLoaderTest(private val tempFolder: TemporaryFolder) {
         }
 
         @Test
-        fun `pmcLoad when gZip file is corrupted`() {
+        fun `pmc load when gZip file is corrupted`() {
             runBlocking {
                 val corruptedFile = resourceLoader.getResource("classpath:$PMC_EXPORT_CORRUPTED_FILE_GZIP").file
                 corruptedFile.copyTo(tempFolder.root.resolve(PMC_EXPORT_CORRUPTED_FILE_GZIP))

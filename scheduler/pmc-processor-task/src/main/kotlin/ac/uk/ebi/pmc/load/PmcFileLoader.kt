@@ -1,6 +1,7 @@
 package ac.uk.ebi.pmc.load
 
-import arrow.core.Either
+import arrow.core.Either.Companion.left
+import arrow.core.Either.Companion.right
 import ebi.ac.uk.functions.milisToInstant
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
@@ -41,24 +42,18 @@ class PmcFileLoader(private val pmcLoader: PmcSubmissionLoader) {
             .orEmpty()
             .asSequence()
             .onEach { file -> logger.info { "checking file '${file.absolutePath}'" } }
-            .map(::getFileData)
-            .forEach {
-                it.fold(
-                    { fileSpec -> pmcLoader.processFile(fileSpec, processed) },
-                    { file -> pmcLoader.processCorruptedFile(file, failed) }
+            .map { file -> runCatching { getFileData(file) }.fold({ left(it) }, { right(Pair(file, it)) }) }
+            .forEach { either ->
+                either.fold(
+                    { pmcLoader.processFile(it, processed) },
+                    { pmcLoader.processCorruptedFile(it, failed) }
                 )
             }
     }
 
-    private fun getFileData(file: File): Either<FileSpec, File> {
-        var entryContent: String? = null
-        runCatching {
-            entryContent = GZIPInputStream(FileInputStream(file)).use { IOUtils.toString(it, Charsets.UTF_8) }
-        }
-
-        return if (entryContent != null) {
-            Either.left(FileSpec(file.absolutePath, entryContent!!, milisToInstant(file.lastModified()), file))
-        } else Either.right(file)
+    private fun getFileData(file: File): FileSpec {
+        val entryContent = GZIPInputStream(FileInputStream(file)).use { IOUtils.toString(it, Charsets.UTF_8) }
+        return FileSpec(file.absolutePath, entryContent, milisToInstant(file.lastModified()), file)
     }
 
     object GzFilter : FilenameFilter {

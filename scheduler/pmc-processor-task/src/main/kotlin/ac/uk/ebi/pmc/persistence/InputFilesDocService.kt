@@ -6,5 +6,5 @@ import java.io.File
 
 class InputFilesDocService(private val inputFileRepo: InputFileRepository) {
     suspend fun reportProcessed(file: FileSpec) = inputFileRepo.saveProcessed(file)
-    suspend fun reportFailed(file: File) = inputFileRepo.saveFailed(file)
+    suspend fun reportFailed(file: File, error: String) = inputFileRepo.saveFailed(file, error)
 }

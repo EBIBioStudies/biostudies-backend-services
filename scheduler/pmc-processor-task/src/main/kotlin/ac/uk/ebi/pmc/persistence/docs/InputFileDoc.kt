@@ -5,7 +5,8 @@ import java.time.Instant
 data class InputFileDoc(
     val name: String,
     val loaded: Instant = Instant.now(),
-    val status: InputFileStatus
+    val status: InputFileStatus,
+    val error: String?
 ) {
 
     companion object Fields {

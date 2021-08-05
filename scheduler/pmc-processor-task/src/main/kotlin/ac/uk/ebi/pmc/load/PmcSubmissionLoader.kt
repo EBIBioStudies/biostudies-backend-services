@@ -44,10 +44,10 @@ class PmcSubmissionLoader(
         moveFile(file.originalFile, processedFolder.resolve(file.originalFile.name))
     }
 
-    suspend fun processCorruptedFile(file: File, failedFolder: File) {
-        logger.info { "processing file ${file.name}" }
-        inputFilesDocService.reportFailed(file)
-        moveFile(file, failedFolder.resolve(file.name))
+    suspend fun processCorruptedFile(pair: Pair<File, Throwable>, failedFolder: File) {
+        logger.info { "processing file ${pair.first.name}" }
+        inputFilesDocService.reportFailed(pair.first, pair.second.stackTraceToString())
+        moveFile(pair.first, failedFolder.resolve(pair.first.name))
     }
 
     private fun moveFile(file: File, processed: File) {
