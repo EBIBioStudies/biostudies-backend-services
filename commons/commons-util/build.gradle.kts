@@ -8,6 +8,7 @@ import Dependencies.Poi
 import Dependencies.PoiOxml
 import Dependencies.SpringWeb
 import Dependencies.XlsxStreamer
+import Projects.CommonsTest
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
 import TestDependencies.XmlUnitAssertJ
@@ -25,7 +26,7 @@ dependencies {
     implementation(CommonsLang3)
     implementation(SpringWeb)
 
-    testApi(project(":commons:commons-test"))
+    testApi(project(CommonsTest))
     BaseTestCompileDependencies.forEach { testImplementation(it) }
     BaseTestRuntimeDependencies.forEach { testImplementation(it) }
     testImplementation(XmlUnitCore)

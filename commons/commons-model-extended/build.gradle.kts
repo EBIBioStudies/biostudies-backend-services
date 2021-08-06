@@ -3,11 +3,13 @@ import Dependencies.Guava
 import Dependencies.JacksonKotlin
 import Dependencies.KotlinReflect
 import Dependencies.KotlinStdLib
+import Projects.CommonsTest
+import Projects.CommonsUtil
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
 
 dependencies {
-    api(project(":commons:commons-util"))
+    api(project(CommonsUtil))
 
     implementation(Arrow)
     implementation(Guava)
@@ -15,7 +17,7 @@ dependencies {
     implementation(KotlinStdLib)
     implementation(JacksonKotlin)
 
-    testApi(project(":commons:commons-test"))
+    testApi(project(CommonsTest))
     BaseTestCompileDependencies.forEach { testImplementation(it) }
     BaseTestRuntimeDependencies.forEach { testImplementation(it) }
 }
