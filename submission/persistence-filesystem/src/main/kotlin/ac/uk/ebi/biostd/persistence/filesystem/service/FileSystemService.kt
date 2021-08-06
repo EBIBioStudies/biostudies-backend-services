@@ -21,7 +21,6 @@ class FileSystemService(
         val processedSubmission = filesService.persistSubmissionFiles(request)
         pageTabService.generatePageTab(processedSubmission)
         ftpService.processSubmissionFiles(submission)
-
         return processedSubmission
     }
 }

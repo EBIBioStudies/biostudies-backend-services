@@ -4,7 +4,7 @@ import ac.uk.ebi.biostd.persistence.filesystem.api.FilesService
 import ac.uk.ebi.biostd.persistence.filesystem.extensions.FilePermissionsExtensions.filePermissions
 import ac.uk.ebi.biostd.persistence.filesystem.extensions.FilePermissionsExtensions.folderPermissions
 import ac.uk.ebi.biostd.persistence.filesystem.request.FilePersistenceRequest
-import ac.uk.ebi.biostd.persistence.filesystem.service.FileProcessingService.processFiles
+import ac.uk.ebi.biostd.persistence.filesystem.service.processFiles
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FileMode
@@ -59,19 +59,17 @@ class NfsFilesService(
             reCreateFolder(subFolder, folderPermissions)
         }
 
-        val config = NfsFileProcessingConfig(subFilesPath, tempFolder, filePermissions, folderPermissions)
-
-        fun processNfsFile(file: ExtFile): ExtFile {
-            val nfsFile = file as NfsFile
-            return if (mode == COPY) config.nfsCopy(nfsFile) else config.nfsMove(nfsFile)
-        }
-
-        val processed = processFiles(submission, ::processNfsFile)
+        val config = NfsFileProcessingConfig(mode, subFilesPath, tempFolder, filePermissions, folderPermissions)
+        val processed = processFiles(submission) { config.processFile(it) }
 
         logger.info { "Finishing processing submission ${submission.accNo} files in $mode" }
         deleteFile(tempFolder)
-
         return processed
+    }
+
+    private fun NfsFileProcessingConfig.processFile(file: ExtFile): NfsFile {
+        val nfsFile = file as NfsFile
+        return if (mode == COPY) nfsCopy(nfsFile) else nfsMove(nfsFile)
     }
 
     private fun getOrCreateSubmissionFolder(submission: ExtSubmission, permissions: Set<PosixFilePermission>): File {

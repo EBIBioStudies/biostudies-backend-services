@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.persistence.filesystem.nfs
 
+import ebi.ac.uk.extended.model.FileMode
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.io.FileUtils
 import ebi.ac.uk.io.ext.md5
@@ -11,6 +12,7 @@ import java.nio.file.attribute.PosixFilePermission
 private val logger = KotlinLogging.logger {}
 
 data class NfsFileProcessingConfig(
+    val mode: FileMode,
     val subFolder: File,
     val tempFolder: File,
     val filePermissions: Set<PosixFilePermission>,
