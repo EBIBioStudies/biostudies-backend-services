@@ -1,10 +1,10 @@
 package ebi.ac.uk.dsl.json
 
 import ebi.ac.uk.dsl.json.JsonDslTest.Companion.TestEnum.TEST
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.assertj.core.api.Assertions.assertThat
 
 class JsonDslTest {
 
@@ -44,11 +44,19 @@ class JsonDslTest {
                 "enum" to TEST
                 "curlyBrackets" to {}
             }
+            val expected = """
+                    {
+                        "string": "string value",
+                        "boolean1": true, 
+                        "boolean2": false,
+                        "number": 50, 
+                        "null prop": null,
+                        "enum": "TEST",
+                        "curlyBrackets": {}
+                    }
+                """
 
-            assertThat(obj.toString()).isEqualTo(
-                "{\"string\": \"string value\", \"boolean1\": true, \"boolean2\": false, " +
-                    "\"number\": 50, \"null prop\": null, \"enum\": \"TEST\", \"curlyBrackets\": {}}"
-            )
+            ebi.ac.uk.asserts.assertThat(obj.toString()).isEqualsIgnoringSpacesAndLineBreaks(expected)
         }
 
         @Test
