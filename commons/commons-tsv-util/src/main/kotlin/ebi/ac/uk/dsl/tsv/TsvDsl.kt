@@ -1,4 +1,4 @@
-package ebi.ac.uk.dsl
+package ebi.ac.uk.dsl.tsv
 
 class Tsv(val lines: MutableList<TsvLine> = mutableListOf()) {
 
