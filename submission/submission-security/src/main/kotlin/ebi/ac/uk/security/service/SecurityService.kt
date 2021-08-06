@@ -118,7 +118,7 @@ class SecurityService(
         userRepository.save(user.apply { activationKey = key })
 
         val resetUrl = securityUtil.getActivationUrl(instanceKey, path, key)
-        val resetNotification = SecurityNotification(user.email, user.fullName, resetUrl, type)
+        val resetNotification = SecurityNotification(user.email, user.fullName, key, resetUrl, type)
 
         eventsPublisherService.securityNotification(resetNotification)
     }
@@ -138,7 +138,7 @@ class SecurityService(
         val key = securityUtil.newKey()
         val saved = userRepository.save(user.apply { user.activationKey = key })
         val activationUrl = securityUtil.getActivationUrl(instanceKey, activationPath, key)
-        val notification = SecurityNotification(saved.email, saved.fullName, activationUrl, ACTIVATION)
+        val notification = SecurityNotification(saved.email, saved.fullName, key, activationUrl, ACTIVATION)
         eventsPublisherService.securityNotification(notification)
         return saved
     }
