@@ -37,10 +37,11 @@ class SecurityUtilTest(
     inner class TokenCases {
         @Test
         fun `token can be generated and converted back`() {
-            every { userRepository.getById(simpleUser.id) } returns simpleUser
+            val user = simpleUser
+            every { userRepository.getById(user.id) } returns user
 
-            val token = testInstance.createToken(simpleUser)
-            assertThat(testInstance.fromToken(token)).contains(simpleUser)
+            val token = testInstance.createToken(user)
+            assertThat(testInstance.fromToken(token)).contains(user)
         }
 
         @Test
@@ -102,11 +103,12 @@ class SecurityUtilTest(
 
         @Test
         fun `check when exist`() {
-            val token = testInstance.createToken(simpleUser)
-            every { userRepository.getById(simpleUser.id) } returns simpleUser
+            val user = simpleUser
+            val token = testInstance.createToken(user)
+            every { userRepository.getById(user.id) } returns user
             every { tokenRepository.findById(token) } returns Optional.empty()
 
-            assertThat(testInstance.checkToken(token)).contains(simpleUser)
+            assertThat(testInstance.checkToken(token)).contains(user)
         }
     }
 
