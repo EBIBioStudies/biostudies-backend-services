@@ -27,12 +27,14 @@ import ebi.ac.uk.security.integration.exception.UserWithActivationKeyNotFoundExc
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import ebi.ac.uk.security.integration.model.api.UserInfo
 import ebi.ac.uk.security.util.SecurityUtil
+import org.springframework.transaction.annotation.Transactional
 import uk.ac.ebi.events.service.EventsPublisherService
 import java.nio.file.Path
 import java.nio.file.Paths
 
 @Suppress("TooManyFunctions")
-class SecurityService(
+@Transactional
+open class SecurityService(
     private val userRepository: UserDataRepository,
     private val securityUtil: SecurityUtil,
     private val securityProps: SecurityProperties,
@@ -96,12 +98,12 @@ class SecurityService(
     }
 
     override fun activateAndSetupPassword(request: ChangePasswordRequest): User {
-        userRepository
+        val user = userRepository
             .findByActivationKeyAndActive(request.activationKey, false)
-            .map(this::activate)
-            .orElseThrow { UserWithActivationKeyNotFoundException() }
+            .orElseThrow(::UserWithActivationKeyNotFoundException)
 
-        return changePassword(request)
+        activate(user)
+        return setPassword(user, request.password)
     }
 
     override fun changePassword(request: ChangePasswordRequest): User {
@@ -110,15 +112,20 @@ class SecurityService(
             .orElseThrow { UserWithActivationKeyNotFoundException() }
 
         user.activationKey = null
-        user.passwordDigest = securityUtil.getPasswordDigest(request.password)
 
-        val updatedPassword = userRepository.save(user)
-        return profileService.asSecurityUser(updatedPassword).asUser()
+        return setPassword(user, request.password)
     }
 
     override fun resetPassword(request: ResetPasswordRequest) {
         if (securityProps.checkCaptcha) captchaVerifier.verifyCaptcha(request.captcha)
         resetNotification(request.email, request.instanceKey, request.path)
+    }
+
+    private fun setPassword(user: DbUser, password: String): User {
+        user.passwordDigest = securityUtil.getPasswordDigest(password)
+
+        val updatedPassword = userRepository.save(user)
+        return profileService.asSecurityUser(updatedPassword).asUser()
     }
 
     private fun resetNotification(email: String, instanceKey: String, path: String) {
