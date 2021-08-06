@@ -56,7 +56,7 @@ class JsonDslTest {
                     }
                 """
 
-            ebi.ac.uk.asserts.assertThat(obj.toString()).isEqualsIgnoringSpacesAndLineBreaks(expected)
+            ebi.ac.uk.asserts.StringAssertion.assertThat(obj.toString()).isEqualsIgnoringSpacesAndLineBreaks(expected)
         }
 
         @Test

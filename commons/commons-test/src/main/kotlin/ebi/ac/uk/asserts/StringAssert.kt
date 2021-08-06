@@ -6,8 +6,8 @@ import org.assertj.core.api.Assertions.assertThat
 
 private val LINE_BREAK_SPACES_REGEX = "[\\n\\r\\s]+".toRegex()
 
-fun assertThat(value: String): StringAssert {
-    return StringAssert(value)
+object StringAssertion {
+    fun assertThat(value: String): StringAssert = StringAssert(value)
 }
 
 class StringAssert(actual: String) : AbstractAssert<StringAssert, String>(actual, StringAssert::class.java) {
@@ -15,4 +15,3 @@ class StringAssert(actual: String) : AbstractAssert<StringAssert, String>(actual
         assertThat(actual.remove(LINE_BREAK_SPACES_REGEX)).isEqualTo(value.remove(LINE_BREAK_SPACES_REGEX))
     }
 }
-
