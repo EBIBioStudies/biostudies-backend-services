@@ -1,8 +1,8 @@
 package ac.uk.ebi.transpiler.factory
 
 import ac.uk.ebi.transpiler.common.FilesTableTemplate
-import ebi.ac.uk.dsl.line
-import ebi.ac.uk.dsl.tsv
+import ebi.ac.uk.dsl.tsv.line
+import ebi.ac.uk.dsl.tsv.tsv
 
 fun testTemplate() = tsv {
     line("Plate", "Replicate", "Well", "Gene Identifier", "Gene Symbol")

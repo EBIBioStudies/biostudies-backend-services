@@ -23,13 +23,13 @@ import ac.uk.ebi.biostd.validation.SerializationException
 import ebi.ac.uk.dsl.attribute
 import ebi.ac.uk.dsl.file
 import ebi.ac.uk.dsl.filesTable
-import ebi.ac.uk.dsl.line
+import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.link
 import ebi.ac.uk.dsl.linksTable
 import ebi.ac.uk.dsl.section
 import ebi.ac.uk.dsl.sectionsTable
 import ebi.ac.uk.dsl.submission
-import ebi.ac.uk.dsl.tsv
+import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.model.AttributeDetail
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
