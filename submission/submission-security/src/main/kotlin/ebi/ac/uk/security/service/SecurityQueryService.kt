@@ -37,10 +37,12 @@ class SecurityQueryService(
             email = email,
             fullName = username,
             secret = securityUtil.newKey(),
-            passwordDigest = ByteArray(0)
-        )
-        user.active = false
-        user.notificationsEnabled = false
+            passwordDigest = ByteArray(0),
+            notificationsEnabled = false
+        ).apply {
+            active = false
+            activationKey = securityUtil.newKey()
+        }
 
         return userRepository.save(user)
     }
