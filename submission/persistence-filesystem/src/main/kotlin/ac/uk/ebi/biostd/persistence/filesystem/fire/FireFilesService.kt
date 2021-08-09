@@ -49,4 +49,3 @@ private fun FireFileProcessingConfig.saveFile(nfsFile: NfsFile): FireFile {
     val store = fireWebClient.save(nfsFile.file, nfsFile.md5)
     return FireFile(nfsFile.fileName, store.fireOid, store.objectMd5, store.objectSize.toLong(), nfsFile.attributes)
 }
-

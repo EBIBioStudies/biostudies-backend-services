@@ -3,6 +3,8 @@ package ac.uk.ebi.biostd.persistence.nfs
 import ac.uk.ebi.biostd.persistence.filesystem.nfs.nfsCopy
 import ac.uk.ebi.biostd.persistence.filesystem.nfs.nfsMove
 import ac.uk.ebi.biostd.persistence.filesystem.nfs.NfsFileProcessingConfig
+import ebi.ac.uk.extended.model.FileMode.COPY
+import ebi.ac.uk.extended.model.FileMode.MOVE
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.io.RWXR_XR_X
 import ebi.ac.uk.io.RW_R__R__
@@ -57,7 +59,7 @@ class NfsFileProcessingConfigTest(private val tempFolder: TemporaryFolder) {
 
         private fun testCopy(subFile: File, subFolder: File, currentFolder: File) {
             val extFile = NfsFile("test.txt", subFile)
-            val config = NfsFileProcessingConfig(subFolder, currentFolder, RW_R__R__, RWXR_XR_X)
+            val config = NfsFileProcessingConfig(COPY, subFolder, currentFolder, RW_R__R__, RWXR_XR_X)
             val result = config.nfsCopy(extFile)
 
             assertThat(subFolder.resolve("test.txt").exists()).isTrue()
@@ -97,7 +99,7 @@ class NfsFileProcessingConfigTest(private val tempFolder: TemporaryFolder) {
 
         private fun testMove(testFile: File, subFolder: File, currentFolder: File) {
             val extFile = NfsFile("test.txt", testFile)
-            val config = NfsFileProcessingConfig(subFolder, currentFolder, RW_R__R__, RWXR_XR_X)
+            val config = NfsFileProcessingConfig(MOVE, subFolder, currentFolder, RW_R__R__, RWXR_XR_X)
             val result = config.nfsMove(extFile)
 
             assertThat(subFolder.resolve("test.txt")).exists()

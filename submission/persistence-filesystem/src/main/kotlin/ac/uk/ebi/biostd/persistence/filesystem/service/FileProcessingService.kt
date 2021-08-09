@@ -27,7 +27,6 @@ private fun processFileList(
     processFile: (file: ExtFile) -> ExtFile
 ) = fileList.copy(files = fileList.files.map { processFile(it) })
 
-
 private fun processFiles(
     either: Either<ExtFile, ExtFileTable>,
     processFile: (file: ExtFile) -> ExtFile
