@@ -40,13 +40,13 @@ class ExtSubmissionService(
     fun submitExtendedSubmission(
         user: String,
         extSubmission: ExtSubmission,
-        fileListFiles: List<File>
+        fileListFiles: List<File> = emptyList()
     ): ExtSubmission {
         validateSubmitter(user)
         validateSubmission(extSubmission)
         val submission = extSubmission.copy(
             submitter = user,
-            section = processFileListFiles(extSubmission.section, fileListsMap(fileListFiles))
+            section = processFileListFiles(extSubmission.section, fileListFiles.associateBy { it.nameWithoutExtension })
         )
 
         return requestService.saveAndProcessSubmissionRequest(SaveSubmissionRequest(submission, COPY))
@@ -78,14 +78,7 @@ class ExtSubmissionService(
     )
 
     private fun deserializeReferencedFiles(fileList: File) =
-        extSerializationService.deserialize<ExtFileTable>(fileList.readText()).files
-
-    private fun fileListsMap(fileLists: List<File>): Map<String, File> {
-        val filesMap = HashMap<String, File>()
-        fileLists.forEach { filesMap[it.nameWithoutExtension] = it }
-
-        return filesMap
-    }
+        extSerializationService.deserialize(fileList.readText(), ExtFileTable::class.java).files
 
     private fun validateSubmission(submission: ExtSubmission) {
         validateOwner(submission.owner)

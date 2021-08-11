@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.persistence.doc.service
 
+import ac.uk.ebi.biostd.persistence.common.exception.FileListNotFoundException
 import ac.uk.ebi.biostd.persistence.common.model.BasicSubmission
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
@@ -16,6 +17,7 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocSection
 import ac.uk.ebi.biostd.persistence.doc.model.allDocSections
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.util.collections.firstOrElse
 import ebi.ac.uk.util.collections.mapLeft
 import org.springframework.data.domain.Page
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
@@ -62,9 +64,9 @@ internal class SubmissionMongoQueryService(
         val submission = loadSubmission(accNo)
         val files = submission.allDocSections
             .mapNotNull { it.fileList }
-            .first { it.fileName == fileListName }
+            .filter { it.fileName == fileListName }
+            .firstOrElse { throw FileListNotFoundException(accNo, fileListName) }
             .let { fileList -> fileListDocFileRepository.findAllById(fileList.files.map { it.fileId }) }
-            ?: throw RuntimeException("The file list could not be processed")
 
         return files.map { it.toExtFile() }
     }

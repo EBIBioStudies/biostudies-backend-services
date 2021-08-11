@@ -44,7 +44,6 @@ class ExtSerializationService {
 
     companion object {
         val mapper = createMapper()
-        lateinit var instanceUrl: String
 
         private fun createMapper(): ObjectMapper {
             val module = SimpleModule().apply {

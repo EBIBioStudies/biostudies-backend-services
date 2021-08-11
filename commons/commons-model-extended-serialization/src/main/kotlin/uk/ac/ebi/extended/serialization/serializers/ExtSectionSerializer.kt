@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.JsonSerializer
 import com.fasterxml.jackson.databind.SerializerProvider
 import ebi.ac.uk.extended.model.ExtFileList
 import ebi.ac.uk.extended.model.ExtSection
-import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.ACC_NO
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.ATTRIBUTES
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.EXT_TYPE
@@ -18,7 +17,6 @@ import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.LINKS
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.SECTIONS
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.TYPE
 import uk.ac.ebi.extended.serialization.constants.ExtType
-import uk.ac.ebi.extended.serialization.service.ExtSerializationService.Companion.instanceUrl
 
 const val FILE_LIST_URL = "submissions/extended"
 
@@ -39,7 +37,7 @@ class ExtSectionSerializer : JsonSerializer<ExtSection>() {
     private fun writeFileList(fileList: ExtFileList, gen: JsonGenerator) {
         gen.writeObjectFieldStart(FILE_LIST)
         gen.writeStringField(FILE_NAME, fileList.fileName)
-        gen.writeStringField(FILES_URL, "$instanceUrl/$FILE_LIST_URL/$parentAccNo/fileList/${fileList.fileName}/files")
+        gen.writeStringField(FILES_URL, "$FILE_LIST_URL/$parentAccNo/fileList/${fileList.fileName}/files")
         gen.writeEndObject()
     }
 

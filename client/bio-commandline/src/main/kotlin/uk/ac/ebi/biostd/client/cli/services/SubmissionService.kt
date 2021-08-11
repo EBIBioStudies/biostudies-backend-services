@@ -37,17 +37,21 @@ internal class SubmissionService {
     private fun migrateRequest(request: MigrationRequest) {
         val sourceClient = bioWebClient(request.source, request.sourceUser, request.sourcePassword)
         val targetClient = bioWebClient(request.target, request.targetUser, request.targetPassword)
-        val extSerializer = extSerializationService(request.source)
+        val extSerializer = extSerializationService()
         val source = sourceClient.getExtByAccNo(request.accNo)
         val migrated = migratedSubmissions(source, request.targetOwner)
-        val fileLists = source.allFileList.map { asTempFile(it, sourceClient, extSerializer) }
+        val fileLists = source.allFileList.map { asTempFile(it, sourceClient, request.tempFolder, extSerializer) }
         targetClient.submitExt(migrated, fileLists)
     }
 
-    private fun asTempFile(fileList: ExtFileList, client: BioWebClient, extSerializer: ExtSerializationService): File {
+    private fun asTempFile(
+        fileList: ExtFileList,
+        client: BioWebClient,
+        tempFolderPath: String,
+        extSerializer: ExtSerializationService
+    ): File {
         val files = client.getReferencedFiles(fileList.filesUrl!!)
-        // TODO using default UNIX temp folder. Should this be configurable?
-        val file = File("/tmp", fileList.fileName)
+        val file = File(tempFolderPath, fileList.fileName)
         file.writeText(extSerializer.serialize(files))
 
         return file

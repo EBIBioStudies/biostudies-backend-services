@@ -48,7 +48,7 @@ class ExtSubmissionResource(
         @RequestParam(SUBMISSION) extSubmission: String
     ): ExtSubmission = extSubmissionService.submitExtendedSubmission(
         user.email,
-        extSerializationService.deserialize(extSubmission),
+        extSerializationService.deserialize(extSubmission, ExtSubmission::class.java),
         fileLists?.let { tempFileGenerator.asFiles(it) } ?: emptyList()
     )
 

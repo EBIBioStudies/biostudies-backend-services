@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.persistence.repositories.data
 
+import ac.uk.ebi.biostd.persistence.common.exception.FileListNotFoundException
 import ac.uk.ebi.biostd.persistence.common.model.BasicSubmission
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
@@ -86,18 +87,16 @@ internal open class SubmissionRepository(
         val submission = loadSubmission(accNo)
         val fileList = findFileList(submission.rootSection, fileListName)
 
-        return fileList?.let { submissionMapper.toExtFileList(submission, it) } ?: emptyList()
+        return fileList
+            ?.let { submissionMapper.toExtFileList(submission, it) }
+            ?: throw FileListNotFoundException(accNo, fileListName)
     }
 
-    private fun findFileList(section: DbSection, fileListName: String): ReferencedFileList? {
-        if (section.fileList != null && section.fileList?.name == fileListName) {
-            return section.fileList
-        }
-
-        section.sections.forEach { findFileList(it, fileListName) }
-
-        return null
-    }
+    private fun findFileList(section: DbSection, fileListName: String): ReferencedFileList? =
+        if (section.fileList?.name == fileListName) section.fileList
+        else section.sections
+            .mapNotNull { it.fileList }
+            .firstOrNull { it.name == fileListName }
 
     private fun loadSubmissionAndStatus(accNo: String, version: Int? = null): DbToExtRequest =
         DbToExtRequest(loadSubmission(accNo, version), statsRepository.findByAccNo(accNo))
