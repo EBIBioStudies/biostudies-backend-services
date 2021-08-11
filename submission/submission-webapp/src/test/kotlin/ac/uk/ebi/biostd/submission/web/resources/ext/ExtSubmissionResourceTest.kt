@@ -25,7 +25,6 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.data.domain.Page
 import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.multipart
-import org.springframework.test.web.servlet.post
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import org.springframework.web.multipart.MultipartFile
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService

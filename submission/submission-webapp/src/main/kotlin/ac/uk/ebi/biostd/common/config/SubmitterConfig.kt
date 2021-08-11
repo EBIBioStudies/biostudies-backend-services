@@ -59,7 +59,7 @@ class SubmitterConfig {
     }
 
     @Configuration
-    class SerializationConfiguration() {
+    class SerializationConfiguration {
         @Bean
         fun serializationService() = SerializationConfig.serializationService()
 

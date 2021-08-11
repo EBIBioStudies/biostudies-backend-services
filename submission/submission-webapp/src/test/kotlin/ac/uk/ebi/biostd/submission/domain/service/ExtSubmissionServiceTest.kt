@@ -139,10 +139,12 @@ class ExtSubmissionServiceTest(
         testInstance.submitExtendedSubmission("user@mail.com", submission, listOf(fileList))
 
         assertThat(saveRequest.captured.fileMode).isEqualTo(COPY)
-        assertThat(saveRequest.captured.submission).isEqualToComparingFieldByField(submission.copy(
-            submitter = "user@mail.com",
-            section = ExtSection(type = "Study", fileList = populatedFileList)
-        ))
+        assertThat(saveRequest.captured.submission).isEqualToComparingFieldByField(
+            submission.copy(
+                submitter = "user@mail.com",
+                section = ExtSection(type = "Study", fileList = populatedFileList)
+            )
+        )
         verify(exactly = 1) {
             submissionRepository.existByAccNo("ArrayExpress")
             securityQueryService.existsByEmail("owner@email.org")
@@ -200,8 +202,7 @@ class ExtSubmissionServiceTest(
 
     @Test
     fun `get referenced files`(
-        @MockK extFile: ExtFile,
-        @MockK extFileTable: ExtFileTable
+        @MockK extFile: ExtFile
     ) {
         every { submissionRepository.getReferencedFiles("S-BSST1", "file-list") } returns listOf(extFile)
 

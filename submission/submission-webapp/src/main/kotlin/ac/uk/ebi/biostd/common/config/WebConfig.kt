@@ -23,6 +23,7 @@ import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.fire.client.integration.web.FireWebClient
 
 @Configuration
+@Suppress("MagicNumber")
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 internal class WebConfig(
     private val serializationService: SerializationService,

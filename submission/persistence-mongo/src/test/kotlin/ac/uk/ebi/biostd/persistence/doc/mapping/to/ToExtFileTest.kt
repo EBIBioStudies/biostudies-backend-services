@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.persistence.doc.mapping.to
 
-import ac.uk.ebi.biostd.persistence.doc.model.DocAttribute
 import ac.uk.ebi.biostd.persistence.doc.model.DocFileTable
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
 import ac.uk.ebi.biostd.persistence.doc.model.FileSystem.NFS
@@ -9,11 +8,9 @@ import ac.uk.ebi.biostd.persistence.doc.test.FileTestHelper.assertExtFile
 import ac.uk.ebi.biostd.persistence.doc.test.FileTestHelper.assertExtFileList
 import ac.uk.ebi.biostd.persistence.doc.test.FileTestHelper.docFile
 import ac.uk.ebi.biostd.persistence.doc.test.FileTestHelper.docFileList
-import ac.uk.ebi.biostd.persistence.doc.test.TEST_FULL_PATH
 import ac.uk.ebi.biostd.persistence.doc.test.TEST_REL_PATH
 import arrow.core.Either.Companion.left
 import arrow.core.Either.Companion.right
-import ebi.ac.uk.extended.model.ExtAttribute
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.util.collections.ifLeft
 import ebi.ac.uk.util.collections.ifRight

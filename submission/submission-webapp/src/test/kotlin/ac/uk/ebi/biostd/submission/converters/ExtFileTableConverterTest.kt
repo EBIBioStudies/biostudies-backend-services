@@ -13,7 +13,6 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpInputMessage
 import org.springframework.http.HttpOutputMessage
-import org.springframework.http.MediaType
 import org.springframework.http.MediaType.APPLICATION_JSON
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import java.io.OutputStream

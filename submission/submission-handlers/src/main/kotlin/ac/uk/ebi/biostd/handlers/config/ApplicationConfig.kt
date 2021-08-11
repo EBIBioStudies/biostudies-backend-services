@@ -59,9 +59,7 @@ class Services {
         NotificationsSender(restTemplate, applicationProperties.notifications.slackUrl)
 
     @Bean
-    fun extSerializationService(
-        applicationProperties: ApplicationProperties
-    ): ExtSerializationService = ExtSerializationConfig.extSerializationService(applicationProperties.baseInstanceUrl)
+    fun extSerializationService(): ExtSerializationService = ExtSerializationConfig.extSerializationService()
 
     @Bean
     fun rtNotificationService(notificationConfig: NotificationConfig) = notificationConfig.rtNotificationService()

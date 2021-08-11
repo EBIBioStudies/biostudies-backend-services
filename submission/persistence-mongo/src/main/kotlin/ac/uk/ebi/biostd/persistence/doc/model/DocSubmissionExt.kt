@@ -9,7 +9,6 @@ import ebi.ac.uk.extended.model.ExtSubmissionMethod
 import ebi.ac.uk.model.SubmissionMethod
 import ebi.ac.uk.model.constants.ProcessingStatus
 import ebi.ac.uk.model.constants.SectionFields
-import java.time.ZoneOffset
 import java.time.ZoneOffset.UTC
 
 fun DocSubmission.asBasicSubmission(): BasicSubmission {
