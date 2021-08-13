@@ -1,10 +1,7 @@
 package uk.ac.ebi.biostd.client.cli.services
 
-import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
-import com.github.ajalt.clikt.core.PrintMessage
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.model.Submission
-import org.apache.commons.lang3.exception.ExceptionUtils
 import uk.ac.ebi.biostd.client.cli.dto.DeletionRequest
 import uk.ac.ebi.biostd.client.cli.dto.MigrationRequest
 import uk.ac.ebi.biostd.client.cli.dto.SubmissionRequest
@@ -12,6 +9,7 @@ import uk.ac.ebi.biostd.client.cli.dto.SubmissionRequest
 /**
  * In charge of perform submission command line operations.
  */
+@Suppress("TooManyFunctions")
 internal class SubmissionService {
     fun submit(request: SubmissionRequest): Submission = performRequest { submitRequest(request) }
 
@@ -38,15 +36,4 @@ internal class SubmissionService {
 
     private fun migratedSubmissions(submission: ExtSubmission, targetOwner: String?) =
         if (targetOwner == null) submission else submission.copy(owner = targetOwner)
-
-    companion object {
-        private inline fun <T> performRequest(request: () -> T) =
-            runCatching { request() }
-                .getOrElse { throw PrintMessage(ExceptionUtils.getMessage(it)) }
-
-        private fun bioWebClient(server: String, user: String, password: String) =
-            SecurityWebClient
-                .create(server)
-                .getAuthenticatedClient(user, password)
-    }
 }

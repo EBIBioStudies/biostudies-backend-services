@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
     id("io.gitlab.arturbosch.detekt") version "1.16.0"
     id("org.jetbrains.kotlin.jvm") version "1.4.32"
@@ -26,6 +28,14 @@ allprojects {
     apply(from = "$rootDir/gradle/jacoco.gradle.kts")
 
     tasks {
+        withType<KotlinCompile>().all {
+            kotlinOptions {
+                jvmTarget = "1.8"
+                includeRuntime = true
+                freeCompilerArgs = freeCompilerArgs + arrayOf("-Xjvm-default=enable")
+            }
+        }
+
         detekt {
             allRules = true
             autoCorrect = true
@@ -37,23 +47,6 @@ allprojects {
                     enabled = true
                     destination = file("build/reports/detekt.html")
                 }
-            }
-        }
-
-        compileKotlin {
-            sourceCompatibility = "1.8"
-            targetCompatibility = "1.8"
-
-            kotlinOptions {
-                includeRuntime = true
-                freeCompilerArgs = freeCompilerArgs + arrayOf("-Xjvm-default=enable")
-                jvmTarget = "1.8"
-            }
-        }
-
-        compileTestKotlin {
-            kotlinOptions {
-                jvmTarget = "1.8"
             }
         }
 

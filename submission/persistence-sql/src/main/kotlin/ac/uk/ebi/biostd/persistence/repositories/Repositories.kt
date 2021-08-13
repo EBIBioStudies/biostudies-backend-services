@@ -105,7 +105,8 @@ interface SectionDataRepository : JpaRepository<DbSection, Long> {
 }
 
 interface AccessTagDataRepo : JpaRepository<DbAccessTag, Long> {
-    fun findByName(name: String): DbAccessTag
+    fun getByName(name: String): DbAccessTag
+    fun findByName(name: String): DbAccessTag?
     fun existsByName(name: String): Boolean
     fun findBySubmissionsAccNo(accNo: String): List<DbAccessTag>
 }
