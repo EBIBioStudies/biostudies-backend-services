@@ -7,6 +7,7 @@ import Projects.CommonsModelExtended
 import Projects.CommonsModelExtendedMapping
 import Projects.CommonsSerialization
 import Projects.CommonsUtil
+import Projects.FireWebClient
 import Projects.SubmissionPersistenceCommonApi
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
@@ -17,6 +18,7 @@ dependencies {
     api(project(CommonsModelExtended))
     api(project(CommonsModelExtendedMapping))
     api(project(CommonsUtil))
+    api(project(FireWebClient))
     api(project(SubmissionPersistenceCommonApi))
 
     implementation(Arrow)

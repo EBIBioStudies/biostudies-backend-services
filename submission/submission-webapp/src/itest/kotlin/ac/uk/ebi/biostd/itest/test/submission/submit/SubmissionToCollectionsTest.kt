@@ -11,9 +11,9 @@ import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.submission.ext.getSimpleByAccNo
 import ebi.ac.uk.asserts.assertThat
-import ebi.ac.uk.dsl.line
+import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.submission
-import ebi.ac.uk.dsl.tsv
+import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.model.extensions.attachTo
 import ebi.ac.uk.model.extensions.releaseDate
 import ebi.ac.uk.model.extensions.title

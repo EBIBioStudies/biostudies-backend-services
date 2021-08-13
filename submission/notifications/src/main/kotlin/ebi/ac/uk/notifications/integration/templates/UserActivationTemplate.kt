@@ -10,9 +10,10 @@ internal class UserActivationTemplate(
 internal class UserActivationModel(
     private val mailto: String,
     private val activationLink: String,
-    private val username: String
+    private val username: String,
+    private val activationCode: String
 ) : NotificationTemplateModel {
 
     override fun getParams(): List<Pair<String, String>> =
-        listOf("USERNAME" to username, "URL" to activationLink, "MAILTO" to mailto)
+        listOf("USERNAME" to username, "URL" to activationLink, "MAILTO" to mailto, "ACTIVATIONCODE" to activationCode)
 }

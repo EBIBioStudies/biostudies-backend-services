@@ -32,6 +32,8 @@ paths:
     $ref: 'security/ActivateUser.yaml'
   /auth/check-registration:
     $ref: 'security/CheckUserRegistration.yaml'
+  /auth/password/setup:
+    $ref: 'security/SetUpPassword.yaml'
   /auth/retryact:
     $ref: 'security/RetryUserActivation.yaml'
   /auth/refresh-user:

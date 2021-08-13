@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.test
 
-import ebi.ac.uk.dsl.line
-import ebi.ac.uk.dsl.tsv
+import ebi.ac.uk.dsl.tsv.line
+import ebi.ac.uk.dsl.tsv.tsv
 
 fun basicSubmission() = tsv {
     line("Submission", "S-EPMC123")

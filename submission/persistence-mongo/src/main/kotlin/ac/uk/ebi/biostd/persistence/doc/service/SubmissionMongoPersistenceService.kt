@@ -12,6 +12,7 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus
+import ac.uk.ebi.biostd.persistence.filesystem.request.FilePersistenceRequest
 import ac.uk.ebi.biostd.persistence.filesystem.service.FileSystemService
 import com.mongodb.BasicDBObject
 import ebi.ac.uk.extended.model.ExtProcessingStatus.PROCESSING
@@ -56,7 +57,11 @@ internal class SubmissionMongoPersistenceService(
 
     override fun processSubmission(saveRequest: SaveSubmissionRequest): ExtSubmission {
         val (submission, fileMode, draftKey) = saveRequest
-        val processingSubmission = systemService.persistSubmissionFiles(submission, fileMode)
+
+        // TODO populate the previousFiles field in the FilePersistenceRequest
+        val filePersistenceRequest = FilePersistenceRequest(submission, fileMode, emptyMap())
+        val processingSubmission = systemService.persistSubmissionFiles(filePersistenceRequest)
+
         val (docSubmission, files) = processingSubmission.copy(status = PROCESSING).toDocSubmission()
         saveSubmission(docSubmission, files, draftKey)
         submissionRequestDocDataRepository.updateStatus(REQUEST_PROCESSED, submission.accNo, submission.version)

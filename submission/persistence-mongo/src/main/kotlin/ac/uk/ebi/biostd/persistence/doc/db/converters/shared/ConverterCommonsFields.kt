@@ -109,6 +109,7 @@ object DocSubmissionFields {
     val DOC_STAT_CLASS: String = DocStat::class.java.canonicalName
 
     const val CLASS_FIELD = "_class"
+    const val SUB = "submission"
     const val SUB_ID = "id"
     const val SUB_ACC_NO = "accNo"
     const val SUB_VERSION = "version"
