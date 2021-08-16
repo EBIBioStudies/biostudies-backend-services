@@ -3,12 +3,15 @@ import Dependencies.JacksonKotlin
 import Dependencies.JacksonXml
 import Dependencies.KotlinReflect
 import Dependencies.KotlinStdLib
+import Projects.CommonsModelExtended
+import Projects.CommonsSerializationUtil
+import Projects.CommonsTest
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
 
 dependencies {
-    api(project(":commons:commons-model-extended"))
-    api(project(":commons:commons-serialization-util"))
+    api(project(CommonsModelExtended))
+    api(project(CommonsSerializationUtil))
 
     implementation(Arrow)
     implementation(JacksonKotlin)
@@ -16,7 +19,7 @@ dependencies {
     implementation(KotlinReflect)
     implementation(KotlinStdLib)
 
-    testApi(project(":commons:commons-test"))
+    testApi(project(CommonsTest))
     BaseTestCompileDependencies.forEach { testImplementation(it) }
     BaseTestRuntimeDependencies.forEach { testImplementation(it) }
 }

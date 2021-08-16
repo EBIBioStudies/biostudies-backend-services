@@ -1,16 +1,21 @@
 package uk.ac.ebi.biostd.client.cli.services
 
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.extended.model.allFileList
 import ebi.ac.uk.model.Submission
 import uk.ac.ebi.biostd.client.cli.dto.DeletionRequest
 import uk.ac.ebi.biostd.client.cli.dto.MigrationRequest
 import uk.ac.ebi.biostd.client.cli.dto.SubmissionRequest
+import uk.ac.ebi.extended.serialization.integration.ExtSerializationConfig.extSerializationService
+import java.io.File
 
 /**
  * In charge of perform submission command line operations.
  */
 @Suppress("TooManyFunctions")
 internal class SubmissionService {
+    private val extSerializer = extSerializationService()
+
     fun submit(request: SubmissionRequest): Submission = performRequest { submitRequest(request) }
 
     fun submitAsync(request: SubmissionRequest) = performRequest { submitAsyncRequest(request) }
@@ -31,7 +36,14 @@ internal class SubmissionService {
     private fun migrateRequest(request: MigrationRequest) {
         val sourceClient = bioWebClient(request.source, request.sourceUser, request.sourcePassword)
         val targetClient = bioWebClient(request.target, request.targetUser, request.targetPassword)
-        targetClient.submitExt(migratedSubmissions(sourceClient.getExtByAccNo(request.accNo), request.targetOwner))
+        val source = sourceClient.getExtByAccNo(request.accNo)
+        val migrated = migratedSubmissions(source, request.targetOwner)
+        val fileLists = source.allFileList
+            .map { File(request.tempFolder, it.fileName) to sourceClient.getReferencedFiles(it.filesUrl!!) }
+            .onEach { (file, files) -> file.writeText(extSerializer.serialize(files)) }
+            .map { it.first }
+
+        targetClient.submitExt(migrated, fileLists)
     }
 
     private fun migratedSubmissions(submission: ExtSubmission, targetOwner: String?) =

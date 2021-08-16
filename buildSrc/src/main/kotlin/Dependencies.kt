@@ -207,12 +207,14 @@ object SpringBootDependencies {
 }
 
 object Projects {
+    const val BioWebClient = ":client:bio-webclient"
     const val CommonsUtil = ":commons:commons-util"
     const val CommonsBio = ":commons:commons-bio"
     const val CommonsSerialization = ":commons:commons-serialization"
     const val CommonsModelExtended = ":commons:commons-model-extended"
     const val CommonsModelExtendedMapping = ":commons:commons-model-extended-mapping"
     const val CommonsModelExtendedSerialization = ":commons:commons-model-extended-serialization"
+    const val CommonsSerializationUtil = ":commons:commons-serialization-util"
     const val CommonsTest = ":commons:commons-test"
     const val FireWebClient = ":client:fire-webclient"
     const val SubmissionConfig = ":submission:submission-config"
