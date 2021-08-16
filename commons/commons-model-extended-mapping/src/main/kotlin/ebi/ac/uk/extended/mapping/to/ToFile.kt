@@ -14,11 +14,11 @@ internal const val TO_FILE_EXTENSIONS = "ebi.ac.uk.extended.mapping.to.ToFileKt"
 fun ExtFile.toFile(): File =
     when (this) {
         is NfsFile -> File(fileName, file.size(), type, attributes.mapTo(mutableListOf()) { it.toAttribute() })
-        is FireFile -> TODO()
+        is FireFile -> File(fileName, size, type, attributes.mapTo(mutableListOf()) { it.toAttribute() })
     }
 
 private val ExtFile.type
     get() = when (this) {
         is NfsFile -> if (FileUtils.isDirectory(file)) DIR_TYPE.value else FILE_TYPE.value
-        is FireFile -> TODO()
+        is FireFile -> FILE_TYPE.value
     }

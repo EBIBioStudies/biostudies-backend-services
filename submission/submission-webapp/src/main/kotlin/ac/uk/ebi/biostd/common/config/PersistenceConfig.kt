@@ -15,7 +15,7 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 
 @Configuration
-@Import(value = [SqlPersistenceConfig::class])
+@Import(value = [SqlPersistenceConfig::class, FileSystemConfig::class])
 class PersistenceConfig(
     private val folderResolver: SubmissionFolderResolver,
     private val serializationService: SerializationService,
@@ -26,9 +26,6 @@ class PersistenceConfig(
 
     @Bean
     fun pageTabService(): PageTabService = PageTabService(folderResolver, serializationService)
-
-    @Bean
-    fun nfsFilePersistenceService(): FilesService = NfsFilesService(folderResolver)
 
     @Bean
     fun fileSystemService(

@@ -17,7 +17,7 @@ internal const val FIRE_FILE_PARAM = "file"
 internal const val FIRE_MD5_HEADER = "x-fire-md5"
 internal const val FIRE_PATH_HEADER = "x-fire-path"
 internal const val FIRE_SIZE_HEADER = "x-fire-size"
-internal const val FIRE_OBJECTS_URL = "/fire/objects"
+const val FIRE_OBJECTS_URL = "/fire/objects"
 
 internal class FireClient(
     private val tmpDirPath: String,
