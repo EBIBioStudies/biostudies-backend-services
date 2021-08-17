@@ -27,6 +27,8 @@ class ExtSubmissionService(
 ) {
     fun getExtendedSubmission(accNo: String): ExtSubmission = submissionRepository.getExtByAccNo(accNo)
 
+    fun findExtendedSubmission(accNo: String): ExtSubmission? = submissionRepository.findExtByAccNo(accNo)
+
     fun submitExtendedSubmission(user: String, extSubmission: ExtSubmission): ExtSubmission {
         validateSubmitter(user)
         validateSubmission(extSubmission)

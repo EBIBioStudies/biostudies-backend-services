@@ -13,6 +13,7 @@ import ebi.ac.uk.extended.model.ExtSubmission
 import org.springframework.data.domain.Page
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 
+@Suppress("TooManyFunctions")
 internal class SubmissionMongoQueryService(
     private val submissionRepo: SubmissionDocDataRepository,
     private val requestRepository: SubmissionRequestDocDataRepository,
@@ -20,6 +21,9 @@ internal class SubmissionMongoQueryService(
     private val toExtSubmissionMapper: ToExtSubmissionMapper
 ) : SubmissionQueryService {
     override fun existByAccNo(accNo: String): Boolean = submissionRepo.existsByAccNo(accNo)
+
+    override fun findExtByAccNo(accNo: String): ExtSubmission? =
+        submissionRepo.findByAccNo(accNo)?.let { toExtSubmissionMapper.toExtSubmission(it) }
 
     override fun getExtByAccNo(accNo: String): ExtSubmission {
         val submission = loadSubmission(accNo)

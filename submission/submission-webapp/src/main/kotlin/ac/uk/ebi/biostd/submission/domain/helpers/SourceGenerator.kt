@@ -12,15 +12,14 @@ import java.nio.file.Path
 
 class SourceGenerator {
     fun submissionSources(requestSources: RequestSources): FilesSource {
-        val (user, files, rootPath, subFolder, previousFiles) = requestSources
-        return ComposedFileSource(submissionSources(user, files, rootPath.orEmpty(), subFolder, previousFiles))
+        val (user, files, rootPath, previousFiles) = requestSources
+        return ComposedFileSource(submissionSources(user, files, rootPath.orEmpty(), previousFiles))
     }
 
     private fun submissionSources(
         user: SecurityUser?,
         files: List<File>,
         rootPath: String,
-        subFolder: File?,
         previousFiles: List<File>
     ): List<FilesSource> {
         val sources = mutableListOf<FilesSource>(ListFilesSource(files))
@@ -30,9 +29,7 @@ class SourceGenerator {
             sources.addAll(groupSources(user.groupsFolders))
         }
 
-        subFolder?.let {
-            sources.add(submissionsList(previousFiles))
-        }
+        sources.add(submissionsList(previousFiles))
 
         return sources
     }
@@ -48,6 +45,5 @@ data class RequestSources(
     val user: SecurityUser? = null,
     val files: List<File> = emptyList(),
     val rootPath: String? = null,
-    val subFolder: File? = null,
     val previousFiles: List<File> = emptyList()
 )
