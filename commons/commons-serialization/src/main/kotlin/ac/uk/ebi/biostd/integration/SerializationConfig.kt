@@ -6,10 +6,10 @@ import ac.uk.ebi.biostd.service.PagetabSerializer
 import ebi.ac.uk.util.file.ExcelReader
 
 object SerializationConfig {
-    fun excelReader(): ExcelReader = ExcelReader()
-
     fun serializationService(): SerializationService =
         PageTabSerializationService(excelReader(), pageTabSerializer(), fileListSerializer())
+
+    private fun excelReader(): ExcelReader = ExcelReader()
 
     private fun pageTabSerializer(): PagetabSerializer = PagetabSerializer()
 

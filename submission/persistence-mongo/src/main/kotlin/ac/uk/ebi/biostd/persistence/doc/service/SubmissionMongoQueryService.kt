@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.persistence.doc.service
 
+import ac.uk.ebi.biostd.persistence.common.exception.FileListNotFoundException
 import ac.uk.ebi.biostd.persistence.common.model.BasicSubmission
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
@@ -9,13 +10,20 @@ import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.asBasicSubmission
 import ac.uk.ebi.biostd.persistence.common.exception.SubmissionNotFoundException
+import ac.uk.ebi.biostd.persistence.doc.db.repositories.FileListDocFileRepository
+import ac.uk.ebi.biostd.persistence.doc.mapping.to.toExtFile
+import ac.uk.ebi.biostd.persistence.doc.model.allDocSections
+import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.util.collections.firstOrElse
 import org.springframework.data.domain.Page
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 
+@Suppress("TooManyFunctions")
 internal class SubmissionMongoQueryService(
     private val submissionRepo: SubmissionDocDataRepository,
     private val requestRepository: SubmissionRequestDocDataRepository,
+    private val fileListDocFileRepository: FileListDocFileRepository,
     private val serializationService: ExtSerializationService,
     private val toExtSubmissionMapper: ToExtSubmissionMapper
 ) : SubmissionQueryService {
@@ -48,6 +56,17 @@ internal class SubmissionMongoQueryService(
     override fun getRequest(accNo: String, version: Int): ExtSubmission {
         val submission = requestRepository.getByAccNoAndVersion(accNo, version)
         return serializationService.deserialize(submission.submission.toString())
+    }
+
+    override fun getReferencedFiles(accNo: String, fileListName: String): List<ExtFile> {
+        val submission = loadSubmission(accNo)
+        val files = submission.allDocSections
+            .mapNotNull { it.fileList }
+            .filter { it.fileName == fileListName }
+            .firstOrElse { throw FileListNotFoundException(accNo, fileListName) }
+            .let { fileList -> fileListDocFileRepository.findAllById(fileList.files.map { it.fileId }) }
+
+        return files.map { it.toExtFile() }
     }
 
     private fun loadSubmission(accNo: String) =

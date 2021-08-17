@@ -5,8 +5,8 @@ import org.springframework.web.client.RestTemplate
 
 class PermissionOperationsClient(private val restTemplate: RestTemplate) :
     PermissionOperations {
-    override fun givePermissionToUser(userEmail: String, accessTagName: String, accessType: String) {
-        val body = hashMapOf("userEmail" to userEmail, "accessType" to accessType, "accessTagName" to accessTagName)
+    override fun givePermissionToUser(user: String, accessTagName: String, accessType: String) {
+        val body = hashMapOf("userEmail" to user, "accessType" to accessType, "accessTagName" to accessTagName)
         restTemplate.put(PERMISSIONS_URL, body)
     }
 

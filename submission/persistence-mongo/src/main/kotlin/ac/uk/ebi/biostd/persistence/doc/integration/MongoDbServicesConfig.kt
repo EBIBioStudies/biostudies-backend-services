@@ -8,6 +8,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDraftDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionStatsDataRepository
+import ac.uk.ebi.biostd.persistence.doc.db.repositories.FileListDocFileRepository
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
 import ac.uk.ebi.biostd.persistence.doc.service.CollectionMongoDataService
 import ac.uk.ebi.biostd.persistence.doc.service.StatsMongoDataService
@@ -28,11 +29,13 @@ class MongoDbServicesConfig {
     internal fun submissionQueryService(
         submissionDocDataRepository: SubmissionDocDataRepository,
         submissionRequestDocDataRepository: SubmissionRequestDocDataRepository,
+        fileListDocFileRepository: FileListDocFileRepository,
         serializationService: ExtSerializationService,
         toExtSubmissionMapper: ToExtSubmissionMapper
     ): SubmissionQueryService = SubmissionMongoQueryService(
         submissionDocDataRepository,
         submissionRequestDocDataRepository,
+        fileListDocFileRepository,
         serializationService,
         toExtSubmissionMapper
     )
