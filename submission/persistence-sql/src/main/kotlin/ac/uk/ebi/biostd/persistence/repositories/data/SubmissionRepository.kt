@@ -43,8 +43,9 @@ internal open class SubmissionRepository(
     override fun existByAccNo(accNo: String): Boolean = submissionRepository.existsByAccNo(accNo)
 
     override fun findExtByAccNo(accNo: String): ExtSubmission? =
-        submissionRepository.getByAccNoAndVersionGreaterThan(accNo, 0)
-            ?.let { submissionMapper.toExtSubmission(loadSubmissionAndStatus(accNo)) }
+        if (submissionRepository.existsByAccNoAndProcessedAndActive(accNo)) {
+            submissionMapper.toExtSubmission(loadSubmissionAndStatus(accNo))
+        } else null
 
     @Transactional(readOnly = true)
     override fun getExtByAccNo(accNo: String) = submissionMapper.toExtSubmission(loadSubmissionAndStatus(accNo))

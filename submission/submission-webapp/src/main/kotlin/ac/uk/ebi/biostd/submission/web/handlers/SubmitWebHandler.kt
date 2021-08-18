@@ -54,15 +54,14 @@ class SubmitWebHandler(
 
     private fun buildRequest(request: ContentSubmitWebRequest): SubmissionRequest {
         val sub = serializationService.deserializeSubmission(request.submission, request.format)
-        val extSubmission = extSubmissionService.findExtendedSubmission(sub.accNo)
-        extSubmission?.let { requireNotProcessing(it) }
+        val extSub = extSubmissionService.findExtendedSubmission(sub.accNo)?.apply { requireNotProcessing(this) }
 
         val source = sourceGenerator.submissionSources(
             RequestSources(
                 user = request.submitter,
                 files = request.files,
                 rootPath = sub.rootPath,
-                previousFiles = getAllFiles(extSubmission)
+                previousFiles = extSub?.let { getAllFiles(it) }.orEmpty()
             )
         )
         val submission = withAttributes(submission(request.submission, request.format, source), request.attrs)
@@ -80,15 +79,14 @@ class SubmitWebHandler(
 
     private fun buildRequest(request: FileSubmitWebRequest): SubmissionRequest {
         val sub = serializationService.deserializeSubmission(request.submission)
-        val extSubmission = extSubmissionService.findExtendedSubmission(sub.accNo)
-        extSubmission?.let { requireNotProcessing(it) }
+        val extSub = extSubmissionService.findExtendedSubmission(sub.accNo)?.apply { requireNotProcessing(this) }
 
         val source = sourceGenerator.submissionSources(
             RequestSources(
                 user = request.submitter,
                 files = request.files.plus(request.submission),
                 rootPath = sub.rootPath,
-                previousFiles = getAllFiles(extSubmission)
+                previousFiles = extSub?.let { getAllFiles(it) }.orEmpty()
             )
         )
         val submission = withAttributes(submission(request.submission, source), request.attrs)
@@ -105,10 +103,10 @@ class SubmitWebHandler(
 
     fun refreshSubmission(request: RefreshWebRequest): Submission {
         val submission = submissionService.getSubmission(request.accNo).toSimpleSubmission()
-        val extSubmission = extSubmissionService.findExtendedSubmission(request.accNo)
-        extSubmission?.let { requireNotProcessing(it) }
+        val extSub = extSubmissionService.findExtendedSubmission(request.accNo)?.apply { requireNotProcessing(this) }
+        val files = extSub?.let { getAllFiles(it) }.orEmpty()
 
-        val source = sourceGenerator.submissionSources(RequestSources(previousFiles = getAllFiles(extSubmission)))
+        val source = sourceGenerator.submissionSources(RequestSources(previousFiles = files))
         return submissionService.submit(
             SubmissionRequest(
                 submission = submission,
@@ -120,8 +118,7 @@ class SubmitWebHandler(
         ).toSimpleSubmission()
     }
 
-    private fun getAllFiles(extSubmission: ExtSubmission?): List<File> = extSubmission?.allFiles?.map { getFile(it) }
-        ?: listOf()
+    private fun getAllFiles(extSubmission: ExtSubmission): List<File> = extSubmission.allFiles.map { getFile(it) }
 
     private fun getFile(extFile: ExtFile): File = when (extFile) {
         is NfsFile -> extFile.file

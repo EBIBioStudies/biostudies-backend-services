@@ -84,6 +84,10 @@ interface SubmissionDataRepository :
 
     fun existsByAccNo(accNo: String): Boolean
 
+    @Query("select s from DbSubmission s Where s.accNo = ?1 and s.status = PROCESSED and s.version > 0")
+    @Modifying
+    fun existsByAccNoAndProcessedAndActive(accNo: String): Boolean
+
     fun findByRootSectionTypeAndAccNoInAndVersionGreaterThan(
         type: String,
         tags: List<String>,
