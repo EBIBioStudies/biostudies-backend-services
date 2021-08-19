@@ -54,3 +54,10 @@ class RefreshWebRequest(
     val accNo: String,
     val user: SecurityUser
 )
+
+class SourcesRequest(
+    val accNo: String,
+    val rootPath: String?,
+    val submitter: SecurityUser? = null,
+    val files: List<File> = emptyList()
+)

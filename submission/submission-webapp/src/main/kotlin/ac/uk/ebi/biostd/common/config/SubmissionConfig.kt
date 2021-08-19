@@ -14,6 +14,7 @@ import ac.uk.ebi.biostd.submission.domain.service.SubmissionService
 import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
 import ac.uk.ebi.biostd.submission.web.handlers.ExtSubmissionsWebHandler
 import ac.uk.ebi.biostd.submission.web.handlers.SubmissionsWebHandler
+import ac.uk.ebi.biostd.submission.web.handlers.SubmissionsWebHandlerHelper
 import ac.uk.ebi.biostd.submission.web.handlers.SubmitWebHandler
 import ac.uk.ebi.biostd.submission.web.resources.ext.ExtendedPageMapper
 import ebi.ac.uk.paths.SubmissionFolderResolver
@@ -78,33 +79,35 @@ class SubmissionConfig(
 
     @Bean
     fun submitHandler(
-        submissionService: SubmissionService,
         userFilesService: UserFilesService,
-        securityQueryService: ISecurityQueryService
+        submissionService: SubmissionService,
+        securityQueryService: ISecurityQueryService,
+        webHandlerHelper: SubmissionsWebHandlerHelper
     ): SubmitWebHandler =
         SubmitWebHandler(
             submissionService,
-            sourceGenerator,
             serializationService,
             userFilesService,
             securityQueryService,
-            folderResolver
+            webHandlerHelper
         )
 
     @Bean
     fun extSubmissionsWebHandler(
-        userFilesService: UserFilesService,
-        submissionService: SubmissionService,
         extSubmissionService: ExtSubmissionService,
+        webHandlerHelper: SubmissionsWebHandlerHelper,
         extSerializationService: ExtSerializationService
     ): ExtSubmissionsWebHandler =
         ExtSubmissionsWebHandler(
-            sourceGenerator,
-            submissionService,
-            folderResolver,
             extSubmissionService,
+            webHandlerHelper,
             extSerializationService
         )
+
+    @Bean
+    fun webHandlerHelper(
+        submissionService: SubmissionService
+    ): SubmissionsWebHandlerHelper = SubmissionsWebHandlerHelper(sourceGenerator, submissionService, folderResolver)
 
     @Bean
     fun submissionHandler(submissionService: SubmissionService): SubmissionsWebHandler =

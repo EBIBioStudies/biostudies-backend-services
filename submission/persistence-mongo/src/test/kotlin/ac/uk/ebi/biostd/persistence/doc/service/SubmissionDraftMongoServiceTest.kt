@@ -8,7 +8,6 @@ import ac.uk.ebi.biostd.persistence.doc.test.doc.DRAFT_KEY
 import ac.uk.ebi.biostd.persistence.doc.test.doc.USER_ID
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.fullExtSubmission
 import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocDraft
-import ebi.ac.uk.extended.mapping.to.toSimpleSubmission
 import ebi.ac.uk.extended.model.ExtSection
 import io.mockk.clearAllMocks
 import io.mockk.every
