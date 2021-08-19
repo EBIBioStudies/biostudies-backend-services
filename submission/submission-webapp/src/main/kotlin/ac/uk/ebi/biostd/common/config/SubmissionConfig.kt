@@ -12,6 +12,7 @@ import ac.uk.ebi.biostd.submission.domain.service.CollectionService
 import ac.uk.ebi.biostd.submission.domain.service.ExtSubmissionService
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionService
 import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
+import ac.uk.ebi.biostd.submission.web.handlers.ExtSubmissionsWebHandler
 import ac.uk.ebi.biostd.submission.web.handlers.SubmissionsWebHandler
 import ac.uk.ebi.biostd.submission.web.handlers.SubmitWebHandler
 import ac.uk.ebi.biostd.submission.web.resources.ext.ExtendedPageMapper
@@ -88,6 +89,21 @@ class SubmissionConfig(
             userFilesService,
             securityQueryService,
             folderResolver
+        )
+
+    @Bean
+    fun extSubmissionsWebHandler(
+        userFilesService: UserFilesService,
+        submissionService: SubmissionService,
+        extSubmissionService: ExtSubmissionService,
+        extSerializationService: ExtSerializationService
+    ): ExtSubmissionsWebHandler =
+        ExtSubmissionsWebHandler(
+            sourceGenerator,
+            submissionService,
+            folderResolver,
+            extSubmissionService,
+            extSerializationService
         )
 
     @Bean

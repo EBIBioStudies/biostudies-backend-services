@@ -11,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonRawValue
 import com.fasterxml.jackson.annotation.JsonValue
 import ebi.ac.uk.extended.model.FileMode
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionDraft
+import ac.uk.ebi.biostd.submission.web.handlers.ExtSubmissionsWebHandler
 import ebi.ac.uk.model.constants.ATTRIBUTES
 import ebi.ac.uk.model.constants.FILE_MODE
 import ebi.ac.uk.security.integration.model.api.SecurityUser
@@ -32,8 +33,8 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping(value = ["submissions/drafts"], produces = [APPLICATION_JSON_VALUE])
 @PreAuthorize("isAuthenticated()")
 internal class SubmissionDraftResource(
-    private val submitWebHandler: SubmitWebHandler,
-    private val draftService: SubmissionDraftService
+    private val draftService: SubmissionDraftService,
+    private val extSubmissionsWebHandler: ExtSubmissionsWebHandler
 ) {
     @GetMapping
     @ResponseBody
@@ -98,7 +99,7 @@ internal class SubmissionDraftResource(
             files = emptyList()
         )
 
-        submitWebHandler.submitAsync(request)
+        extSubmissionsWebHandler.submit(request)
     }
 }
 
