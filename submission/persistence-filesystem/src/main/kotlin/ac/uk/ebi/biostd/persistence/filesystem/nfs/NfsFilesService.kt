@@ -11,12 +11,11 @@ import ebi.ac.uk.extended.model.FileMode
 import ebi.ac.uk.extended.model.FileMode.COPY
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.io.FileUtils
+import ebi.ac.uk.io.FileUtils.copyFile
 import ebi.ac.uk.io.FileUtils.deleteFile
 import ebi.ac.uk.io.FileUtils.getOrCreateFolder
-import ebi.ac.uk.io.FileUtils.moveFile
 import ebi.ac.uk.io.FileUtils.reCreateFolder
 import ebi.ac.uk.io.RWXR_XR_X
-import ebi.ac.uk.io.RWX______
 import ebi.ac.uk.paths.FILES_PATH
 import ebi.ac.uk.paths.SubmissionFolderResolver
 import mu.KotlinLogging
@@ -52,18 +51,20 @@ class NfsFilesService(
         logger.info { "processing submission ${submission.accNo} files in $mode" }
 
         val subFilesPath = subFolder.resolve(FILES_PATH)
-        val tempFolder = createTempFolder(subFolder, submission.accNo)
-
-        if (subFilesPath.exists()) {
-            moveFile(subFilesPath, tempFolder, filePermissions, folderPermissions)
-            reCreateFolder(subFolder, folderPermissions)
-        }
+        val tempFolder = createTempFolder(subFolder, submission.accNo, folderPermissions)
 
         val config = NfsFileProcessingConfig(mode, subFilesPath, tempFolder, filePermissions, folderPermissions)
         val processed = processFiles(submission) { config.processFile(it) }
+        if (subFilesPath.exists()) {
+            copyFile(subFilesPath, tempFolder.resolve("Files"), filePermissions, folderPermissions)
+        }
 
         logger.info { "Finishing processing submission ${submission.accNo} files in $mode" }
-        deleteFile(tempFolder)
+
+        val subFolderPath = subFolder.absolutePath
+        deleteFile(subFolder)
+        require(tempFolder.renameTo(File(subFolderPath)))
+
         return processed
     }
 
@@ -78,6 +79,10 @@ class NfsFilesService(
         return getOrCreateFolder(submissionPath, permissions).toFile()
     }
 
-    private fun createTempFolder(submissionFolder: File, accNo: String): File =
-        reCreateFolder(submissionFolder.parentFile.resolve("${accNo}_temp"), RWX______)
+    private fun createTempFolder(
+        submissionFolder: File,
+        accNo: String,
+        folderPermissions: Set<PosixFilePermission>
+    ): File =
+        reCreateFolder(submissionFolder.parentFile.resolve("${accNo}_temp"), folderPermissions)
 }

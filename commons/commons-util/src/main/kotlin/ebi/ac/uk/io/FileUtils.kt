@@ -96,6 +96,20 @@ object FileUtils {
         }
     }
 
+    fun copyFile(
+        source: File,
+        target: File,
+        filePermissions: Set<PosixFilePermission>,
+        folderPermissions: Set<PosixFilePermission>
+    ) {
+        deleteFile(target)
+
+        when (isDirectory(source)) {
+            true -> FileUtilsHelper.copyFolder(source.toPath(), target.toPath(), filePermissions, folderPermissions)
+            false -> FileUtilsHelper.copyFile(source.toPath(), target.toPath(), filePermissions, folderPermissions)
+        }
+    }
+
     fun createHardLink(
         source: File,
         target: File,

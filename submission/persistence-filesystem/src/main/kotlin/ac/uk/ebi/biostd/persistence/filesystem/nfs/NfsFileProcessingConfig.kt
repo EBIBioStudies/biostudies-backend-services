@@ -20,7 +20,7 @@ data class NfsFileProcessingConfig(
 )
 
 fun NfsFileProcessingConfig.nfsCopy(extFile: NfsFile): NfsFile {
-    val source = if (extFile.file.startsWith(subFolder)) tempFolder.resolve(extFile.fileName) else extFile.file
+    val source = extFile.file
     val target = subFolder.resolve(extFile.fileName)
     val current = tempFolder.resolve(extFile.fileName)
 
@@ -40,7 +40,7 @@ fun NfsFileProcessingConfig.nfsCopy(extFile: NfsFile): NfsFile {
 }
 
 fun NfsFileProcessingConfig.nfsMove(extFile: NfsFile): NfsFile {
-    val source = if (extFile.file.startsWith(subFolder)) tempFolder.resolve(extFile.fileName) else extFile.file
+    val source = extFile.file
     val target = subFolder.resolve(extFile.fileName)
 
     if (target.notExist()) {

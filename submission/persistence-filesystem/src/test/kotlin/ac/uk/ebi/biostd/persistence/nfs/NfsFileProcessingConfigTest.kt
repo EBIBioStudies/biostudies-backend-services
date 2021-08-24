@@ -69,14 +69,6 @@ class NfsFileProcessingConfigTest(private val tempFolder: TemporaryFolder) {
 
     @Nested
     inner class Move {
-        @Test
-        fun `move from temp folder`() {
-            val subFolder = tempFolder.createDirectory("S-BSST1").createDirectory("Files")
-            val currentFolder = tempFolder.createDirectory("S-BSST1_temp")
-            currentFolder.createNewFile("test.txt")
-
-            testMove(tempFolder.root.resolve("S-BSST1/Files/test.txt"), subFolder, currentFolder)
-        }
 
         @Test
         fun `move from external folder`() {
