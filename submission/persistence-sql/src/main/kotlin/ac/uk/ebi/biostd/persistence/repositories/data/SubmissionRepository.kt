@@ -18,6 +18,8 @@ import ac.uk.ebi.biostd.persistence.repositories.data.CollectionSqlDataService.C
 import ac.uk.ebi.biostd.persistence.repositories.data.CollectionSqlDataService.Companion.asBasicSubmission
 import com.cosium.spring.data.jpa.entity.graph.domain.EntityGraphs
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.model.constants.ProcessingStatus
+import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSED
 import mu.KotlinLogging
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
@@ -43,8 +45,9 @@ internal open class SubmissionRepository(
     override fun existByAccNo(accNo: String): Boolean = submissionRepository.existsByAccNo(accNo)
 
     override fun findExtByAccNo(accNo: String): ExtSubmission? =
-        submissionRepository.getByAccNoAndVersionGreaterThan(accNo, 0)
-            ?.let { submissionMapper.toExtSubmission(loadSubmissionAndStatus(accNo)) }
+        if (submissionRepository.existsByAccNoAndStatusAndVersionGreaterThan(accNo, PROCESSED, 0)) {
+            submissionMapper.toExtSubmission(loadSubmissionAndStatus(accNo))
+        } else null
 
     @Transactional(readOnly = true)
     override fun getExtByAccNo(accNo: String) = submissionMapper.toExtSubmission(loadSubmissionAndStatus(accNo))

@@ -84,6 +84,8 @@ interface SubmissionDataRepository :
 
     fun existsByAccNo(accNo: String): Boolean
 
+    fun existsByAccNoAndStatusAndVersionGreaterThan(accNo: String, status: ProcessingStatus, version: Int): Boolean
+
     fun findByRootSectionTypeAndAccNoInAndVersionGreaterThan(
         type: String,
         tags: List<String>,
