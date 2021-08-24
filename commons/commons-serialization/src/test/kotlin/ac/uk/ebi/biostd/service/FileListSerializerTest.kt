@@ -10,6 +10,7 @@ import ebi.ac.uk.dsl.filesTable
 import ebi.ac.uk.dsl.section
 import ebi.ac.uk.dsl.submission
 import ebi.ac.uk.io.sources.FilesSource
+import ebi.ac.uk.io.sources.NfsBioFile
 import ebi.ac.uk.model.File
 import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.model.Submission
@@ -45,7 +46,7 @@ class FileListSerializerTest(private val tempFolder: TemporaryFolder) {
         val submission = testSubmission(fileListName)
         val fileList = tempFolder.createFile(fileListName, "test file list")
 
-        every { source.getFile(fileListName) } returns fileList
+        every { source.getFile(fileListName) } returns NfsBioFile(fileList)
         every { serializer.deserializeElement<FilesTable>("test file list", JSON) } returns filesTable
 
         testInstance.deserializeFileList(submission, source)
@@ -59,7 +60,7 @@ class FileListSerializerTest(private val tempFolder: TemporaryFolder) {
         val submission = testSubmission(fileListName)
         val fileList = tempFolder.createFile(fileListName, "test file list")
 
-        every { source.getFile(fileListName) } returns fileList
+        every { source.getFile(fileListName) } returns NfsBioFile(fileList)
         every { serializer.deserializeElement<FilesTable>("test file list", TSV) } returns filesTable
 
         testInstance.deserializeFileList(submission, source)
@@ -73,7 +74,7 @@ class FileListSerializerTest(private val tempFolder: TemporaryFolder) {
         val submission = testSubmission(fileListName)
         val fileList = tempFolder.createFile(fileListName, "test file list")
 
-        every { source.getFile(fileListName) } returns fileList
+        every { source.getFile(fileListName) } returns NfsBioFile(fileList)
         every { serializer.deserializeElement<FilesTable>("test file list", XML) } returns filesTable
 
         testInstance.deserializeFileList(submission, source)
@@ -87,7 +88,7 @@ class FileListSerializerTest(private val tempFolder: TemporaryFolder) {
         val submission = testSubmission(fileListName)
         val fileList = tempFolder.createFile(fileListName)
 
-        every { source.getFile(fileListName) } returns fileList
+        every { source.getFile(fileListName) } returns NfsBioFile(fileList)
         every { excelReader.readContentAsTsv(fileList) } returns "test file list"
         every { serializer.deserializeElement<FilesTable>("test file list", TSV) } returns filesTable
 
@@ -103,7 +104,7 @@ class FileListSerializerTest(private val tempFolder: TemporaryFolder) {
         val submission = testSubmission(fileListName)
         val fileList = tempFolder.createFile(fileListName)
 
-        every { source.getFile(fileListName) } returns fileList
+        every { source.getFile(fileListName) } returns NfsBioFile(fileList)
         val exception = assertThrows<InvalidExtensionException> { testInstance.deserializeFileList(submission, source) }
 
         assertThat(exception.message).isEqualTo("Unsupported page tab format FileList.txt")

@@ -13,6 +13,7 @@ import ac.uk.ebi.biostd.persistence.mapping.extended.to.test.sectAttributeDb
 import ac.uk.ebi.biostd.persistence.mapping.extended.to.test.sectionDb
 import ac.uk.ebi.biostd.persistence.model.DbSection
 import ebi.ac.uk.asserts.assertThat
+import ebi.ac.uk.io.sources.BioFile
 import ebi.ac.uk.io.sources.FilesSource
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
@@ -24,10 +25,13 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(value = [MockKExtension::class, TemporaryFolderExtension::class])
-class ToExtSectionTest(@MockK val filesSource: FilesSource, tempFolder: TemporaryFolder) {
-    private val systemFile1 = tempFolder.createFile(FILE_NAME)
-    private val systemFile2 = tempFolder.createFile(FILE_REF_NAME)
-    private val systemFile3 = tempFolder.createFile(FILE_LIST_NAME)
+class ToExtSectionTest(
+    @MockK val systemFile1: BioFile,
+    @MockK val systemFile2: BioFile,
+    @MockK val systemFile3: BioFile,
+    @MockK val filesSource: FilesSource,
+    tempFolder: TemporaryFolder
+) {
 
     private val section = DbSection(type = "type", accNo = "accNo")
         .also {

@@ -6,10 +6,8 @@ import ac.uk.ebi.biostd.persistence.model.ReferencedFileList
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
-import ebi.ac.uk.io.ext.md5
-import ebi.ac.uk.io.ext.size
+import ebi.ac.uk.io.sources.BioFile
 import org.assertj.core.api.Assertions.assertThat
-import java.io.File as SystemFile
 
 internal const val FILE_NAME = "fileName"
 
@@ -21,16 +19,16 @@ internal val refRileDb get() = DbReferencedFile(FILE_REF_NAME, 0, 55L, sortedSet
 internal const val FILE_LIST_NAME = "fileList"
 internal val refFileListDb get() = ReferencedFileList("fileList", sortedSetOf(refRileDb))
 
-internal fun assertExtFile(extFile: ExtFile, systemFile: SystemFile, fileName: String) = when (extFile) {
+internal fun assertExtFile(extFile: ExtFile, bioFile: BioFile, fileName: String) = when (extFile) {
     is FireFile -> TODO()
-    is NfsFile -> assertNfsFile(extFile, systemFile, fileName)
+    is NfsFile -> assertNfsFile(extFile, bioFile, fileName)
 }
 
-private fun assertNfsFile(nfsFile: NfsFile, systemFile: SystemFile, fileName: String) {
-    assertThat(nfsFile.file).isEqualTo(systemFile)
+private fun assertNfsFile(nfsFile: NfsFile, bioFile: BioFile, fileName: String) {
+    assertThat(nfsFile.file).isEqualTo(bioFile)
     assertThat(nfsFile.fileName).isEqualTo(fileName)
-    assertThat(nfsFile.md5).isEqualTo(systemFile.md5())
-    assertThat(nfsFile.size).isEqualTo(systemFile.size())
+    assertThat(nfsFile.md5).isEqualTo(bioFile.md5())
+    assertThat(nfsFile.size).isEqualTo(bioFile.size())
 
     assertThat(nfsFile.attributes).hasSize(1)
     assertExtAttribute(nfsFile.attributes.first())
