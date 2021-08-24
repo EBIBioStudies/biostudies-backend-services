@@ -21,10 +21,12 @@ data class ExtLink(
     val attributes: List<ExtAttribute> = listOf()
 )
 
-sealed class ExtFile
+sealed class ExtFile {
+    abstract val fileName: String
+}
 
 data class FireFile(
-    val fileName: String,
+    override val fileName: String,
     val fireId: String,
     val md5: String,
     val size: Long,
@@ -32,7 +34,7 @@ data class FireFile(
 ) : ExtFile()
 
 data class NfsFile(
-    val fileName: String,
+    override val fileName: String,
     val file: File,
     val attributes: List<ExtAttribute> = listOf()
 ) : ExtFile() {
@@ -44,7 +46,6 @@ data class NfsFile(
             if (_md5.isBlank()) _md5 = file.md5()
             return _md5
         }
-
         set(value) {
             _md5 = value
         }

@@ -19,8 +19,6 @@ import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtProcessingStatus.PROCESSED
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FileMode
-import ebi.ac.uk.extended.model.FireFile
-import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.extended.model.allFiles
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.model.Submission
@@ -118,12 +116,7 @@ class SubmitWebHandler(
         ).toSimpleSubmission()
     }
 
-    private fun getAllFiles(extSubmission: ExtSubmission): List<File> = extSubmission.allFiles.map { getFile(it) }
-
-    private fun getFile(extFile: ExtFile): File = when (extFile) {
-        is NfsFile -> extFile.file
-        is FireFile -> TODO()
-    }
+    private fun getAllFiles(extSubmission: ExtSubmission): List<ExtFile> = extSubmission.allFiles
 
     private fun getOnBehalfUser(onBehalfRequest: OnBehalfRequest): SecurityUser {
         val request = onBehalfRequest.asRegisterRequest()
