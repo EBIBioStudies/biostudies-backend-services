@@ -48,19 +48,18 @@ class NfsFilesService(
         folderPermissions: Set<PosixFilePermission>
     ): ExtSubmission {
         logger.info { "processing submission ${submission.accNo} files in $mode" }
-        val subPath = subFolder.resolve(FILES_PATH)
         val newSubTempPath = createTempFolder(subFolder, submission.accNo)
 
         val config = NfsFileProcessingConfig(
             mode,
-            subFolder = subPath,
-            targetFolder = newSubTempPath,
+            subFolder = subFolder.resolve(FILES_PATH),
+            targetFolder = newSubTempPath.resolve(FILES_PATH),
             filePermissions = filePermissions,
             dirPermissions = folderPermissions
         )
 
         val processed = processFiles(submission) { config.processFile(it) }
-        FileUtils.moveFile(newSubTempPath, subPath, filePermissions, folderPermissions)
+        FileUtils.moveFile(newSubTempPath, subFolder, filePermissions, folderPermissions)
         logger.info { "Finishing processing submission ${submission.accNo} files in $mode" }
         return processed
     }

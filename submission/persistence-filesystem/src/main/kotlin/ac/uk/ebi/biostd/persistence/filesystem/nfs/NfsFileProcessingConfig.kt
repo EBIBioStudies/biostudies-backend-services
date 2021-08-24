@@ -20,13 +20,13 @@ data class NfsFileProcessingConfig(
 
 fun NfsFileProcessingConfig.nfsCopy(extFile: NfsFile): NfsFile {
     val target = targetFolder.resolve(extFile.fileName)
-    FileUtils.copyOrReplaceFile(extFile.file, target, filePermissions, dirPermissions)
+    if (target.exists().not()) FileUtils.copyOrReplaceFile(extFile.file, target, filePermissions, dirPermissions)
     return extFile.copy(file = subFolder.resolve(extFile.fileName))
 }
 
 fun NfsFileProcessingConfig.nfsMove(extFile: NfsFile): NfsFile {
     val target = targetFolder.resolve(extFile.fileName)
-    moveFile(extFile.file, target, filePermissions, dirPermissions)
+    if (target.exists().not()) moveFile(extFile.file, target, filePermissions, dirPermissions)
     return extFile.copy(file = subFolder.resolve(extFile.fileName))
 }
 
