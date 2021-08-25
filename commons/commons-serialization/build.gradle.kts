@@ -9,6 +9,8 @@ import Projects.CommonsBio
 import Projects.CommonsSerializationUtil
 import Projects.CommonsTest
 import Projects.CommonsUtil
+import Projects.JsonLibrary
+import Projects.TsvLibrary
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
 import TestDependencies.JsonAssert
@@ -22,6 +24,8 @@ dependencies {
     api(project(CommonsSerializationUtil))
     api(project(CommonsTest))
     api(project(CommonsUtil))
+    api(project(TsvLibrary))
+    api(project(JsonLibrary))
 
     implementation(KotlinReflect)
     implementation(KotlinStdLib)
