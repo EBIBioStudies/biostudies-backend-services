@@ -12,6 +12,7 @@ import TestDependencies.BaseTestRuntimeDependencies
 dependencies {
     api(project(CommonsModelExtended))
     api(project(CommonsSerializationUtil))
+    api(project(":commons:commons-json-util"))
 
     implementation(Arrow)
     implementation(JacksonKotlin)
