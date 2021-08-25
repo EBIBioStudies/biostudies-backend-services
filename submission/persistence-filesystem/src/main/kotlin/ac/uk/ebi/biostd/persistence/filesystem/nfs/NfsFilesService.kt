@@ -12,6 +12,7 @@ import ebi.ac.uk.extended.model.FileMode.COPY
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.io.FileUtils
 import ebi.ac.uk.io.FileUtils.getOrCreateFolder
+import ebi.ac.uk.io.FileUtils.moveFile
 import ebi.ac.uk.io.FileUtils.reCreateFolder
 import ebi.ac.uk.io.RWXR_XR_X
 import ebi.ac.uk.io.RWX______
@@ -59,7 +60,7 @@ class NfsFilesService(
         )
 
         val processed = processFiles(submission) { config.processFile(it) }
-        FileUtils.moveFile(newSubTempPath, subFolder, filePermissions, folderPermissions)
+        moveFile(newSubTempPath, subFolder, filePermissions, folderPermissions)
         logger.info { "Finishing processing submission ${submission.accNo} files in $mode" }
         return processed
     }

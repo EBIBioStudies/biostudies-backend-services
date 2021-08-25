@@ -89,24 +89,9 @@ object FileUtils {
         folderPermissions: Set<PosixFilePermission>
     ) {
         deleteFile(target)
-
         when (isDirectory(source)) {
             true -> FileUtilsHelper.moveFolder(source.toPath(), target.toPath(), filePermissions, folderPermissions)
             false -> FileUtilsHelper.moveFile(source.toPath(), target.toPath(), filePermissions, folderPermissions)
-        }
-    }
-
-    fun copyFile(
-        source: File,
-        target: File,
-        filePermissions: Set<PosixFilePermission>,
-        folderPermissions: Set<PosixFilePermission>
-    ) {
-        deleteFile(target)
-
-        when (isDirectory(source)) {
-            true -> FileUtilsHelper.copyFolder(source.toPath(), target.toPath(), filePermissions, folderPermissions)
-            false -> FileUtilsHelper.copyFile(source.toPath(), target.toPath(), filePermissions, folderPermissions)
         }
     }
 
