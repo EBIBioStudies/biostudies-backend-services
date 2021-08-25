@@ -36,6 +36,7 @@ class ExtSubmissionSerializerTest {
         val expectedJson = expectedJsonSubmission(released = false).toString()
 
         assertThat(testInstance.serialize(extendedSubmission)).isEqualToIgnoringWhitespace(expectedJson)
+        assertThat(ExtSectionSerializer.parentAccNo).isEqualTo("S-TEST1")
     }
 
     @Test
@@ -44,6 +45,7 @@ class ExtSubmissionSerializerTest {
         val expectedJson = expectedJsonSubmission(released = true).toString()
 
         assertThat(testInstance.serialize(extendedSubmission)).isEqualToIgnoringWhitespace(expectedJson)
+        assertThat(ExtSectionSerializer.parentAccNo).isEqualTo("S-TEST1")
     }
 
     companion object {

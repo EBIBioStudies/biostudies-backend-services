@@ -54,4 +54,6 @@ interface SubmissionDraftRepository : MongoRepository<DocSubmissionDraft, String
     fun deleteByUserIdAndKey(userId: String, key: String)
 }
 
-interface FileListDocFileRepository : MongoRepository<FileListDocFile, ObjectId>
+interface FileListDocFileRepository : MongoRepository<FileListDocFile, ObjectId> {
+    fun getById(id: ObjectId): FileListDocFile
+}

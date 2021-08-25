@@ -2,34 +2,53 @@ package ac.uk.ebi.biostd.submission.web.resources.ext
 
 import ac.uk.ebi.biostd.submission.converters.BioUser
 import ac.uk.ebi.biostd.submission.domain.service.ExtSubmissionService
+import ac.uk.ebi.biostd.submission.domain.service.TempFileGenerator
 import ac.uk.ebi.biostd.submission.web.model.ExtPage
 import ac.uk.ebi.biostd.submission.web.model.ExtPageRequest
+import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.model.constants.FILE_LISTS
+import ebi.ac.uk.model.constants.SUBMISSION
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.multipart.MultipartFile
+import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 
 @RestController
 @RequestMapping("/submissions/extended")
 class ExtSubmissionResource(
+    private val extPageMapper: ExtendedPageMapper,
+    private val tempFileGenerator: TempFileGenerator,
     private val extSubmissionService: ExtSubmissionService,
-    private val extPageMapper: ExtendedPageMapper
+    private val extSerializationService: ExtSerializationService
 ) {
     @GetMapping("/{accNo}")
     fun getExtended(@PathVariable accNo: String): ExtSubmission = extSubmissionService.getExtendedSubmission(accNo)
+
+    @GetMapping("/{accNo}/fileList/{fileListName}/files")
+    fun getReferencedFiles(
+        @PathVariable accNo: String,
+        @PathVariable fileListName: String
+    ): ExtFileTable = extSubmissionService.getReferencedFiles(accNo, fileListName)
 
     @PostMapping
     @PreAuthorize("isAuthenticated()")
     fun submitExtended(
         @BioUser user: SecurityUser,
-        @RequestBody extSubmission: ExtSubmission
-    ): ExtSubmission = extSubmissionService.submitExtendedSubmission(user.email, extSubmission)
+        @RequestParam(FILE_LISTS, required = false) fileLists: Array<MultipartFile>?,
+        @RequestParam(SUBMISSION) extSubmission: String
+    ): ExtSubmission = extSubmissionService.submitExtendedSubmission(
+        user.email,
+        extSerializationService.deserialize(extSubmission, ExtSubmission::class.java),
+        fileLists?.let { tempFileGenerator.asFiles(it) } ?: emptyList()
+    )
 
     @GetMapping
     fun submissions(@ModelAttribute request: ExtPageRequest): ExtPage =

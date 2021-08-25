@@ -6,6 +6,7 @@ object ExtSerializationFields {
     const val EXT_TYPE = "extType"
     const val FILE = "file"
     const val FILES = "files"
+    const val FILES_URL = "filesUrl"
     const val FILE_LIST = "fileList"
     const val LINKS = "links"
     const val SECTIONS = "sections"

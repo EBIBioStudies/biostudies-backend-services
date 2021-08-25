@@ -38,7 +38,6 @@ class ExtSectionDeserializerTest(private val tempFolder: TemporaryFolder) {
 
     @Test
     fun `deserialize all in one`() {
-        val referencedFile = tempFolder.createFile("ref-file.txt")
         val sectionFile = tempFolder.createFile("section-file.txt")
         val sectionFilesTable = tempFolder.createFile("section-file-table.txt")
         val json = jsonObj {
@@ -47,14 +46,7 @@ class ExtSectionDeserializerTest(private val tempFolder: TemporaryFolder) {
             "fileList" to jsonObj {
                 "fileName" to "file-list.json"
                 "path" to "file-list.json"
-                "files" to jsonArray(
-                    jsonObj {
-                        "fileName" to "ref-file.txt"
-                        "path" to "ref-file.txt"
-                        "file" to referencedFile.absolutePath
-                        "extType" to "nfsFile"
-                    }
-                )
+                "filesUrl" to "submissions/extended/S-BSST1/fileList/file-list/files"
             }
             "attributes" to jsonArray(
                 jsonObj {
@@ -101,13 +93,13 @@ class ExtSectionDeserializerTest(private val tempFolder: TemporaryFolder) {
 
             "links" to jsonArray(
                 jsonObj {
-                    "url" to "http://simple-link.net"
+                    "url" to "https://simple-link.net"
                     "extType" to "link"
                 },
                 jsonObj {
                     "links" to jsonArray(
                         jsonObj {
-                            "url" to "http://table-link.net"
+                            "url" to "https://table-link.net"
                             "extType" to "link"
                         }
                     )
@@ -128,23 +120,20 @@ class ExtSectionDeserializerTest(private val tempFolder: TemporaryFolder) {
         val extFileList = extSection.fileList
         assertNotNull(extFileList)
         assertThat(extFileList.fileName).isEqualTo("file-list.json")
-        assertThat(extFileList.files).hasSize(1)
-
-        val nfsFile = extFileList.files.first() as NfsFile
-        assertThat(nfsFile.file).isEqualTo(referencedFile)
-        assertThat(nfsFile.fileName).isEqualTo("ref-file.txt")
+        assertThat(extFileList.filesUrl).isEqualTo("submissions/extended/S-BSST1/fileList/file-list/files")
+        assertThat(extFileList.files).isEmpty()
 
         val innerSections = extSection.sections
         assertThat(innerSections).hasSize(2)
 
         val innerSection = innerSections.first()
-        assertThat(innerSection.isLeft()).isTrue()
+        assertThat(innerSection.isLeft()).isTrue
         innerSection.ifLeft {
             assertThat(it.type).isEqualTo("Exp")
         }
 
         val innerSectionsTable = innerSections.second()
-        assertThat(innerSectionsTable.isRight()).isTrue()
+        assertThat(innerSectionsTable.isRight()).isTrue
         innerSectionsTable.ifRight {
             assertThat(it.sections).hasSize(1)
             assertThat(it.sections.first().type).isEqualTo("Data")
@@ -154,7 +143,7 @@ class ExtSectionDeserializerTest(private val tempFolder: TemporaryFolder) {
         assertThat(extFiles).hasSize(2)
 
         val extFile = extFiles.first()
-        assertThat(extFile.isLeft()).isTrue()
+        assertThat(extFile.isLeft()).isTrue
         extFile.ifLeft {
             it as NfsFile
             assertThat(it.file).isEqualTo(sectionFile)
@@ -162,7 +151,7 @@ class ExtSectionDeserializerTest(private val tempFolder: TemporaryFolder) {
         }
 
         val extFilesTable = extFiles.second()
-        assertThat(extFilesTable.isRight()).isTrue()
+        assertThat(extFilesTable.isRight()).isTrue
         extFilesTable.ifRight {
             assertThat(it.files).hasSize(1)
 
@@ -175,16 +164,16 @@ class ExtSectionDeserializerTest(private val tempFolder: TemporaryFolder) {
         assertThat(extLinks).hasSize(2)
 
         val extLink = extLinks.first()
-        assertThat(extLink.isLeft()).isTrue()
+        assertThat(extLink.isLeft()).isTrue
         extLink.ifLeft {
-            assertThat(it.url).isEqualTo("http://simple-link.net")
+            assertThat(it.url).isEqualTo("https://simple-link.net")
         }
 
         val extLinkTable = extLinks.second()
-        assertThat(extLinkTable.isRight()).isTrue()
+        assertThat(extLinkTable.isRight()).isTrue
         extLinkTable.ifRight {
             assertThat(it.links).hasSize(1)
-            assertThat(it.links.first().url).isEqualTo("http://table-link.net")
+            assertThat(it.links.first().url).isEqualTo("https://table-link.net")
         }
     }
 }

@@ -50,7 +50,7 @@ class ExtSectionSerializerTest(private val tempFolder: TemporaryFolder) {
         val allInOneSection = ExtSection(
             accNo = "SECT-001",
             type = "Study",
-            fileList = ExtFileList("file-list.json", listOf(NfsFile("ref-file.txt", referencedFile))),
+            fileList = ExtFileList("file-list", listOf(NfsFile("ref-file.txt", referencedFile))),
             attributes = listOf(ExtAttribute("Title", "Test Section")),
             sections = listOf(
                 Either.left(ExtSection(type = "Exp")),
@@ -61,26 +61,16 @@ class ExtSectionSerializerTest(private val tempFolder: TemporaryFolder) {
                 Either.right(ExtFileTable(listOf(NfsFile("section-file-table.txt", sectionFilesTable))))
             ),
             links = listOf(
-                Either.left(ExtLink(url = "http://mylink.org")),
-                Either.right(ExtLinkTable(listOf(ExtLink(url = "http://mytable.org"))))
+                Either.left(ExtLink(url = "https://mylink.org")),
+                Either.right(ExtLinkTable(listOf(ExtLink(url = "https://mytable.org"))))
             )
         )
         val expectedJson = jsonObj {
             "accNo" to "SECT-001"
             "type" to "Study"
             "fileList" to jsonObj {
-                "fileName" to "file-list.json"
-                "files" to jsonArray(
-                    jsonObj {
-                        "fileName" to "ref-file.txt"
-                        "path" to "ref-file.txt"
-                        "file" to referencedFile.absolutePath
-                        "attributes" to jsonArray()
-                        "extType" to "nfsFile"
-                        "type" to "file"
-                        "size" to 0
-                    }
-                )
+                "fileName" to "file-list"
+                "filesUrl" to "submissions/extended/S-BSST1/fileList/file-list/files"
             }
             "attributes" to jsonArray(
                 jsonObj {
@@ -146,14 +136,14 @@ class ExtSectionSerializerTest(private val tempFolder: TemporaryFolder) {
 
             "links" to jsonArray(
                 jsonObj {
-                    "url" to "http://mylink.org"
+                    "url" to "https://mylink.org"
                     "attributes" to jsonArray()
                     "extType" to "link"
                 },
                 jsonObj {
                     "links" to jsonArray(
                         jsonObj {
-                            "url" to "http://mytable.org"
+                            "url" to "https://mytable.org"
                             "attributes" to jsonArray()
                             "extType" to "link"
                         }
@@ -165,6 +155,7 @@ class ExtSectionSerializerTest(private val tempFolder: TemporaryFolder) {
             "extType" to "section"
         }.toString()
 
+        ExtSectionSerializer.parentAccNo = "S-BSST1"
         assertThat(testInstance.serialize(allInOneSection)).isEqualToIgnoringWhitespace(expectedJson)
     }
 }

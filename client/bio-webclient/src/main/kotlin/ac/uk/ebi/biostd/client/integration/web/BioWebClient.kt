@@ -4,7 +4,7 @@ import ac.uk.ebi.biostd.client.api.SubmissionClientImpl
 import ac.uk.ebi.biostd.client.interceptor.OnBehalfInterceptor
 import ac.uk.ebi.biostd.client.interceptor.TokenInterceptor
 import ac.uk.ebi.biostd.integration.SerializationConfig
-import uk.ac.ebi.extended.serialization.service.ExtSerializationService
+import uk.ac.ebi.extended.serialization.integration.ExtSerializationConfig
 
 class BioWebClient internal constructor(
     private val submissionClient: SubmissionClient
@@ -14,7 +14,7 @@ class BioWebClient internal constructor(
             SubmissionClientImpl(
                 createRestTemplate(baseUrl, token),
                 SerializationConfig.serializationService(),
-                ExtSerializationService()
+                ExtSerializationConfig.extSerializationService()
             )
         )
 
@@ -26,7 +26,7 @@ class BioWebClient internal constructor(
             SubmissionClientImpl(
                 createRestTemplate(baseUrl, token, onBehalf),
                 SerializationConfig.serializationService(),
-                ExtSerializationService()
+                ExtSerializationConfig.extSerializationService()
             )
         )
 

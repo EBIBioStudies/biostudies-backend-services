@@ -9,6 +9,9 @@ import ac.uk.ebi.biostd.persistence.exception.ExtSubmissionMappingException
 import ac.uk.ebi.biostd.persistence.exception.UserNotFoundException
 import ac.uk.ebi.biostd.submission.web.model.ExtPageRequest
 import ebi.ac.uk.extended.model.ExtCollection
+import ebi.ac.uk.extended.model.ExtFile
+import ebi.ac.uk.extended.model.ExtFileList
+import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FileMode.COPY
@@ -16,6 +19,9 @@ import ebi.ac.uk.extended.model.PROJECT_TYPE
 import ebi.ac.uk.security.integration.components.ISecurityQueryService
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import ebi.ac.uk.test.basicExtSubmission
+import ebi.ac.uk.test.createFile
+import io.github.glytching.junit.extension.folder.TemporaryFolder
+import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -30,17 +36,26 @@ import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
+import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 
-@ExtendWith(MockKExtension::class)
+@ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
 class ExtSubmissionServiceTest(
+    private val tempFolder: TemporaryFolder,
     @MockK private val requestService: SubmissionRequestService,
     @MockK private val submissionRepository: SubmissionQueryService,
     @MockK private val userPrivilegesService: IUserPrivilegesService,
-    @MockK private val securityQueryService: ISecurityQueryService
+    @MockK private val securityQueryService: ISecurityQueryService,
+    @MockK private val extSerializationService: ExtSerializationService
 ) {
     private val extSubmission = basicExtSubmission.copy(collections = listOf(ExtCollection("ArrayExpress")))
     private val testInstance =
-        ExtSubmissionService(requestService, submissionRepository, userPrivilegesService, securityQueryService)
+        ExtSubmissionService(
+            requestService,
+            submissionRepository,
+            userPrivilegesService,
+            securityQueryService,
+            extSerializationService
+        )
 
     @AfterEach
     fun afterEach() = clearAllMocks()
@@ -86,7 +101,7 @@ class ExtSubmissionServiceTest(
         assertThat(result.totalElements).isEqualTo(2L)
 
         val submissionFilter = filter.captured
-        assertThat(submissionFilter.released).isTrue()
+        assertThat(submissionFilter.released).isTrue
         assertThat(submissionFilter.rTimeTo).isEqualTo("2020-09-21T15:00:00Z")
         assertThat(submissionFilter.rTimeFrom).isEqualTo("2019-09-21T15:00:00Z")
         verify(exactly = 1) { submissionRepository.getExtendedSubmissions(submissionFilter) }
@@ -104,6 +119,36 @@ class ExtSubmissionServiceTest(
         verify(exactly = 1) {
             submissionRepository.existByAccNo("ArrayExpress")
             securityQueryService.existsByEmail("owner@email.org")
+        }
+    }
+
+    @Test
+    fun `submit extended with file lists`(
+        @MockK extFile: ExtFile
+    ) {
+        val saveRequest = slot<SaveSubmissionRequest>()
+        val fileList = tempFolder.createFile("file-list.json", "referenced")
+        val populatedFileList = ExtFileList("file-list", listOf(extFile))
+        val submission = extSubmission.copy(section = ExtSection(type = "Study", fileList = ExtFileList("file-list")))
+
+        every { requestService.saveAndProcessSubmissionRequest(capture(saveRequest)) } returns submission
+        every {
+            extSerializationService.deserialize("referenced", ExtFileTable::class.java)
+        } returns ExtFileTable(extFile)
+
+        testInstance.submitExtendedSubmission("user@mail.com", submission, listOf(fileList))
+
+        assertThat(saveRequest.captured.fileMode).isEqualTo(COPY)
+        assertThat(saveRequest.captured.submission).isEqualToComparingFieldByField(
+            submission.copy(
+                submitter = "user@mail.com",
+                section = ExtSection(type = "Study", fileList = populatedFileList)
+            )
+        )
+        verify(exactly = 1) {
+            submissionRepository.existByAccNo("ArrayExpress")
+            securityQueryService.existsByEmail("owner@email.org")
+            extSerializationService.deserialize("referenced", ExtFileTable::class.java)
         }
     }
 
@@ -153,5 +198,14 @@ class ExtSubmissionServiceTest(
 
         verify(exactly = 0) { submissionRepository.existByAccNo("ArrayExpress") }
         verify(exactly = 1) { securityQueryService.existsByEmail("owner@email.org") }
+    }
+
+    @Test
+    fun `get referenced files`(
+        @MockK extFile: ExtFile
+    ) {
+        every { submissionRepository.getReferencedFiles("S-BSST1", "file-list") } returns listOf(extFile)
+
+        assertThat(testInstance.getReferencedFiles("S-BSST1", "file-list").files).containsExactly(extFile)
     }
 }
