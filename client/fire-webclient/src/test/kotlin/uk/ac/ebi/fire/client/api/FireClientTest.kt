@@ -62,6 +62,15 @@ class FireClientTest(
     }
 
     @Test
+    fun `unset path`() {
+        every { template.delete("$FIRE_OBJECTS_URL/the-fire-oid/firePath") } answers { nothing }
+
+        testInstance.unsetPath("the-fire-oid")
+
+        verify(exactly = 1) { template.delete("$FIRE_OBJECTS_URL/the-fire-oid/firePath") }
+    }
+
+    @Test
     fun `download by path`() {
         val file = tmpFolder.createFile("test.txt", "test content")
 
@@ -75,6 +84,20 @@ class FireClientTest(
         assertThat(downloadedFile.absolutePath).isEqualTo("${tmpFolder.root.absolutePath}/file1.txt")
         verify(exactly = 1) {
             template.getForObject("$FIRE_OBJECTS_URL/blob/path/S-BSST1/file1.txt", ByteArray::class.java)
+        }
+    }
+
+    @Test
+    fun `find all by path`(@MockK fireFile: FireFile) {
+        every {
+            template.getForObject("$FIRE_OBJECTS_URL/entries/path/my/path", List::class.java)
+        } returns listOf(fireFile)
+
+        val files = testInstance.findAllInPath("my/path")
+        assertThat(files).hasSize(1)
+        assertThat(files.first()).isEqualTo(fireFile)
+        verify(exactly = 1) {
+            template.getForObject("$FIRE_OBJECTS_URL/entries/path/my/path", List::class.java)
         }
     }
 

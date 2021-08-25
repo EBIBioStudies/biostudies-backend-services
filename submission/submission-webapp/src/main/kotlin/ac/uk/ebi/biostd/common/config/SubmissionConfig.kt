@@ -23,6 +23,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 import uk.ac.ebi.events.service.EventsPublisherService
+import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import java.net.URI
 
 @Configuration
@@ -57,9 +58,16 @@ class SubmissionConfig(
         submissionRequestService: SubmissionRequestService,
         subRepository: SubmissionQueryService,
         userPrivilegeService: IUserPrivilegesService,
-        securityQueryService: ISecurityQueryService
+        securityQueryService: ISecurityQueryService,
+        extSerializationService: ExtSerializationService
     ): ExtSubmissionService =
-        ExtSubmissionService(submissionRequestService, subRepository, userPrivilegeService, securityQueryService)
+        ExtSubmissionService(
+            submissionRequestService,
+            subRepository,
+            userPrivilegeService,
+            securityQueryService,
+            extSerializationService
+        )
 
     @Bean
     fun projectService(

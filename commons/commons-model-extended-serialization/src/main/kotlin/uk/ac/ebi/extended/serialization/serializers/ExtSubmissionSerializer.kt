@@ -27,8 +27,9 @@ import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.TITLE
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.VERSION
 
 class ExtSubmissionSerializer : JsonSerializer<ExtSubmission>() {
-
     override fun serialize(submission: ExtSubmission, gen: JsonGenerator, serializers: SerializerProvider) {
+        ExtSectionSerializer.parentAccNo = submission.accNo
+
         gen.writeStartObject()
         gen.writeStringField(ACC_NO, submission.accNo)
         gen.writeNumberField(VERSION, submission.version)

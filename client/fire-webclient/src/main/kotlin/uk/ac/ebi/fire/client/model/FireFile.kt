@@ -6,5 +6,5 @@ data class FireFile(
     val objectMd5: String,
     val objectSize: Number,
     val createTime: String,
-    val filesystemEntry: FileSystemEntry?
+    val filesystemEntry: FileSystemEntry? = null
 )
