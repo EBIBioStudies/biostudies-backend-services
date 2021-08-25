@@ -27,4 +27,3 @@ class FireBioFile(val fireId: String, val md5: String) : BioFile() {
     override fun md5(): String = TODO()
     override fun size(): Long = TODO()
 }
-

@@ -5,8 +5,8 @@ import ac.uk.ebi.biostd.persistence.mapping.extended.to.test.FILE_REF_NAME
 import ac.uk.ebi.biostd.persistence.mapping.extended.to.test.assertExtFile
 import ac.uk.ebi.biostd.persistence.mapping.extended.to.test.fileDb
 import ac.uk.ebi.biostd.persistence.mapping.extended.to.test.refRileDb
-import ebi.ac.uk.io.sources.BioFile
 import ebi.ac.uk.io.sources.FilesSource
+import ebi.ac.uk.io.sources.NfsBioFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.every
@@ -17,10 +17,10 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
 internal class ToExtFileTest(
-    temporaryFolder: TemporaryFolder,
+    tempFolder: TemporaryFolder,
     @MockK val filesSource: FilesSource,
-    @MockK val bioFile: BioFile,
 ) {
+    private val bioFile = NfsBioFile(tempFolder.createFile(fileDb.name))
 
     @Test
     fun `File to ExtFile`() {

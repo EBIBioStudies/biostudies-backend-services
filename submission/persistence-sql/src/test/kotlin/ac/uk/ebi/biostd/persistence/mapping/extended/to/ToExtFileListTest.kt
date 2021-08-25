@@ -19,5 +19,4 @@ internal class ToExtFileListTest(
     private val systemFile = temporaryFolder.createFile("test.txt")
     private val anotherSystemFile = temporaryFolder.createFile("test2.txt")
     private val fileList = ReferencedFileList("fileList", sortedSetOf(file))
-    
 }

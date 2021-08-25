@@ -37,8 +37,8 @@ internal class FileListSerializer(
 
     private fun getFile(fileList: String, source: FilesSource): File {
         return when (val bioFile = source.getFile(fileList)) {
-            is FireBioFile -> TODO("fire files are not supported to use as a file lis")
-            is NfsBioFile -> bioFile.file;
+            is FireBioFile -> TODO("fire files are not supported to use as a file list")
+            is NfsBioFile -> bioFile.file
         }
     }
 

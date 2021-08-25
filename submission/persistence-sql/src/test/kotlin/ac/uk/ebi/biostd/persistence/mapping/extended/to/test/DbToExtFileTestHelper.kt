@@ -7,6 +7,7 @@ import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.io.sources.BioFile
+import ebi.ac.uk.io.sources.NfsBioFile
 import org.assertj.core.api.Assertions.assertThat
 
 internal const val FILE_NAME = "fileName"
@@ -25,7 +26,8 @@ internal fun assertExtFile(extFile: ExtFile, bioFile: BioFile, fileName: String)
 }
 
 private fun assertNfsFile(nfsFile: NfsFile, bioFile: BioFile, fileName: String) {
-    assertThat(nfsFile.file).isEqualTo(bioFile)
+    bioFile as NfsBioFile
+    assertThat(nfsFile.file).isEqualTo(bioFile.file)
     assertThat(nfsFile.fileName).isEqualTo(fileName)
     assertThat(nfsFile.md5).isEqualTo(bioFile.md5())
     assertThat(nfsFile.size).isEqualTo(bioFile.size())

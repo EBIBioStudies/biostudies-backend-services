@@ -13,8 +13,8 @@ import ac.uk.ebi.biostd.persistence.mapping.extended.to.test.sectAttributeDb
 import ac.uk.ebi.biostd.persistence.mapping.extended.to.test.sectionDb
 import ac.uk.ebi.biostd.persistence.model.DbSection
 import ebi.ac.uk.asserts.assertThat
-import ebi.ac.uk.io.sources.BioFile
 import ebi.ac.uk.io.sources.FilesSource
+import ebi.ac.uk.io.sources.NfsBioFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.every
@@ -24,14 +24,18 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
+private const val FILE_1 = "file1"
+private const val FILE_2 = "file2"
+private const val FILE_3 = "file3"
+
 @ExtendWith(value = [MockKExtension::class, TemporaryFolderExtension::class])
 class ToExtSectionTest(
-    @MockK val systemFile1: BioFile,
-    @MockK val systemFile2: BioFile,
-    @MockK val systemFile3: BioFile,
     @MockK val filesSource: FilesSource,
     tempFolder: TemporaryFolder
 ) {
+    private val systemFile1 = NfsBioFile(tempFolder.createFile(FILE_1))
+    private val systemFile2 = NfsBioFile(tempFolder.createFile(FILE_2))
+    private val systemFile3 = NfsBioFile(tempFolder.createFile(FILE_3))
 
     private val section = DbSection(type = "type", accNo = "accNo")
         .also {
