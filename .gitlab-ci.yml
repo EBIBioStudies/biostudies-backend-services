@@ -62,4 +62,4 @@ mysql-itest:
 
 mongo-itest:
   stage: integration-test
-  script: gradle clean :submission:submission-webapp:itest -Pitest.mode=modo --rerun-tasks --stacktrace
+  script: gradle clean :submission:submission-webapp:itest -Pitest.mode=mongo --rerun-tasks --stacktrace
