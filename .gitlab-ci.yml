@@ -18,7 +18,7 @@ include:
 
 stages:
   - build-test
-  - mysql-itest
+  - integration-test
   - auto-deploy-dev-submitter
   - auto-deploy-dev-handlers
   - deploy-dev-submitter
@@ -44,7 +44,7 @@ stages:
 
 build-test:
   stage: build-test
-  script: gradle clean build test buildArtifacts --stacktrace
+  script: gradle clean build test buildArtifacts --stacktrace -x itest
   artifacts:
     paths:
       - bio-admin/build/libs/bio-admin-1.0.0.jar
@@ -57,5 +57,9 @@ build-test:
       - submission/submission-handlers/build/libs/submission-handlers-1.0.0.jar
 
 mysql-itest:
-  stage: mysql-itest
+  stage: integration-test
   script: gradle clean :submission:submission-webapp:itest -Pitest.mode=mysql --rerun-tasks --stacktrace
+
+mongo-itest:
+  stage: integration-test
+  script: gradle clean :submission:submission-webapp:itest -Pitest.mode=modo --rerun-tasks --stacktrace
