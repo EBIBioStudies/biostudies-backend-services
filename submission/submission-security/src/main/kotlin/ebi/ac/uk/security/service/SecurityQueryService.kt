@@ -19,8 +19,8 @@ class SecurityQueryService(
 
     override fun getUser(email: String): SecurityUser =
         userRepository.findByEmailAndActive(email, true)
-            .map { profileService.asSecurityUser(it) }
-            .orElseThrow { throw UserAlreadyRegister(email) }
+            ?.let { profileService.asSecurityUser(it) }
+            ?: throw UserAlreadyRegister(email)
 
     override fun getUserProfile(authToken: String): UserInfo =
         securityUtil.checkToken(authToken)
@@ -28,9 +28,7 @@ class SecurityQueryService(
             .let { profileService.getUserProfile(it, authToken) }
 
     override fun getOrCreateInactive(email: String, username: String): SecurityUser =
-        userRepository.findByEmail(email)
-            .orElseGet { createUserInactive(email, username) }
-            .let { profileService.asSecurityUser(it) }
+        profileService.asSecurityUser(userRepository.findByEmail(email) ?: createUserInactive(email, username))
 
     private fun createUserInactive(email: String, username: String): DbUser {
         val user = DbUser(

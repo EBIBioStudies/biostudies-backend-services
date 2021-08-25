@@ -19,7 +19,6 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
-import java.util.Optional
 
 @ExtendWith(MockKExtension::class)
 class SecurityQueryServiceTest(
@@ -36,7 +35,7 @@ class SecurityQueryServiceTest(
     fun `user exist by email`() {
         every { userRepository.existsByEmailAndActive("user@test.org", active = true) } returns true
 
-        assertThat(testInstance.existsByEmail("user@test.org")).isTrue()
+        assertThat(testInstance.existsByEmail("user@test.org")).isTrue
         verify(exactly = 1) { userRepository.existsByEmailAndActive("user@test.org", active = true) }
     }
 
@@ -44,7 +43,7 @@ class SecurityQueryServiceTest(
     fun `user does not exist by email`() {
         every { userRepository.existsByEmailAndActive("user@test.org", active = true) } returns false
 
-        assertThat(testInstance.existsByEmail("user@test.org")).isFalse()
+        assertThat(testInstance.existsByEmail("user@test.org")).isFalse
         verify(exactly = 1) { userRepository.existsByEmailAndActive("user@test.org", active = true) }
     }
 
@@ -54,14 +53,14 @@ class SecurityQueryServiceTest(
         @MockK securityUser: SecurityUser
     ) {
         every { profileService.asSecurityUser(dbUser) } returns securityUser
-        every { userRepository.findByEmailAndActive("user@test.org", true) } returns Optional.of(dbUser)
+        every { userRepository.findByEmailAndActive("user@test.org", true) } returns dbUser
 
         assertThat(testInstance.getUser("user@test.org")).isEqualTo(securityUser)
     }
 
     @Test
     fun `get non existing user`() {
-        every { userRepository.findByEmailAndActive("user@test.org", true) } returns Optional.empty()
+        every { userRepository.findByEmailAndActive("user@test.org", true) } returns null
 
         val err = assertThrows<UserAlreadyRegister> { testInstance.getUser("user@test.org") }
         assertThat(err.message).isEqualTo("There is a user already registered with the email address 'user@test.org'.")
@@ -92,7 +91,7 @@ class SecurityQueryServiceTest(
         @MockK securityUser: SecurityUser
     ) {
         every { profileService.asSecurityUser(dbUser) } returns securityUser
-        every { userRepository.findByEmail("user@test.org") } returns Optional.of(dbUser)
+        every { userRepository.findByEmail("user@test.org") } returns dbUser
 
         assertThat(testInstance.getOrCreateInactive("user@test.org", "Test User")).isEqualTo(securityUser)
     }
@@ -106,7 +105,7 @@ class SecurityQueryServiceTest(
         every { securityUtil.newKey() } returns "a-new-key"
         every { userRepository.save(capture(dbUserSlot)) } returns dbUser
         every { profileService.asSecurityUser(dbUser) } returns securityUser
-        every { userRepository.findByEmail("user@test.org") } returns Optional.empty()
+        every { userRepository.findByEmail("user@test.org") } returns null
 
         assertThat(testInstance.getOrCreateInactive("user@test.org", "Test User")).isEqualTo(securityUser)
         verifyInactiveUserCreation(dbUserSlot.captured)
@@ -118,7 +117,7 @@ class SecurityQueryServiceTest(
         @MockK securityUser: SecurityUser
     ) {
         every { profileService.asSecurityUser(dbUser) } returns securityUser
-        every { userRepository.findByEmail("user@test.org") } returns Optional.of(dbUser)
+        every { userRepository.findByEmail("user@test.org") } returns dbUser
 
         assertThat(testInstance.getOrCreateInactive("user@test.org", "Test User")).isEqualTo(securityUser)
     }

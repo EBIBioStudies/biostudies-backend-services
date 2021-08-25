@@ -50,7 +50,6 @@ import uk.ac.ebi.events.service.EventsPublisherService
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.attribute.PosixFilePermission
-import java.util.Optional
 import kotlin.test.assertNotNull
 
 private const val ACTIVATION_KEY: String = "code"
@@ -79,14 +78,15 @@ internal class SecurityServiceTest(
     inner class Login {
         @Test
         fun `login when user is not found`() {
-            every { userRepository.findByLoginOrEmailAndActive(email, email, true) } returns Optional.empty()
+            every { userRepository.findByLoginOrEmailAndActive(email, email, true) } returns null
 
             assertThrows<LoginException> { testInstance.login(LoginRequest(email, password)) }
         }
 
         @Test
         fun `login when invalid password`() {
-            every { userRepository.findByLoginOrEmailAndActive(email, email, true) } returns Optional.of(simpleUser)
+            every { userRepository.findByLoginOrEmailAndActive(email, email, true) } returns simpleUser
+            every { userRepository.findByLoginOrEmailAndActive(email, email, true) } returns simpleUser
             every { securityUtil.checkPassword(passwordDigest, password) } returns false
 
             assertThrows<LoginException> { testInstance.login(LoginRequest(email, password)) }
@@ -97,7 +97,7 @@ internal class SecurityServiceTest(
             val userToken = "token"
             val dbUser = simpleUser
 
-            every { userRepository.findByLoginOrEmailAndActive(email, email, true) } returns Optional.of(dbUser)
+            every { userRepository.findByLoginOrEmailAndActive(email, email, true) } returns dbUser
             every { securityUtil.checkPassword(passwordDigest, password) } returns true
             every { securityUtil.createToken(dbUser) } returns userToken
 
@@ -131,12 +131,12 @@ internal class SecurityServiceTest(
 
             val securityUser = testInstance.registerUser(registrationRequest)
             val dbUser = savedUserSlot.captured
-            assertThat(dbUser.active).isTrue()
+            assertThat(dbUser.active).isTrue
             assertThat(dbUser.fullName).isEqualTo(name)
             assertThat(dbUser.email).isEqualTo(email)
             assertThat(dbUser.passwordDigest).isEqualTo(PASSWORD_DIGEST)
 
-            assertThat(dbUser.superuser).isFalse()
+            assertThat(dbUser.superuser).isFalse
             assertThat(dbUser.activationKey).isNull()
             assertThat(dbUser.login).isNull()
 
@@ -171,7 +171,7 @@ internal class SecurityServiceTest(
             testInstance.registerUser(SecurityTestEntities.preRegisterRequest)
 
             val user = savedUserSlot.captured
-            assertThat(user.active).isFalse()
+            assertThat(user.active).isFalse
             assertThat(user.activationKey).isEqualTo(ACTIVATION_KEY)
 
             val notification = activationSlot.captured
@@ -194,7 +194,7 @@ internal class SecurityServiceTest(
     inner class Activation {
         @Test
         fun `activate when not pending activation`() {
-            every { userRepository.findByActivationKeyAndActive(ACTIVATION_KEY, false) } returns Optional.empty()
+            every { userRepository.findByActivationKeyAndActive(ACTIVATION_KEY, false) } returns null
 
             assertThrows<UserWithActivationKeyNotFoundException> { testInstance.activate(ACTIVATION_KEY) }
         }
@@ -202,13 +202,13 @@ internal class SecurityServiceTest(
         @Test
         fun `activate when user is found`() {
             val user = simpleUser
-            every { userRepository.findByActivationKeyAndActive(ACTIVATION_KEY, false) } returns Optional.of(user)
+            every { userRepository.findByActivationKeyAndActive(ACTIVATION_KEY, false) } returns user
             every { userRepository.save(any<DbUser>()) } answers { firstArg() }
             every { securityProps.magicDirPath } returns temporaryFolder.createDirectory("users").absolutePath
 
             testInstance.activate(ACTIVATION_KEY)
 
-            assertThat(user.active).isTrue()
+            assertThat(user.active).isTrue
             assertThat(user.activationKey).isNull()
         }
     }
@@ -217,7 +217,7 @@ internal class SecurityServiceTest(
     inner class Retry {
         @Test
         fun `retry pre registration when user not found`() {
-            every { userRepository.findByEmailAndActive(email, false) } returns Optional.empty()
+            every { userRepository.findByEmailAndActive(email, false) } returns null
 
             assertThrows<UserPendingRegistrationException> { testInstance.retryRegistration(retryActivation) }
         }
@@ -229,7 +229,7 @@ internal class SecurityServiceTest(
             val user = simpleUser.apply { active = false }
             val activationUrl = "https://dummy-backend.com/active/1234"
 
-            every { userRepository.findByEmailAndActive(email, false) } returns Optional.of(user)
+            every { userRepository.findByEmailAndActive(email, false) } returns user
             every { securityUtil.newKey() } returns ACTIVATION_KEY
             every { securityUtil.getActivationUrl(instanceKey, path, ACTIVATION_KEY) } returns activationUrl
             every { userRepository.save(capture(savedUserSlot)) } answers { savedUserSlot.captured }
@@ -238,7 +238,7 @@ internal class SecurityServiceTest(
             testInstance.retryRegistration(retryActivation)
 
             val dbUser = savedUserSlot.captured
-            assertThat(dbUser.active).isFalse()
+            assertThat(dbUser.active).isFalse
             assertThat(dbUser.activationKey).isEqualTo(ACTIVATION_KEY)
         }
     }
@@ -249,7 +249,7 @@ internal class SecurityServiceTest(
 
         @Test
         fun `change password when not activate user found`() {
-            every { userRepository.findByActivationKeyAndActive(ACTIVATION_KEY, true) } returns Optional.empty()
+            every { userRepository.findByActivationKeyAndActive(ACTIVATION_KEY, true) } returns null
 
             assertThrows<UserWithActivationKeyNotFoundException> { testInstance.changePassword(ChangePasswordRequest(ACTIVATION_KEY, password)) }
         }
@@ -257,7 +257,7 @@ internal class SecurityServiceTest(
         @Test
         fun `change password`() {
             val passwordDigest = ByteArray(0)
-            every { userRepository.findByActivationKeyAndActive(ACTIVATION_KEY, true) } returns Optional.of(simpleUser)
+            every { userRepository.findByActivationKeyAndActive(ACTIVATION_KEY, true) } returns simpleUser
             every { securityUtil.getPasswordDigest(password) } returns passwordDigest
             every { userRepository.save(any<DbUser>()) } answers { firstArg() }
 
@@ -278,7 +278,7 @@ internal class SecurityServiceTest(
 
         @Test
         fun `reset password when user not found`() {
-            every { userRepository.findByLoginOrEmailAndActive(email, email, true) } returns Optional.empty()
+            every { userRepository.findByLoginOrEmailAndActive(email, email, true) } returns null
 
             assertThrows<UserNotFoundByEmailException> { testInstance.resetPassword(resetPasswordRequest) }
         }
@@ -288,7 +288,7 @@ internal class SecurityServiceTest(
             val resetSlot = slot<SecurityNotification>()
             val activationUrl = "https://dummy-backend.com/active/1234"
 
-            every { userRepository.findByLoginOrEmailAndActive(email, email, true) } returns Optional.of(simpleUser)
+            every { userRepository.findByLoginOrEmailAndActive(email, email, true) } returns simpleUser
             every { securityUtil.newKey() } returns ACTIVATION_KEY
             every { userRepository.save(any<DbUser>()) } answers { firstArg() }
             every { securityUtil.getActivationUrl(instanceKey, path, ACTIVATION_KEY) } returns activationUrl
@@ -311,14 +311,14 @@ internal class SecurityServiceTest(
 
         @Test
         fun `activate by email when user not found`() {
-            every { userRepository.findByEmailAndActive(email, false) } returns Optional.empty()
+            every { userRepository.findByEmailAndActive(email, false) } returns null
 
             assertThrows<UserNotFoundByEmailException> { testInstance.activateByEmail(activateByEmailRequest) }
         }
 
         @Test
         fun `activate by email user without activation key`() {
-            every { userRepository.findByEmailAndActive(email, false) } returns Optional.of(simpleUser)
+            every { userRepository.findByEmailAndActive(email, false) } returns simpleUser
 
             assertThrows<ActKeyNotFoundException> { testInstance.activateByEmail(activateByEmailRequest) }
         }
@@ -329,7 +329,7 @@ internal class SecurityServiceTest(
             val activationUrl = "https://dummy-backend.com/active/1234"
             val user = simpleUser.apply { activationKey = "activation-key" }
 
-            every { userRepository.findByEmailAndActive(email, false) } returns Optional.of(user)
+            every { userRepository.findByEmailAndActive(email, false) } returns user
             every { securityUtil.getActivationUrl(instanceKey, path, "activation-key") } returns activationUrl
             every { eventsPublisherService.securityNotification(capture(activateByEmailSlot)) } answers { nothing }
 
@@ -352,7 +352,7 @@ internal class SecurityServiceTest(
         fun `activate with invalid activation key`() {
             val request = ChangePasswordRequest("key", "password")
 
-            every { userRepository.findByActivationKeyAndActive("key", false) } returns Optional.empty()
+            every { userRepository.findByActivationKeyAndActive("key", false) } returns null
 
             assertThrows<UserWithActivationKeyNotFoundException> { testInstance.activateAndSetupPassword(request) }
         }
@@ -364,8 +364,8 @@ internal class SecurityServiceTest(
             val request = ChangePasswordRequest("key", "password")
 
             every { userRepository.save(capture(userSlots)) } returns user
-            every { userRepository.findByActivationKeyAndActive("key", true) } returns Optional.of(user)
-            every { userRepository.findByActivationKeyAndActive("key", false) } returns Optional.of(user)
+            every { userRepository.findByActivationKeyAndActive("key", true) } returns user
+            every { userRepository.findByActivationKeyAndActive("key", false) } returns user
             every { securityUtil.getPasswordDigest("password") } returns "diggested-password".toByteArray()
             every { securityProps.magicDirPath } returns temporaryFolder.createDirectory("users").absolutePath
 
