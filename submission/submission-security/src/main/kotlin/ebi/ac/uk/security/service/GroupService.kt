@@ -1,13 +1,13 @@
 package ebi.ac.uk.security.service
 
-import ebi.ac.uk.security.exception.GroupsGroupDoesNotExistsException
-import ebi.ac.uk.security.exception.GroupsUserDoesNotExistsException
 import ac.uk.ebi.biostd.persistence.model.UserGroup
 import ac.uk.ebi.biostd.persistence.model.ext.addGroup
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserGroupDataRepository
 import ebi.ac.uk.io.FileUtils
 import ebi.ac.uk.io.RWXR_XR_X
+import ebi.ac.uk.security.exception.GroupsGroupDoesNotExistsException
+import ebi.ac.uk.security.exception.GroupsUserDoesNotExistsException
 import ebi.ac.uk.security.integration.components.IGroupService
 import java.nio.file.Paths
 import java.util.UUID
@@ -25,9 +25,7 @@ class GroupService(
     }
 
     override fun addUserInGroup(groupName: String, userEmail: String) {
-        val group = requireNotNull(groupRepository.findByName(groupName)) {
-            throw GroupsGroupDoesNotExistsException(groupName)
-        }
+        val group = groupRepository.findByName(groupName) ?: throw GroupsGroupDoesNotExistsException(groupName)
         val user = userRepository.findByEmail(userEmail)
 
         user.ifPresent { userRepository.save(it.addGroup(group)) }
