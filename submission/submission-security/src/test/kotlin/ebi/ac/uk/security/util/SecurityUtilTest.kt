@@ -1,5 +1,6 @@
 package ebi.ac.uk.security.util
 
+import ac.uk.ebi.biostd.common.properties.InstanceKeys
 import ac.uk.ebi.biostd.persistence.model.SecurityToken
 import ac.uk.ebi.biostd.persistence.repositories.TokenDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
@@ -23,24 +24,42 @@ import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import java.util.Optional
 
-private const val tokenHash = "ABC123"
+private const val TOKEN_HASH = "ABC123"
+
+private const val DEV_KEY = "dev-key"
+private const val BETA_KEY = "beta-key"
+private const val PROD_KEY = "prod-key"
 
 @ExtendWith(MockKExtension::class)
 class SecurityUtilTest(
     @MockK val userRepository: UserDataRepository,
     @MockK val tokenRepository: TokenDataRepository
 ) {
+    private val instanceKeys = InstanceKeys().apply {
+        dev = DEV_KEY
+        beta = BETA_KEY
+        prod = PROD_KEY
+    }
+
     private val testInstance =
-        SecurityUtil(Jwts.parser(), JacksonFactory.createMapper(), tokenRepository, userRepository, tokenHash)
+        SecurityUtil(
+            Jwts.parser(),
+            JacksonFactory.createMapper(),
+            tokenRepository,
+            userRepository,
+            TOKEN_HASH,
+            instanceKeys
+        )
 
     @Nested
     inner class TokenCases {
         @Test
         fun `token can be generated and converted back`() {
-            every { userRepository.getById(simpleUser.id) } returns simpleUser
+            val user = simpleUser
+            every { userRepository.getById(user.id) } returns user
 
-            val token = testInstance.createToken(simpleUser)
-            assertThat(testInstance.fromToken(token)).contains(simpleUser)
+            val token = testInstance.createToken(user)
+            assertThat(testInstance.fromToken(token)).contains(user)
         }
 
         @Test
@@ -50,7 +69,15 @@ class SecurityUtilTest(
 
         @Test
         fun `from token when invalid signature`() {
-            val securityUtil = SecurityUtil(Jwts.parser(), JacksonFactory.createMapper(), tokenRepository, userRepository, "another_hash")
+            val securityUtil =
+                SecurityUtil(
+                    Jwts.parser(),
+                    JacksonFactory.createMapper(),
+                    tokenRepository,
+                    userRepository,
+                    "another_hash",
+                    instanceKeys
+                )
 
             assertThat(testInstance.fromToken(securityUtil.createToken(simpleUser))).isEmpty()
         }
@@ -63,7 +90,7 @@ class SecurityUtilTest(
             val password = "abc123"
             val passwordDigest = testInstance.getPasswordDigest(password)
 
-            assertThat(testInstance.checkPassword(passwordDigest, password)).isTrue()
+            assertThat(testInstance.checkPassword(passwordDigest, password)).isTrue
         }
 
         @Test
@@ -71,7 +98,7 @@ class SecurityUtilTest(
             val superUserToken = testInstance.createToken(adminUser)
             every { userRepository.getById(SecurityTestEntities.adminId) } returns adminUser
 
-            assertThat(testInstance.checkPassword(ByteArray(1), superUserToken)).isTrue()
+            assertThat(testInstance.checkPassword(ByteArray(1), superUserToken)).isTrue
         }
 
         @Test
@@ -79,12 +106,12 @@ class SecurityUtilTest(
             val userToken = testInstance.createToken(simpleUser)
             every { userRepository.getById(SecurityTestEntities.userId) } returns simpleUser
 
-            assertThat(testInstance.checkPassword(ByteArray(1), userToken)).isFalse()
+            assertThat(testInstance.checkPassword(ByteArray(1), userToken)).isFalse
         }
 
         @Test
         fun getPasswordDigest() {
-            assertThat(testInstance.getPasswordDigest("abc")).isNotEmpty()
+            assertThat(testInstance.getPasswordDigest("abc")).isNotEmpty
         }
     }
 
@@ -102,11 +129,12 @@ class SecurityUtilTest(
 
         @Test
         fun `check when exist`() {
-            val token = testInstance.createToken(simpleUser)
-            every { userRepository.getById(simpleUser.id) } returns simpleUser
+            val user = simpleUser
+            val token = testInstance.createToken(user)
+            every { userRepository.getById(user.id) } returns user
             every { tokenRepository.findById(token) } returns Optional.empty()
 
-            assertThat(testInstance.checkToken(token)).contains(simpleUser)
+            assertThat(testInstance.checkToken(token)).contains(user)
         }
     }
 

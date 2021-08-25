@@ -1,6 +1,6 @@
 post:
   summary: Activate User By Email
-  description: Activates a newly created user and triggers the process to setup a new password.
+  description: Triggers the process to setup a new password and activate a user.
 
   tags:
     - Security

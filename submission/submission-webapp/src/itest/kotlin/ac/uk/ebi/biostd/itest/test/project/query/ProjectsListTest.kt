@@ -13,8 +13,8 @@ import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ebi.ac.uk.asserts.assertThat
-import ebi.ac.uk.dsl.line
-import ebi.ac.uk.dsl.tsv
+import ebi.ac.uk.dsl.tsv.line
+import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.util.collections.second
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension

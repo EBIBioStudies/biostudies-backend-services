@@ -4,7 +4,6 @@ internal data class PermissionRequest(
     val server: String,
     val user: String,
     val password: String,
-    val onBehalf: String?,
     val accessType: String,
     val targetUser: String,
     val accessTagName: String

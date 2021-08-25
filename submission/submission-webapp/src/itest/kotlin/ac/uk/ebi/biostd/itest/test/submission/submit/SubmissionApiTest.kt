@@ -20,10 +20,10 @@ import ac.uk.ebi.biostd.submission.ext.getSimpleByAccNo
 import ebi.ac.uk.api.dto.UserRegistration
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.file
-import ebi.ac.uk.dsl.line
+import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.section
 import ebi.ac.uk.dsl.submission
-import ebi.ac.uk.dsl.tsv
+import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.model.extensions.rootPath
 import ebi.ac.uk.model.extensions.title
 import ebi.ac.uk.test.createFile

@@ -15,6 +15,7 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 import org.springframework.core.io.ResourceLoader
 import org.springframework.web.client.RestTemplate
+import uk.ac.ebi.extended.serialization.integration.ExtSerializationConfig
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 
 @Configuration
@@ -58,7 +59,7 @@ class Services {
         NotificationsSender(restTemplate, applicationProperties.notifications.slackUrl)
 
     @Bean
-    fun extSerializationService(): ExtSerializationService = ExtSerializationService()
+    fun extSerializationService(): ExtSerializationService = ExtSerializationConfig.extSerializationService()
 
     @Bean
     fun rtNotificationService(notificationConfig: NotificationConfig) = notificationConfig.rtNotificationService()

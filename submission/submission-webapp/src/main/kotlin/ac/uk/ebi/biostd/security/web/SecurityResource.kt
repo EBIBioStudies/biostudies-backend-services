@@ -9,6 +9,7 @@ import ebi.ac.uk.api.security.RegisterRequest
 import ebi.ac.uk.api.security.ResetPasswordRequest
 import ebi.ac.uk.api.security.RetryActivationRequest
 import ebi.ac.uk.api.security.UserProfile
+import ebi.ac.uk.model.User
 import ebi.ac.uk.model.constants.APPLICATION_JSON
 import ebi.ac.uk.security.integration.components.ISecurityQueryService
 import ebi.ac.uk.security.integration.components.ISecurityService
@@ -30,6 +31,7 @@ import javax.validation.Valid
 @Controller
 @Validated
 @RequestMapping("/auth", produces = [APPLICATION_JSON])
+@Suppress("TooManyFunctions")
 class SecurityResource(
     private val securityMapper: SecurityMapper,
     private val securityService: ISecurityService,
@@ -73,7 +75,13 @@ class SecurityResource(
 
     @PostMapping(value = ["/password/change"])
     @ResponseBody
-    fun changePassword(@RequestBody request: ChangePasswordRequest) = securityService.changePassword(request)
+    fun changePassword(@RequestBody request: ChangePasswordRequest): User = securityService.changePassword(request)
+
+    @PostMapping(value = ["/password/setup"])
+    @ResponseBody
+    fun setUpPassword(
+        @RequestBody request: ChangePasswordRequest
+    ): User = securityService.activateAndSetupPassword(request)
 
     @GetMapping(value = ["/check", "/profile"])
     @PreAuthorize("isAuthenticated()")

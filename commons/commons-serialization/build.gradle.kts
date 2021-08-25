@@ -18,6 +18,8 @@ dependencies {
     api(project(":commons:commons-serialization-util"))
     api(project(":commons:commons-test"))
     api(project(":commons:commons-util"))
+    api(project(":commons:commons-tsv-util"))
+    api(project(":commons:commons-json-util"))
 
     implementation(KotlinReflect)
     implementation(KotlinStdLib)

@@ -55,8 +55,10 @@ class SecurityModuleConfig(
     }
 
     private val captchaVerifier by lazy { CaptchaVerifier(RestTemplate(), props) }
-    private val securityUtil by lazy { SecurityUtil(jwtParser, objectMapper, tokenRepo, userRepo, props.tokenHash) }
     private val objectMapper by lazy { JacksonFactory.createMapper() }
     private val jwtParser by lazy { Jwts.parser()!! }
     private val profileService by lazy { ProfileService(Paths.get(props.filesDirPath)) }
+    private val securityUtil by lazy {
+        SecurityUtil(jwtParser, objectMapper, tokenRepo, userRepo, props.tokenHash, props.instanceKeys)
+    }
 }

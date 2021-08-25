@@ -6,6 +6,7 @@ import ebi.ac.uk.api.security.LoginRequest
 import ebi.ac.uk.api.security.RegisterRequest
 import ebi.ac.uk.api.security.ResetPasswordRequest
 import ebi.ac.uk.api.security.RetryActivationRequest
+import ebi.ac.uk.model.User
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import ebi.ac.uk.security.integration.model.api.UserInfo
 
@@ -20,9 +21,11 @@ interface ISecurityService {
 
     fun activateByEmail(request: ActivateByEmailRequest)
 
+    fun activateAndSetupPassword(request: ChangePasswordRequest): User
+
     fun retryRegistration(request: RetryActivationRequest)
 
-    fun changePassword(request: ChangePasswordRequest)
+    fun changePassword(request: ChangePasswordRequest): User
 
     fun resetPassword(request: ResetPasswordRequest)
 
