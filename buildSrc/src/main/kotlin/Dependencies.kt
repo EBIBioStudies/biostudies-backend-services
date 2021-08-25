@@ -207,6 +207,8 @@ object SpringBootDependencies {
 }
 
 object Projects {
+    const val JsonLibrary = ":commons:commons-json-util"
+    const val TsvLibrary = ":commons:commons-tsv-util"
     const val BioWebClient = ":client:bio-webclient"
     const val CommonsUtil = ":commons:commons-util"
     const val CommonsBio = ":commons:commons-bio"

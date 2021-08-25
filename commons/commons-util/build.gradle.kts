@@ -9,6 +9,7 @@ import Dependencies.PoiOxml
 import Dependencies.SpringWeb
 import Dependencies.XlsxStreamer
 import Projects.CommonsTest
+import Projects.TsvLibrary
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
 import TestDependencies.XmlUnitAssertJ
@@ -25,7 +26,7 @@ dependencies {
     implementation(PoiOxml)
     implementation(CommonsLang3)
     implementation(SpringWeb)
-    api(project(":commons:commons-tsv-util"))
+    api(project(TsvLibrary))
 
     testApi(project(CommonsTest))
     BaseTestCompileDependencies.forEach { testImplementation(it) }

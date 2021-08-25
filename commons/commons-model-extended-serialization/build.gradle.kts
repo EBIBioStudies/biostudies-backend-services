@@ -6,12 +6,14 @@ import Dependencies.KotlinStdLib
 import Projects.CommonsModelExtended
 import Projects.CommonsSerializationUtil
 import Projects.CommonsTest
+import Projects.JsonLibrary
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
 
 dependencies {
     api(project(CommonsModelExtended))
     api(project(CommonsSerializationUtil))
+    api(project(JsonLibrary))
 
     implementation(Arrow)
     implementation(JacksonKotlin)
