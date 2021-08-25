@@ -26,4 +26,3 @@ fun NfsFileProcessingConfig.nfsMove(extFile: NfsFile): NfsFile {
     if (target.exists().not()) moveFile(extFile.file, target, filePermissions, dirPermissions)
     return extFile.copy(file = subFolder.resolve(extFile.fileName))
 }
-
