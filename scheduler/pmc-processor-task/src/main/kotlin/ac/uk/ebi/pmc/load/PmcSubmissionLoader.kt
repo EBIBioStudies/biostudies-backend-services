@@ -36,16 +36,23 @@ class PmcSubmissionLoader(
      * @param file submissions load file data including content and name.
      */
     suspend fun processFile(file: FileSpec, processedFolder: File) = withContext(Dispatchers.Default) {
-        logger.info { "precessing file ${file.name}" }
+        logger.info { "processing file ${file.name}" }
         val receiveChannel = launchProducer(file)
         (1..WORKERS).map { launchProcessor(receiveChannel) }.joinAll()
 
         inputFilesDocService.reportProcessed(file)
-        moveFile(file, processedFolder.resolve(file.originalFile.name))
+        moveFile(file.originalFile, processedFolder.resolve(file.originalFile.name))
     }
-    private fun moveFile(file: FileSpec, processed: File) {
-        file.originalFile.copyTo(processed, overwrite = true)
-        file.originalFile.delete()
+
+    suspend fun processCorruptedFile(pair: Pair<File, Throwable>, failedFolder: File) {
+        logger.info { "processing file ${pair.first.name}" }
+        inputFilesDocService.reportFailed(pair.first, pair.second.stackTraceToString())
+        moveFile(pair.first, failedFolder.resolve(pair.first.name))
+    }
+
+    private fun moveFile(file: File, processed: File) {
+        file.copyTo(processed, overwrite = true)
+        file.delete()
     }
 
     private fun CoroutineScope.launchProducer(file: FileSpec) = produce {
