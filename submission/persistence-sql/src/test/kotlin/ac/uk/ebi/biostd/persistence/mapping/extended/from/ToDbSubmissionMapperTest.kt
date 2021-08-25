@@ -20,7 +20,6 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
-import java.util.Optional
 
 @ExtendWith(MockKExtension::class)
 internal class ToDbSubmissionMapperTest(
@@ -39,8 +38,8 @@ internal class ToDbSubmissionMapperTest(
     ) {
         every { accessTagsRepository.getByName(extCollection.accNo) } returns accessTag
         every { tagsRepository.findByClassifierAndName(extTag.name, extTag.value) } returns tag
-        every { userRepository.findByEmail(OWNER) } returns Optional.of(user)
-        every { userRepository.findByEmail(SUBMITTER) } returns Optional.of(submitter)
+        every { userRepository.findByEmail(OWNER) } returns user
+        every { userRepository.findByEmail(SUBMITTER) } returns submitter
 
         val dbSubmission = testInstance.toSubmissionDb(extSubmission)
 
@@ -51,8 +50,8 @@ internal class ToDbSubmissionMapperTest(
     fun `non existing owner`(
         @MockK submitter: DbUser
     ) {
-        every { userRepository.findByEmail(OWNER) } returns Optional.empty()
-        every { userRepository.findByEmail(SUBMITTER) } returns Optional.of(submitter)
+        every { userRepository.findByEmail(OWNER) } returns null
+        every { userRepository.findByEmail(SUBMITTER) } returns submitter
 
         val exception = assertThrows<UserNotFoundException> { testInstance.toSubmissionDb(extSubmission) }
         assertThat(exception.message).isEqualTo("The user with email '$OWNER' could not be found")
@@ -62,8 +61,8 @@ internal class ToDbSubmissionMapperTest(
     fun `non existing submitter`(
         @MockK user: DbUser
     ) {
-        every { userRepository.findByEmail(OWNER) } returns Optional.of(user)
-        every { userRepository.findByEmail(SUBMITTER) } returns Optional.empty()
+        every { userRepository.findByEmail(OWNER) } returns user
+        every { userRepository.findByEmail(SUBMITTER) } returns null
 
         val exception = assertThrows<UserNotFoundException> { testInstance.toSubmissionDb(extSubmission) }
         assertThat(exception.message).isEqualTo("The user with email '$SUBMITTER' could not be found")

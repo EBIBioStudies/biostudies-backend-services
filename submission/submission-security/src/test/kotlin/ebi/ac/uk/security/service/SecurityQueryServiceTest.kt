@@ -92,7 +92,7 @@ class SecurityQueryServiceTest(
         @MockK securityUser: SecurityUser
     ) {
         every { profileService.asSecurityUser(dbUser) } returns securityUser
-        every { userRepository.findByEmail("user@test.org") } returns Optional.of(dbUser)
+        every { userRepository.findByEmail("user@test.org") } returns dbUser
 
         assertThat(testInstance.getOrCreateInactive("user@test.org", "Test User")).isEqualTo(securityUser)
     }
@@ -106,7 +106,7 @@ class SecurityQueryServiceTest(
         every { securityUtil.newKey() } returns "a-new-key"
         every { userRepository.save(capture(dbUserSlot)) } returns dbUser
         every { profileService.asSecurityUser(dbUser) } returns securityUser
-        every { userRepository.findByEmail("user@test.org") } returns Optional.empty()
+        every { userRepository.findByEmail("user@test.org") } returns null
 
         assertThat(testInstance.getOrCreateInactive("user@test.org", "Test User")).isEqualTo(securityUser)
         verifyInactiveUserCreation(dbUserSlot.captured)
@@ -118,7 +118,7 @@ class SecurityQueryServiceTest(
         @MockK securityUser: SecurityUser
     ) {
         every { profileService.asSecurityUser(dbUser) } returns securityUser
-        every { userRepository.findByEmail("user@test.org") } returns Optional.of(dbUser)
+        every { userRepository.findByEmail("user@test.org") } returns dbUser
 
         assertThat(testInstance.getOrCreateInactive("user@test.org", "Test User")).isEqualTo(securityUser)
     }

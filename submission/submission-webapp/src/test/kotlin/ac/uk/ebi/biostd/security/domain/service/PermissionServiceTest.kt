@@ -19,7 +19,6 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
-import java.util.Optional
 
 @ExtendWith(MockKExtension::class)
 class PermissionServiceTest(
@@ -31,7 +30,7 @@ class PermissionServiceTest(
 
     @Test
     fun `give permission to a user`() {
-        every { userRepository.findByEmail(email) } returns Optional.of(dbUser)
+        every { userRepository.findByEmail(email) } returns dbUser
         every { tagRepository.findByName(accessTag) } returns dbAccessTag
         every { permissionRepo.existsByUserEmailAndAccessTypeAndAccessTagName(email, READ, accessTag) } returns false
         every { permissionRepo.save(capture(dbAccessPermissionSlot)) } returns mockk()
@@ -44,7 +43,7 @@ class PermissionServiceTest(
 
     @Test
     fun `give permission to a user when already exists`() {
-        every { userRepository.findByEmail(email) } returns Optional.of(dbUser)
+        every { userRepository.findByEmail(email) } returns dbUser
         every { tagRepository.findByName(accessTag) } returns dbAccessTag
         every { permissionRepo.existsByUserEmailAndAccessTypeAndAccessTagName(email, READ, accessTag) } returns true
 
@@ -53,7 +52,7 @@ class PermissionServiceTest(
 
     @Test
     fun `when not existing user`() {
-        every { userRepository.findByEmail(email) } returns Optional.empty()
+        every { userRepository.findByEmail(email) } returns null
 
         assertThrows<PermissionsUserDoesNotExistsException> {
             testInstance.givePermissionToUser(accessType, email, accessTag)
@@ -62,7 +61,7 @@ class PermissionServiceTest(
 
     @Test
     fun `when not existing tag`() {
-        every { userRepository.findByEmail(email) } returns Optional.of(dbUser)
+        every { userRepository.findByEmail(email) } returns dbUser
         every { tagRepository.findByName(accessTag) } returns null
 
         assertThrows<PermissionsAccessTagDoesNotExistsException> {

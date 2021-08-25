@@ -27,10 +27,10 @@ class SecurityQueryService(
             .getOrElse { throw UserNotFoundByTokenException() }
             .let { profileService.getUserProfile(it, authToken) }
 
-    override fun getOrCreateInactive(email: String, username: String): SecurityUser =
-        userRepository.findByEmail(email)
-            .orElseGet { createUserInactive(email, username) }
-            .let { profileService.asSecurityUser(it) }
+    override fun getOrCreateInactive(email: String, username: String): SecurityUser {
+        val dbUser = userRepository.findByEmail(email) ?: createUserInactive(email, username)
+        return dbUser.let { profileService.asSecurityUser(it) }
+    }
 
     private fun createUserInactive(email: String, username: String): DbUser {
         val user = DbUser(

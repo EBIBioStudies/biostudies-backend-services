@@ -65,5 +65,5 @@ internal class ToDbSubmissionMapper(
     private fun toTags(tags: List<ExtTag>) =
         tags.mapTo(mutableSetOf()) { tagsRefRepository.findByClassifierAndName(it.name, it.value) }
 
-    private fun getUser(email: String) = userRepository.findByEmail(email).orElseThrow { UserNotFoundException(email) }
+    private fun getUser(email: String) = userRepository.findByEmail(email) ?: throw UserNotFoundException(email)
 }

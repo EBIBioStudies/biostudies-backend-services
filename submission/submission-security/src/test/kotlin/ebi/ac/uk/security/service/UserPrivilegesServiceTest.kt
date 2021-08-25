@@ -16,7 +16,6 @@ import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
-import java.util.Optional
 import ac.uk.ebi.biostd.persistence.model.DbUser as UserDB
 
 @ExtendWith(MockKExtension::class)
@@ -124,10 +123,10 @@ class UserPrivilegesServiceTest(
         every { otherAuthor.id } returns 125
         every { otherAuthor.superuser } returns false
 
-        every { userRepository.findByEmail("empty@mail.com") } returns Optional.empty()
-        every { userRepository.findByEmail("author@mail.com") } returns Optional.of(author)
-        every { userRepository.findByEmail("otherAuthor@mail.com") } returns Optional.of(otherAuthor)
-        every { userRepository.findByEmail("superuser@mail.com") } returns Optional.of(superuser)
+        every { userRepository.findByEmail("empty@mail.com") } returns null
+        every { userRepository.findByEmail("author@mail.com") } returns author
+        every { userRepository.findByEmail("otherAuthor@mail.com") } returns otherAuthor
+        every { userRepository.findByEmail("superuser@mail.com") } returns superuser
     }
 
     private fun initSubmissionQueries() {

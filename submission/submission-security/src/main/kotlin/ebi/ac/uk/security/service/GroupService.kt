@@ -26,10 +26,8 @@ class GroupService(
 
     override fun addUserInGroup(groupName: String, userEmail: String) {
         val group = groupRepository.findByName(groupName) ?: throw GroupsGroupDoesNotExistsException(groupName)
-        val user = userRepository.findByEmail(userEmail)
-
-        user.ifPresent { userRepository.save(it.addGroup(group)) }
-        user.orElseThrow { throw GroupsUserDoesNotExistsException(userEmail) }
+        val user = userRepository.findByEmail(userEmail) ?: throw GroupsUserDoesNotExistsException(userEmail)
+        userRepository.save(user.addGroup(group))
     }
 
     private fun groupMagicFolder(it: UserGroup) = Paths.get("$filesDirPath/${magicPath(it.secret, it.id, "b")}")
