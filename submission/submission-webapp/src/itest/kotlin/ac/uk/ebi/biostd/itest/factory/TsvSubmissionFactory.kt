@@ -1,8 +1,8 @@
 package ac.uk.ebi.biostd.itest.factory
 
-import ebi.ac.uk.dsl.Tsv
-import ebi.ac.uk.dsl.line
-import ebi.ac.uk.dsl.tsv
+import ebi.ac.uk.dsl.tsv.Tsv
+import ebi.ac.uk.dsl.tsv.line
+import ebi.ac.uk.dsl.tsv.tsv
 import org.assertj.core.api.Assertions.assertThat
 
 fun allInOneSubmissionTsv(accNo: String) = tsv {

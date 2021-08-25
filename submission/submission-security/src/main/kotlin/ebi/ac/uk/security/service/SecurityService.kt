@@ -10,7 +10,6 @@ import ebi.ac.uk.api.security.RegisterRequest
 import ebi.ac.uk.api.security.ResetPasswordRequest
 import ebi.ac.uk.api.security.RetryActivationRequest
 import ebi.ac.uk.extended.events.SecurityNotification
-import ebi.ac.uk.extended.events.SecurityNotificationType
 import ebi.ac.uk.extended.events.SecurityNotificationType.ACTIVATION
 import ebi.ac.uk.extended.events.SecurityNotificationType.ACTIVATION_BY_EMAIL
 import ebi.ac.uk.extended.events.SecurityNotificationType.PASSWORD_RESET
@@ -19,6 +18,7 @@ import ebi.ac.uk.io.RWXRWX___
 import ebi.ac.uk.io.RWX__X___
 import ebi.ac.uk.model.User
 import ebi.ac.uk.security.integration.components.ISecurityService
+import ebi.ac.uk.security.integration.exception.ActKeyNotFoundException
 import ebi.ac.uk.security.integration.exception.LoginException
 import ebi.ac.uk.security.integration.exception.UserAlreadyRegister
 import ebi.ac.uk.security.integration.exception.UserNotFoundByEmailException
@@ -27,12 +27,14 @@ import ebi.ac.uk.security.integration.exception.UserWithActivationKeyNotFoundExc
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import ebi.ac.uk.security.integration.model.api.UserInfo
 import ebi.ac.uk.security.util.SecurityUtil
+import org.springframework.transaction.annotation.Transactional
 import uk.ac.ebi.events.service.EventsPublisherService
 import java.nio.file.Path
 import java.nio.file.Paths
 
 @Suppress("TooManyFunctions")
-class SecurityService(
+@Transactional
+open class SecurityService(
     private val userRepository: UserDataRepository,
     private val securityUtil: SecurityUtil,
     private val securityProps: SecurityProperties,
@@ -78,13 +80,15 @@ class SecurityService(
     }
 
     override fun activateByEmail(request: ActivateByEmailRequest) {
-        val email = request.email
-        userRepository
+        val (email, instanceKey, path) = request
+        val user = userRepository
             .findByEmailAndActive(email, false)
-            .map(this::activate)
             .orElseThrow { UserNotFoundByEmailException(email) }
 
-        resetNotification(email, request.instanceKey, request.path, ACTIVATION_BY_EMAIL)
+        val activationKey = user.activationKey ?: throw ActKeyNotFoundException()
+        val activationUrl = securityUtil.getActivationUrl(instanceKey, path, activationKey)
+        val notification = SecurityNotification(email, user.fullName, activationKey, activationUrl, ACTIVATION_BY_EMAIL)
+        eventsPublisherService.securityNotification(notification)
     }
 
     override fun retryRegistration(request: RetryActivationRequest) {
@@ -93,24 +97,38 @@ class SecurityService(
         register(user, request.instanceKey, request.path)
     }
 
+    override fun activateAndSetupPassword(request: ChangePasswordRequest): User {
+        val user = userRepository
+            .findByActivationKeyAndActive(request.activationKey, false)
+            .orElseThrow(::UserWithActivationKeyNotFoundException)
+
+        activate(user)
+        return setPassword(user, request.password)
+    }
+
     override fun changePassword(request: ChangePasswordRequest): User {
         val user = userRepository
             .findByActivationKeyAndActive(request.activationKey, true)
             .orElseThrow { UserWithActivationKeyNotFoundException() }
 
         user.activationKey = null
-        user.passwordDigest = securityUtil.getPasswordDigest(request.password)
+
+        return setPassword(user, request.password)
+    }
+
+    override fun resetPassword(request: ResetPasswordRequest) {
+        if (securityProps.checkCaptcha) captchaVerifier.verifyCaptcha(request.captcha)
+        resetNotification(request.email, request.instanceKey, request.path)
+    }
+
+    private fun setPassword(user: DbUser, password: String): User {
+        user.passwordDigest = securityUtil.getPasswordDigest(password)
 
         val updatedPassword = userRepository.save(user)
         return profileService.asSecurityUser(updatedPassword).asUser()
     }
 
-    override fun resetPassword(request: ResetPasswordRequest) {
-        if (securityProps.checkCaptcha) captchaVerifier.verifyCaptcha(request.captcha)
-        resetNotification(request.email, request.instanceKey, request.path, PASSWORD_RESET)
-    }
-
-    private fun resetNotification(email: String, instanceKey: String, path: String, type: SecurityNotificationType) {
+    private fun resetNotification(email: String, instanceKey: String, path: String) {
         val user = userRepository
             .findByLoginOrEmailAndActive(email, email, true)
             .orElseThrow { UserNotFoundByEmailException(email) }
@@ -118,7 +136,7 @@ class SecurityService(
         userRepository.save(user.apply { activationKey = key })
 
         val resetUrl = securityUtil.getActivationUrl(instanceKey, path, key)
-        val resetNotification = SecurityNotification(user.email, user.fullName, resetUrl, type)
+        val resetNotification = SecurityNotification(user.email, user.fullName, key, resetUrl, PASSWORD_RESET)
 
         eventsPublisherService.securityNotification(resetNotification)
     }
@@ -138,7 +156,7 @@ class SecurityService(
         val key = securityUtil.newKey()
         val saved = userRepository.save(user.apply { user.activationKey = key })
         val activationUrl = securityUtil.getActivationUrl(instanceKey, activationPath, key)
-        val notification = SecurityNotification(saved.email, saved.fullName, activationUrl, ACTIVATION)
+        val notification = SecurityNotification(saved.email, saved.fullName, key, activationUrl, ACTIVATION)
         eventsPublisherService.securityNotification(notification)
         return saved
     }

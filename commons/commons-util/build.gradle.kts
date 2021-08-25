@@ -25,6 +25,7 @@ dependencies {
     implementation(PoiOxml)
     implementation(CommonsLang3)
     implementation(SpringWeb)
+    api(project(":commons:commons-tsv-util"))
 
     testApi(project(CommonsTest))
     BaseTestCompileDependencies.forEach { testImplementation(it) }

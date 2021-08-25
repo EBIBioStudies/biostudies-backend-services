@@ -5,8 +5,8 @@ import ac.uk.ebi.biostd.tsv.serialization.ACC_NO_KEY
 import ac.uk.ebi.biostd.tsv.serialization.ROOT_PATH_KEY
 import ac.uk.ebi.biostd.tsv.serialization.TITLE_KEY
 import ac.uk.ebi.biostd.tsv.serialization.TsvToStringSerializer
-import ebi.ac.uk.dsl.line
-import ebi.ac.uk.dsl.tsv
+import ebi.ac.uk.dsl.tsv.line
+import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.model.constants.SubFields
 import ebi.ac.uk.model.extensions.rootPath
 import ebi.ac.uk.model.extensions.title

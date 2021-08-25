@@ -42,6 +42,10 @@ internal class FireClient(
         return template.put("$FIRE_OBJECTS_URL/$fireOid/firePath", HttpEntity(null, headers))
     }
 
+    override fun unsetPath(fireOid: String) {
+        template.delete("$FIRE_OBJECTS_URL/$fireOid/firePath")
+    }
+
     override fun downloadByPath(path: String): File {
         val tmpFile = File(tmpDirPath, path.substringAfterLast("/"))
         val fileContent = template.getForObject<ByteArray>("$FIRE_OBJECTS_URL/blob/path/$path")
@@ -49,6 +53,9 @@ internal class FireClient(
 
         return tmpFile
     }
+
+    override fun findAllInPath(path: String): List<FireFile> =
+        template.getForObject("$FIRE_OBJECTS_URL/entries/path/$path")
 
     override fun publish(fireOid: String) {
         template.put("$FIRE_OBJECTS_URL/$fireOid/publish", null)

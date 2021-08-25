@@ -4,7 +4,8 @@ import Dependencies.KotlinReflect
 import Dependencies.KotlinStdLib
 import Dependencies.Log4J
 import Dependencies.SpringWeb
-import Projects.ClientBioWebClient
+import Projects.BioWebClient
+import Projects.CommonsModelExtendedSerialization
 import Projects.CommonsUtil
 import TestDependencies.AssertJ
 import TestDependencies.Junit
@@ -18,8 +19,9 @@ plugins {
 }
 
 dependencies {
+    api(project(BioWebClient))
+    api(project(CommonsModelExtendedSerialization))
     api(project(CommonsUtil))
-    api(project(ClientBioWebClient))
 
     implementation(CliKt)
     implementation(Log4J)

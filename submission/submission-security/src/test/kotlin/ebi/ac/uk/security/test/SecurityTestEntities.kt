@@ -5,13 +5,8 @@ import ebi.ac.uk.api.security.ActivateByEmailRequest
 import ebi.ac.uk.api.security.RegisterRequest
 import ebi.ac.uk.api.security.ResetPasswordRequest
 import ebi.ac.uk.api.security.RetryActivationRequest
-import ebi.ac.uk.security.integration.model.api.MagicFolder
-import ebi.ac.uk.security.integration.model.api.SecurityUser
-import java.nio.file.Path
-import java.nio.file.Paths
 
 internal class SecurityTestEntities {
-
     companion object {
         const val userId = 55L
         const val name = "BioStudies Developer"
@@ -20,10 +15,6 @@ internal class SecurityTestEntities {
         const val instanceKey = "12345"
         const val path = "/activate_url_path"
         const val captcha = "captcha-key"
-
-        val magicFolderPath: Path = Paths.get("/abc/user-folder")
-        val magicFolderRelativePath: Path = Paths.get("user-folder")
-
         const val adminId = 70L
 
         val registrationRequest: RegisterRequest
@@ -62,30 +53,15 @@ internal class SecurityTestEntities {
             )
 
         const val secret = "secret"
-        val passwordDiggest = ByteArray(0)
+        val passwordDigest = ByteArray(0)
 
-        val simpleUser: DbUser by lazy {
-            DbUser(
+        val simpleUser: DbUser
+            get() = DbUser(
                 id = userId,
                 email = email,
                 fullName = name,
                 secret = secret,
-                passwordDigest = passwordDiggest
-            )
-        }
-
-        fun securityUser(): SecurityUser =
-            SecurityUser(
-                id = userId,
-                email = email,
-                login = null,
-                fullName = name,
-                secret = secret,
-                permissions = emptySet(),
-                groupsFolders = emptyList(),
-                magicFolder = MagicFolder(magicFolderPath, magicFolderRelativePath),
-                superuser = false,
-                notificationsEnabled = false
+                passwordDigest = passwordDigest
             )
 
         val adminUser: DbUser by lazy {
@@ -94,7 +70,7 @@ internal class SecurityTestEntities {
                 email = email,
                 fullName = name,
                 secret = secret,
-                passwordDigest = passwordDiggest,
+                passwordDigest = passwordDigest,
                 superuser = true
             )
         }

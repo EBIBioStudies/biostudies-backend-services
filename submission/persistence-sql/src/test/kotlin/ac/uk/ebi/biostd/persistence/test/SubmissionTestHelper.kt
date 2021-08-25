@@ -1,9 +1,11 @@
 package ac.uk.ebi.biostd.persistence.test
 
 import ac.uk.ebi.biostd.persistence.model.DbAccessTag
+import ac.uk.ebi.biostd.persistence.model.DbSection
 import ac.uk.ebi.biostd.persistence.model.DbSubmission
 import ac.uk.ebi.biostd.persistence.model.DbTag
 import ac.uk.ebi.biostd.persistence.model.DbUser
+import ac.uk.ebi.biostd.persistence.model.ReferencedFileList
 import ebi.ac.uk.extended.model.ExtCollection
 import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.ExtSubmission
@@ -26,6 +28,26 @@ internal const val SUBMITTER = "submitter@email.com"
 internal val creationTime = OffsetDateTime.of(2018, 1, 1, 5, 10, 22, 1, ZoneOffset.UTC)
 internal val modificationTime = creationTime.plusDays(1)
 internal val releaseTime = modificationTime.plusDays(1)
+
+internal val dbFileList = ReferencedFileList("file-list")
+
+internal val dbInnerFileList = ReferencedFileList("inner-file-list")
+
+internal val dbInnerSection = DbSection(null, "Exp").apply {
+    id = 456
+    fileList = dbInnerFileList
+}
+
+internal val dbSection = DbSection(null, "Study").apply {
+    id = 123
+    fileList = dbFileList
+    sections = sortedSetOf(dbInnerSection)
+}
+
+internal val dbSubmission = DbSubmission(accNo = "S-BSST1").apply {
+    rootSectionId = 123
+    rootSection = dbSection
+}
 
 internal val extSubmission
     get() = ExtSubmission(

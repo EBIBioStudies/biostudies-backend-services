@@ -127,9 +127,10 @@ class SecurityQueryServiceTest(
         assertThat(dbUser.email).isEqualTo("user@test.org")
         assertThat(dbUser.fullName).isEqualTo("Test User")
         assertThat(dbUser.secret).isEqualTo("a-new-key")
+        assertThat(dbUser.activationKey).isEqualTo("a-new-key")
         assertThat(dbUser.passwordDigest).isEmpty()
-        assertThat(dbUser.active).isFalse()
-        assertThat(dbUser.notificationsEnabled).isFalse()
+        assertThat(dbUser.active).isFalse
+        assertThat(dbUser.notificationsEnabled).isFalse
         verify(exactly = 1) { userRepository.save(dbUser) }
     }
 }
