@@ -1,9 +1,9 @@
 package ac.uk.ebi.biostd.persistence.repositories.data
 
+import ac.uk.ebi.biostd.persistence.common.exception.SubmissionNotFoundException
 import ac.uk.ebi.biostd.persistence.common.model.BasicSubmission
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
-import ac.uk.ebi.biostd.persistence.common.exception.SubmissionNotFoundException
 import ac.uk.ebi.biostd.persistence.filter.SubmissionFilterSpecification
 import ac.uk.ebi.biostd.persistence.mapping.extended.to.DbToExtRequest
 import ac.uk.ebi.biostd.persistence.mapping.extended.to.ToExtSubmissionMapper
@@ -43,10 +43,10 @@ internal open class SubmissionRepository(
     @Transactional(readOnly = true)
     override fun existByAccNo(accNo: String): Boolean = submissionRepository.existsByAccNo(accNo)
 
-    override fun findExtByAccNo(accNo: String): ExtSubmission? =
-        if (submissionRepository.existsByAccNoAndStatusAndVersionGreaterThan(accNo, PROCESSED, 0)) {
-            submissionMapper.toExtSubmission(loadSubmissionAndStatus(accNo))
-        } else null
+    override fun findExtByAccNo(accNo: String): ExtSubmission? {
+        val exists = submissionRepository.existsByAccNoAndStatusAndVersionGreaterThan(accNo, PROCESSED, 0)
+        return if (exists) submissionMapper.toExtSubmission(loadSubmissionAndStatus(accNo)) else null
+    }
 
     @Transactional(readOnly = true)
     override fun getExtByAccNo(accNo: String) = submissionMapper.toExtSubmission(loadSubmissionAndStatus(accNo))

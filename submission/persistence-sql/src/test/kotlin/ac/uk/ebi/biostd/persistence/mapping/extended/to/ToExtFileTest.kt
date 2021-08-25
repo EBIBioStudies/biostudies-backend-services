@@ -23,7 +23,7 @@ internal class ToExtFileTest(
     private val bioFile = NfsBioFile(tempFolder.createFile(fileDb.name))
 
     @Test
-    fun `File to ExtFile`() {
+    fun `File to ExtFile when NfsFile`() {
         val dbFile = fileDb
         every { filesSource.getFile(dbFile.name) } returns bioFile
 
@@ -31,7 +31,7 @@ internal class ToExtFileTest(
     }
 
     @Test
-    fun `ReferencedFile to ExtFile`() {
+    fun `ReferencedFile to ExtFile when NfsFile`() {
         val refFile = refRileDb
         every { filesSource.getFile(refFile.name) } returns bioFile
 

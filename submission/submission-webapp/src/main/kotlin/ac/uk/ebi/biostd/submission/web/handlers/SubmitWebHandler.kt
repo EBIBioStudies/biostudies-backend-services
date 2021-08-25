@@ -15,7 +15,6 @@ import ac.uk.ebi.biostd.submission.web.model.OnBehalfRequest
 import ac.uk.ebi.biostd.submission.web.model.RefreshWebRequest
 import ebi.ac.uk.api.security.GetOrRegisterUserRequest
 import ebi.ac.uk.extended.mapping.to.toSimpleSubmission
-import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtProcessingStatus.PROCESSED
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FileMode
@@ -52,14 +51,14 @@ class SubmitWebHandler(
 
     private fun buildRequest(request: ContentSubmitWebRequest): SubmissionRequest {
         val sub = serializationService.deserializeSubmission(request.submission, request.format)
-        val extSub = extSubmissionService.findExtendedSubmission(sub.accNo)?.apply { requireNotProcessing(this) }
+        val extSub = extSubmissionService.findExtendedSubmission(sub.accNo)?.apply { requireProcessed(this) }
 
         val source = sourceGenerator.submissionSources(
             RequestSources(
                 user = request.submitter,
                 files = request.files,
                 rootPath = sub.rootPath,
-                previousFiles = extSub?.let { getAllFiles(it) }.orEmpty()
+                previousFiles = extSub?.let { it.allFiles }.orEmpty()
             )
         )
         val submission = withAttributes(submission(request.submission, request.format, source), request.attrs)
@@ -77,14 +76,14 @@ class SubmitWebHandler(
 
     private fun buildRequest(request: FileSubmitWebRequest): SubmissionRequest {
         val sub = serializationService.deserializeSubmission(request.submission)
-        val extSub = extSubmissionService.findExtendedSubmission(sub.accNo)?.apply { requireNotProcessing(this) }
+        val extSub = extSubmissionService.findExtendedSubmission(sub.accNo)?.apply { requireProcessed(this) }
 
         val source = sourceGenerator.submissionSources(
             RequestSources(
                 user = request.submitter,
                 files = request.files.plus(request.submission),
                 rootPath = sub.rootPath,
-                previousFiles = extSub?.let { getAllFiles(it) }.orEmpty()
+                previousFiles = extSub?.let { it.allFiles }.orEmpty()
             )
         )
         val submission = withAttributes(submission(request.submission, source), request.attrs)
@@ -101,10 +100,10 @@ class SubmitWebHandler(
 
     fun refreshSubmission(request: RefreshWebRequest): Submission {
         val submission = submissionService.getSubmission(request.accNo).toSimpleSubmission()
-        val extSub = extSubmissionService.findExtendedSubmission(request.accNo)?.apply { requireNotProcessing(this) }
-        val files = extSub?.let { getAllFiles(it) }.orEmpty()
-
+        val extSub = extSubmissionService.findExtendedSubmission(request.accNo)?.apply { requireProcessed(this) }
+        val files = extSub?.let { it.allFiles }.orEmpty()
         val source = sourceGenerator.submissionSources(RequestSources(previousFiles = files))
+
         return submissionService.submit(
             SubmissionRequest(
                 submission = submission,
@@ -115,8 +114,6 @@ class SubmitWebHandler(
             )
         ).toSimpleSubmission()
     }
-
-    private fun getAllFiles(extSubmission: ExtSubmission): List<ExtFile> = extSubmission.allFiles
 
     private fun getOnBehalfUser(onBehalfRequest: OnBehalfRequest): SecurityUser {
         val request = onBehalfRequest.asRegisterRequest()
@@ -139,8 +136,6 @@ class SubmitWebHandler(
     private fun submission(subFile: File, source: FilesSource) =
         serializationService.deserializeSubmission(subFile, source)
 
-    private fun requireNotProcessing(extSubmission: ExtSubmission) =
-        require(extSubmission.status == PROCESSED) {
-            throw ConcurrentProcessingSubmissionException(extSubmission.accNo)
-        }
+    private fun requireProcessed(sub: ExtSubmission) =
+        require(sub.status == PROCESSED) { throw ConcurrentProcessingSubmissionException(sub.accNo) }
 }
