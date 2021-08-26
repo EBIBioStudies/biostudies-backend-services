@@ -4,7 +4,6 @@ import ac.uk.ebi.biostd.common.properties.InstanceKeys
 import ac.uk.ebi.biostd.persistence.model.SecurityToken
 import ac.uk.ebi.biostd.persistence.repositories.TokenDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
-import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.commons.http.JacksonFactory
 import ebi.ac.uk.security.test.SecurityTestEntities
 import ebi.ac.uk.security.test.SecurityTestEntities.Companion.adminUser
@@ -59,12 +58,12 @@ class SecurityUtilTest(
             every { userRepository.getById(user.id) } returns user
 
             val token = testInstance.createToken(user)
-            assertThat(testInstance.fromToken(token)).contains(user)
+            assertThat(testInstance.fromToken(token)).isEqualTo(user)
         }
 
         @Test
         fun `from token when invalid token`() {
-            assertThat(testInstance.fromToken("invalid_token")).isEmpty()
+            assertThat(testInstance.fromToken("invalid_token")).isNull()
         }
 
         @Test
@@ -79,7 +78,7 @@ class SecurityUtilTest(
                     instanceKeys
                 )
 
-            assertThat(testInstance.fromToken(securityUtil.createToken(simpleUser))).isEmpty()
+            assertThat(testInstance.fromToken(securityUtil.createToken(simpleUser))).isNull()
         }
     }
 
@@ -124,7 +123,7 @@ class SecurityUtilTest(
             val myToken = "acb123"
             every { tokenRepository.findById(myToken) } returns Optional.of(securityToken)
 
-            assertThat(testInstance.checkToken(myToken)).isEmpty()
+            assertThat(testInstance.checkToken(myToken)).isNull()
         }
 
         @Test
@@ -134,7 +133,7 @@ class SecurityUtilTest(
             every { userRepository.getById(user.id) } returns user
             every { tokenRepository.findById(token) } returns Optional.empty()
 
-            assertThat(testInstance.checkToken(token)).contains(user)
+            assertThat(testInstance.checkToken(token)).isEqualTo(user)
         }
     }
 

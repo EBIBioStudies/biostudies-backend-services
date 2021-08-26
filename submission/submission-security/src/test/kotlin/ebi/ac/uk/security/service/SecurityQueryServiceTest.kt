@@ -2,7 +2,6 @@ package ebi.ac.uk.security.service
 
 import ac.uk.ebi.biostd.persistence.model.DbUser
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
-import arrow.core.Option
 import ebi.ac.uk.security.integration.exception.UserAlreadyRegister
 import ebi.ac.uk.security.integration.exception.UserNotFoundByTokenException
 import ebi.ac.uk.security.integration.model.api.SecurityUser
@@ -72,14 +71,14 @@ class SecurityQueryServiceTest(
         @MockK userInfo: UserInfo
     ) {
         every { profileService.getUserProfile(dbUser, "the-token") } returns userInfo
-        every { securityUtil.checkToken("the-token") } returns Option.fromNullable(dbUser)
+        every { securityUtil.checkToken("the-token") } returns dbUser
 
         assertThat(testInstance.getUserProfile("the-token")).isEqualTo(userInfo)
     }
 
     @Test
     fun `get non existing user profile`() {
-        every { securityUtil.checkToken("the-token") } returns Option.empty()
+        every { securityUtil.checkToken("the-token") } returns null
 
         val err = assertThrows<UserNotFoundByTokenException> { testInstance.getUserProfile("the-token") }
         assertThat(err.message).isEqualTo("Could not find an active session for the provided security token.")

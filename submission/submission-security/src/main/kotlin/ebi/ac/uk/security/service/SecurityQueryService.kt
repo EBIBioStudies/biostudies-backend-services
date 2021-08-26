@@ -2,7 +2,6 @@ package ebi.ac.uk.security.service
 
 import ac.uk.ebi.biostd.persistence.model.DbUser
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
-import arrow.core.getOrElse
 import ebi.ac.uk.security.integration.components.ISecurityQueryService
 import ebi.ac.uk.security.integration.exception.UserAlreadyRegister
 import ebi.ac.uk.security.integration.exception.UserNotFoundByTokenException
@@ -24,8 +23,8 @@ class SecurityQueryService(
 
     override fun getUserProfile(authToken: String): UserInfo =
         securityUtil.checkToken(authToken)
-            .getOrElse { throw UserNotFoundByTokenException() }
-            .let { profileService.getUserProfile(it, authToken) }
+            ?.let { profileService.getUserProfile(it, authToken) }
+            ?: throw UserNotFoundByTokenException()
 
     override fun getOrCreateInactive(email: String, username: String): SecurityUser =
         profileService.asSecurityUser(userRepository.findByEmail(email) ?: createUserInactive(email, username))
