@@ -44,7 +44,8 @@ open class SecurityService(
 ) : ISecurityService {
     override fun login(request: LoginRequest): UserInfo {
         val user = userRepository
-            .findByLoginOrEmailAndActive(request.login, request.login, true) ?: throw LoginException()
+            .findByLoginOrEmailAndActive(request.login, request.login, true)
+            ?: throw UserNotFoundByEmailException(request.login)
         require(securityUtil.checkPassword(user.passwordDigest, request.password)) { throw LoginException() }
         return profileService.getUserProfile(user, securityUtil.createToken(user))
     }

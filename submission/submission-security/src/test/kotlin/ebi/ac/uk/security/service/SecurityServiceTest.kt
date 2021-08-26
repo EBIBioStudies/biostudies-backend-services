@@ -80,7 +80,7 @@ internal class SecurityServiceTest(
         fun `login when user is not found`() {
             every { userRepository.findByLoginOrEmailAndActive(email, email, true) } returns null
 
-            assertThrows<LoginException> { testInstance.login(LoginRequest(email, password)) }
+            assertThrows<UserNotFoundByEmailException> { testInstance.login(LoginRequest(email, password)) }
         }
 
         @Test
