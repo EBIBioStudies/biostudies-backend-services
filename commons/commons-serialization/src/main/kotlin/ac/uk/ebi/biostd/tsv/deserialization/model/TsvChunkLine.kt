@@ -10,7 +10,7 @@ class TsvChunkLine(
 
     val value: String
         get() {
-            return rawLines.findSecond().fold({ EMPTY }, { it })
+            return rawLines.findSecond() ?: EMPTY
         }
 
     val rawValues: List<String>

@@ -1,7 +1,5 @@
 package ebi.ac.uk.util.collections
 
-import arrow.core.Option
-
 /**
  * Executes the given lambda if the list is not empty.
  *
@@ -37,9 +35,9 @@ fun <T> List<T>.second() =
 fun <T> List<T>.third() =
     if (this.size > 2) this[2] else throw NoSuchElementException("List does not contain a third element.")
 
-fun <T> List<T>.findSecond() = if (this.size > 1) Option.just(this[1]) else Option.empty()
+fun <T> List<T>.findSecond() = if (this.size > 1) this[1] else null
 
-fun <T> List<T>.findThird() = if (this.size > 2) Option.just(this[2]) else Option.empty()
+fun <T> List<T>.findThird() = if (this.size > 2) this[2] else null
 
 /**
  * Obtains the second element of the list or returns the given default value if the element doesn't exist.

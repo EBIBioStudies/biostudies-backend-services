@@ -43,9 +43,9 @@ internal class TsvChunkGenerator(private val parser: CSVFormat = createParser())
             type like FileFields.FILE -> FileChunk(lines)
             type like SectionFields.LINKS -> LinksTableChunk(lines)
             type like SectionFields.FILES -> FileTableChunk(lines)
-            type.matches(TABLE_REGEX) -> TABLE_REGEX.findGroup(type, 1)
-                .fold({ RootSectionTableChunk(lines) }, { SubSectionTableChunk(lines, it) })
-            else -> header.findThird().fold({ RootSubSectionChunk(lines) }, { SubSectionChunk(lines, it) })
+            type.matches(TABLE_REGEX) -> TABLE_REGEX.findGroup(type, 1)?.let { SubSectionTableChunk(lines, it) }
+                ?: RootSectionTableChunk(lines)
+            else -> header.findThird()?.let { SubSectionChunk(lines, it) } ?: RootSubSectionChunk(lines)
         }
     }
 
@@ -63,7 +63,7 @@ internal class TsvChunkGenerator(private val parser: CSVFormat = createParser())
 
     private fun escapeQuotes(pageTab: String): String {
         return SIMPLE_QUOTE_REGEX.findAll(pageTab)
-            .fold(pageTab, { result, match -> result.replace(match.value, match.value.scape(QUOTE)) })
+            .fold(pageTab) { result, match -> result.replace(match.value, match.value.scape(QUOTE)) }
     }
 
     private fun CSVRecord.asList(): List<String> = map { it }
