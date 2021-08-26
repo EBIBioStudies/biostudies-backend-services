@@ -2,10 +2,10 @@ package ac.uk.ebi.biostd.submission.domain.helpers
 
 import ac.uk.ebi.biostd.submission.model.GroupSource
 import ebi.ac.uk.extended.model.ExtFile
-import ebi.ac.uk.io.sources.BioListFilesSource
+import ebi.ac.uk.io.sources.ExtFileListSource
 import ebi.ac.uk.io.sources.ComposedFileSource
 import ebi.ac.uk.io.sources.FilesSource
-import ebi.ac.uk.io.sources.ListFilesSource
+import ebi.ac.uk.io.sources.FilesListSource
 import ebi.ac.uk.io.sources.PathFilesSource
 import ebi.ac.uk.security.integration.model.api.GroupMagicFolder
 import ebi.ac.uk.security.integration.model.api.SecurityUser
@@ -24,7 +24,7 @@ class SourceGenerator {
         rootPath: String,
         previousFiles: List<ExtFile>
     ): List<FilesSource> {
-        val sources = mutableListOf<FilesSource>(ListFilesSource(files))
+        val sources = mutableListOf<FilesSource>(FilesListSource(files))
 
         user?.let {
             sources.add(createPathSource(user.magicFolder.path, rootPath))
@@ -36,7 +36,7 @@ class SourceGenerator {
         return sources
     }
 
-    private fun submissionsList(listFiles: List<ExtFile>): FilesSource = BioListFilesSource(listFiles)
+    private fun submissionsList(listFiles: List<ExtFile>): FilesSource = ExtFileListSource(listFiles)
 
     private fun createPathSource(folder: Path, rootPath: String) = PathFilesSource(folder.resolve(rootPath))
 

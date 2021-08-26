@@ -13,7 +13,7 @@ import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(TemporaryFolderExtension::class)
-internal class BioListFilesSourceTest(tempFolder: TemporaryFolder) {
+internal class ExtFileListSourceTest(tempFolder: TemporaryFolder) {
 
     private val nfsFilename = "nfsFile.txt"
     private val fireFilename = "fireFile.txt"
@@ -24,7 +24,7 @@ internal class BioListFilesSourceTest(tempFolder: TemporaryFolder) {
         FireFile(fireFilename, "fireId", "md5", 1, listOf())
     )
 
-    private val testInstance: BioListFilesSource = BioListFilesSource(files)
+    private val testInstance: ExtFileListSource = ExtFileListSource(files)
 
     @Test
     fun exists() {

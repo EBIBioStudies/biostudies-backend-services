@@ -51,14 +51,14 @@ class SubmitWebHandler(
 
     private fun buildRequest(request: ContentSubmitWebRequest): SubmissionRequest {
         val sub = serializationService.deserializeSubmission(request.submission, request.format)
-        val extSub = extSubmissionService.findExtendedSubmission(sub.accNo)?.apply { requireProcessed(this) }
+        val extSub = extSubmissionService.findExtendedSubmission(sub.accNo)?.also { requireProcessed(it) }
 
         val source = sourceGenerator.submissionSources(
             RequestSources(
                 user = request.submitter,
                 files = request.files,
                 rootPath = sub.rootPath,
-                previousFiles = extSub?.let { it.allFiles }.orEmpty()
+                previousFiles = extSub?.allFiles.orEmpty()
             )
         )
         val submission = withAttributes(submission(request.submission, request.format, source), request.attrs)

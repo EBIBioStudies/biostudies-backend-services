@@ -11,12 +11,12 @@ import org.junit.jupiter.api.extension.ExtendWith
 import java.io.File
 
 @ExtendWith(TemporaryFolderExtension::class)
-internal class ListFilesSourceTest(temporaryFolder: TemporaryFolder) {
+internal class FilesListSourceTest(temporaryFolder: TemporaryFolder) {
 
     private val file: File = temporaryFolder.createFile("abc.txt", "the content of file")
     private val files: List<File> = listOf(file)
 
-    private val testInstance: ListFilesSource = ListFilesSource(files)
+    private val testInstance: FilesListSource = FilesListSource(files)
 
     @Test
     fun exists() {
