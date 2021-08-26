@@ -53,11 +53,7 @@ class Services {
     fun bioStudiesWebConsumer(
         restTemplate: RestTemplate,
         extSerializationService: ExtSerializationService
-    ): BioStudiesWebConsumer =
-        BioStudiesWebConsumer(
-            restTemplate.apply { messageConverters = getConverters(messageConverters) },
-            extSerializationService
-        )
+    ): BioStudiesWebConsumer = BioStudiesWebConsumer(restTemplate, extSerializationService)
 
     @Bean
     fun notificationsSender(
