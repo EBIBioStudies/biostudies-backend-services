@@ -1,17 +1,25 @@
 package ac.uk.ebi.biostd.persistence.doc.service
 
+import ac.uk.ebi.biostd.persistence.common.exception.FileListNotFoundException
 import ac.uk.ebi.biostd.persistence.common.exception.SubmissionNotFoundException
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
+import ac.uk.ebi.biostd.persistence.doc.db.repositories.FileListDocFileRepository
 import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbReposConfig
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
 import ac.uk.ebi.biostd.persistence.doc.model.DocAttribute
+import ac.uk.ebi.biostd.persistence.doc.model.DocFileList
+import ac.uk.ebi.biostd.persistence.doc.model.DocFileRef
 import ac.uk.ebi.biostd.persistence.doc.model.DocProcessingStatus.PROCESSED
+import ac.uk.ebi.biostd.persistence.doc.model.DocSection
+import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
+import ac.uk.ebi.biostd.persistence.doc.model.FileSystem.NFS
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus.REQUESTED
 import ac.uk.ebi.biostd.persistence.doc.model.asBasicSubmission
+import ac.uk.ebi.biostd.persistence.doc.test.doc.SUB_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUBMISSION_OWNER
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.fullExtSubmission as extSubmission
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.rootSection
@@ -23,11 +31,16 @@ import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
 import ebi.ac.uk.db.MONGO_VERSION
 import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.model.constants.ProcessingStatus
 import ebi.ac.uk.util.collections.second
+import io.github.glytching.junit.extension.folder.TemporaryFolder
+import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import org.assertj.core.api.Assertions.assertThat
+import org.bson.types.ObjectId
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -43,24 +56,32 @@ import org.testcontainers.containers.startupcheck.MinimumDurationRunningStartupC
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.utility.DockerImageName
+import uk.ac.ebi.extended.serialization.integration.ExtSerializationConfig.extSerializationService
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import java.time.Duration.ofSeconds
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus.PROCESSED as REQUEST_PROCESSED
 
-@ExtendWith(MockKExtension::class, SpringExtension::class)
+@ExtendWith(MockKExtension::class, SpringExtension::class, TemporaryFolderExtension::class)
 @Testcontainers
 @SpringBootTest(classes = [MongoDbReposConfig::class])
 internal class SubmissionMongoQueryServiceTest(
+    private val tempFolder: TemporaryFolder,
     @MockK private val toExtSubmissionMapper: ToExtSubmissionMapper,
     @Autowired private val submissionRepo: SubmissionDocDataRepository,
+    @Autowired private val fileListDocFileRepository: FileListDocFileRepository,
     @Autowired private val requestRepository: SubmissionRequestDocDataRepository
 ) {
-    private val serializationService: ExtSerializationService = ExtSerializationService()
-
+    private val serializationService: ExtSerializationService = extSerializationService()
     private val testInstance =
-        SubmissionMongoQueryService(submissionRepo, requestRepository, serializationService, toExtSubmissionMapper)
+        SubmissionMongoQueryService(
+            submissionRepo,
+            requestRepository,
+            fileListDocFileRepository,
+            serializationService,
+            toExtSubmissionMapper
+        )
 
     @Nested
     inner class ExpireSubmissions {
@@ -80,6 +101,53 @@ internal class SubmissionMongoQueryServiceTest(
 
             assertThat(submissionRepo.findByAccNo("S-BSST1")).isNull()
             assertThat(submissionRepo.findByAccNo("S-BSST101")).isNull()
+        }
+    }
+
+    @Nested
+    inner class GetReferencedFiles {
+        private val fileReference = ObjectId()
+        private val referencedFile = tempFolder.createFile("referenced.txt")
+        private val fileListFile = FileListDocFile(
+            fileReference,
+            docSubmission.id,
+            "referenced.txt",
+            referencedFile.absolutePath,
+            md5 = "test-md5",
+            fileSystem = NFS
+        )
+        private val fileList = DocFileList("test-file-list", listOf(DocFileRef(fileReference)))
+        private val submission =
+            docSubmission.copy(section = DocSection(id = ObjectId(), type = "Study", fileList = fileList))
+
+        @BeforeEach
+        fun beforeEach() {
+            submissionRepo.save(submission)
+            fileListDocFileRepository.save(fileListFile)
+        }
+
+        @AfterEach
+        fun afterEach() {
+            submissionRepo.deleteAll()
+            fileListDocFileRepository.deleteAll()
+        }
+
+        @Test
+        fun `get referenced files`() {
+            val files = testInstance.getReferencedFiles(SUB_ACC_NO, "test-file-list")
+            assertThat(files).hasSize(1)
+            assertThat((files.first() as NfsFile).file).isEqualTo(referencedFile)
+        }
+
+        @Test
+        fun `non existing file list`() {
+            val exception = assertThrows<FileListNotFoundException> {
+                testInstance.getReferencedFiles(SUB_ACC_NO, "non-existing")
+            }
+
+            assertThat(exception.message).isEqualTo(
+                "The file list 'non-existing' could not be found in the submission '$SUB_ACC_NO'"
+            )
         }
     }
 

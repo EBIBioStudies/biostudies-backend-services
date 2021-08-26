@@ -11,7 +11,6 @@ import ebi.ac.uk.extended.model.FileMode
 import ebi.ac.uk.extended.model.FileMode.COPY
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.io.FileUtils
-import ebi.ac.uk.io.FileUtils.deleteFile
 import ebi.ac.uk.io.FileUtils.getOrCreateFolder
 import ebi.ac.uk.io.FileUtils.moveFile
 import ebi.ac.uk.io.FileUtils.reCreateFolder
@@ -50,20 +49,19 @@ class NfsFilesService(
         folderPermissions: Set<PosixFilePermission>
     ): ExtSubmission {
         logger.info { "processing submission ${submission.accNo} files in $mode" }
+        val newSubTempPath = createTempFolder(subFolder, submission.accNo)
 
-        val subFilesPath = subFolder.resolve(FILES_PATH)
-        val tempFolder = createTempFolder(subFolder, submission.accNo)
+        val config = NfsFileProcessingConfig(
+            mode,
+            subFolder = subFolder.resolve(FILES_PATH),
+            targetFolder = newSubTempPath.resolve(FILES_PATH),
+            filePermissions = filePermissions,
+            dirPermissions = folderPermissions
+        )
 
-        if (subFilesPath.exists()) {
-            moveFile(subFilesPath, tempFolder, filePermissions, folderPermissions)
-            reCreateFolder(subFolder, folderPermissions)
-        }
-
-        val config = NfsFileProcessingConfig(mode, subFilesPath, tempFolder, filePermissions, folderPermissions)
         val processed = processFiles(submission) { config.processFile(it) }
-
+        moveFile(newSubTempPath, subFolder, filePermissions, folderPermissions)
         logger.info { "Finishing processing submission ${submission.accNo} files in $mode" }
-        deleteFile(tempFolder)
         return processed
     }
 
@@ -78,6 +76,8 @@ class NfsFilesService(
         return getOrCreateFolder(submissionPath, permissions).toFile()
     }
 
-    private fun createTempFolder(submissionFolder: File, accNo: String): File =
-        reCreateFolder(submissionFolder.parentFile.resolve("${accNo}_temp"), RWX______)
+    private fun createTempFolder(
+        submissionFolder: File,
+        accNo: String
+    ): File = reCreateFolder(submissionFolder.parentFile.resolve("${accNo}_temp"), RWX______)
 }

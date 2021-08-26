@@ -1,9 +1,6 @@
-package ebi.ac.uk.dsl
+package ebi.ac.uk.dsl.json
 
-import ebi.ac.uk.dsl.json.JsonNull
-import ebi.ac.uk.dsl.json.jsonArray
-import ebi.ac.uk.dsl.json.jsonNull
-import ebi.ac.uk.dsl.json.jsonObj
+import ebi.ac.uk.dsl.json.JsonDslTest.Companion.TestEnum.TEST
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
@@ -22,6 +19,14 @@ class JsonDslTest {
             }
             assertThat(obj.toString()).isEqualTo("{\"string\": \"string \\\"value \\n\"}")
         }
+
+        @Test
+        fun `escape all special characters`() {
+            val obj = jsonObj {
+                "string" to "\n , \t , \b , \r , \' , \\ "
+            }
+            assertThat(obj.toString()).isEqualTo("{\"string\": \"\\n , \\t , \\b , \\r , \\' , \\\\ \"}")
+        }
     }
 
     @Nested
@@ -32,14 +37,26 @@ class JsonDslTest {
         fun `simple object`() {
             val obj = jsonObj {
                 "string" to "string value"
-                "boolean" to true
+                "boolean1" to true
+                "boolean2" to false
                 "number" to 50
                 "null prop" to JsonNull
+                "enum" to TEST
+                "curlyBrackets" to {}
             }
+            val expected = """
+                    {
+                        "string": "string value",
+                        "boolean1": true, 
+                        "boolean2": false,
+                        "number": 50, 
+                        "null prop": null,
+                        "enum": "TEST",
+                        "curlyBrackets": {}
+                    }
+                """
 
-            assertThat(obj.toString()).isEqualTo(
-                "{\"string\": \"string value\", \"boolean\": true, \"number\": 50, \"null prop\": null}"
-            )
+            ebi.ac.uk.asserts.StringAssertion.assertThat(obj.toString()).isEqualsIgnoringSpacesAndLineBreaks(expected)
         }
 
         @Test
@@ -68,6 +85,18 @@ class JsonDslTest {
     inner class ArrayTest {
 
         @Test
+        fun `empty array`() {
+            val obj = jsonArray()
+            assertThat(obj.toString()).isEqualTo("[]")
+        }
+
+        @Test
+        fun `curly brackets array`() {
+            val obj = jsonArray({})
+            assertThat(obj.toString()).isEqualTo("[{}]")
+        }
+
+        @Test
         fun `string array`() {
             val obj = jsonArray("a", "b", "c")
             assertThat(obj.toString()).isEqualTo("[\"a\", \"b\", \"c\"]")
@@ -77,6 +106,12 @@ class JsonDslTest {
         fun `number array`() {
             val obj = jsonArray(1, 2, 3)
             assertThat(obj.toString()).isEqualTo("[1, 2, 3]")
+        }
+
+        @Test
+        fun `enum array`() {
+            val obj = jsonArray(TEST)
+            assertThat(obj.toString()).isEqualTo("[\"TEST\"]")
         }
 
         @Test
@@ -114,5 +149,9 @@ class JsonDslTest {
             val obj = jsonArray(jsonNull, 1, "c")
             assertThat(obj.toString()).isEqualTo("[null, 1, \"c\"]")
         }
+    }
+
+    companion object {
+        enum class TestEnum { TEST }
     }
 }

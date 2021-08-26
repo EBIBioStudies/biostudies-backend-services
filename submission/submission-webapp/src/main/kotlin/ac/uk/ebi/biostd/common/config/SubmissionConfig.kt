@@ -15,7 +15,6 @@ import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
 import ac.uk.ebi.biostd.submission.web.handlers.SubmissionsWebHandler
 import ac.uk.ebi.biostd.submission.web.handlers.SubmitWebHandler
 import ac.uk.ebi.biostd.submission.web.resources.ext.ExtendedPageMapper
-import ebi.ac.uk.paths.SubmissionFolderResolver
 import ebi.ac.uk.security.integration.components.ISecurityQueryService
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import org.springframework.amqp.rabbit.core.RabbitTemplate
@@ -23,13 +22,13 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 import uk.ac.ebi.events.service.EventsPublisherService
+import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import java.net.URI
 
 @Configuration
 @Import(value = [PersistenceConfig::class, SecurityBeansConfig::class])
 class SubmissionConfig(
     private val sourceGenerator: SourceGenerator,
-    private val folderResolver: SubmissionFolderResolver,
     private val serializationService: SerializationService
 ) {
     @Bean
@@ -57,9 +56,16 @@ class SubmissionConfig(
         submissionRequestService: SubmissionRequestService,
         subRepository: SubmissionQueryService,
         userPrivilegeService: IUserPrivilegesService,
-        securityQueryService: ISecurityQueryService
+        securityQueryService: ISecurityQueryService,
+        extSerializationService: ExtSerializationService
     ): ExtSubmissionService =
-        ExtSubmissionService(submissionRequestService, subRepository, userPrivilegeService, securityQueryService)
+        ExtSubmissionService(
+            submissionRequestService,
+            subRepository,
+            userPrivilegeService,
+            securityQueryService,
+            extSerializationService
+        )
 
     @Bean
     fun projectService(
@@ -71,15 +77,16 @@ class SubmissionConfig(
     fun submitHandler(
         submissionService: SubmissionService,
         userFilesService: UserFilesService,
-        securityQueryService: ISecurityQueryService
+        securityQueryService: ISecurityQueryService,
+        extSubmissionService: ExtSubmissionService
     ): SubmitWebHandler =
         SubmitWebHandler(
             submissionService,
+            extSubmissionService,
             sourceGenerator,
             serializationService,
             userFilesService,
-            securityQueryService,
-            folderResolver
+            securityQueryService
         )
 
     @Bean

@@ -8,5 +8,6 @@ internal data class MigrationRequest(
     val target: String,
     val targetUser: String,
     val targetPassword: String,
-    val targetOwner: String?
+    val targetOwner: String?,
+    val tempFolder: String
 )

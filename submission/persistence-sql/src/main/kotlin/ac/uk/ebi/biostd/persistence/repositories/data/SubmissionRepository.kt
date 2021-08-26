@@ -1,13 +1,16 @@
 package ac.uk.ebi.biostd.persistence.repositories.data
 
+import ac.uk.ebi.biostd.persistence.common.exception.SubmissionNotFoundException
+import ac.uk.ebi.biostd.persistence.common.exception.FileListNotFoundException
 import ac.uk.ebi.biostd.persistence.common.model.BasicSubmission
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
-import ac.uk.ebi.biostd.persistence.common.exception.SubmissionNotFoundException
 import ac.uk.ebi.biostd.persistence.filter.SubmissionFilterSpecification
 import ac.uk.ebi.biostd.persistence.mapping.extended.to.DbToExtRequest
 import ac.uk.ebi.biostd.persistence.mapping.extended.to.ToExtSubmissionMapper
+import ac.uk.ebi.biostd.persistence.model.DbSection
 import ac.uk.ebi.biostd.persistence.model.DbSubmission
+import ac.uk.ebi.biostd.persistence.model.ReferencedFileList
 import ac.uk.ebi.biostd.persistence.model.constants.SUB_RELEASE_TIME
 import ac.uk.ebi.biostd.persistence.pagination.OffsetPageRequest
 import ac.uk.ebi.biostd.persistence.repositories.SectionDataRepository
@@ -17,7 +20,9 @@ import ac.uk.ebi.biostd.persistence.repositories.SubmissionStatsDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.data.CollectionSqlDataService.Companion.SIMPLE_GRAPH
 import ac.uk.ebi.biostd.persistence.repositories.data.CollectionSqlDataService.Companion.asBasicSubmission
 import com.cosium.spring.data.jpa.entity.graph.domain.EntityGraphs
+import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSED
 import mu.KotlinLogging
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
@@ -41,6 +46,11 @@ internal open class SubmissionRepository(
 ) : SubmissionQueryService {
     @Transactional(readOnly = true)
     override fun existByAccNo(accNo: String): Boolean = submissionRepository.existsByAccNo(accNo)
+
+    override fun findExtByAccNo(accNo: String): ExtSubmission? {
+        val exists = submissionRepository.existsByAccNoAndStatusAndVersionGreaterThan(accNo, PROCESSED, 0)
+        return if (exists) submissionMapper.toExtSubmission(loadSubmissionAndStatus(accNo)) else null
+    }
 
     @Transactional(readOnly = true)
     override fun getExtByAccNo(accNo: String) = submissionMapper.toExtSubmission(loadSubmissionAndStatus(accNo))
@@ -79,18 +89,32 @@ internal open class SubmissionRepository(
         return extSerializationService.deserialize(request.request)
     }
 
+    override fun getReferencedFiles(accNo: String, fileListName: String): List<ExtFile> {
+        val submission = loadSubmission(accNo)
+        val fileList = findFileList(submission.rootSection, fileListName)
+
+        return fileList
+            ?.let { submissionMapper.toExtFileList(submission, it) }
+            ?: throw FileListNotFoundException(accNo, fileListName)
+    }
+
+    private fun findFileList(section: DbSection, fileListName: String): ReferencedFileList? =
+        if (section.fileList?.name == fileListName) section.fileList
+        else section.sections
+            .mapNotNull { it.fileList }
+            .firstOrNull { it.name == fileListName }
+
     private fun loadSubmissionAndStatus(accNo: String, version: Int? = null): DbToExtRequest =
-        DbToExtRequest(lodSubmission(accNo, version), statsRepository.findByAccNo(accNo))
+        DbToExtRequest(loadSubmission(accNo, version), statsRepository.findByAccNo(accNo))
 
     /**
      * Load submission information strategy used is basically first load submission and then load each section and its
      * subsections recursively starting from the root section.
      */
-    private fun lodSubmission(accNo: String, version: Int? = null): DbSubmission {
+    private fun loadSubmission(accNo: String, version: Int? = null): DbSubmission {
         logger.debug { "loading submission $accNo" }
 
-        val submission = findSubmission(accNo, version)
-        submission ?: throw SubmissionNotFoundException(accNo)
+        val submission = findSubmission(accNo, version) ?: throw SubmissionNotFoundException(accNo)
         loadSection(submission.rootSectionId)
 
         logger.debug { "Loaded submission $accNo" }

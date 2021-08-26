@@ -23,6 +23,7 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 import org.springframework.context.annotation.Lazy
 import org.springframework.web.client.RestTemplate
+import uk.ac.ebi.extended.serialization.integration.ExtSerializationConfig
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import java.nio.file.Paths
 
@@ -63,7 +64,7 @@ class SubmitterConfig {
         fun serializationService() = SerializationConfig.serializationService()
 
         @Bean
-        fun extSerializationService(): ExtSerializationService = ExtSerializationService()
+        fun extSerializationService(): ExtSerializationService = ExtSerializationConfig.extSerializationService()
     }
 
     @Configuration

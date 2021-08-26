@@ -2,6 +2,11 @@ import Dependencies.JacksonKotlin
 import Dependencies.KotlinLogging
 import Dependencies.KotlinStdLib
 import Dependencies.SpringWeb
+import Projects.ClientBioWebClient
+import Projects.CommonsModelExtended
+import Projects.CommonsModelExtendedMapping
+import Projects.CommonsSerialization
+import Projects.SchedulerTaskProperties
 import SpringBootDependencies.SpringBootAmqp
 import SpringBootDependencies.SpringBootStarter
 import SpringBootDependencies.SpringBootStarterConfigProcessor
@@ -16,11 +21,11 @@ plugins {
 }
 
 dependencies {
-    api(project(":client:bio-webclient"))
-    api(project(":commons:commons-model-extended"))
-    api(project(":commons:commons-model-extended-mapping"))
-    api(project(":commons:commons-serialization"))
-    api(project(":scheduler:task-properties"))
+    api(project(ClientBioWebClient))
+    api(project(CommonsModelExtended))
+    api(project(CommonsModelExtendedMapping))
+    api(project(CommonsSerialization))
+    api(project(SchedulerTaskProperties))
 
     implementation(KotlinLogging)
     implementation(KotlinStdLib)
