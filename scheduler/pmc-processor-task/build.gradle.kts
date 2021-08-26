@@ -10,6 +10,11 @@ import Dependencies.MongockSpringV5
 import Dependencies.OkHttpLogging
 import Dependencies.Retrofit2
 import Dependencies.SpringWeb
+import Projects.ClientBioWebClient
+import Projects.CommonsHttp
+import Projects.CommonsSerialization
+import Projects.CommonsTest
+import Projects.SchedulerTaskProperties
 import SpringBootDependencies.SpringBootStarter
 import SpringBootDependencies.SpringBootStarterConfigProcessor
 import SpringBootDependencies.SpringBootStarterMongo
@@ -30,11 +35,11 @@ plugins {
 }
 
 dependencies {
-    testApi(project(":commons:commons-test"))
-    implementation(project(":client:bio-webclient"))
-    implementation(project(":commons:commons-serialization"))
-    implementation(project(":scheduler:task-properties"))
-    implementation(project(":commons:commons-http"))
+    testApi(project(CommonsTest))
+    implementation(project(ClientBioWebClient))
+    implementation(project(CommonsSerialization))
+    implementation(project(SchedulerTaskProperties))
+    implementation(project(CommonsHttp))
 
     implementation(Arrow)
     implementation(CommonsIO)

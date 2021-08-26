@@ -7,18 +7,24 @@ import Dependencies.KotlinStdLib
 import Dependencies.RxJava2
 import Dependencies.SpringDataJpa
 import Dependencies.SpringWeb
+import Projects.CommonsModelExtended
+import Projects.CommonsTest
+import Projects.CommonsUtil
+import Projects.SubmissionConfig
+import Projects.SubmissionPersistenceCommonApi
+import Projects.SubmissionPersistenceSql
 import SpringBootDependencies.SpringBootStarterMail
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
 
 dependencies {
-    api(project(":commons:commons-model-extended"))
-    api(project(":submission:submission-config"))
-    api(project(":submission:persistence-common-api"))
-    api(project(":submission:persistence-sql"))
+    api(project(CommonsModelExtended))
+    api(project(SubmissionConfig))
+    api(project(SubmissionPersistenceCommonApi))
+    api(project(SubmissionPersistenceSql))
 
-    api(project(":commons:commons-test"))
-    api(project(":commons:commons-util"))
+    api(project(CommonsTest))
+    api(project(CommonsUtil))
 
     implementation("$SpringBootStarterMail:${Versions.SpringBootVersion}")
     implementation(Arrow)

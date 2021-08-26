@@ -8,15 +8,19 @@ import Dependencies.KotlinStdLib
 import Dependencies.RxJava2
 import Dependencies.SpringDataJpa
 import Dependencies.SpringWeb
+import Projects.CommonsBio
+import Projects.CommonsSerialization
+import Projects.CommonsUtil
+import Projects.SubmissionSecurity
 import SpringBootDependencies.SpringBootAmqp
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
 
 dependencies {
-    api(project(":commons:commons-bio"))
-    api(project(":commons:commons-util"))
-    api(project(":commons:commons-serialization"))
-    api(project(":submission:submission-security"))
+    api(project(CommonsBio))
+    api(project(CommonsUtil))
+    api(project(CommonsSerialization))
+    api(project(SubmissionSecurity))
 
     implementation(Arrow)
     implementation(ArrowTypeClasses)
