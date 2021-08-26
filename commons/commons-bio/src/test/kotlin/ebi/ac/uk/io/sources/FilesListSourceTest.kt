@@ -11,12 +11,12 @@ import org.junit.jupiter.api.extension.ExtendWith
 import java.io.File
 
 @ExtendWith(TemporaryFolderExtension::class)
-internal class ListFilesSourceTest(temporaryFolder: TemporaryFolder) {
+internal class FilesListSourceTest(temporaryFolder: TemporaryFolder) {
 
     private val file: File = temporaryFolder.createFile("abc.txt", "the content of file")
     private val files: List<File> = listOf(file)
 
-    private val testInstance: ListFilesSource = ListFilesSource(files)
+    private val testInstance: FilesListSource = FilesListSource(files)
 
     @Test
     fun exists() {
@@ -30,23 +30,14 @@ internal class ListFilesSourceTest(temporaryFolder: TemporaryFolder) {
 
     @Test
     fun getFile() {
-        assertThat(testInstance.getFile(file.name)).isEqualTo(file)
-    }
-
-    @Test
-    fun readText() {
-        assertThat(testInstance.readText(file.name)).isEqualTo("the content of file")
+        val result = testInstance.getFile(file.name)
+        assertThat(result).isInstanceOf(NfsBioFile::class.java)
+        assertThat(result.file).isEqualTo(file)
     }
 
     @Test
     fun `get non existing file`() {
         val exception = assertThrows<FileNotFoundException> { testInstance.getFile("ghost.txt") }
-        assertThat(exception.message).isEqualTo("File not found: ghost.txt")
-    }
-
-    @Test
-    fun `read text of non existing file`() {
-        val exception = assertThrows<FileNotFoundException> { testInstance.readText("ghost.txt") }
         assertThat(exception.message).isEqualTo("File not found: ghost.txt")
     }
 }

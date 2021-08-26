@@ -21,6 +21,8 @@ interface SubmissionRequestService {
 interface SubmissionQueryService {
     fun existByAccNo(accNo: String): Boolean
 
+    fun findExtByAccNo(accNo: String): ExtSubmission?
+
     fun getExtByAccNo(accNo: String): ExtSubmission
 
     fun getExtByAccNoAndVersion(accNo: String, version: Int): ExtSubmission

@@ -29,6 +29,9 @@ internal class SubmissionMongoQueryService(
 ) : SubmissionQueryService {
     override fun existByAccNo(accNo: String): Boolean = submissionRepo.existsByAccNo(accNo)
 
+    override fun findExtByAccNo(accNo: String): ExtSubmission? =
+        submissionRepo.findByAccNo(accNo)?.let { toExtSubmissionMapper.toExtSubmission(it) }
+
     override fun getExtByAccNo(accNo: String): ExtSubmission {
         val submission = loadSubmission(accNo)
         return toExtSubmissionMapper.toExtSubmission(submission)
