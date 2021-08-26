@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.groups.web
 
-import ac.uk.ebi.biostd.persistence.model.UserGroup
+import ac.uk.ebi.biostd.persistence.model.DbUserGroup
 import ac.uk.ebi.biostd.submission.converters.BioUser
 import ebi.ac.uk.api.dto.UserGroupDto
 import ebi.ac.uk.model.Group
@@ -48,7 +48,7 @@ class GroupsResource(private val groupService: IGroupService) {
         return groupService.addUserInGroup(request.groupName, request.userName)
     }
 
-    private fun UserGroup.toUserGroupDto() = UserGroupDto(name, description)
+    private fun DbUserGroup.toUserGroupDto() = UserGroupDto(name, description)
 }
 
 data class GroupRequest(

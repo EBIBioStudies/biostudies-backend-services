@@ -271,7 +271,6 @@ CREATE TABLE UserGroup (
     name        VARCHAR(255) NULL,
     owner_id    BIGINT       NULL,
     secret      VARCHAR(255) NULL,
-    project     BIT NOT NULL,
     CONSTRAINT UserGroup_name_IDX UNIQUE (name),
     CONSTRAINT UserGroup_OwnerId_FRG_KEY FOREIGN KEY (owner_id) REFERENCES User (id)
 );

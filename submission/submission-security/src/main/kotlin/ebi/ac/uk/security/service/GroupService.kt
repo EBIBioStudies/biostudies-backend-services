@@ -1,6 +1,6 @@
 package ebi.ac.uk.security.service
 
-import ac.uk.ebi.biostd.persistence.model.UserGroup
+import ac.uk.ebi.biostd.persistence.model.DbUserGroup
 import ac.uk.ebi.biostd.persistence.model.ext.addGroup
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserGroupDataRepository
@@ -18,8 +18,8 @@ class GroupService(
     private val filesDirPath: String
 ) : IGroupService {
 
-    override fun createGroup(groupName: String, description: String): UserGroup {
-        val savedGroup = groupRepository.save(UserGroup(groupName, description, UUID.randomUUID().toString()))
+    override fun createGroup(groupName: String, description: String): DbUserGroup {
+        val savedGroup = groupRepository.save(DbUserGroup(groupName, description, UUID.randomUUID().toString()))
         FileUtils.createEmptyFolder(groupMagicFolder(savedGroup), RWXR_XR_X)
         return savedGroup
     }
@@ -30,7 +30,7 @@ class GroupService(
         userRepository.save(user.addGroup(group))
     }
 
-    private fun groupMagicFolder(it: UserGroup) = Paths.get("$filesDirPath/${magicPath(it.secret, it.id, "b")}")
+    private fun groupMagicFolder(it: DbUserGroup) = Paths.get("$filesDirPath/${magicPath(it.secret, it.id, "b")}")
 
     private fun magicPath(secret: String, id: Long, suffix: String) = "${secret.take(2)}/${secret.drop(2)}-$suffix$id"
 }

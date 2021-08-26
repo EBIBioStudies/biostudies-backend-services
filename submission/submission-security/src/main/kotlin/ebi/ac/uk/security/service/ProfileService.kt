@@ -2,7 +2,7 @@ package ebi.ac.uk.security.service
 
 import ac.uk.ebi.biostd.persistence.model.DbAccessPermission
 import ac.uk.ebi.biostd.persistence.model.DbUser
-import ac.uk.ebi.biostd.persistence.model.UserGroup
+import ac.uk.ebi.biostd.persistence.model.DbUserGroup
 import ebi.ac.uk.security.integration.model.api.GroupMagicFolder
 import ebi.ac.uk.security.integration.model.api.MagicFolder
 import ebi.ac.uk.security.integration.model.api.SecurityPermission
@@ -36,10 +36,10 @@ class ProfileService(private val filesDirPath: Path) {
     private fun getPermissions(permissions: Set<DbAccessPermission>): Set<SecurityPermission> =
         permissions.mapTo(mutableSetOf()) { SecurityPermission(it.accessType, it.accessTag.name) }
 
-    private fun groupsMagicFolder(groups: Set<UserGroup>): List<GroupMagicFolder> =
+    private fun groupsMagicFolder(groups: Set<DbUserGroup>): List<GroupMagicFolder> =
         groups.map { GroupMagicFolder(it.name, groupMagicFolder(it), it.description) }
 
-    private fun groupMagicFolder(it: UserGroup) = Paths.get("$filesDirPath/${magicPath(it.secret, it.id, "b")}")
+    private fun groupMagicFolder(it: DbUserGroup) = Paths.get("$filesDirPath/${magicPath(it.secret, it.id, "b")}")
 
     private fun userMagicFolder(secret: String, id: Long): MagicFolder {
         val relativePath = magicPath(secret, id, "a")
