@@ -4,6 +4,7 @@ import ebi.ac.uk.extended.model.FileMode
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.io.FileUtils.copyOrReplaceFile
 import ebi.ac.uk.io.FileUtils.moveFile
+import ebi.ac.uk.io.ext.md5
 import java.io.File
 import java.nio.file.attribute.PosixFilePermission
 
@@ -17,7 +18,13 @@ data class NfsFileProcessingConfig(
 
 fun NfsFileProcessingConfig.nfsCopy(extFile: NfsFile): NfsFile {
     val target = targetFolder.resolve(extFile.fileName)
-    if (target.exists().not()) copyOrReplaceFile(extFile.file, target, filePermissions, dirPermissions)
+    val subFile = subFolder.resolve(extFile.fileName)
+
+    when {
+        subFile.exists() && subFile.md5() == extFile.md5 -> moveFile(subFile, target, filePermissions, dirPermissions)
+        target.exists().not() -> copyOrReplaceFile(extFile.file, target, filePermissions, dirPermissions)
+    }
+
     return extFile.copy(file = subFolder.resolve(extFile.fileName))
 }
 
