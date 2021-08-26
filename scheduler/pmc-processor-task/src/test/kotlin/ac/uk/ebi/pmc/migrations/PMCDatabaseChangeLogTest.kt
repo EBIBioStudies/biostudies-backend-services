@@ -81,7 +81,7 @@ internal class PMCDatabaseChangeLogTest(
     private fun assertErrorsCollection() {
         val indexes = mongoTemplate.getCollection(ERRORS_COL).listIndexes().map { it["key"]!! }
 
-        assertThat(mongoTemplate.collectionExists(ERRORS_COL)).isTrue
+        assertThat(mongoTemplate.collectionExists(ERRORS_COL)).isTrue()
         assertThat(indexes).hasSize(5)
 
         assertThat(indexes).contains(Index().on("_id", ASC).indexKeys)
@@ -94,7 +94,7 @@ internal class PMCDatabaseChangeLogTest(
     private fun assertSubmissionCollection() {
         val indexes = mongoTemplate.getCollection(SUBMISSION_COL).listIndexes().map { it["key"]!! }
 
-        assertThat(mongoTemplate.collectionExists(SUBMISSION_COL)).isTrue
+        assertThat(mongoTemplate.collectionExists(SUBMISSION_COL)).isTrue()
         assertThat(indexes).hasSize(8)
 
         assertThat(indexes).contains(Index().on("_id", ASC).indexKeys)
@@ -112,7 +112,7 @@ internal class PMCDatabaseChangeLogTest(
     private fun assertFilesSubmissionsCollection() {
         val indexes = mongoTemplate.getCollection(SUB_FILES_COL).listIndexes().map { it["key"]!! }
 
-        assertThat(mongoTemplate.collectionExists(SUB_FILES_COL)).isTrue
+        assertThat(mongoTemplate.collectionExists(SUB_FILES_COL)).isTrue()
         assertThat(indexes).hasSize(1)
 
         assertThat(indexes).contains(Index().on("_id", ASC).indexKeys)
@@ -121,7 +121,7 @@ internal class PMCDatabaseChangeLogTest(
     private fun assertInputFilesCollection() {
         val indexes = mongoTemplate.getCollection(INPUT_FILES_COL).listIndexes().map { it["key"]!! }
 
-        assertThat(mongoTemplate.collectionExists(INPUT_FILES_COL)).isTrue
+        assertThat(mongoTemplate.collectionExists(INPUT_FILES_COL)).isTrue()
         assertThat(indexes).hasSize(3)
 
         assertThat(indexes).contains(Index().on("_id", ASC).indexKeys)

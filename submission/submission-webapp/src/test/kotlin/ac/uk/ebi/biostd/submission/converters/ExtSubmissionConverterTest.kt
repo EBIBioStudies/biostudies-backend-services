@@ -27,22 +27,22 @@ class ExtSubmissionConverterTest(@MockK private val extSerializationService: Ext
 
     @Test
     fun `can read`() {
-        assertThat(testInstance.canRead(ExtSubmission::class.java, APPLICATION_JSON)).isTrue
+        assertThat(testInstance.canRead(ExtSubmission::class.java, APPLICATION_JSON)).isTrue()
     }
 
     @Test
     fun `can not read`() {
-        assertThat(testInstance.canRead(Submission::class.java, APPLICATION_JSON)).isFalse
+        assertThat(testInstance.canRead(Submission::class.java, APPLICATION_JSON)).isFalse()
     }
 
     @Test
     fun `can write`() {
-        assertThat(testInstance.canWrite(ExtSubmission::class.java, APPLICATION_JSON)).isTrue
+        assertThat(testInstance.canWrite(ExtSubmission::class.java, APPLICATION_JSON)).isTrue()
     }
 
     @Test
     fun `can not write`() {
-        assertThat(testInstance.canWrite(Submission::class.java, APPLICATION_JSON)).isFalse
+        assertThat(testInstance.canWrite(Submission::class.java, APPLICATION_JSON)).isFalse()
     }
 
     @Test

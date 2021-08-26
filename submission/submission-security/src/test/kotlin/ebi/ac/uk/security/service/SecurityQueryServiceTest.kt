@@ -34,7 +34,7 @@ class SecurityQueryServiceTest(
     fun `user exist by email`() {
         every { userRepository.existsByEmailAndActive("user@test.org", active = true) } returns true
 
-        assertThat(testInstance.existsByEmail("user@test.org")).isTrue
+        assertThat(testInstance.existsByEmail("user@test.org")).isTrue()
         verify(exactly = 1) { userRepository.existsByEmailAndActive("user@test.org", active = true) }
     }
 
@@ -42,7 +42,7 @@ class SecurityQueryServiceTest(
     fun `user does not exist by email`() {
         every { userRepository.existsByEmailAndActive("user@test.org", active = true) } returns false
 
-        assertThat(testInstance.existsByEmail("user@test.org")).isFalse
+        assertThat(testInstance.existsByEmail("user@test.org")).isFalse()
         verify(exactly = 1) { userRepository.existsByEmailAndActive("user@test.org", active = true) }
     }
 
@@ -127,8 +127,8 @@ class SecurityQueryServiceTest(
         assertThat(dbUser.secret).isEqualTo("a-new-key")
         assertThat(dbUser.activationKey).isEqualTo("a-new-key")
         assertThat(dbUser.passwordDigest).isEmpty()
-        assertThat(dbUser.active).isFalse
-        assertThat(dbUser.notificationsEnabled).isFalse
+        assertThat(dbUser.active).isFalse()
+        assertThat(dbUser.notificationsEnabled).isFalse()
         verify(exactly = 1) { userRepository.save(dbUser) }
     }
 }

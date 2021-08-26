@@ -89,7 +89,7 @@ class SecurityUtilTest(
             val password = "abc123"
             val passwordDigest = testInstance.getPasswordDigest(password)
 
-            assertThat(testInstance.checkPassword(passwordDigest, password)).isTrue
+            assertThat(testInstance.checkPassword(passwordDigest, password)).isTrue()
         }
 
         @Test
@@ -97,7 +97,7 @@ class SecurityUtilTest(
             val superUserToken = testInstance.createToken(adminUser)
             every { userRepository.getById(SecurityTestEntities.adminId) } returns adminUser
 
-            assertThat(testInstance.checkPassword(ByteArray(1), superUserToken)).isTrue
+            assertThat(testInstance.checkPassword(ByteArray(1), superUserToken)).isTrue()
         }
 
         @Test
@@ -105,7 +105,7 @@ class SecurityUtilTest(
             val userToken = testInstance.createToken(simpleUser)
             every { userRepository.getById(SecurityTestEntities.userId) } returns simpleUser
 
-            assertThat(testInstance.checkPassword(ByteArray(1), userToken)).isFalse
+            assertThat(testInstance.checkPassword(ByteArray(1), userToken)).isFalse()
         }
 
         @Test

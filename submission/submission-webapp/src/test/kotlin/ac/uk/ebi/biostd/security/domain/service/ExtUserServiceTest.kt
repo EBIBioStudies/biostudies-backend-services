@@ -25,7 +25,7 @@ class ExtUserServiceTest(@MockK private val userDataRepository: UserDataReposito
         assertThat(extUser.login).isEqualTo("test")
         assertThat(extUser.fullName).isEqualTo("Test User")
         assertThat(extUser.email).isEqualTo("test@ebi.ac.uk")
-        assertThat(extUser.notificationsEnabled).isTrue
+        assertThat(extUser.notificationsEnabled).isTrue()
     }
 
     @Test

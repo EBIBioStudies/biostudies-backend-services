@@ -131,12 +131,12 @@ internal class SecurityServiceTest(
 
             val securityUser = testInstance.registerUser(registrationRequest)
             val dbUser = savedUserSlot.captured
-            assertThat(dbUser.active).isTrue
+            assertThat(dbUser.active).isTrue()
             assertThat(dbUser.fullName).isEqualTo(name)
             assertThat(dbUser.email).isEqualTo(email)
             assertThat(dbUser.passwordDigest).isEqualTo(PASSWORD_DIGEST)
 
-            assertThat(dbUser.superuser).isFalse
+            assertThat(dbUser.superuser).isFalse()
             assertThat(dbUser.activationKey).isNull()
             assertThat(dbUser.login).isNull()
 
@@ -171,7 +171,7 @@ internal class SecurityServiceTest(
             testInstance.registerUser(SecurityTestEntities.preRegisterRequest)
 
             val user = savedUserSlot.captured
-            assertThat(user.active).isFalse
+            assertThat(user.active).isFalse()
             assertThat(user.activationKey).isEqualTo(ACTIVATION_KEY)
 
             val notification = activationSlot.captured
@@ -208,7 +208,7 @@ internal class SecurityServiceTest(
 
             testInstance.activate(ACTIVATION_KEY)
 
-            assertThat(user.active).isTrue
+            assertThat(user.active).isTrue()
             assertThat(user.activationKey).isNull()
         }
     }
@@ -238,7 +238,7 @@ internal class SecurityServiceTest(
             testInstance.retryRegistration(retryActivation)
 
             val dbUser = savedUserSlot.captured
-            assertThat(dbUser.active).isFalse
+            assertThat(dbUser.active).isFalse()
             assertThat(dbUser.activationKey).isEqualTo(ACTIVATION_KEY)
         }
     }
@@ -373,7 +373,7 @@ internal class SecurityServiceTest(
 
             val activated = userSlots.first()
             assertThat(activated.activationKey).isNull()
-            assertThat(activated.active).isTrue
+            assertThat(activated.active).isTrue()
 
             val passwordSetup = userSlots.second()
             assertThat(passwordSetup.activationKey).isNull()
