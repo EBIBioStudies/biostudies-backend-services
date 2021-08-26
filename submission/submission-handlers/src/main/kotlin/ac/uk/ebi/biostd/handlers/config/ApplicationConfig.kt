@@ -10,17 +10,13 @@ import ebi.ac.uk.commons.http.slack.NotificationsSender
 import ebi.ac.uk.notifications.integration.NotificationConfig
 import ebi.ac.uk.notifications.service.RtNotificationService
 import ebi.ac.uk.notifications.service.SecurityNotificationService
-import ebi.ac.uk.util.collections.replace
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 import org.springframework.core.io.ResourceLoader
-import org.springframework.http.converter.HttpMessageConverter
-import org.springframework.http.converter.StringHttpMessageConverter
 import org.springframework.web.client.RestTemplate
 import uk.ac.ebi.extended.serialization.integration.ExtSerializationConfig
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
-import java.nio.charset.StandardCharsets.UTF_8
 
 @Configuration
 @Import(NotificationPersistenceConfig::class)
@@ -72,9 +68,6 @@ class Services {
     fun securityNotificationService(
         notificationConfig: NotificationConfig
     ): SecurityNotificationService = notificationConfig.securityNotificationService()
-
-    private fun getConverters(converters: List<HttpMessageConverter<*>>) =
-        converters.replace({ it is StringHttpMessageConverter }, StringHttpMessageConverter(UTF_8))
 }
 
 @Configuration
