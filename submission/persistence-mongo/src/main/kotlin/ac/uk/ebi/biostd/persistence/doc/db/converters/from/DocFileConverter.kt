@@ -21,22 +21,26 @@ import org.springframework.core.convert.converter.Converter
 
 class DocFileConverter(private val docAttributeConverter: DocAttributeConverter) : Converter<Document, DocFile> {
     override fun convert(source: Document): DocFile {
+        val attributes = source.getDocList(FILE_DOC_ATTRIBUTES).map { docAttributeConverter.convert(it) }
+        val md5 = source.getString(FILE_DOC_MD5)
+        val fileSize = source.getLong(FILE_DOC_SIZE)
+
         return when (source.getString(classField)) {
             FIRE_DOC_FILE_CLASS -> FireDocFile(
                 fileName = source.getString(FIRE_FILE_DOC_FILE_NAME),
                 fireId = source.getString(FIRE_FILE_DOC_ID),
-                attributes = source.getDocList(FILE_DOC_ATTRIBUTES).map { docAttributeConverter.convert(it) },
-                md5 = source.getString(FILE_DOC_MD5),
-                fileSize = source.getLong(FILE_DOC_SIZE),
+                attributes = attributes,
+                md5 = md5,
+                fileSize = fileSize,
                 fileSystem = FIRE
             )
             NFS_DOC_FILE_CLASS -> NfsDocFile(
                 relPath = source.getString(NFS_FILE_DOC_REL_PATH),
                 fullPath = source.getString(NFS_FILE_DOC_FULL_PATH),
                 fileType = source.getString(NFS_FILE_TYPE),
-                attributes = source.getDocList(FILE_DOC_ATTRIBUTES).map { docAttributeConverter.convert(it) },
-                md5 = source.getString(FILE_DOC_MD5),
-                fileSize = source.getLong(FILE_DOC_SIZE),
+                attributes = attributes,
+                md5 = md5,
+                fileSize = fileSize,
                 fileSystem = NFS
             )
             else -> throw InvalidClassNameDocFileException(source.getString(classField))

@@ -22,8 +22,13 @@ class NfsBioFile(val file: File) : BioFile() {
     override fun size(): Long = file.size()
 }
 
-class FireBioFile(val fireId: String, val md5: String) : BioFile() {
-    override fun readContent(): String = TODO()
-    override fun md5(): String = TODO()
-    override fun size(): Long = TODO()
+class FireBioFile(
+    val fireId: String,
+    val md5: String,
+    val size: Long,
+    private val readContent: Lazy<String>,
+) : BioFile() {
+    override fun readContent(): String = readContent.value
+    override fun md5(): String = md5
+    override fun size(): Long = size
 }

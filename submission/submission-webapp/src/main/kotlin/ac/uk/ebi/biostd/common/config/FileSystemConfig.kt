@@ -9,7 +9,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
-import org.springframework.context.annotation.Primary
 import uk.ac.ebi.fire.client.integration.web.FireWebClient
 
 @Configuration
@@ -18,10 +17,16 @@ class FileSystemConfig(
     private val folderResolver: SubmissionFolderResolver,
     private val fireWebClient: FireWebClient
 ) {
-//    @Bean
-//    fun nfsFilePersistenceService(): FilesService = NfsFilesService(folderResolver)
+    @Bean
+    @ConditionalOnProperty(
+        prefix = "app.persistence",
+        name = ["enableFire"],
+        havingValue = "false",
+        matchIfMissing = true
+    )
+    fun nfsFilePersistenceService(): FilesService = NfsFilesService(folderResolver)
 
     @Bean
-//    @ConditionalOnProperty(prefix = "app.persistence", name = ["enableFire"], havingValue = "true")
+    @ConditionalOnProperty(prefix = "app.persistence", name = ["enableFire"], havingValue = "true")
     fun fireFileService(): FilesService = FireFilesService(fireWebClient)
 }

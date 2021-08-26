@@ -1,6 +1,11 @@
 package ac.uk.ebi.biostd.persistence.doc.mapping.to
 
-import ac.uk.ebi.biostd.persistence.doc.model.*
+import ac.uk.ebi.biostd.persistence.doc.model.DocFile
+import ac.uk.ebi.biostd.persistence.doc.model.DocFileList
+import ac.uk.ebi.biostd.persistence.doc.model.DocFileTable
+import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
+import ac.uk.ebi.biostd.persistence.doc.model.FireDocFile
+import ac.uk.ebi.biostd.persistence.doc.model.NfsDocFile
 import arrow.core.Either
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileList
@@ -11,7 +16,7 @@ import java.nio.file.Paths
 
 internal fun DocFile.toExtFile(): ExtFile = when (this) {
     is FireDocFile -> FireFile(fileName, fireId, md5, fileSize, attributes.map { it.toExtAttribute() })
-    is NfsDocFile -> NfsFile(relPath, Paths.get(fullPath).toFile(), attributes.map { it.toExtAttribute() }).also { it.md5 = md5 }
+    is NfsDocFile -> NfsFile(relPath, Paths.get(fullPath).toFile(), attributes.map { it.toExtAttribute() })
 }
 
 internal fun DocFileTable.toExtFileTable(): ExtFileTable = ExtFileTable(files.map { it.toExtFile() })

@@ -4,7 +4,6 @@ import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.filesystem.api.FilesService
 import ac.uk.ebi.biostd.persistence.filesystem.api.FtpService
-import ac.uk.ebi.biostd.persistence.filesystem.nfs.NfsFilesService
 import ac.uk.ebi.biostd.persistence.filesystem.nfs.NfsFtpService
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabService
 import ac.uk.ebi.biostd.persistence.filesystem.service.FileSystemService

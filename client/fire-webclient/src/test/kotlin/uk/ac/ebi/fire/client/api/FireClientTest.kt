@@ -39,7 +39,7 @@ class FireClientTest(
             template.postForObject(FIRE_OBJECTS_URL, capture(httpEntitySlot), FireFile::class.java)
         } returns fireFile
 
-        testInstance.save(file, "the-md5")
+        testInstance.save(file, "the-md5", "", "")
 
         val httpEntity = httpEntitySlot.captured
         assertThat(httpEntity.headers[FIRE_MD5_HEADER]!!.first()).isEqualTo("the-md5")

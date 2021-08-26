@@ -27,8 +27,17 @@ internal fun ExtFileList.toDocFileList(submissionId: ObjectId): Pair<DocFileList
     return Pair(DocFileList(fileName, listRef), listFiles)
 }
 
+// TODO: fix add proper mapping
 private fun toFileDocListFile(submissionId: ObjectId, extFile: ExtFile) = when (extFile) {
-    is FireFile -> throw FireFileToFileListDocFileNotSupportedException()
+    is FireFile -> FileListDocFile(
+        id = ObjectId(),
+        submissionId = submissionId,
+        fileName = extFile.fileName,
+        fullPath = "",
+        attributes = extFile.attributes.map { it.toDocAttribute() },
+        md5 = extFile.md5,
+        fileSystem = FIRE
+    )
     is NfsFile -> FileListDocFile(
         id = ObjectId(),
         submissionId = submissionId,

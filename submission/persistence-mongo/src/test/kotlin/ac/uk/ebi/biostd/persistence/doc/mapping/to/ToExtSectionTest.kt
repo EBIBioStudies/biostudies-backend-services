@@ -10,9 +10,11 @@ import ac.uk.ebi.biostd.persistence.doc.test.TEST_REL_PATH
 import arrow.core.Either.Companion.left
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
+@Disabled
 @ExtendWith(TemporaryFolderExtension::class)
 class ToExtSectionTest(temporaryFolder: TemporaryFolder) {
     private val testFile = temporaryFolder.createFile(TEST_REL_PATH)
