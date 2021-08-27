@@ -39,7 +39,7 @@ class FireClientTest(
             template.postForObject(FIRE_OBJECTS_URL, capture(httpEntitySlot), FireFile::class.java)
         } returns fireFile
 
-        testInstance.save(file, "the-md5", "", "")
+        testInstance.save(file, "the-md5", "")
 
         val httpEntity = httpEntitySlot.captured
         assertThat(httpEntity.headers[FIRE_MD5_HEADER]!!.first()).isEqualTo("the-md5")
@@ -78,7 +78,7 @@ class FireClientTest(
             template.getForObject("$FIRE_OBJECTS_URL/blob/path/S-BSST1/file1.txt", ByteArray::class.java)
         } returns file.readBytes()
 
-        val downloadedFile = testInstance.downloadByPath("S-BSST1/file1.txt")
+        val downloadedFile = testInstance.downloadById("S-BSST1/file1.txt")
 
         assertThat(downloadedFile.readText()).isEqualTo("test content")
         assertThat(downloadedFile.absolutePath).isEqualTo("${tmpFolder.root.absolutePath}/file1.txt")

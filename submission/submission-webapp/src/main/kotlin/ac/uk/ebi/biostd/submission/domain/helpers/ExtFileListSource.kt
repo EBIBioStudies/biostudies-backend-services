@@ -16,7 +16,6 @@ class ExtFileListSource(
 ) : FilesSource {
     override fun exists(filePath: String): Boolean = files.any { it.fileName == filePath }
 
-    // TODO: change fire call to download by fireId
     override fun getFile(filePath: String): BioFile {
         val file = files.firstOrNull { it.fileName == filePath } ?: throw FileNotFoundException(filePath)
         return when (file) {
@@ -24,7 +23,7 @@ class ExtFileListSource(
                 file.fireId,
                 file.md5,
                 file.size,
-                lazy { fireWebClient.downloadByPath(file.fireId).readText() }
+                lazy { fireWebClient.downloadById(file.fireId).readText() }
             )
             is NfsFile -> NfsBioFile(file.file)
         }

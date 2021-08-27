@@ -16,7 +16,7 @@ import java.nio.file.Paths
 
 internal fun DocFile.toExtFile(): ExtFile = when (this) {
     is FireDocFile -> FireFile(fileName, fireId, md5, fileSize, attributes.map { it.toExtAttribute() })
-    is NfsDocFile -> NfsFile(relPath, Paths.get(fullPath).toFile(), attributes.map { it.toExtAttribute() })
+    is NfsDocFile -> NfsFile(relPath, Paths.get(location).toFile(), attributes.map { it.toExtAttribute() })
 }
 
 internal fun DocFileTable.toExtFileTable(): ExtFileTable = ExtFileTable(files.map { it.toExtFile() })
@@ -25,7 +25,7 @@ internal fun Either<DocFile, DocFileTable>.toExtFiles(): Either<ExtFile, ExtFile
     bimap({ it.toExtFile() }) { it.toExtFileTable() }
 
 internal fun FileListDocFile.toExtFile(): ExtFile =
-    NfsFile(fileName, Paths.get(fullPath).toFile(), attributes.map { it.toExtAttribute() }).also { it.md5 = md5 }
+    NfsFile(fileName, Paths.get(location).toFile(), attributes.map { it.toExtAttribute() }).also { it.md5 = md5 }
 
 /**
  * Maps a DocFileList to corresponding Ext type. Note that empty list is used as files as list files are not loaded as

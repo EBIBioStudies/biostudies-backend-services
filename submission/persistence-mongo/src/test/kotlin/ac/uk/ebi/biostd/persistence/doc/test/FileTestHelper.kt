@@ -12,6 +12,7 @@ import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileList
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
+import ebi.ac.uk.io.ext.md5
 import org.assertj.core.api.Assertions.assertThat
 import org.bson.types.ObjectId
 import java.io.File
@@ -27,7 +28,7 @@ private const val SIZE = 30L
 
 internal object FileTestHelper {
     val nfsDocFile =
-        NfsDocFile(TEST_REL_PATH, TEST_FULL_PATH, FILE_TYPE, listOf(basicDocAttribute), TEST_MD5, SIZE, NFS)
+        NfsDocFile(TEST_REL_PATH, TEST_FULL_PATH, FILE_TYPE, listOf(basicDocAttribute), TEST_MD5, SIZE)
     val fireDocFile =
         FireDocFile(
             fileName = TEST_REL_PATH,
@@ -35,7 +36,6 @@ internal object FileTestHelper {
             attributes = listOf(basicDocAttribute),
             md5 = TEST_MD5,
             fileSize = TEST_FIRE_FILE_SIZE,
-            fileSystem = FIRE
         )
     val docFileRef = DocFileRef(ObjectId(10, 10))
     val docFileList = DocFileList(TEST_FILE_LIST, listOf(docFileRef))
@@ -52,7 +52,7 @@ internal object FileTestHelper {
 
     private fun assertNfsFile(nfsFile: NfsFile, file: File) {
         assertThat(nfsFile.fileName).isEqualTo(TEST_REL_PATH)
-        assertThat(nfsFile.md5).isEqualTo(TEST_MD5)
+        assertThat(nfsFile.md5).isEqualTo(file.md5())
         assertThat(nfsFile.file).isEqualTo(file)
         assertThat(nfsFile.attributes).hasSize(1)
         assertBasicExtAttribute(nfsFile.attributes.first())

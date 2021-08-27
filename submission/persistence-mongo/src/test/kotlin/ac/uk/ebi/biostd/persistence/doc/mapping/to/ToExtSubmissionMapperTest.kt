@@ -15,12 +15,10 @@ import ebi.ac.uk.io.ext.createNewFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.bson.types.ObjectId
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(TemporaryFolderExtension::class)
-@Disabled
 class ToExtSubmissionMapperTest(temporaryFolder: TemporaryFolder) {
     private val baseFolder = temporaryFolder.createDirectory("submissions")
     private val testFolder = baseFolder.createDirectory("S-TEST")
@@ -36,9 +34,8 @@ class ToExtSubmissionMapperTest(temporaryFolder: TemporaryFolder) {
         assertExtSubmission(extSubmission, sectionFile)
     }
 
-    //    TODO use testFireDocFile
     private fun testSubmission(): DocSubmission {
-        val testNfsDocFile = nfsDocFile.copy(fullPath = sectionFile.absolutePath)
+        val testNfsDocFile = nfsDocFile.copy(location = sectionFile.absolutePath)
         val testFireDocFile = fireDocFile
 
         return docSubmission.copy(

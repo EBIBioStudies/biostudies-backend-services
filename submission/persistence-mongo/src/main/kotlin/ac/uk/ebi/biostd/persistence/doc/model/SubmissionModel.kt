@@ -82,21 +82,17 @@ data class DocLink(val url: String, val attributes: List<DocAttribute> = listOf(
 sealed class DocFile(
     open val attributes: List<DocAttribute>,
     open val md5: String,
-    open val fileSize: Long,
-    open val fileSystem: FileSystem
+    open val fileSize: Long
 )
 
-// TODO fullPath should be changed to "location" since it's more generic
-// TODO fileSystem is not being persisted in the database
 data class NfsDocFile(
     val relPath: String,
-    val fullPath: String,
+    val location: String,
     val fileType: String,
     override var attributes: List<DocAttribute>,
     override val md5: String,
     override val fileSize: Long,
-    override val fileSystem: FileSystem
-) : DocFile(attributes, md5, fileSize, fileSystem)
+) : DocFile(attributes, md5, fileSize)
 
 data class FireDocFile(
     val fileName: String,
@@ -104,8 +100,7 @@ data class FireDocFile(
     override val attributes: List<DocAttribute>,
     override val md5: String,
     override val fileSize: Long,
-    override val fileSystem: FileSystem
-) : DocFile(attributes, md5, fileSize, fileSystem)
+) : DocFile(attributes, md5, fileSize)
 
 data class DocFileList(
     val fileName: String,
@@ -116,7 +111,6 @@ data class DocFileRef(
     val fileId: ObjectId
 )
 
-// TODO fullPath should be changed to "location" since it's more generic
 // TODO fileSystem is not being persisted in the database
 @Document(collection = "file_list_files")
 data class FileListDocFile(
@@ -124,7 +118,7 @@ data class FileListDocFile(
     val id: ObjectId,
     val submissionId: ObjectId,
     val fileName: String,
-    val fullPath: String,
+    val location: String,
     val attributes: List<DocAttribute> = listOf(),
     val md5: String,
     val fileSystem: FileSystem

@@ -33,7 +33,7 @@ private fun toFileDocListFile(submissionId: ObjectId, extFile: ExtFile) = when (
         id = ObjectId(),
         submissionId = submissionId,
         fileName = extFile.fileName,
-        fullPath = "",
+        location = "",
         attributes = extFile.attributes.map { it.toDocAttribute() },
         md5 = extFile.md5,
         fileSystem = FIRE
@@ -42,7 +42,7 @@ private fun toFileDocListFile(submissionId: ObjectId, extFile: ExtFile) = when (
         id = ObjectId(),
         submissionId = submissionId,
         fileName = extFile.fileName,
-        fullPath = extFile.file.absolutePath,
+        location = extFile.file.absolutePath,
         attributes = extFile.attributes.map { it.toDocAttribute() },
         md5 = extFile.md5,
         fileSystem = NFS
@@ -58,16 +58,14 @@ private fun ExtFile.toDocFile(): DocFile = when (this) {
         attributes = attributes.map { it.toDocAttribute() },
         md5 = md5,
         fileSize = size,
-        fileSystem = FIRE
     )
     is NfsFile -> NfsDocFile(
         relPath = fileName,
-        fullPath = file.absolutePath,
+        location = file.absolutePath,
         fileType = fileType(file),
         attributes = attributes.map { it.toDocAttribute() },
         md5 = md5,
         fileSize = file.size(),
-        fileSystem = NFS
     )
 }
 

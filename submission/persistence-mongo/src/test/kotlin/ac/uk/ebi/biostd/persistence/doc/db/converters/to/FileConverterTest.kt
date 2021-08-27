@@ -9,8 +9,6 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.F
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.FIRE_FILE_DOC_ID
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.NFS_FILE_TYPE
 import ac.uk.ebi.biostd.persistence.doc.model.DocAttribute
-import ac.uk.ebi.biostd.persistence.doc.model.FileSystem.FIRE
-import ac.uk.ebi.biostd.persistence.doc.model.FileSystem.NFS
 import ac.uk.ebi.biostd.persistence.doc.model.FireDocFile
 import ac.uk.ebi.biostd.persistence.doc.model.NfsDocFile
 import io.mockk.every
@@ -36,12 +34,11 @@ internal class FileConverterTest(
         val file =
             NfsDocFile(
                 relPath = NFS_FILE_DOC_REL_PATH,
-                fullPath = NFS_FILE_DOC_FULL_PATH,
+                location = NFS_FILE_DOC_FULL_PATH,
                 fileType = "file",
                 attributes = listOf(docAttribute),
                 md5 = FILE_DOC_MD5,
-                fileSize = 10L,
-                fileSystem = NFS
+                fileSize = 10L
             )
         val result = testInstance.convert(file)
 
@@ -61,8 +58,7 @@ internal class FileConverterTest(
             fireId = FIRE_FILE_DOC_ID,
             attributes = listOf(docAttribute),
             md5 = FILE_DOC_MD5,
-            fileSize = 10L,
-            fileSystem = FIRE
+            fileSize = 10L
         )
 
         val result = testInstance.convert(file)

@@ -12,8 +12,6 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.F
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.FIRE_FILE_DOC_ID
 import ac.uk.ebi.biostd.persistence.doc.db.converters.to.CommonsConverter.classField
 import ac.uk.ebi.biostd.persistence.doc.model.DocFile
-import ac.uk.ebi.biostd.persistence.doc.model.FileSystem.FIRE
-import ac.uk.ebi.biostd.persistence.doc.model.FileSystem.NFS
 import ac.uk.ebi.biostd.persistence.doc.model.FireDocFile
 import ac.uk.ebi.biostd.persistence.doc.model.NfsDocFile
 import org.bson.Document
@@ -32,16 +30,14 @@ class DocFileConverter(private val docAttributeConverter: DocAttributeConverter)
                 attributes = attributes,
                 md5 = md5,
                 fileSize = fileSize,
-                fileSystem = FIRE
             )
             NFS_DOC_FILE_CLASS -> NfsDocFile(
                 relPath = source.getString(NFS_FILE_DOC_REL_PATH),
-                fullPath = source.getString(NFS_FILE_DOC_FULL_PATH),
+                location = source.getString(NFS_FILE_DOC_FULL_PATH),
                 fileType = source.getString(NFS_FILE_TYPE),
                 attributes = attributes,
                 md5 = md5,
                 fileSize = fileSize,
-                fileSystem = NFS
             )
             else -> throw InvalidClassNameDocFileException(source.getString(classField))
         }

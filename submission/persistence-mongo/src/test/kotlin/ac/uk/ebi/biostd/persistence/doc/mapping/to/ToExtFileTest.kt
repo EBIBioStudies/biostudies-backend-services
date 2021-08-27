@@ -21,15 +21,13 @@ import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
 import org.bson.types.ObjectId
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
-@Disabled
 @ExtendWith(TemporaryFolderExtension::class)
 class ToExtFileTest(temporaryFolder: TemporaryFolder) {
     private val testFile = temporaryFolder.createFile(TEST_REL_PATH)
-    private val testNfsDocFile = nfsDocFile.copy(fullPath = testFile.absolutePath)
+    private val testNfsDocFile = nfsDocFile.copy(location = testFile.absolutePath)
     private val testFireDocFile = fireDocFile
 
     @Test

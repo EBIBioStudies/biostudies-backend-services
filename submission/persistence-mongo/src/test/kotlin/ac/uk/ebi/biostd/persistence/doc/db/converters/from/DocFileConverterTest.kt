@@ -10,7 +10,6 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.NF
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.FIRE_FILE_DOC_ID
 import ac.uk.ebi.biostd.persistence.doc.db.converters.to.CommonsConverter
 import ac.uk.ebi.biostd.persistence.doc.model.DocAttribute
-import ac.uk.ebi.biostd.persistence.doc.model.FileSystem.FIRE
 import ac.uk.ebi.biostd.persistence.doc.model.FireDocFile
 import ac.uk.ebi.biostd.persistence.doc.model.NfsDocFile
 import ac.uk.ebi.biostd.persistence.doc.model.fireDocFileClass
@@ -39,7 +38,7 @@ internal class DocFileConverterTest(
 
         require(result is NfsDocFile)
         assertThat(result.relPath).isEqualTo("relPath")
-        assertThat(result.fullPath).isEqualTo("fullPath")
+        assertThat(result.location).isEqualTo("fullPath")
         assertThat(result.attributes).isEqualTo(listOf(docAttribute))
         assertThat(result.md5).isEqualTo("md5")
         assertThat(result.fileType).isEqualTo("file")
@@ -58,7 +57,6 @@ internal class DocFileConverterTest(
         assertThat(result.attributes).isEqualTo(listOf(docAttribute))
         assertThat(result.md5).isEqualTo("md5")
         assertThat(result.fileSize).isEqualTo(10L)
-        assertThat(result.fileSystem).isEqualTo(FIRE)
     }
 
     private fun createNfsFileDoc(): Document {

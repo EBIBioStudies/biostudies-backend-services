@@ -31,19 +31,19 @@ data class FireFileProcessingConfig(
 )
 
 fun FireFileProcessingConfig.processFile(sub: ExtSubmission, file: ExtFile): ExtFile {
-    return if (file is NfsFile) processNfsFile(sub.accNo, sub.relPath, file) else file
+    return if (file is NfsFile) processNfsFile(sub.relPath, file) else file
 }
 
-fun FireFileProcessingConfig.processNfsFile(accNo: String, relPath: String, nfsFile: NfsFile): FireFile {
+fun FireFileProcessingConfig.processNfsFile(relPath: String, nfsFile: NfsFile): FireFile {
     logger.info { "processing file ${nfsFile.fileName}" }
     val fileFire = previousFiles[nfsFile.md5] as FireFile?
-    return if (fileFire == null) saveFile(accNo, relPath, nfsFile) else reusePreviousFile(fileFire, nfsFile)
+    return if (fileFire == null) saveFile(relPath, nfsFile) else reusePreviousFile(fileFire, nfsFile)
 }
 
 private fun reusePreviousFile(fireFile: FireFile, nfsFile: NfsFile) =
     FireFile(nfsFile.fileName, fireFile.fireId, fireFile.md5, fireFile.size, nfsFile.attributes)
 
-private fun FireFileProcessingConfig.saveFile(accNo: String, relPath: String, nfsFile: NfsFile): FireFile {
-    val store = fireWebClient.save(nfsFile.file, nfsFile.md5, accNo, relPath)
+private fun FireFileProcessingConfig.saveFile(relPath: String, nfsFile: NfsFile): FireFile {
+    val store = fireWebClient.save(nfsFile.file, nfsFile.md5, relPath)
     return FireFile(nfsFile.fileName, store.fireOid, store.objectMd5, store.objectSize.toLong(), nfsFile.attributes)
 }
