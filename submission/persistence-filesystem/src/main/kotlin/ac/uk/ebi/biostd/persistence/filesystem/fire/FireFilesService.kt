@@ -4,10 +4,15 @@ import ac.uk.ebi.biostd.persistence.filesystem.api.FilesService
 import ac.uk.ebi.biostd.persistence.filesystem.request.FilePersistenceRequest
 import ac.uk.ebi.biostd.persistence.filesystem.request.Md5
 import ac.uk.ebi.biostd.persistence.filesystem.service.processFiles
+import arrow.core.Either
 import ebi.ac.uk.extended.model.ExtFile
+import ebi.ac.uk.extended.model.ExtFileTable
+import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
+import ebi.ac.uk.util.collections.ifLeft
+import ebi.ac.uk.util.collections.ifRight
 import mu.KotlinLogging
 import uk.ac.ebi.fire.client.integration.web.FireWebClient
 
@@ -30,12 +35,15 @@ data class FireFileProcessingConfig(
     val previousFiles: Map<Md5, ExtFile>
 )
 
-fun FireFileProcessingConfig.processFile(sub: ExtSubmission, file: ExtFile): ExtFile {
-    return if (file is NfsFile) processNfsFile(sub.relPath, file) else file
-}
+fun FireFileProcessingConfig.processFile(
+    sub: ExtSubmission,
+    file: ExtFile
+): ExtFile = if (file is NfsFile) processNfsFile(sub.relPath, file) else file
 
 fun FireFileProcessingConfig.processNfsFile(relPath: String, nfsFile: NfsFile): FireFile {
     logger.info { "processing file ${nfsFile.fileName}" }
+
+    // TODO handle directories (check S-BIAD56)
     val fileFire = previousFiles[nfsFile.md5] as FireFile?
     return if (fileFire == null) saveFile(relPath, nfsFile) else reusePreviousFile(fileFire, nfsFile)
 }

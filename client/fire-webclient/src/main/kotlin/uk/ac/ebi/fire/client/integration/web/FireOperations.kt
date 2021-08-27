@@ -10,7 +10,9 @@ interface FireOperations {
 
     fun unsetPath(fireOid: String)
 
-    fun downloadById(id: String): File
+    fun downloadByPath(path: String): File
+
+    fun downloadByFireId(fireOid: String, fileName: String): File
 
     fun findAllInPath(path: String): List<FireFile>
 

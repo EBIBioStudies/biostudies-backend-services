@@ -46,9 +46,18 @@ internal class FireClient(
         template.delete("$FIRE_OBJECTS_URL/$fireOid/firePath")
     }
 
-    override fun downloadById(id: String): File {
-        val tmpFile = File(tmpDirPath, id.substringAfterLast("/"))
-        val fileContent = template.getForObject<ByteArray>("$FIRE_OBJECTS_URL/blob/path/$id")
+    override fun downloadByPath(
+        path: String
+    ): File = downloadFireFile(path.substringAfterLast("/"), "$FIRE_OBJECTS_URL/blob/path/$path")
+
+    override fun downloadByFireId(
+        fireOid: String,
+        fileName: String
+    ): File = downloadFireFile(fileName, "$FIRE_OBJECTS_URL/blob/$fireOid")
+
+    private fun downloadFireFile(fileName: String, downloadUrl: String): File {
+        val tmpFile = File(tmpDirPath, fileName)
+        val fileContent = template.getForObject<ByteArray>(downloadUrl)
         Files.write(tmpFile.toPath(), fileContent)
 
         return tmpFile

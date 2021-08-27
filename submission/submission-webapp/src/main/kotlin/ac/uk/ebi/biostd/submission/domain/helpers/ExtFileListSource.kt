@@ -23,7 +23,7 @@ class ExtFileListSource(
                 file.fireId,
                 file.md5,
                 file.size,
-                lazy { fireWebClient.downloadById(file.fireId).readText() }
+                lazy { fireWebClient.downloadByFireId(file.fireId, file.fileName).readText() }
             )
             is NfsFile -> NfsBioFile(file.file)
         }

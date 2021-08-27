@@ -111,7 +111,6 @@ data class DocFileRef(
     val fileId: ObjectId
 )
 
-// TODO fileSystem is not being persisted in the database
 @Document(collection = "file_list_files")
 data class FileListDocFile(
     @Id
@@ -121,6 +120,7 @@ data class FileListDocFile(
     val location: String,
     val attributes: List<DocAttribute> = listOf(),
     val md5: String,
+    val size: Long,
     val fileSystem: FileSystem
 )
 

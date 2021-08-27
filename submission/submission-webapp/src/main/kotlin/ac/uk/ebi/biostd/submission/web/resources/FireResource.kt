@@ -25,7 +25,7 @@ class FireResource(
     private val tempFileGenerator: TempFileGenerator
 ) {
     @GetMapping("/download")
-    fun downloadByPath(@RequestParam("path") path: String): File = fireWebClient.downloadById(path)
+    fun downloadByPath(@RequestParam("path") path: String): File = fireWebClient.downloadByPath(path)
 
     @PostMapping
     fun save(
