@@ -61,16 +61,14 @@ internal class SubmissionMongoQueryService(
         return serializationService.deserialize(submission.submission.toString())
     }
 
-    override fun getReferencedFiles(accNo: String, fileListName: String): List<ExtFile> {
-        val submission = loadSubmission(accNo)
-        val files = submission.allDocSections
+    override fun getReferencedFiles(accNo: String, fileListName: String): List<ExtFile> =
+        loadSubmission(accNo)
+            .allDocSections
             .mapNotNull { it.fileList }
             .filter { it.fileName == fileListName }
             .firstOrElse { throw FileListNotFoundException(accNo, fileListName) }
             .let { fileList -> fileListDocFileRepository.findAllById(fileList.files.map { it.fileId }) }
-
-        return files.map { it.toExtFile() }
-    }
+            .map { it.toExtFile() }
 
     private fun loadSubmission(accNo: String) =
         submissionRepo.findByAccNo(accNo) ?: throw SubmissionNotFoundException(accNo)

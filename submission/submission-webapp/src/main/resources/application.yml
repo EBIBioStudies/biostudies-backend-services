@@ -12,13 +12,13 @@ spring:
 
   data:
     mongodb:
-      database: #Mongo Database Name
-      uri: # Mongo Database connection URL
+      database: biostudies-dev
+      uri: mongodb://root:admin@localhost:27017
 
   datasource:
-    url: # MySQL Database connection URL
-    username:
-    password:
+    url: jdbc:mysql://localhost:3306/BioStudiesDev
+    username: root
+    password: admin
     driver-class-name: com.mysql.jdbc.Driver
 
   jpa:
@@ -29,10 +29,10 @@ spring:
       use-new-id-generator-mappings: false
 
   rabbitmq:
-    host: # RabbitMQ host
-    username: # RabbitMQ user
-    password: # RabbitMQ password
-    port: # RabbitMQ port
+    host: localhost
+    username: manager
+    password: manager-local
+    port: 5672
 
   servlet:
     multipart:
@@ -46,29 +46,29 @@ logging:
     name: logs/application_logs.txt
 
 app:
-  submissionPath: # Absolute path to the folder to be used as submission storage
-  ftpPath: # Absolute path to the folder to be used ftp hardlinks
-  tempDirPath: # Absolute of the temp folder to store files
-  instanceBaseUrl: # Instance base url e.g. http://server.ebi.ac.uk:5541
+  submissionPath: /Users/jhoanmanuelms/EBI/nfs/submission
+  ftpPath: /Users/jhoanmanuelms/EBI/nfs/submission/ftp
+  tempDirPath: /Users/jhoanmanuelms/EBI/nfs/tmp
+  instanceBaseUrl: http://localhost:8080
   fire:
-    host: # FIRE host
-    username: # FIRE user
-    password: # FIRE password
+    host: https://hh.fire-test.sdo.ebi.ac.uk
+    username: biostudies-test-user1
+    password: zRC%6"E2$'u.
   security:
     captchaKey: # Captcha validation token
     checkCaptcha: false
-    tokenHash: # Token used for hash authentication
-    filesDirPath: # Absolute path to the folder to be used for the user/groups files
-    magicDirPath: #  Absolute path to create user magic folder for dropbox simple access
-    environment: # Current application execution environment
-    requireActivation: # Indicates whether or not, new user need activation before being used
+    tokenHash: bio-local
+    filesDirPath: /Users/jhoanmanuelms/EBI/nfs/dropbox
+    magicDirPath: /Users/jhoanmanuelms/EBI/nfs/magic
+    environment: LOCAL
+    requireActivation: false
     instanceKeys:
       dev: # Instance key for the submission tool DEV environment
       beta: # Instance key for the submission tool BETA environment
       prod: # Instance key for the submission tool PROD environment
   persistence:
-    enableMongo: false
-    enableFire: false
+    enableMongo: true
+    enableFire: true
   mongo:
     execute-migrations: true
     migration-package: ac.uk.ebi.biostd.persistence.doc.migrations

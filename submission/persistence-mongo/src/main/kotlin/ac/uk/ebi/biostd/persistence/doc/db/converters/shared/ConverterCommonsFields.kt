@@ -59,16 +59,6 @@ object DocFileRefFields {
     const val FILE_REF_DOC_FILE_ID = "fileId"
 }
 
-object FileListDocFileFields {
-    val FILE_LIST_DOC_FILE_CLASS: String = FileListDocFile::class.java.canonicalName
-    const val FILE_LIST_DOC_FILE_SUBMISSION_ID = "submissionId"
-    const val FILE_LIST_DOC_FILE_FILENAME = "fileName"
-    const val FILE_LIST_DOC_FILE_REL_PATH = "relPath"
-    const val FILE_LIST_DOC_FILE_FULL_PATH = "fullPath"
-    const val FILE_LIST_DOC_FILE_ATTRIBUTES = "attributes"
-    const val FILE_LIST_DOC_FILE_MD5 = "md5"
-}
-
 object DocFileTableFields {
     val DOC_FILE_TABLE_CLASS: String = DocFileTable::class.java.canonicalName
     const val FILE_TABLE_DOC_FILES = "files"

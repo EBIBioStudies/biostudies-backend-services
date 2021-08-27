@@ -29,7 +29,7 @@ internal class ToExtSubmissionMapper {
         modificationTime = submission.modificationTime.atOffset(UTC),
         creationTime = submission.creationTime.atOffset(UTC),
         section = submission.section.toExtSection(),
-        attributes = submission.attributes.map { it.toExtAttribute() },
+        attributes = submission.attributes.toExtAttributes(),
         collections = submission.collections.map { ExtCollection(it.accNo) },
         tags = submission.tags.map { ExtTag(it.name, it.value) },
         stats = submission.stats.map { it.toExtStat() }
