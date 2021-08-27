@@ -38,7 +38,7 @@ object DocFileFields {
 object NfsDocFileFields {
     val NFS_DOC_FILE_CLASS: String = NfsDocFile::class.java.canonicalName
     const val NFS_FILE_DOC_REL_PATH = "relPath"
-    const val NFS_FILE_DOC_FULL_PATH = "fullPath"
+    const val NFS_FILE_DOC_LOCATION = "location"
     const val NFS_FILE_TYPE = "type"
 }
 
@@ -64,7 +64,7 @@ object FileListDocFileFields {
     const val FILE_LIST_DOC_FILE_SUBMISSION_ID = "submissionId"
     const val FILE_LIST_DOC_FILE_FILENAME = "fileName"
     const val FILE_LIST_DOC_FILE_REL_PATH = "relPath"
-    const val FILE_LIST_DOC_FILE_FULL_PATH = "fullPath"
+    const val FILE_LIST_DOC_FILE_LOCATION = "location"
     const val FILE_LIST_DOC_FILE_ATTRIBUTES = "attributes"
     const val FILE_LIST_DOC_FILE_MD5 = "md5"
 }

@@ -16,8 +16,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 internal class FileListConverterTest(
     @MockK val fileRefConverter: FileRefConverter,
     @MockK val document: Document,
-    @MockK val docRefFile: DocFileRef,
-    @MockK val submissionID: ObjectId
+    @MockK val docRefFile: DocFileRef
 ) {
     private val testInstance = FileListConverter(fileRefConverter)
     @Test

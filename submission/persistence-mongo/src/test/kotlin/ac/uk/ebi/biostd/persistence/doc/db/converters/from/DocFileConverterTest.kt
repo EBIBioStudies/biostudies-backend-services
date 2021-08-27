@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.persistence.doc.db.converters.from
 
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_DOC_ATTRIBUTES
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.NFS_FILE_DOC_FULL_PATH
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.NFS_FILE_DOC_LOCATION
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_DOC_MD5
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.NFS_FILE_DOC_REL_PATH
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_DOC_SIZE
@@ -38,7 +38,7 @@ internal class DocFileConverterTest(
 
         require(result is NfsDocFile)
         assertThat(result.relPath).isEqualTo("relPath")
-        assertThat(result.location).isEqualTo("fullPath")
+        assertThat(result.location).isEqualTo("location")
         assertThat(result.attributes).isEqualTo(listOf(docAttribute))
         assertThat(result.md5).isEqualTo("md5")
         assertThat(result.fileType).isEqualTo("file")
@@ -64,7 +64,7 @@ internal class DocFileConverterTest(
 
         file[CommonsConverter.classField] = nfsDocFileClass
         file[NFS_FILE_DOC_REL_PATH] = "relPath"
-        file[NFS_FILE_DOC_FULL_PATH] = "fullPath"
+        file[NFS_FILE_DOC_LOCATION] = "location"
         file[NFS_FILE_TYPE] = "file"
         file[FILE_DOC_ATTRIBUTES] = listOf(documentAttr)
         file[FILE_DOC_MD5] = "md5"

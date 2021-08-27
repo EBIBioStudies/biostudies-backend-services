@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.persistence.doc.db.converters.to
 
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_DOC_ATTRIBUTES
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.NFS_FILE_DOC_FULL_PATH
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.NFS_FILE_DOC_LOCATION
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_DOC_MD5
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.NFS_FILE_DOC_REL_PATH
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.NFS_FILE_TYPE
@@ -34,7 +34,7 @@ class FileConverter(private val attributeConverter: AttributeConverter) : Conver
             is NfsDocFile -> {
                 file[classField] = NFS_DOC_FILE_CLASS
                 file[NFS_FILE_DOC_REL_PATH] = docFile.relPath
-                file[NFS_FILE_DOC_FULL_PATH] = docFile.location
+                file[NFS_FILE_DOC_LOCATION] = docFile.location
                 file[NFS_FILE_TYPE] = docFile.fileType
             }
         }
