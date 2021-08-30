@@ -128,6 +128,7 @@ interface UserDataRepository : JpaRepository<DbUser, Long> {
     fun existsByEmailAndActive(email: String, active: Boolean): Boolean
     fun findByActivationKeyAndActive(key: String, active: Boolean): DbUser?
     fun findByEmailAndActive(email: String, active: Boolean): DbUser?
+    fun getByEmailAndActive(email: String, active: Boolean): DbUser
     fun findByEmail(email: String): DbUser?
 
     @EntityGraph(value = USER_DATA_GRAPH, type = LOAD)

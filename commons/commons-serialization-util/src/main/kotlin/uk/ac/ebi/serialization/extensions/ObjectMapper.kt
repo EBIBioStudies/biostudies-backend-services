@@ -12,7 +12,7 @@ import com.fasterxml.jackson.module.kotlin.convertValue
  *
  */
 fun ObjectMapper.tryConvertValue(node: JsonNode, type: JavaType): Any? {
-    return runCatching<Any> { convertValue(node, type) }.fold({ it }, { null })
+    return runCatching<Any> { convertValue(node, type) }.getOrNull()
 }
 
 /**

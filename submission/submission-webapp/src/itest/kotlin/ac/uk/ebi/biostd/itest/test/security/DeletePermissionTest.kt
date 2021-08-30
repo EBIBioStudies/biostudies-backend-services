@@ -167,7 +167,7 @@ internal class DeletePermissionTest(private val tempFolder: TemporaryFolder) : B
             assertThat(superUserWebClient.submitSingle(projectFile, emptyList())).isSuccessful()
 
             val accessTag = tagsDataRepository.getByName("AProject")
-            val user = userDataRepository.findByEmailAndActive(RegularUser.email, active = true)!!
+            val user = userDataRepository.getByEmailAndActive(RegularUser.email, active = true)
             val accessPermission = DbAccessPermission(accessType = DELETE, user = user, accessTag = accessTag)
             accessPermissionRepository.save(accessPermission)
         }

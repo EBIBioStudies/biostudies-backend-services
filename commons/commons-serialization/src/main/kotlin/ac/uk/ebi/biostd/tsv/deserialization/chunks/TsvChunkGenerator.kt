@@ -43,8 +43,10 @@ internal class TsvChunkGenerator(private val parser: CSVFormat = createParser())
             type like FileFields.FILE -> FileChunk(lines)
             type like SectionFields.LINKS -> LinksTableChunk(lines)
             type like SectionFields.FILES -> FileTableChunk(lines)
-            type.matches(TABLE_REGEX) -> TABLE_REGEX.findGroup(type, 1)?.let { SubSectionTableChunk(lines, it) }
-                ?: RootSectionTableChunk(lines)
+            type.matches(TABLE_REGEX) -> when (val group = TABLE_REGEX.findGroup(type, 1)) {
+                null -> RootSectionTableChunk(lines)
+                else -> SubSectionTableChunk(lines, group)
+            }
             else -> header.findThird()?.let { SubSectionChunk(lines, it) } ?: RootSubSectionChunk(lines)
         }
     }
