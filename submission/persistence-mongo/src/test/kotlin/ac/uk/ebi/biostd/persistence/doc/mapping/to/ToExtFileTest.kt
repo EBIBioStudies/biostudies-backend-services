@@ -84,6 +84,7 @@ class ToExtFileTest(temporaryFolder: TemporaryFolder) {
             testFile.absolutePath,
             listOf(basicDocAttribute),
             "test-md5",
+            1,
             NFS
         )
 

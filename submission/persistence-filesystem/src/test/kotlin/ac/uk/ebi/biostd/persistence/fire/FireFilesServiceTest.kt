@@ -69,7 +69,7 @@ class FireFilesServiceTest(
         val processed = testInstance.persistSubmissionFiles(request)
 
         assertFireFile(processed, "folder/test.txt")
-        verify(exactly = 0) { fireWebClient.save(file, testMd5, "") }
+        verify(exactly = 0) { fireWebClient.save(file, testMd5, "S-TEST/123/S-TEST123") }
     }
 
     @Test

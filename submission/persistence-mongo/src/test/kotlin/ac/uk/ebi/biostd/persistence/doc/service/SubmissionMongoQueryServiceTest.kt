@@ -113,8 +113,10 @@ internal class SubmissionMongoQueryServiceTest(
             docSubmission.id,
             "referenced.txt",
             referencedFile.absolutePath,
-            md5 = "test-md5",
-            fileSystem = NFS
+            listOf(),
+            "test-md5",
+            1,
+            NFS
         )
         private val fileList = DocFileList("test-file-list", listOf(DocFileRef(fileReference)))
         private val submission =

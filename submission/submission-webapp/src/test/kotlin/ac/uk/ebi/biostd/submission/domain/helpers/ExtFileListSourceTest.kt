@@ -60,7 +60,7 @@ internal class ExtFileListSourceTest(
 
     @Test
     fun `getFile when fireBioFile`() {
-        every { fireWebClient.downloadById("fireId") } returns fireFile
+        every { fireWebClient.downloadByFireId("fireId", fireFilename) } returns fireFile
 
         val result = testInstance.getFile(fireFilename)
 
