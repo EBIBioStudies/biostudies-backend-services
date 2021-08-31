@@ -26,7 +26,7 @@ internal fun DocFileTable.toExtFileTable(): ExtFileTable = ExtFileTable(files.ma
 internal fun Either<DocFile, DocFileTable>.toExtFiles(): Either<ExtFile, ExtFileTable> =
     bimap({ it.toExtFile() }) { it.toExtFileTable() }
 
-internal fun FileListDocFile.toExtFile(): ExtFile = when(fileSystem) {
+internal fun FileListDocFile.toExtFile(): ExtFile = when (fileSystem) {
     FIRE -> FireFile(fileName, location, md5, size, attributes.toExtAttributes())
     NFS -> NfsFile(fileName, Paths.get(location).toFile(), attributes.toExtAttributes()).also { it.md5 = md5 }
 }
