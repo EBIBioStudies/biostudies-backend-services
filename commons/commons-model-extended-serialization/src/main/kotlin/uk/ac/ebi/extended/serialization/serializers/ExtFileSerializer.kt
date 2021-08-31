@@ -12,6 +12,7 @@ import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.EXT_TYP
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_DIR_TYPE
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_FILE_TYPE
+import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_FIRE_ID
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_NAME
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_PATH
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_SIZE
@@ -42,6 +43,7 @@ class ExtFileSerializer : JsonSerializer<ExtFile>() {
     private fun JsonGenerator.serializeFireFile(file: FireFile) {
         writeStartObject()
         writeStringField(FILE_NAME, file.fileName)
+        writeStringField(FILE_FIRE_ID, file.fireId)
         writeObjectField(ATTRIBUTES, file.attributes)
         writeStringField(EXT_TYPE, ExtType.FireFile.type)
         writeStringField(FILE_TYPE, FILE_FILE_TYPE)
