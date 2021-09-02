@@ -33,7 +33,7 @@ class DocFileConverter(private val docAttributeConverter: DocAttributeConverter)
             )
             NFS_DOC_FILE_CLASS -> NfsDocFile(
                 relPath = source.getString(NFS_FILE_DOC_REL_PATH),
-                location = source.getString(NFS_FILE_DOC_LOCATION),
+                fullPath = source.getString(NFS_FILE_DOC_LOCATION),
                 fileType = source.getString(NFS_FILE_TYPE),
                 attributes = attributes,
                 md5 = md5,

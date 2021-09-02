@@ -1,19 +1,15 @@
 package ac.uk.ebi.biostd.persistence.doc.db.converters.from
 
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_DOC_ATTRIBUTES
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.NFS_FILE_DOC_LOCATION
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_DOC_MD5
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.NFS_FILE_DOC_REL_PATH
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_DOC_SIZE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.FIRE_FILE_DOC_FILE_NAME
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.NFS_FILE_TYPE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.FIRE_FILE_DOC_ID
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.NFS_FILE_DOC_LOCATION
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.NFS_FILE_DOC_REL_PATH
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.NFS_FILE_TYPE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.to.CommonsConverter
-import ac.uk.ebi.biostd.persistence.doc.model.DocAttribute
-import ac.uk.ebi.biostd.persistence.doc.model.FireDocFile
-import ac.uk.ebi.biostd.persistence.doc.model.NfsDocFile
-import ac.uk.ebi.biostd.persistence.doc.model.fireDocFileClass
-import ac.uk.ebi.biostd.persistence.doc.model.nfsDocFileClass
+import ac.uk.ebi.biostd.persistence.doc.model.*
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
@@ -38,7 +34,7 @@ internal class DocFileConverterTest(
 
         require(result is NfsDocFile)
         assertThat(result.relPath).isEqualTo("relPath")
-        assertThat(result.location).isEqualTo("location")
+        assertThat(result.fullPath).isEqualTo("location")
         assertThat(result.attributes).isEqualTo(listOf(docAttribute))
         assertThat(result.md5).isEqualTo("md5")
         assertThat(result.fileType).isEqualTo("file")

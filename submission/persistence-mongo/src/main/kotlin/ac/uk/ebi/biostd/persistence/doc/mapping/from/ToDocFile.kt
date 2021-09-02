@@ -62,7 +62,7 @@ private fun ExtFile.toDocFile(): DocFile = when (this) {
     )
     is NfsFile -> NfsDocFile(
         relPath = fileName,
-        location = file.absolutePath,
+        fullPath = file.absolutePath,
         fileType = fileType(file),
         attributes = attributes.map { it.toDocAttribute() },
         md5 = md5,

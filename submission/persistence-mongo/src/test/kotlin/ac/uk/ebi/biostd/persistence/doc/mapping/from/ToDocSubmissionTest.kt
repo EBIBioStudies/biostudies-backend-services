@@ -278,7 +278,7 @@ class ToDocSubmissionTest(tempFolder: TemporaryFolder) {
             require(docFile is Either.Left)
             require(docFile.a is NfsDocFile)
             assertThat((docFile.a as NfsDocFile).relPath).isEqualTo(ROOT_SEC_FILE_NAME)
-            assertThat((docFile.a as NfsDocFile).location).isEqualTo(newRootSectionFile.file.path)
+            assertThat((docFile.a as NfsDocFile).fullPath).isEqualTo(newRootSectionFile.file.path)
         }
 
         val docFileTable = docFiles.second()
@@ -286,7 +286,7 @@ class ToDocSubmissionTest(tempFolder: TemporaryFolder) {
             val innerNfsDocFile = it.files.first()
             require(innerNfsDocFile is NfsDocFile)
             assertThat(innerNfsDocFile.relPath).isEqualTo(ROOT_SEC_TABLE_FILE_NAME)
-            assertThat(innerNfsDocFile.location).isEqualTo(newRootSectionTableFile.file.path)
+            assertThat(innerNfsDocFile.fullPath).isEqualTo(newRootSectionTableFile.file.path)
         }
     }
 }

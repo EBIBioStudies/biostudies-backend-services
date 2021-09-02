@@ -87,7 +87,7 @@ sealed class DocFile(
 
 data class NfsDocFile(
     val relPath: String,
-    val location: String,
+    val fullPath: String,
     val fileType: String,
     override var attributes: List<DocAttribute>,
     override val md5: String,

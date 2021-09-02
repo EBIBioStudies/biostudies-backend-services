@@ -34,7 +34,7 @@ internal class FileConverterTest(
         val file =
             NfsDocFile(
                 relPath = NFS_FILE_DOC_REL_PATH,
-                location = NFS_FILE_DOC_LOCATION,
+                fullPath = NFS_FILE_DOC_LOCATION,
                 fileType = "file",
                 attributes = listOf(docAttribute),
                 md5 = FILE_DOC_MD5,
