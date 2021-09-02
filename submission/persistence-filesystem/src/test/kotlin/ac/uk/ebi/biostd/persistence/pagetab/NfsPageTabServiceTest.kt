@@ -4,6 +4,7 @@ import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.JSON_PRETTY
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.TSV
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.XML
+import ac.uk.ebi.biostd.persistence.filesystem.pagetab.NfsPageTabService
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabService
 import ebi.ac.uk.extended.mapping.to.toFilesTable
 import ebi.ac.uk.extended.mapping.to.toSimpleSubmission
@@ -25,13 +26,13 @@ import java.nio.file.Files.getPosixFilePermissions
 import java.nio.file.Paths
 
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
-class PageTabServiceTest(
+class NfsPageTabServiceTest(
     tempFolder: TemporaryFolder,
     @MockK private val serializationService: SerializationService
 ) {
     private val rootPath = tempFolder.root
     private val folderResolver = SubmissionFolderResolver(Paths.get("$rootPath/submission"), Paths.get("$rootPath/ftp"))
-    private val testInstance = PageTabService(folderResolver, serializationService)
+    private val testInstance = NfsPageTabService(folderResolver, serializationService)
 
     @Test
     fun `generate page tab`() {
