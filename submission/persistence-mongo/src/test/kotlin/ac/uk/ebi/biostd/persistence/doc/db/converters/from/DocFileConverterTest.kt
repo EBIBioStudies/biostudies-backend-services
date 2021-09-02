@@ -5,7 +5,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_DOC_SIZE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.FIRE_FILE_DOC_FILE_NAME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.FIRE_FILE_DOC_ID
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.NFS_FILE_DOC_LOCATION
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.FILE_LIST_DOC_FILE_FULL_PATH
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.NFS_FILE_DOC_REL_PATH
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.NFS_FILE_TYPE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.to.CommonsConverter
@@ -64,7 +64,7 @@ internal class DocFileConverterTest(
 
         file[CommonsConverter.classField] = nfsDocFileClass
         file[NFS_FILE_DOC_REL_PATH] = "relPath"
-        file[NFS_FILE_DOC_LOCATION] = "location"
+        file[FILE_LIST_DOC_FILE_FULL_PATH] = "location"
         file[NFS_FILE_TYPE] = "file"
         file[FILE_DOC_ATTRIBUTES] = listOf(documentAttr)
         file[FILE_DOC_MD5] = "md5"
