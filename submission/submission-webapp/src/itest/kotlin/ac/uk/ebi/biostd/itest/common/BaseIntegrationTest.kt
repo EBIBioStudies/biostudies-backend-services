@@ -35,7 +35,7 @@ internal open class BaseIntegrationTest(private val tempFolder: TemporaryFolder)
         .withInitScript("Schema.sql")
         .withStartupCheckStrategy(MinimumDurationRunningStartupCheckStrategy(ofSeconds(MINIMUM_RUNNING_TIME)))
 
-    private val wireMockTransformer = TestWireMockTransformer(tempFolder.createDirectory("submission"))
+    private val wireMockTransformer = TestWireMockTransformer(tempFolder.createDirectory("tmpFire"))
     private val fireWireMock = WireMockServer(WireMockConfiguration().dynamicPort().extensions(wireMockTransformer))
 
     val submissionPath

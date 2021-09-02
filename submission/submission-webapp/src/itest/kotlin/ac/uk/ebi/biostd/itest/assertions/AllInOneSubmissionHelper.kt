@@ -10,6 +10,7 @@ import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod
 import org.assertj.core.api.Assertions.assertThat
+import java.io.File
 import java.nio.file.Paths
 
 internal class AllInOneSubmissionHelper(
@@ -28,9 +29,35 @@ internal class AllInOneSubmissionHelper(
         val submissionFolderPath = "$submissionPath/${submission.relPath}"
         val accNo = submission.accNo
 
+        assertFilesInFilesFolder(submissionFolderPath, accNo)
         assertAllInOneSubmissionXml(getSubFileContent("$submissionFolderPath/$accNo.xml"), accNo)
         assertAllInOneSubmissionJson(getSubFileContent("$submissionFolderPath/$accNo.json"), accNo)
         assertAllInOneSubmissionTsv(getSubFileContent("$submissionFolderPath/$accNo.pagetab.tsv"), accNo)
+    }
+
+    private fun assertFilesInFilesFolder(submissionFolderPath: String, accNo: String) {
+        if (System.getProperty("enableFire") == "true") {
+            val folderFirePath = submissionFolderPath.replace("submission", "tmpFire").plus("/Files")
+
+            assertThat(File(folderFirePath).resolve("DataFile1.txt").exists()).isTrue()
+            assertThat(File(folderFirePath).resolve("DataFile2.txt").exists()).isTrue()
+            assertThat(File(folderFirePath).resolve("DataFile3.txt").exists()).isTrue()
+            assertThat(File(folderFirePath).resolve("DataFile4.txt").exists()).isTrue()
+
+            assertAllInOneSubmissionXml(getSubFileContent("$folderFirePath/$accNo.xml"), accNo)
+            assertAllInOneSubmissionJson(getSubFileContent("$folderFirePath/$accNo.json"), accNo)
+            assertAllInOneSubmissionTsv(getSubFileContent("$folderFirePath/$accNo.pagetab.tsv"), accNo)
+        } else {
+            assertThat(File(submissionFolderPath).resolve("Files/DataFile1.txt").exists()).isTrue()
+            assertThat(File(submissionFolderPath).resolve("Files/DataFile2.txt").exists()).isTrue()
+            assertThat(File(submissionFolderPath).resolve("Files/Folder1/DataFile3.txt").exists()).isTrue()
+            assertThat(File(submissionFolderPath).resolve("Files/Folder1/Folder2/DataFile4.txt").exists()).isTrue()
+            assertThat(File(submissionFolderPath).resolve("Files/DataFile4.txt").exists()).isFalse()
+
+            assertAllInOneSubmissionXml(getSubFileContent("$submissionFolderPath/$accNo.xml"), accNo)
+            assertAllInOneSubmissionJson(getSubFileContent("$submissionFolderPath/$accNo.json"), accNo)
+            assertAllInOneSubmissionTsv(getSubFileContent("$submissionFolderPath/$accNo.pagetab.tsv"), accNo)
+        }
     }
 
     private fun getSubFileContent(path: String): String {
