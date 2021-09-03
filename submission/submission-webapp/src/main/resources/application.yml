@@ -48,7 +48,9 @@ logging:
 app:
   submissionPath: # Absolute path to the folder to be used as submission storage
   ftpPath: # Absolute path to the folder to be used ftp hardlinks
-  tempDirPath: # Absolute of the temp folder to store files
+  tempDirPath: # Absolute path of the temp folder to store files
+  fireTempDirPath: # Absolute path of the temp fire folder to store files for testing purposes
+  webTempDirPath: # Absolute path of the temp web folder to store files in provisional manner
   instanceBaseUrl: # Instance base url e.g. http://server.ebi.ac.uk:5541
   fire:
     host: # FIRE host

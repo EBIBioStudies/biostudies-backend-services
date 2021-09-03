@@ -35,7 +35,7 @@ internal open class BaseIntegrationTest(private val tempFolder: TemporaryFolder)
         .withInitScript("Schema.sql")
         .withStartupCheckStrategy(MinimumDurationRunningStartupCheckStrategy(ofSeconds(MINIMUM_RUNNING_TIME)))
 
-    private val wireMockTransformer = TestWireMockTransformer(tempFolder.createDirectory("tmpFire"))
+    private val wireMockTransformer = TestWireMockTransformer(tempFolder.createDirectory("submission"))
     private val fireWireMock = WireMockServer(WireMockConfiguration().dynamicPort().extensions(wireMockTransformer))
 
     val submissionPath
@@ -94,9 +94,11 @@ internal open class BaseIntegrationTest(private val tempFolder: TemporaryFolder)
     }
 
     private fun setUpApplicationProperties() {
+        val tempDirPath = tempFolder.createDirectory("tmp")
         System.setProperty("app.submissionPath", submissionPath)
         System.setProperty("app.ftpPath", "${tempFolder.root.absolutePath}/ftpPath")
-        System.setProperty("app.tempDirPath", tempFolder.createDirectory("tmp").absolutePath)
+        System.setProperty("app.tempDirPath", tempDirPath.absolutePath)
+        System.setProperty("app.fireTempDirPath", tempDirPath.absolutePath + "/fire-temp")
         System.setProperty("app.security.filesDirPath", tempFolder.createDirectory("dropbox").absolutePath)
         System.setProperty("app.security.magicDirPath", tempFolder.createDirectory("magic").absolutePath)
         System.setProperty("app.persistence.enableFire", "${System.getProperty("enableFire").toBoolean()}")

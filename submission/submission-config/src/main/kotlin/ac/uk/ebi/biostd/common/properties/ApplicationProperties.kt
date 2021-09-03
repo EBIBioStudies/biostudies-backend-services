@@ -6,6 +6,8 @@ import org.springframework.boot.context.properties.NestedConfigurationProperty
 @ConfigurationProperties(prefix = "app")
 open class ApplicationProperties {
     lateinit var tempDirPath: String
+    lateinit var fireTempDirPath: String
+    lateinit var webTempDirPath: String
     lateinit var submissionPath: String
     lateinit var ftpPath: String
     lateinit var instanceBaseUrl: String
