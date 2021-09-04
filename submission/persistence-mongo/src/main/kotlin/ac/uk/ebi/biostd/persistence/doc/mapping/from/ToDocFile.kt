@@ -52,7 +52,7 @@ private fun toFileDocListFile(submissionId: ObjectId, extFile: ExtFile) = when (
 
 private fun ExtFileTable.toDocFileTable() = DocFileTable(files.map { it.toDocFile() })
 private fun fileType(file: File): String = if (file.isDirectory) "directory" else "file"
-private fun ExtFile.toDocFile(): DocFile = when (this) {
+fun ExtFile.toDocFile(): DocFile = when (this) {
     is FireFile -> FireDocFile(
         fileName = fileName,
         fireId = fireId,

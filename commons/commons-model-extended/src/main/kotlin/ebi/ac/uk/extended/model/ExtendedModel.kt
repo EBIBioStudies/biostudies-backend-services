@@ -104,7 +104,8 @@ data class ExtSubmission(
     val attributes: List<ExtAttribute> = listOf(),
     val tags: List<ExtTag> = listOf(),
     val collections: List<ExtCollection> = listOf(),
-    val stats: List<ExtStat> = listOf()
+    val stats: List<ExtStat> = listOf(),
+    val pageTabFiles: List<ExtFile> = listOf()
 )
 
 // TODO change value type to long

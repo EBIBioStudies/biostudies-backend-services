@@ -41,7 +41,8 @@ data class DocSubmission(
     val attributes: List<DocAttribute> = listOf(),
     val tags: List<DocTag> = listOf(),
     val collections: List<DocCollection> = listOf(),
-    val stats: List<DocStat> = listOf()
+    val stats: List<DocStat> = listOf(),
+    val pageTabFile: List<DocFile> = listOf()
 )
 
 enum class DocSubmissionMethod(val value: String) {

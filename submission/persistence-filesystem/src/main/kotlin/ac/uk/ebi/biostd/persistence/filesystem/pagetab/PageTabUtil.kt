@@ -16,10 +16,8 @@ fun SerializationService.generatePageTab(
     subFilesTargetFolder: File,
     subListTargetFolder: File
 ): List<TabFiles> {
-    val accNo = submission.accNo
-
     return listOf(
-        saveTabFiles(subFilesTargetFolder, accNo, submission.toSimpleSubmission(), submission.permissions())
+        saveTabFiles(subFilesTargetFolder, submission.accNo, submission.toSimpleSubmission(), submission.permissions())
     ) + submission.allFileList.map {
         saveTabFiles(
             subListTargetFolder,
@@ -29,6 +27,26 @@ fun SerializationService.generatePageTab(
         )
     }
 }
+
+fun SerializationService.generatePageTab2(
+    submission: ExtSubmission,
+    subFilesTargetFolder: File,
+    subListTargetFolder: File
+): SubmissionPageTabs {
+
+    return SubmissionPageTabs(
+        saveTabFiles(subFilesTargetFolder, submission.accNo, submission.toSimpleSubmission(), submission.permissions())
+    ,submission.allFileList.map {
+        saveTabFiles(
+            subListTargetFolder,
+            it.fileName,
+            it.toFilesTable(),
+            submission.permissions()
+        )
+    })
+}
+
+data class SubmissionPageTabs(val submissionPageTab: TabFiles, val fileListPageTabs: List<TabFiles>)
 
 private fun <T> SerializationService.saveTabFiles(
     folder: File,

@@ -41,7 +41,8 @@ private fun ExtSubmission.toDocSubmission(submissionId: ObjectId, docSection: Do
         tags = tags.map { DocTag(it.name, it.value) },
         attributes = attributes.map { it.toDocAttribute() },
         section = docSection,
-        stats = stats.map { DocStat(it.name, it.value.toLong()) }
+        stats = stats.map { DocStat(it.name, it.value.toLong()) },
+        pageTabFile = pageTabFiles.map { it.toDocFile() }
     )
 }
 

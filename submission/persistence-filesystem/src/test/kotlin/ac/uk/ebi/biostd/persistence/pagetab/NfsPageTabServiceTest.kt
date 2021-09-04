@@ -8,8 +8,10 @@ import ac.uk.ebi.biostd.persistence.filesystem.pagetab.NfsPageTabService
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabService
 import ebi.ac.uk.extended.mapping.to.toFilesTable
 import ebi.ac.uk.extended.mapping.to.toSimpleSubmission
+import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileList
 import ebi.ac.uk.extended.model.ExtSection
+import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.io.RW_R_____
 import ebi.ac.uk.paths.SubmissionFolderResolver
 import ebi.ac.uk.test.basicExtSubmission
@@ -43,33 +45,25 @@ class NfsPageTabServiceTest(
         setUpSerializer(fileList.toFilesTable())
         setUpSerializer(submission.toSimpleSubmission())
 
-        testInstance.generatePageTab(submission)
+        assertThat(testInstance.generatePageTab(submission))
+            .isEqualTo(submission.copy(pageTabFiles = pageTabFiles(subFolder)))
 
         verifyFileLists(subFolder)
         verifySubmissionFiles(subFolder)
     }
 
-    private fun verifySubmissionFiles(subFolder: File) {
-        assertPageTabFile(subFolder.resolve("S-TEST123.xml"))
-        assertPageTabFile(subFolder.resolve("S-TEST123.json"))
-        assertPageTabFile(subFolder.resolve("S-TEST123.pagetab.tsv"))
-    }
-
-    private fun verifyFileLists(subFolder: File) {
-        val submissionFiles = subFolder.resolve("Files")
-        assertPageTabFile(submissionFiles.resolve("data/file-list.xml"))
-        assertPageTabFile(submissionFiles.resolve("data/file-list.json"))
-        assertPageTabFile(submissionFiles.resolve("data/file-list.pagetab.tsv"))
-    }
-
-    private fun assertPageTabFile(file: File) {
-        assertThat(file).exists()
-        assertThat(getPosixFilePermissions(file.toPath())).containsExactlyInAnyOrderElementsOf(RW_R_____)
-    }
-
     private fun setUpSerializer(element: Any) {
+        every { serializationService.serializeElement(element, JSON_PRETTY) } returns "json"
         every { serializationService.serializeElement(element, XML) } returns "xml"
         every { serializationService.serializeElement(element, TSV) } returns "tsv"
-        every { serializationService.serializeElement(element, JSON_PRETTY) } returns "json"
     }
+
+    private fun pageTabFiles(submissionFolder: File) = listOf(
+        NfsFile(SUB_JSON, submissionFolder.resolve(SUB_JSON)),
+        NfsFile(SUB_XML, submissionFolder.resolve(SUB_XML)),
+        NfsFile(SUB_TSV, submissionFolder.resolve(SUB_TSV)),
+        NfsFile(FILE_LIST_JSON, submissionFolder.resolve("Files/data/$FILE_LIST_JSON")),
+        NfsFile(FILE_LIST_XML, submissionFolder.resolve("Files/data/$FILE_LIST_XML")),
+        NfsFile(FILE_LIST_TSV, submissionFolder.resolve("Files/data/$FILE_LIST_TSV"))
+    )
 }
