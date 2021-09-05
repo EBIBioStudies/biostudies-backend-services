@@ -63,9 +63,6 @@ class FirePageTabServiceTest(
     private fun pageTabFiles() = listOf(
         FireFile(SUB_JSON, "$SUB_JSON-fireId", "md5", 1, listOf()),
         FireFile(SUB_XML, "$SUB_XML-fireId", "md5", 1, listOf()),
-        FireFile(SUB_TSV, "$SUB_TSV-fireId", "md5", 1, listOf()),
-        FireFile(FILE_LIST_JSON, "$FILE_LIST_JSON-fireId", "md5", 1, listOf()),
-        FireFile(FILE_LIST_XML, "$FILE_LIST_XML-fireId", "md5", 1, listOf()),
-        FireFile(FILE_LIST_TSV, "$FILE_LIST_TSV-fireId", "md5", 1, listOf())
+        FireFile(SUB_TSV, "$SUB_TSV-fireId", "md5", 1, listOf())
     )
 }
