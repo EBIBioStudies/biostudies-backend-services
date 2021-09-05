@@ -12,36 +12,19 @@ import ebi.ac.uk.io.Permissions
 import java.io.File
 
 fun SerializationService.generatePageTab(
-    submission: ExtSubmission,
-    subFilesTargetFolder: File,
-    subListTargetFolder: File
-): List<TabFiles> {
-    return listOf(
-        saveTabFiles(subFilesTargetFolder, submission.accNo, submission.toSimpleSubmission(), submission.permissions())
-    ) + submission.allFileList.map {
-        saveTabFiles(
-            subListTargetFolder,
-            it.fileName,
-            it.toFilesTable(),
-            submission.permissions()
-        )
-    }
-}
-
-fun SerializationService.generatePageTab2(
-    submission: ExtSubmission,
-    subFilesTargetFolder: File,
-    subListTargetFolder: File
+    sub: ExtSubmission,
+    target: File
 ): SubmissionPageTabs {
-
+    val subTabFiles = saveTabFiles(target, sub.accNo, sub.toSimpleSubmission(), sub.permissions())
+    val fileListTab = sub
+        .allFileList
+        .associate { it.fileName to saveTabFiles(target, it.fileName, it.toFilesTable(), sub.permissions()) }
     return SubmissionPageTabs(
-        saveTabFiles(subFilesTargetFolder, submission.accNo, submission.toSimpleSubmission(), submission.permissions()),
-        submission.allFileList.map {
-            saveTabFiles(subListTargetFolder, it.fileName, it.toFilesTable(), submission.permissions())
-        })
+        subTabFiles,
+        fileListTab)
 }
 
-data class SubmissionPageTabs(val submissionPageTab: TabFiles, val fileListPageTabs: List<TabFiles>)
+data class SubmissionPageTabs(val subTabFiles: TabFiles, val fileListTabFiles: Map<String, TabFiles>)
 
 private fun <T> SerializationService.saveTabFiles(
     folder: File,

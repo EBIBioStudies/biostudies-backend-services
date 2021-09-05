@@ -1,11 +1,10 @@
 package ac.uk.ebi.biostd.persistence.filesystem.pagetab
 
 import ac.uk.ebi.biostd.integration.SerializationService
+import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireFile
-import uk.ac.ebi.fire.client.model.FireFile as WebFireFile
 import ebi.ac.uk.io.ext.md5
-import ebi.ac.uk.paths.FILES_PATH
 import mu.KotlinLogging
 import uk.ac.ebi.fire.client.integration.web.FireWebClient
 import java.io.File
@@ -17,45 +16,23 @@ class FirePageTabService(
     private val serializationService: SerializationService,
     private val fireWebClient: FireWebClient
 ) : PageTabService {
-    override fun generatePageTab(submission: ExtSubmission): ExtSubmission {
-        logger.info { "generating submission ${submission.accNo} pagetab files" }
+    override fun generatePageTab(sub: ExtSubmission): ExtSubmission {
+        logger.info { "generating submission ${sub.accNo} pagetab files" }
+        val tabFiles = serializationService.generatePageTab(sub, fireTempFolder)
 
-        val tabs = serializationService.generatePageTab2(submission, fireTempFolder, fireTempFolder.resolve(FILES_PATH))
-            .let {
-                SubmissionSavedPageTab(
-                    it.submissionPageTab.saveSubmissionTabFile(fireTempFolder.absolutePath),
-                    it.fileListPageTabs.saveFileList(fireTempFolder.absolutePath)
-                )
-            }
-
-        logger.info { "page tab successfully generated for submission ${submission.accNo}" }
-        return submission.copy(pageTabFiles = tabs.submissionTabFiles.toFireFiles())
+        logger.info { "page tab successfully generated for submission ${sub.accNo}" }
+        return sub.copy(pageTabFiles = asExtFiles(sub.relPath, tabFiles.subTabFiles))
     }
 
-    private fun List<TabFiles>.saveFileList(
-        fireFolderPath: String
-    ): Map<String, WebFireFile> {
-        return associate {
-            it.json.name to fireWebClient.save(it.json, it.json.md5(), fireFolderPath)
-            it.xml.name to fireWebClient.save(it.xml, it.xml.md5(), fireFolderPath)
-            it.tsv.name to fireWebClient.save(it.tsv, it.tsv.md5(), fireFolderPath)
-        }
-    }
+    private fun asExtFiles(filesRelPath: String, pageTab: TabFiles): List<ExtFile> {
+        val json = fireWebClient.save(pageTab.json, pageTab.json.md5(), filesRelPath)
+        val xml = fireWebClient.save(pageTab.xml, pageTab.xml.md5(), filesRelPath)
+        val tsv = fireWebClient.save(pageTab.tsv, pageTab.tsv.md5(), filesRelPath)
 
-    private fun TabFiles.saveSubmissionTabFile(fireFolderPath: String): Map<String, WebFireFile> {
-        return mapOf(
-            json.name to fireWebClient.save(json, json.md5(), fireFolderPath),
-            xml.name to fireWebClient.save(xml, xml.md5(), fireFolderPath),
-            tsv.name to fireWebClient.save(tsv, tsv.md5(), fireFolderPath)
-        )
+        val extJson = FireFile(pageTab.json.name, json.fireOid, json.objectMd5, json.objectSize.toLong(), listOf())
+        val extXml = FireFile(pageTab.xml.name, xml.fireOid, xml.objectMd5, xml.objectSize.toLong(), listOf())
+        val extTsv = FireFile(pageTab.tsv.name, tsv.fireOid, tsv.objectMd5, tsv.objectSize.toLong(), listOf())
+
+        return listOf(extJson, extXml, extTsv)
     }
 }
-
-private fun Map<String, WebFireFile>.toFireFiles(): List<FireFile> {
-    return this.map { FireFile(it.key, it.value.fireOid, it.value.objectMd5, it.value.objectSize.toLong(), listOf()) }
-}
-
-data class SubmissionSavedPageTab(
-    val submissionTabFiles: Map<String, WebFireFile>,
-    val fileListTabFiles: Map<String, WebFireFile>
-)
