@@ -8,6 +8,7 @@ import ebi.ac.uk.extended.mapping.to.toSimpleSubmission
 import ebi.ac.uk.extended.model.ExtFileList
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.FireFile
+import ebi.ac.uk.io.RW_R_____
 import uk.ac.ebi.fire.client.model.FireFile as FireWebFile
 import ebi.ac.uk.test.basicExtSubmission
 import io.github.glytching.junit.extension.folder.TemporaryFolder
@@ -15,11 +16,12 @@ import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
-import io.mockk.slot
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.fire.client.integration.web.FireWebClient
+import java.io.File
+import java.nio.file.Files
 
 @ExtendWith(TemporaryFolderExtension::class, MockKExtension::class)
 class FirePageTabServiceTest(
@@ -51,7 +53,7 @@ class FirePageTabServiceTest(
     }
 
     private fun setUpFireWebClient() {
-        every { fireWebClient.save(any(), any(), fireFolder.absolutePath) } returns
+        every { fireWebClient.save(any(), any(), "S-TEST/123/S-TEST123") } returns
                 FireWebFile(1, "$SUB_JSON-fireId", "md5", 1, "creationTime") andThen
                 FireWebFile(2, "$SUB_XML-fireId", "md5", 1, "creationTime") andThen
                 FireWebFile(3, "$SUB_TSV-fireId", "md5", 1, "creationTime") andThen
@@ -65,4 +67,21 @@ class FirePageTabServiceTest(
         FireFile(SUB_XML, "$SUB_XML-fireId", "md5", 1, listOf()),
         FireFile(SUB_TSV, "$SUB_TSV-fireId", "md5", 1, listOf())
     )
+
+    private fun verifyFileLists(fireFolder: File) {
+        assertPageTabFile(fireFolder.resolve("data/${FILE_LIST_JSON}"))
+        assertPageTabFile(fireFolder.resolve("data/${FILE_LIST_XML}"))
+        assertPageTabFile(fireFolder.resolve("data/${FILE_LIST_TSV}"))
+    }
+
+    private fun verifySubmissionFiles(fireFolder: File) {
+        assertPageTabFile(fireFolder.resolve(SUB_JSON))
+        assertPageTabFile(fireFolder.resolve(SUB_XML))
+        assertPageTabFile(fireFolder.resolve(SUB_TSV))
+    }
+
+    private fun assertPageTabFile(file: File) {
+        assertThat(file).exists()
+        assertThat(Files.getPosixFilePermissions(file.toPath())).containsExactlyInAnyOrderElementsOf(RW_R_____)
+    }
 }

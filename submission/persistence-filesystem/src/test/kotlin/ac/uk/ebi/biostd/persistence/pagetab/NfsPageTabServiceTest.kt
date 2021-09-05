@@ -5,10 +5,8 @@ import ac.uk.ebi.biostd.integration.SubFormat.Companion.JSON_PRETTY
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.TSV
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.XML
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.NfsPageTabService
-import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabService
 import ebi.ac.uk.extended.mapping.to.toFilesTable
 import ebi.ac.uk.extended.mapping.to.toSimpleSubmission
-import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileList
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.NfsFile
@@ -24,7 +22,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import java.io.File
-import java.nio.file.Files.getPosixFilePermissions
+import java.nio.file.Files
 import java.nio.file.Paths
 
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
@@ -61,9 +59,23 @@ class NfsPageTabServiceTest(
     private fun pageTabFiles(submissionFolder: File) = listOf(
         NfsFile(SUB_JSON, submissionFolder.resolve(SUB_JSON)),
         NfsFile(SUB_XML, submissionFolder.resolve(SUB_XML)),
-        NfsFile(SUB_TSV, submissionFolder.resolve(SUB_TSV)),
-        NfsFile(FILE_LIST_JSON, submissionFolder.resolve("Files/data/$FILE_LIST_JSON")),
-        NfsFile(FILE_LIST_XML, submissionFolder.resolve("Files/data/$FILE_LIST_XML")),
-        NfsFile(FILE_LIST_TSV, submissionFolder.resolve("Files/data/$FILE_LIST_TSV"))
+        NfsFile(SUB_TSV, submissionFolder.resolve(SUB_TSV))
     )
+
+    private fun verifyFileLists(submissionFolder: File) {
+        assertPageTabFile(submissionFolder.resolve("data/${FILE_LIST_JSON}"))
+        assertPageTabFile(submissionFolder.resolve("data/${FILE_LIST_XML}"))
+        assertPageTabFile(submissionFolder.resolve("data/${FILE_LIST_TSV}"))
+    }
+
+    private fun verifySubmissionFiles(subFolder: File) {
+        assertPageTabFile(subFolder.resolve(SUB_JSON))
+        assertPageTabFile(subFolder.resolve(SUB_XML))
+        assertPageTabFile(subFolder.resolve(SUB_TSV))
+    }
+
+    private fun assertPageTabFile(file: File) {
+        assertThat(file).exists()
+        assertThat(Files.getPosixFilePermissions(file.toPath())).containsExactlyInAnyOrderElementsOf(RW_R_____)
+    }
 }
