@@ -9,6 +9,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.FI
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.NFS_FILE_DOC_REL_PATH
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.NFS_FILE_TYPE
 import ac.uk.ebi.biostd.persistence.doc.model.DocAttribute
+import ac.uk.ebi.biostd.persistence.doc.model.FireDocDirectory
 import ac.uk.ebi.biostd.persistence.doc.model.FireDocFile
 import ac.uk.ebi.biostd.persistence.doc.model.NfsDocFile
 import io.mockk.every
@@ -29,7 +30,7 @@ internal class FileConverterTest(
     private val testInstance = FileConverter(attributeConverter)
 
     @Test
-    fun `converter from nfsDocFile`() {
+    fun `converter from nfs doc file`() {
         every { attributeConverter.convert(docAttribute) } returns document
         val file =
             NfsDocFile(
@@ -51,7 +52,7 @@ internal class FileConverterTest(
     }
 
     @Test
-    fun `converter from FireDocFile`() {
+    fun `converter from fire doc file`() {
         every { attributeConverter.convert(docAttribute) } returns document
         val file = FireDocFile(
             fileName = FIRE_FILE_DOC_FILE_NAME,
@@ -65,6 +66,24 @@ internal class FileConverterTest(
 
         assertThat(result[FIRE_FILE_DOC_FILE_NAME]).isEqualTo("fileName")
         assertThat(result[FIRE_FILE_DOC_ID]).isEqualTo("fireId")
+        assertThat(result[FILE_DOC_ATTRIBUTES]).isEqualTo(listOf(document))
+        assertThat(result[FILE_DOC_MD5]).isEqualTo("md5")
+        assertThat(result[FILE_DOC_SIZE]).isEqualTo(10L)
+    }
+
+    @Test
+    fun `converter from fire doc directory`() {
+        every { attributeConverter.convert(docAttribute) } returns document
+        val file = FireDocDirectory(
+            fileName = "fire-directory",
+            attributes = listOf(docAttribute),
+            md5 = "md5",
+            fileSize = 10L
+        )
+
+        val result = testInstance.convert(file)
+
+        assertThat(result[FIRE_FILE_DOC_FILE_NAME]).isEqualTo("fire-directory")
         assertThat(result[FILE_DOC_ATTRIBUTES]).isEqualTo(listOf(document))
         assertThat(result[FILE_DOC_MD5]).isEqualTo("md5")
         assertThat(result[FILE_DOC_SIZE]).isEqualTo(10L)
