@@ -70,7 +70,7 @@ class ExtSectionSerializerTest(private val tempFolder: TemporaryFolder) {
             "type" to "Study"
             "fileList" to jsonObj {
                 "fileName" to "file-list"
-                "filesUrl" to "submissions/extended/S-BSST1/fileList/file-list/files"
+                "filesUrl" to "/submissions/extended/S-BSST1/fileList/file-list/files"
             }
             "attributes" to jsonArray(
                 jsonObj {

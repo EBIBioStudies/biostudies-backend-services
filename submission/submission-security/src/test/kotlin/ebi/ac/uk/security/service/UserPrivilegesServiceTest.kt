@@ -12,7 +12,6 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
@@ -20,7 +19,6 @@ import java.util.Optional
 import ac.uk.ebi.biostd.persistence.model.DbUser as UserDB
 
 @ExtendWith(MockKExtension::class)
-@Disabled
 class UserPrivilegesServiceTest(
     @MockK private val author: UserDB,
     @MockK private val otherAuthor: UserDB,

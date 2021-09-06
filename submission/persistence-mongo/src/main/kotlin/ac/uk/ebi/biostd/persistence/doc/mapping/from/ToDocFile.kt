@@ -5,7 +5,10 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocFileList
 import ac.uk.ebi.biostd.persistence.doc.model.DocFileRef
 import ac.uk.ebi.biostd.persistence.doc.model.DocFileTable
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
+import ac.uk.ebi.biostd.persistence.doc.model.FileSystem.FIRE
 import ac.uk.ebi.biostd.persistence.doc.model.FileSystem.NFS
+import ac.uk.ebi.biostd.persistence.doc.model.FireDocFile
+import ac.uk.ebi.biostd.persistence.doc.model.NfsDocFile
 import arrow.core.Either
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileList
@@ -25,14 +28,24 @@ internal fun ExtFileList.toDocFileList(submissionId: ObjectId): Pair<DocFileList
 }
 
 private fun toFileDocListFile(submissionId: ObjectId, extFile: ExtFile) = when (extFile) {
-    is FireFile -> TODO()
+    is FireFile -> FileListDocFile(
+        id = ObjectId(),
+        submissionId = submissionId,
+        fileName = extFile.fileName,
+        location = extFile.fireId,
+        attributes = extFile.attributes.map { it.toDocAttribute() },
+        md5 = extFile.md5,
+        size = extFile.size,
+        fileSystem = FIRE
+    )
     is NfsFile -> FileListDocFile(
         id = ObjectId(),
         submissionId = submissionId,
         fileName = extFile.fileName,
-        fullPath = extFile.file.absolutePath,
+        location = extFile.file.absolutePath,
         attributes = extFile.attributes.map { it.toDocAttribute() },
         md5 = extFile.md5,
+        size = extFile.size,
         fileSystem = NFS
     )
 }
@@ -40,14 +53,21 @@ private fun toFileDocListFile(submissionId: ObjectId, extFile: ExtFile) = when (
 private fun ExtFileTable.toDocFileTable() = DocFileTable(files.map { it.toDocFile() })
 private fun fileType(file: File): String = if (file.isDirectory) "directory" else "file"
 private fun ExtFile.toDocFile(): DocFile = when (this) {
-    is FireFile -> TODO()
-    is NfsFile -> DocFile(
-        fileName,
-        file.absolutePath,
-        attributes.map { it.toDocAttribute() },
-        md5,
-        fileType(file),
-        file.size(),
-        NFS
+    is FireFile -> FireDocFile(
+        fileName = fileName,
+        fireId = fireId,
+        attributes = attributes.map { it.toDocAttribute() },
+        md5 = md5,
+        fileSize = size,
+    )
+    is NfsFile -> NfsDocFile(
+        relPath = fileName,
+        fullPath = file.absolutePath,
+        fileType = fileType(file),
+        attributes = attributes.map { it.toDocAttribute() },
+        md5 = md5,
+        fileSize = file.size(),
     )
 }
+
+class FireFileToFileListDocFileNotSupportedException : UnsupportedOperationException()

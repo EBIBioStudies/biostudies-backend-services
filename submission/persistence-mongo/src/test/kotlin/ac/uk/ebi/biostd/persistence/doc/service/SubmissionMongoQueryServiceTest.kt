@@ -21,7 +21,11 @@ import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus.REQUESTED
 import ac.uk.ebi.biostd.persistence.doc.model.asBasicSubmission
 import ac.uk.ebi.biostd.persistence.doc.test.doc.SUB_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUBMISSION_OWNER
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.fullExtSubmission as extSubmission
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.rootSection
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.rootSectionAttribute as attribute
+import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocSection as docSection
+import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocSubmission as docSubmission
 import com.mongodb.BasicDBObject
 import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
 import ebi.ac.uk.db.MONGO_VERSION
@@ -58,10 +62,6 @@ import java.time.Duration.ofSeconds
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus.PROCESSED as REQUEST_PROCESSED
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.fullExtSubmission as extSubmission
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.rootSectionAttribute as attribute
-import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocSection as docSection
-import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocSubmission as docSubmission
 
 @ExtendWith(MockKExtension::class, SpringExtension::class, TemporaryFolderExtension::class)
 @Testcontainers
@@ -113,8 +113,10 @@ internal class SubmissionMongoQueryServiceTest(
             docSubmission.id,
             "referenced.txt",
             referencedFile.absolutePath,
-            md5 = "test-md5",
-            fileSystem = NFS
+            listOf(),
+            "test-md5",
+            1,
+            NFS
         )
         private val fileList = DocFileList("test-file-list", listOf(DocFileRef(fileReference)))
         private val submission =

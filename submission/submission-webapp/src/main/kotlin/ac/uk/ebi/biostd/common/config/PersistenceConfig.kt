@@ -4,7 +4,6 @@ import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.filesystem.api.FilesService
 import ac.uk.ebi.biostd.persistence.filesystem.api.FtpService
-import ac.uk.ebi.biostd.persistence.filesystem.nfs.NfsFilesService
 import ac.uk.ebi.biostd.persistence.filesystem.nfs.NfsFtpService
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabService
 import ac.uk.ebi.biostd.persistence.filesystem.service.FileSystemService
@@ -15,7 +14,7 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 
 @Configuration
-@Import(value = [SqlPersistenceConfig::class])
+@Import(value = [SqlPersistenceConfig::class, FileSystemConfig::class])
 class PersistenceConfig(
     private val folderResolver: SubmissionFolderResolver,
     private val serializationService: SerializationService,
@@ -26,9 +25,6 @@ class PersistenceConfig(
 
     @Bean
     fun pageTabService(): PageTabService = PageTabService(folderResolver, serializationService)
-
-    @Bean
-    fun nfsFilePersistenceService(): FilesService = NfsFilesService(folderResolver)
 
     @Bean
     fun fileSystemService(

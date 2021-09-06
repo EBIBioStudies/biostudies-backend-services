@@ -38,6 +38,7 @@ import TestDependencies.TestContainer
 import TestDependencies.TestContainerJUnit
 import TestDependencies.TestContainerMongoDb
 import TestDependencies.TestContainerMysql
+import TestDependencies.Wiremock
 import TestDependencies.XmlUnitCore
 import TestDependencies.XmlUnitMatchers
 import TestDependencies.rabitMqMock
@@ -100,6 +101,7 @@ dependencies {
     BaseTestRuntimeDependencies.forEach { testImplementation(it) }
     testImplementation(SpringBootStarterTest)
     testImplementation(rabitMqMock)
+    testImplementation(Wiremock)
 
     testImplementation(KotlinXmlBuilder)
     testImplementation(JsonPathAssert)
