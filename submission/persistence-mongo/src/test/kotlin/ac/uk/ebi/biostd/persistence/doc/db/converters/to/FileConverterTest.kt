@@ -43,7 +43,7 @@ internal class FileConverterTest(
         val result = testInstance.convert(file)
 
         assertThat(result[NFS_FILE_DOC_REL_PATH]).isEqualTo("relPath")
-        assertThat(result[FILE_LIST_DOC_FILE_FULL_PATH]).isEqualTo("location")
+        assertThat(result[FILE_LIST_DOC_FILE_FULL_PATH]).isEqualTo("fullPath")
         assertThat(result[NFS_FILE_TYPE]).isEqualTo("file")
         assertThat(result[FILE_DOC_ATTRIBUTES]).isEqualTo(listOf(document))
         assertThat(result[FILE_DOC_MD5]).isEqualTo("md5")
