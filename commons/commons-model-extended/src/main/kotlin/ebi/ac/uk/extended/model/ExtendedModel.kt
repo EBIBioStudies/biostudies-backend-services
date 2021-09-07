@@ -55,7 +55,12 @@ data class NfsFile(
         get() = file.size()
 }
 
-data class ExtFileList(val fileName: String, val files: List<ExtFile> = listOf(), val filesUrl: String? = null)
+data class ExtFileList(
+    val fileName: String,
+    val files: List<ExtFile> = listOf(),
+    val filesUrl: String? = null,
+    val pageTabFiles: List<ExtFile> = listOf()
+)
 
 data class ExtSectionTable(val sections: List<ExtSection>)
 

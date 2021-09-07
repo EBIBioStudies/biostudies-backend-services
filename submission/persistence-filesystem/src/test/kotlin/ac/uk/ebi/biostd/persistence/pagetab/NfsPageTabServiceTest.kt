@@ -63,9 +63,9 @@ class NfsPageTabServiceTest(
     )
 
     private fun verifyFileLists(submissionFolder: File) {
-        assertPageTabFile(submissionFolder.resolve("data/${FILE_LIST_JSON}"))
-        assertPageTabFile(submissionFolder.resolve("data/${FILE_LIST_XML}"))
-        assertPageTabFile(submissionFolder.resolve("data/${FILE_LIST_TSV}"))
+        assertPageTabFile(submissionFolder.resolve("data/${FILE_LIST_JSON1}"))
+        assertPageTabFile(submissionFolder.resolve("data/${FILE_LIST_XML1}"))
+        assertPageTabFile(submissionFolder.resolve("data/${FILE_LIST_TSV1}"))
     }
 
     private fun verifySubmissionFiles(subFolder: File) {
