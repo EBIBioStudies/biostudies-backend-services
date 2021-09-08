@@ -12,16 +12,20 @@ import ebi.ac.uk.extended.mapping.to.toSimpleSubmission
 import ebi.ac.uk.extended.model.ExtFileList
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSectionTable
+import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.io.RW_R_____
 import ebi.ac.uk.paths.SubmissionFolderResolver
 import ebi.ac.uk.test.basicExtSubmission
+import ebi.ac.uk.util.collections.second
+import ebi.ac.uk.util.collections.third
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
-import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThat as assertJThat
+import ebi.ac.uk.asserts.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import java.io.File
@@ -45,9 +49,11 @@ class NfsPageTabServiceTest(
         setUpSerializer(submission.section.fileList!!.toFilesTable())
         setUpSerializer(submission.toSimpleSubmission())
 
-        assertThat(testInstance.generatePageTab(submission))
-            .isEqualTo(submission.copy(tabFiles = pageTabFiles(), section = finalRootSection()))
+        val result = testInstance.generatePageTab(submission)
 
+        assertSubmission(result)
+        assertRootSection(result.section)
+        assertThat(result.section.sections.first()).hasLeftValueSatisfying { assertSubSection(it) }
         verifyFileLists(subFolder)
         verifySubmissionFiles(subFolder)
     }
@@ -58,45 +64,35 @@ class NfsPageTabServiceTest(
         every { serializationService.serializeElement(element, TSV) } returns "tsv"
     }
 
-    private val fileListRootSection = ExtFileList("data/file-list1")
-    private val fileListSubSection = ExtFileList("data/file-list2")
-    private val fileListSubSectionTable = ExtFileList("data/file-list3")
-
     private fun initialRootSection() = ExtSection(
         type = "Study1",
-        fileList = fileListRootSection,
+        fileList = ExtFileList("data/file-list1"),
         sections = listOf(
-            left(ExtSection(type = "Study2", fileList = fileListSubSection)),
-            Either.right(ExtSectionTable(listOf(ExtSection(type = "Study3", fileList = fileListSubSectionTable))))
+            left(ExtSection(type = "Study2", fileList = ExtFileList("data/file-list2"))),
+            Either.right(ExtSectionTable(listOf(ExtSection(type = "Study3"))))
         )
     )
 
-    private fun finalRootSection() = ExtSection(
-        type = "Study1",
-        fileList = fileListRootSection.copy(tabFiles = filesRootSection()),
-        sections = listOf(
-            left(ExtSection(type = "Study2", fileList = fileListSubSection.copy(tabFiles = filesSubSection()))),
-            Either.right(ExtSectionTable(listOf(ExtSection(type = "Study3", fileList = fileListSubSectionTable))))
-        )
-    )
+    private fun assertSubmission(submission: ExtSubmission) {
+        val tabFiles = submission.tabFiles
+        assertJThat(tabFiles.first()).isEqualTo(NfsFile(SUB_JSON, subFolder.resolve(SUB_JSON)))
+        assertJThat(tabFiles.second()).isEqualTo(NfsFile(SUB_XML, subFolder.resolve(SUB_XML)))
+        assertJThat(tabFiles.third()).isEqualTo(NfsFile(SUB_TSV, subFolder.resolve(SUB_TSV)))
+    }
 
-    private fun pageTabFiles() = listOf(
-        NfsFile(SUB_JSON, subFolder.resolve(SUB_JSON)),
-        NfsFile(SUB_XML, subFolder.resolve(SUB_XML)),
-        NfsFile(SUB_TSV, subFolder.resolve(SUB_TSV))
-    )
+    private fun assertRootSection(section: ExtSection) {
+        val tabFiles = section.fileList!!.tabFiles
+        assertJThat(tabFiles.first()).isEqualTo(NfsFile(FILE_LIST_JSON1, subFolder.resolve("data/${FILE_LIST_JSON1}")))
+        assertJThat(tabFiles.second()).isEqualTo(NfsFile(FILE_LIST_XML1, subFolder.resolve("data/${FILE_LIST_XML1}")))
+        assertJThat(tabFiles.third()).isEqualTo(NfsFile(FILE_LIST_TSV1, subFolder.resolve("data/${FILE_LIST_TSV1}")))
+    }
 
-    private fun filesRootSection() = listOf(
-        NfsFile(FILE_LIST_JSON1, subFolder.resolve("data/${FILE_LIST_JSON1}")),
-        NfsFile(FILE_LIST_XML1, subFolder.resolve("data/${FILE_LIST_XML1}")),
-        NfsFile(FILE_LIST_TSV1, subFolder.resolve("data/${FILE_LIST_TSV1}"))
-    )
-
-    private fun filesSubSection() = listOf(
-        NfsFile(FILE_LIST_JSON2, subFolder.resolve("data/${FILE_LIST_JSON2}")),
-        NfsFile(FILE_LIST_XML2, subFolder.resolve("data/${FILE_LIST_XML2}")),
-        NfsFile(FILE_LIST_TSV2, subFolder.resolve("data/${FILE_LIST_TSV2}"))
-    )
+    private fun assertSubSection(section: ExtSection?) {
+        val tabFiles = section!!.fileList!!.tabFiles
+        assertJThat(tabFiles.first()).isEqualTo(NfsFile(FILE_LIST_JSON2, subFolder.resolve("data/${FILE_LIST_JSON2}")))
+        assertJThat(tabFiles.second()).isEqualTo(NfsFile(FILE_LIST_XML2, subFolder.resolve("data/${FILE_LIST_XML2}")))
+        assertJThat(tabFiles.third()).isEqualTo(NfsFile(FILE_LIST_TSV2, subFolder.resolve("data/${FILE_LIST_TSV2}")))
+    }
 
     private fun verifyFileLists(submissionFolder: File) {
         assertPageTabFile(submissionFolder.resolve("data/${FILE_LIST_JSON1}"))
@@ -106,10 +102,6 @@ class NfsPageTabServiceTest(
         assertPageTabFile(submissionFolder.resolve("data/${FILE_LIST_JSON2}"))
         assertPageTabFile(submissionFolder.resolve("data/${FILE_LIST_XML2}"))
         assertPageTabFile(submissionFolder.resolve("data/${FILE_LIST_TSV2}"))
-
-        assertPageTabFile(submissionFolder.resolve("data/${FILE_LIST_JSON3}"))
-        assertPageTabFile(submissionFolder.resolve("data/${FILE_LIST_XML3}"))
-        assertPageTabFile(submissionFolder.resolve("data/${FILE_LIST_TSV3}"))
     }
 
     private fun verifySubmissionFiles(subFolder: File) {
@@ -119,7 +111,21 @@ class NfsPageTabServiceTest(
     }
 
     private fun assertPageTabFile(file: File) {
-        assertThat(file).exists()
-        assertThat(Files.getPosixFilePermissions(file.toPath())).containsExactlyInAnyOrderElementsOf(RW_R_____)
+        assertJThat(file).exists()
+        assertJThat(Files.getPosixFilePermissions(file.toPath())).containsExactlyInAnyOrderElementsOf(RW_R_____)
+    }
+
+    companion object {
+        const val SUB_JSON = "S-TEST123.json"
+        const val SUB_XML = "S-TEST123.xml"
+        const val SUB_TSV = "S-TEST123.pagetab.tsv"
+
+        const val FILE_LIST_JSON1 = "file-list1.json"
+        const val FILE_LIST_XML1 = "file-list1.xml"
+        const val FILE_LIST_TSV1 = "file-list1.pagetab.tsv"
+
+        const val FILE_LIST_JSON2 = "file-list2.json"
+        const val FILE_LIST_XML2 = "file-list2.xml"
+        const val FILE_LIST_TSV2 = "file-list2.pagetab.tsv"
     }
 }
