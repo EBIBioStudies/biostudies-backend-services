@@ -5,10 +5,13 @@ import ac.uk.ebi.biostd.integration.SubFormat.Companion.JSON_PRETTY
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.TSV
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.XML
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.NfsPageTabService
+import arrow.core.Either
+import arrow.core.Either.Companion.left
 import ebi.ac.uk.extended.mapping.to.toFilesTable
 import ebi.ac.uk.extended.mapping.to.toSimpleSubmission
 import ebi.ac.uk.extended.model.ExtFileList
 import ebi.ac.uk.extended.model.ExtSection
+import ebi.ac.uk.extended.model.ExtSectionTable
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.io.RW_R_____
 import ebi.ac.uk.paths.SubmissionFolderResolver
@@ -33,18 +36,17 @@ class NfsPageTabServiceTest(
     private val rootPath = tempFolder.root
     private val folderResolver = SubmissionFolderResolver(Paths.get("$rootPath/submission"), Paths.get("$rootPath/ftp"))
     private val testInstance = NfsPageTabService(folderResolver, serializationService)
+    private val subFolder = tempFolder.root.resolve("submission/S-TEST/123/S-TEST123")
 
     @Test
     fun `generate page tab`() {
-        val fileList = ExtFileList("data/file-list", listOf())
-        val submission = basicExtSubmission.copy(section = ExtSection(type = "Study", fileList = fileList))
-        val subFolder = rootPath.resolve("submission/${submission.relPath}")
+        val submission = basicExtSubmission.copy(section = initialRootSection())
 
-        setUpSerializer(fileList.toFilesTable())
+        setUpSerializer(submission.section.fileList!!.toFilesTable())
         setUpSerializer(submission.toSimpleSubmission())
 
         assertThat(testInstance.generatePageTab(submission))
-            .isEqualTo(submission.copy(tabFiles = pageTabFiles(subFolder)))
+            .isEqualTo(submission.copy(tabFiles = pageTabFiles(), section = finalRootSection()))
 
         verifyFileLists(subFolder)
         verifySubmissionFiles(subFolder)
@@ -56,16 +58,58 @@ class NfsPageTabServiceTest(
         every { serializationService.serializeElement(element, TSV) } returns "tsv"
     }
 
-    private fun pageTabFiles(submissionFolder: File) = listOf(
-        NfsFile(SUB_JSON, submissionFolder.resolve(SUB_JSON)),
-        NfsFile(SUB_XML, submissionFolder.resolve(SUB_XML)),
-        NfsFile(SUB_TSV, submissionFolder.resolve(SUB_TSV))
+    private val fileListRootSection = ExtFileList("data/file-list1")
+    private val fileListSubSection = ExtFileList("data/file-list2")
+    private val fileListSubSectionTable = ExtFileList("data/file-list3")
+
+    private fun initialRootSection() = ExtSection(
+        type = "Study1",
+        fileList = fileListRootSection,
+        sections = listOf(
+            left(ExtSection(type = "Study2", fileList = fileListSubSection)),
+            Either.right(ExtSectionTable(listOf(ExtSection(type = "Study3", fileList = fileListSubSectionTable))))
+        )
+    )
+
+    private fun finalRootSection() = ExtSection(
+        type = "Study1",
+        fileList = fileListRootSection.copy(tabFiles = filesRootSection()),
+        sections = listOf(
+            left(ExtSection(type = "Study2", fileList = fileListSubSection.copy(tabFiles = filesSubSection()))),
+            Either.right(ExtSectionTable(listOf(ExtSection(type = "Study3", fileList = fileListSubSectionTable))))
+        )
+    )
+
+    private fun pageTabFiles() = listOf(
+        NfsFile(SUB_JSON, subFolder.resolve(SUB_JSON)),
+        NfsFile(SUB_XML, subFolder.resolve(SUB_XML)),
+        NfsFile(SUB_TSV, subFolder.resolve(SUB_TSV))
+    )
+
+    private fun filesRootSection() = listOf(
+        NfsFile(FILE_LIST_JSON1, subFolder.resolve("data/${FILE_LIST_JSON1}")),
+        NfsFile(FILE_LIST_XML1, subFolder.resolve("data/${FILE_LIST_XML1}")),
+        NfsFile(FILE_LIST_TSV1, subFolder.resolve("data/${FILE_LIST_TSV1}"))
+    )
+
+    private fun filesSubSection() = listOf(
+        NfsFile(FILE_LIST_JSON2, subFolder.resolve("data/${FILE_LIST_JSON2}")),
+        NfsFile(FILE_LIST_XML2, subFolder.resolve("data/${FILE_LIST_XML2}")),
+        NfsFile(FILE_LIST_TSV2, subFolder.resolve("data/${FILE_LIST_TSV2}"))
     )
 
     private fun verifyFileLists(submissionFolder: File) {
         assertPageTabFile(submissionFolder.resolve("data/${FILE_LIST_JSON1}"))
         assertPageTabFile(submissionFolder.resolve("data/${FILE_LIST_XML1}"))
         assertPageTabFile(submissionFolder.resolve("data/${FILE_LIST_TSV1}"))
+
+        assertPageTabFile(submissionFolder.resolve("data/${FILE_LIST_JSON2}"))
+        assertPageTabFile(submissionFolder.resolve("data/${FILE_LIST_XML2}"))
+        assertPageTabFile(submissionFolder.resolve("data/${FILE_LIST_TSV2}"))
+
+        assertPageTabFile(submissionFolder.resolve("data/${FILE_LIST_JSON3}"))
+        assertPageTabFile(submissionFolder.resolve("data/${FILE_LIST_XML3}"))
+        assertPageTabFile(submissionFolder.resolve("data/${FILE_LIST_TSV3}"))
     }
 
     private fun verifySubmissionFiles(subFolder: File) {

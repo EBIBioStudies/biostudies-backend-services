@@ -8,11 +8,8 @@ import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.io.ext.md5
-import mu.KotlinLogging
 import uk.ac.ebi.fire.client.integration.web.FireWebClient
 import java.io.File
-
-private val logger = KotlinLogging.logger {}
 
 class FirePageTabService(
     private val fireTempFolder: File,

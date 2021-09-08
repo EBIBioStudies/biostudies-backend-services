@@ -42,9 +42,10 @@ class FirePageTabServiceTest(
         setUpSerializer(submission.section.fileList!!.toFilesTable())
         setUpSerializer(submission.toSimpleSubmission())
         setUpFireWebClient()
-        val result = testInstance.generatePageTab(submission)
 
-        assertThat(result).isEqualTo(submission.copy(tabFiles = subPageTabFiles(), section = finalRootSection()))
+        assertThat(testInstance.generatePageTab(submission))
+            .isEqualTo(submission.copy(tabFiles = pageTabFiles(), section = finalRootSection()))
+
         verifyFileLists(fireFolder)
         verifySubmissionFiles(fireFolder)
     }
@@ -57,25 +58,16 @@ class FirePageTabServiceTest(
 
     private fun setUpFireWebClient() {
         every { fireWebClient.save(any(), any(), "S-TEST/123/S-TEST123") } returns
-                FireWebFile(1, "$SUB_JSON-fireId", "md5", 1, "creationTime") andThen
-                FireWebFile(2, "$SUB_XML-fireId", "md5", 1, "creationTime") andThen
-                FireWebFile(3, "$SUB_TSV-fireId", "md5", 1, "creationTime") andThen
+                FireWebFile(1, "$FILE_LIST_JSON2-fireId", "md5", 1, "creationTime") andThen
+                FireWebFile(2, "$FILE_LIST_XML2-fireId", "md5", 1, "creationTime") andThen
+                FireWebFile(3, "$FILE_LIST_TSV2-fireId", "md5", 1, "creationTime") andThen
                 FireWebFile(4, "$FILE_LIST_JSON1-fireId", "md5", 1, "creationTime") andThen
                 FireWebFile(5, "$FILE_LIST_XML1-fireId", "md5", 1, "creationTime") andThen
                 FireWebFile(6, "$FILE_LIST_TSV1-fireId", "md5", 1, "creationTime") andThen
-                FireWebFile(7, "$FILE_LIST_JSON2-fireId", "md5", 1, "creationTime") andThen
-                FireWebFile(8, "$FILE_LIST_XML2-fireId", "md5", 1, "creationTime") andThen
-                FireWebFile(9, "$FILE_LIST_TSV2-fireId", "md5", 1, "creationTime") andThen
-                FireWebFile(10, "$FILE_LIST_JSON3-fireId", "md5", 1, "creationTime") andThen
-                FireWebFile(11, "$FILE_LIST_XML3-fireId", "md5", 1, "creationTime") andThen
-                FireWebFile(12, "$FILE_LIST_TSV3-fireId", "md5", 1, "creationTime")
+                FireWebFile(7, "$SUB_JSON-fireId", "md5", 1, "creationTime") andThen
+                FireWebFile(8, "$SUB_XML-fireId", "md5", 1, "creationTime") andThen
+                FireWebFile(9, "$SUB_TSV-fireId", "md5", 1, "creationTime")
     }
-
-    private fun subPageTabFiles() = listOf(
-        FireFile(SUB_JSON, "$SUB_JSON-fireId", "md5", 1, listOf()),
-        FireFile(SUB_XML, "$SUB_XML-fireId", "md5", 1, listOf()),
-        FireFile(SUB_TSV, "$SUB_TSV-fireId", "md5", 1, listOf())
-    )
 
     private val fileListRootSection = ExtFileList("data/file-list1")
     private val fileListSubSection = ExtFileList("data/file-list2")
@@ -95,17 +87,14 @@ class FirePageTabServiceTest(
         fileList = fileListRootSection.copy(tabFiles = filesRootSection()),
         sections = listOf(
             left(ExtSection(type = "Study2", fileList = fileListSubSection.copy(tabFiles = filesSubSection()))),
-            right(
-                ExtSectionTable(
-                    listOf(
-                        ExtSection(
-                            type = "Study3",
-                            fileList = fileListSubSectionTable.copy(tabFiles = filesSubSectionTable())
-                        )
-                    )
-                )
-            )
+            right(ExtSectionTable(listOf(ExtSection(type = "Study3", fileList = fileListSubSectionTable))))
         )
+    )
+
+    private fun pageTabFiles() = listOf(
+        FireFile(SUB_JSON, "$SUB_JSON-fireId", "md5", 1, listOf()),
+        FireFile(SUB_XML, "$SUB_XML-fireId", "md5", 1, listOf()),
+        FireFile(SUB_TSV, "$SUB_TSV-fireId", "md5", 1, listOf())
     )
 
     private fun filesRootSection() = listOf(
@@ -118,12 +107,6 @@ class FirePageTabServiceTest(
         FireFile(FILE_LIST_JSON2, "$FILE_LIST_JSON2-fireId", "md5", 1, listOf()),
         FireFile(FILE_LIST_XML2, "$FILE_LIST_XML2-fireId", "md5", 1, listOf()),
         FireFile(FILE_LIST_TSV2, "$FILE_LIST_TSV2-fireId", "md5", 1, listOf())
-    )
-
-    private fun filesSubSectionTable() = listOf(
-        FireFile(FILE_LIST_JSON3, "$FILE_LIST_JSON3-fireId", "md5", 1, listOf()),
-        FireFile(FILE_LIST_XML3, "$FILE_LIST_XML3-fireId", "md5", 1, listOf()),
-        FireFile(FILE_LIST_TSV3, "$FILE_LIST_TSV3-fireId", "md5", 1, listOf())
     )
 
     private fun verifyFileLists(fireFolder: File) {
