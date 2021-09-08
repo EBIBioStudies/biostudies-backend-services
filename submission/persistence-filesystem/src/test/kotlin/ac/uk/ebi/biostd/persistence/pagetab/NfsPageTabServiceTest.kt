@@ -44,7 +44,7 @@ class NfsPageTabServiceTest(
         setUpSerializer(submission.toSimpleSubmission())
 
         assertThat(testInstance.generatePageTab(submission))
-            .isEqualTo(submission.copy(pageTabFiles = pageTabFiles(subFolder)))
+            .isEqualTo(submission.copy(tabFiles = pageTabFiles(subFolder)))
 
         verifyFileLists(subFolder)
         verifySubmissionFiles(subFolder)

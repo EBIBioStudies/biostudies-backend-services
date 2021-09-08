@@ -1,11 +1,10 @@
 package ac.uk.ebi.biostd.persistence.filesystem.pagetab
 
 import ac.uk.ebi.biostd.integration.SerializationService
-import arrow.core.Either
+import ac.uk.ebi.biostd.persistence.filesystem.service.Section
+import ac.uk.ebi.biostd.persistence.filesystem.service.process
 import ebi.ac.uk.extended.model.ExtFile
-import ebi.ac.uk.extended.model.ExtFileList
 import ebi.ac.uk.extended.model.ExtSection
-import ebi.ac.uk.extended.model.ExtSectionTable
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.io.ext.md5
@@ -21,50 +20,23 @@ class FirePageTabService(
     private val fireWebClient: FireWebClient
 ) : PageTabService {
     override fun generatePageTab(sub: ExtSubmission): ExtSubmission {
-        logger.info { "generating submission ${sub.accNo} pagetab files" }
-        val tabFiles = serializationService.generatePageTab(sub, fireTempFolder)
+        val (subFiles, fileListFiles) = serializationService.generatePageTab(sub, fireTempFolder)
+        val section = process(sub.section) { updateFileList(it, sub.relPath, fileListFiles) }
 
-        logger.info { "page tab successfully generated for submission ${sub.accNo}" }
-
-        val config = SavePageTabConfig(tabFiles.fileListTabFiles, sub.relPath)
-
-        return sub.copy(
-            pageTabFiles = asExtFiles(sub.relPath, tabFiles.subTabFiles),
-            section = savePageTabFiles(sub.section, tabFiles.fileListTabFiles, sub.relPath)
-        )
+        return when {
+            section.changed -> sub.copy(tabFiles = extFiles(sub.relPath, subFiles), section = section.section)
+            else -> sub.copy(tabFiles = extFiles(sub.relPath, subFiles))
+        }
     }
 
-    private fun savePageTabFiles(
-        section: ExtSection,
-        fileListTabFiles: Map<String, TabFiles>,
-        relPath: String
-    ): ExtSection {
-        return if (section.fileList != null) {
-            section.copy(
-                fileList = savePageTabFileList(section.fileList!!, fileListTabFiles, relPath),
-                sections = section.sections.map { savePageTabSections(it, fileListTabFiles, relPath) })
-        } else section.copy(sections = section.sections.map { savePageTabSections(it, fileListTabFiles, relPath) })
+    private fun updateFileList(sec: ExtSection, path: String, tab: Map<String, TabFiles>): Section {
+        return when (val lst = sec.fileList) {
+            null -> Section(false, sec)
+            else -> Section(true, sec.copy(fileList = lst.copy(tabFiles = extFiles(path, tab.getValue(lst.fileName)))))
+        }
     }
 
-    private fun savePageTabFileList(
-        fileList: ExtFileList,
-        fileListTabFiles: Map<String, TabFiles>,
-        relPath: String
-    ): ExtFileList =
-        fileList.copy(pageTabFiles = asExtFiles(relPath, requireNotNull(fileListTabFiles[fileList.fileName])))
-
-    private fun savePageTabSections(
-        subSection: Either<ExtSection, ExtSectionTable>,
-        fileListTabFiles: Map<String, TabFiles>,
-        relPath: String
-    ): Either<ExtSection, ExtSectionTable> {
-        return subSection.bimap(
-            { extSection -> savePageTabFiles(extSection, fileListTabFiles, relPath) },
-            { it.copy(sections = it.sections.map { sec -> savePageTabFiles(sec, fileListTabFiles, relPath) }) }
-        )
-    }
-
-    private fun asExtFiles(filesRelPath: String, pageTab: TabFiles): List<ExtFile> {
+    private fun extFiles(filesRelPath: String, pageTab: TabFiles): List<ExtFile> {
         val json = fireWebClient.save(pageTab.json, pageTab.json.md5(), filesRelPath)
         val xml = fireWebClient.save(pageTab.xml, pageTab.xml.md5(), filesRelPath)
         val tsv = fireWebClient.save(pageTab.tsv, pageTab.tsv.md5(), filesRelPath)
@@ -77,7 +49,3 @@ class FirePageTabService(
     }
 }
 
-data class SavePageTabConfig(
-    val fileListTabFiles: Map<String, TabFiles>,
-    val relPath: String
-)

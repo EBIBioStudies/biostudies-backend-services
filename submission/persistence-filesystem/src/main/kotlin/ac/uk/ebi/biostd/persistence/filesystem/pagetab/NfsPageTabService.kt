@@ -19,7 +19,7 @@ class NfsPageTabService(
         val tabsFiles = serializationService.generatePageTab(sub, submissionFolder)
 
         logger.info { "page tab successfully generated for submission ${sub.accNo}" }
-        return sub.copy(pageTabFiles = toNfsFiles(tabsFiles.subTabFiles))
+        return sub.copy(tabFiles = toNfsFiles(tabsFiles.subFiles))
     }
 
     private fun toNfsFiles(tabsFiles: TabFiles): List<NfsFile> {

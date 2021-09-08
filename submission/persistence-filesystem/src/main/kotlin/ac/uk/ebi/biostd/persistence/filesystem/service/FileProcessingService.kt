@@ -8,12 +8,33 @@ import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSectionTable
 import ebi.ac.uk.extended.model.ExtSubmission
 
+data class UpdatedSection(val changed: Boolean, val section: ExtSection)
+typealias Section = UpdatedSection
+
+/**
+ * Allow to process the given section, and it subsections by updating a specific attribute or modified data structure.
+ * Note that the submission three is iterated from leaf sections (section with no subsections) to parents to avoid
+ *
+ * @param section the section to iterate recursively.
+ * @param process process function to apply to each section.
+ * @return an instance of @UpdatedSection indicating if section was changed or not.
+ */
+fun process(section: ExtSection, process: (file: ExtSection) -> Section): Section {
+    val sections = section.sections.map { either -> either.mapLeft { process(it, process) } }
+    val current = process(section)
+    val changed = current.changed || sections.any { either -> either.fold({ it.changed }, { false }) }
+
+    return Section(
+        changed,
+        if (changed) current.section.copy(sections = sections.map { it.mapLeft(Section::section) }) else section)
+}
+
 fun processFiles(
     submission: ExtSubmission,
     processFile: (file: ExtFile) -> ExtFile
-): ExtSubmission = submission.copy(section = processSection(submission.section, processFile))
+): ExtSubmission = submission.copy(section = processSectionFiles(submission.section, processFile))
 
-private fun processSection(
+private fun processSectionFiles(
     section: ExtSection,
     processFile: (file: ExtFile) -> ExtFile
 ): ExtSection = section.copy(
@@ -39,6 +60,6 @@ private fun processSections(
     subSection: Either<ExtSection, ExtSectionTable>,
     processFile: (file: ExtFile) -> ExtFile
 ) = subSection.bimap(
-    { processSection(it, processFile) },
-    { it.copy(sections = it.sections.map { subSect -> processSection(subSect, processFile) }) }
+    { processSectionFiles(it, processFile) },
+    { it.copy(sections = it.sections.map { subSect -> processSectionFiles(subSect, processFile) }) }
 )

@@ -12,7 +12,6 @@ import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSectionTable
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.io.RW_R_____
-import uk.ac.ebi.fire.client.model.FireFile as FireWebFile
 import ebi.ac.uk.test.basicExtSubmission
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
@@ -25,6 +24,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.fire.client.integration.web.FireWebClient
 import java.io.File
 import java.nio.file.Files
+import uk.ac.ebi.fire.client.model.FireFile as FireWebFile
 
 @ExtendWith(TemporaryFolderExtension::class, MockKExtension::class)
 class FirePageTabServiceTest(
@@ -44,7 +44,7 @@ class FirePageTabServiceTest(
         setUpFireWebClient()
         val result = testInstance.generatePageTab(submission)
 
-        assertThat(result).isEqualTo(submission.copy(pageTabFiles = subPageTabFiles(), section = finalRootSection()))
+        assertThat(result).isEqualTo(submission.copy(tabFiles = subPageTabFiles(), section = finalRootSection()))
         verifyFileLists(fireFolder)
         verifySubmissionFiles(fireFolder)
     }
@@ -92,15 +92,15 @@ class FirePageTabServiceTest(
 
     private fun finalRootSection() = ExtSection(
         type = "Study1",
-        fileList = fileListRootSection.copy(pageTabFiles = filesRootSection()),
+        fileList = fileListRootSection.copy(tabFiles = filesRootSection()),
         sections = listOf(
-            left(ExtSection(type = "Study2", fileList = fileListSubSection.copy(pageTabFiles = filesSubSection()))),
+            left(ExtSection(type = "Study2", fileList = fileListSubSection.copy(tabFiles = filesSubSection()))),
             right(
                 ExtSectionTable(
                     listOf(
                         ExtSection(
                             type = "Study3",
-                            fileList = fileListSubSectionTable.copy(pageTabFiles = filesSubSectionTable())
+                            fileList = fileListSubSectionTable.copy(tabFiles = filesSubSectionTable())
                         )
                     )
                 )

@@ -1,13 +1,13 @@
 package ac.uk.ebi.biostd.persistence.doc.mapping.from
 
-import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
-import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
-import ac.uk.ebi.biostd.persistence.doc.model.DocSection
 import ac.uk.ebi.biostd.persistence.doc.model.DocCollection
-import ac.uk.ebi.biostd.persistence.doc.model.DocTag
-import ac.uk.ebi.biostd.persistence.doc.model.DocStat
 import ac.uk.ebi.biostd.persistence.doc.model.DocProcessingStatus
+import ac.uk.ebi.biostd.persistence.doc.model.DocSection
+import ac.uk.ebi.biostd.persistence.doc.model.DocStat
+import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionMethod
+import ac.uk.ebi.biostd.persistence.doc.model.DocTag
+import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
 import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod
@@ -42,7 +42,7 @@ private fun ExtSubmission.toDocSubmission(submissionId: ObjectId, docSection: Do
         attributes = attributes.map { it.toDocAttribute() },
         section = docSection,
         stats = stats.map { DocStat(it.name, it.value.toLong()) },
-        pageTabFile = pageTabFiles.map { it.toDocFile() }
+        pageTabFile = tabFiles.map { it.toDocFile() }
     )
 }
 
