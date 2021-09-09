@@ -1,10 +1,10 @@
 package ac.uk.ebi.biostd.persistence.repositories.data
 
+import ac.uk.ebi.biostd.persistence.common.exception.SubmissionNotFoundException
 import ac.uk.ebi.biostd.persistence.common.exception.FileListNotFoundException
 import ac.uk.ebi.biostd.persistence.common.model.BasicSubmission
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
-import ac.uk.ebi.biostd.persistence.common.exception.SubmissionNotFoundException
 import ac.uk.ebi.biostd.persistence.filter.SubmissionFilterSpecification
 import ac.uk.ebi.biostd.persistence.mapping.extended.to.DbToExtRequest
 import ac.uk.ebi.biostd.persistence.mapping.extended.to.ToExtSubmissionMapper
@@ -22,6 +22,7 @@ import ac.uk.ebi.biostd.persistence.repositories.data.CollectionSqlDataService.C
 import com.cosium.spring.data.jpa.entity.graph.domain.EntityGraphs
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSED
 import mu.KotlinLogging
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
@@ -45,6 +46,11 @@ internal open class SubmissionRepository(
 ) : SubmissionQueryService {
     @Transactional(readOnly = true)
     override fun existByAccNo(accNo: String): Boolean = submissionRepository.existsByAccNo(accNo)
+
+    override fun findExtByAccNo(accNo: String): ExtSubmission? {
+        val exists = submissionRepository.existsByAccNoAndStatusAndVersionGreaterThan(accNo, PROCESSED, 0)
+        return if (exists) submissionMapper.toExtSubmission(loadSubmissionAndStatus(accNo)) else null
+    }
 
     @Transactional(readOnly = true)
     override fun getExtByAccNo(accNo: String) = submissionMapper.toExtSubmission(loadSubmissionAndStatus(accNo))

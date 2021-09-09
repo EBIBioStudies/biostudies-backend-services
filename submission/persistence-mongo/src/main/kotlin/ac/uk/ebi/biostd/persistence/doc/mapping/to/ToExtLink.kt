@@ -6,7 +6,7 @@ import arrow.core.Either
 import ebi.ac.uk.extended.model.ExtLink
 import ebi.ac.uk.extended.model.ExtLinkTable
 
-internal fun DocLink.toExtLink(): ExtLink = ExtLink(url, attributes.map { it.toExtAttribute() })
+internal fun DocLink.toExtLink(): ExtLink = ExtLink(url, attributes.toExtAttributes())
 
 internal fun DocLinkTable.toExtLinkTable(): ExtLinkTable = ExtLinkTable(links.map { it.toExtLink() })
 

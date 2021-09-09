@@ -37,7 +37,7 @@ class ExtSectionSerializer : JsonSerializer<ExtSection>() {
     private fun writeFileList(fileList: ExtFileList, gen: JsonGenerator) {
         gen.writeObjectFieldStart(FILE_LIST)
         gen.writeStringField(FILE_NAME, fileList.fileName)
-        gen.writeStringField(FILES_URL, "$FILE_LIST_URL/$parentAccNo/fileList/${fileList.fileName}/files")
+        gen.writeStringField(FILES_URL, "/$FILE_LIST_URL/$parentAccNo/fileList/${fileList.fileName}/files")
         gen.writeEndObject()
     }
 

@@ -16,7 +16,6 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocFile
 import ac.uk.ebi.biostd.persistence.doc.model.DocFileTable
 import ac.uk.ebi.biostd.persistence.doc.model.DocLink
 import ac.uk.ebi.biostd.persistence.doc.model.DocLinkTable
-import ac.uk.ebi.biostd.persistence.doc.model.docFileClass
 import ac.uk.ebi.biostd.persistence.doc.model.docFileTableClass
 import ac.uk.ebi.biostd.persistence.doc.model.docLinkClass
 import ac.uk.ebi.biostd.persistence.doc.model.docLinkTableClass
@@ -24,6 +23,7 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocSection
 import ac.uk.ebi.biostd.persistence.doc.model.DocSectionTable
 import ac.uk.ebi.biostd.persistence.doc.model.docSectionClass
 import ac.uk.ebi.biostd.persistence.doc.model.docSectionTableClass
+import ac.uk.ebi.biostd.persistence.doc.model.nfsDocFileClass
 import arrow.core.Either
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -87,7 +87,7 @@ internal class DocSectionConverterTest(
         every { docFileListConverter.convert(fileListDocument2) } returns docFileList2
 
         every { docFileConverter.convert(fileDocument1) } returns docFile1
-        every { fileDocument1.getString(classField) } returns docFileClass
+        every { fileDocument1.getString(classField) } returns nfsDocFileClass
 
         every { docFileTableConverter.convert(fileTableDocument1) } returns docFileTable1
         every { fileTableDocument1.getString(classField) } returns docFileTableClass

@@ -3,6 +3,11 @@ package ac.uk.ebi.biostd.itest.common
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
 import ac.uk.ebi.biostd.itest.entities.TestUser
+import com.github.tomakehurst.wiremock.WireMockServer
+import com.github.tomakehurst.wiremock.client.WireMock.aResponse
+import com.github.tomakehurst.wiremock.client.WireMock.post
+import com.github.tomakehurst.wiremock.client.WireMock.urlMatching
+import com.github.tomakehurst.wiremock.core.WireMockConfiguration
 import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
 import ebi.ac.uk.db.MONGO_VERSION
 import ebi.ac.uk.db.MYSQL_VERSION
@@ -13,10 +18,13 @@ import org.testcontainers.containers.MongoDBContainer
 import org.testcontainers.containers.MySQLContainer
 import org.testcontainers.containers.startupcheck.MinimumDurationRunningStartupCheckStrategy
 import org.testcontainers.utility.DockerImageName
+import uk.ac.ebi.fire.client.api.FIRE_OBJECTS_URL
 import java.time.Duration.ofSeconds
 
 private const val CHARACTER_SET = "utf8mb4"
 private const val COLLATION = "utf8mb4_unicode_ci"
+private const val FIRE_USERNAME = "fireUsername"
+private const val FIRE_PASSWORD = "firePassword"
 
 internal open class BaseIntegrationTest(private val tempFolder: TemporaryFolder) {
     private val mongoContainer: MongoDBContainer = MongoDBContainer(DockerImageName.parse(MONGO_VERSION))
@@ -27,14 +35,16 @@ internal open class BaseIntegrationTest(private val tempFolder: TemporaryFolder)
         .withInitScript("Schema.sql")
         .withStartupCheckStrategy(MinimumDurationRunningStartupCheckStrategy(ofSeconds(MINIMUM_RUNNING_TIME)))
 
+    private val wireMockTransformer = TestWireMockTransformer(tempFolder.createDirectory("submission"))
+    private val fireWireMock = WireMockServer(WireMockConfiguration().dynamicPort().extensions(wireMockTransformer))
+
     val submissionPath
         get() = "${tempFolder.root.absolutePath}/submission"
 
     @BeforeAll
     fun beforeAll() {
-        if (System.getProperty("itest.mode") == "mongo") {
-            setUpMongo()
-        }
+        if (System.getProperty("itest.mode") == "mongo") setUpMongo()
+        if (System.getProperty("enableFire") == "true") setupFire()
 
         setUpMySql()
         setUpApplicationProperties()
@@ -44,6 +54,7 @@ internal open class BaseIntegrationTest(private val tempFolder: TemporaryFolder)
     fun afterAll() {
         mysqlContainer.stop()
         mongoContainer.stop()
+        fireWireMock.stop()
     }
 
     protected fun getWebClient(serverPort: Int, user: TestUser): BioWebClient {
@@ -53,6 +64,19 @@ internal open class BaseIntegrationTest(private val tempFolder: TemporaryFolder)
 
     protected fun createUser(testUser: TestUser, serverPort: Int) {
         SecurityWebClient.create("http://localhost:$serverPort").registerUser(testUser.asRegisterRequest())
+    }
+
+    private fun setupFire() {
+        fireWireMock.stubFor(
+            post(urlMatching(FIRE_OBJECTS_URL))
+                .withBasicAuth(FIRE_USERNAME, FIRE_PASSWORD)
+                .willReturn(aResponse().withTransformers(wireMockTransformer.name))
+        )
+        fireWireMock.start()
+
+        System.setProperty("app.fire.host", fireWireMock.baseUrl())
+        System.setProperty("app.fire.username", FIRE_USERNAME)
+        System.setProperty("app.fire.password", FIRE_PASSWORD)
     }
 
     private fun setUpMongo() {
@@ -75,6 +99,7 @@ internal open class BaseIntegrationTest(private val tempFolder: TemporaryFolder)
         System.setProperty("app.tempDirPath", tempFolder.createDirectory("tmp").absolutePath)
         System.setProperty("app.security.filesDirPath", tempFolder.createDirectory("dropbox").absolutePath)
         System.setProperty("app.security.magicDirPath", tempFolder.createDirectory("magic").absolutePath)
+        System.setProperty("app.persistence.enableFire", "${System.getProperty("enableFire").toBoolean()}")
     }
 }
 

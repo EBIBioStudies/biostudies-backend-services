@@ -89,7 +89,6 @@ object FileUtils {
         folderPermissions: Set<PosixFilePermission>
     ) {
         deleteFile(target)
-
         when (isDirectory(source)) {
             true -> FileUtilsHelper.moveFolder(source.toPath(), target.toPath(), filePermissions, folderPermissions)
             false -> FileUtilsHelper.moveFile(source.toPath(), target.toPath(), filePermissions, folderPermissions)

@@ -8,7 +8,6 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import org.assertj.core.api.Assertions.assertThat
 import org.bson.Document
-import org.bson.types.ObjectId
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -16,8 +15,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 internal class FileListConverterTest(
     @MockK val fileRefConverter: FileRefConverter,
     @MockK val document: Document,
-    @MockK val docRefFile: DocFileRef,
-    @MockK val submissionID: ObjectId
+    @MockK val docRefFile: DocFileRef
 ) {
     private val testInstance = FileListConverter(fileRefConverter)
     @Test

@@ -13,14 +13,12 @@ import uk.ac.ebi.fire.client.integration.web.FireWebClient
 
 private val logger = KotlinLogging.logger {}
 
-class FireFilesService(
-    private val fireWebClient: FireWebClient
-) : FilesService {
+class FireFilesService(private val fireWebClient: FireWebClient) : FilesService {
     override fun persistSubmissionFiles(request: FilePersistenceRequest): ExtSubmission {
         val (submission, _, previousFiles) = request
         logger.info { "Starting processing files of submission ${submission.accNo} over FIRE" }
         val config = FireFileProcessingConfig(submission.relPath, fireWebClient, previousFiles)
-        val processed = processFiles(submission) { config.processFile(it) }
+        val processed = processFiles(submission) { config.processFile(request.submission, it) }
         logger.info { "Finishing processing files of submission ${submission.accNo} over FIRE" }
         return processed
     }
@@ -32,20 +30,23 @@ data class FireFileProcessingConfig(
     val previousFiles: Map<Md5, ExtFile>
 )
 
-fun FireFileProcessingConfig.processFile(file: ExtFile): ExtFile {
-    return if (file is NfsFile) processNfsFile(file) else file
-}
+fun FireFileProcessingConfig.processFile(
+    sub: ExtSubmission,
+    file: ExtFile
+): ExtFile = if (file is NfsFile) processNfsFile(sub.relPath, file) else file
 
-fun FireFileProcessingConfig.processNfsFile(nfsFile: NfsFile): FireFile {
+fun FireFileProcessingConfig.processNfsFile(relPath: String, nfsFile: NfsFile): FireFile {
     logger.info { "processing file ${nfsFile.fileName}" }
+
+    // TODO handle directories (check S-BIAD56)
     val fileFire = previousFiles[nfsFile.md5] as FireFile?
-    return if (fileFire == null) saveFile(nfsFile) else reusePreviousFile(fileFire, nfsFile)
+    return if (fileFire == null) saveFile(relPath, nfsFile) else reusePreviousFile(fileFire, nfsFile)
 }
 
 private fun reusePreviousFile(fireFile: FireFile, nfsFile: NfsFile) =
     FireFile(nfsFile.fileName, fireFile.fireId, fireFile.md5, fireFile.size, nfsFile.attributes)
 
-private fun FireFileProcessingConfig.saveFile(nfsFile: NfsFile): FireFile {
-    val store = fireWebClient.save(nfsFile.file, nfsFile.md5)
+private fun FireFileProcessingConfig.saveFile(relPath: String, nfsFile: NfsFile): FireFile {
+    val store = fireWebClient.save(nfsFile.file, nfsFile.md5, relPath)
     return FireFile(nfsFile.fileName, store.fireOid, store.objectMd5, store.objectSize.toLong(), nfsFile.attributes)
 }
