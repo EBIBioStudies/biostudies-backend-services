@@ -10,13 +10,13 @@ class LinkExtTest {
     @Test
     fun `is table`() {
         val link = DbLink("CHEBI:74", 0).apply { tableIndex = 1 }
-        assertThat(link.isTableElement()).isTrue()
+        assertThat(link.isTableElement()).isTrue
     }
 
     @Test
     fun `is not table`() {
         val link = DbLink("CHEBI:74", 0)
-        assertThat(link.isTableElement()).isFalse()
+        assertThat(link.isTableElement()).isFalse
     }
 
     @Test

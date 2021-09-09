@@ -1,9 +1,5 @@
 package uk.ac.ebi.serialization.extensions
 
-import arrow.core.None
-import arrow.core.Option
-import arrow.core.Try
-import arrow.core.getOrElse
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.JavaType
 import com.fasterxml.jackson.databind.JsonNode
@@ -15,8 +11,8 @@ import com.fasterxml.jackson.module.kotlin.convertValue
  * be converter.
  *
  */
-fun ObjectMapper.tryConvertValue(node: JsonNode, type: JavaType): Option<Any> {
-    return Try<Any> { convertValue(node, type) }.map { Option.fromNullable(it) }.getOrElse { None }
+fun ObjectMapper.tryConvertValue(node: JsonNode, type: JavaType): Any? {
+    return runCatching<Any> { convertValue(node, type) }.getOrNull()
 }
 
 /**

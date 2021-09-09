@@ -82,7 +82,7 @@ object SubmissionTestHelper {
         assertThat(extSubmission.releaseTime).isEqualTo(time.atOffset(UTC))
         assertThat(extSubmission.modificationTime).isEqualTo(time.atOffset(UTC))
         assertThat(extSubmission.creationTime).isEqualTo(time.atOffset(UTC))
-        assertThat(extSubmission.released).isFalse()
+        assertThat(extSubmission.released).isFalse
     }
 
     private fun assertAttributes(extSubmission: ExtSubmission) {

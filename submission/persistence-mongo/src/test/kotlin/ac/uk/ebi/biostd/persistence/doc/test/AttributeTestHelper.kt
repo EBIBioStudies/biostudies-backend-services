@@ -25,7 +25,7 @@ internal object AttributeTestHelper {
     fun assertBasicExtAttribute(extAttribute: ExtAttribute) {
         assertThat(extAttribute.name).isEqualTo(ATTR_NAME)
         assertThat(extAttribute.value).isEqualTo(ATTR_VALUE)
-        assertThat(extAttribute.reference).isFalse()
+        assertThat(extAttribute.reference).isFalse
     }
 
     fun assertFullExtAttribute(extAttribute: ExtAttribute) {

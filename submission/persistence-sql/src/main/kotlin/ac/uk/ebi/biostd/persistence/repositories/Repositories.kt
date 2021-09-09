@@ -35,7 +35,6 @@ import org.springframework.data.repository.PagingAndSortingRepository
 import org.springframework.data.repository.query.Param
 import org.springframework.transaction.annotation.Transactional
 import java.time.OffsetDateTime
-import java.util.Optional
 import javax.persistence.LockModeType
 import com.cosium.spring.data.jpa.entity.graph.domain.EntityGraph as GraphSpecification
 
@@ -125,13 +124,14 @@ interface SequenceDataRepository : JpaRepository<Sequence, Long> {
 }
 
 interface UserDataRepository : JpaRepository<DbUser, Long> {
-    fun findByLoginOrEmailAndActive(login: String, email: String, active: Boolean): Optional<DbUser>
+    fun findByLoginOrEmailAndActive(login: String, email: String, active: Boolean): DbUser?
     fun getByEmail(userEmail: String): DbUser
     fun existsByEmail(email: String): Boolean
     fun existsByEmailAndActive(email: String, active: Boolean): Boolean
-    fun findByActivationKeyAndActive(key: String, active: Boolean): Optional<DbUser>
-    fun findByEmailAndActive(email: String, active: Boolean): Optional<DbUser>
-    fun findByEmail(email: String): Optional<DbUser>
+    fun findByActivationKeyAndActive(key: String, active: Boolean): DbUser?
+    fun findByEmailAndActive(email: String, active: Boolean): DbUser?
+    fun getByEmailAndActive(email: String, active: Boolean): DbUser
+    fun findByEmail(email: String): DbUser?
 
     @EntityGraph(value = USER_DATA_GRAPH, type = LOAD)
     fun readByEmail(userEmail: String): DbUser

@@ -38,7 +38,7 @@ class AccNoPatternUtilTest(@MockK private val service: PersistenceService) {
 
     @Test
     fun isPattern() {
-        assertThat(testInstance.isPattern("!A")).isFalse()
+        assertThat(testInstance.isPattern("!A")).isFalse
     }
 
     @Test

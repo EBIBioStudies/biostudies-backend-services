@@ -234,8 +234,8 @@ internal class FileUtilsTest(private val temporaryFolder: TemporaryFolder) {
             val file = temporaryFolder.createFile("test.txt")
             val folder = temporaryFolder.createDirectory("test-folder")
 
-            assertThat(FileUtils.isDirectory(file)).isFalse()
-            assertThat(FileUtils.isDirectory(folder)).isTrue()
+            assertThat(FileUtils.isDirectory(file)).isFalse
+            assertThat(FileUtils.isDirectory(folder)).isTrue
         }
 
         @Test

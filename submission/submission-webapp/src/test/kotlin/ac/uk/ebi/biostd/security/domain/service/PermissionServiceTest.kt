@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.security.domain.service
 
-import ac.uk.ebi.biostd.persistence.common.model.AccessType
 import ac.uk.ebi.biostd.persistence.common.model.AccessType.READ
 import ac.uk.ebi.biostd.persistence.model.DbAccessPermission
 import ac.uk.ebi.biostd.persistence.model.DbAccessTag
@@ -19,7 +18,6 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
-import java.util.Optional
 
 @ExtendWith(MockKExtension::class)
 class PermissionServiceTest(
@@ -31,7 +29,7 @@ class PermissionServiceTest(
 
     @Test
     fun `give permission to a user`() {
-        every { userRepository.findByEmail(email) } returns Optional.of(dbUser)
+        every { userRepository.findByEmail(email) } returns dbUser
         every { tagRepository.findByName(accessTag) } returns dbAccessTag
         every { permissionRepo.existsByUserEmailAndAccessTypeAndAccessTagName(email, READ, accessTag) } returns false
         every { permissionRepo.save(capture(dbAccessPermissionSlot)) } returns mockk()
@@ -44,7 +42,7 @@ class PermissionServiceTest(
 
     @Test
     fun `give permission to a user when already exists`() {
-        every { userRepository.findByEmail(email) } returns Optional.of(dbUser)
+        every { userRepository.findByEmail(email) } returns dbUser
         every { tagRepository.findByName(accessTag) } returns dbAccessTag
         every { permissionRepo.existsByUserEmailAndAccessTypeAndAccessTagName(email, READ, accessTag) } returns true
 
@@ -53,7 +51,7 @@ class PermissionServiceTest(
 
     @Test
     fun `when not existing user`() {
-        every { userRepository.findByEmail(email) } returns Optional.empty()
+        every { userRepository.findByEmail(email) } returns null
 
         assertThrows<PermissionsUserDoesNotExistsException> {
             testInstance.givePermissionToUser(accessType, email, accessTag)
@@ -62,7 +60,7 @@ class PermissionServiceTest(
 
     @Test
     fun `when not existing tag`() {
-        every { userRepository.findByEmail(email) } returns Optional.of(dbUser)
+        every { userRepository.findByEmail(email) } returns dbUser
         every { tagRepository.findByName(accessTag) } returns null
 
         assertThrows<PermissionsAccessTagDoesNotExistsException> {
@@ -73,7 +71,7 @@ class PermissionServiceTest(
     companion object {
         const val email = "userEmail"
         const val accessTag = "TAG_NAME"
-        val accessType = AccessType.READ
+        val accessType = READ
         val dbUser = mockk<DbUser>()
         val dbAccessTag = mockk<DbAccessTag>()
         private val dbAccessPermissionSlot = slot<DbAccessPermission>()
