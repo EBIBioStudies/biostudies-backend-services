@@ -13,7 +13,9 @@ import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(MockKExtension::class)
-class ExtUserServiceTest(@MockK private val userDataRepository: UserDataRepository) {
+class ExtUserServiceTest(
+    @MockK private val userDataRepository: UserDataRepository
+) {
     private val testInstance = ExtUserService(userDataRepository)
 
     @Test
@@ -25,7 +27,7 @@ class ExtUserServiceTest(@MockK private val userDataRepository: UserDataReposito
         assertThat(extUser.login).isEqualTo("test")
         assertThat(extUser.fullName).isEqualTo("Test User")
         assertThat(extUser.email).isEqualTo("test@ebi.ac.uk")
-        assertThat(extUser.notificationsEnabled).isTrue()
+        assertThat(extUser.notificationsEnabled).isTrue
     }
 
     @Test

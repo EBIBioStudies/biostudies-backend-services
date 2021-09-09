@@ -6,7 +6,6 @@ import org.junit.jupiter.api.assertThrows
 import java.util.concurrent.atomic.AtomicInteger
 
 class CollectionsExtensionsTest {
-
     @Test
     fun `if list is empty, do nothing`() =
         emptyList<String>().ifNotEmpty { throw IllegalStateException("this should not be executed") }
@@ -35,7 +34,7 @@ class CollectionsExtensionsTest {
         val first: String = list.removeFirst()
 
         assertThat(first).isEqualTo("a")
-        assertThat(list.contains("a")).isFalse()
+        assertThat(list.contains("a")).isFalse
         assertThat(list[0]).isEqualTo("b")
         assertThat(list[1]).isEqualTo("c")
     }

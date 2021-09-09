@@ -25,17 +25,17 @@ class ExtFileTableConverterTest(
 
     @Test
     fun `can read`() {
-        assertThat(testInstance.canRead(ExtFileTable::class.java, APPLICATION_JSON)).isFalse()
+        assertThat(testInstance.canRead(ExtFileTable::class.java, APPLICATION_JSON)).isFalse
     }
 
     @Test
     fun `can write ext file table`() {
-        assertThat(testInstance.canWrite(ExtFileTable::class.java, APPLICATION_JSON)).isTrue()
+        assertThat(testInstance.canWrite(ExtFileTable::class.java, APPLICATION_JSON)).isTrue
     }
 
     @Test
     fun `can write other class`() {
-        assertThat(testInstance.canWrite(ExtSubmission::class.java, APPLICATION_JSON)).isFalse()
+        assertThat(testInstance.canWrite(ExtSubmission::class.java, APPLICATION_JSON)).isFalse
     }
 
     @Test

@@ -62,7 +62,7 @@ class NfsFileProcessingConfigTest(private val tempFolder: TemporaryFolder) {
             val config = NfsFileProcessingConfig(COPY, subFolder, currentFolder, RW_R__R__, RWXR_XR_X)
             val result = config.nfsCopy(extFile)
 
-            assertThat(subFolder.resolve("test.txt").exists()).isTrue()
+            assertThat(subFolder.resolve("test.txt").exists()).isTrue
             assertThat(result.file.path).isEqualTo("${tempFolder.root}/S-BSST1/Files/test.txt")
         }
     }

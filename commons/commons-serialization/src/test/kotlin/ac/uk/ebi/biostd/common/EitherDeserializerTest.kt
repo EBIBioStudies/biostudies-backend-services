@@ -16,7 +16,6 @@ import uk.ac.ebi.serialization.deserializers.EitherDeserializer
 
 @TestInstance(Lifecycle.PER_CLASS)
 class EitherDeserializerTest {
-
     private val objectMapper = jacksonObjectMapper()
 
     @BeforeAll
@@ -29,7 +28,7 @@ class EitherDeserializerTest {
         val name = "John Doe"
         val result = objectMapper.readValue<Either<Dummy, Foo>>(jsonObj { "name" to name }.toString())
 
-        assertThat(result.isLeft()).isTrue()
+        assertThat(result.isLeft()).isTrue
         assertThat(result.getOrHandle { it }).isEqualTo(Dummy(name))
     }
 
@@ -38,7 +37,7 @@ class EitherDeserializerTest {
         val value = 55
         val result = objectMapper.readValue<Either<Dummy, Foo>>(jsonObj { "value" to value }.toString())
 
-        assertThat(result.isRight()).isTrue()
+        assertThat(result.isRight()).isTrue
         assertThat(result.getOrHandle { it }).isEqualTo(Foo(value))
     }
 

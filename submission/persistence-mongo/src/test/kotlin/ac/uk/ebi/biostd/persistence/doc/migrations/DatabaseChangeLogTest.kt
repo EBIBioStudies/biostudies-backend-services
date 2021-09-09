@@ -96,7 +96,7 @@ internal class DatabaseChangeLogTest(
     private fun assertSubmissionCollection() {
         val listIndexes = mongoTemplate.getCollection<DocSubmission>().listIndexes().toList()
 
-        assertThat(mongoTemplate.collectionExists<DocSubmission>()).isTrue()
+        assertThat(mongoTemplate.collectionExists<DocSubmission>()).isTrue
         assertThat(listIndexes).hasSize(9)
 
         assertThat(listIndexes[0]).containsEntry("key", Document("_id", 1))
@@ -118,7 +118,7 @@ internal class DatabaseChangeLogTest(
     private fun assertRequestCollection() {
         val listIndexes = mongoTemplate.getCollection<SubmissionRequest>().listIndexes().toList()
 
-        assertThat(mongoTemplate.collectionExists<SubmissionRequest>()).isTrue()
+        assertThat(mongoTemplate.collectionExists<SubmissionRequest>()).isTrue
         assertThat(listIndexes).hasSize(10)
 
         assertThat(listIndexes[0]).containsEntry("key", Document("_id", 1))

@@ -127,13 +127,13 @@ class ExtSectionDeserializerTest(private val tempFolder: TemporaryFolder) {
         assertThat(innerSections).hasSize(2)
 
         val innerSection = innerSections.first()
-        assertThat(innerSection.isLeft()).isTrue()
+        assertThat(innerSection.isLeft()).isTrue
         innerSection.ifLeft {
             assertThat(it.type).isEqualTo("Exp")
         }
 
         val innerSectionsTable = innerSections.second()
-        assertThat(innerSectionsTable.isRight()).isTrue()
+        assertThat(innerSectionsTable.isRight()).isTrue
         innerSectionsTable.ifRight {
             assertThat(it.sections).hasSize(1)
             assertThat(it.sections.first().type).isEqualTo("Data")
@@ -143,7 +143,7 @@ class ExtSectionDeserializerTest(private val tempFolder: TemporaryFolder) {
         assertThat(extFiles).hasSize(2)
 
         val extFile = extFiles.first()
-        assertThat(extFile.isLeft()).isTrue()
+        assertThat(extFile.isLeft()).isTrue
         extFile.ifLeft {
             it as NfsFile
             assertThat(it.file).isEqualTo(sectionFile)
@@ -151,7 +151,7 @@ class ExtSectionDeserializerTest(private val tempFolder: TemporaryFolder) {
         }
 
         val extFilesTable = extFiles.second()
-        assertThat(extFilesTable.isRight()).isTrue()
+        assertThat(extFilesTable.isRight()).isTrue
         extFilesTable.ifRight {
             assertThat(it.files).hasSize(1)
 
@@ -164,13 +164,13 @@ class ExtSectionDeserializerTest(private val tempFolder: TemporaryFolder) {
         assertThat(extLinks).hasSize(2)
 
         val extLink = extLinks.first()
-        assertThat(extLink.isLeft()).isTrue()
+        assertThat(extLink.isLeft()).isTrue
         extLink.ifLeft {
             assertThat(it.url).isEqualTo("https://simple-link.net")
         }
 
         val extLinkTable = extLinks.second()
-        assertThat(extLinkTable.isRight()).isTrue()
+        assertThat(extLinkTable.isRight()).isTrue
         extLinkTable.ifRight {
             assertThat(it.links).hasSize(1)
             assertThat(it.links.first().url).isEqualTo("https://table-link.net")

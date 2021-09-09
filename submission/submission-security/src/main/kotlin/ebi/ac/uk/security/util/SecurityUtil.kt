@@ -42,9 +42,7 @@ class SecurityUtil(
             .compact()
     }
 
-    fun fromToken(token: String): DbUser? {
-        return if (jwtParser.isSigned(token)) getFromToken(token) else null
-    }
+    fun fromToken(token: String): DbUser? = if (jwtParser.isSigned(token)) getFromToken(token) else null
 
     fun newKey() = UUID.randomUUID().toString()
 
@@ -71,20 +69,18 @@ class SecurityUtil(
         }
     }
 
-    private fun getUrl(instance: String, path: String, userKey: String): String {
-        return UriComponentsBuilder.fromHttpUrl(instance)
+    private fun getUrl(instance: String, path: String, userKey: String): String =
+        UriComponentsBuilder.fromHttpUrl(instance)
             .pathSegment(normalizePath(path))
-            .pathSegment(normalizePath(userKey)).build().toUriString()
-    }
+            .pathSegment(normalizePath(userKey))
+            .build()
+            .toUriString()
 
     private fun normalizePath(path: String) = path.trim('/')
 
     fun checkToken(tokenKey: String): DbUser? {
         val token = tokenRepository.findById(tokenKey)
-        return when {
-            token.isPresent -> null
-            else -> fromToken(tokenKey)
-        }
+        return if (token.isPresent) null else fromToken(tokenKey)
     }
 
     fun invalidateToken(authToken: String) {

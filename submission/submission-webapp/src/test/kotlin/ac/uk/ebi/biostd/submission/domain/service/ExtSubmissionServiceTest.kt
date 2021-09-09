@@ -101,7 +101,7 @@ class ExtSubmissionServiceTest(
         assertThat(result.totalElements).isEqualTo(2L)
 
         val submissionFilter = filter.captured
-        assertThat(submissionFilter.released).isTrue()
+        assertThat(submissionFilter.released).isTrue
         assertThat(submissionFilter.rTimeTo).isEqualTo("2020-09-21T15:00:00Z")
         assertThat(submissionFilter.rTimeFrom).isEqualTo("2019-09-21T15:00:00Z")
         verify(exactly = 1) { submissionRepository.getExtendedSubmissions(submissionFilter) }

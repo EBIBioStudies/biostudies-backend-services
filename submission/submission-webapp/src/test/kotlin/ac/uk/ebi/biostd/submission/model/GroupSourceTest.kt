@@ -20,7 +20,7 @@ internal class GroupSourceTest(@MockK private val pathFileSource: PathFilesSourc
     fun exists() {
         every { pathFileSource.exists(FILE_NAME) } returns true
 
-        assertThat(testInstance.exists("groups/$GROUP_NAME/$FILE_NAME")).isTrue()
+        assertThat(testInstance.exists("groups/$GROUP_NAME/$FILE_NAME")).isTrue
     }
 
     @Test

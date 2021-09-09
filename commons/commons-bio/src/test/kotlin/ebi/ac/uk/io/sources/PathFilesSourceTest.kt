@@ -16,7 +16,7 @@ internal class PathFilesSourceTest(temporaryFolder: TemporaryFolder) {
 
     @Test
     fun exists() {
-        assertThat(testInstance.exists(file.name)).isTrue()
+        assertThat(testInstance.exists(file.name)).isTrue
     }
 
     @Test
