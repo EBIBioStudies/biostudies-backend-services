@@ -34,6 +34,13 @@ data class FireFile(
     override val attributes: List<ExtAttribute>
 ) : ExtFile()
 
+data class FireDirectory(
+    override val fileName: String,
+    val md5: String,
+    val size: Long,
+    override val attributes: List<ExtAttribute>
+) : ExtFile()
+
 data class NfsFile(
     override val fileName: String,
     val file: File,

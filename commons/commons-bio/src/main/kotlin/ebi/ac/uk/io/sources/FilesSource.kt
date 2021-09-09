@@ -3,6 +3,7 @@ package ebi.ac.uk.io.sources
 import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size
 import java.io.File
+import java.lang.UnsupportedOperationException
 
 interface FilesSource {
     fun exists(filePath: String): Boolean
@@ -31,4 +32,13 @@ class FireBioFile(
     override fun readContent(): String = readContent.value
     override fun md5(): String = md5
     override fun size(): Long = size
+}
+
+class FireDirectoryBioFile(
+    val md5: String,
+    val size: Long
+) : BioFile() {
+    override fun md5(): String = md5
+    override fun size(): Long = size
+    override fun readContent(): String = throw UnsupportedOperationException()
 }

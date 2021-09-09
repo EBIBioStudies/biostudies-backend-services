@@ -4,6 +4,7 @@ import ac.uk.ebi.biostd.persistence.model.DbFile
 import ac.uk.ebi.biostd.persistence.model.DbReferencedFile
 import ac.uk.ebi.biostd.persistence.model.ReferencedFileList
 import ebi.ac.uk.extended.model.ExtFile
+import ebi.ac.uk.extended.model.FireDirectory
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.io.sources.BioFile
@@ -22,6 +23,7 @@ internal val refFileListDb get() = ReferencedFileList("fileList", sortedSetOf(re
 
 internal fun assertExtFile(extFile: ExtFile, bioFile: BioFile, fileName: String) = when (extFile) {
     is FireFile -> TODO()
+    is FireDirectory -> TODO()
     is NfsFile -> assertNfsFile(extFile, bioFile, fileName)
 }
 

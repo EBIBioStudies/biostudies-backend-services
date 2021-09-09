@@ -14,6 +14,7 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocStat
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocTag
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
+import ac.uk.ebi.biostd.persistence.doc.model.FireDocDirectory
 import ac.uk.ebi.biostd.persistence.doc.model.FireDocFile
 import ac.uk.ebi.biostd.persistence.doc.model.NfsDocFile
 
@@ -44,6 +45,7 @@ object NfsDocFileFields {
 
 object FireDocFileFields {
     val FIRE_DOC_FILE_CLASS: String = FireDocFile::class.java.canonicalName
+    val FIRE_DOC_DIRECTORY_CLASS: String = FireDocDirectory::class.java.canonicalName
     const val FIRE_FILE_DOC_FILE_NAME = "fileName"
     const val FIRE_FILE_DOC_ID = "fireId"
 }

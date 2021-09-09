@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.databind.JsonSerializer
 import com.fasterxml.jackson.databind.SerializerProvider
 import ebi.ac.uk.extended.model.ExtFile
+import ebi.ac.uk.extended.model.FireDirectory
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.io.FileUtils
@@ -25,6 +26,7 @@ class ExtFileSerializer : JsonSerializer<ExtFile>() {
         when (file) {
             is NfsFile -> gen.serializeNfsFile(file)
             is FireFile -> gen.serializeFireFile(file)
+            is FireDirectory -> gen.serializeFireDirectory(file)
         }
     }
 
@@ -47,6 +49,16 @@ class ExtFileSerializer : JsonSerializer<ExtFile>() {
         writeObjectField(ATTRIBUTES, file.attributes)
         writeStringField(EXT_TYPE, ExtType.FireFile.type)
         writeStringField(FILE_TYPE, FILE_FILE_TYPE)
+        writeNumberField(FILE_SIZE, file.size)
+        writeEndObject()
+    }
+
+    private fun JsonGenerator.serializeFireDirectory(file: FireDirectory) {
+        writeStartObject()
+        writeStringField(FILE_NAME, file.fileName)
+        writeObjectField(ATTRIBUTES, file.attributes)
+        writeStringField(EXT_TYPE, ExtType.FireDirectory.type)
+        writeStringField(FILE_TYPE, FILE_DIR_TYPE)
         writeNumberField(FILE_SIZE, file.size)
         writeEndObject()
     }
