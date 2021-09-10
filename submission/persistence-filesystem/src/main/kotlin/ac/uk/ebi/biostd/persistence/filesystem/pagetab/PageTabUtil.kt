@@ -14,18 +14,14 @@ import java.io.File
 fun SerializationService.generateSubPageTab(
     sub: ExtSubmission,
     target: File
-): TabFiles {
-    return saveTabFiles(target, sub.accNo, sub.toSimpleSubmission(), sub.permissions())
-}
+): TabFiles = saveTabFiles(target, sub.accNo, sub.toSimpleSubmission(), sub.permissions())
 
 fun SerializationService.generateFileListPageTab(
     sub: ExtSubmission,
     target: File
-): Map<String, TabFiles> {
-    return sub
-        .allFileList
-        .associate { it.fileName to saveTabFiles(target, it.fileName, it.toFilesTable(), sub.permissions()) }
-}
+): Map<String, TabFiles> = sub
+    .allFileList
+    .associate { it.fileName to saveTabFiles(target, it.fileName, it.toFilesTable(), sub.permissions()) }
 
 private fun <T> SerializationService.saveTabFiles(
     folder: File,
