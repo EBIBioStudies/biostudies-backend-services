@@ -14,7 +14,6 @@ import java.io.File
 
 @ExtendWith(TemporaryFolderExtension::class)
 internal class FilesListSourceTest(temporaryFolder: TemporaryFolder) {
-
     private val file: File = temporaryFolder.createFile("abc.txt", "the content of file")
     private val files: List<File> = listOf(file)
 
@@ -22,12 +21,12 @@ internal class FilesListSourceTest(temporaryFolder: TemporaryFolder) {
 
     @Test
     fun exists() {
-        assertThat(testInstance.exists(file.name)).isTrue()
+        assertThat(testInstance.exists(file.name)).isTrue
     }
 
     @Test
     fun `don't exist`() {
-        assertThat(testInstance.exists("ghost.txt")).isFalse()
+        assertThat(testInstance.exists("ghost.txt")).isFalse
     }
 
     @Test

@@ -2,12 +2,14 @@ package ac.uk.ebi.biostd.persistence.doc.test
 
 import ac.uk.ebi.biostd.persistence.doc.model.DocFileList
 import ac.uk.ebi.biostd.persistence.doc.model.DocFileRef
+import ac.uk.ebi.biostd.persistence.doc.model.FireDocDirectory
 import ac.uk.ebi.biostd.persistence.doc.model.FireDocFile
 import ac.uk.ebi.biostd.persistence.doc.model.NfsDocFile
 import ac.uk.ebi.biostd.persistence.doc.test.AttributeTestHelper.assertBasicExtAttribute
 import ac.uk.ebi.biostd.persistence.doc.test.AttributeTestHelper.basicDocAttribute
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileList
+import ebi.ac.uk.extended.model.FireDirectory
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.io.ext.md5
@@ -16,6 +18,7 @@ import org.bson.types.ObjectId
 import java.io.File
 
 internal const val TEST_REL_PATH = "file.txt"
+internal const val TEST_DIRECTORY = "fire-directory"
 internal const val TEST_FULL_PATH = "/a/full/path/file.txt"
 internal const val TEST_FILE_LIST = "file-list.tsv"
 private const val TEST_MD5 = "a-test-md5"
@@ -35,11 +38,19 @@ internal object FileTestHelper {
             md5 = TEST_MD5,
             fileSize = TEST_FIRE_FILE_SIZE,
         )
+    val fireDocDirectory =
+        FireDocDirectory(
+            fileName = TEST_DIRECTORY,
+            attributes = listOf(basicDocAttribute),
+            md5 = TEST_MD5,
+            fileSize = TEST_FIRE_FILE_SIZE,
+        )
     val docFileRef = DocFileRef(ObjectId(10, 10))
     val docFileList = DocFileList(TEST_FILE_LIST, listOf(docFileRef))
 
     fun assertExtFile(extFile: ExtFile, file: File) = when (extFile) {
         is FireFile -> assertFireFile(extFile)
+        is FireDirectory -> assertFireDirectory(extFile)
         is NfsFile -> assertNfsFile(extFile, file)
     }
 
@@ -59,6 +70,14 @@ internal object FileTestHelper {
     private fun assertFireFile(fireFile: FireFile) {
         assertThat(fireFile.fileName).isEqualTo(TEST_REL_PATH)
         assertThat(fireFile.fireId).isEqualTo(TEST_FIRE_FILE_ID)
+        assertThat(fireFile.md5).isEqualTo(TEST_MD5)
+        assertThat(fireFile.size).isEqualTo(TEST_FIRE_FILE_SIZE)
+        assertThat(fireFile.attributes).hasSize(1)
+        assertBasicExtAttribute(fireFile.attributes.first())
+    }
+
+    private fun assertFireDirectory(fireFile: FireDirectory) {
+        assertThat(fireFile.fileName).isEqualTo(TEST_DIRECTORY)
         assertThat(fireFile.md5).isEqualTo(TEST_MD5)
         assertThat(fireFile.size).isEqualTo(TEST_FIRE_FILE_SIZE)
         assertThat(fireFile.attributes).hasSize(1)

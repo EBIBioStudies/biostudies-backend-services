@@ -1,15 +1,17 @@
 package ac.uk.ebi.biostd.persistence.doc.db.converters.from
 
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_DOC_ATTRIBUTES
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.NFS_FILE_DOC_LOCATION
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_DOC_MD5
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.NFS_FILE_DOC_REL_PATH
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_DOC_SIZE
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.FIRE_DOC_DIRECTORY_CLASS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.FIRE_FILE_DOC_FILE_NAME
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.NFS_FILE_TYPE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.FIRE_FILE_DOC_ID
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.NFS_FILE_DOC_LOCATION
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.NFS_FILE_DOC_REL_PATH
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.NFS_FILE_TYPE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.to.CommonsConverter
 import ac.uk.ebi.biostd.persistence.doc.model.DocAttribute
+import ac.uk.ebi.biostd.persistence.doc.model.FireDocDirectory
 import ac.uk.ebi.biostd.persistence.doc.model.FireDocFile
 import ac.uk.ebi.biostd.persistence.doc.model.NfsDocFile
 import ac.uk.ebi.biostd.persistence.doc.model.fireDocFileClass
@@ -59,30 +61,43 @@ internal class DocFileConverterTest(
         assertThat(result.fileSize).isEqualTo(10L)
     }
 
-    private fun createNfsFileDoc(): Document {
-        val file = Document()
+    @Test
+    fun `convert to FireDirectoryFile`() {
+        every { docAttributeConverter.convert(documentAttr) } returns docAttribute
 
-        file[CommonsConverter.classField] = nfsDocFileClass
-        file[NFS_FILE_DOC_REL_PATH] = "relPath"
-        file[NFS_FILE_DOC_LOCATION] = "location"
-        file[NFS_FILE_TYPE] = "file"
-        file[FILE_DOC_ATTRIBUTES] = listOf(documentAttr)
-        file[FILE_DOC_MD5] = "md5"
-        file[FILE_DOC_SIZE] = 10L
+        val result = testInstance.convert(createFireDirectoryDoc())
 
-        return file
+        require(result is FireDocDirectory)
+        assertThat(result.fileName).isEqualTo("fire-directory")
+        assertThat(result.attributes).isEqualTo(listOf(docAttribute))
+        assertThat(result.md5).isEqualTo("md5")
+        assertThat(result.fileSize).isEqualTo(10L)
     }
 
-    private fun createFireFileDoc(): Document {
-        val file = Document()
+    private fun createNfsFileDoc() = Document().apply {
+        this[CommonsConverter.classField] = nfsDocFileClass
+        this[NFS_FILE_DOC_REL_PATH] = "relPath"
+        this[NFS_FILE_DOC_LOCATION] = "location"
+        this[NFS_FILE_TYPE] = "file"
+        this[FILE_DOC_ATTRIBUTES] = listOf(documentAttr)
+        this[FILE_DOC_MD5] = "md5"
+        this[FILE_DOC_SIZE] = 10L
+    }
 
-        file[CommonsConverter.classField] = fireDocFileClass
-        file[FIRE_FILE_DOC_FILE_NAME] = "fileName"
-        file[FIRE_FILE_DOC_ID] = "fireId"
-        file[FILE_DOC_ATTRIBUTES] = listOf(documentAttr)
-        file[FILE_DOC_MD5] = "md5"
-        file[FILE_DOC_SIZE] = 10L
+    private fun createFireFileDoc() = Document().apply {
+        this[CommonsConverter.classField] = fireDocFileClass
+        this[FIRE_FILE_DOC_FILE_NAME] = "fileName"
+        this[FIRE_FILE_DOC_ID] = "fireId"
+        this[FILE_DOC_ATTRIBUTES] = listOf(documentAttr)
+        this[FILE_DOC_MD5] = "md5"
+        this[FILE_DOC_SIZE] = 10L
+    }
 
-        return file
+    private fun createFireDirectoryDoc() = Document().apply {
+        this[CommonsConverter.classField] = FIRE_DOC_DIRECTORY_CLASS
+        this[FIRE_FILE_DOC_FILE_NAME] = "fire-directory"
+        this[FILE_DOC_ATTRIBUTES] = listOf(documentAttr)
+        this[FILE_DOC_MD5] = "md5"
+        this[FILE_DOC_SIZE] = 10L
     }
 }

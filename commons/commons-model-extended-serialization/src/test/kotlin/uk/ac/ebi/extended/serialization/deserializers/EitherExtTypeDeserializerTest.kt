@@ -32,7 +32,7 @@ class EitherExtTypeDeserializerTest(private val tempFolder: TemporaryFolder) {
         }.toString()
 
         val link = testInstance.deserialize<Either<ExtLink, ExtLinkTable>>(json)
-        assertThat(link.isLeft()).isTrue()
+        assertThat(link.isLeft()).isTrue
         link.ifLeft {
             assertThat(it.url).isEqualTo("http://mylink.org")
         }
@@ -51,7 +51,7 @@ class EitherExtTypeDeserializerTest(private val tempFolder: TemporaryFolder) {
         }.toString()
 
         val link = testInstance.deserialize<Either<ExtLink, ExtLinkTable>>(json)
-        assertThat(link.isRight()).isTrue()
+        assertThat(link.isRight()).isTrue
         link.ifRight {
             val links = it.links
             assertThat(links).hasSize(1)
@@ -70,7 +70,7 @@ class EitherExtTypeDeserializerTest(private val tempFolder: TemporaryFolder) {
         }.toString()
 
         val extFile = testInstance.deserialize<Either<ExtFile, ExtFileTable>>(json)
-        assertThat(extFile.isLeft()).isTrue()
+        assertThat(extFile.isLeft()).isTrue
         extFile.ifLeft {
             it as NfsFile
             assertThat(it.file).isEqualTo(file)
@@ -94,7 +94,7 @@ class EitherExtTypeDeserializerTest(private val tempFolder: TemporaryFolder) {
         }.toString()
 
         val extFilesTable = testInstance.deserialize<Either<ExtFile, ExtFileTable>>(json)
-        assertThat(extFilesTable.isRight()).isTrue()
+        assertThat(extFilesTable.isRight()).isTrue
         extFilesTable.ifRight {
             val files = it.files
             assertThat(files).hasSize(1)
@@ -113,7 +113,7 @@ class EitherExtTypeDeserializerTest(private val tempFolder: TemporaryFolder) {
         }.toString()
 
         val extSection = testInstance.deserialize<Either<ExtSection, ExtSectionTable>>(json)
-        assertThat(extSection.isLeft()).isTrue()
+        assertThat(extSection.isLeft()).isTrue
         extSection.ifLeft {
             assertThat(it.type).isEqualTo("Study")
         }
@@ -132,7 +132,7 @@ class EitherExtTypeDeserializerTest(private val tempFolder: TemporaryFolder) {
         }.toString()
 
         val extSectionsTable = testInstance.deserialize<Either<ExtSection, ExtSectionTable>>(json)
-        assertThat(extSectionsTable.isRight()).isTrue()
+        assertThat(extSectionsTable.isRight()).isTrue
         extSectionsTable.ifRight {
             val sections = it.sections
             assertThat(sections).hasSize(1)

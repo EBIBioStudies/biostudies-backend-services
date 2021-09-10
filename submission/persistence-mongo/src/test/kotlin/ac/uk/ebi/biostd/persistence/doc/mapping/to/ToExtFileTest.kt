@@ -7,6 +7,7 @@ import ac.uk.ebi.biostd.persistence.doc.test.AttributeTestHelper.basicDocAttribu
 import ac.uk.ebi.biostd.persistence.doc.test.FileTestHelper.assertExtFile
 import ac.uk.ebi.biostd.persistence.doc.test.FileTestHelper.assertExtFileList
 import ac.uk.ebi.biostd.persistence.doc.test.FileTestHelper.docFileList
+import ac.uk.ebi.biostd.persistence.doc.test.FileTestHelper.fireDocDirectory
 import ac.uk.ebi.biostd.persistence.doc.test.FileTestHelper.fireDocFile
 import ac.uk.ebi.biostd.persistence.doc.test.FileTestHelper.nfsDocFile
 import ac.uk.ebi.biostd.persistence.doc.test.TEST_REL_PATH
@@ -28,7 +29,6 @@ import org.junit.jupiter.api.extension.ExtendWith
 class ToExtFileTest(temporaryFolder: TemporaryFolder) {
     private val testFile = temporaryFolder.createFile(TEST_REL_PATH)
     private val testNfsDocFile = nfsDocFile.copy(location = testFile.absolutePath)
-    private val testFireDocFile = fireDocFile
 
     @Test
     fun `nfsDocFile to ext file`() {
@@ -38,13 +38,19 @@ class ToExtFileTest(temporaryFolder: TemporaryFolder) {
 
     @Test
     fun `fireDocFile to ext file`() {
-        val extFile = testFireDocFile.toExtFile()
+        val extFile = fireDocFile.toExtFile()
+        assertExtFile(extFile, testFile)
+    }
+
+    @Test
+    fun `fire directory to ext file`() {
+        val extFile = fireDocDirectory.toExtFile()
         assertExtFile(extFile, testFile)
     }
 
     @Test
     fun `to ext file table`() {
-        val docFilesTable = DocFileTable(listOf(testNfsDocFile, testFireDocFile))
+        val docFilesTable = DocFileTable(listOf(testNfsDocFile, fireDocFile))
         val extFilesTable = docFilesTable.toExtFileTable()
 
         assertThat(extFilesTable.files).hasSize(2)
@@ -54,7 +60,7 @@ class ToExtFileTest(temporaryFolder: TemporaryFolder) {
 
     @Test
     fun `to ext files`() {
-        val docFilesTable = DocFileTable(listOf(testNfsDocFile, testFireDocFile))
+        val docFilesTable = DocFileTable(listOf(testNfsDocFile, fireDocFile))
         val docFiles = listOf(left(testNfsDocFile), left(testNfsDocFile), right(docFilesTable))
         val extFiles = docFiles.map { it.toExtFiles() }
 

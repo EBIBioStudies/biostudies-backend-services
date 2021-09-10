@@ -5,12 +5,14 @@ import ac.uk.ebi.biostd.persistence.model.DbFile
 import ac.uk.ebi.biostd.persistence.model.DbFileAttribute
 import ebi.ac.uk.extended.model.ExtAttribute
 import ebi.ac.uk.extended.model.ExtFile
+import ebi.ac.uk.extended.model.FireDirectory
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.io.FileUtils
 
 internal fun ExtFile.toDbFile(order: Int, tableIndex: Int = NO_TABLE_INDEX) = when (this) {
     is FireFile -> TODO()
+    is FireDirectory -> TODO()
     is NfsFile -> DbFile(
         fileName,
         order,

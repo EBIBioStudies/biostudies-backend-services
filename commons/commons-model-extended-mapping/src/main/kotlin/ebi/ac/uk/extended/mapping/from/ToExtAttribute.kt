@@ -13,4 +13,6 @@ fun Attribute.toExtAttribute(): ExtAttribute {
     return ExtAttribute(name, attrValue, reference, toDetails(nameAttrs), toDetails(valueAttrs))
 }
 
+fun List<Attribute>.toExtAttributes(): List<ExtAttribute> = map { it.toExtAttribute() }
+
 private fun toDetails(details: List<AttributeDetail>) = details.map { ExtAttributeDetail(it.name, it.value) }

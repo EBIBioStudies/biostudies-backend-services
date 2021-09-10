@@ -6,18 +6,14 @@ import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.mapping.Document
 import java.time.Instant
 
-val docAttributeDetailClass: String = DocAttributeDetail::class.java.canonicalName
-val docFileClass: String = DocFile::class.java.canonicalName
 val nfsDocFileClass: String = NfsDocFile::class.java.canonicalName
 val fireDocFileClass: String = FireDocFile::class.java.canonicalName
-val docFileListClass: String = DocFileList::class.java.canonicalName
 val docFileTableClass: String = DocFileTable::class.java.canonicalName
 val docLinkClass: String = DocLink::class.java.canonicalName
 val docLinkTableClass: String = DocLinkTable::class.java.canonicalName
 val docSectionClass: String = DocSection::class.java.canonicalName
 val docSectionTableClass: String = DocSectionTable::class.java.canonicalName
 val docSubmissionClass: String = DocSubmission::class.java.canonicalName
-val docSubmissionMethodClass: String = DocSubmissionMethod::class.java.canonicalName
 
 @Document(collection = "submissions")
 data class DocSubmission(
@@ -103,6 +99,13 @@ data class FireDocFile(
     override val fileSize: Long,
 ) : DocFile(attributes, md5, fileSize)
 
+data class FireDocDirectory(
+    val fileName: String,
+    override val attributes: List<DocAttribute>,
+    override val md5: String,
+    override val fileSize: Long
+) : DocFile(attributes, md5, fileSize)
+
 data class DocFileList(
     val fileName: String,
     val files: List<DocFileRef>
@@ -126,7 +129,7 @@ data class FileListDocFile(
 )
 
 enum class FileSystem {
-    NFS, FIRE
+    NFS, FIRE, FIRE_DIR
 }
 
 data class DocSectionTable(val sections: List<DocSectionTableRow>)

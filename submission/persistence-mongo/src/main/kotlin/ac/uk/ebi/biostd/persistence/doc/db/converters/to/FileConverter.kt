@@ -1,17 +1,19 @@
 package ac.uk.ebi.biostd.persistence.doc.db.converters.to
 
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_DOC_ATTRIBUTES
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.NFS_FILE_DOC_LOCATION
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_DOC_MD5
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.NFS_FILE_DOC_REL_PATH
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.NFS_FILE_TYPE
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.NFS_DOC_FILE_CLASS
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_DOC_SIZE
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.FIRE_DOC_DIRECTORY_CLASS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.FIRE_DOC_FILE_CLASS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.FIRE_FILE_DOC_FILE_NAME
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_DOC_SIZE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.FIRE_FILE_DOC_ID
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.NFS_DOC_FILE_CLASS
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.NFS_FILE_DOC_REL_PATH
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.NFS_FILE_TYPE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.to.CommonsConverter.classField
 import ac.uk.ebi.biostd.persistence.doc.model.DocFile
+import ac.uk.ebi.biostd.persistence.doc.model.FireDocDirectory
 import ac.uk.ebi.biostd.persistence.doc.model.FireDocFile
 import ac.uk.ebi.biostd.persistence.doc.model.NfsDocFile
 import org.bson.Document
@@ -31,10 +33,14 @@ class FileConverter(private val attributeConverter: AttributeConverter) : Conver
                 file[FIRE_FILE_DOC_FILE_NAME] = docFile.fileName
                 file[FIRE_FILE_DOC_ID] = docFile.fireId
             }
+            is FireDocDirectory -> {
+                file[classField] = FIRE_DOC_DIRECTORY_CLASS
+                file[FIRE_FILE_DOC_FILE_NAME] = docFile.fileName
+            }
             is NfsDocFile -> {
                 file[classField] = NFS_DOC_FILE_CLASS
                 file[NFS_FILE_DOC_REL_PATH] = docFile.relPath
-                file[NFS_FILE_DOC_LOCATION] = docFile.location
+                file[NfsDocFileFields.NFS_FILE_DOC_LOCATION] = docFile.location
                 file[NFS_FILE_TYPE] = docFile.fileType
             }
         }

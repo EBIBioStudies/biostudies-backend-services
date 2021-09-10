@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.persistence.filesystem.request.Md5
 import ac.uk.ebi.biostd.persistence.filesystem.service.processFiles
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.extended.model.FireDirectory
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
 import mu.KotlinLogging
@@ -35,7 +36,7 @@ fun FireFileProcessingConfig.processFile(
     file: ExtFile
 ): ExtFile = if (file is NfsFile) processNfsFile(sub.relPath, file) else file
 
-fun FireFileProcessingConfig.processNfsFile(relPath: String, nfsFile: NfsFile): FireFile {
+fun FireFileProcessingConfig.processNfsFile(relPath: String, nfsFile: NfsFile): ExtFile {
     logger.info { "processing file ${nfsFile.fileName}" }
 
     // TODO handle directories (check S-BIAD56)
@@ -46,7 +47,12 @@ fun FireFileProcessingConfig.processNfsFile(relPath: String, nfsFile: NfsFile): 
 private fun reusePreviousFile(fireFile: FireFile, nfsFile: NfsFile) =
     FireFile(nfsFile.fileName, fireFile.fireId, fireFile.md5, fireFile.size, nfsFile.attributes)
 
-private fun FireFileProcessingConfig.saveFile(relPath: String, nfsFile: NfsFile): FireFile {
+private fun FireFileProcessingConfig.saveFile(relPath: String, nfsFile: NfsFile) =
+    if (nfsFile.file.isDirectory) fireDirectory(nfsFile) else persistFireFile(relPath, nfsFile)
+
+private fun fireDirectory(file: NfsFile) = FireDirectory(file.fileName, file.md5, file.size, file.attributes)
+
+private fun FireFileProcessingConfig.persistFireFile(relPath: String, nfsFile: NfsFile): FireFile {
     val store = fireWebClient.save(nfsFile.file, nfsFile.md5, relPath)
     return FireFile(nfsFile.fileName, store.fireOid, store.objectMd5, store.objectSize.toLong(), nfsFile.attributes)
 }

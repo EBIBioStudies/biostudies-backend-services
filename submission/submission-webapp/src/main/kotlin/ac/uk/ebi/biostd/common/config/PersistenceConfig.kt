@@ -11,7 +11,6 @@ import ac.uk.ebi.biostd.persistence.filesystem.pagetab.NfsPageTabService
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabService
 import ac.uk.ebi.biostd.persistence.filesystem.service.FileSystemService
 import ac.uk.ebi.biostd.persistence.integration.config.SqlPersistenceConfig
-import ac.uk.ebi.biostd.submission.domain.service.TempFileGenerator
 import ebi.ac.uk.paths.SubmissionFolderResolver
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean

@@ -63,7 +63,7 @@ object SubmissionRefreshApiTestHelper {
     }
 
     private fun assertFile(file: Either<ExtFile, ExtFileTable>, type: String) {
-        assertThat(file.isLeft()).isTrue()
+        assertThat(file.isLeft()).isTrue
         file.ifLeft {
             assertThat(it.fileName).isEqualTo(TEST_FILE_NAME)
             assertThat(it.attributes).hasSize(1)

@@ -6,13 +6,16 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocFileRef
 import ac.uk.ebi.biostd.persistence.doc.model.DocFileTable
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
 import ac.uk.ebi.biostd.persistence.doc.model.FileSystem.FIRE
+import ac.uk.ebi.biostd.persistence.doc.model.FileSystem.FIRE_DIR
 import ac.uk.ebi.biostd.persistence.doc.model.FileSystem.NFS
 import ac.uk.ebi.biostd.persistence.doc.model.FireDocFile
 import ac.uk.ebi.biostd.persistence.doc.model.NfsDocFile
+import ac.uk.ebi.biostd.persistence.doc.model.FireDocDirectory
 import arrow.core.Either
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileList
 import ebi.ac.uk.extended.model.ExtFileTable
+import ebi.ac.uk.extended.model.FireDirectory
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.io.ext.size
@@ -38,6 +41,16 @@ private fun toFileDocListFile(submissionId: ObjectId, extFile: ExtFile) = when (
         size = extFile.size,
         fileSystem = FIRE
     )
+    is FireDirectory -> FileListDocFile(
+        id = ObjectId(),
+        submissionId = submissionId,
+        fileName = extFile.fileName,
+        location = extFile.fileName,
+        attributes = extFile.attributes.map { it.toDocAttribute() },
+        md5 = extFile.md5,
+        size = extFile.size,
+        fileSystem = FIRE_DIR
+    )
     is NfsFile -> FileListDocFile(
         id = ObjectId(),
         submissionId = submissionId,
@@ -52,10 +65,16 @@ private fun toFileDocListFile(submissionId: ObjectId, extFile: ExtFile) = when (
 
 private fun ExtFileTable.toDocFileTable() = DocFileTable(files.map { it.toDocFile() })
 private fun fileType(file: File): String = if (file.isDirectory) "directory" else "file"
-fun ExtFile.toDocFile(): DocFile = when (this) {
+private fun ExtFile.toDocFile(): DocFile = when (this) {
     is FireFile -> FireDocFile(
         fileName = fileName,
         fireId = fireId,
+        attributes = attributes.map { it.toDocAttribute() },
+        md5 = md5,
+        fileSize = size,
+    )
+    is FireDirectory -> FireDocDirectory(
+        fileName = fileName,
         attributes = attributes.map { it.toDocAttribute() },
         md5 = md5,
         fileSize = size,

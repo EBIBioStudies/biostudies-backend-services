@@ -9,7 +9,6 @@ import ebi.ac.uk.io.Permissions
 import ebi.ac.uk.io.RWXR_XR_X
 import ebi.ac.uk.io.RW_R__R__
 import ebi.ac.uk.test.clean
-import ebi.ac.uk.test.createFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat

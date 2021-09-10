@@ -1,17 +1,19 @@
 package ac.uk.ebi.biostd.persistence.doc.db.converters.from
 
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_DOC_ATTRIBUTES
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.NFS_FILE_DOC_LOCATION
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_DOC_MD5
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.NFS_FILE_DOC_REL_PATH
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_DOC_SIZE
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.NFS_FILE_TYPE
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.NFS_DOC_FILE_CLASS
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.FIRE_DOC_DIRECTORY_CLASS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.FIRE_DOC_FILE_CLASS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.FIRE_FILE_DOC_FILE_NAME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.FIRE_FILE_DOC_ID
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.NFS_DOC_FILE_CLASS
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.NFS_FILE_DOC_REL_PATH
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.NFS_FILE_TYPE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.to.CommonsConverter.classField
 import ac.uk.ebi.biostd.persistence.doc.model.DocFile
+import ac.uk.ebi.biostd.persistence.doc.model.FireDocDirectory
 import ac.uk.ebi.biostd.persistence.doc.model.FireDocFile
 import ac.uk.ebi.biostd.persistence.doc.model.NfsDocFile
 import org.bson.Document
@@ -29,11 +31,17 @@ class DocFileConverter(private val docAttributeConverter: DocAttributeConverter)
                 fireId = source.getString(FIRE_FILE_DOC_ID),
                 attributes = attributes,
                 md5 = md5,
-                fileSize = fileSize,
+                fileSize = fileSize
+            )
+            FIRE_DOC_DIRECTORY_CLASS -> FireDocDirectory(
+                fileName = source.getString(FIRE_FILE_DOC_FILE_NAME),
+                attributes = attributes,
+                md5 = md5,
+                fileSize = fileSize
             )
             NFS_DOC_FILE_CLASS -> NfsDocFile(
                 relPath = source.getString(NFS_FILE_DOC_REL_PATH),
-                location = source.getString(NFS_FILE_DOC_LOCATION),
+                location = source.getString(NfsDocFileFields.NFS_FILE_DOC_LOCATION),
                 fileType = source.getString(NFS_FILE_TYPE),
                 attributes = attributes,
                 md5 = md5,
