@@ -11,21 +11,21 @@ import ebi.ac.uk.io.FileUtils
 import ebi.ac.uk.io.Permissions
 import java.io.File
 
-fun SerializationService.generatePageTab(
+fun SerializationService.generateSubPageTab(
     sub: ExtSubmission,
     target: File
-): SubmissionPageTabs {
-    val subTabFiles = saveTabFiles(target, sub.accNo, sub.toSimpleSubmission(), sub.permissions())
-    val fileListTab = sub
-        .allFileList
-        .associate { it.fileName to saveTabFiles(target, it.fileName, it.toFilesTable(), sub.permissions()) }
-    return SubmissionPageTabs(
-        subTabFiles,
-        fileListTab
-    )
+): TabFiles {
+    return saveTabFiles(target, sub.accNo, sub.toSimpleSubmission(), sub.permissions())
 }
 
-data class SubmissionPageTabs(val subFiles: TabFiles, val fileListFiles: Map<String, TabFiles>)
+fun SerializationService.generateFileListPageTab(
+    sub: ExtSubmission,
+    target: File
+): Map<String, TabFiles> {
+    return sub
+        .allFileList
+        .associate { it.fileName to saveTabFiles(target, it.fileName, it.toFilesTable(), sub.permissions()) }
+}
 
 private fun <T> SerializationService.saveTabFiles(
     folder: File,

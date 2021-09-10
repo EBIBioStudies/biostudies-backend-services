@@ -22,12 +22,12 @@ import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
-import org.assertj.core.api.Assertions.assertThat as assertJThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.fire.client.integration.web.FireWebClient
 import java.io.File
 import java.nio.file.Files
+import org.assertj.core.api.Assertions.assertThat as assertJThat
 import uk.ac.ebi.fire.client.model.FireFile as FireWebFile
 
 @ExtendWith(TemporaryFolderExtension::class, MockKExtension::class)
@@ -62,7 +62,7 @@ class FirePageTabServiceTest(
     }
 
     private fun setUpFireWebClient() {
-        every { fireWebClient.save(any(), any(), "S-TEST/123/S-TEST123") } returns
+        every { fireWebClient.save(any(), any(), any()) } returns
             FireWebFile(1, "$FILE_LIST_JSON2-fireId", "md5", 1, "creationTime") andThen
             FireWebFile(2, "$FILE_LIST_XML2-fireId", "md5", 1, "creationTime") andThen
             FireWebFile(3, "$FILE_LIST_TSV2-fireId", "md5", 1, "creationTime") andThen

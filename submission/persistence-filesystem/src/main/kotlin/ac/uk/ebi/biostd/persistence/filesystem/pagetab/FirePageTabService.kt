@@ -7,6 +7,7 @@ import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireFile
+import ebi.ac.uk.extended.model.filesPath
 import ebi.ac.uk.io.ext.md5
 import uk.ac.ebi.fire.client.integration.web.FireWebClient
 import java.io.File
@@ -17,12 +18,14 @@ class FirePageTabService(
     private val fireWebClient: FireWebClient
 ) : PageTabService {
     override fun generatePageTab(sub: ExtSubmission): ExtSubmission {
-        val (subFiles, fileListFiles) = serializationService.generatePageTab(sub, fireTempFolder)
-        val section = process(sub.section) { updateFileList(it, sub.relPath, fileListFiles) }
+        val subFiles = serializationService.generateSubPageTab(sub, fireTempFolder)
+        val fileListFiles = serializationService.generateFileListPageTab(sub, fireTempFolder)
+
+        val section = process(sub.section) { updateFileList(it, sub.filesPath, fileListFiles) }
 
         return when {
-            section.changed -> sub.copy(tabFiles = extFiles(sub.relPath, subFiles), section = section.section)
-            else -> sub.copy(tabFiles = extFiles(sub.relPath, subFiles))
+            section.changed -> sub.copy(tabFiles = extFiles(sub.filesPath, subFiles), section = section.section)
+            else -> sub.copy(tabFiles = extFiles(sub.filesPath, subFiles))
         }
     }
 

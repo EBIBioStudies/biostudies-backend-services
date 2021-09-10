@@ -14,7 +14,8 @@ class NfsPageTabService(
 ) : PageTabService {
     override fun generatePageTab(sub: ExtSubmission): ExtSubmission {
         val submissionFolder = folderResolver.getSubFolder(sub.relPath).toFile()
-        val (subFiles, fileListFiles) = serializationService.generatePageTab(sub, submissionFolder)
+        val subFiles = serializationService.generateSubPageTab(sub, submissionFolder)
+        val fileListFiles = serializationService.generateFileListPageTab(sub, submissionFolder.resolve("Files"))
         val section = process(sub.section) { updateFileList(it, fileListFiles) }
 
         return when {
