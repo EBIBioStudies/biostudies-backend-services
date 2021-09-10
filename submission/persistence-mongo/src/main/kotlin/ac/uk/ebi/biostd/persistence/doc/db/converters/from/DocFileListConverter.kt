@@ -9,6 +9,7 @@ import org.springframework.core.convert.converter.Converter
 class DocFileListConverter(private val docFileRefConverter: DocFileRefConverter) : Converter<Document, DocFileList> {
     override fun convert(source: Document): DocFileList = DocFileList(
         fileName = source.getString(FILE_LIST_DOC_FILE_FILENAME),
-        files = source.getDocList(FILE_LIST_DOC_FILES).map { docFileRefConverter.convert(it) }
+        files = source.getDocList(FILE_LIST_DOC_FILES).map { docFileRefConverter.convert(it) },
+
     )
 }

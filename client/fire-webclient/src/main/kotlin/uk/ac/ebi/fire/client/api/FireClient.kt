@@ -4,6 +4,8 @@ import ebi.ac.uk.io.ext.size
 import org.springframework.core.io.FileSystemResource
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpMethod.GET
+import org.springframework.http.HttpStatus.NOT_FOUND
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.client.getForObject
@@ -63,8 +65,13 @@ internal class FireClient(
         return tmpFile
     }
 
-    override fun findAllInPath(path: String): List<FireFile> =
-        template.getForObject("$FIRE_OBJECTS_URL/entries/path/$path")
+    override fun findAllInPath(path: String): List<FireFile> {
+        runCatching {
+            return template.getForObject("$FIRE_OBJECTS_URL/entries/path/$path")
+        }
+
+        return emptyList()
+    }
 
     override fun publish(fireOid: String) {
         template.put("$FIRE_OBJECTS_URL/$fireOid/publish", null)
