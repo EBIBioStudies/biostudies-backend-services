@@ -106,6 +106,7 @@ data class FireDocDirectory(
     override val fileSize: Long
 ) : DocFile(attributes, md5, fileSize)
 
+// TODO add page tab for file list
 data class DocFileList(
     val fileName: String,
     val files: List<DocFileRef>

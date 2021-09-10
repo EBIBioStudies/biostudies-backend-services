@@ -98,7 +98,7 @@ class MongoDbConfig(
             docFileTableConverter,
             docFileListConverter
         )
-        return DocSubmissionConverter(docSectionConverter, docAttributeConverter)
+        return DocSubmissionConverter(docFileConverter, docSectionConverter, docAttributeConverter)
     }
 
     private fun submissionConverter(): SubmissionConverter {

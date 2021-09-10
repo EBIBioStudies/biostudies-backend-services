@@ -51,7 +51,8 @@ class ExtSubmissionSerializer : JsonSerializer<ExtSubmission>() {
         gen.writeObjectField(COLLECTIONS, submission.collections)
         gen.writeObjectField(STATS, submission.stats)
         gen.writeObjectField(ACCESS_TAGS, getAccessTag(submission))
-        gen.writeEndObject()
+        gen.writeObjectField(ACCESS_TAGS, getAccessTag(submission))
+        // TODO add page tab fields
     }
 
     private fun getAccessTag(submission: ExtSubmission): List<ExtAccessTag> {

@@ -66,6 +66,7 @@ internal class SubmissionMongoPersistenceService(
         saveSubmission(docSubmission, files, draftKey)
         submissionRequestDocDataRepository.updateStatus(REQUEST_PROCESSED, submission.accNo, submission.version)
 
+        // TODO the object returned here should be docSubmission.toExtSubmission()
         return submission
     }
 
