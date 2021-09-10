@@ -6,7 +6,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.FIRE_DOC_DIRECTORY_CLASS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.FIRE_FILE_DOC_FILE_NAME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.FIRE_FILE_DOC_ID
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.NFS_FILE_DOC_LOCATION
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.NFS_FILE_DOC_FULL_PATH
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.NFS_FILE_DOC_REL_PATH
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.NFS_FILE_TYPE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.to.CommonsConverter
@@ -40,7 +40,7 @@ internal class DocFileConverterTest(
 
         require(result is NfsDocFile)
         assertThat(result.relPath).isEqualTo("relPath")
-        assertThat(result.location).isEqualTo("location")
+        assertThat(result.fullPath).isEqualTo("fullPath")
         assertThat(result.attributes).isEqualTo(listOf(docAttribute))
         assertThat(result.md5).isEqualTo("md5")
         assertThat(result.fileType).isEqualTo("file")
@@ -77,7 +77,7 @@ internal class DocFileConverterTest(
     private fun createNfsFileDoc() = Document().apply {
         this[CommonsConverter.classField] = nfsDocFileClass
         this[NFS_FILE_DOC_REL_PATH] = "relPath"
-        this[NFS_FILE_DOC_LOCATION] = "location"
+        this[NFS_FILE_DOC_FULL_PATH] = "fullPath"
         this[NFS_FILE_TYPE] = "file"
         this[FILE_DOC_ATTRIBUTES] = listOf(documentAttr)
         this[FILE_DOC_MD5] = "md5"

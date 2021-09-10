@@ -5,11 +5,8 @@ import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.io.FileUtils.copyOrReplaceFile
 import ebi.ac.uk.io.FileUtils.moveFile
 import ebi.ac.uk.io.Permissions
-import ebi.ac.uk.io.RWX______
-import ebi.ac.uk.io.RW_______
 import ebi.ac.uk.io.ext.md5
 import java.io.File
-import java.nio.file.attribute.PosixFilePermission
 
 data class NfsFileProcessingConfig(
     val mode: FileMode,

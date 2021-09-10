@@ -38,7 +38,7 @@ data class DocSubmission(
     val tags: List<DocTag> = listOf(),
     val collections: List<DocCollection> = listOf(),
     val stats: List<DocStat> = listOf(),
-    val pageTabFile: List<DocFile> = listOf()
+    val pageTabFiles: List<DocFile> = listOf()
 )
 
 enum class DocSubmissionMethod(val value: String) {
@@ -84,7 +84,7 @@ sealed class DocFile(
 
 data class NfsDocFile(
     val relPath: String,
-    val location: String,
+    val fullPath: String,
     val fileType: String,
     override var attributes: List<DocAttribute>,
     override val md5: String,
@@ -121,7 +121,7 @@ data class FileListDocFile(
     val id: ObjectId,
     val submissionId: ObjectId,
     val fileName: String,
-    val location: String,
+    val fullPath: String,
     val attributes: List<DocAttribute> = listOf(),
     val md5: String,
     val size: Long,

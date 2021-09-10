@@ -10,7 +10,6 @@ import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod
 import org.assertj.core.api.Assertions.assertThat
-import java.io.File
 import java.nio.file.Paths
 
 internal class AllInOneSubmissionHelper(

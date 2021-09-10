@@ -21,7 +21,8 @@ fun SerializationService.generatePageTab(
         .associate { it.fileName to saveTabFiles(target, it.fileName, it.toFilesTable(), sub.permissions()) }
     return SubmissionPageTabs(
         subTabFiles,
-        fileListTab)
+        fileListTab
+    )
 }
 
 data class SubmissionPageTabs(val subFiles: TabFiles, val fileListFiles: Map<String, TabFiles>)

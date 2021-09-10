@@ -63,15 +63,15 @@ class FirePageTabServiceTest(
 
     private fun setUpFireWebClient() {
         every { fireWebClient.save(any(), any(), "S-TEST/123/S-TEST123") } returns
-                FireWebFile(1, "$FILE_LIST_JSON2-fireId", "md5", 1, "creationTime") andThen
-                FireWebFile(2, "$FILE_LIST_XML2-fireId", "md5", 1, "creationTime") andThen
-                FireWebFile(3, "$FILE_LIST_TSV2-fireId", "md5", 1, "creationTime") andThen
-                FireWebFile(4, "$FILE_LIST_JSON1-fireId", "md5", 1, "creationTime") andThen
-                FireWebFile(5, "$FILE_LIST_XML1-fireId", "md5", 1, "creationTime") andThen
-                FireWebFile(6, "$FILE_LIST_TSV1-fireId", "md5", 1, "creationTime") andThen
-                FireWebFile(7, "$SUB_JSON-fireId", "md5", 1, "creationTime") andThen
-                FireWebFile(8, "$SUB_XML-fireId", "md5", 1, "creationTime") andThen
-                FireWebFile(9, "$SUB_TSV-fireId", "md5", 1, "creationTime")
+            FireWebFile(1, "$FILE_LIST_JSON2-fireId", "md5", 1, "creationTime") andThen
+            FireWebFile(2, "$FILE_LIST_XML2-fireId", "md5", 1, "creationTime") andThen
+            FireWebFile(3, "$FILE_LIST_TSV2-fireId", "md5", 1, "creationTime") andThen
+            FireWebFile(4, "$FILE_LIST_JSON1-fireId", "md5", 1, "creationTime") andThen
+            FireWebFile(5, "$FILE_LIST_XML1-fireId", "md5", 1, "creationTime") andThen
+            FireWebFile(6, "$FILE_LIST_TSV1-fireId", "md5", 1, "creationTime") andThen
+            FireWebFile(7, "$SUB_JSON-fireId", "md5", 1, "creationTime") andThen
+            FireWebFile(8, "$SUB_XML-fireId", "md5", 1, "creationTime") andThen
+            FireWebFile(9, "$SUB_TSV-fireId", "md5", 1, "creationTime")
     }
 
     private fun initialRootSection() = ExtSection(
@@ -105,13 +105,13 @@ class FirePageTabServiceTest(
     }
 
     private fun verifyFileLists(fireFolder: File) {
-        assertPageTabFile(fireFolder.resolve("data/${FILE_LIST_JSON1}"))
-        assertPageTabFile(fireFolder.resolve("data/${FILE_LIST_XML1}"))
-        assertPageTabFile(fireFolder.resolve("data/${FILE_LIST_TSV1}"))
+        assertPageTabFile(fireFolder.resolve("data/$FILE_LIST_JSON1"))
+        assertPageTabFile(fireFolder.resolve("data/$FILE_LIST_XML1"))
+        assertPageTabFile(fireFolder.resolve("data/$FILE_LIST_TSV1"))
 
-        assertPageTabFile(fireFolder.resolve("data/${FILE_LIST_JSON2}"))
-        assertPageTabFile(fireFolder.resolve("data/${FILE_LIST_XML2}"))
-        assertPageTabFile(fireFolder.resolve("data/${FILE_LIST_TSV2}"))
+        assertPageTabFile(fireFolder.resolve("data/$FILE_LIST_JSON2"))
+        assertPageTabFile(fireFolder.resolve("data/$FILE_LIST_XML2"))
+        assertPageTabFile(fireFolder.resolve("data/$FILE_LIST_TSV2"))
     }
 
     private fun verifySubmissionFiles(fireFolder: File) {

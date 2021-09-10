@@ -8,12 +8,10 @@ import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSectionTable
 import ebi.ac.uk.extended.model.ExtSubmission
 
-data class UpdatedSection(val changed: Boolean, val section: ExtSection)
-typealias Section = UpdatedSection
-
 /**
  * Allow to process the given section, and it subsections by updating a specific attribute or modified data structure.
  * Note that the submission tree is iterated from leaf sections (section with no subsections) to parents to avoid
+ * update a section that has an updated child.
  *
  * @param section the section to iterate recursively.
  * @param process process function to apply to each section.
@@ -26,7 +24,8 @@ fun process(section: ExtSection, process: (file: ExtSection) -> Section): Sectio
 
     return Section(
         changed,
-        if (changed) current.section.copy(sections = sections.map { it.mapLeft(Section::section) }) else section)
+        if (changed) current.section.copy(sections = sections.map { it.mapLeft(Section::section) }) else section
+    )
 }
 
 fun processFiles(

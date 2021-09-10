@@ -38,8 +38,6 @@ fun FireFileProcessingConfig.processFile(
 
 fun FireFileProcessingConfig.processNfsFile(relPath: String, nfsFile: NfsFile): ExtFile {
     logger.info { "processing file ${nfsFile.fileName}" }
-
-    // TODO handle directories (check S-BIAD56)
     val fileFire = previousFiles[nfsFile.md5] as FireFile?
     return if (fileFire == null) saveFile(relPath, nfsFile) else reusePreviousFile(fileFire, nfsFile)
 }

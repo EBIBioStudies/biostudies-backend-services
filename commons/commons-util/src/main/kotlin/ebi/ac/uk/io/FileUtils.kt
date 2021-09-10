@@ -110,7 +110,7 @@ object FileUtils {
     fun writeContent(
         source: File,
         content: String,
-        permissions: Permissions = Permissions(RW_______,RWX______),
+        permissions: Permissions = Permissions(RW_______, RWX______),
     ) {
         val filePath = source.toPath()
         Files.write(createParentDirectories(source.toPath(), permissions.folder), content.toByteArray())

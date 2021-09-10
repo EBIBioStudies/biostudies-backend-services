@@ -6,7 +6,6 @@ import ebi.ac.uk.io.RWXR_XR_X
 import ebi.ac.uk.io.RWXR_X___
 import ebi.ac.uk.io.RW_R__R__
 import ebi.ac.uk.io.RW_R_____
-import java.nio.file.attribute.PosixFilePermission
 
 object FilePermissionsExtensions {
     fun ExtSubmission.permissions(): Permissions =

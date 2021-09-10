@@ -82,26 +82,26 @@ class NfsPageTabServiceTest(
 
     private fun assertRootSection(section: ExtSection) {
         val tabFiles = section.fileList!!.tabFiles
-        assertJThat(tabFiles.first()).isEqualTo(NfsFile(FILE_LIST_JSON1, subFolder.resolve("data/${FILE_LIST_JSON1}")))
-        assertJThat(tabFiles.second()).isEqualTo(NfsFile(FILE_LIST_XML1, subFolder.resolve("data/${FILE_LIST_XML1}")))
-        assertJThat(tabFiles.third()).isEqualTo(NfsFile(FILE_LIST_TSV1, subFolder.resolve("data/${FILE_LIST_TSV1}")))
+        assertJThat(tabFiles.first()).isEqualTo(NfsFile(FILE_LIST_JSON1, subFolder.resolve("data/$FILE_LIST_JSON1")))
+        assertJThat(tabFiles.second()).isEqualTo(NfsFile(FILE_LIST_XML1, subFolder.resolve("data/$FILE_LIST_XML1")))
+        assertJThat(tabFiles.third()).isEqualTo(NfsFile(FILE_LIST_TSV1, subFolder.resolve("data/$FILE_LIST_TSV1")))
     }
 
     private fun assertSubSection(section: ExtSection?) {
         val tabFiles = section!!.fileList!!.tabFiles
-        assertJThat(tabFiles.first()).isEqualTo(NfsFile(FILE_LIST_JSON2, subFolder.resolve("data/${FILE_LIST_JSON2}")))
-        assertJThat(tabFiles.second()).isEqualTo(NfsFile(FILE_LIST_XML2, subFolder.resolve("data/${FILE_LIST_XML2}")))
-        assertJThat(tabFiles.third()).isEqualTo(NfsFile(FILE_LIST_TSV2, subFolder.resolve("data/${FILE_LIST_TSV2}")))
+        assertJThat(tabFiles.first()).isEqualTo(NfsFile(FILE_LIST_JSON2, subFolder.resolve("data/$FILE_LIST_JSON2")))
+        assertJThat(tabFiles.second()).isEqualTo(NfsFile(FILE_LIST_XML2, subFolder.resolve("data/$FILE_LIST_XML2")))
+        assertJThat(tabFiles.third()).isEqualTo(NfsFile(FILE_LIST_TSV2, subFolder.resolve("data/$FILE_LIST_TSV2")))
     }
 
     private fun verifyFileLists(submissionFolder: File) {
-        assertPageTabFile(submissionFolder.resolve("data/${FILE_LIST_JSON1}"))
-        assertPageTabFile(submissionFolder.resolve("data/${FILE_LIST_XML1}"))
-        assertPageTabFile(submissionFolder.resolve("data/${FILE_LIST_TSV1}"))
+        assertPageTabFile(submissionFolder.resolve("data/$FILE_LIST_JSON1"))
+        assertPageTabFile(submissionFolder.resolve("data/$FILE_LIST_XML1"))
+        assertPageTabFile(submissionFolder.resolve("data/$FILE_LIST_TSV1"))
 
-        assertPageTabFile(submissionFolder.resolve("data/${FILE_LIST_JSON2}"))
-        assertPageTabFile(submissionFolder.resolve("data/${FILE_LIST_XML2}"))
-        assertPageTabFile(submissionFolder.resolve("data/${FILE_LIST_TSV2}"))
+        assertPageTabFile(submissionFolder.resolve("data/$FILE_LIST_JSON2"))
+        assertPageTabFile(submissionFolder.resolve("data/$FILE_LIST_XML2"))
+        assertPageTabFile(submissionFolder.resolve("data/$FILE_LIST_TSV2"))
     }
 
     private fun verifySubmissionFiles(subFolder: File) {

@@ -5,7 +5,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_DOC_SIZE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.FIRE_FILE_DOC_FILE_NAME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.FIRE_FILE_DOC_ID
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.NFS_FILE_DOC_LOCATION
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.NFS_FILE_DOC_FULL_PATH
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.NFS_FILE_DOC_REL_PATH
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.NFS_FILE_TYPE
 import ac.uk.ebi.biostd.persistence.doc.model.DocAttribute
@@ -35,7 +35,7 @@ internal class FileConverterTest(
         val file =
             NfsDocFile(
                 relPath = NFS_FILE_DOC_REL_PATH,
-                location = NFS_FILE_DOC_LOCATION,
+                fullPath = NFS_FILE_DOC_FULL_PATH,
                 fileType = "file",
                 attributes = listOf(docAttribute),
                 md5 = FILE_DOC_MD5,
@@ -44,7 +44,7 @@ internal class FileConverterTest(
         val result = testInstance.convert(file)
 
         assertThat(result[NFS_FILE_DOC_REL_PATH]).isEqualTo("relPath")
-        assertThat(result[NFS_FILE_DOC_LOCATION]).isEqualTo("location")
+        assertThat(result[NFS_FILE_DOC_FULL_PATH]).isEqualTo("fullPath")
         assertThat(result[NFS_FILE_TYPE]).isEqualTo("file")
         assertThat(result[FILE_DOC_ATTRIBUTES]).isEqualTo(listOf(document))
         assertThat(result[FILE_DOC_MD5]).isEqualTo("md5")
