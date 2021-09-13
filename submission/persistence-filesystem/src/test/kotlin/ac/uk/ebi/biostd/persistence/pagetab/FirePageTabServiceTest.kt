@@ -1,19 +1,19 @@
 package ac.uk.ebi.biostd.persistence.pagetab
 
 import ac.uk.ebi.biostd.integration.SerializationService
-import ac.uk.ebi.biostd.integration.SubFormat
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.FirePageTabService
+import ac.uk.ebi.biostd.persistence.filesystem.pagetab.TabFiles
+import ac.uk.ebi.biostd.persistence.filesystem.pagetab.generateFileListPageTab
+import ac.uk.ebi.biostd.persistence.filesystem.pagetab.generateSubPageTab
 import arrow.core.Either.Companion.left
 import arrow.core.Either.Companion.right
-import ebi.ac.uk.asserts.assertThat
-import ebi.ac.uk.extended.mapping.to.toFilesTable
-import ebi.ac.uk.extended.mapping.to.toSimpleSubmission
+import ebi.ac.uk.asserts.assertThat as assertThatEither
 import ebi.ac.uk.extended.model.ExtFileList
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSectionTable
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireFile
-import ebi.ac.uk.io.RW_R_____
+import uk.ac.ebi.fire.client.model.FireFile as FireFileWeb
 import ebi.ac.uk.test.basicExtSubmission
 import ebi.ac.uk.util.collections.second
 import ebi.ac.uk.util.collections.third
@@ -22,13 +22,11 @@ import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
+import io.mockk.mockkStatic
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.fire.client.integration.web.FireWebClient
-import java.io.File
-import java.nio.file.Files
-import org.assertj.core.api.Assertions.assertThat as assertJThat
-import uk.ac.ebi.fire.client.model.FireFile as FireWebFile
+import org.assertj.core.api.Assertions.assertThat as assertThat
 
 @ExtendWith(TemporaryFolderExtension::class, MockKExtension::class)
 class FirePageTabServiceTest(
@@ -41,40 +39,54 @@ class FirePageTabServiceTest(
 
     @Test
     fun `generate page tab`() {
-        val submission = basicExtSubmission.copy(section = initialRootSection())
-        setUpSerializer(submission.section.fileList!!.toFilesTable())
-        setUpSerializer(submission.toSimpleSubmission())
+        val subWithoutTabFiles = basicExtSubmission.copy(section = sectionWithoutTabFiles())
+        setUpGeneratePageTab(subWithoutTabFiles)
         setUpFireWebClient()
 
-        val result = testInstance.generatePageTab(submission)
+        val result = testInstance.generatePageTab(subWithoutTabFiles)
 
-        assertSubmission(result)
-        assertRootSection(result.section)
-        assertThat(result.section.sections.first()).hasLeftValueSatisfying { assertSubSection(it) }
-        verifyFileLists(fireFolder)
-        verifySubmissionFiles(fireFolder)
+        assertSubmissionTabFiles(result)
+        assertSectionTabFiles(result.section)
+        assertThatEither(result.section.sections.first()).hasLeftValueSatisfying { assertSubSectionTabFiles(it) }
     }
 
-    private fun setUpSerializer(element: Any) {
-        every { serializationService.serializeElement(element, SubFormat.JSON_PRETTY) } returns "json"
-        every { serializationService.serializeElement(element, SubFormat.XML) } returns "xml"
-        every { serializationService.serializeElement(element, SubFormat.TSV) } returns "tsv"
+    private fun setUpGeneratePageTab(submission: ExtSubmission) {
+        mockkStatic("ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabUtilKt")
+
+        every { serializationService.generateSubPageTab(submission, fireFolder) } returns
+            TabFiles(
+                fireFolder.resolve("S-TEST123.json"),
+                fireFolder.resolve("S-TEST123.xml"),
+                fireFolder.resolve("S-TEST123.pagetab.tsv")
+            )
+        every { serializationService.generateFileListPageTab(submission, fireFolder) } returns mapOf(
+            "data/file-list2" to TabFiles(
+                fireFolder.resolve("data/file-list2.json"),
+                fireFolder.resolve("data/file-list2.xml"),
+                fireFolder.resolve("data/file-list2.pagetab.tsv")
+            ),
+            "data/file-list1" to TabFiles(
+                fireFolder.resolve("data/file-list1.json"),
+                fireFolder.resolve("data/file-list1.xml"),
+                fireFolder.resolve("data/file-list1.pagetab.tsv")
+            )
+        )
     }
 
     private fun setUpFireWebClient() {
         every { fireWebClient.save(any(), any(), any()) } returns
-            FireWebFile(1, "$FILE_LIST_JSON2-fireId", "md5", 1, "creationTime") andThen
-            FireWebFile(2, "$FILE_LIST_XML2-fireId", "md5", 1, "creationTime") andThen
-            FireWebFile(3, "$FILE_LIST_TSV2-fireId", "md5", 1, "creationTime") andThen
-            FireWebFile(4, "$FILE_LIST_JSON1-fireId", "md5", 1, "creationTime") andThen
-            FireWebFile(5, "$FILE_LIST_XML1-fireId", "md5", 1, "creationTime") andThen
-            FireWebFile(6, "$FILE_LIST_TSV1-fireId", "md5", 1, "creationTime") andThen
-            FireWebFile(7, "$SUB_JSON-fireId", "md5", 1, "creationTime") andThen
-            FireWebFile(8, "$SUB_XML-fireId", "md5", 1, "creationTime") andThen
-            FireWebFile(9, "$SUB_TSV-fireId", "md5", 1, "creationTime")
+            FireFileWeb(1, "$FILE_LIST_JSON2-fireId", "md5", 1, "creationTime") andThen
+            FireFileWeb(2, "$FILE_LIST_XML2-fireId", "md5", 1, "creationTime") andThen
+            FireFileWeb(3, "$FILE_LIST_TSV2-fireId", "md5", 1, "creationTime") andThen
+            FireFileWeb(4, "$FILE_LIST_JSON1-fireId", "md5", 1, "creationTime") andThen
+            FireFileWeb(5, "$FILE_LIST_XML1-fireId", "md5", 1, "creationTime") andThen
+            FireFileWeb(6, "$FILE_LIST_TSV1-fireId", "md5", 1, "creationTime") andThen
+            FireFileWeb(7, "$SUB_JSON-fireId", "md5", 1, "creationTime") andThen
+            FireFileWeb(8, "$SUB_XML-fireId", "md5", 1, "creationTime") andThen
+            FireFileWeb(9, "$SUB_TSV-fireId", "md5", 1, "creationTime")
     }
 
-    private fun initialRootSection() = ExtSection(
+    private fun sectionWithoutTabFiles() = ExtSection(
         type = "Study1",
         fileList = ExtFileList("data/file-list1"),
         sections = listOf(
@@ -83,46 +95,25 @@ class FirePageTabServiceTest(
         )
     )
 
-    private fun assertSubmission(submission: ExtSubmission) {
+    private fun assertSubmissionTabFiles(submission: ExtSubmission) {
         val tabFiles = submission.tabFiles
-        assertJThat(tabFiles.first()).isEqualTo(FireFile(SUB_JSON, "$SUB_JSON-fireId", "md5", 1, listOf()))
-        assertJThat(tabFiles.second()).isEqualTo(FireFile(SUB_XML, "$SUB_XML-fireId", "md5", 1, listOf()))
-        assertJThat(tabFiles.third()).isEqualTo(FireFile(SUB_TSV, "$SUB_TSV-fireId", "md5", 1, listOf()))
+        assertThat(tabFiles.first()).isEqualTo(FireFile(SUB_JSON, "$SUB_JSON-fireId", "md5", 1, listOf()))
+        assertThat(tabFiles.second()).isEqualTo(FireFile(SUB_XML, "$SUB_XML-fireId", "md5", 1, listOf()))
+        assertThat(tabFiles.third()).isEqualTo(FireFile(SUB_TSV, "$SUB_TSV-fireId", "md5", 1, listOf()))
     }
 
-    private fun assertRootSection(section: ExtSection) {
+    private fun assertSectionTabFiles(section: ExtSection) {
         val tabFiles = section.fileList!!.tabFiles
-        assertJThat(tabFiles.first()).isEqualTo(FireFile(FILE_LIST_JSON1, "$FILE_LIST_JSON1-fireId", "md5", 1, listOf()))
-        assertJThat(tabFiles.second()).isEqualTo(FireFile(FILE_LIST_XML1, "$FILE_LIST_XML1-fireId", "md5", 1, listOf()))
-        assertJThat(tabFiles.third()).isEqualTo(FireFile(FILE_LIST_TSV1, "$FILE_LIST_TSV1-fireId", "md5", 1, listOf()))
+        assertThat(tabFiles.first()).isEqualTo(FireFile(FILE_LIST_JSON1, "$FILE_LIST_JSON1-fireId", "md5", 1, listOf()))
+        assertThat(tabFiles.second()).isEqualTo(FireFile(FILE_LIST_XML1, "$FILE_LIST_XML1-fireId", "md5", 1, listOf()))
+        assertThat(tabFiles.third()).isEqualTo(FireFile(FILE_LIST_TSV1, "$FILE_LIST_TSV1-fireId", "md5", 1, listOf()))
     }
 
-    private fun assertSubSection(section: ExtSection) {
+    private fun assertSubSectionTabFiles(section: ExtSection) {
         val tabFiles = section.fileList!!.tabFiles
-        assertJThat(tabFiles.first()).isEqualTo(FireFile(FILE_LIST_JSON2, "$FILE_LIST_JSON2-fireId", "md5", 1, listOf()))
-        assertJThat(tabFiles.second()).isEqualTo(FireFile(FILE_LIST_XML2, "$FILE_LIST_XML2-fireId", "md5", 1, listOf()))
-        assertJThat(tabFiles.third()).isEqualTo(FireFile(FILE_LIST_TSV2, "$FILE_LIST_TSV2-fireId", "md5", 1, listOf()))
-    }
-
-    private fun verifyFileLists(fireFolder: File) {
-        assertPageTabFile(fireFolder.resolve("data/$FILE_LIST_JSON1"))
-        assertPageTabFile(fireFolder.resolve("data/$FILE_LIST_XML1"))
-        assertPageTabFile(fireFolder.resolve("data/$FILE_LIST_TSV1"))
-
-        assertPageTabFile(fireFolder.resolve("data/$FILE_LIST_JSON2"))
-        assertPageTabFile(fireFolder.resolve("data/$FILE_LIST_XML2"))
-        assertPageTabFile(fireFolder.resolve("data/$FILE_LIST_TSV2"))
-    }
-
-    private fun verifySubmissionFiles(fireFolder: File) {
-        assertPageTabFile(fireFolder.resolve(SUB_JSON))
-        assertPageTabFile(fireFolder.resolve(SUB_XML))
-        assertPageTabFile(fireFolder.resolve(SUB_TSV))
-    }
-
-    private fun assertPageTabFile(file: File) {
-        assertJThat(file).exists()
-        assertJThat(Files.getPosixFilePermissions(file.toPath())).containsExactlyInAnyOrderElementsOf(RW_R_____)
+        assertThat(tabFiles.first()).isEqualTo(FireFile(FILE_LIST_JSON2, "$FILE_LIST_JSON2-fireId", "md5", 1, listOf()))
+        assertThat(tabFiles.second()).isEqualTo(FireFile(FILE_LIST_XML2, "$FILE_LIST_XML2-fireId", "md5", 1, listOf()))
+        assertThat(tabFiles.third()).isEqualTo(FireFile(FILE_LIST_TSV2, "$FILE_LIST_TSV2-fireId", "md5", 1, listOf()))
     }
 
     companion object {

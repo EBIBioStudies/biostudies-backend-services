@@ -7,8 +7,8 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.F
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.FIRE_DOC_FILE_CLASS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.FIRE_FILE_DOC_FILE_NAME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.FIRE_FILE_DOC_ID
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.NFS_DOC_FILE_CLASS
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.NFS_FILE_DOC_FULL_PATH
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.NFS_FILE_DOC_REL_PATH
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.NFS_FILE_TYPE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.to.CommonsConverter.classField
@@ -40,7 +40,7 @@ class FileConverter(private val attributeConverter: AttributeConverter) : Conver
             is NfsDocFile -> {
                 file[classField] = NFS_DOC_FILE_CLASS
                 file[NFS_FILE_DOC_REL_PATH] = docFile.relPath
-                file[NfsDocFileFields.NFS_FILE_DOC_FULL_PATH] = docFile.fullPath
+                file[NFS_FILE_DOC_FULL_PATH] = docFile.fullPath
                 file[NFS_FILE_TYPE] = docFile.fileType
             }
         }

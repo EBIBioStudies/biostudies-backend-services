@@ -11,28 +11,35 @@ import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.extended.model.ExtAttribute
 import ebi.ac.uk.extended.model.ExtCollection
+import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtStat
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod
 import ebi.ac.uk.extended.model.ExtTag
+import ebi.ac.uk.extended.model.FireDirectory
+import ebi.ac.uk.extended.model.FireFile
+import ebi.ac.uk.extended.model.NfsFile
+import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields
 import uk.ac.ebi.serialization.extensions.serialize
+import java.io.File
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 
 @ExtendWith(TemporaryFolderExtension::class)
-class ExtSubmissionSerializerTest {
+class ExtSubmissionSerializerTest(temporaryFolder: TemporaryFolder) {
     private val testInstance = ObjectMapper().registerModule(createModule())
+    private val nfsFile: File = temporaryFolder.createFile("fileNfs")
 
     @Test
     fun `serialize basic section when not released`() {
-        val extendedSubmission = createTestSubmission(released = false)
+        val extendedSubmission = createTestSubmission(released = false, nfsFile)
         val expectedJson = expectedJsonSubmission(released = false).toString()
 
         assertThat(testInstance.serialize(extendedSubmission)).isEqualToIgnoringWhitespace(expectedJson)
@@ -41,7 +48,7 @@ class ExtSubmissionSerializerTest {
 
     @Test
     fun `serialize basic section when released`() {
-        val extendedSubmission = createTestSubmission(released = true)
+        val extendedSubmission = createTestSubmission(released = true, nfsFile)
         val expectedJson = expectedJsonSubmission(released = true).toString()
 
         assertThat(testInstance.serialize(extendedSubmission)).isEqualToIgnoringWhitespace(expectedJson)
@@ -53,6 +60,7 @@ class ExtSubmissionSerializerTest {
             val module = SimpleModule()
             module.addSerializer(ExtSubmission::class.java, ExtSubmissionSerializer())
             module.addSerializer(ExtSection::class.java, DummySectionSerializer)
+            module.addSerializer(ExtFile::class.java, DummyExtFileSerializer)
             module.addSerializer(OffsetDateTime::class.java, OffsetDateTimeSerializer())
 
             return module
@@ -103,20 +111,30 @@ class ExtSubmissionSerializerTest {
                         "value" to "web"
                     }
                 )
-                "accessTags" to
-                    if (released) jsonArray(
-                        jsonObj { "name" to "BioImages" },
-                        jsonObj { "name" to "owner@mail.org" },
-                        jsonObj { "name" to "Public" }
-                    )
-                    else jsonArray(
-                        jsonObj { "name" to "BioImages" },
-                        jsonObj { "name" to "owner@mail.org" }
-                    )
+                "accessTags" to if (released) jsonArray(
+                    jsonObj { "name" to "BioImages" },
+                    jsonObj { "name" to "owner@mail.org" },
+                    jsonObj { "name" to "Public" }
+                )
+                else jsonArray(
+                    jsonObj { "name" to "BioImages" },
+                    jsonObj { "name" to "owner@mail.org" }
+                )
+                "tabFiles" to jsonArray(
+                    jsonObj {
+                        "extType" to "fireFile"
+                    },
+                    jsonObj {
+                        "extType" to "fireDirectory"
+                    },
+                    jsonObj {
+                        "extType" to "nfsFile"
+                    }
+                )
             }
         }
 
-        private fun createTestSubmission(released: Boolean): ExtSubmission {
+        private fun createTestSubmission(released: Boolean, fileNfs: File): ExtSubmission {
             val releaseTime = OffsetDateTime.of(2019, 9, 21, 10, 30, 34, 15, ZoneOffset.UTC)
             val modificationTime = OffsetDateTime.of(2020, 9, 21, 10, 30, 34, 15, ZoneOffset.UTC)
             val creationTime = OffsetDateTime.of(2018, 9, 21, 10, 30, 34, 15, ZoneOffset.UTC)
@@ -140,7 +158,12 @@ class ExtSubmissionSerializerTest {
                 tags = listOf(ExtTag("component", "web")),
                 collections = listOf(ExtCollection("BioImages")),
                 section = ExtSection(type = "Study"),
-                stats = listOf(ExtStat("component", "web"))
+                stats = listOf(ExtStat("component", "web")),
+                tabFiles = listOf(
+                    FireFile("fileName", "fireId", "md5", 1L, listOf()),
+                    FireDirectory("fileName", "md5", 2L, listOf()),
+                    NfsFile("fileName", fileNfs, listOf())
+                )
             )
         }
     }
@@ -150,6 +173,18 @@ object DummySectionSerializer : JsonSerializer<ExtSection>() {
     override fun serialize(section: ExtSection, gen: JsonGenerator, serializers: SerializerProvider?) {
         gen.writeStartObject()
         gen.writeStringField(ExtSerializationFields.TYPE, section.type)
+        gen.writeEndObject()
+    }
+}
+
+object DummyExtFileSerializer : JsonSerializer<ExtFile>() {
+    override fun serialize(extFile: ExtFile, gen: JsonGenerator, serializers: SerializerProvider?) {
+        gen.writeStartObject()
+        when (extFile) {
+            is FireFile -> gen.writeStringField(ExtSerializationFields.EXT_TYPE, "fireFile")
+            is FireDirectory -> gen.writeStringField(ExtSerializationFields.EXT_TYPE, "fireDirectory")
+            is NfsFile -> gen.writeStringField(ExtSerializationFields.EXT_TYPE, "nfsFile")
+        }
         gen.writeEndObject()
     }
 }

@@ -41,6 +41,9 @@ internal open class BaseIntegrationTest(private val tempFolder: TemporaryFolder)
     val submissionPath
         get() = "${tempFolder.root.absolutePath}/submission"
 
+    val enableFire
+        get() = System.getProperty("enableFire").toBoolean()
+
     @BeforeAll
     fun beforeAll() {
         if (System.getProperty("itest.mode") == "mongo") setUpMongo()
@@ -98,7 +101,6 @@ internal open class BaseIntegrationTest(private val tempFolder: TemporaryFolder)
         System.setProperty("app.submissionPath", submissionPath)
         System.setProperty("app.ftpPath", "${tempFolder.root.absolutePath}/ftpPath")
         System.setProperty("app.tempDirPath", tempDirPath.absolutePath)
-        System.setProperty("app.fireTempDirPath", tempDirPath.absolutePath + "/fire-temp")
         System.setProperty("app.security.filesDirPath", tempFolder.createDirectory("dropbox").absolutePath)
         System.setProperty("app.security.magicDirPath", tempFolder.createDirectory("magic").absolutePath)
         System.setProperty("app.persistence.enableFire", "${System.getProperty("enableFire").toBoolean()}")

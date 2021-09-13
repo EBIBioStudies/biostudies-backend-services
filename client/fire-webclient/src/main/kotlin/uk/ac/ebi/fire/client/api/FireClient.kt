@@ -4,8 +4,6 @@ import ebi.ac.uk.io.ext.size
 import org.springframework.core.io.FileSystemResource
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
-import org.springframework.http.HttpMethod.GET
-import org.springframework.http.HttpStatus.NOT_FOUND
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.client.getForObject

@@ -18,6 +18,7 @@ import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.extended.model.ExtFileList
+import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.test.createFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
@@ -35,6 +36,7 @@ import org.springframework.context.annotation.Import
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.transaction.annotation.Transactional
+import java.io.File
 import java.nio.file.Paths
 
 // TODO Fix all integration tests
@@ -265,17 +267,35 @@ internal class MultipartFileSubmissionApiTest(
         }
 
         private fun assertSubmissionFiles(accNo: String, testFile: String) {
-            val fileListName = "FileList"
-            val createdSubmission = submissionRepository.getExtByAccNo(accNo)
-            val submissionFolderPath = "$submissionPath/${createdSubmission.relPath}"
+            val createdSub = submissionRepository.getExtByAccNo(accNo)
+            val subFolder = "$submissionPath/${createdSub.relPath}"
 
-            assertThat(createdSubmission.section.fileList?.fileName).isEqualTo(fileListName)
-            assertThat(createdSubmission.section.fileList).isEqualTo(ExtFileList(fileListName, emptyList()))
+            val fileListName = createdSub.section.fileList?.fileName
+            val expectedTabFiles =
+                if (enableFire) listOf() else listOf(
+                    NfsFile("$fileListName.json", File(subFolder).resolve("Files/$fileListName.json")),
+                    NfsFile("$fileListName.xml", File(subFolder).resolve("Files/$fileListName.xml")),
+                    NfsFile("$fileListName.pagetab.tsv", File(subFolder).resolve("Files/$fileListName.pagetab.tsv"))
+                )
 
-            assertThat(Paths.get("$submissionFolderPath/Files/$testFile")).exists()
-            assertThat(Paths.get("$submissionFolderPath/Files/$fileListName.xml")).exists()
-            assertThat(Paths.get("$submissionFolderPath/Files/$fileListName.json")).exists()
-            assertThat(Paths.get("$submissionFolderPath/Files/$fileListName.pagetab.tsv")).exists()
+            assertThat(createdSub.section.fileList).isEqualTo(ExtFileList("FileList", tabFiles = expectedTabFiles))
+
+            assertThat((createdSub.tabFiles)).isEqualTo(
+                if (enableFire) listOf() else listOf(
+                    NfsFile("$accNo.json", File(subFolder).resolve("$accNo.json")),
+                    NfsFile("$accNo.xml", File(subFolder).resolve("$accNo.xml")),
+                    NfsFile("$accNo.pagetab.tsv", File(subFolder).resolve("$accNo.pagetab.tsv"))
+                )
+            )
+
+            assertThat(Paths.get("$subFolder/Files/$testFile")).exists()
+            assertThat(Paths.get("$subFolder/Files/$fileListName.xml")).exists()
+            assertThat(Paths.get("$subFolder/Files/$fileListName.json")).exists()
+            assertThat(Paths.get("$subFolder/Files/$fileListName.pagetab.tsv")).exists()
+
+            assertThat(Paths.get("$subFolder/${createdSub.accNo}.xml")).exists()
+            assertThat(Paths.get("$subFolder/${createdSub.accNo}.json")).exists()
+            assertThat(Paths.get("$subFolder/${createdSub.accNo}.pagetab.tsv")).exists()
         }
     }
 }

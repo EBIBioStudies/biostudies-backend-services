@@ -14,6 +14,8 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionMethod
 import ac.uk.ebi.biostd.persistence.doc.model.DocTag
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
+import ac.uk.ebi.biostd.persistence.doc.model.FireDocDirectory
+import ac.uk.ebi.biostd.persistence.doc.model.FireDocFile
 import ac.uk.ebi.biostd.persistence.doc.model.NfsDocFile
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.COLLECTION_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.CREATION_TIME
@@ -22,6 +24,7 @@ import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.EXT_STAT_VALUE
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.EXT_TAG_NAME
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.EXT_TAG_VALUE
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.MODIFICATION_TIME
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.NFS_FILENAME
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.RELEASE_TIME
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_FILE_LIST_FILE_NAME
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_SECTION_LINK_URL
@@ -71,6 +74,8 @@ import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUB_SEC_TABLE_ATTR_VALUE
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUB_SEC_TABLE_ATTR_VALUE_ATTRS
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUB_SEC_TABLE_TYPE
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUB_SEC_TYPE
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.fireDirectory
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.fireFile
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.fullExtSubmission
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.rootSection
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.rootSectionFile
@@ -83,8 +88,11 @@ import arrow.core.Either
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.ExtSectionTable
+import ebi.ac.uk.extended.model.NfsFile
+import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.test.createFile
 import ebi.ac.uk.util.collections.second
+import ebi.ac.uk.util.collections.third
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
@@ -115,7 +123,13 @@ class ToDocSubmissionTest(tempFolder: TemporaryFolder) {
             Either.right(ExtFileTable(files = listOf(newRootSectionTableFile)))
         )
     )
-    private val submission = fullExtSubmission.copy(section = newRootSection)
+    private val nfsFileFile = tempFolder.createFile(NFS_FILENAME)
+    private val nfsFile = NfsFile(NFS_FILENAME, nfsFileFile)
+
+    private val submission = fullExtSubmission.copy(
+        section = newRootSection,
+        tabFiles = listOf(fireFile, fireDirectory, nfsFile)
+    )
 
     @Test
     fun `to Doc Submission with a file inside the section and another file inside the inner section`() {
@@ -148,6 +162,17 @@ class ToDocSubmissionTest(tempFolder: TemporaryFolder) {
 
         assertThat(docSubmission.stats).hasSize(1)
         assertStat(docSubmission.stats.first())
+
+        assertThat(docSubmission.pageTabFiles).hasSize(3)
+        assertThat(docSubmission.pageTabFiles.first()).isEqualTo(
+            FireDocFile(fireFile.fileName, fireFile.fireId, listOf(), fireFile.md5, fireFile.size)
+        )
+        assertThat(docSubmission.pageTabFiles.second()).isEqualTo(
+            FireDocDirectory(fireDirectory.fileName, listOf(), fireDirectory.md5, fireDirectory.size)
+        )
+        assertThat(docSubmission.pageTabFiles.third()).isEqualTo(
+            NfsDocFile(nfsFile.fileName, nfsFileFile.absolutePath, "file", listOf(), nfsFileFile.md5(), nfsFile.size)
+        )
     }
 
     private fun assertListFiles(listFiles: List<FileListDocFile>, docSubmissionId: ObjectId) {

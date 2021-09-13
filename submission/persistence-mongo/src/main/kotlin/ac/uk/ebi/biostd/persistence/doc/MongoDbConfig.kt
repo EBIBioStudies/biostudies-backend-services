@@ -86,7 +86,7 @@ class MongoDbConfig(
         val docAttributeConverter = DocAttributeConverter()
         val docFileConverter = DocFileConverter(docAttributeConverter)
         val docFileRefConverter = DocFileRefConverter()
-        val docFileListConverter = DocFileListConverter(docFileRefConverter)
+        val docFileListConverter = DocFileListConverter(docFileRefConverter, docFileConverter)
         val docFileTableConverter = DocFileTableConverter(docFileConverter)
         val docLinkConverter = DocLinkConverter(docAttributeConverter)
         val docLinksTableConverter = DocLinkTableConverter(docLinkConverter)
@@ -105,7 +105,7 @@ class MongoDbConfig(
         val attributeConverter = AttributeConverter()
         val fileConverter = FileConverter(attributeConverter)
         val fileRefConverter = FileRefConverter()
-        val fileListConverter = FileListConverter(fileRefConverter)
+        val fileListConverter = FileListConverter(fileRefConverter, fileConverter)
         val fileTableConverter = FileTableConverter(fileConverter)
         val linkConverter = LinkConverter(attributeConverter)
         val linksTableConverter = LinkTableConverter(linkConverter)
@@ -117,7 +117,7 @@ class MongoDbConfig(
             fileTableConverter,
             fileListConverter
         )
-        return SubmissionConverter(sectionConverter, attributeConverter)
+        return SubmissionConverter(sectionConverter, attributeConverter, fileConverter)
     }
 
     companion object {

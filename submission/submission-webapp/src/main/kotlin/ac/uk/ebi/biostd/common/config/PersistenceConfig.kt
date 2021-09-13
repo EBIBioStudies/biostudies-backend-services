@@ -48,6 +48,7 @@ class PersistenceConfig(
     fun nfsPageTabService(): PageTabService = NfsPageTabService(folderResolver, serializationService)
 
     @Bean
+    @ConditionalOnProperty(prefix = "app.persistence", name = ["enableFire"], havingValue = "true")
     fun fireFtpService(): FtpService = FireFtpService(fireWebClient, submissionQueryService)
 
     @Bean

@@ -61,7 +61,6 @@ class DocSubmissionConverter(
         tags = source.getDocList(SUB_TAGS).map { toDocTag(it) },
         collections = source.getDocList(SUB_PROJECTS).map { toDocCollection(it) },
         stats = source.getDocList(SUB_STATS).map { toDocStat(it) },
-        // TODO add converter in the "to" side
         pageTabFiles = source.getDocList(PAGE_TAB_FILES).map { docFileConverter.convert(it) }
     )
 
