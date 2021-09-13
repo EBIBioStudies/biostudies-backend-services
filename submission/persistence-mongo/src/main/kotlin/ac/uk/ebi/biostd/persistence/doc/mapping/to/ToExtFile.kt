@@ -41,4 +41,4 @@ internal fun FileListDocFile.toExtFile(): ExtFile = when (fileSystem) {
  * part of the submission.
  */
 internal fun DocFileList.toExtFileList() =
-    ExtFileList(fileName, emptyList(), tabFiles = pageTabFiles.map { it.toExtFile() })
+    ExtFileList(fileName, emptyList(), pageTabFiles = pageTabFiles.map { it.toExtFile() })

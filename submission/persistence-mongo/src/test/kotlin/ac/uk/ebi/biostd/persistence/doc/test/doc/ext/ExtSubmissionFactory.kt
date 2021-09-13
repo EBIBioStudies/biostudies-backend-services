@@ -74,5 +74,5 @@ val fullExtSubmission = ExtSubmission(
     collections = listOf(extCollection),
     section = rootSection,
     stats = listOf(extStat),
-    tabFiles = listOf(fireFile, fireDirectory)
+    pageTabFiles = listOf(fireFile, fireDirectory)
 )

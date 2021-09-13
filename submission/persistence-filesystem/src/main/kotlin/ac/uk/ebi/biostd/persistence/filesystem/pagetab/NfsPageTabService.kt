@@ -19,15 +19,15 @@ class NfsPageTabService(
         val section = process(sub.section) { updateFileList(it, fileListFiles) }
 
         return when {
-            section.changed -> sub.copy(tabFiles = extFiles(subFiles), section = section.section)
-            else -> sub.copy(tabFiles = extFiles(subFiles))
+            section.changed -> sub.copy(pageTabFiles = extFiles(subFiles), section = section.section)
+            else -> sub.copy(pageTabFiles = extFiles(subFiles))
         }
     }
 
     private fun updateFileList(sec: ExtSection, tab: Map<String, TabFiles>): Section {
         return when (val lst = sec.fileList) {
             null -> Section(false, sec)
-            else -> Section(true, sec.copy(fileList = lst.copy(tabFiles = extFiles(tab.getValue(lst.fileName)))))
+            else -> Section(true, sec.copy(fileList = lst.copy(pageTabFiles = extFiles(tab.getValue(lst.fileName)))))
         }
     }
 

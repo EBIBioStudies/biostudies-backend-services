@@ -24,15 +24,15 @@ class FirePageTabService(
         val section = process(sub.section) { updateFileList(it, sub.filesPath, fileListFiles) }
 
         return when {
-            section.changed -> sub.copy(tabFiles = extFiles(sub.filesPath, subFiles), section = section.section)
-            else -> sub.copy(tabFiles = extFiles(sub.filesPath, subFiles))
+            section.changed -> sub.copy(pageTabFiles = extFiles(sub.filesPath, subFiles), section = section.section)
+            else -> sub.copy(pageTabFiles = extFiles(sub.filesPath, subFiles))
         }
     }
 
     private fun updateFileList(sec: ExtSection, path: String, tab: Map<String, TabFiles>): Section {
         return when (val lst = sec.fileList) {
             null -> Section(false, sec)
-            else -> Section(true, sec.copy(fileList = lst.copy(tabFiles = extFiles(path, tab.getValue(lst.fileName)))))
+            else -> Section(true, sec.copy(fileList = lst.copy(pageTabFiles = extFiles(path, tab.getValue(lst.fileName)))))
         }
     }
 

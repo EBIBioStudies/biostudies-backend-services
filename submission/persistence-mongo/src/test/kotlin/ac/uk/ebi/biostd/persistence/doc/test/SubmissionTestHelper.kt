@@ -79,13 +79,13 @@ object SubmissionTestHelper {
         assertTags(extSubmission)
         assertStats(extSubmission)
         assertProject(extSubmission)
-        assertThat(extSubmission.tabFiles.first()).isEqualTo(
+        assertThat(extSubmission.pageTabFiles.first()).isEqualTo(
             FireFile(fireDocFile.fileName, fireDocFile.fireId, fireDocFile.md5, 1, listOf())
         )
-        assertThat(extSubmission.tabFiles.second()).isEqualTo(
+        assertThat(extSubmission.pageTabFiles.second()).isEqualTo(
             FireDirectory(fireDocDirectory.fileName, fireDocDirectory.md5, fireDocDirectory.fileSize, listOf())
         )
-        assertThat(extSubmission.tabFiles.third()).isEqualTo(NfsFile(nfsFileFile.name, nfsFileFile, listOf()))
+        assertThat(extSubmission.pageTabFiles.third()).isEqualTo(NfsFile(nfsFileFile.name, nfsFileFile, listOf()))
     }
 
     private fun assertBasicProperties(extSubmission: ExtSubmission) {

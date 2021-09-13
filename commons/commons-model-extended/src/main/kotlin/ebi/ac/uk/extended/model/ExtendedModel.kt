@@ -66,7 +66,7 @@ data class ExtFileList(
     val fileName: String,
     val files: List<ExtFile> = listOf(),
     val filesUrl: String? = null,
-    val tabFiles: List<ExtFile> = listOf()
+    val pageTabFiles: List<ExtFile> = listOf()
 )
 
 data class ExtSectionTable(val sections: List<ExtSection>)
@@ -117,7 +117,7 @@ data class ExtSubmission(
     val tags: List<ExtTag> = listOf(),
     val collections: List<ExtCollection> = listOf(),
     val stats: List<ExtStat> = listOf(),
-    val tabFiles: List<ExtFile> = listOf()
+    val pageTabFiles: List<ExtFile> = listOf()
 )
 
 // TODO change value type to long

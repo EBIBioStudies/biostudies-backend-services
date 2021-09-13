@@ -159,7 +159,7 @@ class ExtSubmissionSerializerTest(temporaryFolder: TemporaryFolder) {
                 collections = listOf(ExtCollection("BioImages")),
                 section = ExtSection(type = "Study"),
                 stats = listOf(ExtStat("component", "web")),
-                tabFiles = listOf(
+                pageTabFiles = listOf(
                     FireFile("fileName", "fireId", "md5", 1L, listOf()),
                     FireDirectory("fileName", "md5", 2L, listOf()),
                     NfsFile("fileName", fileNfs, listOf())

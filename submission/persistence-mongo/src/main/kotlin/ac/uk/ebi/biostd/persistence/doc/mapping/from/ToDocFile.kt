@@ -26,7 +26,7 @@ internal fun Either<ExtFile, ExtFileTable>.toDocFiles() = bimap(ExtFile::toDocFi
 internal fun ExtFileList.toDocFileList(submissionId: ObjectId): Pair<DocFileList, List<FileListDocFile>> {
     val listFiles = files.map { toFileDocListFile(submissionId, it) }
     val listRef = listFiles.map { DocFileRef(fileId = it.id) }
-    val pageTabFiles = tabFiles.map { it.toDocFile() }
+    val pageTabFiles = pageTabFiles.map { it.toDocFile() }
 
     return Pair(DocFileList(fileName, listRef, pageTabFiles), listFiles)
 }

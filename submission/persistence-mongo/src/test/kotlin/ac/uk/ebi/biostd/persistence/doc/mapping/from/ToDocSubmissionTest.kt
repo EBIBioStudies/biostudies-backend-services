@@ -128,7 +128,7 @@ class ToDocSubmissionTest(tempFolder: TemporaryFolder) {
 
     private val submission = fullExtSubmission.copy(
         section = newRootSection,
-        tabFiles = listOf(fireFile, fireDirectory, nfsFile)
+        pageTabFiles = listOf(fireFile, fireDirectory, nfsFile)
     )
 
     @Test

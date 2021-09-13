@@ -278,9 +278,9 @@ internal class MultipartFileSubmissionApiTest(
                     NfsFile("$fileListName.pagetab.tsv", File(subFolder).resolve("Files/$fileListName.pagetab.tsv"))
                 )
 
-            assertThat(createdSub.section.fileList).isEqualTo(ExtFileList("FileList", tabFiles = expectedTabFiles))
+            assertThat(createdSub.section.fileList).isEqualTo(ExtFileList("FileList", pageTabFiles = expectedTabFiles))
 
-            assertThat((createdSub.tabFiles)).isEqualTo(
+            assertThat((createdSub.pageTabFiles)).isEqualTo(
                 if (enableFire) listOf() else listOf(
                     NfsFile("$accNo.json", File(subFolder).resolve("$accNo.json")),
                     NfsFile("$accNo.xml", File(subFolder).resolve("$accNo.xml")),

@@ -22,7 +22,7 @@ import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.SECTION
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.STATS
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.STATUS
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.SUBMITTER
-import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.TAB_FILES
+import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.PAGE_TAB_FILES
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.TAGS
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.TITLE
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.VERSION
@@ -52,7 +52,7 @@ class ExtSubmissionSerializer : JsonSerializer<ExtSubmission>() {
         gen.writeObjectField(COLLECTIONS, submission.collections)
         gen.writeObjectField(STATS, submission.stats)
         gen.writeObjectField(ACCESS_TAGS, getAccessTag(submission))
-        gen.writeObjectField(TAB_FILES, submission.tabFiles)
+        gen.writeObjectField(PAGE_TAB_FILES, submission.pageTabFiles)
     }
 
     private fun getAccessTag(submission: ExtSubmission): List<ExtAccessTag> {

@@ -82,14 +82,14 @@ class NfsPageTabServiceTest(
     )
 
     private fun assertSubmissionTabFiles(submission: ExtSubmission) {
-        val tabFiles = submission.tabFiles
+        val tabFiles = submission.pageTabFiles
         assertThat(tabFiles.first()).isEqualTo(NfsFile(SUB_JSON, subFolder.resolve(SUB_JSON)))
         assertThat(tabFiles.second()).isEqualTo(NfsFile(SUB_XML, subFolder.resolve(SUB_XML)))
         assertThat(tabFiles.third()).isEqualTo(NfsFile(SUB_TSV, subFolder.resolve(SUB_TSV)))
     }
 
     private fun assertSectionTabFiles(section: ExtSection) {
-        val tabFiles = section.fileList!!.tabFiles
+        val tabFiles = section.fileList!!.pageTabFiles
         assertThat(tabFiles.first()).isEqualTo(
             NfsFile(FILE_LIST_JSON1, subFolder.resolve("Files/data/$FILE_LIST_JSON1"))
         )
@@ -100,7 +100,7 @@ class NfsPageTabServiceTest(
     }
 
     private fun assertSubSectionTabFiles(section: ExtSection?) {
-        val tabFiles = section!!.fileList!!.tabFiles
+        val tabFiles = section!!.fileList!!.pageTabFiles
         assertThat(tabFiles.first()).isEqualTo(
             NfsFile(FILE_LIST_JSON2, subFolder.resolve("Files/data/$FILE_LIST_JSON2"))
         )
