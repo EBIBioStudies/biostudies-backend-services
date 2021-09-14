@@ -44,7 +44,7 @@ interface SubmissionDataRepository :
     EntityGraphJpaRepository<DbSubmission, Long>, EntityGraphJpaSpecificationExecutor<DbSubmission> {
 
     @Modifying
-    @Query("update DbSubmission s set s.version = -s.version, s.modificationTime = :now where accNo in :accNumbers")
+    @Query("update DbSubmission set version = -abs(version), modificationTime = :now where accNo in :accNumbers")
     fun deleteSubmissions(@Param("accNumbers") accNumbers: List<String>, @Param("now") now: OffsetDateTime)
 
     @Query("select s from DbSubmission s inner join s.owner where s.accNo = :accNo order by s.id desc")
