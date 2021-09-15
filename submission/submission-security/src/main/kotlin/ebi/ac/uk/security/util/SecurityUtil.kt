@@ -5,7 +5,6 @@ import ac.uk.ebi.biostd.persistence.model.DbUser
 import ac.uk.ebi.biostd.persistence.model.SecurityToken
 import ac.uk.ebi.biostd.persistence.repositories.TokenDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
-import arrow.core.Option
 import com.fasterxml.jackson.databind.ObjectMapper
 import ebi.ac.uk.security.model.TokenPayload
 import io.jsonwebtoken.JwtParser
@@ -43,15 +42,13 @@ class SecurityUtil(
             .compact()
     }
 
-    fun fromToken(token: String): Option<DbUser> {
-        return if (jwtParser.isSigned(token)) getFromToken(token) else Option.empty()
-    }
+    fun fromToken(token: String): DbUser? = if (jwtParser.isSigned(token)) getFromToken(token) else null
 
     fun newKey() = UUID.randomUUID().toString()
 
     fun checkPassword(passwordDigest: ByteArray, password: String): Boolean {
         val tokenUser = fromToken(password)
-        val isValidSuperUser = tokenUser.fold({ false }, { it.superuser })
+        val isValidSuperUser = tokenUser?.superuser ?: false
         val isValidRegularUser = getPasswordDigest(password).contentEquals(passwordDigest)
         return isValidSuperUser || isValidRegularUser
     }
@@ -72,20 +69,18 @@ class SecurityUtil(
         }
     }
 
-    private fun getUrl(instance: String, path: String, userKey: String): String {
-        return UriComponentsBuilder.fromHttpUrl(instance)
+    private fun getUrl(instance: String, path: String, userKey: String): String =
+        UriComponentsBuilder.fromHttpUrl(instance)
             .pathSegment(normalizePath(path))
-            .pathSegment(normalizePath(userKey)).build().toUriString()
-    }
+            .pathSegment(normalizePath(userKey))
+            .build()
+            .toUriString()
 
     private fun normalizePath(path: String) = path.trim('/')
 
-    fun checkToken(tokenKey: String): Option<DbUser> {
+    fun checkToken(tokenKey: String): DbUser? {
         val token = tokenRepository.findById(tokenKey)
-        return when {
-            token.isPresent -> Option.empty()
-            else -> fromToken(tokenKey)
-        }
+        return if (token.isPresent) null else fromToken(tokenKey)
     }
 
     fun invalidateToken(authToken: String) {
@@ -95,16 +90,16 @@ class SecurityUtil(
     private fun isLocalEnvironment(instanceKey: String) =
         instanceKey.startsWith("http://localhost") || instanceKey.startsWith("https://localhost")
 
-    private fun getFromToken(token: String): Option<DbUser> {
-        var tokenUser = Option.empty<TokenPayload>()
+    private fun getFromToken(token: String): DbUser? {
+        var tokenUser: TokenPayload? = null
 
         runCatching {
             val payload = jwtParser.setSigningKey(tokenHash).parseClaimsJws(token).body.subject
-            tokenUser = Option.just(objectMapper.readValue(payload, TokenPayload::class.java))
+            tokenUser = objectMapper.readValue(payload, TokenPayload::class.java)
         }.onFailure {
             logger.error("detected invalid signature token: ${it.message}")
         }
 
-        return tokenUser.map { userRepository.getById(it.id) }
+        return tokenUser?.let { userRepository.getById(it.id) }
     }
 }

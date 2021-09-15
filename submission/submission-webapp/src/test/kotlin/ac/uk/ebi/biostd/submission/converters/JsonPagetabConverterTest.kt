@@ -20,23 +20,24 @@ import org.springframework.http.MediaType.TEXT_XML
 import java.io.OutputStream
 
 @ExtendWith(MockKExtension::class)
-internal class JsonPagetabConverterTest(@MockK private val serializationService: SerializationService) {
-
+internal class JsonPagetabConverterTest(
+    @MockK private val serializationService: SerializationService
+) {
     private val testInstance = JsonPagetabConverter(serializationService)
 
     @Test
     fun canRead() {
-        assertThat(testInstance.canRead(Submission::class.java, null)).isFalse()
+        assertThat(testInstance.canRead(Submission::class.java, null)).isFalse
     }
 
     @Test
     fun `canWrite when can`() {
-        assertThat(testInstance.canWrite(Submission::class.java, null)).isTrue()
+        assertThat(testInstance.canWrite(Submission::class.java, null)).isTrue
     }
 
     @Test
     fun `can Write when can not`() {
-        assertThat(testInstance.canWrite(String::class.java, APPLICATION_JSON)).isFalse()
+        assertThat(testInstance.canWrite(String::class.java, APPLICATION_JSON)).isFalse
     }
 
     @Test

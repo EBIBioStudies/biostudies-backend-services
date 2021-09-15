@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.security.domain.service
 
-import ac.uk.ebi.biostd.persistence.common.model.AccessType
 import ac.uk.ebi.biostd.persistence.common.model.AccessType.READ
 import ac.uk.ebi.biostd.persistence.model.DbAccessPermission
 import ac.uk.ebi.biostd.persistence.model.DbAccessTag
@@ -72,7 +71,7 @@ class PermissionServiceTest(
     companion object {
         const val email = "userEmail"
         const val accessTag = "TAG_NAME"
-        val accessType = AccessType.READ
+        val accessType = READ
         val dbUser = mockk<DbUser>()
         val dbAccessTag = mockk<DbAccessTag>()
         private val dbAccessPermissionSlot = slot<DbAccessPermission>()

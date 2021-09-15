@@ -55,8 +55,8 @@ class ExporterServiceTest(
             )
         }
 
-        assertThat(output.exists()).isTrue()
-        assertThat(Paths.get("${tempFolder.root.path}/publicOnlyStudies_temp.json").toFile().exists()).isFalse()
+        assertThat(output.exists()).isTrue
+        assertThat(Paths.get("${tempFolder.root.path}/publicOnlyStudies_temp.json").toFile().exists()).isFalse
         assertThat(output.readText()).isEqualToIgnoringWhitespace(expectedJson.toString())
     }
 

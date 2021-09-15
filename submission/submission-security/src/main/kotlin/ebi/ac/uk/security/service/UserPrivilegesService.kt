@@ -54,6 +54,8 @@ internal class UserPrivilegesService(
 
     private fun isSuperUser(email: String) = getUser(email).superuser
     private fun isAuthor(author: String?, email: String) = author == email
+
     private fun getUser(email: String) = userRepository.findByEmail(email) ?: throw UserNotFoundByEmailException(email)
+
     private fun getOwner(accNo: String) = submissionQueryService.findLatestBasicByAccNo(accNo)?.owner
 }

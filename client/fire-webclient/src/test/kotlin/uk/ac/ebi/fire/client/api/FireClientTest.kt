@@ -39,11 +39,12 @@ class FireClientTest(
             template.postForObject(FIRE_OBJECTS_URL, capture(httpEntitySlot), FireFile::class.java)
         } returns fireFile
 
-        testInstance.save(file, "the-md5")
+        testInstance.save(file, "the-md5", "relPath")
 
         val httpEntity = httpEntitySlot.captured
         assertThat(httpEntity.headers[FIRE_MD5_HEADER]!!.first()).isEqualTo("the-md5")
         assertThat(httpEntity.headers[FIRE_SIZE_HEADER]!!.first()).isEqualTo(file.size().toString())
+        assertThat(httpEntity.headers[SUBMISSION_RELPATH_HEADER]!!.first()).isEqualTo("relPath")
         assertThat(httpEntity.body!![FIRE_FILE_PARAM]!!.first()).isEqualTo(FileSystemResource(file))
         verify(exactly = 1) { template.postForObject(FIRE_OBJECTS_URL, capture(httpEntitySlot), FireFile::class.java) }
     }
@@ -84,6 +85,23 @@ class FireClientTest(
         assertThat(downloadedFile.absolutePath).isEqualTo("${tmpFolder.root.absolutePath}/file1.txt")
         verify(exactly = 1) {
             template.getForObject("$FIRE_OBJECTS_URL/blob/path/S-BSST1/file1.txt", ByteArray::class.java)
+        }
+    }
+
+    @Test
+    fun `download by fireId`() {
+        val file = tmpFolder.createFile("test.txt", "test content")
+
+        every {
+            template.getForObject("$FIRE_OBJECTS_URL/blob/fireOId", ByteArray::class.java)
+        } returns file.readBytes()
+
+        val downloadedFile = testInstance.downloadByFireId("fireOId", "file1.txt")
+
+        assertThat(downloadedFile.readText()).isEqualTo("test content")
+        assertThat(downloadedFile.absolutePath).isEqualTo("${tmpFolder.root.absolutePath}/file1.txt")
+        verify(exactly = 1) {
+            template.getForObject("$FIRE_OBJECTS_URL/blob/fireOId", ByteArray::class.java)
         }
     }
 

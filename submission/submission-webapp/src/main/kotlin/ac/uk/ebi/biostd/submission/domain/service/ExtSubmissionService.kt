@@ -1,10 +1,10 @@
 package ac.uk.ebi.biostd.submission.domain.service
 
+import ac.uk.ebi.biostd.persistence.common.exception.CollectionNotFoundException
 import ac.uk.ebi.biostd.persistence.common.request.SaveSubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestService
-import ac.uk.ebi.biostd.persistence.common.exception.CollectionNotFoundException
 import ac.uk.ebi.biostd.persistence.exception.UserNotFoundException
 import ac.uk.ebi.biostd.submission.web.model.ExtPageRequest
 import ebi.ac.uk.extended.model.ExtFileTable
@@ -23,6 +23,7 @@ import java.time.OffsetDateTime
 
 private val logger = KotlinLogging.logger {}
 
+@Suppress("TooManyFunctions")
 class ExtSubmissionService(
     private val requestService: SubmissionRequestService,
     private val submissionRepository: SubmissionQueryService,
@@ -31,6 +32,8 @@ class ExtSubmissionService(
     private val extSerializationService: ExtSerializationService
 ) {
     fun getExtendedSubmission(accNo: String): ExtSubmission = submissionRepository.getExtByAccNo(accNo)
+
+    fun findExtendedSubmission(accNo: String): ExtSubmission? = submissionRepository.findExtByAccNo(accNo)
 
     fun getReferencedFiles(
         accNo: String,

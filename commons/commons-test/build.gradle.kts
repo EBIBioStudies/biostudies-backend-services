@@ -3,12 +3,14 @@ import Dependencies.CommonsIO
 import Dependencies.KotlinReflect
 import Dependencies.KotlinStdLib
 import Dependencies.SpringWeb
+import Projects.CommonsBio
+import Projects.CommonsModelExtended
 import TestDependencies.AssertJ
 import TestDependencies.JunitExtensions
 
 dependencies {
-    api(project(":commons:commons-bio"))
-    api(project(":commons:commons-model-extended"))
+    api(project(CommonsBio))
+    api(project(CommonsModelExtended))
 
     implementation(Arrow)
     implementation(AssertJ)

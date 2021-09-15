@@ -1,109 +1,72 @@
 package ac.uk.ebi.biostd.persistence.nfs
 
+import ac.uk.ebi.biostd.persistence.filesystem.nfs.NfsFileProcessingConfig
 import ac.uk.ebi.biostd.persistence.filesystem.nfs.nfsCopy
 import ac.uk.ebi.biostd.persistence.filesystem.nfs.nfsMove
-import ac.uk.ebi.biostd.persistence.filesystem.nfs.NfsFileProcessingConfig
 import ebi.ac.uk.extended.model.FileMode.COPY
-import ebi.ac.uk.extended.model.FileMode.MOVE
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.io.RWXR_XR_X
 import ebi.ac.uk.io.RW_R__R__
-import ebi.ac.uk.io.ext.createDirectory
-import ebi.ac.uk.io.ext.createNewFile
 import ebi.ac.uk.test.clean
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.Nested
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import java.io.File
 
 @ExtendWith(TemporaryFolderExtension::class)
 class NfsFileProcessingConfigTest(private val tempFolder: TemporaryFolder) {
+    private lateinit var file: File
+    private lateinit var subFolder: File
+    private lateinit var targetFolder: File
+    private lateinit var extFile: NfsFile
+
     @AfterEach
     fun afterEach() = tempFolder.clean()
 
-    @Nested
-    inner class Copy {
-        @Test
-        fun `copy already existing`() {
-            val subFolder = tempFolder.createDirectory("S-BSST1").createDirectory("Files")
-            val subFile = subFolder.createNewFile("test.txt")
-            val currentFolder = tempFolder.createDirectory("S-BSST1_temp")
-            currentFolder.createNewFile("test.txt")
-
-            testCopy(subFile, subFolder, currentFolder)
-        }
-
-        @Test
-        fun `replace existing`() {
-            val subFolder = tempFolder.createDirectory("S-BSST1").createDirectory("Files")
-            val subFile = subFolder.createNewFile("test.txt")
-            val currentFolder = tempFolder.createDirectory("S-BSST1_temp")
-            currentFolder.createNewFile("test.txt", "test-content")
-
-            testCopy(subFile, subFolder, currentFolder)
-        }
-
-        @Test
-        fun `copy new submission file`() {
-            val subFolder = tempFolder.createDirectory("S-BSST1").createDirectory("Files")
-            val userFolder = tempFolder.createDirectory("user-folder")
-            val subFile = userFolder.createNewFile("test.txt")
-            val currentFolder = tempFolder.createDirectory("S-BSST1_temp")
-
-            testCopy(subFile, subFolder, currentFolder)
-        }
-
-        private fun testCopy(subFile: File, subFolder: File, currentFolder: File) {
-            val extFile = NfsFile("test.txt", subFile)
-            val config = NfsFileProcessingConfig(COPY, subFolder, currentFolder, RW_R__R__, RWXR_XR_X)
-            val result = config.nfsCopy(extFile)
-
-            assertThat(subFolder.resolve("test.txt").exists()).isTrue()
-            assertThat(result.file.path).isEqualTo("${tempFolder.root}/S-BSST1/Files/test.txt")
-        }
+    @BeforeEach
+    fun beforeEach() {
+        file = tempFolder.createFile("test.txt")
+        subFolder = tempFolder.createDirectory("subFolder")
+        targetFolder = tempFolder.createDirectory("target")
+        extFile = NfsFile("test.txt", file)
     }
 
-    @Nested
-    inner class Move {
-        @Test
-        fun `move from temp folder`() {
-            val subFolder = tempFolder.createDirectory("S-BSST1").createDirectory("Files")
-            val currentFolder = tempFolder.createDirectory("S-BSST1_temp")
-            currentFolder.createNewFile("test.txt")
+    @Test
+    fun copy() {
+        val config = NfsFileProcessingConfig(COPY, subFolder, targetFolder, RW_R__R__, RWXR_XR_X)
 
-            testMove(tempFolder.root.resolve("S-BSST1/Files/test.txt"), subFolder, currentFolder)
-        }
+        val result = config.nfsCopy(extFile)
 
-        @Test
-        fun `move from external folder`() {
-            val subFolder = tempFolder.createDirectory("S-BSST1").createDirectory("Files")
-            val currentFolder = tempFolder.createDirectory("S-BSST1_temp")
-            val externalFolder = tempFolder.createDirectory("user-folder")
-            val testFile = externalFolder.createNewFile("test.txt")
+        assertThat(targetFolder.resolve("test.txt")).exists()
+        assertThat(result.file.path).isEqualTo("${subFolder.absolutePath}/test.txt")
+        assertThat(extFile.file).exists()
+    }
 
-            testMove(testFile, subFolder, currentFolder)
-        }
+    @Test
+    fun `copy when exists`() {
+        file.copyTo(subFolder.resolve(file.name))
+        val config = NfsFileProcessingConfig(COPY, subFolder, targetFolder, RW_R__R__, RWXR_XR_X)
 
-        @Test
-        fun `move when already existing`() {
-            val subFolder = tempFolder.createDirectory("S-BSST1").createDirectory("Files")
-            val currentFolder = tempFolder.createDirectory("S-BSST1_temp")
-            val testFile = subFolder.createNewFile("test.txt")
+        val result = config.nfsCopy(extFile)
 
-            testMove(testFile, subFolder, currentFolder)
-        }
+        assertThat(targetFolder.resolve("test.txt")).exists()
+        assertThat(result.file.path).isEqualTo("${subFolder.absolutePath}/test.txt")
+        assertThat(extFile.file).exists()
+        assertThat(subFolder.resolve(file.name)).doesNotExist()
+    }
 
-        private fun testMove(testFile: File, subFolder: File, currentFolder: File) {
-            val extFile = NfsFile("test.txt", testFile)
-            val config = NfsFileProcessingConfig(MOVE, subFolder, currentFolder, RW_R__R__, RWXR_XR_X)
-            val result = config.nfsMove(extFile)
+    @Test
+    fun move() {
+        val config = NfsFileProcessingConfig(COPY, subFolder, targetFolder, RW_R__R__, RWXR_XR_X)
 
-            assertThat(subFolder.resolve("test.txt")).exists()
-            assertThat(result.file.path).isEqualTo("${tempFolder.root}/S-BSST1/Files/test.txt")
-        }
+        val result = config.nfsMove(extFile)
+
+        assertThat(targetFolder.resolve("test.txt")).exists()
+        assertThat(result.file.path).isEqualTo("${subFolder.absolutePath}/test.txt")
+        assertThat(extFile.file).doesNotExist()
     }
 }

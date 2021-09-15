@@ -8,6 +8,18 @@ import Dependencies.MySql
 import Dependencies.RxJava2
 import Dependencies.SpringfoxSwagger
 import Dependencies.SpringfoxSwaggerUI
+import Projects.ClientBioWebClient
+import Projects.ClientFireWebClient
+import Projects.CommonsHttp
+import Projects.CommonsModelExtendedSerialization
+import Projects.CommonsSerialization
+import Projects.CommonsTest
+import Projects.CommonsUtil
+import Projects.SubmissionNotification
+import Projects.SubmissionPersistenceMongo
+import Projects.SubmissionPersistenceSql
+import Projects.SubmissionSecurity
+import Projects.SubmissionSubmitter
 import SpringBootDependencies.SpringBootAmqp
 import SpringBootDependencies.SpringBootConfigurationProcessor
 import SpringBootDependencies.SpringBootStartedAdminClient
@@ -26,6 +38,7 @@ import TestDependencies.TestContainer
 import TestDependencies.TestContainerJUnit
 import TestDependencies.TestContainerMongoDb
 import TestDependencies.TestContainerMysql
+import TestDependencies.Wiremock
 import TestDependencies.XmlUnitCore
 import TestDependencies.XmlUnitMatchers
 import TestDependencies.rabitMqMock
@@ -47,17 +60,17 @@ allOpen {
 }
 
 dependencies {
-    api(project(":client:fire-webclient"))
-    api(project(":submission:persistence-sql"))
-    api(project(":submission:persistence-mongo"))
-    api(project(":submission:submitter"))
-    api(project(":submission:submission-security"))
-    api(project(":submission:notifications"))
-    api(project(":commons:commons-model-extended-serialization"))
-    api(project(":commons:commons-serialization"))
-    api(project(":commons:commons-util"))
-    api(project(":commons:commons-test"))
-    api(project(":commons:commons-http"))
+    api(project(ClientFireWebClient))
+    api(project(SubmissionPersistenceSql))
+    api(project(SubmissionPersistenceMongo))
+    api(project(SubmissionSubmitter))
+    api(project(SubmissionSecurity))
+    api(project(SubmissionNotification))
+    api(project(CommonsModelExtendedSerialization))
+    api(project(CommonsSerialization))
+    api(project(CommonsUtil))
+    api(project(CommonsTest))
+    api(project(CommonsHttp))
 
     annotationProcessor(SpringBootConfigurationProcessor)
 
@@ -83,11 +96,12 @@ dependencies {
     implementation(SpringfoxSwaggerUI)
     implementation(KotlinLogging)
 
-    testImplementation(project(":client:bio-webclient"))
+    testImplementation(project(ClientBioWebClient))
     BaseTestCompileDependencies.forEach { testImplementation(it) }
     BaseTestRuntimeDependencies.forEach { testImplementation(it) }
     testImplementation(SpringBootStarterTest)
     testImplementation(rabitMqMock)
+    testImplementation(Wiremock)
 
     testImplementation(KotlinXmlBuilder)
     testImplementation(JsonPathAssert)

@@ -9,9 +9,9 @@ class StringExtTest {
 
     @Test
     fun isNotEmptyOrNull() {
-        assertThat("".isNotBlank()).isFalse()
-        assertThat(null.isNotBlank()).isFalse()
-        assertThat("something".isNotBlank()).isTrue()
+        assertThat("".isNotBlank()).isFalse
+        assertThat(null.isNotBlank()).isFalse
+        assertThat("something".isNotBlank()).isTrue
     }
 
     @Test

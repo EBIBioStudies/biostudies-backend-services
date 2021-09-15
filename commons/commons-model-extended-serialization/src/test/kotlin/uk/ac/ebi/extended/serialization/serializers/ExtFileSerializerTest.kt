@@ -3,7 +3,11 @@ package uk.ac.ebi.extended.serialization.serializers
 import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.extended.model.ExtAttribute
+import ebi.ac.uk.extended.model.FireDirectory
+import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
+import ebi.ac.uk.io.ext.md5
+import ebi.ac.uk.io.ext.size
 import ebi.ac.uk.test.createFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
@@ -18,7 +22,7 @@ class ExtFileSerializerTest(private val tempFolder: TemporaryFolder) {
     private val testInstance = ExtSerializationService.mapper
 
     @Test
-    fun serialize() {
+    fun `serialize nfs file`() {
         val file = tempFolder.createFile("test-file.txt", "content")
         val extFile = NfsFile(
             file = file,
@@ -39,6 +43,59 @@ class ExtFileSerializerTest(private val tempFolder: TemporaryFolder) {
             "extType" to "nfsFile"
             "type" to "file"
             "size" to 7
+        }.toString()
+
+        assertThat(testInstance.serialize(extFile)).isEqualToIgnoringWhitespace(expectedJson)
+    }
+
+    @Test
+    fun `serialize fire file`() {
+        val file = tempFolder.createFile("test-file.txt", "content")
+        val extFile = FireFile(
+            fileName = file.name,
+            fireId = "fireId",
+            md5 = file.md5(),
+            size = file.size(),
+            attributes = listOf(ExtAttribute("Type", "Data", false))
+        )
+        val expectedJson = jsonObj {
+            "fileName" to file.name
+            "fireId" to "fireId"
+            "attributes" to jsonArray(
+                jsonObj {
+                    "name" to "Type"
+                    "value" to "Data"
+                    "reference" to false
+                }
+            )
+            "extType" to "fireFile"
+            "type" to "file"
+            "size" to file.size()
+        }.toString()
+
+        assertThat(testInstance.serialize(extFile)).isEqualToIgnoringWhitespace(expectedJson)
+    }
+
+    @Test
+    fun `serialize fire directory`() {
+        val extFile = FireDirectory(
+            fileName = "fire-directory",
+            md5 = "md5",
+            size = 12,
+            attributes = listOf(ExtAttribute("Type", "Data", false))
+        )
+        val expectedJson = jsonObj {
+            "fileName" to "fire-directory"
+            "attributes" to jsonArray(
+                jsonObj {
+                    "name" to "Type"
+                    "value" to "Data"
+                    "reference" to false
+                }
+            )
+            "extType" to "fireDirectory"
+            "type" to "directory"
+            "size" to 12
         }.toString()
 
         assertThat(testInstance.serialize(extFile)).isEqualToIgnoringWhitespace(expectedJson)

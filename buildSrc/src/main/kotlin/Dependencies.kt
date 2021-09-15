@@ -207,9 +207,12 @@ object SpringBootDependencies {
 }
 
 object Projects {
+    const val JsonLibrary = ":commons:commons-json-util"
+    const val TsvLibrary = ":commons:commons-tsv-util"
     const val BioWebClient = ":client:bio-webclient"
     const val CommonsUtil = ":commons:commons-util"
     const val CommonsBio = ":commons:commons-bio"
+    const val CommonsHttp = ":commons:commons-http"
     const val CommonsSerialization = ":commons:commons-serialization"
     const val CommonsModelExtended = ":commons:commons-model-extended"
     const val CommonsModelExtendedMapping = ":commons:commons-model-extended-mapping"
@@ -220,4 +223,14 @@ object Projects {
     const val SubmissionConfig = ":submission:submission-config"
     const val SubmissionPersistenceCommonApi = ":submission:persistence-common-api"
     const val SubmissionPersistenceFilesystem = ":submission:persistence-filesystem"
+    const val SubmissionPersistenceSql = ":submission:persistence-sql"
+    const val SubmissionPersistenceMongo = ":submission:persistence-mongo"
+    const val SubmissionNotification = ":submission:notifications"
+    const val SubmissionSecurity = ":submission:submission-security"
+    const val SubmissionSubmitter = ":submission:submitter"
+    const val ClientBioWebClient = ":client:bio-webclient"
+    const val ClientFireWebClient = ":client:fire-webclient"
+    const val SchedulerTaskProperties = ":scheduler:task-properties"
+    const val SchedulerClusterClient = ":scheduler:cluster-client"
+    const val EventsPublisher = ":events:events-publisher"
 }

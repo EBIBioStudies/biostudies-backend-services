@@ -1,8 +1,9 @@
 package ac.uk.ebi.biostd.persistence.doc.mapping.to
 
-import ac.uk.ebi.biostd.persistence.doc.test.FileTestHelper.docFile
 import ac.uk.ebi.biostd.persistence.doc.test.FileTestHelper.docFileList
 import ac.uk.ebi.biostd.persistence.doc.test.FileTestHelper.docFileRef
+import ac.uk.ebi.biostd.persistence.doc.test.FileTestHelper.fireDocFile
+import ac.uk.ebi.biostd.persistence.doc.test.FileTestHelper.nfsDocFile
 import ac.uk.ebi.biostd.persistence.doc.test.SectionTestHelper.assertExtSection
 import ac.uk.ebi.biostd.persistence.doc.test.SectionTestHelper.docSection
 import ac.uk.ebi.biostd.persistence.doc.test.TEST_REL_PATH
@@ -15,9 +16,10 @@ import org.junit.jupiter.api.extension.ExtendWith
 @ExtendWith(TemporaryFolderExtension::class)
 class ToExtSectionTest(temporaryFolder: TemporaryFolder) {
     private val testFile = temporaryFolder.createFile(TEST_REL_PATH)
-    private val testDocFile = docFile.copy(fullPath = testFile.absolutePath)
+    private val testNfsDocFile = nfsDocFile.copy(fullPath = testFile.absolutePath)
+    private val testFireDocFile = fireDocFile
     private val testDocSection = docSection.copy(
-        files = listOf(left(testDocFile)),
+        files = listOf(left(testNfsDocFile), left(testFireDocFile)),
         fileList = docFileList.copy(files = listOf(docFileRef))
     )
 

@@ -118,7 +118,10 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
             }.toString()
 
             tempFolder.createDirectory("RootPathFolder")
-            webClient.uploadFiles(listOf(tempFolder.createFile("RootPathFolder/DataFile5.txt")), "RootPathFolder")
+            webClient.uploadFiles(
+                listOf(tempFolder.createFile("RootPathFolder/DataFile5.txt", "An example content")),
+                "RootPathFolder"
+            )
 
             assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
             assertThat(submissionRepository.getSimpleByAccNo("S-12364")).isEqualTo(
@@ -317,7 +320,7 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
             val savedSubmission = submissionRepository.getExtByAccNo("S-RLSD123")
             assertThat(savedSubmission.accNo).isEqualTo("S-RLSD123")
             assertThat(savedSubmission.title).isEqualTo("Test Public Submission")
-            assertThat(savedSubmission.released).isTrue()
+            assertThat(savedSubmission.released).isTrue
         }
 
         @Test

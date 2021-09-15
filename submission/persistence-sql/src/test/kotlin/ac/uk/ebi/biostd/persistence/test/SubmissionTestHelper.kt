@@ -93,7 +93,7 @@ internal fun assertSubmission(
     assertThat(submission.creationTime).isEqualTo(creationTime)
     assertThat(submission.modificationTime).isEqualTo(modificationTime)
     assertThat(submission.releaseTime).isEqualTo(releaseTime)
-    assertThat(submission.released).isTrue()
+    assertThat(submission.released).isTrue
 
     assertThat(submission.attributes).hasSize(1)
     assertDbAttribute(submission.attributes.first(), extAttribute)

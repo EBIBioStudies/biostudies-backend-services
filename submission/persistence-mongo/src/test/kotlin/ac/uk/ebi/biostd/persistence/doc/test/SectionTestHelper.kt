@@ -9,7 +9,7 @@ import ac.uk.ebi.biostd.persistence.doc.test.AttributeTestHelper.basicDocAttribu
 import ac.uk.ebi.biostd.persistence.doc.test.AttributeTestHelper.fullDocAttribute
 import ac.uk.ebi.biostd.persistence.doc.test.FileTestHelper.assertExtFile
 import ac.uk.ebi.biostd.persistence.doc.test.FileTestHelper.assertExtFileList
-import ac.uk.ebi.biostd.persistence.doc.test.FileTestHelper.docFile
+import ac.uk.ebi.biostd.persistence.doc.test.FileTestHelper.nfsDocFile
 import ac.uk.ebi.biostd.persistence.doc.test.FileTestHelper.docFileList
 import ac.uk.ebi.biostd.persistence.doc.test.LinkTestHelper.assertExtLink
 import ac.uk.ebi.biostd.persistence.doc.test.LinkTestHelper.docLink
@@ -49,7 +49,7 @@ internal object SectionTestHelper {
         fileList = docFileList,
         attributes = listOf(basicDocAttribute),
         sections = listOf(left(docSubSection), right(DocSectionTable(listOf(docTableSection)))),
-        files = listOf(left(docFile)),
+        files = listOf(left(nfsDocFile)),
         links = listOf(left(docLink))
     )
 
@@ -85,8 +85,9 @@ internal object SectionTestHelper {
     }
 
     private fun assertExtSectionFiles(extSection: ExtSection, file: File) {
-        assertThat(extSection.files).hasSize(1)
+        assertThat(extSection.files).hasSize(2)
         extSection.files.first().ifLeft { assertExtFile(it, file) }
+        extSection.files.second().ifLeft { assertExtFile(it, file) }
     }
 
     private fun assertExtSectionLinks(extSection: ExtSection) {

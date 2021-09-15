@@ -181,7 +181,7 @@ internal class SubmissionToCollectionsTest(private val tempFolder: TemporaryFold
             }.toString()
 
             assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
-            assertThat(testCollectionValidator.validated).isTrue()
+            assertThat(testCollectionValidator.validated).isTrue
             assertThat(submissionRepository.getSimpleByAccNo("S-VLD0")).isEqualTo(
                 submission("S-VLD0") {
                     title = "A Validated Submission"

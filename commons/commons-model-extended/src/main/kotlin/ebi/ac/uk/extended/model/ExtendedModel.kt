@@ -21,20 +21,30 @@ data class ExtLink(
     val attributes: List<ExtAttribute> = listOf()
 )
 
-sealed class ExtFile
+sealed class ExtFile {
+    abstract val fileName: String
+    abstract val attributes: List<ExtAttribute>
+}
 
 data class FireFile(
-    val fileName: String,
+    override val fileName: String,
     val fireId: String,
     val md5: String,
     val size: Long,
-    val attributes: List<ExtAttribute>
+    override val attributes: List<ExtAttribute>
+) : ExtFile()
+
+data class FireDirectory(
+    override val fileName: String,
+    val md5: String,
+    val size: Long,
+    override val attributes: List<ExtAttribute>
 ) : ExtFile()
 
 data class NfsFile(
-    val fileName: String,
+    override val fileName: String,
     val file: File,
-    val attributes: List<ExtAttribute> = listOf()
+    override val attributes: List<ExtAttribute> = listOf()
 ) : ExtFile() {
     // TODO Once SQL is removed, this field should be removed and md5 should be set as a constructor property
     private var _md5: String = ""
@@ -44,7 +54,6 @@ data class NfsFile(
             if (_md5.isBlank()) _md5 = file.md5()
             return _md5
         }
-
         set(value) {
             _md5 = value
         }
