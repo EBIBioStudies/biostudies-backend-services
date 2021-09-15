@@ -112,8 +112,15 @@ class ToDocSubmissionTest(tempFolder: TemporaryFolder) {
 
     private val newSubSection =
         subSection.copy(fileList = subSection.fileList!!.copy(files = listOf(newSubSectionFileListFile)))
+
+    private val nfsFileFile = tempFolder.createFile(NFS_FILENAME)
+    private val nfsFile = NfsFile(NFS_FILENAME, nfsFileFile)
+
     private val newRootSection = rootSection.copy(
-        fileList = rootSection.fileList!!.copy(files = listOf(newRootSectionFileListFile)),
+        fileList = rootSection.fileList!!.copy(
+            files = listOf(newRootSectionFileListFile),
+            pageTabFiles = listOf(fireFile, fireDirectory, nfsFile)
+        ),
         sections = listOf(
             Either.left(newSubSection),
             Either.right(ExtSectionTable(sections = listOf(subSectionTable)))
@@ -123,8 +130,6 @@ class ToDocSubmissionTest(tempFolder: TemporaryFolder) {
             Either.right(ExtFileTable(files = listOf(newRootSectionTableFile)))
         )
     )
-    private val nfsFileFile = tempFolder.createFile(NFS_FILENAME)
-    private val nfsFile = NfsFile(NFS_FILENAME, nfsFileFile)
 
     private val submission = fullExtSubmission.copy(
         section = newRootSection,
@@ -163,14 +168,18 @@ class ToDocSubmissionTest(tempFolder: TemporaryFolder) {
         assertThat(docSubmission.stats).hasSize(1)
         assertStat(docSubmission.stats.first())
 
-        assertThat(docSubmission.pageTabFiles).hasSize(3)
-        assertThat(docSubmission.pageTabFiles.first()).isEqualTo(
+        assertPageTabFiles(docSubmission.pageTabFiles)
+    }
+
+    private fun assertPageTabFiles(pageTabFiles: List<DocFile>) {
+        assertThat(pageTabFiles).hasSize(3)
+        assertThat(pageTabFiles.first()).isEqualTo(
             FireDocFile(fireFile.fileName, fireFile.fireId, listOf(), fireFile.md5, fireFile.size)
         )
-        assertThat(docSubmission.pageTabFiles.second()).isEqualTo(
+        assertThat(pageTabFiles.second()).isEqualTo(
             FireDocDirectory(fireDirectory.fileName, listOf(), fireDirectory.md5, fireDirectory.size)
         )
-        assertThat(docSubmission.pageTabFiles.third()).isEqualTo(
+        assertThat(pageTabFiles.third()).isEqualTo(
             NfsDocFile(nfsFile.fileName, nfsFileFile.absolutePath, "file", listOf(), nfsFileFile.md5(), nfsFile.size)
         )
     }
@@ -215,6 +224,7 @@ class ToDocSubmissionTest(tempFolder: TemporaryFolder) {
         assertInnerSections(docSection.sections)
         assertFiles(docSection.files)
         assertLinks(docSection.links)
+        assertPageTabFiles(docSection.fileList!!.pageTabFiles)
     }
 
     private fun assertRootSectionAttribute(docAttribute: DocAttribute) {
