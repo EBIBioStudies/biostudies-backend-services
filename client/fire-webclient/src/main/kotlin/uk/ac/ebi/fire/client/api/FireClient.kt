@@ -65,7 +65,9 @@ internal class FireClient(
 
     override fun findAllInPath(path: String): List<FireFile> {
         runCatching {
-            return template.getForObject("$FIRE_OBJECTS_URL/entries/path/$path")
+            return template
+                .getForObject<Array<FireFile>>("$FIRE_OBJECTS_URL/entries/path/$path")
+                .toList()
         }
 
         return emptyList()
