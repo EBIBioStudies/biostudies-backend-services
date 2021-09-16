@@ -43,7 +43,7 @@ class SecurityModuleConfig(
     fun securityFilter(): ISecurityFilter = securityFilter
     fun userPrivilegesService(): IUserPrivilegesService = userPrivilegesService
 
-    private val groupService by lazy { GroupService(groupRepository, userRepo) }
+    private val groupService by lazy { GroupService(groupRepository, userRepo, props.filesDirPath) }
     private val securityQueryService by lazy { SecurityQueryService(securityUtil, profileService, userRepo) }
     private val securityService by lazy {
         SecurityService(userRepo, securityUtil, props, profileService, captchaVerifier, eventsPublisherService)

@@ -18,7 +18,7 @@ import ac.uk.ebi.biostd.persistence.model.SecurityToken
 import ac.uk.ebi.biostd.persistence.model.Sequence
 import ac.uk.ebi.biostd.persistence.model.USER_DATA_GRAPH
 import ac.uk.ebi.biostd.persistence.model.UserDataId
-import ac.uk.ebi.biostd.persistence.model.UserGroup
+import ac.uk.ebi.biostd.persistence.model.DbUserGroup
 import com.cosium.spring.data.jpa.entity.graph.repository.EntityGraphJpaRepository
 import com.cosium.spring.data.jpa.entity.graph.repository.EntityGraphJpaSpecificationExecutor
 import ebi.ac.uk.model.constants.ProcessingStatus
@@ -44,7 +44,7 @@ interface SubmissionDataRepository :
     EntityGraphJpaRepository<DbSubmission, Long>, EntityGraphJpaSpecificationExecutor<DbSubmission> {
 
     @Modifying
-    @Query("update DbSubmission s set s.version = -s.version, s.modificationTime = :now where accNo in :accNumbers")
+    @Query("update DbSubmission set version = -abs(version), modificationTime = :now where accNo in :accNumbers")
     fun deleteSubmissions(@Param("accNumbers") accNumbers: List<String>, @Param("now") now: OffsetDateTime)
 
     @Query("select s from DbSubmission s inner join s.owner where s.accNo = :accNo order by s.id desc")
@@ -142,8 +142,9 @@ interface UserDataRepository : JpaRepository<DbUser, Long> {
 
 interface TokenDataRepository : JpaRepository<SecurityToken, String>
 
-interface UserGroupDataRepository : JpaRepository<UserGroup, Long> {
-    fun getByName(groupName: String): UserGroup
+interface UserGroupDataRepository : JpaRepository<DbUserGroup, Long> {
+    fun getByName(groupName: String): DbUserGroup
+    fun findByName(groupName: String): DbUserGroup?
 }
 
 interface AccessPermissionRepository : JpaRepository<DbAccessPermission, Long> {
