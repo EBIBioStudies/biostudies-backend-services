@@ -9,6 +9,15 @@ tasks.register("setUpRabbitMQ") {
     finalizedBy("executeScript")
 }
 
+tasks.register("setUpFireMock") {
+    project.ext["args"] = ""
+    project.ext["linuxScript"] = "./SetUpFireMock.sh"
+    project.ext["windowsScript"] = ""
+    project.ext["workingDir"] = "./src/main/resources/setup/firemock"
+
+    finalizedBy("executeScript")
+}
+
 tasks.register("setUpCleanDatabase") {
     project.ext["args"] = "clean"
 
