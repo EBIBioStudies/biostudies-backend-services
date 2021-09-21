@@ -20,9 +20,9 @@ import ac.uk.ebi.biostd.submission.ext.getSimpleByAccNo
 import ebi.ac.uk.api.dto.UserRegistration
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.file
-import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.section
 import ebi.ac.uk.dsl.submission
+import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.model.extensions.rootPath
 import ebi.ac.uk.model.extensions.title
@@ -96,9 +96,11 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
                 line("Title", "Empty AccNo")
             }.toString()
 
-            assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
-            assertThat(submissionRepository.getSimpleByAccNo("S-BSST0")).isEqualTo(
-                submission("S-BSST0") {
+            val response = webClient.submitSingle(submission, TSV)
+
+            assertThat(response).isSuccessful()
+            assertThat(submissionRepository.getSimpleByAccNo(response.body.accNo)).isEqualTo(
+                submission(response.body.accNo) {
                     title = "Empty AccNo"
                 }
             )
@@ -381,5 +383,55 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
             }
             assertThat(exception.message!!.contains("Submission contains invalid files invalid file.txt"))
         }
+
+        @Test
+        fun `re submit error`() {
+            val fileListContent = tsv {
+                line("Files", "Type")
+                line("test2.txt", "referenced")
+                line("a/b/file1.txt", "inner")
+                line("a/c/file2.pdf", "inner")
+                line("a/b", "folder")
+            }.toString()
+            webClient.uploadFiles(
+                listOf(
+                    tempFolder.createFile("file-list.tsv", fileListContent),
+                    tempFolder.createFile("other with spaces.doc"),
+                    tempFolder.createFile("test.txt"),
+                    tempFolder.createFile("test2.txt")
+                )
+            )
+            webClient.uploadFiles(listOf(tempFolder.createFile("file1.txt")), "a/b")
+            webClient.uploadFiles(listOf(tempFolder.createFile("file2.pdf")), "a/c")
+
+            val response = webClient.submitSingle(submission(), TSV)
+
+            assertThat(response).isSuccessful()
+            assertThat(webClient.submitSingle(submission(response.body.accNo), TSV)).isSuccessful()
+        }
+
+        private fun submission(accNo: String? = null) = tsv {
+            if (accNo == null) line("Submission") else line("Submission", accNo)
+            line("Title", "Simple Submission With Files 2")
+            line("ReleaseDate", "2020-01-25")
+            line()
+
+            line("Study")
+            line("Type", "Experiment")
+            line("File List", "file-list.tsv")
+            line()
+
+            line("File", "other with spaces.doc")
+            line("Type", "test")
+            line()
+
+            line("Experiment", "Exp1")
+            line("Type", "Subsection")
+            line()
+
+            line("File", "test.txt")
+            line("Type", "Attached")
+            line()
+        }.toString()
     }
 }

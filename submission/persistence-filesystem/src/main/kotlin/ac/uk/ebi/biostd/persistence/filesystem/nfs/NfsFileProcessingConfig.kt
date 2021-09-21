@@ -20,7 +20,8 @@ fun NfsFileProcessingConfig.nfsCopy(extFile: NfsFile): NfsFile {
     val subFile = subFolder.resolve(extFile.fileName)
 
     when {
-        subFile.exists() && subFile.md5() == extFile.md5 -> moveFile(subFile, target, permissions)
+        target.exists().not() && subFile.exists() && subFile.md5() == extFile.md5 ->
+            moveFile(subFile, target, permissions)
         target.exists().not() -> copyOrReplaceFile(extFile.file, target, permissions)
     }
 
