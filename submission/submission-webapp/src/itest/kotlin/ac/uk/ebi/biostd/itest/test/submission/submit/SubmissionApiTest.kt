@@ -282,16 +282,18 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
         fun `resubmit existing submission`() {
             val fileListContent = tsv {
                 line("Files", "Type")
-                line("test2.txt", "referenced")
-                line("a/b/file1.txt", "inner")
-                line("a/c/file2.pdf", "inner")
-                line("a/b", "folder")
+                line("a/fileFileList.pdf", "inner")
+                line("a", "folder")
             }.toString()
-            uploadFileWithContent("file-list.tsv", fileListContent)
-            uploadFileWithContent("test.txt", "content")
-            uploadFiles("other with spaces.doc", "test2.txt")
-            uploadFileIn("file1.txt", "a/b")
-            uploadFileIn("file2.pdf", "a/c")
+
+            webClient.uploadFiles(
+                listOf(
+                    tempFolder.createFile("fileSubSection.txt", "content"),
+                    tempFolder.createFile("file-list.tsv", fileListContent),
+                    tempFolder.createFile("file section.doc"),
+                )
+            )
+            webClient.uploadFiles(listOf(tempFolder.createFile("fileFileList.pdf")), "a")
 
             val response = webClient.submitSingle(submission(), TSV)
             val accNo = response.body.accNo
@@ -299,25 +301,21 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
             assertThat(response).isSuccessful()
             val submitted = submissionRepository.getExtByAccNo(accNo)
             assertThat(submitted.version).isEqualTo(1)
-            assertThat(File("$submissionPath/${submitted.relPath}/Files/other with spaces.doc")).exists()
-            assertThat(File("$submissionPath/${submitted.relPath}/Files/test.txt")).exists()
-            assertThat(File("$submissionPath/${submitted.relPath}/Files/test.txt")).hasContent("content")
-            assertThat(File("$submissionPath/${submitted.relPath}/Files/test2.txt")).exists()
-            assertThat(File("$submissionPath/${submitted.relPath}/Files/a/b/file1.txt")).exists()
-            assertThat(File("$submissionPath/${submitted.relPath}/Files/a/c/file2.pdf")).exists()
+            assertThat(File("$submissionPath/${submitted.relPath}/Files/file section.doc")).exists()
+            assertThat(File("$submissionPath/${submitted.relPath}/Files/fileSubSection.txt")).exists()
+            assertThat(File("$submissionPath/${submitted.relPath}/Files/fileSubSection.txt")).hasContent("content")
+            assertThat(File("$submissionPath/${submitted.relPath}/Files/a/fileFileList.pdf")).exists()
 
-            tempFolder.root.resolve("test.txt").delete()
-            uploadFileWithContent("test.txt", "new content")
+            val changedFile = tempFolder.root.resolve("fileSubSection.txt").apply { writeText("newContent") }
+            webClient.uploadFiles(listOf(changedFile))
 
             assertThat(webClient.submitSingle(submission(accNo), TSV)).isSuccessful()
             val resubmitted = submissionRepository.getExtByAccNo(accNo)
             assertThat(resubmitted.version).isEqualTo(2)
-            assertThat(File("$submissionPath/${resubmitted.relPath}/Files/other with spaces.doc")).exists()
-            assertThat(File("$submissionPath/${resubmitted.relPath}/Files/test.txt")).exists()
-            assertThat(File("$submissionPath/${resubmitted.relPath}/Files/test.txt")).hasContent("new content")
-            assertThat(File("$submissionPath/${resubmitted.relPath}/Files/test2.txt")).exists()
-            assertThat(File("$submissionPath/${resubmitted.relPath}/Files/a/b/file1.txt")).exists()
-            assertThat(File("$submissionPath/${resubmitted.relPath}/Files/a/c/file2.pdf")).exists()
+            assertThat(File("$submissionPath/${resubmitted.relPath}/Files/file section.doc")).exists()
+            assertThat(File("$submissionPath/${resubmitted.relPath}/Files/fileSubSection.txt")).exists()
+            assertThat(File("$submissionPath/${resubmitted.relPath}/Files/fileSubSection.txt")).hasContent("newContent")
+            assertThat(File("$submissionPath/${resubmitted.relPath}/Files/a/fileFileList.pdf")).exists()
         }
 
         @Test
@@ -405,7 +403,7 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
             line("File List", "file-list.tsv")
             line()
 
-            line("File", "other with spaces.doc")
+            line("File", "file section.doc")
             line("Type", "test")
             line()
 
@@ -413,21 +411,9 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
             line("Type", "Subsection")
             line()
 
-            line("File", "test.txt")
+            line("File", "fileSubSection.txt")
             line("Type", "Attached")
             line()
         }.toString()
-
-        private fun uploadFiles(file1: String, file2: String) {
-            webClient.uploadFiles(listOf(tempFolder.createFile(file1), tempFolder.createFile(file2)))
-        }
-
-        private fun uploadFileWithContent(fileName: String, content: String) {
-            webClient.uploadFiles(listOf(tempFolder.createFile(fileName, content)))
-        }
-
-        private fun uploadFileIn(fileName: String, path: String) {
-            webClient.uploadFiles(listOf(tempFolder.createFile(fileName)), path)
-        }
     }
 }
