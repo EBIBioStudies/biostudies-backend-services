@@ -280,34 +280,44 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
 
         @Test
         fun `resubmit existing submission`() {
-            val submission = tsv {
-                line("Submission", "S-ABC123")
-                line("Title", "Simple Submission")
-                line()
-                line("Study")
-                line()
-                line("File", "DataFile9.txt")
-                line()
+            val fileListContent = tsv {
+                line("Files", "Type")
+                line("test2.txt", "referenced")
+                line("a/b/file1.txt", "inner")
+                line("a/c/file2.pdf", "inner")
+                line("a/b", "folder")
             }.toString()
+            uploadFileWithContent("file-list.tsv", fileListContent)
+            uploadFileWithContent("test.txt", "content")
+            uploadFiles("other with spaces.doc", "test2.txt")
+            uploadFileIn("file1.txt", "a/b")
+            uploadFileIn("file2.pdf", "a/c")
 
-            val originalFile = tempFolder.createFile("DataFile9.txt", "original, content")
-            webClient.uploadFiles(listOf(originalFile))
-            assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
+            val response = webClient.submitSingle(submission(), TSV)
+            val accNo = response.body.accNo
 
-            val original = submissionRepository.getExtByAccNo("S-ABC123")
-            assertThat(original.title).isEqualTo("Simple Submission")
-            assertThat(original.version).isEqualTo(1)
-            assertThat(File("$submissionPath/${original.relPath}/Files/DataFile9.txt")).hasSameContentAs(originalFile)
+            assertThat(response).isSuccessful()
+            val submitted = submissionRepository.getExtByAccNo(accNo)
+            assertThat(submitted.version).isEqualTo(1)
+            assertThat(File("$submissionPath/${submitted.relPath}/Files/other with spaces.doc")).exists()
+            assertThat(File("$submissionPath/${submitted.relPath}/Files/test.txt")).exists()
+            assertThat(File("$submissionPath/${submitted.relPath}/Files/test.txt")).hasContent("content")
+            assertThat(File("$submissionPath/${submitted.relPath}/Files/test2.txt")).exists()
+            assertThat(File("$submissionPath/${submitted.relPath}/Files/a/b/file1.txt")).exists()
+            assertThat(File("$submissionPath/${submitted.relPath}/Files/a/c/file2.pdf")).exists()
 
-            originalFile.delete()
-            val newFile = tempFolder.createFile("DataFile9.txt", "new content")
-            webClient.uploadFiles(listOf(newFile))
+            tempFolder.root.resolve("test.txt").delete()
+            uploadFileWithContent("test.txt", "new content")
 
-            assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
-            val resubmitted = submissionRepository.getExtByAccNo("S-ABC123")
-            assertThat(resubmitted.title).isEqualTo("Simple Submission")
+            assertThat(webClient.submitSingle(submission(accNo), TSV)).isSuccessful()
+            val resubmitted = submissionRepository.getExtByAccNo(accNo)
             assertThat(resubmitted.version).isEqualTo(2)
-            assertThat(File("$submissionPath/${resubmitted.relPath}/Files/DataFile9.txt")).hasSameContentAs(newFile)
+            assertThat(File("$submissionPath/${resubmitted.relPath}/Files/other with spaces.doc")).exists()
+            assertThat(File("$submissionPath/${resubmitted.relPath}/Files/test.txt")).exists()
+            assertThat(File("$submissionPath/${resubmitted.relPath}/Files/test.txt")).hasContent("new content")
+            assertThat(File("$submissionPath/${resubmitted.relPath}/Files/test2.txt")).exists()
+            assertThat(File("$submissionPath/${resubmitted.relPath}/Files/a/b/file1.txt")).exists()
+            assertThat(File("$submissionPath/${resubmitted.relPath}/Files/a/c/file2.pdf")).exists()
         }
 
         @Test
@@ -384,32 +394,6 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
             assertThat(exception.message!!.contains("Submission contains invalid files invalid file.txt"))
         }
 
-        @Test
-        fun `re submit error`() {
-            val fileListContent = tsv {
-                line("Files", "Type")
-                line("test2.txt", "referenced")
-                line("a/b/file1.txt", "inner")
-                line("a/c/file2.pdf", "inner")
-                line("a/b", "folder")
-            }.toString()
-            webClient.uploadFiles(
-                listOf(
-                    tempFolder.createFile("file-list.tsv", fileListContent),
-                    tempFolder.createFile("other with spaces.doc"),
-                    tempFolder.createFile("test.txt"),
-                    tempFolder.createFile("test2.txt")
-                )
-            )
-            webClient.uploadFiles(listOf(tempFolder.createFile("file1.txt")), "a/b")
-            webClient.uploadFiles(listOf(tempFolder.createFile("file2.pdf")), "a/c")
-
-            val response = webClient.submitSingle(submission(), TSV)
-
-            assertThat(response).isSuccessful()
-            assertThat(webClient.submitSingle(submission(response.body.accNo), TSV)).isSuccessful()
-        }
-
         private fun submission(accNo: String? = null) = tsv {
             if (accNo == null) line("Submission") else line("Submission", accNo)
             line("Title", "Simple Submission With Files 2")
@@ -433,5 +417,17 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
             line("Type", "Attached")
             line()
         }.toString()
+
+        private fun uploadFiles(file1: String, file2: String) {
+            webClient.uploadFiles(listOf(tempFolder.createFile(file1), tempFolder.createFile(file2)))
+        }
+
+        private fun uploadFileWithContent(fileName: String, content: String) {
+            webClient.uploadFiles(listOf(tempFolder.createFile(fileName, content)))
+        }
+
+        private fun uploadFileIn(fileName: String, path: String) {
+            webClient.uploadFiles(listOf(tempFolder.createFile(fileName)), path)
+        }
     }
 }
