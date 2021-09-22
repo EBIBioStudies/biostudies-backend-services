@@ -158,7 +158,7 @@ class ExtSubmissionSerializerTest {
                 section = ExtSection(type = "Study"),
                 stats = listOf(ExtStat("component", "web")),
                 pageTabFiles = listOf(
-                    FireFile("fileName", "fireId", "md5", 1L, listOf()),
+                    FireFile("fileName", "filePath", "fireId", "md5", 1L, listOf()),
                     FireDirectory("fileName", "md5", 2L, listOf()),
                     NfsFile("fileName", File("anyPath"), listOf())
                 )

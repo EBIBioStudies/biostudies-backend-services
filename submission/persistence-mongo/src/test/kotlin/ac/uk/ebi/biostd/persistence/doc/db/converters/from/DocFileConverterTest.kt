@@ -5,6 +5,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_DOC_SIZE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.FIRE_DOC_DIRECTORY_CLASS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.FIRE_FILE_DOC_FILE_NAME
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.FIRE_FILE_DOC_FILE_PATH
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.FIRE_FILE_DOC_ID
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.NFS_FILE_DOC_FULL_PATH
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.NFS_FILE_DOC_REL_PATH
@@ -55,6 +56,7 @@ internal class DocFileConverterTest(
 
         require(result is FireDocFile)
         assertThat(result.fileName).isEqualTo("fileName")
+        assertThat(result.filePath).isEqualTo("filePath")
         assertThat(result.fireId).isEqualTo("fireId")
         assertThat(result.attributes).isEqualTo(listOf(docAttribute))
         assertThat(result.md5).isEqualTo("md5")
@@ -87,6 +89,7 @@ internal class DocFileConverterTest(
     private fun createFireFileDoc() = Document().apply {
         this[CommonsConverter.classField] = fireDocFileClass
         this[FIRE_FILE_DOC_FILE_NAME] = "fileName"
+        this[FIRE_FILE_DOC_FILE_PATH] = "filePath"
         this[FIRE_FILE_DOC_ID] = "fireId"
         this[FILE_DOC_ATTRIBUTES] = listOf(documentAttr)
         this[FILE_DOC_MD5] = "md5"

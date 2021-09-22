@@ -93,6 +93,7 @@ data class NfsDocFile(
 
 data class FireDocFile(
     val fileName: String,
+    val filePath: String,
     val fireId: String,
     override val attributes: List<DocAttribute>,
     override val md5: String,

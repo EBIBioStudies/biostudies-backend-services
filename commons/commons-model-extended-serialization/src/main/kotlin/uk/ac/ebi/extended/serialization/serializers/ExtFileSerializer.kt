@@ -19,6 +19,7 @@ import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_NA
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_PATH
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_SIZE
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_TYPE
+import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FIRE_FILE_PATH
 import uk.ac.ebi.extended.serialization.constants.ExtType
 import java.io.File
 
@@ -46,6 +47,7 @@ class ExtFileSerializer : JsonSerializer<ExtFile>() {
     private fun JsonGenerator.serializeFireFile(file: FireFile) {
         writeStartObject()
         writeStringField(FILE_NAME, file.fileName)
+        writeStringField(FIRE_FILE_PATH, file.filePath)
         writeStringField(FILE_FIRE_ID, file.fireId)
         writeObjectField(ATTRIBUTES, file.attributes)
         writeStringField(EXT_TYPE, ExtType.FireFile.type)

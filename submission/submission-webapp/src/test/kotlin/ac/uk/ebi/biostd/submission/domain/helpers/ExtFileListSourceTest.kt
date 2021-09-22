@@ -34,7 +34,7 @@ internal class ExtFileListSourceTest(
 
     private val files: List<ExtFile> = listOf(
         NfsFile(nfsFilename, nfsFile),
-        FireFile(fireFilename, "fireId", fireFile.md5(), fireFile.size(), listOf())
+        FireFile(fireFilename, "fireFilePath", "fireId", fireFile.md5(), fireFile.size(), listOf())
     )
 
     private val testInstance: ExtFileListSource = ExtFileListSource(fireWebClient, files)

@@ -49,6 +49,7 @@ class ExtFileDeserializerTest(private val tempFolder: TemporaryFolder) {
     fun `deserialize ext file when fire file`() {
         val json = jsonObj {
             "fileName" to "test-file.txt"
+            "filePath" to "path/test-file.txt"
             "fireId" to "fireId"
             "attributes" to jsonArray(
                 jsonObj {
@@ -65,6 +66,7 @@ class ExtFileDeserializerTest(private val tempFolder: TemporaryFolder) {
         val extFile = testInstance.deserialize<ExtFile>(json) as FireFile
 
         assertThat(extFile.fileName).isEqualTo("test-file.txt")
+        assertThat(extFile.filePath).isEqualTo("path/test-file.txt")
         assertThat(extFile.fireId).isEqualTo("fireId")
         assertThat(extFile.md5).isEqualTo("fireFileMd5")
         assertThat(extFile.size).isEqualTo(10)

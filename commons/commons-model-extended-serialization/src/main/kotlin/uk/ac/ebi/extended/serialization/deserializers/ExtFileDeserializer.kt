@@ -19,6 +19,7 @@ import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_MD
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_NAME
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_PATH
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_SIZE
+import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FIRE_FILE_PATH
 import uk.ac.ebi.extended.serialization.constants.ExtType
 import uk.ac.ebi.extended.serialization.exception.InvalidExtTypeException
 import uk.ac.ebi.serialization.extensions.convertList
@@ -52,6 +53,7 @@ class ExtFileDeserializer : JsonDeserializer<ExtFile>() {
     private fun fireFile(node: JsonNode, mapper: ObjectMapper): FireFile {
         return FireFile(
             fileName = node.getNode<TextNode>(FILE_NAME).textValue(),
+            filePath = node.getNode<TextNode>(FIRE_FILE_PATH).textValue(),
             fireId = node.getNode<TextNode>(FILE_FIRE_ID).textValue(),
             md5 = node.getNode<TextNode>(FILE_MD5).textValue(),
             size = node.getNode<IntNode>(FILE_SIZE).longValue(),

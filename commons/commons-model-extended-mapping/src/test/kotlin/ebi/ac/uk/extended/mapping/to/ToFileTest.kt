@@ -40,8 +40,13 @@ internal class ToFileTest(
 
     @Test
     fun `from fire file`() {
-        val fireFile = FireFile("fileName", "fireId", "md5", 12, listOf(extAttribute))
-        assertFile(fireFile.toFile())
+        val fireFile = FireFile("fileName", "filePath", "fireId", "md5", 12, listOf(extAttribute))
+
+        val file = fireFile.toFile()
+
+        assertThat(file.attributes).containsExactly(attribute)
+        assertThat(file.size).isEqualTo(12L)
+        assertThat(file.path).isEqualTo("filePath")
     }
 
     @Test

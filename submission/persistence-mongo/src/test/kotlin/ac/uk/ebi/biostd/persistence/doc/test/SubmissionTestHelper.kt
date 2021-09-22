@@ -41,7 +41,7 @@ private const val STAT_TYPE = "VIEWS"
 private const val STAT_VALUE = 123L
 internal const val REL_PATH = "S-TEST/123/S-TEST123"
 
-val fireDocFile = FireDocFile("filename", "fireId", listOf(), "md5", 1L)
+val fireDocFile = FireDocFile("filename", "filePath", "fireId", listOf(), "md5", 1L)
 val fireDocDirectory = FireDocDirectory("filename", listOf(), "md5", 1L)
 val nfsDocFile = NfsDocFile("filename", "fireId", "fileAbsPath", listOf(), "md5", 1L)
 
@@ -80,7 +80,7 @@ object SubmissionTestHelper {
         assertStats(extSubmission)
         assertProject(extSubmission)
         assertThat(extSubmission.pageTabFiles.first()).isEqualTo(
-            FireFile(fireDocFile.fileName, fireDocFile.fireId, fireDocFile.md5, 1, listOf())
+            FireFile(fireDocFile.fileName, fireDocFile.filePath, fireDocFile.fireId, fireDocFile.md5, 1, listOf())
         )
         assertThat(extSubmission.pageTabFiles.second()).isEqualTo(
             FireDirectory(fireDocDirectory.fileName, fireDocDirectory.md5, fireDocDirectory.fileSize, listOf())

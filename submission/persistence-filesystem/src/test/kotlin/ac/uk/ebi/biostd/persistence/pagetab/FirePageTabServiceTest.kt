@@ -61,14 +61,14 @@ class FirePageTabServiceTest(
             )
         every { serializationService.generateFileListPageTab(submission, fireFolder) } returns mapOf(
             "data/file-list2" to TabFiles(
-                fireFolder.resolve("data/file-list2.json"),
-                fireFolder.resolve("data/file-list2.xml"),
-                fireFolder.resolve("data/file-list2.pagetab.tsv")
+                fireFolder.resolve("file-list2.json"),
+                fireFolder.resolve("file-list2.xml"),
+                fireFolder.resolve("file-list2.pagetab.tsv")
             ),
             "data/file-list1" to TabFiles(
-                fireFolder.resolve("data/file-list1.json"),
-                fireFolder.resolve("data/file-list1.xml"),
-                fireFolder.resolve("data/file-list1.pagetab.tsv")
+                fireFolder.resolve("file-list1.json"),
+                fireFolder.resolve("file-list1.xml"),
+                fireFolder.resolve("file-list1.pagetab.tsv")
             )
         )
     }
@@ -97,23 +97,83 @@ class FirePageTabServiceTest(
 
     private fun assertSubmissionTabFiles(submission: ExtSubmission) {
         val tabFiles = submission.pageTabFiles
-        assertThat(tabFiles.first()).isEqualTo(FireFile(SUB_JSON, "$SUB_JSON-fireId", "md5", 1, listOf()))
-        assertThat(tabFiles.second()).isEqualTo(FireFile(SUB_XML, "$SUB_XML-fireId", "md5", 1, listOf()))
-        assertThat(tabFiles.third()).isEqualTo(FireFile(SUB_TSV, "$SUB_TSV-fireId", "md5", 1, listOf()))
+        assertThat(tabFiles.first()).isEqualTo(
+            FireFile(SUB_JSON, fireFolder.resolve(SUB_JSON).path, "$SUB_JSON-fireId", "md5", 1, listOf())
+        )
+        assertThat(tabFiles.second()).isEqualTo(
+            FireFile(SUB_XML, fireFolder.resolve(SUB_XML).path, "$SUB_XML-fireId", "md5", 1, listOf())
+        )
+        assertThat(tabFiles.third()).isEqualTo(
+            FireFile(SUB_TSV, fireFolder.resolve(SUB_TSV).path, "$SUB_TSV-fireId", "md5", 1, listOf())
+        )
     }
 
     private fun assertSectionTabFiles(section: ExtSection) {
         val tabFiles = section.fileList!!.pageTabFiles
-        assertThat(tabFiles.first()).isEqualTo(FireFile(FILE_LIST_JSON1, "$FILE_LIST_JSON1-fireId", "md5", 1, listOf()))
-        assertThat(tabFiles.second()).isEqualTo(FireFile(FILE_LIST_XML1, "$FILE_LIST_XML1-fireId", "md5", 1, listOf()))
-        assertThat(tabFiles.third()).isEqualTo(FireFile(FILE_LIST_TSV1, "$FILE_LIST_TSV1-fireId", "md5", 1, listOf()))
+        assertThat(tabFiles.first()).isEqualTo(
+            FireFile(
+                FILE_LIST_JSON1,
+                fireFolder.resolve(FILE_LIST_JSON1).path,
+                "$FILE_LIST_JSON1-fireId",
+                "md5",
+                1,
+                listOf()
+            )
+        )
+        assertThat(tabFiles.second()).isEqualTo(
+            FireFile(
+                FILE_LIST_XML1,
+                fireFolder.resolve(FILE_LIST_XML1).path,
+                "$FILE_LIST_XML1-fireId",
+                "md5",
+                1,
+                listOf()
+            )
+        )
+        assertThat(tabFiles.third()).isEqualTo(
+            FireFile(
+                FILE_LIST_TSV1,
+                fireFolder.resolve(FILE_LIST_TSV1).path,
+                "$FILE_LIST_TSV1-fireId",
+                "md5",
+                1,
+                listOf()
+            )
+        )
     }
 
     private fun assertSubSectionTabFiles(section: ExtSection) {
         val tabFiles = section.fileList!!.pageTabFiles
-        assertThat(tabFiles.first()).isEqualTo(FireFile(FILE_LIST_JSON2, "$FILE_LIST_JSON2-fireId", "md5", 1, listOf()))
-        assertThat(tabFiles.second()).isEqualTo(FireFile(FILE_LIST_XML2, "$FILE_LIST_XML2-fireId", "md5", 1, listOf()))
-        assertThat(tabFiles.third()).isEqualTo(FireFile(FILE_LIST_TSV2, "$FILE_LIST_TSV2-fireId", "md5", 1, listOf()))
+        assertThat(tabFiles.first()).isEqualTo(
+            FireFile(
+                FILE_LIST_JSON2,
+                fireFolder.resolve(FILE_LIST_JSON2).path,
+                "$FILE_LIST_JSON2-fireId",
+                "md5",
+                1,
+                listOf()
+            )
+        )
+        assertThat(tabFiles.second()).isEqualTo(
+            FireFile(
+                FILE_LIST_XML2,
+                fireFolder.resolve(FILE_LIST_XML2).path,
+                "$FILE_LIST_XML2-fireId",
+                "md5",
+                1,
+                listOf()
+            )
+        )
+        assertThat(tabFiles.third()).isEqualTo(
+            FireFile(
+                FILE_LIST_TSV2,
+                fireFolder.resolve(FILE_LIST_TSV2).path,
+                "$FILE_LIST_TSV2-fireId",
+                "md5",
+                1,
+                listOf()
+            )
+        )
     }
 
     companion object {

@@ -31,7 +31,7 @@ class ToExtSectionTest(temporaryFolder: TemporaryFolder) {
     private val testNfsDocFile = nfsDocFile.copy(fullPath = testFile.absolutePath)
     private val testFireDocFile = fireDocFile
 
-    private val tabFireFile = FireDocFile("fileName", "fireId", listOf(), "md5", 1)
+    private val tabFireFile = FireDocFile("fileName", "filePath", "fireId", listOf(), "md5", 1)
     private val tabFireDirectory = FireDocDirectory("fileName", listOf(), "md5", 2)
     private val fileNfs = temporaryFolder.createFile("fileNfs.txt")
     private val tabNfsFile =
@@ -54,7 +54,14 @@ class ToExtSectionTest(temporaryFolder: TemporaryFolder) {
 
     private fun assertFileListTabFiles(pageTabFiles: List<ExtFile>) {
         assertThat(pageTabFiles.first()).isEqualTo(
-            FireFile(tabFireFile.fileName, tabFireFile.fireId, tabFireFile.md5, tabFireFile.fileSize, listOf())
+            FireFile(
+                tabFireFile.fileName,
+                tabFireFile.filePath,
+                tabFireFile.fireId,
+                tabFireFile.md5,
+                tabFireFile.fileSize,
+                listOf()
+            )
         )
         assertThat(pageTabFiles.second()).isEqualTo(
             FireDirectory(tabFireDirectory.fileName, tabFireDirectory.md5, tabFireDirectory.fileSize, listOf())

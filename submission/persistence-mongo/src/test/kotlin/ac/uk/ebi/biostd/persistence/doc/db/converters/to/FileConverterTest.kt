@@ -4,6 +4,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_DOC_MD5
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_DOC_SIZE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.FIRE_FILE_DOC_FILE_NAME
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.FIRE_FILE_DOC_FILE_PATH
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.FIRE_FILE_DOC_ID
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.NFS_FILE_DOC_FULL_PATH
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.NFS_FILE_DOC_REL_PATH
@@ -56,6 +57,7 @@ internal class FileConverterTest(
         every { attributeConverter.convert(docAttribute) } returns document
         val file = FireDocFile(
             fileName = FIRE_FILE_DOC_FILE_NAME,
+            filePath = FIRE_FILE_DOC_FILE_PATH,
             fireId = FIRE_FILE_DOC_ID,
             attributes = listOf(docAttribute),
             md5 = FILE_DOC_MD5,
@@ -65,6 +67,7 @@ internal class FileConverterTest(
         val result = testInstance.convert(file)
 
         assertThat(result[FIRE_FILE_DOC_FILE_NAME]).isEqualTo("fileName")
+        assertThat(result[FIRE_FILE_DOC_FILE_PATH]).isEqualTo("filePath")
         assertThat(result[FIRE_FILE_DOC_ID]).isEqualTo("fireId")
         assertThat(result[FILE_DOC_ATTRIBUTES]).isEqualTo(listOf(document))
         assertThat(result[FILE_DOC_MD5]).isEqualTo("md5")
