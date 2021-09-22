@@ -48,13 +48,6 @@ internal class WebConfig(
             properties.fire.password
         )
 
-    @Bean
-    fun multipartResolver(): CommonsMultipartResolver =
-        CommonsMultipartResolver().apply {
-            setDefaultEncoding(UTF_8.displayName())
-            setMaxUploadSize(MAX_UPLOAD_SIZE)
-        }
-
     override fun configureContentNegotiation(configurer: ContentNegotiationConfigurer) {
         configurer.defaultContentType(MediaType.APPLICATION_JSON)
     }
