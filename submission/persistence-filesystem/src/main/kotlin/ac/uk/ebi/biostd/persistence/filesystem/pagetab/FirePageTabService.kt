@@ -32,7 +32,9 @@ class FirePageTabService(
     private fun updateFileList(sec: ExtSection, path: String, tab: Map<String, TabFiles>): Section {
         return when (val lst = sec.fileList) {
             null -> Section(false, sec)
-            else -> Section(true, sec.copy(fileList = lst.copy(pageTabFiles = extFiles(path, tab.getValue(lst.fileName)))))
+            else -> Section(
+                true, sec.copy(fileList = lst.copy(pageTabFiles = extFiles(path, tab.getValue(lst.fileName))))
+            )
         }
     }
 

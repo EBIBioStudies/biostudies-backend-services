@@ -15,6 +15,7 @@ import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.ATTRIBU
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.EXT_TYPE
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_FIRE_ID
+import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_MD5
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_NAME
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_PATH
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_SIZE
@@ -42,7 +43,7 @@ class ExtFileDeserializer : JsonDeserializer<ExtFile>() {
     private fun fireDirectory(node: JsonNode, mapper: ObjectMapper): FireDirectory {
         return FireDirectory(
             fileName = node.getNode<TextNode>(FILE_NAME).textValue(),
-            md5 = "md5",
+            md5 = node.getNode<TextNode>(FILE_MD5).textValue(),
             size = node.getNode<IntNode>(FILE_SIZE).longValue(),
             attributes = mapper.convertList(node.findNode(ATTRIBUTES))
         )
@@ -52,7 +53,7 @@ class ExtFileDeserializer : JsonDeserializer<ExtFile>() {
         return FireFile(
             fileName = node.getNode<TextNode>(FILE_NAME).textValue(),
             fireId = node.getNode<TextNode>(FILE_FIRE_ID).textValue(),
-            md5 = "md5",
+            md5 = node.getNode<TextNode>(FILE_MD5).textValue(),
             size = node.getNode<IntNode>(FILE_SIZE).longValue(),
             attributes = mapper.convertList(node.findNode(ATTRIBUTES))
         )

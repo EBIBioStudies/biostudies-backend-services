@@ -50,16 +50,15 @@ class ExtFileSerializerTest(private val tempFolder: TemporaryFolder) {
 
     @Test
     fun `serialize fire file`() {
-        val file = tempFolder.createFile("test-file.txt", "content")
         val extFile = FireFile(
-            fileName = file.name,
+            fileName = "fire-file",
             fireId = "fireId",
-            md5 = file.md5(),
-            size = file.size(),
+            md5 = "fireFileMd5",
+            size = 1,
             attributes = listOf(ExtAttribute("Type", "Data", false))
         )
         val expectedJson = jsonObj {
-            "fileName" to file.name
+            "fileName" to "fire-file"
             "fireId" to "fireId"
             "attributes" to jsonArray(
                 jsonObj {
@@ -70,7 +69,8 @@ class ExtFileSerializerTest(private val tempFolder: TemporaryFolder) {
             )
             "extType" to "fireFile"
             "type" to "file"
-            "size" to file.size()
+            "md5" to "fireFileMd5"
+            "size" to 1
         }.toString()
 
         assertThat(testInstance.serialize(extFile)).isEqualToIgnoringWhitespace(expectedJson)
@@ -80,8 +80,8 @@ class ExtFileSerializerTest(private val tempFolder: TemporaryFolder) {
     fun `serialize fire directory`() {
         val extFile = FireDirectory(
             fileName = "fire-directory",
-            md5 = "md5",
-            size = 12,
+            md5 = "fireDirMd5",
+            size = 2,
             attributes = listOf(ExtAttribute("Type", "Data", false))
         )
         val expectedJson = jsonObj {
@@ -95,7 +95,8 @@ class ExtFileSerializerTest(private val tempFolder: TemporaryFolder) {
             )
             "extType" to "fireDirectory"
             "type" to "directory"
-            "size" to 12
+            "md5" to "fireDirMd5"
+            "size" to 2
         }.toString()
 
         assertThat(testInstance.serialize(extFile)).isEqualToIgnoringWhitespace(expectedJson)

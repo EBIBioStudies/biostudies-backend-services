@@ -58,6 +58,7 @@ class ExtFileDeserializerTest(private val tempFolder: TemporaryFolder) {
             )
             "type" to "file"
             "size" to 10
+            "md5" to "fireFileMd5"
             "extType" to "fireFile"
         }.toString()
 
@@ -65,7 +66,7 @@ class ExtFileDeserializerTest(private val tempFolder: TemporaryFolder) {
 
         assertThat(extFile.fileName).isEqualTo("test-file.txt")
         assertThat(extFile.fireId).isEqualTo("fireId")
-        assertThat(extFile.md5).isEqualTo("md5")
+        assertThat(extFile.md5).isEqualTo("fireFileMd5")
         assertThat(extFile.size).isEqualTo(10)
         assertThat(extFile.attributes).hasSize(1)
         assertThat(extFile.attributes.first().name).isEqualTo("Type")
@@ -85,12 +86,13 @@ class ExtFileDeserializerTest(private val tempFolder: TemporaryFolder) {
             "extType" to "fireDirectory"
             "type" to "directory"
             "size" to 20
+            "md5" to "fireDirectoryMd5"
         }.toString()
 
         val extFile = testInstance.deserialize<ExtFile>(json) as FireDirectory
 
         assertThat(extFile.fileName).isEqualTo("test-file.txt")
-        assertThat(extFile.md5).isEqualTo("md5")
+        assertThat(extFile.md5).isEqualTo("fireDirectoryMd5")
         assertThat(extFile.size).isEqualTo(20)
         assertThat(extFile.attributes).hasSize(1)
         assertThat(extFile.attributes.first().name).isEqualTo("Type")

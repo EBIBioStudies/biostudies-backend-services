@@ -21,7 +21,6 @@ import ebi.ac.uk.extended.model.ExtTag
 import ebi.ac.uk.extended.model.FireDirectory
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
-import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -33,13 +32,12 @@ import java.time.OffsetDateTime
 import java.time.ZoneOffset
 
 @ExtendWith(TemporaryFolderExtension::class)
-class ExtSubmissionSerializerTest(temporaryFolder: TemporaryFolder) {
+class ExtSubmissionSerializerTest {
     private val testInstance = ObjectMapper().registerModule(createModule())
-    private val nfsFile: File = temporaryFolder.createFile("fileNfs")
 
     @Test
     fun `serialize basic section when not released`() {
-        val extendedSubmission = createTestSubmission(released = false, nfsFile)
+        val extendedSubmission = createTestSubmission(released = false)
         val expectedJson = expectedJsonSubmission(released = false).toString()
 
         assertThat(testInstance.serialize(extendedSubmission)).isEqualToIgnoringWhitespace(expectedJson)
@@ -48,7 +46,7 @@ class ExtSubmissionSerializerTest(temporaryFolder: TemporaryFolder) {
 
     @Test
     fun `serialize basic section when released`() {
-        val extendedSubmission = createTestSubmission(released = true, nfsFile)
+        val extendedSubmission = createTestSubmission(released = true)
         val expectedJson = expectedJsonSubmission(released = true).toString()
 
         assertThat(testInstance.serialize(extendedSubmission)).isEqualToIgnoringWhitespace(expectedJson)
@@ -120,7 +118,7 @@ class ExtSubmissionSerializerTest(temporaryFolder: TemporaryFolder) {
                     jsonObj { "name" to "BioImages" },
                     jsonObj { "name" to "owner@mail.org" }
                 )
-                "tabFiles" to jsonArray(
+                "pageTabFiles" to jsonArray(
                     jsonObj {
                         "extType" to "fireFile"
                     },
@@ -134,7 +132,7 @@ class ExtSubmissionSerializerTest(temporaryFolder: TemporaryFolder) {
             }
         }
 
-        private fun createTestSubmission(released: Boolean, fileNfs: File): ExtSubmission {
+        private fun createTestSubmission(released: Boolean): ExtSubmission {
             val releaseTime = OffsetDateTime.of(2019, 9, 21, 10, 30, 34, 15, ZoneOffset.UTC)
             val modificationTime = OffsetDateTime.of(2020, 9, 21, 10, 30, 34, 15, ZoneOffset.UTC)
             val creationTime = OffsetDateTime.of(2018, 9, 21, 10, 30, 34, 15, ZoneOffset.UTC)
@@ -162,7 +160,7 @@ class ExtSubmissionSerializerTest(temporaryFolder: TemporaryFolder) {
                 pageTabFiles = listOf(
                     FireFile("fileName", "fireId", "md5", 1L, listOf()),
                     FireDirectory("fileName", "md5", 2L, listOf()),
-                    NfsFile("fileName", fileNfs, listOf())
+                    NfsFile("fileName", File("anyPath"), listOf())
                 )
             )
         }
