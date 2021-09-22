@@ -22,12 +22,13 @@ class ExtFileListSource(
         val file = files.firstOrNull { it.fileName == filePath } ?: throw FileNotFoundException(filePath)
         return when (file) {
             is FireFile -> FireBioFile(
+                file.fileName,
                 file.fireId,
                 file.md5,
                 file.size,
                 lazy { fireWebClient.downloadByFireId(file.fireId, file.fileName).readText() }
             )
-            is FireDirectory -> FireDirectoryBioFile(file.md5, file.size)
+            is FireDirectory -> FireDirectoryBioFile(file.fileName, file.md5, file.size)
             is NfsFile -> NfsBioFile(file.file)
         }
     }

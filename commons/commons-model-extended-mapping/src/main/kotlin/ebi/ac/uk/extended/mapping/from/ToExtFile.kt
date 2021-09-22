@@ -15,7 +15,7 @@ internal const val TO_EXT_FILE_EXTENSIONS = "ebi.ac.uk.extended.mapping.from.ToE
 fun File.toExtFile(fileSource: FilesSource): ExtFile {
     return when (val file = fileSource.getFile(path)) {
         is FireBioFile -> FireFile(
-            path.substringAfterLast("/"),
+            file.fileName,
             path,
             file.fireId,
             file.md5,
