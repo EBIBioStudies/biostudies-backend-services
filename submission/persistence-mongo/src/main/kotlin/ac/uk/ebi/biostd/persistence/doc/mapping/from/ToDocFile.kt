@@ -69,6 +69,7 @@ private fun fileType(file: File): String = if (file.isDirectory) "directory" els
 internal fun ExtFile.toDocFile(): DocFile = when (this) {
     is FireFile -> FireDocFile(
         fileName = fileName,
+        filePath = filePath,
         fireId = fireId,
         attributes = attributes.map { it.toDocAttribute() },
         md5 = md5,

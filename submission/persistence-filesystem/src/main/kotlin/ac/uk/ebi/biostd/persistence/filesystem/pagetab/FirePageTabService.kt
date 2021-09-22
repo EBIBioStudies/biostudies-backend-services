@@ -43,9 +43,30 @@ class FirePageTabService(
         val xml = fireWebClient.save(pageTab.xml, pageTab.xml.md5(), filesRelPath)
         val tsv = fireWebClient.save(pageTab.tsv, pageTab.tsv.md5(), filesRelPath)
 
-        val extJson = FireFile(pageTab.json.name, json.fireOid, json.objectMd5, json.objectSize.toLong(), listOf())
-        val extXml = FireFile(pageTab.xml.name, xml.fireOid, xml.objectMd5, xml.objectSize.toLong(), listOf())
-        val extTsv = FireFile(pageTab.tsv.name, tsv.fireOid, tsv.objectMd5, tsv.objectSize.toLong(), listOf())
+        val extJson = FireFile(
+            pageTab.json.name,
+            pageTab.json.path,
+            json.fireOid,
+            json.objectMd5,
+            json.objectSize.toLong(),
+            listOf()
+        )
+        val extXml = FireFile(
+            pageTab.xml.name,
+            pageTab.xml.path,
+            xml.fireOid,
+            xml.objectMd5,
+            xml.objectSize.toLong(),
+            listOf()
+        )
+        val extTsv = FireFile(
+            pageTab.tsv.name,
+            pageTab.tsv.path,
+            tsv.fireOid,
+            tsv.objectMd5,
+            tsv.objectSize.toLong(),
+            listOf()
+        )
 
         return listOf(extJson, extXml, extTsv)
     }

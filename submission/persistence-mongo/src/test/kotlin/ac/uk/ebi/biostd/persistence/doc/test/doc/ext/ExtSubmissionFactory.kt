@@ -40,10 +40,18 @@ const val EXT_STAT_VALUE = "1"
 val extStat = ExtStat(EXT_STAT_NAME, EXT_STAT_VALUE)
 
 const val FIRE_FILE_FILENAME = "fireFileFileName"
+const val FIRE_FILE_FILEPATH = "fireFileFileName"
 const val FIRE_FILE_FIRE_ID = "fireFileFireID"
 const val FIRE_FILE_MD5 = "fireFileMd5"
 const val FIRE_FILE_SIZE = 1L
-val fireFile = FireFile(FIRE_FILE_FILENAME, FIRE_FILE_FIRE_ID, FIRE_FILE_MD5, FIRE_FILE_SIZE, listOf())
+val fireFile = FireFile(
+    FIRE_FILE_FILENAME,
+    FIRE_FILE_FILEPATH,
+    FIRE_FILE_FIRE_ID,
+    FIRE_FILE_MD5,
+    FIRE_FILE_SIZE,
+    listOf()
+)
 
 const val FIRE_DIRECTORY_FILENAME = "fireDirectoryFileName"
 const val FIRE_DIRECTORY_MD5 = "fireDirectoryMd5"

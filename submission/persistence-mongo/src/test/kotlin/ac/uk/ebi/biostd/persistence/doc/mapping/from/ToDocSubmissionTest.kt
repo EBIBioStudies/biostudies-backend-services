@@ -174,7 +174,7 @@ class ToDocSubmissionTest(tempFolder: TemporaryFolder) {
     private fun assertPageTabFiles(pageTabFiles: List<DocFile>) {
         assertThat(pageTabFiles).hasSize(3)
         assertThat(pageTabFiles.first()).isEqualTo(
-            FireDocFile(fireFile.fileName, fireFile.fireId, listOf(), fireFile.md5, fireFile.size)
+            FireDocFile(fireFile.fileName, fireFile.filePath, fireFile.fireId, listOf(), fireFile.md5, fireFile.size)
         )
         assertThat(pageTabFiles.second()).isEqualTo(
             FireDocDirectory(fireDirectory.fileName, listOf(), fireDirectory.md5, fireDirectory.size)

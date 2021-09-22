@@ -47,6 +47,7 @@ object FireDocFileFields {
     val FIRE_DOC_FILE_CLASS: String = FireDocFile::class.java.canonicalName
     val FIRE_DOC_DIRECTORY_CLASS: String = FireDocDirectory::class.java.canonicalName
     const val FIRE_FILE_DOC_FILE_NAME = "fileName"
+    const val FIRE_FILE_DOC_FILE_PATH = "filePath"
     const val FIRE_FILE_DOC_ID = "fireId"
 }
 
