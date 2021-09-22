@@ -11,6 +11,7 @@ import TestVersions.WiremockVersion
 import TestVersions.XmlUnitVersion
 import Versions.CliKtVersion
 import Versions.CommonsCsvVersion
+import Versions.CommonsFileUploadVersion
 import Versions.CommonsIOVersion
 import Versions.CommonsLang3Version
 import Versions.GuavaVersion
@@ -71,6 +72,7 @@ object Versions {
     const val JpaEntityGraphVersion = "2.2.3"
     const val MongockVersion = "4.3.8"
 
+    const val CommonsFileUploadVersion = "1.4"
     const val CommonsLang3Version = "3.8.1"
     const val CommonsIOVersion = "2.6"
     const val CommonsCsvVersion = "1.8"
@@ -181,6 +183,7 @@ object Dependencies {
     const val ArrowData = "io.arrow-kt:arrow-data:$KotlinArrowVersion"
 
     // Apache
+    const val CommonsFileUpload = "commons-fileupload:commons-fileupload:$CommonsFileUploadVersion"
     const val CommonsLang3 = "org.apache.commons:commons-lang3:$CommonsLang3Version"
     const val CommonsIO = "commons-io:commons-io:$CommonsIOVersion"
     const val Poi = "org.apache.poi:poi:$PoiVersion"
