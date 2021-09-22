@@ -17,14 +17,10 @@ import org.springframework.http.converter.HttpMessageConverter
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity
 import org.springframework.security.web.method.annotation.AuthenticationPrincipalArgumentResolver
 import org.springframework.web.method.support.HandlerMethodArgumentResolver
-import org.springframework.web.multipart.commons.CommonsMultipartResolver
 import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.fire.client.integration.web.FireWebClient
-import kotlin.text.Charsets.UTF_8
-
-private const val MAX_UPLOAD_SIZE = 20000000000
 
 @Configuration
 @Suppress("MagicNumber")
