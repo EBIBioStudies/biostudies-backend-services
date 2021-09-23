@@ -112,43 +112,43 @@ class FireClientTest(
     @Test
     fun `find all by path`(@MockK fireFile: FireFile) {
         every {
-            template.getForObject("$FIRE_OBJECTS_URL/entries/path/my/path", List::class.java)
-        } returns listOf(fireFile)
+            template.getForObject<Array<FireFile>>("$FIRE_OBJECTS_URL/entries/path/my/path")
+        } returns arrayOf(fireFile)
 
         val files = testInstance.findAllInPath("my/path")
 
         assertThat(files).hasSize(1)
         assertThat(files.first()).isEqualTo(fireFile)
         verify(exactly = 1) {
-            template.getForObject("$FIRE_OBJECTS_URL/entries/path/my/path", List::class.java)
+            template.getForObject<Array<FireFile>>("$FIRE_OBJECTS_URL/entries/path/my/path")
         }
     }
 
     @Test
     fun `find all by path when httpException with NOT_FOUND status code`() {
         every {
-            template.getForObject("$FIRE_OBJECTS_URL/entries/path/my/path", List::class.java)
+            template.getForObject<Array<FireFile>>("$FIRE_OBJECTS_URL/entries/path/my/path")
         }.throws(HttpClientErrorException(HttpStatus.NOT_FOUND))
 
         val files = testInstance.findAllInPath("my/path")
 
         assertThat(files).hasSize(0)
         verify(exactly = 1) {
-            template.getForObject("$FIRE_OBJECTS_URL/entries/path/my/path", List::class.java)
+            template.getForObject<Array<FireFile>>("$FIRE_OBJECTS_URL/entries/path/my/path")
         }
     }
 
     @Test
     fun `find all by path when httpException without a status code other than NOT_FOUND`() {
         every {
-            template.getForObject("$FIRE_OBJECTS_URL/entries/path/my/path", List::class.java)
+            template.getForObject<Array<FireFile>>("$FIRE_OBJECTS_URL/entries/path/my/path")
         }.throws(HttpClientErrorException(HttpStatus.BAD_REQUEST))
 
         assertThatExceptionOfType(HttpClientErrorException::class.java)
             .isThrownBy { testInstance.findAllInPath("my/path") }
 
         verify(exactly = 1) {
-            template.getForObject("$FIRE_OBJECTS_URL/entries/path/my/path", List::class.java)
+            template.getForObject<Array<FireFile>>("$FIRE_OBJECTS_URL/entries/path/my/path")
         }
     }
 

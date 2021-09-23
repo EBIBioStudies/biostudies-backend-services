@@ -68,7 +68,7 @@ internal class FireClient(
     }
 
     override fun findAllInPath(path: String): List<FireFile> {
-        return runCatching { template.getForObject<List<FireFile>>("$FIRE_OBJECTS_URL/entries/path/$path") }
+        return runCatching { template.getForObject<Array<FireFile>>("$FIRE_OBJECTS_URL/entries/path/$path").toList() }
             .getOrElse { if (it is HttpException && it.statusCode == NOT_FOUND) return emptyList() else throw it }
     }
 
