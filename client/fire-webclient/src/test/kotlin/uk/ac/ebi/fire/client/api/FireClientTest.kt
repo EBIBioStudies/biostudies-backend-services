@@ -11,13 +11,17 @@ import io.mockk.junit5.MockKExtension
 import io.mockk.slot
 import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.core.io.FileSystemResource
 import org.springframework.http.HttpEntity
+import org.springframework.http.HttpStatus
 import org.springframework.util.LinkedMultiValueMap
+import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.RestTemplate
+import org.springframework.web.client.getForObject
 import uk.ac.ebi.fire.client.model.FireFile
 
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
@@ -112,8 +116,37 @@ class FireClientTest(
         } returns listOf(fireFile)
 
         val files = testInstance.findAllInPath("my/path")
+
         assertThat(files).hasSize(1)
         assertThat(files.first()).isEqualTo(fireFile)
+        verify(exactly = 1) {
+            template.getForObject("$FIRE_OBJECTS_URL/entries/path/my/path", List::class.java)
+        }
+    }
+
+    @Test
+    fun `find all by path when httpException with NOT_FOUND status code`() {
+        every {
+            template.getForObject("$FIRE_OBJECTS_URL/entries/path/my/path", List::class.java)
+        }.throws(HttpClientErrorException(HttpStatus.NOT_FOUND))
+
+        val files = testInstance.findAllInPath("my/path")
+
+        assertThat(files).hasSize(0)
+        verify(exactly = 1) {
+            template.getForObject("$FIRE_OBJECTS_URL/entries/path/my/path", List::class.java)
+        }
+    }
+
+    @Test
+    fun `find all by path when httpException without a status code other than NOT_FOUND`() {
+        every {
+            template.getForObject("$FIRE_OBJECTS_URL/entries/path/my/path", List::class.java)
+        }.throws(HttpClientErrorException(HttpStatus.BAD_REQUEST))
+
+        assertThatExceptionOfType(HttpClientErrorException::class.java)
+            .isThrownBy { testInstance.findAllInPath("my/path") }
+
         verify(exactly = 1) {
             template.getForObject("$FIRE_OBJECTS_URL/entries/path/my/path", List::class.java)
         }

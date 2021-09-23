@@ -331,7 +331,7 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
             val changedFile = tempFolder.root.resolve("fileSubSection.txt").apply { writeText("newContent") }
             webClient.uploadFiles(listOf(changedFile))
 
-            val reSubmitResponse = webClient.submitSingle(submission(), TSV)
+            val reSubmitResponse = webClient.submitSingle(submission(accNo), TSV)
 
             assertThat(reSubmitResponse).isSuccessful()
             val resubmitted = submissionRepository.getExtByAccNo(accNo)
