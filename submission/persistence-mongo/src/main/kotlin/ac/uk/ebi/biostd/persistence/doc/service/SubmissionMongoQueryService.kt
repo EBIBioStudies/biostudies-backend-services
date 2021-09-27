@@ -10,8 +10,10 @@ import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.asBasicSubmission
 import ac.uk.ebi.biostd.persistence.common.exception.SubmissionNotFoundException
+import ac.uk.ebi.biostd.persistence.doc.commons.exception.InvalidMongoSchemaException
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.FileListDocFileRepository
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.toExtFile
+import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.allDocSections
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
@@ -70,8 +72,10 @@ internal class SubmissionMongoQueryService(
             .let { fileList -> fileListDocFileRepository.findAllById(fileList.files.map { it.fileId }) }
             .map { it.toExtFile() }
 
-    private fun loadSubmission(accNo: String) =
-        submissionRepo.findByAccNo(accNo) ?: throw SubmissionNotFoundException(accNo)
+    private fun loadSubmission(accNo: String): DocSubmission =
+        runCatching { submissionRepo.findByAccNo(accNo) ?: throw SubmissionNotFoundException(accNo) }
+            .onFailure { throw InvalidMongoSchemaException() }
+            .getOrThrow()
 
     private fun SubmissionRequest.asBasicSubmission() =
         serializationService.deserialize<ExtSubmission>(submission.toString()).asBasicSubmission()

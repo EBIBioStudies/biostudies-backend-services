@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.submission.web.exception
 import ac.uk.ebi.biostd.exception.InvalidExtensionException
 import ac.uk.ebi.biostd.tsv.deserialization.model.TsvChunk
 import ac.uk.ebi.biostd.validation.SerializationException
+import com.fasterxml.jackson.databind.JsonMappingException
 import ebi.ac.uk.errors.ValidationNode
 import ebi.ac.uk.errors.ValidationNodeStatus.ERROR
 import ebi.ac.uk.errors.ValidationTree
@@ -10,6 +11,7 @@ import ebi.ac.uk.errors.ValidationTreeStatus.FAIL
 import org.springframework.core.Ordered
 import org.springframework.core.annotation.Order
 import org.springframework.http.HttpStatus
+import org.springframework.messaging.handler.annotation.support.MethodArgumentTypeMismatchException
 import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.ResponseBody
@@ -23,6 +25,14 @@ class SerializationExceptionHandler {
     @ExceptionHandler(value = [SerializationException::class])
     fun handle(exception: SerializationException): ValidationTree {
         val node = ValidationNode(ERROR, "Error processing submission", getErrors(exception))
+        return ValidationTree(FAIL, node)
+    }
+
+    @ResponseBody
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(value = [JsonMappingException::class])
+    fun handle(exception: JsonMappingException): ValidationTree {
+        val node = ValidationNode(ERROR, exception.message ?: exception.localizedMessage)
         return ValidationTree(FAIL, node)
     }
 

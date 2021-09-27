@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.persistence.doc.db.data
 
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.doc.commons.ExtendedUpdate
+import ac.uk.ebi.biostd.persistence.doc.commons.exception.InvalidMongoSchemaException
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocAttributeFields.ATTRIBUTE_DOC_NAME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocAttributeFields.ATTRIBUTE_DOC_VALUE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_ATTRIBUTES
@@ -115,7 +116,9 @@ class SubmissionDocDataRepository(
             *createSubmissionAggregation(filter, email).toTypedArray()
         ).withOptions(aggregationOptions())
 
-        return mongoTemplate.aggregate(aggregation, DocSubmission::class.java).mappedResults
+        return runCatching { mongoTemplate.aggregate(aggregation, DocSubmission::class.java).mappedResults }
+            .onFailure { throw InvalidMongoSchemaException() }
+            .getOrThrow()
     }
 
     fun getSubmissionsPage(filter: SubmissionFilter): Page<DocSubmission> {

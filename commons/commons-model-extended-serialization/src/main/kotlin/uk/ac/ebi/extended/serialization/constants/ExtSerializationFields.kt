@@ -13,6 +13,13 @@ object ExtSerializationFields {
     const val TYPE = "type"
     const val URL = "url"
 
+    // Ext Attribute Fields
+    const val ATTR_NAME = "name"
+    const val ATTR_VALUE = "value"
+    const val REFERENCE = "reference"
+    const val NAME_ATTRS = "nameAttrs"
+    const val VALUE_ATTRS = "valueAttrs"
+
     // Ext Files Fields
     const val FILE_TYPE = "type"
     const val FILE_PATH = "path"
