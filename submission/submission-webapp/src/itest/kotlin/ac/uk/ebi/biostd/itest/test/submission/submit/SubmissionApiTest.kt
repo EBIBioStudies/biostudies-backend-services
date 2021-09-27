@@ -16,6 +16,7 @@ import ac.uk.ebi.biostd.persistence.model.DbTag
 import ac.uk.ebi.biostd.persistence.model.Sequence
 import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.TagDataRepository
+import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ac.uk.ebi.biostd.submission.ext.getSimpleByAccNo
 import ebi.ac.uk.api.dto.UserRegistration
 import ebi.ac.uk.asserts.assertThat
@@ -27,6 +28,7 @@ import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.model.extensions.rootPath
 import ebi.ac.uk.model.extensions.title
 import ebi.ac.uk.security.integration.components.IGroupService
+import ebi.ac.uk.security.integration.components.ISecurityQueryService
 import ebi.ac.uk.test.createFile
 import ebi.ac.uk.util.collections.ifRight
 import io.github.glytching.junit.extension.folder.TemporaryFolder
@@ -59,6 +61,7 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
         @Autowired val submissionRepository: SubmissionQueryService,
         @Autowired val sequenceRepository: SequenceDataRepository,
         @Autowired val tagsRefRepository: TagDataRepository,
+        @Autowired val userDataRepository: UserDataRepository,
         @Autowired val groupService: IGroupService
     ) {
         @LocalServerPort
@@ -197,6 +200,10 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
             val saved = submissionRepository.getExtByAccNo(response.body.accNo)
             assertThat(saved.owner).isEqualTo(email)
             assertThat(saved.submitter).isEqualTo(SuperUser.email)
+            val newUser = userDataRepository.findByEmail(email)
+            assertThat(newUser).isNotNull()
+            assertThat(newUser!!.active).isFalse()
+            assertThat(newUser!!.notificationsEnabled).isFalse()
         }
 
         @Test
