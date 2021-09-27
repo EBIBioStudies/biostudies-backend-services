@@ -17,6 +17,7 @@ import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
+import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileList
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.test.createFile
@@ -266,27 +267,31 @@ internal class MultipartFileSubmissionApiTest(
                 .withMessageContaining("Unsupported page tab format submission.txt")
         }
 
+        // TODO: pending fire files
+        private fun fileListFiles(fileListName: String, subFolder: String): List<ExtFile> =
+            if (mysqlMode) listOf() else listOf(
+                NfsFile("$fileListName.json", File(subFolder).resolve("Files/$fileListName.json")),
+                NfsFile("$fileListName.xml", File(subFolder).resolve("Files/$fileListName.xml")),
+                NfsFile("$fileListName.pagetab.tsv", File(subFolder).resolve("Files/$fileListName.pagetab.tsv"))
+            )
+
+        private fun submissionFiles(accNo: String, subFolder: String): List<ExtFile> =
+            if (mysqlMode) listOf() else listOf(
+                NfsFile("$accNo.json", File(subFolder).resolve("$accNo.json")),
+                NfsFile("$accNo.xml", File(subFolder).resolve("$accNo.xml")),
+                NfsFile("$accNo.pagetab.tsv", File(subFolder).resolve("$accNo.pagetab.tsv"))
+            )
+
         private fun assertSubmissionFiles(accNo: String, testFile: String) {
             val createdSub = submissionRepository.getExtByAccNo(accNo)
             val subFolder = "$submissionPath/${createdSub.relPath}"
 
             val fileListName = createdSub.section.fileList?.fileName
-            val expectedTabFiles =
-                if (enableFire) listOf() else listOf(
-                    NfsFile("$fileListName.json", File(subFolder).resolve("Files/$fileListName.json")),
-                    NfsFile("$fileListName.xml", File(subFolder).resolve("Files/$fileListName.xml")),
-                    NfsFile("$fileListName.pagetab.tsv", File(subFolder).resolve("Files/$fileListName.pagetab.tsv"))
-                )
+            assertThat(fileListName).isNotNull()
 
+            val expectedTabFiles = fileListFiles(fileListName!!, subFolder)
             assertThat(createdSub.section.fileList).isEqualTo(ExtFileList("FileList", pageTabFiles = expectedTabFiles))
-
-            assertThat((createdSub.pageTabFiles)).isEqualTo(
-                if (enableFire) listOf() else listOf(
-                    NfsFile("$accNo.json", File(subFolder).resolve("$accNo.json")),
-                    NfsFile("$accNo.xml", File(subFolder).resolve("$accNo.xml")),
-                    NfsFile("$accNo.pagetab.tsv", File(subFolder).resolve("$accNo.pagetab.tsv"))
-                )
-            )
+            assertThat((createdSub.pageTabFiles)).isEqualTo(submissionFiles(accNo, subFolder))
 
             assertThat(Paths.get("$subFolder/Files/$testFile")).exists()
             assertThat(Paths.get("$subFolder/Files/$fileListName.xml")).exists()
