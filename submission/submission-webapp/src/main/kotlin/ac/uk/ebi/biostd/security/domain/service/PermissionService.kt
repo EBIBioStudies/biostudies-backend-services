@@ -18,9 +18,7 @@ class PermissionService(
         val accessTag = tagRepository.findByName(tag) ?: throw PermissionsAccessTagDoesNotExistsException(tag)
 
         if (permissionExists(accessType, email, tag).not()) {
-            permissionRepository.save(
-                DbAccessPermission(accessType = accessType, user = user, accessTag = accessTag)
-            )
+            permissionRepository.save(DbAccessPermission(accessType = accessType, user = user, accessTag = accessTag))
         }
     }
 

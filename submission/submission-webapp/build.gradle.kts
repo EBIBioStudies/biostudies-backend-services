@@ -1,4 +1,5 @@
 import Dependencies.Arrow
+import Dependencies.CommonsFileUpload
 import Dependencies.CommonsIO
 import Dependencies.JpaEntityGraph
 import Dependencies.KotlinLogging
@@ -86,6 +87,7 @@ dependencies {
     implementation(SpringBootStartedAdminClient)
 
     implementation(Arrow)
+    implementation(CommonsFileUpload)
     implementation(CommonsIO)
     implementation(MySql)
     implementation(JpaEntityGraph)

@@ -65,7 +65,7 @@ class DbUser(
         joinColumns = [JoinColumn(name = "users_id")],
         inverseJoinColumns = [JoinColumn(name = "groups_id")]
     )
-    val groups: MutableSet<UserGroup> = mutableSetOf(),
+    val groups: MutableSet<DbUserGroup> = mutableSetOf(),
 
     @Column
     var superuser: Boolean = false,

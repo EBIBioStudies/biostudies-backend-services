@@ -8,7 +8,7 @@ import javax.persistence.Table
 
 @Entity
 @Table(name = "UserGroup")
-class UserGroup(
+class DbUserGroup(
     var name: String,
     var description: String? = null,
     var secret: String
