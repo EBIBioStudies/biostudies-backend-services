@@ -59,8 +59,7 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
         @Autowired val submissionRepository: SubmissionQueryService,
         @Autowired val sequenceRepository: SequenceDataRepository,
         @Autowired val tagsRefRepository: TagDataRepository,
-        @Autowired val userDataRepository: UserDataRepository,
-        @Autowired val groupService: IGroupService
+        @Autowired val userDataRepository: UserDataRepository
     ) {
         @LocalServerPort
         private var serverPort: Int = 0
