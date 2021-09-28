@@ -12,7 +12,7 @@ tasks.register("setUpRabbitMQ") {
 tasks.register("setUpFireMock") {
     project.ext["args"] = ""
     project.ext["linuxScript"] = "./SetUpFireMock.sh"
-    project.ext["windowsScript"] = ""
+    project.ext["windowsScript"] = "SetUpFireMock.cmd"
     project.ext["workingDir"] = "./src/main/resources/setup/firemock"
 
     finalizedBy("executeScript")
