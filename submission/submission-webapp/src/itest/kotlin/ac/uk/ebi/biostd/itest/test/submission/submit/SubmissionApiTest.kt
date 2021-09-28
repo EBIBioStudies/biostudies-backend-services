@@ -16,6 +16,7 @@ import ac.uk.ebi.biostd.persistence.model.DbTag
 import ac.uk.ebi.biostd.persistence.model.Sequence
 import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.TagDataRepository
+import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ac.uk.ebi.biostd.submission.ext.getSimpleByAccNo
 import ebi.ac.uk.api.dto.UserRegistration
 import ebi.ac.uk.asserts.assertThat
@@ -57,7 +58,8 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
         @Autowired val securityTestService: SecurityTestService,
         @Autowired val submissionRepository: SubmissionQueryService,
         @Autowired val sequenceRepository: SequenceDataRepository,
-        @Autowired val tagsRefRepository: TagDataRepository
+        @Autowired val tagsRefRepository: TagDataRepository,
+        @Autowired val userDataRepository: UserDataRepository
     ) {
         @LocalServerPort
         private var serverPort: Int = 0
@@ -195,6 +197,10 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
             val saved = submissionRepository.getExtByAccNo(response.body.accNo)
             assertThat(saved.owner).isEqualTo(email)
             assertThat(saved.submitter).isEqualTo(SuperUser.email)
+            val newUser = userDataRepository.findByEmail(email)
+            assertThat(newUser).isNotNull()
+            assertThat(newUser!!.active).isFalse()
+            assertThat(newUser!!.notificationsEnabled).isFalse()
         }
 
         @Test
