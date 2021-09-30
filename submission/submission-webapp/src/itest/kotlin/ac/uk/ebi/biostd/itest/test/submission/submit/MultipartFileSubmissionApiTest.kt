@@ -35,6 +35,7 @@ import org.springframework.context.annotation.Import
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.transaction.annotation.Transactional
+import java.io.File
 import java.nio.file.Paths
 
 // TODO Fix all integration tests
@@ -65,7 +66,7 @@ internal class MultipartFileSubmissionApiTest(
 
         @Test
         fun `XLS submission`() {
-            val excelPageTab = excel("${tempFolder.root.absolutePath}/ExcelSubmission.xlsx") {
+            val excelPageTab = excel(File("${tempFolder.root.absolutePath}/ExcelSubmission.xlsx")) {
                 sheet("page tab") {
                     row {
                         cell("Submission")
@@ -76,8 +77,7 @@ internal class MultipartFileSubmissionApiTest(
                         cell("Excel Submission")
                     }
 
-                    emptyRow()
-
+                    row { cell(""); cell("") }
                     row {
                         cell("Study")
                         cell("SECT-001")
@@ -93,7 +93,7 @@ internal class MultipartFileSubmissionApiTest(
                 }
             }
 
-            val fileList = excel("${tempFolder.root.absolutePath}/FileList.xlsx") {
+            val fileList = excel(File("${tempFolder.root.absolutePath}/FileList.xlsx")) {
                 sheet("page tab") {
                     row {
                         cell("Files")

@@ -15,6 +15,7 @@ import Projects.CommonsModelExtendedSerialization
 import Projects.CommonsSerialization
 import Projects.CommonsTest
 import Projects.CommonsUtil
+import Projects.ExcelLibrary
 import Projects.SubmissionNotification
 import Projects.SubmissionPersistenceMongo
 import Projects.SubmissionPersistenceSql
@@ -69,6 +70,7 @@ dependencies {
     api(project(CommonsModelExtendedSerialization))
     api(project(CommonsSerialization))
     api(project(CommonsUtil))
+    api(project(ExcelLibrary))
     api(project(CommonsTest))
     api(project(CommonsHttp))
 

@@ -31,6 +31,7 @@ import org.springframework.context.annotation.Import
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.transaction.annotation.Transactional
+import java.io.File
 import java.nio.file.Paths
 
 @ExtendWith(TemporaryFolderExtension::class)
@@ -121,7 +122,7 @@ internal class FileListSubmissionTest(private val tempFolder: TemporaryFolder) :
                 }
             }.toString()
 
-            val fileList = excel("${tempFolder.root.absolutePath}/FileList.xlsx") {
+            val fileList = excel(File("${tempFolder.root.absolutePath}/FileList.xlsx")) {
                 sheet("page tab") {
                     row {
                         cell("Files")

@@ -8,6 +8,7 @@ import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import java.io.File
 
 @ExtendWith(TemporaryFolderExtension::class)
 class ExcelReaderTest(private val temporaryFolder: TemporaryFolder) {
@@ -15,7 +16,7 @@ class ExcelReaderTest(private val temporaryFolder: TemporaryFolder) {
 
     @Test
     fun `read as TSV`() {
-        val testFile = excel("${temporaryFolder.root.absolutePath}/ExcelSubmission.xlsx") {
+        val testFile = excel(File("${temporaryFolder.root.absolutePath}/ExcelSubmission.xlsx")) {
             sheet("page tab") {
                 row {
                     cell("Submission")
@@ -25,8 +26,7 @@ class ExcelReaderTest(private val temporaryFolder: TemporaryFolder) {
                     cell("Excel Submission")
                 }
 
-                emptyRow()
-
+                row { cell(""); cell("") }
                 row {
                     cell("Study")
                     cell("SECT-001")
@@ -42,7 +42,7 @@ class ExcelReaderTest(private val temporaryFolder: TemporaryFolder) {
                     cell("123")
                 }
 
-                emptyRow()
+                row { cell(""); cell("") }
 
                 row {
                     cell("Files")
@@ -83,7 +83,7 @@ class ExcelReaderTest(private val temporaryFolder: TemporaryFolder) {
 
     @Test
     fun `file containing empty rows and cells`() {
-        val testFile = excel("${temporaryFolder.root.absolutePath}/ExcelSubmissionWithEmptyCells.xlsx") {
+        val testFile = excel(File("${temporaryFolder.root.absolutePath}/ExcelSubmissionWithEmptyCells.xlsx")) {
             sheet("weird sheet") {
                 row {
                     cell("Submission")
@@ -93,7 +93,7 @@ class ExcelReaderTest(private val temporaryFolder: TemporaryFolder) {
                     cell("Excel Submission With Empty Cells")
                 }
 
-                emptyRow()
+                row { cell(""); cell("") }
 
                 row {
                     cell("Study")
@@ -106,11 +106,11 @@ class ExcelReaderTest(private val temporaryFolder: TemporaryFolder) {
                     cell("A Value")
                 }
 
-                emptyRow()
-                emptyRow()
-                emptyRow()
-                emptyRow()
-                emptyRow()
+                row { cell(""); cell("") }
+                row { cell(""); cell("") }
+                row { cell(""); cell("") }
+                row { cell(""); cell("") }
+                row { cell(""); cell("") }
             }
         }
 
