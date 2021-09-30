@@ -16,11 +16,13 @@ import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.test.createFile
 import ebi.ac.uk.util.file.ExcelReader
+import ebi.ac.uk.util.file.ExcelReader.readContentAsTsv
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.mockkObject
 import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
@@ -32,10 +34,9 @@ import kotlin.test.assertNotNull
 @ExtendWith(TemporaryFolderExtension::class)
 class FileListSerializerTest(private val tempFolder: TemporaryFolder) {
     private val source = mockk<FilesSource>()
-    private val excelReader = mockk<ExcelReader>()
     private val serializer = mockk<PagetabSerializer>()
     private val filesTable = filesTable { file("some-file.txt") }
-    private val testInstance = FileListSerializer(excelReader, serializer)
+    private val testInstance = FileListSerializer(serializer)
 
     @AfterEach
     fun afterEach() = clearAllMocks()
@@ -86,16 +87,17 @@ class FileListSerializerTest(private val tempFolder: TemporaryFolder) {
     fun `deserialize XLS file list`() {
         val fileListName = "FileList.xlsx"
         val submission = testSubmission(fileListName)
-        val fileList = tempFolder.createFile(fileListName)
+        val fileList = tempFolder.createFile(fileListName, "test file list")
 
+        mockkObject(ExcelReader)
         every { source.getFile(fileListName) } returns NfsBioFile(fileList)
-        every { excelReader.readContentAsTsv(fileList) } returns "test file list"
+        every { readContentAsTsv(fileList) } returns "test file list"
         every { serializer.deserializeElement<FilesTable>("test file list", TSV) } returns filesTable
 
         testInstance.deserializeFileList(submission, source)
 
         assertFileList(submission, fileListName)
-        verify(exactly = 1) { excelReader.readContentAsTsv(fileList) }
+        verify(exactly = 1) { readContentAsTsv(fileList) }
     }
 
     @Test

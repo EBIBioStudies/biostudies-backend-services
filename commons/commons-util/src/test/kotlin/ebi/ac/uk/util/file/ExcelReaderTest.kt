@@ -3,6 +3,7 @@ package ebi.ac.uk.util.file
 import ebi.ac.uk.dsl.excel.excel
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
+import ebi.ac.uk.util.file.ExcelReader.readContentAsTsv
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
@@ -11,8 +12,6 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(TemporaryFolderExtension::class)
 class ExcelReaderTest(private val temporaryFolder: TemporaryFolder) {
-    private val testInstance = ExcelReader()
-
     @Test
     fun `read as TSV`() {
         val testFile = excel("${temporaryFolder.root.absolutePath}/ExcelSubmission.xlsx") {
@@ -78,7 +77,7 @@ class ExcelReaderTest(private val temporaryFolder: TemporaryFolder) {
             line("file2.txt", "b1", "b2")
         }
 
-        assertThat(testInstance.readContentAsTsv(testFile)).isEqualTo(expectedTsv.toString())
+        assertThat(readContentAsTsv(testFile)).isEqualTo(expectedTsv.toString())
     }
 
     @Test
@@ -123,6 +122,6 @@ class ExcelReaderTest(private val temporaryFolder: TemporaryFolder) {
             line("An Attr", "A Value")
         }
 
-        assertThat(testInstance.readContentAsTsv(testFile)).isEqualTo(expectedTsv.toString())
+        assertThat(readContentAsTsv(testFile)).isEqualTo(expectedTsv.toString())
     }
 }

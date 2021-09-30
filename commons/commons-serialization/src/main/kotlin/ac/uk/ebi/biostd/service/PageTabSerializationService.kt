@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.service
 
+import ac.uk.ebi.biostd.extension.readAsPageTab
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.JSON
@@ -11,11 +12,9 @@ import ac.uk.ebi.biostd.integration.SubFormat.TsvFormat.XlsxTsv
 import ac.uk.ebi.biostd.integration.SubFormat.XmlFormat
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.model.Submission
-import ebi.ac.uk.util.file.ExcelReader
 import java.io.File
 
 internal class PageTabSerializationService(
-    private val excelReader: ExcelReader,
     private val serializer: PagetabSerializer,
     private val fileListSerializer: FileListSerializer
 ) : SerializationService {
@@ -33,10 +32,9 @@ internal class PageTabSerializationService(
 
     override fun deserializeSubmission(file: File): Submission =
         when (SubFormat.fromFile(file)) {
-            XmlFormat -> deserializeSubmission(file.readText(), XML)
-            is JsonFormat -> deserializeSubmission(file.readText(), JSON)
-            Tsv -> deserializeSubmission(file.readText(), TSV)
-            XlsxTsv -> deserializeSubmission(excelReader.readContentAsTsv(file), TSV)
+            XmlFormat -> deserializeSubmission(file.readAsPageTab(), XML)
+            is JsonFormat -> deserializeSubmission(file.readAsPageTab(), JSON)
+            Tsv, XlsxTsv -> deserializeSubmission(file.readAsPageTab(), TSV)
         }
 
     override fun deserializeSubmission(file: File, source: FilesSource): Submission =

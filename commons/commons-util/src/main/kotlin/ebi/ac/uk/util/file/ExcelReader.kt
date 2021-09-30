@@ -7,7 +7,7 @@ import java.io.File
 const val BUFFER_SIZE = 4096
 const val ROW_CACHE_SIZE = 1000
 
-class ExcelReader {
+object ExcelReader {
     fun readContentAsTsv(file: File): String =
         StreamingReader.builder()
             .rowCacheSize(ROW_CACHE_SIZE)
