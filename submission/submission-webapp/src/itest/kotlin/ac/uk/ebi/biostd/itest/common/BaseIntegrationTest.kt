@@ -44,10 +44,12 @@ internal open class BaseIntegrationTest(private val tempFolder: TemporaryFolder)
     val enableFire
         get() = System.getProperty("enableFire").toBoolean()
 
+    val mongoMode = System.getProperty("itest.mode") == "mongo"
+
     @BeforeAll
     fun beforeAll() {
-        if (System.getProperty("itest.mode") == "mongo") setUpMongo()
-        if (System.getProperty("enableFire") == "true") setupFire()
+        if (mongoMode) setUpMongo()
+        if (enableFire) setupFire()
 
         setUpMySql()
         setUpApplicationProperties()
