@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.files.service
 import ac.uk.ebi.biostd.files.model.FilesSpec
 import ac.uk.ebi.biostd.files.utils.transferTo
 import ebi.ac.uk.io.FileUtils
+import ebi.ac.uk.io.Permissions
 import ebi.ac.uk.io.RWXRWX___
 import ebi.ac.uk.io.RW_RW____
 import ebi.ac.uk.io.ext.asFileList
@@ -17,8 +18,7 @@ class UserFilesService {
         FileUtils.copyOrReplaceFile(
             source = file,
             target = folder.resolve(file.name).toFile(),
-            filePermissions = RW_RW____,
-            folderPermissions = RWXRWX___
+            permissions = Permissions(RW_RW____, RWXRWX___)
         )
     }
 

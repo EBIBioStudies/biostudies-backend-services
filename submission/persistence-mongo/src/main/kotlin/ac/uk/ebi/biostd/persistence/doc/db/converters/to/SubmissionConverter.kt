@@ -4,6 +4,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.DOC_STAT_CLASS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.DOC_SUBMISSION_CLASS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.DOC_TAG_CLASS
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.PAGE_TAB_FILES
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.PROJECT_DOC_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.STAT_DOC_NAME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.STAT_DOC_VALUE
@@ -39,7 +40,8 @@ import org.springframework.core.convert.converter.Converter
 
 class SubmissionConverter(
     private val sectionConverter: SectionConverter,
-    private val attributeConverter: AttributeConverter
+    private val attributeConverter: AttributeConverter,
+    private val fileConverter: FileConverter
 ) : Converter<DocSubmission, Document> {
 
     override fun convert(submission: DocSubmission): Document {
@@ -65,6 +67,7 @@ class SubmissionConverter(
         submissionDoc[SUB_TAGS] = submission.tags.map { tagToDocument(it) }
         submissionDoc[SUB_PROJECTS] = submission.collections.map { collectionToDocument(it) }
         submissionDoc[SUB_STATS] = submission.stats.map { statToDocument(it) }
+        submissionDoc[PAGE_TAB_FILES] = submission.pageTabFiles.map { fileConverter.convert(it) }
         return submissionDoc
     }
 

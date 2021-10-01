@@ -1,8 +1,7 @@
 package ac.uk.ebi.biostd.persistence.filesystem.nfs
 
 import ac.uk.ebi.biostd.persistence.filesystem.api.FilesService
-import ac.uk.ebi.biostd.persistence.filesystem.extensions.FilePermissionsExtensions.filePermissions
-import ac.uk.ebi.biostd.persistence.filesystem.extensions.FilePermissionsExtensions.folderPermissions
+import ac.uk.ebi.biostd.persistence.filesystem.extensions.FilePermissionsExtensions.permissions
 import ac.uk.ebi.biostd.persistence.filesystem.request.FilePersistenceRequest
 import ac.uk.ebi.biostd.persistence.filesystem.service.processFiles
 import ebi.ac.uk.extended.model.ExtFile
@@ -14,6 +13,7 @@ import ebi.ac.uk.io.FileUtils
 import ebi.ac.uk.io.FileUtils.getOrCreateFolder
 import ebi.ac.uk.io.FileUtils.moveFile
 import ebi.ac.uk.io.FileUtils.reCreateFolder
+import ebi.ac.uk.io.Permissions
 import ebi.ac.uk.io.RWXR_XR_X
 import ebi.ac.uk.io.RWX______
 import ebi.ac.uk.paths.FILES_PATH
@@ -31,11 +31,9 @@ class NfsFilesService(
         val (submission, mode, _) = request
         logger.info { "Starting processing files of submission ${submission.accNo} over NFS" }
 
-        val filePermissions = submission.filePermissions()
-        val folderPermissions = submission.folderPermissions()
-        val submissionFolder = getOrCreateSubmissionFolder(submission, folderPermissions)
+        val submissionFolder = getOrCreateSubmissionFolder(submission, submission.permissions().folder)
 
-        val processed = processAttachedFiles(mode, submission, submissionFolder, filePermissions, folderPermissions)
+        val processed = processAttachedFiles(mode, submission, submissionFolder, submission.permissions())
         logger.info { "Finishing processing files of submission ${submission.accNo} over NFS" }
 
         return processed
@@ -45,8 +43,7 @@ class NfsFilesService(
         mode: FileMode,
         submission: ExtSubmission,
         subFolder: File,
-        filePermissions: Set<PosixFilePermission>,
-        folderPermissions: Set<PosixFilePermission>
+        permissions: Permissions
     ): ExtSubmission {
         logger.info { "processing submission ${submission.accNo} files in $mode" }
         val newSubTempPath = createTempFolder(subFolder, submission.accNo)
@@ -55,12 +52,11 @@ class NfsFilesService(
             mode,
             subFolder = subFolder.resolve(FILES_PATH),
             targetFolder = newSubTempPath.resolve(FILES_PATH),
-            filePermissions = filePermissions,
-            dirPermissions = folderPermissions
+            permissions = permissions
         )
 
         val processed = processFiles(submission) { config.processFile(it) }
-        moveFile(newSubTempPath, subFolder, filePermissions, folderPermissions)
+        moveFile(newSubTempPath, subFolder, permissions)
         logger.info { "Finishing processing submission ${submission.accNo} files in $mode" }
         return processed
     }

@@ -12,7 +12,6 @@ import ac.uk.ebi.biostd.persistence.doc.model.FireDocDirectory
 import ac.uk.ebi.biostd.persistence.doc.model.FireDocFile
 import ac.uk.ebi.biostd.persistence.doc.model.NfsDocFile
 import arrow.core.Either
-import ebi.ac.uk.dsl.file
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileList
 import ebi.ac.uk.extended.model.ExtFileTable
@@ -27,8 +26,9 @@ internal fun Either<ExtFile, ExtFileTable>.toDocFiles() = bimap(ExtFile::toDocFi
 internal fun ExtFileList.toDocFileList(submissionId: ObjectId): Pair<DocFileList, List<FileListDocFile>> {
     val listFiles = files.map { toFileDocListFile(submissionId, it) }
     val listRef = listFiles.map { DocFileRef(fileId = it.id) }
+    val pageTabFiles = pageTabFiles.map { it.toDocFile() }
 
-    return Pair(DocFileList(fileName, listRef), listFiles)
+    return Pair(DocFileList(fileName, listRef, pageTabFiles), listFiles)
 }
 
 private fun toFileDocListFile(submissionId: ObjectId, extFile: ExtFile) = when (extFile) {
@@ -36,7 +36,7 @@ private fun toFileDocListFile(submissionId: ObjectId, extFile: ExtFile) = when (
         id = ObjectId(),
         submissionId = submissionId,
         fileName = extFile.fileName,
-        location = extFile.fireId,
+        fullPath = extFile.fireId,
         attributes = extFile.attributes.map { it.toDocAttribute() },
         md5 = extFile.md5,
         size = extFile.size,
@@ -46,7 +46,7 @@ private fun toFileDocListFile(submissionId: ObjectId, extFile: ExtFile) = when (
         id = ObjectId(),
         submissionId = submissionId,
         fileName = extFile.fileName,
-        location = extFile.fileName,
+        fullPath = extFile.fileName,
         attributes = extFile.attributes.map { it.toDocAttribute() },
         md5 = extFile.md5,
         size = extFile.size,
@@ -56,7 +56,7 @@ private fun toFileDocListFile(submissionId: ObjectId, extFile: ExtFile) = when (
         id = ObjectId(),
         submissionId = submissionId,
         fileName = extFile.fileName,
-        location = extFile.file.absolutePath,
+        fullPath = extFile.file.absolutePath,
         attributes = extFile.attributes.map { it.toDocAttribute() },
         md5 = extFile.md5,
         size = extFile.size,
@@ -66,9 +66,10 @@ private fun toFileDocListFile(submissionId: ObjectId, extFile: ExtFile) = when (
 
 private fun ExtFileTable.toDocFileTable() = DocFileTable(files.map { it.toDocFile() })
 private fun fileType(file: File): String = if (file.isDirectory) "directory" else "file"
-private fun ExtFile.toDocFile(): DocFile = when (this) {
+internal fun ExtFile.toDocFile(): DocFile = when (this) {
     is FireFile -> FireDocFile(
         fileName = fileName,
+        filePath = filePath,
         fireId = fireId,
         attributes = attributes.map { it.toDocAttribute() },
         md5 = md5,
