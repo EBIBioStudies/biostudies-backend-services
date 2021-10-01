@@ -287,11 +287,24 @@ internal class MultipartFileSubmissionApiTest(
             val subFolder = "$submissionPath/${createdSub.relPath}"
 
             val fileListName = createdSub.section.fileList?.fileName
-            assertThat(fileListName).isNotNull()
+            val expectedTabFiles = if (mongoMode) {
+                if (enableFire) listOf() else listOf(
+                    NfsFile("$fileListName.json", File(subFolder).resolve("Files/$fileListName.json")),
+                    NfsFile("$fileListName.xml", File(subFolder).resolve("Files/$fileListName.xml")),
+                    NfsFile("$fileListName.pagetab.tsv", File(subFolder).resolve("Files/$fileListName.pagetab.tsv"))
+                )
+            } else listOf()
 
-            val expectedTabFiles = fileListFiles(fileListName!!, subFolder)
+            val submissionPageTabFiles = if (mongoMode) {
+                if (enableFire) listOf() else listOf(
+                    NfsFile("$accNo.json", File(subFolder).resolve("$accNo.json")),
+                    NfsFile("$accNo.xml", File(subFolder).resolve("$accNo.xml")),
+                    NfsFile("$accNo.pagetab.tsv", File(subFolder).resolve("$accNo.pagetab.tsv"))
+                )
+            } else listOf()
+
             assertThat(createdSub.section.fileList).isEqualTo(ExtFileList("FileList", pageTabFiles = expectedTabFiles))
-            assertThat((createdSub.pageTabFiles)).isEqualTo(submissionFiles(accNo, subFolder))
+            assertThat((createdSub.pageTabFiles)).isEqualTo(submissionPageTabFiles)
 
             assertThat(Paths.get("$subFolder/Files/$testFile")).exists()
             assertThat(Paths.get("$subFolder/Files/$fileListName.xml")).exists()
