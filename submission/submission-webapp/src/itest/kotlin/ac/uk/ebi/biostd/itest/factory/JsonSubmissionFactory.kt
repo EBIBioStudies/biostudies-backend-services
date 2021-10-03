@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.itest.factory
 
+import ac.uk.ebi.biostd.itest.assertions.SubmissionSpec
 import com.jayway.jsonpath.matchers.JsonPathMatchers.isJson
 import com.jayway.jsonpath.matchers.JsonPathMatchers.withJsonPath
 import ebi.ac.uk.dsl.json.jsonArray
@@ -11,9 +12,10 @@ import ebi.ac.uk.model.Link
 import ebi.ac.uk.model.LinksTable
 import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.SectionsTable
-import ebi.ac.uk.model.extensions.type
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
+
+fun submissionSpecJson(accNo: String) = SubmissionSpec(allInOneSubmissionJson(accNo).toString(), fileList().toString())
 
 fun allInOneSubmissionJson(accNo: String) = jsonObj {
     "accno" to accNo
@@ -51,6 +53,10 @@ fun allInOneSubmissionJson(accNo: String) = jsonObj {
                     "name" to "Tissue"
                     "value" to "Blood"
                 })
+            },
+            {
+                "name" to "File List"
+                "value" to "file-list.json"
             }
         )
         "links" to jsonArray({
@@ -156,6 +162,27 @@ fun allInOneSubmissionJson(accNo: String) = jsonObj {
     }
 }
 
+private fun fileList() = jsonArray(
+    {
+        "path" to "DataFile5.txt"
+        "attributes" to jsonArray(
+            {
+                "name" to "Type"
+                "value" to "referenced"
+            }
+        )
+    },
+    {
+        "path" to "Folder1/DataFile6.txt"
+        "attributes" to jsonArray(
+            {
+                "name" to "Type"
+                "value" to "referenced"
+            }
+        )
+    }
+)
+
 fun assertAllInOneSubmissionJson(json: String, accNo: String) {
     assertThat(json, isJson(withJsonPath("$.accno", equalTo(accNo))))
     assertJsonAttributes(
@@ -171,6 +198,10 @@ fun assertAllInOneSubmissionJson(json: String, accNo: String) {
     assertThat(json, isJson(withJsonPath("$sectionSecondAttribute.valqual[0].value", equalTo("UBERON"))))
     assertThat(json, isJson(withJsonPath("$sectionSecondAttribute.nmqual[0].name", equalTo("Tissue"))))
     assertThat(json, isJson(withJsonPath("$sectionSecondAttribute.nmqual[0].value", equalTo("Blood"))))
+
+    val sectionThirdAttribute = "$.section.attributes[3]"
+    assertThat(json, isJson(withJsonPath("$sectionThirdAttribute.name", equalTo("File List"))))
+    assertThat(json, isJson(withJsonPath("$sectionThirdAttribute.value", equalTo("file-list.json"))))
 
     assertJsonLink(json, "$.section.links[0]", allInOneRootSectionLink())
     assertJsonFile(json, "$.section.files[0]", allInOneRootSectionFile())

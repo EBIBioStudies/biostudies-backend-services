@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.itest.factory
 
+import ac.uk.ebi.biostd.itest.assertions.SubmissionSpec
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.File
 import ebi.ac.uk.model.FilesTable
@@ -11,6 +12,8 @@ import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
 import org.redundent.kotlin.xml.xml
 import org.xmlunit.matchers.EvaluateXPathMatcher.hasXPath
+
+fun submissionSpecXml(accNo: String) = SubmissionSpec(allInOneSubmissionXml(accNo).toString(), fileList().toString())
 
 fun allInOneSubmissionXml(accNo: String) = xml("submission") {
     attribute("accno", accNo)
@@ -49,6 +52,10 @@ fun allInOneSubmissionXml(accNo: String) = xml("submission") {
                     "name" { -"Tissue" }
                     "value" { -"Blood" }
                 }
+            }
+            "attribute" {
+                "name" { -"File List" }
+                "value" { -"file-list.xml" }
             }
         }
         "links" {
@@ -164,6 +171,27 @@ fun allInOneSubmissionXml(accNo: String) = xml("submission") {
     }
 }
 
+private fun fileList() = xml("files") {
+    "file" {
+        "path" { -"DataFile5.txt" }
+        "attributes" {
+            "attribute" {
+                "name" { -"Type" }
+                "value" { -"referenced" }
+            }
+        }
+    }
+    "file" {
+        "path" { -"Folder1/DataFile6.txt" }
+        "attributes" {
+            "attribute" {
+                "name" { -"Type" }
+                "value" { -"referenced" }
+            }
+        }
+    }
+}
+
 fun assertAllInOneSubmissionXml(xml: String, accNo: String) {
     assertThat(xml, hasXPath("//submission/@accno", equalTo(accNo)))
     assertXmlAttributes(
@@ -195,8 +223,7 @@ private fun assertXmlSection(xml: String, xPath: String, section: Section) {
 }
 
 private fun assertXmlSectionsTable(xml: String, xPath: String, sectionsTable: SectionsTable) =
-    sectionsTable.elements.forEachIndexed {
-        idx, section ->
+    sectionsTable.elements.forEachIndexed { idx, section ->
         assertXmlSection(xml, "$xPath/section[${idx + 1}]", section)
     }
 
