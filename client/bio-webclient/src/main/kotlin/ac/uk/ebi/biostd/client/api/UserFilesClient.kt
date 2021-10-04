@@ -26,7 +26,7 @@ internal class UserFilesClient(private val template: RestTemplate) : FilesOperat
         val requestCallback = RequestCallback { it.headers.accept = listOf(APPLICATION_OCTET_STREAM) }
         val responseExtractor = ResponseExtractor { it.saveInTempFile("biostudies-$fileName") }
         val downloadUrl = "$USER_FILES_URL${normalize(relativePath)}?fileName=$fileName"
-        return template.execute(downloadUrl, GET, requestCallback, responseExtractor)
+        return template.execute(downloadUrl, GET, requestCallback, responseExtractor)!!
     }
 
     override fun listUserFiles(relativePath: String): List<UserFile> {

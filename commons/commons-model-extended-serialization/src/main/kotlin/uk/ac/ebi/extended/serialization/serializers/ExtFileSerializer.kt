@@ -14,10 +14,12 @@ import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_DIR_TYPE
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_FILE_TYPE
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_FIRE_ID
+import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_MD5
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_NAME
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_PATH
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_SIZE
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_TYPE
+import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FIRE_FILE_PATH
 import uk.ac.ebi.extended.serialization.constants.ExtType
 import java.io.File
 
@@ -45,10 +47,12 @@ class ExtFileSerializer : JsonSerializer<ExtFile>() {
     private fun JsonGenerator.serializeFireFile(file: FireFile) {
         writeStartObject()
         writeStringField(FILE_NAME, file.fileName)
+        writeStringField(FIRE_FILE_PATH, file.filePath)
         writeStringField(FILE_FIRE_ID, file.fireId)
         writeObjectField(ATTRIBUTES, file.attributes)
         writeStringField(EXT_TYPE, ExtType.FireFile.type)
         writeStringField(FILE_TYPE, FILE_FILE_TYPE)
+        writeStringField(FILE_MD5, file.md5)
         writeNumberField(FILE_SIZE, file.size)
         writeEndObject()
     }
@@ -59,6 +63,7 @@ class ExtFileSerializer : JsonSerializer<ExtFile>() {
         writeObjectField(ATTRIBUTES, file.attributes)
         writeStringField(EXT_TYPE, ExtType.FireDirectory.type)
         writeStringField(FILE_TYPE, FILE_DIR_TYPE)
+        writeStringField(FILE_MD5, file.md5)
         writeNumberField(FILE_SIZE, file.size)
         writeEndObject()
     }

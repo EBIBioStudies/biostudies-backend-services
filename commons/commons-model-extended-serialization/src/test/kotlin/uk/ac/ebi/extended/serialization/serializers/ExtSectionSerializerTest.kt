@@ -12,7 +12,10 @@ import ebi.ac.uk.extended.model.ExtLink
 import ebi.ac.uk.extended.model.ExtLinkTable
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSectionTable
+import ebi.ac.uk.extended.model.FireDirectory
+import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
+import ebi.ac.uk.io.ext.size
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
@@ -47,10 +50,19 @@ class ExtSectionSerializerTest(private val tempFolder: TemporaryFolder) {
         val referencedFile = tempFolder.createFile("ref-file.txt")
         val sectionFile = tempFolder.createFile("section-file.txt")
         val sectionFilesTable = tempFolder.createFile("section-file-table.txt")
+
+        val fileNfs = tempFolder.createFile("fileNfs.txt")
+        val pageTabFireFile = FireFile("fileFileName", "fireFilePath", "fireId", "fileMd5", 1, listOf())
+        val pageTabFireDirectory = FireDirectory("dirFileName", "dirMd5", 2, listOf())
+
         val allInOneSection = ExtSection(
             accNo = "SECT-001",
             type = "Study",
-            fileList = ExtFileList("file-list", listOf(NfsFile("ref-file.txt", referencedFile))),
+            fileList = ExtFileList(
+                "file-list",
+                listOf(NfsFile("ref-file.txt", referencedFile)),
+                pageTabFiles = listOf(pageTabFireFile, pageTabFireDirectory, NfsFile(fileNfs.name, fileNfs))
+            ),
             attributes = listOf(ExtAttribute("Title", "Test Section")),
             sections = listOf(
                 Either.left(ExtSection(type = "Exp")),
@@ -71,6 +83,35 @@ class ExtSectionSerializerTest(private val tempFolder: TemporaryFolder) {
             "fileList" to jsonObj {
                 "fileName" to "file-list"
                 "filesUrl" to "/submissions/extended/S-BSST1/fileList/file-list/files"
+                "pageTabFiles" to jsonArray(
+                    jsonObj {
+                        "fileName" to pageTabFireFile.fileName
+                        "filePath" to pageTabFireFile.filePath
+                        "fireId" to "fireId"
+                        "attributes" to jsonArray()
+                        "extType" to "fireFile"
+                        "type" to "file"
+                        "md5" to pageTabFireFile.md5
+                        "size" to pageTabFireFile.size
+                    },
+                    jsonObj {
+                        "fileName" to pageTabFireDirectory.fileName
+                        "attributes" to jsonArray()
+                        "extType" to "fireDirectory"
+                        "type" to "directory"
+                        "md5" to pageTabFireDirectory.md5
+                        "size" to pageTabFireDirectory.size
+                    },
+                    jsonObj {
+                        "fileName" to fileNfs.name
+                        "path" to fileNfs.name
+                        "file" to fileNfs.absolutePath
+                        "attributes" to jsonArray()
+                        "extType" to "nfsFile"
+                        "type" to "file"
+                        "size" to fileNfs.size()
+                    }
+                )
             }
             "attributes" to jsonArray(
                 jsonObj {
