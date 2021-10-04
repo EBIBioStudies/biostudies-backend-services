@@ -171,7 +171,7 @@ fun allInOneSubmissionXml(accNo: String) = xml("submission") {
     }
 }
 
-private fun fileList() = xml("files") {
+private fun fileList() = xml("table") {
     "file" {
         "path" { -"DataFile5.txt" }
         "attributes" {
@@ -206,6 +206,8 @@ fun assertAllInOneSubmissionXml(xml: String, accNo: String) {
     assertThat(xml, hasXPath("//submission/section/attributes/attribute[3]/nmqual/value", equalTo("Blood")))
     assertThat(xml, hasXPath("//submission/section/attributes/attribute[3]/valqual/name", equalTo("Ontology")))
     assertThat(xml, hasXPath("//submission/section/attributes/attribute[3]/valqual/value", equalTo("UBERON")))
+    assertThat(xml, hasXPath("//submission/section/attributes/attribute[4]/name", equalTo("File List")))
+    assertThat(xml, hasXPath("//submission/section/attributes/attribute[4]/value", equalTo("file-list.xml")))
 
     assertXmlLink(xml, "//submission/section/links/link", allInOneRootSectionLink())
     assertXmlFile(xml, "//submission/section/files/file[1]", allInOneRootSectionFile())
