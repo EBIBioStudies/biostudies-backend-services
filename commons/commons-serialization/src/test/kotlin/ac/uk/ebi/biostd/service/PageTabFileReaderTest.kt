@@ -1,6 +1,7 @@
-package ac.uk.ebi.biostd.extension
+package ac.uk.ebi.biostd.service
 
 import ac.uk.ebi.biostd.exception.EmptyPageTabFileException
+import ac.uk.ebi.biostd.service.PageTabFileReader.readAsPageTab
 import ebi.ac.uk.test.createFile
 import ebi.ac.uk.util.file.ExcelReader
 import ebi.ac.uk.util.file.ExcelReader.readContentAsTsv
@@ -18,7 +19,7 @@ import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(TemporaryFolderExtension::class)
-class PageTabFileExtTest(
+class PageTabFileReaderTest(
     private val tempFolder: TemporaryFolder
 ) {
     @AfterEach
@@ -31,7 +32,7 @@ class PageTabFileExtTest(
     fun `read page tab`() {
         val file = tempFolder.createFile("page-tab.tsv", "page tab")
 
-        assertThat(file.readAsPageTab()).isEqualTo("page tab")
+        assertThat(readAsPageTab(file)).isEqualTo("page tab")
         verify(exactly = 0) { readContentAsTsv(file) }
     }
 
@@ -41,14 +42,14 @@ class PageTabFileExtTest(
 
         every { readContentAsTsv(file) } returns "page tab"
 
-        assertThat(file.readAsPageTab()).isEqualTo("page tab")
+        assertThat(readAsPageTab(file)).isEqualTo("page tab")
         verify(exactly = 1) { readContentAsTsv(file) }
     }
 
     @Test
     fun `read empty file`() {
         val file = tempFolder.createFile("page-tab.json")
-        val exception = assertThrows<EmptyPageTabFileException> { file.readAsPageTab() }
+        val exception = assertThrows<EmptyPageTabFileException> { readAsPageTab(file) }
 
         assertThat(exception.message).isEqualTo("Empty page tab file: 'page-tab.json'")
     }

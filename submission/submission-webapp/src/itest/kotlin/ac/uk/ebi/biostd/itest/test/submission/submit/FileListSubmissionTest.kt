@@ -145,7 +145,7 @@ internal class FileListSubmissionTest(private val tempFolder: TemporaryFolder) :
 
         @Test
         fun `JSON submission with invalid file list format`() {
-            val fileList = tempFolder.createFile("FileList.txt")
+            val fileList = tempFolder.createFile("FileList.txt", "Invalid file list")
             val submission = jsonObj {
                 "accno" to "S-TEST5"
                 "attributes" to jsonArray({

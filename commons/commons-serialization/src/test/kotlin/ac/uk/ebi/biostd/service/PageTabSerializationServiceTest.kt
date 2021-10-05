@@ -4,6 +4,8 @@ import ac.uk.ebi.biostd.exception.InvalidExtensionException
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.JSON
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.TSV
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.XML
+import ac.uk.ebi.biostd.integration.SubFormat.TsvFormat.XlsxTsv
+import ac.uk.ebi.biostd.service.PageTabFileReader.readAsPageTab
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.test.createFile
@@ -105,20 +107,22 @@ class PageTabSerializationServiceTest(private val tempFolder: TemporaryFolder) {
         val file = tempFolder.createFile("submission.xlsx", "test submission")
 
         mockkObject(ExcelReader)
+        mockkObject(PageTabFileReader)
+        every { readAsPageTab(file) } returns "test submission"
         every { readContentAsTsv(file) } returns "test submission"
-        every { serializer.deserializeSubmission("test submission", TSV) } returns testSubmission
+        every { serializer.deserializeSubmission("test submission", XlsxTsv) } returns testSubmission
 
         testInstance.deserializeSubmission(file)
 
         verify(exactly = 1) {
-            readContentAsTsv(file)
-            serializer.deserializeSubmission("test submission", TSV)
+            readAsPageTab(file)
+            serializer.deserializeSubmission("test submission", XlsxTsv)
         }
     }
 
     @Test
     fun `deserialize unsupported submission format`() {
-        val file = tempFolder.createFile("submission.txt")
+        val file = tempFolder.createFile("submission.txt", "test submission")
         val exception = assertThrows<InvalidExtensionException> { testInstance.deserializeSubmission(file) }
 
         assertThat(exception.message).isEqualTo("Unsupported page tab format submission.txt")

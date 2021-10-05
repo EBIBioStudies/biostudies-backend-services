@@ -1,14 +1,7 @@
 package ac.uk.ebi.biostd.service
 
-import ac.uk.ebi.biostd.extension.readAsPageTab
 import ac.uk.ebi.biostd.integration.SubFormat
-import ac.uk.ebi.biostd.integration.SubFormat.Companion.JSON
-import ac.uk.ebi.biostd.integration.SubFormat.Companion.TSV
-import ac.uk.ebi.biostd.integration.SubFormat.Companion.XML
-import ac.uk.ebi.biostd.integration.SubFormat.JsonFormat
-import ac.uk.ebi.biostd.integration.SubFormat.TsvFormat.Tsv
-import ac.uk.ebi.biostd.integration.SubFormat.TsvFormat.XlsxTsv
-import ac.uk.ebi.biostd.integration.SubFormat.XmlFormat
+import ac.uk.ebi.biostd.service.PageTabFileReader.readAsPageTab
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.io.sources.FireBioFile
 import ebi.ac.uk.io.sources.FireDirectoryBioFile
@@ -44,9 +37,6 @@ internal class FileListSerializer(
         }
     }
 
-    private fun getFilesTable(file: File): FilesTable = when (SubFormat.fromFile(file)) {
-        XmlFormat -> serializer.deserializeElement(file.readAsPageTab(), XML)
-        is JsonFormat -> serializer.deserializeElement(file.readAsPageTab(), JSON)
-        Tsv, XlsxTsv -> serializer.deserializeElement(file.readAsPageTab(), TSV)
-    }
+    private fun getFilesTable(file: File): FilesTable =
+        serializer.deserializeElement(readAsPageTab(file), SubFormat.fromFile(file))
 }

@@ -4,6 +4,8 @@ import ac.uk.ebi.biostd.exception.InvalidExtensionException
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.JSON
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.TSV
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.XML
+import ac.uk.ebi.biostd.integration.SubFormat.TsvFormat.XlsxTsv
+import ac.uk.ebi.biostd.service.PageTabFileReader.readAsPageTab
 import ebi.ac.uk.dsl.attribute
 import ebi.ac.uk.dsl.file
 import ebi.ac.uk.dsl.filesTable
@@ -23,9 +25,9 @@ import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkObject
-import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
@@ -41,12 +43,16 @@ class FileListSerializerTest(private val tempFolder: TemporaryFolder) {
     @AfterEach
     fun afterEach() = clearAllMocks()
 
+    @BeforeEach
+    fun beforeEach() = mockkObject(PageTabFileReader)
+
     @Test
     fun `deserialize JSON file list`() {
         val fileListName = "FileList.json"
         val submission = testSubmission(fileListName)
         val fileList = tempFolder.createFile(fileListName, "test file list")
 
+        every { readAsPageTab(fileList) } returns "test file list"
         every { source.getFile(fileListName) } returns NfsBioFile(fileList)
         every { serializer.deserializeElement<FilesTable>("test file list", JSON) } returns filesTable
 
@@ -61,6 +67,7 @@ class FileListSerializerTest(private val tempFolder: TemporaryFolder) {
         val submission = testSubmission(fileListName)
         val fileList = tempFolder.createFile(fileListName, "test file list")
 
+        every { readAsPageTab(fileList) } returns "test file list"
         every { source.getFile(fileListName) } returns NfsBioFile(fileList)
         every { serializer.deserializeElement<FilesTable>("test file list", TSV) } returns filesTable
 
@@ -75,6 +82,7 @@ class FileListSerializerTest(private val tempFolder: TemporaryFolder) {
         val submission = testSubmission(fileListName)
         val fileList = tempFolder.createFile(fileListName, "test file list")
 
+        every { readAsPageTab(fileList) } returns "test file list"
         every { source.getFile(fileListName) } returns NfsBioFile(fileList)
         every { serializer.deserializeElement<FilesTable>("test file list", XML) } returns filesTable
 
@@ -90,14 +98,14 @@ class FileListSerializerTest(private val tempFolder: TemporaryFolder) {
         val fileList = tempFolder.createFile(fileListName, "test file list")
 
         mockkObject(ExcelReader)
+        every { readAsPageTab(fileList) } returns "test file list"
         every { source.getFile(fileListName) } returns NfsBioFile(fileList)
         every { readContentAsTsv(fileList) } returns "test file list"
-        every { serializer.deserializeElement<FilesTable>("test file list", TSV) } returns filesTable
+        every { serializer.deserializeElement<FilesTable>("test file list", XlsxTsv) } returns filesTable
 
         testInstance.deserializeFileList(submission, source)
 
         assertFileList(submission, fileListName)
-        verify(exactly = 1) { readContentAsTsv(fileList) }
     }
 
     @Test
@@ -106,6 +114,7 @@ class FileListSerializerTest(private val tempFolder: TemporaryFolder) {
         val submission = testSubmission(fileListName)
         val fileList = tempFolder.createFile(fileListName)
 
+        every { readAsPageTab(fileList) } returns "test file list"
         every { source.getFile(fileListName) } returns NfsBioFile(fileList)
         val exception = assertThrows<InvalidExtensionException> { testInstance.deserializeFileList(submission, source) }
 
