@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.persistence.doc.db.converters.from
 
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields
 import ac.uk.ebi.biostd.persistence.doc.model.DocAttribute
+import ac.uk.ebi.biostd.persistence.doc.model.DocFile
 import ac.uk.ebi.biostd.persistence.doc.model.DocProcessingStatus
 import ac.uk.ebi.biostd.persistence.doc.model.DocSection
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
@@ -17,24 +18,31 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import java.util.Date
 
+private val s = "something"
+
 @ExtendWith(MockKExtension::class)
 internal class DocSubmissionConverterTest(
     @MockK val docAttributeConverter: DocAttributeConverter,
-    @MockK val AttributeDocument: Document,
+    @MockK val attributeDocument: Document,
     @MockK val docAttribute: DocAttribute,
 
     @MockK val docSectionConverter: DocSectionConverter,
     @MockK val sectionDocument: Document,
-    @MockK val docSection: DocSection
+    @MockK val docSection: DocSection,
+
+    @MockK val docFileConverter: DocFileConverter,
+    @MockK val subTabFile: Document,
+    @MockK val docFile: DocFile
 ) {
-    private val testInstance = DocSubmissionConverter(docSectionConverter, docAttributeConverter)
+    private val testInstance = DocSubmissionConverter(docFileConverter, docSectionConverter, docAttributeConverter)
 
     @Test
     fun convert() {
         every { docSectionConverter.convert(sectionDocument) } returns docSection
-        every { docAttributeConverter.convert(AttributeDocument) } returns docAttribute
+        every { docAttributeConverter.convert(attributeDocument) } returns docAttribute
+        every { docFileConverter.convert(subTabFile) } returns docFile
 
-        val result = testInstance.convert(createSubmissionDocument())
+        val result = testInstance.convert(createSubmissionDocument(sectionDocument, attributeDocument, subTabFile))
 
         assertThatAll(result)
     }
@@ -63,9 +71,14 @@ internal class DocSubmissionConverterTest(
         assertThat(result.collections[0].accNo).isEqualTo(projectDocAccNo)
         assertThat(result.stats[0].name).isEqualTo(statDocName)
         assertThat(result.stats[0].value).isEqualTo(statDocValue)
+        assertThat(result.pageTabFiles).isEqualTo(listOf(docFile))
     }
 
-    private fun createSubmissionDocument(): Document {
+    private fun createSubmissionDocument(
+        sectionDocument: Document,
+        attributeDocument: Document,
+        fileDocument: Document
+    ): Document {
         val subDocument = Document()
         subDocument[DocSubmissionFields.CLASS_FIELD] = docSubmissionClass
         subDocument[DocSubmissionFields.SUB_ID] = subId
@@ -84,10 +97,11 @@ internal class DocSubmissionConverterTest(
         subDocument[DocSubmissionFields.SUB_MODIFICATION_TIME] = subModificationTime
         subDocument[DocSubmissionFields.SUB_CREATION_TIME] = subCreationTime
         subDocument[DocSubmissionFields.SUB_SECTION] = sectionDocument
-        subDocument[DocSubmissionFields.SUB_ATTRIBUTES] = listOf(AttributeDocument)
+        subDocument[DocSubmissionFields.SUB_ATTRIBUTES] = listOf(attributeDocument)
         subDocument[DocSubmissionFields.SUB_TAGS] = listOf(createTagDocument())
         subDocument[DocSubmissionFields.SUB_PROJECTS] = listOf(createProjectDocument())
         subDocument[DocSubmissionFields.SUB_STATS] = listOf(createStatDocument())
+        subDocument[DocSubmissionFields.PAGE_TAB_FILES] = listOf(fileDocument)
         return subDocument
     }
 

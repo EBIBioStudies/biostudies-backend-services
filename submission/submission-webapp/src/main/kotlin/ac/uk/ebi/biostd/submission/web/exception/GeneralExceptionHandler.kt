@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.ResponseStatus
 @Order(Ordered.LOWEST_PRECEDENCE)
 class GeneralExceptionHandler {
     @ResponseBody
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler(RuntimeException::class)
     fun handleRuntime(exception: RuntimeException): ValidationTree {
         exception.printStackTrace()

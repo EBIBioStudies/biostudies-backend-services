@@ -11,18 +11,23 @@ import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.extended.model.ExtAttribute
 import ebi.ac.uk.extended.model.ExtCollection
+import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtStat
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod
 import ebi.ac.uk.extended.model.ExtTag
+import ebi.ac.uk.extended.model.FireDirectory
+import ebi.ac.uk.extended.model.FireFile
+import ebi.ac.uk.extended.model.NfsFile
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields
 import uk.ac.ebi.serialization.extensions.serialize
+import java.io.File
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 
@@ -53,6 +58,7 @@ class ExtSubmissionSerializerTest {
             val module = SimpleModule()
             module.addSerializer(ExtSubmission::class.java, ExtSubmissionSerializer())
             module.addSerializer(ExtSection::class.java, DummySectionSerializer)
+            module.addSerializer(ExtFile::class.java, DummyExtFileSerializer)
             module.addSerializer(OffsetDateTime::class.java, OffsetDateTimeSerializer())
 
             return module
@@ -103,16 +109,26 @@ class ExtSubmissionSerializerTest {
                         "value" to "web"
                     }
                 )
-                "accessTags" to
-                    if (released) jsonArray(
-                        jsonObj { "name" to "BioImages" },
-                        jsonObj { "name" to "owner@mail.org" },
-                        jsonObj { "name" to "Public" }
-                    )
-                    else jsonArray(
-                        jsonObj { "name" to "BioImages" },
-                        jsonObj { "name" to "owner@mail.org" }
-                    )
+                "accessTags" to if (released) jsonArray(
+                    jsonObj { "name" to "BioImages" },
+                    jsonObj { "name" to "owner@mail.org" },
+                    jsonObj { "name" to "Public" }
+                )
+                else jsonArray(
+                    jsonObj { "name" to "BioImages" },
+                    jsonObj { "name" to "owner@mail.org" }
+                )
+                "pageTabFiles" to jsonArray(
+                    jsonObj {
+                        "extType" to "fireFile"
+                    },
+                    jsonObj {
+                        "extType" to "fireDirectory"
+                    },
+                    jsonObj {
+                        "extType" to "nfsFile"
+                    }
+                )
             }
         }
 
@@ -140,7 +156,12 @@ class ExtSubmissionSerializerTest {
                 tags = listOf(ExtTag("component", "web")),
                 collections = listOf(ExtCollection("BioImages")),
                 section = ExtSection(type = "Study"),
-                stats = listOf(ExtStat("component", "web"))
+                stats = listOf(ExtStat("component", "web")),
+                pageTabFiles = listOf(
+                    FireFile("fileName", "filePath", "fireId", "md5", 1L, listOf()),
+                    FireDirectory("fileName", "md5", 2L, listOf()),
+                    NfsFile("fileName", File("anyPath"), listOf())
+                )
             )
         }
     }
@@ -150,6 +171,18 @@ object DummySectionSerializer : JsonSerializer<ExtSection>() {
     override fun serialize(section: ExtSection, gen: JsonGenerator, serializers: SerializerProvider?) {
         gen.writeStartObject()
         gen.writeStringField(ExtSerializationFields.TYPE, section.type)
+        gen.writeEndObject()
+    }
+}
+
+object DummyExtFileSerializer : JsonSerializer<ExtFile>() {
+    override fun serialize(extFile: ExtFile, gen: JsonGenerator, serializers: SerializerProvider?) {
+        gen.writeStartObject()
+        when (extFile) {
+            is FireFile -> gen.writeStringField(ExtSerializationFields.EXT_TYPE, "fireFile")
+            is FireDirectory -> gen.writeStringField(ExtSerializationFields.EXT_TYPE, "fireDirectory")
+            is NfsFile -> gen.writeStringField(ExtSerializationFields.EXT_TYPE, "nfsFile")
+        }
         gen.writeEndObject()
     }
 }

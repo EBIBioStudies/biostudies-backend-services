@@ -14,6 +14,7 @@ import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILES_U
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_LIST
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_NAME
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.LINKS
+import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.PAGE_TAB_FILES
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.SECTIONS
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.TYPE
 import uk.ac.ebi.extended.serialization.constants.ExtType
@@ -38,6 +39,7 @@ class ExtSectionSerializer : JsonSerializer<ExtSection>() {
         gen.writeObjectFieldStart(FILE_LIST)
         gen.writeStringField(FILE_NAME, fileList.fileName)
         gen.writeStringField(FILES_URL, "/$FILE_LIST_URL/$parentAccNo/fileList/${fileList.fileName}/files")
+        gen.writeObjectField(PAGE_TAB_FILES, fileList.pageTabFiles)
         gen.writeEndObject()
     }
 

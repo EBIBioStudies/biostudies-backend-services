@@ -5,6 +5,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.data.FileListDocFileDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDraftDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
+import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
 import ac.uk.ebi.biostd.persistence.doc.service.SubmissionMongoPersistenceService
 import ac.uk.ebi.biostd.persistence.filesystem.service.FileSystemService
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
@@ -25,7 +26,8 @@ class ExternalConfig {
         submissionRequestDocDataRepository: SubmissionRequestDocDataRepository,
         submissionDraftDocDataRepository: SubmissionDraftDocDataRepository,
         systemService: FileSystemService,
-        fileListDocFileRepository: FileListDocFileDocDataRepository
+        fileListDocFileRepository: FileListDocFileDocDataRepository,
+        toExtSubmissionMapper: ToExtSubmissionMapper
     ): SubmissionRequestService {
         return SubmissionMongoPersistenceService(
             submissionDocDataRepository,
@@ -33,7 +35,8 @@ class ExternalConfig {
             submissionDraftDocDataRepository,
             serializationService,
             systemService,
-            fileListDocFileRepository
+            fileListDocFileRepository,
+            toExtSubmissionMapper
         )
     }
 }

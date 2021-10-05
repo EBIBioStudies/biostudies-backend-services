@@ -33,6 +33,7 @@ internal object FileTestHelper {
     val fireDocFile =
         FireDocFile(
             fileName = TEST_REL_PATH,
+            filePath = TEST_FULL_PATH,
             fireId = TEST_FIRE_FILE_ID,
             attributes = listOf(basicDocAttribute),
             md5 = TEST_MD5,
@@ -69,6 +70,7 @@ internal object FileTestHelper {
 
     private fun assertFireFile(fireFile: FireFile) {
         assertThat(fireFile.fileName).isEqualTo(TEST_REL_PATH)
+        assertThat(fireFile.filePath).isEqualTo(TEST_FULL_PATH)
         assertThat(fireFile.fireId).isEqualTo(TEST_FIRE_FILE_ID)
         assertThat(fireFile.md5).isEqualTo(TEST_MD5)
         assertThat(fireFile.size).isEqualTo(TEST_FIRE_FILE_SIZE)

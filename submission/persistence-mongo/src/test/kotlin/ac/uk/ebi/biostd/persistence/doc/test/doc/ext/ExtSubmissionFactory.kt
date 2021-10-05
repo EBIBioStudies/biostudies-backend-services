@@ -6,6 +6,10 @@ import ebi.ac.uk.extended.model.ExtStat
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod.PAGE_TAB
 import ebi.ac.uk.extended.model.ExtTag
+import ebi.ac.uk.extended.model.FireDirectory
+import ebi.ac.uk.extended.model.FireFile
+import ebi.ac.uk.extended.model.NfsFile
+import java.io.File
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 
@@ -35,6 +39,29 @@ const val EXT_STAT_NAME = "component"
 const val EXT_STAT_VALUE = "1"
 val extStat = ExtStat(EXT_STAT_NAME, EXT_STAT_VALUE)
 
+const val FIRE_FILE_FILENAME = "fireFileFileName"
+const val FIRE_FILE_FILEPATH = "fireFileFileName"
+const val FIRE_FILE_FIRE_ID = "fireFileFireID"
+const val FIRE_FILE_MD5 = "fireFileMd5"
+const val FIRE_FILE_SIZE = 1L
+val fireFile = FireFile(
+    FIRE_FILE_FILENAME,
+    FIRE_FILE_FILEPATH,
+    FIRE_FILE_FIRE_ID,
+    FIRE_FILE_MD5,
+    FIRE_FILE_SIZE,
+    listOf()
+)
+
+const val FIRE_DIRECTORY_FILENAME = "fireDirectoryFileName"
+const val FIRE_DIRECTORY_MD5 = "fireDirectoryMd5"
+const val FIRE_DIRECTORY_SIZE = 2L
+val fireDirectory = FireDirectory(FIRE_DIRECTORY_FILENAME, FIRE_DIRECTORY_MD5, FIRE_DIRECTORY_SIZE, listOf())
+
+const val NFS_FILENAME = "nfsFileName"
+val NFS_FILE = File(NFS_FILENAME)
+val nfsFile = NfsFile(NFS_FILENAME, NFS_FILE, listOf())
+
 val fullExtSubmission = ExtSubmission(
     accNo = SUBMISSION_ACC_NO,
     version = SUBMISSION_VERSION,
@@ -54,5 +81,6 @@ val fullExtSubmission = ExtSubmission(
     tags = listOf(extTag),
     collections = listOf(extCollection),
     section = rootSection,
-    stats = listOf(extStat)
+    stats = listOf(extStat),
+    pageTabFiles = listOf(fireFile, fireDirectory)
 )

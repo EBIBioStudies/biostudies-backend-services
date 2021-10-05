@@ -13,3 +13,6 @@ val ExtSubmission.allFiles
 
 val ExtSubmission.isCollection
     get(): Boolean = section.type == PROJECT_TYPE
+
+val ExtSubmission.filesPath
+    get(): String = "$relPath/Files"
