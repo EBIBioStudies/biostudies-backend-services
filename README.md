@@ -53,7 +53,7 @@ RabbitMQ image with the following configuration:
 #### FireMock Setup (EBI only)
 
 * Generate a GitLab access token [here](https://gitlab.ebi.ac.uk/-/profile/personal_access_tokens) with at least `read_registry` scope
-* Execute `docker login` and enter your username when prompted for username, and the access token when prompted for a password
+* Execute `docker login dockerhub.ebi.ac.uk` and enter your GitLab username when prompted for username, and the access token when prompted for a password
 * Execute `gradle setUpFireMock` in the [infrastructure](infrastructure) folder
 
 The steps above will deploy a FIREMock image listening on localhost, with the following configurations
