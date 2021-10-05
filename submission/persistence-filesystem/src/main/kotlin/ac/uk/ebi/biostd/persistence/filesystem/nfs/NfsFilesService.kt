@@ -29,12 +29,12 @@ class NfsFilesService(
 ) : FilesService {
     override fun persistSubmissionFiles(request: FilePersistenceRequest): ExtSubmission {
         val (submission, mode, _) = request
-        logger.info { "Starting processing files of submission ${submission.accNo} over NFS" }
+        logger.info { "Processing files of submission ${submission.accNo} over NFS" }
 
         val submissionFolder = getOrCreateSubmissionFolder(submission, submission.permissions().folder)
 
         val processed = processAttachedFiles(mode, submission, submissionFolder, submission.permissions())
-        logger.info { "Finishing processing files of submission ${submission.accNo} over NFS" }
+        logger.info { "Finished processing files of submission ${submission.accNo} over NFS" }
 
         return processed
     }

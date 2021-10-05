@@ -17,10 +17,13 @@ private val logger = KotlinLogging.logger {}
 class FireFilesService(private val fireWebClient: FireWebClient) : FilesService {
     override fun persistSubmissionFiles(request: FilePersistenceRequest): ExtSubmission {
         val (submission, _, previousFiles) = request
-        logger.info { "Starting processing files of submission ${submission.accNo} over FIRE" }
+        logger.info { "Processing files of submission ${submission.accNo} over FIRE" }
+
         val config = FireFileProcessingConfig(submission.relPath, fireWebClient, previousFiles)
         val processed = processFiles(submission) { config.processFile(request.submission, it) }
-        logger.info { "Finishing processing files of submission ${submission.accNo} over FIRE" }
+
+        logger.info { "Finished processing files of submission ${submission.accNo} over FIRE" }
+
         return processed
     }
 }

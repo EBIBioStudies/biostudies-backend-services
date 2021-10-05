@@ -10,6 +10,7 @@ import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.client.getForObject
 import org.springframework.web.client.postForObject
+import uk.ac.ebi.fire.client.exception.FireClientException
 import uk.ac.ebi.fire.client.integration.web.FireOperations
 import uk.ac.ebi.fire.client.model.FireFile
 import java.io.File
@@ -69,7 +70,7 @@ internal class FireClient(
 
     override fun findAllInPath(path: String): List<FireFile> {
         return runCatching { template.getForObject<Array<FireFile>>("$FIRE_OBJECTS_URL/entries/path/$path").toList() }
-            .getOrElse { if (it is HttpException && it.statusCode == NOT_FOUND) return emptyList() else throw it }
+            .getOrElse { if (it is FireClientException && it.statusCode == NOT_FOUND) return emptyList() else throw it }
     }
 
     override fun publish(fireOid: String) {
