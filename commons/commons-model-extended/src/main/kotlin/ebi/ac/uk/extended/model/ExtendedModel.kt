@@ -28,6 +28,7 @@ sealed class ExtFile {
 
 data class FireFile(
     override val fileName: String,
+    val filePath: String,
     val fireId: String,
     val md5: String,
     val size: Long,
@@ -62,7 +63,12 @@ data class NfsFile(
         get() = file.size()
 }
 
-data class ExtFileList(val fileName: String, val files: List<ExtFile> = listOf(), val filesUrl: String? = null)
+data class ExtFileList(
+    val fileName: String,
+    val files: List<ExtFile> = listOf(),
+    val filesUrl: String? = null,
+    val pageTabFiles: List<ExtFile> = listOf()
+)
 
 data class ExtSectionTable(val sections: List<ExtSection>)
 
@@ -111,7 +117,8 @@ data class ExtSubmission(
     val attributes: List<ExtAttribute> = listOf(),
     val tags: List<ExtTag> = listOf(),
     val collections: List<ExtCollection> = listOf(),
-    val stats: List<ExtStat> = listOf()
+    val stats: List<ExtStat> = listOf(),
+    val pageTabFiles: List<ExtFile> = listOf()
 )
 
 // TODO change value type to long

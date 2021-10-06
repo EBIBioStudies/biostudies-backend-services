@@ -38,7 +38,7 @@ internal class WebConfig(
     @Bean
     fun fireWebClient(properties: ApplicationProperties): FireWebClient =
         FireWebClient.create(
-            properties.tempDirPath,
+            properties.fireTempDirPath,
             properties.fire.host,
             properties.fire.username,
             properties.fire.password

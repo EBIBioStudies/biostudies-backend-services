@@ -6,6 +6,9 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocStat
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionMethod.PAGE_TAB
 import ac.uk.ebi.biostd.persistence.doc.model.DocTag
+import ac.uk.ebi.biostd.persistence.doc.model.FireDocDirectory
+import ac.uk.ebi.biostd.persistence.doc.model.FireDocFile
+import ac.uk.ebi.biostd.persistence.doc.model.NfsDocFile
 import ac.uk.ebi.biostd.persistence.doc.test.AttributeTestHelper.assertFullExtAttribute
 import ac.uk.ebi.biostd.persistence.doc.test.AttributeTestHelper.fullDocAttribute
 import ac.uk.ebi.biostd.persistence.doc.test.SectionTestHelper.assertExtSection
@@ -13,6 +16,11 @@ import ac.uk.ebi.biostd.persistence.doc.test.SectionTestHelper.docSection
 import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod
+import ebi.ac.uk.extended.model.FireDirectory
+import ebi.ac.uk.extended.model.FireFile
+import ebi.ac.uk.extended.model.NfsFile
+import ebi.ac.uk.util.collections.second
+import ebi.ac.uk.util.collections.third
 import org.assertj.core.api.Assertions.assertThat
 import org.bson.types.ObjectId
 import java.io.File
@@ -32,6 +40,10 @@ private const val PROJECT_ACC_NO = "BioImages"
 private const val STAT_TYPE = "VIEWS"
 private const val STAT_VALUE = 123L
 internal const val REL_PATH = "S-TEST/123/S-TEST123"
+
+val fireDocFile = FireDocFile("filename", "filePath", "fireId", listOf(), "md5", 1L)
+val fireDocDirectory = FireDocDirectory("filename", listOf(), "md5", 1L)
+val nfsDocFile = NfsDocFile("filename", "fireId", "fileAbsPath", listOf(), "md5", 1L)
 
 object SubmissionTestHelper {
     private val time = Instant.now()
@@ -56,16 +68,24 @@ object SubmissionTestHelper {
         tags = listOf(DocTag(TAG_NAME, TAG_VALUE)),
         stats = listOf(DocStat(STAT_TYPE, STAT_VALUE)),
         collections = listOf(DocCollection(PROJECT_ACC_NO)),
-        section = docSection
+        section = docSection,
+        pageTabFiles = listOf(fireDocFile, fireDocDirectory, nfsDocFile)
     )
 
-    fun assertExtSubmission(extSubmission: ExtSubmission, testFile: File) {
+    fun assertExtSubmission(extSubmission: ExtSubmission, testFile: File, nfsFileFile: File) {
         assertBasicProperties(extSubmission)
         assertExtSection(extSubmission.section, testFile)
         assertAttributes(extSubmission)
         assertTags(extSubmission)
         assertStats(extSubmission)
         assertProject(extSubmission)
+        assertThat(extSubmission.pageTabFiles.first()).isEqualTo(
+            FireFile(fireDocFile.fileName, fireDocFile.filePath, fireDocFile.fireId, fireDocFile.md5, 1, listOf())
+        )
+        assertThat(extSubmission.pageTabFiles.second()).isEqualTo(
+            FireDirectory(fireDocDirectory.fileName, fireDocDirectory.md5, fireDocDirectory.fileSize, listOf())
+        )
+        assertThat(extSubmission.pageTabFiles.third()).isEqualTo(NfsFile(nfsFileFile.name, nfsFileFile, listOf()))
     }
 
     private fun assertBasicProperties(extSubmission: ExtSubmission) {

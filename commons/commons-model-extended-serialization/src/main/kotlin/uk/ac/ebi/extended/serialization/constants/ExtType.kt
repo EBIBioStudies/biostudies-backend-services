@@ -25,6 +25,7 @@ sealed class ExtType(val type: String) {
         fun valueOf(type: String): ExtType = when (type) {
             NFS_FILE -> NfsFile
             FIRE_FILE -> FireFile
+            FIRE_DIR -> FireDirectory
             FILES_TABLE -> FilesTable
             LINK -> Link
             LINKS_TABLE -> LinksTable

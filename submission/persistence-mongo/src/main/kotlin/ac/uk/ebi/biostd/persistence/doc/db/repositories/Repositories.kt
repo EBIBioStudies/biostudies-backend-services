@@ -22,8 +22,6 @@ interface SubmissionMongoRepository : MongoRepository<DocSubmission, ObjectId> {
 
     fun getByAccNoAndVersion(accNo: String, version: Int): DocSubmission
 
-    fun getByAccNoAndVersionGreaterThan(accNo: String, version: Int): DocSubmission
-
     fun getByAccNoInAndVersionGreaterThan(accNo: List<String>, version: Int): List<DocSubmission>
 
     fun findFirstByAccNoOrderByVersionDesc(accNo: String): DocSubmission?

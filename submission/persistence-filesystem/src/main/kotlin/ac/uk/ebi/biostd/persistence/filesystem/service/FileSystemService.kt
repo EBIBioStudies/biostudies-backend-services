@@ -19,8 +19,8 @@ class FileSystemService(
         logger.info { "processing submission ${submission.accNo} files in mode $mode" }
 
         val processedSubmission = filesService.persistSubmissionFiles(request)
-        pageTabService.generatePageTab(processedSubmission)
-        ftpService.processSubmissionFiles(submission)
-        return processedSubmission
+        val finalSub = pageTabService.generatePageTab(processedSubmission)
+        ftpService.processSubmissionFiles(finalSub)
+        return finalSub
     }
 }

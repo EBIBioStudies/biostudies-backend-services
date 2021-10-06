@@ -1,4 +1,5 @@
 import Dependencies.Arrow
+import Dependencies.CommonsFileUpload
 import Dependencies.CommonsIO
 import Dependencies.JpaEntityGraph
 import Dependencies.KotlinLogging
@@ -15,6 +16,7 @@ import Projects.CommonsModelExtendedSerialization
 import Projects.CommonsSerialization
 import Projects.CommonsTest
 import Projects.CommonsUtil
+import Projects.ExcelLibrary
 import Projects.SubmissionNotification
 import Projects.SubmissionPersistenceMongo
 import Projects.SubmissionPersistenceSql
@@ -69,6 +71,7 @@ dependencies {
     api(project(CommonsModelExtendedSerialization))
     api(project(CommonsSerialization))
     api(project(CommonsUtil))
+    api(project(ExcelLibrary))
     api(project(CommonsTest))
     api(project(CommonsHttp))
 
@@ -86,6 +89,7 @@ dependencies {
     implementation(SpringBootStartedAdminClient)
 
     implementation(Arrow)
+    implementation(CommonsFileUpload)
     implementation(CommonsIO)
     implementation(MySql)
     implementation(JpaEntityGraph)

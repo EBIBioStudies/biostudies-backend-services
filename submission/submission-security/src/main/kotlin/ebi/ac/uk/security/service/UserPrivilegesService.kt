@@ -49,12 +49,10 @@ internal class UserPrivilegesService(
 
     private fun hasPermissions(user: String, accessTags: List<String>, accessType: AccessType): Boolean {
         val tags = accessTags.filter { it != PUBLIC_ACCESS_TAG.value }
-
         return tags.isNotEmpty() && tags.all { userPermissionsService.hasPermission(user, it, accessType) }
     }
 
     private fun isSuperUser(email: String) = getUser(email).superuser
-
     private fun isAuthor(author: String?, email: String) = author == email
 
     private fun getUser(email: String) = userRepository.findByEmail(email) ?: throw UserNotFoundByEmailException(email)

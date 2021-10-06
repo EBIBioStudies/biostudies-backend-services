@@ -17,10 +17,13 @@ private val logger = KotlinLogging.logger {}
 class FireFilesService(private val fireWebClient: FireWebClient) : FilesService {
     override fun persistSubmissionFiles(request: FilePersistenceRequest): ExtSubmission {
         val (submission, _, previousFiles) = request
-        logger.info { "Starting processing files of submission ${submission.accNo} over FIRE" }
+        logger.info { "Processing files of submission ${submission.accNo} over FIRE" }
+
         val config = FireFileProcessingConfig(submission.relPath, fireWebClient, previousFiles)
         val processed = processFiles(submission) { config.processFile(request.submission, it) }
-        logger.info { "Finishing processing files of submission ${submission.accNo} over FIRE" }
+
+        logger.info { "Finished processing files of submission ${submission.accNo} over FIRE" }
+
         return processed
     }
 }
@@ -38,13 +41,12 @@ fun FireFileProcessingConfig.processFile(
 
 fun FireFileProcessingConfig.processNfsFile(relPath: String, nfsFile: NfsFile): ExtFile {
     logger.info { "processing file ${nfsFile.fileName}" }
-
     val fileFire = previousFiles[nfsFile.md5] as FireFile?
     return if (fileFire == null) saveFile(relPath, nfsFile) else reusePreviousFile(fileFire, nfsFile)
 }
 
 private fun reusePreviousFile(fireFile: FireFile, nfsFile: NfsFile) =
-    FireFile(nfsFile.fileName, fireFile.fireId, fireFile.md5, fireFile.size, nfsFile.attributes)
+    FireFile(nfsFile.file.name, nfsFile.fileName, fireFile.fireId, fireFile.md5, fireFile.size, nfsFile.attributes)
 
 private fun FireFileProcessingConfig.saveFile(relPath: String, nfsFile: NfsFile) =
     if (nfsFile.file.isDirectory) fireDirectory(nfsFile) else persistFireFile(relPath, nfsFile)
@@ -53,5 +55,12 @@ private fun fireDirectory(file: NfsFile) = FireDirectory(file.fileName, file.md5
 
 private fun FireFileProcessingConfig.persistFireFile(relPath: String, nfsFile: NfsFile): FireFile {
     val store = fireWebClient.save(nfsFile.file, nfsFile.md5, relPath)
-    return FireFile(nfsFile.fileName, store.fireOid, store.objectMd5, store.objectSize.toLong(), nfsFile.attributes)
+    return FireFile(
+        nfsFile.file.name,
+        nfsFile.fileName,
+        store.fireOid,
+        store.objectMd5,
+        store.objectSize.toLong(),
+        nfsFile.attributes
+    )
 }

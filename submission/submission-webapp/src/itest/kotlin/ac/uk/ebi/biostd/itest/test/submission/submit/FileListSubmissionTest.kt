@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.itest.test.submission.submit
 
 import ac.uk.ebi.biostd.client.exception.WebClientException
-import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
+import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.JSON
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
@@ -15,6 +15,7 @@ import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.extended.model.ExtFileList
+import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.test.createFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
@@ -31,6 +32,7 @@ import org.springframework.context.annotation.Import
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.transaction.annotation.Transactional
+import java.io.File
 import java.nio.file.Paths
 
 @ExtendWith(TemporaryFolderExtension::class)
@@ -89,7 +91,7 @@ internal class FileListSubmissionTest(private val tempFolder: TemporaryFolder) :
             )
 
             val response = webClient.submitSingle(
-                submission, SubmissionFormat.JSON, listOf(fileList, tempFolder.createFile("File4.txt"))
+                submission, JSON, listOf(fileList, tempFolder.createFile("File4.txt"))
             )
 
             assertThat(response).isSuccessful()
@@ -121,7 +123,7 @@ internal class FileListSubmissionTest(private val tempFolder: TemporaryFolder) :
                 }
             }.toString()
 
-            val fileList = excel("${tempFolder.root.absolutePath}/FileList.xlsx") {
+            val fileList = excel(File("${tempFolder.root.absolutePath}/FileList.xlsx")) {
                 sheet("page tab") {
                     row {
                         cell("Files")
@@ -135,7 +137,7 @@ internal class FileListSubmissionTest(private val tempFolder: TemporaryFolder) :
             }
 
             val response = webClient.submitSingle(
-                submission, SubmissionFormat.JSON, listOf(fileList, tempFolder.createFile("File5.txt"))
+                submission, JSON, listOf(fileList, tempFolder.createFile("File5.txt"))
             )
 
             assertThat(response).isSuccessful()
@@ -145,7 +147,7 @@ internal class FileListSubmissionTest(private val tempFolder: TemporaryFolder) :
 
         @Test
         fun `JSON submission with invalid file list format`() {
-            val fileList = tempFolder.createFile("FileList.txt")
+            val fileList = tempFolder.createFile("FileList.txt", "Invalid file list")
             val submission = jsonObj {
                 "accno" to "S-TEST5"
                 "attributes" to jsonArray({
@@ -169,22 +171,42 @@ internal class FileListSubmissionTest(private val tempFolder: TemporaryFolder) :
             }.toString()
 
             assertThatExceptionOfType(WebClientException::class.java)
-                .isThrownBy { webClient.submitSingle(submission, SubmissionFormat.JSON, listOf(fileList)) }
+                .isThrownBy { webClient.submitSingle(submission, JSON, listOf(fileList)) }
                 .withMessageContaining("Unsupported page tab format FileList.txt")
         }
 
         private fun assertSubmissionFiles(accNo: String, testFile: String) {
-            val fileListName = "FileList"
-            val createdSubmission = submissionRepository.getExtByAccNo(accNo)
-            val submissionFolderPath = "$submissionPath/${createdSubmission.relPath}"
+            val createdSub = submissionRepository.getExtByAccNo(accNo)
+            val subFolder = "$submissionPath/${createdSub.relPath}"
 
-            assertThat(createdSubmission.section.fileList?.fileName).isEqualTo(fileListName)
-            assertThat(createdSubmission.section.fileList).isEqualTo(ExtFileList(fileListName, emptyList()))
+            val fileListName = createdSub.section.fileList?.fileName
+            val expectedTabFiles = if (mongoMode) {
+                if (enableFire) listOf() else listOf(
+                    NfsFile("$fileListName.json", File(subFolder).resolve("Files/$fileListName.json")),
+                    NfsFile("$fileListName.xml", File(subFolder).resolve("Files/$fileListName.xml")),
+                    NfsFile("$fileListName.pagetab.tsv", File(subFolder).resolve("Files/$fileListName.pagetab.tsv"))
+                )
+            } else listOf()
 
-            assertThat(Paths.get("$submissionFolderPath/Files/$testFile")).exists()
-            assertThat(Paths.get("$submissionFolderPath/Files/$fileListName.xml")).exists()
-            assertThat(Paths.get("$submissionFolderPath/Files/$fileListName.json")).exists()
-            assertThat(Paths.get("$submissionFolderPath/Files/$fileListName.pagetab.tsv")).exists()
+            val submissionPageTabFiles = if (mongoMode) {
+                if (enableFire) listOf() else listOf(
+                    NfsFile("$accNo.json", File(subFolder).resolve("$accNo.json")),
+                    NfsFile("$accNo.xml", File(subFolder).resolve("$accNo.xml")),
+                    NfsFile("$accNo.pagetab.tsv", File(subFolder).resolve("$accNo.pagetab.tsv"))
+                )
+            } else listOf()
+
+            assertThat(createdSub.section.fileList).isEqualTo(ExtFileList("FileList", pageTabFiles = expectedTabFiles))
+            assertThat((createdSub.pageTabFiles)).isEqualTo(submissionPageTabFiles)
+
+            assertThat(Paths.get("$subFolder/Files/$testFile")).exists()
+            assertThat(Paths.get("$subFolder/Files/$fileListName.xml")).exists()
+            assertThat(Paths.get("$subFolder/Files/$fileListName.json")).exists()
+            assertThat(Paths.get("$subFolder/Files/$fileListName.pagetab.tsv")).exists()
+
+            assertThat(Paths.get("$subFolder/${createdSub.accNo}.xml")).exists()
+            assertThat(Paths.get("$subFolder/${createdSub.accNo}.json")).exists()
+            assertThat(Paths.get("$subFolder/${createdSub.accNo}.pagetab.tsv")).exists()
         }
     }
 }

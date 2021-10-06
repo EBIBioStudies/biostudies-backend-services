@@ -5,6 +5,7 @@ import ac.uk.ebi.biostd.integration.SubFormat.JsonFormat
 import ac.uk.ebi.biostd.integration.SubFormat.JsonFormat.JsonPretty
 import ac.uk.ebi.biostd.integration.SubFormat.JsonFormat.PlainJson
 import ac.uk.ebi.biostd.integration.SubFormat.TsvFormat
+import ac.uk.ebi.biostd.integration.SubFormat.TsvFormat.XlsxTsv
 import ac.uk.ebi.biostd.integration.SubFormat.XmlFormat
 import ac.uk.ebi.biostd.json.JsonSerializer
 import ac.uk.ebi.biostd.tsv.TsvSerializer
@@ -37,6 +38,6 @@ internal class PagetabSerializer(
     fun <T> deserializeElement(element: String, format: SubFormat, type: Class<out T>): T = when (format) {
         XmlFormat -> xmlSerializer.deserialize(element, type)
         is JsonFormat -> jsonSerializer.deserialize(element, type)
-        is TsvFormat -> tsvSerializer.deserializeElement(element, type)
+        is TsvFormat, XlsxTsv -> tsvSerializer.deserializeElement(element, type)
     }
 }

@@ -4,10 +4,13 @@ import ebi.ac.uk.io.ext.size
 import org.springframework.core.io.FileSystemResource
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpStatus.NOT_FOUND
 import org.springframework.util.LinkedMultiValueMap
+import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.client.getForObject
 import org.springframework.web.client.postForObject
+import uk.ac.ebi.fire.client.exception.FireClientException
 import uk.ac.ebi.fire.client.integration.web.FireOperations
 import uk.ac.ebi.fire.client.model.FireFile
 import java.io.File
@@ -21,6 +24,8 @@ internal const val FIRE_SIZE_HEADER = "x-fire-size"
 internal const val SUBMISSION_RELPATH_HEADER = "sub-relpath"
 
 const val FIRE_OBJECTS_URL = "/fire/objects"
+
+private typealias HttpException = HttpClientErrorException
 
 internal class FireClient(
     private val tmpDirPath: String,
@@ -63,8 +68,10 @@ internal class FireClient(
         return tmpFile
     }
 
-    override fun findAllInPath(path: String): List<FireFile> =
-        template.getForObject("$FIRE_OBJECTS_URL/entries/path/$path")
+    override fun findAllInPath(path: String): List<FireFile> {
+        return runCatching { template.getForObject<Array<FireFile>>("$FIRE_OBJECTS_URL/entries/path/$path").toList() }
+            .getOrElse { if (it is FireClientException && it.statusCode == NOT_FOUND) return emptyList() else throw it }
+    }
 
     override fun publish(fireOid: String) {
         template.put("$FIRE_OBJECTS_URL/$fireOid/publish", null)

@@ -1,7 +1,7 @@
 package ebi.ac.uk.security.service
 
 import ac.uk.ebi.biostd.persistence.model.DbUser
-import ac.uk.ebi.biostd.persistence.model.UserGroup
+import ac.uk.ebi.biostd.persistence.model.DbUserGroup
 import ebi.ac.uk.security.integration.model.api.GroupMagicFolder
 import ebi.ac.uk.security.integration.model.api.MagicFolder
 import ebi.ac.uk.security.integration.model.api.SecurityUser
@@ -15,7 +15,7 @@ import java.nio.file.Paths
 @ExtendWith(TemporaryFolderExtension::class)
 class ProfileServiceTest(temporaryFolder: TemporaryFolder) {
     private val filesDir = temporaryFolder.root.toPath()
-    private val testGroup = UserGroup("Test Group", "Test Group Description", "fd9f87b3-9de8-4036-be7a-3ac8cbc44ddd")
+    private val testGroup = DbUserGroup("Test Group", "Test Group Description", "fd9f87b3-9de8-4036-be7a-3ac8cbc44ddd")
 
     private val testUser = DbUser(
         id = 3,

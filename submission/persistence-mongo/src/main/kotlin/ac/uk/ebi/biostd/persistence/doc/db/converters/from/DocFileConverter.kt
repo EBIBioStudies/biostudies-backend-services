@@ -6,8 +6,9 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.FIRE_DOC_DIRECTORY_CLASS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.FIRE_DOC_FILE_CLASS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.FIRE_FILE_DOC_FILE_NAME
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.FIRE_FILE_DOC_FILE_PATH
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.FIRE_FILE_DOC_ID
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.FILE_LIST_DOC_FILE_FULL_PATH
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.NFS_DOC_FILE_CLASS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.NFS_FILE_DOC_REL_PATH
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.NFS_FILE_TYPE
@@ -28,6 +29,7 @@ class DocFileConverter(private val docAttributeConverter: DocAttributeConverter)
         return when (source.getString(classField)) {
             FIRE_DOC_FILE_CLASS -> FireDocFile(
                 fileName = source.getString(FIRE_FILE_DOC_FILE_NAME),
+                filePath = source.getString(FIRE_FILE_DOC_FILE_PATH),
                 fireId = source.getString(FIRE_FILE_DOC_ID),
                 attributes = attributes,
                 md5 = md5,
@@ -41,7 +43,7 @@ class DocFileConverter(private val docAttributeConverter: DocAttributeConverter)
             )
             NFS_DOC_FILE_CLASS -> NfsDocFile(
                 relPath = source.getString(NFS_FILE_DOC_REL_PATH),
-                fullPath = source.getString(FILE_LIST_DOC_FILE_FULL_PATH),
+                fullPath = source.getString(NfsDocFileFields.NFS_FILE_DOC_FULL_PATH),
                 fileType = source.getString(NFS_FILE_TYPE),
                 attributes = attributes,
                 md5 = md5,
