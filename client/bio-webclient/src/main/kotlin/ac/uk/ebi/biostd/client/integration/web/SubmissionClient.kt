@@ -37,6 +37,7 @@ typealias SubmissionResponse = ClientResponse<Submission>
 
 interface FilesOperations {
     fun uploadFiles(files: List<File>, relativePath: String = EMPTY)
+    fun uploadFile(file: File, relativePath: String = EMPTY)
     fun downloadFile(fileName: String, relativePath: String = EMPTY): File
     fun listUserFiles(relativePath: String = EMPTY): List<UserFile>
     fun deleteFile(fileName: String, relativePath: String = EMPTY)
