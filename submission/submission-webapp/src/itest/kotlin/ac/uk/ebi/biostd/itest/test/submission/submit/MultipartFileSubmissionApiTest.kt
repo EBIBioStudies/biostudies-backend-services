@@ -68,7 +68,7 @@ internal class MultipartFileSubmissionApiTest(
 
         @Test
         fun `XLS submission`() {
-            val excelPageTab = excel("${tempFolder.root.absolutePath}/ExcelSubmission.xlsx") {
+            val excelPageTab = excel(File("${tempFolder.root.absolutePath}/ExcelSubmission.xlsx")) {
                 sheet("page tab") {
                     row {
                         cell("Submission")
@@ -79,8 +79,7 @@ internal class MultipartFileSubmissionApiTest(
                         cell("Excel Submission")
                     }
 
-                    emptyRow()
-
+                    row { cell(""); cell("") }
                     row {
                         cell("Study")
                         cell("SECT-001")
@@ -96,7 +95,7 @@ internal class MultipartFileSubmissionApiTest(
                 }
             }
 
-            val fileList = excel("${tempFolder.root.absolutePath}/FileList.xlsx") {
+            val fileList = excel(File("${tempFolder.root.absolutePath}/FileList.xlsx")) {
                 sheet("page tab") {
                     row {
                         cell("Files")

@@ -123,7 +123,7 @@ internal class FileListSubmissionTest(private val tempFolder: TemporaryFolder) :
                 }
             }.toString()
 
-            val fileList = excel("${tempFolder.root.absolutePath}/FileList.xlsx") {
+            val fileList = excel(File("${tempFolder.root.absolutePath}/FileList.xlsx")) {
                 sheet("page tab") {
                     row {
                         cell("Files")
