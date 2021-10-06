@@ -57,7 +57,7 @@ class SubmissionService(
         )
     }
 
-    @RabbitListener(queues = [SUBMISSION_REQUEST_QUEUE], concurrency = "10-20")
+    @RabbitListener(queues = [SUBMISSION_REQUEST_QUEUE], concurrency = "5-20")
     fun processSubmission(request: SubmissionRequestMessage) {
         logger.info { "received process message for submission ${request.accNo} , version: ${request.version}" }
 
