@@ -10,6 +10,7 @@ import ac.uk.ebi.biostd.itest.factory.submissionSpecJson
 import ac.uk.ebi.biostd.itest.factory.submissionSpecTsv
 import ac.uk.ebi.biostd.itest.factory.submissionSpecXml
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
+import ebi.ac.uk.extended.model.ExtSubmissionMethod.FILE
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.junit.jupiter.api.BeforeAll
@@ -59,7 +60,7 @@ internal class AllInOneMultipartFileSubmissionTest(
 
             webClient.submitSingle(submission, emptyList())
 
-            allInOneSubmissionHelper.assertSavedSubmission("S-EPMC124")
+            allInOneSubmissionHelper.assertSavedSubmission("S-EPMC124", method = FILE)
         }
 
         @Test
@@ -70,7 +71,7 @@ internal class AllInOneMultipartFileSubmissionTest(
 
             webClient.submitSingle(submission, emptyList())
 
-            allInOneSubmissionHelper.assertSavedSubmission("S-EPMC125")
+            allInOneSubmissionHelper.assertSavedSubmission("S-EPMC125", method = FILE)
         }
 
         @Test
@@ -81,7 +82,7 @@ internal class AllInOneMultipartFileSubmissionTest(
 
             webClient.submitSingle(submission, emptyList())
 
-            allInOneSubmissionHelper.assertSavedSubmission("S-EPMC124")
+            allInOneSubmissionHelper.assertSavedSubmission("S-EPMC124", method = FILE)
         }
     }
 }
