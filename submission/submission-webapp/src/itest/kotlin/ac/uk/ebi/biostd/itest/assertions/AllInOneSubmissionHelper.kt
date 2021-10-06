@@ -16,6 +16,7 @@ internal class AllInOneSubmissionHelper(
     private val submissionPath: String,
     private val submissionRepository: SubmissionQueryService
 ) {
+
     internal fun assertSavedSubmission(accNo: String, method: ExtSubmissionMethod = ExtSubmissionMethod.PAGE_TAB) {
         val extendedSubmission = submissionRepository.getExtByAccNo(accNo)
         assertThat(extendedSubmission.status).isEqualTo(ExtProcessingStatus.PROCESSED)
@@ -24,6 +25,7 @@ internal class AllInOneSubmissionHelper(
         assertSubmissionFiles(extendedSubmission)
     }
 
+    // TODO: validate file list xml,json, tsv, page tab too
     private fun assertSubmissionFiles(submission: ExtSubmission) {
         val submissionFolderPath = "$submissionPath/${submission.relPath}"
         val accNo = submission.accNo
