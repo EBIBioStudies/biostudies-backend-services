@@ -260,7 +260,7 @@ internal class MultipartFileSubmissionApiTest(
 
         @Test
         fun `invalid format file`() {
-            val submission = tempFolder.createFile("submission.txt")
+            val submission = tempFolder.createFile("submission.txt", "invalid file")
 
             assertThatExceptionOfType(WebClientException::class.java)
                 .isThrownBy { webClient.submitSingle(submission, emptyList()) }
