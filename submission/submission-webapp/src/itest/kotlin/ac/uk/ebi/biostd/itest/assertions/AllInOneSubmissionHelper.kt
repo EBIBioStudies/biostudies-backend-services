@@ -17,6 +17,7 @@ internal class AllInOneSubmissionHelper(
     private val submissionRepository: SubmissionQueryService
 ) {
 
+    // TODO validate pagetabe files records are present afor submission and file list
     internal fun assertSavedSubmission(accNo: String, method: ExtSubmissionMethod = ExtSubmissionMethod.PAGE_TAB) {
         val extendedSubmission = submissionRepository.getExtByAccNo(accNo)
         assertThat(extendedSubmission.status).isEqualTo(ExtProcessingStatus.PROCESSED)
