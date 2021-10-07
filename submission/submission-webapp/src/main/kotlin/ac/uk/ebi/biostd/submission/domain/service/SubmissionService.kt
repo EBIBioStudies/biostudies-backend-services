@@ -33,13 +33,12 @@ class SubmissionService(
     private val submissionQueryService: SubmissionQueryService,
     private val serializationService: SerializationService,
     private val userPrivilegesService: IUserPrivilegesService,
-    private val queryService: SubmissionMetaQueryService,
     private val submissionSubmitter: SubmissionSubmitter,
     private val eventsPublisherService: EventsPublisherService,
-    private val myRabbitTemplate: RabbitTemplate
+    private val rabbitTemplate: RabbitTemplate
 ) {
     fun submit(request: SubmissionRequest): ExtSubmission {
-        logger.info { "received submit request for submission ${request.submission.accNo}" }
+        logger.info { "Received submit request for submission ${request.submission.accNo}" }
 
         val extSubmission = submissionSubmitter.submit(request)
         eventsPublisherService.submissionSubmitted(extSubmission)
@@ -48,9 +47,11 @@ class SubmissionService(
     }
 
     fun submitAsync(request: SubmissionRequest) {
-        logger.info { "received async submit  request for submission ${request.submission.accNo}" }
+        logger.info { "Received async submit request for submission ${request.submission.accNo}" }
+
         val (extSubmission, mode, draftKey) = submissionSubmitter.submitAsync(request)
-        myRabbitTemplate.convertAndSend(
+
+        rabbitTemplate.convertAndSend(
             BIOSTUDIES_EXCHANGE,
             SUBMISSIONS_REQUEST_ROUTING_KEY,
             SubmissionRequestMessage(extSubmission.accNo, extSubmission.version, mode, draftKey)
@@ -59,7 +60,7 @@ class SubmissionService(
 
     @RabbitListener(queues = [SUBMISSION_REQUEST_QUEUE], concurrency = "1-1")
     fun processSubmission(request: SubmissionRequestMessage) {
-        logger.info { "received process message for submission ${request.accNo} , version: ${request.version}" }
+        logger.info { "Received process message for submission ${request.accNo} , version: ${request.version}" }
 
         runCatching {
             val submission = getRequest(request.accNo, request.version)
@@ -101,8 +102,6 @@ class SubmissionService(
     }
 
     fun getSubmission(accNo: String): ExtSubmission = submissionQueryService.getExtByAccNo(accNo)
-
-    fun findPreviousVersion(accNo: String): BasicSubmission? = queryService.findLatestBasicByAccNo(accNo)
 
     private fun getRequest(accNo: String, version: Int) = submissionQueryService.getRequest(accNo, version)
 }

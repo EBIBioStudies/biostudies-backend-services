@@ -112,7 +112,7 @@ class ExtSubmissionServiceTest(
         val saveRequest = slot<SaveSubmissionRequest>()
         every { requestService.saveAndProcessSubmissionRequest(capture(saveRequest)) } returns extSubmission
 
-        testInstance.submitExtendedSubmission("user@mail.com", extSubmission)
+        testInstance.submitExt("user@mail.com", extSubmission)
 
         assertThat(saveRequest.captured.fileMode).isEqualTo(COPY)
         assertThat(saveRequest.captured.submission).isEqualTo(extSubmission.copy(submitter = "user@mail.com"))
@@ -136,7 +136,7 @@ class ExtSubmissionServiceTest(
             extSerializationService.deserialize("referenced", ExtFileTable::class.java)
         } returns ExtFileTable(extFile)
 
-        testInstance.submitExtendedSubmission("user@mail.com", submission, listOf(fileList))
+        testInstance.submitExt("user@mail.com", submission, listOf(fileList))
 
         assertThat(saveRequest.captured.fileMode).isEqualTo(COPY)
         assertThat(saveRequest.captured.submission).isEqualToComparingFieldByField(
@@ -155,7 +155,7 @@ class ExtSubmissionServiceTest(
     @Test
     fun `submit extended with regular user`() {
         val exception = assertThrows<SecurityException> {
-            testInstance.submitExtendedSubmission("regular@mail.com", extSubmission)
+            testInstance.submitExt("regular@mail.com", extSubmission)
         }
 
         assertThat(exception.message).isEqualTo("The user 'regular@mail.com' is not allowed to perform this action")
@@ -166,7 +166,7 @@ class ExtSubmissionServiceTest(
         every { securityQueryService.existsByEmail("owner@email.org") } returns false
 
         val exception = assertThrows<UserNotFoundException> {
-            testInstance.submitExtendedSubmission("user@mail.com", extSubmission)
+            testInstance.submitExt("user@mail.com", extSubmission)
         }
 
         assertThat(exception.message).isEqualTo("The user with email 'owner@email.org' could not be found")
@@ -177,7 +177,7 @@ class ExtSubmissionServiceTest(
         every { submissionRepository.existByAccNo("ArrayExpress") } returns false
 
         val exception = assertThrows<CollectionNotFoundException> {
-            testInstance.submitExtendedSubmission("user@mail.com", extSubmission)
+            testInstance.submitExt("user@mail.com", extSubmission)
         }
 
         assertThat(exception.message).isEqualTo("The collection 'ArrayExpress' was not found")
@@ -191,7 +191,7 @@ class ExtSubmissionServiceTest(
         every { submissionRepository.existByAccNo("ArrayExpress") } returns false
         every { requestService.saveAndProcessSubmissionRequest(capture(saveRequest)) } returns collection
 
-        testInstance.submitExtendedSubmission("user@mail.com", collection)
+        testInstance.submitExt("user@mail.com", collection)
 
         assertThat(saveRequest.captured.fileMode).isEqualTo(COPY)
         assertThat(saveRequest.captured.submission).isEqualTo(collection.copy(submitter = "user@mail.com"))

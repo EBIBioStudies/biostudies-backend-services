@@ -79,7 +79,7 @@ class ExtSubmissionResourceTest(
         bioUserResolver.securityUser = user
         every { tempFileGenerator.asFiles(capture(fileLists)) } returns emptyList()
         every { extSerializationService.serialize(extSubmission) } returns submissionJson
-        every { extSubmissionService.submitExtendedSubmission(user.email, extSubmission) } returns extSubmission
+        every { extSubmissionService.submitExt(user.email, extSubmission) } returns extSubmission
         every { extSerializationService.deserialize(submissionJson, ExtSubmission::class.java) } returns extSubmission
 
         mvc.multipart("/submissions/extended") {
@@ -93,7 +93,7 @@ class ExtSubmissionResourceTest(
         verify(exactly = 1) {
             tempFileGenerator.asFiles(fileLists.captured)
             extSerializationService.serialize(extSubmission)
-            extSubmissionService.submitExtendedSubmission(user.email, extSubmission)
+            extSubmissionService.submitExt(user.email, extSubmission)
             extSerializationService.deserialize(submissionJson, ExtSubmission::class.java)
         }
     }

@@ -37,7 +37,6 @@ class SubmissionConfig(
         subRepository: SubmissionQueryService,
         serializationService: SerializationService,
         userPrivilegeService: IUserPrivilegesService,
-        queryService: SubmissionMetaQueryService,
         submissionSubmitter: SubmissionSubmitter,
         eventsPublisherService: EventsPublisherService,
         myRabbitTemplate: RabbitTemplate
@@ -45,7 +44,6 @@ class SubmissionConfig(
         subRepository,
         serializationService,
         userPrivilegeService,
-        queryService,
         submissionSubmitter,
         eventsPublisherService,
         myRabbitTemplate
@@ -53,6 +51,7 @@ class SubmissionConfig(
 
     @Bean
     fun extSubmissionService(
+        rabbitTemplate: RabbitTemplate,
         submissionRequestService: SubmissionRequestService,
         subRepository: SubmissionQueryService,
         userPrivilegeService: IUserPrivilegesService,
@@ -60,6 +59,7 @@ class SubmissionConfig(
         extSerializationService: ExtSerializationService
     ): ExtSubmissionService =
         ExtSubmissionService(
+            rabbitTemplate,
             submissionRequestService,
             subRepository,
             userPrivilegeService,

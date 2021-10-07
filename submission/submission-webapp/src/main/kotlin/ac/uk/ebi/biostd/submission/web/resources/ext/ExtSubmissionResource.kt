@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.submission.web.resources.ext
 
 import ac.uk.ebi.biostd.submission.converters.BioUser
 import ac.uk.ebi.biostd.submission.domain.service.ExtSubmissionService
+import ac.uk.ebi.biostd.submission.domain.service.SubmissionService
 import ac.uk.ebi.biostd.submission.domain.service.TempFileGenerator
 import ac.uk.ebi.biostd.submission.web.model.ExtPage
 import ac.uk.ebi.biostd.submission.web.model.ExtPageRequest
@@ -44,7 +45,19 @@ class ExtSubmissionResource(
         @BioUser user: SecurityUser,
         @RequestParam(FILE_LISTS, required = false) fileLists: Array<MultipartFile>?,
         @RequestParam(SUBMISSION) extSubmission: String
-    ): ExtSubmission = extSubmissionService.submitExtendedSubmission(
+    ): ExtSubmission = extSubmissionService.submitExt(
+        user.email,
+        extSerializationService.deserialize(extSubmission, ExtSubmission::class.java),
+        fileLists?.let { tempFileGenerator.asFiles(it) } ?: emptyList()
+    )
+
+    @PostMapping("/async")
+    @PreAuthorize("isAuthenticated()")
+    fun submitExtendedAsync(
+        @BioUser user: SecurityUser,
+        @RequestParam(FILE_LISTS, required = false) fileLists: Array<MultipartFile>?,
+        @RequestParam(SUBMISSION) extSubmission: String
+    ) = extSubmissionService.submitExtAsync(
         user.email,
         extSerializationService.deserialize(extSubmission, ExtSubmission::class.java),
         fileLists?.let { tempFileGenerator.asFiles(it) } ?: emptyList()

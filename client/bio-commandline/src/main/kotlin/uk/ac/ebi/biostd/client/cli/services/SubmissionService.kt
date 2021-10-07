@@ -37,15 +37,15 @@ internal class SubmissionService {
         val sourceClient = bioWebClient(request.source, request.sourceUser, request.sourcePassword)
         val targetClient = bioWebClient(request.target, request.targetUser, request.targetPassword)
         val source = sourceClient.getExtByAccNo(request.accNo)
-        val migrated = migratedSubmissions(source, request.targetOwner)
+        val sub = migratedSubmission(source, request.targetOwner)
         val fileLists = source.allFileList
             .map { File(request.tempFolder, it.fileName) to sourceClient.getReferencedFiles(it.filesUrl!!) }
             .onEach { (file, files) -> file.writeText(extSerializer.serialize(files)) }
             .map { it.first }
 
-        targetClient.submitExt(migrated, fileLists)
+        if (request.async) targetClient.submitExtAsync(sub, fileLists) else targetClient.submitExt(sub, fileLists)
     }
 
-    private fun migratedSubmissions(submission: ExtSubmission, targetOwner: String?) =
+    private fun migratedSubmission(submission: ExtSubmission, targetOwner: String?) =
         if (targetOwner == null) submission else submission.copy(owner = targetOwner)
 }

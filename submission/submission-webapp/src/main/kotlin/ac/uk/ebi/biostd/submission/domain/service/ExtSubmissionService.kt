@@ -7,6 +7,7 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestService
 import ac.uk.ebi.biostd.persistence.exception.UserNotFoundException
 import ac.uk.ebi.biostd.submission.web.model.ExtPageRequest
+import ebi.ac.uk.extended.events.SubmissionRequestMessage
 import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSubmission
@@ -15,8 +16,11 @@ import ebi.ac.uk.extended.model.isCollection
 import ebi.ac.uk.security.integration.components.ISecurityQueryService
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import mu.KotlinLogging
+import org.springframework.amqp.rabbit.core.RabbitTemplate
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
+import uk.ac.ebi.events.config.BIOSTUDIES_EXCHANGE
+import uk.ac.ebi.events.config.SUBMISSIONS_REQUEST_ROUTING_KEY
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import java.io.File
 import java.time.OffsetDateTime
@@ -25,6 +29,7 @@ private val logger = KotlinLogging.logger {}
 
 @Suppress("TooManyFunctions")
 class ExtSubmissionService(
+    private val rabbitTemplate: RabbitTemplate,
     private val requestService: SubmissionRequestService,
     private val submissionRepository: SubmissionQueryService,
     private val userPrivilegesService: IUserPrivilegesService,
@@ -40,19 +45,30 @@ class ExtSubmissionService(
         fileListName: String
     ): ExtFileTable = ExtFileTable(submissionRepository.getReferencedFiles(accNo, fileListName))
 
-    fun submitExtendedSubmission(
+    fun submitExt(
         user: String,
         extSubmission: ExtSubmission,
         fileListFiles: List<File> = emptyList()
     ): ExtSubmission {
-        validateSubmitter(user)
-        validateSubmission(extSubmission)
-        val submission = extSubmission.copy(
-            submitter = user,
-            section = processFileListFiles(extSubmission.section, fileListFiles.associateBy { it.nameWithoutExtension })
-        )
-
+        val submission = processExtSubmission(user, extSubmission, fileListFiles)
         return requestService.saveAndProcessSubmissionRequest(SaveSubmissionRequest(submission, COPY))
+    }
+
+    fun submitExtAsync(
+        user: String,
+        extSubmission: ExtSubmission,
+        fileListFiles: List<File> = emptyList()
+    ) {
+        logger.info { "Received async submit request for ext submission ${extSubmission.accNo}" }
+
+        val submission = processExtSubmission(user, extSubmission, fileListFiles)
+        val newVersion = requestService.saveSubmissionRequest(SaveSubmissionRequest(submission, COPY))
+
+        rabbitTemplate.convertAndSend(
+            BIOSTUDIES_EXCHANGE,
+            SUBMISSIONS_REQUEST_ROUTING_KEY,
+            SubmissionRequestMessage(newVersion.accNo, newVersion.version, COPY, null)
+        )
     }
 
     fun getExtendedSubmissions(request: ExtPageRequest): Page<ExtSubmission> {
@@ -71,6 +87,20 @@ class ExtSubmissionService(
         val submissions = page.content.filterNotNull()
 
         return PageImpl(submissions, page.pageable, page.totalElements)
+    }
+
+    private fun processExtSubmission(
+        user: String,
+        extSubmission: ExtSubmission,
+        fileListFiles: List<File>
+    ): ExtSubmission {
+        validateSubmitter(user)
+        validateSubmission(extSubmission)
+
+        return extSubmission.copy(
+            submitter = user,
+            section = processFileListFiles(extSubmission.section, fileListFiles.associateBy { it.nameWithoutExtension })
+        )
     }
 
     private fun processFileListFiles(
