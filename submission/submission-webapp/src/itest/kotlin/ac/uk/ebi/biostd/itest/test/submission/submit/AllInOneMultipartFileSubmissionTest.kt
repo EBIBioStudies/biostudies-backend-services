@@ -1,17 +1,16 @@
 package ac.uk.ebi.biostd.itest.test.submission.submit
 
-import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.JSON
-import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
-import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.XML
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.itest.assertions.AllInOneSubmissionHelper
-import ac.uk.ebi.biostd.itest.assertions.submitAllInOneMultipartSubmission
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
+import ac.uk.ebi.biostd.itest.factory.submissionSpecJson
+import ac.uk.ebi.biostd.itest.factory.submissionSpecTsv
+import ac.uk.ebi.biostd.itest.factory.submissionSpecXml
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
-import ebi.ac.uk.extended.model.ExtSubmissionMethod
+import ebi.ac.uk.extended.model.ExtSubmissionMethod.FILE
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.junit.jupiter.api.BeforeAll
@@ -54,21 +53,39 @@ internal class AllInOneMultipartFileSubmissionTest(
         }
 
         @Test
-        fun `submit multipart all in one TSV`() {
-            webClient.submitAllInOneMultipartSubmission("S-EPMC124", TSV, tempFolder)
-            allInOneSubmissionHelper.assertSavedSubmission("S-EPMC124", ExtSubmissionMethod.FILE)
+        fun `submit all in one multipart TSV submission`() {
+            val (submission, fileList, files) = submissionSpecTsv(tempFolder, "S-EPMC124")
+            webClient.uploadFile(fileList)
+            files.forEach { webClient.uploadFile(it.file, it.folder) }
+
+            webClient.submitSingle(submission, emptyList())
+
+            allInOneSubmissionHelper.assertSavedSubmission("S-EPMC124", method = FILE)
+            if (mongoMode) allInOneSubmissionHelper.assertSubmissionFilesRecords("S-EPMC124")
         }
 
         @Test
-        fun `submit multipart all in one JSON`() {
-            webClient.submitAllInOneMultipartSubmission("S-EPMC125", JSON, tempFolder)
-            allInOneSubmissionHelper.assertSavedSubmission("S-EPMC125", ExtSubmissionMethod.FILE)
+        fun `submit all in one multipart Json submission`() {
+            val (submission, fileList, files) = submissionSpecJson(tempFolder, "S-EPMC125")
+            webClient.uploadFile(fileList)
+            files.forEach { webClient.uploadFile(it.file, it.folder) }
+
+            webClient.submitSingle(submission, emptyList())
+
+            allInOneSubmissionHelper.assertSavedSubmission("S-EPMC125", method = FILE)
+            if (mongoMode) allInOneSubmissionHelper.assertSubmissionFilesRecords("S-EPMC125")
         }
 
         @Test
-        fun `submit multipart all in one XML`() {
-            webClient.submitAllInOneMultipartSubmission("S-EPMC126", XML, tempFolder)
-            allInOneSubmissionHelper.assertSavedSubmission("S-EPMC126", ExtSubmissionMethod.FILE)
+        fun `submit all in one multipart XML submission`() {
+            val (submission, fileList, files) = submissionSpecXml(tempFolder, "S-EPMC126")
+            webClient.uploadFile(fileList)
+            files.forEach { webClient.uploadFile(it.file, it.folder) }
+
+            webClient.submitSingle(submission, emptyList())
+
+            allInOneSubmissionHelper.assertSavedSubmission("S-EPMC126", method = FILE)
+            if (mongoMode) allInOneSubmissionHelper.assertSubmissionFilesRecords("S-EPMC126")
         }
     }
 }

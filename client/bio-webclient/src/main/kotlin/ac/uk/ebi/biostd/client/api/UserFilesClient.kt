@@ -39,6 +39,12 @@ internal class UserFilesClient(private val template: RestTemplate) : FilesOperat
         template.postForEntity("$USER_FILES_URL${normalize(relativePath)}", HttpEntity(body, headers), Void::class.java)
     }
 
+    override fun uploadFile(file: File, relativePath: String) {
+        val headers = HttpHeaders().apply { contentType = MediaType.MULTIPART_FORM_DATA }
+        val body = LinkedMultiValueMap<String, Any>().apply { add("files", FileSystemResource(file)) }
+        template.postForEntity("$USER_FILES_URL${normalize(relativePath)}", HttpEntity(body, headers), Void::class.java)
+    }
+
     override fun createFolder(folderName: String, relativePath: String) {
         template.postForObject<Unit>("$USER_FOLDER_URL${normalize(relativePath)}?folder=$folderName")
     }
