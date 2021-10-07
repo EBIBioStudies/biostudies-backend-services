@@ -25,21 +25,25 @@ internal class AllInOneSubmissionHelper(
     internal fun assertSavedSubmission(
         accNo: String,
         method: ExtSubmissionMethod = ExtSubmissionMethod.PAGE_TAB,
-        checkTabFiles: Boolean
     ) {
         val extendedSubmission = submissionRepository.getExtByAccNo(accNo)
         assertThat(extendedSubmission.status).isEqualTo(ExtProcessingStatus.PROCESSED)
         assertThat(extendedSubmission.method).isEqualTo(method)
         assertThat(extendedSubmission.toSimpleSubmission()).isEqualTo(allInOneSubmission(accNo))
-        assertSubmissionFiles(extendedSubmission, checkTabFiles)
+        assertSubmissionFiles(extendedSubmission)
     }
 
-    private fun assertSubmissionFiles(submission: ExtSubmission, checkTabFiles: Boolean) {
+    fun assertSubmissionFilesRecords(accNo: String) {
+        val submission = submissionRepository.getExtByAccNo(accNo)
+        val submissionFolderPath = "$submissionPath/${submission.relPath}"
+
+        assertSubmissionPageTabs(accNo, submission.pageTabFiles, submissionFolderPath)
+        assertFileListPageTabs(submission.section.fileList!!.pageTabFiles, submissionFolderPath)
+    }
+
+    private fun assertSubmissionFiles(submission: ExtSubmission) {
         val submissionFolderPath = "$submissionPath/${submission.relPath}"
         val accNo = submission.accNo
-
-        if (checkTabFiles) assertSubmissionPageTabs(accNo, submission.pageTabFiles, submissionFolderPath)
-        if (checkTabFiles) assertFileListPageTabs(submission.section.fileList!!.pageTabFiles, submissionFolderPath)
 
         assertAllInOneSubmissionXml(getSubFileContent("$submissionFolderPath/$accNo.xml"), accNo)
         assertAllInOneSubmissionJson(getSubFileContent("$submissionFolderPath/$accNo.json"), accNo)

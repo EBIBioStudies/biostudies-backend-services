@@ -60,7 +60,8 @@ internal class AllInOneMultipartFileSubmissionTest(
 
             webClient.submitSingle(submission, emptyList())
 
-            allInOneSubmissionHelper.assertSavedSubmission("S-EPMC124", method = FILE, checkTabFiles = mongoMode)
+            allInOneSubmissionHelper.assertSavedSubmission("S-EPMC124", method = FILE)
+            if (mongoMode) allInOneSubmissionHelper.assertSubmissionFilesRecords("S-EPMC124")
         }
 
         @Test
@@ -71,7 +72,8 @@ internal class AllInOneMultipartFileSubmissionTest(
 
             webClient.submitSingle(submission, emptyList())
 
-            allInOneSubmissionHelper.assertSavedSubmission("S-EPMC125", method = FILE, checkTabFiles = mongoMode)
+            allInOneSubmissionHelper.assertSavedSubmission("S-EPMC125", method = FILE)
+            if (mongoMode) allInOneSubmissionHelper.assertSubmissionFilesRecords("S-EPMC125")
         }
 
         @Test
@@ -82,7 +84,8 @@ internal class AllInOneMultipartFileSubmissionTest(
 
             webClient.submitSingle(submission, emptyList())
 
-            allInOneSubmissionHelper.assertSavedSubmission("S-EPMC126", method = FILE, checkTabFiles = mongoMode)
+            allInOneSubmissionHelper.assertSavedSubmission("S-EPMC126", method = FILE)
+            if (mongoMode) allInOneSubmissionHelper.assertSubmissionFilesRecords("S-EPMC126")
         }
     }
 }

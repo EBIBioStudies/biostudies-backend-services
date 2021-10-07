@@ -2,12 +2,12 @@ package ac.uk.ebi.biostd.itest.factory
 
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
-import ebi.ac.uk.test.createOrReplaceFile
+import ebi.ac.uk.test.createFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 
 fun submissionSpecTsv(tempFolder: TemporaryFolder, accNo: String): SubmissionSpec = SubmissionSpec(
-    submission = tempFolder.createOrReplaceFile("submission.tsv", allInOneSubmissionTsv(accNo).toString()),
-    fileList = tempFolder.createOrReplaceFile("file-list.tsv", fileList().toString()),
+    submission = tempFolder.createFile("submission.tsv", allInOneSubmissionTsv(accNo).toString()),
+    fileList = tempFolder.createFile("file-list.tsv", fileList().toString()),
     files = submissionsFiles(tempFolder)
 )
 
