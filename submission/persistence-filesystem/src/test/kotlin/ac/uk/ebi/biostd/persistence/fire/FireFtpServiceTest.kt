@@ -24,7 +24,7 @@ class FireFtpServiceTest(
     @MockK private val submissionQueryService: SubmissionQueryService
 ) {
     private val clientFireFile = ClientFireFile(1, "abc1", "md5", 1, "2021-09-21")
-    private val fireFile = FireFile("folder/test.txt", "abc1", "md5", 1, listOf())
+    private val fireFile = FireFile("test.txt", "folder/test.txt", "relPath", "abc1", "md5", 1, listOf())
     private val section = ExtSection(type = "Study", files = listOf(Either.left(fireFile)))
     private val testInstance = FireFtpService(fireWebClient, submissionQueryService)
 
@@ -37,7 +37,7 @@ class FireFtpServiceTest(
         every { fireWebClient.unpublish("abc1") } answers { nothing }
         every { fireWebClient.unsetPath("abc1") } answers { nothing }
         every { fireWebClient.findAllInPath(basicExtSubmission.relPath) } returns listOf(clientFireFile)
-        every { fireWebClient.setPath("abc1", "${basicExtSubmission.relPath}/folder/test.txt") } answers { nothing }
+        every { fireWebClient.setPath("abc1", "${basicExtSubmission.relPath}/test.txt") } answers { nothing }
     }
 
     @Test
@@ -57,7 +57,7 @@ class FireFtpServiceTest(
         verifyCleanFtpFolder()
         verify(exactly = 0) {
             fireWebClient.publish("abc1")
-            fireWebClient.setPath("abc1", "${submission.relPath}/folder/test.txt")
+            fireWebClient.setPath("abc1", "${submission.relPath}/test.txt")
         }
     }
 
@@ -80,6 +80,6 @@ class FireFtpServiceTest(
 
     private fun verifyFtpPublish() = verify(exactly = 1) {
         fireWebClient.publish("abc1")
-        fireWebClient.setPath("abc1", "${basicExtSubmission.relPath}/folder/test.txt")
+        fireWebClient.setPath("abc1", "${basicExtSubmission.relPath}/test.txt")
     }
 }

@@ -50,15 +50,30 @@ class ExtSectionSerializerTest(private val tempFolder: TemporaryFolder) {
         val allInOneSection = ExtSection(
             accNo = "SECT-001",
             type = "Study",
-            fileList = ExtFileList("file-list", listOf(NfsFile("ref-file.txt", referencedFile))),
+            fileList = ExtFileList(
+                "file-list",
+                listOf(NfsFile("ref-file.txt", "filePath", "relPath", "fullPath", referencedFile))
+            ),
             attributes = listOf(ExtAttribute("Title", "Test Section")),
             sections = listOf(
                 Either.left(ExtSection(type = "Exp")),
                 Either.right(ExtSectionTable(listOf(ExtSection(type = "Data"))))
             ),
             files = listOf(
-                Either.left(NfsFile("section-file.txt", sectionFile)),
-                Either.right(ExtFileTable(listOf(NfsFile("section-file-table.txt", sectionFilesTable))))
+                Either.left(NfsFile("section-file.txt", "filePath", "relPath", "fullPath", sectionFile)),
+                Either.right(
+                    ExtFileTable(
+                        listOf(
+                            NfsFile(
+                                "section-file-table.txt",
+                                "filePath",
+                                "relPath",
+                                "fullPath",
+                                sectionFilesTable
+                            )
+                        )
+                    )
+                )
             ),
             links = listOf(
                 Either.left(ExtLink(url = "https://mylink.org")),
@@ -111,7 +126,9 @@ class ExtSectionSerializerTest(private val tempFolder: TemporaryFolder) {
             "files" to jsonArray(
                 jsonObj {
                     "fileName" to "section-file.txt"
-                    "path" to "section-file.txt"
+                    "filePath" to "filePath"
+                    "relPath" to "relPath"
+                    "fullPath" to "fullPath"
                     "file" to sectionFile.absolutePath
                     "attributes" to jsonArray()
                     "extType" to "nfsFile"
@@ -122,7 +139,9 @@ class ExtSectionSerializerTest(private val tempFolder: TemporaryFolder) {
                     "files" to jsonArray(
                         jsonObj {
                             "fileName" to "section-file-table.txt"
-                            "path" to "section-file-table.txt"
+                            "filePath" to "filePath"
+                            "relPath" to "relPath"
+                            "fullPath" to "fullPath"
                             "file" to sectionFilesTable.absolutePath
                             "attributes" to jsonArray()
                             "extType" to "nfsFile"

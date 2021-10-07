@@ -17,7 +17,9 @@ import org.assertj.core.api.Assertions.assertThat
 import org.bson.types.ObjectId
 import java.io.File
 
-internal const val TEST_REL_PATH = "file.txt"
+internal const val TEST_FILENAME = "folder/file.txt"
+internal const val TEST_FILEPATH = "filePath"
+internal const val TEST_REL_PATH = "relPath"
 internal const val TEST_DIRECTORY = "fire-directory"
 internal const val TEST_FULL_PATH = "/a/full/path/file.txt"
 internal const val TEST_FILE_LIST = "file-list.tsv"
@@ -29,10 +31,21 @@ private const val SIZE = 30L
 
 internal object FileTestHelper {
     val nfsDocFile =
-        NfsDocFile(TEST_REL_PATH, TEST_FULL_PATH, FILE_TYPE, listOf(basicDocAttribute), TEST_MD5, SIZE)
+        NfsDocFile(
+            fileName = TEST_FILENAME,
+            filePath = TEST_FILEPATH,
+            relPath = TEST_REL_PATH,
+            fullPath = TEST_FULL_PATH,
+            attributes = listOf(basicDocAttribute),
+            md5 = TEST_MD5,
+            fileSize = SIZE,
+            fileType = FILE_TYPE
+        )
     val fireDocFile =
         FireDocFile(
-            fileName = TEST_REL_PATH,
+            fileName = TEST_FILENAME,
+            filePath = TEST_FILEPATH,
+            relPath = TEST_REL_PATH,
             fireId = TEST_FIRE_FILE_ID,
             attributes = listOf(basicDocAttribute),
             md5 = TEST_MD5,
@@ -41,6 +54,8 @@ internal object FileTestHelper {
     val fireDocDirectory =
         FireDocDirectory(
             fileName = TEST_DIRECTORY,
+            filePath = TEST_FILEPATH,
+            relPath = TEST_REL_PATH,
             attributes = listOf(basicDocAttribute),
             md5 = TEST_MD5,
             fileSize = TEST_FIRE_FILE_SIZE,
@@ -60,7 +75,10 @@ internal object FileTestHelper {
     }
 
     private fun assertNfsFile(nfsFile: NfsFile, file: File) {
-        assertThat(nfsFile.fileName).isEqualTo(TEST_REL_PATH)
+        assertThat(nfsFile.fileName).isEqualTo(TEST_FILENAME)
+        assertThat(nfsFile.filePath).isEqualTo(TEST_FILEPATH)
+        assertThat(nfsFile.relPath).isEqualTo(TEST_REL_PATH)
+        assertThat(nfsFile.fullPath).isEqualTo(file.absolutePath)
         assertThat(nfsFile.md5).isEqualTo(file.md5())
         assertThat(nfsFile.file).isEqualTo(file)
         assertThat(nfsFile.attributes).hasSize(1)
@@ -68,7 +86,9 @@ internal object FileTestHelper {
     }
 
     private fun assertFireFile(fireFile: FireFile) {
-        assertThat(fireFile.fileName).isEqualTo(TEST_REL_PATH)
+        assertThat(fireFile.fileName).isEqualTo(TEST_FILENAME)
+        assertThat(fireFile.filePath).isEqualTo(TEST_FILEPATH)
+        assertThat(fireFile.relPath).isEqualTo(TEST_REL_PATH)
         assertThat(fireFile.fireId).isEqualTo(TEST_FIRE_FILE_ID)
         assertThat(fireFile.md5).isEqualTo(TEST_MD5)
         assertThat(fireFile.size).isEqualTo(TEST_FIRE_FILE_SIZE)
@@ -78,6 +98,8 @@ internal object FileTestHelper {
 
     private fun assertFireDirectory(fireFile: FireDirectory) {
         assertThat(fireFile.fileName).isEqualTo(TEST_DIRECTORY)
+        assertThat(fireFile.filePath).isEqualTo(TEST_FILEPATH)
+        assertThat(fireFile.relPath).isEqualTo(TEST_REL_PATH)
         assertThat(fireFile.md5).isEqualTo(TEST_MD5)
         assertThat(fireFile.size).isEqualTo(TEST_FIRE_FILE_SIZE)
         assertThat(fireFile.attributes).hasSize(1)

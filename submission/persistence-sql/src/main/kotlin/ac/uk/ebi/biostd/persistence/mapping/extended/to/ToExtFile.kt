@@ -13,7 +13,14 @@ internal fun DbFile.toExtFile(fileSource: FilesSource): NfsFile {
     return when (val bioFile = fileSource.getFile(name)) {
         is FireBioFile -> TODO()
         is FireDirectoryBioFile -> TODO()
-        is NfsBioFile -> NfsFile(name, bioFile.file, validAttributes.map { it.toExtAttribute() })
+        is NfsBioFile -> NfsFile(
+            bioFile.file.name,
+            name,
+            "Files/$name",
+            bioFile.file.absolutePath,
+            bioFile.file,
+            validAttributes.map { it.toExtAttribute() }
+        )
     }
 }
 
@@ -21,6 +28,13 @@ internal fun DbReferencedFile.toExtFile(fileSource: FilesSource): NfsFile {
     return when (val bioFile = fileSource.getFile(name)) {
         is FireBioFile -> TODO()
         is FireDirectoryBioFile -> TODO()
-        is NfsBioFile -> NfsFile(name, bioFile.file, validAttributes.map { it.toExtAttribute() })
+        is NfsBioFile -> NfsFile(
+            bioFile.file.name,
+            name,
+            "Files/$name",
+            bioFile.file.absolutePath,
+            bioFile.file,
+            validAttributes.map { it.toExtAttribute() }
+        )
     }
 }

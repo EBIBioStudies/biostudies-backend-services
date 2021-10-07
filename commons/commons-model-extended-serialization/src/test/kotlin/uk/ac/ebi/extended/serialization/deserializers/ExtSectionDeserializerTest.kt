@@ -74,7 +74,9 @@ class ExtSectionDeserializerTest(private val tempFolder: TemporaryFolder) {
             "files" to jsonArray(
                 jsonObj {
                     "fileName" to "section-file-inner-folders.txt"
-                    "path" to "a/b/section-file-inner-folders.txt"
+                    "filePath" to "filePath"
+                    "relPath" to "relPath"
+                    "fullPath" to "fullPath"
                     "file" to sectionFile.absolutePath
                     "extType" to "nfsFile"
                 },
@@ -82,7 +84,9 @@ class ExtSectionDeserializerTest(private val tempFolder: TemporaryFolder) {
                     "files" to jsonArray(
                         jsonObj {
                             "fileName" to "section-file-table.txt"
-                            "path" to "section-file-table.txt"
+                            "filePath" to "filePath"
+                            "relPath" to "relPath"
+                            "fullPath" to "fullPath"
                             "file" to sectionFilesTable.absolutePath
                             "extType" to "nfsFile"
                         }
@@ -146,8 +150,11 @@ class ExtSectionDeserializerTest(private val tempFolder: TemporaryFolder) {
         assertThat(extFile.isLeft()).isTrue
         extFile.ifLeft {
             it as NfsFile
+            assertThat(it.fileName).isEqualTo("section-file-inner-folders.txt")
+            assertThat(it.filePath).isEqualTo("filePath")
+            assertThat(it.relPath).isEqualTo("relPath")
+            assertThat(it.fullPath).isEqualTo("fullPath")
             assertThat(it.file).isEqualTo(sectionFile)
-            assertThat(it.fileName).isEqualTo("a/b/section-file-inner-folders.txt")
         }
 
         val extFilesTable = extFiles.second()
@@ -156,8 +163,11 @@ class ExtSectionDeserializerTest(private val tempFolder: TemporaryFolder) {
             assertThat(it.files).hasSize(1)
 
             val filesTableFile = it.files.first() as NfsFile
-            assertThat(filesTableFile.file).isEqualTo(sectionFilesTable)
             assertThat(filesTableFile.fileName).isEqualTo("section-file-table.txt")
+            assertThat(filesTableFile.filePath).isEqualTo("filePath")
+            assertThat(filesTableFile.relPath).isEqualTo("relPath")
+            assertThat(filesTableFile.fullPath).isEqualTo("fullPath")
+            assertThat(filesTableFile.file).isEqualTo(sectionFilesTable)
         }
 
         val extLinks = extSection.links

@@ -1,13 +1,14 @@
 package ac.uk.ebi.biostd.persistence.doc.db.converters.from
 
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_DOC_ATTRIBUTES
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_DOC_FILENAME
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_DOC_FILEPATH
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_DOC_MD5
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_DOC_REL_PATH
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_DOC_SIZE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.FIRE_DOC_DIRECTORY_CLASS
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.FIRE_FILE_DOC_FILE_NAME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.FIRE_FILE_DOC_ID
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.FILE_LIST_DOC_FILE_FULL_PATH
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.NFS_FILE_DOC_REL_PATH
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.NFS_FILE_FULL_PATH
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.NFS_FILE_TYPE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.to.CommonsConverter
 import ac.uk.ebi.biostd.persistence.doc.model.DocAttribute
@@ -39,12 +40,14 @@ internal class DocFileConverterTest(
         val result = testInstance.convert(createNfsFileDoc())
 
         require(result is NfsDocFile)
+        assertThat(result.fileName).isEqualTo("fileName")
+        assertThat(result.filePath).isEqualTo("filePath")
         assertThat(result.relPath).isEqualTo("relPath")
-        assertThat(result.fullPath).isEqualTo("location")
+        assertThat(result.fullPath).isEqualTo("fullPath")
         assertThat(result.attributes).isEqualTo(listOf(docAttribute))
         assertThat(result.md5).isEqualTo("md5")
-        assertThat(result.fileType).isEqualTo("file")
         assertThat(result.fileSize).isEqualTo(10L)
+        assertThat(result.fileType).isEqualTo("file")
     }
 
     @Test
@@ -55,6 +58,8 @@ internal class DocFileConverterTest(
 
         require(result is FireDocFile)
         assertThat(result.fileName).isEqualTo("fileName")
+        assertThat(result.filePath).isEqualTo("filePath")
+        assertThat(result.relPath).isEqualTo("relPath")
         assertThat(result.fireId).isEqualTo("fireId")
         assertThat(result.attributes).isEqualTo(listOf(docAttribute))
         assertThat(result.md5).isEqualTo("md5")
@@ -69,6 +74,8 @@ internal class DocFileConverterTest(
 
         require(result is FireDocDirectory)
         assertThat(result.fileName).isEqualTo("fire-directory")
+        assertThat(result.filePath).isEqualTo("filePath")
+        assertThat(result.relPath).isEqualTo("relPath")
         assertThat(result.attributes).isEqualTo(listOf(docAttribute))
         assertThat(result.md5).isEqualTo("md5")
         assertThat(result.fileSize).isEqualTo(10L)
@@ -76,17 +83,21 @@ internal class DocFileConverterTest(
 
     private fun createNfsFileDoc() = Document().apply {
         this[CommonsConverter.classField] = nfsDocFileClass
-        this[NFS_FILE_DOC_REL_PATH] = "relPath"
-        this[FILE_LIST_DOC_FILE_FULL_PATH] = "location"
-        this[NFS_FILE_TYPE] = "file"
+        this[FILE_DOC_FILENAME] = "fileName"
+        this[FILE_DOC_FILEPATH] = "filePath"
+        this[FILE_DOC_REL_PATH] = "relPath"
+        this[NFS_FILE_FULL_PATH] = "fullPath"
         this[FILE_DOC_ATTRIBUTES] = listOf(documentAttr)
         this[FILE_DOC_MD5] = "md5"
         this[FILE_DOC_SIZE] = 10L
+        this[NFS_FILE_TYPE] = "file"
     }
 
     private fun createFireFileDoc() = Document().apply {
         this[CommonsConverter.classField] = fireDocFileClass
-        this[FIRE_FILE_DOC_FILE_NAME] = "fileName"
+        this[FILE_DOC_FILENAME] = "fileName"
+        this[FILE_DOC_FILEPATH] = "filePath"
+        this[FILE_DOC_REL_PATH] = "relPath"
         this[FIRE_FILE_DOC_ID] = "fireId"
         this[FILE_DOC_ATTRIBUTES] = listOf(documentAttr)
         this[FILE_DOC_MD5] = "md5"
@@ -95,7 +106,9 @@ internal class DocFileConverterTest(
 
     private fun createFireDirectoryDoc() = Document().apply {
         this[CommonsConverter.classField] = FIRE_DOC_DIRECTORY_CLASS
-        this[FIRE_FILE_DOC_FILE_NAME] = "fire-directory"
+        this[FILE_DOC_FILENAME] = "fire-directory"
+        this[FILE_DOC_FILEPATH] = "filePath"
+        this[FILE_DOC_REL_PATH] = "relPath"
         this[FILE_DOC_ATTRIBUTES] = listOf(documentAttr)
         this[FILE_DOC_MD5] = "md5"
         this[FILE_DOC_SIZE] = 10L

@@ -4,6 +4,7 @@ import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.FireDirectory
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
+import ebi.ac.uk.io.ext.createNewFile
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.io.sources.FireBioFile
 import ebi.ac.uk.io.sources.FireDirectoryBioFile
@@ -20,14 +21,17 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
 internal class ToExtFileTest(private val tempFolder: TemporaryFolder) {
-    private val file = File("fileName", 55L, "file", listOf(attribute))
-    private val systemFile = tempFolder.createFile(file.path)
+    private val file = File("folder/file.txt", 55L, "file", listOf(attribute))
+    private val systemFile = tempFolder.createDirectory("folder").createNewFile("file.txt")
 
     @Test
     fun `nfs file to ext file`() {
         val extFile = file.toExtFile(PathFilesSource(tempFolder.root.toPath())) as NfsFile
 
-        assertThat(extFile.fileName).isEqualTo(file.path)
+        assertThat(extFile.fileName).isEqualTo("file.txt")
+        assertThat(extFile.filePath).isEqualTo(file.path)
+        assertThat(extFile.relPath).isEqualTo("Files/${file.path}")
+        assertThat(extFile.fullPath).isEqualTo(systemFile.absolutePath)
         assertThat(extFile.file).isEqualTo(systemFile)
         assertAttributes(extFile)
     }
@@ -36,11 +40,13 @@ internal class ToExtFileTest(private val tempFolder: TemporaryFolder) {
     fun `fire file to ext file`(
         @MockK fileSource: FilesSource
     ) {
-        val fireBioFile = FireBioFile("fire-id", "md5", 12, lazy { "content" })
-        every { fileSource.getFile("fileName") } returns fireBioFile
+        every { fileSource.getFile("folder/file.txt") } returns FireBioFile("fire-id", "md5", 12, lazy { "content" })
 
         val extFile = file.toExtFile(fileSource) as FireFile
-        assertThat(extFile.fileName).isEqualTo(file.path)
+
+        assertThat(extFile.fileName).isEqualTo("file.txt")
+        assertThat(extFile.filePath).isEqualTo(file.path)
+        assertThat(extFile.relPath).isEqualTo("Files/${file.path}")
         assertThat(extFile.fireId).isEqualTo("fire-id")
         assertThat(extFile.md5).isEqualTo("md5")
         assertThat(extFile.size).isEqualTo(12)
@@ -51,11 +57,13 @@ internal class ToExtFileTest(private val tempFolder: TemporaryFolder) {
     fun `fire directory to ext file`(
         @MockK fileSource: FilesSource
     ) {
-        val fireDirectory = FireDirectoryBioFile("md5", 12)
-        every { fileSource.getFile("fileName") } returns fireDirectory
+        every { fileSource.getFile("folder/file.txt") } returns FireDirectoryBioFile("md5", 12)
 
         val extFile = file.toExtFile(fileSource) as FireDirectory
-        assertThat(extFile.fileName).isEqualTo(file.path)
+
+        assertThat(extFile.fileName).isEqualTo("file.txt")
+        assertThat(extFile.filePath).isEqualTo(file.path)
+        assertThat(extFile.relPath).isEqualTo("Files/${file.path}")
         assertThat(extFile.md5).isEqualTo("md5")
         assertThat(extFile.size).isEqualTo(12)
         assertAttributes(extFile)

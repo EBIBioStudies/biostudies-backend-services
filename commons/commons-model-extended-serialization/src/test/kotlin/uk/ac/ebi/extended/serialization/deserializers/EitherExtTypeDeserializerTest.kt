@@ -65,7 +65,9 @@ class EitherExtTypeDeserializerTest(private val tempFolder: TemporaryFolder) {
         val json = jsonObj {
             "file" to file.absolutePath
             "fileName" to "test-file.txt"
-            "path" to "test-file.txt"
+            "filePath" to "filePath"
+            "relPath" to "relPath"
+            "fullPath" to "fullPath"
             "extType" to "nfsFile"
         }.toString()
 
@@ -75,6 +77,9 @@ class EitherExtTypeDeserializerTest(private val tempFolder: TemporaryFolder) {
             it as NfsFile
             assertThat(it.file).isEqualTo(file)
             assertThat(it.fileName).isEqualTo("test-file.txt")
+            assertThat(it.filePath).isEqualTo("filePath")
+            assertThat(it.relPath).isEqualTo("relPath")
+            assertThat(it.fullPath).isEqualTo("fullPath")
         }
     }
 
@@ -86,7 +91,9 @@ class EitherExtTypeDeserializerTest(private val tempFolder: TemporaryFolder) {
                 jsonObj {
                     "file" to file.absolutePath
                     "fileName" to "test-file-table.txt"
-                    "path" to "test-file-table.txt"
+                    "filePath" to "filePath"
+                    "relPath" to "relPath"
+                    "fullPath" to "fullPath"
                     "extType" to "nfsFile"
                 }
             )
@@ -102,6 +109,9 @@ class EitherExtTypeDeserializerTest(private val tempFolder: TemporaryFolder) {
             val nfsFile = files.first() as NfsFile
             assertThat(nfsFile.file).isEqualTo(file)
             assertThat(nfsFile.fileName).isEqualTo("test-file-table.txt")
+            assertThat(nfsFile.filePath).isEqualTo("filePath")
+            assertThat(nfsFile.relPath).isEqualTo("relPath")
+            assertThat(nfsFile.fullPath).isEqualTo("fullPath")
         }
     }
 

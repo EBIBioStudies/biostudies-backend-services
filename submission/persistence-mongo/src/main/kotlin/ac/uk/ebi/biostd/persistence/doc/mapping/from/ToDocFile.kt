@@ -69,6 +69,8 @@ private fun fileType(file: File): String = if (file.isDirectory) "directory" els
 private fun ExtFile.toDocFile(): DocFile = when (this) {
     is FireFile -> FireDocFile(
         fileName = fileName,
+        filePath = filePath,
+        relPath = relPath,
         fireId = fireId,
         attributes = attributes.map { it.toDocAttribute() },
         md5 = md5,
@@ -76,12 +78,16 @@ private fun ExtFile.toDocFile(): DocFile = when (this) {
     )
     is FireDirectory -> FireDocDirectory(
         fileName = fileName,
+        filePath = filePath,
+        relPath = relPath,
         attributes = attributes.map { it.toDocAttribute() },
         md5 = md5,
         fileSize = size,
     )
     is NfsFile -> NfsDocFile(
-        relPath = fileName,
+        fileName = fileName,
+        filePath = filePath,
+        relPath = relPath,
         fullPath = file.absolutePath,
         fileType = fileType(file),
         attributes = attributes.map { it.toDocAttribute() },

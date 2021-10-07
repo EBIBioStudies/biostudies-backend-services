@@ -29,11 +29,10 @@ internal fun assertExtFile(extFile: ExtFile, bioFile: BioFile, fileName: String)
 
 private fun assertNfsFile(nfsFile: NfsFile, bioFile: BioFile, fileName: String) {
     bioFile as NfsBioFile
+    assertThat(nfsFile.fileName).isEqualTo(bioFile.file.name)
+    assertThat(nfsFile.filePath).isEqualTo(fileName)
+    assertThat(nfsFile.relPath).isEqualTo("Files/$fileName")
     assertThat(nfsFile.file).isEqualTo(bioFile.file)
-    assertThat(nfsFile.fileName).isEqualTo(fileName)
-    assertThat(nfsFile.md5).isEqualTo(bioFile.md5())
-    assertThat(nfsFile.size).isEqualTo(bioFile.size())
-
     assertThat(nfsFile.attributes).hasSize(1)
     assertExtAttribute(nfsFile.attributes.first())
 }

@@ -15,7 +15,9 @@ import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_DI
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_FILE_TYPE
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_FIRE_ID
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_NAME
-import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_PATH
+import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_FILEPATH
+import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_FULL_PATH
+import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_REL_PATH
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_SIZE
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_TYPE
 import uk.ac.ebi.extended.serialization.constants.ExtType
@@ -32,8 +34,10 @@ class ExtFileSerializer : JsonSerializer<ExtFile>() {
 
     private fun JsonGenerator.serializeNfsFile(file: NfsFile) {
         writeStartObject()
-        writeStringField(FILE_NAME, file.file.name)
-        writeStringField(FILE_PATH, file.fileName)
+        writeStringField(FILE_NAME, file.fileName)
+        writeStringField(FILE_FILEPATH, file.filePath)
+        writeStringField(FILE_REL_PATH, file.relPath)
+        writeStringField(FILE_FULL_PATH, file.fullPath)
         writeObjectField(FILE, file.file.absolutePath)
         writeObjectField(ATTRIBUTES, file.attributes)
         writeStringField(EXT_TYPE, ExtType.NfsFile.type)
@@ -45,6 +49,8 @@ class ExtFileSerializer : JsonSerializer<ExtFile>() {
     private fun JsonGenerator.serializeFireFile(file: FireFile) {
         writeStartObject()
         writeStringField(FILE_NAME, file.fileName)
+        writeStringField(FILE_FILEPATH, file.filePath)
+        writeStringField(FILE_REL_PATH, file.relPath)
         writeStringField(FILE_FIRE_ID, file.fireId)
         writeObjectField(ATTRIBUTES, file.attributes)
         writeStringField(EXT_TYPE, ExtType.FireFile.type)
@@ -56,6 +62,8 @@ class ExtFileSerializer : JsonSerializer<ExtFile>() {
     private fun JsonGenerator.serializeFireDirectory(file: FireDirectory) {
         writeStartObject()
         writeStringField(FILE_NAME, file.fileName)
+        writeStringField(FILE_FILEPATH, file.filePath)
+        writeStringField(FILE_REL_PATH, file.relPath)
         writeObjectField(ATTRIBUTES, file.attributes)
         writeStringField(EXT_TYPE, ExtType.FireDirectory.type)
         writeStringField(FILE_TYPE, FILE_DIR_TYPE)

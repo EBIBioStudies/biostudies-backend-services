@@ -32,7 +32,7 @@ class NfsFileProcessingConfigTest(private val tempFolder: TemporaryFolder) {
         file = tempFolder.createFile("test.txt")
         subFolder = tempFolder.createDirectory("subFolder")
         targetFolder = tempFolder.createDirectory("target")
-        extFile = NfsFile("test.txt", file)
+        extFile = NfsFile("test.txt", "folder/test.txt", "relPath", "fullPath", file)
     }
 
     @Test

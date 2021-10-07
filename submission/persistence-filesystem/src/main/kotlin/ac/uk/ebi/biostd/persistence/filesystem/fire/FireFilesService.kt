@@ -44,14 +44,31 @@ fun FireFileProcessingConfig.processNfsFile(relPath: String, nfsFile: NfsFile): 
 }
 
 private fun reusePreviousFile(fireFile: FireFile, nfsFile: NfsFile) =
-    FireFile(nfsFile.fileName, fireFile.fireId, fireFile.md5, fireFile.size, nfsFile.attributes)
+    FireFile(
+        nfsFile.fileName,
+        nfsFile.filePath,
+        nfsFile.relPath,
+        fireFile.fireId,
+        fireFile.md5,
+        fireFile.size,
+        nfsFile.attributes
+    )
 
 private fun FireFileProcessingConfig.saveFile(relPath: String, nfsFile: NfsFile) =
     if (nfsFile.file.isDirectory) fireDirectory(nfsFile) else persistFireFile(relPath, nfsFile)
 
-private fun fireDirectory(file: NfsFile) = FireDirectory(file.fileName, file.md5, file.size, file.attributes)
+private fun fireDirectory(file: NfsFile) =
+    FireDirectory(file.fileName, file.filePath, file.relPath, file.md5, file.size, file.attributes)
 
 private fun FireFileProcessingConfig.persistFireFile(relPath: String, nfsFile: NfsFile): FireFile {
     val store = fireWebClient.save(nfsFile.file, nfsFile.md5, relPath)
-    return FireFile(nfsFile.fileName, store.fireOid, store.objectMd5, store.objectSize.toLong(), nfsFile.attributes)
+    return FireFile(
+        nfsFile.fileName,
+        nfsFile.filePath,
+        nfsFile.relPath,
+        store.fireOid,
+        store.objectMd5,
+        store.objectSize.toLong(),
+        nfsFile.attributes
+    )
 }

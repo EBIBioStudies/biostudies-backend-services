@@ -4,6 +4,7 @@ import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.NfsFile
+import ebi.ac.uk.io.ext.size
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
@@ -20,11 +21,13 @@ class ExtFileDeserializerTest(private val tempFolder: TemporaryFolder) {
 
     @Test
     fun deserialize() {
-        val file = tempFolder.createFile("test-file.txt")
+        val file = tempFolder.createFile("nfs-file.txt")
         val json = jsonObj {
+            "fileName" to "nfs-file.txt"
+            "filePath" to "filePath"
+            "relPath" to "relPath"
+            "fullPath" to "fullPath"
             "file" to file.absolutePath
-            "fileName" to "test-file.txt"
-            "path" to "test-file.txt"
             "attributes" to jsonArray(
                 jsonObj {
                     "name" to "Type"
@@ -32,35 +35,17 @@ class ExtFileDeserializerTest(private val tempFolder: TemporaryFolder) {
                 }
             )
             "extType" to "nfsFile"
+            "type" to "file"
+            "size" to file.size()
         }.toString()
 
         val extFile = testInstance.deserialize<ExtFile>(json) as NfsFile
-        assertThat(extFile.file).isEqualTo(file)
-        assertThat(extFile.fileName).isEqualTo("test-file.txt")
-        assertThat(extFile.attributes).hasSize(1)
-        assertThat(extFile.attributes.first().name).isEqualTo("Type")
-        assertThat(extFile.attributes.first().value).isEqualTo("Data")
-    }
 
-    @Test
-    fun `deserialize with inner path`() {
-        val file = tempFolder.createFile("test-file.txt")
-        val json = jsonObj {
-            "file" to file.absolutePath
-            "fileName" to "test-file.txt"
-            "path" to "a/b/test-file.txt"
-            "attributes" to jsonArray(
-                jsonObj {
-                    "name" to "Type"
-                    "value" to "Data"
-                }
-            )
-            "extType" to "nfsFile"
-        }.toString()
-
-        val extFile = testInstance.deserialize<ExtFile>(json) as NfsFile
+        assertThat(extFile.fileName).isEqualTo("nfs-file.txt")
+        assertThat(extFile.filePath).isEqualTo("filePath")
+        assertThat(extFile.relPath).isEqualTo("relPath")
+        assertThat(extFile.fullPath).isEqualTo("fullPath")
         assertThat(extFile.file).isEqualTo(file)
-        assertThat(extFile.fileName).isEqualTo("a/b/test-file.txt")
         assertThat(extFile.attributes).hasSize(1)
         assertThat(extFile.attributes.first().name).isEqualTo("Type")
         assertThat(extFile.attributes.first().value).isEqualTo("Data")
