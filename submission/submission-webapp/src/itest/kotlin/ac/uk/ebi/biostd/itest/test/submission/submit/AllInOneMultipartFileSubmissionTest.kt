@@ -53,36 +53,36 @@ internal class AllInOneMultipartFileSubmissionTest(
         }
 
         @Test
-        fun `submit all in one TSV submission`() {
+        fun `submit all in one multipart TSV submission`() {
             val (submission, fileList, files) = submissionSpecTsv(tempFolder, "S-EPMC124")
             webClient.uploadFile(fileList)
             files.forEach { webClient.uploadFile(it.file, it.folder) }
 
             webClient.submitSingle(submission, emptyList())
 
-            allInOneSubmissionHelper.assertSavedSubmission("S-EPMC124", method = FILE)
+            allInOneSubmissionHelper.assertSavedSubmission("S-EPMC124", method = FILE, checkTabFiles = mongoMode)
         }
 
         @Test
-        fun `submit all in one Json submission`() {
+        fun `submit all in one multipart Json submission`() {
             val (submission, fileList, files) = submissionSpecJson(tempFolder, "S-EPMC125")
             webClient.uploadFile(fileList)
             files.forEach { webClient.uploadFile(it.file, it.folder) }
 
             webClient.submitSingle(submission, emptyList())
 
-            allInOneSubmissionHelper.assertSavedSubmission("S-EPMC125", method = FILE)
+            allInOneSubmissionHelper.assertSavedSubmission("S-EPMC125", method = FILE, checkTabFiles = mongoMode)
         }
 
         @Test
-        fun `submit all in one XML submission`() {
+        fun `submit all in one multipart XML submission`() {
             val (submission, fileList, files) = submissionSpecXml(tempFolder, "S-EPMC126")
             webClient.uploadFile(fileList)
             files.forEach { webClient.uploadFile(it.file, it.folder) }
 
             webClient.submitSingle(submission, emptyList())
 
-            allInOneSubmissionHelper.assertSavedSubmission("S-EPMC126", method = FILE)
+            allInOneSubmissionHelper.assertSavedSubmission("S-EPMC126", method = FILE, checkTabFiles = mongoMode)
         }
     }
 }

@@ -58,7 +58,7 @@ internal class AllInOneSubmissionTest(private val tempFolder: TemporaryFolder) :
 
             webClient.submitSingle(submission.readText(), TSV)
 
-            allInOneSubmissionHelper.assertSavedSubmission("S-EPMC124")
+            allInOneSubmissionHelper.assertSavedSubmission("S-EPMC124", checkTabFiles = mongoMode)
         }
 
         @Test
@@ -69,7 +69,7 @@ internal class AllInOneSubmissionTest(private val tempFolder: TemporaryFolder) :
 
             webClient.submitSingle(submission.readText(), JSON)
 
-            allInOneSubmissionHelper.assertSavedSubmission("S-EPMC125")
+            allInOneSubmissionHelper.assertSavedSubmission("S-EPMC125", checkTabFiles = mongoMode)
         }
 
         @Test
@@ -80,7 +80,7 @@ internal class AllInOneSubmissionTest(private val tempFolder: TemporaryFolder) :
 
             webClient.submitSingle(submission.readText(), XML)
 
-            allInOneSubmissionHelper.assertSavedSubmission("S-EPMC126")
+            allInOneSubmissionHelper.assertSavedSubmission("S-EPMC126", checkTabFiles = mongoMode)
         }
     }
 }

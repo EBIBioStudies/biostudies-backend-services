@@ -22,20 +22,24 @@ internal class AllInOneSubmissionHelper(
     private val submissionRepository: SubmissionQueryService
 ) {
 
-    internal fun assertSavedSubmission(accNo: String, method: ExtSubmissionMethod = ExtSubmissionMethod.PAGE_TAB) {
+    internal fun assertSavedSubmission(
+        accNo: String,
+        method: ExtSubmissionMethod = ExtSubmissionMethod.PAGE_TAB,
+        checkTabFiles: Boolean
+    ) {
         val extendedSubmission = submissionRepository.getExtByAccNo(accNo)
         assertThat(extendedSubmission.status).isEqualTo(ExtProcessingStatus.PROCESSED)
         assertThat(extendedSubmission.method).isEqualTo(method)
         assertThat(extendedSubmission.toSimpleSubmission()).isEqualTo(allInOneSubmission(accNo))
-        assertSubmissionFiles(extendedSubmission)
+        assertSubmissionFiles(extendedSubmission, checkTabFiles)
     }
 
-    private fun assertSubmissionFiles(submission: ExtSubmission) {
+    private fun assertSubmissionFiles(submission: ExtSubmission, checkTabFiles: Boolean) {
         val submissionFolderPath = "$submissionPath/${submission.relPath}"
         val accNo = submission.accNo
 
-        assertSubmissionPageTabs(accNo, submission.pageTabFiles, submissionFolderPath)
-        assertFileListPageTabs(submission.section.fileList!!.pageTabFiles, submissionFolderPath)
+        if (checkTabFiles) assertSubmissionPageTabs(accNo, submission.pageTabFiles, submissionFolderPath)
+        if (checkTabFiles) assertFileListPageTabs(submission.section.fileList!!.pageTabFiles, submissionFolderPath)
 
         assertAllInOneSubmissionXml(getSubFileContent("$submissionFolderPath/$accNo.xml"), accNo)
         assertAllInOneSubmissionJson(getSubFileContent("$submissionFolderPath/$accNo.json"), accNo)
@@ -45,7 +49,7 @@ internal class AllInOneSubmissionHelper(
     private fun assertSubmissionPageTabs(
         accNo: String,
         pageTabFiles: List<ExtFile>,
-        submissionFolderPath: String
+        submissionFolderPath: String,
     ) {
         assertThat(pageTabFiles).hasSize(3)
 
@@ -64,7 +68,7 @@ internal class AllInOneSubmissionHelper(
 
     private fun assertFileListPageTabs(
         pageTabFiles: List<ExtFile>,
-        submissionFolderPath: String
+        submissionFolderPath: String,
     ) {
         assertThat(pageTabFiles).hasSize(3)
 
