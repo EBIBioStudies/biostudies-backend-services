@@ -82,7 +82,7 @@ internal class AllInOneMultipartFileSubmissionTest(
 
             webClient.submitSingle(submission, emptyList())
 
-            allInOneSubmissionHelper.assertSavedSubmission("S-EPMC124", method = FILE)
+            allInOneSubmissionHelper.assertSavedSubmission("S-EPMC126", method = FILE)
         }
     }
 }

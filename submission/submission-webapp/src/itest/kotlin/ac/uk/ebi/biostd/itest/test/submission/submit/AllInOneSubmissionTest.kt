@@ -80,7 +80,7 @@ internal class AllInOneSubmissionTest(private val tempFolder: TemporaryFolder) :
 
             webClient.submitSingle(submission.readText(), XML)
 
-            allInOneSubmissionHelper.assertSavedSubmission("S-EPMC124")
+            allInOneSubmissionHelper.assertSavedSubmission("S-EPMC126")
         }
     }
 }
