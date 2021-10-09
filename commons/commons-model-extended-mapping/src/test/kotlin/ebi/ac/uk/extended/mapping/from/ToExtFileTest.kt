@@ -40,7 +40,12 @@ internal class ToExtFileTest(private val tempFolder: TemporaryFolder) {
     fun `fire file to ext file`(
         @MockK fileSource: FilesSource
     ) {
-        every { fileSource.getFile("folder/file.txt") } returns FireBioFile("fire-id", "md5", 12, lazy { "content" })
+        every { fileSource.getFile("folder/file.txt") } returns FireBioFile(
+            "fire-id",
+            "file.txt",
+            "md5",
+            12,
+            lazy { "content" })
 
         val extFile = file.toExtFile(fileSource) as FireFile
 
@@ -57,7 +62,7 @@ internal class ToExtFileTest(private val tempFolder: TemporaryFolder) {
     fun `fire directory to ext file`(
         @MockK fileSource: FilesSource
     ) {
-        every { fileSource.getFile("folder/file.txt") } returns FireDirectoryBioFile("md5", 12)
+        every { fileSource.getFile("folder/file.txt") } returns FireDirectoryBioFile("file.txt", "md5", 12)
 
         val extFile = file.toExtFile(fileSource) as FireDirectory
 

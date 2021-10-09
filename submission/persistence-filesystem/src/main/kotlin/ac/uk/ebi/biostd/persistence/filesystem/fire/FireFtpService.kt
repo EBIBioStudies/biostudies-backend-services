@@ -25,7 +25,7 @@ class FireFtpService(
     private fun publishFiles(submission: ExtSubmission) =
         submission
             .allFiles
-            .map { it as FireFile }
+            .filterIsInstance<FireFile>()
             .forEach { publishFile(it, submission.relPath) }
 
     private fun publishFile(file: FireFile, relPath: String) {

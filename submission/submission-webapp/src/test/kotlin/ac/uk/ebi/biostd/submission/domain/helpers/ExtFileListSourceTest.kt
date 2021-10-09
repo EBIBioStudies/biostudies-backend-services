@@ -66,6 +66,7 @@ internal class ExtFileListSourceTest(
 
         assertThat(result is FireBioFile) { "expecting result to be of type NfsBioFile" }
         assertThat(result.fireId).isEqualTo("fireId")
+        assertThat(result.fileName).isEqualTo("fireFile.txt")
         assertThat(result.md5).isEqualTo(fireFile.md5())
         assertThat(result.size).isEqualTo(fireFile.size())
         assertThat(result.readContent()).isEqualTo(fireFile.readText())

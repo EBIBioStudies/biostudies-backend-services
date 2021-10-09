@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDraftDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.FileListDocFileRepository
 import ac.uk.ebi.biostd.persistence.doc.mapping.from.toDocSubmission
+import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
 import ac.uk.ebi.biostd.persistence.doc.model.DocProcessingStatus.PROCESSED
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
@@ -41,7 +42,8 @@ class SubmissionMongoPersistenceServiceTest(
     @MockK private val draftRepository: SubmissionDraftDocDataRepository,
     @MockK private val requestRepository: SubmissionRequestDocDataRepository,
     @MockK private val serializationService: ExtSerializationService,
-    @MockK private val fileListDocFileRepository: FileListDocFileRepository
+    @MockK private val fileListDocFileRepository: FileListDocFileRepository,
+    @MockK private val toExtSubmissionMapper: ToExtSubmissionMapper
 ) {
     private val draftKey = "TMP_123456"
 
@@ -55,6 +57,7 @@ class SubmissionMongoPersistenceServiceTest(
     private val versionSlot = slot<Int>()
     private val filesListMock = mockk<List<FileListDocFile>>()
     private val docSubmissionMock = mockk<DocSubmission>()
+    private val resultExtSubmission = mockk<ExtSubmission>()
 
     private val testInstance = SubmissionMongoPersistenceService(
         dataRepository,
@@ -62,7 +65,8 @@ class SubmissionMongoPersistenceServiceTest(
         draftRepository,
         serializationService,
         systemService,
-        fileListDocFileRepository
+        fileListDocFileRepository,
+        toExtSubmissionMapper
     )
 
     @AfterEach
@@ -89,6 +93,7 @@ class SubmissionMongoPersistenceServiceTest(
         every { docSubmissionMock.owner } returns submission.owner
         every { docSubmissionMock.submitter } returns submission.submitter
         every { docSubmissionMock.version } returns submission.version
+        every { toExtSubmissionMapper.toExtSubmission(docSubmissionMock) } returns resultExtSubmission
     }
 
     @Test

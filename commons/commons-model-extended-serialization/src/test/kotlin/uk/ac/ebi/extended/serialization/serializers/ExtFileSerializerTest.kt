@@ -79,6 +79,7 @@ class ExtFileSerializerTest(private val tempFolder: TemporaryFolder) {
             "extType" to "fireFile"
             "type" to "file"
             "size" to 13
+            "md5" to "fireFileMd5"
         }.toString()
 
         assertThat(testInstance.serialize(extFile)).isEqualToIgnoringWhitespace(expectedJson)
@@ -107,6 +108,7 @@ class ExtFileSerializerTest(private val tempFolder: TemporaryFolder) {
             )
             "extType" to "fireDirectory"
             "type" to "directory"
+            "md5" to "fireDirMd5"
             "size" to 12
         }.toString()
 

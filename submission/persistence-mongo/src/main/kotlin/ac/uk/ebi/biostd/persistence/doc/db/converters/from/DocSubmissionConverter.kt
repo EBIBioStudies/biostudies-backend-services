@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.persistence.doc.db.converters.from
 
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.PAGE_TAB_FILES
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.PROJECT_DOC_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.STAT_DOC_NAME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.STAT_DOC_VALUE
@@ -35,6 +36,7 @@ import org.bson.Document
 import org.springframework.core.convert.converter.Converter
 
 class DocSubmissionConverter(
+    private val docFileConverter: DocFileConverter,
     private val docSectionConverter: DocSectionConverter,
     private val docAttributeConverter: DocAttributeConverter
 ) : Converter<Document, DocSubmission> {
@@ -58,7 +60,8 @@ class DocSubmissionConverter(
         attributes = source.getDocList(SUB_ATTRIBUTES).map { docAttributeConverter.convert(it) },
         tags = source.getDocList(SUB_TAGS).map { toDocTag(it) },
         collections = source.getDocList(SUB_PROJECTS).map { toDocCollection(it) },
-        stats = source.getDocList(SUB_STATS).map { toDocStat(it) }
+        stats = source.getDocList(SUB_STATS).map { toDocStat(it) },
+        pageTabFiles = source.getDocList(PAGE_TAB_FILES).map { docFileConverter.convert(it) }
     )
 
     private fun toDocTag(doc: Document): DocTag =

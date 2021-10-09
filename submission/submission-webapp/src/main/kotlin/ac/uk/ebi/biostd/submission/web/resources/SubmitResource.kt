@@ -78,7 +78,6 @@ class SubmitResource(private val submitWebHandler: SubmitWebHandler) {
             attrs = attributes.orEmpty(),
             files = emptyList()
         )
-
         return submitWebHandler.submit(request)
     }
 

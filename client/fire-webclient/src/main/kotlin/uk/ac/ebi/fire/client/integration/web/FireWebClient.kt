@@ -1,6 +1,6 @@
 package uk.ac.ebi.fire.client.integration.web
 
-import org.springframework.http.client.support.BasicAuthenticationInterceptor
+import org.springframework.http.client.SimpleClientHttpRequestFactory
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.util.DefaultUriBuilderFactory
 import uk.ac.ebi.fire.client.api.FireClient
@@ -20,8 +20,13 @@ class FireWebClient private constructor(
         private fun createRestTemplate(fireHost: String, username: String, password: String) =
             RestTemplate().apply {
                 uriTemplateHandler = DefaultUriBuilderFactory(fireHost)
-                interceptors.add(BasicAuthenticationInterceptor(username, password))
                 errorHandler = FireWebClientErrorHandler()
+                clientHttpRequestInitializers.add(FireAuthRequestInitializer(username, password))
+                requestFactory = SimpleClientHttpRequestFactory().apply {
+                    setReadTimeout(0)
+                    setConnectTimeout(0)
+                    setBufferRequestBody(false)
+                }
             }
     }
 }

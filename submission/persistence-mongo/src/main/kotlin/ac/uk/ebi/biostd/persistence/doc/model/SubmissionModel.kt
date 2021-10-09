@@ -37,7 +37,8 @@ data class DocSubmission(
     val attributes: List<DocAttribute> = listOf(),
     val tags: List<DocTag> = listOf(),
     val collections: List<DocCollection> = listOf(),
-    val stats: List<DocStat> = listOf()
+    val stats: List<DocStat> = listOf(),
+    val pageTabFiles: List<DocFile> = listOf()
 )
 
 enum class DocSubmissionMethod(val value: String) {
@@ -116,7 +117,8 @@ data class FireDocDirectory(
 
 data class DocFileList(
     val fileName: String,
-    val files: List<DocFileRef>
+    val files: List<DocFileRef>,
+    val pageTabFiles: List<DocFile> = listOf()
 )
 
 data class DocFileRef(
@@ -129,7 +131,7 @@ data class FileListDocFile(
     val id: ObjectId,
     val submissionId: ObjectId,
     val fileName: String,
-    val location: String,
+    val fullPath: String,
     val attributes: List<DocAttribute> = listOf(),
     val md5: String,
     val size: Long,

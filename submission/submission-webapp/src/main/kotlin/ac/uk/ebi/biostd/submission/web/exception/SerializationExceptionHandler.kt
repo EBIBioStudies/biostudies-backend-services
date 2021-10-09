@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.submission.web.exception
 import ac.uk.ebi.biostd.exception.InvalidExtensionException
 import ac.uk.ebi.biostd.tsv.deserialization.model.TsvChunk
 import ac.uk.ebi.biostd.validation.SerializationException
+import com.fasterxml.jackson.databind.JsonMappingException
 import ebi.ac.uk.errors.ValidationNode
 import ebi.ac.uk.errors.ValidationNodeStatus.ERROR
 import ebi.ac.uk.errors.ValidationTree
@@ -31,6 +32,14 @@ class SerializationExceptionHandler {
     @ExceptionHandler(value = [InvalidExtensionException::class])
     fun handle(exception: InvalidExtensionException): ValidationTree {
         val node = ValidationNode(ERROR, exception.message)
+        return ValidationTree(FAIL, node)
+    }
+
+    @ResponseBody
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ExceptionHandler(value = [JsonMappingException::class])
+    fun handle(exception: JsonMappingException): ValidationTree {
+        val node = ValidationNode(ERROR, exception.message ?: exception.localizedMessage)
         return ValidationTree(FAIL, node)
     }
 

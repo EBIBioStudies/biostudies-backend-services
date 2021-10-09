@@ -54,6 +54,7 @@ object DocFileListFields {
     val DOC_FILE_LIST_CLASS: String = DocFileList::class.java.canonicalName
     const val FILE_LIST_DOC_FILE_FILENAME = "fileName"
     const val FILE_LIST_DOC_FILES = "files"
+    const val FILE_LIST_DOC_PAGE_TAB_FILES = "pageTabFiles"
 }
 
 object DocFileRefFields {
@@ -65,8 +66,7 @@ object FileListDocFileFields {
     val FILE_LIST_DOC_FILE_CLASS: String = FileListDocFile::class.java.canonicalName
     const val FILE_LIST_DOC_FILE_SUBMISSION_ID = "submissionId"
     const val FILE_LIST_DOC_FILE_FILENAME = "fileName"
-    const val FILE_LIST_DOC_FILE_REL_PATH = "relPath"
-    const val FILE_LIST_DOC_FILE_LOCATION = "location"
+    const val FILE_LIST_DOC_FILE_LOCATION = "fullPath"
     const val FILE_LIST_DOC_FILE_ATTRIBUTES = "attributes"
     const val FILE_LIST_DOC_FILE_MD5 = "md5"
 }
@@ -137,4 +137,5 @@ object DocSubmissionFields {
     const val STAT_DOC_NAME = "name"
     const val STAT_DOC_VALUE = "value"
     const val SUB_STATS = "stats"
+    const val PAGE_TAB_FILES = "pageTabFiles"
 }

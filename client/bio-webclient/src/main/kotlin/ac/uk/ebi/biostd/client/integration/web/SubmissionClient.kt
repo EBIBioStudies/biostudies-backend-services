@@ -9,6 +9,7 @@ import ebi.ac.uk.api.UserFile
 import ebi.ac.uk.api.dto.NonRegistration
 import ebi.ac.uk.api.dto.RegisterConfig
 import ebi.ac.uk.api.dto.SubmissionDto
+import ebi.ac.uk.api.dto.UserGroupDto
 import ebi.ac.uk.api.security.CheckUserRequest
 import ebi.ac.uk.api.security.LoginRequest
 import ebi.ac.uk.api.security.RegisterRequest
@@ -37,6 +38,7 @@ typealias SubmissionResponse = ClientResponse<Submission>
 
 interface FilesOperations {
     fun uploadFiles(files: List<File>, relativePath: String = EMPTY)
+    fun uploadFile(file: File, relativePath: String = EMPTY)
     fun downloadFile(fileName: String, relativePath: String = EMPTY): File
     fun listUserFiles(relativePath: String = EMPTY): List<UserFile>
     fun deleteFile(fileName: String, relativePath: String = EMPTY)
@@ -97,6 +99,8 @@ interface GeneralOperations {
     fun getGroups(): List<Group>
     fun getCollections(): List<Collection>
     fun generateFtpLink(relPath: String)
+    fun createGroup(groupName: String, groupDescription: String): UserGroupDto
+    fun addUserInGroup(groupName: String, userName: String)
 }
 
 interface DraftSubmissionOperations {

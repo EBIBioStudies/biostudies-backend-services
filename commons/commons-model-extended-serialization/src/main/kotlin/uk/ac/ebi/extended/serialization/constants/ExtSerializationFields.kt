@@ -21,6 +21,7 @@ object ExtSerializationFields {
     const val FILE_TYPE = "type"
     const val FILE_FIRE_ID = "fireId"
     const val FILE_SIZE = "size"
+    const val FILE_MD5 = "md5"
     const val FILE_FILE_TYPE = "file"
     const val FILE_DIR_TYPE = "directory"
 
@@ -43,4 +44,5 @@ object ExtSerializationFields {
     const val COLLECTIONS = "collections"
     const val STATS = "stats"
     const val ACCESS_TAGS = "accessTags"
+    const val PAGE_TAB_FILES = "pageTabFiles"
 }

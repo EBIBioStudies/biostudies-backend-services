@@ -42,7 +42,7 @@ internal fun FileListDocFile.toExtFile(): ExtFile = when (fileSystem) {
         fileName.substringAfterLast("/"),
         fileName,
         "Files/$fileName",
-        location,
+        fullPath,
         md5,
         size,
         attributes.toExtAttributes()
@@ -59,8 +59,8 @@ internal fun FileListDocFile.toExtFile(): ExtFile = when (fileSystem) {
         fileName.substringAfterLast("/"),
         fileName,
         "Files/$fileName",
-        location,
-        Paths.get(location).toFile(),
+        fullPath,
+        Paths.get(fullPath).toFile(),
         attributes.toExtAttributes()
     ).also { it.md5 = md5 }
 }
@@ -69,4 +69,5 @@ internal fun FileListDocFile.toExtFile(): ExtFile = when (fileSystem) {
  * Maps a DocFileList to corresponding Ext type. Note that empty list is used as files as list files are not loaded as
  * part of the submission.
  */
-internal fun DocFileList.toExtFileList() = ExtFileList(fileName, emptyList())
+internal fun DocFileList.toExtFileList() =
+    ExtFileList(fileName, emptyList(), pageTabFiles = pageTabFiles.map { it.toExtFile() })

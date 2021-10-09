@@ -6,10 +6,12 @@ import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.XML
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.itest.assertions.AllInOneSubmissionHelper
-import ac.uk.ebi.biostd.itest.assertions.submitAllInOneSubmission
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
+import ac.uk.ebi.biostd.itest.factory.submissionSpecJson
+import ac.uk.ebi.biostd.itest.factory.submissionSpecTsv
+import ac.uk.ebi.biostd.itest.factory.submissionSpecXml
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
@@ -50,20 +52,38 @@ internal class AllInOneSubmissionTest(private val tempFolder: TemporaryFolder) :
 
         @Test
         fun `submit all in one TSV submission`() {
-            webClient.submitAllInOneSubmission("S-EPMC124", TSV, tempFolder)
+            val (submission, fileList, files) = submissionSpecTsv(tempFolder, "S-EPMC124")
+            webClient.uploadFile(fileList)
+            files.forEach { webClient.uploadFile(it.file, it.folder) }
+
+            webClient.submitSingle(submission.readText(), TSV)
+
             allInOneSubmissionHelper.assertSavedSubmission("S-EPMC124")
+            if (mongoMode) allInOneSubmissionHelper.assertSubmissionFilesRecords("S-EPMC124")
         }
 
         @Test
-        fun `submit all in one JSON submission`() {
-            webClient.submitAllInOneSubmission("S-EPMC125", JSON, tempFolder)
+        fun `submit all in one Json submission`() {
+            val (submission, fileList, files) = submissionSpecJson(tempFolder, "S-EPMC125")
+            webClient.uploadFile(fileList)
+            files.forEach { webClient.uploadFile(it.file, it.folder) }
+
+            webClient.submitSingle(submission.readText(), JSON)
+
             allInOneSubmissionHelper.assertSavedSubmission("S-EPMC125")
+            if (mongoMode) allInOneSubmissionHelper.assertSubmissionFilesRecords("S-EPMC125")
         }
 
         @Test
         fun `submit all in one XML submission`() {
-            webClient.submitAllInOneSubmission("S-EPMC126", XML, tempFolder)
+            val (submission, fileList, files) = submissionSpecXml(tempFolder, "S-EPMC126")
+            webClient.uploadFile(fileList)
+            files.forEach { webClient.uploadFile(it.file, it.folder) }
+
+            webClient.submitSingle(submission.readText(), XML)
+
             allInOneSubmissionHelper.assertSavedSubmission("S-EPMC126")
+            if (mongoMode) allInOneSubmissionHelper.assertSubmissionFilesRecords("S-EPMC126")
         }
     }
 }
