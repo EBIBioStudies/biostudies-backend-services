@@ -48,7 +48,6 @@ class ExtFileDeserializerTest(private val tempFolder: TemporaryFolder) {
         assertThat(extFile.relPath).isEqualTo("relPath")
         assertThat(extFile.fullPath).isEqualTo("fullPath")
         assertThat(extFile.file).isEqualTo(file)
-        assertThat(extFile.fileName).isEqualTo("test-file.txt")
         assertThat(extFile.attributes).hasSize(1)
         assertThat(extFile.attributes.first().name).isEqualTo("Type")
         assertThat(extFile.attributes.first().value).isEqualTo("Data")
@@ -59,6 +58,7 @@ class ExtFileDeserializerTest(private val tempFolder: TemporaryFolder) {
         val json = jsonObj {
             "fileName" to "test-file.txt"
             "filePath" to "path/test-file.txt"
+            "relPath" to "relPath"
             "fireId" to "fireId"
             "attributes" to jsonArray(
                 jsonObj {
@@ -76,6 +76,7 @@ class ExtFileDeserializerTest(private val tempFolder: TemporaryFolder) {
 
         assertThat(extFile.fileName).isEqualTo("test-file.txt")
         assertThat(extFile.filePath).isEqualTo("path/test-file.txt")
+        assertThat(extFile.relPath).isEqualTo("relPath")
         assertThat(extFile.fireId).isEqualTo("fireId")
         assertThat(extFile.md5).isEqualTo("fireFileMd5")
         assertThat(extFile.size).isEqualTo(10)
@@ -88,6 +89,8 @@ class ExtFileDeserializerTest(private val tempFolder: TemporaryFolder) {
     fun `deserialize ext file when fire directory`() {
         val json = jsonObj {
             "fileName" to "test-file.txt"
+            "filePath" to "path/test-file.txt"
+            "relPath" to "relPath"
             "attributes" to jsonArray(
                 jsonObj {
                     "name" to "Type"
@@ -103,33 +106,10 @@ class ExtFileDeserializerTest(private val tempFolder: TemporaryFolder) {
         val extFile = testInstance.deserialize<ExtFile>(json) as FireDirectory
 
         assertThat(extFile.fileName).isEqualTo("test-file.txt")
+        assertThat(extFile.filePath).isEqualTo("path/test-file.txt")
+        assertThat(extFile.relPath).isEqualTo("relPath")
         assertThat(extFile.md5).isEqualTo("fireDirectoryMd5")
         assertThat(extFile.size).isEqualTo(20)
-        assertThat(extFile.attributes).hasSize(1)
-        assertThat(extFile.attributes.first().name).isEqualTo("Type")
-        assertThat(extFile.attributes.first().value).isEqualTo("Data")
-    }
-
-    @Test
-    fun `deserialize with inner path`() {
-        val file = tempFolder.createFile("test-file.txt")
-        val json = jsonObj {
-            "file" to file.absolutePath
-            "fileName" to "test-file.txt"
-            "path" to "a/b/test-file.txt"
-            "attributes" to jsonArray(
-                jsonObj {
-                    "name" to "Type"
-                    "value" to "Data"
-                }
-            )
-            "extType" to "nfsFile"
-        }.toString()
-
-        val extFile = testInstance.deserialize<ExtFile>(json) as NfsFile
-
-        assertThat(extFile.file).isEqualTo(file)
-        assertThat(extFile.fileName).isEqualTo("a/b/test-file.txt")
         assertThat(extFile.attributes).hasSize(1)
         assertThat(extFile.attributes.first().name).isEqualTo("Type")
         assertThat(extFile.attributes.first().value).isEqualTo("Data")

@@ -35,25 +35,28 @@ class NfsPageTabService(
         return listOf(
             NfsFile(
                 tabsFiles.json.name,
-                tabsFiles.json.path,
-                tabsFiles.json.path,
+                tabsFiles.json.name,
+                getRelPath(tabsFiles.json.absolutePath),
                 tabsFiles.json.absolutePath,
                 tabsFiles.json
             ),
             NfsFile(
                 tabsFiles.xml.name,
-                tabsFiles.json.path,
-                tabsFiles.json.path,
-                tabsFiles.json.absolutePath,
+                tabsFiles.xml.name,
+                getRelPath(tabsFiles.xml.absolutePath),
+                tabsFiles.xml.absolutePath,
                 tabsFiles.xml
             ),
             NfsFile(
                 tabsFiles.tsv.name,
-                tabsFiles.json.path,
-                tabsFiles.json.path,
-                tabsFiles.json.absolutePath,
+                tabsFiles.tsv.name,
+                getRelPath(tabsFiles.tsv.absolutePath),
+                tabsFiles.tsv.absolutePath,
                 tabsFiles.tsv
             )
         )
     }
+
+    private fun getRelPath(path: String) =
+        path.substringAfterLast("submission/").substringAfter("/").substringAfter("/").substringAfter("/")
 }

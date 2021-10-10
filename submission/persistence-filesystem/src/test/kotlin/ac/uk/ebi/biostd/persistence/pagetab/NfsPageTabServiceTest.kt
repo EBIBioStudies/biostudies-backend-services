@@ -83,25 +83,61 @@ class NfsPageTabServiceTest(
 
     private fun assertSubmissionTabFiles(submission: ExtSubmission) {
         val tabFiles = submission.pageTabFiles
-        assertThat(tabFiles.first()).isEqualTo(NfsFile(SUB_JSON, "", "", "", subFolder.resolve(SUB_JSON)))
-        assertThat(tabFiles.second()).isEqualTo(NfsFile(SUB_XML, "", "", "", subFolder.resolve(SUB_XML)))
-        assertThat(tabFiles.third()).isEqualTo(NfsFile(SUB_TSV, "", "", "", subFolder.resolve(SUB_TSV)))
+        assertThat(tabFiles.first()).isEqualTo(
+            NfsFile(
+                SUB_JSON,
+                SUB_JSON,
+                SUB_JSON,
+                "$subFolder/$SUB_JSON",
+                subFolder.resolve(SUB_JSON)
+            )
+        )
+        assertThat(tabFiles.second()).isEqualTo(
+            NfsFile(
+                SUB_XML,
+                SUB_XML,
+                SUB_XML,
+                "$subFolder/$SUB_XML",
+                subFolder.resolve(SUB_XML)
+            )
+        )
+        assertThat(tabFiles.third()).isEqualTo(
+            NfsFile(
+                SUB_TSV,
+                SUB_TSV,
+                SUB_TSV,
+                "$subFolder/$SUB_TSV",
+                subFolder.resolve(SUB_TSV)
+            )
+        )
     }
 
     private fun assertSectionTabFiles(section: ExtSection) {
         val tabFiles = section.fileList!!.pageTabFiles
         assertThat(tabFiles.first()).isEqualTo(
-            NfsFile(FILE_LIST_JSON1, "", "", "", subFolder.resolve("Files/data/$FILE_LIST_JSON1"))
+            NfsFile(
+                FILE_LIST_JSON1,
+                FILE_LIST_JSON1,
+                "Files/data/$FILE_LIST_JSON1",
+                "$subFolder/Files/data/$FILE_LIST_JSON1",
+                subFolder.resolve("Files/data/$FILE_LIST_JSON1")
+            )
         )
         assertThat(tabFiles.second()).isEqualTo(
-            NfsFile(FILE_LIST_XML1, "", "", "", subFolder.resolve("Files/data/$FILE_LIST_XML1"))
+            NfsFile(
+                FILE_LIST_XML1,
+                FILE_LIST_XML1,
+                "Files/data/$FILE_LIST_XML1",
+                "$subFolder/Files/data/$FILE_LIST_XML1",
+                subFolder.resolve("Files/data/$FILE_LIST_XML1")
+            )
         )
         assertThat(tabFiles.third()).isEqualTo(
             NfsFile(
                 FILE_LIST_TSV1,
-                "",
-                "",
-                "",
+                FILE_LIST_TSV1,
+                "Files/data/$FILE_LIST_TSV1",
+                "$subFolder/Files/data/$FILE_LIST_TSV1",
                 subFolder.resolve("Files/data/$FILE_LIST_TSV1")
             )
         )
@@ -110,17 +146,29 @@ class NfsPageTabServiceTest(
     private fun assertSubSectionTabFiles(section: ExtSection?) {
         val tabFiles = section!!.fileList!!.pageTabFiles
         assertThat(tabFiles.first()).isEqualTo(
-            NfsFile(FILE_LIST_JSON2, "", "", "", subFolder.resolve("Files/data/$FILE_LIST_JSON2"))
+            NfsFile(
+                FILE_LIST_JSON2,
+                FILE_LIST_JSON2,
+                "Files/data/$FILE_LIST_JSON2",
+                "$subFolder/Files/data/$FILE_LIST_JSON2",
+                subFolder.resolve("Files/data/$FILE_LIST_JSON2")
+            )
         )
         assertThat(tabFiles.second()).isEqualTo(
-            NfsFile(FILE_LIST_XML2, "", "", "", subFolder.resolve("Files/data/$FILE_LIST_XML2"))
+            NfsFile(
+                FILE_LIST_XML2,
+                FILE_LIST_XML2,
+                "Files/data/$FILE_LIST_XML2",
+                "$subFolder/Files/data/$FILE_LIST_XML2",
+                subFolder.resolve("Files/data/$FILE_LIST_XML2")
+            )
         )
         assertThat(tabFiles.third()).isEqualTo(
             NfsFile(
                 FILE_LIST_TSV2,
-                "",
-                "",
-                "",
+                FILE_LIST_TSV2,
+                "Files/data/$FILE_LIST_TSV2",
+                "$subFolder/Files/data/$FILE_LIST_TSV2",
                 subFolder.resolve("Files/data/$FILE_LIST_TSV2")
             )
         )

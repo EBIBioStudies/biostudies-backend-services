@@ -45,7 +45,8 @@ internal class ToExtFileTest(private val tempFolder: TemporaryFolder) {
             "file.txt",
             "md5",
             12,
-            lazy { "content" })
+            lazy { "content" }
+        )
 
         val extFile = file.toExtFile(fileSource) as FireFile
 

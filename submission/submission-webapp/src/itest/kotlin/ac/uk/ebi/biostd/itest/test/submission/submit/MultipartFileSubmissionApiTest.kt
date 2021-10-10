@@ -268,55 +268,70 @@ internal class MultipartFileSubmissionApiTest(
         }
 
         // TODO: pending fire files
-        private fun fileListFiles(fileListName: String, subFolder: String): List<ExtFile> =
-            if (mysqlMode) listOf() else listOf(
-                NfsFile("$fileListName.json", "", "", "", File(subFolder).resolve("Files/$fileListName.json")),
-                NfsFile("$fileListName.xml", "", "", "", File(subFolder).resolve("Files/$fileListName.xml")),
-                NfsFile(
-                    "$fileListName.pagetab.tsv",
-                    "",
-                    "",
-                    "",
-                    File(subFolder).resolve("Files/$fileListName.pagetab.tsv")
-                )
-            )
-
-        private fun submissionFiles(accNo: String, subFolder: String): List<ExtFile> =
-            if (mysqlMode) listOf() else listOf(
-                NfsFile("$accNo.json", "", "", "", File(subFolder).resolve("$accNo.json")),
-                NfsFile("$accNo.xml", "", "", "", File(subFolder).resolve("$accNo.xml")),
-                NfsFile("$accNo.pagetab.tsv", "", "", "", File(subFolder).resolve("$accNo.pagetab.tsv"))
-            )
-
-        private fun assertSubmissionFiles(accNo: String, testFile: String) {
-            val createdSub = submissionRepository.getExtByAccNo(accNo)
-            val subFolder = "$submissionPath/${createdSub.relPath}"
-
-            val fileListName = createdSub.section.fileList?.fileName
-            val expectedTabFiles = if (mongoMode) {
+        private fun fileListPageTabFiles(fileListName: String, subFolder: String): List<ExtFile> =
+            if (mongoMode) {
                 if (enableFire) listOf() else listOf(
-                    NfsFile("$fileListName.json", "", "", "", File(subFolder).resolve("Files/$fileListName.json")),
-                    NfsFile("$fileListName.xml", "", "", "", File(subFolder).resolve("Files/$fileListName.xml")),
+                    NfsFile(
+                        "$fileListName.json",
+                        "$fileListName.json",
+                        "Files/$fileListName.json",
+                        "$subFolder/Files/$fileListName.json",
+                        File(subFolder).resolve("Files/$fileListName.json")
+                    ),
+                    NfsFile(
+                        "$fileListName.xml",
+                        "$fileListName.xml",
+                        "Files/$fileListName.xml",
+                        "$subFolder/Files/$fileListName.xml",
+                        File(subFolder).resolve("Files/$fileListName.xml")
+                    ),
                     NfsFile(
                         "$fileListName.pagetab.tsv",
-                        "",
-                        "",
-                        "",
+                        "$fileListName.pagetab.tsv",
+                        "Files/$fileListName.pagetab.tsv",
+                        "$subFolder/Files/$fileListName.pagetab.tsv",
                         File(subFolder).resolve("Files/$fileListName.pagetab.tsv")
                     )
                 )
             } else listOf()
 
-            val submissionPageTabFiles = if (mongoMode) {
+        private fun submissionPageTabFiles(accNo: String, subFolder: String): List<ExtFile> =
+            if (mongoMode) {
                 if (enableFire) listOf() else listOf(
-                    NfsFile("$accNo.json", "", "", "", File(subFolder).resolve("$accNo.json")),
-                    NfsFile("$accNo.xml", "", "", "", File(subFolder).resolve("$accNo.xml")),
-                    NfsFile("$accNo.pagetab.tsv", "", "", "", File(subFolder).resolve("$accNo.pagetab.tsv"))
+                    NfsFile(
+                        "$accNo.json",
+                        "$accNo.json",
+                        "$accNo.json",
+                        "$subFolder/$accNo.json",
+                        File(subFolder).resolve("$accNo.json")
+                    ),
+                    NfsFile(
+                        "$accNo.xml",
+                        "$accNo.xml",
+                        "$accNo.xml",
+                        "$subFolder/$accNo.xml",
+                        File(subFolder).resolve("$accNo.xml")
+                    ),
+                    NfsFile(
+                        "$accNo.pagetab.tsv",
+                        "$accNo.pagetab.tsv",
+                        "$accNo.pagetab.tsv",
+                        "$subFolder/$accNo.pagetab.tsv",
+                        File(subFolder).resolve("$accNo.pagetab.tsv")
+                    )
                 )
             } else listOf()
 
-            assertThat(createdSub.section.fileList).isEqualTo(ExtFileList("FileList", pageTabFiles = expectedTabFiles))
-            assertThat((createdSub.pageTabFiles)).isEqualTo(submissionPageTabFiles)
+        private fun assertSubmissionFiles(accNo: String, testFile: String) {
+            val createdSub = submissionRepository.getExtByAccNo(accNo)
+            val subFolder = "$submissionPath/${createdSub.relPath}"
+
+            val fileListName = createdSub.section.fileList!!.fileName
+
+            assertThat(createdSub.section.fileList).isEqualTo(
+                ExtFileList("FileList", pageTabFiles = fileListPageTabFiles(accNo, fileListName))
+            )
+            assertThat((createdSub.pageTabFiles)).isEqualTo(submissionPageTabFiles(accNo, subFolder))
 
             assertThat(Paths.get("$subFolder/Files/$testFile")).exists()
             assertThat(Paths.get("$subFolder/Files/$fileListName.xml")).exists()

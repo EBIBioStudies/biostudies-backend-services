@@ -103,6 +103,7 @@ class ExtSectionSerializerTest(private val tempFolder: TemporaryFolder) {
                     jsonObj {
                         "fileName" to pageTabFireFile.fileName
                         "filePath" to pageTabFireFile.filePath
+                        "relPath" to "relPath"
                         "fireId" to "fireId"
                         "attributes" to jsonArray()
                         "extType" to "fireFile"
@@ -112,6 +113,8 @@ class ExtSectionSerializerTest(private val tempFolder: TemporaryFolder) {
                     },
                     jsonObj {
                         "fileName" to pageTabFireDirectory.fileName
+                        "filePath" to "filePath"
+                        "relPath" to "relPath"
                         "attributes" to jsonArray()
                         "extType" to "fireDirectory"
                         "type" to "directory"
@@ -120,7 +123,9 @@ class ExtSectionSerializerTest(private val tempFolder: TemporaryFolder) {
                     },
                     jsonObj {
                         "fileName" to fileNfs.name
-                        "path" to fileNfs.name
+                        "filePath" to "filePath"
+                        "relPath" to "relPath"
+                        "fullPath" to "fullPath"
                         "file" to fileNfs.absolutePath
                         "attributes" to jsonArray()
                         "extType" to "nfsFile"

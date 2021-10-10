@@ -138,10 +138,10 @@ class FireFilesServiceTest(
         assertThat(processed.section.files).hasSize(1)
         processed.section.files.first().ifLeft {
             it as FireFile
-            assertThat(it.fireId).isEqualTo("abc1")
             assertThat(it.fileName).isEqualTo(fileName)
             assertThat(it.filePath).isEqualTo(filePath)
             assertThat(it.relPath).isEqualTo("relPath")
+            assertThat(it.fireId).isEqualTo("abc1")
             assertThat(it.md5).isEqualTo(testMd5)
             assertThat(it.size).isEqualTo(1)
             assertThat(it.attributes).containsExactly(attribute)

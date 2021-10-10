@@ -27,6 +27,7 @@ internal class AllInOneSubmissionHelper(
         method: ExtSubmissionMethod = ExtSubmissionMethod.PAGE_TAB,
     ) {
         val extendedSubmission = submissionRepository.getExtByAccNo(accNo)
+
         assertThat(extendedSubmission.status).isEqualTo(ExtProcessingStatus.PROCESSED)
         assertThat(extendedSubmission.method).isEqualTo(method)
         assertThat(extendedSubmission.toSimpleSubmission()).isEqualTo(allInOneSubmission(accNo))
@@ -59,15 +60,39 @@ internal class AllInOneSubmissionHelper(
 
         val jsonFile = File("$submissionFolderPath/$accNo.json")
         assertThat(jsonFile).exists()
-        assertThat(pageTabFiles.first()).isEqualTo(NfsFile(fileName = "$accNo.json", "","","",jsonFile))
+        assertThat(pageTabFiles.first()).isEqualTo(
+            NfsFile(
+                fileName = "$accNo.json",
+                "$accNo.json",
+                "$accNo.json",
+                jsonFile.absolutePath,
+                jsonFile
+            )
+        )
 
         val xmlFile = File("$submissionFolderPath/$accNo.xml")
         assertThat(xmlFile).exists()
-        assertThat(pageTabFiles.second()).isEqualTo(NfsFile(fileName = "$accNo.xml","","","", xmlFile))
+        assertThat(pageTabFiles.second()).isEqualTo(
+            NfsFile(
+                fileName = "$accNo.xml",
+                "$accNo.xml",
+                "$accNo.xml",
+                xmlFile.absolutePath,
+                xmlFile
+            )
+        )
 
         val tsvFile = File("$submissionFolderPath/$accNo.pagetab.tsv")
         assertThat(tsvFile).exists()
-        assertThat(pageTabFiles.third()).isEqualTo(NfsFile(fileName = "$accNo.pagetab.tsv","","","", tsvFile))
+        assertThat(pageTabFiles.third()).isEqualTo(
+            NfsFile(
+                fileName = "$accNo.pagetab.tsv",
+                "$accNo.pagetab.tsv",
+                "$accNo.pagetab.tsv",
+                tsvFile.absolutePath,
+                tsvFile
+            )
+        )
     }
 
     private fun assertFileListPageTabs(
@@ -78,15 +103,39 @@ internal class AllInOneSubmissionHelper(
 
         val jsonFile = File("$submissionFolderPath/Files/file-list.json")
         assertThat(jsonFile).exists()
-        assertThat(pageTabFiles.first()).isEqualTo(NfsFile(fileName = "file-list.json", "","","",jsonFile))
+        assertThat(pageTabFiles.first()).isEqualTo(
+            NfsFile(
+                fileName = "file-list.json",
+                "file-list.json",
+                "Files/file-list.json",
+                jsonFile.absolutePath,
+                jsonFile
+            )
+        )
 
         val xmlFile = File("$submissionFolderPath/Files/file-list.xml")
         assertThat(xmlFile).exists()
-        assertThat(pageTabFiles.second()).isEqualTo(NfsFile(fileName = "file-list.xml","","","", xmlFile))
+        assertThat(pageTabFiles.second()).isEqualTo(
+            NfsFile(
+                fileName = "file-list.xml",
+                "file-list.xml",
+                "Files/file-list.xml",
+                xmlFile.absolutePath,
+                xmlFile
+            )
+        )
 
         val tsvFile = File("$submissionFolderPath/Files/file-list.pagetab.tsv")
         assertThat(tsvFile).exists()
-        assertThat(pageTabFiles.third()).isEqualTo(NfsFile(fileName = "file-list.pagetab.tsv","","","", tsvFile))
+        assertThat(pageTabFiles.third()).isEqualTo(
+            NfsFile(
+                fileName = "file-list.pagetab.tsv",
+                "file-list.pagetab.tsv",
+                "Files/file-list.pagetab.tsv",
+                tsvFile.absolutePath,
+                tsvFile
+            )
+        )
     }
 
     private fun getSubFileContent(path: String): String {

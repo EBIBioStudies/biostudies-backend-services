@@ -21,7 +21,7 @@ private val createTempFile
     get() = Files.createTempFile("file", ".tmp").toFile().apply { writeText("example text content") }
 
 internal fun assertDbFile(file: DbFile, extFile: ExtFile, order: Int, tableOrder: Int = NO_TABLE_INDEX) {
-    assertThat(file.name).isEqualTo((extFile as NfsFile).fileName)
+    assertThat(file.name).isEqualTo((extFile as NfsFile).filePath)
     assertThat(file.size).isEqualTo(20)
     assertThat(file.order).isEqualTo(order)
     assertThat(file.tableIndex).isEqualTo(tableOrder)

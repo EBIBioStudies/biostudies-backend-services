@@ -182,17 +182,53 @@ internal class FileListSubmissionTest(private val tempFolder: TemporaryFolder) :
             val fileListName = createdSub.section.fileList?.fileName
             val expectedTabFiles = if (mongoMode) {
                 if (enableFire) listOf() else listOf(
-                    NfsFile("$fileListName.json", "","","",File(subFolder).resolve("Files/$fileListName.json")),
-                    NfsFile("$fileListName.xml", "","","",File(subFolder).resolve("Files/$fileListName.xml")),
-                    NfsFile("$fileListName.pagetab.tsv", "","","",File(subFolder).resolve("Files/$fileListName.pagetab.tsv"))
+                    NfsFile(
+                        "$fileListName.json",
+                        "$fileListName.json",
+                        "Files/$fileListName.json",
+                        "$subFolder/Files/$fileListName.json",
+                        File(subFolder).resolve("Files/$fileListName.json")
+                    ),
+                    NfsFile(
+                        "$fileListName.xml",
+                        "$fileListName.xml",
+                        "Files/$fileListName.xml",
+                        "$subFolder/Files/$fileListName.xml",
+                        File(subFolder).resolve("Files/$fileListName.xml")
+                    ),
+                    NfsFile(
+                        "$fileListName.pagetab.tsv",
+                        "$fileListName.pagetab.tsv",
+                        "Files/$fileListName.pagetab.tsv",
+                        "$subFolder/Files/$fileListName.pagetab.tsv",
+                        File(subFolder).resolve("Files/$fileListName.pagetab.tsv")
+                    )
                 )
             } else listOf()
 
             val submissionPageTabFiles = if (mongoMode) {
                 if (enableFire) listOf() else listOf(
-                    NfsFile("$accNo.json", "","","",File(subFolder).resolve("$accNo.json")),
-                    NfsFile("$accNo.xml", "","","",File(subFolder).resolve("$accNo.xml")),
-                    NfsFile("$accNo.pagetab.tsv", "","","",File(subFolder).resolve("$accNo.pagetab.tsv"))
+                    NfsFile(
+                        "$accNo.json",
+                        "$accNo.json",
+                        "$accNo.json",
+                        "$subFolder/$accNo.json",
+                        File(subFolder).resolve("$accNo.json")
+                    ),
+                    NfsFile(
+                        "$accNo.xml",
+                        "$accNo.xml",
+                        "$accNo.xml",
+                        "$subFolder/$accNo.xml",
+                        File(subFolder).resolve("$accNo.xml")
+                    ),
+                    NfsFile(
+                        "$accNo.pagetab.tsv",
+                        "$accNo.pagetab.tsv",
+                        "$accNo.pagetab.tsv",
+                        "$subFolder/$accNo.pagetab.tsv",
+                        File(subFolder).resolve("$accNo.pagetab.tsv")
+                    )
                 )
             } else listOf()
 

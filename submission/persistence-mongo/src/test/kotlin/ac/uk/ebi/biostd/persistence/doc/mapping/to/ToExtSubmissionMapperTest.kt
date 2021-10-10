@@ -32,7 +32,7 @@ class ToExtSubmissionMapperTest(temporaryFolder: TemporaryFolder) {
     private val filesFolder = submissionFolder.createDirectory(FILES_DIR)
     private val sectionFile = filesFolder.createNewFile(TEST_REL_PATH)
     private val testInstance = ToExtSubmissionMapper()
-    private val fileNfs = temporaryFolder.createFile("nfsFileFile")
+    private val fileNfs = temporaryFolder.createDirectory("folder").createNewFile("nfsFileFile.txt")
 
     @Test
     fun `to ext Submission`() {

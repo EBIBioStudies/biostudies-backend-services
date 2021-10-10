@@ -54,11 +54,11 @@ class FirePageTabServiceTest(
         mockkStatic("ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabUtilKt")
 
         every { serializationService.generateSubPageTab(submission, fireFolder) } returns
-                TabFiles(
-                    fireFolder.resolve("S-TEST123.json"),
-                    fireFolder.resolve("S-TEST123.xml"),
-                    fireFolder.resolve("S-TEST123.pagetab.tsv")
-                )
+            TabFiles(
+                fireFolder.resolve("S-TEST123.json"),
+                fireFolder.resolve("S-TEST123.xml"),
+                fireFolder.resolve("S-TEST123.pagetab.tsv")
+            )
         every { serializationService.generateFileListPageTab(submission, fireFolder) } returns mapOf(
             "data/file-list2" to TabFiles(
                 fireFolder.resolve("file-list2.json"),
@@ -75,15 +75,15 @@ class FirePageTabServiceTest(
 
     private fun setUpFireWebClient() {
         every { fireWebClient.save(any(), any(), any()) } returns
-                FireFileWeb(1, "$FILE_LIST_JSON2-fireId", "md5", 1, "creationTime") andThen
-                FireFileWeb(2, "$FILE_LIST_XML2-fireId", "md5", 1, "creationTime") andThen
-                FireFileWeb(3, "$FILE_LIST_TSV2-fireId", "md5", 1, "creationTime") andThen
-                FireFileWeb(4, "$FILE_LIST_JSON1-fireId", "md5", 1, "creationTime") andThen
-                FireFileWeb(5, "$FILE_LIST_XML1-fireId", "md5", 1, "creationTime") andThen
-                FireFileWeb(6, "$FILE_LIST_TSV1-fireId", "md5", 1, "creationTime") andThen
-                FireFileWeb(7, "$SUB_JSON-fireId", "md5", 1, "creationTime") andThen
-                FireFileWeb(8, "$SUB_XML-fireId", "md5", 1, "creationTime") andThen
-                FireFileWeb(9, "$SUB_TSV-fireId", "md5", 1, "creationTime")
+            FireFileWeb(1, "$FILE_LIST_JSON2-fireId", "md5", 1, "creationTime") andThen
+            FireFileWeb(2, "$FILE_LIST_XML2-fireId", "md5", 1, "creationTime") andThen
+            FireFileWeb(3, "$FILE_LIST_TSV2-fireId", "md5", 1, "creationTime") andThen
+            FireFileWeb(4, "$FILE_LIST_JSON1-fireId", "md5", 1, "creationTime") andThen
+            FireFileWeb(5, "$FILE_LIST_XML1-fireId", "md5", 1, "creationTime") andThen
+            FireFileWeb(6, "$FILE_LIST_TSV1-fireId", "md5", 1, "creationTime") andThen
+            FireFileWeb(7, "$SUB_JSON-fireId", "md5", 1, "creationTime") andThen
+            FireFileWeb(8, "$SUB_XML-fireId", "md5", 1, "creationTime") andThen
+            FireFileWeb(9, "$SUB_TSV-fireId", "md5", 1, "creationTime")
     }
 
     private fun sectionWithoutTabFiles() = ExtSection(
@@ -100,9 +100,8 @@ class FirePageTabServiceTest(
         assertThat(tabFiles.first()).isEqualTo(
             FireFile(
                 SUB_JSON,
-                "filePAth",
-                "relPAth",
-//                fireFolder.resolve(SUB_JSON).path,
+                SUB_JSON,
+                fireFolder.resolve(SUB_JSON).path,
                 "$SUB_JSON-fireId",
                 "md5",
                 1,
@@ -112,9 +111,8 @@ class FirePageTabServiceTest(
         assertThat(tabFiles.second()).isEqualTo(
             FireFile(
                 SUB_XML,
-                "filePAth",
-                "relPAth",
-//                fireFolder.resolve(SUB_JSON).path,
+                SUB_XML,
+                fireFolder.resolve(SUB_XML).path,
                 "$SUB_XML-fireId",
                 "md5",
                 1,
@@ -124,9 +122,8 @@ class FirePageTabServiceTest(
         assertThat(tabFiles.third()).isEqualTo(
             FireFile(
                 SUB_TSV,
-                "filePath",
-                "relPAth",
-//                fireFolder.resolve(SUB_JSON).path,
+                SUB_TSV,
+                fireFolder.resolve(SUB_TSV).path,
                 "$SUB_TSV-fireId",
                 "md5",
                 1,
@@ -140,9 +137,8 @@ class FirePageTabServiceTest(
         assertThat(tabFiles.first()).isEqualTo(
             FireFile(
                 FILE_LIST_JSON1,
-                "filePath",
-                "relPAth",
-//                fireFolder.resolve(FILE_LIST_JSON1).path,
+                FILE_LIST_JSON1,
+                fireFolder.resolve(FILE_LIST_JSON1).path,
                 "$FILE_LIST_JSON1-fireId",
                 "md5",
                 1,
@@ -152,9 +148,8 @@ class FirePageTabServiceTest(
         assertThat(tabFiles.second()).isEqualTo(
             FireFile(
                 FILE_LIST_XML1,
-                "filePath",
-                "relPAth",
-//                fireFolder.resolve(FILE_LIST_XML1).path,
+                FILE_LIST_XML1,
+                fireFolder.resolve(FILE_LIST_XML1).path,
                 "$FILE_LIST_XML1-fireId",
                 "md5",
                 1,
@@ -164,8 +159,8 @@ class FirePageTabServiceTest(
         assertThat(tabFiles.third()).isEqualTo(
             FireFile(
                 FILE_LIST_TSV1,
-                "filePath",
-                "relPAth",
+                FILE_LIST_TSV1,
+                fireFolder.resolve(FILE_LIST_TSV1).path,
                 "$FILE_LIST_TSV1-fireId",
                 "md5",
                 1,
@@ -179,8 +174,8 @@ class FirePageTabServiceTest(
         assertThat(tabFiles.first()).isEqualTo(
             FireFile(
                 FILE_LIST_JSON2,
-                "filePath",
-                "relPAth",
+                FILE_LIST_JSON2,
+                fireFolder.resolve(FILE_LIST_JSON2).path,
                 "$FILE_LIST_JSON2-fireId",
                 "md5",
                 1,
@@ -190,8 +185,8 @@ class FirePageTabServiceTest(
         assertThat(tabFiles.second()).isEqualTo(
             FireFile(
                 FILE_LIST_XML2,
-                "filePath",
-                "relPAth",
+                FILE_LIST_XML2,
+                fireFolder.resolve(FILE_LIST_XML2).path,
                 "$FILE_LIST_XML2-fireId",
                 "md5",
                 1,
@@ -201,8 +196,8 @@ class FirePageTabServiceTest(
         assertThat(tabFiles.third()).isEqualTo(
             FireFile(
                 FILE_LIST_TSV2,
-                "filePath",
-                "relPAth",
+                FILE_LIST_TSV2,
+                fireFolder.resolve(FILE_LIST_TSV2).path,
                 "$FILE_LIST_TSV2-fireId",
                 "md5",
                 1,

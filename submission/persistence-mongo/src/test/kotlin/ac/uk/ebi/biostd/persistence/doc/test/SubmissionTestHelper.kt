@@ -103,9 +103,9 @@ object SubmissionTestHelper {
         assertThat(extSubmission.pageTabFiles.third()).isEqualTo(
             NfsFile(
                 nfsFileFile.name,
-                nfsDocFile.filePath,
-                nfsDocFile.relPath,
-                nfsDocFile.fullPath,
+                "filePath",
+                "relPath",
+                nfsFileFile.absolutePath,
                 nfsFileFile,
                 listOf()
             )
@@ -121,12 +121,12 @@ object SubmissionTestHelper {
         assertThat(extSubmission.method).isEqualTo(ExtSubmissionMethod.PAGE_TAB)
         assertThat(extSubmission.relPath).isEqualTo(REL_PATH)
         assertThat(extSubmission.rootPath).isEqualTo(ROOT_PATH)
+        assertThat(extSubmission.released).isFalse
         assertThat(extSubmission.secretKey).isEqualTo(SECRET_KEY)
         assertThat(extSubmission.status).isEqualTo(ExtProcessingStatus.PROCESSED)
         assertThat(extSubmission.releaseTime).isEqualTo(time.atOffset(UTC))
         assertThat(extSubmission.modificationTime).isEqualTo(time.atOffset(UTC))
         assertThat(extSubmission.creationTime).isEqualTo(time.atOffset(UTC))
-        assertThat(extSubmission.released).isFalse
     }
 
     private fun assertAttributes(extSubmission: ExtSubmission) {

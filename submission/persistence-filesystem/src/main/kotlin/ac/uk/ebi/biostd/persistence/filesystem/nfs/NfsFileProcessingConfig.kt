@@ -16,8 +16,8 @@ data class NfsFileProcessingConfig(
 )
 
 fun NfsFileProcessingConfig.nfsCopy(extFile: NfsFile): NfsFile {
-    val target = targetFolder.resolve(extFile.fileName)
-    val subFile = subFolder.resolve(extFile.fileName)
+    val target = targetFolder.resolve(extFile.filePath)
+    val subFile = subFolder.resolve(extFile.filePath)
 
     when {
         target.exists().not() && subFile.exists() && subFile.md5() == extFile.md5 ->
@@ -25,11 +25,12 @@ fun NfsFileProcessingConfig.nfsCopy(extFile: NfsFile): NfsFile {
         target.exists().not() -> copyOrReplaceFile(extFile.file, target, permissions)
     }
 
-    return extFile.copy(file = subFolder.resolve(extFile.fileName))
+    return extFile.copy(fullPath = subFile.absolutePath, file = subFile)
 }
 
 fun NfsFileProcessingConfig.nfsMove(extFile: NfsFile): NfsFile {
-    val target = targetFolder.resolve(extFile.fileName)
+    val target = targetFolder.resolve(extFile.filePath)
+    val subFile = subFolder.resolve(extFile.filePath)
     if (target.exists().not()) moveFile(extFile.file, target, permissions)
-    return extFile.copy(file = subFolder.resolve(extFile.fileName))
+    return extFile.copy(fullPath = subFile.absolutePath, file = subFile)
 }

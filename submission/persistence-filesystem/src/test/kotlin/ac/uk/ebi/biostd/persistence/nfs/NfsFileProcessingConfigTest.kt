@@ -4,10 +4,12 @@ import ac.uk.ebi.biostd.persistence.filesystem.nfs.NfsFileProcessingConfig
 import ac.uk.ebi.biostd.persistence.filesystem.nfs.nfsCopy
 import ac.uk.ebi.biostd.persistence.filesystem.nfs.nfsMove
 import ebi.ac.uk.extended.model.FileMode.COPY
+import ebi.ac.uk.extended.model.FileMode.MOVE
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.io.Permissions
 import ebi.ac.uk.io.RWXR_XR_X
 import ebi.ac.uk.io.RW_R__R__
+import ebi.ac.uk.io.ext.createNewFile
 import ebi.ac.uk.test.clean
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
@@ -20,17 +22,20 @@ import java.io.File
 
 @ExtendWith(TemporaryFolderExtension::class)
 class NfsFileProcessingConfigTest(private val tempFolder: TemporaryFolder) {
+    private lateinit var folder: File
     private lateinit var file: File
     private lateinit var subFolder: File
     private lateinit var targetFolder: File
     private lateinit var extFile: NfsFile
+    private val permissions = Permissions(RW_R__R__, RWXR_XR_X)
 
     @AfterEach
     fun afterEach() = tempFolder.clean()
 
     @BeforeEach
     fun beforeEach() {
-        file = tempFolder.createFile("test.txt")
+        folder = tempFolder.createDirectory("folder")
+        file = folder.createNewFile("test.txt")
         subFolder = tempFolder.createDirectory("subFolder")
         targetFolder = tempFolder.createDirectory("target")
         extFile = NfsFile("test.txt", "folder/test.txt", "relPath", "fullPath", file)
@@ -38,36 +43,44 @@ class NfsFileProcessingConfigTest(private val tempFolder: TemporaryFolder) {
 
     @Test
     fun copy() {
-        val config = NfsFileProcessingConfig(COPY, subFolder, targetFolder, Permissions(RW_R__R__, RWXR_XR_X))
+        val fileSubFolder = subFolder.resolve("folder/test.txt")
+        assertThat(fileSubFolder).doesNotExist()
 
-        val result = config.nfsCopy(extFile)
+        val result = NfsFileProcessingConfig(COPY, subFolder, targetFolder, permissions).nfsCopy(extFile)
 
-        assertThat(targetFolder.resolve("test.txt")).exists()
-        assertThat(result.file.path).isEqualTo("${subFolder.absolutePath}/test.txt")
+        assertThat(fileSubFolder).doesNotExist()
+        assertThat(targetFolder.resolve("folder/test.txt")).exists()
+        assertThat(result.file).isEqualTo(fileSubFolder)
+        assertThat(result.fullPath).isEqualTo(fileSubFolder.absolutePath)
         assertThat(extFile.file).exists()
     }
 
     @Test
     fun `copy when exists`() {
-        file.copyTo(subFolder.resolve(file.name))
-        val config = NfsFileProcessingConfig(COPY, subFolder, targetFolder, Permissions(RW_R__R__, RWXR_XR_X))
+        folder.copyRecursively(subFolder.resolve(folder.name))
+        val fileSubFolder = subFolder.resolve("folder/test.txt")
+        assertThat(fileSubFolder).exists()
 
-        val result = config.nfsCopy(extFile)
+        val result = NfsFileProcessingConfig(COPY, subFolder, targetFolder, permissions).nfsCopy(extFile)
 
-        assertThat(targetFolder.resolve("test.txt")).exists()
-        assertThat(result.file.path).isEqualTo("${subFolder.absolutePath}/test.txt")
+        assertThat(fileSubFolder).doesNotExist()
+        assertThat(targetFolder.resolve("folder/test.txt")).exists()
+        assertThat(result.file).isEqualTo(fileSubFolder)
+        assertThat(result.fullPath).isEqualTo(fileSubFolder.absolutePath)
         assertThat(extFile.file).exists()
-        assertThat(subFolder.resolve(file.name)).doesNotExist()
     }
 
     @Test
     fun move() {
-        val config = NfsFileProcessingConfig(COPY, subFolder, targetFolder, Permissions(RW_R__R__, RWXR_XR_X))
+        val fileSubFolder = subFolder.resolve("folder/test.txt")
+        assertThat(fileSubFolder).doesNotExist()
 
-        val result = config.nfsMove(extFile)
+        val result = NfsFileProcessingConfig(MOVE, subFolder, targetFolder, permissions).nfsMove(extFile)
 
-        assertThat(targetFolder.resolve("test.txt")).exists()
-        assertThat(result.file.path).isEqualTo("${subFolder.absolutePath}/test.txt")
+        assertThat(fileSubFolder).doesNotExist()
+        assertThat(targetFolder.resolve("folder/test.txt")).exists()
+        assertThat(result.file).isEqualTo(fileSubFolder)
+        assertThat(result.fullPath).isEqualTo(fileSubFolder.absolutePath)
         assertThat(extFile.file).doesNotExist()
     }
 }
