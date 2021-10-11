@@ -44,23 +44,8 @@ internal class NfsFtpServiceTest(
     @BeforeEach
     fun beforeEach() {
         temporaryFolder.clean()
-
-        val submissionFolder = submissionFolder()
-        expectedDirectory = createFolder(submissionFolder.resolve("my-directory"))
-        expectedFile1 = expectedDirectory.createNewFile("file.txt", "file-content")
-        expectedFile2 = expectedDirectory.createNewFile("file-2.txt", "file-text")
-
-        every { extSubmission.relPath } returns REL_PATH
-    }
-
-    private fun submissionFolder(): File {
-        val submissionFolder = folderResolver.getSubFolder(REL_PATH).toFile()
-        return createFolder(submissionFolder)
-    }
-
-    private fun createFolder(file: File): File {
-        FileUtils.createEmptyFolder(file.toPath(), RWXR_XR_X)
-        return file
+        setUpTestFiles()
+        setUpExtSubmission()
     }
 
     @Test
@@ -105,5 +90,28 @@ internal class NfsFtpServiceTest(
         assertThat(file).hasName(name)
         assertThat(file).hasContent(content)
         assertThat(Files.getPosixFilePermissions(file.toPath())).hasSameElementsAs(RW_R__R__)
+    }
+
+    private fun setUpTestFiles() {
+        val submissionFolder = submissionFolder()
+        expectedDirectory = createFolder(submissionFolder.resolve("my-directory"))
+        expectedFile1 = expectedDirectory.createNewFile("file.txt", "file-content")
+        expectedFile2 = expectedDirectory.createNewFile("file-2.txt", "file-text")
+    }
+
+    private fun setUpExtSubmission() {
+        every { extSubmission.accNo } returns "B-SST1"
+        every { extSubmission.relPath } returns REL_PATH
+        every { extSubmission.submitter } returns "user@mail.org"
+    }
+
+    private fun submissionFolder(): File {
+        val submissionFolder = folderResolver.getSubFolder(REL_PATH).toFile()
+        return createFolder(submissionFolder)
+    }
+
+    private fun createFolder(file: File): File {
+        FileUtils.createEmptyFolder(file.toPath(), RWXR_XR_X)
+        return file
     }
 }

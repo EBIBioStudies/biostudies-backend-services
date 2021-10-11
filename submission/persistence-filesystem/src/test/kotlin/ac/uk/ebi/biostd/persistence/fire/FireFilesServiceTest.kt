@@ -60,7 +60,7 @@ class FireFilesServiceTest(
 
         val processed = testInstance.persistSubmissionFiles(FilePersistenceRequest(submission))
 
-        assertFireFile(processed, "test.txt", "folder/test.txt")
+        assertFireFile(processed, "folder/test.txt")
         verify(exactly = 1) { fireWebClient.save(file, testMd5, "S-TEST/123/S-TEST123") }
     }
 
@@ -75,7 +75,7 @@ class FireFilesServiceTest(
 
         val processed = testInstance.persistSubmissionFiles(request)
 
-        assertFireFile(processed, "test.txt", "folder/test.txt")
+        assertFireFile(processed, "folder/test.txt")
         verify(exactly = 0) { fireWebClient.save(file, testMd5, "S-TEST/123/S-TEST123") }
     }
 
@@ -90,7 +90,7 @@ class FireFilesServiceTest(
 
         val processed = testInstance.persistSubmissionFiles(request)
 
-        assertFireFile(processed, "test.txt", "folder/test.txt")
+        assertFireFile(processed, "folder/test.txt")
         verify(exactly = 1) { fireWebClient.save(file, testMd5, "S-TEST/123/S-TEST123") }
     }
 
@@ -105,7 +105,7 @@ class FireFilesServiceTest(
 
         val processed = testInstance.persistSubmissionFiles(request)
 
-        assertFireFile(processed, "test.txt", "new-folder/test.txt")
+        assertFireFile(processed, "new-folder/test.txt")
         verify(exactly = 0) { fireWebClient.save(file, testMd5, "S-TEST/123/S-TEST123") }
     }
 
@@ -135,12 +135,12 @@ class FireFilesServiceTest(
         verify(exactly = 0) { fireWebClient.save(file, testMd5, "S-TEST/123/S-TEST123") }
     }
 
-    private fun assertFireFile(processed: ExtSubmission, fileName: String, filePath: String) {
+    private fun assertFireFile(processed: ExtSubmission, filePath: String) {
         assertThat(processed.section.files).hasSize(1)
         processed.section.files.first().ifLeft {
             it as FireFile
             assertThat(it.fireId).isEqualTo("abc1")
-            assertThat(it.fileName).isEqualTo(fileName)
+            assertThat(it.fileName).isEqualTo("test.txt")
             assertThat(it.filePath).isEqualTo(filePath)
             assertThat(it.md5).isEqualTo(testMd5)
             assertThat(it.size).isEqualTo(1)

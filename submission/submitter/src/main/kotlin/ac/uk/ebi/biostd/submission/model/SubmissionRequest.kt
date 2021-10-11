@@ -14,4 +14,6 @@ data class SubmissionRequest(
     val mode: FileMode,
     val onBehalfUser: SecurityUser? = null,
     val draftKey: String? = null
-)
+) {
+    val accNo: String = submission.accNo.ifBlank { "PENDING_ACC_NO" }
+}

@@ -8,15 +8,25 @@ import ebi.ac.uk.io.Permissions
 import ebi.ac.uk.io.RWXR_XR_X
 import ebi.ac.uk.io.RW_R__R__
 import ebi.ac.uk.paths.SubmissionFolderResolver
+import mu.KotlinLogging
 import java.io.File
+
+private val logger = KotlinLogging.logger {}
 
 class NfsFtpService(
     private val folderResolver: SubmissionFolderResolver,
     private val submissionQueryService: SubmissionQueryService
 ) : FtpService {
     override fun processSubmissionFiles(submission: ExtSubmission) {
+        val accNo = submission.accNo
+        val submitter = submission.submitter
+
+        logger.info { "$accNo $submitter Publishing files of submission $accNo over NFS" }
+
         cleanFtpFolder(submission.relPath)
         if (submission.released) generateLinks(submission.relPath)
+
+        logger.info { "$accNo $submitter Finished publishing files of submission $accNo over NFS" }
     }
 
     override fun generateFtpLinks(accNo: String) {

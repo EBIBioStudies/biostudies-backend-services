@@ -39,7 +39,8 @@ class SubmissionService(
     private val myRabbitTemplate: RabbitTemplate
 ) {
     fun submit(request: SubmissionRequest): ExtSubmission {
-        logger.info { "received submit request for submission ${request.submission.accNo}" }
+        val accNo = request.accNo
+        logger.info { "$accNo ${request.submitter.email} Received submit request for submission $accNo" }
 
         val extSubmission = submissionSubmitter.submit(request)
         eventsPublisherService.submissionSubmitted(extSubmission)
@@ -48,30 +49,32 @@ class SubmissionService(
     }
 
     fun submitAsync(request: SubmissionRequest) {
-        logger.info { "received async submit  request for submission ${request.submission.accNo}" }
-        val (extSubmission, mode, draftKey) = submissionSubmitter.submitAsync(request)
+        val accNo = request.accNo
+        logger.info { "$accNo ${request.submitter.email} Received async submit request for submission $accNo" }
+
+        val (extSub, mode, draftKey) = submissionSubmitter.submitAsync(request)
         myRabbitTemplate.convertAndSend(
             BIOSTUDIES_EXCHANGE,
             SUBMISSIONS_REQUEST_ROUTING_KEY,
-            SubmissionRequestMessage(extSubmission.accNo, extSubmission.version, mode, draftKey)
+            SubmissionRequestMessage(extSub.accNo, extSub.version, mode, extSub.submitter, draftKey)
         )
     }
 
     @RabbitListener(queues = [SUBMISSION_REQUEST_QUEUE], concurrency = "5-20")
     fun processSubmission(request: SubmissionRequestMessage) {
-        logger.info { "received process message for submission ${request.accNo} , version: ${request.version}" }
+        val (accNo, version, fileMode, submitter, draftKey) = request
+        logger.info { "$accNo $submitter Received process message for submission $accNo, version: $version" }
 
         runCatching {
-            val submission = getRequest(request.accNo, request.version)
-            val saveRequest = SaveSubmissionRequest(submission, request.fileMode, request.draftKey)
+            val submission = getRequest(accNo, version)
+            val saveRequest = SaveSubmissionRequest(submission, fileMode, draftKey)
             val processed = submissionSubmitter.processRequest(saveRequest)
 
             eventsPublisherService.submissionSubmitted(processed)
         }.onFailure {
-            val (accNo, version, fileMode, draftKey) = request
             val message = FailedSubmissionRequestMessage(accNo, version, fileMode, draftKey, it.message)
 
-            logger.error { "Problem processing submission request '$accNo': ${it.message}" }
+            logger.error { "$accNo $submitter Problem processing submission request '$accNo': ${it.message}" }
             eventsPublisherService.submissionFailed(message)
         }
     }

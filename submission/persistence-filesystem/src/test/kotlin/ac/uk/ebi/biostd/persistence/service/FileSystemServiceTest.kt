@@ -53,6 +53,7 @@ class FileSystemServiceTest(
 
     private fun setUpSubmission() {
         every { submission.accNo } returns "S-TEST123"
+        every { submission.submitter } returns "user@mail.org"
     }
 
     private fun setUpServices() {
