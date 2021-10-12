@@ -70,19 +70,11 @@ internal class AllInOneSubmissionHelper(
     }
 
     private fun submissionFireTabFiles(accNo: String, subFolder: String): List<FireFile> {
-        val jsonFile = File("$subFolder/$accNo.json")
+        val json = File("$subFolder/$accNo.json")
         val xmlFile = File("$subFolder/$accNo.xml")
         val tsvFile = File("$subFolder/$accNo.pagetab.tsv")
         return listOf(
-            FireFile(
-                fileName = "$accNo.json",
-                filePath = "$accNo.json",
-                relPath = "$accNo.json",
-                fireId = "$accNo.json",
-                md5 = jsonFile.md5(),
-                size = jsonFile.size(),
-                attributes = listOf()
-            ),
+            FireFile("$accNo.json", "$accNo.json", "$accNo.json", "$accNo.json", json.md5(), json.size(), listOf()),
             FireFile(
                 fileName = "$accNo.xml",
                 filePath = "$accNo.xml",
@@ -104,8 +96,8 @@ internal class AllInOneSubmissionHelper(
         )
     }
 
-    private fun fileListFireTabFiles(submissionFolderPath: String): List<FireFile> {
-        val fireTempFolder = submissionFolderPath.substringBeforeLast("tmp").plus("tmp/tmp/fire-temp")
+    private fun fileListFireTabFiles(subFolder: String): List<FireFile> {
+        val fireTempFolder = subFolder.substringBeforeLast("tmp").plus("tmp/tmp/fire-temp")
         val jsonFile = File("$fireTempFolder/file-list.json")
         val xmlFile = File("$fireTempFolder/file-list.xml")
         val tsvFile = File("$fireTempFolder/file-list.pagetab.tsv")

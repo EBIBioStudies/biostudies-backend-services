@@ -23,36 +23,52 @@ class FirePageTabService(
         val section = process(sub.section) { updateFileList(it, sub.relPath, fileListFiles) }
 
         return when {
-            section.changed -> sub.copy(pageTabFiles = extFiles(subFiles, sub.relPath), section = section.section)
-            else -> sub.copy(pageTabFiles = extFiles(subFiles, sub.relPath))
+            section.changed -> sub.copy(pageTabFiles = subExtFiles(subFiles, sub.relPath), section = section.section)
+            else -> sub.copy(pageTabFiles = subExtFiles(subFiles, sub.relPath))
         }
     }
 
     private fun updateFileList(sec: ExtSection, path: String, tab: Map<String, TabFiles>): Section {
         return when (val lst = sec.fileList) {
             null -> Section(false, sec)
-            else -> Section(
-                true, sec.copy(fileList = lst.copy(pageTabFiles = extFiles(tab.getValue(lst.fileName), path, "Files")))
-            )
+            else -> {
+                val name = lst.fileName
+                val tabFiles = tab.getValue(name)
+                Section(true, sec.copy(fileList = lst.copy(pageTabFiles = fileLstFiles(tabFiles, path, name))))
+            }
         }
     }
 
-    private fun extFiles(pageTab: TabFiles, subFolder: String, realpath: String? = null): List<ExtFile> = listOf(
-        saveFile(pageTab.json, subFolder, realpath),
-        saveFile(pageTab.xml, subFolder, realpath),
-        saveFile(pageTab.tsv, subFolder, realpath))
+    private fun fileLstFiles(pageTab: TabFiles, subFolder: String, fileListName: String) = listOf(
+        saveFileListFile(pageTab.json, subFolder, "$fileListName.json"),
+        saveFileListFile(pageTab.xml, subFolder, "$fileListName.xml"),
+        saveFileListFile(pageTab.tsv, subFolder, "$fileListName.pagetab.tsv")
+    )
 
-    private fun saveFile(file: File, subFolder: String, relPath: String? = null): FireFile {
+    private fun saveFileListFile(file: File, subFolder: String, filePath: String): FireFile {
         val name = file.name
-        val relpath = if (relPath != null) "${relPath}/$name" else name
-        val db = fireWebClient.save(file, file.md5(), "$subFolder/${relpath}")
+        val relPath = "Files/$filePath"
+        val db = fireWebClient.save(file, file.md5(), "$subFolder/$relPath")
         return FireFile(
             fileName = name,
-            filePath = name,
-            relPath = relpath,
+            filePath = filePath,
+            relPath = relPath,
             fireId = db.fireOid,
             md5 = db.objectMd5,
             size = db.objectSize.toLong(),
-            attributes = listOf())
+            attributes = listOf()
+        )
+    }
+
+    private fun subExtFiles(pageTab: TabFiles, subFolder: String): List<ExtFile> = listOf(
+        saveSubFile(pageTab.json, subFolder),
+        saveSubFile(pageTab.xml, subFolder),
+        saveSubFile(pageTab.tsv, subFolder)
+    )
+
+    private fun saveSubFile(file: File, subFolder: String): FireFile {
+        val name = file.name
+        val db = fireWebClient.save(file, file.md5(), "$subFolder/${file.name}")
+        return FireFile(name, name, name, db.fireOid, db.objectMd5, db.objectSize.toLong(), listOf())
     }
 }

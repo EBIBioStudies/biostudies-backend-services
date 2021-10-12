@@ -38,7 +38,7 @@ class TestWireMockTransformer(private val folder: File) : ResponseDefinitionTran
                 return okJson(
                     jsonObj {
                         "objectId" to ObjectId.get().timestamp
-                        "fireOid" to getFileName(request)
+                        "fireOid" to "fireOid-${getFileName(request)}"
                         "objectMd5" to file.md5()
                         "objectSize" to file.size()
                         "createTime" to Instant.now().toString()
