@@ -5,6 +5,7 @@ import ac.uk.ebi.biostd.itest.factory.assertAllInOneSubmissionJson
 import ac.uk.ebi.biostd.itest.factory.assertAllInOneSubmissionTsv
 import ac.uk.ebi.biostd.itest.factory.assertAllInOneSubmissionXml
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
+import arrow.core.Either
 import ebi.ac.uk.extended.mapping.to.toSimpleSubmission
 import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.ExtSubmission
@@ -56,7 +57,7 @@ internal class AllInOneSubmissionHelper(
         assertThat(fileListTabFiles).isEqualTo(fileListNfsTabFiles(submissionFolderPath))
     }
 
-    fun assertSubmissionFilesRecordsFire(accNo: String) {
+    fun assertSubmissionFilesRecordsFire(accNo: String, fireTempFolder: String) {
         val submission = submissionRepository.getExtByAccNo(accNo)
         val subFolder = "$submissionPath/${submission.relPath}"
 
@@ -66,7 +67,12 @@ internal class AllInOneSubmissionHelper(
 
         val fileListTabFiles = submission.section.fileList!!.pageTabFiles as List<FireFile>
         assertThat(fileListTabFiles).hasSize(3)
-        assertThat(fileListTabFiles).isEqualTo(fileListFireTabFiles(subFolder))
+        assertThat(fileListTabFiles).isEqualTo(fileListFireTabFiles(fireTempFolder))
+
+        val subFileListTabFiles =
+            (submission.section.sections.first() as Either.Left).a.fileList!!.pageTabFiles as List<FireFile>
+        assertThat(subFileListTabFiles).hasSize(3)
+        assertThat(subFileListTabFiles).isEqualTo(subFileListFireTabFiles( fireTempFolder))
     }
 
     private fun submissionFireTabFiles(accNo: String, subFolder: String): List<FireFile> {
@@ -104,8 +110,7 @@ internal class AllInOneSubmissionHelper(
         )
     }
 
-    private fun fileListFireTabFiles(submissionFolderPath: String): List<FireFile> {
-        val fireTempFolder = submissionFolderPath.substringBeforeLast("tmp").plus("tmp/tmp/fire-temp")
+    private fun fileListFireTabFiles(fireTempFolder: String): List<FireFile> {
         val jsonFile = File("$fireTempFolder/file-list.json")
         val xmlFile = File("$fireTempFolder/file-list.xml")
         val tsvFile = File("$fireTempFolder/file-list.pagetab.tsv")
@@ -133,6 +138,41 @@ internal class AllInOneSubmissionHelper(
                 filePath = "file-list.pagetab.tsv",
                 relPath = "Files/file-list.pagetab.tsv",
                 fireId = "file-list.pagetab.tsv",
+                md5 = tsvFile.md5(),
+                size = tsvFile.size(),
+                attributes = listOf()
+            )
+        )
+    }
+
+    private fun subFileListFireTabFiles(fireTempFolder: String,): List<FireFile> {
+        val jsonFile = File("$fireTempFolder/sub-folder/file-list2.json")
+        val xmlFile = File("$fireTempFolder/sub-folder/file-list2.xml")
+        val tsvFile = File("$fireTempFolder/sub-folder/file-list2.pagetab.tsv")
+        return listOf(
+            FireFile(
+                fileName = "file-list2.json",
+                filePath = "sub-folder/file-list2.json",
+                relPath = "Files/sub-folder/file-list2.json",
+                fireId = "file-list2.json",
+                md5 = jsonFile.md5(),
+                size = jsonFile.size(),
+                attributes = listOf()
+            ),
+            FireFile(
+                fileName = "file-list2.xml",
+                filePath = "sub-folder/file-list2.xml",
+                relPath = "Files/sub-folder/file-list2.xml",
+                fireId = "file-list2.xml",
+                md5 = xmlFile.md5(),
+                size = xmlFile.size(),
+                attributes = listOf()
+            ),
+            FireFile(
+                fileName = "file-list2.pagetab.tsv",
+                filePath = "sub-folder/file-list2.pagetab.tsv",
+                relPath = "Files/sub-folder/file-list2.pagetab.tsv",
+                fireId = "file-list2.pagetab.tsv",
                 md5 = tsvFile.md5(),
                 size = tsvFile.size(),
                 attributes = listOf()

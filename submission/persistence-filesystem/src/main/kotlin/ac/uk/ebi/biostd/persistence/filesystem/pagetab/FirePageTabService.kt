@@ -32,27 +32,51 @@ class FirePageTabService(
         return when (val lst = sec.fileList) {
             null -> Section(false, sec)
             else -> Section(
-                true, sec.copy(fileList = lst.copy(pageTabFiles = extFiles(tab.getValue(lst.fileName), path, "Files")))
+                true,
+                sec.copy(
+                    fileList = lst.copy(
+                        pageTabFiles = extFiles(
+                            tab.getValue(lst.fileName),
+                            path,
+                            "Files",
+                            lst.fileName
+                        )
+                    )
+                )
             )
         }
     }
 
-    private fun extFiles(pageTab: TabFiles, subFolder: String, realpath: String? = null): List<ExtFile> = listOf(
-        saveFile(pageTab.json, subFolder, realpath),
-        saveFile(pageTab.xml, subFolder, realpath),
-        saveFile(pageTab.tsv, subFolder, realpath))
+    private fun extFiles(
+        pageTab: TabFiles,
+        subFolder: String,
+        relPath: String? = null,
+        fileListName: String? = null
+    ): List<ExtFile> = listOf(
+        saveFile(pageTab.json, subFolder, relPath, fileListName),
+        saveFile(pageTab.xml, subFolder, relPath, fileListName),
+        saveFile(pageTab.tsv, subFolder, relPath, fileListName)
+    )
 
-    private fun saveFile(file: File, subFolder: String, relPath: String? = null): FireFile {
-        val name = file.name
-        val relpath = if (relPath != null) "${relPath}/$name" else name
-        val db = fireWebClient.save(file, file.md5(), "$subFolder/${relpath}")
+    private fun saveFile(
+        file: File,
+        subFolder: String,
+        partialRelPath: String? = null,
+        fileList: String? = null
+    ): FireFile {
+        val filePath =
+            if (fileList != null && fileList.contains("/")) "${fileList.substringBeforeLast("/")}/${file.name}"
+            else file.name
+        val relPath = if (partialRelPath != null) "${partialRelPath}/$filePath" else filePath
+        val db = fireWebClient.save(file, file.md5(), "$subFolder/${relPath}")
         return FireFile(
-            fileName = name,
-            filePath = name,
-            relPath = relpath,
+            fileName = filePath.substringAfterLast("/"),
+            filePath = filePath,
+            relPath = relPath,
             fireId = db.fireOid,
             md5 = db.objectMd5,
             size = db.objectSize.toLong(),
-            attributes = listOf())
+            attributes = listOf()
+        )
     }
 }
