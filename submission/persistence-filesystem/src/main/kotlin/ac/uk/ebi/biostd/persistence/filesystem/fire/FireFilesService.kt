@@ -9,6 +9,8 @@ import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireDirectory
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
+import ebi.ac.uk.io.ext.md5
+import ebi.ac.uk.io.ext.size
 import mu.KotlinLogging
 import uk.ac.ebi.fire.client.integration.web.FireWebClient
 
@@ -34,10 +36,8 @@ data class FireFileProcessingConfig(
     val previousFiles: Map<Md5, ExtFile>
 )
 
-fun FireFileProcessingConfig.processFile(
-    sub: ExtSubmission,
-    file: ExtFile
-): ExtFile = if (file is NfsFile) processNfsFile(sub.relPath, file) else file
+fun FireFileProcessingConfig.processFile(sub: ExtSubmission, file: ExtFile): ExtFile =
+    if (file is NfsFile) processNfsFile(sub.relPath, file) else file
 
 fun FireFileProcessingConfig.processNfsFile(relPath: String, nfsFile: NfsFile): ExtFile {
     logger.info { "processing file ${nfsFile.fileName}" }
@@ -56,21 +56,15 @@ private fun reusePreviousFile(fireFile: FireFile, nfsFile: NfsFile) =
         nfsFile.attributes
     )
 
-private fun FireFileProcessingConfig.saveFile(relPath: String, nfsFile: NfsFile) =
-    if (nfsFile.file.isDirectory) fireDirectory(nfsFile) else persistFireFile(relPath, nfsFile)
+private fun FireFileProcessingConfig.saveFile(subRelPath: String, nfsFile: NfsFile): ExtFile {
+    val (name, filePath, relPath, _, file, attributes) = nfsFile
 
-private fun fireDirectory(file: NfsFile) =
-    FireDirectory(file.fileName, file.filePath, file.relPath, file.md5, file.size, file.attributes)
-
-private fun FireFileProcessingConfig.persistFireFile(relPath: String, nfsFile: NfsFile): FireFile {
-    val store = fireWebClient.save(nfsFile.file, nfsFile.md5, relPath)
-    return FireFile(
-        nfsFile.fileName,
-        nfsFile.filePath,
-        nfsFile.relPath,
-        store.fireOid,
-        store.objectMd5,
-        store.objectSize.toLong(),
-        nfsFile.attributes
-    )
+    return when {
+        nfsFile.file.isDirectory -> FireDirectory(name, filePath, relPath, file.md5(), file.size(), attributes)
+        else -> {
+            val store = fireWebClient.save(nfsFile.file, nfsFile.md5, "$subRelPath/${nfsFile.relPath}")
+            FireFile(name, filePath, relPath, store.fireOid, store.objectMd5, store.objectSize.toLong(), attributes)
+        }
+    }
 }
+

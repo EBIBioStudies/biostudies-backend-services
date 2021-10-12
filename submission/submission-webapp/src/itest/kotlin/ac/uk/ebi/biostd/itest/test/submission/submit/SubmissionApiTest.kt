@@ -333,7 +333,7 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
             assertThat(File("$submissionPath/${submitted.relPath}/Files/file section.doc")).exists()
             assertThat(File("$submissionPath/${submitted.relPath}/Files/fileSubSection.txt")).exists()
             assertThat(File("$submissionPath/${submitted.relPath}/Files/fileSubSection.txt")).hasContent("content")
-//            assertThat(File("$submissionPath/${submitted.relPath}/Files/a/fileFileList.pdf")).exists()
+            assertThat(File("$submissionPath/${submitted.relPath}/Files/a/fileFileList.pdf")).exists()
 
             val changedFile = tempFolder.root.resolve("fileSubSection.txt").apply { writeText("newContent") }
             webClient.uploadFiles(listOf(changedFile))
@@ -346,8 +346,7 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
             assertThat(File("$submissionPath/${resubmitted.relPath}/Files/file section.doc")).exists()
             assertThat(File("$submissionPath/${resubmitted.relPath}/Files/fileSubSection.txt")).exists()
             assertThat(File("$submissionPath/${resubmitted.relPath}/Files/fileSubSection.txt")).hasContent("newContent")
-            if (mongoMode) assertThat(File("$submissionPath/${resubmitted.relPath}/Files/fileFileList.pdf")).exists()
-            else assertThat(File("$submissionPath/${resubmitted.relPath}/Files/a/fileFileList.pdf")).exists()
+            assertThat(File("$submissionPath/${resubmitted.relPath}/Files/a/fileFileList.pdf")).exists()
         }
 
         @Test

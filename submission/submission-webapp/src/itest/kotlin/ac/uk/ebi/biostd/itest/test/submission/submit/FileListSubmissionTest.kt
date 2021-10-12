@@ -210,16 +210,15 @@ internal class FileListSubmissionTest(private val tempFolder: TemporaryFolder) :
             assertThat(Paths.get("$subFolder/${createdSub.accNo}.pagetab.tsv")).exists()
         }
 
-        private fun submissionFireTabFiles(accNo: String, submissionFolderPath: String): List<FireFile> {
-            val fireTempFolder = submissionFolderPath.substringBeforeLast("tmp").plus("tmp/tmp/fire-temp")
-            val jsonFile = File("$fireTempFolder/$accNo.json")
-            val xmlFile = File("$fireTempFolder/$accNo.xml")
-            val tsvFile = File("$fireTempFolder/$accNo.pagetab.tsv")
+        private fun submissionFireTabFiles(accNo: String, subFolder: String): List<FireFile> {
+            val jsonFile = File("$subFolder/$accNo.json")
+            val xmlFile = File("$subFolder/$accNo.xml")
+            val tsvFile = File("$subFolder/$accNo.pagetab.tsv")
             return listOf(
                 FireFile(
                     fileName = "$accNo.json",
                     filePath = "$accNo.json",
-                    relPath = "$fireTempFolder/$accNo.json",
+                    relPath = "$accNo.json",
                     fireId = "$accNo.json",
                     md5 = jsonFile.md5(),
                     size = jsonFile.size(),
@@ -228,7 +227,7 @@ internal class FileListSubmissionTest(private val tempFolder: TemporaryFolder) :
                 FireFile(
                     fileName = "$accNo.xml",
                     filePath = "$accNo.xml",
-                    relPath = "$fireTempFolder/$accNo.xml",
+                    relPath = "$accNo.xml",
                     fireId = "$accNo.xml",
                     md5 = xmlFile.md5(),
                     size = xmlFile.size(),
@@ -237,7 +236,7 @@ internal class FileListSubmissionTest(private val tempFolder: TemporaryFolder) :
                 FireFile(
                     fileName = "$accNo.pagetab.tsv",
                     filePath = "$accNo.pagetab.tsv",
-                    relPath = "$fireTempFolder/$accNo.pagetab.tsv",
+                    relPath = "$accNo.pagetab.tsv",
                     fireId = "$accNo.pagetab.tsv",
                     md5 = tsvFile.md5(),
                     size = tsvFile.size(),
@@ -246,16 +245,15 @@ internal class FileListSubmissionTest(private val tempFolder: TemporaryFolder) :
             )
         }
 
-        private fun fileListFireTabFiles(submissionFolderPath: String): List<FireFile> {
-            val fireTempFolder = submissionFolderPath.substringBeforeLast("tmp").plus("tmp/tmp/fire-temp")
-            val jsonFile = File("$fireTempFolder/FileList.json")
-            val xmlFile = File("$fireTempFolder/FileList.xml")
-            val tsvFile = File("$fireTempFolder/FileList.pagetab.tsv")
+        private fun fileListFireTabFiles(subFolder: String): List<FireFile> {
+            val jsonFile = File("$subFolder/Files/FileList.json")
+            val xmlFile = File("$subFolder/Files/FileList.xml")
+            val tsvFile = File("$subFolder/Files/FileList.pagetab.tsv")
             return listOf(
                 FireFile(
                     fileName = "FileList.json",
                     filePath = "FileList.json",
-                    relPath = "$fireTempFolder/FileList.json",
+                    relPath = "Files/FileList.json",
                     fireId = "FileList.json",
                     md5 = jsonFile.md5(),
                     size = jsonFile.size(),
@@ -264,7 +262,7 @@ internal class FileListSubmissionTest(private val tempFolder: TemporaryFolder) :
                 FireFile(
                     fileName = "FileList.xml",
                     filePath = "FileList.xml",
-                    relPath = "$fireTempFolder/FileList.xml",
+                    relPath = "Files/FileList.xml",
                     fireId = "FileList.xml",
                     md5 = xmlFile.md5(),
                     size = xmlFile.size(),
@@ -273,7 +271,7 @@ internal class FileListSubmissionTest(private val tempFolder: TemporaryFolder) :
                 FireFile(
                     fileName = "FileList.pagetab.tsv",
                     filePath = "FileList.pagetab.tsv",
-                    relPath = "$fireTempFolder/FileList.pagetab.tsv",
+                    relPath = "Files/FileList.pagetab.tsv",
                     fireId = "FileList.pagetab.tsv",
                     md5 = tsvFile.md5(),
                     size = tsvFile.size(),

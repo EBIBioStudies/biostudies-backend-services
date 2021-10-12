@@ -58,27 +58,26 @@ internal class AllInOneSubmissionHelper(
 
     fun assertSubmissionFilesRecordsFire(accNo: String) {
         val submission = submissionRepository.getExtByAccNo(accNo)
-        val submissionFolderPath = "$submissionPath/${submission.relPath}"
+        val subFolder = "$submissionPath/${submission.relPath}"
 
         val submissionTabFiles = submission.pageTabFiles as List<FireFile>
         assertThat(submissionTabFiles).hasSize(3)
-        assertThat(submissionTabFiles).isEqualTo(submissionFireTabFiles(accNo, submissionFolderPath))
+        assertThat(submissionTabFiles).isEqualTo(submissionFireTabFiles(accNo, subFolder))
 
         val fileListTabFiles = submission.section.fileList!!.pageTabFiles as List<FireFile>
         assertThat(fileListTabFiles).hasSize(3)
-        assertThat(fileListTabFiles).isEqualTo(fileListFireTabFiles(submissionFolderPath))
+        assertThat(fileListTabFiles).isEqualTo(fileListFireTabFiles(subFolder))
     }
 
-    private fun submissionFireTabFiles(accNo: String, submissionFolderPath: String): List<FireFile> {
-        val fireTempFolder = submissionFolderPath.substringBeforeLast("tmp").plus("tmp/tmp/fire-temp")
-        val jsonFile = File("$fireTempFolder/$accNo.json")
-        val xmlFile = File("$fireTempFolder/$accNo.xml")
-        val tsvFile = File("$fireTempFolder/$accNo.pagetab.tsv")
+    private fun submissionFireTabFiles(accNo: String, subFolder: String): List<FireFile> {
+        val jsonFile = File("$subFolder/$accNo.json")
+        val xmlFile = File("$subFolder/$accNo.xml")
+        val tsvFile = File("$subFolder/$accNo.pagetab.tsv")
         return listOf(
             FireFile(
                 fileName = "$accNo.json",
                 filePath = "$accNo.json",
-                relPath = "$fireTempFolder/$accNo.json",
+                relPath = "$accNo.json",
                 fireId = "$accNo.json",
                 md5 = jsonFile.md5(),
                 size = jsonFile.size(),
@@ -87,7 +86,7 @@ internal class AllInOneSubmissionHelper(
             FireFile(
                 fileName = "$accNo.xml",
                 filePath = "$accNo.xml",
-                relPath = "$fireTempFolder/$accNo.xml",
+                relPath = "$accNo.xml",
                 fireId = "$accNo.xml",
                 md5 = xmlFile.md5(),
                 size = xmlFile.size(),
@@ -96,7 +95,7 @@ internal class AllInOneSubmissionHelper(
             FireFile(
                 fileName = "$accNo.pagetab.tsv",
                 filePath = "$accNo.pagetab.tsv",
-                relPath = "$fireTempFolder/$accNo.pagetab.tsv",
+                relPath = "$accNo.pagetab.tsv",
                 fireId = "$accNo.pagetab.tsv",
                 md5 = tsvFile.md5(),
                 size = tsvFile.size(),
@@ -114,7 +113,7 @@ internal class AllInOneSubmissionHelper(
             FireFile(
                 fileName = "file-list.json",
                 filePath = "file-list.json",
-                relPath = "$fireTempFolder/file-list.json",
+                relPath = "Files/file-list.json",
                 fireId = "file-list.json",
                 md5 = jsonFile.md5(),
                 size = jsonFile.size(),
@@ -123,7 +122,7 @@ internal class AllInOneSubmissionHelper(
             FireFile(
                 fileName = "file-list.xml",
                 filePath = "file-list.xml",
-                relPath = "$fireTempFolder/file-list.xml",
+                relPath = "Files/file-list.xml",
                 fireId = "file-list.xml",
                 md5 = xmlFile.md5(),
                 size = xmlFile.size(),
@@ -132,7 +131,7 @@ internal class AllInOneSubmissionHelper(
             FireFile(
                 fileName = "file-list.pagetab.tsv",
                 filePath = "file-list.pagetab.tsv",
-                relPath = "$fireTempFolder/file-list.pagetab.tsv",
+                relPath = "Files/file-list.pagetab.tsv",
                 fireId = "file-list.pagetab.tsv",
                 md5 = tsvFile.md5(),
                 size = tsvFile.size(),

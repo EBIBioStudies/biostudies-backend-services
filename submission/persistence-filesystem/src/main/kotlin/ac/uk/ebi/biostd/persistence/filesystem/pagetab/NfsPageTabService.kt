@@ -27,36 +27,16 @@ class NfsPageTabService(
     private fun updateFileList(sec: ExtSection, tab: Map<String, TabFiles>): Section {
         return when (val lst = sec.fileList) {
             null -> Section(false, sec)
-            else -> Section(true, sec.copy(fileList = lst.copy(pageTabFiles = extFiles(tab.getValue(lst.fileName)))))
+            else -> Section(true, sec.copy(fileList = lst.copy(pageTabFiles = extFiles(tab.getValue(lst.fileName), "Files"))))
         }
     }
 
-    private fun extFiles(tabsFiles: TabFiles): List<NfsFile> {
+    private fun extFiles(files: TabFiles, relpath: String? = null): List<NfsFile> {
+        val getRelPath: (String) -> String = { if (relpath == null) it else "$relpath/$it" }
         return listOf(
-            NfsFile(
-                tabsFiles.json.name,
-                tabsFiles.json.name,
-                getRelPath(tabsFiles.json.absolutePath),
-                tabsFiles.json.absolutePath,
-                tabsFiles.json
-            ),
-            NfsFile(
-                tabsFiles.xml.name,
-                tabsFiles.xml.name,
-                getRelPath(tabsFiles.xml.absolutePath),
-                tabsFiles.xml.absolutePath,
-                tabsFiles.xml
-            ),
-            NfsFile(
-                tabsFiles.tsv.name,
-                tabsFiles.tsv.name,
-                getRelPath(tabsFiles.tsv.absolutePath),
-                tabsFiles.tsv.absolutePath,
-                tabsFiles.tsv
-            )
+            NfsFile(files.json.name, files.json.name, getRelPath(files.json.name), files.json.absolutePath, files.json),
+            NfsFile(files.xml.name, files.xml.name, getRelPath(files.xml.name), files.xml.absolutePath, files.xml),
+            NfsFile(files.tsv.name, files.tsv.name, getRelPath(files.tsv.name), files.tsv.absolutePath, files.tsv)
         )
     }
-
-    private fun getRelPath(path: String) =
-        path.substringAfterLast("submission/").substringAfter("/").substringAfter("/").substringAfter("/")
 }

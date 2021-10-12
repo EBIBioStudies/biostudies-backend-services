@@ -4,7 +4,7 @@ import uk.ac.ebi.fire.client.model.FireFile
 import java.io.File
 
 interface FireOperations {
-    fun save(file: File, md5: String, relpath: String): FireFile
+    fun save(file: File, md5: String, relPath: String): FireFile
 
     fun setPath(fireOid: String, path: String)
 
