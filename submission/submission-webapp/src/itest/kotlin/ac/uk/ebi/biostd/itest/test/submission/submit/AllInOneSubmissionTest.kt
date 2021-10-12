@@ -59,7 +59,9 @@ internal class AllInOneSubmissionTest(private val tempFolder: TemporaryFolder) :
             webClient.submitSingle(submission.readText(), TSV)
 
             allInOneSubmissionHelper.assertSavedSubmission("S-EPMC124")
-            if (mongoMode) allInOneSubmissionHelper.assertSubmissionFilesRecords("S-EPMC124")
+            if (mongoMode)
+                if (enableFire) allInOneSubmissionHelper.assertSubmissionFilesRecordsFire("S-EPMC124")
+                else allInOneSubmissionHelper.assertSubmissionFilesRecordsNfs("S-EPMC124")
         }
 
         @Test
@@ -71,7 +73,9 @@ internal class AllInOneSubmissionTest(private val tempFolder: TemporaryFolder) :
             webClient.submitSingle(submission.readText(), JSON)
 
             allInOneSubmissionHelper.assertSavedSubmission("S-EPMC125")
-            if (mongoMode) allInOneSubmissionHelper.assertSubmissionFilesRecords("S-EPMC125")
+            if (mongoMode)
+                if (enableFire) allInOneSubmissionHelper.assertSubmissionFilesRecordsFire("S-EPMC124")
+                else allInOneSubmissionHelper.assertSubmissionFilesRecordsNfs("S-EPMC124")
         }
 
         @Test
@@ -83,7 +87,9 @@ internal class AllInOneSubmissionTest(private val tempFolder: TemporaryFolder) :
             webClient.submitSingle(submission.readText(), XML)
 
             allInOneSubmissionHelper.assertSavedSubmission("S-EPMC126")
-            if (mongoMode) allInOneSubmissionHelper.assertSubmissionFilesRecords("S-EPMC126")
+            if (mongoMode)
+                if (enableFire) allInOneSubmissionHelper.assertSubmissionFilesRecordsFire("S-EPMC124")
+                else allInOneSubmissionHelper.assertSubmissionFilesRecordsNfs("S-EPMC124")
         }
     }
 }

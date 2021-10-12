@@ -17,9 +17,10 @@ import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
-import ebi.ac.uk.extended.model.ExtFile
-import ebi.ac.uk.extended.model.ExtFileList
+import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
+import ebi.ac.uk.io.ext.md5
+import ebi.ac.uk.io.ext.size
 import ebi.ac.uk.test.createFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
@@ -267,80 +268,157 @@ internal class MultipartFileSubmissionApiTest(
                 .withMessageContaining("Unsupported page tab format submission.txt")
         }
 
-        // TODO: pending fire files
-        private fun fileListPageTabFiles(fileListName: String, subFolder: String): List<ExtFile> =
-            if (mongoMode) {
-                if (enableFire) listOf() else listOf(
-                    NfsFile(
-                        "$fileListName.json",
-                        "$fileListName.json",
-                        "Files/$fileListName.json",
-                        "$subFolder/Files/$fileListName.json",
-                        File(subFolder).resolve("Files/$fileListName.json")
-                    ),
-                    NfsFile(
-                        "$fileListName.xml",
-                        "$fileListName.xml",
-                        "Files/$fileListName.xml",
-                        "$subFolder/Files/$fileListName.xml",
-                        File(subFolder).resolve("Files/$fileListName.xml")
-                    ),
-                    NfsFile(
-                        "$fileListName.pagetab.tsv",
-                        "$fileListName.pagetab.tsv",
-                        "Files/$fileListName.pagetab.tsv",
-                        "$subFolder/Files/$fileListName.pagetab.tsv",
-                        File(subFolder).resolve("Files/$fileListName.pagetab.tsv")
-                    )
-                )
-            } else listOf()
-
-        private fun submissionPageTabFiles(accNo: String, subFolder: String): List<ExtFile> =
-            if (mongoMode) {
-                if (enableFire) listOf() else listOf(
-                    NfsFile(
-                        "$accNo.json",
-                        "$accNo.json",
-                        "$accNo.json",
-                        "$subFolder/$accNo.json",
-                        File(subFolder).resolve("$accNo.json")
-                    ),
-                    NfsFile(
-                        "$accNo.xml",
-                        "$accNo.xml",
-                        "$accNo.xml",
-                        "$subFolder/$accNo.xml",
-                        File(subFolder).resolve("$accNo.xml")
-                    ),
-                    NfsFile(
-                        "$accNo.pagetab.tsv",
-                        "$accNo.pagetab.tsv",
-                        "$accNo.pagetab.tsv",
-                        "$subFolder/$accNo.pagetab.tsv",
-                        File(subFolder).resolve("$accNo.pagetab.tsv")
-                    )
-                )
-            } else listOf()
-
         private fun assertSubmissionFiles(accNo: String, testFile: String) {
             val createdSub = submissionRepository.getExtByAccNo(accNo)
             val subFolder = "$submissionPath/${createdSub.relPath}"
 
-            val fileListName = createdSub.section.fileList!!.fileName
+            if (mongoMode)
+                if (enableFire) {
+                    val submissionTabFiles = createdSub.pageTabFiles as List<FireFile>
+                    assertThat(submissionTabFiles).hasSize(3)
+                    assertThat(submissionTabFiles).isEqualTo(submissionFireTabFiles(accNo, subFolder))
 
-            assertThat(createdSub.section.fileList).isEqualTo(
-                ExtFileList("FileList", pageTabFiles = fileListPageTabFiles(accNo, fileListName))
-            )
-            assertThat((createdSub.pageTabFiles)).isEqualTo(submissionPageTabFiles(accNo, subFolder))
+                    val fileListTabFiles = createdSub.section.fileList!!.pageTabFiles as List<FireFile>
+                    assertThat(fileListTabFiles).hasSize(3)
+                    assertThat(fileListTabFiles).isEqualTo(fileListFireTabFiles(subFolder))
+                } else {
+                    val submissionTabFiles = createdSub.pageTabFiles as List<NfsFile>
+                    assertThat(submissionTabFiles).hasSize(3)
+                    assertThat(submissionTabFiles).isEqualTo(submissionNfsTabFiles(accNo, subFolder))
+
+                    val fileListTabFiles = createdSub.section.fileList!!.pageTabFiles as List<NfsFile>
+                    assertThat(fileListTabFiles).hasSize(3)
+                    assertThat(fileListTabFiles).isEqualTo(fileListNfsTabFiles(subFolder))
+                }
 
             assertThat(Paths.get("$subFolder/Files/$testFile")).exists()
-            assertThat(Paths.get("$subFolder/Files/$fileListName.xml")).exists()
-            assertThat(Paths.get("$subFolder/Files/$fileListName.json")).exists()
-            assertThat(Paths.get("$subFolder/Files/$fileListName.pagetab.tsv")).exists()
+            assertThat(Paths.get("$subFolder/Files/FileList.xml")).exists()
+            assertThat(Paths.get("$subFolder/Files/FileList.json")).exists()
+            assertThat(Paths.get("$subFolder/Files/FileList.pagetab.tsv")).exists()
 
             assertThat(Paths.get("$subFolder/${createdSub.accNo}.xml")).exists()
             assertThat(Paths.get("$subFolder/${createdSub.accNo}.json")).exists()
             assertThat(Paths.get("$subFolder/${createdSub.accNo}.pagetab.tsv")).exists()
         }
+
+        private fun submissionFireTabFiles(accNo: String, submissionFolderPath: String): List<FireFile> {
+            val fireTempFolder = submissionFolderPath.substringBeforeLast("tmp").plus("tmp/tmp/fire-temp")
+            val jsonFile = File("$fireTempFolder/$accNo.json")
+            val xmlFile = File("$fireTempFolder/$accNo.xml")
+            val tsvFile = File("$fireTempFolder/$accNo.pagetab.tsv")
+            return listOf(
+                FireFile(
+                    fileName = "$accNo.json",
+                    filePath = "$accNo.json",
+                    relPath = "$fireTempFolder/$accNo.json",
+                    fireId = "$accNo.json",
+                    md5 = jsonFile.md5(),
+                    size = jsonFile.size(),
+                    attributes = listOf()
+                ),
+                FireFile(
+                    fileName = "$accNo.xml",
+                    filePath = "$accNo.xml",
+                    relPath = "$fireTempFolder/$accNo.xml",
+                    fireId = "$accNo.xml",
+                    md5 = xmlFile.md5(),
+                    size = xmlFile.size(),
+                    attributes = listOf()
+                ),
+                FireFile(
+                    fileName = "$accNo.pagetab.tsv",
+                    filePath = "$accNo.pagetab.tsv",
+                    relPath = "$fireTempFolder/$accNo.pagetab.tsv",
+                    fireId = "$accNo.pagetab.tsv",
+                    md5 = tsvFile.md5(),
+                    size = tsvFile.size(),
+                    attributes = listOf()
+                )
+            )
+        }
+
+        private fun fileListFireTabFiles(submissionFolderPath: String): List<FireFile> {
+            val fireTempFolder = submissionFolderPath.substringBeforeLast("tmp").plus("tmp/tmp/fire-temp")
+            val jsonFile = File("$fireTempFolder/FileList.json")
+            val xmlFile = File("$fireTempFolder/FileList.xml")
+            val tsvFile = File("$fireTempFolder/FileList.pagetab.tsv")
+            return listOf(
+                FireFile(
+                    fileName = "FileList.json",
+                    filePath = "FileList.json",
+                    relPath = "$fireTempFolder/FileList.json",
+                    fireId = "FileList.json",
+                    md5 = jsonFile.md5(),
+                    size = jsonFile.size(),
+                    attributes = listOf()
+                ),
+                FireFile(
+                    fileName = "FileList.xml",
+                    filePath = "FileList.xml",
+                    relPath = "$fireTempFolder/FileList.xml",
+                    fireId = "FileList.xml",
+                    md5 = xmlFile.md5(),
+                    size = xmlFile.size(),
+                    attributes = listOf()
+                ),
+                FireFile(
+                    fileName = "FileList.pagetab.tsv",
+                    filePath = "FileList.pagetab.tsv",
+                    relPath = "$fireTempFolder/FileList.pagetab.tsv",
+                    fireId = "FileList.pagetab.tsv",
+                    md5 = tsvFile.md5(),
+                    size = tsvFile.size(),
+                    attributes = listOf()
+                )
+            )
+        }
+
+        private fun submissionNfsTabFiles(accNo: String, subFolder: String): List<NfsFile> = listOf(
+            NfsFile(
+                "$accNo.json",
+                "$accNo.json",
+                "$accNo.json",
+                "$subFolder/$accNo.json",
+                File(subFolder).resolve("$accNo.json")
+            ),
+            NfsFile(
+                "$accNo.xml",
+                "$accNo.xml",
+                "$accNo.xml",
+                "$subFolder/$accNo.xml",
+                File(subFolder).resolve("$accNo.xml")
+            ),
+            NfsFile(
+                "$accNo.pagetab.tsv",
+                "$accNo.pagetab.tsv",
+                "$accNo.pagetab.tsv",
+                "$subFolder/$accNo.pagetab.tsv",
+                File(subFolder).resolve("$accNo.pagetab.tsv")
+            )
+        )
+
+        private fun fileListNfsTabFiles(subFolder: String): List<NfsFile> = listOf(
+            NfsFile(
+                "FileList.json",
+                "FileList.json",
+                "Files/FileList.json",
+                "$subFolder/Files/FileList.json",
+                File(subFolder).resolve("Files/FileList.json")
+            ),
+            NfsFile(
+                "FileList.xml",
+                "FileList.xml",
+                "Files/FileList.xml",
+                "$subFolder/Files/FileList.xml",
+                File(subFolder).resolve("Files/FileList.xml")
+            ),
+            NfsFile(
+                "FileList.pagetab.tsv",
+                "FileList.pagetab.tsv",
+                "Files/FileList.pagetab.tsv",
+                "$subFolder/Files/FileList.pagetab.tsv",
+                File(subFolder).resolve("Files/FileList.pagetab.tsv")
+            )
+        )
     }
 }

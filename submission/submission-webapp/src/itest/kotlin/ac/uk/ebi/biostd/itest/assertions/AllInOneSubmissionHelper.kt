@@ -6,13 +6,13 @@ import ac.uk.ebi.biostd.itest.factory.assertAllInOneSubmissionTsv
 import ac.uk.ebi.biostd.itest.factory.assertAllInOneSubmissionXml
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ebi.ac.uk.extended.mapping.to.toSimpleSubmission
-import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod
+import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
-import ebi.ac.uk.util.collections.second
-import ebi.ac.uk.util.collections.third
+import ebi.ac.uk.io.ext.md5
+import ebi.ac.uk.io.ext.size
 import org.assertj.core.api.Assertions.assertThat
 import java.io.File
 import java.nio.file.Paths
@@ -34,14 +34,6 @@ internal class AllInOneSubmissionHelper(
         assertSubmissionFiles(extendedSubmission)
     }
 
-    fun assertSubmissionFilesRecords(accNo: String) {
-        val submission = submissionRepository.getExtByAccNo(accNo)
-        val submissionFolderPath = "$submissionPath/${submission.relPath}"
-
-        assertSubmissionPageTabs(accNo, submission.pageTabFiles, submissionFolderPath)
-        assertFileListPageTabs(submission.section.fileList!!.pageTabFiles, submissionFolderPath)
-    }
-
     private fun assertSubmissionFiles(submission: ExtSubmission) {
         val submissionFolderPath = "$submissionPath/${submission.relPath}"
         val accNo = submission.accNo
@@ -51,40 +43,124 @@ internal class AllInOneSubmissionHelper(
         assertAllInOneSubmissionTsv(getSubFileContent("$submissionFolderPath/$accNo.pagetab.tsv"), accNo)
     }
 
-    private fun assertSubmissionPageTabs(
-        accNo: String,
-        pageTabFiles: List<ExtFile>,
-        submissionFolderPath: String,
-    ) {
-        assertThat(pageTabFiles).hasSize(3)
+    fun assertSubmissionFilesRecordsNfs(accNo: String) {
+        val submission = submissionRepository.getExtByAccNo(accNo)
+        val submissionFolderPath = "$submissionPath/${submission.relPath}"
 
+        val submissionTabFiles = submission.pageTabFiles as List<NfsFile>
+        assertThat(submissionTabFiles).hasSize(3)
+        assertThat(submissionTabFiles).isEqualTo(submissionNfsTabFiles(accNo, submissionFolderPath))
+
+        val fileListTabFiles = submission.section.fileList!!.pageTabFiles as List<NfsFile>
+        assertThat(fileListTabFiles).hasSize(3)
+        assertThat(fileListTabFiles).isEqualTo(fileListNfsTabFiles(submissionFolderPath))
+    }
+
+    fun assertSubmissionFilesRecordsFire(accNo: String) {
+        val submission = submissionRepository.getExtByAccNo(accNo)
+        val submissionFolderPath = "$submissionPath/${submission.relPath}"
+
+        val submissionTabFiles = submission.pageTabFiles as List<FireFile>
+        assertThat(submissionTabFiles).hasSize(3)
+        assertThat(submissionTabFiles).isEqualTo(submissionFireTabFiles(accNo, submissionFolderPath))
+
+        val fileListTabFiles = submission.section.fileList!!.pageTabFiles as List<FireFile>
+        assertThat(fileListTabFiles).hasSize(3)
+        assertThat(fileListTabFiles).isEqualTo(fileListFireTabFiles(submissionFolderPath))
+    }
+
+    private fun submissionFireTabFiles(accNo: String, submissionFolderPath: String): List<FireFile> {
+        val fireTempFolder = submissionFolderPath.substringBeforeLast("tmp").plus("tmp/tmp/fire-temp")
+        val jsonFile = File("$fireTempFolder/$accNo.json")
+        val xmlFile = File("$fireTempFolder/$accNo.xml")
+        val tsvFile = File("$fireTempFolder/$accNo.pagetab.tsv")
+        return listOf(
+            FireFile(
+                fileName = "$accNo.json",
+                filePath = "$accNo.json",
+                relPath = "$fireTempFolder/$accNo.json",
+                fireId = "$accNo.json",
+                md5 = jsonFile.md5(),
+                size = jsonFile.size(),
+                attributes = listOf()
+            ),
+            FireFile(
+                fileName = "$accNo.xml",
+                filePath = "$accNo.xml",
+                relPath = "$fireTempFolder/$accNo.xml",
+                fireId = "$accNo.xml",
+                md5 = xmlFile.md5(),
+                size = xmlFile.size(),
+                attributes = listOf()
+            ),
+            FireFile(
+                fileName = "$accNo.pagetab.tsv",
+                filePath = "$accNo.pagetab.tsv",
+                relPath = "$fireTempFolder/$accNo.pagetab.tsv",
+                fireId = "$accNo.pagetab.tsv",
+                md5 = tsvFile.md5(),
+                size = tsvFile.size(),
+                attributes = listOf()
+            )
+        )
+    }
+
+    private fun fileListFireTabFiles(submissionFolderPath: String): List<FireFile> {
+        val fireTempFolder = submissionFolderPath.substringBeforeLast("tmp").plus("tmp/tmp/fire-temp")
+        val jsonFile = File("$fireTempFolder/file-list.json")
+        val xmlFile = File("$fireTempFolder/file-list.xml")
+        val tsvFile = File("$fireTempFolder/file-list.pagetab.tsv")
+        return listOf(
+            FireFile(
+                fileName = "file-list.json",
+                filePath = "file-list.json",
+                relPath = "$fireTempFolder/file-list.json",
+                fireId = "file-list.json",
+                md5 = jsonFile.md5(),
+                size = jsonFile.size(),
+                attributes = listOf()
+            ),
+            FireFile(
+                fileName = "file-list.xml",
+                filePath = "file-list.xml",
+                relPath = "$fireTempFolder/file-list.xml",
+                fireId = "file-list.xml",
+                md5 = xmlFile.md5(),
+                size = xmlFile.size(),
+                attributes = listOf()
+            ),
+            FireFile(
+                fileName = "file-list.pagetab.tsv",
+                filePath = "file-list.pagetab.tsv",
+                relPath = "$fireTempFolder/file-list.pagetab.tsv",
+                fireId = "file-list.pagetab.tsv",
+                md5 = tsvFile.md5(),
+                size = tsvFile.size(),
+                attributes = listOf()
+            )
+        )
+    }
+
+    private fun submissionNfsTabFiles(accNo: String, submissionFolderPath: String): List<NfsFile> {
         val jsonFile = File("$submissionFolderPath/$accNo.json")
-        assertThat(jsonFile).exists()
-        assertThat(pageTabFiles.first()).isEqualTo(
+        val xmlFile = File("$submissionFolderPath/$accNo.xml")
+        val tsvFile = File("$submissionFolderPath/$accNo.pagetab.tsv")
+
+        return listOf(
             NfsFile(
                 fileName = "$accNo.json",
                 "$accNo.json",
                 "$accNo.json",
                 jsonFile.absolutePath,
                 jsonFile
-            )
-        )
-
-        val xmlFile = File("$submissionFolderPath/$accNo.xml")
-        assertThat(xmlFile).exists()
-        assertThat(pageTabFiles.second()).isEqualTo(
+            ),
             NfsFile(
                 fileName = "$accNo.xml",
                 "$accNo.xml",
                 "$accNo.xml",
                 xmlFile.absolutePath,
                 xmlFile
-            )
-        )
-
-        val tsvFile = File("$submissionFolderPath/$accNo.pagetab.tsv")
-        assertThat(tsvFile).exists()
-        assertThat(pageTabFiles.third()).isEqualTo(
+            ),
             NfsFile(
                 fileName = "$accNo.pagetab.tsv",
                 "$accNo.pagetab.tsv",
@@ -95,39 +171,26 @@ internal class AllInOneSubmissionHelper(
         )
     }
 
-    private fun assertFileListPageTabs(
-        pageTabFiles: List<ExtFile>,
-        submissionFolderPath: String,
-    ) {
-        assertThat(pageTabFiles).hasSize(3)
-
+    private fun fileListNfsTabFiles(submissionFolderPath: String): List<NfsFile> {
         val jsonFile = File("$submissionFolderPath/Files/file-list.json")
-        assertThat(jsonFile).exists()
-        assertThat(pageTabFiles.first()).isEqualTo(
+        val xmlFile = File("$submissionFolderPath/Files/file-list.xml")
+        val tsvFile = File("$submissionFolderPath/Files/file-list.pagetab.tsv")
+
+        return listOf(
             NfsFile(
                 fileName = "file-list.json",
                 "file-list.json",
                 "Files/file-list.json",
                 jsonFile.absolutePath,
                 jsonFile
-            )
-        )
-
-        val xmlFile = File("$submissionFolderPath/Files/file-list.xml")
-        assertThat(xmlFile).exists()
-        assertThat(pageTabFiles.second()).isEqualTo(
+            ),
             NfsFile(
                 fileName = "file-list.xml",
                 "file-list.xml",
                 "Files/file-list.xml",
                 xmlFile.absolutePath,
                 xmlFile
-            )
-        )
-
-        val tsvFile = File("$submissionFolderPath/Files/file-list.pagetab.tsv")
-        assertThat(tsvFile).exists()
-        assertThat(pageTabFiles.third()).isEqualTo(
+            ),
             NfsFile(
                 fileName = "file-list.pagetab.tsv",
                 "file-list.pagetab.tsv",

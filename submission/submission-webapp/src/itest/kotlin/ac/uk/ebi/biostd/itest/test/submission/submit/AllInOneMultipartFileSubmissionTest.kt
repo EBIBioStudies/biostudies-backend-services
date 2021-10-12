@@ -61,7 +61,9 @@ internal class AllInOneMultipartFileSubmissionTest(
             webClient.submitSingle(submission, emptyList())
 
             allInOneSubmissionHelper.assertSavedSubmission("S-EPMC124", method = FILE)
-            if (mongoMode) allInOneSubmissionHelper.assertSubmissionFilesRecords("S-EPMC124")
+            if (mongoMode)
+                if (enableFire) allInOneSubmissionHelper.assertSubmissionFilesRecordsFire("S-EPMC124")
+                else allInOneSubmissionHelper.assertSubmissionFilesRecordsNfs("S-EPMC124")
         }
 
         @Test
@@ -73,7 +75,9 @@ internal class AllInOneMultipartFileSubmissionTest(
             webClient.submitSingle(submission, emptyList())
 
             allInOneSubmissionHelper.assertSavedSubmission("S-EPMC125", method = FILE)
-            if (mongoMode) allInOneSubmissionHelper.assertSubmissionFilesRecords("S-EPMC125")
+            if (mongoMode)
+                if (enableFire) allInOneSubmissionHelper.assertSubmissionFilesRecordsFire("S-EPMC124")
+                else allInOneSubmissionHelper.assertSubmissionFilesRecordsNfs("S-EPMC124")
         }
 
         @Test
@@ -85,7 +89,9 @@ internal class AllInOneMultipartFileSubmissionTest(
             webClient.submitSingle(submission, emptyList())
 
             allInOneSubmissionHelper.assertSavedSubmission("S-EPMC126", method = FILE)
-            if (mongoMode) allInOneSubmissionHelper.assertSubmissionFilesRecords("S-EPMC126")
+            if (mongoMode)
+                if (enableFire) allInOneSubmissionHelper.assertSubmissionFilesRecordsFire("S-EPMC124")
+                else allInOneSubmissionHelper.assertSubmissionFilesRecordsNfs("S-EPMC124")
         }
     }
 }
