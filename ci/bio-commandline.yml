@@ -12,8 +12,8 @@ auto-deploy-dev-bio-commandline:
 
 deploy-dev-bio-commandline:
   extends: .deploy-dev-bio-commandline
-    stage: deploy-dev-bio-commandline
-    when: manual
+  stage: deploy-dev-bio-commandline
+  when: manual
 
 deploy-beta-bio-commandline:
   stage: deploy-beta-bio-commandline
