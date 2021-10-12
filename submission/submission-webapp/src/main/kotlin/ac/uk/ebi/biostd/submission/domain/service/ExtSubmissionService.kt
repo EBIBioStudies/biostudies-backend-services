@@ -59,7 +59,8 @@ class ExtSubmissionService(
         extSubmission: ExtSubmission,
         fileListFiles: List<File> = emptyList()
     ) {
-        logger.info { "Received async submit request for ext submission ${extSubmission.accNo}" }
+        val accNo = extSubmission.accNo
+        logger.info { "$accNo $user Received async submit request for ext submission $accNo" }
 
         val submission = processExtSubmission(user, extSubmission, fileListFiles)
         val newVersion = requestService.saveSubmissionRequest(SaveSubmissionRequest(submission, COPY))

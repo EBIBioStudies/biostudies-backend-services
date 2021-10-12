@@ -34,7 +34,11 @@ internal class MigrateCommand(private val submissionService: SubmissionService) 
 
     override fun run() {
         submissionService.migrate(migrationRequest())
-        echo("SUCCESS: Submission with AccNo '$accNo' was migrated from $source to $target")
+
+        when (async) {
+            true -> echo("SUCCESS: Submission with AccNo '$accNo' migration from $source to $target is in the queue")
+            else -> echo("SUCCESS: Submission with AccNo '$accNo' was migrated from $source to $target")
+        }
     }
 
     private fun migrationRequest() = MigrationRequest(

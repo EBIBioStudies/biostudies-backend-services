@@ -4,7 +4,6 @@ import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.files.service.UserFilesService
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.persistence.common.service.CollectionDataService
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestService
 import ac.uk.ebi.biostd.submission.domain.helpers.SourceGenerator
@@ -26,13 +25,13 @@ import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import java.net.URI
 
 @Configuration
+@Suppress("LongParameterList")
 @Import(value = [PersistenceConfig::class, SecurityBeansConfig::class])
 class SubmissionConfig(
     private val sourceGenerator: SourceGenerator,
     private val serializationService: SerializationService
 ) {
     @Bean
-    @Suppress("LongParameterList")
     fun submissionService(
         subRepository: SubmissionQueryService,
         serializationService: SerializationService,
