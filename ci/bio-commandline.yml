@@ -1,7 +1,7 @@
 .deploy-dev-bio-commandline:
   dependencies:
     - build-test
-    script: gradle deployBioCommandLine -Penv=dev -PdeployPath=/nfs/biostudies/.adm/apps/cli/dev
+  script: gradle deployBioCommandLine -Penv=dev -PdeployPath=/nfs/biostudies/.adm/apps/cli/dev
 
 auto-deploy-dev-bio-commandline:
   extends: .deploy-dev-bio-commandline
