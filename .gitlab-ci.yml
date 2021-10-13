@@ -19,6 +19,7 @@ include:
 stages:
   - build-test
   - mysql-itest
+  - auto-deploy-dev-bio-commandline
   - auto-deploy-dev-submitter
   - auto-deploy-dev-handlers
   - deploy-dev-submitter
