@@ -67,4 +67,3 @@ private fun FireFileProcessingConfig.saveFile(subRelPath: String, nfsFile: NfsFi
         }
     }
 }
-

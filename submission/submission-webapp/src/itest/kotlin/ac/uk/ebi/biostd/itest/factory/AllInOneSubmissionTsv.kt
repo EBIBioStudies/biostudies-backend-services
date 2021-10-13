@@ -9,7 +9,7 @@ fun submissionSpecTsv(tempFolder: TemporaryFolder, accNo: String): SubmissionSpe
     submission = tempFolder.createFile("submission.tsv", allInOneSubmissionTsv(accNo).toString()),
     fileList = tempFolder.createFile("file-list.tsv", fileList().toString()),
     files = submissionsFiles(tempFolder),
-    subFileList = SubmissionFile(tempFolder.createFile("file-list2.tsv", fileList2().toString()),"sub-folder")
+    subFileList = SubmissionFile(tempFolder.createFile("file-list2.tsv", fileList2().toString()), "sub-folder")
 )
 
 fun allInOneSubmissionTsv(accNo: String) = tsv {
@@ -60,6 +60,7 @@ private fun fileList() = tsv {
     line("DataFile5.txt", "referenced")
     line("Folder1/DataFile6.txt", "referenced")
 }
+
 private fun fileList2() = tsv {
     line("Files", "Type")
     line("DataFile7.txt", "referenced")

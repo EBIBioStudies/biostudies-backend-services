@@ -61,7 +61,7 @@ internal class AllInOneSubmissionTest(private val tempFolder: TemporaryFolder) :
 
             allInOneSubmissionHelper.assertSavedSubmission("S-EPMC124")
             if (mongoMode)
-                if (enableFire) allInOneSubmissionHelper.assertSubmissionFilesRecordsFire("S-EPMC124", fireTempFolder)
+                if (enableFire) allInOneSubmissionHelper.assertSubmissionFilesRecordsFire("S-EPMC124")
                 else allInOneSubmissionHelper.assertSubmissionFilesRecordsNfs("S-EPMC124")
         }
 
@@ -76,8 +76,8 @@ internal class AllInOneSubmissionTest(private val tempFolder: TemporaryFolder) :
 
             allInOneSubmissionHelper.assertSavedSubmission("S-EPMC125")
             if (mongoMode)
-                if (enableFire) allInOneSubmissionHelper.assertSubmissionFilesRecordsFire("S-EPMC124", fireTempFolder)
-                else allInOneSubmissionHelper.assertSubmissionFilesRecordsNfs("S-EPMC124")
+                if (enableFire) allInOneSubmissionHelper.assertSubmissionFilesRecordsFire("S-EPMC125")
+                else allInOneSubmissionHelper.assertSubmissionFilesRecordsNfs("S-EPMC125")
         }
 
         @Test
@@ -91,8 +91,8 @@ internal class AllInOneSubmissionTest(private val tempFolder: TemporaryFolder) :
 
             allInOneSubmissionHelper.assertSavedSubmission("S-EPMC126")
             if (mongoMode)
-                if (enableFire) allInOneSubmissionHelper.assertSubmissionFilesRecordsFire("S-EPMC124", fireTempFolder)
-                else allInOneSubmissionHelper.assertSubmissionFilesRecordsNfs("S-EPMC124")
+                if (enableFire) allInOneSubmissionHelper.assertSubmissionFilesRecordsFire("S-EPMC126")
+                else allInOneSubmissionHelper.assertSubmissionFilesRecordsNfs("S-EPMC126")
         }
     }
 }
