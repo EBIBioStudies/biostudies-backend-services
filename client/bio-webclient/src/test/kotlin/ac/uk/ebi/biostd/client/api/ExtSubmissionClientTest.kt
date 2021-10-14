@@ -109,7 +109,7 @@ class ExtSubmissionClientTest(
     fun `get referenced files`(
         @MockK extFileTable: ExtFileTable
     ) {
-        val filesUrl = "$EXT_SUBMISSIONS_URL/S-TEST123/fileList/file-list/files"
+        val filesUrl = "$EXT_SUBMISSIONS_URL/S-TEST123/referencedFiles/file-list"
         val response: ResponseEntity<String> = ResponseEntity("ExtFileTable", OK)
 
         every { restTemplate.getForEntity(filesUrl, String::class.java) } returns response

@@ -17,12 +17,12 @@ class ExtFileListDeserializerTest {
     fun deserialize() {
         val json = jsonObj {
             FILE_NAME to "file-list"
-            FILES_URL to "$FILE_LIST_URL/S-BSST1/fileList/file-list/files"
+            FILES_URL to "$FILE_LIST_URL/S-BSST1/referencedFiles/file-list"
         }.toString()
 
         val extFileList = testInstance.deserialize<ExtFileList>(json)
         assertThat(extFileList.fileName).isEqualTo("file-list")
-        assertThat(extFileList.filesUrl).isEqualTo("$FILE_LIST_URL/S-BSST1/fileList/file-list/files")
+        assertThat(extFileList.filesUrl).isEqualTo("$FILE_LIST_URL/S-BSST1/referencedFiles/file-list")
         assertThat(extFileList.files).isEmpty()
     }
 }
