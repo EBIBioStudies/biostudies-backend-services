@@ -79,7 +79,7 @@ class ExtSubmissionResourceTest(
         bioUserResolver.securityUser = user
         every { tempFileGenerator.asFiles(capture(fileLists)) } returns emptyList()
         every { extSerializationService.serialize(extSubmission) } returns submissionJson
-        every { extSubmissionService.submitExtendedSubmission(user.email, extSubmission) } returns extSubmission
+        every { extSubmissionService.submitExt(user.email, extSubmission) } returns extSubmission
         every { extSerializationService.deserialize(submissionJson, ExtSubmission::class.java) } returns extSubmission
 
         mvc.multipart("/submissions/extended") {
@@ -93,7 +93,32 @@ class ExtSubmissionResourceTest(
         verify(exactly = 1) {
             tempFileGenerator.asFiles(fileLists.captured)
             extSerializationService.serialize(extSubmission)
-            extSubmissionService.submitExtendedSubmission(user.email, extSubmission)
+            extSubmissionService.submitExt(user.email, extSubmission)
+            extSerializationService.deserialize(submissionJson, ExtSubmission::class.java)
+        }
+    }
+
+    @Test
+    fun submitExtendedAsync(@MockK extSubmission: ExtSubmission) {
+        val user = TestSuperUser.asSecurityUser()
+        val fileLists = slot<Array<MultipartFile>>()
+        val submissionJson = jsonObj { "accNo" to "S-TEST123" }.toString()
+
+        bioUserResolver.securityUser = user
+        every { tempFileGenerator.asFiles(capture(fileLists)) } returns emptyList()
+        every { extSubmissionService.submitExtAsync(user.email, extSubmission) } answers { nothing }
+        every { extSerializationService.deserialize(submissionJson, ExtSubmission::class.java) } returns extSubmission
+
+        mvc.multipart("/submissions/extended/async") {
+            content = submissionJson
+            param(SUBMISSION, submissionJson)
+        }.andExpect {
+            status { isOk }
+        }
+
+        verify(exactly = 1) {
+            tempFileGenerator.asFiles(fileLists.captured)
+            extSubmissionService.submitExtAsync(user.email, extSubmission)
             extSerializationService.deserialize(submissionJson, ExtSubmission::class.java)
         }
     }

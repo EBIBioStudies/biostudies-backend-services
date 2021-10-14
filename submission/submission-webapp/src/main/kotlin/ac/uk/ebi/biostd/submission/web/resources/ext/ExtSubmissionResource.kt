@@ -44,7 +44,19 @@ class ExtSubmissionResource(
         @BioUser user: SecurityUser,
         @RequestParam(FILE_LISTS, required = false) fileLists: Array<MultipartFile>?,
         @RequestParam(SUBMISSION) extSubmission: String
-    ): ExtSubmission = extSubmissionService.submitExtendedSubmission(
+    ): ExtSubmission = extSubmissionService.submitExt(
+        user.email,
+        extSerializationService.deserialize(extSubmission, ExtSubmission::class.java),
+        fileLists?.let { tempFileGenerator.asFiles(it) } ?: emptyList()
+    )
+
+    @PostMapping("/async")
+    @PreAuthorize("isAuthenticated()")
+    fun submitExtendedAsync(
+        @BioUser user: SecurityUser,
+        @RequestParam(FILE_LISTS, required = false) fileLists: Array<MultipartFile>?,
+        @RequestParam(SUBMISSION) extSubmission: String
+    ) = extSubmissionService.submitExtAsync(
         user.email,
         extSerializationService.deserialize(extSubmission, ExtSubmission::class.java),
         fileLists?.let { tempFileGenerator.asFiles(it) } ?: emptyList()
