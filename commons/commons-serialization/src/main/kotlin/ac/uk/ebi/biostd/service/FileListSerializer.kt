@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.service
 
+import ac.uk.ebi.biostd.exception.InvalidFileListException
 import ac.uk.ebi.biostd.integration.SubFormat
 import ac.uk.ebi.biostd.service.PageTabFileReader.readAsPageTab
 import ebi.ac.uk.io.sources.FilesSource
@@ -38,5 +39,9 @@ internal class FileListSerializer(
     }
 
     private fun getFilesTable(file: File): FilesTable =
-        serializer.deserializeElement(readAsPageTab(file), SubFormat.fromFile(file))
+        runCatching {
+            serializer.deserializeElement<FilesTable>(readAsPageTab(file), SubFormat.fromFile(file))
+        }.getOrElse {
+            throw InvalidFileListException("Problem processing file list '${file.name}': ${it.message}")
+        }
 }
