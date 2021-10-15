@@ -55,6 +55,10 @@ data class NfsFile(
     val file: File,
     override val attributes: List<ExtAttribute> = listOf()
 ) : ExtFile() {
+
+    constructor(filePath: String, relPath: String, file: File, attributes: List<ExtAttribute> = listOf())
+        : this(file.name, filePath, relPath, file.absolutePath, file, attributes)
+
     // TODO Once SQL is removed, this field should be removed and md5 should be set as a constructor property
     private var _md5: String = ""
 

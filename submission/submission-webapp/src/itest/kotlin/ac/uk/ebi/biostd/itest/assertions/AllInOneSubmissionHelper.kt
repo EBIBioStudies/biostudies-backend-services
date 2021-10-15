@@ -62,14 +62,14 @@ internal class AllInOneSubmissionHelper(
 
         val submissionTabFiles = submission.pageTabFiles as List<FireFile>
         assertThat(submissionTabFiles).hasSize(3)
-        assertThat(submissionTabFiles).isEqualTo(submissionFireTabFiles(accNo, subFolder))
+        assertThat(submissionTabFiles).isEqualTo(submissionFirePagetabFiles(accNo, subFolder))
 
         val fileListTabFiles = submission.section.fileList!!.pageTabFiles as List<FireFile>
         assertThat(fileListTabFiles).hasSize(3)
         assertThat(fileListTabFiles).isEqualTo(fileListFireTabFiles(subFolder))
     }
 
-    private fun submissionFireTabFiles(accNo: String, subFolder: String): List<FireFile> {
+    private fun submissionFirePagetabFiles(accNo: String, subFolder: String): List<FireFile> {
         val json = File("$subFolder/$accNo.json")
         val xmlFile = File("$subFolder/$accNo.xml")
         val tsvFile = File("$subFolder/$accNo.pagetab.tsv")

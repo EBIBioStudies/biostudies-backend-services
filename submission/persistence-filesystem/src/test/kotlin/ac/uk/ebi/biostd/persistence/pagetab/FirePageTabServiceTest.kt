@@ -2,18 +2,16 @@ package ac.uk.ebi.biostd.persistence.pagetab
 
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.FirePageTabService
-import ac.uk.ebi.biostd.persistence.filesystem.pagetab.TabFiles
+import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabFiles
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.generateFileListPageTab
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.generateSubPageTab
 import arrow.core.Either.Companion.left
 import arrow.core.Either.Companion.right
-import ebi.ac.uk.asserts.assertThat as assertThatEither
 import ebi.ac.uk.extended.model.ExtFileList
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSectionTable
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireFile
-import uk.ac.ebi.fire.client.model.FireFile as FireFileWeb
 import ebi.ac.uk.test.basicExtSubmission
 import ebi.ac.uk.util.collections.second
 import ebi.ac.uk.util.collections.third
@@ -23,10 +21,12 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockkStatic
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.fire.client.integration.web.FireWebClient
-import org.assertj.core.api.Assertions.assertThat as assertThat
+import ebi.ac.uk.asserts.assertThat as assertThatEither
+import uk.ac.ebi.fire.client.model.FireFile as FireFileWeb
 
 @ExtendWith(TemporaryFolderExtension::class, MockKExtension::class)
 class FirePageTabServiceTest(
@@ -54,18 +54,18 @@ class FirePageTabServiceTest(
         mockkStatic("ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabUtilKt")
 
         every { serializationService.generateSubPageTab(submission, fireFolder) } returns
-            TabFiles(
+            PageTabFiles(
                 fireFolder.resolve("S-TEST123.json"),
                 fireFolder.resolve("S-TEST123.xml"),
                 fireFolder.resolve("S-TEST123.pagetab.tsv")
             )
         every { serializationService.generateFileListPageTab(submission, fireFolder) } returns mapOf(
-            "data/file-list2" to TabFiles(
+            "data/file-list2" to PageTabFiles(
                 fireFolder.resolve("file-list2.json"),
                 fireFolder.resolve("file-list2.xml"),
                 fireFolder.resolve("file-list2.pagetab.tsv")
             ),
-            "data/file-list1" to TabFiles(
+            "data/file-list1" to PageTabFiles(
                 fireFolder.resolve("file-list1.json"),
                 fireFolder.resolve("file-list1.xml"),
                 fireFolder.resolve("file-list1.pagetab.tsv")

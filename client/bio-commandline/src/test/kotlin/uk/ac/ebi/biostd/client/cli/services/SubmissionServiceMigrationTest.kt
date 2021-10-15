@@ -109,15 +109,10 @@ class SubmissionServiceMigrationTest(
         every { sourceClient.getExtByAccNo("S-BSST1") } returns extSubmission
         every {
             sourceClient.getReferencedFiles("/submissions/extended/S-BSST1/fileList/test-file-list/files")
-        } returns ExtFileTable(
-            NfsFile(
-                referencedFile.name,
-                "filePath",
-                "relPath",
-                "fullPath",
-                referencedFile,
-                emptyList()
-            )
-        )
+        } returns ExtFileTable(NfsFile(
+            filePath = "folder/referenced.pdf",
+            relPath = "Files/folder/referenced.pdf",
+            file = referencedFile,
+            attributes = emptyList()))
     }
 }

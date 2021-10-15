@@ -28,18 +28,18 @@ class FirePageTabService(
         }
     }
 
-    private fun updateFileList(sec: ExtSection, path: String, tab: Map<String, TabFiles>): Section {
+    private fun updateFileList(sec: ExtSection, path: String, pagetabFiles: Map<String, PageTabFiles>): Section {
         return when (val lst = sec.fileList) {
             null -> Section(false, sec)
             else -> {
                 val name = lst.fileName
-                val tabFiles = tab.getValue(name)
-                Section(true, sec.copy(fileList = lst.copy(pageTabFiles = fileLstFiles(tabFiles, path, name))))
+                val files = pagetabFiles.getValue(name)
+                Section(true, sec.copy(fileList = lst.copy(pageTabFiles = fileLstFiles(files, path, name))))
             }
         }
     }
 
-    private fun fileLstFiles(pageTab: TabFiles, subFolder: String, fileListName: String) = listOf(
+    private fun fileLstFiles(pageTab: PageTabFiles, subFolder: String, fileListName: String) = listOf(
         saveFileListFile(pageTab.json, subFolder, "$fileListName.json"),
         saveFileListFile(pageTab.xml, subFolder, "$fileListName.xml"),
         saveFileListFile(pageTab.tsv, subFolder, "$fileListName.pagetab.tsv")
@@ -49,18 +49,10 @@ class FirePageTabService(
         val name = file.name
         val relPath = "Files/$filePath"
         val db = fireWebClient.save(file, file.md5(), "$subFolder/$relPath")
-        return FireFile(
-            fileName = name,
-            filePath = filePath,
-            relPath = relPath,
-            fireId = db.fireOid,
-            md5 = db.objectMd5,
-            size = db.objectSize.toLong(),
-            attributes = listOf()
-        )
+        return FireFile(name, filePath, relPath, db.fireOid, db.objectMd5, db.objectSize.toLong(), listOf())
     }
 
-    private fun subExtFiles(pageTab: TabFiles, subFolder: String): List<ExtFile> = listOf(
+    private fun subExtFiles(pageTab: PageTabFiles, subFolder: String): List<ExtFile> = listOf(
         saveSubFile(pageTab.json, subFolder),
         saveSubFile(pageTab.xml, subFolder),
         saveSubFile(pageTab.tsv, subFolder)
