@@ -8,7 +8,8 @@ import io.github.glytching.junit.extension.folder.TemporaryFolder
 fun submissionSpecTsv(tempFolder: TemporaryFolder, accNo: String): SubmissionSpec = SubmissionSpec(
     submission = tempFolder.createFile("submission.tsv", allInOneSubmissionTsv(accNo).toString()),
     fileList = tempFolder.createFile("file-list.tsv", fileList().toString()),
-    files = submissionsFiles(tempFolder)
+    files = submissionsFiles(tempFolder),
+    subFileList = SubmissionFile(tempFolder.createFile("file-list2.tsv", fileList2().toString()), "sub-folder")
 )
 
 fun allInOneSubmissionTsv(accNo: String) = tsv {
@@ -42,6 +43,7 @@ fun allInOneSubmissionTsv(accNo: String) = tsv {
     line()
 
     line("Stranded Total RNA-Seq", "SUBSECT-001", "SECT-001")
+    line("File List", "sub-folder/file-list2.tsv")
     line()
 
     line("Data[SECT-001]", "Title", "Description")
@@ -57,4 +59,10 @@ private fun fileList() = tsv {
     line("Files", "Type")
     line("DataFile5.txt", "referenced")
     line("Folder1/DataFile6.txt", "referenced")
+}
+
+private fun fileList2() = tsv {
+    line("Files", "Type")
+    line("DataFile7.txt", "referenced")
+    line("Folder1/DataFile8.txt", "referenced")
 }

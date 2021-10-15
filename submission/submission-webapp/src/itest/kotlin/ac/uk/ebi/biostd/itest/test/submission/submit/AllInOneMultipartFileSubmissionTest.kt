@@ -54,8 +54,9 @@ internal class AllInOneMultipartFileSubmissionTest(
 
         @Test
         fun `submit all in one multipart TSV submission`() {
-            val (submission, fileList, files) = submissionSpecTsv(tempFolder, "S-EPMC124")
+            val (submission, fileList, files, subFileList) = submissionSpecTsv(tempFolder, "S-EPMC124")
             webClient.uploadFile(fileList)
+            subFileList?.let { webClient.uploadFile(it.file, it.folder) }
             files.forEach { webClient.uploadFile(it.file, it.folder) }
 
             webClient.submitSingle(submission, emptyList())
@@ -68,30 +69,32 @@ internal class AllInOneMultipartFileSubmissionTest(
 
         @Test
         fun `submit all in one multipart Json submission`() {
-            val (submission, fileList, files) = submissionSpecJson(tempFolder, "S-EPMC125")
+            val (submission, fileList, files, subFileList) = submissionSpecJson(tempFolder, "S-EPMC125")
             webClient.uploadFile(fileList)
+            subFileList?.let { webClient.uploadFile(it.file, it.folder) }
             files.forEach { webClient.uploadFile(it.file, it.folder) }
 
             webClient.submitSingle(submission, emptyList())
 
             allInOneSubmissionHelper.assertSavedSubmission("S-EPMC125", method = FILE)
             if (mongoMode)
-                if (enableFire) allInOneSubmissionHelper.assertSubmissionFilesRecordsFire("S-EPMC124")
-                else allInOneSubmissionHelper.assertSubmissionFilesRecordsNfs("S-EPMC124")
+                if (enableFire) allInOneSubmissionHelper.assertSubmissionFilesRecordsFire("S-EPMC125")
+                else allInOneSubmissionHelper.assertSubmissionFilesRecordsNfs("S-EPMC125")
         }
 
         @Test
         fun `submit all in one multipart XML submission`() {
-            val (submission, fileList, files) = submissionSpecXml(tempFolder, "S-EPMC126")
+            val (submission, fileList, files, subFileList) = submissionSpecXml(tempFolder, "S-EPMC126")
             webClient.uploadFile(fileList)
+            subFileList?.let { webClient.uploadFile(it.file, it.folder) }
             files.forEach { webClient.uploadFile(it.file, it.folder) }
 
             webClient.submitSingle(submission, emptyList())
 
             allInOneSubmissionHelper.assertSavedSubmission("S-EPMC126", method = FILE)
             if (mongoMode)
-                if (enableFire) allInOneSubmissionHelper.assertSubmissionFilesRecordsFire("S-EPMC124")
-                else allInOneSubmissionHelper.assertSubmissionFilesRecordsNfs("S-EPMC124")
+                if (enableFire) allInOneSubmissionHelper.assertSubmissionFilesRecordsFire("S-EPMC126")
+                else allInOneSubmissionHelper.assertSubmissionFilesRecordsNfs("S-EPMC126")
         }
     }
 }

@@ -8,6 +8,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataReposito
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.FileListDocFileRepository
 import ac.uk.ebi.biostd.persistence.doc.mapping.from.toDocSubmission
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
+import ac.uk.ebi.biostd.persistence.doc.mapping.to.toExtFile
 import ac.uk.ebi.biostd.persistence.doc.model.DocProcessingStatus.PROCESSED
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
@@ -20,6 +21,8 @@ import ebi.ac.uk.extended.model.ExtProcessingStatus.PROCESSING
 import ebi.ac.uk.extended.model.ExtProcessingStatus.REQUESTED
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FileMode.MOVE
+import ebi.ac.uk.extended.model.FireFile
+import ebi.ac.uk.extended.model.allFiles
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import kotlin.math.absoluteValue
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus.PROCESSED as REQUEST_PROCESSED
@@ -70,6 +73,19 @@ internal class SubmissionMongoPersistenceService(
         submissionRequestDocDataRepository.updateStatus(REQUEST_PROCESSED, submission.accNo, submission.version)
 
         return toExtSubmissionMapper.toExtSubmission(docSubmission)
+    }
+
+    private fun getAllPreviousSubmissionFiles(accNo: String): Map<String, FireFile> {
+        val docSubs = subDataRepository.getAllSubmissionsByAccNo(accNo)
+
+        val extSubs = docSubs.map { toExtSubmissionMapper.toExtSubmission(it) }
+        val subFilesMap = extSubs.flatMap { it.allFiles.filterIsInstance<FireFile>() }.associateBy { it.md5 }
+
+
+        val listDocFiles = docSubs.flatMap { fileListDocFileRepository.findAllBySubmissionId(it.id) }
+        val fileListFileMap = listDocFiles.map { it.toExtFile() }.filterIsInstance<FireFile>().associateBy { it.md5 }
+
+        return subFilesMap + fileListFileMap
     }
 
     private fun saveSubmission(docSubmission: DocSubmission, files: List<FileListDocFile>, draftKey: String?) {

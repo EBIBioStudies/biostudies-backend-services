@@ -35,7 +35,7 @@ fun assertAllInOneSubmissionJson(json: String, accNo: String) {
     assertJsonLink(json, "$.section.links[0]", allInOneRootSectionLink())
     assertJsonFile(json, "$.section.files[0]", allInOneRootSectionFile())
     assertJsonFilesTable(json, "$.section.files[1]", allInOneRootSectionFilesTable())
-    assertJsonSection(json, "$.section.subsections[0]", allInOneSubsection())
+    assertJsonSubSection(json, "$.section.subsections[0]", allInOneSubsection())
     assertJsonLinksTable(json, "$.section.subsections[0].links[0]", allInOneSubSectionLinksTable())
     assertJsonSectionsTable(json, "$.section.subsections[1]", allInOneSubSectionsTable())
 }
@@ -47,6 +47,14 @@ private fun assertJsonSection(json: String, path: String, section: Section) {
     assertThat(json, isJson(withJsonPath("$path.accno", equalTo(section.accNo))))
     assertThat(json, isJson(withJsonPath("$path.type", equalTo(section.type))))
     assertJsonAttributes(json, path, section.attributes)
+}
+
+private fun assertJsonSubSection(json: String, path: String, section: Section) {
+    assertThat(json, isJson(withJsonPath("$path.accno", equalTo(section.accNo))))
+    assertThat(json, isJson(withJsonPath("$path.type", equalTo(section.type))))
+    val attribute = "$path.attributes[0]"
+    assertThat(json, isJson(withJsonPath("$attribute.name", equalTo("File List"))))
+    assertThat(json, isJson(withJsonPath("$attribute.value", equalTo("sub-folder/file-list2.json"))))
 }
 
 private fun assertJsonLinksTable(json: String, path: String, linksTable: LinksTable) =

@@ -32,7 +32,7 @@ fun assertAllInOneSubmissionXml(xml: String, accNo: String) {
     assertXmlFile(xml, "//submission/section/files/file[1]", allInOneRootSectionFile())
     assertXmlFilesTable(xml, "//submission/section/files/table", allInOneRootSectionFilesTable())
 
-    assertXmlSection(xml, "//submission/section/subsections/section", allInOneSubsection())
+    assertXmlSubSection(xml, "//submission/section/subsections/section", allInOneSubsection())
     assertXmlLinksTable(xml, "//submission/section/subsections/section/links/table", allInOneSubSectionLinksTable())
     assertXmlSectionsTable(xml, "//submission/section/subsections/table", allInOneSubSectionsTable())
 }
@@ -41,6 +41,14 @@ private fun assertXmlSection(xml: String, xPath: String, section: Section) {
     assertThat(xml, hasXPath("$xPath/@accno", equalTo(section.accNo)))
     assertThat(xml, hasXPath("$xPath/@type", equalTo(section.type)))
     assertXmlAttributes(xml, xPath, section.attributes)
+}
+
+private fun assertXmlSubSection(xml: String, xPath: String, section: Section) {
+    assertThat(xml, hasXPath("$xPath/@accno", equalTo(section.accNo)))
+    assertThat(xml, hasXPath("$xPath/@type", equalTo(section.type)))
+    val attribute = "$xPath/attributes/attribute[1]"
+    assertThat(xml, hasXPath("$attribute/name", equalTo("File List")))
+    assertThat(xml, hasXPath("$attribute/value", equalTo("sub-folder/file-list2.xml")))
 }
 
 private fun assertXmlSectionsTable(xml: String, xPath: String, sectionsTable: SectionsTable) =

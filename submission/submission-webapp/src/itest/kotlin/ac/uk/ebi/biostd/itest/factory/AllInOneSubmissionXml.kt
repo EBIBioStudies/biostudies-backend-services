@@ -7,7 +7,8 @@ import org.redundent.kotlin.xml.xml
 fun submissionSpecXml(tempFolder: TemporaryFolder, accNo: String): SubmissionSpec = SubmissionSpec(
     submission = tempFolder.createFile("submission.xml", allInOneSubmissionXml(accNo).toString()),
     fileList = tempFolder.createFile("file-list.xml", fileList().toString()),
-    files = submissionsFiles(tempFolder)
+    files = submissionsFiles(tempFolder),
+    subFileList = SubmissionFile(tempFolder.createFile("file-list2.xml", fileList2().toString()), "sub-folder")
 )
 
 fun allInOneSubmissionXml(accNo: String) = xml("submission") {
@@ -145,6 +146,12 @@ fun allInOneSubmissionXml(accNo: String) = xml("submission") {
                         }
                     }
                 }
+                "attributes" {
+                    "attribute" {
+                        "name" { -"File List" }
+                        "value" { -"sub-folder/file-list2.xml" }
+                    }
+                }
             }
             "table" {
                 "section" {
@@ -178,6 +185,27 @@ private fun fileList() = xml("table") {
     }
     "file" {
         "path" { -"Folder1/DataFile6.txt" }
+        "attributes" {
+            "attribute" {
+                "name" { -"Type" }
+                "value" { -"referenced" }
+            }
+        }
+    }
+}
+
+private fun fileList2() = xml("table") {
+    "file" {
+        "path" { -"DataFile7.txt" }
+        "attributes" {
+            "attribute" {
+                "name" { -"Type" }
+                "value" { -"referenced" }
+            }
+        }
+    }
+    "file" {
+        "path" { -"Folder1/DataFile8.txt" }
         "attributes" {
             "attribute" {
                 "name" { -"Type" }

@@ -4,7 +4,7 @@ import ebi.ac.uk.extended.model.NfsFile
 import java.io.File
 
 const val ROOT_FILE_LIST_FILE_NAME = "fileName1"
-const val ROOT_FILE_LIST_FILEPATH = "filePath1"
+const val ROOT_FILE_LIST_FILEPATH = "filePath1/fileName1"
 const val ROOT_FILE_LIST_REL_NAME = "relPath1"
 const val ROOT_FILE_LIST_FULL_PATH = "fullPath1"
 val ROOT_FILE_LIST_FILE = File("somePath1")
@@ -18,7 +18,7 @@ val rootSectionFileListFile =
     )
 
 const val SUB_FILE_LIST_FILE_NAME = "fileName2"
-const val SUB_FILE_LIST_FILEPATH = "filePath2"
+const val SUB_FILE_LIST_FILEPATH = "filePath2/fileName2"
 const val SUB_FILE_LIST_REL_PATH = "relPath2"
 const val SUB_FILE_LIST_FULL_PATH = "fullPath2"
 val SUB_FILE_LIST_FILE = File("somePath2")
@@ -32,7 +32,7 @@ val subSectionFileListFile =
     )
 
 const val ROOT_SEC_FILE_NAME = "fileName3"
-const val ROOT_SEC_FILEPATH = "filePath3"
+const val ROOT_SEC_FILEPATH = "filePath3/fileName3"
 const val ROOT_SEC_REL_PATH = "relPath3"
 const val ROOT_SEC_FULL_PATH = "fullPath3"
 val ROOT_SEC_FILE = File("somePath3")
@@ -46,7 +46,7 @@ val rootSectionFile =
     )
 
 const val ROOT_SEC_TABLE_FILE_NAME = "fileName4"
-const val ROOT_SEC_TABLE_FILEPATH = "filePath4"
+const val ROOT_SEC_TABLE_FILEPATH = "filePath4/fileName4"
 const val ROOT_SEC_TABLE_REL_PATH = "relPath4"
 const val ROOT_SEC_TABLE_FUL_PATH = "fullPath4"
 val ROOT_SEC_TABLE_FILE = File("somePath4")
