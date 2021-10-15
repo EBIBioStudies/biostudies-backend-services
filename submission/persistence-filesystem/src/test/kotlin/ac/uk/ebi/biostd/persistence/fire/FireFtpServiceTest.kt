@@ -3,7 +3,9 @@ package ac.uk.ebi.biostd.persistence.fire
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.filesystem.fire.FireFtpService
 import arrow.core.Either
+import ebi.ac.uk.extended.model.ExtFileList
 import ebi.ac.uk.extended.model.ExtSection
+import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.test.basicExtSubmission
 import io.mockk.clearAllMocks
@@ -24,6 +26,8 @@ class FireFtpServiceTest(
     @MockK private val submissionQueryService: SubmissionQueryService
 ) {
     private val clientFireFile = ClientFireFile(1, "abc1", "md5", 1, "2021-09-21")
+
+    private val tabFile = FireFile("submission.pagetab.tsv", "submission.pagetab.tsv", "submission.pagetab.tsv", "abc1", "md5", 1, listOf())
     private val fireFile = FireFile("test.txt", "folder/test.txt", "relPath", "abc1", "md5", 1, listOf())
     private val section = ExtSection(type = "Study", files = listOf(Either.left(fireFile)))
     private val testInstance = FireFtpService(fireWebClient, submissionQueryService)
@@ -31,8 +35,28 @@ class FireFtpServiceTest(
     @AfterEach
     fun afterEach() = clearAllMocks()
 
+
+    fun createSubmission(): ExtSubmission {
+        val subTabFile = FireFile("accno.json", "accno.json", "accno.json", "abc1", "md5", 1, listOf())
+        val sectionFile = FireFile("test.txt", "folder/test.txt", "relPath", "abc1", "md5", 1, listOf())
+
+        val fileListTabFile = FireFile("file-list.json", "file-list.json", "Files/file-list.json", "abc1", "md5", 1, listOf())
+        val fileListFile = FireFile("test.txt", "folder/test.txt", "relPath", "abc1", "md5", 1, listOf())
+        val fileList = ExtFileList("file-list", pageTabFiles = listOf(fileListTabFile))
+        every { submissionQueryService }
+
+        ExtSection(type = "Study", files = listOf(Either.left(sectionFile)), fileList = fileList)
+
+        return basicExtSubmission.copy(
+            released = true,
+            section = section,
+            pageTabFiles = listOf(tabFile))
+    }
+
     @BeforeEach
     fun beforeEach() {
+
+
         every { fireWebClient.publish("abc1") } answers { nothing }
         every { fireWebClient.unpublish("abc1") } answers { nothing }
         every { fireWebClient.unsetPath("abc1") } answers { nothing }
@@ -42,7 +66,7 @@ class FireFtpServiceTest(
 
     @Test
     fun `process public submission`() {
-        val submission = basicExtSubmission.copy(released = true, section = section)
+        val submission = basicExtSubmission.copy(released = true, section = section, pageTabFiles = listOf(tabFile))
         testInstance.processSubmissionFiles(submission)
 
         verifyCleanFtpFolder()

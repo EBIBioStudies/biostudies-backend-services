@@ -6,6 +6,7 @@ import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.allFileList
+import ebi.ac.uk.extended.model.allSectionsFiles
 import uk.ac.ebi.fire.client.integration.web.FireWebClient
 
 class FireFtpService(
@@ -29,7 +30,7 @@ class FireFtpService(
             .forEach { publishFile(it, submission.relPath) }
 
     private fun allFiles(sub: ExtSubmission): Sequence<ExtFile> =
-        allFileListFiles(sub).plus(allFileListFiles(sub)).plus(sub.pageTabFiles)
+        allFileListFiles(sub).plus(sub.allSectionsFiles).plus(sub.pageTabFiles)
 
     /**
      * Returns all file list files. Note that sequence is used instead regular iterable to avoid loading all submission
