@@ -4,6 +4,8 @@ import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
+import ac.uk.ebi.biostd.persistence.doc.model.FileSystem
+import ac.uk.ebi.biostd.persistence.doc.model.FileSystem.FIRE
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequest
 import org.bson.types.ObjectId
 import org.springframework.data.domain.Page
@@ -34,6 +36,9 @@ interface SubmissionMongoRepository : MongoRepository<DocSubmission, ObjectId> {
 
     @Query("{ 'stats.name': { \$eq: '?0' } }")
     fun findAllByStatType(statType: SubmissionStatType, pageable: Pageable): Page<DocSubmission>
+
+    @Query("{ 'accNo': '?0' }")
+    fun getAllSubmissionsByAccNo(accNo: String): List<DocSubmission>
 }
 
 interface SubmissionRequestRepository : MongoRepository<SubmissionRequest, String> {
@@ -54,4 +59,6 @@ interface SubmissionDraftRepository : MongoRepository<DocSubmissionDraft, String
 
 interface FileListDocFileRepository : MongoRepository<FileListDocFile, ObjectId> {
     fun getById(id: ObjectId): FileListDocFile
+
+    fun findAllBySubmissionId(submissionId: ObjectId): List<FileListDocFile>
 }
