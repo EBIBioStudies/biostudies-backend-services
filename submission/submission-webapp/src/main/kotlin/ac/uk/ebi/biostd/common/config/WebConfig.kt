@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.common.config
 
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
+import ac.uk.ebi.biostd.files.web.common.FileListPathDescriptorResolver
 import ac.uk.ebi.biostd.files.web.common.GroupPathDescriptorResolver
 import ac.uk.ebi.biostd.files.web.common.UserPathDescriptorResolver
 import ac.uk.ebi.biostd.integration.SerializationService
@@ -60,5 +61,6 @@ internal class WebConfig(
         argumentResolvers.add(GroupPathDescriptorResolver())
         argumentResolvers.add(submitterResolver())
         argumentResolvers.add(OnBehalfUserRequestResolver())
+        argumentResolvers.add(FileListPathDescriptorResolver())
     }
 }

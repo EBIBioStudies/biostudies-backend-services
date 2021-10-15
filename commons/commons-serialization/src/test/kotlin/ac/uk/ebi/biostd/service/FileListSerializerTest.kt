@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.service
 
-import ac.uk.ebi.biostd.exception.InvalidExtensionException
+import ac.uk.ebi.biostd.exception.InvalidFileListException
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.JSON
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.TSV
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.XML
@@ -116,9 +116,11 @@ class FileListSerializerTest(private val tempFolder: TemporaryFolder) {
 
         every { readAsPageTab(fileList) } returns "test file list"
         every { source.getFile(fileListName) } returns NfsBioFile(fileList)
-        val exception = assertThrows<InvalidExtensionException> { testInstance.deserializeFileList(submission, source) }
+        val exception = assertThrows<InvalidFileListException> { testInstance.deserializeFileList(submission, source) }
 
-        assertThat(exception.message).isEqualTo("Unsupported page tab format FileList.txt")
+        assertThat(exception.message).isEqualTo(
+            "Problem processing file list 'FileList.txt': Unsupported page tab format FileList.txt"
+        )
     }
 
     private fun testSubmission(fileList: String) = submission("S-TEST123") {

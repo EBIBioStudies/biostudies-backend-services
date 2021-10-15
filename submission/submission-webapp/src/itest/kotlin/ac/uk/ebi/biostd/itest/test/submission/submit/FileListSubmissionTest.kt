@@ -181,7 +181,7 @@ internal class FileListSubmissionTest(private val tempFolder: TemporaryFolder) :
             val createdSub = submissionRepository.getExtByAccNo(accNo)
             val subFolder = "$submissionPath/${createdSub.relPath}"
 
-            if (mongoMode)
+            if (mongoMode) {
                 if (enableFire) {
                     val submissionTabFiles = createdSub.pageTabFiles as List<FireFile>
                     assertThat(submissionTabFiles).hasSize(3)
@@ -199,6 +199,7 @@ internal class FileListSubmissionTest(private val tempFolder: TemporaryFolder) :
                     assertThat(fileListTabFiles).hasSize(3)
                     assertThat(fileListTabFiles).isEqualTo(fileListNfsTabFiles(subFolder))
                 }
+            }
 
             assertThat(Paths.get("$subFolder/Files/$testFile")).exists()
             assertThat(Paths.get("$subFolder/Files/FileList.xml")).exists()

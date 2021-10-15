@@ -46,7 +46,7 @@ class ExtSectionDeserializerTest(private val tempFolder: TemporaryFolder) {
             "fileList" to jsonObj {
                 "fileName" to "file-list.json"
                 "path" to "file-list.json"
-                "filesUrl" to "submissions/extended/S-BSST1/fileList/file-list/files"
+                "filesUrl" to "submissions/extended/S-BSST1/referencedFiles/file-list"
             }
             "attributes" to jsonArray(
                 jsonObj {
@@ -124,7 +124,7 @@ class ExtSectionDeserializerTest(private val tempFolder: TemporaryFolder) {
         val extFileList = extSection.fileList
         assertNotNull(extFileList)
         assertThat(extFileList.fileName).isEqualTo("file-list.json")
-        assertThat(extFileList.filesUrl).isEqualTo("submissions/extended/S-BSST1/fileList/file-list/files")
+        assertThat(extFileList.filesUrl).isEqualTo("submissions/extended/S-BSST1/referencedFiles/file-list")
         assertThat(extFileList.files).isEmpty()
 
         val innerSections = extSection.sections

@@ -40,10 +40,10 @@ class NfsPageTabServiceTest(
 
     @Test
     fun `generate page tab`() {
-        val subWithoutTabFiles = basicExtSubmission.copy(section = sectionWithoutTabFiles())
-        setUpGeneratePageTab(subWithoutTabFiles)
+        val submission = basicExtSubmission.copy(section = sectionWithoutTabFiles())
+        setUpGeneratePageTab(submission)
 
-        val result = testInstance.generatePageTab(subWithoutTabFiles)
+        val result = testInstance.generatePageTab(submission)
 
         assertSubmissionTabFiles(result)
         assertSectionTabFiles(result.section)
@@ -117,7 +117,7 @@ class NfsPageTabServiceTest(
         assertThat(tabFiles.first()).isEqualTo(
             NfsFile(
                 FILE_LIST_JSON1,
-                FILE_LIST_JSON1,
+                "data/$FILE_LIST_JSON1",
                 "Files/data/$FILE_LIST_JSON1",
                 "$subFolder/Files/data/$FILE_LIST_JSON1",
                 subFolder.resolve("Files/data/$FILE_LIST_JSON1")
@@ -126,7 +126,7 @@ class NfsPageTabServiceTest(
         assertThat(tabFiles.second()).isEqualTo(
             NfsFile(
                 FILE_LIST_XML1,
-                FILE_LIST_XML1,
+                "data/$FILE_LIST_XML1",
                 "Files/data/$FILE_LIST_XML1",
                 "$subFolder/Files/data/$FILE_LIST_XML1",
                 subFolder.resolve("Files/data/$FILE_LIST_XML1")
@@ -135,7 +135,7 @@ class NfsPageTabServiceTest(
         assertThat(tabFiles.third()).isEqualTo(
             NfsFile(
                 FILE_LIST_TSV1,
-                FILE_LIST_TSV1,
+                "data/$FILE_LIST_TSV1",
                 "Files/data/$FILE_LIST_TSV1",
                 "$subFolder/Files/data/$FILE_LIST_TSV1",
                 subFolder.resolve("Files/data/$FILE_LIST_TSV1")
@@ -148,7 +148,7 @@ class NfsPageTabServiceTest(
         assertThat(tabFiles.first()).isEqualTo(
             NfsFile(
                 FILE_LIST_JSON2,
-                FILE_LIST_JSON2,
+                "data/$FILE_LIST_JSON2",
                 "Files/data/$FILE_LIST_JSON2",
                 "$subFolder/Files/data/$FILE_LIST_JSON2",
                 subFolder.resolve("Files/data/$FILE_LIST_JSON2")
@@ -157,7 +157,7 @@ class NfsPageTabServiceTest(
         assertThat(tabFiles.second()).isEqualTo(
             NfsFile(
                 FILE_LIST_XML2,
-                FILE_LIST_XML2,
+                "data/$FILE_LIST_XML2",
                 "Files/data/$FILE_LIST_XML2",
                 "$subFolder/Files/data/$FILE_LIST_XML2",
                 subFolder.resolve("Files/data/$FILE_LIST_XML2")
@@ -166,7 +166,7 @@ class NfsPageTabServiceTest(
         assertThat(tabFiles.third()).isEqualTo(
             NfsFile(
                 FILE_LIST_TSV2,
-                FILE_LIST_TSV2,
+                "data/$FILE_LIST_TSV2",
                 "Files/data/$FILE_LIST_TSV2",
                 "$subFolder/Files/data/$FILE_LIST_TSV2",
                 subFolder.resolve("Files/data/$FILE_LIST_TSV2")
