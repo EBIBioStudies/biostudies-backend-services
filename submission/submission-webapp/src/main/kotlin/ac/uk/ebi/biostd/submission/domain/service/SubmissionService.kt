@@ -40,7 +40,7 @@ class SubmissionService(
 ) {
     fun submit(request: SubmissionRequest): ExtSubmission {
         val accNo = request.accNo
-        logger.info { "$accNo ${request.submitter.email} Received submit request for submission $accNo" }
+        logger.info { "$accNo ${request.owner} Received submit request for submission $accNo" }
 
         val extSubmission = submissionSubmitter.submit(request)
         eventsPublisherService.submissionSubmitted(extSubmission)
@@ -50,13 +50,13 @@ class SubmissionService(
 
     fun submitAsync(request: SubmissionRequest) {
         val accNo = request.accNo
-        logger.info { "$accNo ${request.submitter.email} Received async submit request for submission $accNo" }
+        logger.info { "$accNo ${request.owner} Received async submit request for submission $accNo" }
 
         val (extSub, mode, draftKey) = submissionSubmitter.submitAsync(request)
         myRabbitTemplate.convertAndSend(
             BIOSTUDIES_EXCHANGE,
             SUBMISSIONS_REQUEST_ROUTING_KEY,
-            SubmissionRequestMessage(extSub.accNo, extSub.version, mode, extSub.submitter, draftKey)
+            SubmissionRequestMessage(extSub.accNo, extSub.version, mode, extSub.owner, draftKey)
         )
     }
 

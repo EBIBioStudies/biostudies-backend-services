@@ -55,7 +55,7 @@ class SubmissionServiceTest(
         @MockK submissionRequest: SubmissionRequest
     ) {
         every { submissionRequest.accNo } returns "S-BSST1"
-        every { extSubmission.submitter } returns "test@ebi.ac.uk"
+        every { extSubmission.owner } returns "test@ebi.ac.uk"
         every { submissionSubmitter.submit(submissionRequest) } returns extSubmission
         every { eventsPublisherService.submissionSubmitted(extSubmission) } answers { nothing }
 
@@ -75,7 +75,7 @@ class SubmissionServiceTest(
         every { extSubmission.version } returns 1
         every { extSubmission.accNo } returns "S-BSST1"
         every { submissionRequest.accNo } returns "S-BSST1"
-        every { extSubmission.submitter } returns "test@ebi.ac.uk"
+        every { extSubmission.owner } returns "test@ebi.ac.uk"
         every { submissionSubmitter.submitAsync(submissionRequest) } returns saveSubmissionRequest
         every {
             rabbitTemplate.convertAndSend(

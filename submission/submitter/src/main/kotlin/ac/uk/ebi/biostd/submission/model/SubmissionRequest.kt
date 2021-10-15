@@ -16,4 +16,6 @@ data class SubmissionRequest(
     val draftKey: String? = null
 ) {
     val accNo: String = submission.accNo.ifBlank { "PENDING_ACC_NO" }
+
+    val owner: String = onBehalfUser?.email ?: submitter.email
 }

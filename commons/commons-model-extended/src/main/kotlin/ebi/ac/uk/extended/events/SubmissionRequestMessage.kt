@@ -14,7 +14,7 @@ data class SubmissionRequestMessage(
     val fileMode: FileMode,
 
     @JsonProperty("owner")
-    val submitter: String,
+    val owner: String,
 
     @JsonProperty("draftKey")
     val draftKey: String?
