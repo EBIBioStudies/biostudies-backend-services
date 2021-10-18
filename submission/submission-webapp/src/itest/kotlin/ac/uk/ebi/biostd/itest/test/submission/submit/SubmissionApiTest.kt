@@ -27,6 +27,7 @@ import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.model.extensions.rootPath
 import ebi.ac.uk.model.extensions.title
+import ebi.ac.uk.test.clean
 import ebi.ac.uk.test.createFile
 import ebi.ac.uk.util.collections.ifRight
 import io.github.glytching.junit.extension.folder.TemporaryFolder
@@ -34,6 +35,7 @@ import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -73,6 +75,11 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
 
             sequenceRepository.save(Sequence("S-BSST"))
             tagsRefRepository.save(DbTag(classifier = "classifier", name = "tag"))
+        }
+
+        @BeforeEach
+        fun beforeEach() {
+            tempFolder.clean()
         }
 
         @Test
@@ -391,10 +398,10 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
             webClient.uploadFiles(listOf(tempFolder.createFile("fileFileList.pdf")), "a")
 
             val response = webClient.submitSingle(submission(), TSV)
-
-            assertThat(response).isSuccessful()
             val accNo = response.body.accNo
+
             val submitted = submissionRepository.getExtByAccNo(accNo)
+            assertThat(response).isSuccessful()
             assertThat(submitted.version).isEqualTo(1)
             assertThat(File("$submissionPath/${submitted.relPath}/Files/file section.doc")).exists()
             assertThat(File("$submissionPath/${submitted.relPath}/Files/fileSubSection.txt")).exists()
@@ -402,13 +409,12 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
             assertThat(File("$submissionPath/${submitted.relPath}/Files/a/fileFileList.pdf")).exists()
 
             val reSubmitResponse = webClient.submitSingle(submission(accNo), TSV)
-
             assertThat(reSubmitResponse).isSuccessful()
             val resubmitted = submissionRepository.getExtByAccNo(accNo)
             assertThat(resubmitted.version).isEqualTo(2)
             assertThat(File("$submissionPath/${resubmitted.relPath}/Files/file section.doc")).exists()
             assertThat(File("$submissionPath/${resubmitted.relPath}/Files/fileSubSection.txt")).exists()
-            assertThat(File("$submissionPath/${resubmitted.relPath}/Files/fileSubSection.txt")).hasContent("newContent")
+            assertThat(File("$submissionPath/${resubmitted.relPath}/Files/fileSubSection.txt")).hasContent("content")
             assertThat(File("$submissionPath/${resubmitted.relPath}/Files/a/fileFileList.pdf")).exists()
         }
 
