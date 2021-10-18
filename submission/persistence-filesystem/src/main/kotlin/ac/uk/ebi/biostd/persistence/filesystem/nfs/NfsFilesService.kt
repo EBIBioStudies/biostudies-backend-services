@@ -29,12 +29,12 @@ class NfsFilesService(
 ) : FilesService {
     override fun persistSubmissionFiles(request: FilePersistenceRequest): ExtSubmission {
         val (sub, mode, _) = request
-        logger.info { "${sub.accNo} ${sub.submitter} Processing files of submission ${sub.accNo} over NFS" }
+        logger.info { "${sub.accNo} ${sub.owner} Processing files of submission ${sub.accNo} over NFS" }
 
         val submissionFolder = getOrCreateSubmissionFolder(sub, sub.permissions().folder)
 
         val processed = processAttachedFiles(mode, sub, submissionFolder, sub.permissions())
-        logger.info { "${sub.accNo} ${sub.submitter} Finished processing files of submission ${sub.accNo} over NFS" }
+        logger.info { "${sub.accNo} ${sub.owner} Finished processing files of submission ${sub.accNo} over NFS" }
 
         return processed
     }
@@ -45,12 +45,12 @@ class NfsFilesService(
         subFolder: File,
         permissions: Permissions
     ): ExtSubmission {
-        logger.info { "${sub.accNo} ${sub.submitter} Processing files of submission ${sub.accNo} in $mode" }
+        logger.info { "${sub.accNo} ${sub.owner} Processing files of submission ${sub.accNo} in $mode" }
         val newSubTempPath = createTempFolder(subFolder, sub.accNo)
 
         val config = NfsFileProcessingConfig(
             sub.accNo,
-            sub.submitter,
+            sub.owner,
             mode,
             subFolder = subFolder.resolve(FILES_PATH),
             targetFolder = newSubTempPath.resolve(FILES_PATH),
@@ -59,7 +59,7 @@ class NfsFilesService(
 
         val processed = processFiles(sub) { config.processFile(it) }
         moveFile(newSubTempPath, subFolder, permissions)
-        logger.info { "${sub.accNo} ${sub.submitter} Finished processing files of submission ${sub.accNo} in $mode" }
+        logger.info { "${sub.accNo} ${sub.owner} Finished processing files of submission ${sub.accNo} in $mode" }
 
         return processed
     }

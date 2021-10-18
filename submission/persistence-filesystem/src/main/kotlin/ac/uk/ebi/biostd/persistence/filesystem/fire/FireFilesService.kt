@@ -18,12 +18,12 @@ private val logger = KotlinLogging.logger {}
 class FireFilesService(private val fireWebClient: FireWebClient) : FilesService {
     override fun persistSubmissionFiles(request: FilePersistenceRequest): ExtSubmission {
         val (sub, _, previousFiles) = request
-        logger.info { "${sub.accNo} ${sub.submitter} Persisting files of submission ${sub.accNo} on FIRE" }
+        logger.info { "${sub.accNo} ${sub.owner} Persisting files of submission ${sub.accNo} on FIRE" }
 
-        val config = FireFileProcessingConfig(sub.accNo, sub.submitter, sub.relPath, fireWebClient, previousFiles)
+        val config = FireFileProcessingConfig(sub.accNo, sub.owner, sub.relPath, fireWebClient, previousFiles)
         val processed = processFiles(sub) { config.processFile(request.submission, it) }
 
-        logger.info { "${sub.accNo} ${sub.submitter} Finished persisting files of submission ${sub.accNo} on FIRE" }
+        logger.info { "${sub.accNo} ${sub.owner} Finished persisting files of submission ${sub.accNo} on FIRE" }
 
         return processed
     }
@@ -31,7 +31,7 @@ class FireFilesService(private val fireWebClient: FireWebClient) : FilesService 
 
 data class FireFileProcessingConfig(
     val accNo: String,
-    val submitter: String,
+    val owner: String,
     val relPath: String,
     val fireWebClient: FireWebClient,
     val previousFiles: Map<Md5, ExtFile>
@@ -43,7 +43,7 @@ fun FireFileProcessingConfig.processFile(
 ): ExtFile = if (file is NfsFile) processNfsFile(sub.relPath, file) else file
 
 fun FireFileProcessingConfig.processNfsFile(relPath: String, nfsFile: NfsFile): ExtFile {
-    logger.info { "$accNo $submitter Persisting file ${nfsFile.fileName} with size ${nfsFile.file.size()} on FIRE" }
+    logger.info { "$accNo $owner Persisting file ${nfsFile.fileName} with size ${nfsFile.file.size()} on FIRE" }
 
     val fileFire = previousFiles[nfsFile.md5] as FireFile?
 

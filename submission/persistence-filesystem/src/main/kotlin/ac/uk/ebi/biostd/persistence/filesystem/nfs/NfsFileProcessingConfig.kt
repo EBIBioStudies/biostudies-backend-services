@@ -14,7 +14,7 @@ private val logger = KotlinLogging.logger {}
 
 data class NfsFileProcessingConfig(
     val accNo: String,
-    val submitter: String,
+    val owner: String,
     val mode: FileMode,
     val subFolder: File,
     val targetFolder: File,
@@ -26,7 +26,7 @@ fun NfsFileProcessingConfig.nfsCopy(extFile: NfsFile): NfsFile {
     val target = targetFolder.resolve(extFile.fileName)
     val subFile = subFolder.resolve(extFile.fileName)
 
-    logger.info { "$accNo $submitter Copying file $file with size ${file.size()} into ${target.absolutePath}" }
+    logger.info { "$accNo $owner Copying file $file with size ${file.size()} into ${target.absolutePath}" }
 
     when {
         target.exists().not() && subFile.exists() && subFile.md5() == extFile.md5 ->
@@ -41,7 +41,7 @@ fun NfsFileProcessingConfig.nfsMove(extFile: NfsFile): NfsFile {
     val file = extFile.file
     val target = targetFolder.resolve(extFile.fileName)
 
-    logger.info { "$accNo $submitter Moving file $file with size ${file.size()} into ${target.absolutePath}" }
+    logger.info { "$accNo $owner Moving file $file with size ${file.size()} into ${target.absolutePath}" }
 
     if (target.exists().not()) moveFile(file, target, permissions)
     return extFile.copy(file = subFolder.resolve(extFile.fileName))

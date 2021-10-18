@@ -102,7 +102,7 @@ internal class NfsFtpServiceTest(
     private fun setUpExtSubmission() {
         every { extSubmission.accNo } returns "B-SST1"
         every { extSubmission.relPath } returns REL_PATH
-        every { extSubmission.submitter } returns "user@mail.org"
+        every { extSubmission.owner } returns "user@mail.org"
     }
 
     private fun submissionFolder(): File {

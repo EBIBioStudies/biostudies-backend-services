@@ -19,14 +19,14 @@ class NfsFtpService(
 ) : FtpService {
     override fun processSubmissionFiles(submission: ExtSubmission) {
         val accNo = submission.accNo
-        val submitter = submission.submitter
+        val owner = submission.owner
 
-        logger.info { "$accNo $submitter Publishing files of submission $accNo over NFS" }
+        logger.info { "$accNo $owner Publishing files of submission $accNo over NFS" }
 
         cleanFtpFolder(submission.relPath)
         if (submission.released) generateLinks(submission.relPath)
 
-        logger.info { "$accNo $submitter Finished publishing files of submission $accNo over NFS" }
+        logger.info { "$accNo $owner Finished publishing files of submission $accNo over NFS" }
     }
 
     override fun generateFtpLinks(accNo: String) {
