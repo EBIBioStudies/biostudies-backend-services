@@ -4,8 +4,6 @@ import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
-import ac.uk.ebi.biostd.persistence.doc.model.FileSystem
-import ac.uk.ebi.biostd.persistence.doc.model.FileSystem.FIRE
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequest
 import org.bson.types.ObjectId
 import org.springframework.data.domain.Page

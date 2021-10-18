@@ -30,7 +30,6 @@ import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.NFS_FULL_PATH
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.NFS_REL_PATH
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.RELEASE_TIME
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_FILE_LIST_FILEPATH
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_FILE_LIST_FILE_NAME
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_SECTION_LINK_URL
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_SECTION_TABLE_LINK_URL
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_SEC_ACC_NO
@@ -72,7 +71,6 @@ import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUBMISSION_SUBMITTER
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUBMISSION_TITLE
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUBMISSION_VERSION
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUB_FILE_LIST_FILEPATH
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUB_FILE_LIST_FILE_NAME
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUB_SEC_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUB_SEC_EXT_FILE_LIST_FILENAME
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUB_SEC_TABLE_ACC_NO3

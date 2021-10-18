@@ -26,31 +26,12 @@ fun TemporaryFolder.createOrReplaceFile(fileName: String): File {
 /**
  * Creates a file with the given name and content or replaces it if already exist.
  */
-fun TemporaryFolder.createOrReplaceFile(fileName: String, content: String): File {
-    val file = root.resolve(fileName)
-    if (file.exists()) file.delete()
-    return createFile(fileName, content)
-}
-
-
-/**
- * Creates a file with the given name and content or replaces it if already exist.
- */
-fun TemporaryFolder.deleteFile(fileName: String): Unit {
+fun TemporaryFolder.deleteFile(fileName: String) {
     val file = root.resolve(fileName)
     file.delete()
 }
 
 /**
- * Creates a directory with the given name or replaces it if already exist.
- */
-fun TemporaryFolder.createOrReplaceDirectory(directoryName: String): File {
-    val file = root.resolve(directoryName)
-    if (file.exists()) FileUtils.deleteDirectory(file)
-    return createDirectory(directoryName)
-}
-
-/**
- * Delete all files in the temporally folder.
+ * Delete all files in the temporal folder.
  */
 fun TemporaryFolder.clean(): Unit = FileUtils.cleanDirectory(root)
