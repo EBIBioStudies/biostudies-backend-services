@@ -60,12 +60,12 @@ class FirePageTabServiceTest(
                 fireFolder.resolve("S-TEST123.pagetab.tsv")
             )
         every { serializationService.generateFileListPageTab(submission, fireFolder) } returns mapOf(
-            "data/file-list2" to TabFiles(
+            "data/file-list2" to PageTabFiles(
                 fireFolder.resolve("data/file-list2.json"),
                 fireFolder.resolve("data/file-list2.xml"),
                 fireFolder.resolve("data/file-list2.pagetab.tsv")
             ),
-            "data/file-list1" to TabFiles(
+            "data/file-list1" to PageTabFiles(
                 fireFolder.resolve("data/file-list1.json"),
                 fireFolder.resolve("data/file-list1.xml"),
                 fireFolder.resolve("data/file-list1.pagetab.tsv")

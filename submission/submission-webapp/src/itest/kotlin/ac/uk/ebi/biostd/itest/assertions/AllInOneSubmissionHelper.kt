@@ -68,7 +68,7 @@ internal class AllInOneSubmissionHelper(
 
         val submissionTabFiles = submission.pageTabFiles as List<FireFile>
         assertThat(submissionTabFiles).hasSize(3)
-        assertThat(submissionTabFiles).isEqualTo(submissionFirePagetabFiles(accNo, subFolder))
+        assertThat(submissionTabFiles).isEqualTo(submissionFireTabFiles(accNo, subFolder))
 
         val fileListTabFiles = submission.section.fileList!!.pageTabFiles as List<FireFile>
         assertThat(fileListTabFiles).hasSize(3)

@@ -33,13 +33,13 @@ class FirePageTabService(
             null -> Section(false, sec)
             else -> {
                 val name = lst.fileName
-                val tabFiles = tab.getValue(name)
-                Section(true, sec.copy(fileList = lst.copy(pageTabFiles = fileListFiles(tabFiles, path, name))))
+                val files = pagetabFiles.getValue(name)
+                Section(true, sec.copy(fileList = lst.copy(pageTabFiles = fileListFiles(files, path, name))))
             }
         }
     }
 
-    private fun fileListFiles(pageTab: TabFiles, subFolder: String, fileListName: String) = listOf(
+    private fun fileListFiles(pageTab: PageTabFiles, subFolder: String, fileListName: String) = listOf(
         saveFileListFile(pageTab.json, subFolder, "$fileListName.json"),
         saveFileListFile(pageTab.xml, subFolder, "$fileListName.xml"),
         saveFileListFile(pageTab.tsv, subFolder, "$fileListName.pagetab.tsv")
