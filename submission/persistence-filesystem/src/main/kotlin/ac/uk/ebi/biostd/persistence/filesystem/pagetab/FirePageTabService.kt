@@ -48,15 +48,7 @@ class FirePageTabService(
     private fun saveFileListFile(file: File, subFolder: String, filePath: String): FireFile {
         val relPath = "Files/$filePath"
         val db = fireWebClient.save(file, file.md5(), "$subFolder/$relPath")
-        return FireFile(
-            fileName = file.name,
-            filePath = filePath,
-            relPath = relPath,
-            fireId = db.fireOid,
-            md5 = db.objectMd5,
-            size = db.objectSize.toLong(),
-            attributes = listOf()
-        )
+        return FireFile(file.name, filePath, relPath, db.fireOid, db.objectMd5, db.objectSize.toLong(), listOf())
     }
 
     private fun subExtFiles(pageTab: PageTabFiles, subFolder: String): List<ExtFile> = listOf(
