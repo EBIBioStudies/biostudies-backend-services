@@ -16,11 +16,17 @@ class FileSystemService(
 ) {
     fun persistSubmissionFiles(request: FilePersistenceRequest): ExtSubmission {
         val (submission, mode, _) = request
-        logger.info { "processing submission ${submission.accNo} files in mode $mode" }
+        val accNo = submission.accNo
+        val owner = submission.owner
+
+        logger.info { "$accNo $owner Processing files of submission $accNo in mode $mode" }
 
         val processedSubmission = filesService.persistSubmissionFiles(request)
         val finalSub = pageTabService.generatePageTab(processedSubmission)
         ftpService.processSubmissionFiles(finalSub)
+
+        logger.info { "$accNo $owner Finished processing files of submission $accNo in mode $mode" }
+
         return finalSub
     }
 }

@@ -68,7 +68,7 @@ class ExtSubmissionService(
         rabbitTemplate.convertAndSend(
             BIOSTUDIES_EXCHANGE,
             SUBMISSIONS_REQUEST_ROUTING_KEY,
-            SubmissionRequestMessage(newVersion.accNo, newVersion.version, COPY, null)
+            SubmissionRequestMessage(newVersion.accNo, newVersion.version, COPY, newVersion.owner, null)
         )
     }
 
