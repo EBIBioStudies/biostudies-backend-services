@@ -28,36 +28,39 @@ class NfsFilesService(
     private val folderResolver: SubmissionFolderResolver
 ) : FilesService {
     override fun persistSubmissionFiles(request: FilePersistenceRequest): ExtSubmission {
-        val (submission, mode, _) = request
-        logger.info { "Processing files of submission ${submission.accNo} over NFS" }
+        val (sub, mode, _) = request
+        logger.info { "${sub.accNo} ${sub.owner} Processing files of submission ${sub.accNo} over NFS" }
 
-        val submissionFolder = getOrCreateSubmissionFolder(submission, submission.permissions().folder)
+        val submissionFolder = getOrCreateSubmissionFolder(sub, sub.permissions().folder)
 
-        val processed = processAttachedFiles(mode, submission, submissionFolder, submission.permissions())
-        logger.info { "Finished processing files of submission ${submission.accNo} over NFS" }
+        val processed = processAttachedFiles(mode, sub, submissionFolder, sub.permissions())
+        logger.info { "${sub.accNo} ${sub.owner} Finished processing files of submission ${sub.accNo} over NFS" }
 
         return processed
     }
 
     private fun processAttachedFiles(
         mode: FileMode,
-        submission: ExtSubmission,
+        sub: ExtSubmission,
         subFolder: File,
         permissions: Permissions
     ): ExtSubmission {
-        logger.info { "processing submission ${submission.accNo} files in $mode" }
-        val newSubTempPath = createTempFolder(subFolder, submission.accNo)
+        logger.info { "${sub.accNo} ${sub.owner} Processing files of submission ${sub.accNo} in $mode" }
+        val newSubTempPath = createTempFolder(subFolder, sub.accNo)
 
         val config = NfsFileProcessingConfig(
+            sub.accNo,
+            sub.owner,
             mode,
             subFolder = subFolder.resolve(FILES_PATH),
             targetFolder = newSubTempPath.resolve(FILES_PATH),
             permissions = permissions
         )
 
-        val processed = processFiles(submission) { config.processFile(it) }
+        val processed = processFiles(sub) { config.processFile(it) }
         moveFile(newSubTempPath, subFolder, permissions)
-        logger.info { "Finishing processing submission ${submission.accNo} files in $mode" }
+        logger.info { "${sub.accNo} ${sub.owner} Finished processing files of submission ${sub.accNo} in $mode" }
+
         return processed
     }
 

@@ -38,7 +38,8 @@ class NfsFileProcessingConfigTest(private val tempFolder: TemporaryFolder) {
 
     @Test
     fun copy() {
-        val config = NfsFileProcessingConfig(COPY, subFolder, targetFolder, Permissions(RW_R__R__, RWXR_XR_X))
+        val permissions = Permissions(RW_R__R__, RWXR_XR_X)
+        val config = NfsFileProcessingConfig("S-BSST1", "user@mail.org", COPY, subFolder, targetFolder, permissions)
 
         val result = config.nfsCopy(extFile)
 
@@ -50,7 +51,8 @@ class NfsFileProcessingConfigTest(private val tempFolder: TemporaryFolder) {
     @Test
     fun `copy when exists`() {
         file.copyTo(subFolder.resolve(file.name))
-        val config = NfsFileProcessingConfig(COPY, subFolder, targetFolder, Permissions(RW_R__R__, RWXR_XR_X))
+        val permissions = Permissions(RW_R__R__, RWXR_XR_X)
+        val config = NfsFileProcessingConfig("S-BSST1", "user@mail.org", COPY, subFolder, targetFolder, permissions)
 
         val result = config.nfsCopy(extFile)
 
@@ -62,7 +64,8 @@ class NfsFileProcessingConfigTest(private val tempFolder: TemporaryFolder) {
 
     @Test
     fun move() {
-        val config = NfsFileProcessingConfig(COPY, subFolder, targetFolder, Permissions(RW_R__R__, RWXR_XR_X))
+        val permissions = Permissions(RW_R__R__, RWXR_XR_X)
+        val config = NfsFileProcessingConfig("S-BSST1", "user@mail.org", COPY, subFolder, targetFolder, permissions)
 
         val result = config.nfsMove(extFile)
 

@@ -51,7 +51,8 @@ class SubmissionServiceTest(
         @MockK extSubmission: ExtSubmission,
         @MockK submissionRequest: SubmissionRequest
     ) {
-        every { extSubmission.submitter } returns "test@ebi.ac.uk"
+        every { submissionRequest.accNo } returns "S-BSST1"
+        every { extSubmission.owner } returns "test@ebi.ac.uk"
         every { submissionSubmitter.submit(submissionRequest) } returns extSubmission
         every { eventsPublisherService.submissionSubmitted(extSubmission) } answers { nothing }
 
@@ -70,7 +71,8 @@ class SubmissionServiceTest(
 
         every { extSubmission.version } returns 1
         every { extSubmission.accNo } returns "S-BSST1"
-        every { extSubmission.submitter } returns "test@ebi.ac.uk"
+        every { submissionRequest.accNo } returns "S-BSST1"
+        every { extSubmission.owner } returns "test@ebi.ac.uk"
         every { submissionSubmitter.submitAsync(submissionRequest) } returns saveSubmissionRequest
         every {
             rabbitTemplate.convertAndSend(
@@ -102,7 +104,7 @@ class SubmissionServiceTest(
         @MockK extSubmission: ExtSubmission
     ) {
         val saveRequestSlot = slot<SaveSubmissionRequest>()
-        val message = SubmissionRequestMessage("S-BSST1", 1, COPY, "TMP_123")
+        val message = SubmissionRequestMessage("S-BSST1", 1, COPY, "user@mail.org", "TMP_123")
 
         every { submissionQueryService.getRequest("S-BSST1", 1) } returns extSubmission
         every { eventsPublisherService.submissionSubmitted(extSubmission) } answers { nothing }
@@ -127,7 +129,7 @@ class SubmissionServiceTest(
     ) {
         val saveRequestSlot = slot<SaveSubmissionRequest>()
         val failedMessageSlot = slot<FailedSubmissionRequestMessage>()
-        val message = SubmissionRequestMessage("S-BSST1", 1, COPY, "TMP_123")
+        val message = SubmissionRequestMessage("S-BSST1", 1, COPY, "user@mail.org", "TMP_123")
 
         every { submissionQueryService.getRequest("S-BSST1", 1) } returns extSubmission
         every { eventsPublisherService.submissionFailed(capture(failedMessageSlot)) } answers { nothing }

@@ -53,7 +53,8 @@ class SubmissionSubmitter(
     private val queryService: SubmissionMetaQueryService
 ) {
     fun submit(request: SubmissionRequest): ExtSubmission {
-        logger.info { "processing request $request" }
+        logger.info { "${request.accNo} ${request.submitter.email} Processing request $request" }
+
         val submission = process(
             request.submission,
             request.submitter.asUser(),
@@ -62,19 +63,21 @@ class SubmissionSubmitter(
             request.method
         )
 
-        logger.info { "Saving submission ${submission.accNo}" }
+        logger.info { "${submission.accNo} ${submission.submitter} Saving submission ${submission.accNo}" }
         val saveRequest = SaveSubmissionRequest(submission, request.mode, request.draftKey)
 
         return submissionRequestService.saveAndProcessSubmissionRequest(saveRequest)
     }
 
     fun processRequest(request: SaveSubmissionRequest): ExtSubmission {
-        logger.info { "processing request for submission ${request.submission.accNo} " }
+        val accNo = request.submission.accNo
+        logger.info { "$accNo ${request.submission.submitter} Processing request for submission $accNo" }
+
         return submissionRequestService.processSubmission(request)
     }
 
     fun submitAsync(request: SubmissionRequest): SaveSubmissionRequest {
-        logger.info { "processing async request $request" }
+        logger.info { "${request.accNo} ${request.submitter.email} Processing async request $request" }
 
         val submission = process(
             request.submission,
@@ -84,7 +87,7 @@ class SubmissionSubmitter(
             request.method
         )
 
-        logger.info { "Saving submission request ${submission.accNo}" }
+        logger.info { "${submission.accNo} ${submission.submitter} Saving submission request ${submission.accNo}" }
         val saveRequest = SaveSubmissionRequest(submission, request.mode, request.draftKey)
         val persistedRequest = submissionRequestService.saveSubmissionRequest(saveRequest)
 
