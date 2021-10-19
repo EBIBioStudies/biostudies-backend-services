@@ -18,7 +18,7 @@ internal class MigrateCommandTest(
     private val testInstance = MigrateCommand(submissionService)
 
     @Test
-    fun whenNoTargetOwner() {
+    fun `sync no target owner`() {
         val requestSlot = slot<MigrationRequest>()
         every { submissionService.migrate(capture(requestSlot)) } answers { nothing }
 
@@ -37,11 +37,12 @@ internal class MigrateCommandTest(
 
         val request = requestSlot.captured
         assertRequest(request)
+        assertThat(request.async).isFalse
         verify(exactly = 1) { submissionService.migrate(request) }
     }
 
     @Test
-    fun whenTargetOwner() {
+    fun `async with target owner`() {
         val requestSlot = slot<MigrationRequest>()
         every { submissionService.migrate(capture(requestSlot)) } answers { nothing }
 
@@ -55,12 +56,14 @@ internal class MigrateCommandTest(
                 "-tu", "admin_user@ebi.ac.uk",
                 "-tp", "78910",
                 "-tf", "/tmp",
-                "-to", "Juan"
+                "-to", "Juan",
+                "--async"
             )
         )
 
         val request = requestSlot.captured
         assertRequest(request)
+        assertThat(request.async).isTrue
         assertThat(request.targetOwner).isEqualTo("Juan")
         verify(exactly = 1) { submissionService.migrate(request) }
     }

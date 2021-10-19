@@ -8,6 +8,7 @@ import ac.uk.ebi.biostd.persistence.common.exception.CollectionNotFoundException
 import ac.uk.ebi.biostd.persistence.exception.ExtSubmissionMappingException
 import ac.uk.ebi.biostd.persistence.exception.UserNotFoundException
 import ac.uk.ebi.biostd.submission.web.model.ExtPageRequest
+import ebi.ac.uk.extended.events.SubmissionRequestMessage
 import ebi.ac.uk.extended.model.ExtCollection
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileList
@@ -34,13 +35,17 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
+import org.springframework.amqp.rabbit.core.RabbitTemplate
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
+import uk.ac.ebi.events.config.BIOSTUDIES_EXCHANGE
+import uk.ac.ebi.events.config.SUBMISSIONS_REQUEST_ROUTING_KEY
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
 class ExtSubmissionServiceTest(
     private val tempFolder: TemporaryFolder,
+    @MockK private val rabbitTemplate: RabbitTemplate,
     @MockK private val requestService: SubmissionRequestService,
     @MockK private val submissionRepository: SubmissionQueryService,
     @MockK private val userPrivilegesService: IUserPrivilegesService,
@@ -50,6 +55,7 @@ class ExtSubmissionServiceTest(
     private val extSubmission = basicExtSubmission.copy(collections = listOf(ExtCollection("ArrayExpress")))
     private val testInstance =
         ExtSubmissionService(
+            rabbitTemplate,
             requestService,
             submissionRepository,
             userPrivilegesService,
@@ -112,13 +118,45 @@ class ExtSubmissionServiceTest(
         val saveRequest = slot<SaveSubmissionRequest>()
         every { requestService.saveAndProcessSubmissionRequest(capture(saveRequest)) } returns extSubmission
 
-        testInstance.submitExtendedSubmission("user@mail.com", extSubmission)
+        testInstance.submitExt("user@mail.com", extSubmission)
 
-        assertThat(saveRequest.captured.fileMode).isEqualTo(COPY)
-        assertThat(saveRequest.captured.submission).isEqualTo(extSubmission.copy(submitter = "user@mail.com"))
+        val request = saveRequest.captured
+        assertThat(request.fileMode).isEqualTo(COPY)
+        assertThat(request.submission).isEqualTo(extSubmission.copy(submitter = "user@mail.com"))
         verify(exactly = 1) {
             submissionRepository.existByAccNo("ArrayExpress")
             securityQueryService.existsByEmail("owner@email.org")
+            requestService.saveAndProcessSubmissionRequest(request)
+        }
+    }
+
+    @Test
+    fun `submit extended async`() {
+        val saveRequest = slot<SaveSubmissionRequest>()
+        val requestMessage = slot<SubmissionRequestMessage>()
+
+        every { requestService.saveSubmissionRequest(capture(saveRequest)) } returns extSubmission.copy(version = 2)
+        every {
+            rabbitTemplate.convertAndSend(BIOSTUDIES_EXCHANGE, SUBMISSIONS_REQUEST_ROUTING_KEY, capture(requestMessage))
+        } answers { nothing }
+
+        testInstance.submitExtAsync("user@mail.com", extSubmission)
+
+        val request = saveRequest.captured
+        assertThat(request.fileMode).isEqualTo(COPY)
+        assertThat(request.submission).isEqualTo(extSubmission.copy(submitter = "user@mail.com"))
+
+        val asyncMessage = requestMessage.captured
+        assertThat(asyncMessage.draftKey).isNull()
+        assertThat(asyncMessage.version).isEqualTo(2)
+        assertThat(asyncMessage.fileMode).isEqualTo(COPY)
+        assertThat(asyncMessage.accNo).isEqualTo(extSubmission.accNo)
+
+        verify(exactly = 1) {
+            requestService.saveSubmissionRequest(request)
+            submissionRepository.existByAccNo("ArrayExpress")
+            securityQueryService.existsByEmail("owner@email.org")
+            rabbitTemplate.convertAndSend(BIOSTUDIES_EXCHANGE, SUBMISSIONS_REQUEST_ROUTING_KEY, asyncMessage)
         }
     }
 
@@ -136,7 +174,7 @@ class ExtSubmissionServiceTest(
             extSerializationService.deserialize("referenced", ExtFileTable::class.java)
         } returns ExtFileTable(extFile)
 
-        testInstance.submitExtendedSubmission("user@mail.com", submission, listOf(fileList))
+        testInstance.submitExt("user@mail.com", submission, listOf(fileList))
 
         assertThat(saveRequest.captured.fileMode).isEqualTo(COPY)
         assertThat(saveRequest.captured.submission).isEqualToComparingFieldByField(
@@ -155,7 +193,7 @@ class ExtSubmissionServiceTest(
     @Test
     fun `submit extended with regular user`() {
         val exception = assertThrows<SecurityException> {
-            testInstance.submitExtendedSubmission("regular@mail.com", extSubmission)
+            testInstance.submitExt("regular@mail.com", extSubmission)
         }
 
         assertThat(exception.message).isEqualTo("The user 'regular@mail.com' is not allowed to perform this action")
@@ -166,7 +204,7 @@ class ExtSubmissionServiceTest(
         every { securityQueryService.existsByEmail("owner@email.org") } returns false
 
         val exception = assertThrows<UserNotFoundException> {
-            testInstance.submitExtendedSubmission("user@mail.com", extSubmission)
+            testInstance.submitExt("user@mail.com", extSubmission)
         }
 
         assertThat(exception.message).isEqualTo("The user with email 'owner@email.org' could not be found")
@@ -177,7 +215,7 @@ class ExtSubmissionServiceTest(
         every { submissionRepository.existByAccNo("ArrayExpress") } returns false
 
         val exception = assertThrows<CollectionNotFoundException> {
-            testInstance.submitExtendedSubmission("user@mail.com", extSubmission)
+            testInstance.submitExt("user@mail.com", extSubmission)
         }
 
         assertThat(exception.message).isEqualTo("The collection 'ArrayExpress' was not found")
@@ -191,7 +229,7 @@ class ExtSubmissionServiceTest(
         every { submissionRepository.existByAccNo("ArrayExpress") } returns false
         every { requestService.saveAndProcessSubmissionRequest(capture(saveRequest)) } returns collection
 
-        testInstance.submitExtendedSubmission("user@mail.com", collection)
+        testInstance.submitExt("user@mail.com", collection)
 
         assertThat(saveRequest.captured.fileMode).isEqualTo(COPY)
         assertThat(saveRequest.captured.submission).isEqualTo(collection.copy(submitter = "user@mail.com"))

@@ -8,7 +8,6 @@ import ac.uk.ebi.biostd.integration.SubFormat.XmlFormat
 import ac.uk.ebi.biostd.persistence.common.model.BasicSubmission
 import ac.uk.ebi.biostd.persistence.common.request.SaveSubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotDelete
 import ac.uk.ebi.biostd.submission.ext.getSimpleByAccNo
@@ -33,10 +32,9 @@ class SubmissionService(
     private val submissionQueryService: SubmissionQueryService,
     private val serializationService: SerializationService,
     private val userPrivilegesService: IUserPrivilegesService,
-    private val queryService: SubmissionMetaQueryService,
     private val submissionSubmitter: SubmissionSubmitter,
     private val eventsPublisherService: EventsPublisherService,
-    private val myRabbitTemplate: RabbitTemplate
+    private val rabbitTemplate: RabbitTemplate
 ) {
     fun submit(request: SubmissionRequest): ExtSubmission {
         val accNo = request.accNo
@@ -104,8 +102,6 @@ class SubmissionService(
     }
 
     fun getSubmission(accNo: String): ExtSubmission = submissionQueryService.getExtByAccNo(accNo)
-
-    fun findPreviousVersion(accNo: String): BasicSubmission? = queryService.findLatestBasicByAccNo(accNo)
 
     private fun getRequest(accNo: String, version: Int) = submissionQueryService.getRequest(accNo, version)
 }

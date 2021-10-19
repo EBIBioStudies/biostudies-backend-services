@@ -44,6 +44,7 @@ class SubmissionServiceMigrationTest(
         targetUser = "admin_user",
         targetPassword = "78910",
         targetOwner = null,
+        async = false,
         tempFolder = tempFolder.root.absolutePath
     )
 
@@ -57,33 +58,38 @@ class SubmissionServiceMigrationTest(
     }
 
     @Test
-    fun `migrate when no target Owner`() {
+    fun `migrate sync with no target Owner`() {
         val filesSlot = slot<List<File>>()
 
         every { targetClient.submitExt(extSubmission, capture(filesSlot)) } returns extSubmission
 
         testInstance.migrate(migrationRequest)
 
-        verifyMigration(extSubmission, filesSlot.captured)
+        val files = filesSlot.captured
+        verifyMigration(files)
+        verify(exactly = 1) { targetClient.submitExt(extSubmission, files) }
+        verify(exactly = 0) { targetClient.submitExtAsync(extSubmission, files) }
     }
 
     @Test
-    fun `migrate when target Owner`() {
+    fun `migrate async with target Owner`() {
         val filesSlot = slot<List<File>>()
         val migrated = extSubmission.copy(owner = "newOwner")
 
-        every { targetClient.submitExt(migrated, capture(filesSlot)) } returns extSubmission
+        every { targetClient.submitExtAsync(migrated, capture(filesSlot)) } answers { nothing }
 
-        testInstance.migrate(migrationRequest.copy(targetOwner = "newOwner"))
+        testInstance.migrate(migrationRequest.copy(targetOwner = "newOwner", async = true))
 
-        verifyMigration(migrated, filesSlot.captured)
+        val files = filesSlot.captured
+        verifyMigration(files)
+        verify(exactly = 0) { targetClient.submitExt(migrated, files) }
+        verify(exactly = 1) { targetClient.submitExtAsync(migrated, files) }
     }
 
-    private fun verifyMigration(submission: ExtSubmission, files: List<File>) {
+    private fun verifyMigration(files: List<File>) {
         assertThat(files).hasSize(1)
         assertThat(files.first().name).isEqualTo("test-file-list")
         verify(exactly = 1) { sourceClient.getExtByAccNo("S-BSST1") }
-        verify(exactly = 1) { targetClient.submitExt(submission, files) }
     }
 
     private fun extSubmissionWithFileList(): ExtSubmission {
@@ -92,7 +98,7 @@ class SubmissionServiceMigrationTest(
             fileList = ExtFileList(
                 "test-file-list",
                 listOf(NfsFile(referencedFile.name, referencedFile, emptyList())),
-                filesUrl = "/submissions/extended/S-BSST1/fileList/test-file-list/files"
+                filesUrl = "/submissions/extended/S-BSST1/referencedFiles/test-file-list"
             )
         )
 
@@ -108,7 +114,7 @@ class SubmissionServiceMigrationTest(
     private fun setUpExtSubmissionClient() {
         every { sourceClient.getExtByAccNo("S-BSST1") } returns extSubmission
         every {
-            sourceClient.getReferencedFiles("/submissions/extended/S-BSST1/fileList/test-file-list/files")
+            sourceClient.getReferencedFiles("/submissions/extended/S-BSST1/referencedFiles/test-file-list")
         } returns ExtFileTable(NfsFile(referencedFile.name, referencedFile, emptyList()))
     }
 }

@@ -52,6 +52,13 @@ class ExtSubmissionClient(
             .postForEntity<String>(EXT_SUBMISSIONS_URL, HttpEntity(getMultipartBody(extSubmission, fileLists)))
             .deserialized()
 
+    override fun submitExtAsync(extSubmission: ExtSubmission, fileLists: List<File>) {
+        restTemplate.postForEntity<String>(
+            "$EXT_SUBMISSIONS_URL/async",
+            HttpEntity(getMultipartBody(extSubmission, fileLists))
+        )
+    }
+
     private fun asUrl(extPageQuery: ExtPageQuery): String =
         UriComponentsBuilder.fromUriString(EXT_SUBMISSIONS_URL)
             .queryParam("offset", extPageQuery.offset)

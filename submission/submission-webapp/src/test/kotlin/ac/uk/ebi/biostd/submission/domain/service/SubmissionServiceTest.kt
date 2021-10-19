@@ -2,7 +2,6 @@ package ac.uk.ebi.biostd.submission.domain.service
 
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.persistence.common.request.SaveSubmissionRequest
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.submission.model.SubmissionRequest
 import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
@@ -31,7 +30,6 @@ class SubmissionServiceTest(
     @MockK private val submissionQueryService: SubmissionQueryService,
     @MockK private val serializationService: SerializationService,
     @MockK private val userPrivilegesService: IUserPrivilegesService,
-    @MockK private val queryService: SubmissionMetaQueryService,
     @MockK private val submissionSubmitter: SubmissionSubmitter,
     @MockK private val eventsPublisherService: EventsPublisherService,
     @MockK private val rabbitTemplate: RabbitTemplate
@@ -40,7 +38,6 @@ class SubmissionServiceTest(
         submissionQueryService,
         serializationService,
         userPrivilegesService,
-        queryService,
         submissionSubmitter,
         eventsPublisherService,
         rabbitTemplate
