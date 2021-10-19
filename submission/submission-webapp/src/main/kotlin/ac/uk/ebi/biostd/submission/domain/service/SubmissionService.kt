@@ -51,7 +51,7 @@ class SubmissionService(
         logger.info { "$accNo ${request.owner} Received async submit request for submission $accNo" }
 
         val (extSub, mode, draftKey) = submissionSubmitter.submitAsync(request)
-        myRabbitTemplate.convertAndSend(
+        rabbitTemplate.convertAndSend(
             BIOSTUDIES_EXCHANGE,
             SUBMISSIONS_REQUEST_ROUTING_KEY,
             SubmissionRequestMessage(extSub.accNo, extSub.version, mode, extSub.owner, draftKey)
