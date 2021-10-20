@@ -55,9 +55,9 @@ class FileProcessingConfigTest(private val tempFolder: TemporaryFolder) {
             testCopy(subFile, subFolder, currentFolder)
         }
 
-        private fun testCopy(subFile: File, subFolder: File, currentFolder: File) {
+        private fun testCopy(subFile: File, subFolder: File, current: File) {
             val extFile = NfsFile("test.txt", subFile)
-            val config = FileProcessingConfig(subFolder, currentFolder, RW_R__R__, RWXR_XR_X)
+            val config = FileProcessingConfig("S-BSST1", "user@mail.org", subFolder, current, RW_R__R__, RWXR_XR_X)
             val result = config.nfsCopy(extFile)
 
             assertThat(subFolder.resolve("test.txt").exists()).isTrue()
@@ -95,9 +95,9 @@ class FileProcessingConfigTest(private val tempFolder: TemporaryFolder) {
             testMove(testFile, subFolder, currentFolder)
         }
 
-        private fun testMove(testFile: File, subFolder: File, currentFolder: File) {
+        private fun testMove(testFile: File, subFolder: File, current: File) {
             val extFile = NfsFile("test.txt", testFile)
-            val config = FileProcessingConfig(subFolder, currentFolder, RW_R__R__, RWXR_XR_X)
+            val config = FileProcessingConfig("S-BSST1", "user@mail.org", subFolder, current, RW_R__R__, RWXR_XR_X)
             val result = config.nfsMove(extFile)
 
             assertThat(subFolder.resolve("test.txt")).exists()

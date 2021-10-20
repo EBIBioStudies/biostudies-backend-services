@@ -20,15 +20,16 @@ class PageTabService(private val serializationService: SerializationService) {
     fun generatePageTab(request: PageTabRequest) {
         val (submission, submissionFolder, filePermissions, folderPermissions) = request
         val accNo = submission.accNo
+        val owner = submission.owner
         val filesFolder = submissionFolder.resolve(FILES_PATH)
-        logger.info { "generating submission $accNo pagetab files" }
+        logger.info { "$accNo $owner Generating page tab files for submission $accNo" }
 
         pageTab(submission.toSimpleSubmission(), submissionFolder, accNo, filePermissions, folderPermissions)
         submission.allFileList.forEach {
             pageTab(it.toFilesTable(), filesFolder, it.fileName, filePermissions, folderPermissions)
         }
 
-        logger.info { "page tab successfully generated for submission $accNo" }
+        logger.info { "$accNo $owner Finished generating page tab files for submission $accNo" }
     }
 
     private fun <T> pageTab(
