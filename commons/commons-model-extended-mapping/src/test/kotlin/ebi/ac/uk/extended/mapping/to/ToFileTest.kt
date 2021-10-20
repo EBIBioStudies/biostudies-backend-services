@@ -26,7 +26,7 @@ internal class ToFileTest(
 ) {
     private var systemFile = tempFolder.createFile("my-file", "test content")
     private val extFile =
-        NfsFile(systemFile.name, "filePath", "relPath", systemFile.absolutePath, systemFile, listOf(extAttribute))
+        NfsFile("filePath/my-file", "relPath", systemFile.absolutePath, systemFile, listOf(extAttribute))
 
     @BeforeEach
     fun beforeEach() {
@@ -41,13 +41,13 @@ internal class ToFileTest(
 
     @Test
     fun `from fire file`() {
-        val fireFile = FireFile("fileName", "filePath", "relPath", "fireId", "md5", 12, listOf(extAttribute))
+        val fireFile = FireFile("filePath/my-file", "relPath", "fireId", "md5", 12, listOf(extAttribute))
         assertFile(fireFile.toFile())
     }
 
     @Test
     fun `from fire directory`() {
-        val fireDirectory = FireDirectory("fileName", "filePath", "relPath", "md5", 12, listOf(extAttribute))
+        val fireDirectory = FireDirectory("filePath/my-file", "relPath", "md5", 12, listOf(extAttribute))
         assertFile(fireDirectory.toFile())
     }
 

@@ -51,7 +51,6 @@ fun FireFileProcessingConfig.processNfsFile(relPath: String, nfsFile: NfsFile): 
 
 private fun reusePreviousFile(fireFile: FireFile, nfsFile: NfsFile) =
     FireFile(
-        nfsFile.file.name,
         nfsFile.filePath,
         nfsFile.relPath,
         fireFile.fireId,
@@ -61,13 +60,13 @@ private fun reusePreviousFile(fireFile: FireFile, nfsFile: NfsFile) =
     )
 
 private fun FireFileProcessingConfig.saveFile(subRelPath: String, nfsFile: NfsFile): ExtFile {
-    val (name, filePath, relPath, _, file, attributes) = nfsFile
+    val (filePath, relPath, _, file, attributes) = nfsFile
 
     return when {
-        nfsFile.file.isDirectory -> FireDirectory(name, filePath, relPath, file.md5(), file.size(), attributes)
+        nfsFile.file.isDirectory -> FireDirectory(filePath, relPath, file.md5(), file.size(), attributes)
         else -> {
             val store = fireWebClient.save(nfsFile.file, nfsFile.md5, "$subRelPath/${nfsFile.relPath}")
-            FireFile(name, filePath, relPath, store.fireOid, store.objectMd5, store.objectSize.toLong(), attributes)
+            FireFile(filePath, relPath, store.fireOid, store.objectMd5, store.objectSize.toLong(), attributes)
         }
     }
 }

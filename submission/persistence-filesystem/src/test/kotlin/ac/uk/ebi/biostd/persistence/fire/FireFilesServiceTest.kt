@@ -49,7 +49,7 @@ class FireFilesServiceTest(
 
     @Test
     fun `process submission with non existing file`() {
-        val nfsFile = NfsFile("test.txt", "folder/test.txt", "Files/folder/test.txt", "fullPath", file, listOf(attribute))
+        val nfsFile = NfsFile("folder/test.txt", "Files/folder/test.txt", "fullPath", file, listOf(attribute))
         val section = ExtSection(type = "Study", files = listOf(left(nfsFile)))
         val submission = basicExtSubmission.copy(section = section)
 
@@ -61,8 +61,8 @@ class FireFilesServiceTest(
 
     @Test
     fun `process submission with existing file`() {
-        val nfsFile = NfsFile("test.txt", "folder/test.txt", "Files/folder/test.txt", "fullPath", file, listOf(attribute))
-        val previousFile = FireFile("test.txt", "folder/test.txt", "Files/folder/test.txt", "abc1", testMd5, 1, listOf(attribute))
+        val nfsFile = NfsFile("folder/test.txt", "Files/folder/test.txt", "fullPath", file, listOf(attribute))
+        val previousFile = FireFile("folder/test.txt", "Files/folder/test.txt", "abc1", testMd5, 1, listOf(attribute))
         val previousFiles = mapOf(Pair(testMd5, previousFile))
         val section = ExtSection(type = "Study", files = listOf(left(nfsFile)))
         val submission = basicExtSubmission.copy(section = section)
@@ -76,9 +76,9 @@ class FireFilesServiceTest(
 
     @Test
     fun `process submission replacing files`() {
-        val nfsFile = NfsFile("test.txt", "folder/test.txt", "Files/folder/test.txt", "fullPath", file, listOf(attribute))
+        val nfsFile = NfsFile("folder/test.txt", "Files/folder/test.txt", "fullPath", file, listOf(attribute))
         val previousFile =
-            FireFile("test.txt", "folder/test.txt", "Files/folder/test.txt", "abc1", "a-different-md5", 1, listOf(attribute))
+            FireFile("folder/test.txt", "Files/folder/test.txt", "abc1", "a-different-md5", 1, listOf(attribute))
         val previousFiles = mapOf(Pair("a-different-md5", previousFile))
         val section = ExtSection(type = "Study", files = listOf(left(nfsFile)))
         val submission = basicExtSubmission.copy(section = section)
@@ -92,8 +92,9 @@ class FireFilesServiceTest(
 
     @Test
     fun `process submission with path changed`() {
-        val nfsFile = NfsFile("test.txt", "new-folder/test.txt", "Files/folder/test.txt", "fullPath", file, listOf(attribute))
-        val previousFile = FireFile("test.txt", "old-folder/test.txt", "Files/folder/test.txt", "abc1", testMd5, 1, listOf(attribute))
+        val nfsFile = NfsFile("new-folder/test.txt", "Files/folder/test.txt", "fullPath", file, listOf(attribute))
+        val previousFile =
+            FireFile("old-folder/test.txt", "Files/folder/test.txt", "abc1", testMd5, 1, listOf(attribute))
         val previousFiles = mapOf(Pair(testMd5, previousFile))
         val section = ExtSection(type = "Study", files = listOf(left(nfsFile)))
         val submission = basicExtSubmission.copy(section = section)
@@ -107,8 +108,9 @@ class FireFilesServiceTest(
 
     @Test
     fun `process submission when new file is FireFile`() {
-        val fireFile = FireFile("test.txt", "new-folder/test.txt", "Files/folder/test.txt", "abc1", testMd5, 1, listOf(attribute))
-        val previousFile = FireFile("test.txt", "old-folder/test.txt", "Files/folder/test.txt", "abc1", testMd5, 1, listOf(attribute))
+        val fireFile = FireFile("new-folder/test.txt", "Files/folder/test.txt", "abc1", testMd5, 1, listOf(attribute))
+        val previousFile =
+            FireFile("old-folder/test.txt", "Files/folder/test.txt", "abc1", testMd5, 1, listOf(attribute))
         val previousFiles = mapOf(Pair(testMd5, previousFile))
         val section = ExtSection(type = "Study", files = listOf(left(fireFile)))
         val submission = basicExtSubmission.copy(section = section)

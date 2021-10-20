@@ -88,9 +88,9 @@ internal class AllInOneSubmissionHelper(
         val xml = File("$subFolder/$accNo.xml")
         val tsv = File("$subFolder/$accNo.pagetab.tsv")
         return listOf(
-            FireFile(jsonName, jsonName, jsonName, "fireOid-$jsonName", json.md5(), json.size(), listOf()),
-            FireFile(xmlName, xmlName, xmlName, "fireOid-$xmlName", xml.md5(), xml.size(), listOf()),
-            FireFile(tsvName, tsvName, tsvName, "fireOid-$tsvName", tsv.md5(), tsv.size(), listOf())
+            FireFile(jsonName, jsonName, "fireOid-$jsonName", json.md5(), json.size(), listOf()),
+            FireFile(xmlName, xmlName, "fireOid-$xmlName", xml.md5(), xml.size(), listOf()),
+            FireFile(tsvName, tsvName, "fireOid-$tsvName", tsv.md5(), tsv.size(), listOf())
         )
     }
 
@@ -102,9 +102,9 @@ internal class AllInOneSubmissionHelper(
         val tsv = File("$subFolder/$path.pagetab.tsv")
         val TSV = "pagetab.tsv"
         return listOf(
-            FireFile("$name.json", "$list.json", "$path.json", "fireOid-$name.json", json.md5(), json.size(), listOf()),
-            FireFile("$name.xml", "$list.xml", "$path.xml", "fireOid-$name.xml", xml.md5(), xml.size(), listOf()),
-            FireFile("$name.$TSV", "$list.$TSV", "$path.$TSV", "fireOid-$name.$TSV", tsv.md5(), tsv.size(), listOf())
+            FireFile("$list.json", "$path.json", "fireOid-$name.json", json.md5(), json.size(), listOf()),
+            FireFile("$list.xml", "$path.xml", "fireOid-$name.xml", xml.md5(), xml.size(), listOf()),
+            FireFile("$list.$TSV", "$path.$TSV", "fireOid-$name.$TSV", tsv.md5(), tsv.size(), listOf())
         )
     }
 
@@ -114,22 +114,21 @@ internal class AllInOneSubmissionHelper(
         val tsvFile = File("$submissionFolderPath/$accNo.pagetab.tsv")
 
         return listOf(
-            NfsFile("$accNo.json", "$accNo.json", "$accNo.json", jsonFile.absolutePath, jsonFile),
-            NfsFile("$accNo.xml", "$accNo.xml", "$accNo.xml", xmlFile.absolutePath, xmlFile),
-            NfsFile("$accNo.pagetab.tsv", "$accNo.pagetab.tsv", "$accNo.pagetab.tsv", tsvFile.absolutePath, tsvFile)
+            NfsFile("$accNo.json", "$accNo.json", jsonFile.absolutePath, jsonFile),
+            NfsFile("$accNo.xml", "$accNo.xml", xmlFile.absolutePath, xmlFile),
+            NfsFile("$accNo.pagetab.tsv", "$accNo.pagetab.tsv", tsvFile.absolutePath, tsvFile)
         )
     }
 
     private fun nfsTabFiles(subFolder: String, list: String): List<NfsFile> {
-        val name = list.substringAfterLast("/")
         val path = "Files/$list"
         val json = File("$subFolder/$path.json")
         val xml = File("$subFolder/$path.xml")
         val tsv = File("$subFolder/$path.pagetab.tsv")
         return listOf(
-            NfsFile("$name.json", "$list.json", "$path.json", json.absolutePath, json),
-            NfsFile("$name.xml", "$list.xml", "$path.xml", xml.absolutePath, xml),
-            NfsFile("$name.pagetab.tsv", "$list.pagetab.tsv", "$path.pagetab.tsv", tsv.absolutePath, tsv)
+            NfsFile("$list.json", "$path.json", json.absolutePath, json),
+            NfsFile("$list.xml", "$path.xml", xml.absolutePath, xml),
+            NfsFile("$list.pagetab.tsv", "$path.pagetab.tsv", tsv.absolutePath, tsv)
         )
     }
 

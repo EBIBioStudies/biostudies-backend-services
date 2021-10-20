@@ -121,7 +121,7 @@ class ToDocSubmissionTest(tempFolder: TemporaryFolder) {
         subSection.copy(fileList = subSection.fileList!!.copy(files = listOf(newSubSectionFileListFile)))
 
     private val nfsFileFile = tempFolder.createFile(NFS_FILENAME)
-    private val nfsFile = NfsFile(NFS_FILENAME, NFS_FILEPATH, NFS_REL_PATH, NFS_FULL_PATH, nfsFileFile)
+    private val nfsFile = NfsFile(NFS_FILEPATH, NFS_REL_PATH, NFS_FULL_PATH, nfsFileFile)
 
     private val newRootSection = rootSection.copy(
         fileList = rootSection.fileList!!.copy(

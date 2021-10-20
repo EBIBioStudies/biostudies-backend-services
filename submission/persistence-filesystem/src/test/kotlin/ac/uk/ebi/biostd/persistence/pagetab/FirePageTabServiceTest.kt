@@ -97,22 +97,15 @@ class FirePageTabServiceTest(
 
     private fun assertSubmissionTabFiles(submission: ExtSubmission) {
         val tabFiles = submission.pageTabFiles
-        assertThat(tabFiles.first()).isEqualTo(
-            FireFile(SUB_JSON, SUB_JSON, SUB_JSON, "$SUB_JSON-fireId", "md5", 1, listOf())
-        )
-        assertThat(tabFiles.second()).isEqualTo(
-            FireFile(SUB_XML, SUB_XML, SUB_XML, "$SUB_XML-fireId", "md5", 1, listOf())
-        )
-        assertThat(tabFiles.third()).isEqualTo(
-            FireFile(SUB_TSV, SUB_TSV, SUB_TSV, "$SUB_TSV-fireId", "md5", 1, listOf())
-        )
+        assertThat(tabFiles.first()).isEqualTo(FireFile(SUB_JSON, SUB_JSON, "$SUB_JSON-fireId", "md5", 1, listOf()))
+        assertThat(tabFiles.second()).isEqualTo(FireFile(SUB_XML, SUB_XML, "$SUB_XML-fireId", "md5", 1, listOf()))
+        assertThat(tabFiles.third()).isEqualTo(FireFile(SUB_TSV, SUB_TSV, "$SUB_TSV-fireId", "md5", 1, listOf()))
     }
 
     private fun assertSectionTabFiles(section: ExtSection) {
         val tabFiles = section.fileList!!.pageTabFiles
         assertThat(tabFiles.first()).isEqualTo(
             FireFile(
-                FILE_LIST_JSON1,
                 "data/$FILE_LIST_JSON1",
                 "Files/data/$FILE_LIST_JSON1",
                 "$FILE_LIST_JSON1-fireId",
@@ -122,26 +115,10 @@ class FirePageTabServiceTest(
             )
         )
         assertThat(tabFiles.second()).isEqualTo(
-            FireFile(
-                FILE_LIST_XML1,
-                "data/$FILE_LIST_XML1",
-                "Files/data/$FILE_LIST_XML1",
-                "$FILE_LIST_XML1-fireId",
-                "md5",
-                1,
-                listOf()
-            )
+            FireFile("data/$FILE_LIST_XML1", "Files/data/$FILE_LIST_XML1", "$FILE_LIST_XML1-fireId", "md5", 1, listOf())
         )
         assertThat(tabFiles.third()).isEqualTo(
-            FireFile(
-                FILE_LIST_TSV1,
-                "data/$FILE_LIST_TSV1",
-                "Files/data/$FILE_LIST_TSV1",
-                "$FILE_LIST_TSV1-fireId",
-                "md5",
-                1,
-                listOf()
-            )
+            FireFile("data/$FILE_LIST_TSV1", "Files/data/$FILE_LIST_TSV1", "$FILE_LIST_TSV1-fireId", "md5", 1, listOf())
         )
     }
 
@@ -149,7 +126,6 @@ class FirePageTabServiceTest(
         val tabFiles = section.fileList!!.pageTabFiles
         assertThat(tabFiles.first()).isEqualTo(
             FireFile(
-                FILE_LIST_JSON2,
                 "data/$FILE_LIST_JSON2",
                 "Files/data/$FILE_LIST_JSON2",
                 "$FILE_LIST_JSON2-fireId",
@@ -160,7 +136,6 @@ class FirePageTabServiceTest(
         )
         assertThat(tabFiles.second()).isEqualTo(
             FireFile(
-                FILE_LIST_XML2,
                 "data/$FILE_LIST_XML2",
                 "Files/data/$FILE_LIST_XML2",
                 "$FILE_LIST_XML2-fireId",
@@ -171,7 +146,6 @@ class FirePageTabServiceTest(
         )
         assertThat(tabFiles.third()).isEqualTo(
             FireFile(
-                FILE_LIST_TSV2,
                 "data/$FILE_LIST_TSV2",
                 "Files/data/$FILE_LIST_TSV2",
                 "$FILE_LIST_TSV2-fireId",

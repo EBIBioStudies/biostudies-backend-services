@@ -36,9 +36,9 @@ fun extSubmissionWithFileList(files: List<File>, referencedFiles: List<File>) =
 fun extSectionWithFileList(files: List<File>, referencedFiles: List<File>) =
     ExtSection(
         type = "Study",
-        files = files.map { left(NfsFile(it.name, it.name, "relPath", it.absolutePath, it, emptyList())) },
+        files = files.map { left(NfsFile(it.name, "relPath", it.absolutePath, it, emptyList())) },
         fileList = ExtFileList(
             "fileList",
-            referencedFiles.map { NfsFile(it.name, it.name, "relPath", it.absolutePath, it, emptyList()) }
+            referencedFiles.map { NfsFile(it.name, "relPath", it.absolutePath, it, emptyList()) }
         )
     )

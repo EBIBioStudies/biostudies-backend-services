@@ -37,17 +37,17 @@ class NfsPageTabService(
 
     private fun fileListFiles(tab: PageTabFiles, name: String): List<NfsFile> {
         return listOf(
-            NfsFile(tab.json.name, "$name.json", "Files/$name.json", tab.json.absolutePath, tab.json),
-            NfsFile(tab.xml.name, "$name.xml", "Files/$name.xml", tab.xml.absolutePath, tab.xml),
-            NfsFile(tab.tsv.name, "$name.pagetab.tsv", "Files/$name.pagetab.tsv", tab.tsv.absolutePath, tab.tsv)
+            NfsFile("$name.json", "Files/$name.json", tab.json.absolutePath, tab.json),
+            NfsFile("$name.xml", "Files/$name.xml", tab.xml.absolutePath, tab.xml),
+            NfsFile("$name.pagetab.tsv", "Files/$name.pagetab.tsv", tab.tsv.absolutePath, tab.tsv)
         )
     }
 
     private fun subFiles(files: PageTabFiles): List<NfsFile> {
         return listOf(
-            NfsFile(files.json.name, files.json.name, files.json.name, files.json.absolutePath, files.json),
-            NfsFile(files.xml.name, files.xml.name, files.xml.name, files.xml.absolutePath, files.xml),
-            NfsFile(files.tsv.name, files.tsv.name, files.tsv.name, files.tsv.absolutePath, files.tsv)
+            NfsFile(files.json.name, files.json.name, files.json.absolutePath, files.json),
+            NfsFile(files.xml.name, files.xml.name, files.xml.absolutePath, files.xml),
+            NfsFile(files.tsv.name, files.tsv.name, files.tsv.absolutePath, files.tsv)
         )
     }
 }

@@ -52,19 +52,19 @@ class ExtSectionSerializerTest(private val tempFolder: TemporaryFolder) {
         val sectionFilesTable = tempFolder.createFile("section-file-table.txt")
 
         val fileNfs = tempFolder.createFile("fileNfs.txt")
-        val pageTabFireFile = FireFile("fileFileName", "filePath", "relPath", "fireId", "fileMd5", 1, listOf())
-        val pageTabFireDirectory = FireDirectory("dirFileName", "filePath", "relPath", "dirMd5", 2, listOf())
+        val pageTabFireFile = FireFile("filePath/fileFileName", "relPath", "fireId", "fileMd5", 1, listOf())
+        val pageTabFireDirectory = FireDirectory("filePath/dirFileName", "relPath", "dirMd5", 2, listOf())
 
         val allInOneSection = ExtSection(
             accNo = "SECT-001",
             type = "Study",
             fileList = ExtFileList(
                 "file-list",
-                listOf(NfsFile("ref-file.txt", "filePath", "relPath", "fullPath", referencedFile)),
+                listOf(NfsFile("filePath/ref-file.txt", "relPath", "fullPath", referencedFile)),
                 pageTabFiles = listOf(
                     pageTabFireFile,
                     pageTabFireDirectory,
-                    NfsFile(fileNfs.name, "filePath", "relPath", "fullPath", fileNfs)
+                    NfsFile("filePath/${fileNfs.name}", "relPath", "fullPath", fileNfs)
                 )
             ),
             attributes = listOf(ExtAttribute("Title", "Test Section")),
@@ -73,13 +73,12 @@ class ExtSectionSerializerTest(private val tempFolder: TemporaryFolder) {
                 Either.right(ExtSectionTable(listOf(ExtSection(type = "Data"))))
             ),
             files = listOf(
-                Either.left(NfsFile("section-file.txt", "filePath", "relPath", "fullPath", sectionFile)),
+                Either.left(NfsFile("filePath/section-file.txt", "relPath", "fullPath", sectionFile)),
                 Either.right(
                     ExtFileTable(
                         listOf(
                             NfsFile(
-                                "section-file-table.txt",
-                                "filePath",
+                                "filePath/section-file-table.txt",
                                 "relPath",
                                 "fullPath",
                                 sectionFilesTable
@@ -113,7 +112,7 @@ class ExtSectionSerializerTest(private val tempFolder: TemporaryFolder) {
                     },
                     jsonObj {
                         "fileName" to pageTabFireDirectory.fileName
-                        "filePath" to "filePath"
+                        "filePath" to pageTabFireDirectory.filePath
                         "relPath" to "relPath"
                         "attributes" to jsonArray()
                         "extType" to "fireDirectory"
@@ -123,7 +122,7 @@ class ExtSectionSerializerTest(private val tempFolder: TemporaryFolder) {
                     },
                     jsonObj {
                         "fileName" to fileNfs.name
-                        "filePath" to "filePath"
+                        "filePath" to "filePath/${fileNfs.name}"
                         "relPath" to "relPath"
                         "fullPath" to "fullPath"
                         "file" to fileNfs.absolutePath
@@ -173,7 +172,7 @@ class ExtSectionSerializerTest(private val tempFolder: TemporaryFolder) {
             "files" to jsonArray(
                 jsonObj {
                     "fileName" to "section-file.txt"
-                    "filePath" to "filePath"
+                    "filePath" to "filePath/section-file.txt"
                     "relPath" to "relPath"
                     "fullPath" to "fullPath"
                     "file" to sectionFile.absolutePath
@@ -186,7 +185,7 @@ class ExtSectionSerializerTest(private val tempFolder: TemporaryFolder) {
                     "files" to jsonArray(
                         jsonObj {
                             "fileName" to "section-file-table.txt"
-                            "filePath" to "filePath"
+                            "filePath" to "filePath/section-file-table.txt"
                             "relPath" to "relPath"
                             "fullPath" to "fullPath"
                             "file" to sectionFilesTable.absolutePath

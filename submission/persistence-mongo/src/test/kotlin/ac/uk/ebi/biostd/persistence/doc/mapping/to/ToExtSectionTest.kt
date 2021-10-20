@@ -31,13 +31,13 @@ class ToExtSectionTest(temporaryFolder: TemporaryFolder) {
     private val testNfsDocFile = nfsDocFile.copy(fullPath = testFile.absolutePath)
     private val testFireDocFile = fireDocFile
 
-    private val tabFireFile = FireDocFile("fileName", "filePath", "relPath", "fireId", listOf(), "md5", 1)
-    private val tabFireDirectory = FireDocDirectory("fileName", "filePath", "relPath", listOf(), "md5", 2)
+    private val tabFireFile = FireDocFile("fileName", "filePath/fileName", "relPath", "fireId", listOf(), "md5", 1)
+    private val tabFireDirectory = FireDocDirectory("fileName", "filePath/fileName", "relPath", listOf(), "md5", 2)
     private val fileNfs = temporaryFolder.createFile("fileNfs.txt")
     private val tabNfsFile =
         NfsDocFile(
             fileNfs.name,
-            "filePath",
+            "filePath/${fileNfs.name}",
             "relPath",
             fileNfs.absolutePath,
             listOf(),
@@ -64,7 +64,6 @@ class ToExtSectionTest(temporaryFolder: TemporaryFolder) {
     private fun assertFileListTabFiles(pageTabFiles: List<ExtFile>) {
         assertThat(pageTabFiles.first()).isEqualTo(
             FireFile(
-                tabFireFile.fileName,
                 tabFireFile.filePath,
                 tabFireFile.relPath,
                 tabFireFile.fireId,
@@ -73,9 +72,9 @@ class ToExtSectionTest(temporaryFolder: TemporaryFolder) {
                 listOf()
             )
         )
+        assertThat(pageTabFiles.first().fileName).isEqualTo(tabFireFile.filePath.substringAfterLast("/"))
         assertThat(pageTabFiles.second()).isEqualTo(
             FireDirectory(
-                tabFireDirectory.fileName,
                 tabFireDirectory.filePath,
                 tabFireDirectory.relPath,
                 tabFireDirectory.md5,
@@ -83,15 +82,16 @@ class ToExtSectionTest(temporaryFolder: TemporaryFolder) {
                 listOf()
             )
         )
+        assertThat(pageTabFiles.second().fileName).isEqualTo(tabFireDirectory.filePath.substringAfterLast("/"))
         assertThat(pageTabFiles.third()).isEqualTo(
             NfsFile(
-                fileNfs.name,
-                "filePath",
+                "filePath/${fileNfs.name}",
                 "relPath",
                 fileNfs.absolutePath,
                 fileNfs,
                 listOf()
             )
         )
+        assertThat(pageTabFiles.third().fileName).isEqualTo(fileNfs.name)
     }
 }

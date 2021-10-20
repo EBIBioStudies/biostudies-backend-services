@@ -81,7 +81,6 @@ object SubmissionTestHelper {
         assertProject(extSubmission)
         assertThat(extSubmission.pageTabFiles.first()).isEqualTo(
             FireFile(
-                fireDocFile.fileName,
                 fireDocFile.filePath,
                 fireDocFile.relPath,
                 fireDocFile.fireId,
@@ -92,7 +91,6 @@ object SubmissionTestHelper {
         )
         assertThat(extSubmission.pageTabFiles.second()).isEqualTo(
             FireDirectory(
-                fireDocDirectory.fileName,
                 fireDocDirectory.filePath,
                 fireDocDirectory.relPath,
                 fireDocDirectory.md5,
@@ -102,7 +100,6 @@ object SubmissionTestHelper {
         )
         assertThat(extSubmission.pageTabFiles.third()).isEqualTo(
             NfsFile(
-                nfsFileFile.name,
                 "filePath",
                 "relPath",
                 nfsFileFile.absolutePath,

@@ -25,8 +25,7 @@ class ExtFileSerializerTest(private val tempFolder: TemporaryFolder) {
     fun `serialize nfs file`() {
         val file = tempFolder.createFile("nfs-file.txt")
         val extFile = NfsFile(
-            fileName = "nfs-file.txt",
-            filePath = "filePath",
+            filePath = "filePath/nfs-file.txt",
             relPath = "relPath",
             fullPath = "fullPath",
             file = file,
@@ -34,7 +33,7 @@ class ExtFileSerializerTest(private val tempFolder: TemporaryFolder) {
         )
         val expectedJson = jsonObj {
             "fileName" to "nfs-file.txt"
-            "filePath" to "filePath"
+            "filePath" to "filePath/nfs-file.txt"
             "relPath" to "relPath"
             "fullPath" to "fullPath"
             "file" to file.absolutePath
@@ -56,8 +55,7 @@ class ExtFileSerializerTest(private val tempFolder: TemporaryFolder) {
     @Test
     fun `serialize fire file`() {
         val extFile = FireFile(
-            fileName = "fire-file.txt",
-            filePath = "filePath",
+            filePath = "filePath/fire-file.txt",
             relPath = "relPath",
             fireId = "fireId",
             md5 = "fireFileMd5",
@@ -66,7 +64,7 @@ class ExtFileSerializerTest(private val tempFolder: TemporaryFolder) {
         )
         val expectedJson = jsonObj {
             "fileName" to "fire-file.txt"
-            "filePath" to "filePath"
+            "filePath" to "filePath/fire-file.txt"
             "relPath" to "relPath"
             "fireId" to "fireId"
             "attributes" to jsonArray(
@@ -88,8 +86,7 @@ class ExtFileSerializerTest(private val tempFolder: TemporaryFolder) {
     @Test
     fun `serialize fire directory`() {
         val extFile = FireDirectory(
-            fileName = "fire-directory.txt",
-            filePath = "filePath",
+            filePath = "filePath/fire-directory.txt",
             relPath = "relPath",
             md5 = "fireDirMd5",
             size = 12,
@@ -97,7 +94,7 @@ class ExtFileSerializerTest(private val tempFolder: TemporaryFolder) {
         )
         val expectedJson = jsonObj {
             "fileName" to "fire-directory.txt"
-            "filePath" to "filePath"
+            "filePath" to "filePath/fire-directory.txt"
             "relPath" to "relPath"
             "attributes" to jsonArray(
                 jsonObj {

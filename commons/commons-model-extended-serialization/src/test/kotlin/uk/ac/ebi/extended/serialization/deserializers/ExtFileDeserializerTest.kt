@@ -26,7 +26,7 @@ class ExtFileDeserializerTest(private val tempFolder: TemporaryFolder) {
         val file = tempFolder.createFile("nfs-file.txt")
         val json = jsonObj {
             "fileName" to "nfs-file.txt"
-            "filePath" to "filePath"
+            "filePath" to "filePath/nfs-file.txt"
             "relPath" to "relPath"
             "fullPath" to "fullPath"
             "file" to file.absolutePath
@@ -44,7 +44,7 @@ class ExtFileDeserializerTest(private val tempFolder: TemporaryFolder) {
         val extFile = testInstance.deserialize<ExtFile>(json) as NfsFile
 
         assertThat(extFile.fileName).isEqualTo("nfs-file.txt")
-        assertThat(extFile.filePath).isEqualTo("filePath")
+        assertThat(extFile.filePath).isEqualTo("filePath/nfs-file.txt")
         assertThat(extFile.relPath).isEqualTo("relPath")
         assertThat(extFile.fullPath).isEqualTo("fullPath")
         assertThat(extFile.file).isEqualTo(file)
