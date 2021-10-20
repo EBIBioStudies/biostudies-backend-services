@@ -35,7 +35,7 @@ private fun toFileDocListFile(submissionId: ObjectId, extFile: ExtFile) = when (
     is FireFile -> FileListDocFile(
         id = ObjectId(),
         submissionId = submissionId,
-        fileName = extFile.fileName,
+        fileName = extFile.filePath,
         fullPath = extFile.fireId,
         attributes = extFile.attributes.map { it.toDocAttribute() },
         md5 = extFile.md5,
@@ -45,7 +45,7 @@ private fun toFileDocListFile(submissionId: ObjectId, extFile: ExtFile) = when (
     is FireDirectory -> FileListDocFile(
         id = ObjectId(),
         submissionId = submissionId,
-        fileName = extFile.fileName,
+        fileName = extFile.filePath,
         fullPath = extFile.fileName,
         attributes = extFile.attributes.map { it.toDocAttribute() },
         md5 = extFile.md5,
@@ -55,7 +55,7 @@ private fun toFileDocListFile(submissionId: ObjectId, extFile: ExtFile) = when (
     is NfsFile -> FileListDocFile(
         id = ObjectId(),
         submissionId = submissionId,
-        fileName = extFile.fileName,
+        fileName = extFile.filePath,
         fullPath = extFile.file.absolutePath,
         attributes = extFile.attributes.map { it.toDocAttribute() },
         md5 = extFile.md5,
@@ -70,6 +70,7 @@ internal fun ExtFile.toDocFile(): DocFile = when (this) {
     is FireFile -> FireDocFile(
         fileName = fileName,
         filePath = filePath,
+        relPath = relPath,
         fireId = fireId,
         attributes = attributes.map { it.toDocAttribute() },
         md5 = md5,
@@ -77,12 +78,16 @@ internal fun ExtFile.toDocFile(): DocFile = when (this) {
     )
     is FireDirectory -> FireDocDirectory(
         fileName = fileName,
+        filePath = filePath,
+        relPath = relPath,
         attributes = attributes.map { it.toDocAttribute() },
         md5 = md5,
         fileSize = size,
     )
     is NfsFile -> NfsDocFile(
-        relPath = fileName,
+        fileName = fileName,
+        filePath = filePath,
+        relPath = relPath,
         fullPath = file.absolutePath,
         fileType = fileType(file),
         attributes = attributes.map { it.toDocAttribute() },

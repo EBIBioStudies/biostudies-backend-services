@@ -2,18 +2,16 @@ package ac.uk.ebi.biostd.persistence.pagetab
 
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.FirePageTabService
-import ac.uk.ebi.biostd.persistence.filesystem.pagetab.TabFiles
+import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabFiles
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.generateFileListPageTab
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.generateSubPageTab
 import arrow.core.Either.Companion.left
 import arrow.core.Either.Companion.right
-import ebi.ac.uk.asserts.assertThat as assertThatEither
 import ebi.ac.uk.extended.model.ExtFileList
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSectionTable
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireFile
-import uk.ac.ebi.fire.client.model.FireFile as FireFileWeb
 import ebi.ac.uk.test.basicExtSubmission
 import ebi.ac.uk.util.collections.second
 import ebi.ac.uk.util.collections.third
@@ -23,10 +21,12 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockkStatic
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.fire.client.integration.web.FireWebClient
-import org.assertj.core.api.Assertions.assertThat as assertThat
+import ebi.ac.uk.asserts.assertThat as assertThatEither
+import uk.ac.ebi.fire.client.model.FireFile as FireFileWeb
 
 @ExtendWith(TemporaryFolderExtension::class, MockKExtension::class)
 class FirePageTabServiceTest(
@@ -54,21 +54,21 @@ class FirePageTabServiceTest(
         mockkStatic("ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabUtilKt")
 
         every { serializationService.generateSubPageTab(submission, fireFolder) } returns
-            TabFiles(
+            PageTabFiles(
                 fireFolder.resolve("S-TEST123.json"),
                 fireFolder.resolve("S-TEST123.xml"),
                 fireFolder.resolve("S-TEST123.pagetab.tsv")
             )
         every { serializationService.generateFileListPageTab(submission, fireFolder) } returns mapOf(
-            "data/file-list2" to TabFiles(
-                fireFolder.resolve("file-list2.json"),
-                fireFolder.resolve("file-list2.xml"),
-                fireFolder.resolve("file-list2.pagetab.tsv")
+            "data/file-list2" to PageTabFiles(
+                fireFolder.resolve("data/file-list2.json"),
+                fireFolder.resolve("data/file-list2.xml"),
+                fireFolder.resolve("data/file-list2.pagetab.tsv")
             ),
-            "data/file-list1" to TabFiles(
-                fireFolder.resolve("file-list1.json"),
-                fireFolder.resolve("file-list1.xml"),
-                fireFolder.resolve("file-list1.pagetab.tsv")
+            "data/file-list1" to PageTabFiles(
+                fireFolder.resolve("data/file-list1.json"),
+                fireFolder.resolve("data/file-list1.xml"),
+                fireFolder.resolve("data/file-list1.pagetab.tsv")
             )
         )
     }
@@ -98,13 +98,13 @@ class FirePageTabServiceTest(
     private fun assertSubmissionTabFiles(submission: ExtSubmission) {
         val tabFiles = submission.pageTabFiles
         assertThat(tabFiles.first()).isEqualTo(
-            FireFile(SUB_JSON, fireFolder.resolve(SUB_JSON).path, "$SUB_JSON-fireId", "md5", 1, listOf())
+            FireFile(SUB_JSON, SUB_JSON, SUB_JSON, "$SUB_JSON-fireId", "md5", 1, listOf())
         )
         assertThat(tabFiles.second()).isEqualTo(
-            FireFile(SUB_XML, fireFolder.resolve(SUB_XML).path, "$SUB_XML-fireId", "md5", 1, listOf())
+            FireFile(SUB_XML, SUB_XML, SUB_XML, "$SUB_XML-fireId", "md5", 1, listOf())
         )
         assertThat(tabFiles.third()).isEqualTo(
-            FireFile(SUB_TSV, fireFolder.resolve(SUB_TSV).path, "$SUB_TSV-fireId", "md5", 1, listOf())
+            FireFile(SUB_TSV, SUB_TSV, SUB_TSV, "$SUB_TSV-fireId", "md5", 1, listOf())
         )
     }
 
@@ -113,7 +113,8 @@ class FirePageTabServiceTest(
         assertThat(tabFiles.first()).isEqualTo(
             FireFile(
                 FILE_LIST_JSON1,
-                fireFolder.resolve(FILE_LIST_JSON1).path,
+                "data/$FILE_LIST_JSON1",
+                "Files/data/$FILE_LIST_JSON1",
                 "$FILE_LIST_JSON1-fireId",
                 "md5",
                 1,
@@ -123,7 +124,8 @@ class FirePageTabServiceTest(
         assertThat(tabFiles.second()).isEqualTo(
             FireFile(
                 FILE_LIST_XML1,
-                fireFolder.resolve(FILE_LIST_XML1).path,
+                "data/$FILE_LIST_XML1",
+                "Files/data/$FILE_LIST_XML1",
                 "$FILE_LIST_XML1-fireId",
                 "md5",
                 1,
@@ -133,7 +135,8 @@ class FirePageTabServiceTest(
         assertThat(tabFiles.third()).isEqualTo(
             FireFile(
                 FILE_LIST_TSV1,
-                fireFolder.resolve(FILE_LIST_TSV1).path,
+                "data/$FILE_LIST_TSV1",
+                "Files/data/$FILE_LIST_TSV1",
                 "$FILE_LIST_TSV1-fireId",
                 "md5",
                 1,
@@ -147,7 +150,8 @@ class FirePageTabServiceTest(
         assertThat(tabFiles.first()).isEqualTo(
             FireFile(
                 FILE_LIST_JSON2,
-                fireFolder.resolve(FILE_LIST_JSON2).path,
+                "data/$FILE_LIST_JSON2",
+                "Files/data/$FILE_LIST_JSON2",
                 "$FILE_LIST_JSON2-fireId",
                 "md5",
                 1,
@@ -157,7 +161,8 @@ class FirePageTabServiceTest(
         assertThat(tabFiles.second()).isEqualTo(
             FireFile(
                 FILE_LIST_XML2,
-                fireFolder.resolve(FILE_LIST_XML2).path,
+                "data/$FILE_LIST_XML2",
+                "Files/data/$FILE_LIST_XML2",
                 "$FILE_LIST_XML2-fireId",
                 "md5",
                 1,
@@ -167,7 +172,8 @@ class FirePageTabServiceTest(
         assertThat(tabFiles.third()).isEqualTo(
             FireFile(
                 FILE_LIST_TSV2,
-                fireFolder.resolve(FILE_LIST_TSV2).path,
+                "data/$FILE_LIST_TSV2",
+                "Files/data/$FILE_LIST_TSV2",
                 "$FILE_LIST_TSV2-fireId",
                 "md5",
                 1,

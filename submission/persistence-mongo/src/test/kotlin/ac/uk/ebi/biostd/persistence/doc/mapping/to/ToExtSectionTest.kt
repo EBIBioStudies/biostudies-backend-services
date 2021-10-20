@@ -31,11 +31,20 @@ class ToExtSectionTest(temporaryFolder: TemporaryFolder) {
     private val testNfsDocFile = nfsDocFile.copy(fullPath = testFile.absolutePath)
     private val testFireDocFile = fireDocFile
 
-    private val tabFireFile = FireDocFile("fileName", "filePath", "fireId", listOf(), "md5", 1)
-    private val tabFireDirectory = FireDocDirectory("fileName", listOf(), "md5", 2)
+    private val tabFireFile = FireDocFile("fileName", "filePath", "relPath", "fireId", listOf(), "md5", 1)
+    private val tabFireDirectory = FireDocDirectory("fileName", "filePath", "relPath", listOf(), "md5", 2)
     private val fileNfs = temporaryFolder.createFile("fileNfs.txt")
     private val tabNfsFile =
-        NfsDocFile(fileNfs.name, fileNfs.absolutePath, "fileType", listOf(), fileNfs.md5(), fileNfs.size())
+        NfsDocFile(
+            fileNfs.name,
+            "filePath",
+            "relPath",
+            fileNfs.absolutePath,
+            listOf(),
+            fileNfs.md5(),
+            fileNfs.size(),
+            "fileType"
+        )
 
     private val testDocSection = docSection.copy(
         files = listOf(left(testNfsDocFile), left(testFireDocFile)),
@@ -57,6 +66,7 @@ class ToExtSectionTest(temporaryFolder: TemporaryFolder) {
             FireFile(
                 tabFireFile.fileName,
                 tabFireFile.filePath,
+                tabFireFile.relPath,
                 tabFireFile.fireId,
                 tabFireFile.md5,
                 tabFireFile.fileSize,
@@ -64,8 +74,24 @@ class ToExtSectionTest(temporaryFolder: TemporaryFolder) {
             )
         )
         assertThat(pageTabFiles.second()).isEqualTo(
-            FireDirectory(tabFireDirectory.fileName, tabFireDirectory.md5, tabFireDirectory.fileSize, listOf())
+            FireDirectory(
+                tabFireDirectory.fileName,
+                tabFireDirectory.filePath,
+                tabFireDirectory.relPath,
+                tabFireDirectory.md5,
+                tabFireDirectory.fileSize,
+                listOf()
+            )
         )
-        assertThat(pageTabFiles.third()).isEqualTo(NfsFile(fileNfs.name, fileNfs, listOf()))
+        assertThat(pageTabFiles.third()).isEqualTo(
+            NfsFile(
+                fileNfs.name,
+                "filePath",
+                "relPath",
+                fileNfs.absolutePath,
+                fileNfs,
+                listOf()
+            )
+        )
     }
 }

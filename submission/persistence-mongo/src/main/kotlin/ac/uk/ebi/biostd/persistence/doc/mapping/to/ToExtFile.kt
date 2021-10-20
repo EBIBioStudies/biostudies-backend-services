@@ -20,9 +20,16 @@ import ebi.ac.uk.extended.model.NfsFile
 import java.nio.file.Paths
 
 internal fun DocFile.toExtFile(): ExtFile = when (this) {
-    is FireDocFile -> FireFile(fileName, filePath, fireId, md5, fileSize, attributes.toExtAttributes())
-    is FireDocDirectory -> FireDirectory(fileName, md5, fileSize, attributes.toExtAttributes())
-    is NfsDocFile -> NfsFile(relPath, Paths.get(fullPath).toFile(), attributes.toExtAttributes())
+    is FireDocFile -> FireFile(fileName, filePath, relPath, fireId, md5, fileSize, attributes.toExtAttributes())
+    is FireDocDirectory -> FireDirectory(fileName, filePath, relPath, md5, fileSize, attributes.toExtAttributes())
+    is NfsDocFile -> NfsFile(
+        fileName,
+        filePath,
+        relPath,
+        fullPath,
+        Paths.get(fullPath).toFile(),
+        attributes.toExtAttributes()
+    )
 }
 
 internal fun DocFileTable.toExtFileTable(): ExtFileTable = ExtFileTable(files.map { it.toExtFile() })
@@ -31,9 +38,31 @@ internal fun Either<DocFile, DocFileTable>.toExtFiles(): Either<ExtFile, ExtFile
     bimap({ it.toExtFile() }) { it.toExtFileTable() }
 
 internal fun FileListDocFile.toExtFile(): ExtFile = when (fileSystem) {
-    FIRE -> FireFile(fileName, fullPath, fullPath, md5, size, attributes.toExtAttributes())
-    FIRE_DIR -> FireDirectory(fileName, md5, size, attributes.toExtAttributes())
-    NFS -> NfsFile(fileName, Paths.get(fullPath).toFile(), attributes.toExtAttributes()).also { it.md5 = md5 }
+    FIRE -> FireFile(
+        fileName.substringAfterLast("/"),
+        fileName,
+        "Files/$fileName",
+        fullPath,
+        md5,
+        size,
+        attributes.toExtAttributes()
+    )
+    FIRE_DIR -> FireDirectory(
+        fileName.substringAfterLast("/"),
+        fileName,
+        "Files/$fileName",
+        md5,
+        size,
+        attributes.toExtAttributes()
+    )
+    NFS -> NfsFile(
+        fileName.substringAfterLast("/"),
+        fileName,
+        "Files/$fileName",
+        fullPath,
+        Paths.get(fullPath).toFile(),
+        attributes.toExtAttributes()
+    ).also { it.md5 = md5 }
 }
 
 /**

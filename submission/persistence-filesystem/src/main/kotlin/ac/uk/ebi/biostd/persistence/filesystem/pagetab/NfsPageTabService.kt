@@ -19,23 +19,35 @@ class NfsPageTabService(
         val section = process(sub.section) { updateFileList(it, fileListFiles) }
 
         return when {
-            section.changed -> sub.copy(pageTabFiles = extFiles(subFiles), section = section.section)
-            else -> sub.copy(pageTabFiles = extFiles(subFiles))
+            section.changed -> sub.copy(pageTabFiles = subFiles(subFiles), section = section.section)
+            else -> sub.copy(pageTabFiles = subFiles(subFiles))
         }
     }
 
-    private fun updateFileList(sec: ExtSection, tab: Map<String, TabFiles>): Section {
+    private fun updateFileList(sec: ExtSection, tab: Map<String, PageTabFiles>): Section {
         return when (val lst = sec.fileList) {
             null -> Section(false, sec)
-            else -> Section(true, sec.copy(fileList = lst.copy(pageTabFiles = extFiles(tab.getValue(lst.fileName)))))
+            else -> {
+                val fileName = lst.fileName
+                val tabFiles = tab.getValue(lst.fileName)
+                Section(true, sec.copy(fileList = lst.copy(pageTabFiles = fileListFiles(tabFiles, fileName))))
+            }
         }
     }
 
-    private fun extFiles(tabsFiles: TabFiles): List<NfsFile> {
+    private fun fileListFiles(tab: PageTabFiles, name: String): List<NfsFile> {
         return listOf(
-            NfsFile(tabsFiles.json.name, tabsFiles.json),
-            NfsFile(tabsFiles.xml.name, tabsFiles.xml),
-            NfsFile(tabsFiles.tsv.name, tabsFiles.tsv)
+            NfsFile(tab.json.name, "$name.json", "Files/$name.json", tab.json.absolutePath, tab.json),
+            NfsFile(tab.xml.name, "$name.xml", "Files/$name.xml", tab.xml.absolutePath, tab.xml),
+            NfsFile(tab.tsv.name, "$name.pagetab.tsv", "Files/$name.pagetab.tsv", tab.tsv.absolutePath, tab.tsv)
+        )
+    }
+
+    private fun subFiles(files: PageTabFiles): List<NfsFile> {
+        return listOf(
+            NfsFile(files.json.name, files.json.name, files.json.name, files.json.absolutePath, files.json),
+            NfsFile(files.xml.name, files.xml.name, files.xml.name, files.xml.absolutePath, files.xml),
+            NfsFile(files.tsv.name, files.tsv.name, files.tsv.name, files.tsv.absolutePath, files.tsv)
         )
     }
 }

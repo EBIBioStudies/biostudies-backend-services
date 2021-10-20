@@ -4,6 +4,7 @@ import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.NfsFile
+import ebi.ac.uk.io.ext.size
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
@@ -22,9 +23,11 @@ class ExtFilesTableDeserializerTest(private val tempFolder: TemporaryFolder) {
         val json = jsonObj {
             "files" to jsonArray(
                 jsonObj {
-                    "file" to file.absolutePath
                     "fileName" to "test-file.txt"
-                    "path" to "test-file.txt"
+                    "filePath" to "filePath"
+                    "relPath" to "relPath"
+                    "fullPath" to "fullPath"
+                    "file" to file.absolutePath
                     "attributes" to jsonArray(
                         jsonObj {
                             "name" to "Type"
@@ -32,6 +35,8 @@ class ExtFilesTableDeserializerTest(private val tempFolder: TemporaryFolder) {
                         }
                     )
                     "extType" to "nfsFile"
+                    "type" to "file"
+                    "size" to file.size()
                 }
             )
             "extType" to "filesTable"
@@ -41,8 +46,11 @@ class ExtFilesTableDeserializerTest(private val tempFolder: TemporaryFolder) {
         assertThat(extFilesTable.files).hasSize(1)
 
         val extFile = extFilesTable.files.first() as NfsFile
-        assertThat(extFile.file).isEqualTo(file)
         assertThat(extFile.fileName).isEqualTo("test-file.txt")
+        assertThat(extFile.filePath).isEqualTo("filePath")
+        assertThat(extFile.relPath).isEqualTo("relPath")
+        assertThat(extFile.fullPath).isEqualTo("fullPath")
+        assertThat(extFile.file).isEqualTo(file)
         assertThat(extFile.attributes).hasSize(1)
         assertThat(extFile.attributes.first().name).isEqualTo("Type")
         assertThat(extFile.attributes.first().value).isEqualTo("Data")

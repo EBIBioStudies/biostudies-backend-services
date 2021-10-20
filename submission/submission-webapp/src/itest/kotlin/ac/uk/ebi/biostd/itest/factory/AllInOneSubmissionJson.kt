@@ -8,7 +8,8 @@ import io.github.glytching.junit.extension.folder.TemporaryFolder
 fun submissionSpecJson(tempFolder: TemporaryFolder, accNo: String): SubmissionSpec = SubmissionSpec(
     submission = tempFolder.createFile("submission.json", allInOneSubmissionJson(accNo).toString()),
     fileList = tempFolder.createFile("file-list.json", fileList().toString()),
-    files = submissionsFiles(tempFolder)
+    files = submissionsFiles(tempFolder),
+    subFileList = SubmissionFile(tempFolder.createFile("file-list2.json", fileList2().toString()), "sub-folder")
 )
 
 fun allInOneSubmissionJson(accNo: String) = jsonObj {
@@ -137,6 +138,12 @@ fun allInOneSubmissionJson(accNo: String) = jsonObj {
                         )
                     })
                 )
+                "attributes" to jsonArray(
+                    {
+                        "name" to "File List"
+                        "value" to "sub-folder/file-list2.json"
+                    }
+                )
             },
             jsonArray({
                 "accno" to "DT-1"
@@ -168,6 +175,27 @@ private fun fileList() = jsonArray(
     },
     {
         "path" to "Folder1/DataFile6.txt"
+        "attributes" to jsonArray(
+            {
+                "name" to "Type"
+                "value" to "referenced"
+            }
+        )
+    }
+)
+
+private fun fileList2() = jsonArray(
+    {
+        "path" to "DataFile7.txt"
+        "attributes" to jsonArray(
+            {
+                "name" to "Type"
+                "value" to "referenced"
+            }
+        )
+    },
+    {
+        "path" to "Folder1/DataFile8.txt"
         "attributes" to jsonArray(
             {
                 "name" to "Type"

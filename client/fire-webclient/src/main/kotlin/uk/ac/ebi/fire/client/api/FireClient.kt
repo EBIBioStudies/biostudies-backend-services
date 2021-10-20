@@ -21,7 +21,7 @@ internal const val FIRE_MD5_HEADER = "x-fire-md5"
 internal const val FIRE_PATH_HEADER = "x-fire-path"
 internal const val FIRE_SIZE_HEADER = "x-fire-size"
 
-internal const val SUBMISSION_RELPATH_HEADER = "sub-relpath"
+internal const val SUBMISSION_FILE_RELPATH_HEADER = "file-relpath"
 
 const val FIRE_OBJECTS_URL = "/fire/objects"
 
@@ -35,7 +35,7 @@ internal class FireClient(
         val headers = HttpHeaders().apply {
             set(FIRE_MD5_HEADER, md5)
             set(FIRE_SIZE_HEADER, file.size().toString())
-            set(SUBMISSION_RELPATH_HEADER, relpath)
+            set(SUBMISSION_FILE_RELPATH_HEADER, relpath)
         }
         val formData = listOf(FIRE_FILE_PARAM to FileSystemResource(file))
         val body = LinkedMultiValueMap(formData.groupBy({ it.first }, { it.second }))

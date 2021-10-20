@@ -14,7 +14,7 @@ internal fun ExtFile.toDbFile(order: Int, tableIndex: Int = NO_TABLE_INDEX) = wh
     is FireFile -> TODO()
     is FireDirectory -> TODO()
     is NfsFile -> DbFile(
-        fileName,
+        filePath,
         order,
         FileUtils.size(file),
         attributes.mapIndexedTo(sortedSetOf(), ::toDbFileAttribute),

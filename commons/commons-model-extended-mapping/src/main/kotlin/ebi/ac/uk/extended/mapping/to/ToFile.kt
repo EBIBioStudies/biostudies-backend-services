@@ -14,9 +14,9 @@ internal const val TO_FILE_EXTENSIONS = "ebi.ac.uk.extended.mapping.to.ToFileKt"
 
 fun ExtFile.toFile(): File =
     when (this) {
-        is NfsFile -> File(fileName, file.size(), type, attributes.mapTo(mutableListOf()) { it.toAttribute() })
+        is NfsFile -> File(filePath, file.size(), type, attributes.mapTo(mutableListOf()) { it.toAttribute() })
         is FireFile -> File(filePath, size, type, attributes.mapTo(mutableListOf()) { it.toAttribute() })
-        is FireDirectory -> File(fileName, size, type, attributes.mapTo(mutableListOf()) { it.toAttribute() })
+        is FireDirectory -> File(filePath, size, type, attributes.mapTo(mutableListOf()) { it.toAttribute() })
     }
 
 private val ExtFile.type

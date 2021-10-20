@@ -7,7 +7,6 @@ import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireFile
-import ebi.ac.uk.extended.model.filesPath
 import ebi.ac.uk.io.ext.md5
 import uk.ac.ebi.fire.client.integration.web.FireWebClient
 import java.io.File
@@ -21,53 +20,46 @@ class FirePageTabService(
         val subFiles = serializationService.generateSubPageTab(sub, fireTempFolder)
         val fileListFiles = serializationService.generateFileListPageTab(sub, fireTempFolder)
 
-        val section = process(sub.section) { updateFileList(it, sub.filesPath, fileListFiles) }
+        val section = process(sub.section) { updateFileList(it, sub.relPath, fileListFiles) }
 
         return when {
-            section.changed -> sub.copy(pageTabFiles = extFiles(sub.filesPath, subFiles), section = section.section)
-            else -> sub.copy(pageTabFiles = extFiles(sub.filesPath, subFiles))
+            section.changed -> sub.copy(pageTabFiles = subExtFiles(subFiles, sub.relPath), section = section.section)
+            else -> sub.copy(pageTabFiles = subExtFiles(subFiles, sub.relPath))
         }
     }
 
-    private fun updateFileList(sec: ExtSection, path: String, tab: Map<String, TabFiles>): Section {
+    private fun updateFileList(sec: ExtSection, path: String, pagetabFiles: Map<String, PageTabFiles>): Section {
         return when (val lst = sec.fileList) {
             null -> Section(false, sec)
-            else -> Section(
-                true, sec.copy(fileList = lst.copy(pageTabFiles = extFiles(path, tab.getValue(lst.fileName))))
-            )
+            else -> {
+                val name = lst.fileName
+                val files = pagetabFiles.getValue(name)
+                Section(true, sec.copy(fileList = lst.copy(pageTabFiles = fileListFiles(files, path, name))))
+            }
         }
     }
 
-    private fun extFiles(filesRelPath: String, pageTab: TabFiles): List<ExtFile> {
-        val json = fireWebClient.save(pageTab.json, pageTab.json.md5(), filesRelPath)
-        val xml = fireWebClient.save(pageTab.xml, pageTab.xml.md5(), filesRelPath)
-        val tsv = fireWebClient.save(pageTab.tsv, pageTab.tsv.md5(), filesRelPath)
+    private fun fileListFiles(pageTab: PageTabFiles, subFolder: String, fileListName: String) = listOf(
+        saveFileListFile(pageTab.json, subFolder, "$fileListName.json"),
+        saveFileListFile(pageTab.xml, subFolder, "$fileListName.xml"),
+        saveFileListFile(pageTab.tsv, subFolder, "$fileListName.pagetab.tsv")
+    )
 
-        val extJson = FireFile(
-            pageTab.json.name,
-            pageTab.json.path,
-            json.fireOid,
-            json.objectMd5,
-            json.objectSize.toLong(),
-            listOf()
-        )
-        val extXml = FireFile(
-            pageTab.xml.name,
-            pageTab.xml.path,
-            xml.fireOid,
-            xml.objectMd5,
-            xml.objectSize.toLong(),
-            listOf()
-        )
-        val extTsv = FireFile(
-            pageTab.tsv.name,
-            pageTab.tsv.path,
-            tsv.fireOid,
-            tsv.objectMd5,
-            tsv.objectSize.toLong(),
-            listOf()
-        )
+    private fun saveFileListFile(file: File, subFolder: String, filePath: String): FireFile {
+        val relPath = "Files/$filePath"
+        val db = fireWebClient.save(file, file.md5(), "$subFolder/$relPath")
+        return FireFile(file.name, filePath, relPath, db.fireOid, db.objectMd5, db.objectSize.toLong(), listOf())
+    }
 
-        return listOf(extJson, extXml, extTsv)
+    private fun subExtFiles(pageTab: PageTabFiles, subFolder: String): List<ExtFile> = listOf(
+        saveSubFile(pageTab.json, subFolder),
+        saveSubFile(pageTab.xml, subFolder),
+        saveSubFile(pageTab.tsv, subFolder)
+    )
+
+    private fun saveSubFile(file: File, subFolder: String): FireFile {
+        val name = file.name
+        val db = fireWebClient.save(file, file.md5(), "$subFolder/${file.name}")
+        return FireFile(name, name, name, db.fireOid, db.objectMd5, db.objectSize.toLong(), listOf())
     }
 }

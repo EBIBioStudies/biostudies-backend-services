@@ -27,6 +27,7 @@ import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.model.extensions.rootPath
 import ebi.ac.uk.model.extensions.title
+import ebi.ac.uk.test.clean
 import ebi.ac.uk.test.createFile
 import ebi.ac.uk.util.collections.ifRight
 import io.github.glytching.junit.extension.folder.TemporaryFolder
@@ -34,6 +35,7 @@ import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -73,6 +75,11 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
 
             sequenceRepository.save(Sequence("S-BSST"))
             tagsRefRepository.save(DbTag(classifier = "classifier", name = "tag"))
+        }
+
+        @BeforeEach
+        fun beforeEach() {
+            tempFolder.clean()
         }
 
         @Test
@@ -346,6 +353,68 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
             assertThat(File("$submissionPath/${resubmitted.relPath}/Files/file section.doc")).exists()
             assertThat(File("$submissionPath/${resubmitted.relPath}/Files/fileSubSection.txt")).exists()
             assertThat(File("$submissionPath/${resubmitted.relPath}/Files/fileSubSection.txt")).hasContent("newContent")
+            assertThat(File("$submissionPath/${resubmitted.relPath}/Files/a/fileFileList.pdf")).exists()
+        }
+
+        @Test
+        fun `resubmit existing submission with the same files`() {
+            fun submission(accNo: String? = null) = tsv {
+                if (accNo == null) line("Submission") else line("Submission", accNo)
+                line("Title", "Simple Submission With Files 2")
+                line("ReleaseDate", "2020-01-25")
+                line()
+
+                line("Study")
+                line("Type", "Experiment")
+                line("File List", "file-list.tsv")
+                line()
+
+                line("File", "file section.doc")
+                line("Type", "test")
+                line()
+
+                line("Experiment", "Exp1")
+                line("Type", "Subsection")
+                line()
+
+                line("File", "fileSubSection.txt")
+                line("Type", "Attached")
+                line()
+            }.toString()
+
+            val fileListContent = tsv {
+                line("Files", "Type")
+                line("a/fileFileList.pdf", "inner")
+                line("a", "folder")
+            }.toString()
+
+            webClient.uploadFiles(
+                listOf(
+                    tempFolder.createFile("fileSubSection.txt", "content"),
+                    tempFolder.createFile("file-list.tsv", fileListContent),
+                    tempFolder.createFile("file section.doc"),
+                )
+            )
+            webClient.uploadFiles(listOf(tempFolder.createFile("fileFileList.pdf")), "a")
+
+            val response = webClient.submitSingle(submission(), TSV)
+            val accNo = response.body.accNo
+
+            val submitted = submissionRepository.getExtByAccNo(accNo)
+            assertThat(response).isSuccessful()
+            assertThat(submitted.version).isEqualTo(1)
+            assertThat(File("$submissionPath/${submitted.relPath}/Files/file section.doc")).exists()
+            assertThat(File("$submissionPath/${submitted.relPath}/Files/fileSubSection.txt")).exists()
+            assertThat(File("$submissionPath/${submitted.relPath}/Files/fileSubSection.txt")).hasContent("content")
+            assertThat(File("$submissionPath/${submitted.relPath}/Files/a/fileFileList.pdf")).exists()
+
+            val reSubmitResponse = webClient.submitSingle(submission(accNo), TSV)
+            assertThat(reSubmitResponse).isSuccessful()
+            val resubmitted = submissionRepository.getExtByAccNo(accNo)
+            assertThat(resubmitted.version).isEqualTo(2)
+            assertThat(File("$submissionPath/${resubmitted.relPath}/Files/file section.doc")).exists()
+            assertThat(File("$submissionPath/${resubmitted.relPath}/Files/fileSubSection.txt")).exists()
+            assertThat(File("$submissionPath/${resubmitted.relPath}/Files/fileSubSection.txt")).hasContent("content")
             assertThat(File("$submissionPath/${resubmitted.relPath}/Files/a/fileFileList.pdf")).exists()
         }
 

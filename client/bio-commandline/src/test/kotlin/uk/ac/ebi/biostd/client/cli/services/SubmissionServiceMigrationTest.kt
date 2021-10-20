@@ -97,8 +97,8 @@ class SubmissionServiceMigrationTest(
             type = "Study",
             fileList = ExtFileList(
                 "test-file-list",
-                listOf(NfsFile(referencedFile.name, referencedFile, emptyList())),
-                filesUrl = "/submissions/extended/S-BSST1/referencedFiles/test-file-list"
+                filesUrl = "/submissions/extended/S-BSST1/referencedFiles/test-file-list",
+                pageTabFiles = listOf(NfsFile("filePath", "relPath", referencedFile, emptyList()))
             )
         )
 
@@ -115,6 +115,13 @@ class SubmissionServiceMigrationTest(
         every { sourceClient.getExtByAccNo("S-BSST1") } returns extSubmission
         every {
             sourceClient.getReferencedFiles("/submissions/extended/S-BSST1/referencedFiles/test-file-list")
-        } returns ExtFileTable(NfsFile(referencedFile.name, referencedFile, emptyList()))
+        } returns ExtFileTable(
+            NfsFile(
+                filePath = "folder/referenced.pdf",
+                relPath = "Files/folder/referenced.pdf",
+                file = referencedFile,
+                attributes = emptyList()
+            )
+        )
     }
 }

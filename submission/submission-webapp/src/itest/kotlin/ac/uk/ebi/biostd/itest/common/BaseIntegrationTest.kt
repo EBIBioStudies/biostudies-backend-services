@@ -41,8 +41,8 @@ internal open class BaseIntegrationTest(private val tempFolder: TemporaryFolder)
     val submissionPath
         get() = "${tempFolder.root.absolutePath}/submission"
 
-    val mysqlMode
-        get() = System.getProperty("itest.mode") != "mongo"
+    val fireTempFolder
+        get() = "${System.getProperty("app.tempDirPath")}/fire-temp"
 
     val enableFire
         get() = System.getProperty("enableFire").toBoolean()

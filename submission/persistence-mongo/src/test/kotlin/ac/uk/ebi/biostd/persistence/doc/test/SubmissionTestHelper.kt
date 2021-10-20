@@ -41,9 +41,9 @@ private const val STAT_TYPE = "VIEWS"
 private const val STAT_VALUE = 123L
 internal const val REL_PATH = "S-TEST/123/S-TEST123"
 
-val fireDocFile = FireDocFile("filename", "filePath", "fireId", listOf(), "md5", 1L)
-val fireDocDirectory = FireDocDirectory("filename", listOf(), "md5", 1L)
-val nfsDocFile = NfsDocFile("filename", "fireId", "fileAbsPath", listOf(), "md5", 1L)
+val fireDocFile = FireDocFile("filename", "filePath", "relPath", "fireId", listOf(), "md5", 1L)
+val fireDocDirectory = FireDocDirectory("filename", "filePath", "relPath", listOf(), "md5", 1L)
+val nfsDocFile = NfsDocFile("filename", "filePath", "relPath", "fileAbsPath", listOf(), "md5", 1L, "fileType")
 
 object SubmissionTestHelper {
     private val time = Instant.now()
@@ -80,12 +80,36 @@ object SubmissionTestHelper {
         assertStats(extSubmission)
         assertProject(extSubmission)
         assertThat(extSubmission.pageTabFiles.first()).isEqualTo(
-            FireFile(fireDocFile.fileName, fireDocFile.filePath, fireDocFile.fireId, fireDocFile.md5, 1, listOf())
+            FireFile(
+                fireDocFile.fileName,
+                fireDocFile.filePath,
+                fireDocFile.relPath,
+                fireDocFile.fireId,
+                fireDocFile.md5,
+                1,
+                listOf()
+            )
         )
         assertThat(extSubmission.pageTabFiles.second()).isEqualTo(
-            FireDirectory(fireDocDirectory.fileName, fireDocDirectory.md5, fireDocDirectory.fileSize, listOf())
+            FireDirectory(
+                fireDocDirectory.fileName,
+                fireDocDirectory.filePath,
+                fireDocDirectory.relPath,
+                fireDocDirectory.md5,
+                fireDocDirectory.fileSize,
+                listOf()
+            )
         )
-        assertThat(extSubmission.pageTabFiles.third()).isEqualTo(NfsFile(nfsFileFile.name, nfsFileFile, listOf()))
+        assertThat(extSubmission.pageTabFiles.third()).isEqualTo(
+            NfsFile(
+                nfsFileFile.name,
+                "filePath",
+                "relPath",
+                nfsFileFile.absolutePath,
+                nfsFileFile,
+                listOf()
+            )
+        )
     }
 
     private fun assertBasicProperties(extSubmission: ExtSubmission) {
@@ -97,12 +121,12 @@ object SubmissionTestHelper {
         assertThat(extSubmission.method).isEqualTo(ExtSubmissionMethod.PAGE_TAB)
         assertThat(extSubmission.relPath).isEqualTo(REL_PATH)
         assertThat(extSubmission.rootPath).isEqualTo(ROOT_PATH)
+        assertThat(extSubmission.released).isFalse
         assertThat(extSubmission.secretKey).isEqualTo(SECRET_KEY)
         assertThat(extSubmission.status).isEqualTo(ExtProcessingStatus.PROCESSED)
         assertThat(extSubmission.releaseTime).isEqualTo(time.atOffset(UTC))
         assertThat(extSubmission.modificationTime).isEqualTo(time.atOffset(UTC))
         assertThat(extSubmission.creationTime).isEqualTo(time.atOffset(UTC))
-        assertThat(extSubmission.released).isFalse
     }
 
     private fun assertAttributes(extSubmission: ExtSubmission) {

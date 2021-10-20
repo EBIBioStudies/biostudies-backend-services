@@ -14,12 +14,12 @@ import java.io.File
 fun SerializationService.generateSubPageTab(
     sub: ExtSubmission,
     target: File
-): TabFiles = saveTabFiles(target, sub.accNo, sub.toSimpleSubmission(), sub.permissions())
+): PageTabFiles = saveTabFiles(target, sub.accNo, sub.toSimpleSubmission(), sub.permissions())
 
 fun SerializationService.generateFileListPageTab(
     sub: ExtSubmission,
     target: File
-): Map<String, TabFiles> = sub
+): Map<String, PageTabFiles> = sub
     .allFileList
     .associate { it.fileName to saveTabFiles(target, it.fileName, it.toFilesTable(), sub.permissions()) }
 
@@ -28,7 +28,7 @@ private fun <T> SerializationService.saveTabFiles(
     filename: String,
     element: T,
     permissions: Permissions
-): TabFiles {
+): PageTabFiles {
     val json = serializeElement(element, SubFormat.JSON_PRETTY)
     val xml = serializeElement(element, SubFormat.XML)
     val tsv = serializeElement(element, SubFormat.TSV)
@@ -41,7 +41,7 @@ private fun <T> SerializationService.saveTabFiles(
     FileUtils.writeContent(xmlFile, xml, permissions)
     FileUtils.writeContent(tsvFile, tsv, permissions)
 
-    return TabFiles(jsonFile, xmlFile, tsvFile)
+    return PageTabFiles(jsonFile, xmlFile, tsvFile)
 }
 
-data class TabFiles(val json: File, val xml: File, val tsv: File)
+data class PageTabFiles(val json: File, val xml: File, val tsv: File)
