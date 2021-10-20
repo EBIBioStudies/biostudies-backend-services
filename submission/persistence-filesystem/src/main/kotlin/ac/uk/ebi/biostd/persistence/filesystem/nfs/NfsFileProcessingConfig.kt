@@ -39,8 +39,12 @@ fun NfsFileProcessingConfig.nfsCopy(extFile: NfsFile): NfsFile {
 }
 
 fun NfsFileProcessingConfig.nfsMove(extFile: NfsFile): NfsFile {
+    val file = extFile.file
     val target = targetFolder.resolve(extFile.filePath)
     val subFile = subFolder.resolve(extFile.filePath)
+
+    logger.info { "$accNo $owner Moving file $file with size ${file.size()} into ${target.absolutePath}" }
+
     if (target.exists().not()) moveFile(extFile.file, target, permissions)
     return extFile.copy(fullPath = subFile.absolutePath, file = subFile)
 }
