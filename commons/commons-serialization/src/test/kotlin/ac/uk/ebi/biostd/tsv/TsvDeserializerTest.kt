@@ -73,6 +73,7 @@ class TsvDeserializerTest {
                 attribute("Title", "The \"Submission\": title.")
                 attribute("Abstract", "\"The Submission\": this is description.")
                 attribute("Sub-Title", "\"The Submission (quoted)\": this is description.")
+                attribute("Double Quote Attribute", "\"one value\" OR \"the other\"")
             }
         )
     }
