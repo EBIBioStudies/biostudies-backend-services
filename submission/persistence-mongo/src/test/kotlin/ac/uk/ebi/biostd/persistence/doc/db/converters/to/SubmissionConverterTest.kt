@@ -13,6 +13,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_RELEASE_TIME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_REL_PATH
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ROOT_PATH
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_SCHEMA_VERSION
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_SECRET_KEY
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_SECTION
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_STATUS
@@ -67,6 +68,7 @@ internal class SubmissionConverterTest(
         assertThat(result[SUB_ID]).isEqualTo(submissionId)
         assertThat(result[SUB_ACC_NO]).isEqualTo(submissionAccNo)
         assertThat(result[SUB_VERSION]).isEqualTo(submissionVersion)
+        assertThat(result[SUB_SCHEMA_VERSION]).isEqualTo(submissionSchemaVersion)
         assertThat(result[SUB_OWNER]).isEqualTo(submissionOwner)
         assertThat(result[SUB_SUBMITTER]).isEqualTo(submissionSubmitter)
         assertThat(result[SUB_TITLE]).isEqualTo(submissionTitle)
@@ -107,6 +109,7 @@ internal class SubmissionConverterTest(
             id = submissionId,
             accNo = submissionAccNo,
             version = submissionVersion,
+            schemaVersion = submissionSchemaVersion,
             owner = submissionOwner,
             submitter = submissionSubmitter,
             title = submissionTitle,
@@ -132,6 +135,7 @@ internal class SubmissionConverterTest(
         val submissionId = ObjectId()
         const val submissionAccNo = "S-TEST1"
         const val submissionVersion = 1
+        const val submissionSchemaVersion = "1.0"
         const val submissionOwner = "owner@mail.org"
         const val submissionSubmitter = "submitter@mail.org"
         const val submissionTitle = "TestSubmission"

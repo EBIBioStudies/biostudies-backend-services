@@ -20,6 +20,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_RELEASE_TIME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_REL_PATH
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ROOT_PATH
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_SCHEMA_VERSION
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_SECRET_KEY
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_SECTION
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_STATS
@@ -50,6 +51,7 @@ class SubmissionConverter(
         submissionDoc[SUB_ID] = submission.id
         submissionDoc[SUB_ACC_NO] = submission.accNo
         submissionDoc[SUB_VERSION] = submission.version
+        submissionDoc[SUB_SCHEMA_VERSION] = submission.schemaVersion
         submissionDoc[SUB_OWNER] = submission.owner
         submissionDoc[SUB_SUBMITTER] = submission.submitter
         submissionDoc[SUB_TITLE] = submission.title

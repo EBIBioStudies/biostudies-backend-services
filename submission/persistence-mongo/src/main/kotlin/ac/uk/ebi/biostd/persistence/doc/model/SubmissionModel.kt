@@ -21,6 +21,7 @@ data class DocSubmission(
     val id: ObjectId,
     val accNo: String,
     var version: Int,
+    var schemaVersion: String,
     val owner: String,
     val submitter: String,
     val title: String?,

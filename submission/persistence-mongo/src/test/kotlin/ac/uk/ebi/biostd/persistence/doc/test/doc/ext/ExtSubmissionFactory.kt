@@ -15,6 +15,7 @@ import java.time.ZoneOffset
 
 const val SUBMISSION_ACC_NO = "S-TEST1"
 const val SUBMISSION_VERSION = 1
+const val SUBMISSION_SCHEMA_VERSION = "1.0"
 const val SUBMISSION_OWNER = "owner@mail.org"
 const val SUBMISSION_SUBMITTER = "submitter@mail.org"
 const val SUBMISSION_TITLE = "TestSubmission"
@@ -77,6 +78,7 @@ val nfsFile = NfsFile(NFS_FILEPATH, NFS_REL_PATH, NFS_FULL_PATH, NFS_FILE, listO
 val fullExtSubmission = ExtSubmission(
     accNo = SUBMISSION_ACC_NO,
     version = SUBMISSION_VERSION,
+    schemaVersion = SUBMISSION_SCHEMA_VERSION,
     owner = SUBMISSION_OWNER,
     submitter = SUBMISSION_SUBMITTER,
     title = SUBMISSION_TITLE,

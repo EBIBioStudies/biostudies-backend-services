@@ -66,6 +66,7 @@ import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUBMISSION_OWNER
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUBMISSION_RELEASED
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUBMISSION_REL_PATH
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUBMISSION_ROOT_PATH
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUBMISSION_SCHEMA_VERSION
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUBMISSION_SECRET_KEY
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUBMISSION_SUBMITTER
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUBMISSION_TITLE
@@ -228,6 +229,7 @@ class ToDocSubmissionTest(tempFolder: TemporaryFolder) {
     private fun assertSimpleDocProperties(docSubmission: DocSubmission) {
         assertThat(docSubmission.accNo).isEqualTo(SUBMISSION_ACC_NO)
         assertThat(docSubmission.version).isEqualTo(SUBMISSION_VERSION)
+        assertThat(docSubmission.schemaVersion).isEqualTo(SUBMISSION_SCHEMA_VERSION)
         assertThat(docSubmission.owner).isEqualTo(SUBMISSION_OWNER)
         assertThat(docSubmission.submitter).isEqualTo(SUBMISSION_SUBMITTER)
         assertThat(docSubmission.title).isEqualTo(SUBMISSION_TITLE)
