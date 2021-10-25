@@ -52,7 +52,9 @@ class EuToxRiskValidatorTest(
         val submission = basicExtSubmission.copy(
             section = ExtSection(
                 type = "Study",
-                files = listOf(left(NfsFile("filePath/test.xlsx", "relPath", "fullPath", excelFile)))
+                files = listOf(
+                    left(NfsFile("folder/test.xlsx", "Files/folder/test.xlsx", "../Files/folder/test.xlsx", excelFile))
+                )
             )
         )
 
@@ -87,7 +89,9 @@ class EuToxRiskValidatorTest(
         val submission = basicExtSubmission.copy(
             section = ExtSection(
                 type = "Study",
-                files = listOf(left(NfsFile("filePath/test.xlsx", "relPath", "fullPath", excelFile)))
+                files = listOf(
+                    left(NfsFile("folder/test.xlsx", "Files/folder/test.xlsx", "../Files/folder/test.xlsx", excelFile))
+                )
             )
         )
 
@@ -109,7 +113,9 @@ class EuToxRiskValidatorTest(
         val submission = basicExtSubmission.copy(
             section = ExtSection(
                 type = "Study",
-                files = listOf(left(NfsFile("filePath/test.txt", "relPath", "fullPath", textFile)))
+                files = listOf(
+                    left(NfsFile("folder/test.txt", "Files/folder/test.txt", "../Files/folder/test.txt", textFile))
+                )
             )
         )
 

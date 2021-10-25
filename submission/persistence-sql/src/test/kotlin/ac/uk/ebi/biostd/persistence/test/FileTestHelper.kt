@@ -9,9 +9,9 @@ import java.nio.file.Files
 
 internal val extTestFile
     get() = NfsFile(
-        "filePath/fileName",
-        "relPath",
-        "fullPath",
+        "folder/fileName",
+        "Files/folder/fileName",
+        "../Files/folder/fileName",
         createTempFile,
         listOf(extAttribute)
     )

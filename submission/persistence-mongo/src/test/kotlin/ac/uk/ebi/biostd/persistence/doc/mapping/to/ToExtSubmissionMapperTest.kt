@@ -9,7 +9,7 @@ import ac.uk.ebi.biostd.persistence.doc.test.FileTestHelper.nfsDocFile
 import ac.uk.ebi.biostd.persistence.doc.test.SectionTestHelper.docSection
 import ac.uk.ebi.biostd.persistence.doc.test.SubmissionTestHelper.assertExtSubmission
 import ac.uk.ebi.biostd.persistence.doc.test.SubmissionTestHelper.docSubmission
-import ac.uk.ebi.biostd.persistence.doc.test.TEST_REL_PATH
+import ac.uk.ebi.biostd.persistence.doc.test.TEST_FILENAME
 import arrow.core.Either.Companion.left
 import ebi.ac.uk.io.ext.createDirectory
 import ebi.ac.uk.io.ext.createNewFile
@@ -24,13 +24,13 @@ import ac.uk.ebi.biostd.persistence.doc.test.fireDocDirectory as subFireDocDirec
 import ac.uk.ebi.biostd.persistence.doc.test.fireDocFile as subFireDocFile
 
 @ExtendWith(TemporaryFolderExtension::class)
-class ToExtSubmissionMapperTest(temporaryFolder: TemporaryFolder) {
+class ToExtSubmissionMapperTest(private val temporaryFolder: TemporaryFolder) {
     private val baseFolder = temporaryFolder.createDirectory("submissions")
     private val testFolder = baseFolder.createDirectory("S-TEST")
     private val innerFolder = testFolder.createDirectory("123")
     private val submissionFolder = innerFolder.createDirectory("S-TEST123")
     private val filesFolder = submissionFolder.createDirectory(FILES_DIR)
-    private val sectionFile = filesFolder.createNewFile(TEST_REL_PATH)
+    private val sectionFile = filesFolder.createNewFile(TEST_FILENAME)
     private val testInstance = ToExtSubmissionMapper()
     private val fileNfs = temporaryFolder.createDirectory("folder").createNewFile("nfsFileFile.txt")
 

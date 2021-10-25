@@ -18,8 +18,8 @@ import org.bson.types.ObjectId
 import java.io.File
 
 internal const val TEST_FILENAME = "file.txt"
-internal const val TEST_FILEPATH = "filePath/folder/file.txt"
-internal const val TEST_REL_PATH = "relPath"
+internal const val TEST_FILEPATH = "folder/file.txt"
+internal const val TEST_REL_PATH = "Files/folder/file.txt"
 internal const val TEST_DIRECTORY = "fire-directory.txt"
 internal const val TEST_FILEPATH_DIRECTORY = "filePath/folder/fire-directory.txt"
 internal const val TEST_FULL_PATH = "/a/full/path/file.txt"

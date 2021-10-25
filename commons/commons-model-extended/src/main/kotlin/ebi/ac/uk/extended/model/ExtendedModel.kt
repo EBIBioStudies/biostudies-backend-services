@@ -22,10 +22,11 @@ data class ExtLink(
 )
 
 sealed class ExtFile {
-    abstract val fileName: String
     abstract val filePath: String
     abstract val relPath: String
     abstract val attributes: List<ExtAttribute>
+    val fileName: String
+        get() = filePath.substringAfterLast("/")
 }
 
 data class FireFile(
@@ -35,10 +36,7 @@ data class FireFile(
     val md5: String,
     val size: Long,
     override val attributes: List<ExtAttribute>
-) : ExtFile() {
-    override val fileName: String
-        get() = filePath.substringAfterLast("/")
-}
+) : ExtFile()
 
 data class FireDirectory(
     override val filePath: String,
@@ -46,10 +44,7 @@ data class FireDirectory(
     val md5: String,
     val size: Long,
     override val attributes: List<ExtAttribute>
-) : ExtFile() {
-    override val fileName: String
-        get() = filePath.substringAfterLast("/")
-}
+) : ExtFile()
 
 data class NfsFile(
     override val filePath: String,
@@ -58,8 +53,6 @@ data class NfsFile(
     val file: File,
     override val attributes: List<ExtAttribute> = listOf()
 ) : ExtFile() {
-    override val fileName: String
-        get() = filePath.substringAfterLast("/")
 
     constructor(filePath: String, relPath: String, file: File, attributes: List<ExtAttribute> = listOf()) :
         this(filePath, relPath, file.absolutePath, file, attributes)

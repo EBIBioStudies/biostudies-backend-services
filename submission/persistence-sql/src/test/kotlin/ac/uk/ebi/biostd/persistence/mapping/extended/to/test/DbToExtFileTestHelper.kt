@@ -11,7 +11,7 @@ import ebi.ac.uk.io.sources.BioFile
 import ebi.ac.uk.io.sources.NfsBioFile
 import org.assertj.core.api.Assertions.assertThat
 
-internal const val FILE_NAME = "fileName"
+internal const val FILE_NAME = "file.txt"
 
 internal val fileDb get() = DbFile(FILE_NAME, 1, 55L, sortedSetOf(fileAttributeDb), false)
 

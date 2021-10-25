@@ -69,9 +69,9 @@ val fireDirectory = FireDirectory(
 )
 
 const val NFS_FILENAME = "nfsFileName"
-const val NFS_FILEPATH = "nfsFilePath/nfsFileName"
-const val NFS_REL_PATH = "nfsRelPath"
-const val NFS_FULL_PATH = "nfsFullPath"
+const val NFS_FILEPATH = "nfsFileFolder/nfsFileName"
+const val NFS_REL_PATH = "Files/nfsFileFolder/nfsFileName"
+const val NFS_FULL_PATH = "../Files/nfsFileFolder/nfsFileName"
 val NFS_FILE = File(NFS_FILENAME)
 val nfsFile = NfsFile(NFS_FILEPATH, NFS_REL_PATH, NFS_FULL_PATH, NFS_FILE, listOf())
 

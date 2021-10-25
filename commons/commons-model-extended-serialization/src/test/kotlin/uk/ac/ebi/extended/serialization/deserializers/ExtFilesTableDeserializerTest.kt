@@ -24,9 +24,9 @@ class ExtFilesTableDeserializerTest(private val tempFolder: TemporaryFolder) {
             "files" to jsonArray(
                 jsonObj {
                     "fileName" to "test-file.txt"
-                    "filePath" to "filePath/test-file.txt"
-                    "relPath" to "relPath"
-                    "fullPath" to "fullPath"
+                    "filePath" to "folder/test-file.txt"
+                    "relPath" to "Files/folder/test-file.txt"
+                    "fullPath" to "../Files/folder/test-file.txt"
                     "file" to file.absolutePath
                     "attributes" to jsonArray(
                         jsonObj {
@@ -47,9 +47,9 @@ class ExtFilesTableDeserializerTest(private val tempFolder: TemporaryFolder) {
 
         val extFile = extFilesTable.files.first() as NfsFile
         assertThat(extFile.fileName).isEqualTo("test-file.txt")
-        assertThat(extFile.filePath).isEqualTo("filePath/test-file.txt")
-        assertThat(extFile.relPath).isEqualTo("relPath")
-        assertThat(extFile.fullPath).isEqualTo("fullPath")
+        assertThat(extFile.filePath).isEqualTo("folder/test-file.txt")
+        assertThat(extFile.relPath).isEqualTo("Files/folder/test-file.txt")
+        assertThat(extFile.fullPath).isEqualTo("../Files/folder/test-file.txt")
         assertThat(extFile.file).isEqualTo(file)
         assertThat(extFile.attributes).hasSize(1)
         assertThat(extFile.attributes.first().name).isEqualTo("Type")

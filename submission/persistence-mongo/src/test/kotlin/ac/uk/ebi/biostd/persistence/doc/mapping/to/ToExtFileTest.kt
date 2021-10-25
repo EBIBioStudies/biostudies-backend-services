@@ -10,7 +10,8 @@ import ac.uk.ebi.biostd.persistence.doc.test.FileTestHelper.docFileList
 import ac.uk.ebi.biostd.persistence.doc.test.FileTestHelper.fireDocDirectory
 import ac.uk.ebi.biostd.persistence.doc.test.FileTestHelper.fireDocFile
 import ac.uk.ebi.biostd.persistence.doc.test.FileTestHelper.nfsDocFile
-import ac.uk.ebi.biostd.persistence.doc.test.TEST_REL_PATH
+import ac.uk.ebi.biostd.persistence.doc.test.TEST_FILENAME
+import ac.uk.ebi.biostd.persistence.doc.test.TEST_FILEPATH
 import arrow.core.Either.Companion.left
 import arrow.core.Either.Companion.right
 import ebi.ac.uk.extended.model.NfsFile
@@ -27,7 +28,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(TemporaryFolderExtension::class)
 class ToExtFileTest(temporaryFolder: TemporaryFolder) {
-    private val testFile = temporaryFolder.createFile(TEST_REL_PATH)
+    private val testFile = temporaryFolder.createFile(TEST_FILENAME)
     private val testNfsDocFile = nfsDocFile.copy(fullPath = testFile.absolutePath)
 
     @Test
@@ -86,7 +87,7 @@ class ToExtFileTest(temporaryFolder: TemporaryFolder) {
         val fileListDocFile = FileListDocFile(
             id,
             submissionId,
-            TEST_REL_PATH,
+            TEST_FILEPATH,
             testFile.absolutePath,
             listOf(basicDocAttribute),
             "test-md5",
@@ -95,7 +96,7 @@ class ToExtFileTest(temporaryFolder: TemporaryFolder) {
         )
 
         val extFile = fileListDocFile.toExtFile() as NfsFile
-        assertThat(extFile.fileName).isEqualTo(TEST_REL_PATH)
+        assertThat(extFile.fileName).isEqualTo(TEST_FILENAME)
         assertThat(extFile.file).isEqualTo(testFile)
         assertThat(extFile.attributes).containsExactly(basicDocAttribute.toExtAttribute())
         assertThat(extFile.md5).isEqualTo("test-md5")
