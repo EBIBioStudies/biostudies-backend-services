@@ -18,7 +18,9 @@ include:
 
 stages:
   - build-test
-  - mysql-itest
+  - mongo-nfs-itest
+  - mysql-fire-itest
+  - mysql-nfs-itest
   - auto-deploy-dev-bio-commandline
   - auto-deploy-dev-submitter
   - auto-deploy-dev-handlers
@@ -59,6 +61,14 @@ build-test:
       - submission/submission-webapp/build/libs/submission-webapp-1.0.0.jar
       - submission/submission-handlers/build/libs/submission-handlers-1.0.0.jar
 
-mysql-itest:
-  stage: mysql-itest
+mongo-nfs-itest:
+  stage: mongo-nfs-itest
+  script: gradle clean :submission:submission-webapp:itest -PenableFire=false --rerun-tasks --stacktrace
+
+mysql-fire-itest:
+  stage: mysql-fire-itest
   script: gradle clean :submission:submission-webapp:itest -Pitest.mode=mysql --rerun-tasks --stacktrace
+
+mysql-nfs-itest:
+  stage: mysql-nfs-itest
+  script: gradle clean :submission:submission-webapp:itest -Pitest.mode=mysql -PenableFire=false --rerun-tasks --stacktrace
