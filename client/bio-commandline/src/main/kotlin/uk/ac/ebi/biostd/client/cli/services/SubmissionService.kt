@@ -25,10 +25,13 @@ internal class SubmissionService {
     fun migrate(request: MigrationRequest) = performRequest { migrateRequest(request) }
 
     private fun submitRequest(request: SubmissionRequest): Submission =
-        bioWebClient(request.server, request.user, request.password).submitSingle(request.file, request.attached).body
+        bioWebClient(request.server, request.user, request.password)
+            .submitSingle(request.file, request.attached, fileMode = request.fileMode)
+            .body
 
     private fun submitAsyncRequest(request: SubmissionRequest) =
-        bioWebClient(request.server, request.user, request.password).asyncSubmitSingle(request.file, request.attached)
+        bioWebClient(request.server, request.user, request.password)
+            .asyncSubmitSingle(request.file, request.attached, fileMode = request.fileMode)
 
     private fun deleteRequest(request: DeletionRequest) =
         bioWebClient(request.server, request.user, request.password).deleteSubmissions(request.accNoList)

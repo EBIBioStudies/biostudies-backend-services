@@ -4,7 +4,6 @@ import com.github.ajalt.clikt.core.IncorrectOptionValueCount
 import com.github.ajalt.clikt.core.MissingParameter
 import ebi.ac.uk.extended.model.FileMode.COPY
 import ebi.ac.uk.extended.model.FileMode.MOVE
-import ebi.ac.uk.model.Submission
 import ebi.ac.uk.test.clean
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
@@ -22,11 +21,11 @@ import uk.ac.ebi.biostd.client.cli.dto.SubmissionRequest
 import uk.ac.ebi.biostd.client.cli.services.SubmissionService
 
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
-internal class SubmitCommandTest(
+internal class SubmitAsyncCommandTest(
     private val temporaryFolder: TemporaryFolder,
     @MockK private val submissionService: SubmissionService
 ) {
-    private var testInstance = SubmitCommand(submissionService)
+    private var testInstance = SubmitAsyncCommand(submissionService)
     private val rootFolder: String = temporaryFolder.root.absolutePath
 
     @AfterEach
@@ -36,9 +35,7 @@ internal class SubmitCommandTest(
     }
 
     @Test
-    fun `submit successful`() {
-        val mockResponse = Submission("S-TEST123")
-
+    fun `submit async successful`() {
         val submission = temporaryFolder.createFile("Submission.tsv")
         val attachedFile1 = temporaryFolder.createFile("attachedFile1.tsv")
         val attachedFile2 = temporaryFolder.createFile("attachedFile2.tsv")
@@ -52,7 +49,7 @@ internal class SubmitCommandTest(
             attached = listOf(attachedFile1, attachedFile2),
             fileMode = COPY
         )
-        every { submissionService.submit(request) } returns mockResponse
+        every { submissionService.submitAsync(request) } answers { nothing }
 
         testInstance.parse(
             listOf(
@@ -64,13 +61,11 @@ internal class SubmitCommandTest(
             )
         )
 
-        verify(exactly = 1) { submissionService.submit(request) }
+        verify(exactly = 1) { submissionService.submitAsync(request) }
     }
 
     @Test
-    fun `submit successful moving files`() {
-        val mockResponse = Submission("S-TEST123")
-
+    fun `submit async successful moving files`() {
         val submission = temporaryFolder.createFile("Submission.tsv")
         val attachedFile1 = temporaryFolder.createFile("attachedFile1.tsv")
         val attachedFile2 = temporaryFolder.createFile("attachedFile2.tsv")
@@ -84,7 +79,7 @@ internal class SubmitCommandTest(
             attached = listOf(attachedFile1, attachedFile2),
             fileMode = MOVE
         )
-        every { submissionService.submit(request) } returns mockResponse
+        every { submissionService.submitAsync(request) } answers { nothing }
 
         testInstance.parse(
             listOf(
@@ -97,7 +92,7 @@ internal class SubmitCommandTest(
             )
         )
 
-        verify(exactly = 1) { submissionService.submit(request) }
+        verify(exactly = 1) { submissionService.submitAsync(request) }
     }
 
     @Test

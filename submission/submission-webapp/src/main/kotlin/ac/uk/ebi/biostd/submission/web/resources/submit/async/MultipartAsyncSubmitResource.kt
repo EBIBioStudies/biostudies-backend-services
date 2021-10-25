@@ -132,7 +132,7 @@ class MultipartAsyncSubmitResource(
             user = user,
             format = TSV,
             fileMode = mode,
-            attrs = attributes,
+            attrs = attributes.filterNot { it.key == FILE_MODE },
             files = tempFiles
         )
         submitWebHandler.submitAsync(contentWebRequest)

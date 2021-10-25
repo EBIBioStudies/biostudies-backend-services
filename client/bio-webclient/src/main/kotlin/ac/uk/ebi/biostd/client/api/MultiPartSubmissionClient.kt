@@ -8,8 +8,10 @@ import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.JSON
 import ac.uk.ebi.biostd.integration.SubFormat.JsonFormat.JsonPretty
 import ebi.ac.uk.api.ClientResponse
+import ebi.ac.uk.extended.model.FileMode
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.constants.FILES
+import ebi.ac.uk.model.constants.FILE_MODE
 import ebi.ac.uk.model.constants.SUBMISSION
 import org.springframework.core.io.FileSystemResource
 import org.springframework.http.HttpEntity
@@ -29,9 +31,14 @@ internal class MultiPartSubmissionClient(
     private val template: RestTemplate,
     private val serializationService: SerializationService
 ) : MultipartSubmissionOperations {
-    override fun submitSingle(submission: File, files: List<File>, attrs: Map<String, String>): SubmissionResponse {
+    override fun submitSingle(
+        submission: File,
+        files: List<File>,
+        attrs: Map<String, String>,
+        fileMode: FileMode
+    ): SubmissionResponse {
         val headers = HttpHeaders().apply { contentType = MediaType.MULTIPART_FORM_DATA }
-        val multiPartBody = getMultipartBody(files, FileSystemResource(submission)).apply {
+        val multiPartBody = getMultipartBody(files, fileMode, FileSystemResource(submission)).apply {
             attrs.entries.forEach { add(it.key, it.value) }
         }
 
@@ -40,15 +47,23 @@ internal class MultiPartSubmissionClient(
             .let { ClientResponse(it.body!!, it.statusCode.value()) }
     }
 
-    override fun submitSingle(submission: String, format: SubmissionFormat, files: List<File>): SubmissionResponse {
-        val headers = createHeaders(format)
-        val body = getMultipartBody(files, submission)
-        return submit(HttpEntity(body, headers))
-    }
+    override fun submitSingle(
+        submission: String,
+        format: SubmissionFormat,
+        files: List<File>,
+        fileMode: FileMode
+    ): SubmissionResponse = submit(HttpEntity(getMultipartBody(files, fileMode, submission), createHeaders(format)))
 
-    override fun submitSingle(submission: Submission, format: SubmissionFormat, files: List<File>): SubmissionResponse {
+    override fun submitSingle(
+        submission: Submission,
+        format: SubmissionFormat,
+        files: List<File>,
+        fileMode: FileMode
+    ): SubmissionResponse {
         val headers = createHeaders(format)
-        val body = getMultipartBody(files, serializationService.serializeSubmission(submission, format.asSubFormat()))
+        val serializedSubmission = serializationService.serializeSubmission(submission, format.asSubFormat())
+        val body = getMultipartBody(files, fileMode, serializedSubmission)
+
         return submit(HttpEntity(body, headers))
     }
 
@@ -63,10 +78,11 @@ internal class MultiPartSubmissionClient(
         setSubmissionType(format.submissionType)
     }
 
-    private fun getMultipartBody(files: List<File>, submission: Any) =
+    private fun getMultipartBody(files: List<File>, fileMode: FileMode, submission: Any) =
         LinkedMultiValueMap(
             files.map { FILES to FileSystemResource(it) }
                 .plus(SUBMISSION to submission)
+                .plus(FILE_MODE to fileMode.name)
                 .groupBy({ it.first }, { it.second })
         )
 }
