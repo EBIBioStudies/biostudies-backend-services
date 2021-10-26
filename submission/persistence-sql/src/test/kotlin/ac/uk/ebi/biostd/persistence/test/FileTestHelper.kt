@@ -11,7 +11,7 @@ internal val extTestFile
     get() = NfsFile(
         "folder/fileName",
         "Files/folder/fileName",
-        "../Files/folder/fileName",
+        "root/Files/folder/fileName",
         createTempFile,
         listOf(extAttribute)
     )

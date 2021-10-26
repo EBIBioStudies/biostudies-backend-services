@@ -53,7 +53,7 @@ class EuToxRiskValidatorTest(
             section = ExtSection(
                 type = "Study",
                 files = listOf(
-                    left(NfsFile("folder/test.xlsx", "Files/folder/test.xlsx", "../Files/folder/test.xlsx", excelFile))
+                    left(NfsFile("folder/test.xlsx", "Files/folder/test.xlsx", "root/Files/folder/test.xlsx", excelFile))
                 )
             )
         )
@@ -90,7 +90,7 @@ class EuToxRiskValidatorTest(
             section = ExtSection(
                 type = "Study",
                 files = listOf(
-                    left(NfsFile("folder/test.xlsx", "Files/folder/test.xlsx", "../Files/folder/test.xlsx", excelFile))
+                    left(NfsFile("folder/test.xlsx", "Files/folder/test.xlsx", "root/Files/folder/test.xlsx", excelFile))
                 )
             )
         )
@@ -114,7 +114,7 @@ class EuToxRiskValidatorTest(
             section = ExtSection(
                 type = "Study",
                 files = listOf(
-                    left(NfsFile("folder/test.txt", "Files/folder/test.txt", "../Files/folder/test.txt", textFile))
+                    left(NfsFile("folder/test.txt", "Files/folder/test.txt", "root/Files/folder/test.txt", textFile))
                 )
             )
         )

@@ -76,7 +76,7 @@ class ExtSectionDeserializerTest(private val tempFolder: TemporaryFolder) {
                     "fileName" to "section-file-inner-folders.txt"
                     "filePath" to "folder/section-file-inner-folders.txt"
                     "relPath" to "Files/folder/section-file-inner-folders.txt"
-                    "fullPath" to "../Files/folder/section-file-inner-folders.txt"
+                    "fullPath" to "root/Files/folder/section-file-inner-folders.txt"
                     "file" to sectionFile.absolutePath
                     "extType" to "nfsFile"
                 },
@@ -86,7 +86,7 @@ class ExtSectionDeserializerTest(private val tempFolder: TemporaryFolder) {
                             "fileName" to "section-file-table.txt"
                             "filePath" to "folder/section-file-table.txt"
                             "relPath" to "Files/folder/section-file-table.txt"
-                            "fullPath" to "../Files/folder/section-file-table.txt"
+                            "fullPath" to "root/Files/folder/section-file-table.txt"
                             "file" to sectionFilesTable.absolutePath
                             "extType" to "nfsFile"
                         }
@@ -153,7 +153,7 @@ class ExtSectionDeserializerTest(private val tempFolder: TemporaryFolder) {
             assertThat(it.fileName).isEqualTo("section-file-inner-folders.txt")
             assertThat(it.filePath).isEqualTo("folder/section-file-inner-folders.txt")
             assertThat(it.relPath).isEqualTo("Files/folder/section-file-inner-folders.txt")
-            assertThat(it.fullPath).isEqualTo("../Files/folder/section-file-inner-folders.txt")
+            assertThat(it.fullPath).isEqualTo("root/Files/folder/section-file-inner-folders.txt")
             assertThat(it.file).isEqualTo(sectionFile)
         }
 
@@ -166,7 +166,7 @@ class ExtSectionDeserializerTest(private val tempFolder: TemporaryFolder) {
             assertThat(filesTableFile.fileName).isEqualTo("section-file-table.txt")
             assertThat(filesTableFile.filePath).isEqualTo("folder/section-file-table.txt")
             assertThat(filesTableFile.relPath).isEqualTo("Files/folder/section-file-table.txt")
-            assertThat(filesTableFile.fullPath).isEqualTo("../Files/folder/section-file-table.txt")
+            assertThat(filesTableFile.fullPath).isEqualTo("root/Files/folder/section-file-table.txt")
             assertThat(filesTableFile.file).isEqualTo(sectionFilesTable)
         }
 

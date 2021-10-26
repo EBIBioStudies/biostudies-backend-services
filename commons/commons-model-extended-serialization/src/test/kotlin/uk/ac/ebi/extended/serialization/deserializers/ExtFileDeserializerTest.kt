@@ -28,7 +28,7 @@ class ExtFileDeserializerTest(private val tempFolder: TemporaryFolder) {
             "fileName" to "nfs-file.txt"
             "filePath" to "folder/nfs-file.txt"
             "relPath" to "Files/folder/nfs-file.txt"
-            "fullPath" to "../Files/folder/nfs-file.txt"
+            "fullPath" to "root/Files/folder/nfs-file.txt"
             "file" to file.absolutePath
             "attributes" to jsonArray(
                 jsonObj {
@@ -46,7 +46,7 @@ class ExtFileDeserializerTest(private val tempFolder: TemporaryFolder) {
         assertThat(extFile.fileName).isEqualTo("nfs-file.txt")
         assertThat(extFile.filePath).isEqualTo("folder/nfs-file.txt")
         assertThat(extFile.relPath).isEqualTo("Files/folder/nfs-file.txt")
-        assertThat(extFile.fullPath).isEqualTo("../Files/folder/nfs-file.txt")
+        assertThat(extFile.fullPath).isEqualTo("root/Files/folder/nfs-file.txt")
         assertThat(extFile.file).isEqualTo(file)
         assertThat(extFile.attributes).hasSize(1)
         assertThat(extFile.attributes.first().name).isEqualTo("Type")

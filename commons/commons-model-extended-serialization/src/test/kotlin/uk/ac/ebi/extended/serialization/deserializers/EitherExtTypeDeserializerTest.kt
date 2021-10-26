@@ -67,7 +67,7 @@ class EitherExtTypeDeserializerTest(private val tempFolder: TemporaryFolder) {
             "fileName" to "test-file.txt"
             "filePath" to "folder/test-file.txt"
             "relPath" to "Files/folder/test-file.txt"
-            "fullPath" to "../Files/folder/test-file.txt"
+            "fullPath" to "root/Files/folder/test-file.txt"
             "extType" to "nfsFile"
         }.toString()
 
@@ -79,7 +79,7 @@ class EitherExtTypeDeserializerTest(private val tempFolder: TemporaryFolder) {
             assertThat(it.fileName).isEqualTo("test-file.txt")
             assertThat(it.filePath).isEqualTo("folder/test-file.txt")
             assertThat(it.relPath).isEqualTo("Files/folder/test-file.txt")
-            assertThat(it.fullPath).isEqualTo("../Files/folder/test-file.txt")
+            assertThat(it.fullPath).isEqualTo("root/Files/folder/test-file.txt")
         }
     }
 
@@ -93,7 +93,7 @@ class EitherExtTypeDeserializerTest(private val tempFolder: TemporaryFolder) {
                     "fileName" to "test-file-table.txt"
                     "filePath" to "folder/test-file-table.txt"
                     "relPath" to "Files/folder/test-file-table.txt"
-                    "fullPath" to "../Files/folder/test-file-table.txt"
+                    "fullPath" to "root/Files/folder/test-file-table.txt"
                     "extType" to "nfsFile"
                 }
             )
@@ -111,7 +111,7 @@ class EitherExtTypeDeserializerTest(private val tempFolder: TemporaryFolder) {
             assertThat(nfsFile.fileName).isEqualTo("test-file-table.txt")
             assertThat(nfsFile.filePath).isEqualTo("folder/test-file-table.txt")
             assertThat(nfsFile.relPath).isEqualTo("Files/folder/test-file-table.txt")
-            assertThat(nfsFile.fullPath).isEqualTo("../Files/folder/test-file-table.txt")
+            assertThat(nfsFile.fullPath).isEqualTo("root/Files/folder/test-file-table.txt")
         }
     }
 

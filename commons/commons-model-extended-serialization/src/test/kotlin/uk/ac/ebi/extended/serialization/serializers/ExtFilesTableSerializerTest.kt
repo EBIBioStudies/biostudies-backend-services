@@ -25,7 +25,7 @@ class ExtFilesTableSerializerTest(private val tempFolder: TemporaryFolder) {
             NfsFile(
                 filePath = "folder/test-file.txt",
                 relPath = "Files/folder/test-file.txt",
-                fullPath = "../Files/folder/test-file.txt",
+                fullPath = "root/Files/folder/test-file.txt",
                 file = file,
                 attributes = listOf(ExtAttribute("Type", "Data", false))
             )
@@ -36,7 +36,7 @@ class ExtFilesTableSerializerTest(private val tempFolder: TemporaryFolder) {
                     "fileName" to "test-file.txt"
                     "filePath" to "folder/test-file.txt"
                     "relPath" to "Files/folder/test-file.txt"
-                    "fullPath" to "../Files/folder/test-file.txt"
+                    "fullPath" to "root/Files/folder/test-file.txt"
                     "file" to file.absolutePath
                     "attributes" to jsonArray(
                         jsonObj {

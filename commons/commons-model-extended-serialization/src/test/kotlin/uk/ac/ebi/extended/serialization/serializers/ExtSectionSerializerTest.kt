@@ -66,7 +66,7 @@ class ExtSectionSerializerTest(private val tempFolder: TemporaryFolder) {
                     NfsFile(
                         "folder/ref-file.txt",
                         "Files/folder/ref-file.txt",
-                        "../Files/folder/ref-file.txt",
+                        "root/Files/folder/ref-file.txt",
                         referencedFile
                     )
                 ),
@@ -91,7 +91,7 @@ class ExtSectionSerializerTest(private val tempFolder: TemporaryFolder) {
                     NfsFile(
                         "folder/section-file.txt",
                         "Files/folder/section-file.txt",
-                        "../Files/folder/section-file.txt",
+                        "root/Files/folder/section-file.txt",
                         sectionFile
                     )
                 ),
@@ -101,7 +101,7 @@ class ExtSectionSerializerTest(private val tempFolder: TemporaryFolder) {
                             NfsFile(
                                 "folder/section-file-table.txt",
                                 "Files/folder/section-file-table.txt",
-                                "../Files/folder/section-file-table.txt",
+                                "root/Files/folder/section-file-table.txt",
                                 sectionFilesTable
                             )
                         )
@@ -195,7 +195,7 @@ class ExtSectionSerializerTest(private val tempFolder: TemporaryFolder) {
                     "fileName" to "section-file.txt"
                     "filePath" to "folder/section-file.txt"
                     "relPath" to "Files/folder/section-file.txt"
-                    "fullPath" to "../Files/folder/section-file.txt"
+                    "fullPath" to "root/Files/folder/section-file.txt"
                     "file" to sectionFile.absolutePath
                     "attributes" to jsonArray()
                     "extType" to "nfsFile"
@@ -208,7 +208,7 @@ class ExtSectionSerializerTest(private val tempFolder: TemporaryFolder) {
                             "fileName" to "section-file-table.txt"
                             "filePath" to "folder/section-file-table.txt"
                             "relPath" to "Files/folder/section-file-table.txt"
-                            "fullPath" to "../Files/folder/section-file-table.txt"
+                            "fullPath" to "root/Files/folder/section-file-table.txt"
                             "file" to sectionFilesTable.absolutePath
                             "attributes" to jsonArray()
                             "extType" to "nfsFile"
