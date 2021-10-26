@@ -111,7 +111,7 @@ data class ExtAccessTag(val name: String)
 data class ExtSubmission(
     val accNo: String,
     var version: Int,
-    var schemaVersion: String = "1.0",
+    var schemaVersion: String,
     val owner: String,
     val submitter: String,
     val title: String?,

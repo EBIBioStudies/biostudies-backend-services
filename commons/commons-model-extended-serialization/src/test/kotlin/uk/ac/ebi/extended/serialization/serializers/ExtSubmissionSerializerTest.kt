@@ -68,6 +68,7 @@ class ExtSubmissionSerializerTest {
             return jsonObj {
                 "accNo" to "S-TEST1"
                 "version" to 1
+                "schemaVersion" to "1.0"
                 "owner" to "owner@mail.org"
                 "submitter" to "submitter@mail.org"
                 "title" to "Test Submission"
@@ -140,6 +141,7 @@ class ExtSubmissionSerializerTest {
             return ExtSubmission(
                 accNo = "S-TEST1",
                 version = 1,
+                schemaVersion = "1.0",
                 owner = "owner@mail.org",
                 submitter = "submitter@mail.org",
                 title = "TestSubmission",

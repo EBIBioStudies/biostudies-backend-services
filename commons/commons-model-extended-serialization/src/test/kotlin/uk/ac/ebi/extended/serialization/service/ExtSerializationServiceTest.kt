@@ -21,6 +21,7 @@ class ExtSerializationServiceTest {
         val extSubmission = ExtSubmission(
             accNo = "S-TEST123",
             version = 1,
+            schemaVersion = "1.0",
             owner = "owner@mail.org",
             submitter = "submitter@mail.org",
             title = "Test Submission",

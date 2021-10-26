@@ -15,6 +15,7 @@ fun extSubmissionWithFileList(files: List<File>, referencedFiles: List<File>) =
     ExtSubmission(
         accNo = "ABC-123",
         version = 1,
+        schemaVersion = "1.0",
         title = "A Test Submission",
         owner = "owner",
         submitter = "submitter",
