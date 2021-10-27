@@ -8,8 +8,10 @@ import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.JSON
 import ac.uk.ebi.biostd.integration.SubFormat.JsonFormat.JsonPretty
 import ebi.ac.uk.api.ClientResponse
+import ebi.ac.uk.extended.model.ExtAttributeDetail
 import ebi.ac.uk.extended.model.FileMode
 import ebi.ac.uk.model.Submission
+import ebi.ac.uk.model.constants.ATTRIBUTES
 import ebi.ac.uk.model.constants.FILES
 import ebi.ac.uk.model.constants.FILE_MODE
 import ebi.ac.uk.model.constants.SUBMISSION
@@ -39,7 +41,7 @@ internal class MultiPartSubmissionClient(
     ): SubmissionResponse {
         val headers = HttpHeaders().apply { contentType = MediaType.MULTIPART_FORM_DATA }
         val multiPartBody = getMultipartBody(files, fileMode, FileSystemResource(submission)).apply {
-            attrs.entries.forEach { add(it.key, it.value) }
+            attrs.entries.forEach { add(ATTRIBUTES, ExtAttributeDetail(it.key, it.value)) }
         }
 
         return template.postForEntity<String>("$SUBMIT_URL/direct", (HttpEntity(multiPartBody, headers)))

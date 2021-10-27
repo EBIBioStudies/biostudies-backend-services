@@ -9,6 +9,7 @@ import ac.uk.ebi.biostd.submission.web.handlers.SubmitWebHandler
 import ac.uk.ebi.biostd.submission.web.model.ContentSubmitWebRequest
 import ac.uk.ebi.biostd.submission.web.model.FileSubmitWebRequest
 import ac.uk.ebi.biostd.submission.web.model.OnBehalfRequest
+import ebi.ac.uk.extended.model.ExtAttributeDetail
 import ebi.ac.uk.extended.model.FileMode
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.constants.ATTRIBUTES
@@ -131,17 +132,18 @@ class MultipartSubmitResource(
         @RequestParam(SUBMISSION) file: MultipartFile,
         @RequestParam(FILES) files: Array<MultipartFile>,
         @RequestParam(FILE_MODE, defaultValue = "COPY") mode: FileMode,
-        @RequestParam attributes: Map<String, String> = emptyMap()
+        @RequestParam(ATTRIBUTES) attributes: Array<ExtAttributeDetail>?
     ): Submission {
         val tempFiles = tempFileGenerator.asFiles(files)
         val subFile = tempFileGenerator.asFile(file)
+
         val contentWebRequest = FileSubmitWebRequest(
             submission = subFile,
             onBehalfRequest = onBehalfRequest,
             user = user,
             format = TSV,
             fileMode = mode,
-            attrs = attributes.filterNot { it.key == FILE_MODE },
+            attrs = attributes?.associate { it.name to it.value } ?: emptyMap(),
             files = tempFiles
         )
 
