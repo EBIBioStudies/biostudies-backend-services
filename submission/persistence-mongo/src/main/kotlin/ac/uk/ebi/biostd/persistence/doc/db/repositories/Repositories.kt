@@ -34,6 +34,9 @@ interface SubmissionMongoRepository : MongoRepository<DocSubmission, ObjectId> {
 
     @Query("{ 'stats.name': { \$eq: '?0' } }")
     fun findAllByStatType(statType: SubmissionStatType, pageable: Pageable): Page<DocSubmission>
+
+    @Query("{ 'accNo': '?0' }")
+    fun getAllSubmissionsByAccNo(accNo: String): List<DocSubmission>
 }
 
 interface SubmissionRequestRepository : MongoRepository<SubmissionRequest, String> {
@@ -54,4 +57,6 @@ interface SubmissionDraftRepository : MongoRepository<DocSubmissionDraft, String
 
 interface FileListDocFileRepository : MongoRepository<FileListDocFile, ObjectId> {
     fun getById(id: ObjectId): FileListDocFile
+
+    fun findAllBySubmissionId(submissionId: ObjectId): List<FileListDocFile>
 }

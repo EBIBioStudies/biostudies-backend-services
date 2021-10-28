@@ -5,17 +5,26 @@ import ac.uk.ebi.biostd.persistence.filesystem.api.FtpService
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireFile
-import ebi.ac.uk.extended.model.allFileList
-import ebi.ac.uk.extended.model.allSectionsFiles
+import ebi.ac.uk.extended.model.allFiles
+import mu.KotlinLogging
 import uk.ac.ebi.fire.client.integration.web.FireWebClient
+
+private val logger = KotlinLogging.logger {}
 
 class FireFtpService(
     private val fireWebClient: FireWebClient,
     private val submissionQueryService: SubmissionQueryService
 ) : FtpService {
     override fun processSubmissionFiles(submission: ExtSubmission) {
+        val accNo = submission.accNo
+        val owner = submission.owner
+
+        logger.info { "$accNo $owner Publishing files of submission $accNo over FIRE" }
+
         cleanFtpFolder(submission.relPath)
         if (submission.released) publishFiles(submission)
+
+        logger.info { "$accNo $owner Finished publishing files of submission $accNo over FIRE" }
     }
 
     override fun generateFtpLinks(accNo: String) {

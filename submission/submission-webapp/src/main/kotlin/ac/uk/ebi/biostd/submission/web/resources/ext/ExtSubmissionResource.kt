@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.submission.web.resources.ext
 
+import ac.uk.ebi.biostd.files.web.common.FileListPath
 import ac.uk.ebi.biostd.submission.converters.BioUser
 import ac.uk.ebi.biostd.submission.domain.service.ExtSubmissionService
 import ac.uk.ebi.biostd.submission.domain.service.TempFileGenerator
@@ -32,11 +33,11 @@ class ExtSubmissionResource(
     @GetMapping("/{accNo}")
     fun getExtended(@PathVariable accNo: String): ExtSubmission = extSubmissionService.getExtendedSubmission(accNo)
 
-    @GetMapping("/{accNo}/fileList/{fileListName}/files")
+    @GetMapping("/{accNo}/referencedFiles/**")
     fun getReferencedFiles(
         @PathVariable accNo: String,
-        @PathVariable fileListName: String
-    ): ExtFileTable = extSubmissionService.getReferencedFiles(accNo, fileListName)
+        fileListPath: FileListPath
+    ): ExtFileTable = extSubmissionService.getReferencedFiles(accNo, fileListPath.path)
 
     @PostMapping
     @PreAuthorize("isAuthenticated()")
@@ -44,7 +45,19 @@ class ExtSubmissionResource(
         @BioUser user: SecurityUser,
         @RequestParam(FILE_LISTS, required = false) fileLists: Array<MultipartFile>?,
         @RequestParam(SUBMISSION) extSubmission: String
-    ): ExtSubmission = extSubmissionService.submitExtendedSubmission(
+    ): ExtSubmission = extSubmissionService.submitExt(
+        user.email,
+        extSerializationService.deserialize(extSubmission, ExtSubmission::class.java),
+        fileLists?.let { tempFileGenerator.asFiles(it) } ?: emptyList()
+    )
+
+    @PostMapping("/async")
+    @PreAuthorize("isAuthenticated()")
+    fun submitExtendedAsync(
+        @BioUser user: SecurityUser,
+        @RequestParam(FILE_LISTS, required = false) fileLists: Array<MultipartFile>?,
+        @RequestParam(SUBMISSION) extSubmission: String
+    ) = extSubmissionService.submitExtAsync(
         user.email,
         extSerializationService.deserialize(extSubmission, ExtSubmission::class.java),
         fileLists?.let { tempFileGenerator.asFiles(it) } ?: emptyList()

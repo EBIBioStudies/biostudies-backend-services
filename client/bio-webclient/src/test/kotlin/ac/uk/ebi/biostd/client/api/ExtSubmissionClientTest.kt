@@ -109,7 +109,7 @@ class ExtSubmissionClientTest(
     fun `get referenced files`(
         @MockK extFileTable: ExtFileTable
     ) {
-        val filesUrl = "$EXT_SUBMISSIONS_URL/S-TEST123/fileList/file-list/files"
+        val filesUrl = "$EXT_SUBMISSIONS_URL/S-TEST123/referencedFiles/file-list"
         val response: ResponseEntity<String> = ResponseEntity("ExtFileTable", OK)
 
         every { restTemplate.getForEntity(filesUrl, String::class.java) } returns response
@@ -139,6 +139,27 @@ class ExtSubmissionClientTest(
         verify(exactly = 1) { extSerializationService.serialize(extSubmission) }
         verify(exactly = 1) { extSerializationService.deserialize("ExtSubmission", ExtSubmission::class.java) }
         verify(exactly = 1) { restTemplate.postForEntity(EXT_SUBMISSIONS_URL, captured, String::class.java) }
+    }
+
+    @Test
+    fun `submit async ext submission`(
+        @MockK extSubmission: ExtSubmission
+    ) {
+        val entity = slot<HttpEntity<String>>()
+        val fileList = tempFolder.createFile("async-file-list.tsv")
+        val response: ResponseEntity<String> = ResponseEntity("ExtSubmission", OK)
+
+        every { extSerializationService.serialize(extSubmission) } returns "ExtSubmission"
+        every {
+            restTemplate.postForEntity("$EXT_SUBMISSIONS_URL/async", capture(entity), String::class.java)
+        } returns response
+
+        testInstance.submitExtAsync(extSubmission, listOf(fileList))
+
+        val captured = entity.captured
+        assertHttpEntity(captured, fileList)
+        verify(exactly = 1) { extSerializationService.serialize(extSubmission) }
+        verify(exactly = 1) { restTemplate.postForEntity("$EXT_SUBMISSIONS_URL/async", captured, String::class.java) }
     }
 
     private fun assertHttpEntity(entity: HttpEntity<String>, fileList: File) {

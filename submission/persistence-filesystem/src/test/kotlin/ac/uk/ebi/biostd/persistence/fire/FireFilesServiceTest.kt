@@ -6,7 +6,6 @@ import arrow.core.Either.Companion.left
 import ebi.ac.uk.extended.model.ExtAttribute
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.extended.model.FireDirectory
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.io.ext.md5
@@ -119,20 +118,20 @@ class FireFilesServiceTest(
         verify(exactly = 0) { fireWebClient.save(file, testMd5, "S-TEST/123/S-TEST123/Files/folder/test.txt") }
     }
 
-    @Test
-    fun `process submission when new file is a fire directory`() {
-        val fireDirectory =
-            FireDirectory("test.txt", "new-folder/test.txt", "Files/folder/test.txt", testMd5, 1, listOf(attribute))
-        val previousFile =
-            FireDirectory("test.txt", "old-folder/test.txt", "Files/folder/test.txt", testMd5, 1, listOf(attribute))
-        val previousFiles = mapOf(Pair(testMd5, previousFile))
-        val section = ExtSection(type = "Study", files = listOf(left(fireDirectory)))
-        val submission = basicExtSubmission.copy(section = section)
-        val request = FilePersistenceRequest(submission, previousFiles = previousFiles)
-
-        assertThat(testInstance.persistSubmissionFiles(request)).isEqualTo(submission)
-        verify(exactly = 0) { fireWebClient.save(file, testMd5, "S-TEST/123/S-TEST123/Files/folder/test.txt") }
-    }
+//    @Test
+//    fun `process submission when new file is a fire directory`() {
+//        val fireDirectory =
+//            FireDirectory("test.txt", "new-folder/test.txt", "Files/folder/test.txt", testMd5, 1, listOf(attribute))
+//        val previousFile =
+//            FireDirectory("test.txt", "old-folder/test.txt", "Files/folder/test.txt", testMd5, 1, listOf(attribute))
+//        val previousFiles = mapOf(Pair(testMd5, previousFile))
+//        val section = ExtSection(type = "Study", files = listOf(left(fireDirectory)))
+//        val submission = basicExtSubmission.copy(section = section)
+//        val request = FilePersistenceRequest(submission, previousFiles = previousFiles)
+//
+//        assertThat(testInstance.persistSubmissionFiles(request)).isEqualTo(submission)
+//        verify(exactly = 0) { fireWebClient.save(file, testMd5, "S-TEST/123/S-TEST123/Files/folder/test.txt") }
+//    }
 
     private fun assertFireFile(processed: ExtSubmission, fileName: String, filePath: String) {
         assertThat(processed.section.files).hasSize(1)
