@@ -216,13 +216,11 @@ class ToDocSubmissionTest(tempFolder: TemporaryFolder) {
 
         val listFile = listFiles[0]
         assertThat(listFile.submissionId).isEqualTo(docSubmissionId)
-        assertThat(listFile.fileName).isEqualTo(ROOT_FILE_LIST_FILEPATH)
-        assertThat(listFile.fullPath).isEqualTo(newRootSectionFileListFile.file.path)
+        assertThat(listFile.file).isEqualTo(ROOT_FILE_LIST_FILEPATH)
 
         val sublistFile = listFiles[1]
         assertThat(sublistFile.submissionId).isEqualTo(docSubmissionId)
-        assertThat(sublistFile.fileName).isEqualTo(SUB_FILE_LIST_FILEPATH)
-        assertThat(sublistFile.fullPath).isEqualTo(newSubSectionFileListFile.file.path)
+        assertThat(sublistFile.file).isEqualTo(SUB_FILE_LIST_FILEPATH)
     }
 
     private fun assertSimpleDocProperties(docSubmission: DocSubmission) {

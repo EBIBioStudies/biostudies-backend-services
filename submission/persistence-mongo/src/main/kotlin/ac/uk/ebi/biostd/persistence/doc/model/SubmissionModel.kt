@@ -130,17 +130,8 @@ data class FileListDocFile(
     @Id
     val id: ObjectId,
     val submissionId: ObjectId,
-    val fileName: String,
-    val fullPath: String,
-    val attributes: List<DocAttribute> = listOf(),
-    val md5: String,
-    val size: Long,
-    val fileSystem: FileSystem
+    val file: DocFile
 )
-
-enum class FileSystem {
-    NFS, FIRE, FIRE_DIR
-}
 
 data class DocSectionTable(val sections: List<DocSectionTableRow>)
 data class DocLinkTable(val links: List<DocLink>)

@@ -14,7 +14,7 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocFileRef
 import ac.uk.ebi.biostd.persistence.doc.model.DocProcessingStatus.PROCESSED
 import ac.uk.ebi.biostd.persistence.doc.model.DocSection
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
-import ac.uk.ebi.biostd.persistence.doc.model.FileSystem.NFS
+import ac.uk.ebi.biostd.persistence.doc.model.NfsDocFile
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus.REQUESTED
@@ -111,12 +111,15 @@ internal class SubmissionMongoQueryServiceTest(
         private val fileListFile = FileListDocFile(
             fileReference,
             docSubmission.id,
-            "referenced.txt",
-            referencedFile.absolutePath,
-            listOf(),
-            "test-md5",
-            1,
-            NFS
+            NfsDocFile(
+                "referenced.txt",
+                "referenced.txt",
+                "referenced.txt",
+                referencedFile.absolutePath,
+                listOf(),
+                "test-md5",
+                1,
+                "file")
         )
         private val fileList = DocFileList("test-file-list", listOf(DocFileRef(fileReference)))
         private val submission =

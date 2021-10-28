@@ -12,6 +12,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.from.DocSubmissionConverte
 import ac.uk.ebi.biostd.persistence.doc.db.converters.to.AttributeConverter
 import ac.uk.ebi.biostd.persistence.doc.db.converters.to.FileConverter
 import ac.uk.ebi.biostd.persistence.doc.db.converters.to.FileListConverter
+import ac.uk.ebi.biostd.persistence.doc.db.converters.to.FileListDocFileConverter
 import ac.uk.ebi.biostd.persistence.doc.db.converters.to.FileRefConverter
 import ac.uk.ebi.biostd.persistence.doc.db.converters.to.FileTableConverter
 import ac.uk.ebi.biostd.persistence.doc.db.converters.to.LinkConverter
@@ -79,6 +80,7 @@ class MongoDbConfig(
         val converters = mutableListOf<Converter<*, *>>()
         converters.add(docSubmissionConverter())
         converters.add(submissionConverter())
+        converters.add(FileListDocFileConverter(FileConverter(AttributeConverter())))
         return MongoCustomConversions(converters)
     }
 

@@ -1,23 +1,19 @@
 package ac.uk.ebi.biostd.persistence.doc.db.converters.to
 
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_ATTRIBUTES
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_FILENAME
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_LOCATION
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_MD5
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_FILE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_SUBMISSION_ID
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
 import org.bson.Document
+import org.springframework.core.convert.converter.Converter
 
-class FileListDocFileConverter {
-    fun convert(fileListDocFile: FileListDocFile): Document {
+class FileListDocFileConverter(private val fileConverter: FileConverter): Converter<FileListDocFile, Document> {
+    override fun convert(fileListDocFile: FileListDocFile): Document {
         val fileListDocFileDoc = Document()
         FileListDocFileFields.FILE_LIST_DOC_FILE_CLASS.also { fileListDocFileDoc[CommonsConverter.classField] = it }
         fileListDocFileDoc[FILE_LIST_DOC_FILE_SUBMISSION_ID] = fileListDocFile.submissionId
-        fileListDocFileDoc[FILE_LIST_DOC_FILE_FILENAME] = fileListDocFile.fileName
-        fileListDocFileDoc[FILE_LIST_DOC_FILE_LOCATION] = fileListDocFile.fullPath
-        fileListDocFileDoc[FILE_LIST_DOC_FILE_ATTRIBUTES] = fileListDocFile.attributes
-        fileListDocFileDoc[FILE_LIST_DOC_FILE_MD5] = fileListDocFile.md5
+        fileListDocFileDoc[FILE_LIST_DOC_FILE_FILE] = fileConverter.convert(fileListDocFile.file)
+
         return fileListDocFileDoc
     }
 }
