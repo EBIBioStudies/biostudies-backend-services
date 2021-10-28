@@ -119,7 +119,8 @@ internal class SubmissionMongoQueryServiceTest(
                 listOf(),
                 "test-md5",
                 1,
-                "file")
+                "file"
+            )
         )
         private val fileList = DocFileList("test-file-list", listOf(DocFileRef(fileReference)))
         private val submission =

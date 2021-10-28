@@ -2,7 +2,7 @@ package ac.uk.ebi.biostd.persistence.doc.mapping.to
 
 import ac.uk.ebi.biostd.persistence.doc.model.DocFileTable
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
-import ac.uk.ebi.biostd.persistence.doc.test.AttributeTestHelper.basicDocAttribute
+import ac.uk.ebi.biostd.persistence.doc.model.NfsDocFile
 import ac.uk.ebi.biostd.persistence.doc.test.FileTestHelper.assertExtFile
 import ac.uk.ebi.biostd.persistence.doc.test.FileTestHelper.assertExtFileList
 import ac.uk.ebi.biostd.persistence.doc.test.FileTestHelper.docFileList
@@ -19,7 +19,6 @@ import ebi.ac.uk.util.collections.second
 import ebi.ac.uk.util.collections.third
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
-import io.mockk.mockk
 import org.assertj.core.api.Assertions.assertThat
 import org.bson.types.ObjectId
 import org.junit.jupiter.api.Test
@@ -86,13 +85,20 @@ class ToExtFileTest(temporaryFolder: TemporaryFolder) {
         val fileListDocFile = FileListDocFile(
             id,
             submissionId,
-            mockk()
+            NfsDocFile(
+                "file.txt",
+                "folder/file.txt",
+                "Files/folder/file.txt",
+                "root/Files/folder/file.txt",
+                listOf(),
+                "md5",
+                10,
+                "files"
+            )
         )
 
         val extFile = fileListDocFile.toExtFile() as NfsFile
-        assertThat(extFile.fileName).isEqualTo(TEST_REL_PATH)
-        assertThat(extFile.file).isEqualTo(testFile)
-        assertThat(extFile.attributes).containsExactly(basicDocAttribute.toExtAttribute())
-        assertThat(extFile.md5).isEqualTo("test-md5")
+
+        assertThat(extFile).isEqualTo(fileListDocFile.file.toExtFile())
     }
 }

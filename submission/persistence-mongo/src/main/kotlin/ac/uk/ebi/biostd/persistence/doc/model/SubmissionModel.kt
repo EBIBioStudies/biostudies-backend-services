@@ -8,6 +8,7 @@ import java.time.Instant
 
 val nfsDocFileClass: String = NfsDocFile::class.java.canonicalName
 val fireDocFileClass: String = FireDocFile::class.java.canonicalName
+val fileListDocFileDocFileClass: String = FileListDocFile::class.java.canonicalName
 val docFileTableClass: String = DocFileTable::class.java.canonicalName
 val docLinkClass: String = DocLink::class.java.canonicalName
 val docLinkTableClass: String = DocLinkTable::class.java.canonicalName
