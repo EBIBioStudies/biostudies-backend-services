@@ -37,7 +37,7 @@ class FireFtpServiceTest(
         every { fireWebClient.unpublish("abc1") } answers { nothing }
         every { fireWebClient.unsetPath("abc1") } answers { nothing }
         every { fireWebClient.findAllInPath(basicExtSubmission.relPath) } returns listOf(clientFireFile)
-        every { fireWebClient.setPath("abc1", "${basicExtSubmission.relPath}/test.txt") } answers { nothing }
+        every { fireWebClient.setPath("abc1", "${basicExtSubmission.relPath}/relPath") } answers { nothing }
     }
 
     @Test
@@ -57,7 +57,7 @@ class FireFtpServiceTest(
         verifyCleanFtpFolder()
         verify(exactly = 0) {
             fireWebClient.publish("abc1")
-            fireWebClient.setPath("abc1", "${submission.relPath}/test.txt")
+            fireWebClient.setPath("abc1", "${submission.relPath}/relPath")
         }
     }
 
@@ -80,6 +80,6 @@ class FireFtpServiceTest(
 
     private fun verifyFtpPublish() = verify(exactly = 1) {
         fireWebClient.publish("abc1")
-        fireWebClient.setPath("abc1", "${basicExtSubmission.relPath}/test.txt")
+        fireWebClient.setPath("abc1", "${basicExtSubmission.relPath}/relPath")
     }
 }
