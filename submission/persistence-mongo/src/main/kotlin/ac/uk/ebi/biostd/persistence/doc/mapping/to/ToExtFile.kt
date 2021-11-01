@@ -3,10 +3,6 @@ package ac.uk.ebi.biostd.persistence.doc.mapping.to
 import ac.uk.ebi.biostd.persistence.doc.model.DocFile
 import ac.uk.ebi.biostd.persistence.doc.model.DocFileList
 import ac.uk.ebi.biostd.persistence.doc.model.DocFileTable
-import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
-import ac.uk.ebi.biostd.persistence.doc.model.FileSystem.FIRE
-import ac.uk.ebi.biostd.persistence.doc.model.FileSystem.FIRE_DIR
-import ac.uk.ebi.biostd.persistence.doc.model.FileSystem.NFS
 import ac.uk.ebi.biostd.persistence.doc.model.FireDocDirectory
 import ac.uk.ebi.biostd.persistence.doc.model.FireDocFile
 import ac.uk.ebi.biostd.persistence.doc.model.NfsDocFile
@@ -29,18 +25,6 @@ internal fun DocFileTable.toExtFileTable(): ExtFileTable = ExtFileTable(files.ma
 
 internal fun Either<DocFile, DocFileTable>.toExtFiles(): Either<ExtFile, ExtFileTable> =
     bimap({ it.toExtFile() }) { it.toExtFileTable() }
-
-internal fun FileListDocFile.toExtFile(): ExtFile = when (fileSystem) {
-    FIRE -> FireFile(fileName, "Files/$fileName", fullPath, md5, size, attributes.toExtAttributes())
-    FIRE_DIR -> FireDirectory(fileName, "Files/$fileName", md5, size, attributes.toExtAttributes())
-    NFS -> NfsFile(
-        fileName,
-        "Files/$fileName",
-        fullPath,
-        Paths.get(fullPath).toFile(),
-        attributes.toExtAttributes()
-    ).also { it.md5 = md5 }
-}
 
 /**
  * Maps a DocFileList to corresponding Ext type. Note that empty list is used as files as list files are not loaded as
