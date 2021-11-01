@@ -2,9 +2,11 @@ package ac.uk.ebi.biostd.persistence.filesystem.fire
 
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.filesystem.api.FtpService
+import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireFile
-import ebi.ac.uk.extended.model.allFiles
+import ebi.ac.uk.extended.model.allFileList
+import ebi.ac.uk.extended.model.allSectionsFiles
 import mu.KotlinLogging
 import uk.ac.ebi.fire.client.integration.web.FireWebClient
 
@@ -33,13 +35,24 @@ class FireFtpService(
     }
 
     private fun publishFiles(submission: ExtSubmission) =
-        submission
-            .allFiles
+        allFiles(submission)
             .filterIsInstance<FireFile>()
             .forEach { publishFile(it, submission.relPath) }
 
+    private fun allFiles(sub: ExtSubmission): Sequence<ExtFile> =
+        allFileListFiles(sub).plus(sub.allSectionsFiles).plus(sub.pageTabFiles)
+
+    /**
+     * Returns all file list files. Note that sequence is used instead regular iterable to avoid loading all submission
+     * files before start processing.
+     */
+    private fun allFileListFiles(sub: ExtSubmission): Sequence<ExtFile> {
+        val fileList = sub.allFileList.asSequence()
+        return fileList.flatMap { submissionQueryService.getReferencedFiles(sub.accNo, it.fileName) + it.pageTabFiles }
+    }
+
     private fun publishFile(file: FireFile, relPath: String) {
-        fireWebClient.setPath(file.fireId, "$relPath/${file.fileName}")
+        fireWebClient.setPath(file.fireId, "$relPath/${file.relPath}")
         fireWebClient.publish(file.fireId)
     }
 
