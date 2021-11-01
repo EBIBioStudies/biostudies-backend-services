@@ -13,7 +13,6 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocSectionTableRow
 import ac.uk.ebi.biostd.persistence.doc.model.DocStat
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocTag
-import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
 import ac.uk.ebi.biostd.persistence.doc.model.FireDocDirectory
 import ac.uk.ebi.biostd.persistence.doc.model.FireDocFile
 import ac.uk.ebi.biostd.persistence.doc.model.NfsDocFile
@@ -63,12 +62,9 @@ object DocFileRefFields {
 }
 
 object FileListDocFileFields {
-    val FILE_LIST_DOC_FILE_CLASS: String = FileListDocFile::class.java.canonicalName
+    const val FILE_LIST_DOC_FILE_ID = "_id"
     const val FILE_LIST_DOC_FILE_SUBMISSION_ID = "submissionId"
-    const val FILE_LIST_DOC_FILE_FILENAME = "fileName"
-    const val FILE_LIST_DOC_FILE_LOCATION = "fullPath"
-    const val FILE_LIST_DOC_FILE_ATTRIBUTES = "attributes"
-    const val FILE_LIST_DOC_FILE_MD5 = "md5"
+    const val FILE_LIST_DOC_FILE_FILE = "file"
 }
 
 object DocFileTableFields {
