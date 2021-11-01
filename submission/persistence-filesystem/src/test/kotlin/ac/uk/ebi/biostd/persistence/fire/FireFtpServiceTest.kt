@@ -3,8 +3,10 @@ package ac.uk.ebi.biostd.persistence.fire
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.filesystem.fire.FireFtpService
 import arrow.core.Either
+import ebi.ac.uk.extended.model.ExtFileList
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.FireFile
+import ebi.ac.uk.extended.model.allFileList
 import ebi.ac.uk.test.basicExtSubmission
 import io.mockk.clearAllMocks
 import io.mockk.every
@@ -25,7 +27,17 @@ class FireFtpServiceTest(
 ) {
     private val clientFireFile = ClientFireFile(1, "abc1", "md5", 1, "2021-09-21")
     private val fireFile = FireFile("test.txt", "folder/test.txt", "relPath", "abc1", "md5", 1, listOf())
-    private val section = ExtSection(type = "Study", files = listOf(Either.left(fireFile)))
+    private val fireFileFileList = FireFile("test.txt", "folder/test.txt", "relPath", "abc2", "md5", 1, listOf())
+    private val fireFilePageTab = FireFile("test.txt", "folder/test.txt", "relPath", "abc3", "md5", 1, listOf())
+    private val section = ExtSection(
+        type = "Study",
+        fileList = ExtFileList(
+            "fileList1",
+            files = listOf(fireFileFileList),
+            pageTabFiles = listOf(fireFilePageTab)
+        ),
+        files = listOf(Either.left(fireFile))
+    )
     private val testInstance = FireFtpService(fireWebClient, submissionQueryService)
 
     @AfterEach
@@ -34,10 +46,17 @@ class FireFtpServiceTest(
     @BeforeEach
     fun beforeEach() {
         every { fireWebClient.publish("abc1") } answers { nothing }
+        every { fireWebClient.publish("abc2") } answers { nothing }
+        every { fireWebClient.publish("abc3") } answers { nothing }
         every { fireWebClient.unpublish("abc1") } answers { nothing }
         every { fireWebClient.unsetPath("abc1") } answers { nothing }
         every { fireWebClient.findAllInPath(basicExtSubmission.relPath) } returns listOf(clientFireFile)
         every { fireWebClient.setPath("abc1", "${basicExtSubmission.relPath}/relPath") } answers { nothing }
+        every { fireWebClient.setPath("abc2", "${basicExtSubmission.relPath}/relPath") } answers { nothing }
+        every { fireWebClient.setPath("abc3", "${basicExtSubmission.relPath}/relPath") } answers { nothing }
+        every { submissionQueryService.getReferencedFiles(basicExtSubmission.accNo, section.fileList!!.fileName) } returns listOf(
+            fireFileFileList
+        )
     }
 
     @Test
