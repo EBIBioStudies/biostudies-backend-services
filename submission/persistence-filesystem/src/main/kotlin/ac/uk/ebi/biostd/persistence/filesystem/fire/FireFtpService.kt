@@ -5,7 +5,8 @@ import ac.uk.ebi.biostd.persistence.filesystem.api.FtpService
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireFile
-import ebi.ac.uk.extended.model.allFiles
+import ebi.ac.uk.extended.model.allFileList
+import ebi.ac.uk.extended.model.allSectionsFiles
 import mu.KotlinLogging
 import uk.ac.ebi.fire.client.integration.web.FireWebClient
 
