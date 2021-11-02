@@ -12,13 +12,8 @@ import ac.uk.ebi.biostd.submission.converters.ExtPageSubmissionConverter
 import ac.uk.ebi.biostd.submission.converters.ExtSubmissionConverter
 import ac.uk.ebi.biostd.submission.converters.JsonPagetabConverter
 import ac.uk.ebi.biostd.submission.converters.OnBehalfUserRequestResolver
-import ebi.ac.uk.extended.model.ExtAttributeDetail
-import ebi.ac.uk.model.constants.AttributeFields.NAME
-import ebi.ac.uk.model.constants.AttributeFields.VALUE
-import org.springframework.boot.configurationprocessor.json.JSONObject
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.core.convert.converter.Converter
 import org.springframework.format.FormatterRegistry
 import org.springframework.http.MediaType
 import org.springframework.http.converter.HttpMessageConverter
