@@ -24,7 +24,7 @@ class FireFtpServiceTest(
     @MockK private val submissionQueryService: SubmissionQueryService
 ) {
     private val clientFireFile = ClientFireFile(1, "abc1", "md5", 1, "2021-09-21")
-    private val fireFile = FireFile("test.txt", "folder/test.txt", "relPath", "abc1", "md5", 1, listOf())
+    private val fireFile = FireFile("folder/test.txt", "Files/folder/test.txt", "abc1", "md5", 1, listOf())
     private val section = ExtSection(type = "Study", files = listOf(Either.left(fireFile)))
     private val testInstance = FireFtpService(fireWebClient, submissionQueryService)
 

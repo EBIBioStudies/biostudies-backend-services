@@ -15,7 +15,6 @@ internal const val TO_EXT_FILE_EXTENSIONS = "ebi.ac.uk.extended.mapping.from.ToE
 fun File.toExtFile(fileSource: FilesSource): ExtFile {
     return when (val file = fileSource.getFile(path)) {
         is FireBioFile -> FireFile(
-            path.substringAfterLast("/"),
             path,
             "Files/$path",
             file.fireId,
@@ -24,7 +23,6 @@ fun File.toExtFile(fileSource: FilesSource): ExtFile {
             attributes.toExtAttributes()
         )
         is FireDirectoryBioFile -> FireDirectory(
-            path.substringAfterLast("/"),
             path,
             "Files/$path",
             file.md5,
@@ -32,7 +30,6 @@ fun File.toExtFile(fileSource: FilesSource): ExtFile {
             attributes.toExtAttributes()
         )
         is NfsBioFile -> NfsFile(
-            file.file.name,
             path,
             "Files/$path",
             file.file.absolutePath,

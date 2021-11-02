@@ -43,6 +43,7 @@ class ToExtSubmissionMapper(private val submissionsPath: Path) {
                 submitter = dbSubmission.submitter.email,
                 title = dbSubmission.title,
                 version = dbSubmission.version,
+                schemaVersion = "1.0",
                 method = getMethod(dbSubmission.method),
                 status = getStatus(dbSubmission.status),
                 relPath = dbSubmission.relPath,

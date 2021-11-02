@@ -22,6 +22,7 @@ internal const val SUB_TITLE = "Study"
 internal const val SUB_RELPATH = "/submission/relpath"
 internal const val SUB_ROOT_PATH = "/rootpah"
 internal const val VERSION = 52
+internal const val SCHEMA_VERSION = "1.0"
 internal const val OWNER = "owner@email.com"
 internal const val SUBMITTER = "submitter@email.com"
 
@@ -62,6 +63,7 @@ internal val extSubmission
         released = true,
         status = ExtProcessingStatus.PROCESSED,
         version = VERSION,
+        schemaVersion = SCHEMA_VERSION,
         method = ExtSubmissionMethod.FILE,
         modificationTime = modificationTime,
         releaseTime = releaseTime,

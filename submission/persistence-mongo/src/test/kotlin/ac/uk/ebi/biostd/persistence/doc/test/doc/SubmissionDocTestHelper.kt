@@ -29,6 +29,7 @@ val testDocAttribute: DocAttribute = DocAttribute(
 
 internal const val SUB_ACC_NO = "S-TEST123"
 internal const val SUB_VERSION = 1
+internal const val SUB_SCHEMA_VERSION = "1.0"
 internal const val OWNER = "owner@mail.org"
 internal const val SUBMITTER = "submitter@mail.org"
 internal const val SUB_TITLE = "Test Submission"
@@ -53,6 +54,7 @@ internal val testDocSubmission: DocSubmission
         id = ObjectId(),
         accNo = SUB_ACC_NO,
         version = SUB_VERSION,
+        schemaVersion = SUB_SCHEMA_VERSION,
         owner = OWNER,
         submitter = SUBMITTER,
         title = SUB_TITLE,

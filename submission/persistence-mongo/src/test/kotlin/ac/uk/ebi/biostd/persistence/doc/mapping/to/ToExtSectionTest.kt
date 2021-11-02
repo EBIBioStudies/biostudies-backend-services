@@ -9,7 +9,7 @@ import ac.uk.ebi.biostd.persistence.doc.test.FileTestHelper.fireDocFile
 import ac.uk.ebi.biostd.persistence.doc.test.FileTestHelper.nfsDocFile
 import ac.uk.ebi.biostd.persistence.doc.test.SectionTestHelper.assertExtSection
 import ac.uk.ebi.biostd.persistence.doc.test.SectionTestHelper.docSection
-import ac.uk.ebi.biostd.persistence.doc.test.TEST_REL_PATH
+import ac.uk.ebi.biostd.persistence.doc.test.TEST_FILENAME
 import arrow.core.Either.Companion.left
 import org.assertj.core.api.Assertions.assertThat
 import ebi.ac.uk.extended.model.ExtFile
@@ -27,18 +27,20 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(TemporaryFolderExtension::class)
 class ToExtSectionTest(temporaryFolder: TemporaryFolder) {
-    private val testFile = temporaryFolder.createFile(TEST_REL_PATH)
+    private val testFile = temporaryFolder.createFile(TEST_FILENAME)
     private val testNfsDocFile = nfsDocFile.copy(fullPath = testFile.absolutePath)
     private val testFireDocFile = fireDocFile
 
-    private val tabFireFile = FireDocFile("fileName", "filePath", "relPath", "fireId", listOf(), "md5", 1)
-    private val tabFireDirectory = FireDocDirectory("fileName", "filePath", "relPath", listOf(), "md5", 2)
+    private val tabFireFile =
+        FireDocFile("fileName", "folder/fileName", "Files/folder/fileName", "fireId", listOf(), "md5", 1)
+    private val tabFireDirectory =
+        FireDocDirectory("fileName", "folder/fileName", "Files/folder/fileName", listOf(), "md5", 2)
     private val fileNfs = temporaryFolder.createFile("fileNfs.txt")
     private val tabNfsFile =
         NfsDocFile(
             fileNfs.name,
-            "filePath",
-            "relPath",
+            "folder/${fileNfs.name}",
+            "Files/folder/${fileNfs.name}",
             fileNfs.absolutePath,
             listOf(),
             fileNfs.md5(),
@@ -64,7 +66,6 @@ class ToExtSectionTest(temporaryFolder: TemporaryFolder) {
     private fun assertFileListTabFiles(pageTabFiles: List<ExtFile>) {
         assertThat(pageTabFiles.first()).isEqualTo(
             FireFile(
-                tabFireFile.fileName,
                 tabFireFile.filePath,
                 tabFireFile.relPath,
                 tabFireFile.fireId,
@@ -73,9 +74,9 @@ class ToExtSectionTest(temporaryFolder: TemporaryFolder) {
                 listOf()
             )
         )
+        assertThat(pageTabFiles.first().fileName).isEqualTo(tabFireFile.filePath.substringAfterLast("/"))
         assertThat(pageTabFiles.second()).isEqualTo(
             FireDirectory(
-                tabFireDirectory.fileName,
                 tabFireDirectory.filePath,
                 tabFireDirectory.relPath,
                 tabFireDirectory.md5,
@@ -83,15 +84,16 @@ class ToExtSectionTest(temporaryFolder: TemporaryFolder) {
                 listOf()
             )
         )
+        assertThat(pageTabFiles.second().fileName).isEqualTo(tabFireDirectory.filePath.substringAfterLast("/"))
         assertThat(pageTabFiles.third()).isEqualTo(
             NfsFile(
-                fileNfs.name,
-                "filePath",
-                "relPath",
+                "folder/${fileNfs.name}",
+                "Files/folder/${fileNfs.name}",
                 fileNfs.absolutePath,
                 fileNfs,
                 listOf()
             )
         )
+        assertThat(pageTabFiles.third().fileName).isEqualTo(fileNfs.name)
     }
 }

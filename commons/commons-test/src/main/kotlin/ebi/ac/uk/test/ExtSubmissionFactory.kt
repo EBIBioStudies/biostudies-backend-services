@@ -10,6 +10,7 @@ import java.time.ZoneOffset.UTC
 val basicExtSubmission = ExtSubmission(
     accNo = "S-TEST123",
     version = 1,
+    schemaVersion = "1.0",
     title = "Test Submission",
     owner = "owner@email.org",
     submitter = "submitter@email.org",

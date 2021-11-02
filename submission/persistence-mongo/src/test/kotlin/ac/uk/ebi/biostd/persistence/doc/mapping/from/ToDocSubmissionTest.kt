@@ -65,6 +65,7 @@ import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUBMISSION_OWNER
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUBMISSION_RELEASED
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUBMISSION_REL_PATH
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUBMISSION_ROOT_PATH
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUBMISSION_SCHEMA_VERSION
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUBMISSION_SECRET_KEY
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUBMISSION_SUBMITTER
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUBMISSION_TITLE
@@ -119,7 +120,7 @@ class ToDocSubmissionTest(tempFolder: TemporaryFolder) {
         subSection.copy(fileList = subSection.fileList!!.copy(files = listOf(newSubSectionFileListFile)))
 
     private val nfsFileFile = tempFolder.createFile(NFS_FILENAME)
-    private val nfsFile = NfsFile(NFS_FILENAME, NFS_FILEPATH, NFS_REL_PATH, NFS_FULL_PATH, nfsFileFile)
+    private val nfsFile = NfsFile(NFS_FILEPATH, NFS_REL_PATH, NFS_FULL_PATH, nfsFileFile)
 
     private val newRootSection = rootSection.copy(
         fileList = rootSection.fileList!!.copy(
@@ -224,6 +225,7 @@ class ToDocSubmissionTest(tempFolder: TemporaryFolder) {
     private fun assertSimpleDocProperties(docSubmission: DocSubmission) {
         assertThat(docSubmission.accNo).isEqualTo(SUBMISSION_ACC_NO)
         assertThat(docSubmission.version).isEqualTo(SUBMISSION_VERSION)
+        assertThat(docSubmission.schemaVersion).isEqualTo(SUBMISSION_SCHEMA_VERSION)
         assertThat(docSubmission.owner).isEqualTo(SUBMISSION_OWNER)
         assertThat(docSubmission.submitter).isEqualTo(SUBMISSION_SUBMITTER)
         assertThat(docSubmission.title).isEqualTo(SUBMISSION_TITLE)

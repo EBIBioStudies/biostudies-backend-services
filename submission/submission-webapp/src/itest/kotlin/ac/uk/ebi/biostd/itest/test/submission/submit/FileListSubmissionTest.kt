@@ -219,9 +219,9 @@ internal class FileListSubmissionTest(private val tempFolder: TemporaryFolder) :
             val xmlFile = File("$subFolder/$accNo.xml")
             val tsvFile = File("$subFolder/$accNo.pagetab.tsv")
             return listOf(
-                FireFile(jsonName, jsonName, jsonName, "fireOid-$jsonName", jsonFile.md5(), jsonFile.size(), listOf()),
-                FireFile(xmlName, xmlName, xmlName, "fireOid-$xmlName", xmlFile.md5(), xmlFile.size(), listOf()),
-                FireFile(tsvName, tsvName, tsvName, "fireOid-$tsvName", tsvFile.md5(), tsvFile.size(), listOf())
+                FireFile(jsonName, jsonName, "fireOid-$jsonName", jsonFile.md5(), jsonFile.size(), listOf()),
+                FireFile(xmlName, xmlName, "fireOid-$xmlName", xmlFile.md5(), xmlFile.size(), listOf()),
+                FireFile(tsvName, tsvName, "fireOid-$tsvName", tsvFile.md5(), tsvFile.size(), listOf())
             )
         }
 
@@ -233,9 +233,9 @@ internal class FileListSubmissionTest(private val tempFolder: TemporaryFolder) :
             val xml = File("$subFolder/Files/FileList.xml")
             val tsv = File("$subFolder/Files/FileList.pagetab.tsv")
             return listOf(
-                FireFile(jsonName, jsonName, "Files/$jsonName", "fireOid-$jsonName", json.md5(), json.size(), listOf()),
-                FireFile(xmlName, xmlName, "Files/$xmlName", "fireOid-$xmlName", xml.md5(), xml.size(), listOf()),
-                FireFile(tsvName, tsvName, "Files/$tsvName", "fireOid-$tsvName", tsv.md5(), tsv.size(), listOf())
+                FireFile(jsonName, "Files/$jsonName", "fireOid-$jsonName", json.md5(), json.size(), listOf()),
+                FireFile(xmlName, "Files/$xmlName", "fireOid-$xmlName", xml.md5(), xml.size(), listOf()),
+                FireFile(tsvName, "Files/$tsvName", "fireOid-$tsvName", tsv.md5(), tsv.size(), listOf())
             )
         }
 
@@ -244,9 +244,9 @@ internal class FileListSubmissionTest(private val tempFolder: TemporaryFolder) :
             val xmlPath = "$subFolder/$accNo.xml"
             val tsvPath = "$subFolder/$accNo.pagetab.tsv"
             return listOf(
-                NfsFile("$accNo.json", "$accNo.json", "$accNo.json", jsonPath, File(jsonPath)),
-                NfsFile("$accNo.xml", "$accNo.xml", "$accNo.xml", xmlPath, File(xmlPath)),
-                NfsFile("$accNo.pagetab.tsv", "$accNo.pagetab.tsv", "$accNo.pagetab.tsv", tsvPath, File(tsvPath))
+                NfsFile("$accNo.json", "$accNo.json", jsonPath, File(jsonPath)),
+                NfsFile("$accNo.xml", "$accNo.xml", xmlPath, File(xmlPath)),
+                NfsFile("$accNo.pagetab.tsv", "$accNo.pagetab.tsv", tsvPath, File(tsvPath))
             )
         }
 
@@ -258,9 +258,9 @@ internal class FileListSubmissionTest(private val tempFolder: TemporaryFolder) :
             val xmlFile = File(subFolder).resolve("Files/$xmlName")
             val tsvFile = File(subFolder).resolve("Files/$tsvName")
             return listOf(
-                NfsFile(jsonName, jsonName, "Files/$jsonName", "$subFolder/Files/$jsonName", jsonFile),
-                NfsFile(xmlName, xmlName, "Files/$xmlName", "$subFolder/Files/$xmlName", xmlFile),
-                NfsFile(tsvName, tsvName, "Files/$tsvName", "$subFolder/Files/$tsvName", tsvFile)
+                NfsFile(jsonName, "Files/$jsonName", "$subFolder/Files/$jsonName", jsonFile),
+                NfsFile(xmlName, "Files/$xmlName", "$subFolder/Files/$xmlName", xmlFile),
+                NfsFile(tsvName, "Files/$tsvName", "$subFolder/Files/$tsvName", tsvFile)
             )
         }
     }

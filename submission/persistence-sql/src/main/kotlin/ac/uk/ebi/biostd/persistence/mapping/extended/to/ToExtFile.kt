@@ -14,7 +14,6 @@ internal fun DbFile.toExtFile(fileSource: FilesSource): NfsFile {
         is FireBioFile -> TODO()
         is FireDirectoryBioFile -> TODO()
         is NfsBioFile -> NfsFile(
-            bioFile.file.name,
             name,
             "Files/$name",
             bioFile.file.absolutePath,
@@ -29,7 +28,6 @@ internal fun DbReferencedFile.toExtFile(fileSource: FilesSource): NfsFile {
         is FireBioFile -> TODO()
         is FireDirectoryBioFile -> TODO()
         is NfsBioFile -> NfsFile(
-            bioFile.file.name,
             name,
             "Files/$name",
             bioFile.file.absolutePath,

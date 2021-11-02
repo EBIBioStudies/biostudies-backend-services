@@ -52,6 +52,7 @@ internal class DocSubmissionConverterTest(
         assertThat(result.id).isEqualTo(subId)
         assertThat(result.accNo).isEqualTo(subAccNo)
         assertThat(result.version).isEqualTo(subVersion)
+        assertThat(result.schemaVersion).isEqualTo(subSchemaVersion)
         assertThat(result.owner).isEqualTo(subOwner)
         assertThat(result.submitter).isEqualTo(subSubmitter)
         assertThat(result.title).isEqualTo(subTitle)
@@ -84,6 +85,7 @@ internal class DocSubmissionConverterTest(
         subDocument[DocSubmissionFields.SUB_ID] = subId
         subDocument[DocSubmissionFields.SUB_ACC_NO] = subAccNo
         subDocument[DocSubmissionFields.SUB_VERSION] = subVersion
+        subDocument[DocSubmissionFields.SUB_SCHEMA_VERSION] = subSchemaVersion
         subDocument[DocSubmissionFields.SUB_OWNER] = subOwner
         subDocument[DocSubmissionFields.SUB_SUBMITTER] = subSubmitter
         subDocument[DocSubmissionFields.SUB_TITLE] = subTitle
@@ -130,6 +132,7 @@ internal class DocSubmissionConverterTest(
         const val subAccNo = "accNo"
         const val projectDocAccNo = "accNo"
         const val subVersion = 1
+        const val subSchemaVersion = "1.0"
         const val subOwner = "owner"
         const val subSubmitter = "submitter"
         const val subTitle = "title"

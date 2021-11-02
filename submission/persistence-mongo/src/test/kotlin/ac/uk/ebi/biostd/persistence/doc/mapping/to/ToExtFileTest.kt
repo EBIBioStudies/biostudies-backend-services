@@ -7,7 +7,7 @@ import ac.uk.ebi.biostd.persistence.doc.test.FileTestHelper.docFileList
 import ac.uk.ebi.biostd.persistence.doc.test.FileTestHelper.fireDocDirectory
 import ac.uk.ebi.biostd.persistence.doc.test.FileTestHelper.fireDocFile
 import ac.uk.ebi.biostd.persistence.doc.test.FileTestHelper.nfsDocFile
-import ac.uk.ebi.biostd.persistence.doc.test.TEST_REL_PATH
+import ac.uk.ebi.biostd.persistence.doc.test.TEST_FILENAME
 import arrow.core.Either.Companion.left
 import arrow.core.Either.Companion.right
 import ebi.ac.uk.util.collections.ifLeft
@@ -22,7 +22,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(TemporaryFolderExtension::class)
 class ToExtFileTest(temporaryFolder: TemporaryFolder) {
-    private val testFile = temporaryFolder.createFile(TEST_REL_PATH)
+    private val testFile = temporaryFolder.createFile(TEST_FILENAME)
     private val testNfsDocFile = nfsDocFile.copy(fullPath = testFile.absolutePath)
 
     @Test

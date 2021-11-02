@@ -28,6 +28,7 @@ private fun ExtSubmission.toDocSubmission(submissionId: ObjectId, docSection: Do
         status = getStatus(status),
         method = getMethod(method),
         version = version,
+        schemaVersion = schemaVersion,
         relPath = relPath,
         rootPath = rootPath,
         released = released,
