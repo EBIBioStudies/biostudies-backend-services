@@ -19,7 +19,6 @@ include:
 stages:
   - build-test
   - mongo-nfs-itest
-  - mysql-fire-itest
   - mysql-nfs-itest
   - auto-deploy-dev-bio-commandline
   - auto-deploy-dev-submitter
@@ -64,10 +63,6 @@ build-test:
 mongo-nfs-itest:
   stage: mongo-nfs-itest
   script: gradle clean :submission:submission-webapp:itest -PenableFire=false --rerun-tasks --stacktrace
-
-mysql-fire-itest:
-  stage: mysql-fire-itest
-  script: gradle clean :submission:submission-webapp:itest -Pitest.mode=mysql --rerun-tasks --stacktrace
 
 mysql-nfs-itest:
   stage: mysql-nfs-itest
