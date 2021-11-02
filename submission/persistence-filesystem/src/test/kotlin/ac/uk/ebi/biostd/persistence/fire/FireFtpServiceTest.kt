@@ -8,7 +8,7 @@ import ebi.ac.uk.extended.model.ExtFileList
 import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.FireFile
-import ebi.ac.uk.test.basicExtSubmission as extSub
+import ebi.ac.uk.test.basicExtSubmission as basicExtSub
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -27,16 +27,16 @@ class FireFtpServiceTest(
     @MockK private val submissionQueryService: SubmissionQueryService
 ) {
     private val clientFireFile = ClientFireFile(1, "abc1", "md5", 1, "2021-09-21")
-    private val fireFileSample = FireFile("test.txt", "folder/test.txt", "relPath", "abc", "md5", 1, listOf())
+    private val fileSample = FireFile("test.txt", "folder/test.txt", "relPath", "abc", "md5", 1, listOf())
 
-    private val fileFileList = fireFileSample.copy(fireId = "abc1")
-    private val filePageTab = fireFileSample.copy(fireId = "abc2")
-    private val file = fireFileSample.copy(fireId = "abc3")
-    private val fileTable = fireFileSample.copy(fireId = "abc4")
-    private val subFileFileList = fireFileSample.copy(fireId = "abc5")
-    private val subFilePageTab = fireFileSample.copy(fireId = "abc6")
-    private val subFile = fireFileSample.copy(fireId = "abc7")
-    private val subFileTable = fireFileSample.copy(fireId = "abc8")
+    private val fileFileList = fileSample.copy(fireId = "abc1")
+    private val filePageTab = fileSample.copy(fireId = "abc2")
+    private val file = fileSample.copy(fireId = "abc3")
+    private val fileTable = fileSample.copy(fireId = "abc4")
+    private val subFileFileList = fileSample.copy(fireId = "abc5")
+    private val subFilePageTab = fileSample.copy(fireId = "abc6")
+    private val subFile = fileSample.copy(fireId = "abc7")
+    private val subFileTable = fileSample.copy(fireId = "abc8")
     private val section = ExtSection(
         type = "Study",
         fileList = ExtFileList("fileName1", files = listOf(fileFileList), pageTabFiles = listOf(filePageTab)),
@@ -55,6 +55,7 @@ class FireFtpServiceTest(
             )
         )
     )
+    private val extSub = basicExtSub.copy(section = section, pageTabFiles = listOf(fileSample.copy(fireId = "abc9")))
     private val testInstance = FireFtpService(fireWebClient, submissionQueryService)
 
     @AfterEach
@@ -69,11 +70,7 @@ class FireFtpServiceTest(
 
     @Test
     fun `process public submission`() {
-        val submission = extSub.copy(
-            released = true,
-            section = section,
-            pageTabFiles = listOf(fireFileSample.copy(fireId = "abc9"))
-        )
+        val submission = extSub.copy(released = true)
         testInstance.processSubmissionFiles(submission)
 
         verifyCleanFtpFolder(exactly = 1)
@@ -82,7 +79,7 @@ class FireFtpServiceTest(
 
     @Test
     fun `process private submission`() {
-        val submission = extSub.copy(released = false, section = section)
+        val submission = extSub.copy(released = false)
         testInstance.processSubmissionFiles(submission)
 
         verifyCleanFtpFolder(exactly = 1)
@@ -91,11 +88,7 @@ class FireFtpServiceTest(
 
     @Test
     fun `create ftp folder`() {
-        val submission = extSub.copy(
-            released = true,
-            section = section,
-            pageTabFiles = listOf(fireFileSample.copy(fireId = "abc9"))
-        )
+        val submission = extSub.copy(released = true)
 
         every { submissionQueryService.getExtByAccNo(submission.accNo) } returns submission
 
