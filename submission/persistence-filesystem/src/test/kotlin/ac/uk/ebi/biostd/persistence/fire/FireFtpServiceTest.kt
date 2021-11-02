@@ -87,7 +87,6 @@ class FireFtpServiceTest(
 
         verifyCleanFtpFolder(exactly = 1)
         verifyFtpPublish(exactly = 0)
-
     }
 
     @Test
