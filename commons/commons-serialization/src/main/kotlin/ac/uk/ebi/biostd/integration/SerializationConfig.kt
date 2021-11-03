@@ -8,7 +8,7 @@ object SerializationConfig {
     fun serializationService(): SerializationService =
         PageTabSerializationService(pageTabSerializer(), fileListSerializer())
 
-    private fun pageTabSerializer(): PagetabSerializer = PagetabSerializer()
+    fun fileListSerializer(): FileListSerializer = FileListSerializer(pageTabSerializer())
 
-    private fun fileListSerializer(): FileListSerializer = FileListSerializer(pageTabSerializer())
+    private fun pageTabSerializer(): PagetabSerializer = PagetabSerializer()
 }

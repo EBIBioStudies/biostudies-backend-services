@@ -14,6 +14,7 @@ import ebi.ac.uk.dsl.submission
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.io.sources.NfsBioFile
 import ebi.ac.uk.model.File
+import ebi.ac.uk.model.FileList
 import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.test.createFile
@@ -58,7 +59,7 @@ class FileListSerializerTest(private val tempFolder: TemporaryFolder) {
 
         testInstance.deserializeFileList(submission, source)
 
-        assertFileList(submission, fileListName)
+        assertSubmissionFileList(submission, fileListName)
     }
 
     @Test
@@ -73,7 +74,7 @@ class FileListSerializerTest(private val tempFolder: TemporaryFolder) {
 
         testInstance.deserializeFileList(submission, source)
 
-        assertFileList(submission, fileListName)
+        assertSubmissionFileList(submission, fileListName)
     }
 
     @Test
@@ -88,7 +89,7 @@ class FileListSerializerTest(private val tempFolder: TemporaryFolder) {
 
         testInstance.deserializeFileList(submission, source)
 
-        assertFileList(submission, fileListName)
+        assertSubmissionFileList(submission, fileListName)
     }
 
     @Test
@@ -105,7 +106,19 @@ class FileListSerializerTest(private val tempFolder: TemporaryFolder) {
 
         testInstance.deserializeFileList(submission, source)
 
-        assertFileList(submission, fileListName)
+        assertSubmissionFileList(submission, fileListName)
+    }
+
+    @Test
+    fun `deserialize standalone file list`() {
+        val fileListName = "AFileList.tsv"
+        val fileList = tempFolder.createFile(fileListName, "test file list")
+
+        every { readAsPageTab(fileList) } returns "test file list"
+        every { source.getFile(fileListName) } returns NfsBioFile(fileList)
+        every { serializer.deserializeElement<FilesTable>("test file list", TSV) } returns filesTable
+
+        assertFileList(testInstance.deserializeFileList(fileListName, source), fileListName)
     }
 
     @Test
@@ -129,9 +142,13 @@ class FileListSerializerTest(private val tempFolder: TemporaryFolder) {
         }
     }
 
-    private fun assertFileList(submission: Submission, fileListName: String) {
+    private fun assertSubmissionFileList(submission: Submission, fileListName: String) {
         assertNotNull(submission.section.fileList)
-        assertThat(submission.section.fileList!!.name).isEqualTo(fileListName)
-        assertThat(submission.section.fileList!!.referencedFiles).isEqualTo(listOf(File("some-file.txt")))
+        assertFileList(submission.section.fileList!!, fileListName)
+    }
+
+    private fun assertFileList(fileList: FileList, fileListName: String) {
+        assertThat(fileList.name).isEqualTo(fileListName)
+        assertThat(fileList.referencedFiles).isEqualTo(listOf(File("some-file.txt")))
     }
 }

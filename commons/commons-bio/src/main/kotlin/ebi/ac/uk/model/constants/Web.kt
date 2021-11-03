@@ -3,6 +3,7 @@ package ebi.ac.uk.model.constants
 const val SUBMISSION_TYPE = "Submission_Type"
 const val FILES = "files"
 const val FILE_LISTS = "fileLists"
+const val FILE_LIST_NAME = "fileListName"
 const val ATTRIBUTES = "attributes"
 const val SUBMISSION = "submission"
 const val FILE_MODE = "fileMode"

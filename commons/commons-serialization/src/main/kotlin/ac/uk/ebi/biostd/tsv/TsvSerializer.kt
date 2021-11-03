@@ -5,14 +5,11 @@ import ac.uk.ebi.biostd.tsv.serialization.TsvToStringSerializer
 import ebi.ac.uk.base.splitIgnoringEmpty
 import ebi.ac.uk.model.constants.SUB_SEPARATOR
 
-internal class TsvSerializer(
+class TsvSerializer(
     private val tsvSerializer: TsvToStringSerializer = TsvToStringSerializer(),
     private val tsvDeserializer: TsvDeserializer = TsvDeserializer()
 ) {
-
     fun <T> serialize(element: T) = tsvSerializer.serialize(element)
-
-    inline fun <reified T> deserializeElement(pageTab: String) = deserializeElement(pageTab, T::class.java)
 
     fun <T> deserializeElement(pageTab: String, type: Class<out T>) = tsvDeserializer.deserializeElement(pageTab, type)
 
