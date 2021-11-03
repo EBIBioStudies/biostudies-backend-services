@@ -133,7 +133,7 @@ class MultipartAsyncSubmitResource(
             user = user,
             format = TSV,
             fileMode = mode,
-            attrs = attributes?.associate { it.name to it.value } ?: emptyMap(),
+            attrs = attributes.orEmpty().associate { it.name to it.value },
             files = tempFiles
         )
         submitWebHandler.submitAsync(contentWebRequest)

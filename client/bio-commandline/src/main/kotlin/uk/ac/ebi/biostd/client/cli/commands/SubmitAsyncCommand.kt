@@ -14,7 +14,7 @@ import uk.ac.ebi.biostd.client.cli.common.CommonParameters.USER_HELP
 import uk.ac.ebi.biostd.client.cli.common.FILES_SEPARATOR
 import uk.ac.ebi.biostd.client.cli.common.SubmissionParameters.ATTACHED_HELP
 import uk.ac.ebi.biostd.client.cli.common.SubmissionParameters.INPUT_HELP
-import uk.ac.ebi.biostd.client.cli.common.SubmissionParameters.MOVE_FILES
+import uk.ac.ebi.biostd.client.cli.common.SubmissionParameters.FILE_MODE
 import uk.ac.ebi.biostd.client.cli.common.getFiles
 import uk.ac.ebi.biostd.client.cli.dto.SubmissionRequest
 import uk.ac.ebi.biostd.client.cli.services.SubmissionService
@@ -28,7 +28,7 @@ internal class SubmitAsyncCommand(private val submissionService: SubmissionServi
     private val onBehalf by option("-b", "--onBehalf", help = ON_BEHALF_HELP)
     private val input by option("-i", "--input", help = INPUT_HELP).file(exists = true).required()
     private val attached by option("-a", "--attached", help = ATTACHED_HELP)
-    private val moveFiles by option("-m", "--moveFiles", help = MOVE_FILES).flag(default = false)
+    private val moveFiles by option("-m", "--moveFiles", help = FILE_MODE).flag(default = false)
 
     override fun run() {
         val request = SubmissionRequest(

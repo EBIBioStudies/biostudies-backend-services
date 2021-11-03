@@ -20,6 +20,7 @@ import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.biostd.client.cli.dto.SubmissionRequest
 import uk.ac.ebi.biostd.client.cli.services.SubmissionService
+import java.lang.IllegalArgumentException
 
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
 internal class SubmitCommandTest(
@@ -93,11 +94,31 @@ internal class SubmitCommandTest(
                 "-p", "password",
                 "-i", "$rootFolder/Submission.tsv",
                 "-a", "$rootFolder/attachedFile1.tsv,$rootFolder/attachedFile2.tsv",
-                "--moveFiles"
+                "-fm", "MOVE"
             )
         )
 
         verify(exactly = 1) { submissionService.submit(request) }
+    }
+
+    @Test
+    fun `invalid file mode`() {
+        temporaryFolder.createFile("Submission.tsv")
+        temporaryFolder.createFile("attachedFile1.tsv")
+        temporaryFolder.createFile("attachedFile2.tsv")
+
+        assertThrows<IllegalArgumentException> {
+            testInstance.parse(
+                listOf(
+                    "-s", "server",
+                    "-u", "user",
+                    "-p", "password",
+                    "-i", "$rootFolder/Submission.tsv",
+                    "-a", "$rootFolder/attachedFile1.tsv,$rootFolder/attachedFile2.tsv",
+                    "-fm", "INVALID"
+                )
+            )
+        }
     }
 
     @Test
