@@ -28,6 +28,7 @@ import ebi.ac.uk.dsl.section
 import ebi.ac.uk.dsl.submission
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
+import ebi.ac.uk.io.ext.createNewFile
 import ebi.ac.uk.model.extensions.rootPath
 import ebi.ac.uk.model.extensions.title
 import ebi.ac.uk.security.integration.components.ISecurityQueryService
@@ -174,7 +175,7 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
         }
 
         @Test
-        fun `submission with on behalf another user`() {
+        fun `submission on behalf another user`() {
             createUser(RegularUser, serverPort)
 
             val submission = tsv {
@@ -198,7 +199,7 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
         }
 
         @Test
-        fun `submission with on behalf new user`() {
+        fun `submission on behalf new user`() {
             val username = "Jhon doe"
             val email = "jhon@doe.email.com"
 
@@ -219,13 +220,11 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
         }
 
         @Test
-        fun `submission with on behalf created user with files in its folders`() {
-            val ownerUser = securityTestService.registerUser(RegularUser1)
+        fun `submission on behalf created user with files in its folders`() {
+            securityTestService.registerUser(RegularUser1)
+            val regularClient = getWebClient(serverPort, RegularUser1)
 
-            Files.copy(
-                tempFolder.createFile("ownerFile.txt").toPath(),
-                ownerUser.magicFolder.path.resolve("ownerFile.txt")
-            )
+            regularClient.uploadFile(tempFolder.createFile("ownerFile.txt"))
             webClient.uploadFile(tempFolder.createFile("submitterFile.txt"))
 
             val submission = tsv {
@@ -257,14 +256,12 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
         }
 
         @Test
-        fun `submission with on behalf created user with the same file`() {
-            val ownerUser = securityTestService.registerUser(RegularUser2)
+        fun `submission on behalf when owner and submitter has the same file`() {
+            securityTestService.registerUser(RegularUser2)
+            val regularClient = getWebClient(serverPort, RegularUser2)
 
-            Files.copy(
-                tempFolder.createFile("ownerFile1.txt", "owner data").toPath(),
-                ownerUser.magicFolder.path.resolve("file.txt")
-            )
-            webClient.uploadFile(tempFolder.createFile("file.txt", "submitter data"))
+            regularClient.uploadFile(tempFolder.createDirectory("a").createNewFile("file.txt", "owner data"))
+            webClient.uploadFile(tempFolder.createDirectory("b").createNewFile("file.txt", "submitter data"))
 
             val submission = tsv {
                 line("Submission")
