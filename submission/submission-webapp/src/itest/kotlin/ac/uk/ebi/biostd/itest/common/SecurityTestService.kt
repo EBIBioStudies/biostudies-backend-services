@@ -34,7 +34,7 @@ class SecurityTestService(
         groupService.addUserInGroup(group.name, testUser.email)
     }
 
-    fun deleteRegularUser(){
+    fun deleteRegularUser() {
         userDataRepository.findByEmail(RegularUser.email)?.let { userDataRepository.delete(it) }
     }
 }

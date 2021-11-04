@@ -8,14 +8,11 @@ import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.RegularUser
 import ac.uk.ebi.biostd.itest.entities.SuperUser
-import ac.uk.ebi.biostd.itest.entities.TestUser
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
-import ac.uk.ebi.biostd.persistence.model.DbTag
 import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ac.uk.ebi.biostd.submission.ext.getSimpleByAccNo
 import ebi.ac.uk.api.dto.UserRegistration
-import ebi.ac.uk.api.security.RegisterRequest
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.submission
 import ebi.ac.uk.dsl.tsv.line
@@ -25,7 +22,6 @@ import ebi.ac.uk.model.extensions.title
 import ebi.ac.uk.test.clean
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
-import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
