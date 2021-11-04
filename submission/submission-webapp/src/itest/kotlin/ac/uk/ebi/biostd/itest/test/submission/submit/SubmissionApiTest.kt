@@ -220,7 +220,7 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
 
         @Test
         fun `submission with on behalf created user with files in its folders`() {
-            val ownerUser = securityTestService.registerUser(RegularUser)
+            val ownerUser = securityTestService.registerUser(RegularUser1)
 
             Files.copy(
                 tempFolder.createFile("ownerFile.txt").toPath(),
@@ -245,7 +245,7 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
 
             val onBehalfClient = SecurityWebClient
                 .create("http://localhost:$serverPort")
-                .getAuthenticatedClient(SuperUser.email, SuperUser.password, RegularUser.email)
+                .getAuthenticatedClient(SuperUser.email, SuperUser.password, RegularUser1.email)
 
             val response = onBehalfClient.submitSingle(submission, TSV)
             assertThat(response).isSuccessful()
@@ -258,7 +258,7 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
 
         @Test
         fun `submission with on behalf created user with the same file`() {
-            val ownerUser = securityTestService.registerUser(RegularUser)
+            val ownerUser = securityTestService.registerUser(RegularUser2)
 
             Files.copy(
                 tempFolder.createFile("ownerFile1.txt", "owner data").toPath(),
@@ -280,7 +280,7 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
 
             val onBehalfClient = SecurityWebClient
                 .create("http://localhost:$serverPort")
-                .getAuthenticatedClient(SuperUser.email, SuperUser.password, RegularUser.email)
+                .getAuthenticatedClient(SuperUser.email, SuperUser.password, RegularUser2.email)
 
             val response = onBehalfClient.submitSingle(submission, TSV)
             assertThat(response).isSuccessful()
@@ -569,5 +569,25 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
             }
             assertThat(exception.message!!.contains("Submission contains invalid files invalid file.txt"))
         }
+    }
+
+    object RegularUser1 : TestUser {
+        override val username = "Regular User1"
+        override val email = "biostudies-dev1@ebi.ac.uk"
+        override val password = "678910"
+        override val superUser = false
+
+        override fun asRegisterRequest() =
+            RegisterRequest(username, email, password, notificationsEnabled = true)
+    }
+
+    object RegularUser2 : TestUser {
+        override val username = "Regular User2"
+        override val email = "biostudies-dev2@ebi.ac.uk"
+        override val password = "678910"
+        override val superUser = false
+
+        override fun asRegisterRequest() =
+            RegisterRequest(username, email, password, notificationsEnabled = true)
     }
 }
