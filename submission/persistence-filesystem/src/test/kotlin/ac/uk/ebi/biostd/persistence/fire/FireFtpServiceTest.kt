@@ -28,10 +28,9 @@ class FireFtpServiceTest(
     @MockK private val submissionQueryService: SubmissionQueryService
 ) {
     private val clientFireFile = ClientFireFile(1, "abc1", "md5", 1, "2021-09-21")
-    private val fileSample = FireFile("test.txt", "folder/test.txt", "relPath", "abc", "md5", 1, listOf())
-    private val fileFileList = fileSample.copy(fireId = FILE_FILE_LIST)
-    private val innerFileFileList = fileSample.copy(fireId = INNER_FILE_FILE_LIST)
-    private val extSub = createExtSubmission(fileSample, fileFileList, innerFileFileList)
+    private val fileFileList = fireFile(FILE_FILE_LIST)
+    private val innerFileListFile = fireFile(INNER_FILE_FILE_LIST)
+    private val extSub = createExtSubmission(fileFileList, innerFileListFile)
     private val testInstance = FireFtpService(fireWebClient, submissionQueryService)
 
     @AfterEach
@@ -41,7 +40,7 @@ class FireFtpServiceTest(
     fun beforeEach() {
         every { fireWebClient.findAllInPath(extSub.relPath) } returns listOf(clientFireFile)
         every { submissionQueryService.getReferencedFiles(extSub.accNo, "fileName1") } returns listOf(fileFileList)
-        every { submissionQueryService.getReferencedFiles(extSub.accNo, "fileName2") } returns listOf(innerFileFileList)
+        every { submissionQueryService.getReferencedFiles(extSub.accNo, "fileName2") } returns listOf(innerFileListFile)
     }
 
     @Test
@@ -81,39 +80,33 @@ class FireFtpServiceTest(
 
     private fun verifyFtpPublish(exactly: Int) = verify(exactly = exactly) {
         val relPath = "${extSub.relPath}/relPath"
+        fun verifyPublishFile(fireId: String) {
+            fireWebClient.publish(fireId)
+            fireWebClient.setPath(fireId, relPath)
+        }
 
-        fireWebClient.publish(FILE_FILE_LIST)
-        fireWebClient.setPath(FILE_FILE_LIST, relPath)
-        fireWebClient.publish(FILE_PAGE_TAB)
-        fireWebClient.setPath(FILE_PAGE_TAB, relPath)
-        fireWebClient.publish(FILE)
-        fireWebClient.setPath(FILE, relPath)
-        fireWebClient.publish(FILE_TABLE)
-        fireWebClient.setPath(FILE_TABLE, relPath)
-        fireWebClient.publish(INNER_FILE_FILE_LIST)
-        fireWebClient.setPath(INNER_FILE_FILE_LIST, relPath)
-        fireWebClient.publish(INNER_FILE_PAGE_TAB)
-        fireWebClient.setPath(INNER_FILE_PAGE_TAB, relPath)
-        fireWebClient.publish(INNER_FILE)
-        fireWebClient.setPath(INNER_FILE, relPath)
-        fireWebClient.publish(INNER_FILE_TABLE)
-        fireWebClient.setPath(INNER_FILE_TABLE, relPath)
-        fireWebClient.publish(SUB_FILE_PAGE_TAB)
-        fireWebClient.setPath(SUB_FILE_PAGE_TAB, relPath)
+        verifyPublishFile(FILE_FILE_LIST)
+        verifyPublishFile(FILE_PAGE_TAB)
+        verifyPublishFile(FILE)
+        verifyPublishFile(FILE_TABLE)
+        verifyPublishFile(INNER_FILE_FILE_LIST)
+        verifyPublishFile(INNER_FILE_PAGE_TAB)
+        verifyPublishFile(INNER_FILE)
+        verifyPublishFile(INNER_FILE_TABLE)
+        verifyPublishFile(SUB_FILE_PAGE_TAB)
     }
 
     private fun createExtSubmission(
-        fileSample: FireFile,
         fileFileList: FireFile,
-        innerFileFileList: FireFile
+        innerFileListFile: FireFile
     ): ExtSubmission {
 
-        val filePageTab = fileSample.copy(fireId = FILE_PAGE_TAB)
-        val file = fileSample.copy(fireId = FILE)
-        val fileTable = fileSample.copy(fireId = FILE_TABLE)
-        val innerFilePageTab = fileSample.copy(fireId = INNER_FILE_PAGE_TAB)
-        val innerFile = fileSample.copy(fireId = INNER_FILE)
-        val innerFileTable = fileSample.copy(fireId = INNER_FILE_TABLE)
+        val filePageTab = fireFile(FILE_PAGE_TAB)
+        val file = fireFile(FILE)
+        val fileTable = fireFile(FILE_TABLE)
+        val innerFileListPageTabFile = fireFile(INNER_FILE_PAGE_TAB)
+        val innerFile = fireFile(INNER_FILE)
+        val innerFileTable = fireFile(INNER_FILE_TABLE)
         val section = ExtSection(
             type = "Study",
             fileList = ExtFileList("fileName1", files = listOf(fileFileList), pageTabFiles = listOf(filePageTab)),
@@ -124,18 +117,20 @@ class FireFtpServiceTest(
                         type = "Study",
                         fileList = ExtFileList(
                             "fileName2",
-                            files = listOf(innerFileFileList),
-                            pageTabFiles = listOf(innerFilePageTab)
+                            files = listOf(innerFileListFile),
+                            pageTabFiles = listOf(innerFileListPageTabFile)
                         ),
                         files = listOf(left(innerFile), right(ExtFileTable(innerFileTable)))
                     )
                 )
             )
         )
-        return basicExtSub.copy(section = section, pageTabFiles = listOf(fileSample.copy(fireId = SUB_FILE_PAGE_TAB)))
+        return basicExtSub.copy(section = section, pageTabFiles = listOf(fireFile(fireId = SUB_FILE_PAGE_TAB)))
     }
 
-    companion object {
+    private fun fireFile(fireId: String) = FireFile("test.txt", "a/test.txt", "relPath", fireId, "md5", 1, listOf())
+
+    private companion object {
         const val FILE_FILE_LIST = "abc1"
         const val FILE_PAGE_TAB = "abc2"
         const val FILE = "abc3"
