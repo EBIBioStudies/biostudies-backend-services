@@ -81,7 +81,7 @@ internal class SubmissionRefreshApiTest(private val tempFolder: TemporaryFolder)
 
         @Nested
         @EnabledIfSystemProperty(named = "itest.mode", matches = "mongo")
-         inner class SubmissionRefreshMongoApiTest {
+        inner class SubmissionRefreshMongoApiTest {
             @Test
             fun `refresh mongo submission release date and attributes`() {
                 updateMongoSubmission()

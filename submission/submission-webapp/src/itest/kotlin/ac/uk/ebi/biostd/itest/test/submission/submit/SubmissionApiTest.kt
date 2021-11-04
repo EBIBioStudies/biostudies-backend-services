@@ -8,7 +8,6 @@ import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
-import ac.uk.ebi.biostd.itest.entities.DefaultUser
 import ac.uk.ebi.biostd.itest.entities.RegularUser
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.entities.TestUser
@@ -31,7 +30,6 @@ import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.io.ext.createNewFile
 import ebi.ac.uk.model.extensions.rootPath
 import ebi.ac.uk.model.extensions.title
-import ebi.ac.uk.security.integration.components.ISecurityQueryService
 import ebi.ac.uk.test.clean
 import ebi.ac.uk.test.createFile
 import ebi.ac.uk.util.collections.ifRight
@@ -52,7 +50,6 @@ import org.springframework.http.HttpStatus
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.io.File
-import java.nio.file.Files
 import kotlin.test.assertFailsWith
 
 @ExtendWith(TemporaryFolderExtension::class)
