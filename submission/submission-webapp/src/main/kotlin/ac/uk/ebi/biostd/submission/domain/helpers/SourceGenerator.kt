@@ -15,21 +15,26 @@ import java.nio.file.Path
 class SourceGenerator(private val fireWebClient: FireWebClient) {
 
     fun submissionSources(requestSources: RequestSources): FilesSource {
-        val (user, files, rootPath, previousFiles) = requestSources
-        return ComposedFileSource(submissionSources(user, files, rootPath.orEmpty(), previousFiles))
+        val (submitter, files, rootPath, previousFiles, owner) = requestSources
+        return ComposedFileSource(submissionSources(submitter, files, rootPath.orEmpty(), previousFiles, owner))
     }
 
     private fun submissionSources(
-        user: SecurityUser?,
+        submitter: SecurityUser?,
         files: List<File>,
         rootPath: String,
-        previousFiles: List<ExtFile>
+        previousFiles: List<ExtFile>,
+        owner: SecurityUser?
     ): List<FilesSource> {
         val sources = mutableListOf<FilesSource>(FilesListSource(files))
 
-        user?.let {
-            sources.add(createPathSource(user.magicFolder.path, rootPath))
-            sources.addAll(groupSources(user.groupsFolders))
+        submitter?.let {
+            sources.add(createPathSource(it.magicFolder.path, rootPath))
+            sources.addAll(groupSources(it.groupsFolders))
+        }
+        owner?.let {
+            sources.add(createPathSource(it.magicFolder.path, rootPath))
+            sources.addAll(groupSources(it.groupsFolders))
         }
 
         sources.add(submissionsList(previousFiles))
@@ -43,8 +48,9 @@ class SourceGenerator(private val fireWebClient: FireWebClient) {
 }
 
 data class RequestSources(
-    val user: SecurityUser? = null,
+    val submitter: SecurityUser? = null,
     val files: List<File> = emptyList(),
     val rootPath: String? = null,
-    val previousFiles: List<ExtFile> = emptyList()
+    val previousFiles: List<ExtFile> = emptyList(),
+    val owner: SecurityUser? = null,
 )
