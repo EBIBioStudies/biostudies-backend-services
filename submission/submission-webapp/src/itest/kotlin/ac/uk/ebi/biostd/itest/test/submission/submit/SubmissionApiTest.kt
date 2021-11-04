@@ -175,120 +175,6 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
         }
 
         @Test
-        fun `submission on behalf another user`() {
-            createUser(RegularUser, serverPort)
-
-            val submission = tsv {
-                line("Submission")
-                line("Title", "Submission Title")
-            }.toString()
-
-            val onBehalfClient = SecurityWebClient
-                .create("http://localhost:$serverPort")
-                .getAuthenticatedClient(SuperUser.email, SuperUser.password, RegularUser.email)
-
-            val response = onBehalfClient.submitSingle(submission, TSV)
-            assertThat(response).isSuccessful()
-
-            val accNo = response.body.accNo
-            assertThat(submissionRepository.getSimpleByAccNo(accNo)).isEqualTo(
-                submission(accNo) {
-                    title = "Submission Title"
-                }
-            )
-        }
-
-        @Test
-        fun `submission on behalf new user`() {
-            val username = "Jhon doe"
-            val email = "jhon@doe.email.com"
-
-            val submission = tsv {
-                line("Submission")
-                line("Title", "Submission Title")
-            }.toString()
-
-            val response = webClient.submitSingle(submission, TSV, UserRegistration(username, email))
-            val saved = submissionRepository.getExtByAccNo(response.body.accNo)
-
-            assertThat(saved.owner).isEqualTo(email)
-            assertThat(saved.submitter).isEqualTo(SuperUser.email)
-            val newUser = userDataRepository.findByEmail(email)
-            assertThat(newUser).isNotNull()
-            assertThat(newUser!!.active).isFalse()
-            assertThat(newUser!!.notificationsEnabled).isFalse()
-        }
-
-        @Test
-        fun `submission on behalf created user with files in its folders`() {
-            securityTestService.registerUser(RegularUser1)
-            val regularClient = getWebClient(serverPort, RegularUser1)
-
-            regularClient.uploadFile(tempFolder.createFile("ownerFile.txt"))
-            webClient.uploadFile(tempFolder.createFile("submitterFile.txt"))
-
-            val submission = tsv {
-                line("Submission")
-                line("Title", "Submission Title")
-                line()
-
-                line("Study")
-                line()
-
-                line("File", "ownerFile.txt")
-                line()
-
-                line("File", "submitterFile.txt")
-                line()
-            }.toString()
-
-            val onBehalfClient = SecurityWebClient
-                .create("http://localhost:$serverPort")
-                .getAuthenticatedClient(SuperUser.email, SuperUser.password, RegularUser1.email)
-
-            val response = onBehalfClient.submitSingle(submission, TSV)
-            assertThat(response).isSuccessful()
-
-            val subRelPath = submissionRepository.findExtByAccNo(response.body.accNo)?.relPath
-            val filesFolder = tempFolder.root.resolve("submission/$subRelPath/Files")
-            assertThat(filesFolder.resolve("ownerFile.txt")).exists()
-            assertThat(filesFolder.resolve("submitterFile.txt")).exists()
-        }
-
-        @Test
-        fun `submission on behalf when owner and submitter has the same file`() {
-            securityTestService.registerUser(RegularUser2)
-            val regularClient = getWebClient(serverPort, RegularUser2)
-
-            regularClient.uploadFile(tempFolder.createDirectory("a").createNewFile("file.txt", "owner data"))
-            webClient.uploadFile(tempFolder.createDirectory("b").createNewFile("file.txt", "submitter data"))
-
-            val submission = tsv {
-                line("Submission")
-                line("Title", "Submission Title")
-                line()
-
-                line("Study")
-                line()
-
-                line("File", "file.txt")
-                line()
-            }.toString()
-
-            val onBehalfClient = SecurityWebClient
-                .create("http://localhost:$serverPort")
-                .getAuthenticatedClient(SuperUser.email, SuperUser.password, RegularUser2.email)
-
-            val response = onBehalfClient.submitSingle(submission, TSV)
-            assertThat(response).isSuccessful()
-
-            val subRelPath = submissionRepository.findExtByAccNo(response.body.accNo)?.relPath
-            val testFile = tempFolder.root.resolve("submission/$subRelPath/Files/file.txt")
-            assertThat(testFile).exists()
-            assertThat(testFile).hasContent("submitter data")
-        }
-
-        @Test
         fun `submission with generic root section`() {
             val submission = tsv {
                 line("Submission", "E-MTAB123")
@@ -565,6 +451,123 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
                 webClient.submitSingle(submission, SubmissionFormat.XML)
             }
             assertThat(exception.message!!.contains("Submission contains invalid files invalid file.txt"))
+        }
+
+        @Nested
+        inner class OnBehalfTest {
+            @Test
+            fun `submission on behalf another user`() {
+                createUser(RegularUser, serverPort)
+
+                val submission = tsv {
+                    line("Submission")
+                    line("Title", "Submission Title")
+                }.toString()
+
+                val onBehalfClient = SecurityWebClient
+                    .create("http://localhost:$serverPort")
+                    .getAuthenticatedClient(SuperUser.email, SuperUser.password, RegularUser.email)
+
+                val response = onBehalfClient.submitSingle(submission, TSV)
+                assertThat(response).isSuccessful()
+
+                val accNo = response.body.accNo
+                assertThat(submissionRepository.getSimpleByAccNo(accNo)).isEqualTo(
+                    submission(accNo) {
+                        title = "Submission Title"
+                    }
+                )
+            }
+
+            @Test
+            fun `submission on behalf new user`() {
+                val username = "Jhon doe"
+                val email = "jhon@doe.email.com"
+
+                val submission = tsv {
+                    line("Submission")
+                    line("Title", "Submission Title")
+                }.toString()
+
+                val response = webClient.submitSingle(submission, TSV, UserRegistration(username, email))
+                val saved = submissionRepository.getExtByAccNo(response.body.accNo)
+
+                assertThat(saved.owner).isEqualTo(email)
+                assertThat(saved.submitter).isEqualTo(SuperUser.email)
+                val newUser = userDataRepository.findByEmail(email)
+                assertThat(newUser).isNotNull()
+                assertThat(newUser!!.active).isFalse()
+                assertThat(newUser!!.notificationsEnabled).isFalse()
+            }
+
+            @Test
+            fun `submission on behalf created user with files in its folders`() {
+                securityTestService.registerUser(RegularUser1)
+                val regularClient = getWebClient(serverPort, RegularUser1)
+
+                regularClient.uploadFile(tempFolder.createFile("ownerFile.txt"))
+                webClient.uploadFile(tempFolder.createFile("submitterFile.txt"))
+
+                val submission = tsv {
+                    line("Submission")
+                    line("Title", "Submission Title")
+                    line()
+
+                    line("Study")
+                    line()
+
+                    line("File", "ownerFile.txt")
+                    line()
+
+                    line("File", "submitterFile.txt")
+                    line()
+                }.toString()
+
+                val onBehalfClient = SecurityWebClient
+                    .create("http://localhost:$serverPort")
+                    .getAuthenticatedClient(SuperUser.email, SuperUser.password, RegularUser1.email)
+
+                val response = onBehalfClient.submitSingle(submission, TSV)
+                assertThat(response).isSuccessful()
+
+                val subRelPath = submissionRepository.findExtByAccNo(response.body.accNo)?.relPath
+                val filesFolder = tempFolder.root.resolve("submission/$subRelPath/Files")
+                assertThat(filesFolder.resolve("ownerFile.txt")).exists()
+                assertThat(filesFolder.resolve("submitterFile.txt")).exists()
+            }
+
+            @Test
+            fun `submission on behalf when owner and submitter has the same file`() {
+                securityTestService.registerUser(RegularUser2)
+                val regularClient = getWebClient(serverPort, RegularUser2)
+
+                regularClient.uploadFile(tempFolder.createDirectory("a").createNewFile("file.txt", "owner data"))
+                webClient.uploadFile(tempFolder.createDirectory("b").createNewFile("file.txt", "submitter data"))
+
+                val submission = tsv {
+                    line("Submission")
+                    line("Title", "Submission Title")
+                    line()
+
+                    line("Study")
+                    line()
+
+                    line("File", "file.txt")
+                    line()
+                }.toString()
+
+                val onBehalfClient = SecurityWebClient
+                    .create("http://localhost:$serverPort")
+                    .getAuthenticatedClient(SuperUser.email, SuperUser.password, RegularUser2.email)
+
+                val response = onBehalfClient.submitSingle(submission, TSV)
+                assertThat(response).isSuccessful()
+
+                val subRelPath = submissionRepository.findExtByAccNo(response.body.accNo)?.relPath
+                val testFile = tempFolder.root.resolve("submission/$subRelPath/Files/file.txt")
+                assertThat(testFile).exists()
+                assertThat(testFile).hasContent("submitter data")
+            }
         }
     }
 
