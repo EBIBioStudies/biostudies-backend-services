@@ -24,7 +24,7 @@ import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.constants.SubFields.SUBMISSION
 
-class ChunkProcessor {
+internal class ChunkProcessor {
     fun getSubmission(tsvChunk: TsvChunk): Submission {
         validate(tsvChunk.getType() like SUBMISSION) { "Expected to find block type of $SUBMISSION" }
 

@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.submission.validator.filelist
 
-import ac.uk.ebi.biostd.service.FileListSerializer
+import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.submission.exceptions.InvalidFilesException
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.model.File
@@ -19,15 +19,15 @@ class FileListValidatorTest(
     @MockK private val fileList: FileList,
     @MockK private val referencedFile: File,
     @MockK private val filesSource: FilesSource,
-    @MockK private val fileListSerializer: FileListSerializer
+    @MockK private val serializationService: SerializationService
 ) {
-    private val testInstance = FileListValidator(fileListSerializer)
+    private val testInstance = FileListValidator(serializationService)
 
     @BeforeEach
     fun beforeEach() {
         every { referencedFile.path } returns "referenced/file/path.txt"
         every { fileList.referencedFiles } returns listOf(referencedFile)
-        every { fileListSerializer.deserializeFileList("file-list", filesSource) } returns fileList
+        every { serializationService.deserializeFileList("file-list", filesSource) } returns fileList
     }
 
     @Test

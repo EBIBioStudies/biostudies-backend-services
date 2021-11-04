@@ -27,7 +27,7 @@ import org.apache.commons.csv.CSVRecord
 import java.io.StringReader
 import java.util.Queue
 
-class TsvChunkGenerator(private val parser: CSVFormat = createParser()) {
+internal class TsvChunkGenerator(private val parser: CSVFormat = createParser()) {
     fun chunks(pageTab: String): Queue<TsvChunk> {
         return chunkLines(pageTab)
             .split { it.isEmpty() }

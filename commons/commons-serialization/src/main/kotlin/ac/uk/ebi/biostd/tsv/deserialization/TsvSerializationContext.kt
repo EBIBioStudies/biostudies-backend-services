@@ -17,7 +17,7 @@ import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.Submission
 
 @Suppress("TooManyFunctions")
-class TsvSerializationContext {
+internal class TsvSerializationContext {
     private val sections = TsvSectionContext()
     private var errors: Multimap<Any, SerializationError> = HashMultimap.create()
 

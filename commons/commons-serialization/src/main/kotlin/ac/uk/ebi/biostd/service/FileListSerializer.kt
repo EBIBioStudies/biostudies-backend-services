@@ -14,10 +14,10 @@ import ebi.ac.uk.model.extensions.allSections
 import ebi.ac.uk.model.extensions.fileListName
 import java.io.File
 
-class FileListSerializer(
+internal class FileListSerializer(
     private val serializer: PagetabSerializer
 ) {
-    fun deserializeFileList(fileName: String, source: FilesSource): FileList = getFileList(fileName, source)
+    internal fun deserializeFileList(fileName: String, source: FilesSource): FileList = getFileList(fileName, source)
 
     internal fun deserializeFileList(submission: Submission, source: FilesSource): Submission {
         submission.allSections()

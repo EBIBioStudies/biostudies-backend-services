@@ -35,7 +35,7 @@ import ebi.ac.uk.model.Table
 import uk.ac.ebi.serialization.deserializers.EitherDeserializer
 import uk.ac.ebi.serialization.serializers.EitherSerializer
 
-class JsonSerializer {
+internal class JsonSerializer {
     fun <T> serialize(element: T, pretty: Boolean = false): String {
         return if (pretty)
             mapper.writerWithDefaultPrettyPrinter().writeValueAsString(element)

@@ -4,10 +4,10 @@ import ac.uk.ebi.biostd.common.config.SubmitterConfig.FilesHandlerConfig
 import ac.uk.ebi.biostd.common.config.SubmitterConfig.ServiceConfig
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.integration.SerializationConfig
+import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.persistence.common.service.PersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestService
-import ac.uk.ebi.biostd.service.FileListSerializer
 import ac.uk.ebi.biostd.submission.service.AccNoService
 import ac.uk.ebi.biostd.submission.service.CollectionInfoService
 import ac.uk.ebi.biostd.submission.service.ParentInfoService
@@ -63,10 +63,10 @@ class SubmitterConfig {
     @Configuration
     class SerializationConfiguration {
         @Bean
-        fun serializationService() = SerializationConfig.serializationService()
+        fun serializationService(): SerializationService = SerializationConfig.serializationService()
 
-        @Bean
-        fun fileListSerializer(): FileListSerializer = SerializationConfig.fileListSerializer()
+//        @Bean
+//        fun fileListSerializer(): FileListSerializer = SerializationConfig.fileListSerializer()
 
         @Bean
         fun extSerializationService(): ExtSerializationService = ExtSerializationConfig.extSerializationService()
@@ -102,8 +102,8 @@ class SubmitterConfig {
 
         @Bean
         fun fileListValidator(
-            fileListSerializer: FileListSerializer
-        ): FileListValidator = FileListValidator(fileListSerializer)
+            serializationService: SerializationService
+        ): FileListValidator = FileListValidator(serializationService)
 
         @Bean(name = ["EuToxRiskValidator"])
         fun euToxRiskValidator(
