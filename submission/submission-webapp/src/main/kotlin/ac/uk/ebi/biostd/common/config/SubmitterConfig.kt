@@ -65,9 +65,6 @@ class SubmitterConfig {
         @Bean
         fun serializationService(): SerializationService = SerializationConfig.serializationService()
 
-//        @Bean
-//        fun fileListSerializer(): FileListSerializer = SerializationConfig.fileListSerializer()
-
         @Bean
         fun extSerializationService(): ExtSerializationService = ExtSerializationConfig.extSerializationService()
     }
