@@ -137,7 +137,7 @@ class MultipartSubmitResource(
         val tempFiles = tempFileGenerator.asFiles(files)
         val subFile = tempFileGenerator.asFile(file)
 
-        val contentWebRequest = FileSubmitWebRequest(
+        val fileWebRequest = FileSubmitWebRequest(
             submission = subFile,
             onBehalfRequest = onBehalfRequest,
             user = user,
@@ -147,6 +147,6 @@ class MultipartSubmitResource(
             files = tempFiles
         )
 
-        return submitWebHandler.submit(contentWebRequest)
+        return submitWebHandler.submit(fileWebRequest)
     }
 }

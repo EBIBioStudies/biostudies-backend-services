@@ -20,6 +20,7 @@ class FireFtpService(
 
         logger.info { "$accNo $owner Publishing files of submission $accNo over FIRE" }
 
+        // TODO fix conflict problem when reusing fire files for already published submissions
         cleanFtpFolder(submission.relPath)
         if (submission.released) publishFiles(submission)
 

@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.persistence.doc.service
 
+import ac.uk.ebi.biostd.persistence.common.exception.FileListNotFoundException
 import ac.uk.ebi.biostd.persistence.common.request.SaveSubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestService
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
@@ -8,18 +9,25 @@ import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataReposito
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.FileListDocFileRepository
 import ac.uk.ebi.biostd.persistence.doc.mapping.from.toDocSubmission
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
+import ac.uk.ebi.biostd.persistence.doc.mapping.to.toExtFile
 import ac.uk.ebi.biostd.persistence.doc.model.DocProcessingStatus.PROCESSED
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus
+import ac.uk.ebi.biostd.persistence.doc.model.allDocSections
 import ac.uk.ebi.biostd.persistence.filesystem.request.FilePersistenceRequest
 import ac.uk.ebi.biostd.persistence.filesystem.service.FileSystemService
 import com.mongodb.BasicDBObject
+import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtProcessingStatus.PROCESSING
 import ebi.ac.uk.extended.model.ExtProcessingStatus.REQUESTED
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FileMode.MOVE
+import ebi.ac.uk.extended.model.FireFile
+import ebi.ac.uk.extended.model.allFileList
+import ebi.ac.uk.extended.model.allFiles
+import ebi.ac.uk.util.collections.firstOrElse
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import kotlin.math.absoluteValue
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus.PROCESSED as REQUEST_PROCESSED
@@ -32,7 +40,7 @@ internal class SubmissionMongoPersistenceService(
     private val serializationService: ExtSerializationService,
     private val systemService: FileSystemService,
     private val fileListDocFileRepository: FileListDocFileRepository,
-    private val toExtSubmissionMapper: ToExtSubmissionMapper
+    private val toExtSubmissionMapper: ToExtSubmissionMapper,
 ) : SubmissionRequestService {
     override fun saveAndProcessSubmissionRequest(saveRequest: SaveSubmissionRequest): ExtSubmission {
         val extended = saveSubmissionRequest(saveRequest)
@@ -62,7 +70,7 @@ internal class SubmissionMongoPersistenceService(
         val (submission, fileMode, draftKey) = saveRequest
 
         // TODO populate the previousFiles field in the FilePersistenceRequest
-        val filePersistenceRequest = FilePersistenceRequest(submission, fileMode, emptyMap())
+        val filePersistenceRequest = FilePersistenceRequest(submission, fileMode, findPreviousFiles(submission.accNo))
         val processingSubmission = systemService.persistSubmissionFiles(filePersistenceRequest)
 
         val (docSubmission, files) = processingSubmission.copy(status = PROCESSING).toDocSubmission()
@@ -92,5 +100,20 @@ internal class SubmissionMongoPersistenceService(
         draftKey?.let { draftDocDataRepository.deleteByKey(draftKey) }
         draftDocDataRepository.deleteByUserIdAndKey(submission.owner, submission.accNo)
         draftDocDataRepository.deleteByUserIdAndKey(submission.submitter, submission.accNo)
+    }
+
+    private fun findPreviousFiles(accNo: String): Map<String, FireFile> {
+        val previousDocVersion = subDataRepository.findByAccNo(accNo) ?: return emptyMap()
+        val previousExtVersion = toExtSubmissionMapper.toExtSubmission(previousDocVersion)
+
+        // TODO is not loading all the referenced files nor all the previous versions
+        return previousDocVersion
+            .allDocSections
+            .mapNotNull { it.fileList }
+            .flatMap { fileList -> fileListDocFileRepository.findAllById(fileList.files.map { it.fileId }) }
+            .map { it.file.toExtFile() }
+            .plus(previousExtVersion.allFiles)
+            .filterIsInstance<FireFile>()
+            .associateBy { it.md5 }
     }
 }
