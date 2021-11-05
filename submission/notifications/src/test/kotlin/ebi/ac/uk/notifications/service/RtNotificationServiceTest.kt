@@ -106,6 +106,7 @@ class RtNotificationServiceTest(
         return ExtSubmission(
             accNo = "S-TEST1",
             version = version,
+            schemaVersion = "1.0",
             owner = "owner@mail.org",
             submitter = "submitter@mail.org",
             title = "Test Submission",

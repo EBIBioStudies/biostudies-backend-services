@@ -17,6 +17,8 @@ import ebi.ac.uk.api.security.UserProfile
 import ebi.ac.uk.base.EMPTY
 import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.extended.model.FileMode
+import ebi.ac.uk.extended.model.FileMode.COPY
 import ebi.ac.uk.model.Collection
 import ebi.ac.uk.model.Group
 import ebi.ac.uk.model.Submission
@@ -77,15 +79,44 @@ interface SubmissionOperations {
 }
 
 interface MultipartSubmissionOperations {
-    fun submitSingle(submission: String, format: SubmissionFormat, files: List<File>): SubmissionResponse
-    fun submitSingle(submission: Submission, format: SubmissionFormat, files: List<File>): SubmissionResponse
-    fun submitSingle(submission: File, files: List<File>, attrs: Map<String, String> = emptyMap()): SubmissionResponse
+    fun submitSingle(
+        submission: String,
+        format: SubmissionFormat,
+        files: List<File>,
+        fileMode: FileMode = COPY
+    ): SubmissionResponse
+
+    fun submitSingle(
+        submission: Submission,
+        format: SubmissionFormat,
+        files: List<File>,
+        fileMode: FileMode = COPY
+    ): SubmissionResponse
+
+    fun submitSingle(
+        submission: File,
+        files: List<File>,
+        attrs: Map<String, String> = emptyMap(),
+        fileMode: FileMode = COPY
+    ): SubmissionResponse
 }
 
 interface MultipartAsyncSubmissionOperations {
-    fun asyncSubmitSingle(submission: String, format: SubmissionFormat, files: List<File>)
-    fun asyncSubmitSingle(submission: Submission, format: SubmissionFormat, files: List<File>)
-    fun asyncSubmitSingle(submission: File, files: List<File>, attrs: Map<String, String> = emptyMap())
+    fun asyncSubmitSingle(submission: String, format: SubmissionFormat, files: List<File>, fileMode: FileMode = COPY)
+
+    fun asyncSubmitSingle(
+        submission: Submission,
+        format: SubmissionFormat,
+        files: List<File>,
+        fileMode: FileMode = COPY
+    )
+
+    fun asyncSubmitSingle(
+        submission: File,
+        files: List<File>,
+        attrs: Map<String, String> = emptyMap(),
+        fileMode: FileMode = COPY
+    )
 }
 
 interface SecurityOperations {

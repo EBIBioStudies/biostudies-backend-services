@@ -42,6 +42,7 @@ import java.util.UUID
 
 private val logger = KotlinLogging.logger {}
 private const val DEFAULT_VERSION = 1
+private const val DEFAULT_SCHEMA_VERSION = "1.0"
 
 @Suppress("TooManyFunctions")
 class SubmissionSubmitter(
@@ -137,6 +138,7 @@ class SubmissionSubmitter(
             owner = ownerEmail,
             submitter = submitter.email,
             version = DEFAULT_VERSION,
+            schemaVersion = DEFAULT_SCHEMA_VERSION,
             method = getMethod(method),
             title = submission.title,
             relPath = relPath,

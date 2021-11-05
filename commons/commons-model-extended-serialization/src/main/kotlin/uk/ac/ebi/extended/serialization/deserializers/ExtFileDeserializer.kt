@@ -18,7 +18,6 @@ import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_FI
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_FIRE_ID
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_FULL_PATH
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_MD5
-import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_NAME
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_REL_PATH
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_SIZE
 import uk.ac.ebi.extended.serialization.constants.ExtType
@@ -44,7 +43,6 @@ class ExtFileDeserializer : JsonDeserializer<ExtFile>() {
 
     private fun fireDirectory(node: JsonNode, mapper: ObjectMapper): FireDirectory {
         return FireDirectory(
-            fileName = node.getNode<TextNode>(FILE_NAME).textValue(),
             filePath = node.getNode<TextNode>(FILE_FILEPATH).textValue(),
             relPath = node.getNode<TextNode>(FILE_REL_PATH).textValue(),
             md5 = node.getNode<TextNode>(FILE_MD5).textValue(),
@@ -55,7 +53,6 @@ class ExtFileDeserializer : JsonDeserializer<ExtFile>() {
 
     private fun fireFile(node: JsonNode, mapper: ObjectMapper): FireFile {
         return FireFile(
-            fileName = node.getNode<TextNode>(FILE_NAME).textValue(),
             filePath = node.getNode<TextNode>(FILE_FILEPATH).textValue(),
             relPath = node.getNode<TextNode>(FILE_REL_PATH).textValue(),
             fireId = node.getNode<TextNode>(FILE_FIRE_ID).textValue(),
@@ -71,7 +68,6 @@ class ExtFileDeserializer : JsonDeserializer<ExtFile>() {
         require(file.exists()) { throw FileNotFoundException(filePath) }
 
         return NfsFile(
-            fileName = node.getNode<TextNode>(FILE_NAME).textValue(),
             filePath = node.getNode<TextNode>(FILE_FILEPATH).textValue(),
             relPath = node.getNode<TextNode>(FILE_REL_PATH).textValue(),
             fullPath = node.getNode<TextNode>(FILE_FULL_PATH).textValue(),

@@ -29,6 +29,7 @@ import java.time.ZoneOffset.UTC
 
 private const val SUB_ACC_NO = "S-TEST123"
 private const val SUB_VERSION = 1
+private const val SUB_SCHEMA_VERSION = "1.0"
 private const val OWNER = "owner@mail.org"
 private const val SUBMITTER = "submitter@mail.org"
 private const val SUB_TITLE = "Test Submission"
@@ -52,6 +53,7 @@ object SubmissionTestHelper {
         id = ObjectId(),
         accNo = SUB_ACC_NO,
         version = SUB_VERSION,
+        schemaVersion = SUB_SCHEMA_VERSION,
         owner = OWNER,
         submitter = SUBMITTER,
         title = SUB_TITLE,
@@ -81,7 +83,6 @@ object SubmissionTestHelper {
         assertProject(extSubmission)
         assertThat(extSubmission.pageTabFiles.first()).isEqualTo(
             FireFile(
-                fireDocFile.fileName,
                 fireDocFile.filePath,
                 fireDocFile.relPath,
                 fireDocFile.fireId,
@@ -92,7 +93,6 @@ object SubmissionTestHelper {
         )
         assertThat(extSubmission.pageTabFiles.second()).isEqualTo(
             FireDirectory(
-                fireDocDirectory.fileName,
                 fireDocDirectory.filePath,
                 fireDocDirectory.relPath,
                 fireDocDirectory.md5,
@@ -102,7 +102,6 @@ object SubmissionTestHelper {
         )
         assertThat(extSubmission.pageTabFiles.third()).isEqualTo(
             NfsFile(
-                nfsFileFile.name,
                 "filePath",
                 "relPath",
                 nfsFileFile.absolutePath,
@@ -115,6 +114,7 @@ object SubmissionTestHelper {
     private fun assertBasicProperties(extSubmission: ExtSubmission) {
         assertThat(extSubmission.accNo).isEqualTo(SUB_ACC_NO)
         assertThat(extSubmission.version).isEqualTo(SUB_VERSION)
+        assertThat(extSubmission.schemaVersion).isEqualTo(SUB_SCHEMA_VERSION)
         assertThat(extSubmission.owner).isEqualTo(OWNER)
         assertThat(extSubmission.submitter).isEqualTo(SUBMITTER)
         assertThat(extSubmission.title).isEqualTo(SUB_TITLE)

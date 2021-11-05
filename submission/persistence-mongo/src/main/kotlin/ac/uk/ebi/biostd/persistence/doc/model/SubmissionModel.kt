@@ -8,6 +8,7 @@ import java.time.Instant
 
 val nfsDocFileClass: String = NfsDocFile::class.java.canonicalName
 val fireDocFileClass: String = FireDocFile::class.java.canonicalName
+val fileListDocFileDocFileClass: String = FileListDocFile::class.java.canonicalName
 val docFileTableClass: String = DocFileTable::class.java.canonicalName
 val docLinkClass: String = DocLink::class.java.canonicalName
 val docLinkTableClass: String = DocLinkTable::class.java.canonicalName
@@ -21,6 +22,7 @@ data class DocSubmission(
     val id: ObjectId,
     val accNo: String,
     var version: Int,
+    var schemaVersion: String,
     val owner: String,
     val submitter: String,
     val title: String?,
@@ -130,17 +132,8 @@ data class FileListDocFile(
     @Id
     val id: ObjectId,
     val submissionId: ObjectId,
-    val fileName: String,
-    val fullPath: String,
-    val attributes: List<DocAttribute> = listOf(),
-    val md5: String,
-    val size: Long,
-    val fileSystem: FileSystem
+    val file: DocFile
 )
-
-enum class FileSystem {
-    NFS, FIRE, FIRE_DIR
-}
 
 data class DocSectionTable(val sections: List<DocSectionTableRow>)
 data class DocLinkTable(val links: List<DocLink>)

@@ -68,7 +68,7 @@ internal class SubmissionMongoQueryService(
             .filter { it.fileName == fileListName }
             .firstOrElse { throw FileListNotFoundException(accNo, fileListName) }
             .let { fileList -> fileListDocFileRepository.findAllById(fileList.files.map { it.fileId }) }
-            .map { it.toExtFile() }
+            .map { it.file.toExtFile() }
 
     private fun loadSubmission(accNo: String) =
         submissionRepo.findByAccNo(accNo) ?: throw SubmissionNotFoundException(accNo)

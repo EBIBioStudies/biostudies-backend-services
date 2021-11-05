@@ -29,7 +29,6 @@ import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.NFS_FILEPATH
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.NFS_FULL_PATH
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.NFS_REL_PATH
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.RELEASE_TIME
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_FILE_LIST_FILEPATH
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_SECTION_LINK_URL
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_SECTION_TABLE_LINK_URL
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_SEC_ACC_NO
@@ -66,11 +65,11 @@ import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUBMISSION_OWNER
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUBMISSION_RELEASED
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUBMISSION_REL_PATH
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUBMISSION_ROOT_PATH
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUBMISSION_SCHEMA_VERSION
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUBMISSION_SECRET_KEY
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUBMISSION_SUBMITTER
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUBMISSION_TITLE
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUBMISSION_VERSION
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUB_FILE_LIST_FILEPATH
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUB_SEC_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUB_SEC_EXT_FILE_LIST_FILENAME
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUB_SEC_TABLE_ACC_NO3
@@ -121,7 +120,7 @@ class ToDocSubmissionTest(tempFolder: TemporaryFolder) {
         subSection.copy(fileList = subSection.fileList!!.copy(files = listOf(newSubSectionFileListFile)))
 
     private val nfsFileFile = tempFolder.createFile(NFS_FILENAME)
-    private val nfsFile = NfsFile(NFS_FILENAME, NFS_FILEPATH, NFS_REL_PATH, NFS_FULL_PATH, nfsFileFile)
+    private val nfsFile = NfsFile(NFS_FILEPATH, NFS_REL_PATH, NFS_FULL_PATH, nfsFileFile)
 
     private val newRootSection = rootSection.copy(
         fileList = rootSection.fileList!!.copy(
@@ -216,18 +215,17 @@ class ToDocSubmissionTest(tempFolder: TemporaryFolder) {
 
         val listFile = listFiles[0]
         assertThat(listFile.submissionId).isEqualTo(docSubmissionId)
-        assertThat(listFile.fileName).isEqualTo(ROOT_FILE_LIST_FILEPATH)
-        assertThat(listFile.fullPath).isEqualTo(newRootSectionFileListFile.file.path)
+        assertThat(listFile.file).isEqualTo(newRootSectionFileListFile.toDocFile())
 
         val sublistFile = listFiles[1]
         assertThat(sublistFile.submissionId).isEqualTo(docSubmissionId)
-        assertThat(sublistFile.fileName).isEqualTo(SUB_FILE_LIST_FILEPATH)
-        assertThat(sublistFile.fullPath).isEqualTo(newSubSectionFileListFile.file.path)
+        assertThat(sublistFile.file).isEqualTo(newSubSectionFileListFile.toDocFile())
     }
 
     private fun assertSimpleDocProperties(docSubmission: DocSubmission) {
         assertThat(docSubmission.accNo).isEqualTo(SUBMISSION_ACC_NO)
         assertThat(docSubmission.version).isEqualTo(SUBMISSION_VERSION)
+        assertThat(docSubmission.schemaVersion).isEqualTo(SUBMISSION_SCHEMA_VERSION)
         assertThat(docSubmission.owner).isEqualTo(SUBMISSION_OWNER)
         assertThat(docSubmission.submitter).isEqualTo(SUBMISSION_SUBMITTER)
         assertThat(docSubmission.title).isEqualTo(SUBMISSION_TITLE)

@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.persistence.doc
 import ac.uk.ebi.biostd.persistence.doc.db.converters.from.DocAttributeConverter
 import ac.uk.ebi.biostd.persistence.doc.db.converters.from.DocFileConverter
 import ac.uk.ebi.biostd.persistence.doc.db.converters.from.DocFileListConverter
+import ac.uk.ebi.biostd.persistence.doc.db.converters.from.DocFileListDocFileConverter
 import ac.uk.ebi.biostd.persistence.doc.db.converters.from.DocFileRefConverter
 import ac.uk.ebi.biostd.persistence.doc.db.converters.from.DocFileTableConverter
 import ac.uk.ebi.biostd.persistence.doc.db.converters.from.DocLinkConverter
@@ -12,6 +13,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.from.DocSubmissionConverte
 import ac.uk.ebi.biostd.persistence.doc.db.converters.to.AttributeConverter
 import ac.uk.ebi.biostd.persistence.doc.db.converters.to.FileConverter
 import ac.uk.ebi.biostd.persistence.doc.db.converters.to.FileListConverter
+import ac.uk.ebi.biostd.persistence.doc.db.converters.to.FileListDocFileConverter
 import ac.uk.ebi.biostd.persistence.doc.db.converters.to.FileRefConverter
 import ac.uk.ebi.biostd.persistence.doc.db.converters.to.FileTableConverter
 import ac.uk.ebi.biostd.persistence.doc.db.converters.to.LinkConverter
@@ -77,8 +79,12 @@ class MongoDbConfig(
     @Bean
     override fun customConversions(): MongoCustomConversions {
         val converters = mutableListOf<Converter<*, *>>()
+
         converters.add(docSubmissionConverter())
         converters.add(submissionConverter())
+        converters.add(FileListDocFileConverter(FileConverter(AttributeConverter())))
+        converters.add(DocFileListDocFileConverter(DocFileConverter(DocAttributeConverter())))
+
         return MongoCustomConversions(converters)
     }
 

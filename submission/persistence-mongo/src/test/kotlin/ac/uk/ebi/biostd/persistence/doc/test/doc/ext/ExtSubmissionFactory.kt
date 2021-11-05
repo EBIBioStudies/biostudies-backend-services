@@ -15,6 +15,7 @@ import java.time.ZoneOffset
 
 const val SUBMISSION_ACC_NO = "S-TEST1"
 const val SUBMISSION_VERSION = 1
+const val SUBMISSION_SCHEMA_VERSION = "1.0"
 const val SUBMISSION_OWNER = "owner@mail.org"
 const val SUBMISSION_SUBMITTER = "submitter@mail.org"
 const val SUBMISSION_TITLE = "TestSubmission"
@@ -40,13 +41,12 @@ const val EXT_STAT_VALUE = "1"
 val extStat = ExtStat(EXT_STAT_NAME, EXT_STAT_VALUE)
 
 const val FIRE_FILE_FILENAME = "fireFileFileName"
-const val FIRE_FILE_FILEPATH = "fireFileFilePath"
+const val FIRE_FILE_FILEPATH = "fireFileFilePath/fireFileFileName"
 const val FIRE_FILE_REL_PATH = "fireFileRelPath"
 const val FIRE_FILE_FIRE_ID = "fireFileFireID"
 const val FIRE_FILE_MD5 = "fireFileMd5"
 const val FIRE_FILE_SIZE = 1L
 val fireFile = FireFile(
-    FIRE_FILE_FILENAME,
     FIRE_FILE_FILEPATH,
     FIRE_FILE_REL_PATH,
     FIRE_FILE_FIRE_ID,
@@ -56,12 +56,11 @@ val fireFile = FireFile(
 )
 
 const val FIRE_DIRECTORY_FILENAME = "fireDirectoryFileName"
-const val FIRE_DIRECTORY_FILEPATH = "fireDirectoryFilePath"
+const val FIRE_DIRECTORY_FILEPATH = "fireDirectoryFilePath/fireDirectoryFileName"
 const val FIRE_DIRECTORY_REL_PATH = "fireDirectoryRelPath"
 const val FIRE_DIRECTORY_MD5 = "fireDirectoryMd5"
 const val FIRE_DIRECTORY_SIZE = 2L
 val fireDirectory = FireDirectory(
-    FIRE_DIRECTORY_FILENAME,
     FIRE_DIRECTORY_FILEPATH,
     FIRE_DIRECTORY_REL_PATH,
     FIRE_DIRECTORY_MD5,
@@ -70,15 +69,16 @@ val fireDirectory = FireDirectory(
 )
 
 const val NFS_FILENAME = "nfsFileName"
-const val NFS_FILEPATH = "nfsFilePath"
-const val NFS_REL_PATH = "nfsRelPath"
-const val NFS_FULL_PATH = "nfsFullPath"
+const val NFS_FILEPATH = "nfsFileFolder/nfsFileName"
+const val NFS_REL_PATH = "Files/nfsFileFolder/nfsFileName"
+const val NFS_FULL_PATH = "root/Files/nfsFileFolder/nfsFileName"
 val NFS_FILE = File(NFS_FILENAME)
-val nfsFile = NfsFile(NFS_FILENAME, NFS_FILEPATH, NFS_REL_PATH, NFS_FULL_PATH, NFS_FILE, listOf())
+val nfsFile = NfsFile(NFS_FILEPATH, NFS_REL_PATH, NFS_FULL_PATH, NFS_FILE, listOf())
 
 val fullExtSubmission = ExtSubmission(
     accNo = SUBMISSION_ACC_NO,
     version = SUBMISSION_VERSION,
+    schemaVersion = SUBMISSION_SCHEMA_VERSION,
     owner = SUBMISSION_OWNER,
     submitter = SUBMISSION_SUBMITTER,
     title = SUBMISSION_TITLE,

@@ -74,9 +74,9 @@ class ExtSectionDeserializerTest(private val tempFolder: TemporaryFolder) {
             "files" to jsonArray(
                 jsonObj {
                     "fileName" to "section-file-inner-folders.txt"
-                    "filePath" to "filePath"
-                    "relPath" to "relPath"
-                    "fullPath" to "fullPath"
+                    "filePath" to "folder/section-file-inner-folders.txt"
+                    "relPath" to "Files/folder/section-file-inner-folders.txt"
+                    "fullPath" to "root/Files/folder/section-file-inner-folders.txt"
                     "file" to sectionFile.absolutePath
                     "extType" to "nfsFile"
                 },
@@ -84,9 +84,9 @@ class ExtSectionDeserializerTest(private val tempFolder: TemporaryFolder) {
                     "files" to jsonArray(
                         jsonObj {
                             "fileName" to "section-file-table.txt"
-                            "filePath" to "filePath"
-                            "relPath" to "relPath"
-                            "fullPath" to "fullPath"
+                            "filePath" to "folder/section-file-table.txt"
+                            "relPath" to "Files/folder/section-file-table.txt"
+                            "fullPath" to "root/Files/folder/section-file-table.txt"
                             "file" to sectionFilesTable.absolutePath
                             "extType" to "nfsFile"
                         }
@@ -151,9 +151,9 @@ class ExtSectionDeserializerTest(private val tempFolder: TemporaryFolder) {
         extFile.ifLeft {
             it as NfsFile
             assertThat(it.fileName).isEqualTo("section-file-inner-folders.txt")
-            assertThat(it.filePath).isEqualTo("filePath")
-            assertThat(it.relPath).isEqualTo("relPath")
-            assertThat(it.fullPath).isEqualTo("fullPath")
+            assertThat(it.filePath).isEqualTo("folder/section-file-inner-folders.txt")
+            assertThat(it.relPath).isEqualTo("Files/folder/section-file-inner-folders.txt")
+            assertThat(it.fullPath).isEqualTo("root/Files/folder/section-file-inner-folders.txt")
             assertThat(it.file).isEqualTo(sectionFile)
         }
 
@@ -164,9 +164,9 @@ class ExtSectionDeserializerTest(private val tempFolder: TemporaryFolder) {
 
             val filesTableFile = it.files.first() as NfsFile
             assertThat(filesTableFile.fileName).isEqualTo("section-file-table.txt")
-            assertThat(filesTableFile.filePath).isEqualTo("filePath")
-            assertThat(filesTableFile.relPath).isEqualTo("relPath")
-            assertThat(filesTableFile.fullPath).isEqualTo("fullPath")
+            assertThat(filesTableFile.filePath).isEqualTo("folder/section-file-table.txt")
+            assertThat(filesTableFile.relPath).isEqualTo("Files/folder/section-file-table.txt")
+            assertThat(filesTableFile.fullPath).isEqualTo("root/Files/folder/section-file-table.txt")
             assertThat(filesTableFile.file).isEqualTo(sectionFilesTable)
         }
 

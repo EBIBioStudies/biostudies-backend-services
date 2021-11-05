@@ -5,9 +5,6 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocFileList
 import ac.uk.ebi.biostd.persistence.doc.model.DocFileRef
 import ac.uk.ebi.biostd.persistence.doc.model.DocFileTable
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
-import ac.uk.ebi.biostd.persistence.doc.model.FileSystem.FIRE
-import ac.uk.ebi.biostd.persistence.doc.model.FileSystem.FIRE_DIR
-import ac.uk.ebi.biostd.persistence.doc.model.FileSystem.NFS
 import ac.uk.ebi.biostd.persistence.doc.model.FireDocDirectory
 import ac.uk.ebi.biostd.persistence.doc.model.FireDocFile
 import ac.uk.ebi.biostd.persistence.doc.model.NfsDocFile
@@ -31,38 +28,12 @@ internal fun ExtFileList.toDocFileList(submissionId: ObjectId): Pair<DocFileList
     return Pair(DocFileList(fileName, listRef, pageTabFiles), listFiles)
 }
 
-private fun toFileDocListFile(submissionId: ObjectId, extFile: ExtFile) = when (extFile) {
-    is FireFile -> FileListDocFile(
+private fun toFileDocListFile(submissionId: ObjectId, extFile: ExtFile): FileListDocFile =
+    FileListDocFile(
         id = ObjectId(),
         submissionId = submissionId,
-        fileName = extFile.filePath,
-        fullPath = extFile.fireId,
-        attributes = extFile.attributes.map { it.toDocAttribute() },
-        md5 = extFile.md5,
-        size = extFile.size,
-        fileSystem = FIRE
+        file = extFile.toDocFile()
     )
-    is FireDirectory -> FileListDocFile(
-        id = ObjectId(),
-        submissionId = submissionId,
-        fileName = extFile.filePath,
-        fullPath = extFile.fileName,
-        attributes = extFile.attributes.map { it.toDocAttribute() },
-        md5 = extFile.md5,
-        size = extFile.size,
-        fileSystem = FIRE_DIR
-    )
-    is NfsFile -> FileListDocFile(
-        id = ObjectId(),
-        submissionId = submissionId,
-        fileName = extFile.filePath,
-        fullPath = extFile.file.absolutePath,
-        attributes = extFile.attributes.map { it.toDocAttribute() },
-        md5 = extFile.md5,
-        size = extFile.size,
-        fileSystem = NFS
-    )
-}
 
 private fun ExtFileTable.toDocFileTable() = DocFileTable(files.map { it.toDocFile() })
 private fun fileType(file: File): String = if (file.isDirectory) "directory" else "file"
