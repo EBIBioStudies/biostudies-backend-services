@@ -28,6 +28,8 @@ class FireFtpService(
         logger.info { "$accNo $owner Finished publishing files of submission $accNo over FIRE" }
     }
 
+    // TODO the referenced files should be retrieved from the database for this endpoint
+    // TODO fileList.flatMap { submissionQueryService.getReferencedFiles(sub.accNo, it.fileName) + it.pageTabFiles }
     override fun generateFtpLinks(accNo: String) {
         val submission = submissionQueryService.getExtByAccNo(accNo)
         cleanFtpFolder(submission.relPath)
@@ -46,10 +48,11 @@ class FireFtpService(
      * Returns all file list files. Note that sequence is used instead regular iterable to avoid loading all submission
      * files before start processing.
      */
-    private fun allFileListFiles(sub: ExtSubmission): Sequence<ExtFile> {
-        val fileList = sub.allFileList.asSequence()
-        return fileList.flatMap { submissionQueryService.getReferencedFiles(sub.accNo, it.fileName) + it.pageTabFiles }
-    }
+    private fun allFileListFiles(extSubmission: ExtSubmission): Sequence<ExtFile> =
+        extSubmission
+            .allFileList
+            .flatMap { it.files + it.pageTabFiles }
+            .asSequence()
 
     private fun publishFile(file: FireFile, relPath: String) {
         fireWebClient.setPath(file.fireId, "$relPath/${file.relPath}")
