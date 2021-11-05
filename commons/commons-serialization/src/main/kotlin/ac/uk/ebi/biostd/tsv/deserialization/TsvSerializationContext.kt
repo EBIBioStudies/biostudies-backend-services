@@ -83,5 +83,5 @@ internal class TsvSectionContext {
         sections[accNo] = section
     }
 
-    fun getSection(accNo: String) = sections.getOrElse(accNo, { throw InvalidSectionException(accNo) })
+    fun getSection(accNo: String) = sections.getOrElse(accNo) { throw InvalidSectionException(accNo) }
 }

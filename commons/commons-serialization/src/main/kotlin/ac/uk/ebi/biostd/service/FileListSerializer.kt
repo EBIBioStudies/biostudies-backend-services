@@ -17,6 +17,8 @@ import java.io.File
 internal class FileListSerializer(
     private val serializer: PagetabSerializer
 ) {
+    internal fun deserializeFileList(fileName: String, source: FilesSource): FileList = getFileList(fileName, source)
+
     internal fun deserializeFileList(submission: Submission, source: FilesSource): Submission {
         submission.allSections()
             .filter { section -> section.fileListName != null }
