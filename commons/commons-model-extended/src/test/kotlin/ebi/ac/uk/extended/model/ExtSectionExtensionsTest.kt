@@ -35,8 +35,8 @@ class ExtSectionExtensionsTest(private val temporaryFolder: TemporaryFolder) {
     @Test
     fun allReferencedFiles() {
         val nfsFile = NfsFile("filePath", "relPath", temporaryFolder.createFile("file.txt"))
-        val fireFile = FireFile("fileName", "filePath", "relPath", "fireId", "md5", 1L, listOf())
-        val fireDirectory = FireDirectory("fileName", "filePath", "relPath", "md5", 1L, listOf())
+        val fireFile = FireFile("filePath", "relPath", "fireId", "md5", 1L, listOf())
+        val fireDirectory = FireDirectory("filePath", "relPath", "md5", 1L, listOf())
 
         val extSection = ExtSection(
             type = "section",
@@ -55,7 +55,7 @@ class ExtSectionExtensionsTest(private val temporaryFolder: TemporaryFolder) {
     @Test
     fun allFiles() {
         val nfsFile = NfsFile("filePath", "relPath", temporaryFolder.createFile("file1.txt"))
-        val fireFile = FireFile("fileName", "filePath", "relPath", "fireId", "md5", 1, listOf())
+        val fireFile = FireFile("filePath", "relPath", "fireId", "md5", 1, listOf())
         val nfsFile1 = NfsFile("filePath", "relPath", temporaryFolder.createFile("file2.txt"))
         val extSection = ExtSection(
             type = "section",

@@ -128,7 +128,7 @@ class FireFtpServiceTest(
         return basicExtSub.copy(section = section, pageTabFiles = listOf(fireFile(fireId = SUB_FILE_PAGE_TAB)))
     }
 
-    private fun fireFile(fireId: String) = FireFile("test.txt", "a/test.txt", "relPath", fireId, "md5", 1, listOf())
+    private fun fireFile(fireId: String) = FireFile("a/test.txt", "relPath", fireId, "md5", 1, listOf())
 
     private companion object {
         const val FILE_FILE_LIST = "abc1"
