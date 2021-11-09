@@ -19,6 +19,7 @@ import ebi.ac.uk.extended.model.ExtSubmissionMethod
 import ebi.ac.uk.extended.model.FireDirectory
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
+import ebi.ac.uk.extended.model.StorageMode
 import ebi.ac.uk.util.collections.second
 import ebi.ac.uk.util.collections.third
 import org.assertj.core.api.Assertions.assertThat
@@ -71,7 +72,8 @@ object SubmissionTestHelper {
         stats = listOf(DocStat(STAT_TYPE, STAT_VALUE)),
         collections = listOf(DocCollection(PROJECT_ACC_NO)),
         section = docSection,
-        pageTabFiles = listOf(fireDocFile, fireDocDirectory, nfsDocFile)
+        pageTabFiles = listOf(fireDocFile, fireDocDirectory, nfsDocFile),
+        storageMode = StorageMode.NFS
     )
 
     fun assertExtSubmission(extSubmission: ExtSubmission, testFile: File, nfsFileFile: File) {
@@ -127,6 +129,7 @@ object SubmissionTestHelper {
         assertThat(extSubmission.releaseTime).isEqualTo(time.atOffset(UTC))
         assertThat(extSubmission.modificationTime).isEqualTo(time.atOffset(UTC))
         assertThat(extSubmission.creationTime).isEqualTo(time.atOffset(UTC))
+        assertThat(extSubmission.storageMode).isEqualTo(StorageMode.NFS)
     }
 
     private fun assertAttributes(extSubmission: ExtSubmission) {

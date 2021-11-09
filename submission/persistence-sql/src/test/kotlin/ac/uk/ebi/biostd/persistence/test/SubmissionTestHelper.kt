@@ -11,6 +11,7 @@ import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod
 import ebi.ac.uk.extended.model.ExtTag
+import ebi.ac.uk.extended.model.StorageMode
 import ebi.ac.uk.model.constants.ProcessingStatus
 import org.assertj.core.api.Assertions.assertThat
 import java.time.OffsetDateTime
@@ -70,7 +71,8 @@ internal val extSubmission
         creationTime = creationTime,
         tags = listOf(extTag),
         collections = listOf(extCollection),
-        section = extSection
+        section = extSection,
+        storageMode = StorageMode.NFS
     )
 
 internal val extTag: ExtTag

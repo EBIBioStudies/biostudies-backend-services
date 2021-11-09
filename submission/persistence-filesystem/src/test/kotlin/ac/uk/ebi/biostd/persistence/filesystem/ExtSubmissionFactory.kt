@@ -7,6 +7,7 @@ import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod
 import ebi.ac.uk.extended.model.NfsFile
+import ebi.ac.uk.extended.model.StorageMode
 import java.io.File
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
@@ -31,7 +32,8 @@ fun extSubmissionWithFileList(files: List<File>, referencedFiles: List<File>) =
         attributes = emptyList(),
         tags = emptyList(),
         collections = emptyList(),
-        section = extSectionWithFileList(files, referencedFiles)
+        section = extSectionWithFileList(files, referencedFiles),
+        storageMode = StorageMode.NFS
     )
 
 fun extSectionWithFileList(files: List<File>, referencedFiles: List<File>) =

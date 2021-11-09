@@ -23,6 +23,7 @@ import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod
 import ebi.ac.uk.extended.model.ExtTag
+import ebi.ac.uk.extended.model.StorageMode
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.model.AccNumber
 import ebi.ac.uk.model.Submission
@@ -152,9 +153,13 @@ class SubmissionSubmitter(
             tags = submission.tags.map { ExtTag(it.first, it.second) },
             collections = tags.map { ExtCollection(it) },
             section = submission.section.toExtSection(source),
-            attributes = getAttributes(submission)
+            attributes = getAttributes(submission),
+            storageMode = if (enableFire) StorageMode.FIRE else StorageMode.NFS
         )
     }
+
+    private val enableFire
+        get() = System.getProperty("app.persistence.enableFire").toBoolean()
 
     private fun getMethod(method: SubmissionMethod): ExtSubmissionMethod {
         return when (method) {

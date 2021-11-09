@@ -9,6 +9,7 @@ import ebi.ac.uk.extended.model.ExtTag
 import ebi.ac.uk.extended.model.FireDirectory
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
+import ebi.ac.uk.extended.model.StorageMode
 import java.io.File
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
@@ -96,5 +97,6 @@ val fullExtSubmission = ExtSubmission(
     collections = listOf(extCollection),
     section = rootSection,
     stats = listOf(extStat),
-    pageTabFiles = listOf(fireFile, fireDirectory)
+    pageTabFiles = listOf(fireFile, fireDirectory),
+    storageMode = StorageMode.NFS
 )
