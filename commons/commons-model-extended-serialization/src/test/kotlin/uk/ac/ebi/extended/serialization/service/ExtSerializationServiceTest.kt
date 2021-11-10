@@ -23,6 +23,7 @@ class ExtSerializationServiceTest {
             accNo = "S-TEST123",
             version = 1,
             schemaVersion = "1.0",
+            storageMode = StorageMode.NFS,
             owner = "owner@mail.org",
             submitter = "submitter@mail.org",
             title = "Test Submission",
@@ -38,8 +39,7 @@ class ExtSerializationServiceTest {
             attributes = listOf(ExtAttribute("AttachTo", "BioImages")),
             tags = listOf(ExtTag("component", "web")),
             collections = listOf(ExtCollection("BioImages")),
-            section = ExtSection(type = "Study"),
-            storageMode = StorageMode.NFS
+            section = ExtSection(type = "Study")
         )
 
         val serialized = testInstance.serialize(extSubmission)

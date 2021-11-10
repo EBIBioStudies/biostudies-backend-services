@@ -47,6 +47,6 @@ class ValidatorProperties {
 }
 
 class PersistenceProperties {
-    lateinit var enableMongo: String
-    lateinit var enableFire: String
+    var enableMongo: Boolean = false
+    var enableFire: Boolean = false
 }

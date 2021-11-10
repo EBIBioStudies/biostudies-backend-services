@@ -55,6 +55,7 @@ object SubmissionTestHelper {
         accNo = SUB_ACC_NO,
         version = SUB_VERSION,
         schemaVersion = SUB_SCHEMA_VERSION,
+        storageMode = StorageMode.NFS,
         owner = OWNER,
         submitter = SUBMITTER,
         title = SUB_TITLE,
@@ -73,7 +74,6 @@ object SubmissionTestHelper {
         collections = listOf(DocCollection(PROJECT_ACC_NO)),
         section = docSection,
         pageTabFiles = listOf(fireDocFile, fireDocDirectory, nfsDocFile),
-        storageMode = StorageMode.NFS
     )
 
     fun assertExtSubmission(extSubmission: ExtSubmission, testFile: File, nfsFileFile: File) {

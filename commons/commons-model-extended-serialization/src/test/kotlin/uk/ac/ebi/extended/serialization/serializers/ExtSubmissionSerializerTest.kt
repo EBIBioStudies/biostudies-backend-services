@@ -144,6 +144,7 @@ class ExtSubmissionSerializerTest {
                 accNo = "S-TEST1",
                 version = 1,
                 schemaVersion = "1.0",
+                storageMode = StorageMode.NFS,
                 owner = "owner@mail.org",
                 submitter = "submitter@mail.org",
                 title = "TestSubmission",
@@ -165,8 +166,7 @@ class ExtSubmissionSerializerTest {
                     FireFile("S-TEST1", "S-TEST1", "fireId", "md5", 1L, listOf()),
                     FireDirectory("S-TEST1", "S-TEST1", "md5", 2L, listOf()),
                     NfsFile("S-TEST1", "S-TEST1", "../S-TEST1", File("anyPath"), listOf())
-                ),
-                storageMode = StorageMode.NFS
+                )
             )
         }
     }

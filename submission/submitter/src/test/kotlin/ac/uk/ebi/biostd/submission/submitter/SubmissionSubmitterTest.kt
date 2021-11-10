@@ -91,7 +91,7 @@ class SubmissionSubmitterTest {
         mockPersistenceContext()
         mockkStatic("ebi.ac.uk.extended.mapping.to.ToSubmissionKt")
         every { any<ExtSubmission>().toSimpleSubmission() } returns submission
-        every { applicationProperties.persistence.enableFire } returns "false"
+        every { applicationProperties.persistence.enableFire } returns false
     }
 
     @AfterEach

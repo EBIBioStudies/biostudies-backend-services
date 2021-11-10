@@ -17,6 +17,7 @@ fun extSubmissionWithFileList(files: List<File>, referencedFiles: List<File>) =
         accNo = "ABC-123",
         version = 1,
         schemaVersion = "1.0",
+        storageMode = StorageMode.NFS,
         title = "A Test Submission",
         owner = "owner",
         submitter = "submitter",
@@ -32,8 +33,7 @@ fun extSubmissionWithFileList(files: List<File>, referencedFiles: List<File>) =
         attributes = emptyList(),
         tags = emptyList(),
         collections = emptyList(),
-        section = extSectionWithFileList(files, referencedFiles),
-        storageMode = StorageMode.NFS
+        section = extSectionWithFileList(files, referencedFiles)
     )
 
 fun extSectionWithFileList(files: List<File>, referencedFiles: List<File>) =

@@ -24,9 +24,8 @@ import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod
 import ebi.ac.uk.extended.model.ExtTag
-import ebi.ac.uk.extended.model.StorageMode
-import ebi.ac.uk.extended.model.StorageMode.NFS
 import ebi.ac.uk.extended.model.StorageMode.FIRE
+import ebi.ac.uk.extended.model.StorageMode.NFS
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.model.AccNumber
 import ebi.ac.uk.model.Submission
@@ -56,7 +55,7 @@ class SubmissionSubmitter(
     private val collectionInfoService: CollectionInfoService,
     private val submissionRequestService: SubmissionRequestService,
     private val queryService: SubmissionMetaQueryService,
-    private val applicationProperties: ApplicationProperties
+    private val properties: ApplicationProperties
 ) {
     fun submit(request: SubmissionRequest): ExtSubmission {
         logger.info { "${request.accNo} ${request.submitter.email} Processing request $request" }
@@ -158,11 +157,9 @@ class SubmissionSubmitter(
             collections = tags.map { ExtCollection(it) },
             section = submission.section.toExtSection(source),
             attributes = getAttributes(submission),
-            storageMode = getStorageMode(applicationProperties.persistence.enableFire)
+            storageMode = if (properties.persistence.enableFire) FIRE else NFS
         )
     }
-
-    private fun getStorageMode(enableFire: String): StorageMode = if (enableFire.toBoolean()) FIRE else NFS
 
     private fun getMethod(method: SubmissionMethod): ExtSubmissionMethod {
         return when (method) {
