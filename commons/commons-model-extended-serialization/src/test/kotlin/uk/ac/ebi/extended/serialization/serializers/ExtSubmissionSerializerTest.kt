@@ -21,6 +21,7 @@ import ebi.ac.uk.extended.model.ExtTag
 import ebi.ac.uk.extended.model.FireDirectory
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
+import ebi.ac.uk.extended.model.StorageMode
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -130,6 +131,7 @@ class ExtSubmissionSerializerTest {
                         "extType" to "nfsFile"
                     }
                 )
+                "storageMode" to "NFS"
             }
         }
 
@@ -142,6 +144,7 @@ class ExtSubmissionSerializerTest {
                 accNo = "S-TEST1",
                 version = 1,
                 schemaVersion = "1.0",
+                storageMode = StorageMode.NFS,
                 owner = "owner@mail.org",
                 submitter = "submitter@mail.org",
                 title = "TestSubmission",

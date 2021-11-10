@@ -7,6 +7,7 @@ import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod
 import ebi.ac.uk.extended.model.NfsFile
+import ebi.ac.uk.extended.model.StorageMode
 import java.io.File
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
@@ -16,6 +17,7 @@ fun extSubmissionWithFileList(files: List<File>, referencedFiles: List<File>) =
         accNo = "ABC-123",
         version = 1,
         schemaVersion = "1.0",
+        storageMode = StorageMode.NFS,
         title = "A Test Submission",
         owner = "owner",
         submitter = "submitter",

@@ -8,6 +8,7 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocSection
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionMethod
 import ac.uk.ebi.biostd.persistence.doc.model.docSubmissionClass
+import ebi.ac.uk.extended.model.StorageMode
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
@@ -73,6 +74,7 @@ internal class DocSubmissionConverterTest(
         assertThat(result.stats[0].name).isEqualTo(statDocName)
         assertThat(result.stats[0].value).isEqualTo(statDocValue)
         assertThat(result.pageTabFiles).isEqualTo(listOf(docFile))
+        assertThat(result.storageMode).isEqualTo(StorageMode.NFS)
     }
 
     private fun createSubmissionDocument(
@@ -104,6 +106,7 @@ internal class DocSubmissionConverterTest(
         subDocument[DocSubmissionFields.SUB_PROJECTS] = listOf(createProjectDocument())
         subDocument[DocSubmissionFields.SUB_STATS] = listOf(createStatDocument())
         subDocument[DocSubmissionFields.PAGE_TAB_FILES] = listOf(fileDocument)
+        subDocument[DocSubmissionFields.STORAGE_MODE] = storageMode
         return subDocument
     }
 
@@ -149,5 +152,6 @@ internal class DocSubmissionConverterTest(
         const val tagDocValue = "value"
         const val statDocName = "name"
         const val statDocValue: Long = 1
+        const val storageMode = "NFS"
     }
 }
