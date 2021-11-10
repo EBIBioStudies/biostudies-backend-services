@@ -40,14 +40,16 @@ class SubmitterConfig {
         parentInfoService: ParentInfoService,
         collectionInfoService: CollectionInfoService,
         requestService: SubmissionRequestService,
-        submissionQueryService: SubmissionMetaQueryService
+        submissionQueryService: SubmissionMetaQueryService,
+        applicationProperties: ApplicationProperties
     ) = SubmissionSubmitter(
         timesService,
         accNoService,
         parentInfoService,
         collectionInfoService,
         requestService,
-        submissionQueryService
+        submissionQueryService,
+        applicationProperties
     )
 
     @Configuration

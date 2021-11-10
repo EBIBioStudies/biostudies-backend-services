@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.submission.submitter
 
+import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.persistence.common.model.BasicSubmission
 import ac.uk.ebi.biostd.persistence.common.request.SaveSubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
@@ -22,6 +23,7 @@ import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod
 import ebi.ac.uk.extended.model.FileMode.COPY
+import ebi.ac.uk.extended.model.StorageMode
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.model.AccNumber
 import ebi.ac.uk.model.SubmissionMethod.PAGE_TAB
@@ -61,6 +63,7 @@ class SubmissionSubmitterTest {
     private val accNoService = mockk<AccNoService>()
     private val parentInfoService = mockk<ParentInfoService>()
     private val queryService = mockk<SubmissionMetaQueryService>()
+    private val applicationProperties = mockk<ApplicationProperties>()
     private val collectionInfoService = mockk<CollectionInfoService>()
     private val submissionRequestService = mockk<SubmissionRequestService>()
     private val basicSubmission = mockk<BasicSubmission>()
@@ -72,7 +75,13 @@ class SubmissionSubmitterTest {
     private val processedSubmission = slot<ExtSubmission>()
 
     private val testInstance = SubmissionSubmitter(
-        timesService, accNoService, parentInfoService, collectionInfoService, submissionRequestService, queryService
+        timesService,
+        accNoService,
+        parentInfoService,
+        collectionInfoService,
+        submissionRequestService,
+        queryService,
+        applicationProperties
     )
 
     @BeforeEach
@@ -82,6 +91,7 @@ class SubmissionSubmitterTest {
         mockPersistenceContext()
         mockkStatic("ebi.ac.uk.extended.mapping.to.ToSubmissionKt")
         every { any<ExtSubmission>().toSimpleSubmission() } returns submission
+        every { applicationProperties.persistence.enableFire } returns "false"
     }
 
     @AfterEach
@@ -178,6 +188,7 @@ class SubmissionSubmitterTest {
         assertThat(expected.collections.first().accNo).isEqualTo("BioImages")
         assertThat(expected.section.type).isEqualTo("Study")
         assertThat(expected.attributes).isEmpty()
+        assertThat(expected.storageMode).isEqualTo(StorageMode.NFS)
     }
 
     private fun verifyProcessServices() = verify(exactly = 1) {
