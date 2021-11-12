@@ -65,13 +65,9 @@ open class SecurityService(
     }
 
     override fun refreshUser(email: String): SecurityUser {
-        val user = userRepository.findByEmailAndActive(email, true)
+        return userRepository.findByEmailAndActive(email, true)
             ?.let(this::activate)
             ?: throw UserNotFoundByEmailException(email)
-
-        FileUtils.setFolderPermissions(user.magicFolder.path.parent, RWX__X___)
-        FileUtils.setFolderPermissions(user.magicFolder.path, RWXRWX___)
-        return user
     }
 
     override fun activate(activationKey: String) {
@@ -105,10 +101,10 @@ open class SecurityService(
     }
 
     override fun changePassword(request: ChangePasswordRequest): User {
-        val user = userRepository.findByActivationKeyAndActive(request.activationKey, true)
+        val user = userRepository.findByActivationKey(request.activationKey)
             ?: throw UserWithActivationKeyNotFoundException()
 
-        user.activationKey = null
+        activate(user)
 
         return setPassword(user, request.password)
     }
@@ -126,7 +122,7 @@ open class SecurityService(
     }
 
     private fun resetNotification(email: String, instanceKey: String, path: String) {
-        val user = userRepository.findByLoginOrEmailAndActive(email, email, true)
+        val user = userRepository.findByLoginOrEmail(email, email)
             ?: throw UserNotFoundByEmailException(email)
         val key = securityUtil.newKey()
         userRepository.save(user.apply { activationKey = key })

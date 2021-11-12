@@ -142,6 +142,7 @@ object FileUtils {
 internal object FileUtilsHelper {
     fun createFolderIfNotExist(file: Path, permissions: Set<PosixFilePermission>) {
         if (exists(file).not()) createDirectories(file, permissions)
+        else FileUtils.setFolderPermissions(file, permissions)
     }
 
     fun createFolderHardLinks(
