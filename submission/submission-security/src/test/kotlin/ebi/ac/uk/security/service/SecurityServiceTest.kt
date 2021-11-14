@@ -301,7 +301,7 @@ internal class SecurityServiceTest(
 
         @Test
         fun `reset password when user not found`() {
-            every { userRepository.findByLoginOrEmail(email, email) } returns null
+            every { userRepository.findByEmail(email) } returns null
 
             assertThrows<UserNotFoundByEmailException> { testInstance.resetPassword(resetPasswordRequest) }
         }
@@ -311,7 +311,7 @@ internal class SecurityServiceTest(
             val resetSlot = slot<SecurityNotification>()
             val activationUrl = "https://dummy-backend.com/active/1234"
 
-            every { userRepository.findByLoginOrEmail(email, email) } returns simpleUser
+            every { userRepository.findByEmail(email) } returns simpleUser
             every { securityUtil.newKey() } returns ACTIVATION_KEY
             every { userRepository.save(any<DbUser>()) } answers { firstArg() }
             every { securityUtil.getActivationUrl(instanceKey, path, ACTIVATION_KEY) } returns activationUrl

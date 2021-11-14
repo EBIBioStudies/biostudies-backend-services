@@ -21,11 +21,15 @@ import ebi.ac.uk.security.integration.components.ISecurityService
 import ebi.ac.uk.security.integration.exception.ActKeyNotFoundException
 import ebi.ac.uk.security.integration.exception.LoginException
 import ebi.ac.uk.security.integration.exception.UserAlreadyRegister
-import ebi.ac.uk.security.integration.exception.UserNotFoundByEmailException
-import ebi.ac.uk.security.integration.exception.UserPendingRegistrationException
-import ebi.ac.uk.security.integration.exception.UserWithActivationKeyNotFoundException
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import ebi.ac.uk.security.integration.model.api.UserInfo
+import ebi.ac.uk.security.persistence.getActiveByEmail
+import ebi.ac.uk.security.persistence.getActiveByLoginOrEmailAndActive
+import ebi.ac.uk.security.persistence.getByActivationKey
+import ebi.ac.uk.security.persistence.getByEmailOrThrowUserNotFound
+import ebi.ac.uk.security.persistence.getUnActiveByActivationKey
+import ebi.ac.uk.security.persistence.getUnActiveByEmail
+import ebi.ac.uk.security.persistence.getUnActiveByEmailOrThrowUserPendingRegistration
 import ebi.ac.uk.security.util.SecurityUtil
 import org.springframework.transaction.annotation.Transactional
 import uk.ac.ebi.events.service.EventsPublisherService
@@ -43,9 +47,7 @@ open class SecurityService(
     private val eventsPublisherService: EventsPublisherService
 ) : ISecurityService {
     override fun login(request: LoginRequest): UserInfo {
-        val user = userRepository
-            .findByLoginOrEmailAndActive(request.login, request.login, true)
-            ?: throw UserNotFoundByEmailException(request.login)
+        val user = userRepository.getActiveByLoginOrEmailAndActive(request.login)
         require(securityUtil.checkPassword(user.passwordDigest, request.password)) { throw LoginException() }
         return profileService.getUserProfile(user, securityUtil.createToken(user))
     }
@@ -65,20 +67,18 @@ open class SecurityService(
     }
 
     override fun refreshUser(email: String): SecurityUser {
-        return userRepository.findByEmailAndActive(email, true)
-            ?.let(this::activate)
-            ?: throw UserNotFoundByEmailException(email)
+        val user = userRepository.getActiveByEmail(email)
+        return activate(user)
     }
 
     override fun activate(activationKey: String) {
-        userRepository.findByActivationKeyAndActive(activationKey, false)
-            ?.let(this::activate)
-            ?: throw UserWithActivationKeyNotFoundException()
+        val user = userRepository.getUnActiveByActivationKey(activationKey)
+        activate(user)
     }
 
     override fun activateByEmail(request: ActivateByEmailRequest) {
         val (email, instanceKey, path) = request
-        val user = userRepository.findByEmailAndActive(email, false) ?: throw UserNotFoundByEmailException(email)
+        val user = userRepository.getUnActiveByEmail(email)
 
         val activationKey = user.activationKey ?: throw ActKeyNotFoundException()
         val activationUrl = securityUtil.getActivationUrl(instanceKey, path, activationKey)
@@ -87,23 +87,18 @@ open class SecurityService(
     }
 
     override fun retryRegistration(request: RetryActivationRequest) {
-        val user = userRepository.findByEmailAndActive(request.email, false)
-            ?: throw UserPendingRegistrationException(request.email)
+        val user = userRepository.getUnActiveByEmailOrThrowUserPendingRegistration(request.email)
         register(user, request.instanceKey, request.path)
     }
 
     override fun activateAndSetupPassword(request: ChangePasswordRequest): User {
-        val user = userRepository.findByActivationKeyAndActive(request.activationKey, false)
-            ?: throw UserWithActivationKeyNotFoundException()
-
+        val user = userRepository.getUnActiveByActivationKey(request.activationKey)
         activate(user)
         return setPassword(user, request.password)
     }
 
     override fun changePassword(request: ChangePasswordRequest): User {
-        val user = userRepository.findByActivationKey(request.activationKey)
-            ?: throw UserWithActivationKeyNotFoundException()
-
+        val user = userRepository.getByActivationKey(request.activationKey)
         activate(user)
 
         return setPassword(user, request.password)
@@ -122,8 +117,7 @@ open class SecurityService(
     }
 
     private fun resetNotification(email: String, instanceKey: String, path: String) {
-        val user = userRepository.findByLoginOrEmail(email, email)
-            ?: throw UserNotFoundByEmailException(email)
+        val user = userRepository.getByEmailOrThrowUserNotFound(email)
         val key = securityUtil.newKey()
         userRepository.save(user.apply { activationKey = key })
 
