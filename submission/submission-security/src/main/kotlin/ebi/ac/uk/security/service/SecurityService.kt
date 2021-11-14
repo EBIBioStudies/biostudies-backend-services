@@ -21,16 +21,15 @@ import ebi.ac.uk.security.integration.components.ISecurityService
 import ebi.ac.uk.security.integration.exception.ActKeyNotFoundException
 import ebi.ac.uk.security.integration.exception.LoginException
 import ebi.ac.uk.security.integration.exception.UserAlreadyRegister
+import ebi.ac.uk.security.integration.exception.UserNotFoundByEmailException
 import ebi.ac.uk.security.integration.exception.UserPendingRegistrationException
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import ebi.ac.uk.security.integration.model.api.UserInfo
 import ebi.ac.uk.security.persistence.getActiveByEmail
 import ebi.ac.uk.security.persistence.getActiveByLoginOrEmail
 import ebi.ac.uk.security.persistence.getByActivationKey
-import ebi.ac.uk.security.persistence.getByEmailOrThrowUserNotFound
 import ebi.ac.uk.security.persistence.getUnActiveByActivationKey
 import ebi.ac.uk.security.persistence.getUnActiveByEmail
-import ebi.ac.uk.security.persistence.getUnActiveByEmailOrThrowUserPendingRegistration
 import ebi.ac.uk.security.util.SecurityUtil
 import org.springframework.transaction.annotation.Transactional
 import uk.ac.ebi.events.service.EventsPublisherService
@@ -119,7 +118,7 @@ open class SecurityService(
     }
 
     private fun resetNotification(email: String, instanceKey: String, path: String) {
-        val user = userRepository.getByEmailOrThrowUserNotFound(email)
+        val user = userRepository.findByEmail(email) ?: throw UserNotFoundByEmailException(email)
         val key = securityUtil.newKey()
         userRepository.save(user.apply { activationKey = key })
 

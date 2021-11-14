@@ -6,10 +6,6 @@ import ebi.ac.uk.security.integration.exception.UserNotFoundByEmailException
 import ebi.ac.uk.security.integration.exception.UserPendingRegistrationException
 import ebi.ac.uk.security.integration.exception.UserWithActivationKeyNotFoundException
 
-
-fun UserDataRepository.getByEmailOrThrowUserNotFound(email: String): DbUser = findByEmail(email)
-    ?: throw UserNotFoundByEmailException(email)
-
 fun UserDataRepository.getUnActiveByEmail(email: String): DbUser =
     findByEmailAndActive(email, false)
         ?: throw UserNotFoundByEmailException(email)
@@ -26,5 +22,6 @@ fun UserDataRepository.getActiveByLoginOrEmail(login: String): DbUser =
     findByLoginOrEmailAndActive(login, login, true)
         ?: throw UserNotFoundByEmailException(login)
 
-fun UserDataRepository.getByActivationKey(key: String): DbUser = findByActivationKey(key)
-    ?: throw UserWithActivationKeyNotFoundException()
+fun UserDataRepository.getByActivationKey(key: String): DbUser =
+    findByActivationKey(key)
+        ?: throw UserWithActivationKeyNotFoundException()
