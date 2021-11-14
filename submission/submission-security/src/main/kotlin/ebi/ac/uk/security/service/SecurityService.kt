@@ -21,10 +21,11 @@ import ebi.ac.uk.security.integration.components.ISecurityService
 import ebi.ac.uk.security.integration.exception.ActKeyNotFoundException
 import ebi.ac.uk.security.integration.exception.LoginException
 import ebi.ac.uk.security.integration.exception.UserAlreadyRegister
+import ebi.ac.uk.security.integration.exception.UserPendingRegistrationException
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import ebi.ac.uk.security.integration.model.api.UserInfo
 import ebi.ac.uk.security.persistence.getActiveByEmail
-import ebi.ac.uk.security.persistence.getActiveByLoginOrEmailAndActive
+import ebi.ac.uk.security.persistence.getActiveByLoginOrEmail
 import ebi.ac.uk.security.persistence.getByActivationKey
 import ebi.ac.uk.security.persistence.getByEmailOrThrowUserNotFound
 import ebi.ac.uk.security.persistence.getUnActiveByActivationKey
@@ -47,7 +48,7 @@ open class SecurityService(
     private val eventsPublisherService: EventsPublisherService
 ) : ISecurityService {
     override fun login(request: LoginRequest): UserInfo {
-        val user = userRepository.getActiveByLoginOrEmailAndActive(request.login)
+        val user = userRepository.getActiveByLoginOrEmail(request.login)
         require(securityUtil.checkPassword(user.passwordDigest, request.password)) { throw LoginException() }
         return profileService.getUserProfile(user, securityUtil.createToken(user))
     }
@@ -87,7 +88,8 @@ open class SecurityService(
     }
 
     override fun retryRegistration(request: RetryActivationRequest) {
-        val user = userRepository.getUnActiveByEmailOrThrowUserPendingRegistration(request.email)
+        val user = userRepository.findByEmailAndActive(request.email, false)
+            ?: throw UserPendingRegistrationException(request.email)
         register(user, request.instanceKey, request.path)
     }
 
