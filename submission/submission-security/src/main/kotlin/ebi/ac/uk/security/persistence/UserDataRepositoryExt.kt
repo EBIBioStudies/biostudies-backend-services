@@ -3,7 +3,6 @@ package ebi.ac.uk.security.persistence
 import ac.uk.ebi.biostd.persistence.model.DbUser
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ebi.ac.uk.security.integration.exception.UserNotFoundByEmailException
-import ebi.ac.uk.security.integration.exception.UserPendingRegistrationException
 import ebi.ac.uk.security.integration.exception.UserWithActivationKeyNotFoundException
 
 fun UserDataRepository.getUnActiveByEmail(email: String): DbUser =
