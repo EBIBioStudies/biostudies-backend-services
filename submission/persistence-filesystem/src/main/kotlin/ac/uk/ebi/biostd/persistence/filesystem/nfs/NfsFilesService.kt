@@ -1,25 +1,21 @@
 package ac.uk.ebi.biostd.persistence.filesystem.nfs
 
 import ac.uk.ebi.biostd.persistence.filesystem.api.FilesService
-import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabService
-import ac.uk.ebi.biostd.persistence.filesystem.request.FileProcessingConfig
-import ac.uk.ebi.biostd.persistence.filesystem.request.PageTabRequest
-import ac.uk.ebi.biostd.persistence.filesystem.service.FileProcessingService.processFiles
+import ac.uk.ebi.biostd.persistence.filesystem.extensions.FilePermissionsExtensions.permissions
+import ac.uk.ebi.biostd.persistence.filesystem.request.FilePersistenceRequest
+import ac.uk.ebi.biostd.persistence.filesystem.service.processFiles
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FileMode
 import ebi.ac.uk.extended.model.FileMode.COPY
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.io.FileUtils
-import ebi.ac.uk.io.FileUtils.deleteFile
 import ebi.ac.uk.io.FileUtils.getOrCreateFolder
 import ebi.ac.uk.io.FileUtils.moveFile
 import ebi.ac.uk.io.FileUtils.reCreateFolder
+import ebi.ac.uk.io.Permissions
 import ebi.ac.uk.io.RWXR_XR_X
-import ebi.ac.uk.io.RWXR_X___
 import ebi.ac.uk.io.RWX______
-import ebi.ac.uk.io.RW_R__R__
-import ebi.ac.uk.io.RW_R_____
 import ebi.ac.uk.paths.FILES_PATH
 import ebi.ac.uk.paths.SubmissionFolderResolver
 import mu.KotlinLogging
@@ -29,58 +25,49 @@ import java.nio.file.attribute.PosixFilePermission
 private val logger = KotlinLogging.logger {}
 
 class NfsFilesService(
-    private val pageTabService: PageTabService,
     private val folderResolver: SubmissionFolderResolver
 ) : FilesService {
-    override fun persistSubmissionFiles(submission: ExtSubmission, mode: FileMode): ExtSubmission {
-        logger.info { "Starting processing files of submission ${submission.accNo}" }
+    override fun persistSubmissionFiles(request: FilePersistenceRequest): ExtSubmission {
+        val (sub, mode, _) = request
+        logger.info { "${sub.accNo} ${sub.owner} Processing files of submission ${sub.accNo} over NFS" }
 
-        val filePermissions = filePermissions(submission.released)
-        val folderPermissions = folderPermissions(submission.released)
-        val submissionFolder = getOrCreateSubmissionFolder(submission, folderPermissions)
+        val submissionFolder = getOrCreateSubmissionFolder(sub, sub.permissions().folder)
 
-        val processed = processAttachedFiles(mode, submission, submissionFolder, filePermissions, folderPermissions)
-        pageTabService.generatePageTab(PageTabRequest(processed, submissionFolder, filePermissions, folderPermissions))
-        logger.info { "Finishing processing files of submission ${submission.accNo}" }
+        val processed = processAttachedFiles(mode, sub, submissionFolder, sub.permissions())
+        logger.info { "${sub.accNo} ${sub.owner} Finished processing files of submission ${sub.accNo} over NFS" }
 
         return processed
     }
 
     private fun processAttachedFiles(
         mode: FileMode,
-        submission: ExtSubmission,
+        sub: ExtSubmission,
         subFolder: File,
-        filePermissions: Set<PosixFilePermission>,
-        folderPermissions: Set<PosixFilePermission>
+        permissions: Permissions
     ): ExtSubmission {
-        logger.info { "processing submission ${submission.accNo} files in $mode" }
+        logger.info { "${sub.accNo} ${sub.owner} Processing files of submission ${sub.accNo} in $mode" }
+        val newSubTempPath = createTempFolder(subFolder, sub.accNo)
 
-        val subFilesPath = subFolder.resolve(FILES_PATH)
-        val tempFolder = createTempFolder(subFolder, submission.accNo)
+        val config = NfsFileProcessingConfig(
+            sub.accNo,
+            sub.owner,
+            mode,
+            subFolder = subFolder.resolve(FILES_PATH),
+            targetFolder = newSubTempPath.resolve(FILES_PATH),
+            permissions = permissions
+        )
 
-        if (subFilesPath.exists()) {
-            moveFile(subFilesPath, tempFolder, filePermissions, folderPermissions)
-            reCreateFolder(subFolder, folderPermissions)
-        }
-
-        val config = FileProcessingConfig(subFilesPath, tempFolder, filePermissions, folderPermissions)
-
-        fun processNfsFile(file: ExtFile): ExtFile {
-            val nfsFile = file as NfsFile
-            return if (mode == COPY) config.nfsCopy(nfsFile) else config.nfsMove(nfsFile)
-        }
-
-        val processed = processFiles(submission, ::processNfsFile)
-
-        logger.info { "Finishing processing submission ${submission.accNo} files in $mode" }
-        deleteFile(tempFolder)
+        val processed = processFiles(sub) { config.processFile(it) }
+        moveFile(newSubTempPath, subFolder, permissions)
+        logger.info { "${sub.accNo} ${sub.owner} Finished processing files of submission ${sub.accNo} in $mode" }
 
         return processed
     }
 
-    private fun filePermissions(released: Boolean) = if (released) RW_R__R__ else RW_R_____
-
-    private fun folderPermissions(released: Boolean) = if (released) RWXR_XR_X else RWXR_X___
+    private fun NfsFileProcessingConfig.processFile(file: ExtFile): NfsFile {
+        val nfsFile = file as NfsFile
+        return if (mode == COPY) nfsCopy(nfsFile) else nfsMove(nfsFile)
+    }
 
     private fun getOrCreateSubmissionFolder(submission: ExtSubmission, permissions: Set<PosixFilePermission>): File {
         val submissionPath = folderResolver.getSubFolder(submission.relPath)
@@ -88,6 +75,8 @@ class NfsFilesService(
         return getOrCreateFolder(submissionPath, permissions).toFile()
     }
 
-    private fun createTempFolder(submissionFolder: File, accNo: String): File =
-        reCreateFolder(submissionFolder.parentFile.resolve("${accNo}_temp"), RWX______)
+    private fun createTempFolder(
+        submissionFolder: File,
+        accNo: String
+    ): File = reCreateFolder(submissionFolder.parentFile.resolve("${accNo}_temp"), RWX______)
 }

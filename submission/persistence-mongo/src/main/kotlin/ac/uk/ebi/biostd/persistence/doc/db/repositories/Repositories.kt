@@ -22,8 +22,6 @@ interface SubmissionMongoRepository : MongoRepository<DocSubmission, ObjectId> {
 
     fun getByAccNoAndVersion(accNo: String, version: Int): DocSubmission
 
-    fun getByAccNoAndVersionGreaterThan(accNo: String, version: Int): DocSubmission
-
     fun getByAccNoInAndVersionGreaterThan(accNo: List<String>, version: Int): List<DocSubmission>
 
     fun findFirstByAccNoOrderByVersionDesc(accNo: String): DocSubmission?
@@ -36,6 +34,9 @@ interface SubmissionMongoRepository : MongoRepository<DocSubmission, ObjectId> {
 
     @Query("{ 'stats.name': { \$eq: '?0' } }")
     fun findAllByStatType(statType: SubmissionStatType, pageable: Pageable): Page<DocSubmission>
+
+    @Query("{ 'accNo': '?0' }")
+    fun getAllSubmissionsByAccNo(accNo: String): List<DocSubmission>
 }
 
 interface SubmissionRequestRepository : MongoRepository<SubmissionRequest, String> {
@@ -54,4 +55,8 @@ interface SubmissionDraftRepository : MongoRepository<DocSubmissionDraft, String
     fun deleteByUserIdAndKey(userId: String, key: String)
 }
 
-interface FileListDocFileRepository : MongoRepository<FileListDocFile, ObjectId>
+interface FileListDocFileRepository : MongoRepository<FileListDocFile, ObjectId> {
+    fun getById(id: ObjectId): FileListDocFile
+
+    fun findAllBySubmissionId(submissionId: ObjectId): List<FileListDocFile>
+}

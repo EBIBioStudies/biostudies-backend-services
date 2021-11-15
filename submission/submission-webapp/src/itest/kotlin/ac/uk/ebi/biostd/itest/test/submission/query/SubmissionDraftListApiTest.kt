@@ -89,7 +89,7 @@ internal class SubmissionDraftListApiTest(tempFolder: TemporaryFolder) : BaseInt
 
         private fun assertDraft(key: String, accNo: String, draft: WebSubmissionDraft) {
             assertThat(draft.key).isEqualTo(key)
-            assertThat(draft.content.toString().contains(accNo)).isTrue()
+            assertThat(draft.content.toString().contains(accNo)).isTrue
         }
     }
 }

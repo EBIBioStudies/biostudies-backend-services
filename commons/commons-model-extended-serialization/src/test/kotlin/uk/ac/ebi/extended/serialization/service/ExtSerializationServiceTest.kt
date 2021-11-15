@@ -7,6 +7,7 @@ import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod.PAGE_TAB
 import ebi.ac.uk.extended.model.ExtTag
+import ebi.ac.uk.extended.model.StorageMode
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.time.OffsetDateTime
@@ -21,6 +22,8 @@ class ExtSerializationServiceTest {
         val extSubmission = ExtSubmission(
             accNo = "S-TEST123",
             version = 1,
+            schemaVersion = "1.0",
+            storageMode = StorageMode.NFS,
             owner = "owner@mail.org",
             submitter = "submitter@mail.org",
             title = "Test Submission",

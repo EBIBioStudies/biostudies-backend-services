@@ -4,6 +4,7 @@ import ac.uk.ebi.biostd.common.config.SubmitterConfig.FilesHandlerConfig
 import ac.uk.ebi.biostd.common.config.SubmitterConfig.ServiceConfig
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.integration.SerializationConfig
+import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.persistence.common.service.PersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestService
@@ -15,6 +16,7 @@ import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
 import ac.uk.ebi.biostd.submission.util.AccNoPatternUtil
 import ac.uk.ebi.biostd.submission.validator.collection.CollectionValidator
 import ac.uk.ebi.biostd.submission.validator.collection.EuToxRiskValidator
+import ac.uk.ebi.biostd.submission.validator.filelist.FileListValidator
 import ebi.ac.uk.paths.SubmissionFolderResolver
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import org.springframework.beans.factory.BeanFactory
@@ -23,6 +25,7 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 import org.springframework.context.annotation.Lazy
 import org.springframework.web.client.RestTemplate
+import uk.ac.ebi.extended.serialization.integration.ExtSerializationConfig
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import java.nio.file.Paths
 
@@ -37,14 +40,16 @@ class SubmitterConfig {
         parentInfoService: ParentInfoService,
         collectionInfoService: CollectionInfoService,
         requestService: SubmissionRequestService,
-        submissionQueryService: SubmissionMetaQueryService
+        submissionQueryService: SubmissionMetaQueryService,
+        applicationProperties: ApplicationProperties
     ) = SubmissionSubmitter(
         timesService,
         accNoService,
         parentInfoService,
         collectionInfoService,
         requestService,
-        submissionQueryService
+        submissionQueryService,
+        applicationProperties
     )
 
     @Configuration
@@ -60,10 +65,10 @@ class SubmitterConfig {
     @Configuration
     class SerializationConfiguration {
         @Bean
-        fun serializationService() = SerializationConfig.serializationService()
+        fun serializationService(): SerializationService = SerializationConfig.serializationService()
 
         @Bean
-        fun extSerializationService(): ExtSerializationService = ExtSerializationService()
+        fun extSerializationService(): ExtSerializationService = ExtSerializationConfig.extSerializationService()
     }
 
     @Configuration
@@ -90,9 +95,14 @@ class SubmitterConfig {
     }
 
     @Configuration
-    class CollectionValidatorConfig {
+    class ValidatorConfig {
         @Bean
         fun restTemplate(): RestTemplate = RestTemplate()
+
+        @Bean
+        fun fileListValidator(
+            serializationService: SerializationService
+        ): FileListValidator = FileListValidator(serializationService)
 
         @Bean(name = ["EuToxRiskValidator"])
         fun euToxRiskValidator(

@@ -1,8 +1,8 @@
 package ac.uk.ebi.biostd.persistence.filesystem.api
 
+import ac.uk.ebi.biostd.persistence.filesystem.request.FilePersistenceRequest
 import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.extended.model.FileMode
 
 interface FilesService {
-    fun persistSubmissionFiles(submission: ExtSubmission, mode: FileMode): ExtSubmission
+    fun persistSubmissionFiles(request: FilePersistenceRequest): ExtSubmission
 }

@@ -23,6 +23,10 @@ val itest = tasks.create<Test>("itest") {
     println("##### Running integration tests in $testingMode mode #######")
     systemProperty("itest.mode", testingMode)
 
+    val enableFire = project.property("enableFire")
+    println("##### Running integration tests with fireEnable=$enableFire mode #######")
+    systemProperty("enableFire", enableFire)
+
     useJUnitPlatform()
     extensions.configure(JacocoTaskExtension::class) {
         setDestinationFile(file("$buildDir/jacoco/jacocoITest.exec"))

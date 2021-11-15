@@ -4,10 +4,11 @@ import Dependencies.CommonsLang3
 import Dependencies.Guava
 import Dependencies.KotlinReflect
 import Dependencies.KotlinStdLib
-import Dependencies.Poi
-import Dependencies.PoiOxml
 import Dependencies.SpringWeb
 import Dependencies.XlsxStreamer
+import Projects.CommonsTest
+import Projects.ExcelLibrary
+import Projects.TsvLibrary
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
 import TestDependencies.XmlUnitAssertJ
@@ -20,12 +21,12 @@ dependencies {
     implementation(KotlinStdLib)
     implementation(KotlinReflect)
     implementation(XlsxStreamer)
-    implementation(Poi)
-    implementation(PoiOxml)
     implementation(CommonsLang3)
     implementation(SpringWeb)
+    api(project(TsvLibrary))
+    api(project(ExcelLibrary))
 
-    testApi(project(":commons:commons-test"))
+    testApi(project(CommonsTest))
     BaseTestCompileDependencies.forEach { testImplementation(it) }
     BaseTestRuntimeDependencies.forEach { testImplementation(it) }
     testImplementation(XmlUnitCore)

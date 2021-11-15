@@ -7,11 +7,13 @@ import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDraftDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.FileListDocFileRepository
 import ac.uk.ebi.biostd.persistence.doc.mapping.from.toDocSubmission
+import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
 import ac.uk.ebi.biostd.persistence.doc.model.DocProcessingStatus.PROCESSED
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus
+import ac.uk.ebi.biostd.persistence.filesystem.request.FilePersistenceRequest
 import ac.uk.ebi.biostd.persistence.filesystem.service.FileSystemService
 import com.mongodb.BasicDBObject
 import ebi.ac.uk.extended.model.ExtProcessingStatus.PROCESSING
@@ -22,13 +24,15 @@ import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import kotlin.math.absoluteValue
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus.PROCESSED as REQUEST_PROCESSED
 
+@Suppress("LongParameterList")
 internal class SubmissionMongoPersistenceService(
     private val subDataRepository: SubmissionDocDataRepository,
     private val submissionRequestDocDataRepository: SubmissionRequestDocDataRepository,
     private val draftDocDataRepository: SubmissionDraftDocDataRepository,
     private val serializationService: ExtSerializationService,
     private val systemService: FileSystemService,
-    private val fileListDocFileRepository: FileListDocFileRepository
+    private val fileListDocFileRepository: FileListDocFileRepository,
+    private val toExtSubmissionMapper: ToExtSubmissionMapper
 ) : SubmissionRequestService {
     override fun saveAndProcessSubmissionRequest(saveRequest: SaveSubmissionRequest): ExtSubmission {
         val extended = saveSubmissionRequest(saveRequest)
@@ -56,12 +60,16 @@ internal class SubmissionMongoPersistenceService(
 
     override fun processSubmission(saveRequest: SaveSubmissionRequest): ExtSubmission {
         val (submission, fileMode, draftKey) = saveRequest
-        val processingSubmission = systemService.persistSubmissionFiles(submission, fileMode)
+
+        // TODO populate the previousFiles field in the FilePersistenceRequest
+        val filePersistenceRequest = FilePersistenceRequest(submission, fileMode, emptyMap())
+        val processingSubmission = systemService.persistSubmissionFiles(filePersistenceRequest)
+
         val (docSubmission, files) = processingSubmission.copy(status = PROCESSING).toDocSubmission()
         saveSubmission(docSubmission, files, draftKey)
         submissionRequestDocDataRepository.updateStatus(REQUEST_PROCESSED, submission.accNo, submission.version)
 
-        return submission
+        return toExtSubmissionMapper.toExtSubmission(docSubmission)
     }
 
     private fun saveSubmission(docSubmission: DocSubmission, files: List<FileListDocFile>, draftKey: String?) {

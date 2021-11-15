@@ -48,7 +48,7 @@ logging:
 app:
   submissionPath: # Absolute path to the folder to be used as submission storage
   ftpPath: # Absolute path to the folder to be used ftp hardlinks
-  tempDirPath: # Absolute of the temp folder to store files
+  tempDirPath: # Absolute path of the temp folder to store files
   instanceBaseUrl: # Instance base url e.g. http://server.ebi.ac.uk:5541
   fire:
     host: # FIRE host
@@ -62,8 +62,13 @@ app:
     magicDirPath: #  Absolute path to create user magic folder for dropbox simple access
     environment: # Current application execution environment
     requireActivation: # Indicates whether or not, new user need activation before being used
+    instanceKeys:
+      dev: # Instance key for the submission tool DEV environment
+      beta: # Instance key for the submission tool BETA environment
+      prod: # Instance key for the submission tool PROD environment
   persistence:
-    enableMongo: false
+    enableMongo: true
+    enableFire: true
   mongo:
     execute-migrations: true
     migration-package: ac.uk.ebi.biostd.persistence.doc.migrations

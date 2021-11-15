@@ -18,7 +18,7 @@ import ac.uk.ebi.biostd.persistence.model.SecurityToken
 import ac.uk.ebi.biostd.persistence.model.Sequence
 import ac.uk.ebi.biostd.persistence.model.USER_DATA_GRAPH
 import ac.uk.ebi.biostd.persistence.model.UserDataId
-import ac.uk.ebi.biostd.persistence.model.UserGroup
+import ac.uk.ebi.biostd.persistence.model.DbUserGroup
 import com.cosium.spring.data.jpa.entity.graph.repository.EntityGraphJpaRepository
 import com.cosium.spring.data.jpa.entity.graph.repository.EntityGraphJpaSpecificationExecutor
 import ebi.ac.uk.model.constants.ProcessingStatus
@@ -35,7 +35,6 @@ import org.springframework.data.repository.PagingAndSortingRepository
 import org.springframework.data.repository.query.Param
 import org.springframework.transaction.annotation.Transactional
 import java.time.OffsetDateTime
-import java.util.Optional
 import javax.persistence.LockModeType
 import com.cosium.spring.data.jpa.entity.graph.domain.EntityGraph as GraphSpecification
 
@@ -45,7 +44,7 @@ interface SubmissionDataRepository :
     EntityGraphJpaRepository<DbSubmission, Long>, EntityGraphJpaSpecificationExecutor<DbSubmission> {
 
     @Modifying
-    @Query("update DbSubmission s set s.version = -s.version, s.modificationTime = :now where accNo in :accNumbers")
+    @Query("update DbSubmission set version = -abs(version), modificationTime = :now where accNo in :accNumbers")
     fun deleteSubmissions(@Param("accNumbers") accNumbers: List<String>, @Param("now") now: OffsetDateTime)
 
     @Query("select s from DbSubmission s inner join s.owner where s.accNo = :accNo order by s.id desc")
@@ -83,6 +82,8 @@ interface SubmissionDataRepository :
     fun updateStatus(status: ProcessingStatus, accNo: String, version: Int)
 
     fun existsByAccNo(accNo: String): Boolean
+
+    fun existsByAccNoAndStatusAndVersionGreaterThan(accNo: String, status: ProcessingStatus, version: Int): Boolean
 
     fun findByRootSectionTypeAndAccNoInAndVersionGreaterThan(
         type: String,
@@ -123,13 +124,14 @@ interface SequenceDataRepository : JpaRepository<Sequence, Long> {
 }
 
 interface UserDataRepository : JpaRepository<DbUser, Long> {
-    fun findByLoginOrEmailAndActive(login: String, email: String, active: Boolean): Optional<DbUser>
+    fun findByLoginOrEmailAndActive(login: String, email: String, active: Boolean): DbUser?
     fun getByEmail(userEmail: String): DbUser
     fun existsByEmail(email: String): Boolean
     fun existsByEmailAndActive(email: String, active: Boolean): Boolean
-    fun findByActivationKeyAndActive(key: String, active: Boolean): Optional<DbUser>
-    fun findByEmailAndActive(email: String, active: Boolean): Optional<DbUser>
-    fun findByEmail(email: String): Optional<DbUser>
+    fun findByActivationKeyAndActive(key: String, active: Boolean): DbUser?
+    fun findByEmailAndActive(email: String, active: Boolean): DbUser?
+    fun getByEmailAndActive(email: String, active: Boolean): DbUser
+    fun findByEmail(email: String): DbUser?
 
     @EntityGraph(value = USER_DATA_GRAPH, type = LOAD)
     fun readByEmail(userEmail: String): DbUser
@@ -140,8 +142,9 @@ interface UserDataRepository : JpaRepository<DbUser, Long> {
 
 interface TokenDataRepository : JpaRepository<SecurityToken, String>
 
-interface UserGroupDataRepository : JpaRepository<UserGroup, Long> {
-    fun getByName(groupName: String): UserGroup
+interface UserGroupDataRepository : JpaRepository<DbUserGroup, Long> {
+    fun getByName(groupName: String): DbUserGroup
+    fun findByName(groupName: String): DbUserGroup?
 }
 
 interface AccessPermissionRepository : JpaRepository<DbAccessPermission, Long> {

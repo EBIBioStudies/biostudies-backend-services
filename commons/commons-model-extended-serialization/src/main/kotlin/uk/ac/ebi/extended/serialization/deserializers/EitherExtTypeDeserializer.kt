@@ -2,8 +2,6 @@ package uk.ac.ebi.extended.serialization.deserializers
 
 import arrow.core.Either
 import arrow.core.Either.Companion.right
-import arrow.core.left
-import arrow.core.right
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.JsonDeserializer
@@ -19,6 +17,7 @@ import ebi.ac.uk.extended.model.ExtSectionTable
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.EXT_TYPE
 import uk.ac.ebi.extended.serialization.constants.ExtType
 import uk.ac.ebi.extended.serialization.constants.ExtType.FilesTable
+import uk.ac.ebi.extended.serialization.constants.ExtType.FireDirectory
 import uk.ac.ebi.extended.serialization.constants.ExtType.FireFile
 import uk.ac.ebi.extended.serialization.constants.ExtType.Link
 import uk.ac.ebi.extended.serialization.constants.ExtType.LinksTable
@@ -41,6 +40,7 @@ class EitherExtTypeDeserializer : JsonDeserializer<Either<*, *>>() {
             is Link -> Either.left(mapper.convertNode<ExtLink>(node))
             is NfsFile -> Either.left(mapper.convertNode<ExtFile>(node))
             is FireFile -> TODO()
+            is FireDirectory -> TODO()
             is Section -> Either.left(mapper.convertNode<ExtSection>(node))
             is LinksTable -> right(mapper.convertNode<ExtLinkTable>(node))
             is FilesTable -> right(mapper.convertNode<ExtFileTable>(node))

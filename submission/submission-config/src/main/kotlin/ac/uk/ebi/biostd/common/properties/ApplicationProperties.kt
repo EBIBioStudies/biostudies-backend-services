@@ -10,6 +10,9 @@ open class ApplicationProperties {
     lateinit var ftpPath: String
     lateinit var instanceBaseUrl: String
 
+    val fireTempDirPath get() = "$tempDirPath/fire-temp"
+    val webTempDirPath get() = "$tempDirPath/web-temp"
+
     @NestedConfigurationProperty
     var security: SecurityProperties = SecurityProperties()
 
@@ -24,6 +27,9 @@ open class ApplicationProperties {
 
     @NestedConfigurationProperty
     var validator: ValidatorProperties = ValidatorProperties()
+
+    @NestedConfigurationProperty
+    var persistence: PersistenceProperties = PersistenceProperties()
 }
 
 class FireProperties {
@@ -38,4 +44,9 @@ class MongoModuleProperties {
 
 class ValidatorProperties {
     lateinit var euToxRiskValidationApi: String
+}
+
+class PersistenceProperties {
+    var enableMongo: Boolean = false
+    var enableFire: Boolean = false
 }

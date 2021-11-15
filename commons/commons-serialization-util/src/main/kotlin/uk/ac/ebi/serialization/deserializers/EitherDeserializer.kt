@@ -1,8 +1,6 @@
 package uk.ac.ebi.serialization.deserializers
 
 import arrow.core.Either
-import arrow.core.getOrElse
-import arrow.core.or
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind.BeanProperty
 import com.fasterxml.jackson.databind.DeserializationContext
@@ -33,11 +31,9 @@ class EitherDeserializer : StdDeserializer<Either<*, *>>(Either::class.java), Co
     override fun deserialize(jp: JsonParser, ctxt: DeserializationContext): Either<*, *> {
         with(jp.codec as ObjectMapper) {
             val node: JsonNode = readTree(jp)
-            return tryConvertValue(node, rightType).map { Either.Right(it) }
-                .or(tryConvertValue(node, leftType).map { Either.Left(it) })
-                .getOrElse {
-                    throw IllegalStateException("can not deserialize $node into $leftType neither $rightType")
-                }
+            return tryConvertValue(node, rightType)?.let { Either.Right(it) }
+                ?: tryConvertValue(node, leftType)?.let { Either.Left(it) }
+                ?: throw IllegalStateException("can not deserialize $node into $leftType neither $rightType")
         }
     }
 }

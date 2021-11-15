@@ -9,6 +9,7 @@ import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod.PAGE_TAB
 import ebi.ac.uk.extended.model.ExtTag
+import ebi.ac.uk.extended.model.StorageMode
 import ebi.ac.uk.notifications.api.RtClient
 import ebi.ac.uk.notifications.util.TemplateLoader
 import io.mockk.clearAllMocks
@@ -106,6 +107,7 @@ class RtNotificationServiceTest(
         return ExtSubmission(
             accNo = "S-TEST1",
             version = version,
+            schemaVersion = "1.0",
             owner = "owner@mail.org",
             submitter = "submitter@mail.org",
             title = "Test Submission",
@@ -121,7 +123,8 @@ class RtNotificationServiceTest(
             attributes = listOf(ExtAttribute("AttachTo", "BioImages")),
             tags = listOf(ExtTag("component", "web")),
             collections = listOf(ExtCollection("BioImages")),
-            section = ExtSection(type = "Study")
+            section = ExtSection(type = "Study"),
+            storageMode = StorageMode.NFS
         )
     }
 }

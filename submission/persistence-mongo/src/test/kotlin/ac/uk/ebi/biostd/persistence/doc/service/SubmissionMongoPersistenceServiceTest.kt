@@ -6,11 +6,13 @@ import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDraftDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.FileListDocFileRepository
 import ac.uk.ebi.biostd.persistence.doc.mapping.from.toDocSubmission
+import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
 import ac.uk.ebi.biostd.persistence.doc.model.DocProcessingStatus.PROCESSED
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus
+import ac.uk.ebi.biostd.persistence.filesystem.request.FilePersistenceRequest
 import ac.uk.ebi.biostd.persistence.filesystem.service.FileSystemService
 import ebi.ac.uk.extended.model.ExtProcessingStatus.PROCESSING
 import ebi.ac.uk.extended.model.ExtProcessingStatus.REQUESTED
@@ -40,19 +42,22 @@ class SubmissionMongoPersistenceServiceTest(
     @MockK private val draftRepository: SubmissionDraftDocDataRepository,
     @MockK private val requestRepository: SubmissionRequestDocDataRepository,
     @MockK private val serializationService: ExtSerializationService,
-    @MockK private val fileListDocFileRepository: FileListDocFileRepository
+    @MockK private val fileListDocFileRepository: FileListDocFileRepository,
+    @MockK private val toExtSubmissionMapper: ToExtSubmissionMapper
 ) {
     private val draftKey = "TMP_123456"
 
     private val docSubmission = slot<DocSubmission>()
     private val submissionSlot = slot<ExtSubmission>()
     private val submissionRequestSlot = slot<SubmissionRequest>()
+    private val filePersistenceRequestSlot = slot<FilePersistenceRequest>()
     private val filesList = slot<List<FileListDocFile>>()
     private val statusSlot = slot<SubmissionRequestStatus>()
     private val accNoSlot = slot<String>()
     private val versionSlot = slot<Int>()
     private val filesListMock = mockk<List<FileListDocFile>>()
     private val docSubmissionMock = mockk<DocSubmission>()
+    private val resultExtSubmission = mockk<ExtSubmission>()
 
     private val testInstance = SubmissionMongoPersistenceService(
         dataRepository,
@@ -60,7 +65,8 @@ class SubmissionMongoPersistenceServiceTest(
         draftRepository,
         serializationService,
         systemService,
-        fileListDocFileRepository
+        fileListDocFileRepository,
+        toExtSubmissionMapper
     )
 
     @AfterEach
@@ -71,7 +77,7 @@ class SubmissionMongoPersistenceServiceTest(
         setUpDataRepository()
         setUpDraftRepository()
         every { serializationService.serialize(capture(submissionSlot)) } returns "{}"
-        every { systemService.persistSubmissionFiles(capture(submissionSlot), MOVE) } returns submission
+        every { systemService.persistSubmissionFiles(capture(filePersistenceRequestSlot)) } returns submission
         every { requestRepository.saveRequest(capture(submissionRequestSlot)) } answers { nothing }
         every { fileListDocFileRepository.saveAll(capture(filesList)) } answers { nothing }
         every {
@@ -87,6 +93,7 @@ class SubmissionMongoPersistenceServiceTest(
         every { docSubmissionMock.owner } returns submission.owner
         every { docSubmissionMock.submitter } returns submission.submitter
         every { docSubmissionMock.version } returns submission.version
+        every { toExtSubmissionMapper.toExtSubmission(docSubmissionMock) } returns resultExtSubmission
     }
 
     @Test
@@ -130,7 +137,12 @@ class SubmissionMongoPersistenceServiceTest(
         val persistedSubmission = submissionSlot.captured
         assertThat(persistedSubmission.version).isEqualTo(2)
         assertThat(persistedSubmission.status).isEqualTo(REQUESTED)
-        verify(exactly = 1) { systemService.persistSubmissionFiles(persistedSubmission, MOVE) }
+
+        val filePersistenceRequest = filePersistenceRequestSlot.captured
+        assertThat(filePersistenceRequest.submission).isEqualTo(persistedSubmission)
+        assertThat(filePersistenceRequest.mode).isEqualTo(MOVE)
+        assertThat(filePersistenceRequest.previousFiles).isEmpty()
+        verify(exactly = 1) { systemService.persistSubmissionFiles(filePersistenceRequest) }
     }
 
     private fun assertSaveSubmissionRequest() {

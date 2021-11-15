@@ -10,13 +10,13 @@ class FileExtTest {
     @Test
     fun `is table`() {
         val file = DbFile("file1.txt", 0).apply { tableIndex = 1 }
-        assertThat(file.isTableElement()).isTrue()
+        assertThat(file.isTableElement()).isTrue
     }
 
     @Test
     fun `is not table`() {
         val file = DbFile("file1.txt", 0)
-        assertThat(file.isTableElement()).isFalse()
+        assertThat(file.isTableElement()).isFalse
     }
 
     @Test

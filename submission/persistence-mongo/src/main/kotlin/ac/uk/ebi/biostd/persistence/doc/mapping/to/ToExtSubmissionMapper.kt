@@ -12,13 +12,14 @@ import java.time.ZoneOffset.UTC
 
 internal const val FILES_DIR = "Files"
 
-internal class ToExtSubmissionMapper {
+class ToExtSubmissionMapper {
     internal fun toExtSubmission(submission: DocSubmission): ExtSubmission = ExtSubmission(
         accNo = submission.accNo,
         owner = submission.owner,
         submitter = submission.submitter,
         title = submission.title,
         version = submission.version,
+        schemaVersion = submission.schemaVersion,
         method = getMethod(submission.method),
         status = getStatus(submission.status),
         relPath = submission.relPath,
@@ -29,10 +30,12 @@ internal class ToExtSubmissionMapper {
         modificationTime = submission.modificationTime.atOffset(UTC),
         creationTime = submission.creationTime.atOffset(UTC),
         section = submission.section.toExtSection(),
-        attributes = submission.attributes.map { it.toExtAttribute() },
+        attributes = submission.attributes.toExtAttributes(),
         collections = submission.collections.map { ExtCollection(it.accNo) },
         tags = submission.tags.map { ExtTag(it.name, it.value) },
-        stats = submission.stats.map { it.toExtStat() }
+        stats = submission.stats.map { it.toExtStat() },
+        pageTabFiles = submission.pageTabFiles.map { it.toExtFile() },
+        storageMode = submission.storageMode
     )
 
     private fun getStatus(status: DocProcessingStatus) = when (status) {
