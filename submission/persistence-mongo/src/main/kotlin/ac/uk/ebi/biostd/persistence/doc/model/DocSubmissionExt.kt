@@ -36,7 +36,10 @@ val DocSubmission.allDocSections: List<DocSection>
         .filterNotNull()
 
 val DocSection.allSections: List<DocSection>
-    get() = sections.flatMap { either -> either.fold({ listOf(it).plus(it.allSections) }, { emptyList() }) }
+    get() = sections.flatMap { either -> either.fold(
+        { section -> listOf(section) + section.allSections },
+        { emptyList() })
+    }
 
 private fun DocProcessingStatus.toProcessingStatus(): ProcessingStatus =
     when (this) {
