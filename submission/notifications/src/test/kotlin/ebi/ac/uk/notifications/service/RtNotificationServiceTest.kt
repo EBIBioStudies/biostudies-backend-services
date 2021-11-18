@@ -41,7 +41,7 @@ class RtNotificationServiceTest(
         every { notificationsDataService.findTicketId("S-TEST1") } returns null
         every { notificationsDataService.saveRtNotification("S-TEST1", "78910") } returns ticket
         every {
-            rtClient.createTicket("S-TEST1", "BioStudies Submission - S-TEST1", "owner@mail.org", "\"Sub Title\" ")
+            rtClient.createTicket("S-TEST1", "BioStudies Submission - S-TEST1", "owner@mail.org", "\"Sub Title\"")
         } returns "78910"
 
         testInstance.notifySuccessfulSubmission(submission, "Dr. Owner", "ui-url")
@@ -49,7 +49,7 @@ class RtNotificationServiceTest(
         verify(exactly = 1) { notificationsDataService.findTicketId("S-TEST1") }
         verify(exactly = 1) { notificationsDataService.saveRtNotification("S-TEST1", "78910") }
         verify(exactly = 1) {
-            rtClient.createTicket("S-TEST1", "BioStudies Submission - S-TEST1", "owner@mail.org", "\"Sub Title\" ")
+            rtClient.createTicket("S-TEST1", "BioStudies Submission - S-TEST1", "owner@mail.org", "\"Sub Title\"")
         }
     }
 
@@ -61,7 +61,7 @@ class RtNotificationServiceTest(
         every { notificationsDataService.findTicketId("S-TEST1") } returns null
         every { notificationsDataService.saveRtNotification("S-TEST1", "78910") } returns ticket
         every {
-            rtClient.createTicket("S-TEST1", "BioStudies Submission - S-TEST1", "owner@mail.org", "\"Section Title\" ")
+            rtClient.createTicket("S-TEST1", "BioStudies Submission - S-TEST1", "owner@mail.org", "\"Section Title\"")
         } returns "78910"
 
         testInstance.notifySuccessfulSubmission(submission, "Dr. Owner", "ui-url")
@@ -69,7 +69,7 @@ class RtNotificationServiceTest(
         verify(exactly = 1) { notificationsDataService.findTicketId("S-TEST1") }
         verify(exactly = 1) { notificationsDataService.saveRtNotification("S-TEST1", "78910") }
         verify(exactly = 1) {
-            rtClient.createTicket("S-TEST1", "BioStudies Submission - S-TEST1", "owner@mail.org", "\"Section Title\" ")
+            rtClient.createTicket("S-TEST1", "BioStudies Submission - S-TEST1", "owner@mail.org", "\"Section Title\"")
         }
     }
 
@@ -115,7 +115,7 @@ class RtNotificationServiceTest(
         every { notificationsDataService.findTicketId("S-TEST1") } returns null
         every { notificationsDataService.saveRtNotification("S-TEST1", "78910") } returns ticket
         every {
-            rtClient.createTicket("S-TEST1", "BioStudies Submission - S-TEST1", "owner@mail.org", " - \"Sub Title\" ")
+            rtClient.createTicket("S-TEST1", "BioStudies Submission - S-TEST1", "owner@mail.org", " - \"Sub Title\"")
         } returns "78910"
 
         testInstance.notifySubmissionRelease(submission, "Dr. Owner", "ui-url")
@@ -123,7 +123,7 @@ class RtNotificationServiceTest(
         verify(exactly = 1) { notificationsDataService.findTicketId("S-TEST1") }
         verify(exactly = 1) { notificationsDataService.saveRtNotification("S-TEST1", "78910") }
         verify(exactly = 1) {
-            rtClient.createTicket("S-TEST1", "BioStudies Submission - S-TEST1", "owner@mail.org", " - \"Sub Title\" ")
+            rtClient.createTicket("S-TEST1", "BioStudies Submission - S-TEST1", "owner@mail.org", " - \"Sub Title\"")
         }
     }
 
