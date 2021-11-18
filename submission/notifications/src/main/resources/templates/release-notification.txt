@@ -1,6 +1,6 @@
 Dear ${USERNAME},
 
-Your submission with accession number ${ACC_NO}${TITLE} will be made public on ${RELEASE_DATE}.
+Your submission with accession number ${ACC_NO} ${TITLE} will be made public on ${RELEASE_DATE}.
 
 If you want to keep your submission private after this date or make it public earlier, please log in to the BioStudies Submission Tool at ${UI_URL}/submissions/submissions and change the release date.
 
