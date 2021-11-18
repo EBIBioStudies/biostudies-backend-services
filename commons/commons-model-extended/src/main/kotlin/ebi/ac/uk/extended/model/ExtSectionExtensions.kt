@@ -9,3 +9,6 @@ val ExtSection.allReferencedFiles
 
 val ExtSection.allFiles
     get(): List<ExtFile> = files.flatMap { either -> either.fold({ listOf(it) }, { it.files }) }
+
+val ExtSection.title
+    get(): String? = attributes.find { it.name == "Title" }?.value

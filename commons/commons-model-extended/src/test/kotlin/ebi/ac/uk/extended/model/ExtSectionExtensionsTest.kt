@@ -70,4 +70,13 @@ class ExtSectionExtensionsTest(private val temporaryFolder: TemporaryFolder) {
         assertThat(file2).isEqualTo(fireFile)
         assertThat(file3).isEqualTo(nfsFile1)
     }
+
+    @Test
+    fun title() {
+        val sectionNoTitle = ExtSection(type = "section")
+        val sectionTitle = ExtSection(type = "section", attributes = listOf(ExtAttribute("Title", "Section Title")))
+
+        assertThat(sectionNoTitle.title).isNull()
+        assertThat(sectionTitle.title).isEqualTo("Section Title")
+    }
 }

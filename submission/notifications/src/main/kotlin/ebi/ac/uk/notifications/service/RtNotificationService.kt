@@ -2,6 +2,7 @@ package ebi.ac.uk.notifications.service
 
 import ac.uk.ebi.biostd.persistence.common.service.NotificationsDataService
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.extended.model.description
 import ebi.ac.uk.notifications.api.RtClient
 import ebi.ac.uk.notifications.integration.templates.SubmissionReleaseModel
 import ebi.ac.uk.notifications.integration.templates.SubmissionReleaseTemplate
@@ -65,7 +66,7 @@ class RtNotificationService(
             uiUrl,
             ownerFullName,
             submission.accNo,
-            submission.title ?: "",
+            submission.description?.let { " - \"$it\" " } ?: "",
             submission.releaseTime?.toStringDate() ?: ""
         )
 
@@ -77,7 +78,7 @@ class RtNotificationService(
             submission.accNo,
             submission.secretKey,
             submission.released,
-            submission.title ?: "",
+            submission.description?.let { "\"$it\" " } ?: "",
             submission.releaseTime?.toStringDate() ?: ""
         )
 }
