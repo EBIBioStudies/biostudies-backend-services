@@ -95,6 +95,7 @@ import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.ExtSectionTable
 import ebi.ac.uk.extended.model.NfsFile
+import ebi.ac.uk.extended.model.StorageMode
 import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.test.createFile
 import ebi.ac.uk.util.collections.second
@@ -149,6 +150,7 @@ class ToDocSubmissionTest(tempFolder: TemporaryFolder) {
         assertDocSubmission(docSubmission)
         assertListFiles(listFiles, docSubmission.id)
         assertFileReferences(docSubmission, listFiles)
+        assertThat(docSubmission.storageMode).isEqualTo(StorageMode.NFS)
     }
 
     private fun assertFileReferences(docSubmission: DocSubmission, listFiles: List<FileListDocFile>) {

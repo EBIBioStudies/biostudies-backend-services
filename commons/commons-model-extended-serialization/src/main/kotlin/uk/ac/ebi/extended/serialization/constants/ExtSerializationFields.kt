@@ -46,4 +46,5 @@ object ExtSerializationFields {
     const val STATS = "stats"
     const val ACCESS_TAGS = "accessTags"
     const val PAGE_TAB_FILES = "pageTabFiles"
+    const val STORAGE_MODE = "storageMode"
 }

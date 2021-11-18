@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.submission.submitter
 
+import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.json.exception.NoAttributeValueException
 import ac.uk.ebi.biostd.persistence.common.request.SaveSubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
@@ -23,6 +24,8 @@ import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod
 import ebi.ac.uk.extended.model.ExtTag
+import ebi.ac.uk.extended.model.StorageMode.FIRE
+import ebi.ac.uk.extended.model.StorageMode.NFS
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.model.AccNumber
 import ebi.ac.uk.model.Submission
@@ -44,14 +47,15 @@ private val logger = KotlinLogging.logger {}
 private const val DEFAULT_VERSION = 1
 private const val DEFAULT_SCHEMA_VERSION = "1.0"
 
-@Suppress("TooManyFunctions")
+@Suppress("TooManyFunctions", "LongParameterList")
 class SubmissionSubmitter(
     private val timesService: TimesService,
     private val accNoService: AccNoService,
     private val parentInfoService: ParentInfoService,
     private val collectionInfoService: CollectionInfoService,
     private val submissionRequestService: SubmissionRequestService,
-    private val queryService: SubmissionMetaQueryService
+    private val queryService: SubmissionMetaQueryService,
+    private val properties: ApplicationProperties
 ) {
     fun submit(request: SubmissionRequest): ExtSubmission {
         logger.info { "${request.accNo} ${request.submitter.email} Processing request $request" }
@@ -152,7 +156,8 @@ class SubmissionSubmitter(
             tags = submission.tags.map { ExtTag(it.first, it.second) },
             collections = tags.map { ExtCollection(it) },
             section = submission.section.toExtSection(source),
-            attributes = getAttributes(submission)
+            attributes = getAttributes(submission),
+            storageMode = if (properties.persistence.enableFire) FIRE else NFS
         )
     }
 

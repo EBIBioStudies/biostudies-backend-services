@@ -8,6 +8,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.PROJECT_DOC_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.STAT_DOC_NAME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.STAT_DOC_VALUE
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.STORAGE_MODE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ATTRIBUTES
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_CREATION_TIME
@@ -70,6 +71,7 @@ class SubmissionConverter(
         submissionDoc[SUB_PROJECTS] = submission.collections.map { collectionToDocument(it) }
         submissionDoc[SUB_STATS] = submission.stats.map { statToDocument(it) }
         submissionDoc[PAGE_TAB_FILES] = submission.pageTabFiles.map { fileConverter.convert(it) }
+        submissionDoc[STORAGE_MODE] = submission.storageMode.value
         return submissionDoc
     }
 
