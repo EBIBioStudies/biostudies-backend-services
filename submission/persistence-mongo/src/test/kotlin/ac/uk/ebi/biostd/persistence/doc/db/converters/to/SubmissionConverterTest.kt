@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.persistence.doc.db.converters.to
 
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.PAGE_TAB_FILES
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.STORAGE_MODE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ATTRIBUTES
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_CREATION_TIME
@@ -29,6 +30,7 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocStat
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionMethod
 import ac.uk.ebi.biostd.persistence.doc.model.DocTag
+import ebi.ac.uk.extended.model.StorageMode
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
@@ -84,6 +86,7 @@ internal class SubmissionConverterTest(
         assertThat(result[SUB_SECTION]).isEqualTo(sectionDocument)
         assertThat(result[SUB_ATTRIBUTES]).isEqualTo(listOf(attributeDocument))
         assertThat(result[PAGE_TAB_FILES]).isEqualTo(listOf(fileDocument))
+        assertThat(result[STORAGE_MODE]).isEqualTo(StorageMode.NFS.value)
 
         val tags = result.getAs<List<Document>>(DocSubmissionFields.SUB_TAGS)
         val tag = tags.first()
@@ -127,7 +130,8 @@ internal class SubmissionConverterTest(
             tags = submissionTags,
             collections = submissionProjects,
             stats = submissionStats,
-            pageTabFiles = listOf(docFile)
+            pageTabFiles = listOf(docFile),
+            storageMode = StorageMode.NFS
         )
     }
 

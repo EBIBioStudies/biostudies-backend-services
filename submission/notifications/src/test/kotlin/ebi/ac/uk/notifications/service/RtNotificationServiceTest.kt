@@ -9,6 +9,7 @@ import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod.PAGE_TAB
 import ebi.ac.uk.extended.model.ExtTag
+import ebi.ac.uk.extended.model.StorageMode
 import ebi.ac.uk.notifications.api.RtClient
 import ebi.ac.uk.notifications.util.TemplateLoader
 import io.mockk.clearAllMocks
@@ -165,7 +166,8 @@ class RtNotificationServiceTest(
             section = ExtSection(
                 type = "Study",
                 attributes = secTitle?.let { listOf(ExtAttribute(name = "Title", value = it)) } ?: listOf()
-            )
+            ),
+            storageMode = StorageMode.NFS
         )
     }
 }

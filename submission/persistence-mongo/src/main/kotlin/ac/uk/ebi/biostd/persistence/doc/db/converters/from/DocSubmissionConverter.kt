@@ -4,6 +4,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.PROJECT_DOC_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.STAT_DOC_NAME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.STAT_DOC_VALUE
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.STORAGE_MODE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ATTRIBUTES
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_CREATION_TIME
@@ -33,6 +34,7 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocStat
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionMethod
 import ac.uk.ebi.biostd.persistence.doc.model.DocTag
+import ebi.ac.uk.extended.model.StorageMode
 import org.bson.Document
 import org.springframework.core.convert.converter.Converter
 
@@ -63,7 +65,8 @@ class DocSubmissionConverter(
         tags = source.getDocList(SUB_TAGS).map { toDocTag(it) },
         collections = source.getDocList(SUB_PROJECTS).map { toDocCollection(it) },
         stats = source.getDocList(SUB_STATS).map { toDocStat(it) },
-        pageTabFiles = source.getDocList(PAGE_TAB_FILES).map { docFileConverter.convert(it) }
+        pageTabFiles = source.getDocList(PAGE_TAB_FILES).map { docFileConverter.convert(it) },
+        storageMode = StorageMode.fromString(source.getString(STORAGE_MODE))
     )
 
     private fun toDocTag(doc: Document): DocTag =

@@ -9,6 +9,7 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocStat
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionMethod.PAGE_TAB
 import ac.uk.ebi.biostd.persistence.doc.model.DocTag
+import ebi.ac.uk.extended.model.StorageMode
 import org.bson.types.ObjectId
 import java.time.Instant
 import java.time.temporal.ChronoUnit
@@ -71,5 +72,6 @@ internal val testDocSubmission: DocSubmission
         tags = listOf(DocTag(TAG_NAME, TAG_VALUE)),
         stats = listOf(DocStat(STAT_TYPE, STAT_VALUE)),
         collections = listOf(testDocCollection),
-        section = testDocSection
+        section = testDocSection,
+        storageMode = StorageMode.NFS
     )
