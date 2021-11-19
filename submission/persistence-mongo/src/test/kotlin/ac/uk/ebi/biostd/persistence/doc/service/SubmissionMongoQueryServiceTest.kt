@@ -23,6 +23,7 @@ import ac.uk.ebi.biostd.persistence.doc.test.doc.SUB_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUBMISSION_OWNER
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.fullExtSubmission as extSubmission
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.rootSection
+import arrow.core.Either.Companion.left
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.rootSectionAttribute as attribute
 import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocSection as docSection
 import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocSubmission as docSubmission
@@ -141,6 +142,19 @@ internal class SubmissionMongoQueryServiceTest(
         @Test
         fun `get referenced files`() {
             val files = testInstance.getReferencedFiles(SUB_ACC_NO, "test-file-list")
+            assertThat(files).hasSize(1)
+            assertThat((files.first() as NfsFile).file).isEqualTo(referencedFile)
+        }
+
+        @Test
+        fun `get referenced files for inner section`() {
+            val innerSection = DocSection(id = ObjectId(), type = "Experiment", fileList = fileList)
+            val rootSection = DocSection(id = ObjectId(), type = "Study", sections = listOf(left(innerSection)))
+            val innerSectionSubmission = docSubmission.copy(accNo = "S-REF1", section = rootSection)
+
+            submissionRepo.save(innerSectionSubmission)
+
+            val files = testInstance.getReferencedFiles("S-REF1", "test-file-list")
             assertThat(files).hasSize(1)
             assertThat((files.first() as NfsFile).file).isEqualTo(referencedFile)
         }
