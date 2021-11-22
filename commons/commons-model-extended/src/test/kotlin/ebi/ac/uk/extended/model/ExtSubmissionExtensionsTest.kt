@@ -23,6 +23,7 @@ class ExtSubmissionExtensionsTest {
             version = 1,
             schemaVersion = "1.0",
             owner = "owner@mail.org",
+            storageMode = StorageMode.FIRE,
             submitter = "submitter@mail.org",
             title = subTitle,
             method = ExtSubmissionMethod.PAGE_TAB,
