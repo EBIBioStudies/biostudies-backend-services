@@ -17,5 +17,5 @@ val ExtSubmission.isCollection
 val ExtSubmission.filesPath
     get(): String = "$relPath/Files"
 
-val ExtSubmission.description
+val ExtSubmission.computedTitle
     get(): String? = title ?: section.title

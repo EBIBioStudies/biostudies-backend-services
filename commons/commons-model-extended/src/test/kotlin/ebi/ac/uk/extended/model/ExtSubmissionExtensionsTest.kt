@@ -7,14 +7,14 @@ import java.time.ZoneOffset
 
 class ExtSubmissionExtensionsTest {
     @Test
-    fun description() {
+    fun computedTitle() {
         val submissionTitle = testSubmission(subTitle = "submission title", secTitle = null)
         val submissionNoTitleSecTitle = testSubmission(subTitle = null, secTitle = "section title")
         val submissionNoTitleNoSecTitle = testSubmission(subTitle = null, secTitle = null)
 
-        assertThat(submissionTitle.description).isEqualTo("submission title")
-        assertThat(submissionNoTitleSecTitle.description).isEqualTo("section title")
-        assertThat(submissionNoTitleNoSecTitle.description).isNull()
+        assertThat(submissionTitle.computedTitle).isEqualTo("submission title")
+        assertThat(submissionNoTitleSecTitle.computedTitle).isEqualTo("section title")
+        assertThat(submissionNoTitleNoSecTitle.computedTitle).isNull()
     }
 
     private fun testSubmission(subTitle: String? = null, secTitle: String? = null): ExtSubmission = ExtSubmission(
