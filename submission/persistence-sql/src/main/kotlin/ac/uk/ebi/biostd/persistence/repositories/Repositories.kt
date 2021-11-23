@@ -123,12 +123,15 @@ interface SequenceDataRepository : JpaRepository<Sequence, Long> {
     fun existsByPrefix(prefix: String): Boolean
 }
 
+@Suppress("TooManyFunctions")
 interface UserDataRepository : JpaRepository<DbUser, Long> {
     fun findByLoginOrEmailAndActive(login: String, email: String, active: Boolean): DbUser?
+    fun findByLoginOrEmail(login: String, email: String): DbUser?
     fun getByEmail(userEmail: String): DbUser
     fun existsByEmail(email: String): Boolean
     fun existsByEmailAndActive(email: String, active: Boolean): Boolean
     fun findByActivationKeyAndActive(key: String, active: Boolean): DbUser?
+    fun findByActivationKey(key: String): DbUser?
     fun findByEmailAndActive(email: String, active: Boolean): DbUser?
     fun getByEmailAndActive(email: String, active: Boolean): DbUser
     fun findByEmail(email: String): DbUser?

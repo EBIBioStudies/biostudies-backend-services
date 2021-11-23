@@ -23,9 +23,13 @@ import ebi.ac.uk.security.integration.exception.LoginException
 import ebi.ac.uk.security.integration.exception.UserAlreadyRegister
 import ebi.ac.uk.security.integration.exception.UserNotFoundByEmailException
 import ebi.ac.uk.security.integration.exception.UserPendingRegistrationException
-import ebi.ac.uk.security.integration.exception.UserWithActivationKeyNotFoundException
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import ebi.ac.uk.security.integration.model.api.UserInfo
+import ebi.ac.uk.security.persistence.getActiveByEmail
+import ebi.ac.uk.security.persistence.getActiveByLoginOrEmail
+import ebi.ac.uk.security.persistence.getByActivationKey
+import ebi.ac.uk.security.persistence.getInactiveByActivationKey
+import ebi.ac.uk.security.persistence.getInactiveByEmail
 import ebi.ac.uk.security.util.SecurityUtil
 import org.springframework.transaction.annotation.Transactional
 import uk.ac.ebi.events.service.EventsPublisherService
@@ -43,9 +47,7 @@ open class SecurityService(
     private val eventsPublisherService: EventsPublisherService
 ) : ISecurityService {
     override fun login(request: LoginRequest): UserInfo {
-        val user = userRepository
-            .findByLoginOrEmailAndActive(request.login, request.login, true)
-            ?: throw UserNotFoundByEmailException(request.login)
+        val user = userRepository.getActiveByLoginOrEmail(request.login)
         require(securityUtil.checkPassword(user.passwordDigest, request.password)) { throw LoginException() }
         return profileService.getUserProfile(user, securityUtil.createToken(user))
     }
@@ -65,24 +67,18 @@ open class SecurityService(
     }
 
     override fun refreshUser(email: String): SecurityUser {
-        val user = userRepository.findByEmailAndActive(email, true)
-            ?.let(this::activate)
-            ?: throw UserNotFoundByEmailException(email)
-
-        FileUtils.setFolderPermissions(user.magicFolder.path.parent, RWX__X___)
-        FileUtils.setFolderPermissions(user.magicFolder.path, RWXRWX___)
-        return user
+        val user = userRepository.getActiveByEmail(email)
+        return activate(user)
     }
 
     override fun activate(activationKey: String) {
-        userRepository.findByActivationKeyAndActive(activationKey, false)
-            ?.let(this::activate)
-            ?: throw UserWithActivationKeyNotFoundException()
+        val user = userRepository.getInactiveByActivationKey(activationKey)
+        activate(user)
     }
 
     override fun activateByEmail(request: ActivateByEmailRequest) {
         val (email, instanceKey, path) = request
-        val user = userRepository.findByEmailAndActive(email, false) ?: throw UserNotFoundByEmailException(email)
+        val user = userRepository.getInactiveByEmail(email)
 
         val activationKey = user.activationKey ?: throw ActKeyNotFoundException()
         val activationUrl = securityUtil.getActivationUrl(instanceKey, path, activationKey)
@@ -97,18 +93,14 @@ open class SecurityService(
     }
 
     override fun activateAndSetupPassword(request: ChangePasswordRequest): User {
-        val user = userRepository.findByActivationKeyAndActive(request.activationKey, false)
-            ?: throw UserWithActivationKeyNotFoundException()
-
+        val user = userRepository.getInactiveByActivationKey(request.activationKey)
         activate(user)
         return setPassword(user, request.password)
     }
 
     override fun changePassword(request: ChangePasswordRequest): User {
-        val user = userRepository.findByActivationKeyAndActive(request.activationKey, true)
-            ?: throw UserWithActivationKeyNotFoundException()
-
-        user.activationKey = null
+        val user = userRepository.getByActivationKey(request.activationKey)
+        activate(user)
 
         return setPassword(user, request.password)
     }
@@ -126,8 +118,7 @@ open class SecurityService(
     }
 
     private fun resetNotification(email: String, instanceKey: String, path: String) {
-        val user = userRepository.findByLoginOrEmailAndActive(email, email, true)
-            ?: throw UserNotFoundByEmailException(email)
+        val user = userRepository.findByEmail(email) ?: throw UserNotFoundByEmailException(email)
         val key = securityUtil.newKey()
         userRepository.save(user.apply { activationKey = key })
 
