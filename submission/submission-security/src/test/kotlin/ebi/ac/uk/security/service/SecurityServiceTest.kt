@@ -277,7 +277,7 @@ internal class SecurityServiceTest(
         }
 
         @Test
-        fun `change password when unactive user`() {
+        fun `change password when inactive user`() {
             val passwordDigest = ByteArray(0)
             every { userRepository.findByActivationKey(ACTIVATION_KEY) } returns simpleUser
             every { securityUtil.getPasswordDigest(password) } returns passwordDigest

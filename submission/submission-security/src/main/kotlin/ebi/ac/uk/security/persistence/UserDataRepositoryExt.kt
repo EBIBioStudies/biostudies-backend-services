@@ -5,11 +5,11 @@ import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ebi.ac.uk.security.integration.exception.UserNotFoundByEmailException
 import ebi.ac.uk.security.integration.exception.UserWithActivationKeyNotFoundException
 
-fun UserDataRepository.getUnActiveByEmail(email: String): DbUser =
+fun UserDataRepository.getInactiveByEmail(email: String): DbUser =
     findByEmailAndActive(email, false)
         ?: throw UserNotFoundByEmailException(email)
 
-fun UserDataRepository.getUnActiveByActivationKey(key: String): DbUser =
+fun UserDataRepository.getInactiveByActivationKey(key: String): DbUser =
     findByActivationKeyAndActive(key, false)
         ?: throw UserWithActivationKeyNotFoundException()
 

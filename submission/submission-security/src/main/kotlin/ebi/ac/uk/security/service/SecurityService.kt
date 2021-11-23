@@ -28,8 +28,8 @@ import ebi.ac.uk.security.integration.model.api.UserInfo
 import ebi.ac.uk.security.persistence.getActiveByEmail
 import ebi.ac.uk.security.persistence.getActiveByLoginOrEmail
 import ebi.ac.uk.security.persistence.getByActivationKey
-import ebi.ac.uk.security.persistence.getUnActiveByActivationKey
-import ebi.ac.uk.security.persistence.getUnActiveByEmail
+import ebi.ac.uk.security.persistence.getInactiveByActivationKey
+import ebi.ac.uk.security.persistence.getInactiveByEmail
 import ebi.ac.uk.security.util.SecurityUtil
 import org.springframework.transaction.annotation.Transactional
 import uk.ac.ebi.events.service.EventsPublisherService
@@ -72,13 +72,13 @@ open class SecurityService(
     }
 
     override fun activate(activationKey: String) {
-        val user = userRepository.getUnActiveByActivationKey(activationKey)
+        val user = userRepository.getInactiveByActivationKey(activationKey)
         activate(user)
     }
 
     override fun activateByEmail(request: ActivateByEmailRequest) {
         val (email, instanceKey, path) = request
-        val user = userRepository.getUnActiveByEmail(email)
+        val user = userRepository.getInactiveByEmail(email)
 
         val activationKey = user.activationKey ?: throw ActKeyNotFoundException()
         val activationUrl = securityUtil.getActivationUrl(instanceKey, path, activationKey)
@@ -93,7 +93,7 @@ open class SecurityService(
     }
 
     override fun activateAndSetupPassword(request: ChangePasswordRequest): User {
-        val user = userRepository.getUnActiveByActivationKey(request.activationKey)
+        val user = userRepository.getInactiveByActivationKey(request.activationKey)
         activate(user)
         return setPassword(user, request.password)
     }
