@@ -27,6 +27,7 @@ import ebi.ac.uk.extended.model.FileMode.MOVE
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.allFileList
 import ebi.ac.uk.extended.model.allFiles
+import ebi.ac.uk.extended.model.allSectionsFiles
 import ebi.ac.uk.util.collections.firstOrElse
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import kotlin.math.absoluteValue
@@ -112,7 +113,7 @@ internal class SubmissionMongoPersistenceService(
             .mapNotNull { it.fileList }
             .flatMap { fileList -> fileListDocFileRepository.findAllById(fileList.files.map { it.fileId }) }
             .map { it.file.toExtFile() }
-            .plus(previousExtVersion.allFiles)
+            .plus(previousExtVersion.allSectionsFiles)
             .filterIsInstance<FireFile>()
             .associateBy { it.md5 }
     }

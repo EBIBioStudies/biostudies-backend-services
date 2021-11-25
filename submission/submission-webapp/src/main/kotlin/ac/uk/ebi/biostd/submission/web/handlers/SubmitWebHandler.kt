@@ -97,7 +97,9 @@ class SubmitWebHandler(
 
     fun refreshSubmission(request: RefreshWebRequest): Submission {
         val submission = submissionService.getSubmission(request.accNo).toSimpleSubmission()
-        val extSub = extSubmissionService.findExtendedSubmission(request.accNo)?.apply { requireProcessed(this) }
+        val extSub = extSubmissionService
+            .findExtendedSubmission(request.accNo)
+            ?.apply { webHandlerHelper.requireProcessed(this) }
         val files = extSub?.allSectionsFiles.orEmpty()
         val source = sourceGenerator.submissionSources(RequestSources(previousFiles = files))
 

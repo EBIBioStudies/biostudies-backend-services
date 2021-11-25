@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.submission.web.resources
 
-import ac.uk.ebi.biostd.integration.SubFormat
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.TSV
 import ac.uk.ebi.biostd.submission.converters.BioUser
 import ac.uk.ebi.biostd.submission.domain.service.TempFileGenerator
@@ -15,7 +14,6 @@ import ebi.ac.uk.security.integration.model.api.SecurityUser
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.security.access.prepost.PreAuthorize
-import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
@@ -31,7 +29,7 @@ class SubmissionMetadataResource(
     private val tempFileGenerator: TempFileGenerator,
     private val metadataUpdateWebHandler: MetadataUpdateWebHandler
 ) {
-    // TODO This endpoint is only for page tab files. should we add support for updating metadata with the submission content itself?
+    // TODO Add support for page tab content to be able to support
     // TODO Add documentation for the update metadata endpoints
     // TODO Add support for the update metadata operation in the CLI
     // TODO Unit and integration tests

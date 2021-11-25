@@ -10,6 +10,7 @@ import ac.uk.ebi.biostd.submission.domain.helpers.SourceGenerator
 import ac.uk.ebi.biostd.submission.domain.service.CollectionService
 import ac.uk.ebi.biostd.submission.domain.service.ExtSubmissionService
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionService
+import ac.uk.ebi.biostd.submission.submitter.SubmissionMetadataHandler
 import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
 import ac.uk.ebi.biostd.submission.web.handlers.MetadataUpdateWebHandler
 import ac.uk.ebi.biostd.submission.web.handlers.SubmissionsWebHandler
@@ -97,19 +98,19 @@ class SubmissionConfig(
         )
 
     @Bean
-    fun metadataHandler(
+    fun metadataWebHandler(
         webHandlerHelper: WebHandlerHelper,
-        submissionService: SubmissionService,
         userFilesService: UserFilesService,
         securityQueryService: ISecurityQueryService,
-        extSubmissionService: ExtSubmissionService
+        extSubmissionService: ExtSubmissionService,
+        submissionMetadataHandler: SubmissionMetadataHandler
     ): MetadataUpdateWebHandler =
         MetadataUpdateWebHandler(
             sourceGenerator,
             webHandlerHelper,
-            submissionService,
             serializationService,
-            extSubmissionService
+            extSubmissionService,
+            submissionMetadataHandler
         )
 
     @Bean
