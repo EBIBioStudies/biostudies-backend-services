@@ -1,5 +1,6 @@
 package ebi.ac.uk.extended.mapping.to
 
+import DefaultSubmission.Companion.defaultSubmission
 import ebi.ac.uk.extended.model.ExtAttribute
 import ebi.ac.uk.extended.model.ExtCollection
 import ebi.ac.uk.model.Attribute
@@ -8,17 +9,12 @@ import ebi.ac.uk.model.extensions.attachTo
 import ebi.ac.uk.model.extensions.releaseDate
 import ebi.ac.uk.model.extensions.rootPath
 import ebi.ac.uk.model.extensions.title
-import ebi.ac.uk.test.basicExtSubmission
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
-import java.time.OffsetDateTime
-import java.time.ZoneOffset.UTC
 
 class ToSubmissionTest {
-    private val extSubmission = basicExtSubmission.copy(
-        rootPath = "/a/root/path",
-        collections = listOf(ExtCollection("BioImages")),
-        releaseTime = OffsetDateTime.of(2019, 9, 21, 0, 0, 0, 0, UTC),
+    private val extSubmission = defaultSubmission(
+        collections = listOf(ExtCollection("BioImages"), ExtCollection("Public")),
         attributes = listOf(
             ExtAttribute("Type", "Experiment"),
             ExtAttribute("CollectionValidator", "BioImagesValidator")
@@ -28,13 +24,13 @@ class ToSubmissionTest {
     @Test
     fun toSimpleSubmission() {
         val submission = extSubmission.toSimpleSubmission()
-        assertThat(submission.accNo).isEqualTo("S-TEST123")
+        assertThat(submission.accNo).isEqualTo(DefaultSubmission.ACC_NO)
         assertSection(submission)
         assertSubmissionAttributes(submission)
     }
 
     private fun assertSection(submission: Submission) {
-        assertThat(submission.section.type).isEqualTo("Study")
+        assertThat(submission.section.type).isEqualTo(DefaultSubmission.SECTION.type)
         assertThat(submission.section.attributes).isEmpty()
         assertThat(submission.section.files).isEmpty()
         assertThat(submission.section.links).isEmpty()
@@ -44,9 +40,9 @@ class ToSubmissionTest {
     private fun assertSubmissionAttributes(submission: Submission) {
         assertThat(submission.attributes).hasSize(5)
         assertThat(submission.attributes).contains(Attribute("Type", "Experiment"))
-        assertThat(submission.title).isEqualTo("Test Submission")
+        assertThat(submission.title).isEqualTo(DefaultSubmission.TITLE)
         assertThat(submission.attachTo).isEqualTo("BioImages")
-        assertThat(submission.releaseDate).isEqualTo("2019-09-21")
-        assertThat(submission.rootPath).isEqualTo("/a/root/path")
+        assertThat(submission.releaseDate).isEqualTo(DefaultSubmission.RELEASE_TIME.toLocalDate().toString())
+        assertThat(submission.rootPath).isEqualTo(DefaultSubmission.ROOT_PATH)
     }
 }

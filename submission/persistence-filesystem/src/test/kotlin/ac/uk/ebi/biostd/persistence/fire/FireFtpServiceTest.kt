@@ -1,15 +1,17 @@
 package ac.uk.ebi.biostd.persistence.fire
 
+import DefaultFileList.Companion.defaultFileList
+import DefaultFileTable.Companion.defaultFileTable
+import DefaultFireFile.Companion.defaultFireFile
+import DefaultSection.Companion.defaultSection
+import DefaultSubmission.Companion.defaultSubmission
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.filesystem.fire.FireFtpService
 import arrow.core.Either.Companion.left
 import arrow.core.Either.Companion.right
-import ebi.ac.uk.extended.model.ExtFileList
 import ebi.ac.uk.extended.model.ExtFileTable
-import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireFile
-import ebi.ac.uk.test.basicExtSubmission as basicExtSub
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -28,8 +30,8 @@ class FireFtpServiceTest(
     @MockK private val submissionQueryService: SubmissionQueryService
 ) {
     private val clientFireFile = ClientFireFile(1, "abc1", "md5", 1, "2021-09-21")
-    private val fileFileList = fireFile(FILE_FILE_LIST)
-    private val innerFileListFile = fireFile(INNER_FILE_FILE_LIST)
+    private val fileFileList = defaultFireFile(fireId = FILE_FILE_LIST)
+    private val innerFileListFile = defaultFireFile(fireId = INNER_FILE_FILE_LIST)
     private val extSub = createExtSubmission(fileFileList, innerFileListFile)
     private val testInstance = FireFtpService(fireWebClient, submissionQueryService)
 
@@ -101,21 +103,19 @@ class FireFtpServiceTest(
         innerFileListFile: FireFile
     ): ExtSubmission {
 
-        val filePageTab = fireFile(FILE_PAGE_TAB)
-        val file = fireFile(FILE)
-        val fileTable = fireFile(FILE_TABLE)
-        val innerFileListPageTabFile = fireFile(INNER_FILE_PAGE_TAB)
-        val innerFile = fireFile(INNER_FILE)
-        val innerFileTable = fireFile(INNER_FILE_TABLE)
-        val section = ExtSection(
-            type = "Study",
-            fileList = ExtFileList("fileName1", files = listOf(fileFileList), pageTabFiles = listOf(filePageTab)),
-            files = listOf(left(file), right(ExtFileTable(fileTable))),
+        val filePageTab = defaultFireFile(fireId = FILE_PAGE_TAB)
+        val file = defaultFireFile(fireId = FILE)
+        val fileTable = defaultFireFile(fireId = FILE_TABLE)
+        val innerFileListPageTabFile = defaultFireFile(fireId = INNER_FILE_PAGE_TAB)
+        val innerFile = defaultFireFile(fireId = INNER_FILE)
+        val innerFileTable = defaultFireFile(fireId = INNER_FILE_TABLE)
+        val section = defaultSection(
+            fileList = defaultFileList("fileName1", files = listOf(fileFileList), pageTabFiles = listOf(filePageTab)),
+            files = listOf(left(file), right(defaultFileTable(listOf(fileTable)))),
             sections = listOf(
                 left(
-                    ExtSection(
-                        type = "Study",
-                        fileList = ExtFileList(
+                    defaultSection(
+                        fileList = defaultFileList(
                             "fileName2",
                             files = listOf(innerFileListFile),
                             pageTabFiles = listOf(innerFileListPageTabFile)
@@ -125,10 +125,8 @@ class FireFtpServiceTest(
                 )
             )
         )
-        return basicExtSub.copy(section = section, pageTabFiles = listOf(fireFile(fireId = SUB_FILE_PAGE_TAB)))
+        return defaultSubmission(section = section, pageTabFiles = listOf(defaultFireFile(fireId = SUB_FILE_PAGE_TAB)))
     }
-
-    private fun fireFile(fireId: String) = FireFile("a/test.txt", "relPath", fireId, "md5", 1, listOf())
 
     private companion object {
         const val FILE_FILE_LIST = "abc1"

@@ -1,13 +1,13 @@
 package ac.uk.ebi.biostd.submission.service
 
+import DefaultCollection.Companion.defaultCollection
+import DefaultSection.Companion.defaultSection
+import DefaultSubmission.Companion.defaultSubmission
 import ac.uk.ebi.biostd.persistence.common.model.BasicCollection
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.submission.exceptions.CollectionInvalidAccessTagException
 import ac.uk.ebi.biostd.submission.validator.collection.CollectionValidator
-import ebi.ac.uk.extended.model.ExtCollection
-import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.model.constants.SubFields.PUBLIC_ACCESS_TAG
-import ebi.ac.uk.test.basicExtSubmission
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -61,7 +61,7 @@ class ParentInfoServiceTest(
         @MockK validator: CollectionValidator
     ) {
         val testTime = OffsetDateTime.of(2018, 10, 10, 0, 0, 0, 0, UTC)
-        val submission = basicExtSubmission.copy(collections = listOf(ExtCollection("ArrayExpress")))
+        val submission = defaultSubmission(collections = listOf(defaultCollection("ArrayExpress")))
         val basicProject = BasicCollection("ArrayExpress", "!{E-MTAB}", "ArrayExpressValidator", testTime)
 
         every { validator.validate(submission) } answers { nothing }
@@ -77,9 +77,9 @@ class ParentInfoServiceTest(
     fun `execute collection validators over new collection`(
         @MockK validator: CollectionValidator
     ) {
-        val submission = basicExtSubmission.copy(
-            section = ExtSection(type = "Project"),
-            collections = listOf(ExtCollection("ArrayExpress"))
+        val submission = defaultSubmission(
+            section = defaultSection(type = "Project"),
+            collections = listOf(defaultCollection("ArrayExpress"))
         )
 
         testInstance.executeCollectionValidators(submission)

@@ -1,14 +1,14 @@
 package uk.ac.ebi.biostd.client.cli.services
 
+import DefaultFileList.Companion.defaultFileList
+import DefaultSection.Companion.defaultSection
+import DefaultSubmission.Companion.defaultSubmission
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
 import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient.Companion.create
-import ebi.ac.uk.extended.model.ExtFileList
 import ebi.ac.uk.extended.model.ExtFileTable
-import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.NfsFile
-import ebi.ac.uk.test.basicExtSubmission
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.clearAllMocks
@@ -93,16 +93,14 @@ class SubmissionServiceMigrationTest(
     }
 
     private fun extSubmissionWithFileList(): ExtSubmission {
-        val extSection = ExtSection(
-            type = "Study",
-            fileList = ExtFileList(
-                "test-file-list",
-                filesUrl = "/submissions/extended/S-BSST1/referencedFiles/test-file-list",
-                pageTabFiles = listOf(NfsFile("filePath", "relPath", referencedFile, emptyList()))
+        val extSection = defaultSection(
+            fileList = defaultFileList(
+                fileName = "test-file-list",
+                filesUrl = "/submissions/extended/S-BSST1/referencedFiles/test-file-list"
             )
         )
 
-        return basicExtSubmission.copy(section = extSection)
+        return defaultSubmission(section = extSection)
     }
 
     private fun setUpWebClients() {

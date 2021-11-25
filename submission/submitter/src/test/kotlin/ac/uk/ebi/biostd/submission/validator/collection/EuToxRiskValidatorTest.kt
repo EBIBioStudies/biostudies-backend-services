@@ -1,12 +1,12 @@
 package ac.uk.ebi.biostd.submission.validator.collection
 
+import DefaultAttribute.Companion.defaultAttribute
+import DefaultNfsFile.Companion.defaultNfsFile
+import DefaultSection.Companion.defaultSection
+import DefaultSubmission.Companion.defaultSubmission
 import ac.uk.ebi.biostd.common.properties.ValidatorProperties
 import ac.uk.ebi.biostd.persistence.common.exception.CollectionValidationException
 import arrow.core.Either.Companion.left
-import ebi.ac.uk.extended.model.ExtAttribute
-import ebi.ac.uk.extended.model.ExtSection
-import ebi.ac.uk.extended.model.NfsFile
-import ebi.ac.uk.test.basicExtSubmission
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.called
@@ -49,11 +49,17 @@ class EuToxRiskValidatorTest(
     @Test
     fun validate() {
         val requestSlot = slot<HttpEntity<FileSystemResource>>()
-        val submission = basicExtSubmission.copy(
-            section = ExtSection(
-                type = "Study",
+        val submission = defaultSubmission(
+            section = defaultSection(
                 files = listOf(
-                    left(NfsFile("folder/test.xlsx", "Files/folder/test.xlsx", "root/Files/folder/test.xlsx", excelFile))
+                    left(
+                        defaultNfsFile(
+                            "folder/test.xlsx",
+                            "Files/folder/test.xlsx",
+                            "root/Files/folder/test.xlsx",
+                            excelFile
+                        )
+                    )
                 )
             )
         )
@@ -71,10 +77,9 @@ class EuToxRiskValidatorTest(
 
     @Test
     fun validateWhenNotApplicable() {
-        val submission = basicExtSubmission.copy(
-            section = ExtSection(
-                type = "Study",
-                attributes = listOf(ExtAttribute(name = SKIP_VALIDATION_ATTR, value = "UPF12_MITOTOX_1"))
+        val submission = defaultSubmission(
+            section = defaultSection(
+                attributes = listOf(defaultAttribute(name = SKIP_VALIDATION_ATTR, value = "UPF12_MITOTOX_1"))
             )
         )
 
@@ -86,11 +91,17 @@ class EuToxRiskValidatorTest(
     @Test
     fun `validate with errors`() {
         val requestSlot = slot<HttpEntity<FileSystemResource>>()
-        val submission = basicExtSubmission.copy(
-            section = ExtSection(
-                type = "Study",
+        val submission = defaultSubmission(
+            section = defaultSection(
                 files = listOf(
-                    left(NfsFile("folder/test.xlsx", "Files/folder/test.xlsx", "root/Files/folder/test.xlsx", excelFile))
+                    left(
+                        defaultNfsFile(
+                            "folder/test.xlsx",
+                            "Files/folder/test.xlsx",
+                            "root/Files/folder/test.xlsx",
+                            excelFile
+                        )
+                    )
                 )
             )
         )
@@ -110,11 +121,17 @@ class EuToxRiskValidatorTest(
 
     @Test
     fun `submission without excel file`() {
-        val submission = basicExtSubmission.copy(
-            section = ExtSection(
-                type = "Study",
+        val submission = defaultSubmission(
+            section = defaultSection(
                 files = listOf(
-                    left(NfsFile("folder/test.txt", "Files/folder/test.txt", "root/Files/folder/test.txt", textFile))
+                    left(
+                        defaultNfsFile(
+                            "folder/test.txt",
+                            "Files/folder/test.txt",
+                            "root/Files/folder/test.txt",
+                            textFile
+                        )
+                    )
                 )
             )
         )

@@ -1,15 +1,17 @@
 package ac.uk.ebi.biostd.persistence.fire
 
+import DefaultAttribute.Companion.defaultAttribute
+import DefaultFireFile
+import DefaultFireFile.Companion.defaultFireFile
+import DefaultNfsFile.Companion.defaultNfsFile
+import DefaultSection.Companion.defaultSection
+import DefaultSubmission.Companion.defaultSubmission
 import ac.uk.ebi.biostd.persistence.filesystem.fire.FireFilesService
 import ac.uk.ebi.biostd.persistence.filesystem.request.FilePersistenceRequest
 import arrow.core.Either.Companion.left
-import ebi.ac.uk.extended.model.ExtAttribute
-import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireFile
-import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.io.ext.md5
-import ebi.ac.uk.test.basicExtSubmission
 import ebi.ac.uk.util.collections.ifLeft
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
@@ -33,7 +35,6 @@ class FireFilesServiceTest(
 ) {
     private val file = tempFolder.createFile("test.txt")
     private val testMd5 = file.md5()
-    private val attribute = ExtAttribute("Type", "Test")
     private val testInstance = FireFilesService(fireWebClient)
 
     @AfterEach
@@ -41,7 +42,6 @@ class FireFilesServiceTest(
 
     @BeforeEach
     fun beforeEach() {
-        every { fireWebClient.setPath("abc1", "${basicExtSubmission.relPath}/folder/test.txt") } answers { nothing }
         every {
             fireWebClient.save(file, testMd5, "S-TEST/123/S-TEST123/Files/folder/test.txt")
         } returns ClientFireFile(1, "abc1", testMd5, 1, "2021-07-08")
@@ -49,71 +49,91 @@ class FireFilesServiceTest(
 
     @Test
     fun `process submission with non existing file`() {
-        val nfsFile = NfsFile("folder/test.txt", "Files/folder/test.txt", "fullPath", file, listOf(attribute))
-        val section = ExtSection(type = "Study", files = listOf(left(nfsFile)))
-        val submission = basicExtSubmission.copy(section = section)
+        val nfsFile = defaultNfsFile(
+            filePath = "folder/test.txt", relPath = "Files/folder/test.txt", file = file,
+            attributes = listOf(defaultAttribute())
+        )
+        val section = defaultSection(files = listOf(left(nfsFile)))
+        val submission = defaultSubmission(section = section)
 
         val processed = testInstance.persistSubmissionFiles(FilePersistenceRequest(submission))
 
-        assertFireFile(processed, "test.txt", "folder/test.txt")
+        assertFireFile(processed, "Files/folder/test.txt", "abc1")
         verify(exactly = 1) { fireWebClient.save(file, testMd5, "S-TEST/123/S-TEST123/Files/folder/test.txt") }
     }
 
     @Test
     fun `process submission with existing file`() {
-        val nfsFile = NfsFile("folder/test.txt", "Files/folder/test.txt", "fullPath", file, listOf(attribute))
-        val previousFile = FireFile("folder/test.txt", "Files/folder/test.txt", "abc1", testMd5, 1, listOf(attribute))
+        val nfsFile = defaultNfsFile(
+            filePath = "folder/test.txt",
+            relPath = "Files/folder/test.txt",
+            file = file,
+            attributes = listOf(defaultAttribute())
+        )
+        val previousFile = defaultFireFile(md5 = testMd5, attributes = emptyList())
         val previousFiles = mapOf(Pair(testMd5, previousFile))
-        val section = ExtSection(type = "Study", files = listOf(left(nfsFile)))
-        val submission = basicExtSubmission.copy(section = section)
+        val section = defaultSection(files = listOf(left(nfsFile)))
+        val submission = defaultSubmission(section = section)
         val request = FilePersistenceRequest(submission, previousFiles = previousFiles)
 
         val processed = testInstance.persistSubmissionFiles(request)
 
-        assertFireFile(processed, "test.txt", "folder/test.txt")
+        assertFireFile(processed, relPath = nfsFile.relPath, fireId = DefaultFireFile.FIRE_ID)
         verify(exactly = 0) { fireWebClient.save(file, testMd5, "S-TEST/123/S-TEST123/Files/folder/test.txt") }
     }
 
     @Test
     fun `process submission replacing files`() {
-        val nfsFile = NfsFile("folder/test.txt", "Files/folder/test.txt", "fullPath", file, listOf(attribute))
-        val previousFile =
-            FireFile("folder/test.txt", "Files/folder/test.txt", "abc1", "a-different-md5", 1, listOf(attribute))
+        val nfsFile = defaultNfsFile(
+            filePath = "folder/test.txt",
+            relPath = "Files/folder/test.txt",
+            file = file,
+            attributes = listOf(defaultAttribute())
+        )
+        val previousFile = defaultFireFile(md5 = "a-different-md5", attributes = emptyList())
         val previousFiles = mapOf(Pair("a-different-md5", previousFile))
-        val section = ExtSection(type = "Study", files = listOf(left(nfsFile)))
-        val submission = basicExtSubmission.copy(section = section)
+        val section = defaultSection(files = listOf(left(nfsFile)))
+        val submission = defaultSubmission(section = section)
         val request = FilePersistenceRequest(submission, previousFiles = previousFiles)
 
         val processed = testInstance.persistSubmissionFiles(request)
 
-        assertFireFile(processed, "test.txt", "folder/test.txt")
+        assertFireFile(processed, relPath = nfsFile.relPath, fireId = "abc1")
         verify(exactly = 1) { fireWebClient.save(file, testMd5, "S-TEST/123/S-TEST123/Files/folder/test.txt") }
     }
 
     @Test
     fun `process submission with path changed`() {
-        val nfsFile = NfsFile("new-folder/test.txt", "Files/folder/test.txt", "fullPath", file, listOf(attribute))
-        val previousFile =
-            FireFile("old-folder/test.txt", "Files/folder/test.txt", "abc1", testMd5, 1, listOf(attribute))
+        val nfsFile = defaultNfsFile(
+            filePath = "new-folder/test.txt",
+            relPath = "Files/new-folder/test.txt",
+            file = file,
+            attributes = listOf(defaultAttribute())
+        )
+        val previousFile = defaultFireFile(md5 = testMd5, attributes = emptyList())
         val previousFiles = mapOf(Pair(testMd5, previousFile))
-        val section = ExtSection(type = "Study", files = listOf(left(nfsFile)))
-        val submission = basicExtSubmission.copy(section = section)
+        val section = defaultSection(files = listOf(left(nfsFile)))
+        val submission = defaultSubmission(section = section)
         val request = FilePersistenceRequest(submission, previousFiles = previousFiles)
 
         val processed = testInstance.persistSubmissionFiles(request)
 
-        assertFireFile(processed, "test.txt", "new-folder/test.txt")
+        assertFireFile(processed, nfsFile.relPath, previousFile.fireId)
         verify(exactly = 0) { fireWebClient.save(file, testMd5, "S-TEST/123/S-TEST123/Files/folder/test.txt") }
     }
 
     @Test
     fun `process submission when new file is FireFile`() {
-        val fireFile = FireFile("new-folder/test.txt", "Files/folder/test.txt", "abc1", testMd5, 1, listOf(attribute))
-        val previousFile =
-            FireFile("old-folder/test.txt", "Files/folder/test.txt", "abc1", testMd5, 1, listOf(attribute))
+        val fireFile = defaultFireFile(
+            filePath = "new-folder/test.txt",
+            relPath = "Files/new-folder/test.txt",
+            md5 = testMd5,
+            attributes = listOf(defaultAttribute())
+        )
+        val previousFile = defaultFireFile(md5 = testMd5, attributes = emptyList())
         val previousFiles = mapOf(Pair(testMd5, previousFile))
-        val section = ExtSection(type = "Study", files = listOf(left(fireFile)))
-        val submission = basicExtSubmission.copy(section = section)
+        val section = defaultSection(files = listOf(left(fireFile)))
+        val submission = defaultSubmission(section = section)
         val request = FilePersistenceRequest(submission, previousFiles = previousFiles)
 
         assertThat(testInstance.persistSubmissionFiles(request)).isEqualTo(submission)
@@ -127,25 +147,25 @@ class FireFilesServiceTest(
 //        val previousFile =
 //            FireDirectory("test.txt", "old-folder/test.txt", "Files/folder/test.txt", testMd5, 1, listOf(attribute))
 //        val previousFiles = mapOf(Pair(testMd5, previousFile))
-//        val section = ExtSection(type = "Study", files = listOf(left(fireDirectory)))
-//        val submission = basicExtSubmission.copy(section = section)
+//        val section = defaultSection( files = listOf(left(fireDirectory)))
+//        val submission = defaultSubmission(section = section)
 //        val request = FilePersistenceRequest(submission, previousFiles = previousFiles)
 //
 //        assertThat(testInstance.persistSubmissionFiles(request)).isEqualTo(submission)
 //        verify(exactly = 0) { fireWebClient.save(file, testMd5, "S-TEST/123/S-TEST123/Files/folder/test.txt") }
 //    }
 
-    private fun assertFireFile(processed: ExtSubmission, fileName: String, filePath: String) {
+    private fun assertFireFile(processed: ExtSubmission, relPath: String, fireId: String) {
         assertThat(processed.section.files).hasSize(1)
         processed.section.files.first().ifLeft {
             it as FireFile
-            assertThat(it.fileName).isEqualTo(fileName)
-            assertThat(it.filePath).isEqualTo(filePath)
-            assertThat(it.relPath).isEqualTo("Files/folder/test.txt")
-            assertThat(it.fireId).isEqualTo("abc1")
+            assertThat(it.fileName).isEqualTo(relPath.substringAfterLast("/"))
+            assertThat(it.filePath).isEqualTo(relPath.substringAfterLast("Files/"))
+            assertThat(it.relPath).isEqualTo(relPath)
+            assertThat(it.fireId).isEqualTo(fireId)
             assertThat(it.md5).isEqualTo(testMd5)
-            assertThat(it.size).isEqualTo(1)
-            assertThat(it.attributes).containsExactly(attribute)
+            assertThat(it.size).isEqualTo(DefaultFireFile.SIZE)
+            assertThat(it.attributes).containsExactly(defaultAttribute())
         }
     }
 }

@@ -1,15 +1,16 @@
 package ac.uk.ebi.biostd.submission.domain.service
 
+import DefaultCollection.Companion.defaultCollection
+import DefaultSubmission.Companion.defaultSubmission
+import ac.uk.ebi.biostd.persistence.common.exception.CollectionNotFoundException
 import ac.uk.ebi.biostd.persistence.common.request.SaveSubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestService
-import ac.uk.ebi.biostd.persistence.common.exception.CollectionNotFoundException
 import ac.uk.ebi.biostd.persistence.exception.ExtSubmissionMappingException
 import ac.uk.ebi.biostd.persistence.exception.UserNotFoundException
 import ac.uk.ebi.biostd.submission.web.model.ExtPageRequest
 import ebi.ac.uk.extended.events.SubmissionRequestMessage
-import ebi.ac.uk.extended.model.ExtCollection
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileList
 import ebi.ac.uk.extended.model.ExtFileTable
@@ -19,7 +20,6 @@ import ebi.ac.uk.extended.model.FileMode.COPY
 import ebi.ac.uk.extended.model.PROJECT_TYPE
 import ebi.ac.uk.security.integration.components.ISecurityQueryService
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
-import ebi.ac.uk.test.basicExtSubmission
 import ebi.ac.uk.test.createFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
@@ -52,7 +52,7 @@ class ExtSubmissionServiceTest(
     @MockK private val securityQueryService: ISecurityQueryService,
     @MockK private val extSerializationService: ExtSerializationService
 ) {
-    private val extSubmission = basicExtSubmission.copy(collections = listOf(ExtCollection("ArrayExpress")))
+    private val extSubmission = defaultSubmission(collections = listOf(defaultCollection("ArrayExpress")))
     private val testInstance =
         ExtSubmissionService(
             rabbitTemplate,
