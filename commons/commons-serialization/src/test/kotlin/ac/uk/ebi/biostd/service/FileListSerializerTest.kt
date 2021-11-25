@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.integration.SubFormat.Companion.TSV
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.XML
 import ac.uk.ebi.biostd.integration.SubFormat.TsvFormat.XlsxTsv
 import ac.uk.ebi.biostd.service.PageTabFileReader.readAsPageTab
+import ac.uk.ebi.biostd.validation.InvalidChunkSizeException
 import ebi.ac.uk.dsl.attribute
 import ebi.ac.uk.dsl.file
 import ebi.ac.uk.dsl.filesTable
@@ -32,6 +33,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
+import java.lang.ClassCastException
 import kotlin.test.assertNotNull
 
 @ExtendWith(TemporaryFolderExtension::class)
@@ -133,6 +135,40 @@ class FileListSerializerTest(private val tempFolder: TemporaryFolder) {
 
         assertThat(exception.message).isEqualTo(
             "Problem processing file list 'FileList.txt': Unsupported page tab format FileList.txt"
+        )
+    }
+
+    @Test
+    fun `deserialize file list with invalid page tab`() {
+        val fileListName = "BFileList.tsv"
+        val fileList = tempFolder.createFile(fileListName, "test file list")
+
+        every { readAsPageTab(fileList) } returns "test file list"
+        every { source.getFile(fileListName) } returns NfsBioFile(fileList)
+        every { serializer.deserializeElement<FilesTable>("test file list", TSV) } throws InvalidChunkSizeException()
+
+        val exception = assertThrows<InvalidFileListException> {
+            testInstance.deserializeFileList(fileListName, source)
+        }
+        assertThat(exception.message).isEqualTo(
+            "Problem processing file list 'BFileList.tsv': The provided page tab doesn't match the file list format"
+        )
+    }
+
+    @Test
+    fun `deserialize file list with a valid page tab but NOT file list element`() {
+        val fileListName = "CFileList.tsv"
+        val fileList = tempFolder.createFile(fileListName, "test file list")
+
+        every { readAsPageTab(fileList) } returns "test file list"
+        every { source.getFile(fileListName) } returns NfsBioFile(fileList)
+        every { serializer.deserializeElement<FilesTable>("test file list", TSV) } throws ClassCastException()
+
+        val exception = assertThrows<InvalidFileListException> {
+            testInstance.deserializeFileList(fileListName, source)
+        }
+        assertThat(exception.message).isEqualTo(
+            "Problem processing file list 'CFileList.tsv': The provided page tab doesn't match the file list format"
         )
     }
 

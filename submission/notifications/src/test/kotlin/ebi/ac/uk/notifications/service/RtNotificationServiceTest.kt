@@ -35,14 +35,14 @@ class RtNotificationServiceTest(
     fun afterEach() = clearAllMocks()
 
     @Test
-    fun `successful submission`() {
-        val submission = testSubmission(version = 1)
+    fun `successful submission with title`() {
+        val submission = testSubmission(title = "Sub Title", version = 1)
         val ticket = DbSubmissionRT("S-TEST1", "78910")
-        every { templateLoader.loadTemplate("successful-submission.txt") } returns "submit"
+        every { templateLoader.loadTemplate("successful-submission.txt") } returns "\${TITLE}"
         every { notificationsDataService.findTicketId("S-TEST1") } returns null
         every { notificationsDataService.saveRtNotification("S-TEST1", "78910") } returns ticket
         every {
-            rtClient.createTicket("S-TEST1", "BioStudies Submission - S-TEST1", "owner@mail.org", "submit")
+            rtClient.createTicket("S-TEST1", "BioStudies Submission - S-TEST1", "owner@mail.org", "\"Sub Title\"")
         } returns "78910"
 
         testInstance.notifySuccessfulSubmission(submission, "Dr. Owner", "ui-url")
@@ -50,7 +50,47 @@ class RtNotificationServiceTest(
         verify(exactly = 1) { notificationsDataService.findTicketId("S-TEST1") }
         verify(exactly = 1) { notificationsDataService.saveRtNotification("S-TEST1", "78910") }
         verify(exactly = 1) {
-            rtClient.createTicket("S-TEST1", "BioStudies Submission - S-TEST1", "owner@mail.org", "submit")
+            rtClient.createTicket("S-TEST1", "BioStudies Submission - S-TEST1", "owner@mail.org", "\"Sub Title\"")
+        }
+    }
+
+    @Test
+    fun `successful submission without title but with section title`() {
+        val submission = testSubmission(version = 1, secTitle = "Section Title")
+        val ticket = DbSubmissionRT("S-TEST1", "78910")
+        every { templateLoader.loadTemplate("successful-submission.txt") } returns "\${TITLE}"
+        every { notificationsDataService.findTicketId("S-TEST1") } returns null
+        every { notificationsDataService.saveRtNotification("S-TEST1", "78910") } returns ticket
+        every {
+            rtClient.createTicket("S-TEST1", "BioStudies Submission - S-TEST1", "owner@mail.org", "\"Section Title\"")
+        } returns "78910"
+
+        testInstance.notifySuccessfulSubmission(submission, "Dr. Owner", "ui-url")
+
+        verify(exactly = 1) { notificationsDataService.findTicketId("S-TEST1") }
+        verify(exactly = 1) { notificationsDataService.saveRtNotification("S-TEST1", "78910") }
+        verify(exactly = 1) {
+            rtClient.createTicket("S-TEST1", "BioStudies Submission - S-TEST1", "owner@mail.org", "\"Section Title\"")
+        }
+    }
+
+    @Test
+    fun `successful submission without title neither section title`() {
+        val submission = testSubmission(title = null, version = 1, secTitle = null)
+        val ticket = DbSubmissionRT("S-TEST1", "78910")
+        every { templateLoader.loadTemplate("successful-submission.txt") } returns "\${TITLE}"
+        every { notificationsDataService.findTicketId("S-TEST1") } returns null
+        every { notificationsDataService.saveRtNotification("S-TEST1", "78910") } returns ticket
+        every {
+            rtClient.createTicket("S-TEST1", "BioStudies Submission - S-TEST1", "owner@mail.org", "")
+        } returns "78910"
+
+        testInstance.notifySuccessfulSubmission(submission, "Dr. Owner", "ui-url")
+
+        verify(exactly = 1) { notificationsDataService.findTicketId("S-TEST1") }
+        verify(exactly = 1) { notificationsDataService.saveRtNotification("S-TEST1", "78910") }
+        verify(exactly = 1) {
+            rtClient.createTicket("S-TEST1", "BioStudies Submission - S-TEST1", "owner@mail.org", "")
         }
     }
 
@@ -70,13 +110,13 @@ class RtNotificationServiceTest(
 
     @Test
     fun `submission release non existing ticket`() {
-        val submission = testSubmission(version = 1)
+        val submission = testSubmission(title = "Sub Title", version = 1)
         val ticket = DbSubmissionRT("S-TEST1", "78910")
-        every { templateLoader.loadTemplate(SUBMISSION_RELEASE_TEMPLATE) } returns "release"
+        every { templateLoader.loadTemplate(SUBMISSION_RELEASE_TEMPLATE) } returns "\${TITLE}"
         every { notificationsDataService.findTicketId("S-TEST1") } returns null
         every { notificationsDataService.saveRtNotification("S-TEST1", "78910") } returns ticket
         every {
-            rtClient.createTicket("S-TEST1", "BioStudies Submission - S-TEST1", "owner@mail.org", "release")
+            rtClient.createTicket("S-TEST1", "BioStudies Submission - S-TEST1", "owner@mail.org", " - \"Sub Title\"")
         } returns "78910"
 
         testInstance.notifySubmissionRelease(submission, "Dr. Owner", "ui-url")
@@ -84,7 +124,7 @@ class RtNotificationServiceTest(
         verify(exactly = 1) { notificationsDataService.findTicketId("S-TEST1") }
         verify(exactly = 1) { notificationsDataService.saveRtNotification("S-TEST1", "78910") }
         verify(exactly = 1) {
-            rtClient.createTicket("S-TEST1", "BioStudies Submission - S-TEST1", "owner@mail.org", "release")
+            rtClient.createTicket("S-TEST1", "BioStudies Submission - S-TEST1", "owner@mail.org", " - \"Sub Title\"")
         }
     }
 
@@ -102,7 +142,7 @@ class RtNotificationServiceTest(
         verify(exactly = 1) { notificationsDataService.findTicketId("S-TEST1") }
     }
 
-    private fun testSubmission(version: Int): ExtSubmission {
+    private fun testSubmission(title: String? = null, version: Int, secTitle: String? = null): ExtSubmission {
         val time = OffsetDateTime.of(2019, 9, 21, 10, 30, 34, 15, ZoneOffset.UTC)
         return ExtSubmission(
             accNo = "S-TEST1",
@@ -110,7 +150,7 @@ class RtNotificationServiceTest(
             schemaVersion = "1.0",
             owner = "owner@mail.org",
             submitter = "submitter@mail.org",
-            title = "Test Submission",
+            title = title,
             method = PAGE_TAB,
             relPath = "/a/rel/path",
             rootPath = "/a/root/path",
@@ -123,7 +163,10 @@ class RtNotificationServiceTest(
             attributes = listOf(ExtAttribute("AttachTo", "BioImages")),
             tags = listOf(ExtTag("component", "web")),
             collections = listOf(ExtCollection("BioImages")),
-            section = ExtSection(type = "Study"),
+            section = ExtSection(
+                type = "Study",
+                attributes = secTitle?.let { listOf(ExtAttribute(name = "Title", value = it)) } ?: listOf()
+            ),
             storageMode = StorageMode.NFS
         )
     }

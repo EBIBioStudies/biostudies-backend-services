@@ -12,7 +12,7 @@ open class NotificationTemplate<T : NotificationTemplateModel>(private var templ
     }
 
     private fun getContent(params: List<Pair<String, String>>): String =
-        params.fold(template, { content, (key, value) -> content.replace("\${$key}", value) })
+        params.fold(template) { content, (key, value) -> content.replace("\${$key}", value) }
 }
 
 /**

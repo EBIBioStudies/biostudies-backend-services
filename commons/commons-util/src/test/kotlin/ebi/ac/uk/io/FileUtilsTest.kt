@@ -1,5 +1,6 @@
 package ebi.ac.uk.io
 
+import ebi.ac.uk.io.FileUtilsHelper.createFolderIfNotExist
 import ebi.ac.uk.io.ext.createDirectory
 import ebi.ac.uk.io.ext.createNewFile
 import ebi.ac.uk.test.clean
@@ -11,6 +12,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import java.nio.file.Files
 import java.nio.file.Files.getPosixFilePermissions
 
 @ExtendWith(TemporaryFolderExtension::class)
@@ -262,6 +264,32 @@ internal class FileUtilsTest(private val temporaryFolder: TemporaryFolder) {
 
             assertThat(FileUtils.listFiles(file1)).isEmpty()
             assertThat(FileUtils.listFiles(folder)).containsExactlyInAnyOrder(innerFolder, file1, file2)
+        }
+    }
+
+    @Nested
+    inner class FileUtilsHelperTest {
+        @Test
+        fun `create folder if not exists when not exists`() {
+            val folder = temporaryFolder.root.resolve("folder1")
+            assertThat(folder).doesNotExist()
+
+            createFolderIfNotExist(folder.toPath(), RW_______)
+
+            assertThat(folder).exists()
+            assertThat(getPosixFilePermissions(folder.toPath())).isEqualTo(RW_______)
+        }
+
+        @Test
+        fun `create folder if not exists when exists`() {
+            val folder = temporaryFolder.createDirectory("folder2")
+            Files.setPosixFilePermissions(folder.toPath(), RW_______)
+            assertThat(folder).exists()
+
+            createFolderIfNotExist(folder.toPath(), RWXRWX___)
+
+            assertThat(folder).exists()
+            assertThat(getPosixFilePermissions(folder.toPath())).isEqualTo(RWXRWX___)
         }
     }
 }

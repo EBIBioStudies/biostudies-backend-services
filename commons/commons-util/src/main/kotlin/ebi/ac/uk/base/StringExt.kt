@@ -53,3 +53,8 @@ fun String.removeFirstOccurrence(regex: Regex) = replaceFirst(regex, "")
  * provided.
  */
 fun String.scape(toScape: String, scapeLiteral: String = "\\"): String = replace(toScape, "$scapeLiteral$toScape")
+
+/**
+ * Replaces multiple whitespaces with a single space.
+ */
+fun String.trim(): String = replace("\\s+".toRegex(), " ")
