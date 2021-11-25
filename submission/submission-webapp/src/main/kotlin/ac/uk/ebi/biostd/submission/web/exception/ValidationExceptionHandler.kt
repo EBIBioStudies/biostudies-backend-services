@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.submission.web.exception
 
 import ac.uk.ebi.biostd.exception.EmptyPageTabFileException
+import ac.uk.ebi.biostd.exception.InvalidFileListException
 import ac.uk.ebi.biostd.submission.exceptions.InvalidSubmissionException
 import ebi.ac.uk.errors.ValidationNode
 import ebi.ac.uk.errors.ValidationNodeStatus.ERROR
@@ -34,6 +35,14 @@ class ValidationExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(EmptyPageTabFileException::class)
     fun handleRuntime(exception: EmptyPageTabFileException): ValidationTree {
+        exception.printStackTrace()
+        return ValidationTree(FAIL, ValidationNode(ERROR, exception.message ?: exception.javaClass.name))
+    }
+
+    @ResponseBody
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(InvalidFileListException::class)
+    fun handleRuntime(exception: InvalidFileListException): ValidationTree {
         exception.printStackTrace()
         return ValidationTree(FAIL, ValidationNode(ERROR, exception.message ?: exception.javaClass.name))
     }

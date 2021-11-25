@@ -4,7 +4,7 @@ import ac.uk.ebi.biostd.tsv.deserialization.model.TsvChunk
 import com.google.common.collect.Multimap
 import ebi.ac.uk.model.Submission
 
-const val CHUNK_SIZE_ERROR_MSG = "Exactly one element must be provided"
+const val CHUNK_SIZE_ERROR_MSG = "Several page tab elements detected. Exactly one element must be provided"
 
 class InvalidElementException(message: String) : RuntimeException("$message. Element was not created.")
 
