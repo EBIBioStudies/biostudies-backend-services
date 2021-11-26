@@ -6,7 +6,6 @@ import ac.uk.ebi.biostd.integration.SubFormat.JsonFormat.JsonPretty
 import ac.uk.ebi.biostd.integration.SubFormat.TsvFormat.Tsv
 import ac.uk.ebi.biostd.integration.SubFormat.XmlFormat
 import ac.uk.ebi.biostd.persistence.common.model.BasicSubmission
-import ac.uk.ebi.biostd.persistence.common.request.SaveSubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotDelete
@@ -37,13 +36,7 @@ class SubmissionService(
     private val rabbitTemplate: RabbitTemplate
 ) {
     fun submit(request: SubmissionRequest): ExtSubmission {
-        val accNo = request.accNo
-        logger.info { "$accNo ${request.owner} Received submit request for submission $accNo" }
-
-        val extSubmission = submissionSubmitter.submit(request)
-        eventsPublisherService.submissionSubmitted(extSubmission)
-
-        return extSubmission
+        return submissionSubmitter.submit(request)
     }
 
     fun submitAsync(request: SubmissionRequest) {
@@ -64,10 +57,7 @@ class SubmissionService(
         logger.info { "$accNo $submitter Received process message for submission $accNo, version: $version" }
 
         runCatching {
-            val submission = getRequest(accNo, version)
-            val saveRequest = SaveSubmissionRequest(submission, fileMode, draftKey)
-            val processed = submissionSubmitter.processRequest(saveRequest)
-
+            val processed = submissionSubmitter.processRequest(accNo, version, fileMode, draftKey)
             eventsPublisherService.submissionSubmitted(processed)
         }.onFailure {
             val message = FailedSubmissionRequestMessage(accNo, version, fileMode, draftKey, it.message)

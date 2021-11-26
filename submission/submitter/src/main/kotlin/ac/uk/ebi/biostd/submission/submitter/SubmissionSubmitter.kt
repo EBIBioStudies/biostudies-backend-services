@@ -4,6 +4,7 @@ import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.json.exception.NoAttributeValueException
 import ac.uk.ebi.biostd.persistence.common.request.SaveSubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestService
 import ac.uk.ebi.biostd.submission.exceptions.InvalidSubmissionException
 import ac.uk.ebi.biostd.submission.model.SubmissionRequest
@@ -24,6 +25,7 @@ import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod
 import ebi.ac.uk.extended.model.ExtTag
+import ebi.ac.uk.extended.model.FileMode
 import ebi.ac.uk.extended.model.StorageMode.FIRE
 import ebi.ac.uk.extended.model.StorageMode.NFS
 import ebi.ac.uk.io.sources.FilesSource
@@ -41,7 +43,7 @@ import ebi.ac.uk.model.extensions.title
 import ebi.ac.uk.util.date.isBeforeOrEqual
 import mu.KotlinLogging
 import java.time.OffsetDateTime
-import java.util.UUID
+import java.util.*
 
 private val logger = KotlinLogging.logger {}
 private const val DEFAULT_VERSION = 1
@@ -55,30 +57,16 @@ class SubmissionSubmitter(
     private val collectionInfoService: CollectionInfoService,
     private val submissionRequestService: SubmissionRequestService,
     private val queryService: SubmissionMetaQueryService,
+    private val submissionQueryService: SubmissionQueryService,
     private val properties: ApplicationProperties
 ) {
     fun submit(request: SubmissionRequest): ExtSubmission {
-        logger.info { "${request.accNo} ${request.submitter.email} Processing request $request" }
-
-        val submission = process(
-            request.submission,
-            request.submitter.asUser(),
-            request.onBehalfUser?.asUser(),
-            request.sources,
-            request.method
-        )
-
-        logger.info { "${submission.accNo} ${submission.submitter} Saving submission ${submission.accNo}" }
-        val saveRequest = SaveSubmissionRequest(submission, request.mode, request.draftKey)
-
-        return submissionRequestService.saveAndProcessSubmissionRequest(saveRequest)
+        val saved = submitAsync(request)
+        return processRequest(saved.submission.accNo, saved.submission.version, saved.fileMode, saved.draftKey)
     }
 
-    fun processRequest(request: SaveSubmissionRequest): ExtSubmission {
-        val accNo = request.submission.accNo
-        logger.info { "$accNo ${request.submission.submitter} Processing request for submission $accNo" }
-
-        return submissionRequestService.processSubmission(request)
+    fun submit(submission: SaveSubmissionRequest): ExtSubmission {
+        return processRequest(submission.submission.accNo, submission.submission.version, submission.fileMode, submission.draftKey)
     }
 
     fun submitAsync(request: SubmissionRequest): SaveSubmissionRequest {
@@ -95,8 +83,19 @@ class SubmissionSubmitter(
         logger.info { "${submission.accNo} ${submission.submitter} Saving submission request ${submission.accNo}" }
         val saveRequest = SaveSubmissionRequest(submission, request.mode, request.draftKey)
         val persistedRequest = submissionRequestService.saveSubmissionRequest(saveRequest)
-
         return SaveSubmissionRequest(persistedRequest, request.mode, request.draftKey)
+    }
+
+    fun submitAsync(request: SaveSubmissionRequest): ExtSubmission {
+        return submissionRequestService.saveSubmissionRequest(request)
+    }
+
+    fun processRequest(accNo: String, version: Int, fileMode: FileMode, draftKey: String?): ExtSubmission {
+        val submission = submissionQueryService.getRequest(accNo, version)
+        val saveRequest = SaveSubmissionRequest(submission, fileMode, draftKey)
+        val accNo1 = saveRequest.submission.accNo
+        logger.info { "$accNo1 ${saveRequest.submission.submitter} Processing request for submission $accNo1" }
+        return submissionRequestService.processSubmission(saveRequest)
     }
 
     @Suppress("TooGenericExceptionCaught")

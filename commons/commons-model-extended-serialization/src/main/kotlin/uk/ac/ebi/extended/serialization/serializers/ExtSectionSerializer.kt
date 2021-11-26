@@ -18,15 +18,20 @@ import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.PAGE_TA
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.SECTIONS
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.TYPE
 import uk.ac.ebi.extended.serialization.constants.ExtType
+import uk.ac.ebi.extended.serialization.service.SerializationProperties
 
 const val FILE_LIST_URL = "submissions/extended"
 
 class ExtSectionSerializer : JsonSerializer<ExtSection>() {
     override fun serialize(section: ExtSection, gen: JsonGenerator, serializers: SerializerProvider) {
+        serialize(section, gen, gen.outputTarget as SerializationProperties)
+    }
+
+    private fun serialize(section: ExtSection, gen: JsonGenerator, prop: SerializationProperties) {
         gen.writeStartObject()
         gen.writeStringField(ACC_NO, section.accNo)
         gen.writeStringField(TYPE, section.type)
-        section.fileList?.let { writeFileList(it, gen) } ?: gen.writeNullField(FILE_LIST)
+        section.fileList?.let { writeFileList(it, gen, prop.includeFileListFiles) } ?: gen.writeNullField(FILE_LIST)
         gen.writeObjectField(ATTRIBUTES, section.attributes)
         writeEitherList(SECTIONS, section.sections, gen)
         writeEitherList(FILES, section.files, gen)
@@ -35,10 +40,17 @@ class ExtSectionSerializer : JsonSerializer<ExtSection>() {
         gen.writeEndObject()
     }
 
-    private fun writeFileList(fileList: ExtFileList, gen: JsonGenerator) {
+    private fun writeFileList(fileList: ExtFileList, gen: JsonGenerator, includeFileListFiles: Boolean) {
         gen.writeObjectFieldStart(FILE_LIST)
         gen.writeStringField(FILE_NAME, fileList.fileName)
         gen.writeStringField(FILES_URL, "/$FILE_LIST_URL/$parentAccNo/referencedFiles/${fileList.fileName}")
+
+        if (includeFileListFiles) {
+            gen.writeArrayFieldStart(FILES)
+            fileList.files.forEach { gen.writeObject(it) }
+            gen.writeEndArray()
+        }
+
         gen.writeObjectField(PAGE_TAB_FILES, fileList.pageTabFiles)
         gen.writeEndObject()
     }

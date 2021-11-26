@@ -7,6 +7,7 @@ import ac.uk.ebi.biostd.integration.SerializationConfig
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.persistence.common.service.PersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestService
 import ac.uk.ebi.biostd.submission.service.AccNoService
 import ac.uk.ebi.biostd.submission.service.CollectionInfoService
@@ -40,7 +41,8 @@ class SubmitterConfig {
         parentInfoService: ParentInfoService,
         collectionInfoService: CollectionInfoService,
         requestService: SubmissionRequestService,
-        submissionQueryService: SubmissionMetaQueryService,
+        submissionMetadataQueryService: SubmissionMetaQueryService,
+        submissionQueryService: SubmissionQueryService,
         applicationProperties: ApplicationProperties
     ) = SubmissionSubmitter(
         timesService,
@@ -48,6 +50,7 @@ class SubmitterConfig {
         parentInfoService,
         collectionInfoService,
         requestService,
+        submissionMetadataQueryService,
         submissionQueryService,
         applicationProperties
     )
