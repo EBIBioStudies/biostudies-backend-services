@@ -92,6 +92,4 @@ class SubmissionService(
     }
 
     fun getSubmission(accNo: String): ExtSubmission = submissionQueryService.getExtByAccNo(accNo)
-
-    private fun getRequest(accNo: String, version: Int) = submissionQueryService.getRequest(accNo, version)
 }
