@@ -21,6 +21,8 @@ interface ISecurityService {
 
     fun activateByEmail(request: ActivateByEmailRequest)
 
+    fun activateAndSetupPassword(request: ChangePasswordRequest): User
+
     fun retryRegistration(request: RetryActivationRequest)
 
     fun changePassword(request: ChangePasswordRequest): User

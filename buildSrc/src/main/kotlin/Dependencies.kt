@@ -11,6 +11,7 @@ import TestVersions.WiremockVersion
 import TestVersions.XmlUnitVersion
 import Versions.CliKtVersion
 import Versions.CommonsCsvVersion
+import Versions.CommonsFileUploadVersion
 import Versions.CommonsIOVersion
 import Versions.CommonsLang3Version
 import Versions.GuavaVersion
@@ -71,6 +72,7 @@ object Versions {
     const val JpaEntityGraphVersion = "2.2.3"
     const val MongockVersion = "4.3.8"
 
+    const val CommonsFileUploadVersion = "1.4"
     const val CommonsLang3Version = "3.8.1"
     const val CommonsIOVersion = "2.6"
     const val CommonsCsvVersion = "1.8"
@@ -181,6 +183,7 @@ object Dependencies {
     const val ArrowData = "io.arrow-kt:arrow-data:$KotlinArrowVersion"
 
     // Apache
+    const val CommonsFileUpload = "commons-fileupload:commons-fileupload:$CommonsFileUploadVersion"
     const val CommonsLang3 = "org.apache.commons:commons-lang3:$CommonsLang3Version"
     const val CommonsIO = "commons-io:commons-io:$CommonsIOVersion"
     const val Poi = "org.apache.poi:poi:$PoiVersion"
@@ -207,14 +210,31 @@ object SpringBootDependencies {
 }
 
 object Projects {
+    const val JsonLibrary = ":commons:commons-json-util"
+    const val TsvLibrary = ":commons:commons-tsv-util"
+    const val ExcelLibrary = ":commons:commons-excel-util"
+    const val BioWebClient = ":client:bio-webclient"
     const val CommonsUtil = ":commons:commons-util"
     const val CommonsBio = ":commons:commons-bio"
+    const val CommonsHttp = ":commons:commons-http"
     const val CommonsSerialization = ":commons:commons-serialization"
     const val CommonsModelExtended = ":commons:commons-model-extended"
     const val CommonsModelExtendedMapping = ":commons:commons-model-extended-mapping"
     const val CommonsModelExtendedSerialization = ":commons:commons-model-extended-serialization"
+    const val CommonsSerializationUtil = ":commons:commons-serialization-util"
     const val CommonsTest = ":commons:commons-test"
+    const val FireWebClient = ":client:fire-webclient"
     const val SubmissionConfig = ":submission:submission-config"
     const val SubmissionPersistenceCommonApi = ":submission:persistence-common-api"
     const val SubmissionPersistenceFilesystem = ":submission:persistence-filesystem"
+    const val SubmissionPersistenceSql = ":submission:persistence-sql"
+    const val SubmissionPersistenceMongo = ":submission:persistence-mongo"
+    const val SubmissionNotification = ":submission:notifications"
+    const val SubmissionSecurity = ":submission:submission-security"
+    const val SubmissionSubmitter = ":submission:submitter"
+    const val ClientBioWebClient = ":client:bio-webclient"
+    const val ClientFireWebClient = ":client:fire-webclient"
+    const val SchedulerTaskProperties = ":scheduler:task-properties"
+    const val SchedulerClusterClient = ":scheduler:cluster-client"
+    const val EventsPublisher = ":events:events-publisher"
 }

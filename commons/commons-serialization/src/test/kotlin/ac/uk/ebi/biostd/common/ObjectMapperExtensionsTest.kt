@@ -26,7 +26,7 @@ class ObjectMapperExtensionsTest(
         every { testInstance.convertValue<Any>(jsonNode, javaType) } throws IllegalStateException()
 
         val result = testInstance.tryConvertValue(jsonNode, javaType)
-        assertThat(result.isEmpty()).isTrue()
+        assertThat(result).isNull()
     }
 
     @Test
@@ -34,6 +34,6 @@ class ObjectMapperExtensionsTest(
         every { testInstance.convertValue<Any>(jsonNode, javaType) } returns "a value"
 
         val result = testInstance.tryConvertValue(jsonNode, javaType)
-        assertThat(result.exists { it == "a value" }).isTrue()
+        assertThat(result).isEqualTo("a value")
     }
 }

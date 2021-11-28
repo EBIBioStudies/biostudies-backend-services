@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.persistence.doc.model
 
 import ac.uk.ebi.biostd.persistence.common.model.BasicSubmission
+import com.google.common.collect.ImmutableList
 import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSubmission
@@ -8,7 +9,7 @@ import ebi.ac.uk.extended.model.ExtSubmissionMethod
 import ebi.ac.uk.model.SubmissionMethod
 import ebi.ac.uk.model.constants.ProcessingStatus
 import ebi.ac.uk.model.constants.SectionFields
-import java.time.ZoneOffset
+import java.time.ZoneOffset.UTC
 
 fun DocSubmission.asBasicSubmission(): BasicSubmission {
     return BasicSubmission(
@@ -18,14 +19,29 @@ fun DocSubmission.asBasicSubmission(): BasicSubmission {
         title = title ?: section.title,
         relPath = relPath,
         released = released,
-        creationTime = creationTime.atOffset(ZoneOffset.UTC),
-        modificationTime = modificationTime.atOffset(ZoneOffset.UTC),
-        releaseTime = releaseTime?.atOffset(ZoneOffset.UTC),
+        creationTime = creationTime.atOffset(UTC),
+        modificationTime = modificationTime.atOffset(UTC),
+        releaseTime = releaseTime?.atOffset(UTC),
         status = status.toProcessingStatus(),
         method = method.toSubmissionMethod(),
         owner = owner
     )
 }
+
+val DocSubmission.allDocSections: List<DocSection>
+    get() = ImmutableList.builder<DocSection>()
+        .add(section)
+        .addAll(section.allSections)
+        .build()
+        .filterNotNull()
+
+val DocSection.allSections: List<DocSection>
+    get() = sections.flatMap { either ->
+        either.fold(
+            { section -> listOf(section) + section.allSections },
+            { emptyList() }
+        )
+    }
 
 private fun DocProcessingStatus.toProcessingStatus(): ProcessingStatus =
     when (this) {

@@ -10,7 +10,6 @@ import ebi.ac.uk.api.security.RegisterRequest
 import ebi.ac.uk.api.security.ResetPasswordRequest
 import ebi.ac.uk.api.security.RetryActivationRequest
 import ebi.ac.uk.extended.events.SecurityNotification
-import ebi.ac.uk.extended.events.SecurityNotificationType
 import ebi.ac.uk.extended.events.SecurityNotificationType.ACTIVATION
 import ebi.ac.uk.extended.events.SecurityNotificationType.ACTIVATION_BY_EMAIL
 import ebi.ac.uk.extended.events.SecurityNotificationType.PASSWORD_RESET
@@ -19,20 +18,27 @@ import ebi.ac.uk.io.RWXRWX___
 import ebi.ac.uk.io.RWX__X___
 import ebi.ac.uk.model.User
 import ebi.ac.uk.security.integration.components.ISecurityService
+import ebi.ac.uk.security.integration.exception.ActKeyNotFoundException
 import ebi.ac.uk.security.integration.exception.LoginException
 import ebi.ac.uk.security.integration.exception.UserAlreadyRegister
 import ebi.ac.uk.security.integration.exception.UserNotFoundByEmailException
 import ebi.ac.uk.security.integration.exception.UserPendingRegistrationException
-import ebi.ac.uk.security.integration.exception.UserWithActivationKeyNotFoundException
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import ebi.ac.uk.security.integration.model.api.UserInfo
+import ebi.ac.uk.security.persistence.getActiveByEmail
+import ebi.ac.uk.security.persistence.getActiveByLoginOrEmail
+import ebi.ac.uk.security.persistence.getByActivationKey
+import ebi.ac.uk.security.persistence.getInactiveByActivationKey
+import ebi.ac.uk.security.persistence.getInactiveByEmail
 import ebi.ac.uk.security.util.SecurityUtil
+import org.springframework.transaction.annotation.Transactional
 import uk.ac.ebi.events.service.EventsPublisherService
 import java.nio.file.Path
 import java.nio.file.Paths
 
 @Suppress("TooManyFunctions")
-class SecurityService(
+@Transactional
+open class SecurityService(
     private val userRepository: UserDataRepository,
     private val securityUtil: SecurityUtil,
     private val securityProps: SecurityProperties,
@@ -40,12 +46,11 @@ class SecurityService(
     private val captchaVerifier: CaptchaVerifier,
     private val eventsPublisherService: EventsPublisherService
 ) : ISecurityService {
-    override fun login(request: LoginRequest): UserInfo =
-        userRepository
-            .findByLoginOrEmailAndActive(request.login, request.login, true)
-            .filter { securityUtil.checkPassword(it.passwordDigest, request.password) }
-            .orElseThrow { LoginException() }
-            .let { profileService.getUserProfile(it, securityUtil.createToken(it)) }
+    override fun login(request: LoginRequest): UserInfo {
+        val user = userRepository.getActiveByLoginOrEmail(request.login)
+        require(securityUtil.checkPassword(user.passwordDigest, request.password)) { throw LoginException() }
+        return profileService.getUserProfile(user, securityUtil.createToken(user))
+    }
 
     override fun logout(authToken: String) {
         securityUtil.invalidateToken(authToken)
@@ -62,63 +67,63 @@ class SecurityService(
     }
 
     override fun refreshUser(email: String): SecurityUser {
-        val user = userRepository.findByEmailAndActive(email, true)
-            .map { activate(it) }
-            .orElseThrow { UserNotFoundByEmailException(email) }
-
-        FileUtils.setFolderPermissions(user.magicFolder.path.parent, RWX__X___)
-        FileUtils.setFolderPermissions(user.magicFolder.path, RWXRWX___)
-        return user
+        val user = userRepository.getActiveByEmail(email)
+        return activate(user)
     }
 
     override fun activate(activationKey: String) {
-        userRepository.findByActivationKeyAndActive(activationKey, false)
-            .map(this::activate)
-            .orElseThrow(::UserWithActivationKeyNotFoundException)
+        val user = userRepository.getInactiveByActivationKey(activationKey)
+        activate(user)
     }
 
     override fun activateByEmail(request: ActivateByEmailRequest) {
-        val email = request.email
-        userRepository
-            .findByEmailAndActive(email, false)
-            .map(this::activate)
-            .orElseThrow { UserNotFoundByEmailException(email) }
+        val (email, instanceKey, path) = request
+        val user = userRepository.getInactiveByEmail(email)
 
-        resetNotification(email, request.instanceKey, request.path, ACTIVATION_BY_EMAIL)
+        val activationKey = user.activationKey ?: throw ActKeyNotFoundException()
+        val activationUrl = securityUtil.getActivationUrl(instanceKey, path, activationKey)
+        val notification = SecurityNotification(email, user.fullName, activationKey, activationUrl, ACTIVATION_BY_EMAIL)
+        eventsPublisherService.securityNotification(notification)
     }
 
     override fun retryRegistration(request: RetryActivationRequest) {
         val user = userRepository.findByEmailAndActive(request.email, false)
-            .orElseThrow { UserPendingRegistrationException(request.email) }
+            ?: throw UserPendingRegistrationException(request.email)
         register(user, request.instanceKey, request.path)
     }
 
-    override fun changePassword(request: ChangePasswordRequest): User {
-        val user = userRepository
-            .findByActivationKeyAndActive(request.activationKey, true)
-            .orElseThrow { UserWithActivationKeyNotFoundException() }
+    override fun activateAndSetupPassword(request: ChangePasswordRequest): User {
+        val user = userRepository.getInactiveByActivationKey(request.activationKey)
+        activate(user)
+        return setPassword(user, request.password)
+    }
 
-        user.activationKey = null
-        user.passwordDigest = securityUtil.getPasswordDigest(request.password)
+    override fun changePassword(request: ChangePasswordRequest): User {
+        val user = userRepository.getByActivationKey(request.activationKey)
+        activate(user)
+
+        return setPassword(user, request.password)
+    }
+
+    override fun resetPassword(request: ResetPasswordRequest) {
+        if (securityProps.checkCaptcha) captchaVerifier.verifyCaptcha(request.captcha)
+        resetNotification(request.email, request.instanceKey, request.path)
+    }
+
+    private fun setPassword(user: DbUser, password: String): User {
+        user.passwordDigest = securityUtil.getPasswordDigest(password)
 
         val updatedPassword = userRepository.save(user)
         return profileService.asSecurityUser(updatedPassword).asUser()
     }
 
-    override fun resetPassword(request: ResetPasswordRequest) {
-        if (securityProps.checkCaptcha) captchaVerifier.verifyCaptcha(request.captcha)
-        resetNotification(request.email, request.instanceKey, request.path, PASSWORD_RESET)
-    }
-
-    private fun resetNotification(email: String, instanceKey: String, path: String, type: SecurityNotificationType) {
-        val user = userRepository
-            .findByLoginOrEmailAndActive(email, email, true)
-            .orElseThrow { UserNotFoundByEmailException(email) }
+    private fun resetNotification(email: String, instanceKey: String, path: String) {
+        val user = userRepository.findByEmail(email) ?: throw UserNotFoundByEmailException(email)
         val key = securityUtil.newKey()
         userRepository.save(user.apply { activationKey = key })
 
         val resetUrl = securityUtil.getActivationUrl(instanceKey, path, key)
-        val resetNotification = SecurityNotification(user.email, user.fullName, resetUrl, type)
+        val resetNotification = SecurityNotification(user.email, user.fullName, key, resetUrl, PASSWORD_RESET)
 
         eventsPublisherService.securityNotification(resetNotification)
     }
@@ -138,7 +143,7 @@ class SecurityService(
         val key = securityUtil.newKey()
         val saved = userRepository.save(user.apply { user.activationKey = key })
         val activationUrl = securityUtil.getActivationUrl(instanceKey, activationPath, key)
-        val notification = SecurityNotification(saved.email, saved.fullName, activationUrl, ACTIVATION)
+        val notification = SecurityNotification(saved.email, saved.fullName, key, activationUrl, ACTIVATION)
         eventsPublisherService.securityNotification(notification)
         return saved
     }

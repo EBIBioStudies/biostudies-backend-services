@@ -1,21 +1,21 @@
 package ac.uk.ebi.biostd.persistence.doc.model
 
 import arrow.core.Either
+import ebi.ac.uk.extended.model.StorageMode
 import org.bson.types.ObjectId
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.mapping.Document
 import java.time.Instant
 
-val docAttributeDetailClass: String = DocAttributeDetail::class.java.canonicalName
-val docFileClass: String = DocFile::class.java.canonicalName
-val docFileListClass: String = DocFileList::class.java.canonicalName
+val nfsDocFileClass: String = NfsDocFile::class.java.canonicalName
+val fireDocFileClass: String = FireDocFile::class.java.canonicalName
+val fileListDocFileDocFileClass: String = FileListDocFile::class.java.canonicalName
 val docFileTableClass: String = DocFileTable::class.java.canonicalName
 val docLinkClass: String = DocLink::class.java.canonicalName
 val docLinkTableClass: String = DocLinkTable::class.java.canonicalName
 val docSectionClass: String = DocSection::class.java.canonicalName
 val docSectionTableClass: String = DocSectionTable::class.java.canonicalName
 val docSubmissionClass: String = DocSubmission::class.java.canonicalName
-val docSubmissionMethodClass: String = DocSubmissionMethod::class.java.canonicalName
 
 @Document(collection = "submissions")
 data class DocSubmission(
@@ -23,6 +23,7 @@ data class DocSubmission(
     val id: ObjectId,
     val accNo: String,
     var version: Int,
+    var schemaVersion: String,
     val owner: String,
     val submitter: String,
     val title: String?,
@@ -39,7 +40,9 @@ data class DocSubmission(
     val attributes: List<DocAttribute> = listOf(),
     val tags: List<DocTag> = listOf(),
     val collections: List<DocCollection> = listOf(),
-    val stats: List<DocStat> = listOf()
+    val stats: List<DocStat> = listOf(),
+    val pageTabFiles: List<DocFile> = listOf(),
+    val storageMode: StorageMode
 )
 
 enum class DocSubmissionMethod(val value: String) {
@@ -77,44 +80,62 @@ data class DocCollection(val accNo: String)
 data class DocAttributeDetail(val name: String, val value: String)
 data class DocLink(val url: String, val attributes: List<DocAttribute> = listOf())
 
-// TODO fullPath should be changed to "location" since it's more generic
-// TODO fileSystem is not being persisted in the database
-data class DocFile(
-    val relPath: String,
-    val fullPath: String,
-    val attributes: List<DocAttribute> = listOf(),
-    val md5: String,
-    val fileType: String,
-    val fileSize: Long,
-    val fileSystem: FileSystem
+sealed class DocFile(
+    open val fileName: String,
+    open val filePath: String,
+    open val relPath: String,
+    open val attributes: List<DocAttribute>,
+    open val md5: String,
+    open val fileSize: Long
 )
+
+data class NfsDocFile(
+    override val fileName: String,
+    override val filePath: String,
+    override val relPath: String,
+    val fullPath: String,
+    override var attributes: List<DocAttribute>,
+    override val md5: String,
+    override val fileSize: Long,
+    val fileType: String,
+) : DocFile(fileName, filePath, relPath, attributes, md5, fileSize)
+
+data class FireDocFile(
+    override val fileName: String,
+    override val filePath: String,
+    override val relPath: String,
+    val fireId: String,
+    override val attributes: List<DocAttribute>,
+    override val md5: String,
+    override val fileSize: Long,
+) : DocFile(fileName, filePath, relPath, attributes, md5, fileSize)
+
+data class FireDocDirectory(
+    override val fileName: String,
+    override val filePath: String,
+    override val relPath: String,
+    override val attributes: List<DocAttribute>,
+    override val md5: String,
+    override val fileSize: Long
+) : DocFile(fileName, filePath, relPath, attributes, md5, fileSize)
 
 data class DocFileList(
     val fileName: String,
-    val files: List<DocFileRef>
+    val files: List<DocFileRef>,
+    val pageTabFiles: List<DocFile> = listOf()
 )
 
 data class DocFileRef(
     val fileId: ObjectId
 )
 
-// TODO fullPath should be changed to "location" since it's more generic
-// TODO fileSystem is not being persisted in the database
 @Document(collection = "file_list_files")
 data class FileListDocFile(
     @Id
     val id: ObjectId,
     val submissionId: ObjectId,
-    val fileName: String,
-    val fullPath: String,
-    val attributes: List<DocAttribute> = listOf(),
-    val md5: String,
-    val fileSystem: FileSystem
+    val file: DocFile
 )
-
-enum class FileSystem {
-    NFS, FIRE
-}
 
 data class DocSectionTable(val sections: List<DocSectionTableRow>)
 data class DocLinkTable(val links: List<DocLink>)

@@ -6,7 +6,14 @@ import ebi.ac.uk.extended.model.NfsFile
 import org.assertj.core.api.Assertions.assertThat
 import java.nio.file.Files
 
-internal val extTestRefFile get() = NfsFile("fileName", createTempFile, listOf(extAttribute))
+internal val extTestRefFile
+    get() = NfsFile(
+        "folder/fileName",
+        "Files/folder/fileName",
+        "root/Files/folder/fileName",
+        createTempFile,
+        listOf(extAttribute)
+    )
 
 private val createTempFile
     get() = Files.createTempFile("file", ".tmp").toFile().apply { writeText("example text content") }

@@ -7,3 +7,4 @@ reports/
 ~$*.xlsx
 .DS_Store
 logs/*
+/.run/

@@ -2,7 +2,6 @@ package ac.uk.ebi.biostd.submission.domain.service
 
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.persistence.common.request.SaveSubmissionRequest
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.submission.model.SubmissionRequest
 import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
@@ -31,7 +30,6 @@ class SubmissionServiceTest(
     @MockK private val submissionQueryService: SubmissionQueryService,
     @MockK private val serializationService: SerializationService,
     @MockK private val userPrivilegesService: IUserPrivilegesService,
-    @MockK private val queryService: SubmissionMetaQueryService,
     @MockK private val submissionSubmitter: SubmissionSubmitter,
     @MockK private val eventsPublisherService: EventsPublisherService,
     @MockK private val rabbitTemplate: RabbitTemplate
@@ -40,7 +38,6 @@ class SubmissionServiceTest(
         submissionQueryService,
         serializationService,
         userPrivilegesService,
-        queryService,
         submissionSubmitter,
         eventsPublisherService,
         rabbitTemplate
@@ -54,7 +51,8 @@ class SubmissionServiceTest(
         @MockK extSubmission: ExtSubmission,
         @MockK submissionRequest: SubmissionRequest
     ) {
-        every { extSubmission.submitter } returns "test@ebi.ac.uk"
+        every { submissionRequest.accNo } returns "S-BSST1"
+        every { extSubmission.owner } returns "test@ebi.ac.uk"
         every { submissionSubmitter.submit(submissionRequest) } returns extSubmission
         every { eventsPublisherService.submissionSubmitted(extSubmission) } answers { nothing }
 
@@ -73,7 +71,8 @@ class SubmissionServiceTest(
 
         every { extSubmission.version } returns 1
         every { extSubmission.accNo } returns "S-BSST1"
-        every { extSubmission.submitter } returns "test@ebi.ac.uk"
+        every { submissionRequest.accNo } returns "S-BSST1"
+        every { extSubmission.owner } returns "test@ebi.ac.uk"
         every { submissionSubmitter.submitAsync(submissionRequest) } returns saveSubmissionRequest
         every {
             rabbitTemplate.convertAndSend(
@@ -105,7 +104,7 @@ class SubmissionServiceTest(
         @MockK extSubmission: ExtSubmission
     ) {
         val saveRequestSlot = slot<SaveSubmissionRequest>()
-        val message = SubmissionRequestMessage("S-BSST1", 1, COPY, "TMP_123")
+        val message = SubmissionRequestMessage("S-BSST1", 1, COPY, "user@mail.org", "TMP_123")
 
         every { submissionQueryService.getRequest("S-BSST1", 1) } returns extSubmission
         every { eventsPublisherService.submissionSubmitted(extSubmission) } answers { nothing }
@@ -130,7 +129,7 @@ class SubmissionServiceTest(
     ) {
         val saveRequestSlot = slot<SaveSubmissionRequest>()
         val failedMessageSlot = slot<FailedSubmissionRequestMessage>()
-        val message = SubmissionRequestMessage("S-BSST1", 1, COPY, "TMP_123")
+        val message = SubmissionRequestMessage("S-BSST1", 1, COPY, "user@mail.org", "TMP_123")
 
         every { submissionQueryService.getRequest("S-BSST1", 1) } returns extSubmission
         every { eventsPublisherService.submissionFailed(capture(failedMessageSlot)) } answers { nothing }

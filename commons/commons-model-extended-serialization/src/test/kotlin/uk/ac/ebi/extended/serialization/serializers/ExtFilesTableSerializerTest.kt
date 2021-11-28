@@ -5,6 +5,7 @@ import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.extended.model.ExtAttribute
 import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.NfsFile
+import ebi.ac.uk.io.ext.size
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
@@ -22,8 +23,10 @@ class ExtFilesTableSerializerTest(private val tempFolder: TemporaryFolder) {
         val file = tempFolder.createFile("test-file.txt")
         val extFilesTable = ExtFileTable(
             NfsFile(
+                filePath = "folder/test-file.txt",
+                relPath = "Files/folder/test-file.txt",
+                fullPath = "root/Files/folder/test-file.txt",
                 file = file,
-                fileName = "test/path/test-file.txt",
                 attributes = listOf(ExtAttribute("Type", "Data", false))
             )
         )
@@ -31,7 +34,9 @@ class ExtFilesTableSerializerTest(private val tempFolder: TemporaryFolder) {
             "files" to jsonArray(
                 jsonObj {
                     "fileName" to "test-file.txt"
-                    "path" to "test/path/test-file.txt"
+                    "filePath" to "folder/test-file.txt"
+                    "relPath" to "Files/folder/test-file.txt"
+                    "fullPath" to "root/Files/folder/test-file.txt"
                     "file" to file.absolutePath
                     "attributes" to jsonArray(
                         jsonObj {
@@ -42,7 +47,7 @@ class ExtFilesTableSerializerTest(private val tempFolder: TemporaryFolder) {
                     )
                     "extType" to "nfsFile"
                     "type" to "file"
-                    "size" to 0
+                    "size" to file.size()
                 }
             )
             "extType" to "filesTable"

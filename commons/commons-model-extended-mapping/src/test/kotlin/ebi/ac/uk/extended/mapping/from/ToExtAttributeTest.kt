@@ -31,6 +31,18 @@ internal class ToExtAttributeTest {
         assertValueAttribute(extendedAttribute.valueAttrs)
     }
 
+    @Test
+    fun toExtAttributes() {
+        val extendedAttributes = listOf(attribute).toExtAttributes()
+        assertThat(extendedAttributes).hasSize(1)
+
+        val extendedAttribute = extendedAttributes.first()
+        assertThat(extendedAttribute.name).isEqualTo(attribute.name)
+        assertThat(extendedAttribute.value).isEqualTo(attribute.value)
+        assertNameAttribute(extendedAttribute.nameAttrs)
+        assertValueAttribute(extendedAttribute.valueAttrs)
+    }
+
     private fun assertNameAttribute(nameAttrs: List<ExtAttributeDetail>) {
         assertThat(nameAttrs).hasSize(1)
 

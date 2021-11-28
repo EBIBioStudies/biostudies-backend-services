@@ -12,7 +12,7 @@
 cd $(dirname $0)
 
 # Obtain the process id by checking any process running with the application name
-PID=$(pgrep -f APP_NAME)
+PID=$(pgrep -f APP_PATH/APP_NAME)
 JAVA_HOME=/nfs/biostudies/.adm/java/zulu8.38.0.13-ca-jdk8.0.212-linux_x64
 
 # Kill and wait for process to be finished

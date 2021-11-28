@@ -2,11 +2,12 @@ import Dependencies.KotlinLogging
 import Dependencies.KotlinReflect
 import Dependencies.KotlinStdLib
 import Dependencies.Log4J
+import Projects.ClientBioWebClient
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
 
 dependencies {
-    api(project(":client:bio-webclient"))
+    api(project(ClientBioWebClient))
     implementation(KotlinReflect)
     implementation(KotlinStdLib)
     implementation(Log4J)

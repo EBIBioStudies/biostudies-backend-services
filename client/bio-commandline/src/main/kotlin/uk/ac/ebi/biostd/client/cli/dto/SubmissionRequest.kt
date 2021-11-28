@@ -1,5 +1,6 @@
 package uk.ac.ebi.biostd.client.cli.dto
 
+import ebi.ac.uk.extended.model.FileMode
 import java.io.File
 
 internal data class SubmissionRequest(
@@ -8,5 +9,6 @@ internal data class SubmissionRequest(
     val password: String,
     val onBehalf: String?,
     val file: File,
-    val attached: List<File>
+    val attached: List<File>,
+    val fileMode: FileMode
 )

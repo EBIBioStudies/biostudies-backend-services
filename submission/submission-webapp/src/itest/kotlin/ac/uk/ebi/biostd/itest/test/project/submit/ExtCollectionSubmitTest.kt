@@ -11,8 +11,8 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
 import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
 import ebi.ac.uk.asserts.assertThat
-import ebi.ac.uk.dsl.line
-import ebi.ac.uk.dsl.tsv
+import ebi.ac.uk.dsl.tsv.line
+import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.extended.model.ExtCollection
 import ebi.ac.uk.extended.model.ExtProcessingStatus.PROCESSED
 import io.github.glytching.junit.extension.folder.TemporaryFolder
@@ -76,8 +76,8 @@ internal class ExtCollectionSubmitTest(tempFolder: TemporaryFolder) : BaseIntegr
             assertThat(submittedProject.collections).hasSize(1)
             assertThat(submittedProject.collections.first().accNo).isEqualTo("PrivateProject")
 
-            assertThat(tagsDataRepository.existsByName("PrivateProject")).isTrue()
-            assertThat(sequenceRepository.existsByPrefix("S-PRP")).isTrue()
+            assertThat(tagsDataRepository.existsByName("PrivateProject")).isTrue
+            assertThat(sequenceRepository.existsByPrefix("S-PRP")).isTrue
         }
 
         @Test
@@ -99,8 +99,8 @@ internal class ExtCollectionSubmitTest(tempFolder: TemporaryFolder) : BaseIntegr
             assertThat(submittedProject.title).isEqualTo("Public Project")
             assertThat(submittedProject.status).isEqualTo(PROCESSED)
             assertThat(submittedProject.collections).containsExactly(ExtCollection("PublicProject"))
-            assertThat(tagsDataRepository.existsByName("PublicProject")).isTrue()
-            assertThat(sequenceRepository.existsByPrefix("S-PUP")).isTrue()
+            assertThat(tagsDataRepository.existsByName("PublicProject")).isTrue
+            assertThat(sequenceRepository.existsByPrefix("S-PUP")).isTrue
         }
 
         @Test

@@ -1,14 +1,17 @@
 package ac.uk.ebi.biostd.persistence.test
 
 import ac.uk.ebi.biostd.persistence.model.DbAccessTag
+import ac.uk.ebi.biostd.persistence.model.DbSection
 import ac.uk.ebi.biostd.persistence.model.DbSubmission
 import ac.uk.ebi.biostd.persistence.model.DbTag
 import ac.uk.ebi.biostd.persistence.model.DbUser
+import ac.uk.ebi.biostd.persistence.model.ReferencedFileList
 import ebi.ac.uk.extended.model.ExtCollection
 import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod
 import ebi.ac.uk.extended.model.ExtTag
+import ebi.ac.uk.extended.model.StorageMode
 import ebi.ac.uk.model.constants.ProcessingStatus
 import org.assertj.core.api.Assertions.assertThat
 import java.time.OffsetDateTime
@@ -20,12 +23,33 @@ internal const val SUB_TITLE = "Study"
 internal const val SUB_RELPATH = "/submission/relpath"
 internal const val SUB_ROOT_PATH = "/rootpah"
 internal const val VERSION = 52
+internal const val SCHEMA_VERSION = "1.0"
 internal const val OWNER = "owner@email.com"
 internal const val SUBMITTER = "submitter@email.com"
 
 internal val creationTime = OffsetDateTime.of(2018, 1, 1, 5, 10, 22, 1, ZoneOffset.UTC)
 internal val modificationTime = creationTime.plusDays(1)
 internal val releaseTime = modificationTime.plusDays(1)
+
+internal val dbFileList = ReferencedFileList("file-list")
+
+internal val dbInnerFileList = ReferencedFileList("inner-file-list")
+
+internal val dbInnerSection = DbSection(null, "Exp").apply {
+    id = 456
+    fileList = dbInnerFileList
+}
+
+internal val dbSection = DbSection(null, "Study").apply {
+    id = 123
+    fileList = dbFileList
+    sections = sortedSetOf(dbInnerSection)
+}
+
+internal val dbSubmission = DbSubmission(accNo = "S-BSST1").apply {
+    rootSectionId = 123
+    rootSection = dbSection
+}
 
 internal val extSubmission
     get() = ExtSubmission(
@@ -40,13 +64,15 @@ internal val extSubmission
         released = true,
         status = ExtProcessingStatus.PROCESSED,
         version = VERSION,
+        schemaVersion = SCHEMA_VERSION,
         method = ExtSubmissionMethod.FILE,
         modificationTime = modificationTime,
         releaseTime = releaseTime,
         creationTime = creationTime,
         tags = listOf(extTag),
         collections = listOf(extCollection),
-        section = extSection
+        section = extSection,
+        storageMode = StorageMode.NFS
     )
 
 internal val extTag: ExtTag
@@ -71,7 +97,7 @@ internal fun assertSubmission(
     assertThat(submission.creationTime).isEqualTo(creationTime)
     assertThat(submission.modificationTime).isEqualTo(modificationTime)
     assertThat(submission.releaseTime).isEqualTo(releaseTime)
-    assertThat(submission.released).isTrue()
+    assertThat(submission.released).isTrue
 
     assertThat(submission.attributes).hasSize(1)
     assertDbAttribute(submission.attributes.first(), extAttribute)

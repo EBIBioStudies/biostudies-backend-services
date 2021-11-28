@@ -3,13 +3,16 @@ package ac.uk.ebi.biostd.persistence.mapping.extended.to
 import ac.uk.ebi.biostd.persistence.exception.ExtSubmissionMappingException
 import ac.uk.ebi.biostd.persistence.model.DbSubmission
 import ac.uk.ebi.biostd.persistence.model.DbSubmissionStat
+import ac.uk.ebi.biostd.persistence.model.ReferencedFileList
 import ac.uk.ebi.biostd.persistence.model.ext.validAttributes
 import ebi.ac.uk.extended.model.ExtCollection
+import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.ExtStat
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod
 import ebi.ac.uk.extended.model.ExtTag
+import ebi.ac.uk.extended.model.StorageMode
 import ebi.ac.uk.io.sources.ComposedFileSource
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.io.sources.PathFilesSource
@@ -28,6 +31,11 @@ class ToExtSubmissionMapper(private val submissionsPath: Path) {
         return toExtSubmission(dbSubmission, stats)
     }
 
+    internal fun toExtFileList(
+        dbSubmission: DbSubmission,
+        dbFileList: ReferencedFileList
+    ): List<ExtFile> = dbFileList.files.map { it.toExtFile(getSubmissionSource(dbSubmission)) }
+
     private fun toExtSubmission(dbSubmission: DbSubmission, stats: List<DbSubmissionStat>): ExtSubmission =
         runCatching {
             ExtSubmission(
@@ -36,6 +44,7 @@ class ToExtSubmissionMapper(private val submissionsPath: Path) {
                 submitter = dbSubmission.submitter.email,
                 title = dbSubmission.title,
                 version = dbSubmission.version,
+                schemaVersion = "1.0",
                 method = getMethod(dbSubmission.method),
                 status = getStatus(dbSubmission.status),
                 relPath = dbSubmission.relPath,
@@ -49,7 +58,8 @@ class ToExtSubmissionMapper(private val submissionsPath: Path) {
                 attributes = dbSubmission.validAttributes.map { it.toExtAttribute() },
                 collections = dbSubmission.accessTags.map { ExtCollection(it.name) },
                 tags = dbSubmission.tags.map { ExtTag(it.classifier, it.name) },
-                stats = stats.map { toExtMetric(it) }
+                stats = stats.map { toExtMetric(it) },
+                storageMode = StorageMode.NFS
             )
         }.onFailure {
             throw ExtSubmissionMappingException(dbSubmission.accNo, it.message ?: it.localizedMessage)

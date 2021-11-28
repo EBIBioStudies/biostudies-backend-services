@@ -26,7 +26,7 @@ internal class UserFilesClient(private val template: RestTemplate) : FilesOperat
         val requestCallback = RequestCallback { it.headers.accept = listOf(APPLICATION_OCTET_STREAM) }
         val responseExtractor = ResponseExtractor { it.saveInTempFile("biostudies-$fileName") }
         val downloadUrl = "$USER_FILES_URL${normalize(relativePath)}?fileName=$fileName"
-        return template.execute(downloadUrl, GET, requestCallback, responseExtractor)
+        return template.execute(downloadUrl, GET, requestCallback, responseExtractor)!!
     }
 
     override fun listUserFiles(relativePath: String): List<UserFile> {
@@ -36,6 +36,12 @@ internal class UserFilesClient(private val template: RestTemplate) : FilesOperat
     override fun uploadFiles(files: List<File>, relativePath: String) {
         val headers = HttpHeaders().apply { contentType = MediaType.MULTIPART_FORM_DATA }
         val body = LinkedMultiValueMap<String, Any>().apply { files.forEach { add("files", FileSystemResource(it)) } }
+        template.postForEntity("$USER_FILES_URL${normalize(relativePath)}", HttpEntity(body, headers), Void::class.java)
+    }
+
+    override fun uploadFile(file: File, relativePath: String) {
+        val headers = HttpHeaders().apply { contentType = MediaType.MULTIPART_FORM_DATA }
+        val body = LinkedMultiValueMap<String, Any>().apply { add("files", FileSystemResource(file)) }
         template.postForEntity("$USER_FILES_URL${normalize(relativePath)}", HttpEntity(body, headers), Void::class.java)
     }
 

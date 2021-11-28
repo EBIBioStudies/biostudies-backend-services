@@ -21,6 +21,7 @@ import uk.ac.ebi.serialization.extensions.forEach
 import uk.ac.ebi.serialization.extensions.map
 import uk.ac.ebi.serialization.extensions.use
 
+// TODO(review because is not used)
 internal class FileListXmlStreamDeserializer {
     fun deserialize(file: File): FileList {
         val reader = XMLInputFactory.newFactory().createXMLStreamReader(file.inputStream())

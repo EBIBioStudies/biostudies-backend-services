@@ -4,11 +4,12 @@ import Dependencies.KotlinReflect
 import Dependencies.KotlinStdLib
 import Dependencies.ServletApi
 import Dependencies.SpringWeb
+import Projects.CommonsUtil
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
 
 dependencies {
-    api(project(":commons:commons-util"))
+    api(project(CommonsUtil))
 
     implementation(JacksonKotlin)
     implementation(JacksonCore)

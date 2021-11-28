@@ -4,10 +4,10 @@ import ac.uk.ebi.biostd.tsv.deserialization.TsvDeserializer
 import ebi.ac.uk.dsl.attribute
 import ebi.ac.uk.dsl.file
 import ebi.ac.uk.dsl.filesTable
-import ebi.ac.uk.dsl.line
+import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.link
 import ebi.ac.uk.dsl.linksTable
-import ebi.ac.uk.dsl.tsv
+import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.model.File
 import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.model.Link

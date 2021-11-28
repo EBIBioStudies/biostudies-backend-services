@@ -16,8 +16,8 @@ import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ebi.ac.uk.asserts.assertThat
-import ebi.ac.uk.dsl.line
-import ebi.ac.uk.dsl.tsv
+import ebi.ac.uk.dsl.tsv.line
+import ebi.ac.uk.dsl.tsv.tsv
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThatExceptionOfType
@@ -151,8 +151,8 @@ internal class SubmitPermissionTest(tempFolder: TemporaryFolder) : BaseIntegrati
 
         private fun setAttachPermission(testUser: TestUser, project: String) {
             val accessTag = tagsDataRepository.getByName(project)
-            val user = userDataRepository.findByEmailAndActive(testUser.email, active = true)
-            val attachPermission = DbAccessPermission(accessType = ATTACH, user = user.get(), accessTag = accessTag)
+            val user = userDataRepository.getByEmailAndActive(testUser.email, active = true)
+            val attachPermission = DbAccessPermission(accessType = ATTACH, user = user, accessTag = accessTag)
             accessPermissionRepository.save(attachPermission)
         }
     }

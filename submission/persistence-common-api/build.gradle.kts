@@ -1,10 +1,12 @@
 import Dependencies.KotlinReflect
 import Dependencies.KotlinStdLib
 import Dependencies.SpringDataJpa
+import Projects.CommonsBio
+import Projects.CommonsModelExtended
 
 dependencies {
-    api(project(":commons:commons-model-extended"))
-    api(project(":commons:commons-bio"))
+    api(project(CommonsModelExtended))
+    api(project(CommonsBio))
 
     implementation(KotlinStdLib)
     implementation(KotlinReflect)

@@ -103,14 +103,14 @@ internal class SubmissionMongoMetaQueryServiceTest(
     fun `exists by AccNo when exists`() {
         submissionMongoRepository.save(testDocSubmission.copy(accNo = "accNo3", version = 1, status = PROCESSED))
 
-        assertThat(submissionMongoRepository.existsByAccNo("accNo3")).isTrue()
+        assertThat(submissionMongoRepository.existsByAccNo("accNo3")).isTrue
     }
 
     @Test
     fun `exist by AccNo when don't exists`() {
         submissionMongoRepository.save(testDocSubmission.copy(accNo = "accNo4", version = 1, status = PROCESSED))
 
-        assertThat(submissionMongoRepository.existsByAccNo("accNo5")).isFalse()
+        assertThat(submissionMongoRepository.existsByAccNo("accNo5")).isFalse
     }
 
     @Configuration

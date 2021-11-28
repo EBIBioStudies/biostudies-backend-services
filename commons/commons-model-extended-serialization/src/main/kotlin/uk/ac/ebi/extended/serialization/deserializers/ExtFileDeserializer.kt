@@ -5,13 +5,21 @@ import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.JsonDeserializer
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.node.IntNode
 import com.fasterxml.jackson.databind.node.TextNode
 import ebi.ac.uk.extended.model.ExtFile
+import ebi.ac.uk.extended.model.FireDirectory
+import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.ATTRIBUTES
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.EXT_TYPE
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE
-import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_PATH
+import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_FILEPATH
+import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_FIRE_ID
+import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_FULL_PATH
+import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_MD5
+import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_REL_PATH
+import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_SIZE
 import uk.ac.ebi.extended.serialization.constants.ExtType
 import uk.ac.ebi.extended.serialization.exception.InvalidExtTypeException
 import uk.ac.ebi.serialization.extensions.convertList
@@ -27,9 +35,31 @@ class ExtFileDeserializer : JsonDeserializer<ExtFile>() {
 
         return when (val type = ExtType.valueOf(node.getNode<TextNode>(EXT_TYPE).textValue())) {
             is ExtType.NfsFile -> nfsFile(node, mapper)
-            is ExtType.FireFile -> TODO()
+            is ExtType.FireFile -> fireFile(node, mapper)
+            is ExtType.FireDirectory -> fireDirectory(node, mapper)
             else -> throw InvalidExtTypeException(type.type)
         }
+    }
+
+    private fun fireDirectory(node: JsonNode, mapper: ObjectMapper): FireDirectory {
+        return FireDirectory(
+            filePath = node.getNode<TextNode>(FILE_FILEPATH).textValue(),
+            relPath = node.getNode<TextNode>(FILE_REL_PATH).textValue(),
+            md5 = node.getNode<TextNode>(FILE_MD5).textValue(),
+            size = node.getNode<IntNode>(FILE_SIZE).longValue(),
+            attributes = mapper.convertList(node.findNode(ATTRIBUTES))
+        )
+    }
+
+    private fun fireFile(node: JsonNode, mapper: ObjectMapper): FireFile {
+        return FireFile(
+            filePath = node.getNode<TextNode>(FILE_FILEPATH).textValue(),
+            relPath = node.getNode<TextNode>(FILE_REL_PATH).textValue(),
+            fireId = node.getNode<TextNode>(FILE_FIRE_ID).textValue(),
+            md5 = node.getNode<TextNode>(FILE_MD5).textValue(),
+            size = node.getNode<IntNode>(FILE_SIZE).longValue(),
+            attributes = mapper.convertList(node.findNode(ATTRIBUTES))
+        )
     }
 
     private fun nfsFile(node: JsonNode, mapper: ObjectMapper): NfsFile {
@@ -38,8 +68,10 @@ class ExtFileDeserializer : JsonDeserializer<ExtFile>() {
         require(file.exists()) { throw FileNotFoundException(filePath) }
 
         return NfsFile(
+            filePath = node.getNode<TextNode>(FILE_FILEPATH).textValue(),
+            relPath = node.getNode<TextNode>(FILE_REL_PATH).textValue(),
+            fullPath = node.getNode<TextNode>(FILE_FULL_PATH).textValue(),
             file = file,
-            fileName = node.getNode<TextNode>(FILE_PATH).textValue(),
             attributes = mapper.convertList(node.findNode(ATTRIBUTES))
         )
     }

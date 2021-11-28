@@ -5,6 +5,12 @@ import Dependencies.JacksonKotlin
 import Dependencies.JacksonXml
 import Dependencies.KotlinReflect
 import Dependencies.KotlinStdLib
+import Projects.CommonsBio
+import Projects.CommonsSerializationUtil
+import Projects.CommonsTest
+import Projects.CommonsUtil
+import Projects.JsonLibrary
+import Projects.TsvLibrary
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
 import TestDependencies.JsonAssert
@@ -14,10 +20,12 @@ import TestDependencies.XmlUnitAssertJ
 import TestDependencies.XmlUnitCore
 
 dependencies {
-    api(project(":commons:commons-bio"))
-    api(project(":commons:commons-serialization-util"))
-    api(project(":commons:commons-test"))
-    api(project(":commons:commons-util"))
+    api(project(CommonsBio))
+    api(project(CommonsSerializationUtil))
+    api(project(CommonsTest))
+    api(project(CommonsUtil))
+    api(project(TsvLibrary))
+    api(project(JsonLibrary))
 
     implementation(KotlinReflect)
     implementation(KotlinStdLib)

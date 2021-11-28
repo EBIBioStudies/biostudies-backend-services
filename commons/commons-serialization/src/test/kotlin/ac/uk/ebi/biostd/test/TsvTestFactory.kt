@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.test
 
-import ebi.ac.uk.dsl.line
-import ebi.ac.uk.dsl.tsv
+import ebi.ac.uk.dsl.tsv.line
+import ebi.ac.uk.dsl.tsv.tsv
 
 fun basicSubmission() = tsv {
     line("Submission", "S-EPMC123")
@@ -24,6 +24,7 @@ fun submissionWithQuoteValue() = tsv {
     line("Title", "The \"Submission\": title.")
     line("Abstract", "\"The Submission\": this is description.")
     line("Sub-Title", "\"The Submission (quoted)\": this is description.")
+    line("Double Quote Attribute", "\"one value\" OR \"the other\"")
     line()
 }
 

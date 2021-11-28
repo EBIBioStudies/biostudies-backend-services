@@ -1,25 +1,26 @@
 package ac.uk.ebi.biostd.service
 
+import ac.uk.ebi.biostd.exception.InvalidFileListException
 import ac.uk.ebi.biostd.integration.SubFormat
-import ac.uk.ebi.biostd.integration.SubFormat.Companion.JSON
-import ac.uk.ebi.biostd.integration.SubFormat.Companion.TSV
-import ac.uk.ebi.biostd.integration.SubFormat.Companion.XML
-import ac.uk.ebi.biostd.integration.SubFormat.JsonFormat
-import ac.uk.ebi.biostd.integration.SubFormat.TsvFormat
-import ac.uk.ebi.biostd.integration.SubFormat.XmlFormat
+import ac.uk.ebi.biostd.service.PageTabFileReader.readAsPageTab
+import ac.uk.ebi.biostd.validation.InvalidChunkSizeException
 import ebi.ac.uk.io.sources.FilesSource
+import ebi.ac.uk.io.sources.FireBioFile
+import ebi.ac.uk.io.sources.FireDirectoryBioFile
+import ebi.ac.uk.io.sources.NfsBioFile
 import ebi.ac.uk.model.FileList
 import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.extensions.allSections
 import ebi.ac.uk.model.extensions.fileListName
-import ebi.ac.uk.util.file.ExcelReader
 import java.io.File
+import java.lang.ClassCastException
 
 internal class FileListSerializer(
-    private val excelReader: ExcelReader,
     private val serializer: PagetabSerializer
 ) {
+    internal fun deserializeFileList(fileName: String, source: FilesSource): FileList = getFileList(fileName, source)
+
     internal fun deserializeFileList(submission: Submission, source: FilesSource): Submission {
         submission.allSections()
             .filter { section -> section.fileListName != null }
@@ -29,14 +30,28 @@ internal class FileListSerializer(
     }
 
     private fun getFileList(fileList: String, source: FilesSource): FileList {
-        val filesTable = getFilesTable(source.getFile(fileList))
+        val filesTable = getFilesTable(getFile(fileList, source))
         return FileList(fileList, filesTable.elements)
     }
 
-    private fun getFilesTable(file: File): FilesTable = when (SubFormat.fromFile(file)) {
-        XmlFormat -> serializer.deserializeElement(file.readText(), XML)
-        is JsonFormat -> serializer.deserializeElement(file.readText(), JSON)
-        TsvFormat.Tsv -> serializer.deserializeElement(file.readText(), TSV)
-        TsvFormat.XlsxTsv -> serializer.deserializeElement(excelReader.readContentAsTsv(file), TSV)
+    private fun getFile(fileList: String, source: FilesSource): File {
+        return when (val bioFile = source.getFile(fileList)) {
+            is FireBioFile -> TODO()
+            is FireDirectoryBioFile -> TODO()
+            is NfsBioFile -> bioFile.file
+        }
+    }
+
+    private fun getFilesTable(file: File): FilesTable =
+        runCatching {
+            serializer.deserializeElement<FilesTable>(readAsPageTab(file), SubFormat.fromFile(file))
+        }.getOrElse {
+            throw InvalidFileListException("Problem processing file list '${file.name}': ${errorMsg(it)}")
+        }
+
+    private fun errorMsg(exception: Throwable) = when (exception) {
+        is ClassCastException,
+        is InvalidChunkSizeException -> "The provided page tab doesn't match the file list format"
+        else -> exception.message
     }
 }

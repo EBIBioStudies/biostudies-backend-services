@@ -1,9 +1,11 @@
 package uk.ac.ebi.biostd.client.cli.commands
 
 import com.github.ajalt.clikt.core.CliktCommand
+import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import uk.ac.ebi.biostd.client.cli.common.MigrationParameters.ACC_NO
+import uk.ac.ebi.biostd.client.cli.common.MigrationParameters.ASYNC
 import uk.ac.ebi.biostd.client.cli.common.MigrationParameters.SOURCE
 import uk.ac.ebi.biostd.client.cli.common.MigrationParameters.SOURCE_PASSWORD
 import uk.ac.ebi.biostd.client.cli.common.MigrationParameters.SOURCE_USER
@@ -11,6 +13,7 @@ import uk.ac.ebi.biostd.client.cli.common.MigrationParameters.TARGET
 import uk.ac.ebi.biostd.client.cli.common.MigrationParameters.TARGET_OWNER
 import uk.ac.ebi.biostd.client.cli.common.MigrationParameters.TARGET_PASSWORD
 import uk.ac.ebi.biostd.client.cli.common.MigrationParameters.TARGET_USER
+import uk.ac.ebi.biostd.client.cli.common.MigrationParameters.TEMP_FOLDER
 import uk.ac.ebi.biostd.client.cli.dto.MigrationRequest
 import uk.ac.ebi.biostd.client.cli.services.SubmissionService
 
@@ -26,10 +29,16 @@ internal class MigrateCommand(private val submissionService: SubmissionService) 
     private val targetUser by option("-tu", "--targetUser", help = TARGET_USER).required()
     private val targetPassword by option("-tp", "--targetPassword", help = TARGET_PASSWORD).required()
     private val targetOwner by option("-to", "--targetOwner", help = TARGET_OWNER)
+    private val tempFolder by option("-tf", "--tempFolder", help = TEMP_FOLDER).required()
+    private val async by option("-as", "--async", help = ASYNC).flag(default = false)
 
     override fun run() {
         submissionService.migrate(migrationRequest())
-        echo("SUCCESS: Submission with AccNo '$accNo' was migrated from $source to $target")
+
+        when (async) {
+            true -> echo("SUCCESS: Submission with AccNo '$accNo' migration from $source to $target is in the queue")
+            else -> echo("SUCCESS: Submission with AccNo '$accNo' was migrated from $source to $target")
+        }
     }
 
     private fun migrationRequest() = MigrationRequest(
@@ -40,6 +49,8 @@ internal class MigrateCommand(private val submissionService: SubmissionService) 
         target,
         targetUser,
         targetPassword,
-        targetOwner
+        targetOwner,
+        tempFolder,
+        async
     )
 }

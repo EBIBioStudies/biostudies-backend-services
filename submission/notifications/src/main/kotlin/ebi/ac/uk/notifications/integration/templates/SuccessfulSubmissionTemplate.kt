@@ -16,13 +16,13 @@ internal class SuccessfulSubmissionModel(
     private val accNo: String,
     private val secretKey: String,
     private val released: Boolean,
-    private val title: String,
+    private val title: String?,
     private val releaseDate: String?
 ) : NotificationTemplateModel {
     override fun getParams(): List<Pair<String, String>> = listOf(
         "ACC_NO" to accNo,
         "USERNAME" to username,
-        "TITLE" to title,
+        "TITLE" to title.orEmpty(),
         "MAIL_TO" to mailto,
         "UI_URL" to uiUrl,
         "RELEASE_MESSAGE" to releaseMessage()
@@ -30,7 +30,7 @@ internal class SuccessfulSubmissionModel(
 
     // TODO add template engine
     private fun releaseMessage(): String {
-        val submissionUrl = "$uiUrl/studies/$accNo/$secretKey"
+        val submissionUrl = "$uiUrl/studies/$accNo?key=$secretKey"
         val link = "You will be able to see it only by logging in or by accessing it through this link: $submissionUrl"
         val private = "The release date of this study is not set so it's not publicly available. $link"
         val privateWithReleaseDate =

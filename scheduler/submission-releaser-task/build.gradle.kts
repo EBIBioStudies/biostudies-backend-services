@@ -1,6 +1,11 @@
 import Dependencies.KotlinLogging
 import Dependencies.KotlinStdLib
 import Dependencies.SpringWeb
+import Projects.ClientBioWebClient
+import Projects.CommonsModelExtended
+import Projects.EventsPublisher
+import Projects.SchedulerTaskProperties
+import Projects.SubmissionNotification
 import SpringBootDependencies.SpringBootAmqp
 import SpringBootDependencies.SpringBootStarter
 import SpringBootDependencies.SpringBootStarterConfigProcessor
@@ -15,11 +20,11 @@ plugins {
 }
 
 dependencies {
-    api(project(":client:bio-webclient"))
-    api(project(":commons:commons-model-extended"))
-    api(project(":events:events-publisher"))
-    api(project(":scheduler:task-properties"))
-    api(project(":submission:notifications"))
+    api(project(ClientBioWebClient))
+    api(project(CommonsModelExtended))
+    api(project(EventsPublisher))
+    api(project(SchedulerTaskProperties))
+    api(project(SubmissionNotification))
 
     implementation(KotlinLogging)
     implementation(KotlinStdLib)

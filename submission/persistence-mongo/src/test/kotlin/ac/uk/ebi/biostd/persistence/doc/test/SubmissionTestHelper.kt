@@ -6,6 +6,9 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocStat
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionMethod.PAGE_TAB
 import ac.uk.ebi.biostd.persistence.doc.model.DocTag
+import ac.uk.ebi.biostd.persistence.doc.model.FireDocDirectory
+import ac.uk.ebi.biostd.persistence.doc.model.FireDocFile
+import ac.uk.ebi.biostd.persistence.doc.model.NfsDocFile
 import ac.uk.ebi.biostd.persistence.doc.test.AttributeTestHelper.assertFullExtAttribute
 import ac.uk.ebi.biostd.persistence.doc.test.AttributeTestHelper.fullDocAttribute
 import ac.uk.ebi.biostd.persistence.doc.test.SectionTestHelper.assertExtSection
@@ -13,6 +16,12 @@ import ac.uk.ebi.biostd.persistence.doc.test.SectionTestHelper.docSection
 import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod
+import ebi.ac.uk.extended.model.FireDirectory
+import ebi.ac.uk.extended.model.FireFile
+import ebi.ac.uk.extended.model.NfsFile
+import ebi.ac.uk.extended.model.StorageMode
+import ebi.ac.uk.util.collections.second
+import ebi.ac.uk.util.collections.third
 import org.assertj.core.api.Assertions.assertThat
 import org.bson.types.ObjectId
 import java.io.File
@@ -21,6 +30,7 @@ import java.time.ZoneOffset.UTC
 
 private const val SUB_ACC_NO = "S-TEST123"
 private const val SUB_VERSION = 1
+private const val SUB_SCHEMA_VERSION = "1.0"
 private const val OWNER = "owner@mail.org"
 private const val SUBMITTER = "submitter@mail.org"
 private const val SUB_TITLE = "Test Submission"
@@ -33,6 +43,10 @@ private const val STAT_TYPE = "VIEWS"
 private const val STAT_VALUE = 123L
 internal const val REL_PATH = "S-TEST/123/S-TEST123"
 
+val fireDocFile = FireDocFile("filename", "filePath", "relPath", "fireId", listOf(), "md5", 1L)
+val fireDocDirectory = FireDocDirectory("filename", "filePath", "relPath", listOf(), "md5", 1L)
+val nfsDocFile = NfsDocFile("filename", "filePath", "relPath", "fileAbsPath", listOf(), "md5", 1L, "fileType")
+
 object SubmissionTestHelper {
     private val time = Instant.now()
 
@@ -40,6 +54,8 @@ object SubmissionTestHelper {
         id = ObjectId(),
         accNo = SUB_ACC_NO,
         version = SUB_VERSION,
+        schemaVersion = SUB_SCHEMA_VERSION,
+        storageMode = StorageMode.NFS,
         owner = OWNER,
         submitter = SUBMITTER,
         title = SUB_TITLE,
@@ -56,33 +72,64 @@ object SubmissionTestHelper {
         tags = listOf(DocTag(TAG_NAME, TAG_VALUE)),
         stats = listOf(DocStat(STAT_TYPE, STAT_VALUE)),
         collections = listOf(DocCollection(PROJECT_ACC_NO)),
-        section = docSection
+        section = docSection,
+        pageTabFiles = listOf(fireDocFile, fireDocDirectory, nfsDocFile),
     )
 
-    fun assertExtSubmission(extSubmission: ExtSubmission, testFile: File) {
+    fun assertExtSubmission(extSubmission: ExtSubmission, testFile: File, nfsFileFile: File) {
         assertBasicProperties(extSubmission)
         assertExtSection(extSubmission.section, testFile)
         assertAttributes(extSubmission)
         assertTags(extSubmission)
         assertStats(extSubmission)
         assertProject(extSubmission)
+        assertThat(extSubmission.pageTabFiles.first()).isEqualTo(
+            FireFile(
+                fireDocFile.filePath,
+                fireDocFile.relPath,
+                fireDocFile.fireId,
+                fireDocFile.md5,
+                1,
+                listOf()
+            )
+        )
+        assertThat(extSubmission.pageTabFiles.second()).isEqualTo(
+            FireDirectory(
+                fireDocDirectory.filePath,
+                fireDocDirectory.relPath,
+                fireDocDirectory.md5,
+                fireDocDirectory.fileSize,
+                listOf()
+            )
+        )
+        assertThat(extSubmission.pageTabFiles.third()).isEqualTo(
+            NfsFile(
+                "filePath",
+                "relPath",
+                nfsFileFile.absolutePath,
+                nfsFileFile,
+                listOf()
+            )
+        )
     }
 
     private fun assertBasicProperties(extSubmission: ExtSubmission) {
         assertThat(extSubmission.accNo).isEqualTo(SUB_ACC_NO)
         assertThat(extSubmission.version).isEqualTo(SUB_VERSION)
+        assertThat(extSubmission.schemaVersion).isEqualTo(SUB_SCHEMA_VERSION)
         assertThat(extSubmission.owner).isEqualTo(OWNER)
         assertThat(extSubmission.submitter).isEqualTo(SUBMITTER)
         assertThat(extSubmission.title).isEqualTo(SUB_TITLE)
         assertThat(extSubmission.method).isEqualTo(ExtSubmissionMethod.PAGE_TAB)
         assertThat(extSubmission.relPath).isEqualTo(REL_PATH)
         assertThat(extSubmission.rootPath).isEqualTo(ROOT_PATH)
+        assertThat(extSubmission.released).isFalse
         assertThat(extSubmission.secretKey).isEqualTo(SECRET_KEY)
         assertThat(extSubmission.status).isEqualTo(ExtProcessingStatus.PROCESSED)
         assertThat(extSubmission.releaseTime).isEqualTo(time.atOffset(UTC))
         assertThat(extSubmission.modificationTime).isEqualTo(time.atOffset(UTC))
         assertThat(extSubmission.creationTime).isEqualTo(time.atOffset(UTC))
-        assertThat(extSubmission.released).isFalse()
+        assertThat(extSubmission.storageMode).isEqualTo(StorageMode.NFS)
     }
 
     private fun assertAttributes(extSubmission: ExtSubmission) {
