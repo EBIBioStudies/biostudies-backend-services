@@ -48,7 +48,7 @@ stages:
 
 build-test:
   stage: build-test
-  script: gradle clean build test buildArtifacts --stacktrace -x -itest
+  script: gradle clean build test -x itest buildArtifacts --stacktrace
   artifacts:
     paths:
       - bio-admin/build/libs/bio-admin-1.0.0.jar
