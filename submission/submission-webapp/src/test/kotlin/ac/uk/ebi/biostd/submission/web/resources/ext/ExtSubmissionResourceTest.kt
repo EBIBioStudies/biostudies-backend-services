@@ -133,7 +133,7 @@ class ExtSubmissionResourceTest(
     ) {
         val filesJson = jsonObj { "files" to "ext-file-table" }.toString()
 
-        every { extSerializationService.serialize(extFileTable, any()) } returns filesJson
+        every { extSerializationService.serialize(extFileTable) } returns filesJson
         every { extSubmissionService.getReferencedFiles("S-TEST123", "file-list") } returns extFileTable
 
         mvc.get("/submissions/extended/S-TEST123/referencedFiles/file-list")
@@ -143,7 +143,7 @@ class ExtSubmissionResourceTest(
             }
 
         verify(exactly = 1) {
-            extSerializationService.serialize(extFileTable, any())
+            extSerializationService.serialize(extFileTable)
             extSubmissionService.getReferencedFiles("S-TEST123", "file-list")
         }
     }
@@ -154,7 +154,7 @@ class ExtSubmissionResourceTest(
     ) {
         val filesJson = jsonObj { "files" to "ext-file-table" }.toString()
 
-        every { extSerializationService.serialize(extFileTable, any()) } returns filesJson
+        every { extSerializationService.serialize(extFileTable) } returns filesJson
         every { extSubmissionService.getReferencedFiles("S-TEST123", "my/folder/file-list") } returns extFileTable
 
         mvc.get("/submissions/extended/S-TEST123/referencedFiles/my/folder/file-list")
@@ -164,7 +164,7 @@ class ExtSubmissionResourceTest(
             }
 
         verify(exactly = 1) {
-            extSerializationService.serialize(extFileTable, any())
+            extSerializationService.serialize(extFileTable)
             extSubmissionService.getReferencedFiles("S-TEST123", "my/folder/file-list")
         }
     }
