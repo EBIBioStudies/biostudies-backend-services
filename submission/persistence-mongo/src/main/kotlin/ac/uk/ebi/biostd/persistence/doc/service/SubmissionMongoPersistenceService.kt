@@ -19,8 +19,8 @@ import com.mongodb.BasicDBObject
 import ebi.ac.uk.extended.model.ExtProcessingStatus.PROCESSING
 import ebi.ac.uk.extended.model.ExtProcessingStatus.REQUESTED
 import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.extended.model.FileMode.MOVE
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
+import uk.ac.ebi.extended.serialization.service.Properties
 import kotlin.math.absoluteValue
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus.PROCESSED as REQUEST_PROCESSED
 
@@ -34,10 +34,6 @@ internal class SubmissionMongoPersistenceService(
     private val fileListDocFileRepository: FileListDocFileRepository,
     private val toExtSubmissionMapper: ToExtSubmissionMapper
 ) : SubmissionRequestService {
-    override fun saveAndProcessSubmissionRequest(saveRequest: SaveSubmissionRequest): ExtSubmission {
-        val extended = saveSubmissionRequest(saveRequest)
-        return processSubmission(SaveSubmissionRequest(extended, saveRequest.fileMode, saveRequest.draftKey))
-    }
 
     override fun saveSubmissionRequest(saveRequest: SaveSubmissionRequest): ExtSubmission {
         val submission = saveRequest.submission
@@ -45,18 +41,6 @@ internal class SubmissionMongoPersistenceService(
         submissionRequestDocDataRepository.saveRequest(asRequest(newVersion))
         return newVersion
     }
-
-    private fun getNextVersion(accNo: String): Int {
-        val lastVersion = subDataRepository.getCurrentVersion(accNo) ?: 0
-        return lastVersion.absoluteValue + 1
-    }
-
-    private fun asRequest(submission: ExtSubmission) = SubmissionRequest(
-        accNo = submission.accNo,
-        version = submission.version,
-        status = SubmissionRequestStatus.REQUESTED,
-        submission = BasicDBObject.parse(serializationService.serialize(submission))
-    )
 
     override fun processSubmission(saveRequest: SaveSubmissionRequest): ExtSubmission {
         val (submission, fileMode, draftKey) = saveRequest
@@ -72,6 +56,21 @@ internal class SubmissionMongoPersistenceService(
         return toExtSubmissionMapper.toExtSubmission(docSubmission)
     }
 
+    private fun getNextVersion(accNo: String): Int {
+        val lastVersion = subDataRepository.getCurrentVersion(accNo) ?: 0
+        return lastVersion.absoluteValue + 1
+    }
+
+    private fun asRequest(submission: ExtSubmission): SubmissionRequest {
+        val content = serializationService.serialize(submission, Properties(includeFileListFiles = true))
+        return SubmissionRequest(
+            accNo = submission.accNo,
+            version = submission.version,
+            status = SubmissionRequestStatus.REQUESTED,
+            submission = BasicDBObject.parse(content)
+        )
+    }
+
     private fun saveSubmission(docSubmission: DocSubmission, files: List<FileListDocFile>, draftKey: String?) {
         subDataRepository.save(docSubmission)
         fileListDocFileRepository.saveAll(files)
@@ -82,10 +81,6 @@ internal class SubmissionMongoPersistenceService(
     private fun updateCurrentRecords(submission: DocSubmission, draftKey: String?) {
         subDataRepository.expireActiveProcessedVersions(submission.accNo)
         deleteSubmissionDrafts(submission, draftKey)
-    }
-
-    override fun refreshSubmission(submission: ExtSubmission) {
-        saveAndProcessSubmissionRequest(SaveSubmissionRequest(submission, MOVE))
     }
 
     private fun deleteSubmissionDrafts(submission: DocSubmission, draftKey: String?) {

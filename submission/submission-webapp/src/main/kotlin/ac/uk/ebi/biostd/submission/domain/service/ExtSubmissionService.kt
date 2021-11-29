@@ -4,8 +4,8 @@ import ac.uk.ebi.biostd.persistence.common.exception.CollectionNotFoundException
 import ac.uk.ebi.biostd.persistence.common.request.SaveSubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestService
 import ac.uk.ebi.biostd.persistence.exception.UserNotFoundException
+import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
 import ac.uk.ebi.biostd.submission.web.model.ExtPageRequest
 import ebi.ac.uk.extended.events.SubmissionRequestMessage
 import ebi.ac.uk.extended.model.ExtFileTable
@@ -30,7 +30,7 @@ private val logger = KotlinLogging.logger {}
 @Suppress("TooManyFunctions")
 class ExtSubmissionService(
     private val rabbitTemplate: RabbitTemplate,
-    private val requestService: SubmissionRequestService,
+    private val submissionSubmitter: SubmissionSubmitter,
     private val submissionRepository: SubmissionQueryService,
     private val userPrivilegesService: IUserPrivilegesService,
     private val securityQueryService: ISecurityQueryService,
@@ -51,7 +51,7 @@ class ExtSubmissionService(
         fileListFiles: List<File> = emptyList()
     ): ExtSubmission {
         val submission = processExtSubmission(user, extSubmission, fileListFiles)
-        return requestService.saveAndProcessSubmissionRequest(SaveSubmissionRequest(submission, COPY))
+        return submissionSubmitter.submit(SaveSubmissionRequest(submission, COPY))
     }
 
     fun submitExtAsync(
@@ -63,7 +63,7 @@ class ExtSubmissionService(
         logger.info { "$accNo $user Received async submit request for ext submission $accNo" }
 
         val submission = processExtSubmission(user, extSubmission, fileListFiles)
-        val newVersion = requestService.saveSubmissionRequest(SaveSubmissionRequest(submission, COPY))
+        val newVersion = submissionSubmitter.submitAsync(SaveSubmissionRequest(submission, COPY))
 
         rabbitTemplate.convertAndSend(
             BIOSTUDIES_EXCHANGE,

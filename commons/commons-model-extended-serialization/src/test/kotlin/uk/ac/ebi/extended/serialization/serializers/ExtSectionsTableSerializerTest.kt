@@ -11,7 +11,7 @@ import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.serialization.extensions.serialize
 
 class ExtSectionsTableSerializerTest {
-    private val testInstance = ExtSerializationService.mapper
+    private val testInstance = ExtSerializationService()
 
     @Test
     fun serialize() {

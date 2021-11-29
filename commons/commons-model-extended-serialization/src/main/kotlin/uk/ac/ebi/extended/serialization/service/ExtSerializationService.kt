@@ -33,14 +33,21 @@ import uk.ac.ebi.extended.serialization.serializers.ExtSectionsTableSerializer
 import uk.ac.ebi.extended.serialization.serializers.ExtSubmissionSerializer
 import uk.ac.ebi.extended.serialization.serializers.OffsetDateTimeSerializer
 import uk.ac.ebi.serialization.serializers.EitherSerializer
+import java.io.StringWriter
 import java.time.OffsetDateTime
 
-class ExtSerializationService {
-    fun <T> serialize(element: T): String = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(element)
+data class Properties(val includeFileListFiles: Boolean) : StringWriter()
 
-    fun <T> deserialize(value: String, type: Class<out T>): T = mapper.readValue(value, type)
+class ExtSerializationService {
+
+    fun <T> serialize(element: T, properties: Properties = Properties(false)): String {
+        mapper.writerWithDefaultPrettyPrinter().writeValue(properties, element)
+        return properties.buffer.toString()
+    }
 
     inline fun <reified T> deserialize(value: String): T = mapper.readValue(value)
+
+    fun <T> deserialize(value: String, type: Class<out T>): T = mapper.readValue(value, type)
 
     companion object {
         val mapper = createMapper()

@@ -22,11 +22,11 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
-import uk.ac.ebi.serialization.extensions.serialize
+import uk.ac.ebi.extended.serialization.service.Properties
 
 @ExtendWith(TemporaryFolderExtension::class)
 class ExtSectionSerializerTest(private val tempFolder: TemporaryFolder) {
-    private val testInstance = ExtSerializationService.mapper
+    private val testInstance = ExtSerializationService()
 
     @Test
     fun `serialize basic section`() {
@@ -242,6 +242,11 @@ class ExtSectionSerializerTest(private val tempFolder: TemporaryFolder) {
         }.toString()
 
         ExtSectionSerializer.parentAccNo = "S-BSST1"
-        assertThat(testInstance.serialize(allInOneSection)).isEqualToIgnoringWhitespace(expectedJson)
+        assertThat(
+            testInstance.serialize(
+                allInOneSection,
+                Properties(includeFileListFiles = false)
+            )
+        ).isEqualToIgnoringWhitespace(expectedJson)
     }
 }
