@@ -43,7 +43,7 @@ import ebi.ac.uk.model.extensions.title
 import ebi.ac.uk.util.date.isBeforeOrEqual
 import mu.KotlinLogging
 import java.time.OffsetDateTime
-import java.util.*
+import java.util.UUID
 
 private val logger = KotlinLogging.logger {}
 private const val DEFAULT_VERSION = 1

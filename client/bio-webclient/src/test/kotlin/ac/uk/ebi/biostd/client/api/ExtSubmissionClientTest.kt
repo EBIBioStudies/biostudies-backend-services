@@ -25,6 +25,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.web.client.RestTemplate
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
+import uk.ac.ebi.extended.serialization.service.Properties
 import java.io.File
 import java.time.OffsetDateTime
 import java.time.ZoneOffset.UTC
@@ -128,7 +129,7 @@ class ExtSubmissionClientTest(
         val fileList = tempFolder.createFile("file-list.tsv")
         val response: ResponseEntity<String> = ResponseEntity("ExtSubmission", OK)
 
-        every { extSerializationService.serialize(extSubmission, any()) } returns "ExtSubmission"
+        every { extSerializationService.serialize(extSubmission, Properties(false)) } returns "ExtSubmission"
         every { extSerializationService.deserialize("ExtSubmission", ExtSubmission::class.java) } returns extSubmission
         every { restTemplate.postForEntity(EXT_SUBMISSIONS_URL, capture(entity), String::class.java) } returns response
 
@@ -136,7 +137,7 @@ class ExtSubmissionClientTest(
 
         val captured = entity.captured
         assertHttpEntity(captured, fileList)
-        verify(exactly = 1) { extSerializationService.serialize(extSubmission, any()) }
+        verify(exactly = 1) { extSerializationService.serialize(extSubmission, Properties(false)) }
         verify(exactly = 1) { extSerializationService.deserialize("ExtSubmission", ExtSubmission::class.java) }
         verify(exactly = 1) { restTemplate.postForEntity(EXT_SUBMISSIONS_URL, captured, String::class.java) }
     }
@@ -149,7 +150,7 @@ class ExtSubmissionClientTest(
         val fileList = tempFolder.createFile("async-file-list.tsv")
         val response: ResponseEntity<String> = ResponseEntity("ExtSubmission", OK)
 
-        every { extSerializationService.serialize(extSubmission, any()) } returns "ExtSubmission"
+        every { extSerializationService.serialize(extSubmission) } returns "ExtSubmission"
         every {
             restTemplate.postForEntity("$EXT_SUBMISSIONS_URL/async", capture(entity), String::class.java)
         } returns response
@@ -158,7 +159,7 @@ class ExtSubmissionClientTest(
 
         val captured = entity.captured
         assertHttpEntity(captured, fileList)
-        verify(exactly = 1) { extSerializationService.serialize(extSubmission, any()) }
+        verify(exactly = 1) { extSerializationService.serialize(extSubmission) }
         verify(exactly = 1) { restTemplate.postForEntity("$EXT_SUBMISSIONS_URL/async", captured, String::class.java) }
     }
 

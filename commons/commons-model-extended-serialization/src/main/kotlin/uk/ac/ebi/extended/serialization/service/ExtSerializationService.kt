@@ -36,13 +36,13 @@ import uk.ac.ebi.serialization.serializers.EitherSerializer
 import java.io.StringWriter
 import java.time.OffsetDateTime
 
-class SerializationProperties(val includeFileListFiles: Boolean) : StringWriter()
+data class Properties(val includeFileListFiles: Boolean) : StringWriter()
 
 class ExtSerializationService {
 
-    fun <T> serialize(element: T, properties: SerializationProperties = SerializationProperties(false)): String {
+    fun <T> serialize(element: T, properties: Properties = Properties(false)): String {
         mapper.writerWithDefaultPrettyPrinter().writeValue(properties, element)
-        return properties.toString()
+        return properties.buffer.toString()
     }
 
     inline fun <reified T> deserialize(value: String): T = mapper.readValue(value)

@@ -20,7 +20,7 @@ import ebi.ac.uk.extended.model.ExtProcessingStatus.PROCESSING
 import ebi.ac.uk.extended.model.ExtProcessingStatus.REQUESTED
 import ebi.ac.uk.extended.model.ExtSubmission
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
-import uk.ac.ebi.extended.serialization.service.SerializationProperties
+import uk.ac.ebi.extended.serialization.service.Properties
 import kotlin.math.absoluteValue
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus.PROCESSED as REQUEST_PROCESSED
 
@@ -62,7 +62,7 @@ internal class SubmissionMongoPersistenceService(
     }
 
     private fun asRequest(submission: ExtSubmission): SubmissionRequest {
-        val content = serializationService.serialize(submission, SerializationProperties(includeFileListFiles = true))
+        val content = serializationService.serialize(submission, Properties(includeFileListFiles = true))
         return SubmissionRequest(
             accNo = submission.accNo,
             version = submission.version,

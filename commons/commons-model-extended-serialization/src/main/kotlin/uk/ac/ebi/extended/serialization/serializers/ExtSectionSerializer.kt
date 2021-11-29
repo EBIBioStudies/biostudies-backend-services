@@ -18,16 +18,16 @@ import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.PAGE_TA
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.SECTIONS
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.TYPE
 import uk.ac.ebi.extended.serialization.constants.ExtType
-import uk.ac.ebi.extended.serialization.service.SerializationProperties
+import uk.ac.ebi.extended.serialization.service.Properties
 
 const val FILE_LIST_URL = "submissions/extended"
 
 class ExtSectionSerializer : JsonSerializer<ExtSection>() {
     override fun serialize(section: ExtSection, gen: JsonGenerator, serializers: SerializerProvider) {
-        serialize(section, gen, gen.outputTarget as SerializationProperties)
+        serialize(section, gen, gen.outputTarget as Properties)
     }
 
-    private fun serialize(section: ExtSection, gen: JsonGenerator, prop: SerializationProperties) {
+    private fun serialize(section: ExtSection, gen: JsonGenerator, prop: Properties) {
         gen.writeStartObject()
         gen.writeStringField(ACC_NO, section.accNo)
         gen.writeStringField(TYPE, section.type)

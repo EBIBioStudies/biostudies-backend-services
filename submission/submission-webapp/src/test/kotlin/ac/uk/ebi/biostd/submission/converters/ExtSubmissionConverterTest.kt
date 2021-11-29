@@ -16,6 +16,7 @@ import org.springframework.http.HttpInputMessage
 import org.springframework.http.HttpOutputMessage
 import org.springframework.http.MediaType.APPLICATION_JSON
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
+import uk.ac.ebi.extended.serialization.service.Properties
 import java.io.OutputStream
 
 @ExtendWith(MockKExtension::class)
@@ -61,7 +62,7 @@ class ExtSubmissionConverterTest(@MockK private val extSerializationService: Ext
     ) {
         every { message.body } returns body
         every { message.headers } returns headers
-        every { extSerializationService.serialize(extSubmission, any()) } returns "submission"
+        every { extSerializationService.serialize(extSubmission, Properties(false)) } returns "submission"
 
         testInstance.write(extSubmission, APPLICATION_JSON, message)
 
