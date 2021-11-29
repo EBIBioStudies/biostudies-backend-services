@@ -59,7 +59,7 @@ class ExtSubmissionResourceTest(
     fun getExtended(@MockK extSubmission: ExtSubmission) {
         val submissionJson = jsonObj { "accNo" to "S-TEST123" }.toString()
         bioUserResolver.securityUser = TestSuperUser.asSecurityUser()
-        every { extSerializationService.serialize(extSubmission, any()) } returns submissionJson
+        every { extSerializationService.serialize(extSubmission) } returns submissionJson
         every { extSubmissionService.getExtendedSubmission("S-TEST123") } returns extSubmission
 
         mvc.get("/submissions/extended/S-TEST123")
@@ -69,7 +69,7 @@ class ExtSubmissionResourceTest(
             }
 
         verify(exactly = 1) {
-            extSerializationService.serialize(extSubmission, any())
+            extSerializationService.serialize(extSubmission)
             extSubmissionService.getExtendedSubmission("S-TEST123")
         }
     }
@@ -82,7 +82,7 @@ class ExtSubmissionResourceTest(
 
         bioUserResolver.securityUser = user
         every { tempFileGenerator.asFiles(capture(fileLists)) } returns emptyList()
-        every { extSerializationService.serialize(extSubmission, any()) } returns submissionJson
+        every { extSerializationService.serialize(extSubmission) } returns submissionJson
         every { extSubmissionService.submitExt(user.email, extSubmission) } returns extSubmission
         every { extSerializationService.deserialize(submissionJson, ExtSubmission::class.java) } returns extSubmission
 
@@ -96,7 +96,7 @@ class ExtSubmissionResourceTest(
 
         verify(exactly = 1) {
             tempFileGenerator.asFiles(fileLists.captured)
-            extSerializationService.serialize(extSubmission, any())
+            extSerializationService.serialize(extSubmission)
             extSubmissionService.submitExt(user.email, extSubmission)
             extSerializationService.deserialize(submissionJson, ExtSubmission::class.java)
         }
