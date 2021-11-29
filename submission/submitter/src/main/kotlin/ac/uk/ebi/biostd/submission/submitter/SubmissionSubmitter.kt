@@ -86,9 +86,14 @@ class SubmissionSubmitter(
         )
 
         logger.info { "${submission.accNo} ${submission.submitter} Saving submission request ${submission.accNo}" }
-        val saveRequest = SaveSubmissionRequest(submission, request.mode, request.draftKey)
-        val persistedRequest = submissionRequestService.saveSubmissionRequest(saveRequest)
-        return SaveSubmissionRequest(persistedRequest, request.mode, request.draftKey)
+        val rqt = submissionRequestService.saveSubmissionRequest(
+            SaveSubmissionRequest(
+                submission,
+                request.mode,
+                request.draftKey
+            )
+        )
+        return SaveSubmissionRequest(rqt, request.mode, request.draftKey)
     }
 
     fun submitAsync(request: SaveSubmissionRequest): ExtSubmission {

@@ -16,6 +16,7 @@ import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSING
 import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
+import uk.ac.ebi.extended.serialization.service.Properties
 import kotlin.math.absoluteValue
 
 @Suppress("LongParameterList")
@@ -36,7 +37,6 @@ internal open class SubmissionSqlPersistenceService(
         )
         subDataRepository.save(toDbMapper.toSubmissionDb(newVersion))
         requestDataRepository.save(asRequest(newVersion))
-
         return newVersion
     }
 
@@ -55,7 +55,11 @@ internal open class SubmissionSqlPersistenceService(
     }
 
     private fun asRequest(submission: ExtSubmission) =
-        DbSubmissionRequest(submission.accNo, submission.version, serializationService.serialize(submission))
+        DbSubmissionRequest(
+            submission.accNo,
+            submission.version,
+            serializationService.serialize(submission, Properties(true))
+        )
 
     private fun getNextVersion(accNo: String): Int {
         val lastVersion = subDataRepository.getLastVersion(accNo)?.version ?: 0
