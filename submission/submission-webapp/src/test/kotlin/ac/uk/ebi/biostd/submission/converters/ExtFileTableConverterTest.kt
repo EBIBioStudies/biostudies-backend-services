@@ -15,7 +15,6 @@ import org.springframework.http.HttpInputMessage
 import org.springframework.http.HttpOutputMessage
 import org.springframework.http.MediaType.APPLICATION_JSON
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
-import uk.ac.ebi.extended.serialization.service.Properties
 import java.io.OutputStream
 
 @ExtendWith(MockKExtension::class)
@@ -56,12 +55,12 @@ class ExtFileTableConverterTest(
     ) {
         every { message.body } returns body
         every { message.headers } returns headers
-        every { extSerializationService.serialize(extFileTable, Properties(false)) } returns "ExtFileTable"
+        every { extSerializationService.serialize(extFileTable) } returns "ExtFileTable"
 
         testInstance.write(extFileTable, APPLICATION_JSON, message)
 
         verify(exactly = 1) { headers.contentType = APPLICATION_JSON }
         verify(exactly = 1) { body.write("ExtFileTable".toByteArray()) }
-        verify(exactly = 1) { extSerializationService.serialize(extFileTable, Properties(false)) }
+        verify(exactly = 1) { extSerializationService.serialize(extFileTable) }
     }
 }
