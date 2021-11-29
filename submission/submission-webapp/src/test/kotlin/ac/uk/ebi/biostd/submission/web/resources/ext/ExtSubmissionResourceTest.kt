@@ -183,7 +183,7 @@ class ExtSubmissionResourceTest(
             "offset" to 0
         }.toString()
 
-        every { extSerializationService.serialize(extPage, any()) } returns response
+        every { extSerializationService.serialize(extPage) } returns response
         every { extPageMapper.asExtPage(pageable, capture(extPageRequestSlot)) } returns extPage
         every { extSubmissionService.getExtendedSubmissions(capture(extPageRequestSlot)) } returns pageable
 
@@ -196,7 +196,7 @@ class ExtSubmissionResourceTest(
         val extPageRequest = extPageRequestSlot.captured
         verifyExtPageRequest(extPageRequest)
         verify(exactly = 1) {
-            extSerializationService.serialize(extPage, any())
+            extSerializationService.serialize(extPage)
             extPageMapper.asExtPage(pageable, extPageRequest)
             extSubmissionService.getExtendedSubmissions(extPageRequest)
         }
