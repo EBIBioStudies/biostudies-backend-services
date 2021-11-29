@@ -22,11 +22,11 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
-import uk.ac.ebi.serialization.extensions.serialize
+import uk.ac.ebi.extended.serialization.service.SerializationProperties
 
 @ExtendWith(TemporaryFolderExtension::class)
 class ExtSectionSerializerTest(private val tempFolder: TemporaryFolder) {
-    private val testInstance = ExtSerializationService.mapper
+    private val testInstance = ExtSerializationService()
 
     @Test
     fun `serialize basic section`() {
@@ -42,11 +42,13 @@ class ExtSectionSerializerTest(private val tempFolder: TemporaryFolder) {
             "extType" to "section"
         }.toString()
 
-        assertThat(testInstance.serialize(extSection)).isEqualToIgnoringWhitespace(expectedJson)
+        assertThat(testInstance.serialize(extSection, SerializationProperties(false))).isEqualToIgnoringWhitespace(
+            expectedJson
+        )
     }
 
     @Test
-    fun `serialize all in one`() {
+    fun `serialize all in one without file list files`() {
         val referencedFile = tempFolder.createFile("ref-file.txt")
         val sectionFile = tempFolder.createFile("section-file.txt")
         val sectionFilesTable = tempFolder.createFile("section-file-table.txt")
@@ -242,6 +244,10 @@ class ExtSectionSerializerTest(private val tempFolder: TemporaryFolder) {
         }.toString()
 
         ExtSectionSerializer.parentAccNo = "S-BSST1"
-        assertThat(testInstance.serialize(allInOneSection)).isEqualToIgnoringWhitespace(expectedJson)
+        assertThat(testInstance.serialize(allInOneSection, SerializationProperties(false)))
+            .isEqualToIgnoringWhitespace(expectedJson)
     }
+
+    @Test
+    fun `serialize all in one with file list files`() {}
 }

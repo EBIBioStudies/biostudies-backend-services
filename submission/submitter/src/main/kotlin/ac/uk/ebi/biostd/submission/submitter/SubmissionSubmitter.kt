@@ -66,7 +66,12 @@ class SubmissionSubmitter(
     }
 
     fun submit(submission: SaveSubmissionRequest): ExtSubmission {
-        return processRequest(submission.submission.accNo, submission.submission.version, submission.fileMode, submission.draftKey)
+        return processRequest(
+            submission.submission.accNo,
+            submission.submission.version,
+            submission.fileMode,
+            submission.draftKey
+        )
     }
 
     fun submitAsync(request: SubmissionRequest): SaveSubmissionRequest {

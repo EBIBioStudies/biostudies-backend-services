@@ -14,5 +14,4 @@ data class SubmissionRequest(
     val submission: DBObject
 )
 
-
 enum class SubmissionRequestStatus { REQUESTED, PROCESSED }

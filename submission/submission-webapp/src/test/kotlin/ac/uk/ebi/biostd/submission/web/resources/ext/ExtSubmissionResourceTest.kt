@@ -59,7 +59,7 @@ class ExtSubmissionResourceTest(
     fun getExtended(@MockK extSubmission: ExtSubmission) {
         val submissionJson = jsonObj { "accNo" to "S-TEST123" }.toString()
         bioUserResolver.securityUser = TestSuperUser.asSecurityUser()
-        every { extSerializationService.serialize(extSubmission) } returns submissionJson
+        every { extSerializationService.serialize(extSubmission, any()) } returns submissionJson
         every { extSubmissionService.getExtendedSubmission("S-TEST123") } returns extSubmission
 
         mvc.get("/submissions/extended/S-TEST123")
@@ -69,7 +69,7 @@ class ExtSubmissionResourceTest(
             }
 
         verify(exactly = 1) {
-            extSerializationService.serialize(extSubmission)
+            extSerializationService.serialize(extSubmission, any())
             extSubmissionService.getExtendedSubmission("S-TEST123")
         }
     }
@@ -82,7 +82,7 @@ class ExtSubmissionResourceTest(
 
         bioUserResolver.securityUser = user
         every { tempFileGenerator.asFiles(capture(fileLists)) } returns emptyList()
-        every { extSerializationService.serialize(extSubmission) } returns submissionJson
+        every { extSerializationService.serialize(extSubmission, any()) } returns submissionJson
         every { extSubmissionService.submitExt(user.email, extSubmission) } returns extSubmission
         every { extSerializationService.deserialize(submissionJson, ExtSubmission::class.java) } returns extSubmission
 
@@ -96,7 +96,7 @@ class ExtSubmissionResourceTest(
 
         verify(exactly = 1) {
             tempFileGenerator.asFiles(fileLists.captured)
-            extSerializationService.serialize(extSubmission)
+            extSerializationService.serialize(extSubmission, any())
             extSubmissionService.submitExt(user.email, extSubmission)
             extSerializationService.deserialize(submissionJson, ExtSubmission::class.java)
         }
@@ -133,7 +133,7 @@ class ExtSubmissionResourceTest(
     ) {
         val filesJson = jsonObj { "files" to "ext-file-table" }.toString()
 
-        every { extSerializationService.serialize(extFileTable) } returns filesJson
+        every { extSerializationService.serialize(extFileTable, any()) } returns filesJson
         every { extSubmissionService.getReferencedFiles("S-TEST123", "file-list") } returns extFileTable
 
         mvc.get("/submissions/extended/S-TEST123/referencedFiles/file-list")
@@ -143,7 +143,7 @@ class ExtSubmissionResourceTest(
             }
 
         verify(exactly = 1) {
-            extSerializationService.serialize(extFileTable)
+            extSerializationService.serialize(extFileTable, any())
             extSubmissionService.getReferencedFiles("S-TEST123", "file-list")
         }
     }
@@ -154,7 +154,7 @@ class ExtSubmissionResourceTest(
     ) {
         val filesJson = jsonObj { "files" to "ext-file-table" }.toString()
 
-        every { extSerializationService.serialize(extFileTable) } returns filesJson
+        every { extSerializationService.serialize(extFileTable, any()) } returns filesJson
         every { extSubmissionService.getReferencedFiles("S-TEST123", "my/folder/file-list") } returns extFileTable
 
         mvc.get("/submissions/extended/S-TEST123/referencedFiles/my/folder/file-list")
@@ -164,7 +164,7 @@ class ExtSubmissionResourceTest(
             }
 
         verify(exactly = 1) {
-            extSerializationService.serialize(extFileTable)
+            extSerializationService.serialize(extFileTable, any())
             extSubmissionService.getReferencedFiles("S-TEST123", "my/folder/file-list")
         }
     }
@@ -183,7 +183,7 @@ class ExtSubmissionResourceTest(
             "offset" to 0
         }.toString()
 
-        every { extSerializationService.serialize(extPage) } returns response
+        every { extSerializationService.serialize(extPage, any()) } returns response
         every { extPageMapper.asExtPage(pageable, capture(extPageRequestSlot)) } returns extPage
         every { extSubmissionService.getExtendedSubmissions(capture(extPageRequestSlot)) } returns pageable
 
@@ -196,7 +196,7 @@ class ExtSubmissionResourceTest(
         val extPageRequest = extPageRequestSlot.captured
         verifyExtPageRequest(extPageRequest)
         verify(exactly = 1) {
-            extSerializationService.serialize(extPage)
+            extSerializationService.serialize(extPage, any())
             extPageMapper.asExtPage(pageable, extPageRequest)
             extSubmissionService.getExtendedSubmissions(extPageRequest)
         }

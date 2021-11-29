@@ -55,12 +55,12 @@ class ExtFileTableConverterTest(
     ) {
         every { message.body } returns body
         every { message.headers } returns headers
-        every { extSerializationService.serialize(extFileTable) } returns "ExtFileTable"
+        every { extSerializationService.serialize(extFileTable, any()) } returns "ExtFileTable"
 
         testInstance.write(extFileTable, APPLICATION_JSON, message)
 
         verify(exactly = 1) { headers.contentType = APPLICATION_JSON }
         verify(exactly = 1) { body.write("ExtFileTable".toByteArray()) }
-        verify(exactly = 1) { extSerializationService.serialize(extFileTable) }
+        verify(exactly = 1) { extSerializationService.serialize(extFileTable, any()) }
     }
 }
