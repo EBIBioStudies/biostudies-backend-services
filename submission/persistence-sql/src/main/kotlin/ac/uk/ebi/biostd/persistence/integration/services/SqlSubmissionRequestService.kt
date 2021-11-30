@@ -12,9 +12,8 @@ internal open class SqlSubmissionRequestService(
 ) : SubmissionRequestService {
 
     @Transactional(readOnly = true)
-    override fun saveSubmissionRequest(saveRequest: SaveSubmissionRequest): ExtSubmission {
-        val (sub, _, _, accNo) = saveRequest
-        return lockExecutor.executeLocking(accNo) { submissionService.saveSubmissionRequest(sub) }
+    override fun saveSubmissionRequest(submission: ExtSubmission): ExtSubmission {
+        return lockExecutor.executeLocking(submission.accNo) { submissionService.saveSubmissionRequest(submission) }
     }
 
     @Transactional(readOnly = true)

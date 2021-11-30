@@ -65,12 +65,12 @@ class SubmissionSubmitter(
         return processRequest(saved.submission.accNo, saved.submission.version, saved.fileMode, saved.draftKey)
     }
 
-    fun submit(submission: SaveSubmissionRequest): ExtSubmission {
+    fun submit(request: SaveSubmissionRequest): ExtSubmission {
         return processRequest(
-            submission.submission.accNo,
-            submission.submission.version,
-            submission.fileMode,
-            submission.draftKey
+            request.submission.accNo,
+            request.submission.version,
+            request.fileMode,
+            request.draftKey
         )
     }
 
