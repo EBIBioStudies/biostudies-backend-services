@@ -1,5 +1,7 @@
 package uk.ac.ebi.biostd.client.cli.dto
 
+import ebi.ac.uk.extended.model.FileMode
+
 internal data class MigrationRequest(
     val accNo: String,
     val source: String,
@@ -10,5 +12,6 @@ internal data class MigrationRequest(
     val targetPassword: String,
     val targetOwner: String?,
     val tempFolder: String,
+    val fileMode: FileMode,
     val async: Boolean
 )

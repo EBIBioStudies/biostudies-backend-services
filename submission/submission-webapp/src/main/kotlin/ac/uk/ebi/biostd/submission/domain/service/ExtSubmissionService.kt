@@ -11,6 +11,7 @@ import ebi.ac.uk.extended.events.SubmissionRequestMessage
 import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.extended.model.FileMode
 import ebi.ac.uk.extended.model.FileMode.COPY
 import ebi.ac.uk.extended.model.isCollection
 import ebi.ac.uk.security.integration.components.ISecurityQueryService
@@ -48,22 +49,24 @@ class ExtSubmissionService(
     fun submitExt(
         user: String,
         extSubmission: ExtSubmission,
-        fileListFiles: List<File> = emptyList()
+        fileListFiles: List<File> = emptyList(),
+        fileMode: FileMode = COPY
     ): ExtSubmission {
         val submission = processExtSubmission(user, extSubmission, fileListFiles)
-        return submissionSubmitter.submit(SaveSubmissionRequest(submission, COPY))
+        return submissionSubmitter.submit(SaveSubmissionRequest(submission, fileMode))
     }
 
     fun submitExtAsync(
         user: String,
         extSubmission: ExtSubmission,
-        fileListFiles: List<File> = emptyList()
+        fileListFiles: List<File> = emptyList(),
+        fileMode: FileMode
     ) {
         val accNo = extSubmission.accNo
         logger.info { "$accNo $user Received async submit request for ext submission $accNo" }
 
         val submission = processExtSubmission(user, extSubmission, fileListFiles)
-        val newVersion = submissionSubmitter.submitAsync(SaveSubmissionRequest(submission, COPY))
+        val newVersion = submissionSubmitter.submitAsync(SaveSubmissionRequest(submission, fileMode))
 
         rabbitTemplate.convertAndSend(
             BIOSTUDIES_EXCHANGE,
@@ -108,7 +111,10 @@ class ExtSubmissionService(
         section: ExtSection,
         fileListFiles: Map<String, File>
     ): ExtSection = section.copy(
-        fileList = section.fileList?.let { it.copy(files = deserializeReferencedFiles(fileListFiles[it.fileName]!!)) }
+        fileList = section.fileList?.let {
+            it.copy(files = deserializeReferencedFiles(fileListFiles[it.fileName.substringAfterLast("/")]!!))
+        },
+        sections = section.sections.map { subSec -> subSec.bimap({ processFileListFiles(it, fileListFiles) }, { it }) }
     )
 
     private fun deserializeReferencedFiles(fileList: File) =

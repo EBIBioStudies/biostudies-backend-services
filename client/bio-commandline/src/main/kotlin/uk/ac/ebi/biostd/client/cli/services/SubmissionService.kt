@@ -2,6 +2,7 @@ package uk.ac.ebi.biostd.client.cli.services
 
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.allFileList
+import ebi.ac.uk.io.FileUtils.writeContent
 import ebi.ac.uk.model.Submission
 import uk.ac.ebi.biostd.client.cli.dto.DeletionRequest
 import uk.ac.ebi.biostd.client.cli.dto.MigrationRequest
@@ -43,10 +44,11 @@ internal class SubmissionService {
         val sub = migratedSubmission(source, request.targetOwner)
         val fileLists = source.allFileList
             .map { File(request.tempFolder, it.fileName) to sourceClient.getReferencedFiles(it.filesUrl!!) }
-            .onEach { (file, files) -> file.writeText(extSerializer.serialize(files)) }
+            .onEach { (file, files) -> writeContent(file, extSerializer.serialize(files)) }
             .map { it.first }
 
-        if (request.async) targetClient.submitExtAsync(sub, fileLists) else targetClient.submitExt(sub, fileLists)
+        if (request.async) targetClient.submitExtAsync(sub, fileLists, request.fileMode)
+        else targetClient.submitExt(sub, fileLists, request.fileMode)
     }
 
     private fun migratedSubmission(submission: ExtSubmission, targetOwner: String?) =

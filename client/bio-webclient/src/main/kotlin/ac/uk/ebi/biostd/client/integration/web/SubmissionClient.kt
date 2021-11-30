@@ -147,8 +147,12 @@ interface ExtSubmissionOperations {
     fun getExtSubmissionsPage(pageUrl: String): ExtPage
     fun getExtByAccNo(accNo: String): ExtSubmission
     fun getReferencedFiles(filesUrl: String): ExtFileTable
-    fun submitExt(extSubmission: ExtSubmission, fileLists: List<File> = emptyList()): ExtSubmission
-    fun submitExtAsync(extSubmission: ExtSubmission, fileLists: List<File> = emptyList())
+    fun submitExtAsync(extSubmission: ExtSubmission, fileLists: List<File> = emptyList(), fileMode: FileMode = COPY)
+    fun submitExt(
+        extSubmission: ExtSubmission,
+        fileLists: List<File> = emptyList(),
+        fileMode: FileMode = COPY
+    ): ExtSubmission
 }
 
 interface PermissionOperations {
