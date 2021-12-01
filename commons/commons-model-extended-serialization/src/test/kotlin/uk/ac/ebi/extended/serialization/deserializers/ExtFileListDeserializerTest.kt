@@ -21,7 +21,7 @@ class ExtFileListDeserializerTest {
         }.toString()
 
         val extFileList = testInstance.deserialize<ExtFileList>(json)
-        assertThat(extFileList.fileName).isEqualTo("file-list")
+        assertThat(extFileList.filePath).isEqualTo("file-list")
         assertThat(extFileList.filesUrl).isEqualTo("$FILE_LIST_URL/S-BSST1/referencedFiles/file-list")
         assertThat(extFileList.files).isEmpty()
     }

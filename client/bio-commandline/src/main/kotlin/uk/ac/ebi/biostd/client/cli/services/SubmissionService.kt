@@ -43,7 +43,7 @@ internal class SubmissionService {
         val source = sourceClient.getExtByAccNo(request.accNo)
         val sub = migratedSubmission(source, request.targetOwner)
         val fileLists = source.allFileList
-            .map { File(request.tempFolder, it.fileName) to sourceClient.getReferencedFiles(it.filesUrl!!) }
+            .map { File(request.tempFolder, it.filePath) to sourceClient.getReferencedFiles(it.filesUrl!!) }
             .onEach { (file, files) -> writeContent(file, extSerializer.serialize(files)) }
             .map { it.first }
 

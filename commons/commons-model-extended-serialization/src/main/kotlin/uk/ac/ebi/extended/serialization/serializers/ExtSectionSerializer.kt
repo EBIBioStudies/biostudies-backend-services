@@ -44,9 +44,9 @@ class ExtSectionSerializer : JsonSerializer<ExtSection>() {
 
     private fun writeFileList(fileList: ExtFileList, gen: JsonGenerator, includeFileListFiles: Boolean) {
         gen.writeObjectFieldStart(FILE_LIST)
-        gen.writeStringField(FILE_NAME, fileList.fileName)
+        gen.writeStringField(FILE_NAME, fileList.filePath)
 
-        val encodedPath = encodePath("/$FILE_LIST_URL/$parentAccNo/referencedFiles/${fileList.fileName}", UTF_8)
+        val encodedPath = encodePath("/$FILE_LIST_URL/$parentAccNo/referencedFiles/${fileList.filePath}", UTF_8)
         gen.writeStringField(FILES_URL, encodedPath)
 
         if (includeFileListFiles) {

@@ -109,23 +109,18 @@ class ExtSubmissionService(
 
     private fun processFileListFiles(
         section: ExtSection,
-        fileListFiles: Map<String, File>
+        fileList: Map<String, File>
     ): ExtSection = section.copy(
-        fileList = section.fileList?.let {
-            it.copy(files = deserializeReferencedFiles(fileListFiles[it.fileName.substringAfterLast("/")]!!))
-        },
-        sections = section.sections.map { subSec -> subSec.bimap({ processFileListFiles(it, fileListFiles) }, { it }) }
+        fileList = section.fileList?.let { it.copy(files = deserializeFiles(fileList.getValue(it.fileName))) },
+        sections = section.sections.map { subSec -> subSec.bimap({ processFileListFiles(it, fileList) }, { it }) }
     )
 
-    private fun deserializeReferencedFiles(fileList: File) =
+    private fun deserializeFiles(fileList: File) =
         extSerializationService.deserialize(fileList.readText(), ExtFileTable::class.java).files
 
     private fun validateSubmission(submission: ExtSubmission) {
         validateOwner(submission.owner)
-
-        if (submission.isCollection.not()) {
-            submission.collections.forEach { validateCollection(it.accNo) }
-        }
+        if (submission.isCollection.not()) submission.collections.forEach { validateCollection(it.accNo) }
     }
 
     private fun validateSubmitter(user: String) = require(userPrivilegesService.canSubmitExtended(user)) {

@@ -74,11 +74,14 @@ data class NfsFile(
 }
 
 data class ExtFileList(
-    val fileName: String,
+    val filePath: String,
     val files: List<ExtFile> = listOf(),
     val filesUrl: String? = null,
     val pageTabFiles: List<ExtFile> = listOf()
-)
+) {
+    val fileName: String
+        get() = filePath.substringAfterLast("/")
+}
 
 data class ExtSectionTable(val sections: List<ExtSection>)
 
