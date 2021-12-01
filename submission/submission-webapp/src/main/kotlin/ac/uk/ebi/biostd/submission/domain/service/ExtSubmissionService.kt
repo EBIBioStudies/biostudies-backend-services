@@ -11,6 +11,7 @@ import ebi.ac.uk.extended.events.SubmissionRequestMessage
 import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.extended.model.FileMode
 import ebi.ac.uk.extended.model.FileMode.COPY
 import ebi.ac.uk.extended.model.isCollection
 import ebi.ac.uk.security.integration.components.ISecurityQueryService
@@ -48,22 +49,24 @@ class ExtSubmissionService(
     fun submitExt(
         user: String,
         extSubmission: ExtSubmission,
-        fileListFiles: List<File> = emptyList()
+        fileListFiles: List<File> = emptyList(),
+        fileMode: FileMode = COPY
     ): ExtSubmission {
         val submission = processExtSubmission(user, extSubmission, fileListFiles)
-        return submissionSubmitter.submit(SaveSubmissionRequest(submission, COPY))
+        return submissionSubmitter.submit(SaveSubmissionRequest(submission, fileMode))
     }
 
     fun submitExtAsync(
         user: String,
         extSubmission: ExtSubmission,
-        fileListFiles: List<File> = emptyList()
+        fileListFiles: List<File> = emptyList(),
+        fileMode: FileMode
     ) {
         val accNo = extSubmission.accNo
         logger.info { "$accNo $user Received async submit request for ext submission $accNo" }
 
         val submission = processExtSubmission(user, extSubmission, fileListFiles)
-        val newVersion = submissionSubmitter.submitAsync(SaveSubmissionRequest(submission, COPY))
+        val newVersion = submissionSubmitter.submitAsync(SaveSubmissionRequest(submission, fileMode))
 
         rabbitTemplate.convertAndSend(
             BIOSTUDIES_EXCHANGE,
@@ -106,20 +109,18 @@ class ExtSubmissionService(
 
     private fun processFileListFiles(
         section: ExtSection,
-        fileListFiles: Map<String, File>
+        fileList: Map<String, File>
     ): ExtSection = section.copy(
-        fileList = section.fileList?.let { it.copy(files = deserializeReferencedFiles(fileListFiles[it.fileName]!!)) }
+        fileList = section.fileList?.let { it.copy(files = deserializeFiles(fileList.getValue(it.fileName))) },
+        sections = section.sections.map { subSec -> subSec.bimap({ processFileListFiles(it, fileList) }, { it }) }
     )
 
-    private fun deserializeReferencedFiles(fileList: File) =
+    private fun deserializeFiles(fileList: File) =
         extSerializationService.deserialize(fileList.readText(), ExtFileTable::class.java).files
 
     private fun validateSubmission(submission: ExtSubmission) {
         validateOwner(submission.owner)
-
-        if (submission.isCollection.not()) {
-            submission.collections.forEach { validateCollection(it.accNo) }
-        }
+        if (submission.isCollection.not()) submission.collections.forEach { validateCollection(it.accNo) }
     }
 
     private fun validateSubmitter(user: String) = require(userPrivilegesService.canSubmitExtended(user)) {

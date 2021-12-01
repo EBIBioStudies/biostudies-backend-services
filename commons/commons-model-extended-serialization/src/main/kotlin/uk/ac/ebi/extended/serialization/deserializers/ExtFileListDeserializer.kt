@@ -20,7 +20,7 @@ class ExtFileListDeserializer : JsonDeserializer<ExtFileList>() {
         val node: JsonNode = mapper.readTree(jsonParser)
 
         return ExtFileList(
-            fileName = node.getNode<TextNode>(FILE_NAME).textValue(),
+            filePath = node.getNode<TextNode>(FILE_NAME).textValue(),
             filesUrl = node.getNode<TextNode>(FILES_URL).textValue(),
             files = mapper.convertList(node.findNode(FILES)),
         )

@@ -21,7 +21,7 @@ fun SerializationService.generateFileListPageTab(
     target: File
 ): Map<String, PageTabFiles> = sub
     .allFileList
-    .associate { it.fileName to saveTabFiles(target, it.fileName, it.toFilesTable(), sub.permissions()) }
+    .associate { it.filePath to saveTabFiles(target, it.filePath, it.toFilesTable(), sub.permissions()) }
 
 private fun <T> SerializationService.saveTabFiles(
     folder: File,

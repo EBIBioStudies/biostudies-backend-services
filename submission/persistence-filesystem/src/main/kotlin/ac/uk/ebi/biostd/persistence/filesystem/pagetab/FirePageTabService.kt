@@ -32,7 +32,7 @@ class FirePageTabService(
         return when (val lst = sec.fileList) {
             null -> Section(false, sec)
             else -> {
-                val name = lst.fileName
+                val name = lst.filePath
                 val files = pageTabFiles.getValue(name)
                 Section(true, sec.copy(fileList = lst.copy(pageTabFiles = fileListFiles(files, path, name))))
             }

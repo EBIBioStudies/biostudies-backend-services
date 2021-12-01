@@ -14,6 +14,8 @@ import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.extended.model.FileMode.COPY
+import ebi.ac.uk.model.constants.FILE_MODE
 import ebi.ac.uk.model.constants.SUBMISSION
 import io.mockk.clearAllMocks
 import io.mockk.every
@@ -89,6 +91,7 @@ class ExtSubmissionResourceTest(
         mvc.multipart("/submissions/extended") {
             content = submissionJson
             param(SUBMISSION, submissionJson)
+            param(FILE_MODE, COPY.name)
         }.andExpect {
             status { isOk }
             content { json(submissionJson) }
@@ -110,19 +113,20 @@ class ExtSubmissionResourceTest(
 
         bioUserResolver.securityUser = user
         every { tempFileGenerator.asFiles(capture(fileLists)) } returns emptyList()
-        every { extSubmissionService.submitExtAsync(user.email, extSubmission) } answers { nothing }
+        every { extSubmissionService.submitExtAsync(user.email, extSubmission, fileMode = COPY) } answers { nothing }
         every { extSerializationService.deserialize(submissionJson, ExtSubmission::class.java) } returns extSubmission
 
         mvc.multipart("/submissions/extended/async") {
             content = submissionJson
             param(SUBMISSION, submissionJson)
+            param(FILE_MODE, COPY.name)
         }.andExpect {
             status { isOk }
         }
 
         verify(exactly = 1) {
             tempFileGenerator.asFiles(fileLists.captured)
-            extSubmissionService.submitExtAsync(user.email, extSubmission)
+            extSubmissionService.submitExtAsync(user.email, extSubmission, fileMode = COPY)
             extSerializationService.deserialize(submissionJson, ExtSubmission::class.java)
         }
     }

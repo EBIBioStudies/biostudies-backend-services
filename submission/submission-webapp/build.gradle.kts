@@ -46,6 +46,14 @@ import TestDependencies.XmlUnitMatchers
 import TestDependencies.rabitMqMock
 import org.springframework.boot.gradle.tasks.bundling.BootJar
 
+buildscript {
+    dependencies {
+        "classpath"("org.eclipse.jgit:org.eclipse.jgit:5.13.0.202109080827-r") {
+            isForce = true
+        }
+    }
+}
+
 plugins {
     id("com.gorylenko.gradle-git-properties") version "2.4.0-rc1"
     id("org.jetbrains.kotlin.plugin.spring") version "1.4.32"

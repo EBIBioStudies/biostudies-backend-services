@@ -22,7 +22,7 @@ val subSection = ExtSection(
     accNo = SUB_SEC_ACC_NO,
     type = SUB_SEC_TYPE,
     fileList = ExtFileList(
-        fileName = SUB_SEC_EXT_FILE_LIST_FILENAME,
+        filePath = SUB_SEC_EXT_FILE_LIST_FILENAME,
         files = listOf(subSectionFileListFile)
     )
 )
@@ -49,7 +49,7 @@ val rootSection = ExtSection(
     accNo = ROOT_SEC_ACC_NO,
     type = ROOT_SEC_TYPE,
     fileList = ExtFileList(
-        fileName = ROOT_SEC_EXT_FILE_LIST_FILENAME,
+        filePath = ROOT_SEC_EXT_FILE_LIST_FILENAME,
         files = listOf(rootSectionFileListFile)
     ),
     attributes = listOf(rootSectionAttribute),

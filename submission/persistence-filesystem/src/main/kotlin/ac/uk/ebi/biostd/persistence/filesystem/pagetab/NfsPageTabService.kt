@@ -28,8 +28,8 @@ class NfsPageTabService(
         return when (val lst = sec.fileList) {
             null -> Section(false, sec)
             else -> {
-                val fileName = lst.fileName
-                val tabFiles = tab.getValue(lst.fileName)
+                val fileName = lst.filePath
+                val tabFiles = tab.getValue(lst.filePath)
                 Section(true, sec.copy(fileList = lst.copy(pageTabFiles = fileListFiles(tabFiles, fileName))))
             }
         }
