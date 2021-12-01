@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.JsonSerializer
 import com.fasterxml.jackson.databind.SerializerProvider
 import ebi.ac.uk.extended.model.ExtFileList
 import ebi.ac.uk.extended.model.ExtSection
+import org.springframework.web.util.UriUtils.encodePath
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.ACC_NO
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.ATTRIBUTES
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.EXT_TYPE
@@ -19,6 +20,7 @@ import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.SECTION
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.TYPE
 import uk.ac.ebi.extended.serialization.constants.ExtType
 import uk.ac.ebi.extended.serialization.service.Properties
+import java.nio.charset.StandardCharsets.UTF_8
 
 const val FILE_LIST_URL = "submissions/extended"
 
@@ -42,8 +44,10 @@ class ExtSectionSerializer : JsonSerializer<ExtSection>() {
 
     private fun writeFileList(fileList: ExtFileList, gen: JsonGenerator, includeFileListFiles: Boolean) {
         gen.writeObjectFieldStart(FILE_LIST)
-        gen.writeStringField(FILE_NAME, fileList.fileName)
-        gen.writeStringField(FILES_URL, "/$FILE_LIST_URL/$parentAccNo/referencedFiles/${fileList.fileName}")
+        gen.writeStringField(FILE_NAME, fileList.filePath)
+
+        val encodedPath = encodePath("/$FILE_LIST_URL/$parentAccNo/referencedFiles/${fileList.filePath}", UTF_8)
+        gen.writeStringField(FILES_URL, encodedPath)
 
         if (includeFileListFiles) {
             gen.writeArrayFieldStart(FILES)

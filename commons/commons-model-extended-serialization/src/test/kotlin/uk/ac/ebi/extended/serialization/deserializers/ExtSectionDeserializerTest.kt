@@ -123,7 +123,7 @@ class ExtSectionDeserializerTest(private val tempFolder: TemporaryFolder) {
 
         val extFileList = extSection.fileList
         assertNotNull(extFileList)
-        assertThat(extFileList.fileName).isEqualTo("file-list.json")
+        assertThat(extFileList.filePath).isEqualTo("file-list.json")
         assertThat(extFileList.filesUrl).isEqualTo("submissions/extended/S-BSST1/referencedFiles/file-list")
         assertThat(extFileList.files).isEmpty()
 

@@ -25,7 +25,7 @@ internal fun ExtFileList.toDocFileList(submissionId: ObjectId): Pair<DocFileList
     val listRef = listFiles.map { DocFileRef(fileId = it.id) }
     val pageTabFiles = pageTabFiles.map { it.toDocFile() }
 
-    return Pair(DocFileList(fileName, listRef, pageTabFiles), listFiles)
+    return Pair(DocFileList(filePath, listRef, pageTabFiles), listFiles)
 }
 
 private fun toFileDocListFile(submissionId: ObjectId, extFile: ExtFile): FileListDocFile =

@@ -65,6 +65,6 @@ class ToExtSectionTest(
         assertThat(extSection.links.first()).hasLeftValueSatisfying { assertExtLink(it) }
 
         assertThat(extSection.fileList).isNotNull()
-        assertThat(extSection.fileList!!.fileName).isEqualTo(FILE_LIST_NAME)
+        assertThat(extSection.fileList!!.filePath).isEqualTo(FILE_LIST_NAME)
     }
 }

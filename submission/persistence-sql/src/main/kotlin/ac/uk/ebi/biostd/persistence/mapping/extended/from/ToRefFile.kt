@@ -13,7 +13,7 @@ internal fun ExtFile.toRefFile(order: Int) = when (this) {
     is FireFile -> TODO()
     is FireDirectory -> TODO()
     is NfsFile -> DbReferencedFile(
-        fileName,
+        filePath,
         order,
         file.size(),
         attributes.mapIndexedTo(sortedSetOf(), ::asRefFileAttribute)
