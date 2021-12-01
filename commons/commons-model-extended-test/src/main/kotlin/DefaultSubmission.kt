@@ -243,18 +243,18 @@ class DefaultFileList {
 
     companion object {
         fun defaultFileList(
-            fileName: String = FILE_NAME,
+            filePath: String = FILE_PATH,
             files: List<ExtFile> = FILES,
             filesUrl: String? = FILES_URL,
             pageTabFiles: List<ExtFile> = PAGE_TAG_FILES,
         ) = ExtFileList(
-            fileName = fileName,
+            filePath = filePath,
             files = files,
             filesUrl = filesUrl,
             pageTabFiles = pageTabFiles
         )
 
-        const val FILE_NAME = "fileName"
+        const val FILE_PATH = "filePath"
         val FILES = emptyList<ExtFile>()
         const val FILES_URL = "filesUrl"
         val PAGE_TAG_FILES = emptyList<ExtFile>()
