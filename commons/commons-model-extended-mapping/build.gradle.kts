@@ -3,6 +3,7 @@ import Dependencies.Guava
 import Dependencies.KotlinReflect
 import Dependencies.KotlinStdLib
 import Projects.CommonsBio
+import Projects.CommonsModelExtendedTest
 import Projects.CommonsTest
 import Projects.CommonsUtil
 import TestDependencies.BaseTestCompileDependencies
@@ -11,6 +12,7 @@ import TestDependencies.BaseTestRuntimeDependencies
 dependencies {
     api(project(CommonsUtil))
     api(project(CommonsBio))
+    api(project(CommonsModelExtendedTest))
 
     implementation(Arrow)
     implementation(Guava)

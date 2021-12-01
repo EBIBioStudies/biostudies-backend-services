@@ -87,17 +87,13 @@ class SubmissionSubmitter(
 
         logger.info { "${submission.accNo} ${submission.submitter} Saving submission request ${submission.accNo}" }
         val rqt = submissionRequestService.saveSubmissionRequest(
-            SaveSubmissionRequest(
-                submission,
-                request.mode,
-                request.draftKey
-            )
+                submission
         )
         return SaveSubmissionRequest(rqt, request.mode, request.draftKey)
     }
 
     fun submitAsync(request: SaveSubmissionRequest): ExtSubmission {
-        return submissionRequestService.saveSubmissionRequest(request)
+        return submissionRequestService.saveSubmissionRequest(request.submission)
     }
 
     fun processRequest(accNo: String, version: Int, fileMode: FileMode, draftKey: String?): ExtSubmission {
