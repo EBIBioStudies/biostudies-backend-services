@@ -1,11 +1,6 @@
-import DefaultAttribute.Companion.defaultAttribute
-import DefaultCollection.Companion.defaultCollection
 import DefaultSection.Companion.defaultSection
-import DefaultStat.Companion.defaultStat
-import DefaultTag.Companion.defaultTag
 import arrow.core.Either
 import ebi.ac.uk.extended.model.ExtAttribute
-import ebi.ac.uk.extended.model.ExtAttributeDetail
 import ebi.ac.uk.extended.model.ExtCollection
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileList
@@ -92,65 +87,45 @@ class DefaultSubmission private constructor() {
         val RELEASE_TIME: OffsetDateTime = OffsetDateTime.of(2019, 9, 21, 0, 0, 0, 0, UTC)
         val MODIFICATION_TIME: OffsetDateTime = OffsetDateTime.of(2020, 9, 21, 0, 0, 0, 0, UTC)
         val CREATION_TIME: OffsetDateTime = OffsetDateTime.of(2018, 9, 21, 0, 0, 0, 0, UTC)
-        val ATTRIBUTES = listOf(defaultAttribute())
-        val TAGS = listOf(defaultTag())
-        val COLLECTIONS = listOf(defaultCollection())
-        val STATS = listOf(defaultStat())
+        val ATTRIBUTES = emptyList<ExtAttribute>()
+        val TAGS = emptyList<ExtTag>()
+        val COLLECTIONS = emptyList<ExtCollection>()
+        val STATS = emptyList<ExtStat>()
         val SECTION = defaultSection()
         val PAGE_TAG_FILES = emptyList<ExtFile>()
     }
 }
 
-class DefaultTag {
+class DefaultSection {
     private constructor()
 
     companion object {
-        fun defaultTag(name: String = NAME, value: String = VALUE) = ExtTag(name = name, value = value)
-        const val NAME = "name"
-        const val VALUE = "value"
-    }
-}
-
-class DefaultCollection {
-    private constructor()
-
-    companion object {
-        fun defaultCollection(accNo: String = ACC_NO) = ExtCollection(accNo = accNo)
-        const val ACC_NO = "value"
-    }
-}
-
-class DefaultAttributeDetail {
-    private constructor()
-
-    companion object {
-        fun defaultAttributeDetail(
-            name: String = NAME,
-            value: String = VALUE
-        ) = ExtAttributeDetail(
-            name = name,
-            value = value
+        @Suppress("LongParameterList")
+        fun defaultSection(
+            accNo: String? = ACC_NO,
+            type: String = TYPE,
+            fileList: ExtFileList? = FILE_LIST,
+            attributes: List<ExtAttribute> = ATTRIBUTES,
+            sections: List<Either<ExtSection, ExtSectionTable>> = SECTIONS,
+            files: List<Either<ExtFile, ExtFileTable>> = FILES,
+            links: List<Either<ExtLink, ExtLinkTable>> = LINKS
+        ) = ExtSection(
+            accNo = accNo,
+            type = type,
+            fileList = fileList,
+            attributes = attributes,
+            sections = sections,
+            files = files,
+            links = links,
         )
 
-        const val NAME = "name"
-        const val VALUE = "value"
-    }
-}
-
-class DefaultLink {
-    private constructor()
-
-    companion object {
-        fun defaultLink(
-            url: String = URL,
-            attributes: List<ExtAttribute> = ATTRIBUTES
-        ) = ExtLink(
-            url = url,
-            attributes = attributes
-        )
-
-        const val URL = "url"
-        val ATTRIBUTES = listOf(defaultAttribute())
+        const val ACC_NO = "accNo"
+        const val TYPE = "Study"
+        val FILE_LIST = null
+        val ATTRIBUTES = emptyList<ExtAttribute>()
+        val SECTIONS = emptyList<Either<ExtSection, ExtSectionTable>>()
+        val FILES = emptyList<Either<ExtFile, ExtFileTable>>()
+        val LINKS = emptyList<Either<ExtLink, ExtLinkTable>>()
     }
 }
 
@@ -258,120 +233,5 @@ class DefaultFileList {
         val FILES = emptyList<ExtFile>()
         const val FILES_URL = "filesUrl"
         val PAGE_TAG_FILES = emptyList<ExtFile>()
-    }
-}
-
-class DefaultSectionTable {
-    private constructor()
-
-    companion object {
-        fun defaultSectionTable(
-            sections: List<ExtSection> = SECTIONS
-        ) = ExtSectionTable(
-            sections = sections
-        )
-
-        val SECTIONS = listOf(defaultSection())
-    }
-}
-
-class DefaultLinkTable {
-    private constructor()
-
-    companion object {
-        fun defaultLinkTable(
-            links: List<ExtLink> = LINKS
-        ) = ExtLinkTable(
-            links = links
-        )
-
-        val LINKS = listOf(DefaultLink.defaultLink())
-    }
-}
-
-class DefaultFileTable {
-    private constructor()
-
-    companion object {
-        fun defaultFileTable(
-            files: List<ExtFile> = FILES
-        ) = ExtFileTable(
-            files = files
-        )
-
-        val FILES = listOf(
-            DefaultFireFile.defaultFireFile(),
-            DefaultFireDirectory.defaultFireDirectory(),
-            DefaultNfsFile.defaultNfsFile()
-        )
-    }
-}
-
-class DefaultAttribute {
-    private constructor()
-
-    companion object {
-        fun defaultAttribute(
-            name: String = NAME,
-            value: String = VALUE,
-            reference: Boolean = REFERENCE,
-            nameAttrs: List<ExtAttributeDetail> = NAME_ATTRS,
-            valueAttrs: List<ExtAttributeDetail> = VALUE_ATTRS,
-        ) = ExtAttribute(
-            name = name,
-            value = value,
-            reference = reference,
-            nameAttrs = nameAttrs,
-            valueAttrs = valueAttrs
-        )
-
-        const val NAME = "name"
-        const val VALUE = "value"
-        const val REFERENCE = false
-        val NAME_ATTRS = listOf(DefaultAttributeDetail.defaultAttributeDetail())
-        val VALUE_ATTRS = listOf(DefaultAttributeDetail.defaultAttributeDetail())
-    }
-}
-
-class DefaultSection {
-    private constructor()
-
-    companion object {
-        @Suppress("LongParameterList")
-        fun defaultSection(
-            accNo: String? = ACC_NO,
-            type: String = TYPE,
-            fileList: ExtFileList? = FILE_LIST,
-            attributes: List<ExtAttribute> = ATTRIBUTES,
-            sections: List<Either<ExtSection, ExtSectionTable>> = SECTIONS,
-            files: List<Either<ExtFile, ExtFileTable>> = FILES,
-            links: List<Either<ExtLink, ExtLinkTable>> = LINKS
-        ) = ExtSection(
-            accNo = accNo,
-            type = type,
-            fileList = fileList,
-            attributes = attributes,
-            sections = sections,
-            files = files,
-            links = links,
-        )
-
-        const val ACC_NO = "accNo"
-        const val TYPE = "Study"
-        val FILE_LIST = null
-        val ATTRIBUTES = emptyList<ExtAttribute>()
-        val SECTIONS = emptyList<Either<ExtSection, ExtSectionTable>>()
-        val FILES = emptyList<Either<ExtFile, ExtFileTable>>()
-        val LINKS = emptyList<Either<ExtLink, ExtLinkTable>>()
-    }
-}
-
-class DefaultStat {
-    private constructor()
-
-    companion object {
-        fun defaultStat(name: String = NAME, value: String = VALUE) = ExtStat(name = name, value = value)
-        const val NAME = "name"
-        const val VALUE = "value"
     }
 }

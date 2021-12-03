@@ -26,6 +26,7 @@ import ebi.ac.uk.db.MONGO_VERSION
 import ebi.ac.uk.model.constants.SectionFields.TITLE
 import org.assertj.core.api.Assertions.assertThat
 import org.bson.Document
+import org.bson.types.ObjectId
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -79,8 +80,8 @@ internal class DatabaseChangeLogTest(
 
         mongoTemplate.insert(testDocSubmission.copy(accNo = "accNo1"))
         mongoTemplate.insert(testDocSubmission.copy(accNo = "accNo2"))
-        mongoTemplate.insert(request.copy(accNo = "accNo1"))
-        mongoTemplate.insert(request.copy(accNo = "accNo2"))
+        mongoTemplate.insert(request.copy(id = ObjectId(), accNo = "accNo1"))
+        mongoTemplate.insert(request.copy(id = ObjectId(), accNo = "accNo2"))
 
         val submissions = mongoTemplate.findAll<DocSubmission>()
         val requests = mongoTemplate.findAll<SubmissionRequest>()

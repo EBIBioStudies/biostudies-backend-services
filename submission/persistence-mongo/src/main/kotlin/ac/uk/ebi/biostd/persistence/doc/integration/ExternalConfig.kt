@@ -1,11 +1,12 @@
 package ac.uk.ebi.biostd.persistence.doc.integration
 
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestService
-import ac.uk.ebi.biostd.persistence.doc.db.data.FileListDocFileDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDraftDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
+import ac.uk.ebi.biostd.persistence.doc.db.repositories.FileListDocFileRepository
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
+import ac.uk.ebi.biostd.persistence.doc.service.ExtSubmissionRepository
 import ac.uk.ebi.biostd.persistence.doc.service.SubmissionMongoPersistenceService
 import ac.uk.ebi.biostd.persistence.filesystem.service.FileSystemService
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
@@ -22,19 +23,31 @@ class ExternalConfig {
     @Suppress("LongParameterList")
     internal fun submissionRequestService(
         submissionDocDataRepository: SubmissionDocDataRepository,
-        serializationService: ExtSerializationService,
         submissionRequestDocDataRepository: SubmissionRequestDocDataRepository,
-        submissionDraftDocDataRepository: SubmissionDraftDocDataRepository,
+        serializationService: ExtSerializationService,
         systemService: FileSystemService,
-        fileListDocFileRepository: FileListDocFileDocDataRepository,
-        toExtSubmissionMapper: ToExtSubmissionMapper
+        submissionRepository: ExtSubmissionRepository
     ): SubmissionRequestService {
         return SubmissionMongoPersistenceService(
             submissionDocDataRepository,
             submissionRequestDocDataRepository,
-            submissionDraftDocDataRepository,
             serializationService,
             systemService,
+            submissionRepository
+        )
+    }
+
+    @Bean
+    @Suppress("LongParameterList")
+    internal fun extSubmissionRepository(
+        subDataRepository: SubmissionDocDataRepository,
+        draftDocDataRepository: SubmissionDraftDocDataRepository,
+        fileListDocFileRepository: FileListDocFileRepository,
+        toExtSubmissionMapper: ToExtSubmissionMapper
+    ): ExtSubmissionRepository {
+        return ExtSubmissionRepository(
+            subDataRepository,
+            draftDocDataRepository,
             fileListDocFileRepository,
             toExtSubmissionMapper
         )
