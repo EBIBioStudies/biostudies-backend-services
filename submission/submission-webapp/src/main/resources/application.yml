@@ -40,6 +40,12 @@ spring:
       max-request-size: 20GB
       location: ${app.tempDirPath}
 
+server:
+  tomcat:
+    max-http-form-post-size: 50MB
+    max-swallow-size: 50MB
+
+
 logging:
   file:
     max-history: 7
@@ -74,3 +80,4 @@ app:
     migration-package: ac.uk.ebi.biostd.persistence.doc.migrations
   validator:
     euToxRiskValidationApi: # EU-ToxRisk validation API
+
