@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.submission.domain.service
 
-import ac.uk.ebi.biostd.common.config.SUBMISSION_REQUEST_QUEUE
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat.JsonFormat.JsonPretty
 import ac.uk.ebi.biostd.integration.SubFormat.TsvFormat.Tsv
@@ -18,7 +17,6 @@ import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import mu.KotlinLogging
-import org.springframework.amqp.rabbit.annotation.RabbitListener
 import org.springframework.amqp.rabbit.core.RabbitTemplate
 import uk.ac.ebi.events.config.BIOSTUDIES_EXCHANGE
 import uk.ac.ebi.events.config.SUBMISSIONS_REQUEST_ROUTING_KEY
@@ -51,7 +49,7 @@ class SubmissionService(
         )
     }
 
-    @RabbitListener(queues = [SUBMISSION_REQUEST_QUEUE], concurrency = "5-20")
+    //@RabbitListener(queues = [SUBMISSION_REQUEST_QUEUE], concurrency = "5-20")
     fun processSubmission(request: SubmissionRequestMessage) {
         val (accNo, version, fileMode, submitter, draftKey) = request
         logger.info { "$accNo $submitter Received process message for submission $accNo, version: $version" }
