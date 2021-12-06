@@ -15,12 +15,10 @@ import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbReposConfig
 import ac.uk.ebi.biostd.persistence.doc.mapping.from.toDocFile
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
 import ac.uk.ebi.biostd.persistence.doc.model.DocProcessingStatus.PROCESSED
-import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.test.SubmissionTestHelper.docSubmission
 import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
 import ebi.ac.uk.db.MONGO_VERSION
 import ebi.ac.uk.extended.model.ExtProcessingStatus.PROCESSING
-import io.mockk.slot
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
