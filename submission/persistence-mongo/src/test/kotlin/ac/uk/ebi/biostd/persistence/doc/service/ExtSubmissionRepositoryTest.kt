@@ -1,12 +1,12 @@
 package ac.uk.ebi.biostd.persistence.doc.service
 
-import DefaultFileList.Companion.defaultFileList
-import DefaultFireFile.Companion.defaultFireFile
-import DefaultSection.Companion.defaultSection
-import DefaultSubmission.Companion.ACC_NO
-import DefaultSubmission.Companion.OWNER
-import DefaultSubmission.Companion.SUBMITTER
-import DefaultSubmission.Companion.defaultSubmission
+import FileListFactory.defaultFileList
+import FileFileFactoryFactory.defaultFireFile
+import SectionFactory.defaultSection
+import SubmissionFactory.ACC_NO
+import SubmissionFactory.OWNER
+import SubmissionFactory.SUBMITTER
+import SubmissionFactory.defaultSubmission
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDraftDocDataRepository
