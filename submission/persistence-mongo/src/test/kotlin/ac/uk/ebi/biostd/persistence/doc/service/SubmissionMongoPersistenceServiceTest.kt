@@ -53,11 +53,8 @@ class SubmissionMongoPersistenceServiceTest(
             val result = testInstance.saveSubmissionRequest(current)
 
             assertThat(result).isEqualTo(newVersion)
-            val capturedSubRequest = subRequestSlot.captured
-            assertThat(capturedSubRequest.accNo).isEqualTo(ACC_NO)
-            assertThat(capturedSubRequest.version).isEqualTo(2)
-            assertThat(capturedSubRequest.status).isEqualTo(SubmissionRequestStatus.REQUESTED)
-            assertThat(capturedSubRequest.submission).isEqualTo(parse("{}"))
+            val submissionRequest = SubmissionRequest(ACC_NO, 2, SubmissionRequestStatus.REQUESTED, parse("{}"))
+            assertThat(subRequestSlot.captured).isEqualToIgnoringGivenFields(submissionRequest, "id")
         }
 
         @Test
@@ -72,11 +69,8 @@ class SubmissionMongoPersistenceServiceTest(
             val result = testInstance.saveSubmissionRequest(current)
 
             assertThat(result).isEqualTo(newVersion)
-            val capturedSubRequest = subRequestSlot.captured
-            assertThat(capturedSubRequest.accNo).isEqualTo(ACC_NO)
-            assertThat(capturedSubRequest.version).isEqualTo(2)
-            assertThat(capturedSubRequest.status).isEqualTo(SubmissionRequestStatus.REQUESTED)
-            assertThat(capturedSubRequest.submission).isEqualTo(parse("{}"))
+            val submissionRequest = SubmissionRequest(ACC_NO, 2, SubmissionRequestStatus.REQUESTED, parse("{}"))
+            assertThat(subRequestSlot.captured).isEqualToIgnoringGivenFields(submissionRequest, "id")
         }
 
         @Test
@@ -91,11 +85,8 @@ class SubmissionMongoPersistenceServiceTest(
             val result = testInstance.saveSubmissionRequest(current)
 
             assertThat(result).isEqualTo(newVersion)
-            val capturedSubRequest = subRequestSlot.captured
-            assertThat(capturedSubRequest.accNo).isEqualTo(ACC_NO)
-            assertThat(capturedSubRequest.version).isEqualTo(1)
-            assertThat(capturedSubRequest.status).isEqualTo(SubmissionRequestStatus.REQUESTED)
-            assertThat(capturedSubRequest.submission).isEqualTo(parse("{}"))
+            val submissionRequest = SubmissionRequest(ACC_NO, 1, SubmissionRequestStatus.REQUESTED, parse("{}"))
+            assertThat(subRequestSlot.captured).isEqualToIgnoringGivenFields(submissionRequest, "id")
         }
     }
 

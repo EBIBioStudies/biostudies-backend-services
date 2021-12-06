@@ -3,6 +3,9 @@ package ac.uk.ebi.biostd.persistence.doc.service
 import DefaultFileList.Companion.defaultFileList
 import DefaultFireFile.Companion.defaultFireFile
 import DefaultSection.Companion.defaultSection
+import DefaultSubmission.Companion.ACC_NO
+import DefaultSubmission.Companion.OWNER
+import DefaultSubmission.Companion.SUBMITTER
 import DefaultSubmission.Companion.defaultSubmission
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
@@ -13,16 +16,14 @@ import ac.uk.ebi.biostd.persistence.doc.mapping.from.toDocFile
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
 import ac.uk.ebi.biostd.persistence.doc.model.DocProcessingStatus.PROCESSED
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
+import ac.uk.ebi.biostd.persistence.doc.test.SubmissionTestHelper.docSubmission
 import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
 import ebi.ac.uk.db.MONGO_VERSION
-import io.mockk.every
-import io.mockk.impl.annotations.MockK
-import io.mockk.junit5.MockKExtension
+import ebi.ac.uk.extended.model.ExtProcessingStatus.PROCESSING
 import io.mockk.slot
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.DynamicPropertyRegistry
@@ -34,21 +35,20 @@ import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.utility.DockerImageName
 import java.time.Duration
 
-@ExtendWith(MockKExtension::class)
 @Testcontainers
 @SpringBootTest(classes = [MongoDbReposConfig::class])
 class ExtSubmissionRepositoryTest(
     @Autowired private val subDataRepository: SubmissionDocDataRepository,
     @Autowired private val draftDocDataRepository: SubmissionDraftDocDataRepository,
     @Autowired private val fileListDocFileRepository: FileListDocFileRepository,
-    @MockK private val toExtSubmissionMapper: ToExtSubmissionMapper
 ) {
-    val testInstance = ExtSubmissionRepository(
+    private val testInstance = ExtSubmissionRepository(
         subDataRepository,
         draftDocDataRepository,
         fileListDocFileRepository,
-        toExtSubmissionMapper
+        ToExtSubmissionMapper()
     )
+
     @BeforeEach
     fun beforeEach() {
         subDataRepository.deleteAll()
@@ -57,52 +57,28 @@ class ExtSubmissionRepositoryTest(
     }
 
     @Test
-    fun `saveSubmission with null draftKey`() {
-        val saveDocSub = slot<DocSubmission>()
-        val submission = defaultSubmission(
-            section = defaultSection(fileList = defaultFileList(files = listOf(defaultFireFile())))
-        )
-        every { toExtSubmissionMapper.toExtSubmission(capture(saveDocSub)) } returns submission
-        draftDocDataRepository.saveDraft(submission.owner, submission.accNo, "content")
-        val remainderDraft = draftDocDataRepository.saveDraft("owner", "draftKey", "content")
+    fun saveSubmission() {
+        val section = defaultSection(fileList = defaultFileList(files = listOf(defaultFireFile())))
+        val submission = defaultSubmission(section = section)
 
-        val result = testInstance.saveSubmission(submission, draftKey = null)
+        subDataRepository.save(docSubmission.copy(accNo = ACC_NO, status = PROCESSED, version = 1))
+        assertThat(subDataRepository.findAll()).hasSize(1)
 
-        assertThat(result).isEqualTo(submission)
-
-        val savedSubmissions = subDataRepository.getSubmissions(SubmissionFilter(submission.accNo))
-        assertThat(savedSubmissions).hasSize(1)
-        val savedSubmission = savedSubmissions.first()
-        assertThat(savedSubmission).isEqualTo(saveDocSub.captured.copy(status = PROCESSED))
-
-        val fileListDocFiles = fileListDocFileRepository.findAll()
-        assertThat(fileListDocFiles).hasSize(1)
-        val fileListDocFile = fileListDocFiles.first()
-        assertThat(fileListDocFile.submissionId).isEqualTo(savedSubmission.id)
-        assertThat(fileListDocFile.file).isEqualTo(defaultFireFile().toDocFile())
-
-        val drafts = draftDocDataRepository.findAll()
-        assertThat(drafts).hasSize(1)
-        assertThat(drafts.first()).isEqualTo(remainderDraft)
-    }
-
-    @Test
-    fun `saveSubmission with not null draftKey`() {
-        val saveDocSub = slot<DocSubmission>()
-        val submission = defaultSubmission(
-            section = defaultSection(fileList = defaultFileList(files = listOf(defaultFireFile())))
-        )
-        every { toExtSubmissionMapper.toExtSubmission(capture(saveDocSub)) } returns submission
-        draftDocDataRepository.saveDraft("owner", "draftKey", "content")
+        draftDocDataRepository.saveDraft("someone", "draftKey", "content")
+        draftDocDataRepository.saveDraft(OWNER, ACC_NO, "content")
+        draftDocDataRepository.saveDraft(SUBMITTER, ACC_NO, "content")
+        assertThat(draftDocDataRepository.findAll()).hasSize(3)
 
         val result = testInstance.saveSubmission(submission, draftKey = "draftKey")
 
-        assertThat(result).isEqualTo(submission)
+        assertThat(result.section).isEqualTo(section.copy(fileList = defaultFileList(filesUrl = null)))
+        assertThat(result.status).isEqualTo(PROCESSING)
 
         val savedSubmissions = subDataRepository.getSubmissions(SubmissionFilter(submission.accNo))
         assertThat(savedSubmissions).hasSize(1)
         val savedSubmission = savedSubmissions.first()
-        assertThat(savedSubmission).isEqualTo(saveDocSub.captured.copy(status = PROCESSED))
+        assertThat(savedSubmission.status).isEqualTo(PROCESSED)
+        assertThat(subDataRepository.findAll()).hasSize(2)
 
         val fileListDocFiles = fileListDocFileRepository.findAll()
         assertThat(fileListDocFiles).hasSize(1)
