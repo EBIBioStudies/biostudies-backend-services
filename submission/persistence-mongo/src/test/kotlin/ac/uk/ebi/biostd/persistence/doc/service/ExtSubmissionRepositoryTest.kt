@@ -1,13 +1,5 @@
 package ac.uk.ebi.biostd.persistence.doc.service
 
-import uk.ac.ebi.extended.test.FileListFactory.defaultFileList
-import uk.ac.ebi.extended.test.FileFileFactoryFactory.defaultFireFile
-import uk.ac.ebi.extended.test.SectionFactory.defaultSection
-import uk.ac.ebi.extended.test.SubmissionFactory.ACC_NO
-import uk.ac.ebi.extended.test.SubmissionFactory.OWNER
-import uk.ac.ebi.extended.test.SubmissionFactory.SUBMITTER
-import uk.ac.ebi.extended.test.SubmissionFactory.defaultSubmission
-import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDraftDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.FileListDocFileRepository
@@ -31,6 +23,13 @@ import org.testcontainers.containers.startupcheck.MinimumDurationRunningStartupC
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.utility.DockerImageName
+import uk.ac.ebi.extended.test.FileFileFactoryFactory.defaultFireFile
+import uk.ac.ebi.extended.test.FileListFactory.defaultFileList
+import uk.ac.ebi.extended.test.SectionFactory.defaultSection
+import uk.ac.ebi.extended.test.SubmissionFactory.ACC_NO
+import uk.ac.ebi.extended.test.SubmissionFactory.OWNER
+import uk.ac.ebi.extended.test.SubmissionFactory.SUBMITTER
+import uk.ac.ebi.extended.test.SubmissionFactory.defaultSubmission
 import java.time.Duration
 
 @Testcontainers
@@ -80,6 +79,7 @@ class ExtSubmissionRepositoryTest(
         val fileListDocFiles = fileListDocFileRepository.findAll()
         assertThat(fileListDocFiles).hasSize(1)
         val fileListDocFile = fileListDocFiles.first()
+        assertThat(fileListDocFile.id).isEqualTo(savedSubmission.section.fileList?.files?.first()?.fileId)
         assertThat(fileListDocFile.submissionId).isEqualTo(savedSubmission.id)
         assertThat(fileListDocFile.file).isEqualTo(defaultFireFile().toDocFile())
 
