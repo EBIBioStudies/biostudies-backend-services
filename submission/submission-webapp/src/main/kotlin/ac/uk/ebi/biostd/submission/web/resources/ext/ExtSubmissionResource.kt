@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/submissions/extended")
-@PreAuthorize("isAuthenticated()")
 class ExtSubmissionResource(
     private val extSubmissionService: ExtSubmissionService,
     private val extPageMapper: ExtendedPageMapper
