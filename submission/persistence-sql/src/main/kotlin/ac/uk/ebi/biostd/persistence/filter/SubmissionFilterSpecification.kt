@@ -20,6 +20,7 @@ import ac.uk.ebi.biostd.persistence.model.constants.VALUE
 import ebi.ac.uk.base.applyIfNotBlank
 import org.springframework.data.jpa.domain.Specification
 import java.time.OffsetDateTime
+import java.util.Locale
 import javax.persistence.criteria.CriteriaBuilder
 import javax.persistence.criteria.CriteriaQuery
 import javax.persistence.criteria.Root
@@ -59,7 +60,12 @@ class SubmissionFilterSpecification(filter: SubmissionFilter, email: String? = n
         Specification { root, _, cb -> cb.equal(root.get<DbSection>(SUB_ROOT_SECTION).get<String>(SECTION_TYPE), type) }
 
     private fun submissionTitleLike(title: String): Specification<DbSubmission> =
-        Specification { root, _, cb -> cb.like(cb.lower(root.get(SUB_TITLE)), "%${title.toLowerCase()}%") }
+        Specification { root, _, cb ->
+            cb.like(
+                cb.lower(root.get(SUB_TITLE)),
+                "%${title.lowercase(Locale.getDefault())}%"
+            )
+        }
 
     private fun sectionTitleLike(title: String): Specification<DbSubmission> {
         return Specification { root: Root<DbSubmission>, cq: CriteriaQuery<*>, cb: CriteriaBuilder ->
@@ -70,7 +76,7 @@ class SubmissionFilterSpecification(filter: SubmissionFilter, email: String? = n
                 .where(
                     cb.equal(attr.get<DbSection>(SECTION), root.get<DbSection>(SUB_ROOT_SECTION)),
                     cb.like(attr.get(NAME), SUB_TITLE),
-                    cb.like(attr.get(VALUE), "%${title.toLowerCase()}%")
+                    cb.like(attr.get(VALUE), "%${title.lowercase(Locale.getDefault())}%")
                 )
             cb.exists(subQuery)
         }

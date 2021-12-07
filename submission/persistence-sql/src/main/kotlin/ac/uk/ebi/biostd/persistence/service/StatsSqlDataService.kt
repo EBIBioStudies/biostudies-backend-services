@@ -10,6 +10,7 @@ import ac.uk.ebi.biostd.persistence.model.DbSubmissionStat
 import ac.uk.ebi.biostd.persistence.repositories.SubmissionStatsDataRepository
 import org.springframework.data.domain.PageRequest
 import org.springframework.transaction.annotation.Transactional
+import java.util.Locale
 
 open class StatsSqlDataService(
     private val submissionQueryService: SubmissionMetaQueryService,
@@ -43,7 +44,7 @@ open class StatsSqlDataService(
 
     private fun normalize(stats: List<SubmissionStat>) =
         stats.filter { submissionQueryService.existByAccNo(it.accNo) }
-            .map { DbSubmissionStat(it.accNo.toUpperCase(), it.value, it.type) }
+            .map { DbSubmissionStat(it.accNo.uppercase(Locale.getDefault()), it.value, it.type) }
 
     private fun summarize(
         stats: List<SubmissionStat>,

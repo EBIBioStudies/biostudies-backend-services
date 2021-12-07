@@ -9,6 +9,7 @@ import org.apache.commons.io.IOUtils
 import java.io.File
 import java.io.FileInputStream
 import java.io.FilenameFilter
+import java.util.Locale
 import java.util.zip.GZIPInputStream
 
 private val logger = KotlinLogging.logger {}
@@ -57,6 +58,6 @@ class PmcFileLoader(private val pmcLoader: PmcSubmissionLoader) {
     }
 
     object GzFilter : FilenameFilter {
-        override fun accept(dir: File, name: String): Boolean = name.toLowerCase().endsWith(".gz")
+        override fun accept(dir: File, name: String): Boolean = name.lowercase(Locale.getDefault()).endsWith(".gz")
     }
 }

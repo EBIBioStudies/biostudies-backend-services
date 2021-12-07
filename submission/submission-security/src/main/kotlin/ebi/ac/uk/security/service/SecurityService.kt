@@ -35,6 +35,7 @@ import org.springframework.transaction.annotation.Transactional
 import uk.ac.ebi.events.service.EventsPublisherService
 import java.nio.file.Path
 import java.nio.file.Paths
+import java.util.Locale
 
 @Suppress("TooManyFunctions")
 @Transactional
@@ -159,7 +160,7 @@ open class SecurityService(
     }
 
     private fun symLinkPath(userEmail: String): Path {
-        val prefixFolder = userEmail.substring(0, 1).toLowerCase()
+        val prefixFolder = userEmail.substring(0, 1).lowercase(Locale.getDefault())
         return Paths.get("${securityProps.magicDirPath}/$prefixFolder/$userEmail")
     }
 

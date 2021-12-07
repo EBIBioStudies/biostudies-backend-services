@@ -1,6 +1,7 @@
 package ebi.ac.uk.model
 
 import ebi.ac.uk.base.EMPTY
+import java.util.Locale
 import java.util.Objects
 
 data class Attribute(
@@ -36,7 +37,7 @@ data class AttributeDetail(val name: String, val value: String) {
         else -> name.equals(other.name, ignoreCase = true).and(value.equals(other.value, ignoreCase = true))
     }
 
-    override fun hashCode() = Objects.hash(name.toLowerCase(), value.toLowerCase())
+    override fun hashCode() = Objects.hash(name.lowercase(Locale.getDefault()), value.lowercase(Locale.getDefault()))
 }
 
 fun attributeDetails(name: String, value: String) = mutableListOf(AttributeDetail(name, value))

@@ -9,6 +9,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionStatsDataRepository
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.SingleSubmissionStat
 import org.springframework.data.domain.PageRequest
+import java.util.Locale
 
 class StatsMongoDataService(
     private val statsDataRepository: SubmissionStatsDataRepository
@@ -38,8 +39,8 @@ class StatsMongoDataService(
             .toList()
 
     private fun List<SubmissionStat>.filterValid() =
-        groupBy { it.accNo.toUpperCase() }
-            .mapKeys { statsDataRepository.findByAccNo(it.key.toUpperCase()) }
+        groupBy { it.accNo.uppercase(Locale.getDefault()) }
+            .mapKeys { statsDataRepository.findByAccNo(it.key.uppercase(Locale.getDefault())) }
             .filterKeys { it != null }
 
     private fun updateSubmissionStat(sub: DocSubmission, update: SubmissionStat): SubmissionStat {

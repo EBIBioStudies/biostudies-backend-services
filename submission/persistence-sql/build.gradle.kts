@@ -17,14 +17,14 @@ import Projects.CommonsSerialization
 import Projects.CommonsTest
 import Projects.CommonsUtil
 import Projects.SubmissionConfig
-import Projects.SubmissionPersistenceFilesystem
 import Projects.SubmissionPersistenceCommonApi
+import Projects.SubmissionPersistenceFilesystem
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
 
 plugins {
-    id("org.jetbrains.kotlin.plugin.jpa") version "1.4.32"
-    id("org.jetbrains.kotlin.plugin.allopen") version "1.4.32"
+    id("org.jetbrains.kotlin.plugin.jpa") version "1.6.0"
+    id("org.jetbrains.kotlin.plugin.allopen") version "1.6.0"
 }
 
 allOpen {

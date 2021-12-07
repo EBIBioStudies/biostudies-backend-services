@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseBody
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.multipart.MultipartFile
+import java.util.Locale
 
 @RestController
 @RequestMapping("/stats")
@@ -33,14 +34,18 @@ class StatsResource(
     fun findByType(
         @PathVariable type: String,
         @ModelAttribute filter: PaginationFilter
-    ): List<SubmissionStat> = submissionStatsService.findByType(SubmissionStatType.valueOf(type.toUpperCase()), filter)
+    ): List<SubmissionStat> =
+        submissionStatsService.findByType(SubmissionStatType.valueOf(type.uppercase(Locale.getDefault())), filter)
 
     @GetMapping("/{type}/{accNo}")
     @ResponseBody
     fun findByTypeAndAccNo(
         @PathVariable type: String,
         @PathVariable accNo: String
-    ): SubmissionStat = submissionStatsService.findByAccNoAndType(accNo, SubmissionStatType.valueOf(type.toUpperCase()))
+    ): SubmissionStat = submissionStatsService.findByAccNoAndType(
+        accNo,
+        SubmissionStatType.valueOf(type.uppercase(Locale.getDefault()))
+    )
 
     @PostMapping("/{type}", headers = ["$CONTENT_TYPE=$MULTIPART_FORM_DATA"])
     @ResponseBody
@@ -49,7 +54,8 @@ class StatsResource(
         @RequestParam("stats") stats: MultipartFile
     ): List<SubmissionStat> {
         val statsFile = tempFileGenerator.asFile(stats)
-        val statsList = statsFileHandler.readStats(statsFile, SubmissionStatType.valueOf(type.toUpperCase()))
+        val statsList =
+            statsFileHandler.readStats(statsFile, SubmissionStatType.valueOf(type.uppercase(Locale.getDefault())))
 
         return submissionStatsService.saveAll(statsList)
     }
@@ -61,7 +67,8 @@ class StatsResource(
         @RequestParam("stats") stats: MultipartFile
     ): List<SubmissionStat> {
         val statsFile = tempFileGenerator.asFile(stats)
-        val statsList = statsFileHandler.readStats(statsFile, SubmissionStatType.valueOf(type.toUpperCase()))
+        val statsList =
+            statsFileHandler.readStats(statsFile, SubmissionStatType.valueOf(type.uppercase(Locale.getDefault())))
 
         return submissionStatsService.incrementAll(statsList)
     }

@@ -29,9 +29,9 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.springframework.boot.gradle.tasks.bundling.BootJar
 
 plugins {
-    id("org.jetbrains.kotlin.plugin.spring") version "1.4.32"
-    id("io.spring.dependency-management") version "1.0.9.RELEASE"
-    id("org.springframework.boot") version "2.3.2.RELEASE"
+    id("org.jetbrains.kotlin.plugin.spring") version "1.6.0"
+    id("io.spring.dependency-management") version "1.0.11.RELEASE"
+    id("org.springframework.boot") version "2.6.1"
 }
 
 dependencies {
@@ -79,7 +79,6 @@ tasks.named<KotlinCompile>("compileKotlin") {
     targetCompatibility = "1.8"
 
     kotlinOptions {
-        includeRuntime = true
         jvmTarget = "1.8"
         freeCompilerArgs = listOf("-Xuse-experimental=kotlinx.coroutines.ExperimentalCoroutinesApi")
     }

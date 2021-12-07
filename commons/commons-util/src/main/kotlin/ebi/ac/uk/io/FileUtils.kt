@@ -16,6 +16,7 @@ import java.nio.file.StandardCopyOption.REPLACE_EXISTING
 import java.nio.file.attribute.PosixFilePermission
 import java.nio.file.attribute.PosixFilePermissions
 import java.security.MessageDigest
+import java.util.Locale
 import kotlin.streams.toList
 
 internal const val CHECKSUM_SIGNUM = 1
@@ -134,7 +135,7 @@ object FileUtils {
         val digest = MessageDigest.getInstance(MD5_ALGORITHM)
         file.inputStream().buffered(BUFFER_SIZE).use { it.iterator().forEach(digest::update) }
 
-        return digest.digest().joinToString("") { "%02x".format(it) }.toUpperCase()
+        return digest.digest().joinToString("") { "%02x".format(it) }.uppercase(Locale.getDefault())
     }
 }
 

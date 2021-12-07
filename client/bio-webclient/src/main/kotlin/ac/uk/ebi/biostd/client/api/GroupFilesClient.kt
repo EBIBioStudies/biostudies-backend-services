@@ -29,7 +29,7 @@ internal class GroupFilesClient(private val template: RestTemplate) : GroupFiles
     }
 
     override fun listGroupFiles(groupName: String, relativePath: String): List<UserFile> {
-        return template.getForObject<Array<UserFile>>(groupFileUrl(groupName, relativePath)).orEmpty().toList()
+        return template.getForObject<Array<UserFile>?>(groupFileUrl(groupName, relativePath)).orEmpty().toList()
     }
 
     override fun uploadGroupFiles(groupName: String, files: List<File>, relativePath: String) {

@@ -16,8 +16,8 @@ import org.springframework.boot.gradle.tasks.bundling.BootJar
 
 plugins {
     id("org.jetbrains.kotlin.plugin.spring") version "1.3.72"
-    id("io.spring.dependency-management") version "1.0.6.RELEASE"
-    id("org.springframework.boot") version "2.2.6.RELEASE"
+    id("io.spring.dependency-management") version "1.0.11.RELEASE"
+    id("org.springframework.boot") version "2.6.1"
 }
 
 dependencies {
