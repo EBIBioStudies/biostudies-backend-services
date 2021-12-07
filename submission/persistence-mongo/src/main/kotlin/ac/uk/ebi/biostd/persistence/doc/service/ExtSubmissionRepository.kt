@@ -40,7 +40,7 @@ class ExtSubmissionRepository(
     private fun save(submission: SubmissionDocData): DocSubmission {
         val (docSubmission, files) = submission
         val savedSubmission = subDataRepository.save(docSubmission)
-        fileListDocFileRepository.saveAll(files)
+        files.forEach { fileListDocFileRepository.save(it) }
         return savedSubmission
     }
 }
