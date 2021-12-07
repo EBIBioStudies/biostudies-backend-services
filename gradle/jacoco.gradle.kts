@@ -9,7 +9,7 @@ configure<JavaPluginConvention> {
 }
 
 configure<JacocoPluginExtension> {
-    toolVersion = "0.8.4"
+    toolVersion = "0.8.7"
 }
 
 tasks.named<Test>("test") {
