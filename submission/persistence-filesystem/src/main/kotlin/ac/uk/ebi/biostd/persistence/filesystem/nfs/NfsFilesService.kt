@@ -33,7 +33,10 @@ class NfsFilesService(
     private val folderResolver: SubmissionFolderResolver
 ) : FilesService {
     override fun persistSubmissionFiles(submission: ExtSubmission, mode: FileMode): ExtSubmission {
-        logger.info { "Starting processing files of submission ${submission.accNo}" }
+        val accNo = submission.accNo
+        val owner = submission.owner
+
+        logger.info { "$accNo $owner Processing files of submission $accNo" }
 
         val filePermissions = filePermissions(submission.released)
         val folderPermissions = folderPermissions(submission.released)
@@ -41,7 +44,8 @@ class NfsFilesService(
 
         val processed = processAttachedFiles(mode, submission, submissionFolder, filePermissions, folderPermissions)
         pageTabService.generatePageTab(PageTabRequest(processed, submissionFolder, filePermissions, folderPermissions))
-        logger.info { "Finishing processing files of submission ${submission.accNo}" }
+
+        logger.info { "$accNo $owner Finished processing files of submission $accNo" }
 
         return processed
     }
@@ -53,7 +57,10 @@ class NfsFilesService(
         filePermissions: Set<PosixFilePermission>,
         folderPermissions: Set<PosixFilePermission>
     ): ExtSubmission {
-        logger.info { "processing submission ${submission.accNo} files in $mode" }
+        val accNo = submission.accNo
+        val owner = submission.owner
+
+        logger.info { "$accNo $owner Processing files of submission $accNo in $mode" }
 
         val subFilesPath = subFolder.resolve(FILES_PATH)
         val tempFolder = createTempFolder(subFolder, submission.accNo)
@@ -63,7 +70,7 @@ class NfsFilesService(
             reCreateFolder(subFolder, folderPermissions)
         }
 
-        val config = FileProcessingConfig(subFilesPath, tempFolder, filePermissions, folderPermissions)
+        val config = FileProcessingConfig(accNo, owner, subFilesPath, tempFolder, filePermissions, folderPermissions)
 
         fun processNfsFile(file: ExtFile): ExtFile {
             val nfsFile = file as NfsFile
@@ -72,7 +79,7 @@ class NfsFilesService(
 
         val processed = processFiles(submission, ::processNfsFile)
 
-        logger.info { "Finishing processing submission ${submission.accNo} files in $mode" }
+        logger.info { "$accNo $owner Finished processing files of submission ${submission.accNo} in $mode" }
         deleteFile(tempFolder)
 
         return processed

@@ -8,11 +8,11 @@ import mu.KotlinLogging
 private val logger = KotlinLogging.logger {}
 
 fun FileProcessingConfig.fireCopy(fireFile: FireFile): ExtFile {
-    logger.info { "copying fire file ${fireFile.fileName} with id ${fireFile.fireId}" }
+    logger.info { "$accNo $owner Copying fire file ${fireFile.fileName} with id ${fireFile.fireId}" }
     return fireFile
 }
 
 fun FileProcessingConfig.fireMove(fireFile: FireFile): ExtFile {
-    logger.info { "moving fire file ${fireFile.fileName} with id ${fireFile.fireId}" }
+    logger.info { "$accNo $owner Moving fire file ${fireFile.fileName} with id ${fireFile.fireId}" }
     return fireFile
 }
