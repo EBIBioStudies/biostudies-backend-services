@@ -131,6 +131,8 @@ class SubmissionDocDataRepository(
         )
     }
 
+    fun getSubmission(acc: String, version: Int) = submissionRepository.getByAccNoAndVersion(acc, version)
+
     companion object {
         private fun createCountAggregation(filter: SubmissionFilter) =
             createAggregation(filter).plus(group().count().`as`("submissions"))

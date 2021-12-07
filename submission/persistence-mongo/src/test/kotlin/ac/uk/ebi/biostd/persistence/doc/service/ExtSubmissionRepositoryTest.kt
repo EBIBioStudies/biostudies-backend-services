@@ -1,12 +1,12 @@
 package ac.uk.ebi.biostd.persistence.doc.service
 
-import FileListFactory.defaultFileList
-import FileFileFactoryFactory.defaultFireFile
-import SectionFactory.defaultSection
-import SubmissionFactory.ACC_NO
-import SubmissionFactory.OWNER
-import SubmissionFactory.SUBMITTER
-import SubmissionFactory.defaultSubmission
+import uk.ac.ebi.extended.test.FileListFactory.defaultFileList
+import uk.ac.ebi.extended.test.FileFileFactoryFactory.defaultFireFile
+import uk.ac.ebi.extended.test.SectionFactory.defaultSection
+import uk.ac.ebi.extended.test.SubmissionFactory.ACC_NO
+import uk.ac.ebi.extended.test.SubmissionFactory.OWNER
+import uk.ac.ebi.extended.test.SubmissionFactory.SUBMITTER
+import uk.ac.ebi.extended.test.SubmissionFactory.defaultSubmission
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDraftDocDataRepository
@@ -57,7 +57,7 @@ class ExtSubmissionRepositoryTest(
     @Test
     fun saveSubmission() {
         val section = defaultSection(fileList = defaultFileList(files = listOf(defaultFireFile())))
-        val submission = defaultSubmission(section = section)
+        val submission = defaultSubmission(section = section, version = 2)
 
         subDataRepository.save(docSubmission.copy(accNo = ACC_NO, status = PROCESSED, version = 1))
         assertThat(subDataRepository.findAll()).hasSize(1)
@@ -72,9 +72,8 @@ class ExtSubmissionRepositoryTest(
         assertThat(result.section).isEqualTo(section.copy(fileList = defaultFileList(filesUrl = null)))
         assertThat(result.status).isEqualTo(PROCESSING)
 
-        val savedSubmissions = subDataRepository.getSubmissions(SubmissionFilter(submission.accNo))
-        assertThat(savedSubmissions).hasSize(1)
-        val savedSubmission = savedSubmissions.first()
+        assertThat(subDataRepository.getSubmission(submission.accNo, -1)).isNotNull()
+        val savedSubmission = subDataRepository.getSubmission(submission.accNo, 2)
         assertThat(savedSubmission.status).isEqualTo(PROCESSED)
         assertThat(subDataRepository.findAll()).hasSize(2)
 

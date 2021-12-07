@@ -1,4 +1,7 @@
-import SectionFactory.defaultSection
+@file:Suppress("LongParameterList", "MagicNumber")
+package uk.ac.ebi.extended.test
+
+import uk.ac.ebi.extended.test.SectionFactory.defaultSection
 import arrow.core.Either
 import ebi.ac.uk.extended.model.ExtAttribute
 import ebi.ac.uk.extended.model.ExtCollection
@@ -22,9 +25,7 @@ import java.io.File
 import java.time.OffsetDateTime
 import java.time.ZoneOffset.UTC
 
-@Suppress("MagicNumber")
 object SubmissionFactory {
-    @Suppress("LongParameterList")
     fun defaultSubmission(
         accNo: String = ACC_NO,
         version: Int = VERSION,
@@ -96,7 +97,6 @@ object SubmissionFactory {
 }
 
 object SectionFactory {
-    @Suppress("LongParameterList")
     fun defaultSection(
         accNo: String? = ACC_NO,
         type: String = TYPE,
@@ -124,10 +124,7 @@ object SectionFactory {
     val LINKS = emptyList<Either<ExtLink, ExtLinkTable>>()
 }
 
-sealed class FileFactory
-
-object FileFileFactoryFactory : FileFactory() {
-    @Suppress("LongParameterList")
+object FileFileFactoryFactory {
     fun defaultFireFile(
         filePath: String = FILE_PATH,
         relPath: String = REL_PATH,
@@ -152,7 +149,7 @@ object FileFileFactoryFactory : FileFactory() {
     val ATTRIBUTES = emptyList<ExtAttribute>()
 }
 
-object FireDirectoryFactory : FileFactory() {
+object FireDirectoryFactory {
     fun defaultFireDirectory(
         filePath: String = FILE_PATH,
         relPath: String = REL_PATH,
@@ -174,7 +171,7 @@ object FireDirectoryFactory : FileFactory() {
     val ATTRIBUTES = emptyList<ExtAttribute>()
 }
 
-object NfsFileFactoryFactory : FileFactory() {
+object NfsFileFactoryFactory {
     fun defaultNfsFile(
         filePath: String = FILE_PATH,
         relPath: String = REL_PATH,

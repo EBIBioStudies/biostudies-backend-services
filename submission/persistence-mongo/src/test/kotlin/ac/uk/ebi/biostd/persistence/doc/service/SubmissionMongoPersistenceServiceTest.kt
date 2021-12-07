@@ -1,7 +1,5 @@
 package ac.uk.ebi.biostd.persistence.doc.service
 
-import SubmissionFactory.ACC_NO
-import SubmissionFactory.defaultSubmission
 import ac.uk.ebi.biostd.persistence.common.request.SaveSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
@@ -22,6 +20,8 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.Properties
+import uk.ac.ebi.extended.test.SubmissionFactory.ACC_NO
+import uk.ac.ebi.extended.test.SubmissionFactory.defaultSubmission
 
 @ExtendWith(MockKExtension::class)
 class SubmissionMongoPersistenceServiceTest(
@@ -39,10 +39,12 @@ class SubmissionMongoPersistenceServiceTest(
         submissionRepository
     )
 
+    private companion object {
+        const val serializedSub = "{}"
+    }
+
     @Nested
     inner class SaveRequest {
-        private val serializedSub = "{}"
-
         @Test
         fun `save request with current version active`() {
             val subRequestSlot = slot<SubmissionRequest>()
@@ -93,7 +95,7 @@ class SubmissionMongoPersistenceServiceTest(
     }
 
     @Test
-    fun `processSubmission`() {
+    fun `process submission`() {
         val submission = defaultSubmission()
         val request = SaveSubmissionRequest(submission, COPY, "draftKey")
         val filePersistenceRequest = FilePersistenceRequest(request.submission, request.fileMode)
