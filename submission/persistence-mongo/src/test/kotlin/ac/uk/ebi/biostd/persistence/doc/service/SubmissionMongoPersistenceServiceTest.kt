@@ -4,6 +4,7 @@ import ac.uk.ebi.biostd.persistence.common.request.SaveSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequest
+import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus.PROCESSED
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus.REQUESTED
 import ac.uk.ebi.biostd.persistence.filesystem.request.FilePersistenceRequest
 import ac.uk.ebi.biostd.persistence.filesystem.service.FileSystemService
@@ -101,6 +102,7 @@ class SubmissionMongoPersistenceServiceTest(
         val filePersistenceRequest = FilePersistenceRequest(request.submission, request.fileMode)
         every { systemService.persistSubmissionFiles(filePersistenceRequest) } returns submission
         every { submissionRepository.saveSubmission(submission, request.draftKey) } returns submission
+        every { submissionRequestDocDataRepository.updateStatus(PROCESSED, submission.accNo, 1) } answers { nothing }
 
         val result = testInstance.processSubmission(request)
 
