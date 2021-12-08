@@ -219,6 +219,7 @@ object Projects {
     const val CommonsHttp = ":commons:commons-http"
     const val CommonsSerialization = ":commons:commons-serialization"
     const val CommonsModelExtended = ":commons:commons-model-extended"
+    const val CommonsModelExtendedTest = ":commons:commons-model-extended-test"
     const val CommonsModelExtendedMapping = ":commons:commons-model-extended-mapping"
     const val CommonsModelExtendedSerialization = ":commons:commons-model-extended-serialization"
     const val CommonsSerializationUtil = ":commons:commons-serialization-util"

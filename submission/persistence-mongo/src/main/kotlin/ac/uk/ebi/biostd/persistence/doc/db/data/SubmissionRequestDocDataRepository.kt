@@ -31,7 +31,7 @@ class SubmissionRequestDocDataRepository(
         submissionRequestRepository.save(submissionRequest)
     }
 
-    fun getRequest(filter: SubmissionFilter, email: String? = null): List<SubmissionRequest> {
+    fun findActiveRequest(filter: SubmissionFilter, email: String? = null): List<SubmissionRequest> {
         val query = Query().limit(filter.limit).skip(filter.offset)
         query.addCriteria(createQuery(filter, email))
         return mongoTemplate.find(query, SubmissionRequest::class.java)
@@ -39,7 +39,9 @@ class SubmissionRequestDocDataRepository(
 
     @Suppress("SpreadOperator")
     private fun createQuery(filter: SubmissionFilter, email: String? = null): Criteria =
-        where("submission.$SUB_OWNER").`is`(email).andOperator(*criteriaArray(filter))
+        where("submission.$SUB_OWNER").`is`(email)
+            .and("status").`is`(REQUESTED)
+            .andOperator(*criteriaArray(filter))
 
     fun updateStatus(status: SubmissionRequestStatus, accNo: String, version: Int) {
         val query = Query(where(SUB_ACC_NO).`is`(accNo).andOperator(where(SUB_VERSION).`is`(version)))

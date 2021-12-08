@@ -65,12 +65,12 @@ class SubmissionSubmitter(
         return processRequest(saved.submission.accNo, saved.submission.version, saved.fileMode, saved.draftKey)
     }
 
-    fun submit(submission: SaveSubmissionRequest): ExtSubmission {
+    fun submit(request: SaveSubmissionRequest): ExtSubmission {
         return processRequest(
-            submission.submission.accNo,
-            submission.submission.version,
-            submission.fileMode,
-            submission.draftKey
+            request.submission.accNo,
+            request.submission.version,
+            request.fileMode,
+            request.draftKey
         )
     }
 
@@ -87,25 +87,20 @@ class SubmissionSubmitter(
 
         logger.info { "${submission.accNo} ${submission.submitter} Saving submission request ${submission.accNo}" }
         val rqt = submissionRequestService.saveSubmissionRequest(
-            SaveSubmissionRequest(
-                submission,
-                request.mode,
-                request.draftKey
-            )
+            submission
         )
         return SaveSubmissionRequest(rqt, request.mode, request.draftKey)
     }
 
     fun submitAsync(request: SaveSubmissionRequest): ExtSubmission {
-        return submissionRequestService.saveSubmissionRequest(request)
+        return submissionRequestService.saveSubmissionRequest(request.submission)
     }
 
     fun processRequest(accNo: String, version: Int, fileMode: FileMode, draftKey: String?): ExtSubmission {
         val submission = submissionQueryService.getRequest(accNo, version)
         val saveRequest = SaveSubmissionRequest(submission, fileMode, draftKey)
-        val accNo1 = saveRequest.submission.accNo
-        logger.info { "$accNo1 ${saveRequest.submission.submitter} Processing request for submission $accNo1" }
-        return submissionRequestService.processSubmission(saveRequest)
+        logger.info { "Processing request for submission accNo='$accNo', version='$version'" }
+        return submissionRequestService.processSubmissionRequest(saveRequest)
     }
 
     @Suppress("TooGenericExceptionCaught")
