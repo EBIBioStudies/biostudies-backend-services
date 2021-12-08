@@ -99,8 +99,7 @@ class SubmissionSubmitter(
     fun processRequest(accNo: String, version: Int, fileMode: FileMode, draftKey: String?): ExtSubmission {
         val submission = submissionQueryService.getRequest(accNo, version)
         val saveRequest = SaveSubmissionRequest(submission, fileMode, draftKey)
-        val accNo1 = saveRequest.submission.accNo
-        logger.info { "$accNo1 ${saveRequest.submission.submitter} Processing request for submission $accNo1" }
+        logger.info { "Processing request for submission accNo='$accNo', version='$version'" }
         return submissionRequestService.processSubmissionRequest(saveRequest)
     }
 
