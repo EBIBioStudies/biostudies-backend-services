@@ -8,6 +8,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.PROJECT_DOC_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.STAT_DOC_NAME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.STAT_DOC_VALUE
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.STORAGE_MODE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ATTRIBUTES
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_CREATION_TIME
@@ -20,6 +21,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_RELEASE_TIME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_REL_PATH
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ROOT_PATH
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_SCHEMA_VERSION
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_SECRET_KEY
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_SECTION
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_STATS
@@ -50,6 +52,7 @@ class SubmissionConverter(
         submissionDoc[SUB_ID] = submission.id
         submissionDoc[SUB_ACC_NO] = submission.accNo
         submissionDoc[SUB_VERSION] = submission.version
+        submissionDoc[SUB_SCHEMA_VERSION] = submission.schemaVersion
         submissionDoc[SUB_OWNER] = submission.owner
         submissionDoc[SUB_SUBMITTER] = submission.submitter
         submissionDoc[SUB_TITLE] = submission.title
@@ -68,6 +71,7 @@ class SubmissionConverter(
         submissionDoc[SUB_PROJECTS] = submission.collections.map { collectionToDocument(it) }
         submissionDoc[SUB_STATS] = submission.stats.map { statToDocument(it) }
         submissionDoc[PAGE_TAB_FILES] = submission.pageTabFiles.map { fileConverter.convert(it) }
+        submissionDoc[STORAGE_MODE] = submission.storageMode.value
         return submissionDoc
     }
 

@@ -4,16 +4,20 @@ const val FILES_SEPARATOR = ','
 
 internal object CommonParameters {
     const val SERVER_HELP = "BioStudies host url"
-    const val ATTACHED_HELP = "Comma separated list of paths to the files referenced in the submission"
     const val USER_HELP = "User that will perform the submission"
     const val PASSWORD_HELP = "The user password"
     const val ON_BEHALF_HELP = "The user password"
+}
+
+internal object SubmissionParameters {
+    const val ACC_NO_HELP = "The submission accession number"
+    const val ATTACHED_HELP = "Comma separated list of paths to the files referenced in the submission"
     const val INPUT_HELP = "Path to the file containing the submission page tab"
-    const val ACC_NO_HELP = "The accession number of the submission"
+    const val FILE_MODE = "Indicates the mode used to process the files. Valid values are COPY or MOVE"
 }
 
 internal object MigrationParameters {
-    const val ACC_NO = "Accession number of the submission to migrate"
+    const val ACC_NO = "Accession number of the submission to be migrated"
     const val SOURCE = "BioStudies environment to take the submission from"
     const val TARGET = "BioStudies environment to migrate the submission to"
     const val SOURCE_USER = "BioStudies user in the source environment"

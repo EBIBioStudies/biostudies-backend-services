@@ -5,6 +5,9 @@ import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
 import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient.Companion.create
 import com.github.ajalt.clikt.core.PrintMessage
+import ebi.ac.uk.dsl.file
+import ebi.ac.uk.extended.model.FileMode.COPY
+import ebi.ac.uk.extended.model.FileMode.MOVE
 import ebi.ac.uk.model.Submission
 import io.mockk.clearAllMocks
 import io.mockk.every
@@ -36,9 +39,25 @@ internal class SubmissionServiceTest {
         every {
             create(requestSubmit.server).getAuthenticatedClient(requestSubmit.user, requestSubmit.password)
         } returns bioWebClient
-        every { bioWebClient.submitSingle(requestSubmit.file, requestSubmit.attached).body } returns submission
+        every {
+            bioWebClient.submitSingle(requestSubmit.file, requestSubmit.attached, fileMode = COPY).body
+        } returns submission
 
         assertThat(testInstance.submit(requestSubmit)).isEqualTo(submission)
+        verify(exactly = 1) { bioWebClient.submitSingle(requestSubmit.file, requestSubmit.attached, fileMode = COPY) }
+    }
+
+    @Test
+    fun `submit successful moving files`() {
+        every {
+            create(requestSubmit.server).getAuthenticatedClient(requestSubmit.user, requestSubmit.password)
+        } returns bioWebClient
+        every {
+            bioWebClient.submitSingle(requestSubmit.file, requestSubmit.attached, fileMode = MOVE).body
+        } returns submission
+
+        assertThat(testInstance.submit(requestSubmit.copy(fileMode = MOVE))).isEqualTo(submission)
+        verify(exactly = 1) { bioWebClient.submitSingle(requestSubmit.file, requestSubmit.attached, fileMode = MOVE) }
     }
 
     @Test
@@ -112,7 +131,8 @@ internal class SubmissionServiceTest {
             password = "password",
             onBehalf = "onBehalf",
             file = mockk(),
-            attached = listOf(mockk())
+            attached = listOf(mockk()),
+            fileMode = COPY
         )
 
         val requestDelete = DeletionRequest(

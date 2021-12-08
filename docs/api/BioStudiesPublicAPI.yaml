@@ -57,6 +57,9 @@ paths:
   /submissions/direct/async:
     $ref: 'submissions/operations/AsyncDirectSubmit.yaml'
 
+  /submissions/fileLists/validate:
+    $ref: 'submissions/fileList/ValidateFileList.yaml'
+
   /submissions/{accNo}:
     $ref: 'submissions/operations/DeleteSubmission.yaml'
   /submissions/{accNo}.json:

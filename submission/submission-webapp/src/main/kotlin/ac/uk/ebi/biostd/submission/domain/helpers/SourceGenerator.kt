@@ -12,7 +12,13 @@ import uk.ac.ebi.fire.client.integration.web.FireWebClient
 import java.io.File
 import java.nio.file.Path
 
-class SourceGenerator(private val fireWebClient: FireWebClient) {
+class SourceGenerator(
+    private val fireWebClient: FireWebClient
+) {
+    fun userSources(
+        user: SecurityUser,
+        rootPath: String? = null
+    ): FilesSource = ComposedFileSource(userSourcesList(user, rootPath.orEmpty()))
 
     fun submissionSources(requestSources: RequestSources): FilesSource {
         val (submitter, files, rootPath, previousFiles, owner) = requestSources
@@ -42,8 +48,13 @@ class SourceGenerator(private val fireWebClient: FireWebClient) {
         return sources
     }
 
+    private fun userSourcesList(user: SecurityUser, rootPath: String): List<FilesSource> =
+        listOf(createPathSource(user.magicFolder.path, rootPath)).plus(groupSources(user.groupsFolders))
+
     private fun submissionsList(listFiles: List<ExtFile>): FilesSource = ExtFileListSource(fireWebClient, listFiles)
+
     private fun createPathSource(folder: Path, rootPath: String) = PathFilesSource(folder.resolve(rootPath))
+
     private fun groupSources(groups: List<GroupMagicFolder>) = groups.map { GroupSource(it.groupName, it.path) }
 }
 

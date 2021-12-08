@@ -19,6 +19,7 @@ class ToExtSubmissionMapper {
         submitter = submission.submitter,
         title = submission.title,
         version = submission.version,
+        schemaVersion = submission.schemaVersion,
         method = getMethod(submission.method),
         status = getStatus(submission.status),
         relPath = submission.relPath,
@@ -33,7 +34,8 @@ class ToExtSubmissionMapper {
         collections = submission.collections.map { ExtCollection(it.accNo) },
         tags = submission.tags.map { ExtTag(it.name, it.value) },
         stats = submission.stats.map { it.toExtStat() },
-        pageTabFiles = submission.pageTabFiles.map { it.toExtFile() }
+        pageTabFiles = submission.pageTabFiles.map { it.toExtFile() },
+        storageMode = submission.storageMode
     )
 
     private fun getStatus(status: DocProcessingStatus) = when (status) {

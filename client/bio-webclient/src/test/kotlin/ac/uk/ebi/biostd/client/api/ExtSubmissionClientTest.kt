@@ -5,6 +5,7 @@ import ac.uk.ebi.biostd.client.dto.ExtPageQuery
 import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.model.constants.FILE_LISTS
+import ebi.ac.uk.model.constants.FILE_MODE
 import ebi.ac.uk.model.constants.SUBMISSION
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
@@ -164,10 +165,12 @@ class ExtSubmissionClientTest(
 
     private fun assertHttpEntity(entity: HttpEntity<String>, fileList: File) {
         val body = entity.body as LinkedMultiValueMap<String, Any>
-        assertThat(body).hasSize(2)
+        assertThat(body).hasSize(3)
         assertThat(body[FILE_LISTS]).hasSize(1)
         assertThat((body[FILE_LISTS]?.first() as FileSystemResource).file).isEqualTo(fileList)
         assertThat(body[SUBMISSION]).hasSize(1)
         assertThat(body[SUBMISSION]?.first()).isEqualTo("ExtSubmission")
+        assertThat(body[FILE_MODE]).hasSize(1)
+        assertThat(body[FILE_MODE]?.first()).isEqualTo("COPY")
     }
 }

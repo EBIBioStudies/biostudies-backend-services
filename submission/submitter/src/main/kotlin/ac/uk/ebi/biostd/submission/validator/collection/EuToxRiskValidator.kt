@@ -4,7 +4,7 @@ import ac.uk.ebi.biostd.common.properties.ValidatorProperties
 import ac.uk.ebi.biostd.persistence.common.exception.CollectionValidationException
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.NfsFile
-import ebi.ac.uk.extended.model.allFiles
+import ebi.ac.uk.extended.model.allSectionsFiles
 import ebi.ac.uk.util.collections.ifNotEmpty
 import org.springframework.core.io.FileSystemResource
 import org.springframework.http.HttpEntity
@@ -37,7 +37,7 @@ class EuToxRiskValidator(
 
     fun body(submission: ExtSubmission): FileSystemResource {
         val subFile = submission
-            .allFiles
+            .allSectionsFiles
             .filterIsInstance<NfsFile>()
             .find { it.file.extension == "xlsx" }
             ?: throw CollectionValidationException(listOf(EXCEL_FILE_REQUIRED))

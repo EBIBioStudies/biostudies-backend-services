@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.persistence.doc.db.converters.to
 
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.PAGE_TAB_FILES
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.STORAGE_MODE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ATTRIBUTES
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_CREATION_TIME
@@ -13,6 +14,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_RELEASE_TIME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_REL_PATH
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ROOT_PATH
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_SCHEMA_VERSION
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_SECRET_KEY
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_SECTION
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_STATUS
@@ -28,6 +30,7 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocStat
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionMethod
 import ac.uk.ebi.biostd.persistence.doc.model.DocTag
+import ebi.ac.uk.extended.model.StorageMode
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
@@ -67,6 +70,7 @@ internal class SubmissionConverterTest(
         assertThat(result[SUB_ID]).isEqualTo(submissionId)
         assertThat(result[SUB_ACC_NO]).isEqualTo(submissionAccNo)
         assertThat(result[SUB_VERSION]).isEqualTo(submissionVersion)
+        assertThat(result[SUB_SCHEMA_VERSION]).isEqualTo(submissionSchemaVersion)
         assertThat(result[SUB_OWNER]).isEqualTo(submissionOwner)
         assertThat(result[SUB_SUBMITTER]).isEqualTo(submissionSubmitter)
         assertThat(result[SUB_TITLE]).isEqualTo(submissionTitle)
@@ -82,6 +86,7 @@ internal class SubmissionConverterTest(
         assertThat(result[SUB_SECTION]).isEqualTo(sectionDocument)
         assertThat(result[SUB_ATTRIBUTES]).isEqualTo(listOf(attributeDocument))
         assertThat(result[PAGE_TAB_FILES]).isEqualTo(listOf(fileDocument))
+        assertThat(result[STORAGE_MODE]).isEqualTo(StorageMode.NFS.value)
 
         val tags = result.getAs<List<Document>>(DocSubmissionFields.SUB_TAGS)
         val tag = tags.first()
@@ -107,6 +112,7 @@ internal class SubmissionConverterTest(
             id = submissionId,
             accNo = submissionAccNo,
             version = submissionVersion,
+            schemaVersion = submissionSchemaVersion,
             owner = submissionOwner,
             submitter = submissionSubmitter,
             title = submissionTitle,
@@ -124,7 +130,8 @@ internal class SubmissionConverterTest(
             tags = submissionTags,
             collections = submissionProjects,
             stats = submissionStats,
-            pageTabFiles = listOf(docFile)
+            pageTabFiles = listOf(docFile),
+            storageMode = StorageMode.NFS
         )
     }
 
@@ -132,6 +139,7 @@ internal class SubmissionConverterTest(
         val submissionId = ObjectId()
         const val submissionAccNo = "S-TEST1"
         const val submissionVersion = 1
+        const val submissionSchemaVersion = "1.0"
         const val submissionOwner = "owner@mail.org"
         const val submissionSubmitter = "submitter@mail.org"
         const val submissionTitle = "TestSubmission"

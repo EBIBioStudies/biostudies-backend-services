@@ -249,17 +249,40 @@ internal class SecurityServiceTest(
 
         @Test
         fun `change password when not activate user found`() {
-            every { userRepository.findByActivationKeyAndActive(ACTIVATION_KEY, true) } returns null
+            every { userRepository.findByActivationKey(ACTIVATION_KEY) } returns null
 
-            assertThrows<UserWithActivationKeyNotFoundException> { testInstance.changePassword(ChangePasswordRequest(ACTIVATION_KEY, password)) }
+            assertThrows<UserWithActivationKeyNotFoundException> {
+                testInstance.changePassword(
+                    ChangePasswordRequest(
+                        ACTIVATION_KEY,
+                        password
+                    )
+                )
+            }
         }
 
         @Test
-        fun `change password`() {
+        fun `change password when active user`() {
+            val user = simpleUser.apply { active = true }
             val passwordDigest = ByteArray(0)
-            every { userRepository.findByActivationKeyAndActive(ACTIVATION_KEY, true) } returns simpleUser
+            every { userRepository.findByActivationKey(ACTIVATION_KEY) } returns user
             every { securityUtil.getPasswordDigest(password) } returns passwordDigest
             every { userRepository.save(any<DbUser>()) } answers { firstArg() }
+            every { securityProps.magicDirPath } returns temporaryFolder.createDirectory("users").absolutePath
+
+            val updated = testInstance.changePassword(ChangePasswordRequest(ACTIVATION_KEY, "new password"))
+            assertThat(updated.email).isEqualTo(user.email)
+            assertThat(user.activationKey).isNull()
+            assertThat(user.passwordDigest).isEqualTo(passwordDigest)
+        }
+
+        @Test
+        fun `change password when inactive user`() {
+            val passwordDigest = ByteArray(0)
+            every { userRepository.findByActivationKey(ACTIVATION_KEY) } returns simpleUser
+            every { securityUtil.getPasswordDigest(password) } returns passwordDigest
+            every { userRepository.save(any<DbUser>()) } answers { firstArg() }
+            every { securityProps.magicDirPath } returns temporaryFolder.createDirectory("users").absolutePath
 
             val updated = testInstance.changePassword(ChangePasswordRequest(ACTIVATION_KEY, "new password"))
             assertThat(updated.email).isEqualTo(simpleUser.email)
@@ -278,7 +301,7 @@ internal class SecurityServiceTest(
 
         @Test
         fun `reset password when user not found`() {
-            every { userRepository.findByLoginOrEmailAndActive(email, email, true) } returns null
+            every { userRepository.findByEmail(email) } returns null
 
             assertThrows<UserNotFoundByEmailException> { testInstance.resetPassword(resetPasswordRequest) }
         }
@@ -288,7 +311,7 @@ internal class SecurityServiceTest(
             val resetSlot = slot<SecurityNotification>()
             val activationUrl = "https://dummy-backend.com/active/1234"
 
-            every { userRepository.findByLoginOrEmailAndActive(email, email, true) } returns simpleUser
+            every { userRepository.findByEmail(email) } returns simpleUser
             every { securityUtil.newKey() } returns ACTIVATION_KEY
             every { userRepository.save(any<DbUser>()) } answers { firstArg() }
             every { securityUtil.getActivationUrl(instanceKey, path, ACTIVATION_KEY) } returns activationUrl

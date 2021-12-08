@@ -12,6 +12,7 @@ import ebi.ac.uk.extended.model.ExtStat
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod
 import ebi.ac.uk.extended.model.ExtTag
+import ebi.ac.uk.extended.model.StorageMode
 import ebi.ac.uk.io.sources.ComposedFileSource
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.io.sources.PathFilesSource
@@ -43,6 +44,7 @@ class ToExtSubmissionMapper(private val submissionsPath: Path) {
                 submitter = dbSubmission.submitter.email,
                 title = dbSubmission.title,
                 version = dbSubmission.version,
+                schemaVersion = "1.0",
                 method = getMethod(dbSubmission.method),
                 status = getStatus(dbSubmission.status),
                 relPath = dbSubmission.relPath,
@@ -56,7 +58,8 @@ class ToExtSubmissionMapper(private val submissionsPath: Path) {
                 attributes = dbSubmission.validAttributes.map { it.toExtAttribute() },
                 collections = dbSubmission.accessTags.map { ExtCollection(it.name) },
                 tags = dbSubmission.tags.map { ExtTag(it.classifier, it.name) },
-                stats = stats.map { toExtMetric(it) }
+                stats = stats.map { toExtMetric(it) },
+                storageMode = StorageMode.NFS
             )
         }.onFailure {
             throw ExtSubmissionMappingException(dbSubmission.accNo, it.message ?: it.localizedMessage)

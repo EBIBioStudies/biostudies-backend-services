@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.service
 import ac.uk.ebi.biostd.exception.InvalidFileListException
 import ac.uk.ebi.biostd.integration.SubFormat
 import ac.uk.ebi.biostd.service.PageTabFileReader.readAsPageTab
+import ac.uk.ebi.biostd.validation.InvalidChunkSizeException
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.io.sources.FireBioFile
 import ebi.ac.uk.io.sources.FireDirectoryBioFile
@@ -13,10 +14,13 @@ import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.extensions.allSections
 import ebi.ac.uk.model.extensions.fileListName
 import java.io.File
+import java.lang.ClassCastException
 
 internal class FileListSerializer(
     private val serializer: PagetabSerializer
 ) {
+    internal fun deserializeFileList(fileName: String, source: FilesSource): FileList = getFileList(fileName, source)
+
     internal fun deserializeFileList(submission: Submission, source: FilesSource): Submission {
         submission.allSections()
             .filter { section -> section.fileListName != null }
@@ -42,6 +46,12 @@ internal class FileListSerializer(
         runCatching {
             serializer.deserializeElement<FilesTable>(readAsPageTab(file), SubFormat.fromFile(file))
         }.getOrElse {
-            throw InvalidFileListException("Problem processing file list '${file.name}': ${it.message}")
+            throw InvalidFileListException("Problem processing file list '${file.name}': ${errorMsg(it)}")
         }
+
+    private fun errorMsg(exception: Throwable) = when (exception) {
+        is ClassCastException,
+        is InvalidChunkSizeException -> "The provided page tab doesn't match the file list format"
+        else -> exception.message
+    }
 }

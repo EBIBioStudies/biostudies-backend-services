@@ -24,9 +24,9 @@ internal class ToFileTest(
     @MockK val attribute: Attribute,
     tempFolder: TemporaryFolder
 ) {
-    private var systemFile = tempFolder.createFile("my-file", "test content")
+    private var file = tempFolder.createFile("my-file", "test content")
     private val extFile =
-        NfsFile(systemFile.name, "filePath", "relPath", systemFile.absolutePath, systemFile, listOf(extAttribute))
+        NfsFile("folder/my-file", "Files/folder/my-file", file.absolutePath, file, listOf(extAttribute))
 
     @BeforeEach
     fun beforeEach() {
@@ -41,13 +41,13 @@ internal class ToFileTest(
 
     @Test
     fun `from fire file`() {
-        val fireFile = FireFile("fileName", "filePath", "relPath", "fireId", "md5", 12, listOf(extAttribute))
+        val fireFile = FireFile("folder/my-file", "Files/folder/my-file", "fireId", "md5", 12, listOf(extAttribute))
         assertFile(fireFile.toFile())
     }
 
     @Test
     fun `from fire directory`() {
-        val fireDirectory = FireDirectory("fileName", "filePath", "relPath", "md5", 12, listOf(extAttribute))
+        val fireDirectory = FireDirectory("folder/my-file", "Files/folder/my-file", "md5", 12, listOf(extAttribute))
         assertFile(fireDirectory.toFile())
     }
 

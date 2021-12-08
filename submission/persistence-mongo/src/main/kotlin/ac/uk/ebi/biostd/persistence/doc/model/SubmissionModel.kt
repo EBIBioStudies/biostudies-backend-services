@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.persistence.doc.model
 
 import arrow.core.Either
+import ebi.ac.uk.extended.model.StorageMode
 import org.bson.types.ObjectId
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.mapping.Document
@@ -22,6 +23,7 @@ data class DocSubmission(
     val id: ObjectId,
     val accNo: String,
     var version: Int,
+    var schemaVersion: String,
     val owner: String,
     val submitter: String,
     val title: String?,
@@ -39,7 +41,8 @@ data class DocSubmission(
     val tags: List<DocTag> = listOf(),
     val collections: List<DocCollection> = listOf(),
     val stats: List<DocStat> = listOf(),
-    val pageTabFiles: List<DocFile> = listOf()
+    val pageTabFiles: List<DocFile> = listOf(),
+    val storageMode: StorageMode
 )
 
 enum class DocSubmissionMethod(val value: String) {

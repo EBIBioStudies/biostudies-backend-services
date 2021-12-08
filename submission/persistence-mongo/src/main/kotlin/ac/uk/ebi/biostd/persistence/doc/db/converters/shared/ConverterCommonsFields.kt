@@ -111,6 +111,7 @@ object DocSubmissionFields {
     const val SUB_ID = "id"
     const val SUB_ACC_NO = "accNo"
     const val SUB_VERSION = "version"
+    const val SUB_SCHEMA_VERSION = "schemaVersion"
     const val SUB_OWNER = "owner"
     const val SUB_SUBMITTER = "submitter"
     const val SUB_TITLE = "title"
@@ -134,4 +135,5 @@ object DocSubmissionFields {
     const val STAT_DOC_VALUE = "value"
     const val SUB_STATS = "stats"
     const val PAGE_TAB_FILES = "pageTabFiles"
+    const val STORAGE_MODE = "storageMode"
 }

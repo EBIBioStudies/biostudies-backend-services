@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.integration.SubFormat.Companion.TSV
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.XML
 import ac.uk.ebi.biostd.integration.SubFormat.TsvFormat.XlsxTsv
 import ac.uk.ebi.biostd.service.PageTabFileReader.readAsPageTab
+import ac.uk.ebi.biostd.validation.InvalidChunkSizeException
 import ebi.ac.uk.dsl.attribute
 import ebi.ac.uk.dsl.file
 import ebi.ac.uk.dsl.filesTable
@@ -14,6 +15,7 @@ import ebi.ac.uk.dsl.submission
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.io.sources.NfsBioFile
 import ebi.ac.uk.model.File
+import ebi.ac.uk.model.FileList
 import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.test.createFile
@@ -31,6 +33,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
+import java.lang.ClassCastException
 import kotlin.test.assertNotNull
 
 @ExtendWith(TemporaryFolderExtension::class)
@@ -58,7 +61,7 @@ class FileListSerializerTest(private val tempFolder: TemporaryFolder) {
 
         testInstance.deserializeFileList(submission, source)
 
-        assertFileList(submission, fileListName)
+        assertSubmissionFileList(submission, fileListName)
     }
 
     @Test
@@ -73,7 +76,7 @@ class FileListSerializerTest(private val tempFolder: TemporaryFolder) {
 
         testInstance.deserializeFileList(submission, source)
 
-        assertFileList(submission, fileListName)
+        assertSubmissionFileList(submission, fileListName)
     }
 
     @Test
@@ -88,7 +91,7 @@ class FileListSerializerTest(private val tempFolder: TemporaryFolder) {
 
         testInstance.deserializeFileList(submission, source)
 
-        assertFileList(submission, fileListName)
+        assertSubmissionFileList(submission, fileListName)
     }
 
     @Test
@@ -105,7 +108,19 @@ class FileListSerializerTest(private val tempFolder: TemporaryFolder) {
 
         testInstance.deserializeFileList(submission, source)
 
-        assertFileList(submission, fileListName)
+        assertSubmissionFileList(submission, fileListName)
+    }
+
+    @Test
+    fun `deserialize standalone file list`() {
+        val fileListName = "AFileList.tsv"
+        val fileList = tempFolder.createFile(fileListName, "test file list")
+
+        every { readAsPageTab(fileList) } returns "test file list"
+        every { source.getFile(fileListName) } returns NfsBioFile(fileList)
+        every { serializer.deserializeElement<FilesTable>("test file list", TSV) } returns filesTable
+
+        assertFileList(testInstance.deserializeFileList(fileListName, source), fileListName)
     }
 
     @Test
@@ -123,15 +138,53 @@ class FileListSerializerTest(private val tempFolder: TemporaryFolder) {
         )
     }
 
+    @Test
+    fun `deserialize file list with invalid page tab`() {
+        val fileListName = "BFileList.tsv"
+        val fileList = tempFolder.createFile(fileListName, "test file list")
+
+        every { readAsPageTab(fileList) } returns "test file list"
+        every { source.getFile(fileListName) } returns NfsBioFile(fileList)
+        every { serializer.deserializeElement<FilesTable>("test file list", TSV) } throws InvalidChunkSizeException()
+
+        val exception = assertThrows<InvalidFileListException> {
+            testInstance.deserializeFileList(fileListName, source)
+        }
+        assertThat(exception.message).isEqualTo(
+            "Problem processing file list 'BFileList.tsv': The provided page tab doesn't match the file list format"
+        )
+    }
+
+    @Test
+    fun `deserialize file list with a valid page tab but NOT file list element`() {
+        val fileListName = "CFileList.tsv"
+        val fileList = tempFolder.createFile(fileListName, "test file list")
+
+        every { readAsPageTab(fileList) } returns "test file list"
+        every { source.getFile(fileListName) } returns NfsBioFile(fileList)
+        every { serializer.deserializeElement<FilesTable>("test file list", TSV) } throws ClassCastException()
+
+        val exception = assertThrows<InvalidFileListException> {
+            testInstance.deserializeFileList(fileListName, source)
+        }
+        assertThat(exception.message).isEqualTo(
+            "Problem processing file list 'CFileList.tsv': The provided page tab doesn't match the file list format"
+        )
+    }
+
     private fun testSubmission(fileList: String) = submission("S-TEST123") {
         section("Study") {
             attribute("File List", fileList)
         }
     }
 
-    private fun assertFileList(submission: Submission, fileListName: String) {
+    private fun assertSubmissionFileList(submission: Submission, fileListName: String) {
         assertNotNull(submission.section.fileList)
-        assertThat(submission.section.fileList!!.name).isEqualTo(fileListName)
-        assertThat(submission.section.fileList!!.referencedFiles).isEqualTo(listOf(File("some-file.txt")))
+        assertFileList(submission.section.fileList!!, fileListName)
+    }
+
+    private fun assertFileList(fileList: FileList, fileListName: String) {
+        assertThat(fileList.name).isEqualTo(fileListName)
+        assertThat(fileList.referencedFiles).isEqualTo(listOf(File("some-file.txt")))
     }
 }

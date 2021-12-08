@@ -9,10 +9,7 @@ internal class TsvSerializer(
     private val tsvSerializer: TsvToStringSerializer = TsvToStringSerializer(),
     private val tsvDeserializer: TsvDeserializer = TsvDeserializer()
 ) {
-
     fun <T> serialize(element: T) = tsvSerializer.serialize(element)
-
-    inline fun <reified T> deserializeElement(pageTab: String) = deserializeElement(pageTab, T::class.java)
 
     fun <T> deserializeElement(pageTab: String, type: Class<out T>) = tsvDeserializer.deserializeElement(pageTab, type)
 

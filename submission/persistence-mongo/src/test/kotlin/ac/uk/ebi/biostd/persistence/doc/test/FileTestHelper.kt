@@ -17,10 +17,11 @@ import org.assertj.core.api.Assertions.assertThat
 import org.bson.types.ObjectId
 import java.io.File
 
-internal const val TEST_FILENAME = "folder/file.txt"
-internal const val TEST_FILEPATH = "filePath"
-internal const val TEST_REL_PATH = "relPath"
-internal const val TEST_DIRECTORY = "fire-directory"
+internal const val TEST_FILENAME = "file.txt"
+internal const val TEST_FILEPATH = "folder/file.txt"
+internal const val TEST_REL_PATH = "Files/folder/file.txt"
+internal const val TEST_DIRECTORY = "fire-directory.txt"
+internal const val TEST_FILEPATH_DIRECTORY = "filePath/folder/fire-directory.txt"
 internal const val TEST_FULL_PATH = "/a/full/path/file.txt"
 internal const val TEST_FILE_LIST = "file-list.tsv"
 private const val TEST_MD5 = "a-test-md5"
@@ -54,7 +55,7 @@ internal object FileTestHelper {
     val fireDocDirectory =
         FireDocDirectory(
             fileName = TEST_DIRECTORY,
-            filePath = TEST_FILEPATH,
+            filePath = TEST_FILEPATH_DIRECTORY,
             relPath = TEST_REL_PATH,
             attributes = listOf(basicDocAttribute),
             md5 = TEST_MD5,
@@ -70,7 +71,7 @@ internal object FileTestHelper {
     }
 
     fun assertExtFileList(extFileList: ExtFileList) {
-        assertThat(extFileList.fileName).isEqualTo(TEST_FILE_LIST)
+        assertThat(extFileList.filePath).isEqualTo(TEST_FILE_LIST)
         assertThat(extFileList.files).hasSize(0)
     }
 
@@ -98,7 +99,7 @@ internal object FileTestHelper {
 
     private fun assertFireDirectory(fireFile: FireDirectory) {
         assertThat(fireFile.fileName).isEqualTo(TEST_DIRECTORY)
-        assertThat(fireFile.filePath).isEqualTo(TEST_FILEPATH)
+        assertThat(fireFile.filePath).isEqualTo(TEST_FILEPATH_DIRECTORY)
         assertThat(fireFile.relPath).isEqualTo(TEST_REL_PATH)
         assertThat(fireFile.md5).isEqualTo(TEST_MD5)
         assertThat(fireFile.size).isEqualTo(TEST_FIRE_FILE_SIZE)

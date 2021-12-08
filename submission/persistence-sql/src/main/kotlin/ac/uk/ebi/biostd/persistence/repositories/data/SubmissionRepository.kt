@@ -101,7 +101,7 @@ internal open class SubmissionRepository(
     private fun findFileList(section: DbSection, fileListName: String): ReferencedFileList? =
         if (section.fileList?.name == fileListName) section.fileList
         else section.sections
-            .mapNotNull { it.fileList }
+            .mapNotNull { findFileList(it, fileListName) }
             .firstOrNull { it.name == fileListName }
 
     private fun loadSubmissionAndStatus(accNo: String, version: Int? = null): DbToExtRequest =

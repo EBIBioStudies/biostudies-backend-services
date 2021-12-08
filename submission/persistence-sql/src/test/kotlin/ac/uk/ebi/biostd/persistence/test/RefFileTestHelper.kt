@@ -8,10 +8,9 @@ import java.nio.file.Files
 
 internal val extTestRefFile
     get() = NfsFile(
-        "fileName",
-        "filePath",
-        "relPath",
-        "fullPath",
+        "folder/fileName",
+        "Files/folder/fileName",
+        "root/Files/folder/fileName",
         createTempFile,
         listOf(extAttribute)
     )
@@ -20,7 +19,7 @@ private val createTempFile
     get() = Files.createTempFile("file", ".tmp").toFile().apply { writeText("example text content") }
 
 internal fun assertDbRefFile(file: DbReferencedFile, extFile: ExtFile, order: Int) {
-    assertThat(file.name).isEqualTo((extFile as NfsFile).fileName)
+    assertThat(file.name).isEqualTo((extFile as NfsFile).filePath)
     assertThat(file.order).isEqualTo(order)
     assertThat(file.size).isEqualTo(20)
     assertThat(file.attributes).hasSize(1)

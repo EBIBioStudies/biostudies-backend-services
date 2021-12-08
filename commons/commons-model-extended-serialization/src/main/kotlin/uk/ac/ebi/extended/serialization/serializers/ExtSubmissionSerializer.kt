@@ -23,6 +23,8 @@ import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.STATS
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.STATUS
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.SUBMITTER
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.PAGE_TAB_FILES
+import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.SCHEMA_VERSION
+import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.STORAGE_MODE
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.TAGS
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.TITLE
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.VERSION
@@ -34,6 +36,7 @@ class ExtSubmissionSerializer : JsonSerializer<ExtSubmission>() {
         gen.writeStartObject()
         gen.writeStringField(ACC_NO, submission.accNo)
         gen.writeNumberField(VERSION, submission.version)
+        gen.writeStringField(SCHEMA_VERSION, submission.schemaVersion)
         gen.writeStringField(OWNER, submission.owner)
         gen.writeStringField(SUBMITTER, submission.submitter)
         gen.writeStringField(TITLE, submission.title)
@@ -53,6 +56,7 @@ class ExtSubmissionSerializer : JsonSerializer<ExtSubmission>() {
         gen.writeObjectField(STATS, submission.stats)
         gen.writeObjectField(ACCESS_TAGS, getAccessTag(submission))
         gen.writeObjectField(PAGE_TAB_FILES, submission.pageTabFiles)
+        gen.writeObjectField(STORAGE_MODE, submission.storageMode.value)
         gen.writeEndObject()
     }
 

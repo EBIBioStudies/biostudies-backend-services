@@ -16,16 +16,9 @@ import ebi.ac.uk.extended.model.NfsFile
 import java.nio.file.Paths
 
 internal fun DocFile.toExtFile(): ExtFile = when (this) {
-    is FireDocFile -> FireFile(fileName, filePath, relPath, fireId, md5, fileSize, attributes.toExtAttributes())
-    is FireDocDirectory -> FireDirectory(fileName, filePath, relPath, md5, fileSize, attributes.toExtAttributes())
-    is NfsDocFile -> NfsFile(
-        fileName,
-        filePath,
-        relPath,
-        fullPath,
-        Paths.get(fullPath).toFile(),
-        attributes.toExtAttributes()
-    )
+    is FireDocFile -> FireFile(filePath, relPath, fireId, md5, fileSize, attributes.toExtAttributes())
+    is FireDocDirectory -> FireDirectory(filePath, relPath, md5, fileSize, attributes.toExtAttributes())
+    is NfsDocFile -> NfsFile(filePath, relPath, fullPath, Paths.get(fullPath).toFile(), attributes.toExtAttributes())
 }
 
 internal fun DocFileTable.toExtFileTable(): ExtFileTable = ExtFileTable(files.map { it.toExtFile() })

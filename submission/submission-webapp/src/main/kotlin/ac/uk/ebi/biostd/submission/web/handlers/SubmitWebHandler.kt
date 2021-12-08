@@ -18,7 +18,7 @@ import ebi.ac.uk.extended.mapping.to.toSimpleSubmission
 import ebi.ac.uk.extended.model.ExtProcessingStatus.PROCESSED
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FileMode
-import ebi.ac.uk.extended.model.allFiles
+import ebi.ac.uk.extended.model.allSectionsFiles
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.SubmissionMethod.FILE
@@ -58,7 +58,7 @@ class SubmitWebHandler(
                 submitter = request.submitter,
                 files = request.files,
                 rootPath = sub.rootPath,
-                previousFiles = extSub?.allFiles.orEmpty(),
+                previousFiles = extSub?.allSectionsFiles.orEmpty(),
                 owner = request.onBehalfRequest?.let { getOnBehalfUser(it) }
             )
         )
@@ -84,7 +84,7 @@ class SubmitWebHandler(
                 submitter = request.submitter,
                 files = request.files.plus(request.submission),
                 rootPath = sub.rootPath,
-                previousFiles = extSub?.let { it.allFiles }.orEmpty(),
+                previousFiles = extSub?.let { it.allSectionsFiles }.orEmpty(),
                 owner = request.onBehalfRequest?.let { getOnBehalfUser(it) }
             )
         )
@@ -103,7 +103,7 @@ class SubmitWebHandler(
     fun refreshSubmission(request: RefreshWebRequest): Submission {
         val submission = submissionService.getSubmission(request.accNo).toSimpleSubmission()
         val extSub = extSubmissionService.findExtendedSubmission(request.accNo)?.apply { requireProcessed(this) }
-        val files = extSub?.allFiles.orEmpty()
+        val files = extSub?.allSectionsFiles.orEmpty()
         val source = sourceGenerator.submissionSources(RequestSources(previousFiles = files))
 
         return submissionService.submit(

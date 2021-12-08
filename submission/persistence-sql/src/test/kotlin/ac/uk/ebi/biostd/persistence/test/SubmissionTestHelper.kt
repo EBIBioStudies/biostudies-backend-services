@@ -11,6 +11,7 @@ import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod
 import ebi.ac.uk.extended.model.ExtTag
+import ebi.ac.uk.extended.model.StorageMode
 import ebi.ac.uk.model.constants.ProcessingStatus
 import org.assertj.core.api.Assertions.assertThat
 import java.time.OffsetDateTime
@@ -22,6 +23,7 @@ internal const val SUB_TITLE = "Study"
 internal const val SUB_RELPATH = "/submission/relpath"
 internal const val SUB_ROOT_PATH = "/rootpah"
 internal const val VERSION = 52
+internal const val SCHEMA_VERSION = "1.0"
 internal const val OWNER = "owner@email.com"
 internal const val SUBMITTER = "submitter@email.com"
 
@@ -62,13 +64,15 @@ internal val extSubmission
         released = true,
         status = ExtProcessingStatus.PROCESSED,
         version = VERSION,
+        schemaVersion = SCHEMA_VERSION,
         method = ExtSubmissionMethod.FILE,
         modificationTime = modificationTime,
         releaseTime = releaseTime,
         creationTime = creationTime,
         tags = listOf(extTag),
         collections = listOf(extCollection),
-        section = extSection
+        section = extSection,
+        storageMode = StorageMode.NFS
     )
 
 internal val extTag: ExtTag

@@ -28,12 +28,12 @@ class FirePageTabService(
         }
     }
 
-    private fun updateFileList(sec: ExtSection, path: String, pagetabFiles: Map<String, PageTabFiles>): Section {
+    private fun updateFileList(sec: ExtSection, path: String, pageTabFiles: Map<String, PageTabFiles>): Section {
         return when (val lst = sec.fileList) {
             null -> Section(false, sec)
             else -> {
-                val name = lst.fileName
-                val files = pagetabFiles.getValue(name)
+                val name = lst.filePath
+                val files = pageTabFiles.getValue(name)
                 Section(true, sec.copy(fileList = lst.copy(pageTabFiles = fileListFiles(files, path, name))))
             }
         }
@@ -48,7 +48,7 @@ class FirePageTabService(
     private fun saveFileListFile(file: File, subFolder: String, filePath: String): FireFile {
         val relPath = "Files/$filePath"
         val db = fireWebClient.save(file, file.md5(), "$subFolder/$relPath")
-        return FireFile(file.name, filePath, relPath, db.fireOid, db.objectMd5, db.objectSize.toLong(), listOf())
+        return FireFile(filePath, relPath, db.fireOid, db.objectMd5, db.objectSize.toLong(), listOf())
     }
 
     private fun subExtFiles(pageTab: PageTabFiles, subFolder: String): List<ExtFile> = listOf(
@@ -59,7 +59,7 @@ class FirePageTabService(
 
     private fun saveSubFile(file: File, subFolder: String): FireFile {
         val name = file.name
-        val db = fireWebClient.save(file, file.md5(), "$subFolder/${file.name}")
-        return FireFile(name, name, name, db.fireOid, db.objectMd5, db.objectSize.toLong(), listOf())
+        val db = fireWebClient.save(file, file.md5(), "$subFolder/$name")
+        return FireFile(name, name, db.fireOid, db.objectMd5, db.objectSize.toLong(), listOf())
     }
 }

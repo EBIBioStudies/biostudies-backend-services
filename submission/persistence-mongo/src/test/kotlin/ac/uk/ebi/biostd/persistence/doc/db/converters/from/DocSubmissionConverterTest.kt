@@ -8,6 +8,7 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocSection
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionMethod
 import ac.uk.ebi.biostd.persistence.doc.model.docSubmissionClass
+import ebi.ac.uk.extended.model.StorageMode
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
@@ -52,6 +53,7 @@ internal class DocSubmissionConverterTest(
         assertThat(result.id).isEqualTo(subId)
         assertThat(result.accNo).isEqualTo(subAccNo)
         assertThat(result.version).isEqualTo(subVersion)
+        assertThat(result.schemaVersion).isEqualTo(subSchemaVersion)
         assertThat(result.owner).isEqualTo(subOwner)
         assertThat(result.submitter).isEqualTo(subSubmitter)
         assertThat(result.title).isEqualTo(subTitle)
@@ -72,6 +74,7 @@ internal class DocSubmissionConverterTest(
         assertThat(result.stats[0].name).isEqualTo(statDocName)
         assertThat(result.stats[0].value).isEqualTo(statDocValue)
         assertThat(result.pageTabFiles).isEqualTo(listOf(docFile))
+        assertThat(result.storageMode).isEqualTo(StorageMode.NFS)
     }
 
     private fun createSubmissionDocument(
@@ -84,6 +87,7 @@ internal class DocSubmissionConverterTest(
         subDocument[DocSubmissionFields.SUB_ID] = subId
         subDocument[DocSubmissionFields.SUB_ACC_NO] = subAccNo
         subDocument[DocSubmissionFields.SUB_VERSION] = subVersion
+        subDocument[DocSubmissionFields.SUB_SCHEMA_VERSION] = subSchemaVersion
         subDocument[DocSubmissionFields.SUB_OWNER] = subOwner
         subDocument[DocSubmissionFields.SUB_SUBMITTER] = subSubmitter
         subDocument[DocSubmissionFields.SUB_TITLE] = subTitle
@@ -102,6 +106,7 @@ internal class DocSubmissionConverterTest(
         subDocument[DocSubmissionFields.SUB_PROJECTS] = listOf(createProjectDocument())
         subDocument[DocSubmissionFields.SUB_STATS] = listOf(createStatDocument())
         subDocument[DocSubmissionFields.PAGE_TAB_FILES] = listOf(fileDocument)
+        subDocument[DocSubmissionFields.STORAGE_MODE] = storageMode
         return subDocument
     }
 
@@ -130,6 +135,7 @@ internal class DocSubmissionConverterTest(
         const val subAccNo = "accNo"
         const val projectDocAccNo = "accNo"
         const val subVersion = 1
+        const val subSchemaVersion = "1.0"
         const val subOwner = "owner"
         const val subSubmitter = "submitter"
         const val subTitle = "title"
@@ -146,5 +152,6 @@ internal class DocSubmissionConverterTest(
         const val tagDocValue = "value"
         const val statDocName = "name"
         const val statDocValue: Long = 1
+        const val storageMode = "NFS"
     }
 }

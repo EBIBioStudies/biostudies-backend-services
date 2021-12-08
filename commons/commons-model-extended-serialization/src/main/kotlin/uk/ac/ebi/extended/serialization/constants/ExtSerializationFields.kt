@@ -27,6 +27,7 @@ object ExtSerializationFields {
 
     // Ext Submission Fields
     var VERSION = "version"
+    var SCHEMA_VERSION = "schemaVersion"
     const val OWNER = "owner"
     const val SUBMITTER = "submitter"
     const val TITLE = "title"
@@ -45,4 +46,5 @@ object ExtSerializationFields {
     const val STATS = "stats"
     const val ACCESS_TAGS = "accessTags"
     const val PAGE_TAB_FILES = "pageTabFiles"
+    const val STORAGE_MODE = "storageMode"
 }

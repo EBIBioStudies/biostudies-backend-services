@@ -35,6 +35,13 @@ class StringExtTest {
         assertThat(original.scape("\"")).isEqualTo("""hey \"friend\" """)
     }
 
+    @Test
+    fun trim() {
+        val original = "Multiple    Spaced  String"
+
+        assertThat(original.trim()).isEqualTo("Multiple Spaced String")
+    }
+
     @Nested
     inner class RemoveFirstOccurrence {
         @Test

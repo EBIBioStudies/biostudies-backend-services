@@ -71,7 +71,7 @@ internal class TsvChunkGenerator(private val parser: CSVFormat = createParser())
     private fun CSVRecord.asList(): List<String> = map { it }
 
     companion object {
-        private val SIMPLE_QUOTE_REGEX = "(\")([^\n|\t]*)(\")".toRegex()
+        private val SIMPLE_QUOTE_REGEX = "(\")([^\n|\t|\"]*)(\")".toRegex()
         private const val QUOTE = "\""
         private const val ESCAPED_QUOTE = "\\\""
         private const val SIMPLE_QUOTE = "\""

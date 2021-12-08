@@ -8,7 +8,10 @@ import ac.uk.ebi.biostd.submission.web.model.ExtPage
 import ac.uk.ebi.biostd.submission.web.model.ExtPageRequest
 import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.extended.model.FileMode
+import ebi.ac.uk.extended.model.FileMode.COPY
 import ebi.ac.uk.model.constants.FILE_LISTS
+import ebi.ac.uk.model.constants.FILE_MODE
 import ebi.ac.uk.model.constants.SUBMISSION
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import org.springframework.security.access.prepost.PreAuthorize
@@ -44,11 +47,13 @@ class ExtSubmissionResource(
     fun submitExtended(
         @BioUser user: SecurityUser,
         @RequestParam(FILE_LISTS, required = false) fileLists: Array<MultipartFile>?,
+        @RequestParam(FILE_MODE, required = false) fileMode: FileMode = COPY,
         @RequestParam(SUBMISSION) extSubmission: String
     ): ExtSubmission = extSubmissionService.submitExt(
         user.email,
         extSerializationService.deserialize(extSubmission, ExtSubmission::class.java),
-        fileLists?.let { tempFileGenerator.asFiles(it) } ?: emptyList()
+        fileLists?.let { tempFileGenerator.asFiles(it) } ?: emptyList(),
+        fileMode
     )
 
     @PostMapping("/async")
@@ -56,11 +61,13 @@ class ExtSubmissionResource(
     fun submitExtendedAsync(
         @BioUser user: SecurityUser,
         @RequestParam(FILE_LISTS, required = false) fileLists: Array<MultipartFile>?,
+        @RequestParam(FILE_MODE, required = false) fileMode: FileMode = COPY,
         @RequestParam(SUBMISSION) extSubmission: String
     ) = extSubmissionService.submitExtAsync(
         user.email,
         extSerializationService.deserialize(extSubmission, ExtSubmission::class.java),
-        fileLists?.let { tempFileGenerator.asFiles(it) } ?: emptyList()
+        fileLists?.let { tempFileGenerator.asFiles(it) } ?: emptyList(),
+        fileMode
     )
 
     @GetMapping
