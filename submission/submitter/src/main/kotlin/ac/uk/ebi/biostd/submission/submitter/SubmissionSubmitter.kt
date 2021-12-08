@@ -87,7 +87,7 @@ class SubmissionSubmitter(
 
         logger.info { "${submission.accNo} ${submission.submitter} Saving submission request ${submission.accNo}" }
         val rqt = submissionRequestService.saveSubmissionRequest(
-                submission
+            submission
         )
         return SaveSubmissionRequest(rqt, request.mode, request.draftKey)
     }
