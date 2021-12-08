@@ -11,7 +11,7 @@ import org.springframework.data.domain.Page
 interface SubmissionRequestService {
     fun saveSubmissionRequest(submission: ExtSubmission): ExtSubmission
 
-    fun processSubmission(saveRequest: SaveSubmissionRequest): ExtSubmission
+    fun processSubmissionRequest(saveRequest: SaveSubmissionRequest): ExtSubmission
 }
 
 interface SubmissionQueryService {

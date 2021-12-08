@@ -31,7 +31,7 @@ internal class SubmissionMongoPersistenceService(
         return newVersion
     }
 
-    override fun processSubmission(saveRequest: SaveSubmissionRequest): ExtSubmission {
+    override fun processSubmissionRequest(saveRequest: SaveSubmissionRequest): ExtSubmission {
         val (submission, fileMode, draftKey) = saveRequest
         val processingSubmission = processFiles(submission, fileMode)
         val savedSubmission = submissionRepository.saveSubmission(processingSubmission, draftKey)

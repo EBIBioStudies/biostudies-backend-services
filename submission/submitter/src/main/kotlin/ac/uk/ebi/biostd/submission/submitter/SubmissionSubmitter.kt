@@ -101,7 +101,7 @@ class SubmissionSubmitter(
         val saveRequest = SaveSubmissionRequest(submission, fileMode, draftKey)
         val accNo1 = saveRequest.submission.accNo
         logger.info { "$accNo1 ${saveRequest.submission.submitter} Processing request for submission $accNo1" }
-        return submissionRequestService.processSubmission(saveRequest)
+        return submissionRequestService.processSubmissionRequest(saveRequest)
     }
 
     @Suppress("TooGenericExceptionCaught")

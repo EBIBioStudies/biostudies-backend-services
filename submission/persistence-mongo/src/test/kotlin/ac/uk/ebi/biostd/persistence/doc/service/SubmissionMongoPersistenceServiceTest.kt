@@ -96,7 +96,7 @@ class SubmissionMongoPersistenceServiceTest(
     }
 
     @Test
-    fun `process submission`() {
+    fun `process submission request`() {
         val submission = defaultSubmission()
         val request = SaveSubmissionRequest(submission, COPY, "draftKey")
         val filePersistenceRequest = FilePersistenceRequest(request.submission, request.fileMode)
@@ -104,7 +104,7 @@ class SubmissionMongoPersistenceServiceTest(
         every { submissionRepository.saveSubmission(submission, request.draftKey) } returns submission
         every { submissionRequestDocDataRepository.updateStatus(PROCESSED, submission.accNo, 1) } answers { nothing }
 
-        val result = testInstance.processSubmission(request)
+        val result = testInstance.processSubmissionRequest(request)
 
         assertThat(result).isEqualTo(submission)
     }
