@@ -98,8 +98,8 @@ class ExtSubmissionService(
         extSubmission: ExtSubmission,
         fileListFiles: List<File>
     ): ExtSubmission {
-        validateSubmitter(user)
-        validateSubmission(extSubmission)
+        //validateSubmitter(user)
+        //validateSubmission(extSubmission)
 
         return extSubmission.copy(
             submitter = user,
