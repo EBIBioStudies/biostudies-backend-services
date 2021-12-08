@@ -26,7 +26,7 @@ private const val COLLATION = "utf8mb4_unicode_ci"
 private const val FIRE_USERNAME = "fireUsername"
 private const val FIRE_PASSWORD = "firePassword"
 
-open class BaseIntegrationTest(private val tempFolder: TemporaryFolder) {
+internal open class BaseIntegrationTest(private val tempFolder: TemporaryFolder) {
     private val mongoContainer: MongoDBContainer = MongoDBContainer(DockerImageName.parse(MONGO_VERSION))
         .withStartupCheckStrategy(MinimumDurationRunningStartupCheckStrategy(ofSeconds(MINIMUM_RUNNING_TIME)))
 

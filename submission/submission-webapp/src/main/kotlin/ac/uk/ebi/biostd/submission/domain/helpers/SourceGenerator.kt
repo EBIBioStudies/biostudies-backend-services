@@ -21,16 +21,16 @@ class SourceGenerator(
     ): FilesSource = ComposedFileSource(userSourcesList(user, rootPath.orEmpty()))
 
     fun submissionSources(requestSources: RequestSources): FilesSource {
-        val (submitter, files, rootPath, previousFiles, owner) = requestSources
-        return ComposedFileSource(submissionSources(submitter, files, rootPath.orEmpty(), previousFiles, owner))
+        val (owner, submitter, files, rootPath, previousFiles) = requestSources
+        return ComposedFileSource(submissionSources(owner, submitter, files, rootPath.orEmpty(), previousFiles))
     }
 
     private fun submissionSources(
+        owner: SecurityUser?,
         submitter: SecurityUser?,
         files: List<File>,
         rootPath: String,
-        previousFiles: List<ExtFile>,
-        owner: SecurityUser?
+        previousFiles: List<ExtFile>
     ): List<FilesSource> {
         val sources = mutableListOf<FilesSource>(FilesListSource(files))
 
@@ -59,9 +59,9 @@ class SourceGenerator(
 }
 
 data class RequestSources(
+    val owner: SecurityUser? = null,
     val submitter: SecurityUser? = null,
     val files: List<File> = emptyList(),
     val rootPath: String? = null,
     val previousFiles: List<ExtFile> = emptyList(),
-    val owner: SecurityUser? = null,
 )

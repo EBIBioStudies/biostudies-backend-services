@@ -84,8 +84,8 @@ class SubmitWebHandler(
                 submitter = request.submitter,
                 files = request.files.plus(request.submission),
                 rootPath = sub.rootPath,
-                previousFiles = extSub?.let { it.allSectionsFiles }.orEmpty(),
-                owner = request.onBehalfRequest?.let { getOnBehalfUser(it) }
+                owner = request.onBehalfRequest?.let { getOnBehalfUser(it) },
+                previousFiles = extSub?.let { it.allSectionsFiles }.orEmpty()
             )
         )
         val submission = withAttributes(submission(request.submission, source), request.attrs)

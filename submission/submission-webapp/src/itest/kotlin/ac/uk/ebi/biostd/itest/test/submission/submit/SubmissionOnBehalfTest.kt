@@ -36,7 +36,7 @@ import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
 
 @ExtendWith(TemporaryFolderExtension::class)
-class SubmissionOnBehalfTest(private val tempFolder: TemporaryFolder) : BaseIntegrationTest(tempFolder) {
+internal class SubmissionOnBehalfTest(private val tempFolder: TemporaryFolder) : BaseIntegrationTest(tempFolder) {
     @Nested
     @Import(PersistenceConfig::class)
     @ExtendWith(SpringExtension::class)
