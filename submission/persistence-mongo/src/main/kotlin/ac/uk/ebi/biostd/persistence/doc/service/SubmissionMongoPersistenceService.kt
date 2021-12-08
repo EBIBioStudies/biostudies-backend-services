@@ -19,7 +19,7 @@ import kotlin.math.absoluteValue
 @Suppress("LongParameterList")
 internal class SubmissionMongoPersistenceService(
     private val subDataRepository: SubmissionDocDataRepository,
-    private val submissionRequestDocDataRepository: SubmissionRequestDocDataRepository,
+    private val requestRepository: SubmissionRequestDocDataRepository,
     private val serializationService: ExtSerializationService,
     private val systemService: FileSystemService,
     private val submissionRepository: ExtSubmissionRepository
@@ -27,14 +27,16 @@ internal class SubmissionMongoPersistenceService(
 
     override fun saveSubmissionRequest(submission: ExtSubmission): ExtSubmission {
         val newVersion = submission.copy(version = getNextVersion(submission.accNo), status = REQUESTED)
-        submissionRequestDocDataRepository.saveRequest(asRequest(newVersion))
+        requestRepository.saveRequest(asRequest(newVersion))
         return newVersion
     }
 
     override fun processSubmission(saveRequest: SaveSubmissionRequest): ExtSubmission {
         val (submission, fileMode, draftKey) = saveRequest
         val processingSubmission = processFiles(submission, fileMode)
-        return submissionRepository.saveSubmission(processingSubmission, draftKey)
+        val savedSubmission = submissionRepository.saveSubmission(processingSubmission, draftKey)
+        requestRepository.updateStatus(SubmissionRequestStatus.PROCESSED, submission.accNo, submission.version)
+        return savedSubmission
     }
 
     /**
