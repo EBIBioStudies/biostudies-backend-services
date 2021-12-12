@@ -98,8 +98,8 @@ class ExtSubmissionService(
         extSubmission: ExtSubmission,
         fileListFiles: List<File>
     ): ExtSubmission {
-        //validateSubmitter(user)
-        //validateSubmission(extSubmission)
+        validateSubmitter(user)
+        validateSubmission(extSubmission)
 
         return extSubmission.copy(
             submitter = user,
@@ -127,7 +127,7 @@ class ExtSubmissionService(
         throw SecurityException("The user '$user' is not allowed to perform this action")
     }
 
-    private fun validateOwner(email: String) = require(securityQueryService.existsByEmail(email)) {
+    private fun validateOwner(email: String) = require(securityQueryService.existsByEmail(email, false)) {
         throw UserNotFoundException(email)
     }
 
