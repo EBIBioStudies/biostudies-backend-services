@@ -33,6 +33,11 @@ spring:
     username: # RabbitMQ user
     password: # RabbitMQ password
     port: # RabbitMQ port
+    listener:
+      direct:
+        prefetch: 25
+      simple:
+        prefetch: 25
 
   servlet:
     multipart:

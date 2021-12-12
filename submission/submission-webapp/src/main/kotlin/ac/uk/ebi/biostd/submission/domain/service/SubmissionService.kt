@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.submission.domain.service
 
-import ac.uk.ebi.biostd.common.config.CUSTOM_FACTORY_MAME
 import ac.uk.ebi.biostd.common.config.SUBMISSION_REQUEST_QUEUE
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat.JsonFormat.JsonPretty
@@ -52,7 +51,7 @@ class SubmissionService(
         )
     }
 
-    @RabbitListener(queues = [SUBMISSION_REQUEST_QUEUE], concurrency = "2-4", containerFactory = CUSTOM_FACTORY_MAME)
+    @RabbitListener(queues = [SUBMISSION_REQUEST_QUEUE], concurrency = "2-4")
     fun processSubmission(request: SubmissionRequestMessage) {
         val (accNo, version, fileMode, submitter, draftKey) = request
         logger.info { "$accNo $submitter Received process message for submission $accNo, version: $version" }
