@@ -15,7 +15,7 @@ class SecurityQueryService(
     private val userRepository: UserDataRepository
 ) : ISecurityQueryService {
     override fun existsByEmail(email: String, onlyActive: Boolean): Boolean =
-        userRepository.existsByEmailAndActive(email, active = onlyActive)
+        if (onlyActive) userRepository.existsByEmailAndActive(email, true) else userRepository.existsByEmail(email)
 
     override fun getUser(email: String): SecurityUser =
         userRepository.findByEmailAndActive(email, true)
