@@ -16,8 +16,8 @@ import Projects.CommonsSerialization
 import Projects.CommonsTest
 import Projects.CommonsUtil
 import Projects.SubmissionConfig
-import Projects.SubmissionPersistenceFilesystem
 import Projects.SubmissionPersistenceCommonApi
+import Projects.SubmissionPersistenceFilesystem
 import SpringBootDependencies.SpringBootStarterMongo
 import SpringBootDependencies.SpringBootStarterTest
 import TestDependencies.BaseTestCompileDependencies
@@ -47,6 +47,7 @@ dependencies {
     api(project(SubmissionPersistenceCommonApi))
 
     implementation(Arrow)
+    implementation(KotlinLogging)
     implementation(CommonsIO)
     implementation(CommonsLang3)
     implementation(Guava)

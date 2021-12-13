@@ -3,7 +3,22 @@ package ebi.ac.uk.test
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import org.apache.commons.io.FileUtils
 import java.io.File
+import java.io.RandomAccessFile
 import java.nio.charset.Charset
+
+/**
+ * Create a file with the given size.
+ */
+fun TemporaryFolder.createFile(fileName: String, sizeInBytes: Long): File {
+    val file = createFile(fileName)
+
+    val raf = RandomAccessFile(file, "rw")
+    raf.setLength(sizeInBytes)
+    raf.close()
+
+    return file
+}
+
 
 /**
  * Creates a file with the given content in the temporary folder.

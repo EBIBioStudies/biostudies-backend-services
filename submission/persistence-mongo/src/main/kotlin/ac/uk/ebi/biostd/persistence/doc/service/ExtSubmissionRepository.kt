@@ -10,8 +10,11 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
 import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.ExtSubmission
+import mu.KotlinLogging
 
 typealias SubmissionDocData = Pair<DocSubmission, List<FileListDocFile>>
+
+private val logger = KotlinLogging.logger {}
 
 class ExtSubmissionRepository(
     private val subDataRepository: SubmissionDocDataRepository,
@@ -20,7 +23,7 @@ class ExtSubmissionRepository(
     private val toExtSubmissionMapper: ToExtSubmissionMapper
 ) {
     fun saveSubmission(submission: ExtSubmission, draftKey: String?): ExtSubmission {
-        val docSubmission = save(submission.copy(status = ExtProcessingStatus.PROCESSING).toDocSubmission())
+        val docSubmission = save(submission.copy(status = ExtProcessingStatus.PROCESSING))
         updateCurrentRecords(docSubmission.accNo, docSubmission.owner, docSubmission.submitter, draftKey)
         subDataRepository.updateStatus(DocProcessingStatus.PROCESSED, docSubmission.accNo, docSubmission.version)
         return toExtSubmissionMapper.toExtSubmission(docSubmission)
@@ -37,9 +40,14 @@ class ExtSubmissionRepository(
         draftDocDataRepository.deleteByUserIdAndKey(submitter, accNo)
     }
 
-    private fun save(submission: SubmissionDocData): DocSubmission {
-        val (docSubmission, files) = submission
+    private fun save(submission: ExtSubmission): DocSubmission {
+        logger.info { "mapping submission ${submission.accNo} into doc submission" }
+        val (docSubmission, files) = submission.toDocSubmission()
+
+        logger.info { "saving submission ${docSubmission.accNo}" }
         val savedSubmission = subDataRepository.save(docSubmission)
+
+        logger.info { "saving submission ${docSubmission.accNo} file list" }
         files.forEach { fileListDocFileRepository.save(it) }
         return savedSubmission
     }
