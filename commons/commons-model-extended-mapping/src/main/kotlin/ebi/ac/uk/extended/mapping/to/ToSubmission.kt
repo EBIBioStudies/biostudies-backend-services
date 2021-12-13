@@ -16,22 +16,17 @@ import ebi.ac.uk.model.constants.SubFields.TITLE
 fun ExtSubmission.toSimpleSubmission(): Submission = Submission(
     accNo = accNo,
     section = section.toSection(),
-    attributes = getSubmissionAttributes(),
+    attributes = getSubmissionAttributes(this),
     tags = tags.mapTo(mutableListOf()) { Pair(it.name, it.value) }
 )
 
-private fun ExtSubmission.getSubmissionAttributes(): List<Attribute> {
-    val subAttrs = pageTabAttributes
-    title?.let { subAttrs.add(Attribute(TITLE, it)) }
-    releaseTime?.let { subAttrs.add(Attribute(RELEASE_DATE, it.toLocalDate())) }
-    rootPath?.let { subAttrs.add(Attribute(ROOT_PATH, it)) }
-    collections.filter { it.accNo != PUBLIC_ACCESS_TAG.value }.forEach { subAttrs.add(Attribute(ATTACH_TO, it.accNo)) }
+private fun getSubmissionAttributes(sub: ExtSubmission): List<Attribute> {
+    val attrs = sub.attributes.filter { it.name != COLLECTION_VALIDATOR.value }.map { it.toAttribute() }.toMutableSet()
 
-    return subAttrs.toList()
+    sub.title?.let { attrs.add(Attribute(TITLE, it)) }
+    sub.releaseTime?.let { attrs.add(Attribute(RELEASE_DATE, it.toLocalDate())) }
+    sub.rootPath?.let { attrs.add(Attribute(ROOT_PATH, it)) }
+    sub.collections.filter { it.accNo != PUBLIC_ACCESS_TAG.value }.forEach { attrs.add(Attribute(ATTACH_TO, it.accNo)) }
+
+    return attrs.toList()
 }
-
-private val ExtSubmission.pageTabAttributes: MutableSet<Attribute>
-    get() = attributes
-        .filterNot { it.name == COLLECTION_VALIDATOR.value }
-        .map { it.toAttribute() }
-        .toMutableSet()

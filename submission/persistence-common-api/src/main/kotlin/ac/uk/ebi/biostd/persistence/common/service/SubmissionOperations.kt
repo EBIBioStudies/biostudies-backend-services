@@ -9,9 +9,9 @@ import ebi.ac.uk.extended.model.ExtSubmission
 import org.springframework.data.domain.Page
 
 interface SubmissionRequestService {
-    fun saveSubmissionRequest(saveRequest: SaveSubmissionRequest): ExtSubmission
+    fun saveSubmissionRequest(submission: ExtSubmission): ExtSubmission
 
-    fun processSubmission(saveRequest: SaveSubmissionRequest): ExtSubmission
+    fun processSubmissionRequest(saveRequest: SaveSubmissionRequest): ExtSubmission
 }
 
 interface SubmissionQueryService {
