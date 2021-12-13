@@ -43,12 +43,17 @@ class ExtSubmissionRepository(
     private fun save(submission: ExtSubmission): DocSubmission {
         logger.info { "mapping submission ${submission.accNo} into doc submission" }
         val (docSubmission, files) = submission.toDocSubmission()
+        logger.info { "mapped submission ${submission.accNo}" }
 
         logger.info { "saving submission ${docSubmission.accNo}" }
         val savedSubmission = subDataRepository.save(docSubmission)
+        logger.info { "saved submission ${docSubmission.accNo}" }
 
-        logger.info { "saving submission ${docSubmission.accNo} file list" }
-        files.forEach { fileListDocFileRepository.save(it) }
+        files.forEach {
+            logger.info { "saving file list ${docSubmission.accNo}" }
+            fileListDocFileRepository.save(it)
+            logger.info { "saved file list ${docSubmission.accNo}" }
+        }
         return savedSubmission
     }
 }

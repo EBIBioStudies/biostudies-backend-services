@@ -19,7 +19,6 @@ fun TemporaryFolder.createFile(fileName: String, sizeInBytes: Long): File {
     return file
 }
 
-
 /**
  * Creates a file with the given content in the temporary folder.
  */

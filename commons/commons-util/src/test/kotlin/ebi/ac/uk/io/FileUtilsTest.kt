@@ -18,7 +18,6 @@ import java.nio.file.Files
 import java.nio.file.Files.getPosixFilePermissions
 import java.util.concurrent.TimeUnit
 
-
 @ExtendWith(TemporaryFolderExtension::class)
 internal class FileUtilsTest(private val temporaryFolder: TemporaryFolder) {
     @BeforeEach
