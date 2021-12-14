@@ -1,10 +1,14 @@
 package ebi.ac.uk.io
 
+import mu.KotlinLogging
 import java.nio.file.FileVisitResult
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.SimpleFileVisitor
 import java.nio.file.attribute.BasicFileAttributes
+import kotlin.io.path.name
+
+private val logger = KotlinLogging.logger {}
 
 internal class HardLinkFileVisitor(
     private var sourcePath: Path,
@@ -19,8 +23,12 @@ internal class HardLinkFileVisitor(
     override fun visitFile(file: Path, attrs: BasicFileAttributes): FileVisitResult {
         val target = targetPath.resolve(sourcePath.relativize(file))
 
+        logger.info { "Processing FTP link for file $file into target $target" }
+
         Files.createLink(target, file)
         Files.setPosixFilePermissions(target, permissions.file)
+
+        logger.info { "Finished processing FTP link for file $file into target $target" }
 
         return FileVisitResult.CONTINUE
     }
