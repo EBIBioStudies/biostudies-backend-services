@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.core.JsonToken
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
@@ -45,7 +44,6 @@ data class Properties(val includeFileListFiles: Boolean) : StringWriter()
 class ExtSerializationService {
 
     fun serializeFileList(files: Sequence<ExtFile>, outputStream: OutputStream) {
-        mapper.enable(SerializationFeature.INDENT_OUTPUT)
         val jsonGenerator = mapper.factory.createGenerator(outputStream)
 
         jsonGenerator.use {

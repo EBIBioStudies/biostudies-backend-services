@@ -13,6 +13,7 @@ import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.extended.test.AttributeFactory.defaultAttribute
 import uk.ac.ebi.extended.test.FireDirectoryFactory.defaultFireDirectory
 import uk.ac.ebi.extended.test.FireFileFactory.defaultFireFile
 import uk.ac.ebi.extended.test.NfsFileFactory.defaultNfsFile
@@ -24,6 +25,15 @@ class ExtSerializationServiceTest(private val tempFolder: TemporaryFolder) {
     private val testInstance = ExtSerializationService()
     private val testFile = tempFolder.createFile("results.txt")
     private val nfsFile = tempFolder.createFile("file.txt")
+    private val attributes = listOf(
+        defaultAttribute("name1"),
+        defaultAttribute("name2"),
+        defaultAttribute("name3"),
+        defaultAttribute("name4")
+    )
+    private fun fireFile(fireId: String) = defaultFireFile(fireId = fireId, attributes = attributes)
+    private fun fireDirectory(filePath: String) = defaultFireDirectory(filePath = filePath, attributes = attributes)
+    private fun nfsFile(filePath: String) = defaultNfsFile(filePath = filePath, file = nfsFile, attributes = attributes)
 
     @Test
     fun `serialize - deserialize`() {
@@ -59,10 +69,10 @@ class ExtSerializationServiceTest(private val tempFolder: TemporaryFolder) {
 
     @Test
     fun `serialize - deserialize fileList`() {
-        val number = 50000
-        val fileList = (1..number).map { defaultFireFile(fireId = "$it") }
-            .plus((1..number).map { defaultFireDirectory(filePath = "folder$it/file.txt") })
-            .plus((1..number).map { defaultNfsFile(filePath = "folder$it/file.txt", file = nfsFile) })
+        val fileCount = 50000
+        val fileList = (1..fileCount).map { fireFile(fireId = "$it") }
+            .plus((1..fileCount).map { fireDirectory(filePath = "folder$it/file.txt") })
+            .plus((1..fileCount).map { defaultNfsFile(filePath = "folder$it/file.txt", file = nfsFile, attributes = attributes) })
             .asSequence()
         val iterator = fileList.iterator()
 
@@ -71,5 +81,8 @@ class ExtSerializationServiceTest(private val tempFolder: TemporaryFolder) {
         testInstance.deserializeFileList(testFile.inputStream()).forEach { file ->
             assertThat(file).isEqualTo(iterator.next())
         }
+
+        testFile.outputStream().close()
+        testFile.inputStream().close()
     }
 }

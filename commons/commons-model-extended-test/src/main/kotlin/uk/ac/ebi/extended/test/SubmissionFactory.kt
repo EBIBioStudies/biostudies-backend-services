@@ -1,9 +1,10 @@
 @file:Suppress("LongParameterList", "MagicNumber")
+
 package uk.ac.ebi.extended.test
 
-import uk.ac.ebi.extended.test.SectionFactory.defaultSection
 import arrow.core.Either
 import ebi.ac.uk.extended.model.ExtAttribute
+import ebi.ac.uk.extended.model.ExtAttributeDetail
 import ebi.ac.uk.extended.model.ExtCollection
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileList
@@ -21,6 +22,7 @@ import ebi.ac.uk.extended.model.FireDirectory
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.extended.model.StorageMode
+import uk.ac.ebi.extended.test.SectionFactory.defaultSection
 import java.io.File
 import java.time.OffsetDateTime
 import java.time.ZoneOffset.UTC
@@ -210,4 +212,19 @@ object FileListFactory {
     val FILES = emptyList<ExtFile>()
     const val FILES_URL = "filesUrl"
     val PAGE_TAG_FILES = emptyList<ExtFile>()
+}
+
+object AttributeFactory {
+    fun defaultAttribute(
+        name: String = NAME,
+        value: String = VALUE,
+        reference: Boolean = REFERENCE,
+        nameAttrs: List<ExtAttributeDetail> = listOf(),
+        valueAttrs: List<ExtAttributeDetail> = listOf()
+
+    ) = ExtAttribute(name, value, reference, nameAttrs, valueAttrs)
+
+    const val NAME = "name"
+    const val VALUE = "value"
+    const val REFERENCE = false
 }
