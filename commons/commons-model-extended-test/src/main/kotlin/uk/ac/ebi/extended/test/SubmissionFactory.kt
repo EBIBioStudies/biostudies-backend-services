@@ -124,7 +124,7 @@ object SectionFactory {
     val LINKS = emptyList<Either<ExtLink, ExtLinkTable>>()
 }
 
-object FileFileFactoryFactory {
+object FireFileFactory {
     fun defaultFireFile(
         filePath: String = FILE_PATH,
         relPath: String = REL_PATH,
@@ -171,7 +171,7 @@ object FireDirectoryFactory {
     val ATTRIBUTES = emptyList<ExtAttribute>()
 }
 
-object NfsFileFactoryFactory {
+object NfsFileFactory {
     fun defaultNfsFile(
         filePath: String = FILE_PATH,
         relPath: String = REL_PATH,

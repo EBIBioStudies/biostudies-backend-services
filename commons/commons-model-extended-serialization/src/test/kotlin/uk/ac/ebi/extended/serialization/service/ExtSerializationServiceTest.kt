@@ -8,13 +8,22 @@ import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod.PAGE_TAB
 import ebi.ac.uk.extended.model.ExtTag
 import ebi.ac.uk.extended.model.StorageMode
+import io.github.glytching.junit.extension.folder.TemporaryFolder
+import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.extended.test.FireDirectoryFactory.defaultFireDirectory
+import uk.ac.ebi.extended.test.FireFileFactory.defaultFireFile
+import uk.ac.ebi.extended.test.NfsFileFactory.defaultNfsFile
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 
-class ExtSerializationServiceTest {
+@ExtendWith(TemporaryFolderExtension::class)
+class ExtSerializationServiceTest(private val tempFolder: TemporaryFolder) {
     private val testInstance = ExtSerializationService()
+    private val testFile = tempFolder.createFile("results.txt")
+    private val nfsFile = tempFolder.createFile("file.txt")
 
     @Test
     fun `serialize - deserialize`() {
@@ -46,5 +55,21 @@ class ExtSerializationServiceTest {
         val deserialized = testInstance.deserialize<ExtSubmission>(serialized)
 
         assertThat(deserialized).isEqualTo(extSubmission)
+    }
+
+    @Test
+    fun `serialize - deserialize fileList`() {
+        val number = 50000
+        val fileList = (1..number).map { defaultFireFile(fireId = "$it") }
+            .plus((1..number).map { defaultFireDirectory(filePath = "folder$it/file.txt") })
+            .plus((1..number).map { defaultNfsFile(filePath = "folder$it/file.txt", file = nfsFile) })
+            .asSequence()
+        val iterator = fileList.iterator()
+
+        testInstance.serializeFileList(fileList, testFile.outputStream())
+
+        testInstance.deserializeFileList(testFile.inputStream()).forEach { file ->
+            assertThat(file).isEqualTo(iterator.next())
+        }
     }
 }
