@@ -71,7 +71,7 @@ class ExtSubmissionService(
         rabbitTemplate.convertAndSend(
             BIOSTUDIES_EXCHANGE,
             SUBMISSIONS_REQUEST_ROUTING_KEY,
-            SubmissionRequestMessage(newVersion.accNo, newVersion.version, COPY, newVersion.owner, null)
+            SubmissionRequestMessage(newVersion.accNo, newVersion.version, fileMode, newVersion.owner, null)
         )
     }
 
@@ -127,7 +127,7 @@ class ExtSubmissionService(
         throw SecurityException("The user '$user' is not allowed to perform this action")
     }
 
-    private fun validateOwner(email: String) = require(securityQueryService.existsByEmail(email)) {
+    private fun validateOwner(email: String) = require(securityQueryService.existsByEmail(email, false)) {
         throw UserNotFoundException(email)
     }
 

@@ -30,8 +30,13 @@ class NfsFtpService(
     }
 
     override fun generateFtpLinks(accNo: String) {
-        val relPath = submissionQueryService.getExtByAccNo(accNo).relPath
-        generateLinks(relPath)
+        val sub = submissionQueryService.getExtByAccNo(accNo)
+
+        logger.info { "${sub.accNo} ${sub.owner} Started processing FTP links for submission $accNo over NFS" }
+
+        generateLinks(sub.relPath)
+
+        logger.info { "${sub.accNo} ${sub.owner} Finished processing FTP links for submission $accNo over NFS" }
     }
 
     private fun generateLinks(relPath: String) {

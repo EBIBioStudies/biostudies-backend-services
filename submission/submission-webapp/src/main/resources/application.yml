@@ -33,12 +33,23 @@ spring:
     username: # RabbitMQ user
     password: # RabbitMQ password
     port: # RabbitMQ port
+    listener:
+      direct:
+        prefetch: 25
+      simple:
+        prefetch: 25
 
   servlet:
     multipart:
       max-file-size: 20GB
       max-request-size: 20GB
       location: ${app.tempDirPath}
+
+server:
+  tomcat:
+    max-http-form-post-size: 50MB
+    max-swallow-size: 50MB
+
 
 logging:
   file:
@@ -74,3 +85,4 @@ app:
     migration-package: ac.uk.ebi.biostd.persistence.doc.migrations
   validator:
     euToxRiskValidationApi: # EU-ToxRisk validation API
+

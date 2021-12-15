@@ -47,13 +47,13 @@ class ExtSubmissionResource(
     fun submitExtended(
         @BioUser user: SecurityUser,
         @RequestParam(FILE_LISTS, required = false) fileLists: Array<MultipartFile>?,
-        @RequestParam(FILE_MODE, required = false) fileMode: FileMode = COPY,
+        @RequestParam(FILE_MODE, required = false) fileMode: FileMode?,
         @RequestParam(SUBMISSION) extSubmission: String
     ): ExtSubmission = extSubmissionService.submitExt(
         user.email,
         extSerializationService.deserialize(extSubmission, ExtSubmission::class.java),
         fileLists?.let { tempFileGenerator.asFiles(it) } ?: emptyList(),
-        fileMode
+        fileMode ?: COPY
     )
 
     @PostMapping("/async")
@@ -61,13 +61,13 @@ class ExtSubmissionResource(
     fun submitExtendedAsync(
         @BioUser user: SecurityUser,
         @RequestParam(FILE_LISTS, required = false) fileLists: Array<MultipartFile>?,
-        @RequestParam(FILE_MODE, required = false) fileMode: FileMode = COPY,
+        @RequestParam(FILE_MODE, required = false) fileMode: FileMode?,
         @RequestParam(SUBMISSION) extSubmission: String
     ) = extSubmissionService.submitExtAsync(
         user.email,
         extSerializationService.deserialize(extSubmission, ExtSubmission::class.java),
         fileLists?.let { tempFileGenerator.asFiles(it) } ?: emptyList(),
-        fileMode
+        fileMode ?: COPY
     )
 
     @GetMapping
