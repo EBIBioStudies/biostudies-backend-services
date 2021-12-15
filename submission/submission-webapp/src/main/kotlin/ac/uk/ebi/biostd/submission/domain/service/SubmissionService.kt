@@ -10,7 +10,7 @@ import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotDelete
 import ac.uk.ebi.biostd.submission.ext.getSimpleByAccNo
-import ac.uk.ebi.biostd.submission.model.SubmissionRequest
+import ac.uk.ebi.biostd.submission.model.SubmitRequest
 import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
 import ebi.ac.uk.extended.events.FailedSubmissionRequestMessage
 import ebi.ac.uk.extended.events.SubmissionRequestMessage
@@ -35,34 +35,30 @@ class SubmissionService(
     private val eventsPublisherService: EventsPublisherService,
     private val rabbitTemplate: RabbitTemplate
 ) {
-    fun submit(request: SubmissionRequest): ExtSubmission {
-        return submissionSubmitter.submit(request)
-    }
+    fun submit(rqt: SubmitRequest): ExtSubmission = submissionSubmitter.submit(rqt)
 
-    fun submitAsync(request: SubmissionRequest) {
-        val accNo = request.accNo
-        logger.info { "$accNo ${request.owner} Received async submit request for submission $accNo" }
+    fun submitAsync(rqt: SubmitRequest) {
+        logger.info { "${rqt.accNo} ${rqt.owner} Received async submit request for submission ${rqt.accNo}" }
 
-        val (extSub, mode, draftKey) = submissionSubmitter.submitAsync(request)
+        val (accNo, version) = submissionSubmitter.submitAsync(rqt)
         rabbitTemplate.convertAndSend(
             BIOSTUDIES_EXCHANGE,
             SUBMISSIONS_REQUEST_ROUTING_KEY,
-            SubmissionRequestMessage(extSub.accNo, extSub.version, mode, extSub.owner, draftKey)
+            SubmissionRequestMessage(accNo, version)
         )
     }
 
     @RabbitListener(queues = [SUBMISSION_REQUEST_QUEUE], concurrency = "1-2")
     fun processSubmission(request: SubmissionRequestMessage) {
-        val (accNo, version, fileMode, submitter, draftKey) = request
-        logger.info { "$accNo $submitter Received process message for submission $accNo, version: $version" }
+        val (accNo, version) = request
+        logger.info { "Received process message for submission $accNo, version: $version" }
 
         runCatching {
-            val processed = submissionSubmitter.processRequest(accNo, version, fileMode, draftKey)
+            val processed = submissionSubmitter.processRequest(accNo, version)
             eventsPublisherService.submissionSubmitted(processed)
         }.onFailure {
-            val message = FailedSubmissionRequestMessage(accNo, version, fileMode, draftKey, it.message)
-
-            logger.error { "$accNo $submitter Problem processing submission request '$accNo': ${it.message}" }
+            val message = FailedSubmissionRequestMessage(accNo, version)
+            logger.error(it) { "Problem processing submission request '$accNo': ${it.message}" }
             eventsPublisherService.submissionFailed(message)
         }
     }
@@ -92,6 +88,4 @@ class SubmissionService(
     }
 
     fun getSubmission(accNo: String): ExtSubmission = submissionQueryService.getExtByAccNo(accNo)
-
-    private fun getRequest(accNo: String, version: Int) = submissionQueryService.getRequest(accNo, version)
 }

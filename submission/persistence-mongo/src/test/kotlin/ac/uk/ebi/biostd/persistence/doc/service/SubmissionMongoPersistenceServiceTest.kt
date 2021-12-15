@@ -1,9 +1,9 @@
 package ac.uk.ebi.biostd.persistence.doc.service
 
-import ac.uk.ebi.biostd.persistence.common.request.SaveSubmissionRequest
+import ac.uk.ebi.biostd.persistence.common.request.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
-import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequest
+import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus.PROCESSED
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus.REQUESTED
 import ac.uk.ebi.biostd.persistence.filesystem.request.FilePersistenceRequest
@@ -48,49 +48,18 @@ class SubmissionMongoPersistenceServiceTest(
     inner class SaveRequest {
         @Test
         fun `save request with current version active`() {
-            val subRequestSlot = slot<SubmissionRequest>()
-            val current = defaultSubmission(version = 1)
+            val subRequestSlot = slot<DocSubmissionRequest>()
             val newVersion = defaultSubmission(version = 2, status = ExtProcessingStatus.REQUESTED)
+            val request = SubmissionRequest(defaultSubmission(version = 1), COPY, "draftKey")
+
             every { subDataRepository.getCurrentVersion(ACC_NO) } returns 1
             every { serializationService.serialize(newVersion, Properties(true)) } returns serializedSub
-            every { submissionRequestDocDataRepository.saveRequest(capture(subRequestSlot)) } answers { nothing }
+            every { submissionRequestDocDataRepository.saveRequest(capture(subRequestSlot)) } returnsArgument 0
 
-            val result = testInstance.saveSubmissionRequest(current)
+            val result = testInstance.saveSubmissionRequest(request)
 
-            assertThat(result).isEqualTo(newVersion)
-            val submissionRequest = SubmissionRequest(ACC_NO, 2, REQUESTED, parse(serializedSub))
-            assertThat(subRequestSlot.captured).isEqualToIgnoringGivenFields(submissionRequest, "id")
-        }
-
-        @Test
-        fun `save request with current version deleted`() {
-            val subRequestSlot = slot<SubmissionRequest>()
-            val current = defaultSubmission(version = -1)
-            val newVersion = defaultSubmission(version = 2, status = ExtProcessingStatus.REQUESTED)
-            every { subDataRepository.getCurrentVersion(ACC_NO) } returns -1
-            every { serializationService.serialize(newVersion, Properties(true)) } returns serializedSub
-            every { submissionRequestDocDataRepository.saveRequest(capture(subRequestSlot)) } answers { nothing }
-
-            val result = testInstance.saveSubmissionRequest(current)
-
-            assertThat(result).isEqualTo(newVersion)
-            val submissionRequest = SubmissionRequest(ACC_NO, 2, REQUESTED, parse(serializedSub))
-            assertThat(subRequestSlot.captured).isEqualToIgnoringGivenFields(submissionRequest, "id")
-        }
-
-        @Test
-        fun `save request without current version`() {
-            val subRequestSlot = slot<SubmissionRequest>()
-            val current = defaultSubmission(version = 1)
-            val newVersion = defaultSubmission(version = 1, status = ExtProcessingStatus.REQUESTED)
-            every { subDataRepository.getCurrentVersion(ACC_NO) } returns null
-            every { serializationService.serialize(newVersion, Properties(true)) } returns serializedSub
-            every { submissionRequestDocDataRepository.saveRequest(capture(subRequestSlot)) } answers { nothing }
-
-            val result = testInstance.saveSubmissionRequest(current)
-
-            assertThat(result).isEqualTo(newVersion)
-            val submissionRequest = SubmissionRequest(ACC_NO, 1, REQUESTED, parse(serializedSub))
+            assertThat(result).isEqualTo(ACC_NO to 2)
+            val submissionRequest = DocSubmissionRequest(ACC_NO, 2, COPY, "draftKey", REQUESTED, parse(serializedSub))
             assertThat(subRequestSlot.captured).isEqualToIgnoringGivenFields(submissionRequest, "id")
         }
     }
@@ -98,7 +67,7 @@ class SubmissionMongoPersistenceServiceTest(
     @Test
     fun `process submission request`() {
         val submission = defaultSubmission()
-        val request = SaveSubmissionRequest(submission, COPY, "draftKey")
+        val request = SubmissionRequest(submission, COPY, "draftKey")
         val filePersistenceRequest = FilePersistenceRequest(request.submission, request.fileMode)
         every { systemService.persistSubmissionFiles(filePersistenceRequest) } returns submission
         every { submissionRepository.saveSubmission(submission, request.draftKey) } returns submission

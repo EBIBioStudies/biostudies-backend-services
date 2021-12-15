@@ -13,7 +13,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_TITLE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_VERSION
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
-import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequest
+import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import com.github.cloudyrock.mongock.ChangeLog
 import com.github.cloudyrock.mongock.ChangeSet
 import com.github.cloudyrock.mongock.driver.mongodb.springdata.v3.decorator.impl.MongockTemplate
@@ -31,7 +31,7 @@ class DatabaseChangeLog {
     @ChangeSet(order = "001", id = "Create Schema", author = "System")
     fun changeSet001(template: MongockTemplate) {
         template.ensureExists(DocSubmission::class.java)
-        template.ensureExists(SubmissionRequest::class.java)
+        template.ensureExists(DocSubmissionRequest::class.java)
 
         template.indexOps(DocSubmission::class.java).apply {
             ensureIndex(Index().on(SUB_ACC_NO, ASC))
@@ -44,7 +44,7 @@ class DatabaseChangeLog {
             ensureIndex(Index().on(SUB_RELEASED, ASC))
         }
 
-        template.indexOps(SubmissionRequest::class.java).apply {
+        template.indexOps(DocSubmissionRequest::class.java).apply {
             ensureIndex(Index().on(SUB_ACC_NO, ASC))
             ensureIndex(Index().on(SUB_ACC_NO, ASC).on(SUB_VERSION, ASC))
             ensureIndex(Index().on("$SUB.$SUB_SECTION.$SEC_TYPE", ASC))
@@ -60,7 +60,7 @@ class DatabaseChangeLog {
     @ChangeSet(order = "002", id = "Section Title Index", author = "System")
     fun changeSet002(template: MongockTemplate) {
         template.ensureExists(DocSubmission::class.java)
-        template.ensureExists(SubmissionRequest::class.java)
+        template.ensureExists(DocSubmissionRequest::class.java)
 
         template.indexOps(DocSubmission::class.java).apply {
             dropIndex(TITLE_INDEX_NAME)
@@ -74,7 +74,7 @@ class DatabaseChangeLog {
             )
         }
 
-        template.indexOps(SubmissionRequest::class.java).apply {
+        template.indexOps(DocSubmissionRequest::class.java).apply {
             dropIndex(TITLE_INDEX_NAME)
             ensureIndex(
                 TextIndex()

@@ -4,13 +4,14 @@ import ac.uk.ebi.biostd.persistence.common.exception.FileListNotFoundException
 import ac.uk.ebi.biostd.persistence.common.exception.SubmissionNotFoundException
 import ac.uk.ebi.biostd.persistence.common.model.BasicSubmission
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
+import ac.uk.ebi.biostd.persistence.common.request.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.FileListDocFileRepository
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.toExtFile
-import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequest
+import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.allDocSections
 import ac.uk.ebi.biostd.persistence.doc.model.asBasicSubmission
 import ebi.ac.uk.extended.model.ExtFile
@@ -56,9 +57,13 @@ internal class SubmissionMongoQueryService(
         return requests + getSubmissions(filter.limit - requests.size, email, filter)
     }
 
-    override fun getRequest(accNo: String, version: Int): ExtSubmission {
-        val submission = requestRepository.getByAccNoAndVersion(accNo, version)
-        return serializationService.deserialize(submission.submission.toString())
+    override fun getRequest(accNo: String, version: Int): SubmissionRequest {
+        val request = requestRepository.getByAccNoAndVersion(accNo, version)
+        return SubmissionRequest(
+            submission = serializationService.deserialize(request.submission.toString()),
+            fileMode = request.fileMode,
+            draftKey = request.draftKey
+        )
     }
 
     override fun getReferencedFiles(accNo: String, fileListName: String): List<ExtFile> =
@@ -73,7 +78,7 @@ internal class SubmissionMongoQueryService(
     private fun loadSubmission(accNo: String) =
         submissionRepo.findByAccNo(accNo) ?: throw SubmissionNotFoundException(accNo)
 
-    private fun SubmissionRequest.asBasicSubmission() =
+    private fun DocSubmissionRequest.asBasicSubmission() =
         serializationService.deserialize<ExtSubmission>(submission.toString()).asBasicSubmission()
 
     private fun getSubmissions(limit: Int, email: String, filter: SubmissionFilter): List<BasicSubmission> =

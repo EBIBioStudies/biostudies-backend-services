@@ -1,9 +1,10 @@
 package ac.uk.ebi.biostd.persistence.repositories.data
 
-import ac.uk.ebi.biostd.persistence.common.exception.SubmissionNotFoundException
 import ac.uk.ebi.biostd.persistence.common.exception.FileListNotFoundException
+import ac.uk.ebi.biostd.persistence.common.exception.SubmissionNotFoundException
 import ac.uk.ebi.biostd.persistence.common.model.BasicSubmission
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
+import ac.uk.ebi.biostd.persistence.common.request.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.filter.SubmissionFilterSpecification
 import ac.uk.ebi.biostd.persistence.mapping.extended.to.DbToExtRequest
@@ -22,6 +23,7 @@ import ac.uk.ebi.biostd.persistence.repositories.data.CollectionSqlDataService.C
 import com.cosium.spring.data.jpa.entity.graph.domain.EntityGraphs
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.extended.model.FileMode
 import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSED
 import mu.KotlinLogging
 import org.springframework.data.domain.Page
@@ -84,9 +86,13 @@ internal open class SubmissionRepository(
             .map { it.asBasicSubmission() }
     }
 
-    override fun getRequest(accNo: String, version: Int): ExtSubmission {
+    override fun getRequest(accNo: String, version: Int): SubmissionRequest {
         val request = requestRepository.getByAccNoAndVersion(accNo, version)
-        return extSerializationService.deserialize(request.request)
+        return SubmissionRequest(
+            submission = extSerializationService.deserialize(request.request),
+            fileMode = FileMode.COPY,
+            draftKey = null
+        )
     }
 
     override fun getReferencedFiles(accNo: String, fileListName: String): List<ExtFile> {

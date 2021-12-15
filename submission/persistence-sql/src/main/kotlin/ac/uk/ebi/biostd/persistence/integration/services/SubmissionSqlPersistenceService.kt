@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.persistence.integration.services
 
-import ac.uk.ebi.biostd.persistence.common.request.SaveSubmissionRequest
+import ac.uk.ebi.biostd.persistence.common.request.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.filesystem.request.FilePersistenceRequest
 import ac.uk.ebi.biostd.persistence.filesystem.service.FileSystemService
@@ -41,7 +41,7 @@ internal open class SubmissionSqlPersistenceService(
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = false)
-    open fun processSubmission(saveRequest: SaveSubmissionRequest): ExtSubmission {
+    open fun processSubmission(saveRequest: SubmissionRequest): ExtSubmission {
         val (submission, fileMode, draftKey) = saveRequest
         subDataRepository.updateStatus(PROCESSING, submission.accNo, submission.version)
 
@@ -56,9 +56,9 @@ internal open class SubmissionSqlPersistenceService(
 
     private fun asRequest(submission: ExtSubmission) =
         DbSubmissionRequest(
-            submission.accNo,
-            submission.version,
-            serializationService.serialize(submission, Properties(true))
+            accNo = submission.accNo,
+            version = submission.version,
+            request = serializationService.serialize(submission, Properties(true))
         )
 
     private fun getNextVersion(accNo: String): Int {

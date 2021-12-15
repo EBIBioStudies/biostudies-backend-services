@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.persistence.integration.services
 
-import ac.uk.ebi.biostd.persistence.common.request.SaveSubmissionRequest
+import ac.uk.ebi.biostd.persistence.common.request.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestService
 import ac.uk.ebi.biostd.persistence.repositories.LockExecutor
 import ebi.ac.uk.extended.model.ExtSubmission
@@ -12,10 +12,13 @@ internal open class SqlSubmissionRequestService(
 ) : SubmissionRequestService {
 
     @Transactional(readOnly = true)
-    override fun saveSubmissionRequest(submission: ExtSubmission): ExtSubmission =
-        lockExecutor.executeLocking(submission.accNo) { submissionService.saveSubmissionRequest(submission) }
+    override fun saveSubmissionRequest(rqt: SubmissionRequest): Pair<String, Int> {
+        val sub = rqt.submission
+        val saved = lockExecutor.executeLocking(sub.accNo) { submissionService.saveSubmissionRequest(sub) }
+        return saved.accNo to saved.version
+    }
 
     @Transactional(readOnly = true)
-    override fun processSubmissionRequest(saveRequest: SaveSubmissionRequest): ExtSubmission =
+    override fun processSubmissionRequest(saveRequest: SubmissionRequest): ExtSubmission =
         lockExecutor.executeLocking(saveRequest.submission.accNo) { submissionService.processSubmission(saveRequest) }
 }

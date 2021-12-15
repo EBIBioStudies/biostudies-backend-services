@@ -1,10 +1,10 @@
 package ac.uk.ebi.biostd.persistence.doc.service
 
-import ac.uk.ebi.biostd.persistence.common.request.SaveSubmissionRequest
+import ac.uk.ebi.biostd.persistence.common.request.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestService
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
-import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequest
+import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus
 import ac.uk.ebi.biostd.persistence.filesystem.request.FilePersistenceRequest
 import ac.uk.ebi.biostd.persistence.filesystem.service.FileSystemService
@@ -25,13 +25,14 @@ internal class SubmissionMongoPersistenceService(
     private val submissionRepository: ExtSubmissionRepository
 ) : SubmissionRequestService {
 
-    override fun saveSubmissionRequest(submission: ExtSubmission): ExtSubmission {
-        val newVersion = submission.copy(version = getNextVersion(submission.accNo), status = REQUESTED)
-        requestRepository.saveRequest(asRequest(newVersion))
-        return newVersion
+    override fun saveSubmissionRequest(rqt: SubmissionRequest): Pair<String, Int> {
+        val submission = rqt.submission
+        val version = getNextVersion(submission.accNo)
+        requestRepository.saveRequest(asRequest(rqt, submission.copy(version = version, status = REQUESTED)))
+        return submission.accNo to submission.version
     }
 
-    override fun processSubmissionRequest(saveRequest: SaveSubmissionRequest): ExtSubmission {
+    override fun processSubmissionRequest(saveRequest: SubmissionRequest): ExtSubmission {
         val (submission, fileMode, draftKey) = saveRequest
         val processingSubmission = processFiles(submission, fileMode)
         val savedSubmission = submissionRepository.saveSubmission(processingSubmission, draftKey)
@@ -52,11 +53,13 @@ internal class SubmissionMongoPersistenceService(
         return lastVersion.absoluteValue + 1
     }
 
-    private fun asRequest(submission: ExtSubmission): SubmissionRequest {
+    private fun asRequest(rqt: SubmissionRequest, submission: ExtSubmission): DocSubmissionRequest {
         val content = serializationService.serialize(submission, Properties(includeFileListFiles = true))
-        return SubmissionRequest(
+        return DocSubmissionRequest(
             accNo = submission.accNo,
             version = submission.version,
+            fileMode = rqt.fileMode,
+            draftKey = rqt.draftKey,
             status = SubmissionRequestStatus.REQUESTED,
             submission = BasicDBObject.parse(content)
         )
