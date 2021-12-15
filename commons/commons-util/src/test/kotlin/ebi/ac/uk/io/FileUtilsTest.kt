@@ -269,7 +269,7 @@ internal class FileUtilsTest(private val temporaryFolder: TemporaryFolder) {
             }
 
             @Test
-            @Timeout(4000, unit = TimeUnit.MILLISECONDS)
+            @Timeout(10_000, unit = TimeUnit.MILLISECONDS)
             fun md5Performance() {
                 assertThat(FileUtils.md5(file)).isNotEmpty()
             }
