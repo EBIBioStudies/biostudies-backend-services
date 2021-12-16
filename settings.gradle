@@ -39,6 +39,7 @@ include("submission:persistence-mongo")
 
 include("scheduler:cluster-client")
 include("scheduler:exporter-task")
+include("scheduler:pmc-exporter-task")
 include("scheduler:pmc-processor-task")
 include("scheduler:scheduler")
 include("scheduler:submission-releaser-task")

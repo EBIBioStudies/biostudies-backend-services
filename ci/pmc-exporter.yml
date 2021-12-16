@@ -1,0 +1,20 @@
+deploy-dev-pmc-exporter-task:
+  stage: deploy-dev-pmc-exporter
+  when: manual
+  dependencies:
+    - build-test
+  script: gradle updatePmcExporterArtifact -Penv=dev -PdeployPath=/nfs/biostudies/.adm/apps/scheduler/dev/apps
+
+deploy-beta-pmc-exporter-task:
+  stage: deploy-beta-pmc-exporter
+  when: manual
+  dependencies:
+    - build-test
+  script: gradle updatePmcExporterArtifact -Penv=beta -PdeployPath=/nfs/biostudies/.adm/apps/scheduler/beta/apps
+
+deploy-prod-pmc-exporter-task:
+  stage: deploy-prod-pmc-exporter
+  when: manual
+  dependencies:
+    - build-test
+  script: gradle updatePmcExporterArtifact -Penv=prod -PdeployPath=/nfs/biostudies/.adm/apps/scheduler/prod/apps

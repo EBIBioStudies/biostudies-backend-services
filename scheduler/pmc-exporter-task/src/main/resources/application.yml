@@ -1,0 +1,14 @@
+app:
+  fileName: # PMC links file name
+  outputPath: # PMC links output path
+
+  ftp:
+    host: # FTP host to publish the PMC links
+    user: # FTP user to publish the PMC links
+    password: # FTP password to publish the PMC links
+    port: # FTP port to publish the PMC links
+
+  bioStudies:
+    url: # BioStudies server to load the PMC submissions
+    user: # BioStudies user to load the PMC submissions
+    password: # BioStudies password to load the PMC submissions
