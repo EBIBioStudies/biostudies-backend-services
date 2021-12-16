@@ -13,8 +13,7 @@ internal open class SqlSubmissionRequestService(
 
     @Transactional(readOnly = true)
     override fun saveSubmissionRequest(rqt: SubmissionRequest): Pair<String, Int> {
-        val sub = rqt.submission
-        val saved = lockExecutor.executeLocking(sub.accNo) { submissionService.saveSubmissionRequest(sub) }
+        val saved = lockExecutor.executeLocking(rqt.submission.accNo) { submissionService.saveSubmissionRequest(rqt) }
         return saved.accNo to saved.version
     }
 

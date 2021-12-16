@@ -23,7 +23,6 @@ import ac.uk.ebi.biostd.persistence.repositories.data.CollectionSqlDataService.C
 import com.cosium.spring.data.jpa.entity.graph.domain.EntityGraphs
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.extended.model.FileMode
 import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSED
 import mu.KotlinLogging
 import org.springframework.data.domain.Page
@@ -87,12 +86,8 @@ internal open class SubmissionRepository(
     }
 
     override fun getRequest(accNo: String, version: Int): SubmissionRequest {
-        val request = requestRepository.getByAccNoAndVersion(accNo, version)
-        return SubmissionRequest(
-            submission = extSerializationService.deserialize(request.request),
-            fileMode = FileMode.COPY,
-            draftKey = null
-        )
+        val rqt = requestRepository.getByAccNoAndVersion(accNo, version)
+        return SubmissionRequest(extSerializationService.deserialize(rqt.request), rqt.fileMode, rqt.draftKey)
     }
 
     override fun getReferencedFiles(accNo: String, fileListName: String): List<ExtFile> {

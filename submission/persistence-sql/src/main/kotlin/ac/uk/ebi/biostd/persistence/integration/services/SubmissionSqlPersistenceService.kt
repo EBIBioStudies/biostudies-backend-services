@@ -30,13 +30,14 @@ internal open class SubmissionSqlPersistenceService(
     private val toDbMapper: ToDbSubmissionMapper
 ) {
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = false)
-    open fun saveSubmissionRequest(submission: ExtSubmission): ExtSubmission {
+    open fun saveSubmissionRequest(rqt: SubmissionRequest): ExtSubmission {
+        val submission = rqt.submission
         val newVersion = submission.copy(
             version = getNextVersion(submission.accNo),
             status = ExtProcessingStatus.REQUESTED
         )
         subDataRepository.save(toDbMapper.toSubmissionDb(newVersion))
-        requestDataRepository.save(asRequest(newVersion))
+        requestDataRepository.save(asRequest(rqt, newVersion))
         return newVersion
     }
 
@@ -54,10 +55,12 @@ internal open class SubmissionSqlPersistenceService(
         return subRepository.getExtByAccNoAndVersion(submission.accNo, submission.version)
     }
 
-    private fun asRequest(submission: ExtSubmission) =
+    private fun asRequest(rqt: SubmissionRequest, submission: ExtSubmission) =
         DbSubmissionRequest(
             accNo = submission.accNo,
             version = submission.version,
+            draftKey = rqt.draftKey,
+            fileMode = rqt.fileMode,
             request = serializationService.serialize(submission, Properties(true))
         )
 
