@@ -5,6 +5,7 @@ import java.lang.StringBuilder
 
 private const val APP_NAME = "pmc-exporter-task-1.0.0.jar"
 
+@Suppress("LongParameterList")
 class PmcExporterProperties : BaseAppProperty {
     override fun asJavaCommand(location: String): String =
         StringBuilder().apply {

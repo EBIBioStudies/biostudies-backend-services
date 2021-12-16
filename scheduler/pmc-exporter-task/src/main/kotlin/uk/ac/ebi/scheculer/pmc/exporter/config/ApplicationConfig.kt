@@ -2,7 +2,6 @@ package uk.ac.ebi.scheculer.pmc.exporter.config
 
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
-import ac.uk.ebi.biostd.integration.SerializationService
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import uk.ac.ebi.scheculer.pmc.exporter.PmcExporterExecutor
