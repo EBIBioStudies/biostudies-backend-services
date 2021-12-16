@@ -26,10 +26,14 @@ internal class SubmissionMongoPersistenceService(
 ) : SubmissionRequestService {
 
     override fun saveSubmissionRequest(rqt: SubmissionRequest): Pair<String, Int> {
-        val submission = rqt.submission
-        val version = getNextVersion(submission.accNo)
-        requestRepository.saveRequest(asRequest(rqt, submission.copy(version = version, status = REQUESTED)))
-        return submission.accNo to submission.version
+        val version = getNextVersion(rqt.submission.accNo)
+        val extSubmission = rqt.submission.copy(version = version, status = REQUESTED)
+        return saveRequest(rqt, extSubmission)
+    }
+
+    private fun saveRequest(rqt: SubmissionRequest, extSubmission: ExtSubmission): Pair<String, Int> {
+        requestRepository.saveRequest(asRequest(rqt, extSubmission))
+        return extSubmission.accNo to extSubmission.version
     }
 
     override fun processSubmissionRequest(saveRequest: SubmissionRequest): ExtSubmission {

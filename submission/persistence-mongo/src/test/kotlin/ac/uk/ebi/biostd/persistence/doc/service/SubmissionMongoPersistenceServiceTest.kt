@@ -62,6 +62,40 @@ class SubmissionMongoPersistenceServiceTest(
             val submissionRequest = DocSubmissionRequest(ACC_NO, 2, COPY, "draftKey", REQUESTED, parse(serializedSub))
             assertThat(subRequestSlot.captured).isEqualToIgnoringGivenFields(submissionRequest, "id")
         }
+
+        @Test
+        fun `save request with current version deleted`() {
+            val subRequestSlot = slot<DocSubmissionRequest>()
+            val newVersion = defaultSubmission(version = 3, status = ExtProcessingStatus.REQUESTED)
+            val request = SubmissionRequest(defaultSubmission(version = 1), COPY, "draftKey")
+
+            every { subDataRepository.getCurrentVersion(ACC_NO) } returns -2
+            every { serializationService.serialize(newVersion, Properties(true)) } returns serializedSub
+            every { submissionRequestDocDataRepository.saveRequest(capture(subRequestSlot)) } returnsArgument 0
+
+            val result = testInstance.saveSubmissionRequest(request)
+
+            assertThat(result).isEqualTo(ACC_NO to 3)
+            val submissionRequest = DocSubmissionRequest(ACC_NO, 3, COPY, "draftKey", REQUESTED, parse(serializedSub))
+            assertThat(subRequestSlot.captured).isEqualToIgnoringGivenFields(submissionRequest, "id")
+        }
+
+        @Test
+        fun `save request when not current version`() {
+            val subRequestSlot = slot<DocSubmissionRequest>()
+            val newVersion = defaultSubmission(version = 1, status = ExtProcessingStatus.REQUESTED)
+            val request = SubmissionRequest(defaultSubmission(version = 1), COPY, "draftKey")
+
+            every { subDataRepository.getCurrentVersion(ACC_NO) } returns null
+            every { serializationService.serialize(newVersion, Properties(true)) } returns serializedSub
+            every { submissionRequestDocDataRepository.saveRequest(capture(subRequestSlot)) } returnsArgument 0
+
+            val result = testInstance.saveSubmissionRequest(request)
+
+            assertThat(result).isEqualTo(ACC_NO to 1)
+            val submissionRequest = DocSubmissionRequest(ACC_NO, 1, COPY, "draftKey", REQUESTED, parse(serializedSub))
+            assertThat(subRequestSlot.captured).isEqualToIgnoringGivenFields(submissionRequest, "id")
+        }
     }
 
     @Test
