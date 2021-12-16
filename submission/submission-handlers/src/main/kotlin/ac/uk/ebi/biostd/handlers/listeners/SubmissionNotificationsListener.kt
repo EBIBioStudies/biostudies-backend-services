@@ -25,7 +25,7 @@ class SubmissionNotificationsListener(
 ) {
     @RabbitListener(queues = [SUBMIT_NOTIFICATIONS_QUEUE])
     fun receiveSubmissionMessage(message: SubmissionMessage) {
-        logger.info { "notification for ${ message.accNo }" }
+        logger.info { "notification for ${message.accNo}" }
         val owner = webConsumer.getExtUser(message.extUserUrl)
 
         if (owner.notificationsEnabled) {
@@ -36,7 +36,7 @@ class SubmissionNotificationsListener(
 
     @RabbitListener(queues = [RELEASE_NOTIFICATIONS_QUEUE])
     fun receiveSubmissionReleaseMessage(message: SubmissionMessage) {
-        logger.info { "release notification for ${ message.accNo }" }
+        logger.info { "release notification for ${message.accNo}" }
         val owner = webConsumer.getExtUser(message.extUserUrl)
 
         if (owner.notificationsEnabled) {
@@ -51,8 +51,7 @@ class SubmissionNotificationsListener(
             Alert(
                 SYSTEM_NAME,
                 HANDLERS_SUBSYSTEM,
-                "Problem processing submission '${msg.accNo}' with version ${msg.version} in mode '${msg.fileMode}'",
-                msg.errorMessage
+                "Problem processing submission '${msg.accNo}' with version ${msg.version}.",
             )
         )
     }

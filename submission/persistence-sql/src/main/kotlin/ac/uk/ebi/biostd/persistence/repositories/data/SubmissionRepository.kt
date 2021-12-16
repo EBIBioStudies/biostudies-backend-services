@@ -1,9 +1,10 @@
 package ac.uk.ebi.biostd.persistence.repositories.data
 
-import ac.uk.ebi.biostd.persistence.common.exception.SubmissionNotFoundException
 import ac.uk.ebi.biostd.persistence.common.exception.FileListNotFoundException
+import ac.uk.ebi.biostd.persistence.common.exception.SubmissionNotFoundException
 import ac.uk.ebi.biostd.persistence.common.model.BasicSubmission
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
+import ac.uk.ebi.biostd.persistence.common.request.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.filter.SubmissionFilterSpecification
 import ac.uk.ebi.biostd.persistence.mapping.extended.to.DbToExtRequest
@@ -84,9 +85,9 @@ internal open class SubmissionRepository(
             .map { it.asBasicSubmission() }
     }
 
-    override fun getRequest(accNo: String, version: Int): ExtSubmission {
-        val request = requestRepository.getByAccNoAndVersion(accNo, version)
-        return extSerializationService.deserialize(request.request)
+    override fun getRequest(accNo: String, version: Int): SubmissionRequest {
+        val rqt = requestRepository.getByAccNoAndVersion(accNo, version)
+        return SubmissionRequest(extSerializationService.deserialize(rqt.request), rqt.fileMode, rqt.draftKey)
     }
 
     override fun getReferencedFiles(accNo: String, fileListName: String): List<ExtFile> {

@@ -8,7 +8,7 @@ import ac.uk.ebi.biostd.submission.domain.helpers.SourceGenerator
 import ac.uk.ebi.biostd.submission.domain.service.ExtSubmissionService
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionService
 import ac.uk.ebi.biostd.submission.exceptions.ConcurrentProcessingSubmissionException
-import ac.uk.ebi.biostd.submission.model.SubmissionRequest
+import ac.uk.ebi.biostd.submission.model.SubmitRequest
 import ac.uk.ebi.biostd.submission.web.model.ContentSubmitWebRequest
 import ac.uk.ebi.biostd.submission.web.model.FileSubmitWebRequest
 import ac.uk.ebi.biostd.submission.web.model.OnBehalfRequest
@@ -49,7 +49,7 @@ class SubmitWebHandler(
 
     fun submitAsync(request: FileSubmitWebRequest) = submissionService.submitAsync(buildRequest(request))
 
-    private fun buildRequest(request: ContentSubmitWebRequest): SubmissionRequest {
+    private fun buildRequest(request: ContentSubmitWebRequest): SubmitRequest {
         val sub = serializationService.deserializeSubmission(request.submission, request.format)
         val extSub = extSubmissionService.findExtendedSubmission(sub.accNo)?.also { requireProcessed(it) }
 
@@ -63,7 +63,7 @@ class SubmitWebHandler(
         )
         val submission = withAttributes(submission(request.submission, request.format, source), request.attrs)
 
-        return SubmissionRequest(
+        return SubmitRequest(
             submission = submission,
             submitter = request.submitter,
             onBehalfUser = request.onBehalfRequest?.let { getOnBehalfUser(it) },
@@ -74,7 +74,7 @@ class SubmitWebHandler(
         )
     }
 
-    private fun buildRequest(request: FileSubmitWebRequest): SubmissionRequest {
+    private fun buildRequest(request: FileSubmitWebRequest): SubmitRequest {
         val sub = serializationService.deserializeSubmission(request.submission)
         val extSub = extSubmissionService.findExtendedSubmission(sub.accNo)?.apply { requireProcessed(this) }
 
@@ -88,7 +88,7 @@ class SubmitWebHandler(
         )
         val submission = withAttributes(submission(request.submission, source), request.attrs)
         userFilesService.uploadFile(request.submitter, DIRECT_UPLOAD_PATH, request.submission)
-        return SubmissionRequest(
+        return SubmitRequest(
             submission = submission,
             submitter = request.submitter,
             onBehalfUser = request.onBehalfRequest?.let { getOnBehalfUser(it) },
@@ -105,7 +105,7 @@ class SubmitWebHandler(
         val source = sourceGenerator.submissionSources(RequestSources(previousFiles = files))
 
         return submissionService.submit(
-            SubmissionRequest(
+            SubmitRequest(
                 submission = submission,
                 submitter = request.user,
                 sources = source,

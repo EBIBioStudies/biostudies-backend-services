@@ -13,25 +13,22 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocFileList
 import ac.uk.ebi.biostd.persistence.doc.model.DocFileRef
 import ac.uk.ebi.biostd.persistence.doc.model.DocProcessingStatus.PROCESSED
 import ac.uk.ebi.biostd.persistence.doc.model.DocSection
+import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
 import ac.uk.ebi.biostd.persistence.doc.model.NfsDocFile
-import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus.REQUESTED
 import ac.uk.ebi.biostd.persistence.doc.model.asBasicSubmission
 import ac.uk.ebi.biostd.persistence.doc.test.doc.SUB_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUBMISSION_OWNER
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.fullExtSubmission as extSubmission
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.rootSection
 import arrow.core.Either.Companion.left
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.rootSectionAttribute as attribute
-import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocSection as docSection
-import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocSubmission as docSubmission
 import com.mongodb.BasicDBObject
 import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
 import ebi.ac.uk.db.MONGO_VERSION
 import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.extended.model.FileMode
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.model.constants.ProcessingStatus
 import ebi.ac.uk.util.collections.second
@@ -63,6 +60,10 @@ import java.time.Duration.ofSeconds
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus.PROCESSED as REQUEST_PROCESSED
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.fullExtSubmission as extSubmission
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.rootSectionAttribute as attribute
+import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocSection as docSection
+import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocSubmission as docSubmission
 
 @ExtendWith(MockKExtension::class, SpringExtension::class, TemporaryFolderExtension::class)
 @Testcontainers
@@ -427,10 +428,12 @@ internal class SubmissionMongoQueryServiceTest(
             return extSubmission
         }
 
-        private fun asRequest(submission: ExtSubmission, status: SubmissionRequestStatus) = SubmissionRequest(
+        private fun asRequest(submission: ExtSubmission, status: SubmissionRequestStatus) = DocSubmissionRequest(
             accNo = submission.accNo,
             version = submission.version,
             status = status,
+            fileMode = FileMode.COPY,
+            draftKey = null,
             submission = BasicDBObject.parse(serializationService.serialize(submission))
         )
     }

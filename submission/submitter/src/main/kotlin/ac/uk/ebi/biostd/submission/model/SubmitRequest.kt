@@ -6,7 +6,7 @@ import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.SubmissionMethod
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 
-data class SubmissionRequest(
+data class SubmitRequest(
     val submission: Submission,
     val submitter: SecurityUser,
     val sources: FilesSource,

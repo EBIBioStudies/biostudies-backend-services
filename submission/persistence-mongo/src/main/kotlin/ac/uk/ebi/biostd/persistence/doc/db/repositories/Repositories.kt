@@ -3,8 +3,8 @@ package ac.uk.ebi.biostd.persistence.doc.db.repositories
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft
+import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
-import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequest
 import org.bson.types.ObjectId
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
@@ -39,8 +39,8 @@ interface SubmissionMongoRepository : MongoRepository<DocSubmission, ObjectId> {
     fun getAllSubmissionsByAccNo(accNo: String): List<DocSubmission>
 }
 
-interface SubmissionRequestRepository : MongoRepository<SubmissionRequest, String> {
-    fun getByAccNoAndVersion(accNo: String, version: Int): SubmissionRequest
+interface SubmissionRequestRepository : MongoRepository<DocSubmissionRequest, String> {
+    fun getByAccNoAndVersion(accNo: String, version: Int): DocSubmissionRequest
 }
 
 interface SubmissionDraftRepository : MongoRepository<DocSubmissionDraft, String> {

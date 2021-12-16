@@ -1,8 +1,8 @@
 package ac.uk.ebi.biostd.submission.domain.service
 
 import ac.uk.ebi.biostd.persistence.common.exception.CollectionNotFoundException
-import ac.uk.ebi.biostd.persistence.common.request.SaveSubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
+import ac.uk.ebi.biostd.persistence.common.request.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.exception.UserNotFoundException
 import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
@@ -53,25 +53,22 @@ class ExtSubmissionService(
         fileMode: FileMode = COPY
     ): ExtSubmission {
         val submission = processExtSubmission(user, extSubmission, fileListFiles)
-        return submissionSubmitter.submit(SaveSubmissionRequest(submission, fileMode))
+        return submissionSubmitter.submit(SubmissionRequest(submission, fileMode))
     }
 
     fun submitExtAsync(
         user: String,
-        extSubmission: ExtSubmission,
+        sub: ExtSubmission,
         fileListFiles: List<File> = emptyList(),
         fileMode: FileMode
     ) {
-        val accNo = extSubmission.accNo
-        logger.info { "$accNo $user Received async submit request for ext submission $accNo" }
-
-        val submission = processExtSubmission(user, extSubmission, fileListFiles)
-        val newVersion = submissionSubmitter.submitAsync(SaveSubmissionRequest(submission, fileMode))
-
+        logger.info { "${sub.accNo} $user Received async submit request for ext submission ${sub.accNo}" }
+        val submission = processExtSubmission(user, sub, fileListFiles)
+        val (accNo, version) = submissionSubmitter.submitAsync(SubmissionRequest(submission, fileMode))
         rabbitTemplate.convertAndSend(
             BIOSTUDIES_EXCHANGE,
             SUBMISSIONS_REQUEST_ROUTING_KEY,
-            SubmissionRequestMessage(newVersion.accNo, newVersion.version, fileMode, newVersion.owner, null)
+            SubmissionRequestMessage(accNo, version)
         )
     }
 

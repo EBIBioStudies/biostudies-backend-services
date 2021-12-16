@@ -2,16 +2,16 @@ package ac.uk.ebi.biostd.persistence.common.service
 
 import ac.uk.ebi.biostd.persistence.common.model.BasicCollection
 import ac.uk.ebi.biostd.persistence.common.model.BasicSubmission
-import ac.uk.ebi.biostd.persistence.common.request.SaveSubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
+import ac.uk.ebi.biostd.persistence.common.request.SubmissionRequest
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import org.springframework.data.domain.Page
 
 interface SubmissionRequestService {
-    fun saveSubmissionRequest(submission: ExtSubmission): ExtSubmission
+    fun saveSubmissionRequest(rqt: SubmissionRequest): Pair<String, Int>
 
-    fun processSubmissionRequest(saveRequest: SaveSubmissionRequest): ExtSubmission
+    fun processSubmissionRequest(saveRequest: SubmissionRequest): ExtSubmission
 }
 
 interface SubmissionQueryService {
@@ -38,7 +38,7 @@ interface SubmissionQueryService {
      **/
     fun getSubmissionsByUser(email: String, filter: SubmissionFilter): List<BasicSubmission>
 
-    fun getRequest(accNo: String, version: Int): ExtSubmission
+    fun getRequest(accNo: String, version: Int): SubmissionRequest
 
     fun getReferencedFiles(accNo: String, fileListName: String): List<ExtFile>
 }
