@@ -51,14 +51,14 @@ class SubmissionService(
     @RabbitListener(queues = [SUBMISSION_REQUEST_QUEUE], concurrency = "1-2")
     fun processSubmission(request: SubmissionRequestMessage) {
         val (accNo, version) = request
-        logger.info { "Received process message for submission $accNo, version: $version" }
+        logger.info { "$accNo, Received process message for submission $accNo, version: $version" }
 
         runCatching {
             val processed = submissionSubmitter.processRequest(accNo, version)
             eventsPublisherService.submissionSubmitted(processed)
         }.onFailure {
             val message = FailedSubmissionRequestMessage(accNo, version)
-            logger.error(it) { "Problem processing submission request '$accNo': ${it.message}" }
+            logger.error(it) { "$accNo, Problem processing submission request '$accNo': ${it.message}" }
             eventsPublisherService.submissionFailed(message)
         }
     }
