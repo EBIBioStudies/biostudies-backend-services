@@ -7,6 +7,7 @@ import ac.uk.ebi.biostd.integration.SubFormat.Companion.XML
 import ac.uk.ebi.biostd.integration.SubFormat.TsvFormat.XlsxTsv
 import ac.uk.ebi.biostd.service.PageTabFileReader.readAsPageTab
 import ebi.ac.uk.io.sources.FilesSource
+import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.test.createFile
 import ebi.ac.uk.util.file.ExcelReader
@@ -28,6 +29,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 class PageTabSerializationServiceTest(private val tempFolder: TemporaryFolder) {
     private val source = mockk<FilesSource>()
     private val testSubmission = mockk<Submission>()
+    private val filesTable = mockk<FilesTable>()
     private val serializer = mockk<PagetabSerializer>()
     private val fileListSerializer = mockk<FileListSerializer>()
     private val testInstance = PageTabSerializationService(serializer, fileListSerializer)
@@ -40,6 +42,13 @@ class PageTabSerializationServiceTest(private val tempFolder: TemporaryFolder) {
         every { serializer.serializeElement(testSubmission, JSON) } returns ""
         testInstance.serializeElement(testSubmission, JSON)
         verify(exactly = 1) { serializer.serializeElement(testSubmission, JSON) }
+    }
+
+    @Test
+    fun `serialize fileList`() {
+        every { serializer.serializeFileList(filesTable, JSON) } returns ""
+        testInstance.serializeFileList(filesTable, JSON)
+        verify(exactly = 1) { serializer.serializeFileList(filesTable, JSON) }
     }
 
     @Test

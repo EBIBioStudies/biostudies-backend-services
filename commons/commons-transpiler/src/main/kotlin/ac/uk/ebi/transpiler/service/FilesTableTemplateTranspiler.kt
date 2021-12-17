@@ -41,6 +41,6 @@ class FilesTableTemplateTranspiler(
 
         val filesTable = templateMapper.map(tableTemplate, filesPath, basePath)
 
-        return serializationService.serializeElement(filesTable, format)
+        return serializationService.serializeFileList(filesTable, format)
     }
 }

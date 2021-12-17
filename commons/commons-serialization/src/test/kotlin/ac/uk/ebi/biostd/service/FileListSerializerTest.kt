@@ -16,7 +16,6 @@ import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.io.sources.NfsBioFile
 import ebi.ac.uk.model.File
 import ebi.ac.uk.model.FileList
-import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.test.createFile
 import ebi.ac.uk.util.file.ExcelReader
@@ -33,7 +32,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
-import java.lang.ClassCastException
 import kotlin.test.assertNotNull
 
 @ExtendWith(TemporaryFolderExtension::class)
@@ -57,7 +55,7 @@ class FileListSerializerTest(private val tempFolder: TemporaryFolder) {
 
         every { readAsPageTab(fileList) } returns "test file list"
         every { source.getFile(fileListName) } returns NfsBioFile(fileList)
-        every { serializer.deserializeElement<FilesTable>("test file list", JSON) } returns filesTable
+        every { serializer.deserializeFileList(fileList, JSON) } returns filesTable
 
         testInstance.deserializeFileList(submission, source)
 
@@ -72,7 +70,7 @@ class FileListSerializerTest(private val tempFolder: TemporaryFolder) {
 
         every { readAsPageTab(fileList) } returns "test file list"
         every { source.getFile(fileListName) } returns NfsBioFile(fileList)
-        every { serializer.deserializeElement<FilesTable>("test file list", TSV) } returns filesTable
+        every { serializer.deserializeFileList(fileList, TSV) } returns filesTable
 
         testInstance.deserializeFileList(submission, source)
 
@@ -87,7 +85,7 @@ class FileListSerializerTest(private val tempFolder: TemporaryFolder) {
 
         every { readAsPageTab(fileList) } returns "test file list"
         every { source.getFile(fileListName) } returns NfsBioFile(fileList)
-        every { serializer.deserializeElement<FilesTable>("test file list", XML) } returns filesTable
+        every { serializer.deserializeFileList(fileList, XML) } returns filesTable
 
         testInstance.deserializeFileList(submission, source)
 
@@ -104,7 +102,7 @@ class FileListSerializerTest(private val tempFolder: TemporaryFolder) {
         every { readAsPageTab(fileList) } returns "test file list"
         every { source.getFile(fileListName) } returns NfsBioFile(fileList)
         every { readContentAsTsv(fileList) } returns "test file list"
-        every { serializer.deserializeElement<FilesTable>("test file list", XlsxTsv) } returns filesTable
+        every { serializer.deserializeFileList(fileList, XlsxTsv) } returns filesTable
 
         testInstance.deserializeFileList(submission, source)
 
@@ -118,7 +116,7 @@ class FileListSerializerTest(private val tempFolder: TemporaryFolder) {
 
         every { readAsPageTab(fileList) } returns "test file list"
         every { source.getFile(fileListName) } returns NfsBioFile(fileList)
-        every { serializer.deserializeElement<FilesTable>("test file list", TSV) } returns filesTable
+        every { serializer.deserializeFileList(fileList, TSV) } returns filesTable
 
         assertFileList(testInstance.deserializeFileList(fileListName, source), fileListName)
     }
@@ -145,7 +143,7 @@ class FileListSerializerTest(private val tempFolder: TemporaryFolder) {
 
         every { readAsPageTab(fileList) } returns "test file list"
         every { source.getFile(fileListName) } returns NfsBioFile(fileList)
-        every { serializer.deserializeElement<FilesTable>("test file list", TSV) } throws InvalidChunkSizeException()
+        every { serializer.deserializeFileList(fileList, TSV) } throws InvalidChunkSizeException()
 
         val exception = assertThrows<InvalidFileListException> {
             testInstance.deserializeFileList(fileListName, source)
@@ -162,7 +160,7 @@ class FileListSerializerTest(private val tempFolder: TemporaryFolder) {
 
         every { readAsPageTab(fileList) } returns "test file list"
         every { source.getFile(fileListName) } returns NfsBioFile(fileList)
-        every { serializer.deserializeElement<FilesTable>("test file list", TSV) } throws ClassCastException()
+        every { serializer.deserializeFileList(fileList, TSV) } throws ClassCastException()
 
         val exception = assertThrows<InvalidFileListException> {
             testInstance.deserializeFileList(fileListName, source)

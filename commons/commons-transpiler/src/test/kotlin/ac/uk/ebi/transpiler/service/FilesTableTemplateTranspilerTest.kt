@@ -13,6 +13,7 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.verify
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -36,17 +37,22 @@ class FilesTableTemplateTranspilerTest(
 
     @BeforeEach
     fun setUp() {
-        every { mockSerializationService.serializeElement(testFilesTable, SubFormat.TSV) } returns ""
-        every { mockTemplateValidator.validate(testFilesTableTemplate, testFilesPath) }.answers { nothing }
         every { mockTemplateProcessor.process(testTemplate, testBaseColumns) } returns testFilesTableTemplate
+        every { mockTemplateValidator.validate(testFilesTableTemplate, testFilesPath) }.answers { nothing }
         every { mockTemplateMapper.map(testFilesTableTemplate, testFilesPath, testParentFolder) } returns testFilesTable
+        every { mockSerializationService.serializeFileList(testFilesTable, SubFormat.TSV) } returns ""
     }
 
     @Test
     fun transpile() {
-        testInstance.transpile(testTemplate, testBaseColumns, testFilesPath, testParentFolder, Tsv)
-        verify { mockTemplateProcessor.process(testTemplate, testBaseColumns) }
-        verify { mockTemplateMapper.map(testFilesTableTemplate, testFilesPath, testParentFolder) }
-        verify { mockSerializationService.serializeElement(testFilesTable, Tsv) }
+        val result = testInstance.transpile(testTemplate, testBaseColumns, testFilesPath, testParentFolder, Tsv)
+
+        assertThat(result).isEqualTo("")
+        verify(exactly = 1) {
+            mockTemplateProcessor.process(testTemplate, testBaseColumns)
+            mockTemplateValidator.validate(testFilesTableTemplate, testFilesPath)
+            mockTemplateMapper.map(testFilesTableTemplate, testFilesPath, testParentFolder)
+            mockSerializationService.serializeFileList(testFilesTable, Tsv)
+        }
     }
 }

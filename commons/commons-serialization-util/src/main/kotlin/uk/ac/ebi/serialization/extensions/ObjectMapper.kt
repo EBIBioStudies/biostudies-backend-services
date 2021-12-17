@@ -1,10 +1,37 @@
 package uk.ac.ebi.serialization.extensions
 
+import com.fasterxml.jackson.core.JsonToken
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.JavaType
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.convertValue
+import java.io.InputStream
+import java.io.OutputStream
+
+fun <T : Any> ObjectMapper.serializeList(files: Sequence<T>, outputStream: OutputStream) {
+    val jsonGenerator = factory.createGenerator(outputStream)
+
+    jsonGenerator.use {
+        it.writeStartArray()
+        files.forEach { file -> writeValue(it, file) }
+        it.writeEndArray()
+    }
+}
+
+inline fun <reified T : Any> ObjectMapper.deserializeList(inputStream: InputStream): Sequence<T> {
+    val jsonParser = factory.createParser(inputStream)
+
+    if (jsonParser.nextToken() != JsonToken.START_ARRAY) {
+        throw IllegalStateException("Expected content to be an array")
+    }
+
+    return sequence {
+        while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
+            yield(readValue(jsonParser, T::class.java))
+        }
+    }
+}
 
 /**
  * Try to convert the given node using the provided type, return an optional with conversion or emtpy if type could not

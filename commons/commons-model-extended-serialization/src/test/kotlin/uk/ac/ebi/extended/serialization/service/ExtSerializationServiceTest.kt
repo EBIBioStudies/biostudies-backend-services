@@ -25,15 +25,7 @@ class ExtSerializationServiceTest(private val tempFolder: TemporaryFolder) {
     private val testInstance = ExtSerializationService()
     private val testFile = tempFolder.createFile("results.txt")
     private val nfsFile = tempFolder.createFile("file.txt")
-    private val attributes = listOf(
-        defaultAttribute("name1"),
-        defaultAttribute("name2"),
-        defaultAttribute("name3"),
-        defaultAttribute("name4")
-    )
-    private fun fireFile(fireId: String) = defaultFireFile(fireId = fireId, attributes = attributes)
-    private fun fireDirectory(filePath: String) = defaultFireDirectory(filePath = filePath, attributes = attributes)
-    private fun nfsFile(filePath: String) = defaultNfsFile(filePath = filePath, file = nfsFile, attributes = attributes)
+    private val attributes = (1..4).map { defaultAttribute(name = "name$it") }
 
     @Test
     fun `serialize - deserialize`() {
@@ -70,10 +62,13 @@ class ExtSerializationServiceTest(private val tempFolder: TemporaryFolder) {
     @Test
     fun `serialize - deserialize fileList`() {
         val fileCount = 50000
-        val fileList = (1..fileCount).map { fireFile(fireId = "$it") }
-            .plus((1..fileCount).map { fireDirectory(filePath = "folder$it/file.txt") })
-            .plus((1..fileCount).map { defaultNfsFile(filePath = "folder$it/file.txt", file = nfsFile, attributes = attributes) })
-            .asSequence()
+        val fileList = (1..fileCount).map { defaultFireFile(fireId = "$it", attributes = attributes) }
+            .plus((1..fileCount).map { defaultFireDirectory(filePath = "folder$it/file.txt", attributes = attributes) })
+            .plus(
+                (1..fileCount).map {
+                    defaultNfsFile(filePath = "folder$it/file.txt", file = nfsFile, attributes = attributes)
+                }
+            ).asSequence()
         val iterator = fileList.iterator()
 
         testInstance.serializeFileList(fileList, testFile.outputStream())

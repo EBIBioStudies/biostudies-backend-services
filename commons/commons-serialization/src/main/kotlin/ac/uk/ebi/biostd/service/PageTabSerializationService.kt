@@ -5,6 +5,7 @@ import ac.uk.ebi.biostd.integration.SubFormat
 import ac.uk.ebi.biostd.service.PageTabFileReader.readAsPageTab
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.model.FileList
+import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.model.Submission
 import java.io.File
 
@@ -14,6 +15,9 @@ internal class PageTabSerializationService(
 ) : SerializationService {
     override fun <T> serializeElement(element: T, format: SubFormat) =
         serializer.serializeElement(element, format)
+
+    override fun serializeFileList(filesTable: FilesTable, format: SubFormat) =
+        serializer.serializeFileList(filesTable, format)
 
     override fun serializeSubmission(submission: Submission, format: SubFormat) =
         serializer.serializeSubmission(submission, format)

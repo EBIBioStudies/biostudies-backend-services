@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.integration
 
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.model.FileList
+import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.model.Submission
 import java.io.File
 
@@ -20,4 +21,6 @@ interface SerializationService {
 
     // Allow only submission elements instead of generic i.e. T: SubmissionElement
     fun <T> serializeElement(element: T, format: SubFormat): String
+
+    fun serializeFileList(fileList: FilesTable, format: SubFormat): String
 }

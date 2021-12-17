@@ -33,7 +33,11 @@ import ebi.ac.uk.model.SectionsTable
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.Table
 import uk.ac.ebi.serialization.deserializers.EitherDeserializer
+import uk.ac.ebi.serialization.extensions.deserializeList
+import uk.ac.ebi.serialization.extensions.serializeList
 import uk.ac.ebi.serialization.serializers.EitherSerializer
+import java.nio.file.Files
+import java.nio.file.Paths
 
 internal class JsonSerializer {
     fun <T> serialize(element: T, pretty: Boolean = false): String {
@@ -41,6 +45,15 @@ internal class JsonSerializer {
             mapper.writerWithDefaultPrettyPrinter().writeValueAsString(element)
         else
             mapper.writeValueAsString(element)
+    }
+
+    fun deserializeFileList(file: java.io.File): List<File> =
+        file.inputStream().use { mapper.deserializeList<File>(it).toList() }
+
+    fun serializeFileList(fileList: List<File>): java.io.File {
+        val file = Files.createFile(Paths.get("serializedFileList.txt")).toFile()
+        mapper.serializeList(fileList.asSequence(), file.outputStream())
+        return file
     }
 
     inline fun <reified T> deserialize(value: String) = mapper.readValue<T>(value)
