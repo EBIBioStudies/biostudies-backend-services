@@ -15,7 +15,7 @@ import mu.KotlinLogging
 import org.apache.commons.net.PrintCommandListener
 import org.apache.commons.net.ftp.FTPClient
 import uk.ac.ebi.scheculer.pmc.exporter.config.ApplicationProperties
-import uk.ac.ebi.scheculer.pmc.exporter.mapping.LinkMapper.toLink
+import uk.ac.ebi.scheculer.pmc.exporter.mapping.toLink
 import uk.ac.ebi.scheculer.pmc.exporter.model.Link
 import uk.ac.ebi.scheculer.pmc.exporter.model.Links
 import java.io.PrintWriter
@@ -35,6 +35,8 @@ class PmcExporterService(
 
     suspend fun exportPmcLinks() = withContext(Dispatchers.IO) {
         logger.info { "Started exporting PMC links" }
+
+        ftpClient.login()
 
         bioWebClient
             .getExtSubmissionsAsSequence(ExtPageQuery(collection = PMC_COLLECTION))
@@ -61,16 +63,16 @@ class PmcExporterService(
         ftpClient.storeFile(path, xml.byteInputStream())
     }
 
-    private fun ftpClient(): FTPClient {
-        val ftpClient = FTPClient()
+    private fun ftpClient() = FTPClient().apply {
+        bufferSize = BUFFER_SIZE
+        addProtocolCommandListener(PrintCommandListener(PrintWriter(System.out)))
+    }
+
+    private fun FTPClient.login() {
         val ftpConfig = appProperties.ftp
 
-        ftpClient.addProtocolCommandListener(PrintCommandListener(PrintWriter(System.out)))
-        ftpClient.connect(ftpConfig.host, ftpConfig.port.toInt())
-        ftpClient.login(ftpConfig.user, ftpConfig.password)
-        ftpClient.bufferSize = BUFFER_SIZE
-
-        return ftpClient
+        connect(ftpConfig.host, ftpConfig.port.toInt())
+        login(ftpConfig.user, ftpConfig.password)
     }
 
     private fun xmlWriter(): XmlMapper =

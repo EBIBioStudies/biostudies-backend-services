@@ -3,7 +3,13 @@ package uk.ac.ebi.scheculer.pmc.exporter.model
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement
 
-private const val PROVIDER_ID = 1518
+internal const val PMC_SOURCE = "PMC"
+internal const val PROVIDER_ID = 1518
+
+@JacksonXmlRootElement(localName = "links")
+data class Links(
+    val links: List<Link>
+)
 
 data class Link(
     val resource: Resource,
@@ -13,7 +19,14 @@ data class Link(
     val providerId = PROVIDER_ID
 }
 
-@JacksonXmlRootElement(localName = "links")
-data class Links(
-    val links: List<Link>
+data class Record(
+    val id: String
+) {
+    val source = PMC_SOURCE
+}
+
+data class Resource(
+    val url: String,
+    val title: String
 )
+
