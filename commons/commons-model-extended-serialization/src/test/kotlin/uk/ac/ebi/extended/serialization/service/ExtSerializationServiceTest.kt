@@ -71,13 +71,9 @@ class ExtSerializationServiceTest(private val tempFolder: TemporaryFolder) {
             ).asSequence()
         val iterator = fileList.iterator()
 
-        testInstance.serializeFileList(fileList, testFile.outputStream())
-
-        testInstance.deserializeFileList(testFile.inputStream()).forEach { file ->
-            assertThat(file).isEqualTo(iterator.next())
+        testFile.outputStream().use { testInstance.serializeFileList(fileList, it) }
+        testFile.inputStream().use {
+            testInstance.deserializeFileList(it).forEach { file -> assertThat(file).isEqualTo(iterator.next()) }
         }
-
-        testFile.outputStream().close()
-        testFile.inputStream().close()
     }
 }
