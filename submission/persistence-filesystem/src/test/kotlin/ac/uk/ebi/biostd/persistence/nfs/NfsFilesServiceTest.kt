@@ -18,7 +18,6 @@ import ebi.ac.uk.io.RWXR_X___
 import ebi.ac.uk.io.RW_R__R__
 import ebi.ac.uk.io.RW_R_____
 import ebi.ac.uk.io.ext.createNewFile
-import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.paths.SubmissionFolderResolver
 import ebi.ac.uk.test.clean
 import ebi.ac.uk.test.createFile
@@ -60,13 +59,13 @@ class NfsFilesServiceTest(
         val simpleSubmission = extSubmission.toSimpleSubmission()
         sectionFolder.createNewFile("file3.txt", "folder-file-content")
 
-        every { mockSerializationService.serializeElement(simpleSubmission, XML) } returns ""
-        every { mockSerializationService.serializeElement(simpleSubmission, TSV) } returns ""
-        every { mockSerializationService.serializeElement(simpleSubmission, JSON_PRETTY) } returns ""
+        every { mockSerializationService.serializeSubmission(simpleSubmission, XML) } returns ""
+        every { mockSerializationService.serializeSubmission(simpleSubmission, TSV) } returns ""
+        every { mockSerializationService.serializeSubmission(simpleSubmission, JSON_PRETTY) } returns ""
 
-        every { mockSerializationService.serializeElement(any<FilesTable>(), XML) } returns ""
-        every { mockSerializationService.serializeElement(any<FilesTable>(), TSV) } returns ""
-        every { mockSerializationService.serializeElement(any<FilesTable>(), JSON_PRETTY) } returns ""
+        //every { mockSerializationService.serializeFileList(any(), XML) } returns ""
+        //every { mockSerializationService.serializeFileList(any(), TSV) } returns ""
+        //every { mockSerializationService.serializeFileList(any(), JSON_PRETTY) } returns ""
     }
 
     @Nested

@@ -40,7 +40,7 @@ class PageTabFileReaderTest(
     fun `read page tab from excel`() {
         val file = tempFolder.createFile("page-tab.xlsx", "page tab")
 
-        every { readContentAsTsv(file) } returns "page tab"
+        every { readContentAsTsv(file) } returns file
 
         assertThat(readAsPageTab(file)).isEqualTo("page tab")
         verify(exactly = 1) { readContentAsTsv(file) }

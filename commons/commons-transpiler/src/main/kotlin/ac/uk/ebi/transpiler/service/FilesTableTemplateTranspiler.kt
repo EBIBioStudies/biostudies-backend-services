@@ -6,6 +6,9 @@ import ac.uk.ebi.biostd.integration.SubFormat
 import ac.uk.ebi.transpiler.mapper.FilesTableTemplateMapper
 import ac.uk.ebi.transpiler.processor.FilesTableTemplateProcessor
 import ac.uk.ebi.transpiler.validator.FilesTableTemplateValidator
+import java.nio.file.Files
+import kotlin.io.path.ExperimentalPathApi
+import kotlin.io.path.readText
 
 /**
  * Transpiler to convert files table template into page tab.
@@ -28,6 +31,7 @@ class FilesTableTemplateTranspiler(
      * @param basePath The prefix for the entries in the generated files table.
      * @param format The desired format for the generated page tab.
      */
+    @OptIn(ExperimentalPathApi::class)
     fun transpile(
         template: String,
         baseColumns: List<String>,
@@ -40,7 +44,8 @@ class FilesTableTemplateTranspiler(
         templateValidator.validate(tableTemplate, filesPath)
 
         val filesTable = templateMapper.map(tableTemplate, filesPath, basePath)
-
-        return serializationService.serializeFileList(filesTable, format)
+        val file = Files.createTempFile("", "")
+        serializationService.serializeFileList(filesTable, format, file.toFile())
+        return file.readText()
     }
 }

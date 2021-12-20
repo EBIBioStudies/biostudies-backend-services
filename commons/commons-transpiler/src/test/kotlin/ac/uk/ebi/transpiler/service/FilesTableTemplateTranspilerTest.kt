@@ -1,7 +1,6 @@
 package ac.uk.ebi.transpiler.service
 
 import ac.uk.ebi.biostd.integration.SerializationService
-import ac.uk.ebi.biostd.integration.SubFormat
 import ac.uk.ebi.biostd.integration.SubFormat.TsvFormat.Tsv
 import ac.uk.ebi.transpiler.common.FilesTableTemplate
 import ac.uk.ebi.transpiler.factory.testTemplate
@@ -40,7 +39,7 @@ class FilesTableTemplateTranspilerTest(
         every { mockTemplateProcessor.process(testTemplate, testBaseColumns) } returns testFilesTableTemplate
         every { mockTemplateValidator.validate(testFilesTableTemplate, testFilesPath) }.answers { nothing }
         every { mockTemplateMapper.map(testFilesTableTemplate, testFilesPath, testParentFolder) } returns testFilesTable
-        every { mockSerializationService.serializeFileList(testFilesTable, SubFormat.TSV) } returns ""
+        //every { mockSerializationService.serializeFileList(testFilesTable, SubFormat.TSV) } returns ""
     }
 
     @Test
@@ -52,7 +51,7 @@ class FilesTableTemplateTranspilerTest(
             mockTemplateProcessor.process(testTemplate, testBaseColumns)
             mockTemplateValidator.validate(testFilesTableTemplate, testFilesPath)
             mockTemplateMapper.map(testFilesTableTemplate, testFilesPath, testParentFolder)
-            mockSerializationService.serializeFileList(testFilesTable, Tsv)
+            //mockSerializationService.serializeFileList(testFilesTable, Tsv)
         }
     }
 }

@@ -13,38 +13,39 @@ import ac.uk.ebi.biostd.xml.XmlSerializer
 import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.util.file.ExcelReader
+import java.io.File
 
 internal class PagetabSerializer(
     private val jsonSerializer: JsonSerializer = JsonSerializer(),
     private val xmlSerializer: XmlSerializer = XmlSerializer(),
     private val tsvSerializer: TsvSerializer = TsvSerializer()
 ) {
-    fun serializeSubmission(submission: Submission, format: SubFormat): String = serializeElement(submission, format)
-
-    fun <T> serializeElement(element: T, format: SubFormat) = when (format) {
-        XmlFormat -> xmlSerializer.serialize(element)
-        PlainJson -> jsonSerializer.serialize(element)
-        JsonPretty -> jsonSerializer.serialize(element, true)
-        is TsvFormat -> tsvSerializer.serialize(element)
+    fun serializeSubmission(submission: Submission, format: SubFormat): String = when (format) {
+        XmlFormat -> xmlSerializer.serialize(submission)
+        PlainJson -> jsonSerializer.serialize(submission)
+        JsonPretty -> jsonSerializer.serialize(submission, true)
+        is TsvFormat -> tsvSerializer.serializeSubmission(submission)
     }
 
-    fun deserializeSubmission(submission: String, format: SubFormat) = when (format) {
+    fun deserializeSubmission(submission: String, format: SubFormat): Submission = when (format) {
         XmlFormat -> xmlSerializer.deserialize(submission)
         is JsonFormat -> jsonSerializer.deserialize(submission)
-        is TsvFormat -> tsvSerializer.deserialize(submission)
+        is TsvFormat -> tsvSerializer.deserializeSubmission(submission)
     }
 
-    fun serializeFileList(filesTable: FilesTable, format: SubFormat): String = when (format) {
-        XmlFormat -> xmlSerializer.serialize(filesTable)
-        JsonPretty, PlainJson -> jsonSerializer.serializeFileList(filesTable.elements).readText()
-        is TsvFormat -> tsvSerializer.serializeFileList(filesTable.elements).readText()
+    fun serializeFileList(filesTable: FilesTable, format: SubFormat, file: File) {
+        when (format) {
+            XmlFormat -> file.writeText(xmlSerializer.serialize(filesTable))
+            JsonPretty, PlainJson -> jsonSerializer.serializeFileList(filesTable.elements, file)
+            is TsvFormat -> tsvSerializer.serializeFileList(filesTable.elements, file)
+        }
     }
 
-    fun deserializeFileList(file: java.io.File, format: SubFormat): FilesTable {
+    fun deserializeFileList(file: File, format: SubFormat): FilesTable {
         return when (format) {
             XmlFormat -> xmlSerializer.deserialize(file.readText(), FilesTable::class.java)
             is JsonFormat -> FilesTable(jsonSerializer.deserializeFileList(file))
-            is XlsxTsv -> tsvSerializer.deserializeElement(ExcelReader.readContentAsTsv(file), FilesTable::class.java)
+            is XlsxTsv -> FilesTable(tsvSerializer.deserializeFileList(ExcelReader.readContentAsTsv(file)))
             is TsvFormat -> FilesTable(tsvSerializer.deserializeFileList(file))
         }
     }

@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.xml
 
-import uk.ac.ebi.serialization.serializers.EitherSerializer
 import ac.uk.ebi.biostd.xml.deserializer.AttributeXmlDeserializer
 import ac.uk.ebi.biostd.xml.deserializer.DetailsXmlDeserializer
 import ac.uk.ebi.biostd.xml.deserializer.FileXmlDeserializer
@@ -32,6 +31,7 @@ import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.Table
 import ebi.ac.uk.util.collections.ifRight
 import org.xml.sax.InputSource
+import uk.ac.ebi.serialization.serializers.EitherSerializer
 import java.io.StringReader
 import javax.xml.parsers.DocumentBuilderFactory
 
