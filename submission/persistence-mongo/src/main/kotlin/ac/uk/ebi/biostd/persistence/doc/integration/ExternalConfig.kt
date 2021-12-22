@@ -39,7 +39,7 @@ class ExternalConfig {
             serializationService,
             systemService,
             submissionRepository,
-            Path(properties.requestFileList)
+            Path(properties.requestFilesPath)
         )
     }
 
