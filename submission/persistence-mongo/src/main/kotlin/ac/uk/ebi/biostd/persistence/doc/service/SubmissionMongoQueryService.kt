@@ -81,17 +81,19 @@ internal class SubmissionMongoQueryService(
         return fileList.copy(files = filesTable.files)
     }
 
-    private fun processSection(section: ExtSection, processFile: (file: ExtFileList) -> ExtFileList): ExtSection {
-        return section.copy(
+    private fun processSection(section: ExtSection, processFile: (file: ExtFileList) -> ExtFileList): ExtSection =
+        section.copy(
             fileList = section.fileList?.let { processFile(it) },
             sections = section.sections.map { processSections(it, processFile) }
         )
-    }
 
-    private fun processSections(subSection: Either<ExtSection, ExtSectionTable>, processFile: (file :ExtFileList) -> ExtFileList): Either<ExtSection, ExtSectionTable> =
+    private fun processSections(
+        subSection: Either<ExtSection, ExtSectionTable>,
+        processFile: (file: ExtFileList) -> ExtFileList
+    ): Either<ExtSection, ExtSectionTable> =
         subSection.bimap(
-            {processSection(it,processFile)},
-            {it.copy(sections = it.sections.map { subSect -> processSection(subSect, processFile) })}
+            { processSection(it, processFile) },
+            { it.copy(sections = it.sections.map { subSect -> processSection(subSect, processFile) }) }
         )
 
     override fun getReferencedFiles(accNo: String, fileListName: String): List<ExtFile> =
