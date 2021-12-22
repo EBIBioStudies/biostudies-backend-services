@@ -20,7 +20,8 @@ val ExtSection.title
  */
 fun ExtSection.replace(replaceFunction: (file: ExtFileList) -> ExtFileList): ExtSection = copy(
     fileList = fileList?.let { replaceFunction(it) },
-    sections = sections.map { processSections(it, replaceFunction) })
+    sections = sections.map { processSections(it, replaceFunction) }
+)
 
 private fun processSections(
     sections: Either<ExtSection, ExtSectionTable>,
