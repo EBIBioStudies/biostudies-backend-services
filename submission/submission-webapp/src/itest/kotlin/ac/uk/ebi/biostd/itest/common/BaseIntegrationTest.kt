@@ -106,6 +106,8 @@ internal open class BaseIntegrationTest(private val tempFolder: TemporaryFolder)
         System.setProperty("app.submissionPath", submissionPath)
         System.setProperty("app.ftpPath", "${tempFolder.root.absolutePath}/ftpPath")
         System.setProperty("app.tempDirPath", tempDirPath.absolutePath)
+        System.setProperty("app.requestFilesPath", tempFolder.createDirectory("request-files").absolutePath)
+
         System.setProperty("app.security.filesDirPath", tempFolder.createDirectory("dropbox").absolutePath)
         System.setProperty("app.security.magicDirPath", tempFolder.createDirectory("magic").absolutePath)
         System.setProperty("app.persistence.enableFire", "${System.getProperty("enableFire").toBoolean()}")
