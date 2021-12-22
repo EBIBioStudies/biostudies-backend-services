@@ -29,10 +29,9 @@ pmc:
       password: # FTP password to publish the PMC links
       port: # FTP port to publish the PMC links
 
-    bioStudies:
-      url: # BioStudies server to load the PMC submissions
-      user: # BioStudies user to load the PMC submissions
-      password: # BioStudies password to load the PMC submissions
+    persistence:
+      database: # The database name to access the data
+      uri: # The database connection URI
 
 exporter:
   fileName: # Name of the export file

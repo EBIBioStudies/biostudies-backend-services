@@ -59,8 +59,7 @@ internal class PmcExporterTrigger(
             pmcExporterProperties.ftp.user,
             pmcExporterProperties.ftp.password,
             pmcExporterProperties.ftp.port,
-            pmcExporterProperties.bioStudies.url,
-            pmcExporterProperties.bioStudies.user,
-            pmcExporterProperties.bioStudies.password
+            pmcExporterProperties.persistence.database,
+            pmcExporterProperties.persistence.uri
         )
 }

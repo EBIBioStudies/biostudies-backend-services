@@ -16,9 +16,9 @@ class PmcExporterProperties : BaseAppProperty {
             append("--app.ftp.user=$ftpUser \\\n")
             append("--app.ftp.password=$ftpPassword \\\n")
             append("--app.ftp.port=$ftpPort \\\n")
-            append("--app.bioStudies.url=$bioStudiesUrl \\\n")
-            append("--app.bioStudies.user=$bioStudiesUser \\\n")
-            append("--app.bioStudies.password=$bioStudiesPassword \\\n")
+            append("--app.persistence.enableMongo=true \\\n")
+            append("--spring.data.mongodb.database=$databaseName \\\n")
+            append("--spring.data.mongodb.uri=$databaseUri \\\n")
         }.removeSuffix(" \\\n").toString()
 
     lateinit var fileName: String
@@ -27,9 +27,8 @@ class PmcExporterProperties : BaseAppProperty {
     lateinit var ftpUser: String
     lateinit var ftpPassword: String
     lateinit var ftpPort: Number
-    lateinit var bioStudiesUrl: String
-    lateinit var bioStudiesUser: String
-    lateinit var bioStudiesPassword: String
+    lateinit var databaseName: String
+    lateinit var databaseUri: String
 
     companion object {
         fun create(
@@ -39,9 +38,8 @@ class PmcExporterProperties : BaseAppProperty {
             ftpUser: String,
             ftpPassword: String,
             ftpPort: Number,
-            bioStudiesUrl: String,
-            bioStudiesUser: String,
-            bioStudiesPassword: String
+            databaseName: String,
+            databaseUri: String
         ) = PmcExporterProperties().apply {
             this.fileName = fileName
             this.outputPath = outputPath
@@ -49,9 +47,8 @@ class PmcExporterProperties : BaseAppProperty {
             this.ftpUser = ftpUser
             this.ftpPassword = ftpPassword
             this.ftpPort = ftpPort
-            this.bioStudiesUrl = bioStudiesUrl
-            this.bioStudiesUser = bioStudiesUser
-            this.bioStudiesPassword = bioStudiesPassword
+            this.databaseName = databaseName
+            this.databaseUri = databaseUri
         }
     }
 }

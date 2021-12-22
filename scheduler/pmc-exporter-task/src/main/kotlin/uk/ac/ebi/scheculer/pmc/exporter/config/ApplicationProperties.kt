@@ -12,9 +12,6 @@ class ApplicationProperties {
 
     @NestedConfigurationProperty
     var ftp: Ftp = Ftp()
-
-    @NestedConfigurationProperty
-    var bioStudies: BioStudies = BioStudies()
 }
 
 class Ftp {
@@ -22,10 +19,4 @@ class Ftp {
     lateinit var user: String
     lateinit var password: String
     lateinit var port: Number
-}
-
-class BioStudies {
-    lateinit var url: String
-    lateinit var user: String
-    lateinit var password: String
 }

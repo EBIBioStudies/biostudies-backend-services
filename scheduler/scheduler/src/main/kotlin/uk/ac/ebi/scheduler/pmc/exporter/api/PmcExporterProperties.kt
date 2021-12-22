@@ -11,10 +11,10 @@ class PmcExporterProperties {
     lateinit var outputPath: String
 
     @NestedConfigurationProperty
-    var bioStudies: BioStudies = BioStudies()
+    var ftp: Ftp = Ftp()
 
     @NestedConfigurationProperty
-    var ftp: Ftp = Ftp()
+    var persistence: Persistence = Persistence()
 }
 
 class Ftp {
@@ -24,8 +24,7 @@ class Ftp {
     lateinit var port: Number
 }
 
-class BioStudies {
-    lateinit var url: String
-    lateinit var user: String
-    lateinit var password: String
+class Persistence {
+    lateinit var uri: String
+    lateinit var database: String
 }

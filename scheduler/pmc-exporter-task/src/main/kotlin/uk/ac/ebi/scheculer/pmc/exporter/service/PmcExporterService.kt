@@ -1,12 +1,8 @@
 package uk.ac.ebi.scheculer.pmc.exporter.service
 
-import ac.uk.ebi.biostd.client.dto.ExtPageQuery
-import ac.uk.ebi.biostd.client.extensions.getExtSubmissionsAsSequence
-import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import com.fasterxml.jackson.databind.SerializationFeature.INDENT_OUTPUT
 import com.fasterxml.jackson.dataformat.xml.JacksonXmlModule
 import com.fasterxml.jackson.dataformat.xml.XmlMapper
-import ebi.ac.uk.extended.model.ExtSubmission
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
@@ -18,30 +14,32 @@ import uk.ac.ebi.scheculer.pmc.exporter.config.ApplicationProperties
 import uk.ac.ebi.scheculer.pmc.exporter.mapping.toLink
 import uk.ac.ebi.scheculer.pmc.exporter.model.Link
 import uk.ac.ebi.scheculer.pmc.exporter.model.Links
+import uk.ac.ebi.scheculer.pmc.exporter.model.PmcData
+import uk.ac.ebi.scheculer.pmc.exporter.persistence.PmcRepository
+import uk.ac.ebi.scheculer.pmc.exporter.persistence.pageIterator
 import java.io.PrintWriter
 
 internal const val CHUNK_SIZE = 4000
 internal const val BUFFER_SIZE = 1024 * 1024
-internal const val PMC_COLLECTION = "EuropePMC"
 
 private val logger = KotlinLogging.logger {}
 
 class PmcExporterService(
-    private val bioWebClient: BioWebClient,
+    private val pmcRepository: PmcRepository,
     private val appProperties: ApplicationProperties,
 ) {
     private val xmlWriter = xmlWriter()
     private val ftpClient = ftpClient()
+    private val pmcDataIterator = pageIterator(pmcRepository)
 
     suspend fun exportPmcLinks() = withContext(Dispatchers.IO) {
         logger.info { "Started exporting PMC links" }
 
         ftpClient.login()
 
-        bioWebClient
-            .getExtSubmissionsAsSequence(ExtPageQuery(collection = PMC_COLLECTION))
-            .chunked(CHUNK_SIZE)
-            .mapIndexed { part, submissions -> launch { writeLinks(part, submissions) } }
+        pmcDataIterator
+            .asSequence()
+            .mapIndexed { part, page -> launch { writeLinks(part + 1, page.content) } }
             .toList()
             .joinAll()
 
@@ -51,15 +49,16 @@ class PmcExporterService(
         logger.info { "Finished exporting PMC links" }
     }
 
-    private suspend fun writeLinks(part: Int, submissions: List<ExtSubmission>) {
+    private suspend fun writeLinks(part: Int, submissions: List<PmcData>) {
         logger.info { "Exporting PMC links part $part" }
         val links = submissions.map { it.toLink() }
         withContext(Dispatchers.IO) { write(part, links) }
     }
 
     private fun write(part: Int, links: List<Link>) {
+        logger.info { "writing file part $part" }
         val xml = xmlWriter.writeValueAsString(Links(links))
-        val path = "${appProperties.outputPath}/${appProperties.fileName}part$part.xml"
+        val path = "${appProperties.outputPath}/${String.format(appProperties.fileName, part)}"
         ftpClient.storeFile(path, xml.byteInputStream())
     }
 

@@ -4,15 +4,16 @@ import Dependencies.KMongoAsync
 import Dependencies.KMongoCoroutine
 import Dependencies.KotlinLogging
 import Dependencies.KotlinStdLib
+import Dependencies.SpringDataJpa
 import Dependencies.SpringWeb
-import Projects.ClientBioWebClient
-import Projects.CommonsModelExtended
-import Projects.CommonsModelExtendedMapping
+import Projects.CommonsModelExtendedSerialization
 import Projects.CommonsSerialization
 import Projects.SchedulerTaskProperties
-import SpringBootDependencies.SpringBootAmqp
+import Projects.SubmissionPersistenceCommonApi
+import Projects.SubmissionPersistenceMongo
 import SpringBootDependencies.SpringBootStarter
 import SpringBootDependencies.SpringBootStarterConfigProcessor
+import SpringBootDependencies.SpringBootStarterMongo
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
 import org.springframework.boot.gradle.tasks.bundling.BootJar
@@ -24,10 +25,10 @@ plugins {
 }
 
 dependencies {
-    api(project(ClientBioWebClient))
-    api(project(CommonsModelExtended))
-    api(project(CommonsModelExtendedMapping))
     api(project(CommonsSerialization))
+    api(project(CommonsModelExtendedSerialization))
+    api(project(SubmissionPersistenceCommonApi))
+    api(project(SubmissionPersistenceMongo))
     api(project(SchedulerTaskProperties))
 
     implementation(CommonsNet)
@@ -36,8 +37,9 @@ dependencies {
     implementation(KotlinLogging)
     implementation(KotlinStdLib)
     implementation(JacksonXml)
-    implementation(SpringBootAmqp)
+    implementation(SpringDataJpa)
     implementation(SpringBootStarter)
+    implementation(SpringBootStarterMongo)
     implementation(SpringWeb)
     implementation(SpringBootStarterConfigProcessor)
 
