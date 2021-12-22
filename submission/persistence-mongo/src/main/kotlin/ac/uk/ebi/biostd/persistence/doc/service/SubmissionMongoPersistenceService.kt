@@ -5,15 +5,25 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestService
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
+import ac.uk.ebi.biostd.persistence.doc.model.RequestFileList
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus
 import ac.uk.ebi.biostd.persistence.filesystem.request.FilePersistenceRequest
 import ac.uk.ebi.biostd.persistence.filesystem.service.FileSystemService
 import com.mongodb.BasicDBObject
+import ebi.ac.uk.extended.model.ExtFileList
+import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.ExtProcessingStatus.REQUESTED
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FileMode
+import ebi.ac.uk.extended.model.allFileList
+import org.bson.types.ObjectId
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.Properties
+import java.nio.file.Files
+import java.nio.file.Path
+import kotlin.io.path.ExperimentalPathApi
+import kotlin.io.path.absolutePathString
+import kotlin.io.path.writeText
 import kotlin.math.absoluteValue
 
 @Suppress("LongParameterList")
@@ -22,7 +32,8 @@ internal class SubmissionMongoPersistenceService(
     private val requestRepository: SubmissionRequestDocDataRepository,
     private val serializationService: ExtSerializationService,
     private val systemService: FileSystemService,
-    private val submissionRepository: ExtSubmissionRepository
+    private val submissionRepository: ExtSubmissionRepository,
+    private val fileListPath: Path,
 ) : SubmissionRequestService {
 
     override fun saveSubmissionRequest(rqt: SubmissionRequest): Pair<String, Int> {
@@ -58,14 +69,26 @@ internal class SubmissionMongoPersistenceService(
     }
 
     private fun asRequest(rqt: SubmissionRequest, submission: ExtSubmission): DocSubmissionRequest {
-        val content = serializationService.serialize(submission, Properties(includeFileListFiles = true))
+        val content = serializationService.serialize(submission, Properties(includeFileListFiles = false))
+        val fileLists = submission.allFileList.map { asRequestFileList(submission, it) }
         return DocSubmissionRequest(
+            id = ObjectId(),
             accNo = submission.accNo,
             version = submission.version,
             fileMode = rqt.fileMode,
             draftKey = rqt.draftKey,
             status = SubmissionRequestStatus.REQUESTED,
-            submission = BasicDBObject.parse(content)
+            submission = BasicDBObject.parse(content),
+            fileList = fileLists
         )
+    }
+
+    @OptIn(ExperimentalPathApi::class)
+    private fun asRequestFileList(sub: ExtSubmission, fileList: ExtFileList): RequestFileList {
+        val folderPath = fileListPath.resolve(sub.accNo).resolve(sub.version.toString())
+        val folder = Files.createDirectory(folderPath)
+        val file = Files.createFile(folder.resolve(fileList.fileName))
+        file.writeText(serializationService.serialize(ExtFileTable(fileList.files)))
+        return RequestFileList(fileName = fileList.fileName, filePath = file.absolutePathString())
     }
 }
