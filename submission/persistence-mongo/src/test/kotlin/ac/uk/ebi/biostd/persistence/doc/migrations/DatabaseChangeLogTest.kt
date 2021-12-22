@@ -146,12 +146,14 @@ internal class DatabaseChangeLogTest(
     }
 
     private val request = DocSubmissionRequest(
+        id = ObjectId(),
         accNo = "accNo",
         version = 1,
         fileMode = FileMode.COPY,
         draftKey = null,
         status = REQUESTED,
-        submission = BasicDBObject.parse("{}")
+        submission = BasicDBObject.parse("{}"),
+        fileList = emptyList()
     )
 
     companion object {

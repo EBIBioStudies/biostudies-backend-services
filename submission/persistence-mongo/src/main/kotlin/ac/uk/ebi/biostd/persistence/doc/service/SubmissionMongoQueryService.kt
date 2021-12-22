@@ -14,10 +14,12 @@ import ac.uk.ebi.biostd.persistence.doc.mapping.to.toExtFile
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.allDocSections
 import ac.uk.ebi.biostd.persistence.doc.model.asBasicSubmission
+import arrow.core.Either
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileList
 import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.ExtSection
+import ebi.ac.uk.extended.model.ExtSectionTable
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.util.collections.firstOrElse
 import org.springframework.data.domain.Page
@@ -82,9 +84,15 @@ internal class SubmissionMongoQueryService(
     private fun processSection(section: ExtSection, processFile: (file: ExtFileList) -> ExtFileList): ExtSection {
         return section.copy(
             fileList = section.fileList?.let { processFile(it) },
-            sections = TODO()
+            sections = section.sections.map { processSections(it, processFile) }
         )
     }
+
+    private fun processSections(subSection: Either<ExtSection, ExtSectionTable>, processFile: (file :ExtFileList) -> ExtFileList): Either<ExtSection, ExtSectionTable> =
+        subSection.bimap(
+            {processSection(it,processFile)},
+            {it.copy(sections = it.sections.map { subSect -> processSection(subSect, processFile) })}
+        )
 
     override fun getReferencedFiles(accNo: String, fileListName: String): List<ExtFile> =
         loadSubmission(accNo)

@@ -429,12 +429,14 @@ internal class SubmissionMongoQueryServiceTest(
         }
 
         private fun asRequest(submission: ExtSubmission, status: SubmissionRequestStatus) = DocSubmissionRequest(
+            id = ObjectId(),
             accNo = submission.accNo,
             version = submission.version,
             status = status,
             fileMode = FileMode.COPY,
             draftKey = null,
-            submission = BasicDBObject.parse(serializationService.serialize(submission))
+            submission = BasicDBObject.parse(serializationService.serialize(submission)),
+            fileList = emptyList()
         )
     }
 

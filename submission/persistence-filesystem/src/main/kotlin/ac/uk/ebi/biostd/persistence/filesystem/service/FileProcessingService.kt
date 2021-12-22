@@ -42,7 +42,6 @@ private fun processSectionFiles(
     sections = section.sections.map { processSections(it, processFile) }
 )
 
-
 private fun processFileList(
     fileList: ExtFileList,
     processFile: (file: ExtFile) -> ExtFile
