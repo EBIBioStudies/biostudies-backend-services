@@ -11,7 +11,6 @@ import ac.uk.ebi.biostd.persistence.filesystem.request.FilePersistenceRequest
 import ac.uk.ebi.biostd.persistence.filesystem.service.FileSystemService
 import com.mongodb.BasicDBObject
 import ebi.ac.uk.extended.model.ExtFileList
-import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.ExtProcessingStatus.REQUESTED
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FileMode
@@ -86,9 +85,9 @@ internal class SubmissionMongoPersistenceService(
     @OptIn(ExperimentalPathApi::class)
     private fun asRequestFileList(sub: ExtSubmission, fileList: ExtFileList): RequestFileList {
         val folderPath = fileListPath.resolve(sub.accNo).resolve(sub.version.toString())
-        val folder = Files.createDirectory(folderPath)
+        val folder = Files.createDirectories(folderPath)
         val file = Files.createFile(folder.resolve(fileList.fileName))
-        file.writeText(serializationService.serialize(ExtFileTable(fileList.files)))
+        file.writeText(serializationService.serialize(fileList))
         return RequestFileList(fileName = fileList.fileName, filePath = file.absolutePathString())
     }
 }

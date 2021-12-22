@@ -14,13 +14,10 @@ import ac.uk.ebi.biostd.persistence.doc.mapping.to.toExtFile
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.allDocSections
 import ac.uk.ebi.biostd.persistence.doc.model.asBasicSubmission
-import arrow.core.Either
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileList
-import ebi.ac.uk.extended.model.ExtFileTable
-import ebi.ac.uk.extended.model.ExtSection
-import ebi.ac.uk.extended.model.ExtSectionTable
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.extended.model.replace
 import ebi.ac.uk.util.collections.firstOrElse
 import org.springframework.data.domain.Page
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
@@ -67,34 +64,15 @@ internal class SubmissionMongoQueryService(
         val request = requestRepository.getByAccNoAndVersion(accNo, version)
         val fileLists = request.fileList.associate { it.fileName to File(it.filePath) }
         val submission = serializationService.deserialize<ExtSubmission>(request.submission.toString())
-        val fullSubmission = submission.copy(section = processSection(submission.section) { loadFiles(it, fileLists) })
-        return SubmissionRequest(
-            submission = fullSubmission,
-            fileMode = request.fileMode,
-            draftKey = request.draftKey
-        )
+        val fullSubmission = submission.copy(section = submission.section.replace { loadFiles(it, fileLists) })
+        return SubmissionRequest(submission = fullSubmission, fileMode = request.fileMode, draftKey = request.draftKey)
     }
 
     private fun loadFiles(fileList: ExtFileList, files: Map<String, File>): ExtFileList {
         val fileListFile = files.getValue(fileList.fileName)
-        val filesTable = serializationService.deserialize<ExtFileTable>(fileListFile.readText())
+        val filesTable = serializationService.deserialize<ExtFileList>(fileListFile.readText())
         return fileList.copy(files = filesTable.files)
     }
-
-    private fun processSection(section: ExtSection, processFile: (file: ExtFileList) -> ExtFileList): ExtSection =
-        section.copy(
-            fileList = section.fileList?.let { processFile(it) },
-            sections = section.sections.map { processSections(it, processFile) }
-        )
-
-    private fun processSections(
-        subSection: Either<ExtSection, ExtSectionTable>,
-        processFile: (file: ExtFileList) -> ExtFileList
-    ): Either<ExtSection, ExtSectionTable> =
-        subSection.bimap(
-            { processSection(it, processFile) },
-            { it.copy(sections = it.sections.map { subSect -> processSection(subSect, processFile) }) }
-        )
 
     override fun getReferencedFiles(accNo: String, fileListName: String): List<ExtFile> =
         loadSubmission(accNo)

@@ -4,11 +4,11 @@ import ac.uk.ebi.biostd.persistence.common.request.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
+import ac.uk.ebi.biostd.persistence.doc.model.RequestFileList
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus.PROCESSED
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus.REQUESTED
 import ac.uk.ebi.biostd.persistence.filesystem.request.FilePersistenceRequest
 import ac.uk.ebi.biostd.persistence.filesystem.service.FileSystemService
-import arrow.core.Either.Companion.left
 import com.mongodb.BasicDBObject.parse
 import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.FileMode.COPY
@@ -26,11 +26,11 @@ import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.Properties
 import uk.ac.ebi.extended.test.FileListFactory.defaultFileList
+import uk.ac.ebi.extended.test.NfsFileFactoryFactory.defaultNfsFile
 import uk.ac.ebi.extended.test.SectionFactory.defaultSection
 import uk.ac.ebi.extended.test.SubmissionFactory.ACC_NO
 import uk.ac.ebi.extended.test.SubmissionFactory.defaultSubmission
 import kotlin.io.path.ExperimentalPathApi
-import kotlin.io.path.Path
 
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
 class SubmissionMongoPersistenceServiceTest(
@@ -39,7 +39,7 @@ class SubmissionMongoPersistenceServiceTest(
     @MockK val serializationService: ExtSerializationService,
     @MockK val systemService: FileSystemService,
     @MockK val submissionRepository: ExtSubmissionRepository,
-    private val temporaryFolder: TemporaryFolder
+    val temporaryFolder: TemporaryFolder
 ) {
     @OptIn(ExperimentalPathApi::class)
     private val testInstance = SubmissionMongoPersistenceService(
@@ -53,6 +53,7 @@ class SubmissionMongoPersistenceServiceTest(
 
     private companion object {
         const val serializedSub = "{}"
+        const val fileListSerialized = "{file-list}"
     }
 
     @Nested
@@ -60,30 +61,31 @@ class SubmissionMongoPersistenceServiceTest(
         @Test
         fun `save request with current version active`() {
             val subRequestSlot = slot<DocSubmissionRequest>()
-            val subSection = defaultSection(fileList = defaultFileList())
-            val section = defaultSection(fileList = defaultFileList(), sections = listOf(left(subSection)))
-            val newVersion = defaultSubmission(version = 2, status = ExtProcessingStatus.REQUESTED, section = section)
-            val request = SubmissionRequest(defaultSubmission(version = 1), COPY, "draftKey")
+
+            val fileList = defaultFileList(files = listOf(defaultNfsFile()))
+            val newVersion = defaultSubmission(version = 1, section = defaultSection(fileList = fileList))
+            val expectedNewVersion = newVersion.copy(version = 2, status = ExtProcessingStatus.REQUESTED)
 
             every { subDataRepository.getCurrentVersion(ACC_NO) } returns 1
-            every { serializationService.serialize(newVersion, Properties(false)) } returns serializedSub
+            every { serializationService.serialize(expectedNewVersion, Properties(false)) } returns serializedSub
+            every { serializationService.serialize(fileList) } returns fileListSerialized
             every { submissionRequestDocDataRepository.saveRequest(capture(subRequestSlot)) } returnsArgument 0
 
+            val request = SubmissionRequest(newVersion.copy(version = 1), COPY, "draftKey")
             val result = testInstance.saveSubmissionRequest(request)
-
             assertThat(result).isEqualTo(ACC_NO to 2)
-            val submissionRequest =
-                DocSubmissionRequest(
-                    ObjectId(),
-                    ACC_NO,
-                    2,
-                    COPY,
-                    "draftKey",
-                    REQUESTED,
-                    parse(serializedSub),
-                    emptyList()
-                )
-            assertThat(subRequestSlot.captured).isEqualToIgnoringGivenFields(submissionRequest, "id")
+
+            val expectedFile = temporaryFolder.root.resolve(ACC_NO).resolve("2").resolve(fileList.fileName)
+            assertThat(expectedFile.readText()).isEqualTo(fileListSerialized)
+
+            val saved = subRequestSlot.captured
+            assertThat(saved.accNo).isEqualTo(ACC_NO)
+            assertThat(saved.version).isEqualTo(2)
+            assertThat(saved.fileMode).isEqualTo(COPY)
+            assertThat(saved.draftKey).isEqualTo("draftKey")
+            assertThat(saved.status).isEqualTo(REQUESTED)
+            assertThat(saved.submission).isEqualTo(parse(serializedSub))
+            assertThat(saved.fileList).containsExactly(RequestFileList(fileList.fileName, expectedFile.absolutePath))
         }
 
         @Test
