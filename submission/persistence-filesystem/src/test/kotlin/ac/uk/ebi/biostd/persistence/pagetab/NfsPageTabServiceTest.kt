@@ -12,6 +12,7 @@ import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSectionTable
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.createNfsFile
+import ebi.ac.uk.io.ext.createNewFile
 import ebi.ac.uk.paths.SubmissionFolderResolver
 import ebi.ac.uk.test.basicExtSubmission
 import ebi.ac.uk.util.collections.second
@@ -23,6 +24,7 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockkStatic
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import java.nio.file.Paths
@@ -37,6 +39,11 @@ class NfsPageTabServiceTest(
     private val folderResolver = SubmissionFolderResolver(Paths.get("$rootPath/submission"), Paths.get("$rootPath/ftp"))
     private val testInstance = NfsPageTabService(folderResolver, serializationService)
     private val subFolder = tempFolder.root.resolve("submission/S-TEST/123/S-TEST123")
+
+    @BeforeEach
+    fun beforeEach() {
+        subFolder.resolve("Files").mkdirs()
+    }
 
     @Test
     fun `generate page tab`() {
@@ -54,29 +61,29 @@ class NfsPageTabServiceTest(
         mockkStatic("ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabUtilKt")
 
         every { serializationService.generateSubPageTab(submission, subFolder) } returns PageTabFiles(
-            subFolder.resolve("S-TEST123.json"),
-            subFolder.resolve("S-TEST123.xml"),
-            subFolder.resolve("S-TEST123.pagetab.tsv")
+            subFolder.createNewFile("S-TEST123.json"),
+            subFolder.createNewFile("S-TEST123.xml"),
+            subFolder.createNewFile("S-TEST123.pagetab.tsv"),
         )
         every { serializationService.generateFileListPageTab(submission, subFolder.resolve("Files")) } returns mapOf(
-            "data/file-list2" to PageTabFiles(
-                subFolder.resolve("Files/data/file-list2.json"),
-                subFolder.resolve("Files/data/file-list2.xml"),
-                subFolder.resolve("Files/data/file-list2.pagetab.tsv")
+            "file-list2" to PageTabFiles(
+                subFolder.createNewFile("Files/file-list2.json"),
+                subFolder.createNewFile("Files/file-list2.xml"),
+                subFolder.createNewFile("Files/file-list2.pagetab.tsv")
             ),
-            "data/file-list1" to PageTabFiles(
-                subFolder.resolve("Files/data/file-list1.json"),
-                subFolder.resolve("Files/data/file-list1.xml"),
-                subFolder.resolve("Files/data/file-list1.pagetab.tsv")
+            "file-list1" to PageTabFiles(
+                subFolder.createNewFile("Files/file-list1.json"),
+                subFolder.createNewFile("Files/file-list1.xml"),
+                subFolder.createNewFile("Files/file-list1.pagetab.tsv")
             )
         )
     }
 
     private fun sectionWithoutTabFiles() = ExtSection(
         type = "Study1",
-        fileList = ExtFileList("data/file-list1"),
+        fileList = ExtFileList("file-list1"),
         sections = listOf(
-            left(ExtSection(type = "Study2", fileList = ExtFileList("data/file-list2"))),
+            left(ExtSection(type = "Study2", fileList = ExtFileList("file-list2"))),
             Either.right(ExtSectionTable(listOf(ExtSection(type = "Study3"))))
         )
     )
@@ -92,23 +99,23 @@ class NfsPageTabServiceTest(
         val tabFiles = section.fileList!!.pageTabFiles
         assertThat(tabFiles.first()).isEqualTo(
             createNfsFile(
-                "data/$FILE_LIST_JSON1",
-                "Files/data/$FILE_LIST_JSON1",
-                subFolder.resolve("Files/data/$FILE_LIST_JSON1")
+                FILE_LIST_JSON1,
+                "Files/$FILE_LIST_JSON1",
+                subFolder.resolve("Files/$FILE_LIST_JSON1")
             )
         )
         assertThat(tabFiles.second()).isEqualTo(
             createNfsFile(
-                "data/$FILE_LIST_XML1",
-                "Files/data/$FILE_LIST_XML1",
-                subFolder.resolve("Files/data/$FILE_LIST_XML1")
+                FILE_LIST_XML1,
+                "Files/$FILE_LIST_XML1",
+                subFolder.resolve("Files/$FILE_LIST_XML1")
             )
         )
         assertThat(tabFiles.third()).isEqualTo(
             createNfsFile(
-                "data/$FILE_LIST_TSV1",
-                "Files/data/$FILE_LIST_TSV1",
-                subFolder.resolve("Files/data/$FILE_LIST_TSV1")
+                FILE_LIST_TSV1,
+                "Files/$FILE_LIST_TSV1",
+                subFolder.resolve("Files/$FILE_LIST_TSV1")
             )
         )
     }
@@ -117,23 +124,23 @@ class NfsPageTabServiceTest(
         val tabFiles = section!!.fileList!!.pageTabFiles
         assertThat(tabFiles.first()).isEqualTo(
             createNfsFile(
-                "data/$FILE_LIST_JSON2",
-                "Files/data/$FILE_LIST_JSON2",
-                subFolder.resolve("Files/data/$FILE_LIST_JSON2")
+                FILE_LIST_JSON2,
+                "Files/$FILE_LIST_JSON2",
+                subFolder.resolve("Files/$FILE_LIST_JSON2")
             )
         )
         assertThat(tabFiles.second()).isEqualTo(
             createNfsFile(
-                "data/$FILE_LIST_XML2",
-                "Files/data/$FILE_LIST_XML2",
-                subFolder.resolve("Files/data/$FILE_LIST_XML2")
+                FILE_LIST_XML2,
+                "Files/$FILE_LIST_XML2",
+                subFolder.resolve("Files/$FILE_LIST_XML2")
             )
         )
         assertThat(tabFiles.third()).isEqualTo(
             createNfsFile(
-                "data/$FILE_LIST_TSV2",
-                "Files/data/$FILE_LIST_TSV2",
-                subFolder.resolve("Files/data/$FILE_LIST_TSV2")
+                FILE_LIST_TSV2,
+                "Files/$FILE_LIST_TSV2",
+                subFolder.resolve("Files/$FILE_LIST_TSV2")
             )
         )
     }

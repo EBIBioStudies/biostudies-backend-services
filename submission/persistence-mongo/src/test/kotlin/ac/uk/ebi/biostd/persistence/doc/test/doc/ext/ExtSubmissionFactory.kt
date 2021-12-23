@@ -8,8 +8,8 @@ import ebi.ac.uk.extended.model.ExtSubmissionMethod.PAGE_TAB
 import ebi.ac.uk.extended.model.ExtTag
 import ebi.ac.uk.extended.model.FireDirectory
 import ebi.ac.uk.extended.model.FireFile
+import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.extended.model.StorageMode
-import ebi.ac.uk.extended.model.createNfsFile
 import java.io.File
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
@@ -73,8 +73,11 @@ const val NFS_FILENAME = "nfsFileName"
 const val NFS_FILEPATH = "nfsFileFolder/nfsFileName"
 const val NFS_REL_PATH = "Files/nfsFileFolder/nfsFileName"
 const val NFS_FULL_PATH = "root/Files/nfsFileFolder/nfsFileName"
+const val MD5 = "abcmd5"
+const val SIZE = 55L
+
 val NFS_FILE = File(NFS_FILENAME)
-val nfsFile = createNfsFile(NFS_FILEPATH, NFS_REL_PATH, NFS_FILE, listOf())
+val nfsFile = NfsFile(NFS_FILEPATH, NFS_REL_PATH, NFS_FILE, NFS_FULL_PATH, MD5, SIZE, listOf())
 
 val fullExtSubmission = ExtSubmission(
     accNo = SUBMISSION_ACC_NO,

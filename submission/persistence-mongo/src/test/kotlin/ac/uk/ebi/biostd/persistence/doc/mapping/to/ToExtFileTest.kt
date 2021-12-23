@@ -10,6 +10,8 @@ import ac.uk.ebi.biostd.persistence.doc.test.FileTestHelper.nfsDocFile
 import ac.uk.ebi.biostd.persistence.doc.test.TEST_FILENAME
 import arrow.core.Either.Companion.left
 import arrow.core.Either.Companion.right
+import ebi.ac.uk.io.ext.md5
+import ebi.ac.uk.io.ext.size
 import ebi.ac.uk.util.collections.ifLeft
 import ebi.ac.uk.util.collections.ifRight
 import ebi.ac.uk.util.collections.second
@@ -23,7 +25,11 @@ import org.junit.jupiter.api.extension.ExtendWith
 @ExtendWith(TemporaryFolderExtension::class)
 class ToExtFileTest(temporaryFolder: TemporaryFolder) {
     private val testFile = temporaryFolder.createFile(TEST_FILENAME)
-    private val testNfsDocFile = nfsDocFile.copy(fullPath = testFile.absolutePath)
+    private val testNfsDocFile = nfsDocFile.copy(
+        fullPath = testFile.absolutePath,
+        md5 = testFile.md5(),
+        fileSize = testFile.size()
+    )
 
     @Test
     fun `nfsDocFile to ext file`() {
