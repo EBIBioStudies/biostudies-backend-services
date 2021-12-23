@@ -49,11 +49,9 @@ class ExtSubmissionRepository(
         val savedSubmission = subDataRepository.save(docSubmission)
         logger.info { "saved submission ${docSubmission.accNo}" }
 
-        files.forEach {
-            logger.info { "saving file list ${docSubmission.accNo}" }
-            fileListDocFileRepository.save(it)
-            logger.info { "saved file list ${docSubmission.accNo}" }
-        }
+        logger.info { "saving ${files.count()} file list files ${docSubmission.accNo}" }
+        files.chunked(100).forEach { fileListDocFileRepository.saveAll(it) }
+        logger.info { "saved ${files.count()} file list files ${docSubmission.accNo}" }
         return savedSubmission
     }
 }

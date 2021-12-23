@@ -45,7 +45,6 @@ class NfsFilesService(
         subFolder: File,
         permissions: Permissions
     ): ExtSubmission {
-        logger.info { "${sub.accNo} ${sub.owner} Processing files of submission ${sub.accNo} in $mode" }
         val newSubTempPath = createTempFolder(subFolder, sub.accNo)
 
         val config = NfsFileProcessingConfig(
@@ -59,8 +58,6 @@ class NfsFilesService(
 
         val processed = processFiles(sub) { config.processFile(it) }
         moveFile(newSubTempPath, subFolder, permissions)
-        logger.info { "${sub.accNo} ${sub.owner} Finished processing files of submission ${sub.accNo} in $mode" }
-
         return processed
     }
 

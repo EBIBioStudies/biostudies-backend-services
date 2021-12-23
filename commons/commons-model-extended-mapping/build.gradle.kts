@@ -1,5 +1,6 @@
 import Dependencies.Arrow
 import Dependencies.Guava
+import Dependencies.KotlinLogging
 import Dependencies.KotlinReflect
 import Dependencies.KotlinStdLib
 import Projects.CommonsBio
@@ -15,6 +16,7 @@ dependencies {
     api(project(CommonsModelExtendedTest))
 
     implementation(Arrow)
+    implementation(KotlinLogging)
     implementation(Guava)
     implementation(KotlinReflect)
     implementation(KotlinStdLib)

@@ -99,6 +99,7 @@ class SubmissionSubmitter(
 
             return extSubmission
         } catch (exception: RuntimeException) {
+            logger.error(exception) { "Error processing submission request accNo='${submission.accNo}'" }
             throw InvalidSubmissionException("Submission validation errors", listOf(exception))
         }
     }
