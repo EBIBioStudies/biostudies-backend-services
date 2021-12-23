@@ -6,8 +6,10 @@ import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.subSectionTable
 import ebi.ac.uk.extended.model.allSections
 import ebi.ac.uk.test.basicExtSubmission
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 
+@Disabled
 class DocSubmissionExt {
     @Test
     fun `get all sections from submission`() {

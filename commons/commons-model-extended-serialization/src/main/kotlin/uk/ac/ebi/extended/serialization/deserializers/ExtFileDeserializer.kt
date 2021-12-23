@@ -13,7 +13,6 @@ import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.ATTRIBUTES
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.EXT_TYPE
-import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_FILEPATH
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_FIRE_ID
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_FULL_PATH
@@ -63,15 +62,17 @@ class ExtFileDeserializer : JsonDeserializer<ExtFile>() {
     }
 
     private fun nfsFile(node: JsonNode, mapper: ObjectMapper): NfsFile {
-        val filePath = node.getNode<TextNode>(FILE).textValue()
-        val file = Paths.get(filePath).toFile()
-        require(file.exists()) { throw FileNotFoundException(filePath) }
+        val fullPath = node.getNode<TextNode>(FILE_FULL_PATH).textValue()
+        val file = Paths.get(fullPath).toFile()
+        require(file.exists()) { throw FileNotFoundException(fullPath) }
 
         return NfsFile(
             filePath = node.getNode<TextNode>(FILE_FILEPATH).textValue(),
             relPath = node.getNode<TextNode>(FILE_REL_PATH).textValue(),
-            fullPath = node.getNode<TextNode>(FILE_FULL_PATH).textValue(),
+            fullPath = fullPath,
             file = file,
+            md5 = node.getNode<TextNode>(FILE_MD5).textValue(),
+            size = node.getNode<IntNode>(FILE_SIZE).longValue(),
             attributes = mapper.convertList(node.findNode(ATTRIBUTES))
         )
     }

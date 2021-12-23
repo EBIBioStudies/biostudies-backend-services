@@ -11,17 +11,17 @@ import ac.uk.ebi.biostd.persistence.doc.test.SectionTestHelper.assertExtSection
 import ac.uk.ebi.biostd.persistence.doc.test.SectionTestHelper.docSection
 import ac.uk.ebi.biostd.persistence.doc.test.TEST_FILENAME
 import arrow.core.Either.Companion.left
-import org.assertj.core.api.Assertions.assertThat
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.FireDirectory
 import ebi.ac.uk.extended.model.FireFile
-import ebi.ac.uk.extended.model.NfsFile
+import ebi.ac.uk.extended.model.createNfsFile
 import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size
 import ebi.ac.uk.util.collections.second
 import ebi.ac.uk.util.collections.third
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -86,12 +86,10 @@ class ToExtSectionTest(temporaryFolder: TemporaryFolder) {
         )
         assertThat(pageTabFiles.second().fileName).isEqualTo(tabFireDirectory.filePath.substringAfterLast("/"))
         assertThat(pageTabFiles.third()).isEqualTo(
-            NfsFile(
+            createNfsFile(
                 "folder/${fileNfs.name}",
                 "Files/folder/${fileNfs.name}",
-                fileNfs.absolutePath,
-                fileNfs,
-                listOf()
+                fileNfs
             )
         )
         assertThat(pageTabFiles.third().fileName).isEqualTo(fileNfs.name)

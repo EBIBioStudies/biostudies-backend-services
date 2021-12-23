@@ -19,6 +19,7 @@ import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
+import ebi.ac.uk.extended.model.createNfsFile
 import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size
 import ebi.ac.uk.test.createFile
@@ -334,9 +335,9 @@ internal class MultipartFileSubmissionApiTest(
             val xmlPath = "$subFolder/$accNo.xml"
             val tsvPath = "$subFolder/$accNo.pagetab.tsv"
             return listOf(
-                NfsFile("$accNo.json", "$accNo.json", jsonPath, File(jsonPath)),
-                NfsFile("$accNo.xml", "$accNo.xml", xmlPath, File(xmlPath)),
-                NfsFile("$accNo.pagetab.tsv", "$accNo.pagetab.tsv", tsvPath, File(tsvPath))
+                createNfsFile("$accNo.json", "$accNo.json", File(jsonPath)),
+                createNfsFile("$accNo.xml", "$accNo.xml", File(xmlPath)),
+                createNfsFile("$accNo.pagetab.tsv", "$accNo.pagetab.tsv", File(tsvPath))
             )
         }
 
@@ -348,9 +349,9 @@ internal class MultipartFileSubmissionApiTest(
             val xmlFile = File(subFolder).resolve("Files/$xmlName")
             val tsvFile = File(subFolder).resolve("Files/$tsvName")
             return listOf(
-                NfsFile(jsonName, "Files/$jsonName", "$subFolder/Files/$jsonName", jsonFile),
-                NfsFile(xmlName, "Files/$xmlName", "$subFolder/Files/$xmlName", xmlFile),
-                NfsFile(tsvName, "Files/$tsvName", "$subFolder/Files/$tsvName", tsvFile)
+                createNfsFile(jsonName, "Files/$jsonName", jsonFile),
+                createNfsFile(xmlName, "Files/$xmlName", xmlFile),
+                createNfsFile(tsvName, "Files/$tsvName", tsvFile)
             )
         }
     }

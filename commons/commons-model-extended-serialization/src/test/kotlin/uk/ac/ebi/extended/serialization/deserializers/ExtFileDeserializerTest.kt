@@ -6,6 +6,7 @@ import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.FireDirectory
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
+import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
@@ -28,8 +29,7 @@ class ExtFileDeserializerTest(private val tempFolder: TemporaryFolder) {
             "fileName" to "nfs-file.txt"
             "filePath" to "folder/nfs-file.txt"
             "relPath" to "Files/folder/nfs-file.txt"
-            "fullPath" to "root/Files/folder/nfs-file.txt"
-            "file" to file.absolutePath
+            "fullPath" to file.absolutePath
             "attributes" to jsonArray(
                 jsonObj {
                     "name" to "Type"
@@ -39,6 +39,7 @@ class ExtFileDeserializerTest(private val tempFolder: TemporaryFolder) {
             "extType" to "nfsFile"
             "type" to "file"
             "size" to file.size()
+            "md5" to file.md5()
         }.toString()
 
         val extFile = testInstance.deserialize<ExtFile>(json) as NfsFile
@@ -46,7 +47,7 @@ class ExtFileDeserializerTest(private val tempFolder: TemporaryFolder) {
         assertThat(extFile.fileName).isEqualTo("nfs-file.txt")
         assertThat(extFile.filePath).isEqualTo("folder/nfs-file.txt")
         assertThat(extFile.relPath).isEqualTo("Files/folder/nfs-file.txt")
-        assertThat(extFile.fullPath).isEqualTo("root/Files/folder/nfs-file.txt")
+        assertThat(extFile.fullPath).isEqualTo(file.absolutePath)
         assertThat(extFile.file).isEqualTo(file)
         assertThat(extFile.attributes).hasSize(1)
         assertThat(extFile.attributes.first().name).isEqualTo("Type")
@@ -118,7 +119,7 @@ class ExtFileDeserializerTest(private val tempFolder: TemporaryFolder) {
     @Test
     fun `invalid file`() {
         val json = jsonObj {
-            "file" to "/i/dont/exist/file.txt"
+            "fullPath" to "/i/dont/exist/file.txt"
             "fileName" to "file.txt"
             "extType" to "nfsFile"
         }.toString()

@@ -10,6 +10,8 @@ import ebi.ac.uk.extended.model.ExtLinkTable
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSectionTable
 import ebi.ac.uk.extended.model.NfsFile
+import ebi.ac.uk.io.ext.md5
+import ebi.ac.uk.io.ext.size
 import ebi.ac.uk.util.collections.ifLeft
 import ebi.ac.uk.util.collections.ifRight
 import io.github.glytching.junit.extension.folder.TemporaryFolder
@@ -67,7 +69,9 @@ class EitherExtTypeDeserializerTest(private val tempFolder: TemporaryFolder) {
             "fileName" to "test-file.txt"
             "filePath" to "folder/test-file.txt"
             "relPath" to "Files/folder/test-file.txt"
-            "fullPath" to "root/Files/folder/test-file.txt"
+            "fullPath" to file.absolutePath
+            "md5" to file.md5()
+            "size" to file.size()
             "extType" to "nfsFile"
         }.toString()
 
@@ -79,7 +83,7 @@ class EitherExtTypeDeserializerTest(private val tempFolder: TemporaryFolder) {
             assertThat(it.fileName).isEqualTo("test-file.txt")
             assertThat(it.filePath).isEqualTo("folder/test-file.txt")
             assertThat(it.relPath).isEqualTo("Files/folder/test-file.txt")
-            assertThat(it.fullPath).isEqualTo("root/Files/folder/test-file.txt")
+            assertThat(it.fullPath).isEqualTo(file.absolutePath)
         }
     }
 
@@ -93,7 +97,9 @@ class EitherExtTypeDeserializerTest(private val tempFolder: TemporaryFolder) {
                     "fileName" to "test-file-table.txt"
                     "filePath" to "folder/test-file-table.txt"
                     "relPath" to "Files/folder/test-file-table.txt"
-                    "fullPath" to "root/Files/folder/test-file-table.txt"
+                    "fullPath" to file.absolutePath
+                    "size" to file.size()
+                    "md5" to file.md5()
                     "extType" to "nfsFile"
                 }
             )
@@ -111,7 +117,7 @@ class EitherExtTypeDeserializerTest(private val tempFolder: TemporaryFolder) {
             assertThat(nfsFile.fileName).isEqualTo("test-file-table.txt")
             assertThat(nfsFile.filePath).isEqualTo("folder/test-file-table.txt")
             assertThat(nfsFile.relPath).isEqualTo("Files/folder/test-file-table.txt")
-            assertThat(nfsFile.fullPath).isEqualTo("root/Files/folder/test-file-table.txt")
+            assertThat(nfsFile.fullPath).isEqualTo(file.absolutePath)
         }
     }
 

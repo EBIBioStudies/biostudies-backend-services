@@ -4,14 +4,14 @@ import ac.uk.ebi.biostd.persistence.common.NO_TABLE_INDEX
 import ac.uk.ebi.biostd.persistence.model.DbFile
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.NfsFile
+import ebi.ac.uk.extended.model.createNfsFile
 import org.assertj.core.api.Assertions.assertThat
 import java.nio.file.Files
 
 internal val extTestFile
-    get() = NfsFile(
+    get() = createNfsFile(
         "folder/fileName",
         "Files/folder/fileName",
-        "root/Files/folder/fileName",
         createTempFile,
         listOf(extAttribute)
     )

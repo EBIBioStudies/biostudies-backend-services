@@ -11,7 +11,7 @@ import ebi.ac.uk.extended.model.ExtFileList
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSectionTable
 import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.extended.model.NfsFile
+import ebi.ac.uk.extended.model.createNfsFile
 import ebi.ac.uk.paths.SubmissionFolderResolver
 import ebi.ac.uk.test.basicExtSubmission
 import ebi.ac.uk.util.collections.second
@@ -83,40 +83,31 @@ class NfsPageTabServiceTest(
 
     private fun assertSubmissionTabFiles(submission: ExtSubmission) {
         val tabFiles = submission.pageTabFiles
-        assertThat(tabFiles.first()).isEqualTo(
-            NfsFile(SUB_JSON, SUB_JSON, "$subFolder/$SUB_JSON", subFolder.resolve(SUB_JSON))
-        )
-        assertThat(tabFiles.second()).isEqualTo(
-            NfsFile(SUB_XML, SUB_XML, "$subFolder/$SUB_XML", subFolder.resolve(SUB_XML))
-        )
-        assertThat(tabFiles.third()).isEqualTo(
-            NfsFile(SUB_TSV, SUB_TSV, "$subFolder/$SUB_TSV", subFolder.resolve(SUB_TSV))
-        )
+        assertThat(tabFiles.first()).isEqualTo(createNfsFile(SUB_JSON, SUB_JSON, subFolder.resolve(SUB_JSON)))
+        assertThat(tabFiles.second()).isEqualTo(createNfsFile(SUB_XML, SUB_XML, subFolder.resolve(SUB_XML)))
+        assertThat(tabFiles.third()).isEqualTo(createNfsFile(SUB_TSV, SUB_TSV, subFolder.resolve(SUB_TSV)))
     }
 
     private fun assertSectionTabFiles(section: ExtSection) {
         val tabFiles = section.fileList!!.pageTabFiles
         assertThat(tabFiles.first()).isEqualTo(
-            NfsFile(
+            createNfsFile(
                 "data/$FILE_LIST_JSON1",
                 "Files/data/$FILE_LIST_JSON1",
-                "$subFolder/Files/data/$FILE_LIST_JSON1",
                 subFolder.resolve("Files/data/$FILE_LIST_JSON1")
             )
         )
         assertThat(tabFiles.second()).isEqualTo(
-            NfsFile(
+            createNfsFile(
                 "data/$FILE_LIST_XML1",
                 "Files/data/$FILE_LIST_XML1",
-                "$subFolder/Files/data/$FILE_LIST_XML1",
                 subFolder.resolve("Files/data/$FILE_LIST_XML1")
             )
         )
         assertThat(tabFiles.third()).isEqualTo(
-            NfsFile(
+            createNfsFile(
                 "data/$FILE_LIST_TSV1",
                 "Files/data/$FILE_LIST_TSV1",
-                "$subFolder/Files/data/$FILE_LIST_TSV1",
                 subFolder.resolve("Files/data/$FILE_LIST_TSV1")
             )
         )
@@ -125,26 +116,23 @@ class NfsPageTabServiceTest(
     private fun assertSubSectionTabFiles(section: ExtSection?) {
         val tabFiles = section!!.fileList!!.pageTabFiles
         assertThat(tabFiles.first()).isEqualTo(
-            NfsFile(
+            createNfsFile(
                 "data/$FILE_LIST_JSON2",
                 "Files/data/$FILE_LIST_JSON2",
-                "$subFolder/Files/data/$FILE_LIST_JSON2",
                 subFolder.resolve("Files/data/$FILE_LIST_JSON2")
             )
         )
         assertThat(tabFiles.second()).isEqualTo(
-            NfsFile(
+            createNfsFile(
                 "data/$FILE_LIST_XML2",
                 "Files/data/$FILE_LIST_XML2",
-                "$subFolder/Files/data/$FILE_LIST_XML2",
                 subFolder.resolve("Files/data/$FILE_LIST_XML2")
             )
         )
         assertThat(tabFiles.third()).isEqualTo(
-            NfsFile(
+            createNfsFile(
                 "data/$FILE_LIST_TSV2",
                 "Files/data/$FILE_LIST_TSV2",
-                "$subFolder/Files/data/$FILE_LIST_TSV2",
                 subFolder.resolve("Files/data/$FILE_LIST_TSV2")
             )
         )

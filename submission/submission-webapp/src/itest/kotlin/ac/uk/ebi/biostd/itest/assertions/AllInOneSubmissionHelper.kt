@@ -12,6 +12,7 @@ import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
+import ebi.ac.uk.extended.model.createNfsFile
 import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size
 import org.assertj.core.api.Assertions.assertThat
@@ -114,9 +115,9 @@ internal class AllInOneSubmissionHelper(
         val tsvFile = File("$submissionFolderPath/$accNo.pagetab.tsv")
 
         return listOf(
-            NfsFile("$accNo.json", "$accNo.json", jsonFile.absolutePath, jsonFile),
-            NfsFile("$accNo.xml", "$accNo.xml", xmlFile.absolutePath, xmlFile),
-            NfsFile("$accNo.pagetab.tsv", "$accNo.pagetab.tsv", tsvFile.absolutePath, tsvFile)
+            createNfsFile("$accNo.json", "$accNo.json", jsonFile),
+            createNfsFile("$accNo.xml", "$accNo.xml", xmlFile),
+            createNfsFile("$accNo.pagetab.tsv", "$accNo.pagetab.tsv", tsvFile)
         )
     }
 
@@ -126,9 +127,9 @@ internal class AllInOneSubmissionHelper(
         val xml = File("$subFolder/$path.xml")
         val tsv = File("$subFolder/$path.pagetab.tsv")
         return listOf(
-            NfsFile("$list.json", "$path.json", json.absolutePath, json),
-            NfsFile("$list.xml", "$path.xml", xml.absolutePath, xml),
-            NfsFile("$list.pagetab.tsv", "$path.pagetab.tsv", tsv.absolutePath, tsv)
+            createNfsFile("$list.json", "$path.json", json),
+            createNfsFile("$list.xml", "$path.xml", xml),
+            createNfsFile("$list.pagetab.tsv", "$path.pagetab.tsv", tsv)
         )
     }
 
