@@ -8,7 +8,7 @@ internal const val PROVIDER_ID = 1518
 
 @JacksonXmlRootElement(localName = "links")
 data class Links(
-    val links: List<Link>
+    val link: List<Link>
 )
 
 data class Link(

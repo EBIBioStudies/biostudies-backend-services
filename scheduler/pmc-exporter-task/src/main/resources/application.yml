@@ -7,3 +7,12 @@ app:
     user: # FTP user to publish the PMC links
     password: # FTP password to publish the PMC links
     port: # FTP port to publish the PMC links
+
+  persistence:
+    enableMongo: true
+
+spring:
+  data:
+    mongodb:
+      database: #Mongo Database Name
+      uri: # Mongo Database connection URL
