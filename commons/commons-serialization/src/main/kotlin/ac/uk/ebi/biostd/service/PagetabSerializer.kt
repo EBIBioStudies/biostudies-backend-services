@@ -35,7 +35,7 @@ internal class PagetabSerializer(
 
     fun serializeFileList(filesTable: FilesTable, format: SubFormat, file: File) {
         when (format) {
-            XmlFormat -> file.writeText(xmlSerializer.serialize(filesTable))
+            XmlFormat -> xmlSerializer.serializeFileList(filesTable.elements, file)
             JsonPretty, PlainJson -> jsonSerializer.serializeFileList(filesTable.elements, file)
             is TsvFormat -> tsvSerializer.serializeFileList(filesTable.elements, file)
         }
@@ -43,7 +43,7 @@ internal class PagetabSerializer(
 
     fun deserializeFileList(file: File, format: SubFormat): FilesTable {
         return when (format) {
-            XmlFormat -> xmlSerializer.deserialize(file.readText(), FilesTable::class.java)
+            XmlFormat -> FilesTable(xmlSerializer.deserializeFileList(file))
             is JsonFormat -> FilesTable(jsonSerializer.deserializeFileList(file))
             is XlsxTsv -> FilesTable(tsvSerializer.deserializeFileList(ExcelReader.readContentAsTsv(file)))
             is TsvFormat -> FilesTable(tsvSerializer.deserializeFileList(file))

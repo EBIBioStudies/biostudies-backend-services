@@ -79,7 +79,7 @@ object Versions {
     const val MySqlVersion = "8.0.25"
     const val XmlBuilderVersion = "1.4.2"
     const val WoodstoxVersion = "5.1.0"
-    const val JacksonVersion = "2.9.8"
+    const val JacksonVersion = "2.13.0"
     const val LogbackVersion = "1.2.3"
     const val GuavaVersion = "28.2-jre"
     const val JwtVersion = "0.9.1"

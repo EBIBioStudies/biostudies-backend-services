@@ -29,13 +29,12 @@ fun SerializationService.generateFileListPageTab(
     target: File
 ): Map<String, PageTabFiles> = sub
     .allFileList
-    .associate { it.filePath to saveTabFiles(target, it, sub.permissions()) }
+    .associate { it.filePath to saveTabFiles(target, it) }
 
 // TODO: create file with permission first
 private fun SerializationService.saveTabFiles(
     folder: File,
-    fileList: ExtFileList,
-    permissions: Permissions
+    fileList: ExtFileList
 ): PageTabFiles {
     val filename = fileList.filePath
     val files = fileList.toFilesTable()

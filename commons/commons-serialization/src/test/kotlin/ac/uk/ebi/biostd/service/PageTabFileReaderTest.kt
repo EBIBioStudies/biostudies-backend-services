@@ -32,7 +32,7 @@ class PageTabFileReaderTest(
     fun `read page tab`() {
         val file = tempFolder.createFile("page-tab.tsv", "page tab")
 
-        assertThat(readAsPageTab(file)).isEqualTo("page tab")
+        assertThat(readAsPageTab(file)).isEqualTo(file)
         verify(exactly = 0) { readContentAsTsv(file) }
     }
 
@@ -42,7 +42,7 @@ class PageTabFileReaderTest(
 
         every { readContentAsTsv(file) } returns file
 
-        assertThat(readAsPageTab(file)).isEqualTo("page tab")
+        assertThat(readAsPageTab(file)).isEqualTo(file)
         verify(exactly = 1) { readContentAsTsv(file) }
     }
 

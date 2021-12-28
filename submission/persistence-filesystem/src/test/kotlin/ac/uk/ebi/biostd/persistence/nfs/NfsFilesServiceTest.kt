@@ -62,10 +62,6 @@ class NfsFilesServiceTest(
         every { mockSerializationService.serializeSubmission(simpleSubmission, XML) } returns ""
         every { mockSerializationService.serializeSubmission(simpleSubmission, TSV) } returns ""
         every { mockSerializationService.serializeSubmission(simpleSubmission, JSON_PRETTY) } returns ""
-
-        //every { mockSerializationService.serializeFileList(any(), XML) } returns ""
-        //every { mockSerializationService.serializeFileList(any(), TSV) } returns ""
-        //every { mockSerializationService.serializeFileList(any(), JSON_PRETTY) } returns ""
     }
 
     @Nested

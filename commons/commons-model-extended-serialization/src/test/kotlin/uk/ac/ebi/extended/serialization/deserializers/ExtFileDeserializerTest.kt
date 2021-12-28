@@ -1,5 +1,6 @@
 package uk.ac.ebi.extended.serialization.deserializers
 
+import com.fasterxml.jackson.databind.JsonMappingException
 import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.extended.model.ExtFile
@@ -15,7 +16,6 @@ import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.serialization.extensions.deserialize
-import java.io.FileNotFoundException
 
 @ExtendWith(TemporaryFolderExtension::class)
 class ExtFileDeserializerTest(private val tempFolder: TemporaryFolder) {
@@ -123,6 +123,6 @@ class ExtFileDeserializerTest(private val tempFolder: TemporaryFolder) {
             "extType" to "nfsFile"
         }.toString()
 
-        assertThrows<FileNotFoundException> { testInstance.deserialize<ExtFile>(json) }
+        assertThrows<JsonMappingException> { testInstance.deserialize<ExtFile>(json) }
     }
 }

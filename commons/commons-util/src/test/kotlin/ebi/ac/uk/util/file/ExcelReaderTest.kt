@@ -77,7 +77,7 @@ class ExcelReaderTest(private val temporaryFolder: TemporaryFolder) {
             line("file2.txt", "b1", "b2")
         }
 
-        assertThat(readContentAsTsv(testFile)).isEqualTo(expectedTsv.toString())
+        assertThat(readContentAsTsv(testFile).readText()).isEqualTo(expectedTsv.toString().plus("\n"))
     }
 
     @Test
@@ -122,6 +122,6 @@ class ExcelReaderTest(private val temporaryFolder: TemporaryFolder) {
             line("An Attr", "A Value")
         }
 
-        assertThat(readContentAsTsv(testFile)).isEqualTo(expectedTsv.toString())
+        assertThat(readContentAsTsv(testFile).readText()).isEqualTo(expectedTsv.toString().plus("\n"))
     }
 }

@@ -3,7 +3,6 @@ package ac.uk.ebi.biostd.common
 import com.fasterxml.jackson.databind.JavaType
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.every
@@ -13,8 +12,6 @@ import io.mockk.junit5.MockKExtension
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import uk.ac.ebi.serialization.extensions.deserializeList
-import uk.ac.ebi.serialization.extensions.serializeList
 import uk.ac.ebi.serialization.extensions.tryConvertValue
 
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
@@ -43,18 +40,18 @@ class ObjectMapperExtensionsTest(
         assertThat(result).isEqualTo("a value")
     }
 
-    @Test
-    fun `serialize - deserialize`() {
-        val foos = (1..3).map { Foo(it) }
-        val foosIterator = foos.iterator()
-        val file = temporaryFolder.createFile("test.txt")
-
-        file.outputStream().use { testInstance.serializeList(foos.asSequence(), it) }
-        file.inputStream().use {
-            testInstance.deserializeList<Sequence<Foo>>(it)
-                .forEach { foo -> assertThat(foo).isEqualTo(foosIterator.next()) }
-        }
-    }
+//    @Test
+//    fun `serialize - deserialize`() {
+//        val foos = (1..3).map { Foo(it) }
+//        val foosIterator = foos.iterator()
+//        val file = temporaryFolder.createFile("test.txt")
+//
+//        file.outputStream().use { testInstance.serializeList(foos.asSequence(), it) }
+//        file.inputStream().use {
+//            testInstance.deserializeList<Sequence<Foo>>(it)
+//                .forEach { foo -> assertThat(foo).isEqualTo(foosIterator.next()) }
+//        }
+//    }
 }
 
 data class Foo(val value: Int)

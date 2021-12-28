@@ -56,8 +56,8 @@ inline fun <reified T> ObjectMapper.convertList(node: JsonNode?) =
 
 inline fun <reified T> ObjectMapper.convertNode(node: JsonNode?): T? = node?.let { convertValue(node) }
 
-inline fun <reified T> ObjectMapper.convertList(node: JsonNode?, sectionsType: TypeReference<*>) =
-    if (node != null) convertValue(node, sectionsType) else mutableListOf<T>()
+inline fun <X, reified T : List<X>> ObjectMapper.convertList(node: JsonNode?, sectionsType: TypeReference<T>): T =
+    TODO()
 
 inline fun <reified T : Any> ObjectMapper.deserialize(json: String) = readValue(json, T::class.java)!!
 inline fun <reified T> ObjectMapper.serialize(value: T): String = writeValueAsString(value)

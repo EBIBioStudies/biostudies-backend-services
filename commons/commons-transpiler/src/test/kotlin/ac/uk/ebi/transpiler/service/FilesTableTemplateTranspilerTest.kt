@@ -1,6 +1,7 @@
 package ac.uk.ebi.transpiler.service
 
 import ac.uk.ebi.biostd.integration.SerializationService
+import ac.uk.ebi.biostd.integration.SubFormat.Companion.TSV
 import ac.uk.ebi.biostd.integration.SubFormat.TsvFormat.Tsv
 import ac.uk.ebi.transpiler.common.FilesTableTemplate
 import ac.uk.ebi.transpiler.factory.testTemplate
@@ -8,22 +9,29 @@ import ac.uk.ebi.transpiler.mapper.FilesTableTemplateMapper
 import ac.uk.ebi.transpiler.processor.FilesTableTemplateProcessor
 import ac.uk.ebi.transpiler.validator.FilesTableTemplateValidator
 import ebi.ac.uk.model.FilesTable
+import io.github.glytching.junit.extension.folder.TemporaryFolder
+import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
+import io.mockk.slot
 import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import java.io.File
 
-@ExtendWith(MockKExtension::class)
+@ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
 class FilesTableTemplateTranspilerTest(
-    @MockK private val mockTemplateProcessor: FilesTableTemplateProcessor,
-    @MockK private val mockTemplateValidator: FilesTableTemplateValidator,
-    @MockK private val mockTemplateMapper: FilesTableTemplateMapper,
-    @MockK private val mockSerializationService: SerializationService
+    @MockK private val templateProcessor: FilesTableTemplateProcessor,
+    @MockK private val templateValidator: FilesTableTemplateValidator,
+    @MockK private val templateMapper: FilesTableTemplateMapper,
+    @MockK private val serializationService: SerializationService,
+    temporaryFolder: TemporaryFolder
 ) {
+    private val testFile = temporaryFolder.createFile("fileSerialization.txt")
+    private val slotTempFile = slot<File>()
     private val testFilesTable = FilesTable()
     private val testParentFolder = "files"
     private val testFilesPath = "/some/test/files"
@@ -31,15 +39,15 @@ class FilesTableTemplateTranspilerTest(
     private val testFilesTableTemplate = FilesTableTemplate()
     private val testBaseColumns = listOf("Plate", "Replicate", "Well")
     private val testInstance = FilesTableTemplateTranspiler(
-        mockTemplateProcessor, mockTemplateValidator, mockTemplateMapper, mockSerializationService
+        templateProcessor, templateValidator, templateMapper, serializationService
     )
 
     @BeforeEach
     fun setUp() {
-        every { mockTemplateProcessor.process(testTemplate, testBaseColumns) } returns testFilesTableTemplate
-        every { mockTemplateValidator.validate(testFilesTableTemplate, testFilesPath) }.answers { nothing }
-        every { mockTemplateMapper.map(testFilesTableTemplate, testFilesPath, testParentFolder) } returns testFilesTable
-        //every { mockSerializationService.serializeFileList(testFilesTable, SubFormat.TSV) } returns ""
+        every { templateProcessor.process(testTemplate, testBaseColumns) } returns testFilesTableTemplate
+        every { templateValidator.validate(testFilesTableTemplate, testFilesPath) }.answers { nothing }
+        every { templateMapper.map(testFilesTableTemplate, testFilesPath, testParentFolder) } returns testFilesTable
+        every { serializationService.serializeFileList(testFilesTable, TSV, capture(slotTempFile)) } returns testFile
     }
 
     @Test
@@ -48,10 +56,10 @@ class FilesTableTemplateTranspilerTest(
 
         assertThat(result).isEqualTo("")
         verify(exactly = 1) {
-            mockTemplateProcessor.process(testTemplate, testBaseColumns)
-            mockTemplateValidator.validate(testFilesTableTemplate, testFilesPath)
-            mockTemplateMapper.map(testFilesTableTemplate, testFilesPath, testParentFolder)
-            //mockSerializationService.serializeFileList(testFilesTable, Tsv)
+            templateProcessor.process(testTemplate, testBaseColumns)
+            templateValidator.validate(testFilesTableTemplate, testFilesPath)
+            templateMapper.map(testFilesTableTemplate, testFilesPath, testParentFolder)
+            serializationService.serializeFileList(testFilesTable, Tsv, slotTempFile.captured)
         }
     }
 }
