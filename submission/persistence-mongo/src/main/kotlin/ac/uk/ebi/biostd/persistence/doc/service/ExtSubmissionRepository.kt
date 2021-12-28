@@ -7,14 +7,12 @@ import ac.uk.ebi.biostd.persistence.doc.mapping.from.toDocSubmission
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
 import ac.uk.ebi.biostd.persistence.doc.model.DocProcessingStatus
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
-import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
 import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.ExtSubmission
 import mu.KotlinLogging
 
-typealias SubmissionDocData = Pair<DocSubmission, List<FileListDocFile>>
-
 private val logger = KotlinLogging.logger {}
+private const val FILES_CHUNK_SIZE = 100
 
 class ExtSubmissionRepository(
     private val subDataRepository: SubmissionDocDataRepository,
@@ -50,7 +48,7 @@ class ExtSubmissionRepository(
         logger.info { "saved submission ${docSubmission.accNo}" }
 
         logger.info { "saving ${files.count()} file list files ${docSubmission.accNo}" }
-        files.chunked(100).forEach { fileListDocFileRepository.saveAll(it) }
+        files.chunked(FILES_CHUNK_SIZE).forEach { fileListDocFileRepository.saveAll(it) }
         logger.info { "saved ${files.count()} file list files ${docSubmission.accNo}" }
         return savedSubmission
     }

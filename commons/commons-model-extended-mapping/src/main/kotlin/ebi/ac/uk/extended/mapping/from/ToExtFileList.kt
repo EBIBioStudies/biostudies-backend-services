@@ -21,4 +21,3 @@ private fun toExtFiles(fileSource: FilesSource, files: List<File>): List<ExtFile
         .map { it.toExtFile(fileSource) }
         .toList()
 }
-

@@ -25,6 +25,7 @@ import Versions.JschVersion
 import Versions.JwtVersion
 import Versions.KMongoCoroutineVersion
 import Versions.KotlinArrowVersion
+import Versions.KotlinCoroutinesVersion
 import Versions.KotlinLoggingVersion
 import Versions.KotlinVersion
 import Versions.Log4JVersion
@@ -66,6 +67,8 @@ object Versions {
     const val SpringAdminVersion = "2.1.6"
 
     const val KotlinVersion = "1.4.32"
+    const val KotlinCoroutinesVersion = "1.4.3"
+
     const val KotlinLoggingVersion = "1.6.20"
     const val KotlinArrowVersion = "0.8.2"
     const val KMongoCoroutineVersion = "4.1.3"
@@ -175,6 +178,7 @@ object Dependencies {
     // Kotlin specific
     const val KotlinStdLib = "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$KotlinVersion"
     const val KotlinReflect = "org.jetbrains.kotlin:kotlin-reflect:$KotlinVersion"
+    const val KotlinCoroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core:$KotlinCoroutinesVersion"
     const val KotlinLogging = "io.github.microutils:kotlin-logging:$KotlinLoggingVersion"
 
     // Arrow
