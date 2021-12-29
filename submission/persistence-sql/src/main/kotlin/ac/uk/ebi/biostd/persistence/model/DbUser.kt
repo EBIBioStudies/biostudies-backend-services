@@ -1,10 +1,6 @@
 package ac.uk.ebi.biostd.persistence.model
 
 import ac.uk.ebi.biostd.persistence.converters.AuxInfoConverter
-import jakarta.xml.bind.annotation.XmlAccessType
-import jakarta.xml.bind.annotation.XmlAccessorType
-import jakarta.xml.bind.annotation.XmlElement
-import jakarta.xml.bind.annotation.XmlRootElement
 import java.time.OffsetDateTime
 import javax.persistence.CascadeType.MERGE
 import javax.persistence.CascadeType.PERSIST
@@ -22,6 +18,10 @@ import javax.persistence.NamedEntityGraph
 import javax.persistence.NamedEntityGraphs
 import javax.persistence.OneToMany
 import javax.persistence.Table
+import javax.xml.bind.annotation.XmlAccessType
+import javax.xml.bind.annotation.XmlAccessorType
+import javax.xml.bind.annotation.XmlElement
+import javax.xml.bind.annotation.XmlRootElement
 
 internal const val USER_DATA_GRAPH = "DbUser.fullData"
 

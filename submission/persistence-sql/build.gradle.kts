@@ -46,8 +46,7 @@ dependencies {
     api(project(SubmissionPersistenceCommonApi))
 
     implementation(Arrow)
-    implementation("jakarta.xml.bind:jakarta.xml.bind-api:3.0.1")
-    implementation("com.sun.xml.bind:jaxb-impl:3.0.1")
+    implementation("javax.xml.bind:jaxb-api:2.3.1")
 
     implementation(CommonsIO)
     implementation(CommonsLang3)
