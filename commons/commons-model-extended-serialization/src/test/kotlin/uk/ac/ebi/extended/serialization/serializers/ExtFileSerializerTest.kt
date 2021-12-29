@@ -8,7 +8,6 @@ import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size
-import ebi.ac.uk.test.createFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
@@ -27,16 +26,18 @@ class ExtFileSerializerTest(private val tempFolder: TemporaryFolder) {
         val extFile = NfsFile(
             filePath = "folder/nfs-file.txt",
             relPath = "Files/folder/nfs-file.txt",
-            fullPath = "root/Files/folder/nfs-file.txt",
             file = file,
+            fullPath = file.absolutePath,
+            size = file.size(),
+            md5 = file.md5(),
             attributes = listOf(ExtAttribute("Type", "Data", false))
         )
         val expectedJson = jsonObj {
             "fileName" to "nfs-file.txt"
             "filePath" to "folder/nfs-file.txt"
             "relPath" to "Files/folder/nfs-file.txt"
-            "fullPath" to "root/Files/folder/nfs-file.txt"
-            "file" to file.absolutePath
+            "fullPath" to file.absolutePath
+            "md5" to file.md5()
             "attributes" to jsonArray(
                 jsonObj {
                     "name" to "Type"

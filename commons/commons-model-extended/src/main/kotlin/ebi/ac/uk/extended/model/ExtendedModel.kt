@@ -49,29 +49,16 @@ data class FireDirectory(
 data class NfsFile(
     override val filePath: String,
     override val relPath: String,
-    val fullPath: String,
     val file: File,
+    val fullPath: String,
+    val md5: String,
+    val size: Long,
     override val attributes: List<ExtAttribute> = listOf()
-) : ExtFile() {
+) : ExtFile()
 
-    constructor(filePath: String, relPath: String, file: File, attributes: List<ExtAttribute> = listOf()) :
-        this(filePath, relPath, file.absolutePath, file, attributes)
-
-    // TODO Once SQL is removed, this field should be removed and md5 should be set as a constructor property
-    private var _md5: String = ""
-
-    var md5: String
-        get(): String {
-            if (_md5.isBlank()) _md5 = file.md5()
-            return _md5
-        }
-        set(value) {
-            _md5 = value
-        }
-
-    val size: Long
-        get() = file.size()
-}
+@Deprecated(message = "Only for testing. Prefer default class constructor to avoid computation of md5 and size.")
+fun createNfsFile(filePath: String, relpath: String, file: File, attributes: List<ExtAttribute> = listOf()): NfsFile =
+    NfsFile(filePath, relpath, file, file.absolutePath, file.md5(), file.size(), attributes)
 
 data class ExtFileList(
     val filePath: String,

@@ -130,7 +130,7 @@ object FileUtils {
         Files.setPosixFilePermissions(path, permissions)
     }
 
-    private fun calculateMd5(file: File): String = DigestUtils.md5Hex(file.inputStream()).toUpperCase()
+    private fun calculateMd5(file: File): String = file.inputStream().use { DigestUtils.md5Hex(it).toUpperCase() }
 }
 
 @Suppress("TooManyFunctions")

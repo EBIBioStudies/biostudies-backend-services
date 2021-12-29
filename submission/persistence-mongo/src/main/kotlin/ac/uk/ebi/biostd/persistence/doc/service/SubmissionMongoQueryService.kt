@@ -15,10 +15,13 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.allDocSections
 import ac.uk.ebi.biostd.persistence.doc.model.asBasicSubmission
 import ebi.ac.uk.extended.model.ExtFile
+import ebi.ac.uk.extended.model.ExtFileList
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.extended.model.replace
 import ebi.ac.uk.util.collections.firstOrElse
 import org.springframework.data.domain.Page
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
+import java.io.File
 
 @Suppress("TooManyFunctions")
 internal class SubmissionMongoQueryService(
@@ -59,11 +62,16 @@ internal class SubmissionMongoQueryService(
 
     override fun getRequest(accNo: String, version: Int): SubmissionRequest {
         val request = requestRepository.getByAccNoAndVersion(accNo, version)
-        return SubmissionRequest(
-            submission = serializationService.deserialize(request.submission.toString()),
-            fileMode = request.fileMode,
-            draftKey = request.draftKey
-        )
+        val fileLists = request.fileList.associate { it.fileName to File(it.filePath) }
+        val submission = serializationService.deserialize<ExtSubmission>(request.submission.toString())
+        val fullSubmission = submission.copy(section = submission.section.replace { loadFiles(it, fileLists) })
+        return SubmissionRequest(submission = fullSubmission, fileMode = request.fileMode, draftKey = request.draftKey)
+    }
+
+    private fun loadFiles(fileList: ExtFileList, files: Map<String, File>): ExtFileList {
+        val fileListFile = files.getValue(fileList.fileName)
+        val filesTable = serializationService.deserialize<ExtFileList>(fileListFile.readText())
+        return fileList.copy(files = filesTable.files)
     }
 
     override fun getReferencedFiles(accNo: String, fileListName: String): List<ExtFile> =

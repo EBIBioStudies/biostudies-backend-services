@@ -15,16 +15,9 @@ data class DocSubmissionRequest(
     val fileMode: FileMode,
     val draftKey: String?,
     val status: SubmissionRequestStatus,
-    val submission: DBObject
-) {
-    constructor(
-        accNo: String,
-        version: Int,
-        fileMode: FileMode,
-        draftKey: String?,
-        status: SubmissionRequestStatus,
-        submission: DBObject
-    ) : this(ObjectId(), accNo, version, fileMode, draftKey, status, submission)
-}
+    val submission: DBObject,
+    val fileList: List<RequestFileList>
+)
 
+data class RequestFileList(val fileName: String, val filePath: String)
 enum class SubmissionRequestStatus { REQUESTED, PROCESSED }

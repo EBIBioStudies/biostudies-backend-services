@@ -4,7 +4,7 @@ import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.errors.FileNotFoundException
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.FireFile
-import ebi.ac.uk.extended.model.NfsFile
+import ebi.ac.uk.extended.model.createNfsFile
 import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size
 import ebi.ac.uk.io.sources.FireBioFile
@@ -33,8 +33,15 @@ internal class ExtFileListSourceTest(
     private val fireFile = tempFolder.createFile(fireFilename, "the content")
 
     private val files: List<ExtFile> = listOf(
-        NfsFile("folder/$nfsFilename", "Files/folder/$nfsFilename", "root/Files/folder/$nfsFilename", nfsFile),
-        FireFile("folder/$fireFilename", "Files/folder/$fireFilename", "fireId", fireFile.md5(), fireFile.size(), listOf())
+        createNfsFile("folder/$nfsFilename", "Files/folder/$nfsFilename", nfsFile),
+        FireFile(
+            "folder/$fireFilename",
+            "Files/folder/$fireFilename",
+            "fireId",
+            fireFile.md5(),
+            fireFile.size(),
+            listOf()
+        )
     )
 
     private val testInstance: ExtFileListSource = ExtFileListSource(fireWebClient, files)

@@ -2,6 +2,7 @@ import Dependencies.Arrow
 import Dependencies.CommonsFileUpload
 import Dependencies.CommonsIO
 import Dependencies.JpaEntityGraph
+import Dependencies.KotlinCoroutines
 import Dependencies.KotlinLogging
 import Dependencies.KotlinReflect
 import Dependencies.KotlinStdLib
@@ -103,6 +104,7 @@ dependencies {
     implementation(JpaEntityGraph)
     implementation(KotlinReflect)
     implementation(KotlinStdLib)
+    implementation(KotlinCoroutines)
     implementation(RxJava2)
     implementation(SpringfoxSwagger)
     implementation(SpringfoxSwaggerUI)
