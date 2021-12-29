@@ -3,6 +3,8 @@ package ac.uk.ebi.biostd.persistence.doc.service
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.integration.SerializationConfig
 import ac.uk.ebi.biostd.integration.SerializationService
+import ac.uk.ebi.biostd.persistence.common.exception.CollectionNotFoundException
+import ac.uk.ebi.biostd.persistence.common.exception.CollectionWithoutPatternException
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionMongoRepository
 import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbServicesConfig
 import ac.uk.ebi.biostd.persistence.doc.model.DocAttribute
@@ -10,8 +12,6 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocProcessingStatus.PROCESSED
 import ac.uk.ebi.biostd.persistence.doc.service.SubmissionMongoMetaQueryServiceTest.TestConfig
 import ac.uk.ebi.biostd.persistence.doc.test.doc.RELEASE_TIME
 import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocSubmission
-import ac.uk.ebi.biostd.persistence.common.exception.CollectionNotFoundException
-import ac.uk.ebi.biostd.persistence.common.exception.CollectionWithoutPatternException
 import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
 import ebi.ac.uk.db.MONGO_VERSION
 import ebi.ac.uk.model.constants.SubFields.ACC_NO_TEMPLATE
@@ -37,6 +37,7 @@ import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import java.nio.file.Files
 import java.time.Duration.ofSeconds
 import java.time.ZoneOffset.UTC
+import java.time.temporal.ChronoUnit
 
 @ExtendWith(SpringExtension::class)
 @Testcontainers
@@ -63,7 +64,7 @@ internal class SubmissionMongoMetaQueryServiceTest(
         assertThat(accNo).isEqualTo("EuToxRisk")
         assertThat(accNoPattern).isEqualTo("!{S-TOX}")
         assertThat(validator).isEqualTo("EuToxRiskValidator")
-        assertThat(releaseTime).isEqualTo(RELEASE_TIME.atOffset(UTC))
+        assertThat(releaseTime).isEqualTo(RELEASE_TIME.atOffset(UTC).truncatedTo(ChronoUnit.MILLIS))
     }
 
     @Test

@@ -20,7 +20,6 @@ import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.Properties
 import java.nio.file.Files
 import java.nio.file.Path
-import kotlin.io.path.ExperimentalPathApi
 import kotlin.io.path.absolutePathString
 import kotlin.io.path.writeText
 import kotlin.math.absoluteValue
@@ -82,7 +81,6 @@ internal class SubmissionMongoPersistenceService(
         )
     }
 
-    @OptIn(ExperimentalPathApi::class)
     private fun asRequestFileList(sub: ExtSubmission, fileList: ExtFileList): RequestFileList {
         val folderPath = fileListPath.resolve(sub.accNo).resolve(sub.version.toString())
         val folder = Files.createDirectories(folderPath)

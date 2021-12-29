@@ -33,14 +33,14 @@ class StatsResource(
     fun findByType(
         @PathVariable type: String,
         @ModelAttribute filter: PaginationFilter
-    ): List<SubmissionStat> = submissionStatsService.findByType(SubmissionStatType.valueOf(type.toUpperCase()), filter)
+    ): List<SubmissionStat> = submissionStatsService.findByType(SubmissionStatType.valueOf(type.uppercase()), filter)
 
     @GetMapping("/{type}/{accNo}")
     @ResponseBody
     fun findByTypeAndAccNo(
         @PathVariable type: String,
         @PathVariable accNo: String
-    ): SubmissionStat = submissionStatsService.findByAccNoAndType(accNo, SubmissionStatType.valueOf(type.toUpperCase()))
+    ): SubmissionStat = submissionStatsService.findByAccNoAndType(accNo, SubmissionStatType.valueOf(type.uppercase()))
 
     @PostMapping("/{type}", headers = ["$CONTENT_TYPE=$MULTIPART_FORM_DATA"])
     @ResponseBody
@@ -49,7 +49,7 @@ class StatsResource(
         @RequestParam("stats") stats: MultipartFile
     ): List<SubmissionStat> {
         val statsFile = tempFileGenerator.asFile(stats)
-        val statsList = statsFileHandler.readStats(statsFile, SubmissionStatType.valueOf(type.toUpperCase()))
+        val statsList = statsFileHandler.readStats(statsFile, SubmissionStatType.valueOf(type.uppercase()))
 
         return submissionStatsService.saveAll(statsList)
     }
@@ -61,7 +61,7 @@ class StatsResource(
         @RequestParam("stats") stats: MultipartFile
     ): List<SubmissionStat> {
         val statsFile = tempFileGenerator.asFile(stats)
-        val statsList = statsFileHandler.readStats(statsFile, SubmissionStatType.valueOf(type.toUpperCase()))
+        val statsList = statsFileHandler.readStats(statsFile, SubmissionStatType.valueOf(type.uppercase()))
 
         return submissionStatsService.incrementAll(statsList)
     }

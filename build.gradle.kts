@@ -1,9 +1,10 @@
+import io.gitlab.arturbosch.detekt.Detekt
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    id("io.gitlab.arturbosch.detekt") version "1.16.0"
-    id("org.jetbrains.kotlin.jvm") version "1.4.32"
-    id("org.jlleitschuh.gradle.ktlint") version "10.0.0"
+    id("io.gitlab.arturbosch.detekt") version "1.19.0"
+    id("org.jetbrains.kotlin.jvm") version "1.6.10"
+    id("org.jlleitschuh.gradle.ktlint") version "10.2.1"
     id("org.hidetake.ssh") version "2.10.1"
     id("jacoco")
 }
@@ -11,7 +12,7 @@ plugins {
 apply(from = "deploy.gradle")
 
 dependencies {
-    detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.16.0")
+    detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.19.0")
 }
 
 allprojects {
@@ -29,9 +30,10 @@ allprojects {
 
     tasks {
         withType<KotlinCompile>().all {
+            sourceCompatibility = "11"
+            targetCompatibility = "11"
             kotlinOptions {
-                jvmTarget = "1.8"
-                includeRuntime = true
+                jvmTarget = "11"
                 freeCompilerArgs = freeCompilerArgs + arrayOf("-Xjvm-default=enable")
             }
         }
@@ -41,12 +43,12 @@ allprojects {
             autoCorrect = true
             buildUponDefaultConfig = true
             config = files("$rootDir/detekt-config.yml")
-            input = files("src/main/kotlin")
+            source = files("src/main/kotlin")
+        }
+
+        withType<Detekt>() {
             reports {
-                html {
-                    enabled = true
-                    destination = file("build/reports/detekt.html")
-                }
+                html.required.set(true)
             }
         }
 

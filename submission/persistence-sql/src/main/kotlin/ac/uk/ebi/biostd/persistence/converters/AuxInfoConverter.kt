@@ -1,11 +1,11 @@
 package ac.uk.ebi.biostd.persistence.converters
 
 import ac.uk.ebi.biostd.persistence.model.AuxInfo
+import jakarta.xml.bind.JAXBContext
+import jakarta.xml.bind.Marshaller
 import java.io.StringReader
 import java.io.StringWriter
 import javax.persistence.AttributeConverter
-import javax.xml.bind.JAXBContext
-import javax.xml.bind.Marshaller
 
 internal class AuxInfoConverter : AttributeConverter<AuxInfo, String> {
     private val jaxbContext: JAXBContext = JAXBContext.newInstance(AuxInfo::class.java)

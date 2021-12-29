@@ -17,14 +17,14 @@ import Projects.CommonsSerialization
 import Projects.CommonsTest
 import Projects.CommonsUtil
 import Projects.SubmissionConfig
-import Projects.SubmissionPersistenceFilesystem
 import Projects.SubmissionPersistenceCommonApi
+import Projects.SubmissionPersistenceFilesystem
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
 
 plugins {
-    id("org.jetbrains.kotlin.plugin.jpa") version "1.4.32"
-    id("org.jetbrains.kotlin.plugin.allopen") version "1.4.32"
+    id("org.jetbrains.kotlin.plugin.jpa") version "1.6.10"
+    id("org.jetbrains.kotlin.plugin.allopen") version "1.6.10"
 }
 
 allOpen {
@@ -46,6 +46,9 @@ dependencies {
     api(project(SubmissionPersistenceCommonApi))
 
     implementation(Arrow)
+    implementation("jakarta.xml.bind:jakarta.xml.bind-api:3.0.1")
+    implementation("com.sun.xml.bind:jaxb-impl:3.0.1")
+
     implementation(CommonsIO)
     implementation(CommonsLang3)
     implementation(HibernateEntityManager)

@@ -15,14 +15,12 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
-import kotlin.io.path.ExperimentalPathApi
 import kotlin.io.path.Path
 
 @Configuration
 @Import(MongoDbServicesConfig::class)
 @ConditionalOnProperty(prefix = "app.persistence", name = ["enableMongo"], havingValue = "true")
 class ExternalConfig {
-    @OptIn(ExperimentalPathApi::class)
     @Bean
     @Suppress("LongParameterList")
     internal fun submissionRequestService(

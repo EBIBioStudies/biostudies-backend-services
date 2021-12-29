@@ -64,10 +64,10 @@ object Versions {
     const val SpringBootVersion = "2.2.2.RELEASE"
     const val SpringDataVersion = "2.2.3.RELEASE"
     const val SpringVersion = "5.2.1.RELEASE"
-    const val SpringAdminVersion = "2.1.6"
+    const val SpringAdminVersion = "2.3.1"
 
-    const val KotlinVersion = "1.4.32"
-    const val KotlinCoroutinesVersion = "1.4.3"
+    const val KotlinVersion = "1.6.10"
+    const val KotlinCoroutinesVersion = "1.6.0"
 
     const val KotlinLoggingVersion = "1.6.20"
     const val KotlinArrowVersion = "0.8.2"
