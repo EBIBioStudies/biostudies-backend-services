@@ -21,6 +21,7 @@ import Projects.SubmissionPersistenceCommonApi
 import Projects.SubmissionPersistenceFilesystem
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
+import TestDependencies.JaxbApi
 
 plugins {
     id("org.jetbrains.kotlin.plugin.jpa") version "1.6.10"
@@ -46,7 +47,7 @@ dependencies {
     api(project(SubmissionPersistenceCommonApi))
 
     implementation(Arrow)
-    implementation("javax.xml.bind:jaxb-api:2.3.1")
+    implementation(JaxbApi)
 
     implementation(CommonsIO)
     implementation(CommonsLang3)

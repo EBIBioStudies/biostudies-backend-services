@@ -1,4 +1,5 @@
 import TestVersions.AssertJVersion
+import TestVersions.JaxbApiVersion
 import TestVersions.JsonAssertVersion
 import TestVersions.JsonPathAssertVersion
 import TestVersions.JunitEngineVersion
@@ -53,6 +54,7 @@ object TestVersions {
     const val JunitExtensionsVersion = "2.3.0"
     const val MockKVersion = "1.9.3"
     const val XmlUnitVersion = "2.6.2"
+    const val JaxbApiVersion = "2.3.1"
     const val JsonPathAssertVersion = "2.4.0"
     const val JsonAssertVersion = "1.5.0"
     const val WiremockVersion = "2.27.2"
@@ -116,6 +118,7 @@ object TestDependencies {
     val BaseTestRuntimeDependencies = arrayOf(Junit5Console)
 
     // Xml related
+    const val JaxbApi = "javax.xml.bind:jaxb-api:$JaxbApiVersion"
     const val XmlUnitCore = "org.xmlunit:xmlunit-core:$XmlUnitVersion"
     const val XmlUnitMatchers = "org.xmlunit:xmlunit-matchers:$XmlUnitVersion"
     const val XmlUnitAssertJ = "org.xmlunit:xmlunit-assertj:$XmlUnitVersion"
