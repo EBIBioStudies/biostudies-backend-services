@@ -57,6 +57,6 @@ class PmcFileLoader(private val pmcLoader: PmcSubmissionLoader) {
     }
 
     object GzFilter : FilenameFilter {
-        override fun accept(dir: File, name: String): Boolean = name.toLowerCase().endsWith(".gz")
+        override fun accept(dir: File, name: String): Boolean = name.lowercase().endsWith(".gz")
     }
 }

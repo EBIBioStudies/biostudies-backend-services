@@ -36,7 +36,7 @@ data class AttributeDetail(val name: String, val value: String) {
         else -> name.equals(other.name, ignoreCase = true).and(value.equals(other.value, ignoreCase = true))
     }
 
-    override fun hashCode() = Objects.hash(name.toLowerCase(), value.toLowerCase())
+    override fun hashCode() = Objects.hash(name.lowercase(), value.lowercase())
 }
 
 fun attributeDetails(name: String, value: String) = mutableListOf(AttributeDetail(name, value))

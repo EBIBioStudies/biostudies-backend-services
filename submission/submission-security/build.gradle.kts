@@ -19,6 +19,7 @@ import Projects.SubmissionPersistenceSql
 import SpringBootDependencies.SpringBootAmqp
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
+import TestDependencies.JaxbApi
 
 dependencies {
     api(project(CommonsUtil))
@@ -32,6 +33,7 @@ dependencies {
     implementation(HibernateEntityManager)
     implementation(Jwt)
     implementation(KotlinLogging)
+    implementation(JaxbApi)
     implementation(KotlinStdLib)
     implementation(KotlinReflect)
     implementation(RxJava2)

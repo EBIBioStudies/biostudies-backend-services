@@ -43,7 +43,7 @@ open class StatsSqlDataService(
 
     private fun normalize(stats: List<SubmissionStat>) =
         stats.filter { submissionQueryService.existByAccNo(it.accNo) }
-            .map { DbSubmissionStat(it.accNo.toUpperCase(), it.value, it.type) }
+            .map { DbSubmissionStat(it.accNo.uppercase(), it.value, it.type) }
 
     private fun summarize(
         stats: List<SubmissionStat>,

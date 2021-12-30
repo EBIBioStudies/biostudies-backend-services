@@ -159,7 +159,7 @@ open class SecurityService(
     }
 
     private fun symLinkPath(userEmail: String): Path {
-        val prefixFolder = userEmail.substring(0, 1).toLowerCase()
+        val prefixFolder = userEmail.substring(0, 1).lowercase()
         return Paths.get("${securityProps.magicDirPath}/$prefixFolder/$userEmail")
     }
 
