@@ -2,7 +2,6 @@ package uk.ac.ebi.extended.serialization.service
 
 import arrow.core.Either
 import com.fasterxml.jackson.annotation.JsonInclude
-import com.fasterxml.jackson.core.JsonToken
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.module.SimpleModule
@@ -33,9 +32,10 @@ import uk.ac.ebi.extended.serialization.serializers.ExtSectionSerializer
 import uk.ac.ebi.extended.serialization.serializers.ExtSectionsTableSerializer
 import uk.ac.ebi.extended.serialization.serializers.ExtSubmissionSerializer
 import uk.ac.ebi.extended.serialization.serializers.OffsetDateTimeSerializer
+import uk.ac.ebi.serialization.extensions.deserializeList
+import uk.ac.ebi.serialization.extensions.serializeList
 import uk.ac.ebi.serialization.serializers.EitherSerializer
-import java.io.InputStream
-import java.io.OutputStream
+import java.io.File
 import java.io.StringWriter
 import java.time.OffsetDateTime
 
@@ -43,29 +43,10 @@ data class Properties(val includeFileListFiles: Boolean) : StringWriter()
 
 class ExtSerializationService {
 
-    fun serializeFileList(files: Sequence<ExtFile>, outputStream: OutputStream) {
-        val jsonGenerator = mapper.factory.createGenerator(outputStream)
+    fun serializeFileList(files: Sequence<ExtFile>, file: File) =
+        file.outputStream().use { mapper.serializeList(files, it) }
 
-        jsonGenerator.use {
-            it.writeStartArray()
-            files.forEach { file -> mapper.writeValue(it, file) }
-            it.writeEndArray()
-        }
-    }
-
-    fun deserializeFileList(inputStream: InputStream): Sequence<ExtFile> {
-        val jsonParser = mapper.factory.createParser(inputStream)
-
-        if (jsonParser.nextToken() != JsonToken.START_ARRAY) {
-            throw IllegalStateException("Expected content to be an array")
-        }
-
-        return sequence {
-            while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
-                yield(mapper.readValue(jsonParser, ExtFile::class.java))
-            }
-        }
-    }
+    fun deserializeFileList(file: File): Sequence<ExtFile> = mapper.deserializeList(file.inputStream())
 
     fun <T> serialize(element: T, properties: Properties = Properties(false)): String {
         mapper.writerWithDefaultPrettyPrinter().writeValue(properties, element)

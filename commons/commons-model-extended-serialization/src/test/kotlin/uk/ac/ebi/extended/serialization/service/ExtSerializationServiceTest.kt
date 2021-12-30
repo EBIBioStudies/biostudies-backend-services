@@ -7,6 +7,7 @@ import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod.PAGE_TAB
 import ebi.ac.uk.extended.model.ExtTag
+import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.extended.model.StorageMode
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
@@ -14,9 +15,6 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.extended.test.AttributeFactory.defaultAttribute
-import uk.ac.ebi.extended.test.FireDirectoryFactory.defaultFireDirectory
-import uk.ac.ebi.extended.test.FireFileFactory.defaultFireFile
-import uk.ac.ebi.extended.test.NfsFileFactory.defaultNfsFile
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 
@@ -61,19 +59,19 @@ class ExtSerializationServiceTest(private val tempFolder: TemporaryFolder) {
 
     @Test
     fun `serialize - deserialize fileList`() {
-        val fileCount = 50000
-        val fileList = (1..fileCount).map { defaultFireFile(fireId = "$it", attributes = attributes) }
-            .plus((1..fileCount).map { defaultFireDirectory(filePath = "folder$it/file.txt", attributes = attributes) })
-            .plus(
-                (1..fileCount).map {
-                    defaultNfsFile(filePath = "folder$it/file.txt", file = nfsFile, attributes = attributes)
-                }
-            ).asSequence()
+        val fileList = (1..20000).map { createNfsFile(it) }.asSequence()
         val iterator = fileList.iterator()
 
-        testFile.outputStream().use { testInstance.serializeFileList(fileList, it) }
-        testFile.inputStream().use {
-            testInstance.deserializeFileList(it).forEach { file -> assertThat(file).isEqualTo(iterator.next()) }
-        }
+        testInstance.serializeFileList(fileList, testFile)
+
+        testInstance.deserializeFileList(testFile).forEach { file -> assertThat(file).isEqualTo(iterator.next()) }
     }
+
+    private fun createNfsFile(index: Int) = NfsFile(
+        filePath = "folder$index/file.txt",
+        relPath = "Files/folder$index/file.txt",
+        fullPath = "root/Files/folder$index/file.txt",
+        file = nfsFile,
+        attributes = (1..4).map { ExtAttribute(name = "name$it-file$index", value = "value$it-file$index") }
+    )
 }

@@ -39,18 +39,14 @@ import uk.ac.ebi.serialization.serializers.EitherSerializer
 
 internal class JsonSerializer {
     fun <T> serialize(element: T, pretty: Boolean = false): String {
-        return if (pretty)
-            mapper.writerWithDefaultPrettyPrinter().writeValueAsString(element)
-        else
-            mapper.writeValueAsString(element)
+        return if (pretty) mapper.writerWithDefaultPrettyPrinter().writeValueAsString(element)
+        else mapper.writeValueAsString(element)
     }
 
-    fun deserializeFileList(file: java.io.File): List<File> =
-        file.inputStream().use { mapper.deserializeList<File>(it).toList() }
+    fun serializeFileList(fileList: Sequence<File>, file: java.io.File) =
+        file.outputStream().use { mapper.serializeList(fileList, it) }
 
-    fun serializeFileList(fileList: List<File>, file: java.io.File) {
-        file.outputStream().use { mapper.serializeList(fileList.asSequence(), it) }
-    }
+    fun deserializeFileList(file: java.io.File): Sequence<File> = mapper.deserializeList(file.inputStream())
 
     inline fun <reified T> deserialize(value: String) = mapper.readValue<T>(value)
 

@@ -7,7 +7,9 @@ import ac.uk.ebi.biostd.xml.deserializer.LinkXmlDeserializer
 import ac.uk.ebi.biostd.xml.deserializer.SectionXmlDeserializer
 import ac.uk.ebi.biostd.xml.deserializer.SubmissionXmlDeserializer
 import ac.uk.ebi.biostd.xml.deserializer.exception.InvalidXmlPageTabElementException
+import ac.uk.ebi.biostd.xml.deserializer.exception.UnexpectedXmlEndElementTypeException
 import ac.uk.ebi.biostd.xml.deserializer.exception.UnexpectedXmlPageTabElementException
+import ac.uk.ebi.biostd.xml.deserializer.exception.UnexpectedXmlStartElementTypeException
 import ac.uk.ebi.biostd.xml.serializer.AttributeSerializer
 import ac.uk.ebi.biostd.xml.serializer.FileSerializer
 import ac.uk.ebi.biostd.xml.serializer.LinkSerializer
@@ -17,7 +19,6 @@ import ac.uk.ebi.biostd.xml.serializer.TableSerializer
 import arrow.core.Either
 import com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY
 import com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL
-import com.fasterxml.jackson.core.JsonParseException
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.core.TreeNode
 import com.fasterxml.jackson.databind.DeserializationContext
@@ -48,33 +49,46 @@ import java.io.StringReader
 import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.stream.XMLInputFactory
 import javax.xml.stream.XMLOutputFactory
+import javax.xml.stream.XMLStreamConstants.CHARACTERS
+import javax.xml.stream.XMLStreamConstants.END_ELEMENT
+import javax.xml.stream.XMLStreamConstants.START_DOCUMENT
+import javax.xml.stream.XMLStreamConstants.START_ELEMENT
+import javax.xml.stream.XMLStreamReader
 
 internal class XmlSerializer {
-    fun deserializeFileList(file: java.io.File): List<File> {
-        file.inputStream().use {
-            val streamReader = XMLInputFactory.newFactory().createXMLStreamReader(it)
-            streamReader.next()
-            streamReader.next()
-            return sequence {
-                var flag = true
-                while (flag) {
-                    val value: File? = try {
-                        mapper.readValue(streamReader, File::class.java)
-                    } catch (exception: JsonParseException) {
-                        null
-                    }
-                    if (value != null) {
-                        yield(value)
-                        streamReader.next()
-                    } else {
-                        flag = false
-                    }
-                }
-            }.toList()
+    fun deserializeFileList(file: java.io.File): Sequence<File> {
+        val inputStream = file.inputStream()
+        val reader = XMLInputFactory.newFactory().createXMLStreamReader(inputStream)
+
+        reader.ignoreCharacters()
+        reader.requireStartElement("table")
+        reader.ignoreCharacters()
+        return sequence {
+            while (reader.eventType == START_ELEMENT && reader.localName == "file") {
+                yield(mapper.readValue(reader, File::class.java))
+                reader.next()
+                reader.ignoreCharacters()
+            }
+            reader.requireEndElement("table")
+            inputStream.close()
         }
     }
 
-    fun serializeFileList(fileList: List<File>, file: java.io.File) {
+    private fun XMLStreamReader.ignoreCharacters() {
+        while (hasNext() && (eventType == CHARACTERS || eventType == START_DOCUMENT)) next()
+    }
+
+    private fun XMLStreamReader.requireStartElement(type: String) {
+        if (eventType != START_ELEMENT || localName != type) throw UnexpectedXmlStartElementTypeException(type)
+        next()
+    }
+
+    private fun XMLStreamReader.requireEndElement(type: String) {
+        if (eventType != END_ELEMENT || localName != type) throw UnexpectedXmlEndElementTypeException(type)
+        next()
+    }
+
+    fun serializeFileList(fileList: Sequence<File>, file: java.io.File) {
         val outputStream = file.outputStream()
         val streamWriter = XMLOutputFactory.newFactory().createXMLStreamWriter(outputStream)
 
@@ -127,8 +141,8 @@ internal class XmlSerializer {
                 addSerializer(File::class.java, FileSerializer())
                 addSerializer(Table::class.java, TableSerializer())
 
-                addDeserializer(File::class.java, FileXmlDeserializer2())
-                addDeserializer(Attribute::class.java, AttributeXmlDeserializer2())
+                addDeserializer(File::class.java, FileXmlStreamDeserializer())
+                addDeserializer(Attribute::class.java, AttributeXmlStreamDeserializer())
             }
 
             return XmlMapper(module).apply {
@@ -148,7 +162,7 @@ internal class XmlSerializer {
             .parse(InputSource(StringReader(value))).documentElement
 }
 
-class FileXmlDeserializer2 : StdDeserializer<File>(File::class.java) {
+class FileXmlStreamDeserializer : StdDeserializer<File>(File::class.java) {
     override fun deserialize(p: JsonParser, ctxt: DeserializationContext): File {
         val mapper = p.codec as ObjectMapper
         val node = p.readValueAsTree<TreeNode>()
@@ -159,13 +173,12 @@ class FileXmlDeserializer2 : StdDeserializer<File>(File::class.java) {
             attributes = mapper.convertValue(
                 node.getArrayAttribute("attributes", "attribute"),
                 Array<Attribute>::class.java
-            )
-                .toList()
+            ).toList()
         )
     }
 }
 
-class AttributeXmlDeserializer2 : StdDeserializer<Attribute>(Attribute::class.java) {
+class AttributeXmlStreamDeserializer : StdDeserializer<Attribute>(Attribute::class.java) {
     override fun deserialize(p: JsonParser, ctxt: DeserializationContext): Attribute {
         val node = p.readValueAsTree<TreeNode>()
         return Attribute(

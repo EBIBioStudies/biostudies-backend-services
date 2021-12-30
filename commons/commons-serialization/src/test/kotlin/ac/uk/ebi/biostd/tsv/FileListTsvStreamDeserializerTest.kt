@@ -49,7 +49,7 @@ class FileListTsvStreamDeserializerTest(temporaryFolder: TemporaryFolder) {
 
     @Test
     fun `serialize - deserialize FileList`() {
-        val files = (1..50000).map {
+        val files = (1..20000).map {
             File("folder/file$it.txt", attributes = listOf(Attribute("Attr1", "A$it"), Attribute("Attr2", "B$it")))
         }.asSequence()
         val iterator = files.iterator()

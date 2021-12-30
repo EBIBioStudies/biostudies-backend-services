@@ -30,6 +30,7 @@ inline fun <reified T : Any> ObjectMapper.deserializeList(inputStream: InputStre
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             yield(readValue(jsonParser, T::class.java))
         }
+        inputStream.close()
     }
 }
 
@@ -56,8 +57,8 @@ inline fun <reified T> ObjectMapper.convertList(node: JsonNode?) =
 
 inline fun <reified T> ObjectMapper.convertNode(node: JsonNode?): T? = node?.let { convertValue(node) }
 
-inline fun <X, reified T : List<X>> ObjectMapper.convertList(node: JsonNode?, sectionsType: TypeReference<T>): T =
-    TODO()
+inline fun <X, reified T : List<X>> ObjectMapper.convertList(node: JsonNode?, type: TypeReference<T>): MutableList<X> =
+    node?.let { convertValue(it, type) }.orEmpty().toMutableList()
 
 inline fun <reified T : Any> ObjectMapper.deserialize(json: String) = readValue(json, T::class.java)!!
 inline fun <reified T> ObjectMapper.serialize(value: T): String = writeValueAsString(value)

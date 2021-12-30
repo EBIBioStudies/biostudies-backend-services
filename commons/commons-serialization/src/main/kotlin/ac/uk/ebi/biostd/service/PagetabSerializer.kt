@@ -35,18 +35,18 @@ internal class PagetabSerializer(
 
     fun serializeFileList(filesTable: FilesTable, format: SubFormat, file: File) {
         when (format) {
-            XmlFormat -> xmlSerializer.serializeFileList(filesTable.elements, file)
-            JsonPretty, PlainJson -> jsonSerializer.serializeFileList(filesTable.elements, file)
-            is TsvFormat -> tsvSerializer.serializeFileList(filesTable.elements, file)
+            XmlFormat -> xmlSerializer.serializeFileList(filesTable.elements.asSequence(), file)
+            JsonPretty, PlainJson -> jsonSerializer.serializeFileList(filesTable.elements.asSequence(), file)
+            is TsvFormat -> tsvSerializer.serializeFileList(filesTable.elements.asSequence(), file)
         }
     }
 
     fun deserializeFileList(file: File, format: SubFormat): FilesTable {
         return when (format) {
-            XmlFormat -> FilesTable(xmlSerializer.deserializeFileList(file))
-            is JsonFormat -> FilesTable(jsonSerializer.deserializeFileList(file))
-            is XlsxTsv -> FilesTable(tsvSerializer.deserializeFileList(ExcelReader.readContentAsTsv(file)))
-            is TsvFormat -> FilesTable(tsvSerializer.deserializeFileList(file))
+            XmlFormat -> FilesTable(xmlSerializer.deserializeFileList(file).toList())
+            is JsonFormat -> FilesTable(jsonSerializer.deserializeFileList(file).toList())
+            is XlsxTsv -> FilesTable(tsvSerializer.deserializeFileList(ExcelReader.readContentAsTsv(file)).toList())
+            is TsvFormat -> FilesTable(tsvSerializer.deserializeFileList(file).toList())
         }
     }
 }

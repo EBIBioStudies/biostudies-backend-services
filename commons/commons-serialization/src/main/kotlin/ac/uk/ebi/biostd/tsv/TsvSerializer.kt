@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.tsv
 
 import ac.uk.ebi.biostd.tsv.deserialization.TsvDeserializer
 import ac.uk.ebi.biostd.tsv.deserialization.stream.FileListTsvStreamDeserializer
+import ac.uk.ebi.biostd.tsv.deserialization.stream.PageTabFile
 import ac.uk.ebi.biostd.tsv.serialization.TsvToStringSerializer
 import ebi.ac.uk.model.Submission
 import java.io.File
@@ -15,9 +16,9 @@ internal class TsvSerializer(
 
     fun deserializeSubmission(pageTab: String): Submission = tsvDeserializer.deserialize(pageTab)
 
-    fun serializeFileList(files: List<ebi.ac.uk.model.File>, file: File) =
-        streamSerializer.serializeFileList(files.asSequence(), file)
+    fun serializeFileList(files: Sequence<PageTabFile>, file: File) =
+        streamSerializer.serializeFileList(files, file)
 
-    fun deserializeFileList(file: File): List<ebi.ac.uk.model.File> =
-        streamSerializer.deserializeFileList(file).toList()
+    fun deserializeFileList(file: File): Sequence<PageTabFile> =
+        streamSerializer.deserializeFileList(file)
 }
