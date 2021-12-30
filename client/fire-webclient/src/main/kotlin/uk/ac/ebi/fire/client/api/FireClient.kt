@@ -31,11 +31,11 @@ internal class FireClient(
     private val tmpDirPath: String,
     private val template: RestTemplate
 ) : FireOperations {
-    override fun save(file: File, md5: String, relpath: String): FireFile {
+    override fun save(file: File, md5: String, relPath: String): FireFile {
         val headers = HttpHeaders().apply {
             set(FIRE_MD5_HEADER, md5)
             set(FIRE_SIZE_HEADER, file.size().toString())
-            set(SUBMISSION_FILE_RELPATH_HEADER, relpath)
+            set(SUBMISSION_FILE_RELPATH_HEADER, relPath)
         }
         val formData = listOf(FIRE_FILE_PARAM to FileSystemResource(file))
         val body = LinkedMultiValueMap(formData.groupBy({ it.first }, { it.second }))

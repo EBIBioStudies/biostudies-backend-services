@@ -4,6 +4,8 @@ import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.FireDirectory
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
+import ebi.ac.uk.io.ext.md5
+import ebi.ac.uk.io.ext.size
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.io.sources.FireBioFile
 import ebi.ac.uk.io.sources.FireDirectoryBioFile
@@ -32,8 +34,10 @@ fun File.toExtFile(fileSource: FilesSource): ExtFile {
         is NfsBioFile -> NfsFile(
             path,
             "Files/$path",
-            file.file.absolutePath,
             file.file,
+            file.file.absolutePath,
+            file.file.md5(),
+            file.file.size(),
             attributes.toExtAttributes()
         )
     }

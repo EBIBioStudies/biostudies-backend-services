@@ -13,7 +13,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_TITLE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_VERSION
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionRequestRepository
-import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequest
+import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus.REQUESTED
 import com.google.common.collect.ImmutableList
@@ -27,14 +27,13 @@ class SubmissionRequestDocDataRepository(
     private val submissionRequestRepository: SubmissionRequestRepository,
     private val mongoTemplate: MongoTemplate
 ) : SubmissionRequestRepository by submissionRequestRepository {
-    fun saveRequest(submissionRequest: SubmissionRequest) {
+    fun saveRequest(submissionRequest: DocSubmissionRequest): DocSubmissionRequest =
         submissionRequestRepository.save(submissionRequest)
-    }
 
-    fun findActiveRequest(filter: SubmissionFilter, email: String? = null): List<SubmissionRequest> {
+    fun findActiveRequest(filter: SubmissionFilter, email: String? = null): List<DocSubmissionRequest> {
         val query = Query().limit(filter.limit).skip(filter.offset)
         query.addCriteria(createQuery(filter, email))
-        return mongoTemplate.find(query, SubmissionRequest::class.java)
+        return mongoTemplate.find(query, DocSubmissionRequest::class.java)
     }
 
     @Suppress("SpreadOperator")
@@ -45,7 +44,7 @@ class SubmissionRequestDocDataRepository(
 
     fun updateStatus(status: SubmissionRequestStatus, accNo: String, version: Int) {
         val query = Query(where(SUB_ACC_NO).`is`(accNo).andOperator(where(SUB_VERSION).`is`(version)))
-        mongoTemplate.updateFirst(query, update("status", status), SubmissionRequest::class.java)
+        mongoTemplate.updateFirst(query, update("status", status), DocSubmissionRequest::class.java)
     }
 
     private fun criteriaArray(filter: SubmissionFilter): Array<Criteria> =

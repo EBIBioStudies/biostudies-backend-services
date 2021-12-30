@@ -2,12 +2,12 @@ package ac.uk.ebi.biostd.submission.submitter
 
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.json.exception.NoAttributeValueException
-import ac.uk.ebi.biostd.persistence.common.request.SaveSubmissionRequest
+import ac.uk.ebi.biostd.persistence.common.request.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestService
 import ac.uk.ebi.biostd.submission.exceptions.InvalidSubmissionException
-import ac.uk.ebi.biostd.submission.model.SubmissionRequest
+import ac.uk.ebi.biostd.submission.model.SubmitRequest
 import ac.uk.ebi.biostd.submission.service.AccNoService
 import ac.uk.ebi.biostd.submission.service.AccNoServiceRequest
 import ac.uk.ebi.biostd.submission.service.CollectionInfoService
@@ -25,7 +25,6 @@ import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod
 import ebi.ac.uk.extended.model.ExtTag
-import ebi.ac.uk.extended.model.FileMode
 import ebi.ac.uk.extended.model.StorageMode.FIRE
 import ebi.ac.uk.extended.model.StorageMode.NFS
 import ebi.ac.uk.io.sources.FilesSource
@@ -60,46 +59,29 @@ class SubmissionSubmitter(
     private val submissionQueryService: SubmissionQueryService,
     private val properties: ApplicationProperties
 ) {
-    fun submit(request: SubmissionRequest): ExtSubmission {
-        val saved = submitAsync(request)
-        return processRequest(saved.submission.accNo, saved.submission.version, saved.fileMode, saved.draftKey)
+    fun submit(request: SubmitRequest): ExtSubmission {
+        val (accNo, version) = submitAsync(request)
+        return processRequest(accNo, version)
     }
 
-    fun submit(request: SaveSubmissionRequest): ExtSubmission {
-        return processRequest(
-            request.submission.accNo,
-            request.submission.version,
-            request.fileMode,
-            request.draftKey
-        )
+    fun submit(request: SubmissionRequest): ExtSubmission =
+        processRequest(request.submission.accNo, request.submission.version)
+
+    fun submitAsync(rqt: SubmitRequest): Pair<String, Int> {
+        logger.info { "${rqt.accNo} ${rqt.submitter.email} Processing async request $rqt" }
+        val sub = process(rqt.submission, rqt.submitter.asUser(), rqt.onBehalfUser?.asUser(), rqt.sources, rqt.method)
+        logger.info { "${sub.accNo} ${sub.submitter} Saving submission request ${sub.accNo}" }
+        return submissionRequestService.saveSubmissionRequest(SubmissionRequest(sub, rqt.mode, rqt.draftKey))
     }
 
-    fun submitAsync(request: SubmissionRequest): SaveSubmissionRequest {
-        logger.info { "${request.accNo} ${request.submitter.email} Processing async request $request" }
+    fun submitAsync(request: SubmissionRequest): Pair<String, Int> =
+        submissionRequestService.saveSubmissionRequest(request)
 
-        val submission = process(
-            request.submission,
-            request.submitter.asUser(),
-            request.onBehalfUser?.asUser(),
-            request.sources,
-            request.method
-        )
+    fun processRequest(accNo: String, version: Int): ExtSubmission {
+        val saveRequest = submissionQueryService.getRequest(accNo, version)
+        val submitter = saveRequest.submission.submitter
 
-        logger.info { "${submission.accNo} ${submission.submitter} Saving submission request ${submission.accNo}" }
-        val rqt = submissionRequestService.saveSubmissionRequest(
-            submission
-        )
-        return SaveSubmissionRequest(rqt, request.mode, request.draftKey)
-    }
-
-    fun submitAsync(request: SaveSubmissionRequest): ExtSubmission {
-        return submissionRequestService.saveSubmissionRequest(request.submission)
-    }
-
-    fun processRequest(accNo: String, version: Int, fileMode: FileMode, draftKey: String?): ExtSubmission {
-        val submission = submissionQueryService.getRequest(accNo, version)
-        val saveRequest = SaveSubmissionRequest(submission, fileMode, draftKey)
-        logger.info { "Processing request for submission accNo='$accNo', version='$version'" }
+        logger.info { "$accNo, $submitter Processing request for submission accNo='$accNo', version='$version'" }
         return submissionRequestService.processSubmissionRequest(saveRequest)
     }
 
@@ -117,6 +99,7 @@ class SubmissionSubmitter(
 
             return extSubmission
         } catch (exception: RuntimeException) {
+            logger.error(exception) { "Error processing submission request accNo='${submission.accNo}'" }
             throw InvalidSubmissionException("Submission validation errors", listOf(exception))
         }
     }

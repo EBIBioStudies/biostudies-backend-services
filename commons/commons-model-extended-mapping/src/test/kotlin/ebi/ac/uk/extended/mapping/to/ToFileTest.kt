@@ -4,6 +4,8 @@ import ebi.ac.uk.extended.model.ExtAttribute
 import ebi.ac.uk.extended.model.FireDirectory
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
+import ebi.ac.uk.io.ext.md5
+import ebi.ac.uk.io.ext.size
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.File
 import ebi.ac.uk.test.createFile
@@ -26,7 +28,15 @@ internal class ToFileTest(
 ) {
     private var file = tempFolder.createFile("my-file", "test content")
     private val extFile =
-        NfsFile("folder/my-file", "Files/folder/my-file", file.absolutePath, file, listOf(extAttribute))
+        NfsFile(
+            "folder/my-file",
+            "Files/folder/my-file",
+            file,
+            file.absolutePath,
+            file.md5(),
+            file.size(),
+            listOf(extAttribute)
+        )
 
     @BeforeEach
     fun beforeEach() {

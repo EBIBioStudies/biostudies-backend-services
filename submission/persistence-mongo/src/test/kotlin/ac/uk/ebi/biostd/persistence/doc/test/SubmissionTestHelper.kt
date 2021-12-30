@@ -18,8 +18,8 @@ import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod
 import ebi.ac.uk.extended.model.FireDirectory
 import ebi.ac.uk.extended.model.FireFile
-import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.extended.model.StorageMode
+import ebi.ac.uk.extended.model.createNfsFile
 import ebi.ac.uk.util.collections.second
 import ebi.ac.uk.util.collections.third
 import org.assertj.core.api.Assertions.assertThat
@@ -102,15 +102,7 @@ object SubmissionTestHelper {
                 listOf()
             )
         )
-        assertThat(extSubmission.pageTabFiles.third()).isEqualTo(
-            NfsFile(
-                "filePath",
-                "relPath",
-                nfsFileFile.absolutePath,
-                nfsFileFile,
-                listOf()
-            )
-        )
+        assertThat(extSubmission.pageTabFiles.third()).isEqualTo(createNfsFile("filePath", "relPath", nfsFileFile))
     }
 
     private fun assertBasicProperties(extSubmission: ExtSubmission) {

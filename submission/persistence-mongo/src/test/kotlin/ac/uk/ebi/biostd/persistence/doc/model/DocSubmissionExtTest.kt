@@ -8,7 +8,7 @@ import ebi.ac.uk.test.basicExtSubmission
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-class DocSubmissionExt {
+class DocSubmissionExtTest {
     @Test
     fun `get all sections from submission`() {
         val sections = basicExtSubmission.copy(section = rootSection).allSections

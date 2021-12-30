@@ -21,12 +21,12 @@ abstract class BaseXmlDeserializer<T : Any> {
     protected fun <B : Table<T>> deserializeTable(node: Node, leftTag: String, tableBuilder: (List<T>) -> B):
         Either<T, B> {
 
-            return when (node.nodeName) {
-                leftTag -> Either.left(deserialize(node))
-                TABLE.value -> Either.right(tableBuilder(deserializeList(node)))
-                else -> error({ errorMessage(node, leftTag) })
-            }
+        return when (node.nodeName) {
+            leftTag -> Either.left(deserialize(node))
+            TABLE.value -> Either.right(tableBuilder(deserializeList(node)))
+            else -> error({ errorMessage(node, leftTag) })
         }
+    }
 
     private fun errorMessage(node: Node, leftTag: String) =
         "expecting node type '${node.nodeName}' to be of type '$leftTag' or '$TABLE' found ${node.toXmlString()})"

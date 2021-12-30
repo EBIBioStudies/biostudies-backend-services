@@ -17,12 +17,13 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_TITLE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_VERSION
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
-import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequest
+import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus.REQUESTED
 import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocSubmission
 import com.mongodb.BasicDBObject
 import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
 import ebi.ac.uk.db.MONGO_VERSION
+import ebi.ac.uk.extended.model.FileMode
 import ebi.ac.uk.model.constants.SectionFields.TITLE
 import org.assertj.core.api.Assertions.assertThat
 import org.bson.Document
@@ -60,7 +61,7 @@ internal class DatabaseChangeLogTest(
     @BeforeEach
     fun init() {
         mongoTemplate.dropCollection<DocSubmission>()
-        mongoTemplate.dropCollection<SubmissionRequest>()
+        mongoTemplate.dropCollection<DocSubmissionRequest>()
         mongoTemplate.dropCollection(CHANGE_LOG_COLLECTION)
         mongoTemplate.dropCollection(CHANGE_LOG_LOCK)
     }
@@ -76,7 +77,7 @@ internal class DatabaseChangeLogTest(
     @Test
     fun `create schema migration 001 when collections exists`() {
         mongoTemplate.createCollection<DocSubmission>()
-        mongoTemplate.createCollection<SubmissionRequest>()
+        mongoTemplate.createCollection<DocSubmissionRequest>()
 
         mongoTemplate.insert(testDocSubmission.copy(accNo = "accNo1"))
         mongoTemplate.insert(testDocSubmission.copy(accNo = "accNo2"))
@@ -84,12 +85,12 @@ internal class DatabaseChangeLogTest(
         mongoTemplate.insert(request.copy(id = ObjectId(), accNo = "accNo2"))
 
         val submissions = mongoTemplate.findAll<DocSubmission>()
-        val requests = mongoTemplate.findAll<SubmissionRequest>()
+        val requests = mongoTemplate.findAll<DocSubmissionRequest>()
 
         runMigrations()
 
         assertThat(mongoTemplate.findAll<DocSubmission>()).isEqualTo(submissions)
-        assertThat(mongoTemplate.findAll<SubmissionRequest>()).isEqualTo(requests)
+        assertThat(mongoTemplate.findAll<DocSubmissionRequest>()).isEqualTo(requests)
         assertSubmissionCollection()
         assertRequestCollection()
     }
@@ -117,9 +118,9 @@ internal class DatabaseChangeLogTest(
     }
 
     private fun assertRequestCollection() {
-        val listIndexes = mongoTemplate.getCollection<SubmissionRequest>().listIndexes().toList()
+        val listIndexes = mongoTemplate.getCollection<DocSubmissionRequest>().listIndexes().toList()
 
-        assertThat(mongoTemplate.collectionExists<SubmissionRequest>()).isTrue
+        assertThat(mongoTemplate.collectionExists<DocSubmissionRequest>()).isTrue
         assertThat(listIndexes).hasSize(10)
 
         assertThat(listIndexes[0]).containsEntry("key", Document("_id", 1))
@@ -144,11 +145,15 @@ internal class DatabaseChangeLogTest(
         runner.run(DefaultApplicationArguments())
     }
 
-    private val request = SubmissionRequest(
+    private val request = DocSubmissionRequest(
+        id = ObjectId(),
         accNo = "accNo",
         version = 1,
+        fileMode = FileMode.COPY,
+        draftKey = null,
         status = REQUESTED,
-        submission = BasicDBObject.parse("{}")
+        submission = BasicDBObject.parse("{}"),
+        fileList = emptyList()
     )
 
     companion object {

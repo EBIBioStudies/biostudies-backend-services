@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.persistence.integration.services
 
-import ac.uk.ebi.biostd.persistence.common.request.SaveSubmissionRequest
+import ac.uk.ebi.biostd.persistence.common.request.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.filesystem.request.FilePersistenceRequest
 import ac.uk.ebi.biostd.persistence.filesystem.service.FileSystemService
@@ -30,18 +30,19 @@ internal open class SubmissionSqlPersistenceService(
     private val toDbMapper: ToDbSubmissionMapper
 ) {
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = false)
-    open fun saveSubmissionRequest(submission: ExtSubmission): ExtSubmission {
+    open fun saveSubmissionRequest(rqt: SubmissionRequest): ExtSubmission {
+        val submission = rqt.submission
         val newVersion = submission.copy(
             version = getNextVersion(submission.accNo),
             status = ExtProcessingStatus.REQUESTED
         )
         subDataRepository.save(toDbMapper.toSubmissionDb(newVersion))
-        requestDataRepository.save(asRequest(newVersion))
+        requestDataRepository.save(asRequest(rqt, newVersion))
         return newVersion
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = false)
-    open fun processSubmission(saveRequest: SaveSubmissionRequest): ExtSubmission {
+    open fun processSubmission(saveRequest: SubmissionRequest): ExtSubmission {
         val (submission, fileMode, draftKey) = saveRequest
         subDataRepository.updateStatus(PROCESSING, submission.accNo, submission.version)
 
@@ -54,11 +55,13 @@ internal open class SubmissionSqlPersistenceService(
         return subRepository.getExtByAccNoAndVersion(submission.accNo, submission.version)
     }
 
-    private fun asRequest(submission: ExtSubmission) =
+    private fun asRequest(rqt: SubmissionRequest, submission: ExtSubmission) =
         DbSubmissionRequest(
-            submission.accNo,
-            submission.version,
-            serializationService.serialize(submission, Properties(true))
+            accNo = submission.accNo,
+            version = submission.version,
+            draftKey = rqt.draftKey,
+            fileMode = rqt.fileMode,
+            request = serializationService.serialize(submission, Properties(true))
         )
 
     private fun getNextVersion(accNo: String): Int {

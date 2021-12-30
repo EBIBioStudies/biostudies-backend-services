@@ -1,7 +1,7 @@
 @file:Suppress("LongParameterList", "MagicNumber")
-
 package uk.ac.ebi.extended.test
 
+import uk.ac.ebi.extended.test.SectionFactory.defaultSection
 import arrow.core.Either
 import ebi.ac.uk.extended.model.ExtAttribute
 import ebi.ac.uk.extended.model.ExtAttributeDetail
@@ -22,7 +22,8 @@ import ebi.ac.uk.extended.model.FireDirectory
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.extended.model.StorageMode
-import uk.ac.ebi.extended.test.SectionFactory.defaultSection
+import ebi.ac.uk.io.ext.md5
+import ebi.ac.uk.io.ext.size
 import java.io.File
 import java.time.OffsetDateTime
 import java.time.ZoneOffset.UTC
@@ -185,6 +186,8 @@ object NfsFileFactory {
         relPath = relPath,
         fullPath = fullPath,
         file = file,
+        md5 = file.md5(),
+        size = file.size(),
         attributes = attributes
     )
 

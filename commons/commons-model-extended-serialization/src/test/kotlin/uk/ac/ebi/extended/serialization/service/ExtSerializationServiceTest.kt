@@ -9,6 +9,8 @@ import ebi.ac.uk.extended.model.ExtSubmissionMethod.PAGE_TAB
 import ebi.ac.uk.extended.model.ExtTag
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.extended.model.StorageMode
+import ebi.ac.uk.io.ext.md5
+import ebi.ac.uk.io.ext.size
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
@@ -72,6 +74,8 @@ class ExtSerializationServiceTest(private val tempFolder: TemporaryFolder) {
         relPath = "Files/folder$index/file.txt",
         fullPath = "root/Files/folder$index/file.txt",
         file = nfsFile,
-        attributes = (1..4).map { ExtAttribute(name = "name$it-file$index", value = "value$it-file$index") }
+        attributes = (1..4).map { ExtAttribute(name = "name$it-file$index", value = "value$it-file$index") },
+        md5 = nfsFile.md5(),
+        size = nfsFile.size()
     )
 }

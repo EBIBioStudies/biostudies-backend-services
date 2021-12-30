@@ -21,7 +21,7 @@ class ExtFileListDeserializer : JsonDeserializer<ExtFileList>() {
 
         return ExtFileList(
             filePath = node.getNode<TextNode>(FILE_NAME).textValue(),
-            filesUrl = node.getNode<TextNode>(FILES_URL).textValue(),
+            filesUrl = node.findNode<TextNode>(FILES_URL)?.textValue(),
             files = mapper.convertList(node.findNode(FILES)),
         )
     }
