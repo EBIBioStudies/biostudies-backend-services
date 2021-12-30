@@ -1,6 +1,5 @@
 package uk.ac.ebi.extended.serialization.deserializers
 
-import com.fasterxml.jackson.databind.JsonMappingException
 import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.extended.model.ExtFile
@@ -124,6 +123,6 @@ class ExtFileDeserializerTest(private val tempFolder: TemporaryFolder) {
             "extType" to "nfsFile"
         }.toString()
 
-        assertThrows<JsonMappingException> { testInstance.deserialize<ExtFile>(json) }
+        assertThrows<IllegalArgumentException> { testInstance.deserialize<ExtFile>(json) }
     }
 }

@@ -7,9 +7,7 @@ import ac.uk.ebi.biostd.xml.deserializer.LinkXmlDeserializer
 import ac.uk.ebi.biostd.xml.deserializer.SectionXmlDeserializer
 import ac.uk.ebi.biostd.xml.deserializer.SubmissionXmlDeserializer
 import ac.uk.ebi.biostd.xml.deserializer.exception.InvalidXmlPageTabElementException
-import ac.uk.ebi.biostd.xml.deserializer.exception.UnexpectedXmlEndElementTypeException
 import ac.uk.ebi.biostd.xml.deserializer.exception.UnexpectedXmlPageTabElementException
-import ac.uk.ebi.biostd.xml.deserializer.exception.UnexpectedXmlStartElementTypeException
 import ac.uk.ebi.biostd.xml.serializer.AttributeSerializer
 import ac.uk.ebi.biostd.xml.serializer.FileSerializer
 import ac.uk.ebi.biostd.xml.serializer.LinkSerializer
@@ -47,59 +45,9 @@ import org.xml.sax.InputSource
 import uk.ac.ebi.serialization.serializers.EitherSerializer
 import java.io.StringReader
 import javax.xml.parsers.DocumentBuilderFactory
-import javax.xml.stream.XMLInputFactory
-import javax.xml.stream.XMLOutputFactory
-import javax.xml.stream.XMLStreamConstants.CHARACTERS
-import javax.xml.stream.XMLStreamConstants.END_ELEMENT
-import javax.xml.stream.XMLStreamConstants.START_DOCUMENT
-import javax.xml.stream.XMLStreamConstants.START_ELEMENT
-import javax.xml.stream.XMLStreamReader
 
 internal class XmlSerializer {
-    fun deserializeFileList(file: java.io.File): Sequence<File> {
-        val inputStream = file.inputStream()
-        val reader = XMLInputFactory.newFactory().createXMLStreamReader(inputStream)
 
-        reader.ignoreCharacters()
-        reader.requireStartElement("table")
-        reader.ignoreCharacters()
-        return sequence {
-            while (reader.eventType == START_ELEMENT && reader.localName == "file") {
-                yield(mapper.readValue(reader, File::class.java))
-                reader.next()
-                reader.ignoreCharacters()
-            }
-            reader.requireEndElement("table")
-            inputStream.close()
-        }
-    }
-
-    private fun XMLStreamReader.ignoreCharacters() {
-        while (hasNext() && (eventType == CHARACTERS || eventType == START_DOCUMENT)) next()
-    }
-
-    private fun XMLStreamReader.requireStartElement(type: String) {
-        if (eventType != START_ELEMENT || localName != type) throw UnexpectedXmlStartElementTypeException(type)
-        next()
-    }
-
-    private fun XMLStreamReader.requireEndElement(type: String) {
-        if (eventType != END_ELEMENT || localName != type) throw UnexpectedXmlEndElementTypeException(type)
-        next()
-    }
-
-    fun serializeFileList(fileList: Sequence<File>, file: java.io.File) {
-        val outputStream = file.outputStream()
-        val streamWriter = XMLOutputFactory.newFactory().createXMLStreamWriter(outputStream)
-
-        streamWriter.writeStartDocument()
-        streamWriter.writeStartElement("table")
-        fileList.forEach { mapper.writeValue(streamWriter, it) }
-        streamWriter.writeEndElement()
-        streamWriter.writeEndDocument()
-
-        outputStream.close()
-    }
 
     fun <T> serialize(element: T): String = mapper.writeValueAsString(element)
 

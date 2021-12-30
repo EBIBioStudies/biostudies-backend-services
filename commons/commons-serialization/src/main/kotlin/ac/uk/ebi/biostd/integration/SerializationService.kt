@@ -8,11 +8,11 @@ import java.io.File
 
 interface SerializationService {
     fun serializeSubmission(submission: Submission, format: SubFormat): String
+    fun serializeFileList(table: FilesTable, format: SubFormat, file: File): File
+
     fun deserializeSubmission(content: String, format: SubFormat): Submission
     fun deserializeSubmission(content: String, format: SubFormat, source: FilesSource): Submission
     fun deserializeSubmission(file: File): Submission
     fun deserializeSubmission(file: File, source: FilesSource): Submission
-
-    fun serializeFileList(table: FilesTable, format: SubFormat, file: File): File
     fun deserializeFileList(fileName: String, source: FilesSource): FileList
 }

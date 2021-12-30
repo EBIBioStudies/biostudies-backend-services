@@ -54,25 +54,24 @@ class ExtSerializationServiceTest(private val tempFolder: TemporaryFolder) {
         )
 
         val serialized = testInstance.serialize(extSubmission)
-        val deserialized = testInstance.deserialize<ExtSubmission>(serialized)
+        val deserialized = testInstance.deserialize(serialized)
 
         assertThat(deserialized).isEqualTo(extSubmission)
     }
 
     @Test
     fun `serialize - deserialize fileList`() {
-        val fileList = (1..20000).map { createNfsFile(it) }.asSequence()
+        val fileList = (1..20_000).map { createNfsFile(it) }.asSequence()
         val iterator = fileList.iterator()
 
-        testInstance.serializeFileList(fileList, testFile)
-
-        testInstance.deserializeFileList(testFile).forEach { file -> assertThat(file).isEqualTo(iterator.next()) }
+        testFile.outputStream().use { testInstance.serialize(fileList, it) }
+        testFile.inputStream().use { testInstance.deserialize(it).onEach { assertThat(it).isEqualTo(iterator.next()) } }
     }
 
     private fun createNfsFile(index: Int) = NfsFile(
         filePath = "folder$index/file.txt",
         relPath = "Files/folder$index/file.txt",
-        fullPath = "root/Files/folder$index/file.txt",
+        fullPath = nfsFile.absolutePath,
         file = nfsFile,
         attributes = (1..4).map { ExtAttribute(name = "name$it-file$index", value = "value$it-file$index") },
         md5 = nfsFile.md5(),

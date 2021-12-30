@@ -8,7 +8,6 @@ import ebi.ac.uk.extended.model.ExtSectionTable
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
-import uk.ac.ebi.serialization.extensions.serialize
 
 class ExtSectionsTableSerializerTest {
     private val testInstance = ExtSerializationService()
@@ -32,6 +31,6 @@ class ExtSectionsTableSerializerTest {
             "extType" to "sectionsTable"
         }.toString()
 
-        assertThat(testInstance.serialize(extSectionsTable)).isEqualToIgnoringWhitespace(expectedJson)
+        assertThat(testInstance.serializeElement(extSectionsTable)).isEqualToIgnoringWhitespace(expectedJson)
     }
 }

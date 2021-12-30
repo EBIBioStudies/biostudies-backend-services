@@ -1,6 +1,4 @@
-package ac.uk.ebi.biostd.client.dto
-
-import ebi.ac.uk.extended.model.ExtSubmission
+package ebi.ac.uk.extended.model
 
 data class ExtPage(
     val content: List<ExtSubmission> = listOf(),
@@ -8,3 +6,4 @@ data class ExtPage(
     val next: String?,
     val previous: String?
 )
+

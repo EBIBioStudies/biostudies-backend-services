@@ -24,7 +24,6 @@ import uk.ac.ebi.extended.serialization.exception.InvalidExtTypeException
 import uk.ac.ebi.serialization.extensions.convertList
 import uk.ac.ebi.serialization.extensions.findNode
 import uk.ac.ebi.serialization.extensions.getNode
-import java.io.FileNotFoundException
 import java.nio.file.Paths
 
 class ExtFileDeserializer : JsonDeserializer<ExtFile>() {
@@ -64,7 +63,7 @@ class ExtFileDeserializer : JsonDeserializer<ExtFile>() {
     private fun nfsFile(node: JsonNode, mapper: ObjectMapper): NfsFile {
         val fullPath = node.getNode<TextNode>(FILE_FULL_PATH).textValue()
         val file = Paths.get(fullPath).toFile()
-        require(file.exists()) { throw FileNotFoundException(fullPath) }
+        require(file.exists()) { "File not found $fullPath" }
 
         return NfsFile(
             filePath = node.getNode<TextNode>(FILE_FILEPATH).textValue(),

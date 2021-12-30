@@ -13,6 +13,7 @@ import ebi.ac.uk.extended.model.ExtFileList
 import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.ExtLink
 import ebi.ac.uk.extended.model.ExtLinkTable
+import ebi.ac.uk.extended.model.ExtPage
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSectionTable
 import ebi.ac.uk.extended.model.ExtSubmission
@@ -35,30 +36,33 @@ import uk.ac.ebi.extended.serialization.serializers.OffsetDateTimeSerializer
 import uk.ac.ebi.serialization.extensions.deserializeList
 import uk.ac.ebi.serialization.extensions.serializeList
 import uk.ac.ebi.serialization.serializers.EitherSerializer
-import java.io.File
+import java.io.InputStream
+import java.io.OutputStream
 import java.io.StringWriter
 import java.time.OffsetDateTime
 
 data class Properties(val includeFileListFiles: Boolean) : StringWriter()
 
 class ExtSerializationService {
+    fun serialize(sub: ExtSubmission, props: Properties = Properties(false)): String = serializeElement(sub, props)
+    fun serialize(files: Sequence<ExtFile>, stream: OutputStream) = mapper.serializeList(files, stream)
+    fun serialize(table: ExtFileTable): String = serializeElement(table)
 
-    fun serializeFileList(files: Sequence<ExtFile>, file: File) =
-        file.outputStream().use { mapper.serializeList(files, it) }
+    fun deserialize(stream: InputStream): Sequence<ExtFile> = mapper.deserializeList(stream)
+    fun deserialize(value: String): ExtSubmission = mapper.readValue(value)
+    fun deserializePage(value: String): ExtPage = mapper.readValue(value)
+    fun deserializeTable(value: String): ExtFileTable = mapper.readValue(value)
 
-    fun deserializeFileList(file: File): Sequence<ExtFile> = mapper.deserializeList(file.inputStream())
-
-    fun <T> serialize(element: T, properties: Properties = Properties(false)): String {
+    /**
+     * Serialize a generic element. ONLY for testing purpose.
+     */
+    internal fun <T> serializeElement(element: T, properties: Properties = Properties(false)): String {
         mapper.writerWithDefaultPrettyPrinter().writeValue(properties, element)
         return properties.buffer.toString()
     }
 
-    inline fun <reified T> deserialize(value: String): T = mapper.readValue(value)
-
-    fun <T> deserialize(value: String, type: Class<out T>): T = mapper.readValue(value, type)
-
     companion object {
-        val mapper = createMapper()
+        internal val mapper = createMapper()
 
         private fun createMapper(): ObjectMapper {
             val module = SimpleModule().apply {

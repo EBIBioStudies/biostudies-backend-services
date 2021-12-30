@@ -1,11 +1,11 @@
 package uk.ac.ebi.serialization.extensions
 
+import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.core.JsonToken
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.JavaType
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.convertValue
 import java.io.InputStream
 import java.io.OutputStream
 
@@ -21,18 +21,17 @@ fun <T : Any> ObjectMapper.serializeList(files: Sequence<T>, outputStream: Outpu
 
 inline fun <reified T : Any> ObjectMapper.deserializeList(inputStream: InputStream): Sequence<T> {
     val jsonParser = factory.createParser(inputStream)
-
-    if (jsonParser.nextToken() != JsonToken.START_ARRAY) {
-        throw IllegalStateException("Expected content to be an array")
-    }
-
-    return sequence {
-        while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
-            yield(readValue(jsonParser, T::class.java))
-        }
-        inputStream.close()
-    }
+    if (jsonParser.nextToken() != JsonToken.START_ARRAY) throw IllegalStateException("Expected content to be an array")
+    return asSequence(jsonParser)
 }
+
+inline fun <reified T : Any> ObjectMapper.asSequence(jsonParser: JsonParser): Sequence<T> =
+    object : Sequence<T> {
+        override fun iterator(): Iterator<T> = object : Iterator<T> {
+            override fun hasNext(): Boolean = jsonParser.nextToken() != JsonToken.END_ARRAY
+            override fun next(): T = readValue(jsonParser, T::class.java)
+        }
+    }
 
 /**
  * Try to convert the given node using the provided type, return an optional with conversion or emtpy if type could not
@@ -54,8 +53,6 @@ fun ObjectMapper.getListType(type: Class<*>) = typeFactory.constructCollectionTy
  */
 inline fun <reified T> ObjectMapper.convertList(node: JsonNode?) =
     if (node != null) convertValue(node, getListType(T::class.java)) else mutableListOf<T>()
-
-inline fun <reified T> ObjectMapper.convertNode(node: JsonNode?): T? = node?.let { convertValue(node) }
 
 inline fun <X, reified T : List<X>> ObjectMapper.convertList(node: JsonNode?, type: TypeReference<T>): MutableList<X> =
     node?.let { convertValue(it, type) }.orEmpty().toMutableList()

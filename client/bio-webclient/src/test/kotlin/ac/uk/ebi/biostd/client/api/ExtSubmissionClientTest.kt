@@ -1,8 +1,8 @@
 package ac.uk.ebi.biostd.client.api
 
-import ac.uk.ebi.biostd.client.dto.ExtPage
 import ac.uk.ebi.biostd.client.dto.ExtPageQuery
 import ebi.ac.uk.extended.model.ExtFileTable
+import ebi.ac.uk.extended.model.ExtPage
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.model.constants.FILE_LISTS
 import ebi.ac.uk.model.constants.FILE_MODE
@@ -50,11 +50,11 @@ class ExtSubmissionClientTest(
         val query = ExtPageQuery(limit = 2, offset = 1)
 
         every { restTemplate.getForEntity(expectedUrl, String::class.java) } returns response
-        every { extSerializationService.deserialize("ExtPage", ExtPage::class.java) } returns extPage
+        every { extSerializationService.deserializePage("ExtPage") } returns extPage
 
         testInstance.getExtSubmissions(query)
         verify(exactly = 1) { restTemplate.getForEntity(expectedUrl, String::class.java) }
-        verify(exactly = 1) { extSerializationService.deserialize("ExtPage", ExtPage::class.java) }
+        verify(exactly = 1) { extSerializationService.deserializePage("ExtPage") }
     }
 
     @Test
@@ -70,11 +70,11 @@ class ExtSubmissionClientTest(
         val expectedUrl = "$EXT_SUBMISSIONS_URL?offset=1&limit=2&fromRTime=$stringFrom&toRTime=$stringTo&released=true"
 
         every { restTemplate.getForEntity(expectedUrl, String::class.java) } returns response
-        every { extSerializationService.deserialize("ExtPage", ExtPage::class.java) } returns extPage
+        every { extSerializationService.deserializePage("ExtPage") } returns extPage
 
         testInstance.getExtSubmissions(query)
         verify(exactly = 1) { restTemplate.getForEntity(expectedUrl, String::class.java) }
-        verify(exactly = 1) { extSerializationService.deserialize("ExtPage", ExtPage::class.java) }
+        verify(exactly = 1) { extSerializationService.deserializePage("ExtPage") }
     }
 
     @Test
@@ -85,11 +85,11 @@ class ExtSubmissionClientTest(
         val response: ResponseEntity<String> = ResponseEntity("ExtPage", OK)
 
         every { restTemplate.getForEntity(pageUrl, String::class.java) } returns response
-        every { extSerializationService.deserialize("ExtPage", ExtPage::class.java) } returns extPage
+        every { extSerializationService.deserializePage("ExtPage") } returns extPage
 
         testInstance.getExtSubmissionsPage(pageUrl)
         verify(exactly = 1) { restTemplate.getForEntity(pageUrl, String::class.java) }
-        verify(exactly = 1) { extSerializationService.deserialize("ExtPage", ExtPage::class.java) }
+        verify(exactly = 1) { extSerializationService.deserializePage("ExtPage") }
     }
 
     @Test
@@ -99,11 +99,11 @@ class ExtSubmissionClientTest(
         val response: ResponseEntity<String> = ResponseEntity("ExtSubmission", OK)
 
         every { restTemplate.getForEntity("$EXT_SUBMISSIONS_URL/S-TEST123", String::class.java) } returns response
-        every { extSerializationService.deserialize("ExtSubmission", ExtSubmission::class.java) } returns extSubmission
+        every { extSerializationService.deserialize("ExtSubmission") } returns extSubmission
 
         testInstance.getExtByAccNo("S-TEST123")
         verify(exactly = 1) { restTemplate.getForEntity("$EXT_SUBMISSIONS_URL/S-TEST123", String::class.java) }
-        verify(exactly = 1) { extSerializationService.deserialize("ExtSubmission", ExtSubmission::class.java) }
+        verify(exactly = 1) { extSerializationService.deserialize("ExtSubmission") }
     }
 
     @Test
@@ -114,11 +114,11 @@ class ExtSubmissionClientTest(
         val response: ResponseEntity<String> = ResponseEntity("ExtFileTable", OK)
 
         every { restTemplate.getForEntity(filesUrl, String::class.java) } returns response
-        every { extSerializationService.deserialize("ExtFileTable", ExtFileTable::class.java) } returns extFileTable
+        every { extSerializationService.deserializeTable("ExtFileTable") } returns extFileTable
 
         testInstance.getReferencedFiles(filesUrl)
         verify(exactly = 1) { restTemplate.getForEntity(filesUrl, String::class.java) }
-        verify(exactly = 1) { extSerializationService.deserialize("ExtFileTable", ExtFileTable::class.java) }
+        verify(exactly = 1) { extSerializationService.deserializeTable("ExtFileTable") }
     }
 
     @Test
@@ -130,7 +130,7 @@ class ExtSubmissionClientTest(
         val response: ResponseEntity<String> = ResponseEntity("ExtSubmission", OK)
 
         every { extSerializationService.serialize(extSubmission) } returns "ExtSubmission"
-        every { extSerializationService.deserialize("ExtSubmission", ExtSubmission::class.java) } returns extSubmission
+        every { extSerializationService.deserialize("ExtSubmission") } returns extSubmission
         every { restTemplate.postForEntity(EXT_SUBMISSIONS_URL, capture(entity), String::class.java) } returns response
 
         testInstance.submitExt(extSubmission, listOf(fileList))
@@ -138,7 +138,7 @@ class ExtSubmissionClientTest(
         val captured = entity.captured
         assertHttpEntity(captured, fileList)
         verify(exactly = 1) { extSerializationService.serialize(extSubmission) }
-        verify(exactly = 1) { extSerializationService.deserialize("ExtSubmission", ExtSubmission::class.java) }
+        verify(exactly = 1) { extSerializationService.deserialize("ExtSubmission") }
         verify(exactly = 1) { restTemplate.postForEntity(EXT_SUBMISSIONS_URL, captured, String::class.java) }
     }
 
