@@ -31,5 +31,5 @@ class ExtSubmissionConverter(
     }
 
     override fun read(clazz: Class<out ExtSubmission>, message: HttpInputMessage): ExtSubmission =
-        extSerializationService.deserialize(message.body.asString(), ExtSubmission::class.java)
+        extSerializationService.deserialize(message.body.asString())
 }

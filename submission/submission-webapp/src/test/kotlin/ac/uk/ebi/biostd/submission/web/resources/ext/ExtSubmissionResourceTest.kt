@@ -8,7 +8,7 @@ import ac.uk.ebi.biostd.submission.converters.ExtPageSubmissionConverter
 import ac.uk.ebi.biostd.submission.converters.ExtSubmissionConverter
 import ac.uk.ebi.biostd.submission.domain.service.ExtSubmissionService
 import ac.uk.ebi.biostd.submission.domain.service.TempFileGenerator
-import ac.uk.ebi.biostd.submission.web.model.ExtPage
+import ebi.ac.uk.extended.model.WebExtPage
 import ac.uk.ebi.biostd.submission.web.model.ExtPageRequest
 import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
@@ -86,7 +86,7 @@ class ExtSubmissionResourceTest(
         every { tempFileGenerator.asFiles(capture(fileLists)) } returns emptyList()
         every { extSerializationService.serialize(extSubmission) } returns submissionJson
         every { extSubmissionService.submitExt(user.email, extSubmission) } returns extSubmission
-        every { extSerializationService.deserialize(submissionJson, ExtSubmission::class.java) } returns extSubmission
+        every { extSerializationService.deserialize(submissionJson) } returns extSubmission
 
         mvc.multipart("/submissions/extended") {
             content = submissionJson
@@ -101,7 +101,7 @@ class ExtSubmissionResourceTest(
             tempFileGenerator.asFiles(fileLists.captured)
             extSerializationService.serialize(extSubmission)
             extSubmissionService.submitExt(user.email, extSubmission)
-            extSerializationService.deserialize(submissionJson, ExtSubmission::class.java)
+            extSerializationService.deserialize(submissionJson)
         }
     }
 
@@ -114,7 +114,7 @@ class ExtSubmissionResourceTest(
         bioUserResolver.securityUser = user
         every { tempFileGenerator.asFiles(capture(fileLists)) } returns emptyList()
         every { extSubmissionService.submitExtAsync(user.email, extSubmission, fileMode = COPY) } answers { nothing }
-        every { extSerializationService.deserialize(submissionJson, ExtSubmission::class.java) } returns extSubmission
+        every { extSerializationService.deserialize(submissionJson) } returns extSubmission
 
         mvc.multipart("/submissions/extended/async") {
             content = submissionJson
@@ -127,7 +127,7 @@ class ExtSubmissionResourceTest(
         verify(exactly = 1) {
             tempFileGenerator.asFiles(fileLists.captured)
             extSubmissionService.submitExtAsync(user.email, extSubmission, fileMode = COPY)
-            extSerializationService.deserialize(submissionJson, ExtSubmission::class.java)
+            extSerializationService.deserialize(submissionJson)
         }
     }
 
@@ -179,7 +179,7 @@ class ExtSubmissionResourceTest(
         @MockK pageable: Page<ExtSubmission>
     ) {
         val extPageRequestSlot = slot<ExtPageRequest>()
-        val extPage = ExtPage(listOf(extSubmission), 1, 1, 0, null, null)
+        val webExtPage = WebExtPage(listOf(extSubmission), 1, 1, 0, null, null)
         val response = jsonObj {
             "content" to jsonArray(jsonObj { "accNo" to "S-TEST123" })
             "totalElements" to 1
@@ -187,8 +187,8 @@ class ExtSubmissionResourceTest(
             "offset" to 0
         }.toString()
 
-        every { extSerializationService.serialize(extPage) } returns response
-        every { extPageMapper.asExtPage(pageable, capture(extPageRequestSlot)) } returns extPage
+        every { extSerializationService.serialize(webExtPage) } returns response
+        every { extPageMapper.asExtPage(pageable, capture(extPageRequestSlot)) } returns webExtPage
         every { extSubmissionService.getExtendedSubmissions(capture(extPageRequestSlot)) } returns pageable
 
         mvc.get("/submissions/extended?limit=1&offset=0&fromRTime=2019-09-21T15:03:45Z&toRTime=2019-09-22T15:03:45Z")
@@ -200,7 +200,7 @@ class ExtSubmissionResourceTest(
         val extPageRequest = extPageRequestSlot.captured
         verifyExtPageRequest(extPageRequest)
         verify(exactly = 1) {
-            extSerializationService.serialize(extPage)
+            extSerializationService.serialize(webExtPage)
             extPageMapper.asExtPage(pageable, extPageRequest)
             extSubmissionService.getExtendedSubmissions(extPageRequest)
         }

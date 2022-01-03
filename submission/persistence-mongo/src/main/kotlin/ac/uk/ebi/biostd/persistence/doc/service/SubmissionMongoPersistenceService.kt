@@ -21,6 +21,8 @@ import uk.ac.ebi.extended.serialization.service.Properties
 import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.io.path.absolutePathString
+import kotlin.io.path.inputStream
+import kotlin.io.path.outputStream
 import kotlin.io.path.writeText
 import kotlin.math.absoluteValue
 
@@ -85,7 +87,7 @@ internal class SubmissionMongoPersistenceService(
         val folderPath = fileListPath.resolve(sub.accNo).resolve(sub.version.toString())
         val folder = Files.createDirectories(folderPath)
         val file = Files.createFile(folder.resolve(fileList.fileName))
-        file.writeText(serializationService.serialize(fileList))
+        file.outputStream().use { serializationService.serialize(fileList.files.asSequence(), it) }
         return RequestFileList(fileName = fileList.fileName, filePath = file.absolutePathString())
     }
 }

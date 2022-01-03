@@ -4,7 +4,7 @@ import ac.uk.ebi.biostd.files.web.common.FileListPath
 import ac.uk.ebi.biostd.submission.converters.BioUser
 import ac.uk.ebi.biostd.submission.domain.service.ExtSubmissionService
 import ac.uk.ebi.biostd.submission.domain.service.TempFileGenerator
-import ac.uk.ebi.biostd.submission.web.model.ExtPage
+import ebi.ac.uk.extended.model.WebExtPage
 import ac.uk.ebi.biostd.submission.web.model.ExtPageRequest
 import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.ExtSubmission
@@ -51,7 +51,7 @@ class ExtSubmissionResource(
         @RequestParam(SUBMISSION) extSubmission: String
     ): ExtSubmission = extSubmissionService.submitExt(
         user.email,
-        extSerializationService.deserialize(extSubmission, ExtSubmission::class.java),
+        extSerializationService.deserialize(extSubmission),
         fileLists?.let { tempFileGenerator.asFiles(it) } ?: emptyList(),
         fileMode ?: COPY
     )
@@ -65,12 +65,12 @@ class ExtSubmissionResource(
         @RequestParam(SUBMISSION) extSubmission: String
     ) = extSubmissionService.submitExtAsync(
         user.email,
-        extSerializationService.deserialize(extSubmission, ExtSubmission::class.java),
+        extSerializationService.deserialize(extSubmission),
         fileLists?.let { tempFileGenerator.asFiles(it) } ?: emptyList(),
         fileMode ?: COPY
     )
 
     @GetMapping
-    fun submissions(@ModelAttribute request: ExtPageRequest): ExtPage =
+    fun submissions(@ModelAttribute request: ExtPageRequest): WebExtPage =
         extPageMapper.asExtPage(extSubmissionService.getExtendedSubmissions(request), request)
 }

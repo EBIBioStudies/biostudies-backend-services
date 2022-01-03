@@ -76,7 +76,7 @@ class ExtSubmissionConverterTest(@MockK private val extSerializationService: Ext
         @MockK extSubmission: ExtSubmission
     ) {
         every { message.body } returns "submission".byteInputStream()
-        every { extSerializationService.deserialize("submission", ExtSubmission::class.java) } returns extSubmission
+        every { extSerializationService.deserialize("submission") } returns extSubmission
 
         val read = testInstance.read(ExtSubmission::class.java, message)
         assertThat(read).isEqualTo(extSubmission)

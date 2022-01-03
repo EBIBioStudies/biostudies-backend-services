@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.submission.web.resources.ext
 
-import ac.uk.ebi.biostd.submission.web.model.ExtPage
+import ebi.ac.uk.extended.model.WebExtPage
 import ac.uk.ebi.biostd.submission.web.model.ExtPageRequest
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.util.web.optionalQueryParam
@@ -10,8 +10,8 @@ import org.springframework.web.util.UriComponentsBuilder
 import java.net.URI
 
 class ExtendedPageMapper(private val instanceBase: URI) {
-    fun asExtPage(page: Page<ExtSubmission>, request: ExtPageRequest): ExtPage =
-        ExtPage(
+    fun asExtPage(page: Page<ExtSubmission>, request: ExtPageRequest): WebExtPage =
+        WebExtPage(
             content = page.content,
             totalElements = page.totalElements,
             offset = page.pageable.offset,

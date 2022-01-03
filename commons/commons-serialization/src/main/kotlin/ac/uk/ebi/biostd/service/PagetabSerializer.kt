@@ -10,6 +10,7 @@ import ac.uk.ebi.biostd.integration.SubFormat.XmlFormat
 import ac.uk.ebi.biostd.json.JsonSerializer
 import ac.uk.ebi.biostd.tsv.TsvSerializer
 import ac.uk.ebi.biostd.xml.XmlSerializer
+import ac.uk.ebi.biostd.xml.XmlStreamSerializer
 import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.util.file.ExcelReader
@@ -18,6 +19,7 @@ import java.io.File
 internal class PagetabSerializer(
     private val jsonSerializer: JsonSerializer = JsonSerializer(),
     private val xmlSerializer: XmlSerializer = XmlSerializer(),
+    private val xmlStreamSerializer: XmlStreamSerializer = XmlStreamSerializer(),
     private val tsvSerializer: TsvSerializer = TsvSerializer()
 ) {
     fun serializeSubmission(submission: Submission, format: SubFormat): String = when (format) {
@@ -35,7 +37,7 @@ internal class PagetabSerializer(
 
     fun serializeFileList(filesTable: FilesTable, format: SubFormat, file: File) {
         when (format) {
-            XmlFormat -> xmlSerializer.serializeFileList(filesTable.elements.asSequence(), file)
+            XmlFormat -> xmlStreamSerializer.serializeFileList(filesTable.elements.asSequence(), file)
             JsonPretty, PlainJson -> jsonSerializer.serializeFileList(filesTable.elements.asSequence(), file)
             is TsvFormat -> tsvSerializer.serializeFileList(filesTable.elements.asSequence(), file)
         }
@@ -43,7 +45,7 @@ internal class PagetabSerializer(
 
     fun deserializeFileList(file: File, format: SubFormat): FilesTable {
         return when (format) {
-            XmlFormat -> FilesTable(xmlSerializer.deserializeFileList(file).toList())
+            XmlFormat -> FilesTable(xmlStreamSerializer.deserializeFileList(file).toList())
             is JsonFormat -> FilesTable(jsonSerializer.deserializeFileList(file).toList())
             is XlsxTsv -> FilesTable(tsvSerializer.deserializeFileList(ExcelReader.readContentAsTsv(file)).toList())
             is TsvFormat -> FilesTable(tsvSerializer.deserializeFileList(file).toList())

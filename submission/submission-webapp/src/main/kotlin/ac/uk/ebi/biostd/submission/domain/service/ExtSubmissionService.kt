@@ -7,7 +7,9 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.exception.UserNotFoundException
 import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
 import ac.uk.ebi.biostd.submission.web.model.ExtPageRequest
+import ebi.ac.uk.dsl.file
 import ebi.ac.uk.extended.events.SubmissionRequestMessage
+import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSubmission
@@ -27,7 +29,6 @@ import java.io.File
 import java.time.OffsetDateTime
 
 private val logger = KotlinLogging.logger {}
-
 @Suppress("TooManyFunctions")
 class ExtSubmissionService(
     private val rabbitTemplate: RabbitTemplate,
@@ -112,8 +113,8 @@ class ExtSubmissionService(
         sections = section.sections.map { subSec -> subSec.bimap({ processFileListFiles(it, fileList) }, { it }) }
     )
 
-    private fun deserializeFiles(fileList: File) =
-        extSerializationService.deserialize(fileList.readText(), ExtFileTable::class.java).files
+    private fun deserializeFiles(fileList: File): List<ExtFile> =
+        fileList.inputStream().use { extSerializationService.deserialize(it).toList() }
 
     private fun validateSubmission(submission: ExtSubmission) {
         validateOwner(submission.owner)

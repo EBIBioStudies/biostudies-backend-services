@@ -14,6 +14,7 @@ class XmlSerializerITest(
     private val temporaryFolder: TemporaryFolder
 ) {
     private val testInstance = XmlSerializer()
+    private val xmlStreamSerializer = XmlStreamSerializer()
     private val submission = createVenousBloodMonocyte()
 
     @Test
@@ -31,9 +32,9 @@ class XmlSerializerITest(
         val files = (1..20000).map { File("folder$it/file.txt", size = it.toLong(), attributes = attributes(it)) }
         val iterator = files.iterator()
 
-        testInstance.serializeFileList(files.asSequence(), fileSystem)
+        xmlStreamSerializer.serializeFileList(files.asSequence(), fileSystem)
 
-        testInstance.deserializeFileList(fileSystem).forEach { file ->
+        xmlStreamSerializer.deserializeFileList(fileSystem).forEach { file ->
             assertThat(file).isEqualToComparingFieldByField(iterator.next())
         }
     }

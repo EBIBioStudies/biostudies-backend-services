@@ -68,14 +68,16 @@ class SubmissionMongoPersistenceServiceTest(
 
             every { subDataRepository.getCurrentVersion(ACC_NO) } returns 1
             every { serializationService.serialize(expectedNewVersion, Properties(false)) } returns serializedSub
-            every { serializationService.serialize(fileList) } returns fileListSerialized
+            val expectedFile = temporaryFolder.root.resolve(ACC_NO).resolve("2").resolve(fileList.fileName)
+            every {
+                serializationService.serialize(fileList.files.asSequence(), expectedFile.outputStream())
+            } answers { nothing }
             every { submissionRequestDocDataRepository.saveRequest(capture(subRequestSlot)) } returnsArgument 0
 
             val request = SubmissionRequest(newVersion.copy(version = 1), COPY, "draftKey")
             val result = testInstance.saveSubmissionRequest(request)
             assertThat(result).isEqualTo(ACC_NO to 2)
 
-            val expectedFile = temporaryFolder.root.resolve(ACC_NO).resolve("2").resolve(fileList.fileName)
             assertThat(expectedFile.readText()).isEqualTo(fileListSerialized)
 
             val saved = subRequestSlot.captured

@@ -17,6 +17,7 @@ import ebi.ac.uk.extended.model.ExtPage
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSectionTable
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.extended.model.WebExtPage
 import uk.ac.ebi.extended.serialization.deserializers.EitherExtTypeDeserializer
 import uk.ac.ebi.extended.serialization.deserializers.ExtFileDeserializer
 import uk.ac.ebi.extended.serialization.deserializers.ExtFileListDeserializer
@@ -47,6 +48,7 @@ class ExtSerializationService {
     fun serialize(sub: ExtSubmission, props: Properties = Properties(false)): String = serializeElement(sub, props)
     fun serialize(files: Sequence<ExtFile>, stream: OutputStream) = mapper.serializeList(files, stream)
     fun serialize(table: ExtFileTable): String = serializeElement(table)
+    fun serialize(extPage: WebExtPage): String = serializeElement(extPage)
 
     fun deserialize(stream: InputStream): Sequence<ExtFile> = mapper.deserializeList(stream)
     fun deserialize(value: String): ExtSubmission = mapper.readValue(value)
@@ -62,7 +64,7 @@ class ExtSerializationService {
     }
 
     companion object {
-        internal val mapper = createMapper()
+        val mapper = createMapper()
 
         private fun createMapper(): ObjectMapper {
             val module = SimpleModule().apply {
