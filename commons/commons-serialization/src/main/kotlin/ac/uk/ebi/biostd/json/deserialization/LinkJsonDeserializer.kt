@@ -8,7 +8,6 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer
 import com.fasterxml.jackson.databind.node.TextNode
 import ebi.ac.uk.model.Link
 import ebi.ac.uk.model.constants.LinkFields
-import uk.ac.ebi.serialization.extensions.convertList
 import uk.ac.ebi.serialization.extensions.findNode
 import uk.ac.ebi.serialization.extensions.getNode
 
@@ -19,7 +18,8 @@ internal class LinkJsonDeserializer : StdDeserializer<Link>(Link::class.java) {
 
         return Link(
             url = node.getNode<TextNode>(LinkFields.URL.value).textValue(),
-            attributes = mapper.convertList(node.findNode(LinkFields.ATTRIBUTES.value))
+            attributes = node.findNode<JsonNode>(LinkFields.ATTRIBUTES.value)
+                ?.let { mapper.convertValue(it, AttributesType) } ?: emptyList()
         )
     }
 }

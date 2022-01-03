@@ -9,7 +9,6 @@ import com.fasterxml.jackson.databind.node.TextNode
 import ebi.ac.uk.extended.model.ExtLink
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.ATTRIBUTES
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.URL
-import uk.ac.ebi.serialization.extensions.convertList
 import uk.ac.ebi.serialization.extensions.findNode
 import uk.ac.ebi.serialization.extensions.getNode
 
@@ -20,7 +19,8 @@ class ExtLinkDeserializer : JsonDeserializer<ExtLink>() {
 
         return ExtLink(
             url = node.getNode<TextNode>(URL).textValue(),
-            attributes = mapper.convertList(node.findNode(ATTRIBUTES))
+            attributes = node.findNode<JsonNode>(ATTRIBUTES)?.let { mapper.convertValue(it, AttributesType) }
+                ?: emptyList()
         )
     }
 }

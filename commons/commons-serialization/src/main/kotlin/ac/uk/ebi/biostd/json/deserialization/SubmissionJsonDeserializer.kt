@@ -11,7 +11,6 @@ import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.constants.SubFields
 import ebi.ac.uk.model.constants.SubFields.SECTION
-import uk.ac.ebi.serialization.extensions.convertList
 import uk.ac.ebi.serialization.extensions.findNode
 
 internal class SubmissionJsonDeserializer : StdDeserializer<Submission>(Submission::class.java) {
@@ -21,7 +20,8 @@ internal class SubmissionJsonDeserializer : StdDeserializer<Submission>(Submissi
 
         return Submission(
             accNo = node.findNode<TextNode>(SubFields.ACC_NO.value)?.textValue().orEmpty(),
-            attributes = mapper.convertList(node.findNode(SubFields.ATTRIBUTES.value)),
+            attributes = node.findNode<JsonNode>(SubFields.ATTRIBUTES.value)
+                ?.let { mapper.convertValue(it, AttributesType) } ?: emptyList(),
             section = node.findNode<JsonNode>(SECTION.value)?.let { mapper.convertValue<Section>(it) } ?: Section()
         )
     }

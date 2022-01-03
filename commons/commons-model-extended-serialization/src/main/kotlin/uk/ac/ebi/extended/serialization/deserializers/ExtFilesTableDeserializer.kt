@@ -7,7 +7,6 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import ebi.ac.uk.extended.model.ExtFileTable
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILES
-import uk.ac.ebi.serialization.extensions.convertList
 import uk.ac.ebi.serialization.extensions.findNode
 
 class ExtFilesTableDeserializer : JsonDeserializer<ExtFileTable>() {
@@ -15,6 +14,6 @@ class ExtFilesTableDeserializer : JsonDeserializer<ExtFileTable>() {
         val mapper = jsonParser.codec as ObjectMapper
         val node: JsonNode = mapper.readTree(jsonParser)
 
-        return ExtFileTable(mapper.convertList(node.findNode(FILES)))
+        return ExtFileTable(node.findNode<JsonNode>(FILES)?.let { mapper.convertValue(it, FilesType) } ?: emptyList())
     }
 }

@@ -36,26 +36,10 @@ inline fun <reified T : Any> ObjectMapper.asSequence(jsonParser: JsonParser): Se
 /**
  * Try to convert the given node using the provided type, return an optional with conversion or emtpy if type could not
  * be converter.
- *
  */
 fun ObjectMapper.tryConvertValue(node: JsonNode, type: JavaType): Any? {
     return runCatching<Any> { convertValue(node, type) }.getOrNull()
 }
-
-/**
- * Obtain the collection type for the given value.
- */
-fun ObjectMapper.getListType(type: Class<*>) = typeFactory.constructCollectionType(List::class.java, type)!!
-
-/**
- * Null safe list converter. Convert the node to the list type of values. If node is not found empty mutable list
- * is retrieved.
- */
-inline fun <reified T> ObjectMapper.convertList(node: JsonNode?) =
-    if (node != null) convertValue(node, getListType(T::class.java)) else mutableListOf<T>()
-
-inline fun <X, reified T : List<X>> ObjectMapper.convertList(node: JsonNode?, type: TypeReference<T>): MutableList<X> =
-    node?.let { convertValue(it, type) }.orEmpty().toMutableList()
 
 inline fun <reified T : Any> ObjectMapper.deserialize(json: String) = readValue(json, T::class.java)!!
 inline fun <reified T> ObjectMapper.serialize(value: T): String = writeValueAsString(value)

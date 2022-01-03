@@ -1,12 +1,14 @@
 package uk.ac.ebi.extended.serialization.deserializers
 
 import com.fasterxml.jackson.core.JsonParser
+import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.JsonDeserializer
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.IntNode
 import com.fasterxml.jackson.databind.node.TextNode
+import ebi.ac.uk.extended.model.ExtAttribute
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.FireDirectory
 import ebi.ac.uk.extended.model.FireFile
@@ -21,10 +23,11 @@ import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_RE
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_SIZE
 import uk.ac.ebi.extended.serialization.constants.ExtType
 import uk.ac.ebi.extended.serialization.exception.InvalidExtTypeException
-import uk.ac.ebi.serialization.extensions.convertList
 import uk.ac.ebi.serialization.extensions.findNode
 import uk.ac.ebi.serialization.extensions.getNode
 import java.nio.file.Paths
+
+internal object AttributesType : TypeReference<List<ExtAttribute>>()
 
 class ExtFileDeserializer : JsonDeserializer<ExtFile>() {
     override fun deserialize(jsonParser: JsonParser, ctxt: DeserializationContext): ExtFile {
@@ -45,7 +48,8 @@ class ExtFileDeserializer : JsonDeserializer<ExtFile>() {
             relPath = node.getNode<TextNode>(FILE_REL_PATH).textValue(),
             md5 = node.getNode<TextNode>(FILE_MD5).textValue(),
             size = node.getNode<IntNode>(FILE_SIZE).longValue(),
-            attributes = mapper.convertList(node.findNode(ATTRIBUTES))
+            attributes = node.findNode<JsonNode>(ATTRIBUTES)?.let { mapper.convertValue(it, AttributesType) }
+                ?: emptyList()
         )
     }
 
@@ -56,7 +60,8 @@ class ExtFileDeserializer : JsonDeserializer<ExtFile>() {
             fireId = node.getNode<TextNode>(FILE_FIRE_ID).textValue(),
             md5 = node.getNode<TextNode>(FILE_MD5).textValue(),
             size = node.getNode<IntNode>(FILE_SIZE).longValue(),
-            attributes = mapper.convertList(node.findNode(ATTRIBUTES))
+            attributes = node.findNode<JsonNode>(ATTRIBUTES)?.let { mapper.convertValue(it, AttributesType) }
+                ?: emptyList()
         )
     }
 
@@ -72,7 +77,8 @@ class ExtFileDeserializer : JsonDeserializer<ExtFile>() {
             file = file,
             md5 = node.getNode<TextNode>(FILE_MD5).textValue(),
             size = node.getNode<IntNode>(FILE_SIZE).longValue(),
-            attributes = mapper.convertList(node.findNode(ATTRIBUTES))
+            attributes = node.findNode<JsonNode>(ATTRIBUTES)?.let { mapper.convertValue(it, AttributesType) }
+                ?: emptyList()
         )
     }
 }

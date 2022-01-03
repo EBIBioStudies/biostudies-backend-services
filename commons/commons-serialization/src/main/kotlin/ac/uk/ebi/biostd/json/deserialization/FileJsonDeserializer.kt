@@ -8,7 +8,6 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer
 import com.fasterxml.jackson.databind.node.TextNode
 import ebi.ac.uk.model.File
 import ebi.ac.uk.model.constants.FileFields
-import uk.ac.ebi.serialization.extensions.convertList
 import uk.ac.ebi.serialization.extensions.findNode
 import uk.ac.ebi.serialization.extensions.getNode
 
@@ -19,7 +18,8 @@ internal class FileJsonDeserializer : StdDeserializer<File>(File::class.java) {
 
         return File(
             path = node.getNode<TextNode>(FileFields.PATH.value).textValue(),
-            attributes = mapper.convertList(node.findNode(FileFields.ATTRIBUTES.value))
+            attributes = node.findNode<JsonNode>(FileFields.ATTRIBUTES.value)
+                ?.let { mapper.convertValue(it, AttributesType) } ?: emptyList()
         )
     }
 }

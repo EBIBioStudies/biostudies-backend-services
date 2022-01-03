@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer
 import com.fasterxml.jackson.databind.node.TextNode
+import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.File
 import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.model.Link
@@ -15,9 +16,9 @@ import ebi.ac.uk.model.LinksTable
 import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.SectionsTable
 import ebi.ac.uk.model.constants.SectionFields
-import uk.ac.ebi.serialization.extensions.convertList
 import uk.ac.ebi.serialization.extensions.findNode
 
+internal object AttributesType : TypeReference<List<Attribute>>()
 internal object SectionsType : TypeReference<MutableList<Either<Section, SectionsTable>>>()
 internal object LinksType : TypeReference<MutableList<Either<Link, LinksTable>>>()
 internal object FileType : TypeReference<MutableList<Either<File, FilesTable>>>()
@@ -31,10 +32,14 @@ internal class SectionJsonDeserializer : StdDeserializer<Section>(Section::class
         return Section(
             accNo = node.findNode<TextNode>(SectionFields.ACC_NO.value)?.textValue(),
             type = node.findNode<TextNode>(SectionFields.TYPE.value)?.textValue().orEmpty(),
-            attributes = mapper.convertList(node.findNode(SectionFields.ATTRIBUTES.value)),
-            links = mapper.convertList(node.findNode(SectionFields.LINKS.value), LinksType),
-            files = mapper.convertList(node.findNode(SectionFields.FILES.value), FileType),
-            sections = mapper.convertList(node.findNode(SectionFields.SUBSECTIONS.value), SectionsType)
+            attributes = node.findNode<JsonNode>(SectionFields.ATTRIBUTES.value)
+                ?.let { mapper.convertValue(it, AttributesType) } ?: emptyList(),
+            links = node.findNode<JsonNode>(SectionFields.LINKS.value)
+                ?.let { mapper.convertValue(it, LinksType) } ?: mutableListOf(),
+            files = node.findNode<JsonNode>(SectionFields.FILES.value)
+                ?.let { mapper.convertValue(it, FileType) } ?: mutableListOf(),
+            sections = node.findNode<JsonNode>(SectionFields.SUBSECTIONS.value)
+                ?.let { mapper.convertValue(it, SectionsType) } ?: mutableListOf()
         )
     }
 }
