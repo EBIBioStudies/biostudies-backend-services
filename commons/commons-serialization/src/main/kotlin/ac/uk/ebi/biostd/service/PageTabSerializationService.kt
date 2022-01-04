@@ -29,7 +29,7 @@ internal class PageTabSerializationService(
         fileListSerializer.deserializeFileList(deserializeSubmission(file), source)
 
     override fun serializeFileList(table: FilesTable, format: SubFormat, file: File): File {
-        serializer.serializeFileList(table, format, file)
+        file.outputStream().use { serializer.serializeFileList(table, format, it) }
         return file
     }
 

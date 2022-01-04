@@ -2,18 +2,21 @@ package ac.uk.ebi.biostd.xml
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import ebi.ac.uk.model.File
+import java.io.InputStream
+import java.io.OutputStream
 import javax.xml.stream.XMLInputFactory
 import javax.xml.stream.XMLOutputFactory
 import javax.xml.stream.XMLStreamConstants.CHARACTERS
+import javax.xml.stream.XMLStreamConstants.COMMENT
 import javax.xml.stream.XMLStreamConstants.END_DOCUMENT
 import javax.xml.stream.XMLStreamConstants.END_ELEMENT
+import javax.xml.stream.XMLStreamConstants.SPACE
 import javax.xml.stream.XMLStreamConstants.START_DOCUMENT
 import javax.xml.stream.XMLStreamConstants.START_ELEMENT
 import javax.xml.stream.XMLStreamReader
 
 class XmlStreamSerializer {
-    fun deserializeFileList(file: java.io.File): Sequence<File> {
-        val inputStream = file.inputStream()
+    fun deserializeFileList(inputStream: InputStream): Sequence<File> {
         val reader = XMLInputFactory.newFactory().createXMLStreamReader(inputStream)
 
         reader.requireEvent(START_DOCUMENT) { "expecting xml document start" }
@@ -27,12 +30,10 @@ class XmlStreamSerializer {
 
             reader.requireEvent(END_ELEMENT, "table") { "expected </table>" }
             reader.requireEvent(END_DOCUMENT) { "expecting xml document end" }
-            inputStream.close()
         }
     }
 
-    fun serializeFileList(fileList: Sequence<File>, file: java.io.File) {
-        val outputStream = file.outputStream()
+    fun serializeFileList(fileList: Sequence<File>, outputStream: OutputStream) {
         val streamWriter = XMLOutputFactory.newFactory().createXMLStreamWriter(outputStream)
 
         streamWriter.writeStartDocument()
@@ -40,20 +41,20 @@ class XmlStreamSerializer {
         fileList.forEach { XmlSerializer.mapper.writeValue(streamWriter, it) }
         streamWriter.writeEndElement()
         streamWriter.writeEndDocument()
-
-        outputStream.close()
     }
 
-    private fun XMLStreamReader.isIgnorable() = eventType == CHARACTERS || eventType == START_DOCUMENT
+    private fun XMLStreamReader.isIgnorable() = eventType == CHARACTERS || eventType == SPACE || eventType == COMMENT
 
     private fun XMLStreamReader.requireEvent(type: Int, message: () -> String) {
         while (hasNext() && isIgnorable()) next()
         require(eventType == type, message)
+        if (hasNext()) next()
     }
 
     private fun XMLStreamReader.requireEvent(type: Int, name: String, message: () -> String) {
         while (hasNext() && isIgnorable()) next()
         require(eventType == type && localName == name, message)
+        if (hasNext()) next()
     }
 
     private inline fun <reified T : Any> ObjectMapper.readStreamValue(reader: XMLStreamReader): T {
@@ -62,5 +63,3 @@ class XmlStreamSerializer {
         return result
     }
 }
-
-

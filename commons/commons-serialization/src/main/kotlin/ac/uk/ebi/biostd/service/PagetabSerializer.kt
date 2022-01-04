@@ -13,8 +13,9 @@ import ac.uk.ebi.biostd.xml.XmlSerializer
 import ac.uk.ebi.biostd.xml.XmlStreamSerializer
 import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.model.Submission
-import ebi.ac.uk.util.file.ExcelReader
-import java.io.File
+import ebi.ac.uk.util.file.ExcelReader.readContentAsTsv
+import java.io.InputStream
+import java.io.OutputStream
 
 internal class PagetabSerializer(
     private val jsonSerializer: JsonSerializer = JsonSerializer(),
@@ -35,20 +36,22 @@ internal class PagetabSerializer(
         is TsvFormat -> tsvSerializer.deserializeSubmission(submission)
     }
 
-    fun serializeFileList(filesTable: FilesTable, format: SubFormat, file: File) {
+    fun serializeFileList(filesTable: FilesTable, format: SubFormat, outputStream: OutputStream) {
         when (format) {
-            XmlFormat -> xmlStreamSerializer.serializeFileList(filesTable.elements.asSequence(), file)
-            JsonPretty, PlainJson -> jsonSerializer.serializeFileList(filesTable.elements.asSequence(), file)
-            is TsvFormat -> tsvSerializer.serializeFileList(filesTable.elements.asSequence(), file)
+            XmlFormat -> xmlStreamSerializer.serializeFileList(filesTable.elements.asSequence(), outputStream)
+            JsonPretty, PlainJson -> jsonSerializer.serializeFileList(filesTable.elements.asSequence(), outputStream)
+            is TsvFormat -> tsvSerializer.serializeFileList(filesTable.elements.asSequence(), outputStream)
         }
     }
 
-    fun deserializeFileList(file: File, format: SubFormat): FilesTable {
+    fun deserializeFileList(inputStream: InputStream, format: SubFormat): FilesTable {
         return when (format) {
-            XmlFormat -> FilesTable(xmlStreamSerializer.deserializeFileList(file).toList())
-            is JsonFormat -> FilesTable(jsonSerializer.deserializeFileList(file).toList())
-            is XlsxTsv -> FilesTable(tsvSerializer.deserializeFileList(ExcelReader.readContentAsTsv(file)).toList())
-            is TsvFormat -> FilesTable(tsvSerializer.deserializeFileList(file).toList())
+            XmlFormat -> FilesTable(xmlStreamSerializer.deserializeFileList(inputStream).toList())
+            is JsonFormat -> FilesTable(jsonSerializer.deserializeFileList(inputStream).toList())
+            is XlsxTsv -> FilesTable(
+                readContentAsTsv(inputStream).use { tsvSerializer.deserializeFileList(it).toList() }
+            )
+            is TsvFormat -> FilesTable(tsvSerializer.deserializeFileList(inputStream).toList())
         }
     }
 }

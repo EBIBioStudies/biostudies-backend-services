@@ -48,7 +48,6 @@ import javax.xml.parsers.DocumentBuilderFactory
 
 internal class XmlSerializer {
 
-
     fun <T> serialize(element: T): String = mapper.writeValueAsString(element)
 
     fun deserialize(value: String): Submission = deserialize(value, Submission::class.java)

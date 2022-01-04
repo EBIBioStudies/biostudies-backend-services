@@ -30,13 +30,15 @@ class JsonSerializerTest(
     fun `serialize - deserialize FileList`() {
         val jsonSerializer = JsonSerializer()
         val fileSystem = temporaryFolder.createFile("serialization.json")
-        val files = (1..20000).map { File("folder$it/file.txt", size = 0L, attributes = attributes(it)) }
+        val files = (1..20_000).map { File("folder$it/file.txt", size = 0L, attributes = attributes(it)) }
         val iterator = files.iterator()
 
-        jsonSerializer.serializeFileList(files.asSequence(), fileSystem)
+        fileSystem.outputStream().use { jsonSerializer.serializeFileList(files.asSequence(), it) }
 
-        jsonSerializer.deserializeFileList(fileSystem).forEach { file ->
-            assertThat(file).isEqualToComparingFieldByField(iterator.next())
+        fileSystem.inputStream().use {
+            jsonSerializer.deserializeFileList(it).forEach { file ->
+                assertThat(file).isEqualToComparingFieldByField(iterator.next())
+            }
         }
     }
 

@@ -42,7 +42,7 @@ internal class FileListSerializer(
 
     private fun getFilesTable(file: File): FilesTable =
         runCatching {
-            serializer.deserializeFileList(file, SubFormat.fromFile(file))
+            file.inputStream().use { serializer.deserializeFileList(it, SubFormat.fromFile(file)) }
         }.getOrElse {
             throw InvalidFileListException("Problem processing file list '${file.name}': ${errorMsg(it)}")
         }

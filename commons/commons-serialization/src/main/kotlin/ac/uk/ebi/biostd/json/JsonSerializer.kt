@@ -36,6 +36,8 @@ import uk.ac.ebi.serialization.deserializers.EitherDeserializer
 import uk.ac.ebi.serialization.extensions.deserializeList
 import uk.ac.ebi.serialization.extensions.serializeList
 import uk.ac.ebi.serialization.serializers.EitherSerializer
+import java.io.InputStream
+import java.io.OutputStream
 
 internal class JsonSerializer {
     fun <T> serialize(element: T, pretty: Boolean = false): String {
@@ -43,10 +45,10 @@ internal class JsonSerializer {
         else mapper.writeValueAsString(element)
     }
 
-    fun serializeFileList(fileList: Sequence<File>, file: java.io.File) =
-        file.outputStream().use { mapper.serializeList(fileList, it) }
+    fun serializeFileList(fileList: Sequence<File>, outputStream: OutputStream) =
+        mapper.serializeList(fileList, outputStream)
 
-    fun deserializeFileList(file: java.io.File): Sequence<File> = mapper.deserializeList(file.inputStream())
+    fun deserializeFileList(inputStream: InputStream): Sequence<File> = mapper.deserializeList(inputStream)
 
     inline fun <reified T> deserialize(value: String) = mapper.readValue<T>(value)
 

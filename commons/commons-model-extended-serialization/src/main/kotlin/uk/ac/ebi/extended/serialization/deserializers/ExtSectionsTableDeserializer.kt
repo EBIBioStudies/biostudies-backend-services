@@ -18,7 +18,8 @@ class ExtSectionsTableDeserializer : JsonDeserializer<ExtSectionTable>() {
         val mapper = jsonParser.codec as ObjectMapper
         val node: JsonNode = mapper.readTree(jsonParser)
 
-        return ExtSectionTable(node.findNode<JsonNode>(SECTIONS)?.let { mapper.convertValue(it, SectionsType) }
-            ?: emptyList())
+        return ExtSectionTable(
+            node.findNode<JsonNode>(SECTIONS)?.let { mapper.convertValue(it, SectionsType) } ?: emptyList()
+        )
     }
 }

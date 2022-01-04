@@ -35,7 +35,7 @@ class FileListTsvStreamDeserializerTest(temporaryFolder: TemporaryFolder) {
 
     @Test
     fun deserialize() {
-        val files = testInstance.deserializeFileList(tsvFile).toList()
+        val files = tsvFile.inputStream().use { testInstance.deserializeFileList(it).toList() }
 
         assertThat(files).hasSize(2)
 
@@ -49,15 +49,17 @@ class FileListTsvStreamDeserializerTest(temporaryFolder: TemporaryFolder) {
 
     @Test
     fun `serialize - deserialize FileList`() {
-        val files = (1..20000).map {
+        val files = (1..20_000).map {
             File("folder/file$it.txt", attributes = listOf(Attribute("Attr1", "A$it"), Attribute("Attr2", "B$it")))
         }.asSequence()
         val iterator = files.iterator()
 
-        testInstance.serializeFileList(files, fileSystem)
+        fileSystem.outputStream().use { testInstance.serializeFileList(files, it) }
 
-        testInstance.deserializeFileList(fileSystem).forEach { file ->
-            assertThat(file).isEqualToComparingFieldByField(iterator.next())
+        fileSystem.inputStream().use {
+            testInstance.deserializeFileList(it).forEach { file ->
+                assertThat(file).isEqualToComparingFieldByField(iterator.next())
+            }
         }
     }
 }

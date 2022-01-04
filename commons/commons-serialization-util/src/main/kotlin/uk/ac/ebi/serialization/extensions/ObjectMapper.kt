@@ -2,7 +2,6 @@ package uk.ac.ebi.serialization.extensions
 
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.core.JsonToken
-import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.JavaType
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -29,7 +28,10 @@ inline fun <reified T : Any> ObjectMapper.asSequence(jsonParser: JsonParser): Se
     object : Sequence<T> {
         override fun iterator(): Iterator<T> = object : Iterator<T> {
             override fun hasNext(): Boolean = jsonParser.nextToken() != JsonToken.END_ARRAY
-            override fun next(): T = readValue(jsonParser, T::class.java)
+            override fun next(): T {
+                if (!hasNext()) throw NoSuchElementException()
+                return readValue(jsonParser, T::class.java)
+            }
         }
     }
 

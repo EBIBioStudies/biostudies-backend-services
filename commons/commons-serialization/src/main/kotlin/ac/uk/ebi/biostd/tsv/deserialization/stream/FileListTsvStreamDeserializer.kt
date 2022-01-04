@@ -6,19 +6,20 @@ import ac.uk.ebi.biostd.validation.InvalidElementException
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.util.collections.destructure
 import java.io.BufferedWriter
-import java.io.File
+import java.io.InputStream
+import java.io.OutputStream
 
 typealias PageTabFile = ebi.ac.uk.model.File
 
 internal class FileListTsvStreamDeserializer {
-    fun serializeFileList(files: Sequence<PageTabFile>, fileList: File) {
+    fun serializeFileList(files: Sequence<PageTabFile>, fileList: OutputStream) {
         val writer = fileList.bufferedWriter()
         writeHeaderNames(files.first(), writer)
         files.forEach { file -> writeAttributesValues(file, writer) }
         writer.close()
     }
 
-    fun deserializeFileList(fileList: File): Sequence<PageTabFile> {
+    fun deserializeFileList(fileList: InputStream): Sequence<PageTabFile> {
         val reader = fileList.bufferedReader()
         val (files, headers) = reader.readLine().split(TAB).destructure()
         if (files != "Files") throw InvalidElementException("first header value should be 'Files'")

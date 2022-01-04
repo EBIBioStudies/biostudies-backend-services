@@ -6,4 +6,3 @@ data class ExtPage(
     val next: String?,
     val previous: String?
 )
-

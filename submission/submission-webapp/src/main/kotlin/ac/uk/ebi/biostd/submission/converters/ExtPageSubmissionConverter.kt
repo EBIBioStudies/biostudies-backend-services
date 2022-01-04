@@ -13,7 +13,8 @@ class ExtPageSubmissionConverter(
 ) : HttpMessageConverter<WebExtPage> {
     override fun canRead(clazz: Class<*>, mediaType: MediaType): Boolean = false
 
-    override fun canWrite(clazz: Class<*>, mediaType: MediaType?): Boolean = WebExtPage::class.isSuperclassOf(clazz.kotlin)
+    override fun canWrite(clazz: Class<*>, mediaType: MediaType?): Boolean =
+        WebExtPage::class.isSuperclassOf(clazz.kotlin)
 
     override fun getSupportedMediaTypes(): List<MediaType> = listOf(MediaType.APPLICATION_JSON)
 
