@@ -17,7 +17,7 @@ internal class XmlStreamSerializerTest(
     @Test
     fun `serialize - deserialize FileList`() {
         val fileSystem = temporaryFolder.createFile("serialization.xml")
-        val files = (1..20000).map { File("folder$it/file.txt", size = it.toLong(), attributes = attributes(it)) }
+        val files = (1..20_000).map { File("folder$it/file.txt", attributes = attributes(it)) }
         val iterator = files.iterator()
 
         fileSystem.outputStream().use { testInstance.serializeFileList(files.asSequence(), it) }

@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.xml
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.dataformat.xml.XmlMapper
 import ebi.ac.uk.model.File
 import java.io.InputStream
 import java.io.OutputStream
@@ -21,6 +21,7 @@ class XmlStreamSerializer {
 
         reader.requireEvent(START_DOCUMENT) { "expecting xml document start" }
         reader.requireEvent(START_ELEMENT, "table") { "expected <table>" }
+        while (reader.hasNext() && reader.isIgnorable()) reader.next()
 
         return sequence {
             while (reader.eventType == START_ELEMENT && reader.localName == "file") {
@@ -43,7 +44,7 @@ class XmlStreamSerializer {
         streamWriter.writeEndDocument()
     }
 
-    private fun XMLStreamReader.isIgnorable() = eventType == CHARACTERS || eventType == SPACE || eventType == COMMENT
+    private fun XMLStreamReader.isIgnorable() = eventType in setOf(CHARACTERS, SPACE, COMMENT)
 
     private fun XMLStreamReader.requireEvent(type: Int, message: () -> String) {
         while (hasNext() && isIgnorable()) next()
@@ -57,8 +58,8 @@ class XmlStreamSerializer {
         if (hasNext()) next()
     }
 
-    private inline fun <reified T : Any> ObjectMapper.readStreamValue(reader: XMLStreamReader): T {
-        val result = XmlSerializer.mapper.readValue(reader, T::class.java)
+    private inline fun <reified T : Any> XmlMapper.readStreamValue(reader: XMLStreamReader): T {
+        val result = readValue(reader, T::class.java)
         reader.next()
         return result
     }

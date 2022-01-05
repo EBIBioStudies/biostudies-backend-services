@@ -38,10 +38,20 @@ private fun SerializationService.saveTabFiles(
 ): PageTabFiles {
     val filename = fileList.filePath
     val files = fileList.toFilesTable()
+
+    val json = folder.resolve("$filename.json")
+    val xml = folder.resolve("$filename.xml")
+    val tsv = folder.resolve("$filename.pagetab.tsv")
+
+    folder.resolve(filename).parentFile.mkdirs()
+    json.createNewFile()
+    xml.createNewFile()
+    tsv.createNewFile()
+
     return PageTabFiles(
-        json = serializeFileList(files, JSON_PRETTY, folder.resolve("$filename.json")),
-        xml = serializeFileList(files, XML, folder.resolve("$filename.xml")),
-        tsv = serializeFileList(files, TSV, folder.resolve("$filename.pagetab.tsv"))
+        json = serializeFileList(files, JSON_PRETTY, json),
+        xml = serializeFileList(files, XML, xml),
+        tsv = serializeFileList(files, TSV, tsv)
     )
 }
 

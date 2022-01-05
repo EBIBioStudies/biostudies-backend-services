@@ -115,8 +115,7 @@ class FileXmlStreamDeserializer : StdDeserializer<File>(File::class.java) {
         val node = p.readValueAsTree<TreeNode>()
 
         return File(
-            path = (node.get(FileFields.PATH.value) as TextNode).textValue(),
-            size = (node.get(FileFields.SIZE.value) as TextNode).textValue().toLong(),
+            path = (node.get(FileFields.PATH.value) as TextNode).textValue().trim(),
             attributes = mapper.convertValue(
                 node.getArrayAttribute("attributes", "attribute"),
                 Array<Attribute>::class.java
@@ -129,8 +128,8 @@ class AttributeXmlStreamDeserializer : StdDeserializer<Attribute>(Attribute::cla
     override fun deserialize(p: JsonParser, ctxt: DeserializationContext): Attribute {
         val node = p.readValueAsTree<TreeNode>()
         return Attribute(
-            name = (node.get(AttributeFields.NAME.value) as TextNode).textValue(),
-            value = (node.get(AttributeFields.VALUE.value) as TextNode).textValue()
+            name = (node.get(AttributeFields.NAME.value) as TextNode).textValue().trim(),
+            value = (node.get(AttributeFields.VALUE.value) as TextNode).textValue().trim()
         )
     }
 }
