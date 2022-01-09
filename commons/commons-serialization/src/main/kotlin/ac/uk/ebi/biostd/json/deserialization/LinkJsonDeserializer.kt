@@ -10,7 +10,6 @@ import ebi.ac.uk.model.Link
 import ebi.ac.uk.model.constants.ATTRIBUTES
 import ebi.ac.uk.model.constants.LinkFields
 import uk.ac.ebi.serialization.extensions.convertOrDefault
-import uk.ac.ebi.serialization.extensions.findNode
 import uk.ac.ebi.serialization.extensions.getNode
 
 internal class LinkJsonDeserializer : StdDeserializer<Link>(Link::class.java) {
@@ -20,7 +19,7 @@ internal class LinkJsonDeserializer : StdDeserializer<Link>(Link::class.java) {
 
         return Link(
             url = node.getNode<TextNode>(LinkFields.URL.value).textValue(),
-            attributes = mapper.convertOrDefault(node.findNode(ATTRIBUTES)) { emptyList() }
+            attributes = mapper.convertOrDefault(node, ATTRIBUTES) { emptyList() }
         )
     }
 }

@@ -25,10 +25,10 @@ internal class SectionJsonDeserializer : StdDeserializer<Section>(Section::class
         return Section(
             accNo = node.findNode<TextNode>(ACC_NO.value)?.textValue(),
             type = node.findNode<TextNode>(TYPE.value)?.textValue().orEmpty(),
-            attributes = mapper.convertOrDefault(node.findNode(ATTRIBUTES.value)) { emptyList() },
-            links = mapper.convertOrDefault(node.findNode(LINKS.value)) { mutableListOf() },
-            files = mapper.convertOrDefault(node.findNode(FILES.value)) { mutableListOf() },
-            sections = mapper.convertOrDefault(node.findNode(SUBSECTIONS.value)) { mutableListOf() }
+            attributes = mapper.convertOrDefault(node, ATTRIBUTES.value) { emptyList() },
+            links = mapper.convertOrDefault(node, LINKS.value) { mutableListOf() },
+            files = mapper.convertOrDefault(node, FILES.value) { mutableListOf() },
+            sections = mapper.convertOrDefault(node, SUBSECTIONS.value) { mutableListOf() }
         )
     }
 }

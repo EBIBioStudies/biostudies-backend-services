@@ -10,7 +10,6 @@ import ebi.ac.uk.model.File
 import ebi.ac.uk.model.constants.FileFields.ATTRIBUTES
 import ebi.ac.uk.model.constants.FileFields.PATH
 import uk.ac.ebi.serialization.extensions.convertOrDefault
-import uk.ac.ebi.serialization.extensions.findNode
 import uk.ac.ebi.serialization.extensions.getNode
 
 internal class FileJsonDeserializer : StdDeserializer<File>(File::class.java) {
@@ -20,7 +19,7 @@ internal class FileJsonDeserializer : StdDeserializer<File>(File::class.java) {
 
         return File(
             path = node.getNode<TextNode>(PATH.value).textValue(),
-            attributes = mapper.convertOrDefault(node.findNode(ATTRIBUTES.value)) { emptyList() }
+            attributes = mapper.convertOrDefault(node, ATTRIBUTES.value) { emptyList() }
         )
     }
 }

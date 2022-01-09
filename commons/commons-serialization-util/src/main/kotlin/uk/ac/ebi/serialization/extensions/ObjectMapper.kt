@@ -19,12 +19,11 @@ fun <T : Any> ObjectMapper.serializeList(files: Sequence<T>, outputStream: Outpu
     }
 }
 
-inline fun <reified T> ObjectMapper.convertOrDefault(node: JsonNode?, default: () -> T): T {
-    return when (node) {
+inline fun <reified T> ObjectMapper.convertOrDefault(node: JsonNode, property: String, default: () -> T): T =
+    when (val propertyNode: JsonNode? = node.findNode(property)) {
         null -> default()
-        else -> convertValue(node)
+        else -> convertValue(propertyNode)
     }
-}
 
 inline fun <reified T : Any> ObjectMapper.deserializeList(inputStream: InputStream): Sequence<T> {
     val jsonParser = factory.createParser(inputStream)
