@@ -48,8 +48,7 @@ class ExtFileDeserializer : JsonDeserializer<ExtFile>() {
             relPath = node.getNode<TextNode>(FILE_REL_PATH).textValue(),
             md5 = node.getNode<TextNode>(FILE_MD5).textValue(),
             size = node.getNode<IntNode>(FILE_SIZE).longValue(),
-            attributes = node.findNode<JsonNode>(ATTRIBUTES)?.let { mapper.convertValue(it, AttributesType) }
-                ?: emptyList()
+            attributes = node.findNode<JsonNode>(ATTRIBUTES)?.let { mapper.convertValue(it, AttributesType) }.orEmpty()
         )
     }
 
@@ -60,8 +59,7 @@ class ExtFileDeserializer : JsonDeserializer<ExtFile>() {
             fireId = node.getNode<TextNode>(FILE_FIRE_ID).textValue(),
             md5 = node.getNode<TextNode>(FILE_MD5).textValue(),
             size = node.getNode<IntNode>(FILE_SIZE).longValue(),
-            attributes = node.findNode<JsonNode>(ATTRIBUTES)?.let { mapper.convertValue(it, AttributesType) }
-                ?: emptyList()
+            attributes = node.findNode<JsonNode>(ATTRIBUTES)?.let { mapper.convertValue(it, AttributesType) }.orEmpty()
         )
     }
 
@@ -77,8 +75,7 @@ class ExtFileDeserializer : JsonDeserializer<ExtFile>() {
             file = file,
             md5 = node.getNode<TextNode>(FILE_MD5).textValue(),
             size = node.getNode<IntNode>(FILE_SIZE).longValue(),
-            attributes = node.findNode<JsonNode>(ATTRIBUTES)?.let { mapper.convertValue(it, AttributesType) }
-                ?: emptyList()
+            attributes = node.findNode<JsonNode>(ATTRIBUTES)?.let { mapper.convertValue(it, AttributesType) }.orEmpty()
         )
     }
 }

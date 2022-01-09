@@ -1,27 +1,20 @@
 package ac.uk.ebi.biostd.json.deserialization
 
-import arrow.core.Either
 import com.fasterxml.jackson.core.JsonParser
-import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer
 import com.fasterxml.jackson.databind.node.TextNode
-import ebi.ac.uk.model.Attribute
-import ebi.ac.uk.model.File
-import ebi.ac.uk.model.FilesTable
-import ebi.ac.uk.model.Link
-import ebi.ac.uk.model.LinksTable
 import ebi.ac.uk.model.Section
-import ebi.ac.uk.model.SectionsTable
-import ebi.ac.uk.model.constants.SectionFields
+import ebi.ac.uk.model.constants.SectionFields.ACC_NO
+import ebi.ac.uk.model.constants.SectionFields.ATTRIBUTES
+import ebi.ac.uk.model.constants.SectionFields.FILES
+import ebi.ac.uk.model.constants.SectionFields.LINKS
+import ebi.ac.uk.model.constants.SectionFields.SUBSECTIONS
+import ebi.ac.uk.model.constants.SectionFields.TYPE
+import uk.ac.ebi.serialization.extensions.convertOrDefault
 import uk.ac.ebi.serialization.extensions.findNode
-
-internal object AttributesType : TypeReference<List<Attribute>>()
-internal object SectionsType : TypeReference<MutableList<Either<Section, SectionsTable>>>()
-internal object LinksType : TypeReference<MutableList<Either<Link, LinksTable>>>()
-internal object FileType : TypeReference<MutableList<Either<File, FilesTable>>>()
 
 internal class SectionJsonDeserializer : StdDeserializer<Section>(Section::class.java) {
 
@@ -30,16 +23,12 @@ internal class SectionJsonDeserializer : StdDeserializer<Section>(Section::class
         val node: JsonNode = mapper.readTree(jp)
 
         return Section(
-            accNo = node.findNode<TextNode>(SectionFields.ACC_NO.value)?.textValue(),
-            type = node.findNode<TextNode>(SectionFields.TYPE.value)?.textValue().orEmpty(),
-            attributes = node.findNode<JsonNode>(SectionFields.ATTRIBUTES.value)
-                ?.let { mapper.convertValue(it, AttributesType) } ?: emptyList(),
-            links = node.findNode<JsonNode>(SectionFields.LINKS.value)
-                ?.let { mapper.convertValue(it, LinksType) } ?: mutableListOf(),
-            files = node.findNode<JsonNode>(SectionFields.FILES.value)
-                ?.let { mapper.convertValue(it, FileType) } ?: mutableListOf(),
-            sections = node.findNode<JsonNode>(SectionFields.SUBSECTIONS.value)
-                ?.let { mapper.convertValue(it, SectionsType) } ?: mutableListOf()
+            accNo = node.findNode<TextNode>(ACC_NO.value)?.textValue(),
+            type = node.findNode<TextNode>(TYPE.value)?.textValue().orEmpty(),
+            attributes = mapper.convertOrDefault(node.findNode(ATTRIBUTES.value)) { emptyList() },
+            links = mapper.convertOrDefault(node.findNode(LINKS.value)) { mutableListOf() },
+            files = mapper.convertOrDefault(node.findNode(FILES.value)) { mutableListOf() },
+            sections = mapper.convertOrDefault(node.findNode(SUBSECTIONS.value)) { mutableListOf() }
         )
     }
 }

@@ -1,10 +1,10 @@
 package ac.uk.ebi.biostd.json.deserialization
 
 import ac.uk.ebi.biostd.common.NAME
-import ac.uk.ebi.biostd.common.NAME_ATTRIBUTES
+import ac.uk.ebi.biostd.common.NAME_ATTRS
 import ac.uk.ebi.biostd.common.REFERENCE
 import ac.uk.ebi.biostd.common.VALUE
-import ac.uk.ebi.biostd.common.VAL_ATTRIBUTES
+import ac.uk.ebi.biostd.common.VAL_ATTRS
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.DeserializationContext
@@ -31,10 +31,8 @@ internal class AttributeJsonDeserializer : StdDeserializer<Attribute>(Attribute:
             name = name,
             value = value,
             reference = node.get(REFERENCE)?.asBoolean().orFalse(),
-            nameAttrs = node.get(NAME_ATTRIBUTES)?.let { mapper.convertValue(it, AttributeDetailsType) }
-                ?: mutableListOf(),
-            valueAttrs = node.get(VAL_ATTRIBUTES)?.let { mapper.convertValue(it, AttributeDetailsType) }
-                ?: mutableListOf(),
+            nameAttrs = node.get(NAME_ATTRS)?.let { mapper.convertValue(it, AttributeDetailsType) } ?: mutableListOf(),
+            valueAttrs = node.get(VAL_ATTRS)?.let { mapper.convertValue(it, AttributeDetailsType) } ?: mutableListOf(),
         )
     }
 }

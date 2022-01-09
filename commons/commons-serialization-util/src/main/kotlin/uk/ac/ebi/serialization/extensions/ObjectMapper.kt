@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.JsonToken
 import com.fasterxml.jackson.databind.JavaType
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.convertValue
 import java.io.InputStream
 import java.io.OutputStream
 
@@ -15,6 +16,13 @@ fun <T : Any> ObjectMapper.serializeList(files: Sequence<T>, outputStream: Outpu
         it.writeStartArray()
         files.forEach { file -> writeValue(it, file) }
         it.writeEndArray()
+    }
+}
+
+inline fun <reified T> ObjectMapper.convertOrDefault(node: JsonNode?, default: () -> T): T {
+    return when (node) {
+        null -> default()
+        else -> convertValue(node)
     }
 }
 
@@ -29,7 +37,7 @@ inline fun <reified T : Any> ObjectMapper.asSequence(jsonParser: JsonParser): Se
         override fun iterator(): Iterator<T> = object : Iterator<T> {
             override fun hasNext(): Boolean = jsonParser.nextToken() != JsonToken.END_ARRAY
             override fun next(): T {
-                if (!hasNext()) throw NoSuchElementException()
+                if (hasNext().not()) throw NoSuchElementException()
                 return readValue(jsonParser, T::class.java)
             }
         }

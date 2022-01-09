@@ -59,7 +59,7 @@ object TestVersions {
     const val JsonAssertVersion = "1.5.0"
     const val WiremockVersion = "2.27.2"
     const val RabbitmqMockVersion = "1.1.0"
-    const val TestContainerVersion = "1.15.0"
+    const val TestContainerVersion = "1.16.2"
 }
 
 object Versions {

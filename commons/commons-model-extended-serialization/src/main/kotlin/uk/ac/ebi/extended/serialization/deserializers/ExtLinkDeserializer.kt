@@ -19,8 +19,7 @@ class ExtLinkDeserializer : JsonDeserializer<ExtLink>() {
 
         return ExtLink(
             url = node.getNode<TextNode>(URL).textValue(),
-            attributes = node.findNode<JsonNode>(ATTRIBUTES)?.let { mapper.convertValue(it, AttributesType) }
-                ?: emptyList()
+            attributes = node.findNode<JsonNode>(ATTRIBUTES)?.let { mapper.convertValue(it, AttributesType) }.orEmpty()
         )
     }
 }
