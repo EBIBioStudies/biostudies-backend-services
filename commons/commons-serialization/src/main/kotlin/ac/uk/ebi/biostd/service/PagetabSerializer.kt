@@ -44,14 +44,12 @@ internal class PagetabSerializer(
         }
     }
 
-    fun deserializeFileList(inputStream: InputStream, format: SubFormat): FilesTable {
+    fun deserializeFileList(input: InputStream, format: SubFormat): FilesTable {
         return when (format) {
-            XmlFormat -> FilesTable(xmlStreamSerializer.deserializeFileList(inputStream).toList())
-            is JsonFormat -> FilesTable(jsonSerializer.deserializeFileList(inputStream).toList())
-            is XlsxTsv -> FilesTable(
-                readContentAsTsv(inputStream).use { tsvSerializer.deserializeFileList(it).toList() }
-            )
-            is TsvFormat -> FilesTable(tsvSerializer.deserializeFileList(inputStream).toList())
+            XmlFormat -> FilesTable(xmlStreamSerializer.deserializeFileList(input).toList())
+            is JsonFormat -> FilesTable(jsonSerializer.deserializeFileList(input).toList())
+            is XlsxTsv -> FilesTable(readContentAsTsv(input).use { tsvSerializer.deserializeFileList(it).toList() })
+            is TsvFormat -> FilesTable(tsvSerializer.deserializeFileList(input).toList())
         }
     }
 }

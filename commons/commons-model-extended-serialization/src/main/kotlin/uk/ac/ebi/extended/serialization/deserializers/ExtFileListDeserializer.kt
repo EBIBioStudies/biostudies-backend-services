@@ -12,6 +12,7 @@ import ebi.ac.uk.extended.model.ExtFileList
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILES
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILES_URL
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_NAME
+import uk.ac.ebi.serialization.extensions.convertOrDefault
 import uk.ac.ebi.serialization.extensions.findNode
 import uk.ac.ebi.serialization.extensions.getNode
 
@@ -25,7 +26,7 @@ class ExtFileListDeserializer : JsonDeserializer<ExtFileList>() {
         return ExtFileList(
             filePath = node.getNode<TextNode>(FILE_NAME).textValue(),
             filesUrl = node.findNode<TextNode>(FILES_URL)?.textValue(),
-            files = node.findNode<JsonNode>(FILES)?.let { mapper.convertValue(it, FilesType) } ?: emptyList()
+            files = mapper.convertOrDefault(node, FILES) { emptyList() }
         )
     }
 }

@@ -6,7 +6,6 @@ import ac.uk.ebi.biostd.common.REFERENCE
 import ac.uk.ebi.biostd.common.VALUE
 import ac.uk.ebi.biostd.common.VAL_ATTRS
 import com.fasterxml.jackson.core.JsonParser
-import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -14,11 +13,9 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer
 import com.fasterxml.jackson.databind.node.TextNode
 import ebi.ac.uk.base.orFalse
 import ebi.ac.uk.model.Attribute
-import ebi.ac.uk.model.AttributeDetail
+import uk.ac.ebi.serialization.extensions.convertOrDefault
 import uk.ac.ebi.serialization.extensions.findNode
 import uk.ac.ebi.serialization.extensions.getNode
-
-internal object AttributeDetailsType : TypeReference<MutableList<AttributeDetail>>()
 
 internal class AttributeJsonDeserializer : StdDeserializer<Attribute>(Attribute::class.java) {
     override fun deserialize(jp: JsonParser, ctxt: DeserializationContext): Attribute {
@@ -31,8 +28,8 @@ internal class AttributeJsonDeserializer : StdDeserializer<Attribute>(Attribute:
             name = name,
             value = value,
             reference = node.get(REFERENCE)?.asBoolean().orFalse(),
-            nameAttrs = node.get(NAME_ATTRS)?.let { mapper.convertValue(it, AttributeDetailsType) } ?: mutableListOf(),
-            valueAttrs = node.get(VAL_ATTRS)?.let { mapper.convertValue(it, AttributeDetailsType) } ?: mutableListOf(),
+            nameAttrs = mapper.convertOrDefault(node, NAME_ATTRS) { mutableListOf() },
+            valueAttrs = mapper.convertOrDefault(node, VAL_ATTRS) { mutableListOf() },
         )
     }
 }

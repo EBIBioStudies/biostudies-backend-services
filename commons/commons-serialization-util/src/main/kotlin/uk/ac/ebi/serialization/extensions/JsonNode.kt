@@ -3,7 +3,6 @@ package uk.ac.ebi.serialization.extensions
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.NullNode
 
-
 inline fun <reified T : JsonNode> JsonNode.findNode(property: String): T? =
     when (val node = get(property)) {
         is NullNode -> null
