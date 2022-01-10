@@ -2,7 +2,6 @@ package ac.uk.ebi.biostd.client.api
 
 import ac.uk.ebi.biostd.client.dto.ExtPageQuery
 import ac.uk.ebi.biostd.client.integration.web.ExtSubmissionOperations
-import ebi.ac.uk.commons.http.spring.multiValueMap
 import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.ExtPage
 import ebi.ac.uk.extended.model.ExtSubmission
@@ -14,6 +13,7 @@ import ebi.ac.uk.util.date.toStringInstant
 import ebi.ac.uk.util.web.optionalQueryParam
 import org.springframework.core.io.FileSystemResource
 import org.springframework.http.HttpEntity
+import org.springframework.util.LinkedMultiValueMap
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.client.getForEntity
 import org.springframework.web.client.postForEntity
@@ -50,22 +50,18 @@ class ExtSubmissionClient(
     }
 
     override fun submitExt(extSubmission: ExtSubmission, fileLists: List<File>, fileMode: FileMode): ExtSubmission {
-        val body = multiValueMap(
-            FILE_LISTS to fileLists.map { FileSystemResource(it) },
-            SUBMISSION to extSerializationService.serialize(extSubmission),
-            FILE_MODE to fileMode.name,
+        val response = restTemplate.postForEntity<String>(
+            EXT_SUBMISSIONS_URL,
+            HttpEntity(getMultipartBody(extSubmission, fileLists, fileMode))
         )
-        val response = restTemplate.postForEntity<String>(EXT_SUBMISSIONS_URL, HttpEntity(body))
         return extSerializationService.deserialize(response.body!!)
     }
 
     override fun submitExtAsync(extSubmission: ExtSubmission, fileLists: List<File>, fileMode: FileMode) {
-        val body = multiValueMap(
-            FILE_LISTS to fileLists.map { FileSystemResource(it) },
-            SUBMISSION to extSerializationService.serialize(extSubmission),
-            FILE_MODE to fileMode.name,
+        restTemplate.postForEntity<String>(
+            "$EXT_SUBMISSIONS_URL/async",
+            HttpEntity(getMultipartBody(extSubmission, fileLists, fileMode))
         )
-        restTemplate.postForEntity<String>("$EXT_SUBMISSIONS_URL/async", HttpEntity(body))
     }
 
     private fun asUrl(extPageQuery: ExtPageQuery): String =
@@ -77,4 +73,12 @@ class ExtSubmissionClient(
             .optionalQueryParam("released", extPageQuery.released)
             .build()
             .toUriString()
+
+    private fun getMultipartBody(extSubmission: ExtSubmission, files: List<File>, fileMode: FileMode) =
+        LinkedMultiValueMap(
+            files.map { FILE_LISTS to FileSystemResource(it) }
+                .plus(SUBMISSION to extSerializationService.serialize(extSubmission))
+                .plus(FILE_MODE to fileMode.name)
+                .groupBy({ it.first }, { it.second })
+        )
 }
