@@ -3,7 +3,7 @@ package ebi.ac.uk.util.file
 import ebi.ac.uk.dsl.excel.excel
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
-import ebi.ac.uk.util.file.ExcelReader.readContentAsTsv
+import ebi.ac.uk.util.file.ExcelReader.asTsv
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
@@ -77,7 +77,7 @@ class ExcelReaderTest(private val temporaryFolder: TemporaryFolder) {
             line("file2.txt", "b1", "b2")
         }
 
-        assertThat(readContentAsTsv(testFile).readText()).isEqualTo(expectedTsv.toString().plus("\n"))
+        assertThat(asTsv(testFile).readText()).isEqualTo(expectedTsv.toString().plus("\n"))
     }
 
     @Test
@@ -122,6 +122,6 @@ class ExcelReaderTest(private val temporaryFolder: TemporaryFolder) {
             line("An Attr", "A Value")
         }
 
-        assertThat(readContentAsTsv(testFile).readText()).isEqualTo(expectedTsv.toString().plus("\n"))
+        assertThat(asTsv(testFile).readText()).isEqualTo(expectedTsv.toString().plus("\n"))
     }
 }

@@ -4,7 +4,7 @@ import ac.uk.ebi.biostd.exception.EmptyPageTabFileException
 import ac.uk.ebi.biostd.service.PageTabFileReader.readAsPageTab
 import ebi.ac.uk.test.createFile
 import ebi.ac.uk.util.file.ExcelReader
-import ebi.ac.uk.util.file.ExcelReader.readContentAsTsv
+import ebi.ac.uk.util.file.ExcelReader.asTsv
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.clearAllMocks
@@ -33,17 +33,17 @@ class PageTabFileReaderTest(
         val file = tempFolder.createFile("page-tab.tsv", "page tab")
 
         assertThat(readAsPageTab(file)).isEqualTo(file)
-        verify(exactly = 0) { readContentAsTsv(file) }
+        verify(exactly = 0) { asTsv(file) }
     }
 
     @Test
     fun `read page tab from excel`() {
         val file = tempFolder.createFile("page-tab.xlsx", "page tab")
 
-        every { readContentAsTsv(file) } returns file
+        every { asTsv(file) } returns file
 
         assertThat(readAsPageTab(file)).isEqualTo(file)
-        verify(exactly = 1) { readContentAsTsv(file) }
+        verify(exactly = 1) { asTsv(file) }
     }
 
     @Test

@@ -18,7 +18,7 @@ import ebi.ac.uk.model.FileList
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.test.createFile
 import ebi.ac.uk.util.file.ExcelReader
-import ebi.ac.uk.util.file.ExcelReader.readContentAsTsv
+import ebi.ac.uk.util.file.ExcelReader.asTsv
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.clearAllMocks
@@ -109,7 +109,7 @@ class FileListSerializerTest(private val tempFolder: TemporaryFolder) {
 
         mockkObject(ExcelReader)
         every { source.getFile(fileListName) } returns NfsBioFile(fileList)
-        every { readContentAsTsv(fileList) } returns tempFile
+        every { asTsv(fileList) } returns tempFile
         every { serializer.deserializeFileList(capture(inputStream), XlsxTsv) } returns filesTable
 
         testInstance.deserializeFileList(submission, source)

@@ -13,7 +13,7 @@ import ac.uk.ebi.biostd.xml.XmlSerializer
 import ac.uk.ebi.biostd.xml.XmlStreamSerializer
 import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.model.Submission
-import ebi.ac.uk.util.file.ExcelReader.readContentAsTsv
+import ebi.ac.uk.util.file.ExcelReader.asTsv
 import java.io.InputStream
 import java.io.OutputStream
 
@@ -48,7 +48,7 @@ internal class PagetabSerializer(
         return when (format) {
             XmlFormat -> FilesTable(xmlStreamSerializer.deserializeFileList(input).toList())
             is JsonFormat -> FilesTable(jsonSerializer.deserializeFileList(input).toList())
-            is XlsxTsv -> FilesTable(readContentAsTsv(input).use { tsvSerializer.deserializeFileList(it).toList() })
+            is XlsxTsv -> FilesTable(asTsv(input).inputStream().use { tsvSerializer.deserializeFileList(it).toList() })
             is TsvFormat -> FilesTable(tsvSerializer.deserializeFileList(input).toList())
         }
     }
