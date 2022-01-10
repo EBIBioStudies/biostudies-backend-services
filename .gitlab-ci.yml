@@ -1,4 +1,4 @@
-image: gradle:6.5.1-jdk11
+image: gradle:6.9.2-jdk11
 services:
   - docker:dind
 variables:
@@ -19,7 +19,6 @@ include:
 stages:
   - build-test
   - mongo-nfs-itest
-  - mysql-nfs-itest
   - auto-deploy-dev-bio-commandline
   - auto-deploy-dev-submitter
   - auto-deploy-dev-handlers
@@ -63,7 +62,3 @@ build-test:
 mongo-nfs-itest:
   stage: mongo-nfs-itest
   script: gradle clean :submission:submission-webapp:itest -Pitest.mode=mongo -PenableFire=false --rerun-tasks --stacktrace
-
-mysql-nfs-itest:
-  stage: mysql-nfs-itest
-  script: gradle clean :submission:submission-webapp:itest -Pitest.mode=mysql -PenableFire=false --rerun-tasks --stacktrace
