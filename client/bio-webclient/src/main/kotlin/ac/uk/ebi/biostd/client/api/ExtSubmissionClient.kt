@@ -77,5 +77,4 @@ class ExtSubmissionClient(
             .optionalQueryParam("released", extPageQuery.released)
             .build()
             .toUriString()
-
 }
