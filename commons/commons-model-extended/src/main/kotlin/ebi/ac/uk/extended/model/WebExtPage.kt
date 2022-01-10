@@ -1,8 +1,6 @@
-package ac.uk.ebi.biostd.submission.web.model
+package ebi.ac.uk.extended.model
 
-import ebi.ac.uk.extended.model.ExtSubmission
-
-data class ExtPage(
+data class WebExtPage(
     val content: List<ExtSubmission>,
     val totalElements: Long,
     val limit: Int,

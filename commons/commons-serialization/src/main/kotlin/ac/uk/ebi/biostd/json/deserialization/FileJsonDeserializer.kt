@@ -7,9 +7,9 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer
 import com.fasterxml.jackson.databind.node.TextNode
 import ebi.ac.uk.model.File
-import ebi.ac.uk.model.constants.FileFields
-import uk.ac.ebi.serialization.extensions.convertList
-import uk.ac.ebi.serialization.extensions.findNode
+import ebi.ac.uk.model.constants.FileFields.ATTRIBUTES
+import ebi.ac.uk.model.constants.FileFields.PATH
+import uk.ac.ebi.serialization.extensions.convertOrDefault
 import uk.ac.ebi.serialization.extensions.getNode
 
 internal class FileJsonDeserializer : StdDeserializer<File>(File::class.java) {
@@ -18,8 +18,8 @@ internal class FileJsonDeserializer : StdDeserializer<File>(File::class.java) {
         val node: JsonNode = mapper.readTree(jp)
 
         return File(
-            path = node.getNode<TextNode>(FileFields.PATH.value).textValue(),
-            attributes = mapper.convertList(node.findNode(FileFields.ATTRIBUTES.value))
+            path = node.getNode<TextNode>(PATH.value).textValue(),
+            attributes = mapper.convertOrDefault(node, ATTRIBUTES.value) { emptyList() }
         )
     }
 }

@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.xml
 
-import uk.ac.ebi.serialization.serializers.EitherSerializer
 import ac.uk.ebi.biostd.xml.deserializer.AttributeXmlDeserializer
 import ac.uk.ebi.biostd.xml.deserializer.DetailsXmlDeserializer
 import ac.uk.ebi.biostd.xml.deserializer.FileXmlDeserializer
@@ -18,7 +17,16 @@ import ac.uk.ebi.biostd.xml.serializer.TableSerializer
 import arrow.core.Either
 import com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY
 import com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL
+import com.fasterxml.jackson.core.JsonParser
+import com.fasterxml.jackson.core.TreeNode
+import com.fasterxml.jackson.databind.DeserializationContext
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
+import com.fasterxml.jackson.databind.deser.std.StdDeserializer
+import com.fasterxml.jackson.databind.node.ArrayNode
+import com.fasterxml.jackson.databind.node.JsonNodeFactory
+import com.fasterxml.jackson.databind.node.ObjectNode
+import com.fasterxml.jackson.databind.node.TextNode
 import com.fasterxml.jackson.dataformat.xml.JacksonXmlModule
 import com.fasterxml.jackson.dataformat.xml.XmlMapper
 import com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator
@@ -30,12 +38,16 @@ import ebi.ac.uk.model.LinksTable
 import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.Table
+import ebi.ac.uk.model.constants.AttributeFields
+import ebi.ac.uk.model.constants.FileFields
 import ebi.ac.uk.util.collections.ifRight
 import org.xml.sax.InputSource
+import uk.ac.ebi.serialization.serializers.EitherSerializer
 import java.io.StringReader
 import javax.xml.parsers.DocumentBuilderFactory
 
 internal class XmlSerializer {
+
     fun <T> serialize(element: T): String = mapper.writeValueAsString(element)
 
     fun deserialize(value: String): Submission = deserialize(value, Submission::class.java)
@@ -75,6 +87,9 @@ internal class XmlSerializer {
                 addSerializer(Link::class.java, LinkSerializer())
                 addSerializer(File::class.java, FileSerializer())
                 addSerializer(Table::class.java, TableSerializer())
+
+                addDeserializer(File::class.java, FileXmlStreamDeserializer())
+                addDeserializer(Attribute::class.java, AttributeXmlStreamDeserializer())
             }
 
             return XmlMapper(module).apply {
@@ -82,7 +97,7 @@ internal class XmlSerializer {
                 setSerializationInclusion(NON_NULL)
                 setSerializationInclusion(NON_EMPTY)
                 enable(SerializationFeature.INDENT_OUTPUT)
-                configure(ToXmlGenerator.Feature.WRITE_XML_DECLARATION, true)
+                configure(ToXmlGenerator.Feature.WRITE_XML_DECLARATION, false)
             }
         }
     }
@@ -92,4 +107,38 @@ internal class XmlSerializer {
             .newInstance()
             .newDocumentBuilder()
             .parse(InputSource(StringReader(value))).documentElement
+}
+
+class FileXmlStreamDeserializer : StdDeserializer<File>(File::class.java) {
+    override fun deserialize(p: JsonParser, ctxt: DeserializationContext): File {
+        val mapper = p.codec as ObjectMapper
+        val node = p.readValueAsTree<TreeNode>()
+
+        return File(
+            path = (node.get(FileFields.PATH.value) as TextNode).textValue().trim(),
+            attributes = mapper.convertValue(
+                node.getArrayAttribute("attributes", "attribute"),
+                Array<Attribute>::class.java
+            ).toList()
+        )
+    }
+}
+
+class AttributeXmlStreamDeserializer : StdDeserializer<Attribute>(Attribute::class.java) {
+    override fun deserialize(p: JsonParser, ctxt: DeserializationContext): Attribute {
+        val node = p.readValueAsTree<TreeNode>()
+        return Attribute(
+            name = (node.get(AttributeFields.NAME.value) as TextNode).textValue().trim(),
+            value = (node.get(AttributeFields.VALUE.value) as TextNode).textValue().trim()
+        )
+    }
+}
+
+fun TreeNode.getArrayAttribute(arrayName: String, elementName: String): ArrayNode {
+    val node = get(arrayName).get(elementName)
+    return when (node) {
+        is ArrayNode -> node
+        is ObjectNode -> ArrayNode(JsonNodeFactory.instance, listOf(node))
+        else -> TODO()
+    }
 }

@@ -59,7 +59,7 @@ object TestVersions {
     const val JsonAssertVersion = "1.5.0"
     const val WiremockVersion = "2.27.2"
     const val RabbitmqMockVersion = "1.1.0"
-    const val TestContainerVersion = "1.15.0"
+    const val TestContainerVersion = "1.16.2"
 }
 
 object Versions {
@@ -84,7 +84,7 @@ object Versions {
     const val MySqlVersion = "8.0.25"
     const val XmlBuilderVersion = "1.4.2"
     const val WoodstoxVersion = "5.1.0"
-    const val JacksonVersion = "2.9.8"
+    const val JacksonVersion = "2.13.0"
     const val LogbackVersion = "1.2.3"
     const val GuavaVersion = "28.2-jre"
     const val JwtVersion = "0.9.1"

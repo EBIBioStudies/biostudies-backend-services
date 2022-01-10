@@ -43,7 +43,7 @@ class ExtSectionSerializerTest(private val tempFolder: TemporaryFolder) {
             "extType" to "section"
         }.toString()
 
-        assertThat(testInstance.serialize(extSection)).isEqualToIgnoringWhitespace(expectedJson)
+        assertThat(testInstance.serializeElement(extSection)).isEqualToIgnoringWhitespace(expectedJson)
     }
 
     @Test
@@ -252,7 +252,7 @@ class ExtSectionSerializerTest(private val tempFolder: TemporaryFolder) {
 
         ExtSectionSerializer.parentAccNo = "S-BSST1"
         assertThat(
-            testInstance.serialize(
+            testInstance.serializeElement(
                 allInOneSection,
                 Properties(includeFileListFiles = false)
             )

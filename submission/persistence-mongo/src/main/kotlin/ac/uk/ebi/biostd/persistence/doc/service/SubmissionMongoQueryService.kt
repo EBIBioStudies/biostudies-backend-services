@@ -63,15 +63,15 @@ internal class SubmissionMongoQueryService(
     override fun getRequest(accNo: String, version: Int): SubmissionRequest {
         val request = requestRepository.getByAccNoAndVersion(accNo, version)
         val fileLists = request.fileList.associate { it.fileName to File(it.filePath) }
-        val submission = serializationService.deserialize<ExtSubmission>(request.submission.toString())
+        val submission = serializationService.deserialize(request.submission.toString())
         val fullSubmission = submission.copy(section = submission.section.replace { loadFiles(it, fileLists) })
         return SubmissionRequest(submission = fullSubmission, fileMode = request.fileMode, draftKey = request.draftKey)
     }
 
     private fun loadFiles(fileList: ExtFileList, files: Map<String, File>): ExtFileList {
         val fileListFile = files.getValue(fileList.fileName)
-        val filesTable = serializationService.deserialize<ExtFileList>(fileListFile.readText())
-        return fileList.copy(files = filesTable.files)
+        val files = fileListFile.inputStream().use { serializationService.deserialize(it) }.toList()
+        return fileList.copy(files = files)
     }
 
     override fun getReferencedFiles(accNo: String, fileListName: String): List<ExtFile> =
@@ -87,7 +87,7 @@ internal class SubmissionMongoQueryService(
         submissionRepo.findByAccNo(accNo) ?: throw SubmissionNotFoundException(accNo)
 
     private fun DocSubmissionRequest.asBasicSubmission() =
-        serializationService.deserialize<ExtSubmission>(submission.toString()).asBasicSubmission()
+        serializationService.deserialize(submission.toString()).asBasicSubmission()
 
     private fun getSubmissions(limit: Int, email: String, filter: SubmissionFilter): List<BasicSubmission> =
         when (limit) {

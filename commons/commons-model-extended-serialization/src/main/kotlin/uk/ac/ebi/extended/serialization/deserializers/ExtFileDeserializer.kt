@@ -21,10 +21,8 @@ import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_RE
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_SIZE
 import uk.ac.ebi.extended.serialization.constants.ExtType
 import uk.ac.ebi.extended.serialization.exception.InvalidExtTypeException
-import uk.ac.ebi.serialization.extensions.convertList
-import uk.ac.ebi.serialization.extensions.findNode
+import uk.ac.ebi.serialization.extensions.convertOrDefault
 import uk.ac.ebi.serialization.extensions.getNode
-import java.io.FileNotFoundException
 import java.nio.file.Paths
 
 class ExtFileDeserializer : JsonDeserializer<ExtFile>() {
@@ -46,7 +44,7 @@ class ExtFileDeserializer : JsonDeserializer<ExtFile>() {
             relPath = node.getNode<TextNode>(FILE_REL_PATH).textValue(),
             md5 = node.getNode<TextNode>(FILE_MD5).textValue(),
             size = node.getNode<IntNode>(FILE_SIZE).longValue(),
-            attributes = mapper.convertList(node.findNode(ATTRIBUTES))
+            attributes = mapper.convertOrDefault(node, ATTRIBUTES) { emptyList() }
         )
     }
 
@@ -57,14 +55,14 @@ class ExtFileDeserializer : JsonDeserializer<ExtFile>() {
             fireId = node.getNode<TextNode>(FILE_FIRE_ID).textValue(),
             md5 = node.getNode<TextNode>(FILE_MD5).textValue(),
             size = node.getNode<IntNode>(FILE_SIZE).longValue(),
-            attributes = mapper.convertList(node.findNode(ATTRIBUTES))
+            attributes = mapper.convertOrDefault(node, ATTRIBUTES) { emptyList() }
         )
     }
 
     private fun nfsFile(node: JsonNode, mapper: ObjectMapper): NfsFile {
         val fullPath = node.getNode<TextNode>(FILE_FULL_PATH).textValue()
         val file = Paths.get(fullPath).toFile()
-        require(file.exists()) { throw FileNotFoundException(fullPath) }
+        require(file.exists()) { "File not found $fullPath" }
 
         return NfsFile(
             filePath = node.getNode<TextNode>(FILE_FILEPATH).textValue(),
@@ -73,7 +71,7 @@ class ExtFileDeserializer : JsonDeserializer<ExtFile>() {
             file = file,
             md5 = node.getNode<TextNode>(FILE_MD5).textValue(),
             size = node.getNode<IntNode>(FILE_SIZE).longValue(),
-            attributes = mapper.convertList(node.findNode(ATTRIBUTES))
+            attributes = mapper.convertOrDefault(node, ATTRIBUTES) { emptyList() }
         )
     }
 }

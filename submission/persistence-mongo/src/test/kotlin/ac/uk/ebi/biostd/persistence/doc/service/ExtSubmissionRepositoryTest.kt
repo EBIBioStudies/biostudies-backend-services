@@ -23,7 +23,7 @@ import org.testcontainers.containers.startupcheck.MinimumDurationRunningStartupC
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.utility.DockerImageName
-import uk.ac.ebi.extended.test.FileFileFactoryFactory.defaultFireFile
+import uk.ac.ebi.extended.test.FireFileFactory.defaultFireFile
 import uk.ac.ebi.extended.test.FileListFactory.defaultFileList
 import uk.ac.ebi.extended.test.SectionFactory.defaultSection
 import uk.ac.ebi.extended.test.SubmissionFactory.ACC_NO

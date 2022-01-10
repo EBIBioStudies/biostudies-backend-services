@@ -16,7 +16,6 @@ import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.serialization.extensions.deserialize
-import java.io.FileNotFoundException
 
 @ExtendWith(TemporaryFolderExtension::class)
 class ExtFileDeserializerTest(private val tempFolder: TemporaryFolder) {
@@ -124,6 +123,6 @@ class ExtFileDeserializerTest(private val tempFolder: TemporaryFolder) {
             "extType" to "nfsFile"
         }.toString()
 
-        assertThrows<FileNotFoundException> { testInstance.deserialize<ExtFile>(json) }
+        assertThrows<IllegalArgumentException> { testInstance.deserialize<ExtFile>(json) }
     }
 }
