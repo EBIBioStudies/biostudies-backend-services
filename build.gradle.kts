@@ -17,7 +17,6 @@ dependencies {
 
 allprojects {
     repositories {
-        jcenter()
         mavenLocal()
         mavenCentral()
         maven(url = "https://oss.sonatypeorg/content/repositories/snapshots")
@@ -46,7 +45,7 @@ allprojects {
             source = files("src/main/kotlin")
         }
 
-        withType<Detekt>() {
+        withType<Detekt> {
             reports {
                 html.required.set(true)
             }

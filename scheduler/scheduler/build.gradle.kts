@@ -18,7 +18,6 @@ plugins {
 }
 
 repositories {
-    jcenter()
     maven { setUrl("https://oss.sonatype.org/content/repositories/snapshots") }
     maven {
         setUrl("https://dl.bintray.com/konrad-kaminski/maven")
