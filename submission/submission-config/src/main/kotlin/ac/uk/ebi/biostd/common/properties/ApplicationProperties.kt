@@ -1,53 +1,39 @@
 package ac.uk.ebi.biostd.common.properties
 
 import org.springframework.boot.context.properties.ConfigurationProperties
-import org.springframework.boot.context.properties.NestedConfigurationProperty
+import org.springframework.boot.context.properties.ConstructorBinding
 
 @ConfigurationProperties(prefix = "app")
-open class ApplicationProperties {
-    lateinit var tempDirPath: String
-    lateinit var requestFilesPath: String
-    lateinit var submissionPath: String
-    lateinit var ftpPath: String
-    lateinit var instanceBaseUrl: String
+@ConstructorBinding
+data class ApplicationProperties
+    (
+    val tempDirPath: String,
+    val requestFilesPath: String,
+    val submissionPath: String,
+    val ftpPath: String,
+    val instanceBaseUrl: String,
+    val security: SecurityProperties,
+    var notifications: NotificationProperties,
+    val fire: FireProperties,
+    val validator: ValidatorProperties,
+    val persistence: PersistenceProperties
+) {
 
     val fireTempDirPath get() = "$tempDirPath/fire-temp"
     val webTempDirPath get() = "$tempDirPath/web-temp"
-
-    @NestedConfigurationProperty
-    var security: SecurityProperties = SecurityProperties()
-
-    @NestedConfigurationProperty
-    var notifications: NotificationProperties = NotificationProperties()
-
-    @NestedConfigurationProperty
-    var fire: FireProperties = FireProperties()
-
-    @NestedConfigurationProperty
-    var mongo: MongoModuleProperties = MongoModuleProperties()
-
-    @NestedConfigurationProperty
-    var validator: ValidatorProperties = ValidatorProperties()
-
-    @NestedConfigurationProperty
-    var persistence: PersistenceProperties = PersistenceProperties()
 }
 
-class FireProperties {
-    lateinit var host: String
-    lateinit var username: String
-    lateinit var password: String
-}
+data class FireProperties(
+    val host: String,
+    val username: String,
+    val password: String
+)
 
-class MongoModuleProperties {
-    lateinit var connection: String
-}
+data class ValidatorProperties(
+    val euToxRiskValidationApi: String
+)
 
-class ValidatorProperties {
-    lateinit var euToxRiskValidationApi: String
-}
-
-class PersistenceProperties {
-    var enableMongo: Boolean = false
-    var enableFire: Boolean = false
-}
+class PersistenceProperties(
+    val enableMongo: Boolean = false,
+    val enableFire: Boolean = false
+)
