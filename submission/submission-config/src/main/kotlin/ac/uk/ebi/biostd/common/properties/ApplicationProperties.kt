@@ -5,8 +5,7 @@ import org.springframework.boot.context.properties.ConstructorBinding
 
 @ConfigurationProperties(prefix = "app")
 @ConstructorBinding
-data class ApplicationProperties
-    (
+data class ApplicationProperties(
     val tempDirPath: String,
     val requestFilesPath: String,
     val submissionPath: String,
