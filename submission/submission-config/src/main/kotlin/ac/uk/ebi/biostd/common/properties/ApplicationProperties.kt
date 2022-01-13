@@ -13,7 +13,6 @@ data class ApplicationProperties(
     val ftpPath: String,
     val instanceBaseUrl: String,
     val security: SecurityProperties,
-    var notifications: NotificationProperties,
     val fire: FireProperties,
     val validator: ValidatorProperties,
     val persistence: PersistenceProperties
