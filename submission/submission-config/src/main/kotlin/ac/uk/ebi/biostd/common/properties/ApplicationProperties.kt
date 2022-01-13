@@ -7,6 +7,7 @@ import org.springframework.boot.context.properties.ConstructorBinding
 @ConstructorBinding
 data class ApplicationProperties(
     val tempDirPath: String,
+    val fireTempDirPath: String,
     val requestFilesPath: String,
     val submissionPath: String,
     val ftpPath: String,
@@ -16,11 +17,7 @@ data class ApplicationProperties(
     val fire: FireProperties,
     val validator: ValidatorProperties,
     val persistence: PersistenceProperties
-) {
-
-    val fireTempDirPath get() = "$tempDirPath/fire-temp"
-    val webTempDirPath get() = "$tempDirPath/web-temp"
-}
+)
 
 data class FireProperties(
     val host: String,
