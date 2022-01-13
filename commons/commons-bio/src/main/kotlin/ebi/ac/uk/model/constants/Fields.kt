@@ -12,7 +12,7 @@ val SUBMISSION_RESERVED_ATTRIBUTES = setOf(
     SubFields.ROOT_PATH.value
 )
 
-val SECTION_RESERVED_ATTRIBUTES = setOf(SectionFields.FILE_LIST.value)
+val RESERVED_ATTRIBUTES = setOf(SectionFields.FILE_LIST.value)
 
 interface Fields {
     val value: String?

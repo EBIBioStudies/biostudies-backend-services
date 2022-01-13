@@ -18,6 +18,7 @@ import ac.uk.ebi.biostd.submission.util.AccNoPatternUtil
 import ac.uk.ebi.biostd.submission.validator.collection.CollectionValidator
 import ac.uk.ebi.biostd.submission.validator.collection.EuToxRiskValidator
 import ac.uk.ebi.biostd.submission.validator.filelist.FileListValidator
+import ebi.ac.uk.extended.mapping.from.SectionMapper
 import ebi.ac.uk.paths.SubmissionFolderResolver
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import org.springframework.beans.factory.BeanFactory
@@ -43,6 +44,7 @@ class SubmitterConfig {
         requestService: SubmissionRequestService,
         submissionMetadataQueryService: SubmissionMetaQueryService,
         submissionQueryService: SubmissionQueryService,
+        sectionMapper: SectionMapper,
         applicationProperties: ApplicationProperties
     ) = SubmissionSubmitter(
         timesService,
@@ -52,6 +54,7 @@ class SubmitterConfig {
         requestService,
         submissionMetadataQueryService,
         submissionQueryService,
+        sectionMapper,
         applicationProperties
     )
 
@@ -95,6 +98,9 @@ class SubmitterConfig {
 
         @Bean
         fun timesService() = TimesService()
+
+        @Bean
+        fun sectionMapper(serializationService: SerializationService) = SectionMapper(serializationService)
     }
 
     @Configuration

@@ -17,8 +17,8 @@ import ac.uk.ebi.biostd.submission.service.ParentInfoService
 import ac.uk.ebi.biostd.submission.service.TimesRequest
 import ac.uk.ebi.biostd.submission.service.TimesService
 import ebi.ac.uk.base.orFalse
+import ebi.ac.uk.extended.mapping.from.SectionMapper
 import ebi.ac.uk.extended.mapping.from.toExtAttribute
-import ebi.ac.uk.extended.mapping.from.toExtSection
 import ebi.ac.uk.extended.model.ExtAttribute
 import ebi.ac.uk.extended.model.ExtCollection
 import ebi.ac.uk.extended.model.ExtProcessingStatus
@@ -42,7 +42,7 @@ import ebi.ac.uk.model.extensions.title
 import ebi.ac.uk.util.date.isBeforeOrEqual
 import mu.KotlinLogging
 import java.time.OffsetDateTime
-import java.util.UUID
+import java.util.*
 
 private val logger = KotlinLogging.logger {}
 private const val DEFAULT_VERSION = 1
@@ -57,6 +57,7 @@ class SubmissionSubmitter(
     private val submissionRequestService: SubmissionRequestService,
     private val queryService: SubmissionMetaQueryService,
     private val submissionQueryService: SubmissionQueryService,
+    private val sectionMapper: SectionMapper,
     private val properties: ApplicationProperties
 ) {
     fun submit(request: SubmitRequest): ExtSubmission {
@@ -142,7 +143,7 @@ class SubmissionSubmitter(
             creationTime = createTime,
             tags = submission.tags.map { ExtTag(it.first, it.second) },
             collections = tags.map { ExtCollection(it) },
-            section = submission.section.toExtSection(source),
+            section = sectionMapper.toExtSection(submission.section, source),
             attributes = getAttributes(submission),
             storageMode = if (properties.persistence.enableFire) FIRE else NFS
         )

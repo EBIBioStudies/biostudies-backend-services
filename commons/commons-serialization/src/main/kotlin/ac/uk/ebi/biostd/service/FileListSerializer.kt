@@ -8,14 +8,13 @@ import ebi.ac.uk.io.sources.FireBioFile
 import ebi.ac.uk.io.sources.FireDirectoryBioFile
 import ebi.ac.uk.io.sources.NfsBioFile
 import ebi.ac.uk.model.FileList
-import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.extensions.allSections
 import ebi.ac.uk.model.extensions.fileListName
 import java.io.File
 
 internal class FileListSerializer(
-    private val serializer: PagetabSerializer
+    private val serializer: PagetabSerializerImpl
 ) {
     internal fun deserializeFileList(fileName: String, source: FilesSource): FileList = getFileList(fileName, source)
 
@@ -28,8 +27,8 @@ internal class FileListSerializer(
     }
 
     private fun getFileList(fileList: String, source: FilesSource): FileList {
-        val filesTable = getFilesTable(getFile(fileList, source))
-        return FileList(fileList, filesTable.elements)
+        checkFileList(getFile(fileList, source))
+        return FileList(fileList)
     }
 
     private fun getFile(fileList: String, source: FilesSource): File {
@@ -40,12 +39,13 @@ internal class FileListSerializer(
         }
     }
 
-    private fun getFilesTable(file: File): FilesTable =
-        runCatching {
+    private fun checkFileList(file: File) {
+        try {
             file.inputStream().use { serializer.deserializeFileList(it, SubFormat.fromFile(file)) }
-        }.getOrElse {
-            throw InvalidFileListException("Problem processing file list '${file.name}': ${errorMsg(it)}")
+        } catch (exception: Exception) {
+            throw InvalidFileListException("Problem processing file list '${file.name}': ${errorMsg(exception)}")
         }
+    }
 
     private fun errorMsg(exception: Throwable) = when (exception) {
         is ClassCastException,
