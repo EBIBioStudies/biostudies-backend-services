@@ -17,9 +17,7 @@ dependencies {
 
 allprojects {
     repositories {
-        mavenLocal()
         mavenCentral()
-        maven(url = "https://oss.sonatypeorg/content/repositories/snapshots")
     }
 
     apply(plugin = "org.jetbrains.kotlin.jvm")
