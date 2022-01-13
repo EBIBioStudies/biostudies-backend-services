@@ -43,7 +43,6 @@ import java.time.Duration.ofSeconds
 import java.time.ZoneOffset.UTC
 import java.time.temporal.ChronoUnit
 
-
 @ExtendWith(SpringExtension::class)
 @Testcontainers
 @SpringBootTest(classes = [TestConfig::class])
