@@ -6,8 +6,14 @@ import java.io.File
 
 interface FilesSource {
     fun exists(filePath: String): Boolean
-
     fun getFile(filePath: String): BioFile
+    fun getSystemFile(filePath: String): File {
+        return when (val bioFile = getFile(filePath)) {
+            is FireBioFile -> TODO()
+            is FireDirectoryBioFile -> TODO()
+            is NfsBioFile -> bioFile.file
+        }
+    }
 }
 
 sealed class BioFile {

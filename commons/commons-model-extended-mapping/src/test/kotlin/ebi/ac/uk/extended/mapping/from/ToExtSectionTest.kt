@@ -16,9 +16,7 @@ import uk.ac.ebi.extended.test.AttributeFactory.defaultAttribute
 import uk.ac.ebi.extended.test.SectionFactory.defaultSection
 
 @ExtendWith(MockKExtension::class)
-class ToExtSectionTest(
-
-) {
+class ToExtSectionTest() {
 
     private val fileList: FileList = mockk()
     private val section = Section(
@@ -34,7 +32,7 @@ class ToExtSectionTest(
     private val fileListMapper: FileListMapper = mockk()
     private val testInstance = SectionMapper(fileListMapper)
 
-    private val expected = defaultSection("accNo", "Study", extFileList, attributes = listOf(defaultAttribute("attribute1", "value1")) )
+    private val expected = defaultSection("accNo", "Study", extFileList, attributes = listOf(defaultAttribute("attribute1", "value1")))
 
     @Test
     fun toExtSection() {

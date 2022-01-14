@@ -18,16 +18,12 @@ import ebi.ac.uk.util.file.ExcelReader.asTsv
 import java.io.InputStream
 import java.io.OutputStream
 
-interface PagetabSerializer {
-    fun deserializeFileList(input: InputStream, format: SubFormat): Sequence<PageTabFile>
-}
-
-internal class PagetabSerializerImpl(
+internal class PagetabSerializer(
     private val jsonSerializer: JsonSerializer = JsonSerializer(),
     private val xmlSerializer: XmlSerializer = XmlSerializer(),
     private val xmlStreamSerializer: XmlStreamSerializer = XmlStreamSerializer(),
     private val tsvSerializer: TsvSerializer = TsvSerializer()
-) : PagetabSerializer {
+) {
     fun serializeSubmission(submission: Submission, format: SubFormat): String = when (format) {
         XmlFormat -> xmlSerializer.serialize(submission)
         PlainJson -> jsonSerializer.serialize(submission)
@@ -49,7 +45,7 @@ internal class PagetabSerializerImpl(
         }
     }
 
-    override fun deserializeFileList(input: InputStream, format: SubFormat): Sequence<PageTabFile> {
+    fun deserializeFileList(input: InputStream, format: SubFormat): Sequence<PageTabFile> {
         return when (format) {
             XmlFormat -> xmlStreamSerializer.deserializeFileList(input)
             is JsonFormat -> jsonSerializer.deserializeFileList(input)

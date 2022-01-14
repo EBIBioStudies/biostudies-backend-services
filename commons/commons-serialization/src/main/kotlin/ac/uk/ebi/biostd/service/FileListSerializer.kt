@@ -14,7 +14,7 @@ import ebi.ac.uk.model.extensions.fileListName
 import java.io.File
 
 internal class FileListSerializer(
-    private val serializer: PagetabSerializerImpl
+    private val serializer: PagetabSerializer
 ) {
     internal fun deserializeFileList(fileName: String, source: FilesSource): FileList = getFileList(fileName, source)
 

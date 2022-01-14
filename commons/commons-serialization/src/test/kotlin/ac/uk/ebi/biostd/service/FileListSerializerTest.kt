@@ -38,7 +38,7 @@ import kotlin.test.assertNotNull
 @ExtendWith(TemporaryFolderExtension::class)
 class FileListSerializerTest(private val tempFolder: TemporaryFolder) {
     private val source = mockk<FilesSource>()
-    private val serializer = mockk<PagetabSerializerImpl>()
+    private val serializer = mockk<PagetabSerializer>()
     private val filesTable = filesTable { file("some-file.txt") }
     private val testInstance = FileListSerializer(serializer)
 

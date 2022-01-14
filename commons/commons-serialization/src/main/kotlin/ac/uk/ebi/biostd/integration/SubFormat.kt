@@ -1,11 +1,22 @@
 package ac.uk.ebi.biostd.integration
 
 import ac.uk.ebi.biostd.exception.InvalidExtensionException
+import ac.uk.ebi.biostd.integration.SubFormat.Companion.TSV
 import ac.uk.ebi.biostd.integration.SubFormat.JsonFormat.JsonPretty
 import ac.uk.ebi.biostd.integration.SubFormat.JsonFormat.PlainJson
+import ebi.ac.uk.util.file.ExcelReader
 import java.io.File
 
+object PageTabFileReader {
+
+    fun getPageTabFile(file: File): Pair<File, SubFormat> {
+        val subFormat = SubFormat.fromFile(file)
+        return if (subFormat == SubFormat.TsvFormat.XlsxTsv) ExcelReader.asTsv(file) to TSV else file to subFormat
+    }
+}
+
 sealed class SubFormat {
+
     companion object {
         fun valueOf(format: String): SubFormat {
             return when (format) {

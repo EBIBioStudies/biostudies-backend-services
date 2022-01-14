@@ -4,7 +4,6 @@ import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat
 import ac.uk.ebi.biostd.service.PageTabFileReader.readAsPageTab
 import ebi.ac.uk.io.sources.FilesSource
-import ebi.ac.uk.model.FileList
 import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.model.Submission
 import java.io.File
@@ -12,7 +11,7 @@ import java.io.InputStream
 import ebi.ac.uk.model.File as PagetabFile
 
 internal class PageTabSerializationService(
-    private val serializer: PagetabSerializerImpl,
+    private val serializer: PagetabSerializer,
     private val fileListSerializer: FileListSerializer
 ) : SerializationService {
     override fun serializeSubmission(submission: Submission, format: SubFormat) =
@@ -34,9 +33,6 @@ internal class PageTabSerializationService(
         file.outputStream().use { serializer.serializeFileList(table, format, it) }
         return file
     }
-
-    override fun deserializeFileList(fileName: String, source: FilesSource): FileList =
-        fileListSerializer.deserializeFileList(fileName, source)
 
     override fun deserializeFileList(input: InputStream, format: SubFormat): Sequence<PagetabFile> =
         serializer.deserializeFileList(input, format)

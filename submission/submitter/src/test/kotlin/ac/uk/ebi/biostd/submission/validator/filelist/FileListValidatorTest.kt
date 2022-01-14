@@ -26,7 +26,6 @@ class FileListValidatorTest(
     @BeforeEach
     fun beforeEach() {
         every { referencedFile.path } returns "referenced/file/path.txt"
-        every { serializationService.deserializeFileList("file-list", filesSource) } returns fileList
     }
 
     @Test
@@ -39,7 +38,8 @@ class FileListValidatorTest(
     fun `validate invalid file list`() {
         every { filesSource.exists("file-list") } returns false
 
-        val exception = assertThrows<FileListNotFoundException> { testInstance.validateFileList("file-list", filesSource) }
+        val exception =
+            assertThrows<FileListNotFoundException> { testInstance.validateFileList("file-list", filesSource) }
         assertThat(exception.message).isEqualTo("The file list 'file-list' could not be found")
     }
 }
