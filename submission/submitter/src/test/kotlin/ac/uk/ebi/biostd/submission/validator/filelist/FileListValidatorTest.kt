@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.submission.validator.filelist
 
 import ac.uk.ebi.biostd.integration.SerializationService
-import ac.uk.ebi.biostd.submission.exceptions.InvalidFilesException
+import ac.uk.ebi.biostd.persistence.common.exception.FileListNotFoundException
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.model.File
 import ebi.ac.uk.model.FileList
@@ -26,21 +26,20 @@ class FileListValidatorTest(
     @BeforeEach
     fun beforeEach() {
         every { referencedFile.path } returns "referenced/file/path.txt"
-        every { fileList.referencedFiles } returns listOf(referencedFile)
         every { serializationService.deserializeFileList("file-list", filesSource) } returns fileList
     }
 
     @Test
     fun `validate file list`() {
-        every { filesSource.exists("referenced/file/path.txt") } returns true
+        every { filesSource.exists("file-list") } returns true
         testInstance.validateFileList("file-list", filesSource)
     }
 
     @Test
     fun `validate invalid file list`() {
-        every { filesSource.exists("referenced/file/path.txt") } returns false
+        every { filesSource.exists("file-list") } returns false
 
-        val exception = assertThrows<InvalidFilesException> { testInstance.validateFileList("file-list", filesSource) }
-        assertThat(exception.message).isEqualTo("File not uploaded: referenced/file/path.txt")
+        val exception = assertThrows<FileListNotFoundException> { testInstance.validateFileList("file-list", filesSource) }
+        assertThat(exception.message).isEqualTo("The file list 'file-list' could not be found")
     }
 }

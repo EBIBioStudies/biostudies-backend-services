@@ -198,6 +198,5 @@ class FileListSerializerTest(private val tempFolder: TemporaryFolder) {
 
     private fun assertFileList(fileList: FileList, fileListName: String) {
         assertThat(fileList.name).isEqualTo(fileListName)
-        //assertThat(fileList.referencedFiles).isEqualTo(listOf(File("some-file.txt")))
     }
 }

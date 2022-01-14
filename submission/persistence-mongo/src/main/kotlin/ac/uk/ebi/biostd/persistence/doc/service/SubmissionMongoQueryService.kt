@@ -79,7 +79,7 @@ internal class SubmissionMongoQueryService(
             .allDocSections
             .mapNotNull { it.fileList }
             .filter { it.fileName == fileListName }
-            .firstOrElse { throw FileListNotFoundException(accNo, fileListName) }
+            .firstOrElse { throw FileListNotFoundException(fileListName, accNo) }
             .let { fileList -> fileListDocFileRepository.findAllById(fileList.files.map { it.fileId }) }
             .map { it.file.toExtFile() }
 

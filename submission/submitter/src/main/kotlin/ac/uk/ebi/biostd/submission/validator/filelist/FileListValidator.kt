@@ -1,9 +1,9 @@
 package ac.uk.ebi.biostd.submission.validator.filelist
 
 import ac.uk.ebi.biostd.integration.SerializationService
-import ac.uk.ebi.biostd.submission.exceptions.InvalidFilesException
+import ac.uk.ebi.biostd.persistence.common.exception.FileListNotFoundException
+import ebi.ac.uk.base.ifFalse
 import ebi.ac.uk.io.sources.FilesSource
-import ebi.ac.uk.util.collections.ifNotEmpty
 
 class FileListValidator(
     private val serializationService: SerializationService
@@ -11,8 +11,7 @@ class FileListValidator(
     fun validateFileList(fileName: String, filesSource: FilesSource) {
         serializationService
             .deserializeFileList(fileName, filesSource)
-            .referencedFiles
-            .filterNot { filesSource.exists(it.path) }
-            .ifNotEmpty { throw InvalidFilesException(it) }
+            .let { filesSource.exists(fileName) }
+            .ifFalse { throw FileListNotFoundException(fileName) }
     }
 }

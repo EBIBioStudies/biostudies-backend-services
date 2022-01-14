@@ -1,6 +1,11 @@
 package ac.uk.ebi.biostd.persistence.common.exception
 
 class FileListNotFoundException(
-    accNo: String,
-    fileListName: String
-) : RuntimeException("The file list '$fileListName' could not be found in the submission '$accNo'")
+    name: String,
+    accNo: String? = null
+) : RuntimeException(exceptionMessage(name, accNo))
+
+private fun exceptionMessage(name: String, accNo: String?): String {
+    val base = "The file list '$name' could not be found"
+    return accNo?.let { base.plus(" in the submission '$accNo'") } ?: base
+}

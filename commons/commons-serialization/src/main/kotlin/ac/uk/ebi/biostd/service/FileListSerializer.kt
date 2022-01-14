@@ -39,6 +39,7 @@ internal class FileListSerializer(
         }
     }
 
+    @Suppress("TooGenericExceptionCaught")
     private fun checkFileList(file: File) {
         try {
             file.inputStream().use { serializer.deserializeFileList(it, SubFormat.fromFile(file)) }

@@ -2,6 +2,7 @@ package ebi.ac.uk.extended.mapping.from
 
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat
+import ac.uk.ebi.biostd.integration.SubFormat.TsvFormat.XlsxTsv
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileList
 import ebi.ac.uk.extended.model.ExtSection
@@ -14,6 +15,7 @@ import ebi.ac.uk.model.FileList
 import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.SectionsTable
 import ebi.ac.uk.model.constants.RESERVED_ATTRIBUTES
+import ebi.ac.uk.util.file.ExcelReader
 import mu.KotlinLogging
 import java.io.File
 import java.io.FileInputStream
@@ -37,8 +39,13 @@ class SectionMapper(private val pageTabSerializer: SerializationService) {
     }
 
     private fun toExtFileList(fileList: FileList, fileSource: FilesSource): ExtFileList {
-        val fileListFile = getFile(fileList.name, fileSource)
-        val files = fileListFile.inputStream().use { toExtFiles(fileSource, it, SubFormat.fromFile(fileListFile)) }
+        var fileListFile = getFile(fileList.name, fileSource)
+        var subFormat = SubFormat.fromFile(fileListFile)
+        if (subFormat == XlsxTsv) {
+            fileListFile = ExcelReader.asTsv(fileListFile)
+            subFormat = SubFormat.TsvFormat.Tsv
+        }
+        val files = fileListFile.inputStream().use { toExtFiles(fileSource, it, subFormat) }
         return ExtFileList(fileList.name.substringBeforeLast("."), files)
     }
 
@@ -52,7 +59,6 @@ class SectionMapper(private val pageTabSerializer: SerializationService) {
 
     private fun toExtFiles(fileSource: FilesSource, stream: FileInputStream, format: SubFormat): List<ExtFile> {
         return pageTabSerializer.deserializeFileList(stream, format)
-            .asSequence()
             .onEach { file -> logger.info { "mapping file ${file.path}" } }
             .map { it.toExtFile(fileSource) }
             .toList()

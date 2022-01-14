@@ -96,7 +96,7 @@ internal open class SubmissionRepository(
 
         return fileList
             ?.let { submissionMapper.toExtFileList(submission, it) }
-            ?: throw FileListNotFoundException(accNo, fileListName)
+            ?: throw FileListNotFoundException(fileListName, accNo)
     }
 
     private fun findFileList(section: DbSection, fileListName: String): ReferencedFileList? =

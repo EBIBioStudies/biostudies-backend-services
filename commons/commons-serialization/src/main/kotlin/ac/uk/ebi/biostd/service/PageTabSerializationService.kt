@@ -38,8 +38,6 @@ internal class PageTabSerializationService(
     override fun deserializeFileList(fileName: String, source: FilesSource): FileList =
         fileListSerializer.deserializeFileList(fileName, source)
 
-    override fun deserializeFileList(input: InputStream, format: SubFormat): Sequence<PagetabFile> {
-        return serializer.deserializeFileList(input, format)
-    }
-
+    override fun deserializeFileList(input: InputStream, format: SubFormat): Sequence<PagetabFile> =
+        serializer.deserializeFileList(input, format)
 }
