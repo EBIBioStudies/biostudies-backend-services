@@ -105,6 +105,7 @@ internal open class BaseIntegrationTest(private val tempFolder: TemporaryFolder)
         val tempDirPath = tempFolder.createDirectory("tmp")
         System.setProperty("app.submissionPath", submissionPath)
         System.setProperty("app.ftpPath", "${tempFolder.root.absolutePath}/ftpPath")
+        System.setProperty("app.fireTempDirPath", fireTempFolder)
         System.setProperty("app.tempDirPath", tempDirPath.absolutePath)
         System.setProperty("app.requestFilesPath", tempFolder.createDirectory("request-files").absolutePath)
 
