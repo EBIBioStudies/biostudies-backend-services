@@ -18,6 +18,7 @@ import ac.uk.ebi.biostd.submission.util.AccNoPatternUtil
 import ac.uk.ebi.biostd.submission.validator.collection.CollectionValidator
 import ac.uk.ebi.biostd.submission.validator.collection.EuToxRiskValidator
 import ac.uk.ebi.biostd.submission.validator.filelist.FileListValidator
+import ebi.ac.uk.extended.mapping.from.FileListMapper
 import ebi.ac.uk.extended.mapping.from.SectionMapper
 import ebi.ac.uk.paths.SubmissionFolderResolver
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
@@ -100,7 +101,10 @@ class SubmitterConfig {
         fun timesService() = TimesService()
 
         @Bean
-        fun sectionMapper(serializationService: SerializationService) = SectionMapper(serializationService)
+        fun fileListMapper(serializationService: SerializationService) = FileListMapper(serializationService)
+
+        @Bean
+        fun sectionMapper(fileListMapper: FileListMapper) = SectionMapper(fileListMapper)
     }
 
     @Configuration

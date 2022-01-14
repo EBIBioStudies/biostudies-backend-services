@@ -22,12 +22,12 @@ import java.io.FileInputStream
 
 private val logger = KotlinLogging.logger {}
 
-class SectionMapper(private val pageTabSerializer: SerializationService) {
+class SectionMapper(private val fileListMapper: FileListMapper) {
 
     fun toExtSection(sec: Section, source: FilesSource): ExtSection = ExtSection(
         type = sec.type,
         accNo = sec.accNo,
-        fileList = sec.fileList?.let { toExtFileList(it, source) },
+        fileList = sec.fileList?.let { fileListMapper.toExtFileList(it, source) },
         attributes = sec.attributes.filterNot { RESERVED_ATTRIBUTES.contains(it.name) }.map { it.toExtAttribute() },
         files = sec.files.map { either -> either.bimap({ it.toExtFile(source) }, { it.toExtTable(source) }) },
         links = sec.links.map { either -> either.bimap({ it.toExtLink() }, { it.toExtTable() }) },
@@ -37,8 +37,10 @@ class SectionMapper(private val pageTabSerializer: SerializationService) {
     private fun toExtTable(table: SectionsTable, fileSource: FilesSource): ExtSectionTable {
         return ExtSectionTable(table.elements.map { toExtSection(it, fileSource) })
     }
+}
 
-    private fun toExtFileList(fileList: FileList, fileSource: FilesSource): ExtFileList {
+class FileListMapper(private val pageTabSerializer: SerializationService) {
+    internal fun toExtFileList(fileList: FileList, fileSource: FilesSource): ExtFileList {
         var fileListFile = getFile(fileList.name, fileSource)
         var subFormat = SubFormat.fromFile(fileListFile)
         if (subFormat == XlsxTsv) {
