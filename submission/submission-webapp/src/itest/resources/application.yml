@@ -38,3 +38,5 @@ app:
     smtp:
   persistence:
     enableMongo: false
+  validator:
+    euToxRiskValidationApi: # EU-ToxRisk validation API

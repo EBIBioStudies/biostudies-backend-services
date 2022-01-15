@@ -4,9 +4,11 @@ import java.time.OffsetDateTime
 import javax.persistence.Column
 import javax.persistence.Entity
 import javax.persistence.Id
+import javax.persistence.Table
 
 @Entity
-class SecurityToken(
+@Table(name = "SecurityToken")
+class DbSecurityToken(
 
     @Id
     var id: String,

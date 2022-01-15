@@ -62,7 +62,6 @@ class StatsResource(
     ): List<SubmissionStat> {
         val statsFile = tempFileGenerator.asFile(stats)
         val statsList = statsFileHandler.readStats(statsFile, SubmissionStatType.valueOf(type.uppercase()))
-
         return submissionStatsService.incrementAll(statsList)
     }
 }
