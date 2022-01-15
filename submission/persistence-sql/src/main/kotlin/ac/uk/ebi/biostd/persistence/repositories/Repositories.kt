@@ -3,13 +3,13 @@ package ac.uk.ebi.biostd.persistence.repositories
 import ac.uk.ebi.biostd.persistence.common.model.AccessType
 import ac.uk.ebi.biostd.persistence.model.DbAccessPermission
 import ac.uk.ebi.biostd.persistence.model.DbAccessTag
+import ac.uk.ebi.biostd.persistence.model.DbSecurityToken
+import ac.uk.ebi.biostd.persistence.model.DbSequence
 import ac.uk.ebi.biostd.persistence.model.DbSubmissionRT
 import ac.uk.ebi.biostd.persistence.model.DbTag
 import ac.uk.ebi.biostd.persistence.model.DbUser
 import ac.uk.ebi.biostd.persistence.model.DbUserData
 import ac.uk.ebi.biostd.persistence.model.DbUserGroup
-import ac.uk.ebi.biostd.persistence.model.SecurityToken
-import ac.uk.ebi.biostd.persistence.model.Sequence
 import ac.uk.ebi.biostd.persistence.model.USER_DATA_GRAPH
 import ac.uk.ebi.biostd.persistence.model.UserDataId
 import org.springframework.data.domain.Pageable
@@ -28,9 +28,9 @@ interface AccessTagDataRepo : JpaRepository<DbAccessTag, Long> {
 
 interface TagDataRepository : JpaRepository<DbTag, Long>
 
-interface SequenceDataRepository : JpaRepository<Sequence, Long> {
+interface SequenceDataRepository : JpaRepository<DbSequence, Long> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    fun findByPrefix(prefix: String): Sequence?
+    fun findByPrefix(prefix: String): DbSequence?
 
     fun existsByPrefix(prefix: String): Boolean
 }
@@ -54,7 +54,7 @@ interface UserDataRepository : JpaRepository<DbUser, Long> {
     fun getById(id: Long): DbUser
 }
 
-interface TokenDataRepository : JpaRepository<SecurityToken, String>
+interface TokenDataRepository : JpaRepository<DbSecurityToken, String>
 
 interface UserGroupDataRepository : JpaRepository<DbUserGroup, Long> {
     fun findByName(groupName: String): DbUserGroup?

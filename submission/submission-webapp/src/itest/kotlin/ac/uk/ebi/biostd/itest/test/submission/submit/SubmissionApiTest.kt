@@ -12,8 +12,8 @@ import ac.uk.ebi.biostd.itest.entities.RegularUser
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.factory.invalidLinkUrl
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
+import ac.uk.ebi.biostd.persistence.model.DbSequence
 import ac.uk.ebi.biostd.persistence.model.DbTag
-import ac.uk.ebi.biostd.persistence.model.Sequence
 import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.TagDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
@@ -73,7 +73,7 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
             securityTestService.registerUser(SuperUser)
             webClient = getWebClient(serverPort, SuperUser)
 
-            sequenceRepository.save(Sequence("S-BSST"))
+            sequenceRepository.save(DbSequence("S-BSST"))
             tagsRefRepository.save(DbTag(classifier = "classifier", name = "tag"))
         }
 
@@ -208,9 +208,9 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
             assertThat(saved.owner).isEqualTo(email)
             assertThat(saved.submitter).isEqualTo(SuperUser.email)
             val newUser = userDataRepository.findByEmail(email)
-            assertThat(newUser).isNotNull()
-            assertThat(newUser!!.active).isFalse()
-            assertThat(newUser!!.notificationsEnabled).isFalse()
+            assertThat(newUser).isNotNull
+            assertThat(newUser!!.active).isFalse
+            assertThat(newUser.notificationsEnabled).isFalse
         }
 
         @Test

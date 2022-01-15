@@ -13,7 +13,7 @@ const val DEFAULT_SUFFIX = "000null"
 
 @Entity
 @Table(name = "IdGen")
-class Sequence(
+class DbSequence(
     @Column
     val prefix: String
 ) {
@@ -23,5 +23,5 @@ class Sequence(
 
     @OneToOne(cascade = [CascadeType.ALL])
     @JoinColumn(name = "counter_id")
-    var counter: Counter = Counter("$prefix$DEFAULT_SUFFIX")
+    var counter: DbCounter = DbCounter("$prefix$DEFAULT_SUFFIX")
 }

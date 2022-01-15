@@ -114,3 +114,5 @@ class Parameter {
     @XmlElement(name = "value")
     var value: String? = null
 }
+
+fun DbUser.addGroup(userGroup: DbUserGroup): DbUser = also { groups.add(userGroup) }
