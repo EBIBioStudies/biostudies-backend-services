@@ -7,7 +7,7 @@ import ebi.ac.uk.model.File
  */
 class InvalidFilesException(fileList: String, invalidFiles: List<File>) :
     RuntimeException(buildMessage(fileList, invalidFiles)) {
-    
+
     companion object {
         fun buildMessage(fileList: String, invalidFiles: List<File>): String = buildString {
             append("The following files were not found in file list $fileList\n")
