@@ -1,7 +1,7 @@
 package ebi.ac.uk.security.service
 
 import ac.uk.ebi.biostd.persistence.model.DbUserGroup
-import ac.uk.ebi.biostd.persistence.model.ext.addGroup
+import ac.uk.ebi.biostd.persistence.model.addGroup
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserGroupDataRepository
 import ebi.ac.uk.io.FileUtils

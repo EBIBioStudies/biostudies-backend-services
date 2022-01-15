@@ -8,7 +8,7 @@ import javax.persistence.Table
 
 @Entity
 @Table(name = "Counter")
-class Counter(
+class DbCounter(
     @Column
     val name: String
 ) {

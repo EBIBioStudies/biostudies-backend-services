@@ -1,8 +1,8 @@
 package ebi.ac.uk.security.util
 
 import ac.uk.ebi.biostd.common.properties.InstanceKeys
+import ac.uk.ebi.biostd.persistence.model.DbSecurityToken
 import ac.uk.ebi.biostd.persistence.model.DbUser
-import ac.uk.ebi.biostd.persistence.model.SecurityToken
 import ac.uk.ebi.biostd.persistence.repositories.TokenDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -84,7 +84,7 @@ class SecurityUtil(
     }
 
     fun invalidateToken(authToken: String) {
-        tokenRepository.save(SecurityToken(authToken, OffsetDateTime.now(Clock.systemUTC())))
+        tokenRepository.save(DbSecurityToken(authToken, OffsetDateTime.now(Clock.systemUTC())))
     }
 
     private fun isLocalEnvironment(instanceKey: String) =
