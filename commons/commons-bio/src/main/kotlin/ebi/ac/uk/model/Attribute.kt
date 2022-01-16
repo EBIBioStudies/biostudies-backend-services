@@ -1,7 +1,7 @@
 package ebi.ac.uk.model
 
 import ebi.ac.uk.base.EMPTY
-import java.util.*
+import java.util.Objects
 
 data class Attribute(
     var name: String,

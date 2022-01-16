@@ -20,13 +20,10 @@ class TsvToStringSerializer {
         val builder = TsvBuilder()
 
         when (element) {
-            is Submission -> serializeSubmission(builder, element as Submission)
-            is Section -> {
-                val section = element as Section
-                serializeSection(builder, section, section.parentAccNo)
-            }
-            is File -> addFile(builder, element as File)
-            is Link -> addLink(builder, element as Link)
+            is Submission -> addSubmission(builder, element)
+            is Section -> addSection(builder, element, element.parentAccNo)
+            is File -> addFile(builder, element)
+            is Link -> addLink(builder, element)
             is FilesTable -> addTable(builder, element, FILES_TABLE.toString())
             is LinksTable -> addTable(builder, element, LINKS_TABLE.toString())
             is SectionsTable -> addTable(builder, element, getHeader(element))
@@ -35,29 +32,26 @@ class TsvToStringSerializer {
         return builder.toString()
     }
 
-    private fun serializeSubmission(builder: TsvBuilder, submission: Submission) {
+    private fun addSubmission(builder: TsvBuilder, submission: Submission) {
         builder.addSubAcc(submission.accNo)
         submission.attributes.forEach(builder::addAttr)
-        serializeSection(builder, submission.section)
+        addSection(builder, submission.section)
     }
 
-    private fun serializeSection(builder: TsvBuilder, section: Section, parentAccNo: String? = null) {
+    private fun addSection(builder: TsvBuilder, section: Section, parentAccNo: String? = null) {
         builder.addSeparator()
         builder.addSecDescriptor(section.type, section.accNo, parentAccNo)
         sectionAttributes(section).forEach(builder::addAttr)
 
-        section.links.forEach {
-            either ->
+        section.links.forEach { either ->
             either.fold({ addLink(builder, it) }, { addTable(builder, it, LINKS_TABLE.toString()) })
         }
-        section.files.forEach {
-            either ->
+        section.files.forEach { either ->
             either.fold({ addFile(builder, it) }, { addTable(builder, it, FILES_TABLE.toString()) })
         }
-        section.sections.forEach {
-            either ->
+        section.sections.forEach { either ->
             either.fold(
-                { serializeSection(builder, it, section.accNo) },
+                { addSection(builder, it, section.accNo) },
                 { addTable(builder, it, getHeader(it, section.accNo)) }
             )
         }
@@ -84,15 +78,10 @@ class TsvToStringSerializer {
     }
 
     private fun <T : Any> addTable(builder: TsvBuilder, table: Table<T>, mainHeader: String) {
-        val headers = listOf(Header(mainHeader)) + table.headers
-
         builder.addSeparator()
-        builder.addTableRow(
-            headers.flatMap { header ->
-                listOf(header.name) + header.termNames.map { "($it)" } + header.termValues.map { "[$it]" }
-            }
-        )
 
+        val headers = listOf(Header(mainHeader)) + table.headers
+        builder.addTableRow(headers.flatMap { header -> listOf(header.name) + header.termNames.map { "($it)" } + header.termValues.map { "[$it]" } })
         table.rows.forEach { builder.addTableRow(it) }
     }
 }

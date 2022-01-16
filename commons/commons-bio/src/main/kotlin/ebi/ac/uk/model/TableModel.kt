@@ -4,7 +4,7 @@ import ebi.ac.uk.model.extensions.nameAttrsNames
 import ebi.ac.uk.model.extensions.nameAttrsValues
 import ebi.ac.uk.model.extensions.valueAttrsNames
 import ebi.ac.uk.model.extensions.valueAttrsValues
-import java.util.*
+import java.util.Objects
 
 sealed class Table<T : Any>(elements: List<T>) {
     abstract fun toTableRow(t: T): Row<T>
@@ -16,7 +16,7 @@ sealed class Table<T : Any>(elements: List<T>) {
         elements.forEach { addRow(it) }
     }
 
-    val rows: List<List<String?>>
+    val rows: List<List<String>>
         get() = _rows.mapTo(mutableListOf()) { row -> listOf(row.id) + row.values(headers.toList()) }
 
     val elements: List<T>
@@ -63,12 +63,13 @@ abstract class Row<T>(val original: T) {
 
     fun headers() = attributes.map { Header(it.name, it.nameAttrsNames, it.valueAttrsNames) }
 
-    fun values(headers: List<Header>) =
+    fun values(headers: List<Header>): List<String> =
         headers
             .map { findAttrByName(it.name) }
-            .flatMap { listOf(it.value) + it.nameAttrsValues + it.valueAttrsValues }
+            .flatMap { listOf(it.value.orEmpty()) + it.nameAttrsValues + it.valueAttrsValues }
 
-    private fun findAttrByName(name: String) = this.attributes.firstOrNull { it.name == name } ?: Attribute.EMPTY_ATTR
+    private fun findAttrByName(name: String): Attribute =
+        attributes.firstOrNull { it.name == name } ?: Attribute.EMPTY_ATTR
 }
 
 class LinksTable(links: List<Link> = emptyList()) : Table<Link>(links) {
@@ -90,6 +91,4 @@ class SectionsTable(sections: List<Section> = emptyList()) : Table<Section>(sect
         override val id = t.accNo ?: ""
         override val attributes = t.attributes
     }
-
-    fun asSectionsTable() = SectionsTable(elements.map { it })
 }
