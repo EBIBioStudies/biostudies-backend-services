@@ -20,7 +20,7 @@ fun XmlWriter.writeXmlAttr(name: Any, value: Any?) {
     setNextIsAttribute(false)
 }
 
-fun XmlWriter.writeXmlField(name: Any, value: Any) = writeObjectField(name.toString(), value)
+fun XmlWriter.writeXmlField(name: Any, value: Any?) = writeObjectField(name.toString(), value)
 fun XmlWriter.writeXmlCollection(name: Any, value: List<Any>) = value.ifNotEmpty { writeXmlField(name, value) }
 fun XmlWriter.writeXmlBooleanAttr(name: Any, value: Boolean, ignoreFalse: Boolean = true) =
     value.or(ignoreFalse.not()).ifTrue { writeXmlAttr(name, value) }

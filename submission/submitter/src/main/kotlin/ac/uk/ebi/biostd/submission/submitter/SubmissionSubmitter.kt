@@ -1,7 +1,6 @@
 package ac.uk.ebi.biostd.submission.submitter
 
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
-import ac.uk.ebi.biostd.json.exception.NoAttributeValueException
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
@@ -169,7 +168,6 @@ class SubmissionSubmitter(
 
     private fun getAttributes(submission: Submission): List<ExtAttribute> {
         return submission.attributes
-            .onEach { require(it.value.isNotEmpty()) { throw NoAttributeValueException(it.value) } }
             .filterNot { SUBMISSION_RESERVED_ATTRIBUTES.contains(it.name) }
             .map { it.toExtAttribute() }
     }

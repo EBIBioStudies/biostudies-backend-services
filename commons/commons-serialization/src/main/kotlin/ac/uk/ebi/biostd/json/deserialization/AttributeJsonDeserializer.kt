@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer
 import com.fasterxml.jackson.databind.node.TextNode
+import ebi.ac.uk.base.nullIfBlank
 import ebi.ac.uk.base.orFalse
 import ebi.ac.uk.model.Attribute
 import uk.ac.ebi.serialization.extensions.convertOrDefault
@@ -22,7 +23,7 @@ internal class AttributeJsonDeserializer : StdDeserializer<Attribute>(Attribute:
         val mapper = jp.codec as ObjectMapper
         val node: JsonNode = mapper.readTree(jp)
         val name = node.getNode<TextNode>(NAME).textValue()
-        val value = node.findNode<TextNode>(VALUE)?.textValue().orEmpty()
+        val value = node.findNode<TextNode>(VALUE)?.textValue()?.nullIfBlank()
 
         return Attribute(
             name = name,

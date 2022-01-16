@@ -4,7 +4,7 @@ import ebi.ac.uk.model.extensions.nameAttrsNames
 import ebi.ac.uk.model.extensions.nameAttrsValues
 import ebi.ac.uk.model.extensions.valueAttrsNames
 import ebi.ac.uk.model.extensions.valueAttrsValues
-import java.util.Objects
+import java.util.*
 
 sealed class Table<T : Any>(elements: List<T>) {
     abstract fun toTableRow(t: T): Row<T>
@@ -16,7 +16,7 @@ sealed class Table<T : Any>(elements: List<T>) {
         elements.forEach { addRow(it) }
     }
 
-    val rows: List<List<String>>
+    val rows: List<List<String?>>
         get() = _rows.mapTo(mutableListOf()) { row -> listOf(row.id) + row.values(headers.toList()) }
 
     val elements: List<T>

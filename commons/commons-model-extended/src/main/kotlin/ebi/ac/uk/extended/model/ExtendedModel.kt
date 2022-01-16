@@ -80,7 +80,7 @@ data class ExtFileTable(val files: List<ExtFile>) {
 
 data class ExtAttribute(
     val name: String,
-    val value: String,
+    val value: String?,
     val reference: Boolean = false,
     val nameAttrs: List<ExtAttributeDetail> = listOf(),
     val valueAttrs: List<ExtAttributeDetail> = listOf()

@@ -17,12 +17,13 @@ internal inline fun validate(value: Boolean, lazyMessage: () -> String) {
     }
 }
 
+// TODO: add proper exception
 internal fun toAttributes(chunkLines: List<TsvChunkLine>): MutableList<Attribute> {
     val attributes: MutableList<Attribute> = mutableListOf()
     chunkLines.forEach { line ->
         when {
-            line.isNameDetail() -> addNameAttributeDetail(line.name(), line.value, attributes)
-            line.isValueDetail() -> addValueAttributeDetail(line.name(), line.value, attributes)
+            line.isNameDetail() -> addNameAttributeDetail(line.name(), line.value!!, attributes)
+            line.isValueDetail() -> addValueAttributeDetail(line.name(), line.value!!, attributes)
             else -> attributes.add(Attribute(line.name(), line.value, line.isReference()))
         }
     }

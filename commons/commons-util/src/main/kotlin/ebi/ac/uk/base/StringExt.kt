@@ -4,6 +4,13 @@ import org.apache.commons.lang3.BooleanUtils
 
 const val EMPTY = ""
 
+fun String.nullIfBlank(): String? {
+    return when {
+        isBlank() -> null
+        else -> this
+    }
+}
+
 /**
  * Return true if the given String is NOT empty nor null other.
  */

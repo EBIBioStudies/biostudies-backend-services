@@ -8,8 +8,9 @@ import ebi.ac.uk.model.constants.SectionFields
 
 internal const val TO_EXT_ATTRIBUTE_EXTENSIONS = "ebi.ac.uk.extended.mapping.from.ToExtAttributeKt"
 
+// TODO: remove section attribute this does not bellow to this abtraction level.
 fun Attribute.toExtAttribute(): ExtAttribute {
-    val attrValue = if (name == SectionFields.FILE_LIST.value) value.substringBeforeLast(".") else value
+    val attrValue = if (name == SectionFields.FILE_LIST.value) value?.substringBeforeLast(".") else value
     return ExtAttribute(name, attrValue, reference, toDetails(nameAttrs), toDetails(valueAttrs))
 }
 
