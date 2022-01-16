@@ -91,7 +91,6 @@ internal class SubmissionRefreshApiTest(private val tempFolder: TemporaryFolder)
                 val update = update(SUB_TITLE, NEW_SUBTITLE)
                     .set(SUB_RELEASE_TIME, newReleaseDate.toInstant())
                     .set(SUB_ATTRIBUTES, listOf(DocAttribute(ATTR_NAME, NEW_ATTR_VALUE)))
-
                 mongoTemplate.updateFirst(query, update, DocSubmission::class.java)
             }
         }

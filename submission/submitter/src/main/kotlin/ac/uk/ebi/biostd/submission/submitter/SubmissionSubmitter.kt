@@ -59,14 +59,6 @@ class SubmissionSubmitter(
     private val submissionQueryService: SubmissionQueryService,
     private val properties: ApplicationProperties
 ) {
-    fun submit(request: SubmitRequest): ExtSubmission {
-        val (accNo, version) = submitAsync(request)
-        return processRequest(accNo, version)
-    }
-
-    fun submit(request: SubmissionRequest): ExtSubmission =
-        processRequest(request.submission.accNo, request.submission.version)
-
     fun submitAsync(rqt: SubmitRequest): Pair<String, Int> {
         logger.info { "${rqt.accNo} ${rqt.submitter.email} Processing async request $rqt" }
         val sub = process(rqt.submission, rqt.submitter.asUser(), rqt.onBehalfUser?.asUser(), rqt.sources, rqt.method)
