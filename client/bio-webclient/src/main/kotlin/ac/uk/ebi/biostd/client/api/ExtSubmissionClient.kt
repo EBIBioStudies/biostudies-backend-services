@@ -64,6 +64,11 @@ class ExtSubmissionClient(
         )
     }
 
+    override fun refreshSubmission(accNo: String): ExtSubmission {
+        val response = restTemplate.postForEntity<String>("$EXT_SUBMISSIONS_URL/refresh/$accNo")
+        return extSerializationService.deserialize(response.body!!)
+    }
+
     private fun asUrl(extPageQuery: ExtPageQuery): String =
         UriComponentsBuilder.fromUriString(EXT_SUBMISSIONS_URL)
             .queryParam("offset", extPageQuery.offset)
