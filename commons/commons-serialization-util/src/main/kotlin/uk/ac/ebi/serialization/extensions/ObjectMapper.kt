@@ -50,5 +50,3 @@ fun ObjectMapper.tryConvertValue(node: JsonNode, type: JavaType): Any? {
     return runCatching<Any> { convertValue(node, type) }.getOrNull()
 }
 
-inline fun <reified T : Any> ObjectMapper.deserialize(json: String) = readValue(json, T::class.java)!!
-inline fun <reified T> ObjectMapper.serialize(value: T): String = writeValueAsString(value)

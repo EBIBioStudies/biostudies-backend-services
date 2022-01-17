@@ -1,5 +1,6 @@
 package uk.ac.ebi.extended.serialization.deserializers
 
+import com.fasterxml.jackson.module.kotlin.readValue
 import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.extended.model.ExtFile
@@ -8,6 +9,7 @@ import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size
+import ebi.ac.uk.util.collections.second
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
@@ -15,7 +17,6 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
-import uk.ac.ebi.serialization.extensions.deserialize
 
 @ExtendWith(TemporaryFolderExtension::class)
 class ExtFileDeserializerTest(private val tempFolder: TemporaryFolder) {
@@ -33,6 +34,11 @@ class ExtFileDeserializerTest(private val tempFolder: TemporaryFolder) {
                 jsonObj {
                     "name" to "Type"
                     "value" to "Data"
+                },
+                jsonObj {
+                    "name" to "Source"
+                    "value" to null
+                    "reference" to true
                 }
             )
             "extType" to "nfsFile"
@@ -41,16 +47,22 @@ class ExtFileDeserializerTest(private val tempFolder: TemporaryFolder) {
             "md5" to file.md5()
         }.toString()
 
-        val extFile = testInstance.deserialize<ExtFile>(json) as NfsFile
+        val extFile = testInstance.readValue<ExtFile>(json) as NfsFile
 
         assertThat(extFile.fileName).isEqualTo("nfs-file.txt")
         assertThat(extFile.filePath).isEqualTo("folder/nfs-file.txt")
         assertThat(extFile.relPath).isEqualTo("Files/folder/nfs-file.txt")
         assertThat(extFile.fullPath).isEqualTo(file.absolutePath)
         assertThat(extFile.file).isEqualTo(file)
-        assertThat(extFile.attributes).hasSize(1)
+        assertThat(extFile.attributes).hasSize(2)
+
         assertThat(extFile.attributes.first().name).isEqualTo("Type")
         assertThat(extFile.attributes.first().value).isEqualTo("Data")
+        assertThat(extFile.attributes.first().reference).isEqualTo(false)
+
+        assertThat(extFile.attributes.second().name).isEqualTo("Source")
+        assertThat(extFile.attributes.second().value).isNull()
+        assertThat(extFile.attributes.second().reference).isEqualTo(true)
     }
 
     @Test
@@ -72,7 +84,7 @@ class ExtFileDeserializerTest(private val tempFolder: TemporaryFolder) {
             "extType" to "fireFile"
         }.toString()
 
-        val extFile = testInstance.deserialize<ExtFile>(json) as FireFile
+        val extFile = testInstance.readValue<ExtFile>(json) as FireFile
 
         assertThat(extFile.fileName).isEqualTo("test-file.txt")
         assertThat(extFile.filePath).isEqualTo("folder/test-file.txt")
@@ -103,7 +115,7 @@ class ExtFileDeserializerTest(private val tempFolder: TemporaryFolder) {
             "md5" to "fireDirectoryMd5"
         }.toString()
 
-        val extFile = testInstance.deserialize<ExtFile>(json) as FireDirectory
+        val extFile = testInstance.readValue<ExtFile>(json) as FireDirectory
 
         assertThat(extFile.fileName).isEqualTo("test-file.txt")
         assertThat(extFile.filePath).isEqualTo("folder/test-file.txt")
@@ -123,6 +135,6 @@ class ExtFileDeserializerTest(private val tempFolder: TemporaryFolder) {
             "extType" to "nfsFile"
         }.toString()
 
-        assertThrows<IllegalArgumentException> { testInstance.deserialize<ExtFile>(json) }
+        assertThrows<IllegalArgumentException> { testInstance.readValue<ExtFile>(json) }
     }
 }

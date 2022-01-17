@@ -8,7 +8,6 @@ import ebi.ac.uk.extended.model.ExtLinkTable
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
-import uk.ac.ebi.serialization.extensions.serialize
 
 class ExtLinksTableSerializerTest {
     private val testInstance = ExtSerializationService.mapper
@@ -19,7 +18,7 @@ class ExtLinksTableSerializerTest {
             listOf(
                 ExtLink(
                     url = "http://mylink.org",
-                    attributes = listOf(ExtAttribute("Type", "Resource", false))
+                    attributes = listOf(ExtAttribute("Type", "Resource", false), ExtAttribute("Source", null, true))
                 )
             )
         )
@@ -32,6 +31,11 @@ class ExtLinksTableSerializerTest {
                             "name" to "Type"
                             "value" to "Resource"
                             "reference" to false
+                        },
+                        jsonObj {
+                            "name" to "Source"
+                            "value" to null
+                            "reference" to true
                         }
                     )
                     "extType" to "link"
@@ -40,6 +44,6 @@ class ExtLinksTableSerializerTest {
             "extType" to "linksTable"
         }.toString()
 
-        assertThat(testInstance.serialize(extLinksTable)).isEqualToIgnoringWhitespace(expectedJson)
+        assertThat(testInstance.writeValueAsString(extLinksTable)).isEqualToIgnoringWhitespace(expectedJson)
     }
 }

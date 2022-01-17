@@ -58,7 +58,7 @@ class ExtSerializationService {
     /**
      * Serialize a generic element. ONLY for testing purpose.
      */
-    private internal fun <T> serializeElement(element: T, properties: Properties = Properties(false)): String {
+    internal fun <T> serializeElement(element: T, properties: Properties = Properties(false)): String {
         mapper.writerWithDefaultPrettyPrinter().writeValue(properties, element)
         return properties.buffer.toString()
     }

@@ -1,12 +1,12 @@
 package uk.ac.ebi.extended.serialization.deserializers
 
+import com.fasterxml.jackson.module.kotlin.readValue
 import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.extended.model.ExtSectionTable
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
-import uk.ac.ebi.serialization.extensions.deserialize
 
 class ExtSectionsTableDeserializerTest {
     private val testInstance = ExtSerializationService.mapper
@@ -23,7 +23,7 @@ class ExtSectionsTableDeserializerTest {
             "extType" to "sectionsTable"
         }.toString()
 
-        val extSectionsTable = testInstance.deserialize<ExtSectionTable>(json)
+        val extSectionsTable = testInstance.readValue<ExtSectionTable>(json)
         assertThat(extSectionsTable.sections).hasSize(1)
 
         val extSection = extSectionsTable.sections.first()
