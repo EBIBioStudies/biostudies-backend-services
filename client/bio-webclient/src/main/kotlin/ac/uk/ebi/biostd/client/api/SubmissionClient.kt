@@ -46,12 +46,6 @@ internal class SubmissionClient(
         submitAsyncSingle(HttpEntity(submission, createHeaders(format)), register)
     }
 
-    override fun refreshSubmission(accNo: String): SubmissionResponse {
-        return template.postForEntity<String>("$SUBMISSIONS_URL/refresh/$accNo")
-            .map { body -> serializationService.deserializeSubmission(body, SubFormat.JSON) }
-            .let { ClientResponse(it.body!!, it.statusCodeValue) }
-    }
-
     override fun deleteSubmission(accNo: String) = template.delete("$SUBMISSIONS_URL/$accNo")
 
     override fun deleteSubmissions(submissions: List<String>) =
