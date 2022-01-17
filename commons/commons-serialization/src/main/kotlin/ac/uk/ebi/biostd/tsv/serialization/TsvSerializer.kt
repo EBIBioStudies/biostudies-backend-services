@@ -15,7 +15,7 @@ import ebi.ac.uk.model.constants.SectionFields.FILE_LIST
 import ebi.ac.uk.model.constants.TableFields.FILES_TABLE
 import ebi.ac.uk.model.constants.TableFields.LINKS_TABLE
 
-class TsvToStringSerializer {
+class TsvSerializer {
     fun <T> serialize(element: T): String {
         val builder = TsvBuilder()
 

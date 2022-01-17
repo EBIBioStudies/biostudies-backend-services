@@ -23,12 +23,12 @@ import ac.uk.ebi.biostd.validation.SerializationException
 import ebi.ac.uk.dsl.attribute
 import ebi.ac.uk.dsl.file
 import ebi.ac.uk.dsl.filesTable
-import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.link
 import ebi.ac.uk.dsl.linksTable
 import ebi.ac.uk.dsl.section
 import ebi.ac.uk.dsl.sectionsTable
 import ebi.ac.uk.dsl.submission
+import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.model.AttributeDetail
 import org.assertj.core.api.Assertions.assertThat
@@ -41,7 +41,6 @@ class TsvDeserializerTest {
     @Test
     fun `basic submission`() {
         val result = deserializer.deserialize(basicSubmission().toString())
-
         assertThat(result).isEqualTo(
             submission("S-EPMC123") {
                 attribute("Title", "Basic Submission")
@@ -59,7 +58,20 @@ class TsvDeserializerTest {
             submission("S-EPMC123") {
                 attribute("Title", "Basic Submission")
                 attribute("DataSource", "EuropePMC")
-                attribute("Abstract", "")
+                attribute("Abstract", null)
+            }
+        )
+    }
+
+    @Test
+    fun `submission with null attribute`() {
+        val result = deserializer.deserialize(submissionWithEmptyAttribute().toString())
+
+        assertThat(result).isEqualTo(
+            submission("S-EPMC123") {
+                attribute("Title", "Basic Submission")
+                attribute("DataSource", "EuropePMC")
+                attribute("Abstract", null)
             }
         )
     }
@@ -184,14 +196,14 @@ class TsvDeserializerTest {
                     sectionsTable {
                         section("Data") {
                             accNo = "DT-1"
-                            attribute("Title", "Data 1")
+                            attribute("Title", null)
                             attribute("Desc", "Group 1")
                         }
 
                         section("Data") {
                             accNo = "DT-2"
                             attribute("Title", "Data 2")
-                            attribute("Desc", "Group 2")
+                            attribute("Desc", null)
                         }
                     }
                 }
