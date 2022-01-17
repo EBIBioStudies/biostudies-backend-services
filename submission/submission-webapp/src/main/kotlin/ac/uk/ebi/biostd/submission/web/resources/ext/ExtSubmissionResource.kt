@@ -48,6 +48,13 @@ class ExtSubmissionResource(
         @PathVariable accNo: String
     ): ExtSubmission = extSubmissionService.refreshSubmission(accNo, user.email)
 
+    @PostMapping("/re-trigger/{accNo}/{version}")
+    fun reTriggerSubmission(
+        @BioUser user: SecurityUser,
+        @PathVariable accNo: String,
+        @PathVariable version: Int
+    ): ExtSubmission = extSubmissionService.reTriggerSubmission(accNo, version)
+
     @PostMapping
     @PreAuthorize("isAuthenticated()")
     fun submitExtended(

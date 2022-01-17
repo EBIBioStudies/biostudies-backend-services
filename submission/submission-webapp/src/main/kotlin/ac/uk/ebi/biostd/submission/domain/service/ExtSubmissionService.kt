@@ -53,6 +53,10 @@ class ExtSubmissionService(
         return submitExt(user, submission, emptyList(), MOVE)
     }
 
+    fun reTriggerSubmission(accNo: String, version: Int): ExtSubmission {
+        return submissionSubmitter.processRequest(accNo, version)
+    }
+
     fun submitExt(
         user: String,
         extSubmission: ExtSubmission,
