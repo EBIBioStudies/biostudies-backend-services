@@ -50,7 +50,6 @@ class ExtSubmissionResource(
 
     @PostMapping("/re-trigger/{accNo}/{version}")
     fun reTriggerSubmission(
-        @BioUser user: SecurityUser,
         @PathVariable accNo: String,
         @PathVariable version: Int
     ): ExtSubmission = extSubmissionService.reTriggerSubmission(accNo, version)
