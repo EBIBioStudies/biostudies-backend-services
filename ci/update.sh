@@ -22,7 +22,7 @@ rm -rf start_logs.txt
 ## deploy new version of application
 nohup ${JAVA_HOME}/bin/java JVM_PARAMS \
     -Dsun.jnu.encoding=UTF-8 \
-    -Xdebug -Xrunjdwp:transport=dt_socket,server=y,address=DEBUG_PORT,suspend=n \
+    -Xdebug -Xrunjdwp:transport=dt_socket,server=y,address=*:DEBUG_PORT,suspend=n \
     -jar APP_PATH/APP_NAME \
     --spring.config.location=classpath:/application.yml,APP_PATH/application.yml \
     --server.port=APP_PORT >> start_logs.txt &

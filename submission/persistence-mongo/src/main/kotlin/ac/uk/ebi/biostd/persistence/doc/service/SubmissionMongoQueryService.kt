@@ -68,9 +68,9 @@ internal class SubmissionMongoQueryService(
         return SubmissionRequest(submission = fullSubmission, fileMode = request.fileMode, draftKey = request.draftKey)
     }
 
-    private fun loadFiles(fileList: ExtFileList, files: Map<String, File>): ExtFileList {
-        val fileListFile = files.getValue(fileList.fileName)
-        val files = fileListFile.inputStream().use { serializationService.deserialize(it) }.toList()
+    private fun loadFiles(fileList: ExtFileList, fileMap: Map<String, File>): ExtFileList {
+        val fileListFile = fileMap.getValue(fileList.fileName)
+        val files = fileListFile.inputStream().use { serializationService.deserialize(it).toList() }
         return fileList.copy(files = files)
     }
 
