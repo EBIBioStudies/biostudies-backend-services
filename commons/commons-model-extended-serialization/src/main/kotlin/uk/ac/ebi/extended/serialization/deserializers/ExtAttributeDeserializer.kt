@@ -25,7 +25,7 @@ class ExtAttributeDeserializer : JsonDeserializer<ExtAttribute>() {
 
         return ExtAttribute(
             name = node.getNode<TextNode>(ATTR_NAME).textValue(),
-            value = node.findNode<TextNode>(ATTR_VALUE)?.textValue()?.nullIfBlank(),
+            value = node.findNode<TextNode>(ATTR_VALUE)?.textValue().nullIfBlank(),
             reference = node.get(ATTR_REFERENCE)?.asBoolean().orFalse(),
             nameAttrs = mapper.convertOrDefault(node, ATTR_NAME_ATTRS) { mutableListOf() },
             valueAttrs = mapper.convertOrDefault(node, ATTR_VAL_ATTRS) { mutableListOf() },

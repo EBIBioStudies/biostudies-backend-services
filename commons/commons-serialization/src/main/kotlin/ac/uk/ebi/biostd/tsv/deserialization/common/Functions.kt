@@ -25,7 +25,7 @@ internal fun toAttributes(chunkLines: List<TsvChunkLine>): MutableList<Attribute
         when {
             line.isNameDetail() -> addNameAttributeDetail(line.name(), line.value!!, attributes)
             line.isValueDetail() -> addValueAttributeDetail(line.name(), line.value!!, attributes)
-            else -> attributes.add(Attribute(line.name(), line.value?.nullIfBlank(), line.isReference()))
+            else -> attributes.add(Attribute(line.name(), line.value.nullIfBlank(), line.isReference()))
         }
     }
     return attributes
