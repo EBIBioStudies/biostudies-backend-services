@@ -15,7 +15,7 @@ fun submissionWithEmptyAttribute() = tsv {
     line("Submission", "S-EPMC123")
     line("Title", "Basic Submission")
     line("DataSource", "EuropePMC")
-    line("Abstract")
+    line("Abstract", "")
     line()
 }
 

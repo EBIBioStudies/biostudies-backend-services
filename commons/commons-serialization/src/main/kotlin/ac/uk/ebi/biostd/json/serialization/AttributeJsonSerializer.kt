@@ -4,7 +4,6 @@ import ac.uk.ebi.biostd.json.common.writeJsonArray
 import ac.uk.ebi.biostd.json.common.writeJsonBoolean
 import ac.uk.ebi.biostd.json.common.writeJsonString
 import ac.uk.ebi.biostd.json.common.writeObj
-import ac.uk.ebi.biostd.tsv.deserialization.common.isNameDetail
 import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.databind.SerializerProvider
 import com.fasterxml.jackson.databind.ser.std.StdSerializer

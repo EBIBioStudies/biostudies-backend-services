@@ -81,7 +81,16 @@ class TsvSerializer {
         builder.addSeparator()
 
         val headers = listOf(Header(mainHeader)) + table.headers
-        builder.addTableRow(headers.flatMap { header -> listOf(header.name) + header.termNames.map { "($it)" } + header.termValues.map { "[$it]" } })
+        builder.addTableRow(
+            headers.flatMap { header ->
+                buildList {
+                    add(header.name)
+                    addAll(header.termNames.map { "($it)" })
+                    addAll(header.termValues.map { "[$it]" })
+                }
+            }
+        )
+
         table.rows.forEach { builder.addTableRow(it) }
     }
 }
