@@ -66,7 +66,13 @@ abstract class Row<T>(val original: T) {
     fun values(headers: List<Header>): List<String> =
         headers
             .map { findAttrByName(it.name) }
-            .flatMap { listOf(it.value.orEmpty()) + it.nameAttrsValues + it.valueAttrsValues }
+            .flatMap {
+                buildList {
+                    add(it.value.orEmpty())
+                    addAll(it.nameAttrsValues)
+                    addAll(it.valueAttrsValues)
+                }
+            }
 
     private fun findAttrByName(name: String): Attribute =
         attributes.firstOrNull { it.name == name } ?: Attribute.EMPTY_ATTR

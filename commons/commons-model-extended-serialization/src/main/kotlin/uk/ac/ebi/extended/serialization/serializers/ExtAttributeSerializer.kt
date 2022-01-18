@@ -13,14 +13,12 @@ import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.ATTR_VA
 class ExtAttributeSerializer : JsonSerializer<ExtAttribute>() {
 
     override fun serialize(attr: ExtAttribute, gen: JsonGenerator, serializers: SerializerProvider) {
-        gen.apply {
-            writeStartObject()
-            writeStringField(ATTR_NAME, attr.name)
-            writeStringField(ATTR_VALUE, attr.value?.let { if (attr.value!!.isBlank()) null else attr.value })
-            writeBooleanField(ATTR_REFERENCE, attr.reference)
-            if (attr.nameAttrs.isNotEmpty()) writeObjectField(ATTR_NAME_ATTRS, attr.nameAttrs)
-            if (attr.valueAttrs.isNotEmpty()) writeObjectField(ATTR_VAL_ATTRS, attr.valueAttrs)
-            writeEndObject()
-        }
+        gen.writeStartObject()
+        gen.writeStringField(ATTR_NAME, attr.name)
+        gen.writeStringField(ATTR_VALUE, attr.value?.let { if (attr.value!!.isBlank()) null else attr.value })
+        gen.writeBooleanField(ATTR_REFERENCE, attr.reference)
+        gen.writeObjectField(ATTR_NAME_ATTRS, attr.nameAttrs)
+        gen.writeObjectField(ATTR_VAL_ATTRS, attr.valueAttrs)
+        gen.writeEndObject()
     }
 }

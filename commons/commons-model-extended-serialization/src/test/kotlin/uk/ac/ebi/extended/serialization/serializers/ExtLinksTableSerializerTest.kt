@@ -31,11 +31,15 @@ class ExtLinksTableSerializerTest {
                             "name" to "Type"
                             "value" to "Resource"
                             "reference" to false
+                            "nameAttrs" to jsonArray()
+                            "valueAttrs" to jsonArray()
                         },
                         jsonObj {
                             "name" to "Source"
                             "value" to null
                             "reference" to true
+                            "nameAttrs" to jsonArray()
+                            "valueAttrs" to jsonArray()
                         }
                     )
                     "extType" to "link"

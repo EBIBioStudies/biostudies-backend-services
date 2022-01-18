@@ -42,11 +42,15 @@ class ExtFileSerializerTest(private val tempFolder: TemporaryFolder) {
                     "name" to "Type"
                     "value" to "Data"
                     "reference" to false
+                    "nameAttrs" to jsonArray()
+                    "valueAttrs" to jsonArray()
                 },
                 jsonObj {
                     "name" to "Source"
                     "value" to null
                     "reference" to true
+                    "nameAttrs" to jsonArray()
+                    "valueAttrs" to jsonArray()
                 }
             )
             "extType" to "nfsFile"
@@ -77,11 +81,15 @@ class ExtFileSerializerTest(private val tempFolder: TemporaryFolder) {
                     "name" to "Type"
                     "value" to "Data"
                     "reference" to false
+                    "nameAttrs" to jsonArray()
+                    "valueAttrs" to jsonArray()
                 },
                 jsonObj {
                     "name" to "Source"
                     "value" to null
                     "reference" to true
+                    "nameAttrs" to jsonArray()
+                    "valueAttrs" to jsonArray()
                 }
             )
             "extType" to "fireFile"
@@ -111,11 +119,15 @@ class ExtFileSerializerTest(private val tempFolder: TemporaryFolder) {
                     "name" to "Type"
                     "value" to "Data"
                     "reference" to false
+                    "nameAttrs" to jsonArray()
+                    "valueAttrs" to jsonArray()
                 },
                 jsonObj {
                     "name" to "Source"
                     "value" to null
                     "reference" to true
+                    "nameAttrs" to jsonArray()
+                    "valueAttrs" to jsonArray()
                 }
             )
             "extType" to "fireDirectory"

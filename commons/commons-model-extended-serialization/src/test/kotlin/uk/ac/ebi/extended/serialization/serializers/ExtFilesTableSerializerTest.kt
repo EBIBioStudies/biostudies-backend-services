@@ -45,11 +45,15 @@ class ExtFilesTableSerializerTest(private val tempFolder: TemporaryFolder) {
                             "name" to "Type"
                             "value" to "Data"
                             "reference" to false
+                            "nameAttrs" to jsonArray()
+                            "valueAttrs" to jsonArray()
                         },
                         jsonObj {
                             "name" to "Source"
                             "value" to null
                             "reference" to true
+                            "nameAttrs" to jsonArray()
+                            "valueAttrs" to jsonArray()
                         }
                     )
                     "extType" to "nfsFile"
