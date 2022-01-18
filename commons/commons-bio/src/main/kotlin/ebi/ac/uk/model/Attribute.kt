@@ -37,4 +37,3 @@ data class AttributeDetail(val name: String, val value: String) {
 
     override fun hashCode() = Objects.hash(name.lowercase(), value.lowercase())
 }
-

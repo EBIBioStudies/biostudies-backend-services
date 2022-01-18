@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import ebi.ac.uk.extended.model.ExtAttribute
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileList
 import ebi.ac.uk.extended.model.ExtFileTable
@@ -41,6 +42,8 @@ import java.io.InputStream
 import java.io.OutputStream
 import java.io.StringWriter
 import java.time.OffsetDateTime
+import uk.ac.ebi.extended.serialization.deserializers.ExtAttributeDeserializer
+import uk.ac.ebi.extended.serialization.serializers.ExtAttributeSerializer
 
 data class Properties(val includeFileListFiles: Boolean) : StringWriter()
 
@@ -69,6 +72,7 @@ class ExtSerializationService {
         private fun createMapper(): ObjectMapper {
             val module = SimpleModule().apply {
                 addDeserializer(Either::class.java, EitherExtTypeDeserializer())
+                addDeserializer(ExtAttribute::class.java, ExtAttributeDeserializer())
                 addDeserializer(ExtFile::class.java, ExtFileDeserializer())
                 addDeserializer(ExtFileTable::class.java, ExtFilesTableDeserializer())
                 addDeserializer(ExtLink::class.java, ExtLinkDeserializer())
@@ -78,6 +82,7 @@ class ExtSerializationService {
                 addDeserializer(OffsetDateTime::class.java, OffsetDateTimeDeserializer())
 
                 addSerializer(Either::class.java, EitherSerializer())
+                addSerializer(ExtAttribute::class.java, ExtAttributeSerializer())
                 addSerializer(ExtFile::class.java, ExtFileSerializer())
                 addSerializer(ExtFileTable::class.java, ExtFilesTableSerializer())
                 addSerializer(ExtLink::class.java, ExtLinkSerializer())

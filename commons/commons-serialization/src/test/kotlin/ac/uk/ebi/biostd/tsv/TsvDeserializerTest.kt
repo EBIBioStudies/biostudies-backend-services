@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.tsv
 import ac.uk.ebi.biostd.test.basicSubmission
 import ac.uk.ebi.biostd.test.basicSubmissionWithComments
 import ac.uk.ebi.biostd.test.basicSubmissionWithMultiline
+import ac.uk.ebi.biostd.test.submissionWithBlankAttribute
 import ac.uk.ebi.biostd.test.submissionWithDetailedAttributes
 import ac.uk.ebi.biostd.test.submissionWithEmptyAttribute
 import ac.uk.ebi.biostd.test.submissionWithFiles
@@ -13,6 +14,7 @@ import ac.uk.ebi.biostd.test.submissionWithInnerSubsectionsTable
 import ac.uk.ebi.biostd.test.submissionWithLinks
 import ac.uk.ebi.biostd.test.submissionWithLinksTable
 import ac.uk.ebi.biostd.test.submissionWithMultipleLineBreaks
+import ac.uk.ebi.biostd.test.submissionWithNullAttribute
 import ac.uk.ebi.biostd.test.submissionWithQuoteValue
 import ac.uk.ebi.biostd.test.submissionWithRootSection
 import ac.uk.ebi.biostd.test.submissionWithSectionsTable
@@ -23,12 +25,12 @@ import ac.uk.ebi.biostd.validation.SerializationException
 import ebi.ac.uk.dsl.attribute
 import ebi.ac.uk.dsl.file
 import ebi.ac.uk.dsl.filesTable
+import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.link
 import ebi.ac.uk.dsl.linksTable
 import ebi.ac.uk.dsl.section
 import ebi.ac.uk.dsl.sectionsTable
 import ebi.ac.uk.dsl.submission
-import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.model.AttributeDetail
 import org.assertj.core.api.Assertions.assertThat
@@ -41,6 +43,7 @@ class TsvDeserializerTest {
     @Test
     fun `basic submission`() {
         val result = deserializer.deserialize(basicSubmission().toString())
+
         assertThat(result).isEqualTo(
             submission("S-EPMC123") {
                 attribute("Title", "Basic Submission")
@@ -65,7 +68,7 @@ class TsvDeserializerTest {
 
     @Test
     fun `submission with null attribute`() {
-        val result = deserializer.deserialize(submissionWithEmptyAttribute().toString())
+        val result = deserializer.deserialize(submissionWithNullAttribute().toString())
 
         assertThat(result).isEqualTo(
             submission("S-EPMC123") {

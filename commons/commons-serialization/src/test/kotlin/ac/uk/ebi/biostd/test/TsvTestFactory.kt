@@ -19,6 +19,22 @@ fun submissionWithEmptyAttribute() = tsv {
     line()
 }
 
+fun submissionWithBlankAttribute() = tsv {
+    line("Submission", "S-EPMC123")
+    line("Title", "Basic Submission")
+    line("DataSource", "EuropePMC")
+    line("Abstract", "  ")
+    line()
+}
+
+fun submissionWithNullAttribute() = tsv {
+    line("Submission", "S-EPMC123")
+    line("Title", "Basic Submission")
+    line("DataSource", "EuropePMC")
+    line("Abstract")
+    line()
+}
+
 fun submissionWithQuoteValue() = tsv {
     line("Submission", "S-EPMC123")
     line("Title", "The \"Submission\": title.")

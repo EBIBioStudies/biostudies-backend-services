@@ -21,28 +21,50 @@ class AttributeJsonDeserializerTest {
     }
 
     @Test
-    fun `deserialize empty value`() {
-        val attribute = testInstance.readValue<Attribute>(
-            """{
-                |"name": "attr name",
-                |"value": ""
-                |}""".trimMargin()
-        )
+    fun `deserialize null value`() {
+        val jsonAttribute = jsonObj {
+            "name" to "attr name"
+            "value" to null
+        }
+        val attribute = testInstance.readValue<Attribute>(jsonAttribute.toString())
 
         assertThat(attribute.name).isEqualTo("attr name")
-        assertThat(attribute.value).isEmpty()
+        assertThat(attribute.value).isNull()
+    }
+
+    @Test
+    fun `deserialize blank value`() {
+        val jsonAttribute = jsonObj {
+            "name" to "attr name"
+            "value" to "  "
+        }
+        val attribute = testInstance.readValue<Attribute>(jsonAttribute.toString())
+
+        assertThat(attribute.name).isEqualTo("attr name")
+        assertThat(attribute.value).isNull()
+    }
+
+    @Test
+    fun `deserialize empty value`() {
+        val jsonAttribute = jsonObj {
+            "name" to "attr name"
+            "value" to ""
+        }
+        val attribute = testInstance.readValue<Attribute>(jsonAttribute.toString())
+
+        assertThat(attribute.name).isEqualTo("attr name")
+        assertThat(attribute.value).isNull()
     }
 
     @Test
     fun `deserialize no value`() {
-        val attribute = testInstance.readValue<Attribute>(
-            """{
-                |"name": "attr name"
-                |}""".trimMargin()
-        )
+        val jsonAttribute = jsonObj {
+            "name" to "attr name"
+        }
+        val attribute = testInstance.readValue<Attribute>(jsonAttribute.toString())
 
         assertThat(attribute.name).isEqualTo("attr name")
-        assertThat(attribute.value).isEmpty()
+        assertThat(attribute.value).isNull()
     }
 
     @Test
@@ -62,13 +84,11 @@ class AttributeJsonDeserializerTest {
     @Test
     fun `deserialize attribute with name and value`() {
         val attr = Attribute(name = "attr name", value = "attr value", reference = false)
-
-        val result = testInstance.readValue<Attribute>(
-            """{
-                |"name": "${attr.name}",
-                |"value": "${attr.value}"
-                |}""".trimMargin()
-        )
+        val jsonAttribute = jsonObj {
+            "name" to attr.name
+            "value" to attr.value
+        }
+        val result = testInstance.readValue<Attribute>(jsonAttribute.toString())
 
         assertThat(result).isEqualTo(attr)
     }
