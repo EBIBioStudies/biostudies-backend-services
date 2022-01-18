@@ -13,6 +13,7 @@ import ac.uk.ebi.biostd.test.submissionWithInnerSubsectionsTable
 import ac.uk.ebi.biostd.test.submissionWithLinks
 import ac.uk.ebi.biostd.test.submissionWithLinksTable
 import ac.uk.ebi.biostd.test.submissionWithMultipleLineBreaks
+import ac.uk.ebi.biostd.test.submissionWithNullAttribute
 import ac.uk.ebi.biostd.test.submissionWithQuoteValue
 import ac.uk.ebi.biostd.test.submissionWithRootSection
 import ac.uk.ebi.biostd.test.submissionWithSectionsTable
@@ -59,7 +60,20 @@ class TsvDeserializerTest {
             submission("S-EPMC123") {
                 attribute("Title", "Basic Submission")
                 attribute("DataSource", "EuropePMC")
-                attribute("Abstract", "")
+                attribute("Abstract", null)
+            }
+        )
+    }
+
+    @Test
+    fun `submission with null attribute`() {
+        val result = deserializer.deserialize(submissionWithNullAttribute().toString())
+
+        assertThat(result).isEqualTo(
+            submission("S-EPMC123") {
+                attribute("Title", "Basic Submission")
+                attribute("DataSource", "EuropePMC")
+                attribute("Abstract", null)
             }
         )
     }
@@ -184,14 +198,14 @@ class TsvDeserializerTest {
                     sectionsTable {
                         section("Data") {
                             accNo = "DT-1"
-                            attribute("Title", "Data 1")
+                            attribute("Title", null)
                             attribute("Desc", "Group 1")
                         }
 
                         section("Data") {
                             accNo = "DT-2"
                             attribute("Title", "Data 2")
-                            attribute("Desc", "Group 2")
+                            attribute("Desc", null)
                         }
                     }
                 }

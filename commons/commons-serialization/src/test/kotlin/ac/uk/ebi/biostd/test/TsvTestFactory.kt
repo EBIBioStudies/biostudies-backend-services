@@ -15,6 +15,22 @@ fun submissionWithEmptyAttribute() = tsv {
     line("Submission", "S-EPMC123")
     line("Title", "Basic Submission")
     line("DataSource", "EuropePMC")
+    line("Abstract", "")
+    line()
+}
+
+fun submissionWithBlankAttribute() = tsv {
+    line("Submission", "S-EPMC123")
+    line("Title", "Basic Submission")
+    line("DataSource", "EuropePMC")
+    line("Abstract", "  ")
+    line()
+}
+
+fun submissionWithNullAttribute() = tsv {
+    line("Submission", "S-EPMC123")
+    line("Title", "Basic Submission")
+    line("DataSource", "EuropePMC")
     line("Abstract")
     line()
 }
@@ -105,8 +121,8 @@ fun submissionWithMultipleLineBreaks() = tsv {
 
 fun submissionWithSectionsTable() = submissionWithRootSection().apply {
     line("Data[]", "Title", "Desc")
-    line("DT-1", "Data 1", "Group 1")
-    line("DT-2", "Data 2", "Group 2")
+    line("DT-1", "", "Group 1")
+    line("DT-2", "Data 2", "")
     line()
 }
 

@@ -1,5 +1,6 @@
 package uk.ac.ebi.extended.serialization.deserializers
 
+import com.fasterxml.jackson.module.kotlin.readValue
 import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.extended.model.ExtFileTable
@@ -12,7 +13,6 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
-import uk.ac.ebi.serialization.extensions.deserialize
 
 @ExtendWith(TemporaryFolderExtension::class)
 class ExtFilesTableDeserializerTest(private val tempFolder: TemporaryFolder) {
@@ -45,7 +45,7 @@ class ExtFilesTableDeserializerTest(private val tempFolder: TemporaryFolder) {
             "extType" to "filesTable"
         }.toString()
 
-        val extFilesTable = testInstance.deserialize<ExtFileTable>(json)
+        val extFilesTable = testInstance.readValue<ExtFileTable>(json)
         assertThat(extFilesTable.files).hasSize(1)
 
         val extFile = extFilesTable.files.first() as NfsFile
