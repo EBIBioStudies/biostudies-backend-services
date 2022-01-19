@@ -12,6 +12,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.repositories.FileListDocFileRepositor
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.toExtFile
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
+import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus.REQUESTED
 import ac.uk.ebi.biostd.persistence.doc.model.allDocSections
 import ac.uk.ebi.biostd.persistence.doc.model.asBasicSubmission
 import ebi.ac.uk.extended.model.ExtFile
@@ -70,8 +71,8 @@ internal class SubmissionMongoQueryService(
             else -> submissionRepo.getSubmissions(filter, owner).map { it.asBasicSubmission() }
         }
 
-    override fun getRequest(accNo: String, version: Int): SubmissionRequest {
-        val request = requestRepository.getByAccNoAndVersion(accNo, version)
+    override fun getPendingRequest(accNo: String, version: Int): SubmissionRequest {
+        val request = requestRepository.getByAccNoAndVersionAndStatus(accNo, version, REQUESTED)
         val fileLists = request.fileList.associate { it.fileName to File(it.filePath) }
         val submission = serializationService.deserialize(request.submission.toString())
         val fullSubmission = submission.copy(section = submission.section.replace { loadFiles(it, fileLists) })

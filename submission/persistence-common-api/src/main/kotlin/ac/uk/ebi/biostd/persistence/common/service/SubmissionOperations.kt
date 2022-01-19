@@ -38,7 +38,7 @@ interface SubmissionQueryService {
      **/
     fun getSubmissionsByUser(owner: String, filter: SubmissionFilter): List<BasicSubmission>
 
-    fun getRequest(accNo: String, version: Int): SubmissionRequest
+    fun getPendingRequest(accNo: String, version: Int): SubmissionRequest
 
     fun getReferencedFiles(accNo: String, fileListName: String): List<ExtFile>
 }

@@ -5,6 +5,7 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
+import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus
 import org.bson.types.ObjectId
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
@@ -40,7 +41,11 @@ interface SubmissionMongoRepository : MongoRepository<DocSubmission, ObjectId> {
 }
 
 interface SubmissionRequestRepository : MongoRepository<DocSubmissionRequest, String> {
-    fun getByAccNoAndVersion(accNo: String, version: Int): DocSubmissionRequest
+    fun getByAccNoAndVersionAndStatus(
+        accNo: String,
+        version: Int,
+        status: SubmissionRequestStatus
+    ): DocSubmissionRequest
 }
 
 interface SubmissionDraftRepository : MongoRepository<DocSubmissionDraft, String> {
