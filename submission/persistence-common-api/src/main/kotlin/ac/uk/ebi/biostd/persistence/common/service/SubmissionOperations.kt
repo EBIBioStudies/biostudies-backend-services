@@ -33,10 +33,10 @@ interface SubmissionQueryService {
      * Return the list of submissions that belongs to a user. Both processed and processing or requesting ones are
      * retrieved.
      *
-     * @param email the submission owner email
+     * @param owner the submission owner email
      * @param filter the submission filter
      **/
-    fun getSubmissionsByUser(email: String, filter: SubmissionFilter): List<BasicSubmission>
+    fun getSubmissionsByUser(owner: String, filter: SubmissionFilter): List<BasicSubmission>
 
     fun getRequest(accNo: String, version: Int): SubmissionRequest
 

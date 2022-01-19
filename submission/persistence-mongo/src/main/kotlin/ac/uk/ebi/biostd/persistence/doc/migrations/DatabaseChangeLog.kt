@@ -5,6 +5,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ATTRIBUTES
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_MODIFICATION_TIME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_OWNER
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_RELEASED
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_RELEASE_TIME
@@ -19,6 +20,7 @@ import com.github.cloudyrock.mongock.ChangeSet
 import com.github.cloudyrock.mongock.driver.mongodb.springdata.v3.decorator.impl.MongockTemplate
 import ebi.ac.uk.model.constants.SectionFields.TITLE
 import org.springframework.data.domain.Sort.Direction.ASC
+import org.springframework.data.domain.Sort.Direction.DESC
 import org.springframework.data.mongodb.core.index.Index
 import org.springframework.data.mongodb.core.index.PartialIndexFilter
 import org.springframework.data.mongodb.core.query.Criteria.where
@@ -84,6 +86,17 @@ class DatabaseChangeLog {
                     .onField("$SUB.$SUB_SECTION.$SUB_ATTRIBUTES.value")
                     .build()
             )
+        }
+    }
+
+    @ChangeSet(order = "003", id = "Submission Modification time", author = "System")
+    fun changeSet003(template: MongockTemplate) {
+        template.indexOps(DocSubmission::class.java).apply {
+            ensureIndex(Index().on(SUB_MODIFICATION_TIME, DESC))
+        }
+
+        template.indexOps(DocSubmissionRequest::class.java).apply {
+            ensureIndex(Index().on("$SUB.$SUB_MODIFICATION_TIME", DESC))
         }
     }
 }

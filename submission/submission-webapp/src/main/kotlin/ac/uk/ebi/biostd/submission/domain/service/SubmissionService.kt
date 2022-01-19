@@ -93,6 +93,4 @@ class SubmissionService(
         submissions.forEach { require(userPrivilegesService.canDelete(user.email, it)) }
         submissionQueryService.expireSubmissions(submissions)
     }
-
-    fun getSubmission(accNo: String): ExtSubmission = submissionQueryService.getExtByAccNo(accNo)
 }

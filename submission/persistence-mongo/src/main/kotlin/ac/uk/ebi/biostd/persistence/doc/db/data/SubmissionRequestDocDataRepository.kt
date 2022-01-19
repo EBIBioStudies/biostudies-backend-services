@@ -30,10 +30,22 @@ class SubmissionRequestDocDataRepository(
     fun saveRequest(submissionRequest: DocSubmissionRequest): DocSubmissionRequest =
         submissionRequestRepository.save(submissionRequest)
 
-    fun findActiveRequest(filter: SubmissionFilter, email: String? = null): List<DocSubmissionRequest> {
-        val query = Query().limit(filter.limit).skip(filter.offset)
-        query.addCriteria(createQuery(filter, email))
-        return mongoTemplate.find(query, DocSubmissionRequest::class.java)
+    fun findActiveRequest(filter: SubmissionFilter, email: String? = null): Pair<Int, List<DocSubmissionRequest>> {
+        val query = Query().addCriteria(createQuery(filter, email))
+        val requestCount = mongoTemplate.count(query, DocSubmissionRequest::class.java)
+        return when {
+            requestCount <= filter.offset -> requestCount.toInt() to emptyList()
+            else -> findActiveRequest(query, filter.offset, filter.limit)
+        }
+    }
+
+    private fun findActiveRequest(
+        query: Query,
+        skip: Long,
+        limit: Int
+    ): Pair<Int, MutableList<DocSubmissionRequest>> {
+        val result = mongoTemplate.find(query.skip(skip).limit(limit), DocSubmissionRequest::class.java)
+        return result.count() to result
     }
 
     @Suppress("SpreadOperator")
