@@ -70,7 +70,6 @@ internal class SubmissionMongoQueryService(
             else -> submissionRepo.getSubmissions(filter, owner).map { it.asBasicSubmission() }
         }
 
-
     override fun getRequest(accNo: String, version: Int): SubmissionRequest {
         val request = requestRepository.getByAccNoAndVersion(accNo, version)
         val fileLists = request.fileList.associate { it.fileName to File(it.filePath) }
