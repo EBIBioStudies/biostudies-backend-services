@@ -22,6 +22,7 @@ import ebi.ac.uk.util.collections.firstOrElse
 import org.springframework.data.domain.Page
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import java.io.File
+import kotlin.math.max
 
 @Suppress("TooManyFunctions")
 internal class SubmissionMongoQueryService(
@@ -55,10 +56,20 @@ internal class SubmissionMongoQueryService(
             .map { runCatching { toExtSubmissionMapper.toExtSubmission(it) } }
     }
 
-    override fun getSubmissionsByUser(email: String, filter: SubmissionFilter): List<BasicSubmission> {
-        val requests = requestRepository.findActiveRequest(filter, email).map { it.asBasicSubmission() }
-        return requests + getSubmissions(filter.limit - requests.size, email, filter)
+    override fun getSubmissionsByUser(owner: String, filter: SubmissionFilter): List<BasicSubmission> {
+        val (requestsCount, requests) = requestRepository.findActiveRequest(filter, owner)
+        val offset = max(0, filter.offset - requestsCount)
+        val limit = filter.limit - requests.size
+        val submissionFilter = filter.copy(limit = limit, offset = offset)
+        return requests.map { it.asBasicSubmission() } + getSubmissions(owner, submissionFilter)
     }
+
+    private fun getSubmissions(owner: String, filter: SubmissionFilter): List<BasicSubmission> =
+        when (filter.limit) {
+            0 -> emptyList()
+            else -> submissionRepo.getSubmissions(filter, owner).map { it.asBasicSubmission() }
+        }
+
 
     override fun getRequest(accNo: String, version: Int): SubmissionRequest {
         val request = requestRepository.getByAccNoAndVersion(accNo, version)
@@ -88,10 +99,4 @@ internal class SubmissionMongoQueryService(
 
     private fun DocSubmissionRequest.asBasicSubmission() =
         serializationService.deserialize(submission.toString()).asBasicSubmission()
-
-    private fun getSubmissions(limit: Int, email: String, filter: SubmissionFilter): List<BasicSubmission> =
-        when (limit) {
-            0 -> emptyList()
-            else -> submissionRepo.getSubmissions(filter.copy(limit = limit), email).map { it.asBasicSubmission() }
-        }
 }

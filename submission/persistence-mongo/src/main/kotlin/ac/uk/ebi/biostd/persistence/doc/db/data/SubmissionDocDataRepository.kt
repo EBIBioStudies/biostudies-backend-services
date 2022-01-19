@@ -7,7 +7,6 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocAttributeFields.
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_ATTRIBUTES
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_TYPE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ACC_NO
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ID
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_MODIFICATION_TIME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_OWNER
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_RELEASED
@@ -34,6 +33,7 @@ import org.springframework.data.mongodb.core.aggregation.Aggregation.newAggregat
 import org.springframework.data.mongodb.core.aggregation.Aggregation.replaceRoot
 import org.springframework.data.mongodb.core.aggregation.Aggregation.skip
 import org.springframework.data.mongodb.core.aggregation.Aggregation.sort
+import org.springframework.data.mongodb.core.aggregation.AggregationOperation
 import org.springframework.data.mongodb.core.aggregation.AggregationOptions
 import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Criteria.where
@@ -138,17 +138,23 @@ class SubmissionDocDataRepository(
             createAggregation(filter).plus(group().count().`as`("submissions"))
 
         private fun createSubmissionAggregation(filter: SubmissionFilter, email: String? = null) =
-            createAggregation(filter, email).plus(skip(filter.offset)).plus(limit(filter.limit.toLong()))
+            createAggregation(filter, email, filter.offset to filter.limit.toLong())
 
         private fun aggregationOptions() = AggregationOptions.builder().allowDiskUse(true).build()
 
-        private fun createAggregation(filter: SubmissionFilter, email: String? = null) =
-            listOf(
-                match(where(SUB_VERSION).gt(0).andOperator(*createQuery(filter, email))),
-                sort(Sort.Direction.DESC, SUB_VERSION, SUB_ID),
-                group(SUB_ACC_NO).first(SUB_VERSION).`as`("maxVersion").first(CURRENT).`as`(SUB_ALIAS),
-                replaceRoot(SUB_ALIAS)
-            )
+        private fun createAggregation(
+            filter: SubmissionFilter,
+            email: String? = null,
+            offsetLimit: Pair<Long, Long>? = null,
+        ): List<AggregationOperation> {
+            return buildList {
+                add(match(where(SUB_VERSION).gt(0).andOperator(*createQuery(filter, email))))
+                sort(Sort.Direction.DESC, SUB_MODIFICATION_TIME)
+                offsetLimit?.let { add(skip(it.first)); add(limit(it.second)) }
+                add(group(SUB_ACC_NO).first(SUB_VERSION).`as`("maxVersion").first(CURRENT).`as`(SUB_ALIAS))
+                add(replaceRoot(SUB_ALIAS))
+            }
+        }
 
         private fun createQuery(filter: SubmissionFilter, email: String? = null): Array<Criteria> =
             ImmutableList.Builder<Criteria>().apply {

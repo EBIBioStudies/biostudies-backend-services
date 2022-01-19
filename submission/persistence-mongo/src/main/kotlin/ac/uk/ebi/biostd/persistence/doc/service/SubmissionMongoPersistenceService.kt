@@ -68,7 +68,7 @@ internal class SubmissionMongoPersistenceService(
 
     private fun asRequest(rqt: SubmissionRequest, submission: ExtSubmission): DocSubmissionRequest {
         val content = serializationService.serialize(submission, Properties(includeFileListFiles = false))
-        val fileLists = submission.allFileList.map { asRequestFileList(submission, it) }
+        val fileLists = getRequestFileList(submission)
         return DocSubmissionRequest(
             id = ObjectId(),
             accNo = submission.accNo,
@@ -81,10 +81,21 @@ internal class SubmissionMongoPersistenceService(
         )
     }
 
-    private fun asRequestFileList(sub: ExtSubmission, fileList: ExtFileList): RequestFileList {
-        val folderPath = fileListPath.resolve(sub.accNo).resolve(sub.version.toString())
-        val folder = Files.createDirectories(folderPath)
-        val file = Files.createFile(folder.resolve(fileList.fileName))
+    private fun getRequestFileList(sub: ExtSubmission): List<RequestFileList> {
+        val fileLists = sub.allFileList.distinctBy { it.filePath }
+        val baseFolder = getBaseFolder(sub)
+        return fileLists.map { asRequestFileList(baseFolder, it) }
+    }
+
+    private fun getBaseFolder(sub: ExtSubmission): Path {
+        val baseFolder = fileListPath.resolve(sub.accNo).resolve(sub.version.toString())
+        Files.deleteIfExists(baseFolder)
+        Files.createDirectories(baseFolder)
+        return baseFolder
+    }
+
+    private fun asRequestFileList(baseFolder: Path, fileList: ExtFileList): RequestFileList {
+        val file = Files.createFile(baseFolder.resolve(fileList.fileName))
         file.outputStream().use { serializationService.serialize(fileList.files.asSequence(), it) }
         return RequestFileList(fileName = fileList.fileName, filePath = file.absolutePathString())
     }
