@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import ebi.ac.uk.dsl.json.jsonArray
-import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.File
 import ebi.ac.uk.model.FilesTable
@@ -26,13 +25,20 @@ class TableJsonSerializerTest {
 
     private val attribute = Attribute("name attr", "value attr")
     private val linksTable = LinksTable(
-        listOf(Link("a url", listOf(attribute)), Link("a url")))
-    private val filesTable = FilesTable(listOf(
-        File(path = "file1", size = 11L, type = FileFields.FILE.value, attributes = listOf(attribute)),
-        File(path = "file2", size = 12L, type = FileFields.FILE.value)))
-    private val sectionTable = SectionsTable(listOf(
-        Section(accNo = "SECT-123", type = "Study1", attributes = listOf(attribute)),
-        Section(accNo = "SECT-456", type = "Study2")))
+        listOf(Link("a url", listOf(attribute)), Link("a url"))
+    )
+    private val filesTable = FilesTable(
+        listOf(
+            File(path = "file1", size = 11L, type = FileFields.FILE.value, attributes = listOf(attribute)),
+            File(path = "file2", size = 12L, type = FileFields.FILE.value)
+        )
+    )
+    private val sectionTable = SectionsTable(
+        listOf(
+            Section(accNo = "SECT-123", type = "Study1", attributes = listOf(attribute)),
+            Section(accNo = "SECT-456", type = "Study2")
+        )
+    )
 
     @Test
     fun `serialize LinksTable`() {
@@ -79,14 +85,13 @@ class TableJsonSerializerTest {
             }
         )
 
-
         JSONAssert.assertEquals("invalid filesTable json", json, expected.toString(), JSONCompareMode.LENIENT)
     }
 
     @Test
     fun `serialize SectionsTable`() {
         val json = testInstance.writeValueAsString(sectionTable)
-        val expected = jsonArray (
+        val expected = jsonArray(
             {
                 "accNo" to "SECT-123"
                 "type" to "Study1"

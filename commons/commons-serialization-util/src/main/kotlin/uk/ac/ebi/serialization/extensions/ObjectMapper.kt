@@ -49,4 +49,3 @@ inline fun <reified T : Any> ObjectMapper.asSequence(jsonParser: JsonParser): Se
 fun ObjectMapper.tryConvertValue(node: JsonNode, type: JavaType): Any? {
     return runCatching<Any> { convertValue(node, type) }.getOrNull()
 }
-

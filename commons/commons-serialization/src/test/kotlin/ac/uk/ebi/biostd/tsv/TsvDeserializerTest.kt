@@ -3,7 +3,6 @@ package ac.uk.ebi.biostd.tsv
 import ac.uk.ebi.biostd.test.basicSubmission
 import ac.uk.ebi.biostd.test.basicSubmissionWithComments
 import ac.uk.ebi.biostd.test.basicSubmissionWithMultiline
-import ac.uk.ebi.biostd.test.submissionWithBlankAttribute
 import ac.uk.ebi.biostd.test.submissionWithDetailedAttributes
 import ac.uk.ebi.biostd.test.submissionWithEmptyAttribute
 import ac.uk.ebi.biostd.test.submissionWithFiles

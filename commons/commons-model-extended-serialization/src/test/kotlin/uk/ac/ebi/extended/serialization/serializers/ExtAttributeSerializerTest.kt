@@ -13,11 +13,13 @@ class ExtAttributeSerializerTest {
     private val valDetails = ExtAttributeDetail("t1", "v1")
     private val nameDetails = ExtAttributeDetail("t2", "v2")
 
-    private val attr = ExtAttribute(name = "attr name",
+    private val attr = ExtAttribute(
+        name = "attr name",
         value = "attr value",
         reference = true,
         nameAttrs = listOf(nameDetails),
-        valueAttrs = listOf(valDetails))
+        valueAttrs = listOf(valDetails)
+    )
 
     @Test
     fun `serialize attribute with empty value`() {

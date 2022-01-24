@@ -9,7 +9,6 @@ import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.Link
-import ebi.ac.uk.model.constants.FileFields
 import org.junit.jupiter.api.Test
 import org.skyscreamer.jsonassert.JSONAssert
 import org.skyscreamer.jsonassert.JSONCompareMode
