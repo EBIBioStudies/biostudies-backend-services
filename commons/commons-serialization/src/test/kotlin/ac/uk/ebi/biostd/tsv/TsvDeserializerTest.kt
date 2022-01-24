@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.tsv
 import ac.uk.ebi.biostd.test.basicSubmission
 import ac.uk.ebi.biostd.test.basicSubmissionWithComments
 import ac.uk.ebi.biostd.test.basicSubmissionWithMultiline
+import ac.uk.ebi.biostd.test.submissionWithBlankAttribute
 import ac.uk.ebi.biostd.test.submissionWithDetailedAttributes
 import ac.uk.ebi.biostd.test.submissionWithEmptyAttribute
 import ac.uk.ebi.biostd.test.submissionWithFiles
@@ -24,12 +25,12 @@ import ac.uk.ebi.biostd.validation.SerializationException
 import ebi.ac.uk.dsl.attribute
 import ebi.ac.uk.dsl.file
 import ebi.ac.uk.dsl.filesTable
-import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.link
 import ebi.ac.uk.dsl.linksTable
 import ebi.ac.uk.dsl.section
 import ebi.ac.uk.dsl.sectionsTable
 import ebi.ac.uk.dsl.submission
+import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.model.AttributeDetail
 import org.assertj.core.api.Assertions.assertThat
@@ -55,6 +56,19 @@ class TsvDeserializerTest {
     @Test
     fun `submission with empty attribute`() {
         val result = deserializer.deserialize(submissionWithEmptyAttribute().toString())
+
+        assertThat(result).isEqualTo(
+            submission("S-EPMC123") {
+                attribute("Title", "Basic Submission")
+                attribute("DataSource", "EuropePMC")
+                attribute("Abstract", null)
+            }
+        )
+    }
+
+    @Test
+    fun `submission with blank attribute`() {
+        val result = deserializer.deserialize(submissionWithBlankAttribute().toString())
 
         assertThat(result).isEqualTo(
             submission("S-EPMC123") {
