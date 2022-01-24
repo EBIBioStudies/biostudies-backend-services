@@ -7,6 +7,7 @@ import ac.uk.ebi.biostd.json.common.writeObj
 import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.databind.SerializerProvider
 import com.fasterxml.jackson.databind.ser.std.StdSerializer
+import ebi.ac.uk.base.nullIfBlank
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.constants.AttributeDetails
 import ebi.ac.uk.model.constants.AttributeFields
@@ -18,7 +19,7 @@ internal class AttributeJsonSerializer : StdSerializer<Attribute>(Attribute::cla
 
         gen.writeObj {
             writeJsonString(AttributeFields.NAME, attr.name)
-            writeJsonString(AttributeFields.VALUE, attr.value?.let { if (attr.value!!.isBlank()) null else attr.value })
+            writeJsonString(AttributeFields.VALUE, attr.value.nullIfBlank())
             writeJsonBoolean(AttributeFields.REFERENCE, attr.reference)
             writeJsonArray(AttributeDetails.NAME_QUALIFIER, attr.nameAttrs, gen::writeObject)
             writeJsonArray(AttributeDetails.VAL_QUALIFIER, attr.valueAttrs, gen::writeObject)

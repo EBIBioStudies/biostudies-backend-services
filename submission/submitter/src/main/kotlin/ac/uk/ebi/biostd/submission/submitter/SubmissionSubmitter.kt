@@ -69,7 +69,7 @@ class SubmissionSubmitter(
         submissionRequestService.saveSubmissionRequest(request)
 
     fun processRequest(accNo: String, version: Int): ExtSubmission {
-        val saveRequest = submissionQueryService.getRequest(accNo, version)
+        val saveRequest = submissionQueryService.getPendingRequest(accNo, version)
         val submitter = saveRequest.submission.submitter
         logger.info { "$accNo, $submitter Processing request for submission accNo='$accNo', version='$version'" }
         return submissionRequestService.processSubmissionRequest(saveRequest)

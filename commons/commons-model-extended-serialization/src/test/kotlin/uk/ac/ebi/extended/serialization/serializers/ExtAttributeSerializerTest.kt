@@ -28,6 +28,8 @@ class ExtAttributeSerializerTest {
             "name" to "attr name"
             "value" to null
             "reference" to false
+            "nameAttrs" to jsonArray()
+            "valueAttrs" to jsonArray()
         }.toString()
 
         assertThat(json).isEqualToIgnoringWhitespace(expected)
@@ -40,6 +42,8 @@ class ExtAttributeSerializerTest {
             "name" to "attr name"
             "value" to null
             "reference" to false
+            "nameAttrs" to jsonArray()
+            "valueAttrs" to jsonArray()
         }.toString()
 
         assertThat(json).isEqualToIgnoringWhitespace(expected)
@@ -52,6 +56,8 @@ class ExtAttributeSerializerTest {
             "name" to "attr name"
             "value" to null
             "reference" to false
+            "nameAttrs" to jsonArray()
+            "valueAttrs" to jsonArray()
         }.toString()
 
         assertThat(json).isEqualToIgnoringWhitespace(expected)

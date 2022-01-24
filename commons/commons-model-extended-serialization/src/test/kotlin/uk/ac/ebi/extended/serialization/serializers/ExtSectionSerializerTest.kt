@@ -168,11 +168,15 @@ class ExtSectionSerializerTest(private val tempFolder: TemporaryFolder) {
                     "name" to "Title"
                     "value" to "Test Section"
                     "reference" to false
+                    "nameAttrs" to jsonArray()
+                    "valueAttrs" to jsonArray()
                 },
                 jsonObj {
                     "name" to "Description"
                     "value" to null
                     "reference" to true
+                    "nameAttrs" to jsonArray()
+                    "valueAttrs" to jsonArray()
                 }
             )
 

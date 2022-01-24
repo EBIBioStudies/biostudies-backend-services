@@ -4,11 +4,13 @@ import org.apache.commons.lang3.BooleanUtils
 
 const val EMPTY = ""
 
-fun String.nullIfBlank(): String? {
-    return when {
-        isBlank() -> null
-        else -> this
-    }
+/**
+ * Transform the given string into null if it is nullable.
+ */
+fun String?.nullIfBlank(): String? = when {
+    this == null -> null
+    isBlank() -> null
+    else -> this
 }
 
 /**

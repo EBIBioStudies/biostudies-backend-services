@@ -23,7 +23,7 @@ internal class AttributeJsonDeserializer : StdDeserializer<Attribute>(Attribute:
         val mapper = jp.codec as ObjectMapper
         val node: JsonNode = mapper.readTree(jp)
         val name = node.getNode<TextNode>(NAME).textValue()
-        val value = node.findNode<TextNode>(VALUE)?.textValue()?.nullIfBlank()
+        val value = node.findNode<TextNode>(VALUE)?.textValue().nullIfBlank()
 
         return Attribute(
             name = name,
