@@ -18,12 +18,20 @@ import ac.uk.ebi.biostd.persistence.doc.model.asBasicSubmission
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileList
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.extended.model.FireDirectory
+import ebi.ac.uk.extended.model.FireFile
+import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.extended.model.replace
+import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.util.collections.firstOrElse
+import mu.KotlinLogging
 import org.springframework.data.domain.Page
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import java.io.File
+import java.io.InputStream
 import kotlin.math.max
+
+private val logger = KotlinLogging.logger {}
 
 @Suppress("TooManyFunctions")
 internal class SubmissionMongoQueryService(
@@ -52,10 +60,8 @@ internal class SubmissionMongoQueryService(
         submissionRepo.expireVersions(accNumbers)
     }
 
-    override fun getExtendedSubmissions(filter: SubmissionFilter): Page<Result<ExtSubmission>> {
-        return submissionRepo.getSubmissionsPage(filter)
-            .map { runCatching { toExtSubmissionMapper.toExtSubmission(it) } }
-    }
+    override fun getExtendedSubmissions(filter: SubmissionFilter): Page<Result<ExtSubmission>> =
+        submissionRepo.getSubmissionsPage(filter).map { runCatching { toExtSubmissionMapper.toExtSubmission(it) } }
 
     override fun getSubmissionsByUser(owner: String, filter: SubmissionFilter): List<BasicSubmission> {
         val (requestsCount, requests) = requestRepository.findActiveRequest(filter, owner)
@@ -81,8 +87,19 @@ internal class SubmissionMongoQueryService(
 
     private fun loadFiles(fileList: ExtFileList, fileMap: Map<String, File>): ExtFileList {
         val fileListFile = fileMap.getValue(fileList.fileName)
-        val files = fileListFile.inputStream().use { serializationService.deserialize(it).toList() }
+        val files = fileListFile.inputStream().use { getFiles(it) }
         return fileList.copy(files = files)
+    }
+
+    private fun getFiles(inputStream: InputStream): List<ExtFile> = serializationService.deserialize(inputStream)
+        .onEachIndexed { index, file -> logger.info { "mapping file ${file.filePath}, ${index + 1}" } }
+        .map { extFile -> refreshMd5(extFile) }
+        .toList()
+
+    private fun refreshMd5(file: ExtFile): ExtFile = when (file) {
+        is FireDirectory -> file
+        is FireFile -> file
+        is NfsFile -> file.copy(md5 = file.file.md5())
     }
 
     override fun getReferencedFiles(accNo: String, fileListName: String): List<ExtFile> =
