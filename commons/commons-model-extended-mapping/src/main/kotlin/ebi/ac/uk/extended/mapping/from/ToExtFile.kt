@@ -4,7 +4,6 @@ import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.FireDirectory
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
-import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.io.sources.FireBioFile
@@ -36,7 +35,7 @@ fun File.toExtFile(fileSource: FilesSource): ExtFile {
             "Files/$path",
             file.file,
             file.file.absolutePath,
-            file.file.md5(),
+            "NOT_CALCULATED",
             file.file.size(),
             attributes.toExtAttributes()
         )
