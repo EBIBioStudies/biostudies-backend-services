@@ -14,6 +14,6 @@ fun FileList.toExtFileList(fileSource: FilesSource): ExtFileList =
 private fun toExtFiles(fileSource: FilesSource, files: List<File>): List<ExtFile> {
     return files
         .asSequence()
-        .map { it.toExtFile(fileSource) }
+        .map { it.toExtFile(fileSource, false) }
         .toList()
 }

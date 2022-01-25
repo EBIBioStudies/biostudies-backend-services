@@ -23,6 +23,7 @@ import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.extended.model.replace
 import ebi.ac.uk.io.ext.md5
+import ebi.ac.uk.io.ext.size
 import ebi.ac.uk.util.collections.firstOrElse
 import mu.KotlinLogging
 import org.springframework.data.domain.Page
@@ -93,13 +94,13 @@ internal class SubmissionMongoQueryService(
 
     private fun getFiles(inputStream: InputStream): List<ExtFile> = serializationService.deserialize(inputStream)
         .onEachIndexed { index, file -> logger.info { "mapping file ${file.filePath}, ${index + 1}" } }
-        .map { extFile -> refreshMd5(extFile) }
+        .map { extFile -> loadFileAttributes(extFile) }
         .toList()
 
-    private fun refreshMd5(file: ExtFile): ExtFile = when (file) {
+    private fun loadFileAttributes(file: ExtFile): ExtFile = when (file) {
         is FireDirectory -> file
         is FireFile -> file
-        is NfsFile -> file.copy(md5 = file.file.md5())
+        is NfsFile -> file.copy(md5 = file.file.md5(), size = file.file.size())
     }
 
     override fun getReferencedFiles(accNo: String, fileListName: String): List<ExtFile> =

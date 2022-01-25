@@ -15,6 +15,8 @@ import ebi.ac.uk.extended.model.ExtProcessingStatus.REQUESTED
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FileMode
 import ebi.ac.uk.extended.model.allFileList
+import ebi.ac.uk.io.FileUtils
+import ebi.ac.uk.io.RWXRWX___
 import org.bson.types.ObjectId
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.Properties
@@ -89,8 +91,7 @@ internal class SubmissionMongoPersistenceService(
 
     private fun getBaseFolder(sub: ExtSubmission): Path {
         val baseFolder = fileListPath.resolve(sub.accNo).resolve(sub.version.toString())
-        Files.deleteIfExists(baseFolder)
-        Files.createDirectories(baseFolder)
+        FileUtils.createEmptyFolder(baseFolder, RWXRWX___)
         return baseFolder
     }
 
