@@ -34,7 +34,6 @@ import ebi.ac.uk.test.createOrReplaceFile
 import ebi.ac.uk.util.collections.ifLeft
 import ebi.ac.uk.util.collections.ifRight
 import ebi.ac.uk.util.collections.second
-import ebi.ac.uk.util.collections.third
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import java.io.File
@@ -94,11 +93,9 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
             }
 
             assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
-            assertThat(submissionRepository.getSimpleByAccNo("SimpleAcc1")).isEqualTo(
-                submission("SimpleAcc1") {
-                    title = "Simple Submission"
-                }
-            )
+            assertThat(submissionRepository.getSimpleByAccNo("SimpleAcc1")).isEqualTo(submission("SimpleAcc1") {
+                title = "Simple Submission"
+            })
         }
 
         @Test
@@ -111,11 +108,9 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
             val response = webClient.submitSingle(submission, TSV)
 
             assertThat(response).isSuccessful()
-            assertThat(submissionRepository.getSimpleByAccNo(response.body.accNo)).isEqualTo(
-                submission(response.body.accNo) {
-                    title = "Empty AccNo"
-                }
-            )
+            assertThat(submissionRepository.getSimpleByAccNo(response.body.accNo)).isEqualTo(submission(response.body.accNo) {
+                title = "Empty AccNo"
+            })
         }
 
         @Test
@@ -134,19 +129,15 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
             }.toString()
 
             tempFolder.createDirectory("RootPathFolder")
-            webClient.uploadFiles(
-                listOf(tempFolder.createFile("RootPathFolder/DataFile5.txt", "An example content")),
-                "RootPathFolder"
-            )
+            webClient.uploadFiles(listOf(tempFolder.createFile("RootPathFolder/DataFile5.txt", "An example content")),
+                "RootPathFolder")
 
             assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
-            assertThat(submissionRepository.getSimpleByAccNo("S-12364")).isEqualTo(
-                submission("S-12364") {
-                    title = "Sample Submission"
-                    rootPath = "RootPathFolder"
-                    section("Study") { file("DataFile5.txt") }
-                }
-            )
+            assertThat(submissionRepository.getSimpleByAccNo("S-12364")).isEqualTo(submission("S-12364") {
+                title = "Sample Submission"
+                rootPath = "RootPathFolder"
+                section("Study") { file("DataFile5.txt") }
+            })
         }
 
         @Test
@@ -189,11 +180,9 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
             assertThat(response).isSuccessful()
 
             val accNo = response.body.accNo
-            assertThat(submissionRepository.getSimpleByAccNo(accNo)).isEqualTo(
-                submission(accNo) {
-                    title = "Submission Title"
-                }
-            )
+            assertThat(submissionRepository.getSimpleByAccNo(accNo)).isEqualTo(submission(accNo) {
+                title = "Submission Title"
+            })
         }
 
         @Test
@@ -229,12 +218,10 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
             }.toString()
 
             assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
-            assertThat(submissionRepository.getSimpleByAccNo("E-MTAB123")).isEqualTo(
-                submission("E-MTAB123") {
-                    title = "Generic Submission"
-                    section("Experiment") { }
-                }
-            )
+            assertThat(submissionRepository.getSimpleByAccNo("E-MTAB123")).isEqualTo(submission("E-MTAB123") {
+                title = "Generic Submission"
+                section("Experiment") { }
+            })
         }
 
         @Test
@@ -249,15 +236,13 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
             }.toString()
 
             assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
-            assertThat(submissionRepository.getSimpleByAccNo("S-TEST123")).isEqualTo(
-                submission("S-TEST123") {
-                    title = "Submission With Tags"
-                    section("Study") {
-                        accNo = "SECT-001"
-                        tags = mutableListOf(Pair("Classifier", "Tag"))
-                    }
+            assertThat(submissionRepository.getSimpleByAccNo("S-TEST123")).isEqualTo(submission("S-TEST123") {
+                title = "Submission With Tags"
+                section("Study") {
+                    accNo = "SECT-001"
+                    tags = mutableListOf(Pair("Classifier", "Tag"))
                 }
-            )
+            })
         }
 
         @Test
@@ -283,15 +268,13 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
             webClient.uploadGroupFiles(groupName, listOf(tempFolder.createFile("GroupFile2.txt")), "folder")
 
             assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
-            assertThat(submissionRepository.getSimpleByAccNo("S-54896")).isEqualTo(
-                submission("S-54896") {
-                    title = "Sample Submission"
-                    section("Study") {
-                        file("groups/$groupName/GroupFile1.txt")
-                        file("groups/$groupName/folder/GroupFile2.txt")
-                    }
+            assertThat(submissionRepository.getSimpleByAccNo("S-54896")).isEqualTo(submission("S-54896") {
+                title = "Sample Submission"
+                section("Study") {
+                    file("groups/$groupName/GroupFile1.txt")
+                    file("groups/$groupName/folder/GroupFile2.txt")
                 }
-            )
+            })
         }
 
         @Test
@@ -326,13 +309,11 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
                 line("a", "folder")
             }.toString()
 
-            webClient.uploadFiles(
-                listOf(
-                    tempFolder.createFile("fileSubSection.txt", "content"),
-                    tempFolder.createFile("file-list.tsv", fileListContent),
-                    tempFolder.createFile("file section.doc"),
-                )
-            )
+            webClient.uploadFiles(listOf(
+                tempFolder.createFile("fileSubSection.txt", "content"),
+                tempFolder.createFile("file-list.tsv", fileListContent),
+                tempFolder.createFile("file section.doc"),
+            ))
             webClient.uploadFiles(listOf(tempFolder.createFile("fileFileList.pdf")), "a")
 
             val response = webClient.submitSingle(submission(), TSV)
@@ -392,13 +373,11 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
                 line("a", "folder")
             }.toString()
 
-            webClient.uploadFiles(
-                listOf(
-                    tempFolder.createFile("fileSubSection.txt", "content"),
-                    tempFolder.createFile("file-list.tsv", fileListContent),
-                    tempFolder.createFile("file section.doc"),
-                )
-            )
+            webClient.uploadFiles(listOf(
+                tempFolder.createFile("fileSubSection.txt", "content"),
+                tempFolder.createFile("file-list.tsv", fileListContent),
+                tempFolder.createFile("file section.doc"),
+            ))
             webClient.uploadFiles(listOf(tempFolder.createFile("fileFileList.pdf")), "a")
 
             val response = webClient.submitSingle(submission(), TSV)
@@ -469,15 +448,16 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
                 val subSection = it.sections.first()
                 assertThat(subSection.accNo).isEmpty()
                 assertThat(subSection.attributes).hasSize(1)
-                assertThat(subSection.attributes.first().name).isEqualTo("Title")
-                assertThat(subSection.attributes.first().value).isEqualTo("Group 1")
+                assertThat(subSection.attributes.first()).isEqualTo(ExtAttribute("Title", "Group 1"))
             }
         }
 
         @Test
         fun `new submission with several empty-null attributes`() {
-            val file = tempFolder.createOrReplaceFile("DataFile1.txt")
-            webClient.uploadFile(file, "")
+            val file1 = tempFolder.createOrReplaceFile("DataFile1.txt")
+            val file2 = tempFolder.createOrReplaceFile("DataFile2.txt")
+            webClient.uploadFile(file1)
+            webClient.uploadFile(file2)
             val submission = tsv {
                 line("Submission", "S-STBL124")
                 line("Title", "Test Section Table")
@@ -486,25 +466,16 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
                 line()
 
                 line("Study", "SECT-001")
-                line("Type", "Experiment")
                 line("Section Empty Attribute", "")
                 line("Section Null Attribute")
                 line()
 
-                line("Link", "AF069309")
-                line("type", "gen")
-                line("Link Empty Attribute", "")
-                line("Link Null Attribute")
+                line("Links", "Link Empty Attribute", "Link Null Attribute")
+                line("www.linkTable.com", "")
                 line()
 
-                line("File", file.name)
-                line("Description", "Data File 1")
-                line("File Empty Attribute", "")
-                line("File Null Attribute")
-                line()
-
-                line("Data[SECT-001]", "Title")
-                line("", "Group 1")
+                line("Files", "File Empty Attribute", "File Attribute")
+                line(file2.name, "","")
                 line()
             }.toString()
 
@@ -520,40 +491,31 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
 
             val section = savedSubmission.section
             assertThat(section.accNo).isEqualTo("SECT-001")
-            assertThat(section.sections).hasSize(1)
 
             val sectionAttributes = section.attributes
-            assertThat(sectionAttributes).hasSize(3)
-            assertThat(sectionAttributes.first()).isEqualTo(ExtAttribute("Type", "Experiment"))
-            assertThat(sectionAttributes.second()).isEqualTo(ExtAttribute("Section Empty Attribute", null))
-            assertThat(sectionAttributes.third()).isEqualTo(ExtAttribute("Section Null Attribute", null))
+            assertThat(sectionAttributes).hasSize(2)
+            assertThat(sectionAttributes.first()).isEqualTo(ExtAttribute("Section Empty Attribute", null))
+            assertThat(sectionAttributes.second()).isEqualTo(ExtAttribute("Section Null Attribute", null))
 
             assertThat(section.links).hasSize(1)
             section.links.first().ifLeft {
                 val attributes = it.attributes
-                assertThat(attributes).hasSize(3)
-                assertThat(attributes.first()).isEqualTo(ExtAttribute("type", "gen"))
-                assertThat(attributes.second()).isEqualTo(ExtAttribute("Link Empty Attribute", null))
-                assertThat(attributes.third()).isEqualTo(ExtAttribute("Link Null Attribute", null))
+                assertThat(attributes).hasSize(2)
+                assertThat(attributes.first()).isEqualTo(ExtAttribute("Link Empty Attribute", null))
+                assertThat(attributes.second()).isEqualTo(ExtAttribute("Link Null Attribute", null))
             }
 
             assertThat(section.files).hasSize(1)
-            section.files.first().ifLeft {
-                val attributes = it.attributes
-                assertThat(attributes).hasSize(3)
-                assertThat(attributes.first()).isEqualTo(ExtAttribute("Description", "Data File 1"))
-                assertThat(attributes.second()).isEqualTo(ExtAttribute("File Empty Attribute", null))
-                assertThat(attributes.third()).isEqualTo(ExtAttribute("File Null Attribute", null))
-            }
-
-            section.sections.first().ifRight {
-                assertThat(it.sections).hasSize(1)
-
-                val subSection = it.sections.first()
-                assertThat(subSection.accNo).isEmpty()
-                assertThat(subSection.attributes).hasSize(1)
-                assertThat(subSection.attributes.first().name).isEqualTo("Title")
-                assertThat(subSection.attributes.first().value).isEqualTo("Group 1")
+            section.files.first().ifRight {
+                val files = it.files
+                assertThat(files).hasSize(1)
+                val file = files.first()
+                assertThat(file.filePath).isEqualTo(file2.name)
+                assertThat(file.relPath).isEqualTo("Files/${file2.name}")
+                val fileAttributes = file.attributes
+                assertThat(fileAttributes).hasSize(2)
+                assertThat(fileAttributes.first()).isEqualTo(ExtAttribute("File Empty Attribute", null))
+                assertThat(fileAttributes.second()).isEqualTo(ExtAttribute("File Attribute", null))
             }
         }
 

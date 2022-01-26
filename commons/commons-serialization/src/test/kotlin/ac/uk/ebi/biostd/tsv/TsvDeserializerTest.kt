@@ -32,7 +32,10 @@ import ebi.ac.uk.dsl.sectionsTable
 import ebi.ac.uk.dsl.submission
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
+import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.AttributeDetail
+import ebi.ac.uk.util.collections.ifRight
+import ebi.ac.uk.util.collections.second
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -381,6 +384,128 @@ class TsvDeserializerTest {
     }
 
     @Test
+    fun `links table with a single link with two attributes details`() {
+        val submission = tsv {
+            line("Submission", "S-EPMC125")
+            line("Title", "Test Submission")
+            line()
+
+            line("Study")
+            line("Title", "Test Root Section")
+            line("Abstract", "Test abstract")
+            line()
+
+            line("Links", "Attr1", "Attr2", "(TermId)", "[Ontology]")
+            line("Link1", "", "value2", "EFO_0002768", "EFO")
+            line()
+        }
+
+        val result = deserializer.deserialize(submission.toString())
+
+        assertThat(result.accNo).isEqualTo("S-EPMC125")
+        assertThat(result.attributes).hasSize(1)
+        assertThat(result.attributes.first()).isEqualTo(Attribute("Title", "Test Submission"))
+        val section = result.section
+        assertThat(section.type).isEqualTo("Study")
+        val sectionLinks = section.links
+        assertThat(sectionLinks).hasSize(1)
+        sectionLinks.first().ifRight {
+            assertThat(it.elements).hasSize(1)
+            val link = it.elements.first()
+            assertThat(link.url).isEqualTo("Link1")
+            val linkAttributes = link.attributes
+            assertThat(linkAttributes).hasSize(2)
+            assertThat(linkAttributes.first()).isEqualTo(Attribute("Attr1", null))
+            assertThat(linkAttributes.second()).isEqualTo(
+                Attribute(
+                    name = "Attr2",
+                    value = "value2",
+                    nameAttrs = mutableListOf(AttributeDetail("TermId", "EFO_0002768")),
+                    valueAttrs = mutableListOf(AttributeDetail("Ontology", "EFO"))
+                ))
+        }
+    }
+
+    @Test
+    fun `links table with a single link with two attributes details 2`() {
+        val submission = tsv {
+            line("Submission", "S-EPMC125")
+            line("Title", "Test Submission")
+            line()
+
+            line("Study")
+            line("Title", "Test Root Section")
+            line("Abstract", "Test abstract")
+            line()
+
+            line("Links", "Attr1", "Attr2")
+            line("Link1", "", "")
+            line()
+        }
+
+        val result = deserializer.deserialize(submission.toString())
+
+        assertThat(result.accNo).isEqualTo("S-EPMC125")
+        assertThat(result.attributes).hasSize(1)
+        assertThat(result.attributes.first()).isEqualTo(Attribute("Title", "Test Submission"))
+        val section = result.section
+        assertThat(section.type).isEqualTo("Study")
+        val sectionLinks = section.links
+        assertThat(sectionLinks).hasSize(1)
+        sectionLinks.first().ifRight {
+            assertThat(it.elements).hasSize(1)
+            val link = it.elements.first()
+            assertThat(link.url).isEqualTo("Link1")
+            val linkAttributes = link.attributes
+            assertThat(linkAttributes).hasSize(2)
+            assertThat(linkAttributes.first()).isEqualTo(Attribute("Attr1", null))
+            assertThat(linkAttributes.second()).isEqualTo(Attribute("Attr2", null))
+        }
+    }
+
+    //    TEST PASSING WITH NON EXISTING VALUE ATTRIBUTE
+    @Test
+    fun `links table with empty-null attribute`() {
+        val submission = tsv {
+            line("Submission", "S-EPMC125")
+            line("Title", "Test Submission")
+            line()
+
+            line("Study")
+            line("Title", "Test Root Section")
+            line("Abstract", "Test abstract")
+            line()
+
+            line("Links", "Attr1", "Attr2", "(TermId)", "[Ontology]")
+            line("Link1", "", "value2", "EFO_0002768", "EFO")
+            line()
+        }
+        val result = deserializer.deserialize(submission.toString())
+
+        assertThat(result).isEqualTo(
+            submission("S-EPMC125") {
+                attribute("Title", "Test Submission")
+
+                section("Study") {
+                    attribute("Title", "Test Root Section")
+                    attribute("Abstract", "Test abstract")
+
+                    linksTable {
+                        link("www.linkTable.com") {
+                            attribute(
+                                name = "FALSE Attribute",
+                                value = "non existing value",
+                                valueAttrs = mutableListOf(),
+                                nameAttrs = mutableListOf()
+                            )
+                        }
+                    }
+                }
+            }
+        )
+    }
+
+    @Test
     fun files() {
         val result = deserializer.deserialize(submissionWithFiles().toString())
 
@@ -425,6 +550,35 @@ class TsvDeserializerTest {
                 }
             }
         )
+    }
+
+    @Test
+    fun `files table 2`() {
+        val submission = tsv {
+            line("Submission", "S-STBL124")
+            line("Title", "Test Section Table")
+            line()
+
+            line("Study", "SECT-001")
+            line("Type", "Experiment")
+            line()
+
+            line("Files", "File Empty Attribute", "File Null Attribute")
+            line("testFile.txt", "", "value2")
+            line()
+        }
+        val result = deserializer.deserialize(submission.toString())
+
+        val sectionFiles = result.section.files
+        assertThat(sectionFiles).hasSize(1)
+        sectionFiles.first().ifRight {
+            assertThat(it.elements).hasSize(1)
+            val file = it.elements.first()
+            val attributes = file.attributes
+            assertThat(attributes).hasSize(2)
+            assertThat(attributes.first()).isEqualTo(Attribute("File Empty Attribute", null))
+            assertThat(attributes.second()).isEqualTo(Attribute("File Null Attribute", "value2"))
+        }
     }
 
     @Test

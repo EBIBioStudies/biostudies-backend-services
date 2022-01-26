@@ -43,7 +43,7 @@ internal fun <T> asTable(chunk: TsvChunk, initializer: (String, MutableList<Attr
         validate(rowAttrsSize <= headerAttrsSize) { throw InvalidElementException(INVALID_TABLE_ROW) }
 
         it.rawValues.forEachIndexed { index, attr ->
-            attr.applyIfNotBlank { parseTableAttribute(chunk.header[index + 1], attr, attrs) }
+            attr.apply { parseTableAttribute(chunk.header[index + 1], attr.nullIfBlank(), attrs) }
         }
 
         rows.add(initializer(it.name(), attrs))
@@ -52,10 +52,16 @@ internal fun <T> asTable(chunk: TsvChunk, initializer: (String, MutableList<Attr
     return rows.toList()
 }
 
-private fun parseTableAttribute(name: String, value: String, attributes: MutableList<Attribute>) {
+private fun parseTableAttribute(name: String, value: String?, attributes: MutableList<Attribute>) {
     when {
-        isNameDetail(name) -> addNameAttributeDetail(getDetailName(name), value, attributes)
-        isValueDetail(name) -> addValueAttributeDetail(getDetailName(name), value, attributes)
+        isNameDetail(name) -> {
+            if (value == null) throw IllegalArgumentException("NameDetail value must be not null")
+            addNameAttributeDetail(getDetailName(name), value, attributes)
+        }
+        isValueDetail(name) -> {
+            if (value == null) throw IllegalArgumentException("ValueDetail value must be not null")
+            addValueAttributeDetail(getDetailName(name), value, attributes)
+        }
         else -> attributes.add(Attribute(name, value))
     }
 }
