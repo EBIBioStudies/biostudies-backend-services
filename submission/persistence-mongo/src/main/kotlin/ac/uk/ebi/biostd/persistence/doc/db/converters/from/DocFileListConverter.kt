@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.persistence.doc.db.converters.from
 
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileListFields.FILE_LIST_DOC_FILES
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileListFields.FILE_LIST_DOC_FILE_FILENAME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileListFields.FILE_LIST_DOC_PAGE_TAB_FILES
 import ac.uk.ebi.biostd.persistence.doc.model.DocFileList
@@ -13,7 +12,6 @@ class DocFileListConverter(
 ) : Converter<Document, DocFileList> {
     override fun convert(source: Document): DocFileList = DocFileList(
         fileName = source.getString(FILE_LIST_DOC_FILE_FILENAME),
-        files = source.getDocList(FILE_LIST_DOC_FILES).map { docFileRefConverter.convert(it) },
         pageTabFiles = source.getDocList(FILE_LIST_DOC_PAGE_TAB_FILES).map { docFileConverter.convert(it) }
     )
 }

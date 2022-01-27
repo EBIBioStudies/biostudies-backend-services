@@ -14,7 +14,6 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.to.AttributeConverter
 import ac.uk.ebi.biostd.persistence.doc.db.converters.to.FileConverter
 import ac.uk.ebi.biostd.persistence.doc.db.converters.to.FileListConverter
 import ac.uk.ebi.biostd.persistence.doc.db.converters.to.FileListDocFileConverter
-import ac.uk.ebi.biostd.persistence.doc.db.converters.to.FileRefConverter
 import ac.uk.ebi.biostd.persistence.doc.db.converters.to.FileTableConverter
 import ac.uk.ebi.biostd.persistence.doc.db.converters.to.LinkConverter
 import ac.uk.ebi.biostd.persistence.doc.db.converters.to.LinkTableConverter
@@ -110,8 +109,7 @@ class MongoDbConfig(
     private fun submissionConverter(): SubmissionConverter {
         val attributeConverter = AttributeConverter()
         val fileConverter = FileConverter(attributeConverter)
-        val fileRefConverter = FileRefConverter()
-        val fileListConverter = FileListConverter(fileRefConverter, fileConverter)
+        val fileListConverter = FileListConverter(fileConverter)
         val fileTableConverter = FileTableConverter(fileConverter)
         val linkConverter = LinkConverter(attributeConverter)
         val linksTableConverter = LinkTableConverter(linkConverter)
