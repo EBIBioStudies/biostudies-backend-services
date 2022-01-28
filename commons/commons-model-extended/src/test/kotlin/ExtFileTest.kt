@@ -14,7 +14,14 @@ class ExtFileTest(private val temporaryFolder: TemporaryFolder) {
     @Test
     fun `extFile with file inside folder`() {
         val file = temporaryFolder.createDirectory("Files").createDirectory("my-folder").createNewFile("file.txt")
-        val extFile = NfsFile("/my-folder/file.txt", "Files/my-folder/file.txt", file, listOf())
+        val extFile = NfsFile(
+            "/my-folder/file.txt", "Files/my-folder/file.txt",
+            file,
+            file.absolutePath,
+            file.md5(),
+            file.size(),
+            listOf()
+        )
 
         assertThat(extFile.fileName).isEqualTo("file.txt")
         assertThat(extFile.md5).isEqualTo(file.md5())
@@ -24,7 +31,12 @@ class ExtFileTest(private val temporaryFolder: TemporaryFolder) {
     @Test
     fun `extFile with simple file`() {
         val file = temporaryFolder.createDirectory("Files").createNewFile("file.txt")
-        val extFile = NfsFile("file.txt", "Files/file.txt", file, listOf())
+        val extFile = NfsFile(
+            "file.txt", "Files/file.txt", file, file.absolutePath,
+            file.md5(),
+            file.size(),
+            listOf()
+        )
 
         assertThat(extFile.fileName).isEqualTo("file.txt")
         assertThat(extFile.md5).isEqualTo(file.md5())

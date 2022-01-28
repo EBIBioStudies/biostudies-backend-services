@@ -23,11 +23,9 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_VERSION
 import ac.uk.ebi.biostd.persistence.doc.model.DocAttribute
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
-import ac.uk.ebi.biostd.persistence.model.DbSubmissionAttribute
+import ac.uk.ebi.biostd.persistence.model.DbSequence
 import ac.uk.ebi.biostd.persistence.model.DbTag
-import ac.uk.ebi.biostd.persistence.model.Sequence
 import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
-import ac.uk.ebi.biostd.persistence.repositories.SubmissionDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.TagDataRepository
 import ebi.ac.uk.test.createFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
@@ -62,8 +60,7 @@ internal class SubmissionRefreshApiTest(private val tempFolder: TemporaryFolder)
         @Autowired val tagsRefRepository: TagDataRepository,
         @Autowired val securityTestService: SecurityTestService,
         @Autowired val sequenceRepository: SequenceDataRepository,
-        @Autowired val submissionRepository: SubmissionQueryService,
-        @Autowired val submissionDataRepository: SubmissionDataRepository
+        @Autowired val submissionRepository: SubmissionQueryService
     ) {
         @LocalServerPort
         private var serverPort: Int = 0
@@ -94,27 +91,7 @@ internal class SubmissionRefreshApiTest(private val tempFolder: TemporaryFolder)
                 val update = update(SUB_TITLE, NEW_SUBTITLE)
                     .set(SUB_RELEASE_TIME, newReleaseDate.toInstant())
                     .set(SUB_ATTRIBUTES, listOf(DocAttribute(ATTR_NAME, NEW_ATTR_VALUE)))
-
                 mongoTemplate.updateFirst(query, update, DocSubmission::class.java)
-            }
-        }
-
-        @Nested
-        @EnabledIfSystemProperty(named = "itest.mode", matches = "mysql")
-        inner class SubmissionRefreshSqlApiTest {
-            @Test
-            fun `refresh sql submission release date and attributes`() {
-                updateSqlSubmission()
-                webClient.refreshSubmission(ACC_NO)
-                assertRefreshedSubmission()
-            }
-
-            private fun updateSqlSubmission() {
-                val submission = submissionDataRepository.findBasicWithAttributes(ACC_NO)!!
-                submission.releaseTime = newReleaseDate
-                submission.title = NEW_SUBTITLE
-                submission.attributes = sortedSetOf(DbSubmissionAttribute(ATTR_NAME, NEW_ATTR_VALUE, 1))
-                submissionDataRepository.save(submission)
             }
         }
 
@@ -124,7 +101,7 @@ internal class SubmissionRefreshApiTest(private val tempFolder: TemporaryFolder)
         }
 
         private fun setUpTestData() {
-            sequenceRepository.save(Sequence("S-BSST"))
+            sequenceRepository.save(DbSequence("S-BSST"))
             tagsRefRepository.save(DbTag(classifier = "classifier", name = "tag"))
         }
 

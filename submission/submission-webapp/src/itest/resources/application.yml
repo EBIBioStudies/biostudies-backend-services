@@ -22,6 +22,7 @@ app:
   submissionPath:
   ftpPath:
   tempDirPath:
+  requestFilesPath:
   instanceBaseUrl: http://localhost:8080
   fire:
     host:
@@ -37,3 +38,5 @@ app:
     smtp:
   persistence:
     enableMongo: false
+  validator:
+    euToxRiskValidationApi: # EU-ToxRisk validation API

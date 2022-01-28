@@ -42,7 +42,7 @@ sealed class SystemNotification(
 class Report(system: String, subSystem: String, message: String) :
     SystemNotification(system, subSystem, message)
 
-class Alert(system: String, subSystem: String, message: String, val errorMessage: String?) :
+class Alert(system: String, subSystem: String, message: String, val errorMessage: String? = null) :
     SystemNotification(system, subSystem, message)
 
 private fun Color.toHex(): String = Integer.toHexString(rgb).substring(2)

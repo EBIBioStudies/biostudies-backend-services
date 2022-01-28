@@ -2,7 +2,7 @@ package ac.uk.ebi.biostd.persistence.integration.services
 
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.exception.SequenceNotFoundException
-import ac.uk.ebi.biostd.persistence.model.Sequence
+import ac.uk.ebi.biostd.persistence.model.DbSequence
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
 import ac.uk.ebi.biostd.persistence.repositories.MockLockExecutor
 import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
@@ -36,7 +36,7 @@ internal class SqlPersistenceServiceTest(
 
     @Test
     fun `get next immediately available sequence value`() {
-        val sequence = Sequence("S-BSST")
+        val sequence = DbSequence("S-BSST")
 
         mockSequenceRepository(sequence)
         every { submissionQueryService.existByAccNo("S-BSST0") } returns false
@@ -47,7 +47,7 @@ internal class SqlPersistenceServiceTest(
 
     @Test
     fun `get next available sequence`() {
-        val sequence = Sequence("S-BSST")
+        val sequence = DbSequence("S-BSST")
 
         mockSequenceRepository(sequence)
         every { submissionQueryService.existByAccNo("S-BSST0") } returns true
@@ -67,7 +67,7 @@ internal class SqlPersistenceServiceTest(
         assertThat(exception.message).isEqualTo("A sequence for the pattern 'S-BIAD' could not be found")
     }
 
-    private fun mockSequenceRepository(sequence: Sequence) {
+    private fun mockSequenceRepository(sequence: DbSequence) {
         every { sequenceRepository.findByPrefix("S-BSST") } returns sequence
         every { sequenceRepository.save(sequence) } returns sequence
     }

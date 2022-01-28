@@ -1,10 +1,10 @@
 package ac.uk.ebi.biostd.client.extensions
 
 import ac.uk.ebi.biostd.client.api.EXT_SUBMISSIONS_URL
-import ac.uk.ebi.biostd.client.dto.ExtPage
 import ac.uk.ebi.biostd.client.dto.ExtPageQuery
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.client.integration.web.SubmissionClient
+import ebi.ac.uk.extended.model.ExtPage
 import ebi.ac.uk.extended.model.ExtSubmission
 import io.mockk.every
 import io.mockk.impl.annotations.MockK

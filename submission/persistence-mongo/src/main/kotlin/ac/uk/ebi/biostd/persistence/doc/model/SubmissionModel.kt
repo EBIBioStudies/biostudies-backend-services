@@ -144,7 +144,7 @@ data class DocFileTable(val files: List<DocFile>)
 
 data class DocAttribute(
     val name: String,
-    val value: String,
+    val value: String?,
     val reference: Boolean = false,
     val nameAttrs: List<DocAttributeDetail> = listOf(),
     val valueAttrs: List<DocAttributeDetail> = listOf()

@@ -42,7 +42,8 @@ class ToExtSubmissionMapperTest(private val temporaryFolder: TemporaryFolder) {
     }
 
     private fun docSubmission(): DocSubmission {
-        val testNfsDocFile = nfsDocFile.copy(fullPath = sectionFile.absolutePath)
+        val testNfsDocFile =
+            nfsDocFile.copy(fullPath = sectionFile.absolutePath, md5 = sectionFile.md5(), fileSize = sectionFile.size())
         val testFireDocFile = fireDocFile
         val subNfsDocFile =
             NfsDocFile(

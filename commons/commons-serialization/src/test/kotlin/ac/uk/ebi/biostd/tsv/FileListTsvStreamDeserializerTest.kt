@@ -19,6 +19,7 @@ const val TSV_FILE_LIST = "FileList.tsv"
 class FileListTsvStreamDeserializerTest(temporaryFolder: TemporaryFolder) {
     private val testInstance = FileListTsvStreamDeserializer()
     private val tsvFile = temporaryFolder.createFile(TSV_FILE_LIST)
+    private val fileSystem = temporaryFolder.createFile("testFile.txt")
 
     @BeforeEach
     fun beforeEach() {
@@ -34,16 +35,31 @@ class FileListTsvStreamDeserializerTest(temporaryFolder: TemporaryFolder) {
 
     @Test
     fun deserialize() {
-        val fileList = testInstance.deserialize(tsvFile)
+        val files = tsvFile.inputStream().use { testInstance.deserializeFileList(it).toList() }
 
-        assertThat(fileList.name).isEqualTo(TSV_FILE_LIST)
-        assertThat(fileList.referencedFiles).hasSize(2)
+        assertThat(files).hasSize(2)
 
-        assertThat(fileList.referencedFiles.first()).isEqualTo(
+        assertThat(files.first()).isEqualTo(
             File("file1.txt", attributes = listOf(Attribute("Attr1", "A"), Attribute("Attr2", "B")))
         )
-        assertThat(fileList.referencedFiles.second()).isEqualTo(
+        assertThat(files.second()).isEqualTo(
             File("file2.txt", attributes = listOf(Attribute("Attr1", "C"), Attribute("Attr2", "D")))
         )
+    }
+
+    @Test
+    fun `serialize - deserialize FileList`() {
+        val files = (1..20_000).map {
+            File("folder/file$it.txt", attributes = listOf(Attribute("Attr1", "A$it"), Attribute("Attr2", "B$it")))
+        }.asSequence()
+        val iterator = files.iterator()
+
+        fileSystem.outputStream().use { testInstance.serializeFileList(files, it) }
+
+        fileSystem.inputStream().use {
+            testInstance.deserializeFileList(it).forEach { file ->
+                assertThat(file).isEqualToComparingFieldByField(iterator.next())
+            }
+        }
     }
 }

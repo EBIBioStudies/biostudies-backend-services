@@ -1,7 +1,7 @@
 package ebi.ac.uk.security.util
 
 import ac.uk.ebi.biostd.common.properties.InstanceKeys
-import ac.uk.ebi.biostd.persistence.model.SecurityToken
+import ac.uk.ebi.biostd.persistence.model.DbSecurityToken
 import ac.uk.ebi.biostd.persistence.repositories.TokenDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ebi.ac.uk.commons.http.JacksonFactory
@@ -116,7 +116,7 @@ class SecurityUtilTest(
 
     @Nested
     inner class CheckToken {
-        private val securityToken = mockk<SecurityToken>()
+        private val securityToken = mockk<DbSecurityToken>()
 
         @Test
         fun `check when is not in black list`() {

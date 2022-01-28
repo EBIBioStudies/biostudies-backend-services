@@ -5,6 +5,11 @@ import java.util.LinkedList
 private const val NO_FOUND = -1
 
 /**
+ * Return the first element paired with the remaining list after it.
+ */
+fun <T> List<T>.destructure(): Pair<T, List<T>> = first() to drop(1)
+
+/**
  * Replace the given element by the element matching predicate.
  */
 fun <T> List<T>.replace(predicate: (T) -> Boolean, element: T): List<T> {

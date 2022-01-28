@@ -26,7 +26,6 @@ import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.EXT_TAG_VALUE
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.MODIFICATION_TIME
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.NFS_FILENAME
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.NFS_FILEPATH
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.NFS_FULL_PATH
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.NFS_REL_PATH
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.RELEASE_TIME
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_SECTION_LINK_URL
@@ -94,8 +93,8 @@ import arrow.core.Either
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.ExtSectionTable
-import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.extended.model.StorageMode
+import ebi.ac.uk.extended.model.createNfsFile
 import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.test.createFile
 import ebi.ac.uk.util.collections.second
@@ -121,12 +120,12 @@ class ToDocSubmissionTest(tempFolder: TemporaryFolder) {
         subSection.copy(fileList = subSection.fileList!!.copy(files = listOf(newSubSectionFileListFile)))
 
     private val nfsFileFile = tempFolder.createFile(NFS_FILENAME)
-    private val nfsFile = NfsFile(NFS_FILEPATH, NFS_REL_PATH, NFS_FULL_PATH, nfsFileFile)
+    private val extNfsFile = createNfsFile(NFS_FILEPATH, NFS_REL_PATH, nfsFileFile)
 
     private val newRootSection = rootSection.copy(
         fileList = rootSection.fileList!!.copy(
             files = listOf(newRootSectionFileListFile),
-            pageTabFiles = listOf(fireFile, fireDirectory, nfsFile)
+            pageTabFiles = listOf(fireFile, fireDirectory, extNfsFile)
         ),
         sections = listOf(
             Either.left(newSubSection),
@@ -140,7 +139,7 @@ class ToDocSubmissionTest(tempFolder: TemporaryFolder) {
 
     private val submission = fullExtSubmission.copy(
         section = newRootSection,
-        pageTabFiles = listOf(fireFile, fireDirectory, nfsFile)
+        pageTabFiles = listOf(fireFile, fireDirectory, extNfsFile)
     )
 
     @Test
@@ -200,13 +199,13 @@ class ToDocSubmissionTest(tempFolder: TemporaryFolder) {
         )
         assertThat(pageTabFiles.third()).isEqualTo(
             NfsDocFile(
-                nfsFile.fileName,
-                nfsFile.filePath,
-                nfsFile.relPath,
+                extNfsFile.fileName,
+                extNfsFile.filePath,
+                extNfsFile.relPath,
                 nfsFileFile.absolutePath,
                 listOf(),
                 nfsFileFile.md5(),
-                nfsFile.size,
+                extNfsFile.size,
                 "file"
             )
         )

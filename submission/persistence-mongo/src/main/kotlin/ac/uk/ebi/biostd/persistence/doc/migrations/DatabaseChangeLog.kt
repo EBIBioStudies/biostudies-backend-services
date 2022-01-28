@@ -5,6 +5,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ATTRIBUTES
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_MODIFICATION_TIME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_OWNER
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_RELEASED
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_RELEASE_TIME
@@ -13,12 +14,13 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_TITLE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_VERSION
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
-import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequest
+import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import com.github.cloudyrock.mongock.ChangeLog
 import com.github.cloudyrock.mongock.ChangeSet
 import com.github.cloudyrock.mongock.driver.mongodb.springdata.v3.decorator.impl.MongockTemplate
 import ebi.ac.uk.model.constants.SectionFields.TITLE
 import org.springframework.data.domain.Sort.Direction.ASC
+import org.springframework.data.domain.Sort.Direction.DESC
 import org.springframework.data.mongodb.core.index.Index
 import org.springframework.data.mongodb.core.index.PartialIndexFilter
 import org.springframework.data.mongodb.core.query.Criteria.where
@@ -31,7 +33,7 @@ class DatabaseChangeLog {
     @ChangeSet(order = "001", id = "Create Schema", author = "System")
     fun changeSet001(template: MongockTemplate) {
         template.ensureExists(DocSubmission::class.java)
-        template.ensureExists(SubmissionRequest::class.java)
+        template.ensureExists(DocSubmissionRequest::class.java)
 
         template.indexOps(DocSubmission::class.java).apply {
             ensureIndex(Index().on(SUB_ACC_NO, ASC))
@@ -44,7 +46,7 @@ class DatabaseChangeLog {
             ensureIndex(Index().on(SUB_RELEASED, ASC))
         }
 
-        template.indexOps(SubmissionRequest::class.java).apply {
+        template.indexOps(DocSubmissionRequest::class.java).apply {
             ensureIndex(Index().on(SUB_ACC_NO, ASC))
             ensureIndex(Index().on(SUB_ACC_NO, ASC).on(SUB_VERSION, ASC))
             ensureIndex(Index().on("$SUB.$SUB_SECTION.$SEC_TYPE", ASC))
@@ -60,7 +62,7 @@ class DatabaseChangeLog {
     @ChangeSet(order = "002", id = "Section Title Index", author = "System")
     fun changeSet002(template: MongockTemplate) {
         template.ensureExists(DocSubmission::class.java)
-        template.ensureExists(SubmissionRequest::class.java)
+        template.ensureExists(DocSubmissionRequest::class.java)
 
         template.indexOps(DocSubmission::class.java).apply {
             dropIndex(TITLE_INDEX_NAME)
@@ -74,7 +76,7 @@ class DatabaseChangeLog {
             )
         }
 
-        template.indexOps(SubmissionRequest::class.java).apply {
+        template.indexOps(DocSubmissionRequest::class.java).apply {
             dropIndex(TITLE_INDEX_NAME)
             ensureIndex(
                 TextIndex()
@@ -84,6 +86,17 @@ class DatabaseChangeLog {
                     .onField("$SUB.$SUB_SECTION.$SUB_ATTRIBUTES.value")
                     .build()
             )
+        }
+    }
+
+    @ChangeSet(order = "003", id = "Submission Modification time", author = "System")
+    fun changeSet003(template: MongockTemplate) {
+        template.indexOps(DocSubmission::class.java).apply {
+            ensureIndex(Index().on(SUB_MODIFICATION_TIME, DESC))
+        }
+
+        template.indexOps(DocSubmissionRequest::class.java).apply {
+            ensureIndex(Index().on("$SUB.$SUB_MODIFICATION_TIME", DESC))
         }
     }
 }

@@ -22,11 +22,11 @@ fun ExtSubmission.toSimpleSubmission(): Submission = Submission(
 
 private fun getSubmissionAttributes(sub: ExtSubmission): List<Attribute> {
     val attrs = sub.attributes.filter { it.name != COLLECTION_VALIDATOR.value }.map { it.toAttribute() }.toMutableSet()
-
-    sub.title?.let { attrs.add(Attribute(TITLE, it)) }
-    sub.releaseTime?.let { attrs.add(Attribute(RELEASE_DATE, it.toLocalDate())) }
-    sub.rootPath?.let { attrs.add(Attribute(ROOT_PATH, it)) }
-    sub.collections.filter { it.accNo != PUBLIC_ACCESS_TAG.value }.forEach { attrs.add(Attribute(ATTACH_TO, it.accNo)) }
-
+    sub.title?.let { attrs.add(Attribute(TITLE.value, it)) }
+    sub.releaseTime?.let { attrs.add(Attribute(RELEASE_DATE.value, it.toLocalDate().toString())) }
+    sub.rootPath?.let { attrs.add(Attribute(ROOT_PATH.value, it)) }
+    sub.collections
+        .filter { it.accNo != PUBLIC_ACCESS_TAG.value }
+        .forEach { attrs.add(Attribute(ATTACH_TO.value, it.accNo)) }
     return attrs.toList()
 }

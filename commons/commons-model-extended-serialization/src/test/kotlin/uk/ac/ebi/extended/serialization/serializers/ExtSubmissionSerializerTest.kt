@@ -27,7 +27,6 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields
-import uk.ac.ebi.serialization.extensions.serialize
 import java.io.File
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
@@ -41,7 +40,7 @@ class ExtSubmissionSerializerTest {
         val extendedSubmission = createTestSubmission(released = false)
         val expectedJson = expectedJsonSubmission(released = false).toString()
 
-        assertThat(testInstance.serialize(extendedSubmission)).isEqualToIgnoringWhitespace(expectedJson)
+        assertThat(testInstance.writeValueAsString(extendedSubmission)).isEqualToIgnoringWhitespace(expectedJson)
         assertThat(ExtSectionSerializer.parentAccNo).isEqualTo("S-TEST1")
     }
 
@@ -50,7 +49,7 @@ class ExtSubmissionSerializerTest {
         val extendedSubmission = createTestSubmission(released = true)
         val expectedJson = expectedJsonSubmission(released = true).toString()
 
-        assertThat(testInstance.serialize(extendedSubmission)).isEqualToIgnoringWhitespace(expectedJson)
+        assertThat(testInstance.writeValueAsString(extendedSubmission)).isEqualToIgnoringWhitespace(expectedJson)
         assertThat(ExtSectionSerializer.parentAccNo).isEqualTo("S-TEST1")
     }
 
@@ -165,7 +164,7 @@ class ExtSubmissionSerializerTest {
                 pageTabFiles = listOf(
                     FireFile("S-TEST1", "S-TEST1", "fireId", "md5", 1L, listOf()),
                     FireDirectory("S-TEST1", "S-TEST1", "md5", 2L, listOf()),
-                    NfsFile("S-TEST1", "S-TEST1", "../S-TEST1", File("anyPath"), listOf())
+                    NfsFile("S-TEST1", "S-TEST1", File("anyPath"), "/test//S-TEST1", "md5", 55, listOf())
                 )
             )
         }

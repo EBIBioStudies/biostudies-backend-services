@@ -146,7 +146,7 @@ class SubExtTest {
 
     private fun assertExtendedAttribute(submission: Submission, name: SubFields, value: String) {
         assertThat(submission.attributes).hasSize(1)
-        assertThat(submission.attributes.first()).isEqualTo(Attribute(name, value))
+        assertThat(submission.attributes.first()).isEqualTo(Attribute(name.value, value))
     }
 
     @Test

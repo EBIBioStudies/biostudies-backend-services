@@ -7,14 +7,12 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import ebi.ac.uk.extended.model.ExtSectionTable
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.SECTIONS
-import uk.ac.ebi.serialization.extensions.convertList
-import uk.ac.ebi.serialization.extensions.findNode
+import uk.ac.ebi.serialization.extensions.convertOrDefault
 
 class ExtSectionsTableDeserializer : JsonDeserializer<ExtSectionTable>() {
     override fun deserialize(jsonParser: JsonParser, ctxt: DeserializationContext): ExtSectionTable {
         val mapper = jsonParser.codec as ObjectMapper
         val node: JsonNode = mapper.readTree(jsonParser)
-
-        return ExtSectionTable(mapper.convertList(node.findNode(SECTIONS)))
+        return ExtSectionTable(mapper.convertOrDefault(node, SECTIONS) { emptyList() })
     }
 }

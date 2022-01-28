@@ -115,7 +115,7 @@ task deployArtifact {
     doLast {
         ssh.run {
             session(remotes[env]) {
-                put from: "$artifactPath/$artifactName", into: "$deployPath/$artifactName"
+                put from: "$rootDir/$artifactPath/$artifactName", into: "$deployPath/$artifactName"
             }
         }
     }
@@ -125,8 +125,8 @@ task deploy {
     doLast {
         ssh.run {
             session(remotes[env]) {
-                put from: "$artifactPath/$artifactName", into: "$deployPath/$artifactName"
-                put from: "./ci/update.sh", into: "$deployPath/update.sh"
+                put from: "$rootDir/$artifactPath/$artifactName", into: "$deployPath/$artifactName"
+                put from: "$rootDir/ci/update.sh", into: "$deployPath/update.sh"
 
                 execute "sed -i -e 's~APP_PATH~$deployPath~g' $deployPath/update.sh"
                 execute "sed -i -e 's~APP_PORT~$appPort~g' $deployPath/update.sh"

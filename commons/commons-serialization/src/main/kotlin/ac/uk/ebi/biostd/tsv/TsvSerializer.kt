@@ -1,19 +1,25 @@
 package ac.uk.ebi.biostd.tsv
 
 import ac.uk.ebi.biostd.tsv.deserialization.TsvDeserializer
-import ac.uk.ebi.biostd.tsv.serialization.TsvToStringSerializer
-import ebi.ac.uk.base.splitIgnoringEmpty
-import ebi.ac.uk.model.constants.SUB_SEPARATOR
+import ac.uk.ebi.biostd.tsv.deserialization.stream.FileListTsvStreamDeserializer
+import ac.uk.ebi.biostd.tsv.deserialization.stream.PageTabFile
+import ac.uk.ebi.biostd.tsv.serialization.TsvSerializer
+import ebi.ac.uk.model.Submission
+import java.io.InputStream
+import java.io.OutputStream
 
 internal class TsvSerializer(
-    private val tsvSerializer: TsvToStringSerializer = TsvToStringSerializer(),
-    private val tsvDeserializer: TsvDeserializer = TsvDeserializer()
+    private val tsvSerializer: TsvSerializer = TsvSerializer(),
+    private val tsvDeserializer: TsvDeserializer = TsvDeserializer(),
+    private val streamSerializer: FileListTsvStreamDeserializer = FileListTsvStreamDeserializer()
 ) {
-    fun <T> serialize(element: T) = tsvSerializer.serialize(element)
+    fun serializeSubmission(element: Submission): String = tsvSerializer.serialize(element)
 
-    fun <T> deserializeElement(pageTab: String, type: Class<out T>) = tsvDeserializer.deserializeElement(pageTab, type)
+    fun deserializeSubmission(pageTab: String): Submission = tsvDeserializer.deserialize(pageTab)
 
-    fun deserialize(submission: String) = tsvDeserializer.deserialize(submission)
+    fun serializeFileList(files: Sequence<PageTabFile>, outputStream: OutputStream) =
+        streamSerializer.serializeFileList(files, outputStream)
 
-    fun deserializeList(submissions: String) = submissions.splitIgnoringEmpty(SUB_SEPARATOR).map(::deserialize)
+    fun deserializeFileList(inputStream: InputStream): Sequence<PageTabFile> =
+        streamSerializer.deserializeFileList(inputStream)
 }

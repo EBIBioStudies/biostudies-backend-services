@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.json.deserialization
 
 import ac.uk.ebi.biostd.json.JsonSerializer
+import com.fasterxml.jackson.module.kotlin.readValue
 import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.dsl.section
@@ -8,7 +9,6 @@ import ebi.ac.uk.model.Section
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import uk.ac.ebi.serialization.extensions.deserialize
 
 class SectionDeserializerTest {
     private val testInstance = JsonSerializer.mapper
@@ -20,7 +20,7 @@ class SectionDeserializerTest {
         }.toString()
 
         val node = "{\"accno\":[1,2,3]}"
-        val exception = assertThrows<IllegalArgumentException> { testInstance.deserialize<Section>(invalidJson) }
+        val exception = assertThrows<IllegalArgumentException> { testInstance.readValue<Section>(invalidJson) }
         assertThat(exception.message).isEqualTo(
             "Expecting node: '$node', property: 'accno' to be of type 'TextNode' but 'ArrayNode' was found instead"
         )
@@ -33,7 +33,7 @@ class SectionDeserializerTest {
             "type" to "Study"
         }.toString()
 
-        assertThat(testInstance.deserialize<Section>(json)).isEqualTo(section("Study") { accNo = "abc123" })
+        assertThat(testInstance.readValue<Section>(json)).isEqualTo(section("Study") { accNo = "abc123" })
     }
 
     @Test
@@ -43,7 +43,7 @@ class SectionDeserializerTest {
             "type" to "Study"
         }.toString()
 
-        assertThat(testInstance.deserialize<Section>(json)).isEqualTo(section("Study") { })
+        assertThat(testInstance.readValue<Section>(json)).isEqualTo(section("Study") { })
     }
 
     @Test
@@ -53,6 +53,6 @@ class SectionDeserializerTest {
             "type" to "Compound"
         }.toString()
 
-        assertThat(testInstance.deserialize<Section>(json)).isEqualTo(section("Compound") { accNo = "abc123" })
+        assertThat(testInstance.readValue<Section>(json)).isEqualTo(section("Compound") { accNo = "abc123" })
     }
 }
