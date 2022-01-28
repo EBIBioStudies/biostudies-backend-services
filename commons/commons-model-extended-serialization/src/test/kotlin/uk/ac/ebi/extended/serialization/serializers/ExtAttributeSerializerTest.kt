@@ -10,16 +10,6 @@ import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 
 class ExtAttributeSerializerTest {
     private val testInstance = ExtSerializationService.mapper
-    private val valDetails = ExtAttributeDetail("t1", "v1")
-    private val nameDetails = ExtAttributeDetail("t2", "v2")
-
-    private val attr = ExtAttribute(
-        name = "attr name",
-        value = "attr value",
-        reference = true,
-        nameAttrs = listOf(nameDetails),
-        valueAttrs = listOf(valDetails)
-    )
 
     @Test
     fun `serialize attribute with empty value`() {
@@ -65,6 +55,17 @@ class ExtAttributeSerializerTest {
 
     @Test
     fun `serialize attribute with details and reference`() {
+        val nameDetails = ExtAttributeDetail("t1", "v1")
+        val valDetails = ExtAttributeDetail("t2", "v2")
+
+        val attr = ExtAttribute(
+            name = "attr name",
+            value = "attr value",
+            reference = true,
+            nameAttrs = listOf(nameDetails),
+            valueAttrs = listOf(valDetails)
+        )
+
         val json = testInstance.writeValueAsString(attr)
         val expected = jsonObj {
             "name" to attr.name

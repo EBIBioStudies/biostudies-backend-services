@@ -7,7 +7,6 @@ import ac.uk.ebi.biostd.validation.InvalidElementException
 import ac.uk.ebi.biostd.validation.MISPLACED_ATTR_NAME
 import ac.uk.ebi.biostd.validation.MISPLACED_ATTR_VAL
 import ac.uk.ebi.biostd.validation.REQUIRED_TABLE_ROWS
-import ebi.ac.uk.base.applyIfNotBlank
 import ebi.ac.uk.base.nullIfBlank
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.AttributeDetail
@@ -31,38 +30,40 @@ internal fun toAttributes(chunkLines: List<TsvChunkLine>): MutableList<Attribute
     return attributes
 }
 
-internal fun <T> asTable(chunk: TsvChunk, initializer: (String, MutableList<Attribute>) -> T): List<T> {
-    val rows: MutableList<T> = mutableListOf()
-
-    chunk.lines.ifEmpty { throw InvalidElementException(REQUIRED_TABLE_ROWS) }
-    chunk.lines.forEach {
-        val attrs: MutableList<Attribute> = mutableListOf()
-        val rowAttrsSize = it.rawValues.size
-        val headerAttrsSize = chunk.header.size - 1
-
-        validate(rowAttrsSize <= headerAttrsSize) { throw InvalidElementException(INVALID_TABLE_ROW) }
-
-        it.rawValues.forEachIndexed { index, attr ->
-            attr.apply { parseTableAttribute(chunk.header[index + 1], attr.nullIfBlank(), attrs) }
+internal fun <T> asTable(chunk: TsvChunk, initializer: (String, List<Attribute>) -> T): List<T> {
+    val rows = buildList {
+        chunk.lines.ifEmpty { throw InvalidElementException(REQUIRED_TABLE_ROWS) }
+        chunk.lines.forEach { line ->
+            val attrs = getAttributes(line, chunk)
+            add(initializer(line.name(), attrs))
         }
-
-        rows.add(initializer(it.name(), attrs))
     }
 
-    return rows.toList()
+    return rows
 }
 
-private fun parseTableAttribute(name: String, value: String?, attributes: MutableList<Attribute>) {
+private fun getAttributes(line: TsvChunkLine, chunk: TsvChunk): List<Attribute> = buildList {
+    val rowAttrsSize = line.rawValues.size
+    val headerAttrsSize = chunk.header.size - 1
+
+    validate(rowAttrsSize <= headerAttrsSize) { throw InvalidElementException(INVALID_TABLE_ROW) }
+
+    chunk.header.rawValues.forEachIndexed { index, headerName ->
+        parseTableAttribute(headerName, line.rawValues.getOrNull(index).nullIfBlank())
+    }
+}
+
+private fun MutableList<Attribute>.parseTableAttribute(headerName: String, value: String?) {
     when {
-        isNameDetail(name) -> {
+        isNameDetail(headerName) -> {
             if (value == null) throw IllegalArgumentException("NameDetail value must be not null")
-            addNameAttributeDetail(getDetailName(name), value, attributes)
+            addNameAttributeDetail(getDetailName(headerName), value, this)
         }
-        isValueDetail(name) -> {
+        isValueDetail(headerName) -> {
             if (value == null) throw IllegalArgumentException("ValueDetail value must be not null")
-            addValueAttributeDetail(getDetailName(name), value, attributes)
+            addValueAttributeDetail(getDetailName(headerName), value, this)
         }
-        else -> attributes.add(Attribute(name, value))
+        else -> add(Attribute(headerName, value))
     }
 }
 
