@@ -15,7 +15,7 @@ import org.bson.types.ObjectId
 
 fun ExtSubmission.toDocSubmission(): Pair<DocSubmission, List<FileListDocFile>> {
     val submissionId = ObjectId()
-    val (docSection, fileList) = section.toDocSection(submissionId)
+    val (docSection, fileList) = section.toDocSection(accNo, version, submissionId)
     val docSubmission = toDocSubmission(submissionId, docSection)
     return Pair(docSubmission, fileList)
 }

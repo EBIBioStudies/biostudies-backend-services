@@ -22,7 +22,7 @@ internal class FileListConverterTest(
     @MockK val fileDocument: Document,
     @MockK val docFile: DocFile
 ) {
-    private val testInstance = FileListConverter(fileRefConverter, fileConverter)
+    private val testInstance = FileListConverter(fileConverter)
 
     @Test
     fun converter() {
@@ -30,7 +30,7 @@ internal class FileListConverterTest(
         every { fileRefConverter.convert(docRefFile) } returns fileRefDocument
         every { fileConverter.convert(docFile) } returns fileDocument
 
-        val docFileList = DocFileList(docFileListFileName, files, listOf(docFile))
+        val docFileList = DocFileList(docFileListFileName, listOf(docFile))
 
         val result = testInstance.convert(docFileList)
 

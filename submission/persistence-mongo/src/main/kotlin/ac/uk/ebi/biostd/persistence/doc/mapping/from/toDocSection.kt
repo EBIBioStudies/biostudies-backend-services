@@ -15,9 +15,9 @@ import org.bson.types.ObjectId
 
 typealias EitherList <A, B> = List<Either<A, B>>
 
-internal fun ExtSection.toDocSection(submissionId: ObjectId): DocSectionData {
-    val sections = sections.map { it.toDocSections(submissionId) }
-    val (sectionFileList, sectionFiles) = fileList?.toDocFileList(submissionId)
+internal fun ExtSection.toDocSection(accNo: String, version: Int, submissionId: ObjectId): DocSectionData {
+    val sections = sections.map { it.toDocSections(accNo, version, submissionId) }
+    val (sectionFileList, sectionFiles) = fileList?.toDocFileList(submissionId, accNo, version)
     return DocSectionData(
         section = toDocSection(sectionFileList, sections.subSections()),
         fileListFiles = sectionFiles.orEmpty() + sections.subSectionsFiles()
@@ -47,5 +47,10 @@ private fun ExtSection.toDocSection(
 private fun ExtSection.toDocTableSection() = DocSectionTableRow(accNo, type, attributes.map { it.toDocAttribute() })
 private fun ExtSectionTable.toDocSectionTable() = DocSectionTable(sections.map { it.toDocTableSection() })
 
-private fun Either<ExtSection, ExtSectionTable>.toDocSections(submissionId: ObjectId) =
-    bimap({ it.toDocSection(submissionId) }, ExtSectionTable::toDocSectionTable)
+private fun Either<ExtSection, ExtSectionTable>.toDocSections(
+    accNo: String,
+    version: Int,
+    submissionId: ObjectId,
+): Either<DocSectionData, DocSectionTable> {
+    return bimap({ it.toDocSection(accNo, version, submissionId) }, ExtSectionTable::toDocSectionTable)
+}

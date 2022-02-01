@@ -42,9 +42,9 @@ private fun toFileDocListFile(
         id = ObjectId(),
         submissionId = submissionId,
         submissionAccNo = submissionAccNo,
+        submissionVersion = version,
         file = extFile.toDocFile(),
         index = index,
-        version = version,
         fileListName = fileName
     )
 

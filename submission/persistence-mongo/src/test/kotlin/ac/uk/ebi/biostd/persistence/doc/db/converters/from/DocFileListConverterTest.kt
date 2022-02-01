@@ -8,9 +8,9 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocFileRef
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
+import org.assertj.core.api.Assertions.assertThat
 import org.bson.Document
 import org.junit.jupiter.api.Test
-import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(MockKExtension::class)
@@ -34,7 +34,6 @@ internal class DocFileListConverterTest(
 
         assertThat(result).isInstanceOf(DocFileList::class.java)
         assertThat(result.fileName).isEqualTo(fileName)
-        assertThat(result.files).isEqualTo(listOf(docFileRef))
         assertThat(result.pageTabFiles).isEqualTo(listOf(docFile))
     }
 
