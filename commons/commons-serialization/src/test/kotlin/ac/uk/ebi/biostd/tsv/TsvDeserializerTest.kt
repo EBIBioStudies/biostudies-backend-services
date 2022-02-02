@@ -34,7 +34,10 @@ import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.AttributeDetail
+import ebi.ac.uk.model.FilesTable
+import ebi.ac.uk.model.LinksTable
 import ebi.ac.uk.model.Section
+import ebi.ac.uk.model.SectionsTable
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.util.collections.second
 import org.assertj.core.api.Assertions.assertThat
@@ -145,11 +148,11 @@ class TsvDeserializerTest {
                 attribute("Title", "Submission With Detailed Attributes")
 
                 attribute(
-                    "Submission Type",
-                    "RNA-seq of non coding RNA",
-                    false,
-                    mutableListOf(AttributeDetail("Ontology", "EFO")),
-                    mutableListOf(AttributeDetail("Seq Type", "RNA"))
+                    name = "Submission Type",
+                    value = "RNA-seq of non coding RNA",
+                    ref = false,
+                    nameAttrs = mutableListOf(AttributeDetail("Seq Type", "RNA")),
+                    valueAttrs = mutableListOf(AttributeDetail("Ontology", "EFO")),
                 )
 
                 attribute("affiliation", "EuropePMC", true)
@@ -429,7 +432,26 @@ class TsvDeserializerTest {
     @Nested
     inner class TablesWithEmptyAttributes {
         @Test
-        fun `links table with empty attribute`() {
+        fun `links table`() {
+            fun assertTable(table: LinksTable) {
+                assertThat(table.elements).hasSize(1)
+
+                val link = table.elements.first()
+                assertThat(link.url).isEqualTo("Link1")
+
+                val attributes = link.attributes
+                assertThat(attributes).hasSize(2)
+                assertThat(attributes.first()).isEqualTo(Attribute("Empty Attr", null))
+                assertThat(attributes.second()).isEqualTo(
+                    Attribute(
+                        name = "Attr2",
+                        value = "value2",
+                        nameAttrs = mutableListOf(AttributeDetail("TermId", "EFO_0002768")),
+                        valueAttrs = mutableListOf(AttributeDetail("Ontology", "EFO"))
+                    )
+                )
+            }
+
             val submission = submissionWithRootSection().apply {
                 line("Links", "Empty Attr", "Attr2", "(TermId)", "[Ontology]")
                 line("Link1", "", "value2", "EFO_0002768", "EFO")
@@ -441,38 +463,15 @@ class TsvDeserializerTest {
             assertSubmissionWithRootSection(result)
             val sectionLinks = result.section.links
             assertThat(sectionLinks).hasSize(1)
-            assertEither(sectionLinks.first()).hasRightValueSatisfying {
-                assertThat(it.elements).hasSize(1)
-                val link = it.elements.first()
-                assertThat(link.url).isEqualTo("Link1")
-                val linkAttributes = link.attributes
-                assertThat(linkAttributes).hasSize(2)
-                assertThat(linkAttributes.first()).isEqualTo(Attribute("Empty Attr", null))
-                assertThat(linkAttributes.second()).isEqualTo(
-                    Attribute(
-                        name = "Attr2",
-                        value = "value2",
-                        nameAttrs = mutableListOf(AttributeDetail("TermId", "EFO_0002768")),
-                        valueAttrs = mutableListOf(AttributeDetail("Ontology", "EFO"))
-                    )
-                )
-            }
+            assertEither(sectionLinks.first()).hasRightValueSatisfying { assertTable(it) }
         }
 
         @Test
-        fun `files table with empty attribute`() {
-            val submission = submissionWithRootSection().apply {
-                line("Files", "Empty Attribute", "Attr2", "(TermId)", "[Ontology]")
-                line("testFile.txt", "", "value2", "EFO_0002768", "EFO")
-                line()
-            }
-            val result = deserializer.deserialize(submission.toString())
-            assertSubmissionWithRootSection(result)
-            val sectionFiles = result.section.files
-            assertThat(sectionFiles).hasSize(1)
-            assertEither(sectionFiles.first()).hasRightValueSatisfying {
-                assertThat(it.elements).hasSize(1)
-                val file = it.elements.first()
+        fun `files table`() {
+            fun assertTable(table: FilesTable) {
+                assertThat(table.elements).hasSize(1)
+
+                val file = table.elements.first()
                 val attributes = file.attributes
                 assertThat(attributes).hasSize(2)
                 assertThat(attributes.first()).isEqualTo(Attribute("Empty Attribute", null))
@@ -485,17 +484,24 @@ class TsvDeserializerTest {
                     )
                 )
             }
+
+            val submission = submissionWithRootSection().apply {
+                line("Files", "Empty Attribute", "Attr2", "(TermId)", "[Ontology]")
+                line("testFile.txt", "", "value2", "EFO_0002768", "EFO")
+                line()
+            }
+            val result = deserializer.deserialize(submission.toString())
+
+            assertSubmissionWithRootSection(result)
+            val sectionFiles = result.section.files
+            assertThat(sectionFiles).hasSize(1)
+            assertEither(sectionFiles.first()).hasRightValueSatisfying { assertTable(it) }
         }
 
         @Test
-        fun `sections table with empty attributes`() {
-            val result = deserializer.deserialize(submissionWithSectionsTable().toString())
-            assertSubmissionWithRootSection(result)
-
-            val sectionsTable = result.section.sections
-            assertThat(sectionsTable).hasSize(1)
-            assertEither(sectionsTable.first()).hasRightValueSatisfying {
-                val sections = it.elements
+        fun `sections table`() {
+            fun assertTable(sectionsTable: SectionsTable) {
+                val sections = sectionsTable.elements
                 assertThat(sections).hasSize(2)
                 assertThat(sections.first()).isEqualToComparingFieldByField(
                     Section(
@@ -512,6 +518,13 @@ class TsvDeserializerTest {
                     )
                 )
             }
+
+            val result = deserializer.deserialize(submissionWithSectionsTable().toString())
+            assertSubmissionWithRootSection(result)
+
+            val sectionsTable = result.section.sections
+            assertThat(sectionsTable).hasSize(1)
+            assertEither(sectionsTable.first()).hasRightValueSatisfying { assertTable(it) }
         }
 
         @Test

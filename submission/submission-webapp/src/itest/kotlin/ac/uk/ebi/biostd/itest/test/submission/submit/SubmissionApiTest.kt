@@ -36,8 +36,6 @@ import ebi.ac.uk.util.collections.ifRight
 import ebi.ac.uk.util.collections.second
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
-import java.io.File
-import kotlin.test.assertFailsWith
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.BeforeAll
@@ -52,6 +50,8 @@ import org.springframework.context.annotation.Import
 import org.springframework.http.HttpStatus
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
+import java.io.File
+import kotlin.test.assertFailsWith
 
 @ExtendWith(TemporaryFolderExtension::class)
 internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : BaseIntegrationTest(tempFolder) {
@@ -478,22 +478,20 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
             val file2 = tempFolder.createOrReplaceFile("DataFile2.txt")
             webClient.uploadFile(file1)
             webClient.uploadFile(file2)
+
             val submission = tsv {
                 line("Submission", "S-STBL124")
                 line("Title", "Test Section Table")
                 line("Submission Empty Attribute", "")
                 line("Submission Null Attribute")
                 line()
-
                 line("Study", "SECT-001")
                 line("Section Empty Attribute", "")
                 line("Section Null Attribute")
                 line()
-
                 line("Links", "Link Empty Attribute", "Link Null Attribute")
                 line("www.linkTable.com", "")
                 line()
-
                 line("Files", "File Empty Attribute", "File Null Attribute")
                 line(file2.name, "")
                 line()
