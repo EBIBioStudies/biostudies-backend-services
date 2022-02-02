@@ -53,7 +53,6 @@ val DocSection.allFileList: List<DocFileList>
         addAll(sections.mapNotNull { either -> either.fold({ it }, { null }) }.flatMap { it.allFileList })
     }
 
-
 private fun DocProcessingStatus.toProcessingStatus(): ProcessingStatus =
     when (this) {
         DocProcessingStatus.PROCESSED -> ProcessingStatus.PROCESSED

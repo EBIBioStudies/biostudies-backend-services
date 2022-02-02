@@ -79,9 +79,13 @@ class ExtSubmissionRepositoryTest(
         val fileListDocFiles = fileListDocFileRepository.findAll()
         assertThat(fileListDocFiles).hasSize(1)
         val fileListDocFile = fileListDocFiles.first()
-        assertThat(fileListDocFile.id).isEqualTo(savedSubmission.section.fileList?.files?.first()?.fileId)
-        assertThat(fileListDocFile.submissionId).isEqualTo(savedSubmission.id)
         assertThat(fileListDocFile.file).isEqualTo(defaultFireFile().toDocFile())
+        assertThat(fileListDocFile.submissionId).isEqualTo(savedSubmission.id)
+        assertThat(fileListDocFile.fileListName)
+            .isEqualTo(savedSubmission.section.fileList?.fileName?.substringAfterLast("/"))
+        assertThat(fileListDocFile.index).isEqualTo(0)
+        assertThat(fileListDocFile.submissionVersion).isEqualTo(savedSubmission.version)
+        assertThat(fileListDocFile.submissionAccNo).isEqualTo(submission.accNo)
 
         assertThat(draftDocDataRepository.findAll()).hasSize(0)
     }

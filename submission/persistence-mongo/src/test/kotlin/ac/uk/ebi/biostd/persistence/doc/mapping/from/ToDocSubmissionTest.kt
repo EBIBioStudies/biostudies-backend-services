@@ -102,7 +102,6 @@ import ebi.ac.uk.util.collections.third
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
-import org.bson.types.ObjectId
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -147,16 +146,8 @@ class ToDocSubmissionTest(tempFolder: TemporaryFolder) {
         val (docSubmission, listFiles) = submission.toDocSubmission()
 
         assertDocSubmission(docSubmission)
-        assertListFiles(listFiles, docSubmission.id)
-        assertFileReferences(docSubmission, listFiles)
+        assertListFiles(listFiles, docSubmission)
         assertThat(docSubmission.storageMode).isEqualTo(StorageMode.NFS)
-    }
-
-    private fun assertFileReferences(docSubmission: DocSubmission, listFiles: List<FileListDocFile>) {
-        assertThat(listFiles.first().id).isEqualTo(docSubmission.section.fileList?.files?.first()?.fileId)
-        assertThat(docSubmission.section.sections.first()).hasLeftValueSatisfying {
-            assertThat(listFiles.second().id).isEqualTo(it.fileList?.files?.first()?.fileId)
-        }
     }
 
     private fun assertDocSubmission(docSubmission: DocSubmission) {
@@ -211,16 +202,26 @@ class ToDocSubmissionTest(tempFolder: TemporaryFolder) {
         )
     }
 
-    private fun assertListFiles(listFiles: List<FileListDocFile>, docSubmissionId: ObjectId) {
+    private fun assertListFiles(listFiles: List<FileListDocFile>, docSubmission: DocSubmission) {
         assertThat(listFiles).hasSize(2)
 
-        val listFile = listFiles[0]
-        assertThat(listFile.submissionId).isEqualTo(docSubmissionId)
+        val listFile = listFiles.first()
+        assertThat(listFile.submissionId).isEqualTo(docSubmission.id)
         assertThat(listFile.file).isEqualTo(newRootSectionFileListFile.toDocFile())
+        assertThat(listFile.fileListName).isEqualTo(docSubmission.section.fileList?.fileName)
+        assertThat(listFile.index).isEqualTo(0)
+        assertThat(listFile.submissionVersion).isEqualTo(docSubmission.version)
+        assertThat(listFile.submissionAccNo).isEqualTo(docSubmission.accNo)
 
         val sublistFile = listFiles[1]
-        assertThat(sublistFile.submissionId).isEqualTo(docSubmissionId)
+        assertThat(sublistFile.submissionId).isEqualTo(docSubmission.id)
         assertThat(sublistFile.file).isEqualTo(newSubSectionFileListFile.toDocFile())
+        assertThat(docSubmission.section.sections.first()).hasLeftValueSatisfying {
+            assertThat(sublistFile.fileListName).isEqualTo(it.fileList?.fileName)
+        }
+        assertThat(sublistFile.index).isEqualTo(0)
+        assertThat(sublistFile.submissionVersion).isEqualTo(docSubmission.version)
+        assertThat(sublistFile.submissionAccNo).isEqualTo(docSubmission.accNo)
     }
 
     private fun assertSimpleDocProperties(docSubmission: DocSubmission) {

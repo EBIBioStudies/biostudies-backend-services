@@ -211,7 +211,7 @@ object FileListFactory {
         pageTabFiles = pageTabFiles
     )
 
-    const val FILE_PATH = "folder/file.txt"
+    const val FILE_PATH = "folder/fileList.txt"
     val FILES = emptyList<ExtFile>()
     const val FILES_URL = "filesUrl"
     val PAGE_TAG_FILES = emptyList<ExtFile>()

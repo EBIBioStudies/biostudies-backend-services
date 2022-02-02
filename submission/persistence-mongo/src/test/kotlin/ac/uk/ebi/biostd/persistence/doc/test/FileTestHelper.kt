@@ -61,8 +61,7 @@ internal object FileTestHelper {
             md5 = TEST_MD5,
             fileSize = TEST_FIRE_FILE_SIZE,
         )
-    val docFileRef = DocFileRef(ObjectId(10, 10))
-    val docFileList = DocFileList(TEST_FILE_LIST, listOf(docFileRef))
+    val docFileList = DocFileList(TEST_FILE_LIST)
 
     fun assertExtFile(extFile: ExtFile, file: File) = when (extFile) {
         is FireFile -> assertFireFile(extFile)

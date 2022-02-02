@@ -7,7 +7,6 @@ import org.bson.Document
 import org.springframework.core.convert.converter.Converter
 
 class DocFileListConverter(
-    private val docFileRefConverter: DocFileRefConverter,
     private val docFileConverter: DocFileConverter
 ) : Converter<Document, DocFileList> {
     override fun convert(source: Document): DocFileList = DocFileList(
