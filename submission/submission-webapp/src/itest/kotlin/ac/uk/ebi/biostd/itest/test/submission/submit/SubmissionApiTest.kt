@@ -31,7 +31,6 @@ import ebi.ac.uk.model.extensions.title
 import ebi.ac.uk.test.clean
 import ebi.ac.uk.test.createFile
 import ebi.ac.uk.test.createOrReplaceFile
-import ebi.ac.uk.util.collections.ifLeft
 import ebi.ac.uk.util.collections.ifRight
 import ebi.ac.uk.util.collections.second
 import io.github.glytching.junit.extension.folder.TemporaryFolder
@@ -475,9 +474,7 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
         @Test
         fun `new submission with several empty-null attributes`() {
             val file1 = tempFolder.createOrReplaceFile("DataFile1.txt")
-            val file2 = tempFolder.createOrReplaceFile("DataFile2.txt")
             webClient.uploadFile(file1)
-            webClient.uploadFile(file2)
             val submission = tsv {
                 line("Submission", "S-STBL124")
                 line("Title", "Test Section Table")
@@ -490,12 +487,19 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
                 line("Section Null Attribute")
                 line()
 
-                line("Links", "Link Empty Attribute", "Link Null Attribute")
-                line("www.linkTable.com", "")
+                line("Link", "www.linkTable.com")
+                line("Link Empty Attribute", "")
+                line("Link Null Attribute")
                 line()
 
-                line("Files", "File Empty Attribute", "File Null Attribute")
-                line(file2.name, "")
+                line("File", file1.name)
+                line("File Empty Attribute", "")
+                line("File Null Attribute")
+                line()
+
+                line("SubSection", "F-001")
+                line("SubSection Empty Attribute", "")
+                line("SubSection Null Attribute")
                 line()
             }.toString()
 
@@ -518,7 +522,7 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
             assertThat(sectionAttributes.second()).isEqualTo(ExtAttribute("Section Null Attribute", null))
 
             assertThat(section.links).hasSize(1)
-            section.links.first().ifLeft {
+            assertThat(section.links.first()).hasLeftValueSatisfying {
                 val attributes = it.attributes
                 assertThat(attributes).hasSize(2)
                 assertThat(attributes.first()).isEqualTo(ExtAttribute("Link Empty Attribute", null))
@@ -526,16 +530,88 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
             }
 
             assertThat(section.files).hasSize(1)
-            section.files.first().ifRight {
-                val files = it.files
+            assertThat(section.files.first()).hasLeftValueSatisfying {
+                assertThat(it.filePath).isEqualTo(file1.name)
+                assertThat(it.relPath).isEqualTo("Files/${file1.name}")
+                val fileAttributes = it.attributes
+                assertThat(fileAttributes).hasSize(2)
+                assertThat(fileAttributes.first()).isEqualTo(ExtAttribute("File Empty Attribute", null))
+                assertThat(fileAttributes.second()).isEqualTo(ExtAttribute("File Null Attribute", null))
+            }
+
+            assertThat(section.sections).hasSize(1)
+            assertThat(section.sections.first()).hasLeftValueSatisfying {
+                val attributes = it.attributes
+                assertThat(attributes.first()).isEqualTo(ExtAttribute("SubSection Empty Attribute", null))
+                assertThat(attributes.second()).isEqualTo(ExtAttribute("SubSection Null Attribute", null))
+            }
+        }
+
+        @Test
+        fun `new submission with several empty-null table attributes`() {
+            val file1 = tempFolder.createOrReplaceFile("DataFile1.txt")
+            val file2 = tempFolder.createOrReplaceFile("DataFile2.txt")
+            webClient.uploadFile(file1)
+            webClient.uploadFile(file2)
+            val submission = tsv {
+                line("Submission", "S-STBL124")
+                line("Title", "Test Section Table")
+                line()
+
+                line("Study", "SECT-001")
+                line()
+
+                line("Links", "Link Empty Attribute", "Link Null Attribute")
+                line("www.linkTable.com", "")
+                line()
+
+                line("Files", "File Empty Attribute", "File Null Attribute")
+                line(file2.name, "")
+                line()
+
+                line("SubSectionTable[SECT-001]", "SubSection Empty Attribute", "SubSection Null Attribute")
+                line("SUB-SECT-001", "")
+                line()
+            }.toString()
+
+            assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
+
+            val savedSubmission = submissionRepository.getExtByAccNo("S-STBL124")
+            assertThat(savedSubmission.accNo).isEqualTo("S-STBL124")
+            assertThat(savedSubmission.title).isEqualTo("Test Section Table")
+            val section = savedSubmission.section
+            assertThat(section.accNo).isEqualTo("SECT-001")
+
+            assertThat(section.links).hasSize(1)
+            assertThat(section.links.first()).hasRightValueSatisfying { linkTable ->
+                val links = linkTable.links
+                assertThat(links).hasSize(1)
+                val attributes = links.first().attributes
+                assertThat(attributes).hasSize(2)
+                assertThat(attributes.first()).isEqualTo(ExtAttribute("Link Empty Attribute", null))
+                assertThat(attributes.second()).isEqualTo(ExtAttribute("Link Null Attribute", null))
+            }
+
+            assertThat(section.files).hasSize(1)
+            assertThat(section.files.first()).hasRightValueSatisfying { fileTable ->
+                val files = fileTable.files
                 assertThat(files).hasSize(1)
                 val file = files.first()
                 assertThat(file.filePath).isEqualTo(file2.name)
                 assertThat(file.relPath).isEqualTo("Files/${file2.name}")
-                val fileAttributes = file.attributes
-                assertThat(fileAttributes).hasSize(2)
-                assertThat(fileAttributes.first()).isEqualTo(ExtAttribute("File Empty Attribute", null))
-                assertThat(fileAttributes.second()).isEqualTo(ExtAttribute("File Null Attribute", null))
+                val attributes = file.attributes
+                assertThat(attributes).hasSize(2)
+                assertThat(attributes.first()).isEqualTo(ExtAttribute("File Empty Attribute", null))
+                assertThat(attributes.second()).isEqualTo(ExtAttribute("File Null Attribute", null))
+            }
+
+            assertThat(section.sections).hasSize(1)
+            assertThat(section.sections.first()).hasRightValueSatisfying { sectionTable ->
+                val subSections = sectionTable.sections
+                assertThat(subSections).hasSize(1)
+                val attributes = subSections.first().attributes
+                assertThat(attributes.first()).isEqualTo(ExtAttribute("SubSection Empty Attribute", null))
+                assertThat(attributes.second()).isEqualTo(ExtAttribute("SubSection Null Attribute", null))
             }
         }
 
