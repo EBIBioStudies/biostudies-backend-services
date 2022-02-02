@@ -144,11 +144,11 @@ class TsvDeserializerTest {
                 attribute("Title", "Submission With Detailed Attributes")
 
                 attribute(
-                    "Submission Type",
-                    "RNA-seq of non coding RNA",
-                    false,
-                    mutableListOf(AttributeDetail("Ontology", "EFO")),
-                    mutableListOf(AttributeDetail("Seq Type", "RNA"))
+                    name = "Submission Type",
+                    value = "RNA-seq of non coding RNA",
+                    ref = false,
+                    nameAttrs = mutableListOf(AttributeDetail("Seq Type", "RNA")),
+                    valueAttrs = mutableListOf(AttributeDetail("Ontology", "EFO")),
                 )
 
                 attribute("affiliation", "EuropePMC", true)
@@ -428,7 +428,7 @@ class TsvDeserializerTest {
     @Nested
     inner class TablesWithEmptyAttributes {
         @Test
-        fun `links table with empty attribute`() {
+        fun `links table with empty-null attribute`() {
             val submission = submissionWithRootSection().apply {
                 line("Links", "Empty Attribute", "(TermId)", "[Ontology]", "Null Attribute")
                 line("Link1", "", "EFO_0002768", "EFO")
@@ -459,13 +459,14 @@ class TsvDeserializerTest {
         }
 
         @Test
-        fun `files table with empty attribute`() {
+        fun `files table with empty-null attribute`() {
             val submission = submissionWithRootSection().apply {
                 line("Files", "Empty Attribute", "(TermId)", "[Ontology]", "Null Attribute")
                 line("testFile.txt", "", "EFO_0002768", "EFO")
                 line()
             }
             val result = deserializer.deserialize(submission.toString())
+
             assertSubmissionWithRootSection(result)
             val sectionFiles = result.section.files
             assertThat(sectionFiles).hasSize(1)
@@ -487,7 +488,7 @@ class TsvDeserializerTest {
         }
 
         @Test
-        fun `sections table with empty attributes`() {
+        fun `sections table with empty-null attributes`() {
             val submission = submissionWithRootSection().apply {
                 line("Data[]", "Empty Attribute", "(TermId)", "[Ontology]", "Null Attribute")
                 line("DT-1", "", "EFO_0002768", "EFO")

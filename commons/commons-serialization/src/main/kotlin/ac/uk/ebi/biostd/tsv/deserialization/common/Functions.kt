@@ -17,18 +17,8 @@ internal inline fun validate(value: Boolean, lazyMessage: () -> String) {
     }
 }
 
-// TODO: add proper exception
-internal fun toAttributes(chunkLines: List<TsvChunkLine>): MutableList<Attribute> {
-    val attributes: MutableList<Attribute> = mutableListOf()
-    chunkLines.forEach { line ->
-        when {
-            line.isNameDetail() -> addNameAttributeDetail(line.name(), line.value!!, attributes)
-            line.isValueDetail() -> addValueAttributeDetail(line.name(), line.value!!, attributes)
-            else -> attributes.add(Attribute(line.name(), line.value.nullIfBlank(), line.isReference()))
-        }
-    }
-    return attributes
-}
+internal fun toAttributes(chunkLines: List<TsvChunkLine>): List<Attribute> =
+    getAttributes(chunkLines.map { it.name to it.value.nullIfBlank() })
 
 internal fun <T> asTable(chunk: TsvChunk, initializer: (String, List<Attribute>) -> T): List<T> {
     val rows = buildList {
@@ -42,39 +32,36 @@ internal fun <T> asTable(chunk: TsvChunk, initializer: (String, List<Attribute>)
     return rows
 }
 
-private fun getAttributes(line: TsvChunkLine, chunk: TsvChunk): List<Attribute> = buildList {
-    val rowAttrsSize = line.rawValues.size
-    val headerAttrsSize = chunk.header.size - 1
-
-    validate(rowAttrsSize <= headerAttrsSize) { throw InvalidElementException(INVALID_TABLE_ROW) }
-
-    chunk.header.rawValues.forEachIndexed { index, headerName ->
-        parseTableAttribute(headerName, line.rawValues.getOrNull(index).nullIfBlank())
-    }
+private fun getAttributes(line: TsvChunkLine, chunk: TsvChunk): List<Attribute> {
+    validate(line.size <= chunk.header.size) { throw InvalidElementException(INVALID_TABLE_ROW) }
+    val values = chunk.header.rawValues.mapIndexed { i, value -> value to line.rawValues.getOrNull(i).nullIfBlank() }
+    return getAttributes(values)
 }
 
-private fun MutableList<Attribute>.parseTableAttribute(headerName: String, value: String?) {
-    when {
-        isNameDetail(headerName) -> {
-            if (value == null) throw IllegalArgumentException("NameDetail value must be not null")
-            addNameAttributeDetail(getDetailName(headerName), value, this)
+private fun getAttributes(values: List<Pair<String, String?>>): List<Attribute> = buildList {
+    var previous: Attribute? = null
+    for ((header, value) in values) {
+        when {
+            isNameDetail(header) -> {
+                if (previous == null) throw InvalidElementException(MISPLACED_ATTR_NAME)
+                if (value == null) throw IllegalArgumentException("NameDetail value must be not null")
+                previous.nameAttrs.add(AttributeDetail(getDetailName(header), value))
+            }
+            isValueDetail(header) -> {
+                if (previous == null) throw InvalidElementException(MISPLACED_ATTR_VAL)
+                if (value == null) throw IllegalArgumentException("ValueDetail value must be not null")
+                previous.valueAttrs.add(AttributeDetail(getDetailName(header), value))
+            }
+            isReference(header) -> {
+                previous = Attribute(getDetailName(header), value, reference = true)
+                add(previous)
+            }
+            else -> {
+                previous = Attribute(header, value)
+                add(previous)
+            }
         }
-        isValueDetail(headerName) -> {
-            if (value == null) throw IllegalArgumentException("ValueDetail value must be not null")
-            addValueAttributeDetail(getDetailName(headerName), value, this)
-        }
-        else -> add(Attribute(headerName, value))
     }
 }
 
 private fun getDetailName(attrName: String) = attrName.substring(1, attrName.lastIndex)
-
-private fun addNameAttributeDetail(name: String, value: String, attributes: MutableList<Attribute>) {
-    attributes.ifEmpty { throw InvalidElementException(MISPLACED_ATTR_NAME) }
-    attributes.last().nameAttrs.add(AttributeDetail(name, value))
-}
-
-private fun addValueAttributeDetail(name: String, value: String, attributes: MutableList<Attribute>) {
-    attributes.ifEmpty { throw InvalidElementException(MISPLACED_ATTR_VAL) }
-    attributes.last().valueAttrs.add(AttributeDetail(name, value))
-}
