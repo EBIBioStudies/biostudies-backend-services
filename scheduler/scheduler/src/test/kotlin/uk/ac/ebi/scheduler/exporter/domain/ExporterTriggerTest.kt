@@ -58,11 +58,13 @@ class ExporterTriggerTest(
     }
 
     private fun verifyJobSpecs(specs: JobSpec) {
+        val java = "/nfs/biostudies/.adm/java/zulu11.45.27-ca-jdk11.0.10-linux_x64/bin/java"
+
         assertThat(specs.ram).isEqualTo(TWENTYFOUR_GB)
         assertThat(specs.cores).isEqualTo(RELEASER_CORES)
         assertThat(specs.command).isEqualTo(
             """
-            java -Dsun.jnu.encoding=UTF-8 -Xmx6g -jar /apps-folder/exporter-task-1.0.0.jar \
+            $java -Dsun.jnu.encoding=UTF-8 -Xmx6g -jar /apps-folder/exporter-task-1.0.0.jar \
             --app.fileName=publicOnlyStudies \
             --app.outputPath=/an/output/path \
             --app.bioStudies.url=http://localhost:8080 \

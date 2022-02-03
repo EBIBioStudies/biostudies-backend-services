@@ -80,11 +80,13 @@ class SubmissionReleaserTriggerTest(
     }
 
     private fun verifyJobSpecs(specs: JobSpec, mode: ReleaserMode) {
+        val java = "/nfs/biostudies/.adm/java/zulu11.45.27-ca-jdk11.0.10-linux_x64/bin/java"
+
         assertThat(specs.ram).isEqualTo(EIGHT_GB)
         assertThat(specs.cores).isEqualTo(RELEASER_CORES)
         assertThat(specs.command).isEqualTo(
             """
-            java -Dsun.jnu.encoding=UTF-8 -jar apps-folder/submission-releaser-task-1.0.0.jar \
+            $java -Dsun.jnu.encoding=UTF-8 -jar apps-folder/submission-releaser-task-1.0.0.jar \
             --spring.rabbitmq.host=localhost \
             --spring.rabbitmq.username=manager \
             --spring.rabbitmq.password=manager-local \

@@ -1,5 +1,6 @@
 package ac.uk.ebi.scheduler.properties
 
+import ac.uk.ebi.scheduler.common.JAVA_HOME
 import ac.uk.ebi.scheduler.properties.ReleaserMode.NOTIFY
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -23,7 +24,7 @@ class SubmissionReleaserPropertiesTest {
 
         assertThat(properties.asJavaCommand("/apps-folder")).isEqualTo(
             """
-            java -Dsun.jnu.encoding=UTF-8 -jar /apps-folder/submission-releaser-task-1.0.0.jar \
+            $JAVA_HOME/bin/java -Dsun.jnu.encoding=UTF-8 -jar /apps-folder/submission-releaser-task-1.0.0.jar \
             --spring.rabbitmq.host=localhost \
             --spring.rabbitmq.username=manager \
             --spring.rabbitmq.password=manager-local \
