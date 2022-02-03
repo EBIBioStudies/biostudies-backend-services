@@ -11,6 +11,7 @@ import ac.uk.ebi.biostd.persistence.doc.test.SubmissionTestHelper.docSubmission
 import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
 import ebi.ac.uk.db.MONGO_VERSION
 import ebi.ac.uk.extended.model.ExtProcessingStatus.PROCESSING
+import java.time.Duration
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -23,14 +24,14 @@ import org.testcontainers.containers.startupcheck.MinimumDurationRunningStartupC
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.utility.DockerImageName
-import uk.ac.ebi.extended.test.FireFileFactory.defaultFireFile
+import uk.ac.ebi.extended.test.FileListFactory.FILE_PATH
 import uk.ac.ebi.extended.test.FileListFactory.defaultFileList
+import uk.ac.ebi.extended.test.FireFileFactory.defaultFireFile
 import uk.ac.ebi.extended.test.SectionFactory.defaultSection
 import uk.ac.ebi.extended.test.SubmissionFactory.ACC_NO
 import uk.ac.ebi.extended.test.SubmissionFactory.OWNER
 import uk.ac.ebi.extended.test.SubmissionFactory.SUBMITTER
 import uk.ac.ebi.extended.test.SubmissionFactory.defaultSubmission
-import java.time.Duration
 
 @Testcontainers
 @SpringBootTest(classes = [MongoDbReposConfig::class])
@@ -81,8 +82,7 @@ class ExtSubmissionRepositoryTest(
         val fileListDocFile = fileListDocFiles.first()
         assertThat(fileListDocFile.file).isEqualTo(defaultFireFile().toDocFile())
         assertThat(fileListDocFile.submissionId).isEqualTo(savedSubmission.id)
-        assertThat(fileListDocFile.fileListName)
-            .isEqualTo(savedSubmission.section.fileList?.fileName?.substringAfterLast("/"))
+        assertThat(fileListDocFile.fileListName).isEqualTo(FILE_PATH.substringAfterLast("/"))
         assertThat(fileListDocFile.index).isEqualTo(0)
         assertThat(fileListDocFile.submissionVersion).isEqualTo(savedSubmission.version)
         assertThat(fileListDocFile.submissionAccNo).isEqualTo(submission.accNo)

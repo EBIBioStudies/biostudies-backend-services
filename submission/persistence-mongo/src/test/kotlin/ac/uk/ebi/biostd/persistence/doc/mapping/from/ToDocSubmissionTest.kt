@@ -216,9 +216,7 @@ class ToDocSubmissionTest(tempFolder: TemporaryFolder) {
         val sublistFile = listFiles[1]
         assertThat(sublistFile.submissionId).isEqualTo(docSubmission.id)
         assertThat(sublistFile.file).isEqualTo(newSubSectionFileListFile.toDocFile())
-        assertThat(docSubmission.section.sections.first()).hasLeftValueSatisfying {
-            assertThat(sublistFile.fileListName).isEqualTo(SUB_SEC_EXT_FILE_LIST_FILENAME)
-        }
+        assertThat(sublistFile.fileListName).isEqualTo(SUB_SEC_EXT_FILE_LIST_FILENAME)
         assertThat(sublistFile.index).isEqualTo(0)
         assertThat(sublistFile.submissionVersion).isEqualTo(docSubmission.version)
         assertThat(sublistFile.submissionAccNo).isEqualTo(docSubmission.accNo)
