@@ -91,6 +91,7 @@ class RtNotificationService(
             "The release date of this study is not set so it's not publicly available. $linkMessage"
 
         private fun privateWithReleaseDateMessage(linkMessage: String, releaseDate: String) =
-            "The release date of this study is set to $releaseDate and it will be publicly available after that. $linkMessage"
+            "The release date of this study is set to $releaseDate " +
+                "and it will be publicly available after that. $linkMessage"
     }
 }
