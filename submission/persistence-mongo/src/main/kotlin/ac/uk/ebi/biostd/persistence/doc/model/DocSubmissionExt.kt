@@ -36,12 +36,21 @@ val DocSubmission.allDocSections: List<DocSection>
         .build()
         .filterNotNull()
 
+val DocSubmission.allFileLists: List<DocFileList>
+    get() = section.allFileList
+
 val DocSection.allSections: List<DocSection>
     get() = sections.flatMap { either ->
         either.fold(
             { section -> listOf(section) + section.allSections },
             { emptyList() }
         )
+    }
+
+val DocSection.allFileList: List<DocFileList>
+    get() = buildList {
+        fileList?.let { add(it) }
+        addAll(sections.mapNotNull { either -> either.fold({ it }, { null }) }.flatMap { it.allFileList })
     }
 
 private fun DocProcessingStatus.toProcessingStatus(): ProcessingStatus =

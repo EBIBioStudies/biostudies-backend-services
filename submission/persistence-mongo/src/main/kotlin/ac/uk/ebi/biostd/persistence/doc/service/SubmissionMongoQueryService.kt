@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.persistence.doc.service
 
-import ac.uk.ebi.biostd.persistence.common.exception.FileListNotFoundException
 import ac.uk.ebi.biostd.persistence.common.exception.SubmissionNotFoundException
 import ac.uk.ebi.biostd.persistence.common.model.BasicSubmission
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
@@ -13,7 +12,6 @@ import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.toExtFile
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus.REQUESTED
-import ac.uk.ebi.biostd.persistence.doc.model.allDocSections
 import ac.uk.ebi.biostd.persistence.doc.model.asBasicSubmission
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileList
@@ -24,7 +22,6 @@ import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.extended.model.replace
 import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size
-import ebi.ac.uk.util.collections.firstOrElse
 import mu.KotlinLogging
 import org.springframework.data.domain.Page
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
@@ -104,12 +101,8 @@ internal class SubmissionMongoQueryService(
     }
 
     override fun getReferencedFiles(accNo: String, fileListName: String): List<ExtFile> =
-        loadSubmission(accNo)
-            .allDocSections
-            .mapNotNull { it.fileList }
-            .filter { it.fileName == fileListName }
-            .firstOrElse { throw FileListNotFoundException(accNo, fileListName) }
-            .let { fileList -> fileListDocFileRepository.findAllById(fileList.files.map { it.fileId }) }
+        fileListDocFileRepository
+            .findAllBySubmissionAccNoAndSubmissionVersionGreaterThanAndFileListName(accNo, 0, fileListName)
             .map { it.file.toExtFile() }
 
     private fun loadSubmission(accNo: String) =
