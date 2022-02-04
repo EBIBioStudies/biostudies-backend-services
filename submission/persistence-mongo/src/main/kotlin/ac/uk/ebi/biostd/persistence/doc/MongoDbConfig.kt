@@ -4,7 +4,6 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.from.DocAttributeConverter
 import ac.uk.ebi.biostd.persistence.doc.db.converters.from.DocFileConverter
 import ac.uk.ebi.biostd.persistence.doc.db.converters.from.DocFileListConverter
 import ac.uk.ebi.biostd.persistence.doc.db.converters.from.DocFileListDocFileConverter
-import ac.uk.ebi.biostd.persistence.doc.db.converters.from.DocFileRefConverter
 import ac.uk.ebi.biostd.persistence.doc.db.converters.from.DocFileTableConverter
 import ac.uk.ebi.biostd.persistence.doc.db.converters.from.DocLinkConverter
 import ac.uk.ebi.biostd.persistence.doc.db.converters.from.DocLinkTableConverter
@@ -14,7 +13,6 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.to.AttributeConverter
 import ac.uk.ebi.biostd.persistence.doc.db.converters.to.FileConverter
 import ac.uk.ebi.biostd.persistence.doc.db.converters.to.FileListConverter
 import ac.uk.ebi.biostd.persistence.doc.db.converters.to.FileListDocFileConverter
-import ac.uk.ebi.biostd.persistence.doc.db.converters.to.FileRefConverter
 import ac.uk.ebi.biostd.persistence.doc.db.converters.to.FileTableConverter
 import ac.uk.ebi.biostd.persistence.doc.db.converters.to.LinkConverter
 import ac.uk.ebi.biostd.persistence.doc.db.converters.to.LinkTableConverter
@@ -66,7 +64,7 @@ class MongoDbConfig(
     fun mongockApplicationRunner(
         springContext: ApplicationContext,
         mongoTemplate: MongoTemplate,
-        @Value("\${app.mongo.migration-package}") migrationPackage: String
+        @Value("\${app.mongo.migration-package}") migrationPackage: String,
     ): ApplicationRunner {
         return createMongockConfig(mongoTemplate, springContext, migrationPackage)
     }
@@ -91,8 +89,7 @@ class MongoDbConfig(
     private fun docSubmissionConverter(): DocSubmissionConverter {
         val docAttributeConverter = DocAttributeConverter()
         val docFileConverter = DocFileConverter(docAttributeConverter)
-        val docFileRefConverter = DocFileRefConverter()
-        val docFileListConverter = DocFileListConverter(docFileRefConverter, docFileConverter)
+        val docFileListConverter = DocFileListConverter(docFileConverter)
         val docFileTableConverter = DocFileTableConverter(docFileConverter)
         val docLinkConverter = DocLinkConverter(docAttributeConverter)
         val docLinksTableConverter = DocLinkTableConverter(docLinkConverter)
@@ -110,8 +107,7 @@ class MongoDbConfig(
     private fun submissionConverter(): SubmissionConverter {
         val attributeConverter = AttributeConverter()
         val fileConverter = FileConverter(attributeConverter)
-        val fileRefConverter = FileRefConverter()
-        val fileListConverter = FileListConverter(fileRefConverter, fileConverter)
+        val fileListConverter = FileListConverter(fileConverter)
         val fileTableConverter = FileTableConverter(fileConverter)
         val linkConverter = LinkConverter(attributeConverter)
         val linksTableConverter = LinkTableConverter(linkConverter)

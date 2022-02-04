@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.persistence.doc.mapping.to
 
-import ac.uk.ebi.biostd.persistence.doc.model.DocFileRef
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.NfsDocFile
 import ac.uk.ebi.biostd.persistence.doc.test.FileTestHelper.docFileList
@@ -17,7 +16,6 @@ import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
-import org.bson.types.ObjectId
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import ac.uk.ebi.biostd.persistence.doc.test.fireDocDirectory as subFireDocDirectory
@@ -60,7 +58,7 @@ class ToExtSubmissionMapperTest(private val temporaryFolder: TemporaryFolder) {
         return docSubmission.copy(
             section = docSection.copy(
                 files = listOf(left(testNfsDocFile), left(testFireDocFile)),
-                fileList = docFileList.copy(files = listOf(DocFileRef(ObjectId())))
+                fileList = docFileList
             ),
             pageTabFiles = listOf(subFireDocFile, subFireDocDirectory, subNfsDocFile)
         )

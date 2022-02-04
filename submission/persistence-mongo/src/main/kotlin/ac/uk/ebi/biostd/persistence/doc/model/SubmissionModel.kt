@@ -121,7 +121,6 @@ data class FireDocDirectory(
 
 data class DocFileList(
     val fileName: String,
-    val files: List<DocFileRef>,
     val pageTabFiles: List<DocFile> = listOf()
 )
 
@@ -134,7 +133,11 @@ data class FileListDocFile(
     @Id
     val id: ObjectId,
     val submissionId: ObjectId,
-    val file: DocFile
+    val file: DocFile,
+    val fileListName: String,
+    val index: Int,
+    val submissionVersion: Int,
+    val submissionAccNo: String
 )
 
 data class DocSectionTable(val sections: List<DocSectionTableRow>)
