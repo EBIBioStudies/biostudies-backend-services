@@ -57,7 +57,7 @@ class ToExtSectionTest(temporaryFolder: TemporaryFolder) {
 
     @Test
     fun `to ext section`() {
-        val extSection = testDocSection.toExtSection()
+        val extSection = testDocSection.toExtSection(includeFileListFiles)
         assertExtSection(extSection, testFile)
         assertFileListTabFiles(extSection.fileList!!.pageTabFiles)
     }

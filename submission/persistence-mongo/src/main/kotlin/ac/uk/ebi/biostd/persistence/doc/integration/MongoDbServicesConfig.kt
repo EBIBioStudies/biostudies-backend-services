@@ -47,7 +47,9 @@ class MongoDbServicesConfig {
     ): CollectionDataService = CollectionMongoDataService(submissionDocDataRepository)
 
     @Bean
-    internal fun toExtSubmissionMapper(): ToExtSubmissionMapper = ToExtSubmissionMapper()
+    internal fun toExtSubmissionMapper(
+        fileListDocFileRepository: FileListDocFileRepository
+    ): ToExtSubmissionMapper = ToExtSubmissionMapper(fileListDocFileRepository)
 
     @Bean
     internal fun submissionDraftMongoService(
