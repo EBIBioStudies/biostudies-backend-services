@@ -75,7 +75,7 @@ internal class DatabaseChangeLogTest(
     }
 
     @Test
-    fun `create schema migration 001 when collections does not exists`() {
+    fun `check migration on a empty database`() {
         runMigrations()
 
         assertSubmissionCollection()
@@ -84,7 +84,7 @@ internal class DatabaseChangeLogTest(
     }
 
     @Test
-    fun `create schema migration 001 when collections exists`() {
+    fun `check migration on a non-empty database`() {
         mongoTemplate.createCollection<DocSubmission>()
         mongoTemplate.createCollection<DocSubmissionRequest>()
         mongoTemplate.createCollection<FileListDocFile>()

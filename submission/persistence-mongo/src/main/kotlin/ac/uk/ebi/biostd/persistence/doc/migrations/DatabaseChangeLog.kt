@@ -106,7 +106,7 @@ class DatabaseChangeLog {
         }
     }
 
-    @ChangeSet(order = "004", id = "Submission references in FileListDocFile", author = "System")
+    @ChangeSet(order = "004", id = "Submission fields indexes in FileListDocFile", author = "System")
     fun changeSet004(template: MongockTemplate) {
         template.ensureExists(FileListDocFile::class.java)
 
