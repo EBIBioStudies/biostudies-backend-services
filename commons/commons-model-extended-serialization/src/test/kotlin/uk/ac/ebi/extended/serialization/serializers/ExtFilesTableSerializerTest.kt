@@ -13,7 +13,6 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
-import uk.ac.ebi.serialization.extensions.serialize
 
 @ExtendWith(TemporaryFolderExtension::class)
 class ExtFilesTableSerializerTest(private val tempFolder: TemporaryFolder) {
@@ -30,7 +29,7 @@ class ExtFilesTableSerializerTest(private val tempFolder: TemporaryFolder) {
                 file = file,
                 md5 = file.md5(),
                 size = file.size(),
-                attributes = listOf(ExtAttribute("Type", "Data", false))
+                attributes = listOf(ExtAttribute("Type", "Data", false), ExtAttribute("Source", null, true))
             )
         )
         val expectedJson = jsonObj {
@@ -46,6 +45,15 @@ class ExtFilesTableSerializerTest(private val tempFolder: TemporaryFolder) {
                             "name" to "Type"
                             "value" to "Data"
                             "reference" to false
+                            "nameAttrs" to jsonArray()
+                            "valueAttrs" to jsonArray()
+                        },
+                        jsonObj {
+                            "name" to "Source"
+                            "value" to null
+                            "reference" to true
+                            "nameAttrs" to jsonArray()
+                            "valueAttrs" to jsonArray()
                         }
                     )
                     "extType" to "nfsFile"
@@ -56,6 +64,6 @@ class ExtFilesTableSerializerTest(private val tempFolder: TemporaryFolder) {
             "extType" to "filesTable"
         }.toString()
 
-        assertThat(testInstance.serialize(extFilesTable)).isEqualToIgnoringWhitespace(expectedJson)
+        assertThat(testInstance.writeValueAsString(extFilesTable)).isEqualToIgnoringWhitespace(expectedJson)
     }
 }

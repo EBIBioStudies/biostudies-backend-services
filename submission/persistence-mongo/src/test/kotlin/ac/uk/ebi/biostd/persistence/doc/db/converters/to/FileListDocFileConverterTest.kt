@@ -23,7 +23,15 @@ class FileListDocFileConverterTest(
 
     @Test
     fun `fileListDocFile to document`() {
-        val fileListDocFile = FileListDocFile(ObjectId(1, 1), ObjectId(1, 3), docFile)
+        val fileListDocFile = FileListDocFile(
+            id = ObjectId(1, 1),
+            submissionId = ObjectId(1, 3),
+            file = docFile,
+            fileListName = "my-file-list",
+            index = 0,
+            submissionVersion = 5,
+            submissionAccNo = "abc-123"
+        )
         every { fileConverter.convert(docFile) } returns documentFile
 
         val result = testInstance.convert(fileListDocFile)

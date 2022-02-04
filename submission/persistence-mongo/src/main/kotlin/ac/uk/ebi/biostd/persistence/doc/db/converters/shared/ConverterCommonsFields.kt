@@ -64,7 +64,11 @@ object DocFileRefFields {
 object FileListDocFileFields {
     const val FILE_LIST_DOC_FILE_ID = "_id"
     const val FILE_LIST_DOC_FILE_SUBMISSION_ID = "submissionId"
+    const val FILE_LIST_DOC_FILE_SUBMISSION_ACC_NO = "submissionAccNo"
+    const val FILE_LIST_DOC_FILE_SUBMISSION_VERSION = "submissionVersion"
     const val FILE_LIST_DOC_FILE_FILE = "file"
+    const val FILE_LIST_DOC_FILE_INDEX = "index"
+    const val FILE_LIST_DOC_FILE_FILE_LIST = "fileListName"
 }
 
 object DocFileTableFields {

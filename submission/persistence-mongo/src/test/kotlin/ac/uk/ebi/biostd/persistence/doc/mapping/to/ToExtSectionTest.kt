@@ -4,7 +4,6 @@ import ac.uk.ebi.biostd.persistence.doc.model.FireDocDirectory
 import ac.uk.ebi.biostd.persistence.doc.model.FireDocFile
 import ac.uk.ebi.biostd.persistence.doc.model.NfsDocFile
 import ac.uk.ebi.biostd.persistence.doc.test.FileTestHelper.docFileList
-import ac.uk.ebi.biostd.persistence.doc.test.FileTestHelper.docFileRef
 import ac.uk.ebi.biostd.persistence.doc.test.FileTestHelper.fireDocFile
 import ac.uk.ebi.biostd.persistence.doc.test.FileTestHelper.nfsDocFile
 import ac.uk.ebi.biostd.persistence.doc.test.SectionTestHelper.assertExtSection
@@ -52,7 +51,6 @@ class ToExtSectionTest(temporaryFolder: TemporaryFolder) {
     private val testDocSection = docSection.copy(
         files = listOf(left(testNfsDocFile), left(testFireDocFile)),
         fileList = docFileList.copy(
-            files = listOf(docFileRef),
             pageTabFiles = listOf(tabFireFile, tabFireDirectory, tabNfsFile)
         )
     )

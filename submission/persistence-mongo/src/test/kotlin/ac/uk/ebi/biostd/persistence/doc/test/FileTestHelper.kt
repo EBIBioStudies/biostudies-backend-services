@@ -1,7 +1,6 @@
 package ac.uk.ebi.biostd.persistence.doc.test
 
 import ac.uk.ebi.biostd.persistence.doc.model.DocFileList
-import ac.uk.ebi.biostd.persistence.doc.model.DocFileRef
 import ac.uk.ebi.biostd.persistence.doc.model.FireDocDirectory
 import ac.uk.ebi.biostd.persistence.doc.model.FireDocFile
 import ac.uk.ebi.biostd.persistence.doc.model.NfsDocFile
@@ -14,7 +13,6 @@ import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.io.ext.md5
 import org.assertj.core.api.Assertions.assertThat
-import org.bson.types.ObjectId
 import java.io.File
 
 internal const val TEST_FILENAME = "file.txt"
@@ -61,8 +59,7 @@ internal object FileTestHelper {
             md5 = TEST_MD5,
             fileSize = TEST_FIRE_FILE_SIZE,
         )
-    val docFileRef = DocFileRef(ObjectId(10, 10))
-    val docFileList = DocFileList(TEST_FILE_LIST, listOf(docFileRef))
+    val docFileList = DocFileList(TEST_FILE_LIST)
 
     fun assertExtFile(extFile: ExtFile, file: File) = when (extFile) {
         is FireFile -> assertFireFile(extFile)

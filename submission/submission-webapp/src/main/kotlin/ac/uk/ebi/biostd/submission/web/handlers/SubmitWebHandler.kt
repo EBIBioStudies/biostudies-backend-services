@@ -12,12 +12,10 @@ import ac.uk.ebi.biostd.submission.model.SubmitRequest
 import ac.uk.ebi.biostd.submission.web.model.ContentSubmitWebRequest
 import ac.uk.ebi.biostd.submission.web.model.FileSubmitWebRequest
 import ac.uk.ebi.biostd.submission.web.model.OnBehalfRequest
-import ac.uk.ebi.biostd.submission.web.model.RefreshWebRequest
 import ebi.ac.uk.api.security.GetOrRegisterUserRequest
 import ebi.ac.uk.extended.mapping.to.toSimpleSubmission
 import ebi.ac.uk.extended.model.ExtProcessingStatus.PROCESSED
 import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.extended.model.FileMode
 import ebi.ac.uk.extended.model.allSectionsFiles
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.model.Submission
@@ -96,23 +94,6 @@ class SubmitWebHandler(
             method = FILE,
             mode = request.fileMode
         )
-    }
-
-    fun refreshSubmission(request: RefreshWebRequest): Submission {
-        val submission = submissionService.getSubmission(request.accNo).toSimpleSubmission()
-        val extSub = extSubmissionService.findExtendedSubmission(request.accNo)?.apply { requireProcessed(this) }
-        val files = extSub?.allSectionsFiles.orEmpty()
-        val source = sourceGenerator.submissionSources(RequestSources(previousFiles = files))
-
-        return submissionService.submit(
-            SubmitRequest(
-                submission = submission,
-                submitter = request.user,
-                sources = source,
-                method = PAGE_TAB,
-                mode = FileMode.MOVE
-            )
-        ).toSimpleSubmission()
     }
 
     private fun getOnBehalfUser(onBehalfRequest: OnBehalfRequest): SecurityUser {

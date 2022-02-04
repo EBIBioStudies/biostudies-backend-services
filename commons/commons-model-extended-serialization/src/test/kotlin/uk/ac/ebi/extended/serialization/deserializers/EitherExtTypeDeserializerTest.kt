@@ -1,6 +1,7 @@
 package uk.ac.ebi.extended.serialization.deserializers
 
 import arrow.core.Either
+import com.fasterxml.jackson.module.kotlin.readValue
 import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.extended.model.ExtFile
@@ -20,7 +21,6 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
-import uk.ac.ebi.serialization.extensions.deserialize
 
 @ExtendWith(TemporaryFolderExtension::class)
 class EitherExtTypeDeserializerTest(private val tempFolder: TemporaryFolder) {
@@ -33,7 +33,7 @@ class EitherExtTypeDeserializerTest(private val tempFolder: TemporaryFolder) {
             "extType" to "link"
         }.toString()
 
-        val link = testInstance.deserialize<Either<ExtLink, ExtLinkTable>>(json)
+        val link = testInstance.readValue<Either<ExtLink, ExtLinkTable>>(json)
         assertThat(link.isLeft()).isTrue
         link.ifLeft {
             assertThat(it.url).isEqualTo("http://mylink.org")
@@ -52,7 +52,7 @@ class EitherExtTypeDeserializerTest(private val tempFolder: TemporaryFolder) {
             "extType" to "linksTable"
         }.toString()
 
-        val link = testInstance.deserialize<Either<ExtLink, ExtLinkTable>>(json)
+        val link = testInstance.readValue<Either<ExtLink, ExtLinkTable>>(json)
         assertThat(link.isRight()).isTrue
         link.ifRight {
             val links = it.links
@@ -75,7 +75,7 @@ class EitherExtTypeDeserializerTest(private val tempFolder: TemporaryFolder) {
             "extType" to "nfsFile"
         }.toString()
 
-        val extFile = testInstance.deserialize<Either<ExtFile, ExtFileTable>>(json)
+        val extFile = testInstance.readValue<Either<ExtFile, ExtFileTable>>(json)
         assertThat(extFile.isLeft()).isTrue
         extFile.ifLeft {
             it as NfsFile
@@ -106,7 +106,7 @@ class EitherExtTypeDeserializerTest(private val tempFolder: TemporaryFolder) {
             "extType" to "filesTable"
         }.toString()
 
-        val extFilesTable = testInstance.deserialize<Either<ExtFile, ExtFileTable>>(json)
+        val extFilesTable = testInstance.readValue<Either<ExtFile, ExtFileTable>>(json)
         assertThat(extFilesTable.isRight()).isTrue
         extFilesTable.ifRight {
             val files = it.files
@@ -128,7 +128,7 @@ class EitherExtTypeDeserializerTest(private val tempFolder: TemporaryFolder) {
             "extType" to "section"
         }.toString()
 
-        val extSection = testInstance.deserialize<Either<ExtSection, ExtSectionTable>>(json)
+        val extSection = testInstance.readValue<Either<ExtSection, ExtSectionTable>>(json)
         assertThat(extSection.isLeft()).isTrue
         extSection.ifLeft {
             assertThat(it.type).isEqualTo("Study")
@@ -147,7 +147,7 @@ class EitherExtTypeDeserializerTest(private val tempFolder: TemporaryFolder) {
             "extType" to "sectionsTable"
         }.toString()
 
-        val extSectionsTable = testInstance.deserialize<Either<ExtSection, ExtSectionTable>>(json)
+        val extSectionsTable = testInstance.readValue<Either<ExtSection, ExtSectionTable>>(json)
         assertThat(extSectionsTable.isRight()).isTrue
         extSectionsTable.ifRight {
             val sections = it.sections

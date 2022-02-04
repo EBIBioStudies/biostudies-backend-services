@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.persistence.doc.service
 
-import ac.uk.ebi.biostd.persistence.common.exception.FileListNotFoundException
 import ac.uk.ebi.biostd.persistence.common.exception.SubmissionNotFoundException
 import ac.uk.ebi.biostd.persistence.common.model.BasicSubmission
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
@@ -12,16 +11,25 @@ import ac.uk.ebi.biostd.persistence.doc.db.repositories.FileListDocFileRepositor
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.toExtFile
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
-import ac.uk.ebi.biostd.persistence.doc.model.allDocSections
+import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus.REQUESTED
 import ac.uk.ebi.biostd.persistence.doc.model.asBasicSubmission
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileList
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.extended.model.FireDirectory
+import ebi.ac.uk.extended.model.FireFile
+import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.extended.model.replace
-import ebi.ac.uk.util.collections.firstOrElse
+import ebi.ac.uk.io.ext.md5
+import ebi.ac.uk.io.ext.size
+import mu.KotlinLogging
 import org.springframework.data.domain.Page
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import java.io.File
+import java.io.InputStream
+import kotlin.math.max
+
+private val logger = KotlinLogging.logger {}
 
 @Suppress("TooManyFunctions")
 internal class SubmissionMongoQueryService(
@@ -50,37 +58,51 @@ internal class SubmissionMongoQueryService(
         submissionRepo.expireVersions(accNumbers)
     }
 
-    override fun getExtendedSubmissions(filter: SubmissionFilter): Page<Result<ExtSubmission>> {
-        return submissionRepo.getSubmissionsPage(filter)
-            .map { runCatching { toExtSubmissionMapper.toExtSubmission(it) } }
+    override fun getExtendedSubmissions(filter: SubmissionFilter): Page<Result<ExtSubmission>> =
+        submissionRepo.getSubmissionsPage(filter).map { runCatching { toExtSubmissionMapper.toExtSubmission(it) } }
+
+    override fun getSubmissionsByUser(owner: String, filter: SubmissionFilter): List<BasicSubmission> {
+        val (requestsCount, requests) = requestRepository.findActiveRequest(filter, owner)
+        val offset = max(0, filter.offset - requestsCount)
+        val limit = filter.limit - requests.size
+        val submissionFilter = filter.copy(limit = limit, offset = offset)
+        return requests.map { it.asBasicSubmission() } + getSubmissions(owner, submissionFilter)
     }
 
-    override fun getSubmissionsByUser(email: String, filter: SubmissionFilter): List<BasicSubmission> {
-        val requests = requestRepository.findActiveRequest(filter, email).map { it.asBasicSubmission() }
-        return requests + getSubmissions(filter.limit - requests.size, email, filter)
-    }
+    private fun getSubmissions(owner: String, filter: SubmissionFilter): List<BasicSubmission> =
+        when (filter.limit) {
+            0 -> emptyList()
+            else -> submissionRepo.getSubmissions(filter, owner).map { it.asBasicSubmission() }
+        }
 
-    override fun getRequest(accNo: String, version: Int): SubmissionRequest {
-        val request = requestRepository.getByAccNoAndVersion(accNo, version)
+    override fun getPendingRequest(accNo: String, version: Int): SubmissionRequest {
+        val request = requestRepository.getByAccNoAndVersionAndStatus(accNo, version, REQUESTED)
         val fileLists = request.fileList.associate { it.fileName to File(it.filePath) }
         val submission = serializationService.deserialize(request.submission.toString())
         val fullSubmission = submission.copy(section = submission.section.replace { loadFiles(it, fileLists) })
         return SubmissionRequest(submission = fullSubmission, fileMode = request.fileMode, draftKey = request.draftKey)
     }
 
-    private fun loadFiles(fileList: ExtFileList, files: Map<String, File>): ExtFileList {
-        val fileListFile = files.getValue(fileList.fileName)
-        val files = fileListFile.inputStream().use { serializationService.deserialize(it) }.toList()
+    private fun loadFiles(fileList: ExtFileList, fileMap: Map<String, File>): ExtFileList {
+        val fileListFile = fileMap.getValue(fileList.fileName)
+        val files = fileListFile.inputStream().use { getFiles(it) }
         return fileList.copy(files = files)
     }
 
+    private fun getFiles(inputStream: InputStream): List<ExtFile> = serializationService.deserialize(inputStream)
+        .onEachIndexed { index, file -> logger.info { "mapping file ${file.filePath}, ${index + 1}" } }
+        .map { extFile -> loadFileAttributes(extFile) }
+        .toList()
+
+    private fun loadFileAttributes(file: ExtFile): ExtFile = when (file) {
+        is FireDirectory -> file
+        is FireFile -> file
+        is NfsFile -> file.copy(md5 = file.file.md5(), size = file.file.size())
+    }
+
     override fun getReferencedFiles(accNo: String, fileListName: String): List<ExtFile> =
-        loadSubmission(accNo)
-            .allDocSections
-            .mapNotNull { it.fileList }
-            .filter { it.fileName == fileListName }
-            .firstOrElse { throw FileListNotFoundException(fileListName, accNo) }
-            .let { fileList -> fileListDocFileRepository.findAllById(fileList.files.map { it.fileId }) }
+        fileListDocFileRepository
+            .findAllBySubmissionAccNoAndSubmissionVersionGreaterThanAndFileListName(accNo, 0, fileListName)
             .map { it.file.toExtFile() }
 
     private fun loadSubmission(accNo: String) =
@@ -88,10 +110,4 @@ internal class SubmissionMongoQueryService(
 
     private fun DocSubmissionRequest.asBasicSubmission() =
         serializationService.deserialize(submission.toString()).asBasicSubmission()
-
-    private fun getSubmissions(limit: Int, email: String, filter: SubmissionFilter): List<BasicSubmission> =
-        when (limit) {
-            0 -> emptyList()
-            else -> submissionRepo.getSubmissions(filter.copy(limit = limit), email).map { it.asBasicSubmission() }
-        }
 }

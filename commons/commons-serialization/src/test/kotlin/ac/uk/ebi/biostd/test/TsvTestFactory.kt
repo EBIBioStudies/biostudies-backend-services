@@ -19,6 +19,22 @@ fun submissionWithEmptyAttribute() = tsv {
     line()
 }
 
+fun submissionWithBlankAttribute() = tsv {
+    line("Submission", "S-EPMC123")
+    line("Title", "Basic Submission")
+    line("DataSource", "EuropePMC")
+    line("Abstract", "  ")
+    line()
+}
+
+fun submissionWithNullAttribute() = tsv {
+    line("Submission", "S-EPMC123")
+    line("Title", "Basic Submission")
+    line("DataSource", "EuropePMC")
+    line("Abstract")
+    line()
+}
+
 fun submissionWithQuoteValue() = tsv {
     line("Submission", "S-EPMC123")
     line("Title", "The \"Submission\": title.")
@@ -56,8 +72,6 @@ fun submissionWithInvalidValueAttributeDetail() = tsv {
     line("[Ontology]", "EFO")
     line()
 }
-
-fun twoBasicSubmission() = basicSubmission().toString() + basicSubmission().toString()
 
 fun submissionWithDetailedAttributes() = tsv {
     line("Submission", "S-EPMC124")
@@ -100,13 +114,6 @@ fun submissionWithMultipleLineBreaks() = tsv {
     line("Study")
     line("Title", "Test Root Section")
     line("Abstract", "Test abstract")
-    line()
-}
-
-fun submissionWithSectionsTable() = submissionWithRootSection().apply {
-    line("Data[]", "Title", "Desc")
-    line("DT-1", "Data 1", "Group 1")
-    line("DT-2", "Data 2", "Group 2")
     line()
 }
 

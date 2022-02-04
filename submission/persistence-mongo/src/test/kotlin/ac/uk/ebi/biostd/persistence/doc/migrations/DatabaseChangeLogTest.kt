@@ -9,6 +9,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ATTRIBUTES
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_MODIFICATION_TIME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_OWNER
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_RELEASED
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_RELEASE_TIME
@@ -99,7 +100,7 @@ internal class DatabaseChangeLogTest(
         val listIndexes = mongoTemplate.getCollection<DocSubmission>().listIndexes().toList()
 
         assertThat(mongoTemplate.collectionExists<DocSubmission>()).isTrue
-        assertThat(listIndexes).hasSize(9)
+        assertThat(listIndexes).hasSize(10)
 
         assertThat(listIndexes[0]).containsEntry("key", Document("_id", 1))
         assertThat(listIndexes[1]).containsEntry("key", Document(SUB_ACC_NO, 1))
@@ -115,13 +116,14 @@ internal class DatabaseChangeLogTest(
             SimpleEntry("partialFilterExpression", Document("$SUB_SECTION.$SUB_ATTRIBUTES.name", TITLE.value)),
             SimpleEntry("weights", Document("$SUB_SECTION.$SUB_ATTRIBUTES.value", 1).append(SUB_TITLE, 1))
         )
+        assertThat(listIndexes[9]).containsEntry("key", Document(SUB_MODIFICATION_TIME, -1))
     }
 
     private fun assertRequestCollection() {
         val listIndexes = mongoTemplate.getCollection<DocSubmissionRequest>().listIndexes().toList()
 
         assertThat(mongoTemplate.collectionExists<DocSubmissionRequest>()).isTrue
-        assertThat(listIndexes).hasSize(10)
+        assertThat(listIndexes).hasSize(11)
 
         assertThat(listIndexes[0]).containsEntry("key", Document("_id", 1))
         assertThat(listIndexes[1]).containsEntry("key", Document(SUB_ACC_NO, 1))
@@ -138,6 +140,7 @@ internal class DatabaseChangeLogTest(
             SimpleEntry("partialFilterExpression", Document("$SUB.$SUB_SECTION.$SUB_ATTRIBUTES.name", TITLE.value)),
             SimpleEntry("weights", Document("$SUB.$SUB_SECTION.$SUB_ATTRIBUTES.value", 1).append("$SUB.$SUB_TITLE", 1))
         )
+        assertThat(listIndexes[10]).containsEntry("key", Document("submission.$SUB_MODIFICATION_TIME", -1))
     }
 
     private fun runMigrations() {

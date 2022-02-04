@@ -4,7 +4,7 @@ import ac.uk.ebi.biostd.test.createVenousBloodMonocyte
 import ac.uk.ebi.biostd.tsv.serialization.ACC_NO_KEY
 import ac.uk.ebi.biostd.tsv.serialization.ROOT_PATH_KEY
 import ac.uk.ebi.biostd.tsv.serialization.TITLE_KEY
-import ac.uk.ebi.biostd.tsv.serialization.TsvToStringSerializer
+import ac.uk.ebi.biostd.tsv.serialization.TsvSerializer
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.model.constants.SubFields
@@ -14,7 +14,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
 class SimpleSubmissionTsvParserTest {
-    private val testInstance: TsvToStringSerializer = TsvToStringSerializer()
+    private val testInstance: TsvSerializer = TsvSerializer()
 
     @Test
     fun parseSimpleSubmission() {

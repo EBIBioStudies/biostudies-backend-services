@@ -14,6 +14,7 @@ import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FileMode
 import ebi.ac.uk.extended.model.FileMode.COPY
+import ebi.ac.uk.extended.model.FileMode.MOVE
 import ebi.ac.uk.extended.model.isCollection
 import ebi.ac.uk.security.integration.components.ISecurityQueryService
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
@@ -28,23 +29,33 @@ import java.io.File
 import java.time.OffsetDateTime
 
 private val logger = KotlinLogging.logger {}
+
 @Suppress("TooManyFunctions")
 class ExtSubmissionService(
     private val rabbitTemplate: RabbitTemplate,
     private val submissionSubmitter: SubmissionSubmitter,
-    private val submissionRepository: SubmissionQueryService,
+    private val submissionQueryService: SubmissionQueryService,
     private val userPrivilegesService: IUserPrivilegesService,
     private val securityQueryService: ISecurityQueryService,
-    private val extSerializationService: ExtSerializationService
+    private val extSerializationService: ExtSerializationService,
 ) {
-    fun getExtendedSubmission(accNo: String): ExtSubmission = submissionRepository.getExtByAccNo(accNo)
+    fun getExtendedSubmission(accNo: String): ExtSubmission = submissionQueryService.getExtByAccNo(accNo)
 
-    fun findExtendedSubmission(accNo: String): ExtSubmission? = submissionRepository.findExtByAccNo(accNo)
+    fun findExtendedSubmission(accNo: String): ExtSubmission? = submissionQueryService.findExtByAccNo(accNo)
 
     fun getReferencedFiles(
         accNo: String,
         fileListName: String
-    ): ExtFileTable = ExtFileTable(submissionRepository.getReferencedFiles(accNo, fileListName))
+    ): ExtFileTable = ExtFileTable(submissionQueryService.getReferencedFiles(accNo, fileListName))
+
+    fun refreshSubmission(accNo: String, user: String): ExtSubmission {
+        val submission = submissionQueryService.getExtByAccNo(accNo)
+        return submitExt(user, submission, emptyList(), MOVE)
+    }
+
+    fun reTriggerSubmission(accNo: String, version: Int): ExtSubmission {
+        return submissionSubmitter.processRequest(accNo, version)
+    }
 
     fun submitExt(
         user: String,
@@ -53,7 +64,8 @@ class ExtSubmissionService(
         fileMode: FileMode = COPY
     ): ExtSubmission {
         val submission = processExtSubmission(user, extSubmission, fileListFiles)
-        return submissionSubmitter.submit(SubmissionRequest(submission, fileMode))
+        val (accNo, version) = submissionSubmitter.submitAsync(SubmissionRequest(submission, fileMode))
+        return submissionSubmitter.processRequest(accNo, version)
     }
 
     fun submitExtAsync(
@@ -81,7 +93,7 @@ class ExtSubmissionService(
             offset = request.offset
         )
 
-        val page = submissionRepository
+        val page = submissionQueryService
             .getExtendedSubmissions(filter)
             .onEach { it.onFailure { logger.error { it.message ?: it.localizedMessage } } }
             .map { it.getOrNull() }
@@ -128,7 +140,7 @@ class ExtSubmissionService(
         throw UserNotFoundException(email)
     }
 
-    private fun validateCollection(accNo: String) = require(submissionRepository.existByAccNo(accNo)) {
+    private fun validateCollection(accNo: String) = require(submissionQueryService.existByAccNo(accNo)) {
         throw CollectionNotFoundException(accNo)
     }
 }

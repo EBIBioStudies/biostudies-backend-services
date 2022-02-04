@@ -1,7 +1,6 @@
 package ac.uk.ebi.biostd.submission.submitter
 
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
-import ac.uk.ebi.biostd.json.exception.NoAttributeValueException
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
@@ -60,14 +59,6 @@ class SubmissionSubmitter(
     private val sectionMapper: SectionMapper,
     private val properties: ApplicationProperties
 ) {
-    fun submit(request: SubmitRequest): ExtSubmission {
-        val (accNo, version) = submitAsync(request)
-        return processRequest(accNo, version)
-    }
-
-    fun submit(request: SubmissionRequest): ExtSubmission =
-        processRequest(request.submission.accNo, request.submission.version)
-
     fun submitAsync(rqt: SubmitRequest): Pair<String, Int> {
         logger.info { "${rqt.accNo} ${rqt.submitter.email} Processing async request $rqt" }
         val sub = process(rqt.submission, rqt.submitter.asUser(), rqt.onBehalfUser?.asUser(), rqt.sources, rqt.method)
@@ -79,9 +70,8 @@ class SubmissionSubmitter(
         submissionRequestService.saveSubmissionRequest(request)
 
     fun processRequest(accNo: String, version: Int): ExtSubmission {
-        val saveRequest = submissionQueryService.getRequest(accNo, version)
+        val saveRequest = submissionQueryService.getPendingRequest(accNo, version)
         val submitter = saveRequest.submission.submitter
-
         logger.info { "$accNo, $submitter Processing request for submission accNo='$accNo', version='$version'" }
         return submissionRequestService.processSubmissionRequest(saveRequest)
     }
@@ -170,7 +160,6 @@ class SubmissionSubmitter(
 
     private fun getAttributes(submission: Submission): List<ExtAttribute> {
         return submission.attributes
-            .onEach { require(it.value.isNotEmpty()) { throw NoAttributeValueException(it.value) } }
             .filterNot { SUBMISSION_RESERVED_ATTRIBUTES.contains(it.name) }
             .map { it.toExtAttribute() }
     }

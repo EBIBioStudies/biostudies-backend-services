@@ -50,7 +50,7 @@ class AttributeXmlDeserializerTest {
         assertThat(testInstance.deserialize(xmlAttribute)).isEqualTo(
             Attribute(
                 name = "attr1",
-                value = "",
+                value = null,
                 reference = false,
                 nameAttrs = mutableListOf(),
                 valueAttrs = mutableListOf()

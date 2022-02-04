@@ -14,7 +14,7 @@ class FileExtTest {
 
         assertThat(file["type"]).isEqualTo("Text")
         assertThat(file.attributes).hasSize(1)
-        assertThat(file.attributes.first()).isEqualTo(Attribute(FileFields.TYPE, "Text"))
+        assertThat(file.attributes.first()).isEqualTo(Attribute(FileFields.TYPE.value, "Text"))
     }
 
     @Test
