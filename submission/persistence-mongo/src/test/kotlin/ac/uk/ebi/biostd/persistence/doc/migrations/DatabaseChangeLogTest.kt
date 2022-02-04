@@ -17,15 +17,24 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_SUBMITTER
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_TITLE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_VERSION
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_FILE_LIST_NAME
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_INDEX
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_SUBMISSION_ACC_NO
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_SUBMISSION_ID
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_SUBMISSION_VERSION
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
+import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus.REQUESTED
 import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocSubmission
+import ac.uk.ebi.biostd.persistence.doc.test.fireDocFile
 import com.mongodb.BasicDBObject
 import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
 import ebi.ac.uk.db.MONGO_VERSION
 import ebi.ac.uk.extended.model.FileMode
 import ebi.ac.uk.model.constants.SectionFields.TITLE
+import java.time.Duration.ofSeconds
+import java.util.AbstractMap.SimpleEntry
 import org.assertj.core.api.Assertions.assertThat
 import org.bson.Document
 import org.bson.types.ObjectId
@@ -49,15 +58,13 @@ import org.testcontainers.containers.startupcheck.MinimumDurationRunningStartupC
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.utility.DockerImageName
-import java.time.Duration.ofSeconds
-import java.util.AbstractMap.SimpleEntry
 
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(classes = [MongoDbConfig::class])
 @Testcontainers
 internal class DatabaseChangeLogTest(
     @Autowired private val springContext: ApplicationContext,
-    @Autowired private val mongoTemplate: MongoTemplate
+    @Autowired private val mongoTemplate: MongoTemplate,
 ) {
     @BeforeEach
     fun init() {
@@ -73,33 +80,40 @@ internal class DatabaseChangeLogTest(
 
         assertSubmissionCollection()
         assertRequestCollection()
+        assertFileListFilesCollection()
     }
 
     @Test
     fun `create schema migration 001 when collections exists`() {
         mongoTemplate.createCollection<DocSubmission>()
         mongoTemplate.createCollection<DocSubmissionRequest>()
+        mongoTemplate.createCollection<FileListDocFile>()
 
         mongoTemplate.insert(testDocSubmission.copy(accNo = "accNo1"))
         mongoTemplate.insert(testDocSubmission.copy(accNo = "accNo2"))
         mongoTemplate.insert(request.copy(id = ObjectId(), accNo = "accNo1"))
         mongoTemplate.insert(request.copy(id = ObjectId(), accNo = "accNo2"))
+        mongoTemplate.insert(fileListDocFile.copy(id = ObjectId(), submissionAccNo = "SubAccNo1"))
+        mongoTemplate.insert(fileListDocFile.copy(id = ObjectId(), submissionAccNo = "SubAccNo2"))
 
         val submissions = mongoTemplate.findAll<DocSubmission>()
         val requests = mongoTemplate.findAll<DocSubmissionRequest>()
+        val fileListFiles = mongoTemplate.findAll<FileListDocFile>()
 
         runMigrations()
 
         assertThat(mongoTemplate.findAll<DocSubmission>()).isEqualTo(submissions)
         assertThat(mongoTemplate.findAll<DocSubmissionRequest>()).isEqualTo(requests)
+        assertThat(mongoTemplate.findAll<FileListDocFile>()).isEqualTo(fileListFiles)
         assertSubmissionCollection()
         assertRequestCollection()
+        assertFileListFilesCollection()
     }
 
     private fun assertSubmissionCollection() {
         val listIndexes = mongoTemplate.getCollection<DocSubmission>().listIndexes().toList()
 
-        assertThat(mongoTemplate.collectionExists<DocSubmission>()).isTrue
+        assertThat(mongoTemplate.collectionExists<DocSubmission>()).isTrue()
         assertThat(listIndexes).hasSize(10)
 
         assertThat(listIndexes[0]).containsEntry("key", Document("_id", 1))
@@ -122,7 +136,7 @@ internal class DatabaseChangeLogTest(
     private fun assertRequestCollection() {
         val listIndexes = mongoTemplate.getCollection<DocSubmissionRequest>().listIndexes().toList()
 
-        assertThat(mongoTemplate.collectionExists<DocSubmissionRequest>()).isTrue
+        assertThat(mongoTemplate.collectionExists<DocSubmissionRequest>()).isTrue()
         assertThat(listIndexes).hasSize(11)
 
         assertThat(listIndexes[0]).containsEntry("key", Document("_id", 1))
@@ -143,6 +157,20 @@ internal class DatabaseChangeLogTest(
         assertThat(listIndexes[10]).containsEntry("key", Document("submission.$SUB_MODIFICATION_TIME", -1))
     }
 
+    private fun assertFileListFilesCollection() {
+        val listIndexes = mongoTemplate.getCollection<FileListDocFile>().listIndexes().toList()
+
+        assertThat(mongoTemplate.collectionExists<FileListDocFile>()).isTrue()
+        assertThat(listIndexes).hasSize(6)
+
+        assertThat(listIndexes[0]).containsEntry("key", Document("_id", 1))
+        assertThat(listIndexes[1]).containsEntry("key", Document(FILE_LIST_DOC_FILE_SUBMISSION_ID, 1))
+        assertThat(listIndexes[2]).containsEntry("key", Document(FILE_LIST_DOC_FILE_FILE_LIST_NAME, 1))
+        assertThat(listIndexes[3]).containsEntry("key", Document(FILE_LIST_DOC_FILE_INDEX, 1))
+        assertThat(listIndexes[4]).containsEntry("key", Document(FILE_LIST_DOC_FILE_SUBMISSION_ACC_NO, 1))
+        assertThat(listIndexes[5]).containsEntry("key", Document(FILE_LIST_DOC_FILE_SUBMISSION_VERSION, 1))
+    }
+
     private fun runMigrations() {
         val runner = createMongockConfig(mongoTemplate, springContext, "ac.uk.ebi.biostd.persistence.doc.migrations")
         runner.run(DefaultApplicationArguments())
@@ -157,6 +185,16 @@ internal class DatabaseChangeLogTest(
         status = REQUESTED,
         submission = BasicDBObject.parse("{}"),
         fileList = emptyList()
+    )
+
+    private val fileListDocFile = FileListDocFile(
+        id = ObjectId(),
+        submissionId = ObjectId(),
+        file = fireDocFile,
+        fileListName = "fileListName",
+        index = 0,
+        submissionVersion = 1,
+        submissionAccNo = "ACC-TEST-1"
     )
 
     companion object {

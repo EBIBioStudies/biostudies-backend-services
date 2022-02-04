@@ -42,7 +42,7 @@ class DocFileListDocFileConverterTest(
         this[FileListDocFileFields.FILE_LIST_DOC_FILE_ID] = ObjectId(1, 1)
         this[FileListDocFileFields.FILE_LIST_DOC_FILE_SUBMISSION_ID] = ObjectId(1, 2)
         this[FileListDocFileFields.FILE_LIST_DOC_FILE_FILE] = documentFile
-        this[FileListDocFileFields.FILE_LIST_DOC_FILE_FILE_LIST] = "fileList.txt"
+        this[FileListDocFileFields.FILE_LIST_DOC_FILE_FILE_LIST_NAME] = "fileList.txt"
         this[FileListDocFileFields.FILE_LIST_DOC_FILE_INDEX] = 1
         this[FileListDocFileFields.FILE_LIST_DOC_FILE_SUBMISSION_ACC_NO] = "TEST_123"
         this[FileListDocFileFields.FILE_LIST_DOC_FILE_SUBMISSION_VERSION] = 2

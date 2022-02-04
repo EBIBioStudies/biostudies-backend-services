@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.persistence.doc.db.converters.from
 
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_FILE
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_FILE_LIST
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_FILE_LIST_NAME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_ID
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_INDEX
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_SUBMISSION_ACC_NO
@@ -17,7 +17,7 @@ class DocFileListDocFileConverter(private val docFileConvert: DocFileConverter) 
             id = source.getObjectId(FILE_LIST_DOC_FILE_ID),
             submissionId = source.getObjectId(FILE_LIST_DOC_FILE_SUBMISSION_ID),
             file = docFileConvert.convert(source.get(FILE_LIST_DOC_FILE_FILE, Document::class.java)),
-            fileListName = source.getString(FILE_LIST_DOC_FILE_FILE_LIST),
+            fileListName = source.getString(FILE_LIST_DOC_FILE_FILE_LIST_NAME),
             index = source.getInteger(FILE_LIST_DOC_FILE_INDEX),
             submissionAccNo = source.getString(FILE_LIST_DOC_FILE_SUBMISSION_ACC_NO),
             submissionVersion = source.getInteger(FILE_LIST_DOC_FILE_SUBMISSION_VERSION),
