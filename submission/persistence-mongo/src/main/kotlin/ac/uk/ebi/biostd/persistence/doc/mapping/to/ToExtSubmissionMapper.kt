@@ -71,7 +71,8 @@ class ToExtSubmissionMapper(
     ): Either<ExtSection, ExtSectionTable> {
         return bimap(
             { it.toExtSection(subAccNo, subVersion, includeFileListFiles) },
-            { it.toExtSectionTable() })
+            { it.toExtSectionTable() }
+        )
     }
 
     private fun getStatus(status: DocProcessingStatus) = when (status) {
@@ -87,8 +88,8 @@ class ToExtSubmissionMapper(
     }
 
     /**
-     * Maps a DocFileList to corresponding Ext type. Note that empty list is used as files as list files are not loaded as
-     * part of the submission.
+     * Maps a DocFileList to corresponding Ext type. Note that empty list is used as files as list files are not loaded
+     * as part of the submission.
      */
     private fun DocFileList.toExtFileList(
         subAccNo: String,

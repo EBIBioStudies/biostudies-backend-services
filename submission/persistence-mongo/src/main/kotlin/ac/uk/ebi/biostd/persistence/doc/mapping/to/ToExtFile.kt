@@ -31,4 +31,3 @@ internal fun DocFileTable.toExtFileTable(): ExtFileTable = ExtFileTable(files.ma
 
 internal fun Either<DocFile, DocFileTable>.toExtFiles(): Either<ExtFile, ExtFileTable> =
     bimap({ it.toExtFile() }) { it.toExtFileTable() }
-
