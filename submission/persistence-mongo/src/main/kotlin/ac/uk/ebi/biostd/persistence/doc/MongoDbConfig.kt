@@ -19,6 +19,10 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.to.LinkTableConverter
 import ac.uk.ebi.biostd.persistence.doc.db.converters.to.SectionConverter
 import ac.uk.ebi.biostd.persistence.doc.db.converters.to.SubmissionConverter
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionMongoRepository
+import ac.uk.ebi.biostd.persistence.doc.migrations.ChangeSet001
+import ac.uk.ebi.biostd.persistence.doc.migrations.ChangeSet002
+import ac.uk.ebi.biostd.persistence.doc.migrations.ChangeSet003
+import ac.uk.ebi.biostd.persistence.doc.migrations.ChangeSet004
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
 import com.github.cloudyrock.mongock.driver.mongodb.springdata.v3.SpringDataMongoV3Driver
@@ -66,7 +70,16 @@ class MongoDbConfig(
         mongoTemplate: MongoTemplate,
         @Value("\${app.mongo.migration-package}") migrationPackage: String,
     ): ApplicationRunner {
-        return createMongockConfig(mongoTemplate, springContext, migrationPackage)
+        return createMongockConfig(
+            mongoTemplate,
+            springContext,
+            listOf(
+                ChangeSet001::class.java,
+                ChangeSet002::class.java,
+                ChangeSet003::class.java,
+                ChangeSet004::class.java
+            )
+        )
     }
 
     @Bean
@@ -126,11 +139,12 @@ class MongoDbConfig(
         fun createMongockConfig(
             mongoTemplate: MongoTemplate,
             springContext: ApplicationContext,
-            migrationPackage: String
+            classes: List<Class<*>>
         ): MongockApplicationRunner {
             return MongockSpring5.builder()
                 .setDriver(createDriver(mongoTemplate))
-                .addChangeLogsScanPackage(migrationPackage)
+                //.addChangeLogsScanPackage(migrationPackage)
+                .addChangeLogClasses(classes)
                 .setSpringContext(springContext)
                 .buildApplicationRunner()
         }

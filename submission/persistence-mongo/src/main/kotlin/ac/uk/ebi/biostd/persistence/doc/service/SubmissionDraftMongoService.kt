@@ -30,9 +30,11 @@ class SubmissionDraftMongoService(
     override fun deleteSubmissionDraft(userEmail: String, key: String) =
         draftDocDataRepository.deleteByUserIdAndKey(userEmail, key)
 
-    override fun getActiveSubmissionsDraft(userEmail: String, filter: PaginationFilter): List<SubmissionDraft> =
-        draftDocDataRepository.findAllByUserIdAndStatusDraft(userEmail, ACTIVE, filter)
+    override fun getActiveSubmissionsDraft(userEmail: String, filter: PaginationFilter): List<SubmissionDraft> {
+        return draftDocDataRepository
+            .findAllByUserIdAndStatusDraft(userEmail, ACTIVE, filter)
             .map { SubmissionDraft(it.key, it.content) }
+    }
 
     override fun createSubmissionDraft(userEmail: String, content: String): SubmissionDraft {
         val draft = draftDocDataRepository.createDraft(userEmail, "TMP_${Instant.now().toEpochMilli()}", content)
@@ -42,6 +44,6 @@ class SubmissionDraftMongoService(
     private fun create(userEmail: String, key: String): DocSubmissionDraft {
         val submission = submissionQueryService.getExtByAccNo(key).toSimpleSubmission()
         val content = serializationService.serializeSubmission(submission, JsonPretty)
-        return draftDocDataRepository.saveDraft(userEmail, key, content)
+        return draftDocDataRepository.createDraft(userEmail, key, content)
     }
 }

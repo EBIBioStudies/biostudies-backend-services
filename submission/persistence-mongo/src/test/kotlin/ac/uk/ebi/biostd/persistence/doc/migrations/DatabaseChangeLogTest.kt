@@ -4,7 +4,7 @@ import ac.uk.ebi.biostd.persistence.doc.CHANGE_LOG_COLLECTION
 import ac.uk.ebi.biostd.persistence.doc.CHANGE_LOG_LOCK
 import ac.uk.ebi.biostd.persistence.doc.MongoDbConfig
 import ac.uk.ebi.biostd.persistence.doc.MongoDbConfig.Companion.createMongockConfig
-import ac.uk.ebi.biostd.persistence.doc.commons.getCollection
+import ac.uk.ebi.biostd.persistence.doc.commons.collection
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_TYPE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ACC_NO
@@ -22,6 +22,8 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus.REQUESTED
 import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocSubmission
+import com.github.cloudyrock.mongock.driver.mongodb.springdata.v3.SpringDataMongoV3Driver
+import com.github.cloudyrock.mongock.driver.mongodb.springdata.v3.decorator.impl.MongockTemplate
 import com.mongodb.BasicDBObject
 import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
 import ebi.ac.uk.db.MONGO_VERSION
@@ -58,7 +60,7 @@ import java.util.AbstractMap.SimpleEntry
 @Testcontainers
 internal class DatabaseChangeLogTest(
     @Autowired private val springContext: ApplicationContext,
-    @Autowired private val mongoTemplate: MongoTemplate
+    @Autowired private val mongoTemplate: MongoTemplate,
 ) {
     @BeforeEach
     fun init() {
@@ -71,10 +73,37 @@ internal class DatabaseChangeLogTest(
 
     @Test
     fun `create schema migration 001 when collections does not exists`() {
-        runMigrations()
+        runMigrations(ChangeSet001::class.java)
 
         assertSubmissionCollection()
         assertRequestCollection()
+    }
+
+    @Test
+    fun `run migration 002 when collections does not exists`() {
+        runMigrations(ChangeSet002::class.java)
+
+        val docSubmissionIndexes = mongoTemplate.collection<DocSubmission>().listIndexes().toList()
+
+        assertThat(mongoTemplate.collectionExists<DocSubmission>()).isTrue
+        assertThat(docSubmissionIndexes).hasSize(1)
+        assertThat(docSubmissionIndexes.first()).contains(
+            SimpleEntry("textIndexVersion", 3),
+            SimpleEntry("name", TITLE_INDEX_NAME),
+            SimpleEntry("partialFilterExpression", Document("$SUB_SECTION.$SUB_ATTRIBUTES.name", TITLE.value)),
+            SimpleEntry("weights", Document("$SUB_SECTION.$SUB_ATTRIBUTES.value", 1).append(SUB_TITLE, 1))
+        )
+        val docSubRequestIndexes = mongoTemplate.collection<DocSubmissionRequest>().listIndexes().toList()
+
+        assertThat(mongoTemplate.collectionExists<DocSubmissionRequest>()).isTrue()
+        assertThat(docSubRequestIndexes).hasSize(1)
+
+        assertThat(docSubRequestIndexes.first()).contains(
+            SimpleEntry("textIndexVersion", 3),
+            SimpleEntry("name", TITLE_INDEX_NAME),
+            SimpleEntry("partialFilterExpression", Document("$SUB.$SUB_SECTION.$SUB_ATTRIBUTES.name", TITLE.value)),
+            SimpleEntry("weights", Document("$SUB.$SUB_SECTION.$SUB_ATTRIBUTES.value", 1).append("$SUB.$SUB_TITLE", 1))
+        )
     }
 
     @Test
@@ -97,7 +126,7 @@ internal class DatabaseChangeLogTest(
         assertThat(drafts).hasSize(1)
         assertThat(drafts.first()["statusDraft"]).isNull()
 
-        runMigrations()
+        runMigrations(ChangeSet001::class.java)
 
         assertThat(mongoTemplate.findAll<DocSubmission>()).isEqualTo(submissions)
         assertThat(mongoTemplate.findAll<DocSubmissionRequest>()).isEqualTo(requests)
@@ -110,10 +139,10 @@ internal class DatabaseChangeLogTest(
     }
 
     private fun assertSubmissionCollection() {
-        val listIndexes = mongoTemplate.getCollection<DocSubmission>().listIndexes().toList()
+        val listIndexes = mongoTemplate.collection<DocSubmission>().listIndexes().toList()
 
         assertThat(mongoTemplate.collectionExists<DocSubmission>()).isTrue
-        assertThat(listIndexes).hasSize(10)
+        assertThat(listIndexes).hasSize(9)
 
         assertThat(listIndexes[0]).containsEntry("key", Document("_id", 1))
         assertThat(listIndexes[1]).containsEntry("key", Document(SUB_ACC_NO, 1))
@@ -122,18 +151,18 @@ internal class DatabaseChangeLogTest(
         assertThat(listIndexes[4]).containsEntry("key", Document(SUB_SUBMITTER, 1))
         assertThat(listIndexes[5]).containsEntry("key", Document("$SUB_SECTION.$SEC_TYPE", 1))
         assertThat(listIndexes[6]).containsEntry("key", Document(SUB_RELEASE_TIME, 1))
-        assertThat(listIndexes[7]).containsEntry("key", Document(SUB_RELEASED, 1))
-        assertThat(listIndexes[8]).contains(
+        assertThat(listIndexes[8]).containsEntry("key", Document(SUB_RELEASED, 1))
+        assertThat(listIndexes[7]).contains(
             SimpleEntry("textIndexVersion", 3),
             SimpleEntry("name", TITLE_INDEX_NAME),
             SimpleEntry("partialFilterExpression", Document("$SUB_SECTION.$SUB_ATTRIBUTES.name", TITLE.value)),
             SimpleEntry("weights", Document("$SUB_SECTION.$SUB_ATTRIBUTES.value", 1).append(SUB_TITLE, 1))
         )
-        assertThat(listIndexes[9]).containsEntry("key", Document(SUB_MODIFICATION_TIME, -1))
+        //assertThat(listIndexes[9]).containsEntry("key", Document(SUB_MODIFICATION_TIME, -1))
     }
 
     private fun assertRequestCollection() {
-        val listIndexes = mongoTemplate.getCollection<DocSubmissionRequest>().listIndexes().toList()
+        val listIndexes = mongoTemplate.collection<DocSubmissionRequest>().listIndexes().toList()
 
         assertThat(mongoTemplate.collectionExists<DocSubmissionRequest>()).isTrue
         assertThat(listIndexes).hasSize(11)
@@ -156,8 +185,8 @@ internal class DatabaseChangeLogTest(
         assertThat(listIndexes[10]).containsEntry("key", Document("submission.$SUB_MODIFICATION_TIME", -1))
     }
 
-    private fun runMigrations() {
-        val runner = createMongockConfig(mongoTemplate, springContext, "ac.uk.ebi.biostd.persistence.doc.migrations")
+    private fun runMigrations(clazz: Class<*>) {
+        val runner = createMongockConfig(mongoTemplate, springContext, listOf(clazz))
         runner.run(DefaultApplicationArguments())
     }
 
@@ -185,6 +214,13 @@ internal class DatabaseChangeLogTest(
             register.add("app.persistence.enableMongo") { "true" }
             register.add("app.mongo.execute-migrations") { "false" }
             register.add("app.mongo.migration-package") { "ac.uk.ebi.biostd.persistence.doc.migrations" }
+        }
+
+        private fun createDriver(mongoTemplate: MongoTemplate): MongockTemplate {
+            val driver = SpringDataMongoV3Driver.withDefaultLock(mongoTemplate)
+            driver.lockRepositoryName = CHANGE_LOG_LOCK
+            driver.changeLogRepositoryName = CHANGE_LOG_COLLECTION
+            return driver.mongockTemplate
         }
     }
 }

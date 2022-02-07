@@ -19,19 +19,20 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import com.github.cloudyrock.mongock.ChangeLog
 import com.github.cloudyrock.mongock.ChangeSet
 import com.github.cloudyrock.mongock.driver.mongodb.springdata.v3.decorator.impl.MongockTemplate
-import com.mongodb.BasicDBObject
 import ebi.ac.uk.model.constants.SectionFields.TITLE
 import org.springframework.data.domain.Sort.Direction.ASC
 import org.springframework.data.domain.Sort.Direction.DESC
 import org.springframework.data.mongodb.core.index.Index
 import org.springframework.data.mongodb.core.index.PartialIndexFilter
 import org.springframework.data.mongodb.core.query.Criteria.where
+import org.springframework.data.mongodb.core.query.Query
+import org.springframework.data.mongodb.core.query.Update
 import org.springframework.data.mongodb.core.index.TextIndexDefinition.builder as TextIndex
 
 internal const val TITLE_INDEX_NAME = "title_index"
 
 @ChangeLog
-class DatabaseChangeLog {
+class ChangeSet001 {
     @ChangeSet(order = "001", id = "Create Schema", author = "System")
     fun changeSet001(template: MongockTemplate) {
         template.ensureExists(DocSubmission::class.java)
@@ -60,7 +61,10 @@ class DatabaseChangeLog {
             ensureIndex(Index().on("$SUB.$SUB_RELEASED", ASC))
         }
     }
+}
 
+@ChangeLog
+class ChangeSet002 {
     @ChangeSet(order = "002", id = "Section Title Index", author = "System")
     fun changeSet002(template: MongockTemplate) {
         template.ensureExists(DocSubmission::class.java)
@@ -90,7 +94,10 @@ class DatabaseChangeLog {
             )
         }
     }
+}
 
+@ChangeLog
+class ChangeSet003 {
     @ChangeSet(order = "003", id = "Submission Modification time", author = "System")
     fun changeSet003(template: MongockTemplate) {
         template.indexOps(DocSubmission::class.java).apply {
@@ -101,14 +108,12 @@ class DatabaseChangeLog {
             ensureIndex(Index().on("$SUB.$SUB_MODIFICATION_TIME", DESC))
         }
     }
+}
 
+@ChangeLog
+class ChangeSet004 {
     @ChangeSet(order = "004", id = "Set ACTIVE status on existing Drafts", author = "System")
     fun changeSet004(template: MongockTemplate) {
-        val collectionName = template.getCollectionName(DocSubmissionDraft::class.java)
-        val query = BasicDBObject()
-        query.put("statusDraft", "ACTIVE")
-        val updateObject = BasicDBObject()
-        updateObject.put("\$set", query)
-        template.getCollection(collectionName).updateMany(BasicDBObject(), updateObject)
+        template.updateMulti(Query(), Update().set("statusDraft", "ACTIVE"), DocSubmissionDraft::class.java)
     }
 }
