@@ -76,7 +76,7 @@ class SubmissionDraftSqlServiceTest(
     fun `get submissions in list`() {
         every { userDataService.findAll(USER_EMAIL, someFilter) } returns listOf(dbUserData)
 
-        val result = testInstance.getSubmissionsDraft(USER_EMAIL, someFilter)
+        val result = testInstance.getActiveSubmissionsDraft(USER_EMAIL, someFilter)
 
         assertThat(result).hasSize(1)
         assertThat(result[0].key).isEqualTo(DRAFT_KEY)

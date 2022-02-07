@@ -1,11 +1,14 @@
 package ac.uk.ebi.biostd.persistence.doc.db.data
 
 import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbReposConfig
-import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft
+import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.StatusDraft.ACTIVE
+import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.StatusDraft.BEING_PROCESSED
 import ac.uk.ebi.biostd.persistence.doc.test.doc.DRAFT_CONTENT
 import ac.uk.ebi.biostd.persistence.doc.test.doc.DRAFT_KEY
 import ac.uk.ebi.biostd.persistence.doc.test.doc.USER_ID
-import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocDraft
+import ac.uk.ebi.biostd.persistence.doc.test.doc.USER_ID1
+import ac.uk.ebi.biostd.persistence.doc.test.doc.testActiveDocDraft
+import ac.uk.ebi.biostd.persistence.doc.test.doc.testBeingProcessedDocDraft
 import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
 import ebi.ac.uk.db.MONGO_VERSION
 import org.assertj.core.api.Assertions.assertThat
@@ -38,11 +41,11 @@ class SubmissionDraftDocDataRepositoryTest(
 
     @Test
     fun getSubmissionDraftByIdAndKey() {
-        testInstance.save(testDocDraft)
+        testInstance.save(testActiveDocDraft)
 
         val result = testInstance.findByUserIdAndKey(USER_ID, DRAFT_KEY)
 
-        assertThat(result).isEqualTo(testDocDraft)
+        assertThat(result).isEqualTo(testActiveDocDraft)
     }
 
     @Test
@@ -52,6 +55,7 @@ class SubmissionDraftDocDataRepositoryTest(
 
         assertNotNull(saved)
         assertThat(saved.content).isEqualTo("{ type: 'submission' }")
+        assertThat(saved.statusDraft).isEqualTo(ACTIVE)
     }
 
     @Test
@@ -66,13 +70,33 @@ class SubmissionDraftDocDataRepositoryTest(
 
     @Test
     fun deleteSubmissionDraft() {
-        testInstance.save(testDocDraft)
+        testInstance.save(testActiveDocDraft)
 
-        assertThat(testInstance.findById(testDocDraft.id)).isNotNull()
+        assertThat(testInstance.findById(testActiveDocDraft.id)).isNotNull()
 
-        testInstance.deleteByUserIdAndKey(testDocDraft.userId, testDocDraft.key)
+        testInstance.deleteByUserIdAndKey(testActiveDocDraft.userId, testActiveDocDraft.key)
 
-        assertThat(testInstance.findById(testDocDraft.id)).isEmpty()
+        assertThat(testInstance.findById(testActiveDocDraft.id)).isEmpty()
+    }
+
+    @Test
+    fun findAllByUserIdAndStatusDraft() {
+        testInstance.save(testActiveDocDraft)
+        testInstance.save(testBeingProcessedDocDraft)
+
+        val activeDrafts = testInstance.findAllByUserIdAndStatusDraft(USER_ID, ACTIVE)
+        assertThat(activeDrafts).hasSize(1)
+        assertThat(activeDrafts.first()).isEqualTo(testActiveDocDraft)
+
+        val beingProcessedDrafts = testInstance.findAllByUserIdAndStatusDraft(USER_ID1, BEING_PROCESSED)
+        assertThat(beingProcessedDrafts).hasSize(1)
+        assertThat(beingProcessedDrafts.first()).isEqualTo(testBeingProcessedDocDraft)
+
+        testInstance.deleteByUserIdAndKey(testActiveDocDraft.userId, testActiveDocDraft.key)
+        testInstance.deleteByUserIdAndKey(testBeingProcessedDocDraft.userId, testBeingProcessedDocDraft.key)
+
+        assertThat(testInstance.findById(testActiveDocDraft.id)).isEmpty()
+        assertThat(testInstance.findById(testBeingProcessedDocDraft.id)).isEmpty()
     }
 
     @Test
@@ -80,20 +104,7 @@ class SubmissionDraftDocDataRepositoryTest(
         val result = testInstance.createDraft(USER_ID, DRAFT_KEY, DRAFT_CONTENT)
 
         assertThat(testInstance.getById(result.id)).isEqualTo(result)
-    }
-
-    @Test
-    fun findAllByUserId() {
-        val anotherDoc = DocSubmissionDraft(USER_ID, "another-key", "anotherContent")
-
-        testInstance.save(testDocDraft)
-        testInstance.save(anotherDoc)
-
-        val result = testInstance.findAllByUserId(USER_ID).sortedBy { it.key }
-
-        assertThat(result).hasSize(2)
-        assertThat(result[0]).isEqualTo(anotherDoc)
-        assertThat(result[1]).isEqualTo(testDocDraft)
+        assertThat(result.statusDraft).isEqualTo(ACTIVE)
     }
 
     companion object {

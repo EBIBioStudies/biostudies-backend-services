@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.persistence.common.service
 
-import ac.uk.ebi.biostd.persistence.common.request.PaginationFilter
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionDraft
+import ac.uk.ebi.biostd.persistence.common.request.PaginationFilter
 
 interface SubmissionDraftService {
 
@@ -11,7 +11,10 @@ interface SubmissionDraftService {
 
     fun deleteSubmissionDraft(userEmail: String, key: String)
 
-    fun getSubmissionsDraft(userEmail: String, filter: PaginationFilter = PaginationFilter()): List<SubmissionDraft>
+    fun getActiveSubmissionsDraft(
+        userEmail: String,
+        filter: PaginationFilter = PaginationFilter()
+    ): List<SubmissionDraft>
 
     fun createSubmissionDraft(userEmail: String, content: String): SubmissionDraft
 }

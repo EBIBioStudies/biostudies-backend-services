@@ -1,10 +1,10 @@
 package ac.uk.ebi.biostd.data.service
 
+import ac.uk.ebi.biostd.persistence.common.model.SubmissionDraft
 import ac.uk.ebi.biostd.persistence.common.request.PaginationFilter
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionDraftService
 import ac.uk.ebi.biostd.persistence.model.DbUserData
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionService
-import ac.uk.ebi.biostd.persistence.common.model.SubmissionDraft
 import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
 
@@ -28,7 +28,7 @@ open class SubmissionDraftSqlService(
     override fun deleteSubmissionDraft(userEmail: String, key: String) = userDataService.delete(userEmail, key)
 
     @Transactional(readOnly = true)
-    override fun getSubmissionsDraft(userEmail: String, filter: PaginationFilter): List<SubmissionDraft> =
+    override fun getActiveSubmissionsDraft(userEmail: String, filter: PaginationFilter): List<SubmissionDraft> =
         userDataService.findAll(userEmail, filter).map { SubmissionDraft(it.key, it.data) }
 
     @Transactional

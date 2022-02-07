@@ -14,10 +14,12 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_TITLE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_VERSION
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
+import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import com.github.cloudyrock.mongock.ChangeLog
 import com.github.cloudyrock.mongock.ChangeSet
 import com.github.cloudyrock.mongock.driver.mongodb.springdata.v3.decorator.impl.MongockTemplate
+import com.mongodb.BasicDBObject
 import ebi.ac.uk.model.constants.SectionFields.TITLE
 import org.springframework.data.domain.Sort.Direction.ASC
 import org.springframework.data.domain.Sort.Direction.DESC
@@ -98,5 +100,15 @@ class DatabaseChangeLog {
         template.indexOps(DocSubmissionRequest::class.java).apply {
             ensureIndex(Index().on("$SUB.$SUB_MODIFICATION_TIME", DESC))
         }
+    }
+
+    @ChangeSet(order = "004", id = "Set ACTIVE status on existing Drafts", author = "System")
+    fun changeSet004(template: MongockTemplate) {
+        val collectionName = template.getCollectionName(DocSubmissionDraft::class.java)
+        val query = BasicDBObject()
+        query.put("statusDraft", "ACTIVE")
+        val updateObject = BasicDBObject()
+        updateObject.put("\$set", query)
+        template.getCollection(collectionName).updateMany(BasicDBObject(), updateObject)
     }
 }

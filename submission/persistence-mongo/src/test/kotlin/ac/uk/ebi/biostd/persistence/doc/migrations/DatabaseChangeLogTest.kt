@@ -18,6 +18,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_TITLE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_VERSION
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
+import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus.REQUESTED
 import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocSubmission
@@ -63,6 +64,7 @@ internal class DatabaseChangeLogTest(
     fun init() {
         mongoTemplate.dropCollection<DocSubmission>()
         mongoTemplate.dropCollection<DocSubmissionRequest>()
+        mongoTemplate.dropCollection<DocSubmissionDraft>()
         mongoTemplate.dropCollection(CHANGE_LOG_COLLECTION)
         mongoTemplate.dropCollection(CHANGE_LOG_LOCK)
     }
@@ -77,21 +79,32 @@ internal class DatabaseChangeLogTest(
 
     @Test
     fun `create schema migration 001 when collections exists`() {
+        fun dummyDocumentDraft(): Document = Document()
+
         mongoTemplate.createCollection<DocSubmission>()
         mongoTemplate.createCollection<DocSubmissionRequest>()
+        val draftCollection = mongoTemplate.createCollection<DocSubmissionDraft>()
 
         mongoTemplate.insert(testDocSubmission.copy(accNo = "accNo1"))
         mongoTemplate.insert(testDocSubmission.copy(accNo = "accNo2"))
         mongoTemplate.insert(request.copy(id = ObjectId(), accNo = "accNo1"))
         mongoTemplate.insert(request.copy(id = ObjectId(), accNo = "accNo2"))
+        mongoTemplate.insert(dummyDocumentDraft(), draftCollection.namespace.collectionName)
 
         val submissions = mongoTemplate.findAll<DocSubmission>()
         val requests = mongoTemplate.findAll<DocSubmissionRequest>()
+        val drafts = mongoTemplate.findAll<Document>(draftCollection.namespace.collectionName)
+        assertThat(drafts).hasSize(1)
+        assertThat(drafts.first()["statusDraft"]).isNull()
 
         runMigrations()
 
         assertThat(mongoTemplate.findAll<DocSubmission>()).isEqualTo(submissions)
         assertThat(mongoTemplate.findAll<DocSubmissionRequest>()).isEqualTo(requests)
+        val draftsAfterMigrations = mongoTemplate.findAll<Document>(draftCollection.namespace.collectionName)
+        assertThat(draftsAfterMigrations).hasSize(1)
+        assertThat(draftsAfterMigrations.first()["statusDraft"]).isEqualTo("ACTIVE")
+
         assertSubmissionCollection()
         assertRequestCollection()
     }

@@ -5,11 +5,12 @@ import ac.uk.ebi.biostd.integration.SubFormat.JsonFormat.JsonPretty
 import ac.uk.ebi.biostd.persistence.common.request.PaginationFilter
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDraftDocDataRepository
+import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.StatusDraft.ACTIVE
 import ac.uk.ebi.biostd.persistence.doc.test.doc.DRAFT_CONTENT
 import ac.uk.ebi.biostd.persistence.doc.test.doc.DRAFT_KEY
 import ac.uk.ebi.biostd.persistence.doc.test.doc.USER_ID
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.fullExtSubmission
-import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocDraft
+import ac.uk.ebi.biostd.persistence.doc.test.doc.testActiveDocDraft
 import ebi.ac.uk.extended.mapping.to.toSimpleSubmission
 import ebi.ac.uk.extended.model.ExtSection
 import io.mockk.clearAllMocks
@@ -44,7 +45,7 @@ internal class SubmissionDraftMongoServiceTest(
 
     @Test
     fun `get draft when exists`() {
-        every { draftDocDataRepository.findByUserIdAndKey(USER_ID, DRAFT_KEY) } returns testDocDraft
+        every { draftDocDataRepository.findByUserIdAndKey(USER_ID, DRAFT_KEY) } returns testActiveDocDraft
 
         val result = testInstance.getSubmissionDraft(USER_ID, DRAFT_KEY)
 
@@ -58,7 +59,7 @@ internal class SubmissionDraftMongoServiceTest(
         val extSubmission = fullExtSubmission.copy(section = ExtSection(type = "Study"))
         every { submissionQueryService.getExtByAccNo(DRAFT_KEY) } returns extSubmission
         every { draftDocDataRepository.findByUserIdAndKey(USER_ID, DRAFT_KEY) } returns null
-        every { draftDocDataRepository.saveDraft(USER_ID, DRAFT_KEY, DRAFT_CONTENT) } returns testDocDraft
+        every { draftDocDataRepository.saveDraft(USER_ID, DRAFT_KEY, DRAFT_CONTENT) } returns testActiveDocDraft
         every {
             serializationService.serializeSubmission(extSubmission.toSimpleSubmission(), JsonPretty)
         } returns DRAFT_CONTENT
@@ -93,9 +94,11 @@ internal class SubmissionDraftMongoServiceTest(
     @Test
     fun `get draft list`() {
         val someFilter = PaginationFilter()
-        every { draftDocDataRepository.findAllByUserId(USER_ID, someFilter) } returns listOf(testDocDraft)
+        every { draftDocDataRepository.findAllByUserIdAndStatusDraft(USER_ID, ACTIVE, someFilter) } returns listOf(
+            testActiveDocDraft
+        )
 
-        val result = testInstance.getSubmissionsDraft(USER_ID, someFilter)
+        val result = testInstance.getActiveSubmissionsDraft(USER_ID, someFilter)
 
         assertThat(result).hasSize(1)
         assertThat(result[0].key).isEqualTo(DRAFT_KEY)
@@ -113,7 +116,7 @@ internal class SubmissionDraftMongoServiceTest(
                 "TMP_$draftCreationTime",
                 DRAFT_CONTENT
             )
-        } returns testDocDraft
+        } returns testActiveDocDraft
 
         val result = testInstance.createSubmissionDraft(USER_ID, DRAFT_CONTENT)
 
