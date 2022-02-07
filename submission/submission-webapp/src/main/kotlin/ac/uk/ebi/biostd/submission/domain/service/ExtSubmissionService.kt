@@ -32,7 +32,7 @@ import java.time.OffsetDateTime
 
 private val logger = KotlinLogging.logger {}
 
-@Suppress("TooManyFunctions")
+@Suppress("TooManyFunctions", "LongParameterList")
 class ExtSubmissionService(
     private val rabbitTemplate: RabbitTemplate,
     private val submissionSubmitter: SubmissionSubmitter,
