@@ -59,7 +59,7 @@ internal class SubmissionDraftMongoServiceTest(
         val extSubmission = fullExtSubmission.copy(section = ExtSection(type = "Study"))
         every { submissionQueryService.getExtByAccNo(DRAFT_KEY) } returns extSubmission
         every { draftDocDataRepository.findByUserIdAndKey(USER_ID, DRAFT_KEY) } returns null
-        every { draftDocDataRepository.saveDraft(USER_ID, DRAFT_KEY, DRAFT_CONTENT) } returns testActiveDocDraft
+        every { draftDocDataRepository.createDraft(USER_ID, DRAFT_KEY, DRAFT_CONTENT) } returns testActiveDocDraft
         every {
             serializationService.serializeSubmission(extSubmission.toSimpleSubmission(), JsonPretty)
         } returns DRAFT_CONTENT
@@ -68,7 +68,7 @@ internal class SubmissionDraftMongoServiceTest(
 
         assertThat(result.key).isEqualTo(DRAFT_KEY)
         assertThat(result.content).isEqualTo(DRAFT_CONTENT)
-        verify(exactly = 1) { draftDocDataRepository.saveDraft(USER_ID, DRAFT_KEY, DRAFT_CONTENT) }
+        verify(exactly = 1) { draftDocDataRepository.createDraft(USER_ID, DRAFT_KEY, DRAFT_CONTENT) }
     }
 
     @Test

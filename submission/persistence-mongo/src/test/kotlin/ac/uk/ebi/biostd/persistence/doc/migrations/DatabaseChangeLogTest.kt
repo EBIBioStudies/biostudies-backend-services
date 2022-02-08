@@ -17,9 +17,11 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_SUBMITTER
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_TITLE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_VERSION
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
+import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
 import com.github.cloudyrock.mongock.driver.mongodb.springdata.v3.SpringDataMongoV3Driver
 import com.github.cloudyrock.mongock.driver.mongodb.springdata.v3.decorator.impl.MongockTemplate
 import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
@@ -56,20 +58,22 @@ import java.util.AbstractMap.SimpleEntry
 @Testcontainers
 internal class DatabaseChangeLogTest(
     @Autowired private val springContext: ApplicationContext,
-    @Autowired private val mongoTemplate: MongoTemplate,
+    @Autowired private val mongoTemplate: MongoTemplate
 ) {
     @BeforeEach
     fun init() {
         mongoTemplate.dropCollection<DocSubmission>()
         mongoTemplate.dropCollection<DocSubmissionRequest>()
         mongoTemplate.dropCollection<DocSubmissionDraft>()
+        mongoTemplate.dropCollection<FileListDocFile>()
+
         mongoTemplate.dropCollection(CHANGE_LOG_COLLECTION)
         mongoTemplate.dropCollection(CHANGE_LOG_LOCK)
     }
 
     @Test
     fun `run migration 001`() {
-        runMigrations(ChangeSet001::class.java)
+        runMigrations(ChangeLog001::class.java)
 
         val submissionIndexes = mongoTemplate.collection<DocSubmission>().listIndexes().toList()
 
@@ -110,7 +114,7 @@ internal class DatabaseChangeLogTest(
 
     @Test
     fun `run migration 002`() {
-        runMigrations(ChangeSet002::class.java)
+        runMigrations(ChangeLog002::class.java)
 
         val docSubmissionIndexes = mongoTemplate.collection<DocSubmission>().listIndexes().toList()
 
@@ -139,7 +143,7 @@ internal class DatabaseChangeLogTest(
 
     @Test
     fun `run migration 003`() {
-        runMigrations(ChangeSet003::class.java)
+        runMigrations(ChangeLog003::class.java)
 
         val docSubmissionIndexes = mongoTemplate.collection<DocSubmission>().listIndexes().toList()
 
@@ -158,6 +162,12 @@ internal class DatabaseChangeLogTest(
 
     @Test
     fun `run migration 004`() {
+        runMigrations(ChangeLog004::class.java)
+        assertFileListFilesCollection()
+    }
+
+    @Test
+    fun `run migration 005`() {
         fun dummyDocumentDraft(): Document = Document()
 
         val draftCollection = mongoTemplate.createCollection<DocSubmissionDraft>()
@@ -167,11 +177,37 @@ internal class DatabaseChangeLogTest(
         assertThat(drafts).hasSize(1)
         assertThat(drafts.first()["statusDraft"]).isNull()
 
-        runMigrations(ChangeSet004::class.java)
+        runMigrations(ChangeLog005::class.java)
 
         val draftsAfterMigrations = mongoTemplate.findAll<Document>(draftCollection.namespace.collectionName)
         assertThat(draftsAfterMigrations).hasSize(1)
         assertThat(draftsAfterMigrations.first()["statusDraft"]).isEqualTo("ACTIVE")
+    }
+
+    private fun assertFileListFilesCollection() {
+        val listIndexes = mongoTemplate.collection<FileListDocFile>().listIndexes().toList()
+
+        assertThat(mongoTemplate.collectionExists<FileListDocFile>()).isTrue()
+        assertThat(listIndexes).hasSize(6)
+
+        assertThat(listIndexes[0]).containsEntry("key", Document("_id", 1))
+        assertThat(listIndexes[1]).containsEntry(
+            "key",
+            Document(FileListDocFileFields.FILE_LIST_DOC_FILE_SUBMISSION_ID, 1)
+        )
+        assertThat(listIndexes[2]).containsEntry(
+            "key",
+            Document(FileListDocFileFields.FILE_LIST_DOC_FILE_FILE_LIST_NAME, 1)
+        )
+        assertThat(listIndexes[3]).containsEntry("key", Document(FileListDocFileFields.FILE_LIST_DOC_FILE_INDEX, 1))
+        assertThat(listIndexes[4]).containsEntry(
+            "key",
+            Document(FileListDocFileFields.FILE_LIST_DOC_FILE_SUBMISSION_ACC_NO, 1)
+        )
+        assertThat(listIndexes[5]).containsEntry(
+            "key",
+            Document(FileListDocFileFields.FILE_LIST_DOC_FILE_SUBMISSION_VERSION, 1)
+        )
     }
 
     private fun runMigrations(clazz: Class<*>) {

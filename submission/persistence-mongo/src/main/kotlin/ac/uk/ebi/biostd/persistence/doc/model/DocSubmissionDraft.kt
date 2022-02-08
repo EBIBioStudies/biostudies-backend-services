@@ -13,8 +13,8 @@ data class DocSubmissionDraft(
     val content: String,
     val statusDraft: StatusDraft
 ) {
-    constructor(userId: String, key: String, content: String, statusDraft: StatusDraft)
-        : this(ObjectId().toString(), userId, key, content, statusDraft)
+    constructor(userId: String, key: String, content: String, statusDraft: StatusDraft) :
+        this(ObjectId().toString(), userId, key, content, statusDraft)
 
     companion object {
         const val USER_ID = "userId"

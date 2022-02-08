@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.persistence.doc.db.converters.to
 
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_FILE
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_FILE_LIST
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_FILE_LIST_NAME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_ID
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_INDEX
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_SUBMISSION_ACC_NO
@@ -18,7 +18,7 @@ class FileListDocFileConverter(private val fileConverter: FileConverter) : Conve
         fileListDocFileDoc[CommonsConverter.classField] = fileListDocFileDocFileClass
         fileListDocFileDoc[FILE_LIST_DOC_FILE_ID] = fileListDocFile.id
         fileListDocFileDoc[FILE_LIST_DOC_FILE_INDEX] = fileListDocFile.index
-        fileListDocFileDoc[FILE_LIST_DOC_FILE_FILE_LIST] = fileListDocFile.fileListName
+        fileListDocFileDoc[FILE_LIST_DOC_FILE_FILE_LIST_NAME] = fileListDocFile.fileListName
         fileListDocFileDoc[FILE_LIST_DOC_FILE_SUBMISSION_ID] = fileListDocFile.submissionId
         fileListDocFileDoc[FILE_LIST_DOC_FILE_SUBMISSION_ACC_NO] = fileListDocFile.submissionAccNo
         fileListDocFileDoc[FILE_LIST_DOC_FILE_SUBMISSION_VERSION] = fileListDocFile.submissionVersion

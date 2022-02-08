@@ -13,9 +13,15 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_SUBMITTER
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_TITLE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_VERSION
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_FILE_LIST_NAME
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_INDEX
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_SUBMISSION_ACC_NO
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_SUBMISSION_ID
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_SUBMISSION_VERSION
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
+import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
 import com.github.cloudyrock.mongock.ChangeLog
 import com.github.cloudyrock.mongock.ChangeSet
 import com.github.cloudyrock.mongock.driver.mongodb.springdata.v3.decorator.impl.MongockTemplate
@@ -32,7 +38,7 @@ import org.springframework.data.mongodb.core.index.TextIndexDefinition.builder a
 internal const val TITLE_INDEX_NAME = "title_index"
 
 @ChangeLog
-class ChangeSet001 {
+class ChangeLog001 {
     @ChangeSet(order = "001", id = "Create Schema", author = "System")
     fun changeSet001(template: MongockTemplate) {
         template.ensureExists(DocSubmission::class.java)
@@ -64,7 +70,7 @@ class ChangeSet001 {
 }
 
 @ChangeLog
-class ChangeSet002 {
+class ChangeLog002 {
     @ChangeSet(order = "002", id = "Section Title Index", author = "System")
     fun changeSet002(template: MongockTemplate) {
         template.ensureExists(DocSubmission::class.java)
@@ -99,7 +105,7 @@ class ChangeSet002 {
 }
 
 @ChangeLog
-class ChangeSet003 {
+class ChangeLog003 {
     @ChangeSet(order = "003", id = "Submission Modification time", author = "System")
     fun changeSet003(template: MongockTemplate) {
         template.indexOps(DocSubmission::class.java).apply {
@@ -113,9 +119,25 @@ class ChangeSet003 {
 }
 
 @ChangeLog
-class ChangeSet004 {
-    @ChangeSet(order = "004", id = "Set ACTIVE status on existing Drafts", author = "System")
+class ChangeLog004 {
+    @ChangeSet(order = "004", id = "Submission fields indexes in FileListDocFile", author = "System")
     fun changeSet004(template: MongockTemplate) {
+        template.ensureExists(FileListDocFile::class.java)
+
+        template.indexOps(FileListDocFile::class.java).apply {
+            ensureIndex(Index().on(FILE_LIST_DOC_FILE_SUBMISSION_ID, ASC))
+            ensureIndex(Index().on(FILE_LIST_DOC_FILE_FILE_LIST_NAME, ASC))
+            ensureIndex(Index().on(FILE_LIST_DOC_FILE_INDEX, ASC))
+            ensureIndex(Index().on(FILE_LIST_DOC_FILE_SUBMISSION_ACC_NO, ASC))
+            ensureIndex(Index().on(FILE_LIST_DOC_FILE_SUBMISSION_VERSION, ASC))
+        }
+    }
+}
+
+@ChangeLog
+class ChangeLog005 {
+    @ChangeSet(order = "005", id = "Set ACTIVE status on existing Drafts", author = "System")
+    fun changeSet005(template: MongockTemplate) {
         template.updateMulti(Query(), Update().set("statusDraft", "ACTIVE"), DocSubmissionDraft::class.java)
     }
 }

@@ -42,7 +42,9 @@ class SubmissionDraftDocDataRepository(
         submissionDraftRepository.save(DocSubmissionDraft(userId, key, content, StatusDraft.ACTIVE))
 
     fun findAllByUserIdAndStatusDraft(
-        userId: String, statusDraft: StatusDraft, filter: PaginationFilter = PaginationFilter()
+        userId: String,
+        statusDraft: StatusDraft,
+        filter: PaginationFilter = PaginationFilter()
     ): List<DocSubmissionDraft> = submissionDraftRepository.findAllByUserIdAndStatusDraft(
         userId, statusDraft, PageRequest.of(filter.pageNumber, filter.limit)
     )

@@ -19,10 +19,11 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.to.LinkTableConverter
 import ac.uk.ebi.biostd.persistence.doc.db.converters.to.SectionConverter
 import ac.uk.ebi.biostd.persistence.doc.db.converters.to.SubmissionConverter
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionMongoRepository
-import ac.uk.ebi.biostd.persistence.doc.migrations.ChangeSet001
-import ac.uk.ebi.biostd.persistence.doc.migrations.ChangeSet002
-import ac.uk.ebi.biostd.persistence.doc.migrations.ChangeSet003
-import ac.uk.ebi.biostd.persistence.doc.migrations.ChangeSet004
+import ac.uk.ebi.biostd.persistence.doc.migrations.ChangeLog001
+import ac.uk.ebi.biostd.persistence.doc.migrations.ChangeLog002
+import ac.uk.ebi.biostd.persistence.doc.migrations.ChangeLog003
+import ac.uk.ebi.biostd.persistence.doc.migrations.ChangeLog004
+import ac.uk.ebi.biostd.persistence.doc.migrations.ChangeLog005
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
 import com.github.cloudyrock.mongock.driver.mongodb.springdata.v3.SpringDataMongoV3Driver
@@ -67,17 +68,17 @@ class MongoDbConfig(
     @ConditionalOnProperty(prefix = "app.mongo", name = ["execute-migrations"], havingValue = "true")
     fun mongockApplicationRunner(
         springContext: ApplicationContext,
-        mongoTemplate: MongoTemplate,
-        @Value("\${app.mongo.migration-package}") migrationPackage: String,
+        mongoTemplate: MongoTemplate
     ): ApplicationRunner {
         return createMongockConfig(
             mongoTemplate,
             springContext,
             listOf(
-                ChangeSet001::class.java,
-                ChangeSet002::class.java,
-                ChangeSet003::class.java,
-                ChangeSet004::class.java
+                ChangeLog001::class.java,
+                ChangeLog002::class.java,
+                ChangeLog003::class.java,
+                ChangeLog004::class.java,
+                ChangeLog005::class.java
             )
         )
     }
@@ -143,7 +144,6 @@ class MongoDbConfig(
         ): MongockApplicationRunner {
             return MongockSpring5.builder()
                 .setDriver(createDriver(mongoTemplate))
-                //.addChangeLogsScanPackage(migrationPackage)
                 .addChangeLogClasses(classes)
                 .setSpringContext(springContext)
                 .buildApplicationRunner()
