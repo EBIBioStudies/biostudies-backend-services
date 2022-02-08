@@ -68,7 +68,7 @@ object FileListDocFileFields {
     const val FILE_LIST_DOC_FILE_SUBMISSION_VERSION = "submissionVersion"
     const val FILE_LIST_DOC_FILE_FILE = "file"
     const val FILE_LIST_DOC_FILE_INDEX = "index"
-    const val FILE_LIST_DOC_FILE_FILE_LIST = "fileListName"
+    const val FILE_LIST_DOC_FILE_FILE_LIST_NAME = "fileListName"
 }
 
 object DocFileTableFields {
