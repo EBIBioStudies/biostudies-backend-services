@@ -207,13 +207,13 @@ internal class DatabaseChangeLogTest(
 
         val drafts = mongoTemplate.findAll<Document>(draftCollection.namespace.collectionName)
         assertThat(drafts).hasSize(1)
-        assertThat(drafts.first()["statusDraft"]).isNull()
+        assertThat(drafts.first()["status"]).isNull()
 
         runMigrations(ChangeLog005::class.java)
 
         val draftsAfterMigrations = mongoTemplate.findAll<Document>(draftCollection.namespace.collectionName)
         assertThat(draftsAfterMigrations).hasSize(1)
-        assertThat(draftsAfterMigrations.first()["statusDraft"]).isEqualTo("ACTIVE")
+        assertThat(draftsAfterMigrations.first()["status"]).isEqualTo("ACTIVE")
     }
 
     private fun runMigrations(clazz: Class<*>) {

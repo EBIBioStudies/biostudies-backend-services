@@ -2,8 +2,8 @@ package ac.uk.ebi.biostd.persistence.doc.db.data
 
 import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbReposConfig
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft
-import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.StatusDraft.ACTIVE
-import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.StatusDraft.PROCESSING
+import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.DraftStatus.ACTIVE
+import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.DraftStatus.PROCESSING
 import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
 import ebi.ac.uk.db.MONGO_VERSION
 import org.assertj.core.api.Assertions.assertThat
@@ -54,7 +54,7 @@ class SubmissionDraftDocDataRepositoryTest(
 
         assertNotNull(saved)
         assertThat(saved.content).isEqualTo("{ type: 'submission' }")
-        assertThat(saved.statusDraft).isEqualTo(ACTIVE)
+        assertThat(saved.status).isEqualTo(ACTIVE)
     }
 
     @Test
@@ -103,7 +103,7 @@ class SubmissionDraftDocDataRepositoryTest(
         val result = testInstance.createDraft(USER_ID, DRAFT_KEY, DRAFT_CONTENT)
 
         assertThat(testInstance.getById(result.id)).isEqualTo(result)
-        assertThat(result.statusDraft).isEqualTo(ACTIVE)
+        assertThat(result.status).isEqualTo(ACTIVE)
     }
 
     @Test
@@ -112,13 +112,13 @@ class SubmissionDraftDocDataRepositoryTest(
 
         val beforeChangeStatus = testInstance.findAll()
         assertThat(beforeChangeStatus).hasSize(1)
-        assertThat(beforeChangeStatus.first().statusDraft).isEqualTo(ACTIVE)
+        assertThat(beforeChangeStatus.first().status).isEqualTo(ACTIVE)
 
         testInstance.setStatus(USER_ID, DRAFT_KEY, PROCESSING)
 
         val afterChangeStatus = testInstance.findAll()
         assertThat(afterChangeStatus).hasSize(1)
-        assertThat(afterChangeStatus.first().statusDraft).isEqualTo(PROCESSING)
+        assertThat(afterChangeStatus.first().status).isEqualTo(PROCESSING)
     }
 
     private companion object {

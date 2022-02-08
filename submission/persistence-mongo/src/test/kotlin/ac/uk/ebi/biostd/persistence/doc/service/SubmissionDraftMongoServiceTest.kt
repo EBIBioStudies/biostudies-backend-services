@@ -6,8 +6,8 @@ import ac.uk.ebi.biostd.persistence.common.request.PaginationFilter
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDraftDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft
-import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.StatusDraft.ACTIVE
-import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.StatusDraft.PROCESSING
+import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.DraftStatus.ACTIVE
+import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.DraftStatus.PROCESSING
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.fullExtSubmission
 import ebi.ac.uk.extended.mapping.to.toSimpleSubmission
 import ebi.ac.uk.extended.model.ExtSection

@@ -3,7 +3,7 @@ package ac.uk.ebi.biostd.persistence.doc.db.repositories
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft
-import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.StatusDraft
+import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.DraftStatus
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus
@@ -54,7 +54,7 @@ interface SubmissionDraftRepository : MongoRepository<DocSubmissionDraft, String
 
     fun findAllByUserIdAndStatusDraft(
         userId: String,
-        statusDraft: StatusDraft,
+        status: DraftStatus,
         pageRequest: Pageable
     ): List<DocSubmissionDraft>
 

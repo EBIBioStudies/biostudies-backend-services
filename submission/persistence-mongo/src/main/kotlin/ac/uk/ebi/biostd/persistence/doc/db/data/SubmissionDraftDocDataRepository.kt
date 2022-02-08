@@ -8,7 +8,7 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.Companion.CONTE
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.Companion.KEY
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.Companion.STATUS_DRAFT
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.Companion.USER_ID
-import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.StatusDraft
+import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.DraftStatus
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.data.mongodb.core.query.Criteria.where
@@ -22,12 +22,12 @@ class SubmissionDraftDocDataRepository(
     fun saveDraft(userId: String, key: String, content: String): DocSubmissionDraft =
         mongoTemplate.replaceOrCreate(
             Query(where(USER_ID).`is`(userId).andOperator(where(KEY).`is`(key))),
-            DocSubmissionDraft(userId, key, content, StatusDraft.ACTIVE)
+            DocSubmissionDraft(userId, key, content, DraftStatus.ACTIVE)
         )
 
-    fun setStatus(userEmail: String, key: String, statusDraft: StatusDraft) {
+    fun setStatus(userEmail: String, key: String, status: DraftStatus) {
         val query = Query(where(USER_ID).`is`(userEmail).andOperator(where(KEY).`is`(key)))
-        mongoTemplate.updateFirst(query, update(STATUS_DRAFT, statusDraft), DocSubmissionDraft::class.java)
+        mongoTemplate.updateFirst(query, update(STATUS_DRAFT, status), DocSubmissionDraft::class.java)
     }
 
     fun updateDraftContent(userId: String, key: String, content: String) {
@@ -39,13 +39,13 @@ class SubmissionDraftDocDataRepository(
     }
 
     fun createDraft(userId: String, key: String, content: String): DocSubmissionDraft =
-        submissionDraftRepository.save(DocSubmissionDraft(userId, key, content, StatusDraft.ACTIVE))
+        submissionDraftRepository.save(DocSubmissionDraft(userId, key, content, DraftStatus.ACTIVE))
 
     fun findAllByUserIdAndStatusDraft(
         userId: String,
-        statusDraft: StatusDraft,
+        status: DraftStatus,
         filter: PaginationFilter = PaginationFilter()
     ): List<DocSubmissionDraft> = submissionDraftRepository.findAllByUserIdAndStatusDraft(
-        userId, statusDraft, PageRequest.of(filter.pageNumber, filter.limit)
+        userId, status, PageRequest.of(filter.pageNumber, filter.limit)
     )
 }
