@@ -71,6 +71,7 @@ class ChangeSet002 {
         template.ensureExists(DocSubmissionRequest::class.java)
 
         template.indexOps(DocSubmission::class.java).apply {
+            ensureIndex(TextIndex().named(TITLE_INDEX_NAME).onField(SUB_TITLE).build())
             dropIndex(TITLE_INDEX_NAME)
             ensureIndex(
                 TextIndex()
@@ -83,6 +84,7 @@ class ChangeSet002 {
         }
 
         template.indexOps(DocSubmissionRequest::class.java).apply {
+            ensureIndex(TextIndex().named(TITLE_INDEX_NAME).onField("$SUB.$SUB_TITLE").build())
             dropIndex(TITLE_INDEX_NAME)
             ensureIndex(
                 TextIndex()

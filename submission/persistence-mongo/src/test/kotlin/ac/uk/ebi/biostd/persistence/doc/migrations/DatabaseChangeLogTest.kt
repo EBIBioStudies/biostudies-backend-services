@@ -29,6 +29,7 @@ import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
 import ebi.ac.uk.db.MONGO_VERSION
 import ebi.ac.uk.extended.model.FileMode
 import ebi.ac.uk.model.constants.SectionFields.TITLE
+import ebi.ac.uk.util.collections.second
 import org.assertj.core.api.Assertions.assertThat
 import org.bson.Document
 import org.bson.types.ObjectId
@@ -72,33 +73,68 @@ internal class DatabaseChangeLogTest(
     }
 
     @Test
-    fun `create schema migration 001 when collections does not exists`() {
+    fun `run migration 001`() {
         runMigrations(ChangeSet001::class.java)
 
-        assertSubmissionCollection()
-        assertRequestCollection()
+        val submissionIndexes = mongoTemplate.collection<DocSubmission>().listIndexes().toList()
+
+        assertThat(mongoTemplate.collectionExists<DocSubmission>()).isTrue
+        assertThat(submissionIndexes).hasSize(9)
+
+        assertThat(submissionIndexes[0]).containsEntry("key", Document("_id", 1))
+        assertThat(submissionIndexes[1]).containsEntry("key", Document(SUB_ACC_NO, 1))
+        assertThat(submissionIndexes[2]).containsEntry("key", Document(SUB_ACC_NO, 1).append(SUB_VERSION, 1))
+        assertThat(submissionIndexes[3]).containsEntry("key", Document(SUB_OWNER, 1))
+        assertThat(submissionIndexes[4]).containsEntry("key", Document(SUB_SUBMITTER, 1))
+        assertThat(submissionIndexes[5]).containsEntry("key", Document("$SUB_SECTION.$SEC_TYPE", 1))
+        assertThat(submissionIndexes[6]).containsEntry("key", Document(SUB_RELEASE_TIME, 1))
+        assertThat(submissionIndexes[8]).containsEntry("key", Document(SUB_RELEASED, 1))
+        assertThat(submissionIndexes[7]).contains(
+            SimpleEntry("textIndexVersion", 3),
+            SimpleEntry("name", TITLE_INDEX_NAME),
+            SimpleEntry("weights", Document(SUB_TITLE, 1))
+        )
+        val requestIndexes = mongoTemplate.collection<DocSubmissionRequest>().listIndexes().toList()
+        assertThat(mongoTemplate.collectionExists<DocSubmissionRequest>()).isTrue
+        assertThat(requestIndexes).hasSize(10)
+        assertThat(requestIndexes[0]).containsEntry("key", Document("_id", 1))
+        assertThat(requestIndexes[1]).containsEntry("key", Document(SUB_ACC_NO, 1))
+        assertThat(requestIndexes[2]).containsEntry("key", Document(SUB_ACC_NO, 1).append(SUB_VERSION, 1))
+        assertThat(requestIndexes[3]).containsEntry("key", Document("$SUB.$SUB_SECTION.$SEC_TYPE", 1))
+        assertThat(requestIndexes[4]).containsEntry("key", Document("$SUB.$SUB_ACC_NO", 1))
+        assertThat(requestIndexes[5]).containsEntry("key", Document("$SUB.$SUB_OWNER", 1))
+        assertThat(requestIndexes[6]).containsEntry("key", Document("$SUB.$SUB_SUBMITTER", 1))
+        assertThat(requestIndexes[7]).containsEntry("key", Document("$SUB.$SUB_RELEASE_TIME", 1))
+        assertThat(requestIndexes[9]).containsEntry("key", Document("$SUB.$SUB_RELEASED", 1))
+        assertThat(requestIndexes[8]).contains(
+            SimpleEntry("textIndexVersion", 3),
+            SimpleEntry("name", TITLE_INDEX_NAME),
+            SimpleEntry("weights", Document("$SUB.$SUB_TITLE", 1))
+        )
     }
 
     @Test
-    fun `run migration 002 when collections does not exists`() {
+    fun `run migration 002`() {
         runMigrations(ChangeSet002::class.java)
 
         val docSubmissionIndexes = mongoTemplate.collection<DocSubmission>().listIndexes().toList()
 
-        assertThat(mongoTemplate.collectionExists<DocSubmission>()).isTrue
-        assertThat(docSubmissionIndexes).hasSize(1)
-        assertThat(docSubmissionIndexes.first()).contains(
+        assertThat(mongoTemplate.collectionExists<DocSubmission>()).isTrue()
+        assertThat(docSubmissionIndexes).hasSize(2)
+        assertThat(docSubmissionIndexes.first()).containsEntry("key", Document("_id", 1))
+        assertThat(docSubmissionIndexes.second()).contains(
             SimpleEntry("textIndexVersion", 3),
             SimpleEntry("name", TITLE_INDEX_NAME),
             SimpleEntry("partialFilterExpression", Document("$SUB_SECTION.$SUB_ATTRIBUTES.name", TITLE.value)),
             SimpleEntry("weights", Document("$SUB_SECTION.$SUB_ATTRIBUTES.value", 1).append(SUB_TITLE, 1))
         )
+
         val docSubRequestIndexes = mongoTemplate.collection<DocSubmissionRequest>().listIndexes().toList()
 
         assertThat(mongoTemplate.collectionExists<DocSubmissionRequest>()).isTrue()
-        assertThat(docSubRequestIndexes).hasSize(1)
-
-        assertThat(docSubRequestIndexes.first()).contains(
+        assertThat(docSubRequestIndexes).hasSize(2)
+        assertThat(docSubRequestIndexes.first()).containsEntry("key", Document("_id", 1))
+        assertThat(docSubRequestIndexes.second()).contains(
             SimpleEntry("textIndexVersion", 3),
             SimpleEntry("name", TITLE_INDEX_NAME),
             SimpleEntry("partialFilterExpression", Document("$SUB.$SUB_SECTION.$SUB_ATTRIBUTES.name", TITLE.value)),
@@ -107,82 +143,40 @@ internal class DatabaseChangeLogTest(
     }
 
     @Test
-    fun `create schema migration 001 when collections exists`() {
+    fun `run migration 003`() {
+        runMigrations(ChangeSet003::class.java)
+
+        val docSubmissionIndexes = mongoTemplate.collection<DocSubmission>().listIndexes().toList()
+
+        assertThat(mongoTemplate.collectionExists<DocSubmission>()).isTrue()
+        assertThat(docSubmissionIndexes).hasSize(2)
+        assertThat(docSubmissionIndexes.first()).containsEntry("key", Document("_id", 1))
+        assertThat(docSubmissionIndexes.second()).containsEntry("key", Document(SUB_MODIFICATION_TIME, -1))
+
+        val docSubRequestIndexes = mongoTemplate.collection<DocSubmissionRequest>().listIndexes().toList()
+
+        assertThat(mongoTemplate.collectionExists<DocSubmissionRequest>()).isTrue()
+        assertThat(docSubRequestIndexes).hasSize(2)
+        assertThat(docSubRequestIndexes.first()).containsEntry("key", Document("_id", 1))
+        assertThat(docSubRequestIndexes.second()).containsEntry("key", Document("$SUB.$SUB_MODIFICATION_TIME", -1))
+    }
+
+    @Test
+    fun `run migration 004`() {
         fun dummyDocumentDraft(): Document = Document()
 
-        mongoTemplate.createCollection<DocSubmission>()
-        mongoTemplate.createCollection<DocSubmissionRequest>()
         val draftCollection = mongoTemplate.createCollection<DocSubmissionDraft>()
-
-        mongoTemplate.insert(testDocSubmission.copy(accNo = "accNo1"))
-        mongoTemplate.insert(testDocSubmission.copy(accNo = "accNo2"))
-        mongoTemplate.insert(request.copy(id = ObjectId(), accNo = "accNo1"))
-        mongoTemplate.insert(request.copy(id = ObjectId(), accNo = "accNo2"))
         mongoTemplate.insert(dummyDocumentDraft(), draftCollection.namespace.collectionName)
 
-        val submissions = mongoTemplate.findAll<DocSubmission>()
-        val requests = mongoTemplate.findAll<DocSubmissionRequest>()
         val drafts = mongoTemplate.findAll<Document>(draftCollection.namespace.collectionName)
         assertThat(drafts).hasSize(1)
         assertThat(drafts.first()["statusDraft"]).isNull()
 
-        runMigrations(ChangeSet001::class.java)
+        runMigrations(ChangeSet004::class.java)
 
-        assertThat(mongoTemplate.findAll<DocSubmission>()).isEqualTo(submissions)
-        assertThat(mongoTemplate.findAll<DocSubmissionRequest>()).isEqualTo(requests)
         val draftsAfterMigrations = mongoTemplate.findAll<Document>(draftCollection.namespace.collectionName)
         assertThat(draftsAfterMigrations).hasSize(1)
         assertThat(draftsAfterMigrations.first()["statusDraft"]).isEqualTo("ACTIVE")
-
-        assertSubmissionCollection()
-        assertRequestCollection()
-    }
-
-    private fun assertSubmissionCollection() {
-        val listIndexes = mongoTemplate.collection<DocSubmission>().listIndexes().toList()
-
-        assertThat(mongoTemplate.collectionExists<DocSubmission>()).isTrue
-        assertThat(listIndexes).hasSize(9)
-
-        assertThat(listIndexes[0]).containsEntry("key", Document("_id", 1))
-        assertThat(listIndexes[1]).containsEntry("key", Document(SUB_ACC_NO, 1))
-        assertThat(listIndexes[2]).containsEntry("key", Document(SUB_ACC_NO, 1).append(SUB_VERSION, 1))
-        assertThat(listIndexes[3]).containsEntry("key", Document(SUB_OWNER, 1))
-        assertThat(listIndexes[4]).containsEntry("key", Document(SUB_SUBMITTER, 1))
-        assertThat(listIndexes[5]).containsEntry("key", Document("$SUB_SECTION.$SEC_TYPE", 1))
-        assertThat(listIndexes[6]).containsEntry("key", Document(SUB_RELEASE_TIME, 1))
-        assertThat(listIndexes[8]).containsEntry("key", Document(SUB_RELEASED, 1))
-        assertThat(listIndexes[7]).contains(
-            SimpleEntry("textIndexVersion", 3),
-            SimpleEntry("name", TITLE_INDEX_NAME),
-            SimpleEntry("partialFilterExpression", Document("$SUB_SECTION.$SUB_ATTRIBUTES.name", TITLE.value)),
-            SimpleEntry("weights", Document("$SUB_SECTION.$SUB_ATTRIBUTES.value", 1).append(SUB_TITLE, 1))
-        )
-        //assertThat(listIndexes[9]).containsEntry("key", Document(SUB_MODIFICATION_TIME, -1))
-    }
-
-    private fun assertRequestCollection() {
-        val listIndexes = mongoTemplate.collection<DocSubmissionRequest>().listIndexes().toList()
-
-        assertThat(mongoTemplate.collectionExists<DocSubmissionRequest>()).isTrue
-        assertThat(listIndexes).hasSize(11)
-
-        assertThat(listIndexes[0]).containsEntry("key", Document("_id", 1))
-        assertThat(listIndexes[1]).containsEntry("key", Document(SUB_ACC_NO, 1))
-        assertThat(listIndexes[2]).containsEntry("key", Document(SUB_ACC_NO, 1).append(SUB_VERSION, 1))
-        assertThat(listIndexes[3]).containsEntry("key", Document("submission.$SUB_SECTION.$SEC_TYPE", 1))
-        assertThat(listIndexes[4]).containsEntry("key", Document("submission.$SUB_ACC_NO", 1))
-        assertThat(listIndexes[5]).containsEntry("key", Document("submission.$SUB_OWNER", 1))
-        assertThat(listIndexes[6]).containsEntry("key", Document("submission.$SUB_SUBMITTER", 1))
-        assertThat(listIndexes[7]).containsEntry("key", Document("submission.$SUB_RELEASE_TIME", 1))
-        assertThat(listIndexes[8]).containsEntry("key", Document("submission.$SUB_RELEASED", 1))
-        assertThat(listIndexes[9]).contains(
-            SimpleEntry("textIndexVersion", 3),
-            SimpleEntry("name", TITLE_INDEX_NAME),
-            SimpleEntry("partialFilterExpression", Document("$SUB.$SUB_SECTION.$SUB_ATTRIBUTES.name", TITLE.value)),
-            SimpleEntry("weights", Document("$SUB.$SUB_SECTION.$SUB_ATTRIBUTES.value", 1).append("$SUB.$SUB_TITLE", 1))
-        )
-        assertThat(listIndexes[10]).containsEntry("key", Document("submission.$SUB_MODIFICATION_TIME", -1))
     }
 
     private fun runMigrations(clazz: Class<*>) {

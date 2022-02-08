@@ -58,7 +58,7 @@ const val CHANGE_LOG_LOCK = "submitter_mongockLock"
 @EnableConfigurationProperties
 class MongoDbConfig(
     @Value("\${spring.data.mongodb.database}") val mongoDatabase: String,
-    @Value("\${spring.data.mongodb.uri}") val mongoUri: String
+    @Value("\${spring.data.mongodb.uri}") val mongoUri: String,
 ) : AbstractMongoClientConfiguration() {
 
     override fun getDatabaseName(): String = mongoDatabase
@@ -139,7 +139,7 @@ class MongoDbConfig(
         fun createMongockConfig(
             mongoTemplate: MongoTemplate,
             springContext: ApplicationContext,
-            classes: List<Class<*>>
+            classes: List<Class<*>>,
         ): MongockApplicationRunner {
             return MongockSpring5.builder()
                 .setDriver(createDriver(mongoTemplate))
