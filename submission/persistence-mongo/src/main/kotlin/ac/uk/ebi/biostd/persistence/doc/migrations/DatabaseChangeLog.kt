@@ -13,8 +13,14 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_SUBMITTER
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_TITLE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_VERSION
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_FILE_LIST_NAME
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_INDEX
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_SUBMISSION_ACC_NO
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_SUBMISSION_ID
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_SUBMISSION_VERSION
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
+import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
 import com.github.cloudyrock.mongock.ChangeLog
 import com.github.cloudyrock.mongock.ChangeSet
 import com.github.cloudyrock.mongock.driver.mongodb.springdata.v3.decorator.impl.MongockTemplate
@@ -97,6 +103,19 @@ class DatabaseChangeLog {
 
         template.indexOps(DocSubmissionRequest::class.java).apply {
             ensureIndex(Index().on("$SUB.$SUB_MODIFICATION_TIME", DESC))
+        }
+    }
+
+    @ChangeSet(order = "004", id = "Submission fields indexes in FileListDocFile", author = "System")
+    fun changeSet004(template: MongockTemplate) {
+        template.ensureExists(FileListDocFile::class.java)
+
+        template.indexOps(FileListDocFile::class.java).apply {
+            ensureIndex(Index().on(FILE_LIST_DOC_FILE_SUBMISSION_ID, ASC))
+            ensureIndex(Index().on(FILE_LIST_DOC_FILE_FILE_LIST_NAME, ASC))
+            ensureIndex(Index().on(FILE_LIST_DOC_FILE_INDEX, ASC))
+            ensureIndex(Index().on(FILE_LIST_DOC_FILE_SUBMISSION_ACC_NO, ASC))
+            ensureIndex(Index().on(FILE_LIST_DOC_FILE_SUBMISSION_VERSION, ASC))
         }
     }
 }
