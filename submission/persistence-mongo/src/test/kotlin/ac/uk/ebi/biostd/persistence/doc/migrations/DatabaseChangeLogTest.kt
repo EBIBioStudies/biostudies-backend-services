@@ -24,6 +24,10 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFiel
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_SUBMISSION_VERSION
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft
+import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.Companion.CONTENT
+import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.Companion.KEY
+import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.Companion.STATUS
+import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.Companion.USER_ID
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
 import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
@@ -202,18 +206,19 @@ internal class DatabaseChangeLogTest(
 
     @Test
     fun `run migration 005`() {
+        val docDraft = Document(mapOf(USER_ID to "owner@email.org", KEY to "draftKey", CONTENT to "draftContent"))
         val draftCollection = mongoTemplate.createCollection<DocSubmissionDraft>()
-        mongoTemplate.insert(Document(), draftCollection.namespace.collectionName)
+        mongoTemplate.insert(docDraft, draftCollection.namespace.collectionName)
 
         val drafts = mongoTemplate.findAll<Document>(draftCollection.namespace.collectionName)
         assertThat(drafts).hasSize(1)
-        assertThat(drafts.first()["status"]).isNull()
+        assertThat(drafts.first()[STATUS]).isNull()
 
         runMigrations(ChangeLog005::class.java)
 
-        val draftsAfterMigrations = mongoTemplate.findAll<Document>(draftCollection.namespace.collectionName)
+        val draftsAfterMigrations = mongoTemplate.findAll<DocSubmissionDraft>(draftCollection.namespace.collectionName)
         assertThat(draftsAfterMigrations).hasSize(1)
-        assertThat(draftsAfterMigrations.first()["status"]).isEqualTo("ACTIVE")
+        assertThat(draftsAfterMigrations.first().status).isEqualTo(DocSubmissionDraft.DraftStatus.ACTIVE)
     }
 
     private fun runMigrations(clazz: Class<*>) {

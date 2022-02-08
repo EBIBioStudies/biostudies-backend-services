@@ -6,7 +6,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionDraftRepositor
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.Companion.CONTENT
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.Companion.KEY
-import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.Companion.STATUS_DRAFT
+import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.Companion.STATUS
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.Companion.USER_ID
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.DraftStatus
 import org.springframework.data.domain.PageRequest
@@ -27,7 +27,7 @@ class SubmissionDraftDocDataRepository(
 
     fun setStatus(userEmail: String, key: String, status: DraftStatus) {
         val query = Query(where(USER_ID).`is`(userEmail).andOperator(where(KEY).`is`(key)))
-        mongoTemplate.updateFirst(query, update(STATUS_DRAFT, status), DocSubmissionDraft::class.java)
+        mongoTemplate.updateFirst(query, update(STATUS, status), DocSubmissionDraft::class.java)
     }
 
     fun updateDraftContent(userId: String, key: String, content: String) {
@@ -41,11 +41,11 @@ class SubmissionDraftDocDataRepository(
     fun createDraft(userId: String, key: String, content: String): DocSubmissionDraft =
         submissionDraftRepository.save(DocSubmissionDraft(userId, key, content, DraftStatus.ACTIVE))
 
-    fun findAllByUserIdAndStatusDraft(
+    fun findAllByUserIdAndStatus(
         userId: String,
         status: DraftStatus,
         filter: PaginationFilter = PaginationFilter()
-    ): List<DocSubmissionDraft> = submissionDraftRepository.findAllByUserIdAndStatusDraft(
+    ): List<DocSubmissionDraft> = submissionDraftRepository.findAllByUserIdAndStatus(
         userId, status, PageRequest.of(filter.pageNumber, filter.limit)
     )
 }

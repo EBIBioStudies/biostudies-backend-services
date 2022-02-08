@@ -83,11 +83,11 @@ class SubmissionDraftDocDataRepositoryTest(
         testInstance.save(testActiveDocDraft)
         testInstance.save(testProcessingDocDraft)
 
-        val activeDrafts = testInstance.findAllByUserIdAndStatusDraft(USER_ID, ACTIVE)
+        val activeDrafts = testInstance.findAllByUserIdAndStatus(USER_ID, ACTIVE)
         assertThat(activeDrafts).hasSize(1)
         assertThat(activeDrafts.first()).isEqualTo(testActiveDocDraft)
 
-        val processingDrafts = testInstance.findAllByUserIdAndStatusDraft(USER_ID1, PROCESSING)
+        val processingDrafts = testInstance.findAllByUserIdAndStatus(USER_ID1, PROCESSING)
         assertThat(processingDrafts).hasSize(1)
         assertThat(processingDrafts.first()).isEqualTo(testProcessingDocDraft)
 

@@ -52,7 +52,7 @@ interface SubmissionRequestRepository : MongoRepository<DocSubmissionRequest, St
 interface SubmissionDraftRepository : MongoRepository<DocSubmissionDraft, String> {
     fun findByUserIdAndKey(userId: String, key: String): DocSubmissionDraft?
 
-    fun findAllByUserIdAndStatusDraft(
+    fun findAllByUserIdAndStatus(
         userId: String,
         status: DraftStatus,
         pageRequest: Pageable

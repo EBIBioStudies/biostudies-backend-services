@@ -20,6 +20,8 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFiel
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_SUBMISSION_VERSION
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft
+import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.Companion.STATUS
+import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.DraftStatus.ACTIVE
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
 import com.github.cloudyrock.mongock.ChangeLog
@@ -145,6 +147,6 @@ class ChangeLog004 {
 class ChangeLog005 {
     @ChangeSet(order = "005", id = "Set ACTIVE status on existing Drafts", author = "System")
     fun changeSet005(template: MongockTemplate) {
-        template.updateMulti(Query(), Update().set("statusDraft", "ACTIVE"), DocSubmissionDraft::class.java)
+        template.updateMulti(Query(), Update().set(STATUS, ACTIVE.name), DocSubmissionDraft::class.java)
     }
 }

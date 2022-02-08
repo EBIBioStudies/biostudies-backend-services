@@ -93,7 +93,7 @@ internal class SubmissionDraftMongoServiceTest(
     @Test
     fun `get draft list`() {
         val someFilter = PaginationFilter()
-        every { draftDocDataRepository.findAllByUserIdAndStatusDraft(USER_ID, ACTIVE, someFilter) } returns listOf(
+        every { draftDocDataRepository.findAllByUserIdAndStatus(USER_ID, ACTIVE, someFilter) } returns listOf(
             testDocDraft
         )
 

@@ -20,7 +20,7 @@ data class DocSubmissionDraft(
         const val USER_ID = "userId"
         const val KEY = "key"
         const val CONTENT = "content"
-        const val STATUS_DRAFT = "statusDraft"
+        const val STATUS = "status"
     }
 
     enum class DraftStatus {

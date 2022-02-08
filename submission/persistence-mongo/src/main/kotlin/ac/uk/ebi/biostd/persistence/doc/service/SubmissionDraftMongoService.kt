@@ -33,7 +33,7 @@ class SubmissionDraftMongoService(
 
     override fun getActiveSubmissionsDraft(userEmail: String, filter: PaginationFilter): List<SubmissionDraft> {
         return draftDocDataRepository
-            .findAllByUserIdAndStatusDraft(userEmail, ACTIVE, filter)
+            .findAllByUserIdAndStatus(userEmail, ACTIVE, filter)
             .map { SubmissionDraft(it.key, it.content) }
     }
 
