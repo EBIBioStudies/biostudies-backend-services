@@ -124,4 +124,13 @@ internal class SubmissionDraftMongoServiceTest(
         assertThat(result.content).isEqualTo(DRAFT_CONTENT)
         unmockkStatic(Instant::class)
     }
+
+    @Test
+    fun setProcessingStatus() {
+        every { draftDocDataRepository.setProcessingStatus(USER_ID, DRAFT_KEY) } answers { nothing }
+
+        testInstance.setProcessingStatus(USER_ID, DRAFT_KEY)
+
+        verify(exactly = 1) { draftDocDataRepository.setProcessingStatus(USER_ID, DRAFT_KEY) }
+    }
 }

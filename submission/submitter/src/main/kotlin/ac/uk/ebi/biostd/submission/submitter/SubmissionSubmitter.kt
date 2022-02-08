@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.submission.submitter
 
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionRequest
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionDraftService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestService
@@ -56,13 +57,16 @@ class SubmissionSubmitter(
     private val submissionRequestService: SubmissionRequestService,
     private val queryService: SubmissionMetaQueryService,
     private val submissionQueryService: SubmissionQueryService,
+    private val draftService: SubmissionDraftService,
     private val properties: ApplicationProperties
 ) {
     fun submitAsync(rqt: SubmitRequest): Pair<String, Int> {
         logger.info { "${rqt.accNo} ${rqt.submitter.email} Processing async request $rqt" }
         val sub = process(rqt.submission, rqt.submitter.asUser(), rqt.onBehalfUser?.asUser(), rqt.sources, rqt.method)
         logger.info { "${sub.accNo} ${sub.submitter} Saving submission request ${sub.accNo}" }
-        return submissionRequestService.saveSubmissionRequest(SubmissionRequest(sub, rqt.mode, rqt.draftKey))
+        val request = submissionRequestService.saveSubmissionRequest(SubmissionRequest(sub, rqt.mode, rqt.draftKey))
+        rqt.draftKey?.let { draftService.setProcessingStatus(rqt.owner, rqt.draftKey) }
+        return request
     }
 
     fun submitAsync(request: SubmissionRequest): Pair<String, Int> =

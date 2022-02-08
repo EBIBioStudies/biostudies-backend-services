@@ -41,6 +41,9 @@ class SubmissionDraftMongoService(
         return SubmissionDraft(draft.key, draft.content)
     }
 
+    override fun setProcessingStatus(userEmail: String, key: String) =
+        draftDocDataRepository.setProcessingStatus(userEmail, key)
+
     private fun create(userEmail: String, key: String): DocSubmissionDraft {
         val submission = submissionQueryService.getExtByAccNo(key).toSimpleSubmission()
         val content = serializationService.serializeSubmission(submission, JsonPretty)

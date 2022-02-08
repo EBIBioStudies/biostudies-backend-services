@@ -17,4 +17,6 @@ interface SubmissionDraftService {
     ): List<SubmissionDraft>
 
     fun createSubmissionDraft(userEmail: String, content: String): SubmissionDraft
+
+    fun setProcessingStatus(userEmail: String, key: String)
 }

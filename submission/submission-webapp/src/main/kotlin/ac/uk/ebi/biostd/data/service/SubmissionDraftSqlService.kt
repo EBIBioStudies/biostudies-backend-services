@@ -37,6 +37,10 @@ open class SubmissionDraftSqlService(
         return SubmissionDraft(dbUser.key, dbUser.data)
     }
 
+    override fun setProcessingStatus(userEmail: String, key: String) {
+        TODO("Not yet implemented")
+    }
+
     private fun create(user: String, key: String): DbUserData {
         val submission = submissionService.getSubmissionAsJson(key)
         return userDataService.saveUserData(user, key, submission)

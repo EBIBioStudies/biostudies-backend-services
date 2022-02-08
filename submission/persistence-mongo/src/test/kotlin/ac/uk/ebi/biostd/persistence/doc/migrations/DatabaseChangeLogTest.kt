@@ -20,19 +20,14 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
-import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus.REQUESTED
-import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocSubmission
 import com.github.cloudyrock.mongock.driver.mongodb.springdata.v3.SpringDataMongoV3Driver
 import com.github.cloudyrock.mongock.driver.mongodb.springdata.v3.decorator.impl.MongockTemplate
-import com.mongodb.BasicDBObject
 import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
 import ebi.ac.uk.db.MONGO_VERSION
-import ebi.ac.uk.extended.model.FileMode
 import ebi.ac.uk.model.constants.SectionFields.TITLE
 import ebi.ac.uk.util.collections.second
 import org.assertj.core.api.Assertions.assertThat
 import org.bson.Document
-import org.bson.types.ObjectId
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -78,7 +73,7 @@ internal class DatabaseChangeLogTest(
 
         val submissionIndexes = mongoTemplate.collection<DocSubmission>().listIndexes().toList()
 
-        assertThat(mongoTemplate.collectionExists<DocSubmission>()).isTrue
+        assertThat(mongoTemplate.collectionExists<DocSubmission>()).isTrue()
         assertThat(submissionIndexes).hasSize(9)
 
         assertThat(submissionIndexes[0]).containsEntry("key", Document("_id", 1))
@@ -95,7 +90,7 @@ internal class DatabaseChangeLogTest(
             SimpleEntry("weights", Document(SUB_TITLE, 1))
         )
         val requestIndexes = mongoTemplate.collection<DocSubmissionRequest>().listIndexes().toList()
-        assertThat(mongoTemplate.collectionExists<DocSubmissionRequest>()).isTrue
+        assertThat(mongoTemplate.collectionExists<DocSubmissionRequest>()).isTrue()
         assertThat(requestIndexes).hasSize(10)
         assertThat(requestIndexes[0]).containsEntry("key", Document("_id", 1))
         assertThat(requestIndexes[1]).containsEntry("key", Document(SUB_ACC_NO, 1))
@@ -183,17 +178,6 @@ internal class DatabaseChangeLogTest(
         val runner = createMongockConfig(mongoTemplate, springContext, listOf(clazz))
         runner.run(DefaultApplicationArguments())
     }
-
-    private val request = DocSubmissionRequest(
-        id = ObjectId(),
-        accNo = "accNo",
-        version = 1,
-        fileMode = FileMode.COPY,
-        draftKey = null,
-        status = REQUESTED,
-        submission = BasicDBObject.parse("{}"),
-        fileList = emptyList()
-    )
 
     companion object {
         @Container

@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionDraftRepositor
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.Companion.CONTENT
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.Companion.KEY
+import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.Companion.STATUS_DRAFT
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.Companion.USER_ID
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.StatusDraft
 import org.springframework.data.domain.PageRequest
@@ -23,6 +24,11 @@ class SubmissionDraftDocDataRepository(
             Query(where(USER_ID).`is`(userId).andOperator(where(KEY).`is`(key))),
             DocSubmissionDraft(userId, key, content, StatusDraft.ACTIVE)
         )
+
+    fun setProcessingStatus(userEmail: String, key: String) {
+        val query = Query(where(USER_ID).`is`(userEmail).andOperator(where(KEY).`is`(key)))
+        mongoTemplate.updateFirst(query, update(STATUS_DRAFT, StatusDraft.PROCESSING), DocSubmissionDraft::class.java)
+    }
 
     fun updateDraftContent(userId: String, key: String, content: String) {
         mongoTemplate.updateFirst(
