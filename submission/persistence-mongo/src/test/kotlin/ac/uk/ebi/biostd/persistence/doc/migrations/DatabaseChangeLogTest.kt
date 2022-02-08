@@ -179,10 +179,8 @@ internal class DatabaseChangeLogTest(
 
     @Test
     fun `run migration 005`() {
-        fun dummyDocumentDraft(): Document = Document()
-
         val draftCollection = mongoTemplate.createCollection<DocSubmissionDraft>()
-        mongoTemplate.insert(dummyDocumentDraft(), draftCollection.namespace.collectionName)
+        mongoTemplate.insert(Document(), draftCollection.namespace.collectionName)
 
         val drafts = mongoTemplate.findAll<Document>(draftCollection.namespace.collectionName)
         assertThat(drafts).hasSize(1)

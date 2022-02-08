@@ -36,6 +36,13 @@ import org.springframework.data.mongodb.core.query.Update
 import org.springframework.data.mongodb.core.index.TextIndexDefinition.builder as TextIndex
 
 internal const val TITLE_INDEX_NAME = "title_index"
+internal val CHANGE_LOG_CLASSES = listOf(
+    ChangeLog001::class.java,
+    ChangeLog002::class.java,
+    ChangeLog003::class.java,
+    ChangeLog004::class.java,
+    ChangeLog005::class.java
+)
 
 @ChangeLog
 class ChangeLog001 {

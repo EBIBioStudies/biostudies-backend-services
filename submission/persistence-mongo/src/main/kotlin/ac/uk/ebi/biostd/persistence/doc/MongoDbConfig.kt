@@ -19,11 +19,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.to.LinkTableConverter
 import ac.uk.ebi.biostd.persistence.doc.db.converters.to.SectionConverter
 import ac.uk.ebi.biostd.persistence.doc.db.converters.to.SubmissionConverter
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionMongoRepository
-import ac.uk.ebi.biostd.persistence.doc.migrations.ChangeLog001
-import ac.uk.ebi.biostd.persistence.doc.migrations.ChangeLog002
-import ac.uk.ebi.biostd.persistence.doc.migrations.ChangeLog003
-import ac.uk.ebi.biostd.persistence.doc.migrations.ChangeLog004
-import ac.uk.ebi.biostd.persistence.doc.migrations.ChangeLog005
+import ac.uk.ebi.biostd.persistence.doc.migrations.CHANGE_LOG_CLASSES
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
 import com.github.cloudyrock.mongock.driver.mongodb.springdata.v3.SpringDataMongoV3Driver
@@ -70,17 +66,7 @@ class MongoDbConfig(
         springContext: ApplicationContext,
         mongoTemplate: MongoTemplate
     ): ApplicationRunner {
-        return createMongockConfig(
-            mongoTemplate,
-            springContext,
-            listOf(
-                ChangeLog001::class.java,
-                ChangeLog002::class.java,
-                ChangeLog003::class.java,
-                ChangeLog004::class.java,
-                ChangeLog005::class.java
-            )
-        )
+        return createMongockConfig(mongoTemplate, springContext, CHANGE_LOG_CLASSES)
     }
 
     @Bean

@@ -25,9 +25,9 @@ class SubmissionDraftDocDataRepository(
             DocSubmissionDraft(userId, key, content, StatusDraft.ACTIVE)
         )
 
-    fun setProcessingStatus(userEmail: String, key: String) {
+    fun setStatus(userEmail: String, key: String, statusDraft: StatusDraft) {
         val query = Query(where(USER_ID).`is`(userEmail).andOperator(where(KEY).`is`(key)))
-        mongoTemplate.updateFirst(query, update(STATUS_DRAFT, StatusDraft.PROCESSING), DocSubmissionDraft::class.java)
+        mongoTemplate.updateFirst(query, update(STATUS_DRAFT, statusDraft), DocSubmissionDraft::class.java)
     }
 
     fun updateDraftContent(userId: String, key: String, content: String) {

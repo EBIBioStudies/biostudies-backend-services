@@ -9,6 +9,7 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDraftDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.StatusDraft.ACTIVE
+import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.StatusDraft.PROCESSING
 import ebi.ac.uk.extended.mapping.to.toSimpleSubmission
 import java.time.Instant
 
@@ -42,7 +43,7 @@ class SubmissionDraftMongoService(
     }
 
     override fun setProcessingStatus(userEmail: String, key: String) =
-        draftDocDataRepository.setProcessingStatus(userEmail, key)
+        draftDocDataRepository.setStatus(userEmail, key, PROCESSING)
 
     private fun create(userEmail: String, key: String): DocSubmissionDraft {
         val submission = submissionQueryService.getExtByAccNo(key).toSimpleSubmission()
