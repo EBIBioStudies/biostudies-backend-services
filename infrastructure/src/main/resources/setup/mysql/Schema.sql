@@ -34,6 +34,13 @@ CREATE TABLE ElementTag
     CONSTRAINT tag_name UNIQUE (classifier, name)
 );
 
+CREATE TABLE SubmissionRT
+(
+    id       BIGINT AUTO_INCREMENT PRIMARY KEY,
+    accNo    LONGTEXT NOT NULL,
+    ticketId LONGTEXT NOT NULL
+);
+
 -- Security
 CREATE TABLE User
 (
