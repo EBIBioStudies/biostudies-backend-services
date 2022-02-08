@@ -9,6 +9,7 @@ import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.test.submission.refresh.SubmissionRefreshApiTestHelper.ACC_NO
 import ac.uk.ebi.biostd.itest.test.submission.refresh.SubmissionRefreshApiTestHelper.ATTR_NAME
 import ac.uk.ebi.biostd.itest.test.submission.refresh.SubmissionRefreshApiTestHelper.ATTR_VALUE
+import ac.uk.ebi.biostd.itest.test.submission.refresh.SubmissionRefreshApiTestHelper.NEW_ATTR_FILE_FILELIST
 import ac.uk.ebi.biostd.itest.test.submission.refresh.SubmissionRefreshApiTestHelper.NEW_ATTR_VALUE
 import ac.uk.ebi.biostd.itest.test.submission.refresh.SubmissionRefreshApiTestHelper.NEW_SUBTITLE
 import ac.uk.ebi.biostd.itest.test.submission.refresh.SubmissionRefreshApiTestHelper.SUBTITLE
@@ -16,13 +17,21 @@ import ac.uk.ebi.biostd.itest.test.submission.refresh.SubmissionRefreshApiTestHe
 import ac.uk.ebi.biostd.itest.test.submission.refresh.SubmissionRefreshApiTestHelper.assertExtSubmission
 import ac.uk.ebi.biostd.itest.test.submission.refresh.SubmissionRefreshApiTestHelper.testSubmission
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocAttributeFields.ATTRIBUTE_DETAIL_VALUE
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_DOC_ATTRIBUTES
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ATTRIBUTES
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_RELEASE_TIME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_TITLE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_VERSION
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_FILE
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_FILE_LIST_NAME
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_SUBMISSION_ACC_NO
+import ac.uk.ebi.biostd.persistence.doc.db.data.FileListDocFileDocDataRepository
+import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbReposConfig
 import ac.uk.ebi.biostd.persistence.doc.model.DocAttribute
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
+import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
 import ac.uk.ebi.biostd.persistence.model.DbSequence
 import ac.uk.ebi.biostd.persistence.model.DbTag
 import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
@@ -51,7 +60,7 @@ import java.time.ZoneOffset.UTC
 @ExtendWith(TemporaryFolderExtension::class)
 internal class SubmissionRefreshApiTest(private val tempFolder: TemporaryFolder) : BaseIntegrationTest(tempFolder) {
     @Nested
-    @Import(PersistenceConfig::class)
+    @Import(PersistenceConfig::class, MongoDbReposConfig::class)
     @ExtendWith(SpringExtension::class)
     @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
     @DirtiesContext
@@ -60,7 +69,8 @@ internal class SubmissionRefreshApiTest(private val tempFolder: TemporaryFolder)
         @Autowired val tagsRefRepository: TagDataRepository,
         @Autowired val securityTestService: SecurityTestService,
         @Autowired val sequenceRepository: SequenceDataRepository,
-        @Autowired val submissionRepository: SubmissionQueryService
+        @Autowired val submissionRepository: SubmissionQueryService,
+        @Autowired val fileListRepository: FileListDocFileDocDataRepository
     ) {
         @LocalServerPort
         private var serverPort: Int = 0
@@ -82,8 +92,14 @@ internal class SubmissionRefreshApiTest(private val tempFolder: TemporaryFolder)
             @Test
             fun `refresh mongo submission release date and attributes`() {
                 updateMongoSubmission()
+                updateMongoFileList()
                 webClient.refreshSubmission(ACC_NO)
                 assertRefreshedSubmission()
+                assertRefreshedFileList()
+            }
+
+            private fun assertRefreshedFileList() {
+                TODO("Not yet implemented")
             }
 
             private fun updateMongoSubmission() {
@@ -92,6 +108,18 @@ internal class SubmissionRefreshApiTest(private val tempFolder: TemporaryFolder)
                     .set(SUB_RELEASE_TIME, newReleaseDate.toInstant())
                     .set(SUB_ATTRIBUTES, listOf(DocAttribute(ATTR_NAME, NEW_ATTR_VALUE)))
                 mongoTemplate.updateFirst(query, update, DocSubmission::class.java)
+            }
+
+            private fun updateMongoFileList() {
+                val query = Query(
+                    where(FILE_LIST_DOC_FILE_SUBMISSION_ACC_NO).`is`(ACC_NO)
+                        .andOperator(where(FILE_LIST_DOC_FILE_FILE_LIST_NAME).`is`("fileList.txt"))
+                )
+                val update = update(
+                    "$FILE_LIST_DOC_FILE_FILE.$FILE_DOC_ATTRIBUTES[0].$ATTRIBUTE_DETAIL_VALUE",
+                    NEW_ATTR_FILE_FILELIST
+                )
+                mongoTemplate.updateFirst(query, update, FileListDocFile::class.java)
             }
         }
 

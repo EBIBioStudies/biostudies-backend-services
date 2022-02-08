@@ -7,6 +7,8 @@ import ac.uk.ebi.biostd.persistence.doc.model.NfsDocFile
 import ac.uk.ebi.biostd.persistence.doc.test.FileTestHelper.docFileList
 import ac.uk.ebi.biostd.persistence.doc.test.FileTestHelper.fireDocFile
 import ac.uk.ebi.biostd.persistence.doc.test.FileTestHelper.nfsDocFile
+import ac.uk.ebi.biostd.persistence.doc.test.SectionTestHelper.assertExtFileListWithFilesFiles
+import ac.uk.ebi.biostd.persistence.doc.test.SectionTestHelper.assertExtFileListWithoutFiles
 import ac.uk.ebi.biostd.persistence.doc.test.SectionTestHelper.docSection
 import ac.uk.ebi.biostd.persistence.doc.test.SubmissionTestHelper.assertExtSubmission
 import ac.uk.ebi.biostd.persistence.doc.test.SubmissionTestHelper.docSubmission
@@ -43,7 +45,8 @@ class ToExtSubmissionMapperTest(private val temporaryFolder: TemporaryFolder) {
     fun `to ext Submission without FileListFiles`() {
         val extSubmission = testInstance.toExtSubmission(docSubmission(), includeFileListFiles = false)
 
-        assertExtSubmission(extSubmission, sectionFile, fileNfs, includeFileListFiles = false)
+        assertExtSubmission(extSubmission, sectionFile, fileNfs)
+        assertExtFileListWithoutFiles(extSubmission.section.fileList!!)
     }
 
     @Test
@@ -53,7 +56,8 @@ class ToExtSubmissionMapperTest(private val temporaryFolder: TemporaryFolder) {
         } returns listOf(fileListDocFile)
         val extSubmission = testInstance.toExtSubmission(docSubmission(), includeFileListFiles = true)
 
-        assertExtSubmission(extSubmission, sectionFile, fileNfs, includeFileListFiles = true)
+        assertExtSubmission(extSubmission, sectionFile, fileNfs)
+        assertExtFileListWithFilesFiles(extSubmission.section.fileList!!)
     }
 
     private val fileListDocFile = FileListDocFile(

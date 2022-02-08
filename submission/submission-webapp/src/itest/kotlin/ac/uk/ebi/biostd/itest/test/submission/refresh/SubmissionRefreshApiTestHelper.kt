@@ -8,6 +8,9 @@ import ebi.ac.uk.dsl.submission
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.model.Attribute
+import ebi.ac.uk.model.File
+import ebi.ac.uk.model.FileList
 import ebi.ac.uk.model.extensions.releaseDate
 import ebi.ac.uk.model.extensions.rootPath
 import ebi.ac.uk.model.extensions.title
@@ -25,6 +28,7 @@ object SubmissionRefreshApiTestHelper {
     internal const val ATTR_VALUE = "custom-attribute-value"
     internal const val NEW_SUBTITLE = "Simple Submission"
     internal const val NEW_ATTR_VALUE = "custom-attribute-new-value"
+    internal const val NEW_ATTR_FILE_FILELIST = "new-attribute-value"
     internal const val TEST_FILE_NAME = "refresh-file.txt"
 
     internal val testSubmission = submission(ACC_NO) {
@@ -41,6 +45,11 @@ object SubmissionRefreshApiTestHelper {
             file("refresh-file.txt") {
                 attribute("type", "duplicated")
             }
+
+            fileList = FileList(
+                "fileList.txt",
+                listOf(File("path.txt", attributes = listOf(Attribute("name Attribute", "value Attribute"))))
+            )
         }
     }
 

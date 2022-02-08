@@ -12,7 +12,6 @@ import ac.uk.ebi.biostd.persistence.doc.model.NfsDocFile
 import ac.uk.ebi.biostd.persistence.doc.test.AttributeTestHelper.assertFullExtAttribute
 import ac.uk.ebi.biostd.persistence.doc.test.AttributeTestHelper.fullDocAttribute
 import ac.uk.ebi.biostd.persistence.doc.test.SectionTestHelper.assertExtSection
-import ac.uk.ebi.biostd.persistence.doc.test.SectionTestHelper.assertExtSectionWithFileListFiles
 import ac.uk.ebi.biostd.persistence.doc.test.SectionTestHelper.docSection
 import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.ExtSubmission
@@ -23,11 +22,11 @@ import ebi.ac.uk.extended.model.StorageMode
 import ebi.ac.uk.extended.model.createNfsFile
 import ebi.ac.uk.util.collections.second
 import ebi.ac.uk.util.collections.third
+import org.assertj.core.api.Assertions.assertThat
+import org.bson.types.ObjectId
 import java.io.File
 import java.time.Instant
 import java.time.ZoneOffset.UTC
-import org.assertj.core.api.Assertions.assertThat
-import org.bson.types.ObjectId
 
 private const val SUB_ACC_NO = "S-TEST123"
 private const val SUB_VERSION = 1
@@ -81,11 +80,9 @@ object SubmissionTestHelper {
         extSubmission: ExtSubmission,
         testFile: File,
         nfsFileFile: File,
-        includeFileListFiles: Boolean = false,
     ) {
         assertBasicProperties(extSubmission)
-        if (includeFileListFiles) assertExtSectionWithFileListFiles(extSubmission.section, testFile)
-        else assertExtSection(extSubmission.section, testFile)
+        assertExtSection(extSubmission.section, testFile)
         assertAttributes(extSubmission)
         assertTags(extSubmission)
         assertStats(extSubmission)
