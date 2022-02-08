@@ -33,8 +33,6 @@ import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
 import ebi.ac.uk.db.MONGO_VERSION
 import ebi.ac.uk.extended.model.FileMode
 import ebi.ac.uk.model.constants.SectionFields.TITLE
-import java.time.Duration.ofSeconds
-import java.util.AbstractMap.SimpleEntry
 import org.assertj.core.api.Assertions.assertThat
 import org.bson.Document
 import org.bson.types.ObjectId
@@ -58,6 +56,8 @@ import org.testcontainers.containers.startupcheck.MinimumDurationRunningStartupC
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.utility.DockerImageName
+import java.time.Duration.ofSeconds
+import java.util.AbstractMap.SimpleEntry
 
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(classes = [MongoDbConfig::class])
@@ -70,6 +70,8 @@ internal class DatabaseChangeLogTest(
     fun init() {
         mongoTemplate.dropCollection<DocSubmission>()
         mongoTemplate.dropCollection<DocSubmissionRequest>()
+        mongoTemplate.dropCollection<FileListDocFile>()
+
         mongoTemplate.dropCollection(CHANGE_LOG_COLLECTION)
         mongoTemplate.dropCollection(CHANGE_LOG_LOCK)
     }
