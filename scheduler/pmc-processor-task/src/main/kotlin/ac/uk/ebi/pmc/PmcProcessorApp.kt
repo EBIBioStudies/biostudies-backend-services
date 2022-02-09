@@ -2,6 +2,7 @@ package ac.uk.ebi.pmc
 
 import ac.uk.ebi.pmc.config.AppConfig
 import org.springframework.boot.autoconfigure.SpringBootApplication
+import org.springframework.boot.autoconfigure.mongo.MongoReactiveAutoConfiguration
 import org.springframework.boot.runApplication
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -15,7 +16,7 @@ class MainConfig {
     fun commandLineRunner(pmcTaskExecutor: PmcTaskExecutor) = PmcCommandLineRunner(pmcTaskExecutor)
 }
 
-@SpringBootApplication
+@SpringBootApplication(exclude = [MongoReactiveAutoConfiguration::class])
 class PmcProcessorApp
 
 @Suppress("SpreadOperator")
