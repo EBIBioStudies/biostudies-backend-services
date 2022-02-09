@@ -64,19 +64,22 @@ class SubmissionSubmitter(
         logger.info { "${rqt.accNo} ${rqt.submitter.email} Processing async request $rqt" }
         val sub = process(rqt.submission, rqt.submitter.asUser(), rqt.onBehalfUser?.asUser(), rqt.sources, rqt.method)
         logger.info { "${sub.accNo} ${sub.submitter} Saving submission request ${sub.accNo}" }
-        val request = submissionRequestService.saveSubmissionRequest(SubmissionRequest(sub, rqt.mode, rqt.draftKey))
-        rqt.draftKey?.let { draftService.setProcessingStatus(rqt.owner, rqt.draftKey) }
-        return request
+        return saveRequest(SubmissionRequest(sub, rqt.mode, rqt.draftKey), rqt.owner)
     }
 
-    fun submitAsync(request: SubmissionRequest): Pair<String, Int> =
-        submissionRequestService.saveSubmissionRequest(request)
+    fun submitAsync(request: SubmissionRequest): Pair<String, Int> = saveRequest(request, request.submission.submitter)
 
     fun processRequest(accNo: String, version: Int): ExtSubmission {
         val saveRequest = submissionQueryService.getPendingRequest(accNo, version)
         val submitter = saveRequest.submission.submitter
         logger.info { "$accNo, $submitter Processing request for submission accNo='$accNo', version='$version'" }
         return submissionRequestService.processSubmissionRequest(saveRequest)
+    }
+
+    private fun saveRequest(request: SubmissionRequest, owner: String): Pair<String, Int> {
+        val saved = submissionRequestService.saveSubmissionRequest(request)
+        request.draftKey?.let { draftService.setProcessingStatus(owner, it) }
+        return saved
     }
 
     @Suppress("TooGenericExceptionCaught")
