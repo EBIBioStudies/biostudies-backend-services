@@ -5,11 +5,10 @@ import ac.uk.ebi.biostd.integration.SubFormat.JsonFormat.JsonPretty
 import ac.uk.ebi.biostd.persistence.common.request.PaginationFilter
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDraftDocDataRepository
-import ac.uk.ebi.biostd.persistence.doc.test.doc.DRAFT_CONTENT
-import ac.uk.ebi.biostd.persistence.doc.test.doc.DRAFT_KEY
-import ac.uk.ebi.biostd.persistence.doc.test.doc.USER_ID
+import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft
+import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.DraftStatus.ACTIVE
+import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.DraftStatus.PROCESSING
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.fullExtSubmission
-import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocDraft
 import ebi.ac.uk.extended.mapping.to.toSimpleSubmission
 import ebi.ac.uk.extended.model.ExtSection
 import io.mockk.clearAllMocks
@@ -38,6 +37,7 @@ internal class SubmissionDraftMongoServiceTest(
         submissionQueryService,
         serializationService
     )
+    private val testDocDraft = DocSubmissionDraft(USER_ID, DRAFT_KEY, DRAFT_CONTENT, ACTIVE)
 
     @AfterEach
     fun afterEach() = clearAllMocks()
@@ -58,7 +58,7 @@ internal class SubmissionDraftMongoServiceTest(
         val extSubmission = fullExtSubmission.copy(section = ExtSection(type = "Study"))
         every { submissionQueryService.getExtByAccNo(DRAFT_KEY) } returns extSubmission
         every { draftDocDataRepository.findByUserIdAndKey(USER_ID, DRAFT_KEY) } returns null
-        every { draftDocDataRepository.saveDraft(USER_ID, DRAFT_KEY, DRAFT_CONTENT) } returns testDocDraft
+        every { draftDocDataRepository.createDraft(USER_ID, DRAFT_KEY, DRAFT_CONTENT) } returns testDocDraft
         every {
             serializationService.serializeSubmission(extSubmission.toSimpleSubmission(), JsonPretty)
         } returns DRAFT_CONTENT
@@ -67,7 +67,7 @@ internal class SubmissionDraftMongoServiceTest(
 
         assertThat(result.key).isEqualTo(DRAFT_KEY)
         assertThat(result.content).isEqualTo(DRAFT_CONTENT)
-        verify(exactly = 1) { draftDocDataRepository.saveDraft(USER_ID, DRAFT_KEY, DRAFT_CONTENT) }
+        verify(exactly = 1) { draftDocDataRepository.createDraft(USER_ID, DRAFT_KEY, DRAFT_CONTENT) }
     }
 
     @Test
@@ -93,9 +93,11 @@ internal class SubmissionDraftMongoServiceTest(
     @Test
     fun `get draft list`() {
         val someFilter = PaginationFilter()
-        every { draftDocDataRepository.findAllByUserId(USER_ID, someFilter) } returns listOf(testDocDraft)
+        every { draftDocDataRepository.findAllByUserIdAndStatus(USER_ID, ACTIVE, someFilter) } returns listOf(
+            testDocDraft
+        )
 
-        val result = testInstance.getSubmissionsDraft(USER_ID, someFilter)
+        val result = testInstance.getActiveSubmissionsDraft(USER_ID, someFilter)
 
         assertThat(result).hasSize(1)
         assertThat(result[0].key).isEqualTo(DRAFT_KEY)
@@ -120,5 +122,20 @@ internal class SubmissionDraftMongoServiceTest(
         assertThat(result.key).isEqualTo(DRAFT_KEY)
         assertThat(result.content).isEqualTo(DRAFT_CONTENT)
         unmockkStatic(Instant::class)
+    }
+
+    @Test
+    fun setProcessingStatus() {
+        every { draftDocDataRepository.setStatus(USER_ID, DRAFT_KEY, PROCESSING) } answers { nothing }
+
+        testInstance.setProcessingStatus(USER_ID, DRAFT_KEY)
+
+        verify(exactly = 1) { draftDocDataRepository.setStatus(USER_ID, DRAFT_KEY, PROCESSING) }
+    }
+
+    companion object {
+        const val USER_ID = "jhon.doe@ebi.ac.uk"
+        const val DRAFT_KEY = "key"
+        const val DRAFT_CONTENT = "content"
     }
 }

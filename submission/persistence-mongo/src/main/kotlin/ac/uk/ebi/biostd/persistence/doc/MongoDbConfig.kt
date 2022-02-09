@@ -19,6 +19,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.to.LinkTableConverter
 import ac.uk.ebi.biostd.persistence.doc.db.converters.to.SectionConverter
 import ac.uk.ebi.biostd.persistence.doc.db.converters.to.SubmissionConverter
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionMongoRepository
+import ac.uk.ebi.biostd.persistence.doc.migrations.CHANGE_LOG_CLASSES
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
 import com.github.cloudyrock.mongock.driver.mongodb.springdata.v3.SpringDataMongoV3Driver
@@ -54,7 +55,7 @@ const val CHANGE_LOG_LOCK = "submitter_mongockLock"
 @EnableConfigurationProperties
 class MongoDbConfig(
     @Value("\${spring.data.mongodb.database}") val mongoDatabase: String,
-    @Value("\${spring.data.mongodb.uri}") val mongoUri: String
+    @Value("\${spring.data.mongodb.uri}") val mongoUri: String,
 ) : AbstractMongoClientConfiguration() {
 
     override fun getDatabaseName(): String = mongoDatabase
@@ -63,10 +64,9 @@ class MongoDbConfig(
     @ConditionalOnProperty(prefix = "app.mongo", name = ["execute-migrations"], havingValue = "true")
     fun mongockApplicationRunner(
         springContext: ApplicationContext,
-        mongoTemplate: MongoTemplate,
-        @Value("\${app.mongo.migration-package}") migrationPackage: String,
+        mongoTemplate: MongoTemplate
     ): ApplicationRunner {
-        return createMongockConfig(mongoTemplate, springContext, migrationPackage)
+        return createMongockConfig(mongoTemplate, springContext, CHANGE_LOG_CLASSES)
     }
 
     @Bean
@@ -126,11 +126,11 @@ class MongoDbConfig(
         fun createMongockConfig(
             mongoTemplate: MongoTemplate,
             springContext: ApplicationContext,
-            migrationPackage: String
+            classes: List<Class<*>>,
         ): MongockApplicationRunner {
             return MongockSpring5.builder()
                 .setDriver(createDriver(mongoTemplate))
-                .addChangeLogsScanPackage(migrationPackage)
+                .addChangeLogClasses(classes)
                 .setSpringContext(springContext)
                 .buildApplicationRunner()
         }

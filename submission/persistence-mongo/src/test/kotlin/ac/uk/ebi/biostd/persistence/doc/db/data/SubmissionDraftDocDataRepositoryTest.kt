@@ -2,10 +2,8 @@ package ac.uk.ebi.biostd.persistence.doc.db.data
 
 import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbReposConfig
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft
-import ac.uk.ebi.biostd.persistence.doc.test.doc.DRAFT_CONTENT
-import ac.uk.ebi.biostd.persistence.doc.test.doc.DRAFT_KEY
-import ac.uk.ebi.biostd.persistence.doc.test.doc.USER_ID
-import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocDraft
+import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.DraftStatus.ACTIVE
+import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.DraftStatus.PROCESSING
 import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
 import ebi.ac.uk.db.MONGO_VERSION
 import org.assertj.core.api.Assertions.assertThat
@@ -31,6 +29,10 @@ import kotlin.test.assertNotNull
 class SubmissionDraftDocDataRepositoryTest(
     @Autowired val testInstance: SubmissionDraftDocDataRepository
 ) {
+    private val testDocDraft = DocSubmissionDraft(USER_ID, DRAFT_KEY, DRAFT_CONTENT, ACTIVE)
+    private val testActiveDocDraft = DocSubmissionDraft(USER_ID, DRAFT_KEY, DRAFT_CONTENT, ACTIVE)
+    private val testProcessingDocDraft = DocSubmissionDraft(USER_ID1, DRAFT_KEY1, DRAFT_CONTENT1, PROCESSING)
+
     @BeforeEach
     fun beforeEach() {
         testInstance.deleteAll()
@@ -52,6 +54,7 @@ class SubmissionDraftDocDataRepositoryTest(
 
         assertNotNull(saved)
         assertThat(saved.content).isEqualTo("{ type: 'submission' }")
+        assertThat(saved.status).isEqualTo(ACTIVE)
     }
 
     @Test
@@ -76,27 +79,49 @@ class SubmissionDraftDocDataRepositoryTest(
     }
 
     @Test
+    fun findAllByUserIdAndStatusDraft() {
+        testInstance.save(testActiveDocDraft)
+        testInstance.save(testProcessingDocDraft)
+
+        val activeDrafts = testInstance.findAllByUserIdAndStatus(USER_ID, ACTIVE)
+        assertThat(activeDrafts).hasSize(1)
+        assertThat(activeDrafts.first()).isEqualTo(testActiveDocDraft)
+
+        val processingDrafts = testInstance.findAllByUserIdAndStatus(USER_ID1, PROCESSING)
+        assertThat(processingDrafts).hasSize(1)
+        assertThat(processingDrafts.first()).isEqualTo(testProcessingDocDraft)
+
+        testInstance.deleteByUserIdAndKey(testActiveDocDraft.userId, testActiveDocDraft.key)
+        testInstance.deleteByUserIdAndKey(testProcessingDocDraft.userId, testProcessingDocDraft.key)
+
+        assertThat(testInstance.findById(testActiveDocDraft.id)).isEmpty()
+        assertThat(testInstance.findById(testProcessingDocDraft.id)).isEmpty()
+    }
+
+    @Test
     fun createSubmissionDraft() {
         val result = testInstance.createDraft(USER_ID, DRAFT_KEY, DRAFT_CONTENT)
 
         assertThat(testInstance.getById(result.id)).isEqualTo(result)
+        assertThat(result.status).isEqualTo(ACTIVE)
     }
 
     @Test
-    fun findAllByUserId() {
-        val anotherDoc = DocSubmissionDraft(USER_ID, "another-key", "anotherContent")
+    fun setProcessingStatus() {
+        testInstance.saveDraft(USER_ID, DRAFT_KEY, DRAFT_CONTENT)
 
-        testInstance.save(testDocDraft)
-        testInstance.save(anotherDoc)
+        val beforeChangeStatus = testInstance.findAll()
+        assertThat(beforeChangeStatus).hasSize(1)
+        assertThat(beforeChangeStatus.first().status).isEqualTo(ACTIVE)
 
-        val result = testInstance.findAllByUserId(USER_ID).sortedBy { it.key }
+        testInstance.setStatus(USER_ID, DRAFT_KEY, PROCESSING)
 
-        assertThat(result).hasSize(2)
-        assertThat(result[0]).isEqualTo(anotherDoc)
-        assertThat(result[1]).isEqualTo(testDocDraft)
+        val afterChangeStatus = testInstance.findAll()
+        assertThat(afterChangeStatus).hasSize(1)
+        assertThat(afterChangeStatus.first().status).isEqualTo(PROCESSING)
     }
 
-    companion object {
+    private companion object {
         @Container
         val mongoContainer: MongoDBContainer = MongoDBContainer(DockerImageName.parse(MONGO_VERSION))
             .withStartupCheckStrategy(MinimumDurationRunningStartupCheckStrategy(ofSeconds(MINIMUM_RUNNING_TIME)))
@@ -108,5 +133,13 @@ class SubmissionDraftDocDataRepositoryTest(
             register.add("spring.data.mongodb.database") { "biostudies-test" }
             register.add("app.persistence.enableMongo") { "true" }
         }
+
+        const val USER_ID = "jhon.doe@ebi.ac.uk"
+        const val DRAFT_KEY = "key"
+        const val DRAFT_CONTENT = "content"
+
+        const val USER_ID1 = "jhon.doe1@ebi.ac.uk"
+        const val DRAFT_KEY1 = "key1"
+        const val DRAFT_CONTENT1 = "content1"
     }
 }

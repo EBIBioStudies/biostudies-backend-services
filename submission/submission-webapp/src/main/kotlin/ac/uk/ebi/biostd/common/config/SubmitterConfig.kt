@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.integration.SerializationConfig
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.persistence.common.service.PersistenceService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionDraftService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestService
@@ -43,6 +44,7 @@ class SubmitterConfig {
         requestService: SubmissionRequestService,
         submissionMetadataQueryService: SubmissionMetaQueryService,
         submissionQueryService: SubmissionQueryService,
+        submissionDraftService: SubmissionDraftService,
         applicationProperties: ApplicationProperties
     ) = SubmissionSubmitter(
         timesService,
@@ -52,6 +54,7 @@ class SubmitterConfig {
         requestService,
         submissionMetadataQueryService,
         submissionQueryService,
+        submissionDraftService,
         applicationProperties
     )
 
