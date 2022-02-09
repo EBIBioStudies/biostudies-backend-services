@@ -34,7 +34,7 @@ class EventsPublisherService(
     fun submissionFailed(request: FailedSubmissionRequestMessage) =
         rabbitTemplate.convertAndSend(BIOSTUDIES_EXCHANGE, SUBMISSIONS_FAILED_REQUEST_ROUTING_KEY, request)
 
-    private fun submissionMessage(submission: ExtSubmission) =
+    fun submissionMessage(submission: ExtSubmission) =
         SubmissionMessage(
             accNo = submission.accNo,
             pagetabUrl = "${eventsProperties.instanceBaseUrl}/submissions/${submission.accNo}.json",

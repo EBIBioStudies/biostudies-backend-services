@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.persistence.doc.service
 
-import ac.uk.ebi.biostd.persistence.common.exception.FileListNotFoundException
 import ac.uk.ebi.biostd.persistence.common.exception.SubmissionNotFoundException
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
@@ -10,7 +9,6 @@ import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbReposConfig
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
 import ac.uk.ebi.biostd.persistence.doc.model.DocAttribute
 import ac.uk.ebi.biostd.persistence.doc.model.DocFileList
-import ac.uk.ebi.biostd.persistence.doc.model.DocFileRef
 import ac.uk.ebi.biostd.persistence.doc.model.DocProcessingStatus.PROCESSED
 import ac.uk.ebi.biostd.persistence.doc.model.DocSection
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
@@ -122,9 +120,13 @@ internal class SubmissionMongoQueryServiceTest(
                 "test-md5",
                 1,
                 "file"
-            )
+            ),
+            fileListName = "test-file-list",
+            index = 1,
+            submissionVersion = docSubmission.version,
+            submissionAccNo = docSubmission.accNo
         )
-        private val fileList = DocFileList("test-file-list", listOf(DocFileRef(fileReference)))
+        private val fileList = DocFileList("test-file-list")
         private val submission =
             docSubmission.copy(section = DocSection(id = ObjectId(), type = "Study", fileList = fileList))
 
@@ -154,6 +156,7 @@ internal class SubmissionMongoQueryServiceTest(
             val innerSectionSubmission = docSubmission.copy(accNo = "S-REF1", section = rootSection)
 
             submissionRepo.save(innerSectionSubmission)
+            fileListDocFileRepository.save(fileListFile.copy(submissionAccNo = innerSectionSubmission.accNo))
 
             val files = testInstance.getReferencedFiles("S-REF1", "test-file-list")
             assertThat(files).hasSize(1)
@@ -161,14 +164,8 @@ internal class SubmissionMongoQueryServiceTest(
         }
 
         @Test
-        fun `non existing file list`() {
-            val exception = assertThrows<FileListNotFoundException> {
-                testInstance.getReferencedFiles(SUB_ACC_NO, "non-existing")
-            }
-
-            assertThat(exception.message).isEqualTo(
-                "The file list 'non-existing' could not be found in the submission '$SUB_ACC_NO'"
-            )
+        fun `non existing referenced files`() {
+            assertThat(testInstance.getReferencedFiles(SUB_ACC_NO, "non-existing-fileListName")).hasSize(0)
         }
     }
 

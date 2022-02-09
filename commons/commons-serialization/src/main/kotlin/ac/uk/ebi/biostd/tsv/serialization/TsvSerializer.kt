@@ -90,7 +90,6 @@ class TsvSerializer {
                 }
             }
         )
-
         table.rows.forEach { builder.addTableRow(it) }
     }
 }
