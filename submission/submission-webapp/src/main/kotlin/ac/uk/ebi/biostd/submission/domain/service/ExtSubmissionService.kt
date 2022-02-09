@@ -37,7 +37,7 @@ class ExtSubmissionService(
     private val submissionQueryService: SubmissionQueryService,
     private val userPrivilegesService: IUserPrivilegesService,
     private val securityQueryService: ISecurityQueryService,
-    private val extSerializationService: ExtSerializationService,
+    private val extSerializationService: ExtSerializationService
 ) {
     fun getExtendedSubmission(accNo: String): ExtSubmission = submissionQueryService.getExtByAccNo(accNo)
 
