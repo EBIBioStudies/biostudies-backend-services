@@ -43,7 +43,6 @@ const val CHANGE_LOG_COLLECTION = "submitter_mongockChangeLog"
 const val CHANGE_LOG_LOCK = "submitter_mongockLock"
 
 @Configuration
-@ConditionalOnProperty(prefix = "app.persistence", name = ["enableMongo"], havingValue = "true")
 @EnableMongoRepositories(
     basePackageClasses = [
         SubmissionMongoRepository::class,

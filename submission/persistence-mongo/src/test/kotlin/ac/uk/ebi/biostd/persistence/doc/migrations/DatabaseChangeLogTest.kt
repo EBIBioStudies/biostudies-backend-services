@@ -209,7 +209,6 @@ internal class DatabaseChangeLogTest(
         fun propertySource(register: DynamicPropertyRegistry) {
             register.add("spring.data.mongodb.uri") { mongoContainer.getReplicaSetUrl("biostudies-test") }
             register.add("spring.data.mongodb.database") { "biostudies-test" }
-            register.add("app.persistence.enableMongo") { "true" }
             register.add("app.mongo.execute-migrations") { "false" }
             register.add("app.mongo.migration-package") { "ac.uk.ebi.biostd.persistence.doc.migrations" }
         }
