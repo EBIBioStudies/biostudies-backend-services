@@ -70,7 +70,7 @@ internal class SubmissionRefreshApiTest(private val tempFolder: TemporaryFolder)
     @ExtendWith(SpringExtension::class)
     @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
     @DirtiesContext
-    inner class SubmissionRefreshApiTest(
+    inner class RefreshSubmissionTest(
         @Autowired val mongoTemplate: MongoTemplate,
         @Autowired val tagsRefRepository: TagDataRepository,
         @Autowired val securityTestService: SecurityTestService,
