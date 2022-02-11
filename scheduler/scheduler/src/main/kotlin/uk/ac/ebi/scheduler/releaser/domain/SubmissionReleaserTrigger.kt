@@ -72,6 +72,8 @@ class SubmissionReleaserTrigger(
     private fun getConfigProperties(mode: ReleaserMode, properties: SchedulerReleaserProps) =
         SubmissionReleaserProperties.create(
             mode,
+            properties.persistence.database,
+            properties.persistence.uri,
             properties.rabbitmq.host,
             properties.rabbitmq.user,
             properties.rabbitmq.password,

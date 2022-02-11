@@ -1,6 +1,7 @@
 package ac.uk.ebi.scheduler.properties
 
 import ac.uk.ebi.scheduler.common.BaseAppProperty
+import ac.uk.ebi.scheduler.common.JAVA_HOME
 import java.lang.StringBuilder
 
 private const val APP_NAME = "exporter-task-1.0.0.jar"
@@ -8,7 +9,7 @@ private const val APP_NAME = "exporter-task-1.0.0.jar"
 class ExporterProperties : BaseAppProperty {
     override fun asJavaCommand(location: String): String =
         StringBuilder().apply {
-            append("java -Dsun.jnu.encoding=UTF-8 -Xmx6g -jar $location/$APP_NAME \\\n")
+            append("$JAVA_HOME/bin/java -Dsun.jnu.encoding=UTF-8 -Xmx6g -jar $location/$APP_NAME \\\n")
             append("--app.fileName=$fileName \\\n")
             append("--app.outputPath=$outputPath \\\n")
             append("--app.bioStudies.url=$bioStudiesUrl \\\n")

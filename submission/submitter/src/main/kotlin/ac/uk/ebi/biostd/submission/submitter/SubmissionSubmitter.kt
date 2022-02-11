@@ -5,8 +5,9 @@ import ac.uk.ebi.biostd.persistence.common.request.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionDraftService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.submission.exceptions.InvalidSubmissionException
+import ac.uk.ebi.biostd.submission.model.ReleaseRequest
 import ac.uk.ebi.biostd.submission.model.SubmitRequest
 import ac.uk.ebi.biostd.submission.service.AccNoService
 import ac.uk.ebi.biostd.submission.service.AccNoServiceRequest
@@ -54,7 +55,7 @@ class SubmissionSubmitter(
     private val accNoService: AccNoService,
     private val parentInfoService: ParentInfoService,
     private val collectionInfoService: CollectionInfoService,
-    private val submissionRequestService: SubmissionRequestService,
+    private val submissionPersistenceService: SubmissionPersistenceService,
     private val queryService: SubmissionMetaQueryService,
     private val submissionQueryService: SubmissionQueryService,
     private val draftService: SubmissionDraftService,
@@ -73,11 +74,16 @@ class SubmissionSubmitter(
         val saveRequest = submissionQueryService.getPendingRequest(accNo, version)
         val submitter = saveRequest.submission.submitter
         logger.info { "$accNo, $submitter Processing request for submission accNo='$accNo', version='$version'" }
-        return submissionRequestService.processSubmissionRequest(saveRequest)
+        return submissionPersistenceService.processSubmissionRequest(saveRequest)
+    }
+
+    fun release(request: ReleaseRequest) {
+        val (accNo, owner, relPath) = request
+        submissionPersistenceService.releaseSubmission(accNo, owner, relPath)
     }
 
     private fun saveRequest(request: SubmissionRequest, owner: String): Pair<String, Int> {
-        val saved = submissionRequestService.saveSubmissionRequest(request)
+        val saved = submissionPersistenceService.saveSubmissionRequest(request)
         request.draftKey?.let { draftService.setProcessingStatus(owner, it) }
         return saved
     }
