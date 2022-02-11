@@ -6,39 +6,44 @@ import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
-import ac.uk.ebi.biostd.itest.test.submission.refresh.SubmissionRefreshApiTestHelper.ACC_NO
-import ac.uk.ebi.biostd.itest.test.submission.refresh.SubmissionRefreshApiTestHelper.ATTR_NAME
-import ac.uk.ebi.biostd.itest.test.submission.refresh.SubmissionRefreshApiTestHelper.ATTR_VALUE
-import ac.uk.ebi.biostd.itest.test.submission.refresh.SubmissionRefreshApiTestHelper.NEW_ATTR_FILE_FILELIST
-import ac.uk.ebi.biostd.itest.test.submission.refresh.SubmissionRefreshApiTestHelper.NEW_ATTR_VALUE
-import ac.uk.ebi.biostd.itest.test.submission.refresh.SubmissionRefreshApiTestHelper.NEW_SUBTITLE
-import ac.uk.ebi.biostd.itest.test.submission.refresh.SubmissionRefreshApiTestHelper.SUBTITLE
-import ac.uk.ebi.biostd.itest.test.submission.refresh.SubmissionRefreshApiTestHelper.TEST_FILE_NAME
-import ac.uk.ebi.biostd.itest.test.submission.refresh.SubmissionRefreshApiTestHelper.assertExtSubmission
-import ac.uk.ebi.biostd.itest.test.submission.refresh.SubmissionRefreshApiTestHelper.testSubmission
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocAttributeFields.ATTRIBUTE_DETAIL_VALUE
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_DOC_ATTRIBUTES
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ATTRIBUTES
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_RELEASE_TIME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_TITLE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_VERSION
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_FILE
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_FILE_LIST_NAME
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_SUBMISSION_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.db.data.FileListDocFileDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbReposConfig
 import ac.uk.ebi.biostd.persistence.doc.model.DocAttribute
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
-import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
+import ac.uk.ebi.biostd.persistence.doc.service.ExtSubmissionRepository
 import ac.uk.ebi.biostd.persistence.model.DbSequence
 import ac.uk.ebi.biostd.persistence.model.DbTag
 import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.TagDataRepository
+import arrow.core.Either
+import ebi.ac.uk.dsl.attribute
+import ebi.ac.uk.dsl.file
+import ebi.ac.uk.dsl.section
+import ebi.ac.uk.dsl.submission
+import ebi.ac.uk.dsl.tsv.line
+import ebi.ac.uk.dsl.tsv.tsv
+import ebi.ac.uk.extended.model.ExtAttribute
+import ebi.ac.uk.extended.model.ExtFile
+import ebi.ac.uk.extended.model.ExtFileTable
+import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.extended.model.NfsFile
+import ebi.ac.uk.model.Attribute
+import ebi.ac.uk.model.File
+import ebi.ac.uk.model.FileList
+import ebi.ac.uk.model.extensions.releaseDate
+import ebi.ac.uk.model.extensions.rootPath
+import ebi.ac.uk.model.extensions.title
 import ebi.ac.uk.test.createFile
+import ebi.ac.uk.util.collections.ifLeft
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -55,6 +60,7 @@ import org.springframework.data.mongodb.core.query.Update.update
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.time.LocalDate
+import java.time.OffsetDateTime
 import java.time.ZoneOffset.UTC
 
 @ExtendWith(TemporaryFolderExtension::class)
@@ -70,7 +76,8 @@ internal class SubmissionRefreshApiTest(private val tempFolder: TemporaryFolder)
         @Autowired val securityTestService: SecurityTestService,
         @Autowired val sequenceRepository: SequenceDataRepository,
         @Autowired val submissionRepository: SubmissionQueryService,
-        @Autowired val fileListRepository: FileListDocFileDocDataRepository
+        @Autowired val fileListRepository: FileListDocFileDocDataRepository,
+        @Autowired val extSubmissionRepository: ExtSubmissionRepository
     ) {
         @LocalServerPort
         private var serverPort: Int = 0
@@ -92,14 +99,16 @@ internal class SubmissionRefreshApiTest(private val tempFolder: TemporaryFolder)
             @Test
             fun `refresh mongo submission release date and attributes`() {
                 updateMongoSubmission()
-                updateMongoFileList()
+                //updateMongoFileList()
                 webClient.refreshSubmission(ACC_NO)
                 assertRefreshedSubmission()
                 assertRefreshedFileList()
             }
 
             private fun assertRefreshedFileList() {
-                TODO("Not yet implemented")
+                val fileListDocFiles = fileListRepository.findAll()
+                assertThat(fileListDocFiles).hasSize(1)
+                assertThat(fileListDocFiles.first().file.attributes.first()).isEqualTo(DocAttribute("GEN", "DEFG"))
             }
 
             private fun updateMongoSubmission() {
@@ -111,15 +120,20 @@ internal class SubmissionRefreshApiTest(private val tempFolder: TemporaryFolder)
             }
 
             private fun updateMongoFileList() {
-                val query = Query(
-                    where(FILE_LIST_DOC_FILE_SUBMISSION_ACC_NO).`is`(ACC_NO)
-                        .andOperator(where(FILE_LIST_DOC_FILE_FILE_LIST_NAME).`is`("fileList.txt"))
+                val extSub = submissionRepository.getExtByAccNo(ACC_NO, true)
+
+                val newAttribute = ExtAttribute("GEN", "DEFG")
+                val section = extSub.section
+                val fileList = extSub.section.fileList!!
+                val file = extSub.section.fileList!!.files.first() as NfsFile
+
+                extSubmissionRepository.saveSubmission(
+                    extSub.copy(
+                        section = section.copy(
+                            fileList = fileList.copy(files = listOf(file.copy(attributes = listOf(newAttribute))))
+                        )
+                    ), null
                 )
-                val update = update(
-                    "$FILE_LIST_DOC_FILE_FILE.$FILE_DOC_ATTRIBUTES[0].$ATTRIBUTE_DETAIL_VALUE",
-                    NEW_ATTR_FILE_FILELIST
-                )
-                mongoTemplate.updateFirst(query, update, FileListDocFile::class.java)
             }
         }
 
@@ -135,7 +149,14 @@ internal class SubmissionRefreshApiTest(private val tempFolder: TemporaryFolder)
 
         private fun setUpTestSubmission() {
             val refreshFile = tempFolder.createFile(TEST_FILE_NAME, "file content")
-            webClient.submitSingle(testSubmission, TSV, listOf(refreshFile))
+            val fileList = tempFolder.createFile("$FILE_LIST_NAME.pagetab.tsv", tsv {
+                line("Files", "GEN")
+                line("$FILE_LIST_FILE_NAME.txt", "ABC")
+            }.toString())
+
+            val fileListFile = tempFolder.createFile("$FILE_LIST_FILE_NAME.txt", "content fileList file")
+
+            webClient.submitSingle(testSubmission, TSV, listOf(refreshFile, fileList, fileListFile))
 
             assertExtSubmission(
                 extSubmission = submissionRepository.getExtByAccNo(ACC_NO),
@@ -143,6 +164,10 @@ internal class SubmissionRefreshApiTest(private val tempFolder: TemporaryFolder)
                 releaseTime = releaseDate,
                 attributes = listOf(ATTR_NAME to ATTR_VALUE)
             )
+
+            val fileListDocFiles = fileListRepository.findAll()
+            assertThat(fileListDocFiles).hasSize(1)
+            assertThat(fileListDocFiles.first().file.attributes.first()).isEqualTo(DocAttribute("GEN", "ABC"))
         }
 
         private fun assertRefreshedSubmission() =
@@ -152,5 +177,71 @@ internal class SubmissionRefreshApiTest(private val tempFolder: TemporaryFolder)
                 releaseTime = newReleaseDate,
                 attributes = listOf(ATTR_NAME to NEW_ATTR_VALUE)
             )
+    }
+
+    private companion object {
+        const val ROOT_PATH = "test-RootPath"
+        const val RELEASE_DATE_STRING = "2017-07-04"
+
+        const val ACC_NO = "SimpleAcc1"
+        const val SUBTITLE = "Simple Submission"
+        const val ATTR_NAME = "custom-attribute"
+        const val ATTR_VALUE = "custom-attribute-value"
+        const val NEW_SUBTITLE = "Simple Submission"
+        const val NEW_ATTR_VALUE = "custom-attribute-new-value"
+        const val NEW_ATTR_FILE_FILELIST = "new-attribute-value"
+        const val TEST_FILE_NAME = "refresh-file.txt"
+        const val FILE_LIST_NAME = "fileListName"
+        const val FILE_LIST_FILE_NAME = "fileListFileName"
+
+        val testSubmission = submission(ACC_NO) {
+            title = SUBTITLE
+            releaseDate = RELEASE_DATE_STRING
+            rootPath = ROOT_PATH
+            attribute(ATTR_NAME, ATTR_VALUE)
+
+            section("Study") {
+                file("refresh-file.txt") {
+                    attribute("type", "regular")
+                }
+
+                file("refresh-file.txt") {
+                    attribute("type", "duplicated")
+                }
+
+                fileList = FileList(
+                    FILE_LIST_NAME,
+                    listOf(File("$FILE_LIST_FILE_NAME.txt", attributes = listOf(Attribute("GEN", "ABC"))))
+                )
+            }
+        }
+
+        fun assertExtSubmission(
+            extSubmission: ExtSubmission,
+            title: String,
+            releaseTime: OffsetDateTime,
+            attributes: List<Pair<String, String>>
+        ) {
+            assertThat(extSubmission.title).isEqualTo(title)
+            assertThat(extSubmission.releaseTime).isEqualTo(releaseTime)
+            assertThat(extSubmission.rootPath).isEqualTo(ROOT_PATH)
+            assertThat(extSubmission.attributes.map { it.name to it.value }).containsExactlyElementsOf(attributes)
+
+            assertThat(extSubmission.section.type).isEqualTo("Study")
+            assertThat(extSubmission.section.files).hasSize(2)
+
+            assertFile(extSubmission.section.files.first(), "regular")
+            assertFile(extSubmission.section.files.last(), "duplicated")
+        }
+
+        private fun assertFile(file: Either<ExtFile, ExtFileTable>, type: String) {
+            assertThat(file.isLeft()).isTrue
+            file.ifLeft {
+                assertThat(it.fileName).isEqualTo(TEST_FILE_NAME)
+                assertThat(it.attributes).hasSize(1)
+                assertThat(it.attributes.first().name).isEqualTo("type")
+                assertThat(it.attributes.first().value).isEqualTo(type)
+            }
+        }
     }
 }
