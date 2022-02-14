@@ -10,13 +10,21 @@ data class DocSubmissionDraft(
     val id: String,
     val userId: String,
     val key: String,
-    val content: String
+    val content: String,
+    val status: DraftStatus
 ) {
-    constructor(userId: String, key: String, content: String) : this(ObjectId().toString(), userId, key, content)
+    constructor(userId: String, key: String, content: String, status: DraftStatus) :
+        this(ObjectId().toString(), userId, key, content, status)
 
     companion object {
         const val USER_ID = "userId"
         const val KEY = "key"
         const val CONTENT = "content"
+        const val STATUS = "status"
+    }
+
+    enum class DraftStatus {
+        ACTIVE,
+        PROCESSING
     }
 }

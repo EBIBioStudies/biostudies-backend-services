@@ -10,7 +10,6 @@ import ac.uk.ebi.biostd.persistence.doc.db.repositories.FileListDocFileRepositor
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionDraftRepository
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionMongoRepository
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionRequestRepository
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
@@ -18,7 +17,6 @@ import org.springframework.data.mongodb.core.MongoTemplate
 
 @Configuration
 @Import(MongoDbConfig::class)
-@ConditionalOnProperty(prefix = "app.persistence", name = ["enableMongo"], havingValue = "true")
 class MongoDbReposConfig {
     @Bean
     internal fun submissionDocDataRepository(
