@@ -79,11 +79,9 @@ app:
       beta: # Instance key for the submission tool BETA environment
       prod: # Instance key for the submission tool PROD environment
   persistence:
-    enableMongo: true
     enableFire: true
   mongo:
     execute-migrations: true
     migration-package: ac.uk.ebi.biostd.persistence.doc.migrations
   validator:
     euToxRiskValidationApi: # EU-ToxRisk validation API
-

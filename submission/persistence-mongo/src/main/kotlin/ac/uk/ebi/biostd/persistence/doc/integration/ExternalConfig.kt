@@ -10,7 +10,6 @@ import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
 import ac.uk.ebi.biostd.persistence.doc.service.ExtSubmissionRepository
 import ac.uk.ebi.biostd.persistence.doc.service.SubmissionMongoPersistenceService
 import ac.uk.ebi.biostd.persistence.filesystem.service.FileSystemService
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
@@ -19,7 +18,6 @@ import kotlin.io.path.Path
 
 @Configuration
 @Import(MongoDbServicesConfig::class)
-@ConditionalOnProperty(prefix = "app.persistence", name = ["enableMongo"], havingValue = "true")
 class ExternalConfig {
     @Bean
     @Suppress("LongParameterList")

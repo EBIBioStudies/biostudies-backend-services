@@ -41,5 +41,3 @@ app:
     magicDirPath: # Absolute path to the folder to be used for the user/groups magic folders links
     environment: LOCAL
     requireActivation: false
-  persistence:
-    enableMongo: false
