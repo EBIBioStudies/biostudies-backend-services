@@ -9,17 +9,25 @@ import uk.ac.ebi.events.config.EventsProperties
 import uk.ac.ebi.events.config.EventsPublisherConfig
 import uk.ac.ebi.events.service.EventsPublisherService
 import uk.ac.ebi.scheduler.releaser.SubmissionReleaserExecutor
+import uk.ac.ebi.scheduler.releaser.persistence.ReleaserRepository
 import uk.ac.ebi.scheduler.releaser.service.SubmissionReleaserService
 
 @Configuration
-class ApplicationConfig {
+class ApplicationConfig(
+    private val releaserRepository: ReleaserRepository
+) {
     @Bean
     fun submissionReleaserService(
         bioWebClient: BioWebClient,
         appProperties: ApplicationProperties,
         eventsPublisherService: EventsPublisherService
     ): SubmissionReleaserService =
-        SubmissionReleaserService(bioWebClient, appProperties.notificationTimes, eventsPublisherService)
+        SubmissionReleaserService(
+            bioWebClient,
+            appProperties.notificationTimes,
+            releaserRepository,
+            eventsPublisherService
+        )
 
     @Bean
     fun submissionReleaserExecutor(

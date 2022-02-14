@@ -9,7 +9,7 @@ import ac.uk.ebi.biostd.persistence.common.service.PersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionDraftService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.submission.service.AccNoService
 import ac.uk.ebi.biostd.submission.service.CollectionInfoService
 import ac.uk.ebi.biostd.submission.service.ParentInfoService
@@ -41,7 +41,7 @@ class SubmitterConfig {
         accNoService: AccNoService,
         parentInfoService: ParentInfoService,
         collectionInfoService: CollectionInfoService,
-        requestService: SubmissionRequestService,
+        persistenceService: SubmissionPersistenceService,
         submissionMetadataQueryService: SubmissionMetaQueryService,
         submissionQueryService: SubmissionQueryService,
         submissionDraftService: SubmissionDraftService,
@@ -51,7 +51,7 @@ class SubmitterConfig {
         accNoService,
         parentInfoService,
         collectionInfoService,
-        requestService,
+        persistenceService,
         submissionMetadataQueryService,
         submissionQueryService,
         submissionDraftService,

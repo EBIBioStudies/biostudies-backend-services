@@ -53,14 +53,14 @@ class ExtSubmissionService(
 
     fun refreshSubmission(accNo: String, user: String): ExtSubmission {
         val submission = submissionQueryService.getExtByAccNo(accNo)
-        val submissionRefreshed = submitExt(user, submission, emptyList(), MOVE)
+        val refreshedSubmission = submitExt(user, submission, emptyList(), MOVE)
         rabbitTemplate.convertAndSend(
             BIOSTUDIES_EXCHANGE,
             SUBMISSIONS_PARTIAL_UPDATE_ROUTING_KEY,
-            eventsPublisherService.submissionMessage(submissionRefreshed)
+            eventsPublisherService.submissionMessage(refreshedSubmission.accNo, refreshedSubmission.owner)
         )
 
-        return submissionRefreshed
+        return refreshedSubmission
     }
 
     fun reTriggerSubmission(accNo: String, version: Int): ExtSubmission {

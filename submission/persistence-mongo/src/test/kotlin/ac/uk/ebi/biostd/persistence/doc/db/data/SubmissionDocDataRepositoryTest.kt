@@ -61,6 +61,17 @@ internal class SubmissionDocDataRepositoryTest {
     }
 
     @Nested
+    inner class ReleaseSubmission {
+        @Test
+        fun `release submission`() {
+            testInstance.save(testDocSubmission.copy(accNo = "S-BIAD1", version = 1, released = false))
+            testInstance.release("S-BIAD1")
+
+            assertThat(testInstance.getByAccNo(accNo = "S-BIAD1").released).isTrue
+        }
+    }
+
+    @Nested
     inner class ExpireSubmissions {
         @Test
         fun `expire active processed versions`() {

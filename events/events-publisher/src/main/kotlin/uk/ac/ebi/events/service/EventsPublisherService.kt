@@ -23,23 +23,23 @@ class EventsPublisherService(
 
     fun submissionSubmitted(submission: ExtSubmission) =
         rabbitTemplate.convertAndSend(
-            BIOSTUDIES_EXCHANGE, SUBMISSIONS_ROUTING_KEY, submissionMessage(submission)
+            BIOSTUDIES_EXCHANGE, SUBMISSIONS_ROUTING_KEY, submissionMessage(submission.accNo, submission.owner)
         )
 
-    fun submissionReleased(submission: ExtSubmission) =
+    fun submissionReleased(accNo: String, owner: String) =
         rabbitTemplate.convertAndSend(
-            BIOSTUDIES_EXCHANGE, SUBMISSIONS_RELEASE_ROUTING_KEY, submissionMessage(submission)
+            BIOSTUDIES_EXCHANGE, SUBMISSIONS_RELEASE_ROUTING_KEY, submissionMessage(accNo, owner)
         )
 
     fun submissionFailed(request: FailedSubmissionRequestMessage) =
         rabbitTemplate.convertAndSend(BIOSTUDIES_EXCHANGE, SUBMISSIONS_FAILED_REQUEST_ROUTING_KEY, request)
 
-    fun submissionMessage(submission: ExtSubmission) =
+    fun submissionMessage(accNo: String, owner: String) =
         SubmissionMessage(
-            accNo = submission.accNo,
-            pagetabUrl = "${eventsProperties.instanceBaseUrl}/submissions/${submission.accNo}.json",
-            extTabUrl = "${eventsProperties.instanceBaseUrl}/submissions/extended/${submission.accNo}",
-            extUserUrl = "${eventsProperties.instanceBaseUrl}/security/users/extended/${submission.submitter}",
+            accNo = accNo,
+            pagetabUrl = "${eventsProperties.instanceBaseUrl}/submissions/$accNo.json",
+            extTabUrl = "${eventsProperties.instanceBaseUrl}/submissions/extended/$accNo",
+            extUserUrl = "${eventsProperties.instanceBaseUrl}/security/users/extended/$owner",
             eventTime = OffsetDateTime.now().asIsoTime()
         )
 }
