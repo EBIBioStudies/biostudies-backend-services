@@ -8,7 +8,6 @@ import ebi.ac.uk.model.constants.OtherFields.TABLE
 import org.w3c.dom.Node
 
 abstract class BaseXmlDeserializer<T : Any> {
-
     abstract fun deserialize(node: Node): T
 
     fun deserializeList(node: Node?): List<T> = node?.getSubNodes()?.mapTo(mutableListOf(), ::deserialize).orEmpty()
@@ -18,14 +17,14 @@ abstract class BaseXmlDeserializer<T : Any> {
     fun <B : Table<T>> deserializeTableList(node: Node?, leftTag: String, tableBuilder: (List<T>) -> B) =
         node?.getSubNodes().orEmpty().mapTo(mutableListOf()) { deserializeTable(it, leftTag, tableBuilder) }
 
-    protected fun <B : Table<T>> deserializeTable(node: Node, leftTag: String, tableBuilder: (List<T>) -> B):
-        Either<T, B> {
-
-        return when (node.nodeName) {
-            leftTag -> Either.left(deserialize(node))
-            TABLE.value -> Either.right(tableBuilder(deserializeList(node)))
-            else -> error({ errorMessage(node, leftTag) })
-        }
+    protected fun <B : Table<T>> deserializeTable(
+        node: Node,
+        leftTag: String,
+        tableBuilder: (List<T>) -> B
+    ): Either<T, B> = when (node.nodeName) {
+        leftTag -> Either.left(deserialize(node))
+        TABLE.value -> Either.right(tableBuilder(deserializeList(node)))
+        else -> error({ errorMessage(node, leftTag) })
     }
 
     private fun errorMessage(node: Node, leftTag: String) =
