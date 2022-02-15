@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.persistence.doc.db.repositories
 
+import ac.uk.ebi.biostd.persistence.common.exception.SubmissionNotFoundException
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft
@@ -17,9 +18,6 @@ interface SubmissionMongoRepository : MongoRepository<DocSubmission, ObjectId> {
     @Query("{ 'accNo': '?0', 'version': { \$gte: 0 } }")
     fun findByAccNo(accNo: String): DocSubmission?
 
-    @Query("{ 'accNo': '?0', 'version': { \$gte: 0 } }")
-    fun getByAccNo(accNo: String): DocSubmission
-
     fun existsByAccNo(accNo: String): Boolean
 
     fun getByAccNoAndVersion(accNo: String, version: Int): DocSubmission
@@ -36,10 +34,9 @@ interface SubmissionMongoRepository : MongoRepository<DocSubmission, ObjectId> {
 
     @Query("{ 'stats.name': { \$eq: '?0' } }")
     fun findAllByStatType(statType: SubmissionStatType, pageable: Pageable): Page<DocSubmission>
-
-    @Query("{ 'accNo': '?0' }")
-    fun getAllSubmissionsByAccNo(accNo: String): List<DocSubmission>
 }
+
+fun SubmissionMongoRepository.getByAccNo(accNo: String) = findByAccNo(accNo) ?: throw SubmissionNotFoundException(accNo)
 
 interface SubmissionRequestRepository : MongoRepository<DocSubmissionRequest, String> {
     fun getByAccNoAndVersionAndStatus(
@@ -71,6 +68,12 @@ interface FileListDocFileRepository : MongoRepository<FileListDocFile, ObjectId>
     fun findAllBySubmissionId(submissionId: ObjectId): List<FileListDocFile>
 
     fun findAllBySubmissionAccNoAndSubmissionVersionGreaterThanAndFileListName(
+        accNo: String,
+        version: Int,
+        fileListName: String
+    ): List<FileListDocFile>
+
+    fun findAllBySubmissionAccNoAndSubmissionVersionAndFileListName(
         accNo: String,
         version: Int,
         fileListName: String

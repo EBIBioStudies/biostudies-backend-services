@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.persistence.doc.db.data
 
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
+import ac.uk.ebi.biostd.persistence.doc.db.repositories.getByAccNo
 import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbReposConfig
 import ac.uk.ebi.biostd.persistence.doc.model.DocProcessingStatus.PROCESSED
 import ac.uk.ebi.biostd.persistence.doc.model.DocProcessingStatus.PROCESSING

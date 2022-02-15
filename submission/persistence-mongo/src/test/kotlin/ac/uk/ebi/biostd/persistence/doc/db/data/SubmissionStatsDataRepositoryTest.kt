@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.persistence.doc.db.data
 
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType.VIEWS
+import ac.uk.ebi.biostd.persistence.doc.db.repositories.getByAccNo
 import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbReposConfig
 import ac.uk.ebi.biostd.persistence.doc.model.SingleSubmissionStat
 import ac.uk.ebi.biostd.persistence.doc.test.doc.STAT_VALUE

@@ -2,8 +2,6 @@ package ac.uk.ebi.biostd.persistence.doc.mapping.to
 
 import ac.uk.ebi.biostd.persistence.doc.model.DocFileTable
 import ac.uk.ebi.biostd.persistence.doc.test.FileTestHelper.assertExtFile
-import ac.uk.ebi.biostd.persistence.doc.test.FileTestHelper.assertExtFileList
-import ac.uk.ebi.biostd.persistence.doc.test.FileTestHelper.docFileList
 import ac.uk.ebi.biostd.persistence.doc.test.FileTestHelper.fireDocDirectory
 import ac.uk.ebi.biostd.persistence.doc.test.FileTestHelper.fireDocFile
 import ac.uk.ebi.biostd.persistence.doc.test.FileTestHelper.nfsDocFile
@@ -73,10 +71,5 @@ class ToExtFileTest(temporaryFolder: TemporaryFolder) {
             assertExtFile(it.files.first(), testFile)
             assertExtFile(it.files.second(), testFile)
         }
-    }
-
-    @Test
-    fun `to ext file list`() {
-        assertExtFileList(docFileList.toExtFileList())
     }
 }

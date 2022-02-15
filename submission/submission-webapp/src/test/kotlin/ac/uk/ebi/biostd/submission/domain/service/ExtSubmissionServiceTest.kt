@@ -18,7 +18,6 @@ import ebi.ac.uk.extended.model.PROJECT_TYPE
 import ebi.ac.uk.security.integration.components.ISecurityQueryService
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import ebi.ac.uk.test.basicExtSubmission
-import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -40,9 +39,8 @@ import uk.ac.ebi.events.config.SUBMISSIONS_REQUEST_ROUTING_KEY
 import uk.ac.ebi.events.service.EventsPublisherService
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 
-@ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
+@ExtendWith(MockKExtension::class)
 class ExtSubmissionServiceTest(
-//    private val tempFolder: TemporaryFolder,
     @MockK private val rabbitTemplate: RabbitTemplate,
     @MockK private val submissionSubmitter: SubmissionSubmitter,
     @MockK private val submissionRepository: SubmissionQueryService,
@@ -93,10 +91,7 @@ class ExtSubmissionServiceTest(
         )
 
         val pageable = Pageable.unpaged()
-        val result1 = Result.success(extSubmission)
-        val result2 = Result.failure<ExtSubmission>(Exception())
-        val results = mutableListOf(result1, result2)
-        val page = PageImpl(results, pageable, 2L)
+        val page = PageImpl(mutableListOf(extSubmission), pageable, 2L)
 
         every { submissionRepository.getExtendedSubmissions(capture(filter)) } returns page
 
@@ -167,6 +162,7 @@ class ExtSubmissionServiceTest(
         val submissionRequestSlot = slot<SubmissionRequest>()
         val subMsg = SubmissionMessage(extSubmission.accNo, "pageTabUrl", "extUrl", "extUserUrl", "time")
 
+        every { submissionRepository.getExtByAccNo("S-TEST123", true) } returns extSubmission
         every { eventsPublisherService.submissionMessage(extSubmission.accNo, extSubmission.owner) } returns subMsg
         every { submissionSubmitter.processRequest(extSubmission.accNo, 1) } returns extSubmission
         every { submissionSubmitter.submitAsync(capture(submissionRequestSlot)) } returns (extSubmission.accNo to 1)

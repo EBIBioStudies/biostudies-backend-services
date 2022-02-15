@@ -38,13 +38,13 @@ import java.time.Duration
 class ExtSubmissionRepositoryTest(
     @Autowired private val subDataRepository: SubmissionDocDataRepository,
     @Autowired private val draftDocDataRepository: SubmissionDraftDocDataRepository,
-    @Autowired private val fileListDocFileRepository: FileListDocFileRepository,
+    @Autowired private val fileListDocFileRepository: FileListDocFileRepository
 ) {
     private val testInstance = ExtSubmissionRepository(
         subDataRepository,
         draftDocDataRepository,
         fileListDocFileRepository,
-        ToExtSubmissionMapper()
+        ToExtSubmissionMapper(fileListDocFileRepository)
     )
 
     @BeforeEach
