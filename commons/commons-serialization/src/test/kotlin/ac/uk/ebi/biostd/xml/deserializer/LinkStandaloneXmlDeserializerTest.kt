@@ -7,7 +7,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.redundent.kotlin.xml.xml
 
-class LinkXmlDeserializerTest {
+class LinkStandaloneXmlDeserializerTest {
     private val testInstance = XmlSerializer.mapper
 
     @Test

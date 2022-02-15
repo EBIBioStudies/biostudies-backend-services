@@ -6,7 +6,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.redundent.kotlin.xml.xml
 
-class SectionXmlDeserializerTest {
+class SectionStandaloneXmlDeserializerTest {
     private val testInstance = XmlSerializer.mapper
 
     @Test
@@ -15,7 +15,6 @@ class SectionXmlDeserializerTest {
             attribute("accno", "SECT-123")
             attribute("type", "Study")
         }.toString()
-
 
         val result = testInstance.readValue(xmlSection, Section::class.java)
         assertThat(result).isEqualTo(Section("Study", "SECT-123"))

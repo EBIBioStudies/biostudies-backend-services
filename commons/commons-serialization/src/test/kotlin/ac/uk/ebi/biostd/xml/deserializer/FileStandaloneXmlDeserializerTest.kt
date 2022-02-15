@@ -7,7 +7,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.redundent.kotlin.xml.xml
 
-class FileXmlDeserializerTest {
+class FileStandaloneXmlDeserializerTest {
     private val testInstance = XmlSerializer.mapper
 
     @Test
@@ -22,7 +22,6 @@ class FileXmlDeserializerTest {
             }
         }.toString()
 
-
         assertThat(testInstance.readValue(xmlFile, File::class.java)).isEqualTo(
             File("file1.txt", attributes = mutableListOf(Attribute("attr1", "attr 1 value")))
         )
@@ -33,7 +32,6 @@ class FileXmlDeserializerTest {
         val xmlFile = xml("file") {
             "path" { -"file1.txt" }
         }.toString()
-
 
         assertThat(testInstance.readValue(xmlFile, File::class.java)).isEqualTo(File("file1.txt"))
     }
