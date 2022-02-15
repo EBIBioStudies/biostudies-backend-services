@@ -14,6 +14,7 @@ import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FileMode
 import ebi.ac.uk.extended.model.FileMode.COPY
+import ebi.ac.uk.extended.model.FileMode.MOVE
 import ebi.ac.uk.extended.model.isCollection
 import ebi.ac.uk.security.integration.components.ISecurityQueryService
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
@@ -22,29 +23,49 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
 import uk.ac.ebi.events.config.BIOSTUDIES_EXCHANGE
+import uk.ac.ebi.events.config.SUBMISSIONS_PARTIAL_UPDATE_ROUTING_KEY
 import uk.ac.ebi.events.config.SUBMISSIONS_REQUEST_ROUTING_KEY
+import uk.ac.ebi.events.service.EventsPublisherService
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import java.io.File
 import java.time.OffsetDateTime
 
 private val logger = KotlinLogging.logger {}
-@Suppress("TooManyFunctions")
+
+@Suppress("TooManyFunctions", "LongParameterList")
 class ExtSubmissionService(
     private val rabbitTemplate: RabbitTemplate,
     private val submissionSubmitter: SubmissionSubmitter,
-    private val submissionRepository: SubmissionQueryService,
+    private val submissionQueryService: SubmissionQueryService,
     private val userPrivilegesService: IUserPrivilegesService,
     private val securityQueryService: ISecurityQueryService,
-    private val extSerializationService: ExtSerializationService
+    private val extSerializationService: ExtSerializationService,
+    private val eventsPublisherService: EventsPublisherService
 ) {
-    fun getExtendedSubmission(accNo: String): ExtSubmission = submissionRepository.getExtByAccNo(accNo)
+    fun getExtendedSubmission(accNo: String): ExtSubmission = submissionQueryService.getExtByAccNo(accNo)
 
-    fun findExtendedSubmission(accNo: String): ExtSubmission? = submissionRepository.findExtByAccNo(accNo)
+    fun findExtendedSubmission(accNo: String): ExtSubmission? = submissionQueryService.findExtByAccNo(accNo)
 
     fun getReferencedFiles(
         accNo: String,
         fileListName: String
-    ): ExtFileTable = ExtFileTable(submissionRepository.getReferencedFiles(accNo, fileListName))
+    ): ExtFileTable = ExtFileTable(submissionQueryService.getReferencedFiles(accNo, fileListName))
+
+    fun refreshSubmission(accNo: String, user: String): ExtSubmission {
+        val submission = submissionQueryService.getExtByAccNo(accNo, includeFileListFiles = true)
+        val refreshedSubmission = submitExt(user, submission, emptyList(), MOVE)
+        rabbitTemplate.convertAndSend(
+            BIOSTUDIES_EXCHANGE,
+            SUBMISSIONS_PARTIAL_UPDATE_ROUTING_KEY,
+            eventsPublisherService.submissionMessage(refreshedSubmission.accNo, refreshedSubmission.owner)
+        )
+
+        return refreshedSubmission
+    }
+
+    fun reTriggerSubmission(accNo: String, version: Int): ExtSubmission {
+        return submissionSubmitter.processRequest(accNo, version)
+    }
 
     fun submitExt(
         user: String,
@@ -53,7 +74,8 @@ class ExtSubmissionService(
         fileMode: FileMode = COPY
     ): ExtSubmission {
         val submission = processExtSubmission(user, extSubmission, fileListFiles)
-        return submissionSubmitter.submit(SubmissionRequest(submission, fileMode))
+        val (accNo, version) = submissionSubmitter.submitAsync(SubmissionRequest(submission, fileMode))
+        return submissionSubmitter.processRequest(accNo, version)
     }
 
     fun submitExtAsync(
@@ -81,13 +103,8 @@ class ExtSubmissionService(
             offset = request.offset
         )
 
-        val page = submissionRepository
-            .getExtendedSubmissions(filter)
-            .onEach { it.onFailure { logger.error { it.message ?: it.localizedMessage } } }
-            .map { it.getOrNull() }
-        val submissions = page.content.filterNotNull()
-
-        return PageImpl(submissions, page.pageable, page.totalElements)
+        val page = submissionQueryService.getExtendedSubmissions(filter)
+        return PageImpl(page.content, page.pageable, page.totalElements)
     }
 
     private fun processExtSubmission(
@@ -128,7 +145,7 @@ class ExtSubmissionService(
         throw UserNotFoundException(email)
     }
 
-    private fun validateCollection(accNo: String) = require(submissionRepository.existByAccNo(accNo)) {
+    private fun validateCollection(accNo: String) = require(submissionQueryService.existByAccNo(accNo)) {
         throw CollectionNotFoundException(accNo)
     }
 }

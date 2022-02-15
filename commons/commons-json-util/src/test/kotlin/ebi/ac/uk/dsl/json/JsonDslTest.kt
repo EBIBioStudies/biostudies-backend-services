@@ -71,6 +71,15 @@ class JsonDslTest {
         }
 
         @Test
+        fun `null object`() {
+            val obj = jsonObj {
+                "object" to null
+            }
+
+            assertThat(obj.toString()).isEqualTo("{\"object\": null}")
+        }
+
+        @Test
         fun `object with array`() {
             val obj = jsonObj {
                 "array" to jsonArray(1, 2, 3)

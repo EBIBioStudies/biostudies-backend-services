@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.persistence.doc.service
 
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionRequest
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
@@ -15,6 +15,9 @@ import ebi.ac.uk.extended.model.ExtProcessingStatus.REQUESTED
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FileMode
 import ebi.ac.uk.extended.model.allFileList
+import ebi.ac.uk.io.FileUtils
+import ebi.ac.uk.io.RWXRWX___
+import mu.KotlinLogging
 import org.bson.types.ObjectId
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.Properties
@@ -24,6 +27,8 @@ import kotlin.io.path.absolutePathString
 import kotlin.io.path.outputStream
 import kotlin.math.absoluteValue
 
+private val logger = KotlinLogging.logger {}
+
 @Suppress("LongParameterList")
 internal class SubmissionMongoPersistenceService(
     private val subDataRepository: SubmissionDocDataRepository,
@@ -32,8 +37,7 @@ internal class SubmissionMongoPersistenceService(
     private val systemService: FileSystemService,
     private val submissionRepository: ExtSubmissionRepository,
     private val fileListPath: Path,
-) : SubmissionRequestService {
-
+) : SubmissionPersistenceService {
     override fun saveSubmissionRequest(rqt: SubmissionRequest): Pair<String, Int> {
         val version = getNextVersion(rqt.submission.accNo)
         val extSubmission = rqt.submission.copy(version = version, status = REQUESTED)
@@ -50,7 +54,21 @@ internal class SubmissionMongoPersistenceService(
         val processingSubmission = processFiles(submission, fileMode)
         val savedSubmission = submissionRepository.saveSubmission(processingSubmission, draftKey)
         requestRepository.updateStatus(SubmissionRequestStatus.PROCESSED, submission.accNo, submission.version)
+
+        if (savedSubmission.released) {
+            releaseSubmission(savedSubmission.accNo, savedSubmission.owner, savedSubmission.relPath)
+        }
+
         return savedSubmission
+    }
+
+    override fun releaseSubmission(accNo: String, owner: String, relPath: String) {
+        logger.info { "$accNo $owner Releasing submission $accNo" }
+
+        subDataRepository.release(accNo)
+        systemService.releaseSubmissionFiles(accNo, owner, relPath)
+
+        logger.info { "$accNo $owner Finished releasing submission $accNo" }
     }
 
     /**
@@ -68,7 +86,7 @@ internal class SubmissionMongoPersistenceService(
 
     private fun asRequest(rqt: SubmissionRequest, submission: ExtSubmission): DocSubmissionRequest {
         val content = serializationService.serialize(submission, Properties(includeFileListFiles = false))
-        val fileLists = submission.allFileList.map { asRequestFileList(submission, it) }
+        val fileLists = getRequestFileList(submission)
         return DocSubmissionRequest(
             id = ObjectId(),
             accNo = submission.accNo,
@@ -81,10 +99,20 @@ internal class SubmissionMongoPersistenceService(
         )
     }
 
-    private fun asRequestFileList(sub: ExtSubmission, fileList: ExtFileList): RequestFileList {
-        val folderPath = fileListPath.resolve(sub.accNo).resolve(sub.version.toString())
-        val folder = Files.createDirectories(folderPath)
-        val file = Files.createFile(folder.resolve(fileList.fileName))
+    private fun getRequestFileList(sub: ExtSubmission): List<RequestFileList> {
+        val fileLists = sub.allFileList.distinctBy { it.filePath }
+        val baseFolder = getBaseFolder(sub)
+        return fileLists.map { asRequestFileList(baseFolder, it) }
+    }
+
+    private fun getBaseFolder(sub: ExtSubmission): Path {
+        val baseFolder = fileListPath.resolve(sub.accNo).resolve(sub.version.toString())
+        FileUtils.createEmptyFolder(baseFolder, RWXRWX___)
+        return baseFolder
+    }
+
+    private fun asRequestFileList(baseFolder: Path, fileList: ExtFileList): RequestFileList {
+        val file = Files.createFile(baseFolder.resolve(fileList.fileName))
         file.outputStream().use { serializationService.serialize(fileList.files.asSequence(), it) }
         return RequestFileList(fileName = fileList.fileName, filePath = file.absolutePathString())
     }

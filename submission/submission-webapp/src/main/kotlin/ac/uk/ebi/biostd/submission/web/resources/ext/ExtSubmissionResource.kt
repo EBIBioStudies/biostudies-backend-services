@@ -4,12 +4,12 @@ import ac.uk.ebi.biostd.files.web.common.FileListPath
 import ac.uk.ebi.biostd.submission.converters.BioUser
 import ac.uk.ebi.biostd.submission.domain.service.ExtSubmissionService
 import ac.uk.ebi.biostd.submission.domain.service.TempFileGenerator
-import ebi.ac.uk.extended.model.WebExtPage
 import ac.uk.ebi.biostd.submission.web.model.ExtPageRequest
 import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FileMode
 import ebi.ac.uk.extended.model.FileMode.COPY
+import ebi.ac.uk.extended.model.WebExtPage
 import ebi.ac.uk.model.constants.FILE_LISTS
 import ebi.ac.uk.model.constants.FILE_MODE
 import ebi.ac.uk.model.constants.SUBMISSION
@@ -41,6 +41,18 @@ class ExtSubmissionResource(
         @PathVariable accNo: String,
         fileListPath: FileListPath
     ): ExtFileTable = extSubmissionService.getReferencedFiles(accNo, fileListPath.path)
+
+    @PostMapping("/refresh/{accNo}")
+    fun refreshSubmission(
+        @BioUser user: SecurityUser,
+        @PathVariable accNo: String
+    ): ExtSubmission = extSubmissionService.refreshSubmission(accNo, user.email)
+
+    @PostMapping("/re-trigger/{accNo}/{version}")
+    fun reTriggerSubmission(
+        @PathVariable accNo: String,
+        @PathVariable version: Int
+    ): ExtSubmission = extSubmissionService.reTriggerSubmission(accNo, version)
 
     @PostMapping
     @PreAuthorize("isAuthenticated()")

@@ -16,14 +16,10 @@ class FireFtpService(
     private val fireWebClient: FireWebClient,
     private val submissionQueryService: SubmissionQueryService
 ) : FtpService {
-    override fun processSubmissionFiles(submission: ExtSubmission) {
-        val accNo = submission.accNo
-        val owner = submission.owner
-
+    override fun releaseSubmissionFiles(accNo: String, owner: String, relPath: String) {
         logger.info { "$accNo $owner Publishing files of submission $accNo over FIRE" }
 
-        cleanFtpFolder(submission.relPath)
-        if (submission.released) publishFiles(submission)
+        generateFtpLinks(accNo)
 
         logger.info { "$accNo $owner Finished publishing files of submission $accNo over FIRE" }
     }

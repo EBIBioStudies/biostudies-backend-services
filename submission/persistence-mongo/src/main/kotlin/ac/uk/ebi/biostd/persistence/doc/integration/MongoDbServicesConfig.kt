@@ -16,7 +16,6 @@ import ac.uk.ebi.biostd.persistence.doc.service.StatsMongoDataService
 import ac.uk.ebi.biostd.persistence.doc.service.SubmissionDraftMongoService
 import ac.uk.ebi.biostd.persistence.doc.service.SubmissionMongoMetaQueryService
 import ac.uk.ebi.biostd.persistence.doc.service.SubmissionMongoQueryService
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
@@ -24,7 +23,6 @@ import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 
 @Configuration
 @Import(MongoDbReposConfig::class)
-@ConditionalOnProperty(prefix = "app.persistence", name = ["enableMongo"], havingValue = "true")
 class MongoDbServicesConfig {
     @Bean
     internal fun submissionQueryService(
@@ -47,7 +45,9 @@ class MongoDbServicesConfig {
     ): CollectionDataService = CollectionMongoDataService(submissionDocDataRepository)
 
     @Bean
-    internal fun toExtSubmissionMapper(): ToExtSubmissionMapper = ToExtSubmissionMapper()
+    internal fun toExtSubmissionMapper(
+        fileListDocFileRepository: FileListDocFileRepository
+    ): ToExtSubmissionMapper = ToExtSubmissionMapper(fileListDocFileRepository)
 
     @Bean
     internal fun submissionDraftMongoService(

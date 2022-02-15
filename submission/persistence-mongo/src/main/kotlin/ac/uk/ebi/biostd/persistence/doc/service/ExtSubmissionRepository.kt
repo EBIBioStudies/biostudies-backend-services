@@ -24,7 +24,7 @@ class ExtSubmissionRepository(
         val docSubmission = save(submission.copy(status = ExtProcessingStatus.PROCESSING))
         updateCurrentRecords(docSubmission.accNo, docSubmission.owner, docSubmission.submitter, draftKey)
         subDataRepository.updateStatus(DocProcessingStatus.PROCESSED, docSubmission.accNo, docSubmission.version)
-        return toExtSubmissionMapper.toExtSubmission(docSubmission)
+        return toExtSubmissionMapper.toExtSubmission(docSubmission, false)
     }
 
     private fun updateCurrentRecords(accNo: String, owner: String, submitter: String, draftKey: String?) {

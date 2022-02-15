@@ -5,6 +5,15 @@ import org.apache.commons.lang3.BooleanUtils
 const val EMPTY = ""
 
 /**
+ * Transform the given string into null if it is nullable.
+ */
+fun String?.nullIfBlank(): String? = when {
+    this == null -> null
+    isBlank() -> null
+    else -> this
+}
+
+/**
  * Return true if the given String is NOT empty nor null other.
  */
 fun String?.isNotBlank() = !isNullOrEmpty()

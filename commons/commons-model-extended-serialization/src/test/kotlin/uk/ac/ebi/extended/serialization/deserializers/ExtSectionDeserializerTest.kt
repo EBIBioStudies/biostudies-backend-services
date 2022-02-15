@@ -1,5 +1,6 @@
 package uk.ac.ebi.extended.serialization.deserializers
 
+import com.fasterxml.jackson.module.kotlin.readValue
 import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.extended.model.ExtSection
@@ -13,7 +14,6 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
-import uk.ac.ebi.serialization.extensions.deserialize
 import kotlin.test.assertNotNull
 
 @ExtendWith(TemporaryFolderExtension::class)
@@ -27,7 +27,7 @@ class ExtSectionDeserializerTest(private val tempFolder: TemporaryFolder) {
             "extType" to "section"
         }.toString()
 
-        val extSection = testInstance.deserialize<ExtSection>(json)
+        val extSection = testInstance.readValue<ExtSection>(json)
         assertThat(extSection.accNo).isNull()
         assertThat(extSection.fileList).isNull()
         assertThat(extSection.files).isEmpty()
@@ -116,7 +116,7 @@ class ExtSectionDeserializerTest(private val tempFolder: TemporaryFolder) {
             "extType" to "section"
         }.toString()
 
-        val extSection = testInstance.deserialize<ExtSection>(json)
+        val extSection = testInstance.readValue<ExtSection>(json)
         assertThat(extSection.accNo).isEqualTo("SECT-001")
         assertThat(extSection.type).isEqualTo("Study")
         assertThat(extSection.attributes).hasSize(1)

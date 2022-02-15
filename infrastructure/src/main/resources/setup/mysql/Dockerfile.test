@@ -2,5 +2,4 @@ FROM mysql:5.7
 ADD Schema.sql /docker-entrypoint-initdb.d/databaseSetup01.sql
 ADD Users.sql /docker-entrypoint-initdb.d/databaseSetup02.sql
 ADD AccessTag.sql /docker-entrypoint-initdb.d/databaseSetup03.sql
-ADD Projects.sql /docker-entrypoint-initdb.d/databaseSetup04.sql
 ADD Sequence.sql /docker-entrypoint-initdb.d/databaseSetup05.sql

@@ -23,8 +23,9 @@ import org.testcontainers.containers.startupcheck.MinimumDurationRunningStartupC
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.utility.DockerImageName
-import uk.ac.ebi.extended.test.FireFileFactory.defaultFireFile
+import uk.ac.ebi.extended.test.FileListFactory.FILE_PATH
 import uk.ac.ebi.extended.test.FileListFactory.defaultFileList
+import uk.ac.ebi.extended.test.FireFileFactory.defaultFireFile
 import uk.ac.ebi.extended.test.SectionFactory.defaultSection
 import uk.ac.ebi.extended.test.SubmissionFactory.ACC_NO
 import uk.ac.ebi.extended.test.SubmissionFactory.OWNER
@@ -37,13 +38,13 @@ import java.time.Duration
 class ExtSubmissionRepositoryTest(
     @Autowired private val subDataRepository: SubmissionDocDataRepository,
     @Autowired private val draftDocDataRepository: SubmissionDraftDocDataRepository,
-    @Autowired private val fileListDocFileRepository: FileListDocFileRepository,
+    @Autowired private val fileListDocFileRepository: FileListDocFileRepository
 ) {
     private val testInstance = ExtSubmissionRepository(
         subDataRepository,
         draftDocDataRepository,
         fileListDocFileRepository,
-        ToExtSubmissionMapper()
+        ToExtSubmissionMapper(fileListDocFileRepository)
     )
 
     @BeforeEach
@@ -79,9 +80,12 @@ class ExtSubmissionRepositoryTest(
         val fileListDocFiles = fileListDocFileRepository.findAll()
         assertThat(fileListDocFiles).hasSize(1)
         val fileListDocFile = fileListDocFiles.first()
-        assertThat(fileListDocFile.id).isEqualTo(savedSubmission.section.fileList?.files?.first()?.fileId)
-        assertThat(fileListDocFile.submissionId).isEqualTo(savedSubmission.id)
         assertThat(fileListDocFile.file).isEqualTo(defaultFireFile().toDocFile())
+        assertThat(fileListDocFile.submissionId).isEqualTo(savedSubmission.id)
+        assertThat(fileListDocFile.fileListName).isEqualTo(FILE_PATH.substringAfterLast("/"))
+        assertThat(fileListDocFile.index).isEqualTo(0)
+        assertThat(fileListDocFile.submissionVersion).isEqualTo(savedSubmission.version)
+        assertThat(fileListDocFile.submissionAccNo).isEqualTo(submission.accNo)
 
         assertThat(draftDocDataRepository.findAll()).hasSize(0)
     }
@@ -96,7 +100,6 @@ class ExtSubmissionRepositoryTest(
         fun propertySource(register: DynamicPropertyRegistry) {
             register.add("spring.data.mongodb.uri") { mongoContainer.getReplicaSetUrl("biostudies-test") }
             register.add("spring.data.mongodb.database") { "biostudies-test" }
-            register.add("app.persistence.enableMongo") { "true" }
         }
     }
 }

@@ -9,7 +9,9 @@ import ac.uk.ebi.biostd.persistence.common.model.BasicSubmission
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotDelete
+import ac.uk.ebi.biostd.submission.exceptions.UserCanNotRelease
 import ac.uk.ebi.biostd.submission.ext.getSimpleByAccNo
+import ac.uk.ebi.biostd.submission.model.ReleaseRequest
 import ac.uk.ebi.biostd.submission.model.SubmitRequest
 import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
 import ebi.ac.uk.extended.events.FailedSubmissionRequestMessage
@@ -35,7 +37,10 @@ class SubmissionService(
     private val eventsPublisherService: EventsPublisherService,
     private val rabbitTemplate: RabbitTemplate
 ) {
-    fun submit(rqt: SubmitRequest): ExtSubmission = submissionSubmitter.submit(rqt)
+    fun submit(rqt: SubmitRequest): ExtSubmission {
+        val (accNo, version) = submissionSubmitter.submitAsync(rqt)
+        return processSubmission(accNo, version)
+    }
 
     fun submitAsync(rqt: SubmitRequest) {
         logger.info { "${rqt.accNo} ${rqt.owner} Received async submit request for submission ${rqt.accNo}" }
@@ -52,15 +57,19 @@ class SubmissionService(
     fun processSubmission(request: SubmissionRequestMessage) {
         val (accNo, version) = request
         logger.info { "$accNo, Received process message for submission $accNo, version: $version" }
+        runCatching { processSubmission(accNo, version) }.onFailure { onError(it, accNo, version) }
+    }
 
-        runCatching {
-            val processed = submissionSubmitter.processRequest(accNo, version)
-            eventsPublisherService.submissionSubmitted(processed)
-        }.onFailure {
-            val message = FailedSubmissionRequestMessage(accNo, version)
-            logger.error(it) { "$accNo, Problem processing submission request '$accNo': ${it.message}" }
-            eventsPublisherService.submissionFailed(message)
-        }
+    private fun processSubmission(accNo: String, version: Int): ExtSubmission {
+        val processed = submissionSubmitter.processRequest(accNo, version)
+        eventsPublisherService.submissionSubmitted(processed)
+        return processed
+    }
+
+    private fun onError(exception: Throwable, accNo: String, version: Int) {
+        val message = FailedSubmissionRequestMessage(accNo, version)
+        logger.error(exception) { "$accNo, Problem processing submission request '$accNo': ${exception.message}" }
+        eventsPublisherService.submissionFailed(message)
     }
 
     fun getSubmissionAsJson(accNo: String): String =
@@ -87,5 +96,8 @@ class SubmissionService(
         submissionQueryService.expireSubmissions(submissions)
     }
 
-    fun getSubmission(accNo: String): ExtSubmission = submissionQueryService.getExtByAccNo(accNo)
+    fun releaseSubmission(request: ReleaseRequest, user: SecurityUser) {
+        require(userPrivilegesService.canRelease(user.email)) { throw UserCanNotRelease(request.accNo, user.email) }
+        submissionSubmitter.release(request)
+    }
 }

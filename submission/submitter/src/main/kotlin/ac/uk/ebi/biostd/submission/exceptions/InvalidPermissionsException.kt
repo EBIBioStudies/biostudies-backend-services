@@ -27,3 +27,8 @@ class UserCanNotDelete(
     accNo: String,
     user: String
 ) : InvalidPermissionsException("The user {$user} is not allowed to delete the submission $accNo")
+
+class UserCanNotRelease(
+    accNo: String,
+    user: String
+) : InvalidPermissionsException("The user {$user} is not allowed to release the submission $accNo")

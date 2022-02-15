@@ -25,7 +25,7 @@ internal class ToExtFileListTest(
     @Test
     fun toExtFileList() {
         mockkStatic(TO_EXT_FILE_EXTENSIONS) {
-            every { file.toExtFile(fileSource) } returns extFile
+            every { file.toExtFile(fileSource, false) } returns extFile
             every { fileSource.getFile(fileList.name) } returns systemFile
 
             val extFileList = fileList.toExtFileList(fileSource)

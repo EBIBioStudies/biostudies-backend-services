@@ -4,7 +4,6 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.from.DocAttributeConverter
 import ac.uk.ebi.biostd.persistence.doc.db.converters.from.DocFileConverter
 import ac.uk.ebi.biostd.persistence.doc.db.converters.from.DocFileListConverter
 import ac.uk.ebi.biostd.persistence.doc.db.converters.from.DocFileListDocFileConverter
-import ac.uk.ebi.biostd.persistence.doc.db.converters.from.DocFileRefConverter
 import ac.uk.ebi.biostd.persistence.doc.db.converters.from.DocFileTableConverter
 import ac.uk.ebi.biostd.persistence.doc.db.converters.from.DocLinkConverter
 import ac.uk.ebi.biostd.persistence.doc.db.converters.from.DocLinkTableConverter
@@ -14,13 +13,13 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.to.AttributeConverter
 import ac.uk.ebi.biostd.persistence.doc.db.converters.to.FileConverter
 import ac.uk.ebi.biostd.persistence.doc.db.converters.to.FileListConverter
 import ac.uk.ebi.biostd.persistence.doc.db.converters.to.FileListDocFileConverter
-import ac.uk.ebi.biostd.persistence.doc.db.converters.to.FileRefConverter
 import ac.uk.ebi.biostd.persistence.doc.db.converters.to.FileTableConverter
 import ac.uk.ebi.biostd.persistence.doc.db.converters.to.LinkConverter
 import ac.uk.ebi.biostd.persistence.doc.db.converters.to.LinkTableConverter
 import ac.uk.ebi.biostd.persistence.doc.db.converters.to.SectionConverter
 import ac.uk.ebi.biostd.persistence.doc.db.converters.to.SubmissionConverter
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionMongoRepository
+import ac.uk.ebi.biostd.persistence.doc.migrations.CHANGE_LOG_CLASSES
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
 import com.github.cloudyrock.mongock.driver.mongodb.springdata.v3.SpringDataMongoV3Driver
@@ -45,7 +44,6 @@ const val CHANGE_LOG_COLLECTION = "submitter_mongockChangeLog"
 const val CHANGE_LOG_LOCK = "submitter_mongockLock"
 
 @Configuration
-@ConditionalOnProperty(prefix = "app.persistence", name = ["enableMongo"], havingValue = "true")
 @EnableMongoRepositories(
     basePackageClasses = [
         SubmissionMongoRepository::class,
@@ -56,7 +54,7 @@ const val CHANGE_LOG_LOCK = "submitter_mongockLock"
 @EnableConfigurationProperties
 class MongoDbConfig(
     @Value("\${spring.data.mongodb.database}") val mongoDatabase: String,
-    @Value("\${spring.data.mongodb.uri}") val mongoUri: String
+    @Value("\${spring.data.mongodb.uri}") val mongoUri: String,
 ) : AbstractMongoClientConfiguration() {
 
     override fun getDatabaseName(): String = mongoDatabase
@@ -65,10 +63,9 @@ class MongoDbConfig(
     @ConditionalOnProperty(prefix = "app.mongo", name = ["execute-migrations"], havingValue = "true")
     fun mongockApplicationRunner(
         springContext: ApplicationContext,
-        mongoTemplate: MongoTemplate,
-        @Value("\${app.mongo.migration-package}") migrationPackage: String
+        mongoTemplate: MongoTemplate
     ): ApplicationRunner {
-        return createMongockConfig(mongoTemplate, springContext, migrationPackage)
+        return createMongockConfig(mongoTemplate, springContext, CHANGE_LOG_CLASSES)
     }
 
     @Bean
@@ -91,8 +88,7 @@ class MongoDbConfig(
     private fun docSubmissionConverter(): DocSubmissionConverter {
         val docAttributeConverter = DocAttributeConverter()
         val docFileConverter = DocFileConverter(docAttributeConverter)
-        val docFileRefConverter = DocFileRefConverter()
-        val docFileListConverter = DocFileListConverter(docFileRefConverter, docFileConverter)
+        val docFileListConverter = DocFileListConverter(docFileConverter)
         val docFileTableConverter = DocFileTableConverter(docFileConverter)
         val docLinkConverter = DocLinkConverter(docAttributeConverter)
         val docLinksTableConverter = DocLinkTableConverter(docLinkConverter)
@@ -110,8 +106,7 @@ class MongoDbConfig(
     private fun submissionConverter(): SubmissionConverter {
         val attributeConverter = AttributeConverter()
         val fileConverter = FileConverter(attributeConverter)
-        val fileRefConverter = FileRefConverter()
-        val fileListConverter = FileListConverter(fileRefConverter, fileConverter)
+        val fileListConverter = FileListConverter(fileConverter)
         val fileTableConverter = FileTableConverter(fileConverter)
         val linkConverter = LinkConverter(attributeConverter)
         val linksTableConverter = LinkTableConverter(linkConverter)
@@ -130,11 +125,11 @@ class MongoDbConfig(
         fun createMongockConfig(
             mongoTemplate: MongoTemplate,
             springContext: ApplicationContext,
-            migrationPackage: String
+            classes: List<Class<*>>,
         ): MongockApplicationRunner {
             return MongockSpring5.builder()
                 .setDriver(createDriver(mongoTemplate))
-                .addChangeLogsScanPackage(migrationPackage)
+                .addChangeLogClasses(classes)
                 .setSpringContext(springContext)
                 .buildApplicationRunner()
         }

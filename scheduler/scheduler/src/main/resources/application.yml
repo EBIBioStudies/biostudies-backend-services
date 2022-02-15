@@ -34,6 +34,10 @@ releaser:
     user: # BioStudies manager user
     password: # BioStudies manager password
 
+  persistence:
+    database: # The name of the database to access the data
+    uri: # The database connection URI
+
   rabbitmq:
     host: # RabbitMQ Host
     user: # RabbitMQ User

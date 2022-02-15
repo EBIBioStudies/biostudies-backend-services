@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.tsv.deserialization.model
 
-import ebi.ac.uk.base.EMPTY
 import ebi.ac.uk.util.collections.findSecond
 
 class TsvChunkLine(
@@ -8,9 +7,9 @@ class TsvChunkLine(
     private val rawLines: List<String> = emptyList()
 ) : List<String> by rawLines {
 
-    val value: String
+    val value: String?
         get() {
-            return rawLines.findSecond() ?: EMPTY
+            return rawLines.findSecond()
         }
 
     val rawValues: List<String>

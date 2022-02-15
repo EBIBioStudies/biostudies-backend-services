@@ -86,7 +86,7 @@ class ExtSectionSerializerTest(private val tempFolder: TemporaryFolder) {
                     )
                 )
             ),
-            attributes = listOf(ExtAttribute("Title", "Test Section")),
+            attributes = listOf(ExtAttribute("Title", "Test Section"), ExtAttribute("Description", value = null, true)),
             sections = listOf(
                 Either.left(ExtSection(type = "Exp")),
                 Either.right(ExtSectionTable(listOf(ExtSection(type = "Data"))))
@@ -168,6 +168,15 @@ class ExtSectionSerializerTest(private val tempFolder: TemporaryFolder) {
                     "name" to "Title"
                     "value" to "Test Section"
                     "reference" to false
+                    "nameAttrs" to jsonArray()
+                    "valueAttrs" to jsonArray()
+                },
+                jsonObj {
+                    "name" to "Description"
+                    "value" to null
+                    "reference" to true
+                    "nameAttrs" to jsonArray()
+                    "valueAttrs" to jsonArray()
                 }
             )
 
