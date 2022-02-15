@@ -10,6 +10,8 @@ class SubmissionReleaserPropertiesTest {
     fun `as java command`() {
         val properties = SubmissionReleaserProperties.create(
             mode = NOTIFY,
+            databaseName = "dev",
+            databaseUri = "mongodb://root:admin@localhost:27017/dev?authSource=admin\\&replicaSet=biostd01",
             rabbitMqHost = "localhost",
             rabbitMqUser = "manager",
             rabbitMqPassword = "manager-local",
@@ -25,6 +27,8 @@ class SubmissionReleaserPropertiesTest {
         assertThat(properties.asJavaCommand("/apps-folder")).isEqualTo(
             """
             $JAVA_HOME/bin/java -Dsun.jnu.encoding=UTF-8 -jar /apps-folder/submission-releaser-task-1.0.0.jar \
+            --spring.data.mongodb.uri=mongodb://root:admin@localhost:27017/dev?authSource=admin\&replicaSet=biostd01 \
+            --spring.data.mongodb.database=dev \
             --spring.rabbitmq.host=localhost \
             --spring.rabbitmq.username=manager \
             --spring.rabbitmq.password=manager-local \

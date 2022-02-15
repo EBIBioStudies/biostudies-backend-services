@@ -52,15 +52,15 @@ class ExtSubmissionService(
     ): ExtFileTable = ExtFileTable(submissionQueryService.getReferencedFiles(accNo, fileListName))
 
     fun refreshSubmission(accNo: String, user: String): ExtSubmission {
-        val submission = submissionQueryService.getExtByAccNo(accNo)
-        val submissionRefreshed = submitExt(user, submission, emptyList(), MOVE)
+        val submission = submissionQueryService.getExtByAccNo(accNo, includeFileListFiles = true)
+        val refreshedSubmission = submitExt(user, submission, emptyList(), MOVE)
         rabbitTemplate.convertAndSend(
             BIOSTUDIES_EXCHANGE,
             SUBMISSIONS_PARTIAL_UPDATE_ROUTING_KEY,
-            eventsPublisherService.submissionMessage(submissionRefreshed)
+            eventsPublisherService.submissionMessage(refreshedSubmission.accNo, refreshedSubmission.owner)
         )
 
-        return submissionRefreshed
+        return refreshedSubmission
     }
 
     fun reTriggerSubmission(accNo: String, version: Int): ExtSubmission {
@@ -104,13 +104,8 @@ class ExtSubmissionService(
             offset = request.offset
         )
 
-        val page = submissionQueryService
-            .getExtendedSubmissions(filter)
-            .onEach { it.onFailure { logger.error { it.message ?: it.localizedMessage } } }
-            .map { it.getOrNull() }
-        val submissions = page.content.filterNotNull()
-
-        return PageImpl(submissions, page.pageable, page.totalElements)
+        val page = submissionQueryService.getExtendedSubmissions(filter)
+        return PageImpl(page.content, page.pageable, page.totalElements)
     }
 
     private fun processExtSubmission(

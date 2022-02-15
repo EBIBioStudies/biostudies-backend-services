@@ -1,22 +1,25 @@
 package uk.ac.ebi.scheduler.releaser.service
 
-import ac.uk.ebi.biostd.client.dto.ExtPageQuery
-import ac.uk.ebi.biostd.client.extensions.getExtSubmissionsAsSequence
+import ac.uk.ebi.biostd.client.dto.ReleaseRequestDto
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.extended.model.isCollection
+import ebi.ac.uk.util.date.asOffsetAtEndOfDay
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockkStatic
+import io.mockk.slot
 import io.mockk.verify
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.events.service.EventsPublisherService
 import uk.ac.ebi.scheduler.releaser.config.NotificationTimes
+import uk.ac.ebi.scheduler.releaser.model.ReleaseData
+import uk.ac.ebi.scheduler.releaser.persistence.ReleaserRepository
 import java.time.Instant
 import java.time.OffsetDateTime
 import java.time.ZoneOffset.UTC
@@ -25,10 +28,12 @@ import java.time.ZoneOffset.UTC
 class SubmissionReleaserServiceTest(
     @MockK private val bioWebClient: BioWebClient,
     @MockK private val notificationTimes: NotificationTimes,
+    @MockK private val releaserRepository: ReleaserRepository,
     @MockK private val eventsPublisherService: EventsPublisherService
 ) {
     private val mockNow = OffsetDateTime.of(2020, 9, 21, 10, 11, 0, 0, UTC).toInstant()
-    private val testInstance = SubmissionReleaserService(bioWebClient, notificationTimes, eventsPublisherService)
+    private val testInstance =
+        SubmissionReleaserService(bioWebClient, notificationTimes, releaserRepository, eventsPublisherService)
 
     @AfterEach
     fun afterEach() = clearAllMocks()
@@ -41,104 +46,57 @@ class SubmissionReleaserServiceTest(
     }
 
     @Test
-    fun `notify submission release`(
-        @MockK firstWarningSubmission: ExtSubmission,
-        @MockK secondWarningSubmission: ExtSubmission,
-        @MockK thirdWarningSubmission: ExtSubmission
-    ) {
-        val firstWarningQuery = createNotifyExtPageQuery(month = 11, day = 20)
-        val secondWarningQuery = createNotifyExtPageQuery(month = 10, day = 21)
-        val thirdWarningQuery = createNotifyExtPageQuery(month = 9, day = 28)
+    fun `notify submission release`() {
+        val firstWarningData = ReleaseData("S-BSST0", "owner0@mail.org", "S-BSST/000/S-BSST0")
+        val secondWarningData = ReleaseData("S-BSST1", "owner1@mail.org", "S-BSST/001/S-BSST1")
+        val thirdWarningData = ReleaseData("S-BSST2", "owner2@mail.org", "S-BSST/002/S-BSST2")
 
-        mockExtSubmissionsQuery(firstWarningQuery, firstWarningSubmission)
-        mockExtSubmissionsQuery(secondWarningQuery, secondWarningSubmission)
-        mockExtSubmissionsQuery(thirdWarningQuery, thirdWarningSubmission)
-        mockReleaseNotificationEvent(firstWarningSubmission)
-        mockReleaseNotificationEvent(secondWarningSubmission)
-        mockReleaseNotificationEvent(thirdWarningSubmission)
+        mockNotificationQuery(month = 11, day = 20, response = firstWarningData)
+        mockNotificationQuery(month = 10, day = 21, response = secondWarningData)
+        mockNotificationQuery(month = 9, day = 28, response = thirdWarningData)
 
         testInstance.notifySubmissionReleases()
-        verify(exactly = 1) { bioWebClient.getExtSubmissionsAsSequence(firstWarningQuery) }
-        verify(exactly = 1) { bioWebClient.getExtSubmissionsAsSequence(secondWarningQuery) }
-        verify(exactly = 1) { bioWebClient.getExtSubmissionsAsSequence(thirdWarningQuery) }
-        verify(exactly = 1) { eventsPublisherService.submissionReleased(firstWarningSubmission) }
-        verify(exactly = 1) { eventsPublisherService.submissionReleased(secondWarningSubmission) }
-        verify(exactly = 1) { eventsPublisherService.submissionReleased(thirdWarningSubmission) }
+
+        verify(exactly = 1) { eventsPublisherService.submissionReleased("S-BSST0", "owner0@mail.org") }
+        verify(exactly = 1) { eventsPublisherService.submissionReleased("S-BSST1", "owner1@mail.org") }
+        verify(exactly = 1) { eventsPublisherService.submissionReleased("S-BSST2", "owner2@mail.org") }
     }
 
     @Test
-    fun `release daily submissions`(@MockK releaseSubmission: ExtSubmission) {
-        val releaseQuery = createReleaseExtPageQuery()
+    fun `release daily submissions`() {
+        val requestSlot = slot<ReleaseRequestDto>()
+        val released = ReleaseData("S-BSST0", "owner0@mail.org", "S-BSST/000/S-BSST0")
 
-        mockExtSubmissionsQuery(releaseQuery, releaseSubmission)
-        every { releaseSubmission.isCollection } returns false
-        every { releaseSubmission.released } returns false
-        every { releaseSubmission.copy(released = true) } returns releaseSubmission
-        every { bioWebClient.submitExt(releaseSubmission) } returns releaseSubmission
+        every { bioWebClient.releaseSubmission(capture(requestSlot)) } answers { nothing }
+        every { releaserRepository.findAllUntil(mockNow.asOffsetAtEndOfDay().toLocalDate()) } returns listOf(released)
 
         testInstance.releaseDailySubmissions()
-        verify(exactly = 1) { bioWebClient.submitExt(releaseSubmission) }
-        verify(exactly = 1) { bioWebClient.getExtSubmissionsAsSequence(releaseQuery) }
-    }
 
-    @Test
-    fun `release with project`(@MockK project: ExtSubmission) {
-        val releaseQuery = createReleaseExtPageQuery()
-
-        every { project.isCollection } returns true
-        mockExtSubmissionsQuery(releaseQuery, project)
-
-        testInstance.releaseDailySubmissions()
-        verify(exactly = 0) { bioWebClient.submitExt(project) }
-        verify(exactly = 1) { bioWebClient.getExtSubmissionsAsSequence(releaseQuery) }
+        val releaseRequest = requestSlot.captured
+        verify(exactly = 1) { bioWebClient.releaseSubmission(releaseRequest) }
+        assertThat(releaseRequest.accNo).isEqualTo("S-BSST0")
+        assertThat(releaseRequest.owner).isEqualTo("owner0@mail.org")
+        assertThat(releaseRequest.relPath).isEqualTo("S-BSST/000/S-BSST0")
     }
 
     @Test
     fun `generate ftp links`(@MockK publicSubmission: ExtSubmission) {
-        val relPath = "S-BSST/012/S-BSST112"
-        val query = ExtPageQuery(released = true)
+        val released = ReleaseData("S-BSST0", "owner0@mail.org", "S-BSST/000/S-BSST0")
 
-        mockExtSubmissionsQuery(query, publicSubmission)
-        every { publicSubmission.isCollection } returns false
-        every { publicSubmission.relPath } returns relPath
-        every { publicSubmission.accNo } returns "S-BSST112"
-        every { bioWebClient.generateFtpLink(relPath) } answers { nothing }
+        every { releaserRepository.findAllReleased() } returns listOf(released)
+        every { bioWebClient.generateFtpLink("S-BSST/000/S-BSST0") } answers { nothing }
 
         testInstance.generateFtpLinks()
-        verify(exactly = 1) {
-            bioWebClient.generateFtpLink(relPath)
-            bioWebClient.getExtSubmissionsAsSequence(query)
-        }
+        verify(exactly = 1) { bioWebClient.generateFtpLink("S-BSST/000/S-BSST0") }
     }
 
-    @Test
-    fun `generate ftp links for projects`(@MockK publicSubmission: ExtSubmission) {
-        val relPath = "S-BSST/012/S-BSST112"
-        val query = ExtPageQuery(released = true)
+    private fun mockNotificationQuery(month: Int, day: Int, response: ReleaseData) {
+        val from = OffsetDateTime.of(2020, month, day, 0, 0, 0, 0, UTC).toLocalDate()
+        val to = OffsetDateTime.of(2020, month, day, 23, 59, 59, 0, UTC).toLocalDate()
 
-        mockExtSubmissionsQuery(query, publicSubmission)
-        every { publicSubmission.isCollection } returns true
-        every { publicSubmission.relPath } returns relPath
-
-        testInstance.generateFtpLinks()
-        verify(exactly = 0) { bioWebClient.generateFtpLink(relPath) }
-        verify(exactly = 1) { bioWebClient.getExtSubmissionsAsSequence(query) }
+        every { releaserRepository.findAllBetween(from, to) } returns listOf(response)
+        every { eventsPublisherService.submissionReleased(response.accNo, response.owner) } answers { nothing }
     }
-
-    private fun createNotifyExtPageQuery(month: Int, day: Int) = ExtPageQuery(
-        released = false,
-        fromRTime = OffsetDateTime.of(2020, month, day, 0, 0, 0, 0, UTC),
-        toRTime = OffsetDateTime.of(2020, month, day, 23, 59, 59, 0, UTC)
-    )
-
-    private fun createReleaseExtPageQuery() =
-        ExtPageQuery(toRTime = OffsetDateTime.of(2020, 9, 21, 23, 59, 59, 0, UTC), released = false)
-
-    private fun mockExtSubmissionsQuery(query: ExtPageQuery, response: ExtSubmission) =
-        every { bioWebClient.getExtSubmissionsAsSequence(eq(query)) } returns sequenceOf(response)
-
-    private fun mockReleaseNotificationEvent(extSubmission: ExtSubmission) =
-        every { eventsPublisherService.submissionReleased(extSubmission) } answers { nothing }
 
     private fun mockInstantNow() {
         mockkStatic(Instant::class)

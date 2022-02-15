@@ -91,7 +91,6 @@ internal open class BaseIntegrationTest(private val tempFolder: TemporaryFolder)
         mongoContainer.start()
         System.setProperty("spring.data.mongodb.uri", mongoContainer.getReplicaSetUrl("biostudies-test"))
         System.setProperty("spring.data.mongodb.database", "biostudies-test")
-        System.setProperty("app.persistence.enableMongo", "true")
     }
 
     private fun setUpMySql() {

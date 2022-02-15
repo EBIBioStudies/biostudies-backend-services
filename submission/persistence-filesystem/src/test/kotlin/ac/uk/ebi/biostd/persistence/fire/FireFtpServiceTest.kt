@@ -44,21 +44,15 @@ class FireFtpServiceTest(
     }
 
     @Test
-    fun `process public submission`() {
+    fun `release submission files`() {
         val submission = extSub.copy(released = true)
-        testInstance.processSubmissionFiles(submission)
 
-        verifyCleanFtpFolder(exactly = 1)
-        verifyFtpPublish(exactly = 1)
-    }
+        every { submissionQueryService.getExtByAccNo(submission.accNo) } returns submission
 
-    @Test
-    fun `process private submission`() {
-        val submission = extSub.copy(released = false)
-        testInstance.processSubmissionFiles(submission)
+        testInstance.releaseSubmissionFiles(extSub.accNo, extSub.owner, extSub.relPath)
 
-        verifyCleanFtpFolder(exactly = 1)
-        verifyFtpPublish(exactly = 0)
+        verifyCleanFtpFolder()
+        verifyFtpPublish()
     }
 
     @Test
@@ -69,16 +63,16 @@ class FireFtpServiceTest(
 
         testInstance.generateFtpLinks(submission.accNo)
 
-        verifyCleanFtpFolder(exactly = 1)
-        verifyFtpPublish(exactly = 1)
+        verifyCleanFtpFolder()
+        verifyFtpPublish()
     }
 
-    private fun verifyCleanFtpFolder(exactly: Int) = verify(exactly = exactly) {
+    private fun verifyCleanFtpFolder() = verify(exactly = 1) {
         fireWebClient.unpublish(FILE_FILE_LIST)
         fireWebClient.unsetPath(FILE_FILE_LIST)
     }
 
-    private fun verifyFtpPublish(exactly: Int) = verify(exactly = exactly) {
+    private fun verifyFtpPublish() = verify(exactly = 1) {
         val relPath = "${extSub.relPath}/relPath"
         fun verifyPublishFile(fireId: String) {
             fireWebClient.publish(fireId)
@@ -100,7 +94,6 @@ class FireFtpServiceTest(
         fileFileList: FireFile,
         innerFileListFile: FireFile
     ): ExtSubmission {
-
         val filePageTab = fireFile(FILE_PAGE_TAB)
         val file = fireFile(FILE)
         val fileTable = fireFile(FILE_TABLE)

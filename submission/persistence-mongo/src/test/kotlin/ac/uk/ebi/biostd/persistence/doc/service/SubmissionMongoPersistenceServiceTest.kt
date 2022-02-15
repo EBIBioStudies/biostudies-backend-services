@@ -20,6 +20,7 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.slot
+import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
 import org.bson.types.ObjectId
 import org.junit.jupiter.api.Nested
@@ -147,16 +148,56 @@ class SubmissionMongoPersistenceServiceTest(
     }
 
     @Test
-    fun `process submission request`() {
-        val submission = defaultSubmission()
-        val request = SubmissionRequest(submission, COPY, "draftKey")
+    fun `process private submission request`() {
+        val sub = defaultSubmission()
+        val request = SubmissionRequest(sub, COPY, "draftKey")
         val filePersistenceRequest = FilePersistenceRequest(request.submission, request.fileMode)
-        every { systemService.persistSubmissionFiles(filePersistenceRequest) } returns submission
-        every { submissionRepository.saveSubmission(submission, request.draftKey) } returns submission
-        every { submissionRequestDocDataRepository.updateStatus(PROCESSED, submission.accNo, 1) } answers { nothing }
+
+        every { subDataRepository.release(sub.accNo) } answers { nothing }
+        every { submissionRepository.saveSubmission(sub, request.draftKey) } returns sub
+        every { systemService.persistSubmissionFiles(filePersistenceRequest) } returns sub
+        every { systemService.persistSubmissionFiles(filePersistenceRequest) } returns sub
+        every { systemService.releaseSubmissionFiles(sub.accNo, sub.owner, sub.relPath) } answers { nothing }
+        every { submissionRequestDocDataRepository.updateStatus(PROCESSED, sub.accNo, 1) } answers { nothing }
 
         val result = testInstance.processSubmissionRequest(request)
 
-        assertThat(result).isEqualTo(submission)
+        assertThat(result).isEqualTo(sub)
+        verify(exactly = 0) {
+            subDataRepository.release(sub.accNo)
+            systemService.releaseSubmissionFiles(sub.accNo, sub.owner, sub.relPath)
+        }
+        verify(exactly = 1) {
+            submissionRepository.saveSubmission(sub, request.draftKey)
+            systemService.persistSubmissionFiles(filePersistenceRequest)
+            systemService.persistSubmissionFiles(filePersistenceRequest)
+            submissionRequestDocDataRepository.updateStatus(PROCESSED, sub.accNo, 1)
+        }
+    }
+
+    @Test
+    fun `process public submission request`() {
+        val sub = defaultSubmission().copy(released = true)
+        val request = SubmissionRequest(sub, COPY, "draftKey")
+        val filePersistenceRequest = FilePersistenceRequest(request.submission, request.fileMode)
+
+        every { subDataRepository.release(sub.accNo) } answers { nothing }
+        every { submissionRepository.saveSubmission(sub, request.draftKey) } returns sub
+        every { systemService.persistSubmissionFiles(filePersistenceRequest) } returns sub
+        every { systemService.persistSubmissionFiles(filePersistenceRequest) } returns sub
+        every { systemService.releaseSubmissionFiles(sub.accNo, sub.owner, sub.relPath) } answers { nothing }
+        every { submissionRequestDocDataRepository.updateStatus(PROCESSED, sub.accNo, 1) } answers { nothing }
+
+        val result = testInstance.processSubmissionRequest(request)
+
+        assertThat(result).isEqualTo(sub)
+        verify(exactly = 1) {
+            subDataRepository.release(sub.accNo)
+            submissionRepository.saveSubmission(sub, request.draftKey)
+            systemService.persistSubmissionFiles(filePersistenceRequest)
+            systemService.persistSubmissionFiles(filePersistenceRequest)
+            systemService.releaseSubmissionFiles(sub.accNo, sub.owner, sub.relPath)
+            submissionRequestDocDataRepository.updateStatus(PROCESSED, sub.accNo, 1)
+        }
     }
 }

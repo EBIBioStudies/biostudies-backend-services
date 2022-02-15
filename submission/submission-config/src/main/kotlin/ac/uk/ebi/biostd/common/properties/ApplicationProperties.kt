@@ -29,6 +29,5 @@ data class ValidatorProperties(
 )
 
 class PersistenceProperties(
-    val enableMongo: Boolean = false,
     val enableFire: Boolean = false
 )

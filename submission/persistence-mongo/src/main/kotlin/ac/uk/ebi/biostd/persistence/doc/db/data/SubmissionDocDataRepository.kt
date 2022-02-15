@@ -44,7 +44,7 @@ import java.time.Instant
 
 private const val SUB_ALIAS = "submission"
 
-@Suppress("SpreadOperator")
+@Suppress("SpreadOperator", "TooManyFunctions")
 class SubmissionDocDataRepository(
     private val submissionRepository: SubmissionMongoRepository,
     private val mongoTemplate: MongoTemplate
@@ -52,6 +52,11 @@ class SubmissionDocDataRepository(
     fun updateStatus(status: DocProcessingStatus, accNo: String, version: Int) {
         val query = Query(where(SUB_ACC_NO).`is`(accNo).andOperator(where(SUB_VERSION).`is`(version)))
         mongoTemplate.updateFirst(query, update(SUB_STATUS, status), DocSubmission::class.java)
+    }
+
+    fun release(accNo: String) {
+        val query = Query(where(SUB_ACC_NO).`is`(accNo).andOperator(where(SUB_VERSION).gt(0)))
+        mongoTemplate.updateFirst(query, update(SUB_RELEASED, true), DocSubmission::class.java)
     }
 
     fun getCurrentVersion(accNo: String): Int? {

@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.persistence.doc.db.data
 
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
+import ac.uk.ebi.biostd.persistence.doc.db.repositories.getByAccNo
 import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbReposConfig
 import ac.uk.ebi.biostd.persistence.doc.model.DocProcessingStatus.PROCESSED
 import ac.uk.ebi.biostd.persistence.doc.model.DocProcessingStatus.PROCESSING
@@ -57,6 +58,17 @@ internal class SubmissionDocDataRepositoryTest {
             testInstance.updateStatus(PROCESSED, "accNo20", 3)
 
             assertThat(testInstance.getByAccNo(accNo = "accNo20").status).isEqualTo(PROCESSING)
+        }
+    }
+
+    @Nested
+    inner class ReleaseSubmission {
+        @Test
+        fun `release submission`() {
+            testInstance.save(testDocSubmission.copy(accNo = "S-BIAD1", version = 1, released = false))
+            testInstance.release("S-BIAD1")
+
+            assertThat(testInstance.getByAccNo(accNo = "S-BIAD1").released).isTrue
         }
     }
 
@@ -199,7 +211,6 @@ internal class SubmissionDocDataRepositoryTest {
         fun propertySource(register: DynamicPropertyRegistry) {
             register.add("spring.data.mongodb.uri") { mongoContainer.getReplicaSetUrl("biostudies-test") }
             register.add("spring.data.mongodb.database") { "biostudies-test" }
-            register.add("app.persistence.enableMongo") { "true" }
         }
     }
 }

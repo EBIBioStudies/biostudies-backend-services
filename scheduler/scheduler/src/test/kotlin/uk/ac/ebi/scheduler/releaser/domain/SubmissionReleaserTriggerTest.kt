@@ -4,6 +4,7 @@ import ac.uk.ebi.cluster.client.lsf.ClusterOperations
 import ac.uk.ebi.cluster.client.model.Job
 import ac.uk.ebi.cluster.client.model.JobSpec
 import ac.uk.ebi.cluster.client.model.MemorySpec.Companion.EIGHT_GB
+import ac.uk.ebi.scheduler.common.JAVA_HOME
 import ac.uk.ebi.scheduler.properties.ReleaserMode
 import ac.uk.ebi.scheduler.properties.ReleaserMode.GENERATE_FTP_LINKS
 import ac.uk.ebi.scheduler.properties.ReleaserMode.NOTIFY
@@ -25,6 +26,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.scheduler.common.properties.AppProperties
 import uk.ac.ebi.scheduler.releaser.api.BioStudies
 import uk.ac.ebi.scheduler.releaser.api.NotificationTimes
+import uk.ac.ebi.scheduler.releaser.api.Persistence
 import uk.ac.ebi.scheduler.releaser.api.Rabbitmq
 import uk.ac.ebi.scheduler.releaser.api.SubmissionReleaserProperties
 
@@ -86,7 +88,9 @@ class SubmissionReleaserTriggerTest(
         assertThat(specs.cores).isEqualTo(RELEASER_CORES)
         assertThat(specs.command).isEqualTo(
             """
-            $java -Dsun.jnu.encoding=UTF-8 -jar apps-folder/submission-releaser-task-1.0.0.jar \
+            $JAVA_HOME/bin/java -Dsun.jnu.encoding=UTF-8 -jar apps-folder/submission-releaser-task-1.0.0.jar \
+            --spring.data.mongodb.uri=mongodb://root:admin@localhost:27017/dev?authSource=admin\&replicaSet=biostd01 \
+            --spring.data.mongodb.database=dev \
             --spring.rabbitmq.host=localhost \
             --spring.rabbitmq.username=manager \
             --spring.rabbitmq.password=manager-local \
@@ -121,6 +125,11 @@ class SubmissionReleaserTriggerTest(
             password = "123456"
         }
 
+        val persistence = Persistence().apply {
+            database = "dev"
+            uri = "mongodb://root:admin@localhost:27017/dev?authSource=admin\\&replicaSet=biostd01"
+        }
+
         val rabbitmq = Rabbitmq().apply {
             host = "localhost"
             user = "manager"
@@ -137,6 +146,7 @@ class SubmissionReleaserTriggerTest(
         return SubmissionReleaserProperties().apply {
             this.rabbitmq = rabbitmq
             this.bioStudies = bioStudies
+            this.persistence = persistence
             this.notificationTimes = notificationTimes
         }
     }
