@@ -84,15 +84,6 @@ task updatePmcArtifact {
     finalizedBy "deployArtifact"
 }
 
-task updatePmcExporterArtifact {
-    doFirst {
-        project.ext.artifactPath = "scheduler/pmc-exporter-task/build/libs"
-        project.ext.artifactName = "pmc-exporter-task-1.0.0.jar"
-    }
-
-    finalizedBy "deployArtifact"
-}
-
 task updateExporterArtifact {
     doFirst {
         project.ext.artifactPath = "scheduler/exporter-task/build/libs"

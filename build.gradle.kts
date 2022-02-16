@@ -62,7 +62,6 @@ tasks.register("buildArtifacts") {
         "scheduler:exporter-task:bootJar",
         "scheduler:scheduler:bootJar",
         "scheduler:pmc-processor-task:bootJar",
-        "scheduler:pmc-exporter-task:bootJar",
         "scheduler:submission-releaser-task:bootJar",
         "submission:submission-webapp:bootJar"
     )
