@@ -149,6 +149,7 @@ object Dependencies {
 
     // Web related
     const val JSONOrg = "org.json:json:$JSONOrgVersion"
+    const val JacksonAnnotations = "com.fasterxml.jackson.core:jackson-annotations:$JacksonVersion"
     const val JacksonKotlin = "com.fasterxml.jackson.module:jackson-module-kotlin:$JacksonVersion"
     const val JacksonDataBind = "com.fasterxml.jackson.core:jackson-databind:$JacksonVersion"
     const val JacksonCore = "com.fasterxml.jackson.core:jackson-core:$JacksonVersion"

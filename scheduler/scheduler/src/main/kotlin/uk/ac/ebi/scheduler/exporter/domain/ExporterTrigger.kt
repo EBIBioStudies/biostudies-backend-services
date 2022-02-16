@@ -5,6 +5,9 @@ import ac.uk.ebi.cluster.client.model.Job
 import ac.uk.ebi.cluster.client.model.JobSpec
 import ac.uk.ebi.cluster.client.model.MemorySpec.Companion.TWENTYFOUR_GB
 import ac.uk.ebi.cluster.client.model.logsPath
+import ac.uk.ebi.scheduler.properties.ExporterMode
+import ac.uk.ebi.scheduler.properties.ExporterMode.PMC
+import ac.uk.ebi.scheduler.properties.ExporterMode.PUBLIC_ONLY
 import ac.uk.ebi.scheduler.properties.ExporterProperties
 import ebi.ac.uk.commons.http.slack.NotificationsSender
 import ebi.ac.uk.commons.http.slack.Report
@@ -24,22 +27,36 @@ class ExporterTrigger(
     private val clusterOperations: ClusterOperations,
     private val notificationsSender: NotificationsSender
 ) {
-    fun triggerPublicExport(): Job {
+    fun triggerPmcExport(): Job =
+        triggerExport(
+            PMC,
+            exporterProperties.pmc.fileName,
+            exporterProperties.pmc.outputPath
+        )
+
+    fun triggerPublicExport(): Job =
+        triggerExport(
+            PUBLIC_ONLY,
+            exporterProperties.publicOnly.fileName,
+            exporterProperties.publicOnly.outputPath
+        )
+
+    private fun triggerExport(mode: ExporterMode, fileName: String, outputPath: String): Job {
         logger.info { "triggering public export job" }
-        val job = exporterJob()
+        val job = exporterJob(mode, fileName, outputPath)
         notificationsSender.send(
             Report(
                 SYSTEM_NAME,
                 EXPORTER_SUBSYSTEM,
-                "Triggered $EXPORTER_SUBSYSTEM in the cluster job $job. Logs available at ${job.logsPath}"
+                "Triggered $EXPORTER_SUBSYSTEM in the cluster job $job in mode $mode. Logs available at ${job.logsPath}"
             )
         )
 
         return job
     }
 
-    private fun exporterJob(): Job {
-        val exporterProperties = getConfigProperties()
+    private fun exporterJob(mode: ExporterMode, fileName: String, outputPath: String): Job {
+        val exporterProperties = getConfigProperties(mode, fileName, outputPath)
         val jobTry = clusterOperations.triggerJob(
             JobSpec(
                 cores = EXPORTER_CORES,
@@ -51,10 +68,17 @@ class ExporterTrigger(
         return jobTry.fold({ throw it }, { it.apply { logger.info { "submitted job $it" } } })
     }
 
-    private fun getConfigProperties() =
+    private fun getConfigProperties(mode: ExporterMode, fileName: String, outputPath: String) =
         ExporterProperties.create(
-            exporterProperties.fileName,
-            exporterProperties.outputPath,
+            fileName,
+            outputPath,
+            mode,
+            exporterProperties.ftp.host,
+            exporterProperties.ftp.user,
+            exporterProperties.ftp.password,
+            exporterProperties.ftp.port,
+            exporterProperties.persistence.database,
+            exporterProperties.persistence.uri,
             exporterProperties.bioStudies.url,
             exporterProperties.bioStudies.user,
             exporterProperties.bioStudies.password

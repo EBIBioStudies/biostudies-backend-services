@@ -11,4 +11,8 @@ internal class ExporterResource(private val exporterTrigger: ExporterTrigger) {
     @PostMapping("/api/exporter/public")
     @ResponseBody
     fun exportPublicSubmissions(): Job = exporterTrigger.triggerPublicExport()
+
+    @PostMapping("/api/exporter/pmc")
+    @ResponseBody
+    fun exportPmcSubmissions(): Job = exporterTrigger.triggerPmcExport()
 }

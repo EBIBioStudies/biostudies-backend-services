@@ -5,14 +5,12 @@ import uk.ac.ebi.scheduler.pmc.importer.domain.PmcLoaderService
 import org.springframework.scheduling.annotation.Scheduled
 import uk.ac.ebi.scheduler.common.properties.DailyScheduling
 import uk.ac.ebi.scheduler.exporter.domain.ExporterTrigger
-import uk.ac.ebi.scheduler.pmc.exporter.domain.PmcExporterTrigger
 import uk.ac.ebi.scheduler.releaser.domain.SubmissionReleaserTrigger
 
 internal class DailyScheduler(
     private val dailyScheduling: DailyScheduling,
     private val exporterTrigger: ExporterTrigger,
     private val pmcLoaderService: PmcLoaderService,
-    private val pmcExporterTrigger: PmcExporterTrigger,
     private val submissionReleaserTrigger: SubmissionReleaserTrigger
 ) {
     @Scheduled(cron = "0 0 6 * * *")
@@ -29,7 +27,7 @@ internal class DailyScheduler(
     fun submitPmc() {
         dailyScheduling.pmc.ifTrue {
             pmcLoaderService.triggerSubmitter()
-            pmcExporterTrigger.triggerPmcExport()
+            exporterTrigger.triggerPmcExport()
         }
     }
 

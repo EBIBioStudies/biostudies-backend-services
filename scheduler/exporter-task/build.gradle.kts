@@ -1,17 +1,29 @@
+import Dependencies.CommonsNet
+import Dependencies.JacksonAnnotations
+import Dependencies.JacksonCore
+import Dependencies.JacksonDataBind
 import Dependencies.JacksonKotlin
+import Dependencies.JacksonXml
+import Dependencies.KMongoAsync
+import Dependencies.KMongoCoroutine
 import Dependencies.KotlinLogging
 import Dependencies.KotlinStdLib
+import Dependencies.SpringDataJpa
 import Dependencies.SpringWeb
 import Projects.ClientBioWebClient
 import Projects.CommonsModelExtended
 import Projects.CommonsModelExtendedMapping
+import Projects.CommonsModelExtendedSerialization
 import Projects.CommonsSerialization
 import Projects.SchedulerTaskProperties
-import SpringBootDependencies.SpringBootAmqp
+import Projects.SubmissionPersistenceCommonApi
+import Projects.SubmissionPersistenceMongo
 import SpringBootDependencies.SpringBootStarter
 import SpringBootDependencies.SpringBootStarterConfigProcessor
+import SpringBootDependencies.SpringBootStarterMongo
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
+import TestDependencies.KotlinXmlBuilder
 import org.springframework.boot.gradle.tasks.bundling.BootJar
 
 plugins {
@@ -24,17 +36,29 @@ dependencies {
     api(project(ClientBioWebClient))
     api(project(CommonsModelExtended))
     api(project(CommonsModelExtendedMapping))
+    api(project(CommonsModelExtendedSerialization))
     api(project(CommonsSerialization))
     api(project(SchedulerTaskProperties))
+    api(project(SubmissionPersistenceCommonApi))
+    api(project(SubmissionPersistenceMongo))
 
+    implementation(CommonsNet)
+    implementation(KMongoCoroutine)
+    implementation(KMongoAsync)
     implementation(KotlinLogging)
     implementation(KotlinStdLib)
+    implementation(JacksonAnnotations)
+    implementation(JacksonCore)
+    implementation(JacksonDataBind)
     implementation(JacksonKotlin)
-    implementation(SpringBootAmqp)
+    implementation(JacksonXml)
     implementation(SpringBootStarter)
+    implementation(SpringBootStarterMongo)
+    implementation(SpringDataJpa)
     implementation(SpringWeb)
     implementation(SpringBootStarterConfigProcessor)
 
+    testImplementation(KotlinXmlBuilder)
     BaseTestCompileDependencies.forEach { testImplementation(it) }
     BaseTestRuntimeDependencies.forEach { testImplementation(it) }
 }
