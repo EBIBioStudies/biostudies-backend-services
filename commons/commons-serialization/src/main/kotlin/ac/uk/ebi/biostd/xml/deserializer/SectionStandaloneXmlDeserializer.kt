@@ -16,12 +16,11 @@ import ebi.ac.uk.model.constants.SectionFields.SUBSECTIONS
 import ebi.ac.uk.model.constants.SectionFields.TYPE
 import org.w3c.dom.Node
 
-class SectionXmlDeserializer(
+class SectionStandaloneXmlDeserializer(
     private val attributeXmlDeserializer: AttributeXmlDeserializer,
-    private val linkXmlDeserializer: LinkXmlDeserializer,
-    private val fileXmlDeserializer: FileXmlDeserializer
+    private val linkXmlDeserializer: LinkStandaloneXmlDeserializer,
+    private val fileXmlDeserializer: FileStandaloneXmlDeserializer
 ) : BaseXmlDeserializer<Section>() {
-
     override fun deserialize(node: Node): Section {
         return Section(
             accNo = node.findProperty(ACC_NO),
