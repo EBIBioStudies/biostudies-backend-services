@@ -69,8 +69,8 @@ abstract class Row<T>(val original: T) {
             .flatMap {
                 buildList {
                     add(it.value.orEmpty())
-                    addAll(it.nameAttrsValues)
-                    addAll(it.valueAttrsValues)
+                    addAll(it.nameAttrsValues.map { it.orEmpty() })
+                    addAll(it.valueAttrsValues.map { it.orEmpty() })
                 }
             }
 

@@ -14,7 +14,7 @@ data class ExtTag(val name: String, val value: String)
 
 data class ExtCollection(val accNo: String)
 
-data class ExtAttributeDetail(val name: String, val value: String)
+data class ExtAttributeDetail(val name: String, val value: String?)
 
 data class ExtLink(
     val url: String,
