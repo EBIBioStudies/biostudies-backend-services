@@ -106,7 +106,7 @@ class SubmitWebHandler(
         return securityQueryService.getOrCreateInactive(registerRequest.userEmail, registerRequest.userName!!)
     }
 
-    private fun withAttributes(submission: Submission, attrs: Map<String, String>): Submission {
+    private fun withAttributes(submission: Submission, attrs: Map<String, String?>): Submission {
         attrs.forEach { submission[it.key] = it.value }
         return submission
     }

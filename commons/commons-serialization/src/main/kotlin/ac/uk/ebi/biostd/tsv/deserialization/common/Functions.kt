@@ -44,12 +44,10 @@ private fun getAttributes(values: List<Pair<String, String?>>): List<Attribute> 
         when {
             isNameDetail(header) -> {
                 if (previous == null) throw InvalidElementException(MISPLACED_ATTR_NAME)
-                if (value == null) throw IllegalArgumentException("NameDetail value must be not null")
                 previous.nameAttrs.add(AttributeDetail(getDetailName(header), value))
             }
             isValueDetail(header) -> {
                 if (previous == null) throw InvalidElementException(MISPLACED_ATTR_VAL)
-                if (value == null) throw IllegalArgumentException("ValueDetail value must be not null")
                 previous.valueAttrs.add(AttributeDetail(getDetailName(header), value))
             }
             isReference(header) -> {
