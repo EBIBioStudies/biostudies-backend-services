@@ -27,6 +27,7 @@ import ebi.ac.uk.dsl.submission
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.extended.model.ExtAttribute
+import ebi.ac.uk.extended.model.ExtAttributeDetail
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.ExtLink
@@ -623,8 +624,22 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
                     val subSections = sectionTable.sections
                     assertThat(subSections).hasSize(1)
                     val attributes = subSections.first().attributes
-                    assertThat(attributes.first()).isEqualTo(ExtAttribute("SubSection Empty Attribute", null))
-                    assertThat(attributes.second()).isEqualTo(ExtAttribute("SubSection Null Attribute", null))
+                    assertThat(attributes.first()).isEqualTo(
+                        ExtAttribute(
+                            name = "Empty Attr",
+                            value = null,
+                            nameAttrs = listOf(ExtAttributeDetail("TermId", "EFO_0002768")),
+                            valueAttrs = listOf(ExtAttributeDetail("NullValue", null))
+                        )
+                    )
+                    assertThat(attributes.second()).isEqualTo(
+                        ExtAttribute(
+                            name = "Null Attr",
+                            value = null,
+                            nameAttrs = listOf(ExtAttributeDetail("NullName", null)),
+                            valueAttrs = listOf(ExtAttributeDetail("Ontology", "EFO"))
+                        )
+                    )
                 }
             }
 
@@ -647,8 +662,8 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
                 line(fileName, "")
                 line()
 
-                line("SubSectionTable[SECT-001]", "SubSection Empty Attribute", "SubSection Null Attribute")
-                line("SUB-SECT-001", "")
+                line("Data[SECT-001]", "Empty Attr", "(TermId)", "[NullValue]", "Null Attr", "(NullName)", "[Ontology]")
+                line("DT-1", "", "EFO_0002768", "", "", "", "EFO")
                 line()
             }.toString()
 

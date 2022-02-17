@@ -77,7 +77,7 @@ enum class DocProcessingStatus(val value: String) {
 
 data class DocTag(val name: String, val value: String)
 data class DocCollection(val accNo: String)
-data class DocAttributeDetail(val name: String, val value: String)
+data class DocAttributeDetail(val name: String, val value: String?)
 data class DocLink(val url: String, val attributes: List<DocAttribute> = listOf())
 
 sealed class DocFile(
