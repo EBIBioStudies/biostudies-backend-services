@@ -14,7 +14,6 @@ import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FileMode
 import ebi.ac.uk.extended.model.FileMode.COPY
-import ebi.ac.uk.extended.model.FileMode.MOVE
 import ebi.ac.uk.extended.model.isCollection
 import ebi.ac.uk.security.integration.components.ISecurityQueryService
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
@@ -50,12 +49,8 @@ class ExtSubmissionService(
 
     fun refreshSubmission(accNo: String, user: String): ExtSubmission {
         val submission = submissionQueryService.getExtByAccNo(accNo, includeFileListFiles = true)
-        return submitExt(user, submission, emptyList(), MOVE)
-    }
-
-    fun refreshSubmission2(accNo: String, user: String): ExtSubmission {
-        val submission = submissionQueryService.getExtByAccNo(accNo, includeFileListFiles = true)
-        val (accno, version) = submissionSubmitter.submitAsync(SubmissionRequest(submission, COPY))
+        val (accno, version) = submissionSubmitter
+            .submitAsync(SubmissionRequest(submission.copy(submitter = user), COPY))
         return submissionSubmitter.processRequest(accno, version)
     }
 

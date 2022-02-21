@@ -16,6 +16,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.data.FileListDocFileDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbReposConfig
 import ac.uk.ebi.biostd.persistence.doc.model.DocAttribute
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
+import ac.uk.ebi.biostd.persistence.doc.model.NfsDocFile
 import ac.uk.ebi.biostd.persistence.doc.service.ExtSubmissionRepository
 import ac.uk.ebi.biostd.persistence.model.DbSequence
 import ac.uk.ebi.biostd.persistence.model.DbTag
@@ -28,11 +29,9 @@ import ebi.ac.uk.dsl.section
 import ebi.ac.uk.dsl.submission
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
-import ebi.ac.uk.extended.model.ExtAttribute
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.File
 import ebi.ac.uk.model.FileList
@@ -43,6 +42,9 @@ import ebi.ac.uk.test.createFile
 import ebi.ac.uk.util.collections.ifLeft
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
+import java.time.LocalDate
+import java.time.OffsetDateTime
+import java.time.ZoneOffset.UTC
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Nested
@@ -59,9 +61,6 @@ import org.springframework.data.mongodb.core.query.Query
 import org.springframework.data.mongodb.core.query.Update.update
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
-import java.time.LocalDate
-import java.time.OffsetDateTime
-import java.time.ZoneOffset.UTC
 
 @ExtendWith(TemporaryFolderExtension::class)
 internal class SubmissionRefreshApiTest(private val tempFolder: TemporaryFolder) : BaseIntegrationTest(tempFolder) {
@@ -77,7 +76,7 @@ internal class SubmissionRefreshApiTest(private val tempFolder: TemporaryFolder)
         @Autowired val sequenceRepository: SequenceDataRepository,
         @Autowired val submissionRepository: SubmissionQueryService,
         @Autowired val fileListRepository: FileListDocFileDocDataRepository,
-        @Autowired val extSubmissionRepository: ExtSubmissionRepository
+        @Autowired val extSubmissionRepository: ExtSubmissionRepository,
     ) {
         @LocalServerPort
         private var serverPort: Int = 0
@@ -99,16 +98,19 @@ internal class SubmissionRefreshApiTest(private val tempFolder: TemporaryFolder)
             @Test
             fun `refresh mongo submission release date and attributes`() {
                 updateMongoSubmission()
-                //updateMongoFileList()
+                updateMongoFileList()
+
                 webClient.refreshSubmission(ACC_NO)
+
                 assertRefreshedSubmission()
                 assertRefreshedFileList()
             }
 
             private fun assertRefreshedFileList() {
-                val fileListDocFiles = fileListRepository.findAll()
-                assertThat(fileListDocFiles).hasSize(1)
-                assertThat(fileListDocFiles.first().file.attributes.first()).isEqualTo(DocAttribute("GEN", "DEFG"))
+                val newFileListDoc = fileListRepository
+                    .findAllBySubmissionAccNoAndSubmissionVersionAndFileListName(ACC_NO, 2, "$FILE_LIST_NAME.pagetab")
+                assertThat(newFileListDoc).hasSize(1)
+                assertThat(newFileListDoc.first().file.attributes.first()).isEqualTo(DocAttribute("GEN", "DEFG"))
             }
 
             private fun updateMongoSubmission() {
@@ -120,20 +122,14 @@ internal class SubmissionRefreshApiTest(private val tempFolder: TemporaryFolder)
             }
 
             private fun updateMongoFileList() {
-                val extSub = submissionRepository.getExtByAccNo(ACC_NO, true)
+                val fileListDocFiles = fileListRepository.findAll()
+                assertThat(fileListDocFiles).hasSize(1)
+                val fileListDocFile = fileListDocFiles.first()
+                val newDocAttribute = DocAttribute("GEN", "DEFG")
+                val docFile = fileListDocFile.file as NfsDocFile
+                val newDocFile = docFile.copy(attributes = listOf(newDocAttribute))
 
-                val newAttribute = ExtAttribute("GEN", "DEFG")
-                val section = extSub.section
-                val fileList = extSub.section.fileList!!
-                val file = extSub.section.fileList!!.files.first() as NfsFile
-
-                extSubmissionRepository.saveSubmission(
-                    extSub.copy(
-                        section = section.copy(
-                            fileList = fileList.copy(files = listOf(file.copy(attributes = listOf(newAttribute))))
-                        )
-                    ), null
-                )
+                fileListRepository.save(fileListDocFile.copy(file = newDocFile))
             }
         }
 
@@ -149,10 +145,13 @@ internal class SubmissionRefreshApiTest(private val tempFolder: TemporaryFolder)
 
         private fun setUpTestSubmission() {
             val refreshFile = tempFolder.createFile(TEST_FILE_NAME, "file content")
-            val fileList = tempFolder.createFile("$FILE_LIST_NAME.pagetab.tsv", tsv {
-                line("Files", "GEN")
-                line("$FILE_LIST_FILE_NAME.txt", "ABC")
-            }.toString())
+            val fileList = tempFolder.createFile(
+                "$FILE_LIST_NAME.pagetab.tsv",
+                tsv {
+                    line("Files", "GEN")
+                    line("$FILE_LIST_FILE_NAME.txt", "ABC")
+                }.toString()
+            )
 
             val fileListFile = tempFolder.createFile("$FILE_LIST_FILE_NAME.txt", "content fileList file")
 
@@ -187,9 +186,8 @@ internal class SubmissionRefreshApiTest(private val tempFolder: TemporaryFolder)
         const val SUBTITLE = "Simple Submission"
         const val ATTR_NAME = "custom-attribute"
         const val ATTR_VALUE = "custom-attribute-value"
-        const val NEW_SUBTITLE = "Simple Submission"
+        const val NEW_SUBTITLE = "New Simple Submission"
         const val NEW_ATTR_VALUE = "custom-attribute-new-value"
-        const val NEW_ATTR_FILE_FILELIST = "new-attribute-value"
         const val TEST_FILE_NAME = "refresh-file.txt"
         const val FILE_LIST_NAME = "fileListName"
         const val FILE_LIST_FILE_NAME = "fileListFileName"
