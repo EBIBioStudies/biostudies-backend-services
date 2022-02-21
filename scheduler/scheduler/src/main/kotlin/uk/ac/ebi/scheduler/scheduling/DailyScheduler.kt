@@ -5,6 +5,7 @@ import uk.ac.ebi.scheduler.pmc.importer.domain.PmcLoaderService
 import org.springframework.scheduling.annotation.Scheduled
 import uk.ac.ebi.scheduler.common.properties.DailyScheduling
 import uk.ac.ebi.scheduler.exporter.domain.ExporterTrigger
+import uk.ac.ebi.scheduler.pmc.importer.DEFAULT_FOLDER
 import uk.ac.ebi.scheduler.releaser.domain.SubmissionReleaserTrigger
 
 internal class DailyScheduler(
@@ -15,7 +16,7 @@ internal class DailyScheduler(
 ) {
     @Scheduled(cron = "0 0 6 * * *")
     fun loadPmc() {
-        dailyScheduling.pmc.ifTrue { pmcLoaderService.loadFile("/nfs/production3/ma/home/biostudy/EPMC-export/daily") }
+        dailyScheduling.pmc.ifTrue { pmcLoaderService.loadFile(DEFAULT_FOLDER) }
     }
 
     @Scheduled(cron = "0 0 7 * * *")
@@ -25,7 +26,10 @@ internal class DailyScheduler(
 
     @Scheduled(cron = "0 0 8 * * *")
     fun submitPmc() {
-        dailyScheduling.pmc.ifTrue { pmcLoaderService.triggerSubmitter() }
+        dailyScheduling.pmc.ifTrue {
+            pmcLoaderService.triggerSubmitter()
+            exporterTrigger.triggerPmcExport()
+        }
     }
 
     @Scheduled(cron = "0 0 9 * * *")

@@ -98,6 +98,7 @@ class ExtSubmissionService(
         val filter = SubmissionFilter(
             rTimeFrom = request.fromRTime?.let { OffsetDateTime.parse(request.fromRTime) },
             rTimeTo = request.toRTime?.let { OffsetDateTime.parse(request.toRTime) },
+            collection = request.collection,
             released = request.released,
             limit = request.limit,
             offset = request.offset

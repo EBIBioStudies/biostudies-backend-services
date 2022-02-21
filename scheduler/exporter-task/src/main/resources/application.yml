@@ -1,8 +1,21 @@
 app:
   fileName: # Name of the export file
   outputPath: # Path where the export file should be placed
+  mode: # Export mode: PMC, PUBLIC_ONLY
+
+  ftp:
+    host: # FTP host to publish the PMC links
+    user: # FTP user to publish the PMC links
+    password: # FTP password to publish the PMC links
+    port: # FTP port to publish the PMC links
 
   bioStudies:
     url: # BioStudies backend URL
     user: # BioStudies manager user
     password: # BioStudies manager password
+
+spring:
+  data:
+    mongodb:
+      database: # Mongo Database Name
+      uri: # Mongo Database connection URL
