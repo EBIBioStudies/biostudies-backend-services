@@ -1,25 +1,31 @@
 package ac.uk.ebi.biostd.tsv
 
 import ac.uk.ebi.biostd.tsv.deserialization.stream.FileListTsvStreamDeserializer
+import ac.uk.ebi.biostd.validation.InvalidElementException
+import ac.uk.ebi.biostd.validation.REQUIRED_FILE_PATH
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.File
+import ebi.ac.uk.test.createFile
 import ebi.ac.uk.util.collections.second
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 
 const val TSV_FILE_LIST = "FileList.tsv"
 
 @ExtendWith(TemporaryFolderExtension::class)
-class FileListTsvStreamDeserializerTest(temporaryFolder: TemporaryFolder) {
+class FileListTsvStreamDeserializerTest(
+    private val tempFolder: TemporaryFolder
+) {
     private val testInstance = FileListTsvStreamDeserializer()
-    private val tsvFile = temporaryFolder.createFile(TSV_FILE_LIST)
-    private val fileSystem = temporaryFolder.createFile("testFile.txt")
+    private val tsvFile = tempFolder.createFile(TSV_FILE_LIST)
+    private val fileSystem = tempFolder.createFile("testFile.txt")
 
     @BeforeEach
     fun beforeEach() {
@@ -60,6 +66,22 @@ class FileListTsvStreamDeserializerTest(temporaryFolder: TemporaryFolder) {
             testInstance.deserializeFileList(it).forEach { file ->
                 assertThat(file).isEqualToComparingFieldByField(iterator.next())
             }
+        }
+    }
+
+    @Test
+    fun `file list with empty path`() {
+        val tsv = tsv {
+            line("Files", "Attr1", "Attr2")
+            line("test.txt", "a", "b")
+            line("", "c", "d")
+            line()
+        }
+
+        val testFile = tempFolder.createFile("invalid.tsv", tsv.toString())
+        testFile.inputStream().use {
+            val exception = assertThrows<InvalidElementException> { testInstance.deserializeFileList(it).toList() }
+            assertThat(exception.message).isEqualTo("Error at row 2: $REQUIRED_FILE_PATH. Element was not created.")
         }
     }
 }

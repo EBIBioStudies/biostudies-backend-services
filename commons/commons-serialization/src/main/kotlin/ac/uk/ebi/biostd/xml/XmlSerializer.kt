@@ -1,5 +1,7 @@
 package ac.uk.ebi.biostd.xml
 
+import ac.uk.ebi.biostd.validation.InvalidElementException
+import ac.uk.ebi.biostd.validation.REQUIRED_FILE_PATH
 import ac.uk.ebi.biostd.xml.deserializer.AttributeXmlDeserializer
 import ac.uk.ebi.biostd.xml.deserializer.DetailsXmlDeserializer
 import ac.uk.ebi.biostd.xml.deserializer.FileStandaloneXmlDeserializer
@@ -118,9 +120,11 @@ class FileXmlStreamDeserializer : StdDeserializer<File>(File::class.java) {
     override fun deserialize(p: JsonParser, ctxt: DeserializationContext): File {
         val mapper = p.codec as XmlMapper
         val node = p.readValueAsTree<TreeNode>()
+        val path = (node.get(FileFields.PATH.value) as TextNode).textValue().trim()
+        require(path.isNotBlank()) { throw InvalidElementException(REQUIRED_FILE_PATH) }
 
         return File(
-            path = (node.get(FileFields.PATH.value) as TextNode).textValue().trim(),
+            path = path,
             attributes = mapper.convertArray(node, "attributes", "attribute", Array<Attribute>::class.java).toList()
         )
     }
