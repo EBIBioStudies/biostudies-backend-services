@@ -81,7 +81,7 @@ class FileListTsvStreamDeserializerTest(
         val testFile = tempFolder.createFile("invalid.tsv", tsv.toString())
         testFile.inputStream().use {
             val exception = assertThrows<InvalidElementException> { testInstance.deserializeFileList(it).toList() }
-            assertThat(exception.message).isEqualTo("Error at row 2: $REQUIRED_FILE_PATH. Element was not created.")
+            assertThat(exception.message).isEqualTo("Error at row 3: $REQUIRED_FILE_PATH. Element was not created.")
         }
     }
 }

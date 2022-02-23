@@ -42,13 +42,17 @@ internal class FileListTsvStreamDeserializer {
 
     private fun deserializeRow(index: Int, row: List<String>, headers: List<String>): File {
         val (fileName, attributes) = row.destructure()
-        require(fileName.isNotBlank()) { throw InvalidElementException("Error at row $index: $REQUIRED_FILE_PATH") }
+        require(fileName.isNotBlank()) {
+            throw InvalidElementException("Error at row ${index + 1}: $REQUIRED_FILE_PATH")
+        }
 
         return File(fileName, attributes = buildAttributes(attributes, headers, index))
     }
 
     private fun buildAttributes(fields: List<String>, headers: List<String>, idx: Int): List<Attribute> {
-        require(fields.size == headers.size) { throw InvalidElementException("Error at row $idx: $INVALID_TABLE_ROW") }
+        require(fields.size == headers.size) {
+            throw InvalidElementException("Error at row ${idx + 1}: $INVALID_TABLE_ROW")
+        }
 
         return headers.mapIndexed { headerIndex, name -> Attribute(name, fields[headerIndex]) }
     }
