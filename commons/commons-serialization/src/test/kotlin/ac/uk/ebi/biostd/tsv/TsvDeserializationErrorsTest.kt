@@ -10,6 +10,7 @@ import ac.uk.ebi.biostd.validation.InvalidChunkSizeException
 import ac.uk.ebi.biostd.validation.InvalidElementException
 import ac.uk.ebi.biostd.validation.MISPLACED_ATTR_NAME
 import ac.uk.ebi.biostd.validation.MISPLACED_ATTR_VAL
+import ac.uk.ebi.biostd.validation.REQUIRED_FILE_PATH
 import ac.uk.ebi.biostd.validation.REQUIRED_TABLE_ROWS
 import ac.uk.ebi.biostd.validation.SerializationException
 import ebi.ac.uk.dsl.tsv.Tsv
@@ -72,6 +73,18 @@ class TsvDeserializationErrorsTest {
         }.toString()
 
         assertThrows<InvalidChunkSizeException> { deserializer.deserializeElement<Link>(tsv) }
+    }
+
+    @Test
+    fun `empty file path`() {
+        val tsv = tsv {
+            line("File", "")
+            line("Type", "Empty Path")
+            line()
+        }.toString()
+
+        val exception = assertThrows<InvalidElementException> { deserializer.deserializeElement<File>(tsv) }
+        assertThat(exception.message).isEqualTo("$REQUIRED_FILE_PATH. Element was not created.")
     }
 
     @Test

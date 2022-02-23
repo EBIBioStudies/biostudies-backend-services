@@ -1,6 +1,8 @@
 package ac.uk.ebi.biostd.json.deserialization
 
 import ac.uk.ebi.biostd.json.JsonSerializer
+import ac.uk.ebi.biostd.validation.InvalidElementException
+import ac.uk.ebi.biostd.validation.REQUIRED_FILE_PATH
 import com.fasterxml.jackson.module.kotlin.readValue
 import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
@@ -31,6 +33,16 @@ class FileDeserializerTest {
         assertThat(exception.message).isEqualTo(
             "Expecting node: '$node', property: 'path' to be of type 'TextNode' but 'ArrayNode' was found instead"
         )
+    }
+
+    @Test
+    fun `deserialize with empty path`() {
+        val invalidJson = jsonObj {
+            "path" to ""
+        }.toString()
+
+        val exception = assertThrows<InvalidElementException> { testInstance.readValue<File>(invalidJson) }
+        assertThat(exception.message).isEqualTo("$REQUIRED_FILE_PATH. Element was not created.")
     }
 
     @Test

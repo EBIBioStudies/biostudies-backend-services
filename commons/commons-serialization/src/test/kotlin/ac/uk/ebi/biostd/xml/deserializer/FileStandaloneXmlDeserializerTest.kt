@@ -1,10 +1,13 @@
 package ac.uk.ebi.biostd.xml.deserializer
 
+import ac.uk.ebi.biostd.validation.InvalidElementException
+import ac.uk.ebi.biostd.validation.REQUIRED_FILE_PATH
 import ac.uk.ebi.biostd.xml.XmlSerializer
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.File
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.redundent.kotlin.xml.xml
 
 class FileStandaloneXmlDeserializerTest {
@@ -34,5 +37,15 @@ class FileStandaloneXmlDeserializerTest {
         }.toString()
 
         assertThat(testInstance.readValue(xmlFile, File::class.java)).isEqualTo(File("file1.txt"))
+    }
+
+    @Test
+    fun `deserialize file without path`() {
+        val xmlFile = xml("file") {
+            "path" { -"" }
+        }.toString()
+
+        val exception = assertThrows<InvalidElementException> { testInstance.readValue(xmlFile, File::class.java) }
+        assertThat(exception.message).isEqualTo("$REQUIRED_FILE_PATH. Element was not created.")
     }
 }
