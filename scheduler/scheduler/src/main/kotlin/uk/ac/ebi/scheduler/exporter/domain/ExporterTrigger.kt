@@ -47,7 +47,6 @@ class ExporterTrigger(
         )
     }
 
-
     private fun triggerExport(mode: ExporterMode, fileName: String, outputPath: String): Job {
         val job = exporterJob(mode, fileName, outputPath)
         notificationsSender.send(
