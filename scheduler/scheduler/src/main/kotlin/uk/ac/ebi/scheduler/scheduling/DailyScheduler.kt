@@ -26,10 +26,7 @@ internal class DailyScheduler(
 
     @Scheduled(cron = "0 0 8 * * *")
     fun submitPmc() {
-        dailyScheduling.pmc.ifTrue {
-            pmcLoaderService.triggerSubmitter()
-            exporterTrigger.triggerPmcExport()
-        }
+        dailyScheduling.pmc.ifTrue { pmcLoaderService.triggerSubmitter() }
     }
 
     @Scheduled(cron = "0 0 9 * * *")
@@ -43,6 +40,11 @@ internal class DailyScheduler(
     }
 
     @Scheduled(cron = "0 0 20 * * *")
+    fun exportPmcSubmissions() {
+        dailyScheduling.pmc.ifTrue { exporterTrigger.triggerPmcExport() }
+    }
+
+    @Scheduled(cron = "0 0 21 * * *")
     fun exportPublicSubmissions() {
         dailyScheduling.exporter.ifTrue { exporterTrigger.triggerPublicExport() }
     }
