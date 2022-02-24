@@ -17,7 +17,6 @@ import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbReposConfig
 import ac.uk.ebi.biostd.persistence.doc.model.DocAttribute
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.NfsDocFile
-import ac.uk.ebi.biostd.persistence.doc.service.ExtSubmissionRepository
 import ac.uk.ebi.biostd.persistence.model.DbSequence
 import ac.uk.ebi.biostd.persistence.model.DbTag
 import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
@@ -69,6 +68,7 @@ internal class SubmissionRefreshApiTest(private val tempFolder: TemporaryFolder)
     @ExtendWith(SpringExtension::class)
     @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
     @DirtiesContext
+    @EnabledIfSystemProperty(named = "itest.mode", matches = "mongo")
     inner class RefreshSubmissionTest(
         @Autowired val mongoTemplate: MongoTemplate,
         @Autowired val tagsRefRepository: TagDataRepository,
@@ -76,7 +76,6 @@ internal class SubmissionRefreshApiTest(private val tempFolder: TemporaryFolder)
         @Autowired val sequenceRepository: SequenceDataRepository,
         @Autowired val submissionRepository: SubmissionQueryService,
         @Autowired val fileListRepository: FileListDocFileDocDataRepository,
-        @Autowired val extSubmissionRepository: ExtSubmissionRepository,
     ) {
         @LocalServerPort
         private var serverPort: Int = 0
@@ -84,115 +83,7 @@ internal class SubmissionRefreshApiTest(private val tempFolder: TemporaryFolder)
 
         private val releaseDate = LocalDate.of(2017, 7, 4).atStartOfDay().atOffset(UTC)
         private val newReleaseDate = LocalDate.now(UTC).atStartOfDay().atOffset(UTC).plusDays(1)
-
-        @BeforeAll
-        fun beforeAll() {
-            setUpTestData()
-            setUpWebClient()
-            setUpTestSubmission()
-        }
-
-        @Nested
-        @EnabledIfSystemProperty(named = "itest.mode", matches = "mongo")
-        inner class SubmissionRefreshMongoApiTest {
-            @Test
-            fun `refresh mongo submission release date and attributes`() {
-                updateMongoSubmission()
-                updateMongoFileList()
-
-                webClient.refreshSubmission(ACC_NO)
-
-                assertRefreshedSubmission()
-                assertRefreshedFileList()
-            }
-
-            private fun assertRefreshedFileList() {
-                val newFileListDoc = fileListRepository
-                    .findAllBySubmissionAccNoAndSubmissionVersionAndFileListName(ACC_NO, 2, "$FILE_LIST_NAME.pagetab")
-                assertThat(newFileListDoc).hasSize(1)
-                assertThat(newFileListDoc.first().file.attributes.first()).isEqualTo(DocAttribute("GEN", "DEFG"))
-            }
-
-            private fun updateMongoSubmission() {
-                val query = Query(where(SUB_ACC_NO).`is`(ACC_NO).andOperator(where(SUB_VERSION).`is`(1)))
-                val update = update(SUB_TITLE, NEW_SUBTITLE)
-                    .set(SUB_RELEASE_TIME, newReleaseDate.toInstant())
-                    .set(SUB_ATTRIBUTES, listOf(DocAttribute(ATTR_NAME, NEW_ATTR_VALUE)))
-                mongoTemplate.updateFirst(query, update, DocSubmission::class.java)
-            }
-
-            private fun updateMongoFileList() {
-                val fileListDocFiles = fileListRepository.findAll()
-                assertThat(fileListDocFiles).hasSize(1)
-                val fileListDocFile = fileListDocFiles.first()
-                val newDocAttribute = DocAttribute("GEN", "DEFG")
-                val docFile = fileListDocFile.file as NfsDocFile
-                val newDocFile = docFile.copy(attributes = listOf(newDocAttribute))
-
-                fileListRepository.save(fileListDocFile.copy(file = newDocFile))
-            }
-        }
-
-        private fun setUpWebClient() {
-            securityTestService.registerUser(SuperUser)
-            webClient = getWebClient(serverPort, SuperUser)
-        }
-
-        private fun setUpTestData() {
-            sequenceRepository.save(DbSequence("S-BSST"))
-            tagsRefRepository.save(DbTag(classifier = "classifier", name = "tag"))
-        }
-
-        private fun setUpTestSubmission() {
-            val refreshFile = tempFolder.createFile(TEST_FILE_NAME, "file content")
-            val fileList = tempFolder.createFile(
-                "$FILE_LIST_NAME.pagetab.tsv",
-                tsv {
-                    line("Files", "GEN")
-                    line("$FILE_LIST_FILE_NAME.txt", "ABC")
-                }.toString()
-            )
-
-            val fileListFile = tempFolder.createFile("$FILE_LIST_FILE_NAME.txt", "content fileList file")
-
-            webClient.submitSingle(testSubmission, TSV, listOf(refreshFile, fileList, fileListFile))
-
-            assertExtSubmission(
-                extSubmission = submissionRepository.getExtByAccNo(ACC_NO),
-                title = SUBTITLE,
-                releaseTime = releaseDate,
-                attributes = listOf(ATTR_NAME to ATTR_VALUE)
-            )
-
-            val fileListDocFiles = fileListRepository.findAll()
-            assertThat(fileListDocFiles).hasSize(1)
-            assertThat(fileListDocFiles.first().file.attributes.first()).isEqualTo(DocAttribute("GEN", "ABC"))
-        }
-
-        private fun assertRefreshedSubmission() =
-            assertExtSubmission(
-                extSubmission = submissionRepository.getExtByAccNo(ACC_NO),
-                title = NEW_SUBTITLE,
-                releaseTime = newReleaseDate,
-                attributes = listOf(ATTR_NAME to NEW_ATTR_VALUE)
-            )
-    }
-
-    private companion object {
-        const val ROOT_PATH = "test-RootPath"
-        const val RELEASE_DATE_STRING = "2017-07-04"
-
-        const val ACC_NO = "SimpleAcc1"
-        const val SUBTITLE = "Simple Submission"
-        const val ATTR_NAME = "custom-attribute"
-        const val ATTR_VALUE = "custom-attribute-value"
-        const val NEW_SUBTITLE = "New Simple Submission"
-        const val NEW_ATTR_VALUE = "custom-attribute-new-value"
-        const val TEST_FILE_NAME = "refresh-file.txt"
-        const val FILE_LIST_NAME = "fileListName"
-        const val FILE_LIST_FILE_NAME = "fileListFileName"
-
-        val testSubmission = submission(ACC_NO) {
+        private val testSubmission = submission(ACC_NO) {
             title = SUBTITLE
             releaseDate = RELEASE_DATE_STRING
             rootPath = ROOT_PATH
@@ -213,12 +104,84 @@ internal class SubmissionRefreshApiTest(private val tempFolder: TemporaryFolder)
                 )
             }
         }
+        val refreshFile = tempFolder.createFile(TEST_FILE_NAME, "file content")
+        val fileList = tempFolder.createFile(
+            "$FILE_LIST_NAME.pagetab.tsv",
+            tsv {
+                line("Files", "GEN")
+                line("$FILE_LIST_FILE_NAME.txt", FILE_ATTR_VALUE)
+            }.toString()
+        )
+        val fileListFile = tempFolder.createFile("$FILE_LIST_FILE_NAME.txt", "content fileList file")
+
+        @BeforeAll
+        fun init() {
+            sequenceRepository.save(DbSequence("S-BSST"))
+            tagsRefRepository.save(DbTag(classifier = "classifier", name = "tag"))
+
+            securityTestService.registerUser(SuperUser)
+            webClient = getWebClient(serverPort, SuperUser)
+        }
+
+        @Test
+        fun `refresh mongo submission release date and attributes`() {
+            webClient.submitSingle(testSubmission, TSV, listOf(refreshFile, fileList, fileListFile))
+            assertExtSubmission(
+                extSubmission = submissionRepository.getExtByAccNo(ACC_NO),
+                title = SUBTITLE,
+                releaseTime = releaseDate,
+                attributes = listOf(ATTR_NAME to ATTR_VALUE)
+            )
+            assertFileListDocFileAttribute(subVersion = 1, attribute = DocAttribute("GEN", FILE_ATTR_VALUE))
+
+            updateMongoSubmission()
+            updateMongoFileList()
+
+            webClient.refreshSubmission(ACC_NO)
+
+            assertExtSubmission(
+                extSubmission = submissionRepository.getExtByAccNo(ACC_NO),
+                title = NEW_SUBTITLE,
+                releaseTime = newReleaseDate,
+                attributes = listOf(ATTR_NAME to NEW_ATTR_VALUE)
+            )
+            assertFileListDocFileAttribute(subVersion = 2, attribute = DocAttribute("GEN", FILE_NEW_ATTR_VALUE))
+        }
+
+        private fun updateMongoSubmission() {
+            val query = Query(where(SUB_ACC_NO).`is`(ACC_NO).andOperator(where(SUB_VERSION).`is`(1)))
+            val update = update(SUB_TITLE, NEW_SUBTITLE)
+                .set(SUB_RELEASE_TIME, newReleaseDate.toInstant())
+                .set(SUB_ATTRIBUTES, listOf(DocAttribute(ATTR_NAME, NEW_ATTR_VALUE)))
+            mongoTemplate.updateFirst(query, update, DocSubmission::class.java)
+        }
+
+        private fun updateMongoFileList() {
+            val fileListDocFiles = fileListRepository
+                .findAllBySubmissionAccNoAndSubmissionVersionAndFileListName(ACC_NO, 1, "$FILE_LIST_NAME.pagetab")
+            assertThat(fileListDocFiles).hasSize(1)
+            val fileListDocFile = fileListDocFiles.first()
+            val newDocAttribute = DocAttribute("GEN", FILE_NEW_ATTR_VALUE)
+            val docFile = fileListDocFile.file as NfsDocFile
+            val newDocFile = docFile.copy(attributes = listOf(newDocAttribute))
+
+            fileListRepository.save(fileListDocFile.copy(file = newDocFile))
+        }
+
+        private fun assertFileListDocFileAttribute(subVersion: Int, attribute: DocAttribute) {
+            val files = fileListRepository
+                .findAllBySubmissionAccNoAndSubmissionVersionAndFileListName(ACC_NO,
+                    subVersion,
+                    "$FILE_LIST_NAME.pagetab")
+            assertThat(files).hasSize(1)
+            assertThat(files.first().file.attributes.first()).isEqualTo(attribute)
+        }
 
         fun assertExtSubmission(
             extSubmission: ExtSubmission,
             title: String,
             releaseTime: OffsetDateTime,
-            attributes: List<Pair<String, String>>
+            attributes: List<Pair<String, String>>,
         ) {
             assertThat(extSubmission.title).isEqualTo(title)
             assertThat(extSubmission.releaseTime).isEqualTo(releaseTime)
@@ -241,5 +204,21 @@ internal class SubmissionRefreshApiTest(private val tempFolder: TemporaryFolder)
                 assertThat(it.attributes.first().value).isEqualTo(type)
             }
         }
+    }
+
+    private companion object {
+        const val ROOT_PATH = "test-RootPath"
+        const val RELEASE_DATE_STRING = "2017-07-04"
+        const val ACC_NO = "SimpleAcc1"
+        const val SUBTITLE = "Simple Submission"
+        const val ATTR_NAME = "custom-attribute"
+        const val ATTR_VALUE = "custom-attribute-value"
+        const val FILE_ATTR_VALUE = "ABC"
+        const val FILE_NEW_ATTR_VALUE = "DEFG"
+        const val NEW_SUBTITLE = "New Simple Submission"
+        const val NEW_ATTR_VALUE = "custom-attribute-new-value"
+        const val TEST_FILE_NAME = "refresh-file.txt"
+        const val FILE_LIST_NAME = "fileListName"
+        const val FILE_LIST_FILE_NAME = "fileListFileName"
     }
 }
