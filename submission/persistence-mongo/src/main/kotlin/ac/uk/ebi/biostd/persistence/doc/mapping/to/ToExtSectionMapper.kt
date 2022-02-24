@@ -12,7 +12,8 @@ class ToExtSectionMapper(private val toExtFileListMapper: ToExtFileListMapper) {
         subAccNo: String,
         subVersion: Int,
         includeFileListFiles: Boolean,
-    ): ExtSection = ExtSection(accNo = docSection.accNo,
+    ): ExtSection = ExtSection(
+        accNo = docSection.accNo,
         type = docSection.type,
         fileList = docSection.fileList?.let {
             toExtFileListMapper.toExtFileList(it, subAccNo, subVersion, includeFileListFiles)
@@ -20,7 +21,8 @@ class ToExtSectionMapper(private val toExtFileListMapper: ToExtFileListMapper) {
         attributes = docSection.attributes.toExtAttributes(),
         sections = docSection.sections.map { it.toExtSections(subAccNo, subVersion, includeFileListFiles) },
         files = docSection.files.map { it.toExtFiles() },
-        links = docSection.links.map { it.toExtLinks() })
+        links = docSection.links.map { it.toExtLinks() }
+    )
 
     private fun Either<DocSection, DocSectionTable>.toExtSections(
         subAccNo: String,

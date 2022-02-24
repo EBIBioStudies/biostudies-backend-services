@@ -37,14 +37,18 @@ class ToExtSectionMapperTest(private val temporaryFolder: TemporaryFolder) {
     private val toExtFileListMapper: ToExtFileListMapper = mockk()
     private val testInstance = ToExtSectionMapper(toExtFileListMapper)
     private val testFireDocFile = FileTestHelper.fireDocFile
-    private val testNfsDocFile = FileTestHelper.nfsDocFile.copy(fullPath = sectionFile.absolutePath,
+    private val testNfsDocFile = FileTestHelper.nfsDocFile.copy(
+        fullPath = sectionFile.absolutePath,
         md5 = sectionFile.md5(),
-        fileSize = sectionFile.size())
+        fileSize = sectionFile.size()
+    )
 
     @Test
     fun `to ext Submission without FileListFiles`() {
-        val section = docSection.copy(files = listOf(Either.left(testNfsDocFile), Either.left(testFireDocFile)),
-            fileList = docFileList)
+        val section = docSection.copy(
+            files = listOf(Either.left(testNfsDocFile), Either.left(testFireDocFile)),
+            fileList = docFileList
+        )
 
         every { toExtFileListMapper.toExtFileList(docFileList, "subAccNo", 121, false) } returns extFileList
         val extSection = testInstance.toExtSection(section, "subAccNo", 121, includeFileListFiles = false)
@@ -55,8 +59,10 @@ class ToExtSectionMapperTest(private val temporaryFolder: TemporaryFolder) {
 
     @Test
     fun `to ext Submission including FileListFiles`() {
-        val section = docSection.copy(files = listOf(Either.left(testNfsDocFile), Either.left(testFireDocFile)),
-            fileList = docFileList)
+        val section = docSection.copy(
+            files = listOf(Either.left(testNfsDocFile), Either.left(testFireDocFile)),
+            fileList = docFileList
+        )
 
         every { toExtFileListMapper.toExtFileList(docFileList, "subAccNo", 121, true) } returns extFileList
         val extSection = testInstance.toExtSection(section, "subAccNo", 121, includeFileListFiles = true)

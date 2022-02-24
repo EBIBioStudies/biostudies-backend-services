@@ -75,7 +75,7 @@ internal class SubmissionRefreshApiTest(private val tempFolder: TemporaryFolder)
         @Autowired val securityTestService: SecurityTestService,
         @Autowired val sequenceRepository: SequenceDataRepository,
         @Autowired val submissionRepository: SubmissionQueryService,
-        @Autowired val fileListRepository: FileListDocFileDocDataRepository,
+        @Autowired val fileListRepository: FileListDocFileDocDataRepository
     ) {
         @LocalServerPort
         private var serverPort: Int = 0
@@ -170,9 +170,11 @@ internal class SubmissionRefreshApiTest(private val tempFolder: TemporaryFolder)
 
         private fun assertFileListDocFileAttribute(subVersion: Int, attribute: DocAttribute) {
             val files = fileListRepository
-                .findAllBySubmissionAccNoAndSubmissionVersionAndFileListName(ACC_NO,
+                .findAllBySubmissionAccNoAndSubmissionVersionAndFileListName(
+                    ACC_NO,
                     subVersion,
-                    "$FILE_LIST_NAME.pagetab")
+                    "$FILE_LIST_NAME.pagetab"
+                )
             assertThat(files).hasSize(1)
             assertThat(files.first().file.attributes.first()).isEqualTo(attribute)
         }

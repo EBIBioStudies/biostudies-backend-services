@@ -14,7 +14,8 @@ internal const val FILES_DIR = "Files"
 
 class ToExtSubmissionMapper(private val toExtSectionMapper: ToExtSectionMapper) {
     internal fun toExtSubmission(sub: DocSubmission, includeFileListFiles: Boolean): ExtSubmission =
-        ExtSubmission(accNo = sub.accNo,
+        ExtSubmission(
+            accNo = sub.accNo,
             owner = sub.owner,
             submitter = sub.submitter,
             title = sub.title,
@@ -35,7 +36,8 @@ class ToExtSubmissionMapper(private val toExtSectionMapper: ToExtSectionMapper) 
             tags = sub.tags.map { ExtTag(it.name, it.value) },
             stats = sub.stats.map { it.toExtStat() },
             pageTabFiles = sub.pageTabFiles.map { it.toExtFile() },
-            storageMode = sub.storageMode)
+            storageMode = sub.storageMode
+        )
 
     private fun getStatus(status: DocProcessingStatus) = when (status) {
         DocProcessingStatus.PROCESSED -> ExtProcessingStatus.PROCESSED
