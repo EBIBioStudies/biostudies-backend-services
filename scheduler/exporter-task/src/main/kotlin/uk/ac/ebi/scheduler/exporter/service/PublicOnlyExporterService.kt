@@ -26,7 +26,7 @@ class PublicOnlyExporterService(
     private val appProperties: ApplicationProperties,
     private val serializationService: SerializationService
 ) {
-    private val jsonWriter = jsonWriter()
+    private lateinit var jsonWriter: JsonGenerator
 
     fun exportPublicSubmissions() {
         startExportFile()
@@ -36,6 +36,7 @@ class PublicOnlyExporterService(
 
     private fun startExportFile() {
         logger.info { "Exporting public submissions" }
+        jsonWriter = jsonWriter()
         jsonWriter.writeStartObject()
         jsonWriter.writeArrayFieldStart(SUBMISSIONS)
     }
