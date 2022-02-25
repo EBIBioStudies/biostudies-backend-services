@@ -27,22 +27,27 @@ class ExporterTrigger(
     private val clusterOperations: ClusterOperations,
     private val notificationsSender: NotificationsSender
 ) {
-    fun triggerPmcExport(): Job =
-        triggerExport(
+    fun triggerPmcExport(): Job {
+        logger.info { "Triggering PMC export job" }
+
+        return triggerExport(
             PMC,
             exporterProperties.pmc.fileName,
             exporterProperties.pmc.outputPath
         )
+    }
 
-    fun triggerPublicExport(): Job =
-        triggerExport(
+    fun triggerPublicExport(): Job {
+        logger.info { "Triggering public only export job" }
+
+        return triggerExport(
             PUBLIC_ONLY,
             exporterProperties.publicOnly.fileName,
             exporterProperties.publicOnly.outputPath
         )
+    }
 
     private fun triggerExport(mode: ExporterMode, fileName: String, outputPath: String): Job {
-        logger.info { "triggering public export job" }
         val job = exporterJob(mode, fileName, outputPath)
         notificationsSender.send(
             Report(

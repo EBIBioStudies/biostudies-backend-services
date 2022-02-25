@@ -61,6 +61,7 @@ app:
   ftpPath: # Absolute path to the folder to be used ftp hardlinks
   tempDirPath: # Absolute path of the temp folder to store files
   requestFilesPath: # Base directory absolute path where request file list are stored.
+  fireTempDirPath: # Absolute path of the temp folder for FIRE storage
   instanceBaseUrl: # Instance base url e.g. http://server.ebi.ac.uk:5541
   fire:
     host: # FIRE host
