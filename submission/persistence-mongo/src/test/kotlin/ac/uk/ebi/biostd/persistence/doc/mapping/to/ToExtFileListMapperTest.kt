@@ -66,13 +66,6 @@ class ToExtFileListMapperTest(private val temporaryFolder: TemporaryFolder) {
         assertThat(extFileList.files).hasSize(1)
         assertThat(extFileList.files.first()).isEqualTo(fireDocFile.toExtFile())
         assertPageTabs(extFileList.pageTabFiles)
-        verify(exactly = 1) {
-            fileListDocFileRepository.findAllBySubmissionAccNoAndSubmissionVersionAndFileListName(
-                "S-TEST123",
-                1,
-                "file-list.tsv"
-            )
-        }
     }
 
     @Test
@@ -85,11 +78,7 @@ class ToExtFileListMapperTest(private val temporaryFolder: TemporaryFolder) {
         assertThat(extFileList.files).hasSize(0)
         assertPageTabs(extFileList.pageTabFiles)
         verify(exactly = 0) {
-            fileListDocFileRepository.findAllBySubmissionAccNoAndSubmissionVersionAndFileListName(
-                "S-TEST123",
-                1,
-                "file-list.tsv"
-            )
+            fileListDocFileRepository.findAllBySubmissionAccNoAndSubmissionVersionAndFileListName(any(), any(), any())
         }
     }
 

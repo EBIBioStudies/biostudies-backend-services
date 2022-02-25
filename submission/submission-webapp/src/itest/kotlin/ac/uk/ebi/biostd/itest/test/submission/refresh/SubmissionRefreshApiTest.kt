@@ -7,16 +7,21 @@ import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_DOC_ATTRIBUTES
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ATTRIBUTES
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_RELEASE_TIME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_TITLE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_VERSION
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_FILE
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_SUBMISSION_ACC_NO
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_SUBMISSION_ID
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_SUBMISSION_VERSION
 import ac.uk.ebi.biostd.persistence.doc.db.data.FileListDocFileDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbReposConfig
 import ac.uk.ebi.biostd.persistence.doc.model.DocAttribute
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
-import ac.uk.ebi.biostd.persistence.doc.model.NfsDocFile
+import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
 import ac.uk.ebi.biostd.persistence.model.DbSequence
 import ac.uk.ebi.biostd.persistence.model.DbTag
 import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
@@ -75,7 +80,7 @@ internal class SubmissionRefreshApiTest(private val tempFolder: TemporaryFolder)
         @Autowired val securityTestService: SecurityTestService,
         @Autowired val sequenceRepository: SequenceDataRepository,
         @Autowired val submissionRepository: SubmissionQueryService,
-        @Autowired val fileListRepository: FileListDocFileDocDataRepository
+        @Autowired val fileListRepository: FileListDocFileDocDataRepository,
     ) {
         @LocalServerPort
         private var serverPort: Int = 0
@@ -100,7 +105,10 @@ internal class SubmissionRefreshApiTest(private val tempFolder: TemporaryFolder)
 
                 fileList = FileList(
                     FILE_LIST_NAME,
-                    listOf(File("$FILE_LIST_FILE_NAME.txt", attributes = listOf(Attribute("GEN", "ABC"))))
+                    listOf(File(
+                        "$FILE_LIST_FILE_NAME.txt",
+                        attributes = listOf(Attribute(FILE_ATTR_NAME, FILE_ATTR_VALUE))
+                    ))
                 )
             }
         }
@@ -108,7 +116,7 @@ internal class SubmissionRefreshApiTest(private val tempFolder: TemporaryFolder)
         val fileList = tempFolder.createFile(
             "$FILE_LIST_NAME.pagetab.tsv",
             tsv {
-                line("Files", "GEN")
+                line("Files", FILE_ATTR_NAME)
                 line("$FILE_LIST_FILE_NAME.txt", FILE_ATTR_VALUE)
             }.toString()
         )
@@ -132,7 +140,7 @@ internal class SubmissionRefreshApiTest(private val tempFolder: TemporaryFolder)
                 releaseTime = releaseDate,
                 attributes = listOf(ATTR_NAME to ATTR_VALUE)
             )
-            assertFileListDocFileAttribute(subVersion = 1, attribute = DocAttribute("GEN", FILE_ATTR_VALUE))
+            assertFileListDocFileAttribute(subVersion = 1, attribute = DocAttribute(FILE_ATTR_NAME, FILE_ATTR_VALUE))
 
             updateMongoSubmission()
             updateMongoFileList()
@@ -145,7 +153,8 @@ internal class SubmissionRefreshApiTest(private val tempFolder: TemporaryFolder)
                 releaseTime = newReleaseDate,
                 attributes = listOf(ATTR_NAME to NEW_ATTR_VALUE)
             )
-            assertFileListDocFileAttribute(subVersion = 2, attribute = DocAttribute("GEN", FILE_NEW_ATTR_VALUE))
+            assertFileListDocFileAttribute(subVersion = 2,
+                attribute = DocAttribute(FILE_ATTR_NAME, FILE_NEW_ATTR_VALUE))
         }
 
         private fun updateMongoSubmission() {
@@ -157,15 +166,20 @@ internal class SubmissionRefreshApiTest(private val tempFolder: TemporaryFolder)
         }
 
         private fun updateMongoFileList() {
-            val fileListDocFiles = fileListRepository
-                .findAllBySubmissionAccNoAndSubmissionVersionAndFileListName(ACC_NO, 1, "$FILE_LIST_NAME.pagetab")
-            assertThat(fileListDocFiles).hasSize(1)
-            val fileListDocFile = fileListDocFiles.first()
-            val newDocAttribute = DocAttribute("GEN", FILE_NEW_ATTR_VALUE)
-            val docFile = fileListDocFile.file as NfsDocFile
-            val newDocFile = docFile.copy(attributes = listOf(newDocAttribute))
+            val docSubmission = mongoTemplate.find(
+                Query(where(SUB_ACC_NO).`is`(ACC_NO).andOperator(where(SUB_VERSION).`is`(1))),
+                DocSubmission::class.java
+            ).first()
 
-            fileListRepository.save(fileListDocFile.copy(file = newDocFile))
+            val query = Query(where(FILE_LIST_DOC_FILE_SUBMISSION_ID).`is`(docSubmission.id)
+                .andOperator(where(FILE_LIST_DOC_FILE_SUBMISSION_ACC_NO).`is`(ACC_NO)
+                    .andOperator(where(FILE_LIST_DOC_FILE_SUBMISSION_VERSION).`is`(1)))
+            )
+            val update = update(
+                "$FILE_LIST_DOC_FILE_FILE.$FILE_DOC_ATTRIBUTES",
+                listOf(DocAttribute(FILE_ATTR_NAME, FILE_NEW_ATTR_VALUE))
+            )
+            mongoTemplate.updateFirst(query, update, FileListDocFile::class.java)
         }
 
         private fun assertFileListDocFileAttribute(subVersion: Int, attribute: DocAttribute) {
@@ -215,6 +229,7 @@ internal class SubmissionRefreshApiTest(private val tempFolder: TemporaryFolder)
         const val SUBTITLE = "Simple Submission"
         const val ATTR_NAME = "custom-attribute"
         const val ATTR_VALUE = "custom-attribute-value"
+        const val FILE_ATTR_NAME = "GEN"
         const val FILE_ATTR_VALUE = "ABC"
         const val FILE_NEW_ATTR_VALUE = "DEFG"
         const val NEW_SUBTITLE = "New Simple Submission"
