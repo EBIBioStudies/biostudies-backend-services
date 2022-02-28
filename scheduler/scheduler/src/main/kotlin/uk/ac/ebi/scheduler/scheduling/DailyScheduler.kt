@@ -14,6 +14,11 @@ internal class DailyScheduler(
     private val pmcLoaderService: PmcLoaderService,
     private val submissionReleaserTrigger: SubmissionReleaserTrigger
 ) {
+    @Scheduled(cron = "0 0 1 * * *")
+    fun releaseSubmissions() {
+        dailyScheduling.releaser.ifTrue { submissionReleaserTrigger.triggerSubmissionReleaser() }
+    }
+
     @Scheduled(cron = "0 0 6 * * *")
     fun loadPmc() {
         dailyScheduling.pmc.ifTrue { pmcLoaderService.loadFile(DEFAULT_FOLDER) }
@@ -27,11 +32,6 @@ internal class DailyScheduler(
     @Scheduled(cron = "0 0 8 * * *")
     fun submitPmc() {
         dailyScheduling.pmc.ifTrue { pmcLoaderService.triggerSubmitter() }
-    }
-
-    @Scheduled(cron = "0 0 9 * * *")
-    fun releaseSubmissions() {
-        dailyScheduling.releaser.ifTrue { submissionReleaserTrigger.triggerSubmissionReleaser() }
     }
 
     @Scheduled(cron = "0 0 10 * * *")
