@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.submission.web.resources.ext
 
-import ac.uk.ebi.biostd.submission.web.model.ExtPage
+import ebi.ac.uk.extended.model.WebExtPage
 import ac.uk.ebi.biostd.submission.web.model.ExtPageRequest
 import ebi.ac.uk.extended.model.ExtSubmission
 import io.mockk.clearAllMocks
@@ -66,7 +66,7 @@ class ExtendedPageMapperTest {
         assertThat(page.previous).isEqualTo("$BASE/submissions/extended?offset=0&limit=1&fromRTime=$from&toRTime=$to")
     }
 
-    private fun assertBasicPageAttributes(page: ExtPage, extSubmission: ExtSubmission) {
+    private fun assertBasicPageAttributes(page: WebExtPage, extSubmission: ExtSubmission) {
         assertThat(page.content).isEqualTo(listOf(extSubmission))
         assertThat(page.totalElements).isEqualTo(3)
         assertThat(page.offset).isEqualTo(1)

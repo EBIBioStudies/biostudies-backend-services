@@ -1,5 +1,6 @@
 package uk.ac.ebi.extended.serialization.deserializers
 
+import com.fasterxml.jackson.module.kotlin.readValue
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.extended.model.ExtFileList
 import org.assertj.core.api.Assertions.assertThat
@@ -8,7 +9,6 @@ import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILES_U
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_NAME
 import uk.ac.ebi.extended.serialization.serializers.FILE_LIST_URL
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
-import uk.ac.ebi.serialization.extensions.deserialize
 
 class ExtFileListDeserializerTest {
     private val testInstance = ExtSerializationService.mapper
@@ -20,8 +20,8 @@ class ExtFileListDeserializerTest {
             FILES_URL to "$FILE_LIST_URL/S-BSST1/referencedFiles/file-list"
         }.toString()
 
-        val extFileList = testInstance.deserialize<ExtFileList>(json)
-        assertThat(extFileList.fileName).isEqualTo("file-list")
+        val extFileList = testInstance.readValue<ExtFileList>(json)
+        assertThat(extFileList.filePath).isEqualTo("file-list")
         assertThat(extFileList.filesUrl).isEqualTo("$FILE_LIST_URL/S-BSST1/referencedFiles/file-list")
         assertThat(extFileList.files).isEmpty()
     }

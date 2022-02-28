@@ -8,16 +8,14 @@ import ac.uk.ebi.biostd.submission.domain.helpers.SourceGenerator
 import ac.uk.ebi.biostd.submission.domain.service.ExtSubmissionService
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionService
 import ac.uk.ebi.biostd.submission.exceptions.ConcurrentProcessingSubmissionException
-import ac.uk.ebi.biostd.submission.model.SubmissionRequest
+import ac.uk.ebi.biostd.submission.model.SubmitRequest
 import ac.uk.ebi.biostd.submission.web.model.ContentSubmitWebRequest
 import ac.uk.ebi.biostd.submission.web.model.FileSubmitWebRequest
 import ac.uk.ebi.biostd.submission.web.model.OnBehalfRequest
-import ac.uk.ebi.biostd.submission.web.model.RefreshWebRequest
 import ebi.ac.uk.api.security.GetOrRegisterUserRequest
 import ebi.ac.uk.extended.mapping.to.toSimpleSubmission
 import ebi.ac.uk.extended.model.ExtProcessingStatus.PROCESSED
 import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.extended.model.FileMode
 import ebi.ac.uk.extended.model.allSectionsFiles
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.model.Submission
@@ -49,7 +47,7 @@ class SubmitWebHandler(
 
     fun submitAsync(request: FileSubmitWebRequest) = submissionService.submitAsync(buildRequest(request))
 
-    private fun buildRequest(request: ContentSubmitWebRequest): SubmissionRequest {
+    private fun buildRequest(request: ContentSubmitWebRequest): SubmitRequest {
         val sub = serializationService.deserializeSubmission(request.submission, request.format)
         val extSub = extSubmissionService.findExtendedSubmission(sub.accNo)?.also { requireProcessed(it) }
 
@@ -63,7 +61,7 @@ class SubmitWebHandler(
         )
         val submission = withAttributes(submission(request.submission, request.format, source), request.attrs)
 
-        return SubmissionRequest(
+        return SubmitRequest(
             submission = submission,
             submitter = request.submitter,
             onBehalfUser = request.onBehalfRequest?.let { getOnBehalfUser(it) },
@@ -74,7 +72,7 @@ class SubmitWebHandler(
         )
     }
 
-    private fun buildRequest(request: FileSubmitWebRequest): SubmissionRequest {
+    private fun buildRequest(request: FileSubmitWebRequest): SubmitRequest {
         val sub = serializationService.deserializeSubmission(request.submission)
         val extSub = extSubmissionService.findExtendedSubmission(sub.accNo)?.apply { requireProcessed(this) }
 
@@ -88,7 +86,7 @@ class SubmitWebHandler(
         )
         val submission = withAttributes(submission(request.submission, source), request.attrs)
         userFilesService.uploadFile(request.submitter, DIRECT_UPLOAD_PATH, request.submission)
-        return SubmissionRequest(
+        return SubmitRequest(
             submission = submission,
             submitter = request.submitter,
             onBehalfUser = request.onBehalfRequest?.let { getOnBehalfUser(it) },
@@ -96,23 +94,6 @@ class SubmitWebHandler(
             method = FILE,
             mode = request.fileMode
         )
-    }
-
-    fun refreshSubmission(request: RefreshWebRequest): Submission {
-        val submission = submissionService.getSubmission(request.accNo).toSimpleSubmission()
-        val extSub = extSubmissionService.findExtendedSubmission(request.accNo)?.apply { requireProcessed(this) }
-        val files = extSub?.allSectionsFiles.orEmpty()
-        val source = sourceGenerator.submissionSources(RequestSources(previousFiles = files))
-
-        return submissionService.submit(
-            SubmissionRequest(
-                submission = submission,
-                submitter = request.user,
-                sources = source,
-                method = PAGE_TAB,
-                mode = FileMode.MOVE
-            )
-        ).toSimpleSubmission()
     }
 
     private fun getOnBehalfUser(onBehalfRequest: OnBehalfRequest): SecurityUser {
@@ -125,7 +106,7 @@ class SubmitWebHandler(
         return securityQueryService.getOrCreateInactive(registerRequest.userEmail, registerRequest.userName!!)
     }
 
-    private fun withAttributes(submission: Submission, attrs: Map<String, String>): Submission {
+    private fun withAttributes(submission: Submission, attrs: Map<String, String?>): Submission {
         attrs.forEach { submission[it.key] = it.value }
         return submission
     }

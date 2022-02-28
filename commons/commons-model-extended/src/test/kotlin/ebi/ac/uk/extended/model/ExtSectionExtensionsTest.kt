@@ -2,6 +2,8 @@ package ebi.ac.uk.extended.model
 
 import arrow.core.Either.Companion.left
 import arrow.core.Either.Companion.right
+import ebi.ac.uk.io.ext.md5
+import ebi.ac.uk.io.ext.size
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
@@ -34,7 +36,8 @@ class ExtSectionExtensionsTest(private val temporaryFolder: TemporaryFolder) {
 
     @Test
     fun allReferencedFiles() {
-        val nfsFile = NfsFile("filePath", "relPath", temporaryFolder.createFile("file.txt"))
+        val file = temporaryFolder.createFile("file.txt")
+        val nfsFile = NfsFile("filePath", "relPath", file, file.absolutePath, file.md5(), file.size())
         val fireFile = FireFile("filePath", "relPath", "fireId", "md5", 1L, listOf())
         val fireDirectory = FireDirectory("filePath", "relPath", "md5", 1L, listOf())
 
@@ -54,12 +57,17 @@ class ExtSectionExtensionsTest(private val temporaryFolder: TemporaryFolder) {
 
     @Test
     fun allFiles() {
-        val nfsFile = NfsFile("filePath", "relPath", temporaryFolder.createFile("file1.txt"))
+        val tmpFile = temporaryFolder.createFile("file.txt")
+        val nfsFile = NfsFile("filePath", "relPath", tmpFile, tmpFile.absolutePath, tmpFile.md5(), tmpFile.size())
+
         val fireFile = FireFile("filePath", "relPath", "fireId", "md5", 1, listOf())
-        val nfsFile1 = NfsFile("filePath", "relPath", temporaryFolder.createFile("file2.txt"))
+
+        val tmpFile2 = temporaryFolder.createFile("file2.txt")
+        val nfsFile2 = NfsFile("filePath", "relPath", tmpFile2, tmpFile2.absolutePath, tmpFile2.md5(), tmpFile2.size())
+
         val extSection = ExtSection(
             type = "section",
-            files = listOf(left(nfsFile), left(fireFile), right(ExtFileTable(nfsFile1)))
+            files = listOf(left(nfsFile), left(fireFile), right(ExtFileTable(nfsFile2)))
         )
 
         val result = extSection.allFiles
@@ -68,7 +76,7 @@ class ExtSectionExtensionsTest(private val temporaryFolder: TemporaryFolder) {
         val (file1, file2, file3) = result
         assertThat(file1).isEqualTo(nfsFile)
         assertThat(file2).isEqualTo(fireFile)
-        assertThat(file3).isEqualTo(nfsFile1)
+        assertThat(file3).isEqualTo(nfsFile2)
     }
 
     @Test

@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.submission.web.resources
 
 import ac.uk.ebi.biostd.persistence.common.model.BasicSubmission
 import ac.uk.ebi.biostd.submission.converters.BioUser
+import ac.uk.ebi.biostd.submission.model.ReleaseRequest
 import ac.uk.ebi.biostd.submission.web.handlers.SubmissionsWebHandler
 import ac.uk.ebi.biostd.submission.web.model.SubmissionFilterRequest
 import ac.uk.ebi.biostd.submission.web.model.asFilter
@@ -12,6 +13,8 @@ import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.bind.annotation.RequestParam
@@ -39,6 +42,12 @@ class SubmissionResource(
         @BioUser user: SecurityUser,
         @RequestParam submissions: List<String>
     ): Unit = submissionsWebHandler.deleteSubmissions(submissions, user)
+
+    @PutMapping("/release")
+    fun releaseSubmission(
+        @BioUser user: SecurityUser,
+        @RequestBody request: ReleaseRequest
+    ): Unit = submissionsWebHandler.releaseSubmission(request, user)
 
     private fun BasicSubmission.asDto() =
         SubmissionDto(

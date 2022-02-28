@@ -33,15 +33,22 @@ import ebi.ac.uk.model.SectionsTable
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.Table
 import uk.ac.ebi.serialization.deserializers.EitherDeserializer
+import uk.ac.ebi.serialization.extensions.deserializeList
+import uk.ac.ebi.serialization.extensions.serializeList
 import uk.ac.ebi.serialization.serializers.EitherSerializer
+import java.io.InputStream
+import java.io.OutputStream
 
 internal class JsonSerializer {
     fun <T> serialize(element: T, pretty: Boolean = false): String {
-        return if (pretty)
-            mapper.writerWithDefaultPrettyPrinter().writeValueAsString(element)
-        else
-            mapper.writeValueAsString(element)
+        return if (pretty) mapper.writerWithDefaultPrettyPrinter().writeValueAsString(element)
+        else mapper.writeValueAsString(element)
     }
+
+    fun serializeFileList(fileList: Sequence<File>, outputStream: OutputStream) =
+        mapper.serializeList(fileList, outputStream)
+
+    fun deserializeFileList(inputStream: InputStream): Sequence<File> = mapper.deserializeList(inputStream)
 
     inline fun <reified T> deserialize(value: String) = mapper.readValue<T>(value)
 

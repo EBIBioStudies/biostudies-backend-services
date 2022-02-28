@@ -33,12 +33,23 @@ spring:
     username: # RabbitMQ user
     password: # RabbitMQ password
     port: # RabbitMQ port
+    listener:
+      direct:
+        prefetch: 25
+      simple:
+        prefetch: 25
 
   servlet:
     multipart:
       max-file-size: 20GB
       max-request-size: 20GB
       location: ${app.tempDirPath}
+
+server:
+  tomcat:
+    max-http-form-post-size: 50MB
+    max-swallow-size: 50MB
+
 
 logging:
   file:
@@ -49,6 +60,8 @@ app:
   submissionPath: # Absolute path to the folder to be used as submission storage
   ftpPath: # Absolute path to the folder to be used ftp hardlinks
   tempDirPath: # Absolute path of the temp folder to store files
+  requestFilesPath: # Base directory absolute path where request file list are stored.
+  fireTempDirPath: # Absolute path of the temp folder for FIRE storage
   instanceBaseUrl: # Instance base url e.g. http://server.ebi.ac.uk:5541
   fire:
     host: # FIRE host
@@ -67,7 +80,6 @@ app:
       beta: # Instance key for the submission tool BETA environment
       prod: # Instance key for the submission tool PROD environment
   persistence:
-    enableMongo: true
     enableFire: true
   mongo:
     execute-migrations: true

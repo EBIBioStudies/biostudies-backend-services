@@ -5,6 +5,7 @@ import ac.uk.ebi.biostd.persistence.filesystem.nfs.nfsCopy
 import ac.uk.ebi.biostd.persistence.filesystem.nfs.nfsMove
 import ebi.ac.uk.extended.model.FileMode.COPY
 import ebi.ac.uk.extended.model.NfsFile
+import ebi.ac.uk.extended.model.createNfsFile
 import ebi.ac.uk.io.Permissions
 import ebi.ac.uk.io.RWXR_XR_X
 import ebi.ac.uk.io.RW_R__R__
@@ -37,7 +38,7 @@ class NfsFileProcessingConfigTest(private val tempFolder: TemporaryFolder) {
         file = folder.createNewFile("test.txt")
         subFolder = tempFolder.createDirectory("subFolder")
         targetFolder = tempFolder.createDirectory("target")
-        extFile = NfsFile("folder/test.txt", "Files/folder/test.txt", "root/Files/folder/test.txt", file)
+        extFile = createNfsFile("folder/test.txt", "Files/folder/test.txt", file)
     }
 
     @Test

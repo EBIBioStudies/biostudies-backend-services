@@ -25,11 +25,12 @@ internal class GroupFilesClient(private val template: RestTemplate) : GroupFiles
         val requestCallback = RequestCallback { it.headers.accept = listOf(MediaType.APPLICATION_OCTET_STREAM) }
         val responseExtractor = ResponseExtractor { it.saveInTempFile("biostudies-$groupName-$fileName") }
         val downloadUrl = "${groupFileUrl(groupName, relativePath)}?fileName=$fileName"
-        return template.execute(downloadUrl, HttpMethod.GET, requestCallback, responseExtractor)
+
+        return template.execute(downloadUrl, HttpMethod.GET, requestCallback, responseExtractor)!!
     }
 
     override fun listGroupFiles(groupName: String, relativePath: String): List<UserFile> {
-        return template.getForObject<Array<UserFile>>(groupFileUrl(groupName, relativePath)).orEmpty().toList()
+        return template.getForObject<Array<UserFile>>(groupFileUrl(groupName, relativePath)).toList()
     }
 
     override fun uploadGroupFiles(groupName: String, files: List<File>, relativePath: String) {

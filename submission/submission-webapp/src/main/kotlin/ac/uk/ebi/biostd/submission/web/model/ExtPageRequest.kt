@@ -4,6 +4,7 @@ class ExtPageRequest(
     val fromRTime: String? = null,
     val toRTime: String? = null,
     val released: Boolean? = null,
+    val collection: String? = null,
     val offset: Long,
     val limit: Int
 )

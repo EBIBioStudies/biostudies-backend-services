@@ -2,6 +2,7 @@ import Dependencies.Arrow
 import Dependencies.CommonsIO
 import Dependencies.CommonsLang3
 import Dependencies.Guava
+import Dependencies.KotlinLogging
 import Dependencies.KotlinReflect
 import Dependencies.KotlinStdLib
 import Dependencies.SpringWeb
@@ -15,9 +16,12 @@ import TestDependencies.XmlUnitAssertJ
 import TestDependencies.XmlUnitCore
 
 dependencies {
+    api(project(TsvLibrary))
+    api(project(ExcelLibrary))
     compileOnly(Guava)
     implementation(CommonsIO)
     implementation(Arrow)
+    implementation(KotlinLogging)
     implementation(KotlinStdLib)
     implementation(KotlinReflect)
     implementation(XlsxStreamer)

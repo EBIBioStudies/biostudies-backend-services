@@ -28,7 +28,7 @@ class RtClientTest {
     private val testBody = LinkedMultiValueMap<String, String>(
         mapOf(
             "content" to listOf(
-                "Queue: test-queue\nSubject: Test\nRequestor: test@mail.org\nCF-Accession: S-TEST1\nText: A notification"
+                "Queue: test-queue\nSubject: Test\nStatus: resolved\nRequestor: test@mail.org\nCF-Accession: S-TEST1\nText: A notification"
             )
         )
     )

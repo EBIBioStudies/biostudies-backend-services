@@ -4,8 +4,11 @@ import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.File
 
 class FileBuilder {
-    var path: String? = null
+    var path: String = ""
     var attributes: List<Attribute> = emptyList()
 
-    fun build(): File = File(requireNotNull(path) { "file path is required" }, attributes = attributes)
+    fun build(): File {
+        require(path.isNotBlank()) { "File Path is required" }
+        return File(path, attributes = attributes)
+    }
 }

@@ -57,6 +57,7 @@ class RtClient(
     private fun ticketContent(accNo: String, subject: String, owner: String, content: String) =
         StringBuilder("Queue: ${rtConfig.queue}\n")
             .append("Subject: $subject\n")
+            .append("Status: resolved\n")
             .append("Requestor: $owner\n")
             .append("CF-Accession: $accNo\n")
             .append("Text: ${trimContent(content)}")
