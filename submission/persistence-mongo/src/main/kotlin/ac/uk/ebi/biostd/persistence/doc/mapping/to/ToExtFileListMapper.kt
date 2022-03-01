@@ -18,18 +18,16 @@ class ToExtFileListMapper(
         subVersion: Int,
         includeFileListFiles: Boolean,
     ): ExtFileList {
-        val extFiles =
-            if (includeFileListFiles) fileListFiles(subAccNo, subVersion, docFileList.fileName) else emptyList()
+        val extFiles = if (includeFileListFiles) loadFiles(subAccNo, subVersion, docFileList.fileName) else emptyList()
         return ExtFileList(
-            docFileList.fileName,
-            extFiles,
+            filePath = docFileList.fileName,
+            files = extFiles,
             pageTabFiles = docFileList.pageTabFiles.map { it.toExtFile() }
         )
     }
 
-    private fun fileListFiles(subAccNo: String, subVersion: Int, fileListName: String): List<ExtFile> {
-        return fileListDocFileRepository
+    private fun loadFiles(subAccNo: String, subVersion: Int, fileListName: String): List<ExtFile> =
+        fileListDocFileRepository
             .findAllBySubmissionAccNoAndSubmissionVersionAndFileListName(subAccNo, subVersion, fileListName)
             .map { it.file.toExtFile() }
-    }
 }

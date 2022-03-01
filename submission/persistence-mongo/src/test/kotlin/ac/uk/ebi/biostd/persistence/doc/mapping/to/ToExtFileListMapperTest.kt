@@ -15,6 +15,7 @@ import ebi.ac.uk.util.collections.second
 import ebi.ac.uk.util.collections.third
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
+import io.mockk.called
 import io.mockk.every
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
@@ -43,7 +44,7 @@ class ToExtFileListMapperTest(private val temporaryFolder: TemporaryFolder) {
         id = ObjectId(),
         submissionId = ObjectId(),
         file = fireDocFile,
-        fileListName = "file-list.tsv",
+        fileListName = "file-list",
         index = 0,
         submissionVersion = 1,
         submissionAccNo = "S-TEST123"
@@ -55,7 +56,7 @@ class ToExtFileListMapperTest(private val temporaryFolder: TemporaryFolder) {
             fileListDocFileRepository.findAllBySubmissionAccNoAndSubmissionVersionAndFileListName(
                 "S-TEST123",
                 1,
-                "file-list.tsv"
+                "file-list"
             )
         } returns listOf(fileListDocFile)
         val fileList = docFileList.copy(pageTabFiles = listOf(fireDocFile, fireDocDirectory, nfsDocFile))
@@ -77,9 +78,7 @@ class ToExtFileListMapperTest(private val temporaryFolder: TemporaryFolder) {
         assertThat(extFileList.filePath).isEqualTo(TEST_FILE_LIST)
         assertThat(extFileList.files).hasSize(0)
         assertPageTabs(extFileList.pageTabFiles)
-        verify(exactly = 0) {
-            fileListDocFileRepository.findAllBySubmissionAccNoAndSubmissionVersionAndFileListName(any(), any(), any())
-        }
+        verify { fileListDocFileRepository wasNot called }
     }
 
     private fun assertPageTabs(pageTabFiles: List<ExtFile>) {

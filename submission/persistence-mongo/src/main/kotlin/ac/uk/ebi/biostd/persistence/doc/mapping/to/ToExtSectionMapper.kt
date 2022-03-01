@@ -6,22 +6,27 @@ import arrow.core.Either
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSectionTable
 
-class ToExtSectionMapper(private val toExtFileListMapper: ToExtFileListMapper) {
+class ToExtSectionMapper(private val fileListMapper: ToExtFileListMapper) {
     fun toExtSection(
-        docSection: DocSection,
+        section: DocSection,
         subAccNo: String,
         subVersion: Int,
         includeFileListFiles: Boolean,
     ): ExtSection = ExtSection(
-        accNo = docSection.accNo,
-        type = docSection.type,
-        fileList = docSection.fileList?.let {
-            toExtFileListMapper.toExtFileList(it, subAccNo, subVersion, includeFileListFiles)
+        accNo = section.accNo,
+        type = section.type,
+        fileList = section.fileList?.let {
+            fileListMapper.toExtFileList(
+                it,
+                subAccNo,
+                subVersion,
+                includeFileListFiles
+            )
         },
-        attributes = docSection.attributes.toExtAttributes(),
-        sections = docSection.sections.map { it.toExtSections(subAccNo, subVersion, includeFileListFiles) },
-        files = docSection.files.map { it.toExtFiles() },
-        links = docSection.links.map { it.toExtLinks() }
+        attributes = section.attributes.toExtAttributes(),
+        sections = section.sections.map { it.toExtSections(subAccNo, subVersion, includeFileListFiles) },
+        files = section.files.map { it.toExtFiles() },
+        links = section.links.map { it.toExtLinks() }
     )
 
     private fun Either<DocSection, DocSectionTable>.toExtSections(

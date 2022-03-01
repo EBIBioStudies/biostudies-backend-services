@@ -77,12 +77,11 @@ class MongoDbConfig(
     @Bean
     override fun customConversions(): MongoCustomConversions {
         val converters = mutableListOf<Converter<*, *>>()
-
         converters.add(docSubmissionConverter())
         converters.add(submissionConverter())
+        converters.add(FileConverter(AttributeConverter()))
         converters.add(FileListDocFileConverter(FileConverter(AttributeConverter())))
         converters.add(DocFileListDocFileConverter(DocFileConverter(DocAttributeConverter())))
-
         return MongoCustomConversions(converters)
     }
 

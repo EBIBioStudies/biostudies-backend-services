@@ -58,10 +58,6 @@ interface SubmissionDraftRepository : MongoRepository<DocSubmissionDraft, String
 }
 
 interface FileListDocFileRepository : MongoRepository<FileListDocFile, ObjectId> {
-    fun getById(id: ObjectId): FileListDocFile
-
-    fun findAllBySubmissionId(submissionId: ObjectId): List<FileListDocFile>
-
     fun findAllBySubmissionAccNoAndSubmissionVersionGreaterThanAndFileListName(
         accNo: String,
         version: Int,
